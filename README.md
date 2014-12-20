@@ -37,5 +37,5 @@ We encourage you to contribute to COSMOS!
 
 ## License
 
-Ball Aerospace COSMOS is released under the GPLv3.0 with a few addendums.   See LICENSE.txt
+Ball Aerospace COSMOS is released under the GPLv3.0 with a few addendums.   See [LICENSE.txt](LICENSE.txt)
 
