@@ -1,0 +1,87 @@
+# encoding: ascii-8bit
+
+# Copyright © 2014 Ball Aerospace & Technologies Corp.
+# All Rights Reserved.
+#
+# This program is free software; you can modify and/or redistribute it
+# under the terms of the GNU General Public License
+# as published by the Free Software Foundation; version 3 with
+# attribution addendums as found in the LICENSE.txt
+
+require 'cosmos'
+Cosmos.catch_fatal_exception do
+  require 'cosmos/tools/tlm_grapher/tabbed_plots_tool/tabbed_plots_tool'
+  require 'cosmos/tools/tlm_grapher/data_objects/housekeeping_data_object'
+end
+
+module Cosmos
+
+  # TlmGrapher class
+  #
+  # This class implements the TlmGrapher Application.  This application displays multiple line graphs
+  # that perform various analysis on housekeeping telemetry.
+  #
+  class TlmGrapher < TabbedPlotsTool
+
+    # Runs the application
+    def self.run (opts = nil, options = nil)
+      Cosmos.catch_fatal_exception do
+        unless options
+          opts, options = create_default_options()
+          options.auto_size = false
+          options.width = 1000
+          options.height = 800
+          options.title = "Telemetry Grapher"
+          options.config_dir = 'tlm_grapher'
+          options.config_file = 'tlm_grapher.txt'
+          options.tool_short_name = 'tlmgrapher'
+          options.tabbed_plots_type = 'overview'
+          options.data_object_types = ['HOUSEKEEPING', 'XY','SINGLEXY']
+          options.plot_types = ['LINEGRAPH', 'XY','SINGLEXY']
+          options.plot_type_to_data_object_type_mapping = {'LINEGRAPH' => ['HOUSEKEEPING'], 'XY' => ['XY'], 'SINGLEXY' => ['SINGLEXY']}
+          options.adder_types = ['HOUSEKEEPING']
+          options.adder_orientation = Qt::Horizontal
+          options.items = []
+          options.start = false
+          options.about_string = "TlmGrapher provides realtime and log file graphing abilities to the COSMOS system."
+
+          opts.separator "Telemetry Grapher Specific Options:"
+          opts.on("-c", "--config FILE", "Use the specified configuration file") do |arg|
+            options.config_file = arg
+          end
+          opts.on("-s", "--start", "Start graphing immediately") do |arg|
+            options.start = true
+          end
+          opts.on("-i", "--item 'TARGET_NAME PACKET_NAME ITEM_NAME'", "Start graphing the specified item (ignores config file)") do |arg|
+            split = arg.split
+            if split.length != 3
+              puts "Items must be specified as 'TARGET_NAME PACKET_NAME ITEM_NAME' in quotes"
+              exit
+            end
+            options.items << split
+          end
+        end
+
+        super(opts, options)
+      end
+    end
+
+    def closeEvent(event)
+      super(event)
+    end
+
+    # Handles items being passed in as command line arguments
+    def handle_items
+      plot_index = 0
+      @items.each do |target_name, packet_name, item_name|
+        # Default configuration has one plot so don't add plot for first item
+        data_object = HousekeepingDataObject.new
+        data_object.set_item(target_name, packet_name, item_name)
+        @tabbed_plots_config.add_data_object(0, 0, data_object)
+        plot_index += 1
+      end
+    end
+
+  end # class TlmGrapher
+
+end # module Cosmos

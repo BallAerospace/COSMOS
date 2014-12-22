@@ -1,0 +1,4 @@
+AUTO_START
+
+# COMPONENT "ADCS" data_viewer_component.rb
+#   PACKET INST ADCS

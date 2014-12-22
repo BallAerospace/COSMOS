@@ -1,0 +1,178 @@
+# encoding: ascii-8bit
+
+# Copyright © 2014 Ball Aerospace & Technologies Corp.
+# All Rights Reserved.
+#
+# This program is free software; you can modify and/or redistribute it
+# under the terms of the GNU General Public License
+# as published by the Free Software Foundation; version 3 with
+# attribution addendums as found in the LICENSE.txt
+
+require 'cosmos/config/config_parser'
+
+module Cosmos
+
+  # Target encapsulates the information about a COSMOS target. Targets are
+  # accessed through interfaces and have command and telemetry definition files
+  # which define their access.
+  class Target
+    # @return [String] Name of the target. This can be overridden when
+    #   the system processes the target.
+    attr_reader :name
+
+    # @return [String] Name of the target as defined by the
+    #   target directory name. This name does not change.
+    attr_reader :original_name
+
+    # @return [Boolean] Indicates if substitution should take place or not
+    attr_reader :substitute
+
+    # @return [Array<String>] List of filenames that must be required by Ruby
+    #   before parsing the command and telemetry definitions for this target
+    attr_reader :requires
+
+    # @return [Array<String>] List of parameters that should be ignored. Tools
+    #   which access this target should not display or manipulate these
+    #   parameters.
+    attr_reader :ignored_parameters
+
+    # @return [Array<String>] List of items that should be ignored. Tools
+    #   which access this target should not display or manipulate these
+    #   items.
+    attr_reader :ignored_items
+
+    # @return [Boolean] Whether auto screen substitution is enabled
+    attr_reader :auto_screen_substitute
+
+    # @return [Array<String>] List of configuration files which define the
+    #   commands and telemetry for this target
+    attr_reader :cmd_tlm_files
+
+    # @return [String] Target filename for this target
+    attr_reader :filename
+
+    # @return [String] The directory which contains this target. The directory
+    #   is by default <USERPATH>/config/targets/<original_name>. Once a target
+    #   has been processed it is copied to a saved configuration location and
+    #   the dir will be updated to return this location.
+    attr_reader :dir
+
+    # @return [Interface] The interface used to access the target
+    attr_accessor :interface
+
+    # @return [Integer] The number of command packets send to this target
+    attr_accessor :cmd_cnt
+
+    # @return [Integer] The number of telemetry packets received from this target
+    attr_accessor :tlm_cnt
+
+    # Creates a new target by processing the target.txt file in the directory
+    # given by the path joined with the target_name. Records all the command
+    # and telemetry definition files found in the targets cmd_tlm directory.
+    # System uses this list and processes them using PacketConfig.
+    #
+    # @param target_name [String] The name of the target. This must match the
+    #   directory name which contains the target.
+    # @param substitute_name [String] The name COSMOS should use when refering
+    #   to the target. All accesses will ignore the original target_name.
+    # @param path [String] Path to the target directory. Passing nil sets the
+    #   path to the default of <USERPATH>/config/targets.
+    # @param target_filename [String] Configuration file for the target. Normally
+    #   target.txt
+    def initialize(target_name, substitute_name = nil, path = nil, target_filename = nil)
+      path = File.join(USERPATH,'config','targets') unless path
+      @original_name = target_name.clone.upcase.freeze
+      if substitute_name
+        @substitute = true
+        @name = substitute_name.clone.upcase.freeze
+      else
+        @substitute = false
+        @name = @original_name
+      end
+      @requires = []
+      @ignored_parameters = []
+      @ignored_items = []
+      @auto_screen_substitute = false
+
+      @dir = File.join(path, @original_name)
+      lib_dir = File.join(@dir, 'lib')
+      Cosmos.add_to_search_path(lib_dir, false) if File.exist?(lib_dir)
+
+      @cmd_tlm_files = []
+      @filename = File.join(@dir, target_filename || 'target.txt')
+      if File.exist?(@filename)
+        process_file(@filename)
+      else
+        raise "Target file #{target_filename} for target #{@name} does not exist" if target_filename
+      end
+
+      if @cmd_tlm_files.empty?
+        if Dir.exist?(File.join(@dir, 'cmd_tlm'))
+          Dir.foreach(File.join(@dir, 'cmd_tlm')) do |dir_filename|
+            if dir_filename[0] != '.'
+              @cmd_tlm_files << File.join(@dir, 'cmd_tlm', dir_filename)
+            end
+          end
+        end
+        @cmd_tlm_files.sort!
+      end
+
+      @interface = nil
+      @routers = []
+      @cmd_cnt = 0
+      @tlm_cnt = 0
+    end
+
+    # Parses the target configuration file
+    #
+    # @param filename [String] The target configuration file to parse
+    def process_file(filename)
+      Logger.instance.info "Processing target definition in file '#{filename}'"
+      parser = ConfigParser.new
+      parser.parse_file(filename) do |keyword, parameters|
+        case keyword
+        when 'REQUIRE'
+          usage = "#{keyword} <FILENAME>"
+          parser.verify_num_parameters(1, 1, usage)
+          begin
+            require parameters[0]
+          rescue LoadError => err
+            msg = "Unable to require #{parameters[0]} due to #{err.message}. " +
+              "Ensure #{parameters[0]} is in the COSMOS lib directory."
+            Logger.instance.error msg
+            raise parser.error(msg)
+          end
+          @requires << parameters[0]
+
+        when 'IGNORE_PARAMETER'
+          usage = "#{keyword} <PARAMETER NAME>"
+          parser.verify_num_parameters(1, 1, usage)
+          @ignored_parameters << parameters[0].upcase
+
+        when 'IGNORE_ITEM'
+          usage = "#{keyword} <ITEM NAME>"
+          parser.verify_num_parameters(1, 1, usage)
+          @ignored_items << parameters[0].upcase
+
+        when 'COMMANDS', 'TELEMETRY'
+          usage = "#{keyword} <FILENAME>"
+          parser.verify_num_parameters(1, 1, usage)
+          filename = File.join(@dir, 'cmd_tlm', parameters[0])
+          raise parser.error("#{filename} not found") unless File.exist?(filename)
+          @cmd_tlm_files << filename
+
+        when 'AUTO_SCREEN_SUBSTITUTE'
+          usage = "#{keyword}"
+          parser.verify_num_parameters(0, 0, usage)
+          @auto_screen_substitute = true
+
+        else
+          # blank lines will have a nil keyword and should not raise an exception
+          raise parser.error("Unknown keyword '#{keyword}'") if keyword
+        end # case keyword
+      end
+    end
+
+  end # class Target
+
+end # module Cosmos

@@ -1,0 +1,8 @@
+TABLE "PPS Selection" "Payload Clock Control Pulse Per Second Selection Table" ONE_DIMENSIONAL BIG_ENDIAN 10
+  PARAMETER "Primary PPS" "Primary PPS" UINT 8     STATE 0 1 1 
+    STATE DISABLE 0 
+    STATE ENABLE 1 
+  PARAMETER "Redundant PPS" "Redundant PPS" UINT 8     STATE 0 1 0 
+    STATE DISABLE 0 
+    STATE ENABLE 1 
+

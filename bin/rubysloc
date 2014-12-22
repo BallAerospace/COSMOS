@@ -1,0 +1,85 @@
+#!/usr/bin/env ruby
+# encoding: ascii-8bit
+
+# Copyright © 2014 Ball Aerospace & Technologies Corp.
+# All Rights Reserved.
+#
+# This program is free software; you can modify and/or redistribute it
+# under the terms of the GNU General Public License
+# as published by the Free Software Foundation; version 3 with
+# attribution addendums as found in the LICENSE.txt
+
+# This file provides a simple ruby sloc counter.
+# Blank lines and comment lines are ignored.  All other
+# lines count as one line.
+
+files = []
+if ARGV.length == 0
+  require 'find'
+
+  #Find all .rb and .rbw files from the current directory
+  Find.find('.') do |path|
+    Find.prune if FileTest.directory?(path) and File.basename(path) == 'pkg'
+    extension = File.extname(path)
+    files << path if extension.to_s =~ /\.rb/i
+  end
+else
+  if ARGV[0] == '--infile' or ARGV[0] == '-i'
+    File.open(ARGV[1], 'r') {|file| file.each_line {|line| files << line.chomp.strip}}
+  else
+    files = ARGV
+  end
+end
+
+# Build results over all found ruby files
+results = []
+files.each do |full_filename|
+  filename = File.basename(full_filename)
+  File.open(full_filename, 'r') do |file|
+    lines    = 0
+    slocs    = 0
+    comments = 0
+    file.each_line do |line|
+      lines += 1
+      split_line = line.split
+      if split_line[0].nil?
+        #Blank Line - Do Nothing
+        #puts "NOT COUNTED - #{line.chomp}"
+      elsif split_line[0].to_s[0..0] == '#'
+        #Comment Line
+        #puts "COMMENT LINE - #{line.chomp}"
+        comments += 1
+      else
+        #puts "COUNTED - #{line.chomp}"
+        slocs += 1
+      end
+    end
+    results << [filename, lines, comments, slocs, comments.to_f / slocs.to_f]
+  end
+end
+
+# Print results to STDOUT
+total_files    = 0
+total_lines    = 0
+total_comments = 0
+total_slocs    = 0
+total_ratio    = 0
+
+puts "|-----------------------------------|----------|----------|----------|--------|"
+puts "| Filename                          |  Lines   | Comments |  SLOCs   |  Ratio |"
+puts "|-----------------------------------|----------|----------|----------|--------|"
+results.each do |filename, lines, comments, slocs, ratio|
+  filename = filename[0..32] if filename.length > 33
+  puts sprintf("| %-33s | %8d | %8d | %8d | %6.2f |",
+               filename, lines, comments, slocs, ratio)
+  total_files    += 1
+  total_lines    += lines
+  total_comments += comments
+  total_slocs    += slocs
+end
+total_ratio = total_comments.to_f / total_slocs.to_f if total_slocs != 0
+puts "|-----------------------------------|----------|----------|----------|--------|"
+puts sprintf("| Totals - %3d Files                | %8d | %8d | %8d | %6.2f |",
+             total_files, total_lines, total_comments, total_slocs, total_ratio)
+
+puts "|-----------------------------------|----------|----------|----------|--------|"

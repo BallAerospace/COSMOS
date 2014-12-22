@@ -1,0 +1,3 @@
+TELEMETRY EXAMPLE STATUS BIG_ENDIAN "Health and status from the instrument"
+  APPEND_ID_ITEM PACKET_ID 8 UINT 1 "Packet id"
+  APPEND_ITEM STRING 0 STRING "Time string"

@@ -1,0 +1,149 @@
+# encoding: ascii-8bit
+
+# Copyright © 2014 Ball Aerospace & Technologies Corp.
+# All Rights Reserved.
+#
+# This program is free software; you can modify and/or redistribute it
+# under the terms of the GNU General Public License
+# as published by the Free Software Foundation; version 3 with
+# attribution addendums as found in the LICENSE.txt
+
+# This file contains the implementation of the TlmRawDialog class.   This class
+# is used to view a raw telemetry packet.
+
+require 'cosmos'
+require 'cosmos/gui/qt'
+
+module Cosmos
+
+  class RawDialog < Qt::Dialog
+    slots 'packet_update_timeout()'
+
+    CMD_TYPE = 'cmd'
+    TLM_TYPE = 'tlm'
+    PACKET_UPDATE_PERIOD_MS = 1000
+    HEADER1 = "Address   Data                                             Ascii\n"
+    HEADER2 = "---------------------------------------------------------------------------\n"
+    HEADER  = HEADER1 + HEADER2
+
+    @@font = nil
+
+    def initialize(parent, type, target_name, packet_name)
+      super(parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint)
+      raise "RawDialog: Undefined type:#{type}" if type != CMD_TYPE and type != TLM_TYPE
+
+      @type = type
+      @done = false
+      @target_name = target_name
+      @packet_name = packet_name
+
+      begin
+        if @type == CMD_TYPE
+          title = "Raw Command Packet: #{target_name} #{packet_name}"
+        else
+          title = "Raw Telemetry Packet: #{target_name} #{packet_name}"
+        end
+        setWindowTitle(title)
+
+        @timer = Qt::Timer.new
+
+        overall_layout = Qt::VBoxLayout.new
+        top_layout = Qt::HBoxLayout.new
+        text_layout = Qt::VBoxLayout.new
+
+        title_label = Qt::Label.new(tr(title))
+        text_layout.addWidget(title_label)
+        @packet_time = Qt::Label.new("Packet Received Time: ")
+        text_layout.addWidget(@packet_time)
+        top_layout.addLayout(text_layout)
+        top_layout.addStretch(1)
+
+        button = Qt::PushButton.new(tr("Pause"))
+        top_layout.addWidget(button)
+        button.connect(SIGNAL('clicked()')) do
+          if button.text == "Pause"
+            button.setText("Resume")
+            @timer.method_missing(:stop)
+          else
+            button.setText("Pause")
+            @timer.method_missing(:start, PACKET_UPDATE_PERIOD_MS)
+          end
+        end
+        overall_layout.addLayout(top_layout)
+
+        @packet_data = Qt::PlainTextEdit.new
+        @packet_data.setReadOnly(true)
+        @packet_data.setWordWrapMode(Qt::TextOption::NoWrap)
+        overall_layout.addWidget(@packet_data)
+        if Kernel.is_windows?
+          @@font = Cosmos.getFont('Courier', 10) unless @@font
+        else
+          @@font = Cosmos.getFont('Courier', 14) unless @@font
+        end
+        @format = @packet_data.currentCharFormat()
+        @format.setFont(@@font)
+        @packet_data.setCurrentCharFormat(@format)
+
+        connect(@timer, SIGNAL('timeout()'), self, SLOT('packet_update_timeout()'))
+        @timer.method_missing(:start, PACKET_UPDATE_PERIOD_MS)
+        packet_update_timeout()
+
+        self.setLayout(overall_layout)
+        self.resize(700, 280)
+        self.show
+        self.raise
+      rescue DRb::DRbConnError
+        # Just do nothing
+      end
+    end
+
+    def packet_update_timeout
+      if (@type == CMD_TYPE)
+        packet = System.commands.packet(@target_name, @packet_name)
+      else
+        packet = System.telemetry.packet(@target_name, @packet_name)
+      end
+      packet_data = packet.buffer
+      packet_time = packet.received_time
+      @packet_time.setText("Received Time: #{packet_time.formatted}") if packet_time
+      position_x = @packet_data.horizontalScrollBar.value
+      position_y = @packet_data.verticalScrollBar.value
+      @packet_data.setPlainText(HEADER + packet_data.formatted)
+      @packet_data.horizontalScrollBar.setValue(position_x)
+      @packet_data.verticalScrollBar.setValue(position_y)
+    end
+
+    def reject
+      super()
+      if @timer
+        @timer.stop
+        @timer.dispose
+        @timer = nil
+      end
+      self.dispose
+    end
+
+    def closeEvent(event)
+      super(event)
+      if @timer
+        @timer.stop
+        @timer.dispose
+        @timer = nil
+      end
+      self.dispose
+    end
+  end # class RawDialog
+
+  class CmdRawDialog < RawDialog
+    def initialize(parent, target_name, packet_name)
+      super(parent, RawDialog::CMD_TYPE, target_name, packet_name)
+    end
+  end
+
+  class TlmRawDialog < RawDialog
+    def initialize(parent, target_name, packet_name)
+      super(parent, RawDialog::TLM_TYPE, target_name, packet_name)
+    end
+  end
+
+end # module Cosmos

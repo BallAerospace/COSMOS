@@ -1,0 +1,1 @@
+DO NOT DELETE THIS FILE!  It is used by cosmos.rb to build the ::Cosmos::USERPATH directory.

@@ -1,0 +1,18 @@
+# encoding: ascii-8bit
+
+require 'cosmos/core_ext/array'
+require 'cosmos/core_ext/class'
+require 'cosmos/core_ext/cosmos_io'
+require 'cosmos/core_ext/exception'
+require 'cosmos/core_ext/file'
+require 'cosmos/core_ext/hash'
+require 'cosmos/core_ext/io'
+require 'cosmos/core_ext/kernel'
+require 'cosmos/core_ext/math'
+require 'cosmos/core_ext/matrix'
+require 'cosmos/core_ext/range'
+require 'cosmos/core_ext/socket'
+require 'cosmos/core_ext/string'
+require 'cosmos/core_ext/stringio'
+require 'cosmos/core_ext/time'
+require 'cosmos/core_ext/objectspace'

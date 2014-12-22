@@ -1,0 +1,27 @@
+These are the directions for building drmingw for use within
+COSMOS to catch segfaults and provide useful Ruby debugging
+information on Windows
+
+Required:
+1. Ruby Installed and in your path
+2. Ruby Devkit installed but not yet in your path
+
+Steps:
+1. Download and extract drmingw-0.6.4.zip from:
+    https://github.com/jrfonseca/drmingw/releases
+2. Copy the patched CMakeLists.txt and exchndl.c files into drmingw-0.6.4/src
+3. Add devkit to your path by running:
+    C:\Devkit\devkitvars.bat
+4. In the drmingw-0.6.4 base directory run from a cmd prompt:
+    cmake -G "MinGW Makefiles"
+5. The above step will fail due to sh being in your path
+6. Close and reopen the command prompt
+7. In the drmingw-0.6.4 base directory run from a cmd prompt:
+    cmake -G "MinGW Makefiles"
+8. Add devkit to your path by running:
+    C:\Devkit\devkitvars.bat
+9. Compile:
+    mingw32-make
+10. Copy src/exchndl.dll and src/mgwhelp.dll to cosmos bin folder
+11. Rename exchndl.dll to exchndl20.dll or exchandl21.dll based on the version of ruby used to compile
+12. Repeat with the other version of Ruby if necessary

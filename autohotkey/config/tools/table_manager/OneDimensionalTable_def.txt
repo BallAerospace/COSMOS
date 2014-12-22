@@ -1,0 +1,19 @@
+TABLE "One Dimensional Table" "One Dimensional Table" ONE_DIMENSIONAL BIG_ENDIAN 9
+  PARAMETER "Negative Dec" "Negative Dec" INT 32 DEC -1000 1000 -10
+  PARAMETER "Editable Dec" "Editable Dec" UINT 32 DEC 0 65535 10
+  PARAMETER "Uneditable Dec" "Uneditable Dec" UINT 32 DEC-U 0 65535 100
+  PARAMETER "8 Editable Hex" "8 Editable Hex" UINT 8 HEX 0 0xFF 0xAB
+  PARAMETER "16 Editable Hex" "16 Editable Hex" UINT 16 HEX 0 0x1234 0x1234
+  PARAMETER "32 Editable Hex" "32 Editable Hex" UINT 32 HEX 0 0x03FFFFB 0x0300000
+  PARAMETER "Uneditable Hex" "Uneditable Hex" UINT 32 HEX-U 0 0x03FFFFF 0x03FFFFF
+  PARAMETER "Editable Float" "Editable Float" FLOAT 32 DEC 0 1000.0 50.0
+  PARAMETER "Uneditable FLoat" "Uneditable Float" FLOAT 32 DEC-U 0 1000.0 50.0
+  PARAMETER "Editable Combobox" "Editable Combobox" UINT 8 STATE 0 1 1
+    STATE DISABLE 0
+    STATE ENABLE 1
+  PARAMETER "Uneditable Combobox" "Uneditable Combobox" UINT 8 STATE-U 0 1 1
+    STATE DISABLE 0
+    STATE ENABLE 1
+  PARAMETER "Editable Checkbox" "Editable Checkbox" UINT 8 CHECK 0 1 1
+  PARAMETER "Uneditable Checkbox" "Uneditable Checkbox" UINT 8 CHECK-U 0 1 1
+

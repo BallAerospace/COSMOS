@@ -1,0 +1,96 @@
+#!/usr/bin/env ruby
+# encoding: ascii-8bit
+
+# Copyright © 2014 Ball Aerospace & Technologies Corp.
+# All Rights Reserved.
+#
+# This program is free software; you can modify and/or redistribute it
+# under the terms of the GNU General Public License
+# as published by the Free Software Foundation; version 3 with
+# attribution addendums as found in the LICENSE.txt
+
+# This file will handle COSMOS tasks such as instantiating a new project
+
+require 'cosmos'
+require 'fileutils'
+require 'find'
+
+# Prints the usage text for the cosmos executable
+def print_usage
+  puts "Usage:"
+  puts "  cosmos help                   # Displays this information"
+  puts "  cosmos install directory_name # Creates a barebones COSMOS user directory"
+  puts "  cosmos demo directory_name    # Creates a demo COSMOS user directory"
+  puts "  cosmos docs                   # Launches the documentation server"
+  puts ""
+  puts "Other Tools included with COSMOS:"
+  puts "  rubysloc                      # Counts Ruby SLOC recursively"
+  puts "  cstol_converter               # Converts all *.prc files recursively to COSMOS"
+  puts ""
+end
+
+def install(install_type, install_folder)
+  dir_name = ARGV[1]
+  unless dir_name.nil?
+    puts "Attempting COSMOS #{install_type} Installation to: #{dir_name}"
+
+    #Determine if directory exists
+    unless File.directory?(dir_name)
+      #Create Directory
+      FileUtils.makedirs(dir_name, {:verbose => true})
+
+      #Copy files from gem install directory into new project
+      FileUtils.cp_r(File.join(::Cosmos::PATH, install_folder, '.'), dir_name, {:verbose => true})
+
+      puts "Complete"
+    else
+      puts "ERROR: Directory #{dir_name} already exists... aborting"
+    end
+  else
+    puts "ERROR: Directory must be given to install to"
+  end
+end
+
+if not ARGV[0].nil? # argument(s) given
+
+  # Handle each task
+  case ARGV[0].downcase
+  when 'docs'
+    thread = Thread.new do
+      system('yard server --gems')
+    end
+    sleep 3
+    Cosmos.open_in_web_browser('http://localhost:8808/docs/cosmos/frames')
+    thread.join
+
+  when 'install'
+    ####################################
+    # Create a COSMOS barebones user directory
+    ####################################
+    install('', 'install')
+
+  when 'demo'
+    ####################################
+    # Create a COSMOS demo user directory
+    ####################################
+    install('Demo', 'demo')
+
+  when 'help'
+    ####################################
+    # Print Usage
+    ####################################
+
+    print_usage()
+
+  else # Unknown task
+    ####################################
+    # Unknown task
+    ####################################
+
+    puts "Unknown task: #{ARGV[0]}\n"
+    print_usage()
+  end
+
+else # No arguments given
+  print_usage()
+end

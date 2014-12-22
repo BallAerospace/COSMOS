@@ -1,0 +1,66 @@
+# encoding: ascii-8bit
+
+# Copyright © 2014 Ball Aerospace & Technologies Corp.
+# All Rights Reserved.
+#
+# This program is free software; you can modify and/or redistribute it
+# under the terms of the GNU General Public License
+# as published by the Free Software Foundation; version 3 with
+# attribution addendums as found in the LICENSE.txt
+
+require 'cosmos'
+require 'cosmos/tools/cmd_tlm_server/interface_thread'
+require 'cosmos/interfaces/tcpip_client_interface'
+
+module Cosmos
+
+  # Thread used to gather telemetry in realtime and process it using a TabbedPlotsDefinition
+  class TabbedPlotsRealtimeThread < InterfaceThread
+
+    # Create a new TabbedPlotsRealtimeThread
+    def initialize(tabbed_plots_config, connection_success_callback = nil, connection_failed_callback = nil, connection_lost_callback = nil, fatal_exception_callback = nil)
+      interface = TcpipClientInterface.new('localhost', nil, System.ports['CTS_PREIDENTIFIED'], nil, 10.0, 'PREIDENTIFIED')
+      super(interface)
+
+      @queue = Queue.new
+      @tabbed_plots_config = tabbed_plots_config
+
+      # Connect callbacks
+      self.identified_packet_callback = method(:received_packet_callback)
+      self.connection_success_callback = connection_success_callback
+      self.connection_failed_callback = connection_failed_callback
+      self.connection_lost_callback = connection_lost_callback
+      self.fatal_exception_callback = fatal_exception_callback
+
+      @process_thread = Thread.new do
+        begin
+          loop do
+            packet = @queue.pop
+            @tabbed_plots_config.process_packet(packet)
+          end
+        rescue Exception => error
+          if self.fatal_exception_callback
+            self.fatal_exception_callback.call(error)
+          end
+        end
+      end
+
+      # Start interface thread
+      start()
+    end # def initialize
+
+    # Callback to the system definition when a packet is received
+    def received_packet_callback(packet)
+      @queue << packet.clone
+    end
+
+    # Kills the realtime thread
+    def kill
+      stop()
+      @process_thread.kill if @process_thread
+      @process_thread = nil
+    end # def kill
+
+  end # class TabbedPlotsRealtimeThread
+
+end # module Cosmos

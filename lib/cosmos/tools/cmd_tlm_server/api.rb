@@ -1,0 +1,940 @@
+# encoding: ascii-8bit
+
+# Copyright © 2014 Ball Aerospace & Technologies Corp.
+# All Rights Reserved.
+#
+# This program is free software; you can modify and/or redistribute it
+# under the terms of the GNU General Public License
+# as published by the Free Software Foundation; version 3 with
+# attribution addendums as found in the LICENSE.txt
+
+require 'cosmos/script/extract'
+
+module Cosmos
+
+  module Api
+    include Extract
+
+    # Sets api_requests to 0 and initializes the whitelist of allowable API
+    # method calls
+    def initialize
+      @api_whitelist = [
+        'cmd',
+        'cmd_no_range_check',
+        'cmd_no_hazardous_check',
+        'cmd_no_checks',
+        'cmd_raw',
+        'cmd_raw_no_range_check',
+        'cmd_raw_no_hazardous_check',
+        'cmd_raw_no_checks',
+        'send_raw',
+        'get_cmd_list',
+        'get_cmd_param_list',
+        'get_cmd_hazardous',
+        'tlm',
+        'tlm_raw',
+        'tlm_formatted',
+        'tlm_with_units',
+        'tlm_variable',
+        'set_tlm',
+        'set_tlm_raw',
+        'get_tlm_packet',
+        'get_tlm_values',
+        'get_tlm_list',
+        'get_tlm_item_list',
+        'get_tlm_details',
+        'get_out_of_limits',
+        'get_overall_limits_state',
+        'limits_enabled?',
+        'enable_limits',
+        'disable_limits',
+        'get_limits',
+        'set_limits',
+        'get_limits_groups',
+        'enable_limits_group',
+        'disable_limits_group',
+        'get_limits_sets',
+        'set_limits_set',
+        'get_limits_set',
+        'get_target_list',
+        'subscribe_limits_events',
+        'unsubscribe_limits_events',
+        'get_limits_event',
+        'subscribe_packet_data',
+        'unsubscribe_packet_data',
+        'get_packet_data',
+        'get_interface_names',
+        'connect_interface',
+        'disconnect_interface',
+        'interface_state',
+        'map_target_to_interface',
+        'get_router_names',
+        'connect_router',
+        'disconnect_router',
+        'router_state',
+        'get_cmd_log_filename',
+        'get_tlm_log_filename',
+        'start_logging',
+        'stop_logging',
+        'start_cmd_log',
+        'start_tlm_log',
+        'stop_cmd_log',
+        'stop_tlm_log',
+        'start_raw_logging_interface',
+        'stop_raw_logging_interface',
+        'start_raw_logging_router',
+        'stop_raw_logging_router',
+        'get_server_message_log_filename',
+        'start_new_server_message_log']
+    end
+
+    ############################################################################
+    # Methods Used by cosmos/script
+    ############################################################################
+
+    # Send a command packet to a target.
+    #
+    # Accepts two different calling styles:
+    #   cmd("TGT CMD with PARAM1 val, PARAM2 val")
+    #   cmd('TGT','CMD','PARAM1'=>val,'PARAM2'=>val)
+    #
+    # Favor the first syntax where possible as it is more succinct.
+    #
+    # @param args [String|Array<String>] See the description for calling style
+    # @return [Array<String, String, Hash>] target_name, command_name, parameters
+    def cmd(*args)
+      cmd_implementation(true, true, false, 'cmd', *args)
+    end
+
+    # Send a command packet to a target without performing any value range
+    # checks on the parameters. Useful for testing to allow sending command
+    # parameters outside the allowable range as defined in the configuration.
+    #
+    # Accepts two different calling styles:
+    #   cmd_no_range_check("TGT CMD with PARAM1 val, PARAM2 val")
+    #   cmd_no_range_check('TGT','CMD','PARAM1'=>val,'PARAM2'=>val)
+    #
+    # Favor the first syntax where possible as it is more succinct.
+    #
+    # @param (see #cmd)
+    # @return (see #cmd)
+    def cmd_no_range_check(*args)
+      cmd_implementation(false, true, false, 'cmd_no_range_check', *args)
+    end
+
+    # Send a command packet to a target without performing any hazardous checks
+    # both on the command itself and its parameters. Useful in scripts to
+    # prevent popping up warnings to the user.
+    #
+    # Accepts two different calling styles:
+    #   cmd_no_hazardous_check("TGT CMD with PARAM1 val, PARAM2 val")
+    #   cmd_no_hazardous_check('TGT','CMD','PARAM1'=>val,'PARAM2'=>val)
+    #
+    # Favor the first syntax where possible as it is more succinct.
+    #
+    # @param (see #cmd)
+    # @return (see #cmd)
+    def cmd_no_hazardous_check(*args)
+      cmd_implementation(true, false, false, 'cmd_no_hazardous_check', *args)
+    end
+
+    # Send a command packet to a target without performing any value range
+    # checks or hazardous checks both on the command itself and its parameters.
+    #
+    # Accepts two different calling styles:
+    #   cmd_no_checks("TGT CMD with PARAM1 val, PARAM2 val")
+    #   cmd_no_checks('TGT','CMD','PARAM1'=>val,'PARAM2'=>val)
+    #
+    # Favor the first syntax where possible as it is more succinct.
+    #
+    # @param (see #cmd)
+    # @return (see #cmd)
+    def cmd_no_checks(*args)
+      cmd_implementation(false, false, false, 'cmd_no_checks', *args)
+    end
+
+    # Send a command packet to a target without running conversions.
+    #
+    # Accepts two different calling styles:
+    #   cmd_raw("TGT CMD with PARAM1 val, PARAM2 val")
+    #   cmd_raw('TGT','CMD','PARAM1'=>val,'PARAM2'=>val)
+    #
+    # Favor the first syntax where possible as it is more succinct.
+    #
+    # @param args [String|Array<String>] See the description for calling style
+    # @return [Array<String, String, Hash>] target_name, command_name, parameters
+    def cmd_raw(*args)
+      cmd_implementation(true, true, true, 'cmd_raw', *args)
+    end
+
+    # Send a command packet to a target without performing any value range
+    # checks on the parameters or running conversions. Useful for testing to allow sending command
+    # parameters outside the allowable range as defined in the configuration.
+    #
+    # Accepts two different calling styles:
+    #   cmd_raw_no_range_check("TGT CMD with PARAM1 val, PARAM2 val")
+    #   cmd_raw_no_range_check('TGT','CMD','PARAM1'=>val,'PARAM2'=>val)
+    #
+    # Favor the first syntax where possible as it is more succinct.
+    #
+    # @param (see #cmd)
+    # @return (see #cmd)
+    def cmd_raw_no_range_check(*args)
+      cmd_implementation(false, true, true, 'cmd_raw_no_range_check', *args)
+    end
+
+    # Send a command packet to a target without running conversions or performing any hazardous checks
+    # both on the command itself and its parameters. Useful in scripts to
+    # prevent popping up warnings to the user.
+    #
+    # Accepts two different calling styles:
+    #   cmd_raw_no_hazardous_check("TGT CMD with PARAM1 val, PARAM2 val")
+    #   cmd_raw_no_hazardous_check('TGT','CMD','PARAM1'=>val,'PARAM2'=>val)
+    #
+    # Favor the first syntax where possible as it is more succinct.
+    #
+    # @param (see #cmd)
+    # @return (see #cmd)
+    def cmd_raw_no_hazardous_check(*args)
+      cmd_implementation(true, false, true, 'cmd_raw_no_hazardous_check', *args)
+    end
+
+    # Send a command packet to a target without running conversions or performing any value range
+    # checks or hazardous checks both on the command itself and its parameters.
+    #
+    # Accepts two different calling styles:
+    #   cmd_raw_no_checks("TGT CMD with PARAM1 val, PARAM2 val")
+    #   cmd_raw_no_checks('TGT','CMD','PARAM1'=>val,'PARAM2'=>val)
+    #
+    # Favor the first syntax where possible as it is more succinct.
+    #
+    # @param (see #cmd)
+    # @return (see #cmd)
+    def cmd_raw_no_checks(*args)
+      cmd_implementation(false, false, true, 'cmd_raw_no_checks', *args)
+    end
+
+    # Send a raw binary string to the specified interface.
+    #
+    # @param interface_name [String] The interface to send the raw binary
+    # @param data [String] The raw binary data
+    def send_raw(interface_name, data)
+      CmdTlmServer.commanding.send_raw(interface_name, data)
+      nil
+    end
+
+    # Returns the list of all the command names and their descriptions from the
+    # given target.
+    #
+    # @param target_name [String] Name of the target
+    # @return [Array<Array<String, String>>] Array containing \[command name,
+    #   command description] for all commands in the target
+    def get_cmd_list(target_name)
+      list = []
+      System.commands.packets(target_name).each do |name, command|
+        list << [name, command.description]
+      end
+      return list.sort
+    end
+
+    # Returns the list of all the parameters for the given command.
+    #
+    # @param target_name (see #get_cmd_list)
+    # @param command_name [String] Name of the command
+    # @return [Array<Array<String, Object, nil|Array, nil|String, nil|String,
+    #   nil|String, Boolean>] Array containing \[name, default, states,
+    #   description, units_full, units, required] for all parameters in the
+    #   command
+    def get_cmd_param_list(target_name, command_name)
+      list = []
+      System.commands.params(target_name, command_name).each do |parameter|
+        if parameter.format_string
+          unless parameter.default.kind_of?(Array)
+            list << [parameter.name, sprintf(parameter.format_string, parameter.default), parameter.states, parameter.description, parameter.units_full, parameter.units, parameter.required]
+          else
+            list << [parameter.name, "[]", parameter.states, parameter.description, parameter.units_full, parameter.units, parameter.required]
+          end
+        else
+          list << [parameter.name, parameter.default, parameter.states, parameter.description, parameter.units_full, parameter.units, parameter.required]
+        end
+      end
+      return list
+    end
+
+    # Returns whether the specified command is hazardous
+    #
+    # @param target_name (see #get_cmd_param_list)
+    # @param command_name (see #get_cmd_param_list)
+    # @param params [Hash] Command parameter hash to test whether a particular
+    #   parameter setting makes the command hazardous
+    # @return [Boolean] Whether the command is hazardous
+    def get_cmd_hazardous(target_name, command_name, params = {})
+      hazardous, _ = System.commands.cmd_hazardous?(target_name, command_name, params)
+      return hazardous
+    end
+
+    # Request a converted telemetry item from a packet.
+    #
+    # Accepts two different calling styles:
+    #   tlm("TGT PKT ITEM")
+    #   tlm('TGT','PKT','ITEM')
+    #
+    # Favor the first syntax where possible as it is more succinct.
+    #
+    # @param args [String|Array<String>] See the description for calling style
+    # @return [Numeric] The converted telemetry value without formatting or
+    #   units
+    def tlm(*args)
+      target_name, packet_name, item_name = tlm_process_args(args, 'tlm')
+      System.telemetry.value(target_name, packet_name, item_name, :CONVERTED)
+    end
+
+    # Request a raw telemetry item from a packet.
+    #
+    # Accepts two different calling styles:
+    #   tlm_raw("TGT PKT ITEM")
+    #   tlm_raw('TGT','PKT','ITEM')
+    #
+    # Favor the first syntax where possible as it is more succinct.
+    #
+    # @param args (see #tlm)
+    # @return [Numeric] The unconverted telemetry value without formatting or
+    #   units
+    def tlm_raw(*args)
+      target_name, packet_name, item_name = tlm_process_args(args, 'tlm_raw')
+      System.telemetry.value(target_name, packet_name, item_name, :RAW)
+    end
+
+    # Request a formatted telemetry item from a packet.
+    #
+    # Accepts two different calling styles:
+    #   tlm_formatted("TGT PKT ITEM")
+    #   tlm_formatted('TGT','PKT','ITEM')
+    #
+    # Favor the first syntax where possible as it is more succinct.
+    #
+    # @param args (see #tlm)
+    # @return [String] The converted telemetry value with formatting but
+    #   without units
+    def tlm_formatted(*args)
+      target_name, packet_name, item_name = tlm_process_args(args, 'tlm_formatted')
+      System.telemetry.value(target_name, packet_name, item_name, :FORMATTED)
+    end
+
+    # Request a telemetry item with units from a packet.
+    #
+    # Accepts two different calling styles:
+    #   tlm_with_units("TGT PKT ITEM")
+    #   tlm_with_units('TGT','PKT','ITEM')
+    #
+    # Favor the first syntax where possible as it is more succinct.
+    #
+    # @param args (see #tlm)
+    # @return [String] The converted, formatted telemetry value with units
+    def tlm_with_units(*args)
+      target_name, packet_name, item_name = tlm_process_args(args, 'tlm_with_units')
+      System.telemetry.value(target_name, packet_name, item_name, :WITH_UNITS)
+    end
+
+    # Request a telemetry item from a packet with the specified conversion
+    # applied. This method is equivalent to calling the other tlm_xxx methods.
+    #
+    # Accepts two different calling styles:
+    #   tlm_variable("TGT PKT ITEM", :RAW)
+    #   tlm_variable('TGT','PKT','ITEM', :RAW)
+    #
+    # Favor the first syntax where possible as it is more succinct.
+    #
+    # @param args The args must either be a string followed by a symbol or
+    #   three strings followed by a symbol (see the calling style in the
+    #   description). The symbol must be one of {Packet::VALUE_TYPES}.
+    # @return [Object] The converted telemetry value
+    def tlm_variable(*args)
+      target_name, packet_name, item_name, value_type = tlm_variable_process_args(args, 'tlm_variable')
+      System.telemetry.value(target_name, packet_name, item_name, value_type)
+    end
+
+    # Set a telemetry item in a packet to a particular value and then verifies
+    # the value is within the acceptable limits. This method uses any
+    # conversions that apply to the item when setting the value.
+    #
+    # Note: If this is done while COSMOS is currently receiving telemetry,
+    # this value could get overwritten at any time. Thus this capability is
+    # best used for testing or for telemetry items that are not received
+    # regularly through the target interface.
+    #
+    # Accepts two different calling styles:
+    #   set_tlm("TGT PKT ITEM = 1.0")
+    #   set_tlm('TGT','PKT','ITEM', 10.0)
+    #
+    # Favor the first syntax where possible as it is more succinct.
+    #
+    # @param args The args must either be a string followed by a value or
+    #   three strings followed by a value (see the calling style in the
+    #   description).
+    def set_tlm(*args)
+      target_name, packet_name, item_name, value = set_tlm_process_args(args, 'set_tlm')
+      System.telemetry.set_value(target_name, packet_name, item_name, value, :CONVERTED)
+      System.telemetry.packet(target_name, packet_name).check_limits(System.limits_set, true)
+      nil
+    end
+
+    # Set a telemetry item in a packet to a particular value and then verifies
+    # the value is within the acceptable limits. No conversions are applied.
+    #
+    # Note: If this is done while COSMOS is currently receiving telemetry,
+    # this value could get overwritten at any time. Thus this capability is
+    # best used for testing or for telemetry items that are not received
+    # regularly through the target interface.
+    #
+    # Accepts two different calling styles:
+    #   set_tlm_raw("TGT PKT ITEM = 1.0")
+    #   set_tlm_raw('TGT','PKT','ITEM', 10.0)
+    #
+    # Favor the first syntax where possible as it is more succinct.
+    #
+    # @param args The args must either be a string followed by a value or
+    #   three strings followed by a value (see the calling style in the
+    #   description).
+    def set_tlm_raw(*args)
+      target_name, packet_name, item_name, value = set_tlm_process_args(args, 'set_tlm_raw')
+      System.telemetry.set_value(target_name, packet_name, item_name, value, :RAW)
+      System.telemetry.packet(target_name, packet_name).check_limits(System.limits_set, true)
+      nil
+    end
+
+    # Returns all the values (along with their limits state) for a packet.
+    #
+    # @param target_name [String] Name of the target
+    # @param packet_name [String] Name of the packet
+    # @param value_type [Symbol] How the values should be converted. Must be
+    #   one of {Packet::VALUE_TYPES}
+    # @return (see Cosmos::Packet#read_all_with_limits_states)
+    def get_tlm_packet(target_name, packet_name, value_type = :CONVERTED)
+      packet = System.telemetry.packet(target_name, packet_name)
+      values = nil
+      packet.synchronize do
+       values = packet.read_all_with_limits_states(value_type.to_s.intern)
+      end
+      values
+    end
+
+    # Returns all the item values (along with their limits state). The items
+    # can be from any target and packet and thus must be fully qualified with
+    # their target and packet names.
+    #
+    # @param (see Cosmos::Telemetry#values_and_limits_states)
+    # @return [Array<String, Object, Array, Symbol|nil>] Array consisting of
+    #   \[item name, item value, item limits settings, item limits state] where the item limits
+    #   state can be one of {Cosmos::Limits::LIMITS_STATES}
+    def get_tlm_values(item_array, value_types = :CONVERTED)
+      if !item_array.is_a?(Array) || (!item_array[0].is_a?(Array) and !item_array.empty?)
+        raise ArgumentError, "item_array must be nested array: [['TGT','PKT','ITEM'],...]"
+      end
+      return [[], [], [], System.limits_set] if item_array.empty?
+      if value_types.is_a?(Array)
+        elem = value_types[0]
+      else
+        elem = value_types
+      end
+      # Due to JSON round tripping from scripts, value_types can be a String
+      # so we must check for both Symbol and String
+      if !elem.is_a?(Symbol) && !elem.is_a?(String)
+        raise ArgumentError, "value_types must be a single symbol or array of symbols specifying the conversion method (:RAW, :CONVERTED, :FORMATTED, :WITH_UNITS)"
+      end
+      array = System.telemetry.values_and_limits_states(item_array, value_types)
+      array << System.limits_set
+      return array
+    end
+
+    # Returns the sorted packet names and their descriptions for a particular
+    # target.
+    #
+    # @param target_name (see #get_tlm_packet)
+    # @return [Array<String, String>] Array of \[packet name, packet
+    #   description] sorted by packet name
+    def get_tlm_list(target_name)
+      list = []
+      packets = System.telemetry.packets(target_name)
+      packets.each do |packet_name, packet|
+        list << [packet_name, packet.description]
+      end
+      list.sort
+    end
+
+    # Returns the item names and their states and descriptions for a particular
+    # packet.
+    #
+    # @param target_name (see #get_tlm_packet)
+    # @param packet_name (see #get_tlm_packet)
+    # @return [Array<String, Hash, String>] Array of \[item name, item states,
+    #   item description]
+    def get_tlm_item_list(target_name, packet_name)
+      list = []
+      System.telemetry.items(target_name, packet_name).each do |item|
+        list << [item.name, item.states, item.description]
+      end
+      list
+    end
+
+    # Returns an array of Hashes with all the attributes of the item.
+    #
+    # @param (see Cosmos::Telemetry#values_and_limits_states)
+    # @return [Array<Hash>] Array of hashes describing the items. All the
+    #   attributes in {Cosmos::PacketItem} and {Cosmos::StructItem} are
+    #   present in the Hash.
+    def get_tlm_details(item_array)
+      if !item_array.is_a?(Array) || !item_array[0].is_a?(Array)
+        raise ArgumentError, "item_array must be nested array: [['TGT','PKT','ITEM'],...]"
+      end
+      details = []
+      item_array.each do |target_name, packet_name, item_name|
+        _, item = System.telemetry.packet_and_item(target_name, packet_name, item_name)
+        details << item.to_hash
+      end
+      details
+    end
+
+    # (see Cosmos::Limits#out_of_limits)
+    def get_out_of_limits
+      return System.limits.out_of_limits
+    end
+
+    # (see Cosmos::Limits#overall_limits_state)
+    def get_overall_limits_state (ignored_items = nil)
+      return System.limits.overall_limits_state(ignored_items)
+    end
+
+    # Whether the limits are enabled for the given item
+    #
+    # Accepts two different calling styles:
+    #   limits_enabled?("TGT PKT ITEM")
+    #   limits_enabled?('TGT','PKT','ITEM')
+    #
+    # Favor the first syntax where possible as it is more succinct.
+    #
+    # @param args [String|Array<String>] See the description for calling style
+    # @return [Boolean] Whether limits are enable for the itme
+    def limits_enabled?(*args)
+      target_name, packet_name, item_name = tlm_process_args(args, 'limits_enabled?')
+      return System.limits.enabled?(target_name, packet_name, item_name)
+    end
+
+    # Enable limits checking for a telemetry item
+    #
+    # Accepts two different calling styles:
+    #   enable_limits("TGT PKT ITEM")
+    #   enable_limits('TGT','PKT','ITEM')
+    #
+    # Favor the first syntax where possible as it is more succinct.
+    #
+    # @param args [String|Array<String>] See the description for calling style
+    def enable_limits(*args)
+      target_name, packet_name, item_name = tlm_process_args(args, 'enable_limits')
+      System.limits.enable(target_name, packet_name, item_name)
+      nil
+    end
+
+    # Disable limit checking for a telemetry item
+    #
+    # Accepts two different calling styles:
+    #   disable_limits("TGT PKT ITEM")
+    #   disable_limits('TGT','PKT','ITEM')
+    #
+    # Favor the first syntax where possible as it is more succinct.
+    #
+    # @param args [String|Array<String>] See the description for calling style
+    def disable_limits(*args)
+      target_name, packet_name, item_name = tlm_process_args(args, 'disable_limits')
+      System.limits.disable(target_name, packet_name, item_name)
+      nil
+    end
+
+    # (see Cosmos::Limits#get)
+    def get_limits(target_name, packet_name, item_name, limits_set = nil)
+      System.limits.get(target_name, packet_name, item_name, limits_set)
+    end
+
+    # (see Cosmos::Limits#set)
+    def set_limits(target_name, packet_name, item_name, red_low, yellow_low, yellow_high, red_high, green_low = nil, green_high = nil, limits_set = :CUSTOM, persistence = nil, enabled = true)
+      result = System.limits.set(target_name, packet_name, item_name, red_low, yellow_low, yellow_high, red_high, green_low, green_high, limits_set, persistence, enabled)
+      if result[0] != nil
+        limits_settings = [target_name, packet_name, item_name].concat(result)
+        CmdTlmServer.instance.post_limits_event(:LIMITS_SETTINGS, limits_settings)
+        Logger.info("Limits Settings Changed: #{limits_settings}")
+      end
+      result
+    end
+
+    # (see Cosmos::Limits#groups)
+    def get_limits_groups
+      return System.limits.groups.keys
+    end
+
+    # (see Cosmos::Limits#enable_group)
+    def enable_limits_group(group_name)
+      System.limits.enable_group(group_name)
+      nil
+    end
+
+    # (see Cosmos::Limits#disable_group)
+    def disable_limits_group(group_name)
+      System.limits.disable_group(group_name)
+      nil
+    end
+
+    # Returns all defined limits sets
+    #
+    # @return [Array<Symbol>] All defined limits sets
+    def get_limits_sets
+      return System.limits.sets
+    end
+
+    # Changes the active limits set that applies to all telemetry
+    #
+    # @param limits_set [String] The name of the limits set
+    def set_limits_set(limits_set)
+      System.limits_set = limits_set if System.limits_set != limits_set.to_s.upcase.intern
+    end
+
+    # Returns the active limits set that applies to all telemetry
+    #
+    # @return [String] The current limits set
+    def get_limits_set
+      return System.limits_set.to_s
+    end
+
+    #
+    # General Purpose Methods
+    #
+
+    # Returns the list of all target names
+    #
+    # @return [Array<String>] All target names
+    def get_target_list
+      list = []
+      System.targets.each_key {|target_name| list << target_name }
+      return list.sort
+    end
+
+    # @see CmdTlmServer.subscribe_limits_events
+    def subscribe_limits_events(queue_size = CmdTlmServer::DEFAULT_LIMITS_EVENT_QUEUE_SIZE)
+      CmdTlmServer.subscribe_limits_events(queue_size)
+    end
+
+    # @see CmdTlmServer.unsubscribe_limits_events
+    def unsubscribe_limits_events(id)
+      CmdTlmServer.unsubscribe_limits_events(id)
+    end
+
+    # @see CmdTlmServer.get_limits_event
+    def get_limits_event(id, non_block = false)
+      CmdTlmServer.get_limits_event(id, non_block)
+    end
+
+    # @see CmdTlmServer.subscribe_packet_data
+    def subscribe_packet_data(packets,
+                              queue_size = CmdTlmServer::DEFAULT_PACKET_DATA_QUEUE_SIZE)
+      CmdTlmServer.subscribe_packet_data(packets, queue_size)
+    end
+
+    # @see CmdTlmServer.unsubscribe_packet_data
+    def unsubscribe_packet_data(id)
+      CmdTlmServer.unsubscribe_packet_data(id)
+    end
+
+    # @see CmdTlmServer.get_packet_data
+    def get_packet_data(id, non_block = false)
+      CmdTlmServer.get_packet_data(id, non_block)
+    end
+
+    #
+    # Methods for scripting
+    #
+
+    # @return [Array<String>] All the interface names
+    def get_interface_names
+      CmdTlmServer.interfaces.names
+    end
+
+    # Connects to an interface and starts its telemetry gathering thread. If
+    # optional parameters are given, the interface is recreated with new
+    # parameters.
+    #
+    # @param interface_name [String] The name of the interface
+    # @param params [Array] Parameters to pass to the interface.
+    def connect_interface(interface_name, *params)
+      CmdTlmServer.interfaces.connect(interface_name, *params)
+      nil
+    end
+
+    # Disconnects from an interface and kills its telemetry gathering thread
+    #
+    # @param interface_name (see #connect_interface)
+    def disconnect_interface(interface_name)
+      CmdTlmServer.interfaces.disconnect(interface_name)
+      nil
+    end
+
+    # @param interface_name (see #connect_interface)
+    # @return [String] The state of the interface which is one of 'CONNECTED',
+    #   'ATTEMPTING' or 'DISCONNECTED'.
+    def interface_state(interface_name)
+      CmdTlmServer.interfaces.state(interface_name)
+    end
+
+    # Associates a target and all its commands and telemetry with a particular
+    # interface. All the commands will go out over and telemetry be received
+    # from that interface.
+    #
+    # @param target_name [String] The name of the target
+    # @param interface_name (see #connect_interface)
+    def map_target_to_interface(target_name, interface_name)
+      CmdTlmServer.interfaces.map_target(target_name, interface_name)
+      nil
+    end
+
+    # @return [Array<String>] All the router names
+    def get_router_names
+      CmdTlmServer.routers.names
+    end
+
+    # Connects a router and starts its command gathering thread. If
+    # optional parameters are given, the router is recreated with new
+    # parameters.
+    #
+    # @param router_name [String] The name of the router
+    # @param params [Array] Parameters to pass to the router.
+    def connect_router(router_name, *params)
+      CmdTlmServer.routers.connect(router_name, *params)
+      nil
+    end
+
+    # Disconnects a router and kills its command gathering thread
+    #
+    # @param router_name (see #connect_router)
+    def disconnect_router(router_name)
+      CmdTlmServer.routers.disconnect(router_name)
+      nil
+    end
+
+    # @param router_name (see #connect_router)
+    # @return [String] The state of the router which is one of 'CONNECTED',
+    #   'ATTEMPTING' or 'DISCONNECTED'.
+    def router_state(router_name)
+      CmdTlmServer.routers.state(router_name)
+    end
+
+    # @param packet_log_writer_name [String] The name of the packet log writer which
+    #   is writing the command packet log
+    # @return [String] The command packet log filename
+    def get_cmd_log_filename(packet_log_writer_name = 'DEFAULT')
+      CmdTlmServer.packet_logging.cmd_filename(packet_log_writer_name)
+    end
+
+    # @param packet_log_writer_name [String] The name of the packet log writer which
+    #   is writing the telemetry packet log
+    # @return [String] The telemetry packet log filename
+    def get_tlm_log_filename(packet_log_writer_name = 'DEFAULT')
+      CmdTlmServer.packet_logging.tlm_filename(packet_log_writer_name)
+    end
+
+    # Start both command and telemetry packet logging.
+    #
+    # @param packet_log_writer_name [String] The name of the packet log writer which
+    #   is writing both the command and telemetry logs
+    # @param label [String] Optional label to apply to both the command and
+    #   telemetry packet log filename
+    def start_logging(packet_log_writer_name = 'ALL', label = nil)
+      CmdTlmServer.packet_logging.start(packet_log_writer_name, label)
+      nil
+    end
+
+    # Stop both command and telemetry packet logging.
+    #
+    # @param packet_log_writer_name [String] The name of the packet log writer which
+    #   is writing both the command and telemetry logs
+    def stop_logging(packet_log_writer_name = 'ALL')
+      CmdTlmServer.packet_logging.stop(packet_log_writer_name)
+      nil
+    end
+
+    # Start command packet logging.
+    #
+    # @param packet_log_writer_name [String] The name of the packet log writer which
+    #   is writing the command logs
+    # @param label [String] Optional label to apply to the command packet log
+    #   filename
+    def start_cmd_log(packet_log_writer_name = 'ALL', label = nil)
+      CmdTlmServer.packet_logging.start_cmd(packet_log_writer_name, label)
+      nil
+    end
+
+    # Start telemetry packet logging.
+    #
+    # @param packet_log_writer_name [String] The name of the packet log writer which
+    #   is writing the telemetry logs
+    # @param label [String] Optional label to apply to the telemetry packet log
+    #   filename
+    def start_tlm_log(packet_log_writer_name = 'ALL', label = nil)
+      CmdTlmServer.packet_logging.start_tlm(packet_log_writer_name, label)
+      nil
+    end
+
+    # Stop command packet logging.
+    #
+    # @param packet_log_writer_name [String] The name of the packet log writer which
+    #   is writing the command log
+    def stop_cmd_log(packet_log_writer_name = 'ALL')
+      CmdTlmServer.packet_logging.stop_cmd(packet_log_writer_name)
+      nil
+    end
+
+    # Stop telemetry packet logging.
+    #
+    # @param packet_log_writer_name [String] The name of the packet log writer which
+    #   is writing the telemetry log
+    def stop_tlm_log(packet_log_writer_name = 'ALL')
+      CmdTlmServer.packet_logging.stop_tlm(packet_log_writer_name)
+      nil
+    end
+
+    # Starts raw logging for an interface
+    #
+    # @param interface_name [String] The name of the interface
+    def start_raw_logging_interface(interface_name = 'ALL')
+      CmdTlmServer.interfaces.start_raw_logging(interface_name)
+      nil
+    end
+
+    # Stop raw logging for an interface
+    #
+    # @param interface_name [String] The name of the interface
+    def stop_raw_logging_interface(interface_name = 'ALL')
+      CmdTlmServer.interfaces.stop_raw_logging(interface_name)
+      nil
+    end
+
+    # Starts raw logging for a router
+    #
+    # @param router_name [String] The name of the router
+    def start_raw_logging_router(router_name = 'ALL')
+      CmdTlmServer.routers.start_raw_logging(router_name)
+      nil
+    end
+
+    # Stops raw logging for a router
+    #
+    # @param router_name [String] The name of the router
+    def stop_raw_logging_router(router_name = 'ALL')
+      CmdTlmServer.routers.stop_raw_logging(router_name)
+      nil
+    end
+
+    # @return [String] The server message log filename
+    def get_server_message_log_filename
+      CmdTlmServer.message_log.filename
+    end
+
+    # Starts a new server message log
+    def start_new_server_message_log
+      CmdTlmServer.message_log.start
+      nil
+    end
+
+    private
+
+    def cmd_implementation(range_check, hazardous_check, raw, method_name, *args)
+      case args.length
+      when 1
+        target_name, cmd_name, cmd_params = extract_fields_from_cmd_text(args[0])
+      when 2, 3
+        target_name = args[0]
+        cmd_name    = args[1]
+        if args.length == 2
+          cmd_params = {}
+        else
+          cmd_params = args[2]
+        end
+      else
+        # Invalid number of arguments
+        raise "ERROR: Invalid number of arguments (#{args.length}) passed to #{method_name}()"
+      end
+
+      if hazardous_check
+        hazardous, hazardous_description = System.commands.cmd_hazardous?(target_name, cmd_name, cmd_params)
+        if hazardous
+          error = HazardousError.new
+          error.target_name = target_name
+          error.cmd_name = cmd_name
+          error.cmd_params = cmd_params
+          error.hazardous_description = hazardous_description
+          raise error
+        end
+      end
+
+      # Build the command
+      begin
+        command = System.commands.build_cmd(target_name, cmd_name, cmd_params, range_check, raw)
+      rescue Exception => e
+        Logger.error e.message
+        raise e
+      end
+
+      # Send the command
+      @disconnect = false unless defined? @disconnect
+      CmdTlmServer.commanding.send_command_to_target(target_name, command) unless @disconnect
+
+      [target_name, cmd_name, cmd_params]
+    end
+
+    def tlm_process_args(args, function_name)
+      case args.length
+      when 1
+        target_name, packet_name, item_name = extract_fields_from_tlm_text(args[0])
+      when 3
+        target_name = args[0]
+        packet_name = args[1]
+        item_name = args[2]
+      else
+        # Invalid number of arguments
+        raise "ERROR: Invalid number of arguments (#{args.length}) passed to #{function_name}()"
+      end
+      return [target_name, packet_name, item_name]
+    end
+
+    def tlm_variable_process_args(args, function_name)
+      case args.length
+      when 2
+        target_name, packet_name, item_name = extract_fields_from_tlm_text(args[0])
+        value_type = args[1].to_s.intern
+      when 4
+        target_name = args[0]
+        packet_name = args[1]
+        item_name = args[2]
+        value_type = args[3].to_s.intern
+      else
+        # Invalid number of arguments
+        raise "ERROR: Invalid number of arguments (#{args.length}) passed to #{function_name}()"
+      end
+      return [target_name, packet_name, item_name, value_type]
+    end
+
+    def set_tlm_process_args(args, function_name)
+      case args.length
+      when 1
+        target_name, packet_name, item_name, value = extract_fields_from_set_tlm_text(args[0])
+      when 4
+        target_name = args[0]
+        packet_name = args[1]
+        item_name = args[2]
+        value = args[3]
+      else
+        # Invalid number of arguments
+        raise "ERROR: Invalid number of arguments (#{args.length}) passed to #{function_name}()"
+      end
+      return [target_name, packet_name, item_name, value]
+    end
+
+  end # module Api
+end # module Cosmos

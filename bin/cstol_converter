@@ -1,0 +1,1166 @@
+#!/usr/bin/env ruby
+# encoding: ascii-8bit
+
+# Copyright © 2014 Ball Aerospace & Technologies Corp.
+# All Rights Reserved.
+#
+# This program is free software; you can modify and/or redistribute it
+# under the terms of the GNU General Public License
+# as published by the Free Software Foundation; version 3 with
+# attribution addendums as found in the LICENSE.txt
+
+# This file converts OASIS CSTOL files to COSMOS scripts
+
+require 'cosmos'
+require 'cosmos/script'
+require 'cosmos/system'
+
+# TODO: capitalized string from ask statement may not match expression (gmi.rb:70)
+# TODO: handle V, C other units specifications...
+# TODO: handle unary operators (-1, not - 1) => although Ruby handles this fine
+
+def parse_cmd(words)
+  # Convert the part that's common to all commands
+  str = "cmd(\"" + words[1].upcase + " " + words[2].upcase
+
+  # If it has parameters
+  if words.length == 5
+    str = str + " " + parse_id(words[4], true, false, true, true)
+
+  elsif words.length > 5
+    str = str + " with"
+
+    # Join the rest of the list and remove the commas
+    args = words[4..-1].join(" ").split(",")
+    args.length.times do |i|
+      # Only prepend comma if it is not the first argument pair
+      if i != 0
+        str = str + ","
+      end
+      params = args[i].split(" ")
+
+      str = str + " " + params[0].upcase + " " + parse_id(params[1],true, false, true)
+    end
+  end
+  str = str + "\")"
+end
+
+def parse_cond_operator(op, is_set_tlm = false)
+  str = ""
+  # Convert CSTOL operators into Ruby operators
+  if op.match("/=")
+    str = " != "
+  elsif op.match(">=")
+    str = " >= "
+  elsif op.match("<=")
+    str = " <= "
+  elsif op.match(">")
+    str = " > "
+  elsif op.match("<")
+    str = " < "
+  elsif op.match("=")
+    str = " == "
+    if is_set_tlm
+      str = " = "
+    end
+  elsif op.match(/VS/i)
+    str = " == "
+  end
+  str
+end
+
+def parse_expression(vars, quoted=false, in_eval=false)
+  i=0
+  str = ""
+  finished = false
+  # Make sure there are spaces around the operators
+  if vars.length > 1
+    vars = vars.join(" ")
+  else
+    vars = vars.to_s
+  end
+  vars = vars.gsub("(", " ( ")
+  vars = vars.gsub(")", " ) ")
+  vars = vars.gsub("+", " + ")
+  vars = vars.gsub("-", " - ")
+  vars = vars.gsub("*", " * ")
+  vars = vars.gsub("==", " == ")
+  vars = vars.gsub("/=", " /= ")
+  vars = vars.gsub("<=", " <= ")
+  vars = vars.gsub(">=", " >= ")
+  vars = vars.gsub(";", " ; ")
+  # Add spaces around single character operators (/ < >)
+  offset = 0
+  while((idx = vars.index(/[\/<>][^=]/,offset)) != nil)
+    # Add space before and after operator and increment offset
+    vars = vars.insert(idx," ")
+    vars = vars.insert(idx+2," ")
+    offset = idx + 2
+  end
+  # Add spaces around single = operator (not /=, ==, <=, or >=)
+  offset = 0
+  while((idx = vars.index(/[^\/=<>]=[^=]/,offset)) != nil)
+    # Add space before and after operator and increment offset
+    vars = vars.insert(idx+1," ")
+    vars = vars.insert(idx+3," ")
+    offset = idx + 3
+  end
+
+  # Split the expression on spaces
+  vars = vars.split(" ")
+
+  last = nil
+  while (vars[i] != nil and finished != true)
+    case vars[i].tr('[]"', '')
+    when "("
+      if quoted == false
+        str = str + "("
+      end
+
+    when ")"
+      if quoted == false
+        str = str + ")"
+      end
+
+    when /\bOR\b/i
+      str = str + " || "
+
+    when /\bAND\b/i
+      str = str + " && "
+
+    when /\b\$[0-9]\b/ # $0, $1, etc are function inputs
+      str = str + "inVar" + vars[0][1..-1]
+
+    when /\$/ # $varName
+      str = str + parse_id(vars[i].tr('[]"', ''),quoted,in_eval)
+
+    when /RAW/i
+      if quoted
+        str = str + "tlm_raw('" + parse_tlm_item(vars[i+1..i+2]) + "')"
+      else
+        str = str + "tlm_raw(\"" + parse_tlm_item(vars[i+1..i+2]) + "\")"
+      end
+      i = i + 2
+    when /x#[0-9a-fA-F]+/i # Hex number
+      str = str + parse_id(vars[i].tr('[]"', ''),quoted)
+    when /b#[0-1]+/i # Binary number
+      str = str + parse_id(vars[i].tr('[]"', ''),quoted)
+
+    when /(\AVS\z|=|\/=|>|>=|<|<=)/ # Conditional operator
+      str = str + parse_cond_operator(vars[i])
+    when /(\+|-|\*|\/)/ # Arithmetic operator
+      str = str + " " + vars[i].tr('[]"', '') + " "
+
+    # Verfies Number followed immediately by units
+    when /\dDN\z|\ddn\z|\dDEG\z|\ddeg\z|\dRAD\z|\drad\z|\dV\z|\dA\z|\dv\z|\da\z|\dc\z|\dC\z|\df\z|\dF\z|\dDPS\z|\dM\z|\dMPS\z|\dm\z|\dmps\z/ # Checks for decimal/degrees/volts and amps
+      temp = vars[i].tr('[]"', '')
+      temp = temp.gsub(/DN\z|dn\z|DEG\z|deg\z|RAD\z|rad\z|V\z|A\z|v\z|a\z|c\z|C\z|f\z|F\z|DPS\z|M\z|MPS\z|m\z|mps\z/, '')
+      if temp.match(/[a-zA-Z]/)
+        str = str + parse_id(vars[i].tr('[]"', ''),quoted)
+      else
+        str = str + temp
+      end
+
+    # Verifies units are standalone
+    when last != '=' && /DN\z|dn\z|DEG\z|deg\z|RAD\z|rad\z|V\z|A\z|v\z|a\z|c\z|C\z|f\z|F\z|DPS\z|M\z|MPS\z|m\z|mps\z/ # Checks for decimal/degrees/volts and amps
+      # Verify it is not a target
+      if(vars[i] != nil and $targetList.include?(vars[i].tr('[]"', '').upcase))
+        if quoted
+          str = str + "tlm('" + parse_tlm_item(vars[i..i+1]) + "')"
+        else
+          str = str + "tlm(\"" + parse_tlm_item(vars[i..i+1]) + "\")"
+        end
+        i = i + 1
+      else
+        str = str + parse_id(vars[i].tr('[]"', ''),quoted)
+      end
+    when /[0-9]*:[0-9]*:[0-9]+/ # Timestamp
+      str = str + parse_time(vars[i].tr('[]"', ''))
+
+    when /\dE/ # Floating point
+      temp_number = vars[i].tr('E', '').to_f * 10**vars[i+2].to_f
+      str = str + "#{temp_number}"
+      finished = true
+    when /\d/ # Decimal number
+      str = str + parse_id(vars[i].tr('[]"', ''),quoted)
+
+    when /\w/ # Must stay low on the list to avoid matching other items
+      # Check this keyword against the list of targets
+      if(vars[i] != nil and $targetList.include?(vars[i].tr('[]"', '').upcase))
+        if quoted
+          str = str + "tlm('" + parse_tlm_item(vars[i..i+1]) + "')"
+        else
+          str = str + "tlm(\"" + parse_tlm_item(vars[i..i+1]) + "\")"
+        end
+        i += 1
+
+      # If it is not a target, then it must be a string or other identifier
+      else
+        str = str + parse_id(vars[i].tr('[]"', ''), quoted, false, false, false, false)
+      end
+
+      # Other cases not handled
+      # else
+      #   str = str + " # TODO unsupported: " + vars[i].tr('[]"', '')
+    end # case
+    last = vars[i].tr('[]"', '')
+    i += 1
+  end # while
+  str
+end
+
+def parse_id(id, quoted=false, in_eval=false, in_command=false, in_single_command = false, units = true)
+  str = ""
+  # Remove parentheses
+  if id.index("(") == 0
+    id = id[1..-1]
+  end
+  if id.index(")") == id.length - 1
+    id = id[0..-2]
+  end
+
+  if id.match(/\$\w/) # $varName
+    id[1,1] = id[1,1].downcase
+    if quoted and !in_eval
+      str = "'\#{" + id[1..-1] + "}'"
+    else
+
+      str = id[1..-1]
+    end
+
+  elsif (id.match(/^"/) != nil and
+         id.match(/"$/) != nil) # Starts and ends with a quote
+    if quoted
+      str = "'" + id.upcase[1..-2] + "'"
+    else
+      str = id.upcase
+    end
+
+  elsif id.match(/x#[A-Fa-f0-9]+DN/i) # Hex number with DN
+    str = "0x" + id[2..-3]
+
+  elsif id.match(/x#[0-9a-fA-F]+/i) # Hex number
+    str = "0x" + id[2..-1]
+
+  elsif id.match(/b#[0-1]+DN/i) # Binary number with DN
+    str = "0b" + id[2..-3]
+
+  elsif id.match(/b#[0-1]+/i) # Binary number
+    str = "0b" + id[2..-1]
+
+  elsif id.match(/\d+DN/i) or id.match(/-\d+DN/i)  # Decimal number with DN
+    str = id[0..-3]
+  elsif id.match(/\AVS\z|\Avs\z/)
+    str = str + " == "
+
+  # Verifies extensions with a decimal number followed by a unit
+  elsif units && id.match(/\dDN|\ddn|\dDEG|\ddeg|\dRAD|\drad|\dV|\dA|\dv|\da|\dc|\dC|\df|\dF|\dDPS|\dM\z|\dMPS\z|\dm\z|\dmps\z/)
+    temp = id.gsub(/DN\z|dn\z|DEG\z|deg\z|RAD\z|rad\z|V\z|A\z|v\z|a\z|c\z|C\z|f\z|F\z|DPS\z|M\z|MPS\z|m\z|mps\z/, '')
+    if in_command and temp.match(/[a-zA-Z]/)
+      str = str + "\'" + id.upcase + "\'"
+    # if filtered words still contain letter, then it is not a number
+    elsif temp.match(/[a-zA-Z]/)
+      str = str + id
+    else
+      str = str + temp
+    end
+  elsif id.match(/\dE\+\d/) # Floating point
+    id = id.gsub('+', ' + ')
+    temp_num_arr = id.split(' ')
+    temp_number = temp_num_arr[0].tr('E', '').to_f * 10**temp_num_arr[2].to_f
+    str = str + "#{temp_number}"
+  elsif id.match(/\A\d/) or id.match(/\A-\d/) # starts with Decimal number
+    str = id
+  # Verifies extensions with a decimal number followed by a unit
+  # that is by itself separated by whitespace
+  elsif units && id.match(/\ADN\z|\Adn\z|\ADEG\z|\Adeg\z|\ARAD\z|\Arad\z|\AV\z|\AA\z|\Av\z|\Aa\z|\Ac\z|\AC\z|\Af\z|\AF\z|\ADPS\z|\AM\z|\AMPS\z|\Am\z|\Amps\z/)
+    temp = id.gsub(/DN\z|dn\z|DEG\z|deg\z|RAD\z|rad\z|V\z|A\z|v\z|a\z|c\z|C\z|f\z|F\z|DPS\z|M\z|MPS\z|m\z|mps\z/, '')
+    if in_command
+      str = str + "\'" + id.upcase + "\'"
+    else
+      str = str + temp
+    end
+  elsif id.match(/\w/) # Any other word
+    # If it's quoted still need quotes for comparison
+    if in_single_command
+      str = id.upcase
+    elsif quoted
+      str = "\'" + id.upcase +  "\'"
+    else
+      str = "\"" + id.tr('\\', '').upcase + "\""
+    end
+  else
+    str = id
+  end
+end
+
+def parse_macro(words)
+  # Call the macro with the first parameter as binding
+  str = words[0] + "(binding"
+
+  # Add all arguments in a loop
+  (words.length-1).times do |i|
+    str = str + ", " + parse_id(words[i+1])
+  end
+  str = str + ")"
+end
+
+def parse_time(time)
+  # If this is a timestamp
+  if time.match(/[0-9]*:[0-9]*:[0-9]+/) # Timestamp
+    # Split on colons to separate hours/minutes/seconds
+    tok = time.split(":")
+
+    # If the first two tokens are empty, set to 0 (ex. ::10 is a valid time)
+    if tok[0] == ""
+      tok[0] = "0"
+    end
+    if tok[1] == ""
+      tok[1] = "0"
+    end
+
+    # Compute the number of seconds
+    secs = (3600*tok[0].to_i + 60*tok[1].to_i + tok[2].to_i).to_s
+
+  # Other cases not handled
+  else
+    secs = "# TODO unsupported: " + time
+  end
+end
+
+def parse_tlm_item(tlm)
+  # Remove preceeding parentheses
+  if tlm[0].index("(") == 0
+    tlm[0] = tlm[0][1..-1]
+  end
+
+  # If there are two telemetry items (target and mnemonic)
+  if tlm.length == 2
+    begin
+      str = tlm[0].tr('[]"', '').upcase + " " + Cosmos::System.telemetry.newest_packet(tlm[0].tr('[]"', '').upcase,tlm[1].tr('[]"', '').upcase).packet_name + " " + tlm[1].tr('[]"', '').upcase
+    rescue
+      str = "# TODO unknown TLM: " + tlm.to_s
+    end
+
+  # Other cases not handled
+  else
+    str = "# TODO unsupported: " + tlm.to_s
+  end
+end
+
+def parse_line(full_line, loc_out_file, wait_check_flag=false)
+  line = ""
+  comment = ""
+  str = ""
+
+  # Handle any empty lines
+  if full_line == nil || full_line.strip == ""
+    loc_out_file.puts full_line
+    return
+  end
+
+  # Detemine the location of any comments in this line
+  commentIdx = full_line.index(";")
+
+  # If we found a comment operator
+  if commentIdx != nil
+    # If there's text to pull out before the ;
+    if commentIdx != 0
+      line = full_line[0..(commentIdx-1)].rstrip
+    end
+    # If there's text to pull out after the ;
+    if commentIdx != full_line.length - 1
+      comment = "#" + full_line[(commentIdx+1)..-1]
+    end
+  else
+    # No comment operator so use the entire line
+    line = full_line.rstrip
+  end
+
+  # Determine the number of spaces to indent this line by finding the first
+  # non-whitespace character
+  numSpaces = full_line.index(/\S/)
+  numSpaces.times {str = str + " "}
+
+  # Handle lines with only comments
+  if line == nil or line == ""
+    loc_out_file.puts str + comment
+    return
+  end
+
+  # Redundant substitutions are done for comparators
+  line = line.gsub("==", " == ")
+  line = line.gsub("/=", " /= ")
+  line = line.gsub("<=", " <= ")
+  line = line.gsub(">=", " >= ")
+  line = line.gsub(/(\w)(=)(\w)/, '\1 = \3')
+  line = line.gsub(/(\w)(=)(\d)/, '\1 = \3')
+  line = line.gsub(/(\w)(=)(-)/, ' = -')
+  line = line.gsub(/(\w)(=)(\s)/, '\1 = \3')
+  line = line.gsub(/(\s)(=)(\w)/, '\1 = \3')
+
+  # Split the line into tokens by spaces, if no spaces between equals sign add them
+  words = line.split(" ")
+
+  # Check for old CSTOL labels which have a trailing colon
+  if words[0][-1] == ':'
+    loc_out_file.puts "# #{line}"
+    return
+  end
+
+  # if wait_check flag is activated ensure that the next line is a check otherwise infinite loop
+  if wait_check_flag and words[0].downcase != 'check'
+    return ""
+  end
+
+  case words[0].downcase
+  when "endproc"
+    if $inFunction
+      str += "end\n#{$inFunction}(#{$inFunctionParams.join(',')})" if $inFunction
+      $inFunction = nil
+    end
+
+  when "ask"
+    str = str + parse_id(words[1]) + " = ask(" + words[2]
+    (words.length-3).times do |i|
+      str = str + " " + words[i+3]
+    end
+    str = str + ")"
+
+  when "begin"
+    # Don't need to do anything with this keyword, so exit unless there's
+    # a comment to print
+    if comment == ""
+      return
+    end
+
+  when "check"
+
+    # If the next word starts with the raw keyword
+    if words[1].match(/\A(raw)/i)
+      # If the line contains a colon, parse out the range and use tolerance
+      if line.match(":")
+        vsIdx = line.index("VS")
+        vsIdx = line.index("vs") if vsIdx == nil
+        colIdx = line.index(":")
+        lowRange = line[(vsIdx+2)..(colIdx-1)]
+        highRange = line[(colIdx+1)..-1]
+        str = str + "check_tolerance_raw(\"" + parse_tlm_item(words[2..3]) +
+          "\", ((" + parse_expression([highRange],false) + ") + (" +
+          parse_expression([lowRange],false) +
+          ")) / 2," + " ((" + parse_expression([highRange],false) + ") - (" +
+          parse_expression([lowRange],false) + "))/2)"
+      else
+        if wait_check_flag
+          if @wait_match_string == "\"" + parse_tlm_item(words[2..3]) +
+            parse_cond_operator(words[4]) + parse_expression(words[5..-1],true) + "\""
+            @verify_wait_check = true
+            # exit function with true flag, and skips check statement next parse
+            return " "
+          end
+        end
+        str = str + "check_raw(\"" + parse_tlm_item(words[2..3]) +
+          parse_cond_operator(words[4]) + parse_expression(words[5..-1],true) +
+          "\")"
+      end
+
+    # If the next word starts with a variable indicator
+    elsif words[1].match(/\$/)
+      # If the line contains a colon, make check expression formatted to
+      # check against a defined range
+      if line.match(":")
+        vsIdx = line.index("VS")
+        vsIdx = line.index("vs") if vsIdx == nil
+        colIdx = line.index(":")
+        lowRange = line[(vsIdx+2)..(colIdx-1)]
+        highRange = line[(colIdx+1)..-1]
+        str = str + "check_expression(\"(" +
+          parse_expression([words[1]],true) + " >= (" +
+          parse_expression([lowRange],true) + ")) and (" +
+          parse_expression([words[1]],true) + " <= (" +
+          parse_expression([highRange],true) + "))\")"
+      else
+        str = str + "check_expression(\"" +
+          parse_expression(words[1..-1],true) + "\")"
+      end
+
+    # If the next word doesn't start with raw
+    elsif words[1].match(/\w/)
+      # If the line contains a colon, parse out the range and use tolerance
+      if line.match(":")
+        vsIdx = line.index("VS")
+        vsIdx = line.index("vs") if vsIdx == nil
+        colIdx = line.index(":")
+        lowRange = line[(vsIdx+2)..(colIdx-1)]
+        highRange = line[(colIdx+1)..-1]
+        str = str + "check_tolerance(\"" +
+          parse_tlm_item(words[1..2]) + "\", ((" +
+          parse_expression([highRange],false) + ") + (" +
+          parse_expression([lowRange],false) + ")) / 2, ((" +
+          parse_expression([highRange],false) + ") - (" +
+          parse_expression([lowRange],false) + "))/2)"
+      else
+        if (words[3])
+          # if single integer comparison or variable, just parse single (for negative integer cases)
+          if words.length <= 6
+            if wait_check_flag
+              if @wait_match_string == "\"" + parse_tlm_item(words[1..2]) + parse_cond_operator(words[3]) + parse_id(words[4],true) + "\""
+                @verify_wait_check = true
+                # exit function with true flag, and skips check statement next parse
+                return ""
+              end
+            else
+              str = str + "check(\"" + parse_tlm_item(words[1..2]) +
+                parse_cond_operator(words[3]) + parse_id(words[4],true) +
+                "\")"
+            end
+          else
+            str = str + "check(\"" + parse_tlm_item(words[1..2]) +
+              parse_cond_operator(words[3]) + parse_expression(words[4..-1],true) +
+              "\")"
+          end
+        else
+          str = str + "check(\"" + parse_tlm_item(words[1..2]) +
+            "\")"
+        end
+      end
+    end
+
+  when "cmd"
+    str = str + parse_cmd(words)
+
+  when "set"
+    str = str + parse_cmd(words)
+
+  when "declare"
+    # If the next word is input, ignore the line
+    if words.length >= 2 and words[1].match(/input/i)
+      if $inFunction
+        $inFunctionParams << "\"#{words[4].upcase}\""
+      else
+        str = str + "# SCL Ignored: " + line
+      end
+
+    # If it is a defined enum list, ignore definitions
+    elsif (words.length >= 6 and
+           words[4..-1].join(" ").match(/[A-Z]+\s+[A-Z]+(,\s*[A-Z]+)+/i))
+      str = str + parse_id(words[2]) + " " + words[3] + " " +
+        parse_id(words[4])
+
+    # If it is a defined range (one and only one colon), ignore range
+    elsif (words.length >= 6 and
+           words[4..-1].join(" ").count(":") == 1)
+      str = str + parse_id(words[2]) + " " + words[3] + " " +
+        parse_id(words[4])
+
+    # Parse the expression
+    elsif words.length >= 5
+      str = str + parse_id(words[2]) + " " + words[3] + " " +
+        parse_expression(words[4..-1])
+
+    else
+      str = str + "# TODO unsupported: " + line
+    end
+
+  when "else"
+    # Only an else
+    if words.length == 1
+      str = str + "else"
+
+    # 'Else if' statement
+    elsif words.length >= 2 and words[1].match(/if/i)
+      str = str + "elsif " + parse_expression(words[2..-1])
+
+    # Other cases not handled
+    else
+      str = str + "# TODO unsupported: " + line
+    end
+
+  when "end"
+    # End of an if statement
+    if words[1].match(/if/i)
+      str = str + "end"
+
+    # End of a procedure with arguments
+    elsif words[1].match(/proc/i) && $inFunction
+      str += "end\n#{$inFunction}(#{$inFunctionParams.join(',')})"
+
+    # End of a procedure without arguments
+    elsif words[1].match(/proc/i) && !$inFunction
+      str = str + "# SCL Ignored: " + line
+
+    # End of a loop
+    elsif words[1].match(/loop/i)
+      str = str + "end"
+
+    # End of a macro
+    elsif words[1].match(/macro/i)
+      str = str + "# SCL Ignored: " + line
+
+    # Other cases not handled
+    else
+      str = str + "# TODO unsupported: " + line
+    end
+
+  when "endif"
+    str = str + "end"
+
+  when "escape"
+    str = str + "break"
+
+  when "goto"
+    # Ignore typical goto for skipping the header section
+    if words.length == 2 and words[1].match(/start_here/i)
+      str = str + "# SCL Ignored: " + line
+
+    # Other cases not handled
+    else
+      str = str + "# TODO unsupported: " + line
+    end
+
+  when "if"
+    str = str + "if " + parse_expression(words[1..-1])
+
+  when "let"
+    # If we're assigning a telemetry point
+    if $targetList.include?(words[1].upcase)
+      # If there is no space between the equal sign reparse string
+      str = str + "set_tlm(\"" + parse_tlm_item(words[1..2]) +
+        parse_cond_operator(words[3], true) + parse_id(words[4],true) + "\")"
+    else
+      # there's no spaces between declaration
+      str = str + parse_id(words[1]) + " " + words[2] + " " +
+        parse_expression(words[3..-1])
+    end
+
+  when "lock"
+    # Ignore database commands
+    str = str + "# SCL Ignored: " + line
+
+  when "loop"
+    # TODO not sure if this is wise, for some files the loop is infinite and
+    # there's no exist case
+    if words[1] == nil
+      str = str + "# TODO Possible inifinite loop case check script file" +
+            "\n" + str + "while(true)"
+    else
+      str = str + words[1] + ".times do |i|"
+    end
+
+  when "macro"
+    str = str + ("# SCL Ignored: " + line)
+    $macroName = words[1].upcase
+    $macroNumArgs = 0
+    i = 2
+    while ((nextWord = words[i]) != nil)
+      case nextWord
+        when /\$/
+          $macroNumArgs = $macroNumArgs + 1
+      end
+      i = i + 1
+    end
+
+  when "new_mac"
+    # Ignore OASIS commands
+    str = str + "# SCL Ignored: " + line
+
+  when "new_proc"
+    # Ignore OASIS commands
+    str = str + "# SCL Ignored: " + line
+
+  when "proc"
+    # Process procedures without arguments as scripts
+    if words.length == 2
+      # Set a global so we know how to close this function
+      $inFunction = nil
+
+    # Process procedures with arguments as functions
+    else
+      # Split the list of arguments on commas
+      listWords = words[2..-1].join().split(",")
+
+      # Print the function name and the first argument
+      str = str + "def " + words[1].downcase + "(" + parse_id(listWords[0])
+
+      # Print the remaining arguments preceeded by a separator
+      (listWords.length-1).times do |i|
+        str = str + ", " + parse_id(listWords[i+1])
+      end
+      str = str + ")"
+
+      # Set a global so we know how to close this function
+      $inFunction = words[1].downcase
+      $inFunctionParams = []
+    end
+
+  when "record"
+    # Record messages without a label
+    if words.length == 2 and words[1].match(/messages/i)
+      str = str + "start_logging()\n"
+      numSpaces.times {str = str + " "}
+      str = str + "start_new_server_message_log()"
+
+    # Record message with a label
+    elsif words.length == 3 and words[1].match(/messages/i)
+      str = str + "set_log_label(" + words[2] + ")\n"
+      numSpaces.times {str = str + " "}
+      str = str + "start_logging()\n"
+      numSpaces.times {str = str + " "}
+      str = str + "start_new_server_message_log()"
+
+    # Other cases not handled
+    else
+      str = str + "# TODO unsupported: " + line
+    end
+
+  when "restore"
+    # Ignore database commands
+    str = str + "# SCL Ignored: " + line
+  when "run"
+    temp = words[1..-1].to_s
+    temp = temp.tr(',[]\"', '')
+    # removes the quotes symbol remnants
+    temp = temp.gsub('\\', '')
+    temp = temp.gsub(/\\\z/, '')
+    str = str + "system(\'" + temp + "\')"
+  when "start"
+    # Process procedures without arguments as scripts
+    if words.length == 2
+      str = str + "start(\"" + words[1].downcase + ".rb\")"
+
+    # Process procedures with arguments as functions
+    else
+      # Add the statement to require the function
+      str = str + "require_utility(\"" + words[1].downcase + ".rb\")\n"
+      numSpaces.times {str = str + " "}
+
+      # Split the list of arguments on commas
+      listWords = words[2..-1].join().split(",")
+      listWords.map! do |word|
+        if word.match(/[0-9]*:[0-9]*:[0-9]+/) # Timestamp
+          parse_time(word)
+        else
+          word
+        end
+      end
+
+      # Print the function name and the first argument
+      str = str + words[1].downcase + "(" + parse_id(listWords[0])
+
+      # Print the remaining arguments preceeded by a separator
+      (listWords.length-1).times do |i|
+        str = str + ", " + parse_id(listWords[i+1])
+      end
+      str = str + ")"
+    end
+
+  when "start_here:"
+    # Ignore typical starting point label
+    str = str + "# SCL Ignored: " + line
+
+  when "stop"
+    # Ignore calls to stop logging since COSMOS stops logging with each start
+    str = str + "# SCL Ignored: " + line
+
+  when "unlock"
+    # Ignore database commands
+    str = str + "# SCL Ignored: " + line
+
+  when "update"
+    # Ignore database commands
+    str = str + "# SCL Ignored: " + line
+
+  when "wait"
+    # add a space incase there's no space between or and parantheses
+    line = line.gsub(')or', ') or')
+    words = line.split(' ')
+    # Only a wait
+    if words.length == 1
+      str = str + "wait()"
+
+    # Waiting for length of time
+    elsif words[1].match(/[0-9]*:[0-9]*:[0-9]+/)
+      str = str + "wait(" + parse_time(words[1]) + ")"
+
+    # Waiting for a variable of time
+    elsif words.length == 2 and words[1].match(/\$/)
+      str = str + "wait(" + parse_id(words[1]) + ")"
+
+    # Waiting for an expression [or for a time]
+    elsif words.length > 2 and words[1].match(/\$/)
+      # Get index of 'OR FOR' if it exists by the 'FOR' keyword
+      idx = words.index("FOR")
+      if idx == nil
+        idx = words.index("for")
+      end
+
+      # If there is a timeout
+      if idx != nil
+        str = str + "wait_expression(\"" +
+          parse_expression(words[1..(idx-2)],true) + "\", " +
+          parse_expression([words[idx+1]]) + ")"
+
+      # No timeout given, so insert a default timeout
+      else
+        str = str + "wait_expression(\"" +
+          parse_expression(words[1..-1],true) + "\", " +
+          parse_time("::30") + ")"
+      end
+
+    # If the next word starts with the raw keyword
+    elsif words[1].match(/[\(]*(raw)/i)
+      # Get index of 'OR FOR' if it exists by the 'FOR' keyword
+      idx = words.index("FOR")
+      if idx == nil
+        idx = words.index("for")
+      end
+
+      # If there is a timeout
+      if idx != nil
+        # If the first part is a complex expression
+        if (words[1..(idx-2)].include?("OR") ||
+            words[1..(idx-2)].include?("or") ||
+            words[1..(idx-2)].include?("AND") ||
+            words[1..(idx-2)].include?("and"))
+          str = str + "wait_expression(\"" +
+            parse_expression(words[1..(idx-2)],true) + "\", "
+
+        # If it is a single telemetry item
+        else
+          @wait_match_string = "\"" + parse_tlm_item(words[2..3]) +
+              parse_cond_operator(words[4]) +
+              parse_expression(words[5..(idx-2)],true) + "\""
+          @verify_wait_check = false
+
+          parse_line(@data_by_lines[@universal_index+1], @out_file, true)
+
+          if @verify_wait_check == true
+            str = str + "wait_check_raw(\"" + parse_tlm_item(words[2..3]) +
+              parse_cond_operator(words[4]) +
+              parse_expression(words[5..(idx-2)],true) + "\", "
+          else
+            str = str + "wait_raw(\"" + parse_tlm_item(words[2..3]) +
+              parse_cond_operator(words[4]) +
+              parse_expression(words[5..(idx-2)],true) + "\", "
+          end
+        end
+
+        # Parse the timeout
+        str = str + parse_expression([words[idx+1]])
+
+      # If there is no timeout given
+      else
+        # If it is a complex expression
+        if (words[1..-1].include?("OR")  || words[1..-1].include?("or") ||
+            words[1..-1].include?("AND") || words[1..-1].include?("and"))
+          str = str + "wait_expression(\"" +
+            parse_expression(words[1..-1],true) + "\", "
+
+        # If it is a single telemetry item
+        else
+          @wait_match_string = "\"" + parse_tlm_item(words[2..3]) +
+            parse_cond_operator(words[4]) + parse_id(words[5],true) + "\""
+          @verify_wait_check = false
+
+          parse_line(@data_by_lines[@universal_index+1], @out_file, true)
+
+          if @verify_wait_check == true
+            str = str + "wait_check_raw(\"" + parse_tlm_item(words[2..3]) +
+            parse_cond_operator(words[4]) + parse_id(words[5],true) + "\", "
+          else
+            str = str + "wait_raw(\"" + parse_tlm_item(words[2..3]) +
+            parse_cond_operator(words[4]) + parse_id(words[5],true) + "\", "
+          end
+        end
+
+        # Insert a default timeout
+        str = str + parse_time("::30")
+      end
+      str = str + ")"
+
+    # If the next word doesn't start with raw
+    elsif words[1].match(/[\(]*\w/)
+      # Get index of 'OR FOR' if it exists by the 'FOR' keyword
+      idx = words.index("FOR")
+      if idx == nil
+        idx = words.index("for")
+      end
+
+      # If there is a timeout
+      if idx != nil
+        # If the first part is a complex expression
+        if (words[1..(idx-2)].include?("OR") ||
+            words[1..(idx-2)].include?("or") ||
+            words[1..(idx-2)].include?("AND") ||
+            words[1..(idx-2)].include?("and"))
+          str = str + "wait_expression(\"" +
+            parse_expression(words[1..(idx-2)],true) + "\", "
+
+        # If it is a single telemetry item
+        else
+          @wait_match_string = "\"" + parse_tlm_item(words[1..2]) +
+            parse_cond_operator(words[3]) +  parse_id(words[4],true) + "\""
+          @verify_wait_check = false
+
+          parse_line(@data_by_lines[@universal_index+1], @out_file, true)
+
+          if @verify_wait_check == true
+            str = str + "wait_check(\"" + parse_tlm_item(words[1..2]) +
+              parse_cond_operator(words[3]) +  parse_id(words[4],true) + "\", "
+          else
+            str = str + "wait(\"" + parse_tlm_item(words[1..2]) +
+              parse_cond_operator(words[3]) +  parse_id(words[4],true) + "\", "
+          end
+        end
+
+        # Parse the timeout
+        str = str + parse_expression([words[idx+1]])
+
+      # If there is no timeout given
+      else
+        # If it is a complex expression
+        if (words[1..-1].include?("OR")  || words[1..-1].include?("or") ||
+            words[1..-1].include?("AND") || words[1..-1].include?("and"))
+          str = str + "wait_expression(\"" +
+            parse_expression(words[1..-1],true) + "\", "
+
+        # If it is a single telemetry item
+        else
+          @wait_match_string = "\"" +  parse_tlm_item(words[1..2]) +
+            parse_cond_operator(words[3]) + parse_id(words[4],true) + "\""
+          @verify_wait_check = false
+
+          parse_line(@data_by_lines[@universal_index+1], @out_file, true)
+
+          if @verify_wait_check == true
+            str = str + "wait_check(\"" +  parse_tlm_item(words[1..2]) +
+            parse_cond_operator(words[3]) + parse_id(words[4],true) + "\", "
+          else
+            str = str + "wait(\"" +  parse_tlm_item(words[1..2]) +
+            parse_cond_operator(words[3]) + parse_id(words[4],true) + "\", "
+          end
+        end
+
+        # Insert a default timeout
+        str = str + parse_time("::30")
+      end
+      str = str + ")"
+
+    else
+      str = str + "# TODO unsupported: " + line
+    end
+
+  when "write"
+    # Write the command and first word
+    str = str + "puts(" + words[1]
+
+    # Consolidate a " , to ",
+    rem = words[2..-1].join(" ")
+    quoteSpaceIdx = rem.index("\" ,")
+    if quoteSpaceIdx != nil
+      rem = rem[0..(quoteSpaceIdx)] + rem[(quoteSpaceIdx+2)..-1]
+    end
+
+    # Find the closing quote
+    quoteIdx = rem.index("\",")
+
+    # If there was a closing quote
+    if (quoteIdx != nil and quoteIdx != rem.length - 1)
+      # Write the characters up until the quote
+      str = str + rem[0..quoteIdx-1]
+
+      # Parse the rest after the ", as a quoted expression
+      expr = rem[(quoteIdx+2)..-1]
+      if expr.class == String
+        # There might be yet another quoted section
+        quoteIdx = expr.index("\"")
+        remainder = ''
+        if quoteIdx
+          remainder = expr[quoteIdx+1..-2]
+          expr = expr[0..quoteIdx-1].strip
+          expr = expr[0..-2] if expr[-1] == ','
+        end
+        str = str + " \#{#{parse_expression([expr],true,true)}}#{remainder}\""
+      else
+        puts "****************** NOT STRING ******************"
+        str = str + " \#{" + parse_expression(expr,true,true) + "}\""
+      end
+
+    # If there was no closing quote
+    else
+      words[2..-1].each do |word|
+        str = str + " " + word.to_s
+      end
+    end
+    str = str + ")"
+
+  else
+    # If this keyword is contained in the list of macros
+    if $macroList != nil and $macroList.include?(words[0].upcase)
+      str = str + parse_macro(words)
+
+    # Other keywords not handled
+    else
+      str = str + "# TODO unsupported: "  + line
+    end
+  end
+  # Implicit end of case statement
+
+  # Write the code and comment to the output file
+  if comment == ""
+    loc_out_file.puts str
+  else
+    loc_out_file.puts str + " " + comment
+  end
+end
+
+################################################################################
+#####                            BEGIN SCRIPT                             ######
+################################################################################
+
+require 'ostruct'
+require 'optparse'
+
+options = OpenStruct.new
+options.file = nil
+
+opts = OptionParser.new do |opts|
+  opts.banner = "Usage: cstol_converter [optional filenames]"
+  opts.separator ""
+  opts.separator "By default it will parse all macros (*.mac) and CSTOLS (*.prc)"
+  opts.separator "recursively starting in the current working directory"
+  opts.separator ""
+  # Create the help and version options
+  opts.on("-h", "--help", "Show this message") do
+    puts opts
+    exit
+  end
+end
+
+begin
+  opts.parse!(ARGV)
+rescue => err
+  puts err
+  puts opts
+  exit
+end
+
+mac_files = []
+prc_files = []
+if ARGV[0]
+  ARGV.each do |filename|
+    prc_files << filename
+  end
+else
+  # Find all macros
+  mac_files = Dir["**/*.mac"]
+  # Find all procedures
+  prc_files = Dir["**/*.prc"]
+end
+
+# List of targets found in the CSTOL files
+$targetList = Cosmos::System.targets.keys
+
+# Process all macros first
+unless mac_files.empty?
+  puts "*****************************************************"
+  macros_file = File.open("macrosAutoGen.rb","w")
+  mac_files.each do |file|
+    puts "  Parsing MAC file: " + file
+
+    # Parse each line in the macro file
+    File.open(file,"r") do |infile|
+      out_file = File.open(File.join(Dir.pwd, file[0..-5] + "_macro.rb"), "w")
+      infile.each do |line|
+        parse_line(line,@out_file)
+      end
+      @out_file.close
+    end
+
+    # Create a Ruby macro file that evaluates the macro in the callers context
+    macros_file.print "#{$macroName}_SRC =
+      open(\"#{file[0..-5]}_macro.rb\"){ |f|\n  f.sysread(f.stat().size())\n}\n\n"
+    macros_file.print "def #{$macroName}(locBinding"
+    $macroNumArgs.times { |num|
+      macros_file.print ",macVar#{num+1}"
+    }
+    macros_file.print ")\n"
+    $macroNumArgs.times { |num|
+      macros_file.print "  eval(\"inVar#{num+1} = \#{macVar#{num+1}}\",locBinding)\n"
+    }
+    macros_file.print "  eval(#{$macroName}_SRC,locBinding)\n"
+    macros_file.print "end\n\n"
+
+    # Append this macro to the master list of macros
+    if $macroList == nil
+      $macroList = [$macroName]
+    else
+      $macroList = $macroList.concat([$macroName])
+    end
+  end
+  macros_file.close
+end
+
+if prc_files.empty?
+  puts "No *.prc files found"
+else
+  puts "*****************************************************"
+
+  # Process all procedures next
+  prc_files.each do |file|
+    puts "  Parsing PRC file: " + file
+
+    # Open each procedure
+    File.open(file,"r") do |infile|
+      # Open its equivalent Ruby output file
+      @out_file = File.open(File.join(Dir.pwd, File.basename(file)[0..-5] + ".rb"), "w")
+
+      # Read the entire file in first in order to compress line continuations
+      @data = ""
+      matched_quotes = true
+      infile.each do |line|
+        # Check for matching quotes on this line
+        num_quotes = line.scan(/("|[^\\]")/).size
+        if num_quotes % 2 == 1
+          matched_quotes = !matched_quotes
+        end
+
+        # If the last non-whitespace character is the line continuation char
+        if line.match(/&\s*$/)
+          # Remove the continuation char and returns to join with next line
+          idx = line.rindex("&")
+          @data = @data + line[0..(idx-1)]
+        elsif matched_quotes == false
+          # If the unmatched string uses the non-standard underscore char
+          if line.match(/_\s*$/)
+            # Remove the trailing underscore
+            idx = line.rindex("_")
+            line = line[0..(idx-1)]
+          end
+          # Remove the returns from this line to join with next line
+          @data = @data + line.rstrip
+        else
+          # Leave it alone
+          @data = @data + line
+        end
+      end
+
+      @universal_index = 0
+      @data_by_lines = @data.lines.to_a
+      # Parse each line in the file
+      @data_by_lines.each do |line|
+        if @verify_wait_check == true
+          # Skip line
+          @verify_wait_check = false
+        else
+          parse_line(@data_by_lines[@universal_index], @out_file)
+        end
+        @universal_index += 1
+      end
+
+      # Close the file
+      @out_file.close
+    end
+  end
+end
+

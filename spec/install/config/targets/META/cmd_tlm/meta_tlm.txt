@@ -1,0 +1,4 @@
+TELEMETRY META DATA BIG_ENDIAN "Metadata"
+  APPEND_ITEM VERSION 1024 STRING "Version Metadata"
+  APPEND_ITEM NUMBER 32 UINT "Number Metadata"
+    WRITE_CONVERSION new_packet_log_conversion.rb

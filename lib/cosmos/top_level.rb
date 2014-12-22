@@ -1,0 +1,596 @@
+# encoding: ascii-8bit
+
+# Copyright © 2014 Ball Aerospace & Technologies Corp.
+# All Rights Reserved.
+#
+# This program is free software; you can modify and/or redistribute it
+# under the terms of the GNU General Public License
+# as published by the Free Software Foundation; version 3 with
+# attribution addendums as found in the LICENSE.txt
+
+# This file contains top level functions in the Cosmos namespace
+
+require 'thread'
+require 'digest/md5'
+require 'open3'
+require 'cosmos/core_ext'
+require 'cosmos/version'
+require 'cosmos/utilities/logger'
+
+# If a hazardous command is sent through the {Cosmos::Api} this error is raised.
+# {Cosmos::Script} rescues the error and prompts the user to continue.
+class HazardousError < StandardError
+  attr_accessor :target_name
+  attr_accessor :cmd_name
+  attr_accessor :cmd_params
+  attr_accessor :hazardous_description
+end
+
+# The COSMOS (COmprehensive SysteM Operations Suite) system is almost
+# wholly contained within the Cosmos module. COSMOS also extends some of the
+# core Ruby classes to add additional functionality as well as creates
+# additional QT GUI classes under the {Qt} module.
+#
+# The primary entry point into COSMOS is through {Cosmos::System}. The System
+# class provides two class variables {Cosmos::System#commands} and
+# {Cosmos::System#telemetry} which provide access to all the commands and
+# telemetry in Cosmos. The targets are available through the
+# {Cosmos::System#targets} hash whose keys are the target names and values are
+# {Cosmos::Target} instances.
+#
+# Creating a new COSMOS tool involves subclassing {Cosmos::QtTool}. All COSMOS
+# tools derive from {Cosmos::QtTool} and provide a good basis for creating a
+# new tool. Be sure to explore the various GUI classes
+module Cosmos
+
+  # FatalErrors cause an exit but are not as dangerous as other errors.
+  # They are used for known issues and thus we don't need a full error report.
+  class FatalError < StandardError; end
+
+  # Global mutex for the Cosmos module
+  COSMOS_MUTEX = Mutex.new
+
+  # Path to COSMOS Gem based on location of top_level.rb
+  PATH = File.expand_path(File.join(File.dirname(__FILE__), '../..'))
+  PATH.freeze
+
+  # Header to put on all marshal files created by COSMOS
+  COSMOS_MARSHAL_HEADER = "ruby #{RUBY_VERSION} (#{RUBY_RELEASE_DATE} patchlevel #{RUBY_PATCHLEVEL}) [#{RUBY_PLATFORM}] COSMOS #{COSMOS_VERSION}"
+
+  # Disables the Ruby interpreter warnings such as when redefining a constant
+  def self.disable_warnings
+    saved_verbose = $VERBOSE
+    $VERBOSE = nil
+    yield
+    $VERBOSE = saved_verbose
+  end
+
+  # Searches for the file userpath.txt to define the USERPATH constant
+  #
+  # @param start_dir [String] Path to start the search for userpath.txt. The
+  #   search will continue by moving up directories until the root directory is
+  #   reached.
+  def self.define_user_path(start_dir = Dir.pwd)
+    current_dir = File.expand_path(start_dir)
+    while true
+      if File.exist?(File.join(current_dir, 'userpath.txt'))
+        disable_warnings do
+          Cosmos.const_set(:USERPATH, current_dir)
+        end
+        break
+      else
+        old_current_dir = current_dir
+        current_dir = File.expand_path(File.join(current_dir, '..'))
+        if old_current_dir == current_dir
+          # Hit the root dir - give up
+          break
+        end
+      end
+    end
+  end
+
+  #############################################################################
+  # This code is executed in place when this file is required
+
+  # Initialize to nil before searching
+  USERPATH = nil
+
+  # First attempt try from the location of the executable ($0)
+  # Note this method will fail when a intermediary executable is used like rcov
+  self.define_user_path(File.dirname($0))
+  if USERPATH.nil?
+    # Second attempt try from location of the current working directory
+    self.define_user_path(Dir.pwd)
+    if USERPATH.nil?
+      # Last chance - Check environment
+      if ENV['COSMOS_USERPATH']
+        disable_warnings do
+          Cosmos.const_set(:USERPATH, ENV['COSMOS_USERPATH'])
+        end
+      else
+        # Give up and assume we are in the tools directory and there is no userpath.txt file
+        disable_warnings do
+          Cosmos.const_set(:USERPATH, File.expand_path(File.join(File.dirname($0), '..')))
+        end
+      end
+    end
+  end
+  USERPATH.freeze
+
+  #############################################################################
+
+
+  # Adds a path to the global Ruby search path
+  #
+  # @param path [String] Directory path
+  def self.add_to_search_path(path, front = true)
+    Cosmos.set_working_dir do
+      path = File.expand_path(path)
+      $:.delete(path)
+      if front
+        $:.unshift(path)
+      else # Back
+        $: << path
+      end
+    end
+  end
+
+  # Creates a marshal file by serializing the given obj
+  #
+  # @param marshal_filename [String] Name of the marshal file to create
+  # @param obj [Object] The object to serialize to the file
+  def self.marshal_dump(marshal_filename, obj)
+    begin
+      Cosmos.set_working_dir do
+        File.open(marshal_filename, 'wb') do |file|
+          file.write(COSMOS_MARSHAL_HEADER)
+          file.write(Marshal.dump(obj))
+        end
+      end
+    rescue Exception => exception
+      begin
+        Cosmos.set_working_dir do
+          File.delete(marshal_filename)
+        end
+      rescue Exception
+        # Oh well - we tried
+      end
+      self.handle_fatal_exception(exception)
+    end
+  end
+
+  # Loads the marshal file back into a Ruby object
+  #
+  # @param marshal_filename [String] Name of the marshal file to load
+  def self.marshal_load(marshal_filename)
+    begin
+      cosmos_marshal_header = nil
+      data = nil
+      Cosmos.set_working_dir do
+        File.open(marshal_filename, 'rb') do |file|
+          cosmos_marshal_header = file.read(COSMOS_MARSHAL_HEADER.length)
+          data = file.read
+        end
+      end
+      if cosmos_marshal_header == COSMOS_MARSHAL_HEADER
+        return Marshal.load(data)
+      else
+        Logger.warn "Marshal load failed with invalid marshal file: #{marshal_filename}"
+        return nil
+      end
+    rescue Exception => exception
+      Cosmos.set_working_dir do
+        if File.exist?(marshal_filename)
+          Logger.error "Marshal load failed with exception: #{marshal_filename}\n#{exception.formatted}"
+        else
+          Logger.info "Marshal file does not exist: #{marshal_filename}"
+        end
+
+        # Try to delete the bad marshal file
+        begin
+          File.delete(marshal_filename)
+        rescue Exception
+          # Oh well - we tried
+        end
+        self.handle_fatal_exception(exception) if File.exist?(marshal_filename)
+      end
+      return nil
+    end
+  end
+
+  # Changes the current working directory to the USERPATH and then executes the
+  # command in a new Ruby Thread.
+  #
+  # @param command [String] The command to execute via the 'system' call
+  def self.run_process(command)
+    thread = nil
+    Cosmos.set_working_dir do
+      thread = Thread.new do
+        system(command)
+      end
+      # Wait for the thread and process to start
+      sleep 0.01 until !thread.status.nil?
+      sleep 0.1
+    end
+    thread
+  end
+
+  # Changes the current working directory to the USERPATH and then executes the
+  # command in a new Ruby Thread.  Will show a messagebox or print the output if the
+  # process produces any output
+  #
+  # @param command [String] The command to execute via the 'system' call
+  def self.run_process_check_output(command)
+    thread = nil
+    Cosmos.set_working_dir do
+      thread = Thread.new do
+        output, _ = Open3.capture2e(command)
+        if !output.empty?
+          # Work around modalSession messages on Mac Mavericks
+          real_lines = 0
+          output.each_line do |line|
+            real_lines += 1 if line !~ /modalSession/
+          end
+
+          if real_lines > 0
+            Logger.error output
+            self.write_unexpected_file(output)
+            if defined? Qt and Qt::Application.instance
+              Qt.execute_in_main_thread(false) do
+                dialog = Qt::Dialog.new do |box|
+                  box.setWindowTitle('Unexpected text output')
+                  box.resize(600, 600)
+                  text_field = Qt::PlainTextEdit.new
+                  text_field.setReadOnly(true)
+                  orig_font = text_field.font
+                  text_field.setFont(Cosmos.getFont(orig_font.family, orig_font.point_size+2))
+                  text_field.setWordWrapMode(Qt::TextOption::NoWrap)
+                  text_field.appendPlainText(output)
+                  vframe = Qt::VBoxLayout.new
+                  vframe.addWidget(text_field)
+                  sep = Qt::Frame.new(box)
+                  sep.setFrameStyle(Qt::Frame::VLine | Qt::Frame::Sunken)
+                  vframe.addWidget(sep)
+                  ok = Qt::PushButton.new('OK')
+                  ok.setDefault(true)
+                  ok.connect(SIGNAL('clicked(bool)')) { box.accept }
+                  vframe.addWidget(ok)
+                  box.setLayout(vframe)
+                  box.show
+                  box.raise
+                end
+                dialog.exec
+                dialog.dispose
+              end
+            end
+          end
+        end
+      end
+      # Wait for the thread and process to start
+      sleep 0.01 until !thread.status.nil?
+      sleep 0.1
+    end
+    thread
+  end
+
+  # Runs an md5 sum over one or more files and returns the Digest::MD5 object.
+  # Handles windows/unix new line differences but changes in whitespace will
+  # change the md5 sum.
+  #
+  # Usage:
+  #   digest = Cosmos.md5_files(files)
+  #   digest.digest # => the 16 bytes of digest
+  #   digest.hexdigest # => the formatted string in hex
+  #
+  # @param filenames [Array<String>] List of files to read and calculate a md5
+  #   sum on
+  # @param additional_data [String] Additional data to add to the md5 sum
+  # @return [Digest::MD5] The md5 sum
+  def self.md5_files(filenames, additional_data = nil)
+    digest = Digest::MD5.new
+    Cosmos.set_working_dir do
+      filenames.each do |filename|
+        # Read the file's data
+        data = ''
+        File.open(filename, 'r') {|file| data = file.read.gsub("\r",'')}
+
+        # Add to the running MD5 sum
+        digest << data
+      end
+    end
+    digest << additional_data if additional_data
+    digest
+  end
+
+  # Opens a timestamped log file for writing. The opened file is yielded back
+  # to the block.
+  #
+  # @param filename [String] String to append to the exception log filename.
+  #   The filename will start with a date/time stamp.
+  # @param log_dir [String] By default this method will write to the COSMOS
+  #   default log directory. By setting this parameter you can override the
+  #   directory the log will be written to.
+  # @yieldparam file [File] The log file
+  # @return [String|nil] The fully pathed log file name or nil if there was
+  #   an error creating the log file.
+  def self.create_log_file(filename, log_dir)
+    log_file = nil
+    Cosmos.set_working_dir do
+      begin
+        # The following code goes inside a begin rescue because it reads the
+        # system.txt configuration file. If this has an error we won't be able
+        # to determine the log path but we still want to write the log.
+        log_dir = System.instance.paths['LOGS'] unless log_dir
+        log_file = File.join(log_dir,
+                             File.build_timestamped_filename([filename]))
+        # Make sure the log directory exists
+        raise unless File.exist?(log_dir)
+        log_file
+      rescue
+        # If not then we just build a file locally
+        if File.exist?('./outputs/logs')
+          log_file = File.join('./outputs/logs', File.build_timestamped_filename([filename]))
+        elsif File.exist?('./logs')
+          log_file = File.join('./logs', File.build_timestamped_filename([filename]))
+        else
+          log_file = File.build_timestamped_filename([filename])
+        end
+      end
+      begin
+        # Log exception to file, open the file in append mode in case we get
+        # multiple exceptions in the same second. That way we don't lose
+        # exceptions by overwritting the last exception file.
+        COSMOS_MUTEX.synchronize do
+          File.open(log_file, 'a') {|file| yield file }
+        end
+      rescue Exception
+        # Ensure we always return
+      end
+      log_file = File.expand_path(log_file)
+    end
+    return log_file
+  end
+
+  # Writes a log file with information about the current configuration
+  # including the Ruby version, Cosmos version, whether you are on Windows, the
+  # COSMOS path and userpath, and the Ruby path along with the exception that
+  # is passed in.
+  #
+  # @param [String] filename String to append to the exception log filename.
+  #   The filename will start with a date/time stamp.
+  # @param [String] log_dir By default this method will write to the COSMOS
+  #   default log directory. By setting this parameter you can override the
+  #   directory the log will be written to.
+  # @return [String|nil] The fully pathed log file name or nil if there was
+  #   an error creating the log file.
+  def self.write_exception_file(exception, filename = 'exception', log_dir = nil)
+    log_file = create_log_file(filename, log_dir) do |file|
+      file.puts "Exception:"
+      if exception
+        file.puts exception.formatted
+        file.puts
+      else
+        file.puts "No Exception Given"
+        file.puts caller.join("\n")
+        file.puts
+      end
+      file.puts "Caller Backtrace:"
+      file.puts caller().join("\n")
+      file.puts
+
+      file.puts "Ruby Version: ruby #{RUBY_VERSION} (#{RUBY_RELEASE_DATE} patchlevel #{RUBY_PATCHLEVEL}) [#{RUBY_PLATFORM}]"
+      file.puts "Rubygems Version: #{Gem::VERSION}"
+      file.puts "Cosmos Version: #{Cosmos::VERSION}"
+      file.puts "Cosmos::PATH: #{Cosmos::PATH}"
+      file.puts "Cosmos::USERPATH: #{Cosmos::USERPATH}"
+      file.puts ""
+      file.puts "Environment:"
+      file.puts "RUBYOPT: #{ENV['GEM_HOME']}"
+      file.puts "RUBYLIB: #{ENV['GEM_HOME']}"
+      file.puts "GEM_PATH: #{ENV['GEM_HOME']}"
+      file.puts "GEMRC: #{ENV['GEM_HOME']}"
+      file.puts "RI_DEVKIT: #{ENV['GEM_HOME']}"
+      file.puts "GEM_HOME: #{ENV['GEM_HOME']}"
+      file.puts "PATH: #{ENV['PATH']}"
+      file.puts ""
+      file.puts "Ruby Path:\n  #{$:.join("\n  ")}\n\n"
+      file.puts "Gems:"
+      Gem.loaded_specs.values.map {|x| file.puts "#{x.name} #{x.version} #{x.platform}"}
+      file.puts ""
+      file.puts ""
+    end
+    return log_file
+  end
+
+  # Writes a log file with information about unexpected output
+  #
+  # @param[String] text The unexpected output text
+  # @param [String] filename String to append to the exception log filename.
+  #   The filename will start with a date/time stamp.
+  # @param [String] log_dir By default this method will write to the COSMOS
+  #   default log directory. By setting this parameter you can override the
+  #   directory the log will be written to.
+  # @return [String|nil] The fully pathed log file name or nil if there was
+  #   an error creating the log file.
+  def self.write_unexpected_file(text, filename = 'unexpected', log_dir = nil)
+    log_file = create_log_file(filename, log_dir) do |file|
+      file.puts "Unexpected Output:\n\n"
+      file.puts text
+    end
+    return log_file
+  end
+
+  # Catch fatal exceptions within the block
+  # This is intended to catch exceptions before the GUI is available
+  def self.catch_fatal_exception
+    begin
+      yield
+    rescue Exception => error
+      unless error.class == SystemExit or error.class == Interrupt
+        Logger.level = Logger::FATAL
+        Cosmos.handle_fatal_exception(error, false)
+      end
+    end
+  end
+
+  # Write a message to the Logger, write an exception file, and popup a GUI
+  # window if try_gui. Finally 'exit 1' is called to end the calling program.
+  #
+  # @param error [Exception] The exception to handle
+  # @param try_gui [Boolean] Whether to try and create a GUI exception popup
+  def self.handle_fatal_exception(error, try_gui = true)
+    log_file = self.write_exception_file(error)
+    Logger.level = Logger::FATAL unless try_gui
+    Logger.fatal "Fatal Exception! Exiting..."
+    Logger.fatal error.formatted
+    if defined? ExceptionDialog and try_gui
+      Qt.execute_in_main_thread(true) {|| ExceptionDialog.new(nil, error, '', true, false, log_file)}
+    else
+      if $stdout != STDOUT
+        $stdout = STDOUT
+        Logger.fatal "Fatal Exception! Exiting..."
+        Logger.fatal error.formatted
+      end
+      sleep 1 # Allow the messages to be printed and then crash
+      exit 1
+    end
+  end
+
+  # CriticalErrors are errors that need to be brought to a user's attention but
+  # do not cause an exit. A good example is if the packet log writer fails and
+  # can no longer write the log file. Write a message to the Logger, write an
+  # exception file, and popup a GUI window if try_gui. Ensure the GUI only
+  # comes up once so this method can be called over and over by failing code.
+  #
+  # @param error [Exception] The exception to handle
+  # @param try_gui [Boolean] Whether to try and create a GUI exception popup
+  def self.handle_critical_exception(error, try_gui = true)
+    Logger.error "Critical Exception! #{error.formatted}"
+    if defined? ExceptionDialog and !ExceptionDialog.dialog_open?
+      log_file = self.write_exception_file(error)
+      if try_gui
+        Qt.execute_in_main_thread(true) {|| ExceptionDialog.new(nil, error, '', false, false, log_file)}
+      end
+    end
+  end
+
+  # Creates a Ruby Thread to run the given block. Rescues any exceptions and
+  # retries the threads the given number of times before handling the thread
+  # death by calling {Cosmos.handle_fatal_exception}.
+  #
+  # @param name [String] Name of the thread
+  # @param retry_attempts [Integer] The number of times to allow the thread to
+  #   restart before exiting
+  def self.safe_thread(name, retry_attempts = 0)
+    Thread.new do
+      retry_count = 0
+      begin
+        yield
+      rescue Exception => error
+        Logger.error "#{name} thread unexpectedly died. Retries: #{retry_count} of #{retry_attempts}"
+        Logger.error error.formatted
+        retry_count += 1
+        if retry_count <= retry_attempts
+          self.write_exception_file(error)
+          retry
+        end
+        handle_fatal_exception(error)
+      end
+    end
+  end
+
+  # Require the class represented by the filename. This uses the standard Ruby
+  # convention of having a single class per file where the class name is camel
+  # cased and filename is lowercase with underscores.
+  #
+  # @param class_filename [String] The name of the file which contains the
+  #   Ruby class to require
+  def self.require_class(class_filename)
+    class_name = class_filename.filename_to_class_name
+    return class_name.to_class if class_name.to_class and defined? class_name.to_class
+    begin
+      require class_filename
+    rescue LoadError => err
+      msg = "Unable to require #{class_filename} due to #{err.message}. Ensure #{class_filename} is in the COSMOS lib directory."
+      Logger.error msg
+      raise msg
+    end
+    klass = class_name.to_class
+    if klass
+      return klass
+    else
+      raise "Ruby class #{class_name} not found"
+    end
+  end
+
+  # @param filename [String] Name of the file to open in the editor
+  def self.open_in_text_editor(filename)
+    if filename
+      if Kernel.is_windows?
+        if File.extname(filename).to_s.downcase == '.csv'
+          self.run_process("cmd /c \"start wordpad \"#{filename.gsub('/','\\')}\"\"")
+        else
+          self.run_process("cmd /c \"start \"\" \"#{filename.gsub('/','\\')}\"\"")
+        end
+      elsif Kernel.is_mac?
+        self.run_process("open -a TextEdit \"#{filename}\"")
+      else
+        which_gedit = `which gedit 2>&1`.chomp
+        if which_gedit =~ /Command not found/i or which_gedit =~ /no .* in/i
+          # No gedit
+          editor = ENV['EDITOR']
+          editor = 'vi' unless editor
+          which_xterm = `which xterm 2>&1`.chomp
+          if which_xterm =~ /Command not found/i or which_xterm =~ /no .* in/i
+            # No xterm
+            which_gnome_terminal = `which gnome-terminal 2>&1`.chomp
+            if which_gnome_terminal =~ /Command not found/i or which_gnome_terminal =~ /no .* in/i
+              # No gnome-terminal - Do nothing
+            else
+              # Have gnome-terminal
+              system_call = "gnome-terminal -e #{editor} \"#{filename}\""
+            end
+          else
+            # Have xterm
+            system_call = "xterm -e #{editor} \"#{filename}\""
+          end
+        else
+          # Have gedit
+          system_call = "gedit \"#{filename}\""
+        end
+        self.run_process(system_call)
+      end
+    end
+  end
+
+  # @param filename [String] Name of the file to open in the web browser
+  def self.open_in_web_browser(filename)
+    if filename
+      if Kernel.is_windows?
+        self.run_process("cmd /c \"start \"\" \"#{filename.gsub('/','\\')}\"\"")
+      elsif Kernel.is_mac?
+        self.run_process("open -a Safari \"#{filename}\"")
+      else
+        which_firefox = `which firefox`.chomp
+        if which_firefox =~ /Command not found/i or which_firefox =~ /no .* in/i
+          raise "Firefox not found"
+        else
+          system_call = "#{which_firefox} \"#{filename}\""
+        end
+        self.run_process(system_call)
+      end
+    end
+  end
+
+  # Temporarily set the working directory during a block
+  def self.set_working_dir(working_dir = Cosmos::USERPATH)
+    current_dir = Dir.pwd
+    Dir.chdir(working_dir)
+    begin
+      yield
+    ensure
+      Dir.chdir(current_dir)
+    end
+  end
+
+end

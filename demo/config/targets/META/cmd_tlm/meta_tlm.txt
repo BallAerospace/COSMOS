@@ -1,0 +1,13 @@
+TELEMETRY META DATA BIG_ENDIAN "Metadata"
+  APPEND_ITEM TEST_COUNT 32 INT "Test Count"
+    GENERIC_WRITE_CONVERSION_START
+      raise "Value must be 123" if value.to_i != 123
+      value
+    GENERIC_WRITE_CONVERSION_END
+  APPEND_ITEM TEST_ANGLE 64 FLOAT "Test Angle"
+  APPEND_ITEM TEST_TYPE 32 UINT "Test Type"
+    STATE TVAC 0
+    STATE EMI 1
+    STATE OTHER 2
+  APPEND_ITEM VERSION 1024 STRING "Version Metadata"
+    WRITE_CONVERSION new_packet_log_conversion.rb

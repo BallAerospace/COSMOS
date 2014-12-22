@@ -1,0 +1,5 @@
+AUTO_TARGETS
+
+# TARGET "INST"
+#  SCREEN "adcs.txt"
+
