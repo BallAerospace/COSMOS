@@ -9,6 +9,7 @@
 # as published by the Free Software Foundation; version 3 with
 # attribution addendums as found in the LICENSE.txt
 
+require 'bundler/setup' unless ENV['COSMOS_DEVEL']
 require 'cosmos'
 require 'cosmos/tools/data_viewer/data_viewer'
 Cosmos::DataViewer.run
