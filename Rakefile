@@ -209,5 +209,5 @@ YARD::Rake::YardocTask.new do |t|
   t.options = ['--protected'] # See all options by typing 'yardoc --help'
 end
 
-task :release => [:require_version, :git_checkout_master, :build, :spec, :manifest, :version, :install_crc, :gem, :installer]
+task :release => [:require_version, :git_checkout_master, :build, :spec, :manifest, :version, :install_crc, :gem]
 task :commit_release => [:commit_release_ticket, :tag_release]
