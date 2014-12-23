@@ -128,6 +128,18 @@ module Cosmos
       end
     end
 
+    def print(*args)
+      Qt.execute_in_main_thread(true) do
+        if String === args[0]
+          @text_edit.appendPlainText(args[0])
+        else
+          args.each do |string|
+            @text_edit.appendPlainText(string)
+          end
+        end
+      end
+    end
+
     def tty?
       false
     end
