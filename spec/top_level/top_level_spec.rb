@@ -91,9 +91,11 @@ module Cosmos
 
   describe "self.add_to_search_path" do
     it "should add a directory to the Ruby search path" do
-      $:.should_not include("C:/test/path")
-      Cosmos.add_to_search_path("C:/test/path")
-      $:.should include("C:/test/path")
+      if Kernel.is_windows?
+        $:.should_not include("C:/test/path")
+        Cosmos.add_to_search_path("C:/test/path")
+        $:.should include("C:/test/path")
+      end
     end
   end
 
@@ -154,26 +156,30 @@ module Cosmos
 
   describe "run_process" do
     it "should return a Thread" do
-      capture_io do |stdout|
-        thread = Cosmos.run_process("PING 192.0.0.234 -n 1 -w 1000 > nul")
-        sleep 0.1
-        thread.should be_a Thread
-        thread.alive?.should be_truthy
-        sleep 2
-        thread.alive?.should be_falsey
+      if Kernel.is_windows?
+        capture_io do |stdout|
+          thread = Cosmos.run_process("ping 192.0.0.234 -n 1 -w 1000 > nul")
+          sleep 0.1
+          thread.should be_a Thread
+          thread.alive?.should be_truthy
+          sleep 2
+          thread.alive?.should be_falsey
+        end
       end
     end
   end
 
   describe "run_process_check_output" do
     it "should execute a command while capturing output" do
-      require 'Qt'
-      allow(Qt::Application).to receive(:instance).and_return(nil)
-      output = ''
-      allow(Logger).to receive(:error) {|str| output = str}
-      thread = Cosmos.run_process_check_output("PING 192.0.0.234 -n 1 -w 1000")
-      sleep 0.1 while thread.alive?
-      output.should match "Pinging 192.0.0.234"
+      if Kernel.is_windows?
+        require 'Qt'
+        allow(Qt::Application).to receive(:instance).and_return(nil)
+        output = ''
+        allow(Logger).to receive(:error) {|str| output = str}
+        thread = Cosmos.run_process_check_output("ping 192.0.0.234 -n 1 -w 1000")
+        sleep 0.1 while thread.alive?
+        output.should match "Pinging 192.0.0.234"
+      end
     end
   end
 

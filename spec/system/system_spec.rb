@@ -401,13 +401,15 @@ module Cosmos
         end
 
         it "should change known paths" do
-          tf = Tempfile.new('unittest')
-          tf.puts("PATH LOGS C:/mylogs")
-          tf.close
-          System.paths['LOGS'].should match 'outputs/logs'
-          System.instance.process_file(tf.path)
-          System.paths['LOGS'].should eql 'C:/mylogs'
-          tf.unlink
+          if Kernel.is_windows?
+            tf = Tempfile.new('unittest')
+            tf.puts("PATH LOGS C:/mylogs")
+            tf.close
+            System.paths['LOGS'].should match 'outputs/logs'
+            System.instance.process_file(tf.path)
+            System.paths['LOGS'].should eql 'C:/mylogs'
+            tf.unlink
+          end
         end
       end
 
@@ -526,15 +528,15 @@ module Cosmos
 
         it "should complain about bad addresses" do
           tf = Tempfile.new('unittest')
-          tf.puts("ALLOW_ACCESS 123456789")
+          tf.puts("ALLOW_ACCESS blah")
           tf.close
-          expect { System.instance.process_file(tf.path) }.to raise_error(ConfigParser::Error, "Problem with ALLOW_ACCESS due to badly formatted address 123456789")
+          expect { System.instance.process_file(tf.path) }.to raise_error(ConfigParser::Error)
           tf.unlink
 
           tf = Tempfile.new('unittest')
           tf.puts("ALLOW_ACCESS hopefully_this_is_not_a_valid_machine_name_XYZ")
           tf.close
-          expect { System.instance.process_file(tf.path) }.to raise_error(ConfigParser::Error, "Problem with ALLOW_ACCESS due to getaddrinfo: No such host is known.")
+          expect { System.instance.process_file(tf.path) }.to raise_error(ConfigParser::Error)
           tf.unlink
         end
 

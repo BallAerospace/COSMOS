@@ -41,12 +41,14 @@ module Cosmos
     describe "connect" do
       it "should pass a new SerialStream to the stream protocol" do
         # Ensure the 'NONE' parity is coverted to a symbol
-        i = SerialInterface.new('COM1','COM1','9600','NONE','1','0','0','burst')
-        i.connected?.should be_falsey
-        i.connect
-        i.connected?.should be_truthy
-        i.disconnect
-        i.connected?.should be_falsey
+        if Kernel.is_windows?
+          i = SerialInterface.new('COM1','COM1','9600','NONE','1','0','0','burst')
+          i.connected?.should be_falsey
+          i.connect
+          i.connected?.should be_truthy
+          i.disconnect
+          i.connected?.should be_falsey
+        end
       end
     end
   end

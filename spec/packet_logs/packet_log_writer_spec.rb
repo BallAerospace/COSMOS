@@ -122,7 +122,7 @@ module Cosmos
         # Ensure we have two log files
         Dir[File.join(@log_path,"*.bin")].length.should eql 2
         # Check that the log files have timestamps which are 3 (or 4) seconds apart
-        files = Dir[File.join(@log_path,"*.bin")]
+        files = Dir[File.join(@log_path,"*tlm.bin")].sort
         log1_seconds = files[0].split('_')[-3].to_i * 60 + files[0].split('_')[-2].to_i
         log2_seconds = files[1].split('_')[-3].to_i * 60 + files[1].split('_')[-2].to_i
         (log2_seconds - log1_seconds).should be_within(2).of(3)

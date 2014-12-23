@@ -68,7 +68,7 @@ module Cosmos
         capture_io do |stdout|
           @json.thread.should be_nil
           system_exit_count = $system_exit_count
-          @json.start_service('127', 7777, self)
+          @json.start_service('blah', 7777, self)
           $system_exit_count.should eql(system_exit_count + 1)
           sleep 0.1
 

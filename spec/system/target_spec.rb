@@ -55,7 +55,7 @@ module Cosmos
         files = Dir[File.join(cmd_tlm,'*.txt')]
         files.should_not be_empty
         tgt.cmd_tlm_files.length.should eql 4
-        tgt.cmd_tlm_files.should eql files
+        tgt.cmd_tlm_files.sort.should eql files.sort
 
         FileUtils.rm_r(tgt_path)
       end

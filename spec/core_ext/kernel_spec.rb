@@ -30,7 +30,11 @@ describe Kernel do
       if $:[0] =~ /[a-zA-Z]:/
         expect(is_mac?).to be false
       else
-        expect(is_mac?).to be true
+        if RUBY_PLATFORM =~/darwin/
+          expect(is_mac?).to be true
+        else
+          expect(is_mac?).to be false
+        end
       end
     end
   end

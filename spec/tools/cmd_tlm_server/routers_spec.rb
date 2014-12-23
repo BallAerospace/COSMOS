@@ -124,7 +124,7 @@ module Cosmos
         tf.puts 'ROUTE DEST2'
         tf.close
         capture_io do |stdout|
-          server = TCPServer.new(8888)
+          server = TCPServer.new('127.0.0.1', 9797)
           Thread.new do
             client = server.accept
             client.close

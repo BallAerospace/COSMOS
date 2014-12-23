@@ -42,6 +42,8 @@ DEFAULT_USERPATH = Cosmos::USERPATH
 
 $system_exit_count = 0
 # Overload exit so we know when it is called
+
+alias old_exit exit
 def exit(*args)
   $system_exit_count += 1
 end
@@ -58,7 +60,11 @@ RSpec.configure do |config|
     $saved_stdout_const  = Object.const_get(:STDOUT)
   end
 
-  #config.after(:all) {}
+  config.after(:all) {
+    def Object.exit(*args)
+      old_exit(*args)
+    end
+  }
 
   # Before each test make sure $stdout and STDOUT are set. They might be messed
   # up if a spec fails in the middle of capture_io and we don't have a chance
