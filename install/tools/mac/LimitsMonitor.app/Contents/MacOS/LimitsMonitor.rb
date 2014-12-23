@@ -9,6 +9,7 @@
 # as published by the Free Software Foundation; version 3 with
 # attribution addendums as found in the LICENSE.txt
 
+require 'bundler/setup' unless ENV['COSMOS_DEVEL']
 require 'cosmos'
 require 'cosmos/tools/limits_monitor/limits_monitor'
 Cosmos::LimitsMonitor.run
