@@ -66,6 +66,7 @@ spec = Gem::Specification.new do |s|
   s.required_ruby_version = '~> 2'
 
   # Runtime Dependencies
+  s.add_runtime_dependency 'bundler', '~> 1', '>= 1.3'
   s.add_runtime_dependency 'rdoc', '~> 4'
   s.add_runtime_dependency 'rake', '~> 10'
   s.add_runtime_dependency 'json', '~> 1.8'
@@ -76,7 +77,7 @@ spec = Gem::Specification.new do |s|
   s.add_runtime_dependency 'opengl', '~> 0.9'
   s.add_runtime_dependency 'snmp', '~> 1'
   s.add_runtime_dependency 'rubyzip', '~> 1.1'
-  s.add_runtime_dependency 'qtbindings', '~> 4.8', '> 4.8.5.2'
+  s.add_runtime_dependency 'qtbindings', '~> 4.8', '>= 4.8.5.2'
   s.add_runtime_dependency('ruby-termios', '~> 0.9') if RbConfig::CONFIG['target_os'] !~ /mswin|mingw|cygwin/i
 
   # Development Dependencies
