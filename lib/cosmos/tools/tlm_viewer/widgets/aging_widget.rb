@@ -97,7 +97,7 @@ module Cosmos
           gray = setting_values[0].to_i
           @min_gray = gray unless gray < 0
         when 'ENABLE_AGING'
-          enable_aging = Cosmos::handle_true_false(setting_values[0], true)
+          enable_aging = ConfigParser::handle_true_false(setting_values[0])
           @enable_aging = enable_aging
         when 'COLORBLIND'
           @colorblind = ConfigParser::handle_true_false(setting_values[0])

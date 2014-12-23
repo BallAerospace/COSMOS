@@ -33,6 +33,10 @@ COSMOS is built and maintained by Ryan Melton (ryanatball/ryanmelt) and Jason Th
 
 We encourage you to contribute to COSMOS!
 
+## Code Status
+
+* [![Build Status](https://travis-ci.org/BallAerospace/COSMOS.svg?branch=master)](https://travis-ci.org/BallAerospace/COSMOS)
+
 ## License
 
 Ball Aerospace COSMOS is released under the GPLv3.0 with a few addendums.   See [LICENSE.txt](LICENSE.txt)
