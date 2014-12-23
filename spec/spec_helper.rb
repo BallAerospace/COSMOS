@@ -9,22 +9,24 @@
 # attribution addendums as found in the LICENSE.txt
 
 # NOTE: You MUST require simplecov before anything else!
-require 'simplecov'
-SimpleCov.start do
-  merge_timeout 7200 # merge the last two hours of results
-  add_filter '/spec/'
-  add_filter '/autohotkey/'
+unless ENV['COSMOS_NO_SIMPLECOV']
+  require 'simplecov'
+  SimpleCov.start do
+    merge_timeout 7200 # merge the last two hours of results
+    add_filter '/spec/'
+    add_filter '/autohotkey/'
 
-  add_group 'Core' do |src|
-    !src.filename.include?('gui') && !src.filename.include?('tools')
+    add_group 'Core' do |src|
+      !src.filename.include?('gui') && !src.filename.include?('tools')
+    end
+    add_group 'GUI', 'gui'
+    add_group 'Tools', 'tools'
   end
-  add_group 'GUI', 'gui'
-  add_group 'Tools', 'tools'
-end
-SimpleCov.at_exit do
-  Encoding.default_external = Encoding::UTF_8
-  Encoding.default_internal = nil
-  SimpleCov.result.format!
+  SimpleCov.at_exit do
+    Encoding.default_external = Encoding::UTF_8
+    Encoding.default_internal = nil
+    SimpleCov.result.format!
+  end
 end
 require 'rspec'
 require 'ruby-prof'
