@@ -560,12 +560,14 @@ module Cosmos
 
         it "should store host by IP address" do
           addr = IPSocket.getaddress("www.google.com")
-          tf = Tempfile.new('unittest')
-          tf.puts("ALLOW_ACCESS #{addr}")
-          tf.close
-          System.instance.process_file(tf.path)
-          System.acl.allow_addr?(["AF_INET",0,"www.google.com",addr]).should be_truthy
-          tf.unlink
+          if addr and !addr.index(':')
+            tf = Tempfile.new('unittest')
+            tf.puts("ALLOW_ACCESS #{addr}")
+            tf.close
+            System.instance.process_file(tf.path)
+            System.acl.allow_addr?(["AF_INET",0,"www.google.com",addr]).should be_truthy
+            tf.unlink
+          end
         end
       end
 
