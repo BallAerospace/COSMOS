@@ -152,6 +152,7 @@ task :commit_release_ticket => [:require_version, :git_checkout_master] do
   system('git add demo/config/data/crc.txt')
   system('git add install/config/data/crc.txt')
   system('git add lib/cosmos/version.rb')
+  system('git add Manifest.txt')
   system("git commit -m \"Release COSMOS #{ENV['VERSION']}\"")
   system("git push")
 end
