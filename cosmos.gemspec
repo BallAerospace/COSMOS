@@ -1,6 +1,6 @@
 # encoding: ascii-8bit
 
-# Copyright © 2014 Ball Aerospace & Technologies Corp.
+# Copyright 2014 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
 # This program is free software; you can modify and/or redistribute it
@@ -67,14 +67,14 @@ spec = Gem::Specification.new do |s|
 
   # Runtime Dependencies
   s.add_runtime_dependency 'bundler', '~> 1', '>= 1.3'
-  s.add_runtime_dependency 'rdoc', '~> 4'
+  s.add_runtime_dependency 'rdoc', '>= 3', '< 5'
   s.add_runtime_dependency 'rake', '>= 0', '< 11'
-  s.add_runtime_dependency 'json', '~> 1.8'
-  s.add_runtime_dependency 'pry', '~> 0.10'
-  s.add_runtime_dependency 'pry-doc', '~> 0.6'
+  s.add_runtime_dependency 'json', '>= 1.5', '< 1.9'
+  s.add_runtime_dependency 'pry', '>= 0.9', '< 0.11'
+  s.add_runtime_dependency 'pry-doc', '>= 0.5', '< 0.7'
   s.add_runtime_dependency 'yard', '~> 0.8'
   s.add_runtime_dependency 'uuidtools', '~> 2.1'
-  s.add_runtime_dependency 'opengl', '~> 0.9'
+  s.add_runtime_dependency 'opengl', '>= 0.7', '< 0.10'
   s.add_runtime_dependency 'snmp', '~> 1'
   s.add_runtime_dependency 'rubyzip', '~> 1.1'
   s.add_runtime_dependency 'qtbindings', '~> 4.8', '>= 4.8.5.2'
@@ -86,11 +86,11 @@ spec = Gem::Specification.new do |s|
   s.add_development_dependency 'flay', '~> 2'
   s.add_development_dependency 'reek', '~> 1'
   s.add_development_dependency 'roodi', '~> 4'
-  s.add_development_dependency 'guard', '~> 2.10'
+  s.add_development_dependency 'guard', '~> 2'
   s.add_development_dependency 'listen', '~> 2.4'
   s.add_development_dependency('wdm', '~> 0.1') if RbConfig::CONFIG['target_os'] =~ /mswin|mingw|cygwin/i
-  s.add_development_dependency 'guard-bundler', '~> 2.1'
-  s.add_development_dependency 'guard-rspec', '~> 4.5'
+  s.add_development_dependency 'guard-bundler', '~> 2'
+  s.add_development_dependency 'guard-rspec', '~> 4'
   s.add_development_dependency 'simplecov', '~> 0.9'
   s.add_development_dependency 'ruby-prof', '~> 0.15'
 
