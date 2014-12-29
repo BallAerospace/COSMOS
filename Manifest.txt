@@ -1,7 +1,9 @@
 .gitignore
+.travis.yml
 Gemfile
 Guardfile
 LICENSE.txt
+Manifest.txt
 README.md
 Rakefile
 autohotkey/config/data/attitude.bin
@@ -254,6 +256,7 @@ data/tlm_extractor.png
 data/tlm_grapher.png
 data/tlm_viewer.png
 data/undo.png
+demo/Gemfile
 demo/Launcher
 demo/Launcher.bat
 demo/Rakefile
@@ -512,6 +515,7 @@ ext/cosmos/ext/tabbed_plots_config/extconf.rb
 ext/cosmos/ext/tabbed_plots_config/tabbed_plots_config.c
 ext/cosmos/ext/telemetry/extconf.rb
 ext/cosmos/ext/telemetry/telemetry.c
+install/Gemfile
 install/Launcher
 install/Launcher.bat
 install/Rakefile
@@ -1026,6 +1030,7 @@ spec/install/config/targets/INST/target.txt
 spec/install/config/targets/META/cmd_tlm/meta_cmd.txt
 spec/install/config/targets/META/cmd_tlm/meta_tlm.txt
 spec/install/config/targets/SYSTEM/cmd_tlm/limits_groups.txt
+spec/install/config/tools/cmd_tlm_server/cmd_tlm_server.txt
 spec/install/lib/README.txt
 spec/install/userpath.txt
 spec/interfaces/cmd_tlm_server_interface_spec.rb
