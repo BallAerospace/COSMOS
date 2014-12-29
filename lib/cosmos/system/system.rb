@@ -1,6 +1,6 @@
 # encoding: ascii-8bit
 
-# Copyright © 2014 Ball Aerospace & Technologies Corp.
+# Copyright 2014 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
 # This program is free software; you can modify and/or redistribute it
@@ -343,7 +343,10 @@ module Cosmos
             raise parser.error("#{path} must exist", usage)
           end
           system_found = false
-          Dir.foreach(File.join(USERPATH, 'config', 'targets')) do |dir_filename|
+          dirs = []
+          Dir.foreach(File.join(USERPATH, 'config', 'targets')) { |dir_filename| dirs << dir_filename }
+          dirs.sort!
+          dirs.each do |dir_filename|
             if dir_filename[0] != '.'
               if dir_filename == dir_filename.upcase
                 if dir_filename == 'SYSTEM'

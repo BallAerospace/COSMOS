@@ -1,6 +1,6 @@
 # encoding: ascii-8bit
 
-# Copyright © 2014 Ball Aerospace & Technologies Corp.
+# Copyright 2014 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
 # This program is free software; you can modify and/or redistribute it
@@ -123,6 +123,18 @@ module Cosmos
             else
               @text_edit.appendPlainText(string + "\n")
             end
+          end
+        end
+      end
+    end
+
+    def print(*args)
+      Qt.execute_in_main_thread(true) do
+        if String === args[0]
+          @text_edit.appendPlainText(args[0])
+        else
+          args.each do |string|
+            @text_edit.appendPlainText(string)
           end
         end
       end

@@ -1,6 +1,6 @@
 # encoding: ascii-8bit
 
-# Copyright © 2014 Ball Aerospace & Technologies Corp.
+# Copyright 2014 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
 # This program is free software; you can modify and/or redistribute it
@@ -57,12 +57,12 @@ module Cosmos
       end
 
       # Log to messages command being sent, update counters, and initially update current value table
+      target = nil
       if packet.identified?
         command = System.commands.packet(packet.target_name, packet.packet_name)
         raise "Cannot send DISABLED command #{packet.target_name} #{packet.packet_name}" if packet.disabled
         target = System.targets[packet.target_name]
         target.cmd_cnt += 1
-        Logger.info System.commands.format(packet, target.ignored_parameters) unless packet.messages_disabled
       else
         command = System.commands.packet('UNKNOWN', 'UNKNOWN')
         Logger.warn "Unidentified packet of #{packet.length} bytes being sent to interface #{interface.name}"
@@ -71,6 +71,7 @@ module Cosmos
       command.raw = packet.raw
       command.buffer = packet.buffer
       command.received_count += 1
+      Logger.info System.commands.format(command, target.ignored_parameters) if !command.messages_disabled and command.target_name != 'UNKNOWN'
 
       if packet.identified?
         # Write the identified and defined packet to the interface

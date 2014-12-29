@@ -1,6 +1,6 @@
 # encoding: ascii-8bit
 
-# Copyright © 2014 Ball Aerospace & Technologies Corp.
+# Copyright 2014 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
 # This program is free software; you can modify and/or redistribute it
@@ -401,13 +401,15 @@ module Cosmos
         end
 
         it "should change known paths" do
-          tf = Tempfile.new('unittest')
-          tf.puts("PATH LOGS C:/mylogs")
-          tf.close
-          System.paths['LOGS'].should match 'outputs/logs'
-          System.instance.process_file(tf.path)
-          System.paths['LOGS'].should eql 'C:/mylogs'
-          tf.unlink
+          if Kernel.is_windows?
+            tf = Tempfile.new('unittest')
+            tf.puts("PATH LOGS C:/mylogs")
+            tf.close
+            System.paths['LOGS'].should match 'outputs/logs'
+            System.instance.process_file(tf.path)
+            System.paths['LOGS'].should eql 'C:/mylogs'
+            tf.unlink
+          end
         end
       end
 
@@ -526,15 +528,15 @@ module Cosmos
 
         it "should complain about bad addresses" do
           tf = Tempfile.new('unittest')
-          tf.puts("ALLOW_ACCESS 123456789")
+          tf.puts("ALLOW_ACCESS blah")
           tf.close
-          expect { System.instance.process_file(tf.path) }.to raise_error(ConfigParser::Error, "Problem with ALLOW_ACCESS due to badly formatted address 123456789")
+          expect { System.instance.process_file(tf.path) }.to raise_error(ConfigParser::Error)
           tf.unlink
 
           tf = Tempfile.new('unittest')
           tf.puts("ALLOW_ACCESS hopefully_this_is_not_a_valid_machine_name_XYZ")
           tf.close
-          expect { System.instance.process_file(tf.path) }.to raise_error(ConfigParser::Error, "Problem with ALLOW_ACCESS due to getaddrinfo: No such host is known.")
+          expect { System.instance.process_file(tf.path) }.to raise_error(ConfigParser::Error)
           tf.unlink
         end
 
@@ -558,12 +560,14 @@ module Cosmos
 
         it "should store host by IP address" do
           addr = IPSocket.getaddress("www.google.com")
-          tf = Tempfile.new('unittest')
-          tf.puts("ALLOW_ACCESS #{addr}")
-          tf.close
-          System.instance.process_file(tf.path)
-          System.acl.allow_addr?(["AF_INET",0,"www.google.com",addr]).should be_truthy
-          tf.unlink
+          if addr and !addr.index(':')
+            tf = Tempfile.new('unittest')
+            tf.puts("ALLOW_ACCESS #{addr}")
+            tf.close
+            System.instance.process_file(tf.path)
+            System.acl.allow_addr?(["AF_INET",0,"www.google.com",addr]).should be_truthy
+            tf.unlink
+          end
         end
       end
 

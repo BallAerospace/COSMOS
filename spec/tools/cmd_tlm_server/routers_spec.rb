@@ -1,6 +1,6 @@
 # encoding: ascii-8bit
 
-# Copyright © 2014 Ball Aerospace & Technologies Corp.
+# Copyright 2014 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
 # This program is free software; you can modify and/or redistribute it
@@ -124,7 +124,7 @@ module Cosmos
         tf.puts 'ROUTE DEST2'
         tf.close
         capture_io do |stdout|
-          server = TCPServer.new(8888)
+          server = TCPServer.new('127.0.0.1', 9797)
           Thread.new do
             client = server.accept
             client.close

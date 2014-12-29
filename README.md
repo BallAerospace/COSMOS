@@ -1,5 +1,3 @@
-# COMING SOON!
-
 ## Welcome to Ball Aerospace COSMOS
 
 Ball Aerospace COSMOS provides all the functionality needed to send commands to and receive data from one or more embedded systems referred to as "targets". Out of the box functionality includes: Telemetry Display, Telemetry Graphing, Operational and Test Scripting, Command Sending, Logging, Log File Playback, Table Management, and more.
@@ -10,7 +8,7 @@ COSMOS is built and maintained by Ryan Melton (ryanatball/ryanmelt) and Jason Th
 
 1. Install COSMOS at the command prompt if you haven't yet:
 
-        gem install cosmos (Not working yet - COMING SOON!)
+        gem install cosmos
 
    Note on non-windows systems you will need to have all necessary prerequisites installed (primarily cmake and qt 4.8.x). See the [Installation Guide](https://github.com/BallAerospace/COSMOS/wiki/Installation-Guide)
 
@@ -34,6 +32,10 @@ COSMOS is built and maintained by Ryan Melton (ryanatball/ryanmelt) and Jason Th
 ## Contributing
 
 We encourage you to contribute to COSMOS!
+
+## Code Status
+
+* [![Build Status](https://travis-ci.org/BallAerospace/COSMOS.svg?branch=master)](https://travis-ci.org/BallAerospace/COSMOS)
 
 ## License
 

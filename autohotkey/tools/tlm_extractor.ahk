@@ -108,15 +108,18 @@ Send {Enter}
 WinWaitActive Telemetry Extractor
 Click 668 810   ; Open log in Excel for viewing TE-8
 WinWaitActive Excel
+Sleep 500
 Send !f{x}      ; Exit out of Excel
 Sleep 500
 Send n          ; In case it asks if we want to save changes
 WinActivate Telemetry Extractor
 WinWaitActive Telemetry Extractor
+Sleep 500
 Click 408 810   ; Open log in text editor TE-7
 Sleep 2000
 Send !f{x}      ; Exit text editor
 WinWaitActive Telemetry Extractor
+Sleep 500
 
 ; Exercise remaining options (even if they give 'silly' results)
 Send ^f         ; Toggle back fill down checkbox

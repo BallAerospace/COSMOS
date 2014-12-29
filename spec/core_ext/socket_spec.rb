@@ -1,6 +1,6 @@
 # encoding: ascii-8bit
 
-# Copyright © 2014 Ball Aerospace & Technologies Corp.
+# Copyright 2014 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
 # This program is free software; you can modify and/or redistribute it
@@ -14,7 +14,12 @@ require 'cosmos/core_ext/socket'
 describe Socket do
   describe "get_own_ip_address" do
     it "should return the ip address of the current machine" do
-      Socket.get_own_ip_address.should match /\b(?:\d{1,3}\.){3}\d{1,3}\b/
+      begin
+        Socket.get_own_ip_address
+        Socket.get_own_ip_address.should match /\b(?:\d{1,3}\.){3}\d{1,3}\b/
+      rescue Resolv::ResolvError
+        # Oh well
+      end
     end
   end
 

@@ -1,5 +1,5 @@
 /*
-# Copyright © 2014 Ball Aerospace & Technologies Corp.
+# Copyright 2014 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
 # This program is free software; you can modify and/or redistribute it
@@ -63,9 +63,9 @@ static VALUE segfault(VALUE self) {
  */
 void Init_platform (void) {
   VALUE ruby_version = rb_const_get(rb_cObject, rb_intern("RUBY_VERSION"));
-  char* rversion = RSTRING_PTR(ruby_version);
 
 #ifdef _WIN32
+  char* rversion = RSTRING_PTR(ruby_version);
   if ((rversion[0] == '2') && (rversion[2] == '0')) {
     LoadLibraryA("exchndl20.dll");
   } else if ((rversion[0] == '2') && (rversion[2] == '1')) {

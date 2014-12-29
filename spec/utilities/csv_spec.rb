@@ -1,6 +1,6 @@
 # encoding: ascii-8bit
 
-# Copyright © 2014 Ball Aerospace & Technologies Corp.
+# Copyright 2014 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
 # This program is free software; you can modify and/or redistribute it
@@ -59,10 +59,12 @@ module Cosmos
       end
 
       it "should create an archive file at an arbitrary path" do
-        Dir.mkdir("C:/temp") unless File.directory?("C:/temp")
-        @csv.create_archive("C:/temp")
-        File.exist?(@csv.archive_file).should be_truthy
-        @csv.close_archive
+        if Kernel.is_windows?
+          Dir.mkdir("C:/temp") unless File.directory?("C:/temp")
+          @csv.create_archive("C:/temp")
+          File.exist?(@csv.archive_file).should be_truthy
+          @csv.close_archive
+        end
       end
     end
 
