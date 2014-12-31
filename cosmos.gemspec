@@ -52,6 +52,7 @@ spec = Gem::Specification.new do |s|
   s.extensions << 'ext/cosmos/ext/string/extconf.rb'
   s.extensions << 'ext/cosmos/ext/tabbed_plots_config/extconf.rb'
   s.extensions << 'ext/cosmos/ext/telemetry/extconf.rb'
+  s.extensions << 'ext/mkrf_conf.rb'
 
   # Files are defined in Manifest.txt
   s.files =
@@ -78,7 +79,6 @@ spec = Gem::Specification.new do |s|
   s.add_runtime_dependency 'snmp', '~> 1'
   s.add_runtime_dependency 'rubyzip', '~> 1.1'
   s.add_runtime_dependency 'qtbindings', '~> 4.8', '>= 4.8.5.2'
-  s.add_runtime_dependency('ruby-termios', '~> 0.9') if RbConfig::CONFIG['target_os'] !~ /mswin|mingw|cygwin/i
 
   # Development Dependencies
   s.add_development_dependency 'rspec', '~> 3'
@@ -87,8 +87,7 @@ spec = Gem::Specification.new do |s|
   s.add_development_dependency 'reek', '~> 1'
   s.add_development_dependency 'roodi', '~> 4'
   s.add_development_dependency 'guard', '~> 2'
-  s.add_development_dependency 'listen', '~> 2.4'
-  s.add_development_dependency('wdm', '~> 0.1') if RbConfig::CONFIG['target_os'] =~ /mswin|mingw|cygwin/i
+  s.add_development_dependency 'listen', '~> 2'
   s.add_development_dependency 'guard-bundler', '~> 2'
   s.add_development_dependency 'guard-rspec', '~> 4'
   s.add_development_dependency 'simplecov', '~> 0.9'
