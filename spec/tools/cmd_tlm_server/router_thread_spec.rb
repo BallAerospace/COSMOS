@@ -23,7 +23,7 @@ module Cosmos
 
       @interface = Interface.new
       $connected_count = 0
-      allow(@interface).to receive(:connected?) do
+      def @interface.connected?
         if $connected_count == 0
           $connected_count += 1
           false

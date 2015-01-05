@@ -219,6 +219,7 @@ module Cosmos
       @routers.stop
       @interfaces.stop
       @packet_logging.shutdown
+      @message_log.stop if @message_log
 
       @json_drb = nil
     end
