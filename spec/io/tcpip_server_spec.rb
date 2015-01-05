@@ -94,7 +94,7 @@ module Cosmos
           server = TcpipServer.new(8888,8888,nil,nil,'Burst')
           server.connect
           sleep 0.2
-          socket = TCPSocket.open("127.0.0.2",8888)
+          socket = TCPSocket.open("127.0.0.1",8888)
           sleep 0.2
           server.disconnect
           socket.close
@@ -123,7 +123,7 @@ module Cosmos
         server.connect
         sleep 0.2
 
-        socket = TCPSocket.open("127.0.0.2",8889)
+        socket = TCPSocket.open("127.0.0.1",8889)
         socket.write("\x00\x01")
         sleep 0.2
         server.num_clients.should eql 1
@@ -144,7 +144,7 @@ module Cosmos
           server = TcpipServer.new(nil,8889,nil,nil,'Burst')
           server.connect
           sleep 0.2
-          socket = TCPSocket.open("127.0.0.2",8889)
+          socket = TCPSocket.open("127.0.0.1",8889)
           sleep 0.2
           server.num_clients.should eql 0
           socket.eof?.should be_truthy
@@ -166,7 +166,7 @@ module Cosmos
           server = TcpipServer.new(nil,8889,nil,nil,'Burst')
           server.connect
           sleep 0.2
-          socket = TCPSocket.open("127.0.0.2",8889)
+          socket = TCPSocket.open("127.0.0.1",8889)
           sleep 0.2
           server.disconnect
           sleep 0.2
@@ -186,7 +186,7 @@ module Cosmos
           server = TcpipServer.new(8888,8888,nil,nil,'Burst')
           server.connect
           sleep 0.2
-          socket = TCPSocket.open("127.0.0.2",8888)
+          socket = TCPSocket.open("127.0.0.1",8888)
           socket.write("\x00\x01")
           sleep 0.2
           server.disconnect
@@ -211,7 +211,7 @@ module Cosmos
         server.connect
         sleep 0.2
 
-        socket = TCPSocket.open("127.0.0.2",8888)
+        socket = TCPSocket.open("127.0.0.1",8888)
         sleep 0.2
         server.num_clients.should eql 1
         packet = Packet.new("TGT","PKT")
@@ -240,7 +240,7 @@ module Cosmos
           server = MyTcpipServer3.new(8888,nil,nil,nil,'Burst')
           server.connect
           sleep 0.2
-          socket = TCPSocket.open("127.0.0.2",8888)
+          socket = TCPSocket.open("127.0.0.1",8888)
           sleep 0.2
           server.num_clients.should eql 1
           server.write(Packet.new("TGT","PKT"))
@@ -264,7 +264,7 @@ module Cosmos
           server.connect
           server.num_clients.should eql 0
           sleep 0.2
-          socket = TCPSocket.open("127.0.0.2",8888)
+          socket = TCPSocket.open("127.0.0.1",8888)
           sleep 0.2
           server.num_clients.should eql 0
           server.disconnect
@@ -284,8 +284,8 @@ module Cosmos
           server.connect
           sleep 0.2
 
-          socket1 = TCPSocket.open("127.0.0.2",8888)
-          socket2 = TCPSocket.open("127.0.0.2",8889)
+          socket1 = TCPSocket.open("127.0.0.1",8888)
+          socket2 = TCPSocket.open("127.0.0.1",8889)
           sleep 0.2
           server.num_clients.should eql 2
           packet = Packet.new("TGT","PKT")

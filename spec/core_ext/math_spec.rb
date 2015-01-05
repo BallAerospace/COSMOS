@@ -16,13 +16,13 @@ describe Math do
 
   describe "sin_squared" do
     it "should calculate sin squared" do
-      sin_squared(10).should eql (sin(10)**2)
+      sin_squared(10).should be_within(0.00000001).of(sin(10)**2)
     end
   end
 
   describe "cos_squared" do
     it "should calculate cos squared" do
-      cos_squared(10).should eql (cos(10)**2)
+      cos_squared(10).should be_within(0.00000001).of(cos(10)**2)
     end
   end
 
