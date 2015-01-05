@@ -15,7 +15,7 @@ describe IO do
 
   describe "fast_select" do
     before(:all) do
-      @server = TCPServer.open(23456)
+      @server = TCPServer.new('127.0.0.1', 23456)
     end
     after(:all) do
       @server.close

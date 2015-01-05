@@ -41,11 +41,14 @@ module Cosmos
       allow_any_instance_of(Interface).to receive(:read)
 
       @server = CmdTlmServer.new
+      shutdown_cmd_tlm()
+      initialize_script_module()
       sleep 0.1
     end
 
     after(:each) do
       @server.stop
+      shutdown_cmd_tlm()
       sleep(0.1)
     end
 
@@ -53,7 +56,7 @@ module Cosmos
       it "should send a command" do
         capture_io do |stdout|
           cmd("INST ABORT")
-          stdout.string.should match /cmd\(\'INST ABORT\'\)/
+          stdout.string.should match /cmd\(\'INST ABORT\'\)/ #'
         end
       end
 

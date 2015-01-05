@@ -21,13 +21,10 @@ module Cosmos
       File.open(cts,'w') do |file|
         file.puts 'INTERFACE INT interface.rb'
       end
-
-      @start_threads = Thread.list.length
     end
 
     after(:all) do
       clean_config()
-      Thread.list.length.should eql @start_threads
     end
 
     before(:each) do
@@ -52,7 +49,7 @@ module Cosmos
         # Verify we can't start another CTS
         expect { CmdTlmServer.new }.to raise_error(FatalError, /Error starting JsonDRb on port 7777/)
         cts.stop
-        sleep 0.1
+        sleep 0.2
       end
 
       it "should create the CTS in production mode" do
@@ -65,7 +62,7 @@ module Cosmos
         CmdTlmServer.json_drb.method_whitelist.should_not include('stop_cmd_log')
         CmdTlmServer.json_drb.method_whitelist.should_not include('stop_tlm_log')
         cts.stop
-        sleep 0.1
+        sleep 0.2
       end
    end
 
@@ -81,7 +78,7 @@ module Cosmos
         cts.start # Call start again ... it should do nothing
         Thread.list.length.should eql threads
         cts.stop
-        sleep 0.1
+        sleep 0.2
 
         expect_any_instance_of(PacketLogging).to receive(:start)
         # Now start the server in production mode
@@ -92,7 +89,7 @@ module Cosmos
         CmdTlmServer.json_drb.method_whitelist.should_not include('stop_cmd_log')
         CmdTlmServer.json_drb.method_whitelist.should_not include('stop_tlm_log')
         cts.stop
-        sleep 0.1
+        sleep 0.2
       end
 
       it "should monitor the staleness thread" do
@@ -104,7 +101,7 @@ module Cosmos
           cts = CmdTlmServer.new
           sleep 0.1
           cts.stop
-          sleep 0.1
+          sleep 0.2
 
           stdout.string.should match "Staleness Monitor thread unexpectedly died"
         end
@@ -137,7 +134,7 @@ module Cosmos
           stdout.string.should match "<R>TGT PKT TEST = 100 is RED"
 
           cts.stop
-          sleep 0.1
+          sleep 0.2
         end
       end
 
@@ -159,7 +156,7 @@ module Cosmos
         cts.limits_change_callback(pkt, pi, :YELLOW, 100, true)
         sleep 0.1
         cts.stop
-        sleep 0.1
+        sleep 0.2
       end
 
       it "should log limits response errors" do
@@ -177,7 +174,7 @@ module Cosmos
 
           stdout.string.should match "TGT PKT TEST Limits Response Exception!"
           cts.stop
-          sleep 0.1
+          sleep 0.2
         end
       end
     end
@@ -216,7 +213,7 @@ module Cosmos
         state.should eql :YELLOW
 
         cts.stop
-        sleep 0.1
+        sleep 0.2
       end
 
       it "should delete queues after the max events is reached" do
@@ -242,7 +239,7 @@ module Cosmos
         expect { CmdTlmServer.get_limits_event(id) }.to raise_error("Limits event queue with id #{id} not found")
 
         cts.stop
-        sleep 0.1
+        sleep 0.2
       end
     end
 
@@ -267,7 +264,7 @@ module Cosmos
         expect { CmdTlmServer.get_limits_event(id) }.to raise_error("Limits event queue with id #{id} not found")
 
         cts.stop
-        sleep 0.1
+        sleep 0.2
       end
     end
 
@@ -313,7 +310,7 @@ module Cosmos
         end
 
         cts.stop
-        sleep 0.1
+        sleep 0.2
       end
 
       it "should delete queues after the max packets is reached" do
@@ -348,7 +345,7 @@ module Cosmos
         expect { CmdTlmServer.get_packet_data(id) }.to raise_error("Packet data queue with id #{id} not found")
 
         cts.stop
-        sleep 0.1
+        sleep 0.2
       end
     end
 
@@ -382,7 +379,7 @@ module Cosmos
         expect { CmdTlmServer.get_packet_data(id) }.to raise_error("Packet data queue with id #{id} not found")
 
         cts.stop
-        sleep 0.1
+        sleep 0.2
       end
     end
 
@@ -393,7 +390,7 @@ module Cosmos
 
         expect { CmdTlmServer.get_packet_data(id, true) }.to raise_error(ThreadError)
         cts.stop
-        sleep 0.1
+        sleep 0.2
       end
     end
 
@@ -409,7 +406,7 @@ module Cosmos
 
         CmdTlmServer.json_drb.request_count.should eql 0
         cts.stop
-        sleep 0.1
+        sleep 0.2
       end
     end
 

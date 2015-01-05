@@ -69,10 +69,13 @@ module Cosmos
           @json.thread.should be_nil
           system_exit_count = $system_exit_count
           @json.start_service('blah', 7777, self)
+          thread = @json.thread
           $system_exit_count.should eql(system_exit_count + 1)
           sleep 0.1
 
           stdout.string.should match /listen thread/
+          @json.stop_service
+          sleep(0.1)
         end
 
         Dir[File.join(Cosmos::USERPATH,"*_exception.txt")].each do |file|

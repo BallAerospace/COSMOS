@@ -274,12 +274,13 @@ module Cosmos
   describe "safe_thread" do
     it "should handle exceptions" do
       capture_io do |stdout|
-        Cosmos.safe_thread("Test", 1) do
+        thread = Cosmos.safe_thread("Test", 1) do
           raise "TestError"
         end
-        sleep 0.5
-
+        sleep 1
         stdout.string.should match "Test thread unexpectedly died."
+        thread.kill
+        sleep(0.2)
       end
       Cosmos.cleanup_exceptions()
     end

@@ -109,6 +109,7 @@ module Cosmos
         sleep 0.1
         thread.stop?.should be_truthy
         thread.kill
+        thread.join
       end
 
       it "should stop the read thread if there is an IOError" do
@@ -121,6 +122,7 @@ module Cosmos
         sleep 0.1
         thread.stop?.should be_truthy
         thread.kill
+        thread.join
       end
 
       it "should count the packets received" do

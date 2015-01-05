@@ -43,17 +43,16 @@ module Cosmos
     describe "start" do
       it "should log the connection" do
         commanding = double("commanding")
-        expect(commanding).to receive(:send_command_to_interface)
+        expect(commanding).to receive(:send_command_to_interface).at_least(1).times
         allow(CmdTlmServer).to receive(:commanding).and_return(commanding)
         @interface.interfaces = [@interface]
         thread = RouterThread.new(@interface)
-        threads = Thread.list.length
         thread.start
-        sleep 0.1
-        Thread.list.length.should eql threads + 1
+        sleep 0.5
+        Thread.list.length.should eql(2)
         thread.stop
         sleep 0.5
-        Thread.list.length.should eql threads
+        Thread.list.length.should eql(1)
       end
 
     end
@@ -66,14 +65,13 @@ module Cosmos
         @interface.interfaces = [@interface]
         thread = RouterThread.new(@interface)
         sleep(1)
-        threads = Thread.list.length
         capture_io do |stdout|
           thread.start
           sleep 0.1
-          Thread.list.length.should eql threads + 1
+          Thread.list.length.should eql(2)
           thread.stop
           sleep 0.5
-          Thread.list.length.should eql threads
+          Thread.list.length.should eql(1)
           stdout.string.should match "Error routing command"
         end
       end
@@ -87,14 +85,13 @@ module Cosmos
         @packet.packet_name = 'SMITH'
         thread = RouterThread.new(@interface)
         sleep(1)
-        threads = Thread.list.length
         capture_io do |stdout|
           thread.start
           sleep 0.1
-          Thread.list.length.should eql threads + 1
+          Thread.list.length.should eql(2)
           thread.stop
           sleep 0.5
-          Thread.list.length.should eql threads
+          Thread.list.length.should eql(1)
           stdout.string.should match "Received unknown identified command: BOB SMITH"
         end
       end
