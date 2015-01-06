@@ -1,5 +1,9 @@
 ## Welcome to Ball Aerospace COSMOS
 
+> "The User Interface for Embedded Systems"
+
+[Documentation](https://github.com/BallAerospace/COSMOS/wiki)
+
 Ball Aerospace COSMOS provides all the functionality needed to send commands to and receive data from one or more embedded systems referred to as "targets". Out of the box functionality includes: Telemetry Display, Telemetry Graphing, Operational and Test Scripting, Command Sending, Logging, Log File Playback, Table Management, and more.
 
 So what can you use this for?  We use it to test about everything we create and COSMOS is great for automating any system of embedded systems. It can provide a fully featured user interface to any piece of hardware that provides an electronic way of communicating with it (TCP/IP, UDP, Serial, etc).  Potential uses range from testing embedded systems, to home automation, to verifying cell phones, to helping you make that next great thing that changes the world!  The sky is the limit...
