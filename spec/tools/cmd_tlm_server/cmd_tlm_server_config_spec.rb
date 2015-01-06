@@ -109,6 +109,11 @@ module Cosmos
           config.packet_log_writer_pairs["DEFAULT"].cmd_log_writer.logging_enabled.should be_truthy
           config.packet_log_writer_pairs["MY_WRITER"].cmd_log_writer.logging_enabled.should be_falsey
           tf.unlink
+          config.packet_log_writer_pairs.each do |name, plwp|
+            plwp.cmd_log_writer.shutdown
+            plwp.tlm_log_writer.shutdown
+          end
+          sleep(0.2)
         end
       end
 

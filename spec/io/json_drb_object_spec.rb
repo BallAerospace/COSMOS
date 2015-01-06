@@ -34,6 +34,7 @@ module Cosmos
         obj.my_method(10).should eql 20
         obj.disconnect
         json.stop_service
+        sleep(0.1)
       end
 
       it "should raise an exception if the remote connection can't be made" do
@@ -42,7 +43,9 @@ module Cosmos
         allow(TCPSocket).to receive(:new) { raise "Error" }
         obj = JsonDRbObject.new("localhost", 7777)
         expect { obj.my_method(10) }.to raise_error(DRb::DRbConnError)
+        obj.disconnect
         json.stop_service
+        sleep(0.1)
       end
 
       it "should retry the request and then raise an exception" do
@@ -59,6 +62,7 @@ module Cosmos
         expect { obj.my_method(10) }.to raise_error(DRb::DRbConnError)
         obj.disconnect
         json.stop_service
+        sleep(0.1)
       end
 
       it "should raise an exception if the remote method returns an error" do
@@ -69,6 +73,7 @@ module Cosmos
         expect { obj.method_missing(:send) }.to raise_error(/Cannot call unauthorized methods/)
         obj.disconnect
         json.stop_service
+        sleep(0.1)
       end
 
       it "should handle the remote not returning a response" do
@@ -85,6 +90,7 @@ module Cosmos
         expect { obj.my_method(10) }.to raise_error(DRb::DRbConnError)
         obj.disconnect
         json.stop_service
+        sleep(0.1)
       end
 
     end

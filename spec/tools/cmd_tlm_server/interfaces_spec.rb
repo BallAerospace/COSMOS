@@ -160,10 +160,12 @@ module Cosmos
         tf.puts 'ROUTE DEST2'
         tf.close
         capture_io do |stdout|
-          server = TCPServer.new(8888)
-          Thread.new do
-            client = server.accept
-            client.close
+          server = TCPServer.new('127.0.0.1', 8888)
+          clients = []
+          server_thread = Thread.new do
+            loop do
+              clients << server.accept
+            end
           end
 
           config = CmdTlmServerConfig.new(tf.path)
@@ -171,18 +173,26 @@ module Cosmos
           config.interfaces['DEST1'].routers[0].name.should eql "MY_ROUTER"
           config.interfaces['DEST2'].routers[0].name.should eql "MY_ROUTER"
           interfaces.connect("DEST1")
-          sleep 0.1
+          sleep 0.2
           stdout.string.should match "Connecting to DEST1"
           interfaces.disconnect("DEST1")
-          interfaces.connect("DEST1",'localhost',9888,9888,6,6,'length')
-          sleep 0.1
+          interfaces.connect("DEST1",'localhost',8888,8888,6,6,'length')
+          sleep 0.2
           config.interfaces['DEST1'].routers[0].name.should eql "MY_ROUTER"
           config.interfaces['DEST2'].routers[0].name.should eql "MY_ROUTER"
           stdout.string.should match "Disconnected from interface DEST1"
           stdout.string.should match "Connecting to DEST1"
           interfaces.disconnect("DEST1")
+          interfaces.stop
+
+          server_thread.kill
+          server.close
+          clients.each do |c|
+            c.close
+          end
         end
         tf.unlink
+        sleep(0.2)
       end
     end
 

@@ -57,13 +57,12 @@ module Cosmos
           allow(@interface).to receive(:connected?).and_return(false)
           allow(@interface).to receive(:connect) { raise "ConnectError" }
           thread = InterfaceThread.new(@interface)
-          threads = Thread.list.length
           thread.start
           sleep 0.1
-          Thread.list.length.should eql threads + 1
+          Thread.list.length.should eql(2)
           thread.stop
-          sleep 0.1
-          Thread.list.length.should eql threads
+          sleep 0.2
+          Thread.list.length.should eql(1)
 
           stdout.string.should match "Connection Failed: ConnectError"
         end
@@ -83,13 +82,12 @@ module Cosmos
             error.message.should eql "ConnectError"
             error_count += 1
           end
-          threads = Thread.list.length
           thread.start
           sleep 0.1
-          Thread.list.length.should eql threads + 1
+          Thread.list.length.should eql(2)
           thread.stop
-          sleep 0.1
-          Thread.list.length.should eql threads
+          sleep 0.2
+          Thread.list.length.should eql(1)
           error_count.should eql 2
 
           stdout.string.should_not match "Connection Failed: ConnectError"
@@ -99,13 +97,12 @@ module Cosmos
       it "should log the connection" do
         capture_io do |stdout|
           thread = InterfaceThread.new(@interface)
-          threads = Thread.list.length
           thread.start
           sleep 0.1
-          Thread.list.length.should eql threads + 1
+          Thread.list.length.should eql(2)
           thread.stop
-          sleep 0.1
-          Thread.list.length.should eql threads
+          sleep 0.2
+          Thread.list.length.should eql(1)
 
           stdout.string.should match "Connection Success"
         end
@@ -118,13 +115,12 @@ module Cosmos
           thread.connection_success_callback = Proc.new do
             callback_called = true
           end
-          threads = Thread.list.length
           thread.start
           sleep 0.1
-          Thread.list.length.should eql threads + 1
+          Thread.list.length.should eql(2)
           thread.stop
-          sleep 0.1
-          Thread.list.length.should eql threads
+          sleep 0.2
+          Thread.list.length.should eql(1)
           callback_called.should be_truthy
 
           stdout.string.should_not match "Connection Success"
@@ -139,13 +135,12 @@ module Cosmos
           # create see the error twice.
           @interface.reconnect_delay = 0.06
           thread = InterfaceThread.new(@interface)
-          threads = Thread.list.length
           thread.start
           sleep 0.1
-          Thread.list.length.should eql threads + 1
+          Thread.list.length.should eql(2)
           thread.stop
-          sleep 0.1
-          Thread.list.length.should eql threads
+          sleep 0.2
+          Thread.list.length.should eql(1)
 
           stdout.string.should match "Connection Lost"
         end
@@ -160,15 +155,14 @@ module Cosmos
           thread.connection_lost_callback = Proc.new do
             callback_called = true
           end
-          threads = Thread.list.length
           thread.start
           sleep 0.1
           # Since we set auto_reconnect to false we shouldn't see the interface
           # thread because it will be killed
-          Thread.list.length.should eql threads
+          Thread.list.length.should eql(1)
           thread.stop
-          sleep 0.1
-          Thread.list.length.should eql threads
+          sleep 0.2
+          Thread.list.length.should eql(1)
           callback_called.should be_truthy
 
           stdout.string.should_not match "Connection Lost"
@@ -179,13 +173,12 @@ module Cosmos
         capture_io do |stdout|
           allow(@interface).to receive(:read) { raise "ReadError" }
           thread = InterfaceThread.new(@interface)
-          threads = Thread.list.length
           thread.start
           sleep 0.1
-          Thread.list.length.should eql threads + 1
+          Thread.list.length.should eql(2)
           thread.stop
-          sleep 0.1
-          Thread.list.length.should eql threads
+          sleep 0.2
+          Thread.list.length.should eql(1)
 
           stdout.string.should match "ReadError"
         end
@@ -199,13 +192,12 @@ module Cosmos
           # create see the error twice.
           @interface.reconnect_delay = 0.06
           thread = InterfaceThread.new(@interface)
-          threads = Thread.list.length
           thread.start
           sleep 0.1
-          Thread.list.length.should eql threads + 1
+          Thread.list.length.should eql(2)
           thread.stop
-          sleep 0.1
-          Thread.list.length.should eql threads
+          sleep 0.2
+          Thread.list.length.should eql(1)
 
           stdout.string.should match "ECONNRESET"
         end
@@ -218,7 +210,7 @@ module Cosmos
           thread.start
           sleep 0.1
           thread.stop
-          sleep 0.1
+          sleep 0.2
 
           stdout.string.should match "Packet reading thread unexpectedly died"
         end
@@ -236,7 +228,7 @@ module Cosmos
           thread.start
           sleep 0.1
           thread.stop
-          sleep 0.1
+          sleep 0.2
           callback_called.should be_truthy
 
           stdout.string.should_not match "Packet reading thread unexpectedly died"
@@ -247,13 +239,12 @@ module Cosmos
         capture_io do |stdout|
           @packet = Packet.new(nil,nil)
           thread = InterfaceThread.new(@interface)
-          threads = Thread.list.length
           thread.start
           sleep 0.1
-          Thread.list.length.should eql threads + 1
+          Thread.list.length.should eql(2)
           thread.stop
-          sleep 0.1
-          Thread.list.length.should eql threads
+          sleep 0.2
+          Thread.list.length.should eql(1)
 
           stdout.string.should match "Unknown 2 byte packet"
         end
@@ -265,13 +256,12 @@ module Cosmos
           @packet.packet_name = 'SMITH'
           allow(System).to receive_message_chain(:telemetry,:update!).and_raise(RuntimeError)
           thread = InterfaceThread.new(@interface)
-          threads = Thread.list.length
           thread.start
           sleep 0.1
-          Thread.list.length.should eql threads + 1
+          Thread.list.length.should eql(2)
           thread.stop
-          sleep 0.1
-          Thread.list.length.should eql threads
+          sleep 0.2
+          Thread.list.length.should eql(1)
           stdout.string.should match "Received unknown identified telemetry: BOB SMITH"
         end
       end
@@ -285,13 +275,12 @@ module Cosmos
           allow(router).to receive(:write) { raise "RouterWriteError" }
           @interface.routers = [router]
           thread = InterfaceThread.new(@interface)
-          threads = Thread.list.length
           thread.start
           sleep 0.1
-          Thread.list.length.should eql threads + 1
+          Thread.list.length.should eql(2)
           thread.stop
-          sleep 0.1
-          Thread.list.length.should eql threads
+          sleep 0.2
+          Thread.list.length.should eql(1)
 
           stdout.string.should match "Problem writing to router"
         end
@@ -305,10 +294,10 @@ module Cosmos
         threads = Thread.list.length
         thread.start
         sleep 0.1
-        Thread.list.length.should eql threads + 1
+        Thread.list.length.should eql(2)
         thread.stop
-        sleep 0.1
-        Thread.list.length.should eql threads
+        sleep 0.2
+        Thread.list.length.should eql(1)
       end
 
     end

@@ -28,6 +28,7 @@ module Cosmos
         sleep 0.2
         expect { server.connect }.to raise_error(/Error binding/)
         server.disconnect
+        sleep(0.2)
       end
 
       it "should create a listener thread for the read port" do
@@ -94,10 +95,11 @@ module Cosmos
           server = TcpipServer.new(8888,8888,nil,nil,'Burst')
           server.connect
           sleep 0.2
-          socket = TCPSocket.open("127.0.0.2",8888)
+          socket = TCPSocket.open("127.0.0.1",8888)
           sleep 0.2
           server.disconnect
           socket.close
+          sleep(0.2)
 
           stdout.string.should match /Tcpip server listen thread unexpectedly died/
         end
@@ -108,6 +110,8 @@ module Cosmos
       it "should return nil if there is no read port" do
         server = TcpipServer.new(8888,nil,nil,nil,'Burst')
         server.read.should be_nil
+        server.disconnect
+        sleep(0.2)
       end
 
       #~ it "should block if no data is available" do
@@ -123,7 +127,7 @@ module Cosmos
         server.connect
         sleep 0.2
 
-        socket = TCPSocket.open("127.0.0.2",8889)
+        socket = TCPSocket.open("127.0.0.1",8889)
         socket.write("\x00\x01")
         sleep 0.2
         server.num_clients.should eql 1
@@ -133,6 +137,7 @@ module Cosmos
         sleep 0.2
         server.num_clients.should eql 0
         socket.close
+        sleep(0.2)
       end
 
       it "should check the client against the ACL" do
@@ -144,13 +149,14 @@ module Cosmos
           server = TcpipServer.new(nil,8889,nil,nil,'Burst')
           server.connect
           sleep 0.2
-          socket = TCPSocket.open("127.0.0.2",8889)
+          socket = TCPSocket.open("127.0.0.1",8889)
           sleep 0.2
           server.num_clients.should eql 0
           socket.eof?.should be_truthy
           server.disconnect
           sleep 0.2
           socket.close
+          sleep(0.2)
 
           stdout.string.should match /Tcpip server rejected connection/
         end
@@ -166,12 +172,13 @@ module Cosmos
           server = TcpipServer.new(nil,8889,nil,nil,'Burst')
           server.connect
           sleep 0.2
-          socket = TCPSocket.open("127.0.0.2",8889)
+          socket = TCPSocket.open("127.0.0.1",8889)
           sleep 0.2
           server.disconnect
           sleep 0.2
           server.num_clients.should eql 0
           socket.close
+          sleep(0.2)
 
           stdout.string.should match /Tcpip server read thread unexpectedly died/
         end
@@ -186,11 +193,12 @@ module Cosmos
           server = TcpipServer.new(8888,8888,nil,nil,'Burst')
           server.connect
           sleep 0.2
-          socket = TCPSocket.open("127.0.0.2",8888)
+          socket = TCPSocket.open("127.0.0.1",8888)
           socket.write("\x00\x01")
           sleep 0.2
           server.disconnect
           socket.close
+          sleep(0.2)
 
           stdout.string.should match /Tcpip server read thread unexpectedly died/
         end
@@ -211,7 +219,7 @@ module Cosmos
         server.connect
         sleep 0.2
 
-        socket = TCPSocket.open("127.0.0.2",8888)
+        socket = TCPSocket.open("127.0.0.1",8888)
         sleep 0.2
         server.num_clients.should eql 1
         packet = Packet.new("TGT","PKT")
@@ -225,6 +233,7 @@ module Cosmos
         sleep 0.2
         server.num_clients.should eql 0
         socket.close
+        sleep(0.2)
       end
 
       it "should log an error if the write thread dies" do
@@ -240,7 +249,7 @@ module Cosmos
           server = MyTcpipServer3.new(8888,nil,nil,nil,'Burst')
           server.connect
           sleep 0.2
-          socket = TCPSocket.open("127.0.0.2",8888)
+          socket = TCPSocket.open("127.0.0.1",8888)
           sleep 0.2
           server.num_clients.should eql 1
           server.write(Packet.new("TGT","PKT"))
@@ -248,6 +257,7 @@ module Cosmos
           server.num_clients.should eql 0
           server.disconnect
           socket.close
+          sleep(0.2)
 
           stdout.string.should match /Tcpip server write thread unexpectedly died/
         end
@@ -264,11 +274,12 @@ module Cosmos
           server.connect
           server.num_clients.should eql 0
           sleep 0.2
-          socket = TCPSocket.open("127.0.0.2",8888)
+          socket = TCPSocket.open("127.0.0.1",8888)
           sleep 0.2
           server.num_clients.should eql 0
           server.disconnect
           socket.close
+          sleep(0.2)
 
           stdout.string.should match /Tcpip server lost write connection/
         end
@@ -282,11 +293,11 @@ module Cosmos
 
           server = TcpipServer.new(8888,8889,nil,nil,'Burst')
           server.connect
-          sleep 0.2
+          sleep 0.5
 
-          socket1 = TCPSocket.open("127.0.0.2",8888)
-          socket2 = TCPSocket.open("127.0.0.2",8889)
-          sleep 0.2
+          socket1 = TCPSocket.open("127.0.0.1",8888)
+          socket2 = TCPSocket.open("127.0.0.1",8889)
+          sleep 0.5
           server.num_clients.should eql 2
           packet = Packet.new("TGT","PKT")
           packet.buffer = "\x01\x02\x03\x04"
@@ -297,6 +308,7 @@ module Cosmos
           server.disconnect
           socket1.close
           socket2.close
+          sleep(0.2)
 
           stdout.string.should match /Tcpip server lost write connection/
         end
@@ -307,6 +319,8 @@ module Cosmos
       it "should return 0 if there is no read port" do
         server = TcpipServer.new(8888,nil,nil,nil,'Burst')
         server.read_queue_size.should eql 0
+        server.disconnect
+        sleep(0.2)
       end
     end
 
@@ -314,6 +328,8 @@ module Cosmos
       it "should return 0 if there is no write port" do
         server = TcpipServer.new(nil,8889,nil,nil,'Burst')
         server.write_queue_size.should eql 0
+        server.disconnect
+        sleep(0.2)
       end
     end
 
