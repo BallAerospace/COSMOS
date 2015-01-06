@@ -94,7 +94,7 @@ Contributing is easy.
 4. Submit a pull request
 
 Before any contributions can be incorporated we do require all contributors to sign a Contributor License Agreement here:
-https://docs.google.com/forms/d/1ppnHUSXtY1GRTNPIyUaB1OYHbW5Ca67GFMgMRPBG8u0/viewform
+[Contributor License Agreement](https://docs.google.com/forms/d/1ppnHUSXtY1GRTNPIyUaB1OYHbW5Ca67GFMgMRPBG8u0/viewform)
 
 This protects both you and us and you retain full rights to any code you write.
 
