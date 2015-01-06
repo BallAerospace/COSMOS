@@ -1,5 +1,6 @@
 .gitignore
 .travis.yml
+CONTRIBUTING.txt
 Gemfile
 Guardfile
 LICENSE.txt
@@ -515,6 +516,7 @@ ext/cosmos/ext/tabbed_plots_config/extconf.rb
 ext/cosmos/ext/tabbed_plots_config/tabbed_plots_config.c
 ext/cosmos/ext/telemetry/extconf.rb
 ext/cosmos/ext/telemetry/telemetry.c
+ext/mkrf_conf.rb
 install/Gemfile
 install/Launcher
 install/Launcher.bat
