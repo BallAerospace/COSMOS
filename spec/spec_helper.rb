@@ -27,6 +27,9 @@ unless ENV['COSMOS_NO_SIMPLECOV']
     Encoding.default_internal = nil
     SimpleCov.result.format!
   end
+else
+  require "codeclimate-test-reporter"
+  CodeClimate::TestReporter.start
 end
 require 'rspec'
 require 'ruby-prof'
