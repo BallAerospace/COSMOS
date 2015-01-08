@@ -32,33 +32,37 @@ module Cosmos
       it "should create a command log writer" do
         plw = PacketLogWriter.new(:CMD,nil,true,nil,10000000,nil,false)
         plw.write(Packet.new('',''))
-        plw.stop
+        plw.shutdown
         expect(Dir[File.join(@log_path,"*.bin")][-1]).to match("_cmd.bin")
+        sleep(0.1)
       end
 
       it "should create a telemetry log writer" do
         plw = PacketLogWriter.new(:TLM,nil,true,nil,10000000,nil,false)
         plw.write(Packet.new('',''))
-        plw.stop
+        plw.shutdown
         expect(Dir[File.join(@log_path,"*.bin")][-1]).to match("_tlm.bin")
+        sleep(0.1)
       end
 
       it "should use log_name in the filename" do
         plw = PacketLogWriter.new(:TLM,'test',true,nil,10000000,nil,false)
 
         plw.write(Packet.new('',''))
-        plw.stop
+        plw.shutdown
         expect(Dir[File.join(@log_path,"*.bin")][-1]).to match("testtlm.bin")
+        sleep(0.1)
       end
 
       it "should use the log directory" do
         plw = PacketLogWriter.new(:TLM,'packet_log_writer_spec_',true,nil,10000000,Cosmos::USERPATH,false)
         plw.write(Packet.new('',''))
-        plw.stop
+        plw.shutdown
         expect(Dir[File.join(Cosmos::USERPATH,"*packet_log_writer_spec*")][-1]).to match("_tlm.bin")
         Dir[File.join(Cosmos::USERPATH,"*packet_log_writer_spec*")].each do |file|
           File.delete file
         end
+        sleep(0.1)
       end
     end
 
@@ -68,12 +72,13 @@ module Cosmos
         pkt = Packet.new('tgt','pkt')
         pkt.buffer = "\x01\x02\x03\x04"
         plw.write(pkt)
-        plw.stop
+        plw.shutdown
         data = nil
         File.open(Dir[File.join(@log_path,"*.bin")][-1],'rb') do |file|
           data = file.read
         end
         data[-4..-1].should eql "\x01\x02\x03\x04"
+        sleep(0.1)
       end
 
       it "should not write packets if logging is disabled" do
@@ -81,8 +86,9 @@ module Cosmos
         pkt = Packet.new('tgt','pkt')
         pkt.buffer = "\x01\x02\x03\x04"
         plw.write(pkt)
-        plw.stop
+        plw.shutdown
         Dir[File.join(@log_path,"*.bin")].should be_empty
+        sleep(0.1)
       end
 
       it "should cycle the log when it a size" do
@@ -98,7 +104,8 @@ module Cosmos
         # This write pushs us past 200 so we should start a new file
         plw.write(pkt)
         Dir[File.join(@log_path,"*.bin")].length.should eql 2
-        plw.stop
+        plw.shutdown
+        sleep(0.1)
       end
 
       it "should cycle the log after a set time" do
@@ -126,10 +133,11 @@ module Cosmos
         log1_seconds = files[0].split('_')[-3].to_i * 60 + files[0].split('_')[-2].to_i
         log2_seconds = files[1].split('_')[-3].to_i * 60 + files[1].split('_')[-2].to_i
         (log2_seconds - log1_seconds).should be_within(2).of(3)
-        plw.stop
+        plw.shutdown
         # Monkey patch the constant back to the default
         PacketLogWriter.__send__(:remove_const,:CYCLE_TIME_INTERVAL)
         PacketLogWriter.const_set(:CYCLE_TIME_INTERVAL, 2)
+        sleep(0.1)
       end
 
       it "should write asynchronously to a log" do
@@ -146,6 +154,7 @@ module Cosmos
         end
         data[-4..-1].should eql "\x01\x02\x03\x04"
         plw.shutdown
+        sleep(0.1)
       end
 
       it "should handle errors creating the log file" do
@@ -159,6 +168,7 @@ module Cosmos
           plw.stop
           stdout.string.should match "Error opening"
           plw.shutdown
+          sleep(0.1)
         end
       end
 
@@ -173,6 +183,7 @@ module Cosmos
           plw.stop
           stdout.string.should match "Error closing"
           plw.shutdown
+          sleep(0.1)
         end
       end
     end
@@ -182,25 +193,28 @@ module Cosmos
         plw = PacketLogWriter.new(:TLM,nil,false,nil,10000000,nil,false)
         plw.start
         plw.write(Packet.new('',''))
-        plw.stop
+        plw.shutdown
         file = Dir[File.join(@log_path,"*.bin")][-1]
         File.size(file).should_not eql 0
+        sleep(0.1)
       end
 
       it "should add a label to the log file" do
         plw = PacketLogWriter.new(:TLM,nil,false,nil,10000000,nil,false)
         plw.start('test')
         plw.write(Packet.new('',''))
-        plw.stop
+        plw.shutdown
         expect(Dir[File.join(@log_path,"*.bin")][-1]).to match("_tlm_test.bin")
+        sleep(0.1)
       end
 
       it "should ignore bad label formats" do
         plw = PacketLogWriter.new(:TLM,nil,false,nil,10000000,nil,false)
         plw.start('my_test')
         plw.write(Packet.new('',''))
-        plw.stop
+        plw.shutdown
         expect(Dir[File.join(@log_path,"*.bin")][-1]).to match("_tlm.bin")
+        sleep(0.1)
       end
     end
 

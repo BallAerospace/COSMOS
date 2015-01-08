@@ -69,10 +69,13 @@ module Cosmos
           @json.thread.should be_nil
           system_exit_count = $system_exit_count
           @json.start_service('blah', 7777, self)
+          thread = @json.thread
           $system_exit_count.should eql(system_exit_count + 1)
           sleep 0.1
 
           stdout.string.should match /listen thread/
+          @json.stop_service
+          sleep(0.1)
         end
 
         Dir[File.join(Cosmos::USERPATH,"*_exception.txt")].each do |file|
@@ -86,6 +89,7 @@ module Cosmos
         @json.thread.alive?.should be_truthy
         expect { @json.start_service('127.0.0.1', 7777, self) }.to raise_error(/Error binding to port/)
         @json.stop_service
+        sleep(0.1)
       end
 
       it "should rescue listen thread exceptions" do
@@ -95,6 +99,7 @@ module Cosmos
           socket = TCPSocket.open('127.0.0.1',7777)
           sleep 0.1
           @json.stop_service
+          sleep(0.1)
 
           stdout.string.should match /JsonDRb listen thread unexpectedly died/
         end
@@ -110,7 +115,9 @@ module Cosmos
         socket = TCPSocket.open('127.0.0.1',7777)
         sleep 0.1
         socket.eof?.should be_truthy
+        socket.close
         @json.stop_service
+        sleep(0.1)
       end
     end
 
@@ -127,6 +134,7 @@ module Cosmos
         socket.close
         sleep 0.1
         @json.stop_service
+        sleep(0.1)
       end
 
       it "should process success requests" do
@@ -146,6 +154,7 @@ module Cosmos
         socket.close
         sleep 0.1
         @json.stop_service
+        sleep(0.1)
       end
 
       it "should process bad methods" do
@@ -165,6 +174,7 @@ module Cosmos
         socket.close
         sleep 0.1
         @json.stop_service
+        sleep(0.1)
       end
 
       it "should process bad parameters" do
@@ -186,6 +196,7 @@ module Cosmos
         socket.close
         sleep 0.1
         @json.stop_service
+        sleep(0.1)
       end
 
       it "should handle method exceptions" do
@@ -208,6 +219,7 @@ module Cosmos
         socket.close
         sleep 0.1
         @json.stop_service
+        sleep(0.1)
       end
 
       it "should not allow dangerous methods" do
@@ -224,6 +236,7 @@ module Cosmos
         socket.close
         sleep 0.1
         @json.stop_service
+        sleep(0.1)
       end
 
       it "should handle an invalid JsonDRB request" do
@@ -242,6 +255,7 @@ module Cosmos
         socket.close
         sleep 0.1
         @json.stop_service
+        sleep(0.1)
       end
     end
 
@@ -262,7 +276,9 @@ module Cosmos
           end
         end
         JsonDRb.send_data(socket, "\x00")
+        socket.close
         @json.stop_service
+        sleep(0.1)
       end
 
       it "should eventually timeout if the socket blocks" do
@@ -275,7 +291,9 @@ module Cosmos
         end
         allow(IO).to receive(:select) { nil }
         expect { JsonDRb.send_data(socket, "\x00", 2) }.to raise_error(Timeout::Error)
+        socket.close
         @json.stop_service
+        sleep(0.1)
       end
     end
 

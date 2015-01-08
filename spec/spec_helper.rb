@@ -77,9 +77,19 @@ RSpec.configure do |config|
     Cosmos.disable_warnings do
       Object.const_set(:STDOUT, $saved_stdout_const)
     end
+    # Kill any leftover threads
+    if Thread.list.length > 1
+      Thread.list.each do |t|
+        t.kill if t != Thread.current
+      end
+      sleep(0.2)
+    end
   end
 
-  #config.after(:each) {}
+  config.after(:each) do
+    # Make sure we didn't leave any lingering threads
+    Thread.list.length.should eql(1)
+  end
 end
 
 # Clean up the spec configuration directory

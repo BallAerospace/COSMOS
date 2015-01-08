@@ -35,13 +35,13 @@ module Cosmos
         tf.close
         config = CmdTlmServerConfig.new(tf.path)
         bt = BackgroundTasks.new(config)
-        num_threads = Thread.list.length
         bt.start
         sleep 0.1
-        Thread.list.length.should eql (num_threads + 1)
+        # 2 because the RSpec main thread plus the background task
+        Thread.list.length.should eql(2)
         bt.stop
-        sleep 0.1
-        Thread.list.length.should eql num_threads
+        sleep 0.2
+        Thread.list.length.should eql(1)
 
         tf.unlink
         File.delete(File.join(Cosmos::USERPATH,'lib','my_bg_task1.rb'))
@@ -61,14 +61,14 @@ module Cosmos
           end
           config = CmdTlmServerConfig.new(tf.path)
           bt = BackgroundTasks.new(config)
-          num_threads = Thread.list.length
           bt.start
-          Thread.list.length.should eql (num_threads + 1)
+          # 2 because the RSpec main thread plus the background task
+          Thread.list.length.should eql(2)
           sleep 1.1 # Allow the thread to crash
-          Thread.list.length.should eql num_threads
+          Thread.list.length.should eql(1)
           bt.stop
-          sleep 0.1
-          Thread.list.length.should eql num_threads
+          sleep 0.2
+          Thread.list.length.should eql(1)
 
           stdout.string.should match "Background Task thread unexpectedly died"
         end
@@ -79,4 +79,3 @@ module Cosmos
 
   end
 end
-

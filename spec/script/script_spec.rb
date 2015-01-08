@@ -41,18 +41,22 @@ module Cosmos
       allow_any_instance_of(Interface).to receive(:read)
 
       @server = CmdTlmServer.new
+      shutdown_cmd_tlm()
+      initialize_script_module()
       sleep 0.1
     end
 
     after(:each) do
       @server.stop
+      shutdown_cmd_tlm()
+      sleep(0.1)
     end
 
     describe "cmd" do
       it "should send a command" do
         capture_io do |stdout|
           cmd("INST ABORT")
-          stdout.string.should match /cmd\(\'INST ABORT\'\)/
+          stdout.string.should match /cmd\(\'INST ABORT\'\)/ #'
         end
       end
 
@@ -136,7 +140,7 @@ module Cosmos
       end
 
       it "should check parameter ranges" do
-        expect { cmd_raw("INST COLLECT with TYPE 0, DURATION 20") }.to raise_error(/Command parameter 'INST COLLECT DURATION' = 20 not in valid range/)
+        expect { cmd_raw("INST COLLECT with TYPE 0, DURATION 20") }.to raise_error(/Command parameter 'INST COLLECT DURATION' = 20 not in valid range/) #'
       end
 
       it "should prompt for a hazardous command" do
@@ -189,7 +193,7 @@ module Cosmos
         capture_io do |stdout|
           cmd_raw_no_hazardous_check("INST COLLECT with TYPE 1")
           stdout.string.should match "Command INST COLLECT being sent ignoring hazardous warnings"
-          stdout.string.should match /cmd_raw\(\'INST COLLECT/
+          stdout.string.should match /cmd_raw\(\'INST COLLECT/ #'
         end
       end
     end
@@ -199,7 +203,7 @@ module Cosmos
         capture_io do |stdout|
           cmd_raw_no_checks("INST COLLECT with TYPE 1, DURATION 20")
           stdout.string.should match "Command INST COLLECT being sent ignoring hazardous warnings"
-          stdout.string.should match /cmd_raw\(\'INST COLLECT/
+          stdout.string.should match /cmd_raw\(\'INST COLLECT/ #'
         end
       end
     end
