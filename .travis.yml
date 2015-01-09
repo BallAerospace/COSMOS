@@ -4,7 +4,7 @@ cache: bundler
 rvm:
   - 2.0.0
   - 2.1.3
-addons:
-  code_climate:
-    repo_token: 496aaa1aa864afb0afcc0f2058c09344c9cbf1b4ce8eb40d6ec24ebc0c2b1eb9
-script: bundle exec rake build spec
+#addons:
+#  code_climate:
+#    repo_token: 496aaa1aa864afb0afcc0f2058c09344c9cbf1b4ce8eb40d6ec24ebc0c2b1eb9
+script: CODECLIMATE_REPO_TOKEN=496aaa1aa864afb0afcc0f2058c09344c9cbf1b4ce8eb40d6ec24ebc0c2b1eb9 bundle exec rake build spec
