@@ -85,7 +85,7 @@ module Cosmos
                     SLOT('button_clicked()'))
           end
           if Kernel.is_mac?
-            button.setFixedSize(90,90)
+            button.setFixedSize(84,84)
           else
             stylesheet = "padding:4px; text-align:center; " \
               "font-family:#{config.tool_font_settings[0]}; " \
@@ -138,6 +138,7 @@ module Cosmos
         if Qt::VBoxLayout === widget
           unless h_layout
             h_layout = Qt::HBoxLayout.new
+            h_layout.setSpacing(5) if Kernel.is_mac?
             v_layout.addLayout(h_layout)
             col = 0
           end

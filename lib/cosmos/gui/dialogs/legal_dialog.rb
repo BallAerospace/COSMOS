@@ -81,7 +81,8 @@ module Cosmos
       hlayout.addWidget(update_crc_button, 0, Qt::AlignCenter) if update_crc_button
       hlayout.addWidget(cancel_button, 0, Qt::AlignRight)
       layout.addLayout(hlayout)
-
+  
+      self.show()
       self.raise()
       result = exec()
       dispose()
