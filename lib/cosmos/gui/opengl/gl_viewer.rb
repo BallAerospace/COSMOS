@@ -466,21 +466,33 @@ module Cosmos
           GL.LineWidth(2.5)
           GL.Color3f(1.0, 0.0, 0.0)
           GL.Begin(GL::LINES)
-            GL.Vertex3f(-@draw_axis, 0.0, 0.0)
-            GL.Vertex3f(@draw_axis, 0, 0)
-          GL.End
+            GL.Vertex3f(-@draw_axis.to_f, 0.0, 0.0)
+            GL.Vertex3f(@draw_axis.to_f, 0.0, 0.0)
+          begin
+            GL.End
+          rescue
+            # Raises false error on Mac
+          end
           GL.Color3f(0.0, 1.0, 0.0)
           GL.Begin(GL::LINES)
             GL.Vertex3f(0, -@draw_axis, 0.0)
             GL.Vertex3f(0, @draw_axis, 0)
-          GL.End
+          begin
+            GL.End
+          rescue
+            # Raises false error on Mac
+          end
           GL.Color3f(0.0, 0.0, 1.0)
           GL.Begin(GL::LINES)
             GL.Vertex3f(0, 0, -@draw_axis)
             GL.Vertex3f(0, 0, @draw_axis)
-          GL.End
+          begin
+            GL.End
+          rescue
+            # Raises false error on Mac
+          end
         GL.PopMatrix
-        end
+      end
 
       # Draw what's visible
       @scene.draw(self) if @scene
