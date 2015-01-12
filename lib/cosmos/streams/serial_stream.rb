@@ -132,8 +132,17 @@ module Cosmos
     # Disconnect by closing the serial ports
     def disconnect
       if @connected
-        @write_serial_port.close if @write_serial_port && !@write_serial_port.closed?
-        @read_serial_port.close if @read_serial_port && !@read_serial_port.closed?
+        begin
+          @write_serial_port.close if @write_serial_port && !@write_serial_port.closed?
+        rescue IOError
+          # Ignore
+        end
+
+        begin
+          @read_serial_port.close if @read_serial_port && !@read_serial_port.closed?
+        rescue IOError
+          # Ignore
+        end
         @connected = false
       end
     end
