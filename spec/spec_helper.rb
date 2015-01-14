@@ -12,7 +12,7 @@
 unless ENV['COSMOS_NO_SIMPLECOV']
   require 'simplecov'
   require 'coveralls'
-  coveralls.wear!
+  Coveralls.wear!
   SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter[
     SimpleCov::Formatter::HTMLFormatter,
     Coveralls::SimpleCov::Formatter
