@@ -103,6 +103,7 @@ This protects both you and us and you retain full rights to any code you write.
 * [![Build Status](https://travis-ci.org/BallAerospace/COSMOS.svg?branch=master)](https://travis-ci.org/BallAerospace/COSMOS)
 * [![Code Climate](https://codeclimate.com/github/BallAerospace/COSMOS/badges/gpa.svg)](https://codeclimate.com/github/BallAerospace/COSMOS)
 * [![Coverage Status](https://coveralls.io/repos/BallAerospace/COSMOS/badge.svg)](https://coveralls.io/r/BallAerospace/COSMOS)
+
 ## License
 
 Ball Aerospace COSMOS is released under the GPLv3.0 with a few addendums.   See [LICENSE.txt](LICENSE.txt)
