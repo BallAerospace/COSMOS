@@ -11,6 +11,12 @@
 # NOTE: You MUST require simplecov before anything else!
 unless ENV['COSMOS_NO_SIMPLECOV']
   require 'simplecov'
+  require 'coveralls'
+  coveralls.wear!
+  SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter[
+    SimpleCov::Formatter::HTMLFormatter,
+    Coveralls::SimpleCov::Formatter
+  ]
   SimpleCov.start do
     merge_timeout 7200 # merge the last two hours of results
     add_filter '/spec/'
@@ -27,9 +33,6 @@ unless ENV['COSMOS_NO_SIMPLECOV']
     Encoding.default_internal = nil
     SimpleCov.result.format!
   end
-else
-  require "codeclimate-test-reporter"
-  CodeClimate::TestReporter.start
 end
 require 'rspec'
 require 'ruby-prof'
