@@ -589,6 +589,27 @@ module Cosmos
       layout.addWidget(actions)
     end
 
+    def create_log_layout(form_layout, log_writer, label_prefix)
+      label = Qt::Label.new(tr(log_writer.logging_enabled.to_s))
+      label.setTextInteractionFlags(Qt::TextSelectableByMouse)
+      form_layout.addRow("#{label_prefix} Logging:", label)
+      label = Qt::Label.new(tr(log_writer.queue.size.to_s))
+      label.setTextInteractionFlags(Qt::TextSelectableByMouse)
+      form_layout.addRow("#{label_prefix} Queue Size:", label)
+      label = Qt::Label.new(tr(log_writer.filename))
+      label.setTextInteractionFlags(Qt::TextSelectableByMouse)
+      form_layout.addRow("#{label_prefix} Filename:", label)
+      file_size = 0
+      begin
+        file_size = File.size(log_writer.filename) if log_writer.filename
+      rescue Exception
+        # Do nothing on error
+      end
+      label = Qt::Label.new(tr(file_size.to_s))
+      label.setTextInteractionFlags(Qt::TextSelectableByMouse)
+      form_layout.addRow("#{label_prefix} File Size:", label)
+    end
+
     def populate_log_file_info(layout)
       CmdTlmServer.packet_logging.all.sort.each do |packet_log_writer_pair_name, packet_log_writer_pair|
         log = Qt::GroupBox.new("#{packet_log_writer_pair_name} Packet Log Writer")
@@ -602,29 +623,11 @@ module Cosmos
 
         form_layout = Qt::FormLayout.new
         @logging_layouts[packet_log_writer_pair_name] = form_layout
-        form_layout.addRow("Interfaces:", Qt::Label.new(tr(interfaces.join(", "))))
-
-        form_layout.addRow("Cmd Logging:", Qt::Label.new(tr(packet_log_writer_pair.cmd_log_writer.logging_enabled.to_s)))
-        form_layout.addRow("Cmd Queue Size:", Qt::Label.new(tr(packet_log_writer_pair.cmd_log_writer.queue.size.to_s)))
-        form_layout.addRow("Cmd Filename:", Qt::Label.new(tr(packet_log_writer_pair.cmd_log_writer.filename)))
-        file_size = 0
-        begin
-          file_size = File.size(packet_log_writer_pair.cmd_log_writer.filename) if packet_log_writer_pair.cmd_log_writer.filename
-        rescue Exception
-          # Do nothing on error
-        end
-        form_layout.addRow("Cmd File Size:", Qt::Label.new(tr(file_size.to_s)))
-
-        form_layout.addRow("Tlm Logging:", Qt::Label.new(tr(packet_log_writer_pair.tlm_log_writer.logging_enabled.to_s)))
-        form_layout.addRow("Tlm Queue Size:", Qt::Label.new(tr(packet_log_writer_pair.tlm_log_writer.queue.size.to_s)))
-        form_layout.addRow("Tlm Filename:", Qt::Label.new(tr(packet_log_writer_pair.tlm_log_writer.filename)))
-        file_size = 0
-        begin
-          file_size = File.size(packet_log_writer_pair.tlm_log_writer.filename) if packet_log_writer_pair.tlm_log_writer.filename
-        rescue Exception
-          # Do nothing on error
-        end
-        form_layout.addRow("Tlm File Size:", Qt::Label.new(tr(file_size.to_s)))
+        label = Qt::Label.new(tr(interfaces.join(", ")))
+        label.setTextInteractionFlags(Qt::TextSelectableByMouse)
+        form_layout.addRow("Interfaces:", label)
+        create_log_layout(form_layout, packet_log_writer_pair.cmd_log_writer, 'Cmd')
+        create_log_layout(form_layout, packet_log_writer_pair.tlm_log_writer, 'Tlm')
 
         button_layout = Qt::HBoxLayout.new
         start_button = Qt::PushButton.new(tr('Start Cmd Logging'))
