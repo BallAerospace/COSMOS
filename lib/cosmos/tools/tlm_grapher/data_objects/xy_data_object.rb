@@ -191,8 +191,8 @@ module Cosmos
         else
           y_value = packet.read(@y_item_name)
         end
-        # Bail on the values if they are NaN as we can't graph them
-        return if x_value.nan? || y_value.nan?
+        # Bail on the values if they are NaN or nil as we can't graph them
+        return if x_value.nan? || y_value.nan? || x_value.nil? || y_value.nil?
 
         time_value = packet.read(@time_item_name) if @time_item_name
 

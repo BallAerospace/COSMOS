@@ -160,8 +160,8 @@ module Cosmos
         else
           y_value = packet.read(@item_name)
         end
-        # Bail on the values if they are NaN as we can't graph them
-        return if x_value.nan? || y_value.nan?
+        # Bail on the values if they are NaN or nil as we can't graph them
+        return if x_value.nan? || y_value.nan? || x_value.nil? || y_value.nil?
 
         @formatted_x_values << packet.read(@formatted_time_item_name) if @formatted_time_item_name
 
