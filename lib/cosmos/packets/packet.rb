@@ -635,35 +635,21 @@ module Cosmos
       end
 
       if item.limits.state != limits_state # limits state has changed
-        # Save old limits state
+        # Save old limits state for use in the callback
         old_limits_state = item.limits.state
 
-        if old_limits_state == nil # Changing from nil
-          # Persistence is ignored when changing from nil.
-          # Immediately update limits state
+        item.limits.persistence_count += 1
+
+        # Check for item to achieve its persistence which means we
+        # have to update the state and call the callback
+        if (item.limits.persistence_count >= item.limits.persistence_setting) or ignore_persistence
           item.limits.state = limits_state
 
-          if @limits_change_callback && PacketItemLimits::OUT_OF_LIMITS_STATES.include?(limits_state)
-            @limits_change_callback.call(self, item, old_limits_state, value, true)
-          end
+          # Additional actions for limits change
+          @limits_change_callback.call(self, item, old_limits_state, value, true) if @limits_change_callback
 
-          # Clear the persistence since we've entered a new state
+          # Clear Persistence since we've entered a new state
           item.limits.persistence_count = 0
-
-        else # changing from a current state (:GREEN, :YELLOW, :RED, etc)
-          item.limits.persistence_count += 1
-
-          # Check for item to achieve its persistence which means we
-          # have to update the state and call the callback
-          if (item.limits.persistence_count >= item.limits.persistence_setting) or ignore_persistence
-            item.limits.state = limits_state
-
-            # Additional actions for limits change
-            @limits_change_callback.call(self, item, old_limits_state, value, true) if @limits_change_callback
-
-            # Clear Persistence since we've entered a new state
-            item.limits.persistence_count = 0
-          end
         end
       end # limits state has not changed
     end

@@ -843,24 +843,19 @@ module Cosmos
             @p.write("TEST1", 0)
             @p.write("TEST2", 3)
             @p.write("TEST3", 1.25)
+            expect(@callback).to receive(:call).with(@p, @test1,nil,0,true)
             @p.check_limits
 
             @p.write("TEST1", 0)
             @p.write("TEST2", 3)
             @p.write("TEST3", 1.25)
-            expect(@callback).to receive(:call).with(@p, @test1,:GREEN,0,true)
+            expect(@callback).to receive(:call).with(@p, @test2,nil,3,true)
             @p.check_limits
 
             @p.write("TEST1", 0)
             @p.write("TEST2", 3)
             @p.write("TEST3", 1.25)
-            expect(@callback).to receive(:call).with(@p, @test2,:BLUE,3,true)
-            @p.check_limits
-
-            @p.write("TEST1", 0)
-            @p.write("TEST2", 3)
-            @p.write("TEST3", 1.25)
-            expect(@callback).to receive(:call).with(@p, @test3,:GREEN,1.25,true)
+            expect(@callback).to receive(:call).with(@p, @test3,nil,1.25,true)
             @p.check_limits
           end
 
