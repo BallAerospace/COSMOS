@@ -838,25 +838,48 @@ module Cosmos
             @p.write("TEST1", 3)
             @p.write("TEST2", 4)
             @p.write("TEST3", 2.0)
+            expect(@callback).to receive(:call).with(@p, @test1,nil,3,true)
+            expect(@callback).to receive(:call).with(@p, @test2,nil,4,true)
+            expect(@callback).to receive(:call).with(@p, @test3,nil,2.0,true)
             @p.check_limits
+            @test1.limits.state.should eql :GREEN
+            @test2.limits.state.should eql :BLUE
+            @test3.limits.state.should eql :GREEN
 
             @p.write("TEST1", 0)
-            @p.write("TEST2", 3)
+            @p.write("TEST2", 8)
             @p.write("TEST3", 1.25)
-            expect(@callback).to receive(:call).with(@p, @test1,nil,0,true)
             @p.check_limits
+            @test1.limits.state.should eql :GREEN
+            @test2.limits.state.should eql :BLUE
+            @test3.limits.state.should eql :GREEN
 
             @p.write("TEST1", 0)
-            @p.write("TEST2", 3)
+            @p.write("TEST2", 8)
             @p.write("TEST3", 1.25)
-            expect(@callback).to receive(:call).with(@p, @test2,nil,3,true)
+            expect(@callback).to receive(:call).with(@p, @test1,:GREEN,0,true)
             @p.check_limits
+            @test1.limits.state.should eql :RED_LOW
+            @test2.limits.state.should eql :BLUE
+            @test3.limits.state.should eql :GREEN
 
             @p.write("TEST1", 0)
-            @p.write("TEST2", 3)
+            @p.write("TEST2", 8)
             @p.write("TEST3", 1.25)
-            expect(@callback).to receive(:call).with(@p, @test3,nil,1.25,true)
+            expect(@callback).to receive(:call).with(@p, @test2,:BLUE,8,true)
             @p.check_limits
+            @test1.limits.state.should eql :RED_LOW
+            @test2.limits.state.should eql :RED_HIGH
+            @test3.limits.state.should eql :GREEN
+
+            @p.write("TEST1", 0)
+            @p.write("TEST2", 8)
+            @p.write("TEST3", 1.25)
+            expect(@callback).to receive(:call).with(@p, @test3,:GREEN,1.25,true)
+            @p.check_limits
+            @test1.limits.state.should eql :RED_LOW
+            @test2.limits.state.should eql :RED_HIGH
+            @test3.limits.state.should eql :YELLOW_LOW
           end
 
           it "should not call when state changes before persistence is achieved" do
@@ -867,25 +890,69 @@ module Cosmos
             @p.write("TEST1", 3)
             @p.write("TEST2", 4)
             @p.write("TEST3", 2.0)
+            expect(@callback).to receive(:call).with(@p, @test1,nil,3,true)
+            expect(@callback).to receive(:call).with(@p, @test2,nil,4,true)
+            expect(@callback).to receive(:call).with(@p, @test3,nil,2.0,true)
             @p.check_limits
+            @test1.limits.state.should eql :GREEN
+            @test2.limits.state.should eql :BLUE
+            @test3.limits.state.should eql :GREEN
 
             # Write bad values twice
             @p.write("TEST1", 0)
-            @p.write("TEST2", 3)
+            @p.write("TEST2", 8)
             @p.write("TEST3", 1.25)
+            expect(@callback).to_not receive(:call)
             @p.check_limits
+            @test1.limits.state.should eql :GREEN
+            @test2.limits.state.should eql :BLUE
+            @test3.limits.state.should eql :GREEN
 
             @p.write("TEST1", 0)
-            @p.write("TEST2", 3)
+            @p.write("TEST2", 8)
             @p.write("TEST3", 1.25)
+            expect(@callback).to_not receive(:call)
             @p.check_limits
+            @test1.limits.state.should eql :GREEN
+            @test2.limits.state.should eql :BLUE
+            @test3.limits.state.should eql :GREEN
 
             # Set the values back to good
             @p.write("TEST1", 3)
             @p.write("TEST2", 4)
             @p.write("TEST3", 2.0)
             @p.check_limits
+            @test1.limits.state.should eql :GREEN
+            @test2.limits.state.should eql :BLUE
+            @test3.limits.state.should eql :GREEN
+
+            # Write bad values twice
+            @p.write("TEST1", 0)
+            @p.write("TEST2", 8)
+            @p.write("TEST3", 1.25)
             expect(@callback).to_not receive(:call)
+            @p.check_limits
+            @test1.limits.state.should eql :GREEN
+            @test2.limits.state.should eql :BLUE
+            @test3.limits.state.should eql :GREEN
+
+            @p.write("TEST1", 0)
+            @p.write("TEST2", 8)
+            @p.write("TEST3", 1.25)
+            expect(@callback).to_not receive(:call)
+            @p.check_limits
+            @test1.limits.state.should eql :GREEN
+            @test2.limits.state.should eql :BLUE
+            @test3.limits.state.should eql :GREEN
+
+            # Set the values back to good
+            @p.write("TEST1", 3)
+            @p.write("TEST2", 4)
+            @p.write("TEST3", 2.0)
+            @p.check_limits
+            @test1.limits.state.should eql :GREEN
+            @test2.limits.state.should eql :BLUE
+            @test3.limits.state.should eql :GREEN
           end
         end
       end
