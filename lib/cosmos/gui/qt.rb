@@ -670,44 +670,46 @@ end
 
 class Qt::Painter
   def addLineColor(x, y, w, h, color = Cosmos::BLACK)
-    color = Cosmos::getColor(color)
-    setPen(color)
+    setPenColor(color)
     drawLine(x,y,w,h)
   end
 
   def addRectColor(x, y, w, h, color = Cosmos::BLACK)
-    color = Cosmos::getColor(color)
-    setPen(color)
+    setPenColor(color)
     setBrush(nil)
     drawRect(x,y,w,h)
   end
 
   def addRectColorFill(x, y, w, h, color = Cosmos::BLACK)
-    color = Cosmos::getColor(color)
-    setPen(color)
+    setPenColor(color)
     setBrush(Cosmos.getBrush(color))
     drawRect(x,y,w,h)
   end
 
   def addSimpleTextAt(text, x, y, color = Cosmos::BLACK)
-    color = Cosmos::getColor(color)
-    setPen(color)
-    drawText(x, y, text)
+    setPenColor(color)
+    drawText(x,y,text)
   end
 
   def addEllipseColor(x, y, w, h, color = Cosmos::BLACK)
-    color = Cosmos::getColor(color)
-    setPen(color)
+    setPenColor(color)
     setBrush(nil)
     drawEllipse(x,y,w,h)
   end
 
   def addEllipseColorFill(x, y, w, h, color = Cosmos::BLACK)
-    color = Cosmos::getColor(color)
-    setPen(color)
+    setPenColor(color)
     setBrush(Cosmos.getBrush(color))
     drawEllipse(x,y,w,h)
   end
+
+  private
+
+  def setPenColor(color)
+    color = Cosmos::getColor(color)
+    setPen(color)
+  end
+
 end
 
 class Qt::MatrixLayout < Qt::GridLayout
@@ -720,15 +722,17 @@ class Qt::MatrixLayout < Qt::GridLayout
 
   def addWidget(widget)
     super(widget, @row, @col)
-    @col += 1 if @col < @num_columns
-    if @col == @num_columns
-      @row += 1
-      @col = 0
-    end
+    increment_row_col()
   end
 
   def addLayout(layout)
     super(layout, @row, @col)
+    increment_row_col()
+  end
+
+  private
+
+  def increment_row_col
     @col += 1 if @col < @num_columns
     if @col == @num_columns
       @row += 1

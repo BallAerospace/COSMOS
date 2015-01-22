@@ -126,66 +126,14 @@ module Cosmos
       begin
         # Gather updated values
         values, limits_states, limits_settings, limits_set = get_tlm_values(@item_array, VALUE_TYPES)
-        if limits_settings[0]
-          if @limits_labels[limits_set]
-            if limits_settings[0][4] and limits_settings[0][5]
-              @limits_labels[limits_set].text = "RL/#{limits_settings[0][0]} YL/#{limits_settings[0][1]} YH/#{limits_settings[0][2]} RH/#{limits_settings[0][3]} GL/#{limits_settings[0][4]} GH/#{limits_settings[0][5]}"
-            else
-              @limits_labels[limits_set].text = "RL/#{limits_settings[0][0]} YL/#{limits_settings[0][1]} YH/#{limits_settings[0][2]} RH/#{limits_settings[0][3]}"
-            end
-          elsif @limits_layout
-            if limits_settings[0][4] and limits_settings[0][5]
-              label = Qt::Label.new("RL/#{limits_settings[0][0]} YL/#{limits_settings[0][1]} YH/#{limits_settings[0][2]} RH/#{limits_settings[0][3]} GL/#{limits_settings[0][4]} GH/#{limits_settings[0][5]}")
-            else
-              label = Qt::Label.new("RL/#{limits_settings[0][0]} YL/#{limits_settings[0][1]} YH/#{limits_settings[0][2]} RH/#{limits_settings[0][3]}")
-            end
-            @limits_labels[limits_set] = label
-            @limits_layout.addRow(tr("#{limits_set}:"), label)
-          end
-        end
-
-        # Determine color
-        color = nil
-        case limits_states[0]
-        when :RED, :RED_HIGH
-          color = Cosmos::RED
-        when :RED_LOW
-          color = Cosmos::RED
-        when :YELLOW, :YELLOW_HIGH
-          color = Cosmos::YELLOW
-        when :YELLOW_LOW
-          color = Cosmos::YELLOW
-        when :GREEN, :GREEN_HIGH
-          color = Cosmos::GREEN
-        when :GREEN_LOW
-          color = Cosmos::GREEN
-        when :BLUE
-          color = Cosmos::BLUE
-        when :STALE
-          color = Cosmos::PURPLE
-        else
-          color = Cosmos::BLACK
-        end
-
-        # Update text fields
-        @raw_value.setColors(color, Cosmos::WHITE)
-        @raw_value.text = values[0].to_s
-        if @hex_raw_value
-          @hex_raw_value.setColors(color, Cosmos::WHITE)
-          set_hex_value(values[0])
-        end
-        @converted_value.setColors(color, Cosmos::WHITE)
-        @converted_value.text = values[1].to_s
-        @formatted_value.setColors(color, Cosmos::WHITE)
-        @formatted_value.text = values[2].to_s
-        @formatted_with_units_value.setColors(color, Cosmos::WHITE)
-        @formatted_with_units_value.text = values[3].to_s
-        @limits_state.setColors(color, Cosmos::WHITE)
-        @limits_state.text = limits_states[0].to_s
+        update_limits_details(limits_settings, limits_set)
+        update_text_fields(values, color)
       rescue DRb::DRbConnError
         # Just do nothing
       end
     end
+
+    protected
 
     def set_hex_value(value)
       if Array === value
@@ -199,6 +147,66 @@ module Cosmos
       else
         @hex_raw_value.text = sprintf("0x%0#{@hex_raw_num_digits}X", value.to_i)
       end
+    end
+
+    def update_limits_details(limits_settings, limits_set)
+      if limits_settings[0]
+        label_text = "RL/#{limits_settings[0][0]} YL/#{limits_settings[0][1]} YH/#{limits_settings[0][2]} RH/#{limits_settings[0][3]}"
+        if limits_settings[0][4] and limits_settings[0][5]
+          label_text += " GL/#{limits_settings[0][4]} GH/#{limits_settings[0][5]}"
+        end
+        if @limits_labels[limits_set]
+          @limits_labels[limits_set].text = label
+        elsif @limits_layout
+          label = Qt::Label.new(label_text)
+          @limits_labels[limits_set] = label
+          @limits_layout.addRow(tr("#{limits_set}:"), label)
+        end
+      end
+    end
+
+    def determine_limits_color(limit_state)
+      color = nil
+      case limit_state
+      when :RED, :RED_HIGH
+        color = Cosmos::RED
+      when :RED_LOW
+        color = Cosmos::RED
+      when :YELLOW, :YELLOW_HIGH
+        color = Cosmos::YELLOW
+      when :YELLOW_LOW
+        color = Cosmos::YELLOW
+      when :GREEN, :GREEN_HIGH
+        color = Cosmos::GREEN
+      when :GREEN_LOW
+        color = Cosmos::GREEN
+      when :BLUE
+        color = Cosmos::BLUE
+      when :STALE
+        color = Cosmos::PURPLE
+      else
+        color = Cosmos::BLACK
+      end
+      color
+    end
+
+    def update_text_fields(values)
+      color = determine_limits_color(@limits_states[0])
+
+      @raw_value.setColors(color, Cosmos::WHITE)
+      @raw_value.text = values[0].to_s
+      if @hex_raw_value
+        @hex_raw_value.setColors(color, Cosmos::WHITE)
+        set_hex_value(values[0])
+      end
+      @converted_value.setColors(color, Cosmos::WHITE)
+      @converted_value.text = values[1].to_s
+      @formatted_value.setColors(color, Cosmos::WHITE)
+      @formatted_value.text = values[2].to_s
+      @formatted_with_units_value.setColors(color, Cosmos::WHITE)
+      @formatted_with_units_value.text = values[3].to_s
+      @limits_state.setColors(color, Cosmos::WHITE)
+      @limits_state.text = limits_states[0].to_s
     end
 
   end # class TlmDetailsDialog

@@ -308,6 +308,23 @@ module Cosmos
       end
     end
 
+    describe "get_overall_limits_state" do
+      it "should get the overall limits state of the system" do
+        get_overall_limits_state.should eql :RED
+      end
+
+      it "should ignore specified items" do
+        ignore = []
+        ignore << %w(INST HEALTH_STATUS TEMP1)
+        ignore << %w(INST HEALTH_STATUS TEMP2)
+        ignore << %w(INST HEALTH_STATUS TEMP3)
+        ignore << %w(INST HEALTH_STATUS TEMP4)
+        ignore << %w(INST HEALTH_STATUS GROUND1STATUS)
+        ignore << %w(INST HEALTH_STATUS GROUND2STATUS)
+        get_overall_limits_state(ignore).should eql :STALE
+      end
+    end
+
     describe "limits_enabled?, disable_limits, enable_limits" do
       it "should enable, disable, and check limits for an item" do
         limits_enabled?("INST HEALTH_STATUS TEMP1").should be_truthy
@@ -375,6 +392,14 @@ module Cosmos
         result[0].should eql :LIMITS_SETTINGS
         unsubscribe_limits_events(id)
       end
+
+      it "should handle unknown limits events" do
+        id = subscribe_limits_events
+        CmdTlmServer.instance.post_limits_event(:UNKNOWN, "This is a test")
+        result = get_limits_event(id, true)
+        result[0].should eql :UNKNOWN
+        unsubscribe_limits_events(id)
+      end
     end
 
     describe "subscribe_packet_data, get_packet, unsubscribe_packet_data" do
@@ -391,6 +416,18 @@ module Cosmos
         packet.target_name.should eql "INST"
         packet.packet_name.should eql "HEALTH_STATUS"
         unsubscribe_packet_data(id)
+      end
+    end
+
+    describe "play_wav_file" do
+      it "should play a wav file if Qt is available" do
+        module Qt
+          def self.execute_in_main_thread(bool); yield; end
+          class CoreApplication; def self.instance; true; end; end;
+          class Sound; def self.isAvailable; true; end; end
+        end
+        expect(Qt::Sound).to receive(:play).with("sound.wav")
+        play_wav_file("sound.wav")
       end
     end
 
@@ -646,6 +683,65 @@ module Cosmos
         sleep 0.1
         filename = get_server_message_log_filename
         filename.should match /server_messages.txt/
+      end
+    end
+
+    describe "display" do
+      it "should display a telemetry viewer screen" do
+        expect { display("HI") }.to raise_error(RuntimeError, /HI could not be displayed/)
+      end
+    end
+    describe "clear" do
+      it "should close a telemetry viewer screen" do
+        expect { clear("HI") }.to raise_error(RuntimeError, /HI could not be cleared/)
+      end
+    end
+
+    describe "ScriptRunnerFrame methods" do
+      it "should call various ScriptRunnerFrame methods" do
+        class Dummy; def method_missing(meth, *args, &block); end; end
+        class ScriptRunnerFrame
+          def self.method_missing(meth, *args, &block); end
+          def self.instance; Dummy.new; end
+        end
+        set_line_delay(1.0)
+        get_line_delay
+        get_scriptrunner_message_log_filename
+        start_new_scriptrunner_message_log
+        insert_return
+        step_mode
+        run_mode
+        show_backtrace
+      end
+    end
+
+    describe "start" do
+      it "should start a script locally" do
+        class ScriptRunnerFrame; def self.instance; false; end; end
+        start("cosmos.rb")
+      end
+
+      it "should start a script without the .rb extension" do
+        class ScriptRunnerFrame; def self.instance; false; end; end
+        start("cosmos")
+      end
+
+      it "should raise an error if the script can't be found" do
+        class ScriptRunnerFrame; def self.instance; false; end; end
+        expect { start("unknown_script.rb") }.to raise_error(RuntimeError)
+      end
+
+      it "should start a script within ScriptRunnerFrame" do
+        class ScriptRunnerFrame
+          @@instrumented_cache = {}
+          def self.instance; true; end
+          def self.instrumented_cache; @@instrumented_cache; end
+          def self.instrumented_cache=(value); @@instrumented_cache = value; end
+          def self.instrument_script(file_text, path, bool); "#"; end
+        end
+        start("cosmos.rb")
+        # This one should use the cached version
+        start("cosmos.rb")
       end
     end
 
