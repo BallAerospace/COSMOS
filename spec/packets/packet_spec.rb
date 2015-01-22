@@ -831,10 +831,10 @@ module Cosmos
           end
 
           it "should call only when persistence is achieved" do
-            @p.get_item("TEST1").limits.persistence_setting = 2
-            @p.get_item("TEST2").limits.persistence_setting = 3
-            @p.get_item("TEST3").limits.persistence_setting = 4
-
+            # First establish the green state when coming from nil
+            @p.get_item("TEST1").limits.persistence_setting = 1
+            @p.get_item("TEST2").limits.persistence_setting = 1
+            @p.get_item("TEST3").limits.persistence_setting = 1
             @p.write("TEST1", 3)
             @p.write("TEST2", 4)
             @p.write("TEST3", 2.0)
@@ -845,6 +845,11 @@ module Cosmos
             @test1.limits.state.should eql :GREEN
             @test2.limits.state.should eql :BLUE
             @test3.limits.state.should eql :GREEN
+
+            # Now test the persistence setting by going out of limits
+            @p.get_item("TEST1").limits.persistence_setting = 2
+            @p.get_item("TEST2").limits.persistence_setting = 3
+            @p.get_item("TEST3").limits.persistence_setting = 4
 
             @p.write("TEST1", 0)
             @p.write("TEST2", 8)
@@ -880,13 +885,49 @@ module Cosmos
             @test1.limits.state.should eql :RED_LOW
             @test2.limits.state.should eql :RED_HIGH
             @test3.limits.state.should eql :YELLOW_LOW
+
+            # Now go back to good on everything and verify persistence still applies
+            @p.write("TEST1", 3)
+            @p.write("TEST2", 4)
+            @p.write("TEST3", 2.0)
+            @p.check_limits
+            @test1.limits.state.should eql :RED_LOW
+            @test2.limits.state.should eql :RED_HIGH
+            @test3.limits.state.should eql :YELLOW_LOW
+
+            @p.write("TEST1", 3)
+            @p.write("TEST2", 4)
+            @p.write("TEST3", 2.0)
+            expect(@callback).to receive(:call).with(@p, @test1,:RED_LOW,3,true)
+            @p.check_limits
+            @test1.limits.state.should eql :GREEN
+            @test2.limits.state.should eql :RED_HIGH
+            @test3.limits.state.should eql :YELLOW_LOW
+
+            @p.write("TEST1", 3)
+            @p.write("TEST2", 4)
+            @p.write("TEST3", 2.0)
+            expect(@callback).to receive(:call).with(@p, @test2,:RED_HIGH,4,true)
+            @p.check_limits
+            @test1.limits.state.should eql :GREEN
+            @test2.limits.state.should eql :BLUE
+            @test3.limits.state.should eql :YELLOW_LOW
+
+            @p.write("TEST1", 3)
+            @p.write("TEST2", 4)
+            @p.write("TEST3", 2.0)
+            expect(@callback).to receive(:call).with(@p, @test3,:YELLOW_LOW,2.0,true)
+            @p.check_limits
+            @test1.limits.state.should eql :GREEN
+            @test2.limits.state.should eql :BLUE
+            @test3.limits.state.should eql :GREEN
           end
 
           it "should not call when state changes before persistence is achieved" do
-            @p.get_item("TEST1").limits.persistence_setting = 3
-            @p.get_item("TEST2").limits.persistence_setting = 3
-            @p.get_item("TEST3").limits.persistence_setting = 3
-
+            # First establish the green state when coming from nil
+            @p.get_item("TEST1").limits.persistence_setting = 1
+            @p.get_item("TEST2").limits.persistence_setting = 1
+            @p.get_item("TEST3").limits.persistence_setting = 1
             @p.write("TEST1", 3)
             @p.write("TEST2", 4)
             @p.write("TEST3", 2.0)
@@ -897,6 +938,11 @@ module Cosmos
             @test1.limits.state.should eql :GREEN
             @test2.limits.state.should eql :BLUE
             @test3.limits.state.should eql :GREEN
+
+            # Set all persistence the same
+            @p.get_item("TEST1").limits.persistence_setting = 3
+            @p.get_item("TEST2").limits.persistence_setting = 3
+            @p.get_item("TEST3").limits.persistence_setting = 3
 
             # Write bad values twice
             @p.write("TEST1", 0)

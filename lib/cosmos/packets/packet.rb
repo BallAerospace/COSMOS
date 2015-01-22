@@ -643,14 +643,13 @@ module Cosmos
         # Check for item to achieve its persistence which means we
         # have to update the state and call the callback
         # Note when going back to green (or blue) persistence is ignored
-        if limits_state.to_s.include?('GREEN') || limits_state == :BLUE ||
-            (item.limits.persistence_count >= item.limits.persistence_setting) || ignore_persistence
+        if (item.limits.persistence_count >= item.limits.persistence_setting) || ignore_persistence
           item.limits.state = limits_state
 
           # Additional actions for limits change
           @limits_change_callback.call(self, item, old_limits_state, value, true) if @limits_change_callback
 
-          # Clear Persistence since we've entered a new state
+          # Clear persistence since we've entered a new state
           item.limits.persistence_count = 0
         end
       else # limits state has not changed so clear persistence
