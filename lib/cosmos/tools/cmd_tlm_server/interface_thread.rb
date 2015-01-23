@@ -89,12 +89,12 @@ module Cosmos
 
     # Disconnect from the interface and stop the thread
     def stop
+      @interface.disconnect
+
       if @thread
         Logger.info "Stopping packet reading for #{@interface.name}"
         @thread.kill
       end
-
-      @interface.disconnect
     end
 
     protected
