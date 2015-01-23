@@ -265,10 +265,19 @@ module Cosmos
         # Done above
       when :CONVERTED, :FORMATTED, :WITH_UNITS
         if item.read_conversion
-          use_cache = buffer.equal?(@buffer)
-          if use_cache and @read_conversion_cache and @read_conversion_cache[item]
-            value = @read_conversion_cache[item]
-          else
+          using_cached_value = false
+
+          check_cache = buffer.equal?(@buffer)
+          if check_cache and @read_conversion_cache
+            synchronize_allow_reads() do
+              if @read_conversion_cache[item]
+                value = @read_conversion_cache[item]
+                using_cached_value = true
+              end
+            end
+          end
+
+          unless using_cached_value
             if item.array_size
               value.map! do |val, index|
                 item.read_conversion.call(val, self, buffer)
@@ -276,8 +285,12 @@ module Cosmos
             else
               value = item.read_conversion.call(value, self, buffer)
             end
-            @read_conversion_cache ||= {}
-            @read_conversion_cache[item] = value if use_cache
+            if check_cache
+              synchronize_allow_reads() do
+                @read_conversion_cache ||= {}
+                @read_conversion_cache[item] = value
+              end
+            end
           end
         end
 
@@ -321,7 +334,11 @@ module Cosmos
     # @param value_type (see #read_item)
     # @param buffer (see Structure#write_item)
     def write_item(item, value, value_type = :CONVERTED, buffer = @buffer)
-      @read_conversion_cache.clear if @read_conversion_cache
+      if @read_conversion_cache
+        synchronize() do
+          @read_conversion_cache.clear
+        end
+      end
       case value_type
       when :RAW
         super(item, value, value_type, buffer)
@@ -377,9 +394,10 @@ module Cosmos
     #
     # @param value_type (see #read_item)
     # @param buffer (see Structure#read_all)
+    # @param top (See Structure#read_all)
     # @return (see Structure#read_all)
-    def read_all(value_type = :CONVERTED, buffer = @buffer)
-      return super(value_type, buffer)
+    def read_all(value_type = :CONVERTED, buffer = @buffer, top = true)
+      return super(value_type, buffer, top)
     end
 
     # Read all items in the packet into an array of arrays
@@ -391,9 +409,13 @@ module Cosmos
     #   of [item name, item value, item limits state] where the item limits
     #   state can be one of {Cosmos::Limits::LIMITS_STATES}
     def read_all_with_limits_states(value_type = :CONVERTED, buffer = @buffer)
-      return read_all(value_type, buffer).map! do |array|
-        array << @items[array[0]].limits.state
+      result = nil
+      synchronize_allow_reads(true) do
+        result = read_all(value_type, buffer, false).map! do |array|
+          array << @items[array[0]].limits.state
+        end
       end
+      return result
     end
 
     # Create a string that shows the name and value of each item in the packet
@@ -528,7 +550,11 @@ module Cosmos
     def reset
       @received_time = nil
       @received_count = 0
-      @read_conversion_cache.clear if @read_conversion_cache
+      if @read_conversion_cache
+        synchronize() do
+          @read_conversion_cache.clear
+        end
+      end
       return unless @processors
       @processors.each do |processor_name, processor|
         processor.reset

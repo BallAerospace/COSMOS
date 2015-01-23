@@ -329,6 +329,7 @@ module Cosmos
 
       # Monitor for text to be written
       @@redirect_io_thread = Thread.new do
+        @@redirect_io_thread_sleeper = Sleeper.new
         begin
           loop do
             if stdout and stdout_stringio.string.length > 0
@@ -345,7 +346,7 @@ module Cosmos
                 ScrollTextDialog.new(Qt::CoreApplication.instance.activeWindow, 'Unexpected STDERR output', saved_string)
               end
             end
-            sleep(1)
+            break if @@redirect_io_thread_sleeper.sleep(1)
           end
         rescue Exception => error
           Qt.execute_in_main_thread(true) { || ExceptionDialog.new(Qt::CoreApplication.instance.activeWindow, error, 'Exception in Redirect IO Thread') }
@@ -364,8 +365,12 @@ module Cosmos
     def self.restore_io(stdout = true, stderr = true)
       $stdout = STDOUT if stdout
       $stderr = STDERR if stderr
-      @@redirect_io_thread.kill if @@redirect_io_thread
+      Cosmos.kill_thread(self, @@redirect_io_thread)
       @@redirect_io_thread = nil
+    end
+
+    def self.graceful_kill
+      @@redirect_io_thread_sleeper.cancel
     end
 
   end # class QtTool

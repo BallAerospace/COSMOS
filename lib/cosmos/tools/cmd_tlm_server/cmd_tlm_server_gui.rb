@@ -54,6 +54,7 @@ module Cosmos
       @production = options.production
       @no_prompt = options.no_prompt
       @message_log = nil
+      @output_sleeper = Sleeper.new
 
       statusBar.showMessage(tr("")) # Show blank message to initialize status bar
 
@@ -70,7 +71,8 @@ module Cosmos
         process_server_messages(options)
 
         CmdTlmServer.meta_callback = method(:meta_callback)
-        CmdTlmServer.new(options.config_file, @production)
+        cts = CmdTlmServer.new(options.config_file, @production)
+        cts.stop_callback = method(:stop_callback)
         @message_log = CmdTlmServer.message_log
 
         # Now that we've started the server (CmdTlmServer.new) we can populate all the tabs
@@ -93,7 +95,6 @@ module Cosmos
           splash.progress = 100/7 * 6
           populate_status()
           splash.progress = 100
-          handle_tab_change(0)
         end
         ConfigParser.splash = nil
       end
@@ -161,14 +162,15 @@ module Cosmos
     end
 
     def kill_tab_thread
-      if @tab_thread != nil
-        @tab_thread.kill()
-        @tab_thread = nil
-      end
+      @tab_sleeper ||= nil
+      @tab_sleeper.cancel if @tab_sleeper
+      Cosmos.kill_thread(self, @tab_thread)
+      @tab_thread = nil
     end
 
     def handle_tab_change(index)
       kill_tab_thread()
+      @tab_sleeper = Sleeper.new
       case index
       when 0
         handle_interfaces_tab('Interfaces')
@@ -353,7 +355,7 @@ module Cosmos
                   row += 1
                 end
               end
-              sleep(1)
+              break if @tab_sleeper.sleep(1)
             end
           rescue Exception => error
             Qt.execute_in_main_thread(true) {|| ExceptionDialog.new(self, error, "COSMOS CTS : #{name} Tab Thread")}
@@ -424,7 +426,7 @@ module Cosmos
                 row += 1
               end
             end
-            sleep(1)
+            break if @tab_sleeper.sleep(1)
           end
         rescue Exception => error
           Qt.execute_in_main_thread(true) {|| ExceptionDialog.new(self, error, "COSMOS CTS : Targets Tab Thread")}
@@ -547,7 +549,7 @@ module Cosmos
                   end
                 end
               end
-              sleep(1)
+              break if @tab_sleeper.sleep(1)
             end
           end
         rescue Exception => error
@@ -712,7 +714,7 @@ module Cosmos
             Qt.execute_in_main_thread(true) do
               update_filename_and_logging_state()
             end
-            sleep(1)
+            break if @tab_sleeper.sleep(1)
           end
         rescue Exception => error
           Qt.execute_in_main_thread(true) {|| ExceptionDialog.new(self, error, "COSMOS CTS : Logging Tab Thread")}
@@ -916,7 +918,9 @@ module Cosmos
               end
             end
             total_time = Time.now - start_time
-            sleep(1.0 - total_time) if total_time > 0.0 and total_time < 1.0
+            if total_time > 0.0 and total_time < 1.0
+              break if @tab_sleeper.sleep(1.0 - total_time)
+            end
           end
         rescue Exception => error
           Qt.execute_in_main_thread(true) {|| ExceptionDialog.new(self, error, "COSMOS CTS : Settings Tab Thread")}
@@ -941,10 +945,12 @@ module Cosmos
 
       if continue
         kill_tab_thread()
-        @output_thread.kill()
-        @message_log.stop
         CmdTlmServer.instance.stop_logging('ALL')
         CmdTlmServer.instance.stop
+        @output_sleeper.cancel
+        Qt::CoreApplication.processEvents()
+        Cosmos.kill_thread(self, @output_thread)
+        handle_string_output()
         super(event)
       else
         event.ignore()
@@ -987,17 +993,8 @@ module Cosmos
             sleep(1)
           end
           while true
-            if @string_output.string[-1..-1] == "\n"
-              Qt.execute_in_main_thread(true) do
-                lines_to_write = ''
-                string = @string_output.string.clone
-                @string_output.string = @string_output.string[string.length..-1]
-                string.each_line {|out_line| @output.add_formatted_text(out_line); lines_to_write += out_line }
-                @output.flush
-                @message_log.write(lines_to_write)
-              end
-            end
-            sleep(1)
+            handle_string_output()
+            break if @output_sleeper.sleep(1)
           end
         rescue Exception => error
           Qt.execute_in_main_thread(true) do
@@ -1005,6 +1002,27 @@ module Cosmos
           end
         end
       end
+    end
+
+    def handle_string_output
+      if @string_output.string[-1..-1] == "\n"
+        Qt.execute_in_main_thread(true) do
+          lines_to_write = ''
+          string = @string_output.string.clone
+          @string_output.string = @string_output.string[string.length..-1]
+          string.each_line {|out_line| @output.add_formatted_text(out_line); lines_to_write += out_line }
+          @output.flush
+          @message_log.write(lines_to_write)
+        end
+      end
+    end
+
+    def stop_callback
+      handle_string_output()
+    end
+
+    def graceful_kill
+      # Just to avoid warning
     end
   end # class CmdTlmServerGui
 

@@ -115,8 +115,7 @@ module Cosmos
         i2.write_queue_size.should eql 0 # does not get copied
         i2.interfaces.should eql [5,6]
 
-        i.thread.kill
-        i.thread.join
+        Cosmos.kill_thread(nil, i.thread)
       end
     end
 

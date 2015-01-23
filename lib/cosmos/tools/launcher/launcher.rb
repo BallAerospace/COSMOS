@@ -81,7 +81,7 @@ module Cosmos
           else
             connect(button,
                     SIGNAL('clicked()'),
-                    LauncherMultitool.new(self, shell_command_or_settings, capture_io),
+                    LauncherMultitool.new(self, shell_command_or_settings),
                     SLOT('button_clicked()'))
           end
           if Kernel.is_mac?

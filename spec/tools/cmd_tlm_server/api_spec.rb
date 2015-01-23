@@ -31,31 +31,29 @@ module Cosmos
       config = @api.interfaces.instance_variable_get(:@config)
       # Stub interfaces and routers.  Do this like this so that they can still be used in an after hook
       config.interfaces.each do |interface_name, i|
-        if i.class == Cosmos::Interface
-          def i.connected?(*args)
-          end
-          def i.connect(*args)
-          end
-          def i.disconnect(*args)
-          end
-          def i.write_raw(*args)
-          end
-          def i.read(*args)
-          end
+        def i.connected?(*args)
+          true
+        end
+        def i.connect(*args)
+        end
+        def i.disconnect(*args)
+        end
+        def i.write_raw(*args)
+        end
+        def i.read(*args)
         end
       end
       config.routers.each do |router_name, i|
-        if i.class == Cosmos::Interface
-          def i.connected?(*args)
-          end
-          def i.connect(*args)
-          end
-          def i.disconnect(*args)
-          end
-          def i.write_raw(*args)
-          end
-          def i.read(*args)
-          end
+        def i.connected?(*args)
+          true
+        end
+        def i.connect(*args)
+        end
+        def i.disconnect(*args)
+        end
+        def i.write_raw(*args)
+        end
+        def i.read(*args)
         end
       end
       allow(@api.commanding).to receive(:send_command_to_target)

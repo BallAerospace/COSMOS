@@ -66,6 +66,7 @@ module Cosmos
           delta = @next_tick_time - now
           if delta > 0.0
             sleep(delta) # Sleep up to 10 ms
+            return nil unless @connected
           elsif delta < -1.0
             # Fell way behind - jump next tick time
             @next_tick_time = Time.now

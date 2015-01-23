@@ -90,6 +90,7 @@ module Cosmos
       @label = nil
       @start_time = Time.now
 
+      @cancel_threads = false
       @logging_thread = nil
       if @asynchronous
         @logging_thread = Cosmos.safe_thread("Packet log") do
@@ -99,6 +100,7 @@ module Cosmos
 
       @cycle_thread = nil
       if @cycle_time
+        @cycle_sleeper = Sleeper.new
         @cycle_thread = Cosmos.safe_thread("Packet log cycle") do
           cycle_thread_body()
         end
@@ -152,8 +154,17 @@ module Cosmos
     # Stop all logging, close the current log file, and kill the logging threads.
     def shutdown
       stop()
-      @cycle_thread.kill if @cycle_thread
-      @logging_thread.kill if @logging_thread
+      if @cycle_thread
+        @cycle_sleeper.cancel
+        Cosmos.kill_thread(self, @cycle_thread)
+        @cycle_thread = nil
+      end
+      Cosmos.kill_thread(self, @logging_thread)
+    end
+
+    def graceful_kill
+      @cancel_threads = true
+      @queue << nil
     end
 
     protected
@@ -227,7 +238,7 @@ module Cosmos
     # Writing a log file is a critical operation so the entire method is
     # wrapped with a rescue and handled with handle_critical_exception
     def write_packet(packet, take_mutex = true)
-      return unless @logging_enabled
+      return if !packet or !@logging_enabled
       @mutex.lock if take_mutex
       begin
         # This check includes logging_enabled again because it might have changed since we acquired the mutex
@@ -256,6 +267,7 @@ module Cosmos
       while true
         begin
           packet = @queue.pop
+          return if @cancel_threads
         rescue ThreadError
           # This can happen when the thread is killed
           return
@@ -270,7 +282,7 @@ module Cosmos
           close_file()
         end
         # Only check whether to cycle at a set interval
-        sleep(CYCLE_TIME_INTERVAL)
+        break if @cycle_sleeper.sleep(CYCLE_TIME_INTERVAL)
       end
     end
 

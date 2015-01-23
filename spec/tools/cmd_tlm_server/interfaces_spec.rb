@@ -161,10 +161,23 @@ module Cosmos
         tf.close
         capture_io do |stdout|
           server = TCPServer.new('127.0.0.1', 8888)
+          def server.graceful_kill
+          end
           clients = []
+          pipe_reader, pipe_writer = IO.pipe
           server_thread = Thread.new do
             loop do
               clients << server.accept
+              begin
+                clients << server.accept_nonblock
+              rescue Errno::EAGAIN, Errno::ECONNABORTED, Errno::EINTR, Errno::EWOULDBLOCK
+                read_ready, _ = IO.select([server, pipe_reader])
+                if read_ready.include?(pipe_reader)
+                  break
+                else
+                  retry
+                end
+              end
             end
           end
 
@@ -185,7 +198,8 @@ module Cosmos
           interfaces.disconnect("DEST1")
           interfaces.stop
 
-          server_thread.kill
+          pipe_writer.write('.')
+          Cosmos.kill_thread(server, server_thread)
           server.close
           clients.each do |c|
             c.close

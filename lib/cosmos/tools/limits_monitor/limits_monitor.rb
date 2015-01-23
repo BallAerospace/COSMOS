@@ -79,6 +79,9 @@ module Cosmos
       @colorblind = false
       @new_widgets = []
       @buttons = []
+      @cancel_thread = false
+      @limits_sleeper = Sleeper.new
+      @value_sleeper = Sleeper.new
 
       statusBar.showMessage(tr(""))
 
@@ -174,6 +177,7 @@ module Cosmos
     #   limits, what its value is, and what limit was broken (red_low, yellow_low, etc.)
     # @param color [int] Integer representing color of text to add.
     def update_log(to_add, color)
+      return if @cancel_thread
       Qt.execute_in_main_thread(true) do
         @tf = Qt::TextCharFormat.new
         case color
@@ -304,13 +308,16 @@ module Cosmos
       @limits_thread = Thread.new do
         begin
           while true
+            break if @cancel_thread
             begin
               initialized = nil
+              break if @cancel_thread
               Qt.execute_in_main_thread(true) do
                 initialized = @initialized
               end
               unless initialized
                 @limits_set = nil
+                break if @cancel_thread
                 Qt.execute_in_main_thread(true) do
                   @out_of_limits_items = []
                 end
@@ -328,6 +335,7 @@ module Cosmos
                 # Get initial list of out of limits items
                 items = get_out_of_limits()
                 unless items.empty?
+                  break if @cancel_thread
                   Qt.execute_in_main_thread(true) do
                     items.each do |item|
                       unless @ignored_items.includes_item?(item) and !@items.includes_item?(item)
@@ -339,6 +347,7 @@ module Cosmos
                   end
                 end
 
+                break if @cancel_thread
                 Qt.execute_in_main_thread(true) do
                   @initialized = true
                   if @ignored_items.empty?
@@ -351,11 +360,16 @@ module Cosmos
               end
 
               begin
+                break if @cancel_thread
                 type, data = get_limits_event(@queue_id, true)
+                break if @cancel_thread
               rescue ThreadError
-                sleep(1)
+                break if @cancel_thread
+                break if @limits_sleeper.sleep(1)
                 next
               end
+
+              break if @cancel_thread
 
               case type
               when :LIMITS_CHANGE
@@ -388,35 +402,42 @@ module Cosmos
 
               when :LIMITS_SET
                 if @limits_set != data
+                  break if @cancel_thread
                   Qt.execute_in_main_thread(true) do
                     statusBar.showMessage('Limits Set Changed - Reseting')
                     @initialized = false
                     to_print = Time.now.formatted << '  ' << "INFO: Limits Set Changed to: #{data}\n"
                     update_log(to_print, 4)
                   end
+                  break if @cancel_thread
                 end
 
               when :LIMITS_SETTINGS
                 begin
                   System.limits.set(data[0], data[1], data[2], data[6], data[7], data[8], data[9], data[10], data[11], data[3], data[4], data[5])
+                  break if @cancel_thread
                   Qt.execute_in_main_thread(true) do
                     statusBar.showMessage('Limits Settings Changed - Reseting')
                     @initialized = false
                     to_print = Time.now.formatted << '  ' << "INFO: Limits Settings Changed: #{data}\n"
                     update_log(to_print, 4)
                   end
+                  break if @cancel_thread
                 rescue
                   # This can fail if we missed setting the DEFAULT limits set earlier - Oh well
                 end
               end
 
             rescue DRb::DRbConnError
+              break if @cancel_thread
               @queue_id = nil
+              break if @cancel_thread
               Qt.execute_in_main_thread(true) do
                 statusBar.showMessage('Error Connecting to Command and Telemetry Server - Reseting')
                 @initialized = false
               end
-              sleep(1)
+              break if @cancel_thread
+              break if @limits_sleeper.sleep(1)
             end
           end # loop
         rescue Exception => error
@@ -430,63 +451,61 @@ module Cosmos
     def value_thread
       @value_thread = Thread.new do
         begin
-          begin
-            while true
-              unless @items.empty?
-                Qt.execute_in_main_thread(true) do
-                  begin
-                    # Gather items for  widgets
-                    values, limits_states, limits_settings, limits_set = get_tlm_values(@items, :WITH_UNITS)
-                    index = 0
-                    @items.each do |target_name, packet_name, item_name|
-                      begin
-                        System.limits.set(target_name, packet_name, item_name, limits_settings[index][0], limits_settings[index][1], limits_settings[index][2], limits_settings[index][3], limits_settings[index][4], limits_settings[index][5], limits_set) if limits_settings[index]
-                      rescue
-                        # This can fail if we missed setting the DEFAULT limits set earlier - Oh well
-                      end
-                      index += 1
+          while true
+            break if @cancel_thread
+            unless @items.empty?
+              Qt.execute_in_main_thread(true) do
+                begin
+                  # Gather items for  widgets
+                  values, limits_states, limits_settings, limits_set = get_tlm_values(@items, :WITH_UNITS)
+                  index = 0
+                  @items.each do |target_name, packet_name, item_name|
+                    begin
+                      System.limits.set(target_name, packet_name, item_name, limits_settings[index][0], limits_settings[index][1], limits_settings[index][2], limits_settings[index][3], limits_settings[index][4], limits_settings[index][5], limits_set) if limits_settings[index]
+                    rescue
+                      # This can fail if we missed setting the DEFAULT limits set earlier - Oh well
                     end
-
-                    # Handle change in limits set
-                    if limits_set != @value_limits_set
-                      @value_limits_set = limits_set
-                      @widgets.each do |widget|
-                        widget.limits_set = @value_limits_set
-                      end
-                    end
-
-                    # Update widgets with values and limits_states
-                    @overall_limits_state = :STALE
-                    (0..(values.length - 1)).each do |widget_index|
-                      limits_state = limits_states[widget_index]
-                      @widgets[widget_index].limits_state = limits_state
-                      @widgets[widget_index].value = values[widget_index]
-                    end
-
-                    # Update overall limits state
-                    modify_overall_limits_state(get_overall_limits_state(@ignored_items))
-                    update_overall_limits_state()
-                  rescue DRb::DRbConnError
-                    # Do nothing
+                    index += 1
                   end
-                end
-              else
-                @overall_limits_state = :STALE
-                Qt.execute_in_main_thread(true) do
-                  begin
-                    modify_overall_limits_state(get_overall_limits_state(@ignored_items))
-                  rescue DRb::DRbConnError
-                    # Do nothing
+
+                  # Handle change in limits set
+                  if limits_set != @value_limits_set
+                    @value_limits_set = limits_set
+                    @widgets.each do |widget|
+                      widget.limits_set = @value_limits_set
+                    end
                   end
+
+                  # Update widgets with values and limits_states
+                  @overall_limits_state = :STALE
+                  (0..(values.length - 1)).each do |widget_index|
+                    limits_state = limits_states[widget_index]
+                    @widgets[widget_index].limits_state = limits_state
+                    @widgets[widget_index].value = values[widget_index]
+                  end
+
+                  # Update overall limits state
+                  modify_overall_limits_state(get_overall_limits_state(@ignored_items))
                   update_overall_limits_state()
+                rescue DRb::DRbConnError
+                  # Do nothing
                 end
               end
-
-              # Sleep until next polling period
-              sleep(1)
+            else
+              @overall_limits_state = :STALE
+              break if @cancel_thread
+              Qt.execute_in_main_thread(true) do
+                begin
+                  modify_overall_limits_state(get_overall_limits_state(@ignored_items))
+                rescue DRb::DRbConnError
+                  # Do nothing
+                end
+                update_overall_limits_state()
+              end
             end
-          rescue DRb::DRbConnError
-            sleep(1)
+
+            # Sleep until next polling period
+            break if @value_sleeper.sleep(1)
           end
         rescue Exception => error
           Cosmos.handle_fatal_exception(error)
@@ -735,9 +754,18 @@ module Cosmos
 
     # Handle the window closing.
     def closeEvent(event)
-      @limits_thread.kill
-      @value_thread.kill
+      @cancel_thread = true
+      @value_sleeper.cancel
+      @limits_sleeper.cancel
+      script_disconnect()
+      Cosmos.kill_thread(self, @limits_thread, 2)
+      Cosmos.kill_thread(self, @value_thread, 2)
       super(event)
+    end
+
+    # Gracefully kill threads
+    def graceful_kill
+      Qt::CoreApplication.processEvents()
     end
 
     # Initialize tool options.

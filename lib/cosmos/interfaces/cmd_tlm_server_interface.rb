@@ -62,21 +62,25 @@ module Cosmos
       while true
         begin
           event = CmdTlmServer.instance.get_limits_event(@limit_id)
-          if event[0] == :LIMITS_CHANGE
-            data = event[1]
-            packet ||= System.telemetry.packet("COSMOS","LIMITS_CHANGE")
-            packet.received_time = Time.now
-            packet.write('PKT_ID',2)
-            packet.write('TARGET', data[0])
-            packet.write('PACKET', data[1])
-            packet.write('ITEM', data[2])
-            # For the first limits change the old_state is nil
-            # so set it to a usable string
-            data[3] = 'UNKNOWN' unless data[3]
-            packet.write('OLD_STATE', data[3])
-            packet.write('NEW_STATE', data[4])
-            @read_count += 1
-            return packet
+          if event
+            if event[0] == :LIMITS_CHANGE
+              data = event[1]
+              packet ||= System.telemetry.packet("COSMOS","LIMITS_CHANGE")
+              packet.received_time = Time.now
+              packet.write('PKT_ID',2)
+              packet.write('TARGET', data[0])
+              packet.write('PACKET', data[1])
+              packet.write('ITEM', data[2])
+              # For the first limits change the old_state is nil
+              # so set it to a usable string
+              data[3] = 'UNKNOWN' unless data[3]
+              packet.write('OLD_STATE', data[3])
+              packet.write('NEW_STATE', data[4])
+              @read_count += 1
+              return packet
+            end
+          else
+            return nil
           end
         rescue => error
           puts error.formatted

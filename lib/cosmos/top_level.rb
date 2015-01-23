@@ -341,7 +341,12 @@ module Cosmos
         # multiple exceptions in the same second. That way we don't lose
         # exceptions by overwritting the last exception file.
         COSMOS_MUTEX.synchronize do
-          File.open(log_file, 'a') {|file| yield file }
+          begin
+            file = File.open(log_file, 'a')
+            yield file
+          ensure
+            file.close unless file.closed?
+          end
         end
       rescue Exception
         # Ensure we always return
@@ -365,39 +370,49 @@ module Cosmos
   #   an error creating the log file.
   def self.write_exception_file(exception, filename = 'exception', log_dir = nil)
     log_file = create_log_file(filename, log_dir) do |file|
-      file.puts "Exception:"
-      if exception
-        file.puts exception.formatted
+      begin
+        file.puts "Exception:"
+        if exception
+          file.puts exception.formatted
+          file.puts
+        else
+          file.puts "No Exception Given"
+          file.puts caller.join("\n")
+          file.puts
+        end
+        file.puts "Caller Backtrace:"
+        file.puts caller().join("\n")
         file.puts
-      else
-        file.puts "No Exception Given"
-        file.puts caller.join("\n")
-        file.puts
-      end
-      file.puts "Caller Backtrace:"
-      file.puts caller().join("\n")
-      file.puts
 
-      file.puts "Ruby Version: ruby #{RUBY_VERSION} (#{RUBY_RELEASE_DATE} patchlevel #{RUBY_PATCHLEVEL}) [#{RUBY_PLATFORM}]"
-      file.puts "Rubygems Version: #{Gem::VERSION}"
-      file.puts "Cosmos Version: #{Cosmos::VERSION}"
-      file.puts "Cosmos::PATH: #{Cosmos::PATH}"
-      file.puts "Cosmos::USERPATH: #{Cosmos::USERPATH}"
-      file.puts ""
-      file.puts "Environment:"
-      file.puts "RUBYOPT: #{ENV['GEM_HOME']}"
-      file.puts "RUBYLIB: #{ENV['GEM_HOME']}"
-      file.puts "GEM_PATH: #{ENV['GEM_HOME']}"
-      file.puts "GEMRC: #{ENV['GEM_HOME']}"
-      file.puts "RI_DEVKIT: #{ENV['GEM_HOME']}"
-      file.puts "GEM_HOME: #{ENV['GEM_HOME']}"
-      file.puts "PATH: #{ENV['PATH']}"
-      file.puts ""
-      file.puts "Ruby Path:\n  #{$:.join("\n  ")}\n\n"
-      file.puts "Gems:"
-      Gem.loaded_specs.values.map {|x| file.puts "#{x.name} #{x.version} #{x.platform}"}
-      file.puts ""
-      file.puts ""
+        file.puts "Ruby Version: ruby #{RUBY_VERSION} (#{RUBY_RELEASE_DATE} patchlevel #{RUBY_PATCHLEVEL}) [#{RUBY_PLATFORM}]"
+        file.puts "Rubygems Version: #{Gem::VERSION}"
+        file.puts "Cosmos Version: #{Cosmos::VERSION}"
+        file.puts "Cosmos::PATH: #{Cosmos::PATH}"
+        file.puts "Cosmos::USERPATH: #{Cosmos::USERPATH}"
+        file.puts ""
+        file.puts "Environment:"
+        file.puts "RUBYOPT: #{ENV['GEM_HOME']}"
+        file.puts "RUBYLIB: #{ENV['GEM_HOME']}"
+        file.puts "GEM_PATH: #{ENV['GEM_HOME']}"
+        file.puts "GEMRC: #{ENV['GEM_HOME']}"
+        file.puts "RI_DEVKIT: #{ENV['GEM_HOME']}"
+        file.puts "GEM_HOME: #{ENV['GEM_HOME']}"
+        file.puts "PATH: #{ENV['PATH']}"
+        file.puts ""
+        file.puts "Ruby Path:\n  #{$:.join("\n  ")}\n\n"
+        file.puts "Gems:"
+        Gem.loaded_specs.values.map {|x| file.puts "#{x.name} #{x.version} #{x.platform}"}
+        file.puts ""
+        file.puts "All Threads Backtraces:"
+        Thread.list.each do |thread|
+          file.puts thread.backtrace.join("\n")
+          file.puts
+        end
+        file.puts ""
+        file.puts ""
+      ensure
+        file.close
+      end
     end
     return log_file
   end
@@ -414,8 +429,12 @@ module Cosmos
   #   an error creating the log file.
   def self.write_unexpected_file(text, filename = 'unexpected', log_dir = nil)
     log_file = create_log_file(filename, log_dir) do |file|
-      file.puts "Unexpected Output:\n\n"
-      file.puts text
+      begin
+        file.puts "Unexpected Output:\n\n"
+        file.puts text
+      ensure
+        file.close
+      end
     end
     return log_file
   end
@@ -590,6 +609,38 @@ module Cosmos
       yield
     ensure
       Dir.chdir(current_dir)
+    end
+  end
+
+  # Attempt to gracefully kill a thread
+  # @param owner Object that owns the thread and may have a graceful_kill method
+  # @param thread The thread to gracefully kill
+  # @param graceful_timeout Timeout in seconds to wait for it to die gracefully
+  # @param timeout_interval How often to poll for aliveness
+  # @param hard_timeout Timeout in seconds to wait for it to die ungracefully
+  def self.kill_thread(owner, thread, graceful_timeout = 1, timeout_interval = 0.01, hard_timeout = 1)
+    if thread
+      if owner and owner.respond_to? :graceful_kill
+        owner.graceful_kill
+        end_time = Time.now + graceful_timeout
+        while thread.alive? && ((end_time - Time.now) > 0)
+          sleep(timeout_interval)
+        end
+      elsif owner
+        Logger.info "Thread owner #{owner.class} does not support graceful_kill"
+      end
+      if thread.alive?
+        # Graceful failed
+        Logger.warn "Failed to gracefully kill thread:\n  #{thread.backtrace.join("\n  ")}\n"
+        thread.kill
+        end_time = Time.now + hard_timeout
+        while thread.alive? && ((end_time - Time.now) > 0)
+          sleep(timeout_interval)
+        end
+      end
+      if thread.alive?
+        Logger.error "Failed to kill thread"
+      end
     end
   end
 

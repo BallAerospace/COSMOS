@@ -49,6 +49,8 @@ module Cosmos
       @time_start = nil
       @time_end = nil
       @log_filenames = []
+      @cancel_thread = false
+      @sleeper = Sleeper.new
 
       # Process config file and create a tab for each data viewer component
       @component_mutex = Mutex.new
@@ -250,11 +252,15 @@ module Cosmos
       unless @subscription_thread
         # Start Thread to Gather Events
         @subscription_thread = Thread.new do
+          @cancel_thread = false
+          @sleeper = Sleeper.new
           if !@packets.empty?
             begin
               while true
+                break if @cancel_thread
                 begin
                   @subscription_id = subscribe_packet_data(@packets, 10000)
+                  break if @cancel_thread
                   if @pause
                     Qt.execute_in_main_thread(true) { @realtime_button_bar.state = 'Paused' }
                   else
@@ -262,15 +268,18 @@ module Cosmos
                   end
                   Qt.execute_in_main_thread(true) { statusBar.showMessage("Connected to Command and Telemetry Server: #{Time.now.formatted}") }
                 rescue DRb::DRbConnError
+                  break if @cancel_thread
                   Qt.execute_in_main_thread(true) do
                     @realtime_button_bar.state = 'Connecting'
                     statusBar.showMessage(tr("Error Connecting to Command and Telemetry Server"))
                   end
-                  sleep(1)
+                  break if @sleeper.sleep(1)
+                  break if @cancel_thread
                   retry
                 end
 
                 while true
+                  break if @cancel_thread
                   begin
                     # Get a subscribed to packet
                     packet_data, target_name, packet_name, received_time, received_count = get_packet_data(@subscription_id)
@@ -292,16 +301,19 @@ module Cosmos
                       end
                     end
                   rescue DRb::DRbConnError
+                    break if @cancel_thread
                     Qt.execute_in_main_thread(true) { statusBar.showMessage(tr("Error Connecting to Command and Telemetry Server")) }
                     break # Let outer loop resubscribe
                   rescue RuntimeError => error
                     raise error unless error.message =~ /queue/
+                    break if @cancel_thread
                     Qt.execute_in_main_thread(true) { statusBar.showMessage(tr("Connection Dropped by Command and Telemetry Server: #{Time.now.formatted}")) }
                     break # Let outer loop resubscribe
                   end
                 end
               end
             rescue Exception => error
+              break if @cancel_thread
               Qt.execute_in_main_thread(true) {|| ExceptionDialog.new(self, error, "Data Viewer : Subscription Thread")}
             end
           end # if !@packets.empty
@@ -312,8 +324,15 @@ module Cosmos
     end
 
     def kill_subscription_thread
-      @subscription_thread.kill if @subscription_thread
+      Cosmos.kill_thread(self, @subscription_thread)
       @subscription_thread = nil
+    end
+
+    def graceful_kill
+      @cancel_thread = true
+      @sleeper.cancel
+      script_disconnect() # This will break out of get_packet_data
+      Qt::CoreApplication.processEvents
     end
 
     def handle_reset

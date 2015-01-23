@@ -61,6 +61,8 @@ module Cosmos
         @polling_period = nil
         # The value update thread instance
         @value_thread = nil
+        # Used to gracefully break out of the value thread
+        @value_sleeper = Sleeper.new
       end
 
       def widgets
@@ -126,16 +128,16 @@ module Cosmos
                   @limits_set = limits_set
                 end
               rescue DRb::DRbConnError
-                sleep(1)
+                break if @value_sleeper.sleep(1)
                 next
               end
 
               Qt.execute_in_main_thread {update_gui()} if @alive and (@mode == :REALTIME)
               delta = Time.now - time
               if @polling_period - delta > 0
-                sleep(@polling_period - delta)
+                break if @value_sleeper.sleep(@polling_period - delta)
               else
-                sleep(0.1) # Minimum delay
+                break if @value_sleeper.sleep(0.1) # Minimum delay
               end
             end
           rescue Exception => error
@@ -174,14 +176,16 @@ module Cosmos
 
       def shutdown
         @alive = false
-        if not @value_thread.nil?
-          @value_thread.kill # Kill the thread
-        end
+        Cosmos.kill_thread(self, @value_thread)
 
         # Shutdown All Widgets
         widgets().each do |widget|
           widget.shutdown()
         end
+      end
+
+      def graceful_kill
+        @value_sleeper.cancel
       end
     end
 

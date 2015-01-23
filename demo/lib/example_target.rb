@@ -47,17 +47,19 @@ module Cosmos
 
       def initialize(interface)
         @interface = interface
+        @sleeper = Sleeper.new
       end
 
       def start
         packet = System.telemetry.packet('EXAMPLE', 'STATUS')
         @thread = Thread.new do
+          @stop_thread = false
           begin
             while true
               packet.write('PACKET_ID', 1)
               packet.write('STRING', "The time is now: #{Time.now.formatted}")
               @interface.write(packet)
-              sleep(1)
+              break if @sleeper.sleep(1)
             end
           rescue Exception => err
             Logger.error "ExampleTelemetryThread unexpectedly died\n#{err.formatted}"
@@ -66,8 +68,11 @@ module Cosmos
       end
 
       def stop
-        @thread.kill
-        @thread.join
+        Cosmos.kill_thread(self, @thread)
+      end
+
+      def graceful_kill
+        @sleeper.cancel
       end
     end
 

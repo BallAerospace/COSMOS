@@ -36,6 +36,7 @@ module Cosmos
         begin
           loop do
             packet = @queue.pop
+            break unless packet
             @tabbed_plots_config.process_packet(packet)
           end
         rescue Exception => error
@@ -56,10 +57,15 @@ module Cosmos
 
     # Kills the realtime thread
     def kill
+      @queue << nil
       stop()
-      @process_thread.kill if @process_thread
+      Cosmos.kill_thread(self, @process_thread)
       @process_thread = nil
     end # def kill
+
+    def graceful_kill
+      # Just to remove warning
+    end
 
   end # class TabbedPlotsRealtimeThread
 

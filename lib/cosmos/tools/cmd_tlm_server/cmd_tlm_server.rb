@@ -135,6 +135,7 @@ module Cosmos
       @packet_logging = PacketLogging.new(@config)
       @routers = Routers.new(@config)
       @title = @config.title
+      @stop_callback = nil
 
       # Set Threads to kill CTS if they throw an exception
       Thread.abort_on_exception = true
@@ -192,11 +193,13 @@ module Cosmos
       @background_tasks.start
 
       # Start staleness monitor thread
+      @sleeper = Sleeper.new
       @staleness_monitor_thread = Thread.new do
         begin
           while true
             System.telemetry.check_stale
-            sleep(10)
+            broken = @sleeper.sleep(10)
+            break if broken
           end
         rescue Exception => err
           Logger.fatal "Staleness Monitor thread unexpectedly died"
@@ -213,15 +216,26 @@ module Cosmos
       @json_drb.stop_service
 
       # Shutdown staleness monitor thread
-      @staleness_monitor_thread.kill if @staleness_monitor_thread
+      Cosmos.kill_thread(self, @staleness_monitor_thread)
 
       @background_tasks.stop
       @routers.stop
       @interfaces.stop
       @packet_logging.shutdown
+      @stop_callback.call if @stop_callback
       @message_log.stop if @message_log
 
       @json_drb = nil
+    end
+
+    # Set a stop callback
+    def stop_callback= (stop_callback)
+      @stop_callback = stop_callback
+    end
+
+    # Gracefully kill the staleness monitor thread
+    def graceful_kill
+      @sleeper.cancel
     end
 
     # Called when an item in any packet changes limits states.

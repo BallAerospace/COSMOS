@@ -94,7 +94,7 @@ module Cosmos
 
       it "should rescue listen thread exceptions" do
         capture_io do |stdout|
-          allow_any_instance_of(TCPServer).to receive(:accept) { raise "BLAH" }
+          allow_any_instance_of(TCPServer).to receive(:accept_nonblock) { raise "BLAH" }
           @json.start_service('127.0.0.1', 7777, self)
           socket = TCPSocket.open('127.0.0.1',7777)
           sleep 0.1
