@@ -85,7 +85,7 @@ module Cosmos
                     SLOT('button_clicked()'))
           end
           if Kernel.is_mac?
-            button.setFixedSize(90,90)
+            button.setFixedSize(84,84)
           else
             stylesheet = "padding:4px; text-align:center; " \
               "font-family:#{config.tool_font_settings[0]}; " \

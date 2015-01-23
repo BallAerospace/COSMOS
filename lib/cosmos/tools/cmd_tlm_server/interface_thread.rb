@@ -183,7 +183,7 @@ module Cosmos
         Logger.error "Connection Lost for #{@interface.name}"
         if err
           case err
-          when Errno::ECONNABORTED, Errno::ECONNRESET, Errno::ETIMEDOUT
+          when Errno::ECONNABORTED, Errno::ECONNRESET, Errno::ETIMEDOUT, Errno::EBADF
             # Do not write an exception file for these extremely common cases
             Logger.error err.formatted(false, false)
           else

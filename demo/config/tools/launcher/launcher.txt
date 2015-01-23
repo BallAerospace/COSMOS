@@ -22,9 +22,9 @@ TOOL "Command Sender" "LAUNCH CmdSender" "cmd_sender.png"
 TOOL "Script Runner" "LAUNCH ScriptRunner" "script_runner.png"
 TOOL "Test Runner" "LAUNCH TestRunner" "test_runner.png"
 MULTITOOL_START "Simulated Targets" NULL
-  TOOL "tools\ExampleTarget.bat"
+  TOOL "LAUNCH_TERMINAL ExampleTarget"
     DONT_CAPTURE_IO # Without this you get an "Unexpected Output" dialog
-  TOOL "tools\ScpiTarget.bat"
+  TOOL "LAUNCH_TERMINAL ScpiTarget"
     DONT_CAPTURE_IO # Without this you get an "Unexpected Output" dialog
 MULTITOOL_END
 
