@@ -421,10 +421,13 @@ module Cosmos
           # Reset components
           handle_reset()
 
+          @cancel_progress = false
           ProgressDialog.execute(self, 'Processing Log File', 500, 200, @log_filenames.length > 1, true, true, true, true) do |dialog|
+            dialog.cancel_callback = method(:cancel_callback)
             dialog.enable_cancel_button
 
             @log_filenames.each_with_index do |filename, file_index|
+              break if @cancel_progress
               Qt.execute_in_main_thread(true) do
                 self.setWindowTitle("Data Viewer : #{filename}")
               end
@@ -433,6 +436,7 @@ module Cosmos
               dialog.append_text("Processing: #{filename}")
 
               @packet_log_reader.each(filename, true, @time_start, @time_end) do |packet|
+                break if @cancel_progress
                 progress = @packet_log_reader.bytes_read.to_f / file_size
                 dialog.set_step_progress(progress)
 
@@ -460,6 +464,11 @@ module Cosmos
       ensure
         packet_log_dialog.dispose if packet_log_dialog
       end
+    end
+
+    def cancel_callback(progress_dialog = nil)
+      @cancel_progress = true
+      return true, false
     end
 
     def update_gui

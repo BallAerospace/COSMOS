@@ -21,10 +21,13 @@ module Cosmos
                                                   "Logs (*_sr_*.txt);;Text Files (*.txt)")
       # return doing nothing if they hit cancel in the file dialog
       return if filenames.empty?
+      @cancel = false
       ProgressDialog.execute(self, 'Generation Progress', 650, 400) do |progress|
+        progress.cancel_callback = lambda {|dialog| @cancel = true; [true, false]}
         progress.enable_cancel_button
         begin
           System.commands.target_names.each do |target_name|
+            break if @cancel
             progress.append_text("Processing commands in target #{target_name}")
             progress.set_step_progress(0.0)
             index = 0.0
@@ -42,6 +45,7 @@ module Cosmos
           progress.set_overall_progress(0.05)
 
           System.telemetry.target_names.each do |target_name|
+            break if @cancel
             progress.append_text("Processing telemetry in target #{target_name}")
             progress.set_step_progress(0.0)
             index = 0.0
@@ -61,10 +65,12 @@ module Cosmos
           progress.set_overall_progress(0.1)
 
           filenames.each_with_index do |filename, index|
+            break if @cancel
             progress.append_text("Processing file #{filename}")
             progress.set_step_progress(0.0)
             File.open(filename) do |file|
               file.each do |line|
+                break if @cancel
                 # commands always start with cmd( or cmd_raw(
                 if line =~ /cmd\(|cmd_raw\(/
                   # Split off the date, time, and procedure name. Then join back
@@ -101,27 +107,29 @@ module Cosmos
             progress.set_overall_progress(index.to_f / filenames.length * 0.9 + 0.1)
           end
 
-          output_filename = File.join(System.paths['LOGS'],
-                                      File.build_timestamped_filename(['sr','audit'], '.csv'))
-          progress.append_text("Writing audit to #{output_filename}")
-          progress.set_step_progress(0.0)
-          File.open(output_filename, 'w') do |file|
-            file.puts "Cmd/Tlm audit generated with the following files:"
-            filenames.each {|name| file.puts name }
-            file.puts "\n"
-            file.puts "COMMANDS,Total Sent,#{all_commands.inject(0){|sum, (_,val)| sum + val }}"
-            file.puts "TARGET,PACKET,TOTAL"
-            # First sort by the values (negative makes it sort biggest to smallest),
-            # then sort by the target/packet name
-            all_commands.sort_by{|hash| [-hash[1], hash[0]]}.each do |cmd, total|
-              file.puts "#{cmd},#{total}"
-            end
-            file.puts "\nTELEMETRY,Total Checked,#{all_telemetry.inject(0){|sum, (_,val)| sum + val }}"
-            file.puts "TARGET,PACKET,ITEM,TOTAL"
-            # First sort by the values (negative makes it sort biggest to smallest),
-            # then sort by the target/packet/item name
-            all_telemetry.sort_by{|hash| [-hash[1], hash[0]]}.each do |tlm, total|
-              file.puts "#{tlm},#{total}"
+          unless @cancel
+            output_filename = File.join(System.paths['LOGS'],
+                                        File.build_timestamped_filename(['sr','audit'], '.csv'))
+            progress.append_text("Writing audit to #{output_filename}")
+            progress.set_step_progress(0.0)
+            File.open(output_filename, 'w') do |file|
+              file.puts "Cmd/Tlm audit generated with the following files:"
+              filenames.each {|name| file.puts name }
+              file.puts "\n"
+              file.puts "COMMANDS,Total Sent,#{all_commands.inject(0){|sum, (_,val)| sum + val }}"
+              file.puts "TARGET,PACKET,TOTAL"
+              # First sort by the values (negative makes it sort biggest to smallest),
+              # then sort by the target/packet name
+              all_commands.sort_by{|hash| [-hash[1], hash[0]]}.each do |cmd, total|
+                file.puts "#{cmd},#{total}"
+              end
+              file.puts "\nTELEMETRY,Total Checked,#{all_telemetry.inject(0){|sum, (_,val)| sum + val }}"
+              file.puts "TARGET,PACKET,ITEM,TOTAL"
+              # First sort by the values (negative makes it sort biggest to smallest),
+              # then sort by the target/packet/item name
+              all_telemetry.sort_by{|hash| [-hash[1], hash[0]]}.each do |tlm, total|
+                file.puts "#{tlm},#{total}"
+              end
             end
           end
         rescue => error

@@ -96,7 +96,9 @@ module Cosmos
         packet = read(false)
         break unless packet
         offsets << current_pos
-        progress_callback.call(current_pos / filesize) if progress_callback
+        if progress_callback
+          break if progress_callback.call(current_pos / filesize)
+        end
       end
 
       return offsets

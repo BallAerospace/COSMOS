@@ -131,6 +131,10 @@ module Cosmos
       @@canceled
     end
 
+    def canceled?
+      @@canceled
+    end
+
     def complete?
       return @complete
     end
@@ -155,16 +159,21 @@ module Cosmos
           continue_cancel, kill_thread = @cancel_callback.call(self)
           return unless continue_cancel
         end
+        @@canceled = true
         Thread.new do
           if @thread
-            @thread.kill if kill_thread
+            Cosmos.kill_thread(self, @thread) if kill_thread
             @thread.join
           end
           @thread = nil
-          @@canceled = true
+
           close_done()
         end
       end
+    end
+
+    def graceful_kill
+      # Do nothing - just to remove warning
     end
 
     def set_text_font(font)
@@ -246,8 +255,7 @@ module Cosmos
         dialog.complete = true
       end
       dialog.exec
-      dialog.thread.kill if dialog.thread
-      sleep(0.01) # Give a little time to make sure the thread is complete
+      Cosmos.kill_thread(dialog, dialog.thread)
       dialog.thread = nil
       dialog.complete = true
 

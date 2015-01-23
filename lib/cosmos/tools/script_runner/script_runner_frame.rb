@@ -468,6 +468,7 @@ module Cosmos
 
       Qt.execute_in_main_thread(true) do
         window = Qt::CoreApplication.instance.activeWindow
+        @cancel_instrumentation = false
         ProgressDialog.execute(window, # parent
                                "Instrumenting: #{File.basename(filename.to_s)}",
                                500,    # width
@@ -477,6 +478,7 @@ module Cosmos
                                false,  # don't show text
                                false,  # don't show done
                                true) do |progress_dialog| # show cancel
+          progress_dialog.cancel_callback = lambda {|dialog| @cancel_instrumentation = true; [true, false]}
           progress_dialog.enable_cancel_button
           comments_removed_text = ruby_lex_utils.remove_comments(text)
           num_lines = comments_removed_text.num_lines.to_f
@@ -492,7 +494,7 @@ module Cosmos
         end
       end
 
-      Kernel.raise StopScript if ProgressDialog.canceled?
+      Kernel.raise StopScript if @cancel_instrumentation or ProgressDialog.canceled?
       instrumented_text
     end
 
@@ -509,6 +511,7 @@ module Cosmos
       end
 
       ruby_lex_utils.each_lexed_segment(comments_removed_text) do |segment, instrumentable, inside_begin, line_no|
+        return nil if @cancel_instrumentation
         instrumented_line = ''
         if instrumentable
           # If not inside a begin block then create one to catch exceptions
