@@ -22,13 +22,13 @@ module Cosmos
       @packet.buffer = "\x01\x02"
 
       @interface = Interface.new
-      $connected_count = 0
+      @connected_count = 0
       allow(@interface).to receive(:connected?) do
-        if $connected_count == 0
-          $connected_count += 1
+        if @connected_count == 0
+          @connected_count += 1
           false
         else
-          $connected_count += 1
+          @connected_count += 1
           true
         end
       end
@@ -156,7 +156,7 @@ module Cosmos
             callback_called = true
           end
           thread.start
-          sleep 0.1
+          sleep 1
           # Since we set auto_reconnect to false we shouldn't see the interface
           # thread because it will be killed
           Thread.list.length.should eql(1)

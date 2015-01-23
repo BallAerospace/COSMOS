@@ -110,7 +110,7 @@ module Cosmos
 
       if @thread
         Logger.info "Stopping packet reading for #{@interface.name}"
-        Cosmos.kill_thread(self, @thread)
+        Cosmos.kill_thread(self, @thread) if @thread != Thread.current
       end
     end
 

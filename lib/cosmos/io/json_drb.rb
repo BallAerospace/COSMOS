@@ -100,7 +100,7 @@ module Cosmos
                 socket = @listen_socket.accept_nonblock
               rescue Errno::EAGAIN, Errno::ECONNABORTED, Errno::EINTR, Errno::EWOULDBLOCK
                 read_ready, _ = IO.select([@listen_socket, @thread_reader])
-                if read_ready.include?(@thread_reader)
+                if read_ready and read_ready.include?(@thread_reader)
                   begin
                     # Thread should be killed - Cleanout thread_reader first
                     # Don't let this break anything else though

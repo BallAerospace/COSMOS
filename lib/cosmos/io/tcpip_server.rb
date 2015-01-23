@@ -189,7 +189,11 @@ module Cosmos
 
       # Shutdown Listen Socket(s)
       @listen_sockets.each do |listen_socket|
-        listen_socket.close unless listen_socket.closed?
+        begin
+          listen_socket.close unless listen_socket.closed?
+        rescue IOError
+          # Ok may have been closed by the thread
+        end
       end
       @listen_sockets.clear
 
@@ -359,7 +363,7 @@ module Cosmos
         socket, address = listen_socket.accept_nonblock
       rescue Errno::EAGAIN, Errno::ECONNABORTED, Errno::EINTR, Errno::EWOULDBLOCK
         read_ready, _ = IO.select([listen_socket, thread_reader])
-        if read_ready.include?(thread_reader)
+        if read_ready and read_ready.include?(thread_reader)
           return
         else
           retry
