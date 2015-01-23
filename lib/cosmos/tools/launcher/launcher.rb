@@ -65,7 +65,6 @@ module Cosmos
         case item_type
         when :TOOL, :MULTITOOL
           layout = Qt::VBoxLayout.new
-          layout.setSpacing(5) if Kernel.is_mac?
           if icon_filename
             icon = Cosmos.get_icon(icon_filename)
           else
@@ -134,13 +133,11 @@ module Cosmos
       col = 0
       h_layout = nil
       v_layout = Qt::VBoxLayout.new
-      v_layout.setSpacing(5) if Kernel.is_mac?
       central_widget.layout = v_layout
       widgets.each do |widget|
         if Qt::VBoxLayout === widget
           unless h_layout
             h_layout = Qt::HBoxLayout.new
-            h_layout.setSpacing(5) if Kernel.is_mac?
             v_layout.addLayout(h_layout)
             col = 0
           end

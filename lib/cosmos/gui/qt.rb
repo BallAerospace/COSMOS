@@ -784,3 +784,30 @@ end
   end
 end
 
+class Qt::BoxLayout
+  def initialize(*args)
+    super(*args)
+    setSpacing(5) if Kernel.is_mac?
+  end
+end
+
+class Qt::VBoxLayout
+  def initialize(*args)
+    super(*args)
+    setSpacing(5) if Kernel.is_mac?
+  end
+end
+
+class Qt::HBoxLayout
+  def initialize(*args)
+    super(*args)
+    setSpacing(5) if Kernel.is_mac?
+  end
+end
+
+class Qt::GridLayout
+  def initialize(*args)
+    super(*args)
+    setSpacing(5) if Kernel.is_mac?
+  end
+end
