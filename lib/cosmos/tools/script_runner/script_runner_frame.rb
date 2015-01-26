@@ -1432,7 +1432,7 @@ module Cosmos
       end
     end
 
-    def graceful_kill
+    def self.graceful_kill
       # Just to avoid warning
     end
 
