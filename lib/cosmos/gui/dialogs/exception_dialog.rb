@@ -46,12 +46,11 @@ module Cosmos
               unless exception.url.nil?
                 text << "<br/><br/>For more information see <a href='#{exception.url}'>#{exception.url}</a>."
               end
-              msg.setText(text)
             # FatalErrors are errors explicitly raised when a known fatal issue
             # occurs. Since it is a known issue we don't put up the full error
             # dialog.
             when FatalError
-              msg.setText("Error: #{exception.message.gsub("\n","<br/>")}")
+              text = "Error: #{exception.message.gsub("\n","<br/>")}"
             else
               file_contents = ""
               # First read the log_file we wrote out to the logs directory
@@ -63,8 +62,9 @@ module Cosmos
               end
               text = "The following error occurred:<br/>#{message}"
               text += "<br/><br/>Please contact your local COSMOS expert.<br/><br/>This error has been logged:<br/>#{log_file}<br/><br/> <a href='mailto:rmelton@ball.com;jmthomas@ball.com?subject=COSMOS exception&body=#{file_contents}'>Click here</a> to email this log to the COSMOS developers." if log_file
-              msg.setText(text)
             end
+            text += "<br/><br/>NOTE!: The application will exit once you accept or dismiss this dialog!" if exit_afterwards
+            msg.setText(text)
             if log_file
               open_button = Qt::PushButton.new("Open Exception Log in Text Editor")
               open_button.connect(SIGNAL('clicked()')) do
