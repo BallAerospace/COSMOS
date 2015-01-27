@@ -1217,6 +1217,10 @@ module Cosmos
       end
     end
 
+    def graceful_kill
+      # Just to avoid warning
+    end
+
     protected
 
     def initialize_variables
@@ -1430,10 +1434,6 @@ module Cosmos
           end
         end
       end
-    end
-
-    def self.graceful_kill
-      # Just to avoid warning
     end
 
     def handle_potential_tab_change(filename)

@@ -72,6 +72,7 @@ module Cosmos
             begin
               packet = @interface.read
               unless packet
+                Logger.info "Clean disconnect from #{@interface.name} (returned nil)"
                 handle_connection_lost(nil)
                 if @cancel_thread
                   break
@@ -197,7 +198,7 @@ module Cosmos
       if @connection_lost_callback
         @connection_lost_callback.call(err)
       else
-        Logger.error "Connection Lost for #{@interface.name}"
+        Logger.info "Connection Lost for #{@interface.name}"
         if err
           case err
           when Errno::ECONNABORTED, Errno::ECONNRESET, Errno::ETIMEDOUT

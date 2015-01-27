@@ -1,10 +1,13 @@
 SetWinDelay 500
 WinWaitActive Script Runner
+Sleep 1000
 
 Send ^o ; File Open
 WinWaitActive Select Script
+Sleep 1000
 Send script_test.rb{ENTER}
 WinWaitActive Script Runner
+Sleep 1000
 
 Click 400 90 ; Start
 WinWaitActive Telemetry Viewer
@@ -19,13 +22,13 @@ Click 400 90 ; Go
 Sleep 3000
 
 WinActivate Telemetry Viewer
-Sleep 500
+Sleep 1000
 Send ^q ; File Quit
 WinWaitActive Confirm
 Send {Enter}
 
 WinActivate Script Runner
-Sleep 500
+Sleep 2000
 Send ^q ; File Quit
 Sleep 500
 

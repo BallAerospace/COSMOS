@@ -14,7 +14,7 @@ Send {Enter}
 
 ; Quit Telemetry Viewer
 WinActivate "INST ADCS"
-Sleep 500
+Sleep 2000
 Click 497 10 ; Close the window
 Sleep 500
 

@@ -122,6 +122,13 @@ module Cosmos
     # spawn separate threads to process the reads and writes.
     def connect
       @cancel_threads = false
+      if @read_queue
+        # Empty the read queue of any residual
+        begin
+          @read_queue.pop(true) while @read_queue.length > 0
+        rescue
+        end
+      end
       if @write_port == @read_port
         # Handle one socket case
         start_listen_thread(@read_port, true, true)

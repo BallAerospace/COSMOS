@@ -223,7 +223,7 @@ module Cosmos
 
       @widgets = Widgets.new(self, mode)
       @window = process(filename)
-      @@open_screens << self
+      @@open_screens << self if @window
     end
 
     def widgets
@@ -311,6 +311,7 @@ module Cosmos
         rescue => err
           ExceptionDialog.new(self, err, "Screen #{File.basename(filename)}", false)
         end
+        shutdown()
         return nil
       end
 
@@ -427,7 +428,10 @@ module Cosmos
     def closeEvent(event)
       super(event)
       @@open_screens.delete(self)
+      shutdown()
+    end
 
+    def shutdown
       # Shutdown Value Gathering Thread
       @widgets.shutdown
 
@@ -465,7 +469,7 @@ module Cosmos
       Widgets.closing_all = true
       screens = @@open_screens.clone
       screens.each do |screen|
-        screen.window.graceful_kill
+        screen.window.graceful_kill if screen.window
       end
       screens.each do |screen|
         begin

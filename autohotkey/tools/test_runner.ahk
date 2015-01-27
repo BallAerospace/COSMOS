@@ -253,7 +253,10 @@ Send {Enter} ; No
 Sleep 2000
 Send ^q ; File Quit
 WinWaitActive Warning
+Sleep 1000
 Send {Tab}{Enter} ; Yes
+Sleep 1000
+WinWaitActive Results
 Sleep 1000
 Send {Enter}
 

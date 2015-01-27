@@ -439,6 +439,10 @@ module Cosmos
           @json_drb.stop_service if @json_drb
           super(event)
         end
+      else
+        shutdown_cmd_tlm()
+        @json_drb.stop_service if @json_drb
+        super(event)
       end
     end
 
@@ -458,9 +462,12 @@ module Cosmos
         success = false
         Qt.execute_in_main_thread(true) do
           begin
-            screen_info.screen.window.raise
-            screen_info.screen.window.showNormal
-            success = true
+            if screen_info.screen.window
+              screen_info.screen.window.raise
+              screen_info.screen.window.activateWindow
+              screen_info.screen.window.showNormal
+              success = true
+            end
           rescue
             # Screen probably was closed - continue
             screen_info.screen = nil
@@ -475,6 +482,11 @@ module Cosmos
           screen_info.screen = Screen.new(screen_info.full_name, screen_info.filename, self, :REALTIME, x_pos, y_pos, screen_info.original_target_name, screen_info.substitute, screen_info.force_substitute)
         else
           screen_info.screen = Screen.new(screen_info.full_name, screen_info.filename, self, :REALTIME, screen_info.x_pos, screen_info.y_pos, screen_info.original_target_name, screen_info.substitute, screen_info.force_substitute)
+        end
+        if screen_info.screen.window
+          screen_info.screen.window.raise
+          screen_info.screen.window.activateWindow
+          screen_info.screen.window.showNormal
         end
       end
     end

@@ -234,16 +234,20 @@ module Cosmos
           if name == 'Routers'
             button.connect(SIGNAL('clicked()')) do
               if interface.thread
+                Logger.info "User disconnecting router #{interface_name}"
                 CmdTlmServer.instance.disconnect_router(interface_name)
               else
+                Logger.info "User connecting router #{interface_name}"
                 CmdTlmServer.instance.connect_router(interface_name)
               end
             end
           else
             button.connect(SIGNAL('clicked()')) do
               if interface.thread
+                Logger.info "User disconnecting interface #{interface_name}"
                 CmdTlmServer.instance.disconnect_interface(interface_name)
               else
+                Logger.info "User connecting interface #{interface_name}"
                 CmdTlmServer.instance.connect_interface(interface_name)
               end
             end
@@ -947,10 +951,6 @@ module Cosmos
         kill_tab_thread()
         CmdTlmServer.instance.stop_logging('ALL')
         CmdTlmServer.instance.stop
-        @output_sleeper.cancel
-        Qt::CoreApplication.processEvents()
-        Cosmos.kill_thread(self, @output_thread)
-        handle_string_output()
         super(event)
       else
         event.ignore()
@@ -1018,6 +1018,10 @@ module Cosmos
     end
 
     def stop_callback
+      handle_string_output()
+      @output_sleeper.cancel
+      Qt::CoreApplication.processEvents()
+      Cosmos.kill_thread(self, @output_thread)
       handle_string_output()
     end
 
