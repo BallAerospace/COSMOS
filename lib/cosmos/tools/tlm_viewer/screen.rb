@@ -24,7 +24,14 @@ module Cosmos
     attr_accessor :full_name, :width, :height, :window
 
     class Widgets
+      # Flag to indicate all screens should close
+      @@closing_all = false
+
       attr_accessor :named, :item, :non_item, :invalid, :items, :value_types, :polling_period, :mode
+
+      def self.closing_all= (value)
+        @@closing_all = value
+      end
 
       def initialize(screen, mode)
         @screen = screen
@@ -106,6 +113,7 @@ module Cosmos
         @value_thread = Thread.new do
           begin
             while(true)
+              break if @@closing_all
               time = Time.now
 
               begin
@@ -128,12 +136,14 @@ module Cosmos
                   @limits_set = limits_set
                 end
               rescue DRb::DRbConnError
+                break if @@closing_all
                 break if @value_sleeper.sleep(1)
                 next
               end
 
               Qt.execute_in_main_thread {update_gui()} if @alive and (@mode == :REALTIME)
               delta = Time.now - time
+              break if @@closing_all
               if @polling_period - delta > 0
                 break if @value_sleeper.sleep(@polling_period - delta)
               else
@@ -443,18 +453,28 @@ module Cosmos
       end
     end
 
+    def graceful_kill
+      @widgets.graceful_kill
+    end
+
     def self.open_screens
       @@open_screens
     end
 
     def self.close_all_screens(closer)
-      @@open_screens.clone.each do |screen|
+      Widgets.closing_all = true
+      screens = @@open_screens.clone
+      screens.each do |screen|
+        screen.window.graceful_kill
+      end
+      screens.each do |screen|
         begin
           screen.window.close
         rescue
           # Screen probably already closed - continue
         end
       end
+      Widgets.closing_all = false
     end
 
   end
