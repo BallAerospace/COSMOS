@@ -1273,7 +1273,7 @@ module Cosmos
           tf = Tempfile.new('unittest')
           tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Packet"'
           tf.puts '  APPEND_ITEM item1 16 UINT "Item"'
-          tf.puts '    LIMITS DEFAULT 3 ENABLED 1 2 6 7'
+          tf.puts '    LIMITS DEFAULT 1 ENABLED 1 2 6 7'
           tf.close
           @pc.process_file(tf.path, "TGT1")
           item = @pc.telemetry["TGT1"]["PKT1"].items["ITEM1"]
@@ -1290,7 +1290,7 @@ module Cosmos
           tf = Tempfile.new('unittest')
           tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Packet"'
           tf.puts '  APPEND_ITEM item1 16 UINT "Item"'
-          tf.puts '    LIMITS DEFAULT 3 ENABLED 1 2 6 7 3 5'
+          tf.puts '    LIMITS DEFAULT 1 ENABLED 1 2 6 7 3 5'
           tf.close
           @pc.process_file(tf.path, "TGT1")
           item = @pc.telemetry["TGT1"]["PKT1"].items["ITEM1"]
