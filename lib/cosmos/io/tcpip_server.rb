@@ -84,6 +84,7 @@ module Cosmos
       @stream_protocol_args = stream_protocol_args
 
       @listen_sockets = []
+      @listen_pipes = []
       @listen_threads = []
       @read_threads = []
       @write_stream_protocols = []
@@ -120,6 +121,14 @@ module Cosmos
     # Create the read and write port listen threads. Incoming connections will
     # spawn separate threads to process the reads and writes.
     def connect
+      @cancel_threads = false
+      if @read_queue
+        # Empty the read queue of any residual
+        begin
+          @read_queue.pop(true) while @read_queue.length > 0
+        rescue
+        end
+      end
       if @write_port == @read_port
         # Handle one socket case
         start_listen_thread(@read_port, true, true)
@@ -139,13 +148,16 @@ module Cosmos
           begin
             while true
               write_thread_body()
+              break if @cancel_threads
             end
           rescue Exception => err
-            @write_stream_protocols.each do |stream_protocol, hostname, host_ip, port|
-              stream_protocol.disconnect
-              stream_protocol.stream.raw_logger_pair.stop if stream_protocol.stream.raw_logger_pair
+            @connection_mutex.synchronize do
+              @write_stream_protocols.each do |stream_protocol, hostname, host_ip, port|
+                stream_protocol.disconnect
+                stream_protocol.stream.raw_logger_pair.stop if stream_protocol.stream.raw_logger_pair
+              end
+              @write_stream_protocols.clear
             end
-            @write_stream_protocols.clear
             Logger.instance.error("Tcpip server write thread unexpectedly died")
             Logger.instance.error(err.formatted)
           end
@@ -165,45 +177,69 @@ module Cosmos
     # as any client connections. As a part of shutting down client connections,
     # the {StreamProtocol#disconnect} method is called.
     def disconnect
+      @cancel_threads = true
+      @read_queue << nil if @read_queue
+      @listen_pipes.each do |pipe|
+        begin
+          pipe.write('.')
+        rescue Exception
+          # Oh well
+        end
+      end
+      @listen_pipes.clear
+
       # Shutdown Listen Thread(s)
       @listen_threads.each do |listen_thread|
-        listen_thread.kill
+        Cosmos.kill_thread(self, listen_thread)
       end
       @listen_threads.clear
 
       # Shutdown Listen Socket(s)
       @listen_sockets.each do |listen_socket|
-        listen_socket.close unless listen_socket.closed?
+        begin
+          listen_socket.close unless listen_socket.closed?
+        rescue IOError
+          # Ok may have been closed by the thread
+        end
       end
       @listen_sockets.clear
 
+      # Shutdown Read Stream Protocols - This should unblock read threads
+      @connection_mutex.synchronize do
+        @read_stream_protocols.each do |stream_protocol, hostname, host_ip, port|
+          stream_protocol.disconnect
+          stream_protocol.stream.raw_logger_pair.stop if stream_protocol.stream.raw_logger_pair
+        end
+        @read_stream_protocols.clear
+      end
+
       # Shutdown Read Threads
       @read_threads.each do |thread|
-        thread.kill
+        Cosmos.kill_thread(self, thread)
       end
       @read_threads.clear
 
       # Shutdown Write Thread
       if @write_thread
-        @write_thread.kill
+        Cosmos.kill_thread(self, @write_thread)
         @write_thread = nil
       end
 
       # Shutdown Write Stream Protocols
-      @write_stream_protocols.each do |stream_protocol, hostname, host_ip, port|
-        stream_protocol.disconnect
-        stream_protocol.stream.raw_logger_pair.stop if stream_protocol.stream.raw_logger_pair
+      @connection_mutex.synchronize do
+        @write_stream_protocols.each do |stream_protocol, hostname, host_ip, port|
+          stream_protocol.disconnect
+          stream_protocol.stream.raw_logger_pair.stop if stream_protocol.stream.raw_logger_pair
+        end
+        @write_stream_protocols.clear
       end
-      @write_stream_protocols.clear
-
-      # Shutdown Read Stream Protocols
-      @read_stream_protocols.each do |stream_protocol, hostname, host_ip, port|
-        stream_protocol.disconnect
-        stream_protocol.stream.raw_logger_pair.stop if stream_protocol.stream.raw_logger_pair
-      end
-      @read_stream_protocols.clear
 
       @connected = false
+    end
+
+    # Gracefully kill all the threads
+    def graceful_kill
+      # This method is just here to prevent warnings
     end
 
     # @return [Packet] Latest packet read from any of the connected clients.
@@ -211,6 +247,7 @@ module Cosmos
     def read
       return nil unless @read_queue
       packet = @read_queue.pop
+      return nil unless packet
       @bytes_read += packet.buffer.length
       packet
     end
@@ -315,8 +352,11 @@ module Cosmos
       # Start Listen Thread
       @listen_threads << Thread.new do
         begin
+          thread_reader, thread_writer = IO.pipe
+          @listen_pipes << thread_writer
           while true
-            listen_thread_body(listen_socket, listen_write, listen_read)
+            listen_thread_body(listen_socket, listen_write, listen_read, thread_reader)
+            break if @cancel_threads
           end
         rescue Exception => err
           Logger.instance.error("Tcpip server listen thread unexpectedly died")
@@ -325,8 +365,18 @@ module Cosmos
       end
     end
 
-    def listen_thread_body(listen_socket, listen_write = false, listen_read = false)
-      socket, address = listen_socket.accept()
+    def listen_thread_body(listen_socket, listen_write, listen_read, thread_reader)
+      begin
+        socket, address = listen_socket.accept_nonblock
+      rescue Errno::EAGAIN, Errno::ECONNABORTED, Errno::EINTR, Errno::EWOULDBLOCK
+        read_ready, _ = IO.select([listen_socket, thread_reader])
+        if read_ready and read_ready.include?(thread_reader)
+          return
+        else
+          retry
+        end
+      end
+
       port, host_ip = Socket.unpack_sockaddr_in(address)
       hostname = ''
       hostname = Socket.lookup_hostname_from_ip(host_ip) if System.instance.use_dns
@@ -415,11 +465,12 @@ module Cosmos
     end
 
     def write_thread_body
-      # Retrive the next packet to be sent out to clients
+      # Retrieve the next packet to be sent out to clients
       # Handles disconnected clients even when packets aren't flowing
       packet = nil
 
       loop do
+        break if @cancel_threads
         begin
           packet = @write_queue.pop(true)
           break
@@ -516,7 +567,7 @@ module Cosmos
     def read_thread_body(stream_protocol)
       loop do
         packet = stream_protocol.read
-        return unless packet
+        return if !packet or @cancel_threads
 
         # Do work on received packet
         read_thread_hook(packet)

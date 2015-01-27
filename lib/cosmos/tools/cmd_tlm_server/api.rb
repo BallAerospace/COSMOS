@@ -412,11 +412,7 @@ module Cosmos
     # @return (see Cosmos::Packet#read_all_with_limits_states)
     def get_tlm_packet(target_name, packet_name, value_type = :CONVERTED)
       packet = System.telemetry.packet(target_name, packet_name)
-      values = nil
-      packet.synchronize do
-       values = packet.read_all_with_limits_states(value_type.to_s.intern)
-      end
-      values
+      return packet.read_all_with_limits_states(value_type.to_s.intern)
     end
 
     # Returns all the item values (along with their limits state). The items

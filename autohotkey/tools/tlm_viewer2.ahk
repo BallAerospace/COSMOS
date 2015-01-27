@@ -3,6 +3,7 @@ SetKeyDelay 10
 
 Sleep 1000
 WinActivate Screen
+Sleep 2000
 Send {Tab}
 Sleep 500
 Send {Enter}

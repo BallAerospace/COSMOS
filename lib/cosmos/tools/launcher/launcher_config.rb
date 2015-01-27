@@ -87,7 +87,7 @@ module Cosmos
           when 'DELAY'
             if multitool
               parser.verify_num_parameters(1, 1, "DELAY <Delay in seconds>")
-              multitool_settings << [:DELAY, Float(params[0])]
+              multitool_settings << [:DELAY, Float(params[0]), true]
             else
               raise parser.error("DELAY keyword only valid within MULTITOOL")
             end

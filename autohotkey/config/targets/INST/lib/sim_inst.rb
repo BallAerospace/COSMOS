@@ -93,6 +93,7 @@ module Cosmos
 
       @solar_panel_positions = SOLAR_PANEL_DFLTS.dup
       @solar_panel_thread = nil
+      @solar_panel_thread_cancel = false
 
       @trackStars = Array.new
       @trackStars[0] = 1237
@@ -141,23 +142,33 @@ module Cosmos
       when 'SLRPNLDEPLOY'
         return if @solar_panel_thread and @solar_panel_thread.alive?
         @solar_panel_thread = Thread.new do
-           (0..@solar_panel_positions.size-1).to_a.reverse.each do |i|
-             while (@solar_panel_positions[i] > 0.1) or (@solar_panel_positions[i] < - 0.1)
-               if @solar_panel_positions[i] > 3.0
-                 @solar_panel_positions[i] -= 3.0
-               elsif @solar_panel_positions[i] < -3.0
-                 @solar_panel_positions[i] += 3.0
-               else
-                 @solar_panel_positions[i] = 0.0
-               end
-               sleep(0.10)
-             end
-           end
+          @solar_panel_thread_cancel = false
+          (0..@solar_panel_positions.size-1).to_a.reverse.each do |i|
+            while (@solar_panel_positions[i] > 0.1) or (@solar_panel_positions[i] < - 0.1)
+              if @solar_panel_positions[i] > 3.0
+                @solar_panel_positions[i] -= 3.0
+              elsif @solar_panel_positions[i] < -3.0
+                @solar_panel_positions[i] += 3.0
+              else
+                @solar_panel_positions[i] = 0.0
+              end
+              sleep(0.10)
+              break if @solar_panel_thread_cancel
+            end
+            if @solar_panel_thread_cancel
+              @solar_panel_thread_cancel = false
+              break
+            end
+          end
         end
       when 'SLRPNLRESET'
-        @solar_panel_thread.kill if @solar_panel_thread and @solar_panel_thread.alive?
+        Cosmos.kill_thread(self, @solar_panel_thread)
         @solar_panel_positions = SOLAR_PANEL_DFLTS.dup
       end
+    end
+
+    def graceful_kill
+      @solar_panel_thread_cancel = true
     end
 
     def read(count_100hz, time)

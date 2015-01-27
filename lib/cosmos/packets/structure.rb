@@ -256,11 +256,14 @@ module Cosmos
     # @param value_type [Symbol] Not used. Subclasses should overload this
     #   parameter to check whether to perform conversions on the item.
     # @param buffer [String] The binary buffer to write the value to
+    # @param top [Boolean] Indicates if this is a top level call for the mutex
     # @return [Array<Array>] Array of two element arrays containing the item
     #   name as element 0 and item value as element 1.
-    def read_all(value_type = :RAW, buffer = @buffer)
+    def read_all(value_type = :RAW, buffer = @buffer, top = true)
       item_array = []
-      @sorted_items.each {|item| item_array << [item.name, read_item(item, value_type, buffer)]}
+      synchronize_allow_reads(top) do
+        @sorted_items.each {|item| item_array << [item.name, read_item(item, value_type, buffer)]}
+      end
       return item_array
     end
 
@@ -274,16 +277,18 @@ module Cosmos
     def formatted(value_type = :RAW, indent = 0, buffer = @buffer)
       indent_string = ' ' * indent
       string = ''
-      @sorted_items.each do |item|
-        if item.data_type != :BLOCK
-          string << "#{indent_string}#{item.name}: #{read_item(item, value_type, buffer)}\n"
-        else
-          value = read_item(item, value_type, buffer)
-          if String === value
-            string << "#{indent_string}#{item.name}:\n"
-            string << value.formatted(1, 16, ' ', indent + 2)
+      synchronize_allow_reads(true) do
+        @sorted_items.each do |item|
+          if item.data_type != :BLOCK
+            string << "#{indent_string}#{item.name}: #{read_item(item, value_type, buffer)}\n"
           else
-            string << "#{indent_string}#{item.name}: #{value}\n"
+            value = read_item(item, value_type, buffer)
+            if String === value
+              string << "#{indent_string}#{item.name}:\n"
+              string << value.formatted(1, 16, ' ', indent + 2)
+            else
+              string << "#{indent_string}#{item.name}: #{value}\n"
+            end
           end
         end
       end
@@ -327,7 +332,37 @@ module Cosmos
     # Take the structure mutex to ensure the buffer does not change while you perform activities
     def synchronize
       @mutex ||= Mutex.new
-      @mutex.synchronize {|| yield }
+      @mutex.synchronize {|| yield}
+    end
+
+    # Take the structure mutex to ensure the buffer does not change while you perform activities
+    # This versions allows reads to happen if a top level function has already taken the mutex
+    # @param top [Boolean] If true this will take the mutex and set an allow reads flag to allow
+    #      lower level calls to go forward without getting the mutex
+    def synchronize_allow_reads(top = false)
+      @mutex_allow_reads ||= false
+      @mutex ||= Mutex.new
+      if top
+        @mutex.synchronize do
+          @mutex_allow_reads = Thread.current
+          begin
+            yield
+          ensure
+            @mutex_allow_reads = false
+          end
+        end
+      else
+        got_mutex = @mutex.try_lock
+        if got_mutex
+          begin
+            yield
+          ensure
+            @mutex.unlock
+          end
+        elsif @mutex_allow_reads == Thread.current
+          yield
+        end
+      end
     end
 
     # Make a light weight clone of this structure. This only creates a new buffer

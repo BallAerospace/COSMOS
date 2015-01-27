@@ -146,14 +146,18 @@ module Cosmos
 
     def reject
       super()
-      @pry_thread.kill if @pry_thread
+      Cosmos.kill_thread(self, @pry_thread)
       self.dispose
     end
 
     def closeEvent(event)
       super(event)
-      @pry_thread.kill if @pry_thread
+      Cosmos.kill_thread(self, @pry_thread)
       self.dispose
+    end
+
+    def graceful_kill
+      sendToPry("throw :breakout")
     end
 
   end # class PryDialog

@@ -22,13 +22,13 @@ module Cosmos
       @packet.buffer = "\x01\x02"
 
       @interface = Interface.new
-      $connected_count = 0
-      def @interface.connected?
-        if $connected_count == 0
-          $connected_count += 1
+      @connected_count = 0
+      allow(@interface).to receive(:connected?) do
+        if @connected_count == 0
+          @connected_count += 1
           false
         else
-          $connected_count += 1
+          @connected_count += 1
           true
         end
       end
@@ -48,26 +48,24 @@ module Cosmos
         @interface.interfaces = [@interface]
         thread = RouterThread.new(@interface)
         thread.start
-        sleep 0.5
+        sleep 1
         Thread.list.length.should eql(2)
         thread.stop
         sleep 0.5
         Thread.list.length.should eql(1)
       end
-
     end
 
     describe "handle_packet" do
       it "should handle errors when sending packets" do
         commanding = double("commanding")
-        expect(commanding).to receive(:send_command_to_interface).and_raise(RuntimeError.new("Death"))
+        expect(commanding).to receive(:send_command_to_interface).and_raise(RuntimeError.new("Death")).at_least(1).times
         allow(CmdTlmServer).to receive(:commanding).and_return(commanding)
         @interface.interfaces = [@interface]
         thread = RouterThread.new(@interface)
-        sleep(1)
         capture_io do |stdout|
           thread.start
-          sleep 0.1
+          sleep 0.2
           Thread.list.length.should eql(2)
           thread.stop
           sleep 0.5
@@ -78,16 +76,15 @@ module Cosmos
 
       it "should handle identified yet unknown commands" do
         commanding = double("commanding")
-        expect(commanding).to receive(:send_command_to_interface)
+        expect(commanding).to receive(:send_command_to_interface).at_least(1).times
         allow(CmdTlmServer).to receive(:commanding).and_return(commanding)
         @interface.interfaces = [@interface]
         @packet.target_name = 'BOB'
         @packet.packet_name = 'SMITH'
         thread = RouterThread.new(@interface)
-        sleep(1)
         capture_io do |stdout|
           thread.start
-          sleep 0.1
+          sleep 0.2
           Thread.list.length.should eql(2)
           thread.stop
           sleep 0.5

@@ -194,7 +194,7 @@ module Cosmos
         end
       end
 
-      if show_line
+      if show_line and y
         dc.addLineColor(@graph_left_x, y, @graph_right_x, y, Cosmos::DASHLINE_PEN)
       end
 

@@ -107,6 +107,10 @@ module Cosmos
     @@pause_on_red = false
     @@show_backtrace = false
     @@error = nil
+    @@output_sleeper = Sleeper.new
+    @@limits_sleeper = Sleeper.new
+    @@cancel_output = false
+    @@cancel_limits = false
 
     def initialize(parent, default_tab_text = 'Untitled')
       super(parent)
@@ -413,7 +417,7 @@ module Cosmos
 
     def self.stop!
       if @@run_thread
-        @@run_thread.kill
+        Cosmos.kill_thread(nil, @@run_thread)
         @@run_thread = nil
       end
     end
@@ -464,6 +468,7 @@ module Cosmos
 
       Qt.execute_in_main_thread(true) do
         window = Qt::CoreApplication.instance.activeWindow
+        @cancel_instrumentation = false
         ProgressDialog.execute(window, # parent
                                "Instrumenting: #{File.basename(filename.to_s)}",
                                500,    # width
@@ -473,6 +478,7 @@ module Cosmos
                                false,  # don't show text
                                false,  # don't show done
                                true) do |progress_dialog| # show cancel
+          progress_dialog.cancel_callback = lambda {|dialog| @cancel_instrumentation = true; [true, false]}
           progress_dialog.enable_cancel_button
           comments_removed_text = ruby_lex_utils.remove_comments(text)
           num_lines = comments_removed_text.num_lines.to_f
@@ -488,7 +494,7 @@ module Cosmos
         end
       end
 
-      Kernel.raise StopScript if ProgressDialog.canceled?
+      Kernel.raise StopScript if @cancel_instrumentation or ProgressDialog.canceled?
       instrumented_text
     end
 
@@ -505,6 +511,7 @@ module Cosmos
       end
 
       ruby_lex_utils.each_lexed_segment(comments_removed_text) do |segment, instrumentable, inside_begin, line_no|
+        return nil if @cancel_instrumentation
         instrumented_line = ''
         if instrumentable
           # If not inside a begin block then create one to catch exceptions
@@ -1210,6 +1217,10 @@ module Cosmos
       end
     end
 
+    def graceful_kill
+      # Just to avoid warning
+    end
+
     protected
 
     def initialize_variables
@@ -1394,11 +1405,17 @@ module Cosmos
             @current_filename = nil
             @current_line_number = 0
             if @@limits_monitor_thread and not @@instance
-              @@limits_monitor_thread.kill
+              @@cancel_limits = true
+              @@limits_sleeper.cancel
+              Qt::CoreApplication.processEvents()
+              Cosmos.kill_thread(self, @@limits_monitor_thread)
               @@limits_monitor_thread = nil
             end
             if @@output_thread and not @@instance
-              @@output_thread.kill
+              @@cancel_output = true
+              @@output_sleeper.cancel
+              Qt::CoreApplication.processEvents()
+              Cosmos.kill_thread(self, @@output_thread)
               @@output_thread = nil
             end
 
@@ -1759,10 +1776,14 @@ module Cosmos
     end
 
     def output_thread
+      @@cancel_output = false
+      @@output_sleeper = Sleeper.new
       begin
         loop do
+          break if @@cancel_output
           handle_output_io() if (Time.now - @output_time) > 5.0
-          sleep(1.0)
+          break if @@cancel_output
+          break if @@output_sleeper.sleep(1.0)
         end # loop
       rescue => error
         Qt.execute_in_main_thread(true) do
@@ -1772,20 +1793,27 @@ module Cosmos
     end
 
     def limits_monitor_thread
+      @@cancel_limits = false
+      @@limits_sleeper = Sleeper.new
       queue_id = nil
       begin
         loop do
+          break if @@cancel_limits
           begin
             # Subscribe to limits notifications
             queue_id = subscribe_limits_events(100000) unless queue_id
 
             # Get the next limits event
+            break if @@cancel_limits
             begin
               type, data = get_limits_event(queue_id, true)
             rescue ThreadError
-              sleep(0.5)
+              break if @@cancel_limits
+              break if @@limits_sleeper.sleep(0.5)
               next
             end
+
+            break if @@cancel_limits
 
             # Display limits state changes
             if type == :LIMITS_CHANGE
@@ -1825,19 +1853,24 @@ module Cosmos
                 else
                   # Print nothing
                 end
+                break if @@cancel_limits
                 handle_output_io()
+                break if @@cancel_limits
               end
 
               if @@pause_on_red && (new_limits_state == :RED ||
                                     new_limits_state == :RED_LOW ||
                                     new_limits_state == :RED_HIGH)
+                break if @@cancel_limits
                 pause()
+                break if @@cancel_limits
               end
             end
 
           rescue DRb::DRbConnError
             queue_id = nil
-            sleep(1)
+            break if @@cancel_limits
+            break if @@limits_sleeper.sleep(1)
           end
 
         end # loop
