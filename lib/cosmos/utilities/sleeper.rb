@@ -10,6 +10,8 @@
 
 module Cosmos
 
+  # Allows for a breakable sleep implementation using the self-pipe trick
+  # See http://www.sitepoint.com/the-self-pipe-trick-explained/
   class Sleeper
     def initialize
       @pipe_reader, @pipe_writer = IO.pipe
@@ -17,6 +19,10 @@ module Cosmos
       @canceled = false
     end
 
+    # Breakable version of sleep
+    # @param seconds Number of seconds to sleep
+    # @return true if the sleep was broken by someone calling cancel
+    #   otherwise returns false
     def sleep(seconds)
       read_ready, _ = IO.select(@readers, nil, nil, seconds)
       if read_ready && read_ready.include?(@pipe_reader)
@@ -26,6 +32,7 @@ module Cosmos
       end
     end
 
+    # Break sleeping - Once canceled a sleeper cannot be used again
     def cancel
       if !@canceled
         @canceled = true

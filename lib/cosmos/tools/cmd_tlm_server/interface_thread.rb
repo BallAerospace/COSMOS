@@ -107,11 +107,7 @@ module Cosmos
       @cancel_thread = true
       @thread_sleeper.cancel
       @interface.disconnect
-
-      if @thread
-        Logger.info "Stopping packet reading for #{@interface.name}"
-        Cosmos.kill_thread(self, @thread) if @thread != Thread.current
-      end
+      Cosmos.kill_thread(self, @thread) if @thread != Thread.current
     end
 
     def graceful_kill
