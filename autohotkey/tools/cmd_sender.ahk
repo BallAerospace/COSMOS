@@ -4,6 +4,7 @@ Sleep 2000
 Run ruby.exe %A_ScriptDir%/CmdTlmServer
 Sleep 2000
 WinActivate Command Sender
+Sleep 500
 Click 60 600 ; Click in the Command History
 Sleep 500
 Send cmd( ; Cause a popup completion
@@ -16,16 +17,21 @@ Send {Enter} ; Send it CMD-12, CMD-13
 Sleep 500
 Send ^s ; Send Raw
 WinWaitActive Send Raw
+Sleep 500
 Click 100 105 ; Cancel
 WinWaitActive Command Sender
+Sleep 500
 Send ^s ; Send Raw
 WinWaitActive Send Raw
+Sleep 500
 Send {Enter}
 WinWaitActive Select File
+Sleep 500
 Send outputs\logs\cmd.bin{Enter}
 WinActivate Send Raw
 Click 310 105 ; Click OK CMD-10
 WinWaitActive Command Sender
+Sleep 500
 Click 85 75 ; Target dropdown CMD-1
 Sleep 500
 Click 75 103 ; INST
@@ -39,8 +45,10 @@ Sleep 500
 Click 610 75 ; Send should fail due to TYPE required CMD-6
 Sleep 500
 WinWaitActive Error
+Sleep 500
 Send {Enter}
 Click 240 185 ; Click in the TYPE parameter CMD-5
+Sleep 500
 Send 5{Enter}
 Sleep 500
 Click 610 75 ; Send CMD-2
@@ -57,8 +65,10 @@ Click 150 200 ; Click on NORMAL CMD-4
 Sleep 500
 Click 610 75 ; Send should fail due to out of range
 WinWaitActive Error
+Sleep 500
 Send {Enter}
 WinWaitActive Command Sender
+Sleep 500
 Send !m ; Mode
 Sleep 500
 Send i ; Ignore Range Checks
@@ -89,12 +99,16 @@ Click 150 214 ; Click on SPECIAL CMD-4
 Sleep 500
 Click 610 75 ; Send
 WinWaitActive Hazardous Command
+Sleep 500
 Click 290 110 ; Cancel CMD-11
 WinWaitActive Command Sender
+Sleep 500
 Click 610 75 ; Send
 WinWaitActive Hazardous Command
+Sleep 500
 Send {Enter} ; Confirm send because hazardous CMD-11
 WinWaitActive Command Sender
+Sleep 500
 Send !m ; Mode
 Sleep 500
 Send d ; Display in Hex
@@ -113,14 +127,18 @@ Click right 500 365 ; Right Click in the TYPE parameter
 Sleep 500
 Click right 515 350 ; Details
 WinWaitActive INST COLLECT
+Sleep 500
 Send {Enter}
 WinWaitActive Command Sender
+Sleep 500
 Click right 200 435 ; Click in TEMP
 Sleep 500
 Click 215 450 ; Select File
 WinWaitActive Insert
+Sleep 500
 Send cmd.bin{Enter}
 WinWaitActive Command Sender
+Sleep 500
 Click 85 75 ; Target dropdown
 Sleep 500
 Click 75 115 ; INST2
@@ -154,8 +172,10 @@ Send {Down 6}{Up}{Enter}
 ; Shut down the CTS
 WinActivate Command and Telemetry Server
 WinWaitActive Command and Telemetry Server
+Sleep 500
 Send ^q
 WinWaitActive Confirm Close
+Sleep 500
 Send {Enter}
 
 WinActivate Command Sender

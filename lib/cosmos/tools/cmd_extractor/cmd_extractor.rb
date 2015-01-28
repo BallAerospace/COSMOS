@@ -168,6 +168,7 @@ module Cosmos
     def process_files(output_file, include_raw, progress_dialog)
       log_file_count = 1
       @input_filenames.each do |log_file|
+        break if @cancel
         begin
           file_size = File.size(log_file).to_f
           progress_dialog.append_text("Processing File #{log_file_count}/#{@input_filenames.length}: #{log_file}")

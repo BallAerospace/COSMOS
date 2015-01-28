@@ -1,3 +1,4 @@
+.coveralls.yml
 .gitignore
 .travis.yml
 CONTRIBUTING.txt
@@ -978,6 +979,7 @@ lib/cosmos/utilities/message_log.rb
 lib/cosmos/utilities/quaternion.rb
 lib/cosmos/utilities/ruby_lex_utils.rb
 lib/cosmos/utilities/simulated_target.rb
+lib/cosmos/utilities/sleeper.rb
 lib/cosmos/version.rb
 lib/cosmos/win32/excel.rb
 lib/cosmos/win32/win32.rb

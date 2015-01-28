@@ -43,13 +43,16 @@ module Cosmos
       @identified_packet_callback = nil
       @fatal_exception_callback = nil
       @thread = nil
+      @thread_sleeper = Sleeper.new
     end
 
     # Create and start the Ruby thread that will encapsulate the interface.
     # Creates a while loop that waits for {Interface#connect} to succeed. Then
     # calls {Interface#read} and handles all the incoming packets.
     def start
+      @thread_sleeper = Sleeper.new
       @thread = Thread.new do
+        @cancel_thread = false
         begin
           Logger.info "Starting packet reading for #{@interface.name}"
           while true
@@ -58,20 +61,33 @@ module Cosmos
                 connect()
               rescue Exception => connect_error
                 handle_connection_failed(connect_error)
-                next
+                if @cancel_thread
+                  break
+                else
+                  next
+                end
               end
             end
 
             begin
               packet = @interface.read
               unless packet
+                Logger.info "Clean disconnect from #{@interface.name} (returned nil)"
                 handle_connection_lost(nil)
-                next
+                if @cancel_thread
+                  break
+                else
+                  next
+                end
               end
               packet.received_time = Time.now unless packet.received_time
             rescue Exception => err
               handle_connection_lost(err)
-              next
+              if @cancel_thread
+                break
+              else
+                next
+              end
             end
 
             handle_packet(packet)
@@ -89,12 +105,14 @@ module Cosmos
 
     # Disconnect from the interface and stop the thread
     def stop
+      @cancel_thread = true
+      @thread_sleeper.cancel
       @interface.disconnect
+      Cosmos.kill_thread(self, @thread) if @thread != Thread.current
+    end
 
-      if @thread
-        Logger.info "Stopping packet reading for #{@interface.name}"
-        @thread.kill
-      end
+    def graceful_kill
+      # Just to avoid warning
     end
 
     protected
@@ -180,10 +198,10 @@ module Cosmos
       if @connection_lost_callback
         @connection_lost_callback.call(err)
       else
-        Logger.error "Connection Lost for #{@interface.name}"
+        Logger.info "Connection Lost for #{@interface.name}"
         if err
           case err
-          when Errno::ECONNABORTED, Errno::ECONNRESET, Errno::ETIMEDOUT
+          when Errno::ECONNABORTED, Errno::ECONNRESET, Errno::ETIMEDOUT, Errno::EBADF
             # Do not write an exception file for these extremely common cases
             Logger.error err.formatted(false, false)
           else
@@ -211,7 +229,9 @@ module Cosmos
       # If the interface is set to auto_reconnect then delay so the thread
       # can come back around and allow the interface a chance to reconnect.
       if @interface.auto_reconnect
-        sleep @interface.reconnect_delay
+        if !@cancel_thread
+          @thread_sleeper.sleep(@interface.reconnect_delay)
+        end
       else
         stop()
       end

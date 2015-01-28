@@ -363,15 +363,19 @@ module Cosmos
       all_telemetry = @all_telemetry.clone
 
       # Open a progress dialog with out a step progress
+      @cancel_audit = false
       ProgressDialog.execute(self, 'Audit Progress', 650, 400, true, false) do |progress|
+        progress.cancel_callback = lambda {|dialog| @cancel_audit = true; [true, false]}
         progress.enable_cancel_button
         begin
           index = 1
           @tlm_viewer_config.screen_infos.each do |name, info|
+            break if @cancel_audit
             progress.append_text("Processing screen #{name}")
             screen_text = File.read(info.filename).upcase
             found = []
             all_telemetry.each do |tlm|
+              break if @cancel_audit
               found << tlm if screen_text.include? tlm
             end
             all_telemetry -= found
@@ -380,18 +384,20 @@ module Cosmos
             index += 1
           end
 
-          output_filename = File.join(System.paths['LOGS'],
-                                      File.build_timestamped_filename(['screen','audit'], '.txt'))
-          File.open(output_filename, 'w') do |file|
-            file.puts "Telemetry Viewer audit created on #{Time.now.formatted}.\n"
-            if all_telemetry.empty?
-              msg = "\nAll telemetry points accounted for in screens."
-              progress.append_text(msg)
-              file.puts msg
-            else
-              progress.append_text("\nThere were #{all_telemetry.length} telemetry points not accounted for.")
-              file.puts "\nThe following telemetry points were not on any screens:"
-              all_telemetry.map {|item| file.puts item }
+          unless @cancel_audit
+            output_filename = File.join(System.paths['LOGS'],
+                                        File.build_timestamped_filename(['screen','audit'], '.txt'))
+            File.open(output_filename, 'w') do |file|
+              file.puts "Telemetry Viewer audit created on #{Time.now.formatted}.\n"
+              if all_telemetry.empty?
+                msg = "\nAll telemetry points accounted for in screens."
+                progress.append_text(msg)
+                file.puts msg
+              else
+                progress.append_text("\nThere were #{all_telemetry.length} telemetry points not accounted for.")
+                file.puts "\nThe following telemetry points were not on any screens:"
+                all_telemetry.map {|item| file.puts item }
+              end
             end
           end
         rescue => error
@@ -427,11 +433,16 @@ module Cosmos
           event.ignore()
         else
           # Close any open screens
+          script_disconnect()
           Screen.close_all_screens(self)
           shutdown_cmd_tlm()
           @json_drb.stop_service if @json_drb
           super(event)
         end
+      else
+        shutdown_cmd_tlm()
+        @json_drb.stop_service if @json_drb
+        super(event)
       end
     end
 
@@ -451,9 +462,12 @@ module Cosmos
         success = false
         Qt.execute_in_main_thread(true) do
           begin
-            screen_info.screen.window.raise
-            screen_info.screen.window.showNormal
-            success = true
+            if screen_info.screen.window
+              screen_info.screen.window.raise
+              screen_info.screen.window.activateWindow
+              screen_info.screen.window.showNormal
+              success = true
+            end
           rescue
             # Screen probably was closed - continue
             screen_info.screen = nil
@@ -468,6 +482,11 @@ module Cosmos
           screen_info.screen = Screen.new(screen_info.full_name, screen_info.filename, self, :REALTIME, x_pos, y_pos, screen_info.original_target_name, screen_info.substitute, screen_info.force_substitute)
         else
           screen_info.screen = Screen.new(screen_info.full_name, screen_info.filename, self, :REALTIME, screen_info.x_pos, screen_info.y_pos, screen_info.original_target_name, screen_info.substitute, screen_info.force_substitute)
+        end
+        if screen_info.screen.window
+          screen_info.screen.window.raise
+          screen_info.screen.window.activateWindow
+          screen_info.screen.window.showNormal
         end
       end
     end

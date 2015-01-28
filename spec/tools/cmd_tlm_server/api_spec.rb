@@ -26,49 +26,23 @@ module Cosmos
       end
     end
 
+    after(:all) do
+      clean_config()
+      FileUtils.rm_rf File.join(Cosmos::USERPATH,'config','tools')
+    end
+
     before(:each) do
+      allow_any_instance_of(Interface).to receive(:connected?)
+      allow_any_instance_of(Interface).to receive(:connect)
+      allow_any_instance_of(Interface).to receive(:disconnect)
+      allow_any_instance_of(Interface).to receive(:write_raw)
+      allow_any_instance_of(Interface).to receive(:read)
       @api = CmdTlmServer.new
-      config = @api.interfaces.instance_variable_get(:@config)
-      # Stub interfaces and routers.  Do this like this so that they can still be used in an after hook
-      config.interfaces.each do |interface_name, i|
-        if i.class == Cosmos::Interface
-          def i.connected?(*args)
-          end
-          def i.connect(*args)
-          end
-          def i.disconnect(*args)
-          end
-          def i.write_raw(*args)
-          end
-          def i.read(*args)
-          end
-        end
-      end
-      config.routers.each do |router_name, i|
-        if i.class == Cosmos::Interface
-          def i.connected?(*args)
-          end
-          def i.connect(*args)
-          end
-          def i.disconnect(*args)
-          end
-          def i.write_raw(*args)
-          end
-          def i.read(*args)
-          end
-        end
-      end
       allow(@api.commanding).to receive(:send_command_to_target)
     end
 
     after(:each) do
       @api.stop
-      sleep(0.2)
-    end
-
-    after(:all) do
-      clean_config()
-      FileUtils.rm_rf File.join(Cosmos::USERPATH,'config','tools')
     end
 
     def test_cmd_unknown(method)

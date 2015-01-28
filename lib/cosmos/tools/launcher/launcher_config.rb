@@ -87,7 +87,7 @@ module Cosmos
           when 'DELAY'
             if multitool
               parser.verify_num_parameters(1, 1, "DELAY <Delay in seconds>")
-              multitool_settings << [:DELAY, Float(params[0])]
+              multitool_settings << [:DELAY, Float(params[0]), true]
             else
               raise parser.error("DELAY keyword only valid within MULTITOOL")
             end
@@ -156,6 +156,14 @@ module Cosmos
           shell_command = "open tools/mac/#{split_command[1]}.app --args #{split_command[2..-1].join(' ')}"
         else
           shell_command = "RUBYW tools/#{split_command[1]} #{split_command[2..-1].join(' ')}"
+        end
+      elsif split_command[0] == 'LAUNCH_TERMINAL'
+        if Kernel.is_mac?
+          shell_command = "osascript -e 'tell application \"Terminal\" to do script \"cd #{File.expand_path(USERPATH)} && ruby tools/#{split_command[1]} #{split_command[2..-1].join(' ')}\"' -e 'return'"
+        elsif Kernel.is_windows?
+          shell_command = "start ruby tools/#{split_command[1]} #{split_command[2..-1].join(' ')}"
+        else
+          shell_command = "gnome-terminal -e \"ruby tools/#{split_command[1]} #{split_command[2..-1].join(' ')}\""
         end
       end
       shell_command.gsub!('RUBYW', rubyw_sub)

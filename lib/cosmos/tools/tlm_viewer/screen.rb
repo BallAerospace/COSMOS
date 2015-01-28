@@ -24,7 +24,14 @@ module Cosmos
     attr_accessor :full_name, :width, :height, :window
 
     class Widgets
+      # Flag to indicate all screens should close
+      @@closing_all = false
+
       attr_accessor :named, :item, :non_item, :invalid, :items, :value_types, :polling_period, :mode
+
+      def self.closing_all= (value)
+        @@closing_all = value
+      end
 
       def initialize(screen, mode)
         @screen = screen
@@ -61,6 +68,8 @@ module Cosmos
         @polling_period = nil
         # The value update thread instance
         @value_thread = nil
+        # Used to gracefully break out of the value thread
+        @value_sleeper = Sleeper.new
       end
 
       def widgets
@@ -104,6 +113,7 @@ module Cosmos
         @value_thread = Thread.new do
           begin
             while(true)
+              break if @@closing_all
               time = Time.now
 
               begin
@@ -126,16 +136,18 @@ module Cosmos
                   @limits_set = limits_set
                 end
               rescue DRb::DRbConnError
-                sleep(1)
+                break if @@closing_all
+                break if @value_sleeper.sleep(1)
                 next
               end
 
               Qt.execute_in_main_thread {update_gui()} if @alive and (@mode == :REALTIME)
               delta = Time.now - time
+              break if @@closing_all
               if @polling_period - delta > 0
-                sleep(@polling_period - delta)
+                break if @value_sleeper.sleep(@polling_period - delta)
               else
-                sleep(0.1) # Minimum delay
+                break if @value_sleeper.sleep(0.1) # Minimum delay
               end
             end
           rescue Exception => error
@@ -174,14 +186,16 @@ module Cosmos
 
       def shutdown
         @alive = false
-        if not @value_thread.nil?
-          @value_thread.kill # Kill the thread
-        end
+        Cosmos.kill_thread(self, @value_thread)
 
         # Shutdown All Widgets
         widgets().each do |widget|
           widget.shutdown()
         end
+      end
+
+      def graceful_kill
+        @value_sleeper.cancel
       end
     end
 
@@ -209,7 +223,7 @@ module Cosmos
 
       @widgets = Widgets.new(self, mode)
       @window = process(filename)
-      @@open_screens << self
+      @@open_screens << self if @window
     end
 
     def widgets
@@ -297,6 +311,7 @@ module Cosmos
         rescue => err
           ExceptionDialog.new(self, err, "Screen #{File.basename(filename)}", false)
         end
+        shutdown()
         return nil
       end
 
@@ -413,7 +428,10 @@ module Cosmos
     def closeEvent(event)
       super(event)
       @@open_screens.delete(self)
+      shutdown()
+    end
 
+    def shutdown
       # Shutdown Value Gathering Thread
       @widgets.shutdown
 
@@ -439,18 +457,28 @@ module Cosmos
       end
     end
 
+    def graceful_kill
+      @widgets.graceful_kill
+    end
+
     def self.open_screens
       @@open_screens
     end
 
     def self.close_all_screens(closer)
-      @@open_screens.clone.each do |screen|
+      Widgets.closing_all = true
+      screens = @@open_screens.clone
+      screens.each do |screen|
+        screen.window.graceful_kill if screen.window
+      end
+      screens.each do |screen|
         begin
           screen.window.close
         rescue
           # Screen probably already closed - continue
         end
       end
+      Widgets.closing_all = false
     end
 
   end

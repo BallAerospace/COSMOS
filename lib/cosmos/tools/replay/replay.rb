@@ -219,11 +219,13 @@ module Cosmos
 
           System.telemetry.reset
 
+          @cancel = false
           ProgressDialog.execute(self, 'Analyzing Log File', 500, 10, true, false, true, false, true) do |progress_dialog|
             progress_dialog.append_text("Processing File: #{selection}\n")
             progress_dialog.set_overall_progress(0.0)
+            progress_dialog.cancel_callback = method(:cancel_callback)
             progress_dialog.enable_cancel_button
-            @packet_offsets = @packet_log_reader.packet_offsets(selection, lambda {|percentage| progress_dialog.set_overall_progress(percentage)})
+            @packet_offsets = @packet_log_reader.packet_offsets(selection, lambda {|percentage| progress_dialog.set_overall_progress(percentage); @cancel})
             @playback_index = 0
             update_slider_and_current_time(nil)
             @packet_log_reader.open(selection)
@@ -245,6 +247,11 @@ module Cosmos
           end
         end
       end
+    end
+
+    def cancel_callback(progress_dialog = nil)
+      @cancel = true
+      return true, false
     end
 
     def move_start

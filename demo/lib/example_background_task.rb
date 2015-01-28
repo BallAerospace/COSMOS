@@ -23,12 +23,13 @@ module Cosmos
     def initialize
       super()
       @name = 'Example Background Task'
+      @sleeper = Sleeper.new
     end
 
     def call
       sent_count = 0
       @status = "Sleeping for 5 seconds"
-      sleep(5) # allow interfaces time to start
+      return if @sleeper.sleep(5) # allow interfaces time to start
       loop do
         #Make sure we start up with 3 collects
         if (tlm('INST', 'HEALTH_STATUS', 'COLLECTS') < 3)
@@ -42,9 +43,13 @@ module Cosmos
         else
           break
         end
-        sleep(1)
+        return if @sleeper.sleep(1)
       end
       @status = "Finished at #{Time.now.formatted}"
+    end
+
+    def stop
+      @sleeper.cancel
     end
 
   end # class ExampleBackgroundTask

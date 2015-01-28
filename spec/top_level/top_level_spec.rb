@@ -203,7 +203,19 @@ module Cosmos
 
       Cosmos.set_working_dir do
         # Move the defaults output dir out of the way for this test
-        FileUtils.mv('outputs', 'outputs_bak')
+        begin
+          FileUtils.mv('outputs', 'outputs_bak')
+        rescue => err
+          Dir.entries('outputs/logs').each do |entry|
+            next if entry[0] == '.'
+            begin
+              FileUtils.rm(File.join('outputs', 'logs', entry))
+            rescue
+              STDOUT.puts entry
+            end
+          end
+          raise err
+        end
 
         # Create a logs directory as the first order backup
         FileUtils.mkdir('logs')
@@ -277,10 +289,11 @@ module Cosmos
         thread = Cosmos.safe_thread("Test", 1) do
           raise "TestError"
         end
+        def thread.graceful_kill
+        end
         sleep 1
         stdout.string.should match "Test thread unexpectedly died."
-        thread.kill
-        sleep(0.2)
+        Cosmos.kill_thread(thread, thread)
       end
       Cosmos.cleanup_exceptions()
     end

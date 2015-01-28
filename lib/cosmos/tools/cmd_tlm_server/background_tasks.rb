@@ -49,13 +49,17 @@ module Cosmos
           # Ignore any errors because we're about to kill the thread anyway
         end
       end
-      @threads.each {|thread| thread.kill}
+      @threads.each {|thread| Cosmos.kill_thread(self, thread)}
       @threads = []
     end
 
     # Return the array of background tasks
     def all
       @config.background_tasks
+    end
+
+    def graceful_kill
+      # This method is just here to remove warnings - background_task.stop should kill the thread
     end
 
   end # class BackgroundTasks

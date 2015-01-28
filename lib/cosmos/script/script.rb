@@ -913,7 +913,23 @@ module Cosmos
         tlm_viewer.clear(display_name)
         tlm_viewer.disconnect
       rescue DRb::DRbConnError
-        raise "No Listening Telemetry Viewer: #{display_name} could not be cleared"
+        # No Listening Tlm Viewer - So Start One
+        if Kernel.is_windows?
+          Cosmos.run_process('rubyw "' + File.join(Cosmos::USERPATH, 'tools', 'TlmViewer') + '"' + " --system #{File.basename(System.initial_filename)}")
+        elsif Kernel.is_mac? and File.exist?(File.join(Cosmos::USERPATH, 'tools', 'mac', 'TlmViewer.app'))
+          Cosmos.run_process('open "' + File.join(Cosmos::USERPATH, 'tools', 'mac', 'TlmViewer.app') + '"' + " --args --system #{File.basename(System.initial_filename)}")
+        else
+          Cosmos.run_process('ruby "' + File.join(Cosmos::USERPATH, 'tools', 'TlmViewer') + '"' + " --system #{File.basename(System.initial_filename)}")
+        end
+        sleep(5)
+        begin
+          tlm_viewer.clear(display_name)
+          tlm_viewer.disconnect
+        rescue DRb::DRbConnError
+          raise "Unable to Successfully Start Listening Telemetry Viewer: #{display_name} could not be displayed"
+        rescue Errno::ENOENT
+          raise "Display Screen File: #{display_name}.txt does not exist"
+        end
       rescue Errno::ENOENT
         raise "Display Screen File: #{display_name}.txt does not exist"
       end
@@ -1483,8 +1499,12 @@ module Cosmos
       initialize_script_module()
     end
 
-    def shutdown_cmd_tlm
+    def script_disconnect
       $cmd_tlm_server.disconnect if $cmd_tlm_server && !$cmd_tlm_disconnect
+    end
+
+    def shutdown_cmd_tlm
+      script_disconnect()
       $cmd_tlm_server = nil
     end
 

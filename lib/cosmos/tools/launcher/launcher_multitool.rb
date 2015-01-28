@@ -16,17 +16,16 @@ module Cosmos
   class LauncherMultitool < Qt::Object
     slots 'button_clicked()'
 
-    def initialize(parent, multitool_settings, capture_io)
+    def initialize(parent, multitool_settings)
       super(parent)
       @multitool_settings = multitool_settings
-      @capture_io = capture_io
     end
 
     def button_clicked
-      @multitool_settings.each do |item_type, item|
+      @multitool_settings.each do |item_type, item, capture_io|
         case item_type
         when :TOOL
-          if @capture_io
+          if capture_io
             Cosmos.run_process_check_output(item)
           else
             Cosmos.run_process(item)

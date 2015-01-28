@@ -108,8 +108,7 @@ module Cosmos
         thread = Thread.new { i.read }
         sleep 0.1
         thread.stop?.should be_truthy
-        thread.kill
-        thread.join
+        Cosmos.kill_thread(nil, thread)
       end
 
       it "should stop the read thread if there is an IOError" do
@@ -121,8 +120,7 @@ module Cosmos
         thread = Thread.new { i.read }
         sleep 0.1
         thread.stop?.should be_truthy
-        thread.kill
-        thread.join
+        Cosmos.kill_thread(nil, thread)
       end
 
       it "should count the packets received" do

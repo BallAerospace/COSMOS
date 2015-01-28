@@ -48,14 +48,20 @@ module Cosmos
       @request_times_index = 0
       @request_mutex = Mutex.new
       @num_clients = 0
+      @thread_reader, @thread_writer = IO.pipe
     end
 
     # Stops the DRb service by closing the socket and the processing thread
     def stop_service
-      @thread.kill if @thread
+      Cosmos.kill_thread(self, @thread)
       @thread = nil
       @listen_socket.close if @listen_socket and !@listen_socket.closed?
       @listen_socket = nil
+    end
+
+    # Gracefully kill the thread
+    def graceful_kill
+      @thread_writer.write('.') if @thread
     end
 
     # @param hostname [String] The host to start the service on
@@ -90,7 +96,25 @@ module Cosmos
         @thread = Thread.new do
           begin
             while true
-              socket = @listen_socket.accept()
+              begin
+                socket = @listen_socket.accept_nonblock
+              rescue Errno::EAGAIN, Errno::ECONNABORTED, Errno::EINTR, Errno::EWOULDBLOCK
+                read_ready, _ = IO.select([@listen_socket, @thread_reader])
+                if read_ready and read_ready.include?(@thread_reader)
+                  begin
+                    # Thread should be killed - Cleanout thread_reader first
+                    # Don't let this break anything else though
+                    @thread_reader.read(1)
+                  rescue Exception
+                    # Oh well - create a clean pipe in case we need one
+                    @thread_reader, @thread_writer = IO.pipe
+                  end
+                  break
+                else
+                  retry
+                end
+              end
+
               if @acl and !@acl.allow_socket?(socket)
                 socket.close
                 next
