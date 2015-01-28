@@ -69,6 +69,7 @@
 "tools/mac/HandbookCreator.app/Contents/MacOS/main.sh" 0xD6BC144D
 "tools/mac/HandbookCreator.app/Contents/Resources/appIcon.icns" 0xCEA7C465
 "tools/mac/Launcher.app/Contents/Info.plist" 0x32A1EF14
+"tools/mac/Launcher.app/Contents/MacOS/Launcher" 0x2F4B5F07
 "tools/mac/Launcher.app/Contents/MacOS/Launcher.rb" 0xF992D0E5
 "tools/mac/Launcher.app/Contents/MacOS/main.sh" 0xB47BE66F
 "tools/mac/Launcher.app/Contents/Resources/appIcon.icns" 0x8857CD2B
