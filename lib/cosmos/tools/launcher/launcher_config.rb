@@ -95,20 +95,12 @@ module Cosmos
           parser.verify_num_parameters(1, 1, "LABEL <Label Text>")
           @items << [:LABEL, params[0], nil, nil, nil]
 
-        when 'TOOL_FONT'
-          usage = "TOOL_FONT <Font Name> <Font Size>"
+        when 'TOOL_FONT', 'LABEL_FONT'
+          usage = "#{keyword} <Font Name> <Font Size>"
           parser.verify_num_parameters(2, 2, usage)
           begin
-            @tool_font_settings = [params[0], Integer(params[1])]
-          rescue ArgumentError
-            raise parser.error("#{usage} passed '#{params[0]} #{params[1]}'")
-          end
-
-        when 'LABEL_FONT'
-          usage = "LABEL_FONT <Font Name> <Font Size>"
-          parser.verify_num_parameters(2, 2, usage)
-          begin
-            @label_font_settings = [params[0], Integer(params[1])]
+            @tool_font_settings = [params[0], Integer(params[1])] if keyword == 'TOOL_FONT'
+            @label_font_settings = [params[0], Integer(params[1])] if keyword == 'LABEL_FONT'
           rescue ArgumentError
             raise parser.error("#{usage} passed '#{params[0]} #{params[1]}'")
           end
