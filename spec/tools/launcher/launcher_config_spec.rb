@@ -295,7 +295,7 @@ module Cosmos
           elsif Kernel.is_windows?
             expect(lc.items[0][2]).to eq "start ruby tools/Example"
           else
-            expect(lc.items[0][2]).to eq "gnome-terminal -e \"ruby tools/Example"
+            expect(lc.items[0][2]).to eq "gnome-terminal -e \"ruby tools/Example \""
           end
           expect(lc.items[0][3]).to be true
           expect(lc.items[0][4]).to be_nil

@@ -173,7 +173,7 @@ module Cosmos
     it "should execute a command while capturing output" do
       if Kernel.is_windows?
         require 'Qt'
-        allow(Qt::Application).to receive(:instance).and_return(nil)
+        allow(::Qt::Application).to receive(:instance).and_return(nil)
         output = ''
         allow(Logger).to receive(:error) {|str| output = str}
         thread = Cosmos.run_process_check_output("ping 192.0.0.234 -n 1 -w 1000")

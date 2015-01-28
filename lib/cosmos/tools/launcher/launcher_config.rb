@@ -197,7 +197,7 @@ module Cosmos
       elsif Kernel.is_windows?
         formatted = "start ruby tools/#{split[1]} #{split[2..-1].join(' ')}".strip
       else
-        formatted = "gnome-terminal -e \"ruby tools/#{split[1]} #{split[2..-1].join(' ')}\"".strip
+        formatted = "gnome-terminal -e \"ruby tools/#{split[1]} #{split[2..-1].join(' ')}\""
       end
 
       if Kernel.is_windows?
