@@ -217,88 +217,7 @@ module Cosmos
           interfaces_table.setHorizontalHeaderLabels(["Interface", "Connect/Disconnect", "Connected?", "Clients", "Tx Q Size", "Rx Q Size", "   Bytes Tx   ", "   Bytes Rx   ", "  Cmd Pkts  ", "  Tlm Pkts  "])
         end
 
-        row = 0
-        interfaces.all.each do |interface_name, interface|
-          item = Qt::TableWidgetItem.new(tr(interface_name))
-          item.setTextAlignment(Qt::AlignCenter)
-          interfaces_table.setItem(row, 0, item)
-
-          if interface.connected?
-            button_text = 'Disconnect'
-          elsif interface.thread.nil?
-            button_text = 'Connect'
-          else
-            button_text = 'Cancel Connect'
-          end
-          button = Qt::PushButton.new(button_text)
-          if name == 'Routers'
-            button.connect(SIGNAL('clicked()')) do
-              if interface.thread
-                Logger.info "User disconnecting router #{interface_name}"
-                CmdTlmServer.instance.disconnect_router(interface_name)
-              else
-                Logger.info "User connecting router #{interface_name}"
-                CmdTlmServer.instance.connect_router(interface_name)
-              end
-            end
-          else
-            button.connect(SIGNAL('clicked()')) do
-              if interface.thread
-                Logger.info "User disconnecting interface #{interface_name}"
-                CmdTlmServer.instance.disconnect_interface(interface_name)
-              else
-                Logger.info "User connecting interface #{interface_name}"
-                CmdTlmServer.instance.connect_interface(interface_name)
-              end
-            end
-          end
-          button.setDisabled(true) if interface.disable_disconnect
-          interfaces_table.setCellWidget(row, 1, button)
-
-          state = Qt::TableWidgetItem.new
-          if interface.connected?
-            state.setText('true')
-            state.textColor = Cosmos::GREEN
-          elsif interface.thread
-            state.setText('attempting')
-            state.textColor = Cosmos::YELLOW
-          else
-            state.setText('false')
-            state.textColor = Cosmos::BLACK
-          end
-          state.setTextAlignment(Qt::AlignCenter)
-          interfaces_table.setItem(row, 2, state)
-
-          num_clients = Qt::TableWidgetItem.new(tr(interface.num_clients.to_s))
-          num_clients.setTextAlignment(Qt::AlignCenter)
-          interfaces_table.setItem(row, 3, num_clients)
-
-          write_queue_size = Qt::TableWidgetItem.new(tr(interface.write_queue_size.to_s))
-          write_queue_size.setTextAlignment(Qt::AlignCenter)
-          interfaces_table.setItem(row, 4, write_queue_size)
-
-          read_queue_size = Qt::TableWidgetItem.new(tr(interface.read_queue_size.to_s))
-          read_queue_size.setTextAlignment(Qt::AlignCenter)
-          interfaces_table.setItem(row, 5, read_queue_size)
-
-          bytes_written = Qt::TableWidgetItem.new(tr(interface.bytes_written.to_s))
-          bytes_written.setTextAlignment(Qt::AlignCenter)
-          interfaces_table.setItem(row, 6, bytes_written)
-
-          bytes_read = Qt::TableWidgetItem.new(tr(interface.bytes_read.to_s))
-          bytes_read.setTextAlignment(Qt::AlignCenter)
-          interfaces_table.setItem(row, 7, bytes_read)
-
-          write_count = Qt::TableWidgetItem.new(tr(interface.write_count.to_s))
-          write_count.setTextAlignment(Qt::AlignCenter)
-          interfaces_table.setItem(row, 8, write_count)
-
-          read_count = Qt::TableWidgetItem.new(tr(interface.read_count.to_s))
-          read_count.setTextAlignment(Qt::AlignCenter)
-          interfaces_table.setItem(row, 9, read_count)
-
-          row += 1
-        end
+        populate_interface_table(name, interfaces, interfaces_table)
         interfaces_table.displayFullSize
 
         layout.addWidget(interfaces_table)
@@ -313,51 +232,80 @@ module Cosmos
       end
     end
 
+    def populate_interface_table(name, interfaces, interfaces_table)
+      row = 0
+      interfaces.all.each do |interface_name, interface|
+        item = Qt::TableWidgetItem.new(tr(interface_name))
+        item.setTextAlignment(Qt::AlignCenter)
+        interfaces_table.setItem(row, 0, item)
+
+        if interface.connected?
+          button_text = 'Disconnect'
+        elsif interface.thread.nil?
+          button_text = 'Connect'
+        else
+          button_text = 'Cancel Connect'
+        end
+        button = Qt::PushButton.new(button_text)
+        if name == 'Routers'
+          button.connect(SIGNAL('clicked()')) do
+            if interface.thread
+              Logger.info "User disconnecting router #{interface_name}"
+              CmdTlmServer.instance.disconnect_router(interface_name)
+            else
+              Logger.info "User connecting router #{interface_name}"
+              CmdTlmServer.instance.connect_router(interface_name)
+            end
+          end
+        else
+          button.connect(SIGNAL('clicked()')) do
+            if interface.thread
+              Logger.info "User disconnecting interface #{interface_name}"
+              CmdTlmServer.instance.disconnect_interface(interface_name)
+            else
+              Logger.info "User connecting interface #{interface_name}"
+              CmdTlmServer.instance.connect_interface(interface_name)
+            end
+          end
+        end
+        button.setDisabled(true) if interface.disable_disconnect
+        interfaces_table.setCellWidget(row, 1, button)
+
+        state = Qt::TableWidgetItem.new
+        if interface.connected?
+          state.setText('true')
+          state.textColor = Cosmos::GREEN
+        elsif interface.thread
+          state.setText('attempting')
+          state.textColor = Cosmos::YELLOW
+        else
+          state.setText('false')
+          state.textColor = Cosmos::BLACK
+        end
+        state.setTextAlignment(Qt::AlignCenter)
+        interfaces_table.setItem(row, 2, state)
+
+        index = 3
+        [interface.num_clients, interface.write_queue_size, interface.read_queue_size,
+          interface.bytes_written, interface.bytes_read,
+          interface.write_count, interface.read_count].each do |val|
+
+          item = Qt::TableWidgetItem.new(tr(val.to_s))
+          item.setTextAlignment(Qt::AlignCenter)
+          interfaces_table.setItem(row, index, item)
+          index += 1
+        end
+        row += 1
+      end
+    end
+
     def handle_interfaces_tab(name)
       @tab_thread = Thread.new do
         if @interfaces_table[name]
           begin
             while true
               Qt.execute_in_main_thread(true) do
-                row = 0
-                if name == 'Routers'
-                  interfaces = CmdTlmServer.routers
-                else
-                  interfaces = CmdTlmServer.interfaces
-                end
-                interfaces.all.each do |interface_name, interface|
-                  button = @interfaces_table[name].cellWidget(row,1)
-                  state = @interfaces_table[name].item(row,2)
-                  if interface.connected?
-                    button.setText('Disconnect')
-                    button.setDisabled(true) if interface.disable_disconnect
-                    state.setText('true')
-                    state.textColor = Cosmos::GREEN
-                  elsif interface.thread
-                    button.text = 'Cancel Connect'
-                    button.setDisabled(false)
-                    state.text = 'attempting'
-                    state.textColor = Cosmos::RED
-                  else
-                    button.setText('Connect')
-                    button.setDisabled(false)
-                    state.setText('false')
-                    state.textColor = Cosmos::BLACK
-                  end
-                  @interfaces_table[name].item(row,3).setText(interface.num_clients.to_s)
-                  @interfaces_table[name].item(row,4).setText(interface.write_queue_size.to_s)
-                  @interfaces_table[name].item(row,5).setText(interface.read_queue_size.to_s)
-                  @interfaces_table[name].item(row,6).setText(interface.bytes_written.to_s)
-                  @interfaces_table[name].item(row,7).setText(interface.bytes_read.to_s)
-                  if name == 'Routers'
-                    @interfaces_table[name].item(row,8).setText(interface.read_count.to_s)
-                    @interfaces_table[name].item(row,9).setText(interface.write_count.to_s)
-                  else
-                    @interfaces_table[name].item(row,8).setText(interface.write_count.to_s)
-                    @interfaces_table[name].item(row,9).setText(interface.read_count.to_s)
-                  end
-                  row += 1
-                end
+                update_interfaces(name)
               end
               break if @tab_sleeper.sleep(1)
             end
@@ -365,6 +313,48 @@ module Cosmos
             Qt.execute_in_main_thread(true) {|| ExceptionDialog.new(self, error, "COSMOS CTS : #{name} Tab Thread")}
           end
         end
+      end
+    end
+
+    def update_interfaces(name)
+      if name == 'Routers'
+        interfaces = CmdTlmServer.routers
+      else
+        interfaces = CmdTlmServer.interfaces
+      end
+      row = 0
+      interfaces.all.each do |interface_name, interface|
+        button = @interfaces_table[name].cellWidget(row,1)
+        state = @interfaces_table[name].item(row,2)
+        if interface.connected?
+          button.setText('Disconnect')
+          button.setDisabled(true) if interface.disable_disconnect
+          state.setText('true')
+          state.textColor = Cosmos::GREEN
+        elsif interface.thread
+          button.text = 'Cancel Connect'
+          button.setDisabled(false)
+          state.text = 'attempting'
+          state.textColor = Cosmos::RED
+        else
+          button.setText('Connect')
+          button.setDisabled(false)
+          state.setText('false')
+          state.textColor = Cosmos::BLACK
+        end
+        @interfaces_table[name].item(row,3).setText(interface.num_clients.to_s)
+        @interfaces_table[name].item(row,4).setText(interface.write_queue_size.to_s)
+        @interfaces_table[name].item(row,5).setText(interface.read_queue_size.to_s)
+        @interfaces_table[name].item(row,6).setText(interface.bytes_written.to_s)
+        @interfaces_table[name].item(row,7).setText(interface.bytes_read.to_s)
+        if name == 'Routers'
+          @interfaces_table[name].item(row,8).setText(interface.read_count.to_s)
+          @interfaces_table[name].item(row,9).setText(interface.write_count.to_s)
+        else
+          @interfaces_table[name].item(row,8).setText(interface.write_count.to_s)
+          @interfaces_table[name].item(row,9).setText(interface.read_count.to_s)
+        end
+        row += 1
       end
     end
 
@@ -386,34 +376,39 @@ module Cosmos
         @targets_table.setColumnCount(4)
         @targets_table.setHorizontalHeaderLabels(["Target Name", "Interface", "#{CMD} Count", "#{TLM} Count"])
 
-        row = 0
-        System.targets.sort.each do |target_name, target|
-          next if target_name == 'SYSTEM'
-          target_name_widget = Qt::TableWidgetItem.new(tr(target_name))
-          target_name_widget.setTextAlignment(Qt::AlignCenter)
-          @targets_table.setItem(row, 0, target_name_widget)
-          if target.interface
-            interface_name_widget = Qt::TableWidgetItem.new(tr(target.interface.name.to_s))
-          else
-            interface_name_widget = Qt::TableWidgetItem.new(tr(''))
-          end
-          interface_name_widget.setTextAlignment(Qt::AlignCenter)
-          @targets_table.setItem(row, 1, interface_name_widget)
-          cmd_cnt = Qt::TableWidgetItem.new(tr(target.cmd_cnt.to_s))
-          cmd_cnt.setTextAlignment(Qt::AlignCenter)
-          @targets_table.setItem(row, 2, cmd_cnt)
+        populate_targets_table
 
-          tlm_cnt = Qt::TableWidgetItem.new(tr(target.tlm_cnt.to_s))
-          tlm_cnt.setTextAlignment(Qt::AlignCenter)
-          @targets_table.setItem(row, 3, tlm_cnt)
-
-          row += 1
-        end
         @targets_table.displayFullSize
 
         layout.addWidget(@targets_table)
         scroll.setWidget(widget)
         @tabbook.addTab(scroll, "Targets")
+      end
+    end
+
+    def populate_targets_table
+      row = 0
+      System.targets.sort.each do |target_name, target|
+        next if target_name == 'SYSTEM'
+        target_name_widget = Qt::TableWidgetItem.new(tr(target_name))
+        target_name_widget.setTextAlignment(Qt::AlignCenter)
+        @targets_table.setItem(row, 0, target_name_widget)
+        if target.interface
+          interface_name_widget = Qt::TableWidgetItem.new(tr(target.interface.name.to_s))
+        else
+          interface_name_widget = Qt::TableWidgetItem.new(tr(''))
+        end
+        interface_name_widget.setTextAlignment(Qt::AlignCenter)
+        @targets_table.setItem(row, 1, interface_name_widget)
+        cmd_cnt = Qt::TableWidgetItem.new(tr(target.cmd_cnt.to_s))
+        cmd_cnt.setTextAlignment(Qt::AlignCenter)
+        @targets_table.setItem(row, 2, cmd_cnt)
+
+        tlm_cnt = Qt::TableWidgetItem.new(tr(target.tlm_cnt.to_s))
+        tlm_cnt.setTextAlignment(Qt::AlignCenter)
+        @targets_table.setItem(row, 3, tlm_cnt)
+
+        row += 1
       end
     end
 
@@ -478,50 +473,7 @@ module Cosmos
         headers << "View in Packet Viewer" if name == TLM
         table.setHorizontalHeaderLabels(headers)
 
-        row = 0
-        cmd_tlm.target_names.sort.each do |target_name|
-          packets = cmd_tlm.packets(target_name)
-          packets.sort.each do |packet_name, packet|
-            packet.received_count ||= 0
-            next if packet.hidden
-            target_name_widget = Qt::TableWidgetItem.new(tr(target_name))
-            target_name_widget.setTextAlignment(Qt::AlignRight | Qt::AlignVCenter)
-            table.setItem(row, 0, target_name_widget)
-            table.setItem(row, 1, Qt::TableWidgetItem.new(tr(packet_name)))
-            packet_count = Qt::TableWidgetItem.new(tr(packet.received_count.to_s))
-            packet_count.setTextAlignment(Qt::AlignCenter)
-            table.setItem(row, 2, packet_count)
-            view_raw = Qt::PushButton.new("View Raw")
-            view_raw.connect(SIGNAL('clicked()')) do
-              @raw_dialogs ||= []
-              @raw_dialogs << CmdRawDialog.new(self, target_name, packet_name) if name == CMD
-              @raw_dialogs << TlmRawDialog.new(self, target_name, packet_name) if name == TLM
-            end
-            table.setCellWidget(row, 3, view_raw)
-
-            if name == TLM
-              if target_name != 'UNKNOWN' and packet_name != 'UNKNOWN'
-                view_pv = Qt::PushButton.new("View in Packet Viewer")
-                view_pv.connect(SIGNAL('clicked()')) do
-                  if Kernel.is_windows?
-                    Cosmos.run_process("rubyw tools/PacketViewer -p \"#{target_name} #{packet_name}\" --system #{File.basename(System.initial_filename)}")
-                  elsif Kernel.is_mac? and File.exist?("tools/mac/PacketViewer.app")
-                    Cosmos.run_process("open tools/mac/PacketViewer.app --args -p \"#{target_name} #{packet_name}\" --system #{File.basename(System.initial_filename)}")
-                  else
-                    Cosmos.run_process("ruby tools/PacketViewer -p \"#{target_name} #{packet_name}\" --system #{File.basename(System.initial_filename)}")
-                  end
-                end
-                table.setCellWidget(row, 4, view_pv)
-              else
-                table_widget = Qt::TableWidgetItem.new(tr('N/A'))
-                table_widget.setTextAlignment(Qt::AlignCenter)
-                table.setItem(row, 4, table_widget)
-              end
-            end
-
-            row += 1
-          end
-        end
+        populate_packets_table(name, cmd_tlm, table)
         table.displayFullSize
 
         layout.addWidget(table)
@@ -532,6 +484,53 @@ module Cosmos
 
         @packets_table ||= {}
         @packets_table[name] = table
+      end
+    end
+
+    def populate_packets_table(name, cmd_tlm, table)
+      row = 0
+      cmd_tlm.target_names.sort.each do |target_name|
+        packets = cmd_tlm.packets(target_name)
+        packets.sort.each do |packet_name, packet|
+          packet.received_count ||= 0
+          next if packet.hidden
+          target_name_widget = Qt::TableWidgetItem.new(tr(target_name))
+          target_name_widget.setTextAlignment(Qt::AlignRight | Qt::AlignVCenter)
+          table.setItem(row, 0, target_name_widget)
+          table.setItem(row, 1, Qt::TableWidgetItem.new(tr(packet_name)))
+          packet_count = Qt::TableWidgetItem.new(tr(packet.received_count.to_s))
+          packet_count.setTextAlignment(Qt::AlignCenter)
+          table.setItem(row, 2, packet_count)
+          view_raw = Qt::PushButton.new("View Raw")
+          view_raw.connect(SIGNAL('clicked()')) do
+            @raw_dialogs ||= []
+            @raw_dialogs << CmdRawDialog.new(self, target_name, packet_name) if name == CMD
+            @raw_dialogs << TlmRawDialog.new(self, target_name, packet_name) if name == TLM
+          end
+          table.setCellWidget(row, 3, view_raw)
+
+          if name == TLM
+            if target_name != 'UNKNOWN' and packet_name != 'UNKNOWN'
+              view_pv = Qt::PushButton.new("View in Packet Viewer")
+              view_pv.connect(SIGNAL('clicked()')) do
+                if Kernel.is_windows?
+                  Cosmos.run_process("rubyw tools/PacketViewer -p \"#{target_name} #{packet_name}\" --system #{File.basename(System.initial_filename)}")
+                elsif Kernel.is_mac? and File.exist?("tools/mac/PacketViewer.app")
+                  Cosmos.run_process("open tools/mac/PacketViewer.app --args -p \"#{target_name} #{packet_name}\" --system #{File.basename(System.initial_filename)}")
+                else
+                  Cosmos.run_process("ruby tools/PacketViewer -p \"#{target_name} #{packet_name}\" --system #{File.basename(System.initial_filename)}")
+                end
+              end
+              table.setCellWidget(row, 4, view_pv)
+            else
+              table_widget = Qt::TableWidgetItem.new(tr('N/A'))
+              table_widget.setTextAlignment(Qt::AlignCenter)
+              table.setItem(row, 4, table_widget)
+            end
+          end
+
+          row += 1
+        end
       end
     end
 
@@ -731,6 +730,17 @@ module Cosmos
       widget = Qt::Widget.new
       layout = Qt::VBoxLayout.new(widget)
 
+      populate_limits_status(layout)
+      populate_api_status(layout)
+      populate_system_status(layout)
+      populate_background_status(layout)
+
+      # Set the scroll area widget last now that all the items have been layed out
+      scroll.setWidget(widget)
+      @tabbook.addTab(scroll, "Status")
+    end
+
+    def populate_limits_status(layout)
       limits = Qt::GroupBox.new(tr("Limits Status"))
       limits_layout = Qt::FormLayout.new(limits)
       current_limits_set = System.limits_set.to_s
@@ -757,7 +767,9 @@ module Cosmos
           System.limits_set = selected_limits_set.intern if System.limits_set != selected_limits_set.intern
         end
       end
+    end
 
+    def populate_api_status(layout)
       api = Qt::GroupBox.new(tr("API Status"))
       api_layout = Qt::VBoxLayout.new(api)
       @api_table = Qt::TableWidget.new()
@@ -785,7 +797,9 @@ module Cosmos
       @api_table.displayFullSize
       api_layout.addWidget(@api_table)
       layout.addWidget(api)
+    end
 
+    def populate_system_status(layout)
       system = Qt::GroupBox.new(tr("System Status"))
       system_layout = Qt::VBoxLayout.new(system)
       @system_table = Qt::TableWidget.new()
@@ -809,7 +823,9 @@ module Cosmos
       @system_table.displayFullSize
       system_layout.addWidget(@system_table)
       layout.addWidget(system)
+    end
 
+    def populate_background_status(layout)
       background_tasks_groupbox = Qt::GroupBox.new(tr("Background Tasks"))
       background_tasks_layout = Qt::VBoxLayout.new(background_tasks_groupbox)
       @background_tasks_table = Qt::TableWidget.new()
@@ -848,12 +864,9 @@ module Cosmos
       @background_tasks_table.displayFullSize
       background_tasks_layout.addWidget(@background_tasks_table)
       layout.addWidget(background_tasks_groupbox)
-
-      # Set the scroll area widget last now that all the items have been layed out
-      scroll.setWidget(widget)
-      @tabbook.addTab(scroll, "Status")
     end
 
+    # Update the status tab of the server
     def handle_status_tab
       @tab_thread = Thread.new do
         begin
@@ -865,61 +878,10 @@ module Cosmos
           while true
             start_time = Time.now
             Qt.execute_in_main_thread(true) do
-              # Update limits set
-              current_limits_set = System.limits_set.to_s
-              if @limits_set_combo.currentText != current_limits_set
-                known_limits_sets = System.limits.sets
-                known_limits_sets = known_limits_sets.map {|x| x.to_s}.sort
-                current_index = known_limits_sets.index(current_limits_set.to_s)
-                @limits_set_combo.clear
-                known_limits_sets.sort.each do |limits_set|
-                  @limits_set_combo.addItem(limits_set.to_s)
-                end
-                @limits_set_combo.setCurrentIndex(current_index)
-              end
-
-              # Update API status
-              if CmdTlmServer.json_drb
-                @api_table.item(0,1).setText(CmdTlmServer.json_drb.num_clients.to_s)
-                @api_table.item(0,2).setText(CmdTlmServer.json_drb.request_count.to_s)
-                request_count = CmdTlmServer.json_drb.request_count
-                requests_per_second = request_count - previous_request_count
-                @api_table.item(0,3).setText(requests_per_second.to_s)
-                previous_request_count = request_count
-                average_request_time = CmdTlmServer.json_drb.average_request_time
-                @api_table.item(0,4).setText(sprintf("%0.6f s", average_request_time))
-                estimated_utilization = requests_per_second * average_request_time * 100.0
-                @api_table.item(0,5).setText(sprintf("%0.2f %", estimated_utilization))
-              end
-
-              # Update system status
-              @system_table.item(0,0).setText(Thread.list.length.to_s)
-              objs = ObjectSpace.count_objects
-              @system_table.item(0,1).setText(objs[:TOTAL].to_s)
-              @system_table.item(0,2).setText(objs[:FREE].to_s)
-              total = 0
-              objs.each do |key, val|
-                next if key == :TOTAL || key == :FREE
-                total += val
-              end
-              @system_table.item(0,3).setText(total.to_s)
-
-              # Update background task status
-              background_tasks = CmdTlmServer.background_tasks.all
-              if background_tasks.length > 0
-                row = 0
-                background_tasks.each_with_index do |background_task, index|
-                  if background_task.thread
-                    status = background_task.thread.status
-                    status = 'complete' if status == false
-                    @background_tasks_table.item(row, 1).setText(status.to_s)
-                  else
-                    @background_tasks_table.item(row, 1).setText('no thread')
-                  end
-                  @background_tasks_table.item(row, 2).setText(background_task.status.to_s)
-                  row += 1
-                end
-              end
+              update_limits_set
+              update_api_status(previous_request_count)
+              update_system_status
+              update_background_task_status
             end
             total_time = Time.now - start_time
             if total_time > 0.0 and total_time < 1.0
@@ -928,6 +890,70 @@ module Cosmos
           end
         rescue Exception => error
           Qt.execute_in_main_thread(true) {|| ExceptionDialog.new(self, error, "COSMOS CTS : Settings Tab Thread")}
+        end
+      end
+    end
+
+    # Update the current limits set in the GUI
+    def update_limits_set
+      current_limits_set = System.limits_set.to_s
+      if @limits_set_combo.currentText != current_limits_set
+        known_limits_sets = System.limits.sets
+        known_limits_sets = known_limits_sets.map {|x| x.to_s}.sort
+        current_index = known_limits_sets.index(current_limits_set.to_s)
+        @limits_set_combo.clear
+        known_limits_sets.sort.each do |limits_set|
+          @limits_set_combo.addItem(limits_set.to_s)
+        end
+        @limits_set_combo.setCurrentIndex(current_index)
+      end
+    end
+
+    # Update the API statistics in the GUI
+    def update_api_status(previous_request_count)
+      if CmdTlmServer.json_drb
+        @api_table.item(0,1).setText(CmdTlmServer.json_drb.num_clients.to_s)
+        @api_table.item(0,2).setText(CmdTlmServer.json_drb.request_count.to_s)
+        request_count = CmdTlmServer.json_drb.request_count
+        requests_per_second = request_count - previous_request_count
+        @api_table.item(0,3).setText(requests_per_second.to_s)
+        previous_request_count = request_count
+        average_request_time = CmdTlmServer.json_drb.average_request_time
+        @api_table.item(0,4).setText(sprintf("%0.6f s", average_request_time))
+        estimated_utilization = requests_per_second * average_request_time * 100.0
+        @api_table.item(0,5).setText(sprintf("%0.2f %", estimated_utilization))
+      end
+    end
+
+    # Update the Ruby system statistics in the GUI
+    def update_system_status
+      @system_table.item(0,0).setText(Thread.list.length.to_s)
+      objs = ObjectSpace.count_objects
+      @system_table.item(0,1).setText(objs[:TOTAL].to_s)
+      @system_table.item(0,2).setText(objs[:FREE].to_s)
+      total = 0
+      objs.each do |key, val|
+        next if key == :TOTAL || key == :FREE
+        total += val
+      end
+      @system_table.item(0,3).setText(total.to_s)
+    end
+
+    # Update the background task status in the GUI
+    def update_background_task_status
+      background_tasks = CmdTlmServer.background_tasks.all
+      if background_tasks.length > 0
+        row = 0
+        background_tasks.each_with_index do |background_task, index|
+          if background_task.thread
+            status = background_task.thread.status
+            status = 'complete' if status == false
+            @background_tasks_table.item(row, 1).setText(status.to_s)
+          else
+            @background_tasks_table.item(row, 1).setText('no thread')
+          end
+          @background_tasks_table.item(row, 2).setText(background_task.status.to_s)
+          row += 1
         end
       end
     end
