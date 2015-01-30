@@ -275,14 +275,6 @@ module Cosmos
       @x_grid_lines = []
 
       @x_grid_line_scale = determine_grid_line_scale(@manual_x_grid_line_scale, @x_min, @x_max)
-      if @manual_x_grid_line_scale
-        @x_grid_line_scale = @manual_x_grid_line_scale
-      else
-        diff = @x_max - @x_min
-        @x_grid_line_scale = calculate_base(diff)
-      end
-      @x_grid_line_scale = 1.0 if @x_grid_line_scale < 1
-
       if @show_x_grid_lines
         states = @lines.single_line_with_x_states
         if states
@@ -451,7 +443,6 @@ module Cosmos
         diff = max - min
         scale = calculate_base(diff)
       end
-      scale = 1.0 if scale < 1
       return scale
     end
 
