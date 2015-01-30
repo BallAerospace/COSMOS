@@ -11,9 +11,6 @@ class ExampleTest < Cosmos::Test
     wait(2)
   end
 
-
-
-
   # test_1 verifies requirement 1
   def test_case_with_long_name_1
     puts "Running test_1"

@@ -94,7 +94,7 @@ module Cosmos
           @file.puts "  Exceptions:"
           result.exceptions.each_with_index do |error, index|
             error.formatted(true).each_line do |line|
-              break if line =~ /cosmos_test.rb/
+              break if line =~ /test_runner\/test.rb/
               next  if line =~ cosmos_lib
               if line =~ /[\x00-\x08\x0B-\x0C\x0E-\x1F\x7F-\xFF]/
                 line.chomp!
