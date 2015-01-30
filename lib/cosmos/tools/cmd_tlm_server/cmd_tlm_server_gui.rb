@@ -172,17 +172,17 @@ module Cosmos
 
       case index
       when 0
-        handle_tab { @interfaces_tab.update(InterfacesTab::INTERFACES) }
+        handle_tab('Interfaces') { @interfaces_tab.update(InterfacesTab::INTERFACES) }
       when 1
-        handle_tab { @targets_tab.update }
+        handle_tab('Targets') { @targets_tab.update }
       when 2
-        handle_tab { @packets_tab.update(PacketsTab::COMMANDS) }
+        handle_tab('Packets') { @packets_tab.update(PacketsTab::COMMANDS) }
       when 3
-        handle_tab { @packets_tab.update(PacketsTab::TELEMETRY) }
+        handle_tab('Telemetry') { @packets_tab.update(PacketsTab::TELEMETRY) }
       when 4
-        handle_tab { @interfaces_tab.update(InterfacesTab::ROUTERS) }
+        handle_tab('Routers') { @interfaces_tab.update(InterfacesTab::ROUTERS) }
       when 5
-        handle_tab { @logging_tab.update }
+        handle_tab('Logging') { @logging_tab.update }
       when 6
         handle_status_tab()
       end
@@ -199,7 +199,9 @@ module Cosmos
     # Wrapper method that starts a new thread and then loops. It ensures we are
     # executing in the main thread and then yields to allow updates to the GUI.
     # Finally it sleeps using a sleeper so it can be interrupted.
-    def handle_tab
+    #
+    # @param name [String] Name of the tab
+    def handle_tab(name)
       @tab_thread = Thread.new do
         begin
           while true
