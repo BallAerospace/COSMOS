@@ -14,6 +14,22 @@ def create_crc_file(official)
   count = 0
   ignore = [
     # Add filenames here if you don't want them to be CRCed
+    "tools/mac/CmdExtractor.app/Contents/MacOS/CmdExtractor",
+    "tools/mac/CmdSender.app/Contents/MacOS/CmdSender",
+    "tools/mac/CmdTlmServer.app/Contents/MacOS/CmdTlmServer",
+    "tools/mac/DataViewer.app/Contents/MacOS/DataViewer",
+    "tools/mac/HandbookCreator.app/Contents/MacOS/HandbookCreator",
+    "tools/mac/Launcher.app/Contents/MacOS/Launcher",
+    "tools/mac/LimitsMonitor.app/Contents/MacOS/LimitsMonitor",
+    "tools/mac/OpenGLBuilder.app/Contents/MacOS/OpenGLBuilder",
+    "tools/mac/PacketViewer.app/Contents/MacOS/PacketViewer",
+    "tools/mac/Replay.app/Contents/MacOS/Replay",
+    "tools/mac/ScriptRunner.app/Contents/MacOS/ScriptRunner",
+    "tools/mac/TableManager.app/Contents/MacOS/TableManager",
+    "tools/mac/TestRunner.app/Contents/MacOS/TestRunner",
+    "tools/mac/TlmExtractor.app/Contents/MacOS/TlmExtractor",
+    "tools/mac/TlmGrapher.app/Contents/MacOS/TlmGrapher",
+    "tools/mac/TlmViewer.app/Contents/MacOS/TlmViewer",
   ]
   # Create the crc.txt file
   crc = Cosmos::Crc32.new(Cosmos::Crc32::DEFAULT_POLY, Cosmos::Crc32::DEFAULT_SEED, true, false)
