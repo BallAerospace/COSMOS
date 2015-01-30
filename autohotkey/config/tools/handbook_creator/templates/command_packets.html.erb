@@ -42,7 +42,7 @@
                       <tr>
                         <td>
                           <%= key %>
-                          <% if item.hazardous[key] %>
+                          <% if item.hazardous && item.hazardous[key] %>
                             <div><span style="font-size:18px;background:#555555;color:white;">Hazardous<br/><%= item.hazardous[key] %></span></div>
                           <% end %>
                         </td>
