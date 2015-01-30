@@ -221,12 +221,18 @@ module Cosmos
       else
         previous_request_count = 0
       end
-      handle_tab do
-        start_time = Time.now
-        @status_tab.update(previous_request_count)
-        total_time = Time.now - start_time
-        if total_time > 0.0 and total_time < 1.0
-          break if @tab_sleeper.sleep(1.0 - total_time)
+      @tab_thread = Thread.new do
+        begin
+          while true
+            start_time = Time.now
+            Qt.execute_in_main_thread(true) { @status_tab.update(previous_request_count) }
+            total_time = Time.now - start_time
+            if total_time > 0.0 and total_time < 1.0
+              break if @tab_sleeper.sleep(1.0 - total_time)
+            end
+          end
+        rescue Exception => error
+          Qt.execute_in_main_thread(true) {|| ExceptionDialog.new(self, error, "COSMOS CTS : Status Tab Thread")}
         end
       end
     end
