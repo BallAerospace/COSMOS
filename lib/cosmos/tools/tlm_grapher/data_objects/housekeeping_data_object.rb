@@ -161,8 +161,9 @@ module Cosmos
           y_value = packet.read(@item_name)
         end
         # Bail on the values if they are NaN or nil as we can't graph them
-        return if x_value.nan? || y_value.nan? || x_value.nil? || y_value.nil?
-
+        return if x_value.nil? || y_value.nil? ||
+          (x_value.respond_to?(:nan?) && x_value.nan?) ||
+          (y_value.respond_to?(:nan?) && y_value.nan?)
         @formatted_x_values << packet.read(@formatted_time_item_name) if @formatted_time_item_name
 
         upper_index  = nil
