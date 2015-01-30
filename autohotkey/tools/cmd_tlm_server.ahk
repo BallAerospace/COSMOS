@@ -82,6 +82,7 @@ Sleep 500
 Click 115 115 ; Limits set
 Sleep 500
 Click 115 145 ; TVAC CTS-15
+Sleep 1000
 
 Send ^q
 Sleep 500

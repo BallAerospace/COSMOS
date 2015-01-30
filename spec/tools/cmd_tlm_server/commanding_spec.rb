@@ -48,11 +48,39 @@ module Cosmos
         # Set the target_name to nil to make it "unidentified"
         pkt.target_name = nil
 
+        count = System.targets['COSMOS'].cmd_cnt
         cmd.send_command_to_target('COSMOS', pkt)
         # Verify the COSMOS STARTLOGGING packet has been updated
         System.commands.packet("COSMOS","STARTLOGGING").buffer.should eql pkt.buffer
+        # Verify the target count didn't get updated
+        expect(System.targets['COSMOS'].cmd_cnt).to eq count
+        # Restore target name
+        pkt.target_name = 'COSMOS'
         tf.unlink
       end
+
+      it "should send already identified commands" do
+        tf = Tempfile.new('unittest')
+        tf.puts 'INTERFACE MY_INT interface.rb'
+        tf.close
+        config = CmdTlmServerConfig.new(tf.path)
+        cmd = Commanding.new(config)
+        interfaces = Interfaces.new(config)
+        interfaces.map_target("COSMOS","MY_INT")
+        expect(interfaces.all["MY_INT"]).to receive(:write)
+        expect(interfaces.all["MY_INT"].packet_log_writer_pairs[0].cmd_log_writer).to receive(:write)
+
+        # Grab an existing packet
+        pkt = System.commands.packet('COSMOS','STARTLOGGING')
+
+        count = System.targets['COSMOS'].cmd_cnt
+        cmd.send_command_to_target('COSMOS', pkt)
+        # Verify the COSMOS STARTLOGGING packet has been updated
+        System.commands.packet("COSMOS","STARTLOGGING").buffer.should eql pkt.buffer
+        expect(System.targets['COSMOS'].cmd_cnt).to eq count + 1
+        tf.unlink
+      end
+
 
       it "should log unknown commands" do
         Logger.level = Logger::DEBUG

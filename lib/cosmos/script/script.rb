@@ -926,7 +926,7 @@ module Cosmos
           tlm_viewer.clear(display_name)
           tlm_viewer.disconnect
         rescue DRb::DRbConnError
-          raise "Unable to Successfully Start Listening Telemetry Viewer: #{display_name} could not be displayed"
+          raise "Unable to Successfully Start Listening Telemetry Viewer: #{display_name} could not be cleared"
         rescue Errno::ENOENT
           raise "Display Screen File: #{display_name}.txt does not exist"
         end

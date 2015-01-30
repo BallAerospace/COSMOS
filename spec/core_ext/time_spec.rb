@@ -135,6 +135,50 @@ describe Time do
     end
   end
 
+  describe "Time.julian2mdy" do
+    it "should return the YMD from a Julian date" do
+      # Result generated from aa.usno.navy.mil/data/docs/JulianDate.php
+      # Ignore the seconds value
+      Time.julian2mdy(2457024.627836)[0..-2].should eql [2015,1,2,3,4,5]
+      # Ignore the seconds value
+      Time.julian2mdy(2369916.021181)[0..-2].should eql [1776,7,4,12,30,30]
+    end
+  end
+
+  describe "Time.ccsds2mdy and Time.mdy2ccsds" do
+    it "should convert YMD to and from CCSDS" do
+      Time.ccsds2mdy(0, 1000, 2).should eql [1958,1,1,0,0,1,2]
+      ccsds_day, ccsds_ms, ccsds_us = Time.mdy2ccsds(2015,1,2,3,4,5,6)
+      Time.ccsds2mdy(ccsds_day, ccsds_ms, ccsds_us).should eql [2015,1,2,3,4,5,6]
+    end
+  end
+
+  describe "Time.ccsds2julian and Time.julian2ccsds" do
+    it "should convert CCSDS to and from Julian" do
+      Time.ccsds2julian(0, 1000, 2).should be_within(0.00001).of(2436204.500012)
+      time = Time.now
+      ccsds_day, ccsds_ms, ccsds_us = Time.mdy2ccsds(2015,1,2,3,4,5,100)
+      julian = Time.ccsds2julian(ccsds_day, ccsds_ms, ccsds_us)
+      parts = Time.julian2ccsds(julian)
+      parts[0].should eql ccsds_day
+      parts[1].should eql ccsds_ms
+      parts[2].should be_within(50).of(ccsds_us)
+    end
+  end
+
+  describe "Time.ccsds2sec and Time.sec2ccsds" do
+    it "should convert seconds to and from CCSDS" do
+      Time.ccsds2sec(0, 1000, 2).should be_within(0.00001).of(1)
+      time = Time.now
+      ccsds_day, ccsds_ms, ccsds_us = Time.mdy2ccsds(2015,1,2,3,4,5,100)
+      seconds = Time.ccsds2sec(ccsds_day, ccsds_ms, ccsds_us)
+      parts = Time.sec2ccsds(seconds)
+      parts[0].should eql ccsds_day
+      parts[1].should eql ccsds_ms
+      parts[2].should be_within(50).of(ccsds_us)
+    end
+  end
+
   describe "Time.yds2mdy" do
     it "should convert year, day, seconds" do
       Time.yds2mdy(2020, 1, 1.5).should eql [2020,1,1,0,0,1,500000]
@@ -146,6 +190,13 @@ describe Time do
   describe "Time.yds2julian" do
     it "should convert year, day, seconds to julian" do
       Time.yds2julian(2000,1,12*60*60).should eql Time::JULIAN_DATE_OF_J2000_EPOCH
+    end
+  end
+
+  describe "Time.unix_epoch_delta" do
+    it "should return a delta to the unix epoch" do
+      Time.init_epoch_delta("1970/01/01 00:00:00").should eql 0
+      Time.init_epoch_delta("1969/12/31 12:00:00").should eql 60*60*12
     end
   end
 end

@@ -142,6 +142,94 @@ module Cosmos
         tf.unlink
       end
     end
+
+    describe "start_raw_logging" do
+      it "should start raw logging on all connections by default" do
+        tf = Tempfile.new('unittest')
+        tf.puts 'INTERFACE INTERFACE1 interface.rb'
+        tf.puts 'INTERFACE INTERFACE2 interface.rb'
+        tf.puts 'INTERFACE INTERFACE3 interface.rb'
+        tf.close
+        interfaces = Connections.new(:INTERFACES, CmdTlmServerConfig.new(tf.path))
+        expect(interfaces.all['INTERFACE1']).to receive(:start_raw_logging)
+        expect(interfaces.all['INTERFACE2']).to receive(:start_raw_logging)
+        expect(interfaces.all['INTERFACE3']).to receive(:start_raw_logging)
+        interfaces.start_raw_logging
+        tf.unlink
+      end
+
+      it "should start raw logging on a specified connections by name" do
+        tf = Tempfile.new('unittest')
+        tf.puts 'INTERFACE INTERFACE1 interface.rb'
+        tf.puts 'INTERFACE INTERFACE2 interface.rb'
+        tf.puts 'INTERFACE INTERFACE3 interface.rb'
+        tf.close
+        interfaces = Connections.new(:INTERFACES, CmdTlmServerConfig.new(tf.path))
+        expect(interfaces.all['INTERFACE1']).to_not receive(:start_raw_logging)
+        expect(interfaces.all['INTERFACE2']).to receive(:start_raw_logging)
+        expect(interfaces.all['INTERFACE3']).to_not receive(:start_raw_logging)
+        interfaces.start_raw_logging('INTERFACE2')
+        tf.unlink
+      end
+
+      it "should raise on an unknown connection" do
+        tf = Tempfile.new('unittest')
+        tf.puts 'INTERFACE INTERFACE1 interface.rb'
+        tf.puts 'INTERFACE INTERFACE2 interface.rb'
+        tf.puts 'INTERFACE INTERFACE3 interface.rb'
+        tf.close
+        interfaces = Connections.new(:INTERFACES, CmdTlmServerConfig.new(tf.path))
+        expect(interfaces.all['INTERFACE1']).to_not receive(:start_raw_logging)
+        expect(interfaces.all['INTERFACE2']).to_not receive(:start_raw_logging)
+        expect(interfaces.all['INTERFACE3']).to_not receive(:start_raw_logging)
+        expect { interfaces.start_raw_logging('BLAH') }.to raise_error(/Unknown/)
+        tf.unlink
+      end
+    end
+
+    describe "stop_raw_logging" do
+      it "should stop raw logging on all connections by default" do
+        tf = Tempfile.new('unittest')
+        tf.puts 'INTERFACE INTERFACE1 interface.rb'
+        tf.puts 'INTERFACE INTERFACE2 interface.rb'
+        tf.puts 'INTERFACE INTERFACE3 interface.rb'
+        tf.close
+        interfaces = Connections.new(:INTERFACES, CmdTlmServerConfig.new(tf.path))
+        expect(interfaces.all['INTERFACE1']).to receive(:stop_raw_logging)
+        expect(interfaces.all['INTERFACE2']).to receive(:stop_raw_logging)
+        expect(interfaces.all['INTERFACE3']).to receive(:stop_raw_logging)
+        interfaces.stop_raw_logging
+        tf.unlink
+      end
+
+      it "should stop raw logging on a specified connections by name" do
+        tf = Tempfile.new('unittest')
+        tf.puts 'INTERFACE INTERFACE1 interface.rb'
+        tf.puts 'INTERFACE INTERFACE2 interface.rb'
+        tf.puts 'INTERFACE INTERFACE3 interface.rb'
+        tf.close
+        interfaces = Connections.new(:INTERFACES, CmdTlmServerConfig.new(tf.path))
+        expect(interfaces.all['INTERFACE1']).to_not receive(:stop_raw_logging)
+        expect(interfaces.all['INTERFACE2']).to receive(:stop_raw_logging)
+        expect(interfaces.all['INTERFACE3']).to_not receive(:stop_raw_logging)
+        interfaces.stop_raw_logging('INTERFACE2')
+        tf.unlink
+      end
+
+      it "should raise on an unknown connection" do
+        tf = Tempfile.new('unittest')
+        tf.puts 'INTERFACE INTERFACE1 interface.rb'
+        tf.puts 'INTERFACE INTERFACE2 interface.rb'
+        tf.puts 'INTERFACE INTERFACE3 interface.rb'
+        tf.close
+        interfaces = Connections.new(:INTERFACES, CmdTlmServerConfig.new(tf.path))
+        expect(interfaces.all['INTERFACE1']).to_not receive(:stop_raw_logging)
+        expect(interfaces.all['INTERFACE2']).to_not receive(:stop_raw_logging)
+        expect(interfaces.all['INTERFACE3']).to_not receive(:stop_raw_logging)
+        expect { interfaces.stop_raw_logging('BLAH') }.to raise_error(/Unknown/)
+        tf.unlink
+      end
+    end
   end
 end
 
