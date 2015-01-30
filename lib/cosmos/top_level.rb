@@ -235,7 +235,7 @@ module Cosmos
           if real_lines > 0
             Logger.error output
             self.write_unexpected_file(output)
-            if defined? Qt and Qt::Application.instance
+            if defined? ::Qt and ::Qt::Application.instance
               Qt.execute_in_main_thread(false) do
                 dialog = Qt::Dialog.new do |box|
                   box.setWindowTitle('Unexpected text output')

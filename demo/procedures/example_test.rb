@@ -11,6 +11,9 @@ class ExampleTest < Cosmos::Test
     wait(2)
   end
 
+
+
+
   # test_1 verifies requirement 1
   def test_case_with_long_name_1
     puts "Running test_1"
@@ -45,7 +48,7 @@ class ExampleTest < Cosmos::Test
   end
 end
 
-# This is an ExampleTestSuiste which only runs ExampleTest
+# This is an ExampleTestSuite which only runs ExampleTest
 class ExampleTestSuite < Cosmos::TestSuite
   def initialize
     super()
