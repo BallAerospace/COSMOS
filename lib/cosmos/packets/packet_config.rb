@@ -10,6 +10,8 @@
 
 require 'cosmos/config/config_parser'
 require 'cosmos/packets/packet'
+require 'cosmos/packets/parameter_parser'
+require 'cosmos/packets/item_parser'
 require 'cosmos/conversions'
 require 'cosmos/processors'
 require 'ostruct'
@@ -216,7 +218,7 @@ module Cosmos
 
       # Start a new telemetry item in the current packet
       when 'ITEM', 'PARAMETER', 'ID_ITEM', 'ID_PARAMETER', 'ARRAY_ITEM', 'ARRAY_PARAMETER', 'APPEND_ITEM', 'APPEND_PARAMETER', 'APPEND_ID_ITEM', 'APPEND_ID_PARAMETER', 'APPEND_ARRAY_ITEM', 'APPEND_ARRAY_PARAMETER'
-        start_item(parser, keyword, params)
+        start_item(parser)
 
       # Start the creation of a macro-expanded list of items
       # This simulates an array of structures of multiple items in the packet by repeating
@@ -834,184 +836,18 @@ module Cosmos
       end
     end
 
-    # There are many different usages of the ITEM keword so parse the keyword
-    # and parameters to generate the correct usage information.
-    def generate_item_usage(keyword, params)
-      usage = "#{keyword} <ITEM NAME> "
-      usage << "<BIT OFFSET> " unless keyword.include?("APPEND")
-      if keyword.include?("ARRAY")
-        usage << "<ARRAY ITEM BIT SIZE> "
-      else
-        usage << "<BIT SIZE> "
-      end
-      if keyword.include?("PARAMETER")
-        if keyword.include?("ARRAY")
-          usage << "<TYPE: INT/UINT/FLOAT/STRING/BLOCK> "
-        else
-          if keyword.include?("APPEND")
-            data_type = params[2].upcase.to_sym
-          else
-            data_type = params[3].upcase.to_sym
-          end
-          if data_type == :STRING or data_type == :BLOCK
-            if keyword.include?("ID")
-              usage << "<TYPE: STRING/BLOCK> "
-            else
-              usage << "<TYPE: STRING/BLOCK> <DEFAULT VALUE>"
-            end
-          else
-            if keyword.include?("ID")
-              usage << "<TYPE: INT/UINT/FLOAT> <MIN VALUE> <MAX VALUE> "
-            else
-              usage << "<TYPE: INT/UINT/FLOAT/DERIVED> <MIN VALUE> <MAX VALUE> <DEFAULT VALUE>"
-            end
-          end
-        end
-      else
-        usage << "<TYPE: INT/UINT/FLOAT/STRING/BLOCK/DERIVED> "
-      end
-      usage << "<TOTAL ARRAY BIT SIZE> " if keyword.include?("ARRAY")
-      if keyword.include?("ID")
-        if keyword.include?("PARAMETER")
-          usage << "<DEFAULT AND ID VALUE> "
-        else
-          usage << "<ID VALUE> "
-        end
-      end
-      usage << "<DESCRIPTION (Optional)> <ENDIANNESS (Optional)>"
-      return usage
-    end
-
-    def start_item(parser, keyword, params)
+    def start_item(parser)
       finish_item()
 
-      usage = generate_item_usage(keyword, params)
-      max_options = usage.count("<")
-      parser.verify_num_parameters(max_options-2, max_options, usage)
-      begin
-        if params[max_options-1]
-          endianness = params[max_options-1].to_s.upcase.intern
-          if endianness != :BIG_ENDIAN and endianness != :LITTLE_ENDIAN
-            raise parser.error("Invalid endianness #{params[2]}. Must be BIG_ENDIAN or LITTLE_ENDIAN.", usage)
-          end
-        else
-          endianness = @current_packet.default_endianness
-        end
+      case parser.keyword
+      when /ITEM/
+        @current_item = ItemParser.parse(parser, @current_packet, @current_cmd_or_tlm)
+      when /PARAMETER/
+        @current_item = ParameterParser.parse(parser, @current_packet, @current_cmd_or_tlm)
+      end
 
-        case keyword
-        when /ITEM/
-          raise parser.error("ITEM types are only valid with TELEMETRY", usage) if @current_cmd_or_tlm == 'Command'
-          # If this is an APPEND we don't have a bit offset so the index
-          # into the parameters changes
-          index = (keyword =~ /APPEND/) ? 3 : 4
-          id_value = (keyword =~ /ID_ITEM/) ? params[index] : nil
-          array_size = (keyword =~ /ARRAY_ITEM/) ? Integer(params[index]) : nil
-          case keyword
-          when 'ITEM',  'ID_ITEM', 'ARRAY_ITEM'
-            @current_item = @current_packet.define_item(params[0], # name
-                                               Integer(params[1]), # bit offset
-                                               Integer(params[2]), # bit size
-                                               params[3].upcase.to_sym, # data_type
-                                               array_size, # array size
-                                               endianness, # endianness
-                                               :ERROR, # overflow
-                                               nil, # format string
-                                               nil, # read conversion
-                                               nil, # write conversion
-                                               id_value) # id value
-          when 'APPEND_ITEM', 'APPEND_ID_ITEM', 'APPEND_ARRAY_ITEM'
-            @current_item = @current_packet.append_item(params[0], # name
-                                               Integer(params[1]), # bit size
-                                               params[2].upcase.to_sym, # data_type
-                                               array_size, # array size
-                                               endianness, # endianness
-                                               :ERROR, # overflow
-                                               nil, # format string
-                                               nil, # read conversion
-                                               nil, # write conversion
-                                               id_value) # id value
-          end
-        when 'PARAMETER',  'ID_PARAMETER', 'ARRAY_PARAMETER'
-          raise parser.error("PARAMETER types are only valid with COMMAND", usage) if @current_cmd_or_tlm == 'Telemetry'
-          data_type = params[3].upcase.to_sym
-          id_value = nil
-          if keyword == 'ID_PARAMETER'
-            if data_type == :DERIVED
-              raise "DERIVED data type not allowed"
-            elsif data_type == :STRING or data_type == :BLOCK
-              id_value = params[4]
-            else
-              id_value = params[6]
-            end
-          end
-          array_size = (keyword == 'ARRAY_PARAMETER') ? Integer(params[4]) : nil
-          @current_item = @current_packet.define_item(params[0], # name
-                                             Integer(params[1]), # bit offset
-                                             Integer(params[2]), # bit size
-                                             data_type, # data_type
-                                             array_size, # array size
-                                             endianness, # endianness
-                                             :ERROR, # overflow
-                                             nil, # format string
-                                             nil, # read conversion
-                                             nil, # write conversion
-                                             id_value) # id value
-          if keyword == 'ARRAY_PARAMETER'
-            @current_item.default = []
-          else
-            if data_type == :STRING or data_type == :BLOCK
-              @current_item.default = params[4]
-            else
-              @current_item.range =
-                (ConfigParser.handle_defined_constants(params[4].convert_to_value))..(ConfigParser.handle_defined_constants(params[5].convert_to_value))
-              @current_item.default = ConfigParser.handle_defined_constants(params[6].convert_to_value)
-            end
-          end
-        when 'APPEND_PARAMETER',  'APPEND_ID_PARAMETER', 'APPEND_ARRAY_PARAMETER'
-          raise parser.error("PARAMETER types are only valid with COMMAND", usage) if @current_cmd_or_tlm == 'Telemetry'
-          data_type = params[2].upcase.to_sym
-          id_value = nil
-          if keyword == 'APPEND_ID_PARAMETER'
-            if data_type == :DERIVED
-              raise "DERIVED data type not allowed"
-            elsif data_type == :STRING or data_type == :BLOCK
-              id_value = params[3]
-            else
-              id_value = params[5]
-            end
-          end
-          array_size = (keyword == 'APPEND_ARRAY_PARAMETER') ? Integer(params[3]) : nil
-          @current_item = @current_packet.append_item(params[0], # name
-                                             Integer(params[1]), # bit size
-                                             data_type, # data_type
-                                             array_size, # array size
-                                             endianness, # endianness
-                                             :ERROR, # overflow
-                                             nil, # format string
-                                             nil, # read conversion
-                                             nil, # write conversion
-                                             id_value) # id value
-          if keyword == 'APPEND_ARRAY_PARAMETER'
-            @current_item.default = []
-          else
-            if data_type == :STRING or data_type == :BLOCK
-              @current_item.default = params[3]
-            else
-              @current_item.range =
-                (ConfigParser.handle_defined_constants(params[3].convert_to_value))..(ConfigParser.handle_defined_constants(params[4].convert_to_value))
-              @current_item.default = ConfigParser.handle_defined_constants(params[5].convert_to_value)
-            end
-          end
-        end
-        @current_item.description = params[max_options-2] if params[max_options-2]
-
-        if keyword.include?('APPEND') && @macro_append.building
-          @macro_append.list << params[0].upcase
-        end
-
-      # Rescue the item processing since they could also throw configuration errors
-      rescue => err
-        raise parser.error(err, usage)
+      if parser.keyword.include?('APPEND') && @macro_append.building
+        @macro_append.list << parser.parameters[0].upcase
       end
     end
 
