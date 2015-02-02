@@ -1,3 +1,0 @@
-INTERFACE INST2_INT simulated_target_interface.rb sim_inst.rb
-  TARGET INST2
-  DONT_LOG
