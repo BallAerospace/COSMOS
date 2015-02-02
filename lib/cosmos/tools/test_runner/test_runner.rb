@@ -1033,9 +1033,10 @@ module Cosmos
       end
 
       # Build list of TestSuites and Tests
-      @@test_suites = []
+      @@test_suites = @@test_suites.select {|my_suite| my_suite.name == 'Cosmos::CustomTestSuite'}
       tests         = []
       ObjectSpace.each_object(Class) do |object|
+        next if object.name == 'Cosmos::CustomTestSuite'
         if (object.ancestors.include?(TestSuite) &&
             object != TestSuite &&
             !ignored_test_suite_classes.include?(object))
@@ -1125,7 +1126,7 @@ module Cosmos
             end
           end
         end
-        @@suites[suite.name.split('::')[-1]] = cur_suite
+        @@suites[suite.name.split('::')[-1]] = cur_suite unless suite.name == 'Cosmos::CustomTestSuite'
       end
       Qt.execute_in_main_thread(true) { @test_runner_chooser.test_suites = @@suites }
     end
