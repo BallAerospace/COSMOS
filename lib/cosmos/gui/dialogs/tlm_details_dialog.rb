@@ -127,7 +127,7 @@ module Cosmos
         # Gather updated values
         values, limits_states, limits_settings, limits_set = get_tlm_values(@item_array, VALUE_TYPES)
         update_limits_details(limits_settings, limits_set)
-        update_text_fields(values, color)
+        update_text_fields(values, limits_states[0])
       rescue DRb::DRbConnError
         # Just do nothing
       end
@@ -141,7 +141,7 @@ module Cosmos
         value[0..-2].each do |part|
           text << sprintf("0x%0#{@hex_raw_num_digits}X, ", part.to_i)
         end
-        text << sprintf("0x%0#{@hex_raw_num_digits}X", value[-1].to_i) if values[-1]
+        text << sprintf("0x%0#{@hex_raw_num_digits}X", value[-1].to_i) if value[-1]
         text << "]"
         @hex_raw_value.text = text
       else
@@ -156,7 +156,7 @@ module Cosmos
           label_text += " GL/#{limits_settings[0][4]} GH/#{limits_settings[0][5]}"
         end
         if @limits_labels[limits_set]
-          @limits_labels[limits_set].text = label
+          @limits_labels[limits_set].text = label_text
         elsif @limits_layout
           label = Qt::Label.new(label_text)
           @limits_labels[limits_set] = label
@@ -190,9 +190,8 @@ module Cosmos
       color
     end
 
-    def update_text_fields(values)
-      color = determine_limits_color(@limits_states[0])
-
+    def update_text_fields(values, limits_state)
+      color = determine_limits_color(limits_state)
       @raw_value.setColors(color, Cosmos::WHITE)
       @raw_value.text = values[0].to_s
       if @hex_raw_value
@@ -206,7 +205,7 @@ module Cosmos
       @formatted_with_units_value.setColors(color, Cosmos::WHITE)
       @formatted_with_units_value.text = values[3].to_s
       @limits_state.setColors(color, Cosmos::WHITE)
-      @limits_state.text = limits_states[0].to_s
+      @limits_state.text = limits_state.to_s
     end
 
   end # class TlmDetailsDialog
