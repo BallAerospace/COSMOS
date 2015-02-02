@@ -252,14 +252,10 @@ module Cosmos
 
         # Prune Data
         prune_to_max_points_saved()
-      rescue Exception => error
-        raise error if error.class == NoMemoryError
+      rescue TypeError => error
         reset()
-        @error = error
         @plot.redraw_needed = true
-        if error.is_a? TypeError
-          @error = FatalError.new("Telemetry point #{packet.target_name} #{packet.packet_name} #{@item_name} could not be displayed. This is most likely due to this telemetry point being a String which can't be represented on the graph. Remove the point from the list of telemetry items to cause this exception to go away.\n\n#{error}")
-        end
+        @error = FatalError.new("Telemetry point #{packet.target_name} #{packet.packet_name} #{@item_name} could not be displayed. This is most likely due to this telemetry point being a String which can't be represented on the graph. Remove the point from the list of telemetry items to cause this exception to go away.\n\n#{error}")
       end
     end # def process_packet
 
