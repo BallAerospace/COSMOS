@@ -108,7 +108,6 @@ module Cosmos
             parser.verify_num_parameters(1, 2, usage)
             target = System.targets[params[0].upcase]
             raise parser.error("Unknown target: #{params[0].upcase}") unless target
-            raise parser.error("Cannot use #{keyword} with target name substitutions: #{target.name} != #{target.original_name}") if target.name != target.original_name
             target_filename = params[1]
             target_filename = 'cmd_tlm_server.txt' unless target_filename
             target_filename = File.join(target.dir, target_filename)
