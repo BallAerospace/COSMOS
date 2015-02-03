@@ -30,3 +30,5 @@ ruby autohotkey\tools\TlmViewerAHK3 -s "BLAH" -c tlm_viewer3.txt
 ruby autohotkey\tools\TlmViewerAHK4 -c tlm_viewer3.txt
 ruby autohotkey\tools\TlmViewerAHK5 -n -s "INST ADCS"
 
+REM Display any exception files that were generated
+dir autohotkey\outputs\logs\*exception.txt

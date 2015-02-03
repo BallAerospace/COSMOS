@@ -30,7 +30,7 @@ def autohotkey(command_name, ahk_script = nil)
   # Clean up CTS log files
   Dir["autohotkey/outputs/logs/*"].each do |file|
     next if File.basename(file) == "cmd.bin" || File.basename(file) == "tlm.bin" ||
-      File.basename(file) == "bigtlm.bin"
+      File.basename(file) == "bigtlm.bin" || File.basename(file).include?('exception')
     File.delete file
   end
 end
