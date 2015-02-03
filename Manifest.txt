@@ -843,6 +843,11 @@ lib/cosmos/tools/cmd_tlm_server/cmd_tlm_server_config.rb
 lib/cosmos/tools/cmd_tlm_server/cmd_tlm_server_gui.rb
 lib/cosmos/tools/cmd_tlm_server/commanding.rb
 lib/cosmos/tools/cmd_tlm_server/connections.rb
+lib/cosmos/tools/cmd_tlm_server/gui/interfaces_tab.rb
+lib/cosmos/tools/cmd_tlm_server/gui/logging_tab.rb
+lib/cosmos/tools/cmd_tlm_server/gui/packets_tab.rb
+lib/cosmos/tools/cmd_tlm_server/gui/status_tab.rb
+lib/cosmos/tools/cmd_tlm_server/gui/targets_tab.rb
 lib/cosmos/tools/cmd_tlm_server/interface_thread.rb
 lib/cosmos/tools/cmd_tlm_server/interfaces.rb
 lib/cosmos/tools/cmd_tlm_server/packet_logging.rb
@@ -1105,6 +1110,7 @@ spec/tools/cmd_tlm_server/interfaces_spec.rb
 spec/tools/cmd_tlm_server/packet_logging_spec.rb
 spec/tools/cmd_tlm_server/router_thread_spec.rb
 spec/tools/cmd_tlm_server/routers_spec.rb
+spec/tools/launcher/launcher_config_spec.rb
 spec/top_level/top_level_spec.rb
 spec/utilities/crc_spec.rb
 spec/utilities/csv_spec.rb
