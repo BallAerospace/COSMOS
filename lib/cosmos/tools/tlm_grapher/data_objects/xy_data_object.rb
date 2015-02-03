@@ -191,8 +191,11 @@ module Cosmos
         else
           y_value = packet.read(@y_item_name)
         end
+
         # Bail on the values if they are NaN or nil as we can't graph them
-        return if x_value.nan? || y_value.nan? || x_value.nil? || y_value.nil?
+        return if x_value.nil? || y_value.nil? ||
+          (x_value.respond_to?(:nan?) && x_value.nan?) ||
+          (y_value.respond_to?(:nan?) && y_value.nan?)
 
         time_value = packet.read(@time_item_name) if @time_item_name
 
@@ -205,10 +208,7 @@ module Cosmos
         # Prune Data
         prune_to_max_points_saved()
       rescue Exception => error
-        raise error if error.class == NoMemoryError
-        reset()
-        @error = error
-        @plot.redraw_needed = true
+        handle_process_exception(error, "#{packet.target_name} #{packet.packet_name} #{@x_item_name} or #{@y_item_name}")
       end
     end # def process_packet
 

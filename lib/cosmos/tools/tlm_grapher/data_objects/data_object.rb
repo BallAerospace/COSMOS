@@ -101,17 +101,33 @@ module Cosmos
       raise "process_packet must be defined by class #{self.class}"
     end
 
+    def handle_process_exception(error, telemetry_point)
+      raise error if error.class == NoMemoryError
+      reset()
+      @plot.redraw_needed = true
+      @error = error
+      if error.is_a? TypeError
+        @error = FatalError.new("Telemetry point #{telemetry_point} could not be displayed. This is most likely due to this telemetry point being a String which can't be represented on the graph. Remove the point from the list of telemetry items to cause this exception to go away.\n\n#{error}")
+      else
+        @exceptions_reported ||= []
+        unless @exceptions_reported.include?(error.message)
+          @exceptions_reported << error.message
+          Cosmos.write_exception_file(error)
+        end
+      end
+    end
+
     # Resets the data object's data (everything that is not configuration)
     def reset
       @error = nil
-      #Reset this value at the max float so any x_value will be less than it
+      # Reset this value at the max float so any x_value will be less than it
       @first_x_value = Float::MAX
     end
 
     # Supplies text that should be appended to the popup string on mousing over the specified
     # x value
     def popup_modifier(x_value)
-      #The default class returns an empty value
+      # The default class returns an empty value
       return ""
     end
 
