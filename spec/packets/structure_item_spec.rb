@@ -18,7 +18,7 @@ module Cosmos
 
     describe "name=" do
       it "should create new structure items" do
-        StructureItem.new("test", 0, 8, :UINT, :BIG_ENDIAN, nil).name.should eql "test"
+        StructureItem.new("test", 0, 8, :UINT, :BIG_ENDIAN, nil).name.should eql "TEST"
       end
 
       it "should complain about non String names" do
@@ -38,7 +38,7 @@ module Cosmos
       end
 
       it "should complain about bad endianness" do
-        expect { StructureItem.new("test", 0, 8, :UINT, :BLAH, nil) }.to raise_error(ArgumentError, "test: unknown endianness: BLAH - Must be :BIG_ENDIAN or :LITTLE_ENDIAN")
+        expect { StructureItem.new("test", 0, 8, :UINT, :BLAH, nil) }.to raise_error(ArgumentError, "TEST: unknown endianness: BLAH - Must be :BIG_ENDIAN or :LITTLE_ENDIAN")
       end
     end
 
@@ -51,7 +51,7 @@ module Cosmos
       end
 
       it "should complain about bad data types" do
-        expect { StructureItem.new("test", 0, 0, :UNKNOWN, :BIG_ENDIAN, nil) }.to raise_error(ArgumentError, "test: unknown data_type: UNKNOWN - Must be :INT, :UINT, :FLOAT, :STRING, :BLOCK, or :DERIVED")
+        expect { StructureItem.new("test", 0, 0, :UNKNOWN, :BIG_ENDIAN, nil) }.to raise_error(ArgumentError, "TEST: unknown data_type: UNKNOWN - Must be :INT, :UINT, :FLOAT, :STRING, :BLOCK, or :DERIVED")
       end
     end
 
@@ -63,39 +63,39 @@ module Cosmos
       end
 
       it "should complain about bad overflow types" do
-        expect { StructureItem.new("test", 0, 32, :INT, :BIG_ENDIAN, nil, :UNKNOWN) }.to raise_error(ArgumentError, "test: unknown overflow type: UNKNOWN - Must be :ERROR, :ERROR_ALLOW_HEX, :TRUNCATE, or :SATURATE")
+        expect { StructureItem.new("test", 0, 32, :INT, :BIG_ENDIAN, nil, :UNKNOWN) }.to raise_error(ArgumentError, "TEST: unknown overflow type: UNKNOWN - Must be :ERROR, :ERROR_ALLOW_HEX, :TRUNCATE, or :SATURATE")
       end
     end
 
     describe "bit_offset=" do
       it "should compain about bad bit offsets types" do
-        expect { StructureItem.new("test", nil, 8, :UINT, :BIG_ENDIAN, nil) }.to raise_error(ArgumentError, "test: bit_offset must be a Fixnum")
+        expect { StructureItem.new("test", nil, 8, :UINT, :BIG_ENDIAN, nil) }.to raise_error(ArgumentError, "TEST: bit_offset must be a Fixnum")
       end
 
       it "should complain about unaligned bit offsets" do
         %w(FLOAT STRING BLOCK).each do |type|
-          expect { StructureItem.new("test", 1, 32, type.to_sym, :BIG_ENDIAN, nil) }.to raise_error(ArgumentError, "test: bit_offset for :FLOAT, :STRING, and :BLOCK items must be byte aligned")
+          expect { StructureItem.new("test", 1, 32, type.to_sym, :BIG_ENDIAN, nil) }.to raise_error(ArgumentError, "TEST: bit_offset for :FLOAT, :STRING, and :BLOCK items must be byte aligned")
         end
       end
 
       it "should complain about non zero DERIVED bit offsets" do
-        expect { StructureItem.new("test", 8, 0, :DERIVED, :BIG_ENDIAN, nil) }.to raise_error(ArgumentError, "test: DERIVED items must have bit_offset of zero")
+        expect { StructureItem.new("test", 8, 0, :DERIVED, :BIG_ENDIAN, nil) }.to raise_error(ArgumentError, "TEST: DERIVED items must have bit_offset of zero")
       end
     end
 
     describe "bit_size=" do
       it "should complain about bad bit sizes types" do
-        expect { StructureItem.new("test", 0, nil, :UINT, :BIG_ENDIAN, nil) }.to raise_error(ArgumentError, "test: bit_size must be a Fixnum")
+        expect { StructureItem.new("test", 0, nil, :UINT, :BIG_ENDIAN, nil) }.to raise_error(ArgumentError, "TEST: bit_size must be a Fixnum")
       end
 
       it "should complain about 0 size INT, UINT, and FLOAT" do
         %w(INT UINT FLOAT).each do |type|
-          expect { StructureItem.new("test", 0, 0, type.to_sym, :BIG_ENDIAN, nil) }.to raise_error(ArgumentError, "test: bit_size cannot be negative or zero for :INT, :UINT, and :FLOAT items: 0")
+          expect { StructureItem.new("test", 0, 0, type.to_sym, :BIG_ENDIAN, nil) }.to raise_error(ArgumentError, "TEST: bit_size cannot be negative or zero for :INT, :UINT, and :FLOAT items: 0")
         end
       end
 
       it "should complain about bad float bit sizes" do
-        expect { StructureItem.new("test", 0, 8, :FLOAT, :BIG_ENDIAN, nil) }.to raise_error(ArgumentError, "test: bit_size for FLOAT items must be 32 or 64. Given: 8")
+        expect { StructureItem.new("test", 0, 8, :FLOAT, :BIG_ENDIAN, nil) }.to raise_error(ArgumentError, "TEST: bit_size for FLOAT items must be 32 or 64. Given: 8")
       end
 
       it "should create 32 and 64 bit floats" do
@@ -104,17 +104,17 @@ module Cosmos
       end
 
       it "should complain about non zero DERIVED bit sizes" do
-        expect { StructureItem.new("test", 0, 8, :DERIVED, :BIG_ENDIAN, nil) }.to raise_error(ArgumentError, "test: DERIVED items must have bit_size of zero")
+        expect { StructureItem.new("test", 0, 8, :DERIVED, :BIG_ENDIAN, nil) }.to raise_error(ArgumentError, "TEST: DERIVED items must have bit_size of zero")
       end
     end
 
     describe "array_size=" do
       it "should complain about bad array size types" do
-        expect { StructureItem.new("test", 0, 8, :UINT, :BIG_ENDIAN, "") }.to raise_error(ArgumentError, "test: array_size must be a Fixnum")
+        expect { StructureItem.new("test", 0, 8, :UINT, :BIG_ENDIAN, "") }.to raise_error(ArgumentError, "TEST: array_size must be a Fixnum")
       end
 
       it "should complain about array size != multiple of bit size" do
-        expect { StructureItem.new("test", 0, 8, :UINT, :BIG_ENDIAN, 10) }.to raise_error(ArgumentError, "test: array_size must be a multiple of bit_size")
+        expect { StructureItem.new("test", 0, 8, :UINT, :BIG_ENDIAN, 10) }.to raise_error(ArgumentError, "TEST: array_size must be a multiple of bit_size")
       end
 
       it "should not complain about array size != multiple of bit size with negative array size" do
@@ -181,7 +181,7 @@ module Cosmos
         hash = item.to_hash
         hash.keys.length.should eql 7
         hash.keys.should include('name','bit_offset','bit_size','data_type','endianness','array_size', 'overflow')
-        hash["name"].should eql "test"
+        hash["name"].should eql "TEST"
         hash["bit_offset"].should eql 0
         hash["bit_size"].should eql 8
         hash["data_type"].should eql :UINT

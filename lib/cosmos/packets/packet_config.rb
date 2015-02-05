@@ -10,8 +10,7 @@
 
 require 'cosmos/config/config_parser'
 require 'cosmos/packets/packet'
-require 'cosmos/packets/parameter_parser'
-require 'cosmos/packets/item_parser'
+require 'cosmos/packets/packet_item_parser'
 require 'cosmos/conversions'
 require 'cosmos/processors'
 require 'ostruct'
@@ -838,20 +837,14 @@ module Cosmos
 
     def start_item(parser)
       finish_item()
-
-      case parser.keyword
-      when /ITEM/
-        @current_item = ItemParser.parse(parser, @current_packet, @current_cmd_or_tlm)
-      when /PARAMETER/
-        @current_item = ParameterParser.parse(parser, @current_packet, @current_cmd_or_tlm)
-      end
+      @current_item = PacketItemParser.parse(parser, @current_packet, @current_cmd_or_tlm)
 
       if parser.keyword.include?('APPEND') && @macro_append.building
         @macro_append.list << parser.parameters[0].upcase
       end
     end
 
-    # Finish updating item in packet
+    # Finish updating packet item
     def finish_item
       if @current_item
         @current_packet.set_item(@current_item)

@@ -44,31 +44,31 @@ module Cosmos
       sleep 0.1 # Give the server time to really stop all the Threads
     end
 
-    specify { @ctsi.methods.should include(:cmd) }
+    specify { expect(@ctsi.methods).to include(:cmd) }
 
     describe "connect, connected?, disconnect" do
-      it "should subscribe to the server" do
+      it "subscribes to the server" do
         expect { @ctsi.connect }.to_not raise_error
-        @ctsi.connected?.should be_truthy
+        expect(@ctsi.connected?).to be true
         expect { @ctsi.disconnect}.to_not raise_error
-        @ctsi.connected?.should be_falsey
+        expect(@ctsi.connected?).to be false
       end
     end
 
     describe "write_raw_allowed?" do
-      it "should be false" do
-        @ctsi.write_raw_allowed?.should be_falsey
+      it "returns false" do
+        expect(@ctsi.write_raw_allowed?).to be false
       end
     end
 
     describe "write_raw" do
-      it "should raise an error" do
+      it "raises an error" do
         expect { @ctsi.write_raw(nil) }.to raise_error(/write_raw not implemented/)
       end
     end
 
     describe "read" do
-      it "should first return the COSMOS VERSION packet and then COSMOS LIMITS_CHANGE" do
+      it "returns the COSMOS VERSION packet and then COSMOS LIMITS_CHANGE" do
         @ctsi.connect
 
         pkt = Packet.new("TGT","PKT")
@@ -78,25 +78,25 @@ module Cosmos
         @cts.limits_change_callback(pkt, pi, :RED, 100, true)
 
         result = @ctsi.read
-        result.read('CTDB').should eql "Demo Version"
+        expect(result.read('CTDB')).to eql "Demo Version"
 
         result = @ctsi.read
-        result.read('TARGET').should eql "TGT"
-        result.read('PACKET').should eql "PKT"
-        result.read('ITEM').should eql "ITEM"
-        result.read('OLD_STATE').should eql "RED"
-        result.read('NEW_STATE').should eql "GREEN"
+        expect(result.read('TARGET')).to eql "TGT"
+        expect(result.read('PACKET')).to eql "PKT"
+        expect(result.read('ITEM')).to eql "ITEM"
+        expect(result.read('OLD_STATE')).to eql "RED"
+        expect(result.read('NEW_STATE')).to eql "GREEN"
       end
     end
 
     describe "write" do
-      it "should raise an error if the packet is not identified" do
+      it "raises an error if the packet is not identified" do
         pkt = Packet.new("COSMOS","STARTLOGGING")
         pkt.buffer = "\x00\x00\x00\x00\x00\x00\x00\x00"
         expect { @ctsi.write(pkt) }.to raise_error(/Unknown command/)
       end
 
-      it "should raise an error if the command is not recognized" do
+      it "raises an error if the command is not recognized" do
         pkt = Packet.new("COSMOS","DOSOMETHING")
         pkt.buffer = "\x00\x00\x00\x00\x00\x00\x00\x00"
         expect { @ctsi.write(pkt) }.to raise_error(/Unknown command/)

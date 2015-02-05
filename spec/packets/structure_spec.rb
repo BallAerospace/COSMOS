@@ -34,6 +34,15 @@ module Cosmos
       end
     end # describe "initialize"
 
+    describe "defined?" do
+      it "returns true if any items have been defined" do
+        s = Structure.new
+        expect(s.defined?).to be false
+        s.define_item("test1",0,8,:UINT)
+        expect(s.defined?).to be true
+      end
+    end
+
     describe "define_item" do
       before(:each) do
         @s = Structure.new
@@ -47,21 +56,21 @@ module Cosmos
         @s.sorted_items[0].should_not be_nil
         @s.sorted_items[0].name.should eql "TEST1"
         @s.defined_length.should eql 1
-        @s.fixed_size.should be_truthy
+        @s.fixed_size.should be true
       end
 
-      it "should add items with negative offsets" do
+      it "adds items with negative bit offsets" do
         @s.define_item("test1", -8, 8, :UINT)
         @s.defined_length.should eql 1
         @s.define_item("test2", 0, 4, :UINT)
         @s.defined_length.should eql 2
         @s.define_item("test3", 4, 4, :UINT)
         @s.defined_length.should eql 2
-        @s.define_item("test4", 8, 0, :BLOCK)
-        @s.defined_length.should eql 2
-        @s.define_item("test5", -16, 8, :UINT)
+        @s.define_item("test4", 16, 0, :BLOCK)
         @s.defined_length.should eql 3
-        @s.fixed_size.should be_falsey
+        @s.define_item("test5", -16, 8, :UINT)
+        @s.defined_length.should eql 4
+        @s.fixed_size.should be false
       end
 
       it "should add item with negative offset" do
@@ -81,7 +90,7 @@ module Cosmos
         @s.defined_length.should eql 3
         @s.define_item("test4", 8, 0, :BLOCK)
         @s.defined_length.should eql 3
-        @s.fixed_size.should be_falsey
+        @s.fixed_size.should be false
       end
 
       it "should recalulate sorted_items when adding multiple items" do
@@ -94,7 +103,7 @@ module Cosmos
         @s.define_item("test3", 16, 8, :UINT)
         @s.sorted_items[-1].name.should eql "TEST3"
         @s.defined_length.should eql 5
-        @s.fixed_size.should be_truthy
+        @s.fixed_size.should be true
       end
 
       it "should overwrite existing items" do
@@ -108,9 +117,65 @@ module Cosmos
         @s.items["TEST1"].bit_size.should eql 16
         @s.items["TEST1"].data_type.should eql :INT
         @s.defined_length.should eql 2
-        @s.fixed_size.should be_truthy
+        @s.fixed_size.should be true
       end
     end # describe "define_item"
+
+    describe "define" do
+      before(:each) do
+        @s = Structure.new
+      end
+
+      it "adds the item to items and sorted_items" do
+        @s.items["test1"].should be_nil
+        @s.sorted_items[0].should be_nil
+        si = StructureItem.new("test1",0,8,:UINT,:BIG_ENDIAN)
+        @s.define(si)
+        @s.items["TEST1"].should_not be_nil
+        @s.sorted_items[0].should_not be_nil
+        @s.sorted_items[0].name.should eql "TEST1"
+        @s.defined_length.should eql 1
+        @s.fixed_size.should be true
+      end
+
+      it "allows items to be defined on top of each other" do
+        @s.items["test1"].should be_nil
+        @s.sorted_items[0].should be_nil
+        si = StructureItem.new("test1",0,8,:UINT,:BIG_ENDIAN)
+        @s.define(si)
+        @s.sorted_items[0].name.should eql "TEST1"
+        @s.items["TEST1"].bit_offset.should eql 0
+        @s.items["TEST1"].bit_size.should eql 8
+        @s.items["TEST1"].data_type.should eql :UINT
+        @s.defined_length.should eql 1
+        si = StructureItem.new("test2",0,16,:INT,:BIG_ENDIAN)
+        @s.define(si)
+        @s.sorted_items[1].name.should eql "TEST2"
+        @s.items["TEST2"].bit_offset.should eql 0
+        @s.items["TEST2"].bit_size.should eql 16
+        @s.items["TEST2"].data_type.should eql :INT
+        @s.defined_length.should eql 2
+        buffer = "\x01\x02"
+        @s.read_item(@s.get_item("test1"), :RAW, buffer).should eql 1
+        @s.read_item(@s.get_item("test2"), :RAW, buffer).should eql 258
+      end
+
+      it "should overwrite existing items" do
+        si = StructureItem.new("test1",0,8,:UINT,:BIG_ENDIAN)
+        @s.define(si)
+        @s.sorted_items[0].name.should eql "TEST1"
+        @s.items["TEST1"].bit_size.should eql 8
+        @s.items["TEST1"].data_type.should eql :UINT
+        @s.defined_length.should eql 1
+        si = StructureItem.new("test1",0,16,:INT,:BIG_ENDIAN)
+        @s.define(si)
+        @s.sorted_items[0].name.should eql "TEST1"
+        @s.items["TEST1"].bit_size.should eql 16
+        @s.items["TEST1"].data_type.should eql :INT
+        @s.defined_length.should eql 2
+        @s.fixed_size.should be true
+      end
+    end
 
     describe "append_item" do
       before(:each) do
@@ -119,10 +184,6 @@ module Cosmos
 
       it "should append an item to items" do
         @s.define_item("test1", 0, 8, :UINT)
-        @s.items["TEST1"].bit_size.should eql 8
-        @s.sorted_items[0].name.should eql "TEST1"
-        @s.sorted_items[1].should be_nil
-        @s.defined_length.should eql 1
         @s.append_item("test2", 16, :UINT)
         @s.items["TEST2"].bit_size.should eql 16
         @s.sorted_items[0].name.should eql "TEST1"
@@ -152,7 +213,29 @@ module Cosmos
         @s.define_item("test1", 0, 8, :UINT, -8)
         expect { @s.append_item("test2", 8, :UINT) }.to raise_error(ArgumentError, "Can't append an item after a variably sized item")
       end
-    end # describe "define_item"
+    end
+
+    describe "append" do
+      before(:each) do
+        @s = Structure.new
+      end
+
+      it "appends an item to the structure" do
+        @s.define_item("test1", 0, 8, :UINT)
+        item = StructureItem.new("test2", 0, 16, :UINT, :BIG_ENDIAN)
+        @s.append(item)
+        # Bit offset should change because we appended the item
+        @s.items["TEST2"].bit_offset.should eql 8
+        @s.sorted_items[0].name.should eql "TEST1"
+        @s.sorted_items[1].name.should eql "TEST2"
+        @s.defined_length.should eql 3
+      end
+
+      it "should complain if appending after a variably sized item" do
+        @s.define_item("test1", 0, 0, :BLOCK)
+        expect { @s.append(@item) }.to raise_error(ArgumentError, "Can't append an item after a variably sized item")
+      end
+    end
 
     describe "get_item" do
       before(:each) do
@@ -281,7 +364,7 @@ module Cosmos
     end
 
     describe "read_all" do
-      it "should read all defined items" do
+      it "reads all defined items" do
         s = Structure.new(:BIG_ENDIAN)
         s.append_item("test1", 8, :UINT, 16)
         s.append_item("test2", 16, :UINT)
@@ -289,6 +372,22 @@ module Cosmos
 
         buffer = "\x01\x02\x03\x04\x05\x06\x07\x08"
         vals = s.read_all(:RAW, buffer)
+        vals[0][0].should eql "TEST1"
+        vals[1][0].should eql "TEST2"
+        vals[2][0].should eql "TEST3"
+        vals[0][1].should eql [1,2]
+        vals[1][1].should eql 0x0304
+        vals[2][1].should eql 0x05060708
+      end
+
+      it "reads all defined items synchronized" do
+        s = Structure.new(:BIG_ENDIAN)
+        s.append_item("test1", 8, :UINT, 16)
+        s.append_item("test2", 16, :UINT)
+        s.append_item("test3", 32, :UINT)
+
+        buffer = "\x01\x02\x03\x04\x05\x06\x07\x08"
+        vals = s.read_all(:RAW, buffer, false)
         vals[0][0].should eql "TEST1"
         vals[1][0].should eql "TEST2"
         vals[2][0].should eql "TEST3"
@@ -312,10 +411,24 @@ module Cosmos
         s.formatted.should include("TEST3")
         s.formatted.should include("00000000: 07 08 09 0A")
       end
+
+      it "should alter the indentation of the item" do
+        s = Structure.new(:BIG_ENDIAN)
+        s.append_item("test1", 8, :UINT, 16)
+        s.write("test1", [1,2])
+        s.append_item("test2", 16, :UINT)
+        s.write("test2", 3456)
+        s.append_item("test3", 32, :BLOCK)
+        s.write("test3", "\x07\x08\x09\x0A")
+        s.formatted(:CONVERTED, 4).should include("    TEST1: [1, 2]")
+        s.formatted(:CONVERTED, 4).should include("    TEST2: 3456")
+        s.formatted(:CONVERTED, 4).should include("    TEST3")
+        s.formatted(:CONVERTED, 4).should include("    00000000: 07 08 09 0A")
+      end
     end
 
     describe "buffer" do
-      it "should return the buffer" do
+      it "returns the buffer" do
         s = Structure.new(:BIG_ENDIAN)
         s.append_item("test1", 8, :UINT, 16)
         s.write("test1", [1,2])
@@ -324,6 +437,8 @@ module Cosmos
         s.append_item("test3", 32, :UINT)
         s.write("test3", 0x05060708)
         s.buffer.should eql "\x01\x02\x03\x04\x05\x06\x07\x08"
+        expect(s.buffer).to_not be s.buffer
+        expect(s.buffer(false)).to be s.buffer(false)
       end
     end
 
@@ -376,8 +491,16 @@ module Cosmos
         s.write("test2", 0x0304)
         s.append_item("test3", 32, :UINT)
         s.write("test3", 0x05060708)
+        # Get a reference to the original buffer
+        old_buffer = s.buffer(false)
 
         s2 = s.clone
+        # Ensure we didn't modify the original buffer object
+        expect(s.buffer(false)).to be old_buffer
+        # Check that they are equal in value
+        expect(s2.buffer(false)).to eql s.buffer(false)
+        # But not the same object
+        expect(s2.buffer(false)).to_not be s.buffer(false)
         s2.read("test1").should eql [1,2]
         s2.read("test2").should eql 0x0304
         s2.read("test3").should eql 0x05060708
@@ -405,6 +528,13 @@ module Cosmos
         s.test1.should eql [1,2]
         s.test1 = [3,4]
         s.test1.should eql [3,4]
+      end
+
+      it "raises an exception if there is no buffer" do
+        s = Structure.new(:BIG_ENDIAN, nil)
+        s.append_item("test1", 8, :UINT, 16)
+        s.enable_method_missing
+        expect { s.test1 }.to raise_error(/No buffer/)
       end
 
       it "should complain if it can't find an item" do

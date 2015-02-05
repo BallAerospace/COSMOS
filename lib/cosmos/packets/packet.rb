@@ -218,9 +218,20 @@ module Cosmos
     # @param id_value [Object] Set to something other than nil to indicate that
     #   this item should be used to identify a buffer as this packet. The
     #   id_value should make sense according to the data_type.
+    # @return [PacketItem] The new packet item
     def define_item(name, bit_offset, bit_size, data_type, array_size = nil, endianness = @default_endianness, overflow = :ERROR, format_string = nil, read_conversion = nil, write_conversion = nil, id_value = nil)
       item = super(name, bit_offset, bit_size, data_type, array_size, endianness, overflow)
       packet_define_item(item, format_string, read_conversion, write_conversion, id_value)
+    end
+
+    # Add an item to the packet by adding it to the items hash. It also
+    # resizes the buffer to accomodate the new item.
+    #
+    # @param item [PacketItem] Item to add to the packet
+    # @return [PacketItem] The same packet item
+    def define(item)
+      item = super(item)
+      update_id_items(item)
     end
 
     # Define an item at the end of the packet. This creates a new instance of the
@@ -237,6 +248,7 @@ module Cosmos
     # @param read_conversion (see #define_item)
     # @param write_conversion (see #define_item)
     # @param id_value (see #define_item)
+    # @return (see #define_item)
     def append_item(name, bit_size, data_type, array_size = nil, endianness = @default_endianness, overflow = :ERROR, format_string = nil, read_conversion = nil, write_conversion = nil, id_value = nil)
       item = super(name, bit_size, data_type, array_size, endianness, overflow)
       packet_define_item(item, format_string, read_conversion, write_conversion, id_value)
@@ -569,6 +581,7 @@ module Cosmos
     def clone
       packet = super()
       if packet.instance_variable_get("@processors")
+        packet.instance_variable_set("@processors", packet.processors.clone)
         packet.processors.each do |processor_name, processor|
           packet.processors[processor_name] = processor.clone
         end
@@ -703,12 +716,19 @@ module Cosmos
       # Change id_value to the correct type
       if id_value
         item.id_value = id_value
+        update_id_items(item)
+      end
+      item
+    end
+
+    def update_id_items(item)
+      if item.id_value
         @id_items ||= []
         @id_items << item
       end
-
       item
     end
+
   end # class Packet
 
 end # module Cosmos
