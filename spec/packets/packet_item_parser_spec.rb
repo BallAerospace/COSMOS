@@ -206,36 +206,60 @@ module Cosmos
           tf.unlink
         end
 
-        it "supports arbitrary endianness per item" do
+        it "supports arbitrary range, default and endianness per item" do
           tf = Tempfile.new('unittest')
           tf.puts 'COMMAND tgt1 pkt1 LITTLE_ENDIAN "Description"'
-          tf.puts '  ID_PARAMETER ITEM1 0 32 UINT 0 0 0 "" LITTLE_ENDIAN'
-          tf.puts '  PARAMETER ITEM2 0 32 UINT 0 0 0 "" LITTLE_ENDIAN'
+          tf.puts '  ID_PARAMETER ITEM1 0 32 UINT 1 2 3 "" LITTLE_ENDIAN'
+          tf.puts '  PARAMETER ITEM2 0 32 UINT 4 5 6 "" LITTLE_ENDIAN'
           tf.puts '  ARRAY_PARAMETER ITEM3 0 32 UINT 64 "" LITTLE_ENDIAN'
-          tf.puts '  APPEND_ID_PARAMETER ITEM4 32 UINT 0 0 0 "" LITTLE_ENDIAN'
-          tf.puts '  APPEND_PARAMETER ITEM5 32 UINT 0 0 0 "" LITTLE_ENDIAN'
+          tf.puts '  APPEND_ID_PARAMETER ITEM4 32 UINT 7 8 9 "" LITTLE_ENDIAN'
+          tf.puts '  APPEND_PARAMETER ITEM5 32 UINT 10 11 12 "" LITTLE_ENDIAN'
           tf.puts '  APPEND_ARRAY_PARAMETER ITEM6 32 UINT 64 "" LITTLE_ENDIAN'
-          tf.puts '  ID_PARAMETER ITEM10 224 32 UINT 0 0 0 "" BIG_ENDIAN'
-          tf.puts '  PARAMETER ITEM20 256 32 UINT 0 0 0 "" BIG_ENDIAN'
+          tf.puts '  ID_PARAMETER ITEM10 224 32 UINT 13 14 15 "" BIG_ENDIAN'
+          tf.puts '  PARAMETER ITEM20 256 32 UINT 16 17 18 "" BIG_ENDIAN'
           tf.puts '  ARRAY_PARAMETER ITEM30 0 32 UINT 64 "" BIG_ENDIAN'
-          tf.puts '  APPEND_ID_PARAMETER ITEM40 32 UINT 0 0 0 "" BIG_ENDIAN'
-          tf.puts '  APPEND_PARAMETER ITEM50 32 UINT 0 0 0 "" BIG_ENDIAN'
+          tf.puts '  APPEND_ID_PARAMETER ITEM40 32 UINT 19 20 21 "" BIG_ENDIAN'
+          tf.puts '  APPEND_PARAMETER ITEM50 32 UINT 22 23 24 "" BIG_ENDIAN'
           tf.puts '  APPEND_ARRAY_PARAMETER ITEM60 32 UINT 64 "" BIG_ENDIAN'
           tf.close
           @pc.process_file(tf.path, "TGT1")
           packet = @pc.commands["TGT1"]["PKT1"]
           packet.buffer = "\x00\x00\x00\x01" * 16
+          expect(packet.get_item("ITEM1").range).to eql (1..2)
+          expect(packet.get_item("ITEM1").default).to eql 3
           expect(packet.read("ITEM1")).to eql 0x01000000
+          expect(packet.get_item("ITEM2").range).to eql (4..5)
+          expect(packet.get_item("ITEM2").default).to eql 6
           expect(packet.read("ITEM2")).to eql 0x01000000
+          expect(packet.get_item("ITEM3").range).to be_nil
+          expect(packet.get_item("ITEM3").default).to eql []
           expect(packet.read("ITEM3")).to eql [0x01000000, 0x01000000]
+          expect(packet.get_item("ITEM4").range).to eql (7..8)
+          expect(packet.get_item("ITEM4").default).to eql 9
           expect(packet.read("ITEM4")).to eql 0x01000000
+          expect(packet.get_item("ITEM5").range).to eql (10..11)
+          expect(packet.get_item("ITEM5").default).to eql 12
           expect(packet.read("ITEM5")).to eql 0x01000000
+          expect(packet.get_item("ITEM6").range).to be_nil
+          expect(packet.get_item("ITEM6").default).to eql []
           expect(packet.read("ITEM6")).to eql [0x01000000, 0x01000000]
+          expect(packet.get_item("ITEM10").range).to eql (13..14)
+          expect(packet.get_item("ITEM10").default).to eql 15
           expect(packet.read("ITEM10")).to eql 0x00000001
+          expect(packet.get_item("ITEM20").range).to eql (16..17)
+          expect(packet.get_item("ITEM20").default).to eql 18
           expect(packet.read("ITEM20")).to eql 0x00000001
+          expect(packet.get_item("ITEM30").range).to be_nil
+          expect(packet.get_item("ITEM30").default).to eql []
           expect(packet.read("ITEM30")).to eql [0x00000001, 0x00000001]
+          expect(packet.get_item("ITEM40").range).to eql (19..20)
+          expect(packet.get_item("ITEM40").default).to eql 21
           expect(packet.read("ITEM40")).to eql 0x00000001
+          expect(packet.get_item("ITEM50").range).to eql (22..23)
+          expect(packet.get_item("ITEM50").default).to eql 24
           expect(packet.read("ITEM50")).to eql 0x00000001
+          expect(packet.get_item("ITEM60").range).to be_nil
+          expect(packet.get_item("ITEM60").default).to eql []
           expect(packet.read("ITEM60")).to eql [0x00000001, 0x00000001]
           tf.unlink
         end

@@ -138,7 +138,7 @@ module Cosmos
           # top level keywords
           @top_keywords = %w(TELEMETRY SELECT_TELEMETRY LIMITS_GROUP LIMITS_GROUP_ITEM)
           # Keywords that require a current packet from TELEMETRY keyword
-          @tlm_keywords = %w(SELECT_ITEM ITEM ID_ITEM ARRAY_ITEM APPEND_ITEM APPEND_ID_ITEM APPEND_ARRAY_ITEM MACRO_APPEND_START MACRO_APPEND_END PROCESSOR META)
+          @tlm_keywords = %w(SELECT_ITEM ITEM ID_ITEM ARRAY_ITEM APPEND_ITEM APPEND_ID_ITEM APPEND_ARRAY_ITEM PROCESSOR META)
           # Keywords that require both a current packet and current item
           @item_keywords = %w(STATE READ_CONVERSION WRITE_CONVERSION POLY_READ_CONVERSION POLY_WRITE_CONVERSION SEG_POLY_READ_CONVERSION SEG_POLY_WRITE_CONVERSION GENERIC_READ_CONVERSION_START GENERIC_WRITE_CONVERSION_START LIMITS LIMITS_RESPONSE UNITS FORMAT_STRING DESCRIPTION META)
         end
@@ -177,7 +177,6 @@ module Cosmos
           end
 
           @tlm_keywords.each do |keyword|
-            next if %w(MACRO_APPEND_END).include? keyword
             tf = Tempfile.new('unittest')
             tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Packet"'
             tf.puts keyword
@@ -217,7 +216,7 @@ module Cosmos
           end
 
           @tlm_keywords.each do |keyword|
-            next if %w(MACRO_APPEND_END PROCESSOR META).include? keyword
+            next if %w(PROCESSOR META).include? keyword
             tf = Tempfile.new('unittest')
             tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Packet"'
             case keyword
@@ -236,10 +235,6 @@ module Cosmos
             when "SELECT_ITEM"
               tf.puts 'ITEM myitem 0 8 UINT'
               tf.puts 'SELECT_ITEM myitem extra'
-            when "MACRO_APPEND_START"
-              tf.puts 'MACRO_APPEND_START 0 1 "%s_%d" extra'
-            when "ACRO_APPEND_END"
-              tf.puts 'MACRO_APPEND_END extra'
             end
             tf.close
             expect { @pc.process_file(tf.path, "TGT1") }.to raise_error(ConfigParser::Error, /Too many parameters for #{keyword}/)
@@ -442,180 +437,6 @@ module Cosmos
         end
       end
 
-      context "with keywords including ITEM" do
-        it "should only allow DERIVED items with offset 0 and size 0" do
-          tf = Tempfile.new('unittest')
-          tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Description"'
-          tf.puts '  ITEM ITEM1 8 0 DERIVED'
-          tf.close
-          expect { @pc.process_file(tf.path, "TGT1") }.to raise_error(ConfigParser::Error, /DERIVED items must have bit_offset of zero/)
-          tf.unlink
-
-          tf = Tempfile.new('unittest')
-          tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Description"'
-          tf.puts '  ITEM ITEM1 0 8 DERIVED'
-          tf.close
-          expect { @pc.process_file(tf.path, "TGT1") }.to raise_error(ConfigParser::Error, /DERIVED items must have bit_size of zero/)
-          tf.unlink
-
-          tf = Tempfile.new('unittest')
-          tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Description"'
-          tf.puts '  ITEM ITEM1 0 0 DERIVED'
-          tf.close
-          @pc.process_file(tf.path, "TGT1")
-          @pc.telemetry["TGT1"]["PKT1"].items.keys.should include('ITEM1')
-          tf.unlink
-        end
-
-        it "should accept types INT UINT FLOAT STRING BLOCK" do
-          tf = Tempfile.new('unittest')
-          tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Description"'
-          tf.puts '  ID_ITEM ITEM1 0 32 INT 0'
-          tf.puts '  ITEM ITEM2 0 32 UINT'
-          tf.puts '  ARRAY_ITEM ITEM3 0 32 FLOAT 64'
-          tf.puts '  APPEND_ID_ITEM ITEM4 32 STRING "ABCD"'
-          tf.puts '  APPEND_ITEM ITEM5 32 BLOCK'
-          tf.puts '  APPEND_ARRAY_ITEM ITEM6 32 BLOCK 64'
-          tf.close
-          @pc.process_file(tf.path, "TGT1")
-          @pc.telemetry["TGT1"]["PKT1"].items.keys.should include('ITEM1','ITEM2','ITEM3','ITEM4','ITEM5','ITEM6')
-          id_items = []
-          id_items << @pc.telemetry["TGT1"]["PKT1"].items["ITEM1"]
-          id_items << @pc.telemetry["TGT1"]["PKT1"].items["ITEM4"]
-          @pc.telemetry["TGT1"]["PKT1"].id_items.should eql id_items
-          tf.unlink
-        end
-
-        it "should support arbitrary endianness per item" do
-          tf = Tempfile.new('unittest')
-          tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Description"'
-          tf.puts '  ID_ITEM ITEM1 0 32 UINT 0 "" LITTLE_ENDIAN'
-          tf.puts '  ITEM ITEM2 0 32 UINT "" LITTLE_ENDIAN'
-          tf.puts '  ARRAY_ITEM ITEM3 0 32 UINT 64 "" LITTLE_ENDIAN'
-          tf.puts '  APPEND_ID_ITEM ITEM4 32 UINT 1 "" LITTLE_ENDIAN'
-          tf.puts '  APPEND_ITEM ITEM5 32 UINT "" LITTLE_ENDIAN'
-          tf.puts '  APPEND_ARRAY_ITEM ITEM6 32 UINT 64 "" LITTLE_ENDIAN'
-          tf.puts '  ID_ITEM ITEM10 224 32 UINT 0 "" BIG_ENDIAN'
-          tf.puts '  ITEM ITEM20 256 32 UINT "" BIG_ENDIAN'
-          tf.puts '  ARRAY_ITEM ITEM30 0 32 UINT 64 "" BIG_ENDIAN'
-          tf.puts '  APPEND_ID_ITEM ITEM40 32 UINT 1 "" BIG_ENDIAN'
-          tf.puts '  APPEND_ITEM ITEM50 32 UINT "" BIG_ENDIAN'
-          tf.puts '  APPEND_ARRAY_ITEM ITEM60 32 UINT 64 "" BIG_ENDIAN'
-          tf.close
-          @pc.process_file(tf.path, "TGT1")
-          packet = @pc.telemetry["TGT1"]["PKT1"]
-          packet.buffer = "\x00\x00\x00\x01" * 16
-          packet.read("ITEM1").should eql 0x01000000
-          packet.read("ITEM2").should eql 0x01000000
-          packet.read("ITEM3").should eql [0x01000000, 0x01000000]
-          packet.read("ITEM4").should eql 0x01000000
-          packet.read("ITEM5").should eql 0x01000000
-          packet.read("ITEM6").should eql [0x01000000, 0x01000000]
-          packet.read("ITEM10").should eql 0x00000001
-          packet.read("ITEM20").should eql 0x00000001
-          packet.read("ITEM30").should eql [0x00000001, 0x00000001]
-          packet.read("ITEM40").should eql 0x00000001
-          packet.read("ITEM50").should eql 0x00000001
-          packet.read("ITEM60").should eql [0x00000001, 0x00000001]
-          tf.unlink
-        end
-      end
-
-      context "with keywords including PARAMETER" do
-        it "should only allow DERIVED items with offset 0 and size 0" do
-          tf = Tempfile.new('unittest')
-          tf.puts 'COMMAND tgt1 pkt1 LITTLE_ENDIAN "Description"'
-          tf.puts '  PARAMETER ITEM1 8 0 DERIVED 0 0 0'
-          tf.close
-          expect { @pc.process_file(tf.path, "TGT1") }.to raise_error(ConfigParser::Error, /DERIVED items must have bit_offset of zero/)
-          tf.unlink
-
-          tf = Tempfile.new('unittest')
-          tf.puts 'COMMAND tgt1 pkt1 LITTLE_ENDIAN "Description"'
-          tf.puts '  PARAMETER ITEM1 0 8 DERIVED 0 0 0'
-          tf.close
-          expect { @pc.process_file(tf.path, "TGT1") }.to raise_error(ConfigParser::Error, /DERIVED items must have bit_size of zero/)
-          tf.unlink
-
-          tf = Tempfile.new('unittest')
-          tf.puts 'COMMAND tgt1 pkt1 LITTLE_ENDIAN "Description"'
-          tf.puts '  PARAMETER ITEM1 0 0 DERIVED 0 0 0'
-          tf.close
-          @pc.process_file(tf.path, "TGT1")
-          @pc.commands["TGT1"]["PKT1"].items.keys.should include('ITEM1')
-          tf.unlink
-        end
-
-        it "should not allow ID_PARAMETER with DERIVED type" do
-          tf = Tempfile.new('unittest')
-          tf.puts 'COMMAND tgt1 pkt1 LITTLE_ENDIAN "Description"'
-          tf.puts '  ID_PARAMETER ITEM1 0 0 DERIVED 0 0 0'
-          tf.close
-          expect { @pc.process_file(tf.path, "TGT1") }.to raise_error(ConfigParser::Error, /DERIVED data type not allowed/)
-          tf.unlink
-        end
-
-        it "should not allow APPEND_ID_PARAMETER with DERIVED type" do
-          tf = Tempfile.new('unittest')
-          tf.puts 'COMMAND tgt1 pkt1 LITTLE_ENDIAN "Description"'
-          tf.puts '  APPEND_ID_PARAMETER ITEM1 0 DERIVED 0 0 0'
-          tf.close
-          expect { @pc.process_file(tf.path, "TGT1") }.to raise_error(ConfigParser::Error, /DERIVED data type not allowed/)
-          tf.unlink
-        end
-
-        it "should accept types INT UINT FLOAT STRING BLOCK" do
-          tf = Tempfile.new('unittest')
-          tf.puts 'COMMAND tgt1 pkt1 LITTLE_ENDIAN "Description"'
-          tf.puts '  ID_PARAMETER ITEM1 0 32 INT 0 0 0'
-          tf.puts '  ID_PARAMETER ITEM2 32 32 STRING "ABCD"'
-          tf.puts '  PARAMETER ITEM3 64 32 UINT 0 0 0'
-          tf.puts '  ARRAY_PARAMETER ITEM4 96 32 FLOAT 64'
-          tf.puts '  APPEND_ID_PARAMETER ITEM5 32 UINT 0 0 0'
-          tf.puts '  APPEND_ID_PARAMETER ITEM6 32 STRING "ABCD"'
-          tf.puts '  APPEND_PARAMETER ITEM7 32 BLOCK "1234"'
-          tf.puts '  APPEND_ARRAY_PARAMETER ITEM8 32 BLOCK 64'
-          tf.close
-          @pc.process_file(tf.path, "TGT1")
-          @pc.commands["TGT1"]["PKT1"].items.keys.should include('ITEM1','ITEM2','ITEM3','ITEM4','ITEM5','ITEM6','ITEM7','ITEM8')
-          tf.unlink
-        end
-
-        it "should support arbitrary endianness per item" do
-          tf = Tempfile.new('unittest')
-          tf.puts 'COMMAND tgt1 pkt1 LITTLE_ENDIAN "Description"'
-          tf.puts '  ID_PARAMETER ITEM1 0 32 UINT 0 0 0 "" LITTLE_ENDIAN'
-          tf.puts '  PARAMETER ITEM2 0 32 UINT 0 0 0 "" LITTLE_ENDIAN'
-          tf.puts '  ARRAY_PARAMETER ITEM3 0 32 UINT 64 "" LITTLE_ENDIAN'
-          tf.puts '  APPEND_ID_PARAMETER ITEM4 32 UINT 0 0 0 "" LITTLE_ENDIAN'
-          tf.puts '  APPEND_PARAMETER ITEM5 32 UINT 0 0 0 "" LITTLE_ENDIAN'
-          tf.puts '  APPEND_ARRAY_PARAMETER ITEM6 32 UINT 64 "" LITTLE_ENDIAN'
-          tf.puts '  ID_PARAMETER ITEM10 224 32 UINT 0 0 0 "" BIG_ENDIAN'
-          tf.puts '  PARAMETER ITEM20 256 32 UINT 0 0 0 "" BIG_ENDIAN'
-          tf.puts '  ARRAY_PARAMETER ITEM30 0 32 UINT 64 "" BIG_ENDIAN'
-          tf.puts '  APPEND_ID_PARAMETER ITEM40 32 UINT 0 0 0 "" BIG_ENDIAN'
-          tf.puts '  APPEND_PARAMETER ITEM50 32 UINT 0 0 0 "" BIG_ENDIAN'
-          tf.puts '  APPEND_ARRAY_PARAMETER ITEM60 32 UINT 64 "" BIG_ENDIAN'
-          tf.close
-          @pc.process_file(tf.path, "TGT1")
-          packet = @pc.commands["TGT1"]["PKT1"]
-          packet.buffer = "\x00\x00\x00\x01" * 16
-          packet.read("ITEM1").should eql 0x01000000
-          packet.read("ITEM2").should eql 0x01000000
-          packet.read("ITEM3").should eql [0x01000000, 0x01000000]
-          packet.read("ITEM4").should eql 0x01000000
-          packet.read("ITEM5").should eql 0x01000000
-          packet.read("ITEM6").should eql [0x01000000, 0x01000000]
-          packet.read("ITEM10").should eql 0x00000001
-          packet.read("ITEM20").should eql 0x00000001
-          packet.read("ITEM30").should eql [0x00000001, 0x00000001]
-          packet.read("ITEM40").should eql 0x00000001
-          packet.read("ITEM50").should eql 0x00000001
-          packet.read("ITEM60").should eql [0x00000001, 0x00000001]
-          tf.unlink
-        end
-      end
-
       context "with LIMITS_GROUP" do
         it "should create a new limits group" do
           tf = Tempfile.new('unittest')
@@ -647,56 +468,6 @@ module Cosmos
           tf.close
           @pc.process_file(tf.path, "TGT1")
           @pc.limits_groups["TVAC"].should eql [%w(TGT1 PKT1 ITEM1), %w(TGT1 PKT1 ITEM2)]
-          tf.unlink
-        end
-      end
-
-      context "with MACRO_APPEND_START" do
-        it "should add items to the packet" do
-          tf = Tempfile.new('unittest')
-          tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Description"'
-          tf.puts 'MACRO_APPEND_START 1 5'
-          tf.puts 'APPEND_ITEM BIT 16 UINT "Setting #x"'
-          tf.puts '  STATE BAD 0 RED'
-          tf.puts '  STATE GOOD 1 GREEN'
-          tf.puts 'MACRO_APPEND_END'
-          tf.close
-          @pc.process_file(tf.path, "TGT1")
-          pkt = @pc.telemetry["TGT1"]["PKT1"]
-          pkt.items.keys.should include('BIT1','BIT2','BIT3','BIT4','BIT5')
-          limits_items = []
-          pkt.items.each do |name, item|
-            limits_items << item if name =~ /BIT/
-          end
-          pkt.limits_items.should eql limits_items
-          tf.unlink
-        end
-
-        it "should array items to the packet" do
-          tf = Tempfile.new('unittest')
-          tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Description"'
-          tf.puts 'MACRO_APPEND_START 1 5'
-          tf.puts 'APPEND_ARRAY_ITEM BIT 16 INT 64 "Int Array Parameter"'
-          tf.puts 'MACRO_APPEND_END'
-          tf.close
-          @pc.process_file(tf.path, "TGT1")
-          pkt = @pc.telemetry["TGT1"]["PKT1"]
-          pkt.items.keys.should include('BIT1','BIT2','BIT3','BIT4','BIT5')
-          pkt.limits_items.should be_empty
-          tf.unlink
-        end
-
-        it "should work with printf format strings" do
-          tf = Tempfile.new('unittest')
-          tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Description"'
-          tf.puts 'MACRO_APPEND_START 1 5 "%d%s"'
-          tf.puts 'APPEND_ID_ITEM BIT 16 UINT 0 "Setting #x"'
-          tf.puts 'MACRO_APPEND_END'
-          tf.close
-          @pc.process_file(tf.path, "TGT1")
-          pkt = @pc.telemetry["TGT1"]["PKT1"]
-          pkt.items.keys.should include('1BIT','2BIT','3BIT','4BIT','5BIT')
-          pkt.limits_items.should be_empty
           tf.unlink
         end
       end
