@@ -102,6 +102,10 @@ module Cosmos
 
     describe "connect" do
       it "should support a connect method that does nothing" do
+        driver = double("driver")
+        expect(driver).to receive(:closed?).and_return(false)
+        expect(driver).to receive(:close).once
+        expect(SerialDriver).to receive(:new).and_return(driver)
         ss = SerialStream.new(nil,'COM1',9600,:EVEN,1,nil,nil)
         expect{ss.connect}.to_not raise_error
         ss.disconnect

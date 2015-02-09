@@ -64,7 +64,7 @@ module Cosmos
     end # def kill
 
     def graceful_kill
-      # Just to remove warning
+      # Allow the callbacks a chance to update the GUI so that they can die gracefully
       if defined? Qt and Thread.current == Thread.main
         5.times do
           Qt::CoreApplication.instance.processEvents

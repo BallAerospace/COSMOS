@@ -75,45 +75,31 @@ module Cosmos
 
     # Connect the socket(s)
     def connect
-      if @write_socket
-        begin
-          @write_socket.connect_nonblock(@write_addr)
-        rescue IO::WaitWritable
-          begin
-            _, sockets, _ = IO.select(nil, [@write_socket], nil, @connect_timeout) # wait 3-way handshake completion
-          rescue Errno::ENOTSOCK
-            raise "Connect canceled"
-          end
-          if sockets and !sockets.empty?
-            begin
-              @write_socket.connect_nonblock(@write_addr) # check connection failure
-            rescue Errno::EISCONN
-            end
-          else
-            raise "Connect timeout"
-          end
-        end
-      end
-      if @read_socket and @read_socket != @write_socket
-        begin
-          @read_socket.connect_nonblock(@read_addr)
-        rescue IO::WaitWritable
-          begin
-            _, sockets, _ = IO.select(nil, [@read_socket], nil, @connect_timeout) # wait 3-way handshake completion
-          rescue Errno::ENOTSOCK
-            raise "Connect canceled"
-          end
-          if sockets and !sockets.empty?
-            begin
-              @read_socket.connect_nonblock(@read_addr) # check connection failure
-            rescue Errno::EISCONN
-            end
-          else
-            raise "Connect timeout"
-          end
-        end
-      end
+      connect_nonblock(@write_socket, @write_addr) if @write_socket
+      connect_nonblock(@read_socket, @read_addr) if @read_socket and @read_socket != @write_socket
       super()
+    end
+
+    protected
+
+    def connect_nonblock(socket, addr)
+      begin
+        socket.connect_nonblock(addr)
+      rescue IO::WaitWritable
+        begin
+          _, sockets, _ = IO.select(nil, [socket], nil, @connect_timeout) # wait 3-way handshake completion
+        rescue Errno::ENOTSOCK
+          raise "Connect canceled"
+        end
+        if sockets and !sockets.empty?
+          begin
+            socket.connect_nonblock(addr) # check connection failure
+          rescue Errno::EISCONN
+          end
+        else
+          raise "Connect timeout"
+        end
+      end
     end
 
   end # class TcpipClientStream
