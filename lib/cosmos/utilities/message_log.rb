@@ -32,6 +32,7 @@ module Cosmos
       @filename = ''
       @file = nil
       @start_time = nil
+      @mutex = Mutex.new
     end
 
     # Ensures the log file is opened and ready to write. It then writes the
@@ -39,34 +40,38 @@ module Cosmos
     #
     # @param message [String] Message to write to the log
     def write(message)
-      if @file.nil? or @file.closed? or (not File.exist?(@filename))
-        start()
-      end
+      @mutex.synchronize do
+        if @file.nil? or @file.closed? or (not File.exist?(@filename))
+          start(false)
+        end
 
-      @file.write(message)
-      # While it's nice to flush the IO this is an extreme slowdown
-      #@file.flush
+        @file.write(message)
+      end
     end
 
     # Closes the message log and marks it read only
-    def stop
+    def stop(take_mutex = true)
+      @mutex.lock if take_mutex
       if @file and not @file.closed?
         @file.close
         Cosmos.set_working_dir do
           File.chmod(0444, @filename)
         end
       end
+      @mutex.unlock if take_mutex
     end
 
     # Creates a new message log and sets the filename
-    def start
+    def start(take_mutex = true)
+      @mutex.lock if take_mutex
       # Prevent starting files too fast
       sleep(0.1) until !File.exist?(File.join(@log_dir, File.build_timestamped_filename([@tool_name, 'messages'])))
-      stop()
+      stop(false)
       Cosmos.set_working_dir do
         @filename = File.join(@log_dir, File.build_timestamped_filename([@tool_name, 'messages']))
         @file = File.open(@filename, 'a')
       end
+      @mutex.unlock if take_mutex
     end
 
   end # class MessageLog
