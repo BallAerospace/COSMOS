@@ -100,6 +100,14 @@ module Cosmos
       end
     end
 
+    describe "connect" do
+      it "should support a connect method that does nothing" do
+        ss = SerialStream.new(nil,'COM1',9600,:EVEN,1,nil,nil)
+        expect{ss.connect}.to_not raise_error
+        ss.disconnect
+      end
+    end
+
   end
 end
 

@@ -32,6 +32,7 @@ module Cosmos
     describe "read" do
       it "should read BIG_ENDIAN length fields from the stream" do
         class MyStream < Stream
+          def connect; end
           def connected?; true; end
           def read
             case $index
@@ -98,6 +99,7 @@ module Cosmos
 
       it "should read LITTLE_ENDIAN length fields from the stream" do
         class MyStream < Stream
+          def connect; end
           def connected?; true; end
           def read
             case $index
@@ -166,6 +168,7 @@ module Cosmos
     describe "write" do
       it "should fill the length field and sync pattern if told to" do
         class MyStream < Stream
+          def connect; end
           @@written_data = nil
           def self.written_data
             @@written_data

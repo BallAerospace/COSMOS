@@ -183,12 +183,16 @@ module Cosmos
       if @connection_failed_callback
         @connection_failed_callback.call(connect_error)
       else
-        Logger.error "#{@interface.name} Connection Failed: #{connect_error.to_s}"
+        Logger.error "#{@interface.name} Connection Failed: #{connect_error.class}:#{connect_error.message}"
         case connect_error
-        when Errno::ECONNREFUSED, Errno::ECONNRESET, Errno::ETIMEDOUT
+        when Errno::ECONNREFUSED, Errno::ECONNRESET, Errno::ETIMEDOUT, Errno::ENOTSOCK
           # Do not write an exception file for these extremely common cases
         else
-          Cosmos.write_exception_file(connect_error)
+          if RuntimeError === connect_error and (connect_error.message =~ /canceled/ or connect_error.message =~ /timeout/)
+            # Do not write an exception file for these extremely common cases
+          else
+            Cosmos.write_exception_file(connect_error)
+          end
         end
       end
       disconnect()

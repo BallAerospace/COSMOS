@@ -103,6 +103,7 @@ module Cosmos
       @data = ''
       @data.force_encoding('ASCII-8BIT')
       @stream = stream
+      @stream.connect
     end
 
     # @return [Boolean] Whether the stream attribute has been set and is

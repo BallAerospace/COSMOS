@@ -32,6 +32,8 @@ module Cosmos
             cmd("#{@target_names[0]} GET_SETPT_VOLTAGE")
             break if @sleeper.sleep(1)
           end
+        rescue Errno::ECONNRESET
+          # This typically means the target disconnected
         rescue Exception => err
           Logger.error "Polling Thread Unexpectedly Died.\n#{err.formatted}"
         end
@@ -42,7 +44,7 @@ module Cosmos
       super()
       # Note: This must be after super or the disconnect process will be interrupted by killing
       # the thread
-      Cosmos.kill_thread(self, @polling_thread)
+      Cosmos.kill_thread(self, @polling_thread) if Thread.current != @polling_thread
       @polling_thread = nil
     end
 

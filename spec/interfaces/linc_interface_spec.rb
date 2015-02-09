@@ -22,6 +22,7 @@ module Cosmos
     describe "connect" do
       it "should pass a new TcpipClientStream to the stream protocol" do
         stream = double("stream")
+        allow(stream).to receive(:connect)
         expect(TcpipClientStream).to receive(:new) { stream }
         expect(stream).to receive(:connected?) { true }
         expect(stream).to receive(:raw_logger_pair=) { nil }
@@ -36,6 +37,7 @@ module Cosmos
     describe "write" do
       before(:each) do
         stream = double("stream")
+        allow(stream).to receive(:connect)
         expect(TcpipClientStream).to receive(:new) { stream }
         allow(stream).to receive(:connected?) { true }
         allow(stream).to receive(:write)
@@ -159,6 +161,7 @@ module Cosmos
     describe "read" do
       before(:each) do
         stream = double("stream")
+        allow(stream).to receive(:connect)
         expect(TcpipClientStream).to receive(:new) { stream }
         allow(stream).to receive(:connected?) { true }
         allow(stream).to receive(:write)

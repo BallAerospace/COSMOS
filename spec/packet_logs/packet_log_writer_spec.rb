@@ -130,9 +130,11 @@ module Cosmos
         Dir[File.join(@log_path,"*.bin")].length.should eql 2
         # Check that the log files have timestamps which are 3 (or 4) seconds apart
         files = Dir[File.join(@log_path,"*tlm.bin")].sort
-        log1_seconds = files[0].split('_')[-3].to_i * 60 + files[0].split('_')[-2].to_i
-        log2_seconds = files[1].split('_')[-3].to_i * 60 + files[1].split('_')[-2].to_i
-        (log2_seconds - log1_seconds).should be_within(2).of(3)
+        split1 = files[0].split('_')
+        split2 = files[1].split('_')
+        log1_time = Time.new(split1[-7].to_i, split1[-6].to_i, split1[-5].to_i, split1[-4].to_i, split1[-3].to_i, split1[-2].to_i)
+        log2_time = Time.new(split2[-7].to_i, split2[-6].to_i, split2[-5].to_i, split2[-4].to_i, split2[-3].to_i, split2[-2].to_i)
+        (log2_time - log1_time).should be_within(2).of(3)
         plw.shutdown
         # Monkey patch the constant back to the default
         PacketLogWriter.__send__(:remove_const,:CYCLE_TIME_INTERVAL)

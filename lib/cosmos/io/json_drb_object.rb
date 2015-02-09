@@ -33,7 +33,7 @@ module Cosmos
     # @param hostname [String] The name of the machine which has started
     #   the JSON service
     # @param port [Integer] The port number of the JSON service
-    def initialize(hostname, port)
+    def initialize(hostname, port, connect_timeout = 1.0)
       hostname = '127.0.0.1' if (hostname.to_s.upcase == 'LOCALHOST')
       begin
         @addr = Socket.pack_sockaddr_in(port, hostname)
@@ -50,11 +50,21 @@ module Cosmos
       @socket = nil
       @id = 0
       @request_in_progress = false
+      @connect_timeout = connect_timeout
+      @connect_timeout = @connect_timeout.to_f if @connect_timeout
+      @shutdown = false
     end
 
     # Disconnects from the JSON server
     def disconnect
-      @socket.close if @socket and !@socket.closed?
+      socket = @socket
+      socket.close if socket and !socket.closed?
+    end
+
+    # Permanently disconnects from the JSON server
+    def shutdown
+      @shutdown = true
+      disconnect()
     end
 
     # Forwards all method calls to the remote service.
@@ -65,71 +75,81 @@ module Cosmos
     #   the same exception is also raised. If something goes wrong with the
     #   protocol a DRb::DRbConnError exception is raised.
     def method_missing(method_name, *method_params)
+      raise DRb::DRbConnError, "Shutdown" if @shutdown
       @mutex.synchronize do
-        first_try = true
-        loop do
-          if !@socket or @socket.closed? or @request_in_progress
-            if @request_in_progress
-              @socket.close if @socket and !@socket.closed?
-              @socket = nil
-              @request_in_progress = false
-            end
-            begin
-              @socket = TCPSocket.new(@hostname, @port)
-              @socket.setsockopt(Socket::IPPROTO_TCP, Socket::TCP_NODELAY, 1)
-            rescue => e
-              raise DRb::DRbConnError, e.message
-            end
-          end
-
-          request = JsonRpcRequest.new(method_name, method_params, @id)
-          @id += 1
-
-          request_data = request.to_json(:allow_nan => true)
-          begin
-            @request_in_progress = true
-            STDOUT.puts "Request:\n" if JsonDRb.debug?
-            STDOUT.puts request_data if JsonDRb.debug?
-            JsonDRb.send_data(@socket, request_data)
-            response_data = JsonDRb.receive_message(@socket, '')
-            STDOUT.puts "\nResponse:\n" if JsonDRb.debug?
-            STDOUT.puts response_data if JsonDRb.debug?
-            @request_in_progress = false
-          rescue => e
-            @socket.close if @socket and !@socket.closed?
+        raise DRb::DRbConnError, "Shutdown" if @shutdown
+        if !@socket or @socket.closed? or @request_in_progress
+          if @request_in_progress
+            disconnect()
             @socket = nil
-            if first_try
-              first_try = false
-              next
-            else
-              raise DRb::DRbConnError, e.message, e.backtrace
-            end
+            @request_in_progress = false
           end
-
-          if response_data
-            response = JsonRpcResponse.from_json(response_data)
-            if JsonRpcErrorResponse === response
-              if response.error.data
-                raise Exception.from_hash(response.error.data)
-              else
-                raise "JsonDRb Error (#{response.error.code}): #{response.error.message}"
+          begin
+            addr = Socket.pack_sockaddr_in(@port, @hostname)
+            @socket = Socket.new(Socket::AF_INET, Socket::SOCK_STREAM, 0)
+            @socket.setsockopt(Socket::IPPROTO_TCP, Socket::TCP_NODELAY, 1)
+            begin
+              @socket.connect_nonblock(addr)
+            rescue IO::WaitWritable
+              begin
+                _, sockets, _ = IO.select(nil, [@socket], nil, @connect_timeout) # wait 3-way handshake completion
+              rescue Errno::ENOTSOCK
+                disconnect()
+                @socket = nil
+                raise "Connect canceled"
               end
+              if sockets and !sockets.empty?
+                begin
+                  @socket.connect_nonblock(addr) # check connection failure
+                rescue Errno::EISCONN
+                end
+              else
+                disconnect()
+                @socket = nil
+                raise "Connect timeout"
+              end
+            end
+          rescue => e
+            raise DRb::DRbConnError, e.message
+          end
+        end
+
+        request = JsonRpcRequest.new(method_name, method_params, @id)
+        @id += 1
+
+        request_data = request.to_json(:allow_nan => true)
+        begin
+          @request_in_progress = true
+          STDOUT.puts "Request:\n" if JsonDRb.debug?
+          STDOUT.puts request_data if JsonDRb.debug?
+          JsonDRb.send_data(@socket, request_data)
+          response_data = JsonDRb.receive_message(@socket, '')
+          STDOUT.puts "\nResponse:\n" if JsonDRb.debug?
+          STDOUT.puts response_data if JsonDRb.debug?
+          @request_in_progress = false
+        rescue => e
+          disconnect()
+          @socket = nil
+          raise DRb::DRbConnError, e.message, e.backtrace
+        end
+
+        if response_data
+          response = JsonRpcResponse.from_json(response_data)
+          if JsonRpcErrorResponse === response
+            if response.error.data
+              raise Exception.from_hash(response.error.data)
             else
-              return response.result
+              raise "JsonDRb Error (#{response.error.code}): #{response.error.message}"
             end
           else
-            # Socket was closed by server
-            @socket.close if @socket and !@socket.closed?
-            @socket = nil
-            if first_try
-              first_try = false
-              next
-            else
-              # Socket already closed by receive_message
-              raise DRb::DRbConnError, "Socket closed by server"
-            end
+            return response.result
           end
-        end # loop
+        else
+          # Socket was closed by server
+          disconnect()
+          @socket = nil
+          raise DRb::DRbConnError, "Socket closed by server"
+        end
       end
     end
   end

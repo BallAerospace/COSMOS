@@ -1504,8 +1504,7 @@ module Cosmos
     end
 
     def shutdown_cmd_tlm
-      script_disconnect()
-      $cmd_tlm_server = nil
+      $cmd_tlm_server.shutdown if $cmd_tlm_server && !$cmd_tlm_disconnect
     end
 
   end # module Script

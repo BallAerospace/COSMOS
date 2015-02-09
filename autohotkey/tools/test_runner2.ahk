@@ -33,6 +33,7 @@ Sleep 5000
 Click 760 195 ; Stop
 WinWaitActive Results
 Send {Enter}
+Sleep 2000
 
 ; Shut down the CTS
 WinActivate Command and Telemetry Server

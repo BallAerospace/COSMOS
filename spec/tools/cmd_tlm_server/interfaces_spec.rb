@@ -49,7 +49,7 @@ module Cosmos
     end
 
     describe "map_target" do
-      it "should complain about an unknowwn interface" do
+      it "should complain about an unknown interface" do
         tf = Tempfile.new('unittest')
         tf.puts 'INTERFACE MY_INT interface.rb'
         tf.close

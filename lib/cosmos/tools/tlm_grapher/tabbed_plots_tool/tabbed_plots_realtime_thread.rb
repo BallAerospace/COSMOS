@@ -65,6 +65,12 @@ module Cosmos
 
     def graceful_kill
       # Just to remove warning
+      if defined? Qt and Thread.current == Thread.main
+        5.times do
+          Qt::CoreApplication.instance.processEvents
+          sleep(0.05)
+        end
+      end
     end
 
   end # class TabbedPlotsRealtimeThread
