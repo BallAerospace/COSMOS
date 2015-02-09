@@ -12,50 +12,21 @@ require 'ostruct'
 
 module Cosmos
   class MacroParser
-
     # Adds a new item to the Macro
-    #
-    # @param parser [ConfigParser] Configuration Parser
-    def self.new_item(parser)
-      if parser.keyword.include?('APPEND')
-        @macro_append.list << parser.parameters[0].upcase
-      end
-    end
-
-    # @return [Boolean] Whether or not the macro has been started
-    def self.started?
-      @macro_append.nil? ? false : @macro_append.started
+    def self.new_item
+      return unless @macro
+      @macro.new_item
     end
 
     # Starts a new Macro
     #
     # @param parser [ConfigParser] Configuration Parser
     def self.start(parser)
-      params = parser.parameters
-      @macro_append = OpenStruct.new
-      @macro_append.started = true
-      @macro_append.list = []
-      @macro_append.indices = []
-      @macro_append.format = ''
-      @macro_append.format_order = ''
-
-      usage = '#{keyword} <FIRST INDEX> <LAST INDEX> [NAME FORMAT]'
-      parser.verify_num_parameters(2, 3, usage)
-
-      # Store the params
-      first_index = params[0].to_i
-      last_index  = params[1].to_i
-      @macro_append.indices = [first_index, last_index].sort
-      @macro_append.indices = (@macro_append.indices[0]..@macro_append.indices[1]).to_a
-      @macro_append.indices.reverse! if first_index > last_index
-      @macro_append.format  = params[2] ? params[2] : '%s%d'
-      spos = @macro_append.format.index(/%\d*s/)
-      dpos = @macro_append.format.index(/%\d*d/)
-      raise parser.error("Invalid NAME FORMAT (#{@macro_append.format}) for MACRO_APPEND_START", usage) unless spos and dpos
-      if spos < dpos
-        @macro_append.format_order = 'sd'
+      if @macro
+        @macro = nil
+        raise parser.error("First close the previous MACRO_APPEND_START with a MACRO_APPEND_END")
       else
-        @macro_append.format_order = 'ds'
+        @macro = MacroParser.new(parser)
       end
     end
 
@@ -64,75 +35,81 @@ module Cosmos
     # @param parser [ConfigParser] Configuration Parser
     # @param packet [Packet] Packet to add the macro items to
     def self.end(parser, packet)
-      keyword = parser.keyword
-      update_cache = false
-      parser.verify_num_parameters(0, 0, keyword)
-      raise parser.error("Missing MACRO_APPEND_START before this config.line.", keyword) unless @macro_append.started
-      raise parser.error("No items appended in MACRO_APPEND list", keyword) unless @macro_append.list.length > 0
+      raise parser.error("First start a macro with MACRO_APPEND_START") unless @macro
+      @macro.complete(packet)
+    ensure
+      # Ensure this class instance variable gets cleared so we can process the
+      # next call to start
+      @macro = nil
+    end
 
-      # Get first index, remove from array
-      first = @macro_append.indices.shift
-
-      # Rename the items in the list using the first index
-      items = packet.items
-      @macro_append.list.each do |name|
-        item = items[name]
-        items.delete name
-        if @macro_append.format_order == 'sd'
-          first_name = sprintf(@macro_append.format, name, first)
-        else
-          first_name = sprintf(@macro_append.format, first, name)
-        end
-        item.name = first_name
-        items[first_name] = item
+    # @param parser [ConfigParser] Configuration Parser
+    def initialize(parser)
+      @parser = parser
+      @usage = '#{keyword} <FIRST INDEX> <LAST INDEX> [NAME FORMAT]'
+      parser.verify_num_parameters(2, 3, @usage)
+      @macro = OpenStruct.new(:started => true, :list => [])
+      first_index = parser.parameters[0].to_i
+      last_index  = parser.parameters[1].to_i
+      if first_index < last_index
+        @macro.indices = (first_index..last_index).to_a
+      else
+        @macro.indices = (last_index..first_index).to_a
       end
+      @macro.format = parser.parameters[2] ? parser.parameters[2] : '%s%d'
+      @macro.format_order = get_format_order()
+    end
 
-      # Append multiple copies of the items in the list
-      @macro_append.indices.each do |index|
-        @macro_append.list.each do |name|
-          if @macro_append.format_order == 'sd'
-            first_name = sprintf(@macro_append.format, name, first)
-            this_name = sprintf(@macro_append.format, name, index)
-          else
-            first_name = sprintf(@macro_append.format, first, name)
-            this_name = sprintf(@macro_append.format, index, name)
-          end
-          first_item = items[first_name]
-          format_string = nil
-          format_string = first_item.format_string if first_item.format_string
-          this_item = packet.append_item(this_name,
-                                                  first_item.bit_size,
-                                                  first_item.data_type,
-                                                  first_item.array_size,
-                                                  first_item.endianness,
-                                                  first_item.overflow,
-                                                  format_string,
-                                                  first_item.read_conversion,
-                                                  first_item.write_conversion,
-                                                  first_item.id_value)
-          this_item.states = first_item.states if first_item.states
-          this_item.description = first_item.description if first_item.description
-          this_item.units_full = first_item.units_full if first_item.units_full
-          this_item.units = first_item.units if first_item.units
-          this_item.default = first_item.default
-          this_item.range = first_item.range if first_item.range
-          this_item.required = first_item.required
-          this_item.hazardous = first_item.hazardous
-          if first_item.state_colors
-            this_item.state_colors = first_item.state_colors
-            update_cache = true
-          end
-          if first_item.limits
-            this_item.limits = first_item.limits
-            update_cache = true
-          end
+    def new_item
+      if @parser.keyword.include?('APPEND')
+        @macro.list << @parser.parameters[0].upcase
+      end
+    end
+
+    def complete(packet)
+      @parser.verify_num_parameters(0, 0, @parser.keyword)
+      raise @parser.error("Missing MACRO_APPEND_START before this config.line.", @parser.keyword) unless @macro
+      raise @parser.error("No items appended in MACRO_APPEND list", @parser.keyword) if @macro.list.empty?
+
+      create_new_packet_items(packet)#, new_item_names)
+    end
+
+    private
+
+    def format_item_name(name, index)
+      if @macro.format_order == 'sd'
+        sprintf(@macro.format, name, index)
+      else
+        sprintf(@macro.format, index, name)
+      end
+    end
+
+    def create_new_packet_items(packet)
+      @macro.list.each do |name|
+        original_item_name = name
+        # Shift off the macro indices because since the first item already
+        # exists we just rename it
+        new_name = format_item_name(name, @macro.indices.shift)
+        item = packet.rename_item(name, new_name)
+
+        # The renaming indices create new items
+        @macro.indices.each do |index|
+          new_item = item.clone
+          new_item.name = format_item_name(original_item_name, index)
+          packet.append(new_item)
         end
       end
-      packet.update_limits_items_cache if update_cache
+    end
 
-      @macro_append.started = false
-      @macro_append.indices = []
-      @macro_append.list = []
+    def get_format_order()
+      string_index = @macro.format.index(/%\d*s/)
+      num_index = @macro.format.index(/%\d*d/)
+      raise parser.error("Invalid NAME FORMAT (#{@macro.format}) for MACRO_APPEND_START", @usage) unless string_index && num_index
+      if string_index < num_index
+        @macro.format_order = 'sd'
+      else
+        @macro.format_order = 'ds'
+      end
     end
 
   end

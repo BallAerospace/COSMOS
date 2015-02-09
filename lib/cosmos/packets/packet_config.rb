@@ -469,7 +469,6 @@ module Cosmos
             unless PacketItem::STATE_COLORS.include? color
               raise parser.error("Invalid state color #{color}. Must be one of #{PacketItem::STATE_COLORS.join(' ')}.", usage)
             end
-            @current_item.limits ||= Limits.new
             @current_item.limits.enabled = true
             @current_item.state_colors ||= {}
             @current_item.state_colors[params[0].upcase] = color
@@ -741,7 +740,7 @@ module Cosmos
     def start_item(parser)
       finish_item()
       @current_item = PacketItemParser.parse(parser, @current_packet, @current_cmd_or_tlm)
-      MacroParser.new_item(parser) if MacroParser.started?
+      MacroParser.new_item()
     end
 
     # Finish updating packet item

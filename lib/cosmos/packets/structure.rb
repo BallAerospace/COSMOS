@@ -66,6 +66,20 @@ module Cosmos
       @sorted_items.length > 0
     end
 
+    # Rename an existing item
+    #
+    # @param item_name [String] Name of the currently defined item
+    # @param new_item_name [String] New name for the item
+    def rename_item(item_name, new_item_name)
+      item = get_item(item_name)
+      item.name = new_item_name
+      @items.delete(item_name)
+      @items[new_item_name] = item
+      # Since @sorted_items contains the actual item reference it is
+      # updated when we set the item.name
+      item
+    end
+
     # Define an item in the structure. This creates a new instance of the
     # item_class as given in the constructor and adds it to the items hash. It
     # also resizes the buffer to accomodate the new item.
@@ -189,7 +203,7 @@ module Cosmos
     # Adds an item at the end of the structure. It adds the item to the items
     # hash and resizes the buffer to accomodate the new item.
     #
-    # @param name (see #define)
+    # @param item (see #define)
     # @return (see #define)
     def append(item)
       raise ArgumentError, "Can't append an item after a variably sized item" if !@fixed_size

@@ -232,6 +232,8 @@ module Cosmos
     def define(item)
       item = super(item)
       update_id_items(item)
+      update_limits_items_cache()
+      item
     end
 
     # Define an item at the end of the packet. This creates a new instance of the

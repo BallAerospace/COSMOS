@@ -437,6 +437,25 @@ module Cosmos
         end
       end
 
+      context "with MACRO_APPEND" do
+        it "creates a range of items" do
+          tf = Tempfile.new('unittest')
+          tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Description"'
+          tf.puts 'MACRO_APPEND_START 1 3'
+          tf.puts '  APPEND_ITEM BYTE 8 UINT "Setting #x"'
+          tf.puts 'MACRO_APPEND_END'
+          tf.close
+          @pc.process_file(tf.path, "TGT1")
+          pkt = @pc.telemetry["TGT1"]["PKT1"]
+          expect(pkt.items.length).to eql 6 # 3 plus the RECEIVED_XXX items
+          expect(pkt.items.keys).to include('BYTE1','BYTE2','BYTE3')
+          expect(pkt.sorted_items[3].name).to eql 'BYTE1'
+          expect(pkt.sorted_items[4].name).to eql 'BYTE2'
+          expect(pkt.sorted_items[5].name).to eql 'BYTE3'
+          tf.unlink
+        end
+      end
+
       context "with LIMITS_GROUP" do
         it "should create a new limits group" do
           tf = Tempfile.new('unittest')

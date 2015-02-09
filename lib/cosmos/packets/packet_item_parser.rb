@@ -18,19 +18,18 @@ module Cosmos
     # @param packet [Packet] The packet the item should be added to
     # @param cmd_or_tlm [String] Whether this is :bn
     def self.parse(parser, packet, cmd_or_tlm)
-      @parser = parser
-      @usage = get_usage()
-      verify_parameters(cmd_or_tlm)
-      item = create_packet_item(packet, cmd_or_tlm)
-      if append?
-        item = packet.append(item)
-      else
-        item = packet.define(item)
-      end
-      item
+      parser = PacketItemParser.new(parser)
+      parser.verify_parameters(cmd_or_tlm)
+      parser.create_packet_item(packet, cmd_or_tlm)
     end
 
-    def self.verify_parameters(cmd_or_tlm)
+    # @param parser [ConfigParser] Configuration parser
+    def initialize(parser)
+      @parser = parser
+      @usage = get_usage()
+    end
+
+    def verify_parameters(cmd_or_tlm)
       if @parser.keyword.include?('ITEM') && cmd_or_tlm == PacketConfig::COMMAND
         raise @parser.error("ITEM types are only valid with TELEMETRY", @usage)
       elsif @parser.keyword.include?('PARAMETER') && cmd_or_tlm == PacketConfig::TELEMETRY
@@ -43,7 +42,7 @@ module Cosmos
       @parser.verify_num_parameters(max_options-2, max_options, @usage)
     end
 
-    def self.create_packet_item(packet, cmd_or_tlm)
+    def create_packet_item(packet, cmd_or_tlm)
       item = PacketItem.new(@parser.parameters[0],
                             get_bit_offset(),
                             get_bit_size(),
@@ -57,35 +56,42 @@ module Cosmos
       end
       item.id_value = get_id_value()
       item.description = get_description()
+      if append?
+        item = packet.append(item)
+      else
+        item = packet.define(item)
+      end
       item
     rescue => err
       raise @parser.error(err, @usage)
     end
 
-    def self.append?
+    private
+
+    def append?
       @parser.keyword.include?("APPEND")
     end
 
-    def self.get_data_type
+    def get_data_type
       index = append? ? 2 : 3
       @parser.parameters[index].upcase.to_sym
     end
 
-    def self.get_bit_offset
+    def get_bit_offset
       return 0 if append?
       Integer(@parser.parameters[1])
     rescue => err # In case Integer fails
       raise @parser.error(err, @usage)
     end
 
-    def self.get_bit_size
+    def get_bit_size
       index = append? ? 1 : 2
       Integer(@parser.parameters[index])
     rescue => err
       raise @parser.error(err, @usage)
     end
 
-    def self.get_array_size
+    def get_array_size
       return nil unless (@parser.keyword.include?('ARRAY'))
       index = append? ? 3 : 4
       Integer(@parser.parameters[index])
@@ -93,7 +99,7 @@ module Cosmos
       raise @parser.error(err, @usage)
     end
 
-    def self.get_endianness(packet)
+    def get_endianness(packet)
       params = @parser.parameters
       max_options = @usage.count("<")
       if params[max_options-1]
@@ -107,7 +113,7 @@ module Cosmos
       endianness
     end
 
-    def self.get_range
+    def get_range
       return nil if @parser.keyword.include?('ARRAY')
       data_type = get_data_type()
       return nil if data_type == :STRING or data_type == :BLOCK
@@ -116,7 +122,7 @@ module Cosmos
       (ConfigParser.handle_defined_constants(@parser.parameters[index].convert_to_value))..(ConfigParser.handle_defined_constants(@parser.parameters[index+1].convert_to_value))
     end
 
-    def self.get_default
+    def get_default
       return [] if @parser.keyword.include?('ARRAY')
 
       index = append? ? 3 : 4
@@ -128,7 +134,7 @@ module Cosmos
       end
     end
 
-    def self.get_id_value
+    def get_id_value
       return nil unless @parser.keyword.include?('ID_')
       data_type = get_data_type
       if @parser.keyword.include?('ITEM')
@@ -144,14 +150,14 @@ module Cosmos
       @parser.parameters[index]
     end
 
-    def self.get_description
+    def get_description
       max_options = @usage.count("<")
       @parser.parameters[max_options-2] if @parser.parameters[max_options-2]
     end
 
     # There are many different usages of the ITEM and PARAMETER keywords so
     # parse the keyword and parameters to generate the correct usage information.
-    def self.get_usage
+    def get_usage
       keyword = @parser.keyword
       params = @parser.parameters
       usage = "#{keyword} <ITEM NAME> "
@@ -164,7 +170,7 @@ module Cosmos
       usage
     end
 
-    def self.bit_size_usage
+    def bit_size_usage
       if @parser.keyword.include?("ARRAY")
         "<ARRAY ITEM BIT SIZE> "
       else
@@ -172,7 +178,7 @@ module Cosmos
       end
     end
 
-    def self.type_usage
+    def type_usage
       keyword = @parser.keyword
       # Item type usage is simple so just return it
       return "<TYPE: INT/UINT/FLOAT/STRING/BLOCK/DERIVED> " if keyword.include?("ITEM")
@@ -196,7 +202,7 @@ module Cosmos
       usage
     end
 
-    def self.id_usage
+    def id_usage
       return '' unless @parser.keyword.include?("ID")
       if @parser.keyword.include?("PARAMETER")
         "<DEFAULT AND ID VALUE> "

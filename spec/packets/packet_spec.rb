@@ -248,6 +248,7 @@ module Cosmos
         pi.format_string = "%5.1f"
         pi.read_conversion = rc
         pi.write_conversion = wc
+        pi.state_colors = {'RED'=>0}
         pi.id_value = 5
         p.define(pi)
         i = p.get_item("ITEM1")
@@ -257,6 +258,7 @@ module Cosmos
         i.id_value.should eql 5.0
         expect(p.id_items.length).to eq 1
         expect(p.id_items[0].name).to eq 'ITEM1'
+        expect(p.limits_items[0].name).to eq 'ITEM1'
         p.defined_length.should eql 4
       end
 
@@ -306,6 +308,7 @@ module Cosmos
         pi.format_string = "%5.1f"
         pi.read_conversion = rc
         pi.write_conversion = wc
+        pi.limits.values = {:DEFAULT => [0, 1, 2, 3]}
         pi.id_value = 5
         p.append(pi)
         i = p.get_item("ITEM1")
@@ -315,6 +318,7 @@ module Cosmos
         i.id_value.should eql 5.0
         expect(p.id_items.length).to eq 1
         expect(p.id_items[0].name).to eq 'ITEM1'
+        expect(p.limits_items[0].name).to eq 'ITEM1'
         p.defined_length.should eql 4
 
         pi = PacketItem.new("item2",0,32,:FLOAT,:BIG_ENDIAN,nil,:ERROR)

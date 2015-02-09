@@ -43,6 +43,22 @@ module Cosmos
       end
     end
 
+    describe "rename_item" do
+      it "renames a previously defined item" do
+        s = Structure.new
+        s.items["test1"].should be_nil
+        s.sorted_items[0].should be_nil
+        s.define_item("test1", 0, 8, :UINT)
+        s.items["TEST1"].should_not be_nil
+        s.sorted_items[0].should_not be_nil
+        s.sorted_items[0].name.should eql "TEST1"
+        s.rename_item("TEST1", "TEST2")
+        s.items["TEST1"].should be_nil
+        s.items["TEST2"].should_not be_nil
+        s.sorted_items[0].name.should eql "TEST2"
+      end
+    end
+
     describe "define_item" do
       before(:each) do
         @s = Structure.new
