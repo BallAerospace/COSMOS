@@ -75,7 +75,6 @@ module Cosmos
     #   the same exception is also raised. If something goes wrong with the
     #   protocol a DRb::DRbConnError exception is raised.
     def method_missing(method_name, *method_params)
-      raise DRb::DRbConnError, "Shutdown" if @shutdown
       @mutex.synchronize do
         raise DRb::DRbConnError, "Shutdown" if @shutdown
         if !@socket or @socket.closed? or @request_in_progress
