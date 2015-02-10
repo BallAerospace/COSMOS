@@ -10,8 +10,9 @@
 
 require 'cosmos/config/config_parser'
 require 'cosmos/packets/packet'
-require 'cosmos/packets/packet_item_parser'
-require 'cosmos/packets/macro_parser'
+require 'cosmos/packets/parsers/packet_item_parser'
+require 'cosmos/packets/parsers/macro_parser'
+require 'cosmos/packets/parsers/limits_parser'
 require 'cosmos/conversions'
 require 'cosmos/processors'
 
@@ -347,7 +348,8 @@ module Cosmos
 
       # Define a set of limits for the current telemetry item
       when 'LIMITS'
-        process_limits(parser, keyword, params)
+        @limits_sets << LimitsParser.parse(parser, @current_packet, @current_cmd_or_tlm, @current_item, @warnings)
+        @limits_sets.uniq!
 
       # Define a response class that will be called when the limits state of the
       # current item changes.
@@ -476,82 +478,6 @@ module Cosmos
           end
         end
       end
-    end
-
-    def process_limits(parser, keyword, params)
-      if @current_cmd_or_tlm == COMMAND
-        raise parser.error("#{keyword} only applies to telemetry items")
-      end
-      usage = "#{keyword} <LIMITS SET> <PERSISTENCE> <ENABLED/DISABLED> <RED LOW LIMIT> <YELLOW LOW LIMIT> <YELLOW HIGH LIMIT> <RED HIGH LIMIT> <GREEN LOW LIMIT (Optional)> <GREEN HIGH LIMIT (Optional)>"
-      parser.verify_num_parameters(7, 9, usage)
-
-      begin
-        persistence = Integer(params[1])
-        red_low = Float(params[3])
-        yellow_low = Float(params[4])
-        yellow_high = Float(params[5])
-        red_high = Float(params[6])
-      rescue
-        raise parser.error("Invalid persistence or limits values. Ensure persistence is an integer. Limits can be integers or floats.", usage)
-      end
-
-      enabled = params[2].upcase
-      if enabled != 'ENABLED' and enabled != 'DISABLED'
-        raise parser.error("Initial state must be ENABLED or DISABLED.", usage)
-      end
-
-      # Verify valid limits are specified
-      if (red_low > yellow_low) or (yellow_low >= yellow_high) or (yellow_high > red_high)
-        raise parser.error("Invalid limits specified. Ensure yellow limits are within red limits.", usage)
-      end
-      if params.length != 7
-        begin
-          green_low = Float(params[7])
-          green_high = Float(params[8])
-        rescue
-          raise parser.error("Invalid green limits values. Limits can be integers or floats.", usage)
-        end
-
-        if (yellow_low > green_low) or (green_low >= green_high) or (green_high > yellow_high)
-          raise parser.error("Invalid limits specified. Ensure green limits are within yellow limits.", usage)
-        end
-      end
-
-      limits_set = params[0].upcase.to_sym
-      @limits_sets << limits_set
-      @limits_sets.uniq!
-      # Initialize the limits values. Values must be initialized with a :DEFAULT key
-      if !@current_item.limits.values
-        if limits_set == :DEFAULT
-          @current_item.limits.values = {:DEFAULT => []}
-        else
-          raise parser.error("DEFAULT limits must be defined for #{@current_packet.target_name} #{@current_packet.packet_name} #{@current_item.name} before setting limits set #{limits_set}")
-        end
-      end
-      if limits_set != :DEFAULT
-        msg = nil
-        if (enabled == 'ENABLED' and @current_item.limits.enabled != true) or (enabled != 'ENABLED' and @current_item.limits.enabled != false)
-          msg = "#{@current_cmd_or_tlm} Item #{@current_target_name} #{@current_packet_name} #{@current_item.name} #{limits_set} limits enable setting conflict with DEFAULT"
-        end
-        if @current_item.limits.persistence_setting != persistence
-          msg = "#{@current_cmd_or_tlm} Item #{@current_target_name} #{@current_packet_name} #{@current_item.name} #{limits_set} limits persistence setting conflict with DEFAULT"
-        end
-        if msg
-          Logger.instance.warn msg
-          @warnings << msg
-        end
-      end
-      @current_item.limits.enabled = true if enabled == 'ENABLED'
-      values = @current_item.limits.values
-      if params.length == 7
-        values[limits_set] = [red_low, yellow_low, yellow_high, red_high]
-      else
-        values[limits_set] = [red_low, yellow_low, yellow_high, red_high, green_low, green_high]
-      end
-      @current_item.limits.values = values
-      @current_item.limits.persistence_setting = persistence
-      @current_item.limits.persistence_count   = 0
-      @current_packet.update_limits_items_cache
     end
 
     def process_limits_response(parser, keyword, params)

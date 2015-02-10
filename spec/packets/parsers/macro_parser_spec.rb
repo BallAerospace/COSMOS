@@ -11,7 +11,7 @@
 require 'spec_helper'
 require 'cosmos'
 require 'cosmos/packets/packet_config'
-require 'cosmos/packets/macro_parser'
+require 'cosmos/packets/parsers/macro_parser'
 require 'tempfile'
 
 module Cosmos
