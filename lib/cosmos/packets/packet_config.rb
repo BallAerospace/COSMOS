@@ -13,7 +13,10 @@ require 'cosmos/packets/packet'
 require 'cosmos/packets/parsers/packet_item_parser'
 require 'cosmos/packets/parsers/macro_parser'
 require 'cosmos/packets/parsers/limits_parser'
+require 'cosmos/packets/parsers/limits_response_parser'
 require 'cosmos/packets/parsers/state_parser'
+require 'cosmos/packets/parsers/format_string_parser'
+require 'cosmos/packets/parsers/processor_parser'
 require 'cosmos/conversions'
 require 'cosmos/processors'
 
@@ -242,7 +245,7 @@ module Cosmos
 
       # Define a processor class that will be called once when a packet is received
       when 'PROCESSOR'
-        process_processor(parser, keyword, params)
+        ProcessorParser.parse(parser, @current_packet, @current_cmd_or_tlm)
 
       when 'DISABLE_MESSAGES'
         usage = "#{keyword}"
@@ -355,11 +358,11 @@ module Cosmos
       # Define a response class that will be called when the limits state of the
       # current item changes.
       when 'LIMITS_RESPONSE'
-        process_limits_response(parser, keyword, params)
+        LimitsResponseParser.parse(parser, @current_item, @current_cmd_or_tlm)
 
       # Define a printf style formatting string for the current telemetry item
       when 'FORMAT_STRING'
-        process_format_string(parser, keyword, params)
+        FormatStringParser.parse(parser, @current_item)
 
       # Define the units of the current telemetry item
       when 'UNITS'
@@ -428,78 +431,6 @@ module Cosmos
         parser.verify_num_parameters(1, 1, usage)
         @current_item.overflow = params[0].to_s.upcase.intern
 
-      end
-    end
-
-
-    ####################################################
-    # The following methods process a particular keyword
-
-    def process_limits_response(parser, keyword, params)
-      if @current_cmd_or_tlm == COMMAND
-        raise parser.error("#{keyword} only applies to telemetry items")
-      end
-      usage = "#{keyword} <RESPONSE CLASS FILENAME> <RESPONSE SPECIFIC OPTIONS>"
-      parser.verify_num_parameters(1, nil, usage)
-
-      begin
-        # require should be performed in target.txt
-        klass = params[0].filename_to_class_name.to_class
-        raise parser.error("#{params[0].filename_to_class_name} class not found. Did you require the file in target.txt?", usage) unless klass
-        if params[1]
-          @current_item.limits.response = klass.new(*params[1..(params.length - 1)])
-        else
-          @current_item.limits.response = klass.new
-        end
-      rescue Exception => err
-        raise parser.error(err, usage)
-      end
-    end
-
-    def process_processor(parser, keyword, params)
-      if @current_cmd_or_tlm == COMMAND
-        raise parser.error("#{keyword} only applies to telemetry packets")
-      end
-      usage = "#{keyword} <PROCESSOR NAME> <PROCESSOR CLASS FILENAME> <PROCESSOR SPECIFIC OPTIONS>"
-      parser.verify_num_parameters(2, nil, usage)
-
-      begin
-        # require should be performed in target.txt
-        klass = params[1].filename_to_class_name.to_class
-        raise parser.error("#{params[1].filename_to_class_name} class not found. Did you require the file in target.txt?", usage) unless klass
-        if params[2]
-          processor = klass.new(*params[2..(params.length - 1)])
-        else
-          processor = klass.new
-        end
-        raise ArgumentError, "processor must be a Cosmos::Processor but is a #{processor.class}" unless Cosmos::Processor === processor
-        processor.name = params[0]
-        @current_packet.processors[params[0].to_s.upcase] = processor
-      rescue Exception => err
-        raise parser.error(err, usage)
-      end
-    end
-
-    def process_format_string(parser, keyword, params)
-      usage = "#{keyword} <PRINTF STYLE STRING>"
-      parser.verify_num_parameters(1, 1, usage)
-      @current_item.format_string = params[0]
-      unless @current_item.read_conversion
-        # Check format string as long as a read conversion has not been defined
-        begin
-          case @current_item.data_type
-          when :INT, :UINT
-            sprintf(@current_item.format_string, 0)
-          when :FLOAT
-            sprintf(@current_item.format_string, 0.0)
-          when :STRING, :BLOCK
-            sprintf(@current_item.format_string, 'Hello')
-          else
-            # Nothing to do
-          end
-        rescue Exception
-          raise parser.error("Invalid #{keyword} specified for type #{@current_item.data_type}: #{params[0]}", usage)
-        end
       end
     end
 

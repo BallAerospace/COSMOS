@@ -260,6 +260,22 @@ module Cosmos
         @pc.telemetry["TGT1"]["PKT1"].limits_items.should eql [item]
         tf.unlink
       end
+
+      it "create multiple limits sets" do
+        tf = Tempfile.new('unittest')
+        tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Packet"'
+        tf.puts '  APPEND_ITEM item1 16 UINT "Item"'
+        tf.puts '    LIMITS DEFAULT 1 ENABLED 1 2 6 7'
+        tf.puts '    LIMITS TVAC 1 ENABLED 1 2 6 7'
+        tf.close
+        @pc.process_file(tf.path, "TGT1")
+        item = @pc.telemetry["TGT1"]["PKT1"].items["ITEM1"]
+        expect(item.limits.values.length).to eql 2
+        expect(item.limits.values[:DEFAULT]).to_not be_nil
+        expect(item.limits.values[:TVAC]).to_not be_nil
+        tf.unlink
+      end
+
     end
 
   end

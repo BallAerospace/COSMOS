@@ -683,76 +683,6 @@ module Cosmos
         end
       end
 
-      context "with PROCESSOR" do
-        it "should complain about missing processor file" do
-          filename = File.join(File.dirname(__FILE__), "../test_only.rb")
-          File.delete(filename) if File.exist?(filename)
-          @pc = PacketConfig.new
-
-          tf = Tempfile.new('unittest')
-          tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Packet"'
-          tf.puts '  PROCESSOR TEST test_only.rb'
-          tf.close
-          expect { @pc.process_file(tf.path, "TGT1") }.to raise_error(ConfigParser::Error, /TestOnly class not found/)
-          tf.unlink
-        end
-
-        it "should complain about a non Cosmos::Processor class" do
-          filename = File.join(File.dirname(__FILE__), "../processor1.rb")
-          File.open(filename, 'w') do |file|
-            file.puts "class Processor1"
-            file.puts "  def call(packet,buffer)"
-            file.puts "  end"
-            file.puts "end"
-          end
-          load 'processor1.rb'
-          File.delete(filename) if File.exist?(filename)
-
-          tf = Tempfile.new('unittest')
-          tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Packet"'
-          tf.puts '  PROCESSOR P1 processor1.rb'
-          tf.close
-          expect { @pc.process_file(tf.path, "TGT1") }.to raise_error(ConfigParser::Error, /processor must be a Cosmos::Processor but is a Processor1/)
-          tf.unlink
-        end
-
-        it "should parse the processor" do
-          filename = File.join(File.dirname(__FILE__), "../processor2.rb")
-          File.open(filename, 'w') do |file|
-            file.puts "require 'cosmos/processors/processor'"
-            file.puts "class Processor2 < Cosmos::Processor"
-            file.puts "  def call(packet,buffer)"
-            file.puts "    @results[:TEST] = 5"
-            file.puts "  end"
-            file.puts "end"
-          end
-          load 'processor2.rb'
-
-          tf = Tempfile.new('unittest')
-          tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Packet"'
-          tf.puts '  ITEM item1 0 16 INT "Integer Item"'
-          tf.puts '    READ_CONVERSION processor_conversion.rb P2 TEST'
-          tf.puts '  PROCESSOR P2 processor2.rb'
-          tf.puts '  PROCESSOR P3 processor2.rb RAW'
-          tf.close
-          @pc.process_file(tf.path, "TGT1")
-          @pc.telemetry["TGT1"]["PKT1"].buffer = "\x01\x01"
-          @pc.telemetry["TGT1"]["PKT1"].read("ITEM1").should eql 5
-          tf.unlink
-
-          File.delete(filename) if File.exist?(filename)
-        end
-
-        it "should complain if applied to a command packet" do
-          tf = Tempfile.new('unittest')
-          tf.puts 'COMMAND tgt1 pkt1 LITTLE_ENDIAN "Packet"'
-          tf.puts '  PROCESSOR P1 processor1.rb'
-          tf.close
-          expect { @pc.process_file(tf.path, "TGT1") }.to raise_error(ConfigParser::Error, "PROCESSOR only applies to telemetry packets")
-          tf.unlink
-        end
-      end
-
       context "with POLY_READ_CONVERSION and POLY_WRITE_CONVERSION" do
         it "should perform a polynomial conversion" do
           tf = Tempfile.new('unittest')
@@ -852,172 +782,23 @@ module Cosmos
         end
       end
 
-      context "with LIMITS_RESPONSE" do
-        it "should complain if applied to a command PARAMETER" do
-          tf = Tempfile.new('unittest')
-          tf.puts 'COMMAND tgt1 pkt1 LITTLE_ENDIAN "Packet"'
-          tf.puts '  APPEND_PARAMETER item1 16 UINT 0 0 0 "Item"'
-          tf.puts '    LIMITS_RESPONSE test.rb'
-          tf.close
-          expect { @pc.process_file(tf.path, "TGT1") }.to raise_error(ConfigParser::Error, "LIMITS_RESPONSE only applies to telemetry items")
-          tf.unlink
-        end
-
-        it "should complain about missing response file" do
-          filename = File.join(File.dirname(__FILE__), "../test_only.rb")
-          File.delete(filename) if File.exist?(filename)
-          @pc = PacketConfig.new
-
+      context "with LIMITS" do
+        it "ensures limits sets have unique names" do
           tf = Tempfile.new('unittest')
           tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Packet"'
-          tf.puts '  ITEM item1 0 16 INT "Integer Item"'
-          tf.puts '    LIMITS DEFAULT 3 ENABLED 1 2 6 7 3 5'
-          tf.puts '    LIMITS_RESPONSE test_only.rb'
-          tf.close
-          expect { @pc.process_file(tf.path, "TGT1") }.to raise_error(ConfigParser::Error, /TestOnly class not found/)
-          tf.unlink
-        end
-
-        it "should complain about a non Cosmos::LimitsResponse class" do
-          filename = File.join(File.dirname(__FILE__), "../limits_response1.rb")
-          File.open(filename, 'w') do |file|
-            file.puts "class LimitsResponse1"
-            file.puts "  def call(target_name, packet_name, item, old_limits_state, new_limits_state)"
-            file.puts "  end"
-            file.puts "end"
-          end
-          load 'limits_response1.rb'
-          File.delete(filename) if File.exist?(filename)
-
-          tf = Tempfile.new('unittest')
-          tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Packet"'
-          tf.puts '  ITEM item1 0 16 INT "Integer Item"'
-          tf.puts '    LIMITS DEFAULT 3 ENABLED 1 2 6 7 3 5'
-          tf.puts '    LIMITS_RESPONSE limits_response1.rb'
-          tf.close
-          expect { @pc.process_file(tf.path, "TGT1") }.to raise_error(ConfigParser::Error, /response must be a Cosmos::LimitsResponse but is a LimitsResponse1/)
-          tf.unlink
-        end
-
-        it "should set the response" do
-          filename = File.join(File.dirname(__FILE__), "../limits_response2.rb")
-          File.open(filename, 'w') do |file|
-            file.puts "require 'cosmos/packets/limits_response'"
-            file.puts "class LimitsResponse2 < Cosmos::LimitsResponse"
-            file.puts "  def call(target_name, packet_name, item, old_limits_state, new_limits_state)"
-            file.puts "    puts \"\#{target_name} \#{packet_name} \#{item.name} \#{old_limits_state} \#{new_limits_state}\""
-            file.puts "  end"
-            file.puts "end"
-          end
-          load 'limits_response2.rb'
-
-          tf = Tempfile.new('unittest')
-          tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Packet"'
-          tf.puts '  ITEM item1 0 16 INT "Integer Item"'
-          tf.puts '    LIMITS DEFAULT 1 ENABLED 1 2 6 7 3 5'
-          tf.puts '    LIMITS_RESPONSE limits_response2.rb'
+          tf.puts '  APPEND_ITEM item1 16 UINT "Item"'
+          tf.puts '    LIMITS DEFAULT 1 ENABLED 1 2 6 7'
+          tf.puts '    LIMITS TVAC 1 ENABLED 1 2 6 7'
+          tf.puts '    LIMITS DEFAULT 1 ENABLED 8 9 12 13'
           tf.close
           @pc.process_file(tf.path, "TGT1")
-          pkt = @pc.telemetry["TGT1"]["PKT1"]
-          pkt.get_item("ITEM1").limits.response.class.should eql LimitsResponse2
-
-          File.delete(filename) if File.exist?(filename)
-          tf.unlink
-        end
-
-        it "should call the response with parameters" do
-          filename = File.join(File.dirname(__FILE__), "../limits_response2.rb")
-          File.open(filename, 'w') do |file|
-            file.puts "require 'cosmos/packets/limits_response'"
-            file.puts "class LimitsResponse2 < Cosmos::LimitsResponse"
-            file.puts "  def initialize(val)"
-            file.puts "    puts \"initialize: \#{val}\""
-            file.puts "  end"
-            file.puts "  def call(target_name, packet_name, item, old_limits_state, new_limits_state)"
-            file.puts "    puts \"\#{target_name} \#{packet_name} \#{item.name} \#{old_limits_state} \#{new_limits_state}\""
-            file.puts "  end"
-            file.puts "end"
-          end
-          load 'limits_response2.rb'
-
-          tf = Tempfile.new('unittest')
-          tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Packet"'
-          tf.puts '  ITEM item1 0 16 INT "Integer Item"'
-          tf.puts '    LIMITS DEFAULT 1 ENABLED 1 2 6 7 3 5'
-          tf.puts '    LIMITS_RESPONSE limits_response2.rb 2'
-          tf.close
-          capture_io do |stdout|
-            @pc.process_file(tf.path, "TGT1")
-            stdout.string.should eql "initialize: 2\n"
-          end
-
-          File.delete(filename) if File.exist?(filename)
-          tf.unlink
-        end
-      end
-
-      context "with FORMAT_STRING" do
-        it "should complain about invalid format strings" do
-          tf = Tempfile.new('unittest')
-          tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Packet"'
-          tf.puts '  ITEM item1 0 8 INT'
-          tf.puts '    FORMAT_STRING "%*s"'
-          tf.close
-          expect { @pc.process_file(tf.path, "TGT1") }.to raise_error(ConfigParser::Error, "Invalid FORMAT_STRING specified for type INT: %*s")
-          tf.unlink
-
-          tf = Tempfile.new('unittest')
-          tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Packet"'
-          tf.puts '  ITEM item1 0 8 STRING'
-          tf.puts '    FORMAT_STRING "%d"'
-          tf.close
-          expect { @pc.process_file(tf.path, "TGT1") }.to raise_error(ConfigParser::Error, "Invalid FORMAT_STRING specified for type STRING: %d")
-          tf.unlink
-        end
-
-        it "should format integers" do
-          tf = Tempfile.new('unittest')
-          tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Packet"'
-          tf.puts '  ITEM item1 0 8 INT'
-          tf.puts '    FORMAT_STRING "d%d"'
-          tf.puts '  ITEM item2 0 8 UINT'
-          tf.puts '    FORMAT_STRING "u%u"'
-          tf.puts '  ITEM item3 0 8 UINT'
-          tf.puts '    FORMAT_STRING "0x%x"'
-          tf.close
-          @pc.process_file(tf.path, "TGT1")
-          @pc.telemetry["TGT1"]["PKT1"].buffer = "\x0a\x0b\x0c"
-          @pc.telemetry["TGT1"]["PKT1"].read("ITEM1",:FORMATTED).should eql "d10"
-          @pc.telemetry["TGT1"]["PKT1"].read("ITEM2",:FORMATTED).should eql "u10"
-          @pc.telemetry["TGT1"]["PKT1"].read("ITEM3",:FORMATTED).should eql "0xa"
-          tf.unlink
-        end
-
-        it "should format floats" do
-          tf = Tempfile.new('unittest')
-          tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Packet"'
-          tf.puts '  ITEM item1 0 32 FLOAT'
-          tf.puts '    FORMAT_STRING "%3.3f"'
-          tf.close
-          @pc.process_file(tf.path, "TGT1")
-          @pc.telemetry["TGT1"]["PKT1"].write("ITEM1",12345.12345)
-          @pc.telemetry["TGT1"]["PKT1"].read("ITEM1",:FORMATTED).should eql "12345.123"
-          tf.unlink
-        end
-
-        it "should format strings and blocks" do
-          tf = Tempfile.new('unittest')
-          tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Packet"'
-          tf.puts '  ITEM item1 0 32 STRING'
-          tf.puts '    FORMAT_STRING "String: %s"'
-          tf.puts '  ITEM item2 0 32 BLOCK'
-          tf.puts '    FORMAT_STRING "Block: %s"'
-          tf.close
-          @pc.process_file(tf.path, "TGT1")
-          @pc.telemetry["TGT1"]["PKT1"].write("ITEM1","HI")
-          @pc.telemetry["TGT1"]["PKT1"].read("ITEM1",:FORMATTED).should eql "String: HI"
-          @pc.telemetry["TGT1"]["PKT1"].write("ITEM2","\x00\x01\x02\x03")
-          @pc.telemetry["TGT1"]["PKT1"].read("ITEM2",:FORMATTED).should eql "Block: \x00\x01\x02\x03"
+          item = @pc.telemetry["TGT1"]["PKT1"].items["ITEM1"]
+          expect(item.limits.values.length).to eql 2
+          # Verify the last defined DEFAULT limits wins
+          @pc.telemetry["TGT1"]["PKT1"].buffer = "\x04"
+          @pc.telemetry["TGT1"]["PKT1"].enable_limits("ITEM1")
+          @pc.telemetry["TGT1"]["PKT1"].check_limits
+          item.limits.state.should eql :RED_LOW
           tf.unlink
         end
       end
