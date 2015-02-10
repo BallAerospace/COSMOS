@@ -89,9 +89,23 @@ module Cosmos
       end
 
       self.layout = Qt::VBoxLayout.new do
-        addLayout(icon_layout)
-        addWidget(about)
-        addLayout(button_layout)
+        scroll_area = Qt::ScrollArea.new
+        scroll_area.setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff)
+        addWidget(scroll_area)
+        scroll_widget = Qt::Widget.new
+        scroll_area.setWidget(scroll_widget)
+        interior_layout = Qt::VBoxLayout.new
+        interior_layout.addLayout(icon_layout)
+        interior_layout.addWidget(about)
+        interior_layout.addLayout(button_layout)
+        scroll_widget.setLayout(interior_layout)
+        if scroll_widget.minimumSizeHint.height < 800
+          scroll_area.setMinimumHeight(scroll_widget.minimumSizeHint.height + 80)
+          scroll_area.setMinimumWidth(scroll_widget.minimumSizeHint.width)
+        else
+          scroll_area.setMinimumWidth(scroll_widget.minimumSizeHint.width + 20)
+        end
+        scroll_widget.adjustSize
       end
 
       setMaximumWidth(600)
