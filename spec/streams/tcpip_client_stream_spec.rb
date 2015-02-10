@@ -33,18 +33,21 @@ module Cosmos
 
       it "should use the same socket if read_port == write_port" do
         ss = TcpipClientStream.new('localhost',8888,8888,nil,nil)
+        ss.connect
         ss.connected?.should be_truthy
         ss.disconnect
       end
 
       it "should create the write socket" do
         ss = TcpipClientStream.new('localhost',8888,nil,nil,nil)
+        ss.connect
         ss.connected?.should be_truthy
         ss.disconnect
       end
 
       it "should create the read socket" do
         ss = TcpipClientStream.new('localhost',nil,8888,nil,nil)
+        ss.connect
         ss.connected?.should be_truthy
         ss.disconnect
       end

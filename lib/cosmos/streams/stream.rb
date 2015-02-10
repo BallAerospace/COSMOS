@@ -12,8 +12,8 @@ require 'timeout' # For Timeout::Error
 
 module Cosmos
 
-  # Interface that implments the following methods: read, write(data),
-  # connected? and disconnect. Streams are simply data sources which
+  # Class that implments the following methods: read, write(data),
+  # connect, connected? and disconnect. Streams are simply data sources which
   # {StreamProtocol} classes read and write to. This separation of concerns
   # allows Streams to simply focus on getting and sending raw data while the
   # higher level processing occurs in {StreamProtocol}.
@@ -42,12 +42,18 @@ module Cosmos
       raise "write not defined by Stream"
     end
 
+    # Connects the stream
+    def connect
+      raise "connect not defined by Stream"
+    end
+
     # @return [Boolean] true if connected or false otherwise
     def connected?
       raise "connected? not defined by Stream"
     end
 
     # Disconnects the stream
+    # Note that streams are not designed to be reconnected and must be recreated
     def disconnect
       raise "disconnect not defined by Stream"
     end

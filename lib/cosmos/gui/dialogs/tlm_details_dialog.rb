@@ -116,13 +116,6 @@ module Cosmos
     end
 
     def value_update_timeout
-      # Check to see that the server is still running. If the user shut down
-      # the underlying tool (like PacketViewer for example) the $cmd_tlm_server
-      # will be nil.
-      unless $cmd_tlm_server
-        @timer.stop
-        return
-      end
       begin
         # Gather updated values
         values, limits_states, limits_settings, limits_set = get_tlm_values(@item_array, VALUE_TYPES)

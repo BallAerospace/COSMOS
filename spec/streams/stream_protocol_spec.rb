@@ -72,6 +72,7 @@ module Cosmos
       it "should set the stream" do
         class MyStream1 < Stream; end
         stream = MyStream1.new
+        allow(stream).to receive(:connect)
         @sp.connect(stream)
         @sp.stream.should eql stream
       end
@@ -84,6 +85,7 @@ module Cosmos
 
       it "should return the status of the stream connection" do
         class MyStream2 < Stream
+          def connect; end
           def connected?; true; end
         end
         stream = MyStream2.new
@@ -96,6 +98,7 @@ module Cosmos
       it "should call disconnect on the stream" do
         $test = false
         class MyStream3 < Stream
+          def connect; end
           def disconnect; $test = true; end
         end
         stream = MyStream3.new
@@ -109,6 +112,7 @@ module Cosmos
     describe "read" do
       it "should read data from the stream" do
         class MyStream33 < Stream
+          def connect; end
           def connected?; true; end
           def read; "\x01\x02\x03\x04"; end
         end
@@ -120,6 +124,7 @@ module Cosmos
 
       it "should handle timeouts from the stream" do
         class MyStream4 < Stream
+          def connect; end
           def connected?; true; end
           def read; raise Timeout::Error; end
         end
@@ -131,6 +136,7 @@ module Cosmos
       it "should handle a sync pattern" do
         $read_cnt = 0
         class MyStream5 < Stream
+          def connect; end
           def connected?; true; end
           def read
             $read_cnt += 1
@@ -154,6 +160,7 @@ module Cosmos
       it "should handle a sync pattern split across reads" do
         $read_cnt = 0
         class MyStream6 < Stream
+          def connect; end
           def connected?; true; end
           def read
             $read_cnt += 1
@@ -177,6 +184,7 @@ module Cosmos
       it "should handle a false positive sync pattern" do
         $read_cnt = 0
         class MyStream7 < Stream
+          def connect; end
           def connected?; true; end
           def read
             $read_cnt += 1
@@ -199,6 +207,7 @@ module Cosmos
 
       it "should discard leading bytes from the stream" do
         class MyStream8 < Stream
+          def connect; end
           def connected?; true; end
           def read
             "\x01\x02\x03\x04"
@@ -214,6 +223,7 @@ module Cosmos
 
       it "should call the post_read_data method on the inteface" do
         class MyStream9 < Stream
+          def connect; end
           def connected?; true; end
           def read
             "\x01\x02\x03\x04"
@@ -263,6 +273,7 @@ module Cosmos
 
       it "should call the post_read_packet method on the inteface" do
         class MyStream10 < Stream
+          def connect; end
           def connected?; true; end
           def read
             "\x01\x02\x03\x04"
@@ -288,6 +299,7 @@ module Cosmos
       it "should call pre_write_packet on the interface" do
         $buffer = ''
         class MyStream11 < Stream
+          def connect; end
           def connected?; true; end
           def write(buffer) $buffer = buffer; end
         end
@@ -304,6 +316,7 @@ module Cosmos
       it "should write the packet buffer to the stream" do
         $buffer = ''
         class MyStream11 < Stream
+          def connect; end
           def connected?; true; end
           def write(buffer) $buffer = buffer; end
         end
@@ -318,6 +331,7 @@ module Cosmos
       it "should write the raw buffer to the stream" do
         $buffer = ''
         class MyStream11 < Stream
+          def connect; end
           def connected?; true; end
           def write(buffer) $buffer = buffer; end
         end

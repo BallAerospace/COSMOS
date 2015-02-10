@@ -64,7 +64,7 @@ module Cosmos
           sleep 0.2
           Thread.list.length.should eql(1)
 
-          stdout.string.should match "Connection Failed: ConnectError"
+          stdout.string.should match "Connection Failed: RuntimeError:ConnectError"
         end
       end
 

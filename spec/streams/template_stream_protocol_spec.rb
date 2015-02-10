@@ -32,6 +32,7 @@ module Cosmos
     describe "connect" do
       it "should support an initial read delay" do
         class MyStream1 < Stream
+          def connect; end
           def read_nonblock; []; end
         end
         stream = MyStream1.new
@@ -46,6 +47,7 @@ module Cosmos
       it "should unblock the read queue" do
         tsp = TemplateStreamProtocol.new('0xABCD','0xABCD')
         class MyStream1 < Stream
+          def connect; end
           def disconnect; end
         end
         tsp.connect(MyStream1.new)
@@ -63,6 +65,7 @@ module Cosmos
     describe "read" do
       it "should read packets from the stream" do
         class MyStream < Stream
+          def connect; end
           def connected?; true; end
           def read
             case $index
@@ -91,6 +94,7 @@ module Cosmos
       it "should work without a response" do
         $buffer = ''
         class MyStream1 < Stream
+          def connect; end
           def connected?; true; end
           def write(buffer) $buffer = buffer; end
         end
@@ -112,6 +116,7 @@ module Cosmos
         $buffer = ''
         $read_cnt = 0
         class MyStream2 < Stream
+          def connect; end
           def connected?; true; end
           def write(buffer) $buffer = buffer; end
           def read

@@ -35,7 +35,6 @@ module Cosmos
       @write_timeout = @write_timeout.to_f if @write_timeout
       @read_timeout  = ConfigParser.handle_nil(read_timeout)
       @read_timeout  = @read_timeout.to_f if @read_timeout
-      @connected = true
 
       # Mutex on write is needed to protect from commands coming in from more
       # than one tool
@@ -120,6 +119,12 @@ module Cosmos
       end
     end
 
+    # Connect the stream
+    def connect
+      # If called directly this class is acting as a server and does not need to connect the sockets
+      @connected = true
+    end
+
     # @return [Boolean] Whether the sockets are connected
     def connected?
       @connected
@@ -127,11 +132,9 @@ module Cosmos
 
     # Disconnect by closing the sockets
     def disconnect
-      if @connected
-        @write_socket.close if @write_socket and !@write_socket.closed?
-        @read_socket.close if @read_socket and !@read_socket.closed?
-        @connected = false
-      end
+      @write_socket.close if @write_socket and !@write_socket.closed?
+      @read_socket.close if @read_socket and !@read_socket.closed?
+      @connected = false
     end
 
   end # class TcpipSocketStream

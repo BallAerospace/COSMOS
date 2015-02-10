@@ -15,15 +15,16 @@ module Cosmos
 
   describe TcpipSocketStream do
     describe "initialize, connected?" do
-      it "should be connected when initialized" do
+      it "should be not be connected when initialized" do
         ss = TcpipSocketStream.new(nil,nil,nil,nil)
-        ss.connected?.should be_truthy
+        ss.connected?.should be_falsy
       end
     end
 
     describe "read" do
       it "should raise an error if no read socket given" do
         ss = TcpipSocketStream.new('write',nil,nil,nil)
+        ss.connect
         expect { ss.read }.to raise_error("Attempt to read from write only stream")
       end
 
@@ -31,6 +32,7 @@ module Cosmos
         read = double("read_socket")
         expect(read).to receive(:recv_nonblock).and_return 'test'
         ss = TcpipSocketStream.new(nil,read,nil,nil)
+        ss.connect
         ss.read.should eql 'test'
       end
 
@@ -48,6 +50,7 @@ module Cosmos
         expect(IO).to receive(:select).at_least(:once).and_return([])
         $index = 1
         ss = TcpipSocketStream.new(nil,read,nil,nil)
+        ss.connect
         ss.read.should eql 'test'
       end
 
@@ -56,6 +59,7 @@ module Cosmos
         allow(read).to receive(:recv_nonblock).and_raise(Errno::EWOULDBLOCK)
         expect(IO).to receive(:select).at_least(:once).and_return(nil)
         ss = TcpipSocketStream.new(nil,read,nil,nil)
+        ss.connect
         expect { ss.read }.to raise_error(Timeout::Error)
       end
 
@@ -63,6 +67,7 @@ module Cosmos
         read = double("read_socket")
         allow(read).to receive(:recv_nonblock).and_raise(Errno::ECONNRESET)
         ss = TcpipSocketStream.new(nil,read,nil,nil)
+        ss.connect
         ss.read.should eql ''
       end
     end
@@ -70,6 +75,7 @@ module Cosmos
     describe "write" do
       it "should raise an error if no write port given" do
         ss = TcpipSocketStream.new(nil,'read',nil,nil)
+        ss.connect
         expect { ss.write('test') }.to raise_error("Attempt to write to read only stream")
       end
 
@@ -78,6 +84,7 @@ module Cosmos
         # Simulate only writing two bytes at a time
         expect(write).to receive(:write_nonblock).twice.and_return(2)
         ss = TcpipSocketStream.new(write,nil,nil,nil)
+        ss.connect
         ss.write('test')
       end
 
@@ -95,6 +102,7 @@ module Cosmos
         expect(IO).to receive(:select).at_least(:once).and_return([])
         $index = 1
         ss = TcpipSocketStream.new(write,nil,nil,nil)
+        ss.connect
         ss.write('test')
       end
 
@@ -103,6 +111,7 @@ module Cosmos
         allow(write).to receive(:write_nonblock).and_raise(Errno::EWOULDBLOCK)
         expect(IO).to receive(:select).at_least(:once).and_return(nil)
         ss = TcpipSocketStream.new(write,nil,nil,nil)
+        ss.connect
         expect { ss.write('test') }.to raise_error(Timeout::Error)
       end
     end
@@ -113,6 +122,7 @@ module Cosmos
         expect(write).to receive(:closed?).and_return(false)
         expect(write).to receive(:close)
         ss = TcpipSocketStream.new(write,nil,nil,nil)
+        ss.connect
         ss.connected?.should be_truthy
         ss.disconnect
         ss.connected?.should be_falsey
@@ -123,6 +133,7 @@ module Cosmos
         expect(read).to receive(:closed?).and_return(false)
         expect(read).to receive(:close)
         ss = TcpipSocketStream.new(nil,read,nil,nil)
+        ss.connect
         ss.connected?.should be_truthy
         ss.disconnect
         ss.connected?.should be_falsey
@@ -130,9 +141,10 @@ module Cosmos
 
       it "shouldn't close the socket twice" do
         socket = double("socket")
-        expect(socket).to receive(:closed?).and_return(false, true)
+        expect(socket).to receive(:closed?).and_return(false, true, true, true)
         expect(socket).to receive(:close).once
         ss = TcpipSocketStream.new(socket,socket,nil,nil)
+        ss.connect
         ss.connected?.should be_truthy
         ss.disconnect
         ss.connected?.should be_falsey

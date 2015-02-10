@@ -433,9 +433,8 @@ module Cosmos
           event.ignore()
         else
           # Close any open screens
-          script_disconnect()
-          Screen.close_all_screens(self)
           shutdown_cmd_tlm()
+          Screen.close_all_screens(self)
           @json_drb.stop_service if @json_drb
           super(event)
         end
