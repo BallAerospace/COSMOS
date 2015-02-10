@@ -12,8 +12,9 @@ module Cosmos
 
   class LimitsParser
     # @param parser [ConfigParser] Configuration parser
-    # @param packet [Packet] The packet the item should be added to
-    # @param cmd_or_tlm [String] Whether this is :bn
+    # @param packet [Packet] The current packet
+    # @param cmd_or_tlm [String] Whether this is a command or telemetry packet
+    # @param item [PacketItem] The packet item to create limits on
     # @param warnings [Array<String>] Array of string warnings which will be
     #   appended with any warnings found when parsing the limits
     def self.parse(parser, packet, cmd_or_tlm, item, warnings)
@@ -26,6 +27,7 @@ module Cosmos
       @parser = parser
     end
 
+    # @param cmd_or_tlm [String] Whether this is a command or telemetry packet
     def verify_parameters(cmd_or_tlm)
       if cmd_or_tlm == PacketConfig::COMMAND
         raise @parser.error("LIMITS only applies to telemetry items")
@@ -34,6 +36,7 @@ module Cosmos
       @parser.verify_num_parameters(7, 9, @usage)
     end
 
+    # @param packet [Packet] The packet the item should be added to
     def create_limits(packet, item, warnings)
       limits_set = get_limits_set()
       initialize_limits_values(packet, item)

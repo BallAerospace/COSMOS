@@ -13,6 +13,7 @@ require 'cosmos/packets/packet'
 require 'cosmos/packets/parsers/packet_item_parser'
 require 'cosmos/packets/parsers/macro_parser'
 require 'cosmos/packets/parsers/limits_parser'
+require 'cosmos/packets/parsers/state_parser'
 require 'cosmos/conversions'
 require 'cosmos/processors'
 
@@ -284,7 +285,7 @@ module Cosmos
 
       # Add a state to the current telemety item
       when 'STATE'
-        process_state(parser, keyword, params)
+        StateParser.parse(parser, @current_packet, @current_cmd_or_tlm, @current_item, @warnings)
 
       # Apply a conversion to the current item after it is read to or
       # written from the packet
@@ -433,52 +434,6 @@ module Cosmos
 
     ####################################################
     # The following methods process a particular keyword
-
-    def process_state(parser, keyword, params)
-      if @current_cmd_or_tlm == COMMAND
-        usage = "#{keyword} <STATE NAME> <STATE VALUE> <HAZARDOUS (Optional)> <Hazardous Description (Optional)>"
-        parser.verify_num_parameters(2, 4, usage)
-      else
-        usage = "#{keyword} <STATE NAME> <STATE VALUE> <COLOR: GREEN/YELLOW/RED (Optional)>"
-        parser.verify_num_parameters(2, 3, usage)
-      end
-      @current_item.states ||= {}
-      if @current_item.states[params[0].upcase]
-        msg = "Duplicate state defined on line #{parser.line_number}: #{parser.line}"
-        Logger.instance.warn(msg)
-        @warnings << msg
-      end
-      if @current_item.data_type == :STRING or @current_item.data_type == :BLOCK
-        @current_item.states[params[0].upcase] = params[1]
-      else
-        @current_item.states[params[0].upcase] = params[1].convert_to_value
-      end
-      if params[2]
-        if @current_cmd_or_tlm == COMMAND
-          if params[2].upcase == 'HAZARDOUS'
-            @current_item.hazardous ||= {}
-            if params[3]
-              @current_item.hazardous[params[0].upcase] = params[3]
-            else
-              @current_item.hazardous[params[0].upcase] = ""
-            end
-          else
-            raise parser.error("HAZARDOUS expected as third parameter for this line.", usage)
-          end
-        else
-          if params[2]
-            color = params[2].upcase.to_sym
-            unless PacketItem::STATE_COLORS.include? color
-              raise parser.error("Invalid state color #{color}. Must be one of #{PacketItem::STATE_COLORS.join(' ')}.", usage)
-            end
-            @current_item.limits.enabled = true
-            @current_item.state_colors ||= {}
-            @current_item.state_colors[params[0].upcase] = color
-            @current_packet.update_limits_items_cache
-          end
-        end
-      end
-    end
 
     def process_limits_response(parser, keyword, params)
       if @current_cmd_or_tlm == COMMAND
