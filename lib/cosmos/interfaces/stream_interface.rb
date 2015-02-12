@@ -34,27 +34,7 @@ module Cosmos
       super()
 
       stream_protocol_class = stream_protocol_type.to_s.capitalize << 'StreamProtocol'
-      klass = stream_protocol_class.to_class
-      unless klass
-        begin
-          require stream_protocol_class.class_name_to_filename
-        # If the stream protocol doesn't exist require will throw a LoadError
-        rescue LoadError => err
-          msg = "Unable to require " \
-            "#{stream_protocol_class.class_name_to_filename} due to #{err.message}. " \
-            "Ensure #{stream_protocol_class.class_name_to_filename} "\
-            "is in the COSMOS lib directory."
-          Logger.instance.error msg
-          raise msg
-        # If the stream protocol exists but has problems we rescue those here
-        rescue => err
-          msg = "Unable to require " \
-            "#{stream_protocol_class.class_name_to_filename} due to #{err.message}."
-          Logger.instance.error msg
-          raise msg
-        end
-      end
-
+      klass = Cosmos.require_class(stream_protocol_class.class_name_to_filename)
       @stream_protocol = klass.new(*stream_protocol_args)
       @stream_protocol.interface = self
     end

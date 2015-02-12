@@ -136,7 +136,7 @@ module Cosmos
           parser.verify_num_parameters(1, 1, usage)
           begin
             require parameters[0]
-          rescue LoadError => err
+          rescue Exception => err
             msg = "Unable to require #{parameters[0]} due to #{err.message}. " +
               "Ensure #{parameters[0]} is in the COSMOS lib directory."
             Logger.instance.error msg

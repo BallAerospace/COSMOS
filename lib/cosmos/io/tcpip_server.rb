@@ -70,17 +70,7 @@ module Cosmos
       @read_timeout = @read_timeout.to_f if @read_timeout
 
       stream_protocol_class = stream_protocol_type.to_s.capitalize << 'StreamProtocol'
-      @stream_protocol_class = stream_protocol_class.to_class
-      unless @stream_protocol_class
-        begin
-          require "cosmos/streams/#{stream_protocol_class.class_name_to_filename}"
-          @stream_protocol_class = stream_protocol_class.to_class
-        rescue LoadError => err
-          Logger.instance.error "Unable to require #{stream_protocol_class.class_name_to_filename} due to #{err.message}. Ensure #{stream_protocol_class.class_name_to_filename} is in the COSMOS lib directory."
-          raise "Unable to require #{stream_protocol_class.class_name_to_filename} due to #{err.message}. Ensure #{stream_protocol_class.class_name_to_filename} is in the COSMOS lib directory."
-        end
-      end
-
+      @stream_protocol_class = Cosmos.require_class(stream_protocol_class.class_name_to_filename)
       @stream_protocol_args = stream_protocol_args
 
       @listen_sockets = []

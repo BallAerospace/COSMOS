@@ -529,7 +529,7 @@ module Cosmos
     return class_name.to_class if class_name.to_class and defined? class_name.to_class
     begin
       require class_filename
-    rescue LoadError => err
+    rescue Exception => err
       msg = "Unable to require #{class_filename} due to #{err.message}. Ensure #{class_filename} is in the COSMOS lib directory."
       Logger.error msg
       raise msg
