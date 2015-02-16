@@ -146,6 +146,15 @@ module Cosmos
         expect { i.write_raw('') }.to raise_error("TEST")
       end
     end
+
+    describe "set_option" do
+      it "should set the listen address for the tcpip_server" do
+        expect(@stream).to receive(:listen_address=).with('127.0.0.1')
+        i = TcpipServerInterface.new('8888','8889','5','5','burst')
+        i.set_option('LISTEN_ADDRESS', ['127.0.0.1'])
+      end
+    end
+
   end
 end
 

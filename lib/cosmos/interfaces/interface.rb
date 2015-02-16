@@ -81,6 +81,9 @@ module Cosmos
     #   (when used as a Router)
     attr_accessor :interfaces
 
+    # @return [Hash<option name, option values>] Hash of options supplied to interface/router
+    attr_accessor :options
+
     # Initialize default attribute values
     def initialize
       @name = self.class.to_s
@@ -104,6 +107,7 @@ module Cosmos
       @read_allowed = true
       @write_allowed = true
       @write_raw_allowed = true
+      @options = {}
     end
 
     # Connects the interface to its target(s). Must be implemented by a
@@ -198,6 +202,14 @@ module Cosmos
       # read_queue_size is the number of packets in the queue so don't copy
       # write_queue_size is the number of packets in the queue so don't copy
       other_interface.interfaces = self.interfaces.clone
+      other_interface.options = self.options.clone
+    end
+
+    # Set an interface or router specific option
+    # @param option_name name of the option
+    # @param option_values array of option values
+    def set_option(option_name, option_values)
+      @options[option_name.upcase] = option_values.clone
     end
 
     # This method is called by the CmdTlmServer after each read packet is
