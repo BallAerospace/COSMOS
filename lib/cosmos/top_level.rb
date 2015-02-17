@@ -527,18 +527,25 @@ module Cosmos
   def self.require_class(class_filename)
     class_name = class_filename.filename_to_class_name
     return class_name.to_class if class_name.to_class and defined? class_name.to_class
-    begin
-      require class_filename
-    rescue LoadError => err
-      msg = "Unable to require #{class_filename} due to #{err.message}. Ensure #{class_filename} is in the COSMOS lib directory."
-      Logger.error msg
-      raise msg
-    end
+    self.require_file(class_filename)
     klass = class_name.to_class
     if klass
       return klass
     else
       raise "Ruby class #{class_name} not found"
+    end
+  end
+
+  # Requires a file with a standard error message if it fails
+  #
+  # @param filename [String] The name of the file to require
+  def self.require_file(filename)
+    begin
+      require filename
+    rescue Exception => err
+      msg = "Unable to require #{filename} due to #{err.message}. Ensure #{filename} is in the COSMOS lib directory."
+      Logger.error msg
+      raise msg
     end
   end
 

@@ -135,12 +135,9 @@ module Cosmos
           usage = "#{keyword} <FILENAME>"
           parser.verify_num_parameters(1, 1, usage)
           begin
-            require parameters[0]
-          rescue LoadError => err
-            msg = "Unable to require #{parameters[0]} due to #{err.message}. " +
-              "Ensure #{parameters[0]} is in the COSMOS lib directory."
-            Logger.instance.error msg
-            raise parser.error(msg)
+            Cosmos.require_file(parameters[0])
+          rescue Exception => err
+            raise parser.error(err.message)
           end
           @requires << parameters[0]
 

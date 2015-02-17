@@ -40,7 +40,7 @@ require 'cosmos/ext/platform'
 saved_verbose = $VERBOSE; $VERBOSE = nil
 begin
   require 'dl'
-rescue LoadError
+rescue Exception
 end
 $VERBOSE = saved_verbose
 
@@ -58,6 +58,6 @@ require 'cosmos/system'
 
 begin
   require 'user_version'
-rescue LoadError
+rescue Exception
   # Not defined
 end
