@@ -21,7 +21,7 @@ module Cosmos
 
     @@qt_boolean = Qt::Boolean.new
 
-    def ask_string(question, allow_blank = false)
+    def ask_string(question, allow_blank = false, password = false)
       answer = ""
       loop do
         canceled = false
@@ -29,7 +29,11 @@ module Cosmos
           window = nil
           window = get_cmd_tlm_gui_window() if get_cmd_tlm_gui_window()
           # Create a special mutable QT variable that can return what button was pressed
-          answer = Qt::InputDialog::getText(window, "Ask", question, Qt::LineEdit::Normal, "", @@qt_boolean)
+          if password
+            answer = Qt::InputDialog::getText(window, "Ask", question, Qt::LineEdit::Password, "", @@qt_boolean)
+          else
+            answer = Qt::InputDialog::getText(window, "Ask", question, Qt::LineEdit::Normal, "", @@qt_boolean)
+          end
           # @@qt_boolean is nil if the user presses cancel in the dialog
           # Note that it is not actually nil, just the nil? method returns true
           canceled = @@qt_boolean.nil?
@@ -42,7 +46,11 @@ module Cosmos
         break if allow_blank or (not answer.nil? and answer.strip.length != 0)
       end
 
-      Logger.info "User entered '#{answer}' for '#{question}'"
+      if password
+        Logger.info "User responded to '#{question}'"
+      else
+        Logger.info "User entered '#{answer}' for '#{question}'"
+      end
       return answer.to_s
     end
 
