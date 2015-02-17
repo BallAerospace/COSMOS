@@ -66,6 +66,20 @@ module Cosmos
       @sorted_items.length > 0
     end
 
+    # Rename an existing item
+    #
+    # @param item_name [String] Name of the currently defined item
+    # @param new_item_name [String] New name for the item
+    def rename_item(item_name, new_item_name)
+      item = get_item(item_name)
+      item.name = new_item_name
+      @items.delete(item_name)
+      @items[new_item_name] = item
+      # Since @sorted_items contains the actual item reference it is
+      # updated when we set the item.name
+      item
+    end
+
     # Define an item in the structure. This creates a new instance of the
     # item_class as given in the constructor and adds it to the items hash. It
     # also resizes the buffer to accomodate the new item.
@@ -89,12 +103,20 @@ module Cosmos
 
       # Create the item
       item = @item_class.new(name_upcase, bit_offset, bit_size, data_type, endianness, array_size, overflow)
+      define(item)
+    end
 
+    # Adds the given item to the items hash. It also resizes the buffer to
+    # accomodate the new item.
+    #
+    # @param item [StructureItem] The structure item to add
+    # @return [StrutureItem] The struture item defined
+    def define(item)
       # Handle Overwriting Existing Item
-      if @items[name_upcase]
+      if @items[item.name]
         item_index = nil
         @sorted_items.each_with_index do |sorted_item, index|
-          if sorted_item.name == name_upcase
+          if sorted_item.name == item.name
             item_index = index
             break
           end
@@ -117,9 +139,9 @@ module Cosmos
       end
 
       # Add to the overall hash of defined items
-      @items[name_upcase] = item
+      @items[item.name] = item
       # Update fixed size knowledge
-      @fixed_size = false if ((data_type != :DERIVED and bit_size <= 0) or (array_size and array_size <= 0))
+      @fixed_size = false if ((item.data_type != :DERIVED and item.bit_size <= 0) or (item.array_size and item.array_size <= 0))
 
       # Recalculate the overall defined length of the structure
       update_needed = false
@@ -176,6 +198,17 @@ module Cosmos
     def append_item(name, bit_size, data_type, array_size = nil, endianness = @default_endianness, overflow = :ERROR)
       raise ArgumentError, "Can't append an item after a variably sized item" if !@fixed_size
       return define_item(name, @defined_length_bits, bit_size, data_type, array_size, endianness, overflow)
+    end
+
+    # Adds an item at the end of the structure. It adds the item to the items
+    # hash and resizes the buffer to accomodate the new item.
+    #
+    # @param item (see #define)
+    # @return (see #define)
+    def append(item)
+      raise ArgumentError, "Can't append an item after a variably sized item" if !@fixed_size
+      item.bit_offset = @defined_length_bits
+      return define(item)
     end
 
     # @param name [String] Name of the item to look up in the items Hash
@@ -329,6 +362,28 @@ module Cosmos
       end
     end
 
+    # Make a light weight clone of this structure. This only creates a new buffer
+    # of data. The defined structure items are the same.
+    #
+    # @return [Structure] A copy of the current structure with a new underlying
+    #   buffer of data
+    def clone
+      structure = super()
+      # Use instance_variable_set since we have overriden buffer= to do
+      # additional work that isn't neccessary here
+      structure.instance_variable_set("@buffer", @buffer.clone) if @buffer
+      return structure
+    end
+    alias dup clone
+
+    # Enable the ability to read and write item values as if they were methods
+    # to the class
+    def enable_method_missing
+      extend(MethodMissing)
+    end
+
+    protected
+
     # Take the structure mutex to ensure the buffer does not change while you perform activities
     def synchronize
       @mutex ||= Mutex.new
@@ -364,24 +419,6 @@ module Cosmos
         end
       end
     end
-
-    # Make a light weight clone of this structure. This only creates a new buffer
-    # of data. The defined structure items are the same.
-    #
-    # @return [Structure] A copy of the current structure with a new underlying
-    #   buffer of data
-    def clone
-      structure = super()
-      @buffer = @buffer.clone if @buffer # Deep Copy @buffer
-      return structure
-    end
-    alias dup clone
-
-    def enable_method_missing
-      extend(MethodMissing)
-    end
-
-    protected
 
     module MethodMissing
       # Method missing provides reading/writing item values as if they were methods to the class

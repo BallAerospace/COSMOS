@@ -89,7 +89,7 @@ module Cosmos
       raise ArgumentError, "name must be a String but is a #{name.class}" unless String === name
       raise ArgumentError, "name must contain at least one character" if name.empty?
 
-      @name = name.clone.freeze
+      @name = name.upcase.clone.freeze
       verify_overall() if @structure_item_constructed
     end
 

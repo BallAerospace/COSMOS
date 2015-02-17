@@ -165,6 +165,53 @@ module Cosmos
       end
     end
 
+    # Review bit offset to look for overlapping definitions. This will allow
+    # gaps in the packet, but not allow the same bits to be used for multiple
+    # variables.
+    #
+    # @return [Array<String>] Warning messages for big definition overlaps
+    def check_bit_offsets
+      expected_next_offset = nil
+      previous_item = nil
+      warnings = []
+      @sorted_items.each do |item|
+        if expected_next_offset and item.bit_offset < expected_next_offset
+          msg = "Bit definition overlap at bit offset #{item.bit_offset} for packet #{@target_name} #{@packet_name} items #{item.name} and #{previous_item.name}"
+          Logger.instance.warn(msg)
+          warnings << msg
+        end
+        if item.array_size
+          if item.array_size > 0
+            expected_next_offset = item.bit_offset + item.array_size
+          else
+            expected_next_offset = item.array_size
+          end
+        else
+          expected_next_offset = nil
+          if item.bit_offset > 0
+            # Handle little-endian bit fields
+            byte_aligned = ((item.bit_offset % 8) == 0)
+            if item.endianness == :LITTLE_ENDIAN and (item.data_type == :INT or item.data_type == :UINT) and !(byte_aligned and (item.bit_size == 8 or item.bit_size == 16 or item.bit_size == 32 or item.bit_size == 64))
+              # Bit offset always refers to the most significant bit of a bitfield
+              bits_remaining_in_last_byte = 8 - (item.bit_offset % 8)
+              if item.bit_size > bits_remaining_in_last_byte
+                expected_next_offset = item.bit_offset + bits_remaining_in_last_byte
+              end
+            end
+          end
+          unless expected_next_offset
+            if item.bit_size > 0
+              expected_next_offset = item.bit_offset + item.bit_size
+            else
+              expected_next_offset = item.bit_size
+            end
+          end
+        end
+        previous_item = item
+      end
+      warnings
+    end
+
     # Id items are used by the identify? method to determine if a raw buffer of
     # data represents this packet.
     # @return [Array<PacketItem>] Packet item identifiers
@@ -218,9 +265,22 @@ module Cosmos
     # @param id_value [Object] Set to something other than nil to indicate that
     #   this item should be used to identify a buffer as this packet. The
     #   id_value should make sense according to the data_type.
+    # @return [PacketItem] The new packet item
     def define_item(name, bit_offset, bit_size, data_type, array_size = nil, endianness = @default_endianness, overflow = :ERROR, format_string = nil, read_conversion = nil, write_conversion = nil, id_value = nil)
       item = super(name, bit_offset, bit_size, data_type, array_size, endianness, overflow)
       packet_define_item(item, format_string, read_conversion, write_conversion, id_value)
+    end
+
+    # Add an item to the packet by adding it to the items hash. It also
+    # resizes the buffer to accomodate the new item.
+    #
+    # @param item [PacketItem] Item to add to the packet
+    # @return [PacketItem] The same packet item
+    def define(item)
+      item = super(item)
+      update_id_items(item)
+      update_limits_items_cache()
+      item
     end
 
     # Define an item at the end of the packet. This creates a new instance of the
@@ -237,6 +297,7 @@ module Cosmos
     # @param read_conversion (see #define_item)
     # @param write_conversion (see #define_item)
     # @param id_value (see #define_item)
+    # @return (see #define_item)
     def append_item(name, bit_size, data_type, array_size = nil, endianness = @default_endianness, overflow = :ERROR, format_string = nil, read_conversion = nil, write_conversion = nil, id_value = nil)
       item = super(name, bit_size, data_type, array_size, endianness, overflow)
       packet_define_item(item, format_string, read_conversion, write_conversion, id_value)
@@ -569,6 +630,7 @@ module Cosmos
     def clone
       packet = super()
       if packet.instance_variable_get("@processors")
+        packet.instance_variable_set("@processors", packet.processors.clone)
         packet.processors.each do |processor_name, processor|
           packet.processors[processor_name] = processor.clone
         end
@@ -703,12 +765,19 @@ module Cosmos
       # Change id_value to the correct type
       if id_value
         item.id_value = id_value
+        update_id_items(item)
+      end
+      item
+    end
+
+    def update_id_items(item)
+      if item.id_value
         @id_items ||= []
         @id_items << item
       end
-
       item
     end
+
   end # class Packet
 
 end # module Cosmos

@@ -91,6 +91,26 @@ module Cosmos
       end
     end
 
+    describe "set_received_time_fast" do
+      it "sets the received_time to a Time" do
+        p = Packet.new("tgt", "pkt")
+        t = Time.now
+        p.set_received_time_fast(t)
+        expect(p.received_time).to eql t
+      end
+
+      it "should set received_time to nil" do
+        p = Packet.new("tgt","pkt")
+        p.received_time = nil
+        p.received_time.should be_nil
+      end
+
+      it "should complain about non Time received_times" do
+        p = Packet.new("tgt","pkt")
+        expect {p.received_time = "1pm" }.to raise_error(ArgumentError, "received_time must be a Time but is a String")
+      end
+    end
+
     describe "received_time=" do
       it "should set the received_time to a Time" do
         p = Packet.new("tgt", "pkt")
@@ -219,6 +239,42 @@ module Cosmos
       end
     end
 
+    describe "define" do
+      it "adds a PacketItem to a packet" do
+        p = Packet.new("tgt","pkt")
+        rc = GenericConversion.new("value / 2")
+        wc = GenericConversion.new("value * 2")
+        pi = PacketItem.new("item1",0,32,:FLOAT,:BIG_ENDIAN,nil,:ERROR)
+        pi.format_string = "%5.1f"
+        pi.read_conversion = rc
+        pi.write_conversion = wc
+        pi.state_colors = {'RED'=>0}
+        pi.id_value = 5
+        p.define(pi)
+        i = p.get_item("ITEM1")
+        i.format_string.should eql "%5.1f"
+        i.read_conversion.to_s.should eql rc.to_s
+        i.write_conversion.to_s.should eql wc.to_s
+        i.id_value.should eql 5.0
+        expect(p.id_items.length).to eq 1
+        expect(p.id_items[0].name).to eq 'ITEM1'
+        expect(p.limits_items[0].name).to eq 'ITEM1'
+        p.defined_length.should eql 4
+      end
+
+      it "allows PacketItems to be defined on top of each other" do
+        p = Packet.new("tgt","pkt")
+        pi = PacketItem.new("item1",0,8,:UINT,:BIG_ENDIAN)
+        p.define(pi)
+        pi = PacketItem.new("item2",0,32,:UINT,:BIG_ENDIAN)
+        p.define(pi)
+        p.defined_length.should eql 4
+        buffer = "\x01\x02\x03\x04"
+        p.read_item(p.get_item("item1"), :RAW, buffer).should eql 1
+        p.read_item(p.get_item("item2"), :RAW, buffer).should eql 0x1020304
+      end
+    end
+
     describe "append_item" do
       it "should take a format_string, read_conversion, write_conversion, and id_value" do
         p = Packet.new("tgt","pkt")
@@ -240,6 +296,41 @@ module Cosmos
         i.read_conversion.should be_nil
         i.write_conversion.should be_nil
         i.id_value.should be_nil
+      end
+    end
+
+    describe "append" do
+      it "adds a PacketItem to the end of a packet" do
+        p = Packet.new("tgt","pkt")
+        rc = GenericConversion.new("value / 2")
+        wc = GenericConversion.new("value * 2")
+        pi = PacketItem.new("item1",0,32,:FLOAT,:BIG_ENDIAN,nil,:ERROR)
+        pi.format_string = "%5.1f"
+        pi.read_conversion = rc
+        pi.write_conversion = wc
+        pi.limits.values = {:DEFAULT => [0, 1, 2, 3]}
+        pi.id_value = 5
+        p.append(pi)
+        i = p.get_item("ITEM1")
+        i.format_string.should eql "%5.1f"
+        i.read_conversion.to_s.should eql rc.to_s
+        i.write_conversion.to_s.should eql wc.to_s
+        i.id_value.should eql 5.0
+        expect(p.id_items.length).to eq 1
+        expect(p.id_items[0].name).to eq 'ITEM1'
+        expect(p.limits_items[0].name).to eq 'ITEM1'
+        p.defined_length.should eql 4
+
+        pi = PacketItem.new("item2",0,32,:FLOAT,:BIG_ENDIAN,nil,:ERROR)
+        p.append(pi)
+        i = p.get_item("ITEM2")
+        expect(i.bit_offset).to be 32 # offset updated inside the PacketItem
+        expect(i.format_string).to be nil
+        expect(i.read_conversion).to be nil
+        expect(i.write_conversion).to be nil
+        expect(i.id_value).to be nil
+        expect(p.id_items.length).to eq 1
+        p.defined_length.should eql 8
       end
     end
 
@@ -383,6 +474,23 @@ module Cosmos
         @buffer.should eql "\x05\x06\x07\x08"
       end
 
+      it "clears the read cache" do
+        @p.append_item("item",8,:UINT)
+        i = @p.get_item("ITEM")
+        @p.buffer = "\x04"
+        cache = p.instance_variable_get(:@read_conversion_cache)
+        i.read_conversion = GenericConversion.new("value / 2")
+        expect(cache).to be nil
+        expect(@p.read("ITEM")).to be 2
+        cache = @p.instance_variable_get(:@read_conversion_cache)
+        expect(cache[i]).to be 2
+        @p.write("ITEM", 0x08, :RAW)
+        @p.buffer.should eql "\x08"
+        expect(cache[i]).to be nil
+        expect(@p.read("ITEM")).to be 4
+        expect(cache[i]).to be 4
+      end
+
       it "should write the CONVERTED value" do
         @p.append_item("item",8,:UINT)
         i = @p.get_item("ITEM")
@@ -409,6 +517,7 @@ module Cosmos
         @buffer.should eql "\x01\x00\x00\x00"
         @p.write_item(i, "FALSE", :CONVERTED, @buffer)
         @buffer.should eql "\x02\x00\x00\x00"
+        expect { @p.write_item(i, "BLAH", :CONVERTED, @buffer) }.to raise_error(RuntimeError, "Unknown state BLAH for ITEM")
         i.write_conversion = GenericConversion.new("value / 2")
         @p.write("ITEM", 4, :CONVERTED, @buffer)
         @buffer.should eql "\x02\x00\x00\x00"
@@ -499,6 +608,113 @@ module Cosmos
         p.formatted.should include("TEST1: [1, 2]")
         p.formatted.should include("TEST2: TRUE")
         p.formatted.should include("TEST3: #{0x02030405}")
+      end
+    end
+
+    describe "check_bit_offsets" do
+      it "should complain about overlapping items" do
+        p = Packet.new("tgt1","pkt1")
+        p.define_item("item1",0,8,:UINT)
+        p.define_item("item2",0,8,:UINT)
+        expect(p.check_bit_offsets[0]).to eql "Bit definition overlap at bit offset 0 for packet TGT1 PKT1 items ITEM2 and ITEM1"
+      end
+
+      it "should not complain with non-overlapping negative offsets" do
+        p = Packet.new("tgt1","pkt1")
+        p.define_item("item1",0,8,:UINT)
+        p.define_item("item2",8,-16,:BLOCK)
+        p.define_item("item3",-16,16,:UINT)
+        expect(p.check_bit_offsets[0]).to be_nil
+      end
+
+      it "should complain with overlapping negative offsets" do
+        p = Packet.new("tgt1","pkt1")
+        p.define_item("item1",0,8,:UINT)
+        p.define_item("item2",8,-16,:BLOCK)
+        p.define_item("item3",-17,16,:UINT)
+        expect(p.check_bit_offsets[0]).to eql "Bit definition overlap at bit offset -17 for packet TGT1 PKT1 items ITEM3 and ITEM2"
+      end
+
+      it "should complain about intersecting items" do
+        p = Packet.new("tgt1","pkt1")
+        p.define_item("item1",0,32,:UINT)
+        p.define_item("item2",16,32,:UINT)
+        expect(p.check_bit_offsets[0]).to eql "Bit definition overlap at bit offset 16 for packet TGT1 PKT1 items ITEM2 and ITEM1"
+      end
+
+      it "should complain about array overlapping items" do
+        p = Packet.new("tgt1","pkt1")
+        p.define_item("item1",0,8,:UINT,32)
+        p.define_item("item2",0,8,:UINT,32)
+        expect(p.check_bit_offsets[0]).to eql "Bit definition overlap at bit offset 0 for packet TGT1 PKT1 items ITEM2 and ITEM1"
+      end
+
+      it "should not complain with array non-overlapping negative offsets" do
+        p = Packet.new("tgt1","pkt1")
+        p.define_item("item1",0,8,:UINT)
+        p.define_item("item2",8,8,:INT,-16)
+        p.define_item("item3",-16,16,:UINT)
+        expect(p.check_bit_offsets[0]).to be_nil
+      end
+
+      it "should complain with array overlapping negative offsets" do
+        p = Packet.new("tgt1","pkt1")
+        p.define_item("item1",0,8,:UINT)
+        p.define_item("item2",8,8,:INT,-16)
+        p.define_item("item3",-17,16,:UINT)
+        expect(p.check_bit_offsets[0]).to eql "Bit definition overlap at bit offset -17 for packet TGT1 PKT1 items ITEM3 and ITEM2"
+      end
+
+      it "should complain about array intersecting items" do
+        p = Packet.new("tgt1","pkt1")
+        p.define_item("item1",0,8,:UINT,32)
+        p.define_item("item2",16,8,:UINT,32)
+        expect(p.check_bit_offsets[0]).to eql "Bit definition overlap at bit offset 16 for packet TGT1 PKT1 items ITEM2 and ITEM1"
+      end
+
+      it "should not complain about nonoverlapping big endian bitfields" do
+        p = Packet.new("tgt1","pkt1")
+        p.define_item("item1",0,12,:UINT,nil,:BIG_ENDIAN)
+        p.define_item("item2",12,4,:UINT,nil,:BIG_ENDIAN)
+        p.define_item("item3",16,16,:UINT,nil,:BIG_ENDIAN)
+        expect(p.check_bit_offsets[0]).to be_nil
+      end
+
+      it "should complain about overlapping big endian bitfields" do
+        p = Packet.new("tgt1","pkt1")
+        p.define_item("item1",0,12,:UINT,nil,:BIG_ENDIAN)
+        p.define_item("item2",10,6,:UINT,nil,:BIG_ENDIAN)
+        p.define_item("item3",16,16,:UINT,nil,:BIG_ENDIAN)
+        expect(p.check_bit_offsets[0]).to eql "Bit definition overlap at bit offset 10 for packet TGT1 PKT1 items ITEM2 and ITEM1"
+      end
+
+      it "should not complain about nonoverlapping little endian bitfields" do
+        p = Packet.new("tgt1","pkt1")
+        # bit offset in LITTLE_ENDIAN refers to MSB
+        p.define_item("item1",12,12,:UINT,nil,:LITTLE_ENDIAN)
+        p.define_item("item2",16,16,:UINT,nil,:LITTLE_ENDIAN)
+        expect(p.check_bit_offsets[0]).to be_nil
+      end
+
+      it "should complain about overlapping little endian bitfields" do
+        p = Packet.new("tgt1","pkt1")
+        # bit offset in LITTLE_ENDIAN refers to MSB
+        p.define_item("item1",12,12,:UINT,nil,:LITTLE_ENDIAN)
+        p.define_item("item2",10,10,:UINT,nil,:LITTLE_ENDIAN)
+        expect(p.check_bit_offsets[0]).to eql "Bit definition overlap at bit offset 12 for packet TGT1 PKT1 items ITEM1 and ITEM2"
+      end
+    end
+
+    describe "id_items" do
+      it "returns an array of the identifying items" do
+        p = Packet.new("tgt","pkt")
+        p.define_item("item1",0,32,:FLOAT,nil,:BIG_ENDIAN,:ERROR,"%5.1f",nil,nil,nil)
+        p.define_item("item2",0,32,:FLOAT,nil,:BIG_ENDIAN,:ERROR,"%5.1f",nil,nil,5)
+        p.define_item("item3",0,32,:FLOAT,nil,:BIG_ENDIAN,:ERROR,"%5.1f",nil,nil,nil)
+        p.define_item("item4",0,32,:FLOAT,nil,:BIG_ENDIAN,:ERROR,"%5.1f",nil,nil,6)
+        expect(p.id_items).to be_a Array
+        expect(p.id_items[0].name).to eq "ITEM2"
+        expect(p.id_items[1].name).to eq "ITEM4"
       end
     end
 
@@ -1034,14 +1250,23 @@ module Cosmos
     describe "clone" do
       it "should duplicate the packet" do
         p = Packet.new("tgt","pkt")
+        p.processors['processor'] = Processor.new
+        p.processors['processor'].name = "TestProcessor"
         p2 = p.clone
+        # No comparison operator
+        # expect(p).to eql p2
+        expect(p).to_not be p2
         p2.target_name.should eql "TGT"
         p2.packet_name.should eql "PKT"
+        # No comparison operator
+        # expect(p2.processors['processor']).to eql p.processors['processor']
+        expect(p2.processors['processor']).to_not be p.processors['processor']
+        expect(p2.processors['processor'].name).to eql p.processors['processor'].name
       end
     end
 
     describe "reset" do
-      it "should reset the packet" do
+      it "resets the received_time and received_count" do
         p = Packet.new("tgt","pkt")
         p.processors['processor'] = double("reset", :reset => true)
         p.received_time = Time.now
@@ -1049,6 +1274,19 @@ module Cosmos
         p.reset
         p.received_time.should eql nil
         p.received_count.should eql 0
+      end
+
+      it "clears the read conversion cache" do
+        p = Packet.new("tgt","pkt")
+        p.append_item("item",8,:UINT)
+        i = p.get_item("ITEM")
+        p.buffer = "\x04"
+        i.read_conversion = GenericConversion.new("value / 2")
+        expect(p.read("ITEM")).to be 2
+        cache = p.instance_variable_get(:@read_conversion_cache)
+        expect(cache[i]).to be 2
+        p.reset
+        expect(cache).to be_empty
       end
     end
 

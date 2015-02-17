@@ -194,19 +194,19 @@ module Cosmos
       it "should complain about default not matching data_type" do
         pi = PacketItem.new("test", 0, 8, :UINT, :BIG_ENDIAN, 16)
         pi.default = 1
-        expect { pi.check_default_and_range_data_types }.to raise_error(ArgumentError, "test: default must be an Array but is a Fixnum")
+        expect { pi.check_default_and_range_data_types }.to raise_error(ArgumentError, "TEST: default must be an Array but is a Fixnum")
         pi = PacketItem.new("test", 0, 8, :UINT, :BIG_ENDIAN, 16)
         pi.default = []
         expect { pi.check_default_and_range_data_types }.to_not raise_error
         pi = PacketItem.new("test", 0, 32, :UINT, :BIG_ENDIAN, nil)
         pi.default = 5.5
-        expect { pi.check_default_and_range_data_types }.to raise_error(ArgumentError, "test: default must be a Integer but is a Float")
+        expect { pi.check_default_and_range_data_types }.to raise_error(ArgumentError, "TEST: default must be a Integer but is a Float")
         pi = PacketItem.new("test", 0, 32, :UINT, :BIG_ENDIAN, nil)
         pi.default = 5
         expect { pi.check_default_and_range_data_types }.to_not raise_error
         pi = PacketItem.new("test", 0, 32, :FLOAT, :BIG_ENDIAN, nil)
         pi.default = "test"
-        expect { pi.check_default_and_range_data_types }.to raise_error(ArgumentError, "test: default must be a Float but is a String")
+        expect { pi.check_default_and_range_data_types }.to raise_error(ArgumentError, "TEST: default must be a Float but is a String")
         pi = PacketItem.new("test", 0, 32, :FLOAT, :BIG_ENDIAN, nil)
         pi.default = 5
         expect { pi.check_default_and_range_data_types  }.to_not raise_error
@@ -215,13 +215,13 @@ module Cosmos
         expect { pi.check_default_and_range_data_types  }.to_not raise_error
         pi = PacketItem.new("test", 0, 32, :STRING, :BIG_ENDIAN, nil)
         pi.default = 5
-        expect { pi.check_default_and_range_data_types }.to raise_error(ArgumentError, "test: default must be a String but is a Fixnum")
+        expect { pi.check_default_and_range_data_types }.to raise_error(ArgumentError, "TEST: default must be a String but is a Fixnum")
         pi = PacketItem.new("test", 0, 32, :STRING, :BIG_ENDIAN, nil)
         pi.default = ''
         expect { pi.check_default_and_range_data_types }.to_not raise_error
         pi = PacketItem.new("test", 0, 32, :BLOCK, :BIG_ENDIAN, nil)
         pi.default = 5.5
-        expect { pi.check_default_and_range_data_types }.to raise_error(ArgumentError, "test: default must be a String but is a Float")
+        expect { pi.check_default_and_range_data_types }.to raise_error(ArgumentError, "TEST: default must be a String but is a Float")
         pi = PacketItem.new("test", 0, 32, :BLOCK, :BIG_ENDIAN, nil)
         pi.default = ''
         expect { pi.check_default_and_range_data_types }.to_not raise_error
@@ -231,17 +231,17 @@ module Cosmos
         pi = PacketItem.new("test", 0, 32, :UINT, :BIG_ENDIAN, nil)
         pi.default = 5
         pi.range = (5.5..10)
-        expect { pi.check_default_and_range_data_types }.to raise_error(ArgumentError, "test: minimum must be a Integer but is a Float")
+        expect { pi.check_default_and_range_data_types }.to raise_error(ArgumentError, "TEST: minimum must be a Integer but is a Float")
         pi.range = (5..10.5)
-        expect { pi.check_default_and_range_data_types }.to raise_error(ArgumentError, "test: maximum must be a Integer but is a Float")
+        expect { pi.check_default_and_range_data_types }.to raise_error(ArgumentError, "TEST: maximum must be a Integer but is a Float")
         pi = PacketItem.new("test", 0, 32, :FLOAT, :BIG_ENDIAN, nil)
         pi.default = 5.5
         pi.range = (5..10)
         expect { pi.check_default_and_range_data_types  }.to_not raise_error
         pi.range = ('a'..'z')
-        expect { pi.check_default_and_range_data_types }.to raise_error(ArgumentError, "test: minimum must be a Float but is a String")
+        expect { pi.check_default_and_range_data_types }.to raise_error(ArgumentError, "TEST: minimum must be a Float but is a String")
         pi.range = (1.0..Rational(2))
-        expect { pi.check_default_and_range_data_types }.to raise_error(ArgumentError, "test: maximum must be a Float but is a Rational")
+        expect { pi.check_default_and_range_data_types }.to raise_error(ArgumentError, "TEST: maximum must be a Float but is a Rational")
       end
     end
 
@@ -349,7 +349,7 @@ module Cosmos
         hash.keys.length.should eql 22
         # Check the values from StructureItem
         hash.keys.should include('name','bit_offset','bit_size','data_type','endianness','array_size','overflow')
-        hash["name"].should eql "test"
+        hash["name"].should eql "TEST"
         hash["bit_offset"].should eql 0
         hash["bit_size"].should eql 32
         hash["data_type"].should eql :UINT
