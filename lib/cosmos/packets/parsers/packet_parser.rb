@@ -14,16 +14,46 @@ module Cosmos
 
   class PacketParser
     # @param parser [ConfigParser] Configuration parser
+    # @param target_name [String] The name of the target to create the packet
+    #   under. If the target name is 'SYSTEM' the keyword parameter will be
+    #   used instead of this parameter.
+    # @param commands [Hash] Hash of the currently defined commands
+    # @param warnings [Array<String>] Any warning strings generated while
+    #   parsing this command will be appened to this array
     def self.parse_command(parser, target_name, commands, warnings)
       parser = PacketParser.new(parser)
       parser.verify_parameters()
       parser.create_command(target_name, commands, warnings)
     end
 
+    # @param parser [ConfigParser] Configuration parser
+    # @param target_name [String] The name of the target to create the packet
+    #   under. If the target name is 'SYSTEM' the keyword parameter will be
+    #   used instead of this parameter.
+    # @param telemetry [Hash] Hash of the currently defined telemetry packets
+    # @param latest_data [Hash<String=>Hash<String=>Array(Packet)>>] Hash of hashes keyed
+    #   first by the target name and then by the item name. This results in an
+    #   array of packets containing that target and item. This structure is
+    #   used to perform lookups when the packet and item are known but the
+    #   packet is not.
+    # @param warnings [Array<String>] Any warning strings generated while
+    #   parsing this command will be appened to this array
     def self.parse_telemetry(parser, target_name, telemetry, latest_data, warnings)
       parser = PacketParser.new(parser)
       parser.verify_parameters()
       parser.create_telemetry(target_name, telemetry, latest_data, warnings)
+    end
+
+    # @param packet [Packet] Packet to check all default and range items for
+    #   appropriate data types. Only applicable to COMMAND packets.
+    def self.check_item_data_types(packet)
+      packet.sorted_items.each do |item|
+        item.check_default_and_range_data_types()
+      end
+    rescue => err
+      # Add the target name and packet name to the error message so the user
+      # can debug where the error occurred
+      raise $!, "#{packet.target_name} #{packet.packet_name} #{$!}", $!.backtrace
     end
 
     # @param parser [ConfigParser] Configuration parser

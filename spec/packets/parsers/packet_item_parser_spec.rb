@@ -273,6 +273,32 @@ module Cosmos
           expect { @pc.process_file(tf.path, "TGT1") }.to raise_error(ConfigParser::Error, /Invalid endianness MIDDLE_ENDIAN/)
           tf.unlink
         end
+
+        context "with a conversion" do
+          it "allows for different default type than the data type" do
+            tf = Tempfile.new('unittest')
+            tf.puts 'COMMAND tgt1 pkt1 LITTLE_ENDIAN "Description"'
+            tf.puts '  PARAMETER ITEM1 0 32 UINT 4.5 5.5 6.5 "" LITTLE_ENDIAN'
+            tf.puts '    GENERIC_WRITE_CONVERSION_START'
+            tf.puts '      value / 2.0'
+            tf.puts '    GENERIC_WRITE_CONVERSION_END'
+            tf.close
+            @pc.process_file(tf.path, "TGT1")
+            tf.unlink
+          end
+        end
+
+        context "without a conversion" do
+          it "requires the default type matches the data type" do
+            tf = Tempfile.new('unittest')
+            tf.puts 'COMMAND tgt1 pkt1 LITTLE_ENDIAN "Description"'
+            tf.puts '  PARAMETER ITEM1 0 32 UINT 4.5 5.5 6.5 "" LITTLE_ENDIAN'
+            tf.close
+            expect { @pc.process_file(tf.path, "TGT1") }.to raise_error(ArgumentError, /TGT1 PKT1 ITEM1: default must be a Integer but is a Float/)
+            tf.unlink
+          end
+        end
+
       end
 
     end # describe "process_file"

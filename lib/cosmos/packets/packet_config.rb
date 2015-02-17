@@ -447,6 +447,7 @@ module Cosmos
         @warnings += @current_packet.check_bit_offsets
 
         if @current_cmd_or_tlm == COMMAND
+          PacketParser.check_item_data_types(@current_packet)
           @commands[@current_packet.target_name][@current_packet.packet_name] = @current_packet
         else
           @telemetry[@current_packet.target_name][@current_packet.packet_name] = @current_packet
