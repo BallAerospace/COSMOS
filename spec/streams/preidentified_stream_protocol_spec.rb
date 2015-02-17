@@ -30,6 +30,7 @@ module Cosmos
       @psp = PreidentifiedStreamProtocol.new(nil, 5)
       pkt = System.telemetry.packet("COSMOS","VERSION")
       class MyStream < Stream
+        def connect; end
         def connected?; true; end
         def read; $buffer; end
         def write(data); $buffer = data; end
@@ -58,6 +59,7 @@ module Cosmos
       it "should create a packet header" do
         pkt = System.telemetry.packet("COSMOS","VERSION")
         class MyStream < Stream
+          def connect; end
           def connected?; true; end
           def read; $buffer; end
           def write(data); $buffer = data; end
@@ -90,6 +92,7 @@ module Cosmos
         pkt.write("PKT_ID", 1)
         pkt.write("COSMOS", "TEST")
         class MyStream < Stream
+          def connect; end
           def connected?; true; end
           def read; $buffer; end
           def write(data); $buffer = data; end

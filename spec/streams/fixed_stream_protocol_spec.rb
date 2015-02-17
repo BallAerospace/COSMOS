@@ -41,6 +41,7 @@ module Cosmos
     describe "read" do
       it "should complain if no interface set" do
         class MyStream < Stream
+          def connect; end
           def connected?; true; end
           def read; "\x01\x02\x03\x04"; end
         end
@@ -51,6 +52,7 @@ module Cosmos
 
       it "should read telemetry data from the stream" do
         class MyStream < Stream
+          def connect; end
           def connected?; true; end
           def read; "\x01\x02"; end
         end
@@ -60,19 +62,19 @@ module Cosmos
         interface.target_names = %w(TEST COSMOS)
         @fsp.interface = interface
         packet = @fsp.read
-        packet.received_time.to_f.should be_within(0.01).of(Time.now.to_f)
+        packet.received_time.to_f.should be_within(0.1).of(Time.now.to_f)
         packet.target_name.should eql 'COSMOS'
         packet.packet_name.should eql 'VERSION'
         packet = @fsp.read
-        packet.received_time.to_f.should be_within(0.01).of(Time.now.to_f)
+        packet.received_time.to_f.should be_within(0.1).of(Time.now.to_f)
         packet.target_name.should eql 'COSMOS'
         packet.packet_name.should eql 'LIMITS_CHANGE'
         packet = @fsp.read
-        packet.received_time.to_f.should be_within(0.01).of(Time.now.to_f)
+        packet.received_time.to_f.should be_within(0.1).of(Time.now.to_f)
         packet.target_name.should eql 'COSMOS'
         packet.packet_name.should eql 'VERSION'
         packet = @fsp.read
-        packet.received_time.to_f.should be_within(0.01).of(Time.now.to_f)
+        packet.received_time.to_f.should be_within(0.1).of(Time.now.to_f)
         packet.target_name.should eql 'COSMOS'
         packet.packet_name.should eql 'LIMITS_CHANGE'
       end
@@ -82,6 +84,7 @@ module Cosmos
 
         $index = 0
         class MyStream < Stream
+          def connect; end
           def connected?; true; end
           def read
             case $index

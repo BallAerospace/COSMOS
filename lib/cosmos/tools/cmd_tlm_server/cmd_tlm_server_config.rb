@@ -61,9 +61,9 @@ module Cosmos
     # @param recursive [Boolean] Whether process_file is being called
     #   recursively
     def process_file(filename, recursive = false)
-      current_interface = nil
+      current_interface_or_router = nil
+      current_type = nil
       current_interface_log_added = false
-      current_router = nil
 
       Logger.info "Processing CmdTlmServer configuration in file: #{File.expand_path(filename)}"
 
@@ -108,7 +108,6 @@ module Cosmos
             parser.verify_num_parameters(1, 2, usage)
             target = System.targets[params[0].upcase]
             raise parser.error("Unknown target: #{params[0].upcase}") unless target
-            raise parser.error("Cannot use #{keyword} with target name substitutions: #{target.name} != #{target.original_name}") if target.name != target.original_name
             target_filename = params[1]
             target_filename = 'cmd_tlm_server.txt' unless target_filename
             target_filename = File.join(target.dir, target_filename)
@@ -123,93 +122,102 @@ module Cosmos
             parser.verify_num_parameters(2, nil, usage)
             interface_class = Cosmos.require_class(params[1])
             if params[2]
-              current_interface = interface_class.new(*params[2..-1])
+              current_interface_or_router = interface_class.new(*params[2..-1])
             else
-              current_interface = interface_class.new
+              current_interface_or_router = interface_class.new
             end
+            current_type = :INTERFACE
             current_interface_log_added = false
-            current_interface.packet_log_writer_pairs << @packet_log_writer_pairs['DEFAULT']
-            current_interface.name = params[0].upcase
-            @interfaces[params[0].upcase] = current_interface
+            current_interface_or_router.packet_log_writer_pairs << @packet_log_writer_pairs['DEFAULT']
+            current_interface_or_router.name = params[0].upcase
+            @interfaces[params[0].upcase] = current_interface_or_router
 
-          when 'DONT_CONNECT', 'DONT_RECONNECT', 'RECONNECT_DELAY', 'DISABLE_DISCONNECT', 'LOG', 'DONT_LOG', 'TARGET', 'LOG_RAW'
-            raise parser.error("No current interface for #{keyword}") unless current_interface
+          when 'LOG', 'DONT_LOG', 'TARGET'
+            raise parser.error("No current interface for #{keyword}") unless current_interface_or_router and current_type == :INTERFACE
 
             case keyword
-
-            when 'DONT_CONNECT'
-              parser.verify_num_parameters(0, 0, "#{keyword}")
-              current_interface.connect_on_startup = false
-
-            when 'DONT_RECONNECT'
-              parser.verify_num_parameters(0, 0, "#{keyword}")
-              current_interface.auto_reconnect = false
-
-            when 'RECONNECT_DELAY'
-              parser.verify_num_parameters(1, 1, "#{keyword} <Delay in Seconds>")
-              current_interface.reconnect_delay = Float(params[0])
-
-            when 'DISABLE_DISCONNECT'
-              parser.verify_num_parameters(0, 0, "#{keyword}")
-              current_interface.disable_disconnect = true
 
             when 'LOG'
               parser.verify_num_parameters(1, 1, "#{keyword} <Packet Log Writer Name>")
               packet_log_writer_pair = @packet_log_writer_pairs[params[0].upcase]
               raise parser.error("Unknown packet log writer: #{params[0].upcase}") unless packet_log_writer_pair
-              current_interface.packet_log_writer_pairs.delete(@packet_log_writer_pairs['DEFAULT']) unless current_interface_log_added
+              current_interface_or_router.packet_log_writer_pairs.delete(@packet_log_writer_pairs['DEFAULT']) unless current_interface_log_added
               current_interface_log_added = true
-              current_interface.packet_log_writer_pairs << packet_log_writer_pair unless current_interface.packet_log_writer_pairs.include?(packet_log_writer_pair)
+              current_interface_or_router.packet_log_writer_pairs << packet_log_writer_pair unless current_interface_or_router.packet_log_writer_pairs.include?(packet_log_writer_pair)
 
             when 'DONT_LOG'
               parser.verify_num_parameters(0, 0, "#{keyword}")
-              current_interface.packet_log_writer_pairs = []
+              current_interface_or_router.packet_log_writer_pairs = []
 
             when 'TARGET'
               parser.verify_num_parameters(1, 1, "#{keyword} <Target Name>")
               target_name = params[0].upcase
               target = System.targets[target_name]
               if target
-                target.interface = current_interface
-                current_interface.target_names << target_name
+                target.interface = current_interface_or_router
+                current_interface_or_router.target_names << target_name
               else
-                raise parser.error("Unknown target #{target_name} mapped to interface #{current_interface.name}")
+                raise parser.error("Unknown target #{target_name} mapped to interface #{current_interface_or_router.name}")
               end
 
-            when 'LOG_RAW'
-              parser.verify_num_parameters(0, nil, "#{keyword} <Raw Logger Class File (optional)> <Raw Logger Parameters (optional)>")
-              current_interface.raw_logger_pair = RawLoggerPair.new(current_interface.name, params)
-
             end # end case keyword for all keywords that require a current interface
+
+          when 'DONT_CONNECT', 'DONT_RECONNECT', 'RECONNECT_DELAY', 'DISABLE_DISCONNECT', 'LOG_RAW', 'ROUTER_LOG_RAW', 'OPTION'
+            raise parser.error("No current interface or router for #{keyword}") unless current_interface_or_router
+
+            case keyword
+
+            when 'DONT_CONNECT'
+              parser.verify_num_parameters(0, 0, "#{keyword}")
+              current_interface_or_router.connect_on_startup = false
+
+            when 'DONT_RECONNECT'
+              parser.verify_num_parameters(0, 0, "#{keyword}")
+              current_interface_or_router.auto_reconnect = false
+
+            when 'RECONNECT_DELAY'
+              parser.verify_num_parameters(1, 1, "#{keyword} <Delay in Seconds>")
+              current_interface_or_router.reconnect_delay = Float(params[0])
+
+            when 'DISABLE_DISCONNECT'
+              parser.verify_num_parameters(0, 0, "#{keyword}")
+              current_interface_or_router.disable_disconnect = true
+
+            # TODO: Deprecate ROUTER_LOG_RAW
+            when 'LOG_RAW', 'ROUTER_LOG_RAW'
+              parser.verify_num_parameters(0, nil, "#{keyword} <Raw Logger Class File (optional)> <Raw Logger Parameters (optional)>")
+              current_interface_or_router.raw_logger_pair = RawLoggerPair.new(current_interface_or_router.name, params)
+
+            when 'OPTION'
+              parser.verify_num_parameters(2, nil, "#{keyword} <Option Name> <Option Value 1> <Option Value 2 (optional)> <etc>")
+              current_interface_or_router.set_option(params[0], params[1..-1])
+
+            end # end case keyword for all keywords that require a current interface or router
 
           when 'ROUTER'
             usage = "ROUTER <Name> <Filename> <Specific Parameters>"
             parser.verify_num_parameters(2, nil, usage)
             router_class = Cosmos.require_class(params[1])
             if params[2]
-              current_router = router_class.new(*params[2..-1])
+              current_interface_or_router = router_class.new(*params[2..-1])
             else
-              current_router = router_class.new
+              current_interface_or_router = router_class.new
             end
-            current_router.name = params[0].upcase
-            @routers[params[0].upcase] = current_router
+            current_type = :ROUTER
+            current_interface_or_router.name = params[0].upcase
+            @routers[params[0].upcase] = current_interface_or_router
 
           when 'ROUTE'
-            raise parser.error("No current router for #{keyword}") unless current_router
+            raise parser.error("No current router for #{keyword}") unless current_interface_or_router and current_type == :ROUTER
             usage = "ROUTE <Interface Name>"
             parser.verify_num_parameters(1, 1, usage)
             interface_name = params[0].upcase
             interface = @interfaces[interface_name]
-            raise parser.error("Unknown interface #{interface_name} mapped to router #{current_router.name}") unless interface
-            unless current_router.interfaces.include? interface
-              current_router.interfaces << interface
-              interface.routers << current_router
+            raise parser.error("Unknown interface #{interface_name} mapped to router #{current_interface_or_router.name}") unless interface
+            unless current_interface_or_router.interfaces.include? interface
+              current_interface_or_router.interfaces << interface
+              interface.routers << current_interface_or_router
             end
-
-          when 'ROUTER_LOG_RAW'
-            raise parser.error("No current router for #{keyword}") unless current_router
-            parser.verify_num_parameters(0, nil, "#{keyword} <Raw Logger Class File (optional)> <Raw Logger Parameters (optional)>")
-            current_router.raw_logger_pair = RawLoggerPair.new(current_router.name, params)
 
           when 'BACKGROUND_TASK'
             usage = "#{keyword} <Filename> <Specific Parameters>"

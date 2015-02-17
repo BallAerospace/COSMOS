@@ -1,4 +1,4 @@
-SetWinDelay 500
+SetWinDelay 1000
 WinWaitActive Telemetry Grapher
 
 Send !f
@@ -522,6 +522,7 @@ Sleep 500
 Send !p
 Sleep 500
 Send {Down 4}{Enter} ; Edit plot data items
+Sleep 500
 WinWaitActive Edit
 Send {Esc}
 WinWaitActive Edit
@@ -600,26 +601,35 @@ WinWaitActive Telemetry Grapher
 
 ; Close down command and telemetry server
 WinActivate Command and Telemetry Server
+Sleep 1000
 Send ^q
 Sleep 500
 Send {Enter}
+Sleep 500
 
 ; Process a log file TG-4
 WinActivate Telemetry Grapher
+Sleep 500
 Send ^o
 WinWaitActive Process
+Sleep 500
 Send {Enter}
 WinWaitActive Select
+Sleep 500
 Send bigtlm.bin{Enter}
 WinWaitActive Process
+Sleep 500
 Click 167 375
 Sleep 500
 Click 380 309 ; Cancel
 WinWaitActive Telemetry Grapher
+Sleep 500
 Send ^o
 WinWaitActive Process
+Sleep 500
 Send {Enter}
 WinWaitActive Select
+Sleep 500
 Send bigtlm.bin{Enter}
 Sleep 500
 Click 167 375
@@ -630,10 +640,12 @@ Send ^q
 Sleep 500
 Send {Enter}
 WinWaitActive Telemetry Grapher
+Sleep 500
 Send ^q
 Sleep 500
 Send y
 WinWaitActive Save
+Sleep 500
 Send {Enter}
 Sleep 500
 Send y

@@ -40,7 +40,6 @@ module Cosmos
 
       it "should defer to the posix serial driver on nix" do
         class PosixSerialDriver
-          def initialize(port,baud); end
         end
         allow(Kernel).to receive(:is_windows?).and_return(false)
         driver = double("PosixSerialDriver")

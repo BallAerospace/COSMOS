@@ -28,7 +28,7 @@ module Cosmos
     #   a write only stream.
     # @param write_timeout (see TcpipSocketStream#initialize)
     # @param read_timeout (see TcpipSocketStream#initialize)
-    def initialize(hostname, write_port, read_port, write_timeout, read_timeout)
+    def initialize(hostname, write_port, read_port, write_timeout, read_timeout, connect_timeout = 5.0)
       @hostname = hostname
       if (@hostname.to_s.upcase == 'LOCALHOST')
         @hostname = '127.0.0.1'
@@ -41,8 +41,8 @@ module Cosmos
       write_addr = nil
       read_addr = nil
       begin
-        write_addr = Socket.pack_sockaddr_in(@write_port, @hostname) if @write_port
-        read_addr  = Socket.pack_sockaddr_in(@read_port, @hostname) if @read_port
+        @write_addr = Socket.pack_sockaddr_in(@write_port, @hostname) if @write_port
+        @read_addr = Socket.pack_sockaddr_in(@read_port, @hostname) if @read_port
       rescue => error
         if error.message =~ /getaddrinfo/
           raise "Invalid hostname: #{@hostname}"
@@ -52,24 +52,54 @@ module Cosmos
       end
 
       write_socket = nil
-      if write_addr
+      if @write_addr
         write_socket = Socket.new(Socket::AF_INET, Socket::SOCK_STREAM, 0)
         write_socket.setsockopt(Socket::IPPROTO_TCP, Socket::TCP_NODELAY, 1)
-        write_socket.connect(write_addr)
       end
 
       read_socket = nil
-      if read_addr
+      if @read_addr
         if @write_port != @read_port
           read_socket = Socket.new(Socket::AF_INET, Socket::SOCK_STREAM, 0)
           read_socket.setsockopt(Socket::IPPROTO_TCP, Socket::TCP_NODELAY, 1)
-          read_socket.connect(read_addr)
         else
           read_socket = write_socket
         end
       end
 
+      @connect_timeout = ConfigParser.handle_nil(connect_timeout)
+      @connect_timeout = @connect_timeout.to_f if @connect_timeout
+
       super(write_socket, read_socket, write_timeout, read_timeout)
+    end
+
+    # Connect the socket(s)
+    def connect
+      connect_nonblock(@write_socket, @write_addr) if @write_socket
+      connect_nonblock(@read_socket, @read_addr) if @read_socket and @read_socket != @write_socket
+      super()
+    end
+
+    protected
+
+    def connect_nonblock(socket, addr)
+      begin
+        socket.connect_nonblock(addr)
+      rescue IO::WaitWritable
+        begin
+          _, sockets, _ = IO.select(nil, [socket], nil, @connect_timeout) # wait 3-way handshake completion
+        rescue Errno::ENOTSOCK
+          raise "Connect canceled"
+        end
+        if sockets and !sockets.empty?
+          begin
+            socket.connect_nonblock(addr) # check connection failure
+          rescue Errno::EISCONN
+          end
+        else
+          raise "Connect timeout"
+        end
+      end
     end
 
   end # class TcpipClientStream

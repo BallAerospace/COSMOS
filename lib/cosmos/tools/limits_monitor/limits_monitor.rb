@@ -757,7 +757,7 @@ module Cosmos
       @cancel_thread = true
       @value_sleeper.cancel
       @limits_sleeper.cancel
-      script_disconnect()
+      shutdown_cmd_tlm()
       Cosmos.kill_thread(self, @limits_thread, 2)
       Cosmos.kill_thread(self, @value_thread, 2)
       super(event)

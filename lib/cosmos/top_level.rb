@@ -621,10 +621,14 @@ module Cosmos
   def self.kill_thread(owner, thread, graceful_timeout = 1, timeout_interval = 0.01, hard_timeout = 1)
     if thread
       if owner and owner.respond_to? :graceful_kill
-        owner.graceful_kill
-        end_time = Time.now + graceful_timeout
-        while thread.alive? && ((end_time - Time.now) > 0)
-          sleep(timeout_interval)
+        if Thread.current != thread
+          owner.graceful_kill
+          end_time = Time.now + graceful_timeout
+          while thread.alive? && ((end_time - Time.now) > 0)
+            sleep(timeout_interval)
+          end
+        else
+          Logger.warn "Threads cannot graceful_kill themselves"
         end
       elsif owner
         Logger.info "Thread owner #{owner.class} does not support graceful_kill"

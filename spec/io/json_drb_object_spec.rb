@@ -40,7 +40,7 @@ module Cosmos
       it "should raise an exception if the remote connection can't be made" do
         json = JsonDRb.new
         json.start_service('127.0.0.1', 7777, self)
-        allow(TCPSocket).to receive(:new) { raise "Error" }
+        allow_any_instance_of(Socket).to receive(:connect_nonblock) { raise "Error" }
         obj = JsonDRbObject.new("localhost", 7777)
         expect { obj.my_method(10) }.to raise_error(DRb::DRbConnError)
         obj.disconnect

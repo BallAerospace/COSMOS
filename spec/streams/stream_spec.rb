@@ -19,6 +19,7 @@ module Cosmos
       it "should raise an error" do
         expect { Stream.new.read       }.to raise_error(/not defined/)
         expect { Stream.new.write(nil) }.to raise_error(/not defined/)
+        expect { Stream.new.connect }.to raise_error(/not defined/)
         expect { Stream.new.connected? }.to raise_error(/not defined/)
         expect { Stream.new.disconnect }.to raise_error(/not defined/)
       end

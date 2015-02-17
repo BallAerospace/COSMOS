@@ -123,6 +123,11 @@ module Cosmos
       end
     end
 
+    # Connect the stream
+    def connect
+      # N/A - Serial streams 'connect' on creation
+    end
+
     # @return [Boolean] Whether the serial stream is connected to the serial
     #   port
     def connected?

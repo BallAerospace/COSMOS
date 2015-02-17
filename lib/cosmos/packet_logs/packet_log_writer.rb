@@ -278,8 +278,12 @@ module Cosmos
 
     def cycle_thread_body
       while true
-        if @logging_enabled and @cycle_time and (Time.now - @start_time) > @cycle_time
-          close_file()
+        # The check against start_time needs to be mutex protected to prevent a packet coming in between the check
+        # and closing the file
+        @mutex.synchronize do
+          if @logging_enabled and @cycle_time and (Time.now - @start_time) > @cycle_time
+            close_file(false)
+          end
         end
         # Only check whether to cycle at a set interval
         break if @cycle_sleeper.sleep(CYCLE_TIME_INTERVAL)

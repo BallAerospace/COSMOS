@@ -32,6 +32,7 @@ module Cosmos
     describe "read" do
       it "should read packets from the stream" do
         class MyStream < Stream
+          def connect; end
           def connected?; true; end
           def read
             case $index
@@ -57,6 +58,7 @@ module Cosmos
 
       it "should keep the the termination characters" do
         class MyStream < Stream
+          def connect; end
           def connected?; true; end
           def read
             case $index
@@ -86,6 +88,7 @@ module Cosmos
     describe "write" do
       it "should append termination characters to the packet" do
         class MyStream < Stream
+          def connect; end
           def connected?; true; end
           def write(data); $buffer = data; end
         end
@@ -104,6 +107,7 @@ module Cosmos
 
       it "should complain if the packet buffer contains the termination characters" do
         class MyStream < Stream
+          def connect; end
           def connected?; true; end
           def write(data); $buffer = data; end
         end

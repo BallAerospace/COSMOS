@@ -111,12 +111,12 @@ module Cosmos
       temp_max = (@window_max_start + (x - @drag_start_x))
 
       # Only graph if the user hasn't dragged the window outside the graph
-      if temp_min >= 0 and temp_max <= @graph_right_x
+      if temp_min >= @graph_left_x and temp_max <= @graph_right_x
         #Now convert the graph coordinates back to the x values
         @window_min_x = scale_graph_to_value_x(temp_min)
         @window_max_x = scale_graph_to_value_x(temp_max)
       else # The user dragged outside the allowable area
-        if temp_min < 0
+        if temp_min < @graph_left_x
           @window_min_x = @x_min
           @window_max_x = @x_min + @window_size
         elsif temp_max > @graph_right_x
@@ -124,6 +124,8 @@ module Cosmos
           @window_min_x = @window_max_x - @window_size
         end
       end
+      @window_min_x = @x_min if @window_min_x < @x_min
+      @window_max_x = @x_max if @window_max_x > @x_max
       @redraw_needed = true
       graph()
     end
@@ -171,6 +173,8 @@ module Cosmos
       end
 
       # Update window size
+      @window_min_x = @x_min if @window_min_x < @x_min
+      @window_max_x = @x_max if @window_max_x > @x_max
       @window_size = @window_max_x - @window_min_x
 
       @redraw_needed = true
@@ -315,6 +319,8 @@ module Cosmos
         @window_min_x = center - @window_size / 2
         @window_max_x = center + @window_size / 2
       end
+      @window_min_x = @x_min if @window_min_x < @x_min
+      @window_max_x = @x_max if @window_max_x > @x_max
       @drag_window = true
       @redraw_needed = true
       graph()
@@ -346,6 +352,8 @@ module Cosmos
         @window_min_x = @x_max - @window_size
         @window_max_x = @x_max
       end
+      @window_min_x = @x_min if @window_min_x < @x_min
+      @window_max_x = @x_max if @window_max_x > @x_max
 
       @drag_window = true
       @redraw_needed = true
@@ -427,8 +435,10 @@ module Cosmos
         # The window lines are in terms of the graph x values so convert to the graph coordinate system
         @window_left_x = scale_value_to_graph_x(@window_min_x)
         @window_left_x = @graph_left_x if @window_left_x < @graph_left_x
+        @window_left_x = @graph_right_x if @window_left_x > @graph_right_x
         @window_right_x = scale_value_to_graph_x(@window_max_x)
         @window_right_x = @graph_right_x if @window_right_x > @graph_right_x
+        @window_right_x = @graph_left_x if @window_right_x < @graph_left_x
       else # If we're not dragging the window we want to adjust the window lines automatically
         @window_max_x = @x_max
 
