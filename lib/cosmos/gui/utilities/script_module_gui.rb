@@ -46,7 +46,11 @@ module Cosmos
         break if allow_blank or (not answer.nil? and answer.strip.length != 0)
       end
 
-      Logger.info "User entered '#{answer}' for '#{question}'" unless password
+      if password
+        Logger.info "User responded to '#{question}'"
+      else
+        Logger.info "User entered '#{answer}' for '#{question}'"
+      end
       return answer.to_s
     end
 
