@@ -259,6 +259,27 @@ module Cosmos
         end
       end
 
+      context "with OPTION" do
+        it "should complain about too few parameters" do
+          tf = Tempfile.new('unittest')
+          tf.puts "INTERFACE CtsConfigTestInterface cts_config_test_interface.rb"
+          tf.puts 'OPTION TRUE'
+          tf.close
+          expect { CmdTlmServerConfig.new(tf.path) }.to raise_error(ConfigParser::Error, "Not enough parameters for OPTION.")
+          tf.unlink
+        end
+
+        it "should set the interface to listen on a specific address" do
+          tf = Tempfile.new('unittest')
+          tf.puts "INTERFACE CtsConfigTestInterface cts_config_test_interface.rb"
+          tf.puts 'OPTION LISTEN_ADDRESS 127.0.0.1'
+          tf.close
+          config = CmdTlmServerConfig.new(tf.path)
+          config.interfaces['CTSCONFIGTESTINTERFACE'].options['LISTEN_ADDRESS'].should eql(['127.0.0.1'])
+          tf.unlink
+        end
+      end
+
       context "with LOG" do
         it "should complain about too many parameters" do
           tf = Tempfile.new('unittest')
@@ -408,4 +429,3 @@ module Cosmos
     end
   end
 end
-
