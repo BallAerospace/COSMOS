@@ -611,6 +611,100 @@ module Cosmos
       end
     end
 
+    describe "check_bit_offsets" do
+      it "should complain about overlapping items" do
+        p = Packet.new("tgt1","pkt1")
+        p.define_item("item1",0,8,:UINT)
+        p.define_item("item2",0,8,:UINT)
+        expect(p.check_bit_offsets[0]).to eql "Bit definition overlap at bit offset 0 for packet TGT1 PKT1 items ITEM2 and ITEM1"
+      end
+
+      it "should not complain with non-overlapping negative offsets" do
+        p = Packet.new("tgt1","pkt1")
+        p.define_item("item1",0,8,:UINT)
+        p.define_item("item2",8,-16,:BLOCK)
+        p.define_item("item3",-16,16,:UINT)
+        expect(p.check_bit_offsets[0]).to be_nil
+      end
+
+      it "should complain with overlapping negative offsets" do
+        p = Packet.new("tgt1","pkt1")
+        p.define_item("item1",0,8,:UINT)
+        p.define_item("item2",8,-16,:BLOCK)
+        p.define_item("item3",-17,16,:UINT)
+        expect(p.check_bit_offsets[0]).to eql "Bit definition overlap at bit offset -17 for packet TGT1 PKT1 items ITEM3 and ITEM2"
+      end
+
+      it "should complain about intersecting items" do
+        p = Packet.new("tgt1","pkt1")
+        p.define_item("item1",0,32,:UINT)
+        p.define_item("item2",16,32,:UINT)
+        expect(p.check_bit_offsets[0]).to eql "Bit definition overlap at bit offset 16 for packet TGT1 PKT1 items ITEM2 and ITEM1"
+      end
+
+      it "should complain about array overlapping items" do
+        p = Packet.new("tgt1","pkt1")
+        p.define_item("item1",0,8,:UINT,32)
+        p.define_item("item2",0,8,:UINT,32)
+        expect(p.check_bit_offsets[0]).to eql "Bit definition overlap at bit offset 0 for packet TGT1 PKT1 items ITEM2 and ITEM1"
+      end
+
+      it "should not complain with array non-overlapping negative offsets" do
+        p = Packet.new("tgt1","pkt1")
+        p.define_item("item1",0,8,:UINT)
+        p.define_item("item2",8,8,:INT,-16)
+        p.define_item("item3",-16,16,:UINT)
+        expect(p.check_bit_offsets[0]).to be_nil
+      end
+
+      it "should complain with array overlapping negative offsets" do
+        p = Packet.new("tgt1","pkt1")
+        p.define_item("item1",0,8,:UINT)
+        p.define_item("item2",8,8,:INT,-16)
+        p.define_item("item3",-17,16,:UINT)
+        expect(p.check_bit_offsets[0]).to eql "Bit definition overlap at bit offset -17 for packet TGT1 PKT1 items ITEM3 and ITEM2"
+      end
+
+      it "should complain about array intersecting items" do
+        p = Packet.new("tgt1","pkt1")
+        p.define_item("item1",0,8,:UINT,32)
+        p.define_item("item2",16,8,:UINT,32)
+        expect(p.check_bit_offsets[0]).to eql "Bit definition overlap at bit offset 16 for packet TGT1 PKT1 items ITEM2 and ITEM1"
+      end
+
+      it "should not complain about nonoverlapping big endian bitfields" do
+        p = Packet.new("tgt1","pkt1")
+        p.define_item("item1",0,12,:UINT,nil,:BIG_ENDIAN)
+        p.define_item("item2",12,4,:UINT,nil,:BIG_ENDIAN)
+        p.define_item("item3",16,16,:UINT,nil,:BIG_ENDIAN)
+        expect(p.check_bit_offsets[0]).to be_nil
+      end
+
+      it "should complain about overlapping big endian bitfields" do
+        p = Packet.new("tgt1","pkt1")
+        p.define_item("item1",0,12,:UINT,nil,:BIG_ENDIAN)
+        p.define_item("item2",10,6,:UINT,nil,:BIG_ENDIAN)
+        p.define_item("item3",16,16,:UINT,nil,:BIG_ENDIAN)
+        expect(p.check_bit_offsets[0]).to eql "Bit definition overlap at bit offset 10 for packet TGT1 PKT1 items ITEM2 and ITEM1"
+      end
+
+      it "should not complain about nonoverlapping little endian bitfields" do
+        p = Packet.new("tgt1","pkt1")
+        # bit offset in LITTLE_ENDIAN refers to MSB
+        p.define_item("item1",12,12,:UINT,nil,:LITTLE_ENDIAN)
+        p.define_item("item2",16,16,:UINT,nil,:LITTLE_ENDIAN)
+        expect(p.check_bit_offsets[0]).to be_nil
+      end
+
+      it "should complain about overlapping little endian bitfields" do
+        p = Packet.new("tgt1","pkt1")
+        # bit offset in LITTLE_ENDIAN refers to MSB
+        p.define_item("item1",12,12,:UINT,nil,:LITTLE_ENDIAN)
+        p.define_item("item2",10,10,:UINT,nil,:LITTLE_ENDIAN)
+        expect(p.check_bit_offsets[0]).to eql "Bit definition overlap at bit offset 12 for packet TGT1 PKT1 items ITEM1 and ITEM2"
+      end
+    end
+
     describe "id_items" do
       it "returns an array of the identifying items" do
         p = Packet.new("tgt","pkt")

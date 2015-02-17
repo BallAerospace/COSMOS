@@ -165,6 +165,53 @@ module Cosmos
       end
     end
 
+    # Review bit offset to look for overlapping definitions. This will allow
+    # gaps in the packet, but not allow the same bits to be used for multiple
+    # variables.
+    #
+    # @return [Array<String>] Warning messages for big definition overlaps
+    def check_bit_offsets
+      expected_next_offset = nil
+      previous_item = nil
+      warnings = []
+      @sorted_items.each do |item|
+        if expected_next_offset and item.bit_offset < expected_next_offset
+          msg = "Bit definition overlap at bit offset #{item.bit_offset} for packet #{@target_name} #{@packet_name} items #{item.name} and #{previous_item.name}"
+          Logger.instance.warn(msg)
+          warnings << msg
+        end
+        if item.array_size
+          if item.array_size > 0
+            expected_next_offset = item.bit_offset + item.array_size
+          else
+            expected_next_offset = item.array_size
+          end
+        else
+          expected_next_offset = nil
+          if item.bit_offset > 0
+            # Handle little-endian bit fields
+            byte_aligned = ((item.bit_offset % 8) == 0)
+            if item.endianness == :LITTLE_ENDIAN and (item.data_type == :INT or item.data_type == :UINT) and !(byte_aligned and (item.bit_size == 8 or item.bit_size == 16 or item.bit_size == 32 or item.bit_size == 64))
+              # Bit offset always refers to the most significant bit of a bitfield
+              bits_remaining_in_last_byte = 8 - (item.bit_offset % 8)
+              if item.bit_size > bits_remaining_in_last_byte
+                expected_next_offset = item.bit_offset + bits_remaining_in_last_byte
+              end
+            end
+          end
+          unless expected_next_offset
+            if item.bit_size > 0
+              expected_next_offset = item.bit_offset + item.bit_size
+            else
+              expected_next_offset = item.bit_size
+            end
+          end
+        end
+        previous_item = item
+      end
+      warnings
+    end
+
     # Id items are used by the identify? method to determine if a raw buffer of
     # data represents this packet.
     # @return [Array<PacketItem>] Packet item identifiers

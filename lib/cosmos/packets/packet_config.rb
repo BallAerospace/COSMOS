@@ -10,6 +10,7 @@
 
 require 'cosmos/config/config_parser'
 require 'cosmos/packets/packet'
+require 'cosmos/packets/parsers/packet_parser'
 require 'cosmos/packets/parsers/packet_item_parser'
 require 'cosmos/packets/parsers/macro_parser'
 require 'cosmos/packets/parsers/limits_parser'
@@ -78,8 +79,6 @@ module Cosmos
       @telemetry['UNKNOWN']['UNKNOWN'] = Packet.new('UNKNOWN', 'UNKNOWN', :BIG_ENDIAN)
 
       # Used during packet processing
-      @current_target_name = nil
-      @current_packet_name = nil
       @current_cmd_or_tlm = nil
       @current_packet = nil
       @current_item = nil
@@ -95,13 +94,13 @@ module Cosmos
     #
     # @param filename [String] The name of the configuration file
     # @param target_name [String] The target name
-    def process_file(filename, target_name)
+    def process_file(filename, process_target_name)
       @converted_type = nil
       @converted_bit_size = nil
       @proc_text = ''
       @building_generic_conversion = false
 
-      target_name = target_name.upcase
+      process_target_name = process_target_name.upcase
       parser = ConfigParser.new("https://github.com/BallAerospace/COSMOS/wiki/Command-and-Telemetry-Configuration")
       parser.parse_file(filename) do |keyword, params|
 
@@ -129,28 +128,35 @@ module Cosmos
           case keyword
 
           # Start a new packet
-          when 'COMMAND', 'TELEMETRY'
-            process_packet(parser, keyword, params, target_name)
+          when 'COMMAND'
+            finish_packet()
+            @current_packet = PacketParser.parse_command(parser, process_target_name, @commands, @warnings)
+            @current_cmd_or_tlm = COMMAND
+
+          when 'TELEMETRY'
+            finish_packet()
+            @current_packet = PacketParser.parse_telemetry(parser, process_target_name, @telemetry, @latest_data, @warnings)
+            @current_cmd_or_tlm = TELEMETRY
 
           # Select an existing packet for editing
           when 'SELECT_COMMAND', 'SELECT_TELEMETRY'
             usage = "#{keyword} <TARGET NAME> <PACKET NAME>"
             finish_packet()
             parser.verify_num_parameters(2, 2, usage)
-            @current_target_name = target_name
-            @current_target_name = params[0].upcase if target_name == 'SYSTEM'
-            @current_packet_name = params[1].upcase
+            target_name = process_target_name
+            target_name = params[0].upcase if target_name == 'SYSTEM'
+            packet_name = params[1].upcase
 
             @current_packet = nil
             if keyword.include?('COMMAND')
               @current_cmd_or_tlm = COMMAND
-              if @commands[@current_target_name]
-                @current_packet = @commands[@current_target_name][@current_packet_name]
+              if @commands[target_name]
+                @current_packet = @commands[target_name][packet_name]
               end
             else
               @current_cmd_or_tlm = TELEMETRY
-              if @telemetry[@current_target_name]
-                @current_packet = @telemetry[@current_target_name][@current_packet_name]
+              if @telemetry[target_name]
+                @current_packet = @telemetry[target_name][packet_name]
               end
             end
             raise parser.error("Packet not found", usage) unless @current_packet
@@ -213,7 +219,7 @@ module Cosmos
         begin
           @current_item = @current_packet.get_item(params[0])
         rescue # Rescue the default execption to provide a nicer error message
-          raise parser.error("#{params[0]} not found in #{@current_cmd_or_tlm.downcase} packet #{@current_target_name} #{@current_packet_name}", usage)
+          raise parser.error("#{params[0]} not found in #{@current_cmd_or_tlm.downcase} packet #{@current_packet.target_name} #{@current_packet.packet_name}", usage)
         end
 
       # Start a new telemetry item in the current packet
@@ -434,115 +440,16 @@ module Cosmos
       end
     end
 
-    def process_packet(parser, keyword, params, target_name)
-      finish_packet()
-
-      usage = "#{keyword} <TARGET NAME> <PACKET NAME> <ENDIANNESS: BIG_ENDIAN/LITTLE_ENDIAN> <DESCRIPTION (Optional)>"
-      parser.verify_num_parameters(3, 4, usage)
-      target_name = params[0].to_s.upcase if target_name == 'SYSTEM'
-      packet_name = params[1].to_s.upcase
-      endianness = params[2].to_s.upcase.intern
-      description = params[3].to_s
-      if endianness != :BIG_ENDIAN and endianness != :LITTLE_ENDIAN
-        raise parser.error("Invalid endianness #{params[2]}. Must be BIG_ENDIAN or LITTLE_ENDIAN.", usage)
-      end
-
-      @current_target_name = target_name
-      @current_packet_name = packet_name
-      @current_cmd_or_tlm = keyword.capitalize
-
-      # Be sure there is not already a packet by this name
-      if @current_cmd_or_tlm == COMMAND
-        if @commands[@current_target_name]
-          if @commands[@current_target_name][@current_packet_name]
-            msg = "#{@current_cmd_or_tlm} Packet #{@current_target_name} #{@current_packet_name} redefined."
-            Logger.instance.warn msg
-            @warnings << msg
-          end
-        end
-      else
-        if @telemetry[@current_target_name]
-          if @telemetry[@current_target_name][@current_packet_name]
-            msg = "#{@current_cmd_or_tlm} Packet #{@current_target_name} #{@current_packet_name} redefined."
-            Logger.instance.warn msg
-            @warnings << msg
-          end
-        end
-      end
-
-      @current_packet = Packet.new(@current_target_name, @current_packet_name, endianness, description)
-
-      # Add received time packet items
-      if @current_cmd_or_tlm == TELEMETRY
-        item = @current_packet.define_item('RECEIVED_TIMESECONDS', 0, 0, :DERIVED, nil, @current_packet.default_endianness, :ERROR, '%0.6f', ReceivedTimeSecondsConversion.new)
-        item.description = 'COSMOS Received Time (UTC, Floating point, Unix epoch)'
-        item = @current_packet.define_item('RECEIVED_TIMEFORMATTED', 0, 0, :DERIVED, nil, @current_packet.default_endianness, :ERROR, nil, ReceivedTimeFormattedConversion.new)
-        item.description = 'COSMOS Received Time (Local time zone, Formatted string)'
-        item = @current_packet.define_item('RECEIVED_COUNT', 0, 0, :DERIVED, nil, @current_packet.default_endianness, :ERROR, nil, ReceivedCountConversion.new)
-        item.description = 'COSMOS packet received count'
-
-        unless @telemetry[@current_target_name]
-          @telemetry[@current_target_name] = {}
-          @latest_data[@current_target_name] = {}
-        end
-      else
-        @commands[@current_target_name] ||= {}
-      end
-    end
-
     # Add current packet into hash if it exists
     def finish_packet
       finish_item()
       if @current_packet
-        # Review bit offset to look for overlapping definitions
-        # This will allow gaps in the packet, but not allow the same bits to be
-        # used for multiple variables.
-        expected_next_offset = nil
-        previous_item = nil
-        @current_packet.sorted_items.each do |item|
-          if expected_next_offset and item.bit_offset < expected_next_offset
-            msg = "Bit definition overlap at bit offset #{item.bit_offset} for #{@current_cmd_or_tlm} packet #{@current_target_name} #{@current_packet_name} items #{item.name} and #{previous_item.name}"
-            Logger.instance.warn(msg)
-            @warnings << msg
-          end
-          if item.array_size
-            if item.array_size > 0
-              expected_next_offset = item.bit_offset + item.array_size
-            else
-              expected_next_offset = item.array_size
-            end
-          else
-            expected_next_offset = nil
-            if item.bit_offset > 0
-              # Handle little-endian bit fields
-              byte_aligned = ((item.bit_offset % 8) == 0)
-              if item.endianness == :LITTLE_ENDIAN and (item.data_type == :INT or item.data_type == :UINT) and !(byte_aligned and (item.bit_size == 8 or item.bit_size == 16 or item.bit_size == 32 or item.bit_size == 64))
-                # Bitoffset always refers to the most significant bit of a bitfield
-                bits_remaining_in_last_byte = 8 - (item.bit_offset % 8)
-                if item.bit_size > bits_remaining_in_last_byte
-                  expected_next_offset = item.bit_offset + bits_remaining_in_last_byte
-                end
-              end
-            end
-            unless expected_next_offset
-              if item.bit_size > 0
-                expected_next_offset = item.bit_offset + item.bit_size
-              else
-                expected_next_offset = item.bit_size
-              end
-            end
-          end
-          previous_item = item
+        @warnings += @current_packet.check_bit_offsets
 
-          # Check command default and range data types if no write conversion is present
-          item.check_default_and_range_data_types if @current_cmd_or_tlm == COMMAND
-        end
-
-        # commit packet to memory
         if @current_cmd_or_tlm == COMMAND
-          @commands[@current_target_name][@current_packet_name] = @current_packet
+          @commands[@current_packet.target_name][@current_packet.packet_name] = @current_packet
         else
-          @telemetry[@current_target_name][@current_packet_name] = @current_packet
+          @telemetry[@current_packet.target_name][@current_packet.packet_name] = @current_packet
         end
         @current_packet = nil
         @current_item = nil
@@ -560,7 +467,7 @@ module Cosmos
       if @current_item
         @current_packet.set_item(@current_item)
         if @current_cmd_or_tlm == TELEMETRY
-          target_latest_data = @latest_data[@current_target_name]
+          target_latest_data = @latest_data[@current_packet.target_name]
           target_latest_data[@current_item.name] ||= []
           latest_data_packets = target_latest_data[@current_item.name]
           latest_data_packets << @current_packet unless latest_data_packets.include?(@current_packet)

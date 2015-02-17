@@ -53,6 +53,7 @@ module Cosmos
       if cmd_or_tlm == PacketConfig::COMMAND
         item.range = get_range()
         item.default = get_default()
+        item.check_default_and_range_data_types()
       end
       item.id_value = get_id_value()
       item.description = get_description()

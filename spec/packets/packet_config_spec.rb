@@ -30,113 +30,10 @@ module Cosmos
         tf.unlink
       end
 
-      it "should complain about overlapping items" do
-        tf = Tempfile.new('unittest')
-        tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Description"'
-        tf.puts '  ITEM item1 0 8 UINT'
-        tf.puts '  ITEM item2 0 8 UINT'
-        tf.close
-        @pc.process_file(tf.path, "TGT1")
-        @pc.warnings[0].should eql "Bit definition overlap at bit offset 0 for Telemetry packet TGT1 PKT1 items ITEM2 and ITEM1"
-        tf.unlink
-      end
-
-      it "should not complain with non-overlapping negative offsets" do
-        tf = Tempfile.new('unittest')
-        tf.puts 'TELEMETRY tgt1 pkt2 LITTLE_ENDIAN "Description"'
-        tf.puts '  ITEM item1 0 8 UINT'
-        tf.puts '  ITEM item2 8 -16 BLOCK'
-        tf.puts '  ITEM item3 -16 16 UINT'
-        tf.close
-        @pc.process_file(tf.path, "TGT1")
-        @pc.warnings[0].should be_nil
-        tf.unlink
-      end
-
-      it "should complain with overlapping negative offsets" do
-        tf = Tempfile.new('unittest')
-        tf.puts 'TELEMETRY tgt1 pkt2 LITTLE_ENDIAN "Description"'
-        tf.puts '  ITEM item1 0 8 UINT'
-        tf.puts '  ITEM item2 8 -16 BLOCK'
-        tf.puts '  ITEM item3 -17 16 UINT'
-        tf.close
-        @pc.process_file(tf.path, "TGT1")
-        @pc.warnings[0].should eql "Bit definition overlap at bit offset -17 for Telemetry packet TGT1 PKT2 items ITEM3 and ITEM2"
-        tf.unlink
-      end
-
-      it "should complain about intersecting items" do
-        tf = Tempfile.new('unittest')
-        tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Description"'
-        tf.puts '  ITEM item1 0 32 UINT'
-        tf.puts '  ITEM item2 16 32 UINT'
-        tf.close
-        @pc.process_file(tf.path, "TGT1")
-        @pc.warnings[0].should eql "Bit definition overlap at bit offset 16 for Telemetry packet TGT1 PKT1 items ITEM2 and ITEM1"
-        tf.unlink
-      end
-
-      it "should complain about array overlapping items" do
-        tf = Tempfile.new('unittest')
-        tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Description"'
-        tf.puts '  ARRAY_ITEM item1 0 8 UINT 32'
-        tf.puts '  ARRAY_ITEM item2 0 8 UINT 32'
-        tf.close
-        @pc.process_file(tf.path, "TGT1")
-        @pc.warnings[0].should eql "Bit definition overlap at bit offset 0 for Telemetry packet TGT1 PKT1 items ITEM2 and ITEM1"
-        tf.unlink
-      end
-
-      it "should not complain with array non-overlapping negative offsets" do
-        tf = Tempfile.new('unittest')
-        tf.puts 'TELEMETRY tgt1 pkt2 LITTLE_ENDIAN "Description"'
-        tf.puts '  ITEM item1 0 8 UINT'
-        tf.puts '  ARRAY_ITEM item2 8 8 INT -16'
-        tf.puts '  ITEM item3 -16 16 UINT'
-        tf.close
-        @pc.process_file(tf.path, "TGT1")
-        @pc.warnings[0].should be_nil
-        tf.unlink
-      end
-
-      it "should complain with array overlapping negative offsets" do
-        tf = Tempfile.new('unittest')
-        tf.puts 'TELEMETRY tgt1 pkt2 LITTLE_ENDIAN "Description"'
-        tf.puts '  ITEM item1 0 8 UINT'
-        tf.puts '  ARRAY_ITEM item2 8 8 INT -16'
-        tf.puts '  ITEM item3 -17 16 UINT'
-        tf.close
-        @pc.process_file(tf.path, "TGT1")
-        @pc.warnings[0].should eql "Bit definition overlap at bit offset -17 for Telemetry packet TGT1 PKT2 items ITEM3 and ITEM2"
-        tf.unlink
-      end
-
-      it "should complain about array intersecting items" do
-        tf = Tempfile.new('unittest')
-        tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Description"'
-        tf.puts '  ARRAY_ITEM item1 0 8 UINT 32'
-        tf.puts '  ARRAY_ITEM item2 16 8 UINT 32'
-        tf.close
-        @pc.process_file(tf.path, "TGT1")
-        @pc.warnings[0].should eql "Bit definition overlap at bit offset 16 for Telemetry packet TGT1 PKT1 items ITEM2 and ITEM1"
-        tf.unlink
-      end
-
-      it "should not complain about nonoverlapping little endian bitfields" do
-        tf = Tempfile.new('unittest')
-        tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Description"'
-        tf.puts '  ITEM item1 12 12 UINT'
-        tf.puts '  ITEM item2 16 16 UINT'
-        tf.close
-        @pc.process_file(tf.path, "TGT1")
-        @pc.warnings[0].should be_nil
-        tf.unlink
-      end
-
       context "with all telemetry keywords" do
         before(:all) do
           # top level keywords
-          @top_keywords = %w(TELEMETRY SELECT_TELEMETRY LIMITS_GROUP LIMITS_GROUP_ITEM)
+          @top_keywords = %w(SELECT_COMMAND SELECT_TELEMETRY LIMITS_GROUP LIMITS_GROUP_ITEM)
           # Keywords that require a current packet from TELEMETRY keyword
           @tlm_keywords = %w(SELECT_ITEM ITEM ID_ITEM ARRAY_ITEM APPEND_ITEM APPEND_ID_ITEM APPEND_ARRAY_ITEM PROCESSOR META)
           # Keywords that require both a current packet and current item
@@ -201,8 +98,8 @@ module Cosmos
           @top_keywords.each do |keyword|
             tf = Tempfile.new('unittest')
             case keyword
-            when "TELEMETRY"
-              tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Packet" extra'
+            when "SELECT_COMMAND"
+              tf.puts 'SELECT_COMMAND tgt1 pkt1 extra'
             when "SELECT_TELEMETRY"
               tf.puts 'SELECT_TELEMETRY tgt1 pkt1 extra'
             when 'LIMITS_GROUP'
@@ -261,47 +158,6 @@ module Cosmos
             end
             tf.close
             expect { @pc.process_file(tf.path, "TGT1") }.to raise_error(ConfigParser::Error, /Too many parameters for #{keyword}/)
-            tf.unlink
-          end
-        end
-      end
-
-      context "with COMMAND or TELEMETRY" do
-        it "should complain about invalid endianness" do
-          %w(COMMAND TELEMETRY).each do |keyword|
-            tf = Tempfile.new('unittest')
-            tf.puts keyword + ' tgt1 pkt1 MIDDLE_ENDIAN "Packet"'
-            tf.close
-            expect { @pc.process_file(tf.path, "TGT1") }.to raise_error(ConfigParser::Error, "Invalid endianness MIDDLE_ENDIAN. Must be BIG_ENDIAN or LITTLE_ENDIAN.")
-            tf.unlink
-          end
-        end
-
-        it "should process target, packet, endianness, description" do
-          %w(COMMAND TELEMETRY).each do |keyword|
-            tf = Tempfile.new('unittest')
-            tf.puts keyword + ' tgt1 pkt1 LITTLE_ENDIAN "Packet"'
-            tf.close
-            @pc.process_file(tf.path, "TGT1")
-            pkt = @pc.commands["TGT1"]["PKT1"] if keyword == 'COMMAND'
-            pkt = @pc.telemetry["TGT1"]["PKT1"] if keyword == 'TELEMETRY'
-            pkt.target_name.should eql "TGT1"
-            pkt.packet_name.should eql "PKT1"
-            pkt.default_endianness.should eql :LITTLE_ENDIAN
-            pkt.description.should eql "Packet"
-            tf.unlink
-          end
-        end
-
-        it "should substitute the target name" do
-          %w(COMMAND TELEMETRY).each do |keyword|
-            tf = Tempfile.new('unittest')
-            tf.puts keyword + ' tgt1 pkt1 LITTLE_ENDIAN "Packet"'
-            tf.close
-            @pc.process_file(tf.path, "NEW")
-            pkt = @pc.commands["NEW"]["PKT1"] if keyword == 'COMMAND'
-            pkt = @pc.telemetry["NEW"]["PKT1"] if keyword == 'TELEMETRY'
-            pkt.target_name.should eql "NEW"
             tf.unlink
           end
         end
