@@ -58,6 +58,7 @@ module Cosmos
       @no_prompt = options.no_prompt
       @message_log = nil
       @output_sleeper = Sleeper.new
+      @first_output = 0
       @interfaces_tab = InterfacesTab.new
       @targets_tab = TargetsTab.new
       @packets_tab = PacketsTab.new(self)
@@ -192,6 +193,7 @@ module Cosmos
     def kill_tab_thread
       @tab_sleeper ||= nil
       @tab_sleeper.cancel if @tab_sleeper
+      Qt::CoreApplication.instance.processEvents
       Cosmos.kill_thread(self, @tab_thread)
       @tab_thread = nil
     end
@@ -296,6 +298,12 @@ module Cosmos
           @string_output.string = @string_output.string[string.length..-1]
           string.each_line {|out_line| @output.add_formatted_text(out_line); lines_to_write += out_line }
           @output.flush
+          if @first_output < 2
+            # Scroll to the bottom on the first two outputs for Linux
+            # Otherwise it does not stay at the bottom
+            @output.verticalScrollBar.value = @output.verticalScrollBar.maximum
+            @first_output += 1
+          end
           @message_log.write(lines_to_write)
         end
       end
