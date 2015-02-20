@@ -794,6 +794,7 @@ lib/cosmos/io/tcpip_server.rb
 lib/cosmos/io/udp_sockets.rb
 lib/cosmos/io/win32_serial_driver.rb
 lib/cosmos/packet_logs.rb
+lib/cosmos/packet_logs/ccsds_log_reader.rb
 lib/cosmos/packet_logs/meta_packet_log_writer.rb
 lib/cosmos/packet_logs/packet_log_reader.rb
 lib/cosmos/packet_logs/packet_log_writer.rb
@@ -806,6 +807,14 @@ lib/cosmos/packets/packet.rb
 lib/cosmos/packets/packet_config.rb
 lib/cosmos/packets/packet_item.rb
 lib/cosmos/packets/packet_item_limits.rb
+lib/cosmos/packets/parsers/format_string_parser.rb
+lib/cosmos/packets/parsers/limits_parser.rb
+lib/cosmos/packets/parsers/limits_response_parser.rb
+lib/cosmos/packets/parsers/macro_parser.rb
+lib/cosmos/packets/parsers/packet_item_parser.rb
+lib/cosmos/packets/parsers/packet_parser.rb
+lib/cosmos/packets/parsers/processor_parser.rb
+lib/cosmos/packets/parsers/state_parser.rb
 lib/cosmos/packets/structure.rb
 lib/cosmos/packets/structure_item.rb
 lib/cosmos/packets/telemetry.rb
@@ -1075,6 +1084,14 @@ spec/packets/packet_config_spec.rb
 spec/packets/packet_item_limits_spec.rb
 spec/packets/packet_item_spec.rb
 spec/packets/packet_spec.rb
+spec/packets/parsers/format_string_parser_spec.rb
+spec/packets/parsers/limits_parser_spec.rb
+spec/packets/parsers/limits_response_parser_spec.rb
+spec/packets/parsers/macro_parser_spec.rb
+spec/packets/parsers/packet_item_parser_spec.rb
+spec/packets/parsers/packet_parser_spec.rb
+spec/packets/parsers/processor_parser_spec.rb
+spec/packets/parsers/state_parser_spec.rb
 spec/packets/structure_item_spec.rb
 spec/packets/structure_spec.rb
 spec/packets/telemetry_spec.rb

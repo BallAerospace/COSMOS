@@ -428,11 +428,15 @@ module Cosmos
 
       # TODO: This can take a while depending on the number of tests and their
       # complexity. Consider making a progress bar for this.
-      require_utilities()
-      handle_check_buttons()
-      @script_runner_frame.stop_message_log
-      yield
-      @script_runner_frame.run
+      begin
+        require_utilities()
+        handle_check_buttons()
+        @script_runner_frame.stop_message_log
+        yield
+        @script_runner_frame.run
+      rescue Exception => error
+        ExceptionDialog.new(self, error, "Error starting test", false)
+      end
     end
 
     def handle_start(test_suite, test = nil, test_case = nil)

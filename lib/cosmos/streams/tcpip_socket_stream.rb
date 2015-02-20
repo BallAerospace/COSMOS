@@ -66,7 +66,7 @@ module Cosmos
           # These can happen with the socket being closed while waiting on select
           data = ''
         end
-      rescue Errno::ECONNRESET, Errno::ECONNABORTED
+      rescue Errno::ECONNRESET, Errno::ECONNABORTED, IOError, Errno::ENOTSOCK
         data = ''
       end
 
@@ -132,8 +132,8 @@ module Cosmos
 
     # Disconnect by closing the sockets
     def disconnect
-      @write_socket.close if @write_socket and !@write_socket.closed?
-      @read_socket.close if @read_socket and !@read_socket.closed?
+      Cosmos.close_socket(@write_socket)
+      Cosmos.close_socket(@read_socket)
       @connected = false
     end
 

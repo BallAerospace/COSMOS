@@ -91,22 +91,10 @@ module Cosmos
 
     # Close the active ports (read and/or write) and set the sockets to nil.
     def disconnect
-      begin
-        if @write_socket
-          @write_socket.close unless @write_socket.closed?
-          @write_socket = nil
-        end
-      rescue IOError
-        @write_socket = nil
-      end
-      begin
-        if @read_socket
-          @read_socket.close unless @read_socket.closed?
-          @read_socket = nil
-        end
-      rescue IOError
-        @read_socket = nil
-      end
+      Cosmos.close_socket(@write_socket)
+      @write_socket = nil
+      Cosmos.close_socket(@read_socket)
+      @read_socket = nil
     end
 
     # If the read port was given, the read_socket is read and the data returned

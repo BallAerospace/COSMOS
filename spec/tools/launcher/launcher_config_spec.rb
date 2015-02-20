@@ -274,7 +274,11 @@ module Cosmos
           if Kernel.is_mac? and File.exist?(File.join(USERPATH, 'tools', 'mac'))
             expect(lc.items[0][2]).to eq 'open tools/mac/CmdTlmServer.app --args --system system.txt -x 0 -y 0'
           else
-            expect(lc.items[0][2]).to eq 'RUBYW tools/CmdTlmServer --system system.txt -x 0 -y 0'
+            if Kernel.is_windows?
+              expect(lc.items[0][2]).to eq 'rubyw tools/CmdTlmServer --system system.txt -x 0 -y 0'
+            else
+              expect(lc.items[0][2]).to eq 'ruby tools/CmdTlmServer --system system.txt -x 0 -y 0'
+            end
           end
           expect(lc.items[0][3]).to be true
           expect(lc.items[0][4]).to be_nil

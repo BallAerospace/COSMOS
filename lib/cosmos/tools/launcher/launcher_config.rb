@@ -169,6 +169,13 @@ module Cosmos
         # Nothing to do if they aren't using our keywords
         formatted_command = shell_command
       end
+      if Kernel.is_windows?
+        rubyw_sub = 'rubyw'
+      else
+        rubyw_sub = 'ruby'
+      end
+
+      formatted_command.gsub!('RUBYW', rubyw_sub)
       formatted_command
     end
 
@@ -191,14 +198,6 @@ module Cosmos
       else
         formatted = "gnome-terminal -e \"ruby tools/#{split[1]} #{split[2..-1].join(' ')}\""
       end
-
-      if Kernel.is_windows?
-        rubyw_sub = 'rubyw'
-      else
-        rubyw_sub = 'ruby'
-      end
-
-      formatted.gsub!('RUBYW', rubyw_sub)
       formatted
     end
 

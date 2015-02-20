@@ -16,6 +16,7 @@ require 'open3'
 require 'cosmos/core_ext'
 require 'cosmos/version'
 require 'cosmos/utilities/logger'
+require 'socket'
 
 # If a hazardous command is sent through the {Cosmos::Api} this error is raised.
 # {Cosmos::Script} rescues the error and prompts the user to continue.
@@ -642,7 +643,7 @@ module Cosmos
       end
       if thread.alive?
         # Graceful failed
-        Logger.warn "Failed to gracefully kill thread:\n  #{thread.backtrace.join("\n  ")}\n"
+        Logger.warn "Failed to gracefully kill thread:\n  Caller Backtrace:\n  #{caller().join("\n  ")}\n  \n  Thread Backtrace:\n  #{thread.backtrace.join("\n  ")}\n\n"
         thread.kill
         end_time = Time.now + hard_timeout
         while thread.alive? && ((end_time - Time.now) > 0)
@@ -651,6 +652,27 @@ module Cosmos
       end
       if thread.alive?
         Logger.error "Failed to kill thread"
+      end
+    end
+  end
+
+  # Close a socket in a manner that ensures that any reads blocked in select
+  # will unblock across platforms
+  # @param socket The socket to close
+  def self.close_socket(socket)
+    if socket
+      # Calling shutdown and then sleep seems to be required
+      # to get select to reliably unblock on linux
+      begin
+        socket.shutdown(:RDWR)
+        sleep(0)
+      rescue Exception
+        # Oh well we tried
+      end
+      begin
+        socket.close unless socket.closed?
+      rescue Exception
+        # Oh well we tried
       end
     end
   end
