@@ -438,8 +438,15 @@ module Cosmos
       script_runner.script_set_status(message) if script_runner
     end
 
-    def ask_string(question, allow_blank = false, password = false)
+    def ask_string(question, blank_or_default = false, password = false)
       answer = ''
+      default = ''
+      if blank_or_default != true && blank_or_default != false
+        question << " (default = #{blank_or_default})"
+        allow_blank = false
+      else
+        allow_blank = blank_or_default
+      end
       while answer.empty?
         print question + " "
         answer = gets
@@ -449,8 +456,8 @@ module Cosmos
       return answer
     end
 
-    def ask(question, allow_blank = false, password = false)
-      string = ask_string(question, allow_blank, password)
+    def ask(question, blank_or_default = false, password = false)
+      string = ask_string(question, blank_or_default, password)
       value = string.convert_to_value
       return value
     end
