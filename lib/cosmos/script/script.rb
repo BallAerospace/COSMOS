@@ -54,8 +54,7 @@ module Cosmos
             $cmd_tlm_server.cmd_no_hazardous_check(*args)
           Logger.info build_cmd_output_string(target_name, cmd_name, cmd_params)
         else
-          Logger.warn "Hazardous command not sent"
-          prompt_for_script_abort
+          retry unless prompt_for_script_abort()
         end
       end
     end
@@ -79,8 +78,7 @@ module Cosmos
           Logger.warn "Command #{target_name} #{cmd_name} being sent ignoring range checks"
           Logger.info build_cmd_output_string(target_name, cmd_name, cmd_params)
         else
-          Logger.warn "Hazardous command not sent"
-          prompt_for_script_abort
+          retry unless prompt_for_script_abort()
         end
       end
     end
@@ -126,8 +124,7 @@ module Cosmos
             $cmd_tlm_server.cmd_raw_no_hazardous_check(*args)
           Logger.info build_cmd_output_string(target_name, cmd_name, cmd_params, true)
         else
-          Logger.warn "Hazardous command not sent"
-          prompt_for_script_abort
+          retry unless prompt_for_script_abort()
         end
       end
     end
@@ -151,8 +148,7 @@ module Cosmos
           Logger.warn "Command #{target_name} #{cmd_name} being sent ignoring range checks"
           Logger.info build_cmd_output_string(target_name, cmd_name, cmd_params, true)
         else
-          Logger.warn "Hazardous command not sent"
-          prompt_for_script_abort
+          retry unless prompt_for_script_abort()
         end
       end
     end
@@ -443,7 +439,7 @@ module Cosmos
       default = ''
       if blank_or_default != true && blank_or_default != false
         question << " (default = #{blank_or_default})"
-        allow_blank = false
+        allow_blank = true
       else
         allow_blank = blank_or_default
       end
@@ -453,6 +449,7 @@ module Cosmos
         answer.chomp!
         break if allow_blank
       end
+      answer = default if answer.empty? and !default.empty?
       return answer
     end
 
@@ -1461,7 +1458,7 @@ module Cosmos
       if answer.downcase == 'y'
         exit
       else
-        return false
+        return false # Not aborted - Retry
       end
     end
 

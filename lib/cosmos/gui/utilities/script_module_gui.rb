@@ -93,11 +93,7 @@ module Cosmos
     end
 
     def prompt_for_script_abort
-      if defined? ScriptRunnerFrame
-        ScriptRunnerFrame.instance.perform_pause
-      else
-        raise StopScript
-      end
+      return true # Aborted - Don't retry
     end
 
     def prompt_to_continue(string)
