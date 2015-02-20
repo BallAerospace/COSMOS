@@ -55,7 +55,7 @@ module Cosmos
     def stop_service
       Cosmos.kill_thread(self, @thread)
       @thread = nil
-      @listen_socket.close if @listen_socket and !@listen_socket.closed?
+      Cosmos.close_socket(@listen_socket)
       @listen_socket = nil
     end
 
@@ -116,7 +116,7 @@ module Cosmos
               end
 
               if @acl and !@acl.allow_socket?(socket)
-                socket.close
+                Cosmos.close_socket(socket)
                 next
               end
               # Create new thread for new connection
@@ -270,7 +270,7 @@ module Cosmos
               break unless process_request(request_data, my_socket, start_time)
             else
               # Socket was closed by client
-              my_socket.close unless my_socket.closed?
+              Cosmos.close_socket(my_socket)
               break
             end
           end

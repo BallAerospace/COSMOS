@@ -57,8 +57,7 @@ module Cosmos
 
     # Disconnects from the JSON server
     def disconnect
-      socket = @socket
-      socket.close if socket and !socket.closed?
+      Cosmos.close_socket(@socket)
     end
 
     # Permanently disconnects from the JSON server
@@ -92,7 +91,7 @@ module Cosmos
             rescue IO::WaitWritable
               begin
                 _, sockets, _ = IO.select(nil, [@socket], nil, @connect_timeout) # wait 3-way handshake completion
-              rescue Errno::ENOTSOCK
+              rescue IOError, Errno::ENOTSOCK
                 disconnect()
                 @socket = nil
                 raise "Connect canceled"
@@ -100,13 +99,23 @@ module Cosmos
               if sockets and !sockets.empty?
                 begin
                   @socket.connect_nonblock(addr) # check connection failure
-                rescue Errno::EISCONN
+                rescue IOError, Errno::ENOTSOCK
+                  disconnect()
+                  @socket = nil
+                  raise "Connect canceled"
+                rescue Errno::EINPROGRESS
+                  retry
+                rescue Errno::EISCONN, Errno::EALREADY
                 end
               else
                 disconnect()
                 @socket = nil
                 raise "Connect timeout"
               end
+            rescue IOError, Errno::ENOTSOCK
+              disconnect()
+              @socket = nil
+              raise "Connect canceled"
             end
           rescue => e
             raise DRb::DRbConnError, e.message
