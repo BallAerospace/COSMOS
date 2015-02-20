@@ -10,6 +10,8 @@ So what can you use this for?  We use it to test about everything we create and 
 
 After configuring COSMOS to talk to your hardware, you immediately can use the following 15 tools:
 
+![COSMOS Architecture](data/COSMOS_Architecture.png)
+
 1. **Command and Telemetry Server**
     * This is the heart of the realtime functionality within the Ball Aerospace COSMOS system.  It maintains realtime connections to each target in your system and is the single point for all outgoing commands and incoming telemetry packets.  By default, it logs all commands and telemetry sent/received for later review and analysis.  The Command and Telemetry Server also monitors limits on all telemetry packets received.
 
