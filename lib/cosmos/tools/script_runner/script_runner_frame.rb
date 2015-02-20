@@ -25,6 +25,15 @@ require 'cosmos/io/stderr'
 
 module Cosmos
 
+  Cosmos.disable_warnings do
+    module Script
+      def prompt_for_script_abort
+        ScriptRunnerFrame.instance.perform_pause
+        return false # Not aborted - Retry
+      end
+    end
+  end
+
   class ScriptRunnerDialog < Qt::Dialog
     attr_reader :script_runner_frame
 

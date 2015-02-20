@@ -404,13 +404,13 @@ WinWaitActive Script Runner
 WinWaitActive Hazardous
 Sleep 500
 Send n
-WinWaitActive Script Runner
-WinWaitActive Pause or Stop
-Sleep 500
-Send {Enter} ; Pause
-WinWaitActive Script Runner
+WinWaitActive Script Runner ; Now paused since we said no
 Sleep 500
 Click 400 90 ; Go
+WinWaitActive Hazardous
+Sleep 500
+Send {Enter}
+WinWaitActive Script Runner
 WinWaitActive Hazardous
 Sleep 500
 Send {Enter}

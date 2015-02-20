@@ -28,6 +28,7 @@ module Cosmos
       def prompt_for_script_abort
         window = get_cmd_tlm_gui_window()
         window.statusBar.showMessage(tr("Hazardous command not sent"))
+        return true # Aborted - Don't retry
       end
     end #module Script
   end

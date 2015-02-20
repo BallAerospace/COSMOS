@@ -21,8 +21,15 @@ module Cosmos
 
     @@qt_boolean = Qt::Boolean.new
 
-    def ask_string(question, allow_blank = false, password = false)
-      answer = ""
+    def ask_string(question, blank_or_default = false, password = false)
+      answer = ''
+      if blank_or_default != true && blank_or_default != false
+        default = blank_or_default.to_s
+        allow_blank = false
+      else
+        default = ''
+        allow_blank = blank_or_default
+      end
       loop do
         canceled = false
         Qt.execute_in_main_thread(true, 0.05) do
@@ -30,9 +37,9 @@ module Cosmos
           window = get_cmd_tlm_gui_window() if get_cmd_tlm_gui_window()
           # Create a special mutable QT variable that can return what button was pressed
           if password
-            answer = Qt::InputDialog::getText(window, "Ask", question, Qt::LineEdit::Password, "", @@qt_boolean)
+            answer = Qt::InputDialog::getText(window, "Ask", question, Qt::LineEdit::Password, default, @@qt_boolean)
           else
-            answer = Qt::InputDialog::getText(window, "Ask", question, Qt::LineEdit::Normal, "", @@qt_boolean)
+            answer = Qt::InputDialog::getText(window, "Ask", question, Qt::LineEdit::Normal, default, @@qt_boolean)
           end
           # @@qt_boolean is nil if the user presses cancel in the dialog
           # Note that it is not actually nil, just the nil? method returns true
@@ -86,42 +93,7 @@ module Cosmos
     end
 
     def prompt_for_script_abort
-      result = nil
-      Qt.execute_in_main_thread(true, 0.05) do
-        window = nil
-        window = get_cmd_tlm_gui_window() if get_cmd_tlm_gui_window()
-        dialog = Qt::Dialog.new(window, Qt::WindowTitleHint | Qt::WindowSystemMenuHint)
-        dialog.window_title = "Pause or Stop"
-        dialog_layout = Qt::VBoxLayout.new
-        dialog_layout.addWidget(Qt::Label.new('Pause or Stop Script?'))
-        pause = Qt::PushButton.new("Pause")
-        button_layout = Qt::HBoxLayout.new
-        pause.connect(SIGNAL('clicked()')) do
-          dialog.reject()
-        end
-        button_layout.addWidget(pause)
-        stop = Qt::PushButton.new("Stop")
-        stop.connect(SIGNAL('clicked()')) do
-          dialog.accept()
-        end
-        button_layout.addWidget(stop)
-        dialog_layout.addLayout(button_layout)
-
-        dialog.setLayout(dialog_layout)
-        dialog.raise
-        if dialog.exec == Qt::Dialog::Accepted
-          Logger.info "User pressed 'Stop'"
-          result = 'stop'
-        else
-          Logger.info "User pressed 'Pause'"
-          result = 'pause'
-        end
-        dialog.dispose
-      end
-      raise StopScript if result == 'stop'
-      if result == 'pause' &&  defined? ScriptRunnerFrame
-        ScriptRunnerFrame.instance.perform_pause
-      end
+      return true # Aborted - Don't retry
     end
 
     def prompt_to_continue(string)
@@ -157,6 +129,7 @@ module Cosmos
           window = nil
           window = get_cmd_tlm_gui_window() if get_cmd_tlm_gui_window()
           msg = Qt::MessageBox.new(window)
+
           msg.setText(string)
           msg.setWindowTitle("Message Box")
           buttons.each {|text| msg.addButton(text, Qt::MessageBox::AcceptRole)}
