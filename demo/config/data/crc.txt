@@ -51,7 +51,7 @@
 "config/targets/TEMPLATED/cmd_tlm/templated_cmds.txt" 0x36D65799
 "config/targets/TEMPLATED/cmd_tlm_server.txt" 0x727CDBEB
 "config/targets/TEMPLATED/target.txt" 0xDE6DDA2D
-"config/targets/TEMPLATED/lib/templated_interface.rb" 0xD8075CE2
+"config/targets/TEMPLATED/lib/templated_interface.rb" 0x924A3AFE
 "config/targets/COSMOS/cmd_tlm/cosmos_server_tlm.txt" 0xC667CCD6
 "config/targets/COSMOS/cmd_tlm/cosmos_server_cmds.txt" 0xE2F62B11
 "config/targets/COSMOS/cmd_tlm_server.txt" 0xE53A4164
@@ -66,8 +66,8 @@
 "config/tools/tlm_extractor/tlm_extractor2.txt" 0x210DED6A
 "config/tools/tlm_extractor/tlm_extractor.txt" 0x51B791DF
 "config/tools/tlm_extractor/tlm_extractor3.txt" 0x3A25E012
-"config/tools/cmd_tlm_server/cmd_tlm_server.txt" 0xE5A0E6F0
-"config/tools/cmd_tlm_server/cmd_tlm_server2.txt" 0xE2D57EDF
+"config/tools/cmd_tlm_server/cmd_tlm_server.txt" 0x5F467E20
+"config/tools/cmd_tlm_server/cmd_tlm_server2.txt" 0xF1C5C3B4
 "config/tools/limits_monitor/README.txt" 0x93B2C07E
 "config/tools/table_manager/PPSSelectionTable_def.txt" 0xE7A1E70B
 "config/tools/table_manager/ConfigTables_def.txt" 0xC38DCB2A
