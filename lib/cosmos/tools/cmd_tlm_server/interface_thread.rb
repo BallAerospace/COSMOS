@@ -44,6 +44,8 @@ module Cosmos
       @fatal_exception_callback = nil
       @thread = nil
       @thread_sleeper = Sleeper.new
+      @connection_failed_messages = []
+      @connection_lost_messages = []
     end
 
     # Create and start the Ruby thread that will encapsulate the interface.
@@ -183,15 +185,19 @@ module Cosmos
       if @connection_failed_callback
         @connection_failed_callback.call(connect_error)
       else
-        Logger.error "#{@interface.name} Connection Failed: #{connect_error.class}:#{connect_error.message}"
+        Logger.error "#{@interface.name} Connection Failed: #{connect_error.formatted(false, false)}"
         case connect_error
-        when Errno::ECONNREFUSED, Errno::ECONNRESET, Errno::ETIMEDOUT, Errno::ENOTSOCK
+        when Errno::ECONNREFUSED, Errno::ECONNRESET, Errno::ETIMEDOUT, Errno::ENOTSOCK, Errno::EHOSTUNREACH
           # Do not write an exception file for these extremely common cases
         else
           if RuntimeError === connect_error and (connect_error.message =~ /canceled/ or connect_error.message =~ /timeout/)
             # Do not write an exception file for these extremely common cases
           else
-            Cosmos.write_exception_file(connect_error)
+            Logger.error connect_error.formatted
+            unless @connection_failed_messages.include?(connect_error.message)
+              Cosmos.write_exception_file(connect_error)
+              @connection_failed_messages << connect_error.message
+            end
           end
         end
       end
@@ -202,16 +208,20 @@ module Cosmos
       if @connection_lost_callback
         @connection_lost_callback.call(err)
       else
-        Logger.info "Connection Lost for #{@interface.name}"
         if err
+          Logger.info "Connection Lost for #{@interface.name}: #{err.formatted(false, false)}"
           case err
           when Errno::ECONNABORTED, Errno::ECONNRESET, Errno::ETIMEDOUT, Errno::EBADF
             # Do not write an exception file for these extremely common cases
-            Logger.error err.formatted(false, false)
           else
-            Cosmos.write_exception_file(err)
             Logger.error err.formatted
+            unless @connection_lost_messages.include?(err.message)
+              Cosmos.write_exception_file(err)
+              @connection_lost_messages << err.message
+            end
           end
+        else
+          Logger.info "Connection Lost for #{@interface.name}"
         end
       end
       disconnect()

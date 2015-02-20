@@ -88,17 +88,23 @@ module Cosmos
       rescue IO::WaitWritable
         begin
           _, sockets, _ = IO.select(nil, [socket], nil, @connect_timeout) # wait 3-way handshake completion
-        rescue Errno::ENOTSOCK
+        rescue IOError, Errno::ENOTSOCK
           raise "Connect canceled"
         end
         if sockets and !sockets.empty?
           begin
             socket.connect_nonblock(addr) # check connection failure
-          rescue Errno::EISCONN
+          rescue IOError, Errno::ENOTSOCK
+            raise "Connect canceled"
+          rescue Errno::EINPROGRESS
+            retry
+          rescue Errno::EISCONN, Errno::EALREADY
           end
         else
           raise "Connect timeout"
         end
+      rescue IOError, Errno::ENOTSOCK
+        raise "Connect canceled"
       end
     end
 

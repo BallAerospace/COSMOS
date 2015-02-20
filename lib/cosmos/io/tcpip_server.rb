@@ -187,7 +187,7 @@ module Cosmos
       # Shutdown Listen Socket(s)
       @listen_sockets.each do |listen_socket|
         begin
-          listen_socket.close unless listen_socket.closed?
+          Cosmos.close_socket(listen_socket)
         rescue IOError
           # Ok may have been closed by the thread
         end
@@ -374,9 +374,7 @@ module Cosmos
         addr = ["AF_INET", 10, "lc630", host_ip.to_s]
         if not System.instance.acl.allow_addr?(addr)
           # Reject connection
-          if not socket.closed?
-            socket.close()
-          end
+          Cosmos.close_socket(socket)
           Logger.instance.info "Tcpip server rejected connection from #{hostname}(#{host_ip}):#{port}"
           return
         end
