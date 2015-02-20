@@ -361,6 +361,28 @@ module Cosmos
         end
       end
 
+      context "with two interfaces with the same name" do
+        it "should complain about duplicate interface names" do
+          tf = Tempfile.new('unittest')
+          tf.puts "INTERFACE CtsConfigTestInterface cts_config_test_interface.rb"
+          tf.puts "INTERFACE CtsConfigTestInterface cts_config_test_interface.rb"
+          tf.close
+          expect { CmdTlmServerConfig.new(tf.path) }.to raise_error(ConfigParser::Error, "Interface 'CTSCONFIGTESTINTERFACE' defined twice")
+          tf.unlink
+        end
+      end
+
+      context "with two routers with the same name" do
+        it "should complain about duplicate router names" do
+          tf = Tempfile.new('unittest')
+          tf.puts "ROUTER MY_ROUTER1 cts_config_test_interface.rb"
+          tf.puts "ROUTER MY_ROUTER1 cts_config_test_interface.rb"
+          tf.close
+          expect { CmdTlmServerConfig.new(tf.path) }.to raise_error(ConfigParser::Error, "Router 'MY_ROUTER1' defined twice")
+          tf.unlink
+        end
+      end
+
       context "with ROUTER" do
         it "should create a new router" do
           tf = Tempfile.new('unittest')
