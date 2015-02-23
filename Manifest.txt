@@ -189,6 +189,7 @@ cosmos.gemspec
 data/COSMOS_64x64.bmp
 data/COSMOS_64x64.ico
 data/COSMOS_64x64.png
+data/COSMOS_Architecture.png
 data/CheckBoxCheck.gif
 data/CheckBoxEmpty.gif
 data/Earthmap1024x512.gif
