@@ -16,23 +16,23 @@ module Cosmos
   describe PolynomialConversion do
 
     describe "initialize" do
-      it "should take a coefficents array" do
+      it "takes a coefficents array" do
         gc = PolynomialConversion.new([1,2,3])
-        gc.converted_type.should eql :FLOAT
-        gc.converted_bit_size.should eql 64
+        expect(gc.converted_type).to eql :FLOAT
+        expect(gc.converted_bit_size).to eql 64
       end
     end
 
     describe "call" do
-      it "should call the code to eval and return the result" do
+      it "calls the code to eval and return the result" do
         gc = PolynomialConversion.new([1,2,3])
-        gc.call(1,nil,nil).should eql 6.0
+        expect(gc.call(1,nil,nil)).to eql 6.0
       end
     end
 
     describe "to_s" do
-      it "should return the equation" do
-        PolynomialConversion.new([1,2,3]).to_s.should eql "1.0 + 2.0x + 3.0x^2"
+      it "returns the equation" do
+        expect(PolynomialConversion.new([1,2,3]).to_s).to eql "1.0 + 2.0x + 3.0x^2"
       end
     end
   end

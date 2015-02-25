@@ -17,7 +17,7 @@ module Cosmos
   describe LimitsResponse do
 
     describe "call" do
-      it "should raise an exception" do
+      it "raises an exception" do
         expect { LimitsResponse.new.call(nil,nil,nil) }.to raise_error(/defined by subclass/)
       end
     end

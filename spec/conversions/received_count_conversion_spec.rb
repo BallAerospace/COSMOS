@@ -17,25 +17,25 @@ module Cosmos
   describe ReceivedCountConversion do
 
     describe "initialize" do
-      it "should initialize converted_type and converted_bit_size" do
+      it "initializes converted_type and converted_bit_size" do
         gc = ReceivedCountConversion.new()
-        gc.converted_type.should eql :UINT
-        gc.converted_bit_size.should eql 32
+        expect(gc.converted_type).to eql :UINT
+        expect(gc.converted_bit_size).to eql 32
       end
     end
 
     describe "call" do
-      it "should call the code to eval and return the result" do
+      it "calls the code to eval and return the result" do
         gc = ReceivedCountConversion.new()
         packet = Packet.new("TGT","PKT")
         packet.received_count = 100
-        gc.call(nil,packet,nil).should eql 100
+        expect(gc.call(nil,packet,nil)).to eql 100
       end
     end
 
     describe "to_s" do
-      it "should return the class" do
-        ReceivedCountConversion.new().to_s.should eql "ReceivedCountConversion"
+      it "returns the class" do
+        expect(ReceivedCountConversion.new().to_s).to eql "ReceivedCountConversion"
       end
     end
   end

@@ -17,13 +17,13 @@ module Cosmos
   describe SerialDriver do
 
     describe "instance" do
-      it "should enforce the parity to a known value" do
+      it "enforces the parity to a known value" do
         expect { SerialDriver.new('COM1',9600,:BLAH) }.to raise_error(ArgumentError, "Invalid parity: BLAH")
       end
     end
 
     describe "close, closed?, write, read" do
-      it "should defer to the windows serial driver on windows" do
+      it "defers to the windows serial driver on windows" do
         allow(Kernel).to receive(:is_windows?).and_return(true)
         driver = double("Win32SerialDriver")
         expect(driver).to receive(:close)
@@ -38,7 +38,7 @@ module Cosmos
         driver.read
       end
 
-      it "should defer to the posix serial driver on nix" do
+      it "defers to the posix serial driver on nix" do
         class PosixSerialDriver
         end
         allow(Kernel).to receive(:is_windows?).and_return(false)

@@ -22,7 +22,7 @@ module Cosmos
     end
 
     describe "initialize" do
-      it "should only allow :ROUTERS or :INTERFACES" do
+      it "only allows :ROUTERS or :INTERFACES" do
         tf = Tempfile.new('unittest')
         tf.close
         expect { Connections.new(:BLAH, CmdTlmServerConfig.new(tf.path)) }.to raise_error("Unknown type: BLAH. Must be :INTERFACES or :ROUTERS.")
@@ -31,7 +31,7 @@ module Cosmos
     end
 
     describe "start" do
-      it "should call connect for each connection" do
+      it "calls connect for each connection" do
         tf = Tempfile.new('unittest')
         tf.puts 'ROUTER MY_ROUTER interface.rb'
         tf.close
@@ -42,7 +42,7 @@ module Cosmos
     end
 
     describe "stop" do
-      it "should call disconnect for each connection" do
+      it "calls disconnect for each connection" do
         allow_any_instance_of(Interface).to receive(:disconnect)
         tf = Tempfile.new('unittest')
         tf.puts 'INTERFACE MY_INT interface.rb'
@@ -54,7 +54,7 @@ module Cosmos
     end
 
     describe "connect" do
-      it "should call start_thread with no parameters" do
+      it "calls start_thread with no parameters" do
         tf = Tempfile.new('unittest')
         tf.puts 'INTERFACE MY_INT interface.rb'
         tf.close
@@ -64,7 +64,7 @@ module Cosmos
         tf.unlink
       end
 
-      it "should call disconnect, recreate and start_thread with parameters" do
+      it "calls disconnect, recreate and start_thread with parameters" do
         allow_any_instance_of(Interface).to receive(:disconnect)
         tf = Tempfile.new('unittest')
         tf.puts 'INTERFACE MY_INT interface.rb'
@@ -79,7 +79,7 @@ module Cosmos
     end
 
     describe "recreate" do
-      it "should raise an error" do
+      it "raises an error" do
         tf = Tempfile.new('unittest')
         tf.puts 'INTERFACE MY_INT interface.rb'
         tf.close
@@ -90,7 +90,7 @@ module Cosmos
     end
 
     describe "state" do
-      it "should relay the state of the connection" do
+      it "relays the state of the connection" do
         allow_any_instance_of(Interface).to receive(:connected?).and_return(false, true, false)
         allow_any_instance_of(Interface).to receive(:thread).and_return(true, nil)
 
@@ -98,28 +98,28 @@ module Cosmos
         tf.puts 'ROUTER MY_ROUTER interface.rb'
         tf.close
         routers = Connections.new(:ROUTERS, CmdTlmServerConfig.new(tf.path))
-        routers.state("MY_ROUTER").should eql "ATTEMPTING"
-        routers.state("MY_ROUTER").should eql "CONNECTED"
-        routers.state("MY_ROUTER").should eql "DISCONNECTED"
+        expect(routers.state("MY_ROUTER")).to eql "ATTEMPTING"
+        expect(routers.state("MY_ROUTER")).to eql "CONNECTED"
+        expect(routers.state("MY_ROUTER")).to eql "DISCONNECTED"
         tf.unlink
       end
     end
 
     describe "names" do
-      it "should list all the names" do
+      it "lists all the names" do
         tf = Tempfile.new('unittest')
         tf.puts 'ROUTER ROUTER1 interface.rb'
         tf.puts 'ROUTER ROUTER2 interface.rb'
         tf.puts 'ROUTER ROUTER3 interface.rb'
         tf.close
         routers = Connections.new(:ROUTERS, CmdTlmServerConfig.new(tf.path))
-        routers.names.should eql %w(ROUTER1 ROUTER2 ROUTER3)
+        expect(routers.names).to eql %w(ROUTER1 ROUTER2 ROUTER3)
         tf.unlink
       end
     end
 
     describe "clear_counters" do
-      it "should clear all counters" do
+      it "clears all counters" do
         tf = Tempfile.new('unittest')
         tf.puts 'INTERFACE INTERFACE1 interface.rb'
         tf.puts 'INTERFACE INTERFACE2 interface.rb'
@@ -134,17 +134,17 @@ module Cosmos
         end
         interfaces.clear_counters
         interfaces.all.each do |name, interface|
-          interface.bytes_written.should eql 0
-          interface.bytes_read.should eql 0
-          interface.write_count.should eql 0
-          interface.read_count.should eql 0
+          expect(interface.bytes_written).to eql 0
+          expect(interface.bytes_read).to eql 0
+          expect(interface.write_count).to eql 0
+          expect(interface.read_count).to eql 0
         end
         tf.unlink
       end
     end
 
     describe "start_raw_logging" do
-      it "should start raw logging on all connections by default" do
+      it "starts raw logging on all connections by default" do
         tf = Tempfile.new('unittest')
         tf.puts 'INTERFACE INTERFACE1 interface.rb'
         tf.puts 'INTERFACE INTERFACE2 interface.rb'
@@ -158,7 +158,7 @@ module Cosmos
         tf.unlink
       end
 
-      it "should start raw logging on a specified connections by name" do
+      it "starts raw logging on a specified connections by name" do
         tf = Tempfile.new('unittest')
         tf.puts 'INTERFACE INTERFACE1 interface.rb'
         tf.puts 'INTERFACE INTERFACE2 interface.rb'
@@ -172,7 +172,7 @@ module Cosmos
         tf.unlink
       end
 
-      it "should raise on an unknown connection" do
+      it "raises on an unknown connection" do
         tf = Tempfile.new('unittest')
         tf.puts 'INTERFACE INTERFACE1 interface.rb'
         tf.puts 'INTERFACE INTERFACE2 interface.rb'
@@ -188,7 +188,7 @@ module Cosmos
     end
 
     describe "stop_raw_logging" do
-      it "should stop raw logging on all connections by default" do
+      it "stops raw logging on all connections by default" do
         tf = Tempfile.new('unittest')
         tf.puts 'INTERFACE INTERFACE1 interface.rb'
         tf.puts 'INTERFACE INTERFACE2 interface.rb'
@@ -202,7 +202,7 @@ module Cosmos
         tf.unlink
       end
 
-      it "should stop raw logging on a specified connections by name" do
+      it "stops raw logging on a specified connections by name" do
         tf = Tempfile.new('unittest')
         tf.puts 'INTERFACE INTERFACE1 interface.rb'
         tf.puts 'INTERFACE INTERFACE2 interface.rb'
@@ -216,7 +216,7 @@ module Cosmos
         tf.unlink
       end
 
-      it "should raise on an unknown connection" do
+      it "raises on an unknown connection" do
         tf = Tempfile.new('unittest')
         tf.puts 'INTERFACE INTERFACE1 interface.rb'
         tf.puts 'INTERFACE INTERFACE2 interface.rb'

@@ -52,23 +52,23 @@ module Cosmos
     end
 
     describe "start" do
-      it "should log connection errors" do
+      it "logs connection errors" do
         capture_io do |stdout|
           allow(@interface).to receive(:connected?).and_return(false)
           allow(@interface).to receive(:connect) { raise "ConnectError" }
           thread = InterfaceThread.new(@interface)
           thread.start
           sleep 0.1
-          Thread.list.length.should eql(2)
+          expect(Thread.list.length).to eql(2)
           thread.stop
           sleep 0.2
-          Thread.list.length.should eql(1)
+          expect(Thread.list.length).to eql(1)
 
-          stdout.string.should match "Connection Failed: RuntimeError : ConnectError"
+          expect(stdout.string).to match "Connection Failed: RuntimeError : ConnectError"
         end
       end
 
-      it "should not log connection errors when there is a callback" do
+      it "does not log connection errors when there is a callback" do
         capture_io do |stdout|
           allow(@interface).to receive(:connected?).and_return(false)
           allow(@interface).to receive(:connect) { raise "ConnectError" }
@@ -79,36 +79,36 @@ module Cosmos
           thread = InterfaceThread.new(@interface)
           error_count = 0
           thread.connection_failed_callback = Proc.new do |error|
-            error.message.should eql "ConnectError"
+            expect(error.message).to eql "ConnectError"
             error_count += 1
           end
           thread.start
           sleep 0.1
-          Thread.list.length.should eql(2)
+          expect(Thread.list.length).to eql(2)
           thread.stop
           sleep 0.2
-          Thread.list.length.should eql(1)
-          error_count.should eql 2
+          expect(Thread.list.length).to eql(1)
+          expect(error_count).to eql 2
 
-          stdout.string.should_not match "Connection Failed: ConnectError"
+          expect(stdout.string).not_to match "Connection Failed: ConnectError"
         end
       end
 
-      it "should log the connection" do
+      it "logs the connection" do
         capture_io do |stdout|
           thread = InterfaceThread.new(@interface)
           thread.start
           sleep 0.1
-          Thread.list.length.should eql(2)
+          expect(Thread.list.length).to eql(2)
           thread.stop
           sleep 0.2
-          Thread.list.length.should eql(1)
+          expect(Thread.list.length).to eql(1)
 
-          stdout.string.should match "Connection Success"
+          expect(stdout.string).to match "Connection Success"
         end
       end
 
-      it "should not log the connection when there is a callback" do
+      it "does not log the connection when there is a callback" do
         capture_io do |stdout|
           thread = InterfaceThread.new(@interface)
           callback_called = false
@@ -117,17 +117,17 @@ module Cosmos
           end
           thread.start
           sleep 0.1
-          Thread.list.length.should eql(2)
+          expect(Thread.list.length).to eql(2)
           thread.stop
           sleep 0.2
-          Thread.list.length.should eql(1)
-          callback_called.should be_truthy
+          expect(Thread.list.length).to eql(1)
+          expect(callback_called).to be_truthy
 
-          stdout.string.should_not match "Connection Success"
+          expect(stdout.string).not_to match "Connection Success"
         end
       end
 
-      it "should log the connection being lost" do
+      it "logs the connection being lost" do
         capture_io do |stdout|
           allow(@interface).to receive(:read).and_return(nil)
           # Make the reconnect_delay be slightly longer than half of 0.1 which is
@@ -137,16 +137,16 @@ module Cosmos
           thread = InterfaceThread.new(@interface)
           thread.start
           sleep 0.1
-          Thread.list.length.should eql(2)
+          expect(Thread.list.length).to eql(2)
           thread.stop
           sleep 0.2
-          Thread.list.length.should eql(1)
+          expect(Thread.list.length).to eql(1)
 
-          stdout.string.should match "Connection Lost"
+          expect(stdout.string).to match "Connection Lost"
         end
       end
 
-      it "should not log the connection being lost when there is a callback" do
+      it "does not log the connection being lost when there is a callback" do
         capture_io do |stdout|
           allow(@interface).to receive(:read).and_return(nil)
           @interface.auto_reconnect = false
@@ -159,32 +159,32 @@ module Cosmos
           sleep 1
           # Since we set auto_reconnect to false we shouldn't see the interface
           # thread because it will be killed
-          Thread.list.length.should eql(1)
+          expect(Thread.list.length).to eql(1)
           thread.stop
           sleep 0.2
-          Thread.list.length.should eql(1)
-          callback_called.should be_truthy
+          expect(Thread.list.length).to eql(1)
+          expect(callback_called).to be_truthy
 
-          stdout.string.should_not match "Connection Lost"
+          expect(stdout.string).not_to match "Connection Lost"
         end
       end
 
-      it "should handle a read exception" do
+      it "handles a read exception" do
         capture_io do |stdout|
           allow(@interface).to receive(:read) { raise "ReadError" }
           thread = InterfaceThread.new(@interface)
           thread.start
           sleep 0.1
-          Thread.list.length.should eql(2)
+          expect(Thread.list.length).to eql(2)
           thread.stop
           sleep 0.2
-          Thread.list.length.should eql(1)
+          expect(Thread.list.length).to eql(1)
 
-          stdout.string.should match "ReadError"
+          expect(stdout.string).to match "ReadError"
         end
       end
 
-      it "should handle a read connection reset" do
+      it "handles a read connection reset" do
         capture_io do |stdout|
           allow(@interface).to receive(:read) { raise Errno::ECONNRESET }
           # Make the reconnect_delay be slightly longer than half of 0.1 which is
@@ -194,16 +194,16 @@ module Cosmos
           thread = InterfaceThread.new(@interface)
           thread.start
           sleep 0.1
-          Thread.list.length.should eql(2)
+          expect(Thread.list.length).to eql(2)
           thread.stop
           sleep 0.2
-          Thread.list.length.should eql(1)
+          expect(Thread.list.length).to eql(1)
 
-          stdout.string.should match "ECONNRESET"
+          expect(stdout.string).to match "ECONNRESET"
         end
       end
 
-      it "should log any thread exceptions" do
+      it "logs any thread exceptions" do
         capture_io do |stdout|
           allow(@interface).to receive(:connected?) { raise "ConnectedError" }
           thread = InterfaceThread.new(@interface)
@@ -212,45 +212,45 @@ module Cosmos
           thread.stop
           sleep 0.2
 
-          stdout.string.should match "Packet reading thread unexpectedly died"
+          expect(stdout.string).to match "Packet reading thread unexpectedly died"
         end
       end
 
-      it "should not thread exceptions when there is a callback" do
+      it "does not thread exceptions when there is a callback" do
         capture_io do |stdout|
           allow(@interface).to receive(:connected?) { raise "ConnectedError" }
           thread = InterfaceThread.new(@interface)
           callback_called = false
           thread.fatal_exception_callback = Proc.new do |error|
-            error.message.should eql "ConnectedError"
+            expect(error.message).to eql "ConnectedError"
             callback_called = true
           end
           thread.start
           sleep 0.1
           thread.stop
           sleep 0.2
-          callback_called.should be_truthy
+          expect(callback_called).to be_truthy
 
-          stdout.string.should_not match "Packet reading thread unexpectedly died"
+          expect(stdout.string).not_to match "Packet reading thread unexpectedly died"
         end
       end
 
-      it "should handle unidentified packets" do
+      it "handles unidentified packets" do
         capture_io do |stdout|
           @packet = Packet.new(nil,nil)
           thread = InterfaceThread.new(@interface)
           thread.start
           sleep 0.1
-          Thread.list.length.should eql(2)
+          expect(Thread.list.length).to eql(2)
           thread.stop
           sleep 0.2
-          Thread.list.length.should eql(1)
+          expect(Thread.list.length).to eql(1)
 
-          stdout.string.should match "Unknown 2 byte packet"
+          expect(stdout.string).to match "Unknown 2 byte packet"
         end
       end
 
-      it "should handle identified yet unknown telemetry" do
+      it "handles identified yet unknown telemetry" do
         capture_io do |stdout|
           @packet.target_name = 'BOB'
           @packet.packet_name = 'SMITH'
@@ -258,15 +258,15 @@ module Cosmos
           thread = InterfaceThread.new(@interface)
           thread.start
           sleep 0.1
-          Thread.list.length.should eql(2)
+          expect(Thread.list.length).to eql(2)
           thread.stop
           sleep 0.2
-          Thread.list.length.should eql(1)
-          stdout.string.should match "Received unknown identified telemetry: BOB SMITH"
+          expect(Thread.list.length).to eql(1)
+          expect(stdout.string).to match "Received unknown identified telemetry: BOB SMITH"
         end
       end
 
-      it "should write to all defined routers" do
+      it "writes to all defined routers" do
         capture_io do |stdout|
           router = double("Router")
           allow(router).to receive(:write_allowed?).and_return(true)
@@ -277,16 +277,16 @@ module Cosmos
           thread = InterfaceThread.new(@interface)
           thread.start
           sleep 0.1
-          Thread.list.length.should eql(2)
+          expect(Thread.list.length).to eql(2)
           thread.stop
           sleep 0.2
-          Thread.list.length.should eql(1)
+          expect(Thread.list.length).to eql(1)
 
-          stdout.string.should match "Problem writing to router"
+          expect(stdout.string).to match "Problem writing to router"
         end
       end
 
-      it "should write to all defined packet log writers" do
+      it "writes to all defined packet log writers" do
         writer = double("LogWriter")
         allow(writer).to receive_message_chain(:tlm_log_writer,:write)
         @interface.packet_log_writer_pairs = [writer]
@@ -294,10 +294,10 @@ module Cosmos
         threads = Thread.list.length
         thread.start
         sleep 0.1
-        Thread.list.length.should eql(2)
+        expect(Thread.list.length).to eql(2)
         thread.stop
         sleep 0.2
-        Thread.list.length.should eql(1)
+        expect(Thread.list.length).to eql(1)
       end
 
     end

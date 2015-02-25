@@ -353,14 +353,16 @@ class Time
   # @param ms [Integer] CCSDS milliseconds
   # @param us [Integer] CCSDS microseconds
   # @param sec_epoch_jd [Float] Epoch to convert seconds from as a julian date
-  def self.ccsds2sec (day, ms, us, sec_epoch_jd = JULIAN_DATE_OF_CCSDS_EPOCH)
+  # @return [Float] The number of seconds from the given epoch to the given
+  #   CCSDS day, milliseconds, and microseconds.
+  def self.ccsds2sec(day, ms, us, sec_epoch_jd = JULIAN_DATE_OF_CCSDS_EPOCH)
     (self.ccsds2julian(day, ms, us) - sec_epoch_jd) * SEC_PER_DAY_FLOAT
   end
 
   # @param seconds [Float]
   # @param sec_epoch_jd [Float] Epoch to of seconds value
   # @return [Array<day, ms, us>] CCSDS date
-  def self.sec2ccsds (sec, sec_epoch_jd = JULIAN_DATE_OF_CCSDS_EPOCH)
+  def self.sec2ccsds(sec, sec_epoch_jd = JULIAN_DATE_OF_CCSDS_EPOCH)
     self.julian2ccsds((sec / SEC_PER_DAY_FLOAT) + sec_epoch_jd)
   end
 

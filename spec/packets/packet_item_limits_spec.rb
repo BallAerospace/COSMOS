@@ -20,39 +20,39 @@ module Cosmos
     end
 
     describe "values=" do
-      it "should set the values Hash" do
+      it "sets the values Hash" do
         @l.values = {:DEFAULT => [0,1,2,3,4,5]}
-        @l.values[:DEFAULT].should eql [0,1,2,3,4,5]
+        expect(@l.values[:DEFAULT]).to eql [0,1,2,3,4,5]
       end
 
-      it "should allow nil values" do
+      it "allows nil values" do
         @l.values = nil
-        @l.values.should be_nil
+        expect(@l.values).to be_nil
       end
 
-      it "should complain about non Hash values" do
+      it "complains about non Hash values" do
         expect { @l.values = [] }.to raise_error(ArgumentError, "values must be a Hash but is a Array")
       end
 
-      it "should complain about Hash values without a :DEFAULT key" do
+      it "complains about Hash values without a :DEFAULT key" do
         expect { @l.values = {} }.to raise_error(ArgumentError, "values must be a Hash with a :DEFAULT key")
       end
     end
 
     describe "state=" do
-      it "should set the state to a Symbol" do
+      it "sets the state to a Symbol" do
         PacketItemLimits::LIMITS_STATES.each do |state|
           @l.state = state
-          @l.state.should eql state
+          expect(@l.state).to eql state
         end
       end
 
-      it "should set the state to nil" do
+      it "sets the state to nil" do
         @l.state = nil
-        @l.state.should be_nil
+        expect(@l.state).to be_nil
       end
 
-      it "should complain about bad Symbol states" do
+      it "complains about bad Symbol states" do
         expect { @l.state = :ORANGE }.to raise_error(ArgumentError, "state must be one of #{PacketItemLimits::LIMITS_STATES} but is ORANGE")
         expect { @l.state = "RED" }.to raise_error(ArgumentError, "state must be one of #{PacketItemLimits::LIMITS_STATES} but is RED")
         expect { @l.state = 5 }.to raise_error(ArgumentError, "state must be one of #{PacketItemLimits::LIMITS_STATES} but is 5")
@@ -60,67 +60,67 @@ module Cosmos
     end
 
     describe "response=" do
-      it "should accept LimitsResponse instances" do
+      it "accepts LimitsResponse instances" do
         r = LimitsResponse.new()
         @l.response = r
-        (LimitsResponse === @l.response).should be_truthy
+        expect(LimitsResponse === @l.response).to be_truthy
       end
 
-      it "should set the response to nil" do
+      it "sets the response to nil" do
         @l.response = nil
-        @l.response.should be_nil
+        expect(@l.response).to be_nil
       end
 
-      it "should complain about non LimitsResponse responses" do
+      it "complains about non LimitsResponse responses" do
         expect { @l.response = "HI" }.to raise_error(ArgumentError, "response must be a Cosmos::LimitsResponse but is a String")
       end
     end
 
     describe "persistence_setting=" do
-      it "should accept persistence_setting as a Fixnum" do
+      it "accepts persistence_setting as a Fixnum" do
         persistence_setting = 1
         @l.persistence_setting = persistence_setting
-        @l.persistence_setting.should eql persistence_setting
+        expect(@l.persistence_setting).to eql persistence_setting
       end
 
-      it "should complain about persistence_setting = nil" do
+      it "complains about persistence_setting = nil" do
         expect { @l.persistence_setting = nil}.to raise_error(ArgumentError, "persistence_setting must be a Fixnum but is a NilClass")
       end
 
-      it "should complain about persistence_setting that aren't Fixnum" do
+      it "complains about persistence_setting that aren't Fixnum" do
         expect { @l.persistence_setting = 5.5}.to raise_error(ArgumentError, "persistence_setting must be a Fixnum but is a Float")
       end
     end
 
     describe "persistence_count=" do
-      it "should accept persistence_count as a String" do
+      it "accepts persistence_count as a String" do
         persistence_count = 1
         @l.persistence_count = persistence_count
-        @l.persistence_count.should eql persistence_count
+        expect(@l.persistence_count).to eql persistence_count
       end
 
-      it "should complain about persistence_count = nil" do
+      it "complains about persistence_count = nil" do
         expect { @l.persistence_count = nil}.to raise_error(ArgumentError, "persistence_count must be a Fixnum but is a NilClass")
       end
 
-      it "should complain about persistence_count that aren't Fixnum" do
+      it "complains about persistence_count that aren't Fixnum" do
         expect { @l.persistence_count = 5.5}.to raise_error(ArgumentError, "persistence_count must be a Fixnum but is a Float")
       end
     end
 
     describe "clone" do
-      it "should duplicate the entire Limits" do
+      it "duplicates the entire Limits" do
         l2 = @l.clone
-        @l.values.should eql l2.values
-        @l.response.should eql l2.response
-        @l.state.should eql l2.state
-        @l.persistence_count.should eql l2.persistence_count
-        @l.persistence_setting.should eql l2.persistence_setting
+        expect(@l.values).to eql l2.values
+        expect(@l.response).to eql l2.response
+        expect(@l.state).to eql l2.state
+        expect(@l.persistence_count).to eql l2.persistence_count
+        expect(@l.persistence_setting).to eql l2.persistence_setting
       end
     end
 
     describe "to_hash" do
-      it "should create a Hash" do
+      it "creates a Hash" do
         @l.enabled = true
         @l.values = {:DEFAULT => [0,1,2,3,4,5]}
         @l.state = :RED_LOW
@@ -130,17 +130,17 @@ module Cosmos
         @l.persistence_count = 2
 
         hash = @l.to_hash
-        hash.keys.length.should eql 6
-        hash.keys.should include('values','enabled','state','response','persistence_setting','persistence_count')
-        hash["enabled"].should be_truthy
-        hash["values"].should include(:DEFAULT => [0,1,2,3,4,5])
-        hash["state"].should eql :RED_LOW
-        hash["response"].should match "LimitsResponse"
-        hash["persistence_setting"].should eql 1
-        hash["persistence_count"].should eql 2
+        expect(hash.keys.length).to eql 6
+        expect(hash.keys).to include('values','enabled','state','response','persistence_setting','persistence_count')
+        expect(hash["enabled"]).to be_truthy
+        expect(hash["values"]).to include(:DEFAULT => [0,1,2,3,4,5])
+        expect(hash["state"]).to eql :RED_LOW
+        expect(hash["response"]).to match "LimitsResponse"
+        expect(hash["persistence_setting"]).to eql 1
+        expect(hash["persistence_count"]).to eql 2
       end
 
-      it "should create a Hash without a response" do
+      it "creates a Hash without a response" do
         @l.enabled = true
         @l.values = {:DEFAULT => [0,1,2,3,4,5]}
         @l.state = :RED_LOW
@@ -148,12 +148,12 @@ module Cosmos
         @l.persistence_count = 2
 
         hash = @l.to_hash
-        hash["enabled"].should be_truthy
-        hash["values"].should include(:DEFAULT => [0,1,2,3,4,5])
-        hash["state"].should eql :RED_LOW
-        hash["response"].should be_nil
-        hash["persistence_setting"].should eql 1
-        hash["persistence_count"].should eql 2
+        expect(hash["enabled"]).to be_truthy
+        expect(hash["values"]).to include(:DEFAULT => [0,1,2,3,4,5])
+        expect(hash["state"]).to eql :RED_LOW
+        expect(hash["response"]).to be_nil
+        expect(hash["persistence_setting"]).to eql 1
+        expect(hash["persistence_count"]).to eql 2
       end
     end
 

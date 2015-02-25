@@ -16,36 +16,36 @@ module Cosmos
   describe Processor do
 
     describe "initialize" do
-      it "should store an optional value_type" do
+      it "stores an optional value_type" do
         a = Processor.new(:RAW)
-        a.value_type.should eql :RAW
+        expect(a.value_type).to eql :RAW
         b = Processor.new
-        b.value_type.should eql :CONVERTED
+        expect(b.value_type).to eql :CONVERTED
       end
     end
 
     describe "call" do
-      it "should raise an exception" do
+      it "raises an exception" do
         expect { Processor.new.call(0, 0) }.to raise_error("call method must be defined by subclass")
       end
     end
 
     describe "to_s" do
-      it "should return a String" do
-        Processor.new.to_s.should eql "Processor"
+      it "returns a String" do
+        expect(Processor.new.to_s).to eql "Processor"
       end
     end
 
     describe "name" do
-      it "should have an assignable name" do
+      it "has an assignable name" do
         a = Processor.new
         a.name = "Test"
-        a.name.should eql "TEST"
+        expect(a.name).to eql "TEST"
       end
     end
 
     describe "reset" do
-      it "should have a reset method" do
+      it "has a reset method" do
         a = Processor.new
         expect { a.reset }.not_to raise_error
       end

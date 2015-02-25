@@ -23,22 +23,22 @@ module Cosmos
     end
 
     describe "parse_file" do
-      it "should yield keyword, parameters to the block" do
+      it "yields keyword, parameters to the block" do
         tf = Tempfile.new('unittest')
         line = "KEYWORD PARAM1 PARAM2 'PARAM 3'"
         tf.puts line
         tf.close
 
         @cp.parse_file(tf.path) do |keyword, params|
-          keyword.should eql "KEYWORD"
-          params.should include('PARAM1','PARAM2','PARAM 3')
-          @cp.line.should eql line
-          @cp.line_number.should eql 1
+          expect(keyword).to eql "KEYWORD"
+          expect(params).to include('PARAM1','PARAM2','PARAM 3')
+          expect(@cp.line).to eql line
+          expect(@cp.line_number).to eql 1
         end
         tf.unlink
       end
 
-      it "should handle Ruby string interpolation" do
+      it "handles Ruby string interpolation" do
         tf = Tempfile.new('unittest')
         tf.puts 'KEYWORD1 #{var} PARAM1'
         tf.puts 'KEYWORD2 PARAM1 #Comment'
@@ -49,64 +49,64 @@ module Cosmos
           results[keyword] = params
         end
 
-        results.keys.should eql %w(KEYWORD1 KEYWORD2)
-        results["KEYWORD1"].should eql %w(#{var} PARAM1)
-        results["KEYWORD2"].should eql %w(PARAM1)
+        expect(results.keys).to eql %w(KEYWORD1 KEYWORD2)
+        expect(results["KEYWORD1"]).to eql %w(#{var} PARAM1)
+        expect(results["KEYWORD2"]).to eql %w(PARAM1)
         tf.unlink
       end
 
-      it "should optionally not remove quotes" do
+      it "optionallies not remove quotes" do
         tf = Tempfile.new('unittest')
         line = "KEYWORD PARAM1 PARAM2 'PARAM 3'"
         tf.puts line
         tf.close
 
         @cp.parse_file(tf.path, false, false) do |keyword, params|
-          keyword.should eql "KEYWORD"
-          params.should include('PARAM1','PARAM2',"'PARAM 3'")
-          @cp.line.should eql line
-          @cp.line_number.should eql 1
+          expect(keyword).to eql "KEYWORD"
+          expect(params).to include('PARAM1','PARAM2',"'PARAM 3'")
+          expect(@cp.line).to eql line
+          expect(@cp.line_number).to eql 1
         end
         tf.unlink
       end
 
-      it "should handle inline line continuations" do
+      it "handles inline line continuations" do
         tf = Tempfile.new('unittest')
         tf.puts "KEYWORD PARAM1 & PARAM2"
         tf.close
 
         @cp.parse_file(tf.path) do |keyword, params|
-          keyword.should eql "KEYWORD"
-          params.should eql %w(PARAM1 & PARAM2)
-          @cp.line.should eql "KEYWORD PARAM1 & PARAM2"
-          @cp.line_number.should eql 1
+          expect(keyword).to eql "KEYWORD"
+          expect(params).to eql %w(PARAM1 & PARAM2)
+          expect(@cp.line).to eql "KEYWORD PARAM1 & PARAM2"
+          expect(@cp.line_number).to eql 1
         end
         tf.unlink
       end
 
-      it "should handle line continuations as EOL" do
+      it "handles line continuations as EOL" do
         tf = Tempfile.new('unittest')
         tf.puts "KEYWORD PARAM1 &"
         tf.puts "  PARAM2 'PARAM 3'"
         tf.close
 
         @cp.parse_file(tf.path) do |keyword, params|
-          keyword.should eql "KEYWORD"
-          params.should include('PARAM1','PARAM2','PARAM 3')
-          @cp.line.should eql "KEYWORD PARAM1 PARAM2 'PARAM 3'"
-          @cp.line_number.should eql 2
+          expect(keyword).to eql "KEYWORD"
+          expect(params).to include('PARAM1','PARAM2','PARAM 3')
+          expect(@cp.line).to eql "KEYWORD PARAM1 PARAM2 'PARAM 3'"
+          expect(@cp.line_number).to eql 2
         end
 
         @cp.parse_file(tf.path, false, false) do |keyword, params|
-          keyword.should eql "KEYWORD"
-          params.should include('PARAM1','PARAM2',"'PARAM 3'")
-          @cp.line.should eql "KEYWORD PARAM1 PARAM2 'PARAM 3'"
-          @cp.line_number.should eql 2
+          expect(keyword).to eql "KEYWORD"
+          expect(params).to include('PARAM1','PARAM2',"'PARAM 3'")
+          expect(@cp.line).to eql "KEYWORD PARAM1 PARAM2 'PARAM 3'"
+          expect(@cp.line_number).to eql 2
         end
         tf.unlink
       end
 
-      it "should optionally yield comment lines" do
+      it "optionallies yield comment lines" do
         tf = Tempfile.new('unittest')
         tf.puts "KEYWORD1 PARAM1"
         tf.puts "# This is a comment"
@@ -117,11 +117,11 @@ module Cosmos
         @cp.parse_file(tf.path, true) do |keyword, params|
           lines << @cp.line
         end
-        lines.should include("# This is a comment")
+        expect(lines).to include("# This is a comment")
         tf.unlink
       end
 
-      it "should callback for messages" do
+      it "callbacks for messages" do
         tf = Tempfile.new('unittest')
         line = "KEYWORD PARAM1 PARAM2 'PARAM 3'"
         tf.puts line
@@ -132,15 +132,15 @@ module Cosmos
 
         ConfigParser.message_callback = msg_callback
         @cp.parse_file(tf.path) do |keyword, params|
-          keyword.should eql "KEYWORD"
-          params.should include('PARAM1','PARAM2','PARAM 3')
-          @cp.line.should eql line
-          @cp.line_number.should eql 1
+          expect(keyword).to eql "KEYWORD"
+          expect(params).to include('PARAM1','PARAM2','PARAM 3')
+          expect(@cp.line).to eql line
+          expect(@cp.line_number).to eql 1
         end
         tf.unlink
       end
 
-      it "should callback for percent done" do
+      it "callbacks for percent done" do
         tf = Tempfile.new('unittest')
         # Callback is made at beginning, every 10 lines, and at the end
         15.times { tf.puts "KEYWORD PARAM" }
@@ -160,27 +160,27 @@ module Cosmos
     end
 
     describe "verify_num_parameters" do
-      it "should verify the minimum number of parameters" do
+      it "verifies the minimum number of parameters" do
         tf = Tempfile.new('unittest')
         line = "KEYWORD"
         tf.puts line
         tf.close
 
         @cp.parse_file(tf.path) do |keyword, params|
-          keyword.should eql "KEYWORD"
+          expect(keyword).to eql "KEYWORD"
           expect { @cp.verify_num_parameters(1, 1) }.to raise_error(ConfigParser::Error, "Not enough parameters for KEYWORD.")
         end
         tf.unlink
       end
 
-      it "should verify the maximum number of parameters" do
+      it "verifies the maximum number of parameters" do
         tf = Tempfile.new('unittest')
         line = "KEYWORD PARAM1 PARAM2"
         tf.puts line
         tf.close
 
         @cp.parse_file(tf.path) do |keyword, params|
-          keyword.should eql "KEYWORD"
+          expect(keyword).to eql "KEYWORD"
           expect { @cp.verify_num_parameters(1, 1) }.to raise_error(ConfigParser::Error, "Too many parameters for KEYWORD.")
         end
         tf.unlink
@@ -188,7 +188,7 @@ module Cosmos
     end
 
     describe "error" do
-      it "should return an Error" do
+      it "returns an Error" do
         tf = Tempfile.new('unittest')
         line = "KEYWORD"
         tf.puts line
@@ -196,30 +196,30 @@ module Cosmos
 
         @cp.parse_file(tf.path) do |keyword, params|
           error = @cp.error("Hello")
-          error.message.should eql "Hello"
-          error.keyword.should eql "KEYWORD"
-          error.filename.should eql tf.path
+          expect(error.message).to eql "Hello"
+          expect(error.keyword).to eql "KEYWORD"
+          expect(error.filename).to eql tf.path
         end
         tf.unlink
       end
     end
 
     describe "self.handle_nil" do
-      it "should convert 'NIL' and 'NULL' to nil" do
-        ConfigParser.handle_nil('NIL').should be_nil
-        ConfigParser.handle_nil('NULL').should be_nil
-        ConfigParser.handle_nil('nil').should be_nil
-        ConfigParser.handle_nil('null').should be_nil
-        ConfigParser.handle_nil('').should be_nil
+      it "converts 'NIL' and 'NULL' to nil" do
+        expect(ConfigParser.handle_nil('NIL')).to be_nil
+        expect(ConfigParser.handle_nil('NULL')).to be_nil
+        expect(ConfigParser.handle_nil('nil')).to be_nil
+        expect(ConfigParser.handle_nil('null')).to be_nil
+        expect(ConfigParser.handle_nil('')).to be_nil
       end
 
-      it "should return nil with nil" do
-        ConfigParser.handle_nil(nil).should be_nil
+      it "returns nil with nil" do
+        expect(ConfigParser.handle_nil(nil)).to be_nil
       end
 
-      it "should return values that don't convert" do
-        ConfigParser.handle_nil("HI").should eql "HI"
-        ConfigParser.handle_nil(5.0).should eql 5.0
+      it "returns values that don't convert" do
+        expect(ConfigParser.handle_nil("HI")).to eql "HI"
+        expect(ConfigParser.handle_nil(5.0)).to eql 5.0
       end
 
       #it "should complain if it can't convert" do
@@ -229,21 +229,21 @@ module Cosmos
     end
 
     describe "self.handle_true_false" do
-      it "should convert 'TRUE' and 'FALSE'" do
+      it "converts 'TRUE' and 'FALSE'" do
         expect(ConfigParser.handle_true_false('TRUE')).to be true
         expect(ConfigParser.handle_true_false('FALSE')).to be false
         expect(ConfigParser.handle_true_false('true')).to be true
         expect(ConfigParser.handle_true_false('false')).to be false
       end
 
-      it "should pass through true and false" do
+      it "passes through true and false" do
         expect(ConfigParser.handle_true_false(true)).to be true
         expect(ConfigParser.handle_true_false(false)).to be false
       end
 
-      it "should return values that don't convert" do
-        ConfigParser.handle_true_false("HI").should eql "HI"
-        ConfigParser.handle_true_false(5.0).should eql 5.0
+      it "returns values that don't convert" do
+        expect(ConfigParser.handle_true_false("HI")).to eql "HI"
+        expect(ConfigParser.handle_true_false(5.0)).to eql 5.0
       end
 
       #it "should complain if it can't convert" do
@@ -253,33 +253,33 @@ module Cosmos
     end
 
     describe "self.handle_true_false_nil" do
-      it "should convert 'NIL' and 'NULL' to nil" do
-        ConfigParser.handle_true_false_nil('NIL').should be_nil
-        ConfigParser.handle_true_false_nil('NULL').should be_nil
-        ConfigParser.handle_true_false_nil('nil').should be_nil
-        ConfigParser.handle_true_false_nil('null').should be_nil
-        ConfigParser.handle_true_false_nil('').should be_nil
+      it "converts 'NIL' and 'NULL' to nil" do
+        expect(ConfigParser.handle_true_false_nil('NIL')).to be_nil
+        expect(ConfigParser.handle_true_false_nil('NULL')).to be_nil
+        expect(ConfigParser.handle_true_false_nil('nil')).to be_nil
+        expect(ConfigParser.handle_true_false_nil('null')).to be_nil
+        expect(ConfigParser.handle_true_false_nil('')).to be_nil
       end
 
-      it "should return nil with nil" do
-        ConfigParser.handle_true_false_nil(nil).should be_nil
+      it "returns nil with nil" do
+        expect(ConfigParser.handle_true_false_nil(nil)).to be_nil
       end
 
-      it "should convert 'TRUE' and 'FALSE'" do
+      it "converts 'TRUE' and 'FALSE'" do
         expect(ConfigParser.handle_true_false_nil('TRUE')).to be true
         expect(ConfigParser.handle_true_false_nil('FALSE')).to be false
         expect(ConfigParser.handle_true_false_nil('true')).to be true
         expect(ConfigParser.handle_true_false_nil('false')).to be false
       end
 
-      it "should pass through true and false" do
+      it "passes through true and false" do
         expect(ConfigParser.handle_true_false_nil(true)).to be true
         expect(ConfigParser.handle_true_false_nil(false)).to be false
       end
 
-      it "should return values that don't convert" do
-        ConfigParser.handle_true_false("HI").should eql "HI"
-        ConfigParser.handle_true_false(5.0).should eql 5.0
+      it "returns values that don't convert" do
+        expect(ConfigParser.handle_true_false("HI")).to eql "HI"
+        expect(ConfigParser.handle_true_false(5.0)).to eql 5.0
       end
 
       #it "should complain if it can't convert" do
@@ -289,31 +289,31 @@ module Cosmos
     end
 
     describe "self.handle_defined_constants" do
-      it "should convert string constants to numbers" do
+      it "converts string constants to numbers" do
         [8,16,32,64].each do |val|
           # Unsigned
-          ConfigParser.handle_defined_constants("MIN_UINT#{val}").should eql 0
-          ConfigParser.handle_defined_constants("MAX_UINT#{val}").should eql (2**val - 1)
+          expect(ConfigParser.handle_defined_constants("MIN_UINT#{val}")).to eql 0
+          expect(ConfigParser.handle_defined_constants("MAX_UINT#{val}")).to eql (2**val - 1)
           # Signed
-          ConfigParser.handle_defined_constants("MIN_INT#{val}").should eql -((2**val) / 2)
-          ConfigParser.handle_defined_constants("MAX_INT#{val}").should eql ((2**val) / 2 - 1)
+          expect(ConfigParser.handle_defined_constants("MIN_INT#{val}")).to eql -((2**val) / 2)
+          expect(ConfigParser.handle_defined_constants("MAX_INT#{val}")).to eql ((2**val) / 2 - 1)
         end
         # Float
-        ConfigParser.handle_defined_constants("MIN_FLOAT32").should be <= -3.4 * 10**38
-        ConfigParser.handle_defined_constants("MAX_FLOAT32").should be >= 3.4 * 10**38
-        ConfigParser.handle_defined_constants("MIN_FLOAT64").should eql -Float::MAX
-        ConfigParser.handle_defined_constants("MAX_FLOAT64").should eql Float::MAX
-        ConfigParser.handle_defined_constants("POS_INFINITY").should eql Float::INFINITY
-        ConfigParser.handle_defined_constants("NEG_INFINITY").should eql -Float::INFINITY
+        expect(ConfigParser.handle_defined_constants("MIN_FLOAT32")).to be <= -3.4 * 10**38
+        expect(ConfigParser.handle_defined_constants("MAX_FLOAT32")).to be >= 3.4 * 10**38
+        expect(ConfigParser.handle_defined_constants("MIN_FLOAT64")).to eql -Float::MAX
+        expect(ConfigParser.handle_defined_constants("MAX_FLOAT64")).to eql Float::MAX
+        expect(ConfigParser.handle_defined_constants("POS_INFINITY")).to eql Float::INFINITY
+        expect(ConfigParser.handle_defined_constants("NEG_INFINITY")).to eql -Float::INFINITY
       end
 
-      it "should complain about undefined strings" do
+      it "complains about undefined strings" do
         expect { ConfigParser.handle_defined_constants("TRUE") }.to raise_error(ArgumentError, "Could not convert constant: TRUE")
       end
 
-      it "should pass through numbers" do
-        ConfigParser.handle_defined_constants(0).should eql 0
-        ConfigParser.handle_defined_constants(0.0).should eql 0.0
+      it "passes through numbers" do
+        expect(ConfigParser.handle_defined_constants(0)).to eql 0
+        expect(ConfigParser.handle_defined_constants(0.0)).to eql 0.0
       end
     end
 

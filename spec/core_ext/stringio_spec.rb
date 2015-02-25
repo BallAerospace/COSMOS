@@ -14,8 +14,8 @@ require 'cosmos/core_ext/stringio'
 describe StringIO do
 
   describe "path" do
-    it "should return nil" do
-      StringIO.new.path.should be_nil
+    it "returns nil" do
+      expect(StringIO.new.path).to be_nil
     end
   end
 end

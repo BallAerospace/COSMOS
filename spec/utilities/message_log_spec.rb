@@ -22,49 +22,49 @@ module Cosmos
     end
 
     describe "initialize" do
-      it "should accept a tool name and use the default LOG path" do
+      it "accepts a tool name and use the default LOG path" do
         log = MessageLog.new('TEST')
         log.start
         log.stop
         Cosmos.set_working_dir do
-          File.exist?(log.filename).should be_truthy
-          log.filename.should match 'TEST'
-          log.filename.should match 'logs'
+          expect(File.exist?(log.filename)).to be_truthy
+          expect(log.filename).to match 'TEST'
+          expect(log.filename).to match 'logs'
           File.delete log.filename
         end
       end
 
-      it "should accept a tool name and path" do
+      it "accepts a tool name and path" do
         log = MessageLog.new('TEST', File.expand_path(File.dirname(__FILE__)))
         log.start
         log.stop
-        File.exist?(log.filename).should be_truthy
-        log.filename.should match File.expand_path(File.dirname(__FILE__))
+        expect(File.exist?(log.filename)).to be_truthy
+        expect(log.filename).to match File.expand_path(File.dirname(__FILE__))
         File.delete log.filename
       end
     end
 
     describe "write" do
-      it "should write a message to the log" do
+      it "writes a message to the log" do
         log = MessageLog.new('TEST')
         log.write("Test message")
         log.stop
         Cosmos.set_working_dir do
-          File.read(log.filename).should eql "Test message"
+          expect(File.read(log.filename)).to eql "Test message"
           File.delete log.filename
         end
       end
     end
 
     describe "start" do
-      it "should create a new message log" do
+      it "creates a new message log" do
         log = MessageLog.new('TEST')
         log.start
         filename = log.filename
         # Allow a second to tick by so we have a unique filename
         sleep(1.001)
         log.start
-        log.filename.should_not eql filename
+        expect(log.filename).not_to eql filename
         log.stop
         Cosmos.set_working_dir do
           File.delete filename
@@ -74,12 +74,12 @@ module Cosmos
     end
 
     describe "stop" do
-      it "should close the message log and mark it read-only" do
+      it "closes the message log and mark it read-only" do
         log = MessageLog.new('TEST')
         log.start
         log.stop
         Cosmos.set_working_dir do
-          File.stat(log.filename).writable?.should be_falsey
+          expect(File.stat(log.filename).writable?).to be_falsey
           File.delete log.filename
         end
       end

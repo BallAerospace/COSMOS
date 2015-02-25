@@ -18,40 +18,40 @@ module Cosmos
     end
 
     describe "contains_begin?" do
-      it "should detect the begin keyword" do
-        @lex.contains_begin?("  begin  ").should be_truthy
-        @lex.contains_begin?("  begin # asdf  ").should be_truthy
+      it "detects the begin keyword" do
+        expect(@lex.contains_begin?("  begin  ")).to be_truthy
+        expect(@lex.contains_begin?("  begin # asdf  ")).to be_truthy
       end
     end
 
     describe "contains_keyword?" do
-      it "should detect the ruby keywords" do
-        @lex.contains_keyword?("if something").should be_truthy
-        @lex.contains_keyword?("obj.method = something").should be_falsey
+      it "detects the ruby keywords" do
+        expect(@lex.contains_keyword?("if something")).to be_truthy
+        expect(@lex.contains_keyword?("obj.method = something")).to be_falsey
       end
     end
 
     describe "contains_block_beginning?" do
-      it "should detect block beginning keywords" do
-        @lex.contains_block_beginning?("do").should be_truthy
-        @lex.contains_block_beginning?("[].each {").should be_truthy
-        @lex.contains_block_beginning?("begin").should be_truthy
+      it "detects block beginning keywords" do
+        expect(@lex.contains_block_beginning?("do")).to be_truthy
+        expect(@lex.contains_block_beginning?("[].each {")).to be_truthy
+        expect(@lex.contains_block_beginning?("begin")).to be_truthy
       end
     end
 
     describe "remove_comments" do
-      it "should remove comments" do
+      it "removes comments" do
 text = <<DOC
 # This is a comment
 blah = 5 # Inline comment
 # Another
 DOC
-        @lex.remove_comments(text).should eql "\nblah = 5 \n\n"
+        expect(@lex.remove_comments(text)).to eql "\nblah = 5 \n\n"
       end
     end
 
     describe "each_lexed_segment" do
-      it "should yield each segment" do
+      it "yields each segment" do
 text = <<DOC
 begin
   x = 0
@@ -63,7 +63,7 @@ DOC
           ["end\n",false,nil,3])  # can't instrument end
       end
 
-      it "should yield each segment" do
+      it "yields each segment" do
 text = <<DOC
 
 if x

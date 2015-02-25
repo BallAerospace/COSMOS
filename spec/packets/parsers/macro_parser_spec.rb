@@ -119,7 +119,7 @@ module Cosmos
         @pc.process_file(tf.path, "TGT1")
         pkt = @pc.telemetry["TGT1"]["PKT1"]
         expect(pkt.items.length).to eql 8 # 5 plus the RECEIVED_XXX items
-        pkt.items.keys.should include('BIT1','BIT2','BIT3','BIT4','BIT5')
+        expect(pkt.items.keys).to include('BIT1','BIT2','BIT3','BIT4','BIT5')
         expect(pkt.sorted_items[3].name).to eql 'BIT1'
         expect(pkt.sorted_items[4].name).to eql 'BIT2'
         expect(pkt.sorted_items[5].name).to eql 'BIT3'
@@ -129,7 +129,7 @@ module Cosmos
         pkt.items.each do |name, item|
           limits_items << item if name.include?('BIT')
         end
-        pkt.limits_items.should eql limits_items
+        expect(pkt.limits_items).to eql limits_items
         tf.unlink
       end
 
@@ -159,8 +159,8 @@ module Cosmos
         @pc.process_file(tf.path, "TGT1")
         pkt = @pc.telemetry["TGT1"]["PKT1"]
         expect(pkt.items.length).to eql 8 # 5 plus the RECEIVED_XXX items
-        pkt.items.keys.should include('BIT1','BIT2','BIT3','BIT4','BIT5')
-        pkt.limits_items.should be_empty
+        expect(pkt.items.keys).to include('BIT1','BIT2','BIT3','BIT4','BIT5')
+        expect(pkt.limits_items).to be_empty
         tf.unlink
       end
 
@@ -174,8 +174,8 @@ module Cosmos
         @pc.process_file(tf.path, "TGT1")
         pkt = @pc.telemetry["TGT1"]["PKT1"]
         expect(pkt.items.length).to eql 8 # 5 plus the RECEIVED_XXX items
-        pkt.items.keys.should include('08_BIT','09_BIT','10_BIT','11_BIT','12_BIT')
-        pkt.limits_items.should be_empty
+        expect(pkt.items.keys).to include('08_BIT','09_BIT','10_BIT','11_BIT','12_BIT')
+        expect(pkt.limits_items).to be_empty
         tf.unlink
       end
 

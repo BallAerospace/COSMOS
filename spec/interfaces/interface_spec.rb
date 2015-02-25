@@ -16,36 +16,36 @@ module Cosmos
   describe Interface do
 
     describe "include API" do
-      it "should include API" do
-        Interface.new.methods.should include :cmd
+      it "includes API" do
+        expect(Interface.new.methods).to include :cmd
       end
     end
 
     describe "initialize" do
-      it "should initialize the instance variables" do
+      it "initializes the instance variables" do
         i = Interface.new
-        i.name.should eql "Cosmos::Interface"
-        i.target_names.should eql []
-        i.thread.should be_nil
-        i.connect_on_startup.should be_truthy
-        i.auto_reconnect.should be_truthy
-        i.reconnect_delay.should eql 5.0
-        i.disable_disconnect.should be_falsey
-        i.packet_log_writer_pairs.should eql []
-        i.routers.should eql []
-        i.read_count.should eql 0
-        i.write_count.should eql 0
-        i.bytes_read.should eql 0
-        i.bytes_written.should eql 0
-        i.num_clients.should eql 0
-        i.read_queue_size.should eql 0
-        i.write_queue_size.should eql 0
-        i.interfaces.should eql []
+        expect(i.name).to eql "Cosmos::Interface"
+        expect(i.target_names).to eql []
+        expect(i.thread).to be_nil
+        expect(i.connect_on_startup).to be_truthy
+        expect(i.auto_reconnect).to be_truthy
+        expect(i.reconnect_delay).to eql 5.0
+        expect(i.disable_disconnect).to be_falsey
+        expect(i.packet_log_writer_pairs).to eql []
+        expect(i.routers).to eql []
+        expect(i.read_count).to eql 0
+        expect(i.write_count).to eql 0
+        expect(i.bytes_read).to eql 0
+        expect(i.bytes_written).to eql 0
+        expect(i.num_clients).to eql 0
+        expect(i.read_queue_size).to eql 0
+        expect(i.write_queue_size).to eql 0
+        expect(i.interfaces).to eql []
       end
     end
 
     describe "virtual methods" do
-      it "should raise an error" do
+      it "raises an error" do
         i = Interface.new
         expect { i.connect }.to raise_error(/connect method not implemented/)
         expect { i.connected? }.to raise_error(/connected\? method not implemented/)
@@ -57,25 +57,25 @@ module Cosmos
     end
 
     describe "read_allowed?" do
-      it "should be true" do
-        Interface.new.read_allowed?.should be_truthy
+      it "is true" do
+        expect(Interface.new.read_allowed?).to be_truthy
       end
     end
 
     describe "write_allowed?" do
-      it "should be true" do
-        Interface.new.write_allowed?.should be_truthy
+      it "is true" do
+        expect(Interface.new.write_allowed?).to be_truthy
       end
     end
 
     describe "write_raw_allowed?" do
-      it "should be true" do
-        Interface.new.write_raw_allowed?.should be_truthy
+      it "is true" do
+        expect(Interface.new.write_raw_allowed?).to be_truthy
       end
     end
 
     describe "copy_to" do
-      it "should copy the interface" do
+      it "copies the interface" do
         i = Interface.new
         i.name = 'TEST'
         i.target_names = ['TGT1','TGT2']
@@ -97,30 +97,30 @@ module Cosmos
 
         i2 = Interface.new
         i.copy_to(i2)
-        i2.name.should eql 'TEST'
-        i2.target_names.should eql ['TGT1','TGT2']
-        i2.thread.should be_nil # Thread does not get copied
-        i2.connect_on_startup.should be_falsey
-        i2.auto_reconnect.should be_falsey
-        i2.reconnect_delay.should eql 1.0
-        i2.disable_disconnect.should be_truthy
-        i2.packet_log_writer_pairs.should eql [1,2]
-        i2.routers.should eql [3,4]
-        i2.read_count.should eql 1
-        i2.write_count.should eql 2
-        i2.bytes_read.should eql 3
-        i2.bytes_written.should eql 4
-        i2.num_clients.should eql 0 # does not get copied
-        i2.read_queue_size.should eql 0 # does not get copied
-        i2.write_queue_size.should eql 0 # does not get copied
-        i2.interfaces.should eql [5,6]
+        expect(i2.name).to eql 'TEST'
+        expect(i2.target_names).to eql ['TGT1','TGT2']
+        expect(i2.thread).to be_nil # Thread does not get copied
+        expect(i2.connect_on_startup).to be_falsey
+        expect(i2.auto_reconnect).to be_falsey
+        expect(i2.reconnect_delay).to eql 1.0
+        expect(i2.disable_disconnect).to be_truthy
+        expect(i2.packet_log_writer_pairs).to eql [1,2]
+        expect(i2.routers).to eql [3,4]
+        expect(i2.read_count).to eql 1
+        expect(i2.write_count).to eql 2
+        expect(i2.bytes_read).to eql 3
+        expect(i2.bytes_written).to eql 4
+        expect(i2.num_clients).to eql 0 # does not get copied
+        expect(i2.read_queue_size).to eql 0 # does not get copied
+        expect(i2.write_queue_size).to eql 0 # does not get copied
+        expect(i2.interfaces).to eql [5,6]
 
         Cosmos.kill_thread(nil, i.thread)
       end
     end
 
     describe "post_identify_packet" do
-      it "should do nothing" do
+      it "does nothing" do
         expect { Interface.new.post_identify_packet(nil) }.to_not raise_error
       end
     end

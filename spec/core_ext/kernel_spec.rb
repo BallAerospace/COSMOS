@@ -47,8 +47,8 @@ describe Kernel do
       def test2(start)
         calling_method(start)
       end
-      test(0).should eql :test2
-      test(1).should eql :test
+      expect(test(0)).to eql :test2
+      expect(test(1)).to eql :test
     end
   end
 end

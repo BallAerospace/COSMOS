@@ -39,11 +39,11 @@ module Cosmos
         capture_io do |stdout|
           thread.start
           sleep 0.2
-          Thread.list.length.should eql(2)
+          expect(Thread.list.length).to eql(2)
           thread.stop
           sleep 0.5
-          Thread.list.length.should eql(1)
-          stdout.string.should match "disconnected interface"
+          expect(Thread.list.length).to eql(1)
+          expect(stdout.string).to match "disconnected interface"
         end
       end
 
@@ -57,11 +57,11 @@ module Cosmos
         capture_io do |stdout|
           thread.start
           sleep 0.2
-          Thread.list.length.should eql(2)
+          expect(Thread.list.length).to eql(2)
           thread.stop
           sleep 0.5
-          Thread.list.length.should eql(1)
-          stdout.string.should match "Error routing command"
+          expect(Thread.list.length).to eql(1)
+          expect(stdout.string).to match "Error routing command"
         end
       end
 
@@ -81,11 +81,11 @@ module Cosmos
         capture_io do |stdout|
           thread.start
           sleep 0.2
-          Thread.list.length.should eql(2)
+          expect(Thread.list.length).to eql(2)
           thread.stop
           sleep 0.5
-          Thread.list.length.should eql(1)
-          stdout.string.should match "Received unknown identified command: BOB SMITH"
+          expect(Thread.list.length).to eql(1)
+          expect(stdout.string).to match "Received unknown identified command: BOB SMITH"
         end
       end
 
@@ -109,11 +109,11 @@ module Cosmos
         capture_io do |stdout|
           thread.start
           sleep 0.2
-          Thread.list.length.should eql(2)
+          expect(Thread.list.length).to eql(2)
           thread.stop
           sleep 0.5
-          Thread.list.length.should eql(1)
-          stdout.string.should match "Received unknown identified command: BOB SMITH"
+          expect(Thread.list.length).to eql(1)
+          expect(stdout.string).to match "Received unknown identified command: BOB SMITH"
         end
         expect(target).to have_received(:interface).twice #and_return(@interface)
       end
@@ -138,11 +138,11 @@ module Cosmos
         capture_io do |stdout|
           thread.start
           sleep 0.2
-          Thread.list.length.should eql(2)
+          expect(Thread.list.length).to eql(2)
           thread.stop
           sleep 0.5
-          Thread.list.length.should eql(1)
-          stdout.string.should match "target with no interface"
+          expect(Thread.list.length).to eql(1)
+          expect(stdout.string).to match "target with no interface"
         end
       end
     end

@@ -26,7 +26,7 @@ module Cosmos
       clean_config()
     end
 
-    it "should handle receiving a bad packet length" do
+    it "handles receiving a bad packet length" do
       @psp = PreidentifiedStreamProtocol.new(nil, 5)
       pkt = System.telemetry.packet("COSMOS","VERSION")
       class MyStream < Stream
@@ -44,19 +44,19 @@ module Cosmos
     end
 
     describe "initialize" do
-      it "should initialize attributes" do
-        @psp.bytes_read.should eql 0
-        @psp.bytes_written.should eql 0
-        @psp.interface.should be_nil
-        @psp.stream.should be_nil
-        @psp.post_read_data_callback.should be_nil
-        @psp.post_read_packet_callback.should be_nil
-        @psp.pre_write_packet_callback.should be_nil
+      it "initializes attributes" do
+        expect(@psp.bytes_read).to eql 0
+        expect(@psp.bytes_written).to eql 0
+        expect(@psp.interface).to be_nil
+        expect(@psp.stream).to be_nil
+        expect(@psp.post_read_data_callback).to be_nil
+        expect(@psp.post_read_packet_callback).to be_nil
+        expect(@psp.pre_write_packet_callback).to be_nil
       end
     end
 
     describe "write" do
-      it "should create a packet header" do
+      it "creates a packet header" do
         pkt = System.telemetry.packet("COSMOS","VERSION")
         class MyStream < Stream
           def connect; end
@@ -69,25 +69,25 @@ module Cosmos
         time = Time.new(2020,1,31,12,15,30.5)
         pkt.received_time = time
         @psp.write(pkt)
-        $buffer[0..3].unpack('N')[0].should eql time.to_f.to_i
-        $buffer[4..7].unpack('N')[0].should eql 500000
+        expect($buffer[0..3].unpack('N')[0]).to eql time.to_f.to_i
+        expect($buffer[4..7].unpack('N')[0]).to eql 500000
         offset = 8
         tgt_name_length = $buffer[offset].unpack('C')[0]
         offset += 1 # for the length field
-        $buffer[offset...(offset+tgt_name_length)].should eql 'COSMOS'
+        expect($buffer[offset...(offset+tgt_name_length)]).to eql 'COSMOS'
         offset += tgt_name_length
         pkt_name_length = $buffer[offset].unpack('C')[0]
         offset += 1 # for the length field
-        $buffer[offset...(offset+pkt_name_length)].should eql 'VERSION'
+        expect($buffer[offset...(offset+pkt_name_length)]).to eql 'VERSION'
         offset += pkt_name_length
-        $buffer[offset..(offset+3)].unpack('N')[0].should eql pkt.buffer.length
+        expect($buffer[offset..(offset+3)].unpack('N')[0]).to eql pkt.buffer.length
         offset += 4
-        $buffer[offset..-1].should eql pkt.buffer
+        expect($buffer[offset..-1]).to eql pkt.buffer
       end
     end
 
     describe "read" do
-      it "should return a packet" do
+      it "returns a packet" do
         pkt = System.telemetry.packet("COSMOS","VERSION")
         pkt.write("PKT_ID", 1)
         pkt.write("COSMOS", "TEST")
@@ -103,16 +103,16 @@ module Cosmos
         pkt.received_time = time
         @psp.write(pkt)
         packet = @psp.read
-        packet.target_name.should eql 'COSMOS'
-        packet.packet_name.should eql 'VERSION'
-        packet.identified?.should be_truthy
-        packet.defined?.should be_falsey
+        expect(packet.target_name).to eql 'COSMOS'
+        expect(packet.packet_name).to eql 'VERSION'
+        expect(packet.identified?).to be_truthy
+        expect(packet.defined?).to be_falsey
 
         pkt2 = System.telemetry.update!("COSMOS","VERSION",packet.buffer)
-        pkt2.read('PKT_ID').should eql 1
-        pkt2.read('COSMOS').should eql 'TEST'
-        pkt2.identified?.should be_truthy
-        pkt2.defined?.should be_truthy
+        expect(pkt2.read('PKT_ID')).to eql 1
+        expect(pkt2.read('COSMOS')).to eql 'TEST'
+        expect(pkt2.identified?).to be_truthy
+        expect(pkt2.defined?).to be_truthy
       end
     end
 

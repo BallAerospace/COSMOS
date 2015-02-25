@@ -23,7 +23,7 @@ module Cosmos
         @pc = PacketConfig.new
       end
 
-      it "should complain if a current item is not defined" do
+      it "complains if a current item is not defined" do
         # Check for missing ITEM definitions
         tf = Tempfile.new('unittest')
         tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Packet"'
@@ -33,7 +33,7 @@ module Cosmos
         tf.unlink
       end
 
-      it "should complain if there are not enough parameters" do
+      it "complains if there are not enough parameters" do
         tf = Tempfile.new('unittest')
         tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Packet"'
         tf.puts 'ITEM myitem 0 8 UINT "Test Item"'
@@ -43,7 +43,7 @@ module Cosmos
         tf.unlink
       end
 
-      it "should complain if there are too many parameters" do
+      it "complains if there are too many parameters" do
         tf = Tempfile.new('unittest')
         tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Packet"'
         tf.puts 'ITEM myitem 0 8 UINT "Test Item"'
@@ -53,7 +53,7 @@ module Cosmos
         tf.unlink
       end
 
-      it "should support STRING items" do
+      it "supports STRING items" do
         tf = Tempfile.new('unittest')
         tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Description"'
         tf.puts '  APPEND_ITEM item1 128 STRING "state item"'
@@ -62,13 +62,13 @@ module Cosmos
         tf.close
         @pc.process_file(tf.path, "TGT1")
         @pc.telemetry["TGT1"]["PKT1"].write("ITEM1", "TRUE STRING")
-        @pc.telemetry["TGT1"]["PKT1"].read("ITEM1").should eql "TRUE"
+        expect(@pc.telemetry["TGT1"]["PKT1"].read("ITEM1")).to eql "TRUE"
         @pc.telemetry["TGT1"]["PKT1"].write("ITEM1", "FALSE STRING")
-        @pc.telemetry["TGT1"]["PKT1"].read("ITEM1").should eql "FALSE"
+        expect(@pc.telemetry["TGT1"]["PKT1"].read("ITEM1")).to eql "FALSE"
         tf.unlink
       end
 
-      it "should warn about duplicate states and replace the duplicate" do
+      it "warns about duplicate states and replace the duplicate" do
         tf = Tempfile.new('unittest')
         tf.puts 'COMMAND tgt1 pkt1 LITTLE_ENDIAN "Description"'
         tf.puts '  APPEND_PARAMETER item1 8 UINT 0 2 0 "state item"'
@@ -77,16 +77,16 @@ module Cosmos
         tf.puts '    STATE FALSE 2'
         tf.close
         @pc.process_file(tf.path, "TGT1")
-        @pc.warnings.should include("Duplicate state defined on line 5: STATE FALSE 2")
+        expect(@pc.warnings).to include("Duplicate state defined on line 5: STATE FALSE 2")
         @pc.commands["TGT1"]["PKT1"].buffer = "\x00"
-        @pc.commands["TGT1"]["PKT1"].read("ITEM1").should eql 0
+        expect(@pc.commands["TGT1"]["PKT1"].read("ITEM1")).to eql 0
         @pc.commands["TGT1"]["PKT1"].buffer = "\x02"
-        @pc.commands["TGT1"]["PKT1"].read("ITEM1").should eql "FALSE"
+        expect(@pc.commands["TGT1"]["PKT1"].read("ITEM1")).to eql "FALSE"
         tf.unlink
       end
 
       context "with telemetry" do
-        it "should only allow GREEN YELLOW or RED" do
+        it "only allows GREEN YELLOW or RED" do
           tf = Tempfile.new('unittest')
           tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Description"'
           tf.puts '  APPEND_ITEM item1 8 UINT "state item"'
@@ -96,7 +96,7 @@ module Cosmos
           tf.unlink
         end
 
-        it "should record the state values and colors" do
+        it "records the state values and colors" do
           tf = Tempfile.new('unittest')
           tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Description"'
           tf.puts '  APPEND_ITEM item1 8 UINT "state item"'
@@ -109,19 +109,19 @@ module Cosmos
           index = 1
           colors = [:RED, :YELLOW, :GREEN]
           @pc.telemetry["TGT1"]["PKT1"].items["ITEM1"].states.each do |name,val|
-            name.should eql "STATE#{index}"
-            val.should eql index
-            @pc.telemetry["TGT1"]["PKT1"].items["ITEM1"].state_colors[name].should eql colors[index - 1]
+            expect(name).to eql "STATE#{index}"
+            expect(val).to eql index
+            expect(@pc.telemetry["TGT1"]["PKT1"].items["ITEM1"].state_colors[name]).to eql colors[index - 1]
 
             index += 1
           end
-          @pc.telemetry["TGT1"]["PKT1"].limits_items.should eql [@pc.telemetry["TGT1"]["PKT1"].items["ITEM1"]]
+          expect(@pc.telemetry["TGT1"]["PKT1"].limits_items).to eql [@pc.telemetry["TGT1"]["PKT1"].items["ITEM1"]]
           tf.unlink
         end
       end
 
       context "with command" do
-        it "should only allow HAZARDOUS as the third param" do
+        it "only allows HAZARDOUS as the third param" do
           tf = Tempfile.new('unittest')
           tf.puts 'COMMAND tgt1 pkt1 LITTLE_ENDIAN "Description"'
           tf.puts '  APPEND_PARAMETER item1 8 UINT 0 0 0'
@@ -131,7 +131,7 @@ module Cosmos
           tf.unlink
         end
 
-        it "should take HAZARDOUS and an optional description" do
+        it "takes HAZARDOUS and an optional description" do
           tf = Tempfile.new('unittest')
           tf.puts 'COMMAND tgt1 pkt1 LITTLE_ENDIAN "Description"'
           tf.puts '  APPEND_PARAMETER item1 8 UINT 1 3 1'
@@ -142,11 +142,11 @@ module Cosmos
           @pc.process_file(tf.path, "TGT1")
           @pc.commands["TGT1"]["PKT1"].buffer = "\x01"
           @pc.commands["TGT1"]["PKT1"].check_limits
-          @pc.commands["TGT1"]["PKT1"].items["ITEM1"].hazardous["GOOD"].should be_nil
-          @pc.commands["TGT1"]["PKT1"].items["ITEM1"].hazardous["BAD"].should_not be_nil
-          @pc.commands["TGT1"]["PKT1"].items["ITEM1"].hazardous["WORST"].should_not be_nil
-          @pc.commands["TGT1"]["PKT1"].items["ITEM1"].hazardous["WORST"].should eql "Hazardous description"
-          @pc.commands["TGT1"]["PKT1"].limits_items.should be_empty
+          expect(@pc.commands["TGT1"]["PKT1"].items["ITEM1"].hazardous["GOOD"]).to be_nil
+          expect(@pc.commands["TGT1"]["PKT1"].items["ITEM1"].hazardous["BAD"]).not_to be_nil
+          expect(@pc.commands["TGT1"]["PKT1"].items["ITEM1"].hazardous["WORST"]).not_to be_nil
+          expect(@pc.commands["TGT1"]["PKT1"].items["ITEM1"].hazardous["WORST"]).to eql "Hazardous description"
+          expect(@pc.commands["TGT1"]["PKT1"].limits_items).to be_empty
           tf.unlink
         end
       end

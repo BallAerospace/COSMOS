@@ -22,7 +22,7 @@ module Cosmos
         @pc = PacketConfig.new
       end
 
-      it "should complain about unknown keywords" do
+      it "complains about unknown keywords" do
         tf = Tempfile.new('unittest')
         tf.puts("BLAH")
         tf.close
@@ -40,7 +40,7 @@ module Cosmos
           @item_keywords = %w(STATE READ_CONVERSION WRITE_CONVERSION POLY_READ_CONVERSION POLY_WRITE_CONVERSION SEG_POLY_READ_CONVERSION SEG_POLY_WRITE_CONVERSION GENERIC_READ_CONVERSION_START GENERIC_WRITE_CONVERSION_START LIMITS LIMITS_RESPONSE UNITS FORMAT_STRING DESCRIPTION META)
         end
 
-        it "should complain if a current packet is not defined" do
+        it "complains if a current packet is not defined" do
           # Check for missing TELEMETRY line
           @tlm_keywords.each do |keyword|
             tf = Tempfile.new('unittest')
@@ -51,7 +51,7 @@ module Cosmos
           end # end for each tlm_keywords
         end
 
-        it "should complain if a current item is not defined" do
+        it "complains if a current item is not defined" do
           # Check for missing ITEM definitions
           @item_keywords.each do |keyword|
             next if %w(META).include? keyword
@@ -64,7 +64,7 @@ module Cosmos
           end
         end
 
-        it "should complain if there are not enough parameters" do
+        it "complains if there are not enough parameters" do
           @top_keywords.each do |keyword|
             tf = Tempfile.new('unittest')
             tf.puts(keyword)
@@ -94,7 +94,7 @@ module Cosmos
           end
         end
 
-        it "should complain if there are too many parameters" do
+        it "complains if there are too many parameters" do
           @top_keywords.each do |keyword|
             tf = Tempfile.new('unittest')
             case keyword
@@ -164,7 +164,7 @@ module Cosmos
       end
 
       context "with SELECT_COMMAND or SELECT_TELEMETRY" do
-        it "should complain if the packet is not found" do
+        it "complains if the packet is not found" do
           %w(SELECT_COMMAND SELECT_TELEMETRY).each do |keyword|
             tf = Tempfile.new('unittest')
             tf.puts keyword + ' tgt1 pkt1'
@@ -176,7 +176,7 @@ module Cosmos
           end
         end
 
-        it "should select a packet for modification" do
+        it "selects a packet for modification" do
           %w(SELECT_COMMAND SELECT_TELEMETRY).each do |keyword|
             tf = Tempfile.new('unittest')
             tf.puts 'COMMAND tgt1 pkt1 LITTLE_ENDIAN "Packet"'
@@ -187,7 +187,7 @@ module Cosmos
             @pc.process_file(tf.path, "TGT1")
             pkt = @pc.commands["TGT1"]["PKT1"] if keyword =~ /COMMAND/
             pkt = @pc.telemetry["TGT1"]["PKT1"] if keyword =~ /TELEMETRY/
-            pkt.get_item("ITEM1").description.should eql "Item"
+            expect(pkt.get_item("ITEM1").description).to eql "Item"
             tf.unlink
 
             tf = Tempfile.new('unittest')
@@ -199,12 +199,12 @@ module Cosmos
             @pc.process_file(tf.path, "TGT1")
             pkt = @pc.commands["TGT1"]["PKT1"] if keyword =~ /COMMAND/
             pkt = @pc.telemetry["TGT1"]["PKT1"] if keyword =~ /TELEMETRY/
-            pkt.get_item("ITEM1").description.should eql "New description"
+            expect(pkt.get_item("ITEM1").description).to eql "New description"
             tf.unlink
           end
         end
 
-        it "should substitute the target name" do
+        it "substitutes the target name" do
           %w(SELECT_COMMAND SELECT_TELEMETRY).each do |keyword|
             tf = Tempfile.new('unittest')
             tf.puts 'COMMAND tgt1 pkt1 LITTLE_ENDIAN "Packet"'
@@ -215,7 +215,7 @@ module Cosmos
             @pc.process_file(tf.path, "NEW")
             pkt = @pc.commands["NEW"]["PKT1"] if keyword =~ /COMMAND/
             pkt = @pc.telemetry["NEW"]["PKT1"] if keyword =~ /TELEMETRY/
-            pkt.get_item("ITEM1").description.should eql "Item"
+            expect(pkt.get_item("ITEM1").description).to eql "Item"
             tf.unlink
 
             tf = Tempfile.new('unittest')
@@ -227,14 +227,14 @@ module Cosmos
             @pc.process_file(tf.path, "NEW")
             pkt = @pc.commands["NEW"]["PKT1"] if keyword =~ /COMMAND/
             pkt = @pc.telemetry["NEW"]["PKT1"] if keyword =~ /TELEMETRY/
-            pkt.get_item("ITEM1").description.should eql "New description"
+            expect(pkt.get_item("ITEM1").description).to eql "New description"
             tf.unlink
           end
         end
       end
 
       context "with SELECT_PARAMETER" do
-        it "should complain if used with SELECT_TELEMETRY" do
+        it "complains if used with SELECT_TELEMETRY" do
           tf = Tempfile.new('unittest')
           tf.puts 'TELEMETRY TGT PKT LITTLE_ENDIAN "Packet"'
           tf.puts '  APPEND_ITEM ITEM 16 UINT "Item"'
@@ -244,14 +244,14 @@ module Cosmos
           expect { @pc.process_file(tf.path, "TGT") }.to raise_error(ConfigParser::Error, "SELECT_PARAMETER only applies to command packets")
         end
 
-        it "should complain if the parameter is not found" do
+        it "complains if the parameter is not found" do
           tf = Tempfile.new('unittest')
           tf.puts 'COMMAND TGT PKT LITTLE_ENDIAN "Packet"'
           tf.puts '  APPEND_PARAMETER PARAM 16 UINT 0 0 0 "Param"'
           tf.close
           @pc.process_file(tf.path, "TGT")
           pkt = @pc.commands["TGT"]["PKT"]
-          pkt.get_item("PARAM").description.should eql "Param"
+          expect(pkt.get_item("PARAM").description).to eql "Param"
           tf.unlink
 
           tf = Tempfile.new('unittest')
@@ -264,7 +264,7 @@ module Cosmos
       end
 
       context "with SELECT_ITEM" do
-        it "should complain if used with SELECT_COMMAND" do
+        it "complains if used with SELECT_COMMAND" do
           tf = Tempfile.new('unittest')
           tf.puts 'COMMAND TGT PKT LITTLE_ENDIAN "Packet"'
           tf.puts '  APPEND_PARAMETER PARAM 16 UINT 0 0 0 "Param"'
@@ -274,14 +274,14 @@ module Cosmos
           expect { @pc.process_file(tf.path, "TGT") }.to raise_error(ConfigParser::Error, "SELECT_ITEM only applies to telemetry packets")
         end
 
-        it "should complain if the item is not found" do
+        it "complains if the item is not found" do
           tf = Tempfile.new('unittest')
           tf.puts 'TELEMETRY TGT PKT LITTLE_ENDIAN "Packet"'
           tf.puts '  APPEND_ITEM ITEM 16 UINT "Item"'
           tf.close
           @pc.process_file(tf.path, "TGT")
           pkt = @pc.telemetry["TGT"]["PKT"]
-          pkt.get_item("ITEM").description.should eql "Item"
+          expect(pkt.get_item("ITEM").description).to eql "Item"
           tf.unlink
 
           tf = Tempfile.new('unittest')
@@ -313,27 +313,27 @@ module Cosmos
       end
 
       context "with LIMITS_GROUP" do
-        it "should create a new limits group" do
+        it "creates a new limits group" do
           tf = Tempfile.new('unittest')
           tf.puts 'LIMITS_GROUP TVAC'
           tf.puts 'LIMITS_GROUP VIBE'
           tf.close
-          @pc.limits_groups.should be_empty
+          expect(@pc.limits_groups).to be_empty
           @pc.process_file(tf.path, "TGT1")
-          @pc.limits_groups.should include('TVAC','VIBE')
+          expect(@pc.limits_groups).to include('TVAC','VIBE')
           tf.unlink
         end
       end
 
       context "with LIMITS_ITEM" do
-        it "should add a new limits item to the group" do
+        it "adds a new limits item to the group" do
           tf = Tempfile.new('unittest')
           tf.puts 'LIMITS_GROUP TVAC'
           tf.puts 'LIMITS_GROUP_ITEM TGT1 PKT1 ITEM1'
           tf.close
-          @pc.limits_groups.should be_empty
+          expect(@pc.limits_groups).to be_empty
           @pc.process_file(tf.path, "TGT1")
-          @pc.limits_groups["TVAC"].should eql [%w(TGT1 PKT1 ITEM1)]
+          expect(@pc.limits_groups["TVAC"]).to eql [%w(TGT1 PKT1 ITEM1)]
           tf.unlink
 
           # Show we can 're-open' the group and add items
@@ -342,27 +342,27 @@ module Cosmos
           tf.puts 'LIMITS_GROUP_ITEM TGT1 PKT1 ITEM2'
           tf.close
           @pc.process_file(tf.path, "TGT1")
-          @pc.limits_groups["TVAC"].should eql [%w(TGT1 PKT1 ITEM1), %w(TGT1 PKT1 ITEM2)]
+          expect(@pc.limits_groups["TVAC"]).to eql [%w(TGT1 PKT1 ITEM1), %w(TGT1 PKT1 ITEM2)]
           tf.unlink
         end
       end
 
       context "with ALLOW_SHORT" do
-        it "should mark the packet as allowing short buffers" do
+        it "marks the packet as allowing short buffers" do
           tf = Tempfile.new('unittest')
           tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Description"'
           tf.puts 'ALLOW_SHORT'
           tf.puts 'TELEMETRY tgt1 pkt2 LITTLE_ENDIAN "Description"'
           tf.close
           @pc.process_file(tf.path, "TGT1")
-          @pc.telemetry["TGT1"]["PKT1"].short_buffer_allowed.should be_truthy
-          @pc.telemetry["TGT1"]["PKT2"].short_buffer_allowed.should be_falsey
+          expect(@pc.telemetry["TGT1"]["PKT1"].short_buffer_allowed).to be_truthy
+          expect(@pc.telemetry["TGT1"]["PKT2"].short_buffer_allowed).to be_falsey
           tf.unlink
         end
       end
 
       context "with META" do
-        it "should save metadata" do
+        it "saves metadata" do
           tf = Tempfile.new('unittest')
           tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Description"'
           tf.puts 'META TYPE "struct packet"'
@@ -370,60 +370,60 @@ module Cosmos
           tf.puts 'META TYPE "struct packet2"'
           tf.close
           @pc.process_file(tf.path, "TGT1")
-          @pc.telemetry["TGT1"]["PKT1"].meta['TYPE'].should eql ["struct packet"]
-          @pc.telemetry["TGT1"]["PKT2"].meta['TYPE'].should eql ["struct packet2"]
+          expect(@pc.telemetry["TGT1"]["PKT1"].meta['TYPE']).to eql ["struct packet"]
+          expect(@pc.telemetry["TGT1"]["PKT2"].meta['TYPE']).to eql ["struct packet2"]
           tf.unlink
         end
       end
 
       context "with DISABLE_MESSAGES" do
-        it "should mark the packet as messages disabled" do
+        it "marks the packet as messages disabled" do
           tf = Tempfile.new('unittest')
           tf.puts 'COMMAND tgt1 pkt1 LITTLE_ENDIAN "Description"'
           tf.puts 'DISABLE_MESSAGES'
           tf.puts 'COMMAND tgt1 pkt2 LITTLE_ENDIAN "Description"'
           tf.close
           @pc.process_file(tf.path, "TGT1")
-          @pc.commands["TGT1"]["PKT1"].messages_disabled.should be_truthy
-          @pc.commands["TGT1"]["PKT2"].messages_disabled.should be_falsey
+          expect(@pc.commands["TGT1"]["PKT1"].messages_disabled).to be_truthy
+          expect(@pc.commands["TGT1"]["PKT2"].messages_disabled).to be_falsey
           tf.unlink
         end
       end
 
       context "with HIDDEN" do
-        it "should mark the packet as hidden" do
+        it "marks the packet as hidden" do
           tf = Tempfile.new('unittest')
           tf.puts 'COMMAND tgt1 pkt1 LITTLE_ENDIAN "Description"'
           tf.puts 'HIDDEN'
           tf.puts 'COMMAND tgt1 pkt2 LITTLE_ENDIAN "Description"'
           tf.close
           @pc.process_file(tf.path, "TGT1")
-          @pc.commands["TGT1"]["PKT1"].hidden.should be_truthy
-          @pc.commands["TGT1"]["PKT1"].disabled.should be_falsey
-          @pc.commands["TGT1"]["PKT2"].hidden.should be_falsey
-          @pc.commands["TGT1"]["PKT2"].disabled.should be_falsey
+          expect(@pc.commands["TGT1"]["PKT1"].hidden).to be_truthy
+          expect(@pc.commands["TGT1"]["PKT1"].disabled).to be_falsey
+          expect(@pc.commands["TGT1"]["PKT2"].hidden).to be_falsey
+          expect(@pc.commands["TGT1"]["PKT2"].disabled).to be_falsey
           tf.unlink
         end
       end
 
       context "with DISABLED" do
-        it "should mark the packet as disabled" do
+        it "marks the packet as disabled" do
           tf = Tempfile.new('unittest')
           tf.puts 'COMMAND tgt1 pkt1 LITTLE_ENDIAN "Description"'
           tf.puts 'DISABLED'
           tf.puts 'COMMAND tgt1 pkt2 LITTLE_ENDIAN "Description"'
           tf.close
           @pc.process_file(tf.path, "TGT1")
-          @pc.commands["TGT1"]["PKT1"].hidden.should be_truthy
-          @pc.commands["TGT1"]["PKT1"].disabled.should be_truthy
-          @pc.commands["TGT1"]["PKT2"].hidden.should be_falsey
-          @pc.commands["TGT1"]["PKT2"].disabled.should be_falsey
+          expect(@pc.commands["TGT1"]["PKT1"].hidden).to be_truthy
+          expect(@pc.commands["TGT1"]["PKT1"].disabled).to be_truthy
+          expect(@pc.commands["TGT1"]["PKT2"].hidden).to be_falsey
+          expect(@pc.commands["TGT1"]["PKT2"].disabled).to be_falsey
           tf.unlink
         end
       end
 
       context "with HAZARDOUS" do
-        it "should mark the packet as hazardous" do
+        it "marks the packet as hazardous" do
           tf = Tempfile.new('unittest')
           tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Description"'
           tf.puts 'HAZARDOUS'
@@ -433,27 +433,27 @@ module Cosmos
           tf.puts 'COMMAND tgt2 pkt2 LITTLE_ENDIAN "Description"'
           tf.close
           @pc.process_file(tf.path, "SYSTEM")
-          @pc.telemetry["TGT1"]["PKT1"].hazardous.should be_truthy
-          @pc.telemetry["TGT1"]["PKT2"].hazardous.should be_falsey
-          @pc.commands["TGT2"]["PKT1"].hazardous.should be_truthy
-          @pc.commands["TGT2"]["PKT2"].hazardous.should be_falsey
+          expect(@pc.telemetry["TGT1"]["PKT1"].hazardous).to be_truthy
+          expect(@pc.telemetry["TGT1"]["PKT2"].hazardous).to be_falsey
+          expect(@pc.commands["TGT2"]["PKT1"].hazardous).to be_truthy
+          expect(@pc.commands["TGT2"]["PKT2"].hazardous).to be_falsey
           tf.unlink
         end
 
-        it "should take a description" do
+        it "takes a description" do
           tf = Tempfile.new('unittest')
           tf.puts 'COMMAND tgt1 pkt1 LITTLE_ENDIAN "Description"'
           tf.puts 'HAZARDOUS "Hazardous description"'
           tf.close
           @pc.process_file(tf.path, "TGT1")
-          @pc.commands["TGT1"]["PKT1"].hazardous.should be_truthy
-          @pc.commands["TGT1"]["PKT1"].hazardous_description.should eql "Hazardous description"
+          expect(@pc.commands["TGT1"]["PKT1"].hazardous).to be_truthy
+          expect(@pc.commands["TGT1"]["PKT1"].hazardous_description).to eql "Hazardous description"
           tf.unlink
         end
       end
 
       context "with READ_CONVERSION and WRITE_CONVERSION" do
-        it "should complain about missing conversion file" do
+        it "complains about missing conversion file" do
           filename = File.join(File.dirname(__FILE__), "../test_only.rb")
           File.delete(filename) if File.exist?(filename)
           @pc = PacketConfig.new
@@ -475,7 +475,7 @@ module Cosmos
           tf.unlink
         end
 
-        it "should complain about a non Cosmos::Conversion class" do
+        it "complains about a non Cosmos::Conversion class" do
           filename = File.join(File.dirname(__FILE__), "../conversion1.rb")
           File.open(filename, 'w') do |file|
             file.puts "class Conversion1"
@@ -503,7 +503,7 @@ module Cosmos
           tf.unlink
         end
 
-        it "should parse the conversion" do
+        it "parses the conversion" do
           filename = File.join(File.dirname(__FILE__), "../conversion2.rb")
           File.open(filename, 'w') do |file|
             file.puts "require 'cosmos/conversions/conversion'"
@@ -522,7 +522,7 @@ module Cosmos
           tf.close
           @pc.process_file(tf.path, "TGT1")
           @pc.telemetry["TGT1"]["PKT1"].buffer = "\x01"
-          @pc.telemetry["TGT1"]["PKT1"].read("ITEM1").should eql 2
+          expect(@pc.telemetry["TGT1"]["PKT1"].read("ITEM1")).to eql 2
           tf.unlink
 
           tf = Tempfile.new('unittest')
@@ -532,7 +532,7 @@ module Cosmos
           tf.close
           @pc.process_file(tf.path, "TGT1")
           @pc.commands["TGT1"]["PKT1"].write("ITEM1", 3)
-          @pc.commands["TGT1"]["PKT1"].read("ITEM1").should eql 6
+          expect(@pc.commands["TGT1"]["PKT1"].read("ITEM1")).to eql 6
           tf.unlink
 
           File.delete(filename) if File.exist?(filename)
@@ -540,7 +540,7 @@ module Cosmos
       end
 
       context "with POLY_READ_CONVERSION and POLY_WRITE_CONVERSION" do
-        it "should perform a polynomial conversion" do
+        it "performs a polynomial conversion" do
           tf = Tempfile.new('unittest')
           tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Packet"'
           tf.puts '  ITEM item1 0 16 INT "Integer Item"'
@@ -548,7 +548,7 @@ module Cosmos
           tf.close
           @pc.process_file(tf.path, "TGT1")
           @pc.telemetry["TGT1"]["PKT1"].buffer = "\x01"
-          @pc.telemetry["TGT1"]["PKT1"].read("ITEM1").should eql 7.0
+          expect(@pc.telemetry["TGT1"]["PKT1"].read("ITEM1")).to eql 7.0
           tf.unlink
 
           tf = Tempfile.new('unittest')
@@ -558,13 +558,13 @@ module Cosmos
           tf.close
           @pc.process_file(tf.path, "TGT1")
           @pc.commands["TGT1"]["PKT1"].write("ITEM1", 3)
-          @pc.commands["TGT1"]["PKT1"].read("ITEM1").should eql 11
+          expect(@pc.commands["TGT1"]["PKT1"].read("ITEM1")).to eql 11
           tf.unlink
         end
       end
 
       context "with SEG_POLY_READ_CONVERSION and SEG_POLY_WRITE_CONVERSION" do
-        it "should perform a segmented polynomial conversion" do
+        it "performs a segmented polynomial conversion" do
           tf = Tempfile.new('unittest')
           tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Packet"'
           tf.puts '  ITEM item1 0 16 INT "Integer Item"'
@@ -573,9 +573,9 @@ module Cosmos
           tf.close
           @pc.process_file(tf.path, "TGT1")
           @pc.telemetry["TGT1"]["PKT1"].buffer = "\x01"
-          @pc.telemetry["TGT1"]["PKT1"].read("ITEM1").should eql 3.0
+          expect(@pc.telemetry["TGT1"]["PKT1"].read("ITEM1")).to eql 3.0
           @pc.telemetry["TGT1"]["PKT1"].buffer = "\x05"
-          @pc.telemetry["TGT1"]["PKT1"].read("ITEM1").should eql 17.0
+          expect(@pc.telemetry["TGT1"]["PKT1"].read("ITEM1")).to eql 17.0
           tf.unlink
 
           tf = Tempfile.new('unittest')
@@ -586,15 +586,15 @@ module Cosmos
           tf.close
           @pc.process_file(tf.path, "TGT1")
           @pc.commands["TGT1"]["PKT1"].write("ITEM1", 1)
-          @pc.commands["TGT1"]["PKT1"].read("ITEM1").should eql 3
+          expect(@pc.commands["TGT1"]["PKT1"].read("ITEM1")).to eql 3
           @pc.commands["TGT1"]["PKT1"].write("ITEM1", 5)
-          @pc.commands["TGT1"]["PKT1"].read("ITEM1").should eql 17
+          expect(@pc.commands["TGT1"]["PKT1"].read("ITEM1")).to eql 17
           tf.unlink
         end
       end
 
       context "with GENERIC_READ_CONVERSION and GENERIC_WRITE_CONVERSION" do
-        it "should process a generic conversion" do
+        it "processes a generic conversion" do
           tf = Tempfile.new('unittest')
           tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Packet"'
           tf.puts '  APPEND_ITEM item1 16 UINT "Item"'
@@ -610,12 +610,12 @@ module Cosmos
           pkt = @pc.telemetry["TGT1"]["PKT1"]
           pkt.enable_method_missing
           pkt.item1 = 2
-          pkt.item1.should eql 4
-          pkt.item2.should eql "Number 0"
+          expect(pkt.item1).to eql 4
+          expect(pkt.item2).to eql "Number 0"
           tf.unlink
         end
 
-        it "should process a generic conversion with a defined type" do
+        it "processes a generic conversion with a defined type" do
           tf = Tempfile.new('unittest')
           tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Packet"'
           tf.puts '  APPEND_ITEM item1 16 UINT "Item"'
@@ -631,9 +631,9 @@ module Cosmos
           pkt = @pc.telemetry["TGT1"]["PKT1"]
           pkt.enable_method_missing
           pkt.item1 = 400
-          pkt.item1.should eql 800
+          expect(pkt.item1).to eql 800
           pkt.item2 = 400
-          pkt.item2.should eql 800.0
+          expect(pkt.item2).to eql 800.0
           tf.unlink
         end
       end
@@ -654,7 +654,7 @@ module Cosmos
           @pc.telemetry["TGT1"]["PKT1"].buffer = "\x04"
           @pc.telemetry["TGT1"]["PKT1"].enable_limits("ITEM1")
           @pc.telemetry["TGT1"]["PKT1"].check_limits
-          item.limits.state.should eql :RED_LOW
+          expect(item.limits.state).to eql :RED_LOW
           tf.unlink
         end
       end
@@ -667,13 +667,13 @@ module Cosmos
           tf.puts '    UNITS Volts V'
           tf.close
           @pc.process_file(tf.path, "TGT1")
-          @pc.telemetry["TGT1"]["PKT1"].read("ITEM1",:WITH_UNITS).should eql "0 V"
+          expect(@pc.telemetry["TGT1"]["PKT1"].read("ITEM1",:WITH_UNITS)).to eql "0 V"
           tf.unlink
         end
       end
 
       context "with META" do
-        it "should save metadata for items" do
+        it "saves metadata for items" do
           tf = Tempfile.new('unittest')
           tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Packet"'
           tf.puts '  ITEM item1 0 8 UINT'
@@ -681,14 +681,14 @@ module Cosmos
           tf.puts '    META OTHER'
           tf.close
           @pc.process_file(tf.path, "TGT1")
-          @pc.telemetry["TGT1"]["PKT1"].get_item('item1').meta['TYPE'].should eql ['unsigned int']
-          @pc.telemetry["TGT1"]["PKT1"].get_item('item1').meta['OTHER'].should eql []
+          expect(@pc.telemetry["TGT1"]["PKT1"].get_item('item1').meta['TYPE']).to eql ['unsigned int']
+          expect(@pc.telemetry["TGT1"]["PKT1"].get_item('item1').meta['OTHER']).to eql []
           tf.unlink
         end
       end
 
       context "with OVERFLOW" do
-        it "should set the overflow type for items" do
+        it "sets the overflow type for items" do
           tf = Tempfile.new('unittest')
           tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Packet"'
           tf.puts '  ITEM item1 0 8 UINT'
@@ -701,16 +701,16 @@ module Cosmos
           tf.puts '    OVERFLOW ERROR_ALLOW_HEX'
           tf.close
           @pc.process_file(tf.path, "TGT1")
-          @pc.telemetry["TGT1"]["PKT1"].get_item('item1').overflow.should eql :TRUNCATE
-          @pc.telemetry["TGT1"]["PKT1"].get_item('item2').overflow.should eql :SATURATE
-          @pc.telemetry["TGT1"]["PKT1"].get_item('item3').overflow.should eql :ERROR
-          @pc.telemetry["TGT1"]["PKT1"].get_item('item4').overflow.should eql :ERROR_ALLOW_HEX
+          expect(@pc.telemetry["TGT1"]["PKT1"].get_item('item1').overflow).to eql :TRUNCATE
+          expect(@pc.telemetry["TGT1"]["PKT1"].get_item('item2').overflow).to eql :SATURATE
+          expect(@pc.telemetry["TGT1"]["PKT1"].get_item('item3').overflow).to eql :ERROR
+          expect(@pc.telemetry["TGT1"]["PKT1"].get_item('item4').overflow).to eql :ERROR_ALLOW_HEX
           tf.unlink
         end
       end
 
       context "with REQUIRED" do
-        it "should only apply to a command parameter" do
+        it "only applies to a command parameter" do
           tf = Tempfile.new('unittest')
           tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Packet"'
           tf.puts '  ITEM item1 0 8 UINT'
@@ -727,7 +727,7 @@ module Cosmos
           tf.unlink
         end
 
-        it "should mark a command parameter as required" do
+        it "marks a command parameter as required" do
           tf = Tempfile.new('unittest')
           tf.puts 'COMMAND tgt1 pkt1 LITTLE_ENDIAN "Packet"'
           tf.puts '  PARAMETER item1 0 8 UINT 0 1 1'
@@ -735,14 +735,14 @@ module Cosmos
           tf.puts '  PARAMETER item2 0 8 UINT 0 1 1'
           tf.close
           @pc.process_file(tf.path, "TGT1")
-          @pc.commands["TGT1"]["PKT1"].items["ITEM1"].required.should be_truthy
-          @pc.commands["TGT1"]["PKT1"].items["ITEM2"].required.should be_falsey
+          expect(@pc.commands["TGT1"]["PKT1"].items["ITEM1"].required).to be_truthy
+          expect(@pc.commands["TGT1"]["PKT1"].items["ITEM2"].required).to be_falsey
           tf.unlink
         end
       end
 
       context "with MINIMUM_VALUE, MAXIMUM_VALUE, DEFAULT_VALUE" do
-        it "should complain if used on telemetry items" do
+        it "complains if used on telemetry items" do
           tf = Tempfile.new('unittest')
           tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Packet"'
           tf.puts '  APPEND_ITEM item1 16 UINT'
@@ -768,7 +768,7 @@ module Cosmos
           tf.unlink
         end
 
-        it "should allow overriding the defined value" do
+        it "allows overriding the defined value" do
           tf = Tempfile.new('unittest')
           tf.puts 'COMMAND tgt1 pkt1 LITTLE_ENDIAN "Packet"'
           tf.puts '  APPEND_PARAMETER item1 16 UINT 0 1 1'
@@ -776,9 +776,9 @@ module Cosmos
           tf.close
           @pc.process_file(tf.path, "TGT1")
           @pc.commands["TGT1"]["PKT1"].restore_defaults
-          @pc.commands["TGT1"]["PKT1"].read("ITEM1").should eql 1
-          @pc.commands["TGT1"]["PKT1"].items["ITEM1"].range.should eql (0..1)
-          @pc.commands["TGT1"]["PKT1"].read("ITEM2").should eql "HI"
+          expect(@pc.commands["TGT1"]["PKT1"].read("ITEM1")).to eql 1
+          expect(@pc.commands["TGT1"]["PKT1"].items["ITEM1"].range).to eql (0..1)
+          expect(@pc.commands["TGT1"]["PKT1"].read("ITEM2")).to eql "HI"
           tf.unlink
 
           # Now override the values from above
@@ -793,9 +793,9 @@ module Cosmos
           tf.close
           @pc.process_file(tf.path, "TGT1")
           @pc.commands["TGT1"]["PKT1"].restore_defaults
-          @pc.commands["TGT1"]["PKT1"].read("ITEM1").should eql 2
-          @pc.commands["TGT1"]["PKT1"].items["ITEM1"].range.should eql (1..3)
-          @pc.commands["TGT1"]["PKT1"].read("ITEM2").should eql "NO"
+          expect(@pc.commands["TGT1"]["PKT1"].read("ITEM1")).to eql 2
+          expect(@pc.commands["TGT1"]["PKT1"].items["ITEM1"].range).to eql (1..3)
+          expect(@pc.commands["TGT1"]["PKT1"].read("ITEM2")).to eql "NO"
           tf.unlink
         end
       end

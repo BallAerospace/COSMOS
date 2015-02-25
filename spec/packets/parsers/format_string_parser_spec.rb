@@ -23,7 +23,7 @@ module Cosmos
         @pc = PacketConfig.new
       end
 
-      it "should complain if a current item is not defined" do
+      it "complains if a current item is not defined" do
         # Check for missing ITEM definitions
         tf = Tempfile.new('unittest')
         tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Packet"'
@@ -33,7 +33,7 @@ module Cosmos
         tf.unlink
       end
 
-      it "should complain if there are not enough parameters" do
+      it "complains if there are not enough parameters" do
         tf = Tempfile.new('unittest')
         tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Packet"'
         tf.puts 'ITEM myitem 0 8 UINT "Test Item"'
@@ -43,7 +43,7 @@ module Cosmos
         tf.unlink
       end
 
-      it "should complain if there are too many parameters" do
+      it "complains if there are too many parameters" do
         tf = Tempfile.new('unittest')
         tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Packet"'
         tf.puts 'ITEM myitem 0 8 UINT "Test Item"'
@@ -53,7 +53,7 @@ module Cosmos
         tf.unlink
       end
 
-      it "should complain about invalid format strings" do
+      it "complains about invalid format strings" do
         tf = Tempfile.new('unittest')
         tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Packet"'
         tf.puts '  ITEM item1 0 8 INT'
@@ -71,7 +71,7 @@ module Cosmos
         tf.unlink
       end
 
-      it "should format integers" do
+      it "formats integers" do
         tf = Tempfile.new('unittest')
         tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Packet"'
         tf.puts '  ITEM item1 0 8 INT'
@@ -83,13 +83,13 @@ module Cosmos
         tf.close
         @pc.process_file(tf.path, "TGT1")
         @pc.telemetry["TGT1"]["PKT1"].buffer = "\x0a\x0b\x0c"
-        @pc.telemetry["TGT1"]["PKT1"].read("ITEM1",:FORMATTED).should eql "d10"
-        @pc.telemetry["TGT1"]["PKT1"].read("ITEM2",:FORMATTED).should eql "u10"
-        @pc.telemetry["TGT1"]["PKT1"].read("ITEM3",:FORMATTED).should eql "0xa"
+        expect(@pc.telemetry["TGT1"]["PKT1"].read("ITEM1",:FORMATTED)).to eql "d10"
+        expect(@pc.telemetry["TGT1"]["PKT1"].read("ITEM2",:FORMATTED)).to eql "u10"
+        expect(@pc.telemetry["TGT1"]["PKT1"].read("ITEM3",:FORMATTED)).to eql "0xa"
         tf.unlink
       end
 
-      it "should format floats" do
+      it "formats floats" do
         tf = Tempfile.new('unittest')
         tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Packet"'
         tf.puts '  ITEM item1 0 32 FLOAT'
@@ -97,11 +97,11 @@ module Cosmos
         tf.close
         @pc.process_file(tf.path, "TGT1")
         @pc.telemetry["TGT1"]["PKT1"].write("ITEM1",12345.12345)
-        @pc.telemetry["TGT1"]["PKT1"].read("ITEM1",:FORMATTED).should eql "12345.123"
+        expect(@pc.telemetry["TGT1"]["PKT1"].read("ITEM1",:FORMATTED)).to eql "12345.123"
         tf.unlink
       end
 
-      it "should format strings and blocks" do
+      it "formats strings and blocks" do
         tf = Tempfile.new('unittest')
         tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Packet"'
         tf.puts '  ITEM item1 0 32 STRING'
@@ -111,9 +111,9 @@ module Cosmos
         tf.close
         @pc.process_file(tf.path, "TGT1")
         @pc.telemetry["TGT1"]["PKT1"].write("ITEM1","HI")
-        @pc.telemetry["TGT1"]["PKT1"].read("ITEM1",:FORMATTED).should eql "String: HI"
+        expect(@pc.telemetry["TGT1"]["PKT1"].read("ITEM1",:FORMATTED)).to eql "String: HI"
         @pc.telemetry["TGT1"]["PKT1"].write("ITEM2","\x00\x01\x02\x03")
-        @pc.telemetry["TGT1"]["PKT1"].read("ITEM2",:FORMATTED).should eql "Block: \x00\x01\x02\x03"
+        expect(@pc.telemetry["TGT1"]["PKT1"].read("ITEM2",:FORMATTED)).to eql "Block: \x00\x01\x02\x03"
         tf.unlink
       end
     end

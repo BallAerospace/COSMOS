@@ -21,7 +21,7 @@ describe IO do
       @server.close
     end
 
-    it "should select on read sockets" do
+    it "selects on read sockets" do
       # Three different timeout values cause different code paths
 
       socket = TCPSocket.open('localhost', 23456)
@@ -37,7 +37,7 @@ describe IO do
       socket.close
     end
 
-    it "should select on write sockets" do
+    it "selects on write sockets" do
       socket = TCPSocket.open('localhost', 23456)
       expect(IO.fast_write_select([socket], 0.5)).not_to be_nil
       socket.close

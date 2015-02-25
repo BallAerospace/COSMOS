@@ -16,13 +16,13 @@ module Cosmos
   describe Stdout do
 
     describe "instance" do
-      it "should return a single instance" do
+      it "returns a single instance" do
         expect(Stdout.instance).to eq(Stdout.instance)
       end
     end
 
     describe "puts" do
-      it "should write to STDOUT" do
+      it "writes to STDOUT" do
         expect($stdout).to receive(:puts).with("TEST")
         Stdout.instance.puts("TEST")
       end

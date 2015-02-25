@@ -20,7 +20,7 @@ module Cosmos
     end
 
     describe "connect" do
-      it "should pass a new TcpipClientStream to the stream protocol" do
+      it "passes a new TcpipClientStream to the stream protocol" do
         stream = double("stream")
         allow(stream).to receive(:connect)
         expect(TcpipClientStream).to receive(:new) { stream }
@@ -28,9 +28,9 @@ module Cosmos
         expect(stream).to receive(:raw_logger_pair=) { nil }
         i = LincInterface.new('localhost','8888')
         i.target_names << "INST"
-        i.connected?.should be_falsey
+        expect(i.connected?).to be_falsey
         i.connect
-        i.connected?.should be_truthy
+        expect(i.connected?).to be_truthy
       end
     end
 
@@ -44,55 +44,55 @@ module Cosmos
         expect(stream).to receive(:raw_logger_pair=) { nil }
         @i = LincInterface.new('localhost','8888','true','2','nil','5','0','16','4','GSE_HDR_GUID','BIG_ENDIAN','GSE_HDR_LEN')
         @i.target_names << "INST"
-        @i.connected?.should be_falsey
+        expect(@i.connected?).to be_falsey
         @i.connect
-        @i.connected?.should be_truthy
+        expect(@i.connected?).to be_truthy
       end
 
-      it "should return an exception if its not connected" do
+      it "returns an exception if its not connected" do
         i = LincInterface.new('localhost','8888')
         expect { i.write(Packet.new("TGT","PKT")) }.to raise_error("Interface not connected")
       end
 
-      it "should add to the ignored list upon an error ignore command" do
+      it "adds to the ignored list upon an error ignore command" do
         cmd = System.commands.packet("INST","COSMOS_ERROR_IGNORE")
         cmd.restore_defaults
         cmd.write("CODE", 0x55)
         @i.write(cmd)
-        @i.instance_variable_get(:@ignored_error_codes).should include(0x55)
+        expect(@i.instance_variable_get(:@ignored_error_codes)).to include(0x55)
       end
 
-      it "should remove from the ignored list upon an error handle command" do
+      it "removes from the ignored list upon an error handle command" do
         @i.instance_variable_get(:@ignored_error_codes) << 0x66
-        @i.instance_variable_get(:@ignored_error_codes).should include(0x66)
+        expect(@i.instance_variable_get(:@ignored_error_codes)).to include(0x66)
         cmd = System.commands.packet("INST","COSMOS_ERROR_HANDLE")
         cmd.restore_defaults
         cmd.write("CODE", 0x66)
         @i.write(cmd)
-        @i.instance_variable_get(:@ignored_error_codes).should_not include(0x66)
+        expect(@i.instance_variable_get(:@ignored_error_codes)).not_to include(0x66)
       end
 
-      it "should enable and disable handshakes upon command" do
+      it "enables and disable handshakes upon command" do
         enable = System.commands.packet("INST","COSMOS_HANDSHAKE_EN")
         enable.restore_defaults
         disable = System.commands.packet("INST","COSMOS_HANDSHAKE_DS")
         disable.restore_defaults
 
         @i.write(enable)
-        @i.instance_variable_get(:@handshake_enabled).should be_truthy
+        expect(@i.instance_variable_get(:@handshake_enabled)).to be_truthy
         @i.write(disable)
-        @i.instance_variable_get(:@handshake_enabled).should be_falsey
+        expect(@i.instance_variable_get(:@handshake_enabled)).to be_falsey
         @i.write(enable)
-        @i.instance_variable_get(:@handshake_enabled).should be_truthy
+        expect(@i.instance_variable_get(:@handshake_enabled)).to be_truthy
       end
 
-      it "should timeout waiting for handshake" do
+      it "timeouts waiting for handshake" do
         cmd = System.commands.packet("INST","LINC_COMMAND")
         cmd.restore_defaults
         expect { @i.write(cmd) }.to raise_error(/Timeout/)
       end
 
-      it "should not timeout if handshakes disabled" do
+      it "does not timeout if handshakes disabled" do
         disable = System.commands.packet("INST","COSMOS_HANDSHAKE_DS")
         disable.restore_defaults
         @i.write(disable)
@@ -125,7 +125,7 @@ module Cosmos
           allow_any_instance_of(LengthStreamProtocol).to receive(:read).and_return(@handshake)
         end
 
-        it "should not timeout if the handshake is received" do
+        it "does not timeout if the handshake is received" do
           t = Thread.new do
             sleep 1
             @i.read
@@ -134,9 +134,9 @@ module Cosmos
           t.join
         end
 
-        it "should warn if an error code is set" do
+        it "warns if an error code is set" do
           expect(Logger).to receive(:warn) do |msg|
-            msg.should eql "Warning sending command (12345): BAD"
+            expect(msg).to eql "Warning sending command (12345): BAD"
           end
           t = Thread.new do
             sleep 1
@@ -146,7 +146,7 @@ module Cosmos
           t.join
         end
 
-        it "should raise an exception if the status is 'ERROR'" do
+        it "raises an exception if the status is 'ERROR'" do
           @handshake.write("STATUS", "ERROR")
           t = Thread.new do
             sleep 1
@@ -168,12 +168,12 @@ module Cosmos
         expect(stream).to receive(:raw_logger_pair=) { nil }
         @i = LincInterface.new('localhost','8888','true','2','nil','5','0','16','4','GSE_HDR_GUID','BIG_ENDIAN','GSE_HDR_LEN')
         @i.target_names << "INST"
-        @i.connected?.should be_falsey
+        expect(@i.connected?).to be_falsey
         @i.connect
-        @i.connected?.should be_truthy
+        expect(@i.connected?).to be_truthy
       end
 
-      it "should handle local commands" do
+      it "handles local commands" do
         @handshake = System.telemetry.packet("INST","HANDSHAKE")
         @handshake.write("GSE_HDR_ID", 1001)
         @handshake.write("ORIGIN", 1)
@@ -181,13 +181,13 @@ module Cosmos
         allow_any_instance_of(LengthStreamProtocol).to receive(:read).and_return(@handshake)
 
         expect(Logger).to receive(:info) do |msg|
-          msg.should match(/External Command/)
+          expect(msg).to match(/External Command/)
         end
 
         @i.read
       end
 
-      it "should handle response overflows" do
+      it "handles response overflows" do
         @handshake = System.telemetry.packet("INST","HANDSHAKE")
         @handshake.write("GSE_HDR_ID", 1001)
         @handshake.write("ORIGIN", 0)

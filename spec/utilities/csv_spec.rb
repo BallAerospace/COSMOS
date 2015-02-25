@@ -42,52 +42,52 @@ module Cosmos
     end
 
     describe "access" do
-      it "should allow hash style access" do
-        @csv["test"].should eq(%w(1 2 3))
+      it "allows hash style access" do
+        expect(@csv["test"]).to eq(%w(1 2 3))
       end
 
-      it "should return all valid keys" do
-        @csv.keys.should eq(%w(test more foo))
+      it "returns all valid keys" do
+        expect(@csv.keys).to eq(%w(test more foo))
       end
     end
 
     describe "create_archive" do
-      it "should create a default archive file" do
+      it "creates a default archive file" do
         @csv.create_archive
-        File.exist?(@csv.archive_file).should be_truthy
+        expect(File.exist?(@csv.archive_file)).to be_truthy
         @csv.close_archive
       end
 
-      it "should create an archive file at an arbitrary path" do
+      it "creates an archive file at an arbitrary path" do
         if Kernel.is_windows?
           Dir.mkdir("C:/temp") unless File.directory?("C:/temp")
           @csv.create_archive("C:/temp")
-          File.exist?(@csv.archive_file).should be_truthy
+          expect(File.exist?(@csv.archive_file)).to be_truthy
           @csv.close_archive
         end
       end
     end
 
     describe "write_archive" do
-      it "should write to the archive file" do
+      it "writes to the archive file" do
         @csv.create_archive
         @csv.write_archive(%w(HI a b c))
         @csv.close_archive
         data = File.read @csv.archive_file
-        data.include?("HI,a,b,c").should be_truthy
+        expect(data.include?("HI,a,b,c")).to be_truthy
       end
 
-      it "should raise an exception if writing to an unopened archive" do
+      it "raises an exception if writing to an unopened archive" do
         expect {@csv.write_archive([])}.to raise_error
       end
 
-      it "should raise an exception if trying to reopen archive" do
+      it "raises an exception if trying to reopen archive" do
         @csv.create_archive
         expect {@csv.create_archive}.to raise_error
         @csv.close_archive
       end
 
-      it "should raise an exception if trying to write closed archive" do
+      it "raises an exception if trying to write closed archive" do
         @csv.create_archive
         @csv.close_archive
         expect {@csv.write_archive([])}.to raise_error

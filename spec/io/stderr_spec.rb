@@ -16,13 +16,13 @@ module Cosmos
   describe Stderr do
 
     describe "instance" do
-      it "should return a single instance" do
+      it "returns a single instance" do
         expect(Stderr.instance).to eq(Stderr.instance)
       end
     end
 
     describe "puts" do
-      it "should write to STDERR" do
+      it "writes to STDERR" do
         expect($stderr).to receive(:puts).with("TEST")
         Stderr.instance.puts("TEST")
       end

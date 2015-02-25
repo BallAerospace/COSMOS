@@ -16,50 +16,50 @@ module Cosmos
   describe CcsdsPacket do
 
     describe "constants" do
-      it "should define COMMAND and TELEMETRY" do
-        CcsdsPacket::TELEMETRY.should eql 0
-        CcsdsPacket::COMMAND.should eql 1
+      it "defines COMMAND and TELEMETRY" do
+        expect(CcsdsPacket::TELEMETRY).to eql 0
+        expect(CcsdsPacket::COMMAND).to eql 1
       end
 
-      it "should define sequence flags" do
-        CcsdsPacket::CONTINUATION.should eql 0
-        CcsdsPacket::FIRST.should eql 1
-        CcsdsPacket::LAST.should eql 2
-        CcsdsPacket::STANDALONE.should eql 3
+      it "defines sequence flags" do
+        expect(CcsdsPacket::CONTINUATION).to eql 0
+        expect(CcsdsPacket::FIRST).to eql 1
+        expect(CcsdsPacket::LAST).to eql 2
+        expect(CcsdsPacket::STANDALONE).to eql 3
       end
     end
 
     describe "initialize" do
-      it "should set the target_name and packet_name" do
+      it "sets the target_name and packet_name" do
         p = CcsdsPacket.new("tgt", "pkt")
-        p.target_name.should eql "TGT"
-        p.packet_name.should eql "PKT"
+        expect(p.target_name).to eql "TGT"
+        expect(p.packet_name).to eql "PKT"
 
         version = p.get_item("CCSDSVERSION")
-        version.bit_offset.should eql 0
-        version.bit_size.should eql 3
+        expect(version.bit_offset).to eql 0
+        expect(version.bit_size).to eql 3
         type = p.get_item("CCSDSTYPE")
-        type.bit_offset.should eql 3
-        type.bit_size.should eql 1
+        expect(type.bit_offset).to eql 3
+        expect(type.bit_size).to eql 1
         type = p.get_item("CCSDSSHF")
-        type.bit_offset.should eql 4
-        type.bit_size.should eql 1
+        expect(type.bit_offset).to eql 4
+        expect(type.bit_size).to eql 1
         type = p.get_item("CCSDSAPID")
-        type.bit_offset.should eql 5
-        type.bit_size.should eql 11
+        expect(type.bit_offset).to eql 5
+        expect(type.bit_size).to eql 11
         type = p.get_item("CCSDSSEQFLAGS")
-        type.bit_offset.should eql 16
-        type.bit_size.should eql 2
+        expect(type.bit_offset).to eql 16
+        expect(type.bit_size).to eql 2
         type = p.get_item("CCSDSSEQCNT")
-        type.bit_offset.should eql 18
-        type.bit_size.should eql 14
-        type.overflow.should eql :TRUNCATE
+        expect(type.bit_offset).to eql 18
+        expect(type.bit_size).to eql 14
+        expect(type.overflow).to eql :TRUNCATE
         type = p.get_item("CCSDSLENGTH")
-        type.bit_offset.should eql 32
-        type.bit_size.should eql 16
+        expect(type.bit_offset).to eql 32
+        expect(type.bit_size).to eql 16
         type = p.get_item("CCSDSDATA")
-        type.bit_offset.should eql 48
-        type.bit_size.should eql 0 # fill the packet
+        expect(type.bit_offset).to eql 48
+        expect(type.bit_size).to eql 0 # fill the packet
       end
     end
   end

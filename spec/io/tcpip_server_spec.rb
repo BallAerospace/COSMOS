@@ -16,13 +16,13 @@ module Cosmos
   describe TcpipServer do
 
     describe "instance" do
-      it "should rescue bad stream protocol names" do
+      it "rescues bad stream protocol names" do
         expect { TcpipServer.new(8888,8889,nil,nil,'Unknown') }.to raise_error(/Unable to require/)
       end
     end
 
     describe "connect, connected?, disconnect" do
-      it "should only allow connect once" do
+      it "only allows connect once" do
         server = TcpipServer.new(nil,8889,nil,nil,'Burst')
         server.connect
         sleep 0.2
@@ -31,62 +31,62 @@ module Cosmos
         sleep(0.2)
       end
 
-      it "should create a listener thread for the read port" do
+      it "creates a listener thread for the read port" do
         server = TcpipServer.new(nil,8889,nil,nil,'Burst')
         server.connect
         sleep 0.2
-        server.connected?.should be_truthy
+        expect(server.connected?).to be_truthy
         # 2 because the RSpec main thread plus the listener
-        Thread.list.length.should eql 2
+        expect(Thread.list.length).to eql 2
         server.disconnect
         sleep 0.2
-        server.connected?.should be_falsey
-        Thread.list.length.should eql 1
+        expect(server.connected?).to be_falsey
+        expect(Thread.list.length).to eql 1
       end
 
-      it "should create a listener thread for the write port" do
+      it "creates a listener thread for the write port" do
         server = TcpipServer.new(8888,nil,nil,nil,'Burst')
         server.connect
         sleep 0.2
-        server.connected?.should be_truthy
+        expect(server.connected?).to be_truthy
         # 3 because the RSpec main thread plus the listener
         # plus one for the write thread
-        Thread.list.length.should eql 3
+        expect(Thread.list.length).to eql 3
         server.disconnect
         sleep 0.2
-        server.connected?.should be_falsey
-        Thread.list.length.should eql 1
+        expect(server.connected?).to be_falsey
+        expect(Thread.list.length).to eql 1
       end
 
-      it "should create a single listener thread if read = write port" do
+      it "creates a single listener thread if read = write port" do
         server = TcpipServer.new(8888,8888,nil,nil,'Burst')
         server.connect
         sleep 0.2
-        server.connected?.should be_truthy
+        expect(server.connected?).to be_truthy
         # 3 because the RSpec main thread plus the listener
         # plus one for the write thread
-        Thread.list.length.should eql 3
+        expect(Thread.list.length).to eql 3
         server.disconnect
         sleep 0.2
-        server.connected?.should be_falsey
-        Thread.list.length.should eql 1
+        expect(server.connected?).to be_falsey
+        expect(Thread.list.length).to eql 1
       end
 
-      it "should create a two listener threads if read != write port" do
+      it "creates a two listener threads if read != write port" do
         server = TcpipServer.new(8888,8889,nil,nil,'Burst')
         server.connect
         sleep 0.2
-        server.connected?.should be_truthy
+        expect(server.connected?).to be_truthy
         # 4 because the RSpec main thread plus the two listeners
         # plus one for the write thread
-        Thread.list.length.should eql 4
+        expect(Thread.list.length).to eql 4
         server.disconnect
         sleep 0.2
-        server.connected?.should be_falsey
-        Thread.list.length.should eql 1
+        expect(server.connected?).to be_falsey
+        expect(Thread.list.length).to eql 1
       end
 
-      it "should log an error if the listener thread dies" do
+      it "logs an error if the listener thread dies" do
         capture_io do |stdout|
           system = double("System")
           allow(system).to receive(:use_dns) { raise "Error" }
@@ -101,15 +101,15 @@ module Cosmos
           socket.close
           sleep(0.2)
 
-          stdout.string.should match /Tcpip server listen thread unexpectedly died/
+          expect(stdout.string).to match /Tcpip server listen thread unexpectedly died/
         end
       end
     end
 
     describe "read" do
-      it "should return nil if there is no read port" do
+      it "returns nil if there is no read port" do
         server = TcpipServer.new(8888,nil,nil,nil,'Burst')
-        server.read.should be_nil
+        expect(server.read).to be_nil
         server.disconnect
         sleep(0.2)
       end
@@ -119,7 +119,7 @@ module Cosmos
         #~ lambda { server.read }.should raise_error
       #~ end
 
-      it "should read from the client" do
+      it "reads from the client" do
         allow(System).to receive_message_chain(:instance, :use_dns).and_return(false)
         allow(System).to receive_message_chain(:instance, :acl).and_return(false)
 
@@ -130,17 +130,17 @@ module Cosmos
         socket = TCPSocket.open("127.0.0.1",8889)
         socket.write("\x00\x01")
         sleep 0.2
-        server.num_clients.should eql 1
-        server.read_queue_size.should eql 1
-        server.read.should be_a Packet
+        expect(server.num_clients).to eql 1
+        expect(server.read_queue_size).to eql 1
+        expect(server.read).to be_a Packet
         server.disconnect
         sleep 0.2
-        server.num_clients.should eql 0
+        expect(server.num_clients).to eql 0
         socket.close
         sleep(0.2)
       end
 
-      it "should check the client against the ACL" do
+      it "checks the client against the ACL" do
         capture_io do |stdout|
           allow(System).to receive_message_chain(:instance, :use_dns).and_return(false)
           allow(System).to receive_message_chain(:instance, :acl).and_return(true)
@@ -151,18 +151,18 @@ module Cosmos
           sleep 0.2
           socket = TCPSocket.open("127.0.0.1",8889)
           sleep 0.2
-          server.num_clients.should eql 0
-          socket.eof?.should be_truthy
+          expect(server.num_clients).to eql 0
+          expect(socket.eof?).to be_truthy
           server.disconnect
           sleep 0.2
           socket.close
           sleep(0.2)
 
-          stdout.string.should match /Tcpip server rejected connection/
+          expect(stdout.string).to match /Tcpip server rejected connection/
         end
       end
 
-      it "should log an error if the stream protocol can't disconnect" do
+      it "logs an error if the stream protocol can't disconnect" do
         capture_io do |stdout|
           allow(System).to receive_message_chain(:instance, :use_dns).and_return(false)
           allow(System).to receive_message_chain(:instance, :acl).and_return(false)
@@ -176,15 +176,15 @@ module Cosmos
           sleep 0.2
           server.disconnect
           sleep 0.2
-          server.num_clients.should eql 0
+          expect(server.num_clients).to eql 0
           socket.close
           sleep(0.2)
 
-          stdout.string.should match /Tcpip server read thread unexpectedly died/
+          expect(stdout.string).to match /Tcpip server read thread unexpectedly died/
         end
       end
 
-      it "should log an error if the read thread dies" do
+      it "logs an error if the read thread dies" do
         capture_io do |stdout|
           allow(System).to receive_message_chain(:instance, :use_dns).and_return(false)
           allow(System).to receive_message_chain(:instance, :acl).and_return(false)
@@ -200,18 +200,18 @@ module Cosmos
           socket.close
           sleep(0.2)
 
-          stdout.string.should match /Tcpip server read thread unexpectedly died/
+          expect(stdout.string).to match /Tcpip server read thread unexpectedly died/
         end
       end
     end
 
     describe "write" do
-      it "should do nothing if there is no write port" do
+      it "does nothing if there is no write port" do
         server = TcpipServer.new(nil,8889,nil,nil,'Burst')
         expect { server.write(Packet.new('TGT','PKT')) }.to_not raise_error
       end
 
-      it "should write to the client" do
+      it "writes to the client" do
         allow(System).to receive_message_chain(:instance, :use_dns).and_return(false)
         allow(System).to receive_message_chain(:instance, :acl).and_return(false)
 
@@ -221,22 +221,22 @@ module Cosmos
 
         socket = TCPSocket.open("127.0.0.1",8888)
         sleep 0.2
-        server.num_clients.should eql 1
+        expect(server.num_clients).to eql 1
         packet = Packet.new("TGT","PKT")
         packet.buffer = "\x01\x02\x03\x04"
-        server.write_queue_size.should eql 0
+        expect(server.write_queue_size).to eql 0
         server.write(packet)
         sleep 0.2
         data = socket.read_nonblock(packet.length)
-        data.length.should eql 4
+        expect(data.length).to eql 4
         server.disconnect
         sleep 0.2
-        server.num_clients.should eql 0
+        expect(server.num_clients).to eql 0
         socket.close
         sleep(0.2)
       end
 
-      it "should log an error if the write thread dies" do
+      it "logs an error if the write thread dies" do
         class MyTcpipServer3 < TcpipServer
           def write_thread_hook(packet)
             raise "Error"
@@ -251,15 +251,15 @@ module Cosmos
           sleep 0.2
           socket = TCPSocket.open("127.0.0.1",8888)
           sleep 0.2
-          server.num_clients.should eql 1
+          expect(server.num_clients).to eql 1
           server.write(Packet.new("TGT","PKT"))
           sleep 0.2
-          server.num_clients.should eql 0
+          expect(server.num_clients).to eql 0
           server.disconnect
           socket.close
           sleep(0.2)
 
-          stdout.string.should match /Tcpip server write thread unexpectedly died/
+          expect(stdout.string).to match /Tcpip server write thread unexpectedly died/
         end
       end
 
@@ -272,20 +272,20 @@ module Cosmos
 
           server = TcpipServer.new(8888,8889,nil,nil,'Burst')
           server.connect
-          server.num_clients.should eql 0
+          expect(server.num_clients).to eql 0
           sleep 0.2
           socket = TCPSocket.open("127.0.0.1",8888)
           sleep 0.2
-          server.num_clients.should eql 0
+          expect(server.num_clients).to eql 0
           server.disconnect
           socket.close
           sleep(0.2)
 
-          stdout.string.should match /Tcpip server lost write connection/
+          expect(stdout.string).to match /Tcpip server lost write connection/
         end
       end
 
-      it "should log an error if the client disconnects" do
+      it "logs an error if the client disconnects" do
         capture_io do |stdout|
           allow(System).to receive_message_chain(:instance, :use_dns).and_return(false)
           allow(System).to receive_message_chain(:instance, :acl).and_return(false)
@@ -298,36 +298,36 @@ module Cosmos
           socket1 = TCPSocket.open("127.0.0.1",8888)
           socket2 = TCPSocket.open("127.0.0.1",8889)
           sleep 0.5
-          server.num_clients.should eql 2
+          expect(server.num_clients).to eql 2
           packet = Packet.new("TGT","PKT")
           packet.buffer = "\x01\x02\x03\x04"
-          server.write_queue_size.should eql 0
+          expect(server.write_queue_size).to eql 0
           server.write(packet)
           sleep 0.2
-          server.num_clients.should eql 1
+          expect(server.num_clients).to eql 1
           server.disconnect
           socket1.close
           socket2.close
           sleep(0.2)
 
-          stdout.string.should match /Tcpip server lost write connection/
+          expect(stdout.string).to match /Tcpip server lost write connection/
         end
       end
     end
 
     describe "read_queue_size" do
-      it "should return 0 if there is no read port" do
+      it "returns 0 if there is no read port" do
         server = TcpipServer.new(8888,nil,nil,nil,'Burst')
-        server.read_queue_size.should eql 0
+        expect(server.read_queue_size).to eql 0
         server.disconnect
         sleep(0.2)
       end
     end
 
     describe "write_queue_size" do
-      it "should return 0 if there is no write port" do
+      it "returns 0 if there is no write port" do
         server = TcpipServer.new(nil,8889,nil,nil,'Burst')
-        server.write_queue_size.should eql 0
+        expect(server.write_queue_size).to eql 0
         server.disconnect
         sleep(0.2)
       end

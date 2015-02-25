@@ -17,31 +17,31 @@ module Cosmos
   describe ReceivedTimeFormattedConversion do
 
     describe "initialize" do
-      it "should initialize converted_type and converted_bit_size" do
+      it "initializes converted_type and converted_bit_size" do
         gc = ReceivedTimeFormattedConversion.new()
-        gc.converted_type.should eql :STRING
-        gc.converted_bit_size.should eql 0
+        expect(gc.converted_type).to eql :STRING
+        expect(gc.converted_bit_size).to eql 0
       end
     end
 
     describe "call" do
-      it "should return the formatted packet time" do
+      it "returns the formatted packet time" do
         gc = ReceivedTimeFormattedConversion.new()
         packet = Packet.new("TGT","PKT")
         packet.received_time = Time.new(2020,1,31,12,15,30)
-        gc.call(nil,packet,nil).should eql "2020/01/31 12:15:30.000"
+        expect(gc.call(nil,packet,nil)).to eql "2020/01/31 12:15:30.000"
       end
 
-      it "should return a string if packet time isn't set" do
+      it "returns a string if packet time isn't set" do
         gc = ReceivedTimeFormattedConversion.new()
         packet = Packet.new("TGT","PKT")
-        gc.call(nil,packet,nil).should eql "No Packet Received Time"
+        expect(gc.call(nil,packet,nil)).to eql "No Packet Received Time"
       end
     end
 
     describe "to_s" do
-      it "should return the class" do
-        ReceivedTimeFormattedConversion.new().to_s.should eql "ReceivedTimeFormattedConversion"
+      it "returns the class" do
+        expect(ReceivedTimeFormattedConversion.new().to_s).to eql "ReceivedTimeFormattedConversion"
       end
     end
   end

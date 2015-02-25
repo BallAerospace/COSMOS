@@ -16,7 +16,7 @@ module Cosmos
   describe Stream do
 
     describe "read, write, connected?, disconnect" do
-      it "should raise an error" do
+      it "raises an error" do
         expect { Stream.new.read       }.to raise_error(/not defined/)
         expect { Stream.new.write(nil) }.to raise_error(/not defined/)
         expect { Stream.new.connect }.to raise_error(/not defined/)

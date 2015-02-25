@@ -35,16 +35,16 @@ module Cosmos
     end
 
     describe "initialize, self.instance" do
-      it "should create the single instance of the CTS" do
+      it "creates the single instance of the CTS" do
         cts = CmdTlmServer.new
-        CmdTlmServer.instance.should eql cts
-        CmdTlmServer.background_tasks.should be_a BackgroundTasks
-        CmdTlmServer.commanding.should be_a Commanding
-        CmdTlmServer.interfaces.should be_a Interfaces
-        CmdTlmServer.packet_logging.should be_a PacketLogging
-        CmdTlmServer.routers.should be_a Routers
-        CmdTlmServer.message_log.should be_a MessageLog
-        CmdTlmServer.json_drb.should be_a JsonDRb
+        expect(CmdTlmServer.instance).to eql cts
+        expect(CmdTlmServer.background_tasks).to be_a BackgroundTasks
+        expect(CmdTlmServer.commanding).to be_a Commanding
+        expect(CmdTlmServer.interfaces).to be_a Interfaces
+        expect(CmdTlmServer.packet_logging).to be_a PacketLogging
+        expect(CmdTlmServer.routers).to be_a Routers
+        expect(CmdTlmServer.message_log).to be_a MessageLog
+        expect(CmdTlmServer.json_drb).to be_a JsonDRb
 
         # Verify we can't start another CTS
         expect { CmdTlmServer.new }.to raise_error(FatalError, /Error starting JsonDRb on port 7777/)
@@ -52,31 +52,31 @@ module Cosmos
         sleep 0.2
       end
 
-      it "should create the CTS in production mode" do
+      it "creates the CTS in production mode" do
         # Production mode means we start logging
         expect_any_instance_of(PacketLogging).to receive(:start)
         cts = CmdTlmServer.new('cmd_tlm_server.txt', true)
         # Verify we disabled the ability to stop logging
-        CmdTlmServer.json_drb.method_whitelist.should include('start_logging')
-        CmdTlmServer.json_drb.method_whitelist.should_not include('stop_logging')
-        CmdTlmServer.json_drb.method_whitelist.should_not include('stop_cmd_log')
-        CmdTlmServer.json_drb.method_whitelist.should_not include('stop_tlm_log')
+        expect(CmdTlmServer.json_drb.method_whitelist).to include('start_logging')
+        expect(CmdTlmServer.json_drb.method_whitelist).not_to include('stop_logging')
+        expect(CmdTlmServer.json_drb.method_whitelist).not_to include('stop_cmd_log')
+        expect(CmdTlmServer.json_drb.method_whitelist).not_to include('stop_tlm_log')
         cts.stop
         sleep 0.2
       end
    end
 
     describe "start" do
-      it "should create the CTS in production mode" do
+      it "creates the CTS in production mode" do
         # Production mode means we start logging
         cts = CmdTlmServer.new
-        CmdTlmServer.json_drb.method_whitelist.should include('start_logging')
-        CmdTlmServer.json_drb.method_whitelist.should include('stop_logging')
-        CmdTlmServer.json_drb.method_whitelist.should include('stop_cmd_log')
-        CmdTlmServer.json_drb.method_whitelist.should include('stop_tlm_log')
+        expect(CmdTlmServer.json_drb.method_whitelist).to include('start_logging')
+        expect(CmdTlmServer.json_drb.method_whitelist).to include('stop_logging')
+        expect(CmdTlmServer.json_drb.method_whitelist).to include('stop_cmd_log')
+        expect(CmdTlmServer.json_drb.method_whitelist).to include('stop_tlm_log')
         threads = Thread.list.length
         cts.start # Call start again ... it should do nothing
-        Thread.list.length.should eql threads
+        expect(Thread.list.length).to eql threads
         cts.stop
         sleep 0.2
 
@@ -84,15 +84,15 @@ module Cosmos
         # Now start the server in production mode
         cts.start(true)
         # Verify we disabled the ability to stop logging
-        CmdTlmServer.json_drb.method_whitelist.should include('start_logging')
-        CmdTlmServer.json_drb.method_whitelist.should_not include('stop_logging')
-        CmdTlmServer.json_drb.method_whitelist.should_not include('stop_cmd_log')
-        CmdTlmServer.json_drb.method_whitelist.should_not include('stop_tlm_log')
+        expect(CmdTlmServer.json_drb.method_whitelist).to include('start_logging')
+        expect(CmdTlmServer.json_drb.method_whitelist).not_to include('stop_logging')
+        expect(CmdTlmServer.json_drb.method_whitelist).not_to include('stop_cmd_log')
+        expect(CmdTlmServer.json_drb.method_whitelist).not_to include('stop_tlm_log')
         cts.stop
         sleep 0.2
       end
 
-      it "should monitor the staleness thread" do
+      it "monitors the staleness thread" do
         capture_io do |stdout|
           # Production mode means we start logging
           allow(System).to receive_message_chain(:telemetry,:limits_change_callback=)
@@ -103,53 +103,53 @@ module Cosmos
           cts.stop
           sleep 0.2
 
-          stdout.string.should match "Staleness Monitor thread unexpectedly died"
+          expect(stdout.string).to match "Staleness Monitor thread unexpectedly died"
         end
       end
     end
 
     describe "limits_change_callback" do
-      it "should log the change according to the state" do
+      it "logs the change according to the state" do
         capture_io do |stdout|
           cts = CmdTlmServer.new
           pkt = Packet.new("TGT","PKT")
           pi = PacketItem.new("TEST", 0, 32, :UINT, :BIG_ENDIAN, nil)
           cts.limits_change_callback(pkt, pi, :STALE, 100, true)
-          stdout.string.should match "TGT PKT TEST = 100 is UNKNOWN"
+          expect(stdout.string).to match "TGT PKT TEST = 100 is UNKNOWN"
 
           pi.limits.state = :BLUE
           cts.limits_change_callback(pkt, pi, :STALE, 100, true)
-          stdout.string.should match "<B>TGT PKT TEST = 100 is BLUE"
+          expect(stdout.string).to match "<B>TGT PKT TEST = 100 is BLUE"
 
           pi.limits.state = :GREEN
           cts.limits_change_callback(pkt, pi, :STALE, 100, true)
-          stdout.string.should match "<G>TGT PKT TEST = 100 is GREEN"
+          expect(stdout.string).to match "<G>TGT PKT TEST = 100 is GREEN"
 
           pi.limits.state = :YELLOW
           cts.limits_change_callback(pkt, pi, :STALE, 100, true)
-          stdout.string.should match "<Y>TGT PKT TEST = 100 is YELLOW"
+          expect(stdout.string).to match "<Y>TGT PKT TEST = 100 is YELLOW"
 
           pi.limits.state = :RED
           cts.limits_change_callback(pkt, pi, :STALE, 100, true)
-          stdout.string.should match "<R>TGT PKT TEST = 100 is RED"
+          expect(stdout.string).to match "<R>TGT PKT TEST = 100 is RED"
 
           cts.stop
           sleep 0.2
         end
       end
 
-      it "should call the limits response" do
+      it "calls the limits response" do
         cts = CmdTlmServer.new
         pkt = Packet.new("TGT","PKT")
         pi = PacketItem.new("TEST", 0, 32, :UINT, :BIG_ENDIAN, nil)
         lr = LimitsResponse.new
         pi.limits.response = lr
         expect(pi.limits.response).to receive(:call) do |tgt, pkt, item, old_state, state|
-          tgt.should eql "TGT"
-          pkt.should eql "PKT"
-          item.name.should eql "TEST"
-          old_state.should eql :YELLOW
-          state.should eql :GREEN
+          expect(tgt).to eql "TGT"
+          expect(pkt).to eql "PKT"
+          expect(item.name).to eql "TEST"
+          expect(old_state).to eql :YELLOW
+          expect(state).to eql :GREEN
         end
         pi.limits.state = :GREEN
 
@@ -159,7 +159,7 @@ module Cosmos
         sleep 0.2
       end
 
-      it "should log limits response errors" do
+      it "logs limits response errors" do
         capture_io do |stdout|
           cts = CmdTlmServer.new
           pkt = Packet.new("TGT","PKT")
@@ -172,7 +172,7 @@ module Cosmos
           cts.limits_change_callback(pkt, pi, :YELLOW, 100, true)
           sleep 0.1
 
-          stdout.string.should match "TGT PKT TEST Limits Response Exception!"
+          expect(stdout.string).to match "TGT PKT TEST Limits Response Exception!"
           cts.stop
           sleep 0.2
         end
@@ -180,7 +180,7 @@ module Cosmos
     end
 
     describe "self.subscribe_limits_events" do
-      it "should subscribe to limits events" do
+      it "subscribes to limits events" do
         cts = CmdTlmServer.new
         pkt = Packet.new("TGT","PKT")
         pi = PacketItem.new("TEST", 0, 32, :UINT, :BIG_ENDIAN, nil)
@@ -195,28 +195,28 @@ module Cosmos
         # Get and check the first one
         type,data = CmdTlmServer.get_limits_event(id)
         tgt,pkt,item,old_state,state = data # split the data array
-        type.should eql :LIMITS_CHANGE
-        tgt.should eql "TGT"
-        pkt.should eql "PKT"
-        item.should eql "TEST"
-        old_state.should eql :STALE
-        state.should eql :GREEN
+        expect(type).to eql :LIMITS_CHANGE
+        expect(tgt).to eql "TGT"
+        expect(pkt).to eql "PKT"
+        expect(item).to eql "TEST"
+        expect(old_state).to eql :STALE
+        expect(state).to eql :GREEN
 
         # Get and check the second one
         type,data = CmdTlmServer.get_limits_event(id)
         tgt,pkt,item,old_state,state = data # split the data array
-        type.should eql :LIMITS_CHANGE
-        tgt.should eql "TGT"
-        pkt.should eql "PKT"
-        item.should eql "TEST"
-        old_state.should eql :GREEN
-        state.should eql :YELLOW
+        expect(type).to eql :LIMITS_CHANGE
+        expect(tgt).to eql "TGT"
+        expect(pkt).to eql "PKT"
+        expect(item).to eql "TEST"
+        expect(old_state).to eql :GREEN
+        expect(state).to eql :YELLOW
 
         cts.stop
         sleep 0.2
       end
 
-      it "should delete queues after the max events is reached" do
+      it "deletes queues after the max events is reached" do
         cts = CmdTlmServer.new
         pkt = Packet.new("TGT","PKT")
         pi = PacketItem.new("TEST", 0, 32, :UINT, :BIG_ENDIAN, nil)
@@ -244,7 +244,7 @@ module Cosmos
     end
 
     describe "self.unsubscribe_limits_events" do
-      it "should unsubscribe to limits events" do
+      it "unsubscribes to limits events" do
         cts = CmdTlmServer.new
         pkt = Packet.new("TGT","PKT")
         pi = PacketItem.new("TEST", 0, 32, :UINT, :BIG_ENDIAN, nil)
@@ -269,7 +269,7 @@ module Cosmos
     end
 
     describe "self.subscribe_packet_data" do
-      it "should subscribe to packets" do
+      it "subscribes to packets" do
         version = System.telemetry.packet("COSMOS","VERSION")
         allow_any_instance_of(Interface).to receive(:read) do
           sleep 0.05
@@ -282,12 +282,12 @@ module Cosmos
         # Get and check the packet
         begin
           buffer,tgt,pkt,tv_sec,tv_usec,cnt = CmdTlmServer.get_packet_data(id, true)
-          buffer.should_not be_nil
-          tgt.should eql "COSMOS"
-          pkt.should eql "VERSION"
-          tv_sec.should > 0
-          tv_usec.should > 0
-          cnt.should eql 1
+          expect(buffer).not_to be_nil
+          expect(tgt).to eql "COSMOS"
+          expect(pkt).to eql "VERSION"
+          expect(tv_sec).to be > 0
+          expect(tv_usec).to be > 0
+          expect(cnt).to eql 1
         rescue => err
           sleep 0.1
           retry
@@ -298,12 +298,12 @@ module Cosmos
         # Get and check the second one
         begin
           buffer,tgt,pkt,tv_sec,tv_usec,cnt = CmdTlmServer.get_packet_data(id, true)
-          buffer.should_not be_nil
-          tgt.should eql "COSMOS"
-          pkt.should eql "VERSION"
-          tv_sec.should > 0
-          tv_usec.should > 0
-          cnt.should eql 2
+          expect(buffer).not_to be_nil
+          expect(tgt).to eql "COSMOS"
+          expect(pkt).to eql "VERSION"
+          expect(tv_sec).to be > 0
+          expect(tv_usec).to be > 0
+          expect(cnt).to eql 2
         rescue
           sleep 0.1
           retry
@@ -313,7 +313,7 @@ module Cosmos
         sleep 0.2
       end
 
-      it "should delete queues after the max packets is reached" do
+      it "deletes queues after the max packets is reached" do
         version = System.telemetry.packet("COSMOS","VERSION")
         allow_any_instance_of(Interface).to receive(:read) do
           sleep 0.1
@@ -326,13 +326,13 @@ module Cosmos
         # Get and check the packet
         begin
           buffer,tgt,pkt,tv_sec,tv_usec,cnt = CmdTlmServer.get_packet_data(id, true)
-          buffer.should_not be_nil
-          tgt.should eql "COSMOS"
-          pkt.should eql "VERSION"
-          tv_sec.should > 0
+          expect(buffer).not_to be_nil
+          expect(tgt).to eql "COSMOS"
+          expect(pkt).to eql "VERSION"
+          expect(tv_sec).to be > 0
 
-          tv_usec.should > 0
-          cnt.should > 0
+          expect(tv_usec).to be > 0
+          expect(cnt).to be > 0
         rescue
           sleep 0.1
           retry
@@ -350,7 +350,7 @@ module Cosmos
     end
 
     describe "self.unsubscribe_packet_data" do
-      it "should unsubscribe to packets" do
+      it "unsubscribes to packets" do
         version = System.telemetry.packet("COSMOS","VERSION")
         allow_any_instance_of(Interface).to receive(:read) do
           sleep 0.05
@@ -363,12 +363,12 @@ module Cosmos
         # Get and check the packet
         begin
           buffer,tgt,pkt,tv_sec,tv_usec,cnt = CmdTlmServer.get_packet_data(id, true)
-          buffer.should_not be_nil
-          tgt.should eql "COSMOS"
-          pkt.should eql "VERSION"
-          tv_sec.should > 0
-          tv_usec.should > 0
-          cnt.should > 0
+          expect(buffer).not_to be_nil
+          expect(tgt).to eql "COSMOS"
+          expect(pkt).to eql "VERSION"
+          expect(tv_sec).to be > 0
+          expect(tv_usec).to be > 0
+          expect(cnt).to be > 0
         rescue => err
           sleep 0.1
           retry
@@ -384,7 +384,7 @@ module Cosmos
     end
 
     describe "self.get_packet_data" do
-      it "should raise an error if the queue is empty and non_block" do
+      it "raises an error if the queue is empty and non_block" do
         cts = CmdTlmServer.new
         id = CmdTlmServer.subscribe_packet_data([["COSMOS","VERSION"]])
 
@@ -395,7 +395,7 @@ module Cosmos
     end
 
     describe "self.clear_counters" do
-      it "should clear all counters" do
+      it "clears all counters" do
         cts = CmdTlmServer.new
         expect(System).to receive(:clear_counters)
         expect(CmdTlmServer.interfaces).to receive(:clear_counters)
@@ -404,7 +404,7 @@ module Cosmos
 
         CmdTlmServer.clear_counters
 
-        CmdTlmServer.json_drb.request_count.should eql 0
+        expect(CmdTlmServer.json_drb.request_count).to eql 0
         cts.stop
         sleep 0.2
       end

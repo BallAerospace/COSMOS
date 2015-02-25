@@ -17,14 +17,14 @@ module Cosmos
   describe BackgroundTask do
 
     describe "call" do
-      it "should raise an error" do
+      it "raises an error" do
         expect { BackgroundTask.new.call }.to raise_error
       end
     end
 
     describe "stop" do
-      it "should exist" do
-        BackgroundTask.new.should respond_to(:stop)
+      it "exists" do
+        expect(BackgroundTask.new).to respond_to(:stop)
       end
     end
   end

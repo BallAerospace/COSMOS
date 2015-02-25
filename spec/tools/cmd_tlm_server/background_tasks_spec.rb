@@ -22,7 +22,7 @@ module Cosmos
     end
 
     describe "start, stop" do
-      it "should call start on each task" do
+      it "calls start on each task" do
         File.open(File.join(Cosmos::USERPATH,'lib','my_bg_task1.rb'),'w') do |file|
           file.puts "require 'cosmos/tools/cmd_tlm_server/background_task'"
           file.puts "class MyBgTask1 < Cosmos::BackgroundTask"
@@ -38,16 +38,16 @@ module Cosmos
         bt.start
         sleep 0.1
         # 2 because the RSpec main thread plus the background task
-        Thread.list.length.should eql(2)
+        expect(Thread.list.length).to eql(2)
         bt.stop
         sleep 0.2
-        Thread.list.length.should eql(1)
+        expect(Thread.list.length).to eql(1)
 
         tf.unlink
         File.delete(File.join(Cosmos::USERPATH,'lib','my_bg_task1.rb'))
       end
 
-      it "should handle exceptions" do
+      it "handles exceptions" do
         tf = Tempfile.new('unittest')
         tf.puts 'BACKGROUND_TASK my_bg_task2.rb'
         tf.close
@@ -63,14 +63,14 @@ module Cosmos
           bt = BackgroundTasks.new(config)
           bt.start
           # 2 because the RSpec main thread plus the background task
-          Thread.list.length.should eql(2)
+          expect(Thread.list.length).to eql(2)
           sleep 1.1 # Allow the thread to crash
-          Thread.list.length.should eql(1)
+          expect(Thread.list.length).to eql(1)
           bt.stop
           sleep 0.2
-          Thread.list.length.should eql(1)
+          expect(Thread.list.length).to eql(1)
 
-          stdout.string.should match "Background Task thread unexpectedly died"
+          expect(stdout.string).to match "Background Task thread unexpectedly died"
         end
         tf.unlink
         File.delete(File.join(Cosmos::USERPATH,'lib','my_bg_task2.rb'))

@@ -16,21 +16,21 @@ module Cosmos
   describe NewPacketLogProcessor do
 
     describe "initialize" do
-      it "should take a packet log writer name" do
+      it "takes a packet log writer name" do
         a = NewPacketLogProcessor.new('MINE')
-        a.value_type.should eql :CONVERTED
+        expect(a.value_type).to eql :CONVERTED
       end
     end
 
     describe "call" do
-      it "should start logging" do
+      it "starts logging" do
         log_name = nil
         allow(CmdTlmServer).to receive_message_chain(:instance,:start_logging) do |name|
           log_name = name
         end
         a = NewPacketLogProcessor.new()
         a.call(nil, nil)
-        log_name.should eql('ALL')
+        expect(log_name).to eql('ALL')
       end
     end
 

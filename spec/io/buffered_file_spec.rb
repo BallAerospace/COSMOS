@@ -28,82 +28,82 @@ module Cosmos
     end
 
     describe "read" do
-      it "should read less than the buffer size" do
+      it "reads less than the buffer size" do
         file = BufferedFile.open(@filename, "rb") do |file|
-          file.read(8).should eql DATA[0..7]
-          file.pos.should eql 8
-          file.read(4).should eql DATA[8..11]
-          file.pos.should eql 12
-          file.read(1).should eql DATA[12..12]
-          file.pos.should eql 13
-          file.read(3).should eql DATA[13..15]
-          file.pos.should eql 16
-          file.read(16).should eql DATA
-          file.pos.should eql 32
+          expect(file.read(8)).to eql DATA[0..7]
+          expect(file.pos).to eql 8
+          expect(file.read(4)).to eql DATA[8..11]
+          expect(file.pos).to eql 12
+          expect(file.read(1)).to eql DATA[12..12]
+          expect(file.pos).to eql 13
+          expect(file.read(3)).to eql DATA[13..15]
+          expect(file.pos).to eql 16
+          expect(file.read(16)).to eql DATA
+          expect(file.pos).to eql 32
           expected_pos = 32
           while (expected_pos < (2 * BufferedFile::BUFFER_SIZE))
-            file.read(16).should eql DATA
+            expect(file.read(16)).to eql DATA
             expected_pos += 16
-            file.pos.should eql expected_pos
+            expect(file.pos).to eql expected_pos
           end
-          file.read(1).should be_nil
+          expect(file.read(1)).to be_nil
         end
       end
 
-      it "should read equal to the buffer size" do
+      it "reads equal to the buffer size" do
         file = BufferedFile.open(@filename, "rb") do |file|
-          file.read(BufferedFile::BUFFER_SIZE).should eql(DATA * (BufferedFile::BUFFER_SIZE / DATA.length))
-          file.pos.should eql BufferedFile::BUFFER_SIZE
-          file.read(BufferedFile::BUFFER_SIZE).should eql(DATA * (BufferedFile::BUFFER_SIZE / DATA.length))
-          file.pos.should eql BufferedFile::BUFFER_SIZE * 2
-          file.read(BufferedFile::BUFFER_SIZE).should be_nil
+          expect(file.read(BufferedFile::BUFFER_SIZE)).to eql(DATA * (BufferedFile::BUFFER_SIZE / DATA.length))
+          expect(file.pos).to eql BufferedFile::BUFFER_SIZE
+          expect(file.read(BufferedFile::BUFFER_SIZE)).to eql(DATA * (BufferedFile::BUFFER_SIZE / DATA.length))
+          expect(file.pos).to eql BufferedFile::BUFFER_SIZE * 2
+          expect(file.read(BufferedFile::BUFFER_SIZE)).to be_nil
         end
       end
 
-      it "should read greater than the buffer size" do
+      it "reads greater than the buffer size" do
         file = BufferedFile.open(@filename, "rb") do |file|
-          file.read(BufferedFile::BUFFER_SIZE + 1).should eql(DATA * (BufferedFile::BUFFER_SIZE / DATA.length) << DATA[0..0])
-          file.pos.should eql BufferedFile::BUFFER_SIZE + 1
-          file.read(BufferedFile::BUFFER_SIZE + 1).should eql((DATA * (BufferedFile::BUFFER_SIZE / DATA.length))[1..-1])
-          file.pos.should eql BufferedFile::BUFFER_SIZE * 2
-          file.read(BufferedFile::BUFFER_SIZE + 1).should be_nil
+          expect(file.read(BufferedFile::BUFFER_SIZE + 1)).to eql(DATA * (BufferedFile::BUFFER_SIZE / DATA.length) << DATA[0..0])
+          expect(file.pos).to eql BufferedFile::BUFFER_SIZE + 1
+          expect(file.read(BufferedFile::BUFFER_SIZE + 1)).to eql((DATA * (BufferedFile::BUFFER_SIZE / DATA.length))[1..-1])
+          expect(file.pos).to eql BufferedFile::BUFFER_SIZE * 2
+          expect(file.read(BufferedFile::BUFFER_SIZE + 1)).to be_nil
         end
       end
     end
 
     describe "seek" do
-      it "should have reads still work afterwards" do
+      it "has reads still work afterwards" do
         file = BufferedFile.open(@filename, "rb") do |file|
-          file.read(8).should eql DATA[0..7]
-          file.pos.should eql 8
+          expect(file.read(8)).to eql DATA[0..7]
+          expect(file.pos).to eql 8
           file.seek(4, IO::SEEK_CUR)
-          file.pos.should eql 12
-          file.read(1).should eql DATA[12..12]
-          file.pos.should eql 13
-          file.read(3).should eql DATA[13..15]
-          file.pos.should eql 16
+          expect(file.pos).to eql 12
+          expect(file.read(1)).to eql DATA[12..12]
+          expect(file.pos).to eql 13
+          expect(file.read(3)).to eql DATA[13..15]
+          expect(file.pos).to eql 16
           file.seek(0, IO::SEEK_SET)
-          file.pos.should eql 0
-          file.read(8).should eql DATA[0..7]
-          file.pos.should eql 8
+          expect(file.pos).to eql 0
+          expect(file.read(8)).to eql DATA[0..7]
+          expect(file.pos).to eql 8
           file.seek(0, IO::SEEK_END)
-          file.pos.should eql (2 * BufferedFile::BUFFER_SIZE)
+          expect(file.pos).to eql (2 * BufferedFile::BUFFER_SIZE)
           file.seek(-16, IO::SEEK_END)
-          file.pos.should eql ((2 * BufferedFile::BUFFER_SIZE) - 16)
-          file.read(4).should eql DATA[0..3]
-          file.pos.should eql ((2 * BufferedFile::BUFFER_SIZE) - 12)
+          expect(file.pos).to eql ((2 * BufferedFile::BUFFER_SIZE) - 16)
+          expect(file.read(4)).to eql DATA[0..3]
+          expect(file.pos).to eql ((2 * BufferedFile::BUFFER_SIZE) - 12)
           file.seek(4, IO::SEEK_CUR)
-          file.pos.should eql ((2 * BufferedFile::BUFFER_SIZE) - 8)
+          expect(file.pos).to eql ((2 * BufferedFile::BUFFER_SIZE) - 8)
           file.seek(0, IO::SEEK_SET)
-          file.pos.should eql 0
-          file.read(8).should eql DATA[0..7]
-          file.pos.should eql 8
+          expect(file.pos).to eql 0
+          expect(file.read(8)).to eql DATA[0..7]
+          expect(file.pos).to eql 8
           file.seek(4, IO::SEEK_CUR)
-          file.pos.should eql 12
-          file.read(1).should eql DATA[12..12]
-          file.pos.should eql 13
-          file.read(3).should eql DATA[13..15]
-          file.pos.should eql 16
+          expect(file.pos).to eql 12
+          expect(file.read(1)).to eql DATA[12..12]
+          expect(file.pos).to eql 13
+          expect(file.read(3)).to eql DATA[13..15]
+          expect(file.pos).to eql 16
         end
       end
     end

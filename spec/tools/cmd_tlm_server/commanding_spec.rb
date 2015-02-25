@@ -22,7 +22,7 @@ module Cosmos
     end
 
     describe "send_command_to_target" do
-      it "should complain about unknown targets" do
+      it "complains about unknown targets" do
         tf = Tempfile.new('unittest')
         tf.close
         cmd = Commanding.new(CmdTlmServerConfig.new(tf.path))
@@ -30,7 +30,7 @@ module Cosmos
         tf.unlink
       end
 
-      it "should identify and command to the interface" do
+      it "identifies and command to the interface" do
         tf = Tempfile.new('unittest')
         tf.puts 'INTERFACE MY_INT interface.rb'
         tf.close
@@ -51,7 +51,7 @@ module Cosmos
         count = System.targets['COSMOS'].cmd_cnt
         cmd.send_command_to_target('COSMOS', pkt)
         # Verify the COSMOS STARTLOGGING packet has been updated
-        System.commands.packet("COSMOS","STARTLOGGING").buffer.should eql pkt.buffer
+        expect(System.commands.packet("COSMOS","STARTLOGGING").buffer).to eql pkt.buffer
         # Verify the target count didn't get updated
         expect(System.targets['COSMOS'].cmd_cnt).to eq count
         # Restore target name
@@ -59,7 +59,7 @@ module Cosmos
         tf.unlink
       end
 
-      it "should send already identified commands" do
+      it "sends already identified commands" do
         tf = Tempfile.new('unittest')
         tf.puts 'INTERFACE MY_INT interface.rb'
         tf.close
@@ -76,13 +76,13 @@ module Cosmos
         count = System.targets['COSMOS'].cmd_cnt
         cmd.send_command_to_target('COSMOS', pkt)
         # Verify the COSMOS STARTLOGGING packet has been updated
-        System.commands.packet("COSMOS","STARTLOGGING").buffer.should eql pkt.buffer
+        expect(System.commands.packet("COSMOS","STARTLOGGING").buffer).to eql pkt.buffer
         expect(System.targets['COSMOS'].cmd_cnt).to eq count + 1
         tf.unlink
       end
 
 
-      it "should log unknown commands" do
+      it "logs unknown commands" do
         Logger.level = Logger::DEBUG
         stdout = StringIO.new('', 'r+')
         $stdout = stdout
@@ -106,17 +106,17 @@ module Cosmos
 
         cmd.send_command_to_target('COSMOS', pkt)
         # Verify the unknown packet has been updated
-        System.commands.packet("UNKNOWN","UNKNOWN").buffer.should eql pkt.buffer
+        expect(System.commands.packet("UNKNOWN","UNKNOWN").buffer).to eql pkt.buffer
         tf.unlink
 
-        stdout.string.should match "Unidentified packet"
+        expect(stdout.string).to match "Unidentified packet"
         Logger.level = Logger::FATAL
         $stdout = STDOUT
       end
     end
 
     describe "send_raw" do
-      it "should complain about unknown interfaces" do
+      it "complains about unknown interfaces" do
         tf = Tempfile.new('unittest')
         tf.close
         cmd = Commanding.new(CmdTlmServerConfig.new(tf.path))
@@ -124,7 +124,7 @@ module Cosmos
         tf.unlink
       end
 
-      it "should log writes" do
+      it "logs writes" do
         Logger.level = Logger::DEBUG
         stdout = StringIO.new('', 'r+')
         $stdout = stdout
@@ -140,7 +140,7 @@ module Cosmos
         cmd.send_raw('MY_INT', "\x00\x01")
         tf.unlink
 
-        stdout.string.should match "Unlogged raw data of 2 bytes being sent to interface MY_INT"
+        expect(stdout.string).to match "Unlogged raw data of 2 bytes being sent to interface MY_INT"
         Logger.level = Logger::FATAL
         $stdout = STDOUT
       end
