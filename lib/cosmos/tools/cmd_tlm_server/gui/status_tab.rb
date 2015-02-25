@@ -35,13 +35,11 @@ module Cosmos
     end
 
     # Update the status tab in the GUI
-    #
-    # @param previous_request_count [Integer] The previous number of
-    def update(previous_request_count)
-      update_limits_set
-      update_api_status(previous_request_count)
-      update_system_status
-      update_background_task_status
+    def update
+      update_limits_set()
+      update_api_status()
+      update_system_status()
+      update_background_task_status()
     end
 
     private
@@ -76,6 +74,12 @@ module Cosmos
     end
 
     def populate_api_status(layout)
+      if CmdTlmServer.json_drb
+        @previous_request_count = CmdTlmServer.json_drb.request_count
+      else
+        @previous_request_count = 0
+      end
+
       api = Qt::GroupBox.new(Qt::Object.tr("API Status"))
       api_layout = Qt::VBoxLayout.new(api)
       @api_table = Qt::TableWidget.new()
@@ -88,7 +92,7 @@ module Cosmos
       item0 = Qt::TableWidgetItem.new(Qt::Object.tr(CmdTlmServer.json_drb.num_clients.to_s))
       item0.setTextAlignment(Qt::AlignCenter)
       @api_table.setItem(0, 1, item0)
-      item = Qt::TableWidgetItem.new(Qt::Object.tr(CmdTlmServer.json_drb.request_count.to_s))
+      item = Qt::TableWidgetItem.new(Qt::Object.tr(@previous_request_count.to_s))
       item.setTextAlignment(Qt::AlignCenter)
       @api_table.setItem(0, 2, item)
       item2 = Qt::TableWidgetItem.new("0.0")
@@ -188,14 +192,14 @@ module Cosmos
     end
 
     # Update the API statistics in the GUI
-    def update_api_status(previous_request_count)
+    def update_api_status
       if CmdTlmServer.json_drb
         @api_table.item(0,1).setText(CmdTlmServer.json_drb.num_clients.to_s)
         @api_table.item(0,2).setText(CmdTlmServer.json_drb.request_count.to_s)
         request_count = CmdTlmServer.json_drb.request_count
-        requests_per_second = request_count - previous_request_count
+        requests_per_second = request_count - @previous_request_count
         @api_table.item(0,3).setText(requests_per_second.to_s)
-        previous_request_count = request_count
+        @previous_request_count = request_count
         average_request_time = CmdTlmServer.json_drb.average_request_time
         @api_table.item(0,4).setText(sprintf("%0.6f s", average_request_time))
         estimated_utilization = requests_per_second * average_request_time * 100.0

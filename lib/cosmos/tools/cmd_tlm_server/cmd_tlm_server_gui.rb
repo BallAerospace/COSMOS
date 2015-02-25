@@ -218,16 +218,11 @@ module Cosmos
 
     # Update the status tab of the server
     def handle_status_tab
-      if CmdTlmServer.json_drb
-        previous_request_count = CmdTlmServer.json_drb.request_count
-      else
-        previous_request_count = 0
-      end
       @tab_thread = Thread.new do
         begin
           while true
             start_time = Time.now
-            Qt.execute_in_main_thread(true) { @status_tab.update(previous_request_count) }
+            Qt.execute_in_main_thread(true) { @status_tab.update }
             total_time = Time.now - start_time
             if total_time > 0.0 and total_time < 1.0
               break if @tab_sleeper.sleep(1.0 - total_time)
