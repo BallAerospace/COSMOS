@@ -44,13 +44,13 @@ module Cosmos
       count = 0
       reader.each(filename) do |packet|
         if count == 0
-          packet.target_name.should eql('META')
-          packet.packet_name.should eql('DATA')
-          packet.read('VERSION').should eql('Great Version')
-          packet.read('NUMBER').should eql(5)
+          expect(packet.target_name).to eql('META')
+          expect(packet.packet_name).to eql('DATA')
+          expect(packet.read('VERSION')).to eql('Great Version')
+          expect(packet.read('NUMBER')).to eql(5)
         else
-          packet.target_name.should eql('INST')
-          packet.packet_name.should eql('ABORT')
+          expect(packet.target_name).to eql('INST')
+          expect(packet.packet_name).to eql('ABORT')
         end
         count += 1
       end
@@ -76,17 +76,17 @@ module Cosmos
       count = 0
       reader.each(filename) do |packet|
         if count == 0 or count == 2
-          packet.target_name.should eql('META')
-          packet.packet_name.should eql('DATA')
-          packet.read('VERSION').should eql('Good Version')
-          packet.read('NUMBER').should eql(3)
+          expect(packet.target_name).to eql('META')
+          expect(packet.packet_name).to eql('DATA')
+          expect(packet.read('VERSION')).to eql('Good Version')
+          expect(packet.read('NUMBER')).to eql(3)
         else
-          packet.target_name.should eql('INST')
-          packet.packet_name.should eql('ADCS')
+          expect(packet.target_name).to eql('INST')
+          expect(packet.packet_name).to eql('ADCS')
         end
         count += 1
       end
-      count.should eql 3
+      expect(count).to eql 3
     end
 
     it "does not log metadata packets if configured not to" do
@@ -110,17 +110,17 @@ module Cosmos
       count = 0
       reader.each(filename) do |packet|
         if count == 0
-          packet.target_name.should eql('META')
-          packet.packet_name.should eql('DATA')
-          packet.read('VERSION').should eql('Good Version')
-          packet.read('NUMBER').should eql(1)
+          expect(packet.target_name).to eql('META')
+          expect(packet.packet_name).to eql('DATA')
+          expect(packet.read('VERSION')).to eql('Good Version')
+          expect(packet.read('NUMBER')).to eql(1)
         else
-          packet.target_name.should eql('INST')
-          packet.packet_name.should eql('ADCS')
+          expect(packet.target_name).to eql('INST')
+          expect(packet.packet_name).to eql('ADCS')
         end
         count += 1
       end
-      count.should eql(2)
+      expect(count).to eql(2)
     end
 
     it "initializes the meta packet if configured to" do
@@ -148,17 +148,17 @@ module Cosmos
       count = 0
       reader.each(filename) do |packet|
         if count == 0
-          packet.target_name.should eql('META')
-          packet.packet_name.should eql('DATA')
-          packet.read('VERSION').should eql('Ok Version')
-          packet.read('NUMBER').should eql(11)
+          expect(packet.target_name).to eql('META')
+          expect(packet.packet_name).to eql('DATA')
+          expect(packet.read('VERSION')).to eql('Ok Version')
+          expect(packet.read('NUMBER')).to eql(11)
         else
-          packet.target_name.should eql('INST')
-          packet.packet_name.should eql('ADCS')
+          expect(packet.target_name).to eql('INST')
+          expect(packet.packet_name).to eql('ADCS')
         end
         count += 1
       end
-      count.should eql(2)
+      expect(count).to eql(2)
       tf.unlink
     end
 

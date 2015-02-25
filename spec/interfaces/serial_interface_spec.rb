@@ -18,23 +18,23 @@ module Cosmos
     describe "initialize" do
       it "initializes the instance variables" do
         i = SerialInterface.new('COM1','COM1','9600','NONE','1','0','0','burst')
-        i.name.should eql "Cosmos::SerialInterface"
+        expect(i.name).to eql "Cosmos::SerialInterface"
       end
 
       it "is not writeable if no write port given" do
         i = SerialInterface.new('nil','COM1','9600','NONE','1','0','0','burst')
-        i.name.should eql "Cosmos::SerialInterface"
-        i.write_allowed?.should be_falsey
-        i.write_raw_allowed?.should be_falsey
-        i.read_allowed?.should be_truthy
+        expect(i.name).to eql "Cosmos::SerialInterface"
+        expect(i.write_allowed?).to be_falsey
+        expect(i.write_raw_allowed?).to be_falsey
+        expect(i.read_allowed?).to be_truthy
       end
 
       it "is not readable if no read port given" do
         i = SerialInterface.new('COM1','nil','9600','NONE','1','0','0','burst')
-        i.name.should eql "Cosmos::SerialInterface"
-        i.write_allowed?.should be_truthy
-        i.write_raw_allowed?.should be_truthy
-        i.read_allowed?.should be_falsey
+        expect(i.name).to eql "Cosmos::SerialInterface"
+        expect(i.write_allowed?).to be_truthy
+        expect(i.write_raw_allowed?).to be_truthy
+        expect(i.read_allowed?).to be_falsey
       end
     end
 
@@ -43,11 +43,11 @@ module Cosmos
         # Ensure the 'NONE' parity is coverted to a symbol
         if Kernel.is_windows?
           i = SerialInterface.new('COM1','COM1','9600','NONE','1','0','0','burst')
-          i.connected?.should be_falsey
+          expect(i.connected?).to be_falsey
           i.connect
-          i.connected?.should be_truthy
+          expect(i.connected?).to be_truthy
           i.disconnect
-          i.connected?.should be_falsey
+          expect(i.connected?).to be_falsey
         end
       end
     end

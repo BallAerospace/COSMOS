@@ -18,8 +18,8 @@ describe Exception do
       begin
         raise "My message"
       rescue => err
-        err.formatted.should match /RuntimeError : My message/
-        err.formatted.should match /#{File.expand_path(__FILE__)}/
+        expect(err.formatted).to match /RuntimeError : My message/
+        expect(err.formatted).to match /#{File.expand_path(__FILE__)}/
       end
     end
 
@@ -27,18 +27,18 @@ describe Exception do
       begin
         raise "My message"
       rescue => err
-        err.formatted(true).should_not match /RuntimeError/
-        err.formatted(true).should match /My message/
-        err.formatted(true).should match /#{File.expand_path(__FILE__)}/
+        expect(err.formatted(true)).not_to match /RuntimeError/
+        expect(err.formatted(true)).to match /My message/
+        expect(err.formatted(true)).to match /#{File.expand_path(__FILE__)}/
       end
 
       # If it's not a RuntimeError then we should still see the class
       begin
         raise ArgumentError.new("My message")
       rescue => err
-        err.formatted(true).should match /ArgumentError/
-        err.formatted(true).should match /My message/
-        err.formatted(true).should match /#{File.expand_path(__FILE__)}/
+        expect(err.formatted(true)).to match /ArgumentError/
+        expect(err.formatted(true)).to match /My message/
+        expect(err.formatted(true)).to match /#{File.expand_path(__FILE__)}/
       end
     end
 
@@ -46,15 +46,15 @@ describe Exception do
       begin
         raise "My message"
       rescue => err
-        err.formatted(false, false).should match /RuntimeError : My message/
-        err.formatted(false, false).should_not match /#{File.expand_path(__FILE__)}/
+        expect(err.formatted(false, false)).to match /RuntimeError : My message/
+        expect(err.formatted(false, false)).not_to match /#{File.expand_path(__FILE__)}/
       end
 
       begin
         raise "My message"
       rescue => err
-        err.formatted(true, false).should match /My message/
-        err.formatted(true, false).should_not match /#{File.expand_path(__FILE__)}/
+        expect(err.formatted(true, false)).to match /My message/
+        expect(err.formatted(true, false)).not_to match /#{File.expand_path(__FILE__)}/
       end
     end
   end
@@ -65,8 +65,8 @@ describe Exception do
         line = __LINE__; raise "My message"
       rescue => err
         file, line = err.source
-        file.should eql __FILE__
-        line.should eql line
+        expect(file).to eql __FILE__
+        expect(line).to eql line
       end
     end
 
@@ -83,8 +83,8 @@ describe Exception do
           file_name = "C:#{__FILE__}"
         end
         file, line = err.source
-        file.should eql file_name
-        line.should eql line
+        expect(file).to eql file_name
+        expect(line).to eql line
       end
     end
   end

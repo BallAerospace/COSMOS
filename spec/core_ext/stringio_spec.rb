@@ -15,7 +15,7 @@ describe StringIO do
 
   describe "path" do
     it "returns nil" do
-      StringIO.new.path.should be_nil
+      expect(StringIO.new.path).to be_nil
     end
   end
 end

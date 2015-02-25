@@ -29,8 +29,8 @@ describe Class do
       end
 
       my = MyClass.new
-      MyClass.test.should eql "Test"
-      my.test.should eql "Test"
+      expect(MyClass.test).to eql "Test"
+      expect(my.test).to eql "Test"
     end
   end
 end

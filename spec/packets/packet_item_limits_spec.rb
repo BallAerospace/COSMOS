@@ -22,12 +22,12 @@ module Cosmos
     describe "values=" do
       it "sets the values Hash" do
         @l.values = {:DEFAULT => [0,1,2,3,4,5]}
-        @l.values[:DEFAULT].should eql [0,1,2,3,4,5]
+        expect(@l.values[:DEFAULT]).to eql [0,1,2,3,4,5]
       end
 
       it "allows nil values" do
         @l.values = nil
-        @l.values.should be_nil
+        expect(@l.values).to be_nil
       end
 
       it "complains about non Hash values" do
@@ -43,13 +43,13 @@ module Cosmos
       it "sets the state to a Symbol" do
         PacketItemLimits::LIMITS_STATES.each do |state|
           @l.state = state
-          @l.state.should eql state
+          expect(@l.state).to eql state
         end
       end
 
       it "sets the state to nil" do
         @l.state = nil
-        @l.state.should be_nil
+        expect(@l.state).to be_nil
       end
 
       it "complains about bad Symbol states" do
@@ -63,12 +63,12 @@ module Cosmos
       it "accepts LimitsResponse instances" do
         r = LimitsResponse.new()
         @l.response = r
-        (LimitsResponse === @l.response).should be_truthy
+        expect(LimitsResponse === @l.response).to be_truthy
       end
 
       it "sets the response to nil" do
         @l.response = nil
-        @l.response.should be_nil
+        expect(@l.response).to be_nil
       end
 
       it "complains about non LimitsResponse responses" do
@@ -80,7 +80,7 @@ module Cosmos
       it "accepts persistence_setting as a Fixnum" do
         persistence_setting = 1
         @l.persistence_setting = persistence_setting
-        @l.persistence_setting.should eql persistence_setting
+        expect(@l.persistence_setting).to eql persistence_setting
       end
 
       it "complains about persistence_setting = nil" do
@@ -96,7 +96,7 @@ module Cosmos
       it "accepts persistence_count as a String" do
         persistence_count = 1
         @l.persistence_count = persistence_count
-        @l.persistence_count.should eql persistence_count
+        expect(@l.persistence_count).to eql persistence_count
       end
 
       it "complains about persistence_count = nil" do
@@ -111,11 +111,11 @@ module Cosmos
     describe "clone" do
       it "duplicates the entire Limits" do
         l2 = @l.clone
-        @l.values.should eql l2.values
-        @l.response.should eql l2.response
-        @l.state.should eql l2.state
-        @l.persistence_count.should eql l2.persistence_count
-        @l.persistence_setting.should eql l2.persistence_setting
+        expect(@l.values).to eql l2.values
+        expect(@l.response).to eql l2.response
+        expect(@l.state).to eql l2.state
+        expect(@l.persistence_count).to eql l2.persistence_count
+        expect(@l.persistence_setting).to eql l2.persistence_setting
       end
     end
 
@@ -130,14 +130,14 @@ module Cosmos
         @l.persistence_count = 2
 
         hash = @l.to_hash
-        hash.keys.length.should eql 6
-        hash.keys.should include('values','enabled','state','response','persistence_setting','persistence_count')
-        hash["enabled"].should be_truthy
-        hash["values"].should include(:DEFAULT => [0,1,2,3,4,5])
-        hash["state"].should eql :RED_LOW
-        hash["response"].should match "LimitsResponse"
-        hash["persistence_setting"].should eql 1
-        hash["persistence_count"].should eql 2
+        expect(hash.keys.length).to eql 6
+        expect(hash.keys).to include('values','enabled','state','response','persistence_setting','persistence_count')
+        expect(hash["enabled"]).to be_truthy
+        expect(hash["values"]).to include(:DEFAULT => [0,1,2,3,4,5])
+        expect(hash["state"]).to eql :RED_LOW
+        expect(hash["response"]).to match "LimitsResponse"
+        expect(hash["persistence_setting"]).to eql 1
+        expect(hash["persistence_count"]).to eql 2
       end
 
       it "creates a Hash without a response" do
@@ -148,12 +148,12 @@ module Cosmos
         @l.persistence_count = 2
 
         hash = @l.to_hash
-        hash["enabled"].should be_truthy
-        hash["values"].should include(:DEFAULT => [0,1,2,3,4,5])
-        hash["state"].should eql :RED_LOW
-        hash["response"].should be_nil
-        hash["persistence_setting"].should eql 1
-        hash["persistence_count"].should eql 2
+        expect(hash["enabled"]).to be_truthy
+        expect(hash["values"]).to include(:DEFAULT => [0,1,2,3,4,5])
+        expect(hash["state"]).to eql :RED_LOW
+        expect(hash["response"]).to be_nil
+        expect(hash["persistence_setting"]).to eql 1
+        expect(hash["persistence_count"]).to eql 2
       end
     end
 

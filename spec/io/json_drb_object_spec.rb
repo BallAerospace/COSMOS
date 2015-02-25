@@ -31,7 +31,7 @@ module Cosmos
         json = JsonDRb.new
         json.start_service('127.0.0.1', 7777, JsonDRbObjectServer.new)
         obj = JsonDRbObject.new("localhost", 7777)
-        obj.my_method(10).should eql 20
+        expect(obj.my_method(10)).to eql 20
         obj.disconnect
         json.stop_service
         sleep(0.1)

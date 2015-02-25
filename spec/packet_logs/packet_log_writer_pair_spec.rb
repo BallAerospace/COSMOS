@@ -20,8 +20,8 @@ module Cosmos
         cmd = double("cmd_writer")
         tlm = double("tlm_writer")
         pair = PacketLogWriterPair.new(cmd, tlm)
-        pair.cmd_log_writer.should eql cmd
-        pair.tlm_log_writer.should eql tlm
+        expect(pair.cmd_log_writer).to eql cmd
+        expect(pair.tlm_log_writer).to eql tlm
       end
     end
 

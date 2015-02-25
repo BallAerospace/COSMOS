@@ -17,73 +17,73 @@ module Cosmos
 
     shared_examples_for "line returned" do
       it "is not nil" do
-        @clipped_line.should_not be_nil
+        expect(@clipped_line).not_to be_nil
       end
     end
 
     shared_examples_for "no line returned" do
       it "is nil" do
-        @clipped_line.should be_nil
+        expect(@clipped_line).to be_nil
       end
     end
 
     shared_examples_for "not clipped" do
       it "returns the same first point" do
-        @clipped_line[0].should eql(@x0)
-        @clipped_line[1].should eql(@y0)
+        expect(@clipped_line[0]).to eql(@x0)
+        expect(@clipped_line[1]).to eql(@y0)
       end
 
       it "returns the same second point" do
-        @clipped_line[2].should eql(@x1)
-        @clipped_line[3].should eql(@y1)
+        expect(@clipped_line[2]).to eql(@x1)
+        expect(@clipped_line[3]).to eql(@y1)
       end
 
       it "indicates the first point was not clipped" do
-        @clipped_line[4].should be_falsey
+        expect(@clipped_line[4]).to be_falsey
       end
 
       it "indicates the second point was not clipped" do
-        @clipped_line[5].should be_falsey
+        expect(@clipped_line[5]).to be_falsey
       end
     end
 
     shared_examples_for "first point clipped" do
       it "returns a clipped first point" do
-        (@xmin..@xmax).should include(@clipped_line[0])
-        (@ymin..@ymax).should include(@clipped_line[1])
+        expect(@xmin..@xmax).to include(@clipped_line[0])
+        expect(@ymin..@ymax).to include(@clipped_line[1])
       end
 
       it "returns the same second point" do
-        @clipped_line[2].should eql(@x1)
-        @clipped_line[3].should eql(@y1)
+        expect(@clipped_line[2]).to eql(@x1)
+        expect(@clipped_line[3]).to eql(@y1)
       end
 
       it "indicates the first point was clipped" do
-        @clipped_line[4].should be_truthy
+        expect(@clipped_line[4]).to be_truthy
       end
 
       it "indicates the second point was not clipped" do
-        @clipped_line[5].should be_falsey
+        expect(@clipped_line[5]).to be_falsey
       end
     end
 
     shared_examples_for "second point clipped" do
       it "returns the same first point" do
-        @clipped_line[0].should eql(@x0)
-        @clipped_line[1].should eql(@y0)
+        expect(@clipped_line[0]).to eql(@x0)
+        expect(@clipped_line[1]).to eql(@y0)
       end
 
       it "returns a clipped second point" do
-        (@xmin..@xmax).should include(@clipped_line[2])
-        (@ymin..@ymax).should include(@clipped_line[3])
+        expect(@xmin..@xmax).to include(@clipped_line[2])
+        expect(@ymin..@ymax).to include(@clipped_line[3])
       end
 
       it "indicates the first point was not clipped" do
-        @clipped_line[4].should be_falsey
+        expect(@clipped_line[4]).to be_falsey
       end
 
       it "indicates the second point was clipped" do
-        @clipped_line[5].should be_truthy
+        expect(@clipped_line[5]).to be_truthy
       end
     end
 

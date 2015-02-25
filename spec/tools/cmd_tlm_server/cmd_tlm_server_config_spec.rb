@@ -85,7 +85,7 @@ module Cosmos
           tf.puts 'TITLE TEST'
           tf.close
           config = CmdTlmServerConfig.new(tf.path)
-          config.title.should eql "TEST"
+          expect(config.title).to eql "TEST"
           tf.unlink
         end
       end
@@ -96,7 +96,7 @@ module Cosmos
           tf.puts 'PACKET_LOG_WRITER MY_WRITER packet_log_writer.rb'
           tf.close
           config =CmdTlmServerConfig.new(tf.path)
-          config.packet_log_writer_pairs.keys.should eql ["DEFAULT","MY_WRITER"]
+          expect(config.packet_log_writer_pairs.keys).to eql ["DEFAULT","MY_WRITER"]
           tf.unlink
         end
 
@@ -105,9 +105,9 @@ module Cosmos
           tf.puts 'PACKET_LOG_WRITER MY_WRITER packet_log_writer.rb test_log_name false 3 1000 C:\log false'
           tf.close
           config = CmdTlmServerConfig.new(tf.path)
-          config.packet_log_writer_pairs.keys.should eql ["DEFAULT","MY_WRITER"]
-          config.packet_log_writer_pairs["DEFAULT"].cmd_log_writer.logging_enabled.should be_truthy
-          config.packet_log_writer_pairs["MY_WRITER"].cmd_log_writer.logging_enabled.should be_falsey
+          expect(config.packet_log_writer_pairs.keys).to eql ["DEFAULT","MY_WRITER"]
+          expect(config.packet_log_writer_pairs["DEFAULT"].cmd_log_writer.logging_enabled).to be_truthy
+          expect(config.packet_log_writer_pairs["MY_WRITER"].cmd_log_writer.logging_enabled).to be_falsey
           tf.unlink
           config.packet_log_writer_pairs.each do |name, plwp|
             plwp.cmd_log_writer.shutdown
@@ -134,7 +134,7 @@ module Cosmos
           tf.puts 'AUTO_INTERFACE_TARGETS'
           tf.close
           config = CmdTlmServerConfig.new(tf.path)
-          config.interfaces.keys.should eql %w(INST_INT COSMOSINT)
+          expect(config.interfaces.keys).to eql %w(INST_INT COSMOSINT)
           tf.unlink
         end
       end
@@ -170,7 +170,7 @@ module Cosmos
           tf.puts 'INTERFACE_TARGET INST'
           tf.close
           config = CmdTlmServerConfig.new(tf.path)
-          config.interfaces.keys.should eql %w(INST_INT)
+          expect(config.interfaces.keys).to eql %w(INST_INT)
           tf.unlink
         end
       end
@@ -191,7 +191,7 @@ module Cosmos
           tf.puts 'DONT_CONNECT'
           tf.close
           config = CmdTlmServerConfig.new(tf.path)
-          config.interfaces['CTSCONFIGTESTINTERFACE'].connect_on_startup.should be_falsey
+          expect(config.interfaces['CTSCONFIGTESTINTERFACE'].connect_on_startup).to be_falsey
           tf.unlink
         end
       end
@@ -212,7 +212,7 @@ module Cosmos
           tf.puts 'DONT_RECONNECT'
           tf.close
           config = CmdTlmServerConfig.new(tf.path)
-          config.interfaces['CTSCONFIGTESTINTERFACE'].auto_reconnect.should be_falsey
+          expect(config.interfaces['CTSCONFIGTESTINTERFACE'].auto_reconnect).to be_falsey
           tf.unlink
         end
       end
@@ -233,7 +233,7 @@ module Cosmos
           tf.puts 'RECONNECT_DELAY 5.0'
           tf.close
           config = CmdTlmServerConfig.new(tf.path)
-          config.interfaces['CTSCONFIGTESTINTERFACE'].reconnect_delay.should eql 5.0
+          expect(config.interfaces['CTSCONFIGTESTINTERFACE'].reconnect_delay).to eql 5.0
           tf.unlink
         end
       end
@@ -254,7 +254,7 @@ module Cosmos
           tf.puts 'DISABLE_DISCONNECT'
           tf.close
           config = CmdTlmServerConfig.new(tf.path)
-          config.interfaces['CTSCONFIGTESTINTERFACE'].disable_disconnect.should be_truthy
+          expect(config.interfaces['CTSCONFIGTESTINTERFACE'].disable_disconnect).to be_truthy
           tf.unlink
         end
       end
@@ -275,7 +275,7 @@ module Cosmos
           tf.puts 'OPTION LISTEN_ADDRESS 127.0.0.1'
           tf.close
           config = CmdTlmServerConfig.new(tf.path)
-          config.interfaces['CTSCONFIGTESTINTERFACE'].options['LISTEN_ADDRESS'].should eql(['127.0.0.1'])
+          expect(config.interfaces['CTSCONFIGTESTINTERFACE'].options['LISTEN_ADDRESS']).to eql(['127.0.0.1'])
           tf.unlink
         end
       end
@@ -305,7 +305,7 @@ module Cosmos
           tf.puts 'LOG DEFAULT'
           tf.close
           config = CmdTlmServerConfig.new(tf.path)
-          config.interfaces['CTSCONFIGTESTINTERFACE'].packet_log_writer_pairs.length.should eql 1
+          expect(config.interfaces['CTSCONFIGTESTINTERFACE'].packet_log_writer_pairs.length).to eql 1
           tf.unlink
 
           tf = Tempfile.new('unittest')
@@ -315,7 +315,7 @@ module Cosmos
           tf.puts 'LOG MY_WRITER'
           tf.close
           config = CmdTlmServerConfig.new(tf.path)
-          config.interfaces['CTSCONFIGTESTINTERFACE'].packet_log_writer_pairs.length.should eql 2
+          expect(config.interfaces['CTSCONFIGTESTINTERFACE'].packet_log_writer_pairs.length).to eql 2
           tf.unlink
         end
       end
@@ -336,7 +336,7 @@ module Cosmos
           tf.puts 'DONT_LOG'
           tf.close
           config = CmdTlmServerConfig.new(tf.path)
-          config.interfaces['CTSCONFIGTESTINTERFACE'].packet_log_writer_pairs.length.should eql 0
+          expect(config.interfaces['CTSCONFIGTESTINTERFACE'].packet_log_writer_pairs.length).to eql 0
           tf.unlink
         end
       end
@@ -390,7 +390,7 @@ module Cosmos
           tf.puts 'ROUTER MY_ROUTER2 cts_config_test_interface.rb false'
           tf.close
           config = CmdTlmServerConfig.new(tf.path)
-          config.routers.keys.should eql %w(MY_ROUTER1 MY_ROUTER2)
+          expect(config.routers.keys).to eql %w(MY_ROUTER1 MY_ROUTER2)
           tf.unlink
         end
       end
@@ -429,7 +429,7 @@ module Cosmos
           tf.puts 'ROUTE CTSCONFIGTESTINTERFACE'
           tf.close
           config = CmdTlmServerConfig.new(tf.path)
-          config.routers['ROUTER'].interfaces[0].should be_a CtsConfigTestInterface
+          expect(config.routers['ROUTER'].interfaces[0]).to be_a CtsConfigTestInterface
           tf.unlink
         end
       end
@@ -441,9 +441,9 @@ module Cosmos
           tf.puts 'BACKGROUND_TASK cts_config_test_interface.rb false'
           tf.close
           config = CmdTlmServerConfig.new(tf.path)
-          config.background_tasks.length.should eql 2
-          config.background_tasks[0].should be_a CtsConfigTestInterface
-          config.background_tasks[1].should be_a CtsConfigTestInterface
+          expect(config.background_tasks.length).to eql 2
+          expect(config.background_tasks[0]).to be_a CtsConfigTestInterface
+          expect(config.background_tasks[1]).to be_a CtsConfigTestInterface
           tf.unlink
         end
       end

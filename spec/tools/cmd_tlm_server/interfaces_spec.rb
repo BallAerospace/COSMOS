@@ -34,7 +34,7 @@ module Cosmos
       it "maps all targets to the interface" do
         System.targets.each do |name, target|
           target.interface = nil
-          target.interface.should be_nil
+          expect(target.interface).to be_nil
         end
         tf = Tempfile.new('unittest')
         tf.puts 'INTERFACE MY_INT interface.rb'
@@ -42,7 +42,7 @@ module Cosmos
         interfaces = Interfaces.new(CmdTlmServerConfig.new(tf.path))
         interfaces.map_all_targets("MY_INT")
         System.targets.each do |name, target|
-          target.interface.name.should eql 'MY_INT'
+          expect(target.interface.name).to eql 'MY_INT'
         end
         tf.unlink
       end
@@ -71,14 +71,14 @@ module Cosmos
       it "maps a target to the interface" do
         System.targets.each do |name, target|
           target.interface = nil
-          target.interface.should be_nil
+          expect(target.interface).to be_nil
         end
         tf = Tempfile.new('unittest')
         tf.puts 'INTERFACE MY_INT interface.rb'
         tf.close
         interfaces = Interfaces.new(CmdTlmServerConfig.new(tf.path))
         interfaces.map_target("COSMOS","MY_INT")
-        System.targets["COSMOS"].interface.name.should eql "MY_INT"
+        expect(System.targets["COSMOS"].interface.name).to eql "MY_INT"
         tf.unlink
       end
     end
@@ -100,7 +100,7 @@ module Cosmos
           interfaces.all['MY_INT'].connect_on_startup = true
           interfaces.start
 
-          stdout.string.should match "Creating thread for interface MY_INT"
+          expect(stdout.string).to match "Creating thread for interface MY_INT"
 
           interfaces.stop
           sleep 0.1
@@ -125,15 +125,15 @@ module Cosmos
           interfaces.all['MY_INT'].connect_on_startup = true
           interfaces.start
           sleep 0.5
-          interfaces.state("MY_INT").should eql "ATTEMPTING"
+          expect(interfaces.state("MY_INT")).to eql "ATTEMPTING"
           sleep 0.1
-          interfaces.state("MY_INT").should eql "CONNECTED"
+          expect(interfaces.state("MY_INT")).to eql "CONNECTED"
           sleep 0.1
           interfaces.stop
           sleep 0.5
-          interfaces.state("MY_INT").should eql "DISCONNECTED"
+          expect(interfaces.state("MY_INT")).to eql "DISCONNECTED"
 
-          stdout.string.should match "Disconnected from interface MY_INT"
+          expect(stdout.string).to match "Disconnected from interface MY_INT"
 
           sleep 0.1
         end
@@ -183,18 +183,18 @@ module Cosmos
 
           config = CmdTlmServerConfig.new(tf.path)
           interfaces = Interfaces.new(config)
-          config.interfaces['DEST1'].routers[0].name.should eql "MY_ROUTER"
-          config.interfaces['DEST2'].routers[0].name.should eql "MY_ROUTER"
+          expect(config.interfaces['DEST1'].routers[0].name).to eql "MY_ROUTER"
+          expect(config.interfaces['DEST2'].routers[0].name).to eql "MY_ROUTER"
           interfaces.connect("DEST1")
           sleep 0.2
-          stdout.string.should match "Connecting to DEST1"
+          expect(stdout.string).to match "Connecting to DEST1"
           interfaces.disconnect("DEST1")
           interfaces.connect("DEST1",'localhost',8888,8888,6,6,'length')
           sleep 0.2
-          config.interfaces['DEST1'].routers[0].name.should eql "MY_ROUTER"
-          config.interfaces['DEST2'].routers[0].name.should eql "MY_ROUTER"
-          stdout.string.should match "Disconnected from interface DEST1"
-          stdout.string.should match "Connecting to DEST1"
+          expect(config.interfaces['DEST1'].routers[0].name).to eql "MY_ROUTER"
+          expect(config.interfaces['DEST2'].routers[0].name).to eql "MY_ROUTER"
+          expect(stdout.string).to match "Disconnected from interface DEST1"
+          expect(stdout.string).to match "Connecting to DEST1"
           interfaces.disconnect("DEST1")
           interfaces.stop
 
@@ -218,7 +218,7 @@ module Cosmos
         tf.puts 'INTERFACE INTERFACE3 interface.rb'
         tf.close
         interfaces = Interfaces.new(CmdTlmServerConfig.new(tf.path))
-        interfaces.names.should eql %w(INTERFACE1 INTERFACE2 INTERFACE3)
+        expect(interfaces.names).to eql %w(INTERFACE1 INTERFACE2 INTERFACE3)
         tf.unlink
       end
     end
@@ -239,10 +239,10 @@ module Cosmos
         end
         interfaces.clear_counters
         interfaces.all.each do |name, interface|
-          interface.bytes_written.should eql 0
-          interface.bytes_read.should eql 0
-          interface.write_count.should eql 0
-          interface.read_count.should eql 0
+          expect(interface.bytes_written).to eql 0
+          expect(interface.bytes_read).to eql 0
+          expect(interface.write_count).to eql 0
+          expect(interface.read_count).to eql 0
         end
         tf.unlink
       end

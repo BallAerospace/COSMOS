@@ -19,8 +19,8 @@ module Cosmos
     describe "initialize" do
       it "takes an item_name and value_type" do
         p = WatermarkProcessor.new('TEST', 'RAW')
-        p.value_type.should eql :RAW
-        p.instance_variable_get("@item_name").should eql 'TEST'
+        expect(p.value_type).to eql :RAW
+        expect(p.instance_variable_get("@item_name")).to eql 'TEST'
       end
     end
 
@@ -31,19 +31,19 @@ module Cosmos
         packet.append_item("TEST", 8, :UINT)
         packet.buffer= "\x01"
         p.call(packet, packet.buffer)
-        p.results[:HIGH_WATER].should eql 1
-        p.results[:LOW_WATER].should eql 1
+        expect(p.results[:HIGH_WATER]).to eql 1
+        expect(p.results[:LOW_WATER]).to eql 1
         packet.buffer= "\x02"
         p.call(packet, packet.buffer)
-        p.results[:HIGH_WATER].should eql 2
-        p.results[:LOW_WATER].should eql 1
+        expect(p.results[:HIGH_WATER]).to eql 2
+        expect(p.results[:LOW_WATER]).to eql 1
         packet.buffer= "\x00"
         p.call(packet, packet.buffer)
-        p.results[:HIGH_WATER].should eql 2
-        p.results[:LOW_WATER].should eql 0
+        expect(p.results[:HIGH_WATER]).to eql 2
+        expect(p.results[:LOW_WATER]).to eql 0
         p.reset
-        p.results[:HIGH_WATER].should eql nil
-        p.results[:LOW_WATER].should eql nil
+        expect(p.results[:HIGH_WATER]).to eql nil
+        expect(p.results[:LOW_WATER]).to eql nil
       end
     end
   end

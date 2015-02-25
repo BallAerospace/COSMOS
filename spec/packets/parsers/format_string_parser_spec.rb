@@ -83,9 +83,9 @@ module Cosmos
         tf.close
         @pc.process_file(tf.path, "TGT1")
         @pc.telemetry["TGT1"]["PKT1"].buffer = "\x0a\x0b\x0c"
-        @pc.telemetry["TGT1"]["PKT1"].read("ITEM1",:FORMATTED).should eql "d10"
-        @pc.telemetry["TGT1"]["PKT1"].read("ITEM2",:FORMATTED).should eql "u10"
-        @pc.telemetry["TGT1"]["PKT1"].read("ITEM3",:FORMATTED).should eql "0xa"
+        expect(@pc.telemetry["TGT1"]["PKT1"].read("ITEM1",:FORMATTED)).to eql "d10"
+        expect(@pc.telemetry["TGT1"]["PKT1"].read("ITEM2",:FORMATTED)).to eql "u10"
+        expect(@pc.telemetry["TGT1"]["PKT1"].read("ITEM3",:FORMATTED)).to eql "0xa"
         tf.unlink
       end
 
@@ -97,7 +97,7 @@ module Cosmos
         tf.close
         @pc.process_file(tf.path, "TGT1")
         @pc.telemetry["TGT1"]["PKT1"].write("ITEM1",12345.12345)
-        @pc.telemetry["TGT1"]["PKT1"].read("ITEM1",:FORMATTED).should eql "12345.123"
+        expect(@pc.telemetry["TGT1"]["PKT1"].read("ITEM1",:FORMATTED)).to eql "12345.123"
         tf.unlink
       end
 
@@ -111,9 +111,9 @@ module Cosmos
         tf.close
         @pc.process_file(tf.path, "TGT1")
         @pc.telemetry["TGT1"]["PKT1"].write("ITEM1","HI")
-        @pc.telemetry["TGT1"]["PKT1"].read("ITEM1",:FORMATTED).should eql "String: HI"
+        expect(@pc.telemetry["TGT1"]["PKT1"].read("ITEM1",:FORMATTED)).to eql "String: HI"
         @pc.telemetry["TGT1"]["PKT1"].write("ITEM2","\x00\x01\x02\x03")
-        @pc.telemetry["TGT1"]["PKT1"].read("ITEM2",:FORMATTED).should eql "Block: \x00\x01\x02\x03"
+        expect(@pc.telemetry["TGT1"]["PKT1"].read("ITEM2",:FORMATTED)).to eql "Block: \x00\x01\x02\x03"
         tf.unlink
       end
     end

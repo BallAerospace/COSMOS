@@ -22,56 +22,56 @@ describe StringIO do
       io = StringIO.new
       io.write "\x01\x01\x01\x01\x01\x01\x01\x01"
       io.rewind
-      io.read_length_bytes(0).should be_nil
+      expect(io.read_length_bytes(0)).to be_nil
       io.rewind
-      io.read_length_bytes(3).should be_nil
+      expect(io.read_length_bytes(3)).to be_nil
       io.rewind
-      io.read_length_bytes(8).should be_nil
+      expect(io.read_length_bytes(8)).to be_nil
     end
 
     it "returns nil if there aren't enough bytes to read the length field" do
       io = StringIO.new
       io.write ""
       io.rewind
-      io.read_length_bytes(1).should be_nil
+      expect(io.read_length_bytes(1)).to be_nil
 
       io = StringIO.new
       io.write "\x01"
       io.rewind
-      io.read_length_bytes(2).should be_nil
+      expect(io.read_length_bytes(2)).to be_nil
 
       io = StringIO.new
       io.write "\x01\x01"
       io.rewind
-      io.read_length_bytes(4).should be_nil
+      expect(io.read_length_bytes(4)).to be_nil
     end
 
     it "returns nil if there aren't enough bytes to read the string" do
       io = StringIO.new
       io.write "\x02\x01"
       io.rewind
-      io.read_length_bytes(1).should be_nil
+      expect(io.read_length_bytes(1)).to be_nil
     end
 
     it "reads the bytes with length field size 1" do
       io = StringIO.new
       io.write "\x02\x01\x02"
       io.rewind
-      io.read_length_bytes(1).should eql "\x01\x02"
+      expect(io.read_length_bytes(1)).to eql "\x01\x02"
     end
 
     it "reads the bytes with length field size 2" do
       io = StringIO.new
       io.write "\x00\x03\x01\x02\x03"
       io.rewind
-      io.read_length_bytes(2).should eql "\x01\x02\x03"
+      expect(io.read_length_bytes(2)).to eql "\x01\x02\x03"
     end
 
     it "reads the bytes with length field size 4" do
       io = StringIO.new
       io.write "\x00\x00\x00\x03\x01\x02\x03"
       io.rewind
-      io.read_length_bytes(4).should eql "\x01\x02\x03"
+      expect(io.read_length_bytes(4)).to eql "\x01\x02\x03"
     end
   end
 end

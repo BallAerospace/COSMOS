@@ -21,7 +21,7 @@ module Cosmos
       it "sets the buffer" do
         p = Packet.new("tgt", "pkt")
         p.buffer = "\x00\x01\x02\x03"
-        p.buffer.should eql "\x00\x01\x02\x03"
+        expect(p.buffer).to eql "\x00\x01\x02\x03"
       end
 
       it "complains if the given buffer is too big" do
@@ -30,7 +30,7 @@ module Cosmos
           p.append_item("test1", 16, :UINT)
 
           p.buffer = "\x00\x00\x00"
-          stdout.string.should match(/TGT PKT received with actual packet length of 3 but defined length of 2/)
+          expect(stdout.string).to match(/TGT PKT received with actual packet length of 3 but defined length of 2/)
         end
       end
 
@@ -44,12 +44,12 @@ module Cosmos
     describe "target_name=" do
       it "sets the target_name to an uppercase String" do
         p = Packet.new("tgt", "pkt")
-        p.target_name.should eql "TGT"
+        expect(p.target_name).to eql "TGT"
       end
 
       it "sets target_name to nil" do
         p = Packet.new(nil,"pkt")
-        p.target_name.should be_nil
+        expect(p.target_name).to be_nil
       end
 
       it "complains about non String target_names" do
@@ -60,12 +60,12 @@ module Cosmos
     describe "packet_name=" do
       it "sets the packet_name to an uppercase String" do
         p = Packet.new("tgt", "pkt")
-        p.packet_name.should eql "PKT"
+        expect(p.packet_name).to eql "PKT"
       end
 
       it "sets packet_name to nil" do
         p = Packet.new("tgt",nil)
-        p.packet_name.should be_nil
+        expect(p.packet_name).to be_nil
       end
 
       it "complains about non String packet_names" do
@@ -76,13 +76,13 @@ module Cosmos
     describe "description=" do
       it "sets the description to a String" do
         p = Packet.new("tgt", "pkt", :BIG_ENDIAN, "This is a description")
-        p.description.should eql "This is a description"
+        expect(p.description).to eql "This is a description"
       end
 
       it "sets description to nil" do
         p = Packet.new("tgt","pkt")
         p.description = nil
-        p.description.should be_nil
+        expect(p.description).to be_nil
       end
 
       it "complains about non String descriptions" do
@@ -102,7 +102,7 @@ module Cosmos
       it "sets received_time to nil" do
         p = Packet.new("tgt","pkt")
         p.received_time = nil
-        p.received_time.should be_nil
+        expect(p.received_time).to be_nil
       end
 
       it "complains about non Time received_times" do
@@ -116,13 +116,13 @@ module Cosmos
         p = Packet.new("tgt", "pkt")
         t = Time.now
         p.received_time = t
-        p.received_time.should eql t
+        expect(p.received_time).to eql t
       end
 
       it "sets received_time to nil" do
         p = Packet.new("tgt","pkt")
         p.received_time = nil
-        p.received_time.should be_nil
+        expect(p.received_time).to be_nil
       end
 
       it "complains about non Time received_times" do
@@ -135,7 +135,7 @@ module Cosmos
       it "sets the received_count to a Fixnum" do
         p = Packet.new("tgt", "pkt")
         p.received_count = 10
-        p.received_count.should eql 10
+        expect(p.received_count).to eql 10
       end
 
       it "complains about nil received_count" do
@@ -153,13 +153,13 @@ module Cosmos
       it "sets the hazardous_description to a String" do
         p = Packet.new("tgt", "pkt")
         p.hazardous_description = "This is a description"
-        p.hazardous_description.should eql "This is a description"
+        expect(p.hazardous_description).to eql "This is a description"
       end
 
       it "sets hazardous_description to nil" do
         p = Packet.new("tgt","pkt")
         p.hazardous_description = nil
-        p.hazardous_description.should be_nil
+        expect(p.hazardous_description).to be_nil
       end
 
       it "complains about non String hazardous_descriptions" do
@@ -173,13 +173,13 @@ module Cosmos
         p = Packet.new("tgt", "pkt")
         gv = {}
         p.given_values = gv
-        p.given_values.should eql gv
+        expect(p.given_values).to eql gv
       end
 
       it "sets given_values to nil" do
         p = Packet.new("tgt","pkt")
         p.given_values = nil
-        p.given_values.should be_nil
+        expect(p.given_values).to be_nil
       end
 
       it "complains about non Hash given_valuess" do
@@ -192,7 +192,7 @@ module Cosmos
       it "allows adding items to the meta hash" do
         p = Packet.new("tgt","pkt")
         p.meta['TYPE'] = 'float32'
-        p.meta['TYPE'].should eql 'float32'
+        expect(p.meta['TYPE']).to eql 'float32'
       end
     end
 
@@ -222,20 +222,20 @@ module Cosmos
         wc = GenericConversion.new("value * 2")
         p.define_item("item",0,32,:FLOAT,nil,:BIG_ENDIAN,:ERROR,"%5.1f",rc,wc,5)
         i = p.get_item("ITEM")
-        i.format_string.should eql "%5.1f"
-        i.read_conversion.to_s.should eql rc.to_s
-        i.write_conversion.to_s.should eql wc.to_s
-        i.id_value.should eql 5.0
+        expect(i.format_string).to eql "%5.1f"
+        expect(i.read_conversion.to_s).to eql rc.to_s
+        expect(i.write_conversion.to_s).to eql wc.to_s
+        expect(i.id_value).to eql 5.0
       end
 
       it "initializes format_string, read_conversion, write_conversion, and id_value to nil" do
         p = Packet.new("tgt","pkt")
         p.define_item("item",0,32,:FLOAT)
         i = p.get_item("ITEM")
-        i.format_string.should be_nil
-        i.read_conversion.should be_nil
-        i.write_conversion.should be_nil
-        i.id_value.should be_nil
+        expect(i.format_string).to be_nil
+        expect(i.read_conversion).to be_nil
+        expect(i.write_conversion).to be_nil
+        expect(i.id_value).to be_nil
       end
     end
 
@@ -252,14 +252,14 @@ module Cosmos
         pi.id_value = 5
         p.define(pi)
         i = p.get_item("ITEM1")
-        i.format_string.should eql "%5.1f"
-        i.read_conversion.to_s.should eql rc.to_s
-        i.write_conversion.to_s.should eql wc.to_s
-        i.id_value.should eql 5.0
+        expect(i.format_string).to eql "%5.1f"
+        expect(i.read_conversion.to_s).to eql rc.to_s
+        expect(i.write_conversion.to_s).to eql wc.to_s
+        expect(i.id_value).to eql 5.0
         expect(p.id_items.length).to eq 1
         expect(p.id_items[0].name).to eq 'ITEM1'
         expect(p.limits_items[0].name).to eq 'ITEM1'
-        p.defined_length.should eql 4
+        expect(p.defined_length).to eql 4
       end
 
       it "allows PacketItems to be defined on top of each other" do
@@ -268,10 +268,10 @@ module Cosmos
         p.define(pi)
         pi = PacketItem.new("item2",0,32,:UINT,:BIG_ENDIAN)
         p.define(pi)
-        p.defined_length.should eql 4
+        expect(p.defined_length).to eql 4
         buffer = "\x01\x02\x03\x04"
-        p.read_item(p.get_item("item1"), :RAW, buffer).should eql 1
-        p.read_item(p.get_item("item2"), :RAW, buffer).should eql 0x1020304
+        expect(p.read_item(p.get_item("item1"), :RAW, buffer)).to eql 1
+        expect(p.read_item(p.get_item("item2"), :RAW, buffer)).to eql 0x1020304
       end
     end
 
@@ -282,20 +282,20 @@ module Cosmos
         wc = GenericConversion.new("value * 2")
         p.append_item("item",32,:FLOAT,nil,:BIG_ENDIAN,:ERROR,"%5.1f",rc,wc,5)
         i = p.get_item("ITEM")
-        i.format_string.should eql "%5.1f"
-        i.read_conversion.to_s.should eql rc.to_s
-        i.write_conversion.to_s.should eql wc.to_s
-        i.id_value.should eql 5.0
+        expect(i.format_string).to eql "%5.1f"
+        expect(i.read_conversion.to_s).to eql rc.to_s
+        expect(i.write_conversion.to_s).to eql wc.to_s
+        expect(i.id_value).to eql 5.0
       end
 
       it "initializes format_string, read_conversion, write_conversion, and id_value to nil" do
         p = Packet.new("tgt","pkt")
         p.append_item("item",32,:FLOAT)
         i = p.get_item("ITEM")
-        i.format_string.should be_nil
-        i.read_conversion.should be_nil
-        i.write_conversion.should be_nil
-        i.id_value.should be_nil
+        expect(i.format_string).to be_nil
+        expect(i.read_conversion).to be_nil
+        expect(i.write_conversion).to be_nil
+        expect(i.id_value).to be_nil
       end
     end
 
@@ -312,14 +312,14 @@ module Cosmos
         pi.id_value = 5
         p.append(pi)
         i = p.get_item("ITEM1")
-        i.format_string.should eql "%5.1f"
-        i.read_conversion.to_s.should eql rc.to_s
-        i.write_conversion.to_s.should eql wc.to_s
-        i.id_value.should eql 5.0
+        expect(i.format_string).to eql "%5.1f"
+        expect(i.read_conversion.to_s).to eql rc.to_s
+        expect(i.write_conversion.to_s).to eql wc.to_s
+        expect(i.id_value).to eql 5.0
         expect(p.id_items.length).to eq 1
         expect(p.id_items[0].name).to eq 'ITEM1'
         expect(p.limits_items[0].name).to eq 'ITEM1'
-        p.defined_length.should eql 4
+        expect(p.defined_length).to eql 4
 
         pi = PacketItem.new("item2",0,32,:FLOAT,:BIG_ENDIAN,nil,:ERROR)
         p.append(pi)
@@ -330,7 +330,7 @@ module Cosmos
         expect(i.write_conversion).to be nil
         expect(i.id_value).to be nil
         expect(p.id_items.length).to eq 1
-        p.defined_length.should eql 8
+        expect(p.defined_length).to eql 8
       end
     end
 
@@ -356,99 +356,99 @@ module Cosmos
       it "reads the RAW value" do
         @p.append_item("item",32,:UINT)
         i = @p.get_item("ITEM")
-        @p.read("ITEM", :RAW, "\x01\x02\x03\x04").should eql 0x01020304
-        @p.read_item(i, :RAW, "\x01\x02\x03\x04").should eql 0x01020304
+        expect(@p.read("ITEM", :RAW, "\x01\x02\x03\x04")).to eql 0x01020304
+        expect(@p.read_item(i, :RAW, "\x01\x02\x03\x04")).to eql 0x01020304
       end
 
       it "reads the CONVERTED value" do
         @p.append_item("item",8,:UINT)
         i = @p.get_item("ITEM")
-        @p.read("ITEM", :CONVERTED, "\x02").should eql 2
-        @p.read_item(i, :CONVERTED, "\x02").should eql 2
+        expect(@p.read("ITEM", :CONVERTED, "\x02")).to eql 2
+        expect(@p.read_item(i, :CONVERTED, "\x02")).to eql 2
         i.read_conversion = GenericConversion.new("value / 2")
-        @p.read("ITEM", :CONVERTED, "\x02").should eql 1
-        @p.read_item(i, :CONVERTED, "\x02").should eql 1
+        expect(@p.read("ITEM", :CONVERTED, "\x02")).to eql 1
+        expect(@p.read_item(i, :CONVERTED, "\x02")).to eql 1
       end
 
       it "reads the CONVERTED value with states" do
         @p.append_item("item",8,:UINT)
         i = @p.get_item("ITEM")
         i.states = {"TRUE"=>1, "FALSE"=>2}
-        @p.read("ITEM", :CONVERTED, "\x00").should eql 0
-        @p.read_item(i, :CONVERTED, "\x00").should eql 0
-        @p.read("ITEM", :CONVERTED, "\x01").should eql "TRUE"
-        @p.read_item(i, :CONVERTED, "\x01").should eql "TRUE"
+        expect(@p.read("ITEM", :CONVERTED, "\x00")).to eql 0
+        expect(@p.read_item(i, :CONVERTED, "\x00")).to eql 0
+        expect(@p.read("ITEM", :CONVERTED, "\x01")).to eql "TRUE"
+        expect(@p.read_item(i, :CONVERTED, "\x01")).to eql "TRUE"
         i.read_conversion = GenericConversion.new("value / 2")
-        @p.read("ITEM", :CONVERTED, "\x04").should eql "FALSE"
-        @p.read_item(i, :CONVERTED, "\x04").should eql "FALSE"
+        expect(@p.read("ITEM", :CONVERTED, "\x04")).to eql "FALSE"
+        expect(@p.read_item(i, :CONVERTED, "\x04")).to eql "FALSE"
       end
 
       it "reads the FORMATTED value" do
         @p.append_item("item",8,:UINT)
         i = @p.get_item("ITEM")
-        @p.read("ITEM", :FORMATTED, "\x02").should eql "2"
-        @p.read_item(i, :FORMATTED, "\x02").should eql "2"
+        expect(@p.read("ITEM", :FORMATTED, "\x02")).to eql "2"
+        expect(@p.read_item(i, :FORMATTED, "\x02")).to eql "2"
         i.format_string = "0x%x"
-        @p.read("ITEM", :FORMATTED, "\x02").should eql "0x2"
-        @p.read_item(i, :FORMATTED, "\x02").should eql "0x2"
+        expect(@p.read("ITEM", :FORMATTED, "\x02")).to eql "0x2"
+        expect(@p.read_item(i, :FORMATTED, "\x02")).to eql "0x2"
         i.states = {"TRUE"=>1, "FALSE"=>2}
-        @p.read("ITEM", :FORMATTED, "\x01").should eql "TRUE"
-        @p.read_item(i, :FORMATTED, "\x01").should eql "TRUE"
-        @p.read("ITEM", :FORMATTED, "\x02").should eql "FALSE"
-        @p.read_item(i, :FORMATTED, "\x02").should eql "FALSE"
-        @p.read("ITEM", :FORMATTED, "\x04").should eql "0x4"
-        @p.read_item(i, :FORMATTED, "\x04").should eql "0x4"
+        expect(@p.read("ITEM", :FORMATTED, "\x01")).to eql "TRUE"
+        expect(@p.read_item(i, :FORMATTED, "\x01")).to eql "TRUE"
+        expect(@p.read("ITEM", :FORMATTED, "\x02")).to eql "FALSE"
+        expect(@p.read_item(i, :FORMATTED, "\x02")).to eql "FALSE"
+        expect(@p.read("ITEM", :FORMATTED, "\x04")).to eql "0x4"
+        expect(@p.read_item(i, :FORMATTED, "\x04")).to eql "0x4"
         i.read_conversion = GenericConversion.new("value / 2")
-        @p.read("ITEM", :FORMATTED, "\x04").should eql "FALSE"
-        @p.read_item(i, :FORMATTED, "\x04").should eql "FALSE"
+        expect(@p.read("ITEM", :FORMATTED, "\x04")).to eql "FALSE"
+        expect(@p.read_item(i, :FORMATTED, "\x04")).to eql "FALSE"
       end
 
       it "reads the WITH_UNITS value" do
         @p.append_item("item",8,:UINT)
         i = @p.get_item("ITEM")
         i.units = "V"
-        @p.read("ITEM", :WITH_UNITS, "\x02").should eql "2 V"
-        @p.read_item(i, :WITH_UNITS, "\x02").should eql "2 V"
+        expect(@p.read("ITEM", :WITH_UNITS, "\x02")).to eql "2 V"
+        expect(@p.read_item(i, :WITH_UNITS, "\x02")).to eql "2 V"
         i.format_string = "0x%x"
-        @p.read("ITEM", :WITH_UNITS, "\x02").should eql "0x2 V"
-        @p.read_item(i, :WITH_UNITS, "\x02").should eql "0x2 V"
+        expect(@p.read("ITEM", :WITH_UNITS, "\x02")).to eql "0x2 V"
+        expect(@p.read_item(i, :WITH_UNITS, "\x02")).to eql "0x2 V"
         i.states = {"TRUE"=>1, "FALSE"=>2}
-        @p.read("ITEM", :WITH_UNITS, "\x01").should eql "TRUE"
-        @p.read_item(i, :WITH_UNITS, "\x01").should eql "TRUE"
-        @p.read("ITEM", :WITH_UNITS, "\x02").should eql "FALSE"
-        @p.read_item(i, :WITH_UNITS, "\x02").should eql "FALSE"
-        @p.read("ITEM", :WITH_UNITS, "\x04").should eql "0x4 V"
-        @p.read_item(i, :WITH_UNITS, "\x04").should eql "0x4 V"
+        expect(@p.read("ITEM", :WITH_UNITS, "\x01")).to eql "TRUE"
+        expect(@p.read_item(i, :WITH_UNITS, "\x01")).to eql "TRUE"
+        expect(@p.read("ITEM", :WITH_UNITS, "\x02")).to eql "FALSE"
+        expect(@p.read_item(i, :WITH_UNITS, "\x02")).to eql "FALSE"
+        expect(@p.read("ITEM", :WITH_UNITS, "\x04")).to eql "0x4 V"
+        expect(@p.read_item(i, :WITH_UNITS, "\x04")).to eql "0x4 V"
         i.read_conversion = GenericConversion.new("value / 2")
-        @p.read("ITEM", :WITH_UNITS, "\x04").should eql "FALSE"
-        @p.read_item(i, :WITH_UNITS, "\x04").should eql "FALSE"
+        expect(@p.read("ITEM", :WITH_UNITS, "\x04")).to eql "FALSE"
+        expect(@p.read_item(i, :WITH_UNITS, "\x04")).to eql "FALSE"
       end
 
       it "reads the WITH_UNITS array value" do
         @p.append_item("item",8,:UINT, 16)
         i = @p.get_item("ITEM")
         i.units = "V"
-        @p.read("ITEM", :WITH_UNITS, "\x01\x02").should eql ["1 V", "2 V"]
-        @p.read_item(i, :WITH_UNITS, "\x01\x02").should eql ["1 V", "2 V"]
+        expect(@p.read("ITEM", :WITH_UNITS, "\x01\x02")).to eql ["1 V", "2 V"]
+        expect(@p.read_item(i, :WITH_UNITS, "\x01\x02")).to eql ["1 V", "2 V"]
         i.format_string = "0x%x"
-        @p.read("ITEM", :WITH_UNITS, "\x01\x02").should eql ["0x1 V", "0x2 V"]
-        @p.read_item(i, :WITH_UNITS, "\x01\x02").should eql ["0x1 V", "0x2 V"]
+        expect(@p.read("ITEM", :WITH_UNITS, "\x01\x02")).to eql ["0x1 V", "0x2 V"]
+        expect(@p.read_item(i, :WITH_UNITS, "\x01\x02")).to eql ["0x1 V", "0x2 V"]
         i.states = {"TRUE"=>1, "FALSE"=>2}
-        @p.read("ITEM", :WITH_UNITS, "\x01\x02").should eql ["TRUE", "FALSE"]
-        @p.read_item(i, :WITH_UNITS, "\x01\x02").should eql ["TRUE", "FALSE"]
-        @p.read("ITEM", :WITH_UNITS, "\x00\x01").should eql ["0x0 V", "TRUE"]
-        @p.read_item(i, :WITH_UNITS, "\x00\x01").should eql ["0x0 V", "TRUE"]
-        @p.read("ITEM", :WITH_UNITS, "\x02\x03").should eql ["FALSE", "0x3 V"]
-        @p.read_item(i, :WITH_UNITS, "\x02\x03").should eql ["FALSE", "0x3 V"]
-        @p.read("ITEM", :WITH_UNITS, "\x04").should eql ["0x4 V"]
-        @p.read_item(i, :WITH_UNITS, "\x04").should eql ["0x4 V"]
-        @p.read("ITEM", :WITH_UNITS, "\x04").should eql ["0x4 V"]
-        @p.read_item(i, :WITH_UNITS, "\x04").should eql ["0x4 V"]
+        expect(@p.read("ITEM", :WITH_UNITS, "\x01\x02")).to eql ["TRUE", "FALSE"]
+        expect(@p.read_item(i, :WITH_UNITS, "\x01\x02")).to eql ["TRUE", "FALSE"]
+        expect(@p.read("ITEM", :WITH_UNITS, "\x00\x01")).to eql ["0x0 V", "TRUE"]
+        expect(@p.read_item(i, :WITH_UNITS, "\x00\x01")).to eql ["0x0 V", "TRUE"]
+        expect(@p.read("ITEM", :WITH_UNITS, "\x02\x03")).to eql ["FALSE", "0x3 V"]
+        expect(@p.read_item(i, :WITH_UNITS, "\x02\x03")).to eql ["FALSE", "0x3 V"]
+        expect(@p.read("ITEM", :WITH_UNITS, "\x04")).to eql ["0x4 V"]
+        expect(@p.read_item(i, :WITH_UNITS, "\x04")).to eql ["0x4 V"]
+        expect(@p.read("ITEM", :WITH_UNITS, "\x04")).to eql ["0x4 V"]
+        expect(@p.read_item(i, :WITH_UNITS, "\x04")).to eql ["0x4 V"]
         i.read_conversion = GenericConversion.new("value / 2")
-        @p.read("ITEM", :WITH_UNITS, "\x02\x04").should eql ["TRUE","FALSE"]
-        @p.read_item(i, :WITH_UNITS, "\x02\x04").should eql ["TRUE","FALSE"]
-        @p.read("ITEM", :WITH_UNITS, "\x08").should eql ["0x4 V"]
-        @p.read_item(i, :WITH_UNITS, "\x08").should eql ["0x4 V"]
+        expect(@p.read("ITEM", :WITH_UNITS, "\x02\x04")).to eql ["TRUE","FALSE"]
+        expect(@p.read_item(i, :WITH_UNITS, "\x02\x04")).to eql ["TRUE","FALSE"]
+        expect(@p.read("ITEM", :WITH_UNITS, "\x08")).to eql ["0x4 V"]
+        expect(@p.read_item(i, :WITH_UNITS, "\x08")).to eql ["0x4 V"]
       end
     end
 
@@ -469,9 +469,9 @@ module Cosmos
         @p.append_item("item",32,:UINT)
         i = @p.get_item("ITEM")
         @p.write("ITEM", 0x01020304, :RAW, @buffer)
-        @buffer.should eql "\x01\x02\x03\x04"
+        expect(@buffer).to eql "\x01\x02\x03\x04"
         @p.write_item(i, 0x05060708, :RAW, @buffer)
-        @buffer.should eql "\x05\x06\x07\x08"
+        expect(@buffer).to eql "\x05\x06\x07\x08"
       end
 
       it "clears the read cache" do
@@ -485,7 +485,7 @@ module Cosmos
         cache = @p.instance_variable_get(:@read_conversion_cache)
         expect(cache[i]).to be 2
         @p.write("ITEM", 0x08, :RAW)
-        @p.buffer.should eql "\x08"
+        expect(@p.buffer).to eql "\x08"
         expect(cache[i]).to be nil
         expect(@p.read("ITEM")).to be 4
         expect(cache[i]).to be 4
@@ -495,14 +495,14 @@ module Cosmos
         @p.append_item("item",8,:UINT)
         i = @p.get_item("ITEM")
         @p.write("ITEM", 1, :CONVERTED, @buffer)
-        @buffer.should eql "\x01\x00\x00\x00"
+        expect(@buffer).to eql "\x01\x00\x00\x00"
         @p.write_item(i, 2, :CONVERTED, @buffer)
-        @buffer.should eql "\x02\x00\x00\x00"
+        expect(@buffer).to eql "\x02\x00\x00\x00"
         i.write_conversion = GenericConversion.new("value / 2")
         @p.write("ITEM", 1, :CONVERTED, @buffer)
-        @buffer.should eql "\x00\x00\x00\x00"
+        expect(@buffer).to eql "\x00\x00\x00\x00"
         @p.write_item(i, 2, :CONVERTED, @buffer)
-        @buffer.should eql "\x01\x00\x00\x00"
+        expect(@buffer).to eql "\x01\x00\x00\x00"
       end
 
       it "writes the CONVERTED value with states" do
@@ -510,21 +510,21 @@ module Cosmos
         i = @p.get_item("ITEM")
         i.states = {"TRUE"=>1, "FALSE"=>2}
         @p.write("ITEM", 3, :CONVERTED, @buffer)
-        @buffer.should eql "\x03\x00\x00\x00"
+        expect(@buffer).to eql "\x03\x00\x00\x00"
         @p.write_item(i, 4, :CONVERTED, @buffer)
-        @buffer.should eql "\x04\x00\x00\x00"
+        expect(@buffer).to eql "\x04\x00\x00\x00"
         @p.write("ITEM", "TRUE", :CONVERTED, @buffer)
-        @buffer.should eql "\x01\x00\x00\x00"
+        expect(@buffer).to eql "\x01\x00\x00\x00"
         @p.write_item(i, "FALSE", :CONVERTED, @buffer)
-        @buffer.should eql "\x02\x00\x00\x00"
+        expect(@buffer).to eql "\x02\x00\x00\x00"
         expect { @p.write_item(i, "BLAH", :CONVERTED, @buffer) }.to raise_error(RuntimeError, "Unknown state BLAH for ITEM")
         i.write_conversion = GenericConversion.new("value / 2")
         @p.write("ITEM", 4, :CONVERTED, @buffer)
-        @buffer.should eql "\x02\x00\x00\x00"
+        expect(@buffer).to eql "\x02\x00\x00\x00"
         @p.write("ITEM", "TRUE", :CONVERTED, @buffer)
-        @buffer.should eql "\x00\x00\x00\x00"
+        expect(@buffer).to eql "\x00\x00\x00\x00"
         @p.write_item(i, "FALSE", :CONVERTED, @buffer)
-        @buffer.should eql "\x01\x00\x00\x00"
+        expect(@buffer).to eql "\x01\x00\x00\x00"
       end
 
       it "complains about the FORMATTED value_type" do
@@ -556,12 +556,12 @@ module Cosmos
         buffer = "\x01\x02\x03\x04\x04\x06\x08\x0A"
         p.buffer = buffer
         vals = p.read_all
-        vals[0][0].should eql "TEST1"
-        vals[1][0].should eql "TEST2"
-        vals[2][0].should eql "TEST3"
-        vals[0][1].should eql [1,2]
-        vals[1][1].should eql "TRUE"
-        vals[2][1].should eql 0x02030405
+        expect(vals[0][0]).to eql "TEST1"
+        expect(vals[1][0]).to eql "TEST2"
+        expect(vals[2][0]).to eql "TEST3"
+        expect(vals[0][1]).to eql [1,2]
+        expect(vals[1][1]).to eql "TRUE"
+        expect(vals[2][1]).to eql 0x02030405
       end
     end
 
@@ -583,12 +583,12 @@ module Cosmos
         p.check_limits
 
         vals = p.read_all_with_limits_states
-        vals[0][0].should eql "TEST1"
-        vals[1][0].should eql "TEST2"
-        vals[0][1].should eql "FALSE"
-        vals[1][1].should eql 3
-        vals[0][2].should eql :RED
-        vals[1][2].should eql :GREEN
+        expect(vals[0][0]).to eql "TEST1"
+        expect(vals[1][0]).to eql "TEST2"
+        expect(vals[0][1]).to eql "FALSE"
+        expect(vals[1][1]).to eql 3
+        expect(vals[0][2]).to eql :RED
+        expect(vals[1][2]).to eql :GREEN
       end
     end
 
@@ -605,9 +605,9 @@ module Cosmos
         i = p.get_item("TEST3")
         i.read_conversion = GenericConversion.new("value / 2")
         p.write("test3", 0x0406080A)
-        p.formatted.should include("TEST1: [1, 2]")
-        p.formatted.should include("TEST2: TRUE")
-        p.formatted.should include("TEST3: #{0x02030405}")
+        expect(p.formatted).to include("TEST1: [1, 2]")
+        expect(p.formatted).to include("TEST2: TRUE")
+        expect(p.formatted).to include("TEST3: #{0x02030405}")
       end
     end
 
@@ -724,9 +724,9 @@ module Cosmos
         p.append_item("item1",8,:UINT)
         p.append_item("item2",16,:UINT,nil,:BIG_ENDIAN,:ERROR,nil,nil,nil,5)
         p.append_item("item3",32,:UINT)
-        p.identify?("\x00\x00\x05\x01\x02\x03\x04").should be_truthy
-        p.identify?("\x00\x00\x04\x01\x02\x03\x04").should be_falsey
-        p.identify?("\x00").should be_falsey
+        expect(p.identify?("\x00\x00\x05\x01\x02\x03\x04")).to be_truthy
+        expect(p.identify?("\x00\x00\x04\x01\x02\x03\x04")).to be_falsey
+        expect(p.identify?("\x00")).to be_falsey
       end
 
       it "identifies if the buffer is too short" do
@@ -734,7 +734,7 @@ module Cosmos
         p.append_item("item1",8,:UINT)
         p.append_item("item2",16,:UINT,nil,:BIG_ENDIAN,:ERROR,nil,nil,nil,5)
         p.append_item("item3",32,:UINT)
-        p.identify?("\x00\x00\x05\x01\x02\x03").should be_truthy
+        expect(p.identify?("\x00\x00\x05\x01\x02\x03")).to be_truthy
       end
 
       it "identifies if the buffer is too long" do
@@ -742,15 +742,15 @@ module Cosmos
         p.append_item("item1",8,:UINT)
         p.append_item("item2",16,:UINT,nil,:BIG_ENDIAN,:ERROR,nil,nil,nil,5)
         p.append_item("item3",32,:UINT)
-        p.identify?("\x00\x00\x05\x01\x02\x03\x04\x05").should be_truthy
+        expect(p.identify?("\x00\x00\x05\x01\x02\x03\x04\x05")).to be_truthy
       end
     end
 
     describe "identified?" do
       it "returns true if the target name and packet name are set" do
-        Packet.new('TGT',nil).identified?.should be_falsey
-        Packet.new(nil,'PKT').identified?.should be_falsey
-        Packet.new('TGT','PKT').identified?.should be_truthy
+        expect(Packet.new('TGT',nil).identified?).to be_falsey
+        expect(Packet.new(nil,'PKT').identified?).to be_falsey
+        expect(Packet.new('TGT','PKT').identified?).to be_truthy
       end
     end
 
@@ -771,9 +771,9 @@ module Cosmos
         i.default = 0x02030405
         i.write_conversion = GenericConversion.new("value * 2")
         p.write("test3", 0x01020304)
-        p.buffer.should eql "\x01\x02\x03\x04\x02\x04\x06\x08"
+        expect(p.buffer).to eql "\x01\x02\x03\x04\x02\x04\x06\x08"
         p.restore_defaults
-        p.buffer.should eql "\x03\x04\x01\x02\x04\x06\x08\x0A"
+        expect(p.buffer).to eql "\x03\x04\x01\x02\x04\x06\x08\x0A"
       end
     end
 
@@ -782,14 +782,14 @@ module Cosmos
         p = Packet.new("tgt","pkt")
         p.append_item("test1", 8, :UINT, 16)
         p.append_item("test2", 16, :UINT)
-        p.get_item("TEST1").limits.enabled.should be_falsey
-        p.get_item("TEST2").limits.enabled.should be_falsey
+        expect(p.get_item("TEST1").limits.enabled).to be_falsey
+        expect(p.get_item("TEST2").limits.enabled).to be_falsey
         p.enable_limits("TEST1")
-        p.get_item("TEST1").limits.enabled.should be_truthy
-        p.get_item("TEST2").limits.enabled.should be_falsey
+        expect(p.get_item("TEST1").limits.enabled).to be_truthy
+        expect(p.get_item("TEST2").limits.enabled).to be_falsey
         p.enable_limits("TEST2")
-        p.get_item("TEST1").limits.enabled.should be_truthy
-        p.get_item("TEST2").limits.enabled.should be_truthy
+        expect(p.get_item("TEST1").limits.enabled).to be_truthy
+        expect(p.get_item("TEST2").limits.enabled).to be_truthy
       end
     end
 
@@ -800,14 +800,14 @@ module Cosmos
         p.append_item("test2", 16, :UINT)
         p.enable_limits("TEST1")
         p.enable_limits("TEST2")
-        p.get_item("TEST1").limits.enabled.should be_truthy
-        p.get_item("TEST2").limits.enabled.should be_truthy
+        expect(p.get_item("TEST1").limits.enabled).to be_truthy
+        expect(p.get_item("TEST2").limits.enabled).to be_truthy
         p.disable_limits("TEST1")
-        p.get_item("TEST1").limits.enabled.should be_falsey
-        p.get_item("TEST2").limits.enabled.should be_truthy
+        expect(p.get_item("TEST1").limits.enabled).to be_falsey
+        expect(p.get_item("TEST2").limits.enabled).to be_truthy
         p.disable_limits("TEST2")
-        p.get_item("TEST1").limits.enabled.should be_falsey
-        p.get_item("TEST2").limits.enabled.should be_falsey
+        expect(p.get_item("TEST1").limits.enabled).to be_falsey
+        expect(p.get_item("TEST2").limits.enabled).to be_falsey
       end
 
       it "calls the limits_change_callback for all non STALE items" do
@@ -829,8 +829,8 @@ module Cosmos
         p.check_limits
         p.disable_limits("TEST1")
         p.disable_limits("TEST2")
-        p.get_item("TEST1").limits.enabled.should be_falsey
-        p.get_item("TEST2").limits.enabled.should be_falsey
+        expect(p.get_item("TEST1").limits.enabled).to be_falsey
+        expect(p.get_item("TEST2").limits.enabled).to be_falsey
       end
     end
 
@@ -841,16 +841,16 @@ module Cosmos
         p.enable_limits("TEST1")
         p.append_item("test2", 16, :UINT)
         p.enable_limits("TEST2")
-        p.limits_items.should eql []
+        expect(p.limits_items).to eql []
 
         test1 = p.get_item("TEST1")
         test1.limits.values = {:DEFAULT=>[1,2,4,5]}
         p.update_limits_items_cache
-        p.limits_items.should eql [test1]
+        expect(p.limits_items).to eql [test1]
         test2 = p.get_item("TEST2")
         test2.limits.values = {:DEFAULT=>[1,2,4,5]}
         p.update_limits_items_cache
-        p.limits_items.should eql [test1, test2]
+        expect(p.limits_items).to eql [test1, test2]
       end
     end
 
@@ -867,14 +867,14 @@ module Cosmos
         p.enable_limits("TEST2")
         p.update_limits_items_cache
         p.check_limits
-        p.out_of_limits.should eql []
+        expect(p.out_of_limits).to eql []
 
         p.write("TEST1",6)
         p.check_limits
-        p.out_of_limits.should eql [["TGT","PKT","TEST1",:RED_HIGH]]
+        expect(p.out_of_limits).to eql [["TGT","PKT","TEST1",:RED_HIGH]]
         p.write("TEST2",2)
         p.check_limits
-        p.out_of_limits.should eql [["TGT","PKT","TEST1",:RED_HIGH],["TGT","PKT","TEST2",:YELLOW_LOW]]
+        expect(p.out_of_limits).to eql [["TGT","PKT","TEST1",:RED_HIGH],["TGT","PKT","TEST2",:YELLOW_LOW]]
       end
     end
 
@@ -888,11 +888,11 @@ module Cosmos
         p.get_item("TEST2").limits.values = {:DEFAULT=>[1,2,4,5]}
         p.enable_limits("TEST2")
         p.update_limits_items_cache
-        p.out_of_limits.should eql []
+        expect(p.out_of_limits).to eql []
 
         PacketItemLimits::OUT_OF_LIMITS_STATES.each do |state|
           p.set_all_limits_states(state)
-          p.out_of_limits.should eql [["TGT","PKT","TEST1",state],["TGT","PKT","TEST2",state]]
+          expect(p.out_of_limits).to eql [["TGT","PKT","TEST1",state],["TGT","PKT","TEST2",state]]
         end
       end
     end
@@ -906,14 +906,14 @@ module Cosmos
       end
 
       it "sets clear the stale flag" do
-        @p.stale.should be_truthy
+        expect(@p.stale).to be_truthy
         @p.check_limits
-        @p.stale.should be_falsey
+        expect(@p.stale).to be_falsey
       end
 
       it "does not call the limits_change_callback if limits are disabled" do
-        @p.get_item("TEST1").limits.enabled.should be_falsey
-        @p.get_item("TEST2").limits.enabled.should be_falsey
+        expect(@p.get_item("TEST1").limits.enabled).to be_falsey
+        expect(@p.get_item("TEST2").limits.enabled).to be_falsey
         callback = double("callback")
         allow(callback).to receive(:call)
         @p.limits_change_callback = callback
@@ -924,13 +924,13 @@ module Cosmos
       context "with states" do
         it "calls the limits_change_callback" do
           test1 = @p.get_item("TEST1")
-          test1.limits.enabled.should be_falsey
+          expect(test1.limits.enabled).to be_falsey
           test1.states = {"TRUE"=>1,"FALSE"=>0}
           test1.state_colors = {"TRUE"=>:GREEN,"FALSE"=>:RED}
           @p.write("TEST1", 0)
           @p.enable_limits("TEST1")
           test2 = @p.get_item("TEST2")
-          test2.limits.enabled.should be_falsey
+          expect(test2.limits.enabled).to be_falsey
           test2.states = {"TRUE"=>1,"FALSE"=>0}
           test2.state_colors = {"TRUE"=>:RED,"FALSE"=>:GREEN}
           @p.write("TEST2", 0)
@@ -961,17 +961,17 @@ module Cosmos
       context "with values" do
         before(:each) do
           @test1 = @p.get_item("TEST1")
-          @test1.limits.enabled.should be_falsey
+          expect(@test1.limits.enabled).to be_falsey
           @test1.limits.values = {:DEFAULT=>[1,2,4,5]} # red yellow
           @p.enable_limits("TEST1")
 
           @test2 = @p.get_item("TEST2")
-          @test2.limits.enabled.should be_falsey
+          expect(@test2.limits.enabled).to be_falsey
           @test2.limits.values = {:DEFAULT=>[1,2,6,7,3,5]} # red yellow and blue
           @p.enable_limits("TEST2")
 
           @test3 = @p.get_item("TEST3")
-          @test3.limits.enabled.should be_falsey
+          expect(@test3.limits.enabled).to be_falsey
           @test3.limits.values = {:DEFAULT=>[1,1.5,2.5,3]} # red yellow
           @p.enable_limits("TEST3")
           @p.update_limits_items_cache
@@ -986,9 +986,9 @@ module Cosmos
           @p.write("TEST2", 3)
           @p.write("TEST3", 1.25)
           @p.check_limits
-          @p.get_item("TEST1").limits.state.should eql :RED_LOW
-          @p.get_item("TEST2").limits.state.should eql :GREEN_LOW
-          @p.get_item("TEST3").limits.state.should eql :YELLOW_LOW
+          expect(@p.get_item("TEST1").limits.state).to eql :RED_LOW
+          expect(@p.get_item("TEST2").limits.state).to eql :GREEN_LOW
+          expect(@p.get_item("TEST3").limits.state).to eql :YELLOW_LOW
         end
 
         it "detects initial high states" do
@@ -996,9 +996,9 @@ module Cosmos
           @p.write("TEST2", 5)
           @p.write("TEST3", 2.75)
           @p.check_limits
-          @p.get_item("TEST1").limits.state.should eql :RED_HIGH
-          @p.get_item("TEST2").limits.state.should eql :GREEN_HIGH
-          @p.get_item("TEST3").limits.state.should eql :YELLOW_HIGH
+          expect(@p.get_item("TEST1").limits.state).to eql :RED_HIGH
+          expect(@p.get_item("TEST2").limits.state).to eql :GREEN_HIGH
+          expect(@p.get_item("TEST3").limits.state).to eql :YELLOW_HIGH
         end
 
         it "detects initial middle states" do
@@ -1006,9 +1006,9 @@ module Cosmos
           @p.write("TEST2", 4)
           @p.write("TEST3", 2.0)
           @p.check_limits
-          @p.get_item("TEST1").limits.state.should eql :GREEN
-          @p.get_item("TEST2").limits.state.should eql :BLUE
-          @p.get_item("TEST3").limits.state.should eql :GREEN
+          expect(@p.get_item("TEST1").limits.state).to eql :GREEN
+          expect(@p.get_item("TEST2").limits.state).to eql :BLUE
+          expect(@p.get_item("TEST3").limits.state).to eql :GREEN
         end
 
         it "clears persistence when initial state is nil" do
@@ -1016,9 +1016,9 @@ module Cosmos
           @p.get_item("TEST2").limits.persistence_count = 3
           @p.get_item("TEST3").limits.persistence_count = 4
           @p.check_limits
-          @p.get_item("TEST1").limits.persistence_count.should eql 0
-          @p.get_item("TEST2").limits.persistence_count.should eql 0
-          @p.get_item("TEST3").limits.persistence_count.should eql 0
+          expect(@p.get_item("TEST1").limits.persistence_count).to eql 0
+          expect(@p.get_item("TEST2").limits.persistence_count).to eql 0
+          expect(@p.get_item("TEST3").limits.persistence_count).to eql 0
         end
 
         context "when calling the limits_change_callback" do
@@ -1058,9 +1058,9 @@ module Cosmos
             expect(@callback).to receive(:call).with(@p, @test2,nil,4,true)
             expect(@callback).to receive(:call).with(@p, @test3,nil,2.0,true)
             @p.check_limits
-            @test1.limits.state.should eql :GREEN
-            @test2.limits.state.should eql :BLUE
-            @test3.limits.state.should eql :GREEN
+            expect(@test1.limits.state).to eql :GREEN
+            expect(@test2.limits.state).to eql :BLUE
+            expect(@test3.limits.state).to eql :GREEN
 
             # Now test the persistence setting by going out of limits
             @p.get_item("TEST1").limits.persistence_setting = 2
@@ -1071,72 +1071,72 @@ module Cosmos
             @p.write("TEST2", 8)
             @p.write("TEST3", 1.25)
             @p.check_limits
-            @test1.limits.state.should eql :GREEN
-            @test2.limits.state.should eql :BLUE
-            @test3.limits.state.should eql :GREEN
+            expect(@test1.limits.state).to eql :GREEN
+            expect(@test2.limits.state).to eql :BLUE
+            expect(@test3.limits.state).to eql :GREEN
 
             @p.write("TEST1", 0)
             @p.write("TEST2", 8)
             @p.write("TEST3", 1.25)
             expect(@callback).to receive(:call).with(@p, @test1,:GREEN,0,true)
             @p.check_limits
-            @test1.limits.state.should eql :RED_LOW
-            @test2.limits.state.should eql :BLUE
-            @test3.limits.state.should eql :GREEN
+            expect(@test1.limits.state).to eql :RED_LOW
+            expect(@test2.limits.state).to eql :BLUE
+            expect(@test3.limits.state).to eql :GREEN
 
             @p.write("TEST1", 0)
             @p.write("TEST2", 8)
             @p.write("TEST3", 1.25)
             expect(@callback).to receive(:call).with(@p, @test2,:BLUE,8,true)
             @p.check_limits
-            @test1.limits.state.should eql :RED_LOW
-            @test2.limits.state.should eql :RED_HIGH
-            @test3.limits.state.should eql :GREEN
+            expect(@test1.limits.state).to eql :RED_LOW
+            expect(@test2.limits.state).to eql :RED_HIGH
+            expect(@test3.limits.state).to eql :GREEN
 
             @p.write("TEST1", 0)
             @p.write("TEST2", 8)
             @p.write("TEST3", 1.25)
             expect(@callback).to receive(:call).with(@p, @test3,:GREEN,1.25,true)
             @p.check_limits
-            @test1.limits.state.should eql :RED_LOW
-            @test2.limits.state.should eql :RED_HIGH
-            @test3.limits.state.should eql :YELLOW_LOW
+            expect(@test1.limits.state).to eql :RED_LOW
+            expect(@test2.limits.state).to eql :RED_HIGH
+            expect(@test3.limits.state).to eql :YELLOW_LOW
 
             # Now go back to good on everything and verify persistence still applies
             @p.write("TEST1", 3)
             @p.write("TEST2", 4)
             @p.write("TEST3", 2.0)
             @p.check_limits
-            @test1.limits.state.should eql :RED_LOW
-            @test2.limits.state.should eql :RED_HIGH
-            @test3.limits.state.should eql :YELLOW_LOW
+            expect(@test1.limits.state).to eql :RED_LOW
+            expect(@test2.limits.state).to eql :RED_HIGH
+            expect(@test3.limits.state).to eql :YELLOW_LOW
 
             @p.write("TEST1", 3)
             @p.write("TEST2", 4)
             @p.write("TEST3", 2.0)
             expect(@callback).to receive(:call).with(@p, @test1,:RED_LOW,3,true)
             @p.check_limits
-            @test1.limits.state.should eql :GREEN
-            @test2.limits.state.should eql :RED_HIGH
-            @test3.limits.state.should eql :YELLOW_LOW
+            expect(@test1.limits.state).to eql :GREEN
+            expect(@test2.limits.state).to eql :RED_HIGH
+            expect(@test3.limits.state).to eql :YELLOW_LOW
 
             @p.write("TEST1", 3)
             @p.write("TEST2", 4)
             @p.write("TEST3", 2.0)
             expect(@callback).to receive(:call).with(@p, @test2,:RED_HIGH,4,true)
             @p.check_limits
-            @test1.limits.state.should eql :GREEN
-            @test2.limits.state.should eql :BLUE
-            @test3.limits.state.should eql :YELLOW_LOW
+            expect(@test1.limits.state).to eql :GREEN
+            expect(@test2.limits.state).to eql :BLUE
+            expect(@test3.limits.state).to eql :YELLOW_LOW
 
             @p.write("TEST1", 3)
             @p.write("TEST2", 4)
             @p.write("TEST3", 2.0)
             expect(@callback).to receive(:call).with(@p, @test3,:YELLOW_LOW,2.0,true)
             @p.check_limits
-            @test1.limits.state.should eql :GREEN
-            @test2.limits.state.should eql :BLUE
-            @test3.limits.state.should eql :GREEN
+            expect(@test1.limits.state).to eql :GREEN
+            expect(@test2.limits.state).to eql :BLUE
+            expect(@test3.limits.state).to eql :GREEN
           end
 
           it "does not call when state changes before persistence is achieved" do
@@ -1151,9 +1151,9 @@ module Cosmos
             expect(@callback).to receive(:call).with(@p, @test2,nil,4,true)
             expect(@callback).to receive(:call).with(@p, @test3,nil,2.0,true)
             @p.check_limits
-            @test1.limits.state.should eql :GREEN
-            @test2.limits.state.should eql :BLUE
-            @test3.limits.state.should eql :GREEN
+            expect(@test1.limits.state).to eql :GREEN
+            expect(@test2.limits.state).to eql :BLUE
+            expect(@test3.limits.state).to eql :GREEN
 
             # Set all persistence the same
             @p.get_item("TEST1").limits.persistence_setting = 3
@@ -1166,27 +1166,27 @@ module Cosmos
             @p.write("TEST3", 1.25)
             expect(@callback).to_not receive(:call)
             @p.check_limits
-            @test1.limits.state.should eql :GREEN
-            @test2.limits.state.should eql :BLUE
-            @test3.limits.state.should eql :GREEN
+            expect(@test1.limits.state).to eql :GREEN
+            expect(@test2.limits.state).to eql :BLUE
+            expect(@test3.limits.state).to eql :GREEN
 
             @p.write("TEST1", 0)
             @p.write("TEST2", 8)
             @p.write("TEST3", 1.25)
             expect(@callback).to_not receive(:call)
             @p.check_limits
-            @test1.limits.state.should eql :GREEN
-            @test2.limits.state.should eql :BLUE
-            @test3.limits.state.should eql :GREEN
+            expect(@test1.limits.state).to eql :GREEN
+            expect(@test2.limits.state).to eql :BLUE
+            expect(@test3.limits.state).to eql :GREEN
 
             # Set the values back to good
             @p.write("TEST1", 3)
             @p.write("TEST2", 4)
             @p.write("TEST3", 2.0)
             @p.check_limits
-            @test1.limits.state.should eql :GREEN
-            @test2.limits.state.should eql :BLUE
-            @test3.limits.state.should eql :GREEN
+            expect(@test1.limits.state).to eql :GREEN
+            expect(@test2.limits.state).to eql :BLUE
+            expect(@test3.limits.state).to eql :GREEN
 
             # Write bad values twice
             @p.write("TEST1", 0)
@@ -1194,27 +1194,27 @@ module Cosmos
             @p.write("TEST3", 1.25)
             expect(@callback).to_not receive(:call)
             @p.check_limits
-            @test1.limits.state.should eql :GREEN
-            @test2.limits.state.should eql :BLUE
-            @test3.limits.state.should eql :GREEN
+            expect(@test1.limits.state).to eql :GREEN
+            expect(@test2.limits.state).to eql :BLUE
+            expect(@test3.limits.state).to eql :GREEN
 
             @p.write("TEST1", 0)
             @p.write("TEST2", 8)
             @p.write("TEST3", 1.25)
             expect(@callback).to_not receive(:call)
             @p.check_limits
-            @test1.limits.state.should eql :GREEN
-            @test2.limits.state.should eql :BLUE
-            @test3.limits.state.should eql :GREEN
+            expect(@test1.limits.state).to eql :GREEN
+            expect(@test2.limits.state).to eql :BLUE
+            expect(@test3.limits.state).to eql :GREEN
 
             # Set the values back to good
             @p.write("TEST1", 3)
             @p.write("TEST2", 4)
             @p.write("TEST3", 2.0)
             @p.check_limits
-            @test1.limits.state.should eql :GREEN
-            @test2.limits.state.should eql :BLUE
-            @test3.limits.state.should eql :GREEN
+            expect(@test1.limits.state).to eql :GREEN
+            expect(@test2.limits.state).to eql :BLUE
+            expect(@test3.limits.state).to eql :GREEN
           end
         end
       end
@@ -1230,20 +1230,20 @@ module Cosmos
         p.get_item("TEST2").limits.values = {:DEFAULT=>[1,2,4,5]}
         p.enable_limits("TEST2")
         p.update_limits_items_cache
-        p.out_of_limits.should eql []
+        expect(p.out_of_limits).to eql []
 
-        p.stale.should be_truthy
-        p.get_item("TEST1").limits.state.should eql :STALE
-        p.get_item("TEST2").limits.state.should eql :STALE
+        expect(p.stale).to be_truthy
+        expect(p.get_item("TEST1").limits.state).to eql :STALE
+        expect(p.get_item("TEST2").limits.state).to eql :STALE
         # Update the limits
         p.check_limits
-        p.stale.should be_falsey
-        p.get_item("TEST1").limits.state.should_not eql :STALE
-        p.get_item("TEST2").limits.state.should_not eql :STALE
+        expect(p.stale).to be_falsey
+        expect(p.get_item("TEST1").limits.state).not_to eql :STALE
+        expect(p.get_item("TEST2").limits.state).not_to eql :STALE
         # set them all back to stale
         p.set_stale
-        p.get_item("TEST1").limits.state.should eql :STALE
-        p.get_item("TEST2").limits.state.should eql :STALE
+        expect(p.get_item("TEST1").limits.state).to eql :STALE
+        expect(p.get_item("TEST2").limits.state).to eql :STALE
       end
     end
 
@@ -1256,8 +1256,8 @@ module Cosmos
         # No comparison operator
         # expect(p).to eql p2
         expect(p).to_not be p2
-        p2.target_name.should eql "TGT"
-        p2.packet_name.should eql "PKT"
+        expect(p2.target_name).to eql "TGT"
+        expect(p2.packet_name).to eql "PKT"
         # No comparison operator
         # expect(p2.processors['processor']).to eql p.processors['processor']
         expect(p2.processors['processor']).to_not be p.processors['processor']
@@ -1272,8 +1272,8 @@ module Cosmos
         p.received_time = Time.now
         p.received_count = 50
         p.reset
-        p.received_time.should eql nil
-        p.received_count.should eql 0
+        expect(p.received_time).to eql nil
+        expect(p.received_count).to eql 0
       end
 
       it "clears the read conversion cache" do

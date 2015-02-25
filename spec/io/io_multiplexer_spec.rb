@@ -66,10 +66,10 @@ module Cosmos
         @io.add_stream(STDOUT)
         expect($stdout).to receive(:write).with("TEST")
         len = @io.write "TEST"
-        len.should eql 4
+        expect(len).to eql 4
         expect($stdout).to receive(:write_nonblock).with("TEST")
         len = @io.write_nonblock "TEST"
-        len.should eql 4
+        expect(len).to eql 4
       end
     end
 
@@ -84,7 +84,7 @@ module Cosmos
         f.close
         expect($stdout).not_to receive(:puts).with("TEST")
         expect($stderr).not_to receive(:puts).with("TEST")
-        File.read("unittest.txt").should eql "TEST\n"
+        expect(File.read("unittest.txt")).to eql "TEST\n"
         File.delete("unittest.txt")
       end
     end

@@ -60,19 +60,19 @@ module Cosmos
 
     describe "initialize" do
       it "has no warnings" do
-        Limits.new(PacketConfig.new).warnings.should be_empty
+        expect(Limits.new(PacketConfig.new).warnings).to be_empty
       end
     end
 
     describe "sets" do
       it "returns the defined limits set" do
-        @limits.sets.should eql [:DEFAULT, :TVAC]
+        expect(@limits.sets).to eql [:DEFAULT, :TVAC]
       end
     end
 
     describe "groups" do
       it "returns the limits groups" do
-        @limits.groups.should_not be_empty
+        expect(@limits.groups).not_to be_empty
       end
     end
 
@@ -83,11 +83,11 @@ module Cosmos
         tf.close
         pc = PacketConfig.new
         pc.process_file(tf.path, "SYSTEM")
-        @limits.sets.should eql [:DEFAULT, :TVAC]
-        @limits.groups.should_not be_empty
+        expect(@limits.sets).to eql [:DEFAULT, :TVAC]
+        expect(@limits.groups).not_to be_empty
         @limits.config = pc
-        @limits.sets.should eql [:DEFAULT]
-        @limits.groups.should eql({})
+        expect(@limits.sets).to eql [:DEFAULT]
+        expect(@limits.groups).to eql({})
         tf.unlink
       end
     end
@@ -97,10 +97,10 @@ module Cosmos
         @tlm.update!("TGT1","PKT1","\x00\x03\x03\x04\x05")
         @tlm.packet("TGT1","PKT1").check_limits
         items = @limits.out_of_limits
-        items[0][0].should eql "TGT1"
-        items[0][1].should eql "PKT1"
-        items[0][2].should eql "ITEM1"
-        items[0][3].should eql :RED_LOW
+        expect(items[0][0]).to eql "TGT1"
+        expect(items[0][1]).to eql "PKT1"
+        expect(items[0][2]).to eql "ITEM1"
+        expect(items[0][3]).to eql :RED_LOW
       end
     end
 
@@ -193,11 +193,11 @@ module Cosmos
       it "enables limits for all items in the group" do
         @limits.enable_group("group1")
         pkt = @tlm.packet("TGT1","PKT1")
-        pkt.get_item("ITEM1").limits.enabled.should be_truthy
-        pkt.get_item("ITEM2").limits.enabled.should be_truthy
-        pkt.get_item("ITEM3").limits.enabled.should be_truthy
-        pkt.get_item("ITEM4").limits.enabled.should be_truthy
-        pkt.get_item("ITEM5").limits.enabled.should be_falsey
+        expect(pkt.get_item("ITEM1").limits.enabled).to be_truthy
+        expect(pkt.get_item("ITEM2").limits.enabled).to be_truthy
+        expect(pkt.get_item("ITEM3").limits.enabled).to be_truthy
+        expect(pkt.get_item("ITEM4").limits.enabled).to be_truthy
+        expect(pkt.get_item("ITEM5").limits.enabled).to be_falsey
       end
     end
 
@@ -210,12 +210,12 @@ module Cosmos
         pkt = @tlm.packet("TGT1","PKT1")
         pkt.enable_limits("ITEM1")
         pkt.enable_limits("ITEM2")
-        pkt.get_item("ITEM1").limits.enabled.should be_truthy
-        pkt.get_item("ITEM2").limits.enabled.should be_truthy
+        expect(pkt.get_item("ITEM1").limits.enabled).to be_truthy
+        expect(pkt.get_item("ITEM2").limits.enabled).to be_truthy
 
         @limits.disable_group("group1")
-        pkt.get_item("ITEM1").limits.enabled.should be_falsey
-        pkt.get_item("ITEM2").limits.enabled.should be_falsey
+        expect(pkt.get_item("ITEM1").limits.enabled).to be_falsey
+        expect(pkt.get_item("ITEM2").limits.enabled).to be_falsey
       end
     end
 
@@ -234,9 +234,9 @@ module Cosmos
 
       it "returns whether limits are enable for an item" do
         pkt = @tlm.packet("TGT1","PKT1")
-        @limits.enabled?("TGT1","PKT1","ITEM5").should be_falsey
+        expect(@limits.enabled?("TGT1","PKT1","ITEM5")).to be_falsey
         pkt.enable_limits("ITEM5")
-        @limits.enabled?("TGT1","PKT1","ITEM5").should be_truthy
+        expect(@limits.enabled?("TGT1","PKT1","ITEM5")).to be_truthy
       end
     end
 
@@ -255,9 +255,9 @@ module Cosmos
 
       it "enables limits for an item" do
         pkt = @tlm.packet("TGT1","PKT1")
-        @limits.enabled?("TGT1","PKT1","ITEM5").should be_falsey
+        expect(@limits.enabled?("TGT1","PKT1","ITEM5")).to be_falsey
         @limits.enable("TGT1","PKT1","ITEM5")
-        @limits.enabled?("TGT1","PKT1","ITEM5").should be_truthy
+        expect(@limits.enabled?("TGT1","PKT1","ITEM5")).to be_truthy
       end
     end
 
@@ -277,47 +277,47 @@ module Cosmos
       it "disables limits for an item" do
         pkt = @tlm.packet("TGT1","PKT1")
         @limits.enable("TGT1","PKT1","ITEM1")
-        @limits.enabled?("TGT1","PKT1","ITEM1").should be_truthy
+        expect(@limits.enabled?("TGT1","PKT1","ITEM1")).to be_truthy
         @limits.disable("TGT1","PKT1","ITEM1")
-        @limits.enabled?("TGT1","PKT1","ITEM1").should be_falsey
+        expect(@limits.enabled?("TGT1","PKT1","ITEM1")).to be_falsey
       end
     end
 
     describe "get" do
       it "gets the limits for an item with limits" do
-        @limits.get("TGT1", "PKT1", "ITEM1").should eql [:DEFAULT, 1, true, 1.0, 2.0, 4.0, 5.0, nil, nil]
+        expect(@limits.get("TGT1", "PKT1", "ITEM1")).to eql [:DEFAULT, 1, true, 1.0, 2.0, 4.0, 5.0, nil, nil]
       end
 
       it "handles an item without limits" do
-        @limits.get("TGT1", "PKT1", "ITEM5").should eql [nil, nil, nil, nil, nil, nil, nil, nil, nil]
+        expect(@limits.get("TGT1", "PKT1", "ITEM5")).to eql [nil, nil, nil, nil, nil, nil, nil, nil, nil]
       end
 
       it "supports a specified limits set" do
-        @limits.get("TGT1", "PKT1", "ITEM1", :TVAC).should eql [:TVAC, 1, true, 6.0, 7.0, 12.0, 13.0, 9.0, 10.0]
+        expect(@limits.get("TGT1", "PKT1", "ITEM1", :TVAC)).to eql [:TVAC, 1, true, 6.0, 7.0, 12.0, 13.0, 9.0, 10.0]
       end
 
       it "handles an item without limits for the given limits set" do
-        @limits.get("TGT1", "PKT2", "ITEM1", :TVAC).should eql [nil, nil, nil, nil, nil, nil, nil, nil, nil]
+        expect(@limits.get("TGT1", "PKT2", "ITEM1", :TVAC)).to eql [nil, nil, nil, nil, nil, nil, nil, nil, nil]
       end
     end
 
     describe "set" do
       it "sets limits for an item" do
-        @limits.set("TGT1", "PKT1", "ITEM5", 1, 2, 3, 4, nil, nil, :DEFAULT).should eql [:DEFAULT, 1, true, 1.0, 2.0, 3.0, 4.0, nil, nil]
+        expect(@limits.set("TGT1", "PKT1", "ITEM5", 1, 2, 3, 4, nil, nil, :DEFAULT)).to eql [:DEFAULT, 1, true, 1.0, 2.0, 3.0, 4.0, nil, nil]
       end
 
       it "enforces setting DEFAULT limits first" do
         expect { @limits.set("TGT1", "PKT1", "ITEM5", 1, 2, 3, 4) }.to raise_error(RuntimeError, "DEFAULT limits must be defined for TGT1 PKT1 ITEM5 before setting limits set CUSTOM")
-        @limits.set("TGT1", "PKT1", "ITEM5", 5, 6, 7, 8, nil, nil, :DEFAULT).should eql [:DEFAULT, 1, true, 5.0, 6.0, 7.0, 8.0, nil, nil]
-        @limits.set("TGT1", "PKT1", "ITEM5", 1, 2, 3, 4).should eql [:CUSTOM, 1, true, 1.0, 2.0, 3.0, 4.0, nil, nil]
+        expect(@limits.set("TGT1", "PKT1", "ITEM5", 5, 6, 7, 8, nil, nil, :DEFAULT)).to eql [:DEFAULT, 1, true, 5.0, 6.0, 7.0, 8.0, nil, nil]
+        expect(@limits.set("TGT1", "PKT1", "ITEM5", 1, 2, 3, 4)).to eql [:CUSTOM, 1, true, 1.0, 2.0, 3.0, 4.0, nil, nil]
       end
 
       it "allows setting other limits sets" do
-        @limits.set("TGT1", "PKT1", "ITEM1", 1, 2, 3, 4, nil, nil, :TVAC).should eql [:TVAC, 1, true, 1.0, 2.0, 3.0, 4.0, nil, nil]
+        expect(@limits.set("TGT1", "PKT1", "ITEM1", 1, 2, 3, 4, nil, nil, :TVAC)).to eql [:TVAC, 1, true, 1.0, 2.0, 3.0, 4.0, nil, nil]
       end
 
       it "handles green limits" do
-        @limits.set("TGT1", "PKT1", "ITEM1", 1, 2, 5, 6, 3, 4, nil).should eql [:DEFAULT, 1, true, 1.0, 2.0, 5.0, 6.0, 3.0, 4.0]
+        expect(@limits.set("TGT1", "PKT1", "ITEM1", 1, 2, 5, 6, 3, 4, nil)).to eql [:DEFAULT, 1, true, 1.0, 2.0, 5.0, 6.0, 3.0, 4.0]
       end
     end
 

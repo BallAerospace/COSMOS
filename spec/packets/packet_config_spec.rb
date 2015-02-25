@@ -187,7 +187,7 @@ module Cosmos
             @pc.process_file(tf.path, "TGT1")
             pkt = @pc.commands["TGT1"]["PKT1"] if keyword =~ /COMMAND/
             pkt = @pc.telemetry["TGT1"]["PKT1"] if keyword =~ /TELEMETRY/
-            pkt.get_item("ITEM1").description.should eql "Item"
+            expect(pkt.get_item("ITEM1").description).to eql "Item"
             tf.unlink
 
             tf = Tempfile.new('unittest')
@@ -199,7 +199,7 @@ module Cosmos
             @pc.process_file(tf.path, "TGT1")
             pkt = @pc.commands["TGT1"]["PKT1"] if keyword =~ /COMMAND/
             pkt = @pc.telemetry["TGT1"]["PKT1"] if keyword =~ /TELEMETRY/
-            pkt.get_item("ITEM1").description.should eql "New description"
+            expect(pkt.get_item("ITEM1").description).to eql "New description"
             tf.unlink
           end
         end
@@ -215,7 +215,7 @@ module Cosmos
             @pc.process_file(tf.path, "NEW")
             pkt = @pc.commands["NEW"]["PKT1"] if keyword =~ /COMMAND/
             pkt = @pc.telemetry["NEW"]["PKT1"] if keyword =~ /TELEMETRY/
-            pkt.get_item("ITEM1").description.should eql "Item"
+            expect(pkt.get_item("ITEM1").description).to eql "Item"
             tf.unlink
 
             tf = Tempfile.new('unittest')
@@ -227,7 +227,7 @@ module Cosmos
             @pc.process_file(tf.path, "NEW")
             pkt = @pc.commands["NEW"]["PKT1"] if keyword =~ /COMMAND/
             pkt = @pc.telemetry["NEW"]["PKT1"] if keyword =~ /TELEMETRY/
-            pkt.get_item("ITEM1").description.should eql "New description"
+            expect(pkt.get_item("ITEM1").description).to eql "New description"
             tf.unlink
           end
         end
@@ -251,7 +251,7 @@ module Cosmos
           tf.close
           @pc.process_file(tf.path, "TGT")
           pkt = @pc.commands["TGT"]["PKT"]
-          pkt.get_item("PARAM").description.should eql "Param"
+          expect(pkt.get_item("PARAM").description).to eql "Param"
           tf.unlink
 
           tf = Tempfile.new('unittest')
@@ -281,7 +281,7 @@ module Cosmos
           tf.close
           @pc.process_file(tf.path, "TGT")
           pkt = @pc.telemetry["TGT"]["PKT"]
-          pkt.get_item("ITEM").description.should eql "Item"
+          expect(pkt.get_item("ITEM").description).to eql "Item"
           tf.unlink
 
           tf = Tempfile.new('unittest')
@@ -318,9 +318,9 @@ module Cosmos
           tf.puts 'LIMITS_GROUP TVAC'
           tf.puts 'LIMITS_GROUP VIBE'
           tf.close
-          @pc.limits_groups.should be_empty
+          expect(@pc.limits_groups).to be_empty
           @pc.process_file(tf.path, "TGT1")
-          @pc.limits_groups.should include('TVAC','VIBE')
+          expect(@pc.limits_groups).to include('TVAC','VIBE')
           tf.unlink
         end
       end
@@ -331,9 +331,9 @@ module Cosmos
           tf.puts 'LIMITS_GROUP TVAC'
           tf.puts 'LIMITS_GROUP_ITEM TGT1 PKT1 ITEM1'
           tf.close
-          @pc.limits_groups.should be_empty
+          expect(@pc.limits_groups).to be_empty
           @pc.process_file(tf.path, "TGT1")
-          @pc.limits_groups["TVAC"].should eql [%w(TGT1 PKT1 ITEM1)]
+          expect(@pc.limits_groups["TVAC"]).to eql [%w(TGT1 PKT1 ITEM1)]
           tf.unlink
 
           # Show we can 're-open' the group and add items
@@ -342,7 +342,7 @@ module Cosmos
           tf.puts 'LIMITS_GROUP_ITEM TGT1 PKT1 ITEM2'
           tf.close
           @pc.process_file(tf.path, "TGT1")
-          @pc.limits_groups["TVAC"].should eql [%w(TGT1 PKT1 ITEM1), %w(TGT1 PKT1 ITEM2)]
+          expect(@pc.limits_groups["TVAC"]).to eql [%w(TGT1 PKT1 ITEM1), %w(TGT1 PKT1 ITEM2)]
           tf.unlink
         end
       end
@@ -355,8 +355,8 @@ module Cosmos
           tf.puts 'TELEMETRY tgt1 pkt2 LITTLE_ENDIAN "Description"'
           tf.close
           @pc.process_file(tf.path, "TGT1")
-          @pc.telemetry["TGT1"]["PKT1"].short_buffer_allowed.should be_truthy
-          @pc.telemetry["TGT1"]["PKT2"].short_buffer_allowed.should be_falsey
+          expect(@pc.telemetry["TGT1"]["PKT1"].short_buffer_allowed).to be_truthy
+          expect(@pc.telemetry["TGT1"]["PKT2"].short_buffer_allowed).to be_falsey
           tf.unlink
         end
       end
@@ -370,8 +370,8 @@ module Cosmos
           tf.puts 'META TYPE "struct packet2"'
           tf.close
           @pc.process_file(tf.path, "TGT1")
-          @pc.telemetry["TGT1"]["PKT1"].meta['TYPE'].should eql ["struct packet"]
-          @pc.telemetry["TGT1"]["PKT2"].meta['TYPE'].should eql ["struct packet2"]
+          expect(@pc.telemetry["TGT1"]["PKT1"].meta['TYPE']).to eql ["struct packet"]
+          expect(@pc.telemetry["TGT1"]["PKT2"].meta['TYPE']).to eql ["struct packet2"]
           tf.unlink
         end
       end
@@ -384,8 +384,8 @@ module Cosmos
           tf.puts 'COMMAND tgt1 pkt2 LITTLE_ENDIAN "Description"'
           tf.close
           @pc.process_file(tf.path, "TGT1")
-          @pc.commands["TGT1"]["PKT1"].messages_disabled.should be_truthy
-          @pc.commands["TGT1"]["PKT2"].messages_disabled.should be_falsey
+          expect(@pc.commands["TGT1"]["PKT1"].messages_disabled).to be_truthy
+          expect(@pc.commands["TGT1"]["PKT2"].messages_disabled).to be_falsey
           tf.unlink
         end
       end
@@ -398,10 +398,10 @@ module Cosmos
           tf.puts 'COMMAND tgt1 pkt2 LITTLE_ENDIAN "Description"'
           tf.close
           @pc.process_file(tf.path, "TGT1")
-          @pc.commands["TGT1"]["PKT1"].hidden.should be_truthy
-          @pc.commands["TGT1"]["PKT1"].disabled.should be_falsey
-          @pc.commands["TGT1"]["PKT2"].hidden.should be_falsey
-          @pc.commands["TGT1"]["PKT2"].disabled.should be_falsey
+          expect(@pc.commands["TGT1"]["PKT1"].hidden).to be_truthy
+          expect(@pc.commands["TGT1"]["PKT1"].disabled).to be_falsey
+          expect(@pc.commands["TGT1"]["PKT2"].hidden).to be_falsey
+          expect(@pc.commands["TGT1"]["PKT2"].disabled).to be_falsey
           tf.unlink
         end
       end
@@ -414,10 +414,10 @@ module Cosmos
           tf.puts 'COMMAND tgt1 pkt2 LITTLE_ENDIAN "Description"'
           tf.close
           @pc.process_file(tf.path, "TGT1")
-          @pc.commands["TGT1"]["PKT1"].hidden.should be_truthy
-          @pc.commands["TGT1"]["PKT1"].disabled.should be_truthy
-          @pc.commands["TGT1"]["PKT2"].hidden.should be_falsey
-          @pc.commands["TGT1"]["PKT2"].disabled.should be_falsey
+          expect(@pc.commands["TGT1"]["PKT1"].hidden).to be_truthy
+          expect(@pc.commands["TGT1"]["PKT1"].disabled).to be_truthy
+          expect(@pc.commands["TGT1"]["PKT2"].hidden).to be_falsey
+          expect(@pc.commands["TGT1"]["PKT2"].disabled).to be_falsey
           tf.unlink
         end
       end
@@ -433,10 +433,10 @@ module Cosmos
           tf.puts 'COMMAND tgt2 pkt2 LITTLE_ENDIAN "Description"'
           tf.close
           @pc.process_file(tf.path, "SYSTEM")
-          @pc.telemetry["TGT1"]["PKT1"].hazardous.should be_truthy
-          @pc.telemetry["TGT1"]["PKT2"].hazardous.should be_falsey
-          @pc.commands["TGT2"]["PKT1"].hazardous.should be_truthy
-          @pc.commands["TGT2"]["PKT2"].hazardous.should be_falsey
+          expect(@pc.telemetry["TGT1"]["PKT1"].hazardous).to be_truthy
+          expect(@pc.telemetry["TGT1"]["PKT2"].hazardous).to be_falsey
+          expect(@pc.commands["TGT2"]["PKT1"].hazardous).to be_truthy
+          expect(@pc.commands["TGT2"]["PKT2"].hazardous).to be_falsey
           tf.unlink
         end
 
@@ -446,8 +446,8 @@ module Cosmos
           tf.puts 'HAZARDOUS "Hazardous description"'
           tf.close
           @pc.process_file(tf.path, "TGT1")
-          @pc.commands["TGT1"]["PKT1"].hazardous.should be_truthy
-          @pc.commands["TGT1"]["PKT1"].hazardous_description.should eql "Hazardous description"
+          expect(@pc.commands["TGT1"]["PKT1"].hazardous).to be_truthy
+          expect(@pc.commands["TGT1"]["PKT1"].hazardous_description).to eql "Hazardous description"
           tf.unlink
         end
       end
@@ -522,7 +522,7 @@ module Cosmos
           tf.close
           @pc.process_file(tf.path, "TGT1")
           @pc.telemetry["TGT1"]["PKT1"].buffer = "\x01"
-          @pc.telemetry["TGT1"]["PKT1"].read("ITEM1").should eql 2
+          expect(@pc.telemetry["TGT1"]["PKT1"].read("ITEM1")).to eql 2
           tf.unlink
 
           tf = Tempfile.new('unittest')
@@ -532,7 +532,7 @@ module Cosmos
           tf.close
           @pc.process_file(tf.path, "TGT1")
           @pc.commands["TGT1"]["PKT1"].write("ITEM1", 3)
-          @pc.commands["TGT1"]["PKT1"].read("ITEM1").should eql 6
+          expect(@pc.commands["TGT1"]["PKT1"].read("ITEM1")).to eql 6
           tf.unlink
 
           File.delete(filename) if File.exist?(filename)
@@ -548,7 +548,7 @@ module Cosmos
           tf.close
           @pc.process_file(tf.path, "TGT1")
           @pc.telemetry["TGT1"]["PKT1"].buffer = "\x01"
-          @pc.telemetry["TGT1"]["PKT1"].read("ITEM1").should eql 7.0
+          expect(@pc.telemetry["TGT1"]["PKT1"].read("ITEM1")).to eql 7.0
           tf.unlink
 
           tf = Tempfile.new('unittest')
@@ -558,7 +558,7 @@ module Cosmos
           tf.close
           @pc.process_file(tf.path, "TGT1")
           @pc.commands["TGT1"]["PKT1"].write("ITEM1", 3)
-          @pc.commands["TGT1"]["PKT1"].read("ITEM1").should eql 11
+          expect(@pc.commands["TGT1"]["PKT1"].read("ITEM1")).to eql 11
           tf.unlink
         end
       end
@@ -573,9 +573,9 @@ module Cosmos
           tf.close
           @pc.process_file(tf.path, "TGT1")
           @pc.telemetry["TGT1"]["PKT1"].buffer = "\x01"
-          @pc.telemetry["TGT1"]["PKT1"].read("ITEM1").should eql 3.0
+          expect(@pc.telemetry["TGT1"]["PKT1"].read("ITEM1")).to eql 3.0
           @pc.telemetry["TGT1"]["PKT1"].buffer = "\x05"
-          @pc.telemetry["TGT1"]["PKT1"].read("ITEM1").should eql 17.0
+          expect(@pc.telemetry["TGT1"]["PKT1"].read("ITEM1")).to eql 17.0
           tf.unlink
 
           tf = Tempfile.new('unittest')
@@ -586,9 +586,9 @@ module Cosmos
           tf.close
           @pc.process_file(tf.path, "TGT1")
           @pc.commands["TGT1"]["PKT1"].write("ITEM1", 1)
-          @pc.commands["TGT1"]["PKT1"].read("ITEM1").should eql 3
+          expect(@pc.commands["TGT1"]["PKT1"].read("ITEM1")).to eql 3
           @pc.commands["TGT1"]["PKT1"].write("ITEM1", 5)
-          @pc.commands["TGT1"]["PKT1"].read("ITEM1").should eql 17
+          expect(@pc.commands["TGT1"]["PKT1"].read("ITEM1")).to eql 17
           tf.unlink
         end
       end
@@ -610,8 +610,8 @@ module Cosmos
           pkt = @pc.telemetry["TGT1"]["PKT1"]
           pkt.enable_method_missing
           pkt.item1 = 2
-          pkt.item1.should eql 4
-          pkt.item2.should eql "Number 0"
+          expect(pkt.item1).to eql 4
+          expect(pkt.item2).to eql "Number 0"
           tf.unlink
         end
 
@@ -631,9 +631,9 @@ module Cosmos
           pkt = @pc.telemetry["TGT1"]["PKT1"]
           pkt.enable_method_missing
           pkt.item1 = 400
-          pkt.item1.should eql 800
+          expect(pkt.item1).to eql 800
           pkt.item2 = 400
-          pkt.item2.should eql 800.0
+          expect(pkt.item2).to eql 800.0
           tf.unlink
         end
       end
@@ -654,7 +654,7 @@ module Cosmos
           @pc.telemetry["TGT1"]["PKT1"].buffer = "\x04"
           @pc.telemetry["TGT1"]["PKT1"].enable_limits("ITEM1")
           @pc.telemetry["TGT1"]["PKT1"].check_limits
-          item.limits.state.should eql :RED_LOW
+          expect(item.limits.state).to eql :RED_LOW
           tf.unlink
         end
       end
@@ -667,7 +667,7 @@ module Cosmos
           tf.puts '    UNITS Volts V'
           tf.close
           @pc.process_file(tf.path, "TGT1")
-          @pc.telemetry["TGT1"]["PKT1"].read("ITEM1",:WITH_UNITS).should eql "0 V"
+          expect(@pc.telemetry["TGT1"]["PKT1"].read("ITEM1",:WITH_UNITS)).to eql "0 V"
           tf.unlink
         end
       end
@@ -681,8 +681,8 @@ module Cosmos
           tf.puts '    META OTHER'
           tf.close
           @pc.process_file(tf.path, "TGT1")
-          @pc.telemetry["TGT1"]["PKT1"].get_item('item1').meta['TYPE'].should eql ['unsigned int']
-          @pc.telemetry["TGT1"]["PKT1"].get_item('item1').meta['OTHER'].should eql []
+          expect(@pc.telemetry["TGT1"]["PKT1"].get_item('item1').meta['TYPE']).to eql ['unsigned int']
+          expect(@pc.telemetry["TGT1"]["PKT1"].get_item('item1').meta['OTHER']).to eql []
           tf.unlink
         end
       end
@@ -701,10 +701,10 @@ module Cosmos
           tf.puts '    OVERFLOW ERROR_ALLOW_HEX'
           tf.close
           @pc.process_file(tf.path, "TGT1")
-          @pc.telemetry["TGT1"]["PKT1"].get_item('item1').overflow.should eql :TRUNCATE
-          @pc.telemetry["TGT1"]["PKT1"].get_item('item2').overflow.should eql :SATURATE
-          @pc.telemetry["TGT1"]["PKT1"].get_item('item3').overflow.should eql :ERROR
-          @pc.telemetry["TGT1"]["PKT1"].get_item('item4').overflow.should eql :ERROR_ALLOW_HEX
+          expect(@pc.telemetry["TGT1"]["PKT1"].get_item('item1').overflow).to eql :TRUNCATE
+          expect(@pc.telemetry["TGT1"]["PKT1"].get_item('item2').overflow).to eql :SATURATE
+          expect(@pc.telemetry["TGT1"]["PKT1"].get_item('item3').overflow).to eql :ERROR
+          expect(@pc.telemetry["TGT1"]["PKT1"].get_item('item4').overflow).to eql :ERROR_ALLOW_HEX
           tf.unlink
         end
       end
@@ -735,8 +735,8 @@ module Cosmos
           tf.puts '  PARAMETER item2 0 8 UINT 0 1 1'
           tf.close
           @pc.process_file(tf.path, "TGT1")
-          @pc.commands["TGT1"]["PKT1"].items["ITEM1"].required.should be_truthy
-          @pc.commands["TGT1"]["PKT1"].items["ITEM2"].required.should be_falsey
+          expect(@pc.commands["TGT1"]["PKT1"].items["ITEM1"].required).to be_truthy
+          expect(@pc.commands["TGT1"]["PKT1"].items["ITEM2"].required).to be_falsey
           tf.unlink
         end
       end
@@ -776,9 +776,9 @@ module Cosmos
           tf.close
           @pc.process_file(tf.path, "TGT1")
           @pc.commands["TGT1"]["PKT1"].restore_defaults
-          @pc.commands["TGT1"]["PKT1"].read("ITEM1").should eql 1
-          @pc.commands["TGT1"]["PKT1"].items["ITEM1"].range.should eql (0..1)
-          @pc.commands["TGT1"]["PKT1"].read("ITEM2").should eql "HI"
+          expect(@pc.commands["TGT1"]["PKT1"].read("ITEM1")).to eql 1
+          expect(@pc.commands["TGT1"]["PKT1"].items["ITEM1"].range).to eql (0..1)
+          expect(@pc.commands["TGT1"]["PKT1"].read("ITEM2")).to eql "HI"
           tf.unlink
 
           # Now override the values from above
@@ -793,9 +793,9 @@ module Cosmos
           tf.close
           @pc.process_file(tf.path, "TGT1")
           @pc.commands["TGT1"]["PKT1"].restore_defaults
-          @pc.commands["TGT1"]["PKT1"].read("ITEM1").should eql 2
-          @pc.commands["TGT1"]["PKT1"].items["ITEM1"].range.should eql (1..3)
-          @pc.commands["TGT1"]["PKT1"].read("ITEM2").should eql "NO"
+          expect(@pc.commands["TGT1"]["PKT1"].read("ITEM1")).to eql 2
+          expect(@pc.commands["TGT1"]["PKT1"].items["ITEM1"].range).to eql (1..3)
+          expect(@pc.commands["TGT1"]["PKT1"].read("ITEM2")).to eql "NO"
           tf.unlink
         end
       end

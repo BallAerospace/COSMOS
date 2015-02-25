@@ -18,9 +18,9 @@ module Cosmos
     describe "initialize" do
       it "takes code_to_eval, converted_type and converted_bit_size" do
         gc = GenericConversion.new("10 / 2",:UINT,8)
-        gc.code_to_eval.should eql "10 / 2"
-        gc.converted_type.should eql :UINT
-        gc.converted_bit_size.should eql 8
+        expect(gc.code_to_eval).to eql "10 / 2"
+        expect(gc.converted_type).to eql :UINT
+        expect(gc.converted_bit_size).to eql 8
       end
 
       it "complains about invalid converted_type" do
@@ -31,13 +31,13 @@ module Cosmos
     describe "call" do
       it "calls the code to eval and return the result" do
         gc = GenericConversion.new("10 / 2",:UINT,8)
-        gc.call(0,0,0).should eql 5
+        expect(gc.call(0,0,0)).to eql 5
       end
     end
 
     describe "to_s" do
       it "returns the code to eval" do
-        GenericConversion.new("10 / 2").to_s.should eql "10 / 2"
+        expect(GenericConversion.new("10 / 2").to_s).to eql "10 / 2"
       end
     end
   end

@@ -18,13 +18,13 @@ module Cosmos
     describe "initialize" do
       it "creates a socket" do
         udp = UdpWriteSocket.new('127.0.0.1', 8888)
-        udp.peeraddr[2].should eql '127.0.0.1'
-        udp.peeraddr[1].should eql 8888
+        expect(udp.peeraddr[2]).to eql '127.0.0.1'
+        expect(udp.peeraddr[1]).to eql 8888
         udp.close
         udp = UdpWriteSocket.new('224.0.1.1', 8888, 7777, '127.0.0.1', 3)
-        udp.local_address.ip_port.should eql 7777
-        udp.getsockopt(Socket::IPPROTO_IP, Socket::IP_MULTICAST_TTL).int.should eql 3
-        IPAddr.new_ntoh(udp.getsockopt(Socket::IPPROTO_IP, Socket::IP_MULTICAST_IF).data).to_s.should eql "127.0.0.1"
+        expect(udp.local_address.ip_port).to eql 7777
+        expect(udp.getsockopt(Socket::IPPROTO_IP, Socket::IP_MULTICAST_TTL).int).to eql 3
+        expect(IPAddr.new_ntoh(udp.getsockopt(Socket::IPPROTO_IP, Socket::IP_MULTICAST_IF).data).to_s).to eql "127.0.0.1"
         udp.close
       end
     end
@@ -34,7 +34,7 @@ module Cosmos
         udp_read  = UdpReadSocket.new(8888)
         udp_write = UdpWriteSocket.new('127.0.0.1', 8888)
         udp_write.write("\x01\x02",2.0)
-        udp_read.read.should eql "\x01\x02"
+        expect(udp_read.read).to eql "\x01\x02"
         udp_read.close
         udp_write.close
       end
@@ -50,8 +50,8 @@ module Cosmos
 
     describe "multicast" do
       it "determines if a host is multicast" do
-        UdpWriteSocket.multicast?('127.0.0.1').should be_falsey
-        UdpWriteSocket.multicast?('224.0.1.1').should be_truthy
+        expect(UdpWriteSocket.multicast?('127.0.0.1')).to be_falsey
+        expect(UdpWriteSocket.multicast?('224.0.1.1')).to be_truthy
       end
     end
 
@@ -62,11 +62,11 @@ module Cosmos
     describe "initialize" do
       it "creates a socket" do
         udp = UdpReadSocket.new(8888)
-        udp.local_address.ip_address.should eql '0.0.0.0'
-        udp.local_address.ip_port.should eql 8888
+        expect(udp.local_address.ip_address).to eql '0.0.0.0'
+        expect(udp.local_address.ip_port).to eql 8888
         udp.close
         udp = UdpReadSocket.new(8888, '224.0.1.1')
-        IPAddr.new_ntoh(udp.getsockopt(Socket::IPPROTO_IP, Socket::IP_MULTICAST_IF).data).to_s.should eql "0.0.0.0"
+        expect(IPAddr.new_ntoh(udp.getsockopt(Socket::IPPROTO_IP, Socket::IP_MULTICAST_IF).data).to_s).to eql "0.0.0.0"
         udp.close
       end
     end
@@ -76,7 +76,7 @@ module Cosmos
         udp_read  = UdpReadSocket.new(8888)
         udp_write = UdpWriteSocket.new('127.0.0.1', 8888)
         udp_write.write("\x01\x02",2.0)
-        udp_read.read.should eql "\x01\x02"
+        expect(udp_read.read).to eql "\x01\x02"
         udp_read.close
         udp_write.close
       end

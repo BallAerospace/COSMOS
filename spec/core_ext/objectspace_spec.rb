@@ -15,15 +15,15 @@ describe ObjectSpace do
 
   describe "find" do
     it "finds a class in the Ruby object space" do
-      ObjectSpace.find(Class).should_not be_nil
-      ObjectSpace.find(Cosmos).should be_nil
+      expect(ObjectSpace.find(Class)).not_to be_nil
+      expect(ObjectSpace.find(Cosmos)).to be_nil
     end
   end
 
   describe "find_all" do
     it "finds classes in the Ruby object space" do
-      ObjectSpace.find_all(Class).should be_a(Array)
-      ObjectSpace.find_all(Cosmos).should eql([])
+      expect(ObjectSpace.find_all(Class)).to be_a(Array)
+      expect(ObjectSpace.find_all(Cosmos)).to eql([])
     end
   end
 end

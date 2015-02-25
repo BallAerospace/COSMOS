@@ -19,23 +19,23 @@ module Cosmos
 
     describe "contains_begin?" do
       it "detects the begin keyword" do
-        @lex.contains_begin?("  begin  ").should be_truthy
-        @lex.contains_begin?("  begin # asdf  ").should be_truthy
+        expect(@lex.contains_begin?("  begin  ")).to be_truthy
+        expect(@lex.contains_begin?("  begin # asdf  ")).to be_truthy
       end
     end
 
     describe "contains_keyword?" do
       it "detects the ruby keywords" do
-        @lex.contains_keyword?("if something").should be_truthy
-        @lex.contains_keyword?("obj.method = something").should be_falsey
+        expect(@lex.contains_keyword?("if something")).to be_truthy
+        expect(@lex.contains_keyword?("obj.method = something")).to be_falsey
       end
     end
 
     describe "contains_block_beginning?" do
       it "detects block beginning keywords" do
-        @lex.contains_block_beginning?("do").should be_truthy
-        @lex.contains_block_beginning?("[].each {").should be_truthy
-        @lex.contains_block_beginning?("begin").should be_truthy
+        expect(@lex.contains_block_beginning?("do")).to be_truthy
+        expect(@lex.contains_block_beginning?("[].each {")).to be_truthy
+        expect(@lex.contains_block_beginning?("begin")).to be_truthy
       end
     end
 
@@ -46,7 +46,7 @@ text = <<DOC
 blah = 5 # Inline comment
 # Another
 DOC
-        @lex.remove_comments(text).should eql "\nblah = 5 \n\n"
+        expect(@lex.remove_comments(text)).to eql "\nblah = 5 \n\n"
       end
     end
 

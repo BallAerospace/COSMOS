@@ -28,13 +28,13 @@ module Cosmos
 
     describe "initialize" do
       it "initializes attributes" do
-        @fsp.bytes_read.should eql 0
-        @fsp.bytes_written.should eql 0
-        @fsp.interface.should be_nil
-        @fsp.stream.should be_nil
-        @fsp.post_read_data_callback.should be_nil
-        @fsp.post_read_packet_callback.should be_nil
-        @fsp.pre_write_packet_callback.should be_nil
+        expect(@fsp.bytes_read).to eql 0
+        expect(@fsp.bytes_written).to eql 0
+        expect(@fsp.interface).to be_nil
+        expect(@fsp.stream).to be_nil
+        expect(@fsp.post_read_data_callback).to be_nil
+        expect(@fsp.post_read_packet_callback).to be_nil
+        expect(@fsp.pre_write_packet_callback).to be_nil
       end
     end
 
@@ -62,21 +62,21 @@ module Cosmos
         interface.target_names = %w(TEST COSMOS)
         @fsp.interface = interface
         packet = @fsp.read
-        packet.received_time.to_f.should be_within(0.1).of(Time.now.to_f)
-        packet.target_name.should eql 'COSMOS'
-        packet.packet_name.should eql 'VERSION'
+        expect(packet.received_time.to_f).to be_within(0.1).of(Time.now.to_f)
+        expect(packet.target_name).to eql 'COSMOS'
+        expect(packet.packet_name).to eql 'VERSION'
         packet = @fsp.read
-        packet.received_time.to_f.should be_within(0.1).of(Time.now.to_f)
-        packet.target_name.should eql 'COSMOS'
-        packet.packet_name.should eql 'LIMITS_CHANGE'
+        expect(packet.received_time.to_f).to be_within(0.1).of(Time.now.to_f)
+        expect(packet.target_name).to eql 'COSMOS'
+        expect(packet.packet_name).to eql 'LIMITS_CHANGE'
         packet = @fsp.read
-        packet.received_time.to_f.should be_within(0.1).of(Time.now.to_f)
-        packet.target_name.should eql 'COSMOS'
-        packet.packet_name.should eql 'VERSION'
+        expect(packet.received_time.to_f).to be_within(0.1).of(Time.now.to_f)
+        expect(packet.target_name).to eql 'COSMOS'
+        expect(packet.packet_name).to eql 'VERSION'
         packet = @fsp.read
-        packet.received_time.to_f.should be_within(0.1).of(Time.now.to_f)
-        packet.target_name.should eql 'COSMOS'
-        packet.packet_name.should eql 'LIMITS_CHANGE'
+        expect(packet.received_time.to_f).to be_within(0.1).of(Time.now.to_f)
+        expect(packet.target_name).to eql 'COSMOS'
+        expect(packet.packet_name).to eql 'LIMITS_CHANGE'
       end
 
       it "reads command data from the stream" do
@@ -102,9 +102,9 @@ module Cosmos
         interface.target_names = %w(TEST COSMOS)
         @fsp.interface = interface
         packet = @fsp.read
-        packet.received_time.to_f.should be_within(0.01).of(Time.now.to_f)
-        packet.target_name.should eql 'COSMOS'
-        packet.packet_name.should eql 'STARTLOGGING'
+        expect(packet.received_time.to_f).to be_within(0.01).of(Time.now.to_f)
+        expect(packet.target_name).to eql 'COSMOS'
+        expect(packet.packet_name).to eql 'STARTLOGGING'
       end
     end
 

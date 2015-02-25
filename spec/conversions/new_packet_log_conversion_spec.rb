@@ -24,14 +24,14 @@ module Cosmos
         conversion = NewPacketLogConversion.new('ALL')
         packet = Packet.new("TGT","PKT")
         packet.append_item("TIME",32,:UINT)
-        conversion.call(5,packet,packet.buffer).should eql 5
+        expect(conversion.call(5,packet,packet.buffer)).to eql 5
       end
     end
 
     describe "to_s" do
       it "returns the conversion and packet_log_writer_name" do
         conversion = NewPacketLogConversion.new('BOB')
-        conversion.to_s.should eql "NewPacketLogConversion (BOB)"
+        expect(conversion.to_s).to eql "NewPacketLogConversion (BOB)"
       end
     end
   end

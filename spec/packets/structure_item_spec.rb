@@ -18,7 +18,7 @@ module Cosmos
 
     describe "name=" do
       it "creates new structure items" do
-        StructureItem.new("test", 0, 8, :UINT, :BIG_ENDIAN, nil).name.should eql "TEST"
+        expect(StructureItem.new("test", 0, 8, :UINT, :BIG_ENDIAN, nil).name).to eql "TEST"
       end
 
       it "complains about non String names" do
@@ -33,8 +33,8 @@ module Cosmos
 
     describe "endianness=" do
       it "accepts BIG_ENDIAN and LITTLE_ENDIAN" do
-        StructureItem.new("test", 0, 8, :UINT, :BIG_ENDIAN, nil).endianness.should eql :BIG_ENDIAN
-        StructureItem.new("test", 0, 8, :UINT, :LITTLE_ENDIAN, nil).endianness.should eql :LITTLE_ENDIAN
+        expect(StructureItem.new("test", 0, 8, :UINT, :BIG_ENDIAN, nil).endianness).to eql :BIG_ENDIAN
+        expect(StructureItem.new("test", 0, 8, :UINT, :LITTLE_ENDIAN, nil).endianness).to eql :LITTLE_ENDIAN
       end
 
       it "complains about bad endianness" do
@@ -45,9 +45,9 @@ module Cosmos
     describe "data_type=" do
       it "accepts INT, UINT, FLOAT, STRING, BLOCK, and DERIVED data types" do
         %w(INT UINT FLOAT STRING BLOCK).each do |type|
-          StructureItem.new("test", 0, 32, type.to_sym, :BIG_ENDIAN, nil).data_type.should eql type.to_sym
+          expect(StructureItem.new("test", 0, 32, type.to_sym, :BIG_ENDIAN, nil).data_type).to eql type.to_sym
         end
-        StructureItem.new("test", 0, 0, :DERIVED, :BIG_ENDIAN, nil).data_type.should eql :DERIVED
+        expect(StructureItem.new("test", 0, 0, :DERIVED, :BIG_ENDIAN, nil).data_type).to eql :DERIVED
       end
 
       it "complains about bad data types" do
@@ -58,7 +58,7 @@ module Cosmos
     describe "overflow=" do
       it "accepts ERROR, ERROR_ALLOW_HEX, TRUNCATE and SATURATE overflow types" do
         %w(ERROR ERROR_ALLOW_HEX TRUNCATE SATURATE).each do |type|
-          StructureItem.new("test", 0, 32, :INT, :BIG_ENDIAN, nil, type.to_sym).overflow.should eql type.to_sym
+          expect(StructureItem.new("test", 0, 32, :INT, :BIG_ENDIAN, nil, type.to_sym).overflow).to eql type.to_sym
         end
       end
 
@@ -99,8 +99,8 @@ module Cosmos
       end
 
       it "creates 32 and 64 bit floats" do
-        StructureItem.new("test", 0, 32, :FLOAT, :BIG_ENDIAN, nil).bit_size.should eql 32
-        StructureItem.new("test", 0, 64, :FLOAT, :BIG_ENDIAN, nil).bit_size.should eql 64
+        expect(StructureItem.new("test", 0, 32, :FLOAT, :BIG_ENDIAN, nil).bit_size).to eql 32
+        expect(StructureItem.new("test", 0, 64, :FLOAT, :BIG_ENDIAN, nil).bit_size).to eql 64
       end
 
       it "complains about non zero DERIVED bit sizes" do
@@ -126,44 +126,44 @@ module Cosmos
       it "sorts items according to positive bit offset" do
         si1 = StructureItem.new("si1", 0, 8, :UINT, :BIG_ENDIAN, nil)
         si2 = StructureItem.new("si2", 8, 8, :UINT, :BIG_ENDIAN, nil)
-        (si1 < si2).should be_truthy
-        (si1 == si2).should be_falsey
-        (si1 > si2).should be_falsey
+        expect(si1 < si2).to be_truthy
+        expect(si1 == si2).to be_falsey
+        expect(si1 > si2).to be_falsey
 
         si2 = StructureItem.new("si2", 0, 8, :UINT, :BIG_ENDIAN, nil)
-        (si1 < si2).should be_falsey
-        (si1 == si2).should be_truthy
-        (si1 > si2).should be_falsey
+        expect(si1 < si2).to be_falsey
+        expect(si1 == si2).to be_truthy
+        expect(si1 > si2).to be_falsey
       end
 
       it "sorts items with 0 bit offset according to bit size" do
         si1 = StructureItem.new("si1", 0, 8, :UINT, :BIG_ENDIAN, nil)
         si2 = StructureItem.new("si2", 0, 0, :BLOCK, :BIG_ENDIAN, nil)
-        (si1 < si2).should be_falsey
-        (si1 == si2).should be_falsey
-        (si1 > si2).should be_truthy
+        expect(si1 < si2).to be_falsey
+        expect(si1 == si2).to be_falsey
+        expect(si1 > si2).to be_truthy
       end
 
       it "sorts items according to negative bit offset" do
         si1 = StructureItem.new("si1", -8, 8, :UINT, :BIG_ENDIAN, nil)
         si2 = StructureItem.new("si2", -16, 8, :UINT, :BIG_ENDIAN, nil)
-        (si1 < si2).should be_falsey
-        (si1 == si2).should be_falsey
-        (si1 > si2).should be_truthy
+        expect(si1 < si2).to be_falsey
+        expect(si1 == si2).to be_falsey
+        expect(si1 > si2).to be_truthy
 
         si2 = StructureItem.new("si2", -8, 8, :UINT, :BIG_ENDIAN, nil)
-        (si1 < si2).should be_falsey
+        expect(si1 < si2).to be_falsey
         # si1 == si2 even though they have different names and sizes
-        (si1 == si2).should be_truthy
-        (si1 > si2).should be_falsey
+        expect(si1 == si2).to be_truthy
+        expect(si1 > si2).to be_falsey
       end
 
       it "sorts items according to mixed bit offset" do
         si1 = StructureItem.new("si1", 16, 8, :UINT, :BIG_ENDIAN, nil)
         si2 = StructureItem.new("si2", -8, 8, :UINT, :BIG_ENDIAN, nil)
-        (si1 < si2).should be_truthy
-        (si1 == si2).should be_falsey
-        (si1 > si2).should be_falsey
+        expect(si1 < si2).to be_truthy
+        expect(si1 == si2).to be_falsey
+        expect(si1 > si2).to be_falsey
       end
     end
 
@@ -171,7 +171,7 @@ module Cosmos
       it "duplicates the entire structure item " do
         si1 = StructureItem.new("si1", -8, 1, :UINT, :LITTLE_ENDIAN, nil)
         si2 = si1.clone
-        (si1 == si2).should be_truthy
+        expect(si1 == si2).to be_truthy
       end
     end
 
@@ -179,15 +179,15 @@ module Cosmos
       it "creates a Hash" do
         item = StructureItem.new("test", 0, 8, :UINT, :BIG_ENDIAN, 16)
         hash = item.to_hash
-        hash.keys.length.should eql 7
-        hash.keys.should include('name','bit_offset','bit_size','data_type','endianness','array_size', 'overflow')
-        hash["name"].should eql "TEST"
-        hash["bit_offset"].should eql 0
-        hash["bit_size"].should eql 8
-        hash["data_type"].should eql :UINT
-        hash["endianness"].should eql :BIG_ENDIAN
-        hash["array_size"].should eql 16
-        hash["overflow"].should eql :ERROR
+        expect(hash.keys.length).to eql 7
+        expect(hash.keys).to include('name','bit_offset','bit_size','data_type','endianness','array_size', 'overflow')
+        expect(hash["name"]).to eql "TEST"
+        expect(hash["bit_offset"]).to eql 0
+        expect(hash["bit_size"]).to eql 8
+        expect(hash["data_type"]).to eql :UINT
+        expect(hash["endianness"]).to eql :BIG_ENDIAN
+        expect(hash["array_size"]).to eql 16
+        expect(hash["overflow"]).to eql :ERROR
       end
     end
 

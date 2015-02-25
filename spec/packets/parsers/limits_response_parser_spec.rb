@@ -108,7 +108,7 @@ module Cosmos
         tf.close
         @pc.process_file(tf.path, "TGT1")
         pkt = @pc.telemetry["TGT1"]["PKT1"]
-        pkt.get_item("ITEM1").limits.response.class.should eql LimitsResponse2
+        expect(pkt.get_item("ITEM1").limits.response.class).to eql LimitsResponse2
 
         File.delete(filename) if File.exist?(filename)
         tf.unlink
@@ -137,7 +137,7 @@ module Cosmos
         tf.close
         capture_io do |stdout|
           @pc.process_file(tf.path, "TGT1")
-          stdout.string.should eql "initialize: 2\n"
+          expect(stdout.string).to eql "initialize: 2\n"
         end
 
         File.delete(filename) if File.exist?(filename)

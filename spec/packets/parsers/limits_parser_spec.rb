@@ -235,12 +235,12 @@ module Cosmos
         tf.close
         @pc.process_file(tf.path, "TGT1")
         item = @pc.telemetry["TGT1"]["PKT1"].items["ITEM1"]
-        item.limits.values[:DEFAULT].should_not be_nil
+        expect(item.limits.values[:DEFAULT]).not_to be_nil
         @pc.telemetry["TGT1"]["PKT1"].buffer = "\x04"
         @pc.telemetry["TGT1"]["PKT1"].enable_limits("ITEM1")
         @pc.telemetry["TGT1"]["PKT1"].check_limits
-        item.limits.state.should eql :GREEN
-        @pc.telemetry["TGT1"]["PKT1"].limits_items.should eql [item]
+        expect(item.limits.state).to eql :GREEN
+        expect(@pc.telemetry["TGT1"]["PKT1"].limits_items).to eql [item]
         tf.unlink
       end
 
@@ -252,12 +252,12 @@ module Cosmos
         tf.close
         @pc.process_file(tf.path, "TGT1")
         item = @pc.telemetry["TGT1"]["PKT1"].items["ITEM1"]
-        item.limits.values[:DEFAULT].should_not be_nil
+        expect(item.limits.values[:DEFAULT]).not_to be_nil
         @pc.telemetry["TGT1"]["PKT1"].buffer = "\x04"
         @pc.telemetry["TGT1"]["PKT1"].enable_limits("ITEM1")
         @pc.telemetry["TGT1"]["PKT1"].check_limits
-        item.limits.state.should eql :BLUE
-        @pc.telemetry["TGT1"]["PKT1"].limits_items.should eql [item]
+        expect(item.limits.state).to eql :BLUE
+        expect(@pc.telemetry["TGT1"]["PKT1"].limits_items).to eql [item]
         tf.unlink
       end
 

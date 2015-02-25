@@ -43,18 +43,18 @@ module Cosmos
     describe "instance" do
       it "creates default ports" do
         # Don't check the actual port numbers but just that they exist
-        System.ports.keys.should eql %w(CTS_API TLMVIEWER_API CTS_PREIDENTIFIED)
+        expect(System.ports.keys).to eql %w(CTS_API TLMVIEWER_API CTS_PREIDENTIFIED)
       end
 
       it "creates default paths" do
         # Don't check the actual paths but just that they exist
-        System.paths.keys.should eql %w(LOGS TMP SAVED_CONFIG TABLES HANDBOOKS PROCEDURES)
+        expect(System.paths.keys).to eql %w(LOGS TMP SAVED_CONFIG TABLES HANDBOOKS PROCEDURES)
       end
     end
 
     describe "System.commands" do
       it "only contains UNKNOWN" do
-        System.commands.target_names.should eql ["UNKNOWN"]
+        expect(System.commands.target_names).to eql ["UNKNOWN"]
       end
 
       it "logs errors saving the configuration" do
@@ -63,21 +63,21 @@ module Cosmos
 
         capture_io do |stdout|
           allow(FileUtils).to receive(:mkdir_p) { raise "Error" }
-          System.commands.target_names.should eql ["UNKNOWN"]
-          stdout.string.should match "Problem saving configuration"
+          expect(System.commands.target_names).to eql ["UNKNOWN"]
+          expect(stdout.string).to match "Problem saving configuration"
         end
       end
     end
 
     describe "System.telemetry" do
       it "only contains UNKNOWN" do
-        System.telemetry.target_names.should eql ["UNKNOWN"]
+        expect(System.telemetry.target_names).to eql ["UNKNOWN"]
       end
     end
 
     describe "System.limits" do
       it "includes the DEFAULT limit set" do
-        System.limits.sets.should include :DEFAULT
+        expect(System.limits.sets).to include :DEFAULT
       end
     end
 
@@ -103,14 +103,14 @@ module Cosmos
           System.clear_counters
 
           System.targets.each do |name, tgt|
-            tgt.cmd_cnt.should eql 0
-            tgt.tlm_cnt.should eql 0
+            expect(tgt.cmd_cnt).to eql 0
+            expect(tgt.tlm_cnt).to eql 0
           end
           System.commands.all do |tgt, pkt|
-            pkt.received_count.should eql 0
+            expect(pkt.received_count).to eql 0
           end
           System.telemetry.all do |tgt, pkt|
-            pkt.received_count.should eql 0
+            expect(pkt.received_count).to eql 0
           end
         end
       end
@@ -119,20 +119,20 @@ module Cosmos
         it "calculates MD5s across all the target files" do
           capture_io do |stdout|
             # This line actually does the work of reading the configuration
-            System.telemetry.target_names.should eql ['COSMOS','INST','META','UNKNOWN']
-            System.commands.target_names.should eql ['COSMOS','INST','META','UNKNOWN']
+            expect(System.telemetry.target_names).to eql ['COSMOS','INST','META','UNKNOWN']
+            expect(System.commands.target_names).to eql ['COSMOS','INST','META','UNKNOWN']
 
-            stdout.string.should match "Marshal file does not exist"
+            expect(stdout.string).to match "Marshal file does not exist"
 
             # Reset stdout for another go at the processing
             stdout.rewind
             # Reset the instance variable so it will read the new configuration
             System.class_eval('@@instance = nil')
             # This line actually does the work of reading the configuration
-            System.telemetry.target_names.should eql ['COSMOS','INST','META','UNKNOWN']
-            System.commands.target_names.should eql ['COSMOS','INST','META','UNKNOWN']
+            expect(System.telemetry.target_names).to eql ['COSMOS','INST','META','UNKNOWN']
+            expect(System.commands.target_names).to eql ['COSMOS','INST','META','UNKNOWN']
 
-            stdout.string.should match "Marshal load success"
+            expect(stdout.string).to match "Marshal load success"
           end
         end
 
@@ -140,9 +140,9 @@ module Cosmos
           capture_io do |stdout|
             allow_any_instance_of(PacketConfig).to receive(:process_file) { raise "ProcessError" }
             # This line actually does the work of reading the configuration
-            expect { System.telemetry.target_names.should eql ['COSMOS','INST','META','UNKNOWN'] }.to raise_error("ProcessError")
+            expect { expect(System.telemetry.target_names).to eql ['COSMOS','INST','META','UNKNOWN'] }.to raise_error("ProcessError")
 
-            stdout.string.should match "Problem processing"
+            expect(stdout.string).to match "Problem processing"
           end
         end
       end
@@ -155,8 +155,8 @@ module Cosmos
 
         it "loads the initial configuration" do
           System.load_configuration
-          System.commands.target_names.should eql ['COSMOS','INST','META','UNKNOWN']
-          System.telemetry.target_names.should eql ['COSMOS','INST','META','UNKNOWN']
+          expect(System.commands.target_names).to eql ['COSMOS','INST','META','UNKNOWN']
+          expect(System.telemetry.target_names).to eql ['COSMOS','INST','META','UNKNOWN']
         end
 
         it "loads a named configuration" do
@@ -167,7 +167,7 @@ module Cosmos
 
           # Load the original configuration
           original_config_name = System.load_configuration()
-          System.telemetry.target_names.should eql %w(COSMOS OVERRIDE UNKNOWN)
+          expect(System.telemetry.target_names).to eql %w(COSMOS OVERRIDE UNKNOWN)
           original_pkts = System.telemetry.packets('COSMOS').keys
 
           # Create a new configuration by writing another telemetry file
@@ -177,13 +177,13 @@ module Cosmos
           end
           System.instance.process_file(@config_file)
           # Verify the new telemetry packet is there
-          System.telemetry.packets('COSMOS').keys.should include "TEST1"
+          expect(System.telemetry.packets('COSMOS').keys).to include "TEST1"
           second_config_name = System.configuration_name
 
           # Now load the original configuration
           name = System.load_configuration(original_config_name)
-          original_config_name.should eql name
-          System.telemetry.packets('COSMOS').keys.should_not include "TEST1"
+          expect(original_config_name).to eql name
+          expect(System.telemetry.packets('COSMOS').keys).not_to include "TEST1"
 
           # Create yet another configuration by writing another telemetry file
           File.open(File.join(@config_targets,'COSMOS','cmd_tlm','test2_tlm.txt'),'w') do |file|
@@ -193,19 +193,19 @@ module Cosmos
           System.instance.process_file(@config_file)
           names = []
           # Verify the new telemetry packet is there as well as the second one
-          System.telemetry.packets('COSMOS').keys.should include("TEST1", "TEST2")
+          expect(System.telemetry.packets('COSMOS').keys).to include("TEST1", "TEST2")
           third_config_name = System.configuration_name
 
           # Try loading something that doesn't exist
           # It should fail and reload the original configuration
           name = System.load_configuration("BLAH")
-          name.should eql original_config_name
+          expect(name).to eql original_config_name
 
           # Now load the second configuration. It shouldn't have the most
           # recently defined telemetry packet.
           System.load_configuration(second_config_name)
-          System.telemetry.packets('COSMOS').keys.should include "TEST1"
-          System.telemetry.packets('COSMOS').keys.should_not include "TEST2"
+          expect(System.telemetry.packets('COSMOS').keys).to include "TEST1"
+          expect(System.telemetry.packets('COSMOS').keys).not_to include "TEST2"
         end
       end
     end
@@ -275,7 +275,7 @@ module Cosmos
           System.instance.process_file(tf.path)
           # Since Ruby 1.9+ uses ordered Hashes we can ask for the keys and
           # SYSTEM should be last
-          System.instance.targets.keys.should eql %w(ABC XYZ SYSTEM)
+          expect(System.instance.targets.keys).to eql %w(ABC XYZ SYSTEM)
           Dir.rmdir(File.join(@config_targets, 'ABC'))
           Dir.rmdir(File.join(@config_targets, 'SYSTEM'))
           Dir.rmdir(File.join(@config_targets, 'XYZ'))
@@ -358,7 +358,7 @@ module Cosmos
           tf.close
           capture_io do |stdout|
             System.instance.process_file(tf.path)
-            stdout.string.should match /WARN: Unknown port name given: MYPORT/
+            expect(stdout.string).to match /WARN: Unknown port name given: MYPORT/
           end
           tf.unlink
         end
@@ -367,9 +367,9 @@ module Cosmos
           tf = Tempfile.new('unittest')
           tf.puts("PORT CTS_API 8888")
           tf.close
-          System.ports['CTS_API'].should eql 7777
+          expect(System.ports['CTS_API']).to eql 7777
           System.instance.process_file(tf.path)
-          System.ports['CTS_API'].should eql 8888
+          expect(System.ports['CTS_API']).to eql 8888
           tf.unlink
         end
       end
@@ -395,7 +395,7 @@ module Cosmos
           tf.close
           capture_io do |stdout|
             System.instance.process_file(tf.path)
-            stdout.string.should match /WARN: Unknown path name given: MYPATH/
+            expect(stdout.string).to match /WARN: Unknown path name given: MYPATH/
           end
           tf.unlink
         end
@@ -405,9 +405,9 @@ module Cosmos
             tf = Tempfile.new('unittest')
             tf.puts("PATH LOGS C:/mylogs")
             tf.close
-            System.paths['LOGS'].should match 'outputs/logs'
+            expect(System.paths['LOGS']).to match 'outputs/logs'
             System.instance.process_file(tf.path)
-            System.paths['LOGS'].should eql 'C:/mylogs'
+            expect(System.paths['LOGS']).to eql 'C:/mylogs'
             tf.unlink
           end
         end
@@ -446,7 +446,7 @@ module Cosmos
           tf.puts("DEFAULT_PACKET_LOG_WRITER my_writer")
           tf.close
           System.instance.process_file(tf.path)
-          System.default_packet_log_writer.should eql MyWriter
+          expect(System.default_packet_log_writer).to eql MyWriter
           File.delete filename
           tf.unlink
         end
@@ -485,7 +485,7 @@ module Cosmos
           tf.puts("DEFAULT_PACKET_LOG_READER my_reader")
           tf.close
           System.instance.process_file(tf.path)
-          System.default_packet_log_reader.should eql MyReader
+          expect(System.default_packet_log_reader).to eql MyReader
           File.delete filename
           tf.unlink
         end
@@ -504,9 +504,9 @@ module Cosmos
           tf = Tempfile.new('unittest')
           tf.puts("DISABLE_DNS")
           tf.close
-          System.use_dns.should be_truthy
+          expect(System.use_dns).to be_truthy
           System.instance.process_file(tf.path)
-          System.use_dns.should be_falsey
+          expect(System.use_dns).to be_falsey
           tf.unlink
         end
       end
@@ -545,7 +545,7 @@ module Cosmos
           tf.puts("ALLOW_ACCESS ALL")
           tf.close
           System.instance.process_file(tf.path)
-          System.acl.should be_nil
+          expect(System.acl).to be_nil
           tf.unlink
         end
 
@@ -554,7 +554,7 @@ module Cosmos
           tf.puts("ALLOW_ACCESS localhost")
           tf.close
           System.instance.process_file(tf.path)
-          System.acl.allow_addr?(["AF_INET",0,"localhost","127.0.0.1"]).should be_truthy
+          expect(System.acl.allow_addr?(["AF_INET",0,"localhost","127.0.0.1"])).to be_truthy
           tf.unlink
         end
 
@@ -565,7 +565,7 @@ module Cosmos
             tf.puts("ALLOW_ACCESS #{addr}")
             tf.close
             System.instance.process_file(tf.path)
-            System.acl.allow_addr?(["AF_INET",0,"www.google.com",addr]).should be_truthy
+            expect(System.acl.allow_addr?(["AF_INET",0,"www.google.com",addr])).to be_truthy
             tf.unlink
           end
         end
@@ -590,9 +590,9 @@ module Cosmos
           tf = Tempfile.new('unittest')
           tf.puts("STALENESS_SECONDS 3")
           tf.close
-          System.staleness_seconds.should eql 30
+          expect(System.staleness_seconds).to eql 30
           System.instance.process_file(tf.path)
-          System.staleness_seconds.should eql 3
+          expect(System.staleness_seconds).to eql 3
           tf.unlink
         end
       end
@@ -616,9 +616,9 @@ module Cosmos
           tf = Tempfile.new('unittest')
           tf.puts("CMD_TLM_VERSION 2.1")
           tf.close
-          System.cmd_tlm_version.should be_nil
+          expect(System.cmd_tlm_version).to be_nil
           System.instance.process_file(tf.path)
-          System.cmd_tlm_version.should eql "2.1"
+          expect(System.cmd_tlm_version).to eql "2.1"
           tf.unlink
         end
       end
@@ -627,7 +627,7 @@ module Cosmos
     describe "Cosmos.write_exception_file" do
       it "writes a file with the exception" do
         filename = Cosmos.write_exception_file(RuntimeError.new("HELP!"))
-        File.exist?(filename).should be_truthy
+        expect(File.exist?(filename)).to be_truthy
         File.delete(filename)
       end
 
@@ -636,7 +636,7 @@ module Cosmos
         # Reset the instance variable so it will read the new config file
         System.instance_eval('@instance = nil')
         filename = Cosmos.write_exception_file(RuntimeError.new("HELP!"))
-        File.exist?(filename).should be_truthy
+        expect(File.exist?(filename)).to be_truthy
         File.delete(filename)
       end
     end

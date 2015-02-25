@@ -19,13 +19,13 @@ module Cosmos
     describe "initialize" do
       it "initializes attributes" do
         tsp = TemplateStreamProtocol.new('0xABCD','0xABCD')
-        tsp.bytes_read.should eql 0
-        tsp.bytes_written.should eql 0
-        tsp.interface.should be_nil
-        tsp.stream.should be_nil
-        tsp.post_read_data_callback.should be_nil
-        tsp.post_read_packet_callback.should be_nil
-        tsp.pre_write_packet_callback.should be_nil
+        expect(tsp.bytes_read).to eql 0
+        expect(tsp.bytes_written).to eql 0
+        expect(tsp.interface).to be_nil
+        expect(tsp.stream).to be_nil
+        expect(tsp.post_read_data_callback).to be_nil
+        expect(tsp.post_read_packet_callback).to be_nil
+        expect(tsp.pre_write_packet_callback).to be_nil
       end
     end
 
@@ -86,7 +86,7 @@ module Cosmos
         $buffer1 = "\x00\x01\x02\xAB"
         $buffer2 = "\xCD\x44\x02\x03"
         packet = tsp.read(false)
-        packet.buffer.length.should eql 3
+        expect(packet.buffer.length).to eql 3
       end
     end
 
@@ -109,7 +109,7 @@ module Cosmos
         packet.restore_defaults
         tsp.connect(MyStream1.new)
         tsp.write(packet)
-        $buffer.should eq "SOUR:VOLT 1, (@2)\xAB\xCD"
+        expect($buffer).to eq "SOUR:VOLT 1, (@2)\xAB\xCD"
       end
 
       it "processes responses" do
@@ -145,9 +145,9 @@ module Cosmos
         packet.restore_defaults
         tsp.connect(MyStream2.new)
         tsp.write(packet)
-        $buffer.should eq "SOUR:VOLT 10, (@20)\xAB\xCD"
+        expect($buffer).to eq "SOUR:VOLT 10, (@20)\xAB\xCD"
         pkt = tsp.read()
-        pkt.read("VOLTAGE").should eq 10
+        expect(pkt.read("VOLTAGE")).to eq 10
       end
     end
 

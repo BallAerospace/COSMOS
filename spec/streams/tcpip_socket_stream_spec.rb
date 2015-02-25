@@ -17,7 +17,7 @@ module Cosmos
     describe "initialize, connected?" do
       it "is not be connected when initialized" do
         ss = TcpipSocketStream.new(nil,nil,nil,nil)
-        ss.connected?.should be_falsy
+        expect(ss.connected?).to be_falsy
       end
     end
 
@@ -33,7 +33,7 @@ module Cosmos
         expect(read).to receive(:recv_nonblock).and_return 'test'
         ss = TcpipSocketStream.new(nil,read,nil,nil)
         ss.connect
-        ss.read.should eql 'test'
+        expect(ss.read).to eql 'test'
       end
 
       it "handles socket blocking exceptions" do
@@ -51,7 +51,7 @@ module Cosmos
         $index = 1
         ss = TcpipSocketStream.new(nil,read,nil,nil)
         ss.connect
-        ss.read.should eql 'test'
+        expect(ss.read).to eql 'test'
       end
 
       it "handles socket timeouts" do
@@ -68,7 +68,7 @@ module Cosmos
         allow(read).to receive(:recv_nonblock).and_raise(Errno::ECONNRESET)
         ss = TcpipSocketStream.new(nil,read,nil,nil)
         ss.connect
-        ss.read.should eql ''
+        expect(ss.read).to eql ''
       end
     end
 
@@ -123,9 +123,9 @@ module Cosmos
         expect(write).to receive(:close)
         ss = TcpipSocketStream.new(write,nil,nil,nil)
         ss.connect
-        ss.connected?.should be_truthy
+        expect(ss.connected?).to be_truthy
         ss.disconnect
-        ss.connected?.should be_falsey
+        expect(ss.connected?).to be_falsey
       end
 
       it "closes the read socket" do
@@ -134,9 +134,9 @@ module Cosmos
         expect(read).to receive(:close)
         ss = TcpipSocketStream.new(nil,read,nil,nil)
         ss.connect
-        ss.connected?.should be_truthy
+        expect(ss.connected?).to be_truthy
         ss.disconnect
-        ss.connected?.should be_falsey
+        expect(ss.connected?).to be_falsey
       end
 
       it "does not close the socket twice" do
@@ -145,11 +145,11 @@ module Cosmos
         expect(socket).to receive(:close).once
         ss = TcpipSocketStream.new(socket,socket,nil,nil)
         ss.connect
-        ss.connected?.should be_truthy
+        expect(ss.connected?).to be_truthy
         ss.disconnect
-        ss.connected?.should be_falsey
+        expect(ss.connected?).to be_falsey
         ss.disconnect
-        ss.connected?.should be_falsey
+        expect(ss.connected?).to be_falsey
       end
     end
 

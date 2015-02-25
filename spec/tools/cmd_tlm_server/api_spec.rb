@@ -62,9 +62,9 @@ module Cosmos
 
       it "processes a string" do
         target_name, cmd_name, params = @api.cmd("INST COLLECT with TYPE NORMAL, DURATION 5")
-        target_name.should eql 'INST'
-        cmd_name.should eql 'COLLECT'
-        params.should include('TYPE'=>'NORMAL', 'DURATION'=>5)
+        expect(target_name).to eql 'INST'
+        expect(cmd_name).to eql 'COLLECT'
+        expect(params).to include('TYPE'=>'NORMAL', 'DURATION'=>5)
       end
 
       it "complains if parameters are not separated by commas" do
@@ -77,16 +77,16 @@ module Cosmos
 
       it "processes parameters" do
         target_name, cmd_name, params = @api.cmd("INST","COLLECT","TYPE"=>"NORMAL","DURATION"=>5)
-        target_name.should eql 'INST'
-        cmd_name.should eql 'COLLECT'
-        params.should include('TYPE'=>'NORMAL', 'DURATION'=>5)
+        expect(target_name).to eql 'INST'
+        expect(cmd_name).to eql 'COLLECT'
+        expect(params).to include('TYPE'=>'NORMAL', 'DURATION'=>5)
       end
 
       it "processes commands without parameters" do
         target_name, cmd_name, params = @api.cmd("INST","ABORT")
-        target_name.should eql 'INST'
-        cmd_name.should eql 'ABORT'
-        params.should be {}
+        expect(target_name).to eql 'INST'
+        expect(cmd_name).to eql 'ABORT'
+        expect(params).to be {}
       end
 
       it "complains about too many parameters" do
@@ -117,16 +117,16 @@ module Cosmos
 
       it "processes a string" do
         target_name, cmd_no_range_check_name, params = @api.cmd_no_range_check("INST COLLECT with TYPE NORMAL, DURATION 5")
-        target_name.should eql 'INST'
-        cmd_no_range_check_name.should eql 'COLLECT'
-        params.should include('TYPE'=>'NORMAL', 'DURATION'=>5)
+        expect(target_name).to eql 'INST'
+        expect(cmd_no_range_check_name).to eql 'COLLECT'
+        expect(params).to include('TYPE'=>'NORMAL', 'DURATION'=>5)
       end
 
       it "processes parameters" do
         target_name, cmd_no_range_check_name, params = @api.cmd_no_range_check("INST","COLLECT","TYPE"=>"NORMAL","DURATION"=>5)
-        target_name.should eql 'INST'
-        cmd_no_range_check_name.should eql 'COLLECT'
-        params.should include('TYPE'=>'NORMAL', 'DURATION'=>5)
+        expect(target_name).to eql 'INST'
+        expect(cmd_no_range_check_name).to eql 'COLLECT'
+        expect(params).to include('TYPE'=>'NORMAL', 'DURATION'=>5)
       end
 
       it "warns about required parameters" do
@@ -153,23 +153,23 @@ module Cosmos
 
       it "processes a string" do
         target_name, cmd_no_hazardous_check_name, params = @api.cmd_no_hazardous_check("INST COLLECT with TYPE NORMAL, DURATION 5")
-        target_name.should eql 'INST'
-        cmd_no_hazardous_check_name.should eql 'COLLECT'
-        params.should include('TYPE'=>'NORMAL', 'DURATION'=>5)
+        expect(target_name).to eql 'INST'
+        expect(cmd_no_hazardous_check_name).to eql 'COLLECT'
+        expect(params).to include('TYPE'=>'NORMAL', 'DURATION'=>5)
       end
 
       it "processes parameters" do
         target_name, cmd_no_hazardous_check_name, params = @api.cmd_no_hazardous_check("INST","COLLECT","TYPE"=>"NORMAL","DURATION"=>5)
-        target_name.should eql 'INST'
-        cmd_no_hazardous_check_name.should eql 'COLLECT'
-        params.should include('TYPE'=>'NORMAL', 'DURATION'=>5)
+        expect(target_name).to eql 'INST'
+        expect(cmd_no_hazardous_check_name).to eql 'COLLECT'
+        expect(params).to include('TYPE'=>'NORMAL', 'DURATION'=>5)
       end
 
       it "processes parameters that are strings" do
         target_name, cmd_name, params = @api.cmd_no_hazardous_check("INST ASCIICMD with STRING 'ARM LASER'")
-        target_name.should eql 'INST'
-        cmd_name.should eql 'ASCIICMD'
-        params.should include('STRING'=>'ARM LASER')
+        expect(target_name).to eql 'INST'
+        expect(cmd_name).to eql 'ASCIICMD'
+        expect(params).to include('STRING'=>'ARM LASER')
       end
 
       it "warns about required parameters" do
@@ -196,16 +196,16 @@ module Cosmos
 
       it "processes a string" do
         target_name, cmd_no_checks_name, params = @api.cmd_no_checks("INST COLLECT with TYPE NORMAL, DURATION 5")
-        target_name.should eql 'INST'
-        cmd_no_checks_name.should eql 'COLLECT'
-        params.should include('TYPE'=>'NORMAL', 'DURATION'=>5)
+        expect(target_name).to eql 'INST'
+        expect(cmd_no_checks_name).to eql 'COLLECT'
+        expect(params).to include('TYPE'=>'NORMAL', 'DURATION'=>5)
       end
 
       it "processes parameters" do
         target_name, cmd_no_checks_name, params = @api.cmd_no_checks("INST","COLLECT","TYPE"=>"NORMAL","DURATION"=>5)
-        target_name.should eql 'INST'
-        cmd_no_checks_name.should eql 'COLLECT'
-        params.should include('TYPE'=>'NORMAL', 'DURATION'=>5)
+        expect(target_name).to eql 'INST'
+        expect(cmd_no_checks_name).to eql 'COLLECT'
+        expect(params).to include('TYPE'=>'NORMAL', 'DURATION'=>5)
       end
 
       it "warns about required parameters" do
@@ -232,9 +232,9 @@ module Cosmos
 
       it "processes a string" do
         target_name, cmd_name, params = @api.cmd_raw("INST COLLECT with TYPE 0, DURATION 5")
-        target_name.should eql 'INST'
-        cmd_name.should eql 'COLLECT'
-        params.should include('TYPE'=>0, 'DURATION'=>5)
+        expect(target_name).to eql 'INST'
+        expect(cmd_name).to eql 'COLLECT'
+        expect(params).to include('TYPE'=>0, 'DURATION'=>5)
       end
 
       it "complains if parameters are not separated by commas" do
@@ -247,16 +247,16 @@ module Cosmos
 
       it "processes parameters" do
         target_name, cmd_name, params = @api.cmd_raw("INST","COLLECT","TYPE"=>0,"DURATION"=>5)
-        target_name.should eql 'INST'
-        cmd_name.should eql 'COLLECT'
-        params.should include('TYPE'=>0, 'DURATION'=>5)
+        expect(target_name).to eql 'INST'
+        expect(cmd_name).to eql 'COLLECT'
+        expect(params).to include('TYPE'=>0, 'DURATION'=>5)
       end
 
       it "processes commands without parameters" do
         target_name, cmd_name, params = @api.cmd_raw("INST","ABORT")
-        target_name.should eql 'INST'
-        cmd_name.should eql 'ABORT'
-        params.should be {}
+        expect(target_name).to eql 'INST'
+        expect(cmd_name).to eql 'ABORT'
+        expect(params).to be {}
       end
 
       it "complains about too many parameters" do
@@ -287,16 +287,16 @@ module Cosmos
 
       it "processes a string" do
         target_name, cmd_no_range_check_name, params = @api.cmd_raw_no_range_check("INST COLLECT with TYPE 0, DURATION 5")
-        target_name.should eql 'INST'
-        cmd_no_range_check_name.should eql 'COLLECT'
-        params.should include('TYPE'=>0, 'DURATION'=>5)
+        expect(target_name).to eql 'INST'
+        expect(cmd_no_range_check_name).to eql 'COLLECT'
+        expect(params).to include('TYPE'=>0, 'DURATION'=>5)
       end
 
       it "processes parameters" do
         target_name, cmd_no_range_check_name, params = @api.cmd_raw_no_range_check("INST","COLLECT","TYPE"=>0,"DURATION"=>5)
-        target_name.should eql 'INST'
-        cmd_no_range_check_name.should eql 'COLLECT'
-        params.should include('TYPE'=>0, 'DURATION'=>5)
+        expect(target_name).to eql 'INST'
+        expect(cmd_no_range_check_name).to eql 'COLLECT'
+        expect(params).to include('TYPE'=>0, 'DURATION'=>5)
       end
 
       it "warns about required parameters" do
@@ -323,23 +323,23 @@ module Cosmos
 
       it "processes a string" do
         target_name, cmd_no_hazardous_check_name, params = @api.cmd_raw_no_hazardous_check("INST COLLECT with TYPE 0, DURATION 5")
-        target_name.should eql 'INST'
-        cmd_no_hazardous_check_name.should eql 'COLLECT'
-        params.should include('TYPE'=>0, 'DURATION'=>5)
+        expect(target_name).to eql 'INST'
+        expect(cmd_no_hazardous_check_name).to eql 'COLLECT'
+        expect(params).to include('TYPE'=>0, 'DURATION'=>5)
       end
 
       it "processes parameters" do
         target_name, cmd_no_hazardous_check_name, params = @api.cmd_raw_no_hazardous_check("INST","COLLECT","TYPE"=>0,"DURATION"=>5)
-        target_name.should eql 'INST'
-        cmd_no_hazardous_check_name.should eql 'COLLECT'
-        params.should include('TYPE'=>0, 'DURATION'=>5)
+        expect(target_name).to eql 'INST'
+        expect(cmd_no_hazardous_check_name).to eql 'COLLECT'
+        expect(params).to include('TYPE'=>0, 'DURATION'=>5)
       end
 
       it "processes parameters that are strings" do
         target_name, cmd_name, params = @api.cmd_raw_no_hazardous_check("INST ASCIICMD with STRING 'ARM LASER'")
-        target_name.should eql 'INST'
-        cmd_name.should eql 'ASCIICMD'
-        params.should include('STRING'=>'ARM LASER')
+        expect(target_name).to eql 'INST'
+        expect(cmd_name).to eql 'ASCIICMD'
+        expect(params).to include('STRING'=>'ARM LASER')
       end
 
       it "warns about required parameters" do
@@ -366,16 +366,16 @@ module Cosmos
 
       it "processes a string" do
         target_name, cmd_no_checks_name, params = @api.cmd_raw_no_checks("INST COLLECT with TYPE 0, DURATION 5")
-        target_name.should eql 'INST'
-        cmd_no_checks_name.should eql 'COLLECT'
-        params.should include('TYPE'=>0, 'DURATION'=>5)
+        expect(target_name).to eql 'INST'
+        expect(cmd_no_checks_name).to eql 'COLLECT'
+        expect(params).to include('TYPE'=>0, 'DURATION'=>5)
       end
 
       it "processes parameters" do
         target_name, cmd_no_checks_name, params = @api.cmd_raw_no_checks("INST","COLLECT","TYPE"=>0,"DURATION"=>5)
-        target_name.should eql 'INST'
-        cmd_no_checks_name.should eql 'COLLECT'
-        params.should include('TYPE'=>0, 'DURATION'=>5)
+        expect(target_name).to eql 'INST'
+        expect(cmd_no_checks_name).to eql 'COLLECT'
+        expect(params).to include('TYPE'=>0, 'DURATION'=>5)
       end
 
       it "warns about required parameters" do
@@ -398,7 +398,7 @@ module Cosmos
     describe "get_cmd_list" do
       it "returns command names sorted" do
         result = @api.get_cmd_list("INST")
-        result.sort.should eql result
+        expect(result.sort).to eql result
       end
 
       it "complains with a unknown target" do
@@ -407,22 +407,22 @@ module Cosmos
 
       it "returns command names and descriptions for a given target" do
         result = @api.get_cmd_list("INST")
-        result[0][0].should eql "ABORT"
+        expect(result[0][0]).to eql "ABORT"
         # The second parameter is the description ... only test one
-        result[0][1].should eql "Aborts a collect on the instrument"
-        result[1][0].should eql "ARYCMD"
-        result[2][0].should eql "ASCIICMD"
-        result[3][0].should eql "CLEAR"
-        result[4][0].should eql "COLLECT"
-        result[5][0].should eql "COSMOS_ERROR_HANDLE"
-        result[6][0].should eql "COSMOS_ERROR_IGNORE"
-        result[7][0].should eql "COSMOS_HANDSHAKE_DS"
-        result[8][0].should eql "COSMOS_HANDSHAKE_EN"
-        result[9][0].should eql "FLTCMD"
-        result[10][0].should eql "LINC_COMMAND"
-        result[11][0].should eql "SETPARAMS"
-        result[12][0].should eql "SLRPNLDEPLOY"
-        result[13][0].should eql "SLRPNLRESET"
+        expect(result[0][1]).to eql "Aborts a collect on the instrument"
+        expect(result[1][0]).to eql "ARYCMD"
+        expect(result[2][0]).to eql "ASCIICMD"
+        expect(result[3][0]).to eql "CLEAR"
+        expect(result[4][0]).to eql "COLLECT"
+        expect(result[5][0]).to eql "COSMOS_ERROR_HANDLE"
+        expect(result[6][0]).to eql "COSMOS_ERROR_IGNORE"
+        expect(result[7][0]).to eql "COSMOS_HANDSHAKE_DS"
+        expect(result[8][0]).to eql "COSMOS_HANDSHAKE_EN"
+        expect(result[9][0]).to eql "FLTCMD"
+        expect(result[10][0]).to eql "LINC_COMMAND"
+        expect(result[11][0]).to eql "SETPARAMS"
+        expect(result[12][0]).to eql "SLRPNLDEPLOY"
+        expect(result[13][0]).to eql "SLRPNLRESET"
       end
     end
 
@@ -431,26 +431,26 @@ module Cosmos
         result = @api.get_cmd_param_list("INST","COLLECT")
         # Each element in the results array contains:
         #   name, default, states, description, full units, units, required
-        result.should include ['TYPE',0,{"NORMAL"=>0,"SPECIAL"=>1},'Collect type',nil,nil,true]
-        result.should include ['TEMP',0.0,nil,'Collect temperature','Celcius','C',false]
+        expect(result).to include ['TYPE',0,{"NORMAL"=>0,"SPECIAL"=>1},'Collect type',nil,nil,true]
+        expect(result).to include ['TEMP',0.0,nil,'Collect temperature','Celcius','C',false]
       end
 
       it "returns array parameters for the command" do
         result = @api.get_cmd_param_list("INST","ARYCMD")
         # Each element in the results array contains:
         #   name, default, states, description, full units, units, required
-        result.should include ['ARRAY',[],nil,'Array parameter',nil,nil,false]
+        expect(result).to include ['ARRAY',[],nil,'Array parameter',nil,nil,false]
       end
     end
 
     describe "get_cmd_hazardous" do
       it "returns whether the command with parameters is hazardous" do
-        @api.get_cmd_hazardous("INST","COLLECT",{"TYPE"=>"NORMAL"}).should be_falsey
-        @api.get_cmd_hazardous("INST","COLLECT",{"TYPE"=>"SPECIAL"}).should be_truthy
+        expect(@api.get_cmd_hazardous("INST","COLLECT",{"TYPE"=>"NORMAL"})).to be_falsey
+        expect(@api.get_cmd_hazardous("INST","COLLECT",{"TYPE"=>"SPECIAL"})).to be_truthy
       end
 
       it "returns whether the command is hazardous" do
-        @api.get_cmd_hazardous("INST","CLEAR").should be_truthy
+        expect(@api.get_cmd_hazardous("INST","CLEAR")).to be_truthy
       end
     end
 
@@ -470,7 +470,7 @@ module Cosmos
 
       it "processes a string" do
         value = @api.tlm("INST HEALTH_STATUS TEMP1")
-        value.should eql -100.0
+        expect(value).to eql -100.0
       end
 
       it "processes parameters" do
@@ -488,15 +488,15 @@ module Cosmos
       end
 
       it "processes a string" do
-        @api.tlm_raw("INST HEALTH_STATUS TEMP1").should eql 0
+        expect(@api.tlm_raw("INST HEALTH_STATUS TEMP1")).to eql 0
       end
 
       it "returns the value using LATEST" do
-        @api.tlm_raw("INST LATEST TEMP1").should eql 0
+        expect(@api.tlm_raw("INST LATEST TEMP1")).to eql 0
       end
 
       it "processes parameters" do
-        @api.tlm_raw("INST","HEALTH_STATUS","TEMP1").should eql 0
+        expect(@api.tlm_raw("INST","HEALTH_STATUS","TEMP1")).to eql 0
       end
     end
 
@@ -506,15 +506,15 @@ module Cosmos
       end
 
       it "processes a string" do
-        @api.tlm_formatted("INST HEALTH_STATUS TEMP1").should eql "-100.000"
+        expect(@api.tlm_formatted("INST HEALTH_STATUS TEMP1")).to eql "-100.000"
       end
 
       it "returns the value using LATEST" do
-        @api.tlm_formatted("INST LATEST TEMP1").should eql "-100.000"
+        expect(@api.tlm_formatted("INST LATEST TEMP1")).to eql "-100.000"
       end
 
       it "processes parameters" do
-        @api.tlm_formatted("INST","HEALTH_STATUS","TEMP1").should eql "-100.000"
+        expect(@api.tlm_formatted("INST","HEALTH_STATUS","TEMP1")).to eql "-100.000"
       end
     end
 
@@ -524,15 +524,15 @@ module Cosmos
       end
 
       it "processes a string" do
-        @api.tlm_with_units("INST HEALTH_STATUS TEMP1").should eql "-100.000 C"
+        expect(@api.tlm_with_units("INST HEALTH_STATUS TEMP1")).to eql "-100.000 C"
       end
 
       it "returns the value using LATEST" do
-        @api.tlm_with_units("INST LATEST TEMP1").should eql "-100.000 C"
+        expect(@api.tlm_with_units("INST LATEST TEMP1")).to eql "-100.000 C"
       end
 
       it "processes parameters" do
-        @api.tlm_with_units("INST","HEALTH_STATUS","TEMP1").should eql "-100.000 C"
+        expect(@api.tlm_with_units("INST","HEALTH_STATUS","TEMP1")).to eql "-100.000 C"
       end
     end
 
@@ -547,24 +547,24 @@ module Cosmos
       end
 
       it "processes a string" do
-        @api.tlm_variable("INST HEALTH_STATUS TEMP1",:CONVERTED).should eql -100.0
-        @api.tlm_variable("INST HEALTH_STATUS TEMP1",:RAW).should eql 0
-        @api.tlm_variable("INST HEALTH_STATUS TEMP1",:FORMATTED).should eql "-100.000"
-        @api.tlm_variable("INST HEALTH_STATUS TEMP1",:WITH_UNITS).should eql "-100.000 C"
+        expect(@api.tlm_variable("INST HEALTH_STATUS TEMP1",:CONVERTED)).to eql -100.0
+        expect(@api.tlm_variable("INST HEALTH_STATUS TEMP1",:RAW)).to eql 0
+        expect(@api.tlm_variable("INST HEALTH_STATUS TEMP1",:FORMATTED)).to eql "-100.000"
+        expect(@api.tlm_variable("INST HEALTH_STATUS TEMP1",:WITH_UNITS)).to eql "-100.000 C"
       end
 
       it "returns the value using LATEST" do
-        @api.tlm_variable("INST LATEST TEMP1",:CONVERTED).should eql -100.0
-        @api.tlm_variable("INST LATEST TEMP1",:RAW).should eql 0
-        @api.tlm_variable("INST LATEST TEMP1",:FORMATTED).should eql "-100.000"
-        @api.tlm_variable("INST LATEST TEMP1",:WITH_UNITS).should eql "-100.000 C"
+        expect(@api.tlm_variable("INST LATEST TEMP1",:CONVERTED)).to eql -100.0
+        expect(@api.tlm_variable("INST LATEST TEMP1",:RAW)).to eql 0
+        expect(@api.tlm_variable("INST LATEST TEMP1",:FORMATTED)).to eql "-100.000"
+        expect(@api.tlm_variable("INST LATEST TEMP1",:WITH_UNITS)).to eql "-100.000 C"
       end
 
       it "processes parameters" do
-        @api.tlm_variable("INST","HEALTH_STATUS","TEMP1",:CONVERTED).should eql -100.0
-        @api.tlm_variable("INST","HEALTH_STATUS","TEMP1",:RAW).should eql 0
-        @api.tlm_variable("INST","HEALTH_STATUS","TEMP1",:FORMATTED).should eql "-100.000"
-        @api.tlm_variable("INST","HEALTH_STATUS","TEMP1",:WITH_UNITS).should eql "-100.000 C"
+        expect(@api.tlm_variable("INST","HEALTH_STATUS","TEMP1",:CONVERTED)).to eql -100.0
+        expect(@api.tlm_variable("INST","HEALTH_STATUS","TEMP1",:RAW)).to eql 0
+        expect(@api.tlm_variable("INST","HEALTH_STATUS","TEMP1",:FORMATTED)).to eql "-100.000"
+        expect(@api.tlm_variable("INST","HEALTH_STATUS","TEMP1",:WITH_UNITS)).to eql "-100.000 C"
       end
 
       it "complains with too many parameters" do
@@ -584,12 +584,12 @@ module Cosmos
 
       it "processes a string" do
         @api.set_tlm("INST HEALTH_STATUS TEMP1 = 0.0")
-        @api.tlm("INST HEALTH_STATUS TEMP1").should be_within(0.00001).of(-0.05759)
+        expect(@api.tlm("INST HEALTH_STATUS TEMP1")).to be_within(0.00001).of(-0.05759)
       end
 
       it "processes parameters" do
         @api.set_tlm("INST","HEALTH_STATUS","TEMP1", 0.0)
-        @api.tlm("INST HEALTH_STATUS TEMP1").should be_within(0.00001).of(-0.05759)
+        expect(@api.tlm("INST HEALTH_STATUS TEMP1")).to be_within(0.00001).of(-0.05759)
       end
 
       it "complains with too many parameters" do
@@ -609,12 +609,12 @@ module Cosmos
 
       it "processes a string" do
         @api.set_tlm_raw("INST HEALTH_STATUS TEMP1 = 0.0")
-        @api.tlm("INST HEALTH_STATUS TEMP1").should eql -100.0
+        expect(@api.tlm("INST HEALTH_STATUS TEMP1")).to eql -100.0
       end
 
       it "processes parameters" do
         @api.set_tlm_raw("INST","HEALTH_STATUS","TEMP1", 0.0)
-        @api.tlm("INST HEALTH_STATUS TEMP1").should eql -100.0
+        expect(@api.tlm("INST HEALTH_STATUS TEMP1")).to eql -100.0
       end
     end
 
@@ -637,34 +637,34 @@ module Cosmos
 
       it "reads all telemetry items with their limits states" do
         vals = @api.get_tlm_packet("INST","HEALTH_STATUS")
-        vals[0][0].should eql "RECEIVED_TIMESECONDS"
-        vals[0][1].should eql 0.0
-        vals[0][2].should be_nil
-        vals[1][0].should eql "RECEIVED_TIMEFORMATTED"
-        vals[1][1].should eql "No Packet Received Time"
-        vals[1][2].should be_nil
-        vals[2][0].should eql "RECEIVED_COUNT"
-        vals[2][1].should eql 0
-        vals[2][2].should be_nil
+        expect(vals[0][0]).to eql "RECEIVED_TIMESECONDS"
+        expect(vals[0][1]).to eql 0.0
+        expect(vals[0][2]).to be_nil
+        expect(vals[1][0]).to eql "RECEIVED_TIMEFORMATTED"
+        expect(vals[1][1]).to eql "No Packet Received Time"
+        expect(vals[1][2]).to be_nil
+        expect(vals[2][0]).to eql "RECEIVED_COUNT"
+        expect(vals[2][1]).to eql 0
+        expect(vals[2][2]).to be_nil
         # Spot check a few more
-        vals[22][0].should eql "TEMP1"
-        vals[22][1].should eql -100.0
-        vals[22][2].should eql :RED_LOW
-        vals[23][0].should eql "TEMP2"
-        vals[23][1].should eql -100.0
-        vals[23][2].should eql :RED_LOW
-        vals[24][0].should eql "TEMP3"
-        vals[24][1].should eql -100.0
-        vals[24][2].should eql :RED_LOW
-        vals[25][0].should eql "TEMP4"
-        vals[25][1].should eql -100.0
-        vals[25][2].should eql :RED_LOW
+        expect(vals[22][0]).to eql "TEMP1"
+        expect(vals[22][1]).to eql -100.0
+        expect(vals[22][2]).to eql :RED_LOW
+        expect(vals[23][0]).to eql "TEMP2"
+        expect(vals[23][1]).to eql -100.0
+        expect(vals[23][2]).to eql :RED_LOW
+        expect(vals[24][0]).to eql "TEMP3"
+        expect(vals[24][1]).to eql -100.0
+        expect(vals[24][2]).to eql :RED_LOW
+        expect(vals[25][0]).to eql "TEMP4"
+        expect(vals[25][1]).to eql -100.0
+        expect(vals[25][2]).to eql :RED_LOW
       end
     end
 
     describe "get_tlm_values" do
       it "handles an empty request" do
-        @api.get_tlm_values([]).should eql [[], [], [], :DEFAULT]
+        expect(@api.get_tlm_values([])).to eql [[], [], [], :DEFAULT]
       end
 
       it "complains about non-existant targets" do
@@ -697,19 +697,19 @@ module Cosmos
         items << %w(INST HEALTH_STATUS TEMP3)
         items << %w(INST HEALTH_STATUS TEMP4)
         vals = @api.get_tlm_values(items)
-        vals[0][0].should eql -100.0
-        vals[0][1].should eql -100.0
-        vals[0][2].should eql -100.0
-        vals[0][3].should eql -100.0
-        vals[1][0].should eql :RED_LOW
-        vals[1][1].should eql :RED_LOW
-        vals[1][2].should eql :RED_LOW
-        vals[1][3].should eql :RED_LOW
-        vals[2][0].should eql [-80.0, -70.0, 60.0, 80.0, -20.0, 20.0]
-        vals[2][1].should eql [-60.0, -55.0, 30.0, 35.0]
-        vals[2][2].should eql [-25.0, -10.0, 50.0, 55.0]
-        vals[2][3].should eql [-80.0, -70.0, 60.0, 80.0]
-        vals[3].should eql :DEFAULT
+        expect(vals[0][0]).to eql -100.0
+        expect(vals[0][1]).to eql -100.0
+        expect(vals[0][2]).to eql -100.0
+        expect(vals[0][3]).to eql -100.0
+        expect(vals[1][0]).to eql :RED_LOW
+        expect(vals[1][1]).to eql :RED_LOW
+        expect(vals[1][2]).to eql :RED_LOW
+        expect(vals[1][3]).to eql :RED_LOW
+        expect(vals[2][0]).to eql [-80.0, -70.0, 60.0, 80.0, -20.0, 20.0]
+        expect(vals[2][1]).to eql [-60.0, -55.0, 30.0, 35.0]
+        expect(vals[2][2]).to eql [-25.0, -10.0, 50.0, 55.0]
+        expect(vals[2][3]).to eql [-80.0, -70.0, 60.0, 80.0]
+        expect(vals[3]).to eql :DEFAULT
       end
 
       it "reads all the specified items with one conversion" do
@@ -719,19 +719,19 @@ module Cosmos
         items << %w(INST HEALTH_STATUS TEMP3)
         items << %w(INST HEALTH_STATUS TEMP4)
         vals = @api.get_tlm_values(items, :RAW)
-        vals[0][0].should eql 0
-        vals[0][1].should eql 0
-        vals[0][2].should eql 0
-        vals[0][3].should eql 0
-        vals[1][0].should eql :RED_LOW
-        vals[1][1].should eql :RED_LOW
-        vals[1][2].should eql :RED_LOW
-        vals[1][3].should eql :RED_LOW
-        vals[2][0].should eql [-80.0, -70.0, 60.0, 80.0, -20.0, 20.0]
-        vals[2][1].should eql [-60.0, -55.0, 30.0, 35.0]
-        vals[2][2].should eql [-25.0, -10.0, 50.0, 55.0]
-        vals[2][3].should eql [-80.0, -70.0, 60.0, 80.0]
-        vals[3].should eql :DEFAULT
+        expect(vals[0][0]).to eql 0
+        expect(vals[0][1]).to eql 0
+        expect(vals[0][2]).to eql 0
+        expect(vals[0][3]).to eql 0
+        expect(vals[1][0]).to eql :RED_LOW
+        expect(vals[1][1]).to eql :RED_LOW
+        expect(vals[1][2]).to eql :RED_LOW
+        expect(vals[1][3]).to eql :RED_LOW
+        expect(vals[2][0]).to eql [-80.0, -70.0, 60.0, 80.0, -20.0, 20.0]
+        expect(vals[2][1]).to eql [-60.0, -55.0, 30.0, 35.0]
+        expect(vals[2][2]).to eql [-25.0, -10.0, 50.0, 55.0]
+        expect(vals[2][3]).to eql [-80.0, -70.0, 60.0, 80.0]
+        expect(vals[3]).to eql :DEFAULT
       end
 
       it "reads all the specified items with different conversions" do
@@ -741,19 +741,19 @@ module Cosmos
         items << %w(INST HEALTH_STATUS TEMP3)
         items << %w(INST HEALTH_STATUS TEMP4)
         vals = @api.get_tlm_values(items, [:RAW, :CONVERTED, :FORMATTED, :WITH_UNITS])
-        vals[0][0].should eql 0
-        vals[0][1].should eql -100.0
-        vals[0][2].should eql "-100.000"
-        vals[0][3].should eql "-100.000 C"
-        vals[1][0].should eql :RED_LOW
-        vals[1][1].should eql :RED_LOW
-        vals[1][2].should eql :RED_LOW
-        vals[1][3].should eql :RED_LOW
-        vals[2][0].should eql [-80.0, -70.0, 60.0, 80.0, -20.0, 20.0]
-        vals[2][1].should eql [-60.0, -55.0, 30.0, 35.0]
-        vals[2][2].should eql [-25.0, -10.0, 50.0, 55.0]
-        vals[2][3].should eql [-80.0, -70.0, 60.0, 80.0]
-        vals[3].should eql :DEFAULT
+        expect(vals[0][0]).to eql 0
+        expect(vals[0][1]).to eql -100.0
+        expect(vals[0][2]).to eql "-100.000"
+        expect(vals[0][3]).to eql "-100.000 C"
+        expect(vals[1][0]).to eql :RED_LOW
+        expect(vals[1][1]).to eql :RED_LOW
+        expect(vals[1][2]).to eql :RED_LOW
+        expect(vals[1][3]).to eql :RED_LOW
+        expect(vals[2][0]).to eql [-80.0, -70.0, 60.0, 80.0, -20.0, 20.0]
+        expect(vals[2][1]).to eql [-60.0, -55.0, 30.0, 35.0]
+        expect(vals[2][2]).to eql [-25.0, -10.0, 50.0, 55.0]
+        expect(vals[2][3]).to eql [-80.0, -70.0, 60.0, 80.0]
+        expect(vals[3]).to eql :DEFAULT
       end
 
       it "complains if items length != conversions length" do
@@ -773,13 +773,13 @@ module Cosmos
 
       it "returns the sorted packet names for a target" do
         pkts = @api.get_tlm_list("INST")
-        pkts[0][0].should eql "ADCS"
-        pkts[1][0].should eql "ERROR"
-        pkts[2][0].should eql "HANDSHAKE"
-        pkts[3][0].should eql "HEALTH_STATUS"
-        pkts[4][0].should eql "IMAGE"
-        pkts[5][0].should eql "MECH"
-        pkts[6][0].should eql "PARAMS"
+        expect(pkts[0][0]).to eql "ADCS"
+        expect(pkts[1][0]).to eql "ERROR"
+        expect(pkts[2][0]).to eql "HANDSHAKE"
+        expect(pkts[3][0]).to eql "HEALTH_STATUS"
+        expect(pkts[4][0]).to eql "IMAGE"
+        expect(pkts[5][0]).to eql "MECH"
+        expect(pkts[6][0]).to eql "PARAMS"
       end
     end
 
@@ -794,16 +794,16 @@ module Cosmos
 
       it "returns all the items for a target/packet" do
         items = @api.get_tlm_item_list("INST","HEALTH_STATUS")
-        items[0][0].should eql "RECEIVED_TIMESECONDS"
-        items[1][0].should eql "RECEIVED_TIMEFORMATTED"
-        items[2][0].should eql "RECEIVED_COUNT"
+        expect(items[0][0]).to eql "RECEIVED_TIMESECONDS"
+        expect(items[1][0]).to eql "RECEIVED_TIMEFORMATTED"
+        expect(items[2][0]).to eql "RECEIVED_COUNT"
         # Spot check a few more
-        items[22][0].should eql "TEMP1"
-        items[22][1].should be_nil
-        items[22][2].should eql "Temperature #1"
-        items[28][0].should eql "COLLECT_TYPE"
-        items[28][1].should include("NORMAL"=>0, "SPECIAL"=>1)
-        items[28][2].should eql "Most recent collect type"
+        expect(items[22][0]).to eql "TEMP1"
+        expect(items[22][1]).to be_nil
+        expect(items[22][2]).to eql "Temperature #1"
+        expect(items[28][0]).to eql "COLLECT_TYPE"
+        expect(items[28][1]).to include("NORMAL"=>0, "SPECIAL"=>1)
+        expect(items[28][2]).to eql "Most recent collect type"
       end
     end
 
@@ -832,11 +832,11 @@ module Cosmos
         items << %w(INST HEALTH_STATUS TEMP3)
         items << %w(INST HEALTH_STATUS TEMP4)
         details = @api.get_tlm_details(items)
-        details.length.should eql 4
-        details[0]["name"].should eql "TEMP1"
-        details[1]["name"].should eql "TEMP2"
-        details[2]["name"].should eql "TEMP3"
-        details[3]["name"].should eql "TEMP4"
+        expect(details.length).to eql 4
+        expect(details[0]["name"]).to eql "TEMP1"
+        expect(details[1]["name"]).to eql "TEMP2"
+        expect(details[2]["name"]).to eql "TEMP3"
+        expect(details[3]["name"]).to eql "TEMP4"
       end
     end
 
@@ -844,10 +844,10 @@ module Cosmos
       it "returns all out of limits items" do
         items = @api.get_out_of_limits
         (0..3).each do |i|
-          items[i][0].should eql "INST"
-          items[i][1].should eql "HEALTH_STATUS"
-          items[i][2].should eql "TEMP#{i+1}"
-          items[i][3].should eql :RED_LOW
+          expect(items[i][0]).to eql "INST"
+          expect(items[i][1]).to eql "HEALTH_STATUS"
+          expect(items[i][2]).to eql "TEMP#{i+1}"
+          expect(items[i][3]).to eql :RED_LOW
         end
       end
     end
@@ -866,7 +866,7 @@ module Cosmos
       end
 
       it "returns whether limits are enable for an item" do
-        @api.limits_enabled?("INST","HEALTH_STATUS","TEMP1").should be_truthy
+        expect(@api.limits_enabled?("INST","HEALTH_STATUS","TEMP1")).to be_truthy
       end
     end
 
@@ -884,11 +884,11 @@ module Cosmos
       end
 
       it "enables limits for an item" do
-        @api.limits_enabled?("INST","HEALTH_STATUS","TEMP1").should be_truthy
+        expect(@api.limits_enabled?("INST","HEALTH_STATUS","TEMP1")).to be_truthy
         @api.disable_limits("INST","HEALTH_STATUS","TEMP1")
-        @api.limits_enabled?("INST","HEALTH_STATUS","TEMP1").should be_falsey
+        expect(@api.limits_enabled?("INST","HEALTH_STATUS","TEMP1")).to be_falsey
         @api.enable_limits("INST","HEALTH_STATUS","TEMP1")
-        @api.limits_enabled?("INST","HEALTH_STATUS","TEMP1").should be_truthy
+        expect(@api.limits_enabled?("INST","HEALTH_STATUS","TEMP1")).to be_truthy
       end
     end
 
@@ -906,9 +906,9 @@ module Cosmos
       end
 
       it "disables limits for an item" do
-        @api.limits_enabled?("INST","HEALTH_STATUS","TEMP1").should be_truthy
+        expect(@api.limits_enabled?("INST","HEALTH_STATUS","TEMP1")).to be_truthy
         @api.disable_limits("INST","HEALTH_STATUS","TEMP1")
-        @api.limits_enabled?("INST","HEALTH_STATUS","TEMP1").should be_falsey
+        expect(@api.limits_enabled?("INST","HEALTH_STATUS","TEMP1")).to be_falsey
         @api.enable_limits("INST","HEALTH_STATUS","TEMP1")
       end
     end
@@ -927,8 +927,8 @@ module Cosmos
       end
 
       it "gets limits for an item" do
-        @api.get_limits("INST","HEALTH_STATUS","TEMP1").should eql([:DEFAULT, 1, true, -80.0, -70.0, 60.0, 80.0, -20.0, 20.0])
-        @api.get_limits("INST","HEALTH_STATUS","TEMP1",:TVAC).should eql([:TVAC, 1, true, -80.0, -30.0, 30.0, 80.0, nil, nil])
+        expect(@api.get_limits("INST","HEALTH_STATUS","TEMP1")).to eql([:DEFAULT, 1, true, -80.0, -70.0, 60.0, 80.0, -20.0, 20.0])
+        expect(@api.get_limits("INST","HEALTH_STATUS","TEMP1",:TVAC)).to eql([:TVAC, 1, true, -80.0, -30.0, 30.0, 80.0, nil, nil])
       end
     end
 
@@ -946,15 +946,15 @@ module Cosmos
       end
 
       it "gets limits for an item" do
-        @api.set_limits("INST","HEALTH_STATUS","TEMP1",0.0,10.0,20.0,30.0).should eql([:CUSTOM, 1, true, 0.0, 10.0, 20.0, 30.0, nil, nil])
-        @api.set_limits("INST","HEALTH_STATUS","TEMP1",0.0,10.0,20.0,30.0,12.0,15.0,:CUSTOM2,2,false).should eql([:CUSTOM2, 2, false, 0.0, 10.0, 20.0, 30.0, 12.0, 15.0])
-        @api.set_limits("INST","HEALTH_STATUS","TEMP1",0.0,10.0,20.0,30.0,12.0,15.0,:CUSTOM,1,true).should eql([:CUSTOM, 1, true, 0.0, 10.0, 20.0, 30.0, 12.0, 15.0])
+        expect(@api.set_limits("INST","HEALTH_STATUS","TEMP1",0.0,10.0,20.0,30.0)).to eql([:CUSTOM, 1, true, 0.0, 10.0, 20.0, 30.0, nil, nil])
+        expect(@api.set_limits("INST","HEALTH_STATUS","TEMP1",0.0,10.0,20.0,30.0,12.0,15.0,:CUSTOM2,2,false)).to eql([:CUSTOM2, 2, false, 0.0, 10.0, 20.0, 30.0, 12.0, 15.0])
+        expect(@api.set_limits("INST","HEALTH_STATUS","TEMP1",0.0,10.0,20.0,30.0,12.0,15.0,:CUSTOM,1,true)).to eql([:CUSTOM, 1, true, 0.0, 10.0, 20.0, 30.0, 12.0, 15.0])
       end
     end
 
     describe "get_limits_groups" do
       it "returns all the limits groups" do
-        @api.get_limits_groups.should eql %w(FIRST SECOND)
+        expect(@api.get_limits_groups).to eql %w(FIRST SECOND)
       end
     end
 
@@ -966,11 +966,11 @@ module Cosmos
       it "enables limits for all items in the group" do
         @api.disable_limits("INST","HEALTH_STATUS","TEMP1")
         @api.disable_limits("INST","HEALTH_STATUS","TEMP3")
-        @api.limits_enabled?("INST","HEALTH_STATUS","TEMP1").should be_falsey
-        @api.limits_enabled?("INST","HEALTH_STATUS","TEMP3").should be_falsey
+        expect(@api.limits_enabled?("INST","HEALTH_STATUS","TEMP1")).to be_falsey
+        expect(@api.limits_enabled?("INST","HEALTH_STATUS","TEMP3")).to be_falsey
         @api.enable_limits_group("FIRST")
-        @api.limits_enabled?("INST","HEALTH_STATUS","TEMP1").should be_truthy
-        @api.limits_enabled?("INST","HEALTH_STATUS","TEMP3").should be_truthy
+        expect(@api.limits_enabled?("INST","HEALTH_STATUS","TEMP1")).to be_truthy
+        expect(@api.limits_enabled?("INST","HEALTH_STATUS","TEMP3")).to be_truthy
       end
     end
 
@@ -982,31 +982,31 @@ module Cosmos
       it "disables limits for all items in the group" do
         @api.enable_limits("INST","HEALTH_STATUS","TEMP1")
         @api.enable_limits("INST","HEALTH_STATUS","TEMP3")
-        @api.limits_enabled?("INST","HEALTH_STATUS","TEMP1").should be_truthy
-        @api.limits_enabled?("INST","HEALTH_STATUS","TEMP3").should be_truthy
+        expect(@api.limits_enabled?("INST","HEALTH_STATUS","TEMP1")).to be_truthy
+        expect(@api.limits_enabled?("INST","HEALTH_STATUS","TEMP3")).to be_truthy
         @api.disable_limits_group("FIRST")
-        @api.limits_enabled?("INST","HEALTH_STATUS","TEMP1").should be_falsey
-        @api.limits_enabled?("INST","HEALTH_STATUS","TEMP3").should be_falsey
+        expect(@api.limits_enabled?("INST","HEALTH_STATUS","TEMP1")).to be_falsey
+        expect(@api.limits_enabled?("INST","HEALTH_STATUS","TEMP3")).to be_falsey
       end
     end
 
     describe "get_limits_sets, get_limits_set, set_limits_set" do
       it "gets and set the active limits set" do
         if @api.get_limits_sets.include?(:CUSTOM)
-          @api.get_limits_sets.should eql [:DEFAULT,:TVAC, :CUSTOM, :CUSTOM2]
+          expect(@api.get_limits_sets).to eql [:DEFAULT,:TVAC, :CUSTOM, :CUSTOM2]
         else
-          @api.get_limits_sets.should eql [:DEFAULT,:TVAC]
+          expect(@api.get_limits_sets).to eql [:DEFAULT,:TVAC]
         end
         @api.set_limits_set("TVAC")
-        @api.get_limits_set.should eql "TVAC"
+        expect(@api.get_limits_set).to eql "TVAC"
         @api.set_limits_set("DEFAULT")
-        @api.get_limits_set.should eql "DEFAULT"
+        expect(@api.get_limits_set).to eql "DEFAULT"
       end
     end
 
     describe "get_target_list" do
       it "returns all target names" do
-        @api.get_target_list.should eql %w(COSMOS INST META SYSTEM)
+        expect(@api.get_target_list).to eql %w(COSMOS INST META SYSTEM)
       end
     end
 

@@ -46,9 +46,9 @@ module Cosmos
       it "closes the handle" do
         expect(Win32).to receive(:close_handle)
         driver = Win32SerialDriver.new('COM1',9600)
-        driver.closed?.should be_falsey
+        expect(driver.closed?).to be_falsey
         driver.close
-        driver.closed?.should be_truthy
+        expect(driver.closed?).to be_truthy
       end
     end
 
@@ -73,7 +73,7 @@ module Cosmos
       it "return the data read" do
         expect(Win32).to receive(:read_file) { '\x00' }
         driver = Win32SerialDriver.new('COM1',9600,:NONE,1,1,nil,0.01,1)
-        driver.read.should eql '\x00'
+        expect(driver.read).to eql '\x00'
       end
 
       it "uses the read timeout" do

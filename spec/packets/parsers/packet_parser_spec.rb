@@ -61,10 +61,10 @@ module Cosmos
           @pc.process_file(tf.path, "TGT1")
           pkt = @pc.commands["TGT1"]["PKT1"] if keyword == 'COMMAND'
           pkt = @pc.telemetry["TGT1"]["PKT1"] if keyword == 'TELEMETRY'
-          pkt.target_name.should eql "TGT1"
-          pkt.packet_name.should eql "PKT1"
-          pkt.default_endianness.should eql :LITTLE_ENDIAN
-          pkt.description.should eql "Packet"
+          expect(pkt.target_name).to eql "TGT1"
+          expect(pkt.packet_name).to eql "PKT1"
+          expect(pkt.default_endianness).to eql :LITTLE_ENDIAN
+          expect(pkt.description).to eql "Packet"
           tf.unlink
         end
       end
@@ -77,7 +77,7 @@ module Cosmos
           @pc.process_file(tf.path, "NEW")
           pkt = @pc.commands["NEW"]["PKT1"] if keyword == 'COMMAND'
           pkt = @pc.telemetry["NEW"]["PKT1"] if keyword == 'TELEMETRY'
-          pkt.target_name.should eql "NEW"
+          expect(pkt.target_name).to eql "NEW"
           tf.unlink
         end
       end
@@ -89,7 +89,7 @@ module Cosmos
           tf.puts keyword + ' tgt1 pkt1 LITTLE_ENDIAN "Packet 2"'
           tf.close
           @pc.process_file(tf.path, "SYSTEM")
-          @pc.warnings.should include("#{keyword.capitalize} Packet TGT1 PKT1 redefined.")
+          expect(@pc.warnings).to include("#{keyword.capitalize} Packet TGT1 PKT1 redefined.")
           tf.unlink
         end
       end

@@ -25,7 +25,7 @@ module Cosmos
         driver = double("driver")
         expect(SerialDriver).to receive(:new).and_return(driver)
         ss = SerialStream.new('COM1',nil,9600,:EVEN,1,nil,nil)
-        ss.connected?.should be_truthy
+        expect(ss.connected?).to be_truthy
       end
     end
 
@@ -42,7 +42,7 @@ module Cosmos
         expect(driver).to receive(:read).and_return 'test'
         expect(SerialDriver).to receive(:new).and_return(driver)
         ss = SerialStream.new('COM1','COM1',9600,:EVEN,1,nil,nil)
-        ss.read.should eql 'test'
+        expect(ss.read).to eql 'test'
       end
     end
 
@@ -70,9 +70,9 @@ module Cosmos
         expect(driver).to receive(:close)
         expect(SerialDriver).to receive(:new).and_return(driver)
         ss = SerialStream.new('COM1',nil,9600,:EVEN,1,nil,nil)
-        ss.connected?.should be_truthy
+        expect(ss.connected?).to be_truthy
         ss.disconnect
-        ss.connected?.should be_falsey
+        expect(ss.connected?).to be_falsey
       end
 
       it "closes the read driver" do
@@ -81,9 +81,9 @@ module Cosmos
         expect(driver).to receive(:close)
         expect(SerialDriver).to receive(:new).and_return(driver)
         ss = SerialStream.new(nil,'COM1',9600,:EVEN,1,nil,nil)
-        ss.connected?.should be_truthy
+        expect(ss.connected?).to be_truthy
         ss.disconnect
-        ss.connected?.should be_falsey
+        expect(ss.connected?).to be_falsey
       end
 
       it "does not close the driver twice" do
@@ -92,11 +92,11 @@ module Cosmos
         expect(driver).to receive(:close).once
         expect(SerialDriver).to receive(:new).and_return(driver)
         ss = SerialStream.new('COM1','COM1',9600,:EVEN,1,nil,nil)
-        ss.connected?.should be_truthy
+        expect(ss.connected?).to be_truthy
         ss.disconnect
-        ss.connected?.should be_falsey
+        expect(ss.connected?).to be_falsey
         ss.disconnect
-        ss.connected?.should be_falsey
+        expect(ss.connected?).to be_falsey
       end
     end
 

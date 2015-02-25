@@ -19,8 +19,8 @@ module Cosmos
     describe "initialize" do
       it "initializes converted_type and converted_bit_size" do
         gc = ReceivedTimeSecondsConversion.new()
-        gc.converted_type.should eql :FLOAT
-        gc.converted_bit_size.should eql 64
+        expect(gc.converted_type).to eql :FLOAT
+        expect(gc.converted_bit_size).to eql 64
       end
     end
 
@@ -30,19 +30,19 @@ module Cosmos
         packet = Packet.new("TGT","PKT")
         time = Time.new(2020,1,31,12,15,30)
         packet.received_time = time
-        gc.call(nil,packet,nil).should eql time.to_f
+        expect(gc.call(nil,packet,nil)).to eql time.to_f
       end
 
       it "returns 0.0 if packet time isn't set" do
         gc = ReceivedTimeSecondsConversion.new()
         packet = Packet.new("TGT","PKT")
-        gc.call(nil,packet,nil).should eql 0.0
+        expect(gc.call(nil,packet,nil)).to eql 0.0
       end
     end
 
     describe "to_s" do
       it "returns the class" do
-        ReceivedTimeSecondsConversion.new().to_s.should eql "ReceivedTimeSecondsConversion"
+        expect(ReceivedTimeSecondsConversion.new().to_s).to eql "ReceivedTimeSecondsConversion"
       end
     end
   end

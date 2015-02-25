@@ -21,8 +21,8 @@ module Cosmos
 
     describe "initialize" do
       it "sets request_count and num_clients to 0" do
-        @json.request_count.should eql 0
-        @json.num_clients.should eql 0
+        expect(@json.request_count).to eql 0
+        expect(@json.num_clients).to eql 0
       end
     end
 
@@ -30,14 +30,14 @@ module Cosmos
       it "sets the access control list" do
         acl = ACL.new(['allow','127.0.0.1'], ACL::ALLOW_DENY)
         @json.acl = acl
-        @json.acl.should eql acl
+        expect(@json.acl).to eql acl
       end
     end
 
     describe "method_whitelist" do
       it "sets the method whitelist" do
         @json.method_whitelist = ['cmd']
-        @json.method_whitelist.should eql ['cmd']
+        expect(@json.method_whitelist).to eql ['cmd']
       end
     end
 
@@ -46,34 +46,34 @@ module Cosmos
         @json.add_request_time(1.0)
         @json.add_request_time(2.0)
         @json.add_request_time(3.0)
-        @json.average_request_time.should eql 2.0
+        expect(@json.average_request_time).to eql 2.0
       end
     end
 
     describe "start_service" do
       it "does nothing when passed no parameters" do
-        @json.thread.should be_nil
+        expect(@json.thread).to be_nil
         @json.start_service()
-        @json.thread.should be_nil
+        expect(@json.thread).to be_nil
       end
 
       it "raises an error when passed incomplete parameters" do
-        @json.thread.should be_nil
+        expect(@json.thread).to be_nil
         expect { @json.start_service('127.0.0.1') }.to raise_error
         expect { @json.start_service('127.0.0.1', 7777) }.to raise_error
-        @json.thread.should be_nil
+        expect(@json.thread).to be_nil
       end
 
       it "raises an error when passed a bad host" do
         capture_io do |stdout|
-          @json.thread.should be_nil
+          expect(@json.thread).to be_nil
           system_exit_count = $system_exit_count
           @json.start_service('blah', 7777, self)
           thread = @json.thread
-          $system_exit_count.should eql(system_exit_count + 1)
+          expect($system_exit_count).to eql(system_exit_count + 1)
           sleep 0.1
 
-          stdout.string.should match /listen thread/
+          expect(stdout.string).to match /listen thread/
           @json.stop_service
           sleep(0.1)
         end
@@ -84,9 +84,9 @@ module Cosmos
       end
 
       it "creates a single listen thread" do
-        @json.thread.should be_nil
+        expect(@json.thread).to be_nil
         @json.start_service('127.0.0.1', 7777, self)
-        @json.thread.alive?.should be_truthy
+        expect(@json.thread.alive?).to be_truthy
         expect { @json.start_service('127.0.0.1', 7777, self) }.to raise_error(/Error binding to port/)
         @json.stop_service
         sleep(0.1)
@@ -101,7 +101,7 @@ module Cosmos
           @json.stop_service
           sleep(0.1)
 
-          stdout.string.should match /JsonDRb listen thread unexpectedly died/
+          expect(stdout.string).to match /JsonDRb listen thread unexpectedly died/
         end
 
         Dir[File.join(Cosmos::USERPATH,"*_exception.txt")].each do |file|
@@ -114,7 +114,7 @@ module Cosmos
         @json.start_service('127.0.0.1', 7777, self)
         socket = TCPSocket.open('127.0.0.1',7777)
         sleep 0.1
-        socket.eof?.should be_truthy
+        expect(socket.eof?).to be_truthy
         socket.close
         @json.stop_service
         sleep(0.1)
@@ -130,7 +130,7 @@ module Cosmos
         sleep 0.1
         JsonDRb.send_data(socket, "\x00")
         response_data = JsonDRb.receive_message(socket, '')
-        response_data.should be_nil
+        expect(response_data).to be_nil
         socket.close
         sleep 0.1
         @json.stop_service
@@ -150,7 +150,7 @@ module Cosmos
         JsonDRb.send_data(socket, request)
         response_data = JsonDRb.receive_message(socket, '')
         response = JsonRpcResponse.from_json(response_data)
-        response.should be_a(JsonRpcSuccessResponse)
+        expect(response).to be_a(JsonRpcSuccessResponse)
         socket.close
         sleep 0.1
         @json.stop_service
@@ -168,9 +168,9 @@ module Cosmos
         JsonDRb.send_data(socket, request)
         response_data = JsonDRb.receive_message(socket, '')
         response = JsonRpcResponse.from_json(response_data)
-        response.should be_a(JsonRpcErrorResponse)
-        response.error.code.should eql -32601
-        response.error.message.should eql "Method not found"
+        expect(response).to be_a(JsonRpcErrorResponse)
+        expect(response.error.code).to eql -32601
+        expect(response.error.message).to eql "Method not found"
         socket.close
         sleep 0.1
         @json.stop_service
@@ -190,9 +190,9 @@ module Cosmos
         JsonDRb.send_data(socket, request)
         response_data = JsonDRb.receive_message(socket, '')
         response = JsonRpcResponse.from_json(response_data)
-        response.should be_a(JsonRpcErrorResponse)
-        response.error.code.should eql -32602
-        response.error.message.should eql "Invalid params"
+        expect(response).to be_a(JsonRpcErrorResponse)
+        expect(response.error.code).to eql -32602
+        expect(response.error.message).to eql "Invalid params"
         socket.close
         sleep 0.1
         @json.stop_service
@@ -213,9 +213,9 @@ module Cosmos
         JsonDRb.send_data(socket, request)
         response_data = JsonDRb.receive_message(socket, '')
         response = JsonRpcResponse.from_json(response_data)
-        response.should be_a(JsonRpcErrorResponse)
-        response.error.code.should eql -1
-        response.error.message.should eql "Method Error"
+        expect(response).to be_a(JsonRpcErrorResponse)
+        expect(response.error.code).to eql -1
+        expect(response.error.message).to eql "Method Error"
         socket.close
         sleep 0.1
         @json.stop_service
@@ -230,9 +230,9 @@ module Cosmos
         JsonDRb.send_data(socket, request)
         response_data = JsonDRb.receive_message(socket, '')
         response = JsonRpcResponse.from_json(response_data)
-        response.should be_a(JsonRpcErrorResponse)
-        response.error.code.should eql -1
-        response.error.message.should eql "Cannot call unauthorized methods"
+        expect(response).to be_a(JsonRpcErrorResponse)
+        expect(response.error.code).to eql -1
+        expect(response.error.message).to eql "Cannot call unauthorized methods"
         socket.close
         sleep 0.1
         @json.stop_service
@@ -249,9 +249,9 @@ module Cosmos
         JsonDRb.send_data(socket, request)
         response_data = JsonDRb.receive_message(socket, '')
         response = JsonRpcResponse.from_json(response_data)
-        response.should be_a(JsonRpcErrorResponse)
-        response.error.code.should eql -32600
-        response.error.message.should eql "Invalid Request"
+        expect(response).to be_a(JsonRpcErrorResponse)
+        expect(response.error.code).to eql -32600
+        expect(response.error.message).to eql "Invalid Request"
         socket.close
         sleep 0.1
         @json.stop_service
@@ -300,9 +300,9 @@ module Cosmos
     describe "debug, debug?" do
       it "sets the debug level" do
         JsonDRb.debug = true
-        JsonDRb.debug?.should be_truthy
+        expect(JsonDRb.debug?).to be_truthy
         JsonDRb.debug = false
-        JsonDRb.debug?.should be_falsey
+        expect(JsonDRb.debug?).to be_falsey
       end
     end
 

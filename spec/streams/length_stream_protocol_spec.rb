@@ -19,13 +19,13 @@ module Cosmos
     describe "initialize" do
       it "initializes attributes" do
         lsp = LengthStreamProtocol.new(1)
-        lsp.bytes_read.should eql 0
-        lsp.bytes_written.should eql 0
-        lsp.interface.should be_nil
-        lsp.stream.should be_nil
-        lsp.post_read_data_callback.should be_nil
-        lsp.post_read_packet_callback.should be_nil
-        lsp.pre_write_packet_callback.should be_nil
+        expect(lsp.bytes_read).to eql 0
+        expect(lsp.bytes_written).to eql 0
+        expect(lsp.interface).to be_nil
+        expect(lsp.stream).to be_nil
+        expect(lsp.post_read_data_callback).to be_nil
+        expect(lsp.post_read_packet_callback).to be_nil
+        expect(lsp.pre_write_packet_callback).to be_nil
       end
     end
 
@@ -56,7 +56,7 @@ module Cosmos
         $buffer1 = "\x00\x01\x00\x05"
         $buffer2 = "\x03\x04"
         packet = lsp.read
-        packet.buffer.length.should eql 6
+        expect(packet.buffer.length).to eql 6
 
         lsp = LengthStreamProtocol.new(16, # bit offset
                                         16, # bit size
@@ -68,7 +68,7 @@ module Cosmos
         $buffer1 = "\x00\x01\x00\x05"
         $buffer2 = "\x03\x04\x05\x06\x07\x08\x09"
         packet = lsp.read
-        packet.buffer.length.should eql 11
+        expect(packet.buffer.length).to eql 11
 
         lsp = LengthStreamProtocol.new(19, # bit offset
                                         5,  # bit size
@@ -80,7 +80,7 @@ module Cosmos
         $buffer1 = "\x00\x01\x05"
         $buffer2 = "\x03\x04"
         packet = lsp.read
-        packet.buffer.length.should eql 5
+        expect(packet.buffer.length).to eql 5
 
         lsp = LengthStreamProtocol.new(16, # bit offset
                                         16, # bit size
@@ -123,7 +123,7 @@ module Cosmos
         $buffer1 = "\x00\x01\x05\x00"
         $buffer2 = "\x03\x04"
         packet = lsp.read
-        packet.buffer.length.should eql 6
+        expect(packet.buffer.length).to eql 6
 
         lsp = LengthStreamProtocol.new(16, # bit offset
                                         16, # bit size
@@ -135,7 +135,7 @@ module Cosmos
         $buffer1 = "\x00\x01\x05\x00"
         $buffer2 = "\x03\x04\x05\x06\x07\x08\x09"
         packet = lsp.read
-        packet.buffer.length.should eql 11
+        expect(packet.buffer.length).to eql 11
 
         lsp = LengthStreamProtocol.new(19, # bit offset
                                         5,  # bit size
@@ -147,7 +147,7 @@ module Cosmos
         $buffer1 = "\x00\x01\x05"
         $buffer2 = "\x03\x04"
         packet = lsp.read
-        packet.buffer.length.should eql 5
+        expect(packet.buffer.length).to eql 5
 
         lsp = LengthStreamProtocol.new(16, # bit offset
                                         16, # bit size
@@ -213,8 +213,8 @@ module Cosmos
         lsp.write(packet)
         # Since we discarded 2 leading bytes, they are put back in the final stream data
         # with the sync word and then then length is set to 0
-        MyStream.written_data.should eql("\xBA\x5E\xBA\x11\x00\x00")
-        packet.buffer.should eql("\x01\x02\x00\x00")
+        expect(MyStream.written_data).to eql("\xBA\x5E\xBA\x11\x00\x00")
+        expect(packet.buffer).to eql("\x01\x02\x00\x00")
 
         lsp = LengthStreamProtocol.new(32, # bit offset
                                         16, # bit size
@@ -234,8 +234,8 @@ module Cosmos
         # Since we discarded 4 leading bytes, they are put back in the final stream data
         # with the sync word and then then length is set to 1 followed by the
         # last two bytes in the buffer. The \x01\x02 get written over by the length.
-        MyStream.written_data.should eql("\xBA\x5E\xBA\x11\x00\x01\x03\x04")
-        packet.buffer.should eql("\x00\x01\x03\x04")
+        expect(MyStream.written_data).to eql("\xBA\x5E\xBA\x11\x00\x01\x03\x04")
+        expect(packet.buffer).to eql("\x00\x01\x03\x04")
 
         lsp = LengthStreamProtocol.new(32, # bit offset
                                         16, # bit size
@@ -254,8 +254,8 @@ module Cosmos
         lsp.write(packet)
         # Since we discarded 6 leading bytes, they are put back in the final stream data
         # with the sync word and then then length is set to 2 followed by the buffer data.
-        MyStream.written_data.should eql("\xBA\x5E\xBA\x11\x00\x02\x01\x02\x03\x04")
-        packet.buffer.should eql("\x01\x02\x03\x04")
+        expect(MyStream.written_data).to eql("\xBA\x5E\xBA\x11\x00\x02\x01\x02\x03\x04")
+        expect(packet.buffer).to eql("\x01\x02\x03\x04")
 
         lsp = LengthStreamProtocol.new(64, # bit offset
                                         32, # bit size
@@ -272,8 +272,8 @@ module Cosmos
         packet.buffer = "\x00\x00\x00\x00\x01\x02\x03\x04"
         lsp.write(packet)
         # Since we discarded 8 leading bytes, they are put back in the final stream data
-        MyStream.written_data.should eql("\xBA\x5E\xBA\x11\xCA\xFE\xBA\xBE\x00\x00\x00\x04\x01\x02\x03\x04")
-        packet.buffer.should eql("\x00\x00\x00\x04\x01\x02\x03\x04")
+        expect(MyStream.written_data).to eql("\xBA\x5E\xBA\x11\xCA\xFE\xBA\xBE\x00\x00\x00\x04\x01\x02\x03\x04")
+        expect(packet.buffer).to eql("\x00\x00\x00\x04\x01\x02\x03\x04")
 
         lsp = LengthStreamProtocol.new(64, # bit offset
                                         32, # bit size
@@ -290,8 +290,8 @@ module Cosmos
         packet.buffer = "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x02\x03\x04"
         lsp.write(packet)
         # Since we discarded 0 leading bytes, they are simply written over by the write call
-        MyStream.written_data.should eql("\xBA\x5E\xBA\x11\xCA\xFE\xBA\xBE\x00\x00\x00\x04\x01\x02\x03\x04")
-        packet.buffer.should eql("\xBA\x5E\xBA\x11\xCA\xFE\xBA\xBE\x00\x00\x00\x04\x01\x02\x03\x04")
+        expect(MyStream.written_data).to eql("\xBA\x5E\xBA\x11\xCA\xFE\xBA\xBE\x00\x00\x00\x04\x01\x02\x03\x04")
+        expect(packet.buffer).to eql("\xBA\x5E\xBA\x11\xCA\xFE\xBA\xBE\x00\x00\x00\x04\x01\x02\x03\x04")
       end
     end
 

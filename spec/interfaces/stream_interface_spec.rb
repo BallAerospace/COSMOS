@@ -56,12 +56,12 @@ module Cosmos
         load @file
 
         si = StreamInterface.new("test")
-        si.connected?.should eql 1
-        si.disconnect.should eql 2
+        expect(si.connected?).to eql 1
+        expect(si.disconnect).to eql 2
         si.bytes_read = 10
-        si.bytes_read.should eql 10
+        expect(si.bytes_read).to eql 10
         si.bytes_written = 20
-        si.bytes_written.should eql 20
+        expect(si.bytes_written).to eql 20
       end
     end
 
@@ -77,8 +77,8 @@ module Cosmos
         load @file
 
         si = StreamInterface.new("test")
-        si.read.should eql 1
-        si.read_count.should eql 1
+        expect(si.read).to eql 1
+        expect(si.read_count).to eql 1
       end
     end
 
@@ -112,24 +112,24 @@ module Cosmos
         # Ensure we reload since TestStreamProtocol is used throughout
         load @file
 
-        $disconnect.should be_falsey
+        expect($disconnect).to be_falsey
         si = StreamInterface.new("test")
         begin
           si.write(nil)
         rescue
         end
-        si.write_count.should eql 0
-        $disconnect.should be_truthy
+        expect(si.write_count).to eql 0
+        expect($disconnect).to be_truthy
 
         $disconnect = false
-        $disconnect.should be_falsey
+        expect($disconnect).to be_falsey
         si = StreamInterface.new("test")
         begin
           si.write_raw(nil)
         rescue
         end
-        si.write_count.should eql 0
-        $disconnect.should be_truthy
+        expect(si.write_count).to eql 0
+        expect($disconnect).to be_truthy
       end
 
       it "writes to the stream interface and count the packet" do
@@ -146,9 +146,9 @@ module Cosmos
 
         si = StreamInterface.new("test")
         si.write(nil)
-        si.write_count.should eql 1
+        expect(si.write_count).to eql 1
         si.write_raw(nil)
-        si.write_count.should eql 2
+        expect(si.write_count).to eql 2
       end
     end
 

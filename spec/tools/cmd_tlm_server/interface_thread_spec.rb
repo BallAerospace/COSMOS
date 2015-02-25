@@ -59,12 +59,12 @@ module Cosmos
           thread = InterfaceThread.new(@interface)
           thread.start
           sleep 0.1
-          Thread.list.length.should eql(2)
+          expect(Thread.list.length).to eql(2)
           thread.stop
           sleep 0.2
-          Thread.list.length.should eql(1)
+          expect(Thread.list.length).to eql(1)
 
-          stdout.string.should match "Connection Failed: RuntimeError : ConnectError"
+          expect(stdout.string).to match "Connection Failed: RuntimeError : ConnectError"
         end
       end
 
@@ -79,18 +79,18 @@ module Cosmos
           thread = InterfaceThread.new(@interface)
           error_count = 0
           thread.connection_failed_callback = Proc.new do |error|
-            error.message.should eql "ConnectError"
+            expect(error.message).to eql "ConnectError"
             error_count += 1
           end
           thread.start
           sleep 0.1
-          Thread.list.length.should eql(2)
+          expect(Thread.list.length).to eql(2)
           thread.stop
           sleep 0.2
-          Thread.list.length.should eql(1)
-          error_count.should eql 2
+          expect(Thread.list.length).to eql(1)
+          expect(error_count).to eql 2
 
-          stdout.string.should_not match "Connection Failed: ConnectError"
+          expect(stdout.string).not_to match "Connection Failed: ConnectError"
         end
       end
 
@@ -99,12 +99,12 @@ module Cosmos
           thread = InterfaceThread.new(@interface)
           thread.start
           sleep 0.1
-          Thread.list.length.should eql(2)
+          expect(Thread.list.length).to eql(2)
           thread.stop
           sleep 0.2
-          Thread.list.length.should eql(1)
+          expect(Thread.list.length).to eql(1)
 
-          stdout.string.should match "Connection Success"
+          expect(stdout.string).to match "Connection Success"
         end
       end
 
@@ -117,13 +117,13 @@ module Cosmos
           end
           thread.start
           sleep 0.1
-          Thread.list.length.should eql(2)
+          expect(Thread.list.length).to eql(2)
           thread.stop
           sleep 0.2
-          Thread.list.length.should eql(1)
-          callback_called.should be_truthy
+          expect(Thread.list.length).to eql(1)
+          expect(callback_called).to be_truthy
 
-          stdout.string.should_not match "Connection Success"
+          expect(stdout.string).not_to match "Connection Success"
         end
       end
 
@@ -137,12 +137,12 @@ module Cosmos
           thread = InterfaceThread.new(@interface)
           thread.start
           sleep 0.1
-          Thread.list.length.should eql(2)
+          expect(Thread.list.length).to eql(2)
           thread.stop
           sleep 0.2
-          Thread.list.length.should eql(1)
+          expect(Thread.list.length).to eql(1)
 
-          stdout.string.should match "Connection Lost"
+          expect(stdout.string).to match "Connection Lost"
         end
       end
 
@@ -159,13 +159,13 @@ module Cosmos
           sleep 1
           # Since we set auto_reconnect to false we shouldn't see the interface
           # thread because it will be killed
-          Thread.list.length.should eql(1)
+          expect(Thread.list.length).to eql(1)
           thread.stop
           sleep 0.2
-          Thread.list.length.should eql(1)
-          callback_called.should be_truthy
+          expect(Thread.list.length).to eql(1)
+          expect(callback_called).to be_truthy
 
-          stdout.string.should_not match "Connection Lost"
+          expect(stdout.string).not_to match "Connection Lost"
         end
       end
 
@@ -175,12 +175,12 @@ module Cosmos
           thread = InterfaceThread.new(@interface)
           thread.start
           sleep 0.1
-          Thread.list.length.should eql(2)
+          expect(Thread.list.length).to eql(2)
           thread.stop
           sleep 0.2
-          Thread.list.length.should eql(1)
+          expect(Thread.list.length).to eql(1)
 
-          stdout.string.should match "ReadError"
+          expect(stdout.string).to match "ReadError"
         end
       end
 
@@ -194,12 +194,12 @@ module Cosmos
           thread = InterfaceThread.new(@interface)
           thread.start
           sleep 0.1
-          Thread.list.length.should eql(2)
+          expect(Thread.list.length).to eql(2)
           thread.stop
           sleep 0.2
-          Thread.list.length.should eql(1)
+          expect(Thread.list.length).to eql(1)
 
-          stdout.string.should match "ECONNRESET"
+          expect(stdout.string).to match "ECONNRESET"
         end
       end
 
@@ -212,7 +212,7 @@ module Cosmos
           thread.stop
           sleep 0.2
 
-          stdout.string.should match "Packet reading thread unexpectedly died"
+          expect(stdout.string).to match "Packet reading thread unexpectedly died"
         end
       end
 
@@ -222,16 +222,16 @@ module Cosmos
           thread = InterfaceThread.new(@interface)
           callback_called = false
           thread.fatal_exception_callback = Proc.new do |error|
-            error.message.should eql "ConnectedError"
+            expect(error.message).to eql "ConnectedError"
             callback_called = true
           end
           thread.start
           sleep 0.1
           thread.stop
           sleep 0.2
-          callback_called.should be_truthy
+          expect(callback_called).to be_truthy
 
-          stdout.string.should_not match "Packet reading thread unexpectedly died"
+          expect(stdout.string).not_to match "Packet reading thread unexpectedly died"
         end
       end
 
@@ -241,12 +241,12 @@ module Cosmos
           thread = InterfaceThread.new(@interface)
           thread.start
           sleep 0.1
-          Thread.list.length.should eql(2)
+          expect(Thread.list.length).to eql(2)
           thread.stop
           sleep 0.2
-          Thread.list.length.should eql(1)
+          expect(Thread.list.length).to eql(1)
 
-          stdout.string.should match "Unknown 2 byte packet"
+          expect(stdout.string).to match "Unknown 2 byte packet"
         end
       end
 
@@ -258,11 +258,11 @@ module Cosmos
           thread = InterfaceThread.new(@interface)
           thread.start
           sleep 0.1
-          Thread.list.length.should eql(2)
+          expect(Thread.list.length).to eql(2)
           thread.stop
           sleep 0.2
-          Thread.list.length.should eql(1)
-          stdout.string.should match "Received unknown identified telemetry: BOB SMITH"
+          expect(Thread.list.length).to eql(1)
+          expect(stdout.string).to match "Received unknown identified telemetry: BOB SMITH"
         end
       end
 
@@ -277,12 +277,12 @@ module Cosmos
           thread = InterfaceThread.new(@interface)
           thread.start
           sleep 0.1
-          Thread.list.length.should eql(2)
+          expect(Thread.list.length).to eql(2)
           thread.stop
           sleep 0.2
-          Thread.list.length.should eql(1)
+          expect(Thread.list.length).to eql(1)
 
-          stdout.string.should match "Problem writing to router"
+          expect(stdout.string).to match "Problem writing to router"
         end
       end
 
@@ -294,10 +294,10 @@ module Cosmos
         threads = Thread.list.length
         thread.start
         sleep 0.1
-        Thread.list.length.should eql(2)
+        expect(Thread.list.length).to eql(2)
         thread.stop
         sleep 0.2
-        Thread.list.length.should eql(1)
+        expect(Thread.list.length).to eql(1)
       end
 
     end

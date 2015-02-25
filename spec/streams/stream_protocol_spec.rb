@@ -22,13 +22,13 @@ module Cosmos
 
     describe "initialize" do
       it "initializes attributes" do
-        @sp.bytes_read.should eql 0
-        @sp.bytes_written.should eql 0
-        @sp.interface.should be_nil
-        @sp.stream.should be_nil
-        @sp.post_read_data_callback.should be_nil
-        @sp.post_read_packet_callback.should be_nil
-        @sp.pre_write_packet_callback.should be_nil
+        expect(@sp.bytes_read).to eql 0
+        expect(@sp.bytes_written).to eql 0
+        expect(@sp.interface).to be_nil
+        expect(@sp.stream).to be_nil
+        expect(@sp.post_read_data_callback).to be_nil
+        expect(@sp.post_read_packet_callback).to be_nil
+        expect(@sp.pre_write_packet_callback).to be_nil
       end
     end
 
@@ -37,7 +37,7 @@ module Cosmos
         class MyInterface1 < Interface; end
         interface = MyInterface1.new
         @sp.interface = interface
-        @sp.interface.should eql interface
+        expect(@sp.interface).to eql interface
       end
 
       it "sets the post_read_data callback" do
@@ -46,7 +46,7 @@ module Cosmos
         end
         interface = MyInterface2.new
         @sp.interface = interface
-        @sp.post_read_data_callback.call(nil).should eql 1
+        expect(@sp.post_read_data_callback.call(nil)).to eql 1
       end
 
       it "sets the post_read_packet callback" do
@@ -55,7 +55,7 @@ module Cosmos
         end
         interface = MyInterface3.new
         @sp.interface = interface
-        @sp.post_read_packet_callback.call(nil).should eql 2
+        expect(@sp.post_read_packet_callback.call(nil)).to eql 2
       end
 
       it "sets the pre_write_packet callback" do
@@ -64,7 +64,7 @@ module Cosmos
         end
         interface = MyInterface4.new
         @sp.interface = interface
-        @sp.pre_write_packet_callback.call(nil).should eql 3
+        expect(@sp.pre_write_packet_callback.call(nil)).to eql 3
       end
     end
 
@@ -74,13 +74,13 @@ module Cosmos
         stream = MyStream1.new
         allow(stream).to receive(:connect)
         @sp.connect(stream)
-        @sp.stream.should eql stream
+        expect(@sp.stream).to eql stream
       end
     end
 
     describe "connected" do
       it "returns false if the stream hasn't been set" do
-        @sp.connected?.should be_falsey
+        expect(@sp.connected?).to be_falsey
       end
 
       it "returns the status of the stream connection" do
@@ -90,7 +90,7 @@ module Cosmos
         end
         stream = MyStream2.new
         @sp.connect(stream)
-        @sp.connected?.should be_truthy
+        expect(@sp.connected?).to be_truthy
       end
     end
 
@@ -103,9 +103,9 @@ module Cosmos
         end
         stream = MyStream3.new
         @sp.connect(stream)
-        $test.should be_falsey
+        expect($test).to be_falsey
         @sp.disconnect
-        $test.should be_truthy
+        expect($test).to be_truthy
       end
     end
 
@@ -119,7 +119,7 @@ module Cosmos
         stream = MyStream33.new
         @sp.connect(stream)
         packet = @sp.read
-        packet.length.should eql 4
+        expect(packet.length).to eql 4
       end
 
       it "handles timeouts from the stream" do
@@ -130,7 +130,7 @@ module Cosmos
         end
         stream = MyStream4.new
         @sp.connect(stream)
-        @sp.read.should be_nil
+        expect(@sp.read).to be_nil
       end
 
       it "handles a sync pattern" do
@@ -154,7 +154,7 @@ module Cosmos
         stream = MyStream5.new
         @sp.connect(stream)
         packet = @sp.read
-        packet.length.should eql 4 # sync plus two bytes
+        expect(packet.length).to eql 4 # sync plus two bytes
       end
 
       it "handles a sync pattern split across reads" do
@@ -178,7 +178,7 @@ module Cosmos
         stream = MyStream6.new
         @sp.connect(stream)
         packet = @sp.read
-        packet.length.should eql 3 # sync plus one byte
+        expect(packet.length).to eql 3 # sync plus one byte
       end
 
       it "handles a false positive sync pattern" do
@@ -202,7 +202,7 @@ module Cosmos
         stream = MyStream7.new
         @sp.connect(stream)
         packet = @sp.read
-        packet.length.should eql 3 # sync plus one byte
+        expect(packet.length).to eql 3 # sync plus one byte
       end
 
       it "discards leading bytes from the stream" do
@@ -217,8 +217,8 @@ module Cosmos
         stream = MyStream8.new
         @sp.connect(stream)
         packet = @sp.read
-        packet.length.should eql 2
-        packet.buffer.formatted.should match(/03 04/)
+        expect(packet.length).to eql 2
+        expect(packet.buffer.formatted).to match(/03 04/)
       end
 
       it "calls the post_read_data method on the inteface" do
@@ -237,8 +237,8 @@ module Cosmos
         stream = MyStream9.new
         @sp.connect(stream)
         packet = @sp.read
-        packet.length.should eql 4
-        packet.buffer.formatted.should match(/00 01 02 03/)
+        expect(packet.length).to eql 4
+        expect(packet.buffer.formatted).to match(/00 01 02 03/)
 
         # Simulate the interface returning an empty string which means to skip
         # this packet and go back to reading data.
@@ -257,7 +257,7 @@ module Cosmos
         interface = MyInterface5.new
         @sp.interface = interface
         packet = @sp.read
-        packet.length.should eql 2
+        expect(packet.length).to eql 2
 
         # Simulate the interface returning nil which means the connection is
         # lost.
@@ -268,7 +268,7 @@ module Cosmos
         interface = MyInterface5.new
         @sp.interface = interface
         packet = @sp.read
-        packet.should be_nil
+        expect(packet).to be_nil
       end
 
       it "calls the post_read_packet method on the inteface" do
@@ -290,8 +290,8 @@ module Cosmos
         stream = MyStream10.new
         @sp.connect(stream)
         packet = @sp.read
-        packet.length.should eql 4
-        packet.buffer.formatted.should match(/00 01 02 03/)
+        expect(packet.length).to eql 4
+        expect(packet.buffer.formatted).to match(/00 01 02 03/)
       end
     end
 
@@ -310,7 +310,7 @@ module Cosmos
         @sp.interface = MyInterface7.new
         @sp.connect(MyStream11.new)
         @sp.write(packet)
-        $buffer.should eql "\x01\02\03\04"
+        expect($buffer).to eql "\x01\02\03\04"
       end
 
       it "writes the packet buffer to the stream" do
@@ -323,7 +323,7 @@ module Cosmos
         packet = Packet.new(nil, nil, :BIG_ENDIAN, nil, "\x01\x02\x03\x04")
         @sp.connect(MyStream11.new)
         @sp.write(packet)
-        $buffer.should eql "\x01\02\03\04"
+        expect($buffer).to eql "\x01\02\03\04"
       end
     end
 
@@ -337,7 +337,7 @@ module Cosmos
         end
         @sp.connect(MyStream11.new)
         @sp.write_raw("\x01\x02\x03\x04")
-        $buffer.should eql "\x01\02\03\04"
+        expect($buffer).to eql "\x01\02\03\04"
       end
     end
 

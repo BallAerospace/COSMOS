@@ -18,13 +18,13 @@ module Cosmos
     describe "initialize" do
       it "initializes attributes" do
         bsp = BurstStreamProtocol.new
-        bsp.bytes_read.should eql 0
-        bsp.bytes_written.should eql 0
-        bsp.interface.should be_nil
-        bsp.stream.should be_nil
-        bsp.post_read_data_callback.should be_nil
-        bsp.post_read_packet_callback.should be_nil
-        bsp.pre_write_packet_callback.should be_nil
+        expect(bsp.bytes_read).to eql 0
+        expect(bsp.bytes_written).to eql 0
+        expect(bsp.interface).to be_nil
+        expect(bsp.stream).to be_nil
+        expect(bsp.post_read_data_callback).to be_nil
+        expect(bsp.post_read_packet_callback).to be_nil
+        expect(bsp.pre_write_packet_callback).to be_nil
       end
     end
   end

@@ -23,7 +23,7 @@ module Cosmos
 
     describe "to_s" do
       it "returns a String" do
-        Conversion.new.to_s.should eql "Conversion"
+        expect(Conversion.new.to_s).to eql "Conversion"
       end
     end
   end

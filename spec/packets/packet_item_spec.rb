@@ -23,12 +23,12 @@ module Cosmos
     describe "format_string=" do
       it "sets the format_string" do
         @pi.format_string = "%5.1f"
-        @pi.format_string.should eql "%5.1f"
+        expect(@pi.format_string).to eql "%5.1f"
       end
 
       it "sets the format_string to nil" do
         @pi.format_string = nil
-        @pi.format_string.should be_nil
+        expect(@pi.format_string).to be_nil
       end
 
       it "complains about non String format_strings" do
@@ -46,12 +46,12 @@ module Cosmos
       it "accepts Conversion instances" do
         c = GenericConversion.new("value / 2")
         @pi.read_conversion = c
-        (@pi.read_conversion.to_s == c.to_s).should be_truthy
+        expect(@pi.read_conversion.to_s == c.to_s).to be_truthy
       end
 
       it "sets the read_conversion to nil" do
         @pi.read_conversion = nil
-        @pi.read_conversion.should be_nil
+        expect(@pi.read_conversion).to be_nil
       end
 
       it "complains about non Conversion read_conversions" do
@@ -63,12 +63,12 @@ module Cosmos
       it "accepts Conversion instances" do
         c = GenericConversion.new("value / 2")
         @pi.write_conversion = c
-        (@pi.write_conversion.to_s == c.to_s).should be_truthy
+        expect(@pi.write_conversion.to_s == c.to_s).to be_truthy
       end
 
       it "sets the write_conversion to nil" do
         @pi.write_conversion = nil
-        @pi.write_conversion.should be_nil
+        expect(@pi.write_conversion).to be_nil
       end
 
       it "complains about non Conversion write_conversions" do
@@ -79,18 +79,18 @@ module Cosmos
     describe "id_value=" do
       it "accepts id values according to data_type" do
         @pi.id_value = 10
-        @pi.id_value.should eql 10
+        expect(@pi.id_value).to eql 10
         @pi.data_type = :FLOAT
         @pi.id_value = 10.0
-        @pi.id_value.should eql 10.0
+        expect(@pi.id_value).to eql 10.0
         @pi.data_type = :STRING
         @pi.id_value = "HI"
-        @pi.id_value.should eql "HI"
+        expect(@pi.id_value).to eql "HI"
       end
 
       it "sets the id_value to nil" do
         @pi.id_value = nil
-        @pi.id_value.should be_nil
+        expect(@pi.id_value).to be_nil
       end
 
       it "complains about id_values that don't match the data_type" do
@@ -104,12 +104,12 @@ module Cosmos
       it "accepts states as a Hash" do
         states = {"TRUE"=>1, "FALSE"=>0}
         @pi.states = states
-        @pi.states.should eql states
+        expect(@pi.states).to eql states
       end
 
       it "sets the states to nil" do
         @pi.states = nil
-        @pi.states.should be_nil
+        expect(@pi.states).to be_nil
       end
 
       it "complains about states that aren't Hashes" do
@@ -121,12 +121,12 @@ module Cosmos
       it "accepts description as a String" do
         description = "this is it"
         @pi.description = description
-        @pi.description.should eql description
+        expect(@pi.description).to eql description
       end
 
       it "sets the description to nil" do
         @pi.description = nil
-        @pi.description.should be_nil
+        expect(@pi.description).to be_nil
       end
 
       it "complains about description that aren't Strings" do
@@ -138,12 +138,12 @@ module Cosmos
       it "accepts units_full as a String" do
         units_full = "Volts"
         @pi.units_full = units_full
-        @pi.units_full.should eql units_full
+        expect(@pi.units_full).to eql units_full
       end
 
       it "sets the units_full to nil" do
         @pi.units_full = nil
-        @pi.units_full.should be_nil
+        expect(@pi.units_full).to be_nil
       end
 
       it "complains about units_full that aren't Strings" do
@@ -155,12 +155,12 @@ module Cosmos
       it "accepts units as a String" do
         units = "V"
         @pi.units = units
-        @pi.units.should eql units
+        expect(@pi.units).to eql units
       end
 
       it "sets the units to nil" do
         @pi.units = nil
-        @pi.units.should be_nil
+        expect(@pi.units).to be_nil
       end
 
       it "complains about units that aren't Strings" do
@@ -172,21 +172,21 @@ module Cosmos
       it "accepts default according to the data_type" do
         pi = PacketItem.new("test", 0, 8, :INT, :BIG_ENDIAN, 16)
         pi.default = [1, -1]
-        pi.default.should eql [1, -1]
+        expect(pi.default).to eql [1, -1]
         pi = PacketItem.new("test", 0, 32, :UINT, :BIG_ENDIAN, nil)
         pi.default = 0x01020304
-        pi.default.should eql 0x01020304
+        expect(pi.default).to eql 0x01020304
         pi = PacketItem.new("test", 0, 32, :FLOAT, :BIG_ENDIAN, nil)
         pi.default = 5.5
-        pi.default.should eql 5.5
+        expect(pi.default).to eql 5.5
         pi = PacketItem.new("test", 0, 32, :STRING, :BIG_ENDIAN, nil)
         pi.default = "HI"
-        pi.default.should eql "HI"
+        expect(pi.default).to eql "HI"
       end
 
       it "sets the default to nil" do
         @pi.default = nil
-        @pi.default.should be_nil
+        expect(@pi.default).to be_nil
       end
     end
 
@@ -249,12 +249,12 @@ module Cosmos
       it "accepts range as a String" do
         range = (0..1)
         @pi.range = range
-        @pi.range.should eql range
+        expect(@pi.range).to eql range
       end
 
       it "sets the range to nil" do
         @pi.range = nil
-        @pi.range.should be_nil
+        expect(@pi.range).to be_nil
       end
 
       it "complains about ranges that aren't Ranges" do
@@ -266,14 +266,14 @@ module Cosmos
       it "accepts hazardous as a Hash" do
         hazardous = {"TRUE"=>nil,"FALSE"=>"NO FALSE ALLOWED"}
         @pi.hazardous = hazardous
-        @pi.hazardous.should eql hazardous
-        @pi.hazardous["TRUE"].should eql hazardous["TRUE"]
-        @pi.hazardous["FALSE"].should eql hazardous["FALSE"]
+        expect(@pi.hazardous).to eql hazardous
+        expect(@pi.hazardous["TRUE"]).to eql hazardous["TRUE"]
+        expect(@pi.hazardous["FALSE"]).to eql hazardous["FALSE"]
       end
 
       it "sets hazardous to nil" do
         @pi.hazardous = nil
-        @pi.hazardous.should be_nil
+        expect(@pi.hazardous).to be_nil
       end
 
       it "complains about hazardous that aren't Hashes" do
@@ -285,12 +285,12 @@ module Cosmos
       it "accepts state_colors as a Hash" do
         state_colors = {"TRUE"=>:GREEN, "FALSE"=>:RED}
         @pi.state_colors = state_colors
-        @pi.state_colors.should eql state_colors
+        expect(@pi.state_colors).to eql state_colors
       end
 
       it "sets the state_colors to nil" do
         @pi.state_colors = nil
-        @pi.state_colors.should be_nil
+        expect(@pi.state_colors).to be_nil
       end
 
       it "complains about state_colors that aren't Hashes" do
@@ -306,7 +306,7 @@ module Cosmos
 
       it "sets the limits to nil" do
         @pi.limits = nil
-        @pi.limits.should be_nil
+        expect(@pi.limits).to be_nil
       end
 
       it "complains about limits that aren't PacketItemLimits" do
@@ -317,14 +317,14 @@ module Cosmos
     describe "meta" do
       it "allows adding items to the meta hash" do
         @pi.meta['TYPE'] = 'float32'
-        @pi.meta['TYPE'].should eql 'float32'
+        expect(@pi.meta['TYPE']).to eql 'float32'
       end
     end
 
     describe "clone" do
       it "duplicates the entire PacketItem" do
         pi2 = @pi.clone
-        (@pi == pi2).should be_truthy
+        expect(@pi == pi2).to be_truthy
       end
     end
 
@@ -346,39 +346,39 @@ module Cosmos
         @pi.limits = PacketItemLimits.new
 
         hash = @pi.to_hash
-        hash.keys.length.should eql 22
+        expect(hash.keys.length).to eql 22
         # Check the values from StructureItem
-        hash.keys.should include('name','bit_offset','bit_size','data_type','endianness','array_size','overflow')
-        hash["name"].should eql "TEST"
-        hash["bit_offset"].should eql 0
-        hash["bit_size"].should eql 32
-        hash["data_type"].should eql :UINT
-        hash["endianness"].should eql :BIG_ENDIAN
-        hash["array_size"].should be_nil
-        hash["overflow"].should eql :ERROR
+        expect(hash.keys).to include('name','bit_offset','bit_size','data_type','endianness','array_size','overflow')
+        expect(hash["name"]).to eql "TEST"
+        expect(hash["bit_offset"]).to eql 0
+        expect(hash["bit_size"]).to eql 32
+        expect(hash["data_type"]).to eql :UINT
+        expect(hash["endianness"]).to eql :BIG_ENDIAN
+        expect(hash["array_size"]).to be_nil
+        expect(hash["overflow"]).to eql :ERROR
         # Check the unique PacketItem values
-        hash.keys.should include('format_string','read_conversion','write_conversion','id_value','states','description','units_full','units','default','range','required','hazardous','state_colors','limits')
-        hash["format_string"].should eql "%5.1f"
-        hash["read_conversion"].should match "value / 2"
-        hash["write_conversion"].should match /value \* 2/
-        hash["id_value"].should eql 10
-        hash["states"].should include("TRUE"=>1,"FALSE"=>0)
-        hash["description"].should eql "description"
-        hash["units_full"].should eql "Celcius"
-        hash["units"].should eql "C"
-        hash["default"].should eql 0
-        hash["range"].should eql (0..100)
-        hash["required"].should be_truthy
-        hash["hazardous"].should include("TRUE"=>nil,"FALSE"=>"NO!")
-        hash["state_colors"].should include("TRUE"=>:GREEN,"FALSE"=>:RED)
-        hash["limits"].should eql PacketItemLimits.new.to_hash
-        hash["meta"].should be_nil
+        expect(hash.keys).to include('format_string','read_conversion','write_conversion','id_value','states','description','units_full','units','default','range','required','hazardous','state_colors','limits')
+        expect(hash["format_string"]).to eql "%5.1f"
+        expect(hash["read_conversion"]).to match "value / 2"
+        expect(hash["write_conversion"]).to match /value \* 2/
+        expect(hash["id_value"]).to eql 10
+        expect(hash["states"]).to include("TRUE"=>1,"FALSE"=>0)
+        expect(hash["description"]).to eql "description"
+        expect(hash["units_full"]).to eql "Celcius"
+        expect(hash["units"]).to eql "C"
+        expect(hash["default"]).to eql 0
+        expect(hash["range"]).to eql (0..100)
+        expect(hash["required"]).to be_truthy
+        expect(hash["hazardous"]).to include("TRUE"=>nil,"FALSE"=>"NO!")
+        expect(hash["state_colors"]).to include("TRUE"=>:GREEN,"FALSE"=>:RED)
+        expect(hash["limits"]).to eql PacketItemLimits.new.to_hash
+        expect(hash["meta"]).to be_nil
       end
 
       it "converts to a Hash with no conversions" do
         hash = @pi.to_hash
-        hash["read_conversion"].should be_nil
-        hash["write_conversion"].should be_nil
+        expect(hash["read_conversion"]).to be_nil
+        expect(hash["write_conversion"]).to be_nil
       end
     end
 

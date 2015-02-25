@@ -56,7 +56,7 @@ module Cosmos
       it "sends a command" do
         capture_io do |stdout|
           cmd("INST ABORT")
-          stdout.string.should match /cmd\(\'INST ABORT\'\)/ #'
+          expect(stdout.string).to match /cmd\(\'INST ABORT\'\)/ #'
         end
       end
 
@@ -69,14 +69,14 @@ module Cosmos
           expect(self).to receive(:gets) { 'y' } # Send hazardous command
           cmd("INST COLLECT with TYPE SPECIAL")
 
-          stdout.string.should match "Warning: Command INST COLLECT is Hazardous"
-          stdout.string.should match /cmd\(\'INST COLLECT/ # '
+          expect(stdout.string).to match "Warning: Command INST COLLECT is Hazardous"
+          expect(stdout.string).to match /cmd\(\'INST COLLECT/ # '
           stdout.rewind
 
           expect(self).to receive(:gets) { 'n' } # Don't send hazardous
           expect(self).to receive(:gets) { 'y' } # Stop running script
           cmd("INST COLLECT with TYPE SPECIAL")
-          stdout.string.should match "Warning: Command INST COLLECT is Hazardous"
+          expect(stdout.string).to match "Warning: Command INST COLLECT is Hazardous"
         end
       end
     end
@@ -91,14 +91,14 @@ module Cosmos
           expect(self).to receive(:gets) { 'y' } # Send hazardous command
           cmd_no_range_check("INST COLLECT with TYPE SPECIAL")
 
-          stdout.string.should match "Warning: Command INST COLLECT is Hazardous"
-          stdout.string.should match /cmd\(\'INST COLLECT/ # '
+          expect(stdout.string).to match "Warning: Command INST COLLECT is Hazardous"
+          expect(stdout.string).to match /cmd\(\'INST COLLECT/ # '
           stdout.rewind
 
           expect(self).to receive(:gets) { 'n' } # Don't send hazardous
           expect(self).to receive(:gets) { 'y' } # Stop running script
           cmd_no_range_check("INST COLLECT with TYPE SPECIAL")
-          stdout.string.should match "Warning: Command INST COLLECT is Hazardous"
+          expect(stdout.string).to match "Warning: Command INST COLLECT is Hazardous"
         end
       end
     end
@@ -112,8 +112,8 @@ module Cosmos
         capture_io do |stdout|
           cmd_no_hazardous_check("INST COLLECT with TYPE SPECIAL")
 
-          stdout.string.should match "Command INST COLLECT being sent ignoring hazardous warnings"
-          stdout.string.should match /cmd\(\'INST COLLECT/ # '
+          expect(stdout.string).to match "Command INST COLLECT being sent ignoring hazardous warnings"
+          expect(stdout.string).to match /cmd\(\'INST COLLECT/ # '
         end
       end
     end
@@ -123,8 +123,8 @@ module Cosmos
         capture_io do |stdout|
           cmd_no_checks("INST COLLECT with TYPE SPECIAL, DURATION 20")
 
-          stdout.string.should match "Command INST COLLECT being sent ignoring hazardous warnings"
-          stdout.string.should match /cmd\(\'INST COLLECT/ # '
+          expect(stdout.string).to match "Command INST COLLECT being sent ignoring hazardous warnings"
+          expect(stdout.string).to match /cmd\(\'INST COLLECT/ # '
         end
       end
     end
@@ -133,7 +133,7 @@ module Cosmos
       it "sends a command" do
         capture_io do |stdout|
           cmd_raw("INST ABORT")
-          stdout.string.should match /cmd_raw\(\'INST ABORT\'\)/ # '
+          expect(stdout.string).to match /cmd_raw\(\'INST ABORT\'\)/ # '
         end
       end
 
@@ -146,14 +146,14 @@ module Cosmos
           expect(self).to receive(:gets) { 'y' } # Send hazardous command
           cmd_raw("INST COLLECT with TYPE 1")
 
-          stdout.string.should match "Warning: Command INST COLLECT is Hazardous"
-          stdout.string.should match /cmd_raw\(\'INST COLLECT/ # '
+          expect(stdout.string).to match "Warning: Command INST COLLECT is Hazardous"
+          expect(stdout.string).to match /cmd_raw\(\'INST COLLECT/ # '
           stdout.rewind
 
           expect(self).to receive(:gets) { 'n' } # Don't send hazardous
           expect(self).to receive(:gets) { 'y' } # Stop running script
           cmd_raw("INST COLLECT with TYPE 1")
-          stdout.string.should match "Warning: Command INST COLLECT is Hazardous"
+          expect(stdout.string).to match "Warning: Command INST COLLECT is Hazardous"
         end
       end
     end
@@ -168,14 +168,14 @@ module Cosmos
           expect(self).to receive(:gets) { 'y' } # Send hazardous command
           cmd_raw_no_range_check("INST COLLECT with TYPE 1")
 
-          stdout.string.should match "Warning: Command INST COLLECT is Hazardous"
-          stdout.string.should match /cmd_raw\(\'INST COLLECT/ # '
+          expect(stdout.string).to match "Warning: Command INST COLLECT is Hazardous"
+          expect(stdout.string).to match /cmd_raw\(\'INST COLLECT/ # '
           stdout.rewind
 
           expect(self).to receive(:gets) { 'n' } # Don't send hazardous
           expect(self).to receive(:gets) { 'y' } # Stop running script
           cmd_raw_no_range_check("INST COLLECT with TYPE 1")
-          stdout.string.should match "Warning: Command INST COLLECT is Hazardous"
+          expect(stdout.string).to match "Warning: Command INST COLLECT is Hazardous"
         end
       end
     end
@@ -188,8 +188,8 @@ module Cosmos
       it "sends a hazardous command without prompting" do
         capture_io do |stdout|
           cmd_raw_no_hazardous_check("INST COLLECT with TYPE 1")
-          stdout.string.should match "Command INST COLLECT being sent ignoring hazardous warnings"
-          stdout.string.should match /cmd_raw\(\'INST COLLECT/ #'
+          expect(stdout.string).to match "Command INST COLLECT being sent ignoring hazardous warnings"
+          expect(stdout.string).to match /cmd_raw\(\'INST COLLECT/ #'
         end
       end
     end
@@ -198,8 +198,8 @@ module Cosmos
       it "sends an out of range hazardous command without prompting" do
         capture_io do |stdout|
           cmd_raw_no_checks("INST COLLECT with TYPE 1, DURATION 20")
-          stdout.string.should match "Command INST COLLECT being sent ignoring hazardous warnings"
-          stdout.string.should match /cmd_raw\(\'INST COLLECT/ #'
+          expect(stdout.string).to match "Command INST COLLECT being sent ignoring hazardous warnings"
+          expect(stdout.string).to match /cmd_raw\(\'INST COLLECT/ #'
         end
       end
     end
@@ -230,32 +230,32 @@ module Cosmos
         list = get_cmd_list("INST")
         # Only check for the collect command to make this test list dependent
         # on the demo INST command definition file
-        list.should include(["COLLECT", "Starts a collect on the instrument"])
+        expect(list).to include(["COLLECT", "Starts a collect on the instrument"])
       end
     end
 
     describe "get_cmd_param_list" do
       it "returns all the parameters for a command" do
         list = get_cmd_param_list("INST", "COLLECT")
-        list.should include(["TYPE", 0, {"NORMAL"=>0, "SPECIAL"=>1}, "Collect type", nil, nil, true])
+        expect(list).to include(["TYPE", 0, {"NORMAL"=>0, "SPECIAL"=>1}, "Collect type", nil, nil, true])
       end
     end
 
     describe "get_cmd_hazardous" do
       it "returns whether a command is hazardous" do
-        get_cmd_hazardous("INST", "COLLECT", {"TYPE"=>"NORMAL"}).should be_falsey
-        get_cmd_hazardous("INST", "COLLECT", {"TYPE"=>"SPECIAL"}).should be_truthy
+        expect(get_cmd_hazardous("INST", "COLLECT", {"TYPE"=>"NORMAL"})).to be_falsey
+        expect(get_cmd_hazardous("INST", "COLLECT", {"TYPE"=>"SPECIAL"})).to be_truthy
       end
     end
 
     describe "tlm, tlm_raw, tlm_formatted, tlm_with_units, tlm_variable, set_tlm, set_tlm_raw" do
       it "passes through to the cmd_tlm_server" do
         expect {
-          tlm("INST HEALTH_STATUS TEMP1").should eql -100.0
-          tlm_raw("INST HEALTH_STATUS TEMP1").should eql 0
-          tlm_formatted("INST HEALTH_STATUS TEMP1").should eql "-100.000"
-          tlm_with_units("INST HEALTH_STATUS TEMP1").should eql "-100.000 C"
-          tlm_variable("INST HEALTH_STATUS TEMP1", :RAW).should eql 0
+          expect(tlm("INST HEALTH_STATUS TEMP1")).to eql -100.0
+          expect(tlm_raw("INST HEALTH_STATUS TEMP1")).to eql 0
+          expect(tlm_formatted("INST HEALTH_STATUS TEMP1")).to eql "-100.000"
+          expect(tlm_with_units("INST HEALTH_STATUS TEMP1")).to eql "-100.000 C"
+          expect(tlm_variable("INST HEALTH_STATUS TEMP1", :RAW)).to eql 0
           set_tlm("INST HEALTH_STATUS TEMP1 = 1")
           set_tlm_raw("INST HEALTH_STATUS TEMP1 = 0")
         }.to_not raise_error
@@ -264,49 +264,49 @@ module Cosmos
 
     describe "get_tlm_packet" do
       it "gets the packet values" do
-        get_tlm_packet("INST", "HEALTH_STATUS", :RAW).should include(["TEMP1", 0, :RED_LOW])
+        expect(get_tlm_packet("INST", "HEALTH_STATUS", :RAW)).to include(["TEMP1", 0, :RED_LOW])
       end
     end
 
     describe "get_tlm_values" do
       it "gets the given values" do
         vals = get_tlm_values([["INST", "HEALTH_STATUS", "TEMP1"], ["INST", "HEALTH_STATUS", "TEMP2"]])
-        vals[0][0].should eql -100.0
-        vals[1][0].should eql :RED_LOW
-        vals[2][0].should eql [-80.0, -70.0, 60.0, 80.0, -20.0, 20.0]
-        vals[3].should eql :DEFAULT
+        expect(vals[0][0]).to eql -100.0
+        expect(vals[1][0]).to eql :RED_LOW
+        expect(vals[2][0]).to eql [-80.0, -70.0, 60.0, 80.0, -20.0, 20.0]
+        expect(vals[3]).to eql :DEFAULT
       end
     end
 
     describe "get_tlm_list" do
       it "gets packets for a given target" do
-        get_tlm_list("INST").should include(["HEALTH_STATUS", "Health and status from the instrument"])
+        expect(get_tlm_list("INST")).to include(["HEALTH_STATUS", "Health and status from the instrument"])
       end
     end
 
     describe "get_tlm_item_list" do
       it "gets telemetry for a given packet" do
-        get_tlm_item_list("INST", "HEALTH_STATUS").should include(["TEMP1",nil,"Temperature #1"])
+        expect(get_tlm_item_list("INST", "HEALTH_STATUS")).to include(["TEMP1",nil,"Temperature #1"])
       end
     end
 
     describe "get_tlm_details" do
       it "gets telemetry for a given packet" do
         details = get_tlm_details([["INST", "HEALTH_STATUS", "TEMP1"], ["INST", "HEALTH_STATUS", "TEMP2"]])
-        details[0]["name"].should eql "TEMP1"
-        details[1]["name"].should eql "TEMP2"
+        expect(details[0]["name"]).to eql "TEMP1"
+        expect(details[1]["name"]).to eql "TEMP2"
       end
     end
 
     describe "get_out_of_limits" do
       it "gets all out of limits items" do
-        get_out_of_limits.should include(["INST","HEALTH_STATUS","TEMP1",:RED_LOW])
+        expect(get_out_of_limits).to include(["INST","HEALTH_STATUS","TEMP1",:RED_LOW])
       end
     end
 
     describe "get_overall_limits_state" do
       it "gets the overall limits state of the system" do
-        get_overall_limits_state.should eql :RED
+        expect(get_overall_limits_state).to eql :RED
       end
 
       it "ignores specified items" do
@@ -317,30 +317,30 @@ module Cosmos
         ignore << %w(INST HEALTH_STATUS TEMP4)
         ignore << %w(INST HEALTH_STATUS GROUND1STATUS)
         ignore << %w(INST HEALTH_STATUS GROUND2STATUS)
-        get_overall_limits_state(ignore).should eql :STALE
+        expect(get_overall_limits_state(ignore)).to eql :STALE
       end
     end
 
     describe "limits_enabled?, disable_limits, enable_limits" do
       it "enables, disable, and check limits for an item" do
-        limits_enabled?("INST HEALTH_STATUS TEMP1").should be_truthy
+        expect(limits_enabled?("INST HEALTH_STATUS TEMP1")).to be_truthy
         disable_limits("INST HEALTH_STATUS TEMP1")
-        limits_enabled?("INST HEALTH_STATUS TEMP1").should be_falsey
+        expect(limits_enabled?("INST HEALTH_STATUS TEMP1")).to be_falsey
         enable_limits("INST HEALTH_STATUS TEMP1")
-        limits_enabled?("INST HEALTH_STATUS TEMP1").should be_truthy
+        expect(limits_enabled?("INST HEALTH_STATUS TEMP1")).to be_truthy
       end
     end
 
     describe "get_limits, set_limits" do
       it "gets and set limits for an item" do
-        get_limits("INST", "HEALTH_STATUS", "TEMP1").should eql [:DEFAULT, 1, true, -80.0, -70.0, 60.0, 80.0, -20.0, 20.0]
-        set_limits("INST", "HEALTH_STATUS", "TEMP1", 1, 2, 5, 6, 3, 4).should eql [:CUSTOM, 1, true, 1.0, 2.0, 5.0, 6.0, 3.0, 4.0]
+        expect(get_limits("INST", "HEALTH_STATUS", "TEMP1")).to eql [:DEFAULT, 1, true, -80.0, -70.0, 60.0, 80.0, -20.0, 20.0]
+        expect(set_limits("INST", "HEALTH_STATUS", "TEMP1", 1, 2, 5, 6, 3, 4)).to eql [:CUSTOM, 1, true, 1.0, 2.0, 5.0, 6.0, 3.0, 4.0]
       end
     end
 
     describe "get_limits_groups, enable_limits_group, disable_limits_group" do
       it "enables, disable, and get groups" do
-        get_limits_groups.should include("FIRST")
+        expect(get_limits_groups).to include("FIRST")
         enable_limits_group("FIRST")
         disable_limits_group("FIRST")
       end
@@ -349,20 +349,20 @@ module Cosmos
     describe "get_limits_sets, enable_limits_set, disable_limits_set" do
       it "enables, disable, and get sets CTS-16" do
         if get_limits_sets.include?(:CUSTOM)
-          get_limits_sets.should eql [:DEFAULT,:TVAC,:CUSTOM]
+          expect(get_limits_sets).to eql [:DEFAULT,:TVAC,:CUSTOM]
         else
-          get_limits_sets.should eql [:DEFAULT,:TVAC]
+          expect(get_limits_sets).to eql [:DEFAULT,:TVAC]
         end
         set_limits_set(:TVAC)
-        get_limits_set.should eql :TVAC
+        expect(get_limits_set).to eql :TVAC
         set_limits_set(:DEFAULT)
-        get_limits_set.should eql :DEFAULT
+        expect(get_limits_set).to eql :DEFAULT
       end
     end
 
     describe "get_target_list" do
       it "returns the list of targets" do
-        get_target_list.should include("INST")
+        expect(get_target_list).to include("INST")
       end
     end
 
@@ -377,7 +377,7 @@ module Cosmos
         id = subscribe_limits_events
         CmdTlmServer.instance.post_limits_event(:LIMITS_CHANGE, ['TGT','PKT','ITEM',:YELLOW,:RED])
         result = get_limits_event(id, true)
-        result[0].should eql :LIMITS_CHANGE
+        expect(result[0]).to eql :LIMITS_CHANGE
         unsubscribe_limits_events(id)
       end
 
@@ -385,7 +385,7 @@ module Cosmos
         id = subscribe_limits_events
         CmdTlmServer.instance.post_limits_event(:LIMITS_SETTINGS, ['TGT','PKT','ITEM',:DEFAULT])
         result = get_limits_event(id, true)
-        result[0].should eql :LIMITS_SETTINGS
+        expect(result[0]).to eql :LIMITS_SETTINGS
         unsubscribe_limits_events(id)
       end
 
@@ -393,7 +393,7 @@ module Cosmos
         id = subscribe_limits_events
         CmdTlmServer.instance.post_limits_event(:UNKNOWN, "This is a test")
         result = get_limits_event(id, true)
-        result[0].should eql :UNKNOWN
+        expect(result[0]).to eql :UNKNOWN
         unsubscribe_limits_events(id)
       end
     end
@@ -409,8 +409,8 @@ module Cosmos
         id = subscribe_packet_data([["INST","HEALTH_STATUS"]])
         CmdTlmServer.instance.post_packet(System.telemetry.packet("INST","HEALTH_STATUS"))
         packet = get_packet(id, true)
-        packet.target_name.should eql "INST"
-        packet.packet_name.should eql "HEALTH_STATUS"
+        expect(packet.target_name).to eql "INST"
+        expect(packet.packet_name).to eql "HEALTH_STATUS"
         unsubscribe_packet_data(id)
       end
     end
@@ -440,9 +440,9 @@ module Cosmos
       it "gets user input" do
         $stdout = StringIO.new
         expect(self).to receive(:gets) { '10' }
-        ask_string("").should eql '10'
+        expect(ask_string("")).to eql '10'
         expect(self).to receive(:gets) { '10' }
-        ask("").should eql 10
+        expect(ask("")).to eql 10
         $stdout = STDOUT
       end
     end
@@ -451,9 +451,9 @@ module Cosmos
       it "prompts the user for input" do
         $stdout = StringIO.new
         expect(self).to receive(:gets) { 'message' }
-        prompt("").should eql 'message'
+        expect(prompt("")).to eql 'message'
         expect(self).to receive(:gets) { 'b1' }
-        message_box("",["b1","b2"]).should eql 'b1'
+        expect(message_box("",["b1","b2"])).to eql 'b1'
         $stdout = STDOUT
       end
     end
@@ -462,31 +462,31 @@ module Cosmos
       it "checks a telemetry item vs a condition" do
         capture_io do |stdout|
           check("INST HEALTH_STATUS TEMP1 == -100")
-          stdout.string.should match "CHECK: INST HEALTH_STATUS TEMP1 == -100 success"
+          expect(stdout.string).to match "CHECK: INST HEALTH_STATUS TEMP1 == -100 success"
           stdout.rewind
 
           check("INST","HEALTH_STATUS","TEMP1","== -100")
-          stdout.string.should match "CHECK: INST HEALTH_STATUS TEMP1 == -100 success"
+          expect(stdout.string).to match "CHECK: INST HEALTH_STATUS TEMP1 == -100 success"
           stdout.rewind
 
           check_formatted("INST HEALTH_STATUS TEMP1 == '-100.000'")
-          stdout.string.should match "CHECK: INST HEALTH_STATUS TEMP1 == '-100.000' success"
+          expect(stdout.string).to match "CHECK: INST HEALTH_STATUS TEMP1 == '-100.000' success"
           stdout.rewind
 
           check_formatted("INST","HEALTH_STATUS","TEMP1","== '-100.000'")
-          stdout.string.should match "CHECK: INST HEALTH_STATUS TEMP1 == '-100.000' success"
+          expect(stdout.string).to match "CHECK: INST HEALTH_STATUS TEMP1 == '-100.000' success"
           stdout.rewind
 
           check_with_units("INST HEALTH_STATUS TEMP1 == '-100.000 C'")
-          stdout.string.should match "CHECK: INST HEALTH_STATUS TEMP1 == '-100.000 C' success"
+          expect(stdout.string).to match "CHECK: INST HEALTH_STATUS TEMP1 == '-100.000 C' success"
           stdout.rewind
 
           check_with_units("INST","HEALTH_STATUS","TEMP1","== '-100.000 C'")
-          stdout.string.should match "CHECK: INST HEALTH_STATUS TEMP1 == '-100.000 C' success"
+          expect(stdout.string).to match "CHECK: INST HEALTH_STATUS TEMP1 == '-100.000 C' success"
           stdout.rewind
 
           check_raw("INST HEALTH_STATUS TEMP1")
-          stdout.string.should match "CHECK: INST HEALTH_STATUS TEMP1 == 0"
+          expect(stdout.string).to match "CHECK: INST HEALTH_STATUS TEMP1 == 0"
         end
 
         check("INST HEALTH_STATUS TEMP1 < 0")
@@ -498,14 +498,14 @@ module Cosmos
       it "checks a telemetry item vs tolerance" do
         capture_io do |stdout|
           check_tolerance("INST HEALTH_STATUS TEMP1", -100.0, 1)
-          stdout.string.should match "CHECK: INST HEALTH_STATUS TEMP1 was within range"
+          expect(stdout.string).to match "CHECK: INST HEALTH_STATUS TEMP1 was within range"
           stdout.rewind
 
           expect { check_tolerance("INST HEALTH_STATUS TEMP1", -200.0, 1) }.to raise_error(CheckError, /CHECK: INST HEALTH_STATUS TEMP1 failed to be within range/)
           stdout.rewind
 
           check_tolerance_raw("INST HEALTH_STATUS TEMP1", 0, 1)
-          stdout.string.should match "CHECK: INST HEALTH_STATUS TEMP1 was within range"
+          expect(stdout.string).to match "CHECK: INST HEALTH_STATUS TEMP1 was within range"
           stdout.rewind
 
           expect { check_tolerance_raw("INST HEALTH_STATUS TEMP1", 100, 1) }.to raise_error(CheckError, /CHECK: INST HEALTH_STATUS TEMP1 failed to be within range/)
@@ -518,7 +518,7 @@ module Cosmos
       it "checks an arbitrary expression" do
         capture_io do |stdout|
           check_expression("true == true")
-          stdout.string.should match "CHECK: true == true is TRUE"
+          expect(stdout.string).to match "CHECK: true == true is TRUE"
       end
 
         expect { check_expression("true == false") }.to raise_error(CheckError, "CHECK: true == false is FALSE")
@@ -530,30 +530,30 @@ module Cosmos
         capture_io do |stdout|
           # Success
           wait("INST HEALTH_STATUS TEMP1 == -100.0", 5)
-          stdout.string.should match "WAIT: INST HEALTH_STATUS TEMP1 == -100.0"
+          expect(stdout.string).to match "WAIT: INST HEALTH_STATUS TEMP1 == -100.0"
           stdout.rewind
           wait_raw("INST HEALTH_STATUS TEMP1 == 0", 5)
-          stdout.string.should match "WAIT: INST HEALTH_STATUS TEMP1 == 0"
+          expect(stdout.string).to match "WAIT: INST HEALTH_STATUS TEMP1 == 0"
           stdout.rewind
           wait_tolerance("INST HEALTH_STATUS TEMP1", -100.0, 1, 5)
-          stdout.string.should match "WAIT: INST HEALTH_STATUS TEMP1 was within"
+          expect(stdout.string).to match "WAIT: INST HEALTH_STATUS TEMP1 was within"
           stdout.rewind
           wait_tolerance_raw("INST HEALTH_STATUS TEMP1", 0, 1, 5)
-          stdout.string.should match "WAIT: INST HEALTH_STATUS TEMP1 was within"
+          expect(stdout.string).to match "WAIT: INST HEALTH_STATUS TEMP1 was within"
           stdout.rewind
 
           # Failure
           wait("INST HEALTH_STATUS TEMP1 == -200.0", 0.1)
-          stdout.string.should match "WAIT: INST HEALTH_STATUS TEMP1 == -200.0 failed"
+          expect(stdout.string).to match "WAIT: INST HEALTH_STATUS TEMP1 == -200.0 failed"
           stdout.rewind
           wait_raw("INST HEALTH_STATUS TEMP1 == 100", 0.1)
-          stdout.string.should match "WAIT: INST HEALTH_STATUS TEMP1 == 100 failed"
+          expect(stdout.string).to match "WAIT: INST HEALTH_STATUS TEMP1 == 100 failed"
           stdout.rewind
           wait_tolerance("INST HEALTH_STATUS TEMP1", -200.0, 1, 0.1)
-          stdout.string.should match "WAIT: INST HEALTH_STATUS TEMP1 failed to be within"
+          expect(stdout.string).to match "WAIT: INST HEALTH_STATUS TEMP1 failed to be within"
           stdout.rewind
           wait_tolerance_raw("INST HEALTH_STATUS TEMP1", 100, 1, 0.1)
-          stdout.string.should match "WAIT: INST HEALTH_STATUS TEMP1 failed to be within"
+          expect(stdout.string).to match "WAIT: INST HEALTH_STATUS TEMP1 failed to be within"
           stdout.rewind
         end
       end
@@ -564,12 +564,12 @@ module Cosmos
         capture_io do |stdout|
           # Success
           wait_expression("true == true", 5)
-          stdout.string.should match "WAIT: true == true is TRUE"
+          expect(stdout.string).to match "WAIT: true == true is TRUE"
           stdout.rewind
 
           # Failure
           wait_expression("true == false", 0.1)
-          stdout.string.should match "WAIT: true == false is FALSE"
+          expect(stdout.string).to match "WAIT: true == false is FALSE"
           stdout.rewind
         end
       end
@@ -580,16 +580,16 @@ module Cosmos
         capture_io do |stdout|
           # Success
           wait_check("INST HEALTH_STATUS TEMP1 == -100.0", 5)
-          stdout.string.should match "CHECK: INST HEALTH_STATUS TEMP1 == -100.0"
+          expect(stdout.string).to match "CHECK: INST HEALTH_STATUS TEMP1 == -100.0"
           stdout.rewind
           wait_check_raw("INST HEALTH_STATUS TEMP1 == 0", 5)
-          stdout.string.should match "CHECK: INST HEALTH_STATUS TEMP1 == 0"
+          expect(stdout.string).to match "CHECK: INST HEALTH_STATUS TEMP1 == 0"
           stdout.rewind
           wait_check_tolerance("INST HEALTH_STATUS TEMP1", -100.0, 1, 5)
-          stdout.string.should match "CHECK: INST HEALTH_STATUS TEMP1 was within"
+          expect(stdout.string).to match "CHECK: INST HEALTH_STATUS TEMP1 was within"
           stdout.rewind
           wait_check_tolerance_raw("INST HEALTH_STATUS TEMP1", 0, 1, 5)
-          stdout.string.should match "CHECK: INST HEALTH_STATUS TEMP1 was within"
+          expect(stdout.string).to match "CHECK: INST HEALTH_STATUS TEMP1 was within"
           stdout.rewind
         end
 
@@ -608,7 +608,7 @@ module Cosmos
         capture_io do |stdout|
           # Success
           wait_check_expression("true == true", 5)
-          stdout.string.should match "CHECK: true == true is TRUE"
+          expect(stdout.string).to match "CHECK: true == true is TRUE"
           stdout.rewind
         end
 
@@ -629,14 +629,14 @@ module Cosmos
 
     describe "get_interface_names" do
       it "returns all interfaces" do
-        get_interface_names.should include("INST_INT")
+        expect(get_interface_names).to include("INST_INT")
       end
     end
 
     describe "connect_interface, disconnect_interface, interface_state" do
       it "connects, disconnect and return the state of the interface CTS-3" do
         connect_interface("INST_INT")
-        interface_state("INST_INT").should eql "CONNECTED"
+        expect(interface_state("INST_INT")).to eql "CONNECTED"
         disconnect_interface("INST_INT")
       end
     end
@@ -649,9 +649,9 @@ module Cosmos
 
     describe "connect_router, disconnect_router, get_router_names, router_state" do
       it "returns connect, disconnect, and list the routers CTS-11" do
-        get_router_names.should include("PREIDENTIFIED_ROUTER")
+        expect(get_router_names).to include("PREIDENTIFIED_ROUTER")
         connect_router("PREIDENTIFIED_ROUTER")
-        router_state("PREIDENTIFIED_ROUTER").should eql "CONNECTED"
+        expect(router_state("PREIDENTIFIED_ROUTER")).to eql "CONNECTED"
         disconnect_router("PREIDENTIFIED_ROUTER")
       end
     end
@@ -678,7 +678,7 @@ module Cosmos
         start_new_server_message_log
         sleep 0.1
         filename = get_server_message_log_filename
-        filename.should match /server_messages.txt/
+        expect(filename).to match /server_messages.txt/
       end
     end
 

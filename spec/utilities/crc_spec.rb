@@ -19,7 +19,7 @@ module Cosmos
     describe "calc" do
       it "calculates a 16 bit CRC" do
         @crc = Crc16.new()
-        @crc.calc('123456789').should eql 0x29B1
+        expect(@crc.calc('123456789')).to eql 0x29B1
       end
     end
   end
@@ -28,7 +28,7 @@ module Cosmos
     describe "calc" do
       it "calculates a 32 bit CRC" do
         @crc = Crc32.new()
-        @crc.calc('123456789').should eql 0xCBF43926
+        expect(@crc.calc('123456789')).to eql 0xCBF43926
       end
     end
   end
@@ -37,7 +37,7 @@ module Cosmos
     describe "calc" do
       it "calculates a 64 bit CRC" do
         @crc = Crc64.new()
-        @crc.calc('123456789').should eql 0x995dc9bbdf1939fa
+        expect(@crc.calc('123456789')).to eql 0x995dc9bbdf1939fa
       end
     end
   end

@@ -91,7 +91,7 @@ RSpec.configure do |config|
 
   config.after(:each) do
     # Make sure we didn't leave any lingering threads
-    Thread.list.length.should eql(1)
+    expect(Thread.list.length).to eql(1)
   end
 end
 
@@ -162,7 +162,7 @@ RSpec.configure do |c|
       end
     end
   end
-# This code causes a new profile file to be created for each test case.
+# This code causes a new profile file to be created for each test case which is excessive and hard to read
 #  c.around(:each) do |example|
 #    if ENV.key?("PROFILE")
 #      klass = example.metadata[:example_group][:example_group][:description_args][0].to_s.gsub(/::/,'')

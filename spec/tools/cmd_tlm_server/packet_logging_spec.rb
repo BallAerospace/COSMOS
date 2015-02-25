@@ -28,7 +28,7 @@ module Cosmos
         tf.close
         pl = PacketLogging.new(CmdTlmServerConfig.new(tf.path))
         default = pl.all['DEFAULT']
-        default.should be_a PacketLogWriterPair
+        expect(default).to be_a PacketLogWriterPair
         expect(default.cmd_log_writer).to receive(:start).with('LABEL')
         expect(default.tlm_log_writer).to receive(:start).with('LABEL')
         pl.start('ALL','LABEL')
@@ -43,7 +43,7 @@ module Cosmos
         tf.close
         pl = PacketLogging.new(CmdTlmServerConfig.new(tf.path))
         default = pl.all['DEFAULT']
-        default.should be_a PacketLogWriterPair
+        expect(default).to be_a PacketLogWriterPair
         expect(default.cmd_log_writer).to receive(:stop)
         expect(default.tlm_log_writer).to receive(:stop)
         pl.stop
@@ -68,7 +68,7 @@ module Cosmos
         tf.close
         pl = PacketLogging.new(CmdTlmServerConfig.new(tf.path))
         mine = pl.all['MY_WRITER']
-        mine.should be_a PacketLogWriterPair
+        expect(mine).to be_a PacketLogWriterPair
         expect(mine.cmd_log_writer).to receive(:start).with('LABEL')
         pl.start_cmd('MY_WRITER','LABEL')
         expect(mine.cmd_log_writer).to receive(:stop)
@@ -94,7 +94,7 @@ module Cosmos
         tf.close
         pl = PacketLogging.new(CmdTlmServerConfig.new(tf.path))
         mine = pl.all['MY_WRITER']
-        mine.should be_a PacketLogWriterPair
+        expect(mine).to be_a PacketLogWriterPair
         expect(mine.tlm_log_writer).to receive(:start).with('LABEL')
         pl.start_tlm('MY_WRITER','LABEL')
         expect(mine.tlm_log_writer).to receive(:stop)
@@ -120,11 +120,11 @@ module Cosmos
         tf.close
         pl = PacketLogging.new(CmdTlmServerConfig.new(tf.path))
         default = pl.all['DEFAULT']
-        default.should be_a PacketLogWriterPair
+        expect(default).to be_a PacketLogWriterPair
         expect(default.cmd_log_writer).to receive(:filename).and_return("test_file")
-        pl.cmd_filename("DEFAULT").should eql "test_file"
+        expect(pl.cmd_filename("DEFAULT")).to eql "test_file"
         expect(default.tlm_log_writer).to receive(:filename).and_return("test_file")
-        pl.tlm_filename("DEFAULT").should eql "test_file"
+        expect(pl.tlm_filename("DEFAULT")).to eql "test_file"
         tf.unlink
       end
     end
@@ -135,7 +135,7 @@ module Cosmos
         tf.puts 'PACKET_LOG_WRITER MY_WRITER packet_log_writer.rb'
         tf.close
         pl = PacketLogging.new(CmdTlmServerConfig.new(tf.path))
-        pl.all.keys.should eql %w(DEFAULT MY_WRITER)
+        expect(pl.all.keys).to eql %w(DEFAULT MY_WRITER)
         tf.unlink
       end
   end

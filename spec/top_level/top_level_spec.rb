@@ -16,13 +16,13 @@ describe "HazardousError" do
   it "has accessors" do
     error = HazardousError.new
     error.target_name = "TGT"
-    error.target_name.should eql "TGT"
+    expect(error.target_name).to eql "TGT"
     error.cmd_name = "CMD"
-    error.cmd_name.should eql "CMD"
+    expect(error.cmd_name).to eql "CMD"
     error.cmd_params = ["ID","BLAH"]
-    error.cmd_params.should eql ["ID","BLAH"]
+    expect(error.cmd_params).to eql ["ID","BLAH"]
     error.hazardous_description = "Description"
-    error.hazardous_description.should eql "Description"
+    expect(error.hazardous_description).to eql "Description"
   end
 end
 
@@ -35,7 +35,7 @@ module Cosmos
 
   describe "FatalError" do
     it "is a StandardError" do
-      FatalError.new.should be_a StandardError
+      expect(FatalError.new).to be_a StandardError
     end
   end
 
@@ -45,7 +45,7 @@ module Cosmos
       $stderr = stderr
       save = Cosmos::PATH
       Cosmos::PATH = "HI"
-      stderr.string.should match /warning\: already initialized constant/
+      expect(stderr.string).to match /warning\: already initialized constant/
       Cosmos::PATH = save
 
       save_mutex = Cosmos::COSMOS_MUTEX
@@ -53,7 +53,7 @@ module Cosmos
         Cosmos::COSMOS_MUTEX = "HI"
         Cosmos::COSMOS_MUTEX = save_mutex
       end
-      stderr.string.should_not match "warning: already initialized constant COSMOS_MUTEX"
+      expect(stderr.string).not_to match "warning: already initialized constant COSMOS_MUTEX"
       $stderr = STDERR
     end
   end
@@ -67,23 +67,23 @@ module Cosmos
     end
 
     it "is initially set" do
-      Cosmos::USERPATH.should_not be_nil
+      expect(Cosmos::USERPATH).not_to be_nil
     end
 
     context "when searching for userpath.txt" do
       it "giveups if it can't be found" do
         old = Cosmos::USERPATH
         Cosmos.define_user_path(Dir.home)
-        Cosmos::USERPATH.should eql old
+        expect(Cosmos::USERPATH).to eql old
       end
 
       it "sets the path to where userpath.txt is found" do
         ENV.delete('COSMOS_USERPATH')
         old = Cosmos::USERPATH
-        old.should_not eql File.dirname(__FILE__)
+        expect(old).not_to eql File.dirname(__FILE__)
         File.open(File.join(File.dirname(__FILE__), 'userpath.txt'),'w') {|f| f.puts '' }
         Cosmos.define_user_path(File.dirname(__FILE__))
-        Cosmos::USERPATH.should eql File.dirname(__FILE__)
+        expect(Cosmos::USERPATH).to eql File.dirname(__FILE__)
         File.delete(File.join(File.dirname(__FILE__), 'userpath.txt'))
       end
     end
@@ -92,9 +92,9 @@ module Cosmos
   describe "self.add_to_search_path" do
     it "adds a directory to the Ruby search path" do
       if Kernel.is_windows?
-        $:.should_not include("C:/test/path")
+        expect($:).not_to include("C:/test/path")
         Cosmos.add_to_search_path("C:/test/path")
-        $:.should include("C:/test/path")
+        expect($:).to include("C:/test/path")
       end
     end
   end
@@ -116,8 +116,8 @@ module Cosmos
         array = [1,2,3,4]
         Cosmos.marshal_dump('marshal_test', array)
         array_load = Cosmos.marshal_load('marshal_test')
-        File.exist?(File.join(Cosmos::USERPATH,'marshal_test')).should be_truthy
-        array.should eql array_load
+        expect(File.exist?(File.join(Cosmos::USERPATH,'marshal_test'))).to be_truthy
+        expect(array).to eql array_load
         File.delete(File.join(Cosmos::USERPATH,'marshal_test'))
       end
     end
@@ -126,19 +126,19 @@ module Cosmos
       capture_io do |stdout|
         system_exit_count = $system_exit_count
         Cosmos.marshal_dump('marshal_test', Proc.new { '' })
-        $system_exit_count.should be > system_exit_count
-        stdout.string.should match "no _dump_data is defined for class Proc"
+        expect($system_exit_count).to be > system_exit_count
+        expect(stdout.string).to match "no _dump_data is defined for class Proc"
       end
       Cosmos.cleanup_exceptions()
     end
 
     it "rescues marshal load errors" do
       # Attempt to load something that doesn't exist
-      Cosmos.marshal_load('blah').should be_nil
+      expect(Cosmos.marshal_load('blah')).to be_nil
 
       # Attempt to load something that doesn't have the marshal header
       File.open(File.join(Cosmos::USERPATH,'marshal_test'),'wb') {|f| f.puts "marshal!" }
-      Cosmos.marshal_load('marshal_test').should be_nil
+      expect(Cosmos.marshal_load('marshal_test')).to be_nil
 
       # Attempt to load something that has a bad marshal
       File.open(File.join(Cosmos::USERPATH,'marshal_test'),'wb') do |file|
@@ -148,7 +148,7 @@ module Cosmos
 
       capture_io do |stdout|
         Cosmos.marshal_load('marshal_test')
-        stdout.string.should match "Marshal load failed with exception"
+        expect(stdout.string).to match "Marshal load failed with exception"
       end
       Cosmos.cleanup_exceptions()
     end
@@ -160,10 +160,10 @@ module Cosmos
         capture_io do |stdout|
           thread = Cosmos.run_process("ping 192.0.0.234 -n 1 -w 1000 > nul")
           sleep 0.1
-          thread.should be_a Thread
-          thread.alive?.should be_truthy
+          expect(thread).to be_a Thread
+          expect(thread.alive?).to be_truthy
           sleep 2
-          thread.alive?.should be_falsey
+          expect(thread.alive?).to be_falsey
         end
       end
     end
@@ -178,7 +178,7 @@ module Cosmos
         allow(Logger).to receive(:error) {|str| output = str}
         thread = Cosmos.run_process_check_output("ping 192.0.0.234 -n 1 -w 1000")
         sleep 0.1 while thread.alive?
-        output.should match "Pinging 192.0.0.234"
+        expect(output).to match "Pinging 192.0.0.234"
       end
     end
   end
@@ -188,8 +188,8 @@ module Cosmos
       File.open(File.join(Cosmos::USERPATH,'test1.txt'),'w') {|f| f.puts "test1" }
       File.open(File.join(Cosmos::USERPATH,'test2.txt'),'w') {|f| f.puts "test2" }
       digest = Cosmos.md5_files(["test1.txt", "test2.txt"])
-      digest.digest.length.should be 16
-      digest.hexdigest.should eql 'e51dfbea83de9c7e6b49560089d8a170'
+      expect(digest.digest.length).to be 16
+      expect(digest.hexdigest).to eql 'e51dfbea83de9c7e6b49560089d8a170'
       File.delete(File.join(Cosmos::USERPATH, 'test1.txt'))
       File.delete(File.join(Cosmos::USERPATH, 'test2.txt'))
     end
@@ -198,7 +198,7 @@ module Cosmos
   describe "create_log_file" do
     it "creates a log file even if System LOGS doesn't exist" do
       filename = Cosmos.create_log_file('test', 'X:/directory/which/does/not/exit')
-      File.exist?(filename).should be_truthy
+      expect(File.exist?(filename)).to be_truthy
       File.delete(filename)
 
       Cosmos.set_working_dir do
@@ -220,13 +220,13 @@ module Cosmos
         # Create a logs directory as the first order backup
         FileUtils.mkdir('logs')
         filename = Cosmos.create_log_file('test', 'X:/directory/which/does/not/exit')
-        File.exist?(filename).should be_truthy
+        expect(File.exist?(filename)).to be_truthy
         File.delete(filename)
 
         # Delete logs and see if we still get a log file
         FileUtils.rm_rf('logs')
         filename = Cosmos.create_log_file('test', 'X:/directory/which/does/not/exit')
-        File.exist?(filename).should be_truthy
+        expect(File.exist?(filename)).to be_truthy
         File.delete(filename)
 
         # Restore outputs
@@ -238,9 +238,9 @@ module Cosmos
   describe "write_exception_file" do
     it "writes an exception file" do
       file = Cosmos.write_exception_file(nil, 'test1_exception', File.dirname(__FILE__))
-      File.exist?(file).should be_truthy
+      expect(File.exist?(file)).to be_truthy
       file = Cosmos.write_exception_file(RuntimeError.new, 'test2_exception', File.dirname(__FILE__))
-      File.exist?(file).should be_truthy
+      expect(File.exist?(file)).to be_truthy
       Cosmos.cleanup_exceptions()
     end
   end
@@ -252,8 +252,8 @@ module Cosmos
         Cosmos.catch_fatal_exception do
           raise "AHHH!!!"
         end
-        $system_exit_count.should eql(system_exit_count + 1)
-        stdout.string.should match "Fatal Exception! Exiting..."
+        expect($system_exit_count).to eql(system_exit_count + 1)
+        expect(stdout.string).to match "Fatal Exception! Exiting..."
       end
       Cosmos.cleanup_exceptions()
     end
@@ -264,8 +264,8 @@ module Cosmos
       capture_io do |stdout|
         system_exit_count = $system_exit_count
         Cosmos.handle_fatal_exception(RuntimeError.new)
-        $system_exit_count.should eql(system_exit_count + 1)
-        stdout.string.should match "Fatal Exception! Exiting..."
+        expect($system_exit_count).to eql(system_exit_count + 1)
+        expect(stdout.string).to match "Fatal Exception! Exiting..."
       end
       Cosmos.cleanup_exceptions()
     end
@@ -276,8 +276,8 @@ module Cosmos
       capture_io do |stdout|
         system_exit_count = $system_exit_count
         Cosmos.handle_critical_exception(RuntimeError.new)
-        $system_exit_count.should eql(system_exit_count)
-        stdout.string.should match "Critical Exception!"
+        expect($system_exit_count).to eql(system_exit_count)
+        expect(stdout.string).to match "Critical Exception!"
       end
       Cosmos.cleanup_exceptions()
     end
@@ -292,7 +292,7 @@ module Cosmos
         def thread.graceful_kill
         end
         sleep 1
-        stdout.string.should match "Test thread unexpectedly died."
+        expect(stdout.string).to match "Test thread unexpectedly died."
         Cosmos.kill_thread(thread, thread)
       end
       Cosmos.cleanup_exceptions()

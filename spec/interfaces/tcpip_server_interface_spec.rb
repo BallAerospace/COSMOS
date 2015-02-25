@@ -27,18 +27,18 @@ module Cosmos
 
       it "is not writeable if no write port given" do
         i = TcpipServerInterface.new('nil','8889','nil','5','burst')
-        i.name.should eql "Cosmos::TcpipServerInterface"
-        i.write_allowed?.should be_falsey
-        i.write_raw_allowed?.should be_falsey
-        i.read_allowed?.should be_truthy
+        expect(i.name).to eql "Cosmos::TcpipServerInterface"
+        expect(i.write_allowed?).to be_falsey
+        expect(i.write_raw_allowed?).to be_falsey
+        expect(i.read_allowed?).to be_truthy
       end
 
       it "is not readable if no read port given" do
         i = TcpipServerInterface.new('8888','nil','5','nil','burst')
-        i.name.should eql "Cosmos::TcpipServerInterface"
-        i.write_allowed?.should be_truthy
-        i.write_raw_allowed?.should be_truthy
-        i.read_allowed?.should be_falsey
+        expect(i.name).to eql "Cosmos::TcpipServerInterface"
+        expect(i.write_allowed?).to be_truthy
+        expect(i.write_raw_allowed?).to be_truthy
+        expect(i.read_allowed?).to be_falsey
       end
     end
 
@@ -56,18 +56,18 @@ module Cosmos
         expect(@stream).to receive(:write_queue_size).and_return(50)
         expect(@stream).to receive(:raw_logger_pair=) { nil }
         i = TcpipServerInterface.new('8888','8889','5','5','burst')
-        i.connected?.should be_falsey
+        expect(i.connected?).to be_falsey
         i.connect
-        i.connected?.should be_truthy
+        expect(i.connected?).to be_truthy
         i.disconnect
-        i.connected?.should be_falsey
+        expect(i.connected?).to be_falsey
         i.bytes_read = 1000
         i.bytes_written = 2000
-        i.bytes_read.should eql 10
-        i.bytes_written.should eql 20
-        i.num_clients.should eql 30
-        i.read_queue_size.should eql 40
-        i.write_queue_size.should eql 50
+        expect(i.bytes_read).to eql 10
+        expect(i.bytes_written).to eql 20
+        expect(i.num_clients).to eql 30
+        expect(i.read_queue_size).to eql 40
+        expect(i.write_queue_size).to eql 50
       end
     end
 
@@ -75,21 +75,21 @@ module Cosmos
       it "counts the packets received" do
         allow(@stream).to receive(:read) { Packet.new('','') }
         i = TcpipServerInterface.new('8888','8889','5','5','burst')
-        i.read_count.should eql 0
+        expect(i.read_count).to eql 0
         i.read
-        i.read_count.should eql 1
+        expect(i.read_count).to eql 1
         i.read
-        i.read_count.should eql 2
+        expect(i.read_count).to eql 2
       end
 
       it "does not count nil packets" do
         allow(@stream).to receive(:read) { nil }
         i = TcpipServerInterface.new('8888','8889','5','5','burst')
-        i.read_count.should eql 0
+        expect(i.read_count).to eql 0
         i.read
-        i.read_count.should eql 0
+        expect(i.read_count).to eql 0
         i.read
-        i.read_count.should eql 0
+        expect(i.read_count).to eql 0
       end
     end
 
@@ -104,11 +104,11 @@ module Cosmos
         allow(@stream).to receive(:connected?).and_return(true)
         allow(@stream).to receive(:write).with(kind_of(Packet))
         i = TcpipServerInterface.new('8888','8889','5','5','burst')
-        i.write_count.should eql 0
+        expect(i.write_count).to eql 0
         i.write(Packet.new('',''))
-        i.write_count.should eql 1
+        expect(i.write_count).to eql 1
         i.write(Packet.new('',''))
-        i.write_count.should eql 2
+        expect(i.write_count).to eql 2
       end
 
       it "handles server exceptions and disconnect" do
@@ -131,11 +131,11 @@ module Cosmos
         allow(@stream).to receive(:connected?).and_return(true)
         allow(@stream).to receive(:write_raw).with(kind_of(String))
         i = TcpipServerInterface.new('8888','8889','5','5','burst')
-        i.write_count.should eql 0
+        expect(i.write_count).to eql 0
         i.write_raw('')
-        i.write_count.should eql 1
+        expect(i.write_count).to eql 1
         i.write_raw('')
-        i.write_count.should eql 2
+        expect(i.write_count).to eql 2
       end
 
       it "handles server exceptions and disconnect" do

@@ -27,9 +27,9 @@ module Cosmos
         log.start
         log.stop
         Cosmos.set_working_dir do
-          File.exist?(log.filename).should be_truthy
-          log.filename.should match 'TEST'
-          log.filename.should match 'logs'
+          expect(File.exist?(log.filename)).to be_truthy
+          expect(log.filename).to match 'TEST'
+          expect(log.filename).to match 'logs'
           File.delete log.filename
         end
       end
@@ -38,8 +38,8 @@ module Cosmos
         log = MessageLog.new('TEST', File.expand_path(File.dirname(__FILE__)))
         log.start
         log.stop
-        File.exist?(log.filename).should be_truthy
-        log.filename.should match File.expand_path(File.dirname(__FILE__))
+        expect(File.exist?(log.filename)).to be_truthy
+        expect(log.filename).to match File.expand_path(File.dirname(__FILE__))
         File.delete log.filename
       end
     end
@@ -50,7 +50,7 @@ module Cosmos
         log.write("Test message")
         log.stop
         Cosmos.set_working_dir do
-          File.read(log.filename).should eql "Test message"
+          expect(File.read(log.filename)).to eql "Test message"
           File.delete log.filename
         end
       end
@@ -64,7 +64,7 @@ module Cosmos
         # Allow a second to tick by so we have a unique filename
         sleep(1.001)
         log.start
-        log.filename.should_not eql filename
+        expect(log.filename).not_to eql filename
         log.stop
         Cosmos.set_working_dir do
           File.delete filename
@@ -79,7 +79,7 @@ module Cosmos
         log.start
         log.stop
         Cosmos.set_working_dir do
-          File.stat(log.filename).writable?.should be_falsey
+          expect(File.stat(log.filename).writable?).to be_falsey
           File.delete log.filename
         end
       end

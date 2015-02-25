@@ -21,18 +21,18 @@ module Cosmos
 
       it "is not writeable if no write port given" do
         i = UdpInterface.new('localhost','nil','8889')
-        i.name.should eql "Cosmos::UdpInterface"
-        i.write_allowed?.should be_falsey
-        i.write_raw_allowed?.should be_falsey
-        i.read_allowed?.should be_truthy
+        expect(i.name).to eql "Cosmos::UdpInterface"
+        expect(i.write_allowed?).to be_falsey
+        expect(i.write_raw_allowed?).to be_falsey
+        expect(i.read_allowed?).to be_truthy
       end
 
       it "is not readable if no read port given" do
         i = UdpInterface.new('localhost','8888','nil')
-        i.name.should eql "Cosmos::UdpInterface"
-        i.write_allowed?.should be_truthy
-        i.write_raw_allowed?.should be_truthy
-        i.read_allowed?.should be_falsey
+        expect(i.name).to eql "Cosmos::UdpInterface"
+        expect(i.write_allowed?).to be_truthy
+        expect(i.write_raw_allowed?).to be_truthy
+        expect(i.read_allowed?).to be_falsey
       end
     end
 
@@ -47,11 +47,11 @@ module Cosmos
         expect(UdpWriteSocket).to receive(:new).and_return(write)
         expect(UdpReadSocket).to receive(:new).and_return(read)
         i = UdpInterface.new('localhost','8888','8889')
-        i.connected?.should be_falsey
+        expect(i.connected?).to be_falsey
         i.connect
-        i.connected?.should be_truthy
+        expect(i.connected?).to be_truthy
         i.disconnect
-        i.connected?.should be_falsey
+        expect(i.connected?).to be_falsey
       end
 
       it "creates a UdpWriteSocket if write port given" do
@@ -61,11 +61,11 @@ module Cosmos
         expect(UdpWriteSocket).to receive(:new).and_return(write)
         expect(UdpReadSocket).to_not receive(:new)
         i = UdpInterface.new('localhost','8888','nil')
-        i.connected?.should be_falsey
+        expect(i.connected?).to be_falsey
         i.connect
-        i.connected?.should be_truthy
+        expect(i.connected?).to be_truthy
         i.disconnect
-        i.connected?.should be_falsey
+        expect(i.connected?).to be_falsey
       end
 
       it "creates a UdpReadSocket if read port given" do
@@ -75,11 +75,11 @@ module Cosmos
         expect(UdpWriteSocket).to_not receive(:new)
         expect(UdpReadSocket).to receive(:new).and_return(read)
         i = UdpInterface.new('localhost','nil','8889')
-        i.connected?.should be_falsey
+        expect(i.connected?).to be_falsey
         i.connect
-        i.connected?.should be_truthy
+        expect(i.connected?).to be_truthy
         i.disconnect
-        i.connected?.should be_falsey
+        expect(i.connected?).to be_falsey
       end
     end
 
@@ -94,11 +94,11 @@ module Cosmos
         expect(UdpWriteSocket).to receive(:new).and_return(write)
         expect(UdpReadSocket).to receive(:new).and_return(read)
         i = UdpInterface.new('localhost','8888','8889')
-        i.connected?.should be_falsey
+        expect(i.connected?).to be_falsey
         i.connect
-        i.connected?.should be_truthy
+        expect(i.connected?).to be_truthy
         i.disconnect
-        i.connected?.should be_falsey
+        expect(i.connected?).to be_falsey
       end
     end
 
@@ -107,7 +107,7 @@ module Cosmos
         i = UdpInterface.new('localhost','8888','nil')
         thread = Thread.new { i.read }
         sleep 0.1
-        thread.stop?.should be_truthy
+        expect(thread.stop?).to be_truthy
         Cosmos.kill_thread(nil, thread)
       end
 
@@ -119,7 +119,7 @@ module Cosmos
         i.connect
         thread = Thread.new { i.read }
         sleep 0.1
-        thread.stop?.should be_truthy
+        expect(thread.stop?).to be_truthy
         Cosmos.kill_thread(nil, thread)
       end
 
@@ -129,14 +129,14 @@ module Cosmos
         expect(UdpReadSocket).to receive(:new).and_return(read)
         i = UdpInterface.new('localhost','nil','8889')
         i.connect
-        i.read_count.should eql 0
-        i.bytes_read.should eql 0
+        expect(i.read_count).to eql 0
+        expect(i.bytes_read).to eql 0
         i.read
-        i.read_count.should eql 1
-        i.bytes_read.should eql 4
+        expect(i.read_count).to eql 1
+        expect(i.bytes_read).to eql 4
         i.read
-        i.read_count.should eql 2
-        i.bytes_read.should eql 8
+        expect(i.read_count).to eql 2
+        expect(i.bytes_read).to eql 8
       end
     end
 
@@ -159,15 +159,15 @@ module Cosmos
         allow(write).to receive(:write)
         i = UdpInterface.new('localhost','8888','nil')
         i.connect
-        i.write_count.should eql 0
+        expect(i.write_count).to eql 0
         pkt = Packet.new('tgt','pkt')
         pkt.buffer = "\x00\x01\x02\x03"
         i.write(pkt)
-        i.write_count.should eql 1
-        i.bytes_written.should eql 4
+        expect(i.write_count).to eql 1
+        expect(i.bytes_written).to eql 4
         i.write_raw(pkt.buffer)
-        i.write_count.should eql 2
-        i.bytes_written.should eql 8
+        expect(i.write_count).to eql 2
+        expect(i.bytes_written).to eql 8
       end
     end
   end

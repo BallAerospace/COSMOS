@@ -40,33 +40,33 @@ describe File do
     it "formats the time" do
       time = Time.now
       timestamp = sprintf("%04u_%02u_%02u_%02u_%02u_%02u", time.year, time.month, time.mday, time.hour, time.min, time.sec)
-      File.build_timestamped_filename(nil,".txt",time).should match timestamp
+      expect(File.build_timestamped_filename(nil,".txt",time)).to match timestamp
     end
 
     it "allows empty tags" do
-      File.build_timestamped_filename([]).should match /\d\d\.txt/
+      expect(File.build_timestamped_filename([])).to match /\d\d\.txt/
     end
 
     it "allows nil tags" do
-      File.build_timestamped_filename(nil).should match /\d\d\.txt/
+      expect(File.build_timestamped_filename(nil)).to match /\d\d\.txt/
     end
 
     it "includes the tags" do
-      File.build_timestamped_filename(['this','is','a','test']).should match 'this_is_a_test'
+      expect(File.build_timestamped_filename(['this','is','a','test'])).to match 'this_is_a_test'
     end
 
     it "changes the extension" do
-      File.build_timestamped_filename(nil,".bin").should match ".bin"
+      expect(File.build_timestamped_filename(nil,".bin")).to match ".bin"
     end
   end
 
   describe "find_in_search_path" do
     it "returns the path to the file" do
-      File.find_in_search_path("cosmos.rb").should match "/lib/cosmos.rb"
+      expect(File.find_in_search_path("cosmos.rb")).to match "/lib/cosmos.rb"
     end
 
     it "returns nil if the file can't be found" do
-      File.find_in_search_path("blah_blah_blah.rb").should be_nil
+      expect(File.find_in_search_path("blah_blah_blah.rb")).to be_nil
     end
   end
 end

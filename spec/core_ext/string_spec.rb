@@ -21,49 +21,49 @@ describe String do
     end
 
     it "uses 1 byte words" do
-      @data.formatted.split("\n")[0].should eql "00000000: 1A 1B 1C 1D 1E 1F 20 21 22 23 24 25 26 27 28 29         !\"#\$%&\'\(\)"
-      @data.formatted.split("\n")[1].should eql "00000010: 2A 2B 2C 2D 2E 2F                                *+,-./          "
+      expect(@data.formatted.split("\n")[0]).to eql "00000000: 1A 1B 1C 1D 1E 1F 20 21 22 23 24 25 26 27 28 29         !\"#\$%&\'\(\)"
+      expect(@data.formatted.split("\n")[1]).to eql "00000010: 2A 2B 2C 2D 2E 2F                                *+,-./          "
     end
 
     it "uses 2 byte words" do
-      @data.formatted(2, 8).should match "00000000: 1A1B 1C1D 1E1F" # ...
-      @data.formatted(2, 8).should match "00000010: 2A2B 2C2D 2E2F"
+      expect(@data.formatted(2, 8)).to match "00000000: 1A1B 1C1D 1E1F" # ...
+      expect(@data.formatted(2, 8)).to match "00000010: 2A2B 2C2D 2E2F"
     end
 
     it "changes the word separator" do
-      @data.formatted(2, 4, '_').should match "00000000: 1A1B_1C1D_1E1F_2021"
-      @data.formatted(2, 4, '_').should match "00000008: 2223_2425_2627_2829"
-      @data.formatted(2, 4, '_').should match "00000010: 2A2B_2C2D_2E2F"
+      expect(@data.formatted(2, 4, '_')).to match "00000000: 1A1B_1C1D_1E1F_2021"
+      expect(@data.formatted(2, 4, '_')).to match "00000008: 2223_2425_2627_2829"
+      expect(@data.formatted(2, 4, '_')).to match "00000010: 2A2B_2C2D_2E2F"
     end
 
     it "indents the lines" do
-      @data.formatted(1, 16, ' ', 4).should match "    00000000: 1A 1B 1C 1D"
+      expect(@data.formatted(1, 16, ' ', 4)).to match "    00000000: 1A 1B 1C 1D"
     end
 
     it "does not show the address" do
-      @data.formatted(1, 16, ' ', 0, false).should match "1A 1B 1C 1D"
+      expect(@data.formatted(1, 16, ' ', 0, false)).to match "1A 1B 1C 1D"
     end
 
     it "changes the address separator" do
-      @data.formatted(1, 16, ' ', 0, true, '= ').should match "00000000= 1A 1B 1C 1D"
+      expect(@data.formatted(1, 16, ' ', 0, true, '= ')).to match "00000000= 1A 1B 1C 1D"
     end
 
     it "does not show the ASCII" do
-      @data.formatted(1,16,'',0,true,'',true).should match '29         !"#\$%&\'()'
-      @data.formatted(1,16,'',0,true,'',false).should_not match '29         !"#\$%&\'()'
+      expect(@data.formatted(1,16,'',0,true,'',true)).to match '29         !"#\$%&\'()'
+      expect(@data.formatted(1,16,'',0,true,'',false)).not_to match '29         !"#\$%&\'()'
     end
 
     it "changes the ASCII separator" do
-      @data.formatted(1,16,'',0,true,'',true,'__').should match '29__       !"#\$%&\'()'
+      expect(@data.formatted(1,16,'',0,true,'',true,'__')).to match '29__       !"#\$%&\'()'
     end
 
     it "changes the ASCII unprintable character" do
-      @data.formatted(1,16,'',0,true,'',true,'__','x').should match '29__xxxxxx !"#\$%&\'()'
+      expect(@data.formatted(1,16,'',0,true,'',true,'__','x')).to match '29__xxxxxx !"#\$%&\'()'
     end
 
     it "changes the line separator" do
-      @data.formatted(1,16,' ',0,true,': ',true,'  ',' ', '~').split("~")[0].should eql "00000000: 1A 1B 1C 1D 1E 1F 20 21 22 23 24 25 26 27 28 29         !\"#\$%&\'\(\)"
-      @data.formatted(1,16,' ',0,true,': ',true,'  ',' ', '~').split("~")[1].should eql "00000010: 2A 2B 2C 2D 2E 2F                                *+,-./          "
+      expect(@data.formatted(1,16,' ',0,true,': ',true,'  ',' ', '~').split("~")[0]).to eql "00000000: 1A 1B 1C 1D 1E 1F 20 21 22 23 24 25 26 27 28 29         !\"#\$%&\'\(\)"
+      expect(@data.formatted(1,16,' ',0,true,': ',true,'  ',' ', '~').split("~")[1]).to eql "00000010: 2A 2B 2C 2D 2E 2F                                *+,-./          "
     end
   end
 
@@ -75,37 +75,37 @@ describe String do
     end
 
     it "formats the data" do
-      @data.simple_formatted.should eql "1A1B1C1D1E1F202122232425262728292A2B2C2D2E2F"
+      expect(@data.simple_formatted).to eql "1A1B1C1D1E1F202122232425262728292A2B2C2D2E2F"
     end
   end
 
   describe "remove_line" do
     it "removes the specified line" do
       test = "this\nis\na\ntest"
-      test.remove_line(1).should eql "is\na\ntest"
-      test.should eql "this\nis\na\ntest"
+      expect(test.remove_line(1)).to eql "is\na\ntest"
+      expect(test).to eql "this\nis\na\ntest"
     end
 
     it "splits on the given separator" do
       test = "thisXisXaXtest"
-      test.remove_line(4,'X').should eql "thisXisXaX"
+      expect(test.remove_line(4,'X')).to eql "thisXisXaX"
     end
 
     it "does nothing if the line number isn't found" do
       test = "thisXisXaXtest"
-      test.remove_line(5,'X').should eql "thisXisXaXtest"
+      expect(test.remove_line(5,'X')).to eql "thisXisXaXtest"
     end
   end
 
   describe "num_lines" do
     it "counts the number of newlines" do
       test = "this\nis\na\ntest"
-      test.num_lines.should eql 4
+      expect(test.num_lines).to eql 4
     end
 
     it "does not count trailing newlines" do
       test = "this\nis\na\ntest\n"
-      test.num_lines.should eql 4
+      expect(test.num_lines).to eql 4
     end
   end
 
@@ -113,24 +113,24 @@ describe String do
     context "with single quotes" do
       it "removes leading and trailing single quotes" do
         test = "'string'"
-        test.remove_quotes.should eql "string"
+        expect(test.remove_quotes).to eql "string"
       end
 
       it "does not remove interior" do
         test = "can't"
-        test.remove_quotes.should eql "can't"
+        expect(test.remove_quotes).to eql "can't"
       end
     end
 
     context "with double quotes" do
       it "removes leading and trailing" do
         test = '"string"'
-        test.remove_quotes.should eql "string"
+        expect(test.remove_quotes).to eql "string"
       end
 
       it "does not remove interior" do
         test = 'say("HI")'
-        test.remove_quotes.should eql 'say("HI")'
+        expect(test.remove_quotes).to eql 'say("HI")'
       end
     end
   end
@@ -182,41 +182,41 @@ describe String do
 
   describe "convert_to_value" do
     it "converts a float" do
-      "5.123E5".convert_to_value.should eql 512300.0
-      "5.123".convert_to_value.should eql 5.123
+      expect("5.123E5".convert_to_value).to eql 512300.0
+      expect("5.123".convert_to_value).to eql 5.123
     end
 
     it "converts an integer" do
-      "12345".convert_to_value.should eql 12345
-      "0x1A".convert_to_value.should eql 0x1A
+      expect("12345".convert_to_value).to eql 12345
+      expect("0x1A".convert_to_value).to eql 0x1A
     end
 
     it "converts an array" do
-      "[0,1,2,3]".convert_to_value.should eql [0,1,2,3]
+      expect("[0,1,2,3]".convert_to_value).to eql [0,1,2,3]
     end
   end
 
   describe "hex_to_byte_string" do
     it "converts a hex string to binary bytes" do
-      "0xABCD".hex_to_byte_string.should eql "\xAB\xCD"
+      expect("0xABCD".hex_to_byte_string).to eql "\xAB\xCD"
     end
   end
 
   describe "class_name_to_filename" do
     it "converts a class name to a filename" do
-      "MyGreatClass".class_name_to_filename.should eql "my_great_class.rb"
+      expect("MyGreatClass".class_name_to_filename).to eql "my_great_class.rb"
     end
   end
 
   describe "filename_to_class_name" do
     it "converts a filename to a class name" do
-      "my_great_class.rb".filename_to_class_name.should eql "MyGreatClass"
+      expect("my_great_class.rb".filename_to_class_name).to eql "MyGreatClass"
     end
   end
 
   describe "to_class" do
     it "returns the class for the string" do
-      "String".to_class.should eql String
+      expect("String".to_class).to eql String
     end
   end
 end

@@ -24,7 +24,7 @@ module Cosmos
 
     describe "stop" do
       it "exists" do
-        BackgroundTask.new.should respond_to(:stop)
+        expect(BackgroundTask.new).to respond_to(:stop)
       end
     end
   end

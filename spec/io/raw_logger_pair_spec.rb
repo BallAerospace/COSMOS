@@ -18,16 +18,16 @@ module Cosmos
     describe "initialize" do
       it "sets the write logger and read logger" do
         pair = RawLoggerPair.new('MYINT')
-        pair.read_logger.should_not be_nil
-        pair.write_logger.should_not be_nil
-        pair.read_logger.logging_enabled.should be_falsey
-        pair.write_logger.logging_enabled.should be_falsey
+        expect(pair.read_logger).not_to be_nil
+        expect(pair.write_logger).not_to be_nil
+        expect(pair.read_logger.logging_enabled).to be_falsey
+        expect(pair.write_logger.logging_enabled).to be_falsey
 
         pair = RawLoggerPair.new('MYINT2', ['raw_logger.rb', true, 100000, './'])
-        pair.read_logger.should_not be_nil
-        pair.write_logger.should_not be_nil
-        pair.read_logger.logging_enabled.should be_truthy
-        pair.write_logger.logging_enabled.should be_truthy
+        expect(pair.read_logger).not_to be_nil
+        expect(pair.write_logger).not_to be_nil
+        expect(pair.read_logger.logging_enabled).to be_truthy
+        expect(pair.write_logger.logging_enabled).to be_truthy
       end
     end
 
@@ -35,8 +35,8 @@ module Cosmos
       it "starts logging" do
         pair = RawLoggerPair.new('MYINT')
         pair.start
-        pair.write_logger.logging_enabled.should be_truthy
-        pair.read_logger.logging_enabled.should be_truthy
+        expect(pair.write_logger.logging_enabled).to be_truthy
+        expect(pair.read_logger.logging_enabled).to be_truthy
       end
     end
 
@@ -44,30 +44,30 @@ module Cosmos
       it "stops logging" do
         pair = RawLoggerPair.new('MYINT')
         pair.start
-        pair.write_logger.logging_enabled.should be_truthy
-        pair.read_logger.logging_enabled.should be_truthy
+        expect(pair.write_logger.logging_enabled).to be_truthy
+        expect(pair.read_logger.logging_enabled).to be_truthy
         pair.stop
-        pair.write_logger.logging_enabled.should be_falsey
-        pair.read_logger.logging_enabled.should be_falsey
+        expect(pair.write_logger.logging_enabled).to be_falsey
+        expect(pair.read_logger.logging_enabled).to be_falsey
       end
     end
 
     describe "clone" do
       it "clones itself including logging state" do
         pair = RawLoggerPair.new('MYINT')
-        pair.write_logger.logging_enabled.should be_falsey
-        pair.read_logger.logging_enabled.should be_falsey
+        expect(pair.write_logger.logging_enabled).to be_falsey
+        expect(pair.read_logger.logging_enabled).to be_falsey
         pair_clone1 = pair.clone
         pair.start
-        pair.write_logger.logging_enabled.should be_truthy
-        pair.read_logger.logging_enabled.should be_truthy
-        pair_clone1.write_logger.logging_enabled.should be_falsey
-        pair_clone1.read_logger.logging_enabled.should be_falsey
+        expect(pair.write_logger.logging_enabled).to be_truthy
+        expect(pair.read_logger.logging_enabled).to be_truthy
+        expect(pair_clone1.write_logger.logging_enabled).to be_falsey
+        expect(pair_clone1.read_logger.logging_enabled).to be_falsey
         pair_clone2 = pair.clone
-        pair_clone1.write_logger.logging_enabled.should be_falsey
-        pair_clone1.read_logger.logging_enabled.should be_falsey
-        pair_clone2.write_logger.logging_enabled.should be_truthy
-        pair_clone2.read_logger.logging_enabled.should be_truthy
+        expect(pair_clone1.write_logger.logging_enabled).to be_falsey
+        expect(pair_clone1.read_logger.logging_enabled).to be_falsey
+        expect(pair_clone2.write_logger.logging_enabled).to be_truthy
+        expect(pair_clone2.read_logger.logging_enabled).to be_truthy
       end
     end
 

@@ -18,7 +18,7 @@ module Cosmos
     describe "initialize" do
       it "takes a packet log writer name" do
         a = NewPacketLogProcessor.new('MINE')
-        a.value_type.should eql :CONVERTED
+        expect(a.value_type).to eql :CONVERTED
       end
     end
 
@@ -30,7 +30,7 @@ module Cosmos
         end
         a = NewPacketLogProcessor.new()
         a.call(nil, nil)
-        log_name.should eql('ALL')
+        expect(log_name).to eql('ALL')
       end
     end
 

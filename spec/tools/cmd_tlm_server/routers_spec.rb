@@ -37,7 +37,7 @@ module Cosmos
           routers.all['MY_ROUTER'].connect_on_startup = true
           routers.start
 
-          stdout.string.should match "Creating thread for router MY_ROUTER"
+          expect(stdout.string).to match "Creating thread for router MY_ROUTER"
           routers.stop
         end
         tf.unlink
@@ -61,13 +61,13 @@ module Cosmos
           routers.all['MY_ROUTER'].connect_on_startup = true
           routers.start
           sleep 0.1
-          routers.state("MY_ROUTER").should eql "ATTEMPTING"
-          routers.state("MY_ROUTER").should eql "CONNECTED"
+          expect(routers.state("MY_ROUTER")).to eql "ATTEMPTING"
+          expect(routers.state("MY_ROUTER")).to eql "CONNECTED"
           routers.stop
           sleep 0.1
-          routers.state("MY_ROUTER").should eql "DISCONNECTED"
+          expect(routers.state("MY_ROUTER")).to eql "DISCONNECTED"
 
-          stdout.string.should match "Disconnected from router MY_ROUTER"
+          expect(stdout.string).to match "Disconnected from router MY_ROUTER"
         end
         tf.unlink
         sleep(0.2)
@@ -81,17 +81,17 @@ module Cosmos
         tf.puts 'INTERFACE DEST2 tcpip_client_interface.rb localhost 8888 8888 5 5 burst'
         tf.close
         config = CmdTlmServerConfig.new(tf.path)
-        config.interfaces.keys.should eql %w(DEST1 DEST2)
-        config.interfaces['DEST1'].routers.should be_empty
-        config.interfaces['DEST2'].routers.should be_empty
+        expect(config.interfaces.keys).to eql %w(DEST1 DEST2)
+        expect(config.interfaces['DEST1'].routers).to be_empty
+        expect(config.interfaces['DEST2'].routers).to be_empty
 
         routers = Routers.new(config)
-        routers.all.keys.should be_empty
+        expect(routers.all.keys).to be_empty
         routers.add_preidentified("PRE", 9999)
-        routers.all.keys.should eql %w(PRE)
+        expect(routers.all.keys).to eql %w(PRE)
 
-        config.interfaces['DEST1'].routers[0].name.should eql "PRE"
-        config.interfaces['DEST2'].routers[0].name.should eql "PRE"
+        expect(config.interfaces['DEST1'].routers[0].name).to eql "PRE"
+        expect(config.interfaces['DEST2'].routers[0].name).to eql "PRE"
         tf.unlink
       end
     end
@@ -150,22 +150,22 @@ module Cosmos
 
           config = CmdTlmServerConfig.new(tf.path)
           routers = Routers.new(config)
-          routers.all["MY_ROUTER"].interfaces[0].name.should eql "DEST1"
-          routers.all["MY_ROUTER"].interfaces[1].name.should eql "DEST2"
-          config.interfaces['DEST1'].routers[0].name.should eql "MY_ROUTER"
-          config.interfaces['DEST2'].routers[0].name.should eql "MY_ROUTER"
+          expect(routers.all["MY_ROUTER"].interfaces[0].name).to eql "DEST1"
+          expect(routers.all["MY_ROUTER"].interfaces[1].name).to eql "DEST2"
+          expect(config.interfaces['DEST1'].routers[0].name).to eql "MY_ROUTER"
+          expect(config.interfaces['DEST2'].routers[0].name).to eql "MY_ROUTER"
           routers.connect("MY_ROUTER")
           sleep 0.1
-          stdout.string.should match "Connecting to MY_ROUTER"
+          expect(stdout.string).to match "Connecting to MY_ROUTER"
           routers.disconnect("MY_ROUTER")
           routers.connect("MY_ROUTER",'localhost',8888,8888,6,6,'length')
           sleep 0.1
-          stdout.string.should match "Disconnected from router MY_ROUTER"
-          stdout.string.should match "Connecting to MY_ROUTER"
-          routers.all["MY_ROUTER"].interfaces[0].name.should eql "DEST1"
-          routers.all["MY_ROUTER"].interfaces[1].name.should eql "DEST2"
-          config.interfaces['DEST1'].routers[0].name.should eql "MY_ROUTER"
-          config.interfaces['DEST2'].routers[0].name.should eql "MY_ROUTER"
+          expect(stdout.string).to match "Disconnected from router MY_ROUTER"
+          expect(stdout.string).to match "Connecting to MY_ROUTER"
+          expect(routers.all["MY_ROUTER"].interfaces[0].name).to eql "DEST1"
+          expect(routers.all["MY_ROUTER"].interfaces[1].name).to eql "DEST2"
+          expect(config.interfaces['DEST1'].routers[0].name).to eql "MY_ROUTER"
+          expect(config.interfaces['DEST2'].routers[0].name).to eql "MY_ROUTER"
           routers.disconnect("MY_ROUTER")
           routers.stop
 
@@ -189,7 +189,7 @@ module Cosmos
         tf.puts 'ROUTER ROUTER3 interface.rb'
         tf.close
         routers = Routers.new(CmdTlmServerConfig.new(tf.path))
-        routers.names.should eql %w(ROUTER1 ROUTER2 ROUTER3)
+        expect(routers.names).to eql %w(ROUTER1 ROUTER2 ROUTER3)
         tf.unlink
       end
     end
@@ -210,10 +210,10 @@ module Cosmos
         end
         routers.clear_counters
         routers.all.each do |name, router|
-          router.bytes_written.should eql 0
-          router.bytes_read.should eql 0
-          router.write_count.should eql 0
-          router.read_count.should eql 0
+          expect(router.bytes_written).to eql 0
+          expect(router.bytes_read).to eql 0
+          expect(router.write_count).to eql 0
+          expect(router.read_count).to eql 0
         end
         tf.unlink
       end

@@ -19,7 +19,7 @@ module Cosmos
 
     describe "initialize" do
       it "has no warnings" do
-        Commands.new(PacketConfig.new).warnings.should be_empty
+        expect(Commands.new(PacketConfig.new).warnings).to be_empty
       end
     end
 
@@ -61,11 +61,11 @@ module Cosmos
 
     describe "target_names" do
       it "returns an array with just UNKNOWN if no targets" do
-        Commands.new(PacketConfig.new).target_names.should eql ["UNKNOWN"]
+        expect(Commands.new(PacketConfig.new).target_names).to eql ["UNKNOWN"]
       end
 
       it "returns all target names" do
-        @cmd.target_names.should eql ["TGT1","TGT2","UNKNOWN"]
+        expect(@cmd.target_names).to eql ["TGT1","TGT2","UNKNOWN"]
       end
     end
 
@@ -76,17 +76,17 @@ module Cosmos
 
       it "returns all packets target TGT1" do
         pkts = @cmd.packets("TGT1")
-        pkts.length.should eql 2
-        pkts.keys.should include("PKT1")
-        pkts.keys.should include("PKT2")
+        expect(pkts.length).to eql 2
+        expect(pkts.keys).to include("PKT1")
+        expect(pkts.keys).to include("PKT2")
       end
 
       it "returns all packets target TGT2" do
         pkts = @cmd.packets("TGT2")
-        pkts.length.should eql 3
-        pkts.keys.should include("PKT3")
-        pkts.keys.should include("PKT4")
-        pkts.keys.should include("PKT5")
+        expect(pkts.length).to eql 3
+        expect(pkts.keys).to include("PKT3")
+        expect(pkts.keys).to include("PKT4")
+        expect(pkts.keys).to include("PKT5")
       end
     end
 
@@ -101,11 +101,11 @@ module Cosmos
 
       it "returns all items from packet TGT1/PKT1" do
         items = @cmd.params("TGT1","PKT1")
-        items.length.should eql 4
-        items[0].name.should eql "ITEM1"
-        items[1].name.should eql "ITEM2"
-        items[2].name.should eql "ITEM3"
-        items[3].name.should eql "ITEM4"
+        expect(items.length).to eql 4
+        expect(items[0].name).to eql "ITEM1"
+        expect(items[1].name).to eql "ITEM2"
+        expect(items[2].name).to eql "ITEM3"
+        expect(items[3].name).to eql "ITEM4"
       end
     end
 
@@ -120,29 +120,29 @@ module Cosmos
 
       it "returns the specified packet" do
         pkt = @cmd.packet("TGT1","PKT1")
-        pkt.target_name.should eql "TGT1"
-        pkt.packet_name.should eql "PKT1"
+        expect(pkt.target_name).to eql "TGT1"
+        expect(pkt.packet_name).to eql "PKT1"
       end
     end
 
     describe "identify" do
       it "return nil with a nil buffer" do
-        @cmd.identify(nil).should be_nil
+        expect(@cmd.identify(nil)).to be_nil
       end
 
       it "only checks the targets given" do
         buffer = "\x01\x02\x03\x04"
         pkt = @cmd.identify(buffer,["TGT1"])
         pkt.enable_method_missing
-        pkt.item1.should eql 1
-        pkt.item2.should eql 2
-        pkt.item3.should eql 3
-        pkt.item4.should eql 4
+        expect(pkt.item1).to eql 1
+        expect(pkt.item2).to eql 2
+        expect(pkt.item3).to eql 3
+        expect(pkt.item4).to eql 4
       end
 
       it "returns nil with unknown targets given" do
         buffer = "\x01\x02\x03\x04"
-        @cmd.identify(buffer,["TGTX"]).should be_nil
+        expect(@cmd.identify(buffer,["TGTX"])).to be_nil
       end
 
       context "with an unknown buffer" do
@@ -151,11 +151,11 @@ module Cosmos
             buffer = "\x01\x02\x03"
             pkt = @cmd.identify(buffer)
             pkt.enable_method_missing
-            pkt.item1.should eql 1
-            pkt.item2.should eql 2
-            pkt.item3.should eql 3
-            pkt.item4.should eql 0
-            stdout.string.should match(/ERROR: TGT1 PKT1 received with actual packet length of 3 but defined length of 4/)
+            expect(pkt.item1).to eql 1
+            expect(pkt.item2).to eql 2
+            expect(pkt.item3).to eql 3
+            expect(pkt.item4).to eql 0
+            expect(stdout.string).to match(/ERROR: TGT1 PKT1 received with actual packet length of 3 but defined length of 4/)
           end
         end
 
@@ -164,11 +164,11 @@ module Cosmos
             buffer = "\x01\x02\x03\x04\x05"
             pkt = @cmd.identify(buffer)
             pkt.enable_method_missing
-            pkt.item1.should eql 1
-            pkt.item2.should eql 2
-            pkt.item3.should eql 3
-            pkt.item4.should eql 4
-            stdout.string.should match(/ERROR: TGT1 PKT1 received with actual packet length of 5 but defined length of 4/)
+            expect(pkt.item1).to eql 1
+            expect(pkt.item2).to eql 2
+            expect(pkt.item3).to eql 3
+            expect(pkt.item4).to eql 4
+            expect(stdout.string).to match(/ERROR: TGT1 PKT1 received with actual packet length of 5 but defined length of 4/)
           end
         end
 
@@ -176,34 +176,34 @@ module Cosmos
           buffer = "\x01\x02\x03\x04"
           pkt = @cmd.identify(buffer)
           pkt.enable_method_missing
-          pkt.item1.should eql 1
-          pkt.item2.should eql 2
-          pkt.item3.should eql 3
-          pkt.item4.should eql 4
+          expect(pkt.item1).to eql 1
+          expect(pkt.item2).to eql 2
+          expect(pkt.item3).to eql 3
+          expect(pkt.item4).to eql 4
 
           # Now request the packet from the latest data table
           pkt = @cmd.packet("TGT1","PKT1")
           pkt.enable_method_missing
-          pkt.item1.should eql 0
-          pkt.item2.should eql 0
-          pkt.item3.should eql 0
-          pkt.item4.should eql 0
+          expect(pkt.item1).to eql 0
+          expect(pkt.item2).to eql 0
+          expect(pkt.item3).to eql 0
+          expect(pkt.item4).to eql 0
         end
 
         it "identifies TGT1 PKT2" do
           buffer = "\x02\x02"
           pkt = @cmd.identify(buffer)
           pkt.enable_method_missing
-          pkt.item1.should eql 2
-          pkt.item2.should eql "GOOD"
+          expect(pkt.item1).to eql 2
+          expect(pkt.item2).to eql "GOOD"
         end
 
         it "identifies TGT2 PKT1" do
           buffer = "\x03\x02"
           pkt = @cmd.identify(buffer)
           pkt.enable_method_missing
-          pkt.item1.should eql 3
-          pkt.item2.should eql 2
+          expect(pkt.item1).to eql 3
+          expect(pkt.item2).to eql 2
         end
       end
     end
@@ -224,10 +224,10 @@ module Cosmos
       it "creates a populated command packet with default values" do
         cmd = @cmd.build_cmd("TGT1","PKT1")
         cmd.enable_method_missing
-        cmd.item1.should eql 1
-        cmd.item2.should eql 2
-        cmd.item3.should eql 3
-        cmd.item4.should eql 4
+        expect(cmd.item1).to eql 1
+        expect(cmd.item2).to eql 2
+        expect(cmd.item3).to eql 3
+        expect(cmd.item4).to eql 4
       end
 
       it "complains about out of range item values" do
@@ -237,29 +237,29 @@ module Cosmos
       it "ignores out of range item values if requested" do
         cmd = @cmd.build_cmd("tgt1","pkt1",{"item2"=>255}, false)
         cmd.enable_method_missing
-        cmd.item1.should eql 1
-        cmd.item2.should eql 255
-        cmd.item3.should eql 3
-        cmd.item4.should eql 4
+        expect(cmd.item1).to eql 1
+        expect(cmd.item2).to eql 255
+        expect(cmd.item3).to eql 3
+        expect(cmd.item4).to eql 4
       end
 
       it "creates a command packet with override item values" do
         items = {"ITEM2" => 10, "ITEM4" => 11}
         cmd = @cmd.build_cmd("TGT1","PKT1",items)
         cmd.enable_method_missing
-        cmd.item1.should eql 1
-        cmd.item2.should eql 10
-        cmd.item3.should eql 3
-        cmd.item4.should eql 11
+        expect(cmd.item1).to eql 1
+        expect(cmd.item2).to eql 10
+        expect(cmd.item3).to eql 3
+        expect(cmd.item4).to eql 11
       end
 
       it "creates a command packet with override item value states" do
         items = {"ITEM2" => "GOOD"}
         cmd = @cmd.build_cmd("TGT1","PKT2",items)
         cmd.enable_method_missing
-        cmd.item1.should eql 2
-        cmd.item2.should eql "GOOD"
-        cmd.read("ITEM2",:RAW).should eql 2
+        expect(cmd.item1).to eql 2
+        expect(cmd.item2).to eql "GOOD"
+        expect(cmd.read("ITEM2",:RAW)).to eql 2
       end
 
       it "complains about missing required parameters" do
@@ -269,43 +269,43 @@ module Cosmos
       it "supports building raw commands" do
         items = {"ITEM2" => 10}
         cmd = @cmd.build_cmd("TGT2","PKT5",items,false,false)
-        cmd.raw.should eql false
-        cmd.read("ITEM2").should eql 20
+        expect(cmd.raw).to eql false
+        expect(cmd.read("ITEM2")).to eql 20
         items = {"ITEM2" => 10}
         cmd = @cmd.build_cmd("TGT1","PKT1",items,false,true)
-        cmd.raw.should eql true
-        cmd.read("ITEM2").should eql 10
+        expect(cmd.raw).to eql true
+        expect(cmd.read("ITEM2")).to eql 10
       end
     end
 
     describe "format" do
       it "creates a string representation of a command" do
         pkt = @cmd.packet("TGT1","PKT1")
-        @cmd.format(pkt).should eql "cmd('TGT1 PKT1 with ITEM1 0, ITEM2 0, ITEM3 0, ITEM4 0')"
+        expect(@cmd.format(pkt)).to eql "cmd('TGT1 PKT1 with ITEM1 0, ITEM2 0, ITEM3 0, ITEM4 0')"
 
         pkt = @cmd.packet("TGT2","PKT4")
         string = ''
         pkt.write("ITEM2","HELLO WORLD")
-        @cmd.format(pkt).should eql "cmd('TGT2 PKT4 with ITEM1 0, ITEM2 \"HELLO WORLD\"')"
+        expect(@cmd.format(pkt)).to eql "cmd('TGT2 PKT4 with ITEM1 0, ITEM2 \"HELLO WORLD\"')"
 
         pkt = @cmd.packet("TGT2","PKT4")
         string = ''
         pkt.write("ITEM2","HELLO WORLD")
         pkt.raw = true
-        @cmd.format(pkt).should eql "cmd_raw('TGT2 PKT4 with ITEM1 0, ITEM2 \"HELLO WORLD\"')"
+        expect(@cmd.format(pkt)).to eql "cmd_raw('TGT2 PKT4 with ITEM1 0, ITEM2 \"HELLO WORLD\"')"
 
         # If the string is too big it should truncate it
         (1..2028).each {|i| string << 'A' }
         pkt.write("ITEM2",string)
         pkt.raw = false
         result = @cmd.format(pkt)
-        result.should match(/cmd\('TGT2 PKT4 with ITEM1 0, ITEM2 \"AAAAAAAAAAA/)
-        result.should match(/AAAAAAAAAAA.../)
+        expect(result).to match(/cmd\('TGT2 PKT4 with ITEM1 0, ITEM2 \"AAAAAAAAAAA/)
+        expect(result).to match(/AAAAAAAAAAA.../)
       end
 
       it "ignores parameters" do
         pkt = @cmd.packet("TGT1","PKT1")
-        @cmd.format(pkt,['ITEM3','ITEM4']).should eql "cmd('TGT1 PKT1 with ITEM1 0, ITEM2 0')"
+        expect(@cmd.format(pkt,['ITEM3','ITEM4'])).to eql "cmd('TGT1 PKT1 with ITEM1 0, ITEM2 0')"
       end
     end
 
@@ -324,23 +324,23 @@ module Cosmos
 
       it "returns true if the command overall is hazardous" do
         hazardous, description = @cmd.cmd_hazardous?("TGT1","PKT1")
-        hazardous.should be_falsey
-        description.should be_nil
+        expect(hazardous).to be_falsey
+        expect(description).to be_nil
         hazardous, description = @cmd.cmd_hazardous?("tgt2","pkt3")
-        hazardous.should be_truthy
-        description.should eql "Hazardous"
+        expect(hazardous).to be_truthy
+        expect(description).to eql "Hazardous"
       end
 
       it "returns true if a command parameter is hazardous" do
         hazardous, description = @cmd.cmd_hazardous?("TGT1","PKT2",{"ITEM2"=>0})
-        hazardous.should be_truthy
-        description.should eql "Hazardous"
+        expect(hazardous).to be_truthy
+        expect(description).to eql "Hazardous"
         hazardous, description = @cmd.cmd_hazardous?("TGT1","PKT2",{"ITEM2"=>1})
-        hazardous.should be_truthy
-        description.should eql ""
+        expect(hazardous).to be_truthy
+        expect(description).to eql ""
         hazardous, description = @cmd.cmd_hazardous?("TGT1","PKT2",{"ITEM2"=>2})
-        hazardous.should be_falsey
-        description.should be_nil
+        expect(hazardous).to be_falsey
+        expect(description).to be_nil
       end
     end
 
@@ -351,16 +351,16 @@ module Cosmos
         @cmd.packet("TGT2","PKT3").received_count = 3
         @cmd.packet("TGT2","PKT4").received_count = 4
         @cmd.clear_counters
-        @cmd.packet("TGT1","PKT1").received_count.should eql 0
-        @cmd.packet("TGT1","PKT2").received_count.should eql 0
-        @cmd.packet("TGT2","PKT3").received_count.should eql 0
-        @cmd.packet("TGT2","PKT4").received_count.should eql 0
+        expect(@cmd.packet("TGT1","PKT1").received_count).to eql 0
+        expect(@cmd.packet("TGT1","PKT2").received_count).to eql 0
+        expect(@cmd.packet("TGT2","PKT3").received_count).to eql 0
+        expect(@cmd.packet("TGT2","PKT4").received_count).to eql 0
       end
     end
 
     describe "all" do
       it "returns all packets" do
-        @cmd.all.keys.should eql %w(UNKNOWN TGT1 TGT2)
+        expect(@cmd.all.keys).to eql %w(UNKNOWN TGT1 TGT2)
       end
     end
 

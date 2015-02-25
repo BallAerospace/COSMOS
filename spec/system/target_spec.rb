@@ -22,22 +22,22 @@ module Cosmos
 
     describe "initialize" do
       it "creates a target with the given name" do
-        Target.new("TGT").name.should eql "TGT"
+        expect(Target.new("TGT").name).to eql "TGT"
       end
 
       it "creates a target with the given substitute name" do
         tgt = Target.new("TGT","TGT2")
-        tgt.name.should eql "TGT2"
-        tgt.original_name.should eql "TGT"
+        expect(tgt.name).to eql "TGT2"
+        expect(tgt.original_name).to eql "TGT"
       end
 
       it "creates a target with the default dir" do
-        Target.new("TGT").dir.should eql File.join(USERPATH,'config','targets','TGT')
+        expect(Target.new("TGT").dir).to eql File.join(USERPATH,'config','targets','TGT')
       end
 
       it "creates a target with an override path" do
         saved = File.join(USERPATH,'saved')
-        Target.new("TGT",nil,saved).dir.should eql File.join(saved,'TGT')
+        expect(Target.new("TGT",nil,saved).dir).to eql File.join(saved,'TGT')
       end
 
       it "records all the command and telemetry files in the target directory" do
@@ -51,11 +51,11 @@ module Cosmos
         File.open(File.join(cmd_tlm,'tlm2.txt'),'w') {}
 
         tgt = Target.new(tgt_name,nil,tgt_path)
-        tgt.dir.should eql File.join(tgt_path,tgt_name)
+        expect(tgt.dir).to eql File.join(tgt_path,tgt_name)
         files = Dir[File.join(cmd_tlm,'*.txt')]
-        files.should_not be_empty
-        tgt.cmd_tlm_files.length.should eql 4
-        tgt.cmd_tlm_files.sort.should eql files.sort
+        expect(files).not_to be_empty
+        expect(tgt.cmd_tlm_files.length).to eql 4
+        expect(tgt.cmd_tlm_files.sort).to eql files.sort
 
         FileUtils.rm_r(tgt_path)
       end
@@ -70,8 +70,8 @@ module Cosmos
         end
 
         tgt = Target.new(tgt_name,nil,tgt_path)
-        tgt.dir.should eql tgt_dir
-        tgt.ignored_parameters.should eql ["TEST"]
+        expect(tgt.dir).to eql tgt_dir
+        expect(tgt.ignored_parameters).to eql ["TEST"]
 
         FileUtils.rm_r(tgt_path)
       end
@@ -86,8 +86,8 @@ module Cosmos
         end
 
         tgt = Target.new(tgt_name,nil,tgt_path, 'target_other.txt')
-        tgt.dir.should eql tgt_dir
-        tgt.ignored_parameters.should eql ["BOB"]
+        expect(tgt.dir).to eql tgt_dir
+        expect(tgt.ignored_parameters).to eql ["BOB"]
 
         FileUtils.rm_r(tgt_path)
       end
@@ -162,7 +162,7 @@ module Cosmos
           tf.close
           tgt = Target.new("TGT")
           tgt.process_file(tf.path)
-          tgt.ignored_parameters.should eql ["TEST"]
+          expect(tgt.ignored_parameters).to eql ["TEST"]
           tf.unlink
         end
       end
@@ -212,9 +212,9 @@ module Cosmos
           end
 
           tgt = Target.new(tgt_name,nil,tgt_path)
-          tgt.dir.should eql tgt_dir
-          tgt.cmd_tlm_files.length.should eql 2
-          tgt.cmd_tlm_files.should eql [tgt_dir + '/cmd_tlm/tgt_cmds2.txt', tgt_dir + '/cmd_tlm/tgt_tlm3.txt']
+          expect(tgt.dir).to eql tgt_dir
+          expect(tgt.cmd_tlm_files.length).to eql 2
+          expect(tgt.cmd_tlm_files).to eql [tgt_dir + '/cmd_tlm/tgt_cmds2.txt', tgt_dir + '/cmd_tlm/tgt_tlm3.txt']
 
           FileUtils.rm_r(tgt_dir)
         end

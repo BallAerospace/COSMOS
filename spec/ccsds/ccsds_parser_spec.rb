@@ -20,23 +20,23 @@ module Cosmos
 
     describe "initialize" do
       it "sets the state to :READY" do
-        @parser.state.should eql :READY
+        expect(@parser.state).to eql :READY
       end
 
       it "clears the in_progress_data" do
-        @parser.in_progress_data.should eql ""
+        expect(@parser.in_progress_data).to eql ""
       end
     end
 
     describe "reset" do
       it "sets the state to :READY" do
         @parser.reset
-        @parser.state.should eql :READY
+        expect(@parser.state).to eql :READY
       end
 
       it "clears the in_progress_data" do
         @parser.reset
-        @parser.in_progress_data.should eql ""
+        expect(@parser.in_progress_data).to eql ""
       end
     end
 
@@ -45,7 +45,7 @@ module Cosmos
         pkt = CcsdsPacket.new
         pkt.write('CCSDSSEQFLAGS', CcsdsPacket::STANDALONE)
         pkt.write('CCSDSDATA',"\x01\x02\x03\x04")
-        @parser.unsegment_packet(pkt).should eql pkt.buffer
+        expect(@parser.unsegment_packet(pkt)).to eql pkt.buffer
       end
 
       it "combines two CCSDS packets" do
@@ -57,8 +57,8 @@ module Cosmos
         pkt2.write('CCSDSSEQFLAGS', CcsdsPacket::LAST)
         pkt2.write('CCSDSSEQCNT', 1)
         pkt2.write('CCSDSDATA',"\x05\x06\x07\x08")
-        @parser.unsegment_packet(pkt1).should eql nil
-        @parser.unsegment_packet(pkt2).should eql pkt1.buffer + pkt2.read("CCSDSDATA")
+        expect(@parser.unsegment_packet(pkt1)).to eql nil
+        expect(@parser.unsegment_packet(pkt2)).to eql pkt1.buffer + pkt2.read("CCSDSDATA")
       end
 
       it "combines three CCSDS packets" do
@@ -74,9 +74,9 @@ module Cosmos
         pkt3.write('CCSDSSEQFLAGS', CcsdsPacket::LAST)
         pkt3.write('CCSDSSEQCNT', 2)
         pkt3.write('CCSDSDATA',"\x09\x0A\x0B\x0C")
-        @parser.unsegment_packet(pkt1).should eql nil
-        @parser.unsegment_packet(pkt2).should eql nil
-        @parser.unsegment_packet(pkt3).should eql pkt1.buffer + pkt2.read("CCSDSDATA") + pkt3.read("CCSDSDATA")
+        expect(@parser.unsegment_packet(pkt1)).to eql nil
+        expect(@parser.unsegment_packet(pkt2)).to eql nil
+        expect(@parser.unsegment_packet(pkt3)).to eql pkt1.buffer + pkt2.read("CCSDSDATA") + pkt3.read("CCSDSDATA")
       end
 
       it "complains with an initial continuation packet" do
@@ -100,7 +100,7 @@ module Cosmos
         pkt2.write('CCSDSSEQFLAGS', CcsdsPacket::CONTINUATION)
         pkt2.write('CCSDSSEQCNT', 2)
         pkt2.write('CCSDSDATA',"\x05\x06\x07\x08")
-        @parser.unsegment_packet(pkt1).should eql nil
+        expect(@parser.unsegment_packet(pkt1)).to eql nil
         expect { @parser.unsegment_packet(pkt2) }.to raise_error(CcsdsParser::CcsdsSegmentationError, /Missing packet/)
       end
 
@@ -113,7 +113,7 @@ module Cosmos
         pkt2.write('CCSDSSEQFLAGS', CcsdsPacket::LAST)
         pkt2.write('CCSDSSEQCNT', 2)
         pkt2.write('CCSDSDATA',"\x05\x06\x07\x08")
-        @parser.unsegment_packet(pkt1).should eql nil
+        expect(@parser.unsegment_packet(pkt1)).to eql nil
         expect { @parser.unsegment_packet(pkt2) }.to raise_error(CcsdsParser::CcsdsSegmentationError, /Missing packet/)
       end
 
@@ -126,7 +126,7 @@ module Cosmos
         pkt2.write('CCSDSSEQFLAGS', CcsdsPacket::FIRST)
         pkt2.write('CCSDSSEQCNT', 1)
         pkt2.write('CCSDSDATA',"\x05\x06\x07\x08")
-        @parser.unsegment_packet(pkt1).should eql nil
+        expect(@parser.unsegment_packet(pkt1)).to eql nil
         expect { @parser.unsegment_packet(pkt2) }.to raise_error(CcsdsParser::CcsdsSegmentationError, "Unexpected first packet")
       end
 
@@ -138,7 +138,7 @@ module Cosmos
         pkt2 = CcsdsPacket.new
         pkt2.write('CCSDSSEQFLAGS', CcsdsPacket::STANDALONE)
         pkt2.write('CCSDSDATA',"\x05\x06\x07\x08")
-        @parser.unsegment_packet(pkt1).should eql nil
+        expect(@parser.unsegment_packet(pkt1)).to eql nil
         expect { @parser.unsegment_packet(pkt2) }.to raise_error(CcsdsParser::CcsdsSegmentationError, "Unexpected standalone packet")
       end
 

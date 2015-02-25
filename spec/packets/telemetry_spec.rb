@@ -19,7 +19,7 @@ module Cosmos
 
     describe "initialize" do
       it "has no warnings" do
-        Telemetry.new(PacketConfig.new).warnings.should be_empty
+        expect(Telemetry.new(PacketConfig.new).warnings).to be_empty
       end
     end
 
@@ -52,11 +52,11 @@ module Cosmos
 
     describe "target_names" do
       it "returns an array with just UNKNOWN if no targets" do
-        Telemetry.new(PacketConfig.new).target_names.should eql ["UNKNOWN"]
+        expect(Telemetry.new(PacketConfig.new).target_names).to eql ["UNKNOWN"]
       end
 
       it "returns all target names" do
-        @tlm.target_names.should eql ["TGT1","TGT2","UNKNOWN"]
+        expect(@tlm.target_names).to eql ["TGT1","TGT2","UNKNOWN"]
       end
     end
 
@@ -67,15 +67,15 @@ module Cosmos
 
       it "returns all packets target TGT1" do
         pkts = @tlm.packets("TGT1")
-        pkts.length.should eql 2
-        pkts.keys.should include("PKT1")
-        pkts.keys.should include("PKT2")
+        expect(pkts.length).to eql 2
+        expect(pkts.keys).to include("PKT1")
+        expect(pkts.keys).to include("PKT2")
       end
 
       it "returns all packets target TGT2" do
         pkts = @tlm.packets("TGT2")
-        pkts.length.should eql 1
-        pkts.keys.should include("PKT1")
+        expect(pkts.length).to eql 1
+        expect(pkts.keys).to include("PKT1")
       end
     end
 
@@ -94,8 +94,8 @@ module Cosmos
 
       it "returns the specified packet" do
         pkt = @tlm.packet("TGT1","PKT1")
-        pkt.target_name.should eql "TGT1"
-        pkt.packet_name.should eql "PKT1"
+        expect(pkt.target_name).to eql "TGT1"
+        expect(pkt.packet_name).to eql "PKT1"
       end
     end
 
@@ -114,14 +114,14 @@ module Cosmos
 
       it "returns all items from packet TGT1/PKT1" do
         items = @tlm.items("TGT1","PKT1")
-        items.length.should eql 7
-        items[0].name.should eql "RECEIVED_TIMESECONDS"
-        items[1].name.should eql "RECEIVED_TIMEFORMATTED"
-        items[2].name.should eql "RECEIVED_COUNT"
-        items[3].name.should eql "ITEM1"
-        items[4].name.should eql "ITEM2"
-        items[5].name.should eql "ITEM3"
-        items[6].name.should eql "ITEM4"
+        expect(items.length).to eql 7
+        expect(items[0].name).to eql "RECEIVED_TIMESECONDS"
+        expect(items[1].name).to eql "RECEIVED_TIMEFORMATTED"
+        expect(items[2].name).to eql "RECEIVED_COUNT"
+        expect(items[3].name).to eql "ITEM1"
+        expect(items[4].name).to eql "ITEM2"
+        expect(items[5].name).to eql "ITEM3"
+        expect(items[6].name).to eql "ITEM4"
       end
     end
 
@@ -150,13 +150,13 @@ module Cosmos
 
       it "returns the packet and item" do
         pkt,item = @tlm.packet_and_item("TGT1","PKT1","ITEM1")
-        item.name.should eql "ITEM1"
+        expect(item.name).to eql "ITEM1"
       end
 
       it "returns the LATEST packet and item if it exists" do
         pkt,item = @tlm.packet_and_item("TGT1","LATEST","ITEM1")
-        pkt.packet_name.should eql "PKT2"
-        item.name.should eql "ITEM1"
+        expect(pkt.packet_name).to eql "PKT2"
+        expect(item.name).to eql "ITEM1"
       end
     end
 
@@ -171,9 +171,9 @@ module Cosmos
 
       it "returns the packets that contain the item" do
         pkts = @tlm.latest_packets("TGT1","ITEM1")
-        pkts.length.should eql 2
-        pkts[0].packet_name.should eql "PKT1"
-        pkts[1].packet_name.should eql "PKT2"
+        expect(pkts.length).to eql 2
+        expect(pkts[0].packet_name).to eql "PKT1"
+        expect(pkts[1].packet_name).to eql "PKT2"
       end
     end
 
@@ -192,8 +192,8 @@ module Cosmos
           @tlm.packet("TGT1","PKT1").received_time = time + 1
           @tlm.packet("TGT1","PKT2").received_time = time
           pkt = @tlm.newest_packet("TGT1","ITEM1")
-          pkt.packet_name.should eql "PKT1"
-          pkt.received_time.should eql(time + 1)
+          expect(pkt.packet_name).to eql "PKT1"
+          expect(pkt.received_time).to eql(time + 1)
         end
 
         it "returns the latest packet (PKT2)" do
@@ -201,8 +201,8 @@ module Cosmos
           @tlm.packet("TGT1","PKT1").received_time = time
           @tlm.packet("TGT1","PKT2").received_time = time + 1
           pkt = @tlm.newest_packet("TGT1","ITEM1")
-          pkt.packet_name.should eql "PKT2"
-          pkt.received_time.should eql(time + 1)
+          expect(pkt.packet_name).to eql "PKT2"
+          expect(pkt.received_time).to eql(time + 1)
         end
 
         it "returns the last packet if timestamps are equal" do
@@ -210,39 +210,39 @@ module Cosmos
           @tlm.packet("TGT1","PKT1").received_time = time
           @tlm.packet("TGT1","PKT2").received_time = time
           pkt = @tlm.newest_packet("TGT1","ITEM1")
-          pkt.packet_name.should eql "PKT2"
-          pkt.received_time.should eql(time)
+          expect(pkt.packet_name).to eql "PKT2"
+          expect(pkt.received_time).to eql(time)
         end
       end
 
       context "with one or more nil timestamps" do
         it "returns the last packet if neither has a timestamp" do
           pkt = @tlm.newest_packet("TGT1","ITEM1")
-          pkt.packet_name.should eql "PKT2"
-          pkt.received_time.should be_nil
+          expect(pkt.packet_name).to eql "PKT2"
+          expect(pkt.received_time).to be_nil
         end
 
         it "returns the packet with a timestamp (PKT1)" do
           time = Time.now
           @tlm.packet("TGT1","PKT1").received_time = time
           pkt = @tlm.newest_packet("TGT1","ITEM1")
-          pkt.packet_name.should eql "PKT1"
-          pkt.received_time.should eql time
+          expect(pkt.packet_name).to eql "PKT1"
+          expect(pkt.received_time).to eql time
         end
 
         it "returns the packet with a timestamp (PKT2)" do
           time = Time.now
           @tlm.packet("TGT1","PKT2").received_time = time
           pkt = @tlm.newest_packet("TGT1","ITEM1")
-          pkt.packet_name.should eql "PKT2"
-          pkt.received_time.should eql time
+          expect(pkt.packet_name).to eql "PKT2"
+          expect(pkt.received_time).to eql time
         end
       end
     end
 
     describe "identify!" do
       it "returns nil with a nil buffer" do
-        @tlm.identify!(nil).should be_nil
+        expect(@tlm.identify!(nil)).to be_nil
       end
 
       it "only checks the targets given" do
@@ -250,15 +250,15 @@ module Cosmos
         @tlm.identify!(buffer,["TGT1"])
         pkt = @tlm.packet("TGT1","PKT1")
         pkt.enable_method_missing
-        pkt.item1.should eql 1
-        pkt.item2.should eql 2
-        pkt.item3.should eql 6.0
-        pkt.item4.should eql 8.0
+        expect(pkt.item1).to eql 1
+        expect(pkt.item2).to eql 2
+        expect(pkt.item3).to eql 6.0
+        expect(pkt.item4).to eql 8.0
       end
 
       it "returns nil with unknown targets given" do
         buffer = "\x01\x02\x03\x04"
-        @tlm.identify!(buffer,["TGTX"]).should be_nil
+        expect(@tlm.identify!(buffer,["TGTX"])).to be_nil
       end
 
       context "with an unknown buffer" do
@@ -268,11 +268,11 @@ module Cosmos
             @tlm.identify!(buffer)
             pkt = @tlm.packet("TGT1","PKT1")
             pkt.enable_method_missing
-            pkt.item1.should eql 1
-            pkt.item2.should eql 2
-            pkt.item3.should eql 6.0
-            pkt.item4.should eql 8.0
-            stdout.string.should match(/ERROR: TGT1 PKT1 received with actual packet length of 5 but defined length of 4/)
+            expect(pkt.item1).to eql 1
+            expect(pkt.item2).to eql 2
+            expect(pkt.item3).to eql 6.0
+            expect(pkt.item4).to eql 8.0
+            expect(stdout.string).to match(/ERROR: TGT1 PKT1 received with actual packet length of 5 but defined length of 4/)
           end
         end
 
@@ -281,10 +281,10 @@ module Cosmos
           @tlm.identify!(buffer)
           pkt = @tlm.packet("TGT1","PKT1")
           pkt.enable_method_missing
-          pkt.item1.should eql 1
-          pkt.item2.should eql 2
-          pkt.item3.should eql 6.0
-          pkt.item4.should eql 8.0
+          expect(pkt.item1).to eql 1
+          expect(pkt.item2).to eql 2
+          expect(pkt.item3).to eql 6.0
+          expect(pkt.item4).to eql 8.0
         end
 
         it "identifies TGT1 PKT2" do
@@ -292,8 +292,8 @@ module Cosmos
           @tlm.identify!(buffer)
           pkt = @tlm.packet("TGT1","PKT2")
           pkt.enable_method_missing
-          pkt.item1.should eql 2
-          pkt.item2.should eql 2
+          expect(pkt.item1).to eql 2
+          expect(pkt.item2).to eql 2
         end
 
         it "identifies TGT2 PKT1" do
@@ -301,8 +301,8 @@ module Cosmos
           @tlm.identify!(buffer)
           pkt = @tlm.packet("TGT2","PKT1")
           pkt.enable_method_missing
-          pkt.item1.should eql 3
-          pkt.item2.should eql 2
+          expect(pkt.item1).to eql 3
+          expect(pkt.item2).to eql 2
         end
       end
     end
@@ -330,11 +330,11 @@ module Cosmos
           @tlm.update!("TGT1","PKT1",buffer)
           pkt = @tlm.packet("TGT1","PKT1")
           pkt.enable_method_missing
-          pkt.item1.should eql 1
-          pkt.item2.should eql 2
-          pkt.item3.should eql 6.0
-          pkt.item4.should eql 8.0
-          stdout.string.should match(/ERROR: TGT1 PKT1 received with actual packet length of 5 but defined length of 4/)
+          expect(pkt.item1).to eql 1
+          expect(pkt.item2).to eql 2
+          expect(pkt.item3).to eql 6.0
+          expect(pkt.item4).to eql 8.0
+          expect(stdout.string).to match(/ERROR: TGT1 PKT1 received with actual packet length of 5 but defined length of 4/)
         end
       end
 
@@ -342,10 +342,10 @@ module Cosmos
         @tlm.update!("TGT1","PKT1","\x01\x02\x03\x04")
         pkt = @tlm.packet("TGT1","PKT1")
         pkt.enable_method_missing
-        pkt.item1.should eql 1
-        pkt.item2.should eql 2
-        pkt.item3.should eql 6.0
-        pkt.item4.should eql 8.0
+        expect(pkt.item1).to eql 1
+        expect(pkt.item2).to eql 2
+        expect(pkt.item3).to eql 6.0
+        expect(pkt.item4).to eql 8.0
       end
     end
 
@@ -366,17 +366,17 @@ module Cosmos
     describe "check_stale" do
       it "checks each packet for staleness" do
         @tlm.check_stale
-        @tlm.packet("TGT1","PKT1").stale.should be_truthy
-        @tlm.packet("TGT1","PKT2").stale.should be_truthy
-        @tlm.packet("TGT2","PKT1").stale.should be_truthy
+        expect(@tlm.packet("TGT1","PKT1").stale).to be_truthy
+        expect(@tlm.packet("TGT1","PKT2").stale).to be_truthy
+        expect(@tlm.packet("TGT2","PKT1").stale).to be_truthy
 
         @tlm.packet("TGT1","PKT1").check_limits
         @tlm.packet("TGT1","PKT2").check_limits
         @tlm.packet("TGT2","PKT1").check_limits
         @tlm.check_stale
-        @tlm.packet("TGT1","PKT1").stale.should be_falsey
-        @tlm.packet("TGT1","PKT2").stale.should be_falsey
-        @tlm.packet("TGT2","PKT1").stale.should be_falsey
+        expect(@tlm.packet("TGT1","PKT1").stale).to be_falsey
+        expect(@tlm.packet("TGT1","PKT2").stale).to be_falsey
+        expect(@tlm.packet("TGT2","PKT1").stale).to be_falsey
       end
     end
 
@@ -386,9 +386,9 @@ module Cosmos
         @tlm.packet("TGT1","PKT2").received_count = 2
         @tlm.packet("TGT2","PKT1").received_count = 3
         @tlm.clear_counters
-        @tlm.packet("TGT1","PKT1").received_count.should eql 0
-        @tlm.packet("TGT1","PKT2").received_count.should eql 0
-        @tlm.packet("TGT2","PKT1").received_count.should eql 0
+        expect(@tlm.packet("TGT1","PKT1").received_count).to eql 0
+        expect(@tlm.packet("TGT1","PKT2").received_count).to eql 0
+        expect(@tlm.packet("TGT2","PKT1").received_count).to eql 0
       end
     end
 
@@ -406,11 +406,11 @@ module Cosmos
       end
 
       it "returns the value" do
-        @tlm.value("TGT1","PKT1","ITEM1").should eql 0
+        expect(@tlm.value("TGT1","PKT1","ITEM1")).to eql 0
       end
 
       it "returns the value using LATEST" do
-        @tlm.value("TGT1","LATEST","ITEM1").should eql 0
+        expect(@tlm.value("TGT1","LATEST","ITEM1")).to eql 0
       end
     end
 
@@ -429,13 +429,13 @@ module Cosmos
 
       it "sets the value" do
         @tlm.set_value("TGT1","PKT1","ITEM1",1)
-        @tlm.value("TGT1","PKT1","ITEM1").should eql 1
+        expect(@tlm.value("TGT1","PKT1","ITEM1")).to eql 1
       end
 
       it "sets the value using LATEST" do
         @tlm.set_value("TGT1","LATEST","ITEM1",1)
-        @tlm.value("TGT1","PKT1","ITEM1").should eql 0
-        @tlm.value("TGT1","PKT2","ITEM1").should eql 1
+        expect(@tlm.value("TGT1","PKT1","ITEM1")).to eql 0
+        expect(@tlm.value("TGT1","PKT2","ITEM1")).to eql 1
       end
     end
 
@@ -476,15 +476,15 @@ module Cosmos
         items << %w(TGT1 PKT2 ITEM2)
         items << %w(TGT2 PKT1 ITEM1)
         vals = @tlm.values_and_limits_states(items)
-        vals[0][0].should eql 1
-        vals[0][1].should eql 6
-        vals[0][2].should eql 7
-        vals[1][0].should eql :RED_LOW
-        vals[1][1].should be_nil
-        vals[1][2].should be_nil
-        vals[2][0].should eql [1.0, 2.0, 4.0, 5.0]
-        vals[2][1].should be_nil
-        vals[2][2].should be_nil
+        expect(vals[0][0]).to eql 1
+        expect(vals[0][1]).to eql 6
+        expect(vals[0][2]).to eql 7
+        expect(vals[1][0]).to eql :RED_LOW
+        expect(vals[1][1]).to be_nil
+        expect(vals[1][2]).to be_nil
+        expect(vals[2][0]).to eql [1.0, 2.0, 4.0, 5.0]
+        expect(vals[2][1]).to be_nil
+        expect(vals[2][2]).to be_nil
       end
 
       it "reads all the specified values with specified value_types" do
@@ -503,30 +503,30 @@ module Cosmos
         items << %w(TGT2 PKT1 ITEM1)
         formats = [:CONVERTED, :RAW, :CONVERTED, :RAW, :CONVERTED, :CONVERTED]
         vals = @tlm.values_and_limits_states(items,formats)
-        vals[0][0].should eql 1
-        vals[0][1].should eql 2
-        vals[0][2].should eql 6.0
-        vals[0][3].should eql 4
-        vals[0][4].should eql 6
-        vals[0][5].should eql 7
-        vals[1][0].should eql :RED_LOW
-        vals[1][1].should eql :YELLOW_LOW
-        vals[1][2].should be_nil
-        vals[1][3].should be_nil
-        vals[1][4].should be_nil
-        vals[1][5].should be_nil
-        vals[2][0].should eql [1.0, 2.0, 4.0, 5.0]
-        vals[2][1].should eql [1.0, 2.0, 4.0, 5.0]
-        vals[2][2].should be_nil
-        vals[2][3].should be_nil
-        vals[2][4].should be_nil
-        vals[2][5].should be_nil
+        expect(vals[0][0]).to eql 1
+        expect(vals[0][1]).to eql 2
+        expect(vals[0][2]).to eql 6.0
+        expect(vals[0][3]).to eql 4
+        expect(vals[0][4]).to eql 6
+        expect(vals[0][5]).to eql 7
+        expect(vals[1][0]).to eql :RED_LOW
+        expect(vals[1][1]).to eql :YELLOW_LOW
+        expect(vals[1][2]).to be_nil
+        expect(vals[1][3]).to be_nil
+        expect(vals[1][4]).to be_nil
+        expect(vals[1][5]).to be_nil
+        expect(vals[2][0]).to eql [1.0, 2.0, 4.0, 5.0]
+        expect(vals[2][1]).to eql [1.0, 2.0, 4.0, 5.0]
+        expect(vals[2][2]).to be_nil
+        expect(vals[2][3]).to be_nil
+        expect(vals[2][4]).to be_nil
+        expect(vals[2][5]).to be_nil
       end
     end
 
     describe "all" do
       it "returns all packets" do
-        @tlm.all.keys.should eql %w(UNKNOWN TGT1 TGT2)
+        expect(@tlm.all.keys).to eql %w(UNKNOWN TGT1 TGT2)
       end
     end
 

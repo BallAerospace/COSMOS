@@ -98,9 +98,9 @@ module Cosmos
         tf.puts 'ROUTER MY_ROUTER interface.rb'
         tf.close
         routers = Connections.new(:ROUTERS, CmdTlmServerConfig.new(tf.path))
-        routers.state("MY_ROUTER").should eql "ATTEMPTING"
-        routers.state("MY_ROUTER").should eql "CONNECTED"
-        routers.state("MY_ROUTER").should eql "DISCONNECTED"
+        expect(routers.state("MY_ROUTER")).to eql "ATTEMPTING"
+        expect(routers.state("MY_ROUTER")).to eql "CONNECTED"
+        expect(routers.state("MY_ROUTER")).to eql "DISCONNECTED"
         tf.unlink
       end
     end
@@ -113,7 +113,7 @@ module Cosmos
         tf.puts 'ROUTER ROUTER3 interface.rb'
         tf.close
         routers = Connections.new(:ROUTERS, CmdTlmServerConfig.new(tf.path))
-        routers.names.should eql %w(ROUTER1 ROUTER2 ROUTER3)
+        expect(routers.names).to eql %w(ROUTER1 ROUTER2 ROUTER3)
         tf.unlink
       end
     end
@@ -134,10 +134,10 @@ module Cosmos
         end
         interfaces.clear_counters
         interfaces.all.each do |name, interface|
-          interface.bytes_written.should eql 0
-          interface.bytes_read.should eql 0
-          interface.write_count.should eql 0
-          interface.read_count.should eql 0
+          expect(interface.bytes_written).to eql 0
+          expect(interface.bytes_read).to eql 0
+          expect(interface.write_count).to eql 0
+          expect(interface.read_count).to eql 0
         end
         tf.unlink
       end

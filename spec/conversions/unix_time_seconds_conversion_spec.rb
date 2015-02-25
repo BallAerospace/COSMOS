@@ -19,8 +19,8 @@ module Cosmos
     describe "initialize" do
       it "initializes converted_type and converted_bit_size" do
         gc = UnixTimeSecondsConversion.new('TIME')
-        gc.converted_type.should eql :FLOAT
-        gc.converted_bit_size.should eql 64
+        expect(gc.converted_type).to eql :FLOAT
+        expect(gc.converted_bit_size).to eql 64
       end
     end
 
@@ -31,7 +31,7 @@ module Cosmos
         packet.append_item("TIME",32,:UINT)
         time = Time.new(2020,1,31,12,15,30).to_f
         packet.write("TIME",time)
-        gc.call(nil,packet,packet.buffer).should eql time
+        expect(gc.call(nil,packet,packet.buffer)).to eql time
       end
 
       it "returns the formatted packet time based on seconds and microseconds" do
@@ -42,7 +42,7 @@ module Cosmos
         packet.write("TIME",time)
         packet.append_item("TIME_US",32,:UINT)
         packet.write("TIME_US",500000)
-        gc.call(nil,packet,packet.buffer).should eql time + 0.5
+        expect(gc.call(nil,packet,packet.buffer)).to eql time + 0.5
       end
 
       it "complains if the seconds item doesn't exist" do
@@ -63,12 +63,12 @@ module Cosmos
     describe "to_s" do
       it "returns the seconds conversion" do
         gc = UnixTimeSecondsConversion.new('TIME')
-        gc.to_s.should eql "Time.at(packet.read('TIME', :RAW, buffer), 0).to_f"
+        expect(gc.to_s).to eql "Time.at(packet.read('TIME', :RAW, buffer), 0).to_f"
       end
 
       it "returns the microseconds conversion" do
         gc = UnixTimeSecondsConversion.new('TIME','TIME_US')
-        gc.to_s.should eql "Time.at(packet.read('TIME', :RAW, buffer), packet.read('TIME_US', :RAW, buffer)).to_f"
+        expect(gc.to_s).to eql "Time.at(packet.read('TIME', :RAW, buffer), packet.read('TIME_US', :RAW, buffer)).to_f"
       end
     end
   end

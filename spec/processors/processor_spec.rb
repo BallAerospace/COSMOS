@@ -18,9 +18,9 @@ module Cosmos
     describe "initialize" do
       it "stores an optional value_type" do
         a = Processor.new(:RAW)
-        a.value_type.should eql :RAW
+        expect(a.value_type).to eql :RAW
         b = Processor.new
-        b.value_type.should eql :CONVERTED
+        expect(b.value_type).to eql :CONVERTED
       end
     end
 
@@ -32,7 +32,7 @@ module Cosmos
 
     describe "to_s" do
       it "returns a String" do
-        Processor.new.to_s.should eql "Processor"
+        expect(Processor.new.to_s).to eql "Processor"
       end
     end
 
@@ -40,7 +40,7 @@ module Cosmos
       it "has an assignable name" do
         a = Processor.new
         a.name = "Test"
-        a.name.should eql "TEST"
+        expect(a.name).to eql "TEST"
       end
     end
 

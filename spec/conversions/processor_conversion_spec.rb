@@ -18,10 +18,10 @@ module Cosmos
     describe "initialize" do
       it "takes processor_name, result_name, converted_type, and converted_bit_size" do
         c = ProcessorConversion.new('TEST', 'TEST', 'FLOAT', '64')
-        c.instance_variable_get("@processor_name").should eql 'TEST'
-        c.instance_variable_get("@result_name").should eql :TEST
-        c.converted_type.should eql :FLOAT
-        c.converted_bit_size.should eql 64
+        expect(c.instance_variable_get("@processor_name")).to eql 'TEST'
+        expect(c.instance_variable_get("@result_name")).to eql :TEST
+        expect(c.converted_type).to eql :FLOAT
+        expect(c.converted_bit_size).to eql 64
       end
     end
 
@@ -31,13 +31,13 @@ module Cosmos
         packet = Packet.new("tgt","pkt")
         packet.append_item('ITEM1', 64, :FLOAT)
         packet.processors['TEST'] = double("processor", :results => {:TEST => 6.0})
-        c.call(1,packet,nil).should eql 6.0
+        expect(c.call(1,packet,nil)).to eql 6.0
       end
     end
 
     describe "to_s" do
       it "returns the equation" do
-        ProcessorConversion.new('TEST1', 'TEST2', 'FLOAT', '64').to_s.should eql "ProcessorConversion TEST1 TEST2"
+        expect(ProcessorConversion.new('TEST1', 'TEST2', 'FLOAT', '64').to_s).to eql "ProcessorConversion TEST1 TEST2"
       end
     end
   end
