@@ -15,7 +15,7 @@ require 'tempfile'
 describe File do
 
   describe "is_ascii?" do
-    it "should return true if a file only contains printable ASCII characters" do
+    it "returns true if a file only contains printable ASCII characters" do
       tf = Tempfile.new('unittest')
       (32..126).each do |val|
         tf.puts(val.chr)
@@ -25,7 +25,7 @@ describe File do
       tf.unlink
     end
 
-    it "should return false if a file contains non-ASCII characters" do
+    it "returns false if a file contains non-ASCII characters" do
       tf = Tempfile.new('unittest')
       (0..255).each do |val|
         tf.puts(val.chr)
@@ -37,35 +37,35 @@ describe File do
   end
 
   describe "build_timestamped_filename" do
-    it "should format the time" do
+    it "formats the time" do
       time = Time.now
       timestamp = sprintf("%04u_%02u_%02u_%02u_%02u_%02u", time.year, time.month, time.mday, time.hour, time.min, time.sec)
       File.build_timestamped_filename(nil,".txt",time).should match timestamp
     end
 
-    it "should allow empty tags" do
+    it "allows empty tags" do
       File.build_timestamped_filename([]).should match /\d\d\.txt/
     end
 
-    it "should allow nil tags" do
+    it "allows nil tags" do
       File.build_timestamped_filename(nil).should match /\d\d\.txt/
     end
 
-    it "should include the tags" do
+    it "includes the tags" do
       File.build_timestamped_filename(['this','is','a','test']).should match 'this_is_a_test'
     end
 
-    it "should change the extension" do
+    it "changes the extension" do
       File.build_timestamped_filename(nil,".bin").should match ".bin"
     end
   end
 
   describe "find_in_search_path" do
-    it "should return the path to the file" do
+    it "returns the path to the file" do
       File.find_in_search_path("cosmos.rb").should match "/lib/cosmos.rb"
     end
 
-    it "should return nil if the file can't be found" do
+    it "returns nil if the file can't be found" do
       File.find_in_search_path("blah_blah_blah.rb").should be_nil
     end
   end

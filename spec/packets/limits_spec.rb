@@ -59,25 +59,25 @@ module Cosmos
     end
 
     describe "initialize" do
-      it "should have no warnings" do
+      it "has no warnings" do
         Limits.new(PacketConfig.new).warnings.should be_empty
       end
     end
 
     describe "sets" do
-      it "should return the defined limits set" do
+      it "returns the defined limits set" do
         @limits.sets.should eql [:DEFAULT, :TVAC]
       end
     end
 
     describe "groups" do
-      it "should return the limits groups" do
+      it "returns the limits groups" do
         @limits.groups.should_not be_empty
       end
     end
 
     describe "config=" do
-      it "should set the underlying configuration" do
+      it "sets the underlying configuration" do
         tf = Tempfile.new('unittest')
         tf.puts ''
         tf.close
@@ -93,7 +93,7 @@ module Cosmos
     end
 
     describe "out_of_limits" do
-      it "should return all out of limits telemetry items" do
+      it "returns all out of limits telemetry items" do
         @tlm.update!("TGT1","PKT1","\x00\x03\x03\x04\x05")
         @tlm.packet("TGT1","PKT1").check_limits
         items = @limits.out_of_limits
@@ -105,7 +105,7 @@ module Cosmos
     end
 
     describe "overall_limits_state" do
-      it "should return overall limits state of the system" do
+      it "returns overall limits state of the system" do
         # Cause packet 2 to be green
         @tlm.update!("TGT1","PKT2","\x03\x03")
         @tlm.packet("TGT1","PKT2").check_limits
@@ -134,7 +134,7 @@ module Cosmos
         expect(@limits.overall_limits_state).to eq :RED
       end
 
-      it "should mark a stale packet green if all items are ignored" do
+      it "marks a stale packet green if all items are ignored" do
         # Cause packet 2 to be green
         @tlm.update!("TGT1","PKT2","\x03\x03")
         @tlm.packet("TGT1","PKT2").check_limits
@@ -145,7 +145,7 @@ module Cosmos
         expect(@limits.overall_limits_state([%w(TGT1 PKT1 ITEM1),%w(TGT1 PKT1 ITEM2),%w(TGT1 PKT1 ITEM3),%w(TGT1 PKT1 ITEM4)])).to eq :GREEN
       end
 
-      it "should handle non-existant ignored telemetry items" do
+      it "handles non-existant ignored telemetry items" do
         # Cause packet 2 to be green
         @tlm.update!("TGT1","PKT2","\x03\x03")
         @tlm.packet("TGT1","PKT2").check_limits
@@ -156,7 +156,7 @@ module Cosmos
         expect(@limits.overall_limits_state([%w(TGT1 PKT1 BLAH)])).to eq :YELLOW
       end
 
-      it "should ignore specified telemetry items" do
+      it "ignores specified telemetry items" do
         # Cause packet 2 to be green
         @tlm.update!("TGT1","PKT2","\x03\x03")
         @tlm.packet("TGT1","PKT2").check_limits
@@ -174,11 +174,11 @@ module Cosmos
     end
 
     describe "enable_group" do
-      it "should complain about undefined limits groups" do
+      it "complains about undefined limits groups" do
         expect { @limits.enable_group("MINE") }.to raise_error(RuntimeError, "LIMITS_GROUP MINE undefined. Ensure your telemetry definition contains the line: LIMITS_GROUP MINE")
       end
 
-      it "should complain about undefined items" do
+      it "complains about undefined items" do
         tf = Tempfile.new('unittest')
         tf.puts 'LIMITS_GROUP GROUP1'
         tf.puts '  LIMITS_GROUP_ITEM TGT1 PKT1 ITEM1'
@@ -190,7 +190,7 @@ module Cosmos
         tf.unlink
       end
 
-      it "should enable limits for all items in the group" do
+      it "enables limits for all items in the group" do
         @limits.enable_group("group1")
         pkt = @tlm.packet("TGT1","PKT1")
         pkt.get_item("ITEM1").limits.enabled.should be_truthy
@@ -202,11 +202,11 @@ module Cosmos
     end
 
     describe "disable_group" do
-      it "should complain about undefined limits groups" do
+      it "complains about undefined limits groups" do
         expect { @limits.disable_group("MINE") }.to raise_error(RuntimeError, "LIMITS_GROUP MINE undefined. Ensure your telemetry definition contains the line: LIMITS_GROUP MINE")
       end
 
-      it "should disable limits for all items in the group" do
+      it "disables limits for all items in the group" do
         pkt = @tlm.packet("TGT1","PKT1")
         pkt.enable_limits("ITEM1")
         pkt.enable_limits("ITEM2")
@@ -220,19 +220,19 @@ module Cosmos
     end
 
     describe "enabled?" do
-      it "should complain about non-existant targets" do
+      it "complains about non-existant targets" do
         expect { @limits.enabled?("TGTX","PKT1","ITEM1") }.to raise_error(RuntimeError, "Telemetry target 'TGTX' does not exist")
       end
 
-      it "should complain about non-existant packets" do
+      it "complains about non-existant packets" do
         expect { @limits.enabled?("TGT1","PKTX","ITEM1") }.to raise_error(RuntimeError, "Telemetry packet 'TGT1 PKTX' does not exist")
       end
 
-      it "should complain about non-existant items" do
+      it "complains about non-existant items" do
         expect { @limits.enabled?("TGT1","PKT1","ITEMX") }.to raise_error(RuntimeError, "Packet item 'TGT1 PKT1 ITEMX' does not exist")
       end
 
-      it "should return whether limits are enable for an item" do
+      it "returns whether limits are enable for an item" do
         pkt = @tlm.packet("TGT1","PKT1")
         @limits.enabled?("TGT1","PKT1","ITEM5").should be_falsey
         pkt.enable_limits("ITEM5")
@@ -241,19 +241,19 @@ module Cosmos
     end
 
     describe "enable" do
-      it "should complain about non-existant targets" do
+      it "complains about non-existant targets" do
         expect { @limits.enable("TGTX","PKT1","ITEM1") }.to raise_error(RuntimeError, "Telemetry target 'TGTX' does not exist")
       end
 
-      it "should complain about non-existant packets" do
+      it "complains about non-existant packets" do
         expect { @limits.enable("TGT1","PKTX","ITEM1") }.to raise_error(RuntimeError, "Telemetry packet 'TGT1 PKTX' does not exist")
       end
 
-      it "should complain about non-existant items" do
+      it "complains about non-existant items" do
         expect { @limits.enable("TGT1","PKT1","ITEMX") }.to raise_error(RuntimeError, "Packet item 'TGT1 PKT1 ITEMX' does not exist")
       end
 
-      it "should enable limits for an item" do
+      it "enables limits for an item" do
         pkt = @tlm.packet("TGT1","PKT1")
         @limits.enabled?("TGT1","PKT1","ITEM5").should be_falsey
         @limits.enable("TGT1","PKT1","ITEM5")
@@ -262,19 +262,19 @@ module Cosmos
     end
 
     describe "disable" do
-      it "should complain about non-existant targets" do
+      it "complains about non-existant targets" do
         expect { @limits.disable("TGTX","PKT1","ITEM1") }.to raise_error(RuntimeError, "Telemetry target 'TGTX' does not exist")
       end
 
-      it "should complain about non-existant packets" do
+      it "complains about non-existant packets" do
         expect { @limits.disable("TGT1","PKTX","ITEM1") }.to raise_error(RuntimeError, "Telemetry packet 'TGT1 PKTX' does not exist")
       end
 
-      it "should complain about non-existant items" do
+      it "complains about non-existant items" do
         expect { @limits.disable("TGT1","PKT1","ITEMX") }.to raise_error(RuntimeError, "Packet item 'TGT1 PKT1 ITEMX' does not exist")
       end
 
-      it "should disable limits for an item" do
+      it "disables limits for an item" do
         pkt = @tlm.packet("TGT1","PKT1")
         @limits.enable("TGT1","PKT1","ITEM1")
         @limits.enabled?("TGT1","PKT1","ITEM1").should be_truthy
@@ -284,39 +284,39 @@ module Cosmos
     end
 
     describe "get" do
-      it "should get the limits for an item with limits" do
+      it "gets the limits for an item with limits" do
         @limits.get("TGT1", "PKT1", "ITEM1").should eql [:DEFAULT, 1, true, 1.0, 2.0, 4.0, 5.0, nil, nil]
       end
 
-      it "should handle an item without limits" do
+      it "handles an item without limits" do
         @limits.get("TGT1", "PKT1", "ITEM5").should eql [nil, nil, nil, nil, nil, nil, nil, nil, nil]
       end
 
-      it "should support a specified limits set" do
+      it "supports a specified limits set" do
         @limits.get("TGT1", "PKT1", "ITEM1", :TVAC).should eql [:TVAC, 1, true, 6.0, 7.0, 12.0, 13.0, 9.0, 10.0]
       end
 
-      it "should handle an item without limits for the given limits set" do
+      it "handles an item without limits for the given limits set" do
         @limits.get("TGT1", "PKT2", "ITEM1", :TVAC).should eql [nil, nil, nil, nil, nil, nil, nil, nil, nil]
       end
     end
 
     describe "set" do
-      it "should set limits for an item" do
+      it "sets limits for an item" do
         @limits.set("TGT1", "PKT1", "ITEM5", 1, 2, 3, 4, nil, nil, :DEFAULT).should eql [:DEFAULT, 1, true, 1.0, 2.0, 3.0, 4.0, nil, nil]
       end
 
-      it "should enforce setting DEFAULT limits first" do
+      it "enforces setting DEFAULT limits first" do
         expect { @limits.set("TGT1", "PKT1", "ITEM5", 1, 2, 3, 4) }.to raise_error(RuntimeError, "DEFAULT limits must be defined for TGT1 PKT1 ITEM5 before setting limits set CUSTOM")
         @limits.set("TGT1", "PKT1", "ITEM5", 5, 6, 7, 8, nil, nil, :DEFAULT).should eql [:DEFAULT, 1, true, 5.0, 6.0, 7.0, 8.0, nil, nil]
         @limits.set("TGT1", "PKT1", "ITEM5", 1, 2, 3, 4).should eql [:CUSTOM, 1, true, 1.0, 2.0, 3.0, 4.0, nil, nil]
       end
 
-      it "should allow setting other limits sets" do
+      it "allows setting other limits sets" do
         @limits.set("TGT1", "PKT1", "ITEM1", 1, 2, 3, 4, nil, nil, :TVAC).should eql [:TVAC, 1, true, 1.0, 2.0, 3.0, 4.0, nil, nil]
       end
 
-      it "should handle green limits" do
+      it "handles green limits" do
         @limits.set("TGT1", "PKT1", "ITEM1", 1, 2, 5, 6, 3, 4, nil).should eql [:DEFAULT, 1, true, 1.0, 2.0, 5.0, 6.0, 3.0, 4.0]
       end
     end

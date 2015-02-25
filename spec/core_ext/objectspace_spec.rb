@@ -14,14 +14,14 @@ require 'cosmos/core_ext/objectspace'
 describe ObjectSpace do
 
   describe "find" do
-    it "should find a class in the Ruby object space" do
+    it "finds a class in the Ruby object space" do
       ObjectSpace.find(Class).should_not be_nil
       ObjectSpace.find(Cosmos).should be_nil
     end
   end
 
   describe "find_all" do
-    it "should find classes in the Ruby object space" do
+    it "finds classes in the Ruby object space" do
       ObjectSpace.find_all(Class).should be_a(Array)
       ObjectSpace.find_all(Cosmos).should eql([])
     end

@@ -18,13 +18,13 @@ module Cosmos
   describe Packet do
 
     describe "buffer=" do
-      it "should set the buffer" do
+      it "sets the buffer" do
         p = Packet.new("tgt", "pkt")
         p.buffer = "\x00\x01\x02\x03"
         p.buffer.should eql "\x00\x01\x02\x03"
       end
 
-      it "should complain if the given buffer is too big" do
+      it "complains if the given buffer is too big" do
         capture_io do |stdout|
           p = Packet.new("tgt", "pkt")
           p.append_item("test1", 16, :UINT)
@@ -34,7 +34,7 @@ module Cosmos
         end
       end
 
-      it "should run processors if present" do
+      it "runs processors if present" do
         p = Packet.new("tgt", "pkt")
         p.processors['processor'] = double("call", :call => true)
         p.buffer = "\x00\x01\x02\x03"
@@ -42,50 +42,50 @@ module Cosmos
     end
 
     describe "target_name=" do
-      it "should set the target_name to an uppercase String" do
+      it "sets the target_name to an uppercase String" do
         p = Packet.new("tgt", "pkt")
         p.target_name.should eql "TGT"
       end
 
-      it "should set target_name to nil" do
+      it "sets target_name to nil" do
         p = Packet.new(nil,"pkt")
         p.target_name.should be_nil
       end
 
-      it "should complain about non String target_names" do
+      it "complains about non String target_names" do
         expect { Packet.new(5, "pkt") }.to raise_error(ArgumentError, "target_name must be a String but is a Fixnum")
       end
     end
 
     describe "packet_name=" do
-      it "should set the packet_name to an uppercase String" do
+      it "sets the packet_name to an uppercase String" do
         p = Packet.new("tgt", "pkt")
         p.packet_name.should eql "PKT"
       end
 
-      it "should set packet_name to nil" do
+      it "sets packet_name to nil" do
         p = Packet.new("tgt",nil)
         p.packet_name.should be_nil
       end
 
-      it "should complain about non String packet_names" do
+      it "complains about non String packet_names" do
         expect { Packet.new("tgt", 5) }.to raise_error(ArgumentError, "packet_name must be a String but is a Fixnum")
       end
     end
 
     describe "description=" do
-      it "should set the description to a String" do
+      it "sets the description to a String" do
         p = Packet.new("tgt", "pkt", :BIG_ENDIAN, "This is a description")
         p.description.should eql "This is a description"
       end
 
-      it "should set description to nil" do
+      it "sets description to nil" do
         p = Packet.new("tgt","pkt")
         p.description = nil
         p.description.should be_nil
       end
 
-      it "should complain about non String descriptions" do
+      it "complains about non String descriptions" do
         p = Packet.new("tgt","pkt")
         expect { p.description = 5 }.to raise_error(ArgumentError, "description must be a String but is a Fixnum")
       end
@@ -99,97 +99,97 @@ module Cosmos
         expect(p.received_time).to eql t
       end
 
-      it "should set received_time to nil" do
+      it "sets received_time to nil" do
         p = Packet.new("tgt","pkt")
         p.received_time = nil
         p.received_time.should be_nil
       end
 
-      it "should complain about non Time received_times" do
+      it "complains about non Time received_times" do
         p = Packet.new("tgt","pkt")
         expect {p.received_time = "1pm" }.to raise_error(ArgumentError, "received_time must be a Time but is a String")
       end
     end
 
     describe "received_time=" do
-      it "should set the received_time to a Time" do
+      it "sets the received_time to a Time" do
         p = Packet.new("tgt", "pkt")
         t = Time.now
         p.received_time = t
         p.received_time.should eql t
       end
 
-      it "should set received_time to nil" do
+      it "sets received_time to nil" do
         p = Packet.new("tgt","pkt")
         p.received_time = nil
         p.received_time.should be_nil
       end
 
-      it "should complain about non Time received_times" do
+      it "complains about non Time received_times" do
         p = Packet.new("tgt","pkt")
         expect {p.received_time = "1pm" }.to raise_error(ArgumentError, "received_time must be a Time but is a String")
       end
     end
 
     describe "received_count=" do
-      it "should set the received_count to a Fixnum" do
+      it "sets the received_count to a Fixnum" do
         p = Packet.new("tgt", "pkt")
         p.received_count = 10
         p.received_count.should eql 10
       end
 
-      it "should complain about nil received_count" do
+      it "complains about nil received_count" do
         p = Packet.new("tgt","pkt")
         expect {p.received_count = nil }.to raise_error(ArgumentError, "received_count must be a Fixnum but is a NilClass")
       end
 
-      it "should complain about non Fixnum received_counts" do
+      it "complains about non Fixnum received_counts" do
         p = Packet.new("tgt","pkt")
         expect {p.received_count = "5" }.to raise_error(ArgumentError, "received_count must be a Fixnum but is a String")
       end
     end
 
     describe "hazardous_description=" do
-      it "should set the hazardous_description to a String" do
+      it "sets the hazardous_description to a String" do
         p = Packet.new("tgt", "pkt")
         p.hazardous_description = "This is a description"
         p.hazardous_description.should eql "This is a description"
       end
 
-      it "should set hazardous_description to nil" do
+      it "sets hazardous_description to nil" do
         p = Packet.new("tgt","pkt")
         p.hazardous_description = nil
         p.hazardous_description.should be_nil
       end
 
-      it "should complain about non String hazardous_descriptions" do
+      it "complains about non String hazardous_descriptions" do
         p = Packet.new("tgt","pkt")
         expect {p.hazardous_description = 5 }.to raise_error(ArgumentError, "hazardous_description must be a String but is a Fixnum")
       end
     end
 
     describe "given_values=" do
-      it "should set the given_values to a Hash" do
+      it "sets the given_values to a Hash" do
         p = Packet.new("tgt", "pkt")
         gv = {}
         p.given_values = gv
         p.given_values.should eql gv
       end
 
-      it "should set given_values to nil" do
+      it "sets given_values to nil" do
         p = Packet.new("tgt","pkt")
         p.given_values = nil
         p.given_values.should be_nil
       end
 
-      it "should complain about non Hash given_valuess" do
+      it "complains about non Hash given_valuess" do
         p = Packet.new("tgt","pkt")
         expect {p.given_values = [] }.to raise_error(ArgumentError, "given_values must be a Hash but is a Array")
       end
     end
 
     describe "meta" do
-      it "should allow adding items to the meta hash" do
+      it "allows adding items to the meta hash" do
         p = Packet.new("tgt","pkt")
         p.meta['TYPE'] = 'float32'
         p.meta['TYPE'].should eql 'float32'
@@ -197,26 +197,26 @@ module Cosmos
     end
 
     describe "limits_change_callback=" do
-      it "should set the limits_change_callback to something that responds to call" do
+      it "sets the limits_change_callback to something that responds to call" do
         p = Packet.new("tgt", "pkt")
         callback = Object.new
         allow(callback).to receive(:call)
         expect { p.limits_change_callback = callback }.to_not raise_error
       end
 
-      it "should set limits_change_callback to nil" do
+      it "sets limits_change_callback to nil" do
         p = Packet.new("tgt","pkt")
         expect { p.limits_change_callback = nil }.to_not raise_error
       end
 
-      it "should complain about non #call limits_change_callbacks" do
+      it "complains about non #call limits_change_callbacks" do
         p = Packet.new("tgt","pkt")
         expect {p.limits_change_callback = "" }.to raise_error(ArgumentError, "limits_change_callback must respond to call")
       end
     end
 
     describe "define_item" do
-      it "should take a format_string, read_conversion, write_conversion, and id_value" do
+      it "takes a format_string, read_conversion, write_conversion, and id_value" do
         p = Packet.new("tgt","pkt")
         rc = GenericConversion.new("value / 2")
         wc = GenericConversion.new("value * 2")
@@ -228,7 +228,7 @@ module Cosmos
         i.id_value.should eql 5.0
       end
 
-      it "should initialize format_string, read_conversion, write_conversion, and id_value to nil" do
+      it "initializes format_string, read_conversion, write_conversion, and id_value to nil" do
         p = Packet.new("tgt","pkt")
         p.define_item("item",0,32,:FLOAT)
         i = p.get_item("ITEM")
@@ -276,7 +276,7 @@ module Cosmos
     end
 
     describe "append_item" do
-      it "should take a format_string, read_conversion, write_conversion, and id_value" do
+      it "takes a format_string, read_conversion, write_conversion, and id_value" do
         p = Packet.new("tgt","pkt")
         rc = GenericConversion.new("value / 2")
         wc = GenericConversion.new("value * 2")
@@ -288,7 +288,7 @@ module Cosmos
         i.id_value.should eql 5.0
       end
 
-      it "should initialize format_string, read_conversion, write_conversion, and id_value to nil" do
+      it "initializes format_string, read_conversion, write_conversion, and id_value to nil" do
         p = Packet.new("tgt","pkt")
         p.append_item("item",32,:FLOAT)
         i = p.get_item("ITEM")
@@ -335,7 +335,7 @@ module Cosmos
     end
 
     describe "get_item" do
-      it "should complain if an item doesn't exist" do
+      it "complains if an item doesn't exist" do
         p = Packet.new("tgt","pkt")
         expect { p.get_item("test") }.to raise_error(RuntimeError, "Packet item 'TGT PKT TEST' does not exist")
       end
@@ -346,21 +346,21 @@ module Cosmos
         @p = Packet.new("tgt","pkt")
       end
 
-      it "should complain about unknown value_type" do
+      it "complains about unknown value_type" do
         @p.append_item("item",32,:UINT)
         i = @p.get_item("ITEM")
         expect { @p.read("ITEM", :MINE, "\x01\x02\x03\x04") }.to raise_error(ArgumentError, "Unknown value type on read: MINE")
         expect { @p.read_item(i, :MINE, "\x01\x02\x03\x04") }.to raise_error(ArgumentError, "Unknown value type on read: MINE")
       end
 
-      it "should read the RAW value" do
+      it "reads the RAW value" do
         @p.append_item("item",32,:UINT)
         i = @p.get_item("ITEM")
         @p.read("ITEM", :RAW, "\x01\x02\x03\x04").should eql 0x01020304
         @p.read_item(i, :RAW, "\x01\x02\x03\x04").should eql 0x01020304
       end
 
-      it "should read the CONVERTED value" do
+      it "reads the CONVERTED value" do
         @p.append_item("item",8,:UINT)
         i = @p.get_item("ITEM")
         @p.read("ITEM", :CONVERTED, "\x02").should eql 2
@@ -370,7 +370,7 @@ module Cosmos
         @p.read_item(i, :CONVERTED, "\x02").should eql 1
       end
 
-      it "should read the CONVERTED value with states" do
+      it "reads the CONVERTED value with states" do
         @p.append_item("item",8,:UINT)
         i = @p.get_item("ITEM")
         i.states = {"TRUE"=>1, "FALSE"=>2}
@@ -383,7 +383,7 @@ module Cosmos
         @p.read_item(i, :CONVERTED, "\x04").should eql "FALSE"
       end
 
-      it "should read the FORMATTED value" do
+      it "reads the FORMATTED value" do
         @p.append_item("item",8,:UINT)
         i = @p.get_item("ITEM")
         @p.read("ITEM", :FORMATTED, "\x02").should eql "2"
@@ -403,7 +403,7 @@ module Cosmos
         @p.read_item(i, :FORMATTED, "\x04").should eql "FALSE"
       end
 
-      it "should read the WITH_UNITS value" do
+      it "reads the WITH_UNITS value" do
         @p.append_item("item",8,:UINT)
         i = @p.get_item("ITEM")
         i.units = "V"
@@ -424,7 +424,7 @@ module Cosmos
         @p.read_item(i, :WITH_UNITS, "\x04").should eql "FALSE"
       end
 
-      it "should read the WITH_UNITS array value" do
+      it "reads the WITH_UNITS array value" do
         @p.append_item("item",8,:UINT, 16)
         i = @p.get_item("ITEM")
         i.units = "V"
@@ -458,14 +458,14 @@ module Cosmos
         @buffer = "\x00\x00\x00\x00"
       end
 
-      it "should complain about unknown value_type" do
+      it "complains about unknown value_type" do
         @p.append_item("item",32,:UINT)
         i = @p.get_item("ITEM")
         expect { @p.write("ITEM", 0, :MINE) }.to raise_error(ArgumentError, "Unknown value type on write: MINE")
         expect { @p.write_item(i, 0, :MINE) }.to raise_error(ArgumentError, "Unknown value type on write: MINE")
       end
 
-      it "should write the RAW value" do
+      it "writes the RAW value" do
         @p.append_item("item",32,:UINT)
         i = @p.get_item("ITEM")
         @p.write("ITEM", 0x01020304, :RAW, @buffer)
@@ -491,7 +491,7 @@ module Cosmos
         expect(cache[i]).to be 4
       end
 
-      it "should write the CONVERTED value" do
+      it "writes the CONVERTED value" do
         @p.append_item("item",8,:UINT)
         i = @p.get_item("ITEM")
         @p.write("ITEM", 1, :CONVERTED, @buffer)
@@ -505,7 +505,7 @@ module Cosmos
         @buffer.should eql "\x01\x00\x00\x00"
       end
 
-      it "should write the CONVERTED value with states" do
+      it "writes the CONVERTED value with states" do
         @p.append_item("item",8,:UINT)
         i = @p.get_item("ITEM")
         i.states = {"TRUE"=>1, "FALSE"=>2}
@@ -527,14 +527,14 @@ module Cosmos
         @buffer.should eql "\x01\x00\x00\x00"
       end
 
-      it "should complain about the FORMATTED value_type" do
+      it "complains about the FORMATTED value_type" do
         @p.append_item("item",8,:UINT)
         i = @p.get_item("ITEM")
         expect { @p.write("ITEM", 3, :FORMATTED, @buffer) }.to raise_error(ArgumentError, "Invalid value type on write: FORMATTED")
         expect { @p.write_item(i, 3, :FORMATTED, @buffer) }.to raise_error(ArgumentError, "Invalid value type on write: FORMATTED")
       end
 
-      it "should complain about the WITH_UNITS value_type" do
+      it "complains about the WITH_UNITS value_type" do
         @p.append_item("item",8,:UINT)
         i = @p.get_item("ITEM")
         expect { @p.write("ITEM", 3, :WITH_UNITS, @buffer) }.to raise_error(ArgumentError, "Invalid value type on write: WITH_UNITS")
@@ -543,7 +543,7 @@ module Cosmos
     end
 
     describe "read_all" do
-      it "should default to read all CONVERTED items" do
+      it "defaults to read all CONVERTED items" do
         p = Packet.new("tgt","pkt")
         p.append_item("test1", 8, :UINT, 16)
         p.append_item("test2", 16, :UINT)
@@ -566,7 +566,7 @@ module Cosmos
     end
 
     describe "read_all_with_limits_states" do
-      it "should return an array of items with their limit states" do
+      it "returns an array of items with their limit states" do
         p = Packet.new("tgt","pkt")
         p.append_item("test1", 8, :UINT)
         i = p.get_item("TEST1")
@@ -593,7 +593,7 @@ module Cosmos
     end
 
     describe "formatted" do
-      it "should print out all the items and CONVERTED values" do
+      it "prints out all the items and CONVERTED values" do
         p = Packet.new("tgt","pkt")
         p.append_item("test1", 8, :UINT, 16)
         p.write("test1", [1,2])
@@ -612,14 +612,14 @@ module Cosmos
     end
 
     describe "check_bit_offsets" do
-      it "should complain about overlapping items" do
+      it "complains about overlapping items" do
         p = Packet.new("tgt1","pkt1")
         p.define_item("item1",0,8,:UINT)
         p.define_item("item2",0,8,:UINT)
         expect(p.check_bit_offsets[0]).to eql "Bit definition overlap at bit offset 0 for packet TGT1 PKT1 items ITEM2 and ITEM1"
       end
 
-      it "should not complain with non-overlapping negative offsets" do
+      it "does not complain with non-overlapping negative offsets" do
         p = Packet.new("tgt1","pkt1")
         p.define_item("item1",0,8,:UINT)
         p.define_item("item2",8,-16,:BLOCK)
@@ -627,7 +627,7 @@ module Cosmos
         expect(p.check_bit_offsets[0]).to be_nil
       end
 
-      it "should complain with overlapping negative offsets" do
+      it "complains with overlapping negative offsets" do
         p = Packet.new("tgt1","pkt1")
         p.define_item("item1",0,8,:UINT)
         p.define_item("item2",8,-16,:BLOCK)
@@ -635,21 +635,21 @@ module Cosmos
         expect(p.check_bit_offsets[0]).to eql "Bit definition overlap at bit offset -17 for packet TGT1 PKT1 items ITEM3 and ITEM2"
       end
 
-      it "should complain about intersecting items" do
+      it "complains about intersecting items" do
         p = Packet.new("tgt1","pkt1")
         p.define_item("item1",0,32,:UINT)
         p.define_item("item2",16,32,:UINT)
         expect(p.check_bit_offsets[0]).to eql "Bit definition overlap at bit offset 16 for packet TGT1 PKT1 items ITEM2 and ITEM1"
       end
 
-      it "should complain about array overlapping items" do
+      it "complains about array overlapping items" do
         p = Packet.new("tgt1","pkt1")
         p.define_item("item1",0,8,:UINT,32)
         p.define_item("item2",0,8,:UINT,32)
         expect(p.check_bit_offsets[0]).to eql "Bit definition overlap at bit offset 0 for packet TGT1 PKT1 items ITEM2 and ITEM1"
       end
 
-      it "should not complain with array non-overlapping negative offsets" do
+      it "does not complain with array non-overlapping negative offsets" do
         p = Packet.new("tgt1","pkt1")
         p.define_item("item1",0,8,:UINT)
         p.define_item("item2",8,8,:INT,-16)
@@ -657,7 +657,7 @@ module Cosmos
         expect(p.check_bit_offsets[0]).to be_nil
       end
 
-      it "should complain with array overlapping negative offsets" do
+      it "complains with array overlapping negative offsets" do
         p = Packet.new("tgt1","pkt1")
         p.define_item("item1",0,8,:UINT)
         p.define_item("item2",8,8,:INT,-16)
@@ -665,14 +665,14 @@ module Cosmos
         expect(p.check_bit_offsets[0]).to eql "Bit definition overlap at bit offset -17 for packet TGT1 PKT1 items ITEM3 and ITEM2"
       end
 
-      it "should complain about array intersecting items" do
+      it "complains about array intersecting items" do
         p = Packet.new("tgt1","pkt1")
         p.define_item("item1",0,8,:UINT,32)
         p.define_item("item2",16,8,:UINT,32)
         expect(p.check_bit_offsets[0]).to eql "Bit definition overlap at bit offset 16 for packet TGT1 PKT1 items ITEM2 and ITEM1"
       end
 
-      it "should not complain about nonoverlapping big endian bitfields" do
+      it "does not complain about nonoverlapping big endian bitfields" do
         p = Packet.new("tgt1","pkt1")
         p.define_item("item1",0,12,:UINT,nil,:BIG_ENDIAN)
         p.define_item("item2",12,4,:UINT,nil,:BIG_ENDIAN)
@@ -680,7 +680,7 @@ module Cosmos
         expect(p.check_bit_offsets[0]).to be_nil
       end
 
-      it "should complain about overlapping big endian bitfields" do
+      it "complains about overlapping big endian bitfields" do
         p = Packet.new("tgt1","pkt1")
         p.define_item("item1",0,12,:UINT,nil,:BIG_ENDIAN)
         p.define_item("item2",10,6,:UINT,nil,:BIG_ENDIAN)
@@ -688,7 +688,7 @@ module Cosmos
         expect(p.check_bit_offsets[0]).to eql "Bit definition overlap at bit offset 10 for packet TGT1 PKT1 items ITEM2 and ITEM1"
       end
 
-      it "should not complain about nonoverlapping little endian bitfields" do
+      it "does not complain about nonoverlapping little endian bitfields" do
         p = Packet.new("tgt1","pkt1")
         # bit offset in LITTLE_ENDIAN refers to MSB
         p.define_item("item1",12,12,:UINT,nil,:LITTLE_ENDIAN)
@@ -696,7 +696,7 @@ module Cosmos
         expect(p.check_bit_offsets[0]).to be_nil
       end
 
-      it "should complain about overlapping little endian bitfields" do
+      it "complains about overlapping little endian bitfields" do
         p = Packet.new("tgt1","pkt1")
         # bit offset in LITTLE_ENDIAN refers to MSB
         p.define_item("item1",12,12,:UINT,nil,:LITTLE_ENDIAN)
@@ -719,7 +719,7 @@ module Cosmos
     end
 
     describe "identify?" do
-      it "should identify a buffer based on id_items" do
+      it "identifies a buffer based on id_items" do
         p = Packet.new("tgt","pkt")
         p.append_item("item1",8,:UINT)
         p.append_item("item2",16,:UINT,nil,:BIG_ENDIAN,:ERROR,nil,nil,nil,5)
@@ -729,7 +729,7 @@ module Cosmos
         p.identify?("\x00").should be_falsey
       end
 
-      it "should identify if the buffer is too short" do
+      it "identifies if the buffer is too short" do
         p = Packet.new("tgt","pkt")
         p.append_item("item1",8,:UINT)
         p.append_item("item2",16,:UINT,nil,:BIG_ENDIAN,:ERROR,nil,nil,nil,5)
@@ -737,7 +737,7 @@ module Cosmos
         p.identify?("\x00\x00\x05\x01\x02\x03").should be_truthy
       end
 
-      it "should identify if the buffer is too long" do
+      it "identifies if the buffer is too long" do
         p = Packet.new("tgt","pkt")
         p.append_item("item1",8,:UINT)
         p.append_item("item2",16,:UINT,nil,:BIG_ENDIAN,:ERROR,nil,nil,nil,5)
@@ -747,7 +747,7 @@ module Cosmos
     end
 
     describe "identified?" do
-      it "should return true if the target name and packet name are set" do
+      it "returns true if the target name and packet name are set" do
         Packet.new('TGT',nil).identified?.should be_falsey
         Packet.new(nil,'PKT').identified?.should be_falsey
         Packet.new('TGT','PKT').identified?.should be_truthy
@@ -755,7 +755,7 @@ module Cosmos
     end
 
     describe "restore_defaults" do
-      it "should write all the items back to their default values" do
+      it "writes all the items back to their default values" do
         p = Packet.new("tgt","pkt")
         p.append_item("test1", 8, :UINT, 16)
         i = p.get_item("TEST1")
@@ -778,7 +778,7 @@ module Cosmos
     end
 
     describe "enable_limits" do
-      it "should enable limits on each packet item" do
+      it "enables limits on each packet item" do
         p = Packet.new("tgt","pkt")
         p.append_item("test1", 8, :UINT, 16)
         p.append_item("test2", 16, :UINT)
@@ -794,7 +794,7 @@ module Cosmos
     end
 
     describe "disable_limits" do
-      it "should disable limits on each packet item" do
+      it "disables limits on each packet item" do
         p = Packet.new("tgt","pkt")
         p.append_item("test1", 8, :UINT)
         p.append_item("test2", 16, :UINT)
@@ -810,7 +810,7 @@ module Cosmos
         p.get_item("TEST2").limits.enabled.should be_falsey
       end
 
-      it "should call the limits_change_callback for all non STALE items" do
+      it "calls the limits_change_callback for all non STALE items" do
         p = Packet.new("tgt","pkt")
         p.append_item("test1", 8, :UINT)
         p.get_item("TEST1").limits.values = {:DEFAULT=>[1,2,4,5]}
@@ -835,7 +835,7 @@ module Cosmos
     end
 
     describe "limits_items" do
-      it "should return all items with limits" do
+      it "returns all items with limits" do
         p = Packet.new("tgt","pkt")
         p.append_item("test1", 8, :UINT)
         p.enable_limits("TEST1")
@@ -855,7 +855,7 @@ module Cosmos
     end
 
     describe "out_of_limits" do
-      it "should return an array indicating all items out of limits" do
+      it "returns an array indicating all items out of limits" do
         p = Packet.new("tgt","pkt")
         p.append_item("test1", 8, :UINT)
         p.get_item("TEST1").limits.values = {:DEFAULT=>[1,2,4,5]}
@@ -879,7 +879,7 @@ module Cosmos
     end
 
     describe "set_all_limits_states" do
-      it "should set all limits states to the given state" do
+      it "sets all limits states to the given state" do
         p = Packet.new("tgt","pkt")
         p.append_item("test1", 8, :UINT)
         p.get_item("TEST1").limits.values = {:DEFAULT=>[1,2,4,5]}
@@ -905,13 +905,13 @@ module Cosmos
         @p.append_item("test3", 32, :FLOAT)
       end
 
-      it "should set clear the stale flag" do
+      it "sets clear the stale flag" do
         @p.stale.should be_truthy
         @p.check_limits
         @p.stale.should be_falsey
       end
 
-      it "should not call the limits_change_callback if limits are disabled" do
+      it "does not call the limits_change_callback if limits are disabled" do
         @p.get_item("TEST1").limits.enabled.should be_falsey
         @p.get_item("TEST2").limits.enabled.should be_falsey
         callback = double("callback")
@@ -922,7 +922,7 @@ module Cosmos
       end
 
       context "with states" do
-        it "should call the limits_change_callback" do
+        it "calls the limits_change_callback" do
           test1 = @p.get_item("TEST1")
           test1.limits.enabled.should be_falsey
           test1.states = {"TRUE"=>1,"FALSE"=>0}
@@ -981,7 +981,7 @@ module Cosmos
           @p.limits_change_callback = @callback
         end
 
-        it "should detect initial low states" do
+        it "detects initial low states" do
           @p.write("TEST1", 0)
           @p.write("TEST2", 3)
           @p.write("TEST3", 1.25)
@@ -991,7 +991,7 @@ module Cosmos
           @p.get_item("TEST3").limits.state.should eql :YELLOW_LOW
         end
 
-        it "should detect initial high states" do
+        it "detects initial high states" do
           @p.write("TEST1", 6)
           @p.write("TEST2", 5)
           @p.write("TEST3", 2.75)
@@ -1001,7 +1001,7 @@ module Cosmos
           @p.get_item("TEST3").limits.state.should eql :YELLOW_HIGH
         end
 
-        it "should detect initial middle states" do
+        it "detects initial middle states" do
           @p.write("TEST1", 3)
           @p.write("TEST2", 4)
           @p.write("TEST3", 2.0)
@@ -1011,7 +1011,7 @@ module Cosmos
           @p.get_item("TEST3").limits.state.should eql :GREEN
         end
 
-        it "should clear persistence when initial state is nil" do
+        it "clears persistence when initial state is nil" do
           @p.get_item("TEST1").limits.persistence_count = 2
           @p.get_item("TEST2").limits.persistence_count = 3
           @p.get_item("TEST3").limits.persistence_count = 4
@@ -1022,7 +1022,7 @@ module Cosmos
         end
 
         context "when calling the limits_change_callback" do
-          it "should initially call only for out of limits" do
+          it "initiallies call only for out of limits" do
             @p.write("TEST1", 0)
             @p.write("TEST2", 4)
             @p.write("TEST3", 1.25)
@@ -1034,7 +1034,7 @@ module Cosmos
             @p.check_limits
           end
 
-          it "should call when limits change states" do
+          it "calls when limits change states" do
             @p.write("TEST1", 0)
             @p.write("TEST2", 4)
             @p.write("TEST3", 1.25)
@@ -1046,7 +1046,7 @@ module Cosmos
             @p.check_limits
           end
 
-          it "should call only when persistence is achieved" do
+          it "calls only when persistence is achieved" do
             # First establish the green state when coming from nil
             @p.get_item("TEST1").limits.persistence_setting = 1
             @p.get_item("TEST2").limits.persistence_setting = 1
@@ -1139,7 +1139,7 @@ module Cosmos
             @test3.limits.state.should eql :GREEN
           end
 
-          it "should not call when state changes before persistence is achieved" do
+          it "does not call when state changes before persistence is achieved" do
             # First establish the green state when coming from nil
             @p.get_item("TEST1").limits.persistence_setting = 1
             @p.get_item("TEST2").limits.persistence_setting = 1
@@ -1221,7 +1221,7 @@ module Cosmos
     end
 
     describe "stale" do
-      it "should set all limits states to stale" do
+      it "sets all limits states to stale" do
         p = Packet.new("tgt","pkt")
         p.append_item("test1", 8, :UINT)
         p.get_item("TEST1").limits.values = {:DEFAULT=>[1,2,4,5]}
@@ -1248,7 +1248,7 @@ module Cosmos
     end
 
     describe "clone" do
-      it "should duplicate the packet" do
+      it "duplicates the packet" do
         p = Packet.new("tgt","pkt")
         p.processors['processor'] = Processor.new
         p.processors['processor'].name = "TestProcessor"

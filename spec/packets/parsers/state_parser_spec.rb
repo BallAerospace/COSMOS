@@ -23,7 +23,7 @@ module Cosmos
         @pc = PacketConfig.new
       end
 
-      it "should complain if a current item is not defined" do
+      it "complains if a current item is not defined" do
         # Check for missing ITEM definitions
         tf = Tempfile.new('unittest')
         tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Packet"'
@@ -33,7 +33,7 @@ module Cosmos
         tf.unlink
       end
 
-      it "should complain if there are not enough parameters" do
+      it "complains if there are not enough parameters" do
         tf = Tempfile.new('unittest')
         tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Packet"'
         tf.puts 'ITEM myitem 0 8 UINT "Test Item"'
@@ -43,7 +43,7 @@ module Cosmos
         tf.unlink
       end
 
-      it "should complain if there are too many parameters" do
+      it "complains if there are too many parameters" do
         tf = Tempfile.new('unittest')
         tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Packet"'
         tf.puts 'ITEM myitem 0 8 UINT "Test Item"'
@@ -53,7 +53,7 @@ module Cosmos
         tf.unlink
       end
 
-      it "should support STRING items" do
+      it "supports STRING items" do
         tf = Tempfile.new('unittest')
         tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Description"'
         tf.puts '  APPEND_ITEM item1 128 STRING "state item"'
@@ -68,7 +68,7 @@ module Cosmos
         tf.unlink
       end
 
-      it "should warn about duplicate states and replace the duplicate" do
+      it "warns about duplicate states and replace the duplicate" do
         tf = Tempfile.new('unittest')
         tf.puts 'COMMAND tgt1 pkt1 LITTLE_ENDIAN "Description"'
         tf.puts '  APPEND_PARAMETER item1 8 UINT 0 2 0 "state item"'
@@ -86,7 +86,7 @@ module Cosmos
       end
 
       context "with telemetry" do
-        it "should only allow GREEN YELLOW or RED" do
+        it "only allows GREEN YELLOW or RED" do
           tf = Tempfile.new('unittest')
           tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Description"'
           tf.puts '  APPEND_ITEM item1 8 UINT "state item"'
@@ -96,7 +96,7 @@ module Cosmos
           tf.unlink
         end
 
-        it "should record the state values and colors" do
+        it "records the state values and colors" do
           tf = Tempfile.new('unittest')
           tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Description"'
           tf.puts '  APPEND_ITEM item1 8 UINT "state item"'
@@ -121,7 +121,7 @@ module Cosmos
       end
 
       context "with command" do
-        it "should only allow HAZARDOUS as the third param" do
+        it "only allows HAZARDOUS as the third param" do
           tf = Tempfile.new('unittest')
           tf.puts 'COMMAND tgt1 pkt1 LITTLE_ENDIAN "Description"'
           tf.puts '  APPEND_PARAMETER item1 8 UINT 0 0 0'
@@ -131,7 +131,7 @@ module Cosmos
           tf.unlink
         end
 
-        it "should take HAZARDOUS and an optional description" do
+        it "takes HAZARDOUS and an optional description" do
           tf = Tempfile.new('unittest')
           tf.puts 'COMMAND tgt1 pkt1 LITTLE_ENDIAN "Description"'
           tf.puts '  APPEND_PARAMETER item1 8 UINT 1 3 1'

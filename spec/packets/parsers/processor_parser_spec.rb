@@ -23,7 +23,7 @@ module Cosmos
         @pc = PacketConfig.new
       end
 
-      it "should complain if a current packet is not defined" do
+      it "complains if a current packet is not defined" do
         # Check for missing TELEMETRY line
         tf = Tempfile.new('unittest')
         tf.puts('PROCESSOR')
@@ -32,7 +32,7 @@ module Cosmos
         tf.unlink
       end
 
-      it "should complain if there are not enough parameters" do
+      it "complains if there are not enough parameters" do
         tf = Tempfile.new('unittest')
         tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Packet"'
         tf.puts '  PROCESSOR'
@@ -41,7 +41,7 @@ module Cosmos
         tf.unlink
       end
 
-      it "should complain about missing processor file" do
+      it "complains about missing processor file" do
         filename = File.join(File.dirname(__FILE__), "../../test_only.rb")
         File.delete(filename) if File.exist?(filename)
         @pc = PacketConfig.new
@@ -54,7 +54,7 @@ module Cosmos
         tf.unlink
       end
 
-      it "should complain about a non Cosmos::Processor class" do
+      it "complains about a non Cosmos::Processor class" do
         filename = File.join(File.dirname(__FILE__), "../../processor1.rb")
         File.open(filename, 'w') do |file|
           file.puts "class Processor1"
@@ -73,7 +73,7 @@ module Cosmos
         tf.unlink
       end
 
-      it "should parse the processor" do
+      it "parses the processor" do
         filename = File.join(File.dirname(__FILE__), "../../processor2.rb")
         File.open(filename, 'w') do |file|
           file.puts "require 'cosmos/processors/processor'"
@@ -100,7 +100,7 @@ module Cosmos
         File.delete(filename) if File.exist?(filename)
       end
 
-      it "should complain if applied to a command packet" do
+      it "complains if applied to a command packet" do
         tf = Tempfile.new('unittest')
         tf.puts 'COMMAND tgt1 pkt1 LITTLE_ENDIAN "Packet"'
         tf.puts '  PROCESSOR P1 processor1.rb'

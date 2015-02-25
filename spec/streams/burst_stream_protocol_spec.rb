@@ -16,7 +16,7 @@ module Cosmos
   describe BurstStreamProtocol do
 
     describe "initialize" do
-      it "should initialize attributes" do
+      it "initializes attributes" do
         bsp = BurstStreamProtocol.new
         bsp.bytes_read.should eql 0
         bsp.bytes_written.should eql 0

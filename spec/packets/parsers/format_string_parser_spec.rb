@@ -23,7 +23,7 @@ module Cosmos
         @pc = PacketConfig.new
       end
 
-      it "should complain if a current item is not defined" do
+      it "complains if a current item is not defined" do
         # Check for missing ITEM definitions
         tf = Tempfile.new('unittest')
         tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Packet"'
@@ -33,7 +33,7 @@ module Cosmos
         tf.unlink
       end
 
-      it "should complain if there are not enough parameters" do
+      it "complains if there are not enough parameters" do
         tf = Tempfile.new('unittest')
         tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Packet"'
         tf.puts 'ITEM myitem 0 8 UINT "Test Item"'
@@ -43,7 +43,7 @@ module Cosmos
         tf.unlink
       end
 
-      it "should complain if there are too many parameters" do
+      it "complains if there are too many parameters" do
         tf = Tempfile.new('unittest')
         tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Packet"'
         tf.puts 'ITEM myitem 0 8 UINT "Test Item"'
@@ -53,7 +53,7 @@ module Cosmos
         tf.unlink
       end
 
-      it "should complain about invalid format strings" do
+      it "complains about invalid format strings" do
         tf = Tempfile.new('unittest')
         tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Packet"'
         tf.puts '  ITEM item1 0 8 INT'
@@ -71,7 +71,7 @@ module Cosmos
         tf.unlink
       end
 
-      it "should format integers" do
+      it "formats integers" do
         tf = Tempfile.new('unittest')
         tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Packet"'
         tf.puts '  ITEM item1 0 8 INT'
@@ -89,7 +89,7 @@ module Cosmos
         tf.unlink
       end
 
-      it "should format floats" do
+      it "formats floats" do
         tf = Tempfile.new('unittest')
         tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Packet"'
         tf.puts '  ITEM item1 0 32 FLOAT'
@@ -101,7 +101,7 @@ module Cosmos
         tf.unlink
       end
 
-      it "should format strings and blocks" do
+      it "formats strings and blocks" do
         tf = Tempfile.new('unittest')
         tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Packet"'
         tf.puts '  ITEM item1 0 32 STRING'

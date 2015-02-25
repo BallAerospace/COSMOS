@@ -14,7 +14,7 @@ require 'cosmos/core_ext/exception'
 describe Exception do
 
   describe "formatted" do
-    it "should format an Exception" do
+    it "formats an Exception" do
       begin
         raise "My message"
       rescue => err
@@ -23,7 +23,7 @@ describe Exception do
       end
     end
 
-    it "should format an Exception without RuntimeError class" do
+    it "formats an Exception without RuntimeError class" do
       begin
         raise "My message"
       rescue => err
@@ -42,7 +42,7 @@ describe Exception do
       end
     end
 
-    it "should format an Exception without stack trace" do
+    it "formats an Exception without stack trace" do
       begin
         raise "My message"
       rescue => err

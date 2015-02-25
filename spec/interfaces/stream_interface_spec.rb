@@ -23,27 +23,27 @@ module Cosmos
     end
 
     describe "initialize" do
-      it "should complain if the stream protocol doesn't exist" do
+      it "complains if the stream protocol doesn't exist" do
         File.delete(@file) if File.exist?(@file)
         expect { StreamInterface.new("test") }.to raise_error(/Unable to require test_stream_protocol.rb/)
         expect { StreamInterface.new("test") }.to raise_error(/Ensure test_stream_protocol.rb is in the COSMOS lib directory./)
       end
 
-      it "should complain if the stream protocol has a bug" do
+      it "complains if the stream protocol has a bug" do
         File.open(@file, 'w') {|file| file.puts "blah" }
         expect { StreamInterface.new("test") }.to raise_error(/Unable to require test_stream_protocol.rb/)
       end
     end
 
     describe "connect" do
-      it "should raise an exception" do
+      it "raises an exception" do
         si = StreamInterface.new("burst")
         expect { si.connect }.to raise_error("Interface connect method not implemented")
       end
     end
 
     describe "connected?, disconnect, bytes_read, bytes_written" do
-      it "should defer to the stream protocol" do
+      it "defers to the stream protocol" do
         File.open(@file, 'w') do |file|
           file.puts "class TestStreamProtocol"
           file.puts "attr_accessor :bytes_read, :bytes_written"
@@ -66,7 +66,7 @@ module Cosmos
     end
 
     describe "read" do
-      it "should read from the stream interface and count the packet" do
+      it "reads from the stream interface and count the packet" do
         File.open(@file, 'w') do |file|
           file.puts "class TestStreamProtocol"
           file.puts "def interface=(i); i; end"
@@ -83,7 +83,7 @@ module Cosmos
     end
 
     describe "write, write_raw" do
-      it "should complain if the stream interface isn't connected" do
+      it "complains if the stream interface isn't connected" do
         File.open(@file, 'w') do |file|
           file.puts "class TestStreamProtocol"
           file.puts "def interface=(i); i; end"
@@ -98,7 +98,7 @@ module Cosmos
         expect { si.write_raw(nil) }.to raise_error(/Interface not connected/)
       end
 
-      it "should disconnect after write errors" do
+      it "disconnects after write errors" do
         $disconnect = false
         File.open(@file, 'w') do |file|
           file.puts "class TestStreamProtocol"
@@ -132,7 +132,7 @@ module Cosmos
         $disconnect.should be_truthy
       end
 
-      it "should write to the stream interface and count the packet" do
+      it "writes to the stream interface and count the packet" do
         File.open(@file, 'w') do |file|
           file.puts "class TestStreamProtocol"
           file.puts "def interface=(i); i; end"

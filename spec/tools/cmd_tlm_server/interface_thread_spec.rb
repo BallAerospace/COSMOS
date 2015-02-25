@@ -52,7 +52,7 @@ module Cosmos
     end
 
     describe "start" do
-      it "should log connection errors" do
+      it "logs connection errors" do
         capture_io do |stdout|
           allow(@interface).to receive(:connected?).and_return(false)
           allow(@interface).to receive(:connect) { raise "ConnectError" }
@@ -68,7 +68,7 @@ module Cosmos
         end
       end
 
-      it "should not log connection errors when there is a callback" do
+      it "does not log connection errors when there is a callback" do
         capture_io do |stdout|
           allow(@interface).to receive(:connected?).and_return(false)
           allow(@interface).to receive(:connect) { raise "ConnectError" }
@@ -94,7 +94,7 @@ module Cosmos
         end
       end
 
-      it "should log the connection" do
+      it "logs the connection" do
         capture_io do |stdout|
           thread = InterfaceThread.new(@interface)
           thread.start
@@ -108,7 +108,7 @@ module Cosmos
         end
       end
 
-      it "should not log the connection when there is a callback" do
+      it "does not log the connection when there is a callback" do
         capture_io do |stdout|
           thread = InterfaceThread.new(@interface)
           callback_called = false
@@ -127,7 +127,7 @@ module Cosmos
         end
       end
 
-      it "should log the connection being lost" do
+      it "logs the connection being lost" do
         capture_io do |stdout|
           allow(@interface).to receive(:read).and_return(nil)
           # Make the reconnect_delay be slightly longer than half of 0.1 which is
@@ -146,7 +146,7 @@ module Cosmos
         end
       end
 
-      it "should not log the connection being lost when there is a callback" do
+      it "does not log the connection being lost when there is a callback" do
         capture_io do |stdout|
           allow(@interface).to receive(:read).and_return(nil)
           @interface.auto_reconnect = false
@@ -169,7 +169,7 @@ module Cosmos
         end
       end
 
-      it "should handle a read exception" do
+      it "handles a read exception" do
         capture_io do |stdout|
           allow(@interface).to receive(:read) { raise "ReadError" }
           thread = InterfaceThread.new(@interface)
@@ -184,7 +184,7 @@ module Cosmos
         end
       end
 
-      it "should handle a read connection reset" do
+      it "handles a read connection reset" do
         capture_io do |stdout|
           allow(@interface).to receive(:read) { raise Errno::ECONNRESET }
           # Make the reconnect_delay be slightly longer than half of 0.1 which is
@@ -203,7 +203,7 @@ module Cosmos
         end
       end
 
-      it "should log any thread exceptions" do
+      it "logs any thread exceptions" do
         capture_io do |stdout|
           allow(@interface).to receive(:connected?) { raise "ConnectedError" }
           thread = InterfaceThread.new(@interface)
@@ -216,7 +216,7 @@ module Cosmos
         end
       end
 
-      it "should not thread exceptions when there is a callback" do
+      it "does not thread exceptions when there is a callback" do
         capture_io do |stdout|
           allow(@interface).to receive(:connected?) { raise "ConnectedError" }
           thread = InterfaceThread.new(@interface)
@@ -235,7 +235,7 @@ module Cosmos
         end
       end
 
-      it "should handle unidentified packets" do
+      it "handles unidentified packets" do
         capture_io do |stdout|
           @packet = Packet.new(nil,nil)
           thread = InterfaceThread.new(@interface)
@@ -250,7 +250,7 @@ module Cosmos
         end
       end
 
-      it "should handle identified yet unknown telemetry" do
+      it "handles identified yet unknown telemetry" do
         capture_io do |stdout|
           @packet.target_name = 'BOB'
           @packet.packet_name = 'SMITH'
@@ -266,7 +266,7 @@ module Cosmos
         end
       end
 
-      it "should write to all defined routers" do
+      it "writes to all defined routers" do
         capture_io do |stdout|
           router = double("Router")
           allow(router).to receive(:write_allowed?).and_return(true)
@@ -286,7 +286,7 @@ module Cosmos
         end
       end
 
-      it "should write to all defined packet log writers" do
+      it "writes to all defined packet log writers" do
         writer = double("LogWriter")
         allow(writer).to receive_message_chain(:tlm_log_writer,:write)
         @interface.packet_log_writer_pairs = [writer]

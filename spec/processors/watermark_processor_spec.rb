@@ -17,7 +17,7 @@ module Cosmos
   describe WatermarkProcessor do
 
     describe "initialize" do
-      it "should take an item_name and value_type" do
+      it "takes an item_name and value_type" do
         p = WatermarkProcessor.new('TEST', 'RAW')
         p.value_type.should eql :RAW
         p.instance_variable_get("@item_name").should eql 'TEST'
@@ -25,7 +25,7 @@ module Cosmos
     end
 
     describe "call and reset" do
-      it "should generate a high and low water mark" do
+      it "generates a high and low water mark" do
         p = WatermarkProcessor.new('TEST', 'RAW')
         packet = Packet.new("tgt","pkt")
         packet.append_item("TEST", 8, :UINT)

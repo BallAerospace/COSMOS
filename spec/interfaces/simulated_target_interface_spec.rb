@@ -45,17 +45,17 @@ end
     end
 
     describe "initialize" do
-      it "should complain if the simulated target file doesn't exist" do
+      it "complains if the simulated target file doesn't exist" do
         expect { SimulatedTargetInterface.new("doesnt_exist.rb") }.to raise_error(/Unable to require doesnt_exist.rb/)
       end
 
-      it "should create the simulated target class" do
+      it "creates the simulated target class" do
         SimulatedTargetInterface.new("test_inst.rb")
       end
     end
 
     describe "connect" do
-      it "should create the simulated target" do
+      it "creates the simulated target" do
         sti = SimulatedTargetInterface.new("test_inst.rb")
         sti.target_names = ['COSMOS']
         sti.connect
@@ -63,7 +63,7 @@ end
     end
 
     describe "connected?" do
-      it "should initially be false" do
+      it "initiallies be false" do
         sti = SimulatedTargetInterface.new("test_inst.rb")
         sti.target_names = ['COSMOS']
         sti.connected?.should be_falsey
@@ -73,11 +73,11 @@ end
     end
 
     describe "read" do
-      it "should complain if disconnected" do
+      it "complains if disconnected" do
         expect { SimulatedTargetInterface.new("test_inst.rb").read }.to raise_error("Interface not connected")
       end
 
-      it "should return a simulated packet" do
+      it "returns a simulated packet" do
         sti = SimulatedTargetInterface.new("test_inst.rb")
         sti.target_names = ['COSMOS']
         sti.connected?.should be_falsey
@@ -92,11 +92,11 @@ end
     end
 
     describe "write" do
-      it "should complain if disconnected" do
+      it "complains if disconnected" do
         expect { SimulatedTargetInterface.new("test_inst.rb").write(nil) }.to raise_error("Interface not connected")
       end
 
-      it "should write commands to the simulator" do
+      it "writes commands to the simulator" do
         sti = SimulatedTargetInterface.new("test_inst.rb")
         sti.target_names = ['COSMOS']
         sti.connected?.should be_falsey
@@ -106,13 +106,13 @@ end
     end
 
     describe "write_raw" do
-      it "should raise an exception" do
+      it "raises an exception" do
         expect { SimulatedTargetInterface.new("test_inst.rb").write_raw("") }.to raise_error(/not implemented/)
       end
     end
 
     describe "disconnect" do
-      it "should disconnect from the simulator" do
+      it "disconnects from the simulator" do
         sti = SimulatedTargetInterface.new("test_inst.rb")
         sti.target_names = ['COSMOS']
         sti.connected?.should be_falsey

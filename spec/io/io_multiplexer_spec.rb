@@ -19,13 +19,13 @@ module Cosmos
     end
 
     describe "add_stream" do
-      it "should add a single stream" do
+      it "adds a single stream" do
         @io.add_stream(STDOUT)
         expect($stdout).to receive(:puts).with("TEST")
         @io.puts "TEST"
       end
 
-      it "should add multiple streams" do
+      it "adds multiple streams" do
         @io.add_stream(STDOUT)
         @io.add_stream(STDERR)
         expect($stdout).to receive(:puts).with("TEST")
@@ -35,7 +35,7 @@ module Cosmos
     end
 
     describe "remove_stream" do
-      it "should remove the stream from output" do
+      it "removes the stream from output" do
         @io.add_stream(STDOUT)
         @io.add_stream(STDERR)
         @io.remove_stream(STDOUT)
@@ -46,7 +46,7 @@ module Cosmos
     end
 
     describe "print, printf, putc, puts, flush" do
-      it "should defer to the stream" do
+      it "defers to the stream" do
         @io.add_stream(STDOUT)
         expect($stdout).to receive(:print).with("TEST")
         @io.print "TEST"
@@ -62,7 +62,7 @@ module Cosmos
     end
 
     describe "write write_nonblock" do
-      it "should defer to the stream" do
+      it "defers to the stream" do
         @io.add_stream(STDOUT)
         expect($stdout).to receive(:write).with("TEST")
         len = @io.write "TEST"
@@ -74,7 +74,7 @@ module Cosmos
     end
 
     describe "remove_default_io" do
-      it "should remove STDOUT and STDERR from the streams" do
+      it "removes STDOUT and STDERR from the streams" do
         f = File.open("unittest.txt",'w')
         @io.add_stream(STDOUT)
         @io.add_stream(STDERR)

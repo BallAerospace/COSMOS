@@ -70,7 +70,7 @@ module Cosmos
     end
 
     describe "initialize" do
-      it "should create a command log writer" do
+      it "creates a command log writer" do
         @plr.log_type.should eql :TLM
         @plr.configuration_name.should be_nil
         @plr.hostname.should be_nil
@@ -78,7 +78,7 @@ module Cosmos
     end
 
     describe "open" do
-      it "should complain if the log file is too small" do
+      it "complains if the log file is too small" do
         tf = Tempfile.new('log_file')
         tf.puts "BLAH"
         tf.close
@@ -86,7 +86,7 @@ module Cosmos
         tf.unlink
       end
 
-      it "should complain if the log does not have a COSMOS header" do
+      it "complains if the log does not have a COSMOS header" do
         pkt = System.telemetry.packet("COSMOS","VERSION").clone
         filename = File.join(@log_path,'test.bin')
         File.open(filename,'wb') do |file|
@@ -98,7 +98,7 @@ module Cosmos
         expect { @plr.open(filename) }.to raise_error(/file header not found/)
       end
 
-      it "should complain if the log is not CMD or TLM" do
+      it "complains if the log is not CMD or TLM" do
         pkt = System.telemetry.packet("COSMOS","VERSION").clone
         filename = File.join(@log_path,'test.bin')
         File.open(filename,'wb') do |file|
@@ -110,7 +110,7 @@ module Cosmos
         expect { @plr.open(filename) }.to raise_error("Unknown log type BOT")
       end
 
-      it "should open COSMOS1 log files" do
+      it "opens COSMOS1 log files" do
         pkt = System.telemetry.packet("COSMOS","VERSION").clone
         filename = File.join(@log_path,'test.bin')
         File.open(filename,'wb') do |file|
@@ -140,7 +140,7 @@ module Cosmos
     end
 
     describe "packet_offsets and read_at_offset" do
-      it "should return packet offsets CTS-20, CTS-22" do
+      it "returns packet offsets CTS-20, CTS-22" do
         packet_offsets = @plr.packet_offsets(Dir[File.join(@log_path,"*cmd.bin")][0])
         @plr.log_type.should eql :CMD
         @plr.configuration_name.should_not be_nil
@@ -156,7 +156,7 @@ module Cosmos
         @plr.close
       end
 
-      it "should return telemetry packet information" do
+      it "returns telemetry packet information" do
         packet_offsets = @plr.packet_offsets(Dir[File.join(@log_path,"*tlm.bin")][0])
         @plr.log_type.should eql :TLM
         @plr.configuration_name.should_not be_nil
@@ -174,7 +174,7 @@ module Cosmos
     end
 
     describe "each" do
-      it "should return packets" do
+      it "returns packets" do
         index = 0
         bytes_read = 208
         @plr.each(Dir[File.join(@log_path,"*cmd.bin")][0]) do |packet|
@@ -199,7 +199,7 @@ module Cosmos
         end
       end
 
-      it "should optionally not identify and define packets" do
+      it "optionallies not identify and define packets" do
         index = 0
         @plr.each(Dir[File.join(@log_path,"*cmd.bin")][0], false) do |packet|
           packet.target_name.should eql @cmd_packets[index].target_name
@@ -218,7 +218,7 @@ module Cosmos
         end
       end
 
-      it "should return all packets if the start time is before all" do
+      it "returns all packets if the start time is before all" do
         time = Time.new(2000,1,31,12,30,16)
         index = 0
         @plr.each(Dir[File.join(@log_path,"*cmd.bin")][0], true, time) do |packet|
@@ -231,7 +231,7 @@ module Cosmos
         index.should eql 3
       end
 
-      it "should return no packets if the start time is after all" do
+      it "returns no packets if the start time is after all" do
         time = Time.new(2030,2,1,12,30,16)
         index = 0
         @plr.each(Dir[File.join(@log_path,"*tlm.bin")][0], true, time) do |packet|
@@ -240,7 +240,7 @@ module Cosmos
         index.should eql 0
       end
 
-      it "should return all packets after a start time" do
+      it "returns all packets after a start time" do
         time = Time.new(2020,1,31,12,30,16)
         index = 0
         @plr.each(Dir[File.join(@log_path,"*cmd.bin")][0], true, time) do |packet|
@@ -264,7 +264,7 @@ module Cosmos
         index.should eql 2
       end
 
-      it "should return no packets if the end time is before all" do
+      it "returns no packets if the end time is before all" do
         time = Time.new(2000,1,31,12,30,16)
         index = 0
         @plr.each(Dir[File.join(@log_path,"*tlm.bin")][0], true, nil, time) do |packet|
@@ -273,7 +273,7 @@ module Cosmos
         index.should eql 0
       end
 
-      it "should return all packets if the end time is after all" do
+      it "returns all packets if the end time is after all" do
         time = Time.new(2030,2,1,12,30,16)
         index = 0
         @plr.each(Dir[File.join(@log_path,"*cmd.bin")][0], true, nil, time) do |packet|
@@ -286,7 +286,7 @@ module Cosmos
         index.should eql 3
       end
 
-      it "should return all packets before an end time" do
+      it "returns all packets before an end time" do
         time = Time.new(2020,1,31,12,30,16)
         index = 0
         @plr.each(Dir[File.join(@log_path,"*cmd.bin")][0], true, nil, time) do |packet|
@@ -312,7 +312,7 @@ module Cosmos
    end
 
     describe "first" do
-      it "should return the first command packet and retain the file position" do
+      it "returns the first command packet and retain the file position" do
         @plr.open(Dir[File.join(@log_path,"*cmd.bin")][0])
         pkt1 = @plr.read
         pkt1.target_name.should eql @cmd_packets[0].target_name
@@ -334,7 +334,7 @@ module Cosmos
         @plr.close
       end
 
-      it "should return the first telemetry packet and retain the file position" do
+      it "returns the first telemetry packet and retain the file position" do
         @plr.open(Dir[File.join(@log_path,"*tlm.bin")][0])
         pkt1 = @plr.read
         pkt1.target_name.should eql @tlm_packets[0].target_name
@@ -358,7 +358,7 @@ module Cosmos
     end
 
     describe "last" do
-      it "should return the last command packet and retain the file position" do
+      it "returns the last command packet and retain the file position" do
         @plr.open(Dir[File.join(@log_path,"*cmd.bin")][0])
         pkt1 = @plr.read
         pkt1.target_name.should eql @cmd_packets[0].target_name
@@ -380,7 +380,7 @@ module Cosmos
         @plr.close
       end
 
-      it "should return the last telemetry packet and retain the file position" do
+      it "returns the last telemetry packet and retain the file position" do
         @plr.open(Dir[File.join(@log_path,"*tlm.bin")][0])
         pkt1 = @plr.read
         pkt1.target_name.should eql @tlm_packets[0].target_name

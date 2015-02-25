@@ -55,357 +55,357 @@ module Cosmos
     end
 
     describe "cmd" do
-      it "should complain about unknown targets, commands, and parameters" do
+      it "complains about unknown targets, commands, and parameters" do
         test_cmd_unknown(:cmd)
         sleep(0.5)
       end
 
-      it "should process a string" do
+      it "processes a string" do
         target_name, cmd_name, params = @api.cmd("INST COLLECT with TYPE NORMAL, DURATION 5")
         target_name.should eql 'INST'
         cmd_name.should eql 'COLLECT'
         params.should include('TYPE'=>'NORMAL', 'DURATION'=>5)
       end
 
-      it "should complain if parameters are not separated by commas" do
+      it "complains if parameters are not separated by commas" do
         expect { @api.cmd("INST COLLECT with TYPE NORMAL DURATION 5") }.to raise_error(/Missing comma/)
       end
 
-      it "should complain if parameters don't have values" do
+      it "complains if parameters don't have values" do
         expect { @api.cmd("INST COLLECT with TYPE") }.to raise_error(/Missing value/)
       end
 
-      it "should process parameters" do
+      it "processes parameters" do
         target_name, cmd_name, params = @api.cmd("INST","COLLECT","TYPE"=>"NORMAL","DURATION"=>5)
         target_name.should eql 'INST'
         cmd_name.should eql 'COLLECT'
         params.should include('TYPE'=>'NORMAL', 'DURATION'=>5)
       end
 
-      it "should process commands without parameters" do
+      it "processes commands without parameters" do
         target_name, cmd_name, params = @api.cmd("INST","ABORT")
         target_name.should eql 'INST'
         cmd_name.should eql 'ABORT'
         params.should be {}
       end
 
-      it "should complain about too many parameters" do
+      it "complains about too many parameters" do
         expect { @api.cmd("INST","COLLECT","TYPE","DURATION") }.to raise_error(/Invalid number of arguments/)
       end
 
-      it "should warn about required parameters" do
+      it "warns about required parameters" do
         expect { @api.cmd("INST COLLECT with DURATION 5") }.to raise_error(/Required/)
       end
 
-      it "should warn about out of range parameters" do
+      it "warns about out of range parameters" do
         expect { @api.cmd("INST COLLECT with TYPE NORMAL, DURATION 1000") }.to raise_error(/not in valid range/)
       end
 
-      it "should warn about hazardous parameters" do
+      it "warns about hazardous parameters" do
         expect { @api.cmd("INST COLLECT with TYPE SPECIAL") }.to raise_error(/Hazardous/)
       end
 
-      it "should warn about hazardous commands" do
+      it "warns about hazardous commands" do
         expect { @api.cmd("INST CLEAR") }.to raise_error(/Hazardous/)
       end
     end
 
     describe "cmd_no_range_check" do
-      it "should complain about unknown targets, commands, and parameters" do
+      it "complains about unknown targets, commands, and parameters" do
         test_cmd_unknown(:cmd_no_range_check)
       end
 
-      it "should process a string" do
+      it "processes a string" do
         target_name, cmd_no_range_check_name, params = @api.cmd_no_range_check("INST COLLECT with TYPE NORMAL, DURATION 5")
         target_name.should eql 'INST'
         cmd_no_range_check_name.should eql 'COLLECT'
         params.should include('TYPE'=>'NORMAL', 'DURATION'=>5)
       end
 
-      it "should process parameters" do
+      it "processes parameters" do
         target_name, cmd_no_range_check_name, params = @api.cmd_no_range_check("INST","COLLECT","TYPE"=>"NORMAL","DURATION"=>5)
         target_name.should eql 'INST'
         cmd_no_range_check_name.should eql 'COLLECT'
         params.should include('TYPE'=>'NORMAL', 'DURATION'=>5)
       end
 
-      it "should warn about required parameters" do
+      it "warns about required parameters" do
         expect { @api.cmd_no_range_check("INST COLLECT with DURATION 5") }.to raise_error(/Required/)
       end
 
-      it "should not warn about out of range parameters" do
+      it "does not warn about out of range parameters" do
         expect { @api.cmd_no_range_check("INST COLLECT with TYPE NORMAL, DURATION 1000") }.to_not raise_error
       end
 
-      it "should warn about hazardous parameters" do
+      it "warns about hazardous parameters" do
         expect { @api.cmd_no_range_check("INST COLLECT with TYPE SPECIAL") }.to raise_error(/Hazardous/)
       end
 
-      it "should warn about hazardous commands" do
+      it "warns about hazardous commands" do
         expect { @api.cmd_no_range_check("INST CLEAR") }.to raise_error(/Hazardous/)
       end
     end
 
     describe "cmd_no_hazardous_check" do
-      it "should complain about unknown targets, commands, and parameters" do
+      it "complains about unknown targets, commands, and parameters" do
         test_cmd_unknown(:cmd_no_hazardous_check)
       end
 
-      it "should process a string" do
+      it "processes a string" do
         target_name, cmd_no_hazardous_check_name, params = @api.cmd_no_hazardous_check("INST COLLECT with TYPE NORMAL, DURATION 5")
         target_name.should eql 'INST'
         cmd_no_hazardous_check_name.should eql 'COLLECT'
         params.should include('TYPE'=>'NORMAL', 'DURATION'=>5)
       end
 
-      it "should process parameters" do
+      it "processes parameters" do
         target_name, cmd_no_hazardous_check_name, params = @api.cmd_no_hazardous_check("INST","COLLECT","TYPE"=>"NORMAL","DURATION"=>5)
         target_name.should eql 'INST'
         cmd_no_hazardous_check_name.should eql 'COLLECT'
         params.should include('TYPE'=>'NORMAL', 'DURATION'=>5)
       end
 
-      it "should process parameters that are strings" do
+      it "processes parameters that are strings" do
         target_name, cmd_name, params = @api.cmd_no_hazardous_check("INST ASCIICMD with STRING 'ARM LASER'")
         target_name.should eql 'INST'
         cmd_name.should eql 'ASCIICMD'
         params.should include('STRING'=>'ARM LASER')
       end
 
-      it "should warn about required parameters" do
+      it "warns about required parameters" do
         expect { @api.cmd_no_hazardous_check("INST COLLECT with DURATION 5") }.to raise_error(/Required/)
       end
 
-      it "should warn about out of range parameters" do
+      it "warns about out of range parameters" do
         expect { @api.cmd_no_hazardous_check("INST COLLECT with TYPE NORMAL, DURATION 1000") }.to raise_error(/not in valid range/)
       end
 
-      it "should not warn about hazardous parameters" do
+      it "does not warn about hazardous parameters" do
         expect { @api.cmd_no_hazardous_check("INST COLLECT with TYPE SPECIAL") }.to_not raise_error
       end
 
-      it "should not warn about hazardous commands" do
+      it "does not warn about hazardous commands" do
         expect { @api.cmd_no_hazardous_check("INST CLEAR") }.to_not raise_error
       end
     end
 
     describe "cmd_no_checks" do
-      it "should complain about unknown targets, commands, and parameters" do
+      it "complains about unknown targets, commands, and parameters" do
         test_cmd_unknown(:cmd_no_checks)
       end
 
-      it "should process a string" do
+      it "processes a string" do
         target_name, cmd_no_checks_name, params = @api.cmd_no_checks("INST COLLECT with TYPE NORMAL, DURATION 5")
         target_name.should eql 'INST'
         cmd_no_checks_name.should eql 'COLLECT'
         params.should include('TYPE'=>'NORMAL', 'DURATION'=>5)
       end
 
-      it "should process parameters" do
+      it "processes parameters" do
         target_name, cmd_no_checks_name, params = @api.cmd_no_checks("INST","COLLECT","TYPE"=>"NORMAL","DURATION"=>5)
         target_name.should eql 'INST'
         cmd_no_checks_name.should eql 'COLLECT'
         params.should include('TYPE'=>'NORMAL', 'DURATION'=>5)
       end
 
-      it "should warn about required parameters" do
+      it "warns about required parameters" do
         expect { @api.cmd_no_checks("INST COLLECT with DURATION 5") }.to raise_error(/Required/)
       end
 
-      it "should not warn about out of range parameters" do
+      it "does not warn about out of range parameters" do
         expect { @api.cmd_no_checks("INST COLLECT with TYPE NORMAL, DURATION 1000") }.to_not raise_error
       end
 
-      it "should not warn about hazardous parameters" do
+      it "does not warn about hazardous parameters" do
         expect { @api.cmd_no_checks("INST COLLECT with TYPE SPECIAL") }.to_not raise_error
       end
 
-      it "should not warn about hazardous commands" do
+      it "does not warn about hazardous commands" do
         expect { @api.cmd_no_checks("INST CLEAR") }.to_not raise_error
       end
     end
 
     describe "cmd_raw" do
-      it "should complain about unknown targets, commands, and parameters" do
+      it "complains about unknown targets, commands, and parameters" do
         test_cmd_unknown(:cmd_raw)
       end
 
-      it "should process a string" do
+      it "processes a string" do
         target_name, cmd_name, params = @api.cmd_raw("INST COLLECT with TYPE 0, DURATION 5")
         target_name.should eql 'INST'
         cmd_name.should eql 'COLLECT'
         params.should include('TYPE'=>0, 'DURATION'=>5)
       end
 
-      it "should complain if parameters are not separated by commas" do
+      it "complains if parameters are not separated by commas" do
         expect { @api.cmd_raw("INST COLLECT with TYPE 0 DURATION 5") }.to raise_error(/Missing comma/)
       end
 
-      it "should complain if parameters don't have values" do
+      it "complains if parameters don't have values" do
         expect { @api.cmd_raw("INST COLLECT with TYPE") }.to raise_error(/Missing value/)
       end
 
-      it "should process parameters" do
+      it "processes parameters" do
         target_name, cmd_name, params = @api.cmd_raw("INST","COLLECT","TYPE"=>0,"DURATION"=>5)
         target_name.should eql 'INST'
         cmd_name.should eql 'COLLECT'
         params.should include('TYPE'=>0, 'DURATION'=>5)
       end
 
-      it "should process commands without parameters" do
+      it "processes commands without parameters" do
         target_name, cmd_name, params = @api.cmd_raw("INST","ABORT")
         target_name.should eql 'INST'
         cmd_name.should eql 'ABORT'
         params.should be {}
       end
 
-      it "should complain about too many parameters" do
+      it "complains about too many parameters" do
         expect { @api.cmd_raw("INST","COLLECT","TYPE","DURATION") }.to raise_error(/Invalid number of arguments/)
       end
 
-      it "should warn about required parameters" do
+      it "warns about required parameters" do
         expect { @api.cmd_raw("INST COLLECT with DURATION 5") }.to raise_error(/Required/)
       end
 
-      it "should warn about out of range parameters" do
+      it "warns about out of range parameters" do
         expect { @api.cmd_raw("INST COLLECT with TYPE 0, DURATION 1000") }.to raise_error(/not in valid range/)
       end
 
-      it "should warn about hazardous parameters" do
+      it "warns about hazardous parameters" do
         expect { @api.cmd_raw("INST COLLECT with TYPE 1") }.to raise_error(/Hazardous/)
       end
 
-      it "should warn about hazardous commands" do
+      it "warns about hazardous commands" do
         expect { @api.cmd_raw("INST CLEAR") }.to raise_error(/Hazardous/)
       end
     end
 
     describe "cmd_no_range_check" do
-      it "should complain about unknown targets, commands, and parameters" do
+      it "complains about unknown targets, commands, and parameters" do
         test_cmd_unknown(:cmd_raw_no_range_check)
       end
 
-      it "should process a string" do
+      it "processes a string" do
         target_name, cmd_no_range_check_name, params = @api.cmd_raw_no_range_check("INST COLLECT with TYPE 0, DURATION 5")
         target_name.should eql 'INST'
         cmd_no_range_check_name.should eql 'COLLECT'
         params.should include('TYPE'=>0, 'DURATION'=>5)
       end
 
-      it "should process parameters" do
+      it "processes parameters" do
         target_name, cmd_no_range_check_name, params = @api.cmd_raw_no_range_check("INST","COLLECT","TYPE"=>0,"DURATION"=>5)
         target_name.should eql 'INST'
         cmd_no_range_check_name.should eql 'COLLECT'
         params.should include('TYPE'=>0, 'DURATION'=>5)
       end
 
-      it "should warn about required parameters" do
+      it "warns about required parameters" do
         expect { @api.cmd_raw_no_range_check("INST COLLECT with DURATION 5") }.to raise_error(/Required/)
       end
 
-      it "should not warn about out of range parameters" do
+      it "does not warn about out of range parameters" do
         expect { @api.cmd_raw_no_range_check("INST COLLECT with TYPE 0, DURATION 1000") }.to_not raise_error
       end
 
-      it "should warn about hazardous parameters" do
+      it "warns about hazardous parameters" do
         expect { @api.cmd_raw_no_range_check("INST COLLECT with TYPE 1") }.to raise_error(/Hazardous/)
       end
 
-      it "should warn about hazardous commands" do
+      it "warns about hazardous commands" do
         expect { @api.cmd_raw_no_range_check("INST CLEAR") }.to raise_error(/Hazardous/)
       end
     end
 
     describe "cmd_raw_no_hazardous_check" do
-      it "should complain about unknown targets, commands, and parameters" do
+      it "complains about unknown targets, commands, and parameters" do
         test_cmd_unknown(:cmd_raw_no_hazardous_check)
       end
 
-      it "should process a string" do
+      it "processes a string" do
         target_name, cmd_no_hazardous_check_name, params = @api.cmd_raw_no_hazardous_check("INST COLLECT with TYPE 0, DURATION 5")
         target_name.should eql 'INST'
         cmd_no_hazardous_check_name.should eql 'COLLECT'
         params.should include('TYPE'=>0, 'DURATION'=>5)
       end
 
-      it "should process parameters" do
+      it "processes parameters" do
         target_name, cmd_no_hazardous_check_name, params = @api.cmd_raw_no_hazardous_check("INST","COLLECT","TYPE"=>0,"DURATION"=>5)
         target_name.should eql 'INST'
         cmd_no_hazardous_check_name.should eql 'COLLECT'
         params.should include('TYPE'=>0, 'DURATION'=>5)
       end
 
-      it "should process parameters that are strings" do
+      it "processes parameters that are strings" do
         target_name, cmd_name, params = @api.cmd_raw_no_hazardous_check("INST ASCIICMD with STRING 'ARM LASER'")
         target_name.should eql 'INST'
         cmd_name.should eql 'ASCIICMD'
         params.should include('STRING'=>'ARM LASER')
       end
 
-      it "should warn about required parameters" do
+      it "warns about required parameters" do
         expect { @api.cmd_raw_no_hazardous_check("INST COLLECT with DURATION 5") }.to raise_error(/Required/)
       end
 
-      it "should warn about out of range parameters" do
+      it "warns about out of range parameters" do
         expect { @api.cmd_raw_no_hazardous_check("INST COLLECT with TYPE 0, DURATION 1000") }.to raise_error(/not in valid range/)
       end
 
-      it "should not warn about hazardous parameters" do
+      it "does not warn about hazardous parameters" do
         expect { @api.cmd_raw_no_hazardous_check("INST COLLECT with TYPE 1") }.to_not raise_error
       end
 
-      it "should not warn about hazardous commands" do
+      it "does not warn about hazardous commands" do
         expect { @api.cmd_raw_no_hazardous_check("INST CLEAR") }.to_not raise_error
       end
     end
 
     describe "cmd_raw_no_checks" do
-      it "should complain about unknown targets, commands, and parameters" do
+      it "complains about unknown targets, commands, and parameters" do
         test_cmd_unknown(:cmd_raw_no_checks)
       end
 
-      it "should process a string" do
+      it "processes a string" do
         target_name, cmd_no_checks_name, params = @api.cmd_raw_no_checks("INST COLLECT with TYPE 0, DURATION 5")
         target_name.should eql 'INST'
         cmd_no_checks_name.should eql 'COLLECT'
         params.should include('TYPE'=>0, 'DURATION'=>5)
       end
 
-      it "should process parameters" do
+      it "processes parameters" do
         target_name, cmd_no_checks_name, params = @api.cmd_raw_no_checks("INST","COLLECT","TYPE"=>0,"DURATION"=>5)
         target_name.should eql 'INST'
         cmd_no_checks_name.should eql 'COLLECT'
         params.should include('TYPE'=>0, 'DURATION'=>5)
       end
 
-      it "should warn about required parameters" do
+      it "warns about required parameters" do
         expect { @api.cmd_raw_no_checks("INST COLLECT with DURATION 5") }.to raise_error(/Required/)
       end
 
-      it "should not warn about out of range parameters" do
+      it "does not warn about out of range parameters" do
         expect { @api.cmd_raw_no_checks("INST COLLECT with TYPE 0, DURATION 1000") }.to_not raise_error
       end
 
-      it "should not warn about hazardous parameters" do
+      it "does not warn about hazardous parameters" do
         expect { @api.cmd_raw_no_checks("INST COLLECT with TYPE 1") }.to_not raise_error
       end
 
-      it "should not warn about hazardous commands" do
+      it "does not warn about hazardous commands" do
         expect { @api.cmd_raw_no_checks("INST CLEAR") }.to_not raise_error
       end
     end
 
     describe "get_cmd_list" do
-      it "should return command names sorted" do
+      it "returns command names sorted" do
         result = @api.get_cmd_list("INST")
         result.sort.should eql result
       end
 
-      it "should complain with a unknown target" do
+      it "complains with a unknown target" do
         expect { @api.get_cmd_list("BLAH") }.to raise_error(/does not exist/)
       end
 
-      it "should return command names and descriptions for a given target" do
+      it "returns command names and descriptions for a given target" do
         result = @api.get_cmd_list("INST")
         result[0][0].should eql "ABORT"
         # The second parameter is the description ... only test one
@@ -427,7 +427,7 @@ module Cosmos
     end
 
     describe "get_cmd_param_list" do
-      it "should return parameters for the command" do
+      it "returns parameters for the command" do
         result = @api.get_cmd_param_list("INST","COLLECT")
         # Each element in the results array contains:
         #   name, default, states, description, full units, units, required
@@ -435,7 +435,7 @@ module Cosmos
         result.should include ['TEMP',0.0,nil,'Collect temperature','Celcius','C',false]
       end
 
-      it "should return array parameters for the command" do
+      it "returns array parameters for the command" do
         result = @api.get_cmd_param_list("INST","ARYCMD")
         # Each element in the results array contains:
         #   name, default, states, description, full units, units, required
@@ -444,12 +444,12 @@ module Cosmos
     end
 
     describe "get_cmd_hazardous" do
-      it "should return whether the command with parameters is hazardous" do
+      it "returns whether the command with parameters is hazardous" do
         @api.get_cmd_hazardous("INST","COLLECT",{"TYPE"=>"NORMAL"}).should be_falsey
         @api.get_cmd_hazardous("INST","COLLECT",{"TYPE"=>"SPECIAL"}).should be_truthy
       end
 
-      it "should return whether the command is hazardous" do
+      it "returns whether the command is hazardous" do
         @api.get_cmd_hazardous("INST","CLEAR").should be_truthy
       end
     end
@@ -464,80 +464,80 @@ module Cosmos
     end
 
     describe "tlm" do
-      it "should complain about unknown targets, commands, and parameters" do
+      it "complains about unknown targets, commands, and parameters" do
         test_tlm_unknown(:tlm)
       end
 
-      it "should process a string" do
+      it "processes a string" do
         value = @api.tlm("INST HEALTH_STATUS TEMP1")
         value.should eql -100.0
       end
 
-      it "should process parameters" do
+      it "processes parameters" do
         value = @api.tlm("INST","HEALTH_STATUS","TEMP1")
       end
 
-      it "should complain if too many parameters" do
+      it "complains if too many parameters" do
         expect { @api.tlm("INST","HEALTH_STATUS","TEMP1","TEMP2") }.to raise_error(/Invalid number of arguments/)
       end
     end
 
     describe "tlm_raw" do
-      it "should complain about unknown targets, commands, and parameters" do
+      it "complains about unknown targets, commands, and parameters" do
         test_tlm_unknown(:tlm_raw)
       end
 
-      it "should process a string" do
+      it "processes a string" do
         @api.tlm_raw("INST HEALTH_STATUS TEMP1").should eql 0
       end
 
-      it "should return the value using LATEST" do
+      it "returns the value using LATEST" do
         @api.tlm_raw("INST LATEST TEMP1").should eql 0
       end
 
-      it "should process parameters" do
+      it "processes parameters" do
         @api.tlm_raw("INST","HEALTH_STATUS","TEMP1").should eql 0
       end
     end
 
     describe "tlm_formatted" do
-      it "should complain about unknown targets, commands, and parameters" do
+      it "complains about unknown targets, commands, and parameters" do
         test_tlm_unknown(:tlm_formatted)
       end
 
-      it "should process a string" do
+      it "processes a string" do
         @api.tlm_formatted("INST HEALTH_STATUS TEMP1").should eql "-100.000"
       end
 
-      it "should return the value using LATEST" do
+      it "returns the value using LATEST" do
         @api.tlm_formatted("INST LATEST TEMP1").should eql "-100.000"
       end
 
-      it "should process parameters" do
+      it "processes parameters" do
         @api.tlm_formatted("INST","HEALTH_STATUS","TEMP1").should eql "-100.000"
       end
     end
 
     describe "tlm_with_units" do
-      it "should complain about unknown targets, commands, and parameters" do
+      it "complains about unknown targets, commands, and parameters" do
         test_tlm_unknown(:tlm_with_units)
       end
 
-      it "should process a string" do
+      it "processes a string" do
         @api.tlm_with_units("INST HEALTH_STATUS TEMP1").should eql "-100.000 C"
       end
 
-      it "should return the value using LATEST" do
+      it "returns the value using LATEST" do
         @api.tlm_with_units("INST LATEST TEMP1").should eql "-100.000 C"
       end
 
-      it "should process parameters" do
+      it "processes parameters" do
         @api.tlm_with_units("INST","HEALTH_STATUS","TEMP1").should eql "-100.000 C"
       end
     end
 
     describe "tlm_variable" do
-      it "should complain about unknown targets, commands, and parameters" do
+      it "complains about unknown targets, commands, and parameters" do
         expect { @api.tlm_variable("BLAH HEALTH_STATUS COLLECTS",:RAW) }.to raise_error(/does not exist/)
         expect { @api.tlm_variable("INST UNKNOWN COLLECTS",:RAW) }.to raise_error(/does not exist/)
         expect { @api.tlm_variable("INST HEALTH_STATUS BLAH",:RAW) }.to raise_error(/does not exist/)
@@ -546,34 +546,34 @@ module Cosmos
         expect { @api.tlm_variable("INST","HEALTH_STATUS","BLAH",:RAW) }.to raise_error(/does not exist/)
       end
 
-      it "should process a string" do
+      it "processes a string" do
         @api.tlm_variable("INST HEALTH_STATUS TEMP1",:CONVERTED).should eql -100.0
         @api.tlm_variable("INST HEALTH_STATUS TEMP1",:RAW).should eql 0
         @api.tlm_variable("INST HEALTH_STATUS TEMP1",:FORMATTED).should eql "-100.000"
         @api.tlm_variable("INST HEALTH_STATUS TEMP1",:WITH_UNITS).should eql "-100.000 C"
       end
 
-      it "should return the value using LATEST" do
+      it "returns the value using LATEST" do
         @api.tlm_variable("INST LATEST TEMP1",:CONVERTED).should eql -100.0
         @api.tlm_variable("INST LATEST TEMP1",:RAW).should eql 0
         @api.tlm_variable("INST LATEST TEMP1",:FORMATTED).should eql "-100.000"
         @api.tlm_variable("INST LATEST TEMP1",:WITH_UNITS).should eql "-100.000 C"
       end
 
-      it "should process parameters" do
+      it "processes parameters" do
         @api.tlm_variable("INST","HEALTH_STATUS","TEMP1",:CONVERTED).should eql -100.0
         @api.tlm_variable("INST","HEALTH_STATUS","TEMP1",:RAW).should eql 0
         @api.tlm_variable("INST","HEALTH_STATUS","TEMP1",:FORMATTED).should eql "-100.000"
         @api.tlm_variable("INST","HEALTH_STATUS","TEMP1",:WITH_UNITS).should eql "-100.000 C"
       end
 
-      it "should complain with too many parameters" do
+      it "complains with too many parameters" do
         expect { @api.tlm_variable("INST","HEALTH_STATUS","TEMP1","TEMP2",:CONVERTED) }.to raise_error(/Invalid number of arguments/)
       end
     end
 
     describe "set_tlm" do
-      it "should complain about unknown targets, commands, and parameters" do
+      it "complains about unknown targets, commands, and parameters" do
         expect { @api.set_tlm("BLAH HEALTH_STATUS COLLECTS = 1") }.to raise_error(/does not exist/)
         expect { @api.set_tlm("INST UNKNOWN COLLECTS = 1") }.to raise_error(/does not exist/)
         expect { @api.set_tlm("INST HEALTH_STATUS BLAH = 1") }.to raise_error(/does not exist/)
@@ -582,23 +582,23 @@ module Cosmos
         expect { @api.set_tlm("INST","HEALTH_STATUS","BLAH",1) }.to raise_error(/does not exist/)
       end
 
-      it "should process a string" do
+      it "processes a string" do
         @api.set_tlm("INST HEALTH_STATUS TEMP1 = 0.0")
         @api.tlm("INST HEALTH_STATUS TEMP1").should be_within(0.00001).of(-0.05759)
       end
 
-      it "should process parameters" do
+      it "processes parameters" do
         @api.set_tlm("INST","HEALTH_STATUS","TEMP1", 0.0)
         @api.tlm("INST HEALTH_STATUS TEMP1").should be_within(0.00001).of(-0.05759)
       end
 
-      it "should complain with too many parameters" do
+      it "complains with too many parameters" do
         expect { @api.set_tlm("INST","HEALTH_STATUS","TEMP1","TEMP2",0.0) }.to raise_error(/Invalid number of arguments/)
       end
     end
 
     describe "set_tlm_raw" do
-      it "should complain about unknown targets, commands, and parameters" do
+      it "complains about unknown targets, commands, and parameters" do
         expect { @api.set_tlm_raw("BLAH HEALTH_STATUS COLLECTS = 1") }.to raise_error(/does not exist/)
         expect { @api.set_tlm_raw("INST UNKNOWN COLLECTS = 1") }.to raise_error(/does not exist/)
         expect { @api.set_tlm_raw("INST HEALTH_STATUS BLAH = 1") }.to raise_error(/does not exist/)
@@ -607,35 +607,35 @@ module Cosmos
         expect { @api.set_tlm_raw("INST","HEALTH_STATUS","BLAH",1) }.to raise_error(/does not exist/)
       end
 
-      it "should process a string" do
+      it "processes a string" do
         @api.set_tlm_raw("INST HEALTH_STATUS TEMP1 = 0.0")
         @api.tlm("INST HEALTH_STATUS TEMP1").should eql -100.0
       end
 
-      it "should process parameters" do
+      it "processes parameters" do
         @api.set_tlm_raw("INST","HEALTH_STATUS","TEMP1", 0.0)
         @api.tlm("INST HEALTH_STATUS TEMP1").should eql -100.0
       end
     end
 
     describe "get_tlm_packet" do
-      it "should complain about non-existant targets" do
+      it "complains about non-existant targets" do
         expect { @api.get_tlm_packet("BLAH","HEALTH_STATUS") }.to raise_error(RuntimeError, "Telemetry target 'BLAH' does not exist")
       end
 
-      it "should complain about non-existant packets" do
+      it "complains about non-existant packets" do
         expect { @api.get_tlm_packet("INST","BLAH") }.to raise_error(RuntimeError, "Telemetry packet 'INST BLAH' does not exist")
       end
 
-      it "should complain using LATEST" do
+      it "complains using LATEST" do
         expect { @api.get_tlm_packet("INST","LATEST") }.to raise_error(RuntimeError, "Telemetry packet 'INST LATEST' does not exist")
       end
 
-      it "should complain about non-existant value_types" do
+      it "complains about non-existant value_types" do
         expect { @api.get_tlm_packet("INST","HEALTH_STATUS",:MINE) }.to raise_error(ArgumentError, "Unknown value type on read: MINE")
       end
 
-      it "should read all telemetry items with their limits states" do
+      it "reads all telemetry items with their limits states" do
         vals = @api.get_tlm_packet("INST","HEALTH_STATUS")
         vals[0][0].should eql "RECEIVED_TIMESECONDS"
         vals[0][1].should eql 0.0
@@ -663,34 +663,34 @@ module Cosmos
     end
 
     describe "get_tlm_values" do
-      it "should handle an empty request" do
+      it "handles an empty request" do
         @api.get_tlm_values([]).should eql [[], [], [], :DEFAULT]
       end
 
-      it "should complain about non-existant targets" do
+      it "complains about non-existant targets" do
         expect { @api.get_tlm_values([["BLAH","HEALTH_STATUS","TEMP1"]]) }.to raise_error(RuntimeError, "Telemetry target 'BLAH' does not exist")
       end
 
-      it "should complain about non-existant packets" do
+      it "complains about non-existant packets" do
         expect { @api.get_tlm_values([["INST","BLAH","TEMP1"]]) }.to raise_error(RuntimeError, "Telemetry packet 'INST BLAH' does not exist")
       end
 
-      it "should complain about non-existant items" do
+      it "complains about non-existant items" do
         expect { @api.get_tlm_values([["INST","LATEST","BLAH"]]) }.to raise_error(RuntimeError, "Telemetry item 'INST LATEST BLAH' does not exist")
       end
 
-      it "should complain about non-existant value_types" do
+      it "complains about non-existant value_types" do
         expect { @api.get_tlm_values([["INST","HEALTH_STATUS","TEMP1"]],:MINE) }.to raise_error(ArgumentError, "Unknown value type on read: MINE")
       end
 
-      it "should complain about bad arguments" do
+      it "complains about bad arguments" do
         expect { @api.get_tlm_values("INST",:MINE) }.to raise_error(ArgumentError, /item_array must be nested array/)
         expect { @api.get_tlm_values(["INST","HEALTH_STATUS","TEMP1"],:MINE) }.to raise_error(ArgumentError, /item_array must be nested array/)
         expect { @api.get_tlm_values([["INST","HEALTH_STATUS","TEMP1"]],10) }.to raise_error(ArgumentError, /value_types must be a single symbol or array of symbols/)
         expect { @api.get_tlm_values([["INST","HEALTH_STATUS","TEMP1"]],[10]) }.to raise_error(ArgumentError, /value_types must be a single symbol or array of symbols/)
       end
 
-      it "should read all the specified items" do
+      it "reads all the specified items" do
         items = []
         items << %w(INST HEALTH_STATUS TEMP1)
         items << %w(INST HEALTH_STATUS TEMP2)
@@ -712,7 +712,7 @@ module Cosmos
         vals[3].should eql :DEFAULT
       end
 
-      it "should read all the specified items with one conversion" do
+      it "reads all the specified items with one conversion" do
         items = []
         items << %w(INST HEALTH_STATUS TEMP1)
         items << %w(INST HEALTH_STATUS TEMP2)
@@ -734,7 +734,7 @@ module Cosmos
         vals[3].should eql :DEFAULT
       end
 
-      it "should read all the specified items with different conversions" do
+      it "reads all the specified items with different conversions" do
         items = []
         items << %w(INST HEALTH_STATUS TEMP1)
         items << %w(INST HEALTH_STATUS TEMP2)
@@ -756,7 +756,7 @@ module Cosmos
         vals[3].should eql :DEFAULT
       end
 
-      it "should complain if items length != conversions length" do
+      it "complains if items length != conversions length" do
         items = []
         items << %w(INST HEALTH_STATUS TEMP1)
         items << %w(INST HEALTH_STATUS TEMP2)
@@ -767,11 +767,11 @@ module Cosmos
     end
 
     describe "get_tlm_list" do
-      it "should complain about non-existant targets" do
+      it "complains about non-existant targets" do
         expect { @api.get_tlm_list("BLAH") }.to raise_error(RuntimeError, "Telemetry target 'BLAH' does not exist")
       end
 
-      it "should return the sorted packet names for a target" do
+      it "returns the sorted packet names for a target" do
         pkts = @api.get_tlm_list("INST")
         pkts[0][0].should eql "ADCS"
         pkts[1][0].should eql "ERROR"
@@ -784,15 +784,15 @@ module Cosmos
     end
 
     describe "get_tlm_item_list" do
-      it "should complain about non-existant targets" do
+      it "complains about non-existant targets" do
         expect { @api.get_tlm_item_list("BLAH","HEALTH_STATUS") }.to raise_error(RuntimeError, "Telemetry target 'BLAH' does not exist")
       end
 
-      it "should complain about non-existant packets" do
+      it "complains about non-existant packets" do
         expect { @api.get_tlm_item_list("INST","BLAH") }.to raise_error(RuntimeError, "Telemetry packet 'INST BLAH' does not exist")
       end
 
-      it "should return all the items for a target/packet" do
+      it "returns all the items for a target/packet" do
         items = @api.get_tlm_item_list("INST","HEALTH_STATUS")
         items[0][0].should eql "RECEIVED_TIMESECONDS"
         items[1][0].should eql "RECEIVED_TIMEFORMATTED"
@@ -808,24 +808,24 @@ module Cosmos
     end
 
     describe "get_tlm_details" do
-      it "should complain about non-existant targets" do
+      it "complains about non-existant targets" do
         expect { @api.get_tlm_details([["BLAH","HEALTH_STATUS","TEMP1"]]) }.to raise_error(RuntimeError, "Telemetry target 'BLAH' does not exist")
       end
 
-      it "should complain about non-existant packets" do
+      it "complains about non-existant packets" do
         expect { @api.get_tlm_details([["INST","BLAH","TEMP1"]]) }.to raise_error(RuntimeError, "Telemetry packet 'INST BLAH' does not exist")
       end
 
-      it "should complain about non-existant items" do
+      it "complains about non-existant items" do
         expect { @api.get_tlm_details([["INST","LATEST","BLAH"]]) }.to raise_error(RuntimeError, "Telemetry item 'INST LATEST BLAH' does not exist")
       end
 
-      it "should complain about bad parameters" do
+      it "complains about bad parameters" do
         expect { @api.get_tlm_details("INST") }.to raise_error(ArgumentError, /item_array must be nested array/)
         expect { @api.get_tlm_details(["INST","LATEST","BLAH"]) }.to raise_error(ArgumentError, /item_array must be nested array/)
       end
 
-      it "should read all the specified items" do
+      it "reads all the specified items" do
         items = []
         items << %w(INST HEALTH_STATUS TEMP1)
         items << %w(INST HEALTH_STATUS TEMP2)
@@ -841,7 +841,7 @@ module Cosmos
     end
 
     describe "get_out_of_limits" do
-      it "should return all out of limits items" do
+      it "returns all out of limits items" do
         items = @api.get_out_of_limits
         (0..3).each do |i|
           items[i][0].should eql "INST"
@@ -853,37 +853,37 @@ module Cosmos
     end
 
     describe "limits_enabled?" do
-      it "should complain about non-existant targets" do
+      it "complains about non-existant targets" do
         expect { @api.limits_enabled?("BLAH","HEALTH_STATUS","TEMP1") }.to raise_error(RuntimeError, "Telemetry target 'BLAH' does not exist")
       end
 
-      it "should complain about non-existant packets" do
+      it "complains about non-existant packets" do
         expect { @api.limits_enabled?("INST","BLAH","TEMP1") }.to raise_error(RuntimeError, "Telemetry packet 'INST BLAH' does not exist")
       end
 
-      it "should complain about non-existant items" do
+      it "complains about non-existant items" do
         expect { @api.limits_enabled?("INST","HEALTH_STATUS","BLAH") }.to raise_error(RuntimeError, "Packet item 'INST HEALTH_STATUS BLAH' does not exist")
       end
 
-      it "should return whether limits are enable for an item" do
+      it "returns whether limits are enable for an item" do
         @api.limits_enabled?("INST","HEALTH_STATUS","TEMP1").should be_truthy
       end
     end
 
     describe "enable_limits" do
-      it "should complain about non-existant targets" do
+      it "complains about non-existant targets" do
         expect { @api.enable_limits("BLAH","HEALTH_STATUS","TEMP1") }.to raise_error(RuntimeError, "Telemetry target 'BLAH' does not exist")
       end
 
-      it "should complain about non-existant packets" do
+      it "complains about non-existant packets" do
         expect { @api.enable_limits("INST","BLAH","TEMP1") }.to raise_error(RuntimeError, "Telemetry packet 'INST BLAH' does not exist")
       end
 
-      it "should complain about non-existant items" do
+      it "complains about non-existant items" do
         expect { @api.enable_limits("INST","HEALTH_STATUS","BLAH") }.to raise_error(RuntimeError, "Packet item 'INST HEALTH_STATUS BLAH' does not exist")
       end
 
-      it "should enable limits for an item" do
+      it "enables limits for an item" do
         @api.limits_enabled?("INST","HEALTH_STATUS","TEMP1").should be_truthy
         @api.disable_limits("INST","HEALTH_STATUS","TEMP1")
         @api.limits_enabled?("INST","HEALTH_STATUS","TEMP1").should be_falsey
@@ -893,19 +893,19 @@ module Cosmos
     end
 
     describe "disable_limits" do
-      it "should complain about non-existant targets" do
+      it "complains about non-existant targets" do
         expect { @api.disable_limits("BLAH","HEALTH_STATUS","TEMP1") }.to raise_error(RuntimeError, "Telemetry target 'BLAH' does not exist")
       end
 
-      it "should complain about non-existant packets" do
+      it "complains about non-existant packets" do
         expect { @api.disable_limits("INST","BLAH","TEMP1") }.to raise_error(RuntimeError, "Telemetry packet 'INST BLAH' does not exist")
       end
 
-      it "should complain about non-existant items" do
+      it "complains about non-existant items" do
         expect { @api.disable_limits("INST","HEALTH_STATUS","BLAH") }.to raise_error(RuntimeError, "Packet item 'INST HEALTH_STATUS BLAH' does not exist")
       end
 
-      it "should disable limits for an item" do
+      it "disables limits for an item" do
         @api.limits_enabled?("INST","HEALTH_STATUS","TEMP1").should be_truthy
         @api.disable_limits("INST","HEALTH_STATUS","TEMP1")
         @api.limits_enabled?("INST","HEALTH_STATUS","TEMP1").should be_falsey
@@ -914,38 +914,38 @@ module Cosmos
     end
 
     describe "get_limits" do
-      it "should complain about non-existant targets" do
+      it "complains about non-existant targets" do
         expect { @api.get_limits("BLAH","HEALTH_STATUS","TEMP1") }.to raise_error(RuntimeError, "Telemetry target 'BLAH' does not exist")
       end
 
-      it "should complain about non-existant packets" do
+      it "complains about non-existant packets" do
         expect { @api.get_limits("INST","BLAH","TEMP1") }.to raise_error(RuntimeError, "Telemetry packet 'INST BLAH' does not exist")
       end
 
-      it "should complain about non-existant items" do
+      it "complains about non-existant items" do
         expect { @api.get_limits("INST","HEALTH_STATUS","BLAH") }.to raise_error(RuntimeError, "Packet item 'INST HEALTH_STATUS BLAH' does not exist")
       end
 
-      it "should get limits for an item" do
+      it "gets limits for an item" do
         @api.get_limits("INST","HEALTH_STATUS","TEMP1").should eql([:DEFAULT, 1, true, -80.0, -70.0, 60.0, 80.0, -20.0, 20.0])
         @api.get_limits("INST","HEALTH_STATUS","TEMP1",:TVAC).should eql([:TVAC, 1, true, -80.0, -30.0, 30.0, 80.0, nil, nil])
       end
     end
 
     describe "set_limits" do
-      it "should complain about non-existant targets" do
+      it "complains about non-existant targets" do
         expect { @api.set_limits("BLAH","HEALTH_STATUS","TEMP1",0.0,10.0,20.0,30.0) }.to raise_error(RuntimeError, "Telemetry target 'BLAH' does not exist")
       end
 
-      it "should complain about non-existant packets" do
+      it "complains about non-existant packets" do
         expect { @api.set_limits("INST","BLAH","TEMP1",0.0,10.0,20.0,30.0) }.to raise_error(RuntimeError, "Telemetry packet 'INST BLAH' does not exist")
       end
 
-      it "should complain about non-existant items" do
+      it "complains about non-existant items" do
         expect { @api.set_limits("INST","HEALTH_STATUS","BLAH",0.0,10.0,20.0,30.0) }.to raise_error(RuntimeError, "Packet item 'INST HEALTH_STATUS BLAH' does not exist")
       end
 
-      it "should get limits for an item" do
+      it "gets limits for an item" do
         @api.set_limits("INST","HEALTH_STATUS","TEMP1",0.0,10.0,20.0,30.0).should eql([:CUSTOM, 1, true, 0.0, 10.0, 20.0, 30.0, nil, nil])
         @api.set_limits("INST","HEALTH_STATUS","TEMP1",0.0,10.0,20.0,30.0,12.0,15.0,:CUSTOM2,2,false).should eql([:CUSTOM2, 2, false, 0.0, 10.0, 20.0, 30.0, 12.0, 15.0])
         @api.set_limits("INST","HEALTH_STATUS","TEMP1",0.0,10.0,20.0,30.0,12.0,15.0,:CUSTOM,1,true).should eql([:CUSTOM, 1, true, 0.0, 10.0, 20.0, 30.0, 12.0, 15.0])
@@ -953,17 +953,17 @@ module Cosmos
     end
 
     describe "get_limits_groups" do
-      it "should return all the limits groups" do
+      it "returns all the limits groups" do
         @api.get_limits_groups.should eql %w(FIRST SECOND)
       end
     end
 
     describe "enable_limits_group" do
-      it "should complain about undefined limits groups" do
+      it "complains about undefined limits groups" do
         expect { @api.enable_limits_group("MINE") }.to raise_error(RuntimeError, "LIMITS_GROUP MINE undefined. Ensure your telemetry definition contains the line: LIMITS_GROUP MINE")
       end
 
-      it "should enable limits for all items in the group" do
+      it "enables limits for all items in the group" do
         @api.disable_limits("INST","HEALTH_STATUS","TEMP1")
         @api.disable_limits("INST","HEALTH_STATUS","TEMP3")
         @api.limits_enabled?("INST","HEALTH_STATUS","TEMP1").should be_falsey
@@ -975,11 +975,11 @@ module Cosmos
     end
 
     describe "disable_limits_group" do
-      it "should complain about undefined limits groups" do
+      it "complains about undefined limits groups" do
         expect { @api.disable_limits_group("MINE") }.to raise_error(RuntimeError, "LIMITS_GROUP MINE undefined. Ensure your telemetry definition contains the line: LIMITS_GROUP MINE")
       end
 
-      it "should disable limits for all items in the group" do
+      it "disables limits for all items in the group" do
         @api.enable_limits("INST","HEALTH_STATUS","TEMP1")
         @api.enable_limits("INST","HEALTH_STATUS","TEMP3")
         @api.limits_enabled?("INST","HEALTH_STATUS","TEMP1").should be_truthy
@@ -991,7 +991,7 @@ module Cosmos
     end
 
     describe "get_limits_sets, get_limits_set, set_limits_set" do
-      it "should get and set the active limits set" do
+      it "gets and set the active limits set" do
         if @api.get_limits_sets.include?(:CUSTOM)
           @api.get_limits_sets.should eql [:DEFAULT,:TVAC, :CUSTOM, :CUSTOM2]
         else
@@ -1005,13 +1005,13 @@ module Cosmos
     end
 
     describe "get_target_list" do
-      it "should return all target names" do
+      it "returns all target names" do
         @api.get_target_list.should eql %w(COSMOS INST META SYSTEM)
       end
     end
 
     describe "subscribe_limits_events" do
-      it "should call CmdTlmServer" do
+      it "calls CmdTlmServer" do
         stub_const("Cosmos::CmdTlmServer::DEFAULT_LIMITS_EVENT_QUEUE_SIZE", 100)
         expect(CmdTlmServer).to receive(:subscribe_limits_events)
         @api.subscribe_limits_events
@@ -1019,21 +1019,21 @@ module Cosmos
     end
 
     describe "unsubscribe_limits_events" do
-      it "should call CmdTlmServer" do
+      it "calls CmdTlmServer" do
         expect(CmdTlmServer).to receive(:unsubscribe_limits_events)
         @api.unsubscribe_limits_events(0)
       end
     end
 
     describe "get_limits_event" do
-      it "should get a limits event" do
+      it "gets a limits event" do
         expect(CmdTlmServer).to receive(:get_limits_event)
         @api.get_limits_event(0)
       end
     end
 
     describe "subscribe_packet_data" do
-      it "should call CmdTlmServer" do
+      it "calls CmdTlmServer" do
         stub_const("Cosmos::CmdTlmServer::DEFAULT_PACKET_DATA_QUEUE_SIZE", 100)
         expect(CmdTlmServer).to receive(:subscribe_packet_data)
         @api.subscribe_packet_data([["TGT","PKT1"],["TGT","PKT2"]])
@@ -1041,14 +1041,14 @@ module Cosmos
     end
 
     describe "unsubscribe_packet_datas" do
-      it "should call CmdTlmServer" do
+      it "calls CmdTlmServer" do
         expect(CmdTlmServer).to receive(:unsubscribe_packet_data)
         @api.unsubscribe_packet_data(10)
       end
     end
 
     describe "get_packet_data" do
-      it "should call CmdTlmServer" do
+      it "calls CmdTlmServer" do
         expect(CmdTlmServer).to receive(:get_packet_data)
         @api.get_packet_data(10)
       end
@@ -1058,7 +1058,7 @@ module Cosmos
     # adding any functionality. Thus we just test that they are are received
     # by the CmdTlmServer.
     describe "CmdTlmServer pass-throughs" do
-      it "should call through to the CmdTlmServer" do
+      it "calls through to the CmdTlmServer" do
         @api.get_interface_names
         @api.connect_interface("INT")
         @api.disconnect_interface("INT")

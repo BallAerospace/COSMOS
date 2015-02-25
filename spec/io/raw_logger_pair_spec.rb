@@ -16,7 +16,7 @@ module Cosmos
   describe RawLoggerPair do
 
     describe "initialize" do
-      it "should set the write logger and read logger" do
+      it "sets the write logger and read logger" do
         pair = RawLoggerPair.new('MYINT')
         pair.read_logger.should_not be_nil
         pair.write_logger.should_not be_nil
@@ -32,7 +32,7 @@ module Cosmos
     end
 
     describe "start" do
-      it "should start logging" do
+      it "starts logging" do
         pair = RawLoggerPair.new('MYINT')
         pair.start
         pair.write_logger.logging_enabled.should be_truthy
@@ -41,7 +41,7 @@ module Cosmos
     end
 
     describe "stop" do
-      it "should stop logging" do
+      it "stops logging" do
         pair = RawLoggerPair.new('MYINT')
         pair.start
         pair.write_logger.logging_enabled.should be_truthy
@@ -53,7 +53,7 @@ module Cosmos
     end
 
     describe "clone" do
-      it "should clone itself including logging state" do
+      it "clones itself including logging state" do
         pair = RawLoggerPair.new('MYINT')
         pair.write_logger.logging_enabled.should be_falsey
         pair.read_logger.logging_enabled.should be_falsey

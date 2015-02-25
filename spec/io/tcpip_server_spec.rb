@@ -16,13 +16,13 @@ module Cosmos
   describe TcpipServer do
 
     describe "instance" do
-      it "should rescue bad stream protocol names" do
+      it "rescues bad stream protocol names" do
         expect { TcpipServer.new(8888,8889,nil,nil,'Unknown') }.to raise_error(/Unable to require/)
       end
     end
 
     describe "connect, connected?, disconnect" do
-      it "should only allow connect once" do
+      it "only allows connect once" do
         server = TcpipServer.new(nil,8889,nil,nil,'Burst')
         server.connect
         sleep 0.2
@@ -31,7 +31,7 @@ module Cosmos
         sleep(0.2)
       end
 
-      it "should create a listener thread for the read port" do
+      it "creates a listener thread for the read port" do
         server = TcpipServer.new(nil,8889,nil,nil,'Burst')
         server.connect
         sleep 0.2
@@ -44,7 +44,7 @@ module Cosmos
         Thread.list.length.should eql 1
       end
 
-      it "should create a listener thread for the write port" do
+      it "creates a listener thread for the write port" do
         server = TcpipServer.new(8888,nil,nil,nil,'Burst')
         server.connect
         sleep 0.2
@@ -58,7 +58,7 @@ module Cosmos
         Thread.list.length.should eql 1
       end
 
-      it "should create a single listener thread if read = write port" do
+      it "creates a single listener thread if read = write port" do
         server = TcpipServer.new(8888,8888,nil,nil,'Burst')
         server.connect
         sleep 0.2
@@ -72,7 +72,7 @@ module Cosmos
         Thread.list.length.should eql 1
       end
 
-      it "should create a two listener threads if read != write port" do
+      it "creates a two listener threads if read != write port" do
         server = TcpipServer.new(8888,8889,nil,nil,'Burst')
         server.connect
         sleep 0.2
@@ -86,7 +86,7 @@ module Cosmos
         Thread.list.length.should eql 1
       end
 
-      it "should log an error if the listener thread dies" do
+      it "logs an error if the listener thread dies" do
         capture_io do |stdout|
           system = double("System")
           allow(system).to receive(:use_dns) { raise "Error" }
@@ -107,7 +107,7 @@ module Cosmos
     end
 
     describe "read" do
-      it "should return nil if there is no read port" do
+      it "returns nil if there is no read port" do
         server = TcpipServer.new(8888,nil,nil,nil,'Burst')
         server.read.should be_nil
         server.disconnect
@@ -119,7 +119,7 @@ module Cosmos
         #~ lambda { server.read }.should raise_error
       #~ end
 
-      it "should read from the client" do
+      it "reads from the client" do
         allow(System).to receive_message_chain(:instance, :use_dns).and_return(false)
         allow(System).to receive_message_chain(:instance, :acl).and_return(false)
 
@@ -140,7 +140,7 @@ module Cosmos
         sleep(0.2)
       end
 
-      it "should check the client against the ACL" do
+      it "checks the client against the ACL" do
         capture_io do |stdout|
           allow(System).to receive_message_chain(:instance, :use_dns).and_return(false)
           allow(System).to receive_message_chain(:instance, :acl).and_return(true)
@@ -162,7 +162,7 @@ module Cosmos
         end
       end
 
-      it "should log an error if the stream protocol can't disconnect" do
+      it "logs an error if the stream protocol can't disconnect" do
         capture_io do |stdout|
           allow(System).to receive_message_chain(:instance, :use_dns).and_return(false)
           allow(System).to receive_message_chain(:instance, :acl).and_return(false)
@@ -184,7 +184,7 @@ module Cosmos
         end
       end
 
-      it "should log an error if the read thread dies" do
+      it "logs an error if the read thread dies" do
         capture_io do |stdout|
           allow(System).to receive_message_chain(:instance, :use_dns).and_return(false)
           allow(System).to receive_message_chain(:instance, :acl).and_return(false)
@@ -206,12 +206,12 @@ module Cosmos
     end
 
     describe "write" do
-      it "should do nothing if there is no write port" do
+      it "does nothing if there is no write port" do
         server = TcpipServer.new(nil,8889,nil,nil,'Burst')
         expect { server.write(Packet.new('TGT','PKT')) }.to_not raise_error
       end
 
-      it "should write to the client" do
+      it "writes to the client" do
         allow(System).to receive_message_chain(:instance, :use_dns).and_return(false)
         allow(System).to receive_message_chain(:instance, :acl).and_return(false)
 
@@ -236,7 +236,7 @@ module Cosmos
         sleep(0.2)
       end
 
-      it "should log an error if the write thread dies" do
+      it "logs an error if the write thread dies" do
         class MyTcpipServer3 < TcpipServer
           def write_thread_hook(packet)
             raise "Error"
@@ -285,7 +285,7 @@ module Cosmos
         end
       end
 
-      it "should log an error if the client disconnects" do
+      it "logs an error if the client disconnects" do
         capture_io do |stdout|
           allow(System).to receive_message_chain(:instance, :use_dns).and_return(false)
           allow(System).to receive_message_chain(:instance, :acl).and_return(false)
@@ -316,7 +316,7 @@ module Cosmos
     end
 
     describe "read_queue_size" do
-      it "should return 0 if there is no read port" do
+      it "returns 0 if there is no read port" do
         server = TcpipServer.new(8888,nil,nil,nil,'Burst')
         server.read_queue_size.should eql 0
         server.disconnect
@@ -325,7 +325,7 @@ module Cosmos
     end
 
     describe "write_queue_size" do
-      it "should return 0 if there is no write port" do
+      it "returns 0 if there is no write port" do
         server = TcpipServer.new(nil,8889,nil,nil,'Burst')
         server.write_queue_size.should eql 0
         server.disconnect

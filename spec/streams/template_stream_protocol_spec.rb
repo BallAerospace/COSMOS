@@ -17,7 +17,7 @@ module Cosmos
 
   describe TemplateStreamProtocol do
     describe "initialize" do
-      it "should initialize attributes" do
+      it "initializes attributes" do
         tsp = TemplateStreamProtocol.new('0xABCD','0xABCD')
         tsp.bytes_read.should eql 0
         tsp.bytes_written.should eql 0
@@ -30,7 +30,7 @@ module Cosmos
     end
 
     describe "connect" do
-      it "should support an initial read delay" do
+      it "supports an initial read delay" do
         class MyStream1 < Stream
           def connect; end
           def read_nonblock; []; end
@@ -44,7 +44,7 @@ module Cosmos
     end
 
     describe "disconnect" do
-      it "should unblock the read queue" do
+      it "unblocks the read queue" do
         tsp = TemplateStreamProtocol.new('0xABCD','0xABCD')
         class MyStream1 < Stream
           def connect; end
@@ -63,7 +63,7 @@ module Cosmos
     end
 
     describe "read" do
-      it "should read packets from the stream" do
+      it "reads packets from the stream" do
         class MyStream < Stream
           def connect; end
           def connected?; true; end
@@ -91,7 +91,7 @@ module Cosmos
     end
 
     describe "write" do
-      it "should work without a response" do
+      it "works without a response" do
         $buffer = ''
         class MyStream1 < Stream
           def connect; end
@@ -112,7 +112,7 @@ module Cosmos
         $buffer.should eq "SOUR:VOLT 1, (@2)\xAB\xCD"
       end
 
-      it "should process responses" do
+      it "processes responses" do
         $buffer = ''
         $read_cnt = 0
         class MyStream2 < Stream

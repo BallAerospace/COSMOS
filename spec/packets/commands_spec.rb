@@ -18,7 +18,7 @@ module Cosmos
   describe Commands do
 
     describe "initialize" do
-      it "should have no warnings" do
+      it "has no warnings" do
         Commands.new(PacketConfig.new).warnings.should be_empty
       end
     end
@@ -60,28 +60,28 @@ module Cosmos
     end
 
     describe "target_names" do
-      it "should return an array with just UNKNOWN if no targets" do
+      it "returns an array with just UNKNOWN if no targets" do
         Commands.new(PacketConfig.new).target_names.should eql ["UNKNOWN"]
       end
 
-      it "should return all target names" do
+      it "returns all target names" do
         @cmd.target_names.should eql ["TGT1","TGT2","UNKNOWN"]
       end
     end
 
     describe "packets" do
-      it "should complain about non-existant targets" do
+      it "complains about non-existant targets" do
         expect { @cmd.packets("tgtX") }.to raise_error(RuntimeError, "Command target 'TGTX' does not exist")
       end
 
-      it "should return all packets target TGT1" do
+      it "returns all packets target TGT1" do
         pkts = @cmd.packets("TGT1")
         pkts.length.should eql 2
         pkts.keys.should include("PKT1")
         pkts.keys.should include("PKT2")
       end
 
-      it "should return all packets target TGT2" do
+      it "returns all packets target TGT2" do
         pkts = @cmd.packets("TGT2")
         pkts.length.should eql 3
         pkts.keys.should include("PKT3")
@@ -91,15 +91,15 @@ module Cosmos
     end
 
     describe "params" do
-      it "should complain about non-existant targets" do
+      it "complains about non-existant targets" do
         expect { @cmd.params("TGTX","PKT1") }.to raise_error(RuntimeError, "Command target 'TGTX' does not exist")
       end
 
-      it "should complain about non-existant packets" do
+      it "complains about non-existant packets" do
         expect { @cmd.params("TGT1","PKTX") }.to raise_error(RuntimeError, "Command packet 'TGT1 PKTX' does not exist")
       end
 
-      it "should return all items from packet TGT1/PKT1" do
+      it "returns all items from packet TGT1/PKT1" do
         items = @cmd.params("TGT1","PKT1")
         items.length.should eql 4
         items[0].name.should eql "ITEM1"
@@ -110,15 +110,15 @@ module Cosmos
     end
 
     describe "packet" do
-      it "should complain about non-existant targets" do
+      it "complains about non-existant targets" do
         expect { @cmd.packet("tgtX","pkt1") }.to raise_error(RuntimeError, "Command target 'TGTX' does not exist")
       end
 
-      it "should complain about non-existant packets" do
+      it "complains about non-existant packets" do
         expect { @cmd.packet("TGT1","PKTX") }.to raise_error(RuntimeError, "Command packet 'TGT1 PKTX' does not exist")
       end
 
-      it "should return the specified packet" do
+      it "returns the specified packet" do
         pkt = @cmd.packet("TGT1","PKT1")
         pkt.target_name.should eql "TGT1"
         pkt.packet_name.should eql "PKT1"
@@ -130,7 +130,7 @@ module Cosmos
         @cmd.identify(nil).should be_nil
       end
 
-      it "should only check the targets given" do
+      it "only checks the targets given" do
         buffer = "\x01\x02\x03\x04"
         pkt = @cmd.identify(buffer,["TGT1"])
         pkt.enable_method_missing
@@ -140,13 +140,13 @@ module Cosmos
         pkt.item4.should eql 4
       end
 
-      it "should return nil with unknown targets given" do
+      it "returns nil with unknown targets given" do
         buffer = "\x01\x02\x03\x04"
         @cmd.identify(buffer,["TGTX"]).should be_nil
       end
 
       context "with an unknown buffer" do
-        it "should log an invalid sized buffer" do
+        it "logs an invalid sized buffer" do
           capture_io do |stdout|
             buffer = "\x01\x02\x03"
             pkt = @cmd.identify(buffer)
@@ -159,7 +159,7 @@ module Cosmos
           end
         end
 
-        it "should log an invalid sized buffer" do
+        it "logs an invalid sized buffer" do
           capture_io do |stdout|
             buffer = "\x01\x02\x03\x04\x05"
             pkt = @cmd.identify(buffer)
@@ -172,7 +172,7 @@ module Cosmos
           end
         end
 
-        it "should identify TGT1 PKT1 but not affect the latest data table" do
+        it "identifies TGT1 PKT1 but not affect the latest data table" do
           buffer = "\x01\x02\x03\x04"
           pkt = @cmd.identify(buffer)
           pkt.enable_method_missing
@@ -190,7 +190,7 @@ module Cosmos
           pkt.item4.should eql 0
         end
 
-        it "should identify TGT1 PKT2" do
+        it "identifies TGT1 PKT2" do
           buffer = "\x02\x02"
           pkt = @cmd.identify(buffer)
           pkt.enable_method_missing
@@ -198,7 +198,7 @@ module Cosmos
           pkt.item2.should eql "GOOD"
         end
 
-        it "should identify TGT2 PKT1" do
+        it "identifies TGT2 PKT1" do
           buffer = "\x03\x02"
           pkt = @cmd.identify(buffer)
           pkt.enable_method_missing
@@ -209,19 +209,19 @@ module Cosmos
     end
 
     describe "build_cmd" do
-      it "should complain about non-existant targets" do
+      it "complains about non-existant targets" do
         expect { @cmd.build_cmd("tgtX","pkt1") }.to raise_error(RuntimeError, "Command target 'TGTX' does not exist")
       end
 
-      it "should complain about non-existant packets" do
+      it "complains about non-existant packets" do
         expect { @cmd.build_cmd("tgt1","pktX") }.to raise_error(RuntimeError, "Command packet 'TGT1 PKTX' does not exist")
       end
 
-      it "should complain about non-existant items" do
+      it "complains about non-existant items" do
         expect { cmd = @cmd.build_cmd("tgt1","pkt1",{"itemX"=>1}) }.to raise_error(RuntimeError, "Packet item 'TGT1 PKT1 ITEMX' does not exist")
       end
 
-      it "should create a populated command packet with default values" do
+      it "creates a populated command packet with default values" do
         cmd = @cmd.build_cmd("TGT1","PKT1")
         cmd.enable_method_missing
         cmd.item1.should eql 1
@@ -230,11 +230,11 @@ module Cosmos
         cmd.item4.should eql 4
       end
 
-      it "should complain about out of range item values" do
+      it "complains about out of range item values" do
         expect { @cmd.build_cmd("tgt1","pkt1",{"item2"=>1000}) }.to raise_error(RuntimeError, "Command parameter 'TGT1 PKT1 ITEM2' = 1000 not in valid range of 0 to 254")
       end
 
-      it "should ignore out of range item values if requested" do
+      it "ignores out of range item values if requested" do
         cmd = @cmd.build_cmd("tgt1","pkt1",{"item2"=>255}, false)
         cmd.enable_method_missing
         cmd.item1.should eql 1
@@ -243,7 +243,7 @@ module Cosmos
         cmd.item4.should eql 4
       end
 
-      it "should create a command packet with override item values" do
+      it "creates a command packet with override item values" do
         items = {"ITEM2" => 10, "ITEM4" => 11}
         cmd = @cmd.build_cmd("TGT1","PKT1",items)
         cmd.enable_method_missing
@@ -253,7 +253,7 @@ module Cosmos
         cmd.item4.should eql 11
       end
 
-      it "should create a command packet with override item value states" do
+      it "creates a command packet with override item value states" do
         items = {"ITEM2" => "GOOD"}
         cmd = @cmd.build_cmd("TGT1","PKT2",items)
         cmd.enable_method_missing
@@ -262,11 +262,11 @@ module Cosmos
         cmd.read("ITEM2",:RAW).should eql 2
       end
 
-      it "should complain about missing required parameters" do
+      it "complains about missing required parameters" do
         expect { @cmd.build_cmd("tgt2","pkt3") }.to raise_error(RuntimeError, "Required command parameter 'TGT2 PKT3 ITEM2' not given")
       end
 
-      it "should support building raw commands" do
+      it "supports building raw commands" do
         items = {"ITEM2" => 10}
         cmd = @cmd.build_cmd("TGT2","PKT5",items,false,false)
         cmd.raw.should eql false
@@ -279,7 +279,7 @@ module Cosmos
     end
 
     describe "format" do
-      it "should create a string representation of a command" do
+      it "creates a string representation of a command" do
         pkt = @cmd.packet("TGT1","PKT1")
         @cmd.format(pkt).should eql "cmd('TGT1 PKT1 with ITEM1 0, ITEM2 0, ITEM3 0, ITEM4 0')"
 
@@ -303,26 +303,26 @@ module Cosmos
         result.should match(/AAAAAAAAAAA.../)
       end
 
-      it "should ignore parameters" do
+      it "ignores parameters" do
         pkt = @cmd.packet("TGT1","PKT1")
         @cmd.format(pkt,['ITEM3','ITEM4']).should eql "cmd('TGT1 PKT1 with ITEM1 0, ITEM2 0')"
       end
     end
 
     describe "cmd_hazardous?" do
-      it "should complain about non-existant targets" do
+      it "complains about non-existant targets" do
         expect { @cmd.cmd_hazardous?("tgtX","pkt1") }.to raise_error(RuntimeError, "Command target 'TGTX' does not exist")
       end
 
-      it "should complain about non-existant packets" do
+      it "complains about non-existant packets" do
         expect { @cmd.cmd_hazardous?("tgt1","pktX") }.to raise_error(RuntimeError, "Command packet 'TGT1 PKTX' does not exist")
       end
 
-      it "should complain about non-existant items" do
+      it "complains about non-existant items" do
         expect { cmd = @cmd.cmd_hazardous?("tgt1","pkt1",{"itemX"=>1}) }.to raise_error(RuntimeError, "Packet item 'TGT1 PKT1 ITEMX' does not exist")
       end
 
-      it "should return true if the command overall is hazardous" do
+      it "returns true if the command overall is hazardous" do
         hazardous, description = @cmd.cmd_hazardous?("TGT1","PKT1")
         hazardous.should be_falsey
         description.should be_nil
@@ -331,7 +331,7 @@ module Cosmos
         description.should eql "Hazardous"
       end
 
-      it "should return true if a command parameter is hazardous" do
+      it "returns true if a command parameter is hazardous" do
         hazardous, description = @cmd.cmd_hazardous?("TGT1","PKT2",{"ITEM2"=>0})
         hazardous.should be_truthy
         description.should eql "Hazardous"
@@ -345,7 +345,7 @@ module Cosmos
     end
 
     describe "clear_counters" do
-      it "should clear the received counters in all packets" do
+      it "clears the received counters in all packets" do
         @cmd.packet("TGT1","PKT1").received_count = 1
         @cmd.packet("TGT1","PKT2").received_count = 2
         @cmd.packet("TGT2","PKT3").received_count = 3
@@ -359,7 +359,7 @@ module Cosmos
     end
 
     describe "all" do
-      it "should return all packets" do
+      it "returns all packets" do
         @cmd.all.keys.should eql %w(UNKNOWN TGT1 TGT2)
       end
     end

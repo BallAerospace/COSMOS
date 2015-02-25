@@ -16,12 +16,12 @@ module Cosmos
   describe CcsdsPacket do
 
     describe "constants" do
-      it "should define COMMAND and TELEMETRY" do
+      it "defines COMMAND and TELEMETRY" do
         CcsdsPacket::TELEMETRY.should eql 0
         CcsdsPacket::COMMAND.should eql 1
       end
 
-      it "should define sequence flags" do
+      it "defines sequence flags" do
         CcsdsPacket::CONTINUATION.should eql 0
         CcsdsPacket::FIRST.should eql 1
         CcsdsPacket::LAST.should eql 2
@@ -30,7 +30,7 @@ module Cosmos
     end
 
     describe "initialize" do
-      it "should set the target_name and packet_name" do
+      it "sets the target_name and packet_name" do
         p = CcsdsPacket.new("tgt", "pkt")
         p.target_name.should eql "TGT"
         p.packet_name.should eql "PKT"

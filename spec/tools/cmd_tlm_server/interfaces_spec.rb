@@ -22,7 +22,7 @@ module Cosmos
     end
 
     describe "map_all_targets" do
-      it "should complain about an unknown interface" do
+      it "complains about an unknown interface" do
         tf = Tempfile.new('unittest')
         tf.puts 'INTERFACE MY_INT interface.rb'
         tf.close
@@ -31,7 +31,7 @@ module Cosmos
         tf.unlink
       end
 
-      it "should map all targets to the interface" do
+      it "maps all targets to the interface" do
         System.targets.each do |name, target|
           target.interface = nil
           target.interface.should be_nil
@@ -49,7 +49,7 @@ module Cosmos
     end
 
     describe "map_target" do
-      it "should complain about an unknown interface" do
+      it "complains about an unknown interface" do
         tf = Tempfile.new('unittest')
         tf.puts 'INTERFACE MY_INT interface.rb'
         tf.close
@@ -58,7 +58,7 @@ module Cosmos
         tf.unlink
       end
 
-      it "should complain about an unknown target" do
+      it "complains about an unknown target" do
         tf = Tempfile.new('unittest')
         tf.puts 'INTERFACE MY_INT interface.rb'
         tf.close
@@ -68,7 +68,7 @@ module Cosmos
       end
 
 
-      it "should map a target to the interface" do
+      it "maps a target to the interface" do
         System.targets.each do |name, target|
           target.interface = nil
           target.interface.should be_nil
@@ -84,7 +84,7 @@ module Cosmos
     end
 
     describe "start" do
-      it "should connect each interface" do
+      it "connects each interface" do
         tf = Tempfile.new('unittest')
         tf.puts 'INTERFACE MY_INT interface.rb'
         tf.close
@@ -110,7 +110,7 @@ module Cosmos
     end
 
     describe "stop" do
-      it "should disconnect each interface" do
+      it "disconnects each interface" do
         tf = Tempfile.new('unittest')
         tf.puts 'INTERFACE MY_INT interface.rb'
         tf.close
@@ -142,7 +142,7 @@ module Cosmos
     end
 
     describe "connect" do
-      it "should complain about unknown interfaces" do
+      it "complains about unknown interfaces" do
         tf = Tempfile.new('unittest')
         tf.puts 'INTERFACE MY_INT interface.rb'
         tf.close
@@ -151,7 +151,7 @@ module Cosmos
         tf.unlink
       end
 
-      it "should connect a interface" do
+      it "connects a interface" do
         tf = Tempfile.new('unittest')
         tf.puts 'INTERFACE DEST1 tcpip_client_interface.rb localhost 8888 8888 5 5 burst'
         tf.puts 'INTERFACE DEST2 tcpip_client_interface.rb localhost 8888 8888 5 5 burst'
@@ -211,7 +211,7 @@ module Cosmos
     end
 
     describe "names" do
-      it "should list all the interface names" do
+      it "lists all the interface names" do
         tf = Tempfile.new('unittest')
         tf.puts 'INTERFACE INTERFACE1 interface.rb'
         tf.puts 'INTERFACE INTERFACE2 interface.rb'
@@ -224,7 +224,7 @@ module Cosmos
     end
 
     describe "clear_counters" do
-      it "should clear all interface counters" do
+      it "clears all interface counters" do
         tf = Tempfile.new('unittest')
         tf.puts 'INTERFACE INTERFACE1 interface.rb'
         tf.puts 'INTERFACE INTERFACE2 interface.rb'

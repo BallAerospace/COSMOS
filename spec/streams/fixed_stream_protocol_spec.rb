@@ -27,7 +27,7 @@ module Cosmos
     end
 
     describe "initialize" do
-      it "should initialize attributes" do
+      it "initializes attributes" do
         @fsp.bytes_read.should eql 0
         @fsp.bytes_written.should eql 0
         @fsp.interface.should be_nil
@@ -39,7 +39,7 @@ module Cosmos
     end
 
     describe "read" do
-      it "should complain if no interface set" do
+      it "complains if no interface set" do
         class MyStream < Stream
           def connect; end
           def connected?; true; end
@@ -50,7 +50,7 @@ module Cosmos
         expect { @fsp.read }.to raise_error(/Interface required/)
       end
 
-      it "should read telemetry data from the stream" do
+      it "reads telemetry data from the stream" do
         class MyStream < Stream
           def connect; end
           def connected?; true; end
@@ -79,7 +79,7 @@ module Cosmos
         packet.packet_name.should eql 'LIMITS_CHANGE'
       end
 
-      it "should read command data from the stream" do
+      it "reads command data from the stream" do
         @fsp = FixedStreamProtocol.new(8, 0, '0x1ACFFC1D', false)
 
         $index = 0

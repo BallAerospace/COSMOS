@@ -16,73 +16,73 @@ module Cosmos
   describe LineClip do
 
     shared_examples_for "line returned" do
-      it "should not be nil" do
+      it "is not nil" do
         @clipped_line.should_not be_nil
       end
     end
 
     shared_examples_for "no line returned" do
-      it "should be nil" do
+      it "is nil" do
         @clipped_line.should be_nil
       end
     end
 
     shared_examples_for "not clipped" do
-      it "should return the same first point" do
+      it "returns the same first point" do
         @clipped_line[0].should eql(@x0)
         @clipped_line[1].should eql(@y0)
       end
 
-      it "should return the same second point" do
+      it "returns the same second point" do
         @clipped_line[2].should eql(@x1)
         @clipped_line[3].should eql(@y1)
       end
 
-      it "should indicate the first point was not clipped" do
+      it "indicates the first point was not clipped" do
         @clipped_line[4].should be_falsey
       end
 
-      it "should indicate the second point was not clipped" do
+      it "indicates the second point was not clipped" do
         @clipped_line[5].should be_falsey
       end
     end
 
     shared_examples_for "first point clipped" do
-      it "should return a clipped first point" do
+      it "returns a clipped first point" do
         (@xmin..@xmax).should include(@clipped_line[0])
         (@ymin..@ymax).should include(@clipped_line[1])
       end
 
-      it "should return the same second point" do
+      it "returns the same second point" do
         @clipped_line[2].should eql(@x1)
         @clipped_line[3].should eql(@y1)
       end
 
-      it "should indicate the first point was clipped" do
+      it "indicates the first point was clipped" do
         @clipped_line[4].should be_truthy
       end
 
-      it "should indicate the second point was not clipped" do
+      it "indicates the second point was not clipped" do
         @clipped_line[5].should be_falsey
       end
     end
 
     shared_examples_for "second point clipped" do
-      it "should return the same first point" do
+      it "returns the same first point" do
         @clipped_line[0].should eql(@x0)
         @clipped_line[1].should eql(@y0)
       end
 
-      it "should return a clipped second point" do
+      it "returns a clipped second point" do
         (@xmin..@xmax).should include(@clipped_line[2])
         (@ymin..@ymax).should include(@clipped_line[3])
       end
 
-      it "should indicate the first point was not clipped" do
+      it "indicates the first point was not clipped" do
         @clipped_line[4].should be_falsey
       end
 
-      it "should indicate the second point was clipped" do
+      it "indicates the second point was clipped" do
         @clipped_line[5].should be_truthy
       end
     end

@@ -21,7 +21,7 @@ module Cosmos
     end
 
     describe "start" do
-      it "should connect each router" do
+      it "connects each router" do
         tf = Tempfile.new('unittest')
         tf.puts 'ROUTER MY_ROUTER interface.rb'
         tf.close
@@ -46,7 +46,7 @@ module Cosmos
     end
 
     describe "stop" do
-      it "should disconnect each router" do
+      it "disconnects each router" do
         tf = Tempfile.new('unittest')
         tf.puts 'ROUTER MY_ROUTER interface.rb'
         tf.close
@@ -75,7 +75,7 @@ module Cosmos
     end
 
     describe "add_preidentified" do
-      it "should add a preidentified router to all interfaces" do
+      it "adds a preidentified router to all interfaces" do
         tf = Tempfile.new('unittest')
         tf.puts 'INTERFACE DEST1 tcpip_client_interface.rb localhost 8888 8888 5 5 burst'
         tf.puts 'INTERFACE DEST2 tcpip_client_interface.rb localhost 8888 8888 5 5 burst'
@@ -97,7 +97,7 @@ module Cosmos
     end
 
     describe "recreate" do
-      it "should complain about unknown routers" do
+      it "complains about unknown routers" do
         tf = Tempfile.new('unittest')
         tf.puts 'ROUTER MY_ROUTER interface.rb'
         tf.close
@@ -108,7 +108,7 @@ module Cosmos
     end
 
     describe "connect" do
-      it "should complain about unknown routers" do
+      it "complains about unknown routers" do
         tf = Tempfile.new('unittest')
         tf.puts 'ROUTER MY_ROUTER interface.rb'
         tf.close
@@ -117,7 +117,7 @@ module Cosmos
         tf.unlink
       end
 
-      it "should connect a router" do
+      it "connects a router" do
         tf = Tempfile.new('unittest')
         tf.puts 'INTERFACE DEST1 tcpip_client_interface.rb localhost 8888 8888 5 5 burst'
         tf.puts 'INTERFACE DEST2 tcpip_client_interface.rb localhost 8888 8888 5 5 burst'
@@ -182,7 +182,7 @@ module Cosmos
     end
 
     describe "names" do
-      it "should list all the router names" do
+      it "lists all the router names" do
         tf = Tempfile.new('unittest')
         tf.puts 'ROUTER ROUTER1 interface.rb'
         tf.puts 'ROUTER ROUTER2 interface.rb'
@@ -195,7 +195,7 @@ module Cosmos
     end
 
     describe "clear_counters" do
-      it "should clear all router counters" do
+      it "clears all router counters" do
         tf = Tempfile.new('unittest')
         tf.puts 'ROUTER ROUTER1 interface.rb'
         tf.puts 'ROUTER ROUTER2 interface.rb'

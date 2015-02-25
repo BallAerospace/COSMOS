@@ -227,7 +227,7 @@ module Cosmos
         tf.unlink
       end
 
-      it "should take 4 limits values" do
+      it "takes 4 limits values" do
         tf = Tempfile.new('unittest')
         tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Packet"'
         tf.puts '  APPEND_ITEM item1 16 UINT "Item"'
@@ -244,7 +244,7 @@ module Cosmos
         tf.unlink
       end
 
-      it "should take 6 limits values" do
+      it "takes 6 limits values" do
         tf = Tempfile.new('unittest')
         tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Packet"'
         tf.puts '  APPEND_ITEM item1 16 UINT "Item"'

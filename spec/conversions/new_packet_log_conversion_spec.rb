@@ -17,7 +17,7 @@ module Cosmos
   describe NewPacketLogConversion do
 
     describe "call" do
-      it "should return the value given and call start_logging" do
+      it "returns the value given and call start_logging" do
         cmd_tlm_server = double("CmdTlmServer", :packet_logging => '')
         allow(CmdTlmServer).to receive(:instance).and_return(cmd_tlm_server)
         expect(cmd_tlm_server).to receive(:start_logging).with('ALL')
@@ -29,7 +29,7 @@ module Cosmos
     end
 
     describe "to_s" do
-      it "should return the conversion and packet_log_writer_name" do
+      it "returns the conversion and packet_log_writer_name" do
         conversion = NewPacketLogConversion.new('BOB')
         conversion.to_s.should eql "NewPacketLogConversion (BOB)"
       end

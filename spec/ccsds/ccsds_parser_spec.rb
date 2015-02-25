@@ -19,36 +19,36 @@ module Cosmos
     end
 
     describe "initialize" do
-      it "should set the state to :READY" do
+      it "sets the state to :READY" do
         @parser.state.should eql :READY
       end
 
-      it "should clear the in_progress_data" do
+      it "clears the in_progress_data" do
         @parser.in_progress_data.should eql ""
       end
     end
 
     describe "reset" do
-      it "should set the state to :READY" do
+      it "sets the state to :READY" do
         @parser.reset
         @parser.state.should eql :READY
       end
 
-      it "should clear the in_progress_data" do
+      it "clears the in_progress_data" do
         @parser.reset
         @parser.in_progress_data.should eql ""
       end
     end
 
     describe "unsegment_packet" do
-      it "should return standalone CCSDS packets" do
+      it "returns standalone CCSDS packets" do
         pkt = CcsdsPacket.new
         pkt.write('CCSDSSEQFLAGS', CcsdsPacket::STANDALONE)
         pkt.write('CCSDSDATA',"\x01\x02\x03\x04")
         @parser.unsegment_packet(pkt).should eql pkt.buffer
       end
 
-      it "should combine two CCSDS packets" do
+      it "combines two CCSDS packets" do
         pkt1 = CcsdsPacket.new
         pkt1.write('CCSDSSEQFLAGS', CcsdsPacket::FIRST)
         pkt1.write('CCSDSSEQCNT', 0)
@@ -61,7 +61,7 @@ module Cosmos
         @parser.unsegment_packet(pkt2).should eql pkt1.buffer + pkt2.read("CCSDSDATA")
       end
 
-      it "should combine three CCSDS packets" do
+      it "combines three CCSDS packets" do
         pkt1 = CcsdsPacket.new
         pkt1.write('CCSDSSEQFLAGS', CcsdsPacket::FIRST)
         pkt1.write('CCSDSSEQCNT', 0)
@@ -79,19 +79,19 @@ module Cosmos
         @parser.unsegment_packet(pkt3).should eql pkt1.buffer + pkt2.read("CCSDSDATA") + pkt3.read("CCSDSDATA")
       end
 
-      it "should complain with an initial continuation packet" do
+      it "complains with an initial continuation packet" do
         pkt = CcsdsPacket.new
         pkt.write('CCSDSSEQFLAGS', CcsdsPacket::CONTINUATION)
         expect { @parser.unsegment_packet(pkt) }.to raise_error(CcsdsParser::CcsdsSegmentationError, "Unexpected continuation packet")
       end
 
-      it "should complain with an initial last packet" do
+      it "complains with an initial last packet" do
         pkt = CcsdsPacket.new
         pkt.write('CCSDSSEQFLAGS', CcsdsPacket::LAST)
         expect { @parser.unsegment_packet(pkt) }.to raise_error(CcsdsParser::CcsdsSegmentationError, "Unexpected last packet")
       end
 
-      it "should complain with an out of order continuation sequence count" do
+      it "complains with an out of order continuation sequence count" do
         pkt1 = CcsdsPacket.new
         pkt1.write('CCSDSSEQFLAGS', CcsdsPacket::FIRST)
         pkt1.write('CCSDSSEQCNT', 0)
@@ -104,7 +104,7 @@ module Cosmos
         expect { @parser.unsegment_packet(pkt2) }.to raise_error(CcsdsParser::CcsdsSegmentationError, /Missing packet/)
       end
 
-      it "should complain with an out of order last sequence count" do
+      it "complains with an out of order last sequence count" do
         pkt1 = CcsdsPacket.new
         pkt1.write('CCSDSSEQFLAGS', CcsdsPacket::FIRST)
         pkt1.write('CCSDSSEQCNT', 0)
@@ -117,7 +117,7 @@ module Cosmos
         expect { @parser.unsegment_packet(pkt2) }.to raise_error(CcsdsParser::CcsdsSegmentationError, /Missing packet/)
       end
 
-      it "should complain with a first in the middle of processing" do
+      it "complains with a first in the middle of processing" do
         pkt1 = CcsdsPacket.new
         pkt1.write('CCSDSSEQFLAGS', CcsdsPacket::FIRST)
         pkt1.write('CCSDSSEQCNT', 0)
@@ -130,7 +130,7 @@ module Cosmos
         expect { @parser.unsegment_packet(pkt2) }.to raise_error(CcsdsParser::CcsdsSegmentationError, "Unexpected first packet")
       end
 
-      it "should complain with a standalone in the middle of processing" do
+      it "complains with a standalone in the middle of processing" do
         pkt1 = CcsdsPacket.new
         pkt1.write('CCSDSSEQFLAGS', CcsdsPacket::FIRST)
         pkt1.write('CCSDSSEQCNT', 0)

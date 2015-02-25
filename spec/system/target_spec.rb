@@ -21,26 +21,26 @@ module Cosmos
     end
 
     describe "initialize" do
-      it "should create a target with the given name" do
+      it "creates a target with the given name" do
         Target.new("TGT").name.should eql "TGT"
       end
 
-      it "should create a target with the given substitute name" do
+      it "creates a target with the given substitute name" do
         tgt = Target.new("TGT","TGT2")
         tgt.name.should eql "TGT2"
         tgt.original_name.should eql "TGT"
       end
 
-      it "should create a target with the default dir" do
+      it "creates a target with the default dir" do
         Target.new("TGT").dir.should eql File.join(USERPATH,'config','targets','TGT')
       end
 
-      it "should create a target with an override path" do
+      it "creates a target with an override path" do
         saved = File.join(USERPATH,'saved')
         Target.new("TGT",nil,saved).dir.should eql File.join(saved,'TGT')
       end
 
-      it "should record all the command and telemetry files in the target directory" do
+      it "records all the command and telemetry files in the target directory" do
         tgt_path = File.join(Cosmos::USERPATH,'target_spec_temp')
         tgt_name = "TEST"
         cmd_tlm = File.join(tgt_path,tgt_name,'cmd_tlm')
@@ -60,7 +60,7 @@ module Cosmos
         FileUtils.rm_r(tgt_path)
       end
 
-      it "should process a target.txt in the target directory" do
+      it "processes a target.txt in the target directory" do
         tgt_path = File.join(Cosmos::USERPATH,'target_spec_temp')
         tgt_name = "TEST"
         tgt_dir = File.join(tgt_path,tgt_name)
@@ -76,7 +76,7 @@ module Cosmos
         FileUtils.rm_r(tgt_path)
       end
 
-      it "should process an alternative target.txt in the target directory" do
+      it "processes an alternative target.txt in the target directory" do
         tgt_path = File.join(Cosmos::USERPATH,'target_spec_temp')
         tgt_name = "TEST"
         tgt_dir = File.join(tgt_path,tgt_name)
@@ -94,7 +94,7 @@ module Cosmos
     end
 
     describe "process_file" do
-      it "should complain about unknown keywords" do
+      it "complains about unknown keywords" do
         tf = Tempfile.new('unittest')
         tf.puts("BLAH")
         tf.close
@@ -103,7 +103,7 @@ module Cosmos
       end
 
       context "with REQUIRE" do
-        it "should take 1 parameters" do
+        it "takes 1 parameters" do
           tf = Tempfile.new('unittest')
           tf.puts("REQUIRE")
           tf.close
@@ -117,7 +117,7 @@ module Cosmos
           tf.unlink
         end
 
-        it "should complain if the file doesn't exist" do
+        it "complains if the file doesn't exist" do
           tf = Tempfile.new('unittest')
           tf.puts("REQUIRE my_file.rb")
           tf.close
@@ -125,7 +125,7 @@ module Cosmos
           tf.unlink
         end
 
-        it "should require the file" do
+        it "requires the file" do
           filename = File.join(File.dirname(__FILE__),'..','..','lib','my_file.rb')
           File.open(filename, 'w') do |file|
             file.puts "class MyFile"
@@ -142,7 +142,7 @@ module Cosmos
       end
 
       context "with IGNORE_PARAMETER" do
-        it "should take 1 parameters" do
+        it "takes 1 parameters" do
           tf = Tempfile.new('unittest')
           tf.puts("IGNORE_PARAMETER")
           tf.close
@@ -156,7 +156,7 @@ module Cosmos
           tf.unlink
         end
 
-        it "should store the parameter" do
+        it "stores the parameter" do
           tf = Tempfile.new('unittest')
           tf.puts("IGNORE_PARAMETER TEST")
           tf.close
@@ -168,7 +168,7 @@ module Cosmos
       end
 
       context "with COMMANDS and TELEMETRY" do
-        it "should take 1 parameters" do
+        it "takes 1 parameters" do
           tf = Tempfile.new('unittest')
           tf.puts("COMMANDS")
           tf.close
@@ -194,7 +194,7 @@ module Cosmos
           tf.unlink
         end
 
-        it "should store the filename" do
+        it "stores the filename" do
           tgt_path = File.join(Cosmos::USERPATH,'target_spec_temp')
           tgt_name = "TEST"
           tgt_dir = File.join(tgt_path,tgt_name)

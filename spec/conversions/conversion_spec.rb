@@ -16,13 +16,13 @@ module Cosmos
   describe Conversion do
 
     describe "call" do
-      it "should raise an exception" do
+      it "raises an exception" do
         expect { Conversion.new.call(0, 0, 0) }.to raise_error("call method must be defined by subclass")
       end
     end
 
     describe "to_s" do
-      it "should return a String" do
+      it "returns a String" do
         Conversion.new.to_s.should eql "Conversion"
       end
     end

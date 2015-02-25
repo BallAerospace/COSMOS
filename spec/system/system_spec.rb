@@ -41,23 +41,23 @@ module Cosmos
     end
 
     describe "instance" do
-      it "should create default ports" do
+      it "creates default ports" do
         # Don't check the actual port numbers but just that they exist
         System.ports.keys.should eql %w(CTS_API TLMVIEWER_API CTS_PREIDENTIFIED)
       end
 
-      it "should create default paths" do
+      it "creates default paths" do
         # Don't check the actual paths but just that they exist
         System.paths.keys.should eql %w(LOGS TMP SAVED_CONFIG TABLES HANDBOOKS PROCEDURES)
       end
     end
 
     describe "System.commands" do
-      it "should only contain UNKNOWN" do
+      it "only contains UNKNOWN" do
         System.commands.target_names.should eql ["UNKNOWN"]
       end
 
-      it "should log errors saving the configuration" do
+      it "logs errors saving the configuration" do
         # Force a reload of the configuration
         System.class_eval('@@instance = nil')
 
@@ -70,13 +70,13 @@ module Cosmos
     end
 
     describe "System.telemetry" do
-      it "should only contain UNKNOWN" do
+      it "only contains UNKNOWN" do
         System.telemetry.target_names.should eql ["UNKNOWN"]
       end
     end
 
     describe "System.limits" do
-      it "should include the DEFAULT limit set" do
+      it "includes the DEFAULT limit set" do
         System.limits.sets.should include :DEFAULT
       end
     end
@@ -88,7 +88,7 @@ module Cosmos
       end
 
       describe "System.clear_counters" do
-        it "should clear the target, command and telemetry counters" do
+        it "clears the target, command and telemetry counters" do
           System.targets.each do |name, tgt|
             tgt.cmd_cnt = 100
             tgt.tlm_cnt = 100
@@ -116,7 +116,7 @@ module Cosmos
       end
 
       describe "packets and System.packets" do
-        it "should calculate MD5s across all the target files" do
+        it "calculates MD5s across all the target files" do
           capture_io do |stdout|
             # This line actually does the work of reading the configuration
             System.telemetry.target_names.should eql ['COSMOS','INST','META','UNKNOWN']
@@ -136,7 +136,7 @@ module Cosmos
           end
         end
 
-        it "should handle target parsing errors" do
+        it "handles target parsing errors" do
           capture_io do |stdout|
             allow_any_instance_of(PacketConfig).to receive(:process_file) { raise "ProcessError" }
             # This line actually does the work of reading the configuration
@@ -153,13 +153,13 @@ module Cosmos
           File.delete(File.join(@config_targets,'COSMOS','cmd_tlm','test2_tlm.txt'))
         end
 
-        it "should load the initial configuration" do
+        it "loads the initial configuration" do
           System.load_configuration
           System.commands.target_names.should eql ['COSMOS','INST','META','UNKNOWN']
           System.telemetry.target_names.should eql ['COSMOS','INST','META','UNKNOWN']
         end
 
-        it "should load a named configuration" do
+        it "loads a named configuration" do
           File.open(@config_file,'w') do |file|
             file.puts "DECLARE_TARGET COSMOS"
             file.puts "DECLARE_TARGET COSMOS OVERRIDE"
@@ -228,7 +228,7 @@ module Cosmos
         FileUtils.mv File.join(Cosmos::USERPATH, 'targets'), File.join(Cosmos::USERPATH, 'config')
       end
 
-      it "should complain about unknown keywords" do
+      it "complains about unknown keywords" do
         tf = Tempfile.new('unittest')
         tf.puts("BLAH")
         tf.close
@@ -237,7 +237,7 @@ module Cosmos
       end
 
       context "with AUTO_DECLARE_TARGETS" do
-        it "should take 0 parameters" do
+        it "takes 0 parameters" do
           tf = Tempfile.new('unittest')
           tf.puts("AUTO_DECLARE_TARGETS TRUE")
           tf.close
@@ -245,7 +245,7 @@ module Cosmos
           tf.unlink
         end
 
-        it "should complain if config/targets doesn't exist" do
+        it "complains if config/targets doesn't exist" do
           tf = Tempfile.new('unittest')
           tf.puts("AUTO_DECLARE_TARGETS")
           tf.close
@@ -255,7 +255,7 @@ module Cosmos
           tf.unlink
         end
 
-        it "should complain if target directories aren't uppercase" do
+        it "complains if target directories aren't uppercase" do
           tf = Tempfile.new('unittest')
           tf.puts("AUTO_DECLARE_TARGETS")
           tf.close
@@ -265,7 +265,7 @@ module Cosmos
           tf.unlink
         end
 
-        it "should process target directories with the SYSTEM directory last" do
+        it "processes target directories with the SYSTEM directory last" do
           tf = Tempfile.new('unittest')
           tf.puts("AUTO_DECLARE_TARGETS")
           tf.close
@@ -284,7 +284,7 @@ module Cosmos
       end
 
       context "with DECLARE_TARGET" do
-        it "should take 1 or 2 parameters" do
+        it "takes 1 or 2 parameters" do
           tf = Tempfile.new('unittest')
           tf.puts("DECLARE_TARGET")
           tf.close
@@ -298,7 +298,7 @@ module Cosmos
           tf.unlink
         end
 
-        it "should complain if the target directory doesn't exist" do
+        it "complains if the target directory doesn't exist" do
           tf = Tempfile.new('unittest')
           tf.puts("DECLARE_TARGET TGT")
           tf.close
@@ -306,7 +306,7 @@ module Cosmos
           tf.unlink
         end
 
-        it "should process the target directory" do
+        it "processes the target directory" do
           tf = Tempfile.new('unittest')
           tf.puts("DECLARE_TARGET TGT")
           tf.close
@@ -315,7 +315,7 @@ module Cosmos
           tf.unlink
         end
 
-        it "should process the target directory with substitute name" do
+        it "processes the target directory with substitute name" do
           tf = Tempfile.new('unittest')
           tf.puts("DECLARE_TARGET TGT NEW")
           tf.close
@@ -324,7 +324,7 @@ module Cosmos
           tf.unlink
         end
 
-        it "should process the target directory with specified target.txt" do
+        it "processes the target directory with specified target.txt" do
           tf = Tempfile.new('unittest')
           tf.puts("DECLARE_TARGET TGT nil target.txt")
           tf.close
@@ -338,7 +338,7 @@ module Cosmos
       end
 
       context "with PORT" do
-        it "should take 2 parameters" do
+        it "takes 2 parameters" do
           tf = Tempfile.new('unittest')
           tf.puts("PORT CTS_API")
           tf.close
@@ -352,7 +352,7 @@ module Cosmos
           tf.unlink
         end
 
-        it "should complain about unknown ports" do
+        it "complains about unknown ports" do
           tf = Tempfile.new('unittest')
           tf.puts("PORT MYPORT 10")
           tf.close
@@ -363,7 +363,7 @@ module Cosmos
           tf.unlink
         end
 
-        it "should change known ports" do
+        it "changes known ports" do
           tf = Tempfile.new('unittest')
           tf.puts("PORT CTS_API 8888")
           tf.close
@@ -375,7 +375,7 @@ module Cosmos
       end
 
       context "with PATH" do
-        it "should take 2 parameters" do
+        it "takes 2 parameters" do
           tf = Tempfile.new('unittest')
           tf.puts("PATH C:/")
           tf.close
@@ -389,7 +389,7 @@ module Cosmos
           tf.unlink
         end
 
-        it "should complain about unknown paths" do
+        it "complains about unknown paths" do
           tf = Tempfile.new('unittest')
           tf.puts("PATH MYPATH C:/")
           tf.close
@@ -400,7 +400,7 @@ module Cosmos
           tf.unlink
         end
 
-        it "should change known paths" do
+        it "changes known paths" do
           if Kernel.is_windows?
             tf = Tempfile.new('unittest')
             tf.puts("PATH LOGS C:/mylogs")
@@ -414,7 +414,7 @@ module Cosmos
       end
 
       context "with DEFAULT_PACKET_LOG_WRITER" do
-        it "should take 1 parameters" do
+        it "takes 1 parameters" do
           tf = Tempfile.new('unittest')
           tf.puts("DEFAULT_PACKET_LOG_WRITER")
           tf.close
@@ -428,7 +428,7 @@ module Cosmos
           tf.unlink
         end
 
-        it "should complain if the class doesn't exist" do
+        it "complains if the class doesn't exist" do
           tf = Tempfile.new('unittest')
           tf.puts("DEFAULT_PACKET_LOG_WRITER my_nonexistent_class")
           tf.close
@@ -436,7 +436,7 @@ module Cosmos
           tf.unlink
         end
 
-        it "should set the packet writer" do
+        it "sets the packet writer" do
           filename = File.join(File.dirname(__FILE__),'..','..','lib','my_writer.rb')
           File.open(filename, 'w') do |file|
             file.puts "class MyWriter"
@@ -453,7 +453,7 @@ module Cosmos
       end
 
       context "with DEFAULT_PACKET_LOG_READER" do
-        it "should take 1 parameters" do
+        it "takes 1 parameters" do
           tf = Tempfile.new('unittest')
           tf.puts("DEFAULT_PACKET_LOG_READER")
           tf.close
@@ -467,7 +467,7 @@ module Cosmos
           tf.unlink
         end
 
-        it "should complain if the class doesn't exist" do
+        it "complains if the class doesn't exist" do
           tf = Tempfile.new('unittest')
           tf.puts("DEFAULT_PACKET_LOG_READER my_nonexistent_class")
           tf.close
@@ -475,7 +475,7 @@ module Cosmos
           tf.unlink
         end
 
-        it "should set the packet reader" do
+        it "sets the packet reader" do
           filename = File.join(File.dirname(__FILE__),'..','..','lib','my_reader.rb')
           File.open(filename, 'w') do |file|
             file.puts "class MyReader"
@@ -492,7 +492,7 @@ module Cosmos
       end
 
       context "with DISABLE_DNS" do
-        it "should take 0 parameters" do
+        it "takes 0 parameters" do
           tf = Tempfile.new('unittest')
           tf.puts("DISABLE_DNS BLAH TRUE")
           tf.close
@@ -500,7 +500,7 @@ module Cosmos
           tf.unlink
         end
 
-        it "should disable dns lookups" do
+        it "disables dns lookups" do
           tf = Tempfile.new('unittest')
           tf.puts("DISABLE_DNS")
           tf.close
@@ -512,7 +512,7 @@ module Cosmos
       end
 
       context "with ALLOW_ACCESS" do
-        it "should take 1 parameters" do
+        it "takes 1 parameters" do
           tf = Tempfile.new('unittest')
           tf.puts("ALLOW_ACCESS")
           tf.close
@@ -526,7 +526,7 @@ module Cosmos
           tf.unlink
         end
 
-        it "should complain about bad addresses" do
+        it "complains about bad addresses" do
           tf = Tempfile.new('unittest')
           tf.puts("ALLOW_ACCESS blah")
           tf.close
@@ -540,7 +540,7 @@ module Cosmos
           tf.unlink
         end
 
-        it "should allow ALL" do
+        it "allows ALL" do
           tf = Tempfile.new('unittest')
           tf.puts("ALLOW_ACCESS ALL")
           tf.close
@@ -549,7 +549,7 @@ module Cosmos
           tf.unlink
         end
 
-        it "should store host by name" do
+        it "stores host by name" do
           tf = Tempfile.new('unittest')
           tf.puts("ALLOW_ACCESS localhost")
           tf.close
@@ -558,7 +558,7 @@ module Cosmos
           tf.unlink
         end
 
-        it "should store host by IP address" do
+        it "stores host by IP address" do
           addr = IPSocket.getaddress("www.google.com")
           if addr and !addr.index(':')
             tf = Tempfile.new('unittest')
@@ -572,7 +572,7 @@ module Cosmos
       end
 
       context "with STALENESS_SECONDS" do
-        it "should take 1 parameters" do
+        it "takes 1 parameters" do
           tf = Tempfile.new('unittest')
           tf.puts("STALENESS_SECONDS")
           tf.close
@@ -586,7 +586,7 @@ module Cosmos
           tf.unlink
         end
 
-        it "should set the number of seconds required to be stale" do
+        it "sets the number of seconds required to be stale" do
           tf = Tempfile.new('unittest')
           tf.puts("STALENESS_SECONDS 3")
           tf.close
@@ -598,7 +598,7 @@ module Cosmos
       end
 
       context "with CMD_TLM_VERSION" do
-        it "should take 1 parameters" do
+        it "takes 1 parameters" do
           tf = Tempfile.new('unittest')
           tf.puts("CMD_TLM_VERSION")
           tf.close
@@ -612,7 +612,7 @@ module Cosmos
           tf.unlink
         end
 
-        it "should set the command and telemetry version" do
+        it "sets the command and telemetry version" do
           tf = Tempfile.new('unittest')
           tf.puts("CMD_TLM_VERSION 2.1")
           tf.close
@@ -625,13 +625,13 @@ module Cosmos
     end
 
     describe "Cosmos.write_exception_file" do
-      it "should write a file with the exception" do
+      it "writes a file with the exception" do
         filename = Cosmos.write_exception_file(RuntimeError.new("HELP!"))
         File.exist?(filename).should be_truthy
         File.delete(filename)
       end
 
-      it "should write a file without a defined LOGS directory" do
+      it "writes a file without a defined LOGS directory" do
         File.open(@config_file,'w') {|file| file.puts "PATH LOGS C:/this/is/not/a/real/path" }
         # Reset the instance variable so it will read the new config file
         System.instance_eval('@instance = nil')

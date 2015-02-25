@@ -17,7 +17,7 @@ module Cosmos
   describe StatisticsProcessor do
 
     describe "initialize" do
-      it "should take an item_name, samples_to_average, and value_type" do
+      it "takes an item_name, samples_to_average, and value_type" do
         p = StatisticsProcessor.new('TEST', '5', 'RAW')
         p.value_type.should eql :RAW
         p.instance_variable_get("@item_name").should eql 'TEST'
@@ -26,7 +26,7 @@ module Cosmos
     end
 
     describe "call and reset" do
-      it "should generate statistics" do
+      it "generates statistics" do
         p = StatisticsProcessor.new('TEST', '5', 'RAW')
         packet = Packet.new("tgt","pkt")
         packet.append_item("TEST", 8, :UINT)

@@ -23,7 +23,7 @@ module Cosmos
     end
 
     describe "parse_file" do
-      it "should yield keyword, parameters to the block" do
+      it "yields keyword, parameters to the block" do
         tf = Tempfile.new('unittest')
         line = "KEYWORD PARAM1 PARAM2 'PARAM 3'"
         tf.puts line
@@ -38,7 +38,7 @@ module Cosmos
         tf.unlink
       end
 
-      it "should handle Ruby string interpolation" do
+      it "handles Ruby string interpolation" do
         tf = Tempfile.new('unittest')
         tf.puts 'KEYWORD1 #{var} PARAM1'
         tf.puts 'KEYWORD2 PARAM1 #Comment'
@@ -55,7 +55,7 @@ module Cosmos
         tf.unlink
       end
 
-      it "should optionally not remove quotes" do
+      it "optionallies not remove quotes" do
         tf = Tempfile.new('unittest')
         line = "KEYWORD PARAM1 PARAM2 'PARAM 3'"
         tf.puts line
@@ -70,7 +70,7 @@ module Cosmos
         tf.unlink
       end
 
-      it "should handle inline line continuations" do
+      it "handles inline line continuations" do
         tf = Tempfile.new('unittest')
         tf.puts "KEYWORD PARAM1 & PARAM2"
         tf.close
@@ -84,7 +84,7 @@ module Cosmos
         tf.unlink
       end
 
-      it "should handle line continuations as EOL" do
+      it "handles line continuations as EOL" do
         tf = Tempfile.new('unittest')
         tf.puts "KEYWORD PARAM1 &"
         tf.puts "  PARAM2 'PARAM 3'"
@@ -106,7 +106,7 @@ module Cosmos
         tf.unlink
       end
 
-      it "should optionally yield comment lines" do
+      it "optionallies yield comment lines" do
         tf = Tempfile.new('unittest')
         tf.puts "KEYWORD1 PARAM1"
         tf.puts "# This is a comment"
@@ -121,7 +121,7 @@ module Cosmos
         tf.unlink
       end
 
-      it "should callback for messages" do
+      it "callbacks for messages" do
         tf = Tempfile.new('unittest')
         line = "KEYWORD PARAM1 PARAM2 'PARAM 3'"
         tf.puts line
@@ -140,7 +140,7 @@ module Cosmos
         tf.unlink
       end
 
-      it "should callback for percent done" do
+      it "callbacks for percent done" do
         tf = Tempfile.new('unittest')
         # Callback is made at beginning, every 10 lines, and at the end
         15.times { tf.puts "KEYWORD PARAM" }
@@ -160,7 +160,7 @@ module Cosmos
     end
 
     describe "verify_num_parameters" do
-      it "should verify the minimum number of parameters" do
+      it "verifies the minimum number of parameters" do
         tf = Tempfile.new('unittest')
         line = "KEYWORD"
         tf.puts line
@@ -173,7 +173,7 @@ module Cosmos
         tf.unlink
       end
 
-      it "should verify the maximum number of parameters" do
+      it "verifies the maximum number of parameters" do
         tf = Tempfile.new('unittest')
         line = "KEYWORD PARAM1 PARAM2"
         tf.puts line
@@ -188,7 +188,7 @@ module Cosmos
     end
 
     describe "error" do
-      it "should return an Error" do
+      it "returns an Error" do
         tf = Tempfile.new('unittest')
         line = "KEYWORD"
         tf.puts line
@@ -205,7 +205,7 @@ module Cosmos
     end
 
     describe "self.handle_nil" do
-      it "should convert 'NIL' and 'NULL' to nil" do
+      it "converts 'NIL' and 'NULL' to nil" do
         ConfigParser.handle_nil('NIL').should be_nil
         ConfigParser.handle_nil('NULL').should be_nil
         ConfigParser.handle_nil('nil').should be_nil
@@ -213,11 +213,11 @@ module Cosmos
         ConfigParser.handle_nil('').should be_nil
       end
 
-      it "should return nil with nil" do
+      it "returns nil with nil" do
         ConfigParser.handle_nil(nil).should be_nil
       end
 
-      it "should return values that don't convert" do
+      it "returns values that don't convert" do
         ConfigParser.handle_nil("HI").should eql "HI"
         ConfigParser.handle_nil(5.0).should eql 5.0
       end
@@ -229,19 +229,19 @@ module Cosmos
     end
 
     describe "self.handle_true_false" do
-      it "should convert 'TRUE' and 'FALSE'" do
+      it "converts 'TRUE' and 'FALSE'" do
         expect(ConfigParser.handle_true_false('TRUE')).to be true
         expect(ConfigParser.handle_true_false('FALSE')).to be false
         expect(ConfigParser.handle_true_false('true')).to be true
         expect(ConfigParser.handle_true_false('false')).to be false
       end
 
-      it "should pass through true and false" do
+      it "passes through true and false" do
         expect(ConfigParser.handle_true_false(true)).to be true
         expect(ConfigParser.handle_true_false(false)).to be false
       end
 
-      it "should return values that don't convert" do
+      it "returns values that don't convert" do
         ConfigParser.handle_true_false("HI").should eql "HI"
         ConfigParser.handle_true_false(5.0).should eql 5.0
       end
@@ -253,7 +253,7 @@ module Cosmos
     end
 
     describe "self.handle_true_false_nil" do
-      it "should convert 'NIL' and 'NULL' to nil" do
+      it "converts 'NIL' and 'NULL' to nil" do
         ConfigParser.handle_true_false_nil('NIL').should be_nil
         ConfigParser.handle_true_false_nil('NULL').should be_nil
         ConfigParser.handle_true_false_nil('nil').should be_nil
@@ -261,23 +261,23 @@ module Cosmos
         ConfigParser.handle_true_false_nil('').should be_nil
       end
 
-      it "should return nil with nil" do
+      it "returns nil with nil" do
         ConfigParser.handle_true_false_nil(nil).should be_nil
       end
 
-      it "should convert 'TRUE' and 'FALSE'" do
+      it "converts 'TRUE' and 'FALSE'" do
         expect(ConfigParser.handle_true_false_nil('TRUE')).to be true
         expect(ConfigParser.handle_true_false_nil('FALSE')).to be false
         expect(ConfigParser.handle_true_false_nil('true')).to be true
         expect(ConfigParser.handle_true_false_nil('false')).to be false
       end
 
-      it "should pass through true and false" do
+      it "passes through true and false" do
         expect(ConfigParser.handle_true_false_nil(true)).to be true
         expect(ConfigParser.handle_true_false_nil(false)).to be false
       end
 
-      it "should return values that don't convert" do
+      it "returns values that don't convert" do
         ConfigParser.handle_true_false("HI").should eql "HI"
         ConfigParser.handle_true_false(5.0).should eql 5.0
       end
@@ -289,7 +289,7 @@ module Cosmos
     end
 
     describe "self.handle_defined_constants" do
-      it "should convert string constants to numbers" do
+      it "converts string constants to numbers" do
         [8,16,32,64].each do |val|
           # Unsigned
           ConfigParser.handle_defined_constants("MIN_UINT#{val}").should eql 0
@@ -307,11 +307,11 @@ module Cosmos
         ConfigParser.handle_defined_constants("NEG_INFINITY").should eql -Float::INFINITY
       end
 
-      it "should complain about undefined strings" do
+      it "complains about undefined strings" do
         expect { ConfigParser.handle_defined_constants("TRUE") }.to raise_error(ArgumentError, "Could not convert constant: TRUE")
       end
 
-      it "should pass through numbers" do
+      it "passes through numbers" do
         ConfigParser.handle_defined_constants(0).should eql 0
         ConfigParser.handle_defined_constants(0.0).should eql 0.0
       end

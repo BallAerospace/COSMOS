@@ -16,7 +16,7 @@ module Cosmos
   describe SegmentedPolynomialConversion do
 
     describe "initialize" do
-      it "should initialize converted_type and converted_bit_size" do
+      it "initializes converted_type and converted_bit_size" do
         gc = SegmentedPolynomialConversion.new()
         gc.converted_type.should eql :FLOAT
         gc.converted_bit_size.should eql 64
@@ -24,7 +24,7 @@ module Cosmos
     end
 
     describe "call" do
-      it "should perform the conversion and return the result" do
+      it "performs the conversion and return the result" do
         gc = SegmentedPolynomialConversion.new()
         gc.add_segment(10, 1,2)
         gc.add_segment(5,  2,2)
@@ -37,7 +37,7 @@ module Cosmos
     end
 
     describe "to_s" do
-      it "should return the equations" do
+      it "returns the equations" do
         SegmentedPolynomialConversion.new().to_s.should eql ""
         gc = SegmentedPolynomialConversion.new()
         gc.add_segment(10, 1)

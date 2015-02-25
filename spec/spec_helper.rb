@@ -132,23 +132,54 @@ def capture_io
 end
 
 RSpec.configure do |c|
-  c.around(:each) do |example|
-    if ENV.key?("PROFILE")
-      klass = example.metadata[:example_group][:example_group][:description_args][0].to_s.gsub(/::/,'')
-      method = example.metadata[:description_args][0].to_s.gsub!(/ /,'_')
+  if ENV.key?("PROFILE")
+    c.before(:suite) do
       RubyProf.start
+    end
+    c.after(:suite) do |example|
+      result = RubyProf.stop
+      ignore = [/BasicObject/]
+      # Get all the RSpec constants so we can ignore them
+      RSpec.constants.each do |constant|
+        if Object.const_get("RSpec::#{constant}").respond_to? :constants
+          Object.const_get("RSpec::#{constant}").constants.each {|sub| ignore << Regexp.new("RSpec::#{constant}::#{sub}") }
+        else
+          ignore << Regexp.new("RSpec::#{constant}")
+        end
+      end
+      # But don't ignore RSpec::Core::Runner because it's the root.
+      # Ignoring this causes "can't eliminate root method (RuntimeError)"
+      ignore.delete(Regexp.new("RSpec::Core::Runner"))
+
+      result.eliminate_methods!(ignore)
+      printer = RubyProf::GraphHtmlPrinter.new(result)
+      printer.print(File.open("profile.html", 'w+'), :min_percent => 1)
+    end
+    c.around(:each) do |example|
+      # Run each test 100 times to prevent startup issues from dominating
       100.times do
         example.run
       end
-      result = RubyProf.stop
-      result.eliminate_methods!([/RSpec/, /BasicObject/])
-      printer = RubyProf::GraphHtmlPrinter.new(result)
-      dir = "./profile/#{klass}"
-      FileUtils.mkdir_p(dir)
-      printer.print(File.open("#{dir}/#{method}.html", 'w+'), :min_percent => 2)
-    else
-      example.run
     end
   end
+# This code causes a new profile file to be created for each test case.
+#  c.around(:each) do |example|
+#    if ENV.key?("PROFILE")
+#      klass = example.metadata[:example_group][:example_group][:description_args][0].to_s.gsub(/::/,'')
+#      method = example.metadata[:description_args][0].to_s.gsub!(/ /,'_')
+#      RubyProf.start
+#      100.times do
+#        example.run
+#      end
+#      result = RubyProf.stop
+#      result.eliminate_methods!([/RSpec/, /BasicObject/])
+#      printer = RubyProf::GraphHtmlPrinter.new(result)
+#      dir = "./profile/#{klass}"
+#      FileUtils.mkdir_p(dir)
+#      printer.print(File.open("#{dir}/#{method}.html", 'w+'), :min_percent => 2)
+#    else
+#      example.run
+#    end
+#  end
 end
 

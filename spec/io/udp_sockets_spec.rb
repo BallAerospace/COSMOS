@@ -16,7 +16,7 @@ module Cosmos
   describe UdpWriteSocket do
 
     describe "initialize" do
-      it "should create a socket" do
+      it "creates a socket" do
         udp = UdpWriteSocket.new('127.0.0.1', 8888)
         udp.peeraddr[2].should eql '127.0.0.1'
         udp.peeraddr[1].should eql 8888
@@ -30,7 +30,7 @@ module Cosmos
     end
 
     describe "write" do
-      it "should write data" do
+      it "writes data" do
         udp_read  = UdpReadSocket.new(8888)
         udp_write = UdpWriteSocket.new('127.0.0.1', 8888)
         udp_write.write("\x01\x02",2.0)
@@ -39,7 +39,7 @@ module Cosmos
         udp_write.close
       end
 
-      it "should handle timeouts" do
+      it "handles timeouts" do
         allow_any_instance_of(UDPSocket).to receive(:write_nonblock) { raise Errno::EWOULDBLOCK }
         expect(IO).to receive(:select).at_least(:once).and_return([], nil)
         udp_write = UdpWriteSocket.new('127.0.0.1', 8888)
@@ -49,7 +49,7 @@ module Cosmos
     end
 
     describe "multicast" do
-      it "should determine if a host is multicast" do
+      it "determines if a host is multicast" do
         UdpWriteSocket.multicast?('127.0.0.1').should be_falsey
         UdpWriteSocket.multicast?('224.0.1.1').should be_truthy
       end
@@ -60,7 +60,7 @@ module Cosmos
   describe UdpReadSocket do
 
     describe "initialize" do
-      it "should create a socket" do
+      it "creates a socket" do
         udp = UdpReadSocket.new(8888)
         udp.local_address.ip_address.should eql '0.0.0.0'
         udp.local_address.ip_port.should eql 8888
@@ -72,7 +72,7 @@ module Cosmos
     end
 
     describe "read" do
-      it "should read data" do
+      it "reads data" do
         udp_read  = UdpReadSocket.new(8888)
         udp_write = UdpWriteSocket.new('127.0.0.1', 8888)
         udp_write.write("\x01\x02",2.0)
@@ -81,7 +81,7 @@ module Cosmos
         udp_write.close
       end
 
-      it "should handle timeouts" do
+      it "handles timeouts" do
         allow_any_instance_of(UDPSocket).to receive(:recvfrom_nonblock) { raise Errno::EWOULDBLOCK }
         expect(IO).to receive(:select).at_least(:once).and_return([], nil)
         udp_read = UdpReadSocket.new(8889)

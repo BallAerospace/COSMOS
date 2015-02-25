@@ -26,7 +26,7 @@ module Cosmos
       clean_config()
     end
 
-    it "should create a command log writer" do
+    it "creates a command log writer" do
       meta_packet = System.commands.packet('META', 'DATA')
       meta_packet.write('VERSION', 'Great Version')
       meta_packet.write('NUMBER', 5)
@@ -56,7 +56,7 @@ module Cosmos
       end
     end
 
-    it "should create a telemetry log writer" do
+    it "creates a telemetry log writer" do
       meta_packet = System.telemetry.packet('META', 'DATA')
       meta_packet.write('VERSION', 'Good Version')
       meta_packet.write('NUMBER', 3)
@@ -89,7 +89,7 @@ module Cosmos
       count.should eql 3
     end
 
-    it "should not log metadata packets if configured not to" do
+    it "does not log metadata packets if configured not to" do
       meta_packet = System.telemetry.packet('META', 'DATA')
       meta_packet.write('VERSION', 'Good Version')
       meta_packet.write('NUMBER', 1)
@@ -123,7 +123,7 @@ module Cosmos
       count.should eql(2)
     end
 
-    it "should initialize the meta packet if configured to" do
+    it "initializes the meta packet if configured to" do
       tf = Tempfile.new('unittest')
       tf.puts("VERSION 'Ok Version'")
       tf.puts("NUMBER 11")
@@ -162,7 +162,7 @@ module Cosmos
       tf.unlink
     end
 
-    it "should complain if the packet does not exist" do
+    it "complains if the packet does not exist" do
       expect {plw = MetaPacketLogWriter.new(:CMD,'INST','ADCS',nil,true,true)}.to raise_error(RuntimeError)
       expect {plw = MetaPacketLogWriter.new(:CMD,'INST','ABORT',nil,true,true)}.to raise_error(RuntimeError)
     end

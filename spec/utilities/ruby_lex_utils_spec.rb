@@ -18,21 +18,21 @@ module Cosmos
     end
 
     describe "contains_begin?" do
-      it "should detect the begin keyword" do
+      it "detects the begin keyword" do
         @lex.contains_begin?("  begin  ").should be_truthy
         @lex.contains_begin?("  begin # asdf  ").should be_truthy
       end
     end
 
     describe "contains_keyword?" do
-      it "should detect the ruby keywords" do
+      it "detects the ruby keywords" do
         @lex.contains_keyword?("if something").should be_truthy
         @lex.contains_keyword?("obj.method = something").should be_falsey
       end
     end
 
     describe "contains_block_beginning?" do
-      it "should detect block beginning keywords" do
+      it "detects block beginning keywords" do
         @lex.contains_block_beginning?("do").should be_truthy
         @lex.contains_block_beginning?("[].each {").should be_truthy
         @lex.contains_block_beginning?("begin").should be_truthy
@@ -40,7 +40,7 @@ module Cosmos
     end
 
     describe "remove_comments" do
-      it "should remove comments" do
+      it "removes comments" do
 text = <<DOC
 # This is a comment
 blah = 5 # Inline comment
@@ -51,7 +51,7 @@ DOC
     end
 
     describe "each_lexed_segment" do
-      it "should yield each segment" do
+      it "yields each segment" do
 text = <<DOC
 begin
   x = 0
@@ -63,7 +63,7 @@ DOC
           ["end\n",false,nil,3])  # can't instrument end
       end
 
-      it "should yield each segment" do
+      it "yields each segment" do
 text = <<DOC
 
 if x

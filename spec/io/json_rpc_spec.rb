@@ -26,14 +26,14 @@ describe Object do
     end
   end
 
-  it "should implement as_json" do
+  it "implements as_json" do
     Test1.new.as_json.should eql [:@test]
     Test2.new.as_json.should eql Hash.new("test"=>0)
   end
 end
 
 describe Struct do
-  it "should implement as_json" do
+  it "implements as_json" do
     s = Struct.new(:test1, :test2)
     instance = s.new(1,2)
     hash = {"test1"=>1,"test2"=>2}
@@ -42,7 +42,7 @@ describe Struct do
 end
 
 describe String do
-  it "should implement as_json" do
+  it "implements as_json" do
     "test".as_json.should eql "test"
     hash = {"json_class"=>"String","raw"=>[16]}
     "\x10".as_json.should eql hash
@@ -58,40 +58,40 @@ describe Enumerable do
     end
   end
 
-  it "should implement as_json" do
+  it "implements as_json" do
     Test.new.as_json.should eql [1,2]
   end
 end
 
 describe Array do
-  it "should implement as_json" do
+  it "implements as_json" do
     [1,2,3].as_json.should eql [1,2,3]
   end
 end
 
 describe Hash do
-  it "should implement as_json" do
+  it "implements as_json" do
     hash = {"true"=>1,"false"=>0}
     hash.as_json.should eql hash
   end
 end
 
 describe Time do
-  it "should implement as_json" do
+  it "implements as_json" do
     time = Time.new(2020,01,31,12,20,10)
     time.as_json.should match "2020-01-31 12:20:10"
   end
 end
 
 describe Date do
-  it "should implement as_json" do
+  it "implements as_json" do
     date = Date.new(2020,01,31)
     date.as_json.should eql "2020-01-31"
   end
 end
 
 describe DateTime do
-  it "should implement as_json" do
+  it "implements as_json" do
     dt = DateTime.new(2020,01,31,12,20,10)
     dt.as_json.should match "2020-01-31T12:20:10"
   end
@@ -105,7 +105,7 @@ describe Exception do
     end
   end
 
-  it "should implement as_json" do
+  it "implements as_json" do
     json = TestError.new("Error").as_json
     json["class"].should eql "TestError"
     json["message"].should eql "Error"
@@ -113,18 +113,18 @@ describe Exception do
     json["instance_variables"].should eql hash
   end
 
-  it "should call as_json from to_json" do
+  it "calls as_json from to_json" do
     TestError.new("Error").to_json.should be_a String
   end
 
-  it "should create an object from a hash" do
+  it "creates an object from a hash" do
     json = TestError.new("Error").as_json
     error = Exception.from_hash(json)
     error.should be_a TestError
     error.message.should eql "Error"
   end
 
-  it "should rescue creating an object" do
+  it "rescues creating an object" do
     json = TestError.new("Error").as_json
     json["class"] = "ClassWhichDoesNotExist"
     json["message"] = "Error"
@@ -137,13 +137,13 @@ module Cosmos
 
   describe JsonRpcRequest do
     describe "method" do
-      it "should return the method" do
+      it "returns the method" do
         JsonRpcRequest.new("puts","test",10).method.should eql "puts"
       end
     end
 
     describe "params" do
-      it "should return the parameters" do
+      it "returns the parameters" do
         JsonRpcRequest.new("puts",nil,10).params.should eql []
         JsonRpcRequest.new("puts","test",10).params.should eql "test"
         JsonRpcRequest.new("puts",["test",1],10).params.should eql ["test",1]
@@ -151,13 +151,13 @@ module Cosmos
     end
 
     describe "id" do
-      it "should return the request id" do
+      it "returns the request id" do
         JsonRpcRequest.new("puts",nil,10).id.should eql 10
       end
     end
 
     describe "as_json" do
-      it "should return the json hash" do
+      it "returns the json hash" do
         json = JsonRpcRequest.new("puts","test",10).as_json
         json["jsonrpc"].should eql "2.0"
         json["method"].should eql "puts"
@@ -167,18 +167,18 @@ module Cosmos
     end
 
     describe "to_json" do
-      it "should return the json string" do
+      it "returns the json string" do
         json = JsonRpcRequest.new("puts","test",10).to_json.should be_a String
       end
     end
 
     describe "from_json" do
-      it "should create a request from the json string" do
+      it "creates a request from the json string" do
         request = JsonRpcRequest.new("puts","test",10)
         request.should == JsonRpcRequest.from_json(request.to_json)
       end
 
-      it "should rescue a bad json string" do
+      it "rescues a bad json string" do
         json = JsonRpcRequest.new("puts","test",10).to_json
         json.gsub!("jsonrpc","version")
         json.gsub!("2.0","1.1")
@@ -188,7 +188,7 @@ module Cosmos
     end
 
     describe "from_hash" do
-      it "should create a request from the hash" do
+      it "creates a request from the hash" do
         request = JsonRpcRequest.new("puts","test",10)
         request.should == JsonRpcRequest.from_hash(request.as_json)
       end
@@ -197,7 +197,7 @@ module Cosmos
 
   describe JsonRpcResponse do
     describe "as_json" do
-      it "should return the json hash" do
+      it "returns the json hash" do
         json = JsonRpcResponse.new(10).as_json
         json["jsonrpc"].should eql "2.0"
         json["id"].should eql 10
@@ -205,13 +205,13 @@ module Cosmos
     end
 
     describe "to_json" do
-      it "should return the json string" do
+      it "returns the json string" do
         json = JsonRpcResponse.new(10).to_json.should be_a String
       end
     end
 
     describe "from_json" do
-      it "should create a success response from the json string" do
+      it "creates a success response from the json string" do
         json = JsonRpcResponse.new(10).as_json
         json['result'] = "true"
         response = JsonRpcResponse.from_json(json.to_json)
@@ -219,7 +219,7 @@ module Cosmos
         response.result.should eql "true"
       end
 
-      it "should create a error response from the json string" do
+      it "creates a error response from the json string" do
         json = JsonRpcResponse.new(10).as_json
         json['error'] = {"code"=>-1, "message"=>"error", "data"=>{"message"=>"problem"}}
         response = JsonRpcResponse.from_json(json.to_json)
@@ -229,30 +229,30 @@ module Cosmos
         response.error.data['message'].should eql "problem"
       end
 
-      it "should report an error if there is no 'result' or 'error' key" do
+      it "reports an error if there is no 'result' or 'error' key" do
         json = JsonRpcResponse.new(10).as_json
         expect { JsonRpcResponse.from_json(json.to_json) }.to raise_error("Invalid JSON-RPC 2.0 Response")
       end
 
-      it "should report an error if the version isn't 2.0" do
+      it "reports an error if the version isn't 2.0" do
         json = JsonRpcResponse.new(10).as_json
         json['jsonrpc'] = "1.1"
         json['result'] = "true"
         expect { JsonRpcResponse.from_json(json.to_json) }.to raise_error("Invalid JSON-RPC 2.0 Response")
       end
 
-      it "should report an error if there is both a 'result' and 'error' key" do
+      it "reports an error if there is both a 'result' and 'error' key" do
         json = JsonRpcResponse.new(10).as_json
         json['result'] = "true"
         json['error'] = {"code"=>-1, "message"=>"error"}
         expect { JsonRpcResponse.from_json(json.to_json) }.to raise_error("Invalid JSON-RPC 2.0 Response")
       end
 
-      it "should report an error if it is not json" do
+      it "reports an error if it is not json" do
         expect { JsonRpcResponse.from_json(Object.new) }.to raise_error("Invalid JSON-RPC 2.0 Response")
       end
 
-      it "should report an error if the error hash is bad" do
+      it "reports an error if the error hash is bad" do
         json = JsonRpcResponse.new(10).as_json
         json['error'] = {"code"=>-1}
         expect { JsonRpcResponse.from_json(json.to_json) }.to raise_error("Invalid JSON-RPC 2.0 Error")

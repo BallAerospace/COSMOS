@@ -21,7 +21,7 @@ module Cosmos
     end
 
     describe "initialize" do
-      it "should initialize attributes" do
+      it "initializes attributes" do
         @sp.bytes_read.should eql 0
         @sp.bytes_written.should eql 0
         @sp.interface.should be_nil
@@ -33,14 +33,14 @@ module Cosmos
     end
 
     describe "interface=" do
-      it "should set the interface" do
+      it "sets the interface" do
         class MyInterface1 < Interface; end
         interface = MyInterface1.new
         @sp.interface = interface
         @sp.interface.should eql interface
       end
 
-      it "should set the post_read_data callback" do
+      it "sets the post_read_data callback" do
         class MyInterface2 < Interface
           def post_read_data(buffer); 1; end
         end
@@ -49,7 +49,7 @@ module Cosmos
         @sp.post_read_data_callback.call(nil).should eql 1
       end
 
-      it "should set the post_read_packet callback" do
+      it "sets the post_read_packet callback" do
         class MyInterface3 < Interface
           def post_read_packet(packet); 2; end
         end
@@ -58,7 +58,7 @@ module Cosmos
         @sp.post_read_packet_callback.call(nil).should eql 2
       end
 
-      it "should set the pre_write_packet callback" do
+      it "sets the pre_write_packet callback" do
         class MyInterface4 < Interface
           def pre_write_packet(packet); 3; end
         end
@@ -69,7 +69,7 @@ module Cosmos
     end
 
     describe "connect" do
-      it "should set the stream" do
+      it "sets the stream" do
         class MyStream1 < Stream; end
         stream = MyStream1.new
         allow(stream).to receive(:connect)
@@ -79,11 +79,11 @@ module Cosmos
     end
 
     describe "connected" do
-      it "should return false if the stream hasn't been set" do
+      it "returns false if the stream hasn't been set" do
         @sp.connected?.should be_falsey
       end
 
-      it "should return the status of the stream connection" do
+      it "returns the status of the stream connection" do
         class MyStream2 < Stream
           def connect; end
           def connected?; true; end
@@ -95,7 +95,7 @@ module Cosmos
     end
 
     describe "disconnect" do
-      it "should call disconnect on the stream" do
+      it "calls disconnect on the stream" do
         $test = false
         class MyStream3 < Stream
           def connect; end
@@ -110,7 +110,7 @@ module Cosmos
     end
 
     describe "read" do
-      it "should read data from the stream" do
+      it "reads data from the stream" do
         class MyStream33 < Stream
           def connect; end
           def connected?; true; end
@@ -122,7 +122,7 @@ module Cosmos
         packet.length.should eql 4
       end
 
-      it "should handle timeouts from the stream" do
+      it "handles timeouts from the stream" do
         class MyStream4 < Stream
           def connect; end
           def connected?; true; end
@@ -133,7 +133,7 @@ module Cosmos
         @sp.read.should be_nil
       end
 
-      it "should handle a sync pattern" do
+      it "handles a sync pattern" do
         $read_cnt = 0
         class MyStream5 < Stream
           def connect; end
@@ -157,7 +157,7 @@ module Cosmos
         packet.length.should eql 4 # sync plus two bytes
       end
 
-      it "should handle a sync pattern split across reads" do
+      it "handles a sync pattern split across reads" do
         $read_cnt = 0
         class MyStream6 < Stream
           def connect; end
@@ -181,7 +181,7 @@ module Cosmos
         packet.length.should eql 3 # sync plus one byte
       end
 
-      it "should handle a false positive sync pattern" do
+      it "handles a false positive sync pattern" do
         $read_cnt = 0
         class MyStream7 < Stream
           def connect; end
@@ -205,7 +205,7 @@ module Cosmos
         packet.length.should eql 3 # sync plus one byte
       end
 
-      it "should discard leading bytes from the stream" do
+      it "discards leading bytes from the stream" do
         class MyStream8 < Stream
           def connect; end
           def connected?; true; end
@@ -221,7 +221,7 @@ module Cosmos
         packet.buffer.formatted.should match(/03 04/)
       end
 
-      it "should call the post_read_data method on the inteface" do
+      it "calls the post_read_data method on the inteface" do
         class MyStream9 < Stream
           def connect; end
           def connected?; true; end
@@ -271,7 +271,7 @@ module Cosmos
         packet.should be_nil
       end
 
-      it "should call the post_read_packet method on the inteface" do
+      it "calls the post_read_packet method on the inteface" do
         class MyStream10 < Stream
           def connect; end
           def connected?; true; end
@@ -296,7 +296,7 @@ module Cosmos
     end
 
     describe "write" do
-      it "should call pre_write_packet on the interface" do
+      it "calls pre_write_packet on the interface" do
         $buffer = ''
         class MyStream11 < Stream
           def connect; end
@@ -313,7 +313,7 @@ module Cosmos
         $buffer.should eql "\x01\02\03\04"
       end
 
-      it "should write the packet buffer to the stream" do
+      it "writes the packet buffer to the stream" do
         $buffer = ''
         class MyStream11 < Stream
           def connect; end
@@ -328,7 +328,7 @@ module Cosmos
     end
 
     describe "write_raw" do
-      it "should write the raw buffer to the stream" do
+      it "writes the raw buffer to the stream" do
         $buffer = ''
         class MyStream11 < Stream
           def connect; end

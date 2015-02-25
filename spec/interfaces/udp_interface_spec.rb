@@ -15,11 +15,11 @@ module Cosmos
 
   describe UdpInterface do
     describe "initialize" do
-      it "should initialize the instance variables" do
+      it "initializes the instance variables" do
         i = UdpInterface.new('localhost','8888','8889','8890','127.0.0.1','64','5','5')
       end
 
-      it "should not be writeable if no write port given" do
+      it "is not writeable if no write port given" do
         i = UdpInterface.new('localhost','nil','8889')
         i.name.should eql "Cosmos::UdpInterface"
         i.write_allowed?.should be_falsey
@@ -27,7 +27,7 @@ module Cosmos
         i.read_allowed?.should be_truthy
       end
 
-      it "should not be readable if no read port given" do
+      it "is not readable if no read port given" do
         i = UdpInterface.new('localhost','8888','nil')
         i.name.should eql "Cosmos::UdpInterface"
         i.write_allowed?.should be_truthy
@@ -37,7 +37,7 @@ module Cosmos
     end
 
     describe "connect, connected?, disconnect" do
-      it "should create a UdpWriteSocket and UdpReadSocket if both given" do
+      it "creates a UdpWriteSocket and UdpReadSocket if both given" do
         write = double("write")
         expect(write).to receive(:closed?).and_return(false)
         expect(write).to receive(:close)
@@ -54,7 +54,7 @@ module Cosmos
         i.connected?.should be_falsey
       end
 
-      it "should create a UdpWriteSocket if write port given" do
+      it "creates a UdpWriteSocket if write port given" do
         write = double("write")
         expect(write).to receive(:closed?).and_return(false)
         expect(write).to receive(:close)
@@ -68,7 +68,7 @@ module Cosmos
         i.connected?.should be_falsey
       end
 
-      it "should create a UdpReadSocket if read port given" do
+      it "creates a UdpReadSocket if read port given" do
         read = double("read")
         expect(read).to receive(:closed?).and_return(false)
         expect(read).to receive(:close)
@@ -84,7 +84,7 @@ module Cosmos
     end
 
     describe "disconnect" do
-      it "should rescue IOError from close" do
+      it "rescues IOError from close" do
         write = double("write")
         expect(write).to receive(:closed?).and_return(false)
         expect(write).to receive(:close).and_raise(IOError)
@@ -103,7 +103,7 @@ module Cosmos
     end
 
     describe "read" do
-      it "should stop the read thread if no read port given" do
+      it "stops the read thread if no read port given" do
         i = UdpInterface.new('localhost','8888','nil')
         thread = Thread.new { i.read }
         sleep 0.1
@@ -111,7 +111,7 @@ module Cosmos
         Cosmos.kill_thread(nil, thread)
       end
 
-      it "should stop the read thread if there is an IOError" do
+      it "stops the read thread if there is an IOError" do
         read = double("read")
         allow(read).to receive(:read).and_raise(IOError)
         expect(UdpReadSocket).to receive(:new).and_return(read)
@@ -123,7 +123,7 @@ module Cosmos
         Cosmos.kill_thread(nil, thread)
       end
 
-      it "should count the packets received" do
+      it "counts the packets received" do
         read = double("read")
         allow(read).to receive(:read) { "\x00\x01\x02\x03" }
         expect(UdpReadSocket).to receive(:new).and_return(read)
@@ -141,19 +141,19 @@ module Cosmos
     end
 
     describe "write, write_raw" do
-      it "should complain if write_dest not given" do
+      it "complains if write_dest not given" do
         i = UdpInterface.new('localhost','nil','8889')
         expect { i.write(Packet.new('','')) }.to raise_error(/read only/)
         expect { i.write_raw('') }.to raise_error(/read only/)
       end
 
-      it "should complain if the server is not connected" do
+      it "complains if the server is not connected" do
         i = UdpInterface.new('localhost','8888','nil')
         expect { i.write(Packet.new('','')) }.to raise_error(/Interface not connected/)
         expect { i.write_raw('') }.to raise_error(/Interface not connected/)
       end
 
-      it "should count the packets written" do
+      it "counts the packets written" do
         write = double("write")
         expect(UdpWriteSocket).to receive(:new).and_return(write)
         allow(write).to receive(:write)

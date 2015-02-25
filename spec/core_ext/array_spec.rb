@@ -14,20 +14,20 @@ require 'cosmos/core_ext/array'
 describe Array do
 
   describe "inspect" do
-    it "should limit the number of items to 10" do
+    it "limits the number of items to 10" do
       Array.new([1,2,3,4,5,6,7,8,9,10]).inspect.should eql "[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]"
       Array.new([1,2,3,4,5,6,7,8,9,10,11]).inspect.should match /#<Array:\d+>/
     end
   end
 
   describe "clone_to_f" do
-    it "should clone the array and convert all the values to floats" do
+    it "clones the array and convert all the values to floats" do
       Array.new([1,2,3,4,5]).clone_to_f.should eql [1.0,2.0,3.0,4.0,5.0]
     end
   end
 
   describe "nearest_index" do
-    it "should raise error if empty" do
+    it "raises error if empty" do
       expect { Array.new.nearest_index(nil) }.to raise_error
     end
 
@@ -48,19 +48,19 @@ describe Array do
 
     context "with sorted data" do
       context "with sorted = true" do
-        it "should find the nearest index" do
+        it "finds the nearest index" do
           array = Array.new([0,1,2,3,4,5,6,7,8,9,10])
           find_sorted_value(array, true)
         end
       end
 
       context "with sorted = false" do
-        it "should find the nearest index" do
+        it "finds the nearest index" do
           array = Array.new([0,1,2,3,4,5,6,7,8,9,10])
           find_sorted_value(array, false)
         end
 
-        it "should find the nearest index with duplicates" do
+        it "finds the nearest index with duplicates" do
           index1 = Array.new([0,1,1,1,1,2,2,3]).nearest_index(1,false)
           index2 = Array.new([0,1,1,1,1,2,2]).nearest_index(1,false)
           index1.should eql index2
@@ -69,7 +69,7 @@ describe Array do
     end
 
     context "with unsorted data" do
-      it "should find the nearest index to a value" do
+      it "finds the nearest index to a value" do
         array = Array.new([10,1,9,2,8,3,7,4,6,5,0])
         array.nearest_index(-1, false).should eql 10
         array.nearest_index(11, false).should eql 0
@@ -89,42 +89,42 @@ describe Array do
   end
 
   describe "index_lt_eq" do
-    it "should find the nearest index less than or equal to" do
+    it "finds the nearest index less than or equal to" do
       Array.new([0,1,1,1,1,2,2,3]).index_lt_eq(1).should eql 1
       Array.new([0,1,1,2,3]).index_lt_eq(1).should eql 1
       Array.new([0,1,1,2,3]).index_lt_eq(0.5).should eql 0
     end
 
-    it "should return the first index if can't find one" do
+    it "returns the first index if can't find one" do
       Array.new([1,2,3,4]).index_lt_eq(0).should eql 0
     end
   end
 
   describe "index_gt_eq" do
-    it "should find the nearest index greater than or equal to" do
+    it "finds the nearest index greater than or equal to" do
       Array.new([0,1,1,1,1,2,2,3]).index_gt_eq(1).should eql 4
       Array.new([0,0.1,1,1,1,2,2]).index_gt_eq(1).should eql 4
       Array.new([0,0.1,0.5,1,1]).index_gt_eq(0.7).should eql 3
     end
 
-    it "should return the last index if can't find one" do
+    it "returns the last index if can't find one" do
       Array.new([1,2,3,4]).index_gt_eq(5).should eql 3
     end
   end
 
   describe "range_containing" do
-    it "should complain if start < end" do
+    it "complains if start < end" do
       expect { Array.new().range_containing(2,1) }.to raise_error(RuntimeError, "end_value: 1 must be greater than start_value: 2")
     end
 
-    it "should find the range of values containing both" do
+    it "finds the range of values containing both" do
       Array.new([0,1,1,2,2,3]).range_containing(1,2).should eql (1..4)
       Array.new([0,1,1,2,2,3]).range_containing(1,1).should eql (1..2)
     end
   end
 
   describe "sum" do
-    it "should sum up the array elements" do
+    it "sums up the array elements" do
       Array.new([0,1,2,3,4]).sum.should eql 10
       # The float causes the entire result to be a Float
       Array.new([0,1,2,3,4.0]).sum.should eql 10.0
@@ -132,13 +132,13 @@ describe Array do
   end
 
   describe "mean" do
-    it "should calculate the mean" do
+    it "calculates the mean" do
       Array.new([0,1,2,3,4]).mean.should eql 2.0
     end
   end
 
   describe "squared" do
-    it "should square each element in the array" do
+    it "squares each element in the array" do
       array = Array.new([0,1,2,3,4])
       array.squared.should eql [0,1,4,9,16]
       # It should not affect the original
@@ -147,7 +147,7 @@ describe Array do
   end
 
   describe "max_with_index" do
-    it "should find the first maximum value and its index" do
+    it "finds the first maximum value and its index" do
       Array.new([0,1,8,3,4]).max_with_index.should eql [8,2]
       Array.new([-1,-8,-3,-4]).max_with_index.should eql [-1,0]
       Array.new([0,1,2,2,0]).max_with_index.should eql [2,2]
@@ -155,7 +155,7 @@ describe Array do
   end
 
   describe "min_with_index" do
-    it "should find the first maximum value and its index" do
+    it "finds the first maximum value and its index" do
       Array.new([8,9,2,5,6]).min_with_index.should eql [2,2]
       Array.new([-1,-8,-3,-4]).min_with_index.should eql [-8,1]
       Array.new([0,1,2,2,0]).min_with_index.should eql [0,0]
@@ -163,7 +163,7 @@ describe Array do
   end
 
   describe "histogram" do
-    it "should group elements" do
+    it "groups elements" do
       myData1 = [1, 7, 4, 3, 4, 2, 7, 0, 8, 3, 4]
       myData2 = [1, 2, 3]
       myData3 = [2, 4, 8]

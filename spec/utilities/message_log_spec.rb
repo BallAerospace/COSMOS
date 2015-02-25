@@ -22,7 +22,7 @@ module Cosmos
     end
 
     describe "initialize" do
-      it "should accept a tool name and use the default LOG path" do
+      it "accepts a tool name and use the default LOG path" do
         log = MessageLog.new('TEST')
         log.start
         log.stop
@@ -34,7 +34,7 @@ module Cosmos
         end
       end
 
-      it "should accept a tool name and path" do
+      it "accepts a tool name and path" do
         log = MessageLog.new('TEST', File.expand_path(File.dirname(__FILE__)))
         log.start
         log.stop
@@ -45,7 +45,7 @@ module Cosmos
     end
 
     describe "write" do
-      it "should write a message to the log" do
+      it "writes a message to the log" do
         log = MessageLog.new('TEST')
         log.write("Test message")
         log.stop
@@ -57,7 +57,7 @@ module Cosmos
     end
 
     describe "start" do
-      it "should create a new message log" do
+      it "creates a new message log" do
         log = MessageLog.new('TEST')
         log.start
         filename = log.filename
@@ -74,7 +74,7 @@ module Cosmos
     end
 
     describe "stop" do
-      it "should close the message log and mark it read-only" do
+      it "closes the message log and mark it read-only" do
         log = MessageLog.new('TEST')
         log.start
         log.stop

@@ -22,7 +22,7 @@ module Cosmos
     end
 
     describe "start, stop" do
-      it "should call start on each task" do
+      it "calls start on each task" do
         File.open(File.join(Cosmos::USERPATH,'lib','my_bg_task1.rb'),'w') do |file|
           file.puts "require 'cosmos/tools/cmd_tlm_server/background_task'"
           file.puts "class MyBgTask1 < Cosmos::BackgroundTask"
@@ -47,7 +47,7 @@ module Cosmos
         File.delete(File.join(Cosmos::USERPATH,'lib','my_bg_task1.rb'))
       end
 
-      it "should handle exceptions" do
+      it "handles exceptions" do
         tf = Tempfile.new('unittest')
         tf.puts 'BACKGROUND_TASK my_bg_task2.rb'
         tf.close

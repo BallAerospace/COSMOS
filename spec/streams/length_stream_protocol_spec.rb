@@ -17,7 +17,7 @@ module Cosmos
 
   describe LengthStreamProtocol do
     describe "initialize" do
-      it "should initialize attributes" do
+      it "initializes attributes" do
         lsp = LengthStreamProtocol.new(1)
         lsp.bytes_read.should eql 0
         lsp.bytes_written.should eql 0
@@ -30,7 +30,7 @@ module Cosmos
     end
 
     describe "read" do
-      it "should read BIG_ENDIAN length fields from the stream" do
+      it "reads BIG_ENDIAN length fields from the stream" do
         class MyStream < Stream
           def connect; end
           def connected?; true; end
@@ -97,7 +97,7 @@ module Cosmos
         expect { packet = lsp.read }.to raise_error(RuntimeError, "Length value received larger than max_length: 65535 > 50")
       end
 
-      it "should read LITTLE_ENDIAN length fields from the stream" do
+      it "reads LITTLE_ENDIAN length fields from the stream" do
         class MyStream < Stream
           def connect; end
           def connected?; true; end
@@ -166,7 +166,7 @@ module Cosmos
     end
 
     describe "write" do
-      it "should fill the length field and sync pattern if told to" do
+      it "fills the length field and sync pattern if told to" do
         class MyStream < Stream
           def connect; end
           @@written_data = nil

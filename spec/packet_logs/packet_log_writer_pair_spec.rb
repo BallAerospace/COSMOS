@@ -16,7 +16,7 @@ module Cosmos
   describe PacketLogWriterPair do
 
     describe "initialize" do
-      it "should set the cmd writer and tlm writer" do
+      it "sets the cmd writer and tlm writer" do
         cmd = double("cmd_writer")
         tlm = double("tlm_writer")
         pair = PacketLogWriterPair.new(cmd, tlm)

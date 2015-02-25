@@ -17,7 +17,7 @@ module Cosmos
   describe ReceivedTimeSecondsConversion do
 
     describe "initialize" do
-      it "should initialize converted_type and converted_bit_size" do
+      it "initializes converted_type and converted_bit_size" do
         gc = ReceivedTimeSecondsConversion.new()
         gc.converted_type.should eql :FLOAT
         gc.converted_bit_size.should eql 64
@@ -25,7 +25,7 @@ module Cosmos
     end
 
     describe "call" do
-      it "should return the formatted packet time" do
+      it "returns the formatted packet time" do
         gc = ReceivedTimeSecondsConversion.new()
         packet = Packet.new("TGT","PKT")
         time = Time.new(2020,1,31,12,15,30)
@@ -33,7 +33,7 @@ module Cosmos
         gc.call(nil,packet,nil).should eql time.to_f
       end
 
-      it "should return 0.0 if packet time isn't set" do
+      it "returns 0.0 if packet time isn't set" do
         gc = ReceivedTimeSecondsConversion.new()
         packet = Packet.new("TGT","PKT")
         gc.call(nil,packet,nil).should eql 0.0
@@ -41,7 +41,7 @@ module Cosmos
     end
 
     describe "to_s" do
-      it "should return the class" do
+      it "returns the class" do
         ReceivedTimeSecondsConversion.new().to_s.should eql "ReceivedTimeSecondsConversion"
       end
     end

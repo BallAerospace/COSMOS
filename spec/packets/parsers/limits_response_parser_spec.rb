@@ -23,7 +23,7 @@ module Cosmos
         @pc = PacketConfig.new
       end
 
-      it "should complain if a current item is not defined" do
+      it "complains if a current item is not defined" do
         tf = Tempfile.new('unittest')
         tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Packet"'
         tf.puts '  LIMITS_RESPONSE'
@@ -32,7 +32,7 @@ module Cosmos
         tf.unlink
       end
 
-      it "should complain if there are not enough parameters" do
+      it "complains if there are not enough parameters" do
         tf = Tempfile.new('unittest')
         tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Packet"'
         tf.puts 'ITEM myitem 0 8 UINT "Test Item"'
@@ -42,7 +42,7 @@ module Cosmos
         tf.unlink
       end
 
-      it "should complain if applied to a command PARAMETER" do
+      it "complains if applied to a command PARAMETER" do
         tf = Tempfile.new('unittest')
         tf.puts 'COMMAND tgt1 pkt1 LITTLE_ENDIAN "Packet"'
         tf.puts '  APPEND_PARAMETER item1 16 UINT 0 0 0 "Item"'
@@ -52,7 +52,7 @@ module Cosmos
         tf.unlink
       end
 
-      it "should complain about missing response file" do
+      it "complains about missing response file" do
         filename = File.join(File.dirname(__FILE__), "../../test_only.rb")
         File.delete(filename) if File.exist?(filename)
         @pc = PacketConfig.new
@@ -67,7 +67,7 @@ module Cosmos
         tf.unlink
       end
 
-      it "should complain about a non Cosmos::LimitsResponse class" do
+      it "complains about a non Cosmos::LimitsResponse class" do
         filename = File.join(File.dirname(__FILE__), "../../limits_response1.rb")
         File.open(filename, 'w') do |file|
           file.puts "class LimitsResponse1"
@@ -88,7 +88,7 @@ module Cosmos
         tf.unlink
       end
 
-      it "should set the response" do
+      it "sets the response" do
         filename = File.join(File.dirname(__FILE__), "../../limits_response2.rb")
         File.open(filename, 'w') do |file|
           file.puts "require 'cosmos/packets/limits_response'"
@@ -114,7 +114,7 @@ module Cosmos
         tf.unlink
       end
 
-      it "should call the response with parameters" do
+      it "calls the response with parameters" do
         filename = File.join(File.dirname(__FILE__), "../../limits_response2.rb")
         File.open(filename, 'w') do |file|
           file.puts "require 'cosmos/packets/limits_response'"

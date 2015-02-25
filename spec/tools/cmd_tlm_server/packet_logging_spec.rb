@@ -22,7 +22,7 @@ module Cosmos
     end
 
     describe "start" do
-      it "should start each log writer" do
+      it "starts each log writer" do
         tf = Tempfile.new('unittest')
         tf.puts '#'
         tf.close
@@ -37,7 +37,7 @@ module Cosmos
     end
 
     describe "stop" do
-      it "should stop each log writer" do
+      it "stops each log writer" do
         tf = Tempfile.new('unittest')
         tf.puts '#'
         tf.close
@@ -52,7 +52,7 @@ module Cosmos
     end
 
     describe "start_cmd, stop_cmd" do
-      it "should complain about unknown log writers" do
+      it "complains about unknown log writers" do
         tf = Tempfile.new('unittest')
         tf.puts '#'
         tf.close
@@ -62,7 +62,7 @@ module Cosmos
         tf.unlink
       end
 
-      it "should start/stop a telemetry log writer" do
+      it "starts/stop a telemetry log writer" do
         tf = Tempfile.new('unittest')
         tf.puts 'PACKET_LOG_WRITER MY_WRITER packet_log_writer.rb'
         tf.close
@@ -78,7 +78,7 @@ module Cosmos
     end
 
     describe "start_tlm, stop_tlm" do
-      it "should complain about unknown log writers" do
+      it "complains about unknown log writers" do
         tf = Tempfile.new('unittest')
         tf.puts '#'
         tf.close
@@ -88,7 +88,7 @@ module Cosmos
         tf.unlink
       end
 
-      it "should start/stop a telemetry log writer" do
+      it "starts/stop a telemetry log writer" do
         tf = Tempfile.new('unittest')
         tf.puts 'PACKET_LOG_WRITER MY_WRITER packet_log_writer.rb'
         tf.close
@@ -104,7 +104,7 @@ module Cosmos
     end
 
     describe "cmd_filename, tlm_filename" do
-      it "should complain about unknown log writers" do
+      it "complains about unknown log writers" do
         tf = Tempfile.new('unittest')
         tf.puts '#'
         tf.close
@@ -114,7 +114,7 @@ module Cosmos
         tf.unlink
       end
 
-      it "should return the filename" do
+      it "returns the filename" do
         tf = Tempfile.new('unittest')
         tf.puts '#'
         tf.close
@@ -130,7 +130,7 @@ module Cosmos
     end
 
     describe "all"
-      it "should list all telemetry log writer pairs" do
+      it "lists all telemetry log writer pairs" do
         tf = Tempfile.new('unittest')
         tf.puts 'PACKET_LOG_WRITER MY_WRITER packet_log_writer.rb'
         tf.close

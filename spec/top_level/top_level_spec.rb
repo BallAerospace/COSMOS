@@ -13,7 +13,7 @@ require 'cosmos/top_level'
 require 'fileutils'
 
 describe "HazardousError" do
-  it "should have accessors" do
+  it "has accessors" do
     error = HazardousError.new
     error.target_name = "TGT"
     error.target_name.should eql "TGT"
@@ -34,13 +34,13 @@ module Cosmos
   end
 
   describe "FatalError" do
-    it "should be a StandardError" do
+    it "is a StandardError" do
       FatalError.new.should be_a StandardError
     end
   end
 
   describe "self.disable_warnings" do
-    it "should disable Ruby warnings" do
+    it "disables Ruby warnings" do
       stderr = StringIO.new('', 'r+')
       $stderr = stderr
       save = Cosmos::PATH
@@ -66,18 +66,18 @@ module Cosmos
       ENV.delete('COSMOS_USERPATH')
     end
 
-    it "should be initially set" do
+    it "is initially set" do
       Cosmos::USERPATH.should_not be_nil
     end
 
     context "when searching for userpath.txt" do
-      it "should giveup if it can't be found" do
+      it "giveups if it can't be found" do
         old = Cosmos::USERPATH
         Cosmos.define_user_path(Dir.home)
         Cosmos::USERPATH.should eql old
       end
 
-      it "should set the path to where userpath.txt is found" do
+      it "sets the path to where userpath.txt is found" do
         ENV.delete('COSMOS_USERPATH')
         old = Cosmos::USERPATH
         old.should_not eql File.dirname(__FILE__)
@@ -90,7 +90,7 @@ module Cosmos
   end
 
   describe "self.add_to_search_path" do
-    it "should add a directory to the Ruby search path" do
+    it "adds a directory to the Ruby search path" do
       if Kernel.is_windows?
         $:.should_not include("C:/test/path")
         Cosmos.add_to_search_path("C:/test/path")
@@ -107,7 +107,7 @@ module Cosmos
       ENV.delete('COSMOS_USERPATH')
     end
 
-    it "should dump and load a Ruby object" do
+    it "dumps and load a Ruby object" do
       capture_io do |stdout|
         # Configure the user path to be local
         ENV['COSMOS_USERPATH'] = File.dirname(__FILE__)
@@ -122,7 +122,7 @@ module Cosmos
       end
     end
 
-    it "should rescue marshal dump errors" do
+    it "rescues marshal dump errors" do
       capture_io do |stdout|
         system_exit_count = $system_exit_count
         Cosmos.marshal_dump('marshal_test', Proc.new { '' })
@@ -132,7 +132,7 @@ module Cosmos
       Cosmos.cleanup_exceptions()
     end
 
-    it "should rescue marshal load errors" do
+    it "rescues marshal load errors" do
       # Attempt to load something that doesn't exist
       Cosmos.marshal_load('blah').should be_nil
 
@@ -155,7 +155,7 @@ module Cosmos
   end
 
   describe "run_process" do
-    it "should return a Thread" do
+    it "returns a Thread" do
       if Kernel.is_windows?
         capture_io do |stdout|
           thread = Cosmos.run_process("ping 192.0.0.234 -n 1 -w 1000 > nul")
@@ -170,7 +170,7 @@ module Cosmos
   end
 
   describe "run_process_check_output" do
-    it "should execute a command while capturing output" do
+    it "executes a command while capturing output" do
       if Kernel.is_windows?
         require 'Qt'
         allow(::Qt::Application).to receive(:instance).and_return(nil)
@@ -184,7 +184,7 @@ module Cosmos
   end
 
   describe "md5_files" do
-    it "should calculate a MD5 sum across files" do
+    it "calculates a MD5 sum across files" do
       File.open(File.join(Cosmos::USERPATH,'test1.txt'),'w') {|f| f.puts "test1" }
       File.open(File.join(Cosmos::USERPATH,'test2.txt'),'w') {|f| f.puts "test2" }
       digest = Cosmos.md5_files(["test1.txt", "test2.txt"])
@@ -196,7 +196,7 @@ module Cosmos
   end
 
   describe "create_log_file" do
-    it "should create a log file even if System LOGS doesn't exist" do
+    it "creates a log file even if System LOGS doesn't exist" do
       filename = Cosmos.create_log_file('test', 'X:/directory/which/does/not/exit')
       File.exist?(filename).should be_truthy
       File.delete(filename)
@@ -236,7 +236,7 @@ module Cosmos
   end
 
   describe "write_exception_file" do
-    it "should write an exception file" do
+    it "writes an exception file" do
       file = Cosmos.write_exception_file(nil, 'test1_exception', File.dirname(__FILE__))
       File.exist?(file).should be_truthy
       file = Cosmos.write_exception_file(RuntimeError.new, 'test2_exception', File.dirname(__FILE__))
@@ -246,7 +246,7 @@ module Cosmos
   end
 
   describe "catch_fatal_exception" do
-    it "should catch exceptions before the GUI is available" do
+    it "catches exceptions before the GUI is available" do
       capture_io do |stdout|
         system_exit_count = $system_exit_count
         Cosmos.catch_fatal_exception do
@@ -260,7 +260,7 @@ module Cosmos
   end
 
   describe "handle_fatal_exception" do
-    it "should write to the Logger and exit" do
+    it "writes to the Logger and exit" do
       capture_io do |stdout|
         system_exit_count = $system_exit_count
         Cosmos.handle_fatal_exception(RuntimeError.new)
@@ -272,7 +272,7 @@ module Cosmos
   end
 
   describe "handle_critical_exception" do
-    it "should write to the Logger" do
+    it "writes to the Logger" do
       capture_io do |stdout|
         system_exit_count = $system_exit_count
         Cosmos.handle_critical_exception(RuntimeError.new)
@@ -284,7 +284,7 @@ module Cosmos
   end
 
   describe "safe_thread" do
-    it "should handle exceptions" do
+    it "handles exceptions" do
       capture_io do |stdout|
         thread = Cosmos.safe_thread("Test", 1) do
           raise "TestError"
@@ -300,7 +300,7 @@ module Cosmos
   end
 
   describe "require_class" do
-    it "should require the class represented by the filename" do
+    it "requires the class represented by the filename" do
       # Explicitly load cosmos.rb to ensure the Cosmos::USERPATH/lib
       # directory is in the path
       load 'cosmos.rb'
@@ -318,14 +318,14 @@ module Cosmos
   end
 
   describe "open_in_text_editor" do
-    it "should open the file in a text editor" do
+    it "opens the file in a text editor" do
       expect(Cosmos).to receive(:system).with(/#{File.basename(__FILE__)}/)
       Cosmos.open_in_text_editor(__FILE__)
     end
   end
 
   describe "open_in_web_browser" do
-    it "should open the file in a web browser" do
+    it "opens the file in a web browser" do
       expect(Cosmos).to receive(:system).with(/#{File.basename(__FILE__)}/)
       Cosmos.open_in_web_browser(__FILE__)
     end

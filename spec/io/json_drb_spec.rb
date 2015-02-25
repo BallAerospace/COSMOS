@@ -20,14 +20,14 @@ module Cosmos
     end
 
     describe "initialize" do
-      it "should set request_count and num_clients to 0" do
+      it "sets request_count and num_clients to 0" do
         @json.request_count.should eql 0
         @json.num_clients.should eql 0
       end
     end
 
     describe "acl" do
-      it "should set the access control list" do
+      it "sets the access control list" do
         acl = ACL.new(['allow','127.0.0.1'], ACL::ALLOW_DENY)
         @json.acl = acl
         @json.acl.should eql acl
@@ -35,14 +35,14 @@ module Cosmos
     end
 
     describe "method_whitelist" do
-      it "should set the method whitelist" do
+      it "sets the method whitelist" do
         @json.method_whitelist = ['cmd']
         @json.method_whitelist.should eql ['cmd']
       end
     end
 
     describe "add_request_time, average_request_time" do
-      it "should add time to the list and return the average" do
+      it "adds time to the list and return the average" do
         @json.add_request_time(1.0)
         @json.add_request_time(2.0)
         @json.add_request_time(3.0)
@@ -51,20 +51,20 @@ module Cosmos
     end
 
     describe "start_service" do
-      it "should do nothing when passed no parameters" do
+      it "does nothing when passed no parameters" do
         @json.thread.should be_nil
         @json.start_service()
         @json.thread.should be_nil
       end
 
-      it "should raise an error when passed incomplete parameters" do
+      it "raises an error when passed incomplete parameters" do
         @json.thread.should be_nil
         expect { @json.start_service('127.0.0.1') }.to raise_error
         expect { @json.start_service('127.0.0.1', 7777) }.to raise_error
         @json.thread.should be_nil
       end
 
-      it "should raise an error when passed a bad host" do
+      it "raises an error when passed a bad host" do
         capture_io do |stdout|
           @json.thread.should be_nil
           system_exit_count = $system_exit_count
@@ -83,7 +83,7 @@ module Cosmos
         end
       end
 
-      it "should create a single listen thread" do
+      it "creates a single listen thread" do
         @json.thread.should be_nil
         @json.start_service('127.0.0.1', 7777, self)
         @json.thread.alive?.should be_truthy
@@ -92,7 +92,7 @@ module Cosmos
         sleep(0.1)
       end
 
-      it "should rescue listen thread exceptions" do
+      it "rescues listen thread exceptions" do
         capture_io do |stdout|
           allow_any_instance_of(TCPServer).to receive(:accept_nonblock) { raise "BLAH" }
           @json.start_service('127.0.0.1', 7777, self)
@@ -109,7 +109,7 @@ module Cosmos
         end
       end
 
-      it "should ignore connections via the ACL" do
+      it "ignores connections via the ACL" do
         @json.acl = ACL.new(['deny','127.0.0.1'], ACL::ALLOW_DENY)
         @json.start_service('127.0.0.1', 7777, self)
         socket = TCPSocket.open('127.0.0.1',7777)
@@ -122,7 +122,7 @@ module Cosmos
     end
 
     describe "receive_message" do
-      it "should return nil if 4 bytes of data aren't available" do
+      it "returns nil if 4 bytes of data aren't available" do
         @json.start_service('127.0.0.1', 7777, self)
         socket = TCPSocket.open('127.0.0.1',7777)
         # Stub recv_nonblock so it returns nothing
@@ -137,7 +137,7 @@ module Cosmos
         sleep(0.1)
       end
 
-      it "should process success requests" do
+      it "processes success requests" do
         class MyServer1
           def my_method(param)
           end
@@ -157,7 +157,7 @@ module Cosmos
         sleep(0.1)
       end
 
-      it "should process bad methods" do
+      it "processes bad methods" do
         class MyServer2
         end
 
@@ -177,7 +177,7 @@ module Cosmos
         sleep(0.1)
       end
 
-      it "should process bad parameters" do
+      it "processes bad parameters" do
         class MyServer3
           def my_method(param1, param2)
           end
@@ -199,7 +199,7 @@ module Cosmos
         sleep(0.1)
       end
 
-      it "should handle method exceptions" do
+      it "handles method exceptions" do
         class MyServer4
           def my_method(param)
             raise "Method Error"
@@ -222,7 +222,7 @@ module Cosmos
         sleep(0.1)
       end
 
-      it "should not allow dangerous methods" do
+      it "does not allow dangerous methods" do
         @json.start_service('127.0.0.1', 7777, self)
         socket = TCPSocket.open('127.0.0.1',7777)
         sleep 0.1
@@ -239,7 +239,7 @@ module Cosmos
         sleep(0.1)
       end
 
-      it "should handle an invalid JsonDRB request" do
+      it "handles an invalid JsonDRB request" do
         @json.start_service('127.0.0.1', 7777, self)
         socket = TCPSocket.open('127.0.0.1',7777)
         sleep 0.1
@@ -260,7 +260,7 @@ module Cosmos
     end
 
     describe "send_data" do
-      it "should retry if the socket blocks" do
+      it "retries if the socket blocks" do
         @json.start_service('127.0.0.1', 7777, self)
         socket = TCPSocket.open('127.0.0.1',7777)
         # Stub write_nonblock so it blocks
@@ -281,7 +281,7 @@ module Cosmos
         sleep(0.1)
       end
 
-      it "should eventually timeout if the socket blocks" do
+      it "eventuallies timeout if the socket blocks" do
         @json.start_service('127.0.0.1', 7777, self)
         socket = TCPSocket.open('127.0.0.1',7777)
         # Stub write_nonblock so it blocks
@@ -298,7 +298,7 @@ module Cosmos
     end
 
     describe "debug, debug?" do
-      it "should set the debug level" do
+      it "sets the debug level" do
         JsonDRb.debug = true
         JsonDRb.debug?.should be_truthy
         JsonDRb.debug = false

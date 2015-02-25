@@ -18,7 +18,7 @@ end
 describe StringIO do
 
   describe "read_length_bytes" do
-    it "should return nil if length field is not 1, 2 or 4" do
+    it "returns nil if length field is not 1, 2 or 4" do
       io = StringIO.new
       io.write "\x01\x01\x01\x01\x01\x01\x01\x01"
       io.rewind
@@ -29,7 +29,7 @@ describe StringIO do
       io.read_length_bytes(8).should be_nil
     end
 
-    it "should return nil if there aren't enough bytes to read the length field" do
+    it "returns nil if there aren't enough bytes to read the length field" do
       io = StringIO.new
       io.write ""
       io.rewind
@@ -46,28 +46,28 @@ describe StringIO do
       io.read_length_bytes(4).should be_nil
     end
 
-    it "should return nil if there aren't enough bytes to read the string" do
+    it "returns nil if there aren't enough bytes to read the string" do
       io = StringIO.new
       io.write "\x02\x01"
       io.rewind
       io.read_length_bytes(1).should be_nil
     end
 
-    it "should read the bytes with length field size 1" do
+    it "reads the bytes with length field size 1" do
       io = StringIO.new
       io.write "\x02\x01\x02"
       io.rewind
       io.read_length_bytes(1).should eql "\x01\x02"
     end
 
-    it "should read the bytes with length field size 2" do
+    it "reads the bytes with length field size 2" do
       io = StringIO.new
       io.write "\x00\x03\x01\x02\x03"
       io.rewind
       io.read_length_bytes(2).should eql "\x01\x02\x03"
     end
 
-    it "should read the bytes with length field size 4" do
+    it "reads the bytes with length field size 4" do
       io = StringIO.new
       io.write "\x00\x00\x00\x03\x01\x02\x03"
       io.rewind

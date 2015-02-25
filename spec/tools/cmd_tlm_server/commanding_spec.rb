@@ -22,7 +22,7 @@ module Cosmos
     end
 
     describe "send_command_to_target" do
-      it "should complain about unknown targets" do
+      it "complains about unknown targets" do
         tf = Tempfile.new('unittest')
         tf.close
         cmd = Commanding.new(CmdTlmServerConfig.new(tf.path))
@@ -30,7 +30,7 @@ module Cosmos
         tf.unlink
       end
 
-      it "should identify and command to the interface" do
+      it "identifies and command to the interface" do
         tf = Tempfile.new('unittest')
         tf.puts 'INTERFACE MY_INT interface.rb'
         tf.close
@@ -59,7 +59,7 @@ module Cosmos
         tf.unlink
       end
 
-      it "should send already identified commands" do
+      it "sends already identified commands" do
         tf = Tempfile.new('unittest')
         tf.puts 'INTERFACE MY_INT interface.rb'
         tf.close
@@ -82,7 +82,7 @@ module Cosmos
       end
 
 
-      it "should log unknown commands" do
+      it "logs unknown commands" do
         Logger.level = Logger::DEBUG
         stdout = StringIO.new('', 'r+')
         $stdout = stdout
@@ -116,7 +116,7 @@ module Cosmos
     end
 
     describe "send_raw" do
-      it "should complain about unknown interfaces" do
+      it "complains about unknown interfaces" do
         tf = Tempfile.new('unittest')
         tf.close
         cmd = Commanding.new(CmdTlmServerConfig.new(tf.path))
@@ -124,7 +124,7 @@ module Cosmos
         tf.unlink
       end
 
-      it "should log writes" do
+      it "logs writes" do
         Logger.level = Logger::DEBUG
         stdout = StringIO.new('', 'r+')
         $stdout = stdout

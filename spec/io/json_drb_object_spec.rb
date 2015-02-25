@@ -15,13 +15,13 @@ module Cosmos
 
   describe JsonDRbObject do
     describe "initialize" do
-      it "should rescue bad hosts" do
+      it "rescues bad hosts" do
         expect { JsonDRbObject.new("blah", 7777) }.to raise_error("Invalid hostname: blah")
       end
     end
 
     describe "method_missing" do
-      it "should call the method on the remote object" do
+      it "calls the method on the remote object" do
         class JsonDRbObjectServer
           def my_method(param)
             param * 2
@@ -37,7 +37,7 @@ module Cosmos
         sleep(0.1)
       end
 
-      it "should raise an exception if the remote connection can't be made" do
+      it "raises an exception if the remote connection can't be made" do
         json = JsonDRb.new
         json.start_service('127.0.0.1', 7777, self)
         allow_any_instance_of(Socket).to receive(:connect_nonblock) { raise "Error" }
@@ -48,7 +48,7 @@ module Cosmos
         sleep(0.1)
       end
 
-      it "should retry the request and then raise an exception" do
+      it "retries the request and then raise an exception" do
         class JsonDRbObjectServer
           def my_method(param)
             param * 2
@@ -65,7 +65,7 @@ module Cosmos
         sleep(0.1)
       end
 
-      it "should raise an exception if the remote method returns an error" do
+      it "raises an exception if the remote method returns an error" do
         json = JsonDRb.new
         json.start_service('127.0.0.1', 7777, self)
         obj = JsonDRbObject.new("localhost", 7777)
@@ -76,7 +76,7 @@ module Cosmos
         sleep(0.1)
       end
 
-      it "should handle the remote not returning a response" do
+      it "handles the remote not returning a response" do
         class JsonDRbObjectServer
           def my_method(param)
             param * 2

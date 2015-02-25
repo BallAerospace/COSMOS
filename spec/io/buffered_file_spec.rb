@@ -28,7 +28,7 @@ module Cosmos
     end
 
     describe "read" do
-      it "should read less than the buffer size" do
+      it "reads less than the buffer size" do
         file = BufferedFile.open(@filename, "rb") do |file|
           file.read(8).should eql DATA[0..7]
           file.pos.should eql 8
@@ -50,7 +50,7 @@ module Cosmos
         end
       end
 
-      it "should read equal to the buffer size" do
+      it "reads equal to the buffer size" do
         file = BufferedFile.open(@filename, "rb") do |file|
           file.read(BufferedFile::BUFFER_SIZE).should eql(DATA * (BufferedFile::BUFFER_SIZE / DATA.length))
           file.pos.should eql BufferedFile::BUFFER_SIZE
@@ -60,7 +60,7 @@ module Cosmos
         end
       end
 
-      it "should read greater than the buffer size" do
+      it "reads greater than the buffer size" do
         file = BufferedFile.open(@filename, "rb") do |file|
           file.read(BufferedFile::BUFFER_SIZE + 1).should eql(DATA * (BufferedFile::BUFFER_SIZE / DATA.length) << DATA[0..0])
           file.pos.should eql BufferedFile::BUFFER_SIZE + 1
@@ -72,7 +72,7 @@ module Cosmos
     end
 
     describe "seek" do
-      it "should have reads still work afterwards" do
+      it "has reads still work afterwards" do
         file = BufferedFile.open(@filename, "rb") do |file|
           file.read(8).should eql DATA[0..7]
           file.pos.should eql 8

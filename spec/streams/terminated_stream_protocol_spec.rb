@@ -17,7 +17,7 @@ module Cosmos
 
   describe TerminatedStreamProtocol do
     describe "initialize" do
-      it "should initialize attributes" do
+      it "initializes attributes" do
         tsp = TerminatedStreamProtocol.new('0xABCD','0xABCD')
         tsp.bytes_read.should eql 0
         tsp.bytes_written.should eql 0
@@ -30,7 +30,7 @@ module Cosmos
     end
 
     describe "read" do
-      it "should read packets from the stream" do
+      it "reads packets from the stream" do
         class MyStream < Stream
           def connect; end
           def connected?; true; end
@@ -56,7 +56,7 @@ module Cosmos
         packet.buffer.length.should eql 3
       end
 
-      it "should keep the the termination characters" do
+      it "keeps the the termination characters" do
         class MyStream < Stream
           def connect; end
           def connected?; true; end
@@ -86,7 +86,7 @@ module Cosmos
     end
 
     describe "write" do
-      it "should append termination characters to the packet" do
+      it "appends termination characters to the packet" do
         class MyStream < Stream
           def connect; end
           def connected?; true; end
@@ -105,7 +105,7 @@ module Cosmos
         $buffer[-1].unpack('C')[0].should eql 0xEF
       end
 
-      it "should complain if the packet buffer contains the termination characters" do
+      it "complains if the packet buffer contains the termination characters" do
         class MyStream < Stream
           def connect; end
           def connected?; true; end

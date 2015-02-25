@@ -14,14 +14,14 @@ require "cosmos/utilities/logger"
 module Cosmos
   describe Logger do
     describe "initialize" do
-      it "should initialize the level to UNKNOWN" do
+      it "initializes the level to UNKNOWN" do
         Logger.new.level.should eql Logger::UNKNOWN
         Logger.level = Logger::UNKNOWN
       end
     end
 
     describe "level" do
-      it "should get and set the level" do
+      it "gets and set the level" do
         Logger.level = Logger::DEBUG
         Logger.level.should eql Logger::DEBUG
         Logger.level = Logger::UNKNOWN
@@ -54,46 +54,46 @@ module Cosmos
     end
 
     describe "debug" do
-      it "should only print if level is DEBUG" do
+      it "only prints if level is DEBUG" do
         test_output(Logger::DEBUG, 'debug')
       end
-      it "should take a block" do
+      it "takes a block" do
         test_output(Logger::DEBUG, 'debug', true)
       end
     end
 
     describe "info" do
-      it "should only print if level is INFO" do
+      it "only prints if level is INFO" do
         test_output(Logger::INFO, 'info')
       end
-      it "should take a block" do
+      it "takes a block" do
         test_output(Logger::INFO, 'info', true)
       end
     end
 
     describe "warn" do
-      it "should only print if level is WARN" do
+      it "only prints if level is WARN" do
         test_output(Logger::WARN, 'warn')
       end
-      it "should take a block" do
+      it "takes a block" do
         test_output(Logger::WARN, 'warn', true)
       end
     end
 
     describe "error" do
-      it "should only print if level is ERROR" do
+      it "only prints if level is ERROR" do
         test_output(Logger::ERROR, 'error')
       end
-      it "should take a block" do
+      it "takes a block" do
         test_output(Logger::ERROR, 'error', true)
       end
     end
 
     describe "fatal" do
-      it "should only print if level is FATAL" do
+      it "only prints if level is FATAL" do
         test_output(Logger::FATAL, 'fatal')
       end
-      it "should take a block" do
+      it "takes a block" do
         test_output(Logger::FATAL, 'fatal', true)
       end
     end

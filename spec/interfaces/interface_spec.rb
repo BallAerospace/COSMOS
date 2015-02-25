@@ -16,13 +16,13 @@ module Cosmos
   describe Interface do
 
     describe "include API" do
-      it "should include API" do
+      it "includes API" do
         Interface.new.methods.should include :cmd
       end
     end
 
     describe "initialize" do
-      it "should initialize the instance variables" do
+      it "initializes the instance variables" do
         i = Interface.new
         i.name.should eql "Cosmos::Interface"
         i.target_names.should eql []
@@ -45,7 +45,7 @@ module Cosmos
     end
 
     describe "virtual methods" do
-      it "should raise an error" do
+      it "raises an error" do
         i = Interface.new
         expect { i.connect }.to raise_error(/connect method not implemented/)
         expect { i.connected? }.to raise_error(/connected\? method not implemented/)
@@ -57,25 +57,25 @@ module Cosmos
     end
 
     describe "read_allowed?" do
-      it "should be true" do
+      it "is true" do
         Interface.new.read_allowed?.should be_truthy
       end
     end
 
     describe "write_allowed?" do
-      it "should be true" do
+      it "is true" do
         Interface.new.write_allowed?.should be_truthy
       end
     end
 
     describe "write_raw_allowed?" do
-      it "should be true" do
+      it "is true" do
         Interface.new.write_raw_allowed?.should be_truthy
       end
     end
 
     describe "copy_to" do
-      it "should copy the interface" do
+      it "copies the interface" do
         i = Interface.new
         i.name = 'TEST'
         i.target_names = ['TGT1','TGT2']
@@ -120,7 +120,7 @@ module Cosmos
     end
 
     describe "post_identify_packet" do
-      it "should do nothing" do
+      it "does nothing" do
         expect { Interface.new.post_identify_packet(nil) }.to_not raise_error
       end
     end

@@ -14,7 +14,7 @@ require 'cosmos/core_ext/class'
 describe Class do
 
   describe "instance_attr_reader" do
-    it "should add instance attribute readers for class variables" do
+    it "adds instance attribute readers for class variables" do
       class MyClass
         instance_attr_reader :test
         @@instance = nil

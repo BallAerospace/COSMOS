@@ -15,20 +15,20 @@ module Cosmos
 
   describe TcpipSocketStream do
     describe "initialize, connected?" do
-      it "should be not be connected when initialized" do
+      it "is not be connected when initialized" do
         ss = TcpipSocketStream.new(nil,nil,nil,nil)
         ss.connected?.should be_falsy
       end
     end
 
     describe "read" do
-      it "should raise an error if no read socket given" do
+      it "raises an error if no read socket given" do
         ss = TcpipSocketStream.new('write',nil,nil,nil)
         ss.connect
         expect { ss.read }.to raise_error("Attempt to read from write only stream")
       end
 
-      it "should call recv_nonblock from the socket" do
+      it "calls recv_nonblock from the socket" do
         read = double("read_socket")
         expect(read).to receive(:recv_nonblock).and_return 'test'
         ss = TcpipSocketStream.new(nil,read,nil,nil)
@@ -36,7 +36,7 @@ module Cosmos
         ss.read.should eql 'test'
       end
 
-      it "should handle socket blocking exceptions" do
+      it "handles socket blocking exceptions" do
         read = double("read_socket")
         allow(read).to receive(:recv_nonblock) do
           case $index
@@ -54,7 +54,7 @@ module Cosmos
         ss.read.should eql 'test'
       end
 
-      it "should handle socket timeouts" do
+      it "handles socket timeouts" do
         read = double("read_socket")
         allow(read).to receive(:recv_nonblock).and_raise(Errno::EWOULDBLOCK)
         expect(IO).to receive(:select).at_least(:once).and_return(nil)
@@ -63,7 +63,7 @@ module Cosmos
         expect { ss.read }.to raise_error(Timeout::Error)
       end
 
-      it "should handle socket connection reset exceptions" do
+      it "handles socket connection reset exceptions" do
         read = double("read_socket")
         allow(read).to receive(:recv_nonblock).and_raise(Errno::ECONNRESET)
         ss = TcpipSocketStream.new(nil,read,nil,nil)
@@ -73,13 +73,13 @@ module Cosmos
     end
 
     describe "write" do
-      it "should raise an error if no write port given" do
+      it "raises an error if no write port given" do
         ss = TcpipSocketStream.new(nil,'read',nil,nil)
         ss.connect
         expect { ss.write('test') }.to raise_error("Attempt to write to read only stream")
       end
 
-      it "should call write from the driver" do
+      it "calls write from the driver" do
         write = double("write_socket")
         # Simulate only writing two bytes at a time
         expect(write).to receive(:write_nonblock).twice.and_return(2)
@@ -88,7 +88,7 @@ module Cosmos
         ss.write('test')
       end
 
-      it "should handle socket blocking exceptions" do
+      it "handles socket blocking exceptions" do
         write = double("write_socket")
         allow(write).to receive(:write_nonblock) do
           case $index
@@ -106,7 +106,7 @@ module Cosmos
         ss.write('test')
       end
 
-      it "should handle socket timeouts" do
+      it "handles socket timeouts" do
         write = double("write_socket")
         allow(write).to receive(:write_nonblock).and_raise(Errno::EWOULDBLOCK)
         expect(IO).to receive(:select).at_least(:once).and_return(nil)
@@ -117,7 +117,7 @@ module Cosmos
     end
 
     describe "disconnect" do
-      it "should close the write socket" do
+      it "closes the write socket" do
         write = double("write_socket")
         expect(write).to receive(:closed?).and_return(false)
         expect(write).to receive(:close)
@@ -128,7 +128,7 @@ module Cosmos
         ss.connected?.should be_falsey
       end
 
-      it "should close the read socket" do
+      it "closes the read socket" do
         read = double("read_socket")
         expect(read).to receive(:closed?).and_return(false)
         expect(read).to receive(:close)
@@ -139,7 +139,7 @@ module Cosmos
         ss.connected?.should be_falsey
       end
 
-      it "shouldn't close the socket twice" do
+      it "does not close the socket twice" do
         socket = double("socket")
         expect(socket).to receive(:closed?).and_return(false, true, true, true)
         expect(socket).to receive(:close).once

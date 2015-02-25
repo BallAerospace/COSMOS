@@ -23,25 +23,25 @@ module Cosmos
     end
 
     describe "initialize" do
-      it "should complain with an unknown log type" do
+      it "complains with an unknown log type" do
         expect { RawLogger.new(:BOTH) }.to raise_error
       end
 
-      it "should create a raw write log" do
+      it "creates a raw write log" do
         raw_logger = RawLogger.new('MYINT', :WRITE, true, 100000, nil)
         raw_logger.write("\x00\x01\x02\0x3")
         raw_logger.stop
         expect(Dir[File.join(@log_path,"*.bin")][-1]).to match("myint_raw_write")
       end
 
-      it "should create a raw read log" do
+      it "creates a raw read log" do
         raw_logger = RawLogger.new('MYINT', :READ, true, 100000, nil)
         raw_logger.write("\x00\x01\x02\0x3")
         raw_logger.stop
         expect(Dir[File.join(@log_path,"*.bin")][-1]).to match("myint_raw_read")
       end
 
-      it "should use the log directory" do
+      it "uses the log directory" do
         raw_logger = RawLogger.new('raw_logger_spec_', :READ, true, 100000, Cosmos::USERPATH)
         raw_logger.write("\x00\x01\x02\0x3")
         raw_logger.stop
@@ -53,7 +53,7 @@ module Cosmos
     end
 
     describe "write" do
-      it "should write synchronously to a log" do
+      it "writes synchronously to a log" do
         raw_logger = RawLogger.new('MYINT', :WRITE, true, 100000, nil)
         raw_logger.write("\x00\x01\x02\x03")
         raw_logger.stop
@@ -64,13 +64,13 @@ module Cosmos
         data.should eql "\x00\x01\x02\x03"
       end
 
-      it "should not write data if logging is disabled" do
+      it "does not write data if logging is disabled" do
         raw_logger = RawLogger.new('MYINT', :WRITE, false, 100000, nil)
         raw_logger.write("\x00\x01\x02\x03")
         Dir[File.join(@log_path,"*.bin")].should be_empty
       end
 
-      it "should cycle the log when it a size" do
+      it "cycles the log when it a size" do
         raw_logger = RawLogger.new('MYINT', :WRITE, true, 200000, nil)
         raw_logger.write("\x00\x01\x02\x03" * 25000) # size 100000
         raw_logger.write("\x00\x01\x02\x03" * 25000) # size 200000
@@ -82,7 +82,7 @@ module Cosmos
         files.length.should eql 2
       end
 
-      it "should handle errors creating the log file" do
+      it "handles errors creating the log file" do
         capture_io do |stdout|
           allow(File).to receive(:new) { raise "Error" }
           raw_logger = RawLogger.new('MYINT', :WRITE, true, 200, nil)
@@ -92,7 +92,7 @@ module Cosmos
         end
       end
 
-      it "should handle errors closing the log file" do
+      it "handles errors closing the log file" do
         capture_io do |stdout|
           allow(File).to receive(:chmod) { raise "Error" }
           raw_logger = RawLogger.new('MYINT', :WRITE, true, 200, nil)
@@ -102,7 +102,7 @@ module Cosmos
         end
       end
 
-      it "should handle errors writing the log file" do
+      it "handles errors writing the log file" do
         capture_io do |stdout|
           raw_logger = RawLogger.new('MYINT', :WRITE, true, 200, nil)
           raw_logger.write("\x00\x01\x02\x03")
@@ -115,7 +115,7 @@ module Cosmos
     end
 
     describe "start and stop" do
-      it "should enable and disable logging" do
+      it "enables and disable logging" do
         raw_logger = RawLogger.new('MYINT', :WRITE, false, 200, nil)
         raw_logger.logging_enabled.should be_falsey
         raw_logger.start

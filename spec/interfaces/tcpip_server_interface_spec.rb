@@ -21,11 +21,11 @@ module Cosmos
     end
 
     describe "initialize" do
-      it "should initialize the instance variables" do
+      it "initializes the instance variables" do
         i = TcpipServerInterface.new('8888','8889','5','5','burst')
       end
 
-      it "should not be writeable if no write port given" do
+      it "is not writeable if no write port given" do
         i = TcpipServerInterface.new('nil','8889','nil','5','burst')
         i.name.should eql "Cosmos::TcpipServerInterface"
         i.write_allowed?.should be_falsey
@@ -33,7 +33,7 @@ module Cosmos
         i.read_allowed?.should be_truthy
       end
 
-      it "should not be readable if no read port given" do
+      it "is not readable if no read port given" do
         i = TcpipServerInterface.new('8888','nil','5','nil','burst')
         i.name.should eql "Cosmos::TcpipServerInterface"
         i.write_allowed?.should be_truthy
@@ -43,7 +43,7 @@ module Cosmos
     end
 
     describe "connect, connected?, disconnect, bytes_read, bytes_written, num_clients, read_queue_size, write_queue_size" do
-      it "should call forward to the TcpipServer" do
+      it "calls forward to the TcpipServer" do
         expect(@stream).to receive(:connected?).and_return(false, true, false)
         expect(@stream).to receive(:connect)
         expect(@stream).to receive(:disconnect)
@@ -72,7 +72,7 @@ module Cosmos
     end
 
     describe "read" do
-      it "should count the packets received" do
+      it "counts the packets received" do
         allow(@stream).to receive(:read) { Packet.new('','') }
         i = TcpipServerInterface.new('8888','8889','5','5','burst')
         i.read_count.should eql 0
@@ -82,7 +82,7 @@ module Cosmos
         i.read_count.should eql 2
       end
 
-      it "should not count nil packets" do
+      it "does not count nil packets" do
         allow(@stream).to receive(:read) { nil }
         i = TcpipServerInterface.new('8888','8889','5','5','burst')
         i.read_count.should eql 0
@@ -94,13 +94,13 @@ module Cosmos
     end
 
     describe "write" do
-      it "should complain if the server is not connected" do
+      it "complains if the server is not connected" do
         expect(@stream).to receive(:connected?).and_return(false)
         i = TcpipServerInterface.new('8888','8889','5','5','burst')
         expect { i.write(Packet.new('','')) }.to raise_error(/Interface not connected/)
       end
 
-      it "should count the packets written" do
+      it "counts the packets written" do
         allow(@stream).to receive(:connected?).and_return(true)
         allow(@stream).to receive(:write).with(kind_of(Packet))
         i = TcpipServerInterface.new('8888','8889','5','5','burst')
@@ -111,7 +111,7 @@ module Cosmos
         i.write_count.should eql 2
       end
 
-      it "should handle server exceptions and disconnect" do
+      it "handles server exceptions and disconnect" do
         allow(@stream).to receive(:connected?).and_return(true)
         allow(@stream).to receive(:write).with(kind_of(Packet)).and_raise(RuntimeError.new("TEST"))
         expect(@stream).to receive(:disconnect)
@@ -121,13 +121,13 @@ module Cosmos
     end
 
     describe "write_raw" do
-      it "should complain if the server is not connected" do
+      it "complains if the server is not connected" do
         expect(@stream).to receive(:connected?).and_return(false)
         i = TcpipServerInterface.new('8888','8889','5','5','burst')
         expect { i.write_raw(Packet.new('','')) }.to raise_error(/Interface not connected/)
       end
 
-      it "should count the packets written" do
+      it "counts the packets written" do
         allow(@stream).to receive(:connected?).and_return(true)
         allow(@stream).to receive(:write_raw).with(kind_of(String))
         i = TcpipServerInterface.new('8888','8889','5','5','burst')
@@ -138,7 +138,7 @@ module Cosmos
         i.write_count.should eql 2
       end
 
-      it "should handle server exceptions and disconnect" do
+      it "handles server exceptions and disconnect" do
         allow(@stream).to receive(:connected?).and_return(true)
         allow(@stream).to receive(:write_raw).with(kind_of(String)).and_raise(RuntimeError.new("TEST"))
         expect(@stream).to receive(:disconnect)
@@ -148,7 +148,7 @@ module Cosmos
     end
 
     describe "set_option" do
-      it "should set the listen address for the tcpip_server" do
+      it "sets the listen address for the tcpip_server" do
         expect(@stream).to receive(:listen_address=).with('127.0.0.1')
         i = TcpipServerInterface.new('8888','8889','5','5','burst')
         i.set_option('LISTEN_ADDRESS', ['127.0.0.1'])

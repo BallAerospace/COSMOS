@@ -26,7 +26,7 @@ module Cosmos
       clean_config()
     end
 
-    it "should handle receiving a bad packet length" do
+    it "handles receiving a bad packet length" do
       @psp = PreidentifiedStreamProtocol.new(nil, 5)
       pkt = System.telemetry.packet("COSMOS","VERSION")
       class MyStream < Stream
@@ -44,7 +44,7 @@ module Cosmos
     end
 
     describe "initialize" do
-      it "should initialize attributes" do
+      it "initializes attributes" do
         @psp.bytes_read.should eql 0
         @psp.bytes_written.should eql 0
         @psp.interface.should be_nil
@@ -56,7 +56,7 @@ module Cosmos
     end
 
     describe "write" do
-      it "should create a packet header" do
+      it "creates a packet header" do
         pkt = System.telemetry.packet("COSMOS","VERSION")
         class MyStream < Stream
           def connect; end
@@ -87,7 +87,7 @@ module Cosmos
     end
 
     describe "read" do
-      it "should return a packet" do
+      it "returns a packet" do
         pkt = System.telemetry.packet("COSMOS","VERSION")
         pkt.write("PKT_ID", 1)
         pkt.write("COSMOS", "TEST")

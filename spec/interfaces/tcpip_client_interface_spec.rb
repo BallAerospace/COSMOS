@@ -16,11 +16,11 @@ module Cosmos
   describe TcpipClientInterface do
 
     describe "initialize" do
-      it "should initialize the instance variables" do
+      it "initializes the instance variables" do
         i = TcpipClientInterface.new('localhost','8888','8889','5','5','burst')
       end
 
-      it "should not be writeable if no write port given" do
+      it "is not writeable if no write port given" do
         i = TcpipClientInterface.new('localhost','nil','8889','nil','5','burst')
         i.name.should eql "Cosmos::TcpipClientInterface"
         i.write_allowed?.should be_falsey
@@ -28,7 +28,7 @@ module Cosmos
         i.read_allowed?.should be_truthy
       end
 
-      it "should not be readable if no read port given" do
+      it "is not readable if no read port given" do
         i = TcpipClientInterface.new('localhost','8888','nil','5','nil','burst')
         i.name.should eql "Cosmos::TcpipClientInterface"
         i.write_allowed?.should be_truthy
@@ -38,7 +38,7 @@ module Cosmos
     end
 
     describe "connect" do
-      it "should pass a new TcpipClientStream to the stream protocol" do
+      it "passes a new TcpipClientStream to the stream protocol" do
         stream = double("stream")
         allow(stream).to receive(:connect)
         expect(TcpipClientStream).to receive(:new) { stream }

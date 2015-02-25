@@ -16,7 +16,7 @@ module Cosmos
   describe PolynomialConversion do
 
     describe "initialize" do
-      it "should take processor_name, result_name, converted_type, and converted_bit_size" do
+      it "takes processor_name, result_name, converted_type, and converted_bit_size" do
         c = ProcessorConversion.new('TEST', 'TEST', 'FLOAT', '64')
         c.instance_variable_get("@processor_name").should eql 'TEST'
         c.instance_variable_get("@result_name").should eql :TEST
@@ -26,7 +26,7 @@ module Cosmos
     end
 
     describe "call" do
-      it "should retrieve the result from the processor" do
+      it "retrieves the result from the processor" do
         c = ProcessorConversion.new('TEST', 'TEST', 'FLOAT', '64')
         packet = Packet.new("tgt","pkt")
         packet.append_item('ITEM1', 64, :FLOAT)
@@ -36,7 +36,7 @@ module Cosmos
     end
 
     describe "to_s" do
-      it "should return the equation" do
+      it "returns the equation" do
         ProcessorConversion.new('TEST1', 'TEST2', 'FLOAT', '64').to_s.should eql "ProcessorConversion TEST1 TEST2"
       end
     end
