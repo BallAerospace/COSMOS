@@ -1,0 +1,25 @@
+- title: Getting Started
+  docs:
+  - home
+  - quickstart
+  - installation
+  - structure
+  - gettingstarted
+
+- title: User's Guides
+  docs:
+  - scripting
+
+- title: Configuration
+  docs:
+  - system
+  - cmdtlm
+  - interfaces
+  - tools
+  - screens
+
+- title: Meta
+  docs:
+  - requirements
+  - contributing
+  - history
