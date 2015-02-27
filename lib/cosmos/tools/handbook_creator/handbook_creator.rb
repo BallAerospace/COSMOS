@@ -61,8 +61,8 @@ module Cosmos
           success = @config.create_pdf(progress_dialog)
           if success
             msg = "\n\n"
-            msg << "HTML and " if both
-            msg << "PDF Handbooks created successfully"
+            msg += "HTML and " if both
+            msg += "PDF Handbooks created successfully"
             progress_dialog.append_text(msg)
           else
             progress_dialog.append_text("\nPDF Handbooks could not be created.\n\nIs wkhtmltopdf in your PATH and are all existing pdfs closed?\n\nUsing version 0.11.0_rc1 of wkhtmltox is recommended which can be found at: https://code.google.com/p/wkhtmltopdf/downloads/list?can=1.\n\nVersion 0.12.x has shown issues with Handbook Creator's default templates.")

@@ -373,7 +373,7 @@ module Cosmos
           end
         end
 
-        new_file_data << (line + "\n")
+        new_file_data += (line + "\n")
 
       end # end loop
 

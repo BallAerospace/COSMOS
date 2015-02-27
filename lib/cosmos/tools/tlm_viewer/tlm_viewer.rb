@@ -520,7 +520,7 @@ module Cosmos
           option_parser.on("-s", "--screen FILE", "Start up the specified screen") { |arg| options.screen = arg }
           option_parser.on("-n", "--nolisten", "Don't listen for requests") do
             options.listen = false
-            options.title << ' : Not Listening'
+            options.title += ' : Not Listening'
           end
           option_parser.parse!(ARGV)
         end

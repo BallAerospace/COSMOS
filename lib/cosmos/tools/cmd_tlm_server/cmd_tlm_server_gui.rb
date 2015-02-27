@@ -291,7 +291,7 @@ module Cosmos
           lines_to_write = ''
           string = @string_output.string.clone
           @string_output.string = @string_output.string[string.length..-1]
-          string.each_line {|out_line| @output.add_formatted_text(out_line); lines_to_write << out_line }
+          string.each_line {|out_line| @output.add_formatted_text(out_line); lines_to_write += out_line }
           @output.flush
           if @first_output < 2
             # Scroll to the bottom on the first two outputs for Linux

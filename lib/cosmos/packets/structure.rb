@@ -371,7 +371,7 @@ module Cosmos
       structure = super()
       # Use instance_variable_set since we have overriden buffer= to do
       # additional work that isn't neccessary here
-      structure.instance_variable_set("@buffer".freeze, @buffer.clone) if @buffer
+      structure.instance_variable_set("@buffer", @buffer.clone) if @buffer
       return structure
     end
     alias dup clone
@@ -442,7 +442,7 @@ module Cosmos
     def internal_buffer_equals(buffer)
       raise ArgumentError, "Buffer class is #{buffer.class} but must be String" unless String === buffer
       @buffer = buffer.dup
-      @buffer.force_encoding('ASCII-8BIT'.freeze)
+      @buffer.force_encoding('ASCII-8BIT')
       if @buffer.length != @defined_length
         if @buffer.length < @defined_length
           resize_buffer()

@@ -171,7 +171,7 @@ module Cosmos
     def self.receive_message(socket, data)
       self.get_at_least_x_bytes_of_data(socket, data, 4)
       if data.length >= 4
-        length = data[0..3].unpack('N'.freeze)[0]
+        length = data[0..3].unpack('N')[0]
         data.replace(data[4..-1])
       else
         return nil
@@ -215,7 +215,7 @@ module Cosmos
       num_bytes_to_send = data.length + 4
       total_bytes_sent = 0
       bytes_sent = 0
-      data_to_send = [data.length].pack('N'.freeze) << data.clone
+      data_to_send = [data.length].pack('N') << data.clone
 
       loop do
         begin

@@ -55,7 +55,7 @@ module Cosmos
           filename = Qt::FileDialog::getSaveFileName(self, "Save As...", filename, "Text Files (*.txt);;All Files (*)")
           if not filename.nil? and not filename.empty?
             @log_file_directory = File.dirname(filename)
-            @log_file_directory << '/' unless @log_file_directory[-1..-1] == '\\'
+            @log_file_directory += '/' unless @log_file_directory[-1..-1] == '\\'
 
             File.open(filename, 'w') do |file|
               file.write(@text.toPlainText)

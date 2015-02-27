@@ -183,28 +183,28 @@ module Cosmos
     # @param id [Integer] The identifier which will be matched to the response
     def initialize(method_name, method_params, id)
       super()
-      @hash['jsonrpc'.freeze] = "2.0".freeze
-      @hash['method'.freeze] = method_name.to_s
+      @hash['jsonrpc'] = "2.0"
+      @hash['method'] = method_name.to_s
       if method_params and method_params.length != 0
-        @hash['params'.freeze] = method_params
+        @hash['params'] = method_params
       end
-      @hash['id'.freeze] = id.to_i
+      @hash['id'] = id.to_i
     end
 
     # @return [String] The method to call
     def method
-      @hash['method'.freeze]
+      @hash['method']
     end
 
     # @return [Array<String>] Array of strings which represent the
     #   parameters to send to the method
     def params
-      @hash['params'.freeze] || []
+      @hash['params'] || []
     end
 
     # @return [Integer] The request identifier
     def id
-      @hash['id'.freeze]
+      @hash['id']
     end
 
     # Creates a JsonRpcRequest object from a JSON encoded String. The version
@@ -216,7 +216,7 @@ module Cosmos
       begin
         hash = JSON.parse(request_data, :allow_nan => true, :create_additions => true)
         # Verify the jsonrpc version is correct and there is a method and id
-        raise unless (hash['jsonrpc'.freeze] == "2.0".freeze && hash['method'.freeze] && hash['id'.freeze])
+        raise unless (hash['jsonrpc'] == "2.0" && hash['method'] && hash['id'])
         self.from_hash(hash)
       rescue
         raise "Invalid JSON-RPC 2.0 Request"
@@ -229,7 +229,7 @@ module Cosmos
     #   and id
     # @return [JsonRpcRequest]
     def self.from_hash(hash)
-      self.new(hash['method'.freeze], hash['params'.freeze], hash['id'.freeze])
+      self.new(hash['method'], hash['params'], hash['id'])
     end
   end
 
@@ -239,8 +239,8 @@ module Cosmos
     # @param id [Integer] The identifier which will be matched to the request
     def initialize(id)
       super()
-      @hash['jsonrpc'.freeze] = "2.0".freeze
-      @hash['id'.freeze] = id
+      @hash['jsonrpc'] = "2.0"
+      @hash['id'] = id
     end
 
     # Creates a JsonRpcResponse object from a JSON encoded String. The version
@@ -258,13 +258,13 @@ module Cosmos
       end
 
       # Verify the jsonrpc version is correct and there is an ID
-      raise msg unless hash['jsonrpc'.freeze] == "2.0".freeze and hash.key?('id'.freeze)
+      raise msg unless hash['jsonrpc'] == "2.0" and hash.key?('id')
       # If there is a result this is probably a good response
-      if hash.key?('result'.freeze)
+      if hash.key?('result')
         # Can't have an error key in a good response
-        raise msg if hash.key?('error'.freeze)
+        raise msg if hash.key?('error')
         JsonRpcSuccessResponse.from_hash(hash)
-      elsif hash.key?('error'.freeze)
+      elsif hash.key?('error')
         # There was an error key so create an error response
         JsonRpcErrorResponse.from_hash(hash)
       else
@@ -280,12 +280,12 @@ module Cosmos
     # @param id [Integer] The identifier which will be matched to the request
     def initialize(result, id)
       super(id)
-      @hash['result'.freeze] = result
+      @hash['result'] = result
     end
 
     # @return [Object] The result of the method request
     def result
-      @hash['result'.freeze]
+      @hash['result']
     end
 
     # Creates a JsonRpcSuccessResponse object from a Hash
@@ -293,7 +293,7 @@ module Cosmos
     # @param hash [Hash] Hash containing the following keys: result and id
     # @return [JsonRpcSuccessResponse]
     def self.from_hash(hash)
-      self.new(hash['result'.freeze], hash['id'.freeze])
+      self.new(hash['result'], hash['id'])
     end
   end
 
@@ -304,12 +304,12 @@ module Cosmos
     # @param id [Integer] The identifier which will be matched to the request
     def initialize(error, id)
       super(id)
-      @hash['error'.freeze] = error
+      @hash['error'] = error
     end
 
     # @return [JsonRpcError] The error object
     def error
-      @hash['error'.freeze]
+      @hash['error']
     end
 
     # Creates a JsonRpcErrorResponse object from a Hash
@@ -317,7 +317,7 @@ module Cosmos
     # @param hash [Hash] Hash containing the following keys: error and id
     # @return [JsonRpcErrorResponse]
     def self.from_hash(hash)
-      self.new(JsonRpcError.from_hash(hash['error'.freeze]), hash['id'.freeze])
+      self.new(JsonRpcError.from_hash(hash['error']), hash['id'])
     end
   end
 

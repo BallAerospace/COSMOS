@@ -413,7 +413,7 @@ module Cosmos
           @time_start = packet_log_dialog.time_start
           @time_end = packet_log_dialog.time_end
           @log_file_directory = File.dirname(@log_filenames[0])
-          @log_file_directory << '/' unless @log_file_directory[-1..-1] == '\\'
+          @log_file_directory += '/' unless @log_file_directory[-1..-1] == '\\'
 
           # Stop realtime collection
           handle_stop()
