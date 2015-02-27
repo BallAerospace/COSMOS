@@ -81,7 +81,7 @@ DECLARE_TARGET BOB
 
 5.. Now we need to configure how to communicate with BOB.  BOB is acting as a TCP/IP server at 192.168.1.5 and is listening on port 8888.  We tell COSMOS how to talk to it by adding the following snippet to config/tools/cmd_tlm_server/cmd_tlm_server.txt. See [System Configuration Guide](/docs/system):
 
-{% highlight hash %}
+{% highlight bash %}
 INTERFACE BOB_INT tcpip_client_interface.rb 192.168.1.5 8888 8888 5.0 nil LENGTH 0 32 4
   TARGET BOB
 {% endhighlight %}
