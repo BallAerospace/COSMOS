@@ -11,7 +11,7 @@ So you've got an awesome idea to throw into COSMOS. Great! Hers is the basic pro
 1. Make your changes
 1. Submit a pull request
 
-<div class="note warning">
+<div class="note">
   <h5>Don't Forget the Contributor License Agreement!</h5>
   <p>
 Before any contributions can be incorporated we do require all contributors to sign a Contributor License Agreement here: <a href="https://docs.google.com/forms/d/1ppnHUSXtY1GRTNPIyUaB1OYHbW5Ca67GFMgMRPBG8u0/viewform">Contributor License Agreement</a>
