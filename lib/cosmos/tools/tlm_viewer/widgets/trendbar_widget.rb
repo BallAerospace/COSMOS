@@ -69,7 +69,7 @@ module Cosmos
 
     def get_tooltip_text
       tooltip_text  = super()
-      tooltip_text += "\nTrending Value = (Current Value) - (Value #{@trend_seconds} Seconds Ago)"
+      tooltip_text << "\nTrending Value = (Current Value) - (Value #{@trend_seconds} Seconds Ago)"
       return tooltip_text
     end
 

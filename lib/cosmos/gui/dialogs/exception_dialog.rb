@@ -61,9 +61,9 @@ module Cosmos
               rescue
               end
               text = "The following error occurred:<br/>#{message}"
-              text += "<br/><br/>Please contact your local COSMOS expert.<br/><br/>This error has been logged:<br/>#{log_file}<br/><br/> <a href='mailto:rmelton@ball.com;jmthomas@ball.com?subject=COSMOS exception&body=#{file_contents}'>Click here</a> to email this log to the COSMOS developers." if log_file
+              text << "<br/><br/>Please contact your local COSMOS expert.<br/><br/>This error has been logged:<br/>#{log_file}<br/><br/> <a href='mailto:rmelton@ball.com;jmthomas@ball.com?subject=COSMOS exception&body=#{file_contents}'>Click here</a> to email this log to the COSMOS developers." if log_file
             end
-            text += "<br/><br/>NOTE!: The application will exit once you accept or dismiss this dialog!" if exit_afterwards
+            text << "<br/><br/>NOTE!: The application will exit once you accept or dismiss this dialog!" if exit_afterwards
             msg.setText(text)
             if log_file
               open_button = Qt::PushButton.new("Open Exception Log in Text Editor")

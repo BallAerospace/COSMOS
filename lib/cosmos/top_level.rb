@@ -291,12 +291,8 @@ module Cosmos
     digest = Digest::MD5.new
     Cosmos.set_working_dir do
       filenames.each do |filename|
-        # Read the file's data
-        data = ''
-        File.open(filename, 'r') {|file| data = file.read.gsub("\r",'')}
-
-        # Add to the running MD5 sum
-        digest << data
+        # Read the file's data and add to the running MD5 sum
+        digest << File.read(filename).gsub(/\r/,'')
       end
     end
     digest << additional_data if additional_data

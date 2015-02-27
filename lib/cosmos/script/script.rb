@@ -598,7 +598,7 @@ module Cosmos
     def _wait_tolerance(raw, *args)
       type = (raw ? :RAW : :CONVERTED)
       type_string = 'wait_tolerance'
-      type_string += '_raw' if raw
+      type_string << '_raw' if raw
       target_name, packet_name, item_name, expected_value, tolerance, timeout, polling_rate = wait_tolerance_process_args(args, type_string)
       start_time = Time.now
       success, value = cosmos_script_wait_implementation_tolerance(target_name, packet_name, item_name, type, expected_value, tolerance, timeout, polling_rate)
@@ -682,7 +682,7 @@ module Cosmos
 
     def _wait_check_tolerance(raw, *args)
       type_string = 'wait_check_tolerance'
-      type_string += '_raw' if raw
+      type_string << '_raw' if raw
       type = (raw ? :RAW : :CONVERTED)
       target_name, packet_name, item_name, expected_value, tolerance, timeout, polling_rate = wait_tolerance_process_args(args, type_string)
       start_time = Time.now
@@ -1418,7 +1418,7 @@ module Cosmos
       end
       output_string << target_name + ' ' + cmd_name
       if cmd_params.nil? or cmd_params.empty?
-        output_string += '")'
+        output_string << '")'
       else
         params = []
         cmd_params.each do |key, value|
@@ -1434,7 +1434,7 @@ module Cosmos
           params << "#{key} #{value}"
         end
         params = params.join(", ")
-        output_string += ' with ' + params + '")'
+        output_string << ' with ' + params + '")'
       end
       return output_string
     end
