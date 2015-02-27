@@ -793,7 +793,7 @@ module Cosmos
       else
         self.setWindowTitle("Script Runner : #{@tab_book.currentTab.filename}")
       end
-      self.setWindowTitle(self.windowTitle += '*') if @tab_book.currentTab.modified
+      self.setWindowTitle(self.windowTitle << '*') if @tab_book.currentTab.modified
     end
 
     # Returns the script runner frame of the active tab

@@ -67,9 +67,9 @@ module Cosmos
       configurable_about_text = File.read(filename)
       configurable_about_text.gsub!("\r", '') unless Kernel.is_windows?
       if Kernel.is_windows?
-        configurable_about_text += "\n" + "Main Application x:#{parent.x} y:#{parent.y} width:#{parent.frameGeometry.width + 16} height:#{parent.frameGeometry.height + 38}\n\n" +  ABOUT_COSMOS
+        configurable_about_text << "\n" + "Main Application x:#{parent.x} y:#{parent.y} width:#{parent.frameGeometry.width + 16} height:#{parent.frameGeometry.height + 38}\n\n" +  ABOUT_COSMOS
       else
-        configurable_about_text += "\n" + "Main Application x:#{parent.x} y:#{parent.y} width:#{parent.frameGeometry.width} height:#{parent.frameGeometry.height}\n\n" +  ABOUT_COSMOS      end
+        configurable_about_text << "\n" + "Main Application x:#{parent.x} y:#{parent.y} width:#{parent.frameGeometry.width} height:#{parent.frameGeometry.height}\n\n" +  ABOUT_COSMOS      end
 
       # Set the application about text
       about = Qt::Label.new(about_string + "\n\n" + configurable_about_text)

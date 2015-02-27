@@ -246,11 +246,10 @@ module Cosmos
           start_new_file()
         end
         if @file
-          entry_header = build_entry_header(packet)
-          if entry_header
-            @file.write(entry_header)
-            @file_size += entry_header.length
-          end
+          build_entry_header(packet)
+          @file.write(@entry_header)
+          @file_size += @entry_header.length
+          @entry_header.clear
           buffer = packet.buffer
           @file.write(buffer)
           @file_size += buffer.length
@@ -300,24 +299,21 @@ module Cosmos
     def build_entry_header(packet)
       received_time = packet.received_time
       received_time = Time.now unless received_time
+      # This is an optimization to avoid creating a new entry_header object
+      # each time we create an entry_header. Only one is created and it is
+      # cleared by the calling method.
+      @entry_header ||= ''
+      @entry_header << [received_time.tv_sec].pack('N'.freeze)
+      @entry_header << [received_time.tv_usec].pack('N'.freeze)
       target_name = packet.target_name
       target_name = 'UNKNOWN' unless target_name
+      @entry_header << target_name.length
+      @entry_header << target_name
       packet_name = packet.packet_name
       packet_name = 'UNKNOWN' unless packet_name
-      data_length = [packet.length].pack('N')
-      time_seconds = [received_time.tv_sec].pack('N')
-      time_microseconds = [received_time.tv_usec].pack('N')
-
-      header = ''
-      header << time_seconds
-      header << time_microseconds
-      header << target_name.length
-      header << target_name
-      header << packet_name.length
-      header << packet_name
-      header << data_length
-
-      return header
+      @entry_header << packet_name.length
+      @entry_header << packet_name
+      @entry_header << [packet.length].pack('N'.freeze)
     end
 
   end # class PacketLogWriter

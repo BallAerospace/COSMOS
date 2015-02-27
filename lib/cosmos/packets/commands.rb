@@ -194,17 +194,17 @@ module Cosmos
       items.each do |item_name, item_value|
         unless ignored_parameters.include?(item_name)
           if first
-            string << ' with '
+            string << ' with '.freeze
             first = false
           else
-            string << ', '
+            string << ', '.freeze
           end
 
           item = packet.get_item(item_name)
           if item.data_type ==:STRING or item.data_type == :BLOCK
             item_value = item_value.inspect
             if item_value.length > 256
-              item_value = item_value[0..255] + '..."'
+              item_value = item_value[0..255] + '..."'.freeze
             end
             string << "#{item_name} #{item_value}"
           else
@@ -216,7 +216,7 @@ module Cosmos
           end
         end
       end
-      string << "')"
+      string << "')".freeze
       string
     end
 

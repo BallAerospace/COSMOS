@@ -228,7 +228,7 @@ module Cosmos
         end
       end
       run_time = Time.format_seconds(@stop_time - @start_time)
-      run_time += " (#{@stop_time - @start_time} seconds)" if @stop_time-@start_time > 60
+      run_time << " (#{@stop_time - @start_time} seconds)" if @stop_time-@start_time > 60
       @file.puts("Run Time : #{run_time}")
       @file.puts("Total Tests : #{@results.length}")
       @file.puts("Pass : #{pass_count}")

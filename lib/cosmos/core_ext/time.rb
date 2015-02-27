@@ -78,27 +78,27 @@ class Time
     dd, hh = hh.divmod(24)
     if dd != 0
       if dd == 1
-        result += "%d day, " % dd
+        result << "%d day, " % dd
       else
-        result += "%d days, " % dd
+        result << "%d days, " % dd
       end
     end
     if hh != 0
       if hh == 1
-        result += "%d hour, " % hh
+        result << "%d hour, " % hh
       else
-        result += "%d hours, " % hh
+        result << "%d hours, " % hh
       end
     end
     if mm != 0
       if mm == 1
-        result += "%d minute, " % mm
+        result << "%d minute, " % mm
       else
-        result += "%d minutes, " % mm
+        result << "%d minutes, " % mm
       end
     end
     if ss > 0
-      result += "%.2f seconds" % ss
+      result << "%.2f seconds" % ss
     else
       result = result[0..-3]
     end
