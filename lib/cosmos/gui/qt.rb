@@ -516,8 +516,9 @@ class Qt::PlainTextEdit
     # You might think gsub! would use less memory but benchmarking proves gsub
     # with a regular express argument is the fastest and uses the least memory.
     # However, this is still an expensive operation due to how many times it is called.
-    text = text.gsub(/&/,'&amp;').gsub(/\n/,'<br/>').gsub(/\s/, '&nbsp;').gsub(/>/,'&gt;').gsub(/</,'&lt;')
-    "<font color=\"#{"#%02X%02X%02X" % [color.red, color.green, color.blue]}\">#{text}</font>"
+    text = text.gsub(/&/,'&amp;'.freeze).gsub(/\n/,'<br/>'.freeze).gsub(/\s/, '&nbsp;'.freeze).gsub(/>/,'&gt;'.freeze).gsub(/</,'&lt;'.freeze)
+    rgb = "#%02X%02X%02X" % [color.red, color.green, color.blue]
+    "<font color=\"#{rgb}\">#{text}</font>"
   end
 end
 
