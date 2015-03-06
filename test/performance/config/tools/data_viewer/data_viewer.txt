@@ -1,0 +1,11 @@
+AUTO_START
+
+COMPONENT "Health Status" dump_component.rb
+  PACKET INST HEALTH_STATUS
+
+COMPONENT "ADCS" data_viewer_component.rb
+  PACKET INST ADCS
+
+COMPONENT "Other Packets" data_viewer_component.rb
+  PACKET INST PARAMS
+  PACKET INST IMAGE
