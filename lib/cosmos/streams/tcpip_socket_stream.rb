@@ -80,13 +80,13 @@ module Cosmos
       # No read mutex is needed because there is only one stream procesor
       # reading
       begin
-        data = @read_socket.recv_nonblock(65535)
-        @raw_logger_pair.read_logger.write(data) if @raw_logger_pair
+        @read_socket.read_nonblock(65535, @data)
+        @raw_logger_pair.read_logger.write(@data) if @raw_logger_pair
       rescue Errno::EAGAIN, Errno::EWOULDBLOCK, Errno::ECONNRESET, Errno::ECONNABORTED
-        data = ''
+        @data = BLANK
       end
 
-      data
+      @data
     end
 
     # @param data [String] A binary string of data to write to the socket
