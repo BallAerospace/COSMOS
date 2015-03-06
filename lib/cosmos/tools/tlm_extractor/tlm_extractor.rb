@@ -48,7 +48,7 @@ module Cosmos
 
       def remove_selected_items
         indexes = selected_items()
-        indexes.reverse.each do |index|
+        indexes.reverse_each do |index|
           item = takeItem(index)
           item.dispose if item
         end

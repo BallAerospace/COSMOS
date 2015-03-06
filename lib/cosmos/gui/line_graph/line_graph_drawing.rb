@@ -360,7 +360,7 @@ module Cosmos
           right_text_x = text_x + (legend_width / 2)
           left_text_y  = text_y
           right_text_y = text_y
-          @lines.legend.reverse.each do |legend_text, color, axis|
+          @lines.legend.reverse_each do |legend_text, color, axis|
             if axis == :LEFT
               dc.addSimpleTextAt(legend_text, left_text_x, left_text_y, color)
               left_text_y -= metrics.height
@@ -375,7 +375,7 @@ module Cosmos
             text_y = right_text_y
           end
         else
-          @lines.legend.reverse.each do |legend_text, color, axis|
+          @lines.legend.reverse_each do |legend_text, color, axis|
             dc.addSimpleTextAt(legend_text, text_x, text_y, color)
             text_y -= metrics.height
           end

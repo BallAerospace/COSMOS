@@ -53,7 +53,7 @@ module Cosmos
             packets.each do |packet_name, packet|
               # Skip hidden and disabled packets
               next if packet.hidden || packet.disabled
-              packet.items.keys.each do |item_name|
+              packet.items.each_key do |item_name|
                 # Skip ignored items
                 next if System.targets[target_name].ignored_items.include? item_name
                 all_telemetry["#{target_name},#{packet_name},#{item_name}"] = 0

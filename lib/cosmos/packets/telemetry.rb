@@ -296,7 +296,7 @@ module Cosmos
         packets(target_name).each do |packet_name, packet|
           # We don't audit against hidden or disabled packets
           next if !include_hidden and (packet.hidden || packet.disabled)
-          packet.items.keys.each do |item_name|
+          packet.items.each_key do |item_name|
             # Skip ignored items
             next if !include_hidden and ignored_items.include? item_name
             strings << "#{target_name} #{packet_name} #{item_name}"

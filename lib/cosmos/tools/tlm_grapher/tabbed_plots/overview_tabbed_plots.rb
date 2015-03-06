@@ -573,7 +573,7 @@ module Cosmos
                                                     tab_index,
                                                     plot_index,
                                                     data_object_index)
-      data_object_indexes.reverse.each do |data_object_idx|
+      data_object_indexes.reverse_each do |data_object_idx|
         @tabbed_plots_config.remove_data_object(tab_index, plot_index, data_object_idx)
       end
 
@@ -686,7 +686,7 @@ module Cosmos
 
       if plot_index
         data_object_indexes = selected_data_object_indexes()
-        data_object_indexes.reverse.each do |data_object_idx|
+        data_object_indexes.reverse_each do |data_object_idx|
           @tabbed_plots_config.reset_data_objects(tab_index, plot_index, data_object_idx)
         end
         redraw_plots(true, true)
@@ -823,7 +823,7 @@ module Cosmos
     # Create GUI objects
     def create
       # Select first plot on each tab in reverse order
-      @tabbed_plots_config.tabs.reverse.each {|tab| select_plot(tab.plots[0]) if tab.plots[0]}
+      @tabbed_plots_config.tabs.reverse_each {|tab| select_plot(tab.plots[0]) if tab.plots[0]}
 
       # Setup timeout to redraw graphs
       @timeout = Qt::Timer.new(self)

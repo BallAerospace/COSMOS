@@ -428,6 +428,8 @@ class Qt::LineEdit
 end
 
 class Qt::PlainTextEdit
+  @@color_cache = {}
+
   def add_formatted_text(text, color = nil)
     if text =~ /[\x00-\x08\x0B-\x0C\x0E-\x1F\x7F-\xFF]/
       text.chomp!
@@ -517,8 +519,8 @@ class Qt::PlainTextEdit
     # with a regular express argument is the fastest and uses the least memory.
     # However, this is still an expensive operation due to how many times it is called.
     text = text.gsub(/&/,'&amp;'.freeze).gsub(/\n/,'<br/>'.freeze).gsub(/\s/, '&nbsp;'.freeze).gsub(/>/,'&gt;'.freeze).gsub(/</,'&lt;'.freeze)
-    rgb = "#%02X%02X%02X" % [color.red, color.green, color.blue]
-    "<font color=\"#{rgb}\">#{text}</font>"
+    @@color_cache[color] ||= "#%02X%02X%02X" % [color.red, color.green, color.blue]
+    "<font color=\"#{@@color_cache[color]}\">#{text}</font>"
   end
 end
 
@@ -531,7 +533,7 @@ end
 class Qt::ComboBox
   # Helper method to remove all items from a ComboBox
   def clearItems
-    (0...count).to_a.reverse.each do |index|
+    (0...count).to_a.reverse_each do |index|
       removeItem(index)
     end
   end

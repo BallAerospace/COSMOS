@@ -1067,7 +1067,7 @@ module Cosmos
 
             if use_file_cache
               # Check file based instrumented cache
-              flat_path = path.gsub("/", "_").gsub("\\", "_").gsub(":", "_").gsub(" ", "_")
+              flat_path = path.tr("/", "_").gsub("\\", "_").tr(":", "_").tr(" ", "_")
               flat_path_with_md5 = flat_path + '_' + md5
               cache_filename = File.join(cache_path, flat_path_with_md5)
             end
@@ -1428,7 +1428,7 @@ module Cosmos
               if value.length > 256
                 value = value[0..255] + "...'"
               end
-              value.gsub!('"',"'")
+              value.tr!('"',"'")
             end
           end
           params << "#{key} #{value}"
