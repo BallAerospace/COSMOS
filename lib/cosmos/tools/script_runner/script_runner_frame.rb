@@ -470,10 +470,6 @@ module Cosmos
 
       ruby_lex_utils = RubyLexUtils.new
       instrumented_text = ''
-      # Add an extra newline because the Ruby 1.9.1 lexer RubyLex has a bug
-      # where it loops unless the file ends in a newline. If there is already
-      # a newline then so what, we add an extra.
-      text << "\n"
 
       Qt.execute_in_main_thread(true) do
         window = Qt::CoreApplication.instance.activeWindow

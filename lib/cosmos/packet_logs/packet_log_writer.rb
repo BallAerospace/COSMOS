@@ -247,9 +247,11 @@ module Cosmos
           start_new_file()
         end
         if @file
-          build_entry_header(packet) # populate @entry_header
-          @file.write(@entry_header)
-          @file_size += @entry_header.length
+          @entry_header = build_entry_header(packet) # populate @entry_header
+          if @entry_header
+            @file.write(@entry_header)
+            @file_size += @entry_header.length
+          end
           buffer = packet.buffer
           @file.write(buffer)
           @file_size += buffer.length

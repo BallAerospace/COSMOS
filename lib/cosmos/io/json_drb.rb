@@ -72,7 +72,7 @@ module Cosmos
     def start_service(hostname = nil, port = nil, object = nil)
       if hostname and port and object
         @object = object
-        hostname = '127.0.0.1' if (hostname.to_s.upcase == 'LOCALHOST')
+        hostname = '127.0.0.1'.freeze if (hostname.to_s.upcase == 'LOCALHOST'.freeze)
 
         # Create a socket to accept connections from clients
         begin
@@ -192,15 +192,14 @@ module Cosmos
     # @param required_num_bytes [Integer] The minimum number of bytes to read
     #   before returning
     def self.get_at_least_x_bytes_of_data(socket, current_data, required_num_bytes)
-      @data ||= ''
       while (current_data.length < required_num_bytes)
         begin
-          socket.read_nonblock(65535, @data)
-          if @data.length == 0
+          data = socket.read_nonblock(65535)
+          if data.length == 0
             current_data.replace('')
             return
           end
-          current_data << @data
+          current_data << data
         rescue IO::WaitReadable
           IO.fast_select([socket], nil, nil, nil)
           retry

@@ -44,7 +44,7 @@ module Cosmos
       # Define instance variables
       @log_filenames = []
       @log_dir = System.paths['LOGS']
-      @log_dir << '/' unless @log_dir[-1..-1] == '\\' or @log_dir[-1..-1] == '/'
+      @log_dir += '/' unless @log_dir[-1..-1] == '\\' or @log_dir[-1..-1] == '/'
       @time_start = nil
       @time_end = nil
       @screenshot_dir = @log_dir.clone

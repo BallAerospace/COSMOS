@@ -19,7 +19,6 @@ module Cosmos
   # Data {Stream} which reads and writes from Tcpip Sockets.
   class TcpipSocketStream < Stream
     attr_reader :write_socket
-    BLANK = ''
 
     # @param write_socket [Socket] Socket to write
     # @param read_socket [Socket] Socket to read
@@ -40,6 +39,7 @@ module Cosmos
       # Mutex on write is needed to protect from commands coming in from more
       # than one tool
       @write_mutex = Mutex.new
+      @connected = false
       @data = ''
     end
 
@@ -66,10 +66,10 @@ module Cosmos
           end
         rescue IOError, Errno::ENOTSOCK
           # These can happen with the socket being closed while waiting on select
-          @data = BLANK
+          @data = ''
         end
       rescue Errno::ECONNRESET, Errno::ECONNABORTED, IOError, Errno::ENOTSOCK
-        @data = BLANK
+        @data = ''
       end
 
       @data
@@ -83,7 +83,7 @@ module Cosmos
         @read_socket.read_nonblock(65535, @data)
         @raw_logger_pair.read_logger.write(@data) if @raw_logger_pair
       rescue Errno::EAGAIN, Errno::EWOULDBLOCK, Errno::ECONNRESET, Errno::ECONNABORTED
-        @data = BLANK
+        @data = ''
       end
 
       @data

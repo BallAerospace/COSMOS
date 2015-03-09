@@ -10,6 +10,7 @@
 
 require 'spec_helper'
 require 'cosmos/streams/tcpip_socket_stream'
+require 'socket'
 
 module Cosmos
 
@@ -17,7 +18,7 @@ module Cosmos
     describe "initialize, connected?" do
       it "is not be connected when initialized" do
         ss = TcpipSocketStream.new(nil,nil,nil,nil)
-        expect(ss.connected?).to be_falsy
+        expect(ss.connected?).to be false
       end
     end
 
@@ -28,47 +29,81 @@ module Cosmos
         expect { ss.read }.to raise_error("Attempt to read from write only stream")
       end
 
-      it "calls recv_nonblock from the socket" do
-        read = double("read_socket")
-        expect(read).to receive(:recv_nonblock).and_return 'test'
-        ss = TcpipSocketStream.new(nil,read,nil,nil)
-        ss.connect
-        expect(ss.read).to eql 'test'
+      it "calls read_nonblock from the socket" do
+        server = TCPServer.new(2000) # Server bound to port 2000
+        thread = Thread.new do
+          loop do
+            client = server.accept    # Wait for a client to connect
+            sleep 0.1
+            client.write "test"
+            client.close
+          end
+        end
+        socket = TCPSocket.new('localhost', 2000)
+        ss = TcpipSocketStream.new(nil,socket,nil,nil)
+        expect(ss.read_nonblock).to eql ''
+        sleep 0.2
+        expect(ss.read_nonblock).to eql 'test'
+        Cosmos.close_socket(socket)
+        Cosmos.close_socket(server)
+        thread.kill
+        sleep 0.1
       end
 
       it "handles socket blocking exceptions" do
-        read = double("read_socket")
-        allow(read).to receive(:recv_nonblock) do
-          case $index
-          when 1
-            $index += 1
-            raise Errno::EWOULDBLOCK
-          when 2
-            'test'
+        server = TCPServer.new(2000) # Server bound to port 2000
+        thread = Thread.new do
+          loop do
+            client = server.accept    # Wait for a client to connect
+            sleep 0.2
+            client.write "test"
+            client.close
           end
         end
-        expect(IO).to receive(:select).at_least(:once).and_return([])
-        $index = 1
-        ss = TcpipSocketStream.new(nil,read,nil,nil)
-        ss.connect
+        socket = TCPSocket.new('localhost', 2000)
+        ss = TcpipSocketStream.new(nil,socket,nil,nil)
         expect(ss.read).to eql 'test'
+        Cosmos.close_socket(socket)
+        Cosmos.close_socket(server)
+        thread.kill
+        sleep 0.1
       end
 
       it "handles socket timeouts" do
-        read = double("read_socket")
-        allow(read).to receive(:recv_nonblock).and_raise(Errno::EWOULDBLOCK)
-        expect(IO).to receive(:select).at_least(:once).and_return(nil)
-        ss = TcpipSocketStream.new(nil,read,nil,nil)
-        ss.connect
+        server = TCPServer.new(2000) # Server bound to port 2000
+        thread = Thread.new do
+          loop do
+            client = server.accept    # Wait for a client to connect
+            sleep 0.2
+            client.close
+          end
+        end
+        socket = TCPSocket.new('localhost', 2000)
+        ss = TcpipSocketStream.new(nil,socket,nil,0.1)
         expect { ss.read }.to raise_error(Timeout::Error)
+        sleep 0.2
+        Cosmos.close_socket(socket)
+        Cosmos.close_socket(server)
+        thread.kill
+        sleep 0.1
       end
 
       it "handles socket connection reset exceptions" do
-        read = double("read_socket")
-        allow(read).to receive(:recv_nonblock).and_raise(Errno::ECONNRESET)
-        ss = TcpipSocketStream.new(nil,read,nil,nil)
-        ss.connect
+        server = TCPServer.new(2000) # Server bound to port 2000
+        thread = Thread.new do
+          loop do
+            client = server.accept    # Wait for a client to connect
+            client.close
+          end
+        end
+        socket = TCPSocket.new('localhost', 2000)
+        ss = TcpipSocketStream.new(nil,socket,nil,5)
+        # Close the socket before trying to read from it
+        Cosmos.close_socket(socket)
         expect(ss.read).to eql ''
+        Cosmos.close_socket(server)
+        thread.kill
+        sleep 0.1
       end
     end
 
