@@ -65,7 +65,7 @@ COSMOS is built and maintained by Ryan Melton (ryanatball/ryanmelt) and Jason Th
 
         gem install cosmos
 
-   Note on non-windows systems you will need to have all necessary prerequisites installed (primarily cmake and qt 4.8.x). See the [Installation Guide](https://github.com/BallAerospace/COSMOS/wiki/Installation-Guide) for detailed instructions.
+   Note on non-windows systems you will need to have all necessary prerequisites installed (primarily cmake and qt 4.8.x). See the [Installation Guide](http://cosmosrb.com/docs/installation/) for detailed instructions.
 
 2. At the command prompt, create a new COSMOS project:
 
@@ -82,7 +82,7 @@ COSMOS is built and maintained by Ryan Melton (ryanatball/ryanmelt) and Jason Th
 
 4. Click on the various tools to start experimenting with COSMOS!
 
-5. Follow the [Documentation](https://github.com/BallAerospace/COSMOS/wiki) to start developing your configuration.
+5. Follow the [Documentation](http://cosmosrb.com) to start developing your configuration.
 
 ## Contributing
 
