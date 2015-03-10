@@ -34,6 +34,12 @@ These are just warnings and can be safely ignored.  Updating rdoc before install
     {% endhighlight %}
 1. Run the COSMOS Launcher using Launcher.bat or running: ruby Launcher
 
+<div style="max-width:800px;margin:0px auto;padding:20px;">
+  <section class="video-container" style="margin-bottom:20px;">
+    <center><iframe width="560" height="315" src="https://www.youtube.com/embed/Mk5Uxe7v6xA" frameborder="0" allowfullscreen></iframe></center>
+  </section>
+</div>
+
 Note: There is a binary Windows installer available for U.S. customers with a support contract.
 
 ##CentOS Linux 6.5
@@ -58,9 +64,11 @@ The following instructions work for an installation on CentOS Linux 6.5 from a c
     1. add the followings to .bashrc:
         * export PATH="$PATH:/usr/local/Trolltech/Qt-4.8.6/bin"
 1. Restart your terminal
-1. Install Ruby 2.0 for the current user (A system wide installation might be more appropriate for your use case)
-    1. rvm install 2.0
-    1. rvm use 2.0 --default
+1. Install Ruby 2.1.5 for the current user (A system wide installation might be more appropriate for your use case)
+    * {% highlight bash %}
+    rvm install 2.1.5 -C --enable-shared
+    rvm use 2.1.5 --default
+    {% endhighlight %}
 1. Install cmake
     1. sudo yum install cmake
 1. Install glut
@@ -95,9 +103,11 @@ The following instructions work for an installation on CentOS Linux 6.5 from a c
       {% endhighlight %}
 1. Install rvm
     1. \curl -sSL https://get.rvm.io &#124; bash -s stable
-1. Install Ruby 2.0 for the current user (A system wide installation might be more appropriate for your use case)
-    1. rvm install 2.0.0-p598 --with-gcc=clang
-    1. rvm use 2.0.0-p598 --default
+1. Install Ruby 2.1.5 for the current user (A system wide installation might be more appropriate for your use case)
+    * {% highlight bash %}
+    rvm install 2.1.5 -C --enable-shared --with-gcc=clang
+    rvm use 2.1.5 --default
+    {% endhighlight %}
 1. Install the cosmos gem
     1. gem install cosmos
 1. Create a demo working area

@@ -4,7 +4,10 @@ title: Scripting Guide
 permalink: /docs/scripting/
 ---
 
-## Overview
+<div class="toc">
+{% capture toc %}{% include scripting_toc.md %}{% endcapture %}
+{{ toc | markdownify }}
+</div>
 
 This document provides the information necessary to write test procedures using the COSMOS scripting API. Scripting in COSMOS is designed to be simple and intuitive. The code completion ability for command and telemetry mnemonics makes Script Runner the ideal place to write your procedures, however any text editor will do. If there is functionality that you don't see here or perhaps an easier syntax for doing something, please submit a ticket
 
@@ -30,9 +33,11 @@ The Ruby programming language provides a script writer a lot of power. But with 
     * ``` last_name = "Smith" ```
     * ``` perform_setup_operation() ```
 * Class names (when used) should be camel case and the files which contain them should match but be lowercase with underscores
-    * ``` class DataUploader # should be found inside 'data_uploader.rb' ```
-    * ``` class CcsdsUtility # should be found inside 'ccsds_utility.rb' ```
+    * ``` class DataUploader # in 'data_uploader.rb' ```
+    * ``` class CcsdsUtility # in 'ccsds_utility.rb' ```
 * Don't add useless comments but instead describe intent
+
+<div style="clear:both;"></div>
 
 The following is an example of good style:
 {% highlight ruby %}

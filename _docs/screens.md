@@ -4,7 +4,14 @@ title: Telemetry Screens
 permalink: /docs/screens/
 ---
 
+<div class="toc">
+{% capture toc %}{% include screens_toc.md %}{% endcapture %}
+{{ toc | markdownify }}
+</div>
+
 This document provides the information necessary to generate and use COSMOS Telemetry Screens, which are displayed by the COSMOS Telemetry Viewer application.
+
+<div style="clear:both;"></div>
 
 ## Definitions
 
@@ -13,8 +20,6 @@ This document provides the information necessary to generate and use COSMOS Tele
 | Widget | A widget is a graphical element on a COSMOS telemetry screen. It could display text, graph data, provide a button, or perform any other display/user input task. |
 | Screen | A screen is a single window that contains any number of widgets which are organized and layed-out in a useful fashion. |
 | Screen Definition File | A screen definition file is an ASCII file that tells COSMOS Telemetry Viewer how to draw a screen. It is made up of a series of keyword/parameter lines that define the telemetry points that are displayed on the screen and how to display them. |
-
----
 
 ## Telemetry Viewer Configuration
 Two different types of configuration files are used to configure the COSMOS Telemetry Viewer; the screen definition files and a configuration file that lets the tool know what screens are available and how they are organized.
@@ -121,7 +126,7 @@ NAMED_WIDGET heading TITLE "Main Heading"
 BUTTON "Push" 'puts get_named_widget("heading").text'
 {% endhighlight %}
 
-### <WIDGETNAME>
+### WIDGETNAME
 All other keywords in a telemetry screen definition define the name of a widget and its unique parameters. These aren't really keywords at all and widgets can have any name besides the real keywords listed above. Whenever a keyword is encountered that is unrecognized, it is assumed that a file of the form widgetname_widget.rb exists, and contains a class called WidgetnameWidget. Because of this convention, new widgets can be added to the system without any change to the telemetry screen definition format Please see the Widget Descriptions section below for the details on all widgets supplied with the COSMOS core system.
 
 | Parameter | Description | Required |

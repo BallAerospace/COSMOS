@@ -4,6 +4,11 @@ title: Tool Configuration
 permalink: /docs/tools/
 ---
 
+<div class="toc">
+{% capture toc %}{% include tools_toc.md %}{% endcapture %}
+{{ toc | markdownify }}
+</div>
+
 Please see [Telemetry Screen Configuration](/docs/screens) for instructions on configuring Telemetry Viewer.
 
 * * *
@@ -11,6 +16,8 @@ Please see [Telemetry Screen Configuration](/docs/screens) for instructions on c
 ## Launcher Configuration
 
 Launcher configuration files define the icons and buttons presented in the Launcher and define how programs are launched. These files are expected to be placed in the config/tools/launcher directory and have a .txt extension. The default configuration file is named launcher.txt.
+
+<div style="clear:both;"></div>
 
 ## Keywords:
 

@@ -4,7 +4,12 @@ title: Requirements and Design
 permalink: /docs/requirements/
 ---
 
-COSMOS is a ground system providing commanding, scripting, and data visualization capabilities for embedded systems and systems of systems. COSMOS is intended for use during all phases of testing (board, box, integrated system) and during operations.
+<div class="toc">
+{% capture toc %}{% include requirements_toc.md %}{% endcapture %}
+{{ toc | markdownify }}
+</div>
+
+COSMOS is a command and control system providing commanding, scripting, and data visualization capabilities for embedded systems and systems of systems. COSMOS is intended for use during all phases of testing (board, box, integrated system) and during operations.
 
 COSMOS is made up of the following 15 applications:
 
@@ -73,8 +78,6 @@ Key aspects of this architecture:
 
 The Command and Telemetry server connects COSMOS to targets for real-time commanding and telemetry processing.   All real-time COSMOS tools communicate with targets through the Command and Telemetry Server ensuring that all communications are logged.
 
-### Requirements
-
 | Reqt. ID | Description | Test Description | Test Trace |
 |---------|------------|-----------------|------------|
 | CTS-1 | The Command and Telemetry Server shall display a list of all interfaces. | View the Interfaces tab. | cmd_tlm_server.ahk |
@@ -108,8 +111,6 @@ The Command and Telemetry server connects COSMOS to targets for real-time comman
 
 Replay allows the playing back of telemetry log files as if the data was being received in realtime.   This allows other COSMOS tools like Packet Viewer and Telemetry Viewer to be used to view logged data.
 
-### Requirements
-
 | Reqt. ID | Description | Test Description | Test Trace |
 |---------|------------|-----------------|------------|
 | RPY-1 | Replay shall playback telemetry packet logs | Start playback of a telemetry log file. | replay.ahk |
@@ -123,8 +124,6 @@ Replay allows the playing back of telemetry log files as if the data was being r
 ## Command Sender
 
 Command Sender provides an easy method to send single commands to targets.   The graphical user interface provides simple dropdowns to quickly select the desired command to send organized by target name and command name.  After the user has selected the command, they then fill in the desired command parameters and click send to send the command to the target.
-
-### Requirements
 
 | Reqt. ID | Description | Test Description | Test Trace |
 |---------|------------|-----------------|------------|
@@ -145,8 +144,6 @@ Command Sender provides an easy method to send single commands to targets.   The
 ## Script Runner
 
 Script Runner provides a visual interface for editing and executing test scripts/procedures.   A full featured text editor provided syntax highlighting and code completion while developing test procedures.   During script execution, the currently executing line is highlighted and any logged messages are highlighted to the user.  If any failure occurs, the script is paused and the user altered.   The user can then decide whether to stop the script, or ignore the failure and continue.   The user can also retry the failed lines, or other nearby lines before proceeding.
-
-### Requirements
 
 | Reqt. ID | Description | Test Description | Test Trace |
 |---------|------------|-----------------|------------|
@@ -182,8 +179,6 @@ Script Runner provides a visual interface for editing and executing test scripts
 
 Test Runner provides a structured methodology for designing system level testing that mirrors the very successful pattern used in software unit tests.   System level tests are built up of test cases that are organized into test groups.  For example, you might have one test group that verified all of the requirements associated with a particular mechanism.   Ideally you would break this down into individual test cases for different scenarios.  One perhaps for opening a shutter, another for closing it, etc.   Test cases are ideally small and independent tasks.  A number of these test groups are then combined into an overall test suite which would be run to execute a major test such as EMI, or software FQT.
 
-### Requirements
-
 | Reqt. ID | Description | Test Description |Test Trace |
 |---------|------------|-----------------|------------|
 | TR-1 | Test Runner shall support executing individual test suites. | Execute an individual test suite. | test_runner.ahk |
@@ -207,8 +202,6 @@ Test Runner provides a structured methodology for designing system level testing
 
 Packet Viewer provides a simple tool to view the realtime contents of any telemetry packet defined in the system in a tabular, key-value format.
 
-### Requirements
-
 | Reqt. ID | Description | Test Description | Test Trace |
 |---------|------------|-----------------|------------|
 | PV-1 | Packet Viewer shall allow selection of a telemetry packet by target name and packet name. | Select a specific telemetry packet by target name and packet name in the drop down menus. | packet_viewer.ahk |
@@ -227,8 +220,6 @@ Packet Viewer provides a simple tool to view the realtime contents of any teleme
 
 Telemetry Viewer provides a way to organize telemetry points into custom "screens" that allow for the creation of unique and organized views of telemetry data.   Screens are made up of widgets or small GUI components that display telemetry in unique ways.
 
-### Requirements
-
 | Reqt. ID | Description | Test Description | Test Trace |
 |---------|------------|-----------------|------------|
 | TV-1 | Telemetry Viewer shall display user-defined telemetry screens. | Open a telemetry screen. | tlm_viewer.ahk |
@@ -240,8 +231,6 @@ Telemetry Viewer provides a way to organize telemetry points into custom "screen
 ## Telemetry Grapher
 
 Telemetry Grapher performs graphing of telemetry points in both realtime and log file playback.
-
-### Requirements
 
 | Reqt. ID | Description | Test Description | Test Trace |
 |---------|------------|-----------------|------------|
@@ -268,8 +257,6 @@ Telemetry Grapher performs graphing of telemetry points in both realtime and log
 
 Data Viewer provides for textual display of telemetry packets where other display methods are not a good fit.  It is especially useful for memory dumps and for log message type data display.
 
-### Requirements
-
 | Reqt. ID | Description | Test Description | Test Trace |
 |---------|------------|-----------------|------------|
 | DV-1 | Data Viewer shall support realtime processing of telemetry packets. | Press Start to start realtime processing. | data_viewer.ahk |
@@ -283,8 +270,6 @@ Data Viewer provides for textual display of telemetry packets where other displa
 
 Limits Monitor displays all telemetry points that are currently out of limits and also shows any telemetry points that have gone out of limits since Limits Monitor was started.
 
-### Requirements
-
 | Reqt. ID | Description | Test Description | Test Trace |
 |---------|------------|-----------------|------------|
 | LM-1 | Limits Monitor shall display all telemetry points currently out of limits. | View displayed telemetry points. | limits_monior.ahk |
@@ -297,8 +282,6 @@ Limits Monitor displays all telemetry points that are currently out of limits an
 ## Telemetry Extractor
 
 Telemetry Extractor processes telemetry log files and extracts data into a CSV format for analysis in Excel or other tools.
-
-### Requirements
 
 | Reqt. ID | Description | Test Description | Test Trace |
 |---------|------------|-----------------|------------|
@@ -318,8 +301,6 @@ Telemetry Extractor processes telemetry log files and extracts data into a CSV f
 
 Command Extractor converts command packet logs into human readable text files.
 
-### Requirements
-
 | Reqt. ID | Description | Test Description | Test Trace |
 |---------|------------|-----------------|------------|
 | CE-1 | Command Extractor shall process one or more command log files at a time. | Open a command log file. | cmd_extractor.ahk |
@@ -329,8 +310,6 @@ Command Extractor converts command packet logs into human readable text files.
 ## Table Manager
 
 Table Manager provides a graphical user interface for editing binary files containing one or more tables of data.
-
-### Requirements
 
 | Reqt. ID | Description | Test Description | Test Trace |
 |---------|------------|-----------------|------------|
@@ -353,8 +332,6 @@ Table Manager provides a graphical user interface for editing binary files conta
 
 Handbook Creator provides a simple method to convert COSMOS command and telemetry definitions into beautiful Command and Telemetry Handbooks.
 
-### Requirements
-
 | Reqt. ID | Description | Test Description | Test Trace |
 |---------|------------|-----------------|------------|
 | HC-1 | Handbook Creator shall output handbooks in HTML format. | Press the Create HTML Handbooks button. | handbook_creator.ahk |
@@ -365,8 +342,6 @@ Handbook Creator provides a simple method to convert COSMOS command and telemetr
 ## Launcher
 
 Launcher provides a utility to organize all applicable applications for a project and to launch those applications.
-
-### Requirements
 
 | Reqt. ID | Description | Test Description | Test Trace |
 |---------|------------|-----------------|------------|
