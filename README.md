@@ -2,7 +2,7 @@
 
 > "The User Interface for Embedded Systems"
 
-[Documentation](https://github.com/BallAerospace/COSMOS/wiki)
+[Documentation](http://cosmosrb.com)
 
 Ball Aerospace COSMOS provides all the functionality needed to send commands to and receive data from one or more embedded systems referred to as "targets". Out of the box functionality includes: Telemetry Display, Telemetry Graphing, Operational and Test Scripting, Command Sending, Logging, Log File Playback, Table Management, and more.
 
