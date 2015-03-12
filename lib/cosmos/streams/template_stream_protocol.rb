@@ -126,7 +126,7 @@ module Cosmos
         # Scan the response for the variables in brackets <VARIABLE>
         # Write the packet value with each of the values received
         response_values = response_string.scan(response_regexp)[0]
-        raise "Unexpected response received: #{response_string}" if response_values.length != response_item_names.length
+        raise "Unexpected response received: #{response_string}" if !response_values or (response_values.length != response_item_names.length)
         response_values.each_with_index do |value, i|
           result_packet.write(response_item_names[i], value)
         end

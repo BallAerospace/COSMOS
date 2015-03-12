@@ -194,7 +194,7 @@ module Cosmos
     def self.get_at_least_x_bytes_of_data(socket, current_data, required_num_bytes)
       while (current_data.length < required_num_bytes)
         begin
-          data = socket.read_nonblock(65535)
+          data = socket.recv_nonblock(65535)
           if data.length == 0
             current_data.replace('')
             return

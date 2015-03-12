@@ -49,7 +49,7 @@ module Cosmos
       # No read mutex is needed because there is only one stream procesor
       # reading
       begin
-        data = @read_socket.read_nonblock(65535)
+        data = @read_socket.recv_nonblock(65535)
         @raw_logger_pair.read_logger.write(data) if @raw_logger_pair
       rescue IO::WaitReadable
         # Wait for the socket to be ready for reading or for the timeout
@@ -79,7 +79,7 @@ module Cosmos
       # No read mutex is needed because there is only one stream procesor
       # reading
       begin
-        data = @read_socket.read_nonblock(65535)
+        data = @read_socket.recv_nonblock(65535)
         @raw_logger_pair.read_logger.write(data) if @raw_logger_pair
       rescue Errno::EAGAIN, Errno::EWOULDBLOCK, Errno::ECONNRESET, Errno::ECONNABORTED
         data = ''
