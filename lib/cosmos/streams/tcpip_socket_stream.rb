@@ -40,7 +40,6 @@ module Cosmos
       # than one tool
       @write_mutex = Mutex.new
       @connected = false
-      @data = ''
     end
 
     # @return [String] Returns a binary string of data from the socket
@@ -50,8 +49,8 @@ module Cosmos
       # No read mutex is needed because there is only one stream procesor
       # reading
       begin
-        @read_socket.read_nonblock(65535, @data)
-        @raw_logger_pair.read_logger.write(@data) if @raw_logger_pair
+        data = @read_socket.read_nonblock(65535)
+        @raw_logger_pair.read_logger.write(data) if @raw_logger_pair
       rescue IO::WaitReadable
         # Wait for the socket to be ready for reading or for the timeout
         begin
@@ -66,13 +65,13 @@ module Cosmos
           end
         rescue IOError, Errno::ENOTSOCK
           # These can happen with the socket being closed while waiting on select
-          @data = ''
+          data = ''
         end
       rescue Errno::ECONNRESET, Errno::ECONNABORTED, IOError, Errno::ENOTSOCK
-        @data = ''
+        data = ''
       end
 
-      @data
+      data
     end
 
     # @return [String] Returns a binary string of data from the socket. Always returns immediately
@@ -80,13 +79,13 @@ module Cosmos
       # No read mutex is needed because there is only one stream procesor
       # reading
       begin
-        @read_socket.read_nonblock(65535, @data)
-        @raw_logger_pair.read_logger.write(@data) if @raw_logger_pair
+        data = @read_socket.read_nonblock(65535)
+        @raw_logger_pair.read_logger.write(data) if @raw_logger_pair
       rescue Errno::EAGAIN, Errno::EWOULDBLOCK, Errno::ECONNRESET, Errno::ECONNABORTED
-        @data = ''
+        data = ''
       end
 
-      @data
+      data
     end
 
     # @param data [String] A binary string of data to write to the socket
