@@ -125,8 +125,8 @@ module Cosmos
       it "returns nil if 4 bytes of data aren't available" do
         @json.start_service('127.0.0.1', 7777, self)
         socket = TCPSocket.open('127.0.0.1',7777)
-        # Stub read_nonblock so it returns nothing
-        allow(socket).to receive(:read_nonblock) { "" }
+        # Stub recv_nonblock so it returns nothing
+        allow(socket).to receive(:recv_nonblock) { "" }
         sleep 0.1
         JsonDRb.send_data(socket, "\x00")
         response_data = JsonDRb.receive_message(socket, '')
