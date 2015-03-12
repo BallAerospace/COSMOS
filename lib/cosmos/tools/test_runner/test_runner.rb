@@ -1056,10 +1056,10 @@ module Cosmos
       if @@test_suites.empty? || tests.empty?
         msg = "No TestSuites or no Test classes found"
         if !ignored_test_suite_classes.empty?
-          msg += "\n\nThe following TestSuites were found but ignored:\n#{ignored_test_suite_classes.join(", ")}"
+          msg << "\n\nThe following TestSuites were found but ignored:\n#{ignored_test_suite_classes.join(", ")}"
         end
         if !ignored_test_classes.empty?
-          msg += "\n\nThe following Tests were found but ignored:\n#{ignored_test_classes.join(", ")}"
+          msg << "\n\nThe following Tests were found but ignored:\n#{ignored_test_classes.join(", ")}"
         end
         Qt.execute_in_main_thread(true) do
           Qt::MessageBox.critical(self, 'Error', msg)

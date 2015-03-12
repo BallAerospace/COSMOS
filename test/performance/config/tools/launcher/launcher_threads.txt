@@ -1,0 +1,70 @@
+TITLE "Threads"
+TOOL_FONT tahoma 12
+LABEL_FONT tahoma 16
+
+TOOL "CTS - Profiled" "ruby-prof -p call_tree -m 1 -f callgrind.profile tools\CmdTlmServerMemProf -- --config cmd_tlm_server_threads.txt --system system_threads.txt" "cts.png"
+TOOL "CTS" "LAUNCH CmdTlmServer --config cmd_tlm_server_threads.txt --system system_threads.txt" "cts.png"
+TOOL "Script Runner" "LAUNCH ScriptRunner --system system_threads.txt" "script_runner.png"
+MULTITOOL_START "Simulated Targets" NULL
+  TOOL "LAUNCH_TERMINAL ExampleTarget 9999 STATUS 10 --system system_threads.txt"
+    DONT_CAPTURE_IO # Without this you get an "Unexpected Output" dialog
+  TOOL "LAUNCH_TERMINAL ExampleTarget 9998 STATUS 10 --system system_threads.txt"
+    DONT_CAPTURE_IO # Without this you get an "Unexpected Output" dialog
+  TOOL "LAUNCH_TERMINAL ExampleTarget 9997 STATUS 10 --system system_threads.txt"
+    DONT_CAPTURE_IO # Without this you get an "Unexpected Output" dialog
+  TOOL "LAUNCH_TERMINAL ExampleTarget 9996 STATUS 10 --system system_threads.txt"
+    DONT_CAPTURE_IO # Without this you get an "Unexpected Output" dialog
+  TOOL "LAUNCH_TERMINAL ExampleTarget 9995 STATUS 10 --system system_threads.txt"
+    DONT_CAPTURE_IO # Without this you get an "Unexpected Output" dialog
+  TOOL "LAUNCH_TERMINAL ExampleTarget 9994 STATUS 10 --system system_threads.txt"
+    DONT_CAPTURE_IO # Without this you get an "Unexpected Output" dialog
+  TOOL "LAUNCH_TERMINAL ExampleTarget 9993 STATUS 10 --system system_threads.txt"
+    DONT_CAPTURE_IO # Without this you get an "Unexpected Output" dialog
+  TOOL "LAUNCH_TERMINAL ExampleTarget 9992 STATUS 10 --system system_threads.txt"
+    DONT_CAPTURE_IO # Without this you get an "Unexpected Output" dialog
+  TOOL "LAUNCH_TERMINAL ExampleTarget 9991 STATUS 10 --system system_threads.txt"
+    DONT_CAPTURE_IO # Without this you get an "Unexpected Output" dialog
+  TOOL "LAUNCH_TERMINAL ExampleTarget 9990 STATUS 10 --system system_threads.txt"
+    DONT_CAPTURE_IO # Without this you get an "Unexpected Output" dialog
+  TOOL "LAUNCH_TERMINAL ExampleTarget 9989 STATUS 10 --system system_threads.txt"
+    DONT_CAPTURE_IO # Without this you get an "Unexpected Output" dialog
+  TOOL "LAUNCH_TERMINAL ExampleTarget 9988 STATUS 10 --system system_threads.txt"
+    DONT_CAPTURE_IO # Without this you get an "Unexpected Output" dialog
+  TOOL "LAUNCH_TERMINAL ExampleTarget 9987 STATUS 10 --system system_threads.txt"
+    DONT_CAPTURE_IO # Without this you get an "Unexpected Output" dialog
+  TOOL "LAUNCH_TERMINAL ExampleTarget 9986 STATUS 10 --system system_threads.txt"
+    DONT_CAPTURE_IO # Without this you get an "Unexpected Output" dialog
+  TOOL "LAUNCH_TERMINAL ExampleTarget 9985 STATUS 10 --system system_threads.txt"
+    DONT_CAPTURE_IO # Without this you get an "Unexpected Output" dialog
+  TOOL "LAUNCH_TERMINAL ExampleTarget 9984 STATUS 10 --system system_threads.txt"
+    DONT_CAPTURE_IO # Without this you get an "Unexpected Output" dialog
+  TOOL "LAUNCH_TERMINAL ExampleTarget 9983 STATUS 10 --system system_threads.txt"
+    DONT_CAPTURE_IO # Without this you get an "Unexpected Output" dialog
+  TOOL "LAUNCH_TERMINAL ExampleTarget 9982 STATUS 10 --system system_threads.txt"
+    DONT_CAPTURE_IO # Without this you get an "Unexpected Output" dialog
+  TOOL "LAUNCH_TERMINAL ExampleTarget 9981 STATUS 10 --system system_threads.txt"
+    DONT_CAPTURE_IO # Without this you get an "Unexpected Output" dialog
+  TOOL "LAUNCH_TERMINAL ExampleTarget 9980 STATUS 10 --system system_threads.txt"
+    DONT_CAPTURE_IO # Without this you get an "Unexpected Output" dialog
+  TOOL "LAUNCH_TERMINAL ExampleTarget 9979 STATUS 10 --system system_threads.txt"
+    DONT_CAPTURE_IO # Without this you get an "Unexpected Output" dialog
+  TOOL "LAUNCH_TERMINAL ExampleTarget 9978 STATUS 10 --system system_threads.txt"
+    DONT_CAPTURE_IO # Without this you get an "Unexpected Output" dialog
+  TOOL "LAUNCH_TERMINAL ExampleTarget 9977 STATUS 10 --system system_threads.txt"
+    DONT_CAPTURE_IO # Without this you get an "Unexpected Output" dialog
+  TOOL "LAUNCH_TERMINAL ExampleTarget 9976 STATUS 10 --system system_threads.txt"
+    DONT_CAPTURE_IO # Without this you get an "Unexpected Output" dialog
+  TOOL "LAUNCH_TERMINAL ExampleTarget 9975 STATUS 10 --system system_threads.txt"
+    DONT_CAPTURE_IO # Without this you get an "Unexpected Output" dialog
+  TOOL "LAUNCH_TERMINAL ExampleTarget 9974 STATUS 10 --system system_threads.txt"
+    DONT_CAPTURE_IO # Without this you get an "Unexpected Output" dialog
+  TOOL "LAUNCH_TERMINAL ExampleTarget 9973 STATUS 10 --system system_threads.txt"
+    DONT_CAPTURE_IO # Without this you get an "Unexpected Output" dialog
+  TOOL "LAUNCH_TERMINAL ExampleTarget 9972 STATUS 10 --system system_threads.txt"
+    DONT_CAPTURE_IO # Without this you get an "Unexpected Output" dialog
+  TOOL "LAUNCH_TERMINAL ExampleTarget 9971 STATUS 10 --system system_threads.txt"
+    DONT_CAPTURE_IO # Without this you get an "Unexpected Output" dialog
+  TOOL "LAUNCH_TERMINAL ExampleTarget 9970 STATUS 10 --system system_threads.txt"
+    DONT_CAPTURE_IO # Without this you get an "Unexpected Output" dialog
+MULTITOOL_END
+

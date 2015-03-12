@@ -470,10 +470,6 @@ module Cosmos
 
       ruby_lex_utils = RubyLexUtils.new
       instrumented_text = ''
-      # Add an extra newline because the Ruby 1.9.1 lexer RubyLex has a bug
-      # where it loops unless the file ends in a newline. If there is already
-      # a newline then so what, we add an extra.
-      text += "\n"
 
       Qt.execute_in_main_thread(true) do
         window = Qt::CoreApplication.instance.activeWindow
@@ -1196,7 +1192,7 @@ module Cosmos
               end
             end
             @output.add_formatted_text(line_to_write, color)
-            lines_to_write += line_to_write
+            lines_to_write << line_to_write
 
             line_count += 1
             if line_count > 1000
@@ -1207,7 +1203,7 @@ module Cosmos
                 line_to_write = time_formatted + " (SCRIPTRUNNER): "  + out_line
               end
               @output.addText(line_to_write, Cosmos::RED)
-              lines_to_write += line_to_write
+              lines_to_write << line_to_write
               break
             end
           end # string.each_line

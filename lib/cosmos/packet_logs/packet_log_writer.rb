@@ -88,6 +88,7 @@ module Cosmos
       @file_size = 0
       @filename = nil
       @label = nil
+      @entry_header = String.new
       @start_time = Time.now
 
       @cancel_threads = false
@@ -246,10 +247,10 @@ module Cosmos
           start_new_file()
         end
         if @file
-          entry_header = build_entry_header(packet)
-          if entry_header
-            @file.write(entry_header)
-            @file_size += entry_header.length
+          @entry_header = build_entry_header(packet) # populate @entry_header
+          if @entry_header
+            @file.write(@entry_header)
+            @file_size += @entry_header.length
           end
           buffer = packet.buffer
           @file.write(buffer)
@@ -300,24 +301,21 @@ module Cosmos
     def build_entry_header(packet)
       received_time = packet.received_time
       received_time = Time.now unless received_time
+      # This is an optimization to avoid creating a new entry_header object
+      # each time we create an entry_header which we do a LOT!
+      @entry_header.clear
+      @entry_header << [received_time.tv_sec].pack('N'.freeze)
+      @entry_header << [received_time.tv_usec].pack('N'.freeze)
       target_name = packet.target_name
-      target_name = 'UNKNOWN' unless target_name
+      target_name = 'UNKNOWN'.freeze unless target_name
+      @entry_header << target_name.length
+      @entry_header << target_name
       packet_name = packet.packet_name
-      packet_name = 'UNKNOWN' unless packet_name
-      data_length = [packet.length].pack('N')
-      time_seconds = [received_time.tv_sec].pack('N')
-      time_microseconds = [received_time.tv_usec].pack('N')
-
-      header = ''
-      header << time_seconds
-      header << time_microseconds
-      header << target_name.length
-      header << target_name
-      header << packet_name.length
-      header << packet_name
-      header << data_length
-
-      return header
+      packet_name = 'UNKNOWN'.freeze unless packet_name
+      @entry_header << packet_name.length
+      @entry_header << packet_name
+      @entry_header << [packet.length].pack('N'.freeze)
+      return @entry_header
     end
 
   end # class PacketLogWriter

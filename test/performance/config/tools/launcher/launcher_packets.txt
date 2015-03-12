@@ -1,0 +1,29 @@
+TITLE "Packets"
+TOOL_FONT tahoma 12
+LABEL_FONT tahoma 16
+
+TOOL "Command and Telemetry Server" "ruby-prof -p call_tree -m 1 -f callgrind.profile tools\CmdTlmServer -- --config cmd_tlm_server_packets.txt --system system_packets.txt" "cts.png"
+TOOL "Script Runner" "LAUNCH ScriptRunner --system system_packets.txt" "script_runner.png"
+MULTITOOL_START "Simulated Targets" NULL
+  TOOL "LAUNCH_TERMINAL ExampleTarget 9999 BIG_STATUS 10"
+    DONT_CAPTURE_IO # Without this you get an "Unexpected Output" dialog
+  TOOL "LAUNCH_TERMINAL ExampleTarget 9998 BIG_STATUS 10"
+    DONT_CAPTURE_IO # Without this you get an "Unexpected Output" dialog
+  TOOL "LAUNCH_TERMINAL ExampleTarget 9997 BIG_STATUS 10"
+    DONT_CAPTURE_IO # Without this you get an "Unexpected Output" dialog
+  TOOL "LAUNCH_TERMINAL ExampleTarget 9996 BIG_STATUS 10"
+    DONT_CAPTURE_IO # Without this you get an "Unexpected Output" dialog
+  TOOL "LAUNCH_TERMINAL ExampleTarget 9995 BIG_STATUS 10"
+    DONT_CAPTURE_IO # Without this you get an "Unexpected Output" dialog
+  TOOL "LAUNCH_TERMINAL ExampleTarget 9994 BIG_STATUS 10"
+    DONT_CAPTURE_IO # Without this you get an "Unexpected Output" dialog
+  TOOL "LAUNCH_TERMINAL ExampleTarget 9993 BIG_STATUS 10"
+    DONT_CAPTURE_IO # Without this you get an "Unexpected Output" dialog
+  TOOL "LAUNCH_TERMINAL ExampleTarget 9992 BIG_STATUS 10"
+    DONT_CAPTURE_IO # Without this you get an "Unexpected Output" dialog
+  TOOL "LAUNCH_TERMINAL ExampleTarget 9991 BIG_STATUS 10"
+    DONT_CAPTURE_IO # Without this you get an "Unexpected Output" dialog
+  TOOL "LAUNCH_TERMINAL ExampleTarget 9990 BIG_STATUS 10"
+    DONT_CAPTURE_IO # Without this you get an "Unexpected Output" dialog
+MULTITOOL_END
+

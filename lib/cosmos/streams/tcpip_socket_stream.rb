@@ -39,6 +39,7 @@ module Cosmos
       # Mutex on write is needed to protect from commands coming in from more
       # than one tool
       @write_mutex = Mutex.new
+      @connected = false
     end
 
     # @return [String] Returns a binary string of data from the socket
@@ -50,7 +51,7 @@ module Cosmos
       begin
         data = @read_socket.recv_nonblock(65535)
         @raw_logger_pair.read_logger.write(data) if @raw_logger_pair
-      rescue Errno::EAGAIN, Errno::EWOULDBLOCK
+      rescue IO::WaitReadable
         # Wait for the socket to be ready for reading or for the timeout
         begin
           result = IO.fast_select([@read_socket], nil, nil, @read_timeout)

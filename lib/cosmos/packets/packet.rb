@@ -629,8 +629,8 @@ module Cosmos
     #   buffer of data and processors
     def clone
       packet = super()
-      if packet.instance_variable_get("@processors")
-        packet.instance_variable_set("@processors", packet.processors.clone)
+      if packet.instance_variable_get("@processors".freeze)
+        packet.instance_variable_set("@processors".freeze, packet.processors.clone)
         packet.processors.each do |processor_name, processor|
           packet.processors[processor_name] = processor.clone
         end

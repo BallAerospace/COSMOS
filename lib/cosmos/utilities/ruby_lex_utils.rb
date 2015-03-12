@@ -217,7 +217,7 @@ class RubyLexUtils
     end
 
     delete_count = 0
-    delete_ranges.reverse.each do |range|
+    delete_ranges.reverse_each do |range|
       delete_count += 1
       comments_removed[range] = ''
       if progress_dialog and delete_count % 10000 == 0

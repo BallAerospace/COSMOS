@@ -149,7 +149,9 @@ module Cosmos
       # Add the message output
       @output = Qt::PlainTextEdit.new
       @output.setReadOnly(true)
-      @output.setMaximumBlockCount(10000) # 10000 lines of history will be displayed
+      # Block count does NOT equal line numbers. Testing on Windows indicates
+      # 100 blocks equals a little over 27000 lines.
+      @output.setMaximumBlockCount(100)
 
       @splitter.addWidget(@output)
       # Set the stretch factor to give priority to the tab_widget (index 0) instead of the output (index 1)
@@ -291,7 +293,7 @@ module Cosmos
           lines_to_write = ''
           string = @string_output.string.clone
           @string_output.string = @string_output.string[string.length..-1]
-          string.each_line {|out_line| @output.add_formatted_text(out_line); lines_to_write += out_line }
+          string.each_line {|out_line| @output.add_formatted_text(out_line); lines_to_write << out_line }
           @output.flush
           if @first_output < 2
             # Scroll to the bottom on the first two outputs for Linux

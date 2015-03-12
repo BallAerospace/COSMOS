@@ -598,7 +598,7 @@ module Cosmos
     def _wait_tolerance(raw, *args)
       type = (raw ? :RAW : :CONVERTED)
       type_string = 'wait_tolerance'
-      type_string += '_raw' if raw
+      type_string << '_raw' if raw
       target_name, packet_name, item_name, expected_value, tolerance, timeout, polling_rate = wait_tolerance_process_args(args, type_string)
       start_time = Time.now
       success, value = cosmos_script_wait_implementation_tolerance(target_name, packet_name, item_name, type, expected_value, tolerance, timeout, polling_rate)
@@ -682,7 +682,7 @@ module Cosmos
 
     def _wait_check_tolerance(raw, *args)
       type_string = 'wait_check_tolerance'
-      type_string += '_raw' if raw
+      type_string << '_raw' if raw
       type = (raw ? :RAW : :CONVERTED)
       target_name, packet_name, item_name, expected_value, tolerance, timeout, polling_rate = wait_tolerance_process_args(args, type_string)
       start_time = Time.now
@@ -1067,7 +1067,7 @@ module Cosmos
 
             if use_file_cache
               # Check file based instrumented cache
-              flat_path = path.gsub("/", "_").gsub("\\", "_").gsub(":", "_").gsub(" ", "_")
+              flat_path = path.tr("/", "_").gsub("\\", "_").tr(":", "_").tr(" ", "_")
               flat_path_with_md5 = flat_path + '_' + md5
               cache_filename = File.join(cache_path, flat_path_with_md5)
             end
@@ -1418,7 +1418,7 @@ module Cosmos
       end
       output_string << target_name + ' ' + cmd_name
       if cmd_params.nil? or cmd_params.empty?
-        output_string += '")'
+        output_string << '")'
       else
         params = []
         cmd_params.each do |key, value|
@@ -1428,13 +1428,13 @@ module Cosmos
               if value.length > 256
                 value = value[0..255] + "...'"
               end
-              value.gsub!('"',"'")
+              value.tr!('"',"'")
             end
           end
           params << "#{key} #{value}"
         end
         params = params.join(", ")
-        output_string += ' with ' + params + '")'
+        output_string << ' with ' + params + '")'
       end
       return output_string
     end

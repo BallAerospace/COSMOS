@@ -28,7 +28,7 @@ module Cosmos
         base = File.basename(config_filename)
         extension = File.extname(base)
         filename_no_extension = base[0..-(extension.length + 1)]
-        configs[-1].output_filename = File.join(output_dir, batch_name.gsub(' ', '_') + '_' + filename_no_extension.gsub(' ', '_') + output_extension)
+        configs[-1].output_filename = File.join(output_dir, batch_name.tr(' ', '_') + '_' + filename_no_extension.tr(' ', '_') + output_extension)
       end
       process(input_filenames, configs, time_start, time_end, &block)
     end # def process_batch

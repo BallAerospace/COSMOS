@@ -428,6 +428,8 @@ class Qt::LineEdit
 end
 
 class Qt::PlainTextEdit
+  @@color_cache = {}
+
   def add_formatted_text(text, color = nil)
     if text =~ /[\x00-\x08\x0B-\x0C\x0E-\x1F\x7F-\xFF]/
       text.chomp!
@@ -435,16 +437,16 @@ class Qt::PlainTextEdit
       text << "\n"
     end
     if text =~ /<G>/ or color == Cosmos::GREEN
-      text.gsub!('<G>', '')
+      text.gsub!(/<G>/, '')
       addText(text, Cosmos::GREEN)
     elsif text =~ /<Y>/ or color == Cosmos::YELLOW
-      text.gsub!('<Y>', '')
+      text.gsub!(/<Y>/, '')
       addText(text, Cosmos::YELLOW)
     elsif text =~ /<R>/ or color == Cosmos::RED
-      text.gsub!('<R>', '')
+      text.gsub!(/<R>/, '')
       addText(text, Cosmos::RED)
     elsif text =~ /<B>/ or color == Cosmos::BLUE
-      text.gsub!('<B>', '')
+      text.gsub!(/<B>/, '')
       addText(text, Cosmos::BLUE)
     else
       addText(text) # default is Cosmos::BLACK
@@ -452,30 +454,17 @@ class Qt::PlainTextEdit
   end
 
   def addText(text, color = Cosmos::BLACK)
-    @current_text = "" if !defined? @current_text or @current_text.nil?
-    text = text.gsub("&", "&amp;")
-    text.gsub!("\n", '')
-    text.gsub!(' ', '&nbsp;')
-    text.gsub!(">", "&gt;")
-    text.gsub!("<", "&lt;")
-    rgb_color = "#%02X%02X%02X" % [color.red, color.green, color.blue]
-    @current_text +="<font color=\"#{rgb_color}\">#{text}</font><br/>"
+    @current_text ||= ''
+    @current_text << escape_text(text.chomp, color) << '<br/>'.freeze
   end
 
   def flush
     appendHtml(@current_text)
-    @current_text = nil
+    @current_text.clear
   end
 
   def appendText(text, color = Cosmos::BLACK)
-    text = text.chomp
-    text.gsub!(/\n/, '<br/>') # replace newlines with html breaks
-    text.gsub!("&", "&amp;")
-    text.gsub!(' ', '&nbsp;')
-    text.gsub!(">", "&gt;")
-    text.gsub!("<", "&lt;")
-    rgb_color = "#%02X%02X%02X" % [color.red, color.green, color.blue]
-    appendHtml("<font color=\"#{rgb_color}\">#{text}</font>")
+    appendHtml(escape_text(text.chomp, color))
   end
 
   # Return the selected lines. If a partial line is selected the entire line will be returned.
@@ -522,6 +511,17 @@ class Qt::PlainTextEdit
     cursor.setPosition(textCursor.selectionEnd)
     cursor.blockNumber
   end
+
+  private
+
+  def escape_text(text, color)
+    # You might think gsub! would use less memory but benchmarking proves gsub
+    # with a regular express argument is the fastest and uses the least memory.
+    # However, this is still an expensive operation due to how many times it is called.
+    text = text.gsub(/&/,'&amp;'.freeze).gsub(/\n/,'<br/>'.freeze).gsub(/\s/, '&nbsp;'.freeze).gsub(/>/,'&gt;'.freeze).gsub(/</,'&lt;'.freeze)
+    @@color_cache[color] ||= "#%02X%02X%02X" % [color.red, color.green, color.blue]
+    "<font color=\"#{@@color_cache[color]}\">#{text}</font>"
+  end
 end
 
 class Qt::TextEdit
@@ -533,7 +533,7 @@ end
 class Qt::ComboBox
   # Helper method to remove all items from a ComboBox
   def clearItems
-    (0...count).to_a.reverse.each do |index|
+    (0...count).to_a.reverse_each do |index|
       removeItem(index)
     end
   end
