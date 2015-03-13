@@ -125,6 +125,8 @@ module Cosmos
 
       @thread = nil
       @cancel_callback = nil
+      @overall_progress = 0
+      @step_progress = 0
     end
 
     def self.canceled?
@@ -199,17 +201,21 @@ module Cosmos
     end
 
     def set_step_progress (value)
-      unless @complete
+      progress_int = (value * 100).to_i
+      if !@complete and @step_progress != progress_int
+        @step_progress = progress_int
         Qt.execute_in_main_thread(false) do
-          @step_bar.setValue(value * 100.0) if @step_bar
+          @step_bar.setValue(progress_int) if @step_bar
         end
       end
     end
 
     def set_overall_progress (value)
-      unless @complete
+      progress_int = (value * 100).to_i
+      if !@complete and @overall_progress != progress_int
+        @overall_progress = progress_int
         Qt.execute_in_main_thread(false) do
-          @overall_bar.setValue(value * 100.0) if @overall_bar
+          @overall_bar.setValue(progress_int) if @overall_bar
         end
       end
     end

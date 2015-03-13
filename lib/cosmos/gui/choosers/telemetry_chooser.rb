@@ -134,7 +134,6 @@ module Cosmos
       @item_changed_callback = nil
       @select_button_callback = nil
       @support_latest = support_latest
-      update()
     end
 
     # Update items

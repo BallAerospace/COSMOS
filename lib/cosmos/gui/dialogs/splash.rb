@@ -37,19 +37,27 @@ module Cosmos
         layout.addWidget(@message_box)
         @progress_bar = Qt::ProgressBar.new
         layout.addWidget(@progress_bar)
-
         setLayout(layout)
+
+        @progress = 0
+        @complete = false
       end
 
       def message=(message)
-        Qt.execute_in_main_thread(true) do
-          @message_box.setText(message)
+        unless @complete
+          Qt.execute_in_main_thread(false) do
+            @message_box.setText(message)
+          end
         end
       end
 
       def progress=(progress)
-        Qt.execute_in_main_thread(true) do
-          @progress_bar.setValue(progress * 100)
+        progress_int = (progress * 100).to_i
+        if !@complete and @progress != progress_int
+          @progress = progress_int
+          Qt.execute_in_main_thread(false) do
+            @progress_bar.setValue(progress_int)
+          end
         end
       end
 
@@ -82,7 +90,6 @@ module Cosmos
       #   Qt.execute_in_main_thread(true) do
       #     < Update the GUI >
       #   end
-      complete = false
       Thread.new do
         error = nil
         begin
@@ -90,6 +97,8 @@ module Cosmos
         rescue Exception => e
           error = e
         end
+
+        @complete = true
 
         # If the block threw an error show it before allowing the application to crash
         if error
@@ -101,12 +110,25 @@ module Cosmos
         Qt.execute_in_main_thread(true) do
           # Once the block has completed we hide and dispose the dialog to allow the main application to take over
           dialog.hide
-          dialog.dispose unless wait_for_complete
+
+          unless wait_for_complete
+            # Need to make sure all Qt.execute_in_main_thread() have completed before disposing or
+            # we will segfault
+            Qt::RubyThreadFix.queue.pop.call until Qt::RubyThreadFix.queue.empty?
+
+            dialog.dispose
+          end
         end
-        complete = true
       end
-      dialog.exec if wait_for_complete
-      dialog.dispose if wait_for_complete
+      if wait_for_complete
+        dialog.exec
+
+        # Need to make sure all Qt.execute_in_main_thread() have completed before disposing or
+        # we will segfault
+        Qt::RubyThreadFix.queue.pop.call until Qt::RubyThreadFix.queue.empty?
+
+        dialog.dispose
+      end
     end
   end
 

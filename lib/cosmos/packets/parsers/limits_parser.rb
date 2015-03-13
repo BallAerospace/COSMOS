@@ -47,7 +47,7 @@ module Cosmos
       item.limits.persistence_setting = get_persistence()
       item.limits.persistence_count = 0
 
-      packet.update_limits_items_cache
+      packet.update_limits_items_cache(item)
       limits_set
     end
 

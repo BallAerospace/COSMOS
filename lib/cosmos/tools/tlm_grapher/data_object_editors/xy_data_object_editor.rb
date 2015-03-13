@@ -50,6 +50,7 @@ module Cosmos
 
       # Telemetry Chooser for x item
       @telemetry_chooser = TelemetryChooser.new(self, Qt::Vertical, true, false)
+      @telemetry_chooser.update
       @telemetry_chooser.set_item(data_object.target_name, data_object.packet_name, data_object.y_item_name)
       @telemetry_chooser.target_changed_callback = method(:target_packet_changed_callback)
       @telemetry_chooser.packet_changed_callback = method(:target_packet_changed_callback)
