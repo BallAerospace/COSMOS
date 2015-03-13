@@ -60,12 +60,12 @@ module Cosmos
     end
 
     describe "target_names" do
-      it "returns an array with just UNKNOWN if no targets" do
-        expect(Commands.new(PacketConfig.new).target_names).to eql ["UNKNOWN"]
+      it "returns an empty array if no targets" do
+        expect(Commands.new(PacketConfig.new).target_names).to eql []
       end
 
       it "returns all target names" do
-        expect(@cmd.target_names).to eql ["TGT1","TGT2","UNKNOWN"]
+        expect(@cmd.target_names).to eql ["TGT1","TGT2"]
       end
     end
 

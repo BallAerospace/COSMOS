@@ -443,7 +443,7 @@ module Cosmos
     def update_targets
       @target_select.clearItems()
       target_names = System.commands.target_names
-      target_names_to_delete = ['UNKNOWN']
+      target_names_to_delete = []
       target_names.each do |target_name|
         found_non_hidden = false
         begin

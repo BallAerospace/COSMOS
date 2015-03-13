@@ -38,9 +38,11 @@ module Cosmos
       return @config.warnings
     end
 
-    # @return [Array<String>] The command target names
+    # @return [Array<String>] The command target names (excluding UNKNOWN)
     def target_names
-      return @config.commands.keys.sort
+      result = @config.commands.keys.sort
+      result.delete('UNKNOWN'.freeze)
+      return result
     end
 
     # @param target_name [String] The target name

@@ -39,9 +39,11 @@ module Cosmos
       return @config.warnings
     end
 
-    # @return [Array<String>] The telemetry target names
+    # @return [Array<String>] The telemetry target names (excluding UNKNOWN)
     def target_names
-      return @config.telemetry.keys.sort
+      result = @config.telemetry.keys.sort
+      result.delete('UNKNOWN'.freeze)
+      return result
     end
 
     # @param target_name [String] The target name
@@ -285,7 +287,6 @@ module Cosmos
       tnames = target_names()
       total = tnames.length.to_f
       tnames.each_with_index do |target_name, index|
-        next if target_name == 'UNKNOWN'
         if splash
           splash.message = "Processing #{target_name} telemetry"
           splash.progress = index / total

@@ -39,7 +39,7 @@ module Cosmos
       return if cmd_tlm.nil? || cmd_tlm.target_names.empty?
 
       row = 0
-      cmd_tlm.target_names.sort.each do |target_name|
+      cmd_tlm.target_names.each do |target_name|
         packets = cmd_tlm.packets(target_name)
         packets.sort.each do |packet_name, packet|
           next if packet.hidden
@@ -47,6 +47,9 @@ module Cosmos
           row += 1
         end
       end
+      packet = cmd_tlm.packet('UNKNOWN', 'UNKNOWN')
+      @packets_table[name].item(row, 2).setText(packet.received_count.to_s)
+      row += 1
     end
 
     private
@@ -55,12 +58,13 @@ module Cosmos
       return if cmd_tlm.target_names.empty?
 
       count = 0
-      cmd_tlm.target_names.sort.each do |target_name|
+      cmd_tlm.target_names.each do |target_name|
         packets = cmd_tlm.packets(target_name)
         packets.each do |packet_name, packet|
           count += 1 unless packet.hidden
         end
       end
+      count += 1 # For UNKNOWN UNKNOWN
 
       scroll = Qt::ScrollArea.new
       widget = Qt::Widget.new
@@ -95,7 +99,9 @@ module Cosmos
 
     def populate_packets_table(name, cmd_tlm, table)
       row = 0
-      cmd_tlm.target_names.sort.each do |target_name|
+      target_names = cmd_tlm.target_names
+      target_names << 'UNKNOWN'.freeze
+      target_names.each do |target_name|
         packets = cmd_tlm.packets(target_name)
         packets.sort.each do |packet_name, packet|
           packet.received_count ||= 0
