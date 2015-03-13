@@ -201,7 +201,8 @@ module Cosmos
     # @return [Array<limits_set, persistence, enabled, red_low, yellow_low, red_high, yellow_high, green_low (optional), green_high (optional)] Limits information
     def set(target_name, packet_name, item_name, red_low, yellow_low, yellow_high, red_high, green_low = nil, green_high = nil, limits_set = :CUSTOM, persistence = nil, enabled = true)
       packet = get_packet(target_name, packet_name)
-      limits = packet.get_item(item_name).limits
+      item = packet.get_item(item_name)
+      limits = item.limits
       if limits_set
         limits_set = limits_set.to_s.upcase.intern
       else
@@ -231,7 +232,7 @@ module Cosmos
       end
       limits.enabled = enabled
       limits.persistence_setting = Integer(persistence) if persistence
-      packet.update_limits_items_cache
+      packet.update_limits_items_cache(item)
       @config.limits_sets << limits_set
       @config.limits_sets.uniq!
       return [limits_set, limits.persistence_setting, limits.enabled, limits_for_set[0], limits_for_set[1], limits_for_set[2], limits_for_set[3], limits_for_set[4], limits_for_set[5]]

@@ -572,6 +572,7 @@ module Cosmos
         i = p.get_item("TEST1")
         i.states = {"TRUE"=>1,"FALSE"=>0}
         i.state_colors = {"TRUE"=>:GREEN,"FALSE"=>:RED}
+        p.update_limits_items_cache(i)
         p.write("TEST1",0)
         p.enable_limits("TEST1")
         p.append_item("test2", 16, :UINT)
@@ -579,7 +580,7 @@ module Cosmos
         i.limits.values = {:DEFAULT=>[1,2,4,5]}
         p.write("TEST2",3)
         p.enable_limits("TEST2")
-        p.update_limits_items_cache
+        p.update_limits_items_cache(i)
         p.check_limits
 
         vals = p.read_all_with_limits_states
@@ -813,14 +814,17 @@ module Cosmos
       it "calls the limits_change_callback for all non STALE items" do
         p = Packet.new("tgt","pkt")
         p.append_item("test1", 8, :UINT)
-        p.get_item("TEST1").limits.values = {:DEFAULT=>[1,2,4,5]}
+        i = p.get_item("TEST1")
+        i.limits.values = {:DEFAULT=>[1,2,4,5]}
+        p.update_limits_items_cache(i)
         p.append_item("test2", 16, :UINT)
-        p.get_item("TEST2").limits.values = {:DEFAULT=>[1,2,4,5]}
+        i = p.get_item("TEST2")
+        i.limits.values = {:DEFAULT=>[1,2,4,5]}
+        p.update_limits_items_cache(i)
         p.write("TEST1",3)
         p.write("TEST2",3)
         p.enable_limits("TEST1")
         p.enable_limits("TEST2")
-        p.update_limits_items_cache
 
         callback = double("callback", :call => true)
         p.limits_change_callback = callback
@@ -845,11 +849,11 @@ module Cosmos
 
         test1 = p.get_item("TEST1")
         test1.limits.values = {:DEFAULT=>[1,2,4,5]}
-        p.update_limits_items_cache
+        p.update_limits_items_cache(test1)
         expect(p.limits_items).to eql [test1]
         test2 = p.get_item("TEST2")
         test2.limits.values = {:DEFAULT=>[1,2,4,5]}
-        p.update_limits_items_cache
+        p.update_limits_items_cache(test2)
         expect(p.limits_items).to eql [test1, test2]
       end
     end
@@ -858,14 +862,17 @@ module Cosmos
       it "returns an array indicating all items out of limits" do
         p = Packet.new("tgt","pkt")
         p.append_item("test1", 8, :UINT)
-        p.get_item("TEST1").limits.values = {:DEFAULT=>[1,2,4,5]}
+        i = p.get_item("TEST1")
+        i.limits.values = {:DEFAULT=>[1,2,4,5]}
+        p.update_limits_items_cache(i)
         p.enable_limits("TEST1")
         p.write("TEST1",3)
         p.append_item("test2", 16, :UINT)
-        p.get_item("TEST2").limits.values = {:DEFAULT=>[1,2,4,5]}
+        i = p.get_item("TEST2")
+        i.limits.values = {:DEFAULT=>[1,2,4,5]}
+        p.update_limits_items_cache(i)
         p.write("TEST2",3)
         p.enable_limits("TEST2")
-        p.update_limits_items_cache
         p.check_limits
         expect(p.out_of_limits).to eql []
 
@@ -882,12 +889,15 @@ module Cosmos
       it "sets all limits states to the given state" do
         p = Packet.new("tgt","pkt")
         p.append_item("test1", 8, :UINT)
-        p.get_item("TEST1").limits.values = {:DEFAULT=>[1,2,4,5]}
+        i = p.get_item("TEST1")
+        i.limits.values = {:DEFAULT=>[1,2,4,5]}
+        p.update_limits_items_cache(i)
         p.enable_limits("TEST1")
         p.append_item("test2", 16, :UINT)
-        p.get_item("TEST2").limits.values = {:DEFAULT=>[1,2,4,5]}
+        i = p.get_item("TEST2")
+        i.limits.values = {:DEFAULT=>[1,2,4,5]}
+        p.update_limits_items_cache(i)
         p.enable_limits("TEST2")
-        p.update_limits_items_cache
         expect(p.out_of_limits).to eql []
 
         PacketItemLimits::OUT_OF_LIMITS_STATES.each do |state|
@@ -927,6 +937,7 @@ module Cosmos
           expect(test1.limits.enabled).to be_falsey
           test1.states = {"TRUE"=>1,"FALSE"=>0}
           test1.state_colors = {"TRUE"=>:GREEN,"FALSE"=>:RED}
+          @p.update_limits_items_cache(test1)
           @p.write("TEST1", 0)
           @p.enable_limits("TEST1")
           test2 = @p.get_item("TEST2")
@@ -935,7 +946,7 @@ module Cosmos
           test2.state_colors = {"TRUE"=>:RED,"FALSE"=>:GREEN}
           @p.write("TEST2", 0)
           @p.enable_limits("TEST2")
-          @p.update_limits_items_cache
+          @p.update_limits_items_cache(test2)
 
           # Mock the callback so we can see if it is called properly
           callback = double("callback", :call => true)
@@ -963,18 +974,20 @@ module Cosmos
           @test1 = @p.get_item("TEST1")
           expect(@test1.limits.enabled).to be_falsey
           @test1.limits.values = {:DEFAULT=>[1,2,4,5]} # red yellow
+          @p.update_limits_items_cache(@test1)
           @p.enable_limits("TEST1")
 
           @test2 = @p.get_item("TEST2")
           expect(@test2.limits.enabled).to be_falsey
           @test2.limits.values = {:DEFAULT=>[1,2,6,7,3,5]} # red yellow and blue
+          @p.update_limits_items_cache(@test2)
           @p.enable_limits("TEST2")
 
           @test3 = @p.get_item("TEST3")
           expect(@test3.limits.enabled).to be_falsey
           @test3.limits.values = {:DEFAULT=>[1,1.5,2.5,3]} # red yellow
+          @p.update_limits_items_cache(@test3)
           @p.enable_limits("TEST3")
-          @p.update_limits_items_cache
 
           # Mock the callback so we can see if it is called properly
           @callback = double("callback", :call => true)
@@ -1224,12 +1237,15 @@ module Cosmos
       it "sets all limits states to stale" do
         p = Packet.new("tgt","pkt")
         p.append_item("test1", 8, :UINT)
-        p.get_item("TEST1").limits.values = {:DEFAULT=>[1,2,4,5]}
+        i = p.get_item("TEST1")
+        i.limits.values = {:DEFAULT=>[1,2,4,5]}
+        p.update_limits_items_cache(i)
         p.enable_limits("TEST1")
         p.append_item("test2", 16, :UINT)
-        p.get_item("TEST2").limits.values = {:DEFAULT=>[1,2,4,5]}
+        i = p.get_item("TEST2")
+        i.limits.values = {:DEFAULT=>[1,2,4,5]}
+        p.update_limits_items_cache(i)
         p.enable_limits("TEST2")
-        p.update_limits_items_cache
         expect(p.out_of_limits).to eql []
 
         expect(p.stale).to be_truthy

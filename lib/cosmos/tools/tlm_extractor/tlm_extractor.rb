@@ -92,6 +92,7 @@ module Cosmos
         @tlm_extractor_config = TlmExtractorConfig.new(options.config_file)
         @tlm_extractor_processor = TlmExtractorProcessor.new
         Qt.execute_in_main_thread(true) do
+          @telemetry_chooser.update
           sync_config_to_gui()
         end
 

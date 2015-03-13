@@ -38,6 +38,7 @@ module Cosmos
 
       # Chooser for packet and y item
       @telemetry_chooser = TelemetryChooser.new(self, orientation, true, false, true, true)
+      @telemetry_chooser.update
       @overall_frame.addWidget(@telemetry_chooser)
       @telemetry_chooser.target_changed_callback = method(:packet_changed_callback)
       @telemetry_chooser.packet_changed_callback = method(:packet_changed_callback)

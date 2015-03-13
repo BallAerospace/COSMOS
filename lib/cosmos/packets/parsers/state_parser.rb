@@ -85,7 +85,7 @@ module Cosmos
         get_hazardous(item)
       else
         get_state_colors(item)
-        packet.update_limits_items_cache
+        packet.update_limits_items_cache(item)
       end
     end
 

@@ -279,7 +279,7 @@ module Cosmos
     def define(item)
       item = super(item)
       update_id_items(item)
-      update_limits_items_cache()
+      update_limits_items_cache(item)
       item
     end
 
@@ -532,16 +532,19 @@ module Cosmos
       end
     end
 
-    # Force the packet to update its knowledge of items with limits. This is an
-    # optimization so we don't have to iterate through all the items when
+    # Add an item to the limits items cache if necessary.
+    # You MUST call this after adding limits to an item
+    #This is an optimization so we don't have to iterate through all the items when
     # checking for limits.
-    def update_limits_items_cache
-      # Collect only the items who have limits values or states and then
-      # compact the array to remove all the nil values
-      @limits_items = @sorted_items.collect do |item|
-        item if item.limits.values || item.state_colors
+    def update_limits_items_cache(item)
+      if item.limits.values || item.state_colors
+        @limits_items ||= []
+        @limits_items_hash ||= {}
+        unless @limits_items_hash[item]
+          @limits_items << item
+          @limits_items_hash[item] = true
+        end
       end
-      @limits_items.compact!
     end
 
     # Return an array of arrays indicating all items in the packet that are out of limits
