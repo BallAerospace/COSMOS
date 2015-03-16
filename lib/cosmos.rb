@@ -36,7 +36,7 @@ else
 end
 require 'cosmos/ext/platform'
 
-# Remove warning about dl deprecation
+# Remove warning about dl deprecation in Ruby 2.0 and 2.1
 saved_verbose = $VERBOSE; $VERBOSE = nil
 begin
   require 'dl'

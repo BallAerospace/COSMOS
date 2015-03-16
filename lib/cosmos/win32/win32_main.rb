@@ -11,22 +11,26 @@
 module Cosmos
 
   # Win32API is deprecated in 1.9.x so recreate it
-  require 'dl'
+  require 'fiddle'
   class Win32API
     # Cache to hold already opened dll files
     DLL_CACHE = {}
 
-    RETURN_VALUE_TYPEMAP = {"0" => DL::TYPE_VOID, "S" => DL::TYPE_VOIDP, "I" => DL::TYPE_LONG}
+    VALUE_TYPEMAP = {"0" => Fiddle::TYPE_VOID, "S" => Fiddle::TYPE_VOIDP, "I" => Fiddle::TYPE_LONG}
 
     def initialize(dll_name, function_name, import, export = "0")
       # Convert all input parameters into either 0, S, or I
-      @function_prototype = [import].join.tr("VPpNnLlIi", "0SSI")
+      @function_prototype = [import].join.tr("VPpNnLlIiCc", "0SSI")
+      params = []
+      @function_prototype.split('').each do |param|
+        params << VALUE_TYPEMAP[param]
+      end
 
       # Get handle to dll file and add to cache if necessary
-      dll_handle = DLL_CACHE[dll_name] ||= DL.dlopen(dll_name)
+      dll_handle = DLL_CACHE[dll_name] ||= Fiddle.dlopen(dll_name)
 
-      # Create DL::CFunc necessary to call a function with proper return type and name
-      @function = DL::CFunc.new(dll_handle[function_name], RETURN_VALUE_TYPEMAP[export.tr("VPpNnLlIi", "0SSI")], function_name)
+      # Create Fiddle::Function necessary to call a function with proper return type and name
+      @function = Fiddle::Function.new(dll_handle[function_name], params, VALUE_TYPEMAP[export.tr("VPpNnLlIi", "0SSI")])
     end
 
     def call(*args)
@@ -48,7 +52,7 @@ module Cosmos
       end
 
       # Call the function and return its return value
-      return_value = @function.call(args)
+      return_value = @function.call(*args)
       return_value ||= 0
       return_value
     end
