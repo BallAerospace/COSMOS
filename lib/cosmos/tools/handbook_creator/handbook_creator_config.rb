@@ -70,7 +70,6 @@ module Cosmos
           if @type == :TARGETS
             target_names = @target_names
             target_names = System.commands.target_names | System.telemetry.target_names if @target_names.empty?
-            target_names.delete('UNKNOWN')
             target_names.each {|target_name| create_file(target_name.downcase + @filename, [target_name], true, :HTML)}
           else # @type == :NORMAL
             create_file(@filename, @target_names, false, :HTML)
@@ -93,7 +92,6 @@ module Cosmos
             if @type == :TARGETS
               target_names = @target_names
               target_names = System.commands.target_names | System.telemetry.target_names if @target_names.empty?
-              target_names.delete('UNKNOWN')
               target_names.each do |target_name|
                 create_pdf_file(progress_dialog, target_name)
               end

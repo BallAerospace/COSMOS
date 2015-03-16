@@ -248,7 +248,6 @@ module Cosmos
     def update_targets
       @target_combobox.clearItems()
       target_names = System.telemetry.target_names
-      target_names.delete('UNKNOWN')
 
       # Delete targets with only hidden packets
       target_names_to_delete = []

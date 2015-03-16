@@ -53,8 +53,8 @@ module Cosmos
     end
 
     describe "System.commands" do
-      it "only contains UNKNOWN" do
-        expect(System.commands.target_names).to eql ["UNKNOWN"]
+      it "is empty" do
+        expect(System.commands.target_names).to eql []
       end
 
       it "logs errors saving the configuration" do
@@ -63,15 +63,15 @@ module Cosmos
 
         capture_io do |stdout|
           allow(FileUtils).to receive(:mkdir_p) { raise "Error" }
-          expect(System.commands.target_names).to eql ["UNKNOWN"]
+          expect(System.commands.target_names).to eql []
           expect(stdout.string).to match "Problem saving configuration"
         end
       end
     end
 
     describe "System.telemetry" do
-      it "only contains UNKNOWN" do
-        expect(System.telemetry.target_names).to eql ["UNKNOWN"]
+      it "is empty" do
+        expect(System.telemetry.target_names).to eql []
       end
     end
 
@@ -119,8 +119,8 @@ module Cosmos
         it "calculates MD5s across all the target files" do
           capture_io do |stdout|
             # This line actually does the work of reading the configuration
-            expect(System.telemetry.target_names).to eql ['COSMOS','INST','META','UNKNOWN']
-            expect(System.commands.target_names).to eql ['COSMOS','INST','META','UNKNOWN']
+            expect(System.telemetry.target_names).to eql ['COSMOS','INST','META']
+            expect(System.commands.target_names).to eql ['COSMOS','INST','META']
 
             expect(stdout.string).to match "Marshal file does not exist"
 
@@ -129,8 +129,8 @@ module Cosmos
             # Reset the instance variable so it will read the new configuration
             System.class_eval('@@instance = nil')
             # This line actually does the work of reading the configuration
-            expect(System.telemetry.target_names).to eql ['COSMOS','INST','META','UNKNOWN']
-            expect(System.commands.target_names).to eql ['COSMOS','INST','META','UNKNOWN']
+            expect(System.telemetry.target_names).to eql ['COSMOS','INST','META']
+            expect(System.commands.target_names).to eql ['COSMOS','INST','META']
 
             expect(stdout.string).to match "Marshal load success"
           end
@@ -140,7 +140,7 @@ module Cosmos
           capture_io do |stdout|
             allow_any_instance_of(PacketConfig).to receive(:process_file) { raise "ProcessError" }
             # This line actually does the work of reading the configuration
-            expect { expect(System.telemetry.target_names).to eql ['COSMOS','INST','META','UNKNOWN'] }.to raise_error("ProcessError")
+            expect { System.telemetry.target_names }.to raise_error("ProcessError")
 
             expect(stdout.string).to match "Problem processing"
           end
@@ -155,8 +155,8 @@ module Cosmos
 
         it "loads the initial configuration" do
           System.load_configuration
-          expect(System.commands.target_names).to eql ['COSMOS','INST','META','UNKNOWN']
-          expect(System.telemetry.target_names).to eql ['COSMOS','INST','META','UNKNOWN']
+          expect(System.commands.target_names).to eql ['COSMOS','INST','META']
+          expect(System.telemetry.target_names).to eql ['COSMOS','INST','META']
         end
 
         it "loads a named configuration" do
@@ -167,7 +167,7 @@ module Cosmos
 
           # Load the original configuration
           original_config_name = System.load_configuration()
-          expect(System.telemetry.target_names).to eql %w(COSMOS OVERRIDE UNKNOWN)
+          expect(System.telemetry.target_names).to eql %w(COSMOS OVERRIDE)
           original_pkts = System.telemetry.packets('COSMOS').keys
 
           # Create a new configuration by writing another telemetry file

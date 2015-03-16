@@ -338,7 +338,6 @@ module Cosmos
 
     def file_generate
       target_names = System.telemetry.target_names
-      target_names.delete('UNKNOWN')
       target_names.unshift('ALL')
 
       dialog = SelectDialog.new(self, 'Target Name:', target_names, 'Select Target Name to Generate Screens')
@@ -347,7 +346,6 @@ module Cosmos
         ProgressDialog.execute(self, 'Generating Telemetry Screens', 500, 10, false, false, true, true, false) do |progress_dialog|
           if target_name == 'ALL'
             System.telemetry.target_names.each do |my_target_name|
-              next if my_target_name == 'UNKNOWN'
               progress_dialog.append_text(generate_target(my_target_name))
             end
           else
