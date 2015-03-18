@@ -107,6 +107,29 @@ module Cosmos
     end
 
     describe "add_item" do
+      it "adds multiple items to the packet" do
+        tf = Tempfile.new('unittest')
+        tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Description"'
+        tf.puts 'MACRO_APPEND_START 1 2'
+        tf.puts 'APPEND_ITEM WORD 16 UINT'
+        tf.puts 'APPEND_ITEM DOUBLE_WORD 32 UINT'
+        tf.puts 'MACRO_APPEND_END'
+        tf.close
+        @pc.process_file(tf.path, "TGT1")
+        pkt = @pc.telemetry["TGT1"]["PKT1"]
+        expect(pkt.items.length).to eql 7 # 4 plus the RECEIVED_XXX items
+        expect(pkt.items.keys).to include('WORD1','WORD2','DOUBLE_WORD1','DOUBLE_WORD2')
+        expect(pkt.sorted_items[3].name).to eql 'WORD1'
+        expect(pkt.sorted_items[3].bit_offset).to eql 0
+        expect(pkt.sorted_items[4].name).to eql 'DOUBLE_WORD1'
+        expect(pkt.sorted_items[4].bit_offset).to eql 16
+        expect(pkt.sorted_items[5].name).to eql 'WORD2'
+        expect(pkt.sorted_items[5].bit_offset).to eql 48
+        expect(pkt.sorted_items[6].name).to eql 'DOUBLE_WORD2'
+        expect(pkt.sorted_items[6].bit_offset).to eql 64
+        tf.unlink
+      end
+
       it "adds items with states to the packet" do
         tf = Tempfile.new('unittest')
         tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Description"'
@@ -121,10 +144,15 @@ module Cosmos
         expect(pkt.items.length).to eql 8 # 5 plus the RECEIVED_XXX items
         expect(pkt.items.keys).to include('BIT1','BIT2','BIT3','BIT4','BIT5')
         expect(pkt.sorted_items[3].name).to eql 'BIT1'
+        expect(pkt.sorted_items[3].bit_offset).to eql 0
         expect(pkt.sorted_items[4].name).to eql 'BIT2'
+        expect(pkt.sorted_items[4].bit_offset).to eql 16
         expect(pkt.sorted_items[5].name).to eql 'BIT3'
+        expect(pkt.sorted_items[5].bit_offset).to eql 32
         expect(pkt.sorted_items[6].name).to eql 'BIT4'
+        expect(pkt.sorted_items[6].bit_offset).to eql 48
         expect(pkt.sorted_items[7].name).to eql 'BIT5'
+        expect(pkt.sorted_items[7].bit_offset).to eql 64
         limits_items = []
         pkt.items.each do |name, item|
           limits_items << item if name.include?('BIT')
