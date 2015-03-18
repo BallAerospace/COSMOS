@@ -71,7 +71,7 @@ module Cosmos
       raise @parser.error("Missing MACRO_APPEND_START before this config.line.", @parser.keyword) unless @macro
       raise @parser.error("No items appended in MACRO_APPEND list", @parser.keyword) if @macro.list.empty?
 
-      create_new_packet_items(packet)
+      create_new_packet_items(packet)#, new_item_names)
     end
 
     private
@@ -85,11 +85,11 @@ module Cosmos
     end
 
     def create_new_packet_items(packet)
-      # Shift off the first macro index because since the first item(s) already exist we just rename
-      first_index = @macro.indices.shift
       @macro.list.each do |name|
         original_item_name = name
-        new_name = format_item_name(name, first_index)
+        # Shift off the macro indices because since the first item already
+        # exists we just rename it
+        new_name = format_item_name(name, @macro.indices.shift)
         item = packet.rename_item(name, new_name)
 
         # The renaming indices create new items
