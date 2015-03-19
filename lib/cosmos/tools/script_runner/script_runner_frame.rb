@@ -171,7 +171,7 @@ module Cosmos
       @bottom_layout.addWidget(@bottom_layout_label)
       @output = Qt::PlainTextEdit.new
       @output.setReadOnly(true)
-      @output.setMaximumBlockCount(10000) # 10000 lines of history will be displayed
+      @output.setMaximumBlockCount(100)
       @bottom_layout.addWidget(@output)
       @bottom_frame.setLayout(@bottom_layout)
       @splitter.addWidget(@bottom_frame)

@@ -194,7 +194,7 @@ module Cosmos
       # Add the message output
       @output = Qt::PlainTextEdit.new
       @output.setReadOnly(true)
-      @output.setMaximumBlockCount(10000) # 10000 lines of history will be displayed
+      @output.setMaximumBlockCount(100)
 
       @top_layout.addWidget(@output, 500)
 

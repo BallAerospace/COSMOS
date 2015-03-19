@@ -127,7 +127,7 @@ module Cosmos
 
       @log_output = Qt::PlainTextEdit.new
       @log_output.setReadOnly(true)
-      @log_output.setMaximumBlockCount(10000)
+      @log_output.setMaximumBlockCount(100)
 
       @tabbook.addTab(@widget, "Limits")
       @tabbook.addTab(@log_output, "Log")

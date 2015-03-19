@@ -93,7 +93,7 @@ module Cosmos
         # Create Progress Text Notifications
         @progress_text = Qt::PlainTextEdit.new
         @progress_text.setReadOnly(true)
-        @progress_text.setMaximumBlockCount(10000)
+        @progress_text.setMaximumBlockCount(100)
       end
 
       @button_layout = Qt::HBoxLayout.new

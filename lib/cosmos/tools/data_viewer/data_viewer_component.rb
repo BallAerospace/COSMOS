@@ -37,7 +37,7 @@ module Cosmos
 
       @text = Qt::PlainTextEdit.new
       @text.setReadOnly(true)
-      @text.setMaximumBlockCount(10000) # 10000 lines of history will be displayed
+      @text.setMaximumBlockCount(100)
       if Kernel.is_windows?
         @text.font = Cosmos.getFont("courier", 9)
       else
