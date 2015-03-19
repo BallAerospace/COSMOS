@@ -62,6 +62,7 @@ module Cosmos
     KNOWN_PATHS = ['LOGS', 'TMP', 'SAVED_CONFIG', 'TABLES', 'HANDBOOKS', 'PROCEDURES']
 
     @@instance = nil
+    @@instance_mutex = Mutex.new
 
     # Create a new System object. Note, this should not be called directly but
     # you should instead use System.instance and treat this class as a
@@ -71,7 +72,6 @@ module Cosmos
     #   read. Be default this is <Cosmos::USERPATH>/config/system/system.txt
     def initialize(filename = nil)
       raise "Cosmos::System created twice" unless @@instance.nil?
-      @@instance = self
       @targets = {}
       @targets['UNKNOWN'] = Target.new('UNKNOWN')
       @config = nil
@@ -115,6 +115,7 @@ module Cosmos
 
       @initial_filename = filename
       @initial_config = nil
+      @@instance = self
     end
 
     # @return [String] Configuration name
@@ -194,8 +195,11 @@ module Cosmos
 
     # @return [System] The System singleton
     def self.instance(filename = nil)
-      @@instance ||= self.new(filename)
-      return @@instance
+      return @@instance if @@instance
+      @@instance_mutex.synchronize do
+        @@instance ||= self.new(filename)
+        return @@instance
+      end
     end
 
     # Process the system.txt configuration file
