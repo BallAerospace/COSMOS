@@ -93,6 +93,26 @@ module Cosmos
         sleep(0.1)
       end
 
+      it "handles the remote going away and coming back" do
+        class JsonDRbObjectServer
+          def my_method(param)
+            param * 2
+          end
+        end
+
+        json = JsonDRb.new
+        json.start_service('127.0.0.1', 7777, JsonDRbObjectServer.new)
+        obj = JsonDRbObject.new("localhost", 7777)
+        expect(obj.my_method(10)).to eql 20
+        json.stop_service
+        json = JsonDRb.new
+        json.start_service('127.0.0.1', 7777, JsonDRbObjectServer.new)
+        expect(obj.my_method(10)).to eql 20
+        obj.disconnect
+        json.stop_service
+        sleep(0.1)
+      end
+
     end
   end
 end
