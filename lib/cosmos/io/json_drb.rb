@@ -48,6 +48,8 @@ module Cosmos
       @request_times_index = 0
       @request_mutex = Mutex.new
       @num_clients = 0
+      @client_sockets = []
+      @client_mutex = Mutex.new
       @thread_reader, @thread_writer = IO.pipe
     end
 
@@ -57,6 +59,11 @@ module Cosmos
       @thread = nil
       Cosmos.close_socket(@listen_socket)
       @listen_socket = nil
+      @client_mutex.synchronize do
+        @client_sockets.each do |client_socket|
+          Cosmos.close_socket(client_socket)
+        end
+      end
     end
 
     # Gracefully kill the thread
@@ -253,8 +260,12 @@ module Cosmos
       socket.setsockopt(Socket::IPPROTO_TCP, Socket::TCP_NODELAY, 1)
       socket.setsockopt(Socket::SOL_SOCKET, Socket::SO_KEEPALIVE, 1)
 
-      Thread.new(socket) do |my_socket|
+      @client_mutex.synchronize do
         @num_clients += 1
+        @client_sockets << socket
+      end
+
+      Thread.new(socket) do |my_socket|
         data = ''
         begin
           while true
@@ -277,7 +288,10 @@ module Cosmos
         rescue Exception => error
           Logger.error "JsonDrb client thread unexpectedly died.\n#{error.formatted}"
         end
-        @num_clients -= 1
+        @client_mutex.synchronize do
+          @num_clients -= 1
+          @client_sockets.delete(my_socket)
+        end
       end
     end
 
