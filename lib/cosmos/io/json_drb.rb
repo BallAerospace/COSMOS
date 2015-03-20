@@ -30,8 +30,6 @@ module Cosmos
 
     # @return [Integer] The number of JSON-RPC requests processed
     attr_accessor :request_count
-    # @return [Integer] The number of clients currently connected to the server
-    attr_accessor :num_clients
     # @return [Array<String>] List of methods that should be allowed
     attr_accessor :method_whitelist
     # @return [ACL] The access control list
@@ -47,10 +45,16 @@ module Cosmos
       @request_times = []
       @request_times_index = 0
       @request_mutex = Mutex.new
-      @num_clients = 0
       @client_sockets = []
+      @client_threads = []
       @client_mutex = Mutex.new
       @thread_reader, @thread_writer = IO.pipe
+    end
+
+    # Returns the number of connected clients
+    # @return [Integer] The number of connected clients
+    def num_clients
+      @client_threads.length
     end
 
     # Stops the DRb service by closing the socket and the processing thread
@@ -59,10 +63,23 @@ module Cosmos
       @thread = nil
       Cosmos.close_socket(@listen_socket)
       @listen_socket = nil
+      client_threads = nil
       @client_mutex.synchronize do
         @client_sockets.each do |client_socket|
           Cosmos.close_socket(client_socket)
         end
+        client_threads = @client_threads.clone
+      end
+
+      # This cannot be inside of the client_mutex or the threads will not
+      # be able to shutdown because they will stick on the client_mutex
+      client_threads.each do |client_thread|
+        Cosmos.kill_thread(self, client_thread)
+      end
+
+      @client_mutex.synchronize do
+        @client_threads.clear
+        @client_sockets.clear
       end
     end
 
@@ -260,12 +277,12 @@ module Cosmos
       socket.setsockopt(Socket::IPPROTO_TCP, Socket::TCP_NODELAY, 1)
       socket.setsockopt(Socket::SOL_SOCKET, Socket::SO_KEEPALIVE, 1)
 
-      @client_mutex.synchronize do
-        @num_clients += 1
-        @client_sockets << socket
-      end
-
       Thread.new(socket) do |my_socket|
+        @client_mutex.synchronize do
+          @client_sockets << my_socket
+          @client_threads << Thread.current
+        end
+
         data = ''
         begin
           while true
@@ -281,16 +298,17 @@ module Cosmos
               break unless process_request(request_data, my_socket, start_time)
             else
               # Socket was closed by client
-              Cosmos.close_socket(my_socket)
               break
             end
           end
         rescue Exception => error
           Logger.error "JsonDrb client thread unexpectedly died.\n#{error.formatted}"
         end
+
         @client_mutex.synchronize do
-          @num_clients -= 1
+          Cosmos.close_socket(my_socket)
           @client_sockets.delete(my_socket)
+          @client_threads.delete(Thread.current)
         end
       end
     end
