@@ -58,7 +58,10 @@ module Cosmos
     # Disconnects from the JSON server
     def disconnect
       Cosmos.close_socket(@socket)
-      @socket = nil
+      # Cannot set @socket to nil here because this method can be called by
+      # other threads and @socket being nil would cause unexpected errors in method_missing
+      # Also don't want to take the mutex so that we can interrupt method_missing if necessary
+      # Only method_missing can set @socket to nil
     end
 
     # Permanently disconnects from the JSON server
@@ -83,9 +86,7 @@ module Cosmos
         first_try = true
         loop do
           raise DRb::DRbConnError, "Shutdown" if @shutdown
-          if !@socket or @socket.closed? or @request_in_progress
-            connect()
-          end
+          connect() if !@socket or @socket.closed? or @request_in_progress
 
           response = make_request(method_name, method_params, first_try)
           unless response
@@ -102,6 +103,7 @@ module Cosmos
     def connect
       if @request_in_progress
         disconnect()
+        @socket = nil
         @request_in_progress = false
       end
       begin
@@ -115,6 +117,7 @@ module Cosmos
             _, sockets, _ = IO.select(nil, [@socket], nil, @connect_timeout) # wait 3-way handshake completion
           rescue IOError, Errno::ENOTSOCK
             disconnect()
+            @socket = nil
             raise "Connect canceled"
           end
           if sockets and !sockets.empty?
@@ -122,6 +125,7 @@ module Cosmos
               @socket.connect_nonblock(addr) # check connection failure
             rescue IOError, Errno::ENOTSOCK
               disconnect()
+              @socket = nil
               raise "Connect canceled"
             rescue Errno::EINPROGRESS
               retry
@@ -129,10 +133,12 @@ module Cosmos
             end
           else
             disconnect()
+            @socket = nil
             raise "Connect timeout"
           end
         rescue IOError, Errno::ENOTSOCK
           disconnect()
+          @socket = nil
           raise "Connect canceled"
         end
       rescue => e
@@ -141,6 +147,7 @@ module Cosmos
     end
 
     def make_request(method_name, method_params, first_try)
+      $saved_stdout_const.puts "make_request #{@socket.object_id}"
       request = JsonRpcRequest.new(method_name, method_params, @id)
       @id += 1
 
@@ -155,7 +162,9 @@ module Cosmos
         STDOUT.puts "\nResponse:\n" if JsonDRb.debug?
         STDOUT.puts response_data if JsonDRb.debug?
       rescue => e
+        $saved_stdout_const.puts "make_request error #{@socket.object_id} #{e.class}:#{e.message}\n#{e.backtrace.join("\n")}"
         disconnect()
+        @socket = nil
         return false if first_try
         raise DRb::DRbConnError, e.message, e.backtrace
       end
@@ -178,6 +187,7 @@ module Cosmos
       else
         # Socket was closed by server
         disconnect()
+        @socket = nil
         raise DRb::DRbConnError, "Socket closed by server"
       end
     end
