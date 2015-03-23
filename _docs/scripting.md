@@ -2179,6 +2179,43 @@ Example:
 filename = start_new_scriptrunner_message_log()
 {% endhighlight %}
 
+### disable_instrumentation
+*** Added in COSMOS 3.3.3 ***
+
+Disables instrumentation for a block of code (line highlighting and exception catching).  This is especially useful for speeding up loops that are very slow if lines are instrumented.
+Consider breaking code like this into a seperate file and using either require/load to read the file for the same effect while still allowing errors to be caught by your script.
+
+*** WARNING:  Use with caution. Disabling instrumentation will cause any error that occurs while disabled to cause your script to completely stop. ***
+
+Syntax:
+``` disable_instrumentation do ```
+
+Example:
+{% highlight ruby %}
+disable_instrumentation do
+  1000.times do
+    # Don't want this to have to highlight 1000 times
+  end
+end
+{% endhighlight %}
+
+### set_stdout_max_lines
+*** Added in COSMOS 3.3.3 ***
+
+This method sets the maximum amount of lines of output that a single line in Scriptrunner can generate without being truncated.
+
+Syntax:
+``` set_stdout_max_lines(max_lines) ```
+
+| Parameter | Description |
+| -------- | --------------------------------- |
+| max_lines | The maximum number of lines that will be written to the ScriptRunner log at once |
+
+Example:
+{% highlight ruby %}
+set_stdout_max_lines(2000)
+{% endhighlight %}
+
 ## Debugging
 
 These methods allow the user to debug scripts with ScriptRunner.

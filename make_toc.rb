@@ -45,7 +45,7 @@ file_list.each do |filename|
   end
 
   # Create _toc.md for this file
-  File.open("_includes/" + File.basename(filename)[0..-4] + "_toc.md", "w") do |file|
+  File.open("_includes/" + File.basename(filename)[0..-4] + "_toc.md", "wb") do |file|
     file.write(page_toc)
   end
 end

@@ -152,6 +152,8 @@
 &nbsp;&nbsp;&nbsp;&nbsp; [get_line_delay](#getlinedelay)<br/>
 &nbsp;&nbsp;&nbsp;&nbsp; [get_scriptrunner_message_log_filename](#getscriptrunnermessagelogfilename)<br/>
 &nbsp;&nbsp;&nbsp;&nbsp; [start_new_scriptrunner_message_log](#startnewscriptrunnermessagelog)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp; [disable_instrumentation](#disableinstrumentation)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp; [set_stdout_max_lines](#setstdoutmaxlines)<br/>
 <br/>
 <span>[Debugging](#debugging)</span><br/>
 &nbsp;&nbsp;&nbsp;&nbsp; [insert_return](#insertreturn)<br/>
