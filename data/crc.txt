@@ -94,7 +94,7 @@
 "lib/cosmos/tools/script_runner/script_runner.rb" 0x88EEB809
 "lib/cosmos/tools/script_runner/script_audit.rb" 0xB857FA4A
 "lib/cosmos/tools/cmd_extractor/cmd_extractor.rb" 0xEECB31B8
-"lib/cosmos/tools/data_viewer/data_viewer_component.rb" 0xBF0DAC9B
+"lib/cosmos/tools/data_viewer/data_viewer_component.rb" 0xC4554CA8
 "lib/cosmos/tools/data_viewer/dump_component.rb" 0x6942C5D6
 "lib/cosmos/tools/data_viewer/data_viewer.rb" 0x0C25B817
 "lib/cosmos/tools/launcher/launcher_multitool.rb" 0x1020A3D0
@@ -234,7 +234,7 @@
 "lib/cosmos/tools/tlm_viewer/tlm_viewer.rb" 0x1D2090F6
 "lib/cosmos/system.rb" 0x735DFB42
 "lib/cosmos/conversions.rb" 0x43679D05
-"lib/cosmos/version.rb" 0x1CF2C150
+"lib/cosmos/version.rb" 0x8E278DA3
 "lib/cosmos/core_ext.rb" 0x1951B346
 "lib/cosmos/interfaces.rb" 0x7E3EA326
 "lib/cosmos/processors.rb" 0x5241327D
