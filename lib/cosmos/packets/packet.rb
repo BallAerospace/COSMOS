@@ -357,7 +357,7 @@ module Cosmos
 
         # Convert from value to state if possible
         if item.states
-          if item.array_size
+          if Array === value
             value = value.map do |val, index|
               if item.states.key(val)
                 item.states.key(val)
@@ -374,7 +374,7 @@ module Cosmos
             end
           end
         else
-          if item.array_size
+          if Array === value
             value = value.map do |val, index|
               apply_format_string_and_units(item, val, value_type)
             end
