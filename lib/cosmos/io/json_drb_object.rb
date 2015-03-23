@@ -150,7 +150,6 @@ module Cosmos
     end
 
     def make_request(method_name, method_params, first_try)
-      $saved_stdout_const.puts "make_request #{@socket.object_id}"
       request = JsonRpcRequest.new(method_name, method_params, @id)
       @id += 1
 
@@ -165,7 +164,6 @@ module Cosmos
         STDOUT.puts "\nResponse:\n" if JsonDRb.debug?
         STDOUT.puts response_data if JsonDRb.debug?
       rescue => e
-        $saved_stdout_const.puts "make_request error #{@socket.object_id} #{e.class}:#{e.message}\n#{e.backtrace.join("\n")}"
         disconnect()
         @socket = nil
         return false if first_try
