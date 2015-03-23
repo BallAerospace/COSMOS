@@ -92,8 +92,9 @@ module Cosmos
           unless response
             disconnect()
             @socket = nil
+            was_first_try = first_try
             first_try = false
-            next
+            next if was_first_try
           end
           return handle_response(response)
         end # loop
