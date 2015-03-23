@@ -90,6 +90,8 @@ module Cosmos
 
           response = make_request(method_name, method_params, first_try)
           unless response
+            disconnect()
+            @socket = nil
             first_try = false
             next
           end
