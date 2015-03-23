@@ -449,6 +449,12 @@ module Cosmos
         expect(@p.read_item(i, :WITH_UNITS, "\x02\x04")).to eql ["TRUE","FALSE"]
         expect(@p.read("ITEM", :WITH_UNITS, "\x08")).to eql ["0x4 V"]
         expect(@p.read_item(i, :WITH_UNITS, "\x08")).to eql ["0x4 V"]
+        @p.define_item("item2",0, 0, :DERIVED)
+        i = @p.get_item("ITEM2")
+        i.units = "V"
+        i.read_conversion = GenericConversion.new("[1,2,3,4,5]")
+        expect(@p.read("ITEM2", :FORMATTED, "")).to eql ["1", "2", "3", "4", "5"]
+        expect(@p.read("ITEM2", :WITH_UNITS, "")).to eql ["1 V", "2 V", "3 V", "4 V", "5 V"]
       end
     end
 
