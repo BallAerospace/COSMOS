@@ -101,6 +101,7 @@ module Cosmos
     attr_reader   :message_log
     attr_reader   :script_class
     attr_reader   :top_level_instrumented_cache
+    attr_accessor :stdout_max_lines
 
     @@instance = nil
     @@run_thread = nil
@@ -1195,8 +1196,8 @@ module Cosmos
             lines_to_write << line_to_write
 
             line_count += 1
-            if line_count > 1000
-              out_line = "ERROR: Too much written to stdout.  Truncating output to 1000 lines.\n"
+            if line_count > @stdout_max_lines
+              out_line = "ERROR: Too much written to stdout.  Truncating output to #{@stdout_max_lines} lines.\n"
               if filename
                 line_to_write = time_formatted + " (#{out_filename}:#{out_line_number}): "  + out_line
               else
@@ -1249,6 +1250,7 @@ module Cosmos
       @inline_eval = nil
       @current_filename = nil
       @current_line_number = 0
+      @stdout_max_lines = 1000
 
       @script.stop_highlight
       @call_stack.push(@current_file.dup)

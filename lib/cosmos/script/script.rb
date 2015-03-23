@@ -970,6 +970,25 @@ module Cosmos
       end
     end
 
+    def disable_instrumentation
+      if defined? ScriptRunnerFrame and ScriptRunnerFrame.instance
+        ScriptRunnerFrame.instance.use_instrumentation = false
+        begin
+          yield
+        ensure
+          ScriptRunnerFrame.instance.use_instrumentation = true
+        end
+      else
+        yield
+      end
+    end
+
+    def set_stdout_max_lines(max_lines)
+      if defined? ScriptRunnerFrame and ScriptRunnerFrame.instance
+        ScriptRunnerFrame.instance.stdout_max_lines = max_lines
+      end
+    end
+
     #######################################
     # Methods for debugging
     #######################################
