@@ -174,12 +174,12 @@ The Length Stream Protocol depends on a length field at a fixed location in the 
 
 | Parameter | Description | Required |
 |-----------|-------------|----------|
-| Length Bit Offset | The bit offset of the length field. Every packet using this interface must have the same structure such that the length field is the same size at the same location. The default is 0. If you're using and not discarding the Sync Pattern, be sure to account for the length of the Sync Pattern in this value. | No |
+| Length Bit Offset | The bit offset of the length field. Every packet using this interface must have the same structure such that the length field is the same size at the same location. The default is 0. Be sure to account for the length of the Sync Pattern in this value (if present). | No |
 | Length Bit Size | The size in bits of the length field. The default is 16. | No |
-| Length Value Offset | The offset to apply to the length field value. For example if the length field indicates packet length minus one, this value should be one. The default is 0. If you're using and not discarding the Sync Pattern, be sure to account for the length of the Sync Pattern in this value. | No |
+| Length Value Offset | The offset to apply to the length field value. For example if the length field indicates packet length minus one, this value should be one. The default is 0. Be sure to account for the length of the Sync Pattern in this value (if present). | No |
 | Bytes per Count | The number of bytes per each length field 'count'. This is used if the units of the length field is something other than bytes, for example if the length field count is in words. The default is 1. | No |
 | Length Endianness | The endianness of the length field. Must be either 'BIG_ENDIAN' or 'LITTLE_ENDIAN'. The default is 'BIG_ENDIAN'. | No |
-| Discard Leading Bytes | The number of bytes to discard from the binary data after reading from the stream. Note that this applies to bytes including the sync pattern if the sync pattern is being used. The default is 0 which means to not discard any bytes.	| No |
+| Discard Leading Bytes | The number of bytes to discard from the binary data after reading from the stream. Note that this applies to bytes including the sync pattern if the sync pattern is being used. The default is 0 which means to not discard any bytes.  Discarding is one of the very last steps so any size and offsets above need to account for all the data before discarding.	| No |
 | Sync Pattern | Hex string representing a byte pattern that will be searched for in the raw stream. This pattern represents a packet delimiter and all data found including the sync pattern will be returned. The default is 'nil' which means no sync pattern is used. | No |
 | Max Length | The maximum allowed value in the length field. The default is nil which means there is no maximum length.	| No |
 | Fill Length and Sync Pattern | Setting this flag to true causes the length field and sync pattern (if present) to be filled automatically on outgoing packets. Defaults to false. | No |
