@@ -834,10 +834,12 @@ module Cosmos
         end
 
         it "writes 1-bit signed integers" do
+          @data[1] = "\x55"
           BinaryAccessor.write(0x1, 8, 1, :INT, @data, :BIG_ENDIAN, :ERROR)
           BinaryAccessor.write(0x0, 9, 1, :INT, @data, :BIG_ENDIAN, :ERROR)
           BinaryAccessor.write(0x1, 10, 1, :INT, @data, :BIG_ENDIAN, :ERROR)
-          expect(@data).to eql("\x00\xA0\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00")
+          BinaryAccessor.write(0x0, 11, 1, :INT, @data, :BIG_ENDIAN, :ERROR)
+          expect(@data).to eql("\x00\xA5\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00")
         end
 
         it "writes 7-bit unsigned integers" do
@@ -894,16 +896,6 @@ module Cosmos
           expect(@data).to eql(@baseline_data)
         end
 
-        it "writes aligned 32-bit unsigned integers" do
-          expected_array = [0x80818283, 0x84858687, 0x00090A0B, 0x0C0D0E0F]
-          index = 0
-          0.step((@data.length - 1) * 8, 32) do |bit_offset|
-            BinaryAccessor.write(expected_array[index], bit_offset, 32, :UINT, @data, :BIG_ENDIAN, :ERROR)
-            index += 1
-          end
-          expect(@data).to eql(@baseline_data)
-        end
-
         it "writes aligned 32-bit signed integers" do
           expected_array = [0x80818283, 0x84858687, 0x00090A0B, 0x0C0D0E0F]
           index = 0
@@ -914,6 +906,21 @@ module Cosmos
             index += 1
           end
           expect(@data).to eql(@baseline_data)
+        end
+
+        it "writes aligned 32-bit unsigned integers" do
+          expected_array = [0x80818283, 0x84858687, 0x00090A0B, 0x0C0D0E0F]
+          index = 0
+          0.step((@data.length - 1) * 8, 32) do |bit_offset|
+            BinaryAccessor.write(expected_array[index], bit_offset, 32, :UINT, @data, :BIG_ENDIAN, :ERROR)
+            index += 1
+          end
+          expect(@data).to eql(@baseline_data)
+        end
+
+        it "writes aligned 32-bit negative integers" do
+          BinaryAccessor.write(-2147483648, 0, 32, :INT, @data, :BIG_ENDIAN, :ERROR_ALLOW_HEX)
+          expect(@data).to eql("\x80\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00")
         end
 
         it "writes aligned 32-bit floats" do
@@ -941,9 +948,12 @@ module Cosmos
         end
 
         it "writes 63-bit unsigned integers" do
+          @data[-1] = "\xFF"
           BinaryAccessor.write(0x8081828384858687 >> 1, 0,  63, :UINT, @data, :BIG_ENDIAN, :ERROR)
-          BinaryAccessor.write(0x00090A0B0C0D0E0F, 65, 63, :UINT, @data, :BIG_ENDIAN, :ERROR)
-          expect(@data).to eql("\x80\x81\x82\x83\x84\x85\x86\x86\x00\x09\x0A\x0B\x0C\x0D\x0E\x0F")
+          expect(@data).to eql("\x80\x81\x82\x83\x84\x85\x86\x86\x00\x00\x00\x00\x00\x00\x00\xFF")
+          @data[0] = "\xFF"
+          BinaryAccessor.write(0x08090A0B0C0D0E0F, 65, 63, :UINT, @data, :BIG_ENDIAN, :ERROR)
+          expect(@data).to eql("\xFF\x81\x82\x83\x84\x85\x86\x86\x08\x09\x0A\x0B\x0C\x0D\x0E\x0F")
         end
 
         it "writes 63-bit signed integers" do
@@ -999,10 +1009,12 @@ module Cosmos
         end
 
         it "writes 1-bit unsigned integers" do
+          @data[1] = "\x55"
           BinaryAccessor.write(0x1, 8, 1, :UINT, @data, :LITTLE_ENDIAN, :ERROR)
           BinaryAccessor.write(0x0, 9, 1, :UINT, @data, :LITTLE_ENDIAN, :ERROR)
           BinaryAccessor.write(0x1, 10, 1, :UINT, @data, :LITTLE_ENDIAN, :ERROR)
-          expect(@data).to eql("\x00\xA0\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00")
+          BinaryAccessor.write(0x0, 11, 1, :INT, @data, :BIG_ENDIAN, :ERROR)
+          expect(@data).to eql("\x00\xA5\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00")
         end
 
         it "writes 1-bit signed integers" do
