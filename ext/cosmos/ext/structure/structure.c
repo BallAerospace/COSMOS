@@ -11,10 +11,19 @@
 #include "ruby.h"
 #include "stdio.h"
 
+#define TO_BIGNUM(x) (FIXNUM_P(x) ? rb_int2big(FIX2LONG(x)) : x)
+
 static const int endianness_check = 1;
 static VALUE HOST_ENDIANNESS = Qnil;
 static VALUE ZERO_STRING = Qnil;
 static VALUE ASCII_8BIT_STRING = Qnil;
+
+static VALUE MIN_INT32 = Qnil;
+static VALUE MAX_INT32 = Qnil;
+static VALUE MAX_UINT32 = Qnil;
+static VALUE MIN_INT64 = Qnil;
+static VALUE MAX_INT64 = Qnil;
+static VALUE MAX_UINT64 = Qnil;
 
 static VALUE mCosmos = Qnil;
 static VALUE cBinaryAccessor = Qnil;
@@ -56,6 +65,26 @@ static VALUE symbol_STRING = Qnil;
 static VALUE symbol_BLOCK = Qnil;
 static VALUE symbol_DERIVED = Qnil;
 static VALUE symbol_read = Qnil;
+static VALUE symbol_write = Qnil;
+static VALUE symbol_TRUNCATE = Qnil;
+static VALUE symbol_SATURATE = Qnil;
+static VALUE symbol_ERROR = Qnil;
+static VALUE symbol_ERROR_ALLOW_HEX = Qnil;
+
+/* These are useful methods for debugging */
+#if 0
+static char* to_s(VALUE x)
+{
+  VALUE string = rb_any_to_s(x);
+  return StringValueCStr(string);
+}
+static char* get_class(VALUE x)
+{
+  VALUE class = rb_funcall(x, rb_intern("class"), 0);
+  VALUE string = rb_funcall(class, id_method_to_s, 0);
+  return StringValueCStr(string);
+}
+#endif
 
 /*
  * Perform an left bit shift on a string
@@ -365,10 +394,9 @@ static VALUE binary_accessor_read(VALUE self, VALUE param_bit_offset, VALUE para
   }
 
   if ((param_data_type == symbol_STRING) || (param_data_type == symbol_BLOCK)) {
-
     /*#######################################
-       *# Handle :STRING and :BLOCK data types
-       *#######################################*/
+     *# Handle :STRING and :BLOCK data types
+     *#######################################*/
 
     if (byte_aligned) {
       string_length = upper_bound - lower_bound + 1;
@@ -388,13 +416,13 @@ static VALUE binary_accessor_read(VALUE self, VALUE param_bit_offset, VALUE para
   } else if (param_data_type == symbol_INT) {
 
     /*###################################
-       *# Handle :INT data type
-       *###################################*/
+     *# Handle :INT data type
+     *###################################*/
 
     if ((byte_aligned) && ((bit_size == 8) || (bit_size == 16) || (bit_size == 32) || (bit_size == 64))) {
       /*###########################################################
-         *# Handle byte-aligned 8, 16, 32, and 64 bit :INT
-         *###########################################################*/
+       *# Handle byte-aligned 8, 16, 32, and 64 bit :INT
+       *###########################################################*/
 
       if (bit_size == 8)
       {
@@ -481,13 +509,13 @@ static VALUE binary_accessor_read(VALUE self, VALUE param_bit_offset, VALUE para
   } else if (param_data_type == symbol_UINT) {
 
     /*###################################
-       *# Handle :UINT data type
-       *###################################*/
+     *# Handle :UINT data type
+     *###################################*/
 
     if ((byte_aligned) && ((bit_size == 8) || (bit_size == 16) || (bit_size == 32) || (bit_size == 64))) {
       /*###########################################################
-         *# Handle byte-aligned 8, 16, 32, and 64 bit :UINT
-         *###########################################################*/
+       *# Handle byte-aligned 8, 16, 32, and 64 bit :UINT
+       *###########################################################*/
 
       if (bit_size == 8)
       {
@@ -564,8 +592,8 @@ static VALUE binary_accessor_read(VALUE self, VALUE param_bit_offset, VALUE para
   } else if (param_data_type == symbol_FLOAT) {
 
     /*##########################
-       *# Handle :FLOAT data type
-       *##########################*/
+     *# Handle :FLOAT data type
+     *##########################*/
 
     if (byte_aligned) {
       switch (bit_size) {
@@ -590,13 +618,435 @@ static VALUE binary_accessor_read(VALUE self, VALUE param_bit_offset, VALUE para
   } else {
 
     /*############################
-       *# Handle Unknown data types
-       *############################*/
+     *# Handle Unknown data types
+     *############################*/
 
     rb_raise(rb_eArgError, "data_type %s is not recognized", RSTRING_PTR(rb_funcall(param_data_type, id_method_to_s, 0)));
   }
 
   return return_value;
+}
+
+static VALUE check_overflow(VALUE value, int bit_size, VALUE data_type, VALUE overflow)
+{
+  VALUE hex_max_value = Qnil;
+  VALUE max_value = Qnil;
+  VALUE min_value = Qnil;
+
+  switch (bit_size) {
+    case 8:
+      hex_max_value = rb_const_get(mCosmos, rb_intern("MAX_UINT8"));
+      if (data_type == symbol_INT) {
+        min_value = rb_const_get(mCosmos, rb_intern("MIN_INT8"));
+        max_value = rb_const_get(mCosmos, rb_intern("MAX_INT8"));
+      } else {
+        min_value = INT2NUM(0);
+        max_value = rb_const_get(mCosmos, rb_intern("MAX_UINT8"));
+      }
+      break;
+    case 16:
+      hex_max_value = rb_const_get(mCosmos, rb_intern("MAX_UINT16"));
+      if (data_type == symbol_INT) {
+        min_value = rb_const_get(mCosmos, rb_intern("MIN_INT16"));
+        max_value = rb_const_get(mCosmos, rb_intern("MAX_INT16"));
+      } else {
+        min_value = INT2NUM(0);
+        max_value = rb_const_get(mCosmos, rb_intern("MAX_UINT16"));
+      }
+      break;
+    case 32:
+      hex_max_value = rb_const_get(mCosmos, rb_intern("MAX_UINT32"));
+      if (data_type == symbol_INT) {
+        min_value = rb_const_get(mCosmos, rb_intern("MIN_INT32"));
+        max_value = rb_const_get(mCosmos, rb_intern("MAX_INT32"));
+      } else {
+        min_value = INT2NUM(0);
+        max_value = rb_const_get(mCosmos, rb_intern("MAX_UINT32"));
+      }
+      break;
+    case 64:
+      hex_max_value = rb_const_get(mCosmos, rb_intern("MAX_UINT64"));
+      if (data_type == symbol_INT) {
+        min_value = rb_const_get(mCosmos, rb_intern("MIN_INT64"));
+        max_value = rb_const_get(mCosmos, rb_intern("MAX_INT64"));
+      } else {
+        min_value = INT2NUM(0);
+        max_value = rb_const_get(mCosmos, rb_intern("MAX_UINT64"));
+      }
+      break;
+    default: /* Bitfield */
+      if (data_type == symbol_INT) {
+        /* Note signed integers must allow up to the maximum unsigned value to support values given in hex */
+        if (bit_size > 1) {
+          max_value = rb_big_pow(TO_BIGNUM(INT2NUM(2)), TO_BIGNUM(INT2NUM(bit_size - 1)));
+          /* min_value = -(2 ** bit_size - 1) */
+          min_value = rb_big_minus(TO_BIGNUM(INT2NUM(0)), TO_BIGNUM(max_value));
+          /* max_value = (2 ** bit_size - 1) - 1 */
+          max_value = rb_big_minus(TO_BIGNUM(max_value), TO_BIGNUM(INT2NUM(1)));
+          /* hex_max_value = (2 ** bit_size) - 1 */
+          hex_max_value = rb_big_pow(TO_BIGNUM(INT2NUM(2)), TO_BIGNUM(INT2NUM(bit_size)));
+          hex_max_value = rb_big_minus(TO_BIGNUM(hex_max_value), TO_BIGNUM(INT2NUM(1)));
+        } else {
+          min_value = INT2NUM(-1);
+          max_value = INT2NUM(1);
+          hex_max_value = INT2NUM(1);
+        }
+      } else {
+        min_value = INT2NUM(0);
+        max_value = rb_big_pow(TO_BIGNUM(INT2NUM(2)), TO_BIGNUM(INT2NUM(bit_size)));
+        max_value = rb_big_minus(TO_BIGNUM(max_value), TO_BIGNUM(INT2NUM(1)));
+        hex_max_value = max_value;
+      }
+      break;
+  }
+  value = TO_BIGNUM(value);
+  min_value = TO_BIGNUM(min_value);
+  max_value = TO_BIGNUM(max_value);
+  hex_max_value = TO_BIGNUM(hex_max_value);
+#if 0
+  printf("value:%f\n",rb_big2dbl(value));
+  printf("min:%f\n",rb_big2dbl(min_value));
+  printf("max:%f\n",rb_big2dbl(max_value));
+  printf("hex:%f\n",rb_big2dbl(hex_max_value));
+#endif
+
+  if (overflow == symbol_TRUNCATE) {
+    value = rb_big_minus(value, hex_max_value);
+    value = rb_big_minus(TO_BIGNUM(value), TO_BIGNUM(INT2NUM(1)));
+  } else {
+    if (rb_big_cmp(value, max_value) == INT2FIX(1)) {
+      if (overflow == symbol_SATURATE) {
+        value = max_value;
+      } else {
+        if ((overflow == symbol_ERROR) || (rb_big_cmp(value, hex_max_value) == INT2FIX(1))) {
+          rb_raise(rb_eArgError, "value of %s invalid for %d-bit %s",
+              RSTRING_PTR(rb_funcall(value, id_method_to_s, 0)),
+              bit_size,
+              RSTRING_PTR(rb_funcall(data_type, id_method_to_s, 0)));
+        }
+      }
+    } else if (rb_big_cmp(value, min_value) == INT2FIX(-1)) {
+      if (overflow == symbol_SATURATE) {
+        value = min_value;
+      } else {
+        rb_raise(rb_eArgError, "value of %s invalid for %d-bit %s",
+              RSTRING_PTR(rb_funcall(value, id_method_to_s, 0)),
+              bit_size,
+              RSTRING_PTR(rb_funcall(data_type, id_method_to_s, 0)));
+      }
+    }
+  }
+
+  return value;
+}
+
+/*
+ * Writes binary data of any data type to a buffer
+ *
+ * @param bit_offset [Integer] Bit offset to the start of the item. A
+ *   negative number means to offset from the end of the buffer.
+ * @param bit_size [Integer] Size of the item in bits
+ * @param data_type [Symbol] {DATA_TYPES}
+ * @param buffer [String] Binary string buffer to read from
+ * @param endianness [Symbol] {ENDIANNESS}
+ * @return [Integer] value read from the buffer
+ */
+static VALUE binary_accessor_write(VALUE self, VALUE value, VALUE param_bit_offset, VALUE param_bit_size, VALUE param_data_type, VALUE param_buffer, VALUE param_endianness, VALUE param_overflow)
+{
+  /* Convert Parameters to C Data Types */
+  int bit_offset = NUM2INT(param_bit_offset);
+  int bit_size = NUM2INT(param_bit_size);
+  /* Local Variables */
+  int given_bit_offset = bit_offset;
+  int given_bit_size = bit_size;
+  int upper_bound = 0;
+  int lower_bound = 0;
+  int temp_upper = 0;
+  int end_bytes = 0;
+  int old_upper_bound = 0;
+  int byte_aligned = 0;
+  int byte_size = 0;
+
+  unsigned char unsigned_char_value = 0;
+  unsigned short unsigned_short_value = 0;
+  unsigned int unsigned_int_value = 0;
+  unsigned long long unsigned_long_long_value = 0;
+  float float_value = 0.0;
+  double double_value = 0.0;
+  int num_bytes = 0;
+
+  int start_bits = 0;
+  unsigned long long start_mask = 0;
+  int end_bits = 0;
+  unsigned long long end_mask = 0;
+  int total_bits = 0;
+  unsigned long long temp_mask = 0;
+  unsigned long long temp = 0;
+
+  unsigned char* buffer = NULL;
+  long buffer_length = 0;
+  long value_length = 0;
+  VALUE temp_data = Qnil;
+
+  Check_Type(param_buffer, T_STRING);
+  buffer = (unsigned char*) RSTRING_PTR(param_buffer);
+  buffer_length = RSTRING_LEN(param_buffer);
+
+  /* Handle negative and zero bit sizes */
+  if (bit_size <= 0) {
+    if ((param_data_type == symbol_STRING) || (param_data_type == symbol_BLOCK)) {
+      if (given_bit_offset < 0) {
+        rb_raise(rb_eArgError, "negative or zero bit_sizes (%d) cannot be given with negative bit_offsets (%d)", given_bit_size, given_bit_offset);
+      } else {
+        bit_size = RSTRING_LEN(value) * 8;
+      }
+    } else {
+      rb_raise(rb_eArgError, "bit_size %d must be positive for data types other than :STRING and :BLOCK", given_bit_size);
+    }
+  }
+
+  /* Handle negative bit offsets */
+  if (bit_offset < 0) {
+    bit_offset = (((int)buffer_length * 8) + bit_offset);
+    if (bit_offset < 0) {
+      rb_funcall(self, id_method_raise_buffer_error, 5, symbol_write, param_buffer, param_data_type, param_bit_offset, param_bit_size);
+    }
+  }
+
+  /* Define bounds of string to access this item */
+  lower_bound = bit_offset / 8;
+  upper_bound = (bit_offset + bit_size - 1) / 8;
+
+  /* Check for byte alignment */
+  byte_aligned = ((bit_offset % 8) == 0);
+
+  /* Sanity check buffer size */
+  if (upper_bound >= buffer_length) {
+    /* Check special case of little endian bit field */
+    if ((param_endianness == symbol_LITTLE_ENDIAN) && ((param_data_type == symbol_INT) || (param_data_type == symbol_UINT)) && (!((byte_aligned) && ((bit_size == 8) || (bit_size == 16) || (bit_size == 32) || (bit_size == 64)))) && (lower_bound < buffer_length)) {
+      /* Ok little endian bit field */
+    } else {
+      rb_funcall(self, id_method_raise_buffer_error, 5, symbol_write, param_buffer, param_data_type, param_bit_offset, param_bit_size);
+    }
+  }
+
+  /* Check overflow type */
+  if ((param_overflow != symbol_TRUNCATE) &&
+      (param_overflow != symbol_SATURATE) &&
+      (param_overflow != symbol_ERROR) &&
+      (param_overflow != symbol_ERROR_ALLOW_HEX)) {
+    rb_raise(rb_eArgError, "unknown overflow type %s", RSTRING_PTR(rb_funcall(param_overflow, id_method_to_s, 0)));
+  }
+
+  /*#######################################
+   *# Handle :STRING and :BLOCK data types
+   *#######################################*/
+  if ((param_data_type == symbol_STRING) || (param_data_type == symbol_BLOCK)) {
+    /* Ensure value is the correct type */
+    value = rb_funcall(value, id_method_to_s, 0);
+
+    if (byte_aligned) {
+      value_length = RSTRING_LEN(value);
+      if (given_bit_size <= 0) {
+        end_bytes = -(given_bit_size / 8);
+        old_upper_bound = buffer_length - 1 - end_bytes;
+        if (old_upper_bound < lower_bound) {
+          /* String was completely empty */
+          if (end_bytes > 0) {
+            /* Preserve bytes at end of buffer */
+            rb_str_concat(param_buffer, rb_str_times(ZERO_STRING, INT2FIX(value_length)));
+            buffer = (unsigned char*) RSTRING_PTR(param_buffer);
+            memmove((buffer + lower_bound + value_length), (buffer + lower_bound), value_length);
+            /* Old Ruby code */
+            /* buffer[(lower_bound + value.length)..(buffer.length - 1)] = buffer[lower_bound..(buffer_length - 1)] */
+          }
+        } else if (bit_size == 0) {
+          /* Remove entire string */
+          rb_str_update(param_buffer, lower_bound, old_upper_bound - lower_bound + 1, rb_str_new2(""));
+        } else if (upper_bound < old_upper_bound) {
+          /* Remove extra bytes from old string */
+          rb_str_update(param_buffer, upper_bound + 1, old_upper_bound + 1, rb_str_new2(""));
+        } else if ((upper_bound > old_upper_bound) && (end_bytes > 0)) {
+          /* Preserve bytes at end of buffer */
+          rb_str_concat(param_buffer, rb_str_times(ZERO_STRING, INT2FIX(upper_bound - old_upper_bound)));
+          buffer = (unsigned char*) RSTRING_PTR(param_buffer);
+          memmove((buffer + upper_bound + 1), (buffer + old_upper_bound + 1), upper_bound - old_upper_bound);
+          /* Old Ruby code */
+          /* buffer[(upper_bound + 1)..(buffer.length - 1)] = buffer[(old_upper_bound + 1)..(buffer_length - 1)] */
+        }
+      } else {
+        byte_size = bit_size / 8;
+        if (value_length < byte_size) {
+          rb_str_concat(value, rb_str_times(ZERO_STRING, INT2FIX(byte_size - value_length)));
+        } else if (value_length > byte_size) {
+          if (param_overflow == symbol_TRUNCATE) {
+            /* Resize the value to fit the field */
+            rb_str_update(value, byte_size, RSTRING_LEN(value) - byte_size, rb_str_new2(""));
+          } else {
+            rb_raise(rb_eArgError, "value of %d bytes does not fit into %d bytes for data_type %s", (int)value_length, byte_size, RSTRING_PTR(rb_funcall(param_data_type, id_method_to_s, 0)));
+          }
+        }
+      }
+      if (bit_size != 0) {
+        rb_str_update(param_buffer, lower_bound, RSTRING_LEN(value), value);
+      }
+    } else {
+      rb_raise(rb_eArgError, "bit_offset %d is not byte aligned for data_type %s", given_bit_offset, RSTRING_PTR(rb_funcall(param_data_type, id_method_to_s, 0)));
+    }
+
+  } else if ((param_data_type == symbol_INT) || (param_data_type == symbol_UINT)) {
+    /*###################################
+     *# Handle :INT data type
+     *###################################*/
+
+    if ((byte_aligned) && ((bit_size == 8) || (bit_size == 16) || (bit_size == 32) || (bit_size == 64))) {
+      /*###########################################################
+       *# Handle byte-aligned 8, 16, 32, and 64 bit
+       *###########################################################*/
+
+      if (bit_size == 8)
+      {
+        value = check_overflow(value, bit_size, param_data_type, param_overflow);
+        unsigned_char_value = NUM2CHR(value);
+        rb_str_modify(param_buffer);
+        memcpy((RSTRING_PTR(param_buffer) + lower_bound), &unsigned_char_value, 1);
+      }
+      else if (bit_size == 16)
+      {
+        value = check_overflow(value, bit_size, param_data_type, param_overflow);
+        unsigned_short_value = NUM2USHORT(value);
+        if (param_endianness != HOST_ENDIANNESS) {
+          reverse_bytes((unsigned char *)&unsigned_short_value, 2);
+        }
+        rb_str_modify(param_buffer);
+        memcpy((RSTRING_PTR(param_buffer) + lower_bound), &unsigned_short_value, 2);
+      }
+      else if (bit_size == 32)
+      {
+        value = check_overflow(value, bit_size, param_data_type, param_overflow);
+        unsigned_int_value = NUM2UINT(value);
+        if (param_endianness != HOST_ENDIANNESS) {
+          reverse_bytes((unsigned char *)&unsigned_int_value, 4);
+        }
+        rb_str_modify(param_buffer);
+        memcpy((RSTRING_PTR(param_buffer) + lower_bound), &unsigned_int_value, 4);
+      }
+      else if (bit_size == 64)
+      {
+        value = check_overflow(value, bit_size, param_data_type, param_overflow);
+        unsigned_long_long_value = NUM2ULL(value);
+        if (param_endianness != HOST_ENDIANNESS) {
+          reverse_bytes((unsigned char *)&unsigned_long_long_value, 8);
+        }
+        rb_str_modify(param_buffer);
+        memcpy((RSTRING_PTR(param_buffer) + lower_bound), &unsigned_long_long_value, 8);
+      }
+    } else {
+      /*###########################################################
+       *# Handle bit fields
+       *###########################################################*/
+      value = check_overflow(value, bit_size, param_data_type, param_overflow);
+
+      /* Extract Existing Data */
+      if (param_endianness == symbol_LITTLE_ENDIAN) {
+        /* Bitoffset always refers to the most significant bit of a bitfield */
+        num_bytes = (((bit_offset % 8) + bit_size - 1) / 8) + 1;
+        upper_bound = bit_offset / 8;
+        lower_bound = upper_bound - num_bytes + 1;
+
+        if (lower_bound < 0) {
+          rb_raise(rb_eArgError, "LITTLE_ENDIAN bitfield with bit_offset %d and bit_size %d is invalid", bit_offset, bit_size);
+        }
+
+        temp_data = rb_funcall(param_buffer, rb_intern("slice"), 2, INT2NUM(lower_bound), INT2NUM(upper_bound - lower_bound + 1));
+        temp_data = rb_funcall(temp_data, rb_intern("reverse"), 0);
+      } else {
+        temp_data = rb_funcall(param_buffer, rb_intern("slice"), 2, INT2NUM(lower_bound), INT2NUM(upper_bound - lower_bound + 1));
+      }
+
+      /* Determine temp upper bound */
+      temp_upper = upper_bound - lower_bound;
+
+      /* Determine Values needed to Handle Bitfield */
+      start_bits = bit_offset % 8;
+      start_mask = (0xFF << (8 - start_bits));
+      total_bits = (temp_upper + 1) * 8;
+      end_bits = total_bits - start_bits - bit_size;
+      end_mask = ~(0xFF << end_bits);
+/*
+      printf("value:%f lower:%d upper:%d start_bits:%d end_bits:%d bit_size:%d total:%d start_mask:%I64x end_mask:%I64x\n",
+          rb_big2dbl(TO_BIGNUM(value)),lower_bound,upper_bound,start_bits,end_bits,bit_size,total_bits,start_mask,end_mask);
+*/
+      /* Add in Start Bits */
+      temp = (*(unsigned char*)RSTRING_PTR(temp_data)) & start_mask;
+
+      /* Adjust value to correct number of bits */
+      temp_mask = (unsigned long long)(pow(2, bit_size) - 1);
+      unsigned_long_long_value = NUM2ULL(value) & temp_mask;
+
+      /* Add in New Data */
+      if ((bit_size - (8 - start_bits)) >= 0) {
+        temp = (temp << (bit_size - (8 - start_bits)));
+      } else {
+        temp = (temp >> ((8 - start_bits) - bit_size));
+      }
+      temp += unsigned_long_long_value;
+
+      /* Add in Remainder of Existing Data */
+      temp = (temp << end_bits) + ((*(unsigned char*)(RSTRING_PTR(temp_data) + temp_upper)) & end_mask);
+
+      /* Store into buffer */
+      if (param_endianness != HOST_ENDIANNESS) {
+        reverse_bytes((unsigned char *)&temp, 8);
+        temp = (temp >> (64 - total_bits));
+      }
+      rb_str_modify(param_buffer);
+      memcpy((RSTRING_PTR(param_buffer) + lower_bound), &temp, temp_upper + 1);
+    }
+  } else if (param_data_type == symbol_FLOAT) {
+
+    /*##########################
+     *# Handle :FLOAT data type
+     *##########################*/
+
+    if (byte_aligned) {
+      switch (bit_size) {
+        case 32:
+          float_value = (float)RFLOAT_VALUE(value);
+          if (param_endianness != HOST_ENDIANNESS) {
+            reverse_bytes((unsigned char *)&float_value, 4);
+          }
+          rb_str_modify(param_buffer);
+          memcpy((RSTRING_PTR(param_buffer) + lower_bound), &float_value, 4);
+          break;
+
+        case 64:
+          double_value = RFLOAT_VALUE(value);
+          if (param_endianness != HOST_ENDIANNESS) {
+            reverse_bytes((unsigned char *)&double_value, 8);
+          }
+          rb_str_modify(param_buffer);
+          memcpy((RSTRING_PTR(param_buffer) + lower_bound), &double_value, 8);
+          break;
+
+        default:
+          rb_raise(rb_eArgError, "bit_size is %d but must be 32 or 64 for data_type %s", given_bit_size, RSTRING_PTR(rb_funcall(param_data_type, id_method_to_s, 0)));
+          break;
+      };
+    } else {
+      rb_raise(rb_eArgError, "bit_offset %d is not byte aligned for data_type %s", given_bit_offset, RSTRING_PTR(rb_funcall(param_data_type, id_method_to_s, 0)));
+    }
+
+  } else {
+
+    /*############################
+     *# Handle Unknown data types
+     *############################*/
+
+    rb_raise(rb_eArgError, "data_type %s is not recognized", RSTRING_PTR(rb_funcall(param_data_type, id_method_to_s, 0)));
+  }
+
+  return value;
 }
 
 /*
@@ -830,6 +1280,8 @@ void Init_structure (void)
 {
   int zero = 0;
 
+  mCosmos = rb_define_module("Cosmos");
+
   id_method_to_s = rb_intern("to_s");
   id_method_raise_buffer_error = rb_intern("raise_buffer_error");
   id_method_read_array = rb_intern("read_array");
@@ -842,6 +1294,33 @@ void Init_structure (void)
   ZERO_STRING = rb_str_new((char*) &zero, 1);
   rb_funcall(ZERO_STRING, id_method_freeze, 0);
   id_const_ZERO_STRING = rb_intern("ZERO_STRING");
+
+  rb_define_const(mCosmos, "MIN_INT8", INT2NUM(-128));
+  rb_define_const(mCosmos, "MAX_INT8", INT2NUM(127));
+  rb_define_const(mCosmos, "MAX_UINT8", INT2NUM(255));
+  rb_define_const(mCosmos, "MIN_INT16", INT2NUM(-32768));
+  rb_define_const(mCosmos, "MAX_INT16", INT2NUM(32767));
+  rb_define_const(mCosmos, "MAX_UINT16", INT2NUM(65535));
+
+  /* All this special code is needed because we are creating Bignums */
+  MIN_INT32  = rb_funcall(INT2NUM(2), rb_intern("**"), 1, INT2NUM(31));
+  MIN_INT32  = rb_funcall(INT2NUM(0), rb_intern("-"),  1, MIN_INT32);
+  MAX_INT32  = rb_funcall(INT2NUM(2), rb_intern("**"), 1, INT2NUM(31));
+  MAX_INT32  = rb_funcall(MAX_INT32,  rb_intern("-"),  1, INT2NUM(1));
+  MAX_UINT32 = rb_funcall(INT2NUM(2), rb_intern("**"), 1, INT2NUM(32));
+  MAX_UINT32 = rb_funcall(MAX_UINT32, rb_intern("-"),  1, INT2NUM(1));
+  rb_define_const(mCosmos, "MIN_INT32", MIN_INT32);
+  rb_define_const(mCosmos, "MAX_INT32", MAX_INT32);
+  rb_define_const(mCosmos, "MAX_UINT32", MAX_UINT32);
+  MIN_INT64  = rb_funcall(INT2NUM(2), rb_intern("**"), 1, INT2NUM(63));
+  MIN_INT64  = rb_funcall(INT2NUM(0), rb_intern("-"),  1, MIN_INT64);
+  MAX_INT64  = rb_funcall(INT2NUM(2), rb_intern("**"), 1, INT2NUM(63));
+  MAX_INT64  = rb_funcall(MAX_INT64,  rb_intern("-"),  1, INT2NUM(1));
+  MAX_UINT64 = rb_funcall(INT2NUM(2), rb_intern("**"), 1, INT2NUM(64));
+  MAX_UINT64 = rb_funcall(MAX_UINT64, rb_intern("-"),  1, INT2NUM(1));
+  rb_define_const(mCosmos, "MIN_INT64", MIN_INT64);
+  rb_define_const(mCosmos, "MAX_INT64", MAX_INT64);
+  rb_define_const(mCosmos, "MAX_UINT64", MAX_UINT64);
 
   id_ivar_buffer = rb_intern("@buffer");
   id_ivar_bit_offset = rb_intern("@bit_offset");
@@ -870,6 +1349,11 @@ void Init_structure (void)
   symbol_BLOCK = ID2SYM(rb_intern("BLOCK"));
   symbol_DERIVED = ID2SYM(rb_intern("DERIVED"));
   symbol_read = ID2SYM(rb_intern("read"));
+  symbol_write = ID2SYM(rb_intern("write"));
+  symbol_TRUNCATE = ID2SYM(rb_intern("TRUNCATE"));
+  symbol_SATURATE = ID2SYM(rb_intern("SATURATE"));
+  symbol_ERROR = ID2SYM(rb_intern("ERROR"));
+  symbol_ERROR_ALLOW_HEX = ID2SYM(rb_intern("ERROR_ALLOW_HEX"));
 
   if ((*((char *) &endianness_check)) == 1) {
     HOST_ENDIANNESS = symbol_LITTLE_ENDIAN;
@@ -877,10 +1361,9 @@ void Init_structure (void)
     HOST_ENDIANNESS = symbol_BIG_ENDIAN;
   }
 
-  mCosmos = rb_define_module("Cosmos");
-
   cBinaryAccessor = rb_define_class_under(mCosmos, "BinaryAccessor", rb_cObject);
   rb_define_singleton_method(cBinaryAccessor, "read", binary_accessor_read, 5);
+  rb_define_singleton_method(cBinaryAccessor, "write", binary_accessor_write, 7);
 
   cStructure = rb_define_class_under(mCosmos, "Structure", rb_cObject);
   rb_const_set(cStructure, id_const_ZERO_STRING, ZERO_STRING);
