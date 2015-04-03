@@ -840,6 +840,27 @@ module Cosmos
         end
       end
 
+      it "converts floats when writing integers" do
+        @data = "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+        BinaryAccessor.write(1.0, 0, 8, :UINT, @data, :BIG_ENDIAN, :ERROR)
+        BinaryAccessor.write(2.5, 8, 8, :INT, @data, :BIG_ENDIAN, :ERROR)
+        BinaryAccessor.write(4.99, 16, 8, :UINT, @data, :BIG_ENDIAN, :ERROR)
+        expect(@data).to eql("\x01\x02\x04\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00")
+      end
+
+      it "converts integer strings when writing integers" do
+        @data = "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+        BinaryAccessor.write("1", 0, 8, :UINT, @data, :BIG_ENDIAN, :ERROR)
+        BinaryAccessor.write("2", 8, 8, :INT, @data, :BIG_ENDIAN, :ERROR)
+        BinaryAccessor.write("4", 16, 8, :UINT, @data, :BIG_ENDIAN, :ERROR)
+        expect(@data).to eql("\x01\x02\x04\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00")
+      end
+
+      it "complains about non-integer strings when writing integers" do
+        expect { BinaryAccessor.write("1.0", 0, 8, :UINT, @data, :BIG_ENDIAN, :ERROR) }.to raise_error(ArgumentError)
+        expect { BinaryAccessor.write("abc123", 0, 8, :UINT, @data, :BIG_ENDIAN, :ERROR) }.to raise_error(ArgumentError)
+      end
+
       describe "given big endian data" do
 
         it "writes 1-bit unsigned integers" do
@@ -1006,6 +1027,32 @@ module Cosmos
           BinaryAccessor.write(expected_array[1], 64, 64, :FLOAT, @data, :BIG_ENDIAN, :ERROR)
           expect(BinaryAccessor.read(0,  64, :FLOAT, @data, :BIG_ENDIAN)).to be_within(1.0e-306).of(expected_array[0])
           expect(BinaryAccessor.read(64, 64, :FLOAT, @data, :BIG_ENDIAN)).to be_within(1.0e-308).of(expected_array[1])
+        end
+
+        it "converts integers to floats" do
+          BinaryAccessor.write(1, 0, 32, :FLOAT, @data, :BIG_ENDIAN, :ERROR)
+          value = BinaryAccessor.read(0, 32, :FLOAT, @data, :BIG_ENDIAN)
+          expect(value).to eql(1.0)
+          expect(value).to be_a(Float)
+          BinaryAccessor.write(4, 32, 64, :FLOAT, @data, :BIG_ENDIAN, :ERROR)
+          value = BinaryAccessor.read(32, 64, :FLOAT, @data, :BIG_ENDIAN)
+          expect(value).to eql(4.0)
+          expect(value).to be_a(Float)
+        end
+
+        it "converts strings when writing floats" do
+          BinaryAccessor.write("1", 0, 32, :FLOAT, @data, :BIG_ENDIAN, :ERROR)
+          value = BinaryAccessor.read(0, 32, :FLOAT, @data, :BIG_ENDIAN)
+          expect(value).to eql(1.0)
+          expect(value).to be_a(Float)
+          BinaryAccessor.write("4.5", 32, 64, :FLOAT, @data, :BIG_ENDIAN, :ERROR)
+          value = BinaryAccessor.read(32, 64, :FLOAT, @data, :BIG_ENDIAN)
+          expect(value).to eql(4.5)
+          expect(value).to be_a(Float)
+        end
+
+        it "complains about non-float strings when writing floats" do
+          expect { BinaryAccessor.write("abc123", 0, 32, :FLOAT, @data, :BIG_ENDIAN, :ERROR) }.to raise_error(ArgumentError)
         end
 
         it "complains about unaligned floats" do
