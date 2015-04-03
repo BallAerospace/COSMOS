@@ -16,7 +16,7 @@ module Cosmos
 
   describe BinaryAccessor do
 
-    describe "read" do
+    describe "just read" do
 
       before(:each) do
         @data = "\x80\x81\x82\x83\x84\x85\x86\x87\x00\x09\x0A\x0B\x0C\x0D\x0E\x0F"
@@ -677,7 +677,7 @@ module Cosmos
       end # given big endian data
     end # describe "read_array"
 
-    describe "write" do
+    describe "just write" do
 
       before(:each) do
         @data = "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
@@ -804,6 +804,22 @@ module Cosmos
         expect { BinaryAccessor.write(@baseline_data, 8, 800, :STRING, @data, :BIG_ENDIAN, :ERROR) }.to raise_error(ArgumentError, "16 byte buffer insufficient to write STRING at bit_offset 8 with bit_size 800")
       end
 
+      it "writes a frozen string" do
+        buffer = "BLANKxxxWORLD"
+        string = "HELLO".freeze
+        # Specify 3 more bytes than given to exercise the padding logic
+        string = BinaryAccessor.write(string, 0, (string.length + 3)*8, :STRING, buffer, :BIG_ENDIAN, :ERROR)
+        expect(buffer).to eql("HELLO\x00\x00\x00WORLD")
+        expect(string).to eql("HELLO")
+        expect(string.frozen?).to be true
+      end
+
+      it "complains about writing a frozen buffer" do
+        buffer = "BLANK WORLD".freeze
+        string = "HELLO"
+        expect {BinaryAccessor.write(string, 0, string.length*8, :STRING, buffer, :BIG_ENDIAN, :ERROR) }.to raise_error(RuntimeError, "can't modify frozen String")
+      end
+
       it "writes aligned 8-bit unsigned integers" do
         0.step((@data.length - 1) * 8, 8) do |bit_offset|
           @data = "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
@@ -896,6 +912,16 @@ module Cosmos
           expect(@data).to eql(@baseline_data)
         end
 
+        it "writes aligned 32-bit unsigned integers" do
+          expected_array = [0x80818283, 0x84858687, 0x00090A0B, 0x0C0D0E0F]
+          index = 0
+          0.step((@data.length - 1) * 8, 32) do |bit_offset|
+            BinaryAccessor.write(expected_array[index], bit_offset, 32, :UINT, @data, :BIG_ENDIAN, :ERROR)
+            index += 1
+          end
+          expect(@data).to eql(@baseline_data)
+        end
+
         it "writes aligned 32-bit signed integers" do
           expected_array = [0x80818283, 0x84858687, 0x00090A0B, 0x0C0D0E0F]
           index = 0
@@ -903,16 +929,6 @@ module Cosmos
             expected = expected_array[index]
             expected = expected - 2**32 if expected >= 2**31
             BinaryAccessor.write(expected_array[index], bit_offset, 32, :INT, @data, :BIG_ENDIAN, :ERROR_ALLOW_HEX)
-            index += 1
-          end
-          expect(@data).to eql(@baseline_data)
-        end
-
-        it "writes aligned 32-bit unsigned integers" do
-          expected_array = [0x80818283, 0x84858687, 0x00090A0B, 0x0C0D0E0F]
-          index = 0
-          0.step((@data.length - 1) * 8, 32) do |bit_offset|
-            BinaryAccessor.write(expected_array[index], bit_offset, 32, :UINT, @data, :BIG_ENDIAN, :ERROR)
             index += 1
           end
           expect(@data).to eql(@baseline_data)
