@@ -23,6 +23,7 @@ module Cosmos
       @packets = []
       @processed_queue = Queue.new
       @log_file_directory = System.paths['LOGS']
+      @max_block_count = 1000
       @timer = nil
     end
 
@@ -37,7 +38,7 @@ module Cosmos
 
       @text = Qt::PlainTextEdit.new
       @text.setReadOnly(true)
-      @text.setMaximumBlockCount(100)
+      @text.setMaximumBlockCount(@max_block_count)
       if Kernel.is_windows?
         @text.font = Cosmos.getFont("courier", 9)
       else
