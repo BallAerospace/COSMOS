@@ -93,6 +93,7 @@ spec = Gem::Specification.new do |s|
   s.add_development_dependency 'simplecov', '~> 0.9'
   s.add_development_dependency 'ruby-prof', '~> 0.15'
   s.add_development_dependency 'coveralls', '~> 0.7'
+  s.add_development_dependency 'benchmark-ips', '~> 2'
 
   s.post_install_message = "Thanks for installing Ball Aerospace COSMOS!\nStart your first project with: cosmos demo demo\n"
 end
