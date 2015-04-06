@@ -16,7 +16,7 @@ module Cosmos
 
   describe BinaryAccessor do
 
-    describe "just read" do
+    describe "read only" do
 
       before(:each) do
         @data = "\x80\x81\x82\x83\x84\x85\x86\x87\x00\x09\x0A\x0B\x0C\x0D\x0E\x0F"
@@ -677,7 +677,7 @@ module Cosmos
       end # given big endian data
     end # describe "read_array"
 
-    describe "just write" do
+    describe "write only" do
 
       before(:each) do
         @data = "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
@@ -802,6 +802,20 @@ module Cosmos
 
       it "complains if write exceeds the size of the buffer" do
         expect { BinaryAccessor.write(@baseline_data, 8, 800, :STRING, @data, :BIG_ENDIAN, :ERROR) }.to raise_error(ArgumentError, "16 byte buffer insufficient to write STRING at bit_offset 8 with bit_size 800")
+      end
+
+      it "truncates the buffer for 0 bitsize" do
+        expect(@data.length).to eql 16
+        BinaryAccessor.write("\x01\x02\x03", 8, 0, :BLOCK, @data, :BIG_ENDIAN, :ERROR)
+        expect(@data).to eql("\x00\x01\x02\x03")
+        expect(@data.length).to eql 4
+      end
+
+      it "expands the buffer for 0 bitsize" do
+        expect(@data.length).to eql 16
+        BinaryAccessor.write("\x01\x02\x03", (14 * 8), 0, :BLOCK, @data, :BIG_ENDIAN, :ERROR)
+        expect(@data).to eql("\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x02\x03")
+        expect(@data.length).to eql 17
       end
 
       it "writes a frozen string" do

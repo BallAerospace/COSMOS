@@ -812,8 +812,7 @@ static VALUE binary_accessor_write(VALUE self, VALUE value, VALUE param_bit_offs
     bit_size = RSTRING_LEN(value) * 8;
   }
 
-  if (!check_bounds_and_buffer_size(bit_offset, bit_size, buffer_length, param_endianness, param_data_type, &lower_bound, &upper_bound))
-  {
+  if ((!check_bounds_and_buffer_size(bit_offset, bit_size, buffer_length, param_endianness, param_data_type, &lower_bound, &upper_bound)) && (given_bit_size > 0)) {
     rb_funcall(self, id_method_raise_buffer_error, 5, symbol_write, param_buffer, param_data_type, param_bit_offset, param_bit_size);
   }
 
@@ -888,6 +887,7 @@ static VALUE binary_accessor_write(VALUE self, VALUE value, VALUE param_bit_offs
     /*###################################
      *# Handle :INT data type
      *###################################*/
+    value = rb_funcall(rb_mKernel, rb_intern("Integer"), 1, value);
 
     if ((BYTE_ALIGNED(bit_offset)) && (even_bit_size(bit_size)))
     {
@@ -984,6 +984,7 @@ static VALUE binary_accessor_write(VALUE self, VALUE value, VALUE param_bit_offs
     /*##########################
      *# Handle :FLOAT data type
      *##########################*/
+    value = rb_funcall(rb_mKernel, rb_intern("Float"), 1, value);
 
     if (BYTE_ALIGNED(bit_offset)) {
       switch (bit_size) {
