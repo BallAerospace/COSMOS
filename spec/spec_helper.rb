@@ -36,6 +36,7 @@ unless ENV['COSMOS_NO_SIMPLECOV']
 end
 require 'rspec'
 require 'ruby-prof'
+require 'benchmark/ips'
 require 'cosmos'
 require 'cosmos/utilities/logger'
 
@@ -55,11 +56,6 @@ def exit(*args)
 end
 
 RSpec.configure do |config|
-  config.expect_with :rspec do |c|
-    # Explicitly enable the should and expect syntax
-    c.syntax = [:should, :expect]
-  end
-
   # Store standard output global and CONSTANT since we will mess with them
   config.before(:all) do
     $saved_stdout_global = $stdout
@@ -159,6 +155,15 @@ RSpec.configure do |c|
       # Run each test 100 times to prevent startup issues from dominating
       100.times do
         example.run
+      end
+    end
+  end
+  if ENV.key?("BENCHMARK")
+    c.around(:each) do |example|
+      Benchmark.ips do |x|
+        x.report(example.metadata[:full_description]) do
+          example.run
+        end
       end
     end
   end
