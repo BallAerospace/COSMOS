@@ -49,6 +49,8 @@ module Cosmos
         File.open(File.join(cmd_tlm,'cmd2.txt'),'w') {}
         File.open(File.join(cmd_tlm,'tlm1.txt'),'w') {}
         File.open(File.join(cmd_tlm,'tlm2.txt'),'w') {}
+        File.open(File.join(cmd_tlm,'tlm2.txt~'),'w') {}
+        File.open(File.join(cmd_tlm,'tlm2.txt.mine'),'w') {}
 
         tgt = Target.new(tgt_name,nil,tgt_path)
         expect(tgt.dir).to eql File.join(tgt_path,tgt_name)
