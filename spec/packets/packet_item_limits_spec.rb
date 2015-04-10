@@ -63,7 +63,7 @@ module Cosmos
       it "accepts LimitsResponse instances" do
         r = LimitsResponse.new()
         @l.response = r
-        expect(LimitsResponse === @l.response).to be_truthy
+        expect(LimitsResponse === @l.response).to be true
       end
 
       it "sets the response to nil" do
@@ -132,7 +132,7 @@ module Cosmos
         hash = @l.to_hash
         expect(hash.keys.length).to eql 6
         expect(hash.keys).to include('values','enabled','state','response','persistence_setting','persistence_count')
-        expect(hash["enabled"]).to be_truthy
+        expect(hash["enabled"]).to be true
         expect(hash["values"]).to include(:DEFAULT => [0,1,2,3,4,5])
         expect(hash["state"]).to eql :RED_LOW
         expect(hash["response"]).to match "LimitsResponse"
@@ -148,7 +148,7 @@ module Cosmos
         @l.persistence_count = 2
 
         hash = @l.to_hash
-        expect(hash["enabled"]).to be_truthy
+        expect(hash["enabled"]).to be true
         expect(hash["values"]).to include(:DEFAULT => [0,1,2,3,4,5])
         expect(hash["state"]).to eql :RED_LOW
         expect(hash["response"]).to be_nil

@@ -116,7 +116,7 @@ module Cosmos
         array = [1,2,3,4]
         Cosmos.marshal_dump('marshal_test', array)
         array_load = Cosmos.marshal_load('marshal_test')
-        expect(File.exist?(File.join(Cosmos::USERPATH,'marshal_test'))).to be_truthy
+        expect(File.exist?(File.join(Cosmos::USERPATH,'marshal_test'))).to be true
         expect(array).to eql array_load
         File.delete(File.join(Cosmos::USERPATH,'marshal_test'))
       end
@@ -161,9 +161,9 @@ module Cosmos
           thread = Cosmos.run_process("ping 192.0.0.234 -n 1 -w 1000 > nul")
           sleep 0.1
           expect(thread).to be_a Thread
-          expect(thread.alive?).to be_truthy
+          expect(thread.alive?).to be true
           sleep 2
-          expect(thread.alive?).to be_falsey
+          expect(thread.alive?).to be false
         end
       end
     end
@@ -198,7 +198,7 @@ module Cosmos
   describe "create_log_file" do
     it "creates a log file even if System LOGS doesn't exist" do
       filename = Cosmos.create_log_file('test', 'X:/directory/which/does/not/exit')
-      expect(File.exist?(filename)).to be_truthy
+      expect(File.exist?(filename)).to be true
       File.delete(filename)
 
       Cosmos.set_working_dir do
@@ -220,13 +220,13 @@ module Cosmos
         # Create a logs directory as the first order backup
         FileUtils.mkdir('logs')
         filename = Cosmos.create_log_file('test', 'X:/directory/which/does/not/exit')
-        expect(File.exist?(filename)).to be_truthy
+        expect(File.exist?(filename)).to be true
         File.delete(filename)
 
         # Delete logs and see if we still get a log file
         FileUtils.rm_rf('logs')
         filename = Cosmos.create_log_file('test', 'X:/directory/which/does/not/exit')
-        expect(File.exist?(filename)).to be_truthy
+        expect(File.exist?(filename)).to be true
         File.delete(filename)
 
         # Restore outputs
@@ -238,9 +238,9 @@ module Cosmos
   describe "write_exception_file" do
     it "writes an exception file" do
       file = Cosmos.write_exception_file(nil, 'test1_exception', File.dirname(__FILE__))
-      expect(File.exist?(file)).to be_truthy
+      expect(File.exist?(file)).to be true
       file = Cosmos.write_exception_file(RuntimeError.new, 'test2_exception', File.dirname(__FILE__))
-      expect(File.exist?(file)).to be_truthy
+      expect(File.exist?(file)).to be true
       Cosmos.cleanup_exceptions()
     end
   end

@@ -105,14 +105,14 @@ module Cosmos
         packet = @psp.read
         expect(packet.target_name).to eql 'COSMOS'
         expect(packet.packet_name).to eql 'VERSION'
-        expect(packet.identified?).to be_truthy
-        expect(packet.defined?).to be_falsey
+        expect(packet.identified?).to be true
+        expect(packet.defined?).to be false
 
         pkt2 = System.telemetry.update!("COSMOS","VERSION",packet.buffer)
         expect(pkt2.read('PKT_ID')).to eql 1
         expect(pkt2.read('COSMOS')).to eql 'TEST'
-        expect(pkt2.identified?).to be_truthy
-        expect(pkt2.defined?).to be_truthy
+        expect(pkt2.identified?).to be true
+        expect(pkt2.defined?).to be true
       end
     end
 

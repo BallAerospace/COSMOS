@@ -23,17 +23,17 @@ module Cosmos
       it "is not writeable if no write port given" do
         i = TcpipClientInterface.new('localhost','nil','8889','nil','5','burst')
         expect(i.name).to eql "Cosmos::TcpipClientInterface"
-        expect(i.write_allowed?).to be_falsey
-        expect(i.write_raw_allowed?).to be_falsey
-        expect(i.read_allowed?).to be_truthy
+        expect(i.write_allowed?).to be false
+        expect(i.write_raw_allowed?).to be false
+        expect(i.read_allowed?).to be true
       end
 
       it "is not readable if no read port given" do
         i = TcpipClientInterface.new('localhost','8888','nil','5','nil','burst')
         expect(i.name).to eql "Cosmos::TcpipClientInterface"
-        expect(i.write_allowed?).to be_truthy
-        expect(i.write_raw_allowed?).to be_truthy
-        expect(i.read_allowed?).to be_falsey
+        expect(i.write_allowed?).to be true
+        expect(i.write_raw_allowed?).to be true
+        expect(i.read_allowed?).to be false
       end
     end
 
@@ -45,9 +45,9 @@ module Cosmos
         expect(stream).to receive(:connected?) { true }
         expect(stream).to receive(:raw_logger_pair=) { nil }
         i = TcpipClientInterface.new('localhost','8888','8889','5','5','burst')
-        expect(i.connected?).to be_falsey
+        expect(i.connected?).to be false
         i.connect
-        expect(i.connected?).to be_truthy
+        expect(i.connected?).to be true
       end
     end
   end

@@ -80,7 +80,7 @@ module Cosmos
 
     describe "connected" do
       it "returns false if the stream hasn't been set" do
-        expect(@sp.connected?).to be_falsey
+        expect(@sp.connected?).to be false
       end
 
       it "returns the status of the stream connection" do
@@ -90,7 +90,7 @@ module Cosmos
         end
         stream = MyStream2.new
         @sp.connect(stream)
-        expect(@sp.connected?).to be_truthy
+        expect(@sp.connected?).to be true
       end
     end
 
@@ -103,9 +103,9 @@ module Cosmos
         end
         stream = MyStream3.new
         @sp.connect(stream)
-        expect($test).to be_falsey
+        expect($test).to be false
         @sp.disconnect
-        expect($test).to be_truthy
+        expect($test).to be true
       end
     end
 

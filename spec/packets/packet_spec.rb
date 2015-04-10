@@ -731,9 +731,9 @@ module Cosmos
         p.append_item("item1",8,:UINT)
         p.append_item("item2",16,:UINT,nil,:BIG_ENDIAN,:ERROR,nil,nil,nil,5)
         p.append_item("item3",32,:UINT)
-        expect(p.identify?("\x00\x00\x05\x01\x02\x03\x04")).to be_truthy
-        expect(p.identify?("\x00\x00\x04\x01\x02\x03\x04")).to be_falsey
-        expect(p.identify?("\x00")).to be_falsey
+        expect(p.identify?("\x00\x00\x05\x01\x02\x03\x04")).to be true
+        expect(p.identify?("\x00\x00\x04\x01\x02\x03\x04")).to be false
+        expect(p.identify?("\x00")).to be false
       end
 
       it "identifies if the buffer is too short" do
@@ -741,7 +741,7 @@ module Cosmos
         p.append_item("item1",8,:UINT)
         p.append_item("item2",16,:UINT,nil,:BIG_ENDIAN,:ERROR,nil,nil,nil,5)
         p.append_item("item3",32,:UINT)
-        expect(p.identify?("\x00\x00\x05\x01\x02\x03")).to be_truthy
+        expect(p.identify?("\x00\x00\x05\x01\x02\x03")).to be true
       end
 
       it "identifies if the buffer is too long" do
@@ -749,15 +749,15 @@ module Cosmos
         p.append_item("item1",8,:UINT)
         p.append_item("item2",16,:UINT,nil,:BIG_ENDIAN,:ERROR,nil,nil,nil,5)
         p.append_item("item3",32,:UINT)
-        expect(p.identify?("\x00\x00\x05\x01\x02\x03\x04\x05")).to be_truthy
+        expect(p.identify?("\x00\x00\x05\x01\x02\x03\x04\x05")).to be true
       end
     end
 
     describe "identified?" do
       it "returns true if the target name and packet name are set" do
-        expect(Packet.new('TGT',nil).identified?).to be_falsey
-        expect(Packet.new(nil,'PKT').identified?).to be_falsey
-        expect(Packet.new('TGT','PKT').identified?).to be_truthy
+        expect(Packet.new('TGT',nil).identified?).to be false
+        expect(Packet.new(nil,'PKT').identified?).to be false
+        expect(Packet.new('TGT','PKT').identified?).to be true
       end
     end
 
@@ -789,14 +789,14 @@ module Cosmos
         p = Packet.new("tgt","pkt")
         p.append_item("test1", 8, :UINT, 16)
         p.append_item("test2", 16, :UINT)
-        expect(p.get_item("TEST1").limits.enabled).to be_falsey
-        expect(p.get_item("TEST2").limits.enabled).to be_falsey
+        expect(p.get_item("TEST1").limits.enabled).to be false
+        expect(p.get_item("TEST2").limits.enabled).to be false
         p.enable_limits("TEST1")
-        expect(p.get_item("TEST1").limits.enabled).to be_truthy
-        expect(p.get_item("TEST2").limits.enabled).to be_falsey
+        expect(p.get_item("TEST1").limits.enabled).to be true
+        expect(p.get_item("TEST2").limits.enabled).to be false
         p.enable_limits("TEST2")
-        expect(p.get_item("TEST1").limits.enabled).to be_truthy
-        expect(p.get_item("TEST2").limits.enabled).to be_truthy
+        expect(p.get_item("TEST1").limits.enabled).to be true
+        expect(p.get_item("TEST2").limits.enabled).to be true
       end
     end
 
@@ -807,14 +807,14 @@ module Cosmos
         p.append_item("test2", 16, :UINT)
         p.enable_limits("TEST1")
         p.enable_limits("TEST2")
-        expect(p.get_item("TEST1").limits.enabled).to be_truthy
-        expect(p.get_item("TEST2").limits.enabled).to be_truthy
+        expect(p.get_item("TEST1").limits.enabled).to be true
+        expect(p.get_item("TEST2").limits.enabled).to be true
         p.disable_limits("TEST1")
-        expect(p.get_item("TEST1").limits.enabled).to be_falsey
-        expect(p.get_item("TEST2").limits.enabled).to be_truthy
+        expect(p.get_item("TEST1").limits.enabled).to be false
+        expect(p.get_item("TEST2").limits.enabled).to be true
         p.disable_limits("TEST2")
-        expect(p.get_item("TEST1").limits.enabled).to be_falsey
-        expect(p.get_item("TEST2").limits.enabled).to be_falsey
+        expect(p.get_item("TEST1").limits.enabled).to be false
+        expect(p.get_item("TEST2").limits.enabled).to be false
       end
 
       it "calls the limits_change_callback for all non STALE items" do
@@ -839,8 +839,8 @@ module Cosmos
         p.check_limits
         p.disable_limits("TEST1")
         p.disable_limits("TEST2")
-        expect(p.get_item("TEST1").limits.enabled).to be_falsey
-        expect(p.get_item("TEST2").limits.enabled).to be_falsey
+        expect(p.get_item("TEST1").limits.enabled).to be false
+        expect(p.get_item("TEST2").limits.enabled).to be false
       end
     end
 
@@ -922,14 +922,14 @@ module Cosmos
       end
 
       it "sets clear the stale flag" do
-        expect(@p.stale).to be_truthy
+        expect(@p.stale).to be true
         @p.check_limits
-        expect(@p.stale).to be_falsey
+        expect(@p.stale).to be false
       end
 
       it "does not call the limits_change_callback if limits are disabled" do
-        expect(@p.get_item("TEST1").limits.enabled).to be_falsey
-        expect(@p.get_item("TEST2").limits.enabled).to be_falsey
+        expect(@p.get_item("TEST1").limits.enabled).to be false
+        expect(@p.get_item("TEST2").limits.enabled).to be false
         callback = double("callback")
         allow(callback).to receive(:call)
         @p.limits_change_callback = callback
@@ -940,14 +940,14 @@ module Cosmos
       context "with states" do
         it "calls the limits_change_callback" do
           test1 = @p.get_item("TEST1")
-          expect(test1.limits.enabled).to be_falsey
+          expect(test1.limits.enabled).to be false
           test1.states = {"TRUE"=>1,"FALSE"=>0}
           test1.state_colors = {"TRUE"=>:GREEN,"FALSE"=>:RED}
           @p.update_limits_items_cache(test1)
           @p.write("TEST1", 0)
           @p.enable_limits("TEST1")
           test2 = @p.get_item("TEST2")
-          expect(test2.limits.enabled).to be_falsey
+          expect(test2.limits.enabled).to be false
           test2.states = {"TRUE"=>1,"FALSE"=>0}
           test2.state_colors = {"TRUE"=>:RED,"FALSE"=>:GREEN}
           @p.write("TEST2", 0)
@@ -978,19 +978,19 @@ module Cosmos
       context "with values" do
         before(:each) do
           @test1 = @p.get_item("TEST1")
-          expect(@test1.limits.enabled).to be_falsey
+          expect(@test1.limits.enabled).to be false
           @test1.limits.values = {:DEFAULT=>[1,2,4,5]} # red yellow
           @p.update_limits_items_cache(@test1)
           @p.enable_limits("TEST1")
 
           @test2 = @p.get_item("TEST2")
-          expect(@test2.limits.enabled).to be_falsey
+          expect(@test2.limits.enabled).to be false
           @test2.limits.values = {:DEFAULT=>[1,2,6,7,3,5]} # red yellow and blue
           @p.update_limits_items_cache(@test2)
           @p.enable_limits("TEST2")
 
           @test3 = @p.get_item("TEST3")
-          expect(@test3.limits.enabled).to be_falsey
+          expect(@test3.limits.enabled).to be false
           @test3.limits.values = {:DEFAULT=>[1,1.5,2.5,3]} # red yellow
           @p.update_limits_items_cache(@test3)
           @p.enable_limits("TEST3")
@@ -1254,12 +1254,12 @@ module Cosmos
         p.enable_limits("TEST2")
         expect(p.out_of_limits).to eql []
 
-        expect(p.stale).to be_truthy
+        expect(p.stale).to be true
         expect(p.get_item("TEST1").limits.state).to eql :STALE
         expect(p.get_item("TEST2").limits.state).to eql :STALE
         # Update the limits
         p.check_limits
-        expect(p.stale).to be_falsey
+        expect(p.stale).to be false
         expect(p.get_item("TEST1").limits.state).not_to eql :STALE
         expect(p.get_item("TEST2").limits.state).not_to eql :STALE
         # set them all back to stale

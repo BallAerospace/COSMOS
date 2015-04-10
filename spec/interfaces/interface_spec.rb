@@ -27,10 +27,10 @@ module Cosmos
         expect(i.name).to eql "Cosmos::Interface"
         expect(i.target_names).to eql []
         expect(i.thread).to be_nil
-        expect(i.connect_on_startup).to be_truthy
-        expect(i.auto_reconnect).to be_truthy
+        expect(i.connect_on_startup).to be true
+        expect(i.auto_reconnect).to be true
         expect(i.reconnect_delay).to eql 5.0
-        expect(i.disable_disconnect).to be_falsey
+        expect(i.disable_disconnect).to be false
         expect(i.packet_log_writer_pairs).to eql []
         expect(i.routers).to eql []
         expect(i.read_count).to eql 0
@@ -58,19 +58,19 @@ module Cosmos
 
     describe "read_allowed?" do
       it "is true" do
-        expect(Interface.new.read_allowed?).to be_truthy
+        expect(Interface.new.read_allowed?).to be true
       end
     end
 
     describe "write_allowed?" do
       it "is true" do
-        expect(Interface.new.write_allowed?).to be_truthy
+        expect(Interface.new.write_allowed?).to be true
       end
     end
 
     describe "write_raw_allowed?" do
       it "is true" do
-        expect(Interface.new.write_raw_allowed?).to be_truthy
+        expect(Interface.new.write_raw_allowed?).to be true
       end
     end
 
@@ -100,10 +100,10 @@ module Cosmos
         expect(i2.name).to eql 'TEST'
         expect(i2.target_names).to eql ['TGT1','TGT2']
         expect(i2.thread).to be_nil # Thread does not get copied
-        expect(i2.connect_on_startup).to be_falsey
-        expect(i2.auto_reconnect).to be_falsey
+        expect(i2.connect_on_startup).to be false
+        expect(i2.auto_reconnect).to be false
         expect(i2.reconnect_delay).to eql 1.0
-        expect(i2.disable_disconnect).to be_truthy
+        expect(i2.disable_disconnect).to be true
         expect(i2.packet_log_writer_pairs).to eql [1,2]
         expect(i2.routers).to eql [3,4]
         expect(i2.read_count).to eql 1

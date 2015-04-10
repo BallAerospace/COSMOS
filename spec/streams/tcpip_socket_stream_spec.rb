@@ -158,9 +158,9 @@ module Cosmos
         expect(write).to receive(:close)
         ss = TcpipSocketStream.new(write,nil,nil,nil)
         ss.connect
-        expect(ss.connected?).to be_truthy
+        expect(ss.connected?).to be true
         ss.disconnect
-        expect(ss.connected?).to be_falsey
+        expect(ss.connected?).to be false
       end
 
       it "closes the read socket" do
@@ -169,9 +169,9 @@ module Cosmos
         expect(read).to receive(:close)
         ss = TcpipSocketStream.new(nil,read,nil,nil)
         ss.connect
-        expect(ss.connected?).to be_truthy
+        expect(ss.connected?).to be true
         ss.disconnect
-        expect(ss.connected?).to be_falsey
+        expect(ss.connected?).to be false
       end
 
       it "does not close the socket twice" do
@@ -180,11 +180,11 @@ module Cosmos
         expect(socket).to receive(:close).once
         ss = TcpipSocketStream.new(socket,socket,nil,nil)
         ss.connect
-        expect(ss.connected?).to be_truthy
+        expect(ss.connected?).to be true
         ss.disconnect
-        expect(ss.connected?).to be_falsey
+        expect(ss.connected?).to be false
         ss.disconnect
-        expect(ss.connected?).to be_falsey
+        expect(ss.connected?).to be false
       end
     end
 

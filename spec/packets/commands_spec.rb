@@ -324,22 +324,22 @@ module Cosmos
 
       it "returns true if the command overall is hazardous" do
         hazardous, description = @cmd.cmd_hazardous?("TGT1","PKT1")
-        expect(hazardous).to be_falsey
+        expect(hazardous).to be false
         expect(description).to be_nil
         hazardous, description = @cmd.cmd_hazardous?("tgt2","pkt3")
-        expect(hazardous).to be_truthy
+        expect(hazardous).to be true
         expect(description).to eql "Hazardous"
       end
 
       it "returns true if a command parameter is hazardous" do
         hazardous, description = @cmd.cmd_hazardous?("TGT1","PKT2",{"ITEM2"=>0})
-        expect(hazardous).to be_truthy
+        expect(hazardous).to be true
         expect(description).to eql "Hazardous"
         hazardous, description = @cmd.cmd_hazardous?("TGT1","PKT2",{"ITEM2"=>1})
-        expect(hazardous).to be_truthy
+        expect(hazardous).to be true
         expect(description).to eql ""
         hazardous, description = @cmd.cmd_hazardous?("TGT1","PKT2",{"ITEM2"=>2})
-        expect(hazardous).to be_falsey
+        expect(hazardous).to be false
         expect(description).to be_nil
       end
     end

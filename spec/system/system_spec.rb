@@ -504,9 +504,9 @@ module Cosmos
           tf = Tempfile.new('unittest')
           tf.puts("DISABLE_DNS")
           tf.close
-          expect(System.use_dns).to be_truthy
+          expect(System.use_dns).to be true
           System.instance.process_file(tf.path)
-          expect(System.use_dns).to be_falsey
+          expect(System.use_dns).to be false
           tf.unlink
         end
       end
@@ -554,7 +554,7 @@ module Cosmos
           tf.puts("ALLOW_ACCESS localhost")
           tf.close
           System.instance.process_file(tf.path)
-          expect(System.acl.allow_addr?(["AF_INET",0,"localhost","127.0.0.1"])).to be_truthy
+          expect(System.acl.allow_addr?(["AF_INET",0,"localhost","127.0.0.1"])).to be true
           tf.unlink
         end
 
@@ -565,7 +565,7 @@ module Cosmos
             tf.puts("ALLOW_ACCESS #{addr}")
             tf.close
             System.instance.process_file(tf.path)
-            expect(System.acl.allow_addr?(["AF_INET",0,"www.google.com",addr])).to be_truthy
+            expect(System.acl.allow_addr?(["AF_INET",0,"www.google.com",addr])).to be true
             tf.unlink
           end
         end
@@ -627,7 +627,7 @@ module Cosmos
     describe "Cosmos.write_exception_file" do
       it "writes a file with the exception" do
         filename = Cosmos.write_exception_file(RuntimeError.new("HELP!"))
-        expect(File.exist?(filename)).to be_truthy
+        expect(File.exist?(filename)).to be true
         File.delete(filename)
       end
 
@@ -636,7 +636,7 @@ module Cosmos
         # Reset the instance variable so it will read the new config file
         System.instance_eval('@instance = nil')
         filename = Cosmos.write_exception_file(RuntimeError.new("HELP!"))
-        expect(File.exist?(filename)).to be_truthy
+        expect(File.exist?(filename)).to be true
         File.delete(filename)
       end
     end

@@ -366,17 +366,17 @@ module Cosmos
     describe "check_stale" do
       it "checks each packet for staleness" do
         @tlm.check_stale
-        expect(@tlm.packet("TGT1","PKT1").stale).to be_truthy
-        expect(@tlm.packet("TGT1","PKT2").stale).to be_truthy
-        expect(@tlm.packet("TGT2","PKT1").stale).to be_truthy
+        expect(@tlm.packet("TGT1","PKT1").stale).to be true
+        expect(@tlm.packet("TGT1","PKT2").stale).to be true
+        expect(@tlm.packet("TGT2","PKT1").stale).to be true
 
         @tlm.packet("TGT1","PKT1").check_limits
         @tlm.packet("TGT1","PKT2").check_limits
         @tlm.packet("TGT2","PKT1").check_limits
         @tlm.check_stale
-        expect(@tlm.packet("TGT1","PKT1").stale).to be_falsey
-        expect(@tlm.packet("TGT1","PKT2").stale).to be_falsey
-        expect(@tlm.packet("TGT2","PKT1").stale).to be_falsey
+        expect(@tlm.packet("TGT1","PKT1").stale).to be false
+        expect(@tlm.packet("TGT1","PKT2").stale).to be false
+        expect(@tlm.packet("TGT2","PKT1").stale).to be false
       end
     end
 

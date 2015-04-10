@@ -35,12 +35,12 @@ module Cosmos
         server = TcpipServer.new(nil,8889,nil,nil,'Burst')
         server.connect
         sleep 0.2
-        expect(server.connected?).to be_truthy
+        expect(server.connected?).to be true
         # 2 because the RSpec main thread plus the listener
         expect(Thread.list.length).to eql 2
         server.disconnect
         sleep 0.2
-        expect(server.connected?).to be_falsey
+        expect(server.connected?).to be false
         expect(Thread.list.length).to eql 1
       end
 
@@ -48,13 +48,13 @@ module Cosmos
         server = TcpipServer.new(8888,nil,nil,nil,'Burst')
         server.connect
         sleep 0.2
-        expect(server.connected?).to be_truthy
+        expect(server.connected?).to be true
         # 3 because the RSpec main thread plus the listener
         # plus one for the write thread
         expect(Thread.list.length).to eql 3
         server.disconnect
         sleep 0.2
-        expect(server.connected?).to be_falsey
+        expect(server.connected?).to be false
         expect(Thread.list.length).to eql 1
       end
 
@@ -62,13 +62,13 @@ module Cosmos
         server = TcpipServer.new(8888,8888,nil,nil,'Burst')
         server.connect
         sleep 0.2
-        expect(server.connected?).to be_truthy
+        expect(server.connected?).to be true
         # 3 because the RSpec main thread plus the listener
         # plus one for the write thread
         expect(Thread.list.length).to eql 3
         server.disconnect
         sleep 0.2
-        expect(server.connected?).to be_falsey
+        expect(server.connected?).to be false
         expect(Thread.list.length).to eql 1
       end
 
@@ -76,13 +76,13 @@ module Cosmos
         server = TcpipServer.new(8888,8889,nil,nil,'Burst')
         server.connect
         sleep 0.2
-        expect(server.connected?).to be_truthy
+        expect(server.connected?).to be true
         # 4 because the RSpec main thread plus the two listeners
         # plus one for the write thread
         expect(Thread.list.length).to eql 4
         server.disconnect
         sleep 0.2
-        expect(server.connected?).to be_falsey
+        expect(server.connected?).to be false
         expect(Thread.list.length).to eql 1
       end
 
@@ -152,7 +152,7 @@ module Cosmos
           socket = TCPSocket.open("127.0.0.1",8889)
           sleep 0.2
           expect(server.num_clients).to eql 0
-          expect(socket.eof?).to be_truthy
+          expect(socket.eof?).to be true
           server.disconnect
           sleep 0.2
           socket.close

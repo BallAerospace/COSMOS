@@ -106,8 +106,8 @@ module Cosmos
           tf.close
           config = CmdTlmServerConfig.new(tf.path)
           expect(config.packet_log_writer_pairs.keys).to eql ["DEFAULT","MY_WRITER"]
-          expect(config.packet_log_writer_pairs["DEFAULT"].cmd_log_writer.logging_enabled).to be_truthy
-          expect(config.packet_log_writer_pairs["MY_WRITER"].cmd_log_writer.logging_enabled).to be_falsey
+          expect(config.packet_log_writer_pairs["DEFAULT"].cmd_log_writer.logging_enabled).to be true
+          expect(config.packet_log_writer_pairs["MY_WRITER"].cmd_log_writer.logging_enabled).to be false
           tf.unlink
           config.packet_log_writer_pairs.each do |name, plwp|
             plwp.cmd_log_writer.shutdown
@@ -191,7 +191,7 @@ module Cosmos
           tf.puts 'DONT_CONNECT'
           tf.close
           config = CmdTlmServerConfig.new(tf.path)
-          expect(config.interfaces['CTSCONFIGTESTINTERFACE'].connect_on_startup).to be_falsey
+          expect(config.interfaces['CTSCONFIGTESTINTERFACE'].connect_on_startup).to be false
           tf.unlink
         end
       end
@@ -212,7 +212,7 @@ module Cosmos
           tf.puts 'DONT_RECONNECT'
           tf.close
           config = CmdTlmServerConfig.new(tf.path)
-          expect(config.interfaces['CTSCONFIGTESTINTERFACE'].auto_reconnect).to be_falsey
+          expect(config.interfaces['CTSCONFIGTESTINTERFACE'].auto_reconnect).to be false
           tf.unlink
         end
       end
@@ -254,7 +254,7 @@ module Cosmos
           tf.puts 'DISABLE_DISCONNECT'
           tf.close
           config = CmdTlmServerConfig.new(tf.path)
-          expect(config.interfaces['CTSCONFIGTESTINTERFACE'].disable_disconnect).to be_truthy
+          expect(config.interfaces['CTSCONFIGTESTINTERFACE'].disable_disconnect).to be true
           tf.unlink
         end
       end

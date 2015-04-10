@@ -46,9 +46,9 @@ module Cosmos
       it "closes the handle" do
         expect(Win32).to receive(:close_handle)
         driver = Win32SerialDriver.new('COM1',9600)
-        expect(driver.closed?).to be_falsey
+        expect(driver.closed?).to be false
         driver.close
-        expect(driver.closed?).to be_truthy
+        expect(driver.closed?).to be true
       end
     end
 

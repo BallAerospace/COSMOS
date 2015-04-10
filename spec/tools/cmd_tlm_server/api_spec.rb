@@ -445,12 +445,12 @@ module Cosmos
 
     describe "get_cmd_hazardous" do
       it "returns whether the command with parameters is hazardous" do
-        expect(@api.get_cmd_hazardous("INST","COLLECT",{"TYPE"=>"NORMAL"})).to be_falsey
-        expect(@api.get_cmd_hazardous("INST","COLLECT",{"TYPE"=>"SPECIAL"})).to be_truthy
+        expect(@api.get_cmd_hazardous("INST","COLLECT",{"TYPE"=>"NORMAL"})).to be false
+        expect(@api.get_cmd_hazardous("INST","COLLECT",{"TYPE"=>"SPECIAL"})).to be true
       end
 
       it "returns whether the command is hazardous" do
-        expect(@api.get_cmd_hazardous("INST","CLEAR")).to be_truthy
+        expect(@api.get_cmd_hazardous("INST","CLEAR")).to be true
       end
     end
 
@@ -866,7 +866,7 @@ module Cosmos
       end
 
       it "returns whether limits are enable for an item" do
-        expect(@api.limits_enabled?("INST","HEALTH_STATUS","TEMP1")).to be_truthy
+        expect(@api.limits_enabled?("INST","HEALTH_STATUS","TEMP1")).to be true
       end
     end
 
@@ -884,11 +884,11 @@ module Cosmos
       end
 
       it "enables limits for an item" do
-        expect(@api.limits_enabled?("INST","HEALTH_STATUS","TEMP1")).to be_truthy
+        expect(@api.limits_enabled?("INST","HEALTH_STATUS","TEMP1")).to be true
         @api.disable_limits("INST","HEALTH_STATUS","TEMP1")
-        expect(@api.limits_enabled?("INST","HEALTH_STATUS","TEMP1")).to be_falsey
+        expect(@api.limits_enabled?("INST","HEALTH_STATUS","TEMP1")).to be false
         @api.enable_limits("INST","HEALTH_STATUS","TEMP1")
-        expect(@api.limits_enabled?("INST","HEALTH_STATUS","TEMP1")).to be_truthy
+        expect(@api.limits_enabled?("INST","HEALTH_STATUS","TEMP1")).to be true
       end
     end
 
@@ -906,9 +906,9 @@ module Cosmos
       end
 
       it "disables limits for an item" do
-        expect(@api.limits_enabled?("INST","HEALTH_STATUS","TEMP1")).to be_truthy
+        expect(@api.limits_enabled?("INST","HEALTH_STATUS","TEMP1")).to be true
         @api.disable_limits("INST","HEALTH_STATUS","TEMP1")
-        expect(@api.limits_enabled?("INST","HEALTH_STATUS","TEMP1")).to be_falsey
+        expect(@api.limits_enabled?("INST","HEALTH_STATUS","TEMP1")).to be false
         @api.enable_limits("INST","HEALTH_STATUS","TEMP1")
       end
     end
@@ -966,11 +966,11 @@ module Cosmos
       it "enables limits for all items in the group" do
         @api.disable_limits("INST","HEALTH_STATUS","TEMP1")
         @api.disable_limits("INST","HEALTH_STATUS","TEMP3")
-        expect(@api.limits_enabled?("INST","HEALTH_STATUS","TEMP1")).to be_falsey
-        expect(@api.limits_enabled?("INST","HEALTH_STATUS","TEMP3")).to be_falsey
+        expect(@api.limits_enabled?("INST","HEALTH_STATUS","TEMP1")).to be false
+        expect(@api.limits_enabled?("INST","HEALTH_STATUS","TEMP3")).to be false
         @api.enable_limits_group("FIRST")
-        expect(@api.limits_enabled?("INST","HEALTH_STATUS","TEMP1")).to be_truthy
-        expect(@api.limits_enabled?("INST","HEALTH_STATUS","TEMP3")).to be_truthy
+        expect(@api.limits_enabled?("INST","HEALTH_STATUS","TEMP1")).to be true
+        expect(@api.limits_enabled?("INST","HEALTH_STATUS","TEMP3")).to be true
       end
     end
 
@@ -982,11 +982,11 @@ module Cosmos
       it "disables limits for all items in the group" do
         @api.enable_limits("INST","HEALTH_STATUS","TEMP1")
         @api.enable_limits("INST","HEALTH_STATUS","TEMP3")
-        expect(@api.limits_enabled?("INST","HEALTH_STATUS","TEMP1")).to be_truthy
-        expect(@api.limits_enabled?("INST","HEALTH_STATUS","TEMP3")).to be_truthy
+        expect(@api.limits_enabled?("INST","HEALTH_STATUS","TEMP1")).to be true
+        expect(@api.limits_enabled?("INST","HEALTH_STATUS","TEMP3")).to be true
         @api.disable_limits_group("FIRST")
-        expect(@api.limits_enabled?("INST","HEALTH_STATUS","TEMP1")).to be_falsey
-        expect(@api.limits_enabled?("INST","HEALTH_STATUS","TEMP3")).to be_falsey
+        expect(@api.limits_enabled?("INST","HEALTH_STATUS","TEMP1")).to be false
+        expect(@api.limits_enabled?("INST","HEALTH_STATUS","TEMP3")).to be false
       end
     end
 

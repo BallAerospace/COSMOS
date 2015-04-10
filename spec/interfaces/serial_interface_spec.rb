@@ -24,17 +24,17 @@ module Cosmos
       it "is not writeable if no write port given" do
         i = SerialInterface.new('nil','COM1','9600','NONE','1','0','0','burst')
         expect(i.name).to eql "Cosmos::SerialInterface"
-        expect(i.write_allowed?).to be_falsey
-        expect(i.write_raw_allowed?).to be_falsey
-        expect(i.read_allowed?).to be_truthy
+        expect(i.write_allowed?).to be false
+        expect(i.write_raw_allowed?).to be false
+        expect(i.read_allowed?).to be true
       end
 
       it "is not readable if no read port given" do
         i = SerialInterface.new('COM1','nil','9600','NONE','1','0','0','burst')
         expect(i.name).to eql "Cosmos::SerialInterface"
-        expect(i.write_allowed?).to be_truthy
-        expect(i.write_raw_allowed?).to be_truthy
-        expect(i.read_allowed?).to be_falsey
+        expect(i.write_allowed?).to be true
+        expect(i.write_raw_allowed?).to be true
+        expect(i.read_allowed?).to be false
       end
     end
 
@@ -43,11 +43,11 @@ module Cosmos
         # Ensure the 'NONE' parity is coverted to a symbol
         if Kernel.is_windows?
           i = SerialInterface.new('COM1','COM1','9600','NONE','1','0','0','burst')
-          expect(i.connected?).to be_falsey
+          expect(i.connected?).to be false
           i.connect
-          expect(i.connected?).to be_truthy
+          expect(i.connected?).to be true
           i.disconnect
-          expect(i.connected?).to be_falsey
+          expect(i.connected?).to be false
         end
       end
     end
