@@ -355,8 +355,8 @@ module Cosmos
           tf.puts 'TELEMETRY tgt1 pkt2 LITTLE_ENDIAN "Description"'
           tf.close
           @pc.process_file(tf.path, "TGT1")
-          expect(@pc.telemetry["TGT1"]["PKT1"].short_buffer_allowed).to be_truthy
-          expect(@pc.telemetry["TGT1"]["PKT2"].short_buffer_allowed).to be_falsey
+          expect(@pc.telemetry["TGT1"]["PKT1"].short_buffer_allowed).to be true
+          expect(@pc.telemetry["TGT1"]["PKT2"].short_buffer_allowed).to be false
           tf.unlink
         end
       end
@@ -384,8 +384,8 @@ module Cosmos
           tf.puts 'COMMAND tgt1 pkt2 LITTLE_ENDIAN "Description"'
           tf.close
           @pc.process_file(tf.path, "TGT1")
-          expect(@pc.commands["TGT1"]["PKT1"].messages_disabled).to be_truthy
-          expect(@pc.commands["TGT1"]["PKT2"].messages_disabled).to be_falsey
+          expect(@pc.commands["TGT1"]["PKT1"].messages_disabled).to be true
+          expect(@pc.commands["TGT1"]["PKT2"].messages_disabled).to be false
           tf.unlink
         end
       end
@@ -398,10 +398,10 @@ module Cosmos
           tf.puts 'COMMAND tgt1 pkt2 LITTLE_ENDIAN "Description"'
           tf.close
           @pc.process_file(tf.path, "TGT1")
-          expect(@pc.commands["TGT1"]["PKT1"].hidden).to be_truthy
-          expect(@pc.commands["TGT1"]["PKT1"].disabled).to be_falsey
-          expect(@pc.commands["TGT1"]["PKT2"].hidden).to be_falsey
-          expect(@pc.commands["TGT1"]["PKT2"].disabled).to be_falsey
+          expect(@pc.commands["TGT1"]["PKT1"].hidden).to be true
+          expect(@pc.commands["TGT1"]["PKT1"].disabled).to be false
+          expect(@pc.commands["TGT1"]["PKT2"].hidden).to be false
+          expect(@pc.commands["TGT1"]["PKT2"].disabled).to be false
           tf.unlink
         end
       end
@@ -414,10 +414,10 @@ module Cosmos
           tf.puts 'COMMAND tgt1 pkt2 LITTLE_ENDIAN "Description"'
           tf.close
           @pc.process_file(tf.path, "TGT1")
-          expect(@pc.commands["TGT1"]["PKT1"].hidden).to be_truthy
-          expect(@pc.commands["TGT1"]["PKT1"].disabled).to be_truthy
-          expect(@pc.commands["TGT1"]["PKT2"].hidden).to be_falsey
-          expect(@pc.commands["TGT1"]["PKT2"].disabled).to be_falsey
+          expect(@pc.commands["TGT1"]["PKT1"].hidden).to be true
+          expect(@pc.commands["TGT1"]["PKT1"].disabled).to be true
+          expect(@pc.commands["TGT1"]["PKT2"].hidden).to be false
+          expect(@pc.commands["TGT1"]["PKT2"].disabled).to be false
           tf.unlink
         end
       end
@@ -433,10 +433,10 @@ module Cosmos
           tf.puts 'COMMAND tgt2 pkt2 LITTLE_ENDIAN "Description"'
           tf.close
           @pc.process_file(tf.path, "SYSTEM")
-          expect(@pc.telemetry["TGT1"]["PKT1"].hazardous).to be_truthy
-          expect(@pc.telemetry["TGT1"]["PKT2"].hazardous).to be_falsey
-          expect(@pc.commands["TGT2"]["PKT1"].hazardous).to be_truthy
-          expect(@pc.commands["TGT2"]["PKT2"].hazardous).to be_falsey
+          expect(@pc.telemetry["TGT1"]["PKT1"].hazardous).to be true
+          expect(@pc.telemetry["TGT1"]["PKT2"].hazardous).to be false
+          expect(@pc.commands["TGT2"]["PKT1"].hazardous).to be true
+          expect(@pc.commands["TGT2"]["PKT2"].hazardous).to be false
           tf.unlink
         end
 
@@ -446,7 +446,7 @@ module Cosmos
           tf.puts 'HAZARDOUS "Hazardous description"'
           tf.close
           @pc.process_file(tf.path, "TGT1")
-          expect(@pc.commands["TGT1"]["PKT1"].hazardous).to be_truthy
+          expect(@pc.commands["TGT1"]["PKT1"].hazardous).to be true
           expect(@pc.commands["TGT1"]["PKT1"].hazardous_description).to eql "Hazardous description"
           tf.unlink
         end
@@ -735,8 +735,8 @@ module Cosmos
           tf.puts '  PARAMETER item2 0 8 UINT 0 1 1'
           tf.close
           @pc.process_file(tf.path, "TGT1")
-          expect(@pc.commands["TGT1"]["PKT1"].items["ITEM1"].required).to be_truthy
-          expect(@pc.commands["TGT1"]["PKT1"].items["ITEM2"].required).to be_falsey
+          expect(@pc.commands["TGT1"]["PKT1"].items["ITEM1"].required).to be true
+          expect(@pc.commands["TGT1"]["PKT1"].items["ITEM2"].required).to be false
           tf.unlink
         end
       end

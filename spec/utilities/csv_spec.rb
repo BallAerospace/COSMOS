@@ -54,7 +54,7 @@ module Cosmos
     describe "create_archive" do
       it "creates a default archive file" do
         @csv.create_archive
-        expect(File.exist?(@csv.archive_file)).to be_truthy
+        expect(File.exist?(@csv.archive_file)).to be true
         @csv.close_archive
       end
 
@@ -62,7 +62,7 @@ module Cosmos
         if Kernel.is_windows?
           Dir.mkdir("C:/temp") unless File.directory?("C:/temp")
           @csv.create_archive("C:/temp")
-          expect(File.exist?(@csv.archive_file)).to be_truthy
+          expect(File.exist?(@csv.archive_file)).to be true
           @csv.close_archive
         end
       end
@@ -74,7 +74,7 @@ module Cosmos
         @csv.write_archive(%w(HI a b c))
         @csv.close_archive
         data = File.read @csv.archive_file
-        expect(data.include?("HI,a,b,c")).to be_truthy
+        expect(data.include?("HI,a,b,c")).to be true
       end
 
       it "raises an exception if writing to an unopened archive" do

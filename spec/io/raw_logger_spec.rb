@@ -117,12 +117,12 @@ module Cosmos
     describe "start and stop" do
       it "enables and disable logging" do
         raw_logger = RawLogger.new('MYINT', :WRITE, false, 200, nil)
-        expect(raw_logger.logging_enabled).to be_falsey
+        expect(raw_logger.logging_enabled).to be false
         raw_logger.start
-        expect(raw_logger.logging_enabled).to be_truthy
+        expect(raw_logger.logging_enabled).to be true
         raw_logger.write("\x00\x01\x02\x03")
         raw_logger.stop
-        expect(raw_logger.logging_enabled).to be_falsey
+        expect(raw_logger.logging_enabled).to be false
         file = Dir[File.join(@log_path,"*.bin")][-1]
         expect(File.size(file)).not_to eql 0
       end

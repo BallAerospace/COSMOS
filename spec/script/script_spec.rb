@@ -243,8 +243,8 @@ module Cosmos
 
     describe "get_cmd_hazardous" do
       it "returns whether a command is hazardous" do
-        expect(get_cmd_hazardous("INST", "COLLECT", {"TYPE"=>"NORMAL"})).to be_falsey
-        expect(get_cmd_hazardous("INST", "COLLECT", {"TYPE"=>"SPECIAL"})).to be_truthy
+        expect(get_cmd_hazardous("INST", "COLLECT", {"TYPE"=>"NORMAL"})).to be false
+        expect(get_cmd_hazardous("INST", "COLLECT", {"TYPE"=>"SPECIAL"})).to be true
       end
     end
 
@@ -323,11 +323,11 @@ module Cosmos
 
     describe "limits_enabled?, disable_limits, enable_limits" do
       it "enables, disable, and check limits for an item" do
-        expect(limits_enabled?("INST HEALTH_STATUS TEMP1")).to be_truthy
+        expect(limits_enabled?("INST HEALTH_STATUS TEMP1")).to be true
         disable_limits("INST HEALTH_STATUS TEMP1")
-        expect(limits_enabled?("INST HEALTH_STATUS TEMP1")).to be_falsey
+        expect(limits_enabled?("INST HEALTH_STATUS TEMP1")).to be false
         enable_limits("INST HEALTH_STATUS TEMP1")
-        expect(limits_enabled?("INST HEALTH_STATUS TEMP1")).to be_truthy
+        expect(limits_enabled?("INST HEALTH_STATUS TEMP1")).to be true
       end
     end
 

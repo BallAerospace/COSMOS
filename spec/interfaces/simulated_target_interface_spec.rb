@@ -66,9 +66,9 @@ end
       it "initiallies be false" do
         sti = SimulatedTargetInterface.new("test_inst.rb")
         sti.target_names = ['COSMOS']
-        expect(sti.connected?).to be_falsey
+        expect(sti.connected?).to be false
         sti.connect
-        expect(sti.connected?).to be_truthy
+        expect(sti.connected?).to be true
       end
     end
 
@@ -80,7 +80,7 @@ end
       it "returns a simulated packet" do
         sti = SimulatedTargetInterface.new("test_inst.rb")
         sti.target_names = ['COSMOS']
-        expect(sti.connected?).to be_falsey
+        expect(sti.connected?).to be false
         sti.connect
         pkt = sti.read
         expect(pkt.target_name).to eql "COSMOS"
@@ -99,7 +99,7 @@ end
       it "writes commands to the simulator" do
         sti = SimulatedTargetInterface.new("test_inst.rb")
         sti.target_names = ['COSMOS']
-        expect(sti.connected?).to be_falsey
+        expect(sti.connected?).to be false
         sti.connect
         sti.write(Packet.new("COSMOS","SETLOGLABEL"))
       end
@@ -115,11 +115,11 @@ end
       it "disconnects from the simulator" do
         sti = SimulatedTargetInterface.new("test_inst.rb")
         sti.target_names = ['COSMOS']
-        expect(sti.connected?).to be_falsey
+        expect(sti.connected?).to be false
         sti.connect
-        expect(sti.connected?).to be_truthy
+        expect(sti.connected?).to be true
         sti.disconnect
-        expect(sti.connected?).to be_falsey
+        expect(sti.connected?).to be false
       end
     end
 

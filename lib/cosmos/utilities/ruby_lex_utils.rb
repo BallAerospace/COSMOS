@@ -175,7 +175,7 @@ class RubyLexUtils
     @lex.set_input(@lex_io)
     while token = @lex.token
       if BLOCK_BEGINNING_TOKENS.include?(token.class)
-        return token.class
+        return true
       end
     end
     return false

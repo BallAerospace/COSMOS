@@ -58,7 +58,7 @@ module Cosmos
         expect(t.status).to eq("sleep")
         tsp.disconnect
         sleep 0.1
-        expect(t.status).to be_falsey
+        expect(t.status).to be false
       end
     end
 

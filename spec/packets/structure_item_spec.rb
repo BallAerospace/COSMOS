@@ -126,44 +126,44 @@ module Cosmos
       it "sorts items according to positive bit offset" do
         si1 = StructureItem.new("si1", 0, 8, :UINT, :BIG_ENDIAN, nil)
         si2 = StructureItem.new("si2", 8, 8, :UINT, :BIG_ENDIAN, nil)
-        expect(si1 < si2).to be_truthy
-        expect(si1 == si2).to be_falsey
-        expect(si1 > si2).to be_falsey
+        expect(si1 < si2).to be true
+        expect(si1 == si2).to be false
+        expect(si1 > si2).to be false
 
         si2 = StructureItem.new("si2", 0, 8, :UINT, :BIG_ENDIAN, nil)
-        expect(si1 < si2).to be_falsey
-        expect(si1 == si2).to be_truthy
-        expect(si1 > si2).to be_falsey
+        expect(si1 < si2).to be false
+        expect(si1 == si2).to be true
+        expect(si1 > si2).to be false
       end
 
       it "sorts items with 0 bit offset according to bit size" do
         si1 = StructureItem.new("si1", 0, 8, :UINT, :BIG_ENDIAN, nil)
         si2 = StructureItem.new("si2", 0, 0, :BLOCK, :BIG_ENDIAN, nil)
-        expect(si1 < si2).to be_falsey
-        expect(si1 == si2).to be_falsey
-        expect(si1 > si2).to be_truthy
+        expect(si1 < si2).to be false
+        expect(si1 == si2).to be false
+        expect(si1 > si2).to be true
       end
 
       it "sorts items according to negative bit offset" do
         si1 = StructureItem.new("si1", -8, 8, :UINT, :BIG_ENDIAN, nil)
         si2 = StructureItem.new("si2", -16, 8, :UINT, :BIG_ENDIAN, nil)
-        expect(si1 < si2).to be_falsey
-        expect(si1 == si2).to be_falsey
-        expect(si1 > si2).to be_truthy
+        expect(si1 < si2).to be false
+        expect(si1 == si2).to be false
+        expect(si1 > si2).to be true
 
         si2 = StructureItem.new("si2", -8, 8, :UINT, :BIG_ENDIAN, nil)
-        expect(si1 < si2).to be_falsey
+        expect(si1 < si2).to be false
         # si1 == si2 even though they have different names and sizes
-        expect(si1 == si2).to be_truthy
-        expect(si1 > si2).to be_falsey
+        expect(si1 == si2).to be true
+        expect(si1 > si2).to be false
       end
 
       it "sorts items according to mixed bit offset" do
         si1 = StructureItem.new("si1", 16, 8, :UINT, :BIG_ENDIAN, nil)
         si2 = StructureItem.new("si2", -8, 8, :UINT, :BIG_ENDIAN, nil)
-        expect(si1 < si2).to be_truthy
-        expect(si1 == si2).to be_falsey
-        expect(si1 > si2).to be_falsey
+        expect(si1 < si2).to be true
+        expect(si1 == si2).to be false
+        expect(si1 > si2).to be false
       end
     end
 
@@ -171,7 +171,7 @@ module Cosmos
       it "duplicates the entire structure item " do
         si1 = StructureItem.new("si1", -8, 1, :UINT, :LITTLE_ENDIAN, nil)
         si2 = si1.clone
-        expect(si1 == si2).to be_truthy
+        expect(si1 == si2).to be true
       end
     end
 

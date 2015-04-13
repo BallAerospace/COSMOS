@@ -193,11 +193,11 @@ module Cosmos
       it "enables limits for all items in the group" do
         @limits.enable_group("group1")
         pkt = @tlm.packet("TGT1","PKT1")
-        expect(pkt.get_item("ITEM1").limits.enabled).to be_truthy
-        expect(pkt.get_item("ITEM2").limits.enabled).to be_truthy
-        expect(pkt.get_item("ITEM3").limits.enabled).to be_truthy
-        expect(pkt.get_item("ITEM4").limits.enabled).to be_truthy
-        expect(pkt.get_item("ITEM5").limits.enabled).to be_falsey
+        expect(pkt.get_item("ITEM1").limits.enabled).to be true
+        expect(pkt.get_item("ITEM2").limits.enabled).to be true
+        expect(pkt.get_item("ITEM3").limits.enabled).to be true
+        expect(pkt.get_item("ITEM4").limits.enabled).to be true
+        expect(pkt.get_item("ITEM5").limits.enabled).to be false
       end
     end
 
@@ -210,12 +210,12 @@ module Cosmos
         pkt = @tlm.packet("TGT1","PKT1")
         pkt.enable_limits("ITEM1")
         pkt.enable_limits("ITEM2")
-        expect(pkt.get_item("ITEM1").limits.enabled).to be_truthy
-        expect(pkt.get_item("ITEM2").limits.enabled).to be_truthy
+        expect(pkt.get_item("ITEM1").limits.enabled).to be true
+        expect(pkt.get_item("ITEM2").limits.enabled).to be true
 
         @limits.disable_group("group1")
-        expect(pkt.get_item("ITEM1").limits.enabled).to be_falsey
-        expect(pkt.get_item("ITEM2").limits.enabled).to be_falsey
+        expect(pkt.get_item("ITEM1").limits.enabled).to be false
+        expect(pkt.get_item("ITEM2").limits.enabled).to be false
       end
     end
 
@@ -234,9 +234,9 @@ module Cosmos
 
       it "returns whether limits are enable for an item" do
         pkt = @tlm.packet("TGT1","PKT1")
-        expect(@limits.enabled?("TGT1","PKT1","ITEM5")).to be_falsey
+        expect(@limits.enabled?("TGT1","PKT1","ITEM5")).to be false
         pkt.enable_limits("ITEM5")
-        expect(@limits.enabled?("TGT1","PKT1","ITEM5")).to be_truthy
+        expect(@limits.enabled?("TGT1","PKT1","ITEM5")).to be true
       end
     end
 
@@ -255,9 +255,9 @@ module Cosmos
 
       it "enables limits for an item" do
         pkt = @tlm.packet("TGT1","PKT1")
-        expect(@limits.enabled?("TGT1","PKT1","ITEM5")).to be_falsey
+        expect(@limits.enabled?("TGT1","PKT1","ITEM5")).to be false
         @limits.enable("TGT1","PKT1","ITEM5")
-        expect(@limits.enabled?("TGT1","PKT1","ITEM5")).to be_truthy
+        expect(@limits.enabled?("TGT1","PKT1","ITEM5")).to be true
       end
     end
 
@@ -277,9 +277,9 @@ module Cosmos
       it "disables limits for an item" do
         pkt = @tlm.packet("TGT1","PKT1")
         @limits.enable("TGT1","PKT1","ITEM1")
-        expect(@limits.enabled?("TGT1","PKT1","ITEM1")).to be_truthy
+        expect(@limits.enabled?("TGT1","PKT1","ITEM1")).to be true
         @limits.disable("TGT1","PKT1","ITEM1")
-        expect(@limits.enabled?("TGT1","PKT1","ITEM1")).to be_falsey
+        expect(@limits.enabled?("TGT1","PKT1","ITEM1")).to be false
       end
     end
 

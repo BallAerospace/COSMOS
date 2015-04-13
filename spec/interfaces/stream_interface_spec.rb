@@ -112,24 +112,24 @@ module Cosmos
         # Ensure we reload since TestStreamProtocol is used throughout
         load @file
 
-        expect($disconnect).to be_falsey
+        expect($disconnect).to be false
         si = StreamInterface.new("test")
         begin
           si.write(nil)
         rescue
         end
         expect(si.write_count).to eql 0
-        expect($disconnect).to be_truthy
+        expect($disconnect).to be true
 
         $disconnect = false
-        expect($disconnect).to be_falsey
+        expect($disconnect).to be false
         si = StreamInterface.new("test")
         begin
           si.write_raw(nil)
         rescue
         end
         expect(si.write_count).to eql 0
-        expect($disconnect).to be_truthy
+        expect($disconnect).to be true
       end
 
       it "writes to the stream interface and count the packet" do

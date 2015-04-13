@@ -86,7 +86,7 @@ module Cosmos
       it "creates a single listen thread" do
         expect(@json.thread).to be_nil
         @json.start_service('127.0.0.1', 7777, self)
-        expect(@json.thread.alive?).to be_truthy
+        expect(@json.thread.alive?).to be true
         expect { @json.start_service('127.0.0.1', 7777, self) }.to raise_error(/Error binding to port/)
         @json.stop_service
         sleep(0.1)
@@ -114,7 +114,7 @@ module Cosmos
         @json.start_service('127.0.0.1', 7777, self)
         socket = TCPSocket.open('127.0.0.1',7777)
         sleep 0.1
-        expect(socket.eof?).to be_truthy
+        expect(socket.eof?).to be true
         socket.close
         @json.stop_service
         sleep(0.1)
@@ -300,9 +300,9 @@ module Cosmos
     describe "debug, debug?" do
       it "sets the debug level" do
         JsonDRb.debug = true
-        expect(JsonDRb.debug?).to be_truthy
+        expect(JsonDRb.debug?).to be true
         JsonDRb.debug = false
-        expect(JsonDRb.debug?).to be_falsey
+        expect(JsonDRb.debug?).to be false
       end
     end
 

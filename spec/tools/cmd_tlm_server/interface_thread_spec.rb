@@ -121,7 +121,7 @@ module Cosmos
           thread.stop
           sleep 0.2
           expect(Thread.list.length).to eql(1)
-          expect(callback_called).to be_truthy
+          expect(callback_called).to be true
 
           expect(stdout.string).not_to match "Connection Success"
         end
@@ -163,7 +163,7 @@ module Cosmos
           thread.stop
           sleep 0.2
           expect(Thread.list.length).to eql(1)
-          expect(callback_called).to be_truthy
+          expect(callback_called).to be true
 
           expect(stdout.string).not_to match "Connection Lost"
         end
@@ -229,7 +229,7 @@ module Cosmos
           sleep 0.1
           thread.stop
           sleep 0.2
-          expect(callback_called).to be_truthy
+          expect(callback_called).to be true
 
           expect(stdout.string).not_to match "Packet reading thread unexpectedly died"
         end

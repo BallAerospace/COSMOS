@@ -19,23 +19,23 @@ module Cosmos
 
     describe "contains_begin?" do
       it "detects the begin keyword" do
-        expect(@lex.contains_begin?("  begin  ")).to be_truthy
-        expect(@lex.contains_begin?("  begin # asdf  ")).to be_truthy
+        expect(@lex.contains_begin?("  begin  ")).to be true
+        expect(@lex.contains_begin?("  begin # asdf  ")).to be true
       end
     end
 
     describe "contains_keyword?" do
       it "detects the ruby keywords" do
-        expect(@lex.contains_keyword?("if something")).to be_truthy
-        expect(@lex.contains_keyword?("obj.method = something")).to be_falsey
+        expect(@lex.contains_keyword?("if something")).to be true
+        expect(@lex.contains_keyword?("obj.method = something")).to be false
       end
     end
 
     describe "contains_block_beginning?" do
       it "detects block beginning keywords" do
-        expect(@lex.contains_block_beginning?("do")).to be_truthy
-        expect(@lex.contains_block_beginning?("[].each {")).to be_truthy
-        expect(@lex.contains_block_beginning?("begin")).to be_truthy
+        expect(@lex.contains_block_beginning?("do")).to be true
+        expect(@lex.contains_block_beginning?("[].each {")).to be true
+        expect(@lex.contains_block_beginning?("begin")).to be true
       end
     end
 

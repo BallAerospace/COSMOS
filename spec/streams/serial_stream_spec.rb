@@ -25,7 +25,7 @@ module Cosmos
         driver = double("driver")
         expect(SerialDriver).to receive(:new).and_return(driver)
         ss = SerialStream.new('COM1',nil,9600,:EVEN,1,nil,nil)
-        expect(ss.connected?).to be_truthy
+        expect(ss.connected?).to be true
       end
     end
 
@@ -70,9 +70,9 @@ module Cosmos
         expect(driver).to receive(:close)
         expect(SerialDriver).to receive(:new).and_return(driver)
         ss = SerialStream.new('COM1',nil,9600,:EVEN,1,nil,nil)
-        expect(ss.connected?).to be_truthy
+        expect(ss.connected?).to be true
         ss.disconnect
-        expect(ss.connected?).to be_falsey
+        expect(ss.connected?).to be false
       end
 
       it "closes the read driver" do
@@ -81,9 +81,9 @@ module Cosmos
         expect(driver).to receive(:close)
         expect(SerialDriver).to receive(:new).and_return(driver)
         ss = SerialStream.new(nil,'COM1',9600,:EVEN,1,nil,nil)
-        expect(ss.connected?).to be_truthy
+        expect(ss.connected?).to be true
         ss.disconnect
-        expect(ss.connected?).to be_falsey
+        expect(ss.connected?).to be false
       end
 
       it "does not close the driver twice" do
@@ -92,11 +92,11 @@ module Cosmos
         expect(driver).to receive(:close).once
         expect(SerialDriver).to receive(:new).and_return(driver)
         ss = SerialStream.new('COM1','COM1',9600,:EVEN,1,nil,nil)
-        expect(ss.connected?).to be_truthy
+        expect(ss.connected?).to be true
         ss.disconnect
-        expect(ss.connected?).to be_falsey
+        expect(ss.connected?).to be false
         ss.disconnect
-        expect(ss.connected?).to be_falsey
+        expect(ss.connected?).to be false
       end
     end
 

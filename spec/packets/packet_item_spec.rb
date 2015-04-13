@@ -46,7 +46,7 @@ module Cosmos
       it "accepts Conversion instances" do
         c = GenericConversion.new("value / 2")
         @pi.read_conversion = c
-        expect(@pi.read_conversion.to_s == c.to_s).to be_truthy
+        expect(@pi.read_conversion.to_s == c.to_s).to be true
       end
 
       it "sets the read_conversion to nil" do
@@ -63,7 +63,7 @@ module Cosmos
       it "accepts Conversion instances" do
         c = GenericConversion.new("value / 2")
         @pi.write_conversion = c
-        expect(@pi.write_conversion.to_s == c.to_s).to be_truthy
+        expect(@pi.write_conversion.to_s == c.to_s).to be true
       end
 
       it "sets the write_conversion to nil" do
@@ -324,7 +324,7 @@ module Cosmos
     describe "clone" do
       it "duplicates the entire PacketItem" do
         pi2 = @pi.clone
-        expect(@pi == pi2).to be_truthy
+        expect(@pi == pi2).to be true
       end
     end
 
@@ -368,7 +368,7 @@ module Cosmos
         expect(hash["units"]).to eql "C"
         expect(hash["default"]).to eql 0
         expect(hash["range"]).to eql (0..100)
-        expect(hash["required"]).to be_truthy
+        expect(hash["required"]).to be true
         expect(hash["hazardous"]).to include("TRUE"=>nil,"FALSE"=>"NO!")
         expect(hash["state_colors"]).to include("TRUE"=>:GREEN,"FALSE"=>:RED)
         expect(hash["limits"]).to eql PacketItemLimits.new.to_hash

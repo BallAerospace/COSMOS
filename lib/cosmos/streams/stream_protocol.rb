@@ -109,7 +109,11 @@ module Cosmos
     # @return [Boolean] Whether the stream attribute has been set and is
     #   connected
     def connected?
-      @stream && @stream.connected?
+      if @stream
+        @stream.connected?
+      else
+        false
+      end
     end
 
     # Disconnects from the underlying {Stream} by calling {Stream#disconnect}.
@@ -133,7 +137,6 @@ module Cosmos
     def read
       # Loop until we have a packet to give
       loop do
-        # Handle a sync pattern if present
         result = handle_sync_pattern()
         return nil unless result
 
@@ -267,20 +270,20 @@ module Cosmos
 
     protected
 
+    # @return [Boolean] Whether we successfully found a sync pattern
     def handle_sync_pattern
-      # Handle a sync pattern
       if @sync_pattern
         loop do
           # Make sure we have some data to look for a sync word in
           read_minimum_size(@sync_pattern.length)
-          return nil if @data.length <= 0
+          return false if @data.length <= 0
 
-          # Find the sync pattern
+          # Find the beginning of the sync pattern
           sync_index = @data.index(@sync_pattern.getbyte(0).chr)
           if sync_index
             # Make sure we have enough data for the whole sync pattern past this index
             read_minimum_size(sync_index + @sync_pattern.length)
-            return nil if @data.length <= 0
+            return false if @data.length <= 0
 
             # Check for the rest of the sync pattern
             found = true

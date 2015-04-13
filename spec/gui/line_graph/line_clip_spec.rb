@@ -39,11 +39,11 @@ module Cosmos
       end
 
       it "indicates the first point was not clipped" do
-        expect(@clipped_line[4]).to be_falsey
+        expect(@clipped_line[4]).to be false
       end
 
       it "indicates the second point was not clipped" do
-        expect(@clipped_line[5]).to be_falsey
+        expect(@clipped_line[5]).to be false
       end
     end
 
@@ -59,11 +59,11 @@ module Cosmos
       end
 
       it "indicates the first point was clipped" do
-        expect(@clipped_line[4]).to be_truthy
+        expect(@clipped_line[4]).to be true
       end
 
       it "indicates the second point was not clipped" do
-        expect(@clipped_line[5]).to be_falsey
+        expect(@clipped_line[5]).to be false
       end
     end
 
@@ -79,11 +79,11 @@ module Cosmos
       end
 
       it "indicates the first point was not clipped" do
-        expect(@clipped_line[4]).to be_falsey
+        expect(@clipped_line[4]).to be false
       end
 
       it "indicates the second point was clipped" do
-        expect(@clipped_line[5]).to be_truthy
+        expect(@clipped_line[5]).to be true
       end
     end
 

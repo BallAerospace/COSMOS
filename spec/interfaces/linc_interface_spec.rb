@@ -28,25 +28,25 @@ module Cosmos
         expect(stream).to receive(:raw_logger_pair=) { nil }
         i = LincInterface.new('localhost','8888')
         i.target_names << "INST"
-        expect(i.connected?).to be_falsey
+        expect(i.connected?).to be false
         i.connect
-        expect(i.connected?).to be_truthy
+        expect(i.connected?).to be true
       end
     end
 
     describe "write" do
       before(:each) do
-        stream = double("stream")
-        allow(stream).to receive(:connect)
-        expect(TcpipClientStream).to receive(:new) { stream }
-        allow(stream).to receive(:connected?) { true }
-        allow(stream).to receive(:write)
-        expect(stream).to receive(:raw_logger_pair=) { nil }
+        @stream = double("stream")
+        allow(@stream).to receive(:connect)
+        expect(TcpipClientStream).to receive(:new) { @stream }
+        allow(@stream).to receive(:connected?) { true }
+        allow(@stream).to receive(:write)
+        expect(@stream).to receive(:raw_logger_pair=) { nil }
         @i = LincInterface.new('localhost','8888','true','2','nil','5','0','16','4','GSE_HDR_GUID','BIG_ENDIAN','GSE_HDR_LEN')
         @i.target_names << "INST"
-        expect(@i.connected?).to be_falsey
+        expect(@i.connected?).to be false
         @i.connect
-        expect(@i.connected?).to be_truthy
+        expect(@i.connected?).to be true
       end
 
       it "returns an exception if its not connected" do
@@ -79,11 +79,11 @@ module Cosmos
         disable.restore_defaults
 
         @i.write(enable)
-        expect(@i.instance_variable_get(:@handshake_enabled)).to be_truthy
+        expect(@i.instance_variable_get(:@handshake_enabled)).to be true
         @i.write(disable)
-        expect(@i.instance_variable_get(:@handshake_enabled)).to be_falsey
+        expect(@i.instance_variable_get(:@handshake_enabled)).to be false
         @i.write(enable)
-        expect(@i.instance_variable_get(:@handshake_enabled)).to be_truthy
+        expect(@i.instance_variable_get(:@handshake_enabled)).to be true
       end
 
       it "timeouts waiting for handshake" do
@@ -107,6 +107,7 @@ module Cosmos
           @cmd = System.commands.packet("INST","LINC_COMMAND")
           @cmd.restore_defaults
           @cmd.write("GSE_HDR_GUID",0xDEADBEEF)
+          @cmd.write("DATA",1)
           @handshake = System.telemetry.packet("INST","HANDSHAKE")
           @handshake.write("GSE_HDR_ID", 1001)
           @handshake.write("STATUS","OK")
@@ -132,6 +133,62 @@ module Cosmos
           end
           @i.write(@cmd)
           t.join
+        end
+
+        it "handles two simultaneous writes" do
+          cmd2 = @cmd.clone
+          cmd2.write("GSE_HDR_GUID",0xBA5EBA11)
+          cmd2.write("DATA",2)
+          handshake2 = @handshake.clone
+          handshake2.write("GSE_HDR_ID", 1001)
+          buffer = ''
+          buffer << ["INST".length].pack("C")
+          buffer << "INST"
+          buffer << ["LINC_COMMAND".length].pack("C")
+          buffer << "LINC_COMMAND"
+          buffer << [cmd2.buffer.length].pack("N")
+          buffer << cmd2.buffer
+          buffer << [3].pack("N")
+          buffer << "BAD"
+          handshake2.write("DATA", buffer)
+
+          read_cnt = 0
+          write_cnt = 0
+          allow_any_instance_of(LengthStreamProtocol).to receive(:read) do
+            read_cnt += 1
+            result = nil
+            result = handshake2 if read_cnt == 1
+            result = @handshake if read_cnt == 2
+            result
+          end
+
+          # Create new thread for each write
+          t1 = Thread.new do
+            expect(@stream).to receive(:write) do
+              write_cnt += 1
+            end
+            @i.write(cmd2)
+          end
+          # Create new thread for each write
+          t2 = Thread.new do
+            expect(@stream).to receive(:write) do
+              write_cnt += 1
+            end
+            @i.write(@cmd)
+          end
+
+          sleep 0.5
+          # Expect both write threads have written
+          expect(write_cnt).to eql 2
+          # But no handshakes have been received
+          expect(read_cnt).to eql 0
+
+          # Now read the handshakes and allow the reads to complete
+          @i.read
+          @i.read
+          t1.join
+          t2.join
+          expect(read_cnt).to eql 2
         end
 
         it "warns if an error code is set" do
@@ -168,9 +225,9 @@ module Cosmos
         expect(stream).to receive(:raw_logger_pair=) { nil }
         @i = LincInterface.new('localhost','8888','true','2','nil','5','0','16','4','GSE_HDR_GUID','BIG_ENDIAN','GSE_HDR_LEN')
         @i.target_names << "INST"
-        expect(@i.connected?).to be_falsey
+        expect(@i.connected?).to be false
         @i.connect
-        expect(@i.connected?).to be_truthy
+        expect(@i.connected?).to be true
       end
 
       it "handles local commands" do

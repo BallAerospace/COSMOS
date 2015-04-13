@@ -50,8 +50,8 @@ module Cosmos
 
     describe "multicast" do
       it "determines if a host is multicast" do
-        expect(UdpWriteSocket.multicast?('127.0.0.1')).to be_falsey
-        expect(UdpWriteSocket.multicast?('224.0.1.1')).to be_truthy
+        expect(UdpWriteSocket.multicast?('127.0.0.1')).to be false
+        expect(UdpWriteSocket.multicast?('224.0.1.1')).to be true
       end
     end
 

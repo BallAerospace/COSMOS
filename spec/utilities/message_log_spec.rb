@@ -27,7 +27,7 @@ module Cosmos
         log.start
         log.stop
         Cosmos.set_working_dir do
-          expect(File.exist?(log.filename)).to be_truthy
+          expect(File.exist?(log.filename)).to be true
           expect(log.filename).to match 'TEST'
           expect(log.filename).to match 'logs'
           File.delete log.filename
@@ -38,7 +38,7 @@ module Cosmos
         log = MessageLog.new('TEST', File.expand_path(File.dirname(__FILE__)))
         log.start
         log.stop
-        expect(File.exist?(log.filename)).to be_truthy
+        expect(File.exist?(log.filename)).to be true
         expect(log.filename).to match File.expand_path(File.dirname(__FILE__))
         File.delete log.filename
       end
@@ -79,7 +79,7 @@ module Cosmos
         log.start
         log.stop
         Cosmos.set_working_dir do
-          expect(File.stat(log.filename).writable?).to be_falsey
+          expect(File.stat(log.filename).writable?).to be false
           File.delete log.filename
         end
       end
