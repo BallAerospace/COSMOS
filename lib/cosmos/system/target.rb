@@ -80,7 +80,17 @@ module Cosmos
     # @param target_filename [String] Configuration file for the target. Normally
     #   target.txt
     def initialize(target_name, substitute_name = nil, path = nil, target_filename = nil)
-      path = File.join(USERPATH,'config','targets') unless path
+      @requires = []
+      @ignored_parameters = []
+      @ignored_items = []
+      @cmd_tlm_files = []
+      @auto_screen_substitute = false
+      @interface = nil
+      @routers = []
+      @cmd_cnt = 0
+      @tlm_cnt = 0
+
+      # Determine the target name using substitution if given
       @original_name = target_name.clone.upcase.freeze
       if substitute_name
         @substitute = true
@@ -89,38 +99,14 @@ module Cosmos
         @substitute = false
         @name = @original_name
       end
-      @requires = []
-      @ignored_parameters = []
-      @ignored_items = []
-      @auto_screen_substitute = false
 
-      @dir = File.join(path, @original_name)
-      lib_dir = File.join(@dir, 'lib')
-      Cosmos.add_to_search_path(lib_dir, false) if File.exist?(lib_dir)
-
-      @cmd_tlm_files = []
-      @filename = File.join(@dir, target_filename || 'target.txt')
-      if File.exist?(@filename)
-        process_file(@filename)
-      else
-        raise "Target file #{target_filename} for target #{@name} does not exist" if target_filename
-      end
-
+      @dir = get_target_dir(path, @original_name)
+      # Parse the target.txt file if it exists
+      @filename = process_target_config_file(@dir, @name, target_filename)
+      # If target.txt didn't specify specific cmd/tlm files then add everything
       if @cmd_tlm_files.empty?
-        if Dir.exist?(File.join(@dir, 'cmd_tlm'))
-          Dir.foreach(File.join(@dir, 'cmd_tlm')) do |dir_filename|
-            if dir_filename[0] != '.'
-              @cmd_tlm_files << File.join(@dir, 'cmd_tlm', dir_filename)
-            end
-          end
-        end
-        @cmd_tlm_files.sort!
+        @cmd_tlm_files = add_all_cmd_tlm(@dir)
       end
-
-      @interface = nil
-      @routers = []
-      @cmd_cnt = 0
-      @tlm_cnt = 0
     end
 
     # Parses the target configuration file
@@ -141,15 +127,11 @@ module Cosmos
           end
           @requires << parameters[0]
 
-        when 'IGNORE_PARAMETER'
-          usage = "#{keyword} <PARAMETER NAME>"
+        when 'IGNORE_PARAMETER', 'IGNORE_ITEM'
+          usage = "#{keyword} <#{keyword.split('_')[1]} NAME>"
           parser.verify_num_parameters(1, 1, usage)
-          @ignored_parameters << parameters[0].upcase
-
-        when 'IGNORE_ITEM'
-          usage = "#{keyword} <ITEM NAME>"
-          parser.verify_num_parameters(1, 1, usage)
-          @ignored_items << parameters[0].upcase
+          @ignored_parameters << parameters[0].upcase if keyword.include?("PARAMETER")
+          @ignored_items << parameters[0].upcase if keyword.include?("ITEM")
 
         when 'COMMANDS', 'TELEMETRY'
           usage = "#{keyword} <FILENAME>"
@@ -168,6 +150,41 @@ module Cosmos
           raise parser.error("Unknown keyword '#{keyword}'") if keyword
         end # case keyword
       end
+    end
+
+    protected
+
+    # Get the target directory and add the target's lib folder to the
+    # search path if it exists
+    def get_target_dir(path, name)
+      path = File.join(USERPATH,'config','targets') unless path
+      dir = File.join(path, name)
+      lib_dir = File.join(dir, 'lib')
+      Cosmos.add_to_search_path(lib_dir, false) if File.exist?(lib_dir)
+      dir
+    end
+
+    # Process the target's configuration file if it exists
+    def process_target_config_file(dir, name, target_filename)
+      filename = File.join(dir, target_filename || 'target.txt')
+      if File.exist?(filename)
+        process_file(filename)
+      else
+        raise "Target file #{target_filename} for target #{name} does not exist" if target_filename
+      end
+      filename
+    end
+
+    # Automatically add all command and telemetry definitions to the list
+    def add_all_cmd_tlm(dir)
+      cmd_tlm_files = []
+      if Dir.exist?(File.join(dir, 'cmd_tlm'))
+        # Only grab *.txt files in the root of the cmd_tlm folder
+        Dir[File.join(dir, 'cmd_tlm', '*.txt')].each do |filename|
+          cmd_tlm_files << filename
+        end
+      end
+      cmd_tlm_files.sort!
     end
 
   end # class Target
