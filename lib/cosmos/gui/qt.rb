@@ -91,23 +91,19 @@ module Cosmos
   def self.getColor(color_r, color_g = nil, color_b = nil)
     return color_r if (color_r.is_a? Qt::Color) || (color_r.is_a? Qt::Pen) || (color_r.is_a? Qt::LinearGradient)
 
-    color = nil
     key = color_r
-    key = key.to_i if key.is_a? Qt::Enum
+    # Check for a cached color right off the bat as an optimization
+    color = Cosmos::COLORS[key]
+    return color if color
+
     if color_r && color_g && color_b
       key = (color_r.to_i << 24) + (color_g.to_i << 16) + (color_b.to_i << 8)
-    end
-
-    if Cosmos::COLORS[key]
-      color = Cosmos::COLORS[key]
+      color = Qt::Color.new(color_r.to_i, color_g.to_i, color_b.to_i)
     else
-      if color_r && color_g && color_b
-        color = Qt::Color.new(color_r.to_i, color_g.to_i, color_b.to_i)
-      else
-        color = Qt::Color.new(color_r)
-      end
-      Cosmos::COLORS[key] = color
+      key = key.to_i if key.is_a? Qt::Enum
+      color = Qt::Color.new(color_r)
     end
+    Cosmos::COLORS[key] = color
     color
   end
 
@@ -669,47 +665,71 @@ class Qt::ColorListWidget < Qt::ListWidget
 end
 
 class Qt::Painter
+  def initialize(*args)
+    super(*args)
+    @@pen_color = nil
+    @@brush_color = nil
+  end
+
   def addLineColor(x, y, w, h, color = Cosmos::BLACK)
-    setPenColor(color)
+    if color != @@pen_color
+      @@pen_color = color
+      setPen(Cosmos::getColor(@@pen_color))
+    end
     drawLine(x,y,w,h)
   end
 
   def addRectColor(x, y, w, h, color = Cosmos::BLACK)
-    setPenColor(color)
+    if color != @@pen_color
+      @@pen_color = color
+      setPen(Cosmos::getColor(@@pen_color))
+    end
+    @@brush_color = nil
     setBrush(nil)
     drawRect(x,y,w,h)
   end
 
   def addRectColorFill(x, y, w, h, color = Cosmos::BLACK)
-    setPenColor(color)
-    setBrush(Cosmos.getBrush(color))
+    if color != @@pen_color
+      @@pen_color = color
+      setPen(Cosmos::getColor(@@pen_color))
+    end
+    if color != @@brush_color
+      @@brush_color = color
+      setBrush(Cosmos.getBrush(@@brush_color))
+    end
     drawRect(x,y,w,h)
   end
 
   def addSimpleTextAt(text, x, y, color = Cosmos::BLACK)
-    setPenColor(color)
+    if color != @@pen_color
+      @@pen_color = color
+      setPen(Cosmos::getColor(@@pen_color))
+    end
     drawText(x,y,text)
   end
 
   def addEllipseColor(x, y, w, h, color = Cosmos::BLACK)
-    setPenColor(color)
+    if color != @@pen_color
+      @@pen_color = color
+      setPen(Cosmos::getColor(@@pen_color))
+    end
+    @@brush_color = nil
     setBrush(nil)
     drawEllipse(x,y,w,h)
   end
 
   def addEllipseColorFill(x, y, w, h, color = Cosmos::BLACK)
-    setPenColor(color)
-    setBrush(Cosmos.getBrush(color))
+    if color != @@pen_color
+      @@pen_color = color
+      setPen(Cosmos::getColor(@@pen_color))
+    end
+    if color != @@brush_color
+      @@brush_color = color
+      setBrush(Cosmos.getBrush(@@brush_color))
+    end
     drawEllipse(x,y,w,h)
   end
-
-  private
-
-  def setPenColor(color)
-    color = Cosmos::getColor(color)
-    setPen(color)
-  end
-
 end
 
 class Qt::MatrixLayout < Qt::GridLayout
