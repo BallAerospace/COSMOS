@@ -93,13 +93,17 @@ module Cosmos
 
     # Draws the gridlines for a y-axis
     def draw_y_axis_grid_lines(dc)
+      grid_lines = []
       @y_grid_lines.each_with_index do |value, index|
         # Don't draw gridlines that are too close to 0
         if ((value > (@y_grid_line_scale / 2.0)) || (value < (@y_grid_line_scale / -2.0)))
-          draw_y_label_and_grid_line(dc, value, index, true)
+          grid_lines << draw_y_label_and_grid_line(dc, value, index, true)
         else
-          draw_y_label_and_grid_line(dc, 0, index, true)
+          grid_lines << draw_y_label_and_grid_line(dc, 0, index, true)
         end
+      end
+      grid_lines.each do |y|
+        dc.addLineColor(@graph_left_x, y, @graph_right_x, y, Cosmos::DASHLINE_PEN)
       end
     end # def draw_y_axis_grid_lines
 
@@ -193,22 +197,22 @@ module Cosmos
                              y + (@font_size / 2))
         end
       end
-
-      if show_line and y
-        dc.addLineColor(@graph_left_x, y, @graph_right_x, y, Cosmos::DASHLINE_PEN)
-      end
-
+      y
     end # def draw_y_label_and_grid_line
 
     # Draws the gridlines for the x-axis
     def draw_x_axis_grid_lines(dc)
+      grid_lines = []
       @x_grid_lines.each do |value, label|
         # If the line has states or is far enough away from the origin
         if @lines.x_states || ((value > (@x_grid_line_scale / 2.0)) || (value < (@x_grid_line_scale / -2.0)))
-          draw_x_label_and_grid_line(dc, value, label, true)
+          grid_lines << draw_x_label_and_grid_line(dc, value, label, true)
         else
-          draw_x_label_and_grid_line(dc, 0, nil, true)
+          grid_lines << draw_x_label_and_grid_line(dc, 0, nil, true)
         end
+      end
+      grid_lines.each do |x1, y1, x2, y2|
+        dc.addLineColor(x1, y1, x2, y2, Cosmos::DASHLINE_PEN)
       end
     end # def draw_x_axis_grid_lines
 
@@ -237,7 +241,6 @@ module Cosmos
         y2 = @graph_bottom_y
       end
       x2 = x1
-      dc.addLineColor(x1, y1, x2, y2, Cosmos::DASHLINE_PEN)
 
       # Only display the label if we have room. This really only affects the
       # right side of the graph since that's where new grid lines appear. The
@@ -245,10 +248,11 @@ module Cosmos
       # white space on the right side of the graph.
       if (x1 == @graph_right_x) || (x1 < (@graph_right_x - (1.25 * text_width)))
         # Shift the far right label left a bit to eliminate white space
-        x1 -= text_width / 4 if x1 == @graph_right_x
-        x1 -= text_width / 2 # center the text
-        dc.addSimpleTextAt(text, x1, @graph_bottom_y + text_height + GRAPH_SPACER)
+        text_x = x1 - text_width / 4 if x1 == @graph_right_x
+        text_x = x1 - text_width / 2 # center the text
+        dc.addSimpleTextAt(text, text_x, @graph_bottom_y + text_height + GRAPH_SPACER)
       end
+      [x1, y1, x2, y2]
     end # def draw_x_label_and_grid_line
 
     # Converts a x value into text with a max number of characters

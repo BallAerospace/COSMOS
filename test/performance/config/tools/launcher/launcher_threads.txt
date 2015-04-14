@@ -1,9 +1,11 @@
 TITLE "Threads"
 TOOL_FONT tahoma 12
 LABEL_FONT tahoma 16
+NUM_COLUMNS 5 # This is the default
 
-TOOL "CTS - Profiled" "ruby-prof -p call_tree -m 1 -f callgrind.profile tools\CmdTlmServerMemProf -- --config cmd_tlm_server_threads.txt --system system_threads.txt" "cts.png"
 TOOL "CTS" "LAUNCH CmdTlmServer --config cmd_tlm_server_threads.txt --system system_threads.txt" "cts.png"
+TOOL "CTS - CodeProf" "ruby-prof -p call_tree -m 1 -f callgrind.cts tools\CmdTlmServer -- --config cmd_tlm_server_threads.txt --system system_threads.txt" "cts.png"
+TOOL "CTS - MemProf" "LAUNCH CmdTlmServerMemProf --config cmd_tlm_server_threads.txt --system system_threads.txt" "cts.png"
 TOOL "Script Runner" "LAUNCH ScriptRunner --system system_threads.txt" "script_runner.png"
 MULTITOOL_START "Simulated Targets" NULL
   TOOL "LAUNCH_TERMINAL ExampleTarget 9999 STATUS 10 --system system_threads.txt"
@@ -67,4 +69,9 @@ MULTITOOL_START "Simulated Targets" NULL
   TOOL "LAUNCH_TERMINAL ExampleTarget 9970 STATUS 10 --system system_threads.txt"
     DONT_CAPTURE_IO # Without this you get an "Unexpected Output" dialog
 MULTITOOL_END
+
+DIVIDER
+TOOL "Telemetry Grapher" "LAUNCH TlmGrapher --system system_threads.txt" "tlm_grapher.png"
+TOOL "Grapher - CodeProf" "ruby-prof -p call_tree -m 1 -f callgrind.grapher tools\TlmGrapher -- --system system_threads.txt" "tlm_grapher.png"
+TOOL "Grapher - MemProf" "LAUNCH TlmGrapherMemProf --system system_threads.txt" "tlm_grapher.png"
 
