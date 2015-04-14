@@ -81,7 +81,6 @@ module Cosmos
       connection = @connections[connection_name.upcase]
       raise "Unknown #{@keyword}: #{connection_name}" unless connection
 
-      connection.disconnect
       stop_thread(connection)
       Logger.info "Disconnected from #{@keyword} #{connection_name.upcase}"
     end
