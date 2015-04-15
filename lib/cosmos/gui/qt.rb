@@ -108,6 +108,8 @@ module Cosmos
   end
 
   def self.getBrush(color)
+    return nil unless color
+    return color if color.is_a? Qt::Brush
     brush = nil
     color = Cosmos.getColor(color)
     brush = BRUSHES[color]
@@ -276,10 +278,16 @@ class Qt::TableWidget
     resizeRowsToContents()
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff)
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff)
-    setMinimumSize(2*frameWidth() + horizontalHeader.length + verticalHeader.width,
-                   2*frameWidth() + verticalHeader.length + horizontalHeader.height)
-    setMaximumSize(2*frameWidth() + horizontalHeader.length + verticalHeader.width,
-                   2*frameWidth() + verticalHeader.length + horizontalHeader.height)
+    setMinimumSize(fullWidth, fullHeight)
+    setMaximumSize(fullWidth, fullHeight)
+  end
+
+  def fullWidth
+    2*frameWidth() + horizontalHeader.length + verticalHeader.width
+  end
+
+  def fullHeight
+    2*frameWidth() + verticalHeader.length + horizontalHeader.height
   end
 end
 
@@ -665,69 +673,48 @@ class Qt::ColorListWidget < Qt::ListWidget
 end
 
 class Qt::Painter
-  def initialize(*args)
-    super(*args)
-    @@pen_color = nil
-    @@brush_color = nil
+  def setPen(pen)
+    super(Cosmos::getColor(pen))
+    @pen = pen
+  end
+  def setBrush(brush)
+    super(Cosmos::getBrush(brush))
+    @brush = brush
   end
 
   def addLineColor(x, y, w, h, color = Cosmos::BLACK)
-    if color != @@pen_color
-      @@pen_color = color
-      setPen(Cosmos::getColor(@@pen_color))
-    end
+    setPen(color) if color != @pen
     drawLine(x,y,w,h)
   end
 
   def addRectColor(x, y, w, h, color = Cosmos::BLACK)
-    if color != @@pen_color
-      @@pen_color = color
-      setPen(Cosmos::getColor(@@pen_color))
-    end
-    @@brush_color = nil
-    setBrush(nil)
+    setPen(color) if color != @pen
+    setBrush(nil) if @brush
     drawRect(x,y,w,h)
   end
 
-  def addRectColorFill(x, y, w, h, color = Cosmos::BLACK)
-    if color != @@pen_color
-      @@pen_color = color
-      setPen(Cosmos::getColor(@@pen_color))
-    end
-    if color != @@brush_color
-      @@brush_color = color
-      setBrush(Cosmos.getBrush(@@brush_color))
-    end
+  def addRectColorFill(x, y, w, h, pen_color = Cosmos::BLACK, brush_color = nil)
+    setPen(pen_color) if pen_color != @pen
+    brush_color = pen_color unless brush_color
+    setBrush(brush_color) if brush_color != @brush
     drawRect(x,y,w,h)
   end
 
   def addSimpleTextAt(text, x, y, color = Cosmos::BLACK)
-    if color != @@pen_color
-      @@pen_color = color
-      setPen(Cosmos::getColor(@@pen_color))
-    end
+    setPen(color) if color != @pen
     drawText(x,y,text)
   end
 
   def addEllipseColor(x, y, w, h, color = Cosmos::BLACK)
-    if color != @@pen_color
-      @@pen_color = color
-      setPen(Cosmos::getColor(@@pen_color))
-    end
-    @@brush_color = nil
-    setBrush(nil)
+    setPen(color) if color != @pen
+    setBrush(nil) if @brush
     drawEllipse(x,y,w,h)
   end
 
-  def addEllipseColorFill(x, y, w, h, color = Cosmos::BLACK)
-    if color != @@pen_color
-      @@pen_color = color
-      setPen(Cosmos::getColor(@@pen_color))
-    end
-    if color != @@brush_color
-      @@brush_color = color
-      setBrush(Cosmos.getBrush(@@brush_color))
-    end
+  def addEllipseColorFill(x, y, w, h, pen_color = Cosmos::BLACK, brush_color = nil)
+    setPen(pen_color) if pen_color != @pen
+    brush_color = pen_color unless brush_color
+    setBrush(brush_color) if brush_color != @brush
     drawEllipse(x,y,w,h)
   end
 end

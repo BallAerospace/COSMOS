@@ -51,7 +51,7 @@ module Cosmos
       painter.setPen(pen)
       painter.drawLine(@x1, @y1, @x2, @y2)
       if (@connector == true)
-        painter.setBrush(Cosmos.getBrush(color))
+        painter.setBrush(color)
         painter.drawEllipse(@point, @width, @width)
       end
       painter.restore
