@@ -400,7 +400,7 @@ module Cosmos
 
     def draw_graph_into_back_buffer
       # Draw overall graph and origin lines and graph lines
-      clear_canvas_and_draw_graph_rectangle(@painter)
+      draw_graph_background(@painter)
       draw_origin_lines(@painter)
       draw_lines(@painter, :LEFT)
 

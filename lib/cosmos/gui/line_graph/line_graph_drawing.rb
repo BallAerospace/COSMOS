@@ -89,9 +89,9 @@ module Cosmos
       @y_grid_lines.each_with_index do |value, index|
         # Don't draw gridlines that are too close to 0
         if ((value > (@y_grid_line_scale / 2.0)) || (value < (@y_grid_line_scale / -2.0)))
-          grid_lines << draw_y_label(dc, value, index, true)
+          grid_lines << draw_y_label(dc, value, index)
         else
-          grid_lines << draw_y_label(dc, 0, index, true)
+          grid_lines << draw_y_label(dc, 0, index)
         end
       end
       # Now draw all the grid lines so we can use a single Pen for all
@@ -142,7 +142,7 @@ module Cosmos
     end
 
     # This function is used to draw the y labels.
-    def draw_y_label(dc, value, index, show_line)
+    def draw_y_label(dc, value, index)
       left_value = value
       right_value = value
       left_text = @left_text[index]
@@ -197,9 +197,9 @@ module Cosmos
       @x_grid_lines.each do |value, label|
         # If the line has states or is far enough away from the origin
         if @lines.x_states || ((value > (@x_grid_line_scale / 2.0)) || (value < (@x_grid_line_scale / -2.0)))
-          grid_lines << draw_x_label(dc, value, label, true)
+          grid_lines << draw_x_label(dc, value, label)
         else
-          grid_lines << draw_x_label(dc, 0, nil, true)
+          grid_lines << draw_x_label(dc, 0, nil)
         end
       end
       # Now draw all the grid lines so we can use a single Pen for all
@@ -210,7 +210,7 @@ module Cosmos
 
     # This function is used to draw the x labels and returns the line
     # positions.
-    def draw_x_label(dc, value, label, show_line)
+    def draw_x_label(dc, value, label)
       if label
         text = label.to_s
       else
@@ -227,11 +227,7 @@ module Cosmos
       if (x1 > @graph_right_x)
         x1 = @graph_right_x
       end
-      if show_line
-        y2 = @graph_top_y
-      else
-        y2 = @graph_bottom_y
-      end
+      y2 = @graph_top_y
       x2 = x1
 
       # Only display the label if we have room. This really only affects the
