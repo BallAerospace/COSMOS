@@ -159,7 +159,7 @@ module Cosmos
         top_triangle.setPoint(0, @line_pos, @y_pad - 1)
         top_triangle.setPoint(1, @line_pos-5, @y_pad - 6)
         top_triangle.setPoint(2, @line_pos+5, @y_pad - 6)
-        dc.setBrush(Cosmos.getBrush(Cosmos::BLACK))
+        dc.setBrush(Cosmos::BLACK)
         dc.drawPolygon(top_triangle)
         top_triangle.dispose
 

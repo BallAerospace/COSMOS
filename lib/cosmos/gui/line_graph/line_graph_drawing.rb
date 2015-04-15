@@ -33,7 +33,7 @@ module Cosmos
       calculate_scaling_factors()
 
       # Draw overall graph and origin lines
-      clear_canvas_and_draw_graph_rectangle(@painter)
+      draw_graph_background(@painter)
       draw_origin_lines(@painter)
 
       # Draw gridlines and titles
@@ -45,7 +45,6 @@ module Cosmos
       draw_y_axis_title(@painter, :LEFT)
       draw_y_axis_title(@painter, :RIGHT)
 
-      # Draw legend and lines
       draw_legend(@painter)
 
       draw_lines(@painter, :LEFT)
@@ -54,7 +53,6 @@ module Cosmos
 
     # Draws the graph to the screen
     def draw_graph_to_screen
-      # Draw frame around graph
       draw_frame(@painter)
 
       # Draw cursor line and popups if present
@@ -64,16 +62,10 @@ module Cosmos
       draw_error_icon(@painter)
     end # def draw_graph_to_screen
 
-    # Clears the entire canvas and then draws the colored rectangle for the graph
-    def clear_canvas_and_draw_graph_rectangle(dc)
-      # Draw graph background
-      color = Cosmos::getColor(@graph_back_color)
-      dc.setPen(color)
-      dc.setBrush(Cosmos.getBrush(@@gradient))
-      dc.drawRect(@graph_left_x,@graph_top_y,@graph_right_x - @graph_left_x,@graph_bottom_y - @graph_top_y)
-      # Draw the graph border
-      dc.addRectColor(@graph_left_x, @graph_top_y, @graph_right_x - @graph_left_x, @graph_bottom_y - @graph_top_y, @label_and_border_color)
-    end # def clear_canvas_and_draw_graph_rectangle
+    # Draws the colored rectangle for the graph
+    def draw_graph_background(dc)
+      dc.addRectColorFill(@graph_left_x, @graph_top_y, @graph_right_x - @graph_left_x, @graph_bottom_y - @graph_top_y, @label_and_border_color, @@gradient)
+    end
 
     # Draws origin lines if they fall on the graph
     def draw_origin_lines(dc)
@@ -97,11 +89,12 @@ module Cosmos
       @y_grid_lines.each_with_index do |value, index|
         # Don't draw gridlines that are too close to 0
         if ((value > (@y_grid_line_scale / 2.0)) || (value < (@y_grid_line_scale / -2.0)))
-          grid_lines << draw_y_label_and_grid_line(dc, value, index, true)
+          grid_lines << draw_y_label(dc, value, index, true)
         else
-          grid_lines << draw_y_label_and_grid_line(dc, 0, index, true)
+          grid_lines << draw_y_label(dc, 0, index, true)
         end
       end
+      # Now draw all the grid lines so we can use a single Pen for all
       grid_lines.each do |y|
         dc.addLineColor(@graph_left_x, y, @graph_right_x, y, Cosmos::DASHLINE_PEN)
       end
@@ -148,10 +141,8 @@ module Cosmos
       @graph_right_x -= (right_widths.max + GRAPH_SPACER)
     end
 
-    # This function is used to draw a horizontal line on the graph with a label.
-    # This line is not clipped so the value must fall on the graph. Uses the
-    # label values calculated in calculate_y_labels.
-    def draw_y_label_and_grid_line(dc, value, index, show_line)
+    # This function is used to draw the y labels.
+    def draw_y_label(dc, value, index, show_line)
       left_value = value
       right_value = value
       left_text = @left_text[index]
@@ -197,8 +188,8 @@ module Cosmos
                              y + (@font_size / 2))
         end
       end
-      y
-    end # def draw_y_label_and_grid_line
+      return y
+    end
 
     # Draws the gridlines for the x-axis
     def draw_x_axis_grid_lines(dc)
@@ -206,19 +197,20 @@ module Cosmos
       @x_grid_lines.each do |value, label|
         # If the line has states or is far enough away from the origin
         if @lines.x_states || ((value > (@x_grid_line_scale / 2.0)) || (value < (@x_grid_line_scale / -2.0)))
-          grid_lines << draw_x_label_and_grid_line(dc, value, label, true)
+          grid_lines << draw_x_label(dc, value, label, true)
         else
-          grid_lines << draw_x_label_and_grid_line(dc, 0, nil, true)
+          grid_lines << draw_x_label(dc, 0, nil, true)
         end
       end
+      # Now draw all the grid lines so we can use a single Pen for all
       grid_lines.each do |x1, y1, x2, y2|
         dc.addLineColor(x1, y1, x2, y2, Cosmos::DASHLINE_PEN)
       end
     end # def draw_x_axis_grid_lines
 
-    # This function is used to draw a vertical line on the graph with a label.
-    # This line is not clipped so the value must fall on the graph
-    def draw_x_label_and_grid_line(dc, value, label, show_line)
+    # This function is used to draw the x labels and returns the line
+    # positions.
+    def draw_x_label(dc, value, label, show_line)
       if label
         text = label.to_s
       else
@@ -290,7 +282,7 @@ module Cosmos
       end
     end
 
-    # Draw the overall graph title
+    # Draw the overall graph title above the graph
     def draw_title(dc)
       if @title
         metrics = Cosmos.getFontMetrics(@title_font)
@@ -298,9 +290,9 @@ module Cosmos
         dc.addSimpleTextAt(@title, (self.width / 2) - (metrics.width(@title) / 2), metrics.height)
         dc.setFont(@font)
       end
-    end # def draw_title
+    end
 
-    # Draws the title for the X-axis
+    # Draws the x axis title below the graph
     def draw_x_axis_title(dc)
       if @x_axis_title
         metrics = Cosmos.getFontMetrics(@font)
@@ -310,9 +302,9 @@ module Cosmos
           (((@graph_right_x - @graph_left_x) / 2) + @graph_left_x) - (text_width / 2),
           @graph_bottom_y + (2 * text_height) + GRAPH_SPACER)
       end
-    end # def draw_x_axis_title
+    end
 
-    # Draws a title for a Y-axis
+    # Draws titles to the left and right of the Y axis
     def draw_y_axis_title(dc, axis)
       metrics = Cosmos.getFontMetrics(@font)
       if axis == :LEFT
@@ -334,58 +326,46 @@ module Cosmos
           dc.addSimpleTextAt(character, graph_x + ((max_width - cur_width) / 2), start_height + text_height * index)
         end
       end
-    end # def draw_y_axis_title
+    end
 
     # Draws the legend on the bottom of the graph
     def draw_legend(dc)
+      return if !@show_legend || @lines.empty?
+
+      text_x, text_y, legend_width, legend_height = get_legend_position()
+      if @lines.axes == :BOTH
+        draw_legend_text(dc, :LEFT, text_x, text_y, legend_height)
+        draw_legend_text(dc, :RIGHT, text_x + (legend_width / 2), text_y, legend_height)
+      else
+        draw_legend_text(dc, false, text_x, text_y, legend_height)
+      end
+    end
+
+    # Calculate the legend x, y, width and height
+    def get_legend_position
       metrics = Cosmos.getFontMetrics(@font)
-      # Draw Legend
-      if @show_legend && !@lines.empty?
-        if @lines.axes == :BOTH
-          both_axis = true
-        else
-          both_axis = false
-        end
-        legend_width = 0
-        @lines.legend.each do |legend_text, color, axis|
-          text_width   = metrics.width(legend_text)
-          legend_width = text_width if text_width > legend_width
-        end
-        legend_width += (GRAPH_SPACER * 2)
-        legend_width *= 2 if both_axis
-        legend_graph_x = (self.width - legend_width) / 2
+      legend_width = 0
+      @lines.legend.each do |legend_text, color, axis|
+        text_width   = metrics.width(legend_text)
+        legend_width = text_width if text_width > legend_width
+      end
+      legend_width += (GRAPH_SPACER * 2)
+      legend_width *= 2 if @lines.axes == :BOTH
+      legend_graph_x = (self.width - legend_width) / 2
 
-        text_x = legend_graph_x + GRAPH_SPACER
-        text_y = self.height - metrics.height
+      text_x = legend_graph_x + GRAPH_SPACER
+      text_y = self.height - metrics.height
+      return [text_x, text_y, legend_width, metrics.height]
+    end
 
-        # Draw legend text for each line
-        if both_axis
-          left_text_x  = text_x
-          right_text_x = text_x + (legend_width / 2)
-          left_text_y  = text_y
-          right_text_y = text_y
-          @lines.legend.reverse_each do |legend_text, color, axis|
-            if axis == :LEFT
-              dc.addSimpleTextAt(legend_text, left_text_x, left_text_y, color)
-              left_text_y -= metrics.height
-            else
-              dc.addSimpleTextAt(legend_text, right_text_x, right_text_y, color)
-              right_text_y -= metrics.height
-            end
-          end
-          if left_text_y < right_text_y
-            text_y = left_text_y
-          else
-            text_y = right_text_y
-          end
-        else
-          @lines.legend.reverse_each do |legend_text, color, axis|
-            dc.addSimpleTextAt(legend_text, text_x, text_y, color)
-            text_y -= metrics.height
-          end
+    def draw_legend_text(dc, specific_axis, text_x, text_y, line_height)
+      @lines.legend.reverse_each do |legend_text, color, axis|
+        if !specific_axis || specific_axis == axis
+          dc.addSimpleTextAt(legend_text, text_x, text_y, color)
+          text_y -= line_height
         end
       end
-    end # def draw_legend
+    end
 
     # Draws all lines for the given axis
     # def draw_lines(dc, axis)
@@ -442,9 +422,8 @@ module Cosmos
       end # unless popups.empty?
     end
 
-    # Draws the overall frame around the canvas
+    # Draws the overall frame around the graph, legend, labels, etc
     def draw_frame(dc)
-      # Draw Frame Rectangle around canvas
       dc.addRectColor(0,0,self.width-1,self.height-1, @frame_color)
     end
 
