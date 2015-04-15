@@ -63,9 +63,10 @@ module Cosmos
             unless @interface.connected?
               begin
                 @mutex.synchronize do
-                  break if @cancel_thread
-                  connect()
+                  # We need to make sure connect is not called after stop() has been called
+                  connect() unless @cancel_thread
                 end
+                break if @cancel_thread
               rescue Exception => connect_error
                 handle_connection_failed(connect_error)
                 if @cancel_thread
@@ -114,6 +115,8 @@ module Cosmos
     # Disconnect from the interface and stop the thread
     def stop
       @mutex.synchronize do
+        # Need to make sure that @cancel_thread is set and the interface disconnected within
+        # mutex to ensure that connect() is not called when we want to stop()
         @cancel_thread = true
         @thread_sleeper.cancel
         @interface.disconnect
