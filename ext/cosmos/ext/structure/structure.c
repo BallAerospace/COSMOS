@@ -19,6 +19,12 @@ static VALUE HOST_ENDIANNESS = Qnil;
 static VALUE ZERO_STRING = Qnil;
 static VALUE ASCII_8BIT_STRING = Qnil;
 
+static VALUE MIN_INT8 = Qnil;
+static VALUE MAX_INT8 = Qnil;
+static VALUE MAX_UINT8 = Qnil;
+static VALUE MIN_INT16 = Qnil;
+static VALUE MAX_INT16 = Qnil;
+static VALUE MAX_UINT16 = Qnil;
 static VALUE MIN_INT32 = Qnil;
 static VALUE MAX_INT32 = Qnil;
 static VALUE MAX_UINT32 = Qnil;
@@ -36,6 +42,10 @@ static ID id_method_raise_buffer_error = 0;
 static ID id_method_read_array = 0;
 static ID id_method_force_encoding = 0;
 static ID id_method_freeze = 0;
+static ID id_method_slice = 0;
+static ID id_method_reverse = 0;
+static ID id_method_Integer = 0;
+static ID id_method_Float = 0;
 
 static ID id_ivar_buffer = 0;
 static ID id_ivar_bit_offset = 0;
@@ -71,21 +81,6 @@ static VALUE symbol_TRUNCATE = Qnil;
 static VALUE symbol_SATURATE = Qnil;
 static VALUE symbol_ERROR = Qnil;
 static VALUE symbol_ERROR_ALLOW_HEX = Qnil;
-
-/* These are useful methods for debugging */
-#if 0
-static char* to_s(VALUE x)
-{
-  VALUE string = rb_any_to_s(x);
-  return StringValueCStr(string);
-}
-static char* get_class(VALUE x)
-{
-  VALUE class = rb_funcall(x, rb_intern("class"), 0);
-  VALUE string = rb_funcall(class, id_method_to_s, 0);
-  return StringValueCStr(string);
-}
-#endif
 
 /*
  * Perform an left bit shift on a string
@@ -297,12 +292,79 @@ static void read_bitfield(int lower_bound, int upper_bound, int bit_offset, int 
   unsigned_shift_byte_array(read_value, num_bytes, -start_bits);
 }
 
+static void write_bitfield(int lower_bound, int upper_bound, int bit_offset, int bit_size, int given_bit_offset, int given_bit_size, VALUE endianness, unsigned char* buffer, int buffer_length, unsigned char* write_value) {
+  /* Local variables */
+  int num_bytes = 0;
+  int total_bits = 0;
+  int start_bits = 0;
+  int end_bits = 0;
+  int temp_upper = 0;
+  unsigned char start_mask = 0;
+  unsigned char end_mask = 0;
+
+  if (endianness == symbol_LITTLE_ENDIAN)
+  {
+    /* Bitoffset always refers to the most significant bit of a bitfield */
+    num_bytes = (((bit_offset % 8) + bit_size - 1) / 8) + 1;
+    upper_bound = bit_offset / 8;
+    lower_bound = upper_bound - num_bytes + 1;
+
+    if (lower_bound < 0) {
+      rb_raise(rb_eArgError, "LITTLE_ENDIAN bitfield with bit_offset %d and bit_size %d is invalid", given_bit_offset, given_bit_size);
+    }
+  }
+  else
+  {
+    num_bytes = upper_bound - lower_bound + 1;
+  }
+
+  /* Determine temp upper bound */
+  temp_upper = upper_bound - lower_bound;
+
+  /* Handle Bitfield */
+  total_bits = (temp_upper + 1) * 8;
+  start_bits = bit_offset % 8;
+  start_mask = 0xFF << (8 - start_bits);
+  end_bits = total_bits - start_bits - bit_size;
+  end_mask = 0xFF >> (8 - end_bits);
+
+  /* Shift to the right position */
+  unsigned_shift_byte_array(write_value, num_bytes, start_bits);
+
+  if (endianness == symbol_LITTLE_ENDIAN)
+  {
+    /* Mask in wanted bits at beginning */
+    write_value[0] |= buffer[upper_bound] & start_mask;
+
+    /* Mask in wanted bits at the end */
+    write_value[temp_upper] |= buffer[lower_bound] & end_mask;
+
+    reverse_bytes(write_value, num_bytes);
+  }
+  else
+  {
+    /* Mask in wanted bits at beginning */
+    write_value[0] |= buffer[lower_bound] & start_mask;
+
+    /* Mask in wanted bits at the end */
+    write_value[temp_upper] |= buffer[upper_bound] & end_mask;
+  }
+
+  /* Write the bytes into the buffer */
+  memcpy(&buffer[lower_bound], write_value, num_bytes);
+}
+
 /* Check the bit size and bit offset for problems. Recalulate the bit offset
  * and return back through the passed in pointer. */
 static void check_bit_offset_and_size(VALUE self, VALUE type_param, VALUE bit_offset_param, VALUE bit_size_param, VALUE data_type_param, VALUE buffer_param, int *new_bit_offset)
 {
   int bit_offset = NUM2INT(bit_offset_param);
   int bit_size = NUM2INT(bit_size_param);
+
+  if ((bit_size <= 0) && (data_type_param != symbol_STRING) && (data_type_param != symbol_BLOCK)) {
+    rb_raise(rb_eArgError, "bit_size %d must be positive for data types other than :STRING and :BLOCK", bit_size);
+  }
+
   if ((bit_size <= 0) && (bit_offset < 0)) {
     rb_raise(rb_eArgError, "negative or zero bit_sizes (%d) cannot be given with negative bit_offsets (%d)", bit_size, bit_offset);
   }
@@ -312,10 +374,6 @@ static void check_bit_offset_and_size(VALUE self, VALUE type_param, VALUE bit_of
     if (bit_offset < 0) {
       rb_funcall(self, id_method_raise_buffer_error, 5, type_param, buffer_param, data_type_param, bit_offset_param, bit_size_param);
     }
-  }
-
-  if ((bit_size <= 0) && (data_type_param != symbol_STRING) && (data_type_param != symbol_BLOCK)) {
-    rb_raise(rb_eArgError, "bit_size %d must be positive for data types other than :STRING and :BLOCK", bit_size);
   }
 
   *new_bit_offset = bit_offset;
@@ -660,39 +718,39 @@ static VALUE check_overflow(VALUE value, int bit_size, VALUE data_type, VALUE ov
 
   switch (bit_size) {
     case 8:
-      hex_max_value = rb_const_get(mCosmos, rb_intern("MAX_UINT8"));
+      hex_max_value = MAX_UINT8;
       if (data_type == symbol_INT) {
-        min_value = rb_const_get(mCosmos, rb_intern("MIN_INT8"));
-        max_value = rb_const_get(mCosmos, rb_intern("MAX_INT8"));
+        min_value = MIN_INT8;
+        max_value = MAX_INT8;
       } else {
-        max_value = rb_const_get(mCosmos, rb_intern("MAX_UINT8"));
+        max_value = MAX_UINT8;
       }
       break;
     case 16:
-      hex_max_value = rb_const_get(mCosmos, rb_intern("MAX_UINT16"));
+      hex_max_value = MAX_UINT16;
       if (data_type == symbol_INT) {
-        min_value = rb_const_get(mCosmos, rb_intern("MIN_INT16"));
-        max_value = rb_const_get(mCosmos, rb_intern("MAX_INT16"));
+        min_value = MIN_INT16;
+        max_value = MAX_INT16;
       } else {
-        max_value = rb_const_get(mCosmos, rb_intern("MAX_UINT16"));
+        max_value = MAX_UINT16;
       }
       break;
     case 32:
-      hex_max_value = rb_const_get(mCosmos, rb_intern("MAX_UINT32"));
+      hex_max_value = MAX_UINT32;
       if (data_type == symbol_INT) {
-        min_value = rb_const_get(mCosmos, rb_intern("MIN_INT32"));
-        max_value = rb_const_get(mCosmos, rb_intern("MAX_INT32"));
+        min_value = MIN_INT32;
+        max_value = MAX_INT32;
       } else {
-        max_value = rb_const_get(mCosmos, rb_intern("MAX_UINT32"));
+        max_value = MAX_UINT32;
       }
       break;
     case 64:
-      hex_max_value = rb_const_get(mCosmos, rb_intern("MAX_UINT64"));
+      hex_max_value = MAX_UINT64;
       if (data_type == symbol_INT) {
-        min_value = rb_const_get(mCosmos, rb_intern("MIN_INT64"));
-        max_value = rb_const_get(mCosmos, rb_intern("MAX_INT64"));
+        min_value = MIN_INT64;
+        max_value = MAX_INT64;
       } else {
-        max_value = rb_const_get(mCosmos, rb_intern("MAX_UINT64"));
+        max_value = MAX_UINT64;
       }
       break;
     default: /* Bitfield */
@@ -726,8 +784,8 @@ static VALUE check_overflow(VALUE value, int bit_size, VALUE data_type, VALUE ov
   hex_max_value = TO_BIGNUM(hex_max_value);
 
   if (overflow == symbol_TRUNCATE) {
-    value = rb_big_minus(value, hex_max_value);
-    value = rb_big_minus(TO_BIGNUM(value), INT2NUM(1));
+    /* Note this will always convert to unsigned equivalent for signed integers */
+    value = rb_big_modulo(value, TO_BIGNUM(rb_big_plus(hex_max_value, INT2NUM(1))));
   } else {
     if (rb_big_cmp(value, max_value) == INT2FIX(1)) {
       if (overflow == symbol_SATURATE) {
@@ -752,7 +810,7 @@ static VALUE check_overflow(VALUE value, int bit_size, VALUE data_type, VALUE ov
     }
   }
 
-  return value;
+  return rb_big_norm(value);
 }
 
 /*
@@ -776,7 +834,6 @@ static VALUE binary_accessor_write(VALUE self, VALUE value, VALUE param_bit_offs
   int given_bit_size = bit_size;
   int upper_bound = 0;
   int lower_bound = 0;
-  int temp_upper = 0;
   int end_bytes = 0;
   int old_upper_bound = 0;
   int byte_size = 0;
@@ -784,20 +841,23 @@ static VALUE binary_accessor_write(VALUE self, VALUE value, VALUE param_bit_offs
   unsigned long long c_value = 0;
   float float_value = 0.0;
   double double_value = 0.0;
-  int num_bytes = 0;
-
-  int start_bits = 0;
-  unsigned long long start_mask = 0;
-  int end_bits = 0;
-  unsigned long long end_mask = 0;
-  int total_bits = 0;
-  unsigned long long temp_mask = 0;
-  unsigned long long temp = 0;
 
   unsigned char* buffer = NULL;
   long buffer_length = 0;
   long value_length = 0;
-  VALUE temp_data = Qnil;
+  VALUE temp_shift = Qnil;
+  VALUE temp_mask = Qnil;
+  VALUE temp_result = Qnil;
+
+  int string_length = 0;
+  unsigned char* unsigned_char_array = NULL;
+  int array_length = 0;
+  int shift_needed = 0;
+  int shift_count = 0;
+  int index = 0;
+  int num_bits = 0;
+  int num_bytes = 0;
+  int num_words = 0;
 
   Check_Type(param_buffer, T_STRING);
   buffer = (unsigned char*) RSTRING_PTR(param_buffer);
@@ -809,6 +869,9 @@ static VALUE binary_accessor_write(VALUE self, VALUE value, VALUE param_bit_offs
   /* If passed a negative bit size with strings or blocks
    * recalculate based on the value length in bytes */
   if ((bit_size <= 0) && ((param_data_type == symbol_STRING) || (param_data_type == symbol_BLOCK))) {
+    if (!RB_TYPE_P(value, T_STRING)) {
+      value = rb_funcall(value, id_method_to_s, 0);
+    }
     bit_size = RSTRING_LEN(value) * 8;
   }
 
@@ -862,7 +925,6 @@ static VALUE binary_accessor_write(VALUE self, VALUE value, VALUE param_bit_offs
       } else {
         byte_size = bit_size / 8;
         if (value_length < byte_size) {
-          buffer = (unsigned char*) RSTRING_PTR(param_buffer);
           /* Pad the requested size with zeros.
            * Tell Ruby we are going to be modifying the buffer with a memset */
           rb_str_modify(param_buffer);
@@ -887,7 +949,7 @@ static VALUE binary_accessor_write(VALUE self, VALUE value, VALUE param_bit_offs
     /*###################################
      *# Handle :INT data type
      *###################################*/
-    value = rb_funcall(rb_mKernel, rb_intern("Integer"), 1, value);
+    value = rb_funcall(rb_mKernel, id_method_Integer, 1, value);
 
     if ((BYTE_ALIGNED(bit_offset)) && (even_bit_size(bit_size)))
     {
@@ -926,65 +988,63 @@ static VALUE binary_accessor_write(VALUE self, VALUE value, VALUE param_bit_offs
        *###########################################################*/
       value = check_overflow(value, bit_size, param_data_type, param_overflow);
 
-      /* Extract Existing Data */
-      if (param_endianness == symbol_LITTLE_ENDIAN) {
-        /* Bitoffset always refers to the most significant bit of a bitfield */
-        num_bytes = (((bit_offset % 8) + bit_size - 1) / 8) + 1;
-        upper_bound = bit_offset / 8;
-        lower_bound = upper_bound - num_bytes + 1;
+      string_length = ((bit_size - 1)/ 8) + 1;
+      array_length = string_length + 4; /* Required number of bytes plus slack */
+      unsigned_char_array = (unsigned char*) malloc(array_length);
 
-        if (lower_bound < 0) {
-          rb_raise(rb_eArgError, "LITTLE_ENDIAN bitfield with bit_offset %d and bit_size %d is invalid", bit_offset, bit_size);
+      num_words = ((string_length - 1) / 4) + 1;
+      num_bytes = num_words * 4;
+      num_bits = num_bytes * 8;
+      shift_needed = num_bits - bit_size;
+      shift_count = shift_needed / 8;
+      shift_needed = shift_needed % 8;
+
+      /* Convert value into array of bytes */
+      if (bit_size <= 30) {
+        *((int *)unsigned_char_array) = FIX2INT(value);
+      } else if (bit_size <= 32) {
+        *((unsigned int *)unsigned_char_array) = NUM2UINT(value);
+      } else {
+        temp_mask = UINT2NUM(0xFFFFFFFF);
+        temp_shift = INT2FIX(32);
+        temp_result = rb_big_and(TO_BIGNUM(value), temp_mask);
+        /* Work around bug where rb_big_and will return Qfalse if given a first parameter of 0 */
+        if (temp_result == Qfalse) { temp_result = INT2FIX(0); }
+        *((unsigned int *)&(unsigned_char_array[num_bytes - 4])) = NUM2UINT(temp_result);
+        for (index = num_bytes - 8; index >= 0; index -= 4) {
+          value = rb_big_rshift(TO_BIGNUM(value), temp_shift);
+          temp_result = rb_big_and(TO_BIGNUM(value), temp_mask);
+          /* Work around bug where rb_big_and will return Qfalse if given a first parameter of 0 */
+          if (temp_result == Qfalse) { temp_result = INT2FIX(0); }
+          *((unsigned int *)&(unsigned_char_array[index])) = NUM2UINT(temp_result);
         }
-
-        temp_data = rb_funcall(param_buffer, rb_intern("slice"), 2, INT2NUM(lower_bound), INT2NUM(upper_bound - lower_bound + 1));
-        temp_data = rb_funcall(temp_data, rb_intern("reverse"), 0);
-      } else {
-        temp_data = rb_funcall(param_buffer, rb_intern("slice"), 2, INT2NUM(lower_bound), INT2NUM(upper_bound - lower_bound + 1));
       }
 
-      /* Determine temp upper bound */
-      temp_upper = upper_bound - lower_bound;
-
-      /* Determine Values needed to Handle Bitfield */
-      start_bits = bit_offset % 8;
-      start_mask = (0xFF << (8 - start_bits));
-      total_bits = (temp_upper + 1) * 8;
-      end_bits = total_bits - start_bits - bit_size;
-      end_mask = ~(0xFF << end_bits);
-
-      /* Add in Start Bits */
-      temp = (*(unsigned char*)RSTRING_PTR(temp_data)) & start_mask;
-
-      /* Adjust value to correct number of bits */
-      temp_mask = (unsigned long long)(pow(2, bit_size) - 1);
-      c_value = NUM2ULL(value) & temp_mask;
-
-      /* Add in New Data */
-      if ((bit_size - (8 - start_bits)) >= 0) {
-        temp = (temp << (bit_size - (8 - start_bits)));
-      } else {
-        temp = (temp >> ((8 - start_bits) - bit_size));
+      if (HOST_ENDIANNESS == symbol_LITTLE_ENDIAN) {
+        for (index = 0; index < num_bytes; index += 4) {
+          reverse_bytes(&(unsigned_char_array[index]), 4);
+        }
       }
-      temp += c_value;
 
-      /* Add in Remainder of Existing Data */
-      temp = (temp << end_bits) + ((*(unsigned char*)(RSTRING_PTR(temp_data) + temp_upper)) & end_mask);
-
-      /* Store into buffer */
-      if (param_endianness != HOST_ENDIANNESS) {
-        reverse_bytes((unsigned char *)&temp, 8);
-        temp = (temp >> (64 - total_bits));
+      for (index = 0; index < shift_count; index++) {
+        left_shift_byte_array(unsigned_char_array, num_bytes, 8);
       }
+
+      if (shift_needed > 0) {
+        left_shift_byte_array(unsigned_char_array, num_bytes, shift_needed);
+      }
+
       rb_str_modify(param_buffer);
-      memcpy((RSTRING_PTR(param_buffer) + lower_bound), &temp, temp_upper + 1);
+      write_bitfield(lower_bound, upper_bound, bit_offset, bit_size, given_bit_offset, given_bit_size, param_endianness, buffer, (int)buffer_length, unsigned_char_array);
+
+      free(unsigned_char_array);
     }
 
   } else if (param_data_type == symbol_FLOAT) {
     /*##########################
      *# Handle :FLOAT data type
      *##########################*/
-    value = rb_funcall(rb_mKernel, rb_intern("Float"), 1, value);
+    value = rb_funcall(rb_mKernel, id_method_Float, 1, value);
 
     if (BYTE_ALIGNED(bit_offset)) {
       switch (bit_size) {
@@ -1257,12 +1317,17 @@ void Init_structure (void)
   int zero = 0;
 
   mCosmos = rb_define_module("Cosmos");
+  cBinaryAccessor = rb_define_class_under(mCosmos, "BinaryAccessor", rb_cObject);
 
   id_method_to_s = rb_intern("to_s");
   id_method_raise_buffer_error = rb_intern("raise_buffer_error");
   id_method_read_array = rb_intern("read_array");
   id_method_force_encoding = rb_intern("force_encoding");
   id_method_freeze = rb_intern("freeze");
+  id_method_slice = rb_intern("slice");
+  id_method_reverse = rb_intern("reverse");
+  id_method_Integer = rb_intern("Integer");
+  id_method_Float = rb_intern("Float");
 
   ASCII_8BIT_STRING = rb_str_new2("ASCII-8BIT");
   rb_funcall(ASCII_8BIT_STRING, id_method_freeze, 0);
@@ -1271,32 +1336,36 @@ void Init_structure (void)
   rb_funcall(ZERO_STRING, id_method_freeze, 0);
   id_const_ZERO_STRING = rb_intern("ZERO_STRING");
 
-  rb_define_const(mCosmos, "MIN_INT8", INT2NUM(-128));
-  rb_define_const(mCosmos, "MAX_INT8", INT2NUM(127));
-  rb_define_const(mCosmos, "MAX_UINT8", INT2NUM(255));
-  rb_define_const(mCosmos, "MIN_INT16", INT2NUM(-32768));
-  rb_define_const(mCosmos, "MAX_INT16", INT2NUM(32767));
-  rb_define_const(mCosmos, "MAX_UINT16", INT2NUM(65535));
-
-  /* All this special code is needed because we are creating Bignums */
+  MIN_INT8 = INT2NUM(-128);
+  MAX_INT8 = INT2NUM(127);
+  MAX_UINT8 = INT2NUM(255);
+  MIN_INT16 = INT2NUM(-32768);
+  MAX_INT16 = INT2NUM(32767);
+  MAX_UINT16 = INT2NUM(65535);
   MIN_INT32  = rb_big_pow(TO_BIGNUM(INT2NUM(2)), INT2NUM(31));
   MIN_INT32  = rb_big_minus(TO_BIGNUM(INT2NUM(0)), MIN_INT32);
   MAX_INT32  = rb_big_pow(TO_BIGNUM(INT2NUM(2)), INT2NUM(31));
-  MAX_INT32  = rb_big_minus(MAX_INT32, INT2NUM(1));
+  MAX_INT32  = rb_big_minus(TO_BIGNUM(MAX_INT32), INT2NUM(1));
   MAX_UINT32 = rb_big_pow(TO_BIGNUM(INT2NUM(2)), INT2NUM(32));
-  MAX_UINT32 = rb_big_minus(MAX_UINT32, INT2NUM(1));
-  rb_define_const(mCosmos, "MIN_INT32", MIN_INT32);
-  rb_define_const(mCosmos, "MAX_INT32", MAX_INT32);
-  rb_define_const(mCosmos, "MAX_UINT32", MAX_UINT32);
+  MAX_UINT32 = rb_big_minus(TO_BIGNUM(MAX_UINT32), INT2NUM(1));
   MIN_INT64  = rb_big_pow(TO_BIGNUM(INT2NUM(2)), INT2NUM(63));
   MIN_INT64  = rb_big_minus(TO_BIGNUM(INT2NUM(0)), MIN_INT64);
   MAX_INT64  = rb_big_pow(TO_BIGNUM(INT2NUM(2)), INT2NUM(63));
-  MAX_INT64  = rb_big_minus(MAX_INT64, INT2NUM(1));
+  MAX_INT64  = rb_big_minus(TO_BIGNUM(MAX_INT64), INT2NUM(1));
   MAX_UINT64 = rb_big_pow(TO_BIGNUM(INT2NUM(2)), INT2NUM(64));
-  MAX_UINT64 = rb_big_minus(MAX_UINT64, INT2NUM(1));
-  rb_define_const(mCosmos, "MIN_INT64", MIN_INT64);
-  rb_define_const(mCosmos, "MAX_INT64", MAX_INT64);
-  rb_define_const(mCosmos, "MAX_UINT64", MAX_UINT64);
+  MAX_UINT64 = rb_big_minus(TO_BIGNUM(MAX_UINT64), INT2NUM(1));
+  rb_define_const(cBinaryAccessor, "MIN_INT8", MIN_INT8);
+  rb_define_const(cBinaryAccessor, "MAX_INT8", MAX_INT8);
+  rb_define_const(cBinaryAccessor, "MAX_UINT8", MAX_UINT8);
+  rb_define_const(cBinaryAccessor, "MIN_INT16", MIN_INT16);
+  rb_define_const(cBinaryAccessor, "MAX_INT16", MAX_INT16);
+  rb_define_const(cBinaryAccessor, "MAX_UINT16", MAX_UINT16);
+  rb_define_const(cBinaryAccessor, "MIN_INT32", MIN_INT32);
+  rb_define_const(cBinaryAccessor, "MAX_INT32", MAX_INT32);
+  rb_define_const(cBinaryAccessor, "MAX_UINT32", MAX_UINT32);
+  rb_define_const(cBinaryAccessor, "MIN_INT64", MIN_INT64);
+  rb_define_const(cBinaryAccessor, "MAX_INT64", MAX_INT64);
+  rb_define_const(cBinaryAccessor, "MAX_UINT64", MAX_UINT64);
 
   id_ivar_buffer = rb_intern("@buffer");
   id_ivar_bit_offset = rb_intern("@bit_offset");
@@ -1337,7 +1406,6 @@ void Init_structure (void)
     HOST_ENDIANNESS = symbol_BIG_ENDIAN;
   }
 
-  cBinaryAccessor = rb_define_class_under(mCosmos, "BinaryAccessor", rb_cObject);
   rb_define_singleton_method(cBinaryAccessor, "read", binary_accessor_read, 5);
   rb_define_singleton_method(cBinaryAccessor, "write", binary_accessor_write, 7);
 
