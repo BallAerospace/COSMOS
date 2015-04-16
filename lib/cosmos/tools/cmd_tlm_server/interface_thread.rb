@@ -46,6 +46,7 @@ module Cosmos
       @thread_sleeper = Sleeper.new
       @connection_failed_messages = []
       @connection_lost_messages = []
+      @mutex = Mutex.new
     end
 
     # Create and start the Ruby thread that will encapsulate the interface.
@@ -58,9 +59,14 @@ module Cosmos
         begin
           Logger.info "Starting packet reading for #{@interface.name}"
           while true
+            break if @cancel_thread
             unless @interface.connected?
               begin
-                connect()
+                @mutex.synchronize do
+                  # We need to make sure connect is not called after stop() has been called
+                  connect() unless @cancel_thread
+                end
+                break if @cancel_thread
               rescue Exception => connect_error
                 handle_connection_failed(connect_error)
                 if @cancel_thread
@@ -102,14 +108,19 @@ module Cosmos
             Cosmos.handle_fatal_exception(error)
           end
         end
+        Logger.info "Stopped packet reading for #{@interface.name}"
       end  # Thread.new
     end # def start
 
     # Disconnect from the interface and stop the thread
     def stop
-      @cancel_thread = true
-      @thread_sleeper.cancel
-      @interface.disconnect
+      @mutex.synchronize do
+        # Need to make sure that @cancel_thread is set and the interface disconnected within
+        # mutex to ensure that connect() is not called when we want to stop()
+        @cancel_thread = true
+        @thread_sleeper.cancel
+        @interface.disconnect
+      end
       Cosmos.kill_thread(self, @thread) if @thread != Thread.current
     end
 

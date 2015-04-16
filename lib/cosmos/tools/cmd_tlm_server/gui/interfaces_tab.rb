@@ -50,7 +50,7 @@ module Cosmos
       interfaces.all.each do |interface_name, interface|
         button = @interfaces_table[name].cellWidget(row,1)
         state = @interfaces_table[name].item(row,2)
-        if interface.connected?
+        if interface.connected? and interface.thread
           button.setText('Disconnect')
           button.setDisabled(true) if interface.disable_disconnect
           state.setText('true')
@@ -58,7 +58,12 @@ module Cosmos
         elsif interface.thread
           button.text = 'Cancel Connect'
           button.setDisabled(false)
-          state.text = 'attempting'
+          state.setText('attempting')
+          state.textColor = Cosmos::RED
+        elsif interface.connected?
+          button.setText('Error')
+          button.setDisabled(false)
+          state.setText('error')
           state.textColor = Cosmos::RED
         else
           button.setText('Connect')
@@ -137,12 +142,14 @@ module Cosmos
     end
 
     def create_button(name, interface, interface_name)
-      if interface.connected?
+      if interface.connected? and interface.thread
         button_text = 'Disconnect'
-      elsif interface.thread.nil?
-        button_text = 'Connect'
-      else
+      elsif interface.thread
         button_text = 'Cancel Connect'
+      elsif interface.connected?
+        button_text = 'Error'
+      else
+        button_text = 'Connect'
       end
       button = Qt::PushButton.new(button_text)
       if name == ROUTERS
@@ -172,12 +179,15 @@ module Cosmos
 
     def create_state(interface)
       state = Qt::TableWidgetItem.new
-      if interface.connected?
+      if interface.connected? and interface.thread
         state.setText('true')
         state.textColor = Cosmos::GREEN
       elsif interface.thread
         state.setText('attempting')
         state.textColor = Cosmos::YELLOW
+      elsif interface.connected?
+        state.setText('error')
+        state.textColor = Cosmos::RED
       else
         state.setText('false')
         state.textColor = Cosmos::BLACK
