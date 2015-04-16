@@ -240,6 +240,21 @@ module Cosmos
           expect(BinaryAccessor.read(65, bit_size, :INT, @data, :BIG_ENDIAN)).to eql(expected[1])
         end
 
+        it "reads 67-bit unsigned integers" do
+          expected = [0x808182838485868700 >> 5, 0x8700090A0B0C0D0E0F >> 5]
+          bit_size = 67
+          expect(BinaryAccessor.read(0,  bit_size, :UINT, @data, :BIG_ENDIAN)).to eql(expected[0])
+          expect(BinaryAccessor.read(56, bit_size, :UINT, @data, :BIG_ENDIAN)).to eql(expected[1])
+        end
+
+        it "reads 67-bit signed integers" do
+          expected = [0x808182838485868700 >> 5, 0x8700090A0B0C0D0E0F >> 5]
+          bit_size = 67
+          expected.each_with_index { |value, index| expected[index] = value - 2**bit_size if value >= 2**(bit_size - 1) }
+          expect(BinaryAccessor.read(0,  bit_size, :INT, @data, :BIG_ENDIAN)).to eql(expected[0])
+          expect(BinaryAccessor.read(56, bit_size, :INT, @data, :BIG_ENDIAN)).to eql(expected[1])
+        end
+
         it "reads aligned 64-bit unsigned integers" do
           expected_array = [0x8081828384858687, 0x00090A0B0C0D0E0F]
           index = 0
@@ -402,6 +417,19 @@ module Cosmos
           expected.each_with_index { |value, index| expected[index] = value - 2**bit_size if value >= 2**(bit_size - 1) }
           expect(BinaryAccessor.read(120,  bit_size, :INT, @data, :LITTLE_ENDIAN)).to eql(expected[0])
           expect(BinaryAccessor.read(57,   bit_size, :INT, @data, :LITTLE_ENDIAN)).to eql(expected[1])
+        end
+
+        it "reads 67-bit unsigned integers" do
+          expected = [0x0F0E0D0C0B0A090087 >> 5]
+          bit_size = 67
+          expect(BinaryAccessor.read(120,  bit_size, :UINT, @data, :LITTLE_ENDIAN)).to eql(expected[0])
+        end
+
+        it "reads 67-bit signed integers" do
+          expected = [0x0F0E0D0C0B0A090087 >> 5]
+          bit_size = 67
+          expected.each_with_index { |value, index| expected[index] = value - 2**bit_size if value >= 2**(bit_size - 1) }
+          expect(BinaryAccessor.read(120,  bit_size, :INT, @data, :LITTLE_ENDIAN)).to eql(expected[0])
         end
 
         it "reads aligned 64-bit unsigned integers" do
@@ -1013,6 +1041,16 @@ module Cosmos
           expect(@data).to eql("\x80\x81\x82\x83\x84\x85\x86\x86\x00\x09\x0A\x0B\x0C\x0D\x0E\x0F")
         end
 
+        it "writes 67-bit unsigned integers" do
+          BinaryAccessor.write(0x8081828384858687FF >> 5, 0,  67, :UINT, @data, :BIG_ENDIAN, :ERROR)
+          expect(@data).to eql("\x80\x81\x82\x83\x84\x85\x86\x87\xE0\x00\x00\x00\x00\x00\x00\x00")
+        end
+
+        it "writes 67-bit signed integers" do
+          BinaryAccessor.write((0x8081828384858687FF >> 5) - 2**67, 0,  67, :INT, @data, :BIG_ENDIAN, :ERROR)
+          expect(@data).to eql("\x80\x81\x82\x83\x84\x85\x86\x87\xE0\x00\x00\x00\x00\x00\x00\x00")
+        end
+
         it "writes aligned 64-bit unsigned integers" do
           expected_array = [0x8081828384858687, 0x00090A0B0C0D0E0F]
           index = 0
@@ -1211,6 +1249,16 @@ module Cosmos
           BinaryAccessor.write(0x4786858483828180 - 2**63, 57,  63, :INT, @data, :LITTLE_ENDIAN, :ERROR)
           BinaryAccessor.write(0x0F0E0D0C0B0A0900 >> 1, 120, 63, :INT, @data, :LITTLE_ENDIAN, :ERROR)
           expect(@data).to eql("\x80\x81\x82\x83\x84\x85\x86\x47\x00\x09\x0A\x0B\x0C\x0D\x0E\x0F")
+        end
+
+        it "writes 67-bit unsigned integers" do
+          BinaryAccessor.write(0x0F0E0D0C0B0A090087 >> 5, 120, 67, :UINT, @data, :LITTLE_ENDIAN, :ERROR)
+          expect(@data).to eql("\x00\x00\x00\x00\x00\x00\x00\xE0\x00\x09\x0A\x0B\x0C\x0D\x0E\x0F")
+        end
+
+        it "writes 67-bit signed integers" do
+          BinaryAccessor.write(0x0F0E0D0C0B0A090087 >> 5, 120, 67, :INT, @data, :LITTLE_ENDIAN, :ERROR)
+          expect(@data).to eql("\x00\x00\x00\x00\x00\x00\x00\xE0\x00\x09\x0A\x0B\x0C\x0D\x0E\x0F")
         end
 
         it "writes aligned 64-bit unsigned integers" do
