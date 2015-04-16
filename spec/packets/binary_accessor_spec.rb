@@ -1252,12 +1252,12 @@ module Cosmos
         end
 
         it "writes 67-bit unsigned integers" do
-          BinaryAccessor.write(0x0F0E0D0C0B0A090087 >> 5, 120, 67, :UINT, @data, :LITTLE_ENDIAN, :ERROR)
+          BinaryAccessor.write(0x0F0E0D0C0B0A0900FF >> 5, 120, 67, :UINT, @data, :LITTLE_ENDIAN, :ERROR)
           expect(@data).to eql("\x00\x00\x00\x00\x00\x00\x00\xE0\x00\x09\x0A\x0B\x0C\x0D\x0E\x0F")
         end
 
         it "writes 67-bit signed integers" do
-          BinaryAccessor.write(0x0F0E0D0C0B0A090087 >> 5, 120, 67, :INT, @data, :LITTLE_ENDIAN, :ERROR)
+          BinaryAccessor.write(0x0F0E0D0C0B0A0900FF >> 5, 120, 67, :INT, @data, :LITTLE_ENDIAN, :ERROR)
           expect(@data).to eql("\x00\x00\x00\x00\x00\x00\x00\xE0\x00\x09\x0A\x0B\x0C\x0D\x0E\x0F")
         end
 
