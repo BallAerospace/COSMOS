@@ -1035,7 +1035,7 @@ static VALUE binary_accessor_write(VALUE self, VALUE value, VALUE param_bit_offs
       }
 
       rb_str_modify(param_buffer);
-      write_bitfield(lower_bound, upper_bound, bit_offset, bit_size, given_bit_offset, given_bit_size, param_endianness, buffer, (int)buffer_length, unsigned_char_array);
+      write_bitfield(lower_bound, upper_bound, bit_offset, bit_size, given_bit_offset, given_bit_size, param_endianness, (unsigned char*) RSTRING_PTR(param_buffer), (int)buffer_length, unsigned_char_array);
 
       free(unsigned_char_array);
     }
