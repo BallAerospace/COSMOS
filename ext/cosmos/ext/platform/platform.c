@@ -29,6 +29,7 @@ VALUE cSegFault = Qnil;
     time_t rawtime;
     struct tm *timeinfo;
     char filename[256];
+    FILE* file = NULL;
 
     signal(SIGSEGV, SIG_DFL);
     signal(SIGILL, SIG_DFL);
@@ -47,8 +48,13 @@ VALUE cSegFault = Qnil;
       timeinfo->tm_hour,
       timeinfo->tm_min,
       timeinfo->tm_sec);
-    freopen(filename, "a", stderr);
-    rb_bug("COSMOS caught segfault");
+    file = freopen(filename, "a", stderr);
+    /* Using file removes a warning */
+    if (file) {
+      rb_bug("COSMOS caught segfault");
+    } else {
+      rb_bug("COSMOS caught segfault");
+    }
   }
 #endif
 
