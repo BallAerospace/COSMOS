@@ -94,6 +94,7 @@ module Cosmos
     color = nil
     key = color_r
     key = key.to_i if key.is_a? Qt::Enum
+
     if color_r && color_g && color_b
       key = (color_r.to_i << 24) + (color_g.to_i << 16) + (color_b.to_i << 8)
     end
@@ -112,6 +113,8 @@ module Cosmos
   end
 
   def self.getBrush(color)
+    return nil unless color
+    return color if color.is_a? Qt::Brush
     brush = nil
     color = Cosmos.getColor(color)
     brush = BRUSHES[color]
@@ -280,10 +283,16 @@ class Qt::TableWidget
     resizeRowsToContents()
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff)
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff)
-    setMinimumSize(2*frameWidth() + horizontalHeader.length + verticalHeader.width,
-                   2*frameWidth() + verticalHeader.length + horizontalHeader.height)
-    setMaximumSize(2*frameWidth() + horizontalHeader.length + verticalHeader.width,
-                   2*frameWidth() + verticalHeader.length + horizontalHeader.height)
+    setMinimumSize(fullWidth, fullHeight)
+    setMaximumSize(fullWidth, fullHeight)
+  end
+
+  def fullWidth
+    2*frameWidth() + horizontalHeader.length + verticalHeader.width
+  end
+
+  def fullHeight
+    2*frameWidth() + verticalHeader.length + horizontalHeader.height
   end
 end
 
@@ -669,47 +678,52 @@ class Qt::ColorListWidget < Qt::ListWidget
 end
 
 class Qt::Painter
+  def setPen(pen_color)
+    super(Cosmos::getColor(pen_color))
+    @pen_color = pen_color
+  end
+  def setBrush(brush)
+    super(Cosmos::getBrush(brush))
+    @brush = brush
+  end
+
   def addLineColor(x, y, w, h, color = Cosmos::BLACK)
-    setPenColor(color)
+    setPen(color) if color != @pen_color
     drawLine(x,y,w,h)
   end
 
   def addRectColor(x, y, w, h, color = Cosmos::BLACK)
-    setPenColor(color)
-    setBrush(nil)
+    setPen(color) if color != @pen_color
+    setBrush(nil) if @brush
     drawRect(x,y,w,h)
   end
 
-  def addRectColorFill(x, y, w, h, color = Cosmos::BLACK)
-    setPenColor(color)
-    setBrush(Cosmos.getBrush(color))
+  # Note if brush_color is not specified it will be the same as pen_color
+  def addRectColorFill(x, y, w, h, pen_color = Cosmos::BLACK, brush_color = nil)
+    setPen(pen_color) if pen_color != @pen_color
+    brush_color = pen_color unless brush_color
+    setBrush(brush_color) if brush_color != @brush
     drawRect(x,y,w,h)
   end
 
   def addSimpleTextAt(text, x, y, color = Cosmos::BLACK)
-    setPenColor(color)
+    setPen(color) if color != @pen_color
     drawText(x,y,text)
   end
 
   def addEllipseColor(x, y, w, h, color = Cosmos::BLACK)
-    setPenColor(color)
-    setBrush(nil)
+    setPen(color) if color != @pen_color
+    setBrush(nil) if @brush
     drawEllipse(x,y,w,h)
   end
 
-  def addEllipseColorFill(x, y, w, h, color = Cosmos::BLACK)
-    setPenColor(color)
-    setBrush(Cosmos.getBrush(color))
+  # Note if brush_color is not specified it will be the same as pen_color
+  def addEllipseColorFill(x, y, w, h, pen_color = Cosmos::BLACK, brush_color = nil)
+    setPen(pen_color) if pen_color != @pen_color
+    brush_color = pen_color unless brush_color
+    setBrush(brush_color) if brush_color != @brush
     drawEllipse(x,y,w,h)
   end
-
-  private
-
-  def setPenColor(color)
-    color = Cosmos::getColor(color)
-    setPen(color)
-  end
-
 end
 
 class Qt::MatrixLayout < Qt::GridLayout

@@ -363,7 +363,7 @@ module Cosmos
                              number.to_s)     # text
 
             if @enable_breakpoints and @breakpoints.include?(number)
-              painter.setBrush(Cosmos.getBrush(Cosmos::RED))
+              painter.setBrush(Cosmos::RED)
               painter.drawEllipse(2,
                                   top+2,
                                   ellipse_width,
