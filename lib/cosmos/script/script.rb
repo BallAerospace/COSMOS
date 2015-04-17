@@ -12,6 +12,7 @@ require 'cosmos'
 require 'cosmos/io/json_drb_object'
 require 'cosmos/tools/cmd_tlm_server/cmd_tlm_server'
 require 'cosmos/script/extract'
+require 'cosmos/script/script_cmd_tlm'
 
 $cmd_tlm_server = nil
 $cmd_tlm_disconnect = false
@@ -36,6 +37,17 @@ module Cosmos
     # Methods involving commands
     #
 
+    # Log any warnings about disabling checks and log the command itself
+    def _log_cmd(target_name, cmd_name, cmd_params, raw, range, hazardous)
+      if range
+        Logger.warn "Command #{target_name} #{cmd_name} being sent ignoring range checks"
+      end
+      if hazardous
+        Logger.warn "Command #{target_name} #{cmd_name} being sent ignoring hazardous warnings"
+      end
+      Logger.info build_cmd_output_string(target_name, cmd_name, cmd_params, raw)
+    end
+
     # Send a command to the specified target
     # Supports two signatures:
     # cmd(target_name, cmd_name, cmd_params = {})
@@ -44,15 +56,14 @@ module Cosmos
     def cmd(*args)
       begin
         target_name, cmd_name, cmd_params = $cmd_tlm_server.cmd(*args)
-        Logger.info build_cmd_output_string(target_name, cmd_name, cmd_params)
+        _log_cmd(target_name, cmd_name, cmd_params, false, false, false)
       rescue HazardousError => e
         ok_to_proceed = prompt_for_hazardous(e.target_name,
                                              e.cmd_name,
                                              e.hazardous_description)
         if ok_to_proceed
-          target_name, cmd_name, cmd_params =
-            $cmd_tlm_server.cmd_no_hazardous_check(*args)
-          Logger.info build_cmd_output_string(target_name, cmd_name, cmd_params)
+          target_name, cmd_name, cmd_params = $cmd_tlm_server.cmd_no_hazardous_check(*args)
+          _log_cmd(target_name, cmd_name, cmd_params, false, false, false)
         else
           retry unless prompt_for_script_abort()
         end
@@ -67,16 +78,14 @@ module Cosmos
     def cmd_no_range_check(*args)
       begin
         target_name, cmd_name, cmd_params = $cmd_tlm_server.cmd_no_range_check(*args)
-        Logger.warn "Command #{target_name} #{cmd_name} being sent ignoring range checks"
-        Logger.info build_cmd_output_string(target_name, cmd_name, cmd_params)
+        _log_cmd(target_name, cmd_name, cmd_params, false, true, false)
       rescue HazardousError => e
         ok_to_proceed = prompt_for_hazardous(e.target_name,
                                              e.cmd_name,
                                              e.hazardous_description)
         if ok_to_proceed
           target_name, cmd_name, cmd_params = $cmd_tlm_server.cmd_no_checks(*args)
-          Logger.warn "Command #{target_name} #{cmd_name} being sent ignoring range checks"
-          Logger.info build_cmd_output_string(target_name, cmd_name, cmd_params)
+          _log_cmd(target_name, cmd_name, cmd_params, false, true, false)
         else
           retry unless prompt_for_script_abort()
         end
@@ -90,8 +99,7 @@ module Cosmos
     # cmd_no_hazardous_check('target_name cmd_name with cmd_param1 value1, cmd_param2 value2')
     def cmd_no_hazardous_check(*args)
       target_name, cmd_name, cmd_params = $cmd_tlm_server.cmd_no_hazardous_check(*args)
-      Logger.warn "Command #{target_name} #{cmd_name} being sent ignoring hazardous warnings"
-      Logger.info build_cmd_output_string(target_name, cmd_name, cmd_params)
+      _log_cmd(target_name, cmd_name, cmd_params, false, false, true)
     end
 
     # Send a command to the specified target without range checking or hazardous checks
@@ -101,9 +109,7 @@ module Cosmos
     # cmd_no_checks('target_name cmd_name with cmd_param1 value1, cmd_param2 value2')
     def cmd_no_checks(*args)
       target_name, cmd_name, cmd_params = $cmd_tlm_server.cmd_no_checks(*args)
-      Logger.warn "Command #{target_name} #{cmd_name} being sent ignoring range checks"
-      Logger.warn "Command #{target_name} #{cmd_name} being sent ignoring hazardous warnings"
-      Logger.info build_cmd_output_string(target_name, cmd_name, cmd_params)
+      _log_cmd(target_name, cmd_name, cmd_params, false, true, true)
     end
 
     # Send a command to the specified target without running conversions
@@ -114,15 +120,14 @@ module Cosmos
     def cmd_raw(*args)
       begin
         target_name, cmd_name, cmd_params = $cmd_tlm_server.cmd_raw(*args)
-        Logger.info build_cmd_output_string(target_name, cmd_name, cmd_params, true)
+        _log_cmd(target_name, cmd_name, cmd_params, true, false, false)
       rescue HazardousError => e
         ok_to_proceed = prompt_for_hazardous(e.target_name,
                                              e.cmd_name,
                                              e.hazardous_description)
         if ok_to_proceed
-          target_name, cmd_name, cmd_params =
-            $cmd_tlm_server.cmd_raw_no_hazardous_check(*args)
-          Logger.info build_cmd_output_string(target_name, cmd_name, cmd_params, true)
+          target_name, cmd_name, cmd_params = $cmd_tlm_server.cmd_raw_no_hazardous_check(*args)
+          _log_cmd(target_name, cmd_name, cmd_params, true, false, false)
         else
           retry unless prompt_for_script_abort()
         end
@@ -137,16 +142,14 @@ module Cosmos
     def cmd_raw_no_range_check(*args)
       begin
         target_name, cmd_name, cmd_params = $cmd_tlm_server.cmd_raw_no_range_check(*args)
-        Logger.warn "Command #{target_name} #{cmd_name} being sent ignoring range checks"
-        Logger.info build_cmd_output_string(target_name, cmd_name, cmd_params, true)
+        _log_cmd(target_name, cmd_name, cmd_params, true, true, false)
       rescue HazardousError => e
         ok_to_proceed = prompt_for_hazardous(e.target_name,
                                              e.cmd_name,
                                              e.hazardous_description)
         if ok_to_proceed
           target_name, cmd_name, cmd_params = $cmd_tlm_server.cmd_raw_no_checks(*args)
-          Logger.warn "Command #{target_name} #{cmd_name} being sent ignoring range checks"
-          Logger.info build_cmd_output_string(target_name, cmd_name, cmd_params, true)
+          _log_cmd(target_name, cmd_name, cmd_params, true, true, false)
         else
           retry unless prompt_for_script_abort()
         end
@@ -160,8 +163,7 @@ module Cosmos
     # cmd_raw_no_hazardous_check('target_name cmd_name with cmd_param1 value1, cmd_param2 value2')
     def cmd_raw_no_hazardous_check(*args)
       target_name, cmd_name, cmd_params = $cmd_tlm_server.cmd_raw_no_hazardous_check(*args)
-      Logger.warn "Command #{target_name} #{cmd_name} being sent ignoring hazardous warnings"
-      Logger.info build_cmd_output_string(target_name, cmd_name, cmd_params, true)
+      _log_cmd(target_name, cmd_name, cmd_params, true, false, true)
     end
 
     # Send a command to the specified target without range checking or hazardous checks or running conversions
@@ -171,9 +173,7 @@ module Cosmos
     # cmd_raw_no_checks('target_name cmd_name with cmd_param1 value1, cmd_param2 value2')
     def cmd_raw_no_checks(*args)
       target_name, cmd_name, cmd_params = $cmd_tlm_server.cmd_raw_no_checks(*args)
-      Logger.warn "Command #{target_name} #{cmd_name} being sent ignoring range checks"
-      Logger.warn "Command #{target_name} #{cmd_name} being sent ignoring hazardous warnings"
-      Logger.info build_cmd_output_string(target_name, cmd_name, cmd_params, true)
+      _log_cmd(target_name, cmd_name, cmd_params, true, true, true)
     end
 
     # Sends raw data through an interface
@@ -416,6 +416,10 @@ module Cosmos
     # Methods for scripting
     #
 
+    def _upcase(target_name, packet_name, item_name)
+      "#{target_name.upcase} #{packet_name.upcase} #{item_name.upcase}"
+    end
+
     def play_wav_file(wav_filename)
       if defined? Qt
         Qt.execute_in_main_thread(true) do
@@ -474,7 +478,7 @@ module Cosmos
       if comparison_to_eval
         check_eval(target_name, packet_name, item_name, comparison_to_eval, value)
       else
-        Logger.info "CHECK: #{target_name.upcase} #{packet_name.upcase} #{item_name.upcase} == #{value}"
+        Logger.info "CHECK: #{_upcase(target_name, packet_name, item_name)} == #{value}"
       end
     end
 
@@ -527,10 +531,12 @@ module Cosmos
         check_tolerance_process_args(args, 'check_tolerance')
       value = yield(target_name, packet_name, item_name)
       range = (expected_value - tolerance)..(expected_value + tolerance)
+      check_str = "CHECK: #{_upcase(target_name, packet_name, item_name}"
+      range_str = "range #{range.first} to #{range.last} with value == #{value}"
       if range.include?(value)
-        Logger.info "CHECK: #{target_name.upcase} #{packet_name.upcase} #{item_name.upcase} was within range #{range.first} to #{range.last} with value == #{value}"
+        Logger.info "#{check_str} was within #{range_str}"
       else
-        message = "CHECK: #{target_name.upcase} #{packet_name.upcase} #{item_name.upcase} failed to be within range #{range.first} to #{range.last} with value == #{value}"
+        message = "#{check_str} failed to be within #{range_str}"
         if $cmd_tlm_disconnect
           Logger.error message
         else
@@ -604,10 +610,12 @@ module Cosmos
       success, value = cosmos_script_wait_implementation_tolerance(target_name, packet_name, item_name, type, expected_value, tolerance, timeout, polling_rate)
       time = Time.now - start_time
       range = (expected_value - tolerance)..(expected_value + tolerance)
+      wait_str = "WAIT: #{_upcase(target_name, packet_name, item_name)}"
+      range_str = "range #{range.first} to #{range.last} with value == #{value} after waiting #{time} seconds"
       if success
-        Logger.info "WAIT: #{target_name.upcase} #{packet_name.upcase} #{item_name.upcase} was within range #{range.first} to #{range.last} with value == #{value} after waiting #{time} seconds"
+        Logger.info "#{wait_str} was within #{range_str}"
       else
-        Logger.warn "WAIT: #{target_name.upcase} #{packet_name.upcase} #{item_name.upcase} failed to be within range #{range.first} to #{range.last} with value == #{value} after waiting #{time} seconds"
+        Logger.warn "#{wait_str} failed to be within #{range_str}"
       end
       time
     end
@@ -647,10 +655,12 @@ module Cosmos
       start_time = Time.now
       success, value = cosmos_script_wait_implementation(target_name, packet_name, item_name, type, comparison_to_eval, timeout, polling_rate)
       time = Time.now - start_time
+      check_str = "CHECK: #{_upcase(target_name, packet_name, item_name} #{comparison_to_eval}"
+      with_value_str = "with value == #{value} after waiting #{time} seconds"
       if success
-        Logger.info "CHECK: #{target_name.upcase} #{packet_name.upcase} #{item_name.upcase} #{comparison_to_eval} success with value == #{value} after waiting #{time} seconds"
+        Logger.info "#{check_str} success #{with_value_str}"
       else
-        message = "CHECK: #{target_name.upcase} #{packet_name.upcase} #{item_name.upcase} #{comparison_to_eval} failed with value == #{value} after waiting #{time} seconds"
+        message = "#{check_str} failed #{with_value_str}"
         if $cmd_tlm_disconnect
           Logger.error message
         else
@@ -689,10 +699,12 @@ module Cosmos
       success, value = cosmos_script_wait_implementation_tolerance(target_name, packet_name, item_name, type, expected_value, tolerance, timeout, polling_rate)
       time = Time.now - start_time
       range = (expected_value - tolerance)..(expected_value + tolerance)
+      check_str = "CHECK: #{_upcase(target_name, packet_name, item_name}"
+      range_str = "range #{range.first} to #{range.last} with value == #{value} after waiting #{time} seconds"
       if success
-        Logger.info "CHECK: #{target_name.upcase} #{packet_name.upcase} #{item_name.upcase} was within range #{range.first} to #{range.last} with value == #{value} after waiting #{time} seconds"
+        Logger.info "#{check_str} was within #{range_str}"
       else
-        message = "CHECK: #{target_name.upcase} #{packet_name.upcase} #{item_name.upcase} failed to be within range #{range.first} to #{range.last} with value == #{value} after waiting #{time} seconds"
+        message = "#{check_str} failed to be within #{range_str}"
         if $cmd_tlm_disconnect
           Logger.error message
         else
@@ -884,25 +896,30 @@ module Cosmos
     #######################################
 
     def display(display_name, x_pos = nil, y_pos = nil)
+      run_tlm_viewer(display_name, "displayed") do |tlm_viewer|
+        tlm_viewer.display(display_name, x_pos, y_pos)
+      end
+    end
+
+    def clear(display_name)
+      run_tlm_viewer(display_name, "cleared") do |tlm_viewer|
+        tlm_viewer.clear(display_name)
+      end
+    end
+
+    def run_tlm_viewer(display_name, action)
       tlm_viewer = JsonDRbObject.new "localhost", System.ports['TLMVIEWER_API']
       begin
-        tlm_viewer.display(display_name, x_pos, y_pos)
+        yield tlm_viewer
         tlm_viewer.disconnect
       rescue DRb::DRbConnError
         # No Listening Tlm Viewer - So Start One
-        if Kernel.is_windows?
-          Cosmos.run_process('rubyw "' + File.join(Cosmos::USERPATH, 'tools', 'TlmViewer') + '"' + " --system #{File.basename(System.initial_filename)}")
-        elsif Kernel.is_mac? and File.exist?(File.join(Cosmos::USERPATH, 'tools', 'mac', 'TlmViewer.app'))
-          Cosmos.run_process('open "' + File.join(Cosmos::USERPATH, 'tools', 'mac', 'TlmViewer.app') + '"' + " --args --system #{File.basename(System.initial_filename)}")
-        else
-          Cosmos.run_process('ruby "' + File.join(Cosmos::USERPATH, 'tools', 'TlmViewer') + '"' + " --system #{File.basename(System.initial_filename)}")
-        end
-        sleep(5)
+        start_tlm_viewer
         begin
-          tlm_viewer.display(display_name, x_pos, y_pos)
+          yield tlm_viewer
           tlm_viewer.disconnect
         rescue DRb::DRbConnError
-          raise "Unable to Successfully Start Listening Telemetry Viewer: #{display_name} could not be displayed"
+          raise "Unable to Successfully Start Listening Telemetry Viewer: #{display_name} could not be #{action}"
         rescue Errno::ENOENT
           raise "Display Screen File: #{display_name}.txt does not exist"
         end
@@ -911,32 +928,18 @@ module Cosmos
       end
     end
 
-    def clear(display_name)
-      tlm_viewer = JsonDRbObject.new "localhost", System.ports['TLMVIEWER_API']
-      begin
-        tlm_viewer.clear(display_name)
-        tlm_viewer.disconnect
-      rescue DRb::DRbConnError
-        # No Listening Tlm Viewer - So Start One
-        if Kernel.is_windows?
-          Cosmos.run_process('rubyw "' + File.join(Cosmos::USERPATH, 'tools', 'TlmViewer') + '"' + " --system #{File.basename(System.initial_filename)}")
-        elsif Kernel.is_mac? and File.exist?(File.join(Cosmos::USERPATH, 'tools', 'mac', 'TlmViewer.app'))
-          Cosmos.run_process('open "' + File.join(Cosmos::USERPATH, 'tools', 'mac', 'TlmViewer.app') + '"' + " --args --system #{File.basename(System.initial_filename)}")
-        else
-          Cosmos.run_process('ruby "' + File.join(Cosmos::USERPATH, 'tools', 'TlmViewer') + '"' + " --system #{File.basename(System.initial_filename)}")
-        end
-        sleep(5)
-        begin
-          tlm_viewer.clear(display_name)
-          tlm_viewer.disconnect
-        rescue DRb::DRbConnError
-          raise "Unable to Successfully Start Listening Telemetry Viewer: #{display_name} could not be cleared"
-        rescue Errno::ENOENT
-          raise "Display Screen File: #{display_name}.txt does not exist"
-        end
-      rescue Errno::ENOENT
-        raise "Display Screen File: #{display_name}.txt does not exist"
+    def start_tlm_viewer
+      system_file = File.basename(System.initial_filename)
+      mac_app = File.join(Cosmos::USERPATH, 'tools', 'mac', 'TlmViewer.app')
+
+      if Kernel.is_mac? && File.exist?(mac_app)
+        Cosmos.run_process("open '#{mac_app}' --args --system #{system_file}")
+      else
+        cmd = 'ruby'
+        cmd << 'w' if Kernel.is_windows? # Windows uses rubyw to avoid creating a DOS shell
+        Cosmos.run_process("#{cmd} '#{File.join(Cosmos::USERPATH, 'tools', 'TlmViewer')}' --system #{system_file}")
       end
+      sleep(5)
     end
 
     #######################################
@@ -1024,12 +1027,11 @@ module Cosmos
     # End Methods accessing other systems
     ##########################################
 
-    def start(procedure_name)
+    def _get_procedure_path(procedure_name)
       # Handle not-giving an extension
       procedure_name_with_extension = nil
       procedure_name_with_extension = procedure_name + '.rb' if File.extname(procedure_name).empty?
 
-      file_text = ''
       path = nil
 
       # Find filename in search path
@@ -1051,9 +1053,67 @@ module Cosmos
       path = procedure_name_with_extension if !path and procedure_name_with_extension and File.exist?(procedure_name_with_extension)
 
       raise "Procedure not found : #{procedure_name}" unless path
+      path
+    end
+
+    def check_file_cache_for_instrumented_script(path)
+      use_file_cache = true
+      cache_filename = nil
+      flat_path = nil
+      cached = true
+
+      Cosmos.set_working_dir do
+        cache_path = File.join(System.paths['TMP'], 'script_runner')
+        unless File.directory?(cache_path)
+          # Try to create .cache directory
+          begin
+            Dir.mkdir(cache_path)
+          rescue
+            use_file_cache = false
+          end
+        end
+
+        if use_file_cache
+          # Check file based instrumented cache
+          flat_path = path.tr("/", "_").gsub("\\", "_").tr(":", "_").tr(" ", "_")
+          flat_path_with_md5 = flat_path + '_' + md5
+          cache_filename = File.join(cache_path, flat_path_with_md5)
+        end
+
+        if use_file_cache and File.exist?(cache_filename)
+          # Use file cached instrumentation
+          File.open(cache_filename, 'r') {|file| instrumented_script = file.read}
+        else
+          cached = false
+
+          # Build instrumentation
+          file_text = ''
+          begin
+            file_text = File.read(path)
+          rescue Exception => error
+            raise "Error reading procedure file : #{path}"
+          end
+
+          instrumented_script = ScriptRunnerFrame.instrument_script(file_text, path, true)
+
+          # Cache instrumentation into file
+          if use_file_cache
+            begin
+              File.open(cache_filename, 'w') {|file| file.write(instrumented_script)}
+            rescue
+              # Oh well, failed to write cache file
+            end
+          end
+        end
+      end
+      [instrumented_script, cached]
+    end
+
+    def start(procedure_name)
+      cached = true
+      path = _get_procedure_path(procedure_name)
 
       if defined? ScriptRunnerFrame and ScriptRunnerFrame.instance
-        result = false
         md5 = nil
         begin
           md5 = Cosmos.md5_files([path]).hexdigest
@@ -1062,94 +1122,47 @@ module Cosmos
         end
 
         # Check RAM based instrumented cache
-        instrumented_cache  = ScriptRunnerFrame.instrumented_cache[path]
+        instrumented_cache = ScriptRunnerFrame.instrumented_cache[path]
         instrumented_script = nil
         if instrumented_cache and md5 == instrumented_cache[1]
           # Use cached instrumentation
           instrumented_script = instrumented_cache[0]
         else
-          use_file_cache = true
-          cache_filename = nil
-          flat_path = nil
-
-          # Check for cache directory existence
-          Cosmos.set_working_dir do
-            cache_path = File.join(System.paths['TMP'], 'script_runner')
-            unless File.directory?(cache_path)
-              # Try to create .cache directory
-              begin
-                Dir.mkdir(cache_path)
-              rescue
-                use_file_cache = false
-              end
-            end
-
-            if use_file_cache
-              # Check file based instrumented cache
-              flat_path = path.tr("/", "_").gsub("\\", "_").tr(":", "_").tr(" ", "_")
-              flat_path_with_md5 = flat_path + '_' + md5
-              cache_filename = File.join(cache_path, flat_path_with_md5)
-            end
-
-            if use_file_cache and File.exist?(cache_filename)
-              # Use file cached instrumentation
-              File.open(cache_filename, 'r') {|file| instrumented_script = file.read}
-            else
-              # Have to instrument
-              result = true
-
-              # Build instrumentation
-              begin
-                file_text = File.read(path)
-              rescue Exception => error
-                raise "Error reading procedure file : #{path}"
-              end
-
-              instrumented_script = ScriptRunnerFrame.instrument_script(file_text, path, true)
-
-              # Cache instrumentation into file
-              if use_file_cache
-                begin
-                  File.open(cache_filename, 'w') {|file| file.write(instrumented_script)}
-                rescue
-                  # Oh well, failed to write cache file
-                end
-              end
-            end
-          end
-
+          instrumented_script, cached = check_file_cache_for_instrumented_script(path)
           # Cache instrumentation into RAM
           ScriptRunnerFrame.instrumented_cache[path] = [instrumented_script, md5]
         end
 
         Object.class_eval(instrumented_script, path, 1)
       else # No ScriptRunnerFrame so just start it locally
-        result = true
-
+        cached = false
         begin
           Kernel::load(path)
         rescue LoadError => error
           raise RuntimeError.new("Error loading : #{procedure_name} : #{error.message}")
         end
       end
-      result
+      # Return whether we had to load and instrument this file, i.e. it was not cached
+      !cached
     end
 
     # Require an additional ruby file
     def load_utility(procedure_name)
-      result = false
+      cached = true
       if defined? ScriptRunnerFrame and ScriptRunnerFrame.instance
         saved = ScriptRunnerFrame.instance.use_instrumentation
         begin
           ScriptRunnerFrame.instance.use_instrumentation = false
-          result = start(procedure_name)
+          cached = start(procedure_name)
         ensure
           ScriptRunnerFrame.instance.use_instrumentation = saved
         end
       else # Just call start
-        result = start(procedure_name)
+        cached = start(procedure_name)
       end
-      result
+      # Return whether we had to load and instrument this file, i.e. it was not cached
+      # This is designed to match the behavior of Ruby's require and load keywords
+      !cached
     end
     alias require_utility load_utility
 
@@ -1192,6 +1205,19 @@ module Cosmos
       return [target_name, packet_name, item_name, expected_value, tolerance]
     end
 
+    def _execute_wait(target_name, packet_name, item_name, value_type, comparison_to_eval, timeout, polling_rate)
+      start_time = Time.now
+      success, value = cosmos_script_wait_implementation(target_name, packet_name, item_name, value_type, comparison_to_eval, timeout, polling_rate)
+      time = Time.now - start_time
+      wait_str = "WAIT: #{_upcase(target_name, packet_name, item_name)} #{comparison_to_eval}"
+      value_str = "with value == #{value} after waiting #{time} seconds"
+      if success
+        Logger.info "#{wait_str} success #{value_str}"
+      else
+        Logger.warn "#{wait_str} failed #{value_str}"
+      end
+    end
+
     def wait_process_args(args, function_name, value_type)
       time = nil
 
@@ -1218,14 +1244,8 @@ module Cosmos
         else
           polling_rate = DEFAULT_TLM_POLLING_RATE
         end
-        start_time = Time.now
-        success, value = cosmos_script_wait_implementation(target_name, packet_name, item_name, value_type, comparison_to_eval, timeout, polling_rate)
-        time = Time.now - start_time
-        if success
-          Logger.info "WAIT: #{target_name.upcase} #{packet_name.upcase} #{item_name.upcase} #{comparison_to_eval} success with value == #{value} after waiting #{time} seconds"
-        else
-          Logger.warn "WAIT: #{target_name.upcase} #{packet_name.upcase} #{item_name.upcase} #{comparison_to_eval} failed with value == #{value} after waiting #{time} seconds"
-        end
+        _execute_wait(target_name, packet_name, item_name, value_type, comparison_to_eval, timeout, polling_rate)
+
       when 5, 6
         target_name = args[0]
         packet_name = args[1]
@@ -1237,14 +1257,8 @@ module Cosmos
         else
           polling_rate = DEFAULT_TLM_POLLING_RATE
         end
-        start_time = Time.now
-        success, value = cosmos_script_wait_implementation(target_name, packet_name, item_name, value_type, comparison_to_eval, timeout, polling_rate)
-        time = Time.now - start_time
-        if success
-          Logger.info "WAIT: #{target_name.upcase} #{packet_name.upcase} #{item_name.upcase} #{comparison_to_eval} success with value == #{value} after waiting #{time} seconds"
-        else
-          Logger.warn "WAIT: #{target_name.upcase} #{packet_name.upcase} #{item_name.upcase} #{comparison_to_eval} failed with value == #{value} after waiting #{time} seconds"
-        end
+        _execute_wait(target_name, packet_name, item_name, value_type, comparison_to_eval, timeout, polling_rate)
+
       else
         # Invalid number of arguments
         raise "ERROR: Invalid number of arguments (#{args.length}) passed to #{function_name}()"
@@ -1285,7 +1299,7 @@ module Cosmos
 
     def wait_check_process_args(args, function_name)
       case args.length
-      when 2,3
+      when 2, 3
         target_name, packet_name, item_name, comparison_to_eval = extract_fields_from_check_text(args[0])
         timeout = args[1]
         if args.length == 3
@@ -1293,7 +1307,7 @@ module Cosmos
         else
           polling_rate = DEFAULT_TLM_POLLING_RATE
         end
-      when 5,6
+      when 5, 6
         target_name = args[0]
         packet_name = args[1]
         item_name = args[2]
@@ -1417,10 +1431,12 @@ module Cosmos
 
     def check_eval(target_name, packet_name, item_name, comparison_to_eval, value)
       string = "value " + comparison_to_eval
+      check_str = "CHECK: #{_upcase(target_name, packet_name, item_name} #{comparison_to_eval}"
+      value_str = "with value == #{value}"
       if eval(string)
-        Logger.info "CHECK: #{target_name.upcase} #{packet_name.upcase} #{item_name.upcase} #{comparison_to_eval} success with value == #{value}"
+        Logger.info "#{check_str} success #{value_str}"
       else
-        message = "CHECK: #{target_name.upcase} #{packet_name.upcase} #{item_name.upcase} #{comparison_to_eval} failed with value == #{value}"
+        message = "#{check_str} failed #{value_str}"
         if $cmd_tlm_disconnect
           Logger.error message
         else
