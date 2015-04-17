@@ -76,7 +76,7 @@ module Cosmos
       return [target_name, cmd_name, cmd_params]
     end
 
-    def extract_fields_from_tlm_text (text)
+    def extract_fields_from_tlm_text(text)
       split_string = text.split
       raise "ERROR: Telemetry Item must be specified as 'TargetName PacketName ItemName' : #{text}" if split_string.length != 3
       target_name = split_string[0]
@@ -96,7 +96,7 @@ module Cosmos
       return [target_name, packet_name, item_name, value]
     end
 
-    def extract_fields_from_check_text (text)
+    def extract_fields_from_check_text(text)
       split_string = text.split
       raise "ERROR: Check improperly specified: #{text}" if split_string.length < 3
       target_name = split_string[0]

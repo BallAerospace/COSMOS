@@ -420,9 +420,12 @@ module Cosmos
     # their target and packet names.
     #
     # @param (see Cosmos::Telemetry#values_and_limits_states)
-    # @return [Array<String, Object, Array, Symbol|nil>] Array consisting of
-    #   \[item name, item value, item limits settings, item limits state] where the item limits
-    #   state can be one of {Cosmos::Limits::LIMITS_STATES}
+    # @return [Array< Array<Object>, Array<Symbol>, Array<Array<Numeric>>, String>]
+    #   Array consisting of an Array of item values, an Array of item limits state
+    #   given as symbols such as :RED, :YELLOW, :STALE, an Array of Arrays including
+    #   the limits setting such as red low, yellow low, yellow high, red high and
+    #   optionally green low and high, and the overall limits state which is
+    #   one of {Cosmos::Limits::LIMITS_STATES}.
     def get_tlm_values(item_array, value_types = :CONVERTED)
       if !item_array.is_a?(Array) || (!item_array[0].is_a?(Array) and !item_array.empty?)
         raise ArgumentError, "item_array must be nested array: [['TGT','PKT','ITEM'],...]"
