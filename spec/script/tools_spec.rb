@@ -61,14 +61,13 @@ module Cosmos
       it "complains if unable to start telemetry viewer" do
         # Avoid the needless delay by stubbing sleep
         allow_any_instance_of(Object).to receive(:sleep)
+        allow_any_instance_of(Cosmos).to receive(:run_process)
         expect { display("HI") }.to raise_error(RuntimeError, /HI could not be displayed/)
-        sleep 1
       end
 
       it "complains if the screen doesn't exist" do
         allow_any_instance_of(JsonDRbObject).to receive(:display).and_raise(Errno::ENOENT)
         expect { display("HI") }.to raise_error(RuntimeError, /HI.txt does not exist/)
-        sleep 1
       end
     end
 
@@ -81,6 +80,7 @@ module Cosmos
       it "complains if unable to start telemetry viewer" do
         # Avoid the needless delay by stubbing sleep
         allow_any_instance_of(Object).to receive(:sleep)
+        allow_any_instance_of(Cosmos).to receive(:run_process)
         expect { clear("HI") }.to raise_error(RuntimeError, /HI could not be cleared/)
       end
 

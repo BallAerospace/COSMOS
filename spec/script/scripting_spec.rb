@@ -183,6 +183,7 @@ module Cosmos
       end
 
       it "waits for an infinite time" do
+        expect(self).to receive(:gets) { "\n" }
         capture_io do |stdout|
           wait()
           expect(stdout.string).to match "WAIT: Indefinite for actual time"
