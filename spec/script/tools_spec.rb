@@ -62,11 +62,13 @@ module Cosmos
         # Avoid the needless delay by stubbing sleep
         allow_any_instance_of(Object).to receive(:sleep)
         expect { display("HI") }.to raise_error(RuntimeError, /HI could not be displayed/)
+        sleep 1
       end
 
       it "complains if the screen doesn't exist" do
         allow_any_instance_of(JsonDRbObject).to receive(:display).and_raise(Errno::ENOENT)
         expect { display("HI") }.to raise_error(RuntimeError, /HI.txt does not exist/)
+        sleep 1
       end
     end
 
