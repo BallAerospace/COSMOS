@@ -27,7 +27,7 @@ class HazardousError < StandardError
   attr_accessor :hazardous_description
 end
 
-# The COSMOS (COmprehensive SysteM Operations Suite) system is almost
+# The Ball Aerospace COSMOS system is almost
 # wholly contained within the Cosmos module. COSMOS also extends some of the
 # core Ruby classes to add additional functionality as well as creates
 # additional QT GUI classes under the {Qt} module.
