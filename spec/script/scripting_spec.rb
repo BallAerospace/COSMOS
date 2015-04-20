@@ -77,7 +77,7 @@ module Cosmos
       it "gets user input" do
         $stdout = StringIO.new
         expect(self).to receive(:gets) { '10' }
-        expect(ask_string("")).to eql '10'
+        expect(ask_string("Question", 5)).to eql '10'
         expect(self).to receive(:gets) { '10' }
         expect(ask("")).to eql 10
         $stdout = STDOUT
@@ -96,6 +96,11 @@ module Cosmos
     end
 
     describe "check, check_formatted, check_with_units, check_raw" do
+      it "checks the number of parameters" do
+        expect { check("INST HEALTH_STATUS TEMP1", -100.0) }.to raise_error(/Invalid number of arguments/)
+        expect { check("INST", "HEALTH_STATUS", "TEMP1") }.to raise_error(/Invalid number of arguments/)
+      end
+
       it "checks a telemetry item vs a condition" do
         capture_io do |stdout|
           check("INST HEALTH_STATUS TEMP1 == -100")
@@ -132,9 +137,18 @@ module Cosmos
     end
 
     describe "check_tolerance, check_tolerance_raw" do
+      it "checks the number of parameters" do
+        expect { check_tolerance("INST HEALTH_STATUS TEMP1", -100.0) }.to raise_error(/Invalid number of arguments/)
+        expect { check_tolerance("INST", "HEALTH_STATUS", "TEMP1", -100.0, 1, 0) }.to raise_error(/Invalid number of arguments/)
+      end
+
       it "checks a telemetry item vs tolerance" do
         capture_io do |stdout|
           check_tolerance("INST HEALTH_STATUS TEMP1", -100.0, 1)
+          expect(stdout.string).to match "CHECK: INST HEALTH_STATUS TEMP1 was within range"
+          stdout.rewind
+
+          check_tolerance("INST", "HEALTH_STATUS", "TEMP1", -100.0, 1)
           expect(stdout.string).to match "CHECK: INST HEALTH_STATUS TEMP1 was within range"
           stdout.rewind
 
@@ -162,22 +176,49 @@ module Cosmos
       end
     end
 
-    describe "wait, wait_raw, wait_tolerance, wait_tolerance_raw" do
+    describe "wait, wait_raw" do
+      it "checks the number of parameters" do
+        expect { wait("INST", "HEALTH_STATUS", "TEMP1", -100.0) }.to raise_error(/Invalid number of arguments/)
+        expect { wait("INST", "HEALTH_STATUS", "TEMP1", -100.0, 1, 5, nil) }.to raise_error(/Invalid number of arguments/)
+      end
+
+      it "waits for an infinite time" do
+        capture_io do |stdout|
+          wait()
+          expect(stdout.string).to match "WAIT: Indefinite for actual time"
+        end
+      end
+
+      it "waits for a specified number of seconds" do
+        capture_io do |stdout|
+          wait(0.1)
+          expect(stdout.string).to match "WAIT: 0.1 seconds with actual time"
+        end
+      end
+
+      it "handles a bad wait parameter" do
+        expect { wait("1") }.to raise_error(/Non-numeric wait time/)
+      end
+
       it "waits for telemetry check to be true" do
         capture_io do |stdout|
           # Success
           wait("INST HEALTH_STATUS TEMP1 == -100.0", 5)
           expect(stdout.string).to match "WAIT: INST HEALTH_STATUS TEMP1 == -100.0"
           stdout.rewind
+          wait("INST HEALTH_STATUS TEMP1 == -100.0", 5, 0.1) # polling rate
+          expect(stdout.string).to match "WAIT: INST HEALTH_STATUS TEMP1 == -100.0"
+          stdout.rewind
+          wait("INST","HEALTH_STATUS","TEMP1","== -100.0", 5)
+          expect(stdout.string).to match "WAIT: INST HEALTH_STATUS TEMP1 == -100.0"
+          stdout.rewind
+          wait("INST","HEALTH_STATUS","TEMP1","== -100.0", 5, 0.1)
+          expect(stdout.string).to match "WAIT: INST HEALTH_STATUS TEMP1 == -100.0"
+          stdout.rewind
           wait_raw("INST HEALTH_STATUS TEMP1 == 0", 5)
           expect(stdout.string).to match "WAIT: INST HEALTH_STATUS TEMP1 == 0"
           stdout.rewind
           wait_tolerance("INST HEALTH_STATUS TEMP1", -100.0, 1, 5)
-          expect(stdout.string).to match "WAIT: INST HEALTH_STATUS TEMP1 was within"
-          stdout.rewind
-          wait_tolerance_raw("INST HEALTH_STATUS TEMP1", 0, 1, 5)
-          expect(stdout.string).to match "WAIT: INST HEALTH_STATUS TEMP1 was within"
-          stdout.rewind
 
           # Failure
           wait("INST HEALTH_STATUS TEMP1 == -200.0", 0.1)
@@ -186,6 +227,35 @@ module Cosmos
           wait_raw("INST HEALTH_STATUS TEMP1 == 100", 0.1)
           expect(stdout.string).to match "WAIT: INST HEALTH_STATUS TEMP1 == 100 failed"
           stdout.rewind
+        end
+      end
+    end
+
+    describe "wait_tolerance, wait_tolerance_raw" do
+      it "checks the number of parameters" do
+        expect { wait_tolerance("INST", "HEALTH_STATUS", "TEMP1", -100.0, 1, 5, 0.1, nil) }.to raise_error(/Invalid number of arguments/)
+      end
+
+      it "waits for telemetry check to be true" do
+        capture_io do |stdout|
+          # Success
+          wait_tolerance("INST HEALTH_STATUS TEMP1", -100.0, 1, 5)
+          expect(stdout.string).to match "WAIT: INST HEALTH_STATUS TEMP1 was within"
+          stdout.rewind
+          wait_tolerance("INST HEALTH_STATUS TEMP1", -100.0, 1, 5, 0.1)
+          expect(stdout.string).to match "WAIT: INST HEALTH_STATUS TEMP1 was within"
+          stdout.rewind
+          wait_tolerance("INST","HEALTH_STATUS","TEMP1", -100.0, 1, 5)
+          expect(stdout.string).to match "WAIT: INST HEALTH_STATUS TEMP1 was within"
+          stdout.rewind
+          wait_tolerance("INST","HEALTH_STATUS","TEMP1", -100.0, 1, 5, 0.1)
+          expect(stdout.string).to match "WAIT: INST HEALTH_STATUS TEMP1 was within"
+          stdout.rewind
+          wait_tolerance_raw("INST HEALTH_STATUS TEMP1", 0, 1, 5)
+          expect(stdout.string).to match "WAIT: INST HEALTH_STATUS TEMP1 was within"
+          stdout.rewind
+
+          # Failure
           wait_tolerance("INST HEALTH_STATUS TEMP1", -200.0, 1, 0.1)
           expect(stdout.string).to match "WAIT: INST HEALTH_STATUS TEMP1 failed to be within"
           stdout.rewind
@@ -212,17 +282,54 @@ module Cosmos
       end
     end
 
-    describe "wait_check, wait_check_raw, wait_check_tolerance, wait_check_tolerance_raw" do
+    describe "wait_check, wait_check_raw" do
+      it "checks the number of parameters" do
+        expect { wait_check("INST HEALTH_STATUS TEMP1 == -100.0") }.to raise_error(/Invalid number of arguments/)
+        expect { wait_check("INST", "HEALTH_STATUS", "TEMP1", -100.0) }.to raise_error(/Invalid number of arguments/)
+        expect { wait_check("INST", "HEALTH_STATUS", "TEMP1", -100.0, 5, 0.1, nil) }.to raise_error(/Invalid number of arguments/)
+      end
+
       it "waits for telemetry check to be true" do
         capture_io do |stdout|
           # Success
           wait_check("INST HEALTH_STATUS TEMP1 == -100.0", 5)
           expect(stdout.string).to match "CHECK: INST HEALTH_STATUS TEMP1 == -100.0"
           stdout.rewind
+          wait_check("INST HEALTH_STATUS TEMP1 == -100.0", 5, 0.1)
+          expect(stdout.string).to match "CHECK: INST HEALTH_STATUS TEMP1 == -100.0"
+          stdout.rewind
+          wait_check("INST","HEALTH_STATUS","TEMP1", "== -100.0", 5)
+          expect(stdout.string).to match "CHECK: INST HEALTH_STATUS TEMP1 == -100.0"
+          stdout.rewind
+          wait_check("INST","HEALTH_STATUS","TEMP1", "== -100.0", 5, 0.1)
+          expect(stdout.string).to match "CHECK: INST HEALTH_STATUS TEMP1 == -100.0"
+          stdout.rewind
           wait_check_raw("INST HEALTH_STATUS TEMP1 == 0", 5)
           expect(stdout.string).to match "CHECK: INST HEALTH_STATUS TEMP1 == 0"
           stdout.rewind
+        end
+
+        # Failure
+        expect { wait_check("INST HEALTH_STATUS TEMP1 == -200.0", 0.1) }.to raise_error(CheckError, /CHECK: INST HEALTH_STATUS TEMP1 == -200.0 failed/)
+        expect { wait_check_raw("INST HEALTH_STATUS TEMP1 == 100", 0.1) }.to raise_error(CheckError, /CHECK: INST HEALTH_STATUS TEMP1 == 100 failed/)
+      end
+    end
+
+    describe "wait_check_tolerance, wait_check_tolerance_raw" do
+      it "checks the number of parameters" do
+        expect { wait_check_tolerance("INST", "HEALTH_STATUS", "TEMP1", -100.0, 1, 5, 0.1, nil) }.to raise_error(/Invalid number of arguments/)
+      end
+
+      it "waits for telemetry check to be true" do
+        capture_io do |stdout|
+          # Success
           wait_check_tolerance("INST HEALTH_STATUS TEMP1", -100.0, 1, 5)
+          expect(stdout.string).to match "CHECK: INST HEALTH_STATUS TEMP1 was within"
+          stdout.rewind
+          wait_check_tolerance("INST","HEALTH_STATUS","TEMP1", -100.0, 1, 5)
+          expect(stdout.string).to match "CHECK: INST HEALTH_STATUS TEMP1 was within"
+          stdout.rewind
+          wait_check_tolerance("INST","HEALTH_STATUS","TEMP1", -100.0, 1, 5, 0.1)
           expect(stdout.string).to match "CHECK: INST HEALTH_STATUS TEMP1 was within"
           stdout.rewind
           wait_check_tolerance_raw("INST HEALTH_STATUS TEMP1", 0, 1, 5)
@@ -231,8 +338,6 @@ module Cosmos
         end
 
         # Failure
-        expect { wait_check("INST HEALTH_STATUS TEMP1 == -200.0", 0.1) }.to raise_error(CheckError, /CHECK: INST HEALTH_STATUS TEMP1 == -200.0 failed/)
-        expect { wait_check_raw("INST HEALTH_STATUS TEMP1 == 100", 0.1) }.to raise_error(CheckError, /CHECK: INST HEALTH_STATUS TEMP1 == 100 failed/)
         expect { wait_check_tolerance("INST HEALTH_STATUS TEMP1", -200.0, 1, 0.1) }.to raise_error(CheckError, /CHECK: INST HEALTH_STATUS TEMP1 failed to be within/)
 
         expect { wait_check_tolerance_raw("INST HEALTH_STATUS TEMP1", 100, 1, 0.1) }.to raise_error(CheckError, /CHECK: INST HEALTH_STATUS TEMP1 failed to be within/)
@@ -264,6 +369,15 @@ module Cosmos
       end
     end
 
+    describe "cosmos_script_sleep" do
+      it "pauses the running script inside ScriptRunnerFrame" do
+        class ScriptRunnerFrame; def self.instance; true; end; end
+        allow(ScriptRunnerFrame).to receive_message_chain(:instance, :pause?).and_return(true)
+        expect(ScriptRunnerFrame).to receive_message_chain(:instance, :perform_pause)
+        cosmos_script_sleep(0.1)
+      end
+    end
+
     describe "start" do
       it "starts a script locally" do
         class ScriptRunnerFrame; def self.instance; false; end; end
@@ -291,6 +405,28 @@ module Cosmos
         start("cosmos.rb")
         # This one should use the cached version
         start("cosmos.rb")
+      end
+    end
+
+    describe "load_utility" do
+      it "requires a script" do
+        class ScriptRunnerFrame; def self.instance; false; end; end;
+        expect { load_utility("example.rb") }.to raise_error(RuntimeError, /Procedure not found/)
+      end
+
+      it "requires a script within ScriptRunnerFrame" do
+        class ScriptRunnerFrame
+          @@instrumented_cache = {}
+          def self.instance; true; end
+          def self.instrumented_cache; @@instrumented_cache; end
+          def self.instrumented_cache=(value); @@instrumented_cache = value; end
+          def self.instrument_script(file_text, path, bool); "#"; end
+        end
+        allow(ScriptRunnerFrame).to receive_message_chain(:instance, :use_instrumentation)
+        allow(ScriptRunnerFrame).to receive_message_chain(:instance, :use_instrumentation=)
+        load_utility("cosmos.rb")
+        # This one should use the cached version
+        load_utility("cosmos.rb")
       end
     end
 
