@@ -243,7 +243,11 @@ static VALUE capacity (VALUE self)
  */
 static VALUE pointer (VALUE self)
 {
+#if __x86_64__
+  return LL2NUM((long long) RARRAY_PTR(self));
+#else
   return LONG2NUM((long) RARRAY_PTR(self));
+#endif
 }
 
 /*

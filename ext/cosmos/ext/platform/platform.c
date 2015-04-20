@@ -71,11 +71,25 @@ void Init_platform (void) {
 #ifdef _WIN32
   VALUE ruby_version = rb_const_get(rb_cObject, rb_intern("RUBY_VERSION"));
   char* rversion = RSTRING_PTR(ruby_version);
+
+#if __x86_64__
+  if ((rversion[0] == '2') && (rversion[2] == '0')) {
+    LoadLibraryA("exchndl20-x64.dll");
+  } else if ((rversion[0] == '2') && (rversion[2] == '1')) {
+    LoadLibraryA("exchndl21-x64.dll");
+  } else if ((rversion[0] == '2') && (rversion[2] == '2')) {
+    LoadLibraryA("exchndl22-x64.dll");
+  }
+#else
   if ((rversion[0] == '2') && (rversion[2] == '0')) {
     LoadLibraryA("exchndl20.dll");
   } else if ((rversion[0] == '2') && (rversion[2] == '1')) {
     LoadLibraryA("exchndl21.dll");
+  } else if ((rversion[0] == '2') && (rversion[2] == '2')) {
+    LoadLibraryA("exchndl22.dll");
   }
+#endif
+
 #else
   signal(SIGSEGV, catch_sigsegv);
   signal(SIGILL, catch_sigsegv);
