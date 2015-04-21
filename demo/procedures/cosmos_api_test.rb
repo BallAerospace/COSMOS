@@ -162,7 +162,7 @@ expected_list = [["CCSDSVER", 0, nil, "CCSDS primary header version number", nil
   ["CCSDSAPID", 999, nil, "CCSDS primary header application id", nil, nil, false],
   ["CCSDSSEQFLAGS", 3, nil, "CCSDS primary header sequence flags", nil, nil, false],
   ["CCSDSSEQCNT", 0, nil, "CCSDS primary header sequence count", nil, nil, false],
-  ["CCSDSLENGTH", 0, nil, "CCSDS primary header packet length", nil, nil, false],
+  ["CCSDSLENGTH", 12, nil, "CCSDS primary header packet length", nil, nil, false],
   ["PKTID", 1, nil, "Packet id", nil, nil, false],
   ["TYPE", 0, {"NORMAL"=>0, "SPECIAL"=>1}, "Collect type", nil, nil, true],
   ["DURATION", 1.0, nil, "Collect duration", nil, nil, false],

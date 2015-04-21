@@ -73,6 +73,9 @@ module Cosmos
         capture_io do |stdout|
           cmd("INST ABORT")
           expect(stdout.string).to match /cmd\(\'INST ABORT\'\)/ #'
+          stdout.rewind
+          cmd("INST", "ABORT")
+          expect(stdout.string).to match /cmd\(\'INST ABORT\'\)/ #'
         end
       end
 

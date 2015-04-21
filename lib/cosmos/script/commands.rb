@@ -27,20 +27,31 @@ module Cosmos
 
     # Send the command and log the results
     # NOTE: This is a helper method and should not be called directly
-    def _cmd(cmd, cmd_no_hazardous, args)
+    def _cmd(cmd, cmd_no_hazardous, *args)
       raw = cmd.include?('raw')
       no_range = cmd.include?('no_range') || cmd.include?('no_checks')
       no_hazardous = cmd.include?('no_hazardous') || cmd.include?('no_checks')
 
       begin
-        target_name, cmd_name, cmd_params = $cmd_tlm_server.method_missing(cmd, *args)
+        if $cmd_tlm_disconnect
+          # In disconnect mode we call API methods directly on the server
+          target_name, cmd_name, cmd_params = $cmd_tlm_server.send(cmd, *args)
+        else
+          # In connected mode we forward method calls through the JsonDrb object
+          # so we must call method_missing
+          target_name, cmd_name, cmd_params = $cmd_tlm_server.method_missing(cmd, *args)
+        end
         _log_cmd(target_name, cmd_name, cmd_params, raw, no_range, no_hazardous)
       rescue HazardousError => e
         ok_to_proceed = prompt_for_hazardous(e.target_name,
                                              e.cmd_name,
                                              e.hazardous_description)
         if ok_to_proceed
-          target_name, cmd_name, cmd_params = $cmd_tlm_server.method_missing(cmd_no_hazardous, *args)
+          if $cmd_tlm_disconnect
+            target_name, cmd_name, cmd_params = $cmd_tlm_server.send(cmd_no_hazardous, *args)
+          else
+            target_name, cmd_name, cmd_params = $cmd_tlm_server.method_missing(cmd_no_hazardous, *args)
+          end
           _log_cmd(target_name, cmd_name, cmd_params, raw, no_range, no_hazardous)
         else
           retry unless prompt_for_script_abort()
