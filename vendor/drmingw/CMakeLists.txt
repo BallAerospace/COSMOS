@@ -1,4 +1,3 @@
-FIND_PACKAGE (RUBY REQUIRED)
 
 add_library (common STATIC
     misc.c
@@ -10,35 +9,37 @@ target_link_libraries (common LINK_PRIVATE
 )
 
 if (CMAKE_SIZEOF_VOID_P EQUAL 8)
+    set (MGWHELP_NAME mgwhelp-x64)
     set (MGWHELP_DEF mgwhelp64.def)
 else ()
+    set (MGWHELP_NAME mgwhelp)
     set (MGWHELP_DEF mgwhelp32.def)
 endif ()
 
-add_library (mgwhelp SHARED
+add_library (${MGWHELP_NAME} SHARED
     ${MGWHELP_DEF}
     demangle.cxx
     dwarf_pe.c
     mgwhelp.c
 )
-target_link_libraries (mgwhelp LINK_PRIVATE
+target_link_libraries (${MGWHELP_NAME} LINK_PRIVATE
     common
     dwarf
     dbghelp
 )
-set_target_properties (mgwhelp PROPERTIES
+set_target_properties (${MGWHELP_NAME} PROPERTIES
     PREFIX ""
 )
 if (BINUTILS_FOUND)
-    set_target_properties (mgwhelp PROPERTIES
+    set_target_properties (${MGWHELP_NAME} PROPERTIES
 	COMPILE_DEFINITIONS HAVE_BFD=1
     )
-    target_link_libraries (mgwhelp LINK_PRIVATE
+    target_link_libraries (${MGWHELP_NAME} LINK_PRIVATE
         ${BINUTILS_BFD_LIBRARY}
         ${BINUTILS_LIBERTY_LIBRARY}
     )
 endif ()
-install (TARGETS mgwhelp RUNTIME DESTINATION bin)
+install (TARGETS ${MGWHELP_NAME} RUNTIME DESTINATION bin)
 
 if (CMAKE_SIZEOF_VOID_P EQUAL 4)
     # XXX: We need to use a custom import lib to avoid link failures
@@ -46,11 +47,11 @@ if (CMAKE_SIZEOF_VOID_P EQUAL 4)
     set (MGWHELP_IMPLIB ${CMAKE_CURRENT_BINARY_DIR}/libmgwhelp.a)
     add_custom_command (
         OUTPUT ${MGWHELP_IMPLIB}
-	COMMAND ${DLLTOOL} --output-lib ${MGWHELP_IMPLIB} --dllname mgwhelp.dll --kill-at --input-def=${CMAKE_CURRENT_SOURCE_DIR}/dbghelp.def
+	COMMAND ${DLLTOOL} --output-lib ${MGWHELP_IMPLIB} --dllname ${MGWHELP_NAME}.dll --kill-at --input-def=${CMAKE_CURRENT_SOURCE_DIR}/dbghelp.def
 	DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/dbghelp.def
     )
 else ()
-    set (MGWHELP_IMPLIB mgwhelp)
+    set (MGWHELP_IMPLIB ${MGWHELP_NAME})
 endif ()
 set (MGWHELP_IMPLIB ${MGWHELP_IMPLIB} PARENT_SCOPE)
 add_custom_target (mgwhelp_implib DEPENDS ${MGWHELP_IMPLIB})
