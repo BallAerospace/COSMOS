@@ -72,10 +72,10 @@ module Cosmos
       it "sends a command" do
         capture_io do |stdout|
           cmd("INST ABORT")
-          expect(stdout.string).to match /cmd\(\'INST ABORT\'\)/ #'
+          expect(stdout.string).to match /cmd\(\"INST ABORT\"\)/ #"
           stdout.rewind
           cmd("INST", "ABORT")
-          expect(stdout.string).to match /cmd\(\'INST ABORT\'\)/ #'
+          expect(stdout.string).to match /cmd\(\"INST ABORT\"\)/ #"
         end
       end
 
@@ -88,7 +88,7 @@ module Cosmos
           expect(self).to receive(:gets) { 'y' } # Send hazardous command
           cmd("INST COLLECT with TYPE SPECIAL")
 
-          expect(stdout.string).to match /cmd\(\'INST COLLECT/ # '
+          expect(stdout.string).to match /cmd\(\"INST COLLECT/ #"
           expect(stdout.string).to match "Warning: Command INST COLLECT is Hazardous"
           expect(stdout.string).to_not match "Command INST COLLECT being sent ignoring range checks"
           expect(stdout.string).to_not match "Command INST COLLECT being sent ignoring hazardous warnings"
@@ -112,7 +112,7 @@ module Cosmos
           expect(self).to receive(:gets) { 'y' } # Send hazardous command
           cmd_no_range_check("INST COLLECT with TYPE SPECIAL")
 
-          expect(stdout.string).to match /cmd\(\'INST COLLECT/ # '
+          expect(stdout.string).to match /cmd\(\"INST COLLECT/ #"
           expect(stdout.string).to match "Warning: Command INST COLLECT is Hazardous"
           expect(stdout.string).to match "Command INST COLLECT being sent ignoring range checks"
           expect(stdout.string).to_not match "Command INST COLLECT being sent ignoring hazardous warnings"
@@ -135,7 +135,7 @@ module Cosmos
         capture_io do |stdout|
           cmd_no_hazardous_check("INST COLLECT with TYPE SPECIAL")
 
-          expect(stdout.string).to match /cmd\(\'INST COLLECT/ # '
+          expect(stdout.string).to match /cmd\(\"INST COLLECT/ #"
           expect(stdout.string).to_not match "Warning: Command INST COLLECT is Hazardous"
           expect(stdout.string).to_not match "Command INST COLLECT being sent ignoring range checks"
           expect(stdout.string).to match "Command INST COLLECT being sent ignoring hazardous warnings"
@@ -148,7 +148,7 @@ module Cosmos
         capture_io do |stdout|
           cmd_no_checks("INST COLLECT with TYPE SPECIAL, DURATION 20")
 
-          expect(stdout.string).to match /cmd\(\'INST COLLECT/ # '
+          expect(stdout.string).to match /cmd\(\"INST COLLECT/ #"
           expect(stdout.string).to_not match "Warning: Command INST COLLECT is Hazardous"
           expect(stdout.string).to match "Command INST COLLECT being sent ignoring range checks"
           expect(stdout.string).to match "Command INST COLLECT being sent ignoring hazardous warnings"
@@ -160,12 +160,12 @@ module Cosmos
       it "sends a command" do
         capture_io do |stdout|
           cmd_raw("INST ABORT")
-          expect(stdout.string).to match /cmd_raw\(\'INST ABORT\'\)/ # '
+          expect(stdout.string).to match /cmd_raw\(\"INST ABORT\"\)/ #"
         end
       end
 
       it "checks parameter ranges" do
-        expect { cmd_raw("INST COLLECT with TYPE 0, DURATION 20") }.to raise_error(/Command parameter 'INST COLLECT DURATION' = 20 not in valid range/) # '
+        expect { cmd_raw("INST COLLECT with TYPE 0, DURATION 20") }.to raise_error(/Command parameter 'INST COLLECT DURATION' = 20 not in valid range/)
       end
 
       it "prompts for a hazardous command" do
@@ -173,7 +173,7 @@ module Cosmos
           expect(self).to receive(:gets) { 'y' } # Send hazardous command
           cmd_raw("INST COLLECT with TYPE 1")
 
-          expect(stdout.string).to match /cmd_raw\(\'INST COLLECT/ # '
+          expect(stdout.string).to match /cmd_raw\(\"INST COLLECT/ #"
           expect(stdout.string).to match "Warning: Command INST COLLECT is Hazardous"
           expect(stdout.string).to_not match "Command INST COLLECT being sent ignoring range checks"
           expect(stdout.string).to_not match "Command INST COLLECT being sent ignoring hazardous warnings"
@@ -197,7 +197,7 @@ module Cosmos
           expect(self).to receive(:gets) { 'y' } # Send hazardous command
           cmd_raw_no_range_check("INST COLLECT with TYPE 1")
 
-          expect(stdout.string).to match /cmd_raw\(\'INST COLLECT/ # '
+          expect(stdout.string).to match /cmd_raw\(\"INST COLLECT/ #"
           expect(stdout.string).to match "Warning: Command INST COLLECT is Hazardous"
           expect(stdout.string).to match "Command INST COLLECT being sent ignoring range checks"
           expect(stdout.string).to_not match "Command INST COLLECT being sent ignoring hazardous warnings"
@@ -219,7 +219,7 @@ module Cosmos
       it "sends a hazardous command without prompting" do
         capture_io do |stdout|
           cmd_raw_no_hazardous_check("INST COLLECT with TYPE 1")
-          expect(stdout.string).to match /cmd_raw\(\'INST COLLECT/ #'
+          expect(stdout.string).to match /cmd_raw\(\"INST COLLECT/ #"
           expect(stdout.string).to_not match "Warning: Command INST COLLECT is Hazardous"
           expect(stdout.string).to_not match "Command INST COLLECT being sent ignoring range checks"
           expect(stdout.string).to match "Command INST COLLECT being sent ignoring hazardous warnings"
@@ -231,7 +231,7 @@ module Cosmos
       it "sends an out of range hazardous command without prompting" do
         capture_io do |stdout|
           cmd_raw_no_checks("INST COLLECT with TYPE 1, DURATION 20")
-          expect(stdout.string).to match /cmd_raw\(\'INST COLLECT/ #'
+          expect(stdout.string).to match /cmd_raw\(\"INST COLLECT/ #"
           expect(stdout.string).to_not match "Warning: Command INST COLLECT is Hazardous"
           expect(stdout.string).to match "Command INST COLLECT being sent ignoring range checks"
           expect(stdout.string).to match "Command INST COLLECT being sent ignoring hazardous warnings"

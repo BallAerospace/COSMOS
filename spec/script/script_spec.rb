@@ -52,6 +52,7 @@ module Cosmos
 
     describe "shutdown_cmd_tlm" do
       it "should call shutdown on the server" do
+        set_cmd_tlm_disconnect(false)
         expect($cmd_tlm_server).to receive(:shutdown)
         shutdown_cmd_tlm()
       end
