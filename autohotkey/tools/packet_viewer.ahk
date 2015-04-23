@@ -57,6 +57,10 @@ Send ^b            ; Toggle colorblind mode PV-7, PV-9
 Sleep 500
 Send ^c            ; Switch to normal converted telemetry display PV-10
 Sleep 500
+Send ^h            ; Hide ignored items
+Sleep 2000
+Send ^h            ; Show ignored items
+Sleep 1000
 Click 450 95
 Sleep 500
 Send {Down}{Enter} ; Target: INST/IMAGE
