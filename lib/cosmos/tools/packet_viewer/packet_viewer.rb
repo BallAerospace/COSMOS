@@ -98,6 +98,20 @@ module Cosmos
         @colorblind = @color_blind_action.isChecked
       end
 
+      @hide_ignored_action = Qt::Action.new(tr('&Hide Ignored Items'), self)
+      @hide_ignored_keyseq = Qt::KeySequence.new(tr('Ctrl+H'))
+      @hide_ignored_action.shortcut  = @hide_ignored_keyseq
+      @hide_ignored_action.statusTip = tr('Toggle showing and hiding ignored items')
+      @hide_ignored_action.setCheckable(true)
+      @hide_ignored_action.setChecked(false)
+      @hide_ignored_action.connect(SIGNAL('triggered()')) do
+        if @hide_ignored_action.isChecked
+          @ignored_rows.each {|row| @table.setRowHidden(row, true) }
+        else
+          @ignored_rows.each {|row| @table.setRowHidden(row, false) }
+        end
+      end
+
       @formatted_tlm_units_action = Qt::Action.new(tr('Formatted Telemetry With &Units'), self)
       @formatted_tlm_units_keyseq = Qt::KeySequence.new(tr('Ctrl+U'))
       @formatted_tlm_units_action.shortcut  = @formatted_tlm_units_keyseq
@@ -158,6 +172,7 @@ module Cosmos
       # View Menu
       view_menu = menuBar.addMenu(tr('&View'))
       view_menu.addAction(@color_blind_action)
+      view_menu.addAction(@hide_ignored_action)
       view_menu.addSeparator.setText(tr('Formatting'));
       view_menu.addAction(@formatted_tlm_units_action)
       view_menu.addAction(@formatted_tlm_action)
@@ -187,7 +202,7 @@ module Cosmos
       target_label = Qt::Label.new(tr("&Target:"))
       target_label.setBuddy(@target_select)
 
-      # Set the comamnd combobox selection
+      # Set the command combobox selection
       @packet_select = Qt::ComboBox.new
       @packet_select.setMaxVisibleItems(20)
       @packet_select.connect(SIGNAL('activated(const QString&)')) do
@@ -327,7 +342,9 @@ module Cosmos
 
       row = 0
       featured_item = nil
+      @ignored_rows = []
       tlm_items.each do |tlm_name, states, description|
+        @ignored_rows << row if System.targets[target_name].ignored_items.include?(tlm_name)
         item = Qt::TableWidgetItem.new(tr("#{tlm_name}:"))
         item.setTextAlignment(Qt::AlignRight)
         item.setFlags(Qt::NoItemFlags | Qt::ItemIsSelectable)
