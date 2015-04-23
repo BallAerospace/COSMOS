@@ -238,7 +238,8 @@ module Cosmos
     #   an array of symbols can be passed to control how each item is
     #   converted.
     # @return [Array, Array, Array] The first array contains the item values and the
-    #   second their limits state, and the third their limits settings
+    #   second their limits state, and the third their limits settings which includes
+    #   the red, yellow, and green (if given) limits values.
     # def values_and_limits_states(item_array, value_types = :CONVERTED)
 
     # Iterates through all the telemetry packets and marks them stale if they

@@ -1,0 +1,130 @@
+# encoding: ascii-8bit
+
+# Copyright 2014 Ball Aerospace & Technologies Corp.
+# All Rights Reserved.
+#
+# This program is free software; you can modify and/or redistribute it
+# under the terms of the GNU General Public License
+# as published by the Free Software Foundation; version 3 with
+# attribution addendums as found in the LICENSE.txt
+
+require 'spec_helper'
+require 'cosmos'
+require 'cosmos/script/script'
+require 'tempfile'
+
+module Cosmos
+
+  describe Script do
+
+    before(:all) do
+      cts = File.join(Cosmos::USERPATH,'config','tools','cmd_tlm_server','cmd_tlm_server.txt')
+      FileUtils.mkdir_p(File.dirname(cts))
+      File.open(cts,'w') do |file|
+        file.puts 'INTERFACE INST_INT interface.rb'
+        file.puts 'TARGET INST'
+      end
+      System.class_eval('@@instance = nil')
+
+      require 'cosmos/script'
+    end
+
+    after(:all) do
+      clean_config()
+      FileUtils.rm_rf File.join(Cosmos::USERPATH,'config','tools')
+    end
+
+    before(:each) do
+      allow_any_instance_of(Interface).to receive(:connected?).and_return(true)
+      allow_any_instance_of(Interface).to receive(:disconnect)
+      allow_any_instance_of(Interface).to receive(:write)
+      allow_any_instance_of(Interface).to receive(:read)
+
+      @server = CmdTlmServer.new
+      shutdown_cmd_tlm()
+      initialize_script_module()
+      sleep 0.1
+    end
+
+    after(:each) do
+      @server.stop
+      shutdown_cmd_tlm()
+      sleep(0.1)
+    end
+
+    describe "tlm, tlm_raw, tlm_formatted, tlm_with_units, tlm_variable, set_tlm, set_tlm_raw" do
+      it "passes through to the cmd_tlm_server" do
+        expect {
+          expect(tlm("INST HEALTH_STATUS TEMP1")).to eql -100.0
+          expect(tlm_raw("INST HEALTH_STATUS TEMP1")).to eql 0
+          expect(tlm_formatted("INST HEALTH_STATUS TEMP1")).to eql "-100.000"
+          expect(tlm_with_units("INST HEALTH_STATUS TEMP1")).to eql "-100.000 C"
+          expect(tlm_variable("INST HEALTH_STATUS TEMP1", :RAW)).to eql 0
+          set_tlm("INST HEALTH_STATUS TEMP1 = 1")
+          set_tlm_raw("INST HEALTH_STATUS TEMP1 = 0")
+        }.to_not raise_error
+      end
+    end
+
+    describe "get_tlm_packet" do
+      it "gets the packet values" do
+        expect(get_tlm_packet("INST", "HEALTH_STATUS", :RAW)).to include(["TEMP1", 0, :RED_LOW])
+      end
+    end
+
+    describe "get_tlm_values" do
+      it "gets the given values" do
+        vals = get_tlm_values([["INST", "HEALTH_STATUS", "TEMP1"], ["INST", "HEALTH_STATUS", "TEMP2"]])
+        expect(vals[0][0]).to eql -100.0
+        expect(vals[1][0]).to eql :RED_LOW
+        expect(vals[2][0]).to eql [-80.0, -70.0, 60.0, 80.0, -20.0, 20.0]
+        expect(vals[3]).to eql :DEFAULT
+      end
+    end
+
+    describe "get_tlm_list" do
+      it "gets packets for a given target" do
+        expect(get_tlm_list("INST")).to include(["HEALTH_STATUS", "Health and status from the instrument"])
+      end
+    end
+
+    describe "get_tlm_item_list" do
+      it "gets telemetry for a given packet" do
+        expect(get_tlm_item_list("INST", "HEALTH_STATUS")).to include(["TEMP1",nil,"Temperature #1"])
+      end
+    end
+
+    describe "get_tlm_details" do
+      it "gets telemetry for a given packet" do
+        details = get_tlm_details([["INST", "HEALTH_STATUS", "TEMP1"], ["INST", "HEALTH_STATUS", "TEMP2"]])
+        expect(details[0]["name"]).to eql "TEMP1"
+        expect(details[1]["name"]).to eql "TEMP2"
+      end
+    end
+
+    describe "get_target_list" do
+      it "returns the list of targets" do
+        expect(get_target_list).to include("INST")
+      end
+    end
+
+    describe "subscribe_packet_data, get_packet, unsubscribe_packet_data" do
+      it "raises an error if non_block and the queue is empty" do
+        id = subscribe_packet_data([["INST","HEALTH_STATUS"]])
+        expect { get_packet(id, true) }.to raise_error(ThreadError, "queue empty")
+        unsubscribe_packet_data(id)
+      end
+
+      it "subscribes and get limits events" do
+        id = subscribe_packet_data([["INST","HEALTH_STATUS"]])
+        CmdTlmServer.instance.post_packet(System.telemetry.packet("INST","HEALTH_STATUS"))
+        packet = get_packet(id, true)
+        expect(packet.target_name).to eql "INST"
+        expect(packet.packet_name).to eql "HEALTH_STATUS"
+        unsubscribe_packet_data(id)
+      end
+    end
+
+  end
+end
+

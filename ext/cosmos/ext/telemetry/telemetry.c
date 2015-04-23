@@ -171,8 +171,9 @@ static VALUE value(int argc, VALUE* argv, VALUE self)
  *   can be passed which will convert all items the same way. Or
  *   an array of symbols can be passed to control how each item is
  *   converted.
- * @return [Array, Array] The first array contains the item values and the
- *   second their limits state
+ * @return [Array, Array, Array] The first array contains the item values, the
+ *   second their limits state, and the third the limits settings which includes
+ *   red, yellow, and green (if given) limits values.
  */
 static VALUE values_and_limits_states(int argc, VALUE* argv, VALUE self) {
   VALUE item_array = Qnil;
