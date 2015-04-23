@@ -21,8 +21,10 @@ set RUBY_ABI_VERSION=2.2.0
 set DEVKIT_32=DevKit-mingw64-32-4.7.2-20130224-1151-sfx.exe
 set DEVKIT_64=DevKit-mingw64-64-4.7.2-20130224-1432-sfx.exe
 set WKHTMLTOPDF=wkhtmltox-0.11.0_rc1-installer.exe
-set WKHTMLPATH=//wkhtmltopdf.googlecode.com/files/
+set WKHTMLPATH=//downloads.sourceforge.net/project/wkhtmltopdf/old-archive/windows/
 set QT_VERSION=4.8.6
+
+http://downloads.sourceforge.net/project/wkhtmltopdf/old-archive/windows/wkhtmltox-0.11.0_rc1-installer.exe?r=http%3A%2F%2Fwkhtmltopdf.org%2Fold-downloads.html&ts=1429816951&use_mirror=hivelocity
 
 ::::::::::::::::::::::
 :: Parse Parameters
