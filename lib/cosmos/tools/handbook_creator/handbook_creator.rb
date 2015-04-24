@@ -18,8 +18,8 @@ end
 
 module Cosmos
 
-  # Creates command and telemetry handbooks from the COSMOS definitions in both
-  # HTML and PDF format.
+  # Creates command and telemetry handbooks from the COSMOS definitions in
+  # both HTML and PDF format.
   class HandbookCreator < QtTool
 
     def initialize (options)
@@ -42,11 +42,18 @@ module Cosmos
 
     def initialize_actions
       super()
+      @hide_ignored_action = Qt::Action.new(tr('&Hide Ignored Items'), self)
+      @hide_ignored_keyseq = Qt::KeySequence.new(tr('Ctrl+H'))
+      @hide_ignored_action.shortcut  = @hide_ignored_keyseq
+      @hide_ignored_action.statusTip = tr('Do not include ignored items in command and telemetry handbooks')
+      @hide_ignored_action.setCheckable(true)
+      @hide_ignored_action.setChecked(false)
     end
 
     def initialize_menus
       # File Menu
       @file_menu = menuBar.addMenu(tr('&File'))
+      @file_menu.addAction(@hide_ignored_action)
       @file_menu.addAction(@exit_action)
 
       # Help Menu
@@ -54,11 +61,11 @@ module Cosmos
       initialize_help_menu()
     end
 
-    def create_pdfs(both = false)
+    def create_pdfs(both, hide_ignored)
       success = false
       ProgressDialog.execute(self, 'PDF Creation Progress', 700, 600, true, false, true, true, false) do |progress_dialog|
         begin
-          success = @config.create_pdf(progress_dialog)
+          success = @config.create_pdf(hide_ignored, progress_dialog)
           if success
             msg = "\n\n"
             msg << "HTML and " if both
@@ -88,7 +95,7 @@ module Cosmos
       @html_button.setStyleSheet("text-align:left")
       @html_button.connect(SIGNAL('clicked()')) do
         begin
-          @config.create_html
+          @config.create_html(@hide_ignored_action.isChecked)
           Qt::MessageBox.information(self, 'Done', 'HTML Handbooks created successfully')
         rescue Exception => err
           Cosmos.handle_critical_exception(err)
@@ -99,7 +106,7 @@ module Cosmos
       @pdf_button = Qt::PushButton.new(Cosmos.get_icon('pdf-32.png'), 'Create PDF Handbooks')
       @pdf_button.setStyleSheet("text-align:left")
       @pdf_button.connect(SIGNAL('clicked()')) do
-        create_pdfs()
+        create_pdfs(false, @hide_ignored_action.isChecked)
       end
       @top_layout.addWidget(@pdf_button)
 
@@ -107,8 +114,8 @@ module Cosmos
       @html_pdf_button.setStyleSheet("text-align:left")
       @html_pdf_button.connect(SIGNAL('clicked()')) do
         begin
-          @config.create_html
-          create_pdfs(true)
+          @config.create_html(@hide_ignored_action.isChecked)
+          create_pdfs(true, @hide_ignored_action.isChecked)
         rescue Exception => err
           Cosmos.handle_critical_exception(err)
         end
