@@ -4,6 +4,8 @@
     <h2><%= "#{packet.target_name} #{packet.packet_name}" %></h2>
     <div><span style="font-size:18px;background:#555555;color:white;"><%= packet.hazardous ? 'Hazardous' : '' %></span></div>
     <div><%= packet.description %></div>
+    <% items = packet.sorted_items.reject{|item| ignored[packet.target_name].include? item.name} %>
+    <% next if items.empty? %>
     <table class="table table-striped">
       <thead>
         <tr>
@@ -19,7 +21,7 @@
         </tr>
       <thead>
       <tbody>
-        <% packet.sorted_items.each do |item| %>
+        <% items.each do |item| %>
           <tr>
             <td>
               <%= item.name %>

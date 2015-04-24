@@ -65,7 +65,8 @@ module Cosmos
         @sections << section
       end
 
-      def create_html
+      def create_html(hide_ignored)
+        @hide_ignored = hide_ignored
         Cosmos.set_working_dir do
           if @type == :TARGETS
             target_names = @target_names
@@ -77,7 +78,8 @@ module Cosmos
         end
       end
 
-      def create_pdf(progress_dialog = nil)
+      def create_pdf(hide_ignored, progress_dialog = nil)
+        @hide_ignored = hide_ignored
         if @pdf
           if progress_dialog
             Qt.execute_in_main_thread(true) do
@@ -169,19 +171,45 @@ module Cosmos
           if section.output != :ALL
             next unless section.output == output
           end
-          packets = []
-          packets = build_packets(System.commands, target_names) if section.type == :CMD
-          packets = build_packets(System.telemetry, target_names) if section.type == :TLM
+          packets = build_packets(section.type, target_names)
+          ignored = build_ignored(section.type, target_names)
           if target_pages
-            section.create(file, target_names[0] + ' ' + section.title.to_s, packets)
+            section.create(file, target_names[0] + ' ' + section.title.to_s, packets, ignored)
           else
-            section.create(file, section.title.to_s, packets)
+            section.create(file, section.title.to_s, packets, ignored)
           end
         end
       end
 
-      def build_packets(packet_accessor, target_names)
+      def build_ignored(type, target_names)
+        ignored = {}
+        target_names = System.targets.keys if target_names.empty?
+        target_names.each do |name|
+          if @hide_ignored
+            if type == :CMD
+              ignored[name] = System.targets[name].ignored_parameters
+            elsif type == :TLM
+              ignored[name] = System.targets[name].ignored_items
+            end
+          else
+            # If we're not ignoring items the hash contains an empty array
+            ignored[name] = []
+          end
+        end
+        ignored
+      end
+
+      def build_packets(type, target_names)
         packets = []
+        case type
+        when :CMD
+          packet_accessor = System.commands
+        when :TLM
+          packet_accessor = System.telemetry
+        else
+          # Return the empty array because there are no packets
+          return packets
+        end
         if target_names.empty?
           packet_accessor.all.sort.each do |target_name, target_packets|
             target_packets.sort.each do |packet_name, packet|
@@ -221,7 +249,7 @@ module Cosmos
         @type = type
       end
 
-      def create(file, title, packets = [])
+      def create(file, title, packets = [], ignored = {})
         file.puts ERB.new(File.read(@filename)).result(binding)
       end
 
@@ -235,15 +263,15 @@ module Cosmos
       process_file(filename)
     end
 
-    def create_html
-      @pages.each {|page| page.create_html}
+    def create_html(hide_ignored)
+      @pages.each {|page| page.create_html(hide_ignored)}
     end
 
-    def create_pdf(progress_dialog = nil)
+    def create_pdf(hide_ignored, progress_dialog = nil)
       begin
         @pages.each_with_index do |page, index|
           progress_dialog.set_overall_progress(index.to_f / @pages.length.to_f) if progress_dialog
-          page.create_pdf(progress_dialog)
+          page.create_pdf(hide_ignored, progress_dialog)
         end
         progress_dialog.set_overall_progress(1.0) if progress_dialog
       rescue Exception => err

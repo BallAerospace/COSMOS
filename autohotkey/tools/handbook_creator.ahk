@@ -19,5 +19,14 @@ Click 55 165 ; Open in browser HC-4
 Sleep 2000
 WinActivate Handbook Creator
 Sleep 500
+Send ^h ; Hide ignored parameters / items
+Sleep 500
+Click 55 75 ; Create HTML HC-1
+WinWaitActive Done
+Send {Enter}
+WinWaitActive Handbook Creator
+Click 55 165 ; Open in browser HC-4
+Sleep 2000
+WinActivate Handbook Creator
 Send ^q
 
