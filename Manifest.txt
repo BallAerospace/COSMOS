@@ -1,4 +1,5 @@
 .coveralls.yml
+.gitattributes
 .gitignore
 .travis.yml
 CONTRIBUTING.txt
@@ -181,8 +182,13 @@ autohotkey/tools/tlm_viewer5.ahk
 autohotkey/userpath.txt
 bin/cosmos
 bin/cstol_converter
+bin/exchndl20-x64.dll
 bin/exchndl20.dll
+bin/exchndl21-x64.dll
 bin/exchndl21.dll
+bin/exchndl22-x64.dll
+bin/exchndl22.dll
+bin/mgwhelp-x64.dll
 bin/mgwhelp.dll
 bin/rubysloc
 cosmos.gemspec
@@ -825,8 +831,14 @@ lib/cosmos/processors/processor.rb
 lib/cosmos/processors/statistics_processor.rb
 lib/cosmos/processors/watermark_processor.rb
 lib/cosmos/script.rb
+lib/cosmos/script/cmd_tlm_server.rb
+lib/cosmos/script/commands.rb
 lib/cosmos/script/extract.rb
+lib/cosmos/script/limits.rb
 lib/cosmos/script/script.rb
+lib/cosmos/script/scripting.rb
+lib/cosmos/script/telemetry.rb
+lib/cosmos/script/tools.rb
 lib/cosmos/streams/burst_stream_protocol.rb
 lib/cosmos/streams/fixed_stream_protocol.rb
 lib/cosmos/streams/length_stream_protocol.rb
@@ -1032,6 +1044,7 @@ spec/core_ext/string_spec.rb
 spec/core_ext/stringio_spec.rb
 spec/core_ext/time_spec.rb
 spec/gui/line_graph/line_clip_spec.rb
+spec/gui/qt_spec.rb
 spec/install/config/system/system.txt
 spec/install/config/targets/COSMOS/cmd_tlm/cosmos_server_cmds.txt
 spec/install/config/targets/COSMOS/cmd_tlm/cosmos_server_tlm.txt
@@ -1100,7 +1113,14 @@ spec/processors/new_packet_log_processor_spec.rb
 spec/processors/processor_spec.rb
 spec/processors/statistics_processor_spec.rb
 spec/processors/watermark_processor_spec.rb
+spec/script/cmd_tlm_server_spec.rb
+spec/script/commands_disconnect_spec.rb
+spec/script/commands_spec.rb
+spec/script/limits_spec.rb
 spec/script/script_spec.rb
+spec/script/scripting_spec.rb
+spec/script/telemetry_spec.rb
+spec/script/tools_spec.rb
 spec/spec_helper.rb
 spec/streams/burst_stream_protocol_spec.rb
 spec/streams/fixed_stream_protocol_spec.rb
@@ -1265,6 +1285,8 @@ test/performance/tools/TlmExtractor
 test/performance/tools/TlmExtractor.bat
 test/performance/tools/TlmGrapher
 test/performance/tools/TlmGrapher.bat
+test/performance/tools/TlmGrapherMemProf
+test/performance/tools/TlmGrapherMemProf.bat
 test/performance/tools/TlmViewer
 test/performance/tools/TlmViewer.bat
 test/performance/tools/mac/CmdExtractor.app/Contents/Info.plist

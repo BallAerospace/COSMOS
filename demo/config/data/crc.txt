@@ -86,8 +86,8 @@
 "config/tools/handbook_creator/templates/pdf_header.html.erb" 0x3020FEE1
 "config/tools/handbook_creator/templates/telemetry_toc.html.erb" 0x610E3BC5
 "config/tools/handbook_creator/templates/header.html.erb" 0x1E490C2A
-"config/tools/handbook_creator/templates/telemetry_packets.html.erb" 0x44BD9695
-"config/tools/handbook_creator/templates/command_packets.html.erb" 0x9897CA7A
+"config/tools/handbook_creator/templates/telemetry_packets.html.erb" 0x86F3E5E0
+"config/tools/handbook_creator/templates/command_packets.html.erb" 0xFAD7FDA1
 "config/tools/handbook_creator/templates/limits_groups.html.erb" 0x40FDF34C
 "config/tools/handbook_creator/templates/nav.html.erb" 0xDF65AAEA
 "config/tools/handbook_creator/templates/footer.html.erb" 0x0E1F9800
@@ -200,7 +200,7 @@
 "procedures/run_example_test.rb" 0x0F244140
 "procedures/clear_util.rb" 0x5B3C1279
 "procedures/example_test.rb" 0x4FBA73C1
-"procedures/cosmos_api_test.rb" 0x57AE9ED2
+"procedures/cosmos_api_test.rb" 0x54B5DC56
 "procedures/test.rb" 0xCE4DA55A
 "procedures/checks.rb" 0x34EEF3E2
 "procedures/collect.rb" 0x3E52C327
