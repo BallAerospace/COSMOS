@@ -4,6 +4,60 @@ title: Release History
 permalink: "/docs/history/"
 ---
 
+## 3.4.0 / 2015-04-27
+{: #v3-4-}
+
+### Issues:
+
+* [#23](https://github.com/BallAerospace/COSMOS/issues/23) Handbook Creator User's Guide Mode
+* [#72](https://github.com/BallAerospace/COSMOS/issues/72) Refactor binary_accessor
+* [#101](https://github.com/BallAerospace/COSMOS/issues/101) Support Ruby 2.2 and 64-bit Ruby on Windows
+* [#104](https://github.com/BallAerospace/COSMOS/issues/104) CmdTlmServer Loading Tmp & SVN Conflict Files
+* [#107](https://github.com/BallAerospace/COSMOS/issues/107) Remove truthy and falsey from specs
+* [#110](https://github.com/BallAerospace/COSMOS/issues/110) Optimize TlmGrapher
+* [#111](https://github.com/BallAerospace/COSMOS/issues/111) Protect Interface Thread Stop from AutoReconnect
+* [#114](https://github.com/BallAerospace/COSMOS/issues/114) Refactor Cosmos::Script module
+* [#118](https://github.com/BallAerospace/COSMOS/issues/118) Allow PacketViewer to hide ignored items
+
+### Migration Notes from COSMOS 3.3.x:
+
+None
+
+## 3.3.3 / 2015-03-23
+{: #v3-3-3}
+
+### Issues:
+
+* [#93](https://github.com/BallAerospace/COSMOS/issues/93) Derived items that return arrays are not formatted to strings bug
+* [#94](https://github.com/BallAerospace/COSMOS/issues/94) JsonDRb retry if first attempt hits a closed socket bug
+* [#96](https://github.com/BallAerospace/COSMOS/issues/96) Make max lines written to output a variable in ScriptRunnerFrame enhancement
+* [#99](https://github.com/BallAerospace/COSMOS/issues/99) Increase Block Count in DataViewer
+
+### Migration Notes from COSMOS 3.2.x:
+
+System.telemetry.target_names and System.commands.target_names no longer contain the 'UNKNOWN' target.
+
+## 3.3.1 / 2015-03-19
+{: #v3-3-1}
+
+COSMOS first-time startup speed is now 16 times faster - hence this release is codenamed "Startup Cheetah". Enjoy!
+
+### Issues:
+
+* [#91](https://github.com/BallAerospace/COSMOS/issues/91) Add mutex around creation of System.instance
+* [#89](https://github.com/BallAerospace/COSMOS/issues/89) Reduce maximum block count from 10000 to 100 everywhere
+* [#87](https://github.com/BallAerospace/COSMOS/issues/87) MACRO doesn't support more than one item
+* [#85](https://github.com/BallAerospace/COSMOS/issues/85) Replace use of DL with Fiddle
+* [#82](https://github.com/BallAerospace/COSMOS/issues/82) Improve COSMOS startup speed
+* [#81](https://github.com/BallAerospace/COSMOS/issues/81) UNKNOWN target identifies all buffers before other targets have a chance
+* [#78](https://github.com/BallAerospace/COSMOS/issues/78) Reduce COSMOS memory usage
+* [#76](https://github.com/BallAerospace/COSMOS/issues/76) Fix specs to new expect syntax and remove 'should'
+* [#74](https://github.com/BallAerospace/COSMOS/issues/74) Server requests/sec and utilization are incorrect
+
+### Migration Notes from COSMOS 3.2.x:
+
+System.telemetry.target_names and System.commands.target_names no longer contain the 'UNKNOWN' target.
+
 ## 3.2.1 / 2015-02-23
 {: #v3-2-1}
 

@@ -8,9 +8,7 @@ permalink: /docs/installation/
 
 Notes:
 
-1. ruby-termios is a dependency of COSMOS on non-windows platforms but is not listed in the gem dependencies because it is not a dependency on Windows.  An extension attempts to install it when gem install cosmos is run.  This should work as long as you are online. If attempting an offline installation of cosmos you will need to first manually install ruby-termios: gem install ruby-termios.
-
-1. No testing has been done yet with Ruby 2.2, but it should work easily on all platforms but windows.  Ruby 2.1 is recommended for now.
+1. ruby-termios is a dependency of COSMOS on non-windows platforms but is not listed in the gem dependencies because it is not a dependency on Windows.  An extension attempts to install it when gem install cosmos is run.  This should work as long as you are online. If attempting an offline installation of cosmos you will need to first manually install ruby-termios: ```gem install ruby-termios```
 
 1. Installing the COSMOS gem (and many other binary gems) with rdoc 4.0.0 spits outs warnings like this:
 {% highlight bash %}
@@ -19,28 +17,8 @@ unable to convert "\x90" from ASCII-8BIT to UTF-8 for lib/cosmos/ext/array.so, s
 
 These are just warnings and can be safely ignored.  Updating rdoc before installing cosmos will remove the warnings: gem install rdoc.
 
-##Windows (ONLY 32-bit Ruby Supported)
-1. Install the 32-bit version of Ruby 2+ using the installer from http://rubyinstaller.org
-1. Install the 32-bit version of Devkit for Ruby 2+ using the self extracting archive from http://rubyinstaller.org (Recommended install path is C:\Devkit)
-1. Open a cmd shell
-1. Add Devkit to your path by running C:\Devkit\devkitvars.bat
-1. Install the cosmos gem
-    * {% highlight bash %}
-    gem install cosmos
-    {% endhighlight %}
-1. Create a cosmos demo project somewhere using:
-    * {% highlight bash %}
-    cosmos demo demo
-    {% endhighlight %}
-1. Run the COSMOS Launcher using Launcher.bat or running: ruby Launcher
-
-<div style="max-width:800px;margin:0px auto;padding:20px;">
-  <section class="video-container" style="margin-bottom:20px;">
-    <center><iframe width="560" height="315" src="https://www.youtube.com/embed/Mk5Uxe7v6xA" frameborder="0" allowfullscreen></iframe></center>
-  </section>
-</div>
-
-Note: There is a binary Windows installer available for U.S. customers with a support contract.
+##Windows 7+
+1. Run the COSMOS Installation bat file which can be downloaded from here: [INSTALL_COSMOS.bat](https://raw.githubusercontent.com/BallAerospace/COSMOS/master/vendor/installers/windows/INSTALL_COSMOS.bat)
 
 ##CentOS Linux 6.5
 The following instructions work for an installation on CentOS Linux 6.5 from a clean install with "Software Development Workstation" selected as the installation type.  Similar steps should work on other distributions/versions.
