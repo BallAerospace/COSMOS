@@ -859,12 +859,43 @@ module Cosmos
           expect(data).to eql buffer
         end
 
-        it "writes a block to a large buffer" do
+        it "writes a smaller block in the middle of a buffer" do
           data = ''
           buffer = ''
-          512.times do |index|
+          256.times do |index|
             data << [index].pack("n")
           end
+          512.times do
+            buffer << [0xDEAD].pack("n")
+          end
+          expected = buffer.clone
+          BinaryAccessor.write(data, 128*8, -128*8, :BLOCK, buffer, :BIG_ENDIAN, :ERROR)
+          expect(buffer.length).to eql (128 + 512 + 128)
+          expect(buffer[0...128]).to eql expected[0...128]
+          expect(buffer[128...-128]).to eql data
+          expect(buffer[-128..-1]).to eql expected[0...128]
+        end
+
+        it "writes a larger block in the middle of a buffer" do
+          data = ''
+          buffer = ''
+          256.times do |index|
+            data << [index].pack("n")
+          end
+          512.times do
+            buffer << [0xDEAD].pack("n")
+          end
+          expected = buffer.clone
+          BinaryAccessor.write(data, 384*8, -384*8, :BLOCK, buffer, :BIG_ENDIAN, :ERROR)
+          expect(buffer.length).to eql (384 + 512 + 384)
+          expect(buffer[0...384]).to eql expected[0...384]
+          expect(buffer[384...-384]).to eql data
+          expect(buffer[-384..-1]).to eql expected[0...384]
+        end
+
+        it "complains when the negative index exceeds the buffer length" do
+          data = "\x01"
+          buffer = ''
           16.times do
             buffer << [0xDEAD].pack("n")
           end
