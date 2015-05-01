@@ -875,7 +875,8 @@ static VALUE binary_accessor_write(VALUE self, VALUE value, VALUE param_bit_offs
     bit_size = RSTRING_LEN(value) * 8;
   }
 
-  if ((!check_bounds_and_buffer_size(bit_offset, bit_size, buffer_length, param_endianness, param_data_type, &lower_bound, &upper_bound)) && (given_bit_size > 0)) {
+  if ((!check_bounds_and_buffer_size(bit_offset, bit_size, buffer_length, param_endianness, param_data_type, &lower_bound, &upper_bound)) && (given_bit_size > 0))
+  {
     rb_funcall(self, id_method_raise_buffer_error, 5, symbol_write, param_buffer, param_data_type, param_bit_offset, param_bit_size);
   }
 
@@ -902,10 +903,9 @@ static VALUE binary_accessor_write(VALUE self, VALUE value, VALUE param_bit_offs
       if (given_bit_size <= 0) {
         end_bytes = -(given_bit_size / 8);
         old_upper_bound = buffer_length - 1 - end_bytes;
-        /* If the buffer is not already big enough to hold the non-variable sized items
-             that is a buffer error.  old_upper_bound can be -1 if the string is exactly the size of the
-             end_bytes which is ok */
-        if (old_upper_bound < -1) {
+        /* Lower bound + end_bytes can never be more than 1 byte outside of the given buffer */
+        if ((lower_bound + end_bytes) > buffer_length)
+        {
           rb_funcall(self, id_method_raise_buffer_error, 5, symbol_write, param_buffer, param_data_type, param_bit_offset, param_bit_size);
         }
 

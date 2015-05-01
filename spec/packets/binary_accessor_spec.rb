@@ -797,6 +797,24 @@ module Cosmos
           expect { BinaryAccessor.write(data, 0, -16, :BLOCK, buffer, :BIG_ENDIAN, :ERROR) }.to raise_error(ArgumentError, "0 byte buffer insufficient to write BLOCK at bit_offset 0 with bit_size -16")
         end
 
+        it "handles a huge bit offset with small buffer" do
+          data = ''
+          512.times do |index|
+            data << [index].pack("n")
+          end
+          buffer = ""
+          expect { BinaryAccessor.write(data, 1024, 0, :BLOCK, buffer, :BIG_ENDIAN, :ERROR) }.to raise_error(ArgumentError, "0 byte buffer insufficient to write BLOCK at bit_offset 1024 with bit_size 0")
+        end
+
+        it "handles an edge case bit offset" do
+          data = ''
+          512.times do |index|
+            data << [index].pack("n")
+          end
+          buffer = "\x00" * 127
+          expect { BinaryAccessor.write(data, 1024, 0, :BLOCK, buffer, :BIG_ENDIAN, :ERROR) }.to raise_error(ArgumentError, "127 byte buffer insufficient to write BLOCK at bit_offset 1024 with bit_size 0")
+        end
+
         it "writes a block to a small buffer preserving the end" do
           data = ''
           512.times do |index|
