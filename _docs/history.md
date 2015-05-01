@@ -4,8 +4,22 @@ title: Release History
 permalink: "/docs/history/"
 ---
 
+## 3.4.1 / 2015-05-01
+{: #v3-4-1}
+
+### Issues:
+
+* [#121](https://github.com/BallAerospace/COSMOS/issues/121) BinaryAccessor write crashes with negative bit sizes
+
+### Migration Notes from COSMOS 3.3.x:
+
+None
+
+Note: COSMOS 3.4.0 has a serious regression when writing to variably sized packets. Please upgrade to 3.4.1 immediately if you are using 3.4.0.
+
+
 ## 3.4.0 / 2015-04-27
-{: #v3-4-}
+{: #v3-4-0}
 
 ### Issues:
 
