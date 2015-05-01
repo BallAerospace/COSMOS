@@ -901,6 +901,11 @@ static VALUE binary_accessor_write(VALUE self, VALUE value, VALUE param_bit_offs
 
       if (given_bit_size <= 0) {
         end_bytes = -(given_bit_size / 8);
+        /* If passed a huge negative bit_size we need to truncate end_bytes
+           to the size of the passed buffer to prevent overflow. */
+        if (end_bytes > buffer_length) {
+          end_bytes = buffer_length;
+        }
         old_upper_bound = buffer_length - 1 - end_bytes;
         if (old_upper_bound < lower_bound) {
           /* String was completely empty */
@@ -908,7 +913,7 @@ static VALUE binary_accessor_write(VALUE self, VALUE value, VALUE param_bit_offs
             /* Preserve bytes at end of buffer */
             rb_str_concat(param_buffer, rb_str_times(ZERO_STRING, INT2FIX(value_length)));
             buffer = (unsigned char*) RSTRING_PTR(param_buffer);
-            memmove((buffer + lower_bound + value_length), (buffer + lower_bound), value_length);
+            memmove((buffer + lower_bound + value_length), (buffer + lower_bound), end_bytes);
           }
         } else if (bit_size == 0) {
           /* Remove entire string */
@@ -920,7 +925,7 @@ static VALUE binary_accessor_write(VALUE self, VALUE value, VALUE param_bit_offs
           /* Preserve bytes at end of buffer */
           rb_str_concat(param_buffer, rb_str_times(ZERO_STRING, INT2FIX(upper_bound - old_upper_bound)));
           buffer = (unsigned char*) RSTRING_PTR(param_buffer);
-          memmove((buffer + upper_bound + 1), (buffer + old_upper_bound + 1), upper_bound - old_upper_bound);
+          memmove((buffer + upper_bound + 1), (buffer + old_upper_bound + 1), end_bytes);
         }
       } else {
         byte_size = bit_size / 8;
