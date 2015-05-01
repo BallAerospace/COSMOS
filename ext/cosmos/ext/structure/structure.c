@@ -875,7 +875,8 @@ static VALUE binary_accessor_write(VALUE self, VALUE value, VALUE param_bit_offs
     bit_size = RSTRING_LEN(value) * 8;
   }
 
-  if ((!check_bounds_and_buffer_size(bit_offset, bit_size, buffer_length, param_endianness, param_data_type, &lower_bound, &upper_bound)) && (given_bit_size > 0)) {
+  if ((!check_bounds_and_buffer_size(bit_offset, bit_size, buffer_length, param_endianness, param_data_type, &lower_bound, &upper_bound)) && (given_bit_size > 0))
+  {
     rb_funcall(self, id_method_raise_buffer_error, 5, symbol_write, param_buffer, param_data_type, param_bit_offset, param_bit_size);
   }
 
@@ -902,25 +903,31 @@ static VALUE binary_accessor_write(VALUE self, VALUE value, VALUE param_bit_offs
       if (given_bit_size <= 0) {
         end_bytes = -(given_bit_size / 8);
         old_upper_bound = buffer_length - 1 - end_bytes;
+        /* Lower bound + end_bytes can never be more than 1 byte outside of the given buffer */
+        if ((lower_bound + end_bytes) > buffer_length)
+        {
+          rb_funcall(self, id_method_raise_buffer_error, 5, symbol_write, param_buffer, param_data_type, param_bit_offset, param_bit_size);
+        }
+
         if (old_upper_bound < lower_bound) {
           /* String was completely empty */
           if (end_bytes > 0) {
             /* Preserve bytes at end of buffer */
             rb_str_concat(param_buffer, rb_str_times(ZERO_STRING, INT2FIX(value_length)));
             buffer = (unsigned char*) RSTRING_PTR(param_buffer);
-            memmove((buffer + lower_bound + value_length), (buffer + lower_bound), value_length);
+            memmove((buffer + lower_bound + value_length), (buffer + lower_bound), end_bytes);
           }
         } else if (bit_size == 0) {
           /* Remove entire string */
           rb_str_update(param_buffer, lower_bound, old_upper_bound - lower_bound + 1, rb_str_new2(""));
         } else if (upper_bound < old_upper_bound) {
           /* Remove extra bytes from old string */
-          rb_str_update(param_buffer, upper_bound + 1, old_upper_bound + 1, rb_str_new2(""));
+          rb_str_update(param_buffer, upper_bound + 1, old_upper_bound - upper_bound, rb_str_new2(""));
         } else if ((upper_bound > old_upper_bound) && (end_bytes > 0)) {
           /* Preserve bytes at end of buffer */
           rb_str_concat(param_buffer, rb_str_times(ZERO_STRING, INT2FIX(upper_bound - old_upper_bound)));
           buffer = (unsigned char*) RSTRING_PTR(param_buffer);
-          memmove((buffer + upper_bound + 1), (buffer + old_upper_bound + 1), upper_bound - old_upper_bound);
+          memmove((buffer + upper_bound + 1), (buffer + old_upper_bound + 1), end_bytes);
         }
       } else {
         byte_size = bit_size / 8;

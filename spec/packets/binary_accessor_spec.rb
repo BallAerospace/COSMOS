@@ -787,6 +787,122 @@ module Cosmos
         end
       end
 
+      context "when negative bit size" do
+        it "writes a block to an empty buffer" do
+          data = ''
+          512.times do |index|
+            data << [index].pack("n")
+          end
+          buffer = ""
+          expect { BinaryAccessor.write(data, 0, -16, :BLOCK, buffer, :BIG_ENDIAN, :ERROR) }.to raise_error(ArgumentError, "0 byte buffer insufficient to write BLOCK at bit_offset 0 with bit_size -16")
+        end
+
+        it "handles a huge bit offset with small buffer" do
+          data = ''
+          512.times do |index|
+            data << [index].pack("n")
+          end
+          buffer = ""
+          expect { BinaryAccessor.write(data, 1024, 0, :BLOCK, buffer, :BIG_ENDIAN, :ERROR) }.to raise_error(ArgumentError, "0 byte buffer insufficient to write BLOCK at bit_offset 1024 with bit_size 0")
+        end
+
+        it "handles an edge case bit offset" do
+          data = ''
+          512.times do |index|
+            data << [index].pack("n")
+          end
+          buffer = "\x00" * 127
+          expect { BinaryAccessor.write(data, 1024, 0, :BLOCK, buffer, :BIG_ENDIAN, :ERROR) }.to raise_error(ArgumentError, "127 byte buffer insufficient to write BLOCK at bit_offset 1024 with bit_size 0")
+        end
+
+        it "writes a block to a small buffer preserving the end" do
+          data = ''
+          512.times do |index|
+            data << [index].pack("n")
+          end
+          preserve = [0xBEEF].pack("n")
+          buffer = preserve.clone # Should preserve this
+          BinaryAccessor.write(data, 0, -16, :BLOCK, buffer, :BIG_ENDIAN, :ERROR)
+          expect(buffer[0..-3]).to eql data
+          expect(buffer[-2..-1]).to eql preserve
+          data = BinaryAccessor.read(0, data.length*8 + 16, :BLOCK, buffer, :BIG_ENDIAN)
+          expect(data).to eql buffer
+        end
+
+        it "writes a block to another small buffer preserving the end" do
+          data = ''
+          512.times do |index|
+            data << [index].pack("n")
+          end
+          preserve = [0xBEEF0123].pack("N")
+          buffer = "\x00\x01" + preserve.clone # Should preserve this
+          BinaryAccessor.write(data, 16, -32, :BLOCK, buffer, :BIG_ENDIAN, :ERROR)
+          expect(buffer[0..1]).to eql "\x00\x01"
+          expect(buffer[2..-5]).to eql data
+          expect(buffer[-4..-1]).to eql preserve
+          data = BinaryAccessor.read(0, 16 + data.length*8 + 32, :BLOCK, buffer, :BIG_ENDIAN)
+          expect(data).to eql buffer
+        end
+
+        it "writes a block to a small buffer overwriting the end" do
+          data = ''
+          512.times do |index|
+            data << [index].pack("n")
+          end
+          preserve = [0xBEEF].pack("n")
+          buffer = [0xDEAD].pack("n") # Should write over this
+          buffer << preserve.clone # Should preserve this
+          BinaryAccessor.write(data, 0, -16, :BLOCK, buffer, :BIG_ENDIAN, :ERROR)
+          expect(buffer[0..-3]).to eql data
+          expect(buffer[-2..-1]).to eql preserve
+          data = BinaryAccessor.read(0, data.length*8 + 16, :BLOCK, buffer, :BIG_ENDIAN)
+          expect(data).to eql buffer
+        end
+
+        it "writes a smaller block in the middle of a buffer" do
+          data = ''
+          buffer = ''
+          256.times do |index|
+            data << [index].pack("n")
+          end
+          512.times do
+            buffer << [0xDEAD].pack("n")
+          end
+          expected = buffer.clone
+          BinaryAccessor.write(data, 128*8, -128*8, :BLOCK, buffer, :BIG_ENDIAN, :ERROR)
+          expect(buffer.length).to eql (128 + 512 + 128)
+          expect(buffer[0...128]).to eql expected[0...128]
+          expect(buffer[128...-128]).to eql data
+          expect(buffer[-128..-1]).to eql expected[0...128]
+        end
+
+        it "writes a larger block in the middle of a buffer" do
+          data = ''
+          buffer = ''
+          256.times do |index|
+            data << [index].pack("n")
+          end
+          512.times do
+            buffer << [0xDEAD].pack("n")
+          end
+          expected = buffer.clone
+          BinaryAccessor.write(data, 384*8, -384*8, :BLOCK, buffer, :BIG_ENDIAN, :ERROR)
+          expect(buffer.length).to eql (384 + 512 + 384)
+          expect(buffer[0...384]).to eql expected[0...384]
+          expect(buffer[384...-384]).to eql data
+          expect(buffer[-384..-1]).to eql expected[0...384]
+        end
+
+        it "complains when the negative index exceeds the buffer length" do
+          data = "\x01"
+          buffer = ''
+          16.times do
+            buffer << [0xDEAD].pack("n")
+          end
+          expect { BinaryAccessor.write(data, 0, -2024*8, :BLOCK, buffer, :BIG_ENDIAN, :ERROR) }.to raise_error(ArgumentError, "32 byte buffer insufficient to write BLOCK at bit_offset 0 with bit_size -16192")
+        end
+      end
+
       it "writes blocks with negative bit_offsets" do
         BinaryAccessor.write(@baseline_data[0..1], -16, 16, :BLOCK, @data, :BIG_ENDIAN, :ERROR)
         expect(@data[-2..-1]).to eql(@baseline_data[0..1])
