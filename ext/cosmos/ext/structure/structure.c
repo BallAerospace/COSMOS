@@ -901,12 +901,14 @@ static VALUE binary_accessor_write(VALUE self, VALUE value, VALUE param_bit_offs
 
       if (given_bit_size <= 0) {
         end_bytes = -(given_bit_size / 8);
-        /* If passed a huge negative bit_size we need to truncate end_bytes
-           to the size of the passed buffer to prevent overflow. */
-        if (end_bytes > buffer_length) {
-          end_bytes = buffer_length;
-        }
         old_upper_bound = buffer_length - 1 - end_bytes;
+        /* If the buffer is not already big enough to hold the non-variable sized items
+             that is a buffer error.  old_upper_bound can be -1 if the string is exactly the size of the
+             end_bytes which is ok */
+        if (old_upper_bound < -1) {
+          rb_funcall(self, id_method_raise_buffer_error, 5, symbol_write, param_buffer, param_data_type, param_bit_offset, param_bit_size);
+        }
+
         if (old_upper_bound < lower_bound) {
           /* String was completely empty */
           if (end_bytes > 0) {

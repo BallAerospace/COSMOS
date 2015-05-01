@@ -794,10 +794,7 @@ module Cosmos
             data << [index].pack("n")
           end
           buffer = ""
-          BinaryAccessor.write(data, 0, -16, :BLOCK, buffer, :BIG_ENDIAN, :ERROR)
-          expect(buffer).to eql data
-          data = BinaryAccessor.read(0, data.length*8, :BLOCK, buffer, :BIG_ENDIAN)
-          expect(data).to eql buffer
+          expect { BinaryAccessor.write(data, 0, -16, :BLOCK, buffer, :BIG_ENDIAN, :ERROR) }.to raise_error(ArgumentError, "0 byte buffer insufficient to write BLOCK at bit_offset 0 with bit_size -16")
         end
 
         it "writes a block to a small buffer preserving the end" do
@@ -811,6 +808,21 @@ module Cosmos
           expect(buffer[0..-3]).to eql data
           expect(buffer[-2..-1]).to eql preserve
           data = BinaryAccessor.read(0, data.length*8 + 16, :BLOCK, buffer, :BIG_ENDIAN)
+          expect(data).to eql buffer
+        end
+
+        it "writes a block to another small buffer preserving the end" do
+          data = ''
+          512.times do |index|
+            data << [index].pack("n")
+          end
+          preserve = [0xBEEF0123].pack("N")
+          buffer = "\x00\x01" + preserve.clone # Should preserve this
+          BinaryAccessor.write(data, 16, -32, :BLOCK, buffer, :BIG_ENDIAN, :ERROR)
+          expect(buffer[0..1]).to eql "\x00\x01"
+          expect(buffer[2..-5]).to eql data
+          expect(buffer[-4..-1]).to eql preserve
+          data = BinaryAccessor.read(0, 16 + data.length*8 + 32, :BLOCK, buffer, :BIG_ENDIAN)
           expect(data).to eql buffer
         end
 
@@ -838,13 +850,7 @@ module Cosmos
           16.times do
             buffer << [0xDEAD].pack("n")
           end
-          BinaryAccessor.write(data, 0, -2024*8, :BLOCK, buffer, :BIG_ENDIAN, :ERROR)
-
-          expect(buffer.length).to eql (1024 + 32)
-          expect(buffer[0..1023]).to eql data
-          expect(buffer[1024..-1]).to eql ([0xDEAD].pack("n*") * 16)
-          data = BinaryAccessor.read(0, (data.length + 32)*8, :BLOCK, buffer, :BIG_ENDIAN)
-          expect(data).to eql buffer
+          expect { BinaryAccessor.write(data, 0, -2024*8, :BLOCK, buffer, :BIG_ENDIAN, :ERROR) }.to raise_error(ArgumentError, "32 byte buffer insufficient to write BLOCK at bit_offset 0 with bit_size -16192")
         end
       end
 
