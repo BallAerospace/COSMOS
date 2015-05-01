@@ -20,6 +20,8 @@ These are just warnings and can be safely ignored.  Updating rdoc before install
 ##Windows 7+
 1. Run the COSMOS Installation bat file which can be downloaded from here: [INSTALL_COSMOS.bat](https://raw.githubusercontent.com/BallAerospace/COSMOS/master/vendor/installers/windows/INSTALL_COSMOS.bat)
 
+NOTE: The COSMOS installation batch file downloads all the components of the COSMOS system from the Internet. If you want to create an offline installer simply zip up the resulting installation directory. Then manually create the COSMOS_DIR environment variable to point to the root directory where you unzip all the installation files. WARNING: The directory name of the unzipped files must match the original name you used in the installer or all the Ruby bin stubs will be broken! You might also want to add \<COSMOS\>\Vendor\Ruby\bin to your path to allow access to Ruby from your terminal.
+
 ##CentOS Linux 6.5
 The following instructions work for an installation on CentOS Linux 6.5 from a clean install with "Software Development Workstation" selected as the installation type.  Similar steps should work on other distributions/versions.
 
@@ -93,5 +95,5 @@ The following instructions work for an installation on CentOS Linux 6.5 from a c
     1. cd demo
     1. ruby Launcher
 1. In the tools/mac folder is a Mac application version of each tool.    Launcher.app can be copied into the overall Mac applications folder or the Desktop for easy launching.   For this to work you need to set an environment variable for each user so that COSMOS can find it configuration files:
-    1. in .bash_profile add this line:
+    1. In your .bash_profile add this line:
         1. export COSMOS_USERPATH=/Users/username/demo
