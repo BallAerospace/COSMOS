@@ -912,22 +912,18 @@ static VALUE binary_accessor_write(VALUE self, VALUE value, VALUE param_bit_offs
         if (old_upper_bound < lower_bound) {
           /* String was completely empty */
           if (end_bytes > 0) {
-              printf("1");
             /* Preserve bytes at end of buffer */
             rb_str_concat(param_buffer, rb_str_times(ZERO_STRING, INT2FIX(value_length)));
             buffer = (unsigned char*) RSTRING_PTR(param_buffer);
             memmove((buffer + lower_bound + value_length), (buffer + lower_bound), end_bytes);
           }
         } else if (bit_size == 0) {
-            printf("2");
           /* Remove entire string */
           rb_str_update(param_buffer, lower_bound, old_upper_bound - lower_bound + 1, rb_str_new2(""));
         } else if (upper_bound < old_upper_bound) {
-            printf("3");
           /* Remove extra bytes from old string */
-          rb_str_update(param_buffer, upper_bound + 1, old_upper_bound + 1, rb_str_new2(""));
+          rb_str_update(param_buffer, upper_bound + 1, old_upper_bound - upper_bound, rb_str_new2(""));
         } else if ((upper_bound > old_upper_bound) && (end_bytes > 0)) {
-            printf("4 bytes:%d\n",end_bytes);
           /* Preserve bytes at end of buffer */
           rb_str_concat(param_buffer, rb_str_times(ZERO_STRING, INT2FIX(upper_bound - old_upper_bound)));
           buffer = (unsigned char*) RSTRING_PTR(param_buffer);
