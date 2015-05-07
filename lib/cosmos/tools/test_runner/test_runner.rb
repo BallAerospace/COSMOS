@@ -72,6 +72,12 @@ module Cosmos
       Splash.execute(self) do |splash|
         ConfigParser.splash = splash
         process_config(options.config_file)
+        if options.test_suite
+          Qt.execute_in_main_thread do
+            # Start the test and don't warn the user about their options
+            handle_start(options.test_suite, options.test_group, options.test_case, false)
+          end
+        end
         ConfigParser.splash = nil
       end
 
@@ -422,9 +428,11 @@ module Cosmos
     # Callbacks
     ###########################################
 
-    def generic_handler(test_suite, test = nil, test_case = nil)
-      return unless continue_without_pausing_on_errors?
-      return unless continue_loop_testing?()
+    def generic_handler(test_suite, test = nil, test_case = nil, warnings = true)
+      if warnings
+        return unless continue_without_pausing_on_errors?
+        return unless continue_loop_testing?()
+      end
 
       # TODO: This can take a while depending on the number of tests and their
       # complexity. Consider making a progress bar for this.
@@ -439,8 +447,8 @@ module Cosmos
       end
     end
 
-    def handle_start(test_suite, test = nil, test_case = nil)
-      generic_handler(test_suite, test, test_case) do
+    def handle_start(test_suite, test = nil, test_case = nil, warnings = true)
+      generic_handler(test_suite, test, test_case, warnings) do
         if test_case
           @script_runner_frame.set_text("TestRunner.start(#{test_suite}, #{test}, '#{test_case}')", "#{test_suite}_#{test}_#{test_case}")
         elsif test
@@ -1151,6 +1159,23 @@ module Cosmos
           end
           option_parser.on("-s", "--server FILE", "Use the specified server configuration file for disconnect mode") do |arg|
             options.server_config_file = arg
+          end
+          option_parser.on("--suite SUITE", "Start the specified test suite.") do |arg|
+            options.test_suite = arg
+          end
+          option_parser.on("--group GROUP", "Start the specified test group. Requires the --suite option.") do |arg|
+            unless options.test_suite
+              puts option_parser
+              exit
+            end
+            options.test_group = arg
+          end
+          option_parser.on("--case CASE", "Start the specified test case. Requires the --suite and --group options.") do |arg|
+            unless options.test_suite && options.test_group
+              puts option_parser
+              exit
+            end
+            options.test_case = arg
           end
         end
 

@@ -17,6 +17,8 @@ call bundle exec ruby autohotkey\tools\TestRunnerAHK -w 800 -t 800
 call bundle exec ruby autohotkey\tools\TestRunnerAHK2 -w 800 -t 800 -c test_runner2.txt
 call bundle exec ruby autohotkey\tools\TestRunnerAHK3 -w 800 -t 800 -c test_runner3.txt
 call bundle exec ruby autohotkey\tools\TestRunnerAHK4 -w 800 -t 800 -c test_runner4.txt
+call bundle exec ruby autohotkey\tools\TestRunnerAHK5 -w 800 -t 800 --suite ExampleTestSuite --group ExampleTest --case test_3xx
+call bundle exec ruby autohotkey\tools\TestRunnerAHK6 --group ExampleTest --case test_3xx
 call bundle exec ruby autohotkey\tools\TlmGrapherAHK -w 800 -t 800
 call bundle exec ruby autohotkey\tools\TlmGrapherAHK2 -s -c test2.txt -w 1200 -t 800
 call bundle exec ruby autohotkey\tools\TlmGrapherAHK3 -i 'INST HEALTH_STATUS TEMP1'
