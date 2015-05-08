@@ -102,6 +102,7 @@ module Cosmos
       @packet_layout.addWidget(@packet_combobox)
       @overall_frame.addLayout(@packet_layout)
 
+      @item_combobox = nil
       if choose_item
         # Item Selection
         @item_layout = Qt::HBoxLayout.new
@@ -142,7 +143,7 @@ module Cosmos
       current_packet_name = packet_name()
       current_item_name = item_name()
       update_targets()
-      if current_target_name and current_packet_name and current_item_name
+      if current_target_name and current_packet_name and (current_item_name or !@item_combobox)
         begin
           set_item(current_target_name, current_packet_name, current_item_name)
         rescue Exception
@@ -168,7 +169,11 @@ module Cosmos
 
     # Returns the selected item name
     def item_name
-      @item_combobox.text
+      if @item_combobox
+        @item_combobox.text
+      else
+        nil
+      end
     end
 
     # Returns the list of all target names in the target combobox
@@ -188,7 +193,9 @@ module Cosmos
     # Returns the list of all item names in the item combobox
     def item_names
       item_names_array = []
-      @item_combobox.each {|item_text, item_data| item_names_array << item_text}
+      if @item_combobox
+        @item_combobox.each {|item_text, item_data| item_names_array << item_text}
+      end
       item_names_array
     end
 
@@ -229,17 +236,19 @@ module Cosmos
       set_packet(target_name, packet_name)
 
       # Select desired item
-      index = 0
-      found = false
-      @item_combobox.each do |item_text, item_data|
-        if item_name.upcase == item_text.upcase
-          found = true
-          break
+      if @item_combobox
+        index = 0
+        found = false
+        @item_combobox.each do |item_text, item_data|
+          if item_name.upcase == item_text.upcase
+            found = true
+            break
+          end
+          index += 1
         end
-        index += 1
+        Kernel.raise "TelemetryChooser unknown item_name #{item_name}" unless found
+        @item_combobox.setCurrentIndex(index)
       end
-      Kernel.raise "TelemetryChooser unknown item_name #{item_name}" unless found
-      @item_combobox.setCurrentIndex(index)
     end
 
     protected
@@ -297,16 +306,18 @@ module Cosmos
     # Updates the item names based on a change
     def update_items
       return unless target_name() and packet_name()
-      @item_combobox.clearItems()
-      item_names = System.telemetry.item_names(target_name(), packet_name())
-      item_names.sort!
-      item_names.each do |name|
-        @item_combobox.addItem(name)
-      end
-      if item_names.length > 20
-        @item_combobox.setMaxVisibleItems(20)
-      else
-        @item_combobox.setMaxVisibleItems(item_names.length)
+      if @item_combobox
+        @item_combobox.clearItems()
+        item_names = System.telemetry.item_names(target_name(), packet_name())
+        item_names.sort!
+        item_names.each do |name|
+          @item_combobox.addItem(name)
+        end
+        if item_names.length > 20
+          @item_combobox.setMaxVisibleItems(20)
+        else
+          @item_combobox.setMaxVisibleItems(item_names.length)
+        end
       end
     end
 
