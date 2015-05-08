@@ -37,7 +37,7 @@ module Cosmos
       if minimum_value or maximum_value
         validator = Qt::IntValidator.new(@integer_value)
         validator.setBottom(minimum_value) if minimum_value
-        validator.setTop(minimum_value) if maximum_value
+        validator.setTop(maximum_value) if maximum_value
         @integer_value.setValidator(validator)
       end
       @callback_in_progress = false
