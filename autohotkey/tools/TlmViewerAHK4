@@ -16,3 +16,7 @@ autohotkey('TlmViewer4', 'tlm_viewer4.ahk') do
   Cosmos::TlmViewer.run
 end
 
+# Remove known exception file
+Dir["autohotkey/outputs/logs/*exception.txt"].each do |file|
+  File.delete file if File.read(file).include? "NoMethodError : undefined method `columns' for nil:NilClass"
+end

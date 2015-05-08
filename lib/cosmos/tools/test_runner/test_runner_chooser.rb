@@ -12,10 +12,13 @@ require 'cosmos'
 
 module Cosmos
 
-  # TestRunnerChooser class
-  #
-  # This class implements the TestRunnerChooser
-  #
+  # Qt Widget used by the Cosmos::TestRunner application.
+  # It constructs a list of Test Suites, Test Groups, and
+  # Test Cases in combo box choosers. All combo boxes are folowed by
+  # Start buttons and Suites and Groups also have Setup and Teardown
+  # buttons. When a new Test Suite is choosen the Test Group and
+  # Test Case combo boxes update. When a Test Group is changed the
+  # Test Case combo box is updated.
   class TestRunnerChooser < Qt::Widget
 
     # Width of the button in the Combobox

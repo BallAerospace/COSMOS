@@ -31,7 +31,7 @@ module Cosmos
       @total = 1
     end
 
-    def total= (new_total)
+    def total=(new_total)
       if new_total <= 0
         @total = 1
       else
@@ -141,12 +141,12 @@ module Cosmos
     end
 
     # Run a specific test case
-    def run_test_case (test_case)
+    def run_test_case(test_case)
       TestStatus.instance.status = "#{self.class} : #{test_case}"
       run_function(self, test_case)
     end
 
-    def run_function (object, method_name)
+    def run_function(object, method_name)
       # Convert to a symbol to use as a method_name
       method_name = method_name.to_s.intern unless method_name.class == Symbol
 
@@ -265,7 +265,7 @@ module Cosmos
       num_tests
     end
 
-    def self.puts (string)
+    def self.puts(string)
       $stdout.puts string
       if @@current_test_result
         @@current_test_result.message ||= ''
@@ -284,7 +284,7 @@ module Cosmos
       @plans = []
     end
 
-    def <=> (other_test_suite)
+    def <=>(other_test_suite)
       self.name <=> other_test_suite.name
     end
 
@@ -298,35 +298,35 @@ module Cosmos
     end
 
     # Add a test to the suite
-    def add_test (test_class)
+    def add_test(test_class)
       test_class = Object.const_get(test_class.to_s.intern) unless test_class.class == Class
       @tests[test_class] = test_class.new unless @tests[test_class]
       @plans << [:TEST, test_class, nil]
     end
 
     # Add a test case to the suite
-    def add_test_case (test_class, test_case)
+    def add_test_case(test_class, test_case)
       test_class = Object.const_get(test_class.to_s.intern) unless test_class.class == Class
       @tests[test_class] = test_class.new unless @tests[test_class]
       @plans << [:TEST_CASE, test_class, test_case]
     end
 
     # Add a test setup to the suite
-    def add_test_setup (test_class)
+    def add_test_setup(test_class)
       test_class = Object.const_get(test_class.to_s.intern) unless test_class.class == Class
       @tests[test_class] = test_class.new unless @tests[test_class]
       @plans << [:TEST_SETUP, test_class, nil]
     end
 
     # Add a test teardown to the suite
-    def add_test_teardown (test_class)
+    def add_test_teardown(test_class)
       test_class = Object.const_get(test_class.to_s.intern) unless test_class.class == Class
       @tests[test_class] = test_class.new unless @tests[test_class]
       @plans << [:TEST_TEARDOWN, test_class, nil]
     end
 
     # Run all the tests
-    def run (&block)
+    def run(&block)
       TestStatus.instance.total = get_num_tests()
       results = []
 
@@ -374,7 +374,7 @@ module Cosmos
     end
 
     # Run a specific test
-    def run_test (test_class, internal = false, &block)
+    def run_test(test_class, internal = false, &block)
       # Determine if this test_class is in the plan and the number of tests associated with this test_class
       in_plan = false
       num_tests = 0
@@ -426,12 +426,12 @@ module Cosmos
     end
 
     # Run a specific test case
-    def run_test_case (test_class, test_case, internal = false)
+    def run_test_case(test_class, test_case, internal = false)
       TestStatus.instance.total = 1 unless internal
       @tests[test_class].run_test_case(test_case)
     end
 
-    def run_setup (internal = false)
+    def run_setup(internal = false)
       result = nil
       if self.class.method_defined?(:setup) and @tests.length > 0
         TestStatus.instance.total = 1 unless internal
@@ -441,7 +441,7 @@ module Cosmos
       result
     end
 
-    def run_teardown (internal = false)
+    def run_teardown(internal = false)
       result = nil
       if self.class.method_defined?(:teardown) and @tests.length > 0
         TestStatus.instance.total = 1 unless internal
@@ -451,12 +451,12 @@ module Cosmos
       result
     end
 
-    def run_test_setup (test_class, internal = false)
+    def run_test_setup(test_class, internal = false)
       TestStatus.instance.total = 1 unless internal
       @tests[test_class].run_setup
     end
 
-    def run_test_teardown (test_class, internal = false)
+    def run_test_teardown(test_class, internal = false)
       TestStatus.instance.total = 1 unless internal
       @tests[test_class].run_teardown
     end

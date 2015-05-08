@@ -16,3 +16,7 @@ autohotkey('TlmViewer2', 'tlm_viewer2.ahk') do
   Cosmos::TlmViewer.run
 end
 
+# Remove known exception file
+Dir["autohotkey/outputs/logs/*exception.txt"].each do |file|
+  File.delete file if File.read(file).include? "Unable to require this_widget due to cannot load such file -- this_widget"
+end

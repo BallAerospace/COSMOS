@@ -16,3 +16,8 @@ autohotkey('TlmViewer3') do
   Cosmos::TlmViewer.run
 end
 
+# Remove known exception file
+Dir["autohotkey/outputs/logs/*exception.txt"].each do |file|
+  File.delete file if File.read(file).include? "Error : Unknown keyword 'KEYWORD'"
+end
+

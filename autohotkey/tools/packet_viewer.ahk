@@ -132,40 +132,46 @@ Send {Enter}
 Sleep 2000
 
 Click right 380, 595 ; TEMP1 details
-Sleep 500
+Sleep 1000
 Send {Tab}{Enter}
 WinWaitActive TEMP1
+Sleep 1000
+; Leave this window open because we use it later
 
 WinActivate Packet Viewer
 WinWaitActive Packet Viewer
 Click right 380, 685 ; ARY details
-Sleep 500
+Sleep 1000
 Send {Tab}{Enter}
 WinWaitActive ARY
+Sleep 1000
+Send {Enter} ; Close the window
 
 WinActivate Packet Viewer
 WinWaitActive Packet Viewer
 Click right 380, 735 ; COLLECT_TYPE details
-Sleep 500
+Sleep 1000
 Send {Tab}{Enter}
 WinWaitActive COLLECT_TYPE
+Sleep 1000
+Send {Enter} ; Close the window
 
 WinActivate TEMP1
 WinWaitActive TEMP1
-Sleep 5000
+Sleep 2000
 
 Run ruby.exe %A_ScriptDir%/ScriptRunner -w 600 -t 600
 Sleep 2000
 WinActivate Script Runner
-Sleep 500
+Sleep 1000
 Send set_limits("INST","HEALTH_STATUS","TEMP1",-110,-105,105,110,-100,100){ENTER}
 Send set_limits_set("CUSTOM"){ENTER}
-Sleep 500
+Sleep 1000
 Click 400, 88 ; Start
 
 WinActivate TEMP1
 WinWaitActive TEMP1
-Sleep 1000
+Sleep 3000
 
 WinActivate Script Runner
 WinWaitActive Script Runner

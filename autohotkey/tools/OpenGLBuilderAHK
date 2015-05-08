@@ -17,4 +17,8 @@ end
 
 # Clean up scene output
 File.delete('autohotkey/config/tools/opengl_builder/scene.txt')
+# Remove known exception file
+Dir["autohotkey/outputs/logs/*exception.txt"].each do |file|
+  File.delete file if File.read(file).include? "Unknown keyword THIS with parameters is just here to cause an error"
+end
 
