@@ -444,14 +444,16 @@ module Cosmos
 
     # Exports data objects on a plot - defaults to selected plot on the current tab
     def export_plot(filename, progress, tab_index = nil, plot_index = nil)
-      # Select the current tab by default
-      tab_index = current_tab_index() unless tab_index
+      Qt.execute_in_main_thread(true) do
+        # Select the current tab by default
+        tab_index = current_tab_index() unless tab_index
 
-      # Select selected plot by default
-      plot_index = selected_plot_index(tab_index) if tab_index and not plot_index
-      unless plot_index
-        Qt::MessageBox.information(self, 'Information', 'Please select a plot')
-        return
+        # Select selected plot by default
+        plot_index = selected_plot_index(tab_index) if tab_index and not plot_index
+        unless plot_index
+          Qt::MessageBox.information(self, 'Information', 'Please select a plot')
+          return
+        end
       end
 
       export_data_objects(filename, progress, tab_index, plot_index)
