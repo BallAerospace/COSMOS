@@ -510,7 +510,9 @@ module Cosmos
         @input_filenames = @packet_log_frame.filenames.sort
         @batch_filenames = []
         output_extension = '.txt'
+        batch_name = nil
         if @batch_mode_check.checked?
+          batch_name = @batch_name_entry.text
           @batch_filenames_entry.each {|list_item| @batch_filenames << list_item.text}
           if @packet_log_frame.output_filename_filter == Cosmos::CSV_FILE_PATTERN
             output_extension = '.csv'
@@ -539,7 +541,7 @@ module Cosmos
               process_args = [@input_filenames, [@tlm_extractor_config], @packet_log_frame.time_start, @packet_log_frame.time_end]
             else
               process_method = :process_batch
-              process_args = [@batch_name_entry.text, @input_filenames, @log_dir, output_extension, @batch_filenames, @packet_log_frame.time_start, @packet_log_frame.time_end]
+              process_args = [batch_name, @input_filenames, @log_dir, output_extension, @batch_filenames, @packet_log_frame.time_start, @packet_log_frame.time_end]
             end
 
             @tlm_extractor_processor.send(process_method, *process_args) do |input_file_index, packet_count, file_progress|

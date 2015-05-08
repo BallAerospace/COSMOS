@@ -78,7 +78,7 @@ spec = Gem::Specification.new do |s|
   s.add_runtime_dependency 'opengl', '>= 0.7', '< 0.10'
   s.add_runtime_dependency 'snmp', '~> 1'
   s.add_runtime_dependency 'rubyzip', '~> 1.1'
-  s.add_runtime_dependency 'qtbindings', '~> 4.8', '>= 4.8.5.2'
+  s.add_runtime_dependency 'qtbindings', '~> 4.8', '>= 4.8.6.2'
 
   # Development Dependencies
   s.add_development_dependency 'rspec', '~> 3'

@@ -61,13 +61,13 @@ module Cosmos
       return answer.to_s
     end
 
-    def prompt_dialog_box(title, message, icon = Qt::MessageBox::NoIcon)
+    def prompt_dialog_box(title, message)
       result = nil
       Qt.execute_in_main_thread(true, 0.05) do
         window = nil
         window = get_cmd_tlm_gui_window() if get_cmd_tlm_gui_window()
         msg = Qt::MessageBox.new(window)
-        msg.setIcon(icon)
+        msg.setIcon(Qt::MessageBox::Warning)
         msg.setText(message)
         msg.setWindowTitle(title)
         msg.setStandardButtons(Qt::MessageBox::Yes | Qt::MessageBox::No)
@@ -89,7 +89,7 @@ module Cosmos
       message = "Warning: Command #{target_name} #{cmd_name} is Hazardous. "
       message << "\n#{hazardous_description}\n" if hazardous_description
       message << "Send?"
-      return prompt_dialog_box('Hazardous Command', message, Qt::MessageBox::Warning)
+      return prompt_dialog_box('Hazardous Command', message)
     end
 
     def prompt_for_script_abort
