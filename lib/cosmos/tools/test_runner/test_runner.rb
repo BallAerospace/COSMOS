@@ -522,10 +522,12 @@ module Cosmos
     end
 
     def handle_error(script_runner_frame)
-      if @continue_test_case_after_error.isChecked()
-        script_runner_frame.enable_retry()
-      else
-        script_runner_frame.disable_retry()
+      Qt.execute_in_main_thread(true) do
+        if @@settings['Continue Test Case after Error']
+          script_runner_frame.enable_retry()
+        else
+          script_runner_frame.disable_retry()
+        end
       end
     end
 

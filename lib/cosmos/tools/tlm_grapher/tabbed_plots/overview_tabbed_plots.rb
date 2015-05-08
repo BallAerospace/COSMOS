@@ -269,10 +269,13 @@ module Cosmos
 
     # Returns the index of the current tab or nil if no tabs exist
     def current_tab_index
+      tab_index = -1
       unless @tabbed_plots_config.tabs.empty?
-        tab_index = @tab_book.currentIndex
-        return tab_index if tab_index >= 0
+        Qt.execute_in_main_thread(true) do
+          tab_index = @tab_book.currentIndex
+        end
       end
+      return tab_index if tab_index >= 0
       nil
     end # def current_tab_index
 
@@ -488,12 +491,18 @@ module Cosmos
       # Select the current tab by default
       tab_index = current_tab_index() unless tab_index
 
+      plot_index = nil
       if tab_index
-        @tabbed_plots_config.tabs[tab_index].plots.each_with_index do |plot, index|
-          return index if plot.gui_object.selected?
+        Qt.execute_in_main_thread(true) do
+          @tabbed_plots_config.tabs[tab_index].plots.each_with_index do |plot, index|
+            if plot.gui_object.selected?
+              plot_index = index
+              break
+            end
+          end
         end
       end
-      nil
+      return plot_index
     end # def selected_plot_index
 
     # Indicates if the plot has any data objects
@@ -705,9 +714,11 @@ module Cosmos
     def selected_data_object_indexes
       selected = []
       index = 0
-      @data_object_list.each do |list_item|
-        selected << index if list_item.selected? and @data_object_list.item(index).text != 'No Plot Selected'
-        index += 1
+      Qt.execute_in_main_thread(true) do
+        @data_object_list.each do |list_item|
+          selected << index if list_item.selected? and @data_object_list.item(index).text != 'No Plot Selected'
+          index += 1
+        end
       end
       selected
     end # def selected_data_object_indexes
