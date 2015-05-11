@@ -84,7 +84,9 @@ module Cosmos
           # 'class' followed by an identifier
           ['\bclass\b\s*(\w+)', 1, STYLES['class']],
           # Ruby symbol
-          [':\b\w+', 0, STYLES['symbol']],
+          ['\s:\b\w+', 0, STYLES['symbol']],
+          # Ruby namespace operator
+          ['\b\w+(::\b\w+)+', 0, STYLES['class']],
           # Ruby global
           ['\\$\b\w+', 0, STYLES['string']],
           # A single # or a # not followed by { to the end
