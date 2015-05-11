@@ -1,6 +1,6 @@
 :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 :: Installs Ball Aerospace COSMOS on Windows 7+
-:: Usage: INSTALL_COSMOS [Install Directory] [COSMOS Version] 
+:: Usage: INSTALL_COSMOS [Install Directory] [COSMOS Version]
 :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 @echo off
@@ -24,8 +24,6 @@ set WKHTMLTOPDF=wkhtmltox-0.11.0_rc1-installer.exe
 set WKHTMLPATH=//downloads.sourceforge.net/project/wkhtmltopdf/old-archive/windows/
 set QT_VERSION=4.8.6
 
-http://downloads.sourceforge.net/project/wkhtmltopdf/old-archive/windows/wkhtmltox-0.11.0_rc1-installer.exe?r=http%3A%2F%2Fwkhtmltopdf.org%2Fold-downloads.html&ts=1429816951&use_mirror=hivelocity
-
 ::::::::::::::::::::::
 :: Parse Parameters
 ::::::::::::::::::::::
@@ -39,6 +37,7 @@ if not "!COSMOS_INSTALL!"=="!COSMOS_INSTALL: =!" (
   echo ERROR: Installation folder must not include spaces: "!COSMOS_INSTALL!"
   goto :END
 )
+set COSMOS_INSTALL_FORWARD=%COSMOS_INSTALL:\=/%
 
 IF [%2]==[] (
   set COSMOS_VERSION="LATEST"
@@ -141,11 +140,11 @@ IF NOT EXIST "!COSMOS_INSTALL!\tmp\COSMOS_Windows_Install.zip" (
 @echo strFileZIP = ArgObj(0) >> !COSMOS_INSTALL!\tmp\unzip.vbs
 @echo outFolder = ArgObj(1) ^& "\" >> !COSMOS_INSTALL!\tmp\unzip.vbs
 @echo WScript.Echo ("Extracting file " ^& strFileZIP ^& " to " ^& outFolder) >> !COSMOS_INSTALL!\tmp\unzip.vbs
-@echo Set objShell = CreateObject( "Shell.Application" ) >> !COSMOS_INSTALL!\tmp\unzip.vbs 
-@echo Set objSource = objShell.NameSpace(strFileZIP).Items() >> !COSMOS_INSTALL!\tmp\unzip.vbs 
-@echo Set objTarget = objShell.NameSpace(outFolder) >> !COSMOS_INSTALL!\tmp\unzip.vbs 
-@echo intOptions = 256 >> !COSMOS_INSTALL!\tmp\unzip.vbs 
-@echo objTarget.CopyHere objSource, intOptions >> !COSMOS_INSTALL!\tmp\unzip.vbs 
+@echo Set objShell = CreateObject( "Shell.Application" ) >> !COSMOS_INSTALL!\tmp\unzip.vbs
+@echo Set objSource = objShell.NameSpace(strFileZIP).Items() >> !COSMOS_INSTALL!\tmp\unzip.vbs
+@echo Set objTarget = objShell.NameSpace(outFolder) >> !COSMOS_INSTALL!\tmp\unzip.vbs
+@echo intOptions = 256 >> !COSMOS_INSTALL!\tmp\unzip.vbs
+@echo objTarget.CopyHere objSource, intOptions >> !COSMOS_INSTALL!\tmp\unzip.vbs
 cscript //B !COSMOS_INSTALL!\tmp\unzip.vbs !COSMOS_INSTALL!\tmp\COSMOS_Windows_Install.zip !COSMOS_INSTALL!
 
 ::::::::::::::::::::::::::::
@@ -186,6 +185,27 @@ if %PROCESSOR_ARCHITECTURE%==x86 (
 )
 
 :::::::::::::::::::::
+:: Fix bin stubs to relative paths
+:::::::::::::::::::::
+@echo forward_directory = "!COSMOS_INSTALL_FORWARD!/Vendor/Ruby/bin" > !COSMOS_INSTALL!\tmp\fix_stubs.rb
+@echo back_directory = "!COSMOS_INSTALL:\=\\!\\Vendor\\Ruby\\bin" >> !COSMOS_INSTALL!\tmp\fix_stubs.rb
+@echo Dir.foreach(forward_directory) do ^|filename^| >> !COSMOS_INSTALL!\tmp\fix_stubs.rb
+@echo   if (File.extname(filename).downcase == '.bat') >> !COSMOS_INSTALL!\tmp\fix_stubs.rb
+@echo     print "Patching #{filename}" >> !COSMOS_INSTALL!\tmp\fix_stubs.rb
+@echo     data = File.read(File.join(forward_directory, filename)) >> !COSMOS_INSTALL!\tmp\fix_stubs.rb
+@echo     result = data.gsub^^!(back_directory + '\\', '') >> !COSMOS_INSTALL!\tmp\fix_stubs.rb
+@echo     result2 = data.gsub^^!(forward_directory + '/', '') >> !COSMOS_INSTALL!\tmp\fix_stubs.rb
+@echo     if result or result2 >> !COSMOS_INSTALL!\tmp\fix_stubs.rb
+@echo       File.write(File.join(forward_directory, filename), data) >> !COSMOS_INSTALL!\tmp\fix_stubs.rb
+@echo       puts ": patched" >> !COSMOS_INSTALL!\tmp\fix_stubs.rb
+@echo     else >> !COSMOS_INSTALL!\tmp\fix_stubs.rb
+@echo       puts ": no change needed" >> !COSMOS_INSTALL!\tmp\fix_stubs.rb
+@echo     end >> !COSMOS_INSTALL!\tmp\fix_stubs.rb
+@echo   end >> !COSMOS_INSTALL!\tmp\fix_stubs.rb
+@echo end >> !COSMOS_INSTALL!\tmp\fix_stubs.rb
+ruby !COSMOS_INSTALL!\tmp\fix_stubs.rb
+
+:::::::::::::::::::::
 :: Setup demo areas
 :::::::::::::::::::::
 
@@ -208,13 +228,13 @@ IF NOT "!COSMOS_CONTINUE!"=="n" (
 )
 
 ::::::::::::::::::::::::::
-:: Environment Variables 
+:: Environment Variables
 ::::::::::::::::::::::::::
 
 set /p COSMOS_CONTINUE="Set COSMOS_DIR Environment Variable? [Y/n]: "
 IF NOT "!COSMOS_CONTINUE!"=="n" (
   setx COSMOS_DIR "!COSMOS_INSTALL!"
-  echo COSMOS_DIR set for Current User. 
+  echo COSMOS_DIR set for Current User.
   echo Add System Environment Variable if desired for all users.
 )
 
