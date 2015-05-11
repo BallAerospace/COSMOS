@@ -4,6 +4,19 @@ title: Release History
 permalink: "/docs/history/"
 ---
 
+## 3.4.2 / 2015-05-08
+{: #v3-4-2}
+
+### Issues:
+
+* [#123](https://github.com/BallAerospace/COSMOS/issues/123) TestRunner command line option to launch a test automatically
+* [#125](https://github.com/BallAerospace/COSMOS/issues/125) Fix COSMOS issues for qtbindings 4.8.6.2
+* [#126](https://github.com/BallAerospace/COSMOS/issues/126) COSMOS GUI Chooser updates
+
+### Migration Notes from COSMOS 3.3.x or 3.4.x:
+
+COSMOS 3.4.2 requires qtbindings 4.8.6.2. You must also update qtbindings when installing this release. Also note that earlier versions of COSMOS will not work with qtbindings 4.8.6.2. All users are strongly recommended to update both gems.
+
 ## 3.4.1 / 2015-05-01
 {: #v3-4-1}
 
