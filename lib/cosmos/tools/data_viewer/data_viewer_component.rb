@@ -39,11 +39,7 @@ module Cosmos
       @text = Qt::PlainTextEdit.new
       @text.setReadOnly(true)
       @text.setMaximumBlockCount(@max_block_count)
-      if Kernel.is_windows?
-        @text.font = Cosmos.getFont("courier", 9)
-      else
-        @text.font = Cosmos.getFont("courier", 12)
-      end
+      @text.font = Cosmos.get_default_small_font
       @text.setWordWrapMode(Qt::TextOption::NoWrap)
       @top_layout.addWidget(@text)
 
