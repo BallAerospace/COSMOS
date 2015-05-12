@@ -26,11 +26,7 @@ module Cosmos
       @bytes_per_row  = @bytes_per_word * @words_per_row
       @addr_format = ConfigParser.handle_nil(addr_format)
       @addr_format << ' ' if @addr_format
-      if Kernel.is_windows?
-        setFont(Cosmos.getFont("courier", 10))
-      else
-        setFont(Cosmos.getFont("courier", 14))
-      end
+      setFont(Cosmos.get_default_font)
     end
 
     def format_value(data)

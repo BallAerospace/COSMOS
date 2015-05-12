@@ -16,15 +16,19 @@ require 'cosmos/gui/text/completion_text_edit'
 module Cosmos
 
   class RubyEditor < CompletionTextEdit
+    # private slot used to connect to the blockCountChanged signal
     slots 'line_count_changed()'
+    # private slot used to connect to the updateRequest signal
     slots 'update_line_number_area(const QRect &, int)'
+
     signals 'breakpoint_set(int)'
     signals 'breakpoint_cleared(int)'
     signals 'breakpoints_cleared()'
 
     attr_accessor :enable_breakpoints
 
-    # This works but slows down the GUI significantly when pasting a large (10k line) block of code into the editor
+    # This works but slows down the GUI significantly when
+    # pasting a large (10k line) block of code into the editor
     class RubySyntax < Qt::SyntaxHighlighter
       # Ruby keywords - http://www.ruby-doc.org/docs/keywords/1.9/
       # Also include some common methods that are typically called by
@@ -84,7 +88,7 @@ module Cosmos
           # 'class' followed by an identifier
           ['\bclass\b\s*(\w+)', 1, STYLES['class']],
           # Ruby symbol
-          ['\s:\b\w+', 0, STYLES['symbol']],
+          [':\b\w+', 0, STYLES['symbol']],
           # Ruby namespace operator
           ['\b\w+(::\b\w+)+', 0, STYLES['class']],
           # Ruby global
@@ -143,12 +147,8 @@ module Cosmos
         self
       end
 
-      def sizeHint()
-        return Qt::Size(@codeEditor.lineNumberAreaWidth(), 0)
-      end
-
       def paintEvent(event)
-        @codeEditor.lineNumberAreaPaintEvent(event)
+        @codeEditor.line_number_area_paint_event(event)
       end
     end
 
@@ -156,13 +156,9 @@ module Cosmos
 
     def initialize(parent)
       super(parent)
-      if Kernel.is_windows?
-        setFont(Cosmos.getFont("Courier", 10))
-        @fontMetrics = Cosmos.getFontMetrics(Cosmos.getFont("Courier", 10))
-      else
-        setFont(Cosmos.getFont("Courier", 14))
-        @fontMetrics = Cosmos.getFontMetrics(Cosmos.getFont("Courier", 14))
-      end
+      font = Cosmos.get_default_font
+      setFont(font)
+      @fontMetrics = Cosmos.getFontMetrics(font)
 
       # This is needed so text searching highlights correctly
       setStyleSheet("selection-background-color: lightblue; selection-color: black;")
@@ -170,7 +166,8 @@ module Cosmos
       @breakpoints = []
       @enable_breakpoints = false
 
-      # RubySyntax works but slows down the GUI significantly when pasting a large (10k line) block of code into the editor
+      # RubySyntax works but slows down the GUI significantly when
+      # pasting a large (10k line) block of code into the editor
       @syntax = RubySyntax.new(document())
       @lineNumberArea = LineNumberArea.new(self)
 
@@ -188,46 +185,16 @@ module Cosmos
 
     def context_menu(point)
       menu = createStandardContextMenu()
-      if @enable_breakpoints
-        menu.addSeparator()
+      return menu unless @enable_breakpoints
 
-        add_breakpoint = Qt::Action.new(tr("Add Breakpoint"), self)
-        add_breakpoint.statusTip = tr("Add a breakpoint at this line")
-        add_breakpoint.connect(SIGNAL('triggered()')) { breakpoint_click(point) }
-        menu.addAction(add_breakpoint)
-
-        clear_breakpoint = Qt::Action.new(tr("Clear Breakpoint"), self)
-        clear_breakpoint.statusTip = tr("Clear an existing breakpoint at this line")
-        clear_breakpoint.connect(SIGNAL('triggered()')) { breakpoint_click(point, false) }
-        menu.addAction(clear_breakpoint)
-
-        clear_all_breakpoints = Qt::Action.new(tr("Clear All Breakpoints"), self)
-        clear_all_breakpoints.statusTip = tr("Clear all existing breakpoints")
-        clear_all_breakpoints.connect(SIGNAL('triggered()')) do
-          clear_breakpoints()
-          emit breakpoints_cleared
-        end
-        menu.addAction(clear_all_breakpoints)
-      end
-      return menu
+      menu.addSeparator()
+      menu.addAction(create_add_breakpoint_action(point))
+      menu.addAction(create_clear_breakpoint_action(point))
+      menu.addAction(create_clear_all_breakpoints_action())
+      menu
     end
 
-    def breakpoint_click(point, add_breakpoint = true)
-      line = point.y / @fontMetrics.height() + 1 + firstVisibleBlock().blockNumber()
-      if add_breakpoint
-        if line <= document.blockCount()
-          breakpoint(line)
-          emit breakpoint_set(line)
-        end
-      else
-        if line <= document.blockCount()
-          clear_breakpoint(line)
-          emit breakpoint_cleared(line)
-        end
-      end
-    end
-
-    def breakpoint(line)
+    def add_breakpoint(line)
       @breakpoints << line
       @lineNumberArea.repaint
     end
@@ -244,19 +211,18 @@ module Cosmos
 
     def comment_or_uncomment_lines
       cursor = textCursor
-      # Figure out if the cursor has a selection
-      no_selection = true
-      no_selection = false if cursor.hasSelection
+      no_selection = cursor.hasSelection ? false : true
 
       # Start the edit block so this can be all undone with a single undo step
       cursor.beginEditBlock
       selection_end = cursor.selectionEnd
       # Initially place the cursor at the beginning of the selection
-      # If nothing is selected this will just put the cursor at the beginning of the current line
+      # If nothing is selected this will just put the cursor at the beginning
+      # of the current line
       cursor.setPosition(textCursor.selectionStart)
       cursor.movePosition(Qt::TextCursor::StartOfLine)
       result = true
-      while (cursor.position < selection_end and result == true) or (no_selection)
+      while (cursor.position < selection_end && result == true) || (no_selection)
         # Check for a special comment
         if cursor.block.text =~ /^\S*#~/
           cursor.deleteChar
@@ -271,46 +237,10 @@ module Cosmos
         # Move the cursor to the beginning of the next line
         cursor.movePosition(Qt::TextCursor::StartOfLine)
         result = cursor.movePosition(Qt::TextCursor::Down)
-        # If nothing was selected then we're working with a single line and we can break
+        # If nothing was selected then its a single line so break
         break if no_selection
       end
       cursor.endEditBlock
-    end
-
-    def lineNumberAreaWidth
-      digits = 1
-      my_document = document()
-      max = [1, my_document.blockCount()].max
-
-      # Figure the line number power of ten to determine how much space we need
-      while (max >= 10)
-        max /= 10
-        digits += 1
-      end
-      # We'll always display space for 5 digits so the line number area
-      # isn't constantly expanding and contracting
-      digits = 5 if digits < 5
-      digits += 1 # always allow room for a breakpoint symbol
-      # Get the font width of the character 57 ('9')
-      # times the number of digits to display
-      return (3 + @fontMetrics.width(CHAR_57) * digits)
-    end
-
-    def line_count_changed
-      setViewportMargins(lineNumberAreaWidth(), 0, 0, 0)
-      update
-    end
-
-    def update_line_number_area(rect, dy)
-      if (dy)
-        @lineNumberArea.scroll(0, dy)
-      else
-        @lineNumberArea.update(0, rect.y(), @lineNumberArea.width(), rect.height())
-      end
-      my_viewport = viewport()
-      viewport_rect = my_viewport.rect()
-      line_count_changed() if (rect.contains(viewport_rect))
-      viewport_rect.dispose
     end
 
     def resizeEvent(e)
@@ -318,16 +248,16 @@ module Cosmos
       cr = self.contentsRect()
       rect = Qt::Rect.new(cr.left(),
         cr.top(),
-        lineNumberAreaWidth(),
+        line_number_area_width(),
         cr.height())
       @lineNumberArea.setGeometry(rect)
       cr.dispose
       rect.dispose
     end
 
-    def lineNumberAreaPaintEvent(event)
+    def line_number_area_paint_event(event)
       painter = Qt::Painter.new(@lineNumberArea)
-      # On initialization sometimes we get some weird bad conditions so check for them
+      # Check for weird bad initialization conditions
       if painter.isActive and not painter.paintEngine.nil?
         event_rect = event.rect()
         painter.fillRect(event_rect, Qt::lightGray)
@@ -335,20 +265,7 @@ module Cosmos
         block = firstVisibleBlock()
         blockNumber = block.blockNumber()
 
-        offset = contentOffset()
-        rect = blockBoundingGeometry(block)
-        rect2 = rect.translated(offset)
-        top = rect2.top()
-        rect3 = blockBoundingRect(block)
-        bottom = top + rect3.height()
-        offset.dispose
-        offset = nil
-        rect.dispose
-        rect = nil
-        rect2.dispose
-        rect2 = nil
-        rect3.dispose
-        rect3 = nil
+        top, bottom = block_top_and_bottom(block)
 
         width = @lineNumberArea.width()
         height = @fontMetrics.height()
@@ -391,6 +308,107 @@ module Cosmos
       #   QPaintDevice: Cannot destroy paint device that is being painted
       painter.dispose
       painter = nil
+    end
+
+    private
+
+    def line_count_changed
+      setViewportMargins(line_number_area_width(), 0, 0, 0)
+      update
+    end
+
+    def update_line_number_area(rect, dy)
+      if (dy)
+        @lineNumberArea.scroll(0, dy)
+      else
+        @lineNumberArea.update(0, rect.y(), @lineNumberArea.width(), rect.height())
+      end
+      my_viewport = viewport()
+      viewport_rect = my_viewport.rect()
+      line_count_changed() if (rect.contains(viewport_rect))
+      viewport_rect.dispose
+    end
+
+    def line_number_area_width
+      digits = 1
+      my_document = document()
+      max = [1, my_document.blockCount()].max
+
+      # Figure the line number power of ten to determine how much space we need
+      while (max >= 10)
+        max /= 10
+        digits += 1
+      end
+      # We'll always display space for 5 digits so the line number area
+      # isn't constantly expanding and contracting
+      digits = 5 if digits < 5
+      digits += 1 # always allow room for a breakpoint symbol
+      # Get the font width of the character 57 ('9')
+      # times the number of digits to display
+      return (3 + @fontMetrics.width(CHAR_57) * digits)
+    end
+
+    def line_at_point(point)
+      line = point.y / @fontMetrics.height() + 1 +
+        firstVisibleBlock().blockNumber()
+      yield line if line <= document.blockCount()
+    end
+
+    def create_add_breakpoint_action(point)
+      add_breakpoint = Qt::Action.new(tr("Add Breakpoint"), self)
+      add_breakpoint.statusTip = tr("Add a breakpoint at this line")
+      add_breakpoint.connect(SIGNAL('triggered()')) do
+        line_at_point(point) do |line|
+          add_breakpoint(line)
+          emit breakpoint_set(line)
+        end
+      end
+      add_breakpoint
+    end
+
+    def create_clear_breakpoint_action(point)
+      clear_breakpoint = Qt::Action.new(tr("Clear Breakpoint"), self)
+      clear_breakpoint.statusTip = tr("Clear an existing breakpoint at this line")
+      clear_breakpoint.connect(SIGNAL('triggered()')) do
+        line_at_point(point) do |line|
+          clear_breakpoint(line)
+          emit breakpoint_cleared(line)
+        end
+      end
+      clear_breakpoint
+    end
+
+    def create_clear_all_breakpoints_action
+      clear_all_breakpoints = Qt::Action.new(tr("Clear All Breakpoints"), self)
+      clear_all_breakpoints.statusTip = tr("Clear all existing breakpoints")
+      clear_all_breakpoints.connect(SIGNAL('triggered()')) do
+        clear_breakpoints
+        emit breakpoints_cleared
+      end
+      clear_all_breakpoints
+    end
+
+    # Get the top and bottom coordinates of the block in viewport coordinates
+    def block_top_and_bottom(block)
+      # bounding rect of the text block in content coordinates
+      rect = blockBoundingGeometry(block)
+      offset = contentOffset() # content origin in viewport coordinates
+      # translate the rect to get visual coordinates on the viewport
+      rect2 = rect.translated(offset)
+      top = rect2.top()
+      # bounding rect in block coordinates
+      rect3 = blockBoundingRect(block)
+      bottom = top + rect3.height()
+      # Now call the destructors and set to nil to allow garbage collection
+      offset.dispose
+      offset = nil
+      rect.dispose
+      rect = nil
+      rect2.dispose
+      rect2 = nil
+      rect3.dispose
+      rect3 = nil
+      return top, bottom
     end
   end
 

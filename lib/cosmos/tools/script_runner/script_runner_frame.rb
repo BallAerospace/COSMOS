@@ -650,7 +650,7 @@ module Cosmos
     # Implement the breakpoint callbacks from the RubyEditor
     ######################################
     def breakpoint_set(line)
-      ScriptRunnerFrame.breakpoint(current_tab_filename(), line)
+      ScriptRunnerFrame.set_breakpoint(current_tab_filename(), line)
     end
 
     def breakpoint_cleared(line)
@@ -1060,7 +1060,7 @@ module Cosmos
       @debug_frame = nil
     end
 
-    def self.breakpoint(filename, line_number)
+    def self.set_breakpoint(filename, line_number)
       filename = File.basename(filename)
       @@breakpoints[filename] ||= {}
       @@breakpoints[filename][line_number] = true
@@ -1645,7 +1645,7 @@ module Cosmos
       breakpoints = @@breakpoints[File.basename(filename)]
       if breakpoints
         breakpoints.each do |line_number, present|
-          @active_script.breakpoint(line_number) if present
+          @active_script.add_breakpoint(line_number) if present
         end
       end
     end

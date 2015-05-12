@@ -175,6 +175,24 @@ module Cosmos
     font
   end
 
+  # Get the default small font for the platform (Windows, Mac, Linux)
+  def self.get_default_small_font
+    if Kernel.is_windows?
+      Cosmos.getFont("courier", 9)
+    else
+      Cosmos.getFont("courier", 12)
+    end
+  end
+
+  # Get the default font for the platform (Windows, Mac, Linux)
+  def self.get_default_font
+    if Kernel.is_windows?
+      Cosmos.getFont("Courier", 10)
+    else
+      Cosmos.getFont("Courier", 14)
+    end
+  end
+
   def self.getFontMetrics(font)
     font_metrics = FONT_METRICS[font]
     unless font_metrics

@@ -25,11 +25,7 @@ module Cosmos
       @items_per_row = items_per_row.to_i
       setFixedSize(width.to_i, height.to_i)
       setReadOnly(true)
-      if Kernel.is_windows?
-        setFont(Cosmos.getFont("courier", 10))
-      else
-        setFont(Cosmos.getFont("courier", 14))
-      end
+      setFont(Cosmos.get_default_font)
       parent_layout.addWidget(self) if parent_layout
     end
 

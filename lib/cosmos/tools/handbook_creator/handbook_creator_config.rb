@@ -83,11 +83,7 @@ module Cosmos
         if @pdf
           if progress_dialog
             Qt.execute_in_main_thread(true) do
-              if Kernel.is_windows?
-                progress_dialog.set_text_font(Cosmos.getFont("courier",10))
-              else
-                progress_dialog.set_text_font(Cosmos.getFont("courier",14))
-              end
+              progress_dialog.set_text_font(Cosmos.get_default_font)
             end
           end
           Cosmos.set_working_dir do
