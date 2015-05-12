@@ -70,6 +70,8 @@ module Cosmos
   end # class ScriptRunnerDialog
 
   class ScriptRunnerFrame < Qt::Widget
+    include FindReplaceInterface
+
     slots 'context_menu(const QPoint&)'
     slots 'undo_available(bool)'
     slots 'breakpoint_set(int)'
@@ -696,101 +698,19 @@ module Cosmos
     # Implement Search functionality in the frame (find, replace, etc)
     ##################################################################
     def find
-      unless @find_dialog
-        @find_dialog = FindReplaceDialog.new(@script)
-        @find_dialog.connect(SIGNAL('find_next()')) { dialog_find(@find_dialog) }
-      end
-      @find_dialog.show
-      @find_dialog.raise
-      @find_dialog.activateWindow
+      open_find_dialog(@script)
     end
 
     def find_next
-      flags = FindReplaceDialog.find_flags
-      flags &= ~Qt::TextDocument::FindBackward.to_i
-      found = @script.find(FindReplaceDialog.find_text, flags)
-      if not found and FindReplaceDialog.wrap_around?
-        cursor = @script.textCursor
-        cursor.movePosition(Qt::TextCursor::Start)
-        @script.setTextCursor(cursor)
-        @script.find(FindReplaceDialog.find_text, flags)
-      end
+      super(@script)
     end
 
     def find_previous
-      flags = FindReplaceDialog.find_flags
-      flags |= Qt::TextDocument::FindBackward.to_i
-      found = @script.find(FindReplaceDialog.find_text, flags)
-      if not found and FindReplaceDialog.wrap_around?
-        cursor = @script.textCursor
-        cursor.movePosition(Qt::TextCursor::End)
-        @script.setTextCursor(cursor)
-        @script.find(FindReplaceDialog.find_text, flags)
-      end
+      super(@script)
     end
 
     def replace
-      unless @replace_dialog
-        @replace_dialog = FindReplaceDialog.new(@script, true)
-        @replace_dialog.connect(SIGNAL('find_next()')) { dialog_find(@replace_dialog) }
-        @replace_dialog.connect(SIGNAL('replace()')) { dialog_replace(@replace_dialog) }
-        @replace_dialog.connect(SIGNAL('replace_all()')) { dialog_replace_all(@replace_dialog) }
-      end
-      @replace_dialog.show
-      @replace_dialog.raise
-      @replace_dialog.activateWindow
-    end
-
-    def dialog_find(dialog)
-      found = @script.find(dialog.find_text, dialog.find_flags)
-      if not found and dialog.wrap_around?
-        cursor = @script.textCursor
-        if dialog.find_up?
-          cursor.movePosition(Qt::TextCursor::End)
-        else
-          cursor.movePosition(Qt::TextCursor::Start)
-        end
-        @script.setTextCursor(cursor)
-        @script.find(dialog.find_text, dialog.find_flags)
-      end
-    end
-
-    def dialog_replace(dialog)
-      if @script.textCursor.hasSelection &&
-        @script.textCursor.selectedText == dialog.find_text
-        found = true
-      else
-        found = @script.find(dialog.find_text, dialog.find_flags)
-        if not found and dialog.wrap_around?
-          cursor = @script.textCursor
-          if dialog.find_up?
-            cursor.movePosition(Qt::TextCursor::End)
-          else
-            cursor.movePosition(Qt::TextCursor::Start)
-          end
-          @script.setTextCursor(cursor)
-          found = @script.find(dialog.find_text, dialog.find_flags)
-        end
-      end
-      if found
-        @script.textCursor.removeSelectedText
-        @script.textCursor.insertText(dialog.replace_text)
-        cursor = @script.textCursor
-        cursor.setPosition(cursor.position-1)
-        cursor.select(Qt::TextCursor::WordUnderCursor)
-        @script.setTextCursor(cursor)
-      end
-    end
-
-    def dialog_replace_all(dialog)
-      cursor = @script.textCursor
-      cursor.movePosition(Qt::TextCursor::Start)
-      @script.setTextCursor(cursor)
-
-      while (@script.find(dialog.find_text, dialog.find_flags) == true)
-        @script.textCursor.removeSelectedText
-        @script.textCursor.insertText(dialog.replace_text)
-      end
+      open_replace_dialog(@script)
     end
 
     ##################################################################################
