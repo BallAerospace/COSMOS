@@ -8,227 +8,53 @@
 # as published by the Free Software Foundation; version 3 with
 # attribution addendums as found in the LICENSE.txt
 
-# This file contains the implementation of the FindDialog class.   This class
-# provides a dialog box with options for finding text
-
 require 'cosmos'
 require 'cosmos/gui/qt'
 
 module Cosmos
-  # When using the FindReplaceDialog you can simply
-  # 'include FindReplaceInterface' to mixin all the find and replace
-  # dialog callback methods which are wired to the dialog's signals.
-  module FindReplaceInterface
-    def open_find_dialog(text)
-      unless @find_dialog
-        @find_dialog = create_dialog(text, false)
-      end
-      @find_dialog.show
+  # Provides a Qt::Dialog which implements Find and optionally Replace
+  # functionality for a Qt::PlainTextEdit.
+  class FindReplaceDialog < Qt::Dialog
+    # Constructs a new Find dialog
+    # @param text [Qt::PlainTextEdit] Dialog parent
+    def self.open_find_dialog(text)
+      open_dialog(text) { disable_replace }
     end
 
-    def open_replace_dialog(text)
-      unless @replace_dialog
-        @replace_dialog = create_dialog(text, true)
-        @replace_dialog.connect(SIGNAL('replace()')) do
-          handle_replace_signal(text, @replace_dialog)
-        end
-        @replace_dialog.connect(SIGNAL('replace_all()')) do
-          handle_replace_all_signal(text, @replace_dialog)
-        end
-      end
-      @replace_dialog.show
+    # Constructs a new Find/Replace dialog
+    # @param text [Qt::PlainTextEdit] Dialog parent
+    def self.open_replace_dialog(text)
+      open_dialog(text) { enable_replace }
     end
 
-    def find_next(text)
-      flags = FindReplaceDialog.find_flags
+    # @param text [Qt::PlainTextEdit] Text widget to search
+    def self.find_next(text)
+      flags = @dialog.find_flags()
       flags &= ~Qt::TextDocument::FindBackward.to_i
-      found = text.find(FindReplaceDialog.find_text, flags)
-      if not found and FindReplaceDialog.wrap_around?
+      found = text.find(@dialog.find_text(), flags)
+      if not found and @dialog.wrap_around?
         cursor = text.textCursor
         cursor.movePosition(Qt::TextCursor::Start)
         text.setTextCursor(cursor)
-        text.find(FindReplaceDialog.find_text, flags)
+        text.find(@dialog.find_text(), flags)
       end
     end
 
-    def find_previous(text)
-      flags = FindReplaceDialog.find_flags
+    # @param text [Qt::PlainTextEdit] Text widget to search
+    def self.find_previous(text)
+      flags = @dialog.find_flags()
       flags |= Qt::TextDocument::FindBackward.to_i
-      found = text.find(FindReplaceDialog.find_text, flags)
-      if not found and FindReplaceDialog.wrap_around?
+      found = text.find(@dialog.find_text(), flags)
+      if not found and @dialog.wrap_around?
         cursor = text.textCursor
         cursor.movePosition(Qt::TextCursor::End)
         text.setTextCursor(cursor)
-        text.find(FindReplaceDialog.find_text, flags)
+        text.find(@dialog.find_text(), flags)
       end
     end
 
-    def handle_find_next_signal(text, dialog)
-      found = text.find(dialog.find_text, dialog.find_flags)
-      if not found and dialog.wrap_around?
-        cursor = text.textCursor
-        if dialog.find_up?
-          cursor.movePosition(Qt::TextCursor::End)
-        else
-          cursor.movePosition(Qt::TextCursor::Start)
-        end
-        text.setTextCursor(cursor)
-        text.find(dialog.find_text, dialog.find_flags)
-      end
-    end
-
-    def handle_replace_signal(text, dialog)
-      if text.textCursor.hasSelection &&
-        text.textCursor.selectedText == dialog.find_text
-        found = true
-      else
-        found = text.find(dialog.find_text, dialog.find_flags)
-        if not found and dialog.wrap_around?
-          cursor = text.textCursor
-          if dialog.find_up?
-            cursor.movePosition(Qt::TextCursor::End)
-          else
-            cursor.movePosition(Qt::TextCursor::Start)
-          end
-          text.setTextCursor(cursor)
-          found = text.find(dialog.find_text, dialog.find_flags)
-        end
-      end
-      if found
-        text.textCursor.removeSelectedText
-        text.textCursor.insertText(dialog.replace_text)
-        cursor = text.textCursor
-        cursor.setPosition(cursor.position-1)
-        cursor.select(Qt::TextCursor::WordUnderCursor)
-        text.setTextCursor(cursor)
-      end
-    end
-
-    def handle_replace_all_signal(text, dialog)
-      cursor = text.textCursor
-      cursor.movePosition(Qt::TextCursor::Start)
-      text.setTextCursor(cursor)
-
-      while (text.find(dialog.find_text, dialog.find_flags) == true)
-        text.textCursor.removeSelectedText
-        text.textCursor.insertText(dialog.replace_text)
-      end
-    end
-
-    private
-
-    def create_dialog(text, replace)
-      dialog = FindReplaceDialog.new(text, replace)
-      dialog.connect(SIGNAL('find_next()')) { handle_find_next_signal(text, dialog) }
-      dialog
-    end
-
-    def open_dialog(dialog)
-      dialog.show
-      dialog.raise
-      dialog.activateWindow
-    end
-  end
-
-
-  class FindReplaceDialog < Qt::Dialog
-    attr_reader :replace_dialog
-
-    signals 'find_next()'
-    signals 'replace()'
-    signals 'replace_all()'
-
-    @@find_text = ""
-    @@replace_text = ""
-    @@match_whole_word = false
-    @@match_case = false
-    @@wrap_around = true
-    @@find_up = false
-    @@find_down = true
-    @@find_flags = 0
-
-    def initialize(parent, replace_dialog = false)
-      # Call base class constructor
-      super(parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint)
-      @replace_dialog = replace_dialog
-      setWindowTitle('Find') unless @replace_dialog
-      setWindowTitle('Replace') if @replace_dialog
-
-      @layout = Qt::HBoxLayout.new
-
-      @find_layout = Qt::FormLayout.new
-      @find_box = Qt::LineEdit.new(@@find_text)
-      @find_layout.addRow(tr("Fi&nd what:"), @find_box)
-      if @replace_dialog
-        @replace_box = Qt::LineEdit.new(@@replace_text)
-        @find_layout.addRow(tr("Re&place with:"), @replace_box)
-      end
-
-      @match_whole_word = Qt::CheckBox.new("Match &whole word only")
-      @match_whole_word.setChecked(@@match_whole_word)
-      @match_case = Qt::CheckBox.new("Match &case")
-      @match_case.setChecked(@@match_case)
-      @wrap_around = Qt::CheckBox.new("Wrap ar&ound")
-      @wrap_around.setChecked(@@wrap_around)
-      @checkbox_layout = Qt::VBoxLayout.new
-      @checkbox_layout.addWidget(@match_whole_word)
-      @checkbox_layout.addWidget(@match_case)
-      @checkbox_layout.addWidget(@wrap_around)
-      @checkbox_layout.addStretch
-
-      @up = Qt::RadioButton.new("&Up")
-      @up.setChecked(@@find_up)
-      @down = Qt::RadioButton.new("&Down")
-      @down.setChecked(@@find_down)
-      @direction_layout = Qt::VBoxLayout.new
-      @direction_layout.addWidget(@up)
-      @direction_layout.addWidget(@down)
-      @direction_layout.addStretch
-      @direction = Qt::GroupBox.new(tr("Direction"))
-      @direction.setLayout(@direction_layout)
-
-      @options_layout = Qt::HBoxLayout.new
-      @options_layout.addLayout(@checkbox_layout)
-      @options_layout.addWidget(@direction)
-
-      @left_side = Qt::VBoxLayout.new
-      @left_side.addLayout(@find_layout)
-      @left_side.addLayout(@options_layout)
-
-      @find_next = Qt::PushButton.new("&Find Next")
-      @find_next.setDefault(true)
-      @find_next.connect(SIGNAL('clicked()')) { emit find_next() }
-      @cancel = Qt::PushButton.new("Cancel")
-      @cancel.connect(SIGNAL('clicked()')) { self.reject }
-      if @replace_dialog
-        @replace = Qt::PushButton.new("&Replace")
-        @replace.connect(SIGNAL('clicked()')) { emit replace() }
-        @replace_all = Qt::PushButton.new("Replace &All")
-        @replace_all.connect(SIGNAL('clicked()')) { emit replace_all() }
-      end
-
-      @button_layout = Qt::VBoxLayout.new
-      @button_layout.addWidget(@find_next)
-      if @replace_dialog
-        @button_layout.addWidget(@replace)
-        @button_layout.addWidget(@replace_all)
-      end
-      @button_layout.addWidget(@cancel)
-      @button_layout.addStretch
-
-      @layout.addLayout(@left_side)
-      @layout.addLayout(@button_layout)
-
-      setLayout(@layout)
-
-      self.connect(SIGNAL('finished(int)')) { dialog_closing }
-    end # def initialize
-
-    def show
-      super
-      @find_box.selectAll
-      @find_box.setFocus(Qt::PopupFocusReason)
-    end
+    # Ideally the next few methods would be private as well
+    # but they are needed by the class methods above
 
     def find_flags
       flags = 0
@@ -238,76 +64,164 @@ module Cosmos
       flags
     end
 
-    def find_text
-      @find_box.text
-    end
-
-    def replace_text
-      @replace_box.text if @replace_dialog
-    end
-
-    def match_whole_word?
-      @match_whole_word.isChecked
-    end
-
-    def match_case?
-      @match_case.isChecked
-    end
-
     def wrap_around?
       @wrap_around.isChecked
+    end
+
+    def find_text
+      @@find_box.text
+    end
+
+    private
+
+    def self.open_dialog(text)
+      @dialog = new(text) unless @dialog
+      yield
+      @@find_box.selectAll
+      @@find_box.setFocus(Qt::PopupFocusReason)
+      @@text = text
+      @dialog.show
+    end
+
+    def self.enable_replace
+      @@replace_items.each {|item| item.show }
+      @dialog.setWindowTitle('Replace')
+    end
+
+    def self.disable_replace
+      @@replace_items.each {|item| item.hide }
+      @dialog.setWindowTitle('Find')
+    end
+
+    def initialize(parent)
+      # Parent the dialog to the most native widget in the stack
+      super(parent.nativeParentWidget, Qt::WindowTitleHint | Qt::WindowSystemMenuHint)
+      @@replace_items = []
+
+      layout = Qt::HBoxLayout.new
+
+      find_layout = Qt::FormLayout.new
+      @@find_box = Qt::LineEdit.new
+      find_layout.addRow(tr("Fi&nd what:"), @@find_box)
+      @replace_box = Qt::LineEdit.new
+      replace_label = Qt::Label.new(tr("Re&place with:"))
+      replace_label.setBuddy(@replace_box)
+      @@replace_items << replace_label
+      find_layout.addRow(replace_label, @replace_box)
+      @@replace_items << @replace_box
+
+      @match_whole_word = Qt::CheckBox.new("Match &whole word only")
+      @match_case = Qt::CheckBox.new("Match &case")
+      @wrap_around = Qt::CheckBox.new("Wrap ar&ound")
+      @wrap_around.setChecked(true)
+      checkbox_layout = Qt::VBoxLayout.new
+      checkbox_layout.addWidget(@match_whole_word)
+      checkbox_layout.addWidget(@match_case)
+      checkbox_layout.addWidget(@wrap_around)
+      checkbox_layout.addStretch
+
+      @up = Qt::RadioButton.new("&Up")
+      down = Qt::RadioButton.new("&Down")
+      down.setChecked(true)
+      direction_layout = Qt::VBoxLayout.new
+      direction_layout.addWidget(@up)
+      direction_layout.addWidget(down)
+      direction_layout.addStretch
+      direction = Qt::GroupBox.new(tr("Direction"))
+      direction.setLayout(direction_layout)
+
+      options_layout = Qt::HBoxLayout.new
+      options_layout.addLayout(checkbox_layout)
+      options_layout.addWidget(direction)
+
+      left_side = Qt::VBoxLayout.new
+      left_side.addLayout(find_layout)
+      left_side.addLayout(options_layout)
+
+      find_next = Qt::PushButton.new("&Find Next")
+      find_next.setDefault(true)
+      find_next.connect(SIGNAL('clicked()')) { handle_find_next }
+      cancel = Qt::PushButton.new("Cancel")
+      cancel.connect(SIGNAL('clicked()')) { self.reject }
+      replace = Qt::PushButton.new("&Replace")
+      replace.connect(SIGNAL('clicked()')) { handle_replace }
+      @@replace_items << replace
+      replace_all = Qt::PushButton.new("Replace &All")
+      replace_all.connect(SIGNAL('clicked()')) { handle_replace_all }
+      @@replace_items << replace_all
+
+      button_layout = Qt::VBoxLayout.new
+      button_layout.addWidget(find_next)
+      button_layout.addWidget(replace)
+      button_layout.addWidget(replace_all)
+      button_layout.addWidget(cancel)
+      button_layout.addStretch
+
+      layout.addLayout(left_side)
+      layout.addLayout(button_layout)
+
+      setLayout(layout)
     end
 
     def find_up?
       @up.isChecked
     end
 
-    def find_down?
-      @down.isChecked
+    def replace_text
+      @replace_box.text
     end
 
-    def dialog_closing
-      @@find_text = @find_box.text
-      @@replace_text = @replace_box.text if @replace_dialog
-      @@match_whole_word = @match_whole_word.isChecked
-      @@match_case = @match_case.isChecked
-      @@wrap_around = @wrap_around.isChecked
-      @@find_up = @up.isChecked
-      @@find_down = @down.isChecked
-      @@find_flags = find_flags
+    def handle_find_next
+      found = @@text.find(find_text, find_flags)
+      if not found and wrap_around?
+        cursor = @@text.textCursor
+        if find_up?
+          cursor.movePosition(Qt::TextCursor::End)
+        else
+          cursor.movePosition(Qt::TextCursor::Start)
+        end
+        @@text.setTextCursor(cursor)
+        @@text.find(find_text, find_flags)
+      end
     end
 
-    def self.find_text
-      @@find_text
+    def handle_replace
+      if @@text.textCursor.hasSelection &&
+        @@text.textCursor.selectedText == find_text
+        found = true
+      else
+        found = @@text.find(find_text, find_flags)
+        if not found and wrap_around?
+          cursor = @@text.textCursor
+          if find_up?
+            cursor.movePosition(Qt::TextCursor::End)
+          else
+            cursor.movePosition(Qt::TextCursor::Start)
+          end
+          @@text.setTextCursor(cursor)
+          found = @@text.find(find_text, find_flags)
+        end
+      end
+      if found
+        @@text.textCursor.removeSelectedText
+        @@text.textCursor.insertText(replace_text)
+        cursor = @@text.textCursor
+        cursor.setPosition(cursor.position-1)
+        cursor.select(Qt::TextCursor::WordUnderCursor)
+        @@text.setTextCursor(cursor)
+      end
     end
 
-    def self.replace_text
-      @@replace_text
+    def handle_replace_all
+      cursor = @@text.textCursor
+      cursor.movePosition(Qt::TextCursor::Start)
+      @@text.setTextCursor(cursor)
+
+      while (@@text.find(find_text, find_flags) == true)
+        @@text.textCursor.removeSelectedText
+        @@text.textCursor.insertText(replace_text)
+      end
     end
 
-    def self.match_whole_word?
-      @@match_whole_word
-    end
-
-    def self.match_case?
-      @@match_case
-    end
-
-    def self.wrap_around?
-      @@wrap_around
-    end
-
-    def self.find_up?
-      @@find_up
-    end
-
-    def self.find_down?
-      @@find_down
-    end
-
-    def self.find_flags
-      @@find_flags
-    end
   end # class FindReplaceDialog
-
 end # module Cosmos

@@ -37,11 +37,9 @@ module Cosmos
   class ScriptRunnerDialog < Qt::Dialog
     attr_reader :script_runner_frame
 
-    # Constructor
     def initialize(parent,
                    title,
                    default_tab_text = 'Untitled')
-      # Call base class constructor
       super(parent)
       setWindowTitle(title)
       setMinimumWidth(parent.width * 0.8)
@@ -52,7 +50,7 @@ module Cosmos
       layout = Qt::VBoxLayout.new
       layout.addWidget(@script_runner_frame)
       setLayout(layout)
-    end # def initialize
+    end
 
     # Executes the given text and closes when complete
     def execute_text_and_close_on_complete(text, text_binding = nil)
@@ -70,8 +68,6 @@ module Cosmos
   end # class ScriptRunnerDialog
 
   class ScriptRunnerFrame < Qt::Widget
-    include FindReplaceInterface
-
     slots 'context_menu(const QPoint&)'
     slots 'undo_available(bool)'
     slots 'breakpoint_set(int)'
@@ -104,6 +100,7 @@ module Cosmos
     attr_reader   :script_class
     attr_reader   :top_level_instrumented_cache
     attr_accessor :stdout_max_lines
+    attr_reader   :script
 
     @@instance = nil
     @@run_thread = nil
@@ -694,25 +691,6 @@ module Cosmos
       @script.comment_or_uncomment_lines unless running?()
     end
 
-    ##################################################################
-    # Implement Search functionality in the frame (find, replace, etc)
-    ##################################################################
-    def find
-      open_find_dialog(@script)
-    end
-
-    def find_next
-      super(@script)
-    end
-
-    def find_previous
-      super(@script)
-    end
-
-    def replace
-      open_replace_dialog(@script)
-    end
-
     ##################################################################################
     # Implement Script functionality in the frame (run selection, run from cursor, etc
     ##################################################################################
@@ -760,10 +738,11 @@ module Cosmos
       end
     end
 
-    def ruby_syntax_check_text(text)
+    def ruby_syntax_check_text(selection = nil)
       unless self.class.running?()
+        selection = text() unless selection
         check_process = IO.popen("ruby -c -rubygems 2>&1", 'r+')
-        check_process.write("require 'cosmos'; require 'cosmos/script'; " + text)
+        check_process.write("require 'cosmos'; require 'cosmos/script'; " + selection)
         check_process.close_write
         results = check_process.gets
         check_process.close

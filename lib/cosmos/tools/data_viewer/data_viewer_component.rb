@@ -9,18 +9,18 @@
 # attribution addendums as found in the LICENSE.txt
 
 require 'cosmos'
-require 'cosmos/gui/dialogs/find_replace_dialog'
 
 module Cosmos
 
   class DataViewerComponent < Qt::Widget
-    include FindReplaceInterface
-
     attr_reader :tab_name
     attr_reader :packets
     attr_reader :text
 
-    # Initialize the Data Viewer Component
+    # Create a component to go inside the DataViewer
+    #
+    # @param parent [Qt::Widget] Parent widget
+    # @param tab_name [String] Name of the tab which displays this widget
     def initialize(parent, tab_name)
       super(parent)
       @tab_name = tab_name
@@ -32,6 +32,9 @@ module Cosmos
     end
 
     # Adds a packet to the list of packets this components processes
+    #
+    # @param target_name [String] Name of the target
+    # @param packet_name [String] Name of the packet
     def add_packet(target_name, packet_name)
       @packets << [target_name, packet_name]
     end
@@ -94,10 +97,11 @@ module Cosmos
     end
 
     def showEvent(event)
-      # When the tab is shown we want to ensure the scroll bar is at the maximum to allow
-      # the PlainTextArea to automatically hold the scroll at the bottom of the display while
-      # appending things. If this is not done, switching tabs will cause the scroll bar to "stick"
-      # and not stay at the bottom with the newest text.
+      # When the tab is shown we want to ensure the scroll bar is at the
+      # maximum to allow the PlainTextArea to automatically hold the scroll
+      # at the bottom of the display while appending things.
+      # If this is not done, switching tabs will cause the scroll bar
+      # to "stick" and not stay at the bottom with the newest text.
       @timer.start(100)
     end
 

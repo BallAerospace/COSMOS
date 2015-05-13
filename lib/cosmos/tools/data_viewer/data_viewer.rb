@@ -181,19 +181,19 @@ module Cosmos
 
     def find
       current_component do |component|
-        component.open_find_dialog(component.text)
+        FindReplaceDialog.open_find_dialog(component.text)
       end
     end
 
     def find_next
       current_component do |component|
-        component.find_next(component.text)
+        FindReplaceDialog.find_next(component.text)
       end
     end
 
     def find_previous
       current_component do |component|
-        component.find_previous(component.text)
+        FindReplaceDialog.find_previous(component.text)
       end
     end
 
