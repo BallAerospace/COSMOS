@@ -181,7 +181,7 @@ module Cosmos
 
     def find
       current_component do |component|
-        FindReplaceDialog.open_find_dialog(component.text)
+        FindReplaceDialog.show_find(component.text)
       end
     end
 

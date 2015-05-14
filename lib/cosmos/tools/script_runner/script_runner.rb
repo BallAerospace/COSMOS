@@ -160,7 +160,7 @@ module Cosmos
       @search_find.shortcut  = @search_find_keyseq
       @search_find.statusTip = tr('Find text')
       @search_find.connect(SIGNAL('triggered()')) do
-        FindReplaceDialog.open_find_dialog(active_script_runner_frame().script)
+        FindReplaceDialog.show_find(active_script_runner_frame().script)
       end
 
       @search_find_next = Qt::Action.new(tr('Find &Next'), self)
@@ -184,7 +184,7 @@ module Cosmos
       @search_replace.shortcut  = @search_replace_keyseq
       @search_replace.statusTip = tr('Replace')
       @search_replace.connect(SIGNAL('triggered()')) do
-        FindReplaceDialog.open_replace_dialog(active_script_runner_frame().script)
+        FindReplaceDialog.show_replace(active_script_runner_frame().script)
       end
 
       # Script Actions
