@@ -1,4 +1,4 @@
-TITLE 'COSMOS Command and Telemetry Server - Demo Configuration'
+TITLE 'COSMOS Command and Telemetry Server - Threads Configuration'
 
 PACKET_LOG_WRITER DEFAULT packet_log_writer.rb
 

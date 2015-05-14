@@ -16,5 +16,5 @@ require 'memory_profiler'
 report = MemoryProfiler.report do
   Cosmos::CmdTlmServerGui.run
 end
-File.open(File.build_timestamped_filename(%w(cts memory profile)),'w') {|file| report.pretty_print(file) }
+File.open(File.build_timestamped_filename(%w(cts memory)),'w') {|file| report.pretty_print(file) }
 
