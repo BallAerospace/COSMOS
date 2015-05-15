@@ -180,28 +180,20 @@ module Cosmos
     end
 
     def find
-      unless @find_dialog
-        @find_dialog = FindReplaceDialog.new(@script, false)
-        @find_dialog.connect(SIGNAL('find_next()')) do
-          current_component do |component|
-            component.find(@find_dialog)
-          end
-        end
+      current_component do |component|
+        FindReplaceDialog.show_find(component.text)
       end
-      @find_dialog.show
-      @find_dialog.raise
-      @find_dialog.activateWindow
     end
 
     def find_next
       current_component do |component|
-        component.find_next(@find_dialog) if @find_dialog
+        FindReplaceDialog.find_next(component.text)
       end
     end
 
     def find_previous
       current_component do |component|
-        component.find_previous(@find_dialog) if @find_dialog
+        FindReplaceDialog.find_previous(component.text)
       end
     end
 

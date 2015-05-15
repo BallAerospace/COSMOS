@@ -15,8 +15,12 @@ module Cosmos
   class DataViewerComponent < Qt::Widget
     attr_reader :tab_name
     attr_reader :packets
+    attr_reader :text
 
-    # Initialize the Data Viewer Component
+    # Create a component to go inside the DataViewer
+    #
+    # @param parent [Qt::Widget] Parent widget
+    # @param tab_name [String] Name of the tab which displays this widget
     def initialize(parent, tab_name)
       super(parent)
       @tab_name = tab_name
@@ -28,6 +32,9 @@ module Cosmos
     end
 
     # Adds a packet to the list of packets this components processes
+    #
+    # @param target_name [String] Name of the target
+    # @param packet_name [String] Name of the packet
     def add_packet(target_name, packet_name)
       @packets << [target_name, packet_name]
     end
@@ -89,49 +96,12 @@ module Cosmos
       @text.setPlainText("")
     end
 
-    def find(dialog)
-      found = @text.find(dialog.find_text, dialog.find_flags)
-      if not found and dialog.wrap_around?
-        cursor = @text.textCursor
-        if dialog.find_up?
-          cursor.movePosition(Qt::TextCursor::End)
-        else
-          cursor.movePosition(Qt::TextCursor::Start)
-        end
-        @text.setTextCursor(cursor)
-        @text.find(dialog.find_text, dialog.find_flags)
-      end
-    end
-
-    def find_next(dialog)
-      flags = dialog.find_flags
-      flags &= ~Qt::TextDocument::FindBackward.to_i
-      found = @text.find(dialog.find_text, flags)
-      if not found and dialog.wrap_around?
-        cursor = @text.textCursor
-        cursor.movePosition(Qt::TextCursor::Start)
-        @text.setTextCursor(cursor)
-        @text.find(dialog.find_text, flags)
-      end
-    end
-
-    def find_previous(dialog)
-      flags = dialog.find_flags
-      flags |= Qt::TextDocument::FindBackward.to_i
-      found = @text.find(dialog.find_text, flags)
-      if not found and dialog.wrap_around?
-        cursor = @text.textCursor
-        cursor.movePosition(Qt::TextCursor::End)
-        @text.setTextCursor(cursor)
-        @text.find(dialog.find_text, flags)
-      end
-    end
-
     def showEvent(event)
-      # When the tab is shown we want to ensure the scroll bar is at the maximum to allow
-      # the PlainTextArea to automatically hold the scroll at the bottom of the display while
-      # appending things. If this is not done, switching tabs will cause the scroll bar to "stick"
-      # and not stay at the bottom with the newest text.
+      # When the tab is shown we want to ensure the scroll bar is at the
+      # maximum to allow the PlainTextArea to automatically hold the scroll
+      # at the bottom of the display while appending things.
+      # If this is not done, switching tabs will cause the scroll bar
+      # to "stick" and not stay at the bottom with the newest text.
       @timer.start(100)
     end
 

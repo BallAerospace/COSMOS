@@ -159,31 +159,39 @@ module Cosmos
       @search_find_keyseq = Qt::KeySequence.new(tr('Ctrl+F'))
       @search_find.shortcut  = @search_find_keyseq
       @search_find.statusTip = tr('Find text')
-      @search_find.connect(SIGNAL('triggered()')) { active_script_runner_frame.find() }
+      @search_find.connect(SIGNAL('triggered()')) do
+        FindReplaceDialog.show_find(active_script_runner_frame().script)
+      end
 
       @search_find_next = Qt::Action.new(tr('Find &Next'), self)
       @search_find_next_keyseq = Qt::KeySequence.new(tr('F3'))
       @search_find_next.shortcut  = @search_find_next_keyseq
       @search_find_next.statusTip = tr('Find next instance')
-      @search_find_next.connect(SIGNAL('triggered()')) { active_script_runner_frame.find_next() }
+      @search_find_next.connect(SIGNAL('triggered()')) do
+        FindReplaceDialog.find_next(active_script_runner_frame().script)
+      end
 
       @search_find_previous = Qt::Action.new(tr('Find &Previous'), self)
       @search_find_previous_keyseq = Qt::KeySequence.new(tr('Shift+F3'))
       @search_find_previous.shortcut  = @search_find_previous_keyseq
       @search_find_previous.statusTip = tr('Find previous instance')
-      @search_find_previous.connect(SIGNAL('triggered()')) { active_script_runner_frame.find_previous() }
+      @search_find_previous.connect(SIGNAL('triggered()')) do
+        FindReplaceDialog.find_previous(active_script_runner_frame().script)
+      end
 
       @search_replace = Qt::Action.new(tr('&Replace'), self)
       @search_replace_keyseq = Qt::KeySequence.new(tr('Ctrl+H'))
       @search_replace.shortcut  = @search_replace_keyseq
       @search_replace.statusTip = tr('Replace')
-      @search_replace.connect(SIGNAL('triggered()')) { active_script_runner_frame.replace() }
+      @search_replace.connect(SIGNAL('triggered()')) do
+        FindReplaceDialog.show_replace(active_script_runner_frame().script)
+      end
 
       # Script Actions
       @script_syntax_all = Qt::Action.new(tr('&Ruby Syntax Check'), self)
       @script_syntax_all.statusTip = tr('Check ruby syntax of this script')
       @script_syntax_all.connect(SIGNAL('triggered()')) do
-        active_script_runner_frame().ruby_syntax_check_text(active_script_runner_frame().text)
+        active_script_runner_frame().ruby_syntax_check_text()
       end
 
       @script_mnemonic_all = Qt::Action.new(tr('&Mnemonic Check'), self)
