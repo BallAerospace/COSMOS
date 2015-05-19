@@ -12,6 +12,49 @@ require 'cosmos/script/script'
 
 $cmd_tlm_gui_window = nil
 
+class Qt::MessageBox
+  def exec(*args)
+    Cosmos.play_wav_file(Cosmos.data_path('message.wav')) if Cosmos::System.sound
+    method_missing(:exec, *args)
+  end
+  def self.critical(parent, title, text,
+                    buttons = Qt::MessageBox::Ok,
+                    defaultButton = Qt::MessageBox::NoButton)
+    # Windows overrides critical dialogs with its own alert sound
+    Cosmos.play_wav_file(Cosmos.data_path('critical.wav')) if Cosmos::System.sound
+    super(parent,title,text,buttons,defaultButton)
+  end
+  def self.information(parent, title, text,
+                       buttons = Qt::MessageBox::Ok,
+                       defaultButton = Qt::MessageBox::NoButton)
+    Cosmos.play_wav_file(Cosmos.data_path('information.wav')) if Cosmos::System.sound
+    super(parent,title,text,buttons,defaultButton)
+  end
+  def self.question(parent, title, text,
+                    buttons = Qt::MessageBox::Ok,
+                    defaultButton = Qt::MessageBox::NoButton)
+    Cosmos.play_wav_file(Cosmos.data_path('question.wav')) if Cosmos::System.sound
+    super(parent,title,text,buttons,defaultButton)
+  end
+  def self.warning(parent, title, text,
+                   buttons = Qt::MessageBox::Ok,
+                   defaultButton = Qt::MessageBox::NoButton)
+    # Windows overrides warning dialogs with its own alert sound
+    Cosmos.play_wav_file(Cosmos.data_path('warning.wav')) if Cosmos::System.sound
+    super(parent,title,text,buttons,defaultButton)
+  end
+end
+
+class Qt::InputDialog
+  def self.getText(parent, title, label,
+                   mode = Qt::LineEdit::Normal,
+                   text = '', ok = 0, flags = 0,
+                   inputMethodHints = Qt::ImhNone)
+    Cosmos.play_wav_file(Cosmos.data_path('input.wav')) if Cosmos::System.sound
+    super(parent, title, label, mode, text, ok, flags, inputMethodHints)
+  end
+end
+
 module Cosmos
 
   # Cosmos script changes to handle hazardous commands and prompts

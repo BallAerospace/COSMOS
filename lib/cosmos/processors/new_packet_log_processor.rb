@@ -24,7 +24,7 @@ module Cosmos
     #
     # See Processor#call
     def call(packet, buffer)
-      if CmdTlmServer.instance
+      if CmdTlmServer.instance and $0 !~ /Replay/
         CmdTlmServer.instance.start_logging(@packet_log_writer_name)
       end
     end

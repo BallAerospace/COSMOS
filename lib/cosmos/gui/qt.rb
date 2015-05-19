@@ -235,27 +235,8 @@ module Cosmos
 
   # Load the applications icon
   def self.get_icon(name, fail_blank = true)
-    icon = nil
-    filename = File.join(::Cosmos::USERPATH, 'config', 'data', name)
-    begin
-      raise unless File.exist? filename
-      icon = Qt::Icon.new(filename)
-      raise if icon.isNull
-    rescue
-      begin
-        filename = File.join(::Cosmos::PATH, 'data', name)
-        raise unless File.exist? filename
-        icon = Qt::Icon.new(filename)
-        raise if icon.isNull
-      rescue
-        # Return a blank icon if we couldn't find an icon in either the user path or cosmos path
-        if fail_blank
-          icon = Qt::Icon.new
-        else
-          icon = nil
-        end
-      end
-    end
+    icon = Qt::Icon.new(Cosmos.data_path(name))
+    icon = nil if icon.isNull && !fail_blank
     return icon
   end
 end
@@ -285,6 +266,16 @@ class Qt::CoreApplication
   end
 end
 #### END TEMPORARY UNTIL INCLUDED IN QTBINDINGS ####
+
+class Qt::Icon
+  def initialize(param = nil)
+    if param
+      super(param)
+    else
+      super()
+    end
+  end
+end
 
 class Qt::Dialog
   def initialize(parent = Qt::Application.activeWindow,

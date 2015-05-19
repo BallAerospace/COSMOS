@@ -136,6 +136,20 @@ module Cosmos
     end
   end
 
+  # Searches the COSMOS::USERPATH/config/data directory and then the core
+  # COSMOS/data directory for the given file name. Returns the absolute file
+  # path or nil if the file could not be found. This allows for user configuration
+  # files to override COSMOS data file defaults.
+  def self.data_path(name)
+    filename = File.join(::Cosmos::USERPATH, 'config', 'data', name)
+    return filename if File.exist? filename
+
+    filename = File.join(::Cosmos::PATH, 'data', name)
+    return filename if File.exist? filename
+
+    nil
+  end
+
   # Creates a marshal file by serializing the given obj
   #
   # @param marshal_filename [String] Name of the marshal file to create
@@ -669,6 +683,20 @@ module Cosmos
         socket.close unless socket.closed?
       rescue Exception
         # Oh well we tried
+      end
+    end
+  end
+
+  # Play a wav file
+  # @param wav_filename filename of the wav file
+  def self.play_wav_file(wav_filename)
+    if defined? Qt and wav_filename
+      Qt.execute_in_main_thread(true) do
+        if Qt::CoreApplication.instance and Qt::Sound.isAvailable
+          Cosmos.set_working_dir do
+            Qt::Sound.play(wav_filename.to_s)
+          end
+        end
       end
     end
   end
