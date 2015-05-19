@@ -235,18 +235,9 @@ module Cosmos
 
   # Load the applications icon
   def self.get_icon(name, fail_blank = true)
-    icon = Qt::Icon.new(Cosmos.get_data_file(name))
+    icon = Qt::Icon.new(Cosmos.data_path(name))
     icon = nil if icon.isNull && !fail_blank
     return icon
-  end
-
-  def self.play_wav_file(name)
-    if Qt::CoreApplication.instance and Qt::Sound.isAvailable
-      filename = Cosmos.get_data_file(name)
-      if filename
-        Qt.execute_in_main_thread(true) { Qt::Sound.play(filename) }
-      end
-    end
   end
 end
 

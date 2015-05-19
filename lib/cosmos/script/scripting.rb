@@ -19,15 +19,7 @@ module Cosmos
     include Extract
 
     def play_wav_file(wav_filename)
-      if defined? Qt
-        Qt.execute_in_main_thread(true) do
-          if Qt::CoreApplication.instance and Qt::Sound.isAvailable
-            Cosmos.set_working_dir do
-              Qt::Sound.play(wav_filename.to_s)
-            end
-          end
-        end
-      end
+      Cosmos.play_wav_file(wav_filename)
     end
 
     def status_bar(message)

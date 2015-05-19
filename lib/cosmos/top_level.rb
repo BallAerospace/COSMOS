@@ -140,7 +140,7 @@ module Cosmos
   # COSMOS/data directory for the given file name. Returns the absolute file
   # path or nil if the file could not be found. This allows for user configuration
   # files to override COSMOS data file defaults.
-  def self.get_data_file(name)
+  def self.data_path(name)
     filename = File.join(::Cosmos::USERPATH, 'config', 'data', name)
     return filename if File.exist? filename
 
@@ -683,6 +683,20 @@ module Cosmos
         socket.close unless socket.closed?
       rescue Exception
         # Oh well we tried
+      end
+    end
+  end
+
+  # Play a wav file
+  # @param wav_filename filename of the wav file
+  def self.play_wav_file(wav_filename)
+    if defined? Qt and wav_filename
+      Qt.execute_in_main_thread(true) do
+        if Qt::CoreApplication.instance and Qt::Sound.isAvailable
+          Cosmos.set_working_dir do
+            Qt::Sound.play(wav_filename.to_s)
+          end
+        end
       end
     end
   end
