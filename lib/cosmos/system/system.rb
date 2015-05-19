@@ -39,6 +39,8 @@ module Cosmos
     instance_attr_reader :default_packet_log_writer
     # @return [PacketLogReader] Class used to read log files
     instance_attr_reader :default_packet_log_reader
+    # @return [Boolean] Whether to use sound for alerts
+    instance_attr_reader :sound
     # @return [Boolean] Whether to use DNS to lookup IP addresses or not
     instance_attr_reader :use_dns
     # @return [String] Stores the initial configuration file used when this
@@ -81,6 +83,7 @@ module Cosmos
       @cmd_tlm_version = nil
       @default_packet_log_writer = PacketLogWriter
       @default_packet_log_reader = PacketLogReader
+      @sound = false
       @use_dns = true
       @acl = nil
       @staleness_seconds = 30
@@ -266,6 +269,11 @@ module Cosmos
             usage = "#{keyword} <FILENAME>"
             parser.verify_num_parameters(1, 1, usage)
             @default_packet_log_reader = Cosmos.require_class(parameters[0])
+
+          when 'ENABLE_SOUND'
+            usage = "#{keyword}"
+            parser.verify_num_parameters(0, 0, usage)
+            @sound = true
 
           when 'DISABLE_DNS'
             usage = "#{keyword}"

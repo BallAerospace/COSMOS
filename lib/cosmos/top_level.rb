@@ -136,6 +136,20 @@ module Cosmos
     end
   end
 
+  # Searches the COSMOS::USERPATH/config/data directory and then the core
+  # COSMOS/data directory for the given file name. Returns the absolute file
+  # path or nil if the file could not be found. This allows for user configuration
+  # files to override COSMOS data file defaults.
+  def self.get_data_file(name)
+    filename = File.join(::Cosmos::USERPATH, 'config', 'data', name)
+    return filename if File.exist? filename
+
+    filename = File.join(::Cosmos::PATH, 'data', name)
+    return filename if File.exist? filename
+
+    nil
+  end
+
   # Creates a marshal file by serializing the given obj
   #
   # @param marshal_filename [String] Name of the marshal file to create

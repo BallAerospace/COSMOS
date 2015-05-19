@@ -13,6 +13,7 @@ module Cosmos
   class AboutDialog < Qt::Dialog
     ABOUT_COSMOS = ''
     ABOUT_COSMOS << "COSMOS application icons are courtesy of http://icons8.com.\n"
+    ABOUT_COSMOS << "COSMOS application sounds are courtesy of http://www.freesfx.co.uk.\n"
     ABOUT_COSMOS << "\n"
     ABOUT_COSMOS << "COSMOS utilizes the QtRuby (http://rubyforge.org/projects/korundum) library under "
     ABOUT_COSMOS << "the GNU Lesser General Public License. QtRuby is a Ruby extension module that provides an "
