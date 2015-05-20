@@ -2,65 +2,65 @@ TITLE 'COSMOS Command and Telemetry Server - Threads Configuration'
 
 PACKET_LOG_WRITER DEFAULT packet_log_writer.rb
 
-INTERFACE 9999_INT example_interface.rb localhost 9999
+INTERFACE 9999_INT thread_interface.rb localhost 9999
   TARGET 9999
-INTERFACE 9998_INT example_interface.rb localhost 9998
+INTERFACE 9998_INT thread_interface.rb localhost 9998
   TARGET 9998
-INTERFACE 9997_INT example_interface.rb localhost 9997
+INTERFACE 9997_INT thread_interface.rb localhost 9997
   TARGET 9997
-INTERFACE 9996_INT example_interface.rb localhost 9996
+INTERFACE 9996_INT thread_interface.rb localhost 9996
   TARGET 9996
-INTERFACE 9995_INT example_interface.rb localhost 9995
+INTERFACE 9995_INT thread_interface.rb localhost 9995
   TARGET 9995
-INTERFACE 9994_INT example_interface.rb localhost 9994
+INTERFACE 9994_INT thread_interface.rb localhost 9994
   TARGET 9994
-INTERFACE 9993_INT example_interface.rb localhost 9993
+INTERFACE 9993_INT thread_interface.rb localhost 9993
   TARGET 9993
-INTERFACE 9992_INT example_interface.rb localhost 9992
+INTERFACE 9992_INT thread_interface.rb localhost 9992
   TARGET 9992
-INTERFACE 9991_INT example_interface.rb localhost 9991
+INTERFACE 9991_INT thread_interface.rb localhost 9991
   TARGET 9991
-INTERFACE 9990_INT example_interface.rb localhost 9990
+INTERFACE 9990_INT thread_interface.rb localhost 9990
   TARGET 9990
-INTERFACE 9989_INT example_interface.rb localhost 9989
+INTERFACE 9989_INT thread_interface.rb localhost 9989
   TARGET 9989
-INTERFACE 9988_INT example_interface.rb localhost 9988
+INTERFACE 9988_INT thread_interface.rb localhost 9988
   TARGET 9988
-INTERFACE 9987_INT example_interface.rb localhost 9987
+INTERFACE 9987_INT thread_interface.rb localhost 9987
   TARGET 9987
-INTERFACE 9986_INT example_interface.rb localhost 9986
+INTERFACE 9986_INT thread_interface.rb localhost 9986
   TARGET 9986
-INTERFACE 9985_INT example_interface.rb localhost 9985
+INTERFACE 9985_INT thread_interface.rb localhost 9985
   TARGET 9985
-INTERFACE 9984_INT example_interface.rb localhost 9984
+INTERFACE 9984_INT thread_interface.rb localhost 9984
   TARGET 9984
-INTERFACE 9983_INT example_interface.rb localhost 9983
+INTERFACE 9983_INT thread_interface.rb localhost 9983
   TARGET 9983
-INTERFACE 9982_INT example_interface.rb localhost 9982
+INTERFACE 9982_INT thread_interface.rb localhost 9982
   TARGET 9982
-INTERFACE 9981_INT example_interface.rb localhost 9981
+INTERFACE 9981_INT thread_interface.rb localhost 9981
   TARGET 9981
-INTERFACE 9980_INT example_interface.rb localhost 9980
+INTERFACE 9980_INT thread_interface.rb localhost 9980
   TARGET 9980
-INTERFACE 9979_INT example_interface.rb localhost 9979
+INTERFACE 9979_INT thread_interface.rb localhost 9979
   TARGET 9979
-INTERFACE 9978_INT example_interface.rb localhost 9978
+INTERFACE 9978_INT thread_interface.rb localhost 9978
   TARGET 9978
-INTERFACE 9977_INT example_interface.rb localhost 9977
+INTERFACE 9977_INT thread_interface.rb localhost 9977
   TARGET 9977
-INTERFACE 9976_INT example_interface.rb localhost 9976
+INTERFACE 9976_INT thread_interface.rb localhost 9976
   TARGET 9976
-INTERFACE 9975_INT example_interface.rb localhost 9975
+INTERFACE 9975_INT thread_interface.rb localhost 9975
   TARGET 9975
-INTERFACE 9974_INT example_interface.rb localhost 9974
+INTERFACE 9974_INT thread_interface.rb localhost 9974
   TARGET 9974
-INTERFACE 9973_INT example_interface.rb localhost 9973
+INTERFACE 9973_INT thread_interface.rb localhost 9973
   TARGET 9973
-INTERFACE 9972_INT example_interface.rb localhost 9972
+INTERFACE 9972_INT thread_interface.rb localhost 9972
   TARGET 9972
-INTERFACE 9971_INT example_interface.rb localhost 9971
+INTERFACE 9971_INT thread_interface.rb localhost 9971
   TARGET 9971
-INTERFACE 9970_INT example_interface.rb localhost 9970
+INTERFACE 9970_INT thread_interface.rb localhost 9970
   TARGET 9970
 
 INTERFACE COSMOS_INT cmd_tlm_server_interface.rb

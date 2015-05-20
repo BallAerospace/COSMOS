@@ -14,9 +14,9 @@ require 'cosmos/tools/cmd_tlm_server/interface_thread'
 
 module Cosmos
 
-  class ExampleTarget
+  class ThreadTarget
 
-    class ExampleServerInterface < TcpipServerInterface
+    class ThreadServerInterface < TcpipServerInterface
       def initialize(port)
         @port = port
         super(port, port, 5.0, nil, 'LENGTH', 0, 32, 4, 1, 'BIG_ENDIAN', 4)
@@ -27,7 +27,7 @@ module Cosmos
       end
     end
 
-    class ExampleInterfaceThread < InterfaceThread
+    class ThreadInterfaceThread < InterfaceThread
 
       protected
 
@@ -41,7 +41,7 @@ module Cosmos
       end
     end
 
-    class ExampleTelemetryThread
+    class ThreadTelemetryThread
       attr_reader :thread
 
       def initialize(interface, port, packet, rate)
@@ -66,7 +66,7 @@ module Cosmos
               end
             end
           rescue Exception => err
-            Logger.error "ExampleTelemetryThread unexpectedly died\n#{err.formatted}"
+            Logger.error "ThreadTelemetryThread unexpectedly died\n#{err.formatted}"
           end
         end
       end
@@ -85,15 +85,15 @@ module Cosmos
       @packet = arguments[1]
       @rate = arguments[2]
       # Create interface to receive commands and send telemetry
-      @interface = ExampleServerInterface.new(@port)
+      @interface = ThreadServerInterface.new(@port)
       @interface_thread = nil
       @telemetry_thread = nil
     end
 
     def start
-      @interface_thread = ExampleInterfaceThread.new(@interface)
+      @interface_thread = ThreadInterfaceThread.new(@interface)
       @interface_thread.start
-      @telemetry_thread = ExampleTelemetryThread.new(@interface, @port, @packet, @rate)
+      @telemetry_thread = ThreadTelemetryThread.new(@interface, @port, @packet, @rate)
       @telemetry_thread.start
     end
 
@@ -115,6 +115,6 @@ module Cosmos
       end
     end
 
-  end # class ExampleTarget
+  end # class ThreadTarget
 
 end # module Cosmos

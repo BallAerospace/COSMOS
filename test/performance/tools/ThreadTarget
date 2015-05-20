@@ -10,5 +10,5 @@
 # attribution addendums as found in the LICENSE.txt
 
 require 'cosmos'
-require 'example_target'
-Cosmos::ExampleTarget.run
+require 'thread_target'
+Cosmos::ThreadTarget.run
