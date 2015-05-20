@@ -1,0 +1,98 @@
+TELEMETRY PACKET STATUS BIG_ENDIAN "Health and status from the instrument"
+  ITEM CCSDSVER           0  3 UINT     "CCSDS packet version number (See CCSDS 133.0-B-1)"
+  ITEM CCSDSTYPE          3  1 UINT     "CCSDS packet type (command or telemetry)"
+    STATE TLM 0
+    STATE CMD 1
+  ITEM CCSDSSHF           4  1 UINT     "CCSDS secondary header flag"
+    STATE FALSE 0
+    STATE TRUE 1
+  ID_ITEM CCSDSAPID       5 11 UINT   1 "CCSDS application process id"
+  ITEM CCSDSSEQFLAGS     16  2 UINT     "CCSDS sequence flags"
+    STATE FIRST 1
+    STATE CONT 0
+    STATE LAST 2
+    STATE NOGROUP 3
+  ITEM CCSDSSEQCNT       18 14 UINT     "CCSDS packet sequence count"
+    OVERFLOW TRUNCATE
+  ITEM CCSDSLENGTH       32 16 UINT     "CCSDS packet data length"
+  ITEM TIMESEC           48 32 UINT     "Seconds since epoch (January 1st, 1970, midnight)"
+  ITEM TIMEUS            80 32 UINT     "Microseconds of second"
+  ID_ITEM PKTID         112 16 UINT   1 "Packet id (The combination of CCSDS_APID and PACKET_ID identify the packet)"
+  APPEND_ITEM COLLECTS 16 UINT     "Number of collects"
+  MACRO_APPEND_START 1 10 "%s_%d"
+    APPEND_ITEM TEMP1 16 UINT     "Temperature #1"
+      POLY_READ_CONVERSION  -100.0 0.00305
+      POLY_WRITE_CONVERSION 32768.885246 327.86885
+      UNITS CELCIUS C
+      FORMAT_STRING "%0.3f"
+      LIMITS DEFAULT 1 ENABLED -80.0 -70.0 60.0 80.0 -20.0 20.0
+      LIMITS TVAC 1     ENABLED -80.0 -30.0 30.0 80.0
+      LIMITS_RESPONSE packet_limits_response.rb
+    APPEND_ITEM TEMP2 16 UINT     "Temperature #2"
+      POLY_READ_CONVERSION -100.0 0.00305
+      POLY_WRITE_CONVERSION 32768.885246 327.86885
+      UNITS CELCIUS C
+      FORMAT_STRING "%0.3f"
+      LIMITS DEFAULT 1 ENABLED -60.0 -55.0 30.0 35.0
+      LIMITS TVAC 1 ENABLED -60.0 20.0 30.0 35.0
+    APPEND_ITEM TEMP3 16 UINT     "Temperature #3"
+      POLY_READ_CONVERSION -100.0 0.00305
+      POLY_WRITE_CONVERSION 32768.885246 327.86885
+      UNITS CELCIUS C
+      FORMAT_STRING "%0.3f"
+      LIMITS DEFAULT 1 ENABLED -25.0 -10.0 50.0 55.0
+      LIMITS TVAC 1 ENABLED -15.0 -10.0 20.0 30.0
+    APPEND_ITEM TEMP4 16 UINT     "Temperature #4"
+      POLY_READ_CONVERSION -100.0 0.00305
+      POLY_WRITE_CONVERSION 32768.885246 327.86885
+      UNITS CELCIUS C
+      FORMAT_STRING "%0.3f"
+      LIMITS DEFAULT 1 ENABLED -80.0 -70.0 60.0 80.0
+  MACRO_APPEND_END
+  APPEND_ARRAY_ITEM ARY 8 UINT 80 "Array data"
+    UNITS VOLTS V
+  APPEND_ITEM DURATION 32 FLOAT "Most recent collect duration"
+  APPEND_ITEM DURATION_CONVERT 32 UINT "DURATION converted by a generic conversion"
+    GENERIC_READ_CONVERSION_START
+      result = myself.read('DURATION', :RAW)
+      return result * 1.5
+    GENERIC_READ_CONVERSION_END
+  APPEND_ITEM COLLECT_TYPE 16 UINT "Most recent collect type"
+    STATE NORMAL  0
+    STATE SPECIAL 1
+  APPEND_ARRAY_ITEM ARY2      64 FLOAT 640 "Double array"
+    UNITS CELCIUS C
+  APPEND_ITEM ASCIICMD 2048 STRING "Most recent ASCIICMD string"
+    STATE "NOOP" "NOOP"
+    STATE "FIRE LASER" "FIRE LASER"
+    STATE "ARM LASER" "ARM LASER"
+  APPEND_ITEM GROUND1STATUS 8 UINT "Ground station #1 status"
+    STATE CONNECTED 1 GREEN
+    STATE UNAVAILABLE 0 YELLOW
+  APPEND_ITEM GROUND2STATUS 8 UINT "Ground station #2 status"
+    STATE CONNECTED 1 GREEN
+    STATE UNAVAILABLE 0 YELLOW
+  APPEND_ITEM BLOCKTEST 80 BLOCK "Block data"
+  MACRO_APPEND_START 1 10 "%s_%d"
+    APPEND_ARRAY_ITEM ARRAY 32 FLOAT 320 "Array of 10 floats"
+  MACRO_APPEND_END
+  APPEND_ITEM STRING 0 STRING "Time string"
+  ITEM TIMESECONDS 0 0 DERIVED "Derived floating-point time since epoch in seconds"
+    READ_CONVERSION unix_time_seconds_conversion.rb TIMESEC TIMEUS
+    FORMAT_STRING '%0.6f'
+  ITEM TIMEFORMATTED 0 0 DERIVED "Derived time since epoch as formatted string"
+    READ_CONVERSION unix_time_formatted_conversion.rb TIMESEC TIMEUS
+  ITEM TEMP1HIGH 0 0 DERIVED "High-water mark for TEMP1"
+    READ_CONVERSION processor_conversion.rb TEMP1WATER HIGH_WATER
+  ITEM TEMP1LOW 0 0 DERIVED "Low-water mark for TEMP1"
+    READ_CONVERSION processor_conversion.rb TEMP1WATER LOW_WATER
+  ITEM TEMP1MAX 0 0 DERIVED "Maximum of most recent 100 samples for TEMP1"
+    READ_CONVERSION processor_conversion.rb TEMP1STAT MAX
+  ITEM TEMP1MIN 0 0 DERIVED "Minimum of most recent 100 samples for TEMP1"
+    READ_CONVERSION processor_conversion.rb TEMP1STAT MIN
+  ITEM TEMP1MEAN 0 0 DERIVED "Mean of most recent 100 samples for TEMP1"
+    READ_CONVERSION processor_conversion.rb TEMP1STAT MEAN
+  ITEM TEMP1STDDEV 0 0 DERIVED "Stddev of most recent 100 samples for TEMP1"
+    READ_CONVERSION processor_conversion.rb TEMP1STAT STDDEV
+  PROCESSOR TEMP1STAT statistics_processor.rb TEMP1_1 100
+  PROCESSOR TEMP1WATER watermark_processor.rb TEMP1_1
