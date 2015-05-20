@@ -11,6 +11,7 @@
 &nbsp;&nbsp;&nbsp;&nbsp; [CMD_TLM_VERSION](#cmdtlmversion)<br/>
 &nbsp;&nbsp;&nbsp;&nbsp; [STALENESS_SECONDS](#stalenessseconds)<br/>
 &nbsp;&nbsp;&nbsp;&nbsp; [DISABLE_DNS](#disabledns)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp; [ENABLE_SOUND (COSMOS 3.4.3+)](#enablesound-(cosmos-3.4.3+))<br/>
 &nbsp;&nbsp;&nbsp;&nbsp; [ALLOW_ACCESS](#allowaccess)<br/>
 <br/>
 <span>[Target Configuration](#target-configuration)</span><br/>
@@ -30,8 +31,11 @@
 &nbsp;&nbsp;&nbsp;&nbsp; [AUTO_INTERFACE_TARGETS](#autointerfacetargets)<br/>
 &nbsp;&nbsp;&nbsp;&nbsp; [INTERFACE_TARGET](#interfacetarget)<br/>
 &nbsp;&nbsp;&nbsp;&nbsp; [INTERFACE](#interface)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp; [ROUTER](#router)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp; [COLLECT_METADATA](#collectmetadata)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp; [BACKGROUND_TASK](#backgroundtask)<br/>
 <br/>
-<span>[Interface Modifiers](#interface-modifiers)</span><br/>
+<span>[Interface and Router Modifiers](#interface-and-router-modifiers)</span><br/>
 &nbsp;&nbsp;&nbsp;&nbsp; [TARGET](#target)<br/>
 &nbsp;&nbsp;&nbsp;&nbsp; [DONT_CONNECT](#dontconnect)<br/>
 &nbsp;&nbsp;&nbsp;&nbsp; [DONT_RECONNECT](#dontreconnect)<br/>
@@ -40,11 +44,7 @@
 &nbsp;&nbsp;&nbsp;&nbsp; [LOG](#log)<br/>
 &nbsp;&nbsp;&nbsp;&nbsp; [DONT_LOG](#dontlog)<br/>
 &nbsp;&nbsp;&nbsp;&nbsp; [LOG_RAW](#lograw)<br/>
-&nbsp;&nbsp;&nbsp;&nbsp; [BACKGROUND_TASK](#backgroundtask)<br/>
-&nbsp;&nbsp;&nbsp;&nbsp; [ROUTER](#router)<br/>
-<br/>
-<span>[Router Modifiers](#router-modifiers)</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp; [OPTION](#option)<br/>
 &nbsp;&nbsp;&nbsp;&nbsp; [ROUTE](#route)<br/>
-&nbsp;&nbsp;&nbsp;&nbsp; [ROUTER_LOG_RAW](#routerlograw)<br/>
 <br/>
 <span>[Project CRC Checking](#project-crc-checking)</span><br/>

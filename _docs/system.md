@@ -132,6 +132,13 @@ Disable DNS allows you to disable reverse DNS lookups for when tools connect to 
 Example Usage: DISABLE_DNS
 {% endhighlight %}
 
+### ENABLE_SOUND (COSMOS 3.4.3+)
+Enable sound makes any prompts that occur in ScriptRunner/TestRunner make an audible sound when they popup to alert the operator of needed input.
+
+{% highlight bash %}
+Example Usage: ENABLE_SOUND
+{% endhighlight %}
+
 ### ALLOW_ACCESS
 Allow access provides the ability to individually permit machines to connect to the COSMOS Command and Telemetry Server. It is not necessary to set this option unless you wish to override the default (given in the example usage).
 
@@ -196,7 +203,7 @@ IGNORE_ITEM CCSDS_VERSION
 {% endhighlight %}
 
 ### COMMANDS and TELEMETRY
-The commands and telemetry keywords are used to override the default COSMOS behavior of loading all the files located in the target's cmd_tlm directory. If any commands or telemetry keywords are used, COSMOS will no longer load all files in the target's cmd_tlm folder by default but will instead load only the files indicated by these keywords. This can be useful if you have different configurations of a target within a single target folder.
+The commands and telemetry keywords are used to override the default COSMOS behavior of loading all the files located in the target's cmd_tlm directory. If any commands or telemetry keywords are used, COSMOS will no longer load all files in the target's cmd_tlm folder by default but will instead load only the files indicated by these keywords. This can be useful if you have different configurations of a target within a single target folder.  It is also necessary if you don't want the files to be processed in alphabetical order.
 
 | Parameter | Description | Required |
 | --------- | ----------- | -------- |
@@ -296,11 +303,61 @@ INTERFACE COSMOS_INT cmd_tlm_server_interface.rb
 
 More examples provided in the Interface Guide.
 
-## Interface Modifiers
-The following keywords modify an interface and are only applicable after the INTERFACE keyword. They are indented to show ownership to the previously defined interface.
+### ROUTER
+Router creates an interface which receives command packets from their remote targets and send them out their interfaces. They receive telemetry packets from their interfaces and send them to their remote targets. This allows routers to be intermediaries between an external client and an actual device.
+
+| Parameter | Description | Required |
+| --------- | ----------- | -------- |
+| Name | Name of the router | Yes |
+| Filename | Ruby file to use when instantiating the interface. See the Interface Guide to learn more about the interfaces provided by COSMOS. | Yes |
+| Parameters | Parameters to pass to the interface. See the Interface Guide to learn more about the interfaces provided by COSMOS. | Interface Specific |
+
+### COLLECT_METADATA
+COLLECT_METADATA keyword prompts the user for meta data when starting the CmdTlmServer.
+
+| Parameter | Description | Required |
+| --------- | ----------- | -------- |
+| Target Name | Target Name of the Metadata telemetry packet | Yes |
+| Packet Name | Packet Name of the Metadata telemetry packet | Yes |
+
+Example Usage:
+{% highlight bash %}
+COLLECT_METADATA META META
+{% endhighlight %}
+
+### BACKGROUND_TASK
+Create a background task in the Server. The Server instantiates the class which must inherit from BackgroundTask and then calls the call() method which the class must implement. The call() method is only called once so if your background task is supposed to live on while the Server is running, you must implement your code in a loop with a sleep to not use all the CPU.
+
+| Parameter | Description | Required |
+| --------- | ----------- | -------- |
+| Filename | Ruby file which contains the background task implementation. Must inherit from BackgroundTask and implement the call method. | Yes |
+| Optional Arguments | Optional arguments to the background task constructor | No |
+
+Example Usage:
+{% highlight bash %}
+BACKGROUND_TASK example_background_task.rb
+{% endhighlight %}
+
+example_background_task.rb:
+{% highlight ruby %}
+require 'cosmos/tools/cmd_tlm_server/background_task'
+module Cosmos
+  class ExampleBackgroundTask < BackgroundTask
+    def call
+      while true
+        # Call COSMOS API methods
+        sleep 1 # 1Hz
+      end
+    end
+  end
+end
+{% endhighlight %}
+
+## Interface and Router Modifiers
+The following keywords modify an interface and are only applicable after the INTERFACE or ROUTER keywords. They are indented to show ownership to the previously defined interface.
 
 ### TARGET
-REQUIRED by the INTERFACE keyword. Maps a target name to this interface which causes all the command and telemetry definitions to apply to the data being processed on the interface.
+REQUIRED and only applicable to the INTERFACE keyword. Maps a target name to this interface which causes all the command and telemetry definitions to apply to the data being processed on the interface.
 
 | Parameter | Description | Required |
 | --------- | ----------- | -------- |
@@ -336,6 +393,23 @@ Disable logging commands and telemetry on this interface. Note this prevents log
 ### LOG_RAW
 Log all data on the interface exactly as it is sent and received. This does not add any COSMOS headers and thus can not be read by COSMOS tools. It is primarily useful for low level debugging of an interface.
 
+### OPTION
+Pass a specific option to the interface or router.
+
+| Parameter | Description | Required |
+| --------- | ----------- | -------- |
+| Option Name | Name of the option. | Yes |
+| Option Value 1 | Value of the option. | Yes |
+| Additional Option Values | 0 or more additional values given to the option | Option Specific |
+
+### ROUTE
+Only applies to routers. ROUTE declares which interfaces should use the current router. The given interface will then route all of its commands and telemetry through the router and out the interface defined by the router.
+
+| Parameter | Description | Required |
+| --------- | ----------- | -------- |
+| Interface Name | A previously defined interface name given by the INTERFACE keyword. | Yes |
+
+
 Example Usage:
 {% highlight bash %}
 PACKET_LOG_WRITER COSMOS_LOG packet_log_writer.rb cosmos
@@ -346,60 +420,6 @@ INTERFACE COSMOS_INT cmd_tlm_server_interface.rb
   RECONNECT_DELAY 5
   LOG COSMOS_LOG
 {% endhighlight %}
-
-### BACKGROUND_TASK
-Create a background task in the Server. The Server instantiates the class which must inherit from BackgroundTask and then calls the call() method which the class must implement. The call() method is only called once so if your background task is supposed to live on while the Server is running, you must implement your code in a loop with a sleep to not use all the CPU.
-
-| Parameter | Description | Required |
-| --------- | ----------- | -------- |
-| Filename | Ruby file which contains the background task implementation. Must inherit from BackgroundTask and implement the call method. | Yes |
-
-Example Usage:
-{% highlight bash %}
-BACKGROUND_TASK example_background_task.rb
-{% endhighlight %}
-
-example_background_task.rb:
-{% highlight ruby %}
-require 'cosmos/tools/cmd_tlm_server/background_task'
-module Cosmos
-  class ExampleBackgroundTask < BackgroundTask
-    def call
-      while true
-        # Call COSMOS API methods
-        sleep 1 # 1Hz
-      end
-    end
-  end
-end
-{% endhighlight %}
-
-### ROUTER
-Router creates an interface which receives command packets from their remote targets and send them out their interfaces. They receive telemetry packets from their interfaces and send them to their remote targets. This allows routers to be intermediaries between an external client and an actual device.
-
-| Parameter | Description | Required |
-| --------- | ----------- | -------- |
-| Name | Name of the router | Yes |
-| Filename | Ruby file to use when instantiating the interface. See the Interface Guide to learn more about the interfaces provided by COSMOS. | Yes |
-| Parameters | Parameters to pass to the interface. See the Interface Guide to learn more about the interfaces provided by COSMOS. | Interface Specific |
-
-## Router Modifiers
-The following keywords modify a router and are only applicable after the ROUTER keyword. They are indented to show ownership to the previously defined router.
-
-### ROUTE
-Route declares which interfaces should use the specified router. The given interface will then route all of its commands and telemetry through the router and out the interface defined by the router.
-
-| Parameter | Description | Required |
-| --------- | ----------- | -------- |
-| Interface Name | A previously defined interface name given by the INTERFACE keyword. | Yes |
-
-### ROUTER_LOG_RAW
-Whether to log all raw data doing through this router.
-
-| Parameter | Description | Required |
-| --------- |----------- | -------- |
-| Raw Logger Class File | The ruby file containing the raw logger class. Defaults to 'cosmos/io/raw_logger.rb' | No |
-| Raw Logger Class Parameters | Parameters to pass to the row logger class. | No |
 
 ## Project CRC Checking
 The COSMOS Launcher will check CRCs on project files if a data/crc.txt file is present. The file is made up of filename, a space character, and the expected CRC for the file. If the user updates the file from the Launcher legal dialog, the keyword USER_MODIFIED will be added to the top. This line should be deleted for an official release.
