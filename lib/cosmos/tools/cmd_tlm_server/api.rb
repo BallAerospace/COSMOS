@@ -48,6 +48,7 @@ module Cosmos
         'limits_enabled?',
         'enable_limits',
         'disable_limits',
+        'get_stale',
         'get_limits',
         'set_limits',
         'get_limits_groups',
@@ -547,6 +548,24 @@ module Cosmos
       target_name, packet_name, item_name = tlm_process_args(args, 'disable_limits')
       System.limits.disable(target_name, packet_name, item_name)
       nil
+    end
+
+    # Get the list of stale packets for a specific target or pass nil to list
+    # all stale packets
+    #
+    # @param only_with_limits [Boolean] Return only the stale packets
+    #   that have limits items and thus affect the overall limits
+    #   state of the system
+    # @param target [String] The target to find stale packets for or nil to list
+    #   all stale packets in the system
+    # @return [Array<Array<String, String>>] Array of arrays listing the target
+    #   name and packet name
+    def get_stale(only_with_limits = false, target = nil)
+      stale = []
+      System.telemetry.stale(only_with_limits, target).each do |packet|
+        stale << [packet.target_name, packet.packet_name]
+      end
+      stale
     end
 
     # (see Cosmos::Limits#get)

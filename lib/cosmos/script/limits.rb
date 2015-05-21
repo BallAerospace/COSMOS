@@ -37,6 +37,10 @@ module Cosmos
       return $cmd_tlm_server.disable_limits(*args)
     end
 
+    def get_stale(with_limits_only = false, target_name = nil)
+      return $cmd_tlm_server.get_stale(only_with_limits, target_name)
+    end
+
     def get_limits(target_name, packet_name, item_name, limits_set = nil)
       results = $cmd_tlm_server.get_limits(target_name, packet_name, item_name, limits_set)
       results[0] = results[0].to_s.intern if results[0]

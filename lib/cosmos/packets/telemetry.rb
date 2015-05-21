@@ -253,6 +253,30 @@ module Cosmos
       end
     end
 
+    # @param with_limits_only [Boolean] Return only the stale packets
+    #   that have limits items and thus affect the overall limits
+    #   state of the system
+    # @param target [String] Target name or nil for all targets
+    # @return [Array(Packet)] Array of the stale packets
+    def stale(with_limits_only = false, target = nil)
+      if target && !target_names.include?(target)
+        raise "Telemetry target '#{target.upcase}' does not exist"
+      end
+      check_stale() # Update stale status
+      stale = []
+      @config.telemetry.each do |target_name, target_packets|
+        next if (target && target != target_name)
+        next if target_name == 'UNKNOWN'
+        target_packets.each do |packet_name, packet|
+          if packet.stale
+            next if (only_with_limits && packet.limits_items.empty?)
+            stale << packet
+          end
+        end
+      end
+      stale
+    end
+
     # Clears the received_count value on every packet in every target
     def clear_counters
       @config.telemetry.each do |target_name, target_packets|
@@ -308,8 +332,9 @@ module Cosmos
       strings
     end
 
-    # @return [Hash<String=>Packet>] Hash of all the telemetry packets
-    #   keyed by the packet name.
+    # @return [Hash{String=>Hash{String=>Packet}}] Hash of all the telemetry
+    #   packets keyed by the target name. The value is another hash keyed by the
+    #   packet name returning the packet.
     def all
       @config.telemetry
     end

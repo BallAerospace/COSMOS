@@ -53,6 +53,7 @@ module Cosmos
     slots 'reset()'
     slots 'handle_clear_ignored_items()'
     slots 'handle_view_ignored_items()'
+    slots 'handle_view_stale_packets()'
     slots 'handle_save_ignored_items()'
     slots 'handle_open_ignored_items()'
 
@@ -237,10 +238,15 @@ module Cosmos
       @view_ignored_action.statusTip = tr('View the ignored telemetry items list')
       connect(@view_ignored_action, SIGNAL('triggered()'), self, SLOT('handle_view_ignored_items()'))
 
+      @view_stale_action = Qt::Action.new(tr('&View Stale'), self)
+      @view_stale_action.statusTip = tr('View the stale telemetry items list')
+      connect(@view_stale_action, SIGNAL('triggered()'), self, SLOT('handle_view_stale_packets()'))
+
       @file_menu.addAction(@open_ignored_action)
       @file_menu.addAction(@save_ignored_action)
       @file_menu.addAction(@clear_ignored_action)
       @file_menu.addAction(@view_ignored_action)
+      @file_menu.addAction(@view_stale_action)
       @file_menu.addSeparator()
       @file_menu.addAction(@reset_action)
       @file_menu.addAction(@options_action)
@@ -600,6 +606,36 @@ module Cosmos
         dialog.dispose
       end
     end
+
+    # Slot to handle when the view stale packets menu option is selected.
+    def handle_view_stale_packets
+      string = ''
+      get_stale(true).each do |target, packet|
+        string << "#{target} #{packet}\n"
+      end
+
+      # Show Dialog box with text displaying ignored items
+      Qt::Dialog.new(self) do |dialog|
+        dialog.setWindowTitle('Stale Telemetry Packets')
+        text = Qt::PlainTextEdit.new
+        text.setReadOnly(true)
+        text.setPlainText(string) if string
+
+        ok = Qt::PushButton.new('Ok') do
+          connect(SIGNAL('clicked()')) { dialog.done(0) }
+        end
+
+        dialog.layout = Qt::VBoxLayout.new do
+          addWidget(text)
+          addWidget(ok)
+        end
+
+        dialog.resize(500, 200)
+        dialog.exec
+        dialog.dispose
+      end
+    end
+
 
     # Slot to handle when the save ignored items menu option is selected.
     def handle_save_ignored_items
