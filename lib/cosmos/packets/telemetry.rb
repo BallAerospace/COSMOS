@@ -269,7 +269,7 @@ module Cosmos
         next if target_name == 'UNKNOWN'
         target_packets.each do |packet_name, packet|
           if packet.stale
-            next if (only_with_limits && packet.limits_items.empty?)
+            next if (with_limits_only && packet.limits_items.empty?)
             stale << packet
           end
         end

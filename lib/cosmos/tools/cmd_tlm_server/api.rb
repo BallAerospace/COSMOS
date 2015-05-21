@@ -553,16 +553,16 @@ module Cosmos
     # Get the list of stale packets for a specific target or pass nil to list
     # all stale packets
     #
-    # @param only_with_limits [Boolean] Return only the stale packets
+    # @param with_limits_only [Boolean] Return only the stale packets
     #   that have limits items and thus affect the overall limits
     #   state of the system
     # @param target [String] The target to find stale packets for or nil to list
     #   all stale packets in the system
     # @return [Array<Array<String, String>>] Array of arrays listing the target
     #   name and packet name
-    def get_stale(only_with_limits = false, target = nil)
+    def get_stale(with_limits_only = false, target = nil)
       stale = []
-      System.telemetry.stale(only_with_limits, target).each do |packet|
+      System.telemetry.stale(with_limits_only, target).each do |packet|
         stale << [packet.target_name, packet.packet_name]
       end
       stale

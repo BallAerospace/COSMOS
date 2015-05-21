@@ -38,7 +38,7 @@ module Cosmos
     end
 
     def get_stale(with_limits_only = false, target_name = nil)
-      return $cmd_tlm_server.get_stale(only_with_limits, target_name)
+      return $cmd_tlm_server.get_stale(with_limits_only, target_name)
     end
 
     def get_limits(target_name, packet_name, item_name, limits_set = nil)
