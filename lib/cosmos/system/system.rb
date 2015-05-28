@@ -17,6 +17,7 @@ require 'cosmos/system/target'
 require 'cosmos/packet_logs'
 require 'fileutils'
 require 'drb/acl'
+require 'bundler'
 
 module Cosmos
 
@@ -225,7 +226,7 @@ module Cosmos
         # First pass - Everything except targets
         parser.parse_file(filename) do |keyword, parameters|
           case keyword
-          when 'AUTO_DECLARE_TARGETS', 'DECLARE_TARGET'
+          when 'AUTO_DECLARE_TARGETS', 'DECLARE_TARGET', 'DECLARE_GEM_TARGET'
             # Will be handled by second pass
 
           when 'PORT'
@@ -372,6 +373,24 @@ module Cosmos
               end
             end
           end
+
+          # Auto-detect any gem based targets
+          begin
+            Bundler.load.specs.each do |spec|
+              spec_name_split = spec.name.split('-')
+              if spec_name_split.length > 1 and spec_name_split[0] == 'cosmos'
+                # Filter to just targets and not tools and other extensions
+                if File.exist?(File.join(spec.gem_dir, 'cmd_tlm'))
+                  target_name = spec_name_split[1..-1].join('-').to_s.upcase
+                  target = Target.new(target_name, nil, nil, nil, spec.gem_dir)
+                  @targets[target.name] = target
+                end
+              end
+            end
+          rescue Bundler::GemfileNotFound
+            # No Gemfile - so no gem based targets
+          end
+
           if system_found
             target = Target.new('SYSTEM')
             @targets[target.name] = target
@@ -394,6 +413,18 @@ module Cosmos
           end
           target = Target.new(target_name, substitute_name, configuration_directory, ConfigParser.handle_nil(parameters[2]))
           @targets[target.name] = target
+
+        when 'DECLARE_GEM_TARGET'
+          usage = "#{keyword} <GEM NAME> <SUBSTITUTE TARGET NAME (Optional)> <TARGET FILENAME (Optional - defaults to target.txt)>"
+          parser.verify_num_parameters(1, 3, usage)
+          target_name = parameters[0].split('-')[1..-1].join('-').to_s.upcase
+          substitute_name = nil
+          substitute_name = ConfigParser.handle_nil(parameters[1])
+          substitute_name.to_s.upcase if substitute_name
+          gem_dir = Gem::Specification.find_by_name(parameters[0]).gem_dir
+          target = Target.new(target_name, substitute_name, configuration_directory, ConfigParser.handle_nil(parameters[2]), gem_dir)
+          @targets[target.name] = target
+
         end # case keyword
       end # parser.parse_file
     end
@@ -484,10 +515,9 @@ module Cosmos
 
             # Copy target files into directory
             @targets.each do |target_name, target|
-              source_dir = File.join(USERPATH, 'config', 'targets', target.original_name)
               destination_dir = File.join(configuration_directory, target.original_name)
               unless Dir.exist?(destination_dir)
-                FileUtils.cp_r(source_dir, destination_dir)
+                FileUtils.cp_r(target.dir, destination_dir)
               end
             end
 
@@ -524,6 +554,7 @@ module Cosmos
           additional_data << target.original_name
         end
       end
+
       md5 = Cosmos.md5_files(cmd_tlm_files, additional_data)
       md5_string = md5.hexdigest
 

@@ -11,6 +11,7 @@
 require 'cosmos'
 require 'cosmos/config/config_parser'
 require 'ostruct'
+require 'bundler'
 
 module Cosmos
 
@@ -61,6 +62,27 @@ module Cosmos
       parser.parse_file(filename) do |keyword, params|
         # Handle each keyword
         case keyword
+
+        when 'AUTO_GEM_TOOLS'
+          parser.verify_num_parameters(0, 0, keyword)
+
+          begin
+            Bundler.load.specs.each do |spec|
+              spec_name_split = spec.name.split('-')
+              if spec_name_split.length > 1 and spec_name_split[0] == 'cosmos'
+                # Filter to just tools and not targets
+                if File.exist?(File.join(spec.gem_dir, 'tools'))
+                  Dir[File.join(spec.gem_dir, 'tools', '*')].each do |filename|
+                    if File.extname(filename) == ''
+                      @items << [:TOOL, File.basename(filename), format_shell_command(parser, "LAUNCH_GEM #{File.basename(filename)}"), true, File.basename(filename).class_name_to_filename(false) + '.png', nil]
+                    end
+                  end
+                end
+              end
+            end
+          rescue Bundler::GemfileNotFound
+            # No Gemfile - so no gem based tools
+          end
 
         when 'TOOL'
           parse_tool(parser, params, multitool)
@@ -165,6 +187,8 @@ module Cosmos
         formatted_command = parse_launch(shell_command)
       when 'LAUNCH_TERMINAL'
         formatted_command = parse_launch_terminal(shell_command)
+      when 'LAUNCH_GEM'
+        formatted_command = parse_launch_gem(shell_command)
       else
         # Nothing to do if they aren't using our keywords
         formatted_command = shell_command
@@ -199,6 +223,31 @@ module Cosmos
         formatted = "gnome-terminal -e \"ruby tools/#{split[1]} #{split[2..-1].join(' ')}\""
       end
       formatted
+    end
+
+    def parse_launch_gem(command)
+      split = command.split
+
+      # Find the gem with this file
+      begin
+        Bundler.load.specs.each do |spec|
+          spec_name_split = spec.name.split('-')
+          if spec_name_split.length > 1 and spec_name_split[0] == 'cosmos'
+            # Filter to just tools and not targets
+            if File.exist?(File.join(spec.gem_dir, 'tools', split[1]))
+              if Kernel.is_mac? and File.exist?(File.join(USERPATH, 'tools', 'mac'))
+                return "open #{spec.gem_dir}/tools/mac/#{split[1]}.app --args #{split[2..-1].join(' ')}".strip
+              else
+                return "RUBYW #{spec.gem_dir}/tools/#{split[1]} #{split[2..-1].join(' ')}".strip
+              end
+            end
+          end
+        end
+      rescue Bundler::GemfileNotFound
+        # No Gemfile - so no gem based tools
+      end
+
+      raise "Could not find gem containing tool: #{split[1]} - Make sure the appropriate gem is in your Gemfile"
     end
 
   end # class LauncherConfig

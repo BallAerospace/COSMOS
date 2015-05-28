@@ -245,14 +245,14 @@ class String
   # filename which implements the class (i.e. "my_great_class.rb").
   #
   # @return [String] Filename which implements the class name
-  def class_name_to_filename
+  def class_name_to_filename(include_extension = true)
     filename = ''
     length = self.length
     length.times do |index|
       filename << '_' if index != 0 and self[index..index] == self[index..index].upcase
       filename << self[index..index].downcase
     end
-    filename << '.rb'
+    filename << '.rb' if include_extension
     filename
   end
 

@@ -126,7 +126,7 @@ module Cosmos
         when 'AUTO_TARGETS'
           parser.verify_num_parameters(0, 0, 'AUTO_TARGETS')
           System.targets.each do |target_name, target|
-            screen_dir = File.join(Cosmos::USERPATH, 'config', 'targets', target.original_name, 'screens')
+            screen_dir = File.join(target.dir, 'screens')
             if File.exist?(screen_dir) and num_screens(screen_dir) > 0
               start_target(target.name, parser)
               auto_screens()
@@ -138,7 +138,7 @@ module Cosmos
           target_name = parameters[0].upcase
           target = System.targets[target_name]
           raise parser.error("Unknown target #{target_name}") unless target
-          screen_dir = File.join(Cosmos::USERPATH, 'config', 'targets', target.original_name, 'screens')
+          screen_dir = File.join(target.dir, 'screens')
           if File.exist?(screen_dir) and num_screens(screen_dir) > 0
             start_target(target.name, parser)
             auto_screens()
@@ -152,7 +152,7 @@ module Cosmos
         when 'SCREEN'
           raise parser.error("No target defined. SCREEN must follow TARGET.") unless @current_target
           parser.verify_num_parameters(1, 3, 'SCREEN <Filename> <X Position (optional)> <Y Position (optional)>')
-          screen_filename = File.join(Cosmos::USERPATH, 'config', 'targets', @current_target.original_name, 'screens', parameters[0])
+          screen_filename = File.join(@current_target.dir, 'screens', parameters[0])
           start_screen(screen_filename, parameters[1], parameters[2])
 
         when 'SHOW_ON_STARTUP'
@@ -178,7 +178,7 @@ module Cosmos
           raise parser.error("No group defined. GROUP_SCREEN must follow GROUP.") unless @current_group
           parser.verify_num_parameters(2, 4, 'GROUP_SCREEN <Target Name> <Screen Filename> <X Position (optional)> <Y Position (Optional)>')
           start_target(parameters[0].upcase, parser, @current_group)
-          screen_filename = File.join(Cosmos::USERPATH, 'config', 'targets', @current_target.original_name, 'screens', parameters[1])
+          screen_filename = File.join(@current_target.dir, 'screens', parameters[1])
           start_screen(screen_filename, parameters[2], parameters[3])
 
         else
@@ -203,7 +203,7 @@ module Cosmos
           target_screen_infos.each do |target_name, screen_infos|
             file.puts "TARGET \"#{target_name}\""
             screen_infos.each do |screen_name, screen_info|
-              screen_filename = screen_info.filename.gsub(File.join(Cosmos::USERPATH, 'config', 'targets', screen_info.original_target_name, 'screens', ''), '')
+              screen_filename = screen_info.filename[(screen_info.filename.index("screens").to_i + 8)..-1]
               string = "  SCREEN"
               string << " \"#{screen_filename}\""
               string << " #{screen_info.x_pos}" if screen_info.x_pos
@@ -246,7 +246,7 @@ module Cosmos
 
     def auto_screens
       @current_group = nil
-      screen_dir = File.join(Cosmos::USERPATH, 'config', 'targets', @current_target.original_name, 'screens')
+      screen_dir = File.join(@current_target.dir, 'screens')
       if File.exist?(screen_dir)
         Dir.new(screen_dir).each do |filename|
           if filename[0..0] != '.'

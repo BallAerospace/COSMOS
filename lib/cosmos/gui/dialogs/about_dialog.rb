@@ -98,17 +98,12 @@ module Cosmos
         interior_layout.addLayout(icon_layout)
         interior_layout.addWidget(about)
         scroll_widget.setLayout(interior_layout)
-        if scroll_widget.minimumSizeHint.height < 800
-          scroll_area.setMinimumHeight(scroll_widget.minimumSizeHint.height + 80)
-          scroll_area.setMinimumWidth(scroll_widget.minimumSizeHint.width)
-        else
-          scroll_area.setMinimumWidth(scroll_widget.minimumSizeHint.width + 20)
-        end
+        scroll_area.setMinimumWidth(scroll_widget.minimumSizeHint.width + 20)
         scroll_widget.adjustSize
         addLayout(button_layout)
       end
 
-      setMaximumWidth(600)
+      setMaximumWidth(800)
       self.raise()
       exec()
       dispose()

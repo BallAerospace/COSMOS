@@ -17,6 +17,8 @@ require 'cosmos/core_ext'
 require 'cosmos/version'
 require 'cosmos/utilities/logger'
 require 'socket'
+require 'pathname'
+require 'bundler'
 
 # If a hazardous command is sent through the {Cosmos::Api} this error is raised.
 # {Cosmos::Script} rescues the error and prompts the user to continue.
@@ -43,6 +45,8 @@ end
 # tools derive from {Cosmos::QtTool} and provide a good basis for creating a
 # new tool. Be sure to explore the various GUI classes
 module Cosmos
+
+  BASE_PWD = Dir.pwd
 
   # FatalErrors cause an exit but are not as dangerous as other errors.
   # They are used for known issues and thus we don't need a full error report.
@@ -141,13 +145,63 @@ module Cosmos
   # path or nil if the file could not be found. This allows for user configuration
   # files to override COSMOS data file defaults.
   def self.data_path(name)
+    # Check USERPATH
     filename = File.join(::Cosmos::USERPATH, 'config', 'data', name)
     return filename if File.exist? filename
+
+    # Check extensions
+    begin
+      Bundler.load.specs.each do |spec|
+        spec_name_split = spec.name.split('-')
+        if spec_name_split.length > 1 and spec_name_split[0] == 'cosmos'
+          filename = File.join(spec.gem_dir, 'config', 'data', name)
+          return filename if File.exist? filename
+        end
+      end
+    rescue Bundler::GemfileNotFound
+      # No Gemfile - so no gem based extensions
+    end
 
     filename = File.join(::Cosmos::PATH, 'data', name)
     return filename if File.exist? filename
 
+    # Check CORE
+    filename = Cosmos.path('data', name)
+    return filename if File.exist? filename
+
     nil
+  end
+
+  # Returns a path to a cosmos file.  Prefers files in USERPATH but will look
+  # relative to calling_file if not present in USERPATH
+  # @param calling_file Should be __FILE__ from the calling file
+  # @param paths partial paths like in File.join
+  def self.path(calling_file, *paths)
+    partial_path = File.join(*paths)
+
+    # First look in the Cosmos::USERPATH
+    user_path = File.join(Cosmos::USERPATH, partial_path)
+    return user_path if File.exist?(user_path)
+
+    # Then look relative to the calling file
+    if Pathname.new(calling_file).absolute?
+      current_dir = File.dirname(calling_file)
+    else
+      current_dir = File.join(BASE_PWD, calling_file)
+    end
+    while true
+      test_path = File.join(current_dir, partial_path)
+      if File.exist?(test_path)
+        return test_path
+      else
+        old_current_dir = current_dir
+        current_dir = File.expand_path(File.join(current_dir, '..'))
+        if old_current_dir == current_dir
+          # Hit the root dir - give up
+          raise "Could not find path to #{File.join(*paths)}"
+        end
+      end
+    end
   end
 
   # Creates a marshal file by serializing the given obj
@@ -337,7 +391,7 @@ module Cosmos
         # Make sure the log directory exists
         raise unless File.exist?(log_dir)
         log_file
-      rescue
+      rescue Exception
         # If not then we just build a file locally
         if File.exist?('./outputs/logs')
           log_file = File.join('./outputs/logs', File.build_timestamped_filename([filename]))
@@ -473,8 +527,8 @@ module Cosmos
     Logger.level = Logger::FATAL unless try_gui
     Logger.fatal "Fatal Exception! Exiting..."
     Logger.fatal error.formatted
-    if defined? ExceptionDialog and try_gui
-      Qt.execute_in_main_thread(true) {|| ExceptionDialog.new(nil, error, '', true, false, log_file)}
+    if defined? ExceptionDialog and try_gui and Qt::Application.instance
+      Qt.execute_in_main_thread(true) {||ExceptionDialog.new(nil, error, '', true, false, log_file)}
     else
       if $stdout != STDOUT
         $stdout = STDOUT

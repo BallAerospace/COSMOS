@@ -14,6 +14,7 @@ MULTITOOL_END
 TOOL "Command and Telemetry Server" "LAUNCH CmdTlmServer" "cts.png" --config cmd_tlm_server.txt
 TOOL "Replay" "LAUNCH Replay" "replay.png"
 TOOL "Limits Monitor" "LAUNCH LimitsMonitor" "limits_monitor.png"
+AUTO_GEM_TOOLS
 
 DIVIDER
 LABEL "Commanding and Scripting"
