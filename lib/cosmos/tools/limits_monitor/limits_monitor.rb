@@ -19,27 +19,31 @@ end
 
 class Array
   def includes_item?(item)
-    self.each do |target, pkt_name, item_name|
-      if ((target == item[0]) and (pkt_name == item[1]) and (item_name == item[2]))
-        return true
-      end
-    end
-    return false
+    found, index = find_item(item)
+    return found
   end
 
   def delete_item(item)
+    found, index = find_item(item)
+    self.delete_at(index) if found
+    return index
+  end
+
+  private
+  def find_item(item)
+    found = false
     index = 0
-    delete_index = nil
-    self.each do |target, pkt_name, item_name|
-      if ((target == item[0]) and (pkt_name == item[1]) and (item_name == item[2]))
-        delete_index = index
+    self.each do |target_name, packet_name, item_name|
+      if ((target_name == item[0]) &&
+          (packet_name == item[1]) &&
+          # If the item name is nil we're dealing with a packet
+          (item_name == item[2] || item_name.nil?))
+        found = true
         break
       end
       index += 1
     end
-
-    self.delete_at(delete_index) if delete_index
-    return delete_index
+    return found, index
   end
 end
 
@@ -51,9 +55,7 @@ module Cosmos
   class LimitsMonitor < QtTool
     slots 'options()'
     slots 'reset()'
-    slots 'handle_clear_ignored_items()'
-    slots 'handle_view_ignored_items()'
-    slots 'handle_view_stale_packets()'
+    slots 'handle_edit_ignored_items()'
     slots 'handle_save_ignored_items()'
     slots 'handle_open_ignored_items()'
 
@@ -88,8 +90,68 @@ module Cosmos
 
       initialize_actions()
       initialize_menus()
+      initialize_central_widget()
       complete_initialize()
 
+      # Process config file if present
+      process_config(File.join(::Cosmos::USERPATH, 'config', 'tools', 'limits_monitor', options.config_file)) if options.config_file
+
+      # Start thread to monitor limits
+      value_thread()
+      limits_thread()
+    end # initialize
+
+    def initialize_actions
+      super()
+
+      @options_action = Qt::Action.new(tr('O&ptions'), self)
+      @options_action.statusTip = tr('Open the options dialog')
+      connect(@options_action, SIGNAL('triggered()'), self, SLOT('options()'))
+
+      @reset_action = Qt::Action.new(tr('&Reset'), self)
+      @reset_action_keyseq = Qt::KeySequence.new(tr('Ctrl+R'))
+      @reset_action.shortcut = @reset_action_keyseq
+      @reset_action.statusTip = tr('Reset connection and clear all items. This does not modify the ignored items.')
+      connect(@reset_action, SIGNAL('triggered()'), self, SLOT('reset()'))
+
+      @open_ignored_action = Qt::Action.new(Cosmos.get_icon('open.png'),
+                                            tr('&Open Config'), self)
+      @open_ignored_action_keyseq = Qt::KeySequence.new(tr('Ctrl+O'))
+      @open_ignored_action.shortcut = @open_ignored_action_keyseq
+      @open_ignored_action.statusTip = tr('Open ignored telemetry items configuration file')
+      connect(@open_ignored_action, SIGNAL('triggered()'), self, SLOT('handle_open_ignored_items()'))
+
+      @save_ignored_action = Qt::Action.new(Cosmos.get_icon('save.png'),
+                                            tr('&Save Config'), self)
+      @save_ignored_action_keyseq = Qt::KeySequence.new(tr('Ctrl+S'))
+      @save_ignored_action.shortcut = @save_ignored_action_keyseq
+      @save_ignored_action.statusTip = tr('Save all ignored telemetry items in a configuration file')
+      connect(@save_ignored_action, SIGNAL('triggered()'), self, SLOT('handle_save_ignored_items()'))
+
+      @edit_ignored_action = Qt::Action.new(tr('&Edit Ignored'), self)
+      @edit_ignored_action.shortcut = Qt::KeySequence.new(tr('Ctrl+E'))
+      @edit_ignored_action.statusTip = tr('Edit the ignored telemetry items list')
+      connect(@edit_ignored_action, SIGNAL('triggered()'), self, SLOT('handle_edit_ignored_items()'))
+    end
+
+    def initialize_menus
+      @file_menu = menuBar.addMenu(tr('&File'))
+      @file_menu.addAction(@open_ignored_action)
+      @file_menu.addAction(@save_ignored_action)
+      @file_menu.addAction(@edit_ignored_action)
+      @file_menu.addSeparator()
+      @file_menu.addAction(@reset_action)
+      @file_menu.addAction(@options_action)
+      @file_menu.addSeparator()
+      @file_menu.addAction(@exit_action)
+
+      # Help Menu
+      @about_string = "Limits Monitor displays all telemetry items that are or have been out of limits since it was started or reset."
+
+      initialize_help_menu()
+    end
+
+    def initialize_central_widget
       @tabbook = Qt::TabWidget.new(self)
       setCentralWidget(@tabbook)
       @widget = Qt::Widget.new
@@ -132,14 +194,7 @@ module Cosmos
 
       @tabbook.addTab(@widget, "Limits")
       @tabbook.addTab(@log_output, "Log")
-
-      # Process config file if present
-      process_config(File.join(::Cosmos::USERPATH, 'config', 'tools', 'limits_monitor', options.config_file)) if options.config_file
-
-      # Start thread to monitor limits
-      value_thread()
-      limits_thread()
-    end # initialize
+    end
 
     # Slot to add items to the front panel when they are out of limits.
     #
@@ -154,9 +209,15 @@ module Cosmos
         @scroll_layout.addLayout(hlayout)
 
         item = [target_name, packet_name, item_name]
-        new_widget = LabelvaluelimitsbarWidget.new(hlayout, target_name, packet_name, item_name)
-        new_widget.set_setting('COLORBLIND', [@colorblind])
-        new_widget.process_settings
+        if item_name
+          new_widget = LabelvaluelimitsbarWidget.new(hlayout, target_name, packet_name, item_name)
+          new_widget.set_setting('COLORBLIND', [@colorblind])
+          new_widget.process_settings
+          # Only update new widgets for the value widgets
+          @new_widgets << new_widget
+        else
+          new_widget = LabelWidget.new(hlayout, "#{target_name} #{packet_name}")
+        end
 
         ignore_button = Qt::PushButton.new('Ignore')
         ignore_button.connect(SIGNAL('clicked()')) do
@@ -166,7 +227,6 @@ module Cosmos
         hlayout.addWidget(ignore_button)
 
         @widget_hframes << hlayout
-        @new_widgets << new_widget
         @widgets << new_widget
         @buttons << ignore_button
       end
@@ -198,65 +258,6 @@ module Cosmos
         @log_output.appendPlainText(to_add.chomp)
         @tf.dispose
       end
-    end
-
-    # Sets up the menu bar with selectable options and the signal/slot combinations
-    # for when those options are selected.
-    def initialize_menus
-      # File Menu
-      @file_menu = menuBar.addMenu(tr('&File'))
-
-      @options_action = Qt::Action.new(tr('O&ptions'), self)
-      @options_action.statusTip = tr('Open the options dialog')
-      connect(@options_action, SIGNAL('triggered()'), self, SLOT('options()'))
-
-      @reset_action = Qt::Action.new(tr('&Reset'), self)
-      @reset_action_keyseq = Qt::KeySequence.new(tr('Ctrl+R'))
-      @reset_action.shortcut = @reset_action_keyseq
-      @reset_action.statusTip = tr('Reset connection and clear all items. This does not modify the ignored items.')
-      connect(@reset_action, SIGNAL('triggered()'), self, SLOT('reset()'))
-
-      @open_ignored_action = Qt::Action.new(Cosmos.get_icon('open.png'),
-                                            tr('&Open Config'), self)
-      @open_ignored_action_keyseq = Qt::KeySequence.new(tr('Ctrl+O'))
-      @open_ignored_action.shortcut = @open_ignored_action_keyseq
-      @open_ignored_action.statusTip = tr('Open ignored telemetry items configuration file')
-      connect(@open_ignored_action, SIGNAL('triggered()'), self, SLOT('handle_open_ignored_items()'))
-
-      @save_ignored_action = Qt::Action.new(Cosmos.get_icon('save.png'),
-                                            tr('&Save Config'), self)
-      @save_ignored_action_keyseq = Qt::KeySequence.new(tr('Ctrl+S'))
-      @save_ignored_action.shortcut = @save_ignored_action_keyseq
-      @save_ignored_action.statusTip = tr('Save all ignored telemetry items in a configuration file')
-      connect(@save_ignored_action, SIGNAL('triggered()'), self, SLOT('handle_save_ignored_items()'))
-
-      @clear_ignored_action = Qt::Action.new(tr('&Clear Ignored'), self)
-      @clear_ignored_action.statusTip = tr('Clear all ignored telemetry items so they become monitored')
-      connect(@clear_ignored_action, SIGNAL('triggered()'), self, SLOT('handle_clear_ignored_items()'))
-
-      @view_ignored_action = Qt::Action.new(tr('&View Ignored'), self)
-      @view_ignored_action.statusTip = tr('View the ignored telemetry items list')
-      connect(@view_ignored_action, SIGNAL('triggered()'), self, SLOT('handle_view_ignored_items()'))
-
-      @view_stale_action = Qt::Action.new(tr('&View Stale'), self)
-      @view_stale_action.statusTip = tr('View the stale telemetry items list')
-      connect(@view_stale_action, SIGNAL('triggered()'), self, SLOT('handle_view_stale_packets()'))
-
-      @file_menu.addAction(@open_ignored_action)
-      @file_menu.addAction(@save_ignored_action)
-      @file_menu.addAction(@clear_ignored_action)
-      @file_menu.addAction(@view_ignored_action)
-      @file_menu.addAction(@view_stale_action)
-      @file_menu.addSeparator()
-      @file_menu.addAction(@reset_action)
-      @file_menu.addAction(@options_action)
-      @file_menu.addSeparator()
-      @file_menu.addAction(@exit_action)
-
-      # Help Menu
-      @about_string = "Limits Monitor displays all telemetry items that are or have been out of limits since it was started or reset."
-
-      initialize_help_menu()
     end
 
     # Slot to handle the options menu item when selected.
@@ -352,6 +353,13 @@ module Cosmos
                     handle_new_items()
                   end
                 end
+                get_stale(true).each do |target, packet|
+                  item = [target, packet, nil]
+                  unless @ignored_items.includes_item?(item) and !@items.includes_item?(item)
+                    @new_items << item
+                    @out_of_limits_items << item
+                  end
+                end
 
                 break if @cancel_thread
                 Qt.execute_in_main_thread(true) do
@@ -432,6 +440,22 @@ module Cosmos
                 rescue
                   # This can fail if we missed setting the DEFAULT limits set earlier - Oh well
                 end
+
+              when :STALE_PACKET
+                # A packet has gone stale: target, packet
+                item = [data[0], data[1], nil]
+                # First check if this packet has limits items and should count
+                if get_stale(true).include?([data[0], data[1]])
+                  # Now check if we already know about it
+                  unless @out_of_limits_items.includes_item?(item) or @ignored_items.includes_item?(item)
+                    @out_of_limits_items << item
+                    @new_items << item
+                    handle_new_items()
+                  end
+                end
+
+                to_print = Time.now.formatted << '  ' << "INFO: Packet #{data[0]} #{data[1]} is STALE\n"
+                update_log(to_print, 4)
               end
 
             rescue DRb::DRbConnError
@@ -462,10 +486,11 @@ module Cosmos
             unless @items.empty?
               Qt.execute_in_main_thread(true) do
                 begin
+                  items = @items.reject {|item| item[2].nil? }
                   # Gather items for  widgets
-                  values, limits_states, limits_settings, limits_set = get_tlm_values(@items, :WITH_UNITS)
+                  values, limits_states, limits_settings, limits_set = get_tlm_values(items, :WITH_UNITS)
                   index = 0
-                  @items.each do |target_name, packet_name, item_name|
+                  items.each do |target_name, packet_name, item_name|
                     begin
                       System.limits.set(target_name, packet_name, item_name, limits_settings[index][0], limits_settings[index][1], limits_settings[index][2], limits_settings[index][3], limits_settings[index][4], limits_settings[index][5], limits_set) if limits_settings[index]
                     rescue
@@ -484,10 +509,14 @@ module Cosmos
 
                   # Update widgets with values and limits_states
                   @overall_limits_state = :STALE
-                  (0..(values.length - 1)).each do |widget_index|
-                    limits_state = limits_states[widget_index]
-                    @widgets[widget_index].limits_state = limits_state
-                    @widgets[widget_index].value = values[widget_index]
+                  index = 0
+                  @widgets.each do |widget|
+                    if widget.is_a? LabelWidget
+                      next
+                    end
+                    widget.value = values[index]
+                    widget.limits_state = limits_states[index]
+                    index += 1
                   end
 
                   # Update overall limits state
@@ -570,72 +599,53 @@ module Cosmos
       @monitored_state_text_field.text = text
     end
 
-    # Slot to handle when the clear ignored items menu option is selected.
-    def handle_clear_ignored_items
-      @ignored_items.clear
-      @initialized = false
-      statusBar.showMessage('')
-    end
-
-    # Slot to handle when the view ignored items menu option is selected.
-    def handle_view_ignored_items
-      # Turn Command into scripting text string
-      string = ''
-      @ignored_items.each do |item|
-        string << "#{item[0]} #{item[1]} #{item[2]}\n"
+    def handle_edit_ignored_items
+      items = []
+      index = 0
+      @ignored_items.each do |target_name, packet_name, item_name|
+        item = Qt::ListWidgetItem.new("#{target_name} #{packet_name} #{item_name}")
+        item.setData(Qt::UserRole, Qt::Variant.new(@ignored_items[index]))
+        items << item
+        index += 1
       end
 
-      # Show Dialog box with text displaying ignored items
       Qt::Dialog.new(self) do |dialog|
         dialog.setWindowTitle('Ignored Telemetry Items')
-        text = Qt::PlainTextEdit.new
-        text.setReadOnly(true)
-        text.setPlainText(string) if string
+        list = Qt::ListWidget.new
+        # Allow multiple sections
+        list.setSelectionMode(Qt::AbstractItemView::ExtendedSelection)
+        items.each {|item| list.addItem(item) }
+
+        shortcut = Qt::Shortcut.new(Qt::KeySequence.new(Qt::KeySequence::Delete), list)
+        list.connect(shortcut, SIGNAL('activated()')) do
+          items = list.selectedItems()
+          (0...items.length).each do |index|
+            @ignored_items.delete_item(items[index].data(Qt::UserRole).value)
+            @initialized = false
+          end
+          list.remove_selected_items
+        end
 
         ok = Qt::PushButton.new('Ok') do
           connect(SIGNAL('clicked()')) { dialog.done(0) }
         end
-
-        dialog.layout = Qt::VBoxLayout.new do
-          addWidget(text)
-          addWidget(ok)
+        remove = Qt::PushButton.new('Remove Selected') do
+          connect(SIGNAL('clicked()')) { shortcut.activated() }
         end
-
+        button_layout = Qt::HBoxLayout.new do
+          addWidget(ok)
+          addStretch(1)
+          addWidget(remove)
+        end
+        dialog.layout = Qt::VBoxLayout.new do
+          addWidget(list)
+          addLayout(button_layout)
+        end
         dialog.resize(500, 200)
         dialog.exec
         dialog.dispose
       end
     end
-
-    # Slot to handle when the view stale packets menu option is selected.
-    def handle_view_stale_packets
-      string = ''
-      get_stale(true).each do |target, packet|
-        string << "#{target} #{packet}\n"
-      end
-
-      # Show Dialog box with text displaying ignored items
-      Qt::Dialog.new(self) do |dialog|
-        dialog.setWindowTitle('Stale Telemetry Packets')
-        text = Qt::PlainTextEdit.new
-        text.setReadOnly(true)
-        text.setPlainText(string) if string
-
-        ok = Qt::PushButton.new('Ok') do
-          connect(SIGNAL('clicked()')) { dialog.done(0) }
-        end
-
-        dialog.layout = Qt::VBoxLayout.new do
-          addWidget(text)
-          addWidget(ok)
-        end
-
-        dialog.resize(500, 200)
-        dialog.exec
-        dialog.dispose
-      end
-    end
-
 
     # Slot to handle when the save ignored items menu option is selected.
     def handle_save_ignored_items
@@ -731,9 +741,10 @@ module Cosmos
 
       Qt.execute_in_main_thread(true) do
         begin
-          values, limits_states, limits_settings, limits_set = get_tlm_values(@new_items, :WITH_UNITS)
+          items = @new_items.reject {|item| item[2].nil? }
+          values, limits_states, limits_settings, limits_set = get_tlm_values(items, :WITH_UNITS)
           index = 0
-          @new_items.each do |target_name, packet_name, item_name|
+          items.each do |target_name, packet_name, item_name|
             begin
               System.limits.set(target_name, packet_name, item_name, limits_settings[index][0], limits_settings[index][1], limits_settings[index][2], limits_settings[index][3], limits_settings[index][4], limits_settings[index][5], limits_set) if limits_settings[index]
             rescue
@@ -741,8 +752,8 @@ module Cosmos
             end
             index += 1
           end
-          index = 0
 
+          index = 0
           @new_widgets.each do |widget|
             limits_state = limits_states[index]
             widget.limits_set = limits_set

@@ -381,21 +381,6 @@ module Cosmos
     end
 
     describe "stale" do
-      it "returns the list of stale packets" do
-        p1 = @tlm.packet("TGT1","PKT1")
-        p2 = @tlm.packet("TGT1","PKT2")
-        p3 = @tlm.packet("TGT2","PKT1")
-        expect(@tlm.stale).to include(p1, p2, p3)
-        @tlm.packet("TGT1","PKT1").check_limits
-        expect(@tlm.stale).not_to include(p1)
-        expect(@tlm.stale).to include(p2, p3)
-        @tlm.packet("TGT1","PKT2").check_limits
-        expect(@tlm.stale).not_to include(p1, p2)
-        expect(@tlm.stale).to include(p3)
-        @tlm.packet("TGT2","PKT1").check_limits
-        expect(@tlm.stale.size).to eql 0
-      end
-
       it "complains about a non-existant target" do
         expect { @tlm.stale(false, "TGTX") }.to raise_error(RuntimeError, "Telemetry target 'TGTX' does not exist")
       end
@@ -409,6 +394,21 @@ module Cosmos
         expect(@tlm.stale(false, "TGT2").size).to eql 0
         expect(@tlm.stale(false, "TGT1").size).to eql 2
         expect(@tlm.stale.size).to eql 2
+      end
+
+      it "returns the list of stale packets" do
+        p1 = @tlm.packet("TGT1","PKT1")
+        p2 = @tlm.packet("TGT1","PKT2")
+        p3 = @tlm.packet("TGT2","PKT1")
+        expect(@tlm.stale).to include(p1, p2, p3)
+        @tlm.packet("TGT1","PKT1").check_limits
+        expect(@tlm.stale).not_to include(p1)
+        expect(@tlm.stale).to include(p2, p3)
+        @tlm.packet("TGT1","PKT2").check_limits
+        expect(@tlm.stale).not_to include(p1, p2)
+        expect(@tlm.stale).to include(p3)
+        @tlm.packet("TGT2","PKT1").check_limits
+        expect(@tlm.stale.size).to eql 0
       end
 
       it "returns only stale packets which have limits" do

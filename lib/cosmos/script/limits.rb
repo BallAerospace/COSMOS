@@ -100,6 +100,8 @@ module Cosmos
           result[1][4] = result[1][4].to_s.intern if result[1][4]
         elsif result[0] == :LIMITS_SETTINGS
           result[1][3] = result[1][3].to_s.intern if result[1][3]
+        elsif result[0] == :STALE_PACKET
+          # Nothing extra to do
         else
           result[1] = result[1].to_s.intern
         end

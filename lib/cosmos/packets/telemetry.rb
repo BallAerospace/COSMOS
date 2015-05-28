@@ -244,13 +244,20 @@ module Cosmos
 
     # Iterates through all the telemetry packets and marks them stale if they
     # haven't been received for over the System.staleness_seconds value.
+    #
+    # @return [Array(Packet)] Array of the stale packets
     def check_stale
+      stale = []
       time = Time.now
       @config.telemetry.each do |target_name, target_packets|
         target_packets.each do |packet_name, packet|
-          packet.set_stale if packet.received_time and (!packet.stale) and (time - packet.received_time > System.staleness_seconds)
+          if packet.received_time and (!packet.stale) and (time - packet.received_time > System.staleness_seconds)
+            packet.set_stale
+            stale << packet
+          end
         end
       end
+      stale
     end
 
     # @param with_limits_only [Boolean] Return only the stale packets
@@ -262,7 +269,6 @@ module Cosmos
       if target && !target_names.include?(target)
         raise "Telemetry target '#{target.upcase}' does not exist"
       end
-      check_stale() # Update stale status
       stale = []
       @config.telemetry.each do |target_name, target_packets|
         next if (target && target != target_name)
