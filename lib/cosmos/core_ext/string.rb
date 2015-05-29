@@ -244,6 +244,7 @@ class String
   # Converts a String representing a class (i.e. "MyGreatClass") to a Ruby
   # filename which implements the class (i.e. "my_great_class.rb").
   #
+  # @param include_extension [Boolean] Whether to add '.rb' extension
   # @return [String] Filename which implements the class name
   def class_name_to_filename(include_extension = true)
     filename = ''

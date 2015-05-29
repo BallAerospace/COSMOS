@@ -174,8 +174,8 @@ module Cosmos
 
   # Returns a path to a cosmos file.  Prefers files in USERPATH but will look
   # relative to calling_file if not present in USERPATH
-  # @param calling_file Should be __FILE__ from the calling file
-  # @param paths partial paths like in File.join
+  # @param calling_file [String] Should be __FILE__ from the calling file
+  # @param paths [Array<String>] Partial paths like in File.join
   def self.path(calling_file, *paths)
     partial_path = File.join(*paths)
 

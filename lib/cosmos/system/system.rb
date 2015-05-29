@@ -374,22 +374,7 @@ module Cosmos
             end
           end
 
-          # Auto-detect any gem based targets
-          begin
-            Bundler.load.specs.each do |spec|
-              spec_name_split = spec.name.split('-')
-              if spec_name_split.length > 1 and spec_name_split[0] == 'cosmos'
-                # Filter to just targets and not tools and other extensions
-                if File.exist?(File.join(spec.gem_dir, 'cmd_tlm'))
-                  target_name = spec_name_split[1..-1].join('-').to_s.upcase
-                  target = Target.new(target_name, nil, nil, nil, spec.gem_dir)
-                  @targets[target.name] = target
-                end
-              end
-            end
-          rescue Bundler::GemfileNotFound
-            # No Gemfile - so no gem based targets
-          end
+          auto_detect_gem_based_targets()
 
           if system_found
             target = Target.new('SYSTEM')
@@ -417,6 +402,7 @@ module Cosmos
         when 'DECLARE_GEM_TARGET'
           usage = "#{keyword} <GEM NAME> <SUBSTITUTE TARGET NAME (Optional)> <TARGET FILENAME (Optional - defaults to target.txt)>"
           parser.verify_num_parameters(1, 3, usage)
+          # Remove 'cosmos' from the gem name 'cosmos-power-supply'
           target_name = parameters[0].split('-')[1..-1].join('-').to_s.upcase
           substitute_name = nil
           substitute_name = ConfigParser.handle_nil(parameters[1])
@@ -477,6 +463,22 @@ module Cosmos
     end
 
     protected
+
+    def auto_detect_gem_based_targets
+      Bundler.load.specs.each do |spec|
+        spec_name_split = spec.name.split('-')
+        if spec_name_split.length > 1 and spec_name_split[0] == 'cosmos'
+          # Filter to just targets and not tools and other extensions
+          if File.exist?(File.join(spec.gem_dir, 'cmd_tlm'))
+            target_name = spec_name_split[1..-1].join('-').to_s.upcase
+            target = Target.new(target_name, nil, nil, nil, spec.gem_dir)
+            @targets[target.name] = target
+          end
+        end
+      end
+    rescue Bundler::GemfileNotFound
+      # No Gemfile - so no gem based targets
+    end
 
     def update_config(config)
       unless @config

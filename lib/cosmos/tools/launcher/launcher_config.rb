@@ -64,25 +64,7 @@ module Cosmos
         case keyword
 
         when 'AUTO_GEM_TOOLS'
-          parser.verify_num_parameters(0, 0, keyword)
-
-          begin
-            Bundler.load.specs.each do |spec|
-              spec_name_split = spec.name.split('-')
-              if spec_name_split.length > 1 and spec_name_split[0] == 'cosmos'
-                # Filter to just tools and not targets
-                if File.exist?(File.join(spec.gem_dir, 'tools'))
-                  Dir[File.join(spec.gem_dir, 'tools', '*')].each do |filename|
-                    if File.extname(filename) == ''
-                      @items << [:TOOL, File.basename(filename), format_shell_command(parser, "LAUNCH_GEM #{File.basename(filename)}"), true, File.basename(filename).class_name_to_filename(false) + '.png', nil]
-                    end
-                  end
-                end
-              end
-            end
-          rescue Bundler::GemfileNotFound
-            # No Gemfile - so no gem based tools
-          end
+          parse_gem_tool(parser)
 
         when 'TOOL'
           parse_tool(parser, params, multitool)
@@ -161,6 +143,25 @@ module Cosmos
     end
 
     protected
+
+    def parse_gem_tool(parser)
+      parser.verify_num_parameters(0, 0, keyword)
+      Bundler.load.specs.each do |spec|
+        spec_name_split = spec.name.split('-')
+        if spec_name_split.length > 1 and spec_name_split[0] == 'cosmos'
+          # Filter to just tools and not targets
+          if File.exist?(File.join(spec.gem_dir, 'tools'))
+            Dir[File.join(spec.gem_dir, 'tools', '*')].each do |filename|
+              if File.extname(filename) == ''
+                @items << [:TOOL, File.basename(filename), format_shell_command(parser, "LAUNCH_GEM #{File.basename(filename)}"), true, File.basename(filename).class_name_to_filename(false) + '.png', nil]
+              end
+            end
+          end
+        end
+      end
+    rescue Bundler::GemfileNotFound
+      # No Gemfile - so no gem based tools
+    end
 
     def parse_tool(parser, params, multitool)
       if multitool

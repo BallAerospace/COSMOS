@@ -203,6 +203,9 @@ module Cosmos
           target_screen_infos.each do |target_name, screen_infos|
             file.puts "TARGET \"#{target_name}\""
             screen_infos.each do |screen_name, screen_info|
+              # Grab the filename by indexing the full path for 'screens' and going past
+              # to capture the filename such as 'status.txt' below
+              #   C:/COSMOS/config/targets/TGT/screens/status.txt
               screen_filename = screen_info.filename[(screen_info.filename.index("screens").to_i + 8)..-1]
               string = "  SCREEN"
               string << " \"#{screen_filename}\""

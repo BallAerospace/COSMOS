@@ -79,6 +79,7 @@ module Cosmos
     #   path to the default of <USERPATH>/config/targets.
     # @param target_filename [String] Configuration file for the target. Normally
     #   target.txt
+    # @param gem_path [String] Path to the gem file or nil if there is no gem
     def initialize(target_name, substitute_name = nil, path = nil, target_filename = nil, gem_path = nil)
       @requires = []
       @ignored_parameters = []
