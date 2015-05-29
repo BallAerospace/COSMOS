@@ -53,7 +53,10 @@ if not errorlevel 1 (
 ::::::::::::::::::::::
 
 IF [%1]==[] (
-  set /p COSMOS_INSTALL="Enter COSMOS Install Directory: "
+  set /p COSMOS_INSTALL="Enter COSMOS Install Directory [C:\COSMOS]: "
+  IF "!COSMOS_INSTALL!"=="" (
+    set COSMOS_INSTALL=C:\COSMOS
+  )
 ) else (
   set COSMOS_INSTALL=%~1
 )
