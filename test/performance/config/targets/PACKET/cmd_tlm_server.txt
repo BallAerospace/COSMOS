@@ -1,6 +1,6 @@
 # This is a segment of the main cmd_tlm_server.txt that will be used with
 # AUTO_INTERFACE_TARGETS or INTERFACE_TARGET
 
-INTERFACE EXAMPLE_INT example_interface.rb localhost 8999
-  TARGET EXAMPLE
+INTERFACE PACKET_INT packet_interface.rb localhost 8999
+  TARGET PACKET
   DONT_CONNECT

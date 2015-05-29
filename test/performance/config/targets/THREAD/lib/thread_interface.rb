@@ -11,7 +11,7 @@
 require 'cosmos'
 require 'cosmos/interfaces/tcpip_client_interface'
 
-class ExampleInterface < Cosmos::TcpipClientInterface
+class ThreadInterface < Cosmos::TcpipClientInterface
   def initialize (hostname, port, write_timeout = 10.0, read_timeout = nil)
     super(hostname, port, port, write_timeout, read_timeout, 'LENGTH', 0, 32, 4, 1, 'BIG_ENDIAN', 4)
   end

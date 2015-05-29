@@ -10,10 +10,10 @@
 # attribution addendums as found in the LICENSE.txt
 
 require 'cosmos'
-require 'cosmos/tools/tlm_grapher/tlm_grapher'
+require 'cosmos/tools/tlm_viewer/tlm_viewer'
 
 require 'memory_profiler'
 report = MemoryProfiler.report do
-  Cosmos::TlmGrapher.run
+  Cosmos::TlmViewer.run
 end
-File.open(File.build_timestamped_filename(%w(grapher memory)),'w') {|file| report.pretty_print(file) }
+File.open(File.build_timestamped_filename(%w(viewer memory)),'w') {|file| report.pretty_print(file) }

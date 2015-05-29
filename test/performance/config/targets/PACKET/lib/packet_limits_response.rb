@@ -1,4 +1,3 @@
-#!/usr/bin/env ruby
 # encoding: ascii-8bit
 
 # Copyright 2014 Ball Aerospace & Technologies Corp.
@@ -9,6 +8,17 @@
 # as published by the Free Software Foundation; version 3 with
 # attribution addendums as found in the LICENSE.txt
 
-require 'cosmos'
-require 'example_target'
-Cosmos::ExampleTarget.run
+# This file implements a class to handle responses to limits state changes.
+
+require 'cosmos/packets/limits_response'
+
+class PacketLimitsResponse < Cosmos::LimitsResponse
+
+  def call(packet, item, old_limits_state)
+    case item.limits.state
+    when :RED_HIGH
+      cmd((9990 + Random.rand(10)).to_s, 'NOOP')
+    end
+  end
+
+end

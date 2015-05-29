@@ -14,9 +14,9 @@ require 'cosmos/tools/cmd_tlm_server/interface_thread'
 
 module Cosmos
 
-  class ExampleTarget
+  class PacketTarget
 
-    class ExampleServerInterface < TcpipServerInterface
+    class PacketServerInterface < TcpipServerInterface
       def initialize(port)
         @port = port
         super(port, port, 5.0, nil, 'LENGTH', 0, 32, 4, 1, 'BIG_ENDIAN', 4)
@@ -27,7 +27,7 @@ module Cosmos
       end
     end
 
-    class ExampleInterfaceThread < InterfaceThread
+    class PacketInterfaceThread < InterfaceThread
 
       protected
 
@@ -41,7 +41,7 @@ module Cosmos
       end
     end
 
-    class ExampleTelemetryThread
+    class PacketTelemetryThread
       attr_reader :thread
 
       def initialize(interface, port, packet, rate)
@@ -54,19 +54,25 @@ module Cosmos
 
       def start
         packet = System.telemetry.packet(@port, @packet)
-        packet.write("PACKET_ID", packet.get_item("PACKET_ID").id_value)
+        packet.write("CCSDSAPID", packet.get_item("CCSDSAPID").id_value)
+        packet.write("PKTID", packet.get_item("PKTID").id_value)
         @thread = Thread.new do
           @stop_thread = false
           begin
             while true
               @rate.times do
+                (1..4).each do |item|
+                  (1..10).each do |index|
+                    packet.write("TEMP#{item}_#{index}", Random.rand(100))
+                  end
+                end
                 packet.write('STRING', "The time is now: #{Time.now.formatted}")
                 @interface.write(packet)
                 break if @sleeper.sleep(1.0 / @rate)
               end
             end
           rescue Exception => err
-            Logger.error "ExampleTelemetryThread unexpectedly died\n#{err.formatted}"
+            Logger.error "PacketTelemetryThread unexpectedly died\n#{err.formatted}"
           end
         end
       end
@@ -85,15 +91,15 @@ module Cosmos
       @packet = arguments[1]
       @rate = arguments[2]
       # Create interface to receive commands and send telemetry
-      @interface = ExampleServerInterface.new(@port)
+      @interface = PacketServerInterface.new(@port)
       @interface_thread = nil
       @telemetry_thread = nil
     end
 
     def start
-      @interface_thread = ExampleInterfaceThread.new(@interface)
+      @interface_thread = PacketInterfaceThread.new(@interface)
       @interface_thread.start
-      @telemetry_thread = ExampleTelemetryThread.new(@interface, @port, @packet, @rate)
+      @telemetry_thread = PacketTelemetryThread.new(@interface, @port, @packet, @rate)
       @telemetry_thread.start
     end
 
@@ -115,6 +121,6 @@ module Cosmos
       end
     end
 
-  end # class ExampleTarget
+  end # class PacketTarget
 
 end # module Cosmos
