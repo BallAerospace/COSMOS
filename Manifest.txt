@@ -125,7 +125,6 @@ autohotkey/tools/PacketViewer
 autohotkey/tools/PacketViewerAHK
 autohotkey/tools/PacketViewerAHK2
 autohotkey/tools/Replay
-autohotkey/tools/Replay.bat
 autohotkey/tools/ReplayAHK
 autohotkey/tools/ScriptRunner
 autohotkey/tools/ScriptRunnerAHK
