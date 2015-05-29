@@ -23,12 +23,39 @@ copy.gsub!(/>/,"&gt;")
 copy.gsub!(/</,"&lt;")
 puts copy
 
+AMP = '&amp;'.freeze
+BLANK = ''.freeze
+GT = '&gt;'.freeze
+LT = '&lt;'.freeze
+mapping = {'&'=>AMP,"\n"=>BLANK,'>'=>GT,'<'=>LT}
+regex1 = Regexp.new('[&\n><]')
+regex2 = Regexp.union(mapping.keys)
+copy = data.dup
+puts copy.gsub(regex1, mapping)
+puts copy.gsub(regex2, mapping)
+
 Benchmark.ips do |x|
+  x.report('gsub mapping1') do
+    copy = data.dup
+    copy.gsub(regex1, mapping)
+  end
+  x.report('gsub mapping2') do
+    copy = data.dup
+    copy.gsub(regex1, mapping)
+  end
+  x.report('gsub! mapping1') do
+    copy = data.dup
+    copy.gsub!(regex1, mapping)
+  end
+  x.report('gsub! mapping2') do
+    copy = data.dup
+    copy.gsub!(regex1, mapping)
+  end
+
   x.report('gsub') do
     copy = data.dup
     copy.gsub("&","&amp;").gsub("\n",'').gsub(">","&gt;").gsub("<","&lt;")
   end
-
   x.report('gsub!') do
     copy = data.dup
     copy.gsub!("&","&amp;")
@@ -41,7 +68,6 @@ Benchmark.ips do |x|
     copy = data.dup
     copy.gsub(/&/,"&amp;").gsub(/\n/,'').gsub(/>/,"&gt;").gsub(/</,"&lt;")
   end
-
   x.report('gsub! regex') do
     copy = data.dup
     copy.gsub!(/&/,"&amp;")
@@ -54,7 +80,6 @@ Benchmark.ips do |x|
     copy = data.dup
     copy.gsub("&".freeze,"&amp;".freeze).gsub("\n".freeze,''.freeze).gsub(">".freeze,"&gt;".freeze).gsub("<".freeze,"&lt;".freeze)
   end
-
   x.report('gsub! freeze') do
     copy = data.dup
     copy.gsub!("&".freeze,"&amp;".freeze)
@@ -67,7 +92,6 @@ Benchmark.ips do |x|
     copy = data.dup
     copy.gsub(/&/,"&amp;".freeze).gsub(/\n/,''.freeze).gsub(/>/,"&gt;".freeze).gsub(/</,"&lt;".freeze)
   end
-
   x.report('gsub! regex freeze') do
     copy = data.dup
     copy.gsub!(/&/,"&amp;".freeze)
@@ -77,6 +101,20 @@ Benchmark.ips do |x|
   end
 end
 
+report = MemoryProfiler.report do
+  10000.times do
+    copy = data.dup
+    copy.gsub(regex1, mapping)
+  end
+end
+File.open(File.build_timestamped_filename(%w(gsub mapping1)),'w') {|file| report.pretty_print(file) }
+report = MemoryProfiler.report do
+  10000.times do
+    copy = data.dup
+    copy.gsub(regex2, mapping)
+  end
+end
+File.open(File.build_timestamped_filename(%w(gsub mapping2)),'w') {|file| report.pretty_print(file) }
 report = MemoryProfiler.report do
   10000.times do
     copy = data.dup
