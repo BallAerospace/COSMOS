@@ -15,8 +15,11 @@ Cosmos.catch_fatal_exception do
   require 'cosmos/gui/dialogs/cmd_tlm_raw_dialog'
   require 'cosmos/script'
   require 'cosmos/tools/tlm_viewer/widgets/labelvaluelimitsbar_widget'
+  require 'cosmos/tools/tlm_viewer/widgets/label_widget'
 end
 
+# Extend Array to search for and delete telemetry items.
+# Telemetry items are Arrays of [target name, packet name, item name].
 class Array
   def includes_item?(item)
     found, index = find_item(item)
@@ -50,47 +53,46 @@ end
 module Cosmos
 
   class LimitsItems
-    attr_accessor :ignored, :initialized
+    # @return [Array<String,String,String>] Target name, packet name, item name
+    attr_reader :ignored
+    # @return [Boolean] Whether the limits items have been fetched from the server
+    attr_reader :initialized
 
-    def initialize(new_item_callback, update_item_callback, clear_gui_items_callback)
+    # @param new_item_callback [Proc] Method to create a new item in the GUI
+    # @param update_item_callback [Proc] Method to update an item in the GUI
+    # @param clear_items_callback [Proc] Method to clear all items in the GUI
+    def initialize(new_item_callback, update_item_callback, clear_items_callback)
       @new_item_callback = new_item_callback
       @update_item_callback = update_item_callback
-      @clear_gui_items_callback = clear_gui_items_callback
-      @initialized = false
+      @clear_items_callback = clear_items_callback
       @ignored = []
+      request_reset()
     end
 
+    # Request that the limits items be refreshed from the server
     def request_reset
       @initialized = false
     end
 
-    def reset
-      @items = {}
-      @out_of_limits = []
-      @limits_set = get_limits_set()
-      unsubscribe_limits_events(@queue_id) if @queue_id
-      @queue_id = subscribe_limits_events(100000)
-      @clear_gui_items_callback.call
-      get_out_of_limits().each do |target, packet, item, state|
-        limits_change(target, packet, item, state)
-      end
-      get_stale(true).each do |target, packet|
-        stale_packet(target, packet)
-      end
-      @initialized = true
-    end
-
+    # Ignore an item. Don't display it in the GUI if it goes out of limits
+    # and don't have it count towards the overall limit state. Still display
+    # its limits transitions in the log.
+    #
+    # @param item [Array<String,String,String>] Target name, packet name,
+    #   item name to ignore
     def ignore(item)
-      ignored = false
       index = @out_of_limits.delete_item(item)
       @items.delete("#{item[0]} #{item[1]} #{item[2]}") if index
       unless @ignored.includes_item?(item)
         @ignored << item
-        ignored = true
       end
-      ignored
     end
 
+    # Remove an item from the ignored list to have it be displayed and
+    # count towards the overall limits state.
+    #
+    # @param item [Array<String,String,String> Target name, packet name,
+    #   item name to remove from ignored list
     def remove_ignored(item)
       index = @ignored.delete_item(item)
       if index
@@ -99,7 +101,7 @@ module Cosmos
           get_stale(true).each do |target, packet|
             stale_packet(target, packet)
           end
-        # We deleted an item so get all the items
+        # We deleted an item so get all the current out of limit items
         else
           get_out_of_limits().each do |target, packet, item, state|
             limits_change(target, packet, item, state)
@@ -110,16 +112,26 @@ module Cosmos
       # Do nothing
     end
 
+    # @return [Boolean] Whether there are any items being ignored
     def ignored_items?
       !@ignored.empty?
     end
 
+    # @return [Symbol] The overall limits state. Returns :STALE if there
+    #   is no connection to the server.
     def overall_state
       get_overall_limits_state(@ignored)
     rescue DRb::DRbConnError
       :STALE
     end
 
+    # Calls get_limits_event to process all the server limits events that
+    # were subscribed to. This method should be called continuously until
+    # it returns nil which indicates no more events.
+    #
+    # @return [Array<String,Symbol] String describing the event and a symbol
+    #   indicating how the event string should be colored (:BLACK, :BLUE,
+    #   :GREEN, :YELLOW, or :RED)
     def process_events
       result = nil
       type = nil
@@ -131,7 +143,8 @@ module Cosmos
       rescue ThreadError
         # Do nothing (nominal exception if there are no events)
       rescue DRb::DRbConnError
-        @initialized = false
+        # The server is down so request a reset
+        request_reset()
       end
       return result unless type
 
@@ -144,20 +157,18 @@ module Cosmos
         # Check if the overall limits set changed. If so we need to reset
         # to incorporate all the new limits.
         if @limits_set != data
-          @initialized = false
+          request_reset()
           result = ["INFO: Limits Set Changed to: #{data}\n", :BLACK]
         end
 
       when :LIMITS_SETTINGS
         # The limits settings for an individual item changed. Set our local tool
-        # knowledge of the limits to match the server and reset so we display
-        # the new limits.
+        # knowledge of the limits to match the server.
         begin
           System.limits.set(data[0], data[1], data[2], data[6], data[7], data[8], data[9], data[10], data[11], data[3], data[4], data[5])
-          @initialized = false
           result = ["INFO: Limits Settings Changed: #{data}\n", :BLACK]
         rescue
-          # This can fail if we missed setting the DEFAULT limits set earlier - Oh well
+          # This can fail if we missed setting the DEFAULT limits set earlier
         end
 
       when :STALE_PACKET
@@ -167,6 +178,116 @@ module Cosmos
       result
     end
 
+    # Update the values for all the out of limits items being tracked.
+    def update_values
+      # Reject any out of limits packets as they don't have values
+      items = @out_of_limits.reject {|item| item[2].nil? }
+
+      values, limits_states, limits_settings, limits_set = get_tlm_values(items, :WITH_UNITS)
+      index = 0
+      items.each do |target_name, packet_name, item_name|
+        begin
+          # Update the limits settings each time we update values
+          # to stay in sync with the Server. Responding to :LIMITS_SETTINGS
+          # events isn't enough since we don't get those upon startup.
+          System.limits.set(target_name, packet_name, item_name,
+            limits_settings[index][0], limits_settings[index][1],
+            limits_settings[index][2], limits_settings[index][3],
+            limits_settings[index][4], limits_settings[index][5],
+            limits_set) if limits_settings[index]
+        rescue
+          # This can fail if we missed setting the DEFAULT limits set earlier
+        end
+        name = "#{target_name} #{packet_name} #{item_name}"
+        @update_item_callback.call(@items[name], values[index], limits_states[index], limits_set)
+        index += 1
+      end
+    rescue DRb::DRbConnError
+      # Do nothing
+    end
+
+    # Load a new configuration of ignored items and packets and reset
+    #
+    # @param config_file [String] Configuration file base name which will be
+    #   expanded to find a file in the config/tools/limits_monitor dir.
+    # @return [String] Message indicating success or fail
+    def open_config(filename)
+      return "" unless filename
+
+      filename = File.join(::Cosmos::USERPATH, 'config', 'tools', 'limits_monitor', filename)
+      return "Configuration file #{filename} not found!" unless File.exist?(filename)
+
+      @ignored = []
+      begin
+        parser = ConfigParser.new
+        parser.parse_file(filename) do |keyword, params|
+          case keyword
+          # TODO: Eventually we can deprecate 'IGNORE' in favor
+          # of 'IGNORE_ITEM' now that we also have 'IGNORE_PACKET'
+          when 'IGNORE', 'IGNORE_ITEM'
+            @ignored << ([params[0], params[1], params[2]])
+          when 'IGNORE_PACKET'
+            @ignored << ([params[0], params[1], nil])
+          end
+        end
+        result = "#{filename} loaded. "
+        result << "Warning: Some items ignored" if ignored_items?
+      rescue => e
+        result = "Error loading configuration : #{e.message}"
+      end
+      # Since we may have loaded new ignored items we need to reset
+      request_reset()
+      result
+    end
+
+    # Save the current configuration of ignored items and packets.
+    #
+    # @param config_file [String] Configuration file to save.
+    # @return [String] Message indicating success or fail
+    def save_config(filename)
+      begin
+        File.open(filename, "w") do |file|
+          @ignored.each do |target, pkt_name, item_name|
+            if item_name
+              file.puts("IGNORE_ITEM #{target} #{pkt_name} #{item_name}")
+            else
+              file.puts("IGNORE_PACKET #{target} #{pkt_name}")
+            end
+          end
+        end
+        result = "#{filename} saved"
+      rescue => e
+        result = "Error saving configuration : #{e.message}"
+      end
+      result
+    end
+
+    private
+
+    # Clear all tracked out of limits items and resubscribe to the server
+    # limits events. Clear the GUI and re-create all out of limits items
+    # and stale packets.
+    #
+    # Note this method can raise a DRb::DRbConnError error!
+    def reset
+      @items = {}
+      @out_of_limits = []
+      @limits_set = get_limits_set()
+      unsubscribe_limits_events(@queue_id) if @queue_id
+      @queue_id = subscribe_limits_events(100000)
+      @clear_items_callback.call
+      get_out_of_limits().each do |target, packet, item, state|
+        limits_change(target, packet, item, state)
+      end
+      get_stale(true).each do |target, packet|
+        stale_packet(target, packet)
+      end
+
+      @initialized = true
+    end
+
+    # Process a limits_change event by recoring out of limits events
+    # and creating a log message.
     def limits_change(target_name, packet_name, item_name, state)
       message = ''
       color = :BLACK
@@ -193,78 +314,19 @@ module Cosmos
       [message, color]
     end
 
+    # Record the stale packet and generate a log message
     def stale_packet(target_name, packet_name)
       out_of_limit([target_name, packet_name, nil])
       return ["INFO: Packet #{target_name} #{packet_name} is STALE\n", :BLACK]
     end
 
+    # Record an out of limits item and call the new item callback.
+    # Existing out of limits and ignored items are not recorded.
     def out_of_limit(item)
       unless (@out_of_limits.includes_item?(item) || @ignored.includes_item?(item))
         @out_of_limits << item
         @items["#{item[0]} #{item[1]} #{item[2]}"] = @new_item_callback.call(*item)
       end
-    end
-
-    def update_values
-      # Reject any out of limits packets
-      items = @out_of_limits.reject {|item| item[2].nil? }
-
-      values, limits_states, limits_settings, limits_set = get_tlm_values(items, :WITH_UNITS)
-      index = 0
-      items.each do |target_name, packet_name, item_name|
-        name = "#{target_name} #{packet_name} #{item_name}"
-        @update_item_callback.call(@items[name], values[index], limits_states[index], limits_set)
-        index += 1
-      end
-    rescue DRb::DRbConnError
-      # Do nothing
-    end
-
-    # @param config_file [String] Configuration file base name which will be
-    #   expanded to find a file in the config/tools/limits_monitor dir.
-    def open_config(filename)
-      result = ""
-      return result unless filename
-
-      return "Configuration file #{filename} not found!" unless File.exist?(filename)
-
-      @ignored = []
-      begin
-        parser = ConfigParser.new
-        parser.parse_file(filename) do |keyword, params|
-          case keyword
-          when 'IGNORE', 'IGNORE_ITEM'
-            @ignored << ([params[0], params[1], params[2]])
-          when 'IGNORE_PACKET'
-            @ignored << ([params[0], params[1], nil])
-          end
-        end
-        result = "#{filename} loaded. "
-        result << "Warning: Some items ignored" if ignored_items?
-      rescue => e
-        result = "Error loading configuration : #{e.message}"
-      end
-      # Since we may have loaded new ignored items we need to reset
-      @initialized = false
-      result
-    end
-
-    def save_config(filename)
-      begin
-        File.open(filename, "w") do |file|
-          @ignored.each do |target, pkt_name, item_name|
-            if item_name
-              file.puts("IGNORE_ITEM #{target} #{pkt_name} #{item_name}")
-            else
-              file.puts("IGNORE_PACKET #{target} #{pkt_name}")
-            end
-          end
-        end
-        result = "#{filename} saved"
-      rescue => e
-        result = "Error saving configuration : #{e.message}"
-      end
-      result
     end
   end
 
@@ -272,9 +334,17 @@ module Cosmos
   # encountered by the COSMOS server. It provides the ability to ignore and
   # restore limits as well as logs all limits events.
   class LimitsMonitor < QtTool
+    # LimitsWidget displays either a stale packet using the Label widget
+    # or more commonly an out of limits item using the Labelvaluelimitsbar
+    # Widget.
     class LimitsWidget < Qt::Widget
+      # @return [Widget] The widget which displays the value
       attr_accessor :value
 
+      # @parent [Qt::Widget] Parent widget (the LimitsMonitor tool)
+      # @target_name [String] Target name
+      # @packet_name [String] Packet name
+      # @item_name [String] Telemetry item name (nil for stale packets)
       def initialize(parent, target_name, packet_name, item_name)
         super(parent)
         @layout = Qt::HBoxLayout.new
@@ -296,17 +366,20 @@ module Cosmos
         @layout.addWidget(@ignore_button)
       end
 
+      # Update the widget's value, limits_state, and limits_set
       def set_values(value, limits_state, limits_set)
         @value.value = value
         @value.limits_state = limits_state
         @value.limits_set = limits_set
       end
 
+      # Enable or disable Colorblind mode
       def set_colorblind(enabled)
         @value.set_setting('COLORBLIND', [enabled])
         @value.process_settings
       end
 
+      # Dispose of the widget
       def dispose
         @ignore_button.dispose
         @value.dispose
@@ -315,8 +388,9 @@ module Cosmos
       end
     end
 
-    # Set up class variables, tab-book with main panel and log panel, menus, and
-    # status bar on main panel.
+    # Create the main application GUI. Start the limits thread which responds to
+    # asynchronous limits events from the server and the value thread which
+    # polls the server at 1Hz for the out of limits items values.
     #
     # @param options [Options] Contains the options for the window.
     def initialize(options)
@@ -341,6 +415,7 @@ module Cosmos
       value_thread()
     end
 
+    # Initialize all the actions in the application Menu
     def initialize_actions
       super
 
@@ -375,6 +450,7 @@ module Cosmos
       @edit_ignored_action.connect(SIGNAL('triggered()')) { edit_ignored_items() }
     end
 
+    # Initialize the application menu bar options
     def initialize_menus
       @file_menu = menuBar.addMenu(tr('&File'))
       @file_menu.addAction(@open_ignored_action)
@@ -392,6 +468,8 @@ module Cosmos
       initialize_help_menu()
     end
 
+    # Layout the main GUI tab widget with a view of all the out of limits items
+    # in one tab and a log tab showing all limits events.
     def initialize_central_widget
       @tabbook = Qt::TabWidget.new(self)
       setCentralWidget(@tabbook)
@@ -500,6 +578,7 @@ module Cosmos
       end
     end
 
+    # Opens a dialog to allow the user to remove ignored items
     def edit_ignored_items
       items = []
       index = 0
@@ -573,11 +652,13 @@ module Cosmos
       Cosmos.handle_fatal_exception(error)
     end
 
-    # Add new out of limit item
+    # Add new out of limit item or stale packet
     #
     # @param target_name [String] Target name of out of limits item.
     # @param packet_name [String] Packet name of out of limits item.
-    # @param item_name [String] Item name of out of limits item.
+    # @param item_name [String] Item name of out of limits item or nil
+    #   if its a stale packet
+    # @return [Qt::Widget] The new widget that was created
     def new_gui_item(target_name, packet_name, item_name)
       widget = nil
       Qt.execute_in_main_thread(true) do
@@ -591,7 +672,8 @@ module Cosmos
     #
     # @param target_name [String] Target name of out of limits item.
     # @param packet_name [String] Packet name of out of limits item.
-    # @param item_name [String] Item name of out of limits item.
+    # @param item_name [String] Item name of out of limits item or nil
+    #   if its a stale packet
     def update_gui_item(widget, value, limits_state, limits_set)
       Qt.execute_in_main_thread(true) do
         widget.set_values(value, limits_state, limits_set) if widget
@@ -605,8 +687,8 @@ module Cosmos
 
     # Update front panel to ignore an item when the corresponding button is pressed.
     #
-    # @param item [Array] Array containing the target, packet, and item name of the
-    #   item to ignore.
+    # @param item [Array<String,String,String] Array containing the target name,
+    #   packet name, and item name of the item to ignore.
     def ignore(widget, item)
       @limits_items.ignore(item)
       Qt.execute_in_main_thread(true) do
@@ -644,8 +726,9 @@ module Cosmos
       end
     end
 
-    # Sets up the thread to monitor the limits values and update them when they
-    # change, as well as updating the status bar at the top of the front panel.
+    # Thread to request the out of limits values and update them at 1Hz.
+    # Also updates the status bar at the top of the front panel indicating
+    # the overall limits value of the system.
     def value_thread
       @value_thread = Thread.new do
         while true
@@ -655,7 +738,8 @@ module Cosmos
               @limits_items.update_values()
               update_overall_limits_state(@limits_items.overall_state())
             else
-              statusBar.showMessage('Error Connecting to Command and Telemetry Server')
+              # Set the status bar message to expire in 2s since this runs at 1Hz
+              statusBar.showMessage('Error Connecting to Command and Telemetry Server', 2000)
             end
           end
           break if @value_sleeper.sleep(1)
