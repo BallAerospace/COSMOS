@@ -16,6 +16,7 @@ Cosmos.catch_fatal_exception do
   require 'cosmos/script'
   require 'cosmos/tools/tlm_viewer/widgets/labelvaluelimitsbar_widget'
   require 'cosmos/tools/tlm_viewer/widgets/label_widget'
+  require 'pathname'
 end
 
 # Extend Array to search for and delete telemetry items.
@@ -58,6 +59,8 @@ module Cosmos
     # @return [Boolean] Whether the limits items have been fetched from the server
     attr_reader :initialized
 
+    UNKNOWN_ARRAY = ['UNKNOWN', 'UNKNOWN', nil]
+
     # @param new_item_callback [Proc] Method to create a new item in the GUI
     # @param update_item_callback [Proc] Method to update an item in the GUI
     # @param clear_items_callback [Proc] Method to clear all items in the GUI
@@ -66,6 +69,10 @@ module Cosmos
       @update_item_callback = update_item_callback
       @clear_items_callback = clear_items_callback
       @ignored = []
+      @items = {}
+      @out_of_limits = []
+      @queue_id = nil
+      @limits_set = :DEFAULT
       request_reset()
     end
 
@@ -214,7 +221,9 @@ module Cosmos
     def open_config(filename)
       return "" unless filename
 
-      filename = File.join(::Cosmos::USERPATH, 'config', 'tools', 'limits_monitor', filename)
+      unless Pathname.new(filename).absolute?
+        filename = File.join(::Cosmos::USERPATH, 'config', 'tools', 'limits_monitor', filename)
+      end
       return "Configuration file #{filename} not found!" unless File.exist?(filename)
 
       @ignored = []
@@ -286,7 +295,7 @@ module Cosmos
       @initialized = true
     end
 
-    # Process a limits_change event by recoring out of limits events
+    # Process a limits_change event by recoloring out of limits events
     # and creating a log message.
     def limits_change(target_name, packet_name, item_name, state)
       message = ''
@@ -323,7 +332,7 @@ module Cosmos
     # Record an out of limits item and call the new item callback.
     # Existing out of limits and ignored items are not recorded.
     def out_of_limit(item)
-      unless (@out_of_limits.includes_item?(item) || @ignored.includes_item?(item))
+      unless (@out_of_limits.includes_item?(item) || @ignored.includes_item?(item) || UNKNOWN_ARRAY.includes_item?(item))
         @out_of_limits << item
         @items["#{item[0]} #{item[1]} #{item[2]}"] = @new_item_callback.call(*item)
       end
@@ -358,7 +367,7 @@ module Cosmos
           @value.set_setting('COLORBLIND', [@colorblind])
           @value.process_settings
         else
-          @value = LabelWidget.new(layout, "#{target_name} #{packet_name}")
+          @value = LabelWidget.new(layout, "#{target_name} #{packet_name} is STALE")
         end
 
         @ignore_button = Qt::PushButton.new('Ignore')
@@ -368,15 +377,19 @@ module Cosmos
 
       # Update the widget's value, limits_state, and limits_set
       def set_values(value, limits_state, limits_set)
-        @value.value = value
-        @value.limits_state = limits_state
-        @value.limits_set = limits_set
+        if LabelvaluelimitsbarWidget === @value
+          @value.value = value
+          @value.limits_state = limits_state
+          @value.limits_set = limits_set
+        end
       end
 
       # Enable or disable Colorblind mode
       def set_colorblind(enabled)
-        @value.set_setting('COLORBLIND', [enabled])
-        @value.process_settings
+        if LabelvaluelimitsbarWidget === @value
+          @value.set_setting('COLORBLIND', [enabled])
+          @value.process_settings
+        end
       end
 
       # Dispose of the widget
