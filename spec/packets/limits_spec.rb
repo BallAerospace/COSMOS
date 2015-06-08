@@ -139,10 +139,16 @@ module Cosmos
         @tlm.update!("TGT1","PKT2","\x03\x03")
         @tlm.packet("TGT1","PKT2").check_limits
 
-        # Ignore everything in pkt1
         @tlm.packet("TGT1","PKT1").set_stale
         expect(@limits.overall_limits_state).to eq :STALE
+        # Ignore several items in pkt1 but leave one off
+        expect(@limits.overall_limits_state([%w(TGT1 PKT1 ITEM1),%w(TGT1 PKT1 ITEM2),%w(TGT1 PKT1 ITEM3)])).to eq :STALE
+        # Ignore every item in pkt1
         expect(@limits.overall_limits_state([%w(TGT1 PKT1 ITEM1),%w(TGT1 PKT1 ITEM2),%w(TGT1 PKT1 ITEM3),%w(TGT1 PKT1 ITEM4)])).to eq :GREEN
+
+        # ignore the entire PKT1 packet
+        expect(@limits.overall_limits_state).to eq :STALE
+        expect(@limits.overall_limits_state([%w(TGT1 PKT1)])).to eq :GREEN
       end
 
       it "handles non-existant ignored telemetry items" do
@@ -170,6 +176,18 @@ module Cosmos
         @tlm.update!("TGT1","PKT1","\x0a\x0a\x07\x06\x00")
         @tlm.packet("TGT1","PKT1").check_limits(:TVAC)
         expect(@limits.overall_limits_state([%w(TGT1 PKT1 ITEM4),%w(TGT1 PKT1 ITEM3)])).to eq :GREEN
+      end
+
+      it "ignores specified telemetry packets" do
+        # Cause packet 2 to be green
+        @tlm.update!("TGT1","PKT2","\x03\x03")
+        @tlm.packet("TGT1","PKT2").check_limits
+
+        # Cause packet 1 to have a YELLOW and a RED value but ignore the packet
+        @tlm.update!("TGT1","PKT1","\x0a\x0a\x07\x06\x00")
+        @tlm.packet("TGT1","PKT1").check_limits(:TVAC)
+        expect(@limits.overall_limits_state()).to eq :RED
+        expect(@limits.overall_limits_state([%w(TGT1 PKT1)])).to eq :GREEN
       end
     end
 

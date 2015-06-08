@@ -249,9 +249,12 @@ module Cosmos
       return packet
     end
 
-    def includes_item?(array, target_name, packet_name, item_name)
-      array.each do |array_target_name, array_packet_name, array_item_name|
-        if ((array_target_name == target_name) && (array_packet_name == packet_name) && (array_item_name == item_name))
+    def includes_item?(ignored_items, target_name, packet_name, item_name)
+      ignored_items.each do |array_target_name, array_packet_name, array_item_name|
+        if ((array_target_name == target_name) &&
+            (array_packet_name == packet_name) &&
+            # If the item name is nil we're ignoring an entire packet
+            (array_item_name == item_name || array_item_name.nil?))
           return true
         end
       end

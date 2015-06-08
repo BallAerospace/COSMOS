@@ -197,7 +197,10 @@ module Cosmos
       @staleness_monitor_thread = Thread.new do
         begin
           while true
-            System.telemetry.check_stale
+            stale = System.telemetry.check_stale
+            stale.each do |packet|
+              post_limits_event(:STALE_PACKET, [packet.target_name, packet.packet_name])
+            end
             broken = @sleeper.sleep(10)
             break if broken
           end
@@ -281,8 +284,9 @@ module Cosmos
     #
     # @param event_type [Symbol] The type of limits event that occurred. Must
     #   be one of :LIMITS_SET which means the system limits set has changed,
-    #   :LIMITS_CHANGE which means an individual item has changed limits state, or
-    #   :LIMITS_SETTINGS which means an individual item has new settings
+    #   :LIMITS_CHANGE which means an individual item has changed limits state,
+    #   :LIMITS_SETTINGS which means an individual item has new settings, or
+    #   :STALE_PACKET which means a packet with limits has gone stale
     # @param event_data [Symbol|Array<String,String,String,Symbol,Symbol>]
     #   Returns the current limits set name for event_type == :LIMITS_SET.
     #   Returns an array containing the target name, packet name, item name,
@@ -354,7 +358,7 @@ module Cosmos
     # Get a limits event from the queue created by {#subscribe_limits_events}.
     #
     # Each limits event consists of an Array with two elements:
-    # \[:LIMITS_CHANGE, [target, packet, item, old state, current state]]
+    #   The Symbol name of the event and an Array of data
     #
     # @param id [Integer] The queue ID received from calling
     #   {#subscribe_limits_events}
