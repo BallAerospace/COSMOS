@@ -53,24 +53,19 @@ module Cosmos
       @variable_parameters.each do |parameter_name, parameter_value|
         hlayout = Qt::HBoxLayout.new
         hlayout.addWidget(Qt::Label.new(parameter_name))
-        if @shell_command.match(".*/CmdTlmServer") and parameter_name.match("config")
+        parameter_options = parameter_value.split('|')
+        if parameter_options.length()>1
           combo_box = Qt::ComboBox.new()
-          if Dir.exists?('config/tools/cmd_tlm_server')
-            Dir.chdir('config/tools/cmd_tlm_server')
-            idx=0
-            default_idx=0
-            Dir.glob('*.txt').sort().each {|config|
-              combo_box.insertItem(idx,config)
-              if config.eql?(parameter_value)
-                default_idx = idx
-              end
-              idx+=1
-            }
-          else
-            combo_box.insertItem(0,parameter_value)
-          end
-          combo_box.setCurrentIndex(default_idx)
           combo_box.setEditable(true)
+          idx=0
+          default_option=parameter_options[0]
+          parameter_options.sort().each {|option|
+            combo_box.insertItem(idx,option)
+            if option.eql?(default_option)
+              combo_box.setCurrentIndex(idx)
+            end
+            idx+=1
+          }
           hlayout.addWidget(combo_box)
           widgets << combo_box
         else
