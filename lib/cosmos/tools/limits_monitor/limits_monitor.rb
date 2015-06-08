@@ -617,6 +617,7 @@ module Cosmos
             @limits_items.remove_ignored(items[index].data(Qt::UserRole).value)
           end
           list.remove_selected_items
+          list.setCurrentRow(0)
         end
         # Preselect the first row (works if list is empty) so the keyboard
         # works instantly without having to click the list
