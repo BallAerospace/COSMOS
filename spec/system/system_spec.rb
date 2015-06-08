@@ -504,9 +504,19 @@ module Cosmos
           tf = Tempfile.new('unittest')
           tf.puts("DISABLE_DNS")
           tf.close
-          expect(System.use_dns).to be true
+          expect(System.use_dns).to be false
           System.instance.process_file(tf.path)
           expect(System.use_dns).to be false
+          tf.unlink
+        end
+
+        it "enables dns lookups" do
+          tf = Tempfile.new('unittest')
+          tf.puts("ENABLE_DNS")
+          tf.close
+          expect(System.use_dns).to be false
+          System.instance.process_file(tf.path)
+          expect(System.use_dns).to be true
           tf.unlink
         end
       end
