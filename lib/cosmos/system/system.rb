@@ -84,7 +84,7 @@ module Cosmos
       @default_packet_log_writer = PacketLogWriter
       @default_packet_log_reader = PacketLogReader
       @sound = false
-      @use_dns = true
+      @use_dns = false
       @acl = nil
       @staleness_seconds = 30
       @limits_set = :DEFAULT
@@ -279,6 +279,11 @@ module Cosmos
             usage = "#{keyword}"
             parser.verify_num_parameters(0, 0, usage)
             @use_dns = false
+
+          when 'ENABLE_DNS'
+            usage = "#{keyword}"
+            parser.verify_num_parameters(0, 0, usage)
+            @use_dns = true
 
           when 'ALLOW_ACCESS'
             parser.verify_num_parameters(1, 1, "#{keyword} <IP Address or Hostname>")
