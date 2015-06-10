@@ -52,7 +52,7 @@ module Cosmos
       sleep(0.1)
     end
 
-    describe "tlm, tlm_raw, tlm_formatted, tlm_with_units, tlm_variable, set_tlm, set_tlm_raw" do
+    describe "tlm, tlm_raw, tlm_formatted, tlm_with_units, tlm_variable" do
       it "passes through to the cmd_tlm_server" do
         expect {
           expect(tlm("INST HEALTH_STATUS TEMP1")).to eql -100.0
@@ -60,15 +60,33 @@ module Cosmos
           expect(tlm_formatted("INST HEALTH_STATUS TEMP1")).to eql "-100.000"
           expect(tlm_with_units("INST HEALTH_STATUS TEMP1")).to eql "-100.000 C"
           expect(tlm_variable("INST HEALTH_STATUS TEMP1", :RAW)).to eql 0
+        }.to_not raise_error
+      end
+    end
+
+    describe "set_tlm, set_tlm_raw" do
+      it "passes through to the cmd_tlm_server" do
+        expect {
           set_tlm("INST HEALTH_STATUS TEMP1 = 1")
           set_tlm("INST HEALTH_STATUS ASCIICMD = 'Hi'")
           set_tlm("INST HEALTH_STATUS ASCIICMD ='Hello'")
-          set_tlm("INST HEALTH_STATUS ASCIICMD = 'Hello World'")
+          set_tlm("INST HEALTH_STATUS ASCIICMD= 'Hello World'")
+          set_tlm("INST HEALTH_STATUS ASCIICMD='Hello World'")
           set_tlm_raw("INST HEALTH_STATUS TEMP1 = 0")
           set_tlm_raw("INST HEALTH_STATUS ASCIICMD = 'Hi'")
           set_tlm_raw("INST HEALTH_STATUS ASCIICMD ='Hello'")
-          set_tlm_raw("INST HEALTH_STATUS ASCIICMD = 'Hello World'")
+          set_tlm_raw("INST HEALTH_STATUS ASCIICMD= 'Hello World'")
+          set_tlm_raw("INST HEALTH_STATUS ASCIICMD='Hello World'")
         }.to_not raise_error
+      end
+
+      it "raises with bad syntax" do
+        error_msg = "ERROR: Set Telemetry Item must be specified as 'TargetName PacketName ItemName = Value'"
+        expect { set_tlm("INST HEALTH_STATUS = 5") }.to raise_error(/#{error_msg}/)
+        expect { set_tlm("INST HEALTH_STATUS TEMP1") }.to raise_error(/#{error_msg}/)
+        expect { set_tlm("INST HEALTH_STATUS TEMP1 = ") }.to raise_error(/#{error_msg}/)
+        expect { set_tlm("INST HEALTH_STATUS ASCIICMD = 'hi") }.to raise_error(/#{error_msg}/)
+        expect { set_tlm('INST HEALTH_STATUS ASCIICMD = "hi') }.to raise_error(/#{error_msg}/)
       end
     end
 

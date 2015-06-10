@@ -86,13 +86,20 @@ module Cosmos
     end
 
     def extract_fields_from_set_tlm_text(text)
-      split_string = text.split
-      raise "ERROR: Set Telemetry Item must be specified as 'TargetName PacketName ItemName = Value' : #{text}" if split_string[3] and split_string[3][0] != '='
+      error_msg = "ERROR: Set Telemetry Item must be specified as 'TargetName PacketName ItemName = Value' : #{text}"
+      # We have to handle these cases:
+      # set_tlm("TGT PKT ITEM='new item'")
+      # set_tlm("TGT PKT ITEM = 'new item'")
+      # set_tlm("TGT PKT ITEM= 'new item'")
+      # set_tlm("TGT PKT ITEM ='new item'")
+      split_string = text.split('=')
+      raise error_msg if split_string.length != 2 || split_string[1].strip.empty?
+      split_string = split_string[0].strip.split << split_string[1].strip
+      raise error_msg if split_string.length != 4 # Ensure tgt,pkt,item,value
       target_name = split_string[0]
       packet_name = split_string[1]
       item_name = split_string[2]
-      index = text.index('=')
-      value = text[(index + 1)..-1].strip.convert_to_value
+      value = split_string[3].strip.convert_to_value
       value = value.remove_quotes if String === value
       return [target_name, packet_name, item_name, value]
     end
