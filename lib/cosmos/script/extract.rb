@@ -93,8 +93,8 @@ module Cosmos
       # set_tlm("TGT PKT ITEM= 'new item'")
       # set_tlm("TGT PKT ITEM ='new item'")
       split_string = text.split('=')
-      raise error_msg if split_string.length != 2 || split_string[1].strip.empty?
-      split_string = split_string[0].strip.split << split_string[1].strip
+      raise error_msg if split_string.length < 2 || split_string[1].strip.empty?
+      split_string = split_string[0].strip.split << split_string[1..-1].join('=').strip
       raise error_msg if split_string.length != 4 # Ensure tgt,pkt,item,value
       target_name = split_string[0]
       packet_name = split_string[1]
