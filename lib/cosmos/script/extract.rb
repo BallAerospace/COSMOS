@@ -87,11 +87,12 @@ module Cosmos
 
     def extract_fields_from_set_tlm_text(text)
       split_string = text.split
-      raise "ERROR: Set Telemetry Item must be specified as 'TargetName PacketName ItemName = Value' : #{text}" if split_string.length != 5
+      raise "ERROR: Set Telemetry Item must be specified as 'TargetName PacketName ItemName = Value' : #{text}" if split_string[3] and split_string[3][0] != '='
       target_name = split_string[0]
       packet_name = split_string[1]
       item_name = split_string[2]
-      value = split_string[4].convert_to_value
+      index = text.index('=')
+      value = text[(index + 1)..-1].strip.convert_to_value
       value = value.remove_quotes if String === value
       return [target_name, packet_name, item_name, value]
     end

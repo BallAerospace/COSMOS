@@ -61,7 +61,13 @@ module Cosmos
           expect(tlm_with_units("INST HEALTH_STATUS TEMP1")).to eql "-100.000 C"
           expect(tlm_variable("INST HEALTH_STATUS TEMP1", :RAW)).to eql 0
           set_tlm("INST HEALTH_STATUS TEMP1 = 1")
+          set_tlm("INST HEALTH_STATUS ASCIICMD = 'Hi'")
+          set_tlm("INST HEALTH_STATUS ASCIICMD ='Hello'")
+          set_tlm("INST HEALTH_STATUS ASCIICMD = 'Hello World'")
           set_tlm_raw("INST HEALTH_STATUS TEMP1 = 0")
+          set_tlm_raw("INST HEALTH_STATUS ASCIICMD = 'Hi'")
+          set_tlm_raw("INST HEALTH_STATUS ASCIICMD ='Hello'")
+          set_tlm_raw("INST HEALTH_STATUS ASCIICMD = 'Hello World'")
         }.to_not raise_error
       end
     end
