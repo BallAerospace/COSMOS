@@ -457,7 +457,7 @@ module Cosmos
       end
     end
 
-    describe "set_tlm" do
+    describe "set_value" do
       it "complains about non-existant targets" do
         expect { @tlm.set_value("TGTX","PKT1","ITEM1", 1) }.to raise_error(RuntimeError, "Telemetry target 'TGTX' does not exist")
       end
