@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 # encoding: ascii-8bit
 
-# Copyright 2014 Ball Aerospace & Technologies Corp.
+# Copyright 2015 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
 # This program is free software; you can modify and/or redistribute it
@@ -9,7 +9,8 @@
 # as published by the Free Software Foundation; version 3 with
 # attribution addendums as found in the LICENSE.txt
 
-require 'bundler/setup' unless ENV['COSMOS_DEVEL']
-require 'cosmos'
-require 'cosmos/tools/launcher/launcher'
-Cosmos::Launcher.run
+require_relative 'launch_tool'
+launch_tool do
+  require 'cosmos/tools/launcher/launcher'
+  Cosmos::Launcher.run
+end
