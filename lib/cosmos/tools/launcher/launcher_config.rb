@@ -145,7 +145,7 @@ module Cosmos
     protected
 
     def parse_gem_tool(parser)
-      parser.verify_num_parameters(0, 0, keyword)
+      parser.verify_num_parameters(0, 0, parser.keyword)
       Bundler.load.specs.each do |spec|
         spec_name_split = spec.name.split('-')
         if spec_name_split.length > 1 and spec_name_split[0] == 'cosmos'
