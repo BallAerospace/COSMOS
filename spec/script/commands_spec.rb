@@ -283,6 +283,20 @@ module Cosmos
       end
     end
 
+    describe "get_cmd_value, get_cmd_time" do
+      it "passes through to the cmd_tlm_server" do
+        expect {
+          get_cmd_value("INST", "COLLECT", "TYPE")
+          get_cmd_value("INST", "COLLECT", "RECEIVED_TIMEFORMATTED")
+          get_cmd_value("INST", "COLLECT", "RECEIVED_TIMESECONDS")
+          get_cmd_value("INST", "COLLECT", "RECEIVED_COUNT")
+          get_cmd_time("INST", "COLLECT")
+          get_cmd_time("INST")
+          get_cmd_time()
+        }.to_not raise_error
+      end
+    end
+
   end
 end
 
