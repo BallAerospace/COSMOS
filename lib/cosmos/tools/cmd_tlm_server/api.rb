@@ -278,9 +278,9 @@ module Cosmos
 
     # Returns a value from the specified command
     #
-    # @param target_name Target name of the command
-    # @param command_name Packet name of the command
-    # @param parameter_name Parameter name in the command
+    # @param target_name [String] Target name of the command
+    # @param command_name [String] Packet name of the command
+    # @param parameter_name [String] Parameter name in the command
     # @param value_type [Symbol] How the values should be converted. Must be
     #   one of {Packet::VALUE_TYPES}
     # @return [Varies] value
@@ -309,11 +309,11 @@ module Cosmos
 
     # Returns the time the most recent command was sent
     #
-    # @param target_name Target name of the command. If not given then the most recent
-    #    time from all commands will be returned
-    # @param command_name Packet name of the command.  If not given then the most recent
-    #    time from the given target will be returned.
-    # @return [Array<Target Name, Command Name, Time Seconds, Time Microsends>] value
+    # @param target_name [String] Target name of the command. If not given then
+    #    the most recent time from all commands will be returned
+    # @param command_name [String] Packet name of the command. If not given then
+    #    then most recent time from the given target will be returned.
+    # @return [Array<Target Name, Command Name, Time Seconds, Time Microseconds>]
     def get_cmd_time(target_name = nil, command_name = nil)
       last_command = nil
       if target_name
