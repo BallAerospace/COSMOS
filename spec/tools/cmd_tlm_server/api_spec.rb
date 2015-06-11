@@ -454,6 +454,36 @@ module Cosmos
       end
     end
 
+    describe "get_cmd_value" do
+      it "returns command values" do
+        time = Time.now
+        packet = System.commands.packet("INST", "COLLECT")
+        packet.received_time = time
+        packet.restore_defaults
+        packet.received_count = 5
+        expect(@api.get_cmd_value("INST", "COLLECT", "TYPE")).to eql 'NORMAL'
+        expect(@api.get_cmd_value("INST", "COLLECT", "RECEIVED_TIMEFORMATTED")).to eql time.formatted
+        expect(@api.get_cmd_value("INST", "COLLECT", "RECEIVED_TIMESECONDS")).to eql time.to_f
+        expect(@api.get_cmd_value("INST", "COLLECT", "RECEIVED_COUNT")).to eql 5
+      end
+    end
+
+    describe "get_cmd_time" do
+      it "returns command times" do
+        time = Time.now
+        time2 = Time.now + 2
+        packet = System.commands.packet("INST", "COLLECT")
+        packet.received_time = time
+        packet2 = System.commands.packet("COSMOS", "STARTLOGGING")
+        packet2.received_time = time2
+        expect(@api.get_cmd_time()).to eql ['COSMOS', 'STARTLOGGING', time2.tv_sec, time2.tv_usec]
+        expect(@api.get_cmd_time('INST')).to eql ['INST', 'COLLECT', time.tv_sec, time.tv_usec]
+        expect(@api.get_cmd_time('COSMOS')).to eql ['COSMOS', 'STARTLOGGING', time2.tv_sec, time2.tv_usec]
+        expect(@api.get_cmd_time('INST', 'COLLECT')).to eql ['INST', 'COLLECT', time.tv_sec, time.tv_usec]
+        expect(@api.get_cmd_time('COSMOS', 'STARTLOGGING')).to eql ['COSMOS', 'STARTLOGGING', time2.tv_sec, time2.tv_usec]
+      end
+    end
+
     def test_tlm_unknown(method)
       expect { @api.send(method,"BLAH HEALTH_STATUS COLLECTS") }.to raise_error(/does not exist/)
       expect { @api.send(method,"INST UNKNOWN COLLECTS") }.to raise_error(/does not exist/)
