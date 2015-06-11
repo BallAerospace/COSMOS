@@ -31,6 +31,8 @@ module Cosmos
         'get_cmd_list',
         'get_cmd_param_list',
         'get_cmd_hazardous',
+        'get_cmd_value',
+        'get_cmd_time',
         'tlm',
         'tlm_raw',
         'tlm_formatted',
@@ -272,6 +274,80 @@ module Cosmos
     def get_cmd_hazardous(target_name, command_name, params = {})
       hazardous, _ = System.commands.cmd_hazardous?(target_name, command_name, params)
       return hazardous
+    end
+
+    # Returns a value from the specified command
+    #
+    # @param target_name Target name of the command
+    # @param command_name Packet name of the command
+    # @param parameter_name Parameter name in the command
+    # @param value_type [Symbol] How the values should be converted. Must be
+    #   one of {Packet::VALUE_TYPES}
+    # @return [Varies] value
+    def get_cmd_value(target_name, command_name, parameter_name, value_type = :CONVERTED)
+      packet = System.commands.packet(target_name, command_name)
+      # Virtually support RECEIVED_TIMEFORMATTED, RECEIVED_TIMESECONDS, RECEIVED_COUNT
+      case parameter_name.to_s.upcase
+      when 'RECEIVED_TIMEFORMATTED'
+        if packet.received_time
+          return packet.received_time.formatted
+        else
+          return 'No Packet Received Time'
+        end
+      when 'RECEIVED_TIMESECONDS'
+        if packet.received_time
+          return packet.received_time.to_f
+        else
+          return 0.0
+        end
+      when 'RECEIVED_COUNT'
+        return packet.received_count
+      else
+        return packet.read(parameter_name, value_type.intern)
+      end
+    end
+
+    # Returns the time the most recent command was sent
+    #
+    # @param target_name Target name of the command. If not given then the most recent
+    #    time from all commands will be returned
+    # @param command_name Packet name of the command.  If not given then the most recent
+    #    time from the given target will be returned.
+    # @return [Array<Target Name, Command Name, Time Seconds, Time Microsends>] value
+    def get_cmd_time(target_name = nil, command_name = nil)
+      last_command = nil
+      if target_name
+        if command_name
+          last_command = System.commands.packet(target_name, command_name)
+        else
+          System.commands.packets(target_name).each do |packet_name, command|
+            last_command = command if !last_command and command.received_time
+            if command.received_time and command.received_time > last_command.received_time
+              last_command = command
+            end
+          end
+        end
+      else
+        commands = System.commands.all
+        commands.each do |target_name, target_commands|
+          target_commands.each do |packet_name, command|
+            last_command = command if !last_command and command.received_time
+            if command.received_time and command.received_time > last_command.received_time
+              last_command = command
+            end
+          end
+        end
+      end
+
+      if last_command
+        if last_command.received_time
+          return [last_command.target_name, last_command.packet_name, last_command.received_time.tv_sec, last_command.received_time.tv_usec]
+        else
+          return [last_command.target_name, last_command.packet_name, nil, nil]
+        end
+      else
+        return [nil, nil, nil, nil]
+      end
     end
 
     # Request a converted telemetry item from a packet.

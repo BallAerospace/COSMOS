@@ -161,6 +161,24 @@ module Cosmos
       return $cmd_tlm_server.get_cmd_hazardous(target_name, cmd_name, cmd_params)
     end
 
-  end
-end
+    # Returns a value from the specified command
+    def get_cmd_value(target_name, command_name, parameter_name, value_type = :CONVERTED)
+      return $cmd_tlm_server.get_cmd_value(target_name, command_name, parameter_name, value_type)
+    end
+
+    # Returns the time the most recent command was sent
+    def get_cmd_time(target_name = nil, command_name = nil)
+      results = $cmd_tlm_server.get_cmd_time(target_name, command_name)
+      if Array === results
+        if results[2] and results[3]
+          results[2] = Time.at(results[2], results[3])
+        end
+        results.delete_at(3)
+      end
+      results
+    end
+
+  end # module Script
+
+end # module Cosmos
 
