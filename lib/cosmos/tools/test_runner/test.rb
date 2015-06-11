@@ -48,20 +48,29 @@ module Cosmos
   class TestResult
     attr_accessor :test
     attr_accessor :test_case
+    attr_accessor :test_suite
     attr_accessor :output
     attr_accessor :exceptions
     attr_accessor :stopped
     attr_accessor :result
     attr_accessor :message
 
+    @@test_suite = nil
+
     def initialize
       @test = nil
       @test_case = nil
+      @test_suite = nil
+      @test_suite = @@test_suite.clone if @@test_suite
       @output = nil
       @exceptions = nil
       @stopped = false
       @result = :SKIP
       @message = nil
+    end
+
+    def self.test_suite= (test_suite)
+      @@test_suite = test_suite
     end
   end # class TestResult
 
@@ -104,7 +113,7 @@ module Cosmos
     # Name of the test
     def name
       if self.class != Test
-        self.class.to_s
+        self.class.to_s.split('::')[-1]
       else
         'UnnamedTest'
       end
@@ -160,7 +169,7 @@ module Cosmos
         $stdout.add_stream(@output_io)
         $stderr.add_stream(@output_io)
 
-        result.test      = object.class.to_s
+        result.test = object.class.to_s.split('::')[-1]
         result.test_case = method_name.to_s
         begin
           if defined? ScriptRunnerFrame
@@ -273,6 +282,38 @@ module Cosmos
         @@current_test_result.message << "\n"
       end
     end
+
+    def self.current_test_suite
+      if @@current_test_result
+        @@current_test_result.test_suite
+      else
+        nil
+      end
+    end
+
+    def self.current_test_group
+      if @@current_test_result
+        @@current_test_result.test
+      else
+        nil
+      end
+    end
+
+    def self.current_test
+      if @@current_test_result
+        @@current_test_result.test
+      else
+        nil
+      end
+    end
+
+    def self.current_test_case
+      if @@current_test_result
+        @@current_test_result.test_case
+      else
+        nil
+      end
+    end
   end # class Test
 
   class TestSuite
@@ -291,7 +332,7 @@ module Cosmos
     # Name of the test suite
     def name
       if self.class != TestSuite
-        self.class.to_s
+        self.class.to_s.split('::')[-1]
       else
         'UnassignedTestSuite'
       end
@@ -327,6 +368,7 @@ module Cosmos
 
     # Run all the tests
     def run(&block)
+      TestResult.test_suite = name()
       TestStatus.instance.total = get_num_tests()
       results = []
 
@@ -370,11 +412,14 @@ module Cosmos
         raise StopScript if result.stopped
       end
 
+      TestResult.test_suite = nil
       results
     end
 
     # Run a specific test
     def run_test(test_class, internal = false, &block)
+      TestResult.test_suite = name() unless internal
+
       # Determine if this test_class is in the plan and the number of tests associated with this test_class
       in_plan = false
       num_tests = 0
@@ -422,43 +467,57 @@ module Cosmos
         end
       end
 
+      TestResult.test_suite = nil unless internal
       return results
     end
 
     # Run a specific test case
     def run_test_case(test_class, test_case, internal = false)
+      TestResult.test_suite = name() unless internal
       TestStatus.instance.total = 1 unless internal
-      @tests[test_class].run_test_case(test_case)
+      result = @tests[test_class].run_test_case(test_case)
+      TestResult.test_suite = nil unless internal
+      result
     end
 
     def run_setup(internal = false)
+      TestResult.test_suite = name() unless internal
       result = nil
       if self.class.method_defined?(:setup) and @tests.length > 0
         TestStatus.instance.total = 1 unless internal
         TestStatus.instance.status = "#{self.class} : setup"
         result = @tests[@tests.keys[0]].run_function(self, :setup)
       end
+      TestResult.test_suite = nil unless internal
       result
     end
 
     def run_teardown(internal = false)
+      TestResult.test_suite = name() unless internal
       result = nil
       if self.class.method_defined?(:teardown) and @tests.length > 0
         TestStatus.instance.total = 1 unless internal
         TestStatus.instance.status = "#{self.class} : teardown"
         result = @tests[@tests.keys[0]].run_function(self, :teardown)
       end
+      TestResult.test_suite = nil unless internal
       result
     end
 
     def run_test_setup(test_class, internal = false)
+      TestResult.test_suite = name() unless internal
       TestStatus.instance.total = 1 unless internal
-      @tests[test_class].run_setup
+      result = @tests[test_class].run_setup
+      TestResult.test_suite = nil unless internal
+      result
     end
 
     def run_test_teardown(test_class, internal = false)
+      TestResult.test_suite = name() unless internal
       TestStatus.instance.total = 1 unless internal
-      @tests[test_class].run_teardown
+      result = @tests[test_class].run_teardown
+      TestResult.test_suite = nil unless internal
+      result
     end
 
     def get_num_tests
