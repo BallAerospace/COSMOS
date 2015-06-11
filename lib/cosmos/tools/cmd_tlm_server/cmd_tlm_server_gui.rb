@@ -320,6 +320,57 @@ module Cosmos
       # Just to avoid warning
     end
 
+    def self.graceful_kill
+      # Just to avoid warning
+    end
+
+    def self.no_gui_handle_string_output
+      if @string_output.string[-1..-1] == "\n"
+        lines_to_write = ''
+        string = @string_output.string.clone
+        @string_output.string = @string_output.string[string.length..-1]
+        string.each_line {|out_line| lines_to_write << out_line }
+        @message_log.write(lines_to_write)
+        STDOUT.print lines_to_write if STDIN.isatty # Have a console
+      end
+    end
+
+    def self.no_gui_stop_callback
+      no_gui_handle_string_output()
+      @output_sleeper.cancel
+      Cosmos.kill_thread(self, @output_thread)
+      no_gui_handle_string_output()
+    end
+
+    def self.post_options_parsed_hook(options)
+      if options.no_gui
+        begin
+          @output_sleeper = Sleeper.new
+          @string_output = StringIO.new("", "r+")
+          $stdout = @string_output
+          Logger.level = Logger::INFO
+          cts = CmdTlmServer.new(options.config_file, options.production)
+          @message_log = CmdTlmServer.message_log
+          @output_thread = Thread.new do
+            while true
+              no_gui_handle_string_output()
+              break if @output_sleeper.sleep(1)
+            end
+          end
+          cts.stop_callback = method(:no_gui_stop_callback)
+          sleep # Sleep until waked by signal
+        ensure
+          if defined? cts
+            cts.stop_logging('ALL')
+            cts.stop
+          end
+        end
+        return false
+      else
+        return true
+      end
+    end
+
     # Entry point to the server application
     def self.run(option_parser = nil, options = nil)
       Cosmos.catch_fatal_exception do
@@ -333,6 +384,7 @@ module Cosmos
           options.config_file = CmdTlmServer::DEFAULT_CONFIG_FILE
           options.production = false
           options.no_prompt = false
+          options.no_gui = false
           option_parser.separator "CTS Specific Options:"
           option_parser.on("-c", "--config FILE", "Use the specified configuration file") do |arg|
             options.config_file = arg
@@ -342,6 +394,9 @@ module Cosmos
           end
           option_parser.on("-n", "--no-prompt", "Don't prompt with Are You Sure dialog on close.") do |arg|
             options.no_prompt = true
+          end
+          option_parser.on(nil, "--no-gui", "Run the server without a GUI") do |arg|
+            options.no_gui = true
           end
         end
 
