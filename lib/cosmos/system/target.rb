@@ -79,7 +79,8 @@ module Cosmos
     #   path to the default of <USERPATH>/config/targets.
     # @param target_filename [String] Configuration file for the target. Normally
     #   target.txt
-    def initialize(target_name, substitute_name = nil, path = nil, target_filename = nil)
+    # @param gem_path [String] Path to the gem file or nil if there is no gem
+    def initialize(target_name, substitute_name = nil, path = nil, target_filename = nil, gem_path = nil)
       @requires = []
       @ignored_parameters = []
       @ignored_items = []
@@ -100,7 +101,7 @@ module Cosmos
         @name = @original_name
       end
 
-      @dir = get_target_dir(path, @original_name)
+      @dir = get_target_dir(path, @original_name, gem_path)
       # Parse the target.txt file if it exists
       @filename = process_target_config_file(@dir, @name, target_filename)
       # If target.txt didn't specify specific cmd/tlm files then add everything
@@ -156,9 +157,13 @@ module Cosmos
 
     # Get the target directory and add the target's lib folder to the
     # search path if it exists
-    def get_target_dir(path, name)
-      path = File.join(USERPATH,'config','targets') unless path
-      dir = File.join(path, name)
+    def get_target_dir(path, name, gem_path)
+      if gem_path
+        dir = gem_path
+      else
+        path = File.join(USERPATH,'config','targets') unless path
+        dir = File.join(path, name)
+      end
       lib_dir = File.join(dir, 'lib')
       Cosmos.add_to_search_path(lib_dir, false) if File.exist?(lib_dir)
       dir

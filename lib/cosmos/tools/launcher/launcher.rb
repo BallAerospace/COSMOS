@@ -23,6 +23,10 @@ module Cosmos
 
     def initialize(options)
       super(options) # MUST BE FIRST - All code before super is executed twice in RubyQt Based classes
+
+      # Set environment variable of COSMOS_USERPATH so that all launched apps know where to find the configuration
+      ENV['COSMOS_USERPATH'] = Cosmos::USERPATH
+
       Cosmos.load_cosmos_icon("launcher.png")
       layout.setSizeConstraint(Qt::Layout::SetFixedSize)
 

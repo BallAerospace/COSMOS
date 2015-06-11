@@ -19,6 +19,7 @@ Cosmos.catch_fatal_exception do
   require 'cosmos/gui/widgets/full_text_search_line_edit'
   require 'cosmos/tools/tlm_viewer/tlm_viewer_config'
   require 'find'
+  require 'fileutils'
 end
 
 module Cosmos
@@ -58,7 +59,7 @@ module Cosmos
       additional_data = ''
       System.targets.each do |target_name, target|
         tlmviewer_files << target.filename if File.exist?(target.filename)
-        screen_dir = File.join(Cosmos::USERPATH, 'config', 'targets', target.original_name, 'screens')
+        screen_dir = File.join(target.dir, 'screens')
         if File.exist?(screen_dir)
           if target.substitute
             additional_data << target.original_name
@@ -304,7 +305,7 @@ module Cosmos
 
       results = ''
       screen_dir = File.join(USERPATH, 'config', 'targets', target.original_name, 'screens')
-      Dir.mkdir(screen_dir, 0777) unless File.exist?(screen_dir)
+      FileUtils.mkdir_p(screen_dir, :mode => 0777) unless File.exist?(screen_dir)
 
       System.telemetry.packets(target.name).each do |packet_name, packet|
         filename = File.join(screen_dir, packet_name.downcase + '.txt')
