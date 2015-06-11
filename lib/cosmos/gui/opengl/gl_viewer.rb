@@ -532,15 +532,15 @@ module Cosmos
       w[0]*@transform[0][2] + w[1]*@transform[1][2] + w[2]*@transform[2][2] + @transform[3][2]
     end
 
+    def calc_prime(v)
+      return [v[0]*@itransform[0][0] + v[1]*@itransform[1][0] + v[2]*@itransform[2][0] + @itransform[3][0],
+              v[0]*@itransform[0][1] + v[1]*@itransform[1][1] + v[2]*@itransform[2][1] + @itransform[3][1],
+              v[0]*@itransform[0][2] + v[1]*@itransform[1][2] + v[2]*@itransform[2][2] + @itransform[3][2]]
+    end
+
     def worldVector(fx, fy, tx, ty)
-      wfm = screenToTarget(fx, fy)
-      wto = screenToTarget(tx, ty)
-      wfm_prime = [wfm[0]*@itransform[0][0] + wfm[1]*@itransform[1][0] + wfm[2]*@itransform[2][0] + @itransform[3][0],
-                         wfm[0]*@itransform[0][1] + wfm[1]*@itransform[1][1] + wfm[2]*@itransform[2][1] + @itransform[3][1],
-                         wfm[0]*@itransform[0][2] + wfm[1]*@itransform[1][2] + wfm[2]*@itransform[2][2] + @itransform[3][2]]
-      wto_prime = [wto[0]*@itransform[0][0] + wto[1]*@itransform[1][0] + wto[2]*@itransform[2][0] + @itransform[3][0],
-                         wto[0]*@itransform[0][1] + wto[1]*@itransform[1][1] + wto[2]*@itransform[2][1] + @itransform[3][1],
-                         wto[0]*@itransform[0][2] + wto[1]*@itransform[1][2] + wto[2]*@itransform[2][2] + @itransform[3][2]]
+      wfm_prime = calc_prime(screenToTarget(fx, fy))
+      wto_prime = calc_prime(screenToTarget(tx, ty))
       return [wto_prime[0] - wfm_prime[0], wto_prime[1] - wfm_prime[1], wto_prime[2] - wfm_prime[2]]
     end
 

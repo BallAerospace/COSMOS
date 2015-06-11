@@ -112,8 +112,7 @@ module Cosmos
 
       loop do
         loop do
-          # Read 1 byte
-          buffer = Win32.read_file(@handle, 1)
+          buffer = Win32.read_file(@handle, @read_max_length - data.length)
           data << buffer
           break if buffer.length <= 0 or data.length >= @read_max_length
         end
@@ -133,8 +132,7 @@ module Cosmos
       data = ''
 
       loop do
-        # Read 1 byte
-        buffer = Win32.read_file(@handle, 1)
+        buffer = Win32.read_file(@handle, @read_max_length - data.length)
         data << buffer
         break if buffer.length <= 0 or data.length >= @read_max_length
       end

@@ -1,4 +1,4 @@
-TELEMETRY EXAMPLE STATUS BIG_ENDIAN "Health and status from the instrument"
+TELEMETRY THREAD STATUS BIG_ENDIAN "Health and status from the instrument"
   APPEND_ID_ITEM PACKET_ID 8 UINT 1 "Packet id"
   APPEND_ITEM INT8 8 UINT
   APPEND_ITEM UINT8 8 UINT

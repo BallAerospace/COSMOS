@@ -523,6 +523,7 @@ module Cosmos
   # @param error [Exception] The exception to handle
   # @param try_gui [Boolean] Whether to try and create a GUI exception popup
   def self.handle_fatal_exception(error, try_gui = true)
+    $cosmos_fatal_exception = error
     log_file = self.write_exception_file(error)
     Logger.level = Logger::FATAL unless try_gui
     Logger.fatal "Fatal Exception! Exiting..."

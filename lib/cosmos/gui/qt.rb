@@ -446,7 +446,15 @@ class Qt::LineEdit
 end
 
 class Qt::PlainTextEdit
+  BLANK = ''.freeze
+  BREAK = '<br/>'.freeze
+  AMP = '&amp;'.freeze
+  NBSP = '&nbsp;'.freeze
+  GT = '&gt;'.freeze
+  LT = '&lt;'.freeze
   @@color_cache = {}
+  @@mapping = {'&'=>AMP,"\n"=>BLANK,"\s"=>NBSP,'>'=>GT,'<'=>LT}
+  @@regex = Regexp.union(@@mapping.keys)
 
   def add_formatted_text(text, color = nil)
     if text =~ /[\x00-\x08\x0B-\x0C\x0E-\x1F\x7F-\xFF]/
@@ -455,16 +463,16 @@ class Qt::PlainTextEdit
       text << "\n"
     end
     if text =~ /<G>/ or color == Cosmos::GREEN
-      text.gsub!(/<G>/, '')
+      text.gsub!(/<G>/, BLANK)
       addText(text, Cosmos::GREEN)
     elsif text =~ /<Y>/ or color == Cosmos::YELLOW
-      text.gsub!(/<Y>/, '')
+      text.gsub!(/<Y>/, BLANK)
       addText(text, Cosmos::YELLOW)
     elsif text =~ /<R>/ or color == Cosmos::RED
-      text.gsub!(/<R>/, '')
+      text.gsub!(/<R>/, BLANK)
       addText(text, Cosmos::RED)
     elsif text =~ /<B>/ or color == Cosmos::BLUE
-      text.gsub!(/<B>/, '')
+      text.gsub!(/<B>/, BLANK)
       addText(text, Cosmos::BLUE)
     else
       addText(text) # default is Cosmos::BLACK
@@ -473,7 +481,7 @@ class Qt::PlainTextEdit
 
   def addText(text, color = Cosmos::BLACK)
     @current_text ||= ''
-    @current_text << escape_text(text.chomp, color) << '<br/>'.freeze
+    @current_text << escape_text(text.chomp, color) << BREAK
   end
 
   def flush
@@ -531,14 +539,12 @@ class Qt::PlainTextEdit
   end
 
   private
-
   def escape_text(text, color)
+    @@color_cache[color] ||= "#%02X%02X%02X" % [color.red, color.green, color.blue]
     # You might think gsub! would use less memory but benchmarking proves gsub
     # with a regular express argument is the fastest and uses the least memory.
     # However, this is still an expensive operation due to how many times it is called.
-    text = text.gsub(/&/,'&amp;'.freeze).gsub(/\n/,'<br/>'.freeze).gsub(/\s/, '&nbsp;'.freeze).gsub(/>/,'&gt;'.freeze).gsub(/</,'&lt;'.freeze)
-    @@color_cache[color] ||= "#%02X%02X%02X" % [color.red, color.green, color.blue]
-    "<font color=\"#{@@color_cache[color]}\">#{text}</font>"
+    "<font color=\"#{@@color_cache[color]}\">#{text.gsub(@@regex,@@mapping)}</font>"
   end
 end
 

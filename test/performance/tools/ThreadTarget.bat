@@ -1,6 +1,6 @@
 @ECHO OFF
 
-SET RUBYEXE=rubyw.exe
+SET RUBYEXE=ruby.exe
 
 SET "DESTINATION_DIR=%~dp0..\..\"
 IF EXIST "%DESTINATION_DIR%Vendor\Ruby" GOTO DIREND
@@ -29,7 +29,7 @@ SET "GEMRC=%DESTINATION_DIR%Vendor\Ruby\lib\ruby\gems\etc\gemrc"
 
 REM Prepend embedded bin to PATH so we prefer those binaries
 SET "RI_DEVKIT=%DESTINATION_DIR%Vendor\Devkit\"
-SET "PATH=%DESTINATION_DIR%Vendor\Ruby\bin;%RI_DEVKIT%bin;%RI_DEVKIT%mingw\bin;%PATH%"
+SET "PATH=%DESTINATION_DIR%Vendor\Ruby\bin;%RI_DEVKIT%bin;%RI_DEVKIT%mingw\bin;%DESTINATION_DIR%Vendor\wkhtmltopdf;%PATH%"
 
 REM Remove RUBYOPT and RUBYLIB, which can cause serious problems.
 SET RUBYOPT=

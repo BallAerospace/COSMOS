@@ -245,3 +245,26 @@ TELEMETRY INST MECH BIG_ENDIAN "Mechanism status"
     FORMAT_STRING '%0.6f'
   ITEM TIMEFORMATTED 0 0 DERIVED "Derived time since epoch as formatted string"
     READ_CONVERSION unix_time_formatted_conversion.rb TIMESEC TIMEUS
+
+TELEMETRY INST EXTRA BIG_ENDIAN "Packet with a single limits item. This packet is not generated and will be stale."
+  ITEM CCSDSVER           0  3 UINT     "CCSDS packet version number (See CCSDS 133.0-B-1)"
+  ITEM CCSDSTYPE          3  1 UINT     "CCSDS packet type (command or telemetry)"
+    STATE TLM 0
+    STATE CMD 1
+  ITEM CCSDSSHF           4  1 UINT     "CCSDS secondary header flag"
+    STATE FALSE 0
+    STATE TRUE 1
+  ID_ITEM CCSDSAPID       5 11 UINT   6 "CCSDS application process id"
+  ITEM CCSDSSEQFLAGS     16  2 UINT     "CCSDS sequence flags"
+    STATE FIRST 1
+    STATE CONT 0
+    STATE LAST 2
+    STATE NOGROUP 3
+  ITEM CCSDSSEQCNT       18 14 UINT     "CCSDS packet sequence count"
+    OVERFLOW TRUNCATE
+  ITEM CCSDSLENGTH       32 16 UINT     "CCSDS packet data length"
+  ITEM TIMESEC           48 32 UINT     "Seconds since epoch (January 1st, 1970, midnight)"
+  ITEM TIMEUS            80 32 UINT     "Microseconds of second"
+  ID_ITEM PKTID         112 16 UINT   1 "Packet id (The combination of CCSDS_APID and PACKET_ID identify the packet)"
+  APPEND_ITEM VALUE 32 UINT "Value"
+    LIMITS DEFAULT 1 ENABLED -80.0 -70.0 60.0 80.0 -20.0 20.0

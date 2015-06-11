@@ -12,7 +12,6 @@ require 'cosmos'
 require 'cosmos/gui/qt'
 
 module Cosmos
-
   class LauncherTool < Qt::Object
     slots 'button_clicked()'
 
@@ -26,7 +25,7 @@ module Cosmos
 
     def button_clicked
       if @variable_parameters
-        parameters = parameters_dialog()
+        parameters = parameters_dialog
         if parameters
           if @capture_io
             Cosmos.run_process_check_output(@shell_command + ' ' + parameters)
@@ -44,7 +43,7 @@ module Cosmos
     end
 
     def parameters_dialog
-      dialog = Qt::Dialog.new(self.parent)
+      dialog = Qt::Dialog.new(parent)
       dialog.window_title = "#{@button_text} Options"
       layout = Qt::VBoxLayout.new
       dialog.layout = layout
@@ -53,10 +52,24 @@ module Cosmos
       @variable_parameters.each do |parameter_name, parameter_value|
         hlayout = Qt::HBoxLayout.new
         hlayout.addWidget(Qt::Label.new(parameter_name))
-        line_edit = Qt::LineEdit.new()
-        line_edit.setText(parameter_value)
-        hlayout.addWidget(line_edit)
-        widgets << line_edit
+        parameter_options = parameter_value.split('|')
+        if parameter_options.length > 1
+          combo_box = Qt::ComboBox.new
+          combo_box.setEditable(true)
+          idx = 0
+          parameter_options.each do |option|
+            combo_box.insertItem(idx, option)
+            idx += 1
+          end
+          combo_box.setCurrentIndex(0) # Default Option is the first one
+          hlayout.addWidget(combo_box)
+          widgets << combo_box
+        else
+          line_edit = Qt::LineEdit.new
+          line_edit.setText(parameter_value)
+          hlayout.addWidget(line_edit)
+          widgets << line_edit
+        end
         layout.addLayout(hlayout)
       end
 
@@ -85,7 +98,7 @@ module Cosmos
       if result == Qt::Dialog::Accepted
         parameters = ''
         index = 0
-        @variable_parameters.each do |parameter_name, parameter_value|
+        @variable_parameters.each do |parameter_name, _parameter_value|
           parameters << parameter_name
           parameters << ' '
           parameters << widgets[index].text
@@ -100,5 +113,4 @@ module Cosmos
       end
     end
   end
-
 end

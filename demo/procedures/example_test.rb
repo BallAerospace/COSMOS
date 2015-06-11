@@ -7,20 +7,20 @@ load 'cosmos/tools/test_runner/test.rb'
 class ExampleTest < Cosmos::Test
   # Setup the test case by doing stuff
   def setup
-    puts "Running ExampleTest setup"
+    puts "Running #{Cosmos::Test.current_test_suite}:#{Cosmos::Test.current_test}:#{Cosmos::Test.current_test_case}"
     wait(2)
   end
 
   # test_1 verifies requirement 1
   def test_case_with_long_name_1
-    puts "Running test_1"
+    puts "Running #{Cosmos::Test.current_test_suite}:#{Cosmos::Test.current_test}:#{Cosmos::Test.current_test_case}"
     Cosmos::Test.puts "This test verifies requirement 1"
     wait(2)
   end
 
   # test_2 verifies requirement 2
   def test_2
-    puts "Running test_2"
+    puts "Running #{Cosmos::Test.current_test_suite}:#{Cosmos::Test.current_test}:#{Cosmos::Test.current_test_case}"
     Cosmos::Test.puts "This test verifies requirement 2"
     if $manual
       answer = ask "Are you sure?"
@@ -31,12 +31,13 @@ class ExampleTest < Cosmos::Test
   end
 
   def test_3xx
+    puts "Running #{Cosmos::Test.current_test_suite}:#{Cosmos::Test.current_test}:#{Cosmos::Test.current_test_case}"
     wait 1
   end
 
   # Teardown the test case by doing other stuff
   def teardown
-    puts "Running ExampleTest teardown"
+    puts "Running #{Cosmos::Test.current_test_suite}:#{Cosmos::Test.current_test}:#{Cosmos::Test.current_test_case}"
     wait(2)
   end
 
@@ -56,26 +57,26 @@ end
 # ExampleTest2 runs test_3 and test_4.
 class ExampleTest2 < Cosmos::Test
   def setup
-    puts "Running ExampleTest2 setup"
+    puts "Running #{Cosmos::Test.current_test_suite}:#{Cosmos::Test.current_test}:#{Cosmos::Test.current_test_case}"
     wait(2)
   end
 
   # ExampleTest2::test_2 is different from ExampleTest::test_2
   def test_2
-    puts "another test_1 "
+    puts "Running #{Cosmos::Test.current_test_suite}:#{Cosmos::Test.current_test}:#{Cosmos::Test.current_test_case}"
     raise "BAD"
     puts "continuing past the exception"
     wait 2
   end
 
   def test_3
-    puts "Running test_3"
+    puts "Running #{Cosmos::Test.current_test_suite}:#{Cosmos::Test.current_test}:#{Cosmos::Test.current_test_case}"
     raise SkipTestCase, "test_3 unimplemented"
     wait(2)
   end
 
   def test_4
-    puts "Running test_4"
+    puts "Running #{Cosmos::Test.current_test_suite}:#{Cosmos::Test.current_test}:#{Cosmos::Test.current_test_case}"
     if non_existent
       puts "can't get here"
     else
@@ -85,7 +86,7 @@ class ExampleTest2 < Cosmos::Test
   end
 
   def teardown
-    puts "Running ExampleTest2 teardown"
+    puts "Running #{Cosmos::Test.current_test_suite}:#{Cosmos::Test.current_test}:#{Cosmos::Test.current_test_case}"
     wait(2)
   end
 end
@@ -100,7 +101,7 @@ end
 class ExampleTestSuite3 < Cosmos::TestSuite
   # This setup applies to the entire test suite
   def setup
-    puts "Running ExampleTestSuite3 setup"
+    puts "Running #{Cosmos::Test.current_test_suite}:#{Cosmos::Test.current_test}:#{Cosmos::Test.current_test_case}"
     wait(2)
   end
 
@@ -118,21 +119,21 @@ class ExampleTestSuite3 < Cosmos::TestSuite
 
   # This teardown applies to the entire test suite
   def teardown
-    puts "Running ExampleTestSuite3 teardown"
+    puts "Running #{Cosmos::Test.current_test_suite}:#{Cosmos::Test.current_test}:#{Cosmos::Test.current_test_case}"
     wait(2)
   end
 end
 
 class ExampleTest3 < Cosmos::Test
   def test_5
-    puts "Running test_5"
+    puts "Running #{Cosmos::Test.current_test_suite}:#{Cosmos::Test.current_test}:#{Cosmos::Test.current_test_case}"
     puts "\000\001\002"
     check_expression("false == true")
     wait(2)
   end
 
   def test_6
-    puts "Running test_6"
+    puts "Running #{Cosmos::Test.current_test_suite}:#{Cosmos::Test.current_test}:#{Cosmos::Test.current_test_case}"
     wait(2)
   end
 end
@@ -140,7 +141,7 @@ end
 class ExampleTestSuite4 < Cosmos::TestSuite
   # This setup applies to the entire test suite
   def setup
-    puts "Running ExampleTestSuite4 setup"
+    puts "Running #{Cosmos::Test.current_test_suite}:#{Cosmos::Test.current_test}:#{Cosmos::Test.current_test_case}"
     wait(2)
   end
 
@@ -154,7 +155,7 @@ class ExampleTestSuite4 < Cosmos::TestSuite
 
   # This teardown applies to the entire test suite
   def teardown
-    puts "Running ExampleTestSuite4 teardown"
+    puts "Running #{Cosmos::Test.current_test_suite}:#{Cosmos::Test.current_test}:#{Cosmos::Test.current_test_case}"
     wait(2)
   end
 end
@@ -167,7 +168,7 @@ class ExampleTestSuite5 < Cosmos::TestSuite
 
   # This teardown applies to the entire test suite
   def teardown
-    puts "Running ExampleTestSuite5 teardown"
+    puts "Running #{Cosmos::Test.current_test_suite}:#{Cosmos::Test.current_test}:#{Cosmos::Test.current_test_case}"
     wait(2)
   end
 end
