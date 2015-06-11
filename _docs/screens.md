@@ -792,6 +792,8 @@ Interactive widgets are used to gather input from the user. Unlike all other wid
 ### BUTTON
 The BUTTON widget displays a rectangular button that is clickable by the mouse. Upon clicking, the button executes the Ruby code assigned. Buttons can be used to send commands and perform other tasks.
 
+If you want your button to use values from other widgets, define them as named widgets and read their values using the `get_named_widget("WIDGET_NAME").text` method. See the example in CHECKBUTTON. If your button logic gets complex it's recommended to `require` a separate script and pass the screen to the script using self such as `require utility.rb; utility_method(self)`.
+
 | Parameter | Description | Required |
 |-----------|-------------|----------|
 | Button text | Text displayed on the button | Yes |
