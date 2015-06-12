@@ -359,8 +359,10 @@ module Cosmos
           end
           cts.stop_callback = method(:no_gui_stop_callback)
           sleep # Sleep until waked by signal
+        rescue => err
+          STDOUT.print err if STDIN.isatty # Have a console
         ensure
-          if defined? cts
+          if cts
             cts.stop_logging('ALL')
             cts.stop
           end
