@@ -427,6 +427,7 @@ module Cosmos
               file_size = File.size(filename).to_f
               dialog.append_text("Processing: #{filename}")
 
+              Cosmos.check_log_configuration(@packet_log_reader, filename)
               @packet_log_reader.each(filename, true, @time_start, @time_end) do |packet|
                 break if @cancel_progress
                 progress = @packet_log_reader.bytes_read.to_f / file_size

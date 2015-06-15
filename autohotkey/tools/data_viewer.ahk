@@ -75,6 +75,9 @@ Sleep 500
 WinActivate, Open Log File
 Sleep 500
 Click 168 375 ; OK
+WinWaitActive Warning
+Sleep 500
+Send {Enter} ;
 WinWaitActive, Processing Log File
 Sleep 500
 Click 380 280 ; Cancel
@@ -91,6 +94,9 @@ Sleep 500
 WinActivate, Open Log File
 Sleep 500
 Click 168 375 ; OK
+WinWaitActive Warning
+Sleep 500
+Send {Enter} ;
 WinWaitActive, Processing Log File
 Sleep 3000
 Click 140 280 ; Done

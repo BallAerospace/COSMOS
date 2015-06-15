@@ -125,7 +125,7 @@ module Cosmos
           file.write [pkt.buffer.length].pack('N')
           file.write pkt.buffer
         end
-        @plr.open(filename)
+        expect(@plr.open(filename)).to eql [false, nil]
         pkt1 = @plr.read
         expect(pkt1.target_name).to eql 'TGT1'
         expect(pkt1.packet_name).to eql 'PKT1'
@@ -148,7 +148,7 @@ module Cosmos
         header_length = 8 + 1 + 6 + 1 + 12 + 4
         expect(packet_offsets).to eql [PacketLogReader::COSMOS2_HEADER_LENGTH, PacketLogReader::COSMOS2_HEADER_LENGTH + header_length + @cmd_packet_length, PacketLogReader::COSMOS2_HEADER_LENGTH + (header_length + @cmd_packet_length) * 2]
 
-        @plr.open(Dir[File.join(@log_path,"*cmd.bin")][0])
+        expect(@plr.open(Dir[File.join(@log_path,"*cmd.bin")][0])).to eql [true, nil]
         pkt = @plr.read_at_offset(packet_offsets[1])
         expect(pkt.target_name).to eql "COSMOS"
         expect(pkt.packet_name).to eql "STARTLOGGING"
@@ -164,7 +164,7 @@ module Cosmos
         header_length = 8 + 1 + 6 + 1 + 7 + 4
         expect(packet_offsets).to eql [PacketLogReader::COSMOS2_HEADER_LENGTH, PacketLogReader::COSMOS2_HEADER_LENGTH + header_length + @tlm_packet_length, PacketLogReader::COSMOS2_HEADER_LENGTH + (header_length + @tlm_packet_length) * 2]
 
-        @plr.open(Dir[File.join(@log_path,"*tlm.bin")][0])
+        expect(@plr.open(Dir[File.join(@log_path,"*tlm.bin")][0])).to eql [true, nil]
         pkt = @plr.read_at_offset(packet_offsets[1])
         expect(pkt.target_name).to eql "COSMOS"
         expect(pkt.packet_name).to eql "VERSION"
@@ -313,7 +313,7 @@ module Cosmos
 
     describe "first" do
       it "returns the first command packet and retain the file position" do
-        @plr.open(Dir[File.join(@log_path,"*cmd.bin")][0])
+        expect(@plr.open(Dir[File.join(@log_path,"*cmd.bin")][0])).to eql [true, nil]
         pkt1 = @plr.read
         expect(pkt1.target_name).to eql @cmd_packets[0].target_name
         expect(pkt1.packet_name).to eql @cmd_packets[0].packet_name
@@ -335,7 +335,7 @@ module Cosmos
       end
 
       it "returns the first telemetry packet and retain the file position" do
-        @plr.open(Dir[File.join(@log_path,"*tlm.bin")][0])
+        expect(@plr.open(Dir[File.join(@log_path,"*tlm.bin")][0])).to eql [true, nil]
         pkt1 = @plr.read
         expect(pkt1.target_name).to eql @tlm_packets[0].target_name
         expect(pkt1.packet_name).to eql @tlm_packets[0].packet_name
@@ -359,7 +359,7 @@ module Cosmos
 
     describe "last" do
       it "returns the last command packet and retain the file position" do
-        @plr.open(Dir[File.join(@log_path,"*cmd.bin")][0])
+        expect(@plr.open(Dir[File.join(@log_path,"*cmd.bin")][0])).to eql [true, nil]
         pkt1 = @plr.read
         expect(pkt1.target_name).to eql @cmd_packets[0].target_name
         expect(pkt1.packet_name).to eql @cmd_packets[0].packet_name
@@ -381,7 +381,7 @@ module Cosmos
       end
 
       it "returns the last telemetry packet and retain the file position" do
-        @plr.open(Dir[File.join(@log_path,"*tlm.bin")][0])
+        expect(@plr.open(Dir[File.join(@log_path,"*tlm.bin")][0])).to eql [true, nil]
         pkt1 = @plr.read
         expect(pkt1.target_name).to eql @tlm_packets[0].target_name
         expect(pkt1.packet_name).to eql @tlm_packets[0].packet_name

@@ -82,6 +82,12 @@ WinWaitActive Select
 Send bigtlm.bin{Enter} ; Enter telemetry bin filename
 WinWaitActive Telemetry Extractor
 Click 142 810   ; Click Process Files
+WinWaitActive Warning
+Sleep 500
+Send {Enter} ;
+WinWaitActive Warning
+Sleep 500
+Send {Enter} ;
 WinWaitActive Log
 Click 455 307   ; Cancel
 WinWaitActive Telemetry Extractor
@@ -102,13 +108,19 @@ Sleep 500
 Click 142 810   ; Click Process Files TE-1
 WinWaitActive Warning
 Send {Enter}
+WinWaitActive Warning
+Sleep 500
+Send {Enter} ;
+WinWaitActive Warning
+Sleep 500
+Send {Enter} ;
 WinWaitActive Log
 Sleep 8000      ; Longer delay to process bin file
 Send {Enter}
 WinWaitActive Telemetry Extractor
 Click 668 810   ; Open log in Excel for viewing TE-8
 WinWaitActive Excel
-Sleep 500
+Sleep 2000
 Send !f{x}      ; Exit out of Excel
 Sleep 500
 Send n          ; In case it asks if we want to save changes
@@ -226,6 +238,12 @@ WinWaitActive Select
 Send {Left 2}{Tab 5}{Enter}
 WinWaitActive Telemetry Extractor
 Click 142 810   ; Process with these options
+WinWaitActive Warning
+Sleep 500
+Send {Enter} ;
+WinWaitActive Warning
+Sleep 500
+Send {Enter} ;
 WinWaitActive Log
 Sleep 4000
 Send {Enter}
@@ -258,6 +276,12 @@ WinWaitActive Telemetry Extractor
 Click 123 403 ; Click into Batch Name
 Send CycleA{Enter}
 Click 142 810   ; Process with these options
+WinWaitActive Warning
+Sleep 500
+Send {Enter} ;
+WinWaitActive Warning
+Sleep 500
+Send {Enter} ;
 WinWaitActive Log
 Sleep 4000
 Send {Enter}

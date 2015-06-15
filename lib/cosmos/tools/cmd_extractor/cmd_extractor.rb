@@ -170,6 +170,7 @@ module Cosmos
       @input_filenames.each do |log_file|
         break if @cancel
         begin
+          Cosmos.check_log_configuration(@packet_log_reader, log_file)
           file_size = File.size(log_file).to_f
           progress_dialog.append_text("Processing File #{log_file_count}/#{@input_filenames.length}: #{log_file}")
           progress_dialog.set_step_progress(0.0)

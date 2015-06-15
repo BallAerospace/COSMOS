@@ -620,6 +620,9 @@ Send bigtlm.bin{Enter}
 WinWaitActive Process
 Sleep 500
 Click 167 375
+WinWaitActive Warning
+Sleep 500
+Send {Enter} ;
 Sleep 500
 Click 380 309 ; Cancel
 WinWaitActive Telemetry Grapher
@@ -633,6 +636,9 @@ Sleep 500
 Send bigtlm.bin{Enter}
 Sleep 500
 Click 167 375
+WinWaitActive Warning
+Sleep 500
+Send {Enter} ;
 Sleep 5000
 
 ; Quit Telemetry Grapher

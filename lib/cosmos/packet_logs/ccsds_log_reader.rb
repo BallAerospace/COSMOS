@@ -89,6 +89,7 @@ module Cosmos
         @file_header_length = 0
         @file.seek(0, IO::SEEK_SET)
         System.load_configuration(nil)
+        return true, nil # No configuration name supported so always return success
       else
         raise "Failed to read at least #{CCSDS_HEADER_LENGTH} bytes from packet log"
       end

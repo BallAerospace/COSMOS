@@ -22,12 +22,18 @@ Sleep 500
 Click 750 95 ; Browse
 WinWaitActive Select
 Send bigtlm.bin{Enter}
+WinWaitActive Warning
+Sleep 500
+Send {Enter} ;
 WinWaitActive Analyzing
 Send {Enter}
 WinWaitActive Replay
 Click 750 95 ; Browse
 WinWaitActive Select
 Send bigtlm.bin{Enter}
+WinWaitActive Warning
+Sleep 500
+Send {Enter} ;
 WinWaitActive Analyzing
 WinWaitActive Replay
 Sleep 1000
