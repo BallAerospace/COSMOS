@@ -777,7 +777,7 @@ check_tolerance_raw("INST HEALTH_STATUS COLLECTS", 10.0, 5.0)
 
 ### check_expression
 
-The check_expression method evaluates an expression. If the expression evaluates to false the script will be paused with an error. This method can be used to perform more complicated comparisons than using check as shown in the example.  Note: In most cases using wait_check_expression is a better choice than using check_expression.
+The check_expression method evaluates an expression. If the expression evaluates to false the script will be paused with an error. This method can be used to perform more complicated comparisons than using check as shown in the example.  Note: In most cases using [wait_check_expression](#waitcheckexpression) is a better choice than using check_expression.
 
 Remember that everything inside the check_expression string will be evaluated directly by the Ruby interpreter and thus must be valid syntax. A common mistake is to check a variable like so:
 
@@ -1223,7 +1223,7 @@ wait_tolerance_raw("INST HEALTH_STATUS COLLECTS", 10.0, 5.0, 10)
 
 ### wait_expression
 
-The wait_expression method pauses the script until an expression is evaluated to be true or a timeout occurs. If a timeout occurs the script will continue. This method can be used to perform more complicated comparisons than using wait as shown in the example.  Note that on a timeout, wait_expression does not stop the script, usually wait_check_expression is a better choice.
+The wait_expression method pauses the script until an expression is evaluated to be true or a timeout occurs. If a timeout occurs the script will continue. This method can be used to perform more complicated comparisons than using wait as shown in the example.  Note that on a timeout, wait_expression does not stop the script, usually [wait_check_expression](#waitcheckexpression) is a better choice.
 
 Syntax:
 {% highlight ruby %}
@@ -1359,7 +1359,7 @@ wait_check_tolerance_raw("INST HEALTH_STATUS COLLECTS", 10.0, 5.0, 10)
 
 ### wait_check_expression
 
-The wait_check_expression method pauses the script until an expression is evaluated to be true or a timeout occurs. If a timeout occurs the script will stop. This method can be used to perform more complicated comparisons than using wait as shown in the example. Also see the syntax notes for [wait_expression](#waitexpression).
+The wait_check_expression method pauses the script until an expression is evaluated to be true or a timeout occurs. If a timeout occurs the script will stop. This method can be used to perform more complicated comparisons than using wait as shown in the example. Also see the syntax notes for [check_expression](#checkexpression).
 
 Syntax:
 {% highlight ruby %}
