@@ -81,7 +81,7 @@ spec = Gem::Specification.new do |s|
   s.add_runtime_dependency 'qtbindings', '~> 4.8', '>= 4.8.6.2'
 
   # Development Dependencies
-  s.add_development_dependency 'rspec', '~> 3'
+  s.add_development_dependency 'rspec', '~> 3.2'
   s.add_development_dependency 'flog', '~> 4'
   s.add_development_dependency 'flay', '~> 2'
   s.add_development_dependency 'reek', '~> 1'
