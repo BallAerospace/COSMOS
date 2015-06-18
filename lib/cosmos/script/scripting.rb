@@ -61,6 +61,10 @@ module Cosmos
       prompt_message_box(string, buttons)
     end
 
+    def combo_box(string, *options)
+      prompt_combo_box(string, options)
+    end
+
     # Creates a string with the parameters upcased
     def _upcase(target_name, packet_name, item_name)
       "#{target_name.upcase} #{packet_name.upcase} #{item_name.upcase}"
@@ -874,6 +878,10 @@ module Cosmos
     def prompt_message_box(string, buttons)
       print "#{string} (#{buttons.join(", ")}): "
       gets.chomp
+    end
+
+    def prompt_combo_box(string, options)
+      prompt_message_box(string, options)
     end
 
   end # module Script

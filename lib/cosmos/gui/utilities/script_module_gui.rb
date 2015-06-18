@@ -9,9 +9,16 @@
 # attribution addendums as found in the LICENSE.txt
 
 require 'cosmos/script/script'
+require 'cosmos/gui/choosers/combobox_chooser'
 
 $cmd_tlm_gui_window = nil
 
+class Qt::Dialog
+  def exec(*args)
+    Cosmos.play_wav_file(Cosmos.data_path('message.wav')) if Cosmos::System.sound
+    method_missing(:exec, *args)
+  end
+end
 class Qt::MessageBox
   def exec(*args)
     Cosmos.play_wav_file(Cosmos.data_path('message.wav')) if Cosmos::System.sound
@@ -167,7 +174,7 @@ module Cosmos
 
     def prompt_message_box(string, buttons)
       loop do
-        answer_text = nil
+        result = nil
         Qt.execute_in_main_thread(true, 0.05) do
           window = nil
           window = get_cmd_tlm_gui_window() if get_cmd_tlm_gui_window()
@@ -183,13 +190,57 @@ module Cosmos
           else
             Logger.info "User pressed '#{msg.clickedButton.text}' for '#{string}'"
           end
-          answer_text = msg.clickedButton.text
+          result = msg.clickedButton.text
           msg.dispose
         end
-        if answer_text == "Cancel"
+        if result == "Cancel"
           prompt_for_script_abort()
         else
-          return answer_text
+          return result
+        end
+      end
+    end
+
+    def prompt_combo_box(string, options)
+      loop do
+        result = nil
+        Qt.execute_in_main_thread(true, 0.05) do
+          window = nil
+          window = get_cmd_tlm_gui_window() if get_cmd_tlm_gui_window()
+          dialog = Qt::Dialog.new(window)
+          dialog.setWindowTitle("Message Box")
+          layout = Qt::VBoxLayout.new
+          layout.addWidget(Qt::Label.new(string))
+          chooser = ComboboxChooser.new(dialog, "Select:", options)
+          layout.addWidget(chooser)
+
+          button_layout = Qt::HBoxLayout.new
+          ok = Qt::PushButton.new("Ok")
+          ok.connect(SIGNAL('clicked()')) do
+            dialog.accept()
+          end
+          button_layout.addWidget(ok)
+          cancel = Qt::PushButton.new("Cancel")
+          cancel.connect(SIGNAL('clicked()')) do
+            dialog.reject()
+          end
+          button_layout.addWidget(cancel)
+          layout.addLayout(button_layout)
+
+          dialog.setLayout(layout)
+          if dialog.exec() == Qt::Dialog::Accepted
+            result = chooser.string
+            Logger.info "User selected '#{result}' for '#{string}'"
+          else
+            result = "Cancel"
+            Logger.warn "User pressed 'Cancel' for '#{string}'"
+          end
+          dialog.dispose
+        end
+        if result == "Cancel"
+          prompt_for_script_abort()
+        else
+          return result
         end
       end
     end
