@@ -201,41 +201,25 @@ module Cosmos
       end
     end
 
-    def prompt_combo_box(string, options)
+    def prompt_vertical_message_box(string, buttons)
       loop do
         result = nil
         Qt.execute_in_main_thread(true, 0.05) do
-          window = nil
-          window = get_cmd_tlm_gui_window() if get_cmd_tlm_gui_window()
-          dialog = Qt::Dialog.new(window)
-          dialog.setWindowTitle("Message Box")
-          layout = Qt::VBoxLayout.new
-          layout.addWidget(Qt::Label.new(string))
-          chooser = ComboboxChooser.new(dialog, "Select:", options)
-          layout.addWidget(chooser)
+          dialog = _build_dialog(string)
 
-          button_layout = Qt::HBoxLayout.new
-          ok = Qt::PushButton.new("Ok")
-          ok.connect(SIGNAL('clicked()')) do
-            dialog.accept()
+          button_layout = Qt::VBoxLayout.new
+          button_layout.setContentsMargins(11,11,11,11)
+          buttons.each do |button_text|
+            button = Qt::PushButton.new(button_text)
+            button.connect(SIGNAL('clicked()')) do
+              result = button_text
+              dialog.accept()
+            end
+            button_layout.addWidget(button)
           end
-          button_layout.addWidget(ok)
-          cancel = Qt::PushButton.new("Cancel")
-          cancel.connect(SIGNAL('clicked()')) do
-            dialog.reject()
-          end
-          button_layout.addWidget(cancel)
-          layout.addLayout(button_layout)
-
-          dialog.setLayout(layout)
-          if dialog.exec() == Qt::Dialog::Accepted
-            result = chooser.string
-            Logger.info "User selected '#{result}' for '#{string}'"
-          else
-            result = "Cancel"
-            Logger.warn "User pressed 'Cancel' for '#{string}'"
-          end
-          dialog.dispose
+          dialog.layout.addLayout(button_layout)
+          dialog.layout.addWidget(_build_dialog_buttons(dialog, false))
+          result = "Cancel" unless _exec_dialog(dialog, string, result)
         end
         if result == "Cancel"
           prompt_for_script_abort()
@@ -243,6 +227,74 @@ module Cosmos
           return result
         end
       end
+    end
+
+    def prompt_combo_box(string, options)
+      loop do
+        result = options[0]
+        Qt.execute_in_main_thread(true, 0.05) do
+          dialog = _build_dialog(string)
+          chooser = ComboboxChooser.new(dialog, "Select:", options)
+          chooser.setContentsMargins(11,11,11,11)
+          chooser.sel_command_callback = lambda { |value| result = value }
+          dialog.layout.addWidget(chooser)
+          dialog.layout.addWidget(_build_dialog_buttons(dialog))
+          result = "Cancel" unless _exec_dialog(dialog, string, result)
+        end
+        if result == "Cancel"
+          prompt_for_script_abort()
+        else
+          return result
+        end
+      end
+    end
+
+    def _build_dialog(message)
+      window = nil
+      window = get_cmd_tlm_gui_window() if get_cmd_tlm_gui_window()
+      dialog = Qt::Dialog.new(window)
+      dialog.setWindowTitle("Message Box")
+      layout = Qt::VBoxLayout.new
+      layout.setContentsMargins(0,0,0,0)
+
+      label = Qt::Label.new(message)
+      label.setStyleSheet("background-color: white;")
+      label.setMargin(11)
+      layout.addWidget(label)
+      dialog.setLayout(layout)
+      dialog
+    end
+
+    def _exec_dialog(dialog, message, selection)
+      result = true
+      if dialog.exec() == Qt::Dialog::Accepted
+        Logger.info "User selected '#{selection}' for '#{message}'"
+      else
+        Logger.warn "User pressed 'Cancel' for '#{message}'"
+        result = false
+      end
+      dialog.dispose
+      result
+    end
+
+    def _build_dialog_buttons(dialog, ok_button = true)
+      button_layout = Qt::HBoxLayout.new
+      if ok_button
+        ok = Qt::PushButton.new("Ok")
+        ok.connect(SIGNAL('clicked()')) do
+          dialog.accept()
+        end
+        button_layout.addWidget(ok)
+      end
+      cancel = Qt::PushButton.new("Cancel")
+      cancel.connect(SIGNAL('clicked()')) do
+        dialog.reject()
+      end
+      button_layout.addWidget(cancel)
+
+      widget = Qt::Widget.new
+      widget.setLayout(button_layout)
+      widget
     end
 
     def get_scriptrunner_log_message(title_text = "Script Message Log Text Entry", prompt_text = 'Enter text to log to the script message log')

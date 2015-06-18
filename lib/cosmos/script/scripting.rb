@@ -61,6 +61,10 @@ module Cosmos
       prompt_message_box(string, buttons)
     end
 
+    def vertical_message_box(string, *buttons)
+      prompt_vertical_message_box(string, buttons)
+    end
+
     def combo_box(string, *options)
       prompt_combo_box(string, options)
     end
@@ -878,6 +882,10 @@ module Cosmos
     def prompt_message_box(string, buttons)
       print "#{string} (#{buttons.join(", ")}): "
       gets.chomp
+    end
+
+    def prompt_vertical_message_box(string, options)
+      prompt_message_box(string, options)
     end
 
     def prompt_combo_box(string, options)

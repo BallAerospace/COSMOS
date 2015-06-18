@@ -84,13 +84,15 @@ module Cosmos
       end
     end
 
-    describe "prompt, prompt_message_box, prompt_combo_box" do
+    describe "prompt, message_box, vertical_message_box, combo_box" do
       it "prompts the user for input" do
         $stdout = StringIO.new
         expect(self).to receive(:gets) { 'message' }
         expect(prompt("")).to eql 'message'
         expect(self).to receive(:gets) { 'b1' }
         expect(message_box("",["b1","b2"])).to eql 'b1'
+        expect(self).to receive(:gets) { 'b1' }
+        expect(vertical_message_box("",["b1","b2"])).to eql 'b1'
         expect(self).to receive(:gets) { 'b1' }
         expect(combo_box("",["b1","b2"])).to eql 'b1'
         $stdout = STDOUT
