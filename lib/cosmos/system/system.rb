@@ -426,7 +426,7 @@ module Cosmos
     #
     # @param name [String] MD5 string which identifies the
     #   configuration. Pass nil to load the default configuration.
-    # @return [String] The actual configuration loaded
+    # @return [String, Exception/nil] The actual configuration loaded
     def load_configuration(name = nil)
       if name and @config
         # Make sure they're requesting something other than the current
@@ -442,24 +442,27 @@ module Cosmos
             if configuration_directory
               # We found the configuration requested. Reprocess the system.txt
               # and reload the packets
-              process_file(File.join(configuration_directory, 'system.txt'), configuration_directory)
-              load_packets()
+              begin
+                process_file(File.join(configuration_directory, 'system.txt'), configuration_directory)
+                load_packets(name)
+              rescue Exception => error
+                # Failed to load - Restore initial
+                update_config(@initial_config)
+                return @config.name, error
+              end
             else
               # We couldn't find the configuration request. Reload the
               # initial configuration
               update_config(@initial_config)
             end
           end
-          @telemetry.reset
         end
       else
         # Ensure packets have been lazy loaded
-        System.commands()
-        current_config = @config
-        @config = @initial_config
-        @telemetry.reset if current_config != @initial_config
+        System.commands
+        update_config(@initial_config)
       end
-      return @config.name
+      return @config.name, nil
     end
 
     # (see #load_configuration)
@@ -486,6 +489,7 @@ module Cosmos
     end
 
     def update_config(config)
+      current_config = @config
       unless @config
         @config = config
         @commands  = Commands.new(config)
@@ -497,6 +501,7 @@ module Cosmos
         @telemetry.config = config
         @limits.config = config
       end
+      @telemetry.reset if current_config != config
     end
 
     def find_configuration(name)
@@ -547,9 +552,9 @@ module Cosmos
       end
     end
 
-    def load_packets
+    def load_packets(configuration_name = nil)
       # Determine MD5 over all targets cmd_tlm files
-      cmd_tlm_files = [System.initial_filename]
+      cmd_tlm_files = []
       additional_data = ''
       @targets.each do |target_name, target|
         cmd_tlm_files << target.filename if File.exist?(target.filename)
@@ -572,6 +577,8 @@ module Cosmos
       config = Cosmos.marshal_load(marshal_filename)
       if config
         update_config(config)
+        @config.name = configuration_name if configuration_name
+
         # Marshal file load successful
         Logger.info "Marshal load success: #{marshal_filename}"
         @config.warnings.each {|warning| Logger.warn(warning)} if @config.warnings
@@ -594,11 +601,14 @@ module Cosmos
         end
 
         # Create marshal file for next time
-        @config.name = md5_string
+        if configuration_name
+          @config.name = configuration_name
+        else
+          @config.name = md5_string
+        end
         Cosmos.marshal_dump(marshal_filename, @config)
       end
 
-      # Save configuration
       @initial_config = @config unless @initial_config
       save_configuration()
     end

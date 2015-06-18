@@ -125,7 +125,7 @@ module Cosmos
           file.write [pkt.buffer.length].pack('N')
           file.write pkt.buffer
         end
-        @plr.open(filename)
+        expect(@plr.open(filename)).to eql [false, nil]
         pkt1 = @plr.read
         expect(pkt1.target_name).to eql 'TGT1'
         expect(pkt1.packet_name).to eql 'PKT1'
@@ -139,6 +139,66 @@ module Cosmos
       end
     end
 
+    it "handles saved configuration with errors" do
+      begin
+        System.class_eval('@@instance = nil')
+
+        # Save system.txt
+        @config_file = File.join(Cosmos::USERPATH,'config','system','system.txt')
+        FileUtils.mv @config_file, Cosmos::USERPATH
+
+        # Create a dummy system.txt
+        File.open(@config_file,'w') {|file| file.puts "# This is a comment" }
+        @config_targets = File.join(Cosmos::USERPATH,'config','targets')
+
+        File.open(@config_file,'w') do |file|
+          file.puts "DECLARE_TARGET COSMOS"
+          file.puts "DECLARE_TARGET COSMOS OVERRIDE"
+        end
+
+        # Load the original configuration
+        original_config_name, err = System.load_configuration
+        expect(err).to eql nil
+        expect(System.telemetry.target_names).to eql %w(COSMOS OVERRIDE)
+        original_pkts = System.telemetry.packets('COSMOS').keys
+
+        # Create a new configuration by writing another telemetry file
+        File.open(File.join(@config_targets,'COSMOS','cmd_tlm','test1_tlm.txt'),'w') do |file|
+          file.puts "TELEMETRY COSMOS TEST1 BIG_ENDIAN"
+          file.puts "  APPEND_ITEM DATA 240 STRING"
+        end
+        System.instance.process_file(@config_file)
+        # Verify the new telemetry packet is there
+        expect(System.telemetry.packets('COSMOS').keys).to include "TEST1"
+        second_config_name = System.configuration_name
+
+        # Create a log file for the second config
+        filename = File.join(@log_path,'test.bin')
+        File.open(filename,'wb') do |file|
+          file.write "COSMOS2_TLM_#{second_config_name}_#{'A' * 83}"
+        end
+
+        # Corrupt the second config
+        second_config_path = System.instance.send(:find_configuration, second_config_name)
+        FileUtils.mv File.join(second_config_path, 'system.txt'), File.join(second_config_path, 'system2.txt')
+
+        # Return to original config
+        System.load_configuration
+
+        # Open the file from the second config and expect an error
+        success, error = @plr.open(filename)
+        expect(success).to eql false
+        expect(error).to_not be_nil
+        @plr.close
+      ensure
+        # Restore system.txt
+        FileUtils.mv File.join(Cosmos::USERPATH, 'system.txt'),
+          File.join(Cosmos::USERPATH,'config','system')
+
+        File.delete(File.join(@config_targets,'COSMOS','cmd_tlm','test1_tlm.txt'))
+      end
+    end
+
     describe "packet_offsets and read_at_offset" do
       it "returns packet offsets CTS-20, CTS-22" do
         packet_offsets = @plr.packet_offsets(Dir[File.join(@log_path,"*cmd.bin")][0])
@@ -148,7 +208,7 @@ module Cosmos
         header_length = 8 + 1 + 6 + 1 + 12 + 4
         expect(packet_offsets).to eql [PacketLogReader::COSMOS2_HEADER_LENGTH, PacketLogReader::COSMOS2_HEADER_LENGTH + header_length + @cmd_packet_length, PacketLogReader::COSMOS2_HEADER_LENGTH + (header_length + @cmd_packet_length) * 2]
 
-        @plr.open(Dir[File.join(@log_path,"*cmd.bin")][0])
+        expect(@plr.open(Dir[File.join(@log_path,"*cmd.bin")][0])).to eql [true, nil]
         pkt = @plr.read_at_offset(packet_offsets[1])
         expect(pkt.target_name).to eql "COSMOS"
         expect(pkt.packet_name).to eql "STARTLOGGING"
@@ -164,7 +224,7 @@ module Cosmos
         header_length = 8 + 1 + 6 + 1 + 7 + 4
         expect(packet_offsets).to eql [PacketLogReader::COSMOS2_HEADER_LENGTH, PacketLogReader::COSMOS2_HEADER_LENGTH + header_length + @tlm_packet_length, PacketLogReader::COSMOS2_HEADER_LENGTH + (header_length + @tlm_packet_length) * 2]
 
-        @plr.open(Dir[File.join(@log_path,"*tlm.bin")][0])
+        expect(@plr.open(Dir[File.join(@log_path,"*tlm.bin")][0])).to eql [true, nil]
         pkt = @plr.read_at_offset(packet_offsets[1])
         expect(pkt.target_name).to eql "COSMOS"
         expect(pkt.packet_name).to eql "VERSION"
@@ -313,7 +373,7 @@ module Cosmos
 
     describe "first" do
       it "returns the first command packet and retain the file position" do
-        @plr.open(Dir[File.join(@log_path,"*cmd.bin")][0])
+        expect(@plr.open(Dir[File.join(@log_path,"*cmd.bin")][0])).to eql [true, nil]
         pkt1 = @plr.read
         expect(pkt1.target_name).to eql @cmd_packets[0].target_name
         expect(pkt1.packet_name).to eql @cmd_packets[0].packet_name
@@ -335,7 +395,7 @@ module Cosmos
       end
 
       it "returns the first telemetry packet and retain the file position" do
-        @plr.open(Dir[File.join(@log_path,"*tlm.bin")][0])
+        expect(@plr.open(Dir[File.join(@log_path,"*tlm.bin")][0])).to eql [true, nil]
         pkt1 = @plr.read
         expect(pkt1.target_name).to eql @tlm_packets[0].target_name
         expect(pkt1.packet_name).to eql @tlm_packets[0].packet_name
@@ -359,7 +419,7 @@ module Cosmos
 
     describe "last" do
       it "returns the last command packet and retain the file position" do
-        @plr.open(Dir[File.join(@log_path,"*cmd.bin")][0])
+        expect(@plr.open(Dir[File.join(@log_path,"*cmd.bin")][0])).to eql [true, nil]
         pkt1 = @plr.read
         expect(pkt1.target_name).to eql @cmd_packets[0].target_name
         expect(pkt1.packet_name).to eql @cmd_packets[0].packet_name
@@ -381,7 +441,7 @@ module Cosmos
       end
 
       it "returns the last telemetry packet and retain the file position" do
-        @plr.open(Dir[File.join(@log_path,"*tlm.bin")][0])
+        expect(@plr.open(Dir[File.join(@log_path,"*tlm.bin")][0])).to eql [true, nil]
         pkt1 = @plr.read
         expect(pkt1.target_name).to eql @tlm_packets[0].target_name
         expect(pkt1.packet_name).to eql @tlm_packets[0].packet_name

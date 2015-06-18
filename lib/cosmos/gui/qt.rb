@@ -239,6 +239,20 @@ module Cosmos
     icon = nil if icon.isNull && !fail_blank
     return icon
   end
+
+  # Try to change to a configuration in a packet log reader
+  def self.check_log_configuration(packet_log_reader, log_filename)
+    config_change_success, change_error = packet_log_reader.open(log_filename)
+    unless config_change_success
+      Qt.execute_in_main_thread(true) do
+        if change_error
+          Qt::MessageBox.warning(Qt::Application.instance.activeWindow, 'Warning', "When opening: #{log_filename}\n\nAn error occurred when changing to saved configuration:\n#{packet_log_reader.configuration_name}\n\n#{change_error.formatted}\n\nUsing default configuration")
+        else
+          Qt::MessageBox.warning(Qt::Application.instance.activeWindow, 'Warning', "When opening: #{log_filename}\n\nThe following saved configuration was not found:\n#{packet_log_reader.configuration_name}\n\nUsing default configuration")
+        end
+      end
+    end
+  end
 end
 
 #### TEMPORARY UNTIL INCLUDED IN QTBINDINGS ####

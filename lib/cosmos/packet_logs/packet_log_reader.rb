@@ -107,13 +107,16 @@ module Cosmos
     end
 
     # @param filename [String] The log filename to open
+    # @return [Boolean, Exception] Returns true if successfully changed to configuration specified in log,
+    #    otherwise returns false and potentially an Exception class if an error occurred.  If no error occurred
+    #    false indicates that the requested configuration was simply not found
     def open(filename)
       close()
       reset()
       @filename = filename
       @file = BufferedFile.open(@filename, 'rb')
       @bytes_read = 0
-      read_file_header()
+      return read_file_header()
     rescue => err
       close()
       raise err
@@ -253,29 +256,35 @@ module Cosmos
       packet
     end
 
+    # Should return if successfully switched to requested configuration
     def read_file_header
       header = @file.read(COSMOS2_HEADER_LENGTH)
       if header and header.length == COSMOS2_HEADER_LENGTH
         if header[COSMOS2_MARKER_RANGE] == COSMOS2_MARKER
           # Found COSMOS 2 File Header
           @log_type = header[COSMOS2_LOG_TYPE_RANGE].intern
+          raise "Unknown log type #{@log_type}" unless [:CMD, :TLM].include? @log_type
           @configuration_name = header[COSMOS2_CONFIGURATION_NAME_RANGE]
           @hostname = header[COSMOS2_HOSTNAME_RANGE].strip
           @file_header_length = COSMOS2_HEADER_LENGTH
-          System.load_configuration(@configuration_name)
+          new_config_name, error = System.load_configuration(@configuration_name)
+          return true, error if new_config_name == @configuration_name
+          return false, error # Did not successfully change to requested configuration name
         elsif header[COSMOS1_MARKER_RANGE] == COSMOS1_MARKER
           # Found COSMOS 1 File Header
           @log_type = header[COSMOS1_LOG_TYPE_RANGE].upcase.intern
+          raise "Unknown log type #{@log_type}" unless [:CMD, :TLM].include? @log_type
           @configuration_name = header[COSMOS1_CONFIGURATION_NAME_RANGE]
           @hostname = nil
           @file_header_length = COSMOS1_HEADER_LENGTH
           # Move back to beginning of first packet
           @file.seek(COSMOS1_HEADER_LENGTH, IO::SEEK_SET)
-          System.load_configuration(@configuration_name)
+          new_config_name, error = System.load_configuration(@configuration_name)
+          return true, error if new_config_name == @configuration_name
+          return false, error # Did not successfully change to requested configuration name
         else
           raise "COSMOS file header not found on packet log"
         end
-        raise "Unknown log type #{@log_type}" unless [:CMD, :TLM].include? @log_type
       else
         raise "Failed to read at least #{COSMOS2_HEADER_LENGTH} bytes from packet log"
       end

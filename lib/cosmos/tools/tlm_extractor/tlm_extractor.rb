@@ -939,6 +939,11 @@ module Cosmos
         return false
       end
 
+      # Validate configurations exist for input filenames
+      @input_filenames.each do |input_filename|
+        Cosmos.check_log_configuration(@tlm_extractor_processor.packet_log_reader, input_filename)
+      end
+
       #Validate config information
       @tlm_extractor_processor.packet_log_reader.open(@input_filenames[0])
       @tlm_extractor_processor.packet_log_reader.close

@@ -48,7 +48,7 @@ module Cosmos
       end
 
       # Initialize variables
-      @packet_log_reader  = System.default_packet_log_reader.new
+      @packet_log_reader = System.default_packet_log_reader.new
       @log_directory = System.paths['LOGS']
       @log_directory << '/' unless @log_directory[-1..-1] == '\\' or @log_directory[-1..-1] == '/'
       @log_filename = nil
@@ -225,6 +225,7 @@ module Cosmos
             progress_dialog.set_overall_progress(0.0)
             progress_dialog.cancel_callback = method(:cancel_callback)
             progress_dialog.enable_cancel_button
+            Cosmos.check_log_configuration(@packet_log_reader, selection)
             @packet_offsets = @packet_log_reader.packet_offsets(selection, lambda {|percentage| progress_dialog.set_overall_progress(percentage); @cancel})
             @playback_index = 0
             update_slider_and_current_time(nil)
@@ -393,55 +394,60 @@ module Cosmos
     end
 
     def handle_packet(packet)
-      interface = nil
+      # For replay we will try our best here but not crash on errors
+      begin
+        interface = nil
 
-      # Identify and update packet
-      if packet.identified?
-        # Preidentifed packet - place it into the current value table
-        identified_packet = System.telemetry.update!(packet.target_name,
-                                                     packet.packet_name,
-                                                     packet.buffer)
-      else
-        # Packet needs to be identified
-        identified_packet = System.telemetry.identify!(packet.buffer)
-      end
-
-      if identified_packet and packet.target_name != 'UNKNOWN'
-        identified_packet.received_time = packet.received_time
-        packet = identified_packet
-        target = System.targets[packet.target_name.upcase]
-        interface = target.interface if target
-      else
-        unknown_packet = System.telemetry.update!('UNKNOWN', 'UNKNOWN', packet.buffer)
-        unknown_packet.received_time = packet.received_time
-        packet = unknown_packet
-        data_length = packet.length
-        string = "Unknown #{data_length} byte packet starting: "
-        num_bytes_to_print = [UNKNOWN_BYTES_TO_PRINT, data_length].min
-        data_to_print = packet.buffer(false)[0..(num_bytes_to_print - 1)]
-        data_to_print.each_byte do |byte|
-          string << sprintf("%02X", byte)
+        # Identify and update packet
+        if packet.identified?
+          # Preidentifed packet - place it into the current value table
+          identified_packet = System.telemetry.update!(packet.target_name,
+                                                       packet.packet_name,
+                                                       packet.buffer)
+        else
+          # Packet needs to be identified
+          identified_packet = System.telemetry.identify!(packet.buffer)
         end
-        time_string = ''
-        time_string = packet.received_time.formatted << '  ' if packet.received_time
-        puts "#{time_string}ERROR:  #{string}"
-      end
 
-      target = System.targets[packet.target_name]
-      target.tlm_cnt += 1 if target
-      packet.received_count += 1
-      packet.check_limits(System.limits_set)
-      ReplayServer.instance.post_packet(packet)
+        if identified_packet and packet.target_name != 'UNKNOWN'
+          identified_packet.received_time = packet.received_time
+          packet = identified_packet
+          target = System.targets[packet.target_name.upcase]
+          interface = target.interface if target
+        else
+          unknown_packet = System.telemetry.update!('UNKNOWN', 'UNKNOWN', packet.buffer)
+          unknown_packet.received_time = packet.received_time
+          packet = unknown_packet
+          data_length = packet.length
+          string = "Unknown #{data_length} byte packet starting: "
+          num_bytes_to_print = [UNKNOWN_BYTES_TO_PRINT, data_length].min
+          data_to_print = packet.buffer(false)[0..(num_bytes_to_print - 1)]
+          data_to_print.each_byte do |byte|
+            string << sprintf("%02X", byte)
+          end
+          time_string = ''
+          time_string = packet.received_time.formatted << '  ' if packet.received_time
+          puts "#{time_string}ERROR:  #{string}"
+        end
 
-      # Write to routers
-      if interface
-        interface.routers.each do |router|
-          begin
-            router.write(packet) if router.write_allowed? and router.connected?
-          rescue => err
-            Logger.error "Problem writing to router #{router.name} - #{err.class}:#{err.message}"
+        target = System.targets[packet.target_name]
+        target.tlm_cnt += 1 if target
+        packet.received_count += 1
+        packet.check_limits(System.limits_set)
+        ReplayServer.instance.post_packet(packet)
+
+        # Write to routers
+        if interface
+          interface.routers.each do |router|
+            begin
+              router.write(packet) if router.write_allowed? and router.connected?
+            rescue => err
+              Logger.error "Problem writing to router #{router.name} - #{err.class}:#{err.message}"
+            end
           end
         end
+      rescue Exception => err
+        Logger.error "Problem handling packet #{packet.target_name} #{packet.packet_name} - #{err.class}:#{err.message}"
       end
     end
 

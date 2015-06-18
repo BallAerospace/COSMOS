@@ -8,11 +8,17 @@ Sleep 1000
 Send cmd.bin{Enter}
 WinWaitActive Command Extractor
 Click 200 422 ; Process Files
+WinWaitActive Warning
+Sleep 500
+Send {Enter} ;
 WinWaitActive Log File
 Click 450 305 ; Cancel
 WinWaitActive Command Extractor
 sleep 500
 Click 200 422 ; Process Files
+WinWaitActive Warning
+Sleep 500
+Send {Enter} ;
 Sleep 500
 Send {Enter} ; Overwrite Yes
 Sleep 5000 ; Allow the file to be processed CE-1

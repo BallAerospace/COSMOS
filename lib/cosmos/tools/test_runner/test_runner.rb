@@ -717,7 +717,7 @@ module Cosmos
 
         orig_font = nil
         @@test_suites.each do |suite|
-          next if suite.name == "Cosmos::CustomTestSuite"
+          next if suite.name == "CustomTestSuite"
           doc = YARD::Registry.resolve(nil, suite.name)
           suite_node = create_node(doc, suite.name, tree) do |node|
             orig_font = node.font(0)
@@ -1047,10 +1047,10 @@ module Cosmos
       end
 
       # Build list of TestSuites and Tests
-      @@test_suites = @@test_suites.select {|my_suite| my_suite.name == 'Cosmos::CustomTestSuite'}
+      @@test_suites = @@test_suites.select {|my_suite| my_suite.name == 'CustomTestSuite'}
       tests         = []
       ObjectSpace.each_object(Class) do |object|
-        next if object.name == 'Cosmos::CustomTestSuite'
+        next if object.name == 'CustomTestSuite'
         if (object.ancestors.include?(TestSuite) &&
             object != TestSuite &&
             !ignored_test_suite_classes.include?(object))
@@ -1140,7 +1140,7 @@ module Cosmos
             end
           end
         end
-        @@suites[suite.name.split('::')[-1]] = cur_suite unless suite.name == 'Cosmos::CustomTestSuite'
+        @@suites[suite.name.split('::')[-1]] = cur_suite unless suite.name == 'CustomTestSuite'
       end
       Qt.execute_in_main_thread(true) { @test_runner_chooser.test_suites = @@suites }
     end

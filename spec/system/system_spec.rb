@@ -166,7 +166,8 @@ module Cosmos
           end
 
           # Load the original configuration
-          original_config_name = System.load_configuration()
+          original_config_name, err = System.load_configuration
+          expect(err).to eql nil
           expect(System.telemetry.target_names).to eql %w(COSMOS OVERRIDE)
           original_pkts = System.telemetry.packets('COSMOS').keys
 
@@ -181,7 +182,8 @@ module Cosmos
           second_config_name = System.configuration_name
 
           # Now load the original configuration
-          name = System.load_configuration(original_config_name)
+          name, err = System.load_configuration(original_config_name)
+          expect(err).to eql nil
           expect(original_config_name).to eql name
           expect(System.telemetry.packets('COSMOS').keys).not_to include "TEST1"
 
@@ -198,7 +200,8 @@ module Cosmos
 
           # Try loading something that doesn't exist
           # It should fail and reload the original configuration
-          name = System.load_configuration("BLAH")
+          name, err = System.load_configuration("BLAH")
+          expect(err).to eql nil
           expect(name).to eql original_config_name
 
           # Now load the second configuration. It shouldn't have the most
@@ -206,6 +209,13 @@ module Cosmos
           System.load_configuration(second_config_name)
           expect(System.telemetry.packets('COSMOS').keys).to include "TEST1"
           expect(System.telemetry.packets('COSMOS').keys).not_to include "TEST2"
+
+          # Now remove system.txt from the third configuration and try to load it again to cause an error
+          third_config_path = System.instance.send(:find_configuration, third_config_name)
+          FileUtils.mv File.join(third_config_path, 'system.txt'), File.join(third_config_path, 'system2.txt')
+          result, err = System.load_configuration(third_config_name)
+          expect(result).to eql original_config_name
+          expect(err).to_not be_nil
         end
       end
     end

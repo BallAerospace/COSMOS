@@ -48,6 +48,9 @@ module Cosmos
               progress_dialog.set_step_progress(0) if progress_dialog
               break if @cancel
               packet_count = 0
+              if progress_dialog
+                Cosmos.check_log_configuration(@packet_log_reader, log_file)
+              end
               @packet_log_reader.each(log_file, true, time_start, time_end) do |packet|
                 break if @cancel
                 if progress_dialog and packet_count % PROGRESS_UPDATE_PACKET_COUNT == 0
