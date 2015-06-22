@@ -365,12 +365,14 @@ module Cosmos
     def self.restore_io(stdout = true, stderr = true)
       $stdout = STDOUT if stdout
       $stderr = STDERR if stderr
+      @@redirect_io_thread_sleeper.cancel
+      Qt::CoreApplication.processEvents()
       Cosmos.kill_thread(self, @@redirect_io_thread)
       @@redirect_io_thread = nil
     end
 
     def self.graceful_kill
-      @@redirect_io_thread_sleeper.cancel
+      # Just to remove warning
     end
 
   end # class QtTool

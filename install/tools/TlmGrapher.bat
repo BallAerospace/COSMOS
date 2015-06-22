@@ -1,9 +1,9 @@
 @ECHO OFF
 
-IF NOT EXIST %~dp0LaunchTool.bat (
-  echo %~dp0LaunchTool.bat does not exist
+IF NOT EXIST %~dp0ToolLaunch.bat (
+  echo %~dp0ToolLaunch.bat does not exist
   pause
   exit /b
 )
 
-call %~dp0LaunchTool.bat rubyw.exe %~n0 %*
+call %~dp0ToolLaunch.bat rubyw.exe %~n0 %*

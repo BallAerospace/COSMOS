@@ -9,8 +9,8 @@
 # as published by the Free Software Foundation; version 3 with
 # attribution addendums as found in the LICENSE.txt
 
-require_relative 'launch_tool'
-launch_tool do
+require_relative 'tool_launch'
+tool_launch do
   require 'cosmos/tools/test_runner/test_runner'
   Cosmos::TestRunner.run
 end
