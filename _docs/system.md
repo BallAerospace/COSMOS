@@ -125,14 +125,21 @@ Example Usage:
 STALENESS_SECONDS 30 # Default
 {% endhighlight %}
 
+### ENABLE_DNS (COSMOS 3.5.0+)
+Enable DNS allows you to enable reverse DNS lookups for when tools connect to the Command and Telemetry Server's pre-identified socket or to any target using the TCPIP Server Interface. As of COSMOS 3.5.0 the default is to not use DNS.
+
+{% highlight bash %}
+Example Usage: ENABLE_DNS
+{% endhighlight %}
+
 ### DISABLE_DNS
-Disable DNS allows you to disable reverse DNS lookups for when tools connect to the Command and Telemetry Server's pre-identified socket or to any target using the TCPIP Server Interface. This is useful when you are in an environment where DNS is not available such as a SCIF. The default is to use DNS.
+Disable DNS allows you to disable reverse DNS lookups for when tools connect to the Command and Telemetry Server's pre-identified socket or to any target using the TCPIP Server Interface. This is useful when you are in an environment where DNS is not available. As of COSMOS 3.5.0 the default is to not use DNS.
 
 {% highlight bash %}
 Example Usage: DISABLE_DNS
 {% endhighlight %}
 
-### ENABLE_SOUND (COSMOS 3.4.3+)
+### ENABLE_SOUND (COSMOS 3.5.0+)
 Enable sound makes any prompts that occur in ScriptRunner/TestRunner make an audible sound when they popup to alert the operator of needed input.
 
 {% highlight bash %}

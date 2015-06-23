@@ -142,7 +142,7 @@ Syntax when standalone:
 <th>Required</th></tr>
 <tr>
 <td>Button Text</td>
-<td><span style="color: rgb(0,0,0);">Label that is put on the button that launches the tool</span></td>
+<td><span>Label that is put on the button that launches the tool</span></td>
 <td>Yes</td></tr>
 <tr>
 <td colspan="1">Shell Command</td>
@@ -153,8 +153,8 @@ Syntax when standalone:
 <td colspan="1">Filename of a an icon located in the data directory. Passing 'nil' or an empty string '' will result in Launcher using the default COSMOS icon.</td>
 <td colspan="1">No</td></tr>
 <tr>
-<td colspan="1"><span style="color: rgb(0,0,0);">Tool Parameters</span></td>
-<td colspan="1"><span style="color: rgb(0,0,0);">Tool parameters as you would type on the command line. Specifying parameters here rather than in "Shell Command" will cause a dialog box to appear which allows the user to edit parameters if desired. Expected to be in parameter name/parameter value pairs. i.e. &mdash;config filename.txt. NOTE: The full configuration option name must be used rather than the short name. NOTE: These parameters will override any parameters specified in the Shell Command.</span></td>
+<td colspan="1"><span>Tool Parameters</span></td>
+<td colspan="1"><span>Tool parameters as you would type on the command line. Specifying parameters here rather than in "Shell Command" will cause a dialog box to appear which allows the user to edit parameters if desired. Expected to be in parameter name/parameter value pairs. i.e. &mdash;config filename.txt. NOTE: The full configuration option name must be used rather than the short name. NOTE: These parameters will override any parameters specified in the Shell Command.  Also, multiple options can be specified by seperating options with a pipe character | </span></td>
 <td colspan="1">No</td></tr></tbody></table>
 
 Example Usage:
@@ -190,7 +190,7 @@ The MULTITOOL_START keyword starts the creation of a single icon/button that wil
 <th>Required</th></tr>
 <tr>
 <td>Button Text</td>
-<td><span style="color: rgb(0,0,0);">Label that is put on the button that launches the tools</span></td>
+<td><span>Label that is put on the button that launches the tools</span></td>
 <td>Yes</td></tr>
 <tr>
 <td colspan="1"><span>Icon Filename</span></td>
@@ -611,7 +611,7 @@ The ITEM keyword specifies a telemetry item to extract.
 <td colspan="1">Yes</td></tr>
 <tr>
 <td colspan="1">Item Type</td>
-<td colspan="1"><span style="color: rgb(0,0,0);">RAW, FORMATTED, or WITH_UNITS (CONVERTED is implied if the parameter is omitted)</span></td>
+<td colspan="1"><span>RAW, FORMATTED, or WITH_UNITS (CONVERTED is implied if the parameter is omitted)</span></td>
 <td colspan="1">No</td></tr></tbody></table>
 
 ## Example File
@@ -930,6 +930,20 @@ MONITOR_LIMITS
 PAUSE_ON_RED
 {% endhighlight %}
 
+## Test Runner Usage Notes
+
+Arbitrary text can be written to the test report using the following syntax:
+
+``` Cosmos::Test.puts "This test verifies requirement 2" ```
+
+You can determine the currently executing suite/group/case using the following syntax:
+
+```
+Cosmos::Test.current_test_suite
+Cosmos::Test.current_test_group
+Cosmos::Test.current_test_case
+```
+
 * * *
 
 ## Table Manager Configuration
@@ -970,23 +984,23 @@ The TABLE keyword designates the start of a new table definition.
 <th>Required</th></tr>
 <tr>
 <td>Name</td>
-<td><span style="color: rgb(0,0,0);">Name of the table in double quotes. The name will appear on the GUI tab.</span></td>
+<td><span>Name of the table in double quotes. The name will appear on the GUI tab.</span></td>
 <td>Yes</td></tr>
 <tr>
 <td colspan="1">Description</td>
-<td colspan="1"><span style="color: rgb(0,0,0);">Description of this table in double quotes. The description is used in mouseover popups and status line information.</span></td>
+<td colspan="1"><span>Description of this table in double quotes. The description is used in mouseover popups and status line information.</span></td>
 <td colspan="1">Yes</td></tr>
 <tr>
 <td colspan="1">Dimension</td>
-<td colspan="1"><span style="color: rgb(0,0,0);">Indicates the table is a ONE_DIMENSIONAL table which is a two column table consisting of unique rows, or a TWO_DIMENSIONAL table with multiple columns and identical rows with unique values.</span></td>
+<td colspan="1"><span>Indicates the table is a ONE_DIMENSIONAL table which is a two column table consisting of unique rows, or a TWO_DIMENSIONAL table with multiple columns and identical rows with unique values.</span></td>
 <td colspan="1">Yes</td></tr>
 <tr>
 <td colspan="1">Endianness</td>
-<td colspan="1"><span style="color: rgb(0,0,0);">Whether to packet the table data as BIG_ENDIAN or LITTLE_ENDIAN.</span></td>
+<td colspan="1"><span>Whether to packet the table data as BIG_ENDIAN or LITTLE_ENDIAN.</span></td>
 <td colspan="1">Yes</td></tr>
 <tr>
 <td colspan="1">Identifier</td>
-<td colspan="1"><span style="color: rgb(0,0,0);">A unique numerical Table ID.</span></td>
+<td colspan="1"><span>A unique numerical Table ID.</span></td>
 <td colspan="1">Yes</td></tr></tbody></table>
 
 Example Usage:

@@ -292,21 +292,28 @@ string = ask_string("Enter a String")
 string = ask_string("Enter a value or nothing", true)
 {% endhighlight %}
 
-### message_box
+### message_box, vertical_message_box (COSMOS 3.5.0+), combo_box (COSMOS 3.5.0+)
 
-The message_box method creates a message box with arbitrary buttons that the user can click. The text of the button clicked is returned.
+The message_box, vertical_message_box, and combo_box methods create a message box with arbitrary buttons or selections that the user can click. The text of the button clicked is returned.
 
 Syntax:
-``` message_box("<message>", "<button text 1>", …) ```
+
+```
+message_box("<message>", "<button text 1>", …)
+vertical_message_box("<message>", "<button text 1>", …)
+combo_box("<message>", "<selection text 1>", …)
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
 |message|Message to prompt the user with.|
-|button text #x|Text for a button|
+|button/selection text #x|Text for a button or selection|
 
 Example:
 {% highlight ruby %}
 value = message_box("Press OK to continue or CANCEL to cancel", 'OK', 'CANCEL')
+value = vertical_message_box("Press OK to continue or CANCEL to cancel", 'OK', 'CANCEL')
+value = combo_box("Select OK to continue or CANCEL to cancel", 'OK', 'CANCEL')
 if value == 'OK'
   puts 'OK Pressed'
 else
@@ -642,6 +649,48 @@ get_cmd_hazardous("<Target Name>", "<Command Name>", <Command Params - optional>
 Example:
 {% highlight ruby %}
 hazardous = get_cmd_hazardous("INST", "COLLECT", {'TYPE' => 'SPECIAL'})
+{% endhighlight %}
+
+### get_cmd_value (COSMOS 3.5.0+)
+
+The get_cmd_value method returns reads a value from the most recently sent command packet.   The pseudo-parameters 'RECEIVED_COUNT', 'RECEIVED_TIMEFORMATTED', and 'RECEIVED_TIMESECONDS' are also supported.
+
+Syntax:
+{% highlight ruby %}
+get_cmd_value("<Target Name>", "<Command Name>", "<Parameter Name>", <Value Type - optional>)
+{% endhighlight %}
+
+| Parameter | Description |
+| -------- | --------------------------------- |
+| Target Name | Name of the target. |
+| Command Name | Name of the command. |
+| Parameter Name | Name of the command parameter. |
+| Value Type | Value Type to read. :RAW, :CONVERTED, :FORMATTED, or :WITH_UNITS |
+
+Example:
+{% highlight ruby %}
+value = get_cmd_value("INST", "COLLECT", "TEMP")
+{% endhighlight %}
+
+### get_cmd_time (COSMOS 3.5.0+)
+
+The get_cmd_time method returns the time of the most recent command sent.
+
+Syntax:
+{% highlight ruby %}
+get_cmd_time("<Target Name - optional>", "<Command Name - optional>")
+{% endhighlight %}
+
+| Parameter | Description |
+| -------- | --------------------------------- |
+| Target Name | Name of the target.  If not given, then the most recent command time to any target will be returned |
+| Command Name | Name of the command.  If not given, then the most recent command time to the given target will be returned |
+
+Example:
+{% highlight ruby %}
+target_name, command_name, time = get_cmd_time() # Name of the most recent command sent to any target and time
+target_name, command_name, time = get_cmd_time("INST") # Name of the most recent command sent to the INST target and time
+target_name, command_name, time = get_cmd_time("INST", "COLLECT") # Name of the most recent INST COLLECT command and time
 {% endhighlight %}
 
 ## Handling Telemetry
