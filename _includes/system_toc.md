@@ -10,8 +10,9 @@
 &nbsp;&nbsp;&nbsp;&nbsp; [DEFAULT_PACKET_LOG_WRITER and DEFAULT_PACKET_LOG_READER](#defaultpacketlogwriter-and-defaultpacketlogreader)<br/>
 &nbsp;&nbsp;&nbsp;&nbsp; [CMD_TLM_VERSION](#cmdtlmversion)<br/>
 &nbsp;&nbsp;&nbsp;&nbsp; [STALENESS_SECONDS](#stalenessseconds)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp; [ENABLE_DNS (COSMOS 3.5.0+)](#enabledns-(cosmos-3.5.0+))<br/>
 &nbsp;&nbsp;&nbsp;&nbsp; [DISABLE_DNS](#disabledns)<br/>
-&nbsp;&nbsp;&nbsp;&nbsp; [ENABLE_SOUND (COSMOS 3.4.3+)](#enablesound-(cosmos-3.4.3+))<br/>
+&nbsp;&nbsp;&nbsp;&nbsp; [ENABLE_SOUND (COSMOS 3.5.0+)](#enablesound-(cosmos-3.5.0+))<br/>
 &nbsp;&nbsp;&nbsp;&nbsp; [ALLOW_ACCESS](#allowaccess)<br/>
 <br/>
 <span>[Target Configuration](#target-configuration)</span><br/>

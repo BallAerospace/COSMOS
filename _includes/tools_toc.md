@@ -66,6 +66,8 @@
 &nbsp;&nbsp;&nbsp;&nbsp; [Script Runner Configuration Keywords](#script-runner-configuration-keywords)<br/>
 &nbsp;&nbsp;&nbsp;&nbsp; [Example File](#example-file)<br/>
 <br/>
+<span>[Test Runner Usage Notes](#test-runner-usage-notes)</span><br/>
+<br/>
 <span>[Table Manager Configuration](#table-manager-configuration)</span><br/>
 <br/>
 <span>[Keywords:](#keywords:)</span><br/>
