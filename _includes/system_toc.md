@@ -2,7 +2,7 @@
 
 <span>[System Configuration](#system-configuration)</span><br/>
 <br/>
-<span>[system.txt Keywords](#system.txt-keywords)</span><br/>
+<span>[system.txt Keywords](#systemtxt-keywords)</span><br/>
 &nbsp;&nbsp;&nbsp;&nbsp; [AUTO_DECLARE_TARGETS](#autodeclaretargets)<br/>
 &nbsp;&nbsp;&nbsp;&nbsp; [DECLARE_TARGET](#declaretarget)<br/>
 &nbsp;&nbsp;&nbsp;&nbsp; [PORT](#port)<br/>
@@ -10,14 +10,14 @@
 &nbsp;&nbsp;&nbsp;&nbsp; [DEFAULT_PACKET_LOG_WRITER and DEFAULT_PACKET_LOG_READER](#defaultpacketlogwriter-and-defaultpacketlogreader)<br/>
 &nbsp;&nbsp;&nbsp;&nbsp; [CMD_TLM_VERSION](#cmdtlmversion)<br/>
 &nbsp;&nbsp;&nbsp;&nbsp; [STALENESS_SECONDS](#stalenessseconds)<br/>
-&nbsp;&nbsp;&nbsp;&nbsp; [ENABLE_DNS (COSMOS 3.5.0+)](#enabledns-(cosmos-3.5.0+))<br/>
+&nbsp;&nbsp;&nbsp;&nbsp; [ENABLE_DNS (COSMOS 3.5.0+)](#enabledns-cosmos-350)<br/>
 &nbsp;&nbsp;&nbsp;&nbsp; [DISABLE_DNS](#disabledns)<br/>
-&nbsp;&nbsp;&nbsp;&nbsp; [ENABLE_SOUND (COSMOS 3.5.0+)](#enablesound-(cosmos-3.5.0+))<br/>
+&nbsp;&nbsp;&nbsp;&nbsp; [ENABLE_SOUND (COSMOS 3.5.0+)](#enablesound-cosmos-350)<br/>
 &nbsp;&nbsp;&nbsp;&nbsp; [ALLOW_ACCESS](#allowaccess)<br/>
 <br/>
 <span>[Target Configuration](#target-configuration)</span><br/>
 <br/>
-<span>[target.txt Keywords](#target.txt-keywords)</span><br/>
+<span>[target.txt Keywords](#targettxt-keywords)</span><br/>
 &nbsp;&nbsp;&nbsp;&nbsp; [REQUIRE](#require)<br/>
 &nbsp;&nbsp;&nbsp;&nbsp; [IGNORE_PARAMETER](#ignoreparameter)<br/>
 &nbsp;&nbsp;&nbsp;&nbsp; [IGNORE_ITEM](#ignoreitem)<br/>
@@ -26,7 +26,7 @@
 <br/>
 <span>[Command and Telemetry Server Configuration](#command-and-telemetry-server-configuration)</span><br/>
 <br/>
-<span>[cmd_tlm_server.txt Keywords](#cmdtlmserver.txt-keywords)</span><br/>
+<span>[cmd_tlm_server.txt Keywords](#cmdtlmservertxt-keywords)</span><br/>
 &nbsp;&nbsp;&nbsp;&nbsp; [TITLE](#title)<br/>
 &nbsp;&nbsp;&nbsp;&nbsp; [PACKET_LOG_WRITER](#packetlogwriter)<br/>
 &nbsp;&nbsp;&nbsp;&nbsp; [AUTO_INTERFACE_TARGETS](#autointerfacetargets)<br/>

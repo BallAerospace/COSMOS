@@ -24,7 +24,7 @@
 <span>[Retrieving User Input](#retrieving-user-input)</span><br/>
 &nbsp;&nbsp;&nbsp;&nbsp; [ask](#ask)<br/>
 &nbsp;&nbsp;&nbsp;&nbsp; [ask_string](#askstring)<br/>
-&nbsp;&nbsp;&nbsp;&nbsp; [message_box, vertical_message_box (COSMOS 3.5.0+), combo_box (COSMOS 3.5.0+)](#messagebox,-verticalmessagebox-(cosmos-3.5.0+),-combobox-(cosmos-3.5.0+))<br/>
+&nbsp;&nbsp;&nbsp;&nbsp; [message_box, vertical_message_box (COSMOS 3.5.0+), combo_box (COSMOS 3.5.0+)](#messagebox,-verticalmessagebox-cosmos-350,-combobox-cosmos-350)<br/>
 <br/>
 <span>[Providing information to the user](#providing-information-to-the-user)</span><br/>
 &nbsp;&nbsp;&nbsp;&nbsp; [prompt](#prompt)<br/>
@@ -45,8 +45,8 @@
 &nbsp;&nbsp;&nbsp;&nbsp; [get_cmd_list](#getcmdlist)<br/>
 &nbsp;&nbsp;&nbsp;&nbsp; [get_cmd_param_list](#getcmdparamlist)<br/>
 &nbsp;&nbsp;&nbsp;&nbsp; [get_cmd_hazardous](#getcmdhazardous)<br/>
-&nbsp;&nbsp;&nbsp;&nbsp; [get_cmd_value (COSMOS 3.5.0+)](#getcmdvalue-(cosmos-3.5.0+))<br/>
-&nbsp;&nbsp;&nbsp;&nbsp; [get_cmd_time (COSMOS 3.5.0+)](#getcmdtime-(cosmos-3.5.0+))<br/>
+&nbsp;&nbsp;&nbsp;&nbsp; [get_cmd_value (COSMOS 3.5.0+)](#getcmdvalue-cosmos-350)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp; [get_cmd_time (COSMOS 3.5.0+)](#getcmdtime-cosmos-350)<br/>
 <br/>
 <span>[Handling Telemetry](#handling-telemetry)</span><br/>
 &nbsp;&nbsp;&nbsp;&nbsp; [check](#check)<br/>

@@ -37,9 +37,9 @@ file_list.each do |filename|
       page_toc << "<br/>\n" if current_offset == 0 and !first
       first = false
       if current_offset == 0
-        page_toc << "<span>[#{$2}](##{$2.downcase.strip.gsub(" ", "-").gsub("_", "")})</span><br/>\n"
+        page_toc << "<span>[#{$2}](##{$2.downcase.strip.gsub(" ", "-").gsub(/[_\+\.\(\)]/, "")})</span><br/>\n"
       else
-        page_toc << "#{("&nbsp;" * (current_offset * 4))} [#{$2}](##{$2.downcase.strip.gsub(" ", "-").gsub("_", "")})<br/>\n"
+        page_toc << "#{("&nbsp;" * (current_offset * 4))} [#{$2}](##{$2.downcase.strip.gsub(" ", "-").gsub(/[_\+\.\(\)]/, "")})<br/>\n"
       end
     end
   end
