@@ -32,6 +32,7 @@ fi
 
 echo "Installing COSMOS gem"
 gem install cosmos
+rbenv rehash
 
 read -p "Install and run COSMOS demo (Yn): " -n 1 -r
 echo
