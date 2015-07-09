@@ -50,6 +50,12 @@ else # Linux
   # Yum dependencies tested on Centos 6.5/6.6/7
   cmdtoyum="yum update -y; yum install -y gcc gcc-c++ openssl-devel libyaml-devel libffi-devel readline-devel zlib-devel gdbm-devel ncurses-devel git gstreamer-plugins-base-devel cmake freeglut freeglut-devel qt4 qt4-devel"
 
+  #apt dependencies - lightly tested on Ubuntu 14.04 LTS
+  cmdtoapt="apt-get update -y; apt-get install -y gcc g++ libssl-dev libyaml-dev libffi-dev libreadline6-dev zlib1g-dev libgdbm3 libgdbm-dev libncurses5-dev git libgstreamer0.10-dev libgstreamer-plugins-base0.10-dev  cmake freeglut3 freeglut3-dev qt4-default qt4-dev-tools"
+  YUM_CMD=$(which yum)
+  APT_GET_CMD=$(which apt-get)
+
+
   # Install dependencies
   read -p "Install dependencies using Root/Sudo/No (Rsn): " -n 1 -r
   echo
@@ -58,14 +64,25 @@ else # Linux
     :
   elif [[ $REPLY =~ ^[Ss]$ ]]
   then
-    if hash yum 2>/dev/null; then  
-      sudo bash -c "$cmdtoyum"
-    fi
+   if [[ ! -z $YUM_CMD ]]; then
+    sudo bash -c "$cmdtoyum"
+   elif [[ ! -z $APT_GET_CMD ]]; then
+    sudo bash -c "$cmdtoapt"
+   else
+    echo "error can't figure out what package manager is being used"
+    exit 1;
+   fi
   else
-    if hash yum 2>/dev/null; then   
-      su -c "$cmdtoyum"
-    fi
-  fi
+   if [[ ! -z $YUM_CMD ]]; then
+    su -c "$cmdtoyum"
+   elif [[ ! -z $APT_GET_CMD ]]; then
+    su -c "$cmdtoapt"
+   else
+    echo "error can't figure out what package manager is being used"
+    exit 1;
+   fi
+fi
+
   
   # Install ruby
   read -p "Install ruby using rbenv (Yn): " -n 1 -r
