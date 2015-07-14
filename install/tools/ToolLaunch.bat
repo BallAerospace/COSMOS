@@ -16,19 +16,8 @@ IF NOT EXIST %~dp0tool_launch.rb (
   exit /b
 )
 
-:: Get just the parameters for the tool
-shift
-shift
-set PARAMS=%1
-:loop
-shift
-if [%1]==[] goto afterloop
-set PARAMS=!PARAMS! %1
-goto loop
-:afterloop
-
-:: First look one directories up
 SET "DESTINATION_DIR=%~dp0..\"
+:: First look one directories up
 IF NOT EXIST "!DESTINATION_DIR!Vendor\Ruby" (
   :: Then look two directories up
   SET "DESTINATION_DIR=%~dp0..\..\"
@@ -40,11 +29,24 @@ IF NOT EXIST "!DESTINATION_DIR!Vendor\Ruby" (
   )
 )
 
+:: Get just the parameters for the tool
+shift
+shift
+set PARAMS=%1
+:loop
+shift
+if [%1]==[] goto afterloop
+set PARAMS=!PARAMS! %1
+goto loop
+:afterloop
+
 IF EXIST "!DESTINATION_DIR!Vendor\Ruby" (
   :: Convert DESTINATION_DIR to absolute path
+  echo !DESTINATION_DIR!
   pushd !DESTINATION_DIR!
   SET "DESTINATION_DIR=!CD!\"
   popd
+  echo !DESTINATION_DIR!
 
   :: Set environmental variables
   for /f "delims=" %%a in ('dir "!DESTINATION_DIR!Vendor\Ruby\lib\ruby\gems\2*" /on /ad /b') do set RUBY_ABI=%%a
@@ -61,6 +63,7 @@ IF EXIST "!DESTINATION_DIR!Vendor\Ruby" (
   SET RUBYLIB=
 
   :: Run tool using Installer Ruby
+  ECHO !GEM_HOME!
   ECHO Starting tool using installer ruby in !DESTINATION_DIR!
   START "COSMOS" "!DESTINATION_DIR!Vendor\Ruby\bin\!RUBYEXE!" "!TOOL!" !PARAMS!
 ) else (
