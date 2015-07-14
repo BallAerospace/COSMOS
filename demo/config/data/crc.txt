@@ -100,7 +100,7 @@
 "tools/PacketViewer.bat" 0x09A34857
 "tools/TlmViewer.bat" 0x09A34857
 "tools/TlmExtractor" 0x1EC4639A
-"tools/ToolLaunch.bat" 0x6E279655
+"tools/ToolLaunch.bat" 0x7896E14C
 "tools/CmdTlmServer.bat" 0x09A34857
 "tools/OpenGLBuilder" 0x585EA691
 "tools/Replay" 0xAC00D2AD
