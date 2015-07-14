@@ -27,16 +27,25 @@ set PARAMS=!PARAMS! %1
 goto loop
 :afterloop
 
-:: First look two directories up
-SET "DESTINATION_DIR=%~dp0..\..\"
+:: First look one directories up
+SET "DESTINATION_DIR=%~dp0..\"
 IF NOT EXIST "!DESTINATION_DIR!Vendor\Ruby" (
-  :: Then check COSMOS_DIR environment variable
-  IF NOT "!COSMOS_DIR!"=="" (
-    SET "DESTINATION_DIR=!COSMOS_DIR!\"
+  :: Then look two directories up
+  SET "DESTINATION_DIR=%~dp0..\..\"
+  IF NOT EXIST "!DESTINATION_DIR!Vendor\Ruby" (
+    :: Then check COSMOS_DIR environment variable
+    IF NOT "!COSMOS_DIR!"=="" (
+      SET "DESTINATION_DIR=!COSMOS_DIR!\"
+    )
   )
 )
 
 IF EXIST "!DESTINATION_DIR!Vendor\Ruby" (
+  :: Convert DESTINATION_DIR to absolute path
+  pushd !DESTINATION_DIR!
+  SET "DESTINATION_DIR=!CD!\"
+  popd
+
   :: Set environmental variables
   for /f "delims=" %%a in ('dir "!DESTINATION_DIR!Vendor\Ruby\lib\ruby\gems\2*" /on /ad /b') do set RUBY_ABI=%%a
   SET "GEM_HOME=!DESTINATION_DIR!Vendor\Ruby\lib\ruby\gems\!RUBY_ABI!"

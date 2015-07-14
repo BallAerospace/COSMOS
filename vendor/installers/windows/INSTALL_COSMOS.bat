@@ -21,7 +21,7 @@ set RUBY_ABI_VERSION=2.2.0
 set DEVKIT_32=DevKit-mingw64-32-4.7.2-20130224-1151-sfx.exe
 set DEVKIT_64=DevKit-mingw64-64-4.7.2-20130224-1432-sfx.exe
 set WKHTMLTOPDF=wkhtmltox-0.11.0_rc1-installer.exe
-set WKHTMLPATH=//downloads.sourceforge.net/project/wkhtmltopdf/old-archive/windows/
+set WKHTMLPATHWITHPROTOCOL=http://download.gna.org/wkhtmltopdf/obsolete/windows/
 set QT_VERSION=4.8.6
 
 :: Detect Ball
@@ -118,7 +118,7 @@ if errorlevel 1 (
 @echo DEVKIT_32=!DEVKIT_32! >> !COSMOS_INSTALL!\INSTALL.log
 @echo DEVKIT_64=!DEVKIT_64! >> !COSMOS_INSTALL!\INSTALL.log
 @echo WKHTMLTOPDF=!WKHTMLTOPDF! >> !COSMOS_INSTALL!\INSTALL.log
-@echo WKHTMLPATH=!WKHTMLPATH! >> !COSMOS_INSTALL!\INSTALL.log
+@echo WKHTMLPATHWITHPROTOCOL=!WKHTMLPATHWITHPROTOCOL! >> !COSMOS_INSTALL!\INSTALL.log
 @echo QT_VERSION=!QT_VERSION! >> !COSMOS_INSTALL!\INSTALL.log
 @echo USERDNSDOMAIN=%USERDNSDOMAIN% >> !COSMOS_INSTALL!\INSTALL.log
 @echo BALL=!BALL! >> !COSMOS_INSTALL!\INSTALL.log
@@ -237,33 +237,34 @@ if %PROCESSOR_ARCHITECTURE%==x86 (
 
 if !ADMIN!==1 (
   echo Downloading WkHtmlToPdf
-  powershell -Command "(New-Object Net.WebClient).DownloadFile('!PROTOCOL!:!WKHTMLPATH!!WKHTMLTOPDF!', '!COSMOS_INSTALL!\tmp\!WKHTMLTOPDF!')"
+  powershell -Command "(New-Object Net.WebClient).DownloadFile('!WKHTMLPATHWITHPROTOCOL!!WKHTMLTOPDF!', '!COSMOS_INSTALL!\tmp\!WKHTMLTOPDF!')"
   if errorlevel 1 (
-    echo ERROR: Problem downloading WkHtmlToPdf from: !PROTOCOL!:!WKHTMLPATH!!WKHTMLTOPDF!
-    echo INSTALL FAILED
-    @echo ERROR: Problem downloading WkHtmlToPdf from: !PROTOCOL!:!WKHTMLPATH!!WKHTMLTOPDF! >> !COSMOS_INSTALL!\INSTALL.log
-    pause
-    exit /b 1
-  ) else (
-    @echo Successfully downloaded WkHtmlToPdf from: !PROTOCOL!:!WKHTMLPATH!!WKHTMLTOPDF! >> !COSMOS_INSTALL!\INSTALL.log
-  )
-  echo Installing WkHtmlToPdf
-  !COSMOS_INSTALL!\tmp\!WKHTMLTOPDF! /S /D=!COSMOS_INSTALL!\Vendor\wkhtmltopdf
-  if errorlevel 1 (
-    echo ERROR: Problem installing WkHtmlToPdf
+    echo WARNING: Problem downloading WkHtmlToPdf from: !WKHTMLPATHWITHPROTOCOL!!WKHTMLTOPDF!
     echo Please download and install this version to enable making PDF files.
-    echo !PROTOCOL!:!WKHTMLPATH!!WKHTMLTOPDF!
-    @echo ERROR: Problem installing WkHtmlToPdf >> !COSMOS_INSTALL!\INSTALL.log
+    echo INSTALL WARNING
+    @echo WARNING: Problem downloading WkHtmlToPdf from: !WKHTMLPATHWITHPROTOCOL!!WKHTMLTOPDF! >> !COSMOS_INSTALL!\INSTALL.log
+    pause
   ) else (
-    @echo Successfully installed WkHtmlToPdf >> !COSMOS_INSTALL!\INSTALL.log
+    @echo Successfully downloaded WkHtmlToPdf from: !WKHTMLPATHWITHPROTOCOL!!WKHTMLTOPDF! >> !COSMOS_INSTALL!\INSTALL.log
+    echo Installing WkHtmlToPdf
+    !COSMOS_INSTALL!\tmp\!WKHTMLTOPDF! /S /D=!COSMOS_INSTALL!\Vendor\wkhtmltopdf
+    if errorlevel 1 (
+      echo ERROR: Problem installing WkHtmlToPdf
+      echo Please download and install this version to enable making PDF files.
+      echo !WKHTMLPATHWITHPROTOCOL!!WKHTMLTOPDF!
+      @echo ERROR: Problem installing WkHtmlToPdf >> !COSMOS_INSTALL!\INSTALL.log
+    ) else (
+      @echo Successfully installed WkHtmlToPdf >> !COSMOS_INSTALL!\INSTALL.log
+    )
   )
+
 ) else (
   echo Skipping WkHtmlToPdf installation because you are not an admin.
   echo Please download and install this version to enable making PDF files.
-  echo !PROTOCOL!:!WKHTMLPATH!!WKHTMLTOPDF!
+  echo !WKHTMLPATHWITHPROTOCOL!!WKHTMLTOPDF!
   @echo Skipping WkHtmlToPdf installation because you are not an admin. >> !COSMOS_INSTALL!\INSTALL.log
   @echo Please download and install this version to enable making PDF files. >> !COSMOS_INSTALL!\INSTALL.log
-  @echo !PROTOCOL!:!WKHTMLPATH!!WKHTMLTOPDF! >> !COSMOS_INSTALL!\INSTALL.log
+  @echo !WKHTMLPATHWITHPROTOCOL!!WKHTMLTOPDF! >> !COSMOS_INSTALL!\INSTALL.log
 )
 
 ::::::::::::::::::::::::::::::::::::::::::::

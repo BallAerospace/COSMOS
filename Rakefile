@@ -144,6 +144,10 @@ task :install_crc do
 end
 
 task :gem => [:require_version] do
+  _, platform, *_ = RUBY_PLATFORM.split("-")
+  if platform == 'mswin32' or platform == 'mingw32'
+    raise "Building gem is not supported on Windows because file permissions are lost"
+  end
   system('gem build cosmos.gemspec')
 end
 
