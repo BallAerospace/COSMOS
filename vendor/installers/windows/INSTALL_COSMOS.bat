@@ -500,6 +500,7 @@ IF NOT "!COSMOS_CONTINUE!"=="n" (
 :: Test Installation by Launching COSMOS
 ::::::::::::::::::::::::::::::::::::::::::
 
+pushd !COSMOS_INSTALL!
 start !COSMOS_INSTALL!\Launch_Demo.bat
 echo COSMOS Launcher should start if installation was successful
 echo INSTALLATION COMPLETE
