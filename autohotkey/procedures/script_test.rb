@@ -14,4 +14,8 @@ step_mode
 wait 0.5
 run_mode
 show_backtrace
+puts save_file_dialog()
+puts open_file_dialog(Dir.pwd)
+puts open_files_dialog(__FILE__, "Select something!!!")
+puts open_directory_dialog()
 start("clear_util.rb")

@@ -84,16 +84,16 @@ module Cosmos
       end
       return answer
     end
-    def save_file_dialog(message, directory)
+    def save_file_dialog(directory = Cosmos::USERPATH, message = "Save File")
       _file_dialog(message, directory)
     end
-    def open_file_dialog(message, directory)
+    def open_file_dialog(directory = Cosmos::USERPATH, message = "Open File")
       _file_dialog(message, directory)
     end
-    def open_files_dialog(message, directory)
+    def open_files_dialog(directory = Cosmos::USERPATH, message = "Open File(s)")
       _file_dialog(message, directory)
     end
-    def open_directory_dialog(message, directory)
+    def open_directory_dialog(directory = Cosmos::USERPATH, message = "Open Directory")
       _file_dialog(message, directory, false)
     end
 

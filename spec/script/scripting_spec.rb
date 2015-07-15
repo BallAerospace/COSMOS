@@ -75,16 +75,24 @@ module Cosmos
 
     describe "save_file_dialog, open_file_dialog, open_files_dialog, open_directory_dialog" do
       it "gets file listings" do
-        $stdout = StringIO.new
-        expect(self).to receive(:gets) { 'file' }
-        expect(save_file_dialog("Save File", Dir.pwd)).to eql 'file'
-        expect(self).to receive(:gets) { 'file' }
-        expect(open_file_dialog("Open File", "C:/")).to eql 'file'
-        expect(self).to receive(:gets) { 'file' }
-        expect(open_files_dialog("Open File", "C:/")).to eql 'file'
-        expect(self).to receive(:gets) { 'dir' }
-        expect(open_directory_dialog("Open Dir", "C:/")).to eql 'dir'
-        $stdout = STDOUT
+        capture_io do |stdout|
+          expect(self).to receive(:gets) { 'file' }
+          expect(save_file_dialog(Dir.pwd, "Save Something!!!")).to eql 'file'
+          expect(stdout.string).to include "Save Something!!!"
+          stdout.rewind
+          expect(self).to receive(:gets) { 'file' }
+          expect(open_file_dialog("C:/")).to eql 'file'
+          expect(stdout.string).to include "Open File"
+          stdout.rewind
+          expect(self).to receive(:gets) { 'file' }
+          expect(open_files_dialog()).to eql 'file'
+          expect(stdout.string).to include "Open File(s)"
+          stdout.rewind
+          expect(self).to receive(:gets) { 'dir' }
+          expect(open_directory_dialog()).to eql 'dir'
+          expect(stdout.string).to include "Open Directory"
+          stdout.rewind
+        end
       end
     end
 
