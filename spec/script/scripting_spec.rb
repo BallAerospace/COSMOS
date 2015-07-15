@@ -73,13 +73,17 @@ module Cosmos
       end
     end
 
-    describe "file_chooser" do
-      it "gets a directory listing" do
+    describe "save_file_dialog, open_file_dialog, open_files_dialog, open_directory_dialog" do
+      it "gets file listings" do
         $stdout = StringIO.new
         expect(self).to receive(:gets) { 'file' }
-        expect(file_chooser("Select File", Dir.pwd)).to eql 'file'
+        expect(save_file_dialog("Save File", Dir.pwd)).to eql 'file'
         expect(self).to receive(:gets) { 'file' }
-        expect(file_chooser("Save File", "C:/")).to eql 'file'
+        expect(open_file_dialog("Open File", "C:/")).to eql 'file'
+        expect(self).to receive(:gets) { 'file' }
+        expect(open_files_dialog("Open File", "C:/")).to eql 'file'
+        expect(self).to receive(:gets) { 'dir' }
+        expect(open_directory_dialog("Open Dir", "C:/")).to eql 'dir'
         $stdout = STDOUT
       end
     end

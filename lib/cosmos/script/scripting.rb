@@ -69,14 +69,32 @@ module Cosmos
       prompt_combo_box(string, options)
     end
 
-    def file_chooser(message, directory)
+    def _file_dialog(message, directory, select_files = true)
       answer = ''
+      files = Dir["#{directory}/*"]
+      if select_files
+        files.select! {|f| !File.directory? f }
+      else
+        files.select! {|f| File.directory? f }
+      end
       while answer.empty?
-        print message + "\n" + Dir["#{directory}/*"].join("  \n") + "\n<Type file name>:"
+        print message + "\n" + files.join("\n") + "\n<Type file name>:"
         answer = gets
         answer.chomp!
       end
       return answer
+    end
+    def save_file_dialog(message, directory)
+      _file_dialog(message, directory)
+    end
+    def open_file_dialog(message, directory)
+      _file_dialog(message, directory)
+    end
+    def open_files_dialog(message, directory)
+      _file_dialog(message, directory)
+    end
+    def open_directory_dialog(message, directory)
+      _file_dialog(message, directory, false)
     end
 
     # Creates a string with the parameters upcased
