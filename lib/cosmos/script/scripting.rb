@@ -69,6 +69,16 @@ module Cosmos
       prompt_combo_box(string, options)
     end
 
+    def file_chooser(message, directory)
+      answer = ''
+      while answer.empty?
+        print message + "\n" + Dir["#{directory}/*"].join("  \n") + "\n<Type file name>:"
+        answer = gets
+        answer.chomp!
+      end
+      return answer
+    end
+
     # Creates a string with the parameters upcased
     def _upcase(target_name, packet_name, item_name)
       "#{target_name.upcase} #{packet_name.upcase} #{item_name.upcase}"

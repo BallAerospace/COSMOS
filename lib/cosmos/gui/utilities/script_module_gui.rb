@@ -71,6 +71,16 @@ module Cosmos
 
     @@qt_boolean = Qt::Boolean.new
 
+    def file_chooser(message, directory)
+      result = nil
+      Qt.execute_in_main_thread(true, 0.05) do
+        window = nil
+        window = get_cmd_tlm_gui_window() if get_cmd_tlm_gui_window()
+        result = Qt::FileDialog.getOpenFileName(window, message, directory)
+      end
+      return result
+    end
+
     def ask_string(question, blank_or_default = false, password = false)
       answer = ''
       if blank_or_default != true && blank_or_default != false

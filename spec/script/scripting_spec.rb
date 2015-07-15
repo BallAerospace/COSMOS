@@ -73,6 +73,17 @@ module Cosmos
       end
     end
 
+    describe "file_chooser" do
+      it "gets a directory listing" do
+        $stdout = StringIO.new
+        expect(self).to receive(:gets) { 'file' }
+        expect(file_chooser("Select File", Dir.pwd)).to eql 'file'
+        expect(self).to receive(:gets) { 'file' }
+        expect(file_chooser("Save File", "C:/")).to eql 'file'
+        $stdout = STDOUT
+      end
+    end
+
     describe "ask_string, ask" do
       it "gets user input" do
         $stdout = StringIO.new
