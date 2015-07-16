@@ -145,9 +145,15 @@ module Cosmos
     end
 
     # Called by the ERB template to render a partial
-    def render(template_name)
+    def render(template_name, options = {})
+      b = binding
+      if options[:locals]
+        options[:locals].each do |key, value|
+          eval("@#{key} = #{value}", b)
+        end
+      end
       # Assume the file is there. If not we raise a pretty obvious error
-      File.read(File.join(File.dirname(@filename), template_name))
+      ERB.new(File.read(File.join(File.dirname(@filename), template_name))).result(b)
     end
 
     # Processes a file and yields |config| to the given block

@@ -1,6 +1,5 @@
 COMMAND INST COLLECT BIG_ENDIAN "Starts a collect on the instrument"
-  <%= render "_ccsds_cmd.txt" %>
-  ID_PARAMETER PKTID          48  16  UINT  0 65535   1 "Packet id"
+  <%= render "_ccsds_cmd.txt", locals: {id: 1} %>
   PARAMETER    TYPE           64  16  UINT  0 65535   0 "Collect type"
     REQUIRED
     STATE NORMAL  0
@@ -12,17 +11,14 @@ COMMAND INST COLLECT BIG_ENDIAN "Starts a collect on the instrument"
     UNITS Celcius C
 
 COMMAND INST ABORT BIG_ENDIAN "Aborts a collect on the instrument"
-  <%= render "_ccsds_cmd.txt" %>
-  ID_PARAMETER PKTID          48  16  UINT  0 65535   2 "Packet id"
+  <%= render "_ccsds_cmd.txt", locals: {id: 2} %>
 
 COMMAND INST CLEAR BIG_ENDIAN "Clears counters on the instrument"
   HAZARDOUS "Clearing counters may lose valuable information."
-  <%= render "_ccsds_cmd.txt" %>
-  ID_PARAMETER PKTID          48  16  UINT  0 65535   3 "Packet id"
+  <%= render "_ccsds_cmd.txt", locals: {id: 3} %>
 
 COMMAND INST SETPARAMS BIG_ENDIAN "Sets numbered parameters"
-  <%= render "_ccsds_cmd.txt" %>
-  ID_PARAMETER PKTID          48  16  UINT  0 65535   4 "Packet id"
+  <%= render "_ccsds_cmd.txt", locals: {id: 4} %>
   MACRO_APPEND_START 1 5
     APPEND_PARAMETER VALUE 16 UINT 0 5 0 "A value setting"
   MACRO_APPEND_END
@@ -30,29 +26,24 @@ COMMAND INST SETPARAMS BIG_ENDIAN "Sets numbered parameters"
     POLY_WRITE_CONVERSION 0 2
 
 COMMAND INST ASCIICMD BIG_ENDIAN "Enumerated ASCII command"
-  <%= render "_ccsds_cmd.txt" %>
-  ID_PARAMETER PKTID          48  16  UINT  0 65535   5 "Packet id"
+  <%= render "_ccsds_cmd.txt", locals: {id: 5} %>
   PARAMETER    STRING         64  2048 STRING "NOOP"    "Enumerated string parameter"
     STATE "NOOP" "NOOP"
     STATE "ARM LASER" "ARM LASER" HAZARDOUS "Arming the laser poses an eye safety hazard."
     STATE "FIRE LASER" "FIRE LASER" HAZARDOUS "WARNING Laser will be fired!"
 
 COMMAND INST FLTCMD BIG_ENDIAN "Command with float parameters"
-  <%= render "_ccsds_cmd.txt" %>
-  ID_PARAMETER PKTID          48  16  UINT  0 65535   6 "Packet id"
+  <%= render "_ccsds_cmd.txt", locals: {id: 6} %>
   PARAMETER    FLOAT32        64  32  FLOAT MIN_FLOAT32 MAX_FLOAT32 0.0 "Float32 parameter"
   PARAMETER    FLOAT64        96  64  FLOAT MIN_FLOAT64 MAX_FLOAT64 0.0 "Float64 parameter"
 
 COMMAND INST ARYCMD BIG_ENDIAN "Command with array parameter"
-  <%= render "_ccsds_cmd.txt" %>
-  ID_PARAMETER PKTID          48  16  UINT  0 65535   6 "Packet id"
+  <%= render "_ccsds_cmd.txt", locals: {id: 7} %>
   ARRAY_PARAMETER ARRAY       64  32  UINT -8 "Array parameter"
   PARAMETER    CRC            -8   8  UINT  0   255   0 "CRC"
 
 COMMAND INST SLRPNLDEPLOY BIG_ENDIAN "Deploy solar array panels"
-  <%= render "_ccsds_cmd.txt" %>
-  ID_PARAMETER PKTID          48  16  UINT  0 65535   8 "Packet id"
+  <%= render "_ccsds_cmd.txt", locals: {id: 8} %>
 
 COMMAND INST SLRPNLRESET BIG_ENDIAN "Reset solar array panels"
-  <%= render "_ccsds_cmd.txt" %>
-  ID_PARAMETER PKTID          48  16  UINT  0 65535   9 "Packet id"
+  <%= render "_ccsds_cmd.txt", locals: {id: 9} %>
