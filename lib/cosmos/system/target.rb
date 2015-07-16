@@ -186,7 +186,8 @@ module Cosmos
       if Dir.exist?(File.join(dir, 'cmd_tlm'))
         # Only grab *.txt files in the root of the cmd_tlm folder
         Dir[File.join(dir, 'cmd_tlm', '*.txt')].each do |filename|
-          cmd_tlm_files << filename
+          # Don't add partial files which begin with '_'
+          cmd_tlm_files << filename unless filename[0] == '_'
         end
       end
       cmd_tlm_files.sort!

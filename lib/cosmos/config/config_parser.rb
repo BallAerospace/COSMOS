@@ -9,6 +9,7 @@
 # attribution addendums as found in the LICENSE.txt
 
 require 'cosmos/ext/config_parser'
+require 'erb'
 
 module Cosmos
 
@@ -143,6 +144,12 @@ module Cosmos
       return Error.new(self, message, usage, url)
     end
 
+    # Called by the ERB template to render a partial
+    def render(template_name)
+      # Assume the file is there. If not we raise a pretty obvious error
+      File.read(File.join(File.dirname(@filename), template_name))
+    end
+
     # Processes a file and yields |config| to the given block
     #
     # @param filename [String] The full name and path of the configuration file
@@ -158,7 +165,10 @@ module Cosmos
                    remove_quotes = true,
                    &block)
       @filename = filename
-      file = File.new(@filename, 'r')
+      # Create a temp file where we can write the ERB parsed output
+      file = Tempfile.new("parsed_#{File.basename(filename)}")
+      file.write(ERB.new(File.read(@filename)).result(binding))
+      file.rewind
       begin
         size = file.stat.size.to_f
 
@@ -173,6 +183,13 @@ module Cosmos
                    size,
                    PARSING_REGEX,
                    &block)
+      rescue => e
+        # If we had an error parsing write out the parsed results for debugging
+        File.open(File.join(File.dirname(@filename), "parsed_#{File.basename(filename)}"), 'w') do |save_file|
+          file.rewind
+          save_file.write file.read
+          raise e
+        end
       ensure
         file.close unless file.closed?
       end
