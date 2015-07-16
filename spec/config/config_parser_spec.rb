@@ -128,7 +128,7 @@ module Cosmos
         tf.close
 
         msg_callback = double(:call => true)
-        expect(msg_callback).to receive(:call).once.with(/Parsing .* bytes of #{tf.path}/)
+        expect(msg_callback).to receive(:call).once.with(/Parsing .* bytes of .*#{File.basename(tf.path)}/)
 
         ConfigParser.message_callback = msg_callback
         @cp.parse_file(tf.path) do |keyword, params|
