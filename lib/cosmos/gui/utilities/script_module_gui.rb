@@ -74,9 +74,7 @@ module Cosmos
     def _get_main_thread_gui
       result = nil
       Qt.execute_in_main_thread(true, 0.05) do
-        window = nil
-        window = get_cmd_tlm_gui_window() if get_cmd_tlm_gui_window()
-        result = yield(window)
+        result = yield(get_cmd_tlm_gui_window())
       end
       return result
     end
@@ -267,9 +265,7 @@ module Cosmos
     end
 
     def _build_dialog(message)
-      window = nil
-      window = get_cmd_tlm_gui_window() if get_cmd_tlm_gui_window()
-      dialog = Qt::Dialog.new(window)
+      dialog = Qt::Dialog.new(get_cmd_tlm_gui_window())
       dialog.setWindowTitle("Message Box")
       layout = Qt::VBoxLayout.new
       layout.setContentsMargins(0,0,0,0)
@@ -331,7 +327,7 @@ module Cosmos
       end
     end
 
-    def set_cmd_tlm_gui_window (window)
+    def set_cmd_tlm_gui_window(window)
       $cmd_tlm_gui_window = window
     end
 
