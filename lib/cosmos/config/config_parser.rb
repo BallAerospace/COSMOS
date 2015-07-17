@@ -171,11 +171,13 @@ module Cosmos
                    remove_quotes = true,
                    &block)
       @filename = filename
-      # Create a temp file where we can write the ERB parsed output
-      file = Tempfile.new("parsed_#{File.basename(filename)}")
-      file.write(ERB.new(File.read(@filename)).result(binding))
-      file.rewind
       begin
+        # Create a temp file where we can write the ERB parsed output
+        file = Tempfile.new("parsed_#{File.basename(filename)}")
+        unparsed_data = File.read(@filename)
+        file.write(ERB.new(unparsed_data).result(binding))
+        file.rewind
+
         size = file.stat.size.to_f
 
         # Callbacks for beginning of parsing
@@ -189,6 +191,28 @@ module Cosmos
                    size,
                    PARSING_REGEX,
                    &block)
+      rescue Exception => e
+        # If we had an error parsing write out the parsed results for debugging
+        default_tmp_folder = File.join(Cosmos::USERPATH, 'outputs', 'tmp')
+        if File.exist?(default_tmp_folder)
+          begin
+            File.open(File.join(default_tmp_folder, "parser_error_#{File.basename(filename)}"), 'w') do |save_file|
+              save_file.puts e.formatted
+              save_file.puts "\nParsed Data (will only be present if parse ran successfully):"
+              save_file.puts
+              if defined? file
+                file.rewind
+                save_file.puts file.read
+              end
+              save_file.puts "\nUnparsed Data:"
+              save_file.puts
+              save_file.puts unparsed_data if defined? unparsed_data
+            end
+          rescue
+            # Oh well - we tried
+          end
+        end
+        raise e
       ensure
         file.close unless file.closed?
       end
