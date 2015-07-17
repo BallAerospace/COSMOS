@@ -192,27 +192,12 @@ module Cosmos
                    PARSING_REGEX,
                    &block)
       rescue Exception => e
-        # If we had an error parsing write out the parsed results for debugging
-        default_tmp_folder = File.join(Cosmos::USERPATH, 'outputs', 'tmp')
-        if File.exist?(default_tmp_folder)
-          begin
-            File.open(File.join(default_tmp_folder, "parser_error_#{File.basename(filename)}"), 'w') do |save_file|
-              save_file.puts e.formatted
-              save_file.puts "\nParsed Data (will only be present if parse ran successfully):"
-              save_file.puts
-              if defined? file
-                file.rewind
-                save_file.puts file.read
-              end
-              save_file.puts "\nUnparsed Data:"
-              save_file.puts
-              save_file.puts unparsed_data if defined? unparsed_data
-            end
-          rescue
-            # Oh well - we tried
-          end
+        debug_file = create_debug_output_file(filename, file, unparsed_data, e)
+        if debug_file
+          raise e, "#{e}\nDebug output in #{debug_file}", e.backtrace
+        else
+          raise e
         end
-        raise e
       ensure
         file.close unless file.closed?
       end
@@ -348,6 +333,31 @@ module Cosmos
     end
 
     protected
+
+    # Writes the parsed results for debugging if we had an error parsing
+    def create_debug_output_file(filename, file, unparsed_data, exception)
+      tmp_folder = File.join(Cosmos::USERPATH, 'outputs', 'tmp')
+      tmp_folder = Cosmos::USERPATH unless File.exist?(tmp_folder)
+      debug_file = File.join(tmp_folder, "parser_error_#{File.basename(filename)}")
+      begin
+        File.open(debug_file, 'w') do |save_file|
+          save_file.puts exception.formatted
+          save_file.puts "\nParsed Data (will only be present if parse ran successfully):"
+          save_file.puts
+          if defined? file
+            file.rewind
+            save_file.puts file.read
+          end
+          save_file.puts "\nUnparsed Data:"
+          save_file.puts
+          save_file.puts unparsed_data if defined? unparsed_data
+        end
+      rescue
+        # Oh well - we tried
+        debug_file = nil
+      end
+      debug_file
+    end
 
     # Iterates over each line of the io object and yields the keyword and
     # parameters
