@@ -20,6 +20,19 @@ Sleep 500
 Click 400 90 ; Go
 Sleep 500
 Click 400 90 ; Go
+Sleep 1000
+WinWaitActive Save File
+Sleep 500
+Send {Esc}
+WinWaitActive Open File
+Sleep 500
+Send {Esc}
+WinWaitActive Select something!!!
+Sleep 500
+Send {Esc}
+WinWaitActive Open Directory
+Sleep 500
+Send {Esc}
 Sleep 3000
 
 WinActivate Telemetry Viewer

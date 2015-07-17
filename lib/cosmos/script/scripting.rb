@@ -69,6 +69,34 @@ module Cosmos
       prompt_combo_box(string, options)
     end
 
+    def _file_dialog(message, directory, select_files = true)
+      answer = ''
+      files = Dir["#{directory}/*"]
+      if select_files
+        files.select! {|f| !File.directory? f }
+      else
+        files.select! {|f| File.directory? f }
+      end
+      while answer.empty?
+        print message + "\n" + files.join("\n") + "\n<Type file name>:"
+        answer = gets
+        answer.chomp!
+      end
+      return answer
+    end
+    def save_file_dialog(directory = Cosmos::USERPATH, message = "Save File")
+      _file_dialog(message, directory)
+    end
+    def open_file_dialog(directory = Cosmos::USERPATH, message = "Open File")
+      _file_dialog(message, directory)
+    end
+    def open_files_dialog(directory = Cosmos::USERPATH, message = "Open File(s)")
+      _file_dialog(message, directory)
+    end
+    def open_directory_dialog(directory = Cosmos::USERPATH, message = "Open Directory")
+      _file_dialog(message, directory, false)
+    end
+
     # Creates a string with the parameters upcased
     def _upcase(target_name, packet_name, item_name)
       "#{target_name.upcase} #{packet_name.upcase} #{item_name.upcase}"

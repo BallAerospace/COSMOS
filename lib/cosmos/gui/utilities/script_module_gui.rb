@@ -71,6 +71,30 @@ module Cosmos
 
     @@qt_boolean = Qt::Boolean.new
 
+    def _get_main_thread_gui
+      result = nil
+      Qt.execute_in_main_thread(true, 0.05) do
+        result = yield(get_cmd_tlm_gui_window())
+      end
+      return result
+    end
+
+    def save_file_dialog(directory = Cosmos::USERPATH, message = "Save File")
+      _get_main_thread_gui {|window| Qt::FileDialog.getSaveFileName(window, message, directory) }
+    end
+
+    def open_file_dialog(directory = Cosmos::USERPATH, message = "Open File")
+      _get_main_thread_gui {|window| Qt::FileDialog.getOpenFileName(window, message, directory) }
+    end
+
+    def open_files_dialog(directory = Cosmos::USERPATH, message = "Open File(s)")
+      _get_main_thread_gui {|window| Qt::FileDialog.getOpenFileNames(window, message, directory) }
+    end
+
+    def open_directory_dialog(directory = Cosmos::USERPATH, message = "Open Directory")
+      _get_main_thread_gui {|window| Qt::FileDialog.getExistingDirectory(window, message, directory) }
+    end
+
     def ask_string(question, blank_or_default = false, password = false)
       answer = ''
       if blank_or_default != true && blank_or_default != false
@@ -82,9 +106,7 @@ module Cosmos
       end
       loop do
         canceled = false
-        Qt.execute_in_main_thread(true, 0.05) do
-          window = nil
-          window = get_cmd_tlm_gui_window() if get_cmd_tlm_gui_window()
+        _get_main_thread_gui do |window|
           # Create a special mutable QT variable that can return what button was pressed
           if password
             answer = Qt::InputDialog::getText(window, "Ask", question, Qt::LineEdit::Password, default, @@qt_boolean)
@@ -113,9 +135,7 @@ module Cosmos
 
     def prompt_dialog_box(title, message)
       result = nil
-      Qt.execute_in_main_thread(true, 0.05) do
-        window = nil
-        window = get_cmd_tlm_gui_window() if get_cmd_tlm_gui_window()
+      _get_main_thread_gui do |window|
         msg = Qt::MessageBox.new(window)
         msg.setIcon(Qt::MessageBox::Warning)
         msg.setText(message)
@@ -149,9 +169,7 @@ module Cosmos
     def prompt_to_continue(string)
       loop do
         stop = false
-        Qt.execute_in_main_thread(true, 0.05) do
-          window = nil
-          window = get_cmd_tlm_gui_window() if get_cmd_tlm_gui_window()
+        _get_main_thread_gui do |window|
           result = Qt::MessageBox::question(window,
                                             "COSMOS",
                                             "#{string}\n\nOK to Continue?",
@@ -175,11 +193,8 @@ module Cosmos
     def prompt_message_box(string, buttons)
       loop do
         result = nil
-        Qt.execute_in_main_thread(true, 0.05) do
-          window = nil
-          window = get_cmd_tlm_gui_window() if get_cmd_tlm_gui_window()
+        _get_main_thread_gui do |window|
           msg = Qt::MessageBox.new(window)
-
           msg.setText(string)
           msg.setWindowTitle("Message Box")
           buttons.each {|text| msg.addButton(text, Qt::MessageBox::AcceptRole)}
@@ -250,9 +265,7 @@ module Cosmos
     end
 
     def _build_dialog(message)
-      window = nil
-      window = get_cmd_tlm_gui_window() if get_cmd_tlm_gui_window()
-      dialog = Qt::Dialog.new(window)
+      dialog = Qt::Dialog.new(get_cmd_tlm_gui_window())
       dialog.setWindowTitle("Message Box")
       layout = Qt::VBoxLayout.new
       layout.setContentsMargins(0,0,0,0)
@@ -300,9 +313,7 @@ module Cosmos
     def get_scriptrunner_log_message(title_text = "Script Message Log Text Entry", prompt_text = 'Enter text to log to the script message log')
       answer = ""
       canceled = false
-      Qt.execute_in_main_thread(true, 0.05) do
-        window = nil
-        window = get_cmd_tlm_gui_window() if get_cmd_tlm_gui_window()
+      _get_main_thread_gui do |window|
         # Create a special mutable QT variable that can return what button was pressed
         answer = Qt::InputDialog::getText(window, title_text, prompt_text, Qt::LineEdit::Normal, "", @@qt_boolean)
         # @@qt_boolean is nil if the user presses cancel in the dialog
@@ -316,7 +327,7 @@ module Cosmos
       end
     end
 
-    def set_cmd_tlm_gui_window (window)
+    def set_cmd_tlm_gui_window(window)
       $cmd_tlm_gui_window = window
     end
 
