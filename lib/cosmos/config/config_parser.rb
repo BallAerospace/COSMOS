@@ -189,13 +189,6 @@ module Cosmos
                    size,
                    PARSING_REGEX,
                    &block)
-      rescue => e
-        # If we had an error parsing write out the parsed results for debugging
-        File.open(File.join(File.dirname(@filename), "parsed_#{File.basename(filename)}"), 'w') do |save_file|
-          file.rewind
-          save_file.write file.read
-          raise e
-        end
       ensure
         file.close unless file.closed?
       end
