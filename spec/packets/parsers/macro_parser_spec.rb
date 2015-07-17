@@ -27,7 +27,7 @@ module Cosmos
         tf = Tempfile.new('unittest')
         tf.puts '  MACRO_APPEND_START'
         tf.close
-        expect { @pc.process_file(tf.path, "SYSTEM") }.to raise_error(ConfigParser::Error, "No current packet for MACRO_APPEND_START")
+        expect { @pc.process_file(tf.path, "SYSTEM") }.to raise_error(ConfigParser::Error, /No current packet for MACRO_APPEND_START/)
       end
 
       it "complains if there are not enough parameters" do

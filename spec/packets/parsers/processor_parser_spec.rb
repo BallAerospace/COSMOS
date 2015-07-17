@@ -28,7 +28,7 @@ module Cosmos
         tf = Tempfile.new('unittest')
         tf.puts('PROCESSOR')
         tf.close
-        expect { @pc.process_file(tf.path, "SYSTEM") }.to raise_error(ConfigParser::Error, "No current packet for PROCESSOR")
+        expect { @pc.process_file(tf.path, "SYSTEM") }.to raise_error(ConfigParser::Error, /No current packet for PROCESSOR/)
         tf.unlink
       end
 
@@ -105,7 +105,7 @@ module Cosmos
         tf.puts 'COMMAND tgt1 pkt1 LITTLE_ENDIAN "Packet"'
         tf.puts '  PROCESSOR P1 processor1.rb'
         tf.close
-        expect { @pc.process_file(tf.path, "TGT1") }.to raise_error(ConfigParser::Error, "PROCESSOR only applies to telemetry packets")
+        expect { @pc.process_file(tf.path, "TGT1") }.to raise_error(ConfigParser::Error, /PROCESSOR only applies to telemetry packets/)
         tf.unlink
       end
     end

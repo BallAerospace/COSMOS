@@ -242,7 +242,7 @@ module Cosmos
         tf = Tempfile.new('unittest')
         tf.puts("BLAH")
         tf.close
-        expect { System.instance.process_file(tf.path) }.to raise_error(ConfigParser::Error, "Unknown keyword 'BLAH'")
+        expect { System.instance.process_file(tf.path) }.to raise_error(ConfigParser::Error, /Unknown keyword 'BLAH'/)
         tf.unlink
       end
 
@@ -251,7 +251,7 @@ module Cosmos
           tf = Tempfile.new('unittest')
           tf.puts("AUTO_DECLARE_TARGETS TRUE")
           tf.close
-          expect { System.instance.process_file(tf.path) }.to raise_error(ConfigParser::Error, "Too many parameters for AUTO_DECLARE_TARGETS.")
+          expect { System.instance.process_file(tf.path) }.to raise_error(ConfigParser::Error, /Too many parameters for AUTO_DECLARE_TARGETS./)
           tf.unlink
         end
 
@@ -270,7 +270,7 @@ module Cosmos
           tf.puts("AUTO_DECLARE_TARGETS")
           tf.close
           FileUtils.mkdir_p(File.join(@config_targets, 'tgt'))
-          expect { System.instance.process_file(tf.path) }.to raise_error(ConfigParser::Error, "Target folder must be uppercase: 'tgt'")
+          expect { System.instance.process_file(tf.path) }.to raise_error(ConfigParser::Error, /Target folder must be uppercase: 'tgt'/)
           Dir.rmdir(File.join(@config_targets, 'tgt'))
           tf.unlink
         end
@@ -298,13 +298,13 @@ module Cosmos
           tf = Tempfile.new('unittest')
           tf.puts("DECLARE_TARGET")
           tf.close
-          expect { System.instance.process_file(tf.path) }.to raise_error(ConfigParser::Error, "Not enough parameters for DECLARE_TARGET.")
+          expect { System.instance.process_file(tf.path) }.to raise_error(ConfigParser::Error, /Not enough parameters for DECLARE_TARGET./)
           tf.unlink
 
           tf = Tempfile.new('unittest')
           tf.puts("DECLARE_TARGET TGT TGT TGT TGT")
           tf.close
-          expect { System.instance.process_file(tf.path) }.to raise_error(ConfigParser::Error, "Too many parameters for DECLARE_TARGET.")
+          expect { System.instance.process_file(tf.path) }.to raise_error(ConfigParser::Error, /Too many parameters for DECLARE_TARGET./)
           tf.unlink
         end
 
@@ -352,13 +352,13 @@ module Cosmos
           tf = Tempfile.new('unittest')
           tf.puts("PORT CTS_API")
           tf.close
-          expect { System.instance.process_file(tf.path) }.to raise_error(ConfigParser::Error, "Not enough parameters for PORT.")
+          expect { System.instance.process_file(tf.path) }.to raise_error(ConfigParser::Error, /Not enough parameters for PORT./)
           tf.unlink
 
           tf = Tempfile.new('unittest')
           tf.puts("PORT CTS_API 8888 TRUE")
           tf.close
-          expect { System.instance.process_file(tf.path) }.to raise_error(ConfigParser::Error, "Too many parameters for PORT.")
+          expect { System.instance.process_file(tf.path) }.to raise_error(ConfigParser::Error, /Too many parameters for PORT./)
           tf.unlink
         end
 
@@ -389,13 +389,13 @@ module Cosmos
           tf = Tempfile.new('unittest')
           tf.puts("PATH C:/")
           tf.close
-          expect { System.instance.process_file(tf.path) }.to raise_error(ConfigParser::Error, "Not enough parameters for PATH.")
+          expect { System.instance.process_file(tf.path) }.to raise_error(ConfigParser::Error, /Not enough parameters for PATH./)
           tf.unlink
 
           tf = Tempfile.new('unittest')
           tf.puts("PATH MYPATH C:/ TRUE")
           tf.close
-          expect { System.instance.process_file(tf.path) }.to raise_error(ConfigParser::Error, "Too many parameters for PATH.")
+          expect { System.instance.process_file(tf.path) }.to raise_error(ConfigParser::Error, /Too many parameters for PATH./)
           tf.unlink
         end
 
@@ -428,13 +428,13 @@ module Cosmos
           tf = Tempfile.new('unittest')
           tf.puts("DEFAULT_PACKET_LOG_WRITER")
           tf.close
-          expect { System.instance.process_file(tf.path) }.to raise_error(ConfigParser::Error, "Not enough parameters for DEFAULT_PACKET_LOG_WRITER.")
+          expect { System.instance.process_file(tf.path) }.to raise_error(ConfigParser::Error, /Not enough parameters for DEFAULT_PACKET_LOG_WRITER./)
           tf.unlink
 
           tf = Tempfile.new('unittest')
           tf.puts("DEFAULT_PACKET_LOG_WRITER my_nonexistent_class TRUE")
           tf.close
-          expect { System.instance.process_file(tf.path) }.to raise_error(ConfigParser::Error, "Too many parameters for DEFAULT_PACKET_LOG_WRITER.")
+          expect { System.instance.process_file(tf.path) }.to raise_error(ConfigParser::Error, /Too many parameters for DEFAULT_PACKET_LOG_WRITER./)
           tf.unlink
         end
 
@@ -467,13 +467,13 @@ module Cosmos
           tf = Tempfile.new('unittest')
           tf.puts("DEFAULT_PACKET_LOG_READER")
           tf.close
-          expect { System.instance.process_file(tf.path) }.to raise_error(ConfigParser::Error, "Not enough parameters for DEFAULT_PACKET_LOG_READER.")
+          expect { System.instance.process_file(tf.path) }.to raise_error(ConfigParser::Error, /Not enough parameters for DEFAULT_PACKET_LOG_READER./)
           tf.unlink
 
           tf = Tempfile.new('unittest')
           tf.puts("DEFAULT_PACKET_LOG_READER my_nonexistent_class TRUE")
           tf.close
-          expect { System.instance.process_file(tf.path) }.to raise_error(ConfigParser::Error, "Too many parameters for DEFAULT_PACKET_LOG_READER.")
+          expect { System.instance.process_file(tf.path) }.to raise_error(ConfigParser::Error, /Too many parameters for DEFAULT_PACKET_LOG_READER./)
           tf.unlink
         end
 
@@ -506,7 +506,7 @@ module Cosmos
           tf = Tempfile.new('unittest')
           tf.puts("DISABLE_DNS BLAH TRUE")
           tf.close
-          expect { System.instance.process_file(tf.path) }.to raise_error(ConfigParser::Error, "Too many parameters for DISABLE_DNS.")
+          expect { System.instance.process_file(tf.path) }.to raise_error(ConfigParser::Error, /Too many parameters for DISABLE_DNS./)
           tf.unlink
         end
 
@@ -536,13 +536,13 @@ module Cosmos
           tf = Tempfile.new('unittest')
           tf.puts("ALLOW_ACCESS")
           tf.close
-          expect { System.instance.process_file(tf.path) }.to raise_error(ConfigParser::Error, "Not enough parameters for ALLOW_ACCESS.")
+          expect { System.instance.process_file(tf.path) }.to raise_error(ConfigParser::Error, /Not enough parameters for ALLOW_ACCESS./)
           tf.unlink
 
           tf = Tempfile.new('unittest')
           tf.puts("ALLOW_ACCESS localhost true")
           tf.close
-          expect { System.instance.process_file(tf.path) }.to raise_error(ConfigParser::Error, "Too many parameters for ALLOW_ACCESS.")
+          expect { System.instance.process_file(tf.path) }.to raise_error(ConfigParser::Error, /Too many parameters for ALLOW_ACCESS./)
           tf.unlink
         end
 
@@ -596,13 +596,13 @@ module Cosmos
           tf = Tempfile.new('unittest')
           tf.puts("STALENESS_SECONDS")
           tf.close
-          expect { System.instance.process_file(tf.path) }.to raise_error(ConfigParser::Error, "Not enough parameters for STALENESS_SECONDS.")
+          expect { System.instance.process_file(tf.path) }.to raise_error(ConfigParser::Error, /Not enough parameters for STALENESS_SECONDS./)
           tf.unlink
 
           tf = Tempfile.new('unittest')
           tf.puts("STALENESS_SECONDS 1 2")
           tf.close
-          expect { System.instance.process_file(tf.path) }.to raise_error(ConfigParser::Error, "Too many parameters for STALENESS_SECONDS.")
+          expect { System.instance.process_file(tf.path) }.to raise_error(ConfigParser::Error, /Too many parameters for STALENESS_SECONDS./)
           tf.unlink
         end
 
@@ -622,13 +622,13 @@ module Cosmos
           tf = Tempfile.new('unittest')
           tf.puts("CMD_TLM_VERSION")
           tf.close
-          expect { System.instance.process_file(tf.path) }.to raise_error(ConfigParser::Error, "Not enough parameters for CMD_TLM_VERSION.")
+          expect { System.instance.process_file(tf.path) }.to raise_error(ConfigParser::Error, /Not enough parameters for CMD_TLM_VERSION./)
           tf.unlink
 
           tf = Tempfile.new('unittest')
           tf.puts("CMD_TLM_VERSION 1 2")
           tf.close
-          expect { System.instance.process_file(tf.path) }.to raise_error(ConfigParser::Error, "Too many parameters for CMD_TLM_VERSION.")
+          expect { System.instance.process_file(tf.path) }.to raise_error(ConfigParser::Error, /Too many parameters for CMD_TLM_VERSION./)
           tf.unlink
         end
 

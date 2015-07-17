@@ -48,7 +48,7 @@ module Cosmos
           tf = Tempfile.new('unittest')
           tf.puts keyword + ' tgt1 pkt1 MIDDLE_ENDIAN "Packet"'
           tf.close
-          expect { @pc.process_file(tf.path, "TGT1") }.to raise_error(ConfigParser::Error, "Invalid endianness MIDDLE_ENDIAN. Must be BIG_ENDIAN or LITTLE_ENDIAN.")
+          expect { @pc.process_file(tf.path, "TGT1") }.to raise_error(ConfigParser::Error, /Invalid endianness MIDDLE_ENDIAN. Must be BIG_ENDIAN or LITTLE_ENDIAN./)
           tf.unlink
         end
       end
