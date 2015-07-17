@@ -100,7 +100,7 @@ module Cosmos
         tf = Tempfile.new('unittest')
         tf.puts("BLAH")
         tf.close
-        expect { Target.new("TGT").process_file(tf.path) }.to raise_error(ConfigParser::Error, "Unknown keyword 'BLAH'")
+        expect { Target.new("TGT").process_file(tf.path) }.to raise_error(ConfigParser::Error, /Unknown keyword 'BLAH'/)
         tf.unlink
       end
 
@@ -109,13 +109,13 @@ module Cosmos
           tf = Tempfile.new('unittest')
           tf.puts("REQUIRE")
           tf.close
-          expect { Target.new("TGT").process_file(tf.path) }.to raise_error(ConfigParser::Error, "Not enough parameters for REQUIRE.")
+          expect { Target.new("TGT").process_file(tf.path) }.to raise_error(ConfigParser::Error, /Not enough parameters for REQUIRE./)
           tf.unlink
 
           tf = Tempfile.new('unittest')
           tf.puts("REQUIRE my_file.rb TRUE")
           tf.close
-          expect { Target.new("TGT").process_file(tf.path) }.to raise_error(ConfigParser::Error, "Too many parameters for REQUIRE.")
+          expect { Target.new("TGT").process_file(tf.path) }.to raise_error(ConfigParser::Error, /Too many parameters for REQUIRE./)
           tf.unlink
         end
 
@@ -148,13 +148,13 @@ module Cosmos
           tf = Tempfile.new('unittest')
           tf.puts("IGNORE_PARAMETER")
           tf.close
-          expect { Target.new("TGT").process_file(tf.path) }.to raise_error(ConfigParser::Error, "Not enough parameters for IGNORE_PARAMETER.")
+          expect { Target.new("TGT").process_file(tf.path) }.to raise_error(ConfigParser::Error, /Not enough parameters for IGNORE_PARAMETER./)
           tf.unlink
 
           tf = Tempfile.new('unittest')
           tf.puts("IGNORE_PARAMETER my_file.rb TRUE")
           tf.close
-          expect { Target.new("TGT").process_file(tf.path) }.to raise_error(ConfigParser::Error, "Too many parameters for IGNORE_PARAMETER.")
+          expect { Target.new("TGT").process_file(tf.path) }.to raise_error(ConfigParser::Error, /Too many parameters for IGNORE_PARAMETER./)
           tf.unlink
         end
 
@@ -174,25 +174,25 @@ module Cosmos
           tf = Tempfile.new('unittest')
           tf.puts("COMMANDS")
           tf.close
-          expect { Target.new("TGT").process_file(tf.path) }.to raise_error(ConfigParser::Error, "Not enough parameters for COMMANDS.")
+          expect { Target.new("TGT").process_file(tf.path) }.to raise_error(ConfigParser::Error, /Not enough parameters for COMMANDS./)
           tf.unlink
 
           tf = Tempfile.new('unittest')
           tf.puts("COMMANDS tgt_cmds.txt TRUE")
           tf.close
-          expect { Target.new("TGT").process_file(tf.path) }.to raise_error(ConfigParser::Error, "Too many parameters for COMMANDS.")
+          expect { Target.new("TGT").process_file(tf.path) }.to raise_error(ConfigParser::Error, /Too many parameters for COMMANDS./)
           tf.unlink
 
           tf = Tempfile.new('unittest')
           tf.puts("TELEMETRY")
           tf.close
-          expect { Target.new("TGT").process_file(tf.path) }.to raise_error(ConfigParser::Error, "Not enough parameters for TELEMETRY.")
+          expect { Target.new("TGT").process_file(tf.path) }.to raise_error(ConfigParser::Error, /Not enough parameters for TELEMETRY./)
           tf.unlink
 
           tf = Tempfile.new('unittest')
           tf.puts("TELEMETRY tgt_tlm.txt TRUE")
           tf.close
-          expect { Target.new("TGT").process_file(tf.path) }.to raise_error(ConfigParser::Error, "Too many parameters for TELEMETRY.")
+          expect { Target.new("TGT").process_file(tf.path) }.to raise_error(ConfigParser::Error, /Too many parameters for TELEMETRY./)
           tf.unlink
         end
 
@@ -238,7 +238,7 @@ module Cosmos
             file.puts("TELEMETRY tgt_tlm4.txt")
           end
 
-          expect { Target.new(tgt_name,nil,tgt_path) }.to raise_error(ConfigParser::Error, "#{tgt_dir + '/cmd_tlm/tgt_cmds4.txt'} not found")
+          expect { Target.new(tgt_name,nil,tgt_path) }.to raise_error(ConfigParser::Error, /#{tgt_dir + '/cmd_tlm/tgt_cmds4.txt'} not found/)
 
           FileUtils.rm_r(tgt_dir)
         end

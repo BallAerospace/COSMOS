@@ -1,25 +1,7 @@
 TELEMETRY INST HEALTH_STATUS BIG_ENDIAN "Health and status from the instrument"
-  ITEM CCSDSVER           0  3 UINT     "CCSDS packet version number (See CCSDS 133.0-B-1)"
-  ITEM CCSDSTYPE          3  1 UINT     "CCSDS packet type (command or telemetry)"
-    STATE TLM 0
-    STATE CMD 1
-  ITEM CCSDSSHF           4  1 UINT     "CCSDS secondary header flag"
-    STATE FALSE 0
-    STATE TRUE 1
-  ID_ITEM CCSDSAPID       5 11 UINT   1 "CCSDS application process id"
-  ITEM CCSDSSEQFLAGS     16  2 UINT     "CCSDS sequence flags"
-    STATE FIRST 1
-    STATE CONT 0
-    STATE LAST 2
-    STATE NOGROUP 3
-  ITEM CCSDSSEQCNT       18 14 UINT     "CCSDS packet sequence count"
-    OVERFLOW TRUNCATE
-  ITEM CCSDSLENGTH       32 16 UINT     "CCSDS packet data length"
-  ITEM TIMESEC           48 32 UINT     "Seconds since epoch (January 1st, 1970, midnight)"
-  ITEM TIMEUS            80 32 UINT     "Microseconds of second"
-  ID_ITEM PKTID         112 16 UINT   1 "Packet id (The combination of CCSDS_APID and PACKET_ID identify the packet)"
-  ITEM COLLECTS         128 16 UINT     "Number of collects"
-  ITEM TEMP1            144 16 UINT     "Temperature #1"
+  <%= render "_ccsds_tlm.txt" %>
+  APPEND_ITEM COLLECTS         16 UINT     "Number of collects"
+  APPEND_ITEM TEMP1            16 UINT     "Temperature #1"
     POLY_READ_CONVERSION  -100.0 0.00305
     POLY_WRITE_CONVERSION 32768.885246 327.86885
     UNITS CELCIUS C
@@ -27,33 +9,33 @@ TELEMETRY INST HEALTH_STATUS BIG_ENDIAN "Health and status from the instrument"
     LIMITS DEFAULT 1 ENABLED -80.0 -70.0 60.0 80.0 -20.0 20.0
     LIMITS TVAC 1     ENABLED -80.0 -30.0 30.0 80.0
     LIMITS_RESPONSE example_limits_response.rb
-  ITEM TEMP2            160 16 UINT     "Temperature #2"
+  APPEND_ITEM TEMP2            16 UINT     "Temperature #2"
     POLY_READ_CONVERSION -100.0 0.00305
     POLY_WRITE_CONVERSION 32768.885246 327.86885
     UNITS CELCIUS C
     FORMAT_STRING "%0.3f"
     LIMITS DEFAULT 1 ENABLED -60.0 -55.0 30.0 35.0
     LIMITS TVAC 1 ENABLED -60.0 20.0 30.0 35.0
-  ITEM TEMP3            176 16 UINT     "Temperature #3"
+  APPEND_ITEM TEMP3            16 UINT     "Temperature #3"
     POLY_READ_CONVERSION -100.0 0.00305
     POLY_WRITE_CONVERSION 32768.885246 327.86885
     UNITS CELCIUS C
     FORMAT_STRING "%0.3f"
     LIMITS DEFAULT 1 ENABLED -25.0 -10.0 50.0 55.0
     LIMITS TVAC 1 ENABLED -15.0 -10.0 20.0 30.0
-  ITEM TEMP4            192 16 UINT     "Temperature #4"
+  APPEND_ITEM TEMP4            16 UINT     "Temperature #4"
     POLY_READ_CONVERSION -100.0 0.00305
     POLY_WRITE_CONVERSION 32768.885246 327.86885
     UNITS CELCIUS C
     FORMAT_STRING "%0.3f"
     LIMITS DEFAULT 1 ENABLED -80.0 -70.0 60.0 80.0
-  ARRAY_ITEM ARY              208 8 UINT 80 "Array data"
+  APPEND_ARRAY_ITEM ARY         8 UINT 80 "Array data"
     UNITS VOLTS V
   APPEND_ITEM DURATION 32 FLOAT "Most recent collect duration"
   APPEND_ITEM COLLECT_TYPE 16 UINT "Most recent collect type"
     STATE NORMAL  0
     STATE SPECIAL 1
-  APPEND_ARRAY_ITEM ARY2      64 FLOAT 640 "Double array"
+  APPEND_ARRAY_ITEM ARY2       64 FLOAT 640 "Double array"
     UNITS CELCIUS C
   APPEND_ITEM ASCIICMD 2048 STRING "Most recent ASCIICMD string"
     STATE "NOOP" "NOOP"
@@ -88,25 +70,7 @@ TELEMETRY INST HEALTH_STATUS BIG_ENDIAN "Health and status from the instrument"
 
 TELEMETRY INST ADCS BIG_ENDIAN "Position and attitude data"
   META TYPE 'struct adcs'
-  ITEM CCSDSVER           0  3 UINT     "CCSDS packet version number (See CCSDS 133.0-B-1)"
-  ITEM CCSDSTYPE          3  1 UINT     "CCSDS packet type (command or telemetry)"
-    STATE TLM 0
-    STATE CMD 1
-  ITEM CCSDSSHF           4  1 UINT     "CCSDS secondary header flag"
-    STATE FALSE 0
-    STATE TRUE 1
-  ID_ITEM CCSDSAPID       5 11 UINT   2 "CCSDS APPLICATION PROCESS ID"
-  ITEM CCSDSSEQFLAGS     16  2 UINT     "CCSDS sequence flags"
-    STATE FIRST 1
-    STATE CONT 0
-    STATE LAST 2
-    STATE NOGROUP 3
-  ITEM CCSDSSEQCNT       18 14 UINT     "CCSDS packet sequence count"
-    OVERFLOW TRUNCATE
-  ITEM CCSDSLENGTH       32 16 UINT     "CCSDS packet data length"
-  ITEM TIMESEC           48 32 UINT     "Seconds since epoch (January 1st, 1970, midnight)"
-  ITEM TIMEUS            80 32 UINT     "Microseconds of second"
-  ID_ITEM PKTID         112 16 UINT   1 "Packet id (The combination of CCSDS_APID and PACKET_ID identify the packet)"
+  <%= render "_ccsds_tlm.txt" %>
   ITEM POSX             128 32 FLOAT "Position X"
     UNITS METERS M
   ITEM POSY             160 32 FLOAT "Position Y"
@@ -137,11 +101,9 @@ TELEMETRY INST ADCS BIG_ENDIAN "Position and attitude data"
     FORMAT_STRING "%0.6f"
   ITEM BIASZ            512 32 FLOAT "Body Z rate bias"
     FORMAT_STRING "%0.6f"
-  ITEM STAR1ID          544 16 UINT  "Star 1 id"
-  ITEM STAR2ID          560 16 UINT  "Star 2 id"
-  ITEM STAR3ID          576 16 UINT  "Star 3 id"
-  ITEM STAR4ID          592 16 UINT  "Star 4 id"
-  ITEM STAR5ID          608 16 UINT  "Star 5 id"
+  <% (1..5).each do |i| %>
+    APPEND_ITEM STAR<%= i %>ID 16 UINT "Star <%= i %> id"
+  <% end %>
   ITEM POSPROGRESS      624 32 FLOAT "Position file progress"
     FORMAT_STRING "%0.2f"
   ITEM ATTPROGRESS      656 32 FLOAT "Attitude file progress"
@@ -153,30 +115,21 @@ TELEMETRY INST ADCS BIG_ENDIAN "Position and attitude data"
     READ_CONVERSION unix_time_formatted_conversion.rb TIMESEC TIMEUS
 
 TELEMETRY INST PARAMS BIG_ENDIAN "Params set by SETPARAMS command"
-  ITEM CCSDSVER           0  3 UINT     "CCSDS packet version number (See CCSDS 133.0-B-1)"
-  ITEM CCSDSTYPE          3  1 UINT     "CCSDS packet type (command or telemetry)"
-    STATE TLM 0
-    STATE CMD 1
-  ITEM CCSDSSHF           4  1 UINT     "CCSDS secondary header flag"
-    STATE FALSE 0
-    STATE TRUE 1
-  ID_ITEM CCSDSAPID       5 11 UINT   3 "CCSDS application process id"
-  ITEM CCSDSSEQFLAGS     16  2 UINT     "CCSDS sequence flags"
-    STATE FIRST 1
-    STATE CONT 0
-    STATE LAST 2
-    STATE NOGROUP 3
-  ITEM CCSDSSEQCNT       18 14 UINT     "CCSDS packet sequence count"
-    OVERFLOW TRUNCATE
-  ITEM CCSDSLENGTH       32 16 UINT     "CCSDS packet data length"
-  ITEM TIMESEC           48 32 UINT     "Seconds since epoch (January 1st, 1970, midnight)"
-  ITEM TIMEUS            80 32 UINT     "Microseconds of second"
-  ID_ITEM PKTID         112 16 UINT   1 "Packet id (The combination of CCSDS_APID and PACKET_ID identify the packet)"
-  MACRO_APPEND_START 5 1
-    APPEND_ITEM Value 16 UINT "Value setting"
+  <%= render "_ccsds_tlm.txt" %>
+  # Old deprecated MACRO syntax:
+  #MACRO_APPEND_START 5 1
+  #  APPEND_ITEM Value 16 UINT "Value setting"
+  #    STATE GOOD 0 GREEN
+  #    STATE BAD 1 RED
+  #MACRO_APPEND_END
+
+  # New more flexible ERB syntax:
+  <% (1..5).each do |i| %>
+    APPEND_ITEM VALUE<%= i %> 16 UINT "Value <%= i %> setting"
       STATE GOOD 0 GREEN
       STATE BAD 1 RED
-  MACRO_APPEND_END
+  <% end %>
+
   ITEM TIMESECONDS 0 0 DERIVED "Derived floating-point time since epoch in seconds"
     READ_CONVERSION unix_time_seconds_conversion.rb TIMESEC TIMEUS
     FORMAT_STRING '%0.6f'
@@ -184,25 +137,7 @@ TELEMETRY INST PARAMS BIG_ENDIAN "Params set by SETPARAMS command"
     READ_CONVERSION unix_time_formatted_conversion.rb TIMESEC TIMEUS
 
 TELEMETRY INST IMAGE BIG_ENDIAN "Packet with image data"
-  ITEM CCSDSVER           0  3 UINT     "CCSDS packet version number (See CCSDS 133.0-B-1)"
-  ITEM CCSDSTYPE          3  1 UINT     "CCSDS packet type (command or telemetry)"
-    STATE TLM 0
-    STATE CMD 1
-  ITEM CCSDSSHF           4  1 UINT     "CCSDS secondary header flag"
-    STATE FALSE 0
-    STATE TRUE 1
-  ID_ITEM CCSDSAPID       5 11 UINT   4 "CCSDS application process id"
-  ITEM CCSDSSEQFLAGS     16  2 UINT     "CCSDS sequence flags"
-    STATE FIRST 1
-    STATE CONT 0
-    STATE LAST 2
-    STATE NOGROUP 3
-  ITEM CCSDSSEQCNT       18 14 UINT     "CCSDS packet sequence count"
-    OVERFLOW TRUNCATE
-  ITEM CCSDSLENGTH       32 16 UINT     "CCSDS packet data length"
-  ITEM TIMESEC           48 32 UINT     "Seconds since epoch (January 1st, 1970, midnight)"
-  ITEM TIMEUS            80 32 UINT     "Microseconds of second"
-  ID_ITEM PKTID         112 16 UINT   1 "Packet id (The combination of CCSDS_APID and PACKET_ID identify the packet)"
+  <%= render "_ccsds_tlm.txt" %>
   ITEM IMAGE            128 800 BLOCK   "10x10 Image Data"
   ITEM TIMESECONDS 0 0 DERIVED "Derived floating-point time since epoch in seconds"
     READ_CONVERSION unix_time_seconds_conversion.rb TIMESEC TIMEUS
@@ -211,25 +146,7 @@ TELEMETRY INST IMAGE BIG_ENDIAN "Packet with image data"
     READ_CONVERSION unix_time_formatted_conversion.rb TIMESEC TIMEUS
 
 TELEMETRY INST MECH BIG_ENDIAN "Mechanism status"
-  ITEM CCSDSVER           0  3 UINT     "CCSDS packet version number (See CCSDS 133.0-B-1)"
-  ITEM CCSDSTYPE          3  1 UINT     "CCSDS packet type (command or telemetry)"
-    STATE TLM 0
-    STATE CMD 1
-  ITEM CCSDSSHF           4  1 UINT     "CCSDS secondary header flag"
-    STATE FALSE 0
-    STATE TRUE 1
-  ID_ITEM CCSDSAPID       5 11 UINT   5 "CCSDS application process id"
-  ITEM CCSDSSEQFLAGS     16  2 UINT     "CCSDS sequence flags"
-    STATE FIRST 1
-    STATE CONT 0
-    STATE LAST 2
-    STATE NOGROUP 3
-  ITEM CCSDSSEQCNT       18 14 UINT     "CCSDS packet sequence count"
-    OVERFLOW TRUNCATE
-  ITEM CCSDSLENGTH       32 16 UINT     "CCSDS packet data length"
-  ITEM TIMESEC           48 32 UINT     "Seconds since epoch (January 1st, 1970, midnight)"
-  ITEM TIMEUS            80 32 UINT     "Microseconds of second"
-  ID_ITEM PKTID         112 16 UINT   1 "Packet id (The combination of CCSDS_APID and PACKET_ID identify the packet)"
+  <%= render "_ccsds_tlm.txt" %>
   APPEND_ITEM SLRPNL1       32 FLOAT    "Solar panel 1 angle"
     UNITS DEGREES DEG
   APPEND_ITEM SLRPNL2       32 FLOAT    "Solar panel 2 angle"

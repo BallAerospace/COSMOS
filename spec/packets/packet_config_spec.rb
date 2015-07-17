@@ -26,7 +26,7 @@ module Cosmos
         tf = Tempfile.new('unittest')
         tf.puts("BLAH")
         tf.close
-        expect { @pc.process_file(tf.path, 'SYSTEM') }.to raise_error(ConfigParser::Error, "Unknown keyword 'BLAH'")
+        expect { @pc.process_file(tf.path, 'SYSTEM') }.to raise_error(ConfigParser::Error, /Unknown keyword 'BLAH'/)
         tf.unlink
       end
 
@@ -46,7 +46,7 @@ module Cosmos
             tf = Tempfile.new('unittest')
             tf.puts(keyword)
             tf.close
-            expect { @pc.process_file(tf.path, "SYSTEM") }.to raise_error(ConfigParser::Error, "No current packet for #{keyword}")
+            expect { @pc.process_file(tf.path, "SYSTEM") }.to raise_error(ConfigParser::Error, /No current packet for #{keyword}/)
             tf.unlink
           end # end for each tlm_keywords
         end
@@ -59,7 +59,7 @@ module Cosmos
             tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Packet"'
             tf.puts keyword
             tf.close
-            expect { @pc.process_file(tf.path, "TGT1") }.to raise_error(ConfigParser::Error, "No current item for #{keyword}")
+            expect { @pc.process_file(tf.path, "TGT1") }.to raise_error(ConfigParser::Error, /No current item for #{keyword}/)
             tf.unlink
           end
         end
@@ -241,7 +241,7 @@ module Cosmos
           tf.puts 'SELECT_TELEMETRY TGT PKT'
           tf.puts '  SELECT_PARAMETER ITEM'
           tf.close
-          expect { @pc.process_file(tf.path, "TGT") }.to raise_error(ConfigParser::Error, "SELECT_PARAMETER only applies to command packets")
+          expect { @pc.process_file(tf.path, "TGT") }.to raise_error(ConfigParser::Error, /SELECT_PARAMETER only applies to command packets/)
         end
 
         it "complains if the parameter is not found" do
@@ -259,7 +259,7 @@ module Cosmos
           tf.puts '  SELECT_PARAMETER PARAMX'
           tf.puts '    DESCRIPTION "New description"'
           tf.close
-          expect { @pc.process_file(tf.path, "TGT") }.to raise_error(ConfigParser::Error, "PARAMX not found in command packet TGT PKT")
+          expect { @pc.process_file(tf.path, "TGT") }.to raise_error(ConfigParser::Error, /PARAMX not found in command packet TGT PKT/)
         end
       end
 
@@ -271,7 +271,7 @@ module Cosmos
           tf.puts 'SELECT_COMMAND TGT PKT'
           tf.puts '  SELECT_ITEM PARAM'
           tf.close
-          expect { @pc.process_file(tf.path, "TGT") }.to raise_error(ConfigParser::Error, "SELECT_ITEM only applies to telemetry packets")
+          expect { @pc.process_file(tf.path, "TGT") }.to raise_error(ConfigParser::Error, /SELECT_ITEM only applies to telemetry packets/)
         end
 
         it "complains if the item is not found" do
@@ -289,7 +289,7 @@ module Cosmos
           tf.puts '  SELECT_ITEM ITEMX'
           tf.puts '    DESCRIPTION "New description"'
           tf.close
-          expect { @pc.process_file(tf.path, "TGT") }.to raise_error(ConfigParser::Error, "ITEMX not found in telemetry packet TGT PKT")
+          expect { @pc.process_file(tf.path, "TGT") }.to raise_error(ConfigParser::Error, /ITEMX not found in telemetry packet TGT PKT/)
         end
       end
 
@@ -716,14 +716,14 @@ module Cosmos
           tf.puts '  ITEM item1 0 8 UINT'
           tf.puts '    REQUIRED'
           tf.close
-          expect { @pc.process_file(tf.path, "TGT1") }.to raise_error(ConfigParser::Error, "REQUIRED only applies to command parameters")
+          expect { @pc.process_file(tf.path, "TGT1") }.to raise_error(ConfigParser::Error, /REQUIRED only applies to command parameters/)
           tf.unlink
 
           tf = Tempfile.new('unittest')
           tf.puts 'COMMAND tgt1 pkt1 LITTLE_ENDIAN "Packet"'
           tf.puts '  REQUIRED'
           tf.close
-          expect { @pc.process_file(tf.path, "TGT1") }.to raise_error(ConfigParser::Error, "No current item for REQUIRED")
+          expect { @pc.process_file(tf.path, "TGT1") }.to raise_error(ConfigParser::Error, /No current item for REQUIRED/)
           tf.unlink
         end
 
@@ -748,7 +748,7 @@ module Cosmos
           tf.puts '  APPEND_ITEM item1 16 UINT'
           tf.puts '    MINIMUM_VALUE 1'
           tf.close
-          expect { @pc.process_file(tf.path, "TGT1") }.to raise_error(ConfigParser::Error, "MINIMUM_VALUE only applies to command parameters")
+          expect { @pc.process_file(tf.path, "TGT1") }.to raise_error(ConfigParser::Error, /MINIMUM_VALUE only applies to command parameters/)
           tf.unlink
 
           tf = Tempfile.new('unittest')
@@ -756,7 +756,7 @@ module Cosmos
           tf.puts '  APPEND_ITEM item1 16 UINT'
           tf.puts '    MAXIMUM_VALUE 3'
           tf.close
-          expect { @pc.process_file(tf.path, "TGT1") }.to raise_error(ConfigParser::Error, "MAXIMUM_VALUE only applies to command parameters")
+          expect { @pc.process_file(tf.path, "TGT1") }.to raise_error(ConfigParser::Error, /MAXIMUM_VALUE only applies to command parameters/)
           tf.unlink
 
           tf = Tempfile.new('unittest')
@@ -764,7 +764,7 @@ module Cosmos
           tf.puts '  APPEND_ITEM item1 16 UINT'
           tf.puts '    DEFAULT_VALUE 2'
           tf.close
-          expect { @pc.process_file(tf.path, "TGT1") }.to raise_error(ConfigParser::Error, "DEFAULT_VALUE only applies to command parameters")
+          expect { @pc.process_file(tf.path, "TGT1") }.to raise_error(ConfigParser::Error, /DEFAULT_VALUE only applies to command parameters/)
           tf.unlink
         end
 

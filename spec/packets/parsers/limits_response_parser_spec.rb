@@ -28,7 +28,7 @@ module Cosmos
         tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Packet"'
         tf.puts '  LIMITS_RESPONSE'
         tf.close
-        expect { @pc.process_file(tf.path, "TGT1") }.to raise_error(ConfigParser::Error, "No current item for LIMITS_RESPONSE")
+        expect { @pc.process_file(tf.path, "TGT1") }.to raise_error(ConfigParser::Error, /No current item for LIMITS_RESPONSE/)
         tf.unlink
       end
 
@@ -48,7 +48,7 @@ module Cosmos
         tf.puts '  APPEND_PARAMETER item1 16 UINT 0 0 0 "Item"'
         tf.puts '    LIMITS_RESPONSE test.rb'
         tf.close
-        expect { @pc.process_file(tf.path, "TGT1") }.to raise_error(ConfigParser::Error, "LIMITS_RESPONSE only applies to telemetry items")
+        expect { @pc.process_file(tf.path, "TGT1") }.to raise_error(ConfigParser::Error, /LIMITS_RESPONSE only applies to telemetry items/)
         tf.unlink
       end
 

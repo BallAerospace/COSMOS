@@ -28,7 +28,7 @@ module Cosmos
         tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Packet"'
         tf.puts '  LIMITS mylimits 1 ENABLED 0 10 20 30 12 18'
         tf.close
-        expect { @pc.process_file(tf.path, "TGT1") }.to raise_error(ConfigParser::Error, "No current item for LIMITS")
+        expect { @pc.process_file(tf.path, "TGT1") }.to raise_error(ConfigParser::Error, /No current item for LIMITS/)
         tf.unlink
       end
 
@@ -157,7 +157,7 @@ module Cosmos
         tf.puts '  APPEND_ITEM item1 16 UINT "Item"'
         tf.puts '    LIMITS DEFAULT 3 ENABLED 2 1 3 4'
         tf.close
-        expect { @pc.process_file(tf.path, "TGT1") }.to raise_error(ConfigParser::Error, "Invalid limits specified. Ensure yellow limits are within red limits.")
+        expect { @pc.process_file(tf.path, "TGT1") }.to raise_error(ConfigParser::Error, /Invalid limits specified. Ensure yellow limits are within red limits./)
         tf.unlink
 
         tf = Tempfile.new('unittest')
@@ -165,7 +165,7 @@ module Cosmos
         tf.puts '  APPEND_ITEM item1 16 UINT "Item"'
         tf.puts '    LIMITS DEFAULT 3 ENABLED 1 5 3 7'
         tf.close
-        expect { @pc.process_file(tf.path, "TGT1") }.to raise_error(ConfigParser::Error, "Invalid limits specified. Ensure yellow limits are within red limits.")
+        expect { @pc.process_file(tf.path, "TGT1") }.to raise_error(ConfigParser::Error, /Invalid limits specified. Ensure yellow limits are within red limits./)
         tf.unlink
 
         tf = Tempfile.new('unittest')
@@ -173,7 +173,7 @@ module Cosmos
         tf.puts '  APPEND_ITEM item1 16 UINT "Item"'
         tf.puts '    LIMITS DEFAULT 3 ENABLED 1 2 5 4'
         tf.close
-        expect { @pc.process_file(tf.path, "TGT1") }.to raise_error(ConfigParser::Error, "Invalid limits specified. Ensure yellow limits are within red limits.")
+        expect { @pc.process_file(tf.path, "TGT1") }.to raise_error(ConfigParser::Error, /Invalid limits specified. Ensure yellow limits are within red limits./)
         tf.unlink
 
         tf = Tempfile.new('unittest')
@@ -181,7 +181,7 @@ module Cosmos
         tf.puts '  APPEND_ITEM item1 16 UINT "Item"'
         tf.puts '    LIMITS DEFAULT 3 ENABLED 1 2 3 0'
         tf.close
-        expect { @pc.process_file(tf.path, "TGT1") }.to raise_error(ConfigParser::Error, "Invalid limits specified. Ensure yellow limits are within red limits.")
+        expect { @pc.process_file(tf.path, "TGT1") }.to raise_error(ConfigParser::Error, /Invalid limits specified. Ensure yellow limits are within red limits./)
         tf.unlink
       end
 
@@ -191,7 +191,7 @@ module Cosmos
         tf.puts '  APPEND_ITEM item1 16 UINT "Item"'
         tf.puts '    LIMITS DEFAULT 3 ENABLED 1 2 6 7 0 5'
         tf.close
-        expect { @pc.process_file(tf.path, "TGT1") }.to raise_error(ConfigParser::Error, "Invalid limits specified. Ensure green limits are within yellow limits.")
+        expect { @pc.process_file(tf.path, "TGT1") }.to raise_error(ConfigParser::Error, /Invalid limits specified. Ensure green limits are within yellow limits./)
         tf.unlink
 
         tf = Tempfile.new('unittest')
@@ -199,7 +199,7 @@ module Cosmos
         tf.puts '  APPEND_ITEM item1 16 UINT "Item"'
         tf.puts '    LIMITS DEFAULT 3 ENABLED 1 3 6 7 2 5'
         tf.close
-        expect { @pc.process_file(tf.path, "TGT1") }.to raise_error(ConfigParser::Error, "Invalid limits specified. Ensure green limits are within yellow limits.")
+        expect { @pc.process_file(tf.path, "TGT1") }.to raise_error(ConfigParser::Error, /Invalid limits specified. Ensure green limits are within yellow limits./)
         tf.unlink
 
         tf = Tempfile.new('unittest')
@@ -207,7 +207,7 @@ module Cosmos
         tf.puts '  APPEND_ITEM item1 16 UINT "Item"'
         tf.puts '    LIMITS DEFAULT 3 ENABLED 1 2 6 8 3 7'
         tf.close
-        expect { @pc.process_file(tf.path, "TGT1") }.to raise_error(ConfigParser::Error, "Invalid limits specified. Ensure green limits are within yellow limits.")
+        expect { @pc.process_file(tf.path, "TGT1") }.to raise_error(ConfigParser::Error, /Invalid limits specified. Ensure green limits are within yellow limits./)
         tf.unlink
 
         tf = Tempfile.new('unittest')
@@ -215,7 +215,7 @@ module Cosmos
         tf.puts '  APPEND_ITEM item1 16 UINT "Item"'
         tf.puts '    LIMITS DEFAULT 3 ENABLED 1 2 6 8 3 9'
         tf.close
-        expect { @pc.process_file(tf.path, "TGT1") }.to raise_error(ConfigParser::Error, "Invalid limits specified. Ensure green limits are within yellow limits.")
+        expect { @pc.process_file(tf.path, "TGT1") }.to raise_error(ConfigParser::Error, /Invalid limits specified. Ensure green limits are within yellow limits./)
         tf.unlink
 
         tf = Tempfile.new('unittest')
@@ -223,7 +223,7 @@ module Cosmos
         tf.puts '  APPEND_ITEM item1 16 UINT "Item"'
         tf.puts '    LIMITS DEFAULT 3 ENABLED 1 2 6 8 4 3'
         tf.close
-        expect { @pc.process_file(tf.path, "TGT1") }.to raise_error(ConfigParser::Error, "Invalid limits specified. Ensure green limits are within yellow limits.")
+        expect { @pc.process_file(tf.path, "TGT1") }.to raise_error(ConfigParser::Error, /Invalid limits specified. Ensure green limits are within yellow limits./)
         tf.unlink
       end
 

@@ -9,6 +9,7 @@
 # attribution addendums as found in the LICENSE.txt
 
 require 'cosmos/ext/config_parser'
+require 'erb'
 
 module Cosmos
 
@@ -143,6 +144,18 @@ module Cosmos
       return Error.new(self, message, usage, url)
     end
 
+    # Called by the ERB template to render a partial
+    def render(template_name, options = {})
+      b = binding
+      if options[:locals]
+        options[:locals].each do |key, value|
+          eval("#{key} = #{value}", b)
+        end
+      end
+      # Assume the file is there. If not we raise a pretty obvious error
+      ERB.new(File.read(File.join(File.dirname(@filename), template_name))).result(b)
+    end
+
     # Processes a file and yields |config| to the given block
     #
     # @param filename [String] The full name and path of the configuration file
@@ -158,8 +171,15 @@ module Cosmos
                    remove_quotes = true,
                    &block)
       @filename = filename
-      file = File.new(@filename, 'r')
+      file = nil
+      unparsed_data = nil
       begin
+        # Create a temp file where we can write the ERB parsed output
+        file = Tempfile.new("parsed_#{File.basename(filename)}")
+        unparsed_data = File.read(@filename)
+        file.write(ERB.new(unparsed_data).result(binding))
+        file.rewind
+
         size = file.stat.size.to_f
 
         # Callbacks for beginning of parsing
@@ -173,6 +193,13 @@ module Cosmos
                    size,
                    PARSING_REGEX,
                    &block)
+      rescue Exception => e
+        debug_file = create_debug_output_file(filename, file, unparsed_data, e)
+        if debug_file
+          raise e, "#{e}\nDebug output in #{debug_file}", e.backtrace
+        else
+          raise e
+        end
       ensure
         file.close unless file.closed?
       end
@@ -308,6 +335,32 @@ module Cosmos
     end
 
     protected
+
+    # Writes the parsed results for debugging if we had an error parsing
+    def create_debug_output_file(filename, file, unparsed_data, exception)
+      begin
+        debug_file = nil
+        tmp_folder = File.join(Cosmos::USERPATH, 'outputs', 'tmp')
+        tmp_folder = Cosmos::USERPATH unless File.exist?(tmp_folder)
+        debug_file = File.join(tmp_folder, "parser_error_#{File.basename(filename)}")
+        File.open(debug_file, 'w') do |save_file|
+          save_file.puts exception.formatted
+          save_file.puts "\nParsed Data (will only be present if parse ran successfully):"
+          save_file.puts
+          if file
+            file.rewind
+            save_file.puts file.read
+          end
+          save_file.puts "\nUnparsed Data:"
+          save_file.puts
+          save_file.puts unparsed_data if unparsed_data
+        end
+      rescue Exception
+        # Oh well - we tried
+        debug_file = nil
+      end
+      debug_file
+    end
 
     # Iterates over each line of the io object and yields the keyword and
     # parameters
