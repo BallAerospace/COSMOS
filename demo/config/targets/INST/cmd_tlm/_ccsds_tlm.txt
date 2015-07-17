@@ -5,7 +5,7 @@
   APPEND_ITEM CCSDSSHF      1 UINT   "CCSDS secondary header flag"
     STATE FALSE 0
     STATE TRUE 1
-  APPEND_ID_ITEM CCSDSAPID 11 UINT 1 "CCSDS application process id"
+  APPEND_ID_ITEM CCSDSAPID 11 UINT <%= apid %> "CCSDS application process id"
   APPEND_ITEM CCSDSSEQFLAGS 2 UINT   "CCSDS sequence flags"
     STATE FIRST 1
     STATE CONT 0
