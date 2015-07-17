@@ -95,13 +95,16 @@ module Cosmos
     # @param filename [String] The name of the configuration file
     # @param target_name [String] The target name
     def process_file(filename, process_target_name)
+      # Partial files are included into another file and thus aren't directly processed
+      return if File.basename(filename)[0] == '_' # Partials start with underscore
+
       @converted_type = nil
       @converted_bit_size = nil
       @proc_text = ''
       @building_generic_conversion = false
 
       process_target_name = process_target_name.upcase
-      parser = ConfigParser.new("https://github.com/BallAerospace/COSMOS/wiki/Command-and-Telemetry-Configuration")
+      parser = ConfigParser.new("http://cosmosrb.com/docs/cmdtlm")
       parser.parse_file(filename) do |keyword, params|
 
         if @building_generic_conversion

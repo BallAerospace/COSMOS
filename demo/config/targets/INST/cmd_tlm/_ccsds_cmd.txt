@@ -6,4 +6,4 @@
   PARAMETER    CCSDSSEQCNT    18  14  UINT  0 16383   0 "CCSDS primary header sequence count"
     OVERFLOW TRUNCATE
   PARAMETER    CCSDSLENGTH    32  16  UINT  0 65535   12 "CCSDS primary header packet length"
-  ID_PARAMETER PKTID          48  16  UINT  0 65535   <%= @id %> "Packet id"
+  ID_PARAMETER PKTID          48  16  UINT  0 65535   <%= id %> "Packet id"

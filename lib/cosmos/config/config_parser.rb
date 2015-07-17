@@ -149,7 +149,7 @@ module Cosmos
       b = binding
       if options[:locals]
         options[:locals].each do |key, value|
-          eval("@#{key} = #{value}", b)
+          eval("#{key} = #{value}", b)
         end
       end
       # Assume the file is there. If not we raise a pretty obvious error
