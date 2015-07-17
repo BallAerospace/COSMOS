@@ -179,7 +179,7 @@ module Cosmos
       when 1
         handle_tab('Targets') { @targets_tab.update }
       when 2
-        handle_tab('Packets') { @packets_tab.update(PacketsTab::COMMANDS) }
+        handle_tab('Commands') { @packets_tab.update(PacketsTab::COMMANDS) }
       when 3
         handle_tab('Telemetry') { @packets_tab.update(PacketsTab::TELEMETRY) }
       when 4
