@@ -171,6 +171,8 @@ module Cosmos
                    remove_quotes = true,
                    &block)
       @filename = filename
+      file = nil
+      unparsed_data = nil
       begin
         # Create a temp file where we can write the ERB parsed output
         file = Tempfile.new("parsed_#{File.basename(filename)}")
@@ -336,23 +338,24 @@ module Cosmos
 
     # Writes the parsed results for debugging if we had an error parsing
     def create_debug_output_file(filename, file, unparsed_data, exception)
-      tmp_folder = File.join(Cosmos::USERPATH, 'outputs', 'tmp')
-      tmp_folder = Cosmos::USERPATH unless File.exist?(tmp_folder)
-      debug_file = File.join(tmp_folder, "parser_error_#{File.basename(filename)}")
       begin
+        debug_file = nil
+        tmp_folder = File.join(Cosmos::USERPATH, 'outputs', 'tmp')
+        tmp_folder = Cosmos::USERPATH unless File.exist?(tmp_folder)
+        debug_file = File.join(tmp_folder, "parser_error_#{File.basename(filename)}")
         File.open(debug_file, 'w') do |save_file|
           save_file.puts exception.formatted
           save_file.puts "\nParsed Data (will only be present if parse ran successfully):"
           save_file.puts
-          if defined? file
+          if file
             file.rewind
             save_file.puts file.read
           end
           save_file.puts "\nUnparsed Data:"
           save_file.puts
-          save_file.puts unparsed_data if defined? unparsed_data
+          save_file.puts unparsed_data if unparsed_data
         end
-      rescue
+      rescue Exception
         # Oh well - we tried
         debug_file = nil
       end
