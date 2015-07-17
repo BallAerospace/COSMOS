@@ -101,11 +101,9 @@ TELEMETRY INST ADCS BIG_ENDIAN "Position and attitude data"
     FORMAT_STRING "%0.6f"
   ITEM BIASZ            512 32 FLOAT "Body Z rate bias"
     FORMAT_STRING "%0.6f"
-  ITEM STAR1ID          544 16 UINT  "Star 1 id"
-  ITEM STAR2ID          560 16 UINT  "Star 2 id"
-  ITEM STAR3ID          576 16 UINT  "Star 3 id"
-  ITEM STAR4ID          592 16 UINT  "Star 4 id"
-  ITEM STAR5ID          608 16 UINT  "Star 5 id"
+  <% (1..5).each do |i| %>
+    APPEND_ITEM STAR<%= i %>ID 16 UINT "Star <%= i %> id"
+  <% end %>
   ITEM POSPROGRESS      624 32 FLOAT "Position file progress"
     FORMAT_STRING "%0.2f"
   ITEM ATTPROGRESS      656 32 FLOAT "Attitude file progress"
@@ -118,11 +116,20 @@ TELEMETRY INST ADCS BIG_ENDIAN "Position and attitude data"
 
 TELEMETRY INST PARAMS BIG_ENDIAN "Params set by SETPARAMS command"
   <%= render "_ccsds_tlm.txt" %>
-  MACRO_APPEND_START 5 1
-    APPEND_ITEM Value 16 UINT "Value setting"
+  # Old deprecated MACRO syntax:
+  #MACRO_APPEND_START 5 1
+  #  APPEND_ITEM Value 16 UINT "Value setting"
+  #    STATE GOOD 0 GREEN
+  #    STATE BAD 1 RED
+  #MACRO_APPEND_END
+
+  # New more flexible ERB syntax:
+  <% (1..5).each do |i| %>
+    APPEND_ITEM VALUE<%= i %> 16 UINT "Value <%= i %> setting"
       STATE GOOD 0 GREEN
       STATE BAD 1 RED
-  MACRO_APPEND_END
+  <% end %>
+
   ITEM TIMESECONDS 0 0 DERIVED "Derived floating-point time since epoch in seconds"
     READ_CONVERSION unix_time_seconds_conversion.rb TIMESEC TIMEUS
     FORMAT_STRING '%0.6f'

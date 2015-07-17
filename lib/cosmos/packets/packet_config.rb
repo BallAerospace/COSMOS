@@ -233,6 +233,7 @@ module Cosmos
       # This simulates an array of structures of multiple items in the packet by repeating
       # each item in the list multiple times with a different "index" added to the name.
       when 'MACRO_APPEND_START'
+        Logger.warn "MACRO_APPEND_START/END is deprecated. Please use new ERB macro syntax."
         MacroParser.start(parser)
 
       # End the creation of a macro-expanded list of items
