@@ -709,7 +709,7 @@ module Cosmos
           options.height = 425
           options.title = 'Command Sender'
           option_parser.separator "Command Sender Specific Options:"
-          option_parser.on("-p", "--packet 'TARGET_NAME PACKET_NAME'", "Start sending the specified command") do |arg|
+          option_parser.on("-p", "--packet 'TARGET_NAME PACKET_NAME'", "Start with the specified command selected") do |arg|
             split = arg.split
             if split.length != 2
               puts "Packet must be specified as 'TARGET_NAME PACKET_NAME' in quotes"
