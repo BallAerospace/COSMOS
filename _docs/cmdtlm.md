@@ -17,6 +17,8 @@ Command and Telemetry definition files define the command and telemetry packets 
 
 ### Partials
 
+Note: Available in COSMOS 3.6.0+.
+
 To use command or telemetry partials you create a definition file in the cmd_tlm directory whose name begins with an underscore, e.g. _header.txt. This file will not be parsed by the normal command and telemetry parser. To use this file, "render" it inside another regular definition file (doesn't begin with an underscore) using the following syntax:
 {% highlight ruby %}
 <%= render "_header.txt" %>
