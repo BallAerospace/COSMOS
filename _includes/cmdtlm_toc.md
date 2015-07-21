@@ -1,6 +1,8 @@
 ### Table of Contents
 
-<span>[Command Definition Files](#command-definition-files)</span><br/>
+<span>[Definition Files](#definition-files)</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp; [Partials](#partials)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp; [Definition File Variables](#definition-file-variables)<br/>
 <br/>
 <span>[**Command Keywords:**](#**command-keywords:**)</span><br/>
 &nbsp;&nbsp;&nbsp;&nbsp; [COMMAND](#command)<br/>
@@ -32,8 +34,6 @@
 &nbsp;&nbsp;&nbsp;&nbsp; [META](#meta)<br/>
 <br/>
 <span>[Example File](#example-file)</span><br/>
-<br/>
-<span>[Telemetry Definition Files](#telemetry-definition-files)</span><br/>
 <br/>
 <span>[**Telemetry Keywords:**](#**telemetry-keywords:**)</span><br/>
 &nbsp;&nbsp;&nbsp;&nbsp; [TELEMETRY](#telemetry)<br/>
