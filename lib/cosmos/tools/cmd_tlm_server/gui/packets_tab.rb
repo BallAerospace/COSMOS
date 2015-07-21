@@ -76,12 +76,12 @@ module Cosmos
       table = Qt::TableWidget.new()
       table.verticalHeader.hide()
       table.setRowCount(count)
-      column_cnt = 4
-      column_cnt += 1 if name == TELEMETRY
+      column_cnt = 5
       table.setColumnCount(column_cnt)
       # Force the last section to fill all available space in the frame
       #~ table.horizontalHeader.setStretchLastSection(true)
       headers = ["Target Name", "Packet Name", "Packet Count", "View Raw"]
+      headers << "View in Command Sender" if name == COMMANDS
       headers << "View in Packet Viewer" if name == TELEMETRY
       table.setHorizontalHeaderLabels(headers)
 
@@ -121,28 +121,35 @@ module Cosmos
           end
           table.setCellWidget(row, 3, view_raw)
 
-          if name == TELEMETRY
-            if target_name != 'UNKNOWN' and packet_name != 'UNKNOWN'
-              view_pv = Qt::PushButton.new("View in Packet Viewer")
-              view_pv.connect(SIGNAL('clicked()')) do
-                if Kernel.is_windows?
-                  Cosmos.run_process("rubyw tools/PacketViewer -p \"#{target_name} #{packet_name}\" --system #{File.basename(System.initial_filename)}")
-                elsif Kernel.is_mac? and File.exist?("tools/mac/PacketViewer.app")
-                  Cosmos.run_process("open tools/mac/PacketViewer.app --args -p \"#{target_name} #{packet_name}\" --system #{File.basename(System.initial_filename)}")
-                else
-                  Cosmos.run_process("ruby tools/PacketViewer -p \"#{target_name} #{packet_name}\" --system #{File.basename(System.initial_filename)}")
-                end
-              end
-              table.setCellWidget(row, 4, view_pv)
-            else
-              table_widget = Qt::TableWidgetItem.new(Qt::Object.tr('N/A'))
-              table_widget.setTextAlignment(Qt::AlignCenter)
-              table.setItem(row, 4, table_widget)
-            end
+          if name == COMMANDS
+            add_tool_button(table, row, target_name, packet_name, "Command Sender")
+          elsif name == TELEMETRY
+            add_tool_button(table, row, target_name, packet_name, "Packet Viewer")
           end
 
           row += 1
         end
+      end
+    end
+
+    def add_tool_button(table, row, target_name, packet_name, tool_name)
+      if target_name != 'UNKNOWN' and packet_name != 'UNKNOWN'
+        view_pv = Qt::PushButton.new("View in #{tool_name}")
+        view_pv.connect(SIGNAL('clicked()')) do
+          tool_name = tool_name.split.join.gsub("Command","Cmd") # remove space and convert name
+          if Kernel.is_windows?
+            Cosmos.run_process("rubyw tools/#{tool_name} -p \"#{target_name} #{packet_name}\" --system #{File.basename(System.initial_filename)}")
+          elsif Kernel.is_mac? and File.exist?("tools/mac/#{tool_name}.app")
+            Cosmos.run_process("open tools/mac/#{tool_name}.app --args -p \"#{target_name} #{packet_name}\" --system #{File.basename(System.initial_filename)}")
+          else
+            Cosmos.run_process("ruby tools/#{tool_name} -p \"#{target_name} #{packet_name}\" --system #{File.basename(System.initial_filename)}")
+          end
+        end
+        table.setCellWidget(row, 4, view_pv)
+      else
+        table_widget = Qt::TableWidgetItem.new(Qt::Object.tr('N/A'))
+        table_widget.setTextAlignment(Qt::AlignCenter)
+        table.setItem(row, 4, table_widget)
       end
     end
 

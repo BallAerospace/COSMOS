@@ -84,6 +84,24 @@ module Cosmos
       initialize_menus()
       initialize_central_widget()
       complete_initialize() # defined in qt_tool
+
+      # Bring up slash screen for long duration tasks after creation
+      Splash.execute(self) do |splash|
+        # Configure CosmosConfig to interact with splash screen
+        ConfigParser.splash = splash
+
+        System.commands
+        Qt.execute_in_main_thread(true) do
+          update_targets()
+          @target_select.setCurrentText(options.packet[0]) if options.packet
+          update_commands()
+          @cmd_select.setCurrentText(options.packet[1]) if options.packet
+          update_cmd_params()
+        end
+
+        # Unconfigure CosmosConfig to interact with splash screen
+        ConfigParser.splash = nil
+      end
     end
 
     def initialize_actions
@@ -245,24 +263,8 @@ module Cosmos
       layout.addWidget(splitter)
       central_widget.layout = layout
 
-      #Mark this window as the window for popups
+      # Mark this window as the window for popups
       set_cmd_tlm_gui_window(self)
-
-      # Bring up slash screen for long duration tasks after creation
-      Splash.execute(self) do |splash|
-        # Configure CosmosConfig to interact with splash screen
-        ConfigParser.splash = splash
-
-        System.commands
-        Qt.execute_in_main_thread(true) do
-          update_targets()
-          update_commands()
-          update_cmd_params()
-        end
-
-        # Unconfigure CosmosConfig to interact with splash screen
-        ConfigParser.splash = nil
-      end
     end
 
     def menu_states_in_hex(checked)
@@ -706,6 +708,15 @@ module Cosmos
           options.width = 600
           options.height = 425
           options.title = 'Command Sender'
+          option_parser.separator "Command Sender Specific Options:"
+          option_parser.on("-p", "--packet 'TARGET_NAME PACKET_NAME'", "Start with the specified command selected") do |arg|
+            split = arg.split
+            if split.length != 2
+              puts "Packet must be specified as 'TARGET_NAME PACKET_NAME' in quotes"
+              exit
+            end
+            options.packet = split
+          end
         end
 
         super(option_parser, options)
