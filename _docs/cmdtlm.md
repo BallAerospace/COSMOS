@@ -327,7 +327,7 @@ the_great_conversion.rb:
 {% highlight ruby %}
 require 'cosmos/conversions/conversion'
 module Cosmos
-  class TheGreatConversion &lt; Conversion
+  class TheGreatConversion < Conversion
     def initialize(multiplier)
       super()
       @multiplier = multiplier
