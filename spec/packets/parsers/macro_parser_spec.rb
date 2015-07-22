@@ -58,7 +58,7 @@ module Cosmos
         expect { @pc.process_file(tf.path, "SYSTEM") }.to raise_error(ConfigParser::Error, /First close the previous/)
       end
 
-      it "swaps reverse ranges to be in order" do
+      it "supports descending order" do
         tf = Tempfile.new('unittest')
         tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Description"'
         tf.puts 'MACRO_APPEND_START 4 1' # <-- Note the reverse order
@@ -71,10 +71,10 @@ module Cosmos
         pkt = @pc.telemetry["TGT1"]["PKT1"]
         expect(pkt.items.length).to eql 7 # 4 plus the RECEIVED_XXX items
         expect(pkt.items.keys).to include('BIT1','BIT2','BIT3','BIT4')
-        expect(pkt.sorted_items[3].name).to eql 'BIT1'
-        expect(pkt.sorted_items[4].name).to eql 'BIT2'
-        expect(pkt.sorted_items[5].name).to eql 'BIT3'
-        expect(pkt.sorted_items[6].name).to eql 'BIT4'
+        expect(pkt.sorted_items[3].name).to eql 'BIT4'
+        expect(pkt.sorted_items[4].name).to eql 'BIT3'
+        expect(pkt.sorted_items[5].name).to eql 'BIT2'
+        expect(pkt.sorted_items[6].name).to eql 'BIT1'
         limits_items = []
         pkt.items.each do |name, item|
           limits_items << item if name.include?('BIT')
