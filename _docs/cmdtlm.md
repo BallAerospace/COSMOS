@@ -9,41 +9,11 @@ permalink: /docs/cmdtlm/
 {{ toc | markdownify }}
 </div>
 
+## Command Definition Files
+
+Command definition files define the command packets that can be sent to COSMOS targets. One large file can be used to define the command packets, or multiple files can be used at the user's discretion. Command definition files are placed in the config/TARGET/cmd_tlm directory and are processed alphabetically. Therefore if you have some command files that depend on others, e.g. they override or extend existing commands, they must be named last. Due to the way the [ASCII Table](http://www.asciitable.com/) is structured, files beginning with capital letters are processed before lower case letters. To force a file to be processed last either prepend it with 'z' or '~'.
+
 <div style="clear:both;"></div>
-
-## Definition Files
-
-Command and Telemetry definition files define the command and telemetry packets that can be sent to COSMOS targets. One large file can be used to define packets, or multiple files can be used at the user's discretion. Partials can also be used to define a header or footer, for example, and reusing it within multiple packets. Definition files are placed in the config/TARGET/cmd_tlm directory and are processed alphabetically. Therefore if you have some definition files that depend on others, e.g. they override or extend existing packets, they must be named last. Due to the way the [ASCII Table](http://www.asciitable.com/) is structured, files beginning with capital letters are processed before lower case letters. To force a file to be processed last either prepend it with 'z' or '~'.
-
-### Partials
-
-Note: Available in COSMOS 3.6.0+.
-
-To use command or telemetry partials you create a definition file in the cmd_tlm directory whose name begins with an underscore, e.g. _header.txt. This file will not be parsed by the normal command and telemetry parser. To use this file, "render" it inside another regular definition file (doesn't begin with an underscore) using the following syntax:
-{% highlight ruby %}
-<%= render "_header.txt" %>
-{% endhighlight %}
-
-This copies the definition in _header.txt directly into the enclosing file. This is a powerful technique to avoid duplication in command and telemetry definitions.
-
-### Definition File Variables
-
-Command and telemetry files can also declare and use variables using similar syntax. Anything inside '<%  %>' is executed as regular Ruby code. Anything inside '<%=  %> is evaluated as Ruby code and the result is inserted into the definition file directly. For example:
-{% highlight ruby %}
-<% id = 20 %>
-APPEND_ITEM TEMP 16 UINT "Temperature"
-APPEND_ID_ITEM 16 UINT <%= id + 1 %> "Identifier"
-{% endhighlight %}
-
-You can also execute code in loops to rapidly create multiple telemetry items:
-{% highlight ruby %}
-<% (1..5).do |i| %>
-  APPEND_ITEM TEMP<%= i %> 16 UINT "Temperature <%= i %>"
-<% end %>
-{% endhighlight %}
-
-This will create 5 telemetry items named TEMP1, TEMP2, TEMP3, TEMP4, TEMP5.
-
 
 ## **Command Keywords:**
 
@@ -491,6 +461,10 @@ COMMAND MY_TARGET SETTINGS BIG_ENDIAN "Set the Settings"
   MACRO_APPEND_END
 {% endhighlight %}
 
+## Telemetry Definition Files
+
+Telemetry definition files define the telemetry packets that can be received and processed from COSMOS targets. One large file can be used to define the telemetry packets, or multiple files can be used at the user's discretion. Telemetry definition files are placed in the config/TARGET/cmd_tlm directory and are processed alphabetically. Therefore if you have some telemetry files that depend on others, e.g. they override or extend existing telemetry, they must be named last. Due to the way the [ASCII Table](http://www.asciitable.com/) is structured, files beginning with capital letters are processed before lower case letters. To force a file to be processed last either prepend it with 'z' or '~'.
+
 ## **Telemetry Keywords:**
 
 ### TELEMETRY
@@ -788,7 +762,7 @@ the_great_conversion.rb:
 {% highlight ruby %}
 require 'cosmos/conversions/conversion'
 module Cosmos
-  class TheGreatConversion &lt; Conversion
+  class TheGreatConversion < Conversion
     def initialize(multiplier)
       super()
       @multiplier = multiplier
