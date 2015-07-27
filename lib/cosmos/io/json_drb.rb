@@ -25,6 +25,7 @@ module Cosmos
   # methods.
   class JsonDRb
     MINIMUM_REQUEST_TIME = 0.0001
+    FAST_READ = (RUBY_VERSION > "2.1")
 
     @@debug = false
 
@@ -47,6 +48,7 @@ module Cosmos
       @request_mutex = Mutex.new
       @client_sockets = []
       @client_threads = []
+      @client_pipe_writers = []
       @client_mutex = Mutex.new
       @thread_reader, @thread_writer = IO.pipe
     end
@@ -68,6 +70,9 @@ module Cosmos
         @client_sockets.each do |client_socket|
           Cosmos.close_socket(client_socket)
         end
+        @client_pipe_writers.each do |client_pipe_writer|
+          client_pipe_writer.write('.')
+        end
         client_threads = @client_threads.clone
       end
 
@@ -80,6 +85,7 @@ module Cosmos
       @client_mutex.synchronize do
         @client_threads.clear
         @client_sockets.clear
+        @client_pipe_writers.clear
       end
     end
 
@@ -95,6 +101,7 @@ module Cosmos
     #   CmdTlmServer.
     def start_service(hostname = nil, port = nil, object = nil)
       if hostname and port and object
+        @thread_reader, @thread_writer = IO.pipe
         @object = object
         hostname = '127.0.0.1'.freeze if (hostname.to_s.upcase == 'LOCALHOST'.freeze)
 
@@ -125,14 +132,7 @@ module Cosmos
               rescue Errno::EAGAIN, Errno::ECONNABORTED, Errno::EINTR, Errno::EWOULDBLOCK
                 read_ready, _ = IO.select([@listen_socket, @thread_reader])
                 if read_ready and read_ready.include?(@thread_reader)
-                  begin
-                    # Thread should be killed - Cleanout thread_reader first
-                    # Don't let this break anything else though
-                    @thread_reader.read(1)
-                  rescue Exception
-                    # Oh well - create a clean pipe in case we need one
-                    @thread_reader, @thread_writer = IO.pipe
-                  end
+                  # Thread should be killed
                   break
                 else
                   retry
@@ -191,9 +191,10 @@ module Cosmos
     # @param socket [Socket] The socket to the client
     # @param data [String] Binary data which has already been read from the
     #   socket.
+    # @param pipe_reader [IO.pipe] Used to break out of select
     # @return [String] The request message
-    def self.receive_message(socket, data)
-      self.get_at_least_x_bytes_of_data(socket, data, 4)
+    def self.receive_message(socket, data, pipe_reader)
+      self.get_at_least_x_bytes_of_data(socket, data, 4, pipe_reader)
       if data.length >= 4
         length = data[0..3].unpack('N'.freeze)[0]
         data.replace(data[4..-1])
@@ -201,7 +202,7 @@ module Cosmos
         return nil
       end
 
-      self.get_at_least_x_bytes_of_data(socket, data, length)
+      self.get_at_least_x_bytes_of_data(socket, data, length, pipe_reader)
       if data.length >= length
         message = data[0..(length - 1)]
         data.replace(data[length..-1])
@@ -214,19 +215,23 @@ module Cosmos
     # @param socket [Socket] The socket to the client
     # @param current_data [String] Binary data read from the socket
     # @param required_num_bytes [Integer] The minimum number of bytes to read
+    # @param pipe_reader [IO.pipe] Used to break out of select
     #   before returning
-    def self.get_at_least_x_bytes_of_data(socket, current_data, required_num_bytes)
+    def self.get_at_least_x_bytes_of_data(socket, current_data, required_num_bytes, pipe_reader)
       while (current_data.length < required_num_bytes)
-        begin
-          data = socket.recv_nonblock(65535)
-          if data.length == 0
-            current_data.replace('')
-            return
+        if FAST_READ
+          data = socket.read_nonblock(65535, exception: false)
+          if data == :wait_readable
+            IO.fast_select([socket, pipe_reader], nil, nil, nil)
+          else
+            current_data << data
           end
-          current_data << data
-        rescue IO::WaitReadable
-          IO.fast_select([socket], nil, nil, nil)
-          retry
+        else
+          begin
+            current_data << socket.read_nonblock(65535)
+          rescue IO::WaitReadable
+            IO.fast_select([socket, pipe_reader], nil, nil, nil)
+          end
         end
       end
     end
@@ -278,16 +283,19 @@ module Cosmos
       socket.setsockopt(Socket::SOL_SOCKET, Socket::SO_KEEPALIVE, 1)
 
       Thread.new(socket) do |my_socket|
+        pipe_reader, pipe_writer = IO.pipe
         @client_mutex.synchronize do
           @client_sockets << my_socket
           @client_threads << Thread.current
+          @client_pipe_writers << pipe_writer
         end
 
         data = ''
+
         begin
           while true
             begin
-              request_data = JsonDRb.receive_message(my_socket, data)
+              request_data = JsonDRb.receive_message(my_socket, data, pipe_reader)
               start_time = Time.now
               @request_count += 1
             rescue Errno::ECONNRESET, Errno::ECONNABORTED, Errno::ENOTSOCK
@@ -309,6 +317,7 @@ module Cosmos
           Cosmos.close_socket(my_socket)
           @client_sockets.delete(my_socket)
           @client_threads.delete(Thread.current)
+          @client_pipe_writers.delete(pipe_writer)
         end
       end
     end

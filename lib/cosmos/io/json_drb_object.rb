@@ -48,6 +48,7 @@ module Cosmos
       @port = port
       @mutex = Mutex.new
       @socket = nil
+      @pipe_reader, @pipe_writer = IO.pipe
       @id = 0
       @request_in_progress = false
       @connect_timeout = connect_timeout
@@ -58,6 +59,7 @@ module Cosmos
     # Disconnects from the JSON server
     def disconnect
       Cosmos.close_socket(@socket)
+      @pipe_writer.write('.')
       # Cannot set @socket to nil here because this method can be called by
       # other threads and @socket being nil would cause unexpected errors in method_missing
       # Also don't want to take the mutex so that we can interrupt method_missing if necessary
@@ -113,6 +115,7 @@ module Cosmos
         addr = Socket.pack_sockaddr_in(@port, @hostname)
         @socket = Socket.new(Socket::AF_INET, Socket::SOCK_STREAM, 0)
         @socket.setsockopt(Socket::IPPROTO_TCP, Socket::TCP_NODELAY, 1)
+        @pipe_reader, @pipe_writer = IO.pipe
         begin
           @socket.connect_nonblock(addr)
         rescue IO::WaitWritable
@@ -159,7 +162,7 @@ module Cosmos
         STDOUT.puts request_data if JsonDRb.debug?
         @request_in_progress = true
         JsonDRb.send_data(@socket, request_data)
-        response_data = JsonDRb.receive_message(@socket, '')
+        response_data = JsonDRb.receive_message(@socket, '', @pipe_reader)
         @request_in_progress = false
         STDOUT.puts "\nResponse:\n" if JsonDRb.debug?
         STDOUT.puts response_data if JsonDRb.debug?
