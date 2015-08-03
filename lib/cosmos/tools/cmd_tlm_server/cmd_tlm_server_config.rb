@@ -79,15 +79,27 @@ module Cosmos
           when 'PACKET_LOG_WRITER'
             usage = "PACKET_LOG_WRITER <Name> <Filename> <Specific Parameters>"
             parser.verify_num_parameters(2, nil, usage)
+            packet_log_writer_name = params[0].upcase
             packet_log_writer_class = Cosmos.require_class(params[1])
+
+            # Verify not overridding a packet log writer that is already associated with an interface
+            packet_log_writer_pair = @packet_log_writer_pairs[packet_log_writer_name]
+            if packet_log_writer_pair
+              @interfaces.each do |interface_name, interface|
+                if interface.packet_log_writer_pairs.include?(packet_log_writer_pair)
+                  raise parser.error("Redefining Packet Log Writer #{packet_log_writer_name} not allowed after it is associated with an interface")
+                end
+              end
+            end
+
             if params[2]
               cmd_log_writer = packet_log_writer_class.new(:CMD, *params[2..-1])
               tlm_log_writer = packet_log_writer_class.new(:TLM, *params[2..-1])
-              @packet_log_writer_pairs[params[0].upcase] = PacketLogWriterPair.new(cmd_log_writer, tlm_log_writer)
+              @packet_log_writer_pairs[packet_log_writer_name] = PacketLogWriterPair.new(cmd_log_writer, tlm_log_writer)
             else
               cmd_log_writer = packet_log_writer_class.new(:CMD)
               tlm_log_writer = packet_log_writer_class.new(:TLM)
-              @packet_log_writer_pairs[params[0].upcase] = PacketLogWriterPair.new(cmd_log_writer, tlm_log_writer)
+              @packet_log_writer_pairs[packet_log_writer_name] = PacketLogWriterPair.new(cmd_log_writer, tlm_log_writer)
             end
 
           when 'AUTO_INTERFACE_TARGETS'

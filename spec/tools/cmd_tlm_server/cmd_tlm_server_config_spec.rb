@@ -115,6 +115,14 @@ module Cosmos
           end
           sleep(0.2)
         end
+
+        it "doesnt allow overriding a PACKET_LOG_WRITER associated with an interface" do
+          tf = Tempfile.new('unittest')
+          tf.puts 'AUTO_INTERFACE_TARGETS'
+          tf.puts 'PACKET_LOG_WRITER DEFAULT packet_log_writer.rb test_log_name false 3 1000 C:\log false'
+          tf.close
+          expect { CmdTlmServerConfig.new(tf.path) }.to raise_error(ConfigParser::Error, /Redefining Packet Log Writer DEFAULT not allowed after it is associated with an interface/)
+        end
       end
 
       context "with AUTO_INTERFACE_TARGETS" do
