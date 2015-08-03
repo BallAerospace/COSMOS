@@ -54,7 +54,7 @@ module Cosmos
       if first_index < last_index
         @macro.indices = (first_index..last_index).to_a
       else
-        @macro.indices = (last_index..first_index).to_a
+        @macro.indices = (last_index..first_index).to_a.reverse
       end
       @macro.format = parser.parameters[2] ? parser.parameters[2] : '%s%d'
       @macro.format_order = get_format_order()
