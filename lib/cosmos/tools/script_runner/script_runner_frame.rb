@@ -1485,46 +1485,50 @@ module Cosmos
 
     # Right click context_menu for the script
     def context_menu(point)
-      if @tab_book_shown
-        current_script = @tab_book.tab(@tab_book.currentIndex)
-      else
-        current_script = @script
-      end
-      menu = current_script.context_menu(point)
-      menu.addSeparator()
-      if not self.class.running?
-        exec_selected_action = Qt::Action.new(tr("Execute Selected Lines"), self)
-        exec_selected_action.statusTip = tr("Execute the selected lines as a standalone script")
-        exec_selected_action.connect(SIGNAL('triggered()')) { run_selection() }
-        menu.addAction(exec_selected_action)
-
-        exec_cursor_action = Qt::Action.new(tr("Execute From Cursor"), self)
-        exec_cursor_action.statusTip = tr("Execute the script starting at the line containing the cursor")
-        exec_cursor_action.connect(SIGNAL('triggered()')) { run_from_cursor() }
-        menu.addAction(exec_cursor_action)
-
-        menu.addSeparator()
-
-        if RUBY_VERSION.split('.')[0].to_i > 1
-          syntax_action = Qt::Action.new(tr("Ruby Syntax Check Selected Lines"), self)
-          syntax_action.statusTip = tr("Check the selected lines for valid Ruby syntax")
-          syntax_action.connect(SIGNAL('triggered()')) { ruby_syntax_check_selection() }
-          menu.addAction(syntax_action)
+      # Only show context menu if not running or paused.  Otherwise will segfault if current tab goes away while menu
+      # is shown
+      if not self.class.running? or (running?() and @realtime_button_bar.state != 'Running')
+        if @tab_book_shown
+          current_script = @tab_book.tab(@tab_book.currentIndex)
+        else
+          current_script = @script
         end
+        menu = current_script.context_menu(point)
+        menu.addSeparator()
+        if not self.class.running?
+          exec_selected_action = Qt::Action.new(tr("Execute Selected Lines"), self)
+          exec_selected_action.statusTip = tr("Execute the selected lines as a standalone script")
+          exec_selected_action.connect(SIGNAL('triggered()')) { run_selection() }
+          menu.addAction(exec_selected_action)
 
-        mnemonic_action = Qt::Action.new(tr("Mnemonic Check Selected Lines"), self)
-        mnemonic_action.statusTip = tr("Check the selected lines for valid targets, packets, mnemonics and parameters")
-        mnemonic_action.connect(SIGNAL('triggered()')) { mnemonic_check_selection() }
-        menu.addAction(mnemonic_action)
+          exec_cursor_action = Qt::Action.new(tr("Execute From Cursor"), self)
+          exec_cursor_action.statusTip = tr("Execute the script starting at the line containing the cursor")
+          exec_cursor_action.connect(SIGNAL('triggered()')) { run_from_cursor() }
+          menu.addAction(exec_cursor_action)
 
-      elsif running?() and @realtime_button_bar.state != 'Running'
-        exec_selected_action = Qt::Action.new(tr("Execute Selected Lines While Paused"), self)
-        exec_selected_action.statusTip = tr("Execute the selected lines as a standalone script")
-        exec_selected_action.connect(SIGNAL('triggered()')) { run_selection_while_paused() }
-        menu.addAction(exec_selected_action)
+          menu.addSeparator()
+
+          if RUBY_VERSION.split('.')[0].to_i > 1
+            syntax_action = Qt::Action.new(tr("Ruby Syntax Check Selected Lines"), self)
+            syntax_action.statusTip = tr("Check the selected lines for valid Ruby syntax")
+            syntax_action.connect(SIGNAL('triggered()')) { ruby_syntax_check_selection() }
+            menu.addAction(syntax_action)
+          end
+
+          mnemonic_action = Qt::Action.new(tr("Mnemonic Check Selected Lines"), self)
+          mnemonic_action.statusTip = tr("Check the selected lines for valid targets, packets, mnemonics and parameters")
+          mnemonic_action.connect(SIGNAL('triggered()')) { mnemonic_check_selection() }
+          menu.addAction(mnemonic_action)
+
+        elsif running?() and @realtime_button_bar.state != 'Running'
+          exec_selected_action = Qt::Action.new(tr("Execute Selected Lines While Paused"), self)
+          exec_selected_action.statusTip = tr("Execute the selected lines as a standalone script")
+          exec_selected_action.connect(SIGNAL('triggered()')) { run_selection_while_paused() }
+          menu.addAction(exec_selected_action)
+        end
+        menu.exec(current_script.mapToGlobal(point))
+        menu.dispose
       end
-      menu.exec(current_script.mapToGlobal(point))
-      menu.dispose
     end
 
     def load_file_into_script(filename)
