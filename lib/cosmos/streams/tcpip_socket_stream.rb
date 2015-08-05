@@ -20,6 +20,8 @@ module Cosmos
   class TcpipSocketStream < Stream
     attr_reader :write_socket
 
+    FAST_READ = (RUBY_VERSION > "2.1")
+
     # @param write_socket [Socket] Socket to write
     # @param read_socket [Socket] Socket to read
     # @param write_timeout [Float|nil] Number of seconds to wait for the write
@@ -39,6 +41,7 @@ module Cosmos
       # Mutex on write is needed to protect from commands coming in from more
       # than one tool
       @write_mutex = Mutex.new
+      @pipe_reader, @pipe_writer = IO.pipe
       @connected = false
     end
 
@@ -48,27 +51,66 @@ module Cosmos
 
       # No read mutex is needed because there is only one stream procesor
       # reading
-      begin
-        data = @read_socket.recv_nonblock(65535)
-        @raw_logger_pair.read_logger.write(data) if @raw_logger_pair
-      rescue IO::WaitReadable
-        # Wait for the socket to be ready for reading or for the timeout
+      if FAST_READ
         begin
-          result = IO.fast_select([@read_socket], nil, nil, @read_timeout)
+          while true # Loop until we get some data
+            data = @read_socket.read_nonblock(65535, exception: false)
+            if data == :wait_readable
+              # Wait for the socket to be ready for reading or for the timeout
+              begin
+                result = IO.fast_select([@read_socket, @pipe_reader], nil, nil, @read_timeout)
 
-          # If select returns something it means the socket is now available for
-          # reading so retry the read. If it returns nil it means we timed out.
-          if result
-            retry
-          else
-            raise Timeout::Error, "Read Timeout"
+                # If select returns something it means the socket is now available for
+                # reading so retry the read. If it returns nil it means we timed out.
+                # If the pipe is present that means we closed the socket
+                if result
+                  if result.include?(@pipe_reader)
+                    raise IOError
+                  else
+                    next
+                  end
+                else
+                  raise Timeout::Error, "Read Timeout"
+                end
+              rescue IOError, Errno::ENOTSOCK
+                # These can happen with the socket being closed while waiting on select
+                data = ''
+              end
+            end
+            @raw_logger_pair.read_logger.write(data) if @raw_logger_pair
+            break
           end
-        rescue IOError, Errno::ENOTSOCK
-          # These can happen with the socket being closed while waiting on select
+        rescue Errno::ECONNRESET, Errno::ECONNABORTED, IOError, Errno::ENOTSOCK
           data = ''
         end
-      rescue Errno::ECONNRESET, Errno::ECONNABORTED, IOError, Errno::ENOTSOCK
-        data = ''
+      else
+        begin
+          data = @read_socket.read_nonblock(65535)
+          @raw_logger_pair.read_logger.write(data) if @raw_logger_pair
+        rescue IO::WaitReadable
+          # Wait for the socket to be ready for reading or for the timeout
+          begin
+            result = IO.fast_select([@read_socket, @pipe_reader], nil, nil, @read_timeout)
+
+            # If select returns something it means the socket is now available for
+            # reading so retry the read. If it returns nil it means we timed out.
+            # If the pipe is present that means we closed the socket
+            if result
+              if result.include?(@pipe_reader)
+                raise IOError
+              else
+                retry
+              end
+            else
+              raise Timeout::Error, "Read Timeout"
+            end
+          rescue IOError, Errno::ENOTSOCK
+            # These can happen with the socket being closed while waiting on select
+            data = ''
+          end
+        rescue Errno::ECONNRESET, Errno::ECONNABORTED, IOError, Errno::ENOTSOCK
+          data = ''
+        end
       end
 
       data
@@ -79,8 +121,17 @@ module Cosmos
       # No read mutex is needed because there is only one stream procesor
       # reading
       begin
-        data = @read_socket.recv_nonblock(65535)
-        @raw_logger_pair.read_logger.write(data) if @raw_logger_pair
+        if FAST_READ
+          data = @read_socket.read_nonblock(65535, exception: false)
+          if data == :wait_readable
+            data = ''
+          else
+            @raw_logger_pair.read_logger.write(data) if @raw_logger_pair
+          end
+        else
+          data = @read_socket.read_nonblock(65535)
+          @raw_logger_pair.read_logger.write(data) if @raw_logger_pair
+        end
       rescue Errno::EAGAIN, Errno::EWOULDBLOCK, Errno::ECONNRESET, Errno::ECONNABORTED
         data = ''
       end
@@ -135,6 +186,7 @@ module Cosmos
     def disconnect
       Cosmos.close_socket(@write_socket)
       Cosmos.close_socket(@read_socket)
+      @pipe_writer.write('.')
       @connected = false
     end
 

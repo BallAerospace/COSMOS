@@ -22,6 +22,34 @@ module Cosmos
       end
     end
 
+    # This test takes time and doesn't actually assert any functionality
+    # It was created to verify the changes to socket reads in PR#181.
+    #describe "read benchmark" do
+    #  it "determines how fast the read is" do
+    #    server = TCPServer.new(2000) # Server bound to port 2000
+    #    thread = Thread.new do
+    #      client = server.accept    # Wait for a client to connect
+    #      i = 0
+    #      100000.times do
+    #        client.write "test"
+    #        i += 1
+    #        sleep 0.001 if i % 100 == 1
+    #      end
+    #      client.close
+    #    end
+    #    socket = TCPSocket.new('localhost', 2000)
+    #    ss = TcpipSocketStream.new(nil,socket,nil,nil)
+    #    bytes = 0
+    #    while bytes < 400000
+    #      bytes += ss.read.length
+    #    end
+    #    Cosmos.close_socket(socket)
+    #    Cosmos.close_socket(server)
+    #    thread.kill
+    #    sleep 0.1
+    #  end
+    #end
+
     describe "read" do
       it "raises an error if no read socket given" do
         ss = TcpipSocketStream.new('write',nil,nil,nil)

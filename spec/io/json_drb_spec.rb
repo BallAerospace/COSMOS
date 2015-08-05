@@ -17,6 +17,7 @@ module Cosmos
   describe JsonDRb do
     before(:each) do
       @json = JsonDRb.new
+      @pipe_reader, @pipe_writer = IO.pipe
     end
 
     describe "initialize" do
@@ -122,21 +123,6 @@ module Cosmos
     end
 
     describe "receive_message" do
-      it "returns nil if 4 bytes of data aren't available" do
-        @json.start_service('127.0.0.1', 7777, self)
-        socket = TCPSocket.open('127.0.0.1',7777)
-        # Stub recv_nonblock so it returns nothing
-        allow(socket).to receive(:recv_nonblock) { "" }
-        sleep 0.1
-        JsonDRb.send_data(socket, "\x00")
-        response_data = JsonDRb.receive_message(socket, '')
-        expect(response_data).to be_nil
-        socket.close
-        sleep 0.1
-        @json.stop_service
-        sleep(0.1)
-      end
-
       it "processes success requests" do
         class MyServer1
           def my_method(param)
@@ -148,7 +134,7 @@ module Cosmos
         sleep 0.1
         request = JsonRpcRequest.new('my_method', 'param', 1).to_json
         JsonDRb.send_data(socket, request)
-        response_data = JsonDRb.receive_message(socket, '')
+        response_data = JsonDRb.receive_message(socket, '', @pipe_reader)
         response = JsonRpcResponse.from_json(response_data)
         expect(response).to be_a(JsonRpcSuccessResponse)
         socket.close
@@ -166,7 +152,7 @@ module Cosmos
         sleep 0.1
         request = JsonRpcRequest.new('my_method', 'param', 1).to_json
         JsonDRb.send_data(socket, request)
-        response_data = JsonDRb.receive_message(socket, '')
+        response_data = JsonDRb.receive_message(socket, '', @pipe_reader)
         response = JsonRpcResponse.from_json(response_data)
         expect(response).to be_a(JsonRpcErrorResponse)
         expect(response.error.code).to eql -32601
@@ -188,7 +174,7 @@ module Cosmos
         sleep 0.1
         request = JsonRpcRequest.new('my_method', 'param1', 1).to_json
         JsonDRb.send_data(socket, request)
-        response_data = JsonDRb.receive_message(socket, '')
+        response_data = JsonDRb.receive_message(socket, '', @pipe_reader)
         response = JsonRpcResponse.from_json(response_data)
         expect(response).to be_a(JsonRpcErrorResponse)
         expect(response.error.code).to eql -32602
@@ -211,7 +197,7 @@ module Cosmos
         sleep 0.1
         request = JsonRpcRequest.new('my_method', 'param', 1).to_json
         JsonDRb.send_data(socket, request)
-        response_data = JsonDRb.receive_message(socket, '')
+        response_data = JsonDRb.receive_message(socket, '', @pipe_reader)
         response = JsonRpcResponse.from_json(response_data)
         expect(response).to be_a(JsonRpcErrorResponse)
         expect(response.error.code).to eql -1
@@ -228,7 +214,7 @@ module Cosmos
         sleep 0.1
         request = JsonRpcRequest.new('send', 'param', 1).to_json
         JsonDRb.send_data(socket, request)
-        response_data = JsonDRb.receive_message(socket, '')
+        response_data = JsonDRb.receive_message(socket, '', @pipe_reader)
         response = JsonRpcResponse.from_json(response_data)
         expect(response).to be_a(JsonRpcErrorResponse)
         expect(response.error.code).to eql -1
@@ -247,7 +233,7 @@ module Cosmos
         request.gsub!("jsonrpc","version")
         request.gsub!("2.0","1.1")
         JsonDRb.send_data(socket, request)
-        response_data = JsonDRb.receive_message(socket, '')
+        response_data = JsonDRb.receive_message(socket, '', @pipe_reader)
         response = JsonRpcResponse.from_json(response_data)
         expect(response).to be_a(JsonRpcErrorResponse)
         expect(response.error.code).to eql -32600
