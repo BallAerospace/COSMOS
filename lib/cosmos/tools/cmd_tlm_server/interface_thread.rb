@@ -198,7 +198,7 @@ module Cosmos
       else
         Logger.error "#{@interface.name} Connection Failed: #{connect_error.formatted(false, false)}"
         case connect_error
-        when Errno::ECONNREFUSED, Errno::ECONNRESET, Errno::ETIMEDOUT, Errno::ENOTSOCK, Errno::EHOSTUNREACH
+        when Errno::ECONNREFUSED, Errno::ECONNRESET, Errno::ETIMEDOUT, Errno::ENOTSOCK, Errno::EHOSTUNREACH, IOError
           # Do not write an exception file for these extremely common cases
         else
           if RuntimeError === connect_error and (connect_error.message =~ /canceled/ or connect_error.message =~ /timeout/)
@@ -222,7 +222,7 @@ module Cosmos
         if err
           Logger.info "Connection Lost for #{@interface.name}: #{err.formatted(false, false)}"
           case err
-          when Errno::ECONNABORTED, Errno::ECONNRESET, Errno::ETIMEDOUT, Errno::EBADF
+          when Errno::ECONNABORTED, Errno::ECONNRESET, Errno::ETIMEDOUT, Errno::EBADF, IOError
             # Do not write an exception file for these extremely common cases
           else
             Logger.error err.formatted

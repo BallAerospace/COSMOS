@@ -299,7 +299,7 @@ module Cosmos
               request_data = JsonDRb.receive_message(my_socket, data, pipe_reader)
               start_time = Time.now
               @request_count += 1
-            rescue Errno::ECONNRESET, Errno::ECONNABORTED, Errno::ENOTSOCK
+            rescue Errno::ECONNRESET, Errno::ECONNABORTED, Errno::ENOTSOCK, IOError
               # Socket was closed
               break
             end

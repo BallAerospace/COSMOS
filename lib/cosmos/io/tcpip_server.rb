@@ -483,7 +483,7 @@ module Cosmos
                 stream_protocol.disconnect
                 stream_protocol.stream.raw_logger_pair.stop if stream_protocol.stream.raw_logger_pair
                 indexes_to_delete.unshift(index) # Put later indexes at front of array
-              rescue Errno::ECONNRESET, Errno::ECONNABORTED
+              rescue Errno::ECONNRESET, Errno::ECONNABORTED, IOError
                 # Client has disconnected
                 Logger.instance.info "Tcpip server lost write connection to #{hostname}(#{host_ip}):#{port}"
                 stream_protocol.disconnect
