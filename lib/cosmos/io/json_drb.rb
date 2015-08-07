@@ -221,6 +221,7 @@ module Cosmos
       while (current_data.length < required_num_bytes)
         if FAST_READ
           data = socket.read_nonblock(65535, exception: false)
+          raise EOFError, 'end of file reached' unless data
           if data == :wait_readable
             IO.fast_select([socket, pipe_reader], nil, nil, nil)
           else

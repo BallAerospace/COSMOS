@@ -55,11 +55,11 @@ module Cosmos
         begin
           while true # Loop until we get some data
             data = @read_socket.read_nonblock(65535, exception: false)
+            raise EOFError, 'end of file reached' unless data
             if data == :wait_readable
               # Wait for the socket to be ready for reading or for the timeout
               begin
                 result = IO.fast_select([@read_socket, @pipe_reader], nil, nil, @read_timeout)
-
                 # If select returns something it means the socket is now available for
                 # reading so retry the read. If it returns nil it means we timed out.
                 # If the pipe is present that means we closed the socket
@@ -123,6 +123,7 @@ module Cosmos
       begin
         if FAST_READ
           data = @read_socket.read_nonblock(65535, exception: false)
+          raise EOFError, 'end of file reached' unless data
           if data == :wait_readable
             data = ''
           else
@@ -132,7 +133,7 @@ module Cosmos
           data = @read_socket.read_nonblock(65535)
           @raw_logger_pair.read_logger.write(data) if @raw_logger_pair
         end
-      rescue Errno::EAGAIN, Errno::EWOULDBLOCK, Errno::ECONNRESET, Errno::ECONNABORTED
+      rescue Errno::EAGAIN, Errno::EWOULDBLOCK, Errno::ECONNRESET, Errno::ECONNABORTED, IOError
         data = ''
       end
 
