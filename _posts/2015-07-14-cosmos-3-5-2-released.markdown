@@ -1,25 +1,23 @@
 ---
 layout: news_item
-title: 'Ball Aerospace COSMOS 3.5.1 Released'
-date: 2015-07-08 12:00:00 -0700
-author: jmthomas
-version: 3.5.1
+title: 'Ball Aerospace COSMOS 3.5.2 Released'
+date: 2015-07-14 12:00:00 -0700
+author: ryanmelt
+version: 3.5.2
 categories: [release]
 ---
 
-This release fixes a bug and completes the installation scripts for linux/mac.
-
 ### Bug Fixes:
 
-* [#165](https://github.com/BallAerospace/COSMOS/pull/165) Change launch_tool to tool_launch in Launcher
+* [#167](https://github.com/BallAerospace/COSMOS/issues/167) Use updated url for wkhtmltopdf downloads
 
 ### New Features:
 
-* N/A
+* [#166](https://github.com/BallAerospace/COSMOS/pull/166) Add install script for Ubuntu
 
 ### Maintenance:
 
-* [#102](https://github.com/BallAerospace/COSMOS/issues/102) Create Installation Scripts
+* N/A
 
 ### Migration Notes from COSMOS 3.4.2:
 

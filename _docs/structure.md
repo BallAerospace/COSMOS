@@ -57,7 +57,7 @@ An overview of what each of these does:
         Defines the gems and their versions used by your COSMOS configuration.
         If you want to use other gems in your cosmos project you should add them here
         and then run "bundle install" from the command line. See the <a href="http://bundler.io/">Bundler</a>
-        documents for more information.
+        documents and our <a href="/docs/upgrading">Upgrading</a> section for more information.
       </p></td>
     </tr>
 

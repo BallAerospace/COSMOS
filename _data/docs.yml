@@ -1,8 +1,8 @@
 - title: Getting Started
   docs:
   - home
-  - quickstart
   - installation
+  - upgrading
   - structure
   - gettingstarted
 
