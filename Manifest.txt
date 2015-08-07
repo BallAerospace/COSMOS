@@ -308,6 +308,8 @@ demo/config/targets/EXAMPLE/cmd_tlm/example_tlm.txt
 demo/config/targets/EXAMPLE/cmd_tlm_server.txt
 demo/config/targets/EXAMPLE/lib/example_interface.rb
 demo/config/targets/EXAMPLE/target.txt
+demo/config/targets/INST/cmd_tlm/_ccsds_cmd.txt
+demo/config/targets/INST/cmd_tlm/_ccsds_tlm.txt
 demo/config/targets/INST/cmd_tlm/inst_cmds.txt
 demo/config/targets/INST/cmd_tlm/inst_tlm.txt
 demo/config/targets/INST/cmd_tlm_server.txt
@@ -365,6 +367,7 @@ demo/config/tools/table_manager/MCConfigurationTable_fsw2_def.txt
 demo/config/tools/table_manager/PPSSelectionTable_def.txt
 demo/config/tools/table_manager/TLMMonitoringTable_def.txt
 demo/config/tools/test_runner/test_runner.txt
+demo/config/tools/tlm_extractor/_adcs_time.txt
 demo/config/tools/tlm_extractor/tlm_extractor.txt
 demo/config/tools/tlm_extractor/tlm_extractor2.txt
 demo/config/tools/tlm_extractor/tlm_extractor3.txt

@@ -23,8 +23,10 @@
 "config/targets/SYSTEM/cmd_tlm/override.txt" 0x8FE016FF
 "config/targets/SYSTEM/cmd_tlm/limits_groups.txt" 0x16AF4BA3
 "config/targets/SYSTEM/screens/status.txt" 0x89B616E5
-"config/targets/INST/cmd_tlm/inst_tlm.txt" 0x41CB35D2
-"config/targets/INST/cmd_tlm/inst_cmds.txt" 0x5E6ADC2F
+"config/targets/INST/cmd_tlm/_ccsds_tlm.txt" 0xE833D935
+"config/targets/INST/cmd_tlm/inst_tlm.txt" 0xB051D393
+"config/targets/INST/cmd_tlm/inst_cmds.txt" 0xB1512DFA
+"config/targets/INST/cmd_tlm/_ccsds_cmd.txt" 0x30F646E8
 "config/targets/INST/cmd_tlm_server.txt" 0x3FC45604
 "config/targets/INST/target.txt" 0x3C3A6F4A
 "config/targets/INST/screens/graphs.txt" 0x82EF35B4
@@ -62,10 +64,11 @@
 "config/tools/data_viewer/data_viewer.txt" 0xCAC3B017
 "config/tools/launcher/launcher.txt" 0x1B96FE7C
 "config/tools/launcher/launcher2.txt" 0xB0B9B1D1
-"config/tools/tlm_extractor/tlm_extractor4.txt" 0x7BFDC27A
-"config/tools/tlm_extractor/tlm_extractor2.txt" 0x210DED6A
-"config/tools/tlm_extractor/tlm_extractor.txt" 0x51B791DF
-"config/tools/tlm_extractor/tlm_extractor3.txt" 0x3A25E012
+"config/tools/tlm_extractor/tlm_extractor4.txt" 0x068824C2
+"config/tools/tlm_extractor/_adcs_time.txt" 0x3DAD5094
+"config/tools/tlm_extractor/tlm_extractor2.txt" 0x5C780BD2
+"config/tools/tlm_extractor/tlm_extractor.txt" 0x0B97FA7D
+"config/tools/tlm_extractor/tlm_extractor3.txt" 0x475006AA
 "config/tools/cmd_tlm_server/cmd_tlm_server.txt" 0x5F467E20
 "config/tools/cmd_tlm_server/cmd_tlm_server2.txt" 0xF1C5C3B4
 "config/tools/limits_monitor/README.txt" 0x93B2C07E
@@ -73,7 +76,7 @@
 "config/tools/table_manager/ConfigTables_def.txt" 0xC38DCB2A
 "config/tools/table_manager/ExampleTableDefinition.txt" 0x5476588C
 "config/tools/table_manager/MCConfigurationTable_fsw1_def.txt" 0x9DE18AEA
-"config/tools/table_manager/TLMMonitoringTable_def.txt" 0x70DABA45
+"config/tools/table_manager/TLMMonitoringTable_def.txt" 0xBD70F0A7
 "config/tools/table_manager/MCConfigurationTable_fsw2_def.txt" 0x9DE18AEA
 "config/tools/opengl_builder/README.txt" 0x93B2C07E
 "config/tools/test_runner/test_runner.txt" 0x1EB7E49C
