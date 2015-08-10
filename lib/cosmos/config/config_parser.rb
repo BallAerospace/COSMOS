@@ -9,6 +9,7 @@
 # attribution addendums as found in the LICENSE.txt
 
 require 'cosmos/ext/config_parser'
+require 'tempfile'
 require 'erb'
 
 module Cosmos
@@ -183,7 +184,7 @@ module Cosmos
         size = file.stat.size.to_f
 
         # Callbacks for beginning of parsing
-        @@message_callback.call("Parsing #{size} bytes of #{file.path}") if @@message_callback
+        @@message_callback.call("Parsing #{size} bytes of #{filename}") if @@message_callback
         @@progress_callback.call(0.0) if @@progress_callback
 
         # Loop through each line of the data
