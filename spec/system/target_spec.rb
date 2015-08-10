@@ -242,6 +242,33 @@ module Cosmos
 
           FileUtils.rm_r(tgt_dir)
         end
+
+        it "filename order must be preserved" do
+          tgt_path = File.join(Cosmos::USERPATH,'target_spec_temp')
+          tgt_name = "TEST"
+          tgt_dir = File.join(tgt_path,tgt_name)
+          FileUtils.mkdir_p(tgt_dir)
+          FileUtils.mkdir_p(tgt_dir + '/cmd_tlm')
+          File.open(tgt_dir + '/cmd_tlm/tgt_cmds.txt', 'w') {|file| file.puts "# comment"}
+          File.open(tgt_dir + '/cmd_tlm/tgt_cmds2.txt', 'w') {|file| file.puts "# comment"}
+          File.open(tgt_dir + '/cmd_tlm/tgt_cmds3.txt', 'w') {|file| file.puts "# comment"}
+          File.open(tgt_dir + '/cmd_tlm/tgt_tlm.txt', 'w') {|file| file.puts "# comment"}
+          File.open(tgt_dir + '/cmd_tlm/tgt_tlm2.txt', 'w') {|file| file.puts "# comment"}
+          File.open(tgt_dir + '/cmd_tlm/tgt_tlm3.txt', 'w') {|file| file.puts "# comment"}
+          File.open(File.join(tgt_dir,'target.txt'),'w') do |file|
+            file.puts("COMMANDS tgt_cmds3.txt")
+            file.puts("COMMANDS tgt_cmds2.txt")
+            file.puts("TELEMETRY tgt_tlm3.txt")
+            file.puts("TELEMETRY tgt_tlm.txt")
+          end
+
+          tgt = Target.new(tgt_name,nil,tgt_path)
+          expect(tgt.dir).to eql tgt_dir
+          expect(tgt.cmd_tlm_files.length).to eql 4
+          expect(tgt.cmd_tlm_files).to eql [tgt_dir + '/cmd_tlm/tgt_cmds3.txt', tgt_dir + '/cmd_tlm/tgt_cmds2.txt', tgt_dir + '/cmd_tlm/tgt_tlm3.txt', tgt_dir + '/cmd_tlm/tgt_tlm.txt']
+
+          FileUtils.rm_r(tgt_dir)
+        end
       end
     end
 
