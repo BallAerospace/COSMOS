@@ -196,14 +196,16 @@ module Cosmos
 
     # Make sure all partials are included in the cmd_tlm list for the MD5 calculation
     def add_cmd_tlm_partials(dir)
+      partial_files = []
       if Dir.exist?(File.join(dir, 'cmd_tlm'))
         # Grab all _*.txt files in the cmd_tlm folder and subfolders
         Dir[File.join(dir, 'cmd_tlm', '**', '_*.txt')].each do |filename|
-          @cmd_tlm_files << filename
+          partial_files << filename
         end
       end
+      partial_files.sort!
+      @cmd_tlm_files.concat(partial_files)
       @cmd_tlm_files.uniq!
-      @cmd_tlm_files.sort!
     end
 
   end # class Target
