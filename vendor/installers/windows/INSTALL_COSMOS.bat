@@ -25,7 +25,7 @@ set WKHTMLPATHWITHPROTOCOL=http://download.gna.org/wkhtmltopdf/obsolete/windows/
 set QT_VERSION=4.8.6
 
 :: Detect Ball
-if %USERDNSDOMAIN%==AERO.BALL.COM (
+if "%USERDNSDOMAIN%"=="AERO.BALL.COM" (
   set BALL=1
 ) else (
   set BALL=0
