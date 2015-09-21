@@ -15,7 +15,7 @@ module Cosmos
 
   # Interface for connecting to Ball Aerospace LINC Labview targets
   class LincInterface < TcpipClientInterface
-    # The maximum number of asyncrhonous commands we can wait for at a time.
+    # The maximum number of asynchronous commands we can wait for at a time.
     # We don't ever expect to get close to this but we need to limit it
     # to ensure the Array doesn't grow out of control.
     MAX_CONCURRENT_HANDSHAKES = 1000
@@ -153,7 +153,7 @@ module Cosmos
           # Wait for the response if handshaking
           if @handshake_enabled
             begin
-            
+
               # Check the number of commands waiting for handshakes.  This is just for sanity
               # If the number of commands waiting for handshakes is very large then it can't be real
               # So raise an error.  Something has gone horribly wrong.
@@ -172,7 +172,7 @@ module Cosmos
               # We now have the mutex again.  This interface is blocked for the rest of the command handling,
               # which should be quick because it's just checking variables and logging.
               # We want to hold the mutex during that so that the commands get logged in order of handshake from here.
-                            
+
               if timed_out
                 # Clean this command out of the array of items that require handshakes.
                 @handshake_cmds.delete_if {|hsc| hsc == my_handshake_cmd}
@@ -182,7 +182,7 @@ module Cosmos
               status = my_handshake_cmd.handshake.handshake.read('STATUS')
               code = my_handshake_cmd.handshake.handshake.read('CODE')
               source = my_handshake_cmd.handshake.error_source
-                            
+
               # Handle handshake warnings and errors
               if status == "OK" and code != 0
                 unless @ignored_error_codes.include? code
@@ -193,7 +193,7 @@ module Cosmos
                   raise "Error sending command (#{code}): #{source}"
                 end
               end
-              
+
             rescue Exception => err
               # If anything goes wrong after successfully writing the packet to the LINC target
               # ensure that the packet gets updated in the CVT and logged to the packet log writer.
@@ -248,7 +248,7 @@ module Cosmos
             # first looks up the handshake before removing it.
             if @handshake_enabled
               @handshakes_mutex.synchronize do
-                
+
                 if @fieldname_guid
                   # A GUID means it's an asychronous packet type.
                   # So look at the list of incoming handshakes and pick off (deleting)
@@ -261,25 +261,24 @@ module Cosmos
                   # Loop through all waiting commands to see if this handshake belongs to them
                   this_handshake_guid = my_handshake.get_cmd_guid(@fieldname_guid)
                   my_handshake_cmd_index = @handshake_cmds.index {|hsc| hsc.get_cmd_guid == this_handshake_guid}
-                  
+
                   # If command was waiting (ie the loop above found one), then remove it from waiters and signal it
-                  if my_handshake_cmd_index 
-                      my_handshake_cmd = @handshake_cmds.slice!(my_handshake_cmd_index)              
-                      my_handshake_cmd.got_your_handshake(my_handshake)
+                  if my_handshake_cmd_index
+                    my_handshake_cmd = @handshake_cmds.slice!(my_handshake_cmd_index)
+                    my_handshake_cmd.got_your_handshake(my_handshake)
                   else
                     # No command match found!  Either it gave up and timed out or this wasn't originated from here.
-                    # Ignore this typically.  This case here for clarity.     
+                    # Ignore this typically.  This case here for clarity.
                   end
-            
+
                 else
                   # Synchronous version: just pop the array (pull the command off) and send it the handshake
-                    my_handshake_cmd = @handshakes_cmds.pop
-                    my_handshake_cmd.got_your_handshake(my_handshake)
-                    
+                  my_handshake_cmd = @handshakes_cmds.pop
+                  my_handshake_cmd.got_your_handshake(my_handshake)
                 end # of handshaking type check
-            
-              end # @handshakes_mutex.synchronize        
-            end # if @handshake_enabled            
+
+              end # @handshakes_mutex.synchronize
+            end # if @handshake_enabled
           end # if handshake_packet.read('origin') == "LCL"
         end # @handshake_packet.identify?(packet.buffer(false))
       end # if packet
@@ -293,21 +292,19 @@ module Cosmos
   # It is the command with other required items that is passed to the telemetry
   # thread so it can match it with the handshake.
   class LincHandshakeCommand
-    
+
     attr_accessor :handshake
-    
+
     def initialize(handshakes_mutex,cmd_guid)
       @cmd_guid = cmd_guid
       @handshakes_mutex = handshakes_mutex
       @resource = ConditionVariable.new
       @handshake = nil
-      
     end
-    
+
     def wait_for_handshake(response_timeout)
-      
       timed_out = false
-      
+
       @resource.wait(@handshakes_mutex,response_timeout)
       if @handshake
         timed_out = false
@@ -315,26 +312,20 @@ module Cosmos
         puts "No handshake - must be timeout."
         timed_out = true
       end
-      
+
       return timed_out
-    
     end
-    
+
     def got_your_handshake(handshake)
-      
       @handshake = handshake
       @resource.signal
-
     end
-    
+
     def get_cmd_guid
-
       return @cmd_guid
-      
     end
-      
+
   end # class LincHandshakeCommand
-  
 
   # The LincHandshake class is used only by the LincInterface.  It processes the handshake and
   # helps with finding the information regarding the internal command.
