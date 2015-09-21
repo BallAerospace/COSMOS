@@ -15,10 +15,10 @@ module Cosmos
 
   # Interface for connecting to Ball Aerospace LINC Labview targets
   class LincInterface < TcpipClientInterface
-    # The maximum number of handshake responses we can wait for at a time.
+    # The maximum number of asyncrhonous commands we can wait for at a time.
     # We don't ever expect to get close to this but we need to limit it
     # to ensure the Array doesn't grow out of control.
-    MAX_CONCURRENT_HANDSHAKES = 100
+    MAX_CONCURRENT_HANDSHAKES = 1000
 
     def initialize(
       hostname,
@@ -47,7 +47,7 @@ module Cosmos
 
       # Other instance variables
       @ignored_error_codes = []
-      @handshakes = []
+      @handshake_cmds = []
       @handshakes_mutex = Mutex.new
       @handshakes_resource = ConditionVariable.new
 
@@ -83,7 +83,7 @@ module Cosmos
       end
 
       @handshakes_mutex.synchronize do
-        @handshakes = []
+        @handshake_cmds = []
       end
 
       # Actually connect
@@ -143,6 +143,8 @@ module Cosmos
         end
 
         # Always take the mutex (even if we aren't handshaking)
+        # We do not want any incoming telemetry to be missed because
+        # it could be the handshake to this command.
         @handshakes_mutex.synchronize do
 
           # Send the command
@@ -151,58 +153,47 @@ module Cosmos
           # Wait for the response if handshaking
           if @handshake_enabled
             begin
-              my_handshake = nil
+            
+              # Check the number of commands waiting for handshakes.  This is just for sanity
+              # If the number of commands waiting for handshakes is very large then it can't be real
+              # So raise an error.  Something has gone horribly wrong.
+              if @handshake_cmds.length > MAX_CONCURRENT_HANDSHAKES
+                len = @handshake_cmds.length
+                @handshake_cmds = []
+                raise "The number of commands waiting for handshakes to #{len}. Clearing all commands!"
+              end
 
-              # The time after which we will give up waiting for a response
-              deadline = Time.now + @response_timeout
+              # Create a handshake command object and add it to the list of commands waiting
+              my_handshake_cmd = LincHandshakeCommand.new(@handshakes_mutex,my_guid)
+              @handshake_cmds.push(my_handshake_cmd)
 
-              # Loop until we find our response
-              while my_handshake.nil?
-                # How long should we wait in this loop. We could get notified
-                # multiple times for handshakes that aren't ours so we need to
-                # recalculate the wait time each time.
-                to_wait = deadline - Time.now
+              # wait for that handshake.  This releases the mutex so that the telemetry and other commands can start running again.
+              timed_out = my_handshake_cmd.wait_for_handshake(@response_timeout)
+              # We now have the mutex again.  This interface is blocked for the rest of the command handling,
+              # which should be quick because it's just checking variables and logging.
+              # We want to hold the mutex during that so that the commands get logged in order of handshake from here.
+                            
+              if timed_out
+                # Clean this command out of the array of items that require handshakes.
+                @handshake_cmds.delete_if {|hsc| hsc == my_handshake_cmd}
+                raise "Timeout waiting for handshake from #{System.commands.format(packet, System.targets[@target_names[0]].ignored_parameters)}"
+              end
 
-                # If there is no more time to wait then this is a timeout so we break
-                # out of the loop looking for handshakes
-                if to_wait <= 0
-                  raise "Timeout waiting for handshake from #{System.commands.format(packet, System.targets[@target_names[0]].ignored_parameters)}"
-                end
-
-                # Wait until the telemetry side signals that there is a new handshake to check or timeout.
-                # This releases the mutex until the telemetry side signals us
-                @handshakes_resource.wait(@handshakes_mutex, to_wait)
-                # We now have the mutex again
-
-                # Loop if we have timed out so we can handle the timeout with common code
-                next if (deadline - Time.now) <= 0
-
-                if @fieldname_guid
-                  # A GUID means it's an asychronous packet type.
-                  # So look at the list of incoming handshakes and pick off (deleting)
-                  # the handshake from the list if it's for this command.
-                  #
-                  # The mutex is required because the telemetry task
-                  # could enqueue a response between the index lookup and the slice
-                  # function which would remove the wrong response. FAIL!
-                  my_handshake_index = @handshakes.index {|hs| hs.get_cmd_guid(@fieldname_guid) == my_guid}
-                  my_handshake = @handshakes.slice!(my_handshake_index) if my_handshake_index
-                else
-                  # This is the synchronous version
-                  my_handshake = @handshakes.pop
-                end
-              end # while my_handshake.nil?
-
+              status = my_handshake_cmd.handshake.handshake.read('STATUS')
+              code = my_handshake_cmd.handshake.handshake.read('CODE')
+              source = my_handshake_cmd.handshake.error_source
+                            
               # Handle handshake warnings and errors
-              if my_handshake.handshake.read('STATUS') == "OK" and my_handshake.handshake.read('CODE') != 0
-                unless @ignored_error_codes.include? my_handshake.handshake.read('CODE')
-                  Logger.warn "Warning sending command (#{my_handshake.handshake.read('CODE')}): #{my_handshake.error_source}"
+              if status == "OK" and code != 0
+                unless @ignored_error_codes.include? code
+                  Logger.warn "Warning sending command (#{code}): #{source}"
                 end
-              elsif my_handshake.handshake.read('STATUS') == "ERROR"
-                unless @ignored_error_codes.include? my_handshake.handshake.read('CODE')
-                  raise "Error sending command (#{my_handshake.handshake.read('CODE')}): #{my_handshake.error_source}"
+              elsif status == "ERROR"
+                unless @ignored_error_codes.include? code
+                  raise "Error sending command (#{code}): #{source}"
                 end
               end
+              
             rescue Exception => err
               # If anything goes wrong after successfully writing the packet to the LINC target
               # ensure that the packet gets updated in the CVT and logged to the packet log writer.
@@ -257,17 +248,38 @@ module Cosmos
             # first looks up the handshake before removing it.
             if @handshake_enabled
               @handshakes_mutex.synchronize do
-                @handshakes.push(my_handshake)
-                if @handshakes.length > MAX_CONCURRENT_HANDSHAKES
-                  len = @handshakes.length
-                  @handshakes = []
-                  raise "The handshakes response array has grown to #{len}. Clearing all handshakes!"
-                end
-                # Tell all waiting commands to take a look
-                @handshakes_resource.broadcast
-              end # @handshakes_mutex.synchronize
-            end # if @handshake_enabled
+                
+                if @fieldname_guid
+                  # A GUID means it's an asychronous packet type.
+                  # So look at the list of incoming handshakes and pick off (deleting)
+                  # the handshake from the list if it's for this command.
+                  #
+                  # The mutex is required because the telemetry task
+                  # could enqueue a response between the index lookup and the slice
+                  # function which would remove the wrong response. FAIL!
 
+                  # Loop through all waiting commands to see if this handshake belongs to them
+                  this_handshake_guid = my_handshake.get_cmd_guid(@fieldname_guid)
+                  my_handshake_cmd_index = @handshake_cmds.index {|hsc| hsc.get_cmd_guid == this_handshake_guid}
+                  
+                  # If command was waiting (ie the loop above found one), then remove it from waiters and signal it
+                  if my_handshake_cmd_index 
+                      my_handshake_cmd = @handshake_cmds.slice!(my_handshake_cmd_index)              
+                      my_handshake_cmd.got_your_handshake(my_handshake)
+                  else
+                    # No command match found!  Either it gave up and timed out or this wasn't originated from here.
+                    # Ignore this typically.  This case here for clarity.     
+                  end
+            
+                else
+                  # Synchronous version: just pop the array (pull the command off) and send it the handshake
+                    my_handshake_cmd = @handshakes_cmds.pop
+                    my_handshake_cmd.got_your_handshake(my_handshake)
+                    
+                end # of handshaking type check
+            
+              end # @handshakes_mutex.synchronize        
+            end # if @handshake_enabled            
           end # if handshake_packet.read('origin') == "LCL"
         end # @handshake_packet.identify?(packet.buffer(false))
       end # if packet
@@ -276,6 +288,53 @@ module Cosmos
     end
 
   end # class LincInterface
+
+  # The LincHandshakeCommand class is used only by the LincInterface.
+  # It is the command with other required items that is passed to the telemetry
+  # thread so it can match it with the handshake.
+  class LincHandshakeCommand
+    
+    attr_accessor :handshake
+    
+    def initialize(handshakes_mutex,cmd_guid)
+      @cmd_guid = cmd_guid
+      @handshakes_mutex = handshakes_mutex
+      @resource = ConditionVariable.new
+      @handshake = nil
+      
+    end
+    
+    def wait_for_handshake(response_timeout)
+      
+      timed_out = false
+      
+      @resource.wait(@handshakes_mutex,response_timeout)
+      if @handshake
+        timed_out = false
+      else
+        puts "No handshake - must be timeout."
+        timed_out = true
+      end
+      
+      return timed_out
+    
+    end
+    
+    def got_your_handshake(handshake)
+      
+      @handshake = handshake
+      @resource.signal
+
+    end
+    
+    def get_cmd_guid
+
+      return @cmd_guid
+      
+    end
+      
+  end # class LincHandshakeCommand
+  
 
   # The LincHandshake class is used only by the LincInterface.  It processes the handshake and
   # helps with finding the information regarding the internal command.
