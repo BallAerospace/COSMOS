@@ -243,15 +243,6 @@ module Cosmos
 
         @i.read
       end
-
-      it "handles response overflows" do
-        @handshake = System.telemetry.packet("INST","HANDSHAKE")
-        @handshake.write("GSE_HDR_ID", 1001)
-        @handshake.write("ORIGIN", 0)
-        allow_any_instance_of(LengthStreamProtocol).to receive(:read).and_return(@handshake)
-        100.times { @i.read }
-        expect { @i.read }.to raise_error
-      end
     end
 
   end
