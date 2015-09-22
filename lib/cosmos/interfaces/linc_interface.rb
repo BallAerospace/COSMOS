@@ -308,7 +308,7 @@ module Cosmos
       if @handshake
         timed_out = false
       else
-        puts "No handshake - must be timeout."
+        Logger.warn "No handshake - must be timeout."
         timed_out = true
       end
 
