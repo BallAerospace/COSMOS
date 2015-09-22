@@ -49,7 +49,6 @@ module Cosmos
       @ignored_error_codes = []
       @handshake_cmds = []
       @handshakes_mutex = Mutex.new
-      @handshakes_resource = ConditionVariable.new
 
       # Call this once now because the first time is slow
       UUIDTools::UUID.random_create.raw
