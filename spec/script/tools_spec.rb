@@ -61,6 +61,7 @@ module Cosmos
       it "complains if unable to start telemetry viewer" do
         # Avoid the needless delay by stubbing sleep
         allow_any_instance_of(Object).to receive(:sleep)
+        allow_any_instance_of(Object).to receive(:cosmos_script_sleep).and_return(true)
         allow(Cosmos).to receive(:run_process)
         expect { display("HI") }.to raise_error(RuntimeError, /HI could not be displayed/)
       end
@@ -80,6 +81,7 @@ module Cosmos
       it "complains if unable to start telemetry viewer" do
         # Avoid the needless delay by stubbing sleep
         allow_any_instance_of(Object).to receive(:sleep)
+        allow_any_instance_of(Object).to receive(:cosmos_script_sleep).and_return(true)
         allow(Cosmos).to receive(:run_process)
         expect { clear("HI") }.to raise_error(RuntimeError, /HI could not be cleared/)
       end

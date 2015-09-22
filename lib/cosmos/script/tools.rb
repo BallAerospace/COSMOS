@@ -37,10 +37,17 @@ module Cosmos
       rescue DRb::DRbConnError
         # No Listening Tlm Viewer - So Start One
         start_tlm_viewer
+        max_retries = 60
+        retry_count = 0
         begin
           yield tlm_viewer
           tlm_viewer.disconnect
         rescue DRb::DRbConnError
+          retry_count += 1
+          if retry_count < max_retries
+            canceled = cosmos_script_sleep(1)
+            retry unless canceled
+          end
           raise "Unable to Successfully Start Listening Telemetry Viewer: #{display_name} could not be #{action}"
         rescue Errno::ENOENT
           raise "Display Screen File: #{display_name}.txt does not exist"
@@ -61,7 +68,7 @@ module Cosmos
         cmd << 'w' if Kernel.is_windows? # Windows uses rubyw to avoid creating a DOS shell
         Cosmos.run_process("#{cmd} '#{File.join(Cosmos::USERPATH, 'tools', 'TlmViewer')}' --system #{system_file}")
       end
-      sleep(5)
+      cosmos_script_sleep(1)
     end
 
     #######################################
