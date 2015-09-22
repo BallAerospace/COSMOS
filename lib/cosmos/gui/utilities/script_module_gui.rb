@@ -53,12 +53,9 @@ class Qt::MessageBox
 end
 
 class Qt::InputDialog
-  def self.getText(parent, title, label,
-                   mode = Qt::LineEdit::Normal,
-                   text = '', ok = 0, flags = 0,
-                   inputMethodHints = Qt::ImhNone)
+  def self.getText(*args)
     Cosmos.play_wav_file(Cosmos.data_path('input.wav')) if Cosmos::System.sound
-    super(parent, title, label, mode, text, ok, flags, inputMethodHints)
+    super(*args)
   end
 end
 
