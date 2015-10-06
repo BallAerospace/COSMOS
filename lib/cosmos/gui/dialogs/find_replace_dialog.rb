@@ -19,54 +19,60 @@ module Cosmos
     include Singleton
 
     # Displays a Find dialog
-    # @param text [Qt::PlainTextEdit] Dialog parent
-    def self.show_find(text)
-      self.instance.show_find(text)
+    # @param parent [Qt::Widget] Dialog parent which must implement a
+    #   search_text method which returns a String to search on
+    def self.show_find(parent)
+      self.instance.show_find(parent)
     end
-    def show_find(text)
+    def show_find(parent)
+      @parent = parent
       disable_replace
-      show_dialog(text)
+      show_dialog
     end
 
     # Displays a Find/Replace dialog
-    # @param text [Qt::PlainTextEdit] Dialog parent
-    def self.show_replace(text)
-      self.instance.show_replace(text)
+    # @param parent [Qt::Widget] Dialog parent which must implement a
+    #   search_text method which returns a String to search on
+    def self.show_replace(parent)
+      self.instance.show_replace(parent)
     end
-    def show_replace(text)
+    def show_replace(parent)
+      @parent = parent
       enable_replace
-      show_dialog(text)
+      show_dialog
     end
 
-    # @param text [Qt::PlainTextEdit] Text widget to search
-    def self.find_next(text)
-      self.instance.find_next(text)
+    # @param parent [#search_text] Object which must implement a
+    #   search_text method which returns a String to search on
+    def self.find_next(parent)
+      self.instance.find_next(parent)
     end
-    def find_next(text)
+    def find_next(parent)
       flags = find_flags()
       flags &= ~Qt::TextDocument::FindBackward.to_i
-      found = text.find(find_text(), flags)
+      found = parent.search_text.find(find_text(), flags)
       if not found and wrap_around?
-        cursor = text.textCursor
+        cursor = parent.search_text.textCursor
         cursor.movePosition(Qt::TextCursor::Start)
-        text.setTextCursor(cursor)
-        text.find(find_text(), flags)
+        parent.search_text.setTextCursor(cursor)
+        parent.search_text.find(find_text(), flags)
       end
     end
 
-    # @param text [Qt::PlainTextEdit] Text widget to search
-    def self.find_previous(text)
-      self.instance.find_previous(text)
+    # @param parent [#search_text] Object which must implement a
+    #   search_text method which returns a String to search on
+    def self.find_previous(parent)
+      self.instance.find_previous(parent)
     end
-    def find_previous(text)
+    def find_previous(parent)
       flags = find_flags()
       flags |= Qt::TextDocument::FindBackward.to_i
-      found = text.find(find_text(), flags)
+      found = parent.search_text.find(find_text(), flags)
       if not found and wrap_around?
-        cursor = text.textCursor
+        cursor = parent.search_text.textCursor
         cursor.movePosition(Qt::TextCursor::End)
-        text.setTextCursor(cursor)
-        text.find(find_text(), flags)
+        parent.search_text.setTextCursor(cursor)
+        parent.search_text.find(find_text(), flags)
       end
     end
 
@@ -156,10 +162,10 @@ module Cosmos
       button_layout
     end
 
-    def show_dialog(text)
+    def show_dialog
       @find_box.selectAll
       @find_box.setFocus(Qt::PopupFocusReason)
-      setParent(text, Qt::WindowTitleHint | Qt::WindowSystemMenuHint | 3)
+      setParent(@parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint | 3)
       show()
     end
 
@@ -198,7 +204,7 @@ module Cosmos
     end
 
     def handle_find_next
-      text = parentWidget
+      text = @parent.search_text
       found = text.find(find_text, find_flags)
       if not found and wrap_around?
         cursor = text.textCursor
@@ -213,7 +219,7 @@ module Cosmos
     end
 
     def handle_replace
-      text = parentWidget
+      text = @parent.search_text
       if text.textCursor.hasSelection &&
         text.textCursor.selectedText == find_text
         found = true
@@ -241,7 +247,7 @@ module Cosmos
     end
 
     def handle_replace_all
-      text = parentWidget
+      text = @parent.search_text
       cursor = text.textCursor
       # Start the edit block so this can be all undone with a single undo step
       cursor.beginEditBlock

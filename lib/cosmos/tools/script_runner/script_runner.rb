@@ -160,7 +160,7 @@ module Cosmos
       @search_find.shortcut  = @search_find_keyseq
       @search_find.statusTip = tr('Find text')
       @search_find.connect(SIGNAL('triggered()')) do
-        FindReplaceDialog.show_find(active_script_runner_frame().script)
+        FindReplaceDialog.show_find(self)
       end
 
       @search_find_next = Qt::Action.new(tr('Find &Next'), self)
@@ -168,7 +168,7 @@ module Cosmos
       @search_find_next.shortcut  = @search_find_next_keyseq
       @search_find_next.statusTip = tr('Find next instance')
       @search_find_next.connect(SIGNAL('triggered()')) do
-        FindReplaceDialog.find_next(active_script_runner_frame().script)
+        FindReplaceDialog.find_next(self)
       end
 
       @search_find_previous = Qt::Action.new(tr('Find &Previous'), self)
@@ -176,7 +176,7 @@ module Cosmos
       @search_find_previous.shortcut  = @search_find_previous_keyseq
       @search_find_previous.statusTip = tr('Find previous instance')
       @search_find_previous.connect(SIGNAL('triggered()')) do
-        FindReplaceDialog.find_previous(active_script_runner_frame().script)
+        FindReplaceDialog.find_previous(self)
       end
 
       @search_replace = Qt::Action.new(tr('&Replace'), self)
@@ -184,7 +184,7 @@ module Cosmos
       @search_replace.shortcut  = @search_replace_keyseq
       @search_replace.statusTip = tr('Replace')
       @search_replace.connect(SIGNAL('triggered()')) do
-        FindReplaceDialog.show_replace(active_script_runner_frame().script)
+        FindReplaceDialog.show_replace(self)
       end
 
       # Script Actions
@@ -613,6 +613,11 @@ module Cosmos
     ###########################################
     # Callbacks
     ###########################################
+
+    # Called by the FindReplaceDialog to get the text to search
+    def search_text
+      active_script_runner_frame().script
+    end
 
     def undo_available(bool)
       update_title()
