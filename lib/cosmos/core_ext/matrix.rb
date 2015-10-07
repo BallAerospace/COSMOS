@@ -141,6 +141,9 @@ class Matrix
         @rows[i][row] = x*r[i][0] + y*r[i][1] + z*r[i][2]
       end
     end
+    # Ensure the final row is floating point for consistency
+    @rows[3].map! {|x| x.to_f }
+    return self
   end
 
 end
