@@ -890,9 +890,7 @@ module Cosmos
 
       case item_def.display_type
         when :STATE
-          item = Qt::TableWidgetItem.new
-          item.setData(Qt::DisplayRole, Qt::Variant.new(table_def.read(item_def.name)))
-          gui_table.setItem(table_row, table_column, item)
+          gui_table.setItem(table_row, table_column, Qt::TableWidgetItem.new(table_def.read(item_def.name)))
           if item_def.editable
             gui_table.item(table_row, table_column).setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsEditable)
           else
