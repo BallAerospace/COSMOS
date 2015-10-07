@@ -9,7 +9,6 @@
 # attribution addendums as found in the LICENSE.txt
 
 require 'spec_helper'
-require 'cosmos'
 require 'cosmos/script'
 require 'tempfile'
 
@@ -25,8 +24,6 @@ module Cosmos
         file.puts 'TARGET INST'
       end
       System.class_eval('@@instance = nil')
-
-      require 'cosmos/script'
     end
 
     after(:all) do
@@ -35,6 +32,13 @@ module Cosmos
     end
 
     describe "require cosmos/script.rb" do
+      it "should require cosmos/script/script" do
+        save = $0
+        $0 = "Test"
+        expect { load 'cosmos/script.rb' }.to_not raise_error()
+        $0 = save
+      end
+
       it "should raise when inside CmdTlmServer" do
         save = $0
         $0 = "CmdTlmServer"

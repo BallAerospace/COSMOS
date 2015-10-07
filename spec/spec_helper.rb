@@ -8,6 +8,15 @@
 # as published by the Free Software Foundation; version 3 with
 # attribution addendums as found in the LICENSE.txt
 
+# Redefine Object.load so simplecov doesn't overwrite the results after
+# re-loading a file during test.
+def load(file, wrap = false)
+  SimpleCov.start do
+    command_name "#{command_name}1"
+  end
+  Kernel.load(file, wrap)
+end
+
 # NOTE: You MUST require simplecov before anything else!
 unless ENV['COSMOS_NO_SIMPLECOV']
   require 'simplecov'
@@ -18,7 +27,7 @@ unless ENV['COSMOS_NO_SIMPLECOV']
     Coveralls::SimpleCov::Formatter
   ]
   SimpleCov.start do
-    merge_timeout 7200 # merge the last two hours of results
+    merge_timeout 12 * 60 * 60 # merge the last 12 hours of results
     add_filter '/spec/'
     add_filter '/autohotkey/'
 

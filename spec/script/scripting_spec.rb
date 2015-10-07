@@ -419,7 +419,7 @@ module Cosmos
 
       it "raises an error if the script can't be found" do
         class ScriptRunnerFrame; def self.instance; false; end; end
-        expect { start("unknown_script.rb") }.to raise_error(RuntimeError)
+        expect { start("unknown_script.rb") }.to raise_error(LoadError)
       end
 
       it "starts a script within ScriptRunnerFrame" do
@@ -439,7 +439,7 @@ module Cosmos
     describe "load_utility" do
       it "requires a script" do
         class ScriptRunnerFrame; def self.instance; false; end; end;
-        expect { load_utility("example.rb") }.to raise_error(RuntimeError, /Procedure not found/)
+        expect { load_utility("example.rb") }.to raise_error(LoadError, /Procedure not found/)
       end
 
       it "requires a script within ScriptRunnerFrame" do
