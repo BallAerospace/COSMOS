@@ -12,6 +12,7 @@ require 'spec_helper'
 require 'cosmos'
 require 'cosmos/tools/launcher/launcher_config'
 require 'tempfile'
+require 'ostruct'
 
 module Cosmos
 
@@ -446,19 +447,28 @@ module Cosmos
           tf.unlink
         end
       end
+
+      describe "AUTO_GEM_TOOLS" do
+        it "loads a tool from a gem" do
+          spec1 = OpenStruct.new
+          spec1.name = "cosmos-test"
+          spec1.gem_dir = File.expand_path(File.join(File.dirname(__FILE__),'..','..'))
+          allow(Bundler).to receive_message_chain(:load, :specs).and_return([spec1])
+
+          tf = Tempfile.new('mylauncher.txt')
+          tf.puts 'AUTO_GEM_TOOLS'
+          tf.close
+
+          lc = LauncherConfig.new(tf.path)
+          expect(lc.items[0][0]).to eq :TOOL
+          expect(lc.items[0][1]).to eq 'cmd_tlm_server'
+          expect(lc.items[0][2]).to match('cmd_tlm_server')
+          expect(lc.items[0][3]).to be true
+          expect(lc.items[0][5]).to be_nil
+          tf.unlink
+        end
+      end
     end
-
-#  DONT_CAPTURE_IO
-#MULTITOOL_START "COSMOS"
-#  TOOL "LAUNCH CmdTlmServer -x 827 -y 2 -w 756 -t 475 -c cmd_tlm_server.txt"
-#  DELAY 5
-#  TOOL "LAUNCH TlmViewer -x 827 -y 517 -w 424 -t 111"
-#    DONT_CAPTURE_IO
-#MULTITOOL_END
-#DIVIDER
-#LABEL "This is a test"
-#DOC
-
   end
 end
 
