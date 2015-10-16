@@ -29,7 +29,7 @@ module Cosmos
       # Verify Parameters
       port_name = '\\\\.\\' + port_name if port_name =~ /^COM[0-9]{2,3}$/
 
-      raise(ArgumentError, "Invalid baud rate: #{baud_rate}") unless Win32::BAUD_RATES.include?(baud_rate)
+      raise(ArgumentError, "Invalid baud rate: #{baud_rate}") unless baud_rate.between?(Win32::BAUD_RATES[0], Win32::BAUD_RATES[-1])
 
       raise(ArgumentError, "Invalid parity: #{parity}") if parity and !SerialDriver::VALID_PARITY.include?(parity)
       case parity
