@@ -18,7 +18,7 @@ module Cosmos
 
     attr_accessor :line_graph
 
-    def initialize(title)
+    def initialize (title, width=400, height=300) 
       super(Qt::CoreApplication.instance.activeWindow)
       self.window_title = title
       @layout = Qt::VBoxLayout.new
@@ -27,7 +27,7 @@ module Cosmos
       @line_graph = LineGraph.new(self)
       layout.addWidget(@line_graph)
 
-      resize(400, 300)
+      resize(width, height)
     end
   end
 

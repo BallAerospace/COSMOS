@@ -41,6 +41,11 @@ module Cosmos
       @lines.empty?
     end
 
+    # @return [Integer] Number of lines that are present
+    def num_lines
+      return @lines.size
+    end
+
     # @return [Boolean] true if there are lines on the left y axis
     def left_y_axis?
       !left().empty?
