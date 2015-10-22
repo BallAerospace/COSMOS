@@ -302,29 +302,11 @@ module Cosmos
       # Preferred blend over background
       GL.BlendFunc(GL::SRC_ALPHA, GL::ONE_MINUS_SRC_ALPHA)
 
-      # Light on
-      GL.Enable(GL::LIGHT0)
-      GL.Light(GL::LIGHT0, GL::AMBIENT, @light.ambient)
-      GL.Light(GL::LIGHT0, GL::DIFFUSE, @light.diffuse)
-      GL.Light(GL::LIGHT0, GL::SPECULAR, @light.specular)
-      GL.Light(GL::LIGHT0, GL::POSITION, @light.position)
-      GL.Light(GL::LIGHT0, GL::SPOT_DIRECTION, @light.direction)
-      GL.Lightf(GL::LIGHT0, GL::SPOT_EXPONENT, @light.exponent)
-      GL.Lightf(GL::LIGHT0, GL::SPOT_CUTOFF, @light.cutoff)
-      GL.Lightf(GL::LIGHT0, GL::CONSTANT_ATTENUATION, @light.c_attn)
-      GL.Lightf(GL::LIGHT0, GL::LINEAR_ATTENUATION, @light.l_attn)
-      GL.Lightf(GL::LIGHT0, GL::QUADRATIC_ATTENUATION, @light.q_attn)
-
+      enable_light(@light)
       # Viewer is close
       GL.LightModeli(GL::LIGHT_MODEL_LOCAL_VIEWER, 1)
 
-      # Material colors
-      GL.Material(GL::FRONT_AND_BACK, GL::AMBIENT, @material.ambient)
-      GL.Material(GL::FRONT_AND_BACK, GL::DIFFUSE, @material.diffuse)
-      GL.Material(GL::FRONT_AND_BACK, GL::SPECULAR, @material.specular)
-      GL.Material(GL::FRONT_AND_BACK, GL::EMISSION, @material.emission)
-      GL.Materialf(GL::FRONT_AND_BACK, GL::SHININESS, @material.shininess)
-
+      enable_material(@material)
       # Vertex colors change both diffuse and ambient
       GL.ColorMaterial(GL::FRONT_AND_BACK, GL::AMBIENT_AND_DIFFUSE)
       GL.Disable(GL::COLOR_MATERIAL)
@@ -349,8 +331,59 @@ module Cosmos
     def paintGL
       # Set viewport
       GL.Viewport(0, 0, @wvt.w, @wvt.h)
+      reset_gl_state()
+      clear_solid_background()
 
-      # Reset important stuff
+      # Depth test on by default
+      GL.DepthMask(GL::TRUE)
+      GL.Enable(GL::DEPTH_TEST)
+
+      # Switch to projection matrix
+      GL.MatrixMode(GL::PROJECTION)
+      GL.LoadIdentity
+      case @projection
+      when :PARALLEL
+        GL.Ortho(@wvt.left, @wvt.right, @wvt.bottom, @wvt.top, @wvt.hither, @wvt.yon)
+      when :PERSPECTIVE
+        GL.Frustum(@wvt.left, @wvt.right, @wvt.bottom, @wvt.top, @wvt.hither, @wvt.yon)
+      end
+
+      # Switch to model matrix
+      GL.MatrixMode(GL::MODELVIEW)
+      GL.LoadIdentity
+
+      enable_light(@light)
+      enable_material(@material)
+
+      # Color commands change both
+      GL.ColorMaterial(GL::FRONT_AND_BACK, GL::AMBIENT_AND_DIFFUSE)
+      # Global ambient light
+      GL.LightModel(GL::LIGHT_MODEL_AMBIENT, @ambient)
+
+      # Enable fog
+      if @options.include?(:VIEWER_FOG)
+        GL.Enable(GL::FOG)
+        GL.Fog(GL::FOG_COLOR, @top_background) # Disappear into the background
+        GL.Fogf(GL::FOG_START, (@distance - @diameter).to_f) # Range tight around model position
+        GL.Fogf(GL::FOG_END, (@distance + @diameter).to_f) # Far place same as clip plane:- clipped stuff is in the mist!
+        GL.Fogi(GL::FOG_MODE, GL::LINEAR) # Simple linear depth cueing
+      end
+
+      # Dithering
+      GL.Enable(GL::DITHER) if @options.include?(:VIEWER_DITHER)
+      # Enable lighting
+      GL.Enable(GL::LIGHTING) if @options.include?(:VIEWER_LIGHTING)
+
+      # Set model matrix
+      GL.LoadMatrixf(@transform)
+
+      draw_axis() if (@draw_axis and @draw_axis > 0)
+
+      # Draw what's visible
+      @scene.draw(self) if @scene
+    end
+
+    def reset_gl_state
       GL.ShadeModel(GL::SMOOTH)
       GL.PolygonMode(GL::FRONT_AND_BACK, GL::FILL)
       GL.Disable(GL::LIGHTING)
@@ -370,8 +403,9 @@ module Cosmos
       GL.LoadIdentity
       GL.MatrixMode(GL::MODELVIEW)
       GL.LoadIdentity
+    end
 
-      # Clear to solid background
+    def clear_solid_background
       GL.ClearDepth(1.0)
       GL.ClearColor(@top_background[0], @top_background[1], @top_background[2], @top_background[3])
       if @top_background == @bottom_background
@@ -397,105 +431,61 @@ module Cosmos
           # Raises false error on Mac
         end
       end
+    end
 
-      # Depth test on by default
-      GL.DepthMask(GL::TRUE)
-      GL.Enable(GL::DEPTH_TEST)
+    def draw_axis
+      GL.PushMatrix
+        GL.LineWidth(2.5)
+        GL.Color3f(1.0, 0.0, 0.0)
+        GL.Begin(GL::LINES)
+          GL.Vertex3f(-@draw_axis.to_f, 0.0, 0.0)
+          GL.Vertex3f(@draw_axis.to_f, 0.0, 0.0)
+        begin
+          GL.End
+        rescue
+          # Raises false error on Mac
+        end
+        GL.Color3f(0.0, 1.0, 0.0)
+        GL.Begin(GL::LINES)
+          GL.Vertex3f(0, -@draw_axis, 0.0)
+          GL.Vertex3f(0, @draw_axis, 0)
+        begin
+          GL.End
+        rescue
+          # Raises false error on Mac
+        end
+        GL.Color3f(0.0, 0.0, 1.0)
+        GL.Begin(GL::LINES)
+          GL.Vertex3f(0, 0, -@draw_axis)
+          GL.Vertex3f(0, 0, @draw_axis)
+        begin
+          GL.End
+        rescue
+          # Raises false error on Mac
+        end
+      GL.PopMatrix
+    end
 
-      # Switch to projection matrix
-      GL.MatrixMode(GL::PROJECTION)
-      GL.LoadIdentity
-      case @projection
-      when :PARALLEL
-        GL.Ortho(@wvt.left, @wvt.right, @wvt.bottom, @wvt.top, @wvt.hither, @wvt.yon)
-      when :PERSPECTIVE
-        GL.Frustum(@wvt.left, @wvt.right, @wvt.bottom, @wvt.top, @wvt.hither, @wvt.yon)
-      end
-
-      # Switch to model matrix
-      GL.MatrixMode(GL::MODELVIEW)
-      GL.LoadIdentity
-
-      # Set light parameters
+    def enable_light(light)
       GL.Enable(GL::LIGHT0)
-      GL.Light(GL::LIGHT0, GL::AMBIENT, @light.ambient)
-      GL.Light(GL::LIGHT0, GL::DIFFUSE, @light.diffuse)
-      GL.Light(GL::LIGHT0, GL::SPECULAR, @light.specular)
-      GL.Light(GL::LIGHT0, GL::POSITION, @light.position)
-      GL.Light(GL::LIGHT0, GL::SPOT_DIRECTION, @light.direction)
-      GL.Lightf(GL::LIGHT0, GL::SPOT_EXPONENT, @light.exponent)
-      GL.Lightf(GL::LIGHT0, GL::SPOT_CUTOFF, @light.cutoff)
-      GL.Lightf(GL::LIGHT0, GL::CONSTANT_ATTENUATION, @light.c_attn)
-      GL.Lightf(GL::LIGHT0, GL::LINEAR_ATTENUATION, @light.l_attn)
-      GL.Lightf(GL::LIGHT0, GL::QUADRATIC_ATTENUATION, @light.q_attn)
+      GL.Light(GL::LIGHT0, GL::AMBIENT, light.ambient)
+      GL.Light(GL::LIGHT0, GL::DIFFUSE, light.diffuse)
+      GL.Light(GL::LIGHT0, GL::SPECULAR, light.specular)
+      GL.Light(GL::LIGHT0, GL::POSITION, light.position)
+      GL.Light(GL::LIGHT0, GL::SPOT_DIRECTION, light.direction)
+      GL.Lightf(GL::LIGHT0, GL::SPOT_EXPONENT, light.exponent)
+      GL.Lightf(GL::LIGHT0, GL::SPOT_CUTOFF, light.cutoff)
+      GL.Lightf(GL::LIGHT0, GL::CONSTANT_ATTENUATION, light.c_attn)
+      GL.Lightf(GL::LIGHT0, GL::LINEAR_ATTENUATION, light.l_attn)
+      GL.Lightf(GL::LIGHT0, GL::QUADRATIC_ATTENUATION, light.q_attn)
+    end
 
-      # Default material colors
-      GL.Material(GL::FRONT_AND_BACK, GL::AMBIENT, @material.ambient)
-      GL.Material(GL::FRONT_AND_BACK, GL::DIFFUSE, @material.diffuse)
-      GL.Material(GL::FRONT_AND_BACK, GL::SPECULAR, @material.specular)
-      GL.Material(GL::FRONT_AND_BACK, GL::EMISSION, @material.emission)
-      GL.Materialf(GL::FRONT_AND_BACK, GL::SHININESS, @material.shininess)
-
-      # Color commands change both
-      GL.ColorMaterial(GL::FRONT_AND_BACK, GL::AMBIENT_AND_DIFFUSE)
-
-      # Global ambient light
-      GL.LightModel(GL::LIGHT_MODEL_AMBIENT, @ambient)
-
-      # Enable fog
-      if @options.include?(:VIEWER_FOG)
-        GL.Enable(GL::FOG)
-        GL.Fog(GL::FOG_COLOR, @top_background) # Disappear into the background
-        GL.Fogf(GL::FOG_START, (@distance - @diameter).to_f) # Range tight around model position
-        GL.Fogf(GL::FOG_END, (@distance + @diameter).to_f) # Far place same as clip plane:- clipped stuff is in the mist!
-        GL.Fogi(GL::FOG_MODE, GL::LINEAR) # Simple linear depth cueing
-      end
-
-      # Dithering
-      GL.Enable(GL::DITHER) if @options.include?(:VIEWER_DITHER)
-
-      # Enable lighting
-      GL.Enable(GL::LIGHTING) if @options.include?(:VIEWER_LIGHTING)
-
-      # Set model matrix
-      GL.LoadMatrixf(@transform)
-
-      if (@draw_axis and @draw_axis > 0)
-        # Draw axis
-        GL.PushMatrix
-          GL.LineWidth(2.5)
-          GL.Color3f(1.0, 0.0, 0.0)
-          GL.Begin(GL::LINES)
-            GL.Vertex3f(-@draw_axis.to_f, 0.0, 0.0)
-            GL.Vertex3f(@draw_axis.to_f, 0.0, 0.0)
-          begin
-            GL.End
-          rescue
-            # Raises false error on Mac
-          end
-          GL.Color3f(0.0, 1.0, 0.0)
-          GL.Begin(GL::LINES)
-            GL.Vertex3f(0, -@draw_axis, 0.0)
-            GL.Vertex3f(0, @draw_axis, 0)
-          begin
-            GL.End
-          rescue
-            # Raises false error on Mac
-          end
-          GL.Color3f(0.0, 0.0, 1.0)
-          GL.Begin(GL::LINES)
-            GL.Vertex3f(0, 0, -@draw_axis)
-            GL.Vertex3f(0, 0, @draw_axis)
-          begin
-            GL.End
-          rescue
-            # Raises false error on Mac
-          end
-        GL.PopMatrix
-      end
-
-      # Draw what's visible
-      @scene.draw(self) if @scene
+    def enable_material(material)
+      GL.Material(GL::FRONT_AND_BACK, GL::AMBIENT, material.ambient)
+      GL.Material(GL::FRONT_AND_BACK, GL::DIFFUSE, material.diffuse)
+      GL.Material(GL::FRONT_AND_BACK, GL::SPECULAR, material.specular)
+      GL.Material(GL::FRONT_AND_BACK, GL::EMISSION, material.emission)
+      GL.Materialf(GL::FRONT_AND_BACK, GL::SHININESS, material.shininess)
     end
 
     def resizeGL(width, height)
@@ -522,20 +512,18 @@ module Cosmos
       [@worldpx*sx.to_f + @ax, @ay - @worldpx*sy.to_f, -@distance.to_f]
     end
 
-    def eyeToWorld(e)
-      [e[0]*@itransform[0][0] + e[1]*@itransform[1][0] + e[2]*@itransform[2][0] + @itransform[3][0],
-       e[0]*@itransform[0][1] + e[1]*@itransform[1][1] + e[2]*@itransform[2][1] + @itransform[3][1],
-       e[0]*@itransform[0][2] + e[1]*@itransform[1][2] + e[2]*@itransform[2][2] + @itransform[3][2]]
-    end
-
     def worldToEyeZ(w)
       w[0]*@transform[0][2] + w[1]*@transform[1][2] + w[2]*@transform[2][2] + @transform[3][2]
     end
 
+    def eyeToWorld(e)
+      calc_prime(e)
+    end
+
     def calc_prime(v)
-      return [v[0]*@itransform[0][0] + v[1]*@itransform[1][0] + v[2]*@itransform[2][0] + @itransform[3][0],
-              v[0]*@itransform[0][1] + v[1]*@itransform[1][1] + v[2]*@itransform[2][1] + @itransform[3][1],
-              v[0]*@itransform[0][2] + v[1]*@itransform[1][2] + v[2]*@itransform[2][2] + @itransform[3][2]]
+      [v[0]*@itransform[0][0] + v[1]*@itransform[1][0] + v[2]*@itransform[2][0] + @itransform[3][0],
+       v[0]*@itransform[0][1] + v[1]*@itransform[1][1] + v[2]*@itransform[2][1] + @itransform[3][1],
+       v[0]*@itransform[0][2] + v[1]*@itransform[1][2] + v[2]*@itransform[2][2] + @itransform[3][2]]
     end
 
     def worldVector(fx, fy, tx, ty)
