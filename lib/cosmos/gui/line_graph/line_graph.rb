@@ -370,14 +370,24 @@ module Cosmos
 
     # Adds a line to the graph - Afterwards the graph is ready to be drawn
     #  color = 'auto' automatically determines color from index based lookup
-    def add_line(legend_text, y, x = nil, y_labels = nil, x_labels = nil, y_states = nil, x_states = nil, color = 'blue', axis = :LEFT, max_points_plotted = nil)
+    def add_line(legend_text, y, x = nil, y_labels = nil, x_labels = nil, y_states = nil, x_states = nil, color = 'auto', axis = :LEFT, max_points_plotted = nil)
       @unix_epoch_x_values = false unless x
 
       # if color specified as auto, do lookup
       if (color == 'auto')
-        # Get an index within the color list for the next line index
-        line_color_idx = @lines.num_lines % (@color_list.size)
-        color = @color_list[line_color_idx]
+        # If the number of lines is less than number of available colors,
+        #   choose an unused color
+        if (@lines.num_lines < @color_list.length)
+          unused_colors = @color_list.dup
+          @lines.legend.each do |name, line_color, axis|
+            unused_colors.delete(line_color)
+          end
+          color = unused_colors[0]
+        else
+          # Get an index within the color list for the next line index
+          line_color_idx = @lines.num_lines % (@color_list.length)
+          color = @color_list[line_color_idx]
+        end
       end
 
       @lines.add_line(legend_text, y, x, y_labels, x_labels, y_states, x_states, color, axis, max_points_plotted)
