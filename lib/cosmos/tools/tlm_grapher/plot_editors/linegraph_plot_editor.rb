@@ -20,6 +20,7 @@ module Cosmos
 
   # Widget which lays out the options for editing a plot
   class LinegraphPlotEditor < PlotEditor
+    UTC = 'UTC' # Used in combobox and matcher logic
 
     def initialize(parent, plot = nil)
       super(parent, plot)
@@ -92,12 +93,20 @@ module Cosmos
       @manual_y_grid_line_scale = FloatChooser.new(self, 'Manual Y Grid Line Scale:', manual_y_grid_line_scale.to_s)
       @layout.addWidget(@manual_y_grid_line_scale)
 
-      # Combobox Chooser
       choices = ['TRUE', 'FALSE']
       choices.delete(@plot.unix_epoch_x_values.to_s.upcase)
       choices.unshift(@plot.unix_epoch_x_values.to_s.upcase)
       @unix_epoch_x_values = ComboboxChooser.new(self, 'Unix Epoch X Values:', choices)
       @layout.addWidget(@unix_epoch_x_values)
+
+      # If utc_time is already selected show it first
+      if @plot.utc_time
+        choices = [UTC, 'Local']
+      else
+        choices = ['Local', UTC]
+      end
+      @time_format_chooser = ComboboxChooser.new(self, 'Time Format:', choices)
+      @layout.addWidget(@time_format_chooser)
 
       setLayout(@layout)
     end # def initialize
@@ -173,6 +182,7 @@ module Cosmos
         plot.manual_y_grid_line_scale = nil
       end
       plot.unix_epoch_x_values = ConfigParser.handle_true_false(@unix_epoch_x_values.string)
+      plot.utc_time = (@time_format_chooser.string == UTC)
       plot
     end
 

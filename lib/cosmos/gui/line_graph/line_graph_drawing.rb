@@ -247,7 +247,9 @@ module Cosmos
     def convert_x_value_to_text(value, max_characters)
       if !@show_popup_x_y and @unix_epoch_x_values
         if (value > 1 and value < 2147483647)
-          text = Time.at(value.to_f).formatted(false) # no year
+          time = Time.at(value.to_f)
+          time = time.utc if @utc_time
+          text = time.formatted(false) # no year
         else
           text = value.to_s
         end
