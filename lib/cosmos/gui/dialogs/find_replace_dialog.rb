@@ -237,11 +237,12 @@ module Cosmos
         end
       end
       if found
-        text.textCursor.removeSelectedText
-        text.textCursor.insertText(replace_text)
         cursor = text.textCursor
-        cursor.setPosition(cursor.position-1)
-        cursor.select(Qt::TextCursor::WordUnderCursor)
+        cursor.removeSelectedText
+        position = cursor.position
+        cursor.insertText(replace_text)
+        # Move the cursor back over the inserted text to select it
+        cursor.movePosition(Qt::TextCursor::PreviousCharacter, Qt::TextCursor::KeepAnchor, replace_text.length)
         text.setTextCursor(cursor)
       end
     end
