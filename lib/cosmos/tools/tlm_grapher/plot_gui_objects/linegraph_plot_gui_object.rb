@@ -77,6 +77,7 @@ module Cosmos
       self.manual_x_grid_line_scale = @plot.manual_x_grid_line_scale
       self.manual_y_grid_line_scale = @plot.manual_y_grid_line_scale
       self.unix_epoch_x_values = @plot.unix_epoch_x_values
+      self.utc_time = @plot.utc_time
 
       # Update horizontal lines
       self.clear_horizontal_lines

@@ -61,6 +61,9 @@ module Cosmos
     # Interpret x values as unix epoch timestamps
     attr_accessor :unix_epoch_x_values
 
+    # Display x values as UTC time
+    attr_accessor :utc_time
+
     def initialize
       super()
       @title = nil
@@ -78,6 +81,7 @@ module Cosmos
       @manual_x_grid_line_scale = nil
       @manual_y_grid_line_scale = nil
       @unix_epoch_x_values = true
+      @utc_time = false
     end # def initialize
 
     # Handles plot specific keywords
@@ -165,6 +169,9 @@ module Cosmos
         parser.verify_num_parameters(1, 1, "UNIX_EPOCH_X_VALUES <TRUE or FALSE>")
         @unix_epoch_x_values = ConfigParser.handle_true_false(parameters[0])
 
+      when 'UTC_TIME'
+        @utc_time = true
+
       else
         # Unknown keywords are passed to parent data object
         super(parser, keyword, parameters)
@@ -193,6 +200,7 @@ module Cosmos
       string << "    MANUAL_X_GRID_LINE_SCALE #{@manual_x_grid_line_scale}\n" if @manual_x_grid_line_scale
       string << "    MANUAL_Y_GRID_LINE_SCALE #{@manual_y_grid_line_scale}\n" if @manual_y_grid_line_scale
       string << "    UNIX_EPOCH_X_VALUES #{@unix_epoch_x_values.to_s.upcase}\n"
+      string << "    UTC_TIME\n" if @utc_time
       string
     end # def plot_configuration_string
 
