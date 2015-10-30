@@ -151,7 +151,7 @@ module Cosmos
         if spec_name_split.length > 1 and spec_name_split[0] == 'cosmos'
           # Filter to just tools and not targets
           if File.exist?(File.join(spec.gem_dir, 'tools'))
-            Dir[File.join(spec.gem_dir, 'tools', '*')].each do |filename|
+            Dir[File.join(spec.gem_dir, 'tools', '*')].sort.each do |filename|
               if File.extname(filename) == ''
                 @items << [:TOOL, File.basename(filename), format_shell_command(parser, "LAUNCH_GEM #{File.basename(filename)}"), true, File.basename(filename).class_name_to_filename(false) + '.png', nil]
               end
