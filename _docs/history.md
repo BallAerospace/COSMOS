@@ -4,6 +4,53 @@ title: Release History
 permalink: "/docs/history/"
 ---
 
+## 3.6.3 / 2015-10-30
+{: #v3-6-3}
+
+### New Features:
+
+* [#200](https://github.com/BallAerospace/COSMOS/issues/200) ScriptRunner Find Dialog Does Not Cross Windows
+* [#201](https://github.com/BallAerospace/COSMOS/issues/201) Table Manager to support arbitrary inputs on State Fields
+* [#209](https://github.com/BallAerospace/COSMOS/issues/209) Add UTS Timestamp Flag to TlmGrapher Plots
+
+### Maintenance:
+
+* [#194](https://github.com/BallAerospace/COSMOS/issues/194) Allow up to one minute for TlmViewer to start when calling display() from a script
+* [#203](https://github.com/BallAerospace/COSMOS/issues/203) load_utility should raise LoadError like load and require
+* [#205](https://github.com/BallAerospace/COSMOS/issues/205) Add testing for array and matrix
+
+### Bug Fixes:
+
+* [#191](https://github.com/BallAerospace/COSMOS/issues/191) Installing COSMOS Issue on Windows 7
+* [#193](https://github.com/BallAerospace/COSMOS/issues/193) Fix ask() on linux and qt 4.6.2
+* [#197](https://github.com/BallAerospace/COSMOS/issues/197) Improve linc interface
+
+### Migration Notes from COSMOS 3.5.x:
+
+None
+
+## 3.6.2 / 2015-08-10
+{: #v3-6-2}
+
+### Bug Fixes:
+
+* [#187](https://github.com/BallAerospace/COSMOS/issues/187) Must require tempfile in config_parser.rb on non-windows systems
+
+### Migration Notes from COSMOS 3.5.x:
+
+None
+
+## 3.6.1 / 2015-08-10
+{: #v3-6-1}
+
+### Bug Fixes:
+
+* [#185](https://github.com/BallAerospace/COSMOS/issues/185) target.txt order not being preserved
+
+### Migration Notes from COSMOS 3.5.x:
+
+None
+
 ## 3.6.0 / 2015-08-07
 {: #v3-6-0}
 
@@ -18,7 +65,7 @@ Huge new feature in this release: All COSMOS configuration files are now interpr
 
 ### New Features:
 
-* [#170](https://github.com/BallAerospace/COSMOS/issues170) Consider supporting a preprocessor over COSMOS config files
+* [#170](https://github.com/BallAerospace/COSMOS/issues/170) Consider supporting a preprocessor over COSMOS config files
 * [#171](https://github.com/BallAerospace/COSMOS/issues/171) Script Runner should have file open and save GUI dialogs
 * [#174](https://github.com/BallAerospace/COSMOS/issues/174) Add View in Command Sender in Server
 
