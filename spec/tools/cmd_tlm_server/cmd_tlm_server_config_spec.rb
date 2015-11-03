@@ -444,15 +444,44 @@ module Cosmos
 
       context "with BACKGROUND_TASK" do
         it "creates a background task" do
+          background_task_no_args_file = File.join(Cosmos::USERPATH,'lib','cts_config_test_background_task_no_args.rb')
+          File.open(background_task_no_args_file,'w') do |file|
+            file.puts "require 'cosmos'"
+            file.puts "require 'cosmos/tools/cmd_tlm_server/background_task'"
+            file.puts "module Cosmos"
+            file.puts "  class CtsConfigTestBackgroundTaskNoArgs < BackgroundTask"
+            file.puts "    def initialize()"
+            file.puts "      super()"
+            file.puts "    end"
+            file.puts "  end"
+            file.puts "end"
+          end
+          
+          background_task_args_file = File.join(Cosmos::USERPATH,'lib','cts_config_test_background_task_args.rb')
+          File.open(background_task_args_file,'w') do |file|
+            file.puts "require 'cosmos'"
+            file.puts "require 'cosmos/tools/cmd_tlm_server/background_task'"
+            file.puts "module Cosmos"
+            file.puts "  class CtsConfigTestBackgroundTaskArgs < BackgroundTask"
+            file.puts "    def initialize(param1, param2, param3)"
+            file.puts "      super()"
+            file.puts "    end"
+            file.puts "  end"
+            file.puts "end"
+          end
+          
           tf = Tempfile.new('unittest')
-          tf.puts 'BACKGROUND_TASK cts_config_test_interface.rb'
-          tf.puts 'BACKGROUND_TASK cts_config_test_interface.rb false'
+          tf.puts 'BACKGROUND_TASK cts_config_test_background_task_no_args.rb'
+          tf.puts 'BACKGROUND_TASK cts_config_test_background_task_args.rb 1 2 3'
           tf.close
           config = CmdTlmServerConfig.new(tf.path)
           expect(config.background_tasks.length).to eql 2
-          expect(config.background_tasks[0]).to be_a CtsConfigTestInterface
-          expect(config.background_tasks[1]).to be_a CtsConfigTestInterface
+          expect(config.background_tasks[0]).to be_a CtsConfigTestBackgroundTaskNoArgs
+          expect(config.background_tasks[1]).to be_a CtsConfigTestBackgroundTaskArgs
           tf.unlink
+          
+          File.delete background_task_no_args_file
+          File.delete background_task_args_file
         end
       end
 

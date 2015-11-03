@@ -240,7 +240,7 @@ module Cosmos
             parser.verify_num_parameters(1, nil, usage)
             background_task = Cosmos.require_class(params[0])
             if params[1]
-              @background_tasks << background_task.new(params[1..-1])
+              @background_tasks << background_task.new(*params[1..-1])
             else
               @background_tasks << background_task.new
             end
