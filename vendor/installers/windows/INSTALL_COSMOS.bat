@@ -361,11 +361,11 @@ if errorlevel 1 (
 ) else (
   @echo Successfully installed pry gem >> !COSMOS_INSTALL!\INSTALL.log
 )
-call gem update --system
+call gem update --system 2.4.8
 if errorlevel 1 (
-  echo ERROR: Problem updating gem to latest
+  echo ERROR: Problem updating gem to 2.4.8
   echo INSTALL FAILED
-  @echo ERROR: Problem updating gem to latest >> !COSMOS_INSTALL!\INSTALL.log
+  @echo ERROR: Problem updating gem to 2.4.8 >> !COSMOS_INSTALL!\INSTALL.log
   pause
   exit /b 1
 ) else (
