@@ -244,12 +244,16 @@ module Cosmos
     end # def draw_x_label_and_grid_line
 
     # Converts a x value into text with a max number of characters
-    def convert_x_value_to_text(value, max_characters)
+    def convert_x_value_to_text(value, max_characters, full_date = false)
       if !@show_popup_x_y and @unix_epoch_x_values
         if (value > 1 and value < 2147483647)
           time = Time.at(value.to_f)
           time = time.utc if @utc_time
-          text = time.formatted(false) # no year
+          if full_date
+            text = time.formatted # full date with day, month, year
+          else
+            text = time.formatted(false) # just hour, minutes, seconds
+          end
         else
           text = value.to_s
         end
