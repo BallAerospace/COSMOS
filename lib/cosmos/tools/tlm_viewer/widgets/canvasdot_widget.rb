@@ -14,66 +14,66 @@ module Cosmos
 
   class CanvasdotWidget
     include Widget
-
+    
     def initialize(parent_layout, x, y, color='black', width=3)
       super()
       if is_numeric?(x)
         @x = x.to_i
       else
-	      @x = x.to_s
-	    end
-	  
-  	  if is_numeric?(y)
+        @x = x.to_s
+      end
+    
+      if is_numeric?(y)
         @y = y.to_i
-  	  else
-  	    @y = y.to_s
-  	  end
-	  
+      else
+        @y = y.to_s
+      end
+    
       @point = Qt::Point.new(0, 0)
-  	  update_point
-	  
+      update_point
+    
       @width = width.to_i
       @color = Cosmos::getColor(color)
       parent_layout.add_repaint(self)
-    end
-  	
+    end # initialize
+    
     def update_point
       if is_numeric?(@x)
-  	    @point.x = @x
-  	  else
-  	    @point.x = eval_str(@x)
-  	  end
-  	  
-  	  if is_numeric?(@y)
-  	    @point.y = @y
-  	  else
-  	    @point.y = eval_str(@y)
-  	  end
-	  end
-	
-  	def is_numeric?(obj) 
+        @point.x = @x
+      else
+        @point.x = eval_str(@x)
+      end
+      
+      if is_numeric?(@y)
+        @point.y = @y
+      else
+        @point.y = eval_str(@y)
+      end
+    end # update_point
+  
+    def is_numeric?(obj) 
       obj.to_s.match(/\A[+-]?\d+?(\.\d+)?\Z/) == nil ? false : true
     end
-  
+
     def paint(painter)
       painter.save
       painter.setBrush(@color)
       painter.drawEllipse(@point, @width, @width)
       painter.restore
     end
-  	
-  	def eval_str(string_to_eval)
+  
+    def eval_str(string_to_eval)
       @screen.instance_eval(string_to_eval)
     end
-  	
-  	def update_widget
+  
+    def update_widget
       update_point
     end
-  
+
     def dispose
       super()
       @point.dispose
     end
-  end
+  end # CanvasdotWidget
 
 end # module Cosmos
