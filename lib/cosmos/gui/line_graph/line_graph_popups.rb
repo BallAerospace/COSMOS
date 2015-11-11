@@ -44,10 +44,10 @@ module Cosmos
         graph_y = scale_value_to_graph_y(y, axis)
 
         if @left_button_pressed
-          x_text = convert_x_value_to_text(x_text.to_f, 25, true) # Ask for full date
+          x_text = convert_x_value_to_text(x, 25, true) unless x_text
           popup_text = "(#{item}) #{x_text}, #{y_text}"
         else
-          x_text = convert_x_value_to_text(x_text.to_f, @max_x_characters)
+          x_text = convert_x_value_to_text(x) unless x_text
           popup_text = "#{x_text}, #{y_text}"
         end
 
