@@ -17,6 +17,16 @@ Please see [Telemetry Screen Configuration](/docs/screens) for instructions on c
 
 Launcher configuration files define the icons and buttons presented in the Launcher and define how programs are launched. These files are expected to be placed in the config/tools/launcher directory and have a .txt extension. The default configuration file is named launcher.txt.
 
+To specify a different configuration file add '--config launcher.txt' when starting the Launcher. For example, on Windows create a new Batch file at the top of your COSMOS configuration that looks like the following:
+{% highlight bash %}
+call tools\Launcher.bat --config launcher_config.txt
+{% endhighlight %}
+<div style="clear:both;"></div>
+
+On Linux create a new executable file at the top of your COSMOS configuration that looks like the following:
+{% highlight bash %}
+ruby tools\Launcher --config launcher_config.txt
+{% endhighlight %}
 <div style="clear:both;"></div>
 
 ## Keywords:
