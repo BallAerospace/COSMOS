@@ -26,7 +26,7 @@ module Cosmos
       end
 
       # Determine number of pixels to the right side of graph
-      @graph_right_x = self.width - 6 * GRAPH_SPACER
+      @graph_right_x = self.width - 8 * GRAPH_SPACER
       if @right_y_axis_title
         @graph_right_x -= (metrics.width('W') + GRAPH_SPACER)
       end
