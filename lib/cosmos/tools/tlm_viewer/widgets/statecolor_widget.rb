@@ -14,11 +14,9 @@ module Cosmos
 
   class StatecolorWidget < Qt::Label
     include Widget
-    include AgingWidget
 
     def initialize(parent_layout, target_name, packet_name, item_name, value_type = :CONVERTED, radius = 10, use_full_item_name = false)
       super(target_name, packet_name, item_name, value_type)
-      setup_aging() # For Coloring
       @value_type = :CONVERTED if @value_type == :WITH_UNITS
       use_full_item_name = ConfigParser::handle_true_false(use_full_item_name)
       @painter = nil
@@ -48,8 +46,22 @@ module Cosmos
       return true
     end
 
-    def value= (data)
-      @value = super(data)
+    def value=(data)
+      super(data)
+      case @limits_state
+      when :RED, :RED_HIGH, :RED_LOW
+        @foreground = 'red'
+      when :YELLOW, :YELLOW_HIGH, :YELLOW_LOW
+        @foreground = 'yellow'
+      when :GREEN, :GREEN_HIGH, :GREEN_LOW
+        @foreground = 'lime'
+      when :BLUE
+        @foreground = 'dodgerblue'
+      when :STALE
+        @foreground = Cosmos::PURPLE
+      else
+        @foreground = Cosmos::BLACK
+      end
       update()
     end
 
