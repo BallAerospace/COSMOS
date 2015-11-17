@@ -12,10 +12,10 @@ require 'cosmos/tools/tlm_viewer/widgets/widget'
 
 module Cosmos
 
-  class LimitsbarWidget < Qt::Label
+  class LimitscolumnWidget < Qt::Label
     include Widget
 
-    def initialize(parent_layout, target_name, packet_name, item_name, value_type = :CONVERTED, width = 160, height = 25)
+    def initialize(parent_layout, target_name, packet_name, item_name, value_type = :CONVERTED, width = 30, height = 100)
       super(target_name, packet_name, item_name, value_type)
       @value_type = :CONVERTED if @value_type == :WITH_UNITS
       @width = width.to_i
@@ -30,7 +30,7 @@ module Cosmos
       parent_layout.addWidget(self) if parent_layout
     end
 
-    def LimitsbarWidget.takes_value?
+    def LimitscolumnWidget.takes_value?
       return true
     end
 
@@ -77,20 +77,20 @@ module Cosmos
 
       if draw_bar
         # Calculate sizes of limits sections
-        red_low_width  = (0.1 * @bar_width).round
-        red_high_width = (0.1 * @bar_width).round
+        red_low_height  = (0.1 * @bar_height).round
+        red_high_height = (0.1 * @bar_height).round
 
         inner_value_range = red_high - red_low
 
-        yellow_low_width  = ((yellow_low - red_low)   / inner_value_range * 0.8 * @bar_width).round
-        yellow_high_width = ((red_high - yellow_high) / inner_value_range * 0.8 * @bar_width).round
+        yellow_low_height  = ((yellow_low - red_low)   / inner_value_range * 0.8 * @bar_height).round
+        yellow_high_height = ((red_high - yellow_high) / inner_value_range * 0.8 * @bar_height).round
 
         if green_high
-          green_low_width  = ((green_low - yellow_low)   / inner_value_range * 0.8 * @bar_width).round
-          green_high_width = ((yellow_high - green_high) / inner_value_range * 0.8 * @bar_width).round
-          blue_width = @bar_width - red_low_width - yellow_low_width - green_low_width - green_high_width - yellow_high_width - red_high_width
+          green_low_height  = ((green_low - yellow_low)   / inner_value_range * 0.8 * @bar_height).round
+          green_high_height = ((yellow_high - green_high) / inner_value_range * 0.8 * @bar_height).round
+          blue_height = @bar_height - red_low_height - yellow_low_height - green_low_height - green_high_height - yellow_high_height - red_high_height
         else
-          green_width = @bar_width - red_low_width - yellow_low_width - yellow_high_width - red_high_width
+          green_height = @bar_height - red_low_height - yellow_low_height - yellow_high_height - red_high_height
         end
 
         # Set starting points
@@ -98,67 +98,67 @@ module Cosmos
         y_pos = @y_pad
 
         # Draw RED_LOW bar
-        dc.addRectColorFill(x_pos, y_pos, red_low_width, @bar_height, 'red')
-        dc.addRectColor(x_pos, y_pos, red_low_width, @bar_height)
-        x_pos += red_low_width
+        dc.addRectColorFill(x_pos, y_pos, @bar_width, red_low_height, 'red')
+        dc.addRectColor(x_pos, y_pos, @bar_width, red_low_height)
+        y_pos += red_low_height
 
         # Draw YELLOW_LOW bar
-        dc.addRectColorFill(x_pos, y_pos, yellow_low_width, @bar_height, 'yellow')
-        dc.addRectColor(x_pos, y_pos, yellow_low_width, @bar_height)
-        x_pos += yellow_low_width
+        dc.addRectColorFill(x_pos, y_pos, @bar_width, yellow_low_height, 'yellow')
+        dc.addRectColor(x_pos, y_pos, @bar_width, yellow_low_height)
+        y_pos += yellow_low_height
 
         if green_high
           # Draw GREEN_LOW bar
-          dc.addRectColorFill(x_pos, y_pos, green_low_width, @bar_height, 'lime')
-          dc.addRectColor(x_pos, y_pos, green_low_width, @bar_height)
-          x_pos += green_low_width
+          dc.addRectColorFill(x_pos, y_pos, @bar_width, green_low_height, 'lime')
+          dc.addRectColor(x_pos, y_pos, @bar_width, green_low_height)
+          y_pos += green_low_height
 
           # Draw BLUE bar
-          dc.addRectColorFill(x_pos, y_pos, blue_width, @bar_height, 'dodgerblue')
-          dc.addRectColor(x_pos, y_pos, blue_width, @bar_height)
-          x_pos += blue_width
+          dc.addRectColorFill(x_pos, y_pos, @bar_width, blue_height, 'dodgerblue')
+          dc.addRectColor(x_pos, y_pos, @bar_width, blue_height)
+          y_pos += blue_height
 
           # Draw GREEN_HIGH bar
-          dc.addRectColorFill(x_pos, y_pos, green_high_width, @bar_height, 'lime')
-          dc.addRectColor(x_pos, y_pos, green_high_width, @bar_height)
-          x_pos += green_high_width
+          dc.addRectColorFill(x_pos, y_pos, @bar_width, green_high_height, 'lime')
+          dc.addRectColor(x_pos, y_pos, @bar_width, green_high_height)
+          y_pos += green_high_height
         else
           # Draw GREEN bar
-          dc.addRectColorFill(x_pos, y_pos, green_width, @bar_height, 'lime')
-          dc.addRectColor(x_pos, y_pos, green_width, @bar_height)
-          x_pos += green_width
+          dc.addRectColorFill(x_pos, y_pos, @bar_width, green_height, 'lime')
+          dc.addRectColor(x_pos, y_pos, @bar_width, green_height)
+          y_pos += green_height
         end
 
         # Draw YELLOW_HIGH bar
-        dc.addRectColorFill(x_pos, y_pos, yellow_high_width, @bar_height, 'yellow')
-        dc.addRectColor(x_pos, y_pos, yellow_high_width, @bar_height)
-        x_pos += yellow_high_width
+        dc.addRectColorFill(x_pos, y_pos, @bar_width, yellow_high_height, 'yellow')
+        dc.addRectColor(x_pos, y_pos, @bar_width, yellow_high_height)
+        y_pos += yellow_high_height
 
         # Draw RED_HIGH bar
-        dc.addRectColorFill(x_pos, y_pos, red_high_width, @bar_height, 'red')
-        dc.addRectColor(x_pos, y_pos, red_high_width, @bar_height)
-        x_pos += red_high_width
+        dc.addRectColorFill(x_pos, y_pos, @bar_width, red_high_height, 'red')
+        dc.addRectColor(x_pos, y_pos, @bar_width, red_high_height)
+        y_pos += red_high_height
 
         # Draw line at current value
         @bar_scale = (red_high - red_low) / 0.8
         @low_value = red_low - 0.1 * @bar_scale
         @high_value = red_high + 0.1 * @bar_scale
 
-        @line_pos = (@x_pad + (@value - @low_value) / @bar_scale * @bar_width).to_i
-        if @line_pos < @x_pad
-          @line_pos = @x_pad
+        @line_pos = @height - (@y_pad + (@value - @low_value) / @bar_scale * @bar_height).to_i
+        if @line_pos < @y_pad
+          @line_pos = @y_pad
         end
-        if @line_pos > @x_pad + @bar_width
-          @line_pos = @bar_width + @x_pad
+        if @line_pos > @y_pad + @bar_height
+          @line_pos = @bar_height + @y_pad
         end
 
-        dc.addLineColor(@line_pos, @y_pad - 3, @line_pos, @y_pad + @bar_height + 3)
+        dc.addLineColor(@x_pad - 3, @line_pos, @x_pad + @bar_width + 3, @line_pos)
 
-        # Draw triangle above current value line
+        # Draw triangle next to current value line
         top_triangle = Qt::Polygon.new(3)
-        top_triangle.setPoint(0, @line_pos, @y_pad - 1)
-        top_triangle.setPoint(1, @line_pos-5, @y_pad - 6)
-        top_triangle.setPoint(2, @line_pos+5, @y_pad - 6)
+        top_triangle.setPoint(0, @x_pad + @bar_width, @line_pos)
+        top_triangle.setPoint(1, @x_pad + @bar_width + 5, @line_pos + 5)
+        top_triangle.setPoint(2, @x_pad + @bar_width + 5, @line_pos - 5)
         dc.setBrush(Cosmos::BLACK)
         dc.drawPolygon(top_triangle)
         top_triangle.dispose
