@@ -12,7 +12,7 @@ require 'cosmos/tools/tlm_viewer/widgets/widget'
 
 module Cosmos
 
-  class StatecolorWidget < Qt::Label
+  class LimitscolorWidget < Qt::Label
     include Widget
 
     def initialize(parent_layout, target_name, packet_name, item_name, value_type = :CONVERTED, radius = 10, use_full_item_name = false)
@@ -20,6 +20,7 @@ module Cosmos
       @value_type = :CONVERTED if @value_type == :WITH_UNITS
       use_full_item_name = ConfigParser::handle_true_false(use_full_item_name)
       @painter = nil
+      @foreground = Cosmos::BLACK
       parent_layout.addWidget(self) if parent_layout
       @font = font()
       metrics = Cosmos.getFontMetrics(@font)
