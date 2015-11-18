@@ -457,7 +457,7 @@ module Cosmos
       path = procedure_name if !path and File.exist?(procedure_name)
       path = procedure_name_with_extension if !path and procedure_name_with_extension and File.exist?(procedure_name_with_extension)
 
-      raise "Procedure not found : #{procedure_name}" unless path
+      raise LoadError, "Procedure not found -- #{procedure_name}" unless path
       path
     end
 
@@ -544,7 +544,7 @@ module Cosmos
         begin
           Kernel::load(path)
         rescue LoadError => error
-          raise RuntimeError.new("Error loading : #{procedure_name} : #{error.message}")
+          raise LoadError, "Error loading -- #{procedure_name}\n#{error.message}"
         end
       end
       # Return whether we had to load and instrument this file, i.e. it was not cached

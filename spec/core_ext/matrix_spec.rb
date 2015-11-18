@@ -10,6 +10,7 @@
 
 require 'spec_helper'
 require 'cosmos/core_ext/matrix'
+require 'ostruct'
 
 describe Matrix do
 
@@ -60,6 +61,66 @@ describe Matrix do
 
     it "handles rectangular matrices" do
       expect(Matrix[[1,2],[4,5],[7,8]].trace).to eql 6.0
+    end
+  end
+
+  describe "cfromq" do
+    it "calculates the rotational matrix from the quaternion" do
+      quaternion = OpenStruct.new
+      quaternion.w = 1
+      quaternion.x = 0
+      quaternion.y = 0
+      quaternion.z = 0
+      expect(Matrix.cfromq(quaternion)).to eql Matrix[[1.0,0.0,0.0],[0.0,1.0,0.0],[0.0,0.0,1.0]]
+
+      quaternion.w = Math.sqrt(0.5)
+      quaternion.x = Math.sqrt(0.5)
+      quaternion.y = 0
+      quaternion.z = 0
+      matrix = Matrix.cfromq(quaternion)
+      expect(matrix[0]).to eql [1.0, 0.0, 0.0]
+      expect(matrix[1][0]).to eql 0.0
+      expect(matrix[1][1]).to be_within(1e-10).of(0.0)
+      expect(matrix[1][2]).to be_within(1e-10).of(1.0)
+      expect(matrix[2][0]).to eql 0.0
+      expect(matrix[2][1]).to be_within(1e-10).of(-1.0)
+      expect(matrix[2][2]).to be_within(1e-10).of(0.0)
+    end
+  end
+
+  describe "trans4" do
+    it "translates the matrix by x,y,z" do
+      matrix = Matrix[[4,4,4,4],[3,3,3,3],[2,2,2,2],[1,1,1,1]]
+      expect(matrix.trans4(1,1,1)).to eql Matrix[[4,4,4,4],[3,3,3,3],[2,2,2,2],[10,10,10,10]]
+    end
+  end
+
+  describe "scale4" do
+    it "scales the matrix by x,y,z" do
+      matrix = Matrix[[5,5,5,5],[4,4,4,4],[3,3,3,3],[2,2,2,2]]
+      expect(matrix.scale4(2,4,6)).to eql Matrix[[10,10,10,10],[16,16,16,16],[18,18,18,18],[2,2,2,2]]
+    end
+  end
+
+  describe "rot4" do
+    it "rotates the matrix about the quaternion" do
+      matrix = Matrix[[4,4,4,4],[3,3,3,3],[2,2,2,2],[1,1,1,1]]
+      quaternion = OpenStruct.new
+      quaternion.w = Math.sqrt(0.5)
+      quaternion.x = Math.sqrt(0.5)
+      quaternion.y = 0
+      quaternion.z = 0
+      matrix = matrix.rot4(quaternion)
+      expect(matrix[0]).to eql [4.0, 4.0, 4.0, 4.0]
+      expect(matrix[1][0]).to be_within(1e-10).of(2.0)
+      expect(matrix[1][1]).to be_within(1e-10).of(2.0)
+      expect(matrix[1][2]).to be_within(1e-10).of(2.0)
+      expect(matrix[1][3]).to be_within(1e-10).of(2.0)
+      expect(matrix[2][0]).to be_within(1e-10).of(-3.0)
+      expect(matrix[2][1]).to be_within(1e-10).of(-3.0)
+      expect(matrix[2][2]).to be_within(1e-10).of(-3.0)
+      expect(matrix[2][3]).to be_within(1e-10).of(-3.0)
+      expect(matrix[3]).to eql [1.0, 1.0, 1.0, 1.0]
     end
   end
 end

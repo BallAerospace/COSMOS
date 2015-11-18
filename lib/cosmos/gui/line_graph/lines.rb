@@ -82,8 +82,8 @@ module Cosmos
         index = x_values.nearest_index(x_value, ordered_x_values)
         if (x_values[index] - x_value).abs < value_delta
           if y_values[index] >= min and y_values[index] <= max
-            x_text = get_display_text(x_values[index], x_states, x_labels[index])
-            y_text = get_display_text(y_values[index], y_states, y_labels[index])
+            x_text = get_display_text(x_values, x_states, x_labels, index)
+            y_text = get_display_text(y_values, y_states, y_labels, index)
             result << [x_values[index], y_values[index], x_text, y_text, item, color, axis]
           end
         end
@@ -135,16 +135,25 @@ module Cosmos
         @lines.each do |x_values, y_values, x_labels, y_labels, x_states, y_states, color|
           maximum, maximum_index = x_values.max_with_index
           line_max_values << maximum
-          line_max_labels << x_labels[maximum_index]
           minimum, minimum_index = x_values.min_with_index
           line_min_values << minimum
-          line_min_labels << x_labels[minimum_index]
+
+          # If there are labels then use them directly
+          if x_labels
+            line_max_labels << x_labels[maximum_index]
+            line_min_labels << x_labels[minimum_index]
+          else # Put in max and min as place holders
+            line_max_labels << maximum
+            line_min_labels << minimum
+          end
         end
         x_max, x_max_index = line_max_values.max_with_index
         x_min, x_min_index = line_min_values.min_with_index
         x_max_label        = line_max_labels[x_max_index]
+        # If the label equals the max it was a placeholder so set to nil
         x_max_label        = nil if x_max_label == x_max
         x_min_label        = line_min_labels[x_min_index]
+        # If the label equals the min it was a placeholder so set to nil
         x_min_label        = nil if x_min_label == x_min
 
         if x_min == x_max
@@ -160,14 +169,13 @@ module Cosmos
       return [x_min, x_max, x_min_label, x_max_label]
     end
 
-    def get_display_text(key, states, label)
-      text = label
+    def get_display_text(keys, states, labels, index)
+      text = nil
+      text = labels[index] if labels
       if states
-        text = states.key(key)
+        text = states.key(keys[index])
         if text
-          text = "#{text} (#{key})"
-        else
-          text = label
+          text = "#{text} (#{keys[index]})"
         end
       end
       return text
@@ -271,7 +279,7 @@ module Cosmos
         x = (1..(y.length)).to_a_to_f
       end
       y_labels = y                         unless y_labels
-      x_labels = x                         unless x_labels
+      # x_labels are only set if the formatted time item is used
       y_states = y_states.clone            if y_states
       x_states = x_states.clone            if x_states
 

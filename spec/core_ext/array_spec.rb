@@ -120,6 +120,35 @@ describe Array do
     it "finds the range of values containing both" do
       expect(Array.new([0,1,1,2,2,3]).range_containing(1,2)).to eql (1..4)
       expect(Array.new([0,1,1,2,2,3]).range_containing(1,1)).to eql (1..2)
+      expect(Array.new([0,1,2,3,4,5]).range_containing(1,4)).to eql (1..4)
+    end
+
+    it "creates an empty range at the beginning of the array if the values both too small" do
+      expect(Array.new([0,1,1,2,2,3]).range_containing(-2,-1)).to eql (0..0)
+    end
+
+    it "creates an empty range at the end of the array if the values are both too large" do
+      expect(Array.new([0,1,1,2,2,3]).range_containing(4,5)).to eql (5..5)
+    end
+  end
+
+  describe "range_within" do
+    it "complains if start < end" do
+      expect { Array.new().range_within(2,1) }.to raise_error(RuntimeError, "end_value: 1 must be greater than start_value: 2")
+    end
+
+    it "finds the range of values within both" do
+      expect(Array.new([0,1,1,2,2,3]).range_within(1,2)).to eql (2..3)
+      expect(Array.new([0,1,1,2,2,3]).range_within(1,1)).to eql (1..2)
+      expect(Array.new([0,1,2,3,4,5]).range_within(1,4)).to eql (1..4)
+    end
+
+    it "creates an empty range at the beginning of the array if the values both too small" do
+      expect(Array.new([0,1,1,2,2,3]).range_within(-2,-1)).to eql (0..0)
+    end
+
+    it "creates an empty range at the end of the array if the values are both too large" do
+      expect(Array.new([0,1,1,2,2,3]).range_within(4,5)).to eql (5..5)
     end
   end
 
@@ -163,7 +192,7 @@ describe Array do
   end
 
   describe "histogram" do
-    it "groups elements" do
+    it "groups numeric elements" do
       myData1 = [1, 7, 4, 3, 4, 2, 7, 0, 8, 3, 4]
       myData2 = [1, 2, 3]
       myData3 = [2, 4, 8]
@@ -180,6 +209,38 @@ describe Array do
       expect(myData3.histogram(25, true).length).to eql 25
       expect(myData3.histogram(7, true)[2][2]).to eql 1
       expect(myData3.histogram(25, true)[20][2]).to eql 0
+    end
+
+    it "sorts by a given block" do
+      myData1 = [1, 7, 4, 3, 4, 2, 7, 0, 8, 3, 4]
+      histogram = myData1.histogram(nil, true) do |val1, val2|
+        val2[0] <=> val1[0]
+      end
+      expect(myData1.histogram(nil, true)).to eql histogram.reverse
+    end
+
+    it "groups non-numeric elements" do
+      myData1 = ['b', 'h', 'e', 'd', 'e', 'c', 'h', 'a', 'i', 'd', 'e']
+      myData2 = ['b', 'c', 'd']
+      myData3 = ['c', 'e', 'i']
+
+      expect(myData1.histogram()).to eql [['a','a',1],['b','b',1],['c','c',1],['d','d',2],['e','e',3],['h','h',2],['i','i',1]]
+      expect(myData2.histogram()).to eql [["b", "b", 1], ["c", "c", 1], ["d", "d", 1]]
+      expect(myData3.histogram()).to eql [["c", "c", 1], ["e", "e", 1], ["i", "i", 1]]
+
+      # Even though we request 9 we only get 7 because that's all the unique values we have
+      expect(myData1.histogram(9, false).length).to eql 7
+      expect(myData1.histogram(1, false).length).to eql 1
+      expect(myData1.histogram(7, false)[0][2]).to eql 1
+      expect(myData1.histogram(7, false)[4][2]).to eql 3
+      expect(myData1.histogram(3, false)[0][2]).to eql 3
+      # Even though we request 5 we only get 3 because that's all the unique values we have
+      expect(myData2.histogram(5, false).length).to eql 3
+      expect(myData2.histogram(3, false)[2][2]).to eql 1
+      expect(myData2.histogram(3, false)[1][2]).to eql 1
+      # Even though we request 7 we only get 3 because that's all the unique values we have
+      expect(myData3.histogram(7, false).length).to eql 3
+      expect(myData3.histogram(3, false)[2][2]).to eql 1
     end
   end
 end

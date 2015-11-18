@@ -158,7 +158,7 @@ module Cosmos
     it "returns a Thread" do
       if Kernel.is_windows?
         capture_io do |stdout|
-          thread = Cosmos.run_process("ping 192.0.0.234 -n 1 -w 1000 > nul")
+          thread = Cosmos.run_process("ping google.com -n 2 -w 1000 > nul")
           sleep 0.1
           expect(thread).to be_a Thread
           expect(thread.alive?).to be true

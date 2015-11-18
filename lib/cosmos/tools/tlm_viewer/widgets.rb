@@ -1,8 +1,8 @@
 # encoding: ascii-8bit
-
 require 'cosmos/tools/tlm_viewer/widgets/array_widget.rb'
 require 'cosmos/tools/tlm_viewer/widgets/block_widget.rb'
 require 'cosmos/tools/tlm_viewer/widgets/button_widget.rb'
+require 'cosmos/tools/tlm_viewer/widgets/canvasdot_widget.rb'
 require 'cosmos/tools/tlm_viewer/widgets/canvasimagevalue_widget.rb'
 require 'cosmos/tools/tlm_viewer/widgets/canvasimage_widget.rb'
 require 'cosmos/tools/tlm_viewer/widgets/canvaslabelvalue_widget.rb'

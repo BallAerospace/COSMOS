@@ -79,6 +79,8 @@ module Cosmos
     attr_accessor_with_redraw :show_popup_x_y
     # Use x_value as floating point UTC timestamp with unix epoch
     attr_accessor_with_redraw :unix_epoch_x_values
+    # Display x_value as UTC timestamp
+    attr_accessor_with_redraw :utc_time
 
     #########################################################################
     # Callback attributes
@@ -145,6 +147,7 @@ module Cosmos
       @ordered_x_values = true
       @show_popup_x_y = false
       @unix_epoch_x_values = true
+      @utc_time = false
 
       # Initialize the callbacks
       @draw_cursor_line_callback = nil

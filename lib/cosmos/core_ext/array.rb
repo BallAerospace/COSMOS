@@ -205,7 +205,10 @@ class Array
   #   start_value and end_value
   def range_within(start_value, end_value)
     raise "end_value: #{end_value} must be greater than start_value: #{start_value}" if end_value < start_value
-    Range.new(index_gt_eq(start_value), index_lt_eq(end_value))
+    range = Range.new(index_gt_eq(start_value), index_lt_eq(end_value))
+    # Sometimes we get a backwards range so check for that and reverse it
+    range = Range.new(range.last, range.first) if range.last < range.first
+    range
   end
 
   if !(self.method_defined?(:sum))

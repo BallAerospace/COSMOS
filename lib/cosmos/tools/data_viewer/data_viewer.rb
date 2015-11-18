@@ -104,19 +104,25 @@ module Cosmos
       @search_find_keyseq = Qt::KeySequence.new(tr('Ctrl+F'))
       @search_find.shortcut  = @search_find_keyseq
       @search_find.statusTip = tr('Find text')
-      @search_find.connect(SIGNAL('triggered()')) { find() }
+      @search_find.connect(SIGNAL('triggered()')) do
+        FindReplaceDialog.show_find(self)
+      end
 
       @search_find_next = Qt::Action.new(tr('Find &Next'), self)
       @search_find_next_keyseq = Qt::KeySequence.new(tr('F3'))
       @search_find_next.shortcut  = @search_find_next_keyseq
       @search_find_next.statusTip = tr('Find next instance')
-      @search_find_next.connect(SIGNAL('triggered()')) { find_next() }
+      @search_find_next.connect(SIGNAL('triggered()')) do
+        FindReplaceDialog.find_next(self)
+      end
 
       @search_find_previous = Qt::Action.new(tr('Find &Previous'), self)
       @search_find_previous_keyseq = Qt::KeySequence.new(tr('Shift+F3'))
       @search_find_previous.shortcut  = @search_find_previous_keyseq
       @search_find_previous.statusTip = tr('Find previous instance')
-      @search_find_previous.connect(SIGNAL('triggered()')) { find_previous() }
+      @search_find_previous.connect(SIGNAL('triggered()')) do
+        FindReplaceDialog.find_previous(self)
+      end
 
       # Tab Menu Actions
       @delete_tab = Qt::Action.new(Cosmos.get_icon('delete_tab.png'), tr('&Delete Tab'), self)
@@ -179,21 +185,10 @@ module Cosmos
       end
     end
 
-    def find
+    # Called by the FindReplaceDialog to get the text to search
+    def search_text
       current_component do |component|
-        FindReplaceDialog.show_find(component.text)
-      end
-    end
-
-    def find_next
-      current_component do |component|
-        FindReplaceDialog.find_next(component.text)
-      end
-    end
-
-    def find_previous
-      current_component do |component|
-        FindReplaceDialog.find_previous(component.text)
+        component.text
       end
     end
 
