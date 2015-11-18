@@ -81,6 +81,8 @@ module Cosmos
     attr_accessor_with_redraw :unix_epoch_x_values
     # Display x_value as UTC timestamp
     attr_accessor_with_redraw :utc_time
+    # Display legend on bottom or right side
+    attr_accessor_with_redraw :legend_position
 
     #########################################################################
     # Callback attributes
@@ -148,6 +150,7 @@ module Cosmos
       @show_popup_x_y = false
       @unix_epoch_x_values = true
       @utc_time = false
+      @legend_position = :bottom # :bottom or :right
 
       # Initialize the callbacks
       @draw_cursor_line_callback = nil
