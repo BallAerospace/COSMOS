@@ -9,8 +9,10 @@
 # attribution addendums as found in the LICENSE.txt
 
 require 'cosmos'
-require 'cosmos/gui/qt_tool'
-require 'cosmos/gui/line_graph/line_graph_dialog'
+Qt.execute_in_main_thread do
+  require 'cosmos/gui/qt_tool'
+  require 'cosmos/gui/line_graph/line_graph_dialog'
+end
 
 # Create a new graph object and populate
 # plot (x, y, legend, [y,legend], [y,legend], ... , [opts])
@@ -34,24 +36,32 @@ def plot (x = nil, y = nil, legend = "Line 1", *args)
     arg_idx -= 1
   end
 
+  if y
+    raise "Legend [0] must be a string" unless legend.kind_of? String
+    raise "Y [0] must be an array" unless y.kind_of? Array
+  end
+
   # Split out the arguments for the other y arrays & legends
   y_array = args[0..arg_idx].values_at(* args[0..arg_idx].each_index.select {|i| i.even?})
   legend_array = args[0..arg_idx].values_at(* args[0..arg_idx].each_index.select {|i| i.odd?})
+
+  raise "Legend Argument List and Y Argument List not the same size" unless legend_array.length == y_array.length
+  (0...y_array.length).each do |i|
+    if y_array[i]
+      raise "Legend [#{i+1}] must be a string" unless legend_array[i].kind_of? String
+      raise "Y [#{i+1}] must be an array" unless y_array[i].kind_of? Array
+    end
+  end
 
   my_line_graph = ''
   Qt.execute_in_main_thread do
     a = Cosmos::LineGraphDialog.new(my_opts[:winTitle], my_opts[:width], my_opts[:height])
     if y
-      raise "Legend must be a string" unless legend.kind_of? String
-      raise "Y must be an array" unless y.kind_of? Array
       a.line_graph.add_line(legend, y, x, nil, nil, nil, nil, 'auto')
     end
     
-    raise "Legend Argument List and Y Argument List not the same size" unless legend_array.length == y_array.length
     (0...y_array.length).each do |i|
       if y_array[i]
-        raise "Legend must be a string" unless legend_array[i].kind_of? String
-        raise "Y must be an array" unless y_array[i].kind_of? Array
         a.line_graph.add_line(legend_array[i], y_array[i], x, nil, nil, nil, nil, 'auto')
       end
     end
