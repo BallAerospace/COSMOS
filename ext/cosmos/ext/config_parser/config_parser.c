@@ -76,16 +76,16 @@ static VALUE parse_loop(VALUE self, VALUE io, VALUE yield_non_keyword_lines, VAL
   int index = 0;
   double float_pos = 0.0;
   double float_size = NUM2DBL(size);
-  VALUE progress_callback = rb_cvar_get(cConfigParser, id_cvar_progress_callback);
-  VALUE line = Qnil;
-  VALUE data = Qnil;
-  VALUE line_continuation = Qfalse;
-  VALUE string = Qnil;
-  VALUE array = rb_ary_new();
-  VALUE first_item = Qnil;
-  VALUE ivar_keyword = Qnil;
-  VALUE ivar_parameters = rb_ary_new();
-  VALUE ivar_line =Qnil;
+  volatile VALUE progress_callback = rb_cvar_get(cConfigParser, id_cvar_progress_callback);
+  volatile VALUE line = Qnil;
+  volatile VALUE data = Qnil;
+  volatile VALUE line_continuation = Qfalse;
+  volatile VALUE string = Qnil;
+  volatile VALUE array = rb_ary_new();
+  volatile VALUE first_item = Qnil;
+  volatile VALUE ivar_keyword = Qnil;
+  volatile VALUE ivar_parameters = rb_ary_new();
+  volatile VALUE ivar_line =Qnil;
 
   rb_ivar_set(self, id_ivar_line_number, INT2FIX(0));
   rb_ivar_set(self, id_ivar_keyword, ivar_keyword);

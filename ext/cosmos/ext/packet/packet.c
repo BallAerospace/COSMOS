@@ -44,15 +44,13 @@ static ID id_ivar_target_name = 0;
 static ID id_ivar_packet_name = 0;
 static ID id_ivar_description = 0;
 
-static ID id_const_ASCII_8BIT_STRING = 0;
-
 /* Wraps read_item_internal so that it can be called by rb_protect in protected_read_item_internal */
 static VALUE wrap_read_item_internal(VALUE args)
 {
-  VALUE *values = (VALUE *)args;
-  VALUE self = values[0];
-  VALUE item = values[1];
-  VALUE buffer = values[2];
+  volatile VALUE *values = (VALUE *)args;
+  volatile VALUE self = values[0];
+  volatile VALUE item = values[1];
+  volatile VALUE buffer = values[2];
   return read_item_internal(self, item, buffer);
 }
 
@@ -60,8 +58,8 @@ static VALUE wrap_read_item_internal(VALUE args)
 static VALUE protected_read_item_internal(VALUE self, VALUE item, VALUE buffer)
 {
   int error = 0;
-  VALUE result = Qnil;
-  VALUE args[3];
+  volatile VALUE result = Qnil;
+  volatile VALUE args[3];
 
   args[0] = self;
   args[1] = item;
@@ -91,10 +89,10 @@ static VALUE protected_read_item_internal(VALUE self, VALUE item, VALUE buffer)
  */
 static VALUE identify(VALUE self, VALUE buffer)
 {
-  VALUE id_items = rb_ivar_get(self, id_ivar_id_items);
-  VALUE item = Qnil;
-  VALUE id_value = Qnil;
-  VALUE raw_value = Qnil;
+  volatile VALUE id_items = rb_ivar_get(self, id_ivar_id_items);
+  volatile VALUE item = Qnil;
+  volatile VALUE id_value = Qnil;
+  volatile VALUE raw_value = Qnil;
   long id_items_length = 0;
   int index = 0;
 
@@ -205,13 +203,13 @@ static VALUE received_count_equals(VALUE self, VALUE received_count) {
  *   subclass of PacketItem)
  */
 static VALUE packet_initialize(int argc, VALUE* argv, VALUE self) {
-  VALUE target_name = Qnil;
-  VALUE packet_name = Qnil;
-  VALUE default_endianness = Qnil;
-  VALUE description = Qnil;
-  VALUE buffer = Qnil;
-  VALUE item_class = Qnil;
-  VALUE super_args[3] = {Qnil, Qnil, Qnil};
+  volatile VALUE target_name = Qnil;
+  volatile VALUE packet_name = Qnil;
+  volatile VALUE default_endianness = Qnil;
+  volatile VALUE description = Qnil;
+  volatile VALUE buffer = Qnil;
+  volatile VALUE item_class = Qnil;
+  volatile VALUE super_args[3] = {Qnil, Qnil, Qnil};
 
   switch (argc)
   {
@@ -302,8 +300,6 @@ void Init_packet (void)
   id_method_upcase = rb_intern("upcase");
   id_method_clone = rb_intern("clone");
 
-  id_const_ASCII_8BIT_STRING = rb_intern("ASCII_8BIT_STRING");
-
   id_ivar_id_items = rb_intern("@id_items");
   id_ivar_id_value = rb_intern("@id_value");
   id_ivar_received_time = rb_intern("@received_time");
@@ -326,7 +322,6 @@ void Init_packet (void)
   id_ivar_description = rb_intern("@description");
 
   cPacket = rb_define_class_under(mCosmos, "Packet", cStructure);
-  rb_const_set(cPacket, id_const_ASCII_8BIT_STRING, ASCII_8BIT_STRING);
   rb_define_method(cPacket, "initialize", packet_initialize, -1);
   rb_define_method(cPacket, "identify?", identify, 1);
   rb_define_method(cPacket, "packet_name=", packet_name_equals, 1);

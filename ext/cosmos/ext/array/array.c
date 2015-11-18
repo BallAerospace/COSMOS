@@ -22,9 +22,9 @@ static VALUE max_with_index (VALUE self)
   int index = 0;
   long array_length = RARRAY_LEN(self);
   int maximum_index = 0;
-  VALUE value = Qnil;
-  VALUE maximum = Qnil;
-  VALUE return_value = Qnil;
+  volatile VALUE value = Qnil;
+  volatile VALUE maximum = Qnil;
+  volatile VALUE return_value = Qnil;
 
   if (array_length > 0)
   {
@@ -64,9 +64,9 @@ static VALUE min_with_index (VALUE self)
   int index = 0;
   long array_length = RARRAY_LEN(self);
   int minimum_index = 0;
-  VALUE value = Qnil;
-  VALUE minimum = Qnil;
-  VALUE return_value = Qnil;
+  volatile VALUE value = Qnil;
+  volatile VALUE minimum = Qnil;
+  volatile VALUE return_value = Qnil;
 
   if (array_length > 0)
   {

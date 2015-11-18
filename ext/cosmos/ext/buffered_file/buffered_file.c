@@ -37,11 +37,11 @@ static VALUE buffered_file_initialize(int argc, VALUE* argv, VALUE self) {
 /* Read using an internal buffer to avoid system calls */
 static VALUE buffered_file_read(VALUE self, VALUE arg_length) {
   long length = FIX2INT(arg_length);
-  VALUE buffer = rb_ivar_get(self, id_ivar_buffer);
+  volatile VALUE buffer = rb_ivar_get(self, id_ivar_buffer);
   long buffer_length = RSTRING_LEN(buffer);
   long buffer_index = FIX2INT(rb_ivar_get(self, id_ivar_buffer_index));
-  VALUE result = Qnil;
-  VALUE super_arg = Qnil;
+  volatile VALUE result = Qnil;
+  volatile VALUE super_arg = Qnil;
 
   if (length <= (buffer_length - buffer_index)) {
     /* Return part of the buffer without having to go to the OS */
@@ -92,7 +92,7 @@ static VALUE buffered_file_read(VALUE self, VALUE arg_length) {
 
 /* Get the current file position */
 static VALUE buffered_file_pos(VALUE self) {
-  VALUE parent_pos = rb_call_super(0, NULL);
+  volatile VALUE parent_pos = rb_call_super(0, NULL);
   long long ll_pos = NUM2LL(parent_pos);
   long buffer_length = RSTRING_LEN(rb_ivar_get(self, id_ivar_buffer));
   long buffer_index = FIX2INT(rb_ivar_get(self, id_ivar_buffer_index));
@@ -101,10 +101,10 @@ static VALUE buffered_file_pos(VALUE self) {
 
 /* Seek to a given file position */
 static VALUE buffered_file_seek(int argc, VALUE* argv, VALUE self) {
-  VALUE amount = Qnil;
-  VALUE whence = Qnil;
+  volatile VALUE amount = Qnil;
+  volatile VALUE whence = Qnil;
   long buffer_index = 0;
-  VALUE super_args[2] = {Qnil, Qnil};
+  volatile VALUE super_args[2] = {Qnil, Qnil};
 
   switch (argc)
   {

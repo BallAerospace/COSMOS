@@ -91,10 +91,10 @@ static VALUE line_clip_internal(double x0, double y0, double x1, double y1, doub
   int code0 = 0;
   int code1 = 0;
   int codeout = 0;
-  VALUE accept = Qfalse;
-  VALUE done = Qfalse;
-  VALUE clipped0 = Qfalse;
-  VALUE clipped1 = Qfalse;
+  volatile VALUE accept = Qfalse;
+  volatile VALUE done = Qfalse;
+  volatile VALUE clipped0 = Qfalse;
+  volatile VALUE clipped1 = Qfalse;
   double x = 0.0;
   double y = 0.0;
 
@@ -174,10 +174,10 @@ static VALUE line_clip_internal(double x0, double y0, double x1, double y1, doub
  * If no part of the line is viewable, it returns nil
  */
 static VALUE line_clip(VALUE self, VALUE x0, VALUE y0, VALUE x1, VALUE y1, VALUE xmin, VALUE ymin, VALUE xmax, VALUE ymax) {
-  VALUE result = Qnil;
-  VALUE result_clipped0 = Qnil;
-  VALUE result_clipped1 = Qnil;
-  VALUE return_value = Qnil;
+  volatile VALUE result = Qnil;
+  volatile VALUE result_clipped0 = Qnil;
+  volatile VALUE result_clipped1 = Qnil;
+  volatile VALUE return_value = Qnil;
   double double_x0 = 0.0;
   double double_y0 = 0.0;
   double double_x1 = 0.0;
@@ -234,7 +234,7 @@ static long scale_value_to_graph_y_internal (double y, double y_max, double y_sc
  * This function converts a y value to a y coordinate on the graph
  */
 static VALUE scale_value_to_graph_y(int argc, VALUE* argv, VALUE self) {
-  VALUE y = Qnil;
+  volatile VALUE y = Qnil;
   ID id_axis = 0;
   long long_graph_top_y = 0;
   double double_y = 0.0;
@@ -298,9 +298,9 @@ static VALUE scale_value_to_graph_x(VALUE self, VALUE x) {
  * Internal version to draw a line
  */
 static void draw_line_internal(VALUE dc, double x1, double y1, double x2, double y2, double x_min, double y_min, double x_max, double y_max, double x_scale, double y_scale, long graph_left_x, long graph_top_y, ID id_axis, VALUE show_line, VALUE point_size, VALUE color) {
-  VALUE result = Qnil;
-  VALUE clipped1 = Qnil;
-  VALUE clipped2 = Qnil;
+  volatile VALUE result = Qnil;
+  volatile VALUE clipped1 = Qnil;
+  volatile VALUE clipped2 = Qnil;
   long x1_scaled = 0;
   long y1_scaled = 0;
   long x2_scaled = 0;
@@ -390,13 +390,13 @@ static VALUE draw_lines (VALUE self, VALUE dc, VALUE axis) {
   long line_length = 0;
   long point_index = 0;
   ID id_axis = 0;
-  VALUE lines = Qnil;
-  VALUE line = Qnil;
-  VALUE x_values = Qnil;
-  VALUE y_values = Qnil;
-  VALUE color = Qnil;
-  VALUE show_lines = Qnil;
-  VALUE point_size = Qnil;
+  volatile VALUE lines = Qnil;
+  volatile VALUE line = Qnil;
+  volatile VALUE x_values = Qnil;
+  volatile VALUE y_values = Qnil;
+  volatile VALUE color = Qnil;
+  volatile VALUE show_lines = Qnil;
+  volatile VALUE point_size = Qnil;
   double double_x1 = 0.0;
   double double_y1 = 0.0;
   double double_x2 = 0.0;

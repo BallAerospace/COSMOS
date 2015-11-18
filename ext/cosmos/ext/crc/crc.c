@@ -90,8 +90,8 @@ static unsigned long long bit_reverse_64(unsigned long long value)
  */
 static VALUE crc16_calculate(int argc, VALUE* argv, VALUE self)
 {
-  VALUE param_data = Qnil;
-  VALUE param_seed = Qnil;
+  volatile VALUE param_data = Qnil;
+  volatile VALUE param_seed = Qnil;
   unsigned char* data = NULL;
   unsigned short* table = NULL;
   int i = 0;
@@ -167,8 +167,8 @@ static VALUE crc16_calculate(int argc, VALUE* argv, VALUE self)
  */
 static VALUE crc32_calculate(int argc, VALUE* argv, VALUE self)
 {
-  VALUE param_data = Qnil;
-  VALUE param_seed = Qnil;
+  volatile VALUE param_data = Qnil;
+  volatile VALUE param_seed = Qnil;
   unsigned char* data = NULL;
   unsigned int* table = NULL;
   int i = 0;
@@ -244,8 +244,8 @@ static VALUE crc32_calculate(int argc, VALUE* argv, VALUE self)
  */
 static VALUE crc64_calculate(int argc, VALUE* argv, VALUE self)
 {
-  VALUE param_data = Qnil;
-  VALUE param_seed = Qnil;
+  volatile VALUE param_data = Qnil;
+  volatile VALUE param_seed = Qnil;
   unsigned char* data = NULL;
   unsigned long long* table = NULL;
   int i = 0;

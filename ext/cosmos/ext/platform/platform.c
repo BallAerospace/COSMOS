@@ -69,7 +69,7 @@ static VALUE segfault(VALUE self) {
  */
 void Init_platform (void) {
 #ifdef _WIN32
-  VALUE ruby_version = rb_const_get(rb_cObject, rb_intern("RUBY_VERSION"));
+  volatile VALUE ruby_version = rb_const_get(rb_cObject, rb_intern("RUBY_VERSION"));
   char* rversion = RSTRING_PTR(ruby_version);
 
 #if __x86_64__
