@@ -27,11 +27,11 @@ module Cosmos
 
       # Determine number of pixels to the right side of graph
       if @show_legend and !@lines.empty? and @legend_position == :right
-        legend_x, legend_y, legend_width, legend_height = get_legend_position
+        legend_x, legend_y, legend_width, legend_height = get_legend_position()
       else
         legend_width = 0
       end
-      @graph_right_x = self.width - legend_width - 6 * GRAPH_SPACER
+      @graph_right_x = self.width - legend_width - 8 * GRAPH_SPACER
       if @right_y_axis_title
         @graph_right_x -= (metrics.width('W') + GRAPH_SPACER)
       end

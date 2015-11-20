@@ -363,29 +363,29 @@ module Cosmos
             left_count = 0
             right_count = 0
             @lines.legend.each do |text, color, axis|
-            if axis == :LEFT
-              left_count += 1
-            else
-              right_count += 1
+              if axis == :LEFT
+                left_count += 1
+              else
+                right_count += 1
+              end
             end
-          end
-          if left_count < right_count
-            text_y += text_height * (right_count/2)
+            if left_count < right_count
+              text_y += text_height * (right_count/2)
+            else
+              text_y += text_height * (left_count/2)
+            end
           else
-            text_y += text_height * (left_count/2)
+            text_y += text_height * (@lines.size/2)
           end
-        else
-          text_y += text_height * (@lines.size/2)
+          legend_height = self.height - text_y - GRAPH_SPACER
         end
-        legend_height = self.height - text_y - GRAPH_SPACER
-      end
 
-      legend_graph_x = self.width - legend_width - GRAPH_SPACER*3 
+        legend_graph_x = self.width - legend_width - GRAPH_SPACER*3
 
-      char_width   = metrics.width('W')
-      legend_graph_x -= (char_width + GRAPH_SPACER) if @right_y_axis_title
+        char_width   = metrics.width('W')
+        legend_graph_x -= (char_width + GRAPH_SPACER) if @right_y_axis_title
 
-      text_x = legend_graph_x + GRAPH_SPACER	
+        text_x = legend_graph_x + GRAPH_SPACER
 
       else # @legend_position == :bottom or default
         legend_graph_x = (self.width - legend_width) / 2
