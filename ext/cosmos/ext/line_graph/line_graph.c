@@ -87,7 +87,7 @@ static int cal_code (double x, double y, double xmin, double ymin, double xmax, 
 /*
  * Internal function to perform clipping
  */
-static VALUE line_clip_internal(double x0, double y0, double x1, double y1, double xmin, double ymin, double xmax, double ymax, double* result_x0, double* result_y0, double* result_x1, double* result_y1, VALUE* result_clipped0, VALUE* result_clipped1) {
+static VALUE line_clip_internal(double x0, double y0, double x1, double y1, double xmin, double ymin, double xmax, double ymax, double* result_x0, double* result_y0, double* result_x1, double* result_y1, volatile VALUE* result_clipped0, volatile VALUE* result_clipped1) {
   int code0 = 0;
   int code1 = 0;
   int codeout = 0;

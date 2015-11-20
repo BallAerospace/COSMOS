@@ -59,7 +59,7 @@ static VALUE buffered_file_read(VALUE self, VALUE arg_length) {
         rb_ivar_set(self, id_ivar_buffer_index, INT2FIX(0));
       }
       super_arg = INT2FIX(length - buffer_length);
-      rb_str_append(buffer, rb_funcall(rb_call_super(1, &super_arg), id_method_to_s, 0));
+      rb_str_append(buffer, rb_funcall(rb_call_super(1, (VALUE*) &super_arg), id_method_to_s, 0));
       return rb_funcall(buffer, id_method_slice_bang, 1, rb_const_get(cBufferedFile, id_const_ALL_RANGE));
     } else {
       return rb_call_super(1, &arg_length);
@@ -73,7 +73,7 @@ static VALUE buffered_file_read(VALUE self, VALUE arg_length) {
       rb_ivar_set(self, id_ivar_buffer_index, INT2FIX(0));
     }
     super_arg = INT2FIX(BUFFER_SIZE - buffer_length);
-    rb_str_append(buffer, rb_funcall(rb_call_super(1, &super_arg), id_method_to_s, 0));
+    rb_str_append(buffer, rb_funcall(rb_call_super(1, (VALUE*) &super_arg), id_method_to_s, 0));
     buffer_length = RSTRING_LEN(buffer);
     if (buffer_length <= 0) {
       return Qnil;
@@ -131,7 +131,7 @@ static VALUE buffered_file_seek(int argc, VALUE* argv, VALUE self) {
     }
     super_args[0] = rb_funcall(self, id_method_pos, 0);
     super_args[1] = BUFFERED_FILE_SEEK_SET;
-    rb_call_super(2, super_args);
+    rb_call_super(2, (VALUE*) super_args);
   }
 
   rb_funcall(rb_ivar_get(self, id_ivar_buffer), id_method_clear, 0);

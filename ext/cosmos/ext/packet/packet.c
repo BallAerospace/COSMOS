@@ -262,7 +262,7 @@ static VALUE packet_initialize(int argc, VALUE* argv, VALUE self) {
   super_args[0] = default_endianness;
   super_args[1] = buffer;
   super_args[2] = item_class;
-  rb_call_super(3, super_args);
+  rb_call_super(3, (VALUE*) super_args);
   target_name_equals(self, target_name);
   packet_name_equals(self, packet_name);
   description_equals(self, description);
