@@ -30,7 +30,7 @@ static ID id_method_to_f = 0;
  */
 static VALUE polynomial_conversion_call(VALUE self, VALUE value, VALUE myself, VALUE buffer)
 {
-  VALUE coeffs = Qnil;
+  volatile VALUE coeffs = Qnil;
   long coeffs_length = 0;
   int index = 0;
   double double_value = 0.0;

@@ -23,7 +23,7 @@ static VALUE process_packet_in_each_data_object (VALUE self, VALUE data_objects,
 {
   int index = 0;
   long length = 0;
-  VALUE data_object = Qnil;
+  volatile VALUE data_object = Qnil;
 
   length = RARRAY_LEN(data_objects);
   if (length > 0)

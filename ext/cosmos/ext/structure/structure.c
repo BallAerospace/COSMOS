@@ -65,6 +65,7 @@ static ID id_ivar_fixed_size = 0;
 static ID id_ivar_short_buffer_allowed = 0;
 static ID id_ivar_mutex = 0;
 
+static ID id_const_ASCII_8BIT_STRING = 0;
 static ID id_const_ZERO_STRING = 0;
 
 static VALUE symbol_LITTLE_ENDIAN = Qnil;
@@ -453,8 +454,8 @@ static VALUE binary_accessor_read(VALUE self, VALUE param_bit_offset, VALUE para
   int num_words = 0;
   int upper_bound = 0;
   int lower_bound = 0;
-  VALUE temp_value = Qnil;
-  VALUE return_value = Qnil;
+  volatile VALUE temp_value = Qnil;
+  volatile VALUE return_value = Qnil;
 
   unsigned char* buffer = NULL;
   long buffer_length = 0;
@@ -712,9 +713,9 @@ static VALUE binary_accessor_read(VALUE self, VALUE param_bit_offset, VALUE para
 
 static VALUE check_overflow(VALUE value, int bit_size, VALUE data_type, VALUE overflow)
 {
-  VALUE hex_max_value = Qnil;
-  VALUE max_value = Qnil;
-  VALUE min_value = INT2NUM(0); /* Default for UINT cases */
+  volatile VALUE hex_max_value = Qnil;
+  volatile VALUE max_value = Qnil;
+  volatile VALUE min_value = INT2NUM(0); /* Default for UINT cases */
 
   switch (bit_size) {
     case 8:
@@ -845,9 +846,9 @@ static VALUE binary_accessor_write(VALUE self, VALUE value, VALUE param_bit_offs
   unsigned char* buffer = NULL;
   long buffer_length = 0;
   long value_length = 0;
-  VALUE temp_shift = Qnil;
-  VALUE temp_mask = Qnil;
-  VALUE temp_result = Qnil;
+  volatile VALUE temp_shift = Qnil;
+  volatile VALUE temp_mask = Qnil;
+  volatile VALUE temp_result = Qnil;
 
   int string_length = 0;
   unsigned char* unsigned_char_array = NULL;
@@ -1099,7 +1100,7 @@ static VALUE binary_accessor_write(VALUE self, VALUE value, VALUE param_bit_offs
  */
 static int get_int_length(VALUE self)
 {
-  VALUE buffer = rb_ivar_get(self, id_ivar_buffer);
+  volatile VALUE buffer = rb_ivar_get(self, id_ivar_buffer);
   if (RTEST(buffer)) {
     return (int)RSTRING_LEN(buffer);
   } else {
@@ -1117,11 +1118,11 @@ static VALUE structure_length(VALUE self) {
 }
 
 static VALUE read_item_internal(VALUE self, VALUE item, VALUE buffer) {
-  VALUE bit_offset = Qnil;
-  VALUE bit_size = Qnil;
-  VALUE data_type = Qnil;
-  VALUE array_size = Qnil;
-  VALUE endianness = Qnil;
+  volatile VALUE bit_offset = Qnil;
+  volatile VALUE bit_size = Qnil;
+  volatile VALUE data_type = Qnil;
+  volatile VALUE array_size = Qnil;
+  volatile VALUE endianness = Qnil;
 
   data_type = rb_ivar_get(item, id_ivar_data_type);
   if (data_type == symbol_DERIVED) {
@@ -1155,8 +1156,8 @@ static VALUE read_item_internal(VALUE self, VALUE item, VALUE buffer) {
  */
 static VALUE read_item(int argc, VALUE* argv, VALUE self)
 {
-  VALUE item = Qnil;
-  VALUE buffer = Qnil;
+  volatile VALUE item = Qnil;
+  volatile VALUE buffer = Qnil;
 
   switch (argc)
   {
@@ -1237,9 +1238,9 @@ static VALUE structure_item_spaceship(VALUE self, VALUE other_item) {
  *   Must be StructureItem or one of its subclasses.
  */
 static VALUE structure_initialize(int argc, VALUE* argv, VALUE self) {
-  VALUE default_endianness = Qnil;
-  VALUE buffer = Qnil;
-  VALUE item_class = Qnil;
+  volatile VALUE default_endianness = Qnil;
+  volatile VALUE buffer = Qnil;
+  volatile VALUE item_class = Qnil;
 
   switch (argc)
   {
@@ -1300,9 +1301,9 @@ static VALUE structure_initialize(int argc, VALUE* argv, VALUE self) {
  */
 static VALUE resize_buffer(VALUE self)
 {
-  VALUE buffer = rb_ivar_get(self, id_ivar_buffer);
+  volatile VALUE buffer = rb_ivar_get(self, id_ivar_buffer);
   if (RTEST(buffer)) {
-    VALUE value_defined_length = rb_ivar_get(self, id_ivar_defined_length);
+    volatile VALUE value_defined_length = rb_ivar_get(self, id_ivar_defined_length);
     long defined_length = FIX2INT(value_defined_length);
     long current_length = RSTRING_LEN(buffer);
 
@@ -1322,6 +1323,8 @@ static VALUE resize_buffer(VALUE self)
 void Init_structure (void)
 {
   int zero = 0;
+  volatile VALUE zero_string = Qnil;
+  volatile VALUE ascii_8bit_string = Qnil;
 
   mCosmos = rb_define_module("Cosmos");
   cBinaryAccessor = rb_define_class_under(mCosmos, "BinaryAccessor", rb_cObject);
@@ -1335,13 +1338,6 @@ void Init_structure (void)
   id_method_reverse = rb_intern("reverse");
   id_method_Integer = rb_intern("Integer");
   id_method_Float = rb_intern("Float");
-
-  ASCII_8BIT_STRING = rb_str_new2("ASCII-8BIT");
-  rb_funcall(ASCII_8BIT_STRING, id_method_freeze, 0);
-
-  ZERO_STRING = rb_str_new((char*) &zero, 1);
-  rb_funcall(ZERO_STRING, id_method_freeze, 0);
-  id_const_ZERO_STRING = rb_intern("ZERO_STRING");
 
   MIN_INT8 = INT2NUM(-128);
   MAX_INT8 = INT2NUM(127);
@@ -1417,7 +1413,16 @@ void Init_structure (void)
   rb_define_singleton_method(cBinaryAccessor, "write", binary_accessor_write, 7);
 
   cStructure = rb_define_class_under(mCosmos, "Structure", rb_cObject);
-  rb_const_set(cStructure, id_const_ZERO_STRING, ZERO_STRING);
+  id_const_ZERO_STRING = rb_intern("ZERO_STRING");
+  zero_string = rb_str_new((char*) &zero, 1);
+  rb_funcall(zero_string, id_method_freeze, 0);
+  rb_const_set(cStructure, id_const_ZERO_STRING, zero_string);
+  ZERO_STRING = rb_const_get(cStructure, id_const_ZERO_STRING);
+  id_const_ASCII_8BIT_STRING = rb_intern("ASCII_8BIT_STRING");
+  ascii_8bit_string = rb_str_new2("ASCII-8BIT");
+  rb_funcall(ascii_8bit_string, id_method_freeze, 0);
+  rb_const_set(cStructure, id_const_ASCII_8BIT_STRING, ascii_8bit_string);
+  ASCII_8BIT_STRING = rb_const_get(cStructure, id_const_ASCII_8BIT_STRING);
   rb_define_method(cStructure, "initialize", structure_initialize, -1);
   rb_define_method(cStructure, "length", structure_length, 0);
   rb_define_method(cStructure, "read_item", read_item, -1);
