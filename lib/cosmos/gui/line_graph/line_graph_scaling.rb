@@ -321,7 +321,7 @@ module Cosmos
       end
     end # def build_x_grid_lines
 
-    # Calculate the x gride lines for the graph
+    # Calculate the x grid lines for the graph
     def calculate_x_grid_lines
       if @manual_x_grid_line_scale
         # With manual grid lines, draw them all regardless of whether it will look nice
