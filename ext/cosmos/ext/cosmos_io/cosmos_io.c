@@ -41,9 +41,9 @@ static VALUE read_length_bytes(VALUE self, VALUE param_length_num_bytes)
   long string_length = 0;
   unsigned short short_length = 0;
   unsigned char* length_ptr = NULL;
-  VALUE temp_string = Qnil;
-  VALUE temp_string_length = Qnil;
-  VALUE return_value = Qnil;
+  volatile VALUE temp_string = Qnil;
+  volatile VALUE temp_string_length = Qnil;
+  volatile VALUE return_value = Qnil;
 
   /* Read bytes for string length */
   temp_string = rb_funcall(self, id_method_read, 1, param_length_num_bytes);
