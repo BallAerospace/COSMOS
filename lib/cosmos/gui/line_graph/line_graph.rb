@@ -81,6 +81,8 @@ module Cosmos
     attr_accessor_with_redraw :unix_epoch_x_values
     # Display x_value as UTC timestamp
     attr_accessor_with_redraw :utc_time
+    # Display legend on bottom or right side
+    attr_accessor_with_redraw :legend_position
 
     #########################################################################
     # Callback attributes
@@ -148,6 +150,7 @@ module Cosmos
       @show_popup_x_y = false
       @unix_epoch_x_values = true
       @utc_time = false
+      @legend_position = :bottom # :bottom or :right
 
       # Initialize the callbacks
       @draw_cursor_line_callback = nil
@@ -248,6 +251,9 @@ module Cosmos
 
       # Time of previous left button release
       @previous_left_button_release_time = Time.now
+
+      # List of line colors to use
+      @color_list = ['blue','red','green','darkorange', 'gold', 'purple', 'hotpink', 'lime', 'cornflowerblue', 'brown', 'coral', 'crimson', 'indigo', 'tan', 'lightblue', 'cyan', 'peru', 'maroon','orange','navy','teal','black']
 
       @redraw_needed = true
 
@@ -369,8 +375,26 @@ module Cosmos
     end # def clear_lines
 
     # Adds a line to the graph - Afterwards the graph is ready to be drawn
-    def add_line(legend_text, y, x = nil, y_labels = nil, x_labels = nil, y_states = nil, x_states = nil, color = 'blue', axis = :LEFT, max_points_plotted = nil)
+    #  color = 'auto' automatically determines color from index based lookup
+    def add_line(legend_text, y, x = nil, y_labels = nil, x_labels = nil, y_states = nil, x_states = nil, color = 'auto', axis = :LEFT, max_points_plotted = nil)
       @unix_epoch_x_values = false unless x
+
+      # if color specified as auto, do lookup
+      if (color == 'auto')
+        # If the number of lines is less than number of available colors,
+        #   choose an unused color
+        if (@lines.num_lines < @color_list.length)
+          unused_colors = @color_list.dup
+          @lines.legend.each do |name, line_color, axis|
+            unused_colors.delete(line_color)
+          end
+          color = unused_colors[0]
+        else
+          # Get an index within the color list for the next line index
+          line_color_idx = @lines.num_lines % (@color_list.length)
+          color = @color_list[line_color_idx]
+        end
+      end
 
       @lines.add_line(legend_text, y, x, y_labels, x_labels, y_states, x_states, color, axis, max_points_plotted)
 
