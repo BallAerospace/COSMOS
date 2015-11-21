@@ -11,11 +11,11 @@ set START_PATH=!PATH!
 set PROTOCOL=https
 
 :: Update this version if making any changes to this script
-set INSTALLER_VERSION=1.1
+set INSTALLER_VERSION=1.2
 
 :: Paths and versions for COSMOS dependencies
-set RUBY_INSTALLER_32=rubyinstaller-2.2.2.exe
-set RUBY_INSTALLER_64=rubyinstaller-2.2.2-x64.exe
+set RUBY_INSTALLER_32=rubyinstaller-2.2.3.exe
+set RUBY_INSTALLER_64=rubyinstaller-2.2.3-x64.exe
 set RUBY_INSTALLER_PATH=//dl.bintray.com/oneclick/rubyinstaller/
 set RUBY_ABI_VERSION=2.2.0
 set DEVKIT_32=DevKit-mingw64-32-4.7.2-20130224-1151-sfx.exe
@@ -53,7 +53,7 @@ if not errorlevel 1 (
 ::::::::::::::::::::::
 
 IF [%1]==[] (
-  set /p COSMOS_INSTALL="Enter COSMOS Install Directory [C:\COSMOS]: "
+  set /p COSMOS_INSTALL="Enter COSMOS Install Directory as an absolute path [C:\COSMOS]: "
   IF "!COSMOS_INSTALL!"=="" (
     set COSMOS_INSTALL=C:\COSMOS
   )
@@ -501,6 +501,7 @@ IF NOT "!COSMOS_CONTINUE!"=="n" (
 ::::::::::::::::::::::::::::::::::::::::::
 
 pushd !COSMOS_INSTALL!
+SET COSMOS_DEVEL=
 start !COSMOS_INSTALL!\Launch_Demo.bat
 echo COSMOS Launcher should start if installation was successful
 echo INSTALLATION COMPLETE
