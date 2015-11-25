@@ -617,8 +617,67 @@ LABELVALUELIMITSBAR INST HEALTH_STATUS TEMP1 CONVERTED 18
 LABELVALUELIMITSBAR INST HEALTH_STATUS TEMP1
 {% endhighlight %}
 
+### LABELVALUELIMITSCOLUMN
+The LABELVALUELIMITSCOLUMN widget displays a LABEL widget to shows the telemetry item's name, followed by a VALUE widget to display the items value, followed by a LIMITSCOLUMN widget.
+
+| Parameter | Description | Required |
+|-----------|-------------|----------|
+| Target name | The target name portion of the telemetry mnemonic | Yes |
+| Packet name | The packet name portion of the telemetry mnemonic | Yes |
+| Item name | The item name portion of the telemetry mnemonic | Yes |
+| Value type | The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = WITH_UNITS) | No |
+| Number of characters | The number of characters wide to make the value box (default = 12) | No |
+
+Example Usage:
+{% highlight bash %}
+LABELVALUELIMITSCOLUMN INST HEALTH_STATUS TEMP1 CONVERTED 18
+LABELVALUELIMITSCOLUMN INST HEALTH_STATUS TEMP1
+{% endhighlight %}
+
+### LABELVALUERANGEBAR
+The LABELVALUERANGEBAR widget displays a LABEL widget to shows the telemetry item's name, followed by a VALUE widget to display the items value, followed by a RANGEBAR widget.
+
+| Parameter | Description | Required |
+|-----------|-------------|----------|
+| Target name | The target name portion of the telemetry mnemonic | Yes |
+| Packet name | The packet name portion of the telemetry mnemonic | Yes |
+| Item name | The item name portion of the telemetry mnemonic | Yes |
+| Low Value | Minimum value to display on the range bar. If the telemetry item goes below this value the bar is "pegged" on the low end. | Yes |
+| High Value | Maximum value to display on the range bar. If the telemetry item goes above this value the bar is "pegged" on the high end. | Yes |
+| Value type | The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = CONVERTED) | No |
+| Number of characters | The number of characters wide to make the value box (default = 12) | No |
+| Width | Width of the range bar (default = 160) | No |
+| Height | Height of the range bar (default = 25) | No |
+
+Example Usage:
+{% highlight bash %}
+LABELVALUERANGEBAR INST HEALTH_STATUS TEMP1 0 50 CONVERTED 18 200 50
+LABELVALUERANGEBAR INST HEALTH_STATUS TEMP1 0 50
+{% endhighlight %}
+
+### LABELVALUERANGECOLUMN
+The LABELVALUERANGECOLUMN widget displays a LABEL widget to shows the telemetry item's name, followed by a VALUE widget to display the items value, followed by a RANGECOLUMN widget.
+
+| Parameter | Description | Required |
+|-----------|-------------|----------|
+| Target name | The target name portion of the telemetry mnemonic | Yes |
+| Packet name | The packet name portion of the telemetry mnemonic | Yes |
+| Item name | The item name portion of the telemetry mnemonic | Yes |
+| Low Value | Minimum value to display on the range bar. If the telemetry item goes below this value the bar is "pegged" on the low end. | Yes |
+| High Value | Maximum value to display on the range bar. If the telemetry item goes above this value the bar is "pegged" on the high end. | Yes |
+| Value type | The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = WITH_UNITS) | No |
+| Number of characters | The number of characters wide to make the value box (default = 8) | No |
+| Width | Width of the range bar (default = 30) | No |
+| Height | Height of the range bar (default = 100) | No |
+
+Example Usage:
+{% highlight bash %}
+LABELVALUERANGECOLUMN INST HEALTH_STATUS TEMP1 0 50 CONVERTED 18 50 200
+LABELVALUERANGECOLUMN INST HEALTH_STATUS TEMP1 0 50
+{% endhighlight %}
+
 ### LIMITSBAR
-The LIMITSBAR widget displays a graphical representation of where an items value falls withing its limits ranges.
+The LIMITSBAR widget displays a graphical representation of where an items value falls withing its limits ranges horizontally.
 
 | Parameter | Description | Required |
 |-----------|-------------|----------|
@@ -633,6 +692,118 @@ Example Usage:
 {% highlight bash %}
 LIMITSBAR INST HEALTH_STATUS TEMP1 CONVERTED 200 50
 LIMITSBAR INST HEALTH_STATUS TEMP1
+{% endhighlight %}
+
+### LIMITSCOLUMN
+The LIMITSCOLUMN widget displays a graphical representation of where an items value falls withing its limits ranges vertically.
+
+| Parameter | Description | Required |
+|-----------|-------------|----------|
+| Target name | The target name portion of the telemetry mnemonic | Yes |
+| Packet name | The packet name portion of the telemetry mnemonic | Yes |
+| Item name | The item name portion of the telemetry mnemonic | Yes |
+| Value type | The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = CONVERTED) | No |
+| Width | The width of the range bar (default = 30) | No |
+| Height | The height of the range bar (default = 100) | No |
+
+Example Usage:
+{% highlight bash %}
+LIMITSCOLUMN INST HEALTH_STATUS TEMP1 CONVERTED 50 200
+LIMITSCOLUMN INST HEALTH_STATUS TEMP1
+{% endhighlight %}
+
+### LIMITSCOLOR
+The LIMITSCOLOR widget displays a stoplight-like circle depicting the limits color of an item
+
+| Parameter | Description | Required |
+|-----------|-------------|----------|
+| Target name | The target name portion of the telemetry mnemonic | Yes |
+| Packet name | The packet name portion of the telemetry mnemonic | Yes |
+| Item name | The item name portion of the telemetry mnemonic | Yes |
+| Value type | The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = CONVERTED) | No |
+| Radius | Radius of the circle (default = 10 pixels) | No |
+| Full Item Name | Show the full item name (default = false) | No |
+
+Example Usage:
+{% highlight bash %}
+LIMITSCOLOR INST HEALTH_STATUS TEMP1 CONVERTED 20 TRUE
+LIMITSCOLOR INST HEALTH_STATUS TEMP1
+{% endhighlight %}
+
+### VALUELIMITSBAR
+The VALUELIMITSBAR widget displays a graphical representation of where an items value falls withing its limits ranges horizontally and its value in a VALUE widget.
+
+| Parameter | Description | Required |
+|-----------|-------------|----------|
+| Target name | The target name portion of the telemetry mnemonic | Yes |
+| Packet name | The packet name portion of the telemetry mnemonic | Yes |
+| Item name | The item name portion of the telemetry mnemonic | Yes |
+| Value type | The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = WITH_UNITS) | No |
+| Number of characters | The number of characters wide to make the value box (default = 8) | No |
+
+Example Usage:
+{% highlight bash %}
+VALUELIMITSBAR INST HEALTH_STATUS TEMP1 CONVERTED 18
+VALUELIMITSBAR INST HEALTH_STATUS TEMP1
+{% endhighlight %}
+
+### VALUELIMITSCOLUMN
+The VALUELIMITSCOLUMN widget displays a graphical representation of where an items value falls withing its limits ranges vertically and its value in a VALUE widget.
+
+| Parameter | Description | Required |
+|-----------|-------------|----------|
+| Target name | The target name portion of the telemetry mnemonic | Yes |
+| Packet name | The packet name portion of the telemetry mnemonic | Yes |
+| Item name | The item name portion of the telemetry mnemonic | Yes |
+| Value type | The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = WITH_UNITS) | No |
+| Number of characters | The number of characters wide to make the value box (default = 8) | No |
+
+Example Usage:
+{% highlight bash %}
+VALUELIMITSCOLUMN INST HEALTH_STATUS TEMP1 CONVERTED 18
+VALUELIMITSCOLUMN INST HEALTH_STATUS TEMP1
+{% endhighlight %}
+
+### VALUERANGEBAR
+The VALUERANGEBAR widget displays a graphical representation of where an items value falls withing a range horizontally and its value in a VALUE widget.
+
+| Parameter | Description | Required |
+|-----------|-------------|----------|
+| Target name | The target name portion of the telemetry mnemonic | Yes |
+| Packet name | The packet name portion of the telemetry mnemonic | Yes |
+| Item name | The item name portion of the telemetry mnemonic | Yes |
+| Low Value | Minimum value to display on the range bar. If the telemetry item goes below this value the bar is "pegged" on the low end. | Yes |
+| High Value | Maximum value to display on the range bar. If the telemetry item goes above this value the bar is "pegged" on the high end. | Yes |
+| Value type | The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = WITH_UNITS) | No |
+| Number of characters | The number of characters wide to make the value box (default = 12) | No |
+| Width | Width of the range bar (default = 160) | No |
+| Height | Height of the range bar (default = 25) | No |
+
+Example Usage:
+{% highlight bash %}
+VALUERANGEBAR INST HEALTH_STATUS TEMP1 0 100 CONVERTED 18 200 50
+VALUERANGEBAR INST HEALTH_STATUS TEMP1 -1000 1000
+{% endhighlight %}
+
+### VALUERANGECOLUMN
+The VALUERANGECOLUMN widget displays a graphical representation of where an items value falls withing a range vertically and its value in a VALUE widget..
+
+| Parameter | Description | Required |
+|-----------|-------------|----------|
+| Target name | The target name portion of the telemetry mnemonic | Yes |
+| Packet name | The packet name portion of the telemetry mnemonic | Yes |
+| Item name | The item name portion of the telemetry mnemonic | Yes |
+| Low Value | Minimum value to display on the range bar. If the telemetry item goes below this value the bar is "pegged" on the low end. | Yes |
+| High Value | Maximum value to display on the range bar. If the telemetry item goes above this value the bar is "pegged" on the high end. | Yes |
+| Value type | The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = WITH_UNITS) | No |
+| Number of characters | The number of characters wide to make the value box (default = 8) | No |
+| Width | Width of the range bar (default = 30) | No |
+| Height | Height of the range bar (default = 100) | No |
+
+Example Usage:
+{% highlight bash %}
+VALUERANGECOLUMN INST HEALTH_STATUS TEMP1 0 100 CONVERTED 18 50 200
+VALUERANGECOLUMN INST HEALTH_STATUS TEMP1 -1000 1000
 {% endhighlight %}
 
 ### LINEGRAPH
@@ -673,7 +844,7 @@ PROGRESSBAR INST ADCS POSPROGRESS
 {% endhighlight %}
 
 ### RANGEBAR
-The RANGEBAR widget displays a graphical representation of where an items value falls withing a range.
+The RANGEBAR widget displays a graphical representation of where an items value falls withing a range horizontally.
 
 | Parameter | Description | Required |
 |-----------|-------------|----------|
@@ -690,6 +861,26 @@ Example Usage:
 {% highlight bash %}
 RANGEBAR INST HEALTH_STATUS TEMP1 0 100 CONVERTED 200 50
 RANGEBAR INST HEALTH_STATUS TEMP1 -1000 1000
+{% endhighlight %}
+
+### RANGECOLUMN
+The RANGECOLUMN widget displays a graphical representation of where an items value falls withing a range vertically.
+
+| Parameter | Description | Required |
+|-----------|-------------|----------|
+| Target name | The target name portion of the telemetry mnemonic | Yes |
+| Packet name | The packet name portion of the telemetry mnemonic | Yes |
+| Item name | The item name portion of the telemetry mnemonic | Yes |
+| Low Value | Minimum value to display on the range bar. If the telemetry item goes below this value the bar is "pegged" on the low end. | Yes |
+| High Value | Maximum value to display on the range bar. If the telemetry item goes above this value the bar is "pegged" on the high end. | Yes |
+| Value type | The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = CONVERTED) | No |
+| Width | Width of the range bar (default = 30) | No |
+| Height | Height of the range bar (default = 100) | No |
+
+Example Usage:
+{% highlight bash %}
+RANGECOLUMN INST HEALTH_STATUS TEMP1 0 100 CONVERTED 50 200
+RANGECOLUMN INST HEALTH_STATUS TEMP1 -1000 1000
 {% endhighlight %}
 
 ### TEXTBOX
