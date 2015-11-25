@@ -6,10 +6,6 @@
   - structure
   - gettingstarted
 
-- title: User's Guides
-  docs:
-  - scripting
-
 - title: Configuration
   docs:
   - system
@@ -17,6 +13,11 @@
   - interfaces
   - tools
   - screens
+
+- title: User's Guides
+  docs:
+  - scripting
+  - gemtargets
 
 - title: Meta
   docs:
