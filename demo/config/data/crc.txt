@@ -32,13 +32,14 @@
 "config/targets/INST/screens/graphs.txt" 0x82EF35B4
 "config/targets/INST/screens/commanding.txt" 0xC0EDFAC3
 "config/targets/INST/screens/tabs.txt" 0x8C8BB548
+"config/targets/INST/screens/limits.txt" 0x9705EB1B
 "config/targets/INST/screens/latest.txt" 0x9ED55CAF
 "config/targets/INST/screens/adcs.txt" 0xBF096628
 "config/targets/INST/screens/block.txt" 0x77C3F2F0
 "config/targets/INST/screens/hs.txt" 0x3FF100C3
 "config/targets/INST/screens/array.txt" 0x4E9CE715
 "config/targets/INST/screens/ground.txt" 0x2D89624D
-"config/targets/INST/screens/other.txt" 0x6E6541FA
+"config/targets/INST/screens/other.txt" 0x2F7A1014
 "config/targets/INST/doc/README.txt" 0x93B2C07E
 "config/targets/INST/lib/example_limits_response.rb" 0xB4A746B1
 "config/targets/INST/lib/sim_inst.rb" 0x7CEC7033
