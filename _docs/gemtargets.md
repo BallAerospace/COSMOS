@@ -129,6 +129,8 @@ export VERSION=1.0.0
 gem build cosmos-xxxxxx.gemspec
 {% endhighlight %}
 
+To publish your gem for other COSMOS users consider putting the source on [Github](https://www.github.com) and publishing your gem to [Rubygems](http://guides.rubygems.org/publishing/).
+
 ## Creating Gem Based Tools
 
 Creating a gem based tool is very similar to creating a gem based target.   However, generally it will need to be done outside of your COSMOS project folder otherwise careful crafting in the "files" section of the gemspec file is required.
@@ -200,3 +202,5 @@ gem build cosmos-xxxxxx.gemspec
 export VERSION=1.0.0
 gem build cosmos-xxxxxx.gemspec
 {% endhighlight %}
+
+To publish your gem for other COSMOS users consider putting the source on [Github](https://www.github.com) and publishing your gem to [Rubygems](http://guides.rubygems.org/publishing/).
