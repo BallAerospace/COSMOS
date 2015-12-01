@@ -73,6 +73,7 @@ require 'yard'
 # Import the rake tasks
 import 'tasks/manifest.rake'
 import 'tasks/spec.rake'
+import 'tasks/gemfile_stats.rake'
 
 # Update the built in task dependencies
 task :default => [:spec] # :test
