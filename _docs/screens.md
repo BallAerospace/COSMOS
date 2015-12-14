@@ -1182,6 +1182,31 @@ The CANVASLINEVALUE widget draws a line onto the canvas in one of two colors bas
 | Connector | Indicates whether or not to draw a circle at the second endpoint of the line: NO_CONNECTOR or CONNECTOR (default = NO_CONNECTOR) | No |
 | Value type | Type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = RAW) | No |
 
+### CANVASDOT
+The CANVASDOT widget draws a dot onto the canvas, and it can be programmed to change its position with ruby code.
+
+| Parameter | Description | Required |
+|-----------|-------------|----------|
+| x __or__ str to eval | X position of the dot, or it can be a string of ruby code | Yes |
+| y __or__ str to eval | Y position of the dot, or it can be a string of ruby code | Yes |
+| color | Color of the dot (default = black) | No |
+| width | Width of the dot in pixels (default = 3) | No |
+
+Example Usage:
+{% highlight bash %}
+CANVAS 201 201
+  CANVASLINE 0 0 200 0
+  CANVASLINE 200 0 200 200
+  CANVASLINE 200 200 0 200
+  CANVASLINE 0 200 0 0
+  CANVASLINE 99 1 99 199 white
+  CANVASLINE 1 99 199 99 white
+  CANVASDOT 'tlm_variable("GIMBAL AXIS_STATUS_X POSITION", :RAW) + 100' 'tlm_variable("GIMBAL AXIS_STATUS_Y POSITION", :RAW) + 100' red
+END
+{% endhighlight %}
+
+![720311333_78794](https://cloud.githubusercontent.com/assets/5217851/11122513/d29af8c0-8918-11e5-9138-17011956911a.jpg)
+
 Example Usage:
 {% highlight bash %}
 CANVAS 120 50
