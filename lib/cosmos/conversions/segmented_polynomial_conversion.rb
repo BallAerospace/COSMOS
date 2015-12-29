@@ -65,6 +65,7 @@ module Cosmos
 
     # Initialize the converted_type to :FLOAT and converted_bit_size to 64.
     def initialize
+      super()
       @segments = []
       @converted_type = :FLOAT
       @converted_bit_size = 64

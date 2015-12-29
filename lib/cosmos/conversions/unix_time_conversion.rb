@@ -22,6 +22,7 @@ module Cosmos
     # @param microseconds_item_name [String] The telemetry item in the packet
     #   which represents microseconds
     def initialize(seconds_item_name, microseconds_item_name = nil)
+      super()
       @seconds_item_name = seconds_item_name
       @microseconds_item_name = microseconds_item_name
     end
