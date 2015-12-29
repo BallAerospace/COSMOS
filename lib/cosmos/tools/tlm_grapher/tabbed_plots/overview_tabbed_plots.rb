@@ -886,11 +886,9 @@ module Cosmos
 
     # Builds the left frame of the tool
     def build_left_frame
-      # Frame around everything
       @tabbed_plots_left_frame = Qt::VBoxLayout.new
       @left_frame.addLayout(@tabbed_plots_left_frame)
 
-      # Seconds Plotted
       @seconds_plotted = FloatChooser.new(self,
                                           'Seconds Plotted:',
                                           @tabbed_plots_config.seconds_plotted,
@@ -900,12 +898,15 @@ module Cosmos
       @seconds_plotted.sel_command_callback = method(:handle_seconds_plotted_change)
       @tabbed_plots_left_frame.addWidget(@seconds_plotted)
 
-      # Points Saved
-      @points_saved = IntegerChooser.new(self, 'Points Saved:', @tabbed_plots_config.points_saved, 1, nil, 15)
+      @points_saved = IntegerChooser.new(self,
+                                         'Points Saved:',
+                                         @tabbed_plots_config.points_saved,
+                                         1,
+                                         nil,
+                                         15)
       @points_saved.sel_command_callback = method(:handle_points_saved_change)
       @tabbed_plots_left_frame.addWidget(@points_saved)
 
-      # Points Plotted
       @points_plotted = IntegerChooser.new(self,
                                            'Points Plotted:',
                                            @tabbed_plots_config.points_plotted,
@@ -915,7 +916,6 @@ module Cosmos
       @points_plotted.sel_command_callback = method(:handle_points_plotted_change)
       @tabbed_plots_left_frame.addWidget(@points_plotted)
 
-      # Refresh Rate Hz
       @refresh_rate_hz = FloatChooser.new(self,
                                           'Refresh Rate Hz:',
                                           @tabbed_plots_config.refresh_rate_hz,
