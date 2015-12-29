@@ -312,7 +312,9 @@ module Cosmos
       string = ''
       synchronize_allow_reads(true) do
         @sorted_items.each do |item|
-          if item.data_type != :BLOCK
+          if (item.data_type != :BLOCK) ||
+             (item.data_type == :BLOCK and value_type != :RAW and
+              item.respond_to? :read_conversion and item.read_conversion)
             string << "#{indent_string}#{item.name}: #{read_item(item, value_type, buffer)}\n"
           else
             value = read_item(item, value_type, buffer)
