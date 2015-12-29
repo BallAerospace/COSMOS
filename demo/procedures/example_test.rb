@@ -7,14 +7,12 @@ load 'cosmos/tools/test_runner/test.rb'
 class ExampleTest < Cosmos::Test
   # Setup the test case by doing stuff
   def setup
-    status_bar("setup")
     puts "Running #{Cosmos::Test.current_test_suite}:#{Cosmos::Test.current_test}:#{Cosmos::Test.current_test_case}"
     wait(2)
   end
 
   # test_1 verifies requirement 1
   def test_case_with_long_name_1
-    status_bar("test_case_with_long_name_1")
     puts "Running #{Cosmos::Test.current_test_suite}:#{Cosmos::Test.current_test}:#{Cosmos::Test.current_test_case}"
     Cosmos::Test.puts "This test verifies requirement 1"
     wait(2)
@@ -22,7 +20,6 @@ class ExampleTest < Cosmos::Test
 
   # test_2 verifies requirement 2
   def test_2
-    status_bar("test_2")
     puts "Running #{Cosmos::Test.current_test_suite}:#{Cosmos::Test.current_test}:#{Cosmos::Test.current_test_case}"
     Cosmos::Test.puts "This test verifies requirement 2"
     if $manual
@@ -34,14 +31,12 @@ class ExampleTest < Cosmos::Test
   end
 
   def test_3xx
-    status_bar("test_3xx")
     puts "Running #{Cosmos::Test.current_test_suite}:#{Cosmos::Test.current_test}:#{Cosmos::Test.current_test_case}"
     wait 1
   end
 
   # Teardown the test case by doing other stuff
   def teardown
-    status_bar("teardown")
     puts "Running #{Cosmos::Test.current_test_suite}:#{Cosmos::Test.current_test}:#{Cosmos::Test.current_test_case}"
     wait(2)
   end

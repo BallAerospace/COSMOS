@@ -6,12 +6,10 @@ require 'cosmos/tools/test_runner/test'
 # with 'test_' to be picked up by TestRunner.
 class ExampleTest < Cosmos::Test
   def setup
-    status_bar("setup")
     puts "Running ExampleTest setup"
   end
 
   def test_case_with_long_name_1
-    status_bar("Running test_1")
     puts "Running test_1"
     Cosmos::Test.puts "This test verifies requirement 1"
     check_expression("false == true")
@@ -19,7 +17,6 @@ class ExampleTest < Cosmos::Test
   end
 
   def test_2
-    status_bar("Running test_2")
     puts "Running test_2"
     Cosmos::Test.puts "This test verifies requirement 2"
     if $manual
@@ -35,7 +32,6 @@ class ExampleTest < Cosmos::Test
 
   # Teardown the test case by doing other stuff
   def teardown
-    status_bar("teardown")
     puts "Running ExampleTest teardown"
   end
 

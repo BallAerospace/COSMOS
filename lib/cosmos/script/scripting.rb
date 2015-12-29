@@ -23,8 +23,8 @@ module Cosmos
     end
 
     def status_bar(message)
-      script_runner = ObjectSpace.find(ScriptRunner) if defined? ScriptRunner
-      script_runner = ObjectSpace.find(TestRunner) if defined? TestRunner
+      script_runner = nil
+      ObjectSpace.each_object {|object| if ScriptRunner === object then script_runner = object; break; end}
       script_runner.script_set_status(message) if script_runner
     end
 
