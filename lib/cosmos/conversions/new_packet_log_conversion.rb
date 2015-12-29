@@ -21,6 +21,7 @@ module Cosmos
     #
     # @param packet_log_writer_name [String] Name of the packet log writer to start new logs on
     def initialize(packet_log_writer_name = 'ALL')
+      super()
       @packet_log_writer_name = packet_log_writer_name
     end
 
