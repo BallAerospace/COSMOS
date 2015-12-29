@@ -12,6 +12,30 @@ require 'cosmos'
 
 module Cosmos
 
+  class IntegerChooserIntValidator < Qt::IntValidator
+    def initialize(*args)
+      super(*args)
+    end
+
+    def fixup(input)
+      begin
+        value = input.to_i
+        if value < bottom()
+          # Handle less than bottom
+          parent().setText(bottom().to_s)
+        elsif value > top()
+          # Handle greater than top
+          parent().setText(top().to_s)
+        elsif input != value.to_s
+          # Handle poorly formatted (only known case is float given as starting value)
+          parent().setText(value.to_s)
+        end
+      rescue Exception => err
+        # Oh well no fixup
+      end
+    end
+  end
+
   class IntegerChooser < Qt::Widget
 
     # Callback called when the value changes
@@ -35,7 +59,7 @@ module Cosmos
       @integer_value = Qt::LineEdit.new(initial_value.to_s)
       @integer_value.setMinimumWidth(field_width)
       if minimum_value or maximum_value
-        validator = Qt::IntValidator.new(@integer_value)
+        validator = IntegerChooserIntValidator.new(@integer_value)
         validator.setBottom(minimum_value) if minimum_value
         validator.setTop(maximum_value) if maximum_value
         @integer_value.setValidator(validator)

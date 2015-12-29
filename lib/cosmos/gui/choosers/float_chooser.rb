@@ -12,6 +12,27 @@ require 'cosmos'
 
 module Cosmos
 
+  class FloatChooserDoubleValidator < Qt::DoubleValidator
+    def initialize(*args)
+      super(*args)
+    end
+
+    def fixup(input)
+      begin
+        value = input.to_f
+        if value < bottom()
+          # Handle less than bottom
+          parent().setText(bottom().to_s)
+        elsif value > top()
+          # Handle greater than top
+          parent().setText(top().to_s)
+        end
+      rescue Exception => err
+        # Oh well no fixup
+      end
+    end
+  end
+
   class FloatChooser < Qt::Widget
 
     # Callback for a new value entered into the text field
@@ -36,7 +57,7 @@ module Cosmos
       @float_value = Qt::LineEdit.new(initial_value.to_s)
       @float_value.setMinimumWidth(field_width)
       if minimum_value or maximum_value
-        validator = Qt::DoubleValidator.new(@float_value)
+        validator = FloatChooserDoubleValidator.new(@float_value)
         validator.setBottom(minimum_value) if minimum_value
         validator.setTop(maximum_value) if maximum_value
         validator.setNotation(Qt::DoubleValidator::StandardNotation)
