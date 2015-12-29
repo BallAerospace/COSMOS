@@ -774,6 +774,7 @@ lib/cosmos/gui/choosers/float_chooser.rb
 lib/cosmos/gui/choosers/integer_chooser.rb
 lib/cosmos/gui/choosers/string_chooser.rb
 lib/cosmos/gui/choosers/telemetry_chooser.rb
+lib/cosmos/gui/choosers/value_chooser.rb
 lib/cosmos/gui/dialogs/about_dialog.rb
 lib/cosmos/gui/dialogs/calendar_dialog.rb
 lib/cosmos/gui/dialogs/cmd_details_dialog.rb
@@ -1213,6 +1214,7 @@ spec/utilities/logger_spec.rb
 spec/utilities/message_log_spec.rb
 spec/utilities/quaternion_spec.rb
 spec/utilities/ruby_lex_utils_spec.rb
+tasks/gemfile_stats.rake
 tasks/manifest.rake
 tasks/spec.rake
 test/benchmarks/binary_accessor_benchmark.rb

@@ -6,10 +6,10 @@
 "lib/cosmos/win32/win32.rb" 0xEF748B06
 "lib/cosmos/win32/excel.rb" 0xB4D4195E
 "lib/cosmos/conversions/received_time_formatted_conversion.rb" 0xDC6ED414
-"lib/cosmos/conversions/unix_time_conversion.rb" 0xCDE826AB
+"lib/cosmos/conversions/unix_time_conversion.rb" 0x8F44C709
 "lib/cosmos/conversions/received_time_seconds_conversion.rb" 0x414E5121
-"lib/cosmos/conversions/new_packet_log_conversion.rb" 0x1E9D20F4
-"lib/cosmos/conversions/segmented_polynomial_conversion.rb" 0x5B2D3E02
+"lib/cosmos/conversions/new_packet_log_conversion.rb" 0x4F123D72
+"lib/cosmos/conversions/segmented_polynomial_conversion.rb" 0x1ADFA966
 "lib/cosmos/conversions/processor_conversion.rb" 0x07562BEB
 "lib/cosmos/conversions/unix_time_seconds_conversion.rb" 0x64C40BC3
 "lib/cosmos/conversions/conversion.rb" 0x9179ED6E
@@ -83,12 +83,13 @@
 "lib/cosmos/gui/opengl/texture_mapped_sphere.rb" 0x12D03C0E
 "lib/cosmos/gui/opengl/gl_viewport.rb" 0x49CAD811
 "lib/cosmos/gui/opengl/opengl.rb" 0xBE4A454D
-"lib/cosmos/gui/choosers/integer_chooser.rb" 0x0CCB26E3
+"lib/cosmos/gui/choosers/integer_chooser.rb" 0xFEA2E26F
 "lib/cosmos/gui/choosers/string_chooser.rb" 0x0A60837D
 "lib/cosmos/gui/choosers/file_chooser.rb" 0x575A4333
+"lib/cosmos/gui/choosers/value_chooser.rb" 0x4F652711
 "lib/cosmos/gui/choosers/telemetry_chooser.rb" 0x26375593
 "lib/cosmos/gui/choosers/combobox_chooser.rb" 0xAD5383D5
-"lib/cosmos/gui/choosers/float_chooser.rb" 0x23B2FA77
+"lib/cosmos/gui/choosers/float_chooser.rb" 0x93957577
 "lib/cosmos/tools/script_runner/script_runner_config.rb" 0x1E46E8AA
 "lib/cosmos/tools/script_runner/script_runner_frame.rb" 0x6FEE12DB
 "lib/cosmos/tools/script_runner/script_runner.rb" 0x0CC0CBB4
@@ -158,7 +159,7 @@
 "lib/cosmos/tools/tlm_grapher/tabbed_plots_tool/tabbed_plots_tab.rb" 0xD0AC7888
 "lib/cosmos/tools/tlm_grapher/tabbed_plots_tool/tabbed_plots_config.rb" 0x08E6FA35
 "lib/cosmos/tools/tlm_grapher/tlm_grapher.rb" 0xBBFC2272
-"lib/cosmos/tools/tlm_grapher/tabbed_plots/overview_tabbed_plots.rb" 0xB0994B7A
+"lib/cosmos/tools/tlm_grapher/tabbed_plots/overview_tabbed_plots.rb" 0x91434E6C
 "lib/cosmos/tools/tlm_grapher/plot_editors/plot_editor.rb" 0x0C92BBB8
 "lib/cosmos/tools/tlm_grapher/plot_editors/xy_plot_editor.rb" 0x724D9469
 "lib/cosmos/tools/tlm_grapher/plot_editors/singlexy_plot_editor.rb" 0xA9B7CD4C
@@ -243,7 +244,7 @@
 "lib/cosmos/tools/tlm_viewer/tlm_viewer.rb" 0x895983E9
 "lib/cosmos/system.rb" 0x735DFB42
 "lib/cosmos/conversions.rb" 0x43679D05
-"lib/cosmos/version.rb" 0x1B3425B3
+"lib/cosmos/version.rb" 0x76ED4796
 "lib/cosmos/core_ext.rb" 0x1951B346
 "lib/cosmos/interfaces.rb" 0x7E3EA326
 "lib/cosmos/processors.rb" 0x5241327D
@@ -264,7 +265,7 @@
 "lib/cosmos/packets/limits.rb" 0x9758BB50
 "lib/cosmos/packets/limits_response.rb" 0x9C5E8444
 "lib/cosmos/packets/commands.rb" 0x1A33428E
-"lib/cosmos/packets/structure.rb" 0xC8524C43
+"lib/cosmos/packets/structure.rb" 0x85F4F979
 "lib/cosmos/packets/telemetry.rb" 0x83D17863
 "lib/cosmos/packets/parsers/format_string_parser.rb" 0x8015C5E3
 "lib/cosmos/packets/parsers/packet_parser.rb" 0xEA0AF2C6
@@ -272,7 +273,7 @@
 "lib/cosmos/packets/parsers/processor_parser.rb" 0xEC75BA88
 "lib/cosmos/packets/parsers/limits_parser.rb" 0xFCFB27D0
 "lib/cosmos/packets/parsers/state_parser.rb" 0xCA3BFDFC
-"lib/cosmos/packets/parsers/macro_parser.rb" 0x4CC8096D
+"lib/cosmos/packets/parsers/macro_parser.rb" 0xE58A53CB
 "lib/cosmos/packets/parsers/limits_response_parser.rb" 0x05979119
 "lib/cosmos/packets/packet_config.rb" 0x37D677AC
 "lib/cosmos/packets/binary_accessor.rb" 0x7D41D474
@@ -306,7 +307,7 @@
 "lib/cosmos/interfaces/simulated_target_interface.rb" 0x15DC496F
 "lib/cosmos/interfaces/serial_interface.rb" 0xC376DDA0
 "lib/cosmos/interfaces/tcpip_client_interface.rb" 0x5F0DB50D
-"lib/cosmos/interfaces/udp_interface.rb" 0x99C0D354
+"lib/cosmos/interfaces/udp_interface.rb" 0x281409BD
 "lib/cosmos/interfaces/tcpip_server_interface.rb" 0xC8F6E908
 "lib/cosmos/script/limits.rb" 0x9CED41D8
 "lib/cosmos/script/commands.rb" 0x58ABA373
