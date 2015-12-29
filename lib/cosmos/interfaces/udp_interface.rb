@@ -59,7 +59,7 @@ module Cosmos
       @write_timeout = @write_timeout.to_f if @write_timeout
       @read_timeout = ConfigParser.handle_nil(read_timeout)
       @read_timeout = @read_timeout.to_f if @read_timeout
-      @bind_address = ConfigParser.handle_nil(interface_address)
+      @bind_address = ConfigParser.handle_nil(bind_address)
       @bind_address = '127.0.0.1' if @bind_address and @bind_address.upcase == 'LOCALHOST'
       @write_socket = nil
       @read_socket = nil
