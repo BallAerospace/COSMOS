@@ -71,7 +71,7 @@ set COSMOS_INSTALL_FORWARD=%COSMOS_INSTALL:\=/%
 IF [%2]==[] (
   set COSMOS_VERSION="LATEST"
 ) else (
-  set COSMOS_VERSION=%~1
+  set COSMOS_VERSION=%~2
 )
 echo Using Ball Aerospace COSMOS Version !COSMOS_VERSION!
 
