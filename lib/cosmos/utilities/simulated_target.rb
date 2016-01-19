@@ -93,6 +93,7 @@ module Cosmos
         @current_cycle_delta[packet_name][item_name] = -current_delta
       end
       packet.write(item_name, updated_value)
+      updated_value
     end
   end
 

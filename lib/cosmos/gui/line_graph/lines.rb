@@ -209,40 +209,40 @@ module Cosmos
 
     def add_line(text, y, x = nil, y_labels = nil, x_labels = nil, y_states = nil, x_states = nil, color = 'blue', axis = :LEFT, max_points_plotted = nil)
       # Validate y data
-      raise ArgumentError, "GraphView y data was must given in an array-like class" unless y.respond_to?(:[])
-      raise ArgumentError, "GraphView y data cannot be empty" if y.empty?
-      raise ArgumentError, "GraphView y data must be Numeric" unless y[0].kind_of?(Numeric)
+      raise ArgumentError, "TlmGrapher y data must be given in an array-like class" unless y.respond_to?(:[])
+      raise ArgumentError, "TlmGrapher y data cannot be empty" if y.empty?
+      raise ArgumentError, "TlmGrapher y data must be Numeric" unless y[0].kind_of?(Numeric)
 
       # Validate x data
       if x.respond_to?(:[])
-        raise ArgumentError, "GraphView x and y data must be the same size" unless y.length == x.length
-        raise ArgumentError, "GraphView x data must be Numeric" unless x[0].kind_of?(Numeric)
+        raise ArgumentError, "TlmGrapher x and y data must be the same size" unless y.length == x.length
+        raise ArgumentError, "TlmGrapher x data must be Numeric" unless x[0].kind_of?(Numeric)
       else
-        raise ArgumentError, "GraphView x data was must given in an array-like class" unless x.nil?
+        raise ArgumentError, "TlmGrapher x data must be given in an array-like class" unless x.nil?
       end
 
       # Validate y_labels data
       if y_labels.respond_to?(:[])
-        raise ArgumentError, "GraphView y_labels and y data must be the same size" unless y.length == y_labels.length
+        raise ArgumentError, "TlmGrapher y_labels and y data must be the same size" unless y.length == y_labels.length
       else
-        raise ArgumentError, "GraphView y_labels data was must given in an array-like class" unless y_labels.nil?
+        raise ArgumentError, "TlmGrapher y_labels data must be given in an array-like class" unless y_labels.nil?
       end
 
       # Validate x_labels data
       if x_labels.respond_to?(:[])
-        raise ArgumentError, "GraphView x_labels and y data must be the same size" unless y.length == x_labels.length
+        raise ArgumentError, "TlmGrapher x_labels and y data must be the same size" unless y.length == x_labels.length
       else
-        raise ArgumentError, "GraphView x_labels data was must given in an array-like class" unless x_labels.nil?
+        raise ArgumentError, "TlmGrapher x_labels data must be given in an array-like class" unless x_labels.nil?
       end
 
       # Validate y_states data
       unless y_states.respond_to?(:index)
-        raise ArgumentError, "GraphView y_states data was must given in an hash-like class" unless y_states.nil?
+        raise ArgumentError, "TlmGrapher y_states data must be given in an hash-like class" unless y_states.nil?
       end
 
       # Validate x_states data
       unless x_states.respond_to?(:index)
-        raise ArgumentError, "GraphView x_states data was must given in an hash-like class" unless x_states.nil?
+        raise ArgumentError, "TlmGrapher x_states data must be given in an hash-like class" unless x_states.nil?
       end
 
       if max_points_plotted and y.length > max_points_plotted
@@ -278,6 +278,7 @@ module Cosmos
       unless x
         x = (1..(y.length)).to_a_to_f
       end
+
       y_labels = y                         unless y_labels
       # x_labels are only set if the formatted time item is used
       y_states = y_states.clone            if y_states
