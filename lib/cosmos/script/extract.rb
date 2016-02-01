@@ -25,7 +25,7 @@ module Cosmos
     end
 
     def extract_fields_from_cmd_text(text)
-      split_string = text.split(/\s*with\s*/i, 2)
+      split_string = text.split(/\s+with\s+/i, 2)
       raise "ERROR: 'with' must be followed by parameters : #{text}" if split_string.length == 1 and text =~ /\s*with\s*/i
 
       # Extract target_name and cmd_name
