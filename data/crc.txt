@@ -127,7 +127,7 @@
 "lib/cosmos/tools/cmd_tlm_server/interface_thread.rb" 0x7215DAF9
 "lib/cosmos/tools/cmd_tlm_server/cmd_tlm_server_gui.rb" 0x50E37D3B
 "lib/cosmos/tools/limits_monitor/limits_monitor.rb" 0x0321B411
-"lib/cosmos/tools/packet_viewer/packet_viewer.rb" 0x859EC490
+"lib/cosmos/tools/packet_viewer/packet_viewer.rb" 0x2188531F
 "lib/cosmos/tools/table_manager/table_manager.rb" 0x05E19031
 "lib/cosmos/tools/table_manager/table.rb" 0x923A8589
 "lib/cosmos/tools/table_manager/table_item.rb" 0x08A9A262
