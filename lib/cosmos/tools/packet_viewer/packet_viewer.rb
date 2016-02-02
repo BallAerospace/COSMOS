@@ -535,7 +535,7 @@ module Cosmos
             end
             options.packet = split
           end
-          option_parser.on("-r", "--rate PERIOD", "Set the polling rate to PERIOD (unit seconds)") { |arg| options.rate = arg.to_f } 
+          option_parser.on("-r", "--rate PERIOD", "Set the polling rate to PERIOD (unit seconds)") { |arg| options.rate = Float(arg) } 
         end
 
         super(option_parser, options)
