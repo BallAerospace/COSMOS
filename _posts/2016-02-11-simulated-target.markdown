@@ -1,7 +1,7 @@
 ---
 layout: news_item
-title: COSMOS Simulated Target
-date: 2016-02-11 12:00:00 -0700
+title: 'COSMOS Simulated Target'
+date: 2016-02-11 00:00:00 -0700
 author: jmthomas
 categories: [post]
 ---
