@@ -34,6 +34,16 @@ module Cosmos
     end
 
     def value=(data)
+      if String === data
+        substring = data[0..2]
+        if substring == "Inf".freeze
+          data = Float::INFINITY
+        elsif substring == "-In".freeze
+          data = -Float::INFINITY
+        elsif substring == "NaN".freeze
+          data = Float::NAN
+        end
+      end
       @value = data.to_f
       update()
     end

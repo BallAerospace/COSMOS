@@ -81,12 +81,20 @@ module Cosmos
       @low_value = red_low - 0.1 * @bar_scale
       @high_value = red_high + 0.1 * @bar_scale
 
-      @line_pos = @height - (@y_pad + (@value - @low_value) / @bar_scale * @bar_height).to_i
-      if @line_pos < @y_pad
-        @line_pos = @y_pad
-      end
-      if @line_pos > @y_pad + @bar_height
-        @line_pos = @bar_height + @y_pad
+      if @value.is_a?(Float) && (@value.infinite? || @value.nan?)
+        if @value.infinite? == 1
+          @line_pos = @bar_width + @y_pad
+        else
+          @line_pos = @y_pad
+        end
+      else
+        @line_pos = @height - (@y_pad + (@value - @low_value) / @bar_scale * @bar_height).to_i
+        if @line_pos < @y_pad
+          @line_pos = @y_pad
+        end
+        if @line_pos > @y_pad + @bar_height
+          @line_pos = @bar_height + @y_pad
+        end
       end
 
       dc.addLineColor(@x_pad - 3, @line_pos, @x_pad + @bar_width + 3, @line_pos)

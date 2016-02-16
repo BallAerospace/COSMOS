@@ -108,6 +108,8 @@ module Cosmos
       @trackStars[9] = 622
 
       @get_count = 0
+      @bad_temp2 = false
+      @last_temp2 = 0
     end
 
     def set_rates
@@ -242,7 +244,21 @@ module Cosmos
 
         when 'HEALTH_STATUS'
           cycle_tlm_item(packet, 'temp1', -95.0, 95.0, 5.0)
-          cycle_tlm_item(packet, 'temp2', -50.0, 50.0, -1.0)
+          if @bad_temp2
+            packet.write('temp2', @last_temp2)
+            @bad_temp2 = false
+          end
+          @last_temp2 = cycle_tlm_item(packet, 'temp2', -50.0, 50.0, -1.0)
+          if (packet.temp2.abs - 30).abs < 2
+            packet.write('temp2', Float::NAN)
+            @bad_temp2 = true
+          elsif (packet.temp2.abs - 20).abs < 2
+            packet.write('temp2', -Float::INFINITY)
+            @bad_temp2 = true
+          elsif (packet.temp2.abs - 10).abs < 2
+            packet.write('temp2', Float::INFINITY)
+            @bad_temp2 = true
+          end
           cycle_tlm_item(packet, 'temp3', -30.0, 80.0, 2.0)
           cycle_tlm_item(packet, 'temp4', 0.0, 20.0, -0.1)
 
