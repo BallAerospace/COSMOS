@@ -94,6 +94,7 @@
 &nbsp;&nbsp;&nbsp;&nbsp; [CANVASIMAGEVALUE](#canvasimagevalue)<br/>
 &nbsp;&nbsp;&nbsp;&nbsp; [CANVASLINE](#canvasline)<br/>
 &nbsp;&nbsp;&nbsp;&nbsp; [CANVASLINEVALUE](#canvaslinevalue)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp; [CANVASDOT](#canvasdot)<br/>
 <br/>
 <span>[Widget Settings](#widget-settings)</span><br/>
 <br/>
