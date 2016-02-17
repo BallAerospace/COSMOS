@@ -13,8 +13,8 @@ Run the COSMOS Installation bat file:
 
 NOTE: The COSMOS installation batch file downloads all the components of the COSMOS system from the Internet. If you want to create an offline installer simply zip up the resulting installation directory. Then manually create the COSMOS_DIR environment variable to point to the root directory where you unzip all the installation files. You might also want to add \<COSMOS\>\Vendor\Ruby\bin to your path to allow access to Ruby from your terminal.
 
-##CentOS Linux 6.5/6.6/7 and Mac OSX Mavericks+
-The following instructions work for an installation on CentOS Linux 6.5, 6.6, or 7 from a clean install or any version of Mac OSX after and include Mavericks.  Similar steps should work on other distributions/versions, particularly Redhat.  Support for Ubuntu is coming soon.
+##CentOS Linux 6.5/6.6/7, Ubuntu Linux 14.04LTS, and Mac OSX Mavericks+
+The following instructions work for an installation on CentOS Linux 6.5, 6.6, or 7, and Ubuntu 14.04LTS from a clean install or any version of Mac OSX after and include Mavericks.  Similar steps should work on other distributions/versions, particularly Redhat.
 
 Run the following command in a terminal:
 
