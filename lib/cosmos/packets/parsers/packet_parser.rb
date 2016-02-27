@@ -68,15 +68,48 @@ module Cosmos
 
     def create_command(target_name, commands, warnings)
       packet = create_packet(target_name)
-      warning = check_for_duplicate('Command', commands, packet)
+      PacketParser.finish_create_command(packet, commands, warnings)
+    end
+
+    def create_telemetry(target_name, telemetry, latest_data, warnings)
+      packet = create_packet(target_name)
+      PacketParser.finish_create_telemetry(packet, telemetry, latest_data, warnings)
+    end
+
+    #private
+
+    def create_packet(target_name)
+      params = @parser.parameters
+      target_name = params[0].to_s.upcase if target_name == 'SYSTEM'
+      packet_name = params[1].to_s.upcase
+      endianness = params[2].to_s.upcase.to_sym
+      description = params[3].to_s
+      if endianness != :BIG_ENDIAN and endianness != :LITTLE_ENDIAN
+        raise @parser.error("Invalid endianness #{params[2]}. Must be BIG_ENDIAN or LITTLE_ENDIAN.", @usage)
+      end
+      Packet.new(target_name, packet_name, endianness, description)
+    end
+
+    def self.check_for_duplicate(type, list, packet)
+      msg = nil
+      if list[packet.target_name]
+        if list[packet.target_name][packet.packet_name]
+          msg = "#{type} Packet #{packet.target_name} #{packet.packet_name} redefined."
+          Logger.instance.warn msg
+        end
+      end
+      msg
+    end
+
+    def self.finish_create_command(packet, commands, warnings)
+      warning = PacketParser.check_for_duplicate('Command', commands, packet)
       warnings << warning if warning
       commands[packet.target_name] ||= {}
       packet
     end
 
-    def create_telemetry(target_name, telemetry, latest_data, warnings)
-      packet = create_packet(target_name)
-      warning = check_for_duplicate('Telemetry', telemetry, packet)
+    def self.finish_create_telemetry(packet, telemetry, latest_data, warnings)
+      warning = PacketParser.check_for_duplicate('Telemetry', telemetry, packet)
       warnings << warning if warning
 
       # Add received time packet items
@@ -92,31 +125,6 @@ module Cosmos
         latest_data[packet.target_name] = {}
       end
       packet
-    end
-
-    private
-
-    def create_packet(target_name)
-      params = @parser.parameters
-      target_name = params[0].to_s.upcase if target_name == 'SYSTEM'
-      packet_name = params[1].to_s.upcase
-      endianness = params[2].to_s.upcase.to_sym
-      description = params[3].to_s
-      if endianness != :BIG_ENDIAN and endianness != :LITTLE_ENDIAN
-        raise @parser.error("Invalid endianness #{params[2]}. Must be BIG_ENDIAN or LITTLE_ENDIAN.", @usage)
-      end
-      Packet.new(target_name, packet_name, endianness, description)
-    end
-
-    def check_for_duplicate(type, list, packet)
-      msg = nil
-      if list[packet.target_name]
-        if list[packet.target_name][packet.packet_name]
-          msg = "#{type} Packet #{packet.target_name} #{packet.packet_name} redefined."
-          Logger.instance.warn msg
-        end
-      end
-      msg
     end
 
   end

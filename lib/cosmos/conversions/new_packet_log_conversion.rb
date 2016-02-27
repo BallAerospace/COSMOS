@@ -41,6 +41,12 @@ module Cosmos
       result
     end
 
+    # @param (see Conversion#to_config)
+    # @return [String] Config fragment for this conversion
+    def to_config(read_or_write)
+      "    #{read_or_write}_CONVERSION #{self.class.name.class_name_to_filename} #{@packet_log_write_name}\n"
+    end
+
   end # class NewPacketLogConversion
 
 end # module Cosmos

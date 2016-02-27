@@ -42,6 +42,12 @@ module Cosmos
       self.class.to_s.split('::')[-1]
     end
 
+    # @param (see Conversion#to_config)
+    # @return [String] Config fragment for this conversion
+    def to_config(read_or_write)
+      "    #{read_or_write}_CONVERSION #{self.class.name.class_name_to_filename}\n"
+    end
+
   end # class Conversion
 
 end # module Cosmos

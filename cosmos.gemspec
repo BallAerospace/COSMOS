@@ -37,6 +37,7 @@ spec = Gem::Specification.new do |s|
   s.executables << 'cosmos'
   s.executables << 'rubysloc'
   s.executables << 'cstol_converter'
+  s.executables << 'xtce_converter'
 
   # Ruby C Extensions
   s.extensions << 'ext/cosmos/ext/array/extconf.rb'
@@ -79,6 +80,7 @@ spec = Gem::Specification.new do |s|
   s.add_runtime_dependency 'snmp', '~> 1.0'
   s.add_runtime_dependency 'rubyzip', '~> 1.1.0'
   s.add_runtime_dependency 'qtbindings', '~> 4.8.6', '>= 4.8.6.2'
+  s.add_runtime_dependency 'nokogiri', '~> 1.6'
 
   # Development Dependencies
   s.add_development_dependency 'rspec', '~> 3.2.0'

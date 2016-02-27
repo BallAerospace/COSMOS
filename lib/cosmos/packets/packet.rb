@@ -20,6 +20,8 @@ module Cosmos
   # as managing PacketItem's limit states.
   class Packet < Structure
 
+    RESERVED_ITEM_NAMES = ['RECEIVED_TIMESECONDS'.freeze, 'RECEIVED_TIMEFORMATTED'.freeze, 'RECEIVED_COUNT'.freeze]
+
     # @return [String] Name of the target this packet is associated with
     attr_reader :target_name
 
@@ -61,6 +63,9 @@ module Cosmos
 
     # @return [Boolean] Whether or not messages should be printed for this packet
     attr_accessor :messages_disabled
+
+    # @return [Boolean] Whether or not this is a 'abstract' packet
+    attr_accessor :abstract
 
     # Valid format types
     VALUE_TYPES = [:RAW, :CONVERTED, :FORMATTED, :WITH_UNITS]
@@ -642,6 +647,60 @@ module Cosmos
     end
     alias dup clone
 
+    def update_id_items(item)
+      if item.id_value
+        @id_items ||= []
+        @id_items << item
+      end
+      item
+    end
+
+    def to_config(cmd_or_tlm)
+      config = ''
+
+      if cmd_or_tlm == :TELEMETRY
+        config << "TELEMETRY #{self.target_name.to_s.quote_if_necessary} #{self.packet_name.to_s.quote_if_necessary} #{@default_endianness} \"#{self.description}\"\n"
+      else
+        config << "COMMAND #{self.target_name.to_s.quote_if_necessary} #{self.packet_name.to_s.quote_if_necessary} #{@default_endianness} \"#{self.description}\"\n"
+      end
+      config << "  ALLOW_SHORT\n" if self.short_buffer_allowed
+      config << "  HAZARDOUS #{self.hazardous_description.to_s.quote_if_necessary}\n" if self.hazardous
+      config << "  DISABLE_MESSAGES\n" if self.messages_disabled
+      if self.disabled
+        config << "  DISABLED\n"
+      elsif self.hidden
+        config << "  HIDDEN\n"
+      end
+
+      if @processors
+        @processors.each do |processor_name, processor|
+          config << processor.to_config
+        end
+      end
+
+      if @meta
+        @meta.each do |key, values|
+          config << "  META #{key.to_s.quote_if_necessary} #{values.map {|a| a..to_s.quote_if_necessary}.join(" ")}\n"
+        end
+      end
+
+      # Items with derived items last
+      self.sorted_items.each do |item|
+        if item.data_type != :DERIVED
+          config << item.to_config(cmd_or_tlm, @default_endianness)
+        end
+      end
+      self.sorted_items.each do |item|
+        if item.data_type == :DERIVED
+          unless RESERVED_ITEM_NAMES.include?(item.name)
+            config << item.to_config(cmd_or_tlm, @default_endianness)
+          end
+        end
+      end
+
+      config
+    end
+
     protected
 
     # Performs packet specific processing on the packet.  Intended to only be run once for each packet received
@@ -769,14 +828,6 @@ module Cosmos
       if id_value
         item.id_value = id_value
         update_id_items(item)
-      end
-      item
-    end
-
-    def update_id_items(item)
-      if item.id_value
-        @id_items ||= []
-        @id_items << item
       end
       item
     end

@@ -39,6 +39,11 @@ module Cosmos
       @results[:LOW_WATER] = nil
     end
 
+    # Convert to configuration file string
+    def to_config
+      "  PROCESSOR #{@name} #{self.class.name.to_s.class_name_to_filename} #{@item_name} #{@value_type}\n"
+    end
+
   end # class WatermarkProcessor
 
 end # module Cosmos
