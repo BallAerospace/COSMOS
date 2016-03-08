@@ -122,6 +122,11 @@ module Cosmos
       $cmd_tlm_server.get_tlm_details(items)
     end
 
+    # Returns the buffer from the telemetry packet.
+    def get_tlm_buffer(target_name, packet_name)
+      return $cmd_tlm_server.get_tlm_buffer(target_name, packet_name)
+    end    
+
     # Subscribe to one or more telemetry packets. The queue ID is returned for
     # use in get_packet_data and unsubscribe_packet_data.
     # Usage:

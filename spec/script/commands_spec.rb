@@ -283,7 +283,7 @@ module Cosmos
       end
     end
 
-    describe "get_cmd_value, get_cmd_time" do
+    describe "get_cmd_value, get_cmd_time, get_cmd_buffer" do
       it "passes through to the cmd_tlm_server" do
         expect {
           get_cmd_value("INST", "COLLECT", "TYPE")
@@ -293,6 +293,7 @@ module Cosmos
           get_cmd_time("INST", "COLLECT")
           get_cmd_time("INST")
           get_cmd_time()
+          get_cmd_buffer("INST", "COLLECT")
         }.to_not raise_error
       end
     end
