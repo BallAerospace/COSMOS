@@ -286,8 +286,7 @@ module Cosmos
     # @return [Varies] value
     def get_cmd_value(target_name, command_name, parameter_name, value_type = :CONVERTED)
       packet = System.commands.packet(target_name, command_name)
-      # Virtually support RECEIVED_TIMEFORMATTED, RECEIVED_TIMESECONDS,
-      # RECEIVED_COUNT, INTERFACE_BUFFER
+      # Virtually support RECEIVED_TIMEFORMATTED, RECEIVED_TIMESECONDS, RECEIVED_COUNT
       case parameter_name.to_s.upcase
       when 'RECEIVED_TIMEFORMATTED'
         if packet.received_time
@@ -303,8 +302,6 @@ module Cosmos
         end
       when 'RECEIVED_COUNT'
         return packet.received_count
-      when 'INTERFACE_BUFFER'
-        return packet.buffer
       else
         return packet.read(parameter_name, value_type.intern)
       end
