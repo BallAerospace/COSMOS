@@ -66,6 +66,11 @@ module Cosmos
     end
     alias dup clone
 
+    # Convert to configuration file string
+    def to_config
+      "  PROCESSOR #{@name} #{self.class.name.to_s.class_name_to_filename} #{@value_type}\n"
+    end
+
   end # class Processor
 
 end # module Cosmos

@@ -194,6 +194,7 @@ bin/exchndl22.dll
 bin/mgwhelp-x64.dll
 bin/mgwhelp.dll
 bin/rubysloc
+bin/xtce_converter
 cosmos.gemspec
 data/COSMOS_64x64.bmp
 data/COSMOS_64x64.ico

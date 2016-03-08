@@ -52,6 +52,12 @@ module Cosmos
       result
     end
 
+    # @param (see Conversion#to_config)
+    # @return [String] Config fragment for this conversion
+    def to_config(read_or_write)
+      "    POLY_#{read_or_write}_CONVERSION #{@coeffs.join(' ')}\n"
+    end
+
   end # class PolynomialConversion
 
 end # module Cosmos

@@ -247,11 +247,12 @@ class String
   # @param include_extension [Boolean] Whether to add '.rb' extension
   # @return [String] Filename which implements the class name
   def class_name_to_filename(include_extension = true)
+    string = self.split("::")[-1] # Remove any namespacing
     filename = ''
-    length = self.length
+    length = string.length
     length.times do |index|
-      filename << '_' if index != 0 and self[index..index] == self[index..index].upcase
-      filename << self[index..index].downcase
+      filename << '_' if index != 0 and string[index..index] == string[index..index].upcase
+      filename << string[index..index].downcase
     end
     filename << '.rb' if include_extension
     filename
@@ -263,8 +264,8 @@ class String
   # @return [String] Class name associated with the filename
   def filename_to_class_name
     filename = File.basename(self)
-    class_name  = ''
-    length      = filename.length
+    class_name = ''
+    length = filename.length
     upcase_next = true
     length.times do |index|
       break if filename[index..index] == '.'
@@ -306,6 +307,18 @@ class String
       end
     end
     klass
+  end
+
+  # Adds quotes if the string contains whitespace
+  #
+  # @param quote_char [String] The quote character to add if necessary
+  # @return [String] quoted string if necessary
+  def quote_if_necessary(quote_char = '"')
+    if self =~ /\s/
+      return quote_char + self + quote_char
+    else
+      return self
+    end
   end
 
 end # class String
