@@ -144,12 +144,12 @@
 "lib/cosmos/processors/watermark_processor.rb" 0x8829E260
 "lib/cosmos/processors.rb" 0x5241327D
 "lib/cosmos/script/cmd_tlm_server.rb" 0x15F91C95
-"lib/cosmos/script/commands.rb" 0x58ABA373
+"lib/cosmos/script/commands.rb" 0x5AE615BF
 "lib/cosmos/script/extract.rb" 0xE6A1B6A1
 "lib/cosmos/script/limits.rb" 0x9CED41D8
 "lib/cosmos/script/script.rb" 0xF1B3E1F2
 "lib/cosmos/script/scripting.rb" 0x36D00CDC
-"lib/cosmos/script/telemetry.rb" 0x2AFB0DCB
+"lib/cosmos/script/telemetry.rb" 0x12573CAD
 "lib/cosmos/script/tools.rb" 0x18E9BE05
 "lib/cosmos/script.rb" 0x25BB611B
 "lib/cosmos/streams/burst_stream_protocol.rb" 0xA9F43F1C
@@ -170,7 +170,7 @@
 "lib/cosmos/tools/cmd_sender/cmd_sender.rb" 0xC47CB417
 "lib/cosmos/tools/cmd_sender/cmd_sender_item_delegate.rb" 0x8297CC9D
 "lib/cosmos/tools/cmd_sender/cmd_sender_text_edit.rb" 0xB192AF6E
-"lib/cosmos/tools/cmd_tlm_server/api.rb" 0x217CE77F
+"lib/cosmos/tools/cmd_tlm_server/api.rb" 0x42394408
 "lib/cosmos/tools/cmd_tlm_server/background_task.rb" 0x448A2191
 "lib/cosmos/tools/cmd_tlm_server/background_tasks.rb" 0xAE192026
 "lib/cosmos/tools/cmd_tlm_server/cmd_tlm_server.rb" 0xE2C722BD

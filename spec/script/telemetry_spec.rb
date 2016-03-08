@@ -52,7 +52,7 @@ module Cosmos
       sleep(0.1)
     end
 
-    describe "tlm, tlm_raw, tlm_formatted, tlm_with_units, tlm_variable" do
+    describe "tlm, tlm_raw, tlm_formatted, tlm_with_units, tlm_variable, get_tlm_buffer" do
       it "passes through to the cmd_tlm_server" do
         expect {
           expect(tlm("INST HEALTH_STATUS TEMP1")).to eql -100.0
@@ -60,6 +60,7 @@ module Cosmos
           expect(tlm_formatted("INST HEALTH_STATUS TEMP1")).to eql "-100.000"
           expect(tlm_with_units("INST HEALTH_STATUS TEMP1")).to eql "-100.000 C"
           expect(tlm_variable("INST HEALTH_STATUS TEMP1", :RAW)).to eql 0
+          get_tlm_buffer("INST", "HEALTH_STATUS")
         }.to_not raise_error
       end
     end

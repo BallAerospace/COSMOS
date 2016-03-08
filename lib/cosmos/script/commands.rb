@@ -178,6 +178,11 @@ module Cosmos
       results
     end
 
+    # Returns the buffer from the most recent specified command
+    def get_cmd_buffer(target_name, command_name)
+      return $cmd_tlm_server.get_cmd_buffer(target_name, command_name)
+    end    
+
   end # module Script
 
 end # module Cosmos
