@@ -50,6 +50,18 @@ module Cosmos
       "#{@code_to_eval}"
     end
 
+    # @param (see Conversion#to_config)
+    # @return [String] Config fragment for this conversion
+    def to_config(read_or_write)
+      config = "    GENERIC_#{read_or_write}_CONVERSION_START"
+      config << " #{@converted_type}" if @converted_type
+      config << " #{@converted_bit_size}" if @converted_bit_size
+      config << "\n"
+      config << @code_to_eval
+      config << "    GENERIC_#{read_or_write}_CONVERSION_END\n"
+      config
+    end
+
   end # class GenericConversion
 
 end # module Cosmos

@@ -89,7 +89,7 @@ static VALUE my_ary_alloc (VALUE klass)
  */
 static VALUE my_ary_new (VALUE klass, long capa)
 {
-  VALUE ary;
+  volatile VALUE ary;
 
   if (capa < 0)
   {
@@ -126,8 +126,8 @@ static VALUE initialize (VALUE self, VALUE size)
  */
 static VALUE my_ary_subseq (VALUE ary, long beg, long len)
 {
-  VALUE klass = Qnil;
-  VALUE ary2  = Qnil;
+  volatile VALUE klass = Qnil;
+  volatile VALUE ary2  = Qnil;
 
   if (beg > RARRAY_LEN(ary))
   {
@@ -162,7 +162,7 @@ static VALUE my_ary_subseq (VALUE ary, long beg, long len)
  */
 static VALUE ary_aref(int argc, VALUE *argv, VALUE ary)
 {
-  VALUE arg;
+  volatile VALUE arg;
   long beg, len;
 
   if (argc == 2)

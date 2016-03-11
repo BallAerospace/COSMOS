@@ -41,6 +41,16 @@ module Cosmos
       "ProcessorConversion #{@processor_name} #{@result_name}"
     end
 
+    # @param (see Conversion#to_config)
+    # @return [String] Config fragment for this conversion
+    def to_config(read_or_write)
+      config = "    #{read_or_write}_CONVERSION #{self.class.name.class_name_to_filename} #{@processor_name} #{@result_name}"
+      config << " #{@converted_type}" if @converted_type
+      config << " #{@converted_bit_size}" if @converted_bit_size
+      config << "\n"
+      config
+    end
+
   end # class ProcessorConversion
 
 end # module Cosmos

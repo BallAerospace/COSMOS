@@ -133,7 +133,7 @@ module Cosmos
       if label
         text = label.to_s
       else
-        text = convert_x_value_to_text(value, @max_x_characters)
+        text = convert_x_value_to_text(value)
       end
       left_widths << ((metrics.width(text) / 2) - LEFT_X_LABEL_WIDTH_ADJUST)
 
@@ -214,7 +214,7 @@ module Cosmos
       if label
         text = label.to_s
       else
-        text = convert_x_value_to_text(value, @max_x_characters)
+        text = convert_x_value_to_text(value)
       end
       metrics = Cosmos.getFontMetrics(@font)
       text_width  = metrics.width(text)
@@ -244,19 +244,23 @@ module Cosmos
     end # def draw_x_label_and_grid_line
 
     # Converts a x value into text with a max number of characters
-    def convert_x_value_to_text(value, max_characters)
-      if !@show_popup_x_y and @unix_epoch_x_values
-        if (value > 1 and value < 2147483647)
-          time = Time.at(value.to_f)
+    def convert_x_value_to_text(value, max_characters = @max_x_characters, full_date = false)
+      if !@show_popup_x_y && @unix_epoch_x_values
+        # Determine if the value is a time stamp and should be converted
+        if value > 1 && value < 2147483647
+          time = Time.at(value)
           time = time.utc if @utc_time
-          text = time.formatted(false) # no year
+          if full_date
+            time.formatted # full date with day, month, year
+          else
+            time.formatted(false) # just hour, minutes, seconds
+          end
         else
-          text = value.to_s
+          truncate_to_max(value.to_s, max_characters, value)
         end
       else
-        text = value.to_s
+        truncate_to_max(value.to_s, max_characters, value)
       end
-      truncate_to_max(text, max_characters, value)
     end
 
     # Converts a y value into text with a max number of characters
@@ -349,10 +353,46 @@ module Cosmos
       end
       legend_width += (GRAPH_SPACER * 2)
       legend_width *= 2 if @lines.axes == :BOTH
-      legend_graph_x = (self.width - legend_width) / 2
 
-      text_x = legend_graph_x + GRAPH_SPACER
-      text_y = self.height - metrics.height
+      if @legend_position == :right
+        legend_height = 0
+        if @show_legend && !@lines.empty?
+          text_y = (self.height/2) - 1 - (GRAPH_SPACER * 2)
+          text_height = metrics.height
+          if @lines.axes == :BOTH
+            left_count = 0
+            right_count = 0
+            @lines.legend.each do |text, color, axis|
+              if axis == :LEFT
+                left_count += 1
+              else
+                right_count += 1
+              end
+            end
+            if left_count < right_count
+              text_y += text_height * (right_count/2)
+            else
+              text_y += text_height * (left_count/2)
+            end
+          else
+            text_y += text_height * (@lines.size/2)
+          end
+          legend_height = self.height - text_y - GRAPH_SPACER
+        end
+
+        legend_graph_x = self.width - legend_width - GRAPH_SPACER*3
+
+        char_width   = metrics.width('W')
+        legend_graph_x -= (char_width + GRAPH_SPACER) if @right_y_axis_title
+
+        text_x = legend_graph_x + GRAPH_SPACER
+
+      else # @legend_position == :bottom or default
+        legend_graph_x = (self.width - legend_width) / 2
+
+        text_x = legend_graph_x + GRAPH_SPACER
+        text_y = self.height - metrics.height
+      end # @legend_position
       return [text_x, text_y, legend_width, metrics.height]
     end
 
@@ -462,9 +502,19 @@ module Cosmos
 
     def truncate_to_max(text, max_characters, value)
       if text.length > max_characters
+        # Transform the text into either decimal floating point or scientific
+        # notation, which ever results in a smaller string
         text = sprintf("%0.#{max_characters}g", value.to_f)
+        # If the value is still too big we need a smaller decimal
         if text.length > max_characters
-          text = sprintf("%0.#{max_characters - 5}g", value.to_f)
+          # Subtract 5 to get the correct number of characters
+          # For example: sprintf("%0.8g", 9123123123.123) => 9.1231231e+09
+          # We wanted an 8 character string but ended up with 13. We need to
+          # remove 5 of the decimal places so subtract 5.
+          #   sprintf("%0.3g", 9123123123.123) => 9.12e+09
+          precision = max_characters - 5
+          precision = 0 if precision < 0 # Protect against negative
+          text = sprintf("%0.#{precision}g", value.to_f)
         end
       end
       text

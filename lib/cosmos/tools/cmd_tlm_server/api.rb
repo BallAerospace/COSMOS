@@ -28,6 +28,7 @@ module Cosmos
         'cmd_raw_no_hazardous_check',
         'cmd_raw_no_checks',
         'send_raw',
+        'get_cmd_buffer',
         'get_cmd_list',
         'get_cmd_param_list',
         'get_cmd_hazardous',
@@ -40,6 +41,7 @@ module Cosmos
         'tlm_variable',
         'set_tlm',
         'set_tlm_raw',
+        'get_tlm_buffer',
         'get_tlm_packet',
         'get_tlm_values',
         'get_tlm_list',
@@ -224,6 +226,16 @@ module Cosmos
     def send_raw(interface_name, data)
       CmdTlmServer.commanding.send_raw(interface_name, data)
       nil
+    end
+
+    # Returns the raw buffer from the most recent specified command packet.
+    #
+    # @param target_name [String] Target name of the command
+    # @param command_name [String] Packet name of the command
+    # @return [String] last command buffer packet
+    def get_cmd_buffer(target_name, command_name)
+      packet = System.commands.packet(target_name, command_name)
+      return packet.buffer
     end
 
     # Returns the list of all the command names and their descriptions from the
@@ -479,6 +491,16 @@ module Cosmos
       System.telemetry.packet(target_name, packet_name).check_limits(System.limits_set, true)
       nil
     end
+
+    # Returns the raw buffer for a telemetry packet.
+    #
+    # @param target_name [String] Name of the target
+    # @param packet_name [String] Name of the packet
+    # @return [String] last telemetry packet buffer
+    def get_tlm_buffer(target_name, packet_name)
+      packet = System.telemetry.packet(target_name, packet_name)
+      return packet.buffer
+    end    
 
     # Returns all the values (along with their limits state) for a packet.
     #

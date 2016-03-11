@@ -296,7 +296,237 @@ module Cosmos
       hash
     end
 
+    def to_config(cmd_or_tlm, default_endianness)
+      config = ''
+      if cmd_or_tlm == :TELEMETRY
+        if self.array_size
+          config << "  ARRAY_ITEM #{self.name.to_s.quote_if_necessary} #{self.bit_offset} #{self.bit_size} #{self.data_type} #{self.array_size} \"#{self.description.to_s.gsub("\"", "'")}\""
+        elsif self.id_value
+          config << "  ID_ITEM #{self.name.to_s.quote_if_necessary} #{self.bit_offset} #{self.bit_size} #{self.data_type} #{self.id_value} \"#{self.description.to_s.gsub("\"", "'")}\""
+        else
+          config << "  ITEM #{self.name.to_s.quote_if_necessary} #{self.bit_offset} #{self.bit_size} #{self.data_type} \"#{self.description.to_s.gsub("\"", "'")}\""
+        end
+      else # :COMMAND
+        if self.array_size
+          config << "  ARRAY_PARAMETER #{self.name.to_s.quote_if_necessary} #{self.bit_offset} #{self.bit_size} #{self.data_type} #{self.array_size} \"#{self.description.to_s.gsub("\"", "'")}\""
+        elsif self.id_value
+          if self.data_type == :BLOCK or self.data_type == :STRING
+            config << "  ID_PARAMETER #{self.name.to_s.quote_if_necessary} #{self.bit_offset} #{self.bit_size} #{self.data_type} \"#{self.default}\" \"#{self.description.to_s.gsub("\"", "'")}\""
+          else
+            config << "  ID_PARAMETER #{self.name.to_s.quote_if_necessary} #{self.bit_offset} #{self.bit_size} #{self.data_type} #{self.range.first} #{self.range.last} #{self.default} \"#{self.description.to_s.gsub("\"", "'")}\""
+          end
+        else
+          if self.data_type == :BLOCK or self.data_type == :STRING
+            config << "  PARAMETER #{self.name.to_s.quote_if_necessary} #{self.bit_offset} #{self.bit_size} #{self.data_type} \"#{self.default}\" \"#{self.description.to_s.gsub("\"", "'")}\""
+          else
+            config << "  PARAMETER #{self.name.to_s.quote_if_necessary} #{self.bit_offset} #{self.bit_size} #{self.data_type} #{self.range.first} #{self.range.last} #{self.default} \"#{self.description.to_s.gsub("\"", "'")}\""
+          end
+        end
+      end
+      config << " #{self.endianness}" if self.endianness != default_endianness
+      config << "\n"
+
+      config << "    REQUIRED\n" if self.required
+      config << "    FORMAT_STRING #{self.format_string.to_s.quote_if_necessary}\n" if self.format_string
+      config << "    UNITS #{self.units_full.to_s.quote_if_necessary} #{self.units.to_s.quote_if_necessary}\n" if self.units
+      config << "    OVERFLOW #{self.overflow}\n" if self.overflow != :ERROR
+
+      if @states
+        @states.each do |state_name, state_value|
+          config << "    STATE #{state_name.to_s.quote_if_necessary} #{state_value.to_s.quote_if_necessary}"
+          if @hazardous and @hazardous[state_name]
+            config << " HAZARDOUS #{@hazardous[state_name].to_s.quote_if_necessary}"
+          end
+          if @state_colors and @state_colors[state_name]
+            config << " #{@state_colors[state_name]}"
+          end
+          config << "\n"
+        end
+      end
+
+      config << self.read_conversion.to_config(:READ) if self.read_conversion
+      config << self.write_conversion.to_config(:WRITE) if self.write_conversion
+
+      if self.limits
+        if self.limits.values
+          self.limits.values.each do |limits_set, limits_values|
+            config << "    LIMITS #{limits_set} #{self.limits.persistence_setting} #{self.limits.enabled ? 'ENABLED' : 'DISABLED'} #{limits_values[0]} #{limits_values[1]} #{limits_values[2]} #{limits_values[3]} #{limits_values[4]} #{limits_values[5]}\n"
+          end
+        end
+        config << self.limits.response.to_config if self.limits.response
+      end
+
+      if @meta
+        @meta.each do |key, values|
+          config << "    META #{key.to_s.quote_if_necessary} #{values.map {|a| a.to_s.quote_if_necessary}.join(" ")}\n"
+        end
+      end
+
+      config
+    end
+
+    def to_xtce_type(param_or_arg, xml)
+      # TODO: Arrays, Spline Conversions
+      case self.data_type
+      when :INT, :UINT
+        attrs = { :name => (self.name + '_Type') }
+        attrs[:initialValue] = self.default if self.default and !self.array_size
+        attrs[:shortDescription] = self.description if self.description
+        if @states and self.default and @states.key(self.default)
+          attrs[:initialValue] = @states.key(self.default) and !self.array_size
+        end
+        if self.data_type == :INT
+          signed = 'true'
+          encoding = 'twosCompliment'
+        else
+          signed = 'false'
+          encoding = 'unsigned'
+        end
+        if @states
+			    xml['xtce'].send('Enumerated' + param_or_arg + 'Type', attrs) do
+            to_xtce_units(xml)
+            xml['xtce'].IntegerDataEncoding(:sizeInBits => self.bit_size, :encoding => encoding)
+				    xml['xtce'].EnumerationList do
+              @states.each do |state_name, state_value|
+					      xml['xtce'].Enumeration(:value => state_value, :label => state_name)
+              end
+            end
+          end
+        else
+          if (self.read_conversion and self.read_conversion.class == PolynomialConversion) or (self.write_conversion and self.write_conversion.class == PolynomialConversion)
+            type_string = 'Float' + param_or_arg + 'Type'
+          else
+            type_string = 'Integer' + param_or_arg + 'Type'
+            attrs[:signed] = signed
+          end
+          xml['xtce'].send(type_string, attrs) do
+            to_xtce_units(xml)
+            if (self.read_conversion and self.read_conversion.class == PolynomialConversion) or (self.write_conversion and self.write_conversion.class == PolynomialConversion)
+              xml['xtce'].IntegerDataEncoding(:sizeInBits => self.bit_size, :encoding => encoding) do
+                to_xtce_conversion(xml)
+              end
+            else
+              xml['xtce'].IntegerDataEncoding(:sizeInBits => self.bit_size, :encoding => encoding)
+            end
+            if self.limits
+              if self.limits.values
+                self.limits.values.each do |limits_set, limits_values|
+                  if limits_set == :DEFAULT
+                    xml['xtce'].DefaultAlarm do
+                      xml['xtce'].StaticAlarmRanges do
+                        xml['xtce'].WarningRange(:minInclusive => limits_values[1], :maxInclusive => limits_values[2])
+                        xml['xtce'].CriticalRange(:minInclusive => limits_values[0], :maxInclusive => limits_values[3])
+                      end
+                    end
+                  end
+                end
+              end
+            end
+            if self.range
+              xml['xtce'].ValidRange(:minInclusive => self.range.first, :maxInclusive => self.range.last)
+            end
+          end # Type
+        end # if @states
+      when :FLOAT
+        attrs = { :name => (self.name + '_Type'), :sizeInBits => self.bit_size }
+        attrs[:initialValue] = self.default if self.default and !self.array_size
+        attrs[:shortDescription] = self.description if self.description
+        xml['xtce'].send('Float' + param_or_arg + 'Type', attrs) do
+          to_xtce_units(xml)
+          if (self.read_conversion and self.read_conversion.class == PolynomialConversion) or (self.write_conversion and self.write_conversion.class == PolynomialConversion)
+            xml['xtce'].FloatDataEncoding(:sizeInBits => self.bit_size, :encoding => 'IEEE754_1985') do
+              to_xtce_conversion(xml)
+            end
+          else
+            xml['xtce'].FloatDataEncoding(:sizeInBits => self.bit_size, :encoding => 'IEEE754_1985')
+          end
+
+          if self.limits
+            if self.limits.values
+              self.limits.values.each do |limits_set, limits_values|
+                if limits_set == :DEFAULT
+                  xml['xtce'].DefaultAlarm do
+                    xml['xtce'].StaticAlarmRanges do
+                      xml['xtce'].WarningRange(:minInclusive => limits_values[1], :maxInclusive => limits_values[2])
+                      xml['xtce'].CriticalRange(:minInclusive => limits_values[0], :maxInclusive => limits_values[3])
+                    end
+                  end
+                end
+              end
+            end
+          end
+
+          if self.range
+            xml['xtce'].ValidRange(:minInclusive => self.range.first, :maxInclusive => self.range.last)
+          end
+
+        end # Type
+      when :STRING
+        # TODO: COSMOS Variably sized strings are not supported in XTCE
+        attrs = { :name => (self.name + '_Type'), :characterWidth => 8 }
+        attrs[:initialValue] = self.default if self.default and !self.array_size
+        attrs[:shortDescription] = self.description if self.description
+        xml['xtce'].send('String' + param_or_arg + 'Type', attrs) do
+          to_xtce_units(xml)
+          xml['xtce'].StringDataEncoding(:encoding => 'UTF-8') do
+					  xml['xtce'].SizeInBits do
+              xml['xtce'].Fixed do
+                xml['xtce'].FixedValue(self.bit_size.to_s)
+              end
+            end
+          end
+        end
+      when :BLOCK
+        # TODO: COSMOS Variably sized blocks are not supported in XTCE
+        # TODO: Write string to hex method to support initial value
+        attrs = { :name => (self.name + '_Type') }
+        attrs[:shortDescription] = self.description if self.description
+        #attrs[:initialValue] = self.default if self.default and !self.array_size
+        xml['xtce'].send('Binary' + param_or_arg + 'Type', attrs) do
+          to_xtce_units(xml)
+          xml['xtce'].BinaryDataEncoding do
+					  xml['xtce'].SizeInBits do
+              xml['xtce'].FixedValue(self.bit_size.to_s)
+            end
+          end
+        end
+      when :DERIVED
+        raise "DERIVED data type not supported in XTCE"
+      end
+    end
+
+    def to_xtce_item(param_or_arg, xml)
+      xml['xtce'].send(param_or_arg, :name => self.name, "#{param_or_arg.downcase}TypeRef" => self.name + '_Type')
+    end
+
     protected
+
+    def to_xtce_units(xml)
+      if self.units
+        xml['xtce'].UnitSet do
+          xml['xtce'].Unit(self.units, :description => self.units_full)
+        end
+      else
+        xml['xtce'].UnitSet
+      end
+    end
+
+    def to_xtce_conversion(xml)
+      if self.read_conversion
+        conversion = self.read_conversion
+      else
+        conversion = self.write_conversion
+      end
+      if conversion and conversion.class == PolynomialConversion
+        xml['xtce'].DefaultCalibrator do
+					xml['xtce'].PolynomialCalibrator do
+            conversion.coeffs.each_with_index do |coeff, index|
+						  xml['xtce'].Term(:coefficient => coeff, :exponent => index)
+            end
+					end
+        end
+      end
+    end
 
     # Convert a value into the given data type
     def convert(value, data_type)

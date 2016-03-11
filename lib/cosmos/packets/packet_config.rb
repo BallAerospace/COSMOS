@@ -20,6 +20,8 @@ require 'cosmos/packets/parsers/format_string_parser'
 require 'cosmos/packets/parsers/processor_parser'
 require 'cosmos/conversions'
 require 'cosmos/processors'
+require 'nokogiri'
+require 'ostruct'
 
 module Cosmos
 
@@ -78,11 +80,7 @@ module Cosmos
       @telemetry['UNKNOWN'] = {}
       @telemetry['UNKNOWN']['UNKNOWN'] = Packet.new('UNKNOWN', 'UNKNOWN', :BIG_ENDIAN)
 
-      # Used during packet processing
-      @current_cmd_or_tlm = nil
-      @current_packet = nil
-      @current_item = nil
-      @current_limits_group = nil
+      reset_processing_variables()
     end
 
     #########################################################################
@@ -95,6 +93,12 @@ module Cosmos
     # @param filename [String] The name of the configuration file
     # @param target_name [String] The target name
     def process_file(filename, process_target_name)
+      # Handle .xtce files
+      if File.extname(filename).to_s.downcase == ".xtce"
+        process_xtce(filename, process_target_name)
+        return
+      end
+
       # Partial files are included into another file and thus aren't directly processed
       return if File.basename(filename)[0] == '_' # Partials start with underscore
 
@@ -203,7 +207,677 @@ module Cosmos
       finish_packet()
     end
 
+    # Read in a target definition from a .xtce file
+    def process_xtce(filename, override_target_name = nil)
+      doc = File.open(filename) { |f| Nokogiri::XML(f, nil, nil, Nokogiri::XML::ParseOptions::STRICT | Nokogiri::XML::ParseOptions::NOBLANKS) }
+      xtce_process_element(doc.root, 0)
+      @current_target_name = override_target_name if override_target_name
+      doc.root.children.each do |child|
+        xtce_recurse_element(child, 1) do |element, depth|
+          xtce_process_element(element, depth)
+        end
+      end
+      finish_packet()
+
+      # Remove abstract
+      @commands[@current_target_name].delete_if {|packet_name, packet| packet.abstract}
+      @telemetry[@current_target_name].delete_if {|packet_name, packet| packet.abstract}
+
+      # Reverse order of packets for the target so ids work correctly
+      reverse_packet_order(@current_target_name, @commands)
+      reverse_packet_order(@current_target_name, @telemetry)
+
+      reset_processing_variables()
+    end
+
+    # Convert the PacketConfig back to COSMOS configuration files for each target
+    def to_config(output_dir)
+      FileUtils.mkdir_p(output_dir)
+
+      @telemetry.each do |target_name, packets|
+        next if target_name == 'UNKNOWN'
+        FileUtils.mkdir_p(File.join(output_dir, target_name, 'cmd_tlm'))
+        filename = File.join(output_dir, target_name, 'cmd_tlm', target_name.downcase + '_tlm.txt')
+        begin
+          File.delete(filename)
+        rescue
+          # Doesn't exist
+        end
+        packets.each do |packet_name, packet|
+          File.open(filename, 'a') do |file|
+            file.puts packet.to_config(:TELEMETRY)
+            file.puts ""
+          end
+        end
+      end
+
+      @commands.each do |target_name, packets|
+        next if target_name == 'UNKNOWN'
+        FileUtils.mkdir_p(File.join(output_dir, target_name, 'cmd_tlm'))
+        filename = File.join(output_dir, target_name, 'cmd_tlm', target_name.downcase + '_cmd.txt')
+        begin
+          File.delete(filename)
+        rescue
+          # Doesn't exist
+        end
+        packets.each do |packet_name, packet|
+          File.open(filename, 'a') do |file|
+            file.puts packet.to_config(:COMMAND)
+            file.puts ""
+          end
+        end
+      end
+
+      # Put limits groups into SYSTEM target
+      if @limits_groups.length > 0
+        FileUtils.mkdir_p(File.join(output_dir, 'SYSTEM', 'cmd_tlm'))
+        filename = File.join(output_dir, 'SYSTEM', 'cmd_tlm', 'limits_groups.txt')
+        File.open(filename, 'w') do |file|
+          @limits_groups.each do |limits_group_name, limits_group_items|
+            file.puts "LIMITS_GROUP #{limits_group_name.to_s.quote_if_necessary}"
+            limits_group_items.each do |target_name, packet_name, item_name|
+              file.puts "  LIMITS_GROUP_ITEM #{target_name.to_s.quote_if_necessary} #{packet_name.to_s.quote_if_necessary} #{item_name.to_s.quote_if_necessary}"
+            end
+            file.puts ""
+          end
+        end
+      end
+
+    end # def to_config
+
+    # Convert the PacketConfig into a .xtce file for each target
+    def to_xtce(output_dir)
+      FileUtils.mkdir_p(output_dir)
+
+      # Build target list
+      targets = []
+      @telemetry.each { |target_name, packets| targets << target_name }
+      @commands.each { |target_name, packets| targets << target_name }
+      targets.uniq!
+
+      targets.each do |target_name|
+        next if target_name == 'UNKNOWN'
+
+        # Reverse order of packets for the target so things are expected (reverse) order for xtce
+        reverse_packet_order(target_name, @commands)
+        reverse_packet_order(target_name, @telemetry)
+
+        FileUtils.mkdir_p(File.join(output_dir, target_name, 'cmd_tlm'))
+        filename = File.join(output_dir, target_name, 'cmd_tlm', target_name.downcase + '.xtce')
+        begin
+          File.delete(filename)
+        rescue
+          # Doesn't exist
+        end
+
+        # Gather an make unique all the packet items
+        unique_items = {}
+        @telemetry[target_name].each do |packet_name, packet|
+          packet.sorted_items.each do |item|
+            next if item.data_type == :DERIVED
+            unique_items[item.name] ||= []
+            unique_items[item.name] << item
+          end
+        end
+        unique_items.each do |item_name, items|
+          if items.length <= 1
+            unique_items[item_name] = items[0]
+            next
+          end
+          # TODO: need to make sure all the items in the array are exactly the same
+          unique_items[item_name] = items[0]
+        end
+
+        # Gather and make unique all the command parameters
+        unique_arguments = {}
+        @commands[target_name].each do |packet_name, packet|
+          packet.sorted_items.each do |item|
+            next if item.data_type == :DERIVED
+            unique_arguments[item.name] ||= []
+            unique_arguments[item.name] << item
+          end
+        end
+        unique_arguments.each do |item_name, items|
+          if items.length <= 1
+            unique_arguments[item_name] = items[0]
+            next
+          end
+          # TODO: need to make sure all the items in the array are exactly the same
+          unique_arguments[item_name] = items[0]
+        end
+
+        # Create the xtce file for this target
+        builder = Nokogiri::XML::Builder.new(:encoding => 'UTF-8') do |xml|
+          xml['xtce'].SpaceSystem("xmlns:xtce" => "http://www.omg.org/space/xtce",
+            "xmlns:xsi" => "http://www.w3.org/2001/XMLSchema-instance",
+            "name" => target_name,
+            "xsi:schemaLocation" => "http://www.omg.org/space/xtce http://www.omg.org/spec/XTCE/20061101/06-11-06.xsd") do
+            xml['xtce'].TelemetryMetaData do
+              xml['xtce'].ParameterTypeSet do
+                unique_items.each do |item_name, item|
+                  item.to_xtce_type('Parameter', xml)
+                end
+              end
+
+              xml['xtce'].ParameterSet do
+                unique_items.each do |item_name, item|
+                  item.to_xtce_item('Parameter', xml)
+                end
+              end
+
+              xml['xtce'].ContainerSet do
+                @telemetry[target_name].each do |packet_name, packet|
+                  attrs = { :name => (packet_name + '_Base'), :abstract => "true" }
+                  xml['xtce'].SequenceContainer(attrs) do
+                    xml['xtce'].EntryList do
+                      packet.sorted_items.each do |item|
+                        next if item.data_type == :DERIVED
+                        # TODO: Handle explicit bit offset in packet and nonunique item names
+                        xml['xtce'].ParameterRefEntry(:parameterRef => item.name)
+                      end
+                    end
+                  end # Abstract SequenceContainer
+
+                  attrs = { :name => packet_name }
+                  attrs['shortDescription'] = packet.description if packet.description
+                  xml['xtce'].SequenceContainer(attrs) do
+                    xml['xtce'].EntryList
+                    xml['xtce'].BaseContainer(:containerRef => (packet_name + '_Base')) do
+                      if packet.id_items and packet.id_items.length > 0
+                        xml['xtce'].RestrictionCriteria do
+                          xml['xtce'].ComparisonList do
+                            packet.id_items.each do |item|
+                              xml['xtce'].Comparison(:parameterRef => item.name, :value => item.id_value)
+                            end
+                          end
+                        end
+                      end
+                    end
+                  end # Actual SequenceContainer
+
+                end # @telemetry.each
+              end # ContainerSet
+            end # TelemetryMetaData
+
+            xml['xtce'].CommandMetaData do
+              xml['xtce'].ArgumentTypeSet do
+                unique_arguments.each do |arg_name, arg|
+                  arg.to_xtce_type('Argument', xml)
+                end
+              end
+              xml['xtce'].MetaCommandSet do
+                @commands[target_name].each do |packet_name, packet|
+                  attrs = { :name => packet_name + "_Base", :abstract => "true" }
+                  xml['xtce'].MetaCommand(attrs) do
+                    xml['xtce'].ArgumentList do
+                      packet.sorted_items.each do |item|
+                        next if item.data_type == :DERIVED
+                        item.to_xtce_item('Argument', xml)
+                      end
+                    end # ArgumentList
+                    xml['xtce'].CommandContainer(:name => "#{target_name}_#{packet_name}_CommandContainer") do
+                      xml['xtce'].EntryList do
+                        packet.sorted_items.each do |item|
+                          next if item.data_type == :DERIVED
+                          xml['xtce'].ArgumentRefEntry(:argumentRef => item.name)
+                        end
+                      end
+                    end
+                  end # Abstract MetaCommand
+
+                  attrs = { :name => packet_name }
+                  attrs['shortDescription'] = packet.description if packet.description
+                  xml['xtce'].MetaCommand(attrs) do
+                    xml['xtce'].BaseMetaCommand(:metaCommandRef => packet_name + "_Base") do
+                      if packet.id_items and packet.id_items.length > 0
+                        xml['xtce'].ArgumentAssignmentList do
+                          packet.id_items.each do |item|
+                            xml['xtce'].ArgumentAssignment(:argumentName => item.name, :argumentValue => item.id_value)
+                          end
+                        end # ArgumentAssignmentList
+                      end
+                    end # BaseMetaCommand
+                  end # Actual MetaCommand
+                end # @commands.each
+              end # MetaCommandSet
+            end # CommandMetaData
+          end # SpaceSystem
+        end # builder
+        File.open(filename, 'w') do |file|
+          file.puts builder.to_xml
+        end
+      end
+    end
+
     protected
+
+    def reset_processing_variables
+      # Used during packet processing
+      @current_cmd_or_tlm = nil
+      @current_packet = nil
+      @current_item = nil
+      @current_limits_group = nil
+
+      # Used for xtce processing
+      @current_target_name = nil
+      @current_type = nil
+      @current_meta_command = nil
+      @current_parameter = nil
+      @current_argument = nil
+      @parameter_types = {}
+      @argument_types = {}
+      @parameters = {}
+      @arguments = {}
+      @containers = {}
+    end
+
+    def reverse_packet_order(target_name, cmd_or_tlm_hash)
+      packets = []
+      names_to_remove = []
+      cmd_or_tlm_hash[target_name].each do |packet_name, packet|
+        packets << packet
+        names_to_remove << packet_name
+      end
+      cmd_or_tlm_hash[target_name].length.times do |i|
+        cmd_or_tlm_hash[target_name].delete(names_to_remove[i])
+      end
+      packets.reverse.each do |packet|
+        cmd_or_tlm_hash[target_name][packet.packet_name] = packet
+      end
+    end
+
+    XTCE_IGNORED_ELEMENTS = ['text', 'AliasSet', 'Alias', 'Header']
+
+    def xtce_process_element(element, depth)
+      if XTCE_IGNORED_ELEMENTS.include?(element.name)
+        return false
+      end
+      #~ if element.name == 'LongDescription'
+        #~ puts "#{'  ' * depth}<#{element.name}> #{xtce_format_attributes(element)} #{element.text}"
+      #~ else
+        #~ puts "#{'  ' * depth}<#{element.name}> #{xtce_format_attributes(element)}"
+      #~ end
+
+      case element.name
+      when 'SpaceSystem'
+        @current_target_name = element["name"].to_s.upcase
+
+      when 'TelemetryMetaData'
+        finish_packet()
+        @current_cmd_or_tlm = TELEMETRY
+
+      when 'CommandMetaData'
+        finish_packet()
+        @current_cmd_or_tlm = COMMAND
+
+      when 'ParameterTypeSet', 'EnumerationList', 'ParameterSet', 'ContainerSet', 'EntryList', 'DefaultCalibrator', 'DefaultAlarm', 'RestrictionCriteria', 'ComparisonList', 'MetaCommandSet', 'DefaultCalibrator', 'ArgumentTypeSet', 'ArgumentList', 'ArgumentAssignmentList'
+        # Do Nothing
+
+      when 'EnumeratedParameterType', 'EnumeratedArgumentType', 'IntegerParameterType', 'IntegerArgumentType', 'FloatParameterType', 'FloatArgumentType', 'StringParameterType', 'StringArgumentType', 'BinaryParameterType', 'BinaryArgumentType'
+        @current_type = OpenStruct.new
+        element.attributes.each do |att_name, att|
+          @current_type[att.name] = att.value
+        end
+        if element.name =~ /Argument/
+          @argument_types[element["name"]] = @current_type
+        else
+          @parameter_types[element["name"]] = @current_type
+        end
+
+        case element.name
+        when 'EnumeratedParameterType', 'EnumeratedArgumentType'
+          @current_type.xtce_encoding = 'IntegerDataEncoding'
+          @current_type.sizeInBits = 8 # This is undocumented but appears to be the design
+        when 'IntegerParameterType', 'IntegerArgumentType'
+          @current_type.xtce_encoding = 'IntegerDataEncoding'
+          @current_type.sizeInBits = 32
+        when 'FloatParameterType', 'FloatArgumentType'
+          @current_type.xtce_encoding = 'FloatDataEncoding'
+          @current_type.sizeInBits = 32
+        when 'StringParameterType', 'StringArgumentType'
+          @current_type.xtce_encoding = 'StringDataEncoding'
+        when 'BinaryParameterType', 'BinaryArgumentType'
+          @current_type.xtce_encoding = 'BinaryDataEncoding'
+          @current_type.sizeInBits = 8 # This is undocumented but appears to be the design
+        end
+
+      when "SizeInBits"
+        xtce_recurse_element(element, depth + 1) do |element, depth|
+          if element.name == 'FixedValue'
+            @current_type.sizeInBits = Integer(element.text)
+            false
+          else
+            true
+          end
+        end
+        return false # Already recursed
+
+      when 'UnitSet'
+        xtce_recurse_element(element, depth + 1) do |element, depth|
+          if element.name == 'Unit'
+            @current_type.units ||= ''
+            if @current_type.units.empty?
+              @current_type.units << element.text.to_s
+            else
+              @current_type.units << ('/' + element.text.to_s)
+            end
+            @current_type.units << "^#{element['power']}" if element['power']
+            @current_type.units_full ||= ''
+            description = element['description'].to_s
+            if description.empty?
+              @current_type.units_full = @current_type.units
+            else
+              if @current_type.units_full.empty?
+                @current_type.units_full << description
+              else
+                @current_type.units_full << ('/' + description)
+              end
+            end
+          end
+          true
+        end
+        return false # Already recursed
+
+      when 'PolynomialCalibrator'
+        xtce_recurse_element(element, depth + 1) do |element, depth|
+          if element.name == 'Term'
+            index = Integer(element['exponent'])
+            coeff = Float(element['coefficient'])
+            @current_type.conversion ||= PolynomialConversion.new([])
+            @current_type.conversion.coeffs[index] = coeff
+            @current_type.conversion.coeffs.each_with_index do |value, index|
+              @current_type.conversion.coeffs[index] = 0.0 if value.nil?
+            end
+          end
+          true
+        end
+        return false # Already recursed
+
+      when 'StaticAlarmRanges'
+        xtce_recurse_element(element, depth + 1) do |element, depth|
+          if element.name == 'WarningRange'
+            @current_type.limits ||= [0.0, 0.0, 0.0, 0.0]
+            @current_type.limits[1] = Float(element['minInclusive']) if element['minInclusive']
+            @current_type.limits[2] = Float(element['maxInclusive']) if element['maxInclusive']
+          elsif element.name == 'CriticalRange'
+            @current_type.limits ||= [0.0, 0.0, 0.0, 0.0]
+            @current_type.limits[0] = Float(element['minInclusive']) if element['minInclusive']
+            @current_type.limits[3] = Float(element['maxInclusive']) if element['maxInclusive']
+          end
+          true
+        end
+        return false # Already recursed
+
+      when "ValidRange"
+        @current_type.minInclusive = element['minInclusive']
+        @current_type.maxInclusive = element['maxInclusive']
+
+      when 'Enumeration'
+        @current_type.states ||= {}
+        @current_type.states[element['label']] = Integer(element['value'])
+
+      when 'IntegerDataEncoding', 'FloatDataEncoding', 'StringDataEncoding', 'BinaryDataEncoding'
+        @current_type.xtce_encoding = element.name
+        element.attributes.each do |att_name, att|
+          @current_type[att.name] = att.value
+        end
+        @current_type.sizeInBits = 8 unless element.attributes['sizeInBits']
+
+      when 'Parameter'
+        @current_parameter = OpenStruct.new
+        element.attributes.each do |att_name, att|
+          @current_parameter[att.name] = att.value
+        end
+        @parameters[element["name"]] = @current_parameter
+
+      when 'Argument'
+        @current_argument = OpenStruct.new
+        element.attributes.each do |att_name, att|
+          @current_argument[att.name] = att.value
+        end
+        @arguments[element["name"]] = @current_argument
+
+      when 'ParameterProperties'
+        element.attributes.each do |att_name, att|
+          @current_parameter[att.name] = att.value
+        end
+
+      when "SequenceContainer"
+        finish_packet()
+        @current_packet = Packet.new(@current_target_name, element['name'], :BIG_ENDIAN, element['shortDescription'])
+        @current_packet.abstract = ConfigParser.handle_true_false_nil(element['abstract'])
+        @containers[element['name']] = @current_packet
+        PacketParser.finish_create_telemetry(@current_packet, @telemetry, @latest_data, @warnings)
+
+        # Need to check for a BaseContainer now because if we hit it later it will be too late
+        xtce_handle_base_container('BaseContainer', element)
+
+      when 'LongDescription'
+        if @current_packet and !@current_packet.description
+          @current_packet.description = element.text
+        end
+
+      when 'ParameterRefEntry', 'ArgumentRefEntry'
+        if element.name =~ /Argument/
+          # Look up the argument and argument type
+          argument = @arguments[element['argumentRef']]
+          raise "argumentRef #{element['argumentRef']} not found" unless argument
+          argument_type = @argument_types[argument.argumentTypeRef]
+          raise "argumentTypeRef #{argument.argumentTypeRef} not found" unless argument_type
+          refName = 'argumentRef'
+          object = argument
+          type = argument_type
+        else
+          # Look up the parameter and parameter type
+          parameter = @parameters[element['parameterRef']]
+          raise "parameterRef #{element['parameterRef']} not found" unless parameter
+          parameter_type = @parameter_types[parameter.parameterTypeRef]
+          raise "parameterTypeRef #{parameter.parameterTypeRef} not found" unless parameter_type
+          refName = 'parameterRef'
+          object = parameter
+          type = parameter_type
+        end
+
+        # Add item to packet
+        data_type = nil
+        case type.xtce_encoding
+        when 'IntegerDataEncoding'
+          if type.signed == 'false' or type.encoding == 'unsigned'
+            data_type = :UINT
+          else
+            data_type = :INT
+          end
+        when 'FloatDataEncoding'
+          data_type = :FLOAT
+        when 'StringDataEncoding'
+          data_type = :STRING
+        when 'BinaryDataEncoding'
+          data_type = :BLOCK
+        else
+          raise "Referenced Parameter/Argument has no xtce_encoding: #{element[refName]}"
+        end
+
+        item = @current_packet.append_item(object.name, Integer(type.sizeInBits), data_type) #, array_size = nil, endianness = @default_endianness, overflow = :ERROR, format_string = nil, read_conversion = nil, write_conversion = nil, id_value = nil)
+        item.description = type.shortDescription if type.shortDescription
+        if type.states
+          item.states = type.states
+        end
+        if type.units and type.units_full
+          item.units = type.units
+          item.units_full = type.units_full
+        end
+        if @current_cmd_or_tlm == COMMAND
+          # Possibly add write conversion
+          if type.conversion and type.conversion.class == PolynomialConversion
+            item.write_conversion = type.conversion
+          end
+
+          # Need to set min, max, and default
+          if data_type == :INT
+            item.range = (-(2 ** (Integer(type.sizeInBits) - 1)))..((2 ** (Integer(type.sizeInBits) - 1)) - 1)
+            if type.minInclusive and type.maxInclusive
+              item.range = Integer(type.minInclusive)..Integer(type.maxInclusive)
+            end
+            item.default = 0
+            if item.states and item.states[type.initialValue.to_s.upcase]
+              item.default = Integer(item.states[type.initialvalue.to_s.upcase])
+            else
+              item.default = Integer(type.initialValue) if type.initialValue
+            end
+          elsif data_type == :UINT
+            item.range = 0..((2 ** Integer(type.sizeInBits)) - 1)
+            if type.minInclusive and type.maxInclusive
+              item.range = Integer(type.minInclusive)..Integer(type.maxInclusive)
+            end
+            item.default = 0
+            if item.states and item.states[type.initialValue.to_s.upcase]
+              item.default = Integer(item.states[type.initialValue.to_s.upcase])
+            else
+              item.default = Integer(type.initialValue) if type.initialValue
+            end
+          elsif data_type == :FLOAT
+            if Integer(type.sizeInBits) == 32
+              item.range = -3.402823e38..3.402823e38
+            else
+              item.range = -Float::MAX..Float::MAX
+            end
+            if type.minInclusive and type.maxInclusive
+              item.range = Float(type.minInclusive)..Float(type.maxInclusive)
+            end
+            item.default = 0.0
+            item.default = Float(type.initialValue) if type.initialValue
+          elsif data_type == :STRING
+            if type.initialValue
+              item.default = type.initialValue
+            else
+              item.default = ''
+            end
+          elsif data_type == :BLOCK
+            if type.initialValue
+              item.default = type.initialValue
+            else
+              item.default = ''
+            end
+          end
+        else
+          # Possibly add read conversion
+          if type.conversion and type.conversion.class == PolynomialConversion
+            item.read_conversion = type.conversion
+          end
+
+          # Possibly add default limits
+          if type.limits
+            item.limits.enabled = true
+            values = {}
+            values[:DEFAULT] = type.limits
+            item.limits.values = values
+          end
+        end
+
+      when 'BaseContainer'
+        # Handled in SequenceContainer/CommandContainer
+
+      when 'BaseMetaCommand'
+        # Handled in MetaCommand
+
+      when 'Comparison'
+        # Need to set ID value for item
+        item = @current_packet.get_item(element['parameterRef'])
+        item.id_value = Integer(element['value'])
+        if @current_cmd_or_tlm == COMMAND
+          item.default = item.id_value
+        end
+        @current_packet.update_id_items(item)
+
+      when 'MetaCommand'
+        finish_packet()
+        @current_packet = Packet.new(@current_target_name, element['name'], :BIG_ENDIAN, element['shortDescription'])
+        @current_packet.abstract = ConfigParser.handle_true_false_nil(element['abstract'])
+        PacketParser.finish_create_command(@current_packet, @commands, @warnings)
+
+        # Need to check for a BaseContainer now because if we hit it later it will be too late
+        xtce_handle_base_container('BaseMetaCommand', element)
+
+      when 'CommandContainer'
+        @containers[element['name']] = @current_packet
+
+        # Need to check for a BaseContainer now because if we hit it later it will be too late
+        xtce_handle_base_container('BaseContainer', element)
+
+      when 'ArgumentAssignment'
+        # Need to set ID value for item
+        item = @current_packet.get_item(element['argumentName'])
+        value = element['argumentValue']
+        if item.states and item.states[value.to_s.upcase]
+          item.id_value = item.states[value.to_s.upcase]
+          item.default = item.id_value
+        else
+          item.id_value = Integer(value)
+          item.default = item.id_value
+        end
+        @current_packet.update_id_items(item)
+
+      else
+        puts "  Ignoring Unknown: <#{element.name}>"
+
+      end # case element.name
+
+      return true # Recurse further
+    end
+
+    def xtce_format_attributes(element)
+      string = ''
+      element.attributes.each do |att_name, att|
+        string << "#{att.name}:#{att.value} "
+      end
+      if string.length > 0
+        string = '( ' + string + ')'
+      end
+      return string
+    end
+
+    def xtce_recurse_element(element, depth, &block)
+      return unless yield(element, depth)
+      element.children.each do |child_element|
+        xtce_recurse_element(child_element, depth + 1, &block)
+      end
+    end
+
+    def xtce_handle_base_container(base_name, element)
+      if element.name == base_name
+        # Need to add BaseContainer items to current_packet
+        # Lookup the base packet
+        if base_name == 'BaseMetaCommand'
+          base_packet = @commands[@current_packet.target_name][element['metaCommandRef'].to_s.upcase]
+        else
+          base_packet = @containers[element['containerRef']]
+        end
+        if base_packet
+          count = 0
+          base_packet.sorted_items.each do |item|
+            unless ['RECEIVED_TIMESECONDS', 'RECEIVED_TIMEFORMATTED', 'RECEIVED_COUNT'].include?(item.name)
+              begin
+                @current_packet.get_item(item.name)
+              rescue
+                # Item hasn't already been added so define it
+                @current_packet.define(item.clone)
+                count += 1
+              end
+            end
+          end
+          return
+        else
+          if base_name == 'BaseMetaCommand'
+            raise "Unknown #{base_name}: #{element['metaCommandRef']}"
+          else
+            raise "Unknown #{base_name}: #{element['containerRef']}"
+          end
+        end
+      end
+      element.children.each do |child_element|
+        xtce_handle_base_container(base_name, child_element)
+      end
+    end
 
     def process_current_packet(parser, keyword, params)
       case keyword
@@ -449,7 +1123,6 @@ module Cosmos
       finish_item()
       if @current_packet
         @warnings += @current_packet.check_bit_offsets
-
         if @current_cmd_or_tlm == COMMAND
           PacketParser.check_item_data_types(@current_packet)
           @commands[@current_packet.target_name][@current_packet.packet_name] = @current_packet

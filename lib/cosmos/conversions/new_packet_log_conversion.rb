@@ -21,6 +21,7 @@ module Cosmos
     #
     # @param packet_log_writer_name [String] Name of the packet log writer to start new logs on
     def initialize(packet_log_writer_name = 'ALL')
+      super()
       @packet_log_writer_name = packet_log_writer_name
     end
 
@@ -38,6 +39,12 @@ module Cosmos
       result = super()
       result << " (#{@packet_log_writer_name})"
       result
+    end
+
+    # @param (see Conversion#to_config)
+    # @return [String] Config fragment for this conversion
+    def to_config(read_or_write)
+      "    #{read_or_write}_CONVERSION #{self.class.name.class_name_to_filename} #{@packet_log_write_name}\n"
     end
 
   end # class NewPacketLogConversion

@@ -35,9 +35,9 @@ static VALUE symbol_CONVERTED = Qnil;
  *  target name keyed by the packet name
  */
 static VALUE packets(VALUE self, VALUE target_name) {
-  VALUE target_packets = Qnil;
-  VALUE upcase_target_name = Qnil;
-  VALUE telemetry = Qnil;
+  volatile VALUE target_packets = Qnil;
+  volatile VALUE upcase_target_name = Qnil;
+  volatile VALUE telemetry = Qnil;
 
   upcase_target_name = rb_funcall(target_name, id_method_to_s, 0);
   upcase_target_name = rb_funcall(upcase_target_name, id_method_upcase, 0);
@@ -59,10 +59,10 @@ static VALUE packets(VALUE self, VALUE target_name) {
  */
 static VALUE packet(VALUE self, VALUE target_name, VALUE packet_name)
 {
-  VALUE packet = Qnil;
-  VALUE target_packets = Qnil;
-  VALUE upcase_target_name = Qnil;
-  VALUE upcase_packet_name = Qnil;
+  volatile VALUE packet = Qnil;
+  volatile VALUE target_packets = Qnil;
+  volatile VALUE upcase_target_name = Qnil;
+  volatile VALUE upcase_packet_name = Qnil;
 
   target_packets = packets(self, target_name);
 
@@ -89,10 +89,10 @@ static VALUE packet(VALUE self, VALUE target_name, VALUE packet_name)
  */
 static VALUE packet_and_item(VALUE self, VALUE target_name, VALUE packet_name, VALUE item_name)
 {
-  VALUE upcase_packet_name = Qnil;
-  VALUE return_packet = Qnil;
-  VALUE item = Qnil;
-  VALUE return_value = Qnil;
+  volatile VALUE upcase_packet_name = Qnil;
+  volatile VALUE return_packet = Qnil;
+  volatile VALUE item = Qnil;
+  volatile VALUE return_value = Qnil;
   char * string_packet_name = NULL;
 
   upcase_packet_name = rb_funcall(packet_name, id_method_upcase, 0);
@@ -128,12 +128,12 @@ static VALUE packet_and_item(VALUE self, VALUE target_name, VALUE packet_name, V
  */
 static VALUE value(int argc, VALUE* argv, VALUE self)
 {
-  VALUE target_name = Qnil;
-  VALUE packet_name = Qnil;
-  VALUE item_name = Qnil;
-  VALUE value_type = Qnil;
-  VALUE result = Qnil;
-  VALUE packet = Qnil;
+  volatile VALUE target_name = Qnil;
+  volatile VALUE packet_name = Qnil;
+  volatile VALUE item_name = Qnil;
+  volatile VALUE value_type = Qnil;
+  volatile VALUE result = Qnil;
+  volatile VALUE packet = Qnil;
 
   switch (argc)
   {
@@ -176,22 +176,22 @@ static VALUE value(int argc, VALUE* argv, VALUE self)
  *   red, yellow, and green (if given) limits values.
  */
 static VALUE values_and_limits_states(int argc, VALUE* argv, VALUE self) {
-  VALUE item_array = Qnil;
-  VALUE value_types = Qnil;
-  VALUE items = Qnil;
-  VALUE states = Qnil;
-  VALUE settings = Qnil;
-  VALUE entry = Qnil;
-  VALUE target_name = Qnil;
-  VALUE packet_name = Qnil;
-  VALUE item_name = Qnil;
-  VALUE value_type = Qnil;
-  VALUE result = Qnil;
-  VALUE return_value = Qnil;
-  VALUE limits = Qnil;
-  VALUE limits_set = Qnil;
-  VALUE limits_values = Qnil;
-  VALUE limits_settings = Qnil;
+  volatile VALUE item_array = Qnil;
+  volatile VALUE value_types = Qnil;
+  volatile VALUE items = Qnil;
+  volatile VALUE states = Qnil;
+  volatile VALUE settings = Qnil;
+  volatile VALUE entry = Qnil;
+  volatile VALUE target_name = Qnil;
+  volatile VALUE packet_name = Qnil;
+  volatile VALUE item_name = Qnil;
+  volatile VALUE value_type = Qnil;
+  volatile VALUE result = Qnil;
+  volatile VALUE return_value = Qnil;
+  volatile VALUE limits = Qnil;
+  volatile VALUE limits_set = Qnil;
+  volatile VALUE limits_values = Qnil;
+  volatile VALUE limits_settings = Qnil;
   long length = 0;
   long value_types_length = 0;
   int index = 0;

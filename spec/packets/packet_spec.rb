@@ -612,9 +612,14 @@ module Cosmos
         i = p.get_item("TEST3")
         i.read_conversion = GenericConversion.new("value / 2")
         p.write("test3", 0x0406080A)
+        p.append_item("test4", 32, :BLOCK)
+        i = p.get_item("TEST4")
+        i.read_conversion = GenericConversion.new("value.to_s")
+        p.write("test4", "Test")
         expect(p.formatted).to include("TEST1: [1, 2]")
         expect(p.formatted).to include("TEST2: TRUE")
         expect(p.formatted).to include("TEST3: #{0x02030405}")
+        expect(p.formatted).to include("TEST4: Test")
       end
     end
 

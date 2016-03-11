@@ -65,6 +65,7 @@ module Cosmos
 
     # Initialize the converted_type to :FLOAT and converted_bit_size to 64.
     def initialize
+      super()
       @segments = []
       @converted_type = :FLOAT
       @converted_bit_size = 64
@@ -121,6 +122,16 @@ module Cosmos
         count += 1
       end
       result
+    end
+
+    # @param (see Conversion#to_config)
+    # @return [String] Config fragment for this conversion
+    def to_config(read_or_write)
+      config = ''
+      @segments.each do |segment|
+        config << "    SEG_POLY_#{read_or_write}_CONVERSION #{segment.lower_bound} #{segment.coeffs.join(' ')}\n"
+      end
+      config
     end
 
   end # class SegmentedPolynomialConversion

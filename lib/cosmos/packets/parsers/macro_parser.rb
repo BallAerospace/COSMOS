@@ -85,18 +85,20 @@ module Cosmos
     end
 
     def create_new_packet_items(packet)
-      # Shift off the first macro index because since the first item(s) already exist we just rename
-      first_index = @macro.indices.shift
-      @macro.list.each do |name|
-        original_item_name = name
-        new_name = format_item_name(name, first_index)
-        item = packet.rename_item(name, new_name)
+      first_index = @macro.indices[0]
+      items = {}
 
-        # The renaming indices create new items
-        @macro.indices.each do |index|
-          new_item = item.clone
-          new_item.name = format_item_name(original_item_name, index)
-          packet.append(new_item)
+      @macro.indices.each do |index|
+        @macro.list.each do |name|
+          # The first index we just rename the item(s)
+          if index == first_index
+            new_name = format_item_name(name, first_index)
+            items[name] = packet.rename_item(name, new_name)
+          else # Subsequent indexes we clone the first item(s) and append them
+            new_item = items[name].clone
+            new_item.name = format_item_name(name, index)
+            packet.append(new_item)
+          end
         end
       end
     end

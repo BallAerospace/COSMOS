@@ -35,7 +35,11 @@ module Cosmos
       @tlm_thread = nil
       @shutdown_tlm_thread = false
       @mode = :WITH_UNITS
-      @polling_rate = 1.0
+      if options.rate
+        @polling_rate = options.rate
+      else
+        @polling_rate = 1.0
+      end
       @colorblind = false
 
       initialize_actions()
@@ -249,7 +253,7 @@ module Cosmos
     end
 
     def file_options
-      @polling_rate = Qt::InputDialog.getDouble(self, tr("Options"), tr("Polling Rate:"), @polling_rate, 0, 1000, 1, nil)
+      @polling_rate = Qt::InputDialog.getDouble(self, tr("Options"), tr("Polling Rate (sec):"), @polling_rate, 0, 1000, 1, nil)
     end
 
     def update_all
@@ -531,6 +535,7 @@ module Cosmos
             end
             options.packet = split
           end
+          option_parser.on("-r", "--rate PERIOD", "Set the polling rate to PERIOD (unit seconds)") { |arg| options.rate = Float(arg) } 
         end
 
         super(option_parser, options)

@@ -10,22 +10,22 @@
 
 require 'cosmos/tools/tlm_viewer/widgets/widget'
 require 'cosmos/tools/tlm_viewer/widgets/multi_widget'
-require 'cosmos/tools/tlm_viewer/widgets/labelvalue_widget'
-require 'cosmos/tools/tlm_viewer/widgets/rangebar_widget'
+require 'cosmos/tools/tlm_viewer/widgets/value_widget'
+require 'cosmos/tools/tlm_viewer/widgets/rangecolumn_widget'
 
 module Cosmos
 
-  class LabelvaluerangebarWidget < Qt::Widget
+  class ValuerangecolumnWidget < Qt::Widget
     include Widget
     include MultiWidget
 
-    def initialize(parent_layout, target_name, packet_name, item_name, low_value, high_value, value_type = :WITH_UNITS, characters = 12, width = 160, height = 25)
+    def initialize(parent_layout, target_name, packet_name, item_name, low_value, high_value, value_type = :WITH_UNITS, characters = 8, width = 30, height = 100)
       super(target_name, packet_name, item_name, value_type)
-      setLayout(Qt::HBoxLayout.new())
+      setLayout(Qt::VBoxLayout.new())
       layout.setSpacing(1)
       layout.setContentsMargins(0,0,0,0)
-      @widgets << LabelvalueWidget.new(layout, target_name, packet_name, item_name, value_type, characters)
-      @widgets << RangebarWidget.new(layout, target_name, packet_name, item_name, low_value, high_value, value_type, width, height)
+      @widgets << RangecolumnWidget.new(layout, target_name, packet_name, item_name, low_value, high_value, value_type, width, height)
+      @widgets << ValueWidget.new(layout, target_name, packet_name, item_name, value_type, characters)
       parent_layout.addWidget(self) if parent_layout
     end
 

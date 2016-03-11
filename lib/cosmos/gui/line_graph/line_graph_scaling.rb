@@ -26,7 +26,12 @@ module Cosmos
       end
 
       # Determine number of pixels to the right side of graph
-      @graph_right_x = self.width - 6 * GRAPH_SPACER
+      if @show_legend and !@lines.empty? and @legend_position == :right
+        legend_x, legend_y, legend_width, legend_height = get_legend_position()
+      else
+        legend_width = 0
+      end
+      @graph_right_x = self.width - legend_width - 8 * GRAPH_SPACER
       if @right_y_axis_title
         @graph_right_x -= (metrics.width('W') + GRAPH_SPACER)
       end
@@ -48,8 +53,9 @@ module Cosmos
         x_axis_title_height = 0
       end
       x_axis_label_height = metrics.height + GRAPH_SPACER
+
       legend_height = 0
-      if @show_legend && !@lines.empty?
+      if @show_legend and !@lines.empty? and @legend_position == :bottom
         text_y = self.height - 1 - (GRAPH_SPACER * 2)
         text_height = metrics.height
         if @lines.axes == :BOTH
@@ -315,7 +321,7 @@ module Cosmos
       end
     end # def build_x_grid_lines
 
-    # Calculate the x gride lines for the graph
+    # Calculate the x grid lines for the graph
     def calculate_x_grid_lines
       if @manual_x_grid_line_scale
         # With manual grid lines, draw them all regardless of whether it will look nice

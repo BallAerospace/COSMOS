@@ -22,6 +22,7 @@ module Cosmos
     # @param microseconds_item_name [String] The telemetry item in the packet
     #   which represents microseconds
     def initialize(seconds_item_name, microseconds_item_name = nil)
+      super()
       @seconds_item_name = seconds_item_name
       @microseconds_item_name = microseconds_item_name
     end
@@ -43,6 +44,12 @@ module Cosmos
       else
         return "Time.at(packet.read('#{@seconds_item_name}', :RAW, buffer), 0)"
       end
+    end
+
+    # @param (see Conversion#to_config)
+    # @return [String] Config fragment for this conversion
+    def to_config(read_or_write)
+      "    #{read_or_write}_CONVERSION #{self.class.name.class_name_to_filename} #{@seconds_item_name} #{@microseconds_item_name}\n"
     end
 
   end # class UnixTimeConversion

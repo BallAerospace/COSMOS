@@ -28,6 +28,7 @@ module Cosmos
     #   routers allowed before dropping the packet.
     # @param write_timeout [Integer] Seconds to wait before aborting writes
     # @param read_timeout [Integer] Seconds to wait before aborting reads
+    # @param bind_address [String] Address to bind UDP ports to
     def initialize(hostname,
                    write_dest_port,
                    read_port,
@@ -35,7 +36,8 @@ module Cosmos
                    interface_address = nil,
                    ttl = 128, # default for Windows
                    write_timeout = 10.0,
-                   read_timeout = nil)
+                   read_timeout = nil,
+                   bind_address = "0.0.0.0")
       super()
 
       @hostname = ConfigParser.handle_nil(hostname)
@@ -57,6 +59,8 @@ module Cosmos
       @write_timeout = @write_timeout.to_f if @write_timeout
       @read_timeout = ConfigParser.handle_nil(read_timeout)
       @read_timeout = @read_timeout.to_f if @read_timeout
+      @bind_address = ConfigParser.handle_nil(bind_address)
+      @bind_address = '127.0.0.1' if @bind_address and @bind_address.upcase == 'LOCALHOST'
       @write_socket = nil
       @read_socket = nil
       @read_allowed = false unless @read_port
@@ -72,8 +76,9 @@ module Cosmos
                                          @write_dest_port,
                                          @write_src_port,
                                          @interface_address,
-                                         @ttl) if @write_dest_port
-      @read_socket = UdpReadSocket.new(@read_port,@hostname,@interface_address) if @read_port
+                                         @ttl,
+                                         @bind_address) if @write_dest_port
+      @read_socket = UdpReadSocket.new(@read_port, @hostname, @interface_address, @bind_address) if @read_port
     end
 
     # @return [Boolean] Whether the active ports (read and/or write) have

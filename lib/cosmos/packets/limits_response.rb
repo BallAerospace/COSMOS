@@ -34,5 +34,9 @@ module Cosmos
       self.class.to_s.split('::')[-1]
     end
 
+    def to_config
+      "    LIMITS_RESPONSE #{self.class.name.class_name_to_filename}\n"
+    end
+
   end # class LimitsResponse
 end

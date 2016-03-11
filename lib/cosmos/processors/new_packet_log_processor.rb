@@ -29,6 +29,11 @@ module Cosmos
       end
     end
 
+    # Convert to configuration file string
+    def to_config
+      "  PROCESSOR #{@name} #{self.class.name.to_s.class_name_to_filename} #{@packet_log_writer_name}\n"
+    end
+
   end # class NewPacketLogProcessor
 
 end # module Cosmos
