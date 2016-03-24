@@ -384,6 +384,7 @@ module Cosmos
         end
         if @states
 			    xml['xtce'].send('Enumerated' + param_or_arg + 'Type', attrs) do
+            to_xtce_endianness(xml)
             to_xtce_units(xml)
             xml['xtce'].IntegerDataEncoding(:sizeInBits => self.bit_size, :encoding => encoding)
 				    xml['xtce'].EnumerationList do
@@ -400,6 +401,7 @@ module Cosmos
             attrs[:signed] = signed
           end
           xml['xtce'].send(type_string, attrs) do
+            to_xtce_endianness(xml)
             to_xtce_units(xml)
             if (self.read_conversion and self.read_conversion.class == PolynomialConversion) or (self.write_conversion and self.write_conversion.class == PolynomialConversion)
               xml['xtce'].IntegerDataEncoding(:sizeInBits => self.bit_size, :encoding => encoding) do
@@ -432,6 +434,7 @@ module Cosmos
         attrs[:initialValue] = self.default if self.default and !self.array_size
         attrs[:shortDescription] = self.description if self.description
         xml['xtce'].send('Float' + param_or_arg + 'Type', attrs) do
+          to_xtce_endianness(xml)
           to_xtce_units(xml)
           if (self.read_conversion and self.read_conversion.class == PolynomialConversion) or (self.write_conversion and self.write_conversion.class == PolynomialConversion)
             xml['xtce'].FloatDataEncoding(:sizeInBits => self.bit_size, :encoding => 'IEEE754_1985') do
@@ -467,6 +470,7 @@ module Cosmos
         attrs[:initialValue] = self.default if self.default and !self.array_size
         attrs[:shortDescription] = self.description if self.description
         xml['xtce'].send('String' + param_or_arg + 'Type', attrs) do
+          to_xtce_endianness(xml)
           to_xtce_units(xml)
           xml['xtce'].StringDataEncoding(:encoding => 'UTF-8') do
 					  xml['xtce'].SizeInBits do
@@ -483,6 +487,7 @@ module Cosmos
         attrs[:shortDescription] = self.description if self.description
         #attrs[:initialValue] = self.default if self.default and !self.array_size
         xml['xtce'].send('Binary' + param_or_arg + 'Type', attrs) do
+          to_xtce_endianness(xml)
           to_xtce_units(xml)
           xml['xtce'].BinaryDataEncoding do
 					  xml['xtce'].SizeInBits do
@@ -508,6 +513,16 @@ module Cosmos
         end
       else
         xml['xtce'].UnitSet
+      end
+    end
+
+    def to_xtce_endianness(xml)
+      if self.endianness == :LITTLE_ENDIAN and self.bit_size > 8
+        xml['xtce'].ByteOrderList do
+          (((self.bit_size - 1)/ 8) + 1).times do |byte_significance|
+            xml['xtce'].Byte(:byteSignificance => byte_significance)
+          end
+        end
       end
     end
 

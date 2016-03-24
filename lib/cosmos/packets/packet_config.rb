@@ -515,6 +515,7 @@ module Cosmos
 
       when 'EnumeratedParameterType', 'EnumeratedArgumentType', 'IntegerParameterType', 'IntegerArgumentType', 'FloatParameterType', 'FloatArgumentType', 'StringParameterType', 'StringArgumentType', 'BinaryParameterType', 'BinaryArgumentType'
         @current_type = OpenStruct.new
+        @current_type.endianness = :BIG_ENDIAN
         element.attributes.each do |att_name, att|
           @current_type[att.name] = att.value
         end
@@ -540,6 +541,19 @@ module Cosmos
           @current_type.xtce_encoding = 'BinaryDataEncoding'
           @current_type.sizeInBits = 8 # This is undocumented but appears to be the design
         end
+
+      when 'ByteOrderList'
+        xtce_recurse_element(element, depth + 1) do |element, depth|
+          if element.name == 'Byte'
+            if element['byteSignificance'] and element['byteSignificance'].to_i == 0
+              @current_type.endianness = :LITTLE_ENDIAN
+            end
+            false
+          else
+            true
+          end
+        end
+        return false # Already recursed
 
       when "SizeInBits"
         xtce_recurse_element(element, depth + 1) do |element, depth|
@@ -581,7 +595,7 @@ module Cosmos
       when 'PolynomialCalibrator'
         xtce_recurse_element(element, depth + 1) do |element, depth|
           if element.name == 'Term'
-            index = Integer(element['exponent'])
+            index = Float(element['exponent']).to_i
             coeff = Float(element['coefficient'])
             @current_type.conversion ||= PolynomialConversion.new([])
             @current_type.conversion.coeffs[index] = coeff
@@ -697,7 +711,7 @@ module Cosmos
           raise "Referenced Parameter/Argument has no xtce_encoding: #{element[refName]}"
         end
 
-        item = @current_packet.append_item(object.name, Integer(type.sizeInBits), data_type) #, array_size = nil, endianness = @default_endianness, overflow = :ERROR, format_string = nil, read_conversion = nil, write_conversion = nil, id_value = nil)
+        item = @current_packet.append_item(object.name, Integer(type.sizeInBits), data_type, nil, type.endianness) # overflow = :ERROR, format_string = nil, read_conversion = nil, write_conversion = nil, id_value = nil)
         item.description = type.shortDescription if type.shortDescription
         if type.states
           item.states = type.states
