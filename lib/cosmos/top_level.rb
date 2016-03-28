@@ -528,8 +528,8 @@ module Cosmos
     Logger.level = Logger::FATAL unless try_gui
     Logger.fatal "Fatal Exception! Exiting..."
     Logger.fatal error.formatted
-    if defined? ExceptionDialog and try_gui and Qt::Application.instance
-      Qt.execute_in_main_thread(true) {||ExceptionDialog.new(nil, error, '', true, false, log_file)}
+    if defined? ExceptionDialog && try_gui && Qt.execute_in_main_thread { Qt::Application.instance }
+      Qt.execute_in_main_thread {||ExceptionDialog.new(nil, error, '', true, false, log_file)}
     else
       if $stdout != STDOUT
         $stdout = STDOUT
@@ -554,7 +554,7 @@ module Cosmos
     if defined? ExceptionDialog and !ExceptionDialog.dialog_open?
       log_file = self.write_exception_file(error)
       if try_gui
-        Qt.execute_in_main_thread(true) {|| ExceptionDialog.new(nil, error, '', false, false, log_file)}
+        Qt.execute_in_main_thread {|| ExceptionDialog.new(nil, error, '', false, false, log_file)}
       end
     end
   end
@@ -746,7 +746,7 @@ module Cosmos
   # @param wav_filename filename of the wav file
   def self.play_wav_file(wav_filename)
     if defined? Qt and wav_filename
-      Qt.execute_in_main_thread(true) do
+      Qt.execute_in_main_thread do
         if Qt::CoreApplication.instance and Qt::Sound.isAvailable
           Cosmos.set_working_dir do
             Qt::Sound.play(wav_filename.to_s)
