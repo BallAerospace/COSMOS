@@ -120,6 +120,10 @@ describe Time do
     it "formats the Time without the date" do
       expect(Time.new(2020,1,2,3,4,5.5).formatted(false)).to eql "03:04:05.500"
     end
+
+    it "formats the Time without microseconds" do
+      expect(Time.new(2020,1,2,3,4,5.5).formatted(false, 0)).to eql "03:04:05"
+    end
   end
 
   describe "Time.days_from_j2000" do
