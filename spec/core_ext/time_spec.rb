@@ -113,16 +113,20 @@ describe Time do
   end
 
   describe "formatted" do
-    it "formats the Time" do
-      expect(Time.new(2020,1,2,3,4,5.5).formatted).to eql "2020/01/02 03:04:05.500"
+    it "formats the Time with date and fractional seconds" do
+      expect(Time.new(2020,1,2,3,4,5.123456).formatted(true, 6)).to eql "2020/01/02 03:04:05.123456"
     end
 
-    it "formats the Time without the date" do
-      expect(Time.new(2020,1,2,3,4,5.5).formatted(false)).to eql "03:04:05.500"
+    it "formats the Time with date and no fractional seconds" do
+      expect(Time.new(2020,1,2,3,4,5.123456).formatted(true, 0)).to eql "2020/01/02 03:04:05"
     end
 
-    it "formats the Time without microseconds" do
-      expect(Time.new(2020,1,2,3,4,5.5).formatted(false, 0)).to eql "03:04:05"
+    it "formats the Time without the date and fractional seconds" do
+      expect(Time.new(2020,1,2,3,4,5.123456).formatted(false, 2)).to eql "03:04:05.12"
+    end
+
+    it "formats the Time without the date and no fractional seconds" do
+      expect(Time.new(2020,1,2,3,4,5.123456).formatted(false, 0)).to eql "03:04:05"
     end
   end
 

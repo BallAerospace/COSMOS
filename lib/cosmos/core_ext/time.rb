@@ -211,12 +211,14 @@ class Time
 
   # @return [String] Date formatted as YYYY/MM/DD HH:MM:SS.US
   def formatted(include_year = true, fractional_digits = 3)
-    fractional = ''
-    fractional = self.strftime(".%#{fractional_digits}N") if fractional_digits > 0
-    if include_year
-      self.strftime("%Y/%m/%d %H:%M:%S") << fractional
-    else
-      self.strftime("%H:%M:%S") << fractional
+    if include_year && fractional_digits > 0
+      self.strftime("%Y/%m/%d %H:%M:%S.%#{fractional_digits}N")
+    elsif include_year && fractional_digits == 0
+      self.strftime("%Y/%m/%d %H:%M:%S")
+    elsif fractional_digits > 0 # no year
+      self.strftime("%H:%M:%S.%#{fractional_digits}N")
+    else # no year and no fractional digits
+      self.strftime("%H:%M:%S")
     end
   end
 
