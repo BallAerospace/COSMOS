@@ -266,12 +266,15 @@ Syntax:
 | Parameter | Description |
 | -------- | --------------------------------- |
 | question | Question to prompt the user with. |
-| allow_blank | Whether or not to allow empty responses (optional - defaults to false) |
+| blank_or_default | Whether or not to allow empty responses (optional - defaults to false). If a non-boolean value is passed it is used as a default value. |
+| password | Whether to treat the entry as a password which is displayed with dots and not logged. |
 
 Example:
 {% highlight ruby %}
 value = ask("Enter an integer")
 value = ask("Enter a value or nothing", true)
+value = ask("Enter a value", 10)
+password = ask("Enter your password", false, true)
 {% endhighlight %}
 
 ### ask_string
@@ -283,13 +286,16 @@ Syntax:
 
 | Parameter | Description |
 | -------- | --------------------------------- |
-|question|Question to prompt the user with.|
-|allow_blank|Whether or not to allow empty responses (optional - defaults to false)|
+| question | Question to prompt the user with.|
+| blank_or_default | Whether or not to allow empty responses (optional - defaults to false). If a non-boolean value is passed it is used as a default value. |
+| password | Whether to treat the entry as a password which is displayed with dots and not logged. |
 
 Example:
 {% highlight ruby %}
 string = ask_string("Enter a String")
 string = ask_string("Enter a value or nothing", true)
+string = ask_string("Enter a value", "test")
+password = ask_string("Enter your password", false, true)
 {% endhighlight %}
 
 ### message_box, vertical_message_box (COSMOS 3.5.0+), combo_box (COSMOS 3.5.0+)
