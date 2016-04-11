@@ -4,7 +4,7 @@ title: Papers
 permalink: /docs/papers/
 ---
 
-Aerospace Testing Seminar 2015
+## Aerospace Testing Seminar 2015
 
 * <a href="/assets/Ball_Aerospaces_COSMOS_Open_Source_Test_System.pdf">Ball Aerospace's COSMOS Open Source Test System</a>
 * <a href="/assets/System_Level_Integration_And_Test_Leveraging_Software_Unit_Testing_Techniques.pdf">System Level Integration and Test Leveraging Software Unit Testing Techniques</a>

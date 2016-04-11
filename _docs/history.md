@@ -4,6 +4,24 @@ title: Release History
 permalink: "/docs/history/"
 ---
 
+## 3.8.0 / 2016-02-26
+{: #v3-8-0}
+
+With this release COSMOS now has initial support for the XTCE Command and Telemetry Definition standard.
+
+### New Features:
+
+* [#251](https://github.com/BallAerospace/COSMOS/issues/251) Create COSMOS XTCE Converter
+* [#252](https://github.com/BallAerospace/COSMOS/issues/252) Add polling rate command line option to PacketViewer
+
+### Bug Fixes:
+
+* [#245](https://github.com/BallAerospace/COSMOS/issues/245) TlmGrapher Crashes on Inf
+* [#248](https://github.com/BallAerospace/COSMOS/issues/248) Can't script commands containing 'with' in the name
+
+### Migration Notes from COSMOS 3.7.x:
+None
+
 ## 3.7.1 / 2015-12-29
 {: #v3-7-1}
 
