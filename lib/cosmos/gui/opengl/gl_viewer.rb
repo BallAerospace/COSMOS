@@ -25,6 +25,8 @@ module Cosmos
     RTOD = 57.295779513082320876798154814
 
     attr_accessor :projection # :PARALLEL or :PERSPECTIVE
+    attr_accessor :top_background
+    attr_accessor :bottom_background
     attr_reader :zoom
     attr_reader :fov
     attr_reader :wvt
@@ -36,8 +38,6 @@ module Cosmos
     attr_reader :transform
     attr_reader :itransform
     attr_reader :maxhits
-    attr_reader :top_background
-    attr_reader :bottom_background
     attr_reader :ambient
     attr_reader :light
     attr_reader :material
@@ -49,8 +49,8 @@ module Cosmos
 
     attr_accessor :selection_callback
     attr_accessor :draw_axis
-    def initialize(parent)
-      super(parent)
+    def initialize(parent, share_widget=nil)
+      super(parent, share_widget)
 
       @defaultCursor = nil
       @dragCursor = nil
