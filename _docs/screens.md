@@ -990,9 +990,13 @@ If you want your button to use values from other widgets, define them as named w
 | Button text | Text displayed on the button | Yes |
 | String to eval | Ruby code to execute when the button is pressed | Yes |
 
-Example Usage:
+Example Usage to execute a command:
 {% highlight bash %}
 BUTTON 'Start Collect' 'cmd("INST COLLECT with TYPE NORMAL, DURATION 5")'
+{% endhighlight %}
+Example Usage to open Script Runner with a given script:
+{% highlight bash %}
+BUTTON "Run Script" 'system("ruby #{Cosmos::USERPATH}/tools/ScriptRunner #{Cosmos::USERPATH}/procedures/checks.rb")'
 {% endhighlight %}
 
 ### CHECKBUTTON
