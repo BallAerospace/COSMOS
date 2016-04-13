@@ -3,7 +3,8 @@
     <a href="/">Home</a>
   </li>
   <li class="{% if page.url contains '/docs/' %}current{% endif %}">
-    <a href="/docs/home/">Doc<span class="show-on-mobiles">s</span><span class="hide-on-mobiles">umentation</span></a>
+    <span class="hide-on-mobiles"><a href="/docs/home/">Documentation</a></span>
+    <span class="show-on-mobiles"><a href="/docs/home/">Docs</a></span>
   </li>
   <li class="{% if page.author %}current{% endif %}">
     <a href="/news/">News</a>

@@ -1186,6 +1186,15 @@ The CANVASLINEVALUE widget draws a line onto the canvas in one of two colors bas
 | Connector | Indicates whether or not to draw a circle at the second endpoint of the line: NO_CONNECTOR or CONNECTOR (default = NO_CONNECTOR) | No |
 | Value type | Type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = RAW) | No |
 
+Example Usage:
+{% highlight bash %}
+CANVAS 120 50
+  CANVASLABELVALUE INST HEALTH_STATUS GROUND1STATUS 0 12 12 black false
+  CANVASLINEVALUE INST HEALTH_STATUS GROUND1STATUS 5 25 115 25
+  CANVASLINEVALUE INST HEALTH_STATUS GROUND1STATUS 5 45 115 45 purple red 3 CONNECTOR
+END
+{% endhighlight %}
+
 ### CANVASDOT
 The CANVASDOT widget draws a dot onto the canvas, and it can be programmed to change its position with ruby code.
 
@@ -1210,15 +1219,6 @@ END
 {% endhighlight %}
 
 ![720311333_78794](https://cloud.githubusercontent.com/assets/5217851/11122513/d29af8c0-8918-11e5-9138-17011956911a.jpg)
-
-Example Usage:
-{% highlight bash %}
-CANVAS 120 50
-  CANVASLABELVALUE INST HEALTH_STATUS GROUND1STATUS 0 12 12 black false
-  CANVASLINEVALUE INST HEALTH_STATUS GROUND1STATUS 5 25 115 25
-  CANVASLINEVALUE INST HEALTH_STATUS GROUND1STATUS 5 45 115 45 purple red 3 CONNECTOR
-END
-{% endhighlight %}
 
 ## Widget Settings
 Settings allow for additional tweaks and options to be applied to widgets that are not available in their constructors. These settings are all configured through the SETTING and GLOBAL_SETTING keywords. SETTING applies only to the widget defined immediately before it. GLOBAL_SETTING applies to all widgets.
