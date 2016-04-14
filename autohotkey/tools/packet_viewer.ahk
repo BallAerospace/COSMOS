@@ -61,6 +61,10 @@ Send ^h            ; Hide ignored items
 Sleep 2000
 Send ^h            ; Show ignored items
 Sleep 1000
+Send ^d            ; Show derived items last
+Sleep 2000
+Send ^d            ; Show derived items first
+Sleep 1000
 Click 450 95
 Sleep 500
 Send {Down}{Enter} ; Target: INST/IMAGE
