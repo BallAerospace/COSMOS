@@ -58,6 +58,10 @@ module Cosmos
     attr_reader :ignored
     # @return [Boolean] Whether the limits items have been fetched from the server
     attr_reader :initialized
+    # @return [Boolean] Whether to display an item with blue limits while it's
+    #   currently green. If false items are not displayed until they go yellow
+    #   or red.
+    attr_accessor :monitor_blue
 
     UNKNOWN_ARRAY = ['UNKNOWN', 'UNKNOWN', nil]
 
@@ -73,6 +77,7 @@ module Cosmos
       @out_of_limits = []
       @queue_id = nil
       @limits_set = :DEFAULT
+      @monitor_blue = true
       request_reset()
     end
 
@@ -311,7 +316,11 @@ module Cosmos
         message << "ERROR: "
         color = :RED
         out_of_limit(item)
-      when :GREEN, :GREEN_HIGH, :GREEN_LOW
+      when :GREEN_HIGH, :GREEN_LOW
+        message << "INFO: "
+        color = :GREEN
+        out_of_limit(item) if @monitor_blue
+      when :GREEN
         message << "INFO: "
         color = :GREEN
       when :BLUE
@@ -531,6 +540,8 @@ module Cosmos
 
         colorblind_box = Qt::CheckBox.new('Colorblind Mode Enabled', self)
         colorblind_box.setCheckState(Qt::Checked) if @colorblind
+        blue_limit_box = Qt::CheckBox.new('Monitor Blue Limits', self)
+        blue_limit_box.setCheckState(Qt::Checked) if @limits_items.monitor_blue
 
         ok = Qt::PushButton.new('Ok') do
           connect(SIGNAL('clicked()')) { dialog.accept }
@@ -544,11 +555,17 @@ module Cosmos
         end
         dialog.layout = Qt::VBoxLayout.new do
           addWidget(colorblind_box)
+          addWidget(blue_limit_box)
           addLayout(buttons)
         end
 
         case dialog.exec
         when Qt::Dialog::Accepted
+          if (blue_limit_box.checkState() == Qt::Checked)
+            @limits_items.monitor_blue = true
+          else
+            @limits_items.monitor_blue = false
+          end
           if (colorblind_box.checkState() == Qt::Checked)
             @colorblind = true
           else
@@ -784,10 +801,6 @@ module Cosmos
           palette = Cosmos.getPalette(Cosmos.getColor(0, 0, 0), Cosmos.getColor(255,0,0))
           @monitored_state_text_field.setPalette(palette)
           text = 'Red'
-        when :BLUE
-          palette = Cosmos.getPalette(Cosmos.getColor(0, 0, 0), Cosmos.getColor(0,0,255))
-          @monitored_state_text_field.setPalette(palette)
-          text = 'Blue'
         end
         text << ' - Some Items Ignored' if @limits_items.ignored_items?
         @monitored_state_text_field.text = text
