@@ -1937,7 +1937,7 @@ Syntax:
 | Parameter | Description |
 | -------- | --------------------------------- |
 | Packet Log Writer Name | Name of the packet log writer to command to start logging. Defaults to 'ALL' which causes all packet log writers to start logging commands and telemetry. If a log writer is already logging it will start a new file. |
-| Label | Label to place on log files. Defaults to nil which means no label. |
+| Label | Label to place on log files. Defaults to nil which means no label. Labels must consist of only letters and numbers (no underscores, hyphens, etc). |
 
 Example:
 {% highlight ruby %}
