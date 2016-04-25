@@ -58,10 +58,12 @@ module Cosmos
     attr_reader :ignored
     # @return [Boolean] Whether the limits items have been fetched from the server
     attr_reader :initialized
-    # @return [Boolean] Whether to display an item with blue limits while it's
-    #   currently green. If false items are not displayed until they go yellow
-    #   or red.
-    attr_accessor :monitor_blue
+    # @return [Boolean] Whether to display an item with a colorblind option
+    attr_accessor :colorblind
+    # @return [Boolean] Whether to display an item with operational limits while it's
+    #   currently green. If false, items are not displayed until they go yellow
+    #   or red. If true, items are displayed when transitioning from blue to green.
+    attr_accessor :monitor_operational
 
     UNKNOWN_ARRAY = ['UNKNOWN', 'UNKNOWN', nil]
 
@@ -77,7 +79,8 @@ module Cosmos
       @out_of_limits = []
       @queue_id = nil
       @limits_set = :DEFAULT
-      @monitor_blue = true
+      @colorblind = false
+      @monitor_operational = true
       request_reset()
     end
 
@@ -242,6 +245,10 @@ module Cosmos
             @ignored << ([params[0], params[1], params[2]])
           when 'IGNORE_PACKET'
             @ignored << ([params[0], params[1], nil])
+          when 'COLOR_BLIND'
+            @colorblind = true
+          when 'IGNORE_OPERATIONAL_TRANSITION'
+            @monitor_operational = false
           end
         end
         result = "#{filename} loaded. "
@@ -261,6 +268,12 @@ module Cosmos
     def save_config(filename)
       begin
         File.open(filename, "w") do |file|
+          if @colorblind
+            file.puts("COLOR_BLIND")
+          end
+          unless @monitor_operational
+            file.puts("IGNORE_OPERATIONAL_TRANSITION")
+          end
           @ignored.each do |target, pkt_name, item_name|
             if item_name
               file.puts("IGNORE_ITEM #{target} #{pkt_name} #{item_name}")
@@ -319,7 +332,7 @@ module Cosmos
       when :GREEN_HIGH, :GREEN_LOW
         message << "INFO: "
         color = :GREEN
-        out_of_limit(item) if @monitor_blue
+        out_of_limit(item) if @monitor_operational
       when :GREEN
         message << "INFO: "
         color = :GREEN
@@ -352,6 +365,8 @@ module Cosmos
   # encountered by the COSMOS server. It provides the ability to ignore and
   # restore limits as well as logs all limits events.
   class LimitsMonitor < QtTool
+    attr_reader :limits_items
+
     # LimitsWidget displays either a stale packet using the Label widget
     # or more commonly an out of limits item using the Labelvaluelimitsbar
     # Widget.
@@ -373,7 +388,7 @@ module Cosmos
         item = [target_name, packet_name, item_name]
         if item_name
           @value = LabelvaluelimitsbarWidget.new(@layout, target_name, packet_name, item_name)
-          @value.set_setting('COLORBLIND', [@colorblind])
+	  @value.set_setting('COLORBLIND', [parent.limits_items.colorblind])
           @value.process_settings
         else
           @value = LabelWidget.new(layout, "#{target_name} #{packet_name} is STALE")
@@ -539,9 +554,9 @@ module Cosmos
         dialog.setWindowTitle('Options')
 
         colorblind_box = Qt::CheckBox.new('Colorblind Mode Enabled', self)
-        colorblind_box.setCheckState(Qt::Checked) if @colorblind
-        blue_limit_box = Qt::CheckBox.new('Monitor Blue Limits', self)
-        blue_limit_box.setCheckState(Qt::Checked) if @limits_items.monitor_blue
+        colorblind_box.setCheckState(Qt::Checked) if @limits_items.colorblind
+        operational_limit_box = Qt::CheckBox.new('Monitor Operational Limits', self)
+        operational_limit_box.setCheckState(Qt::Checked) if @limits_items.monitor_operational
 
         ok = Qt::PushButton.new('Ok') do
           connect(SIGNAL('clicked()')) { dialog.accept }
@@ -555,24 +570,24 @@ module Cosmos
         end
         dialog.layout = Qt::VBoxLayout.new do
           addWidget(colorblind_box)
-          addWidget(blue_limit_box)
+          addWidget(operational_limit_box)
           addLayout(buttons)
         end
 
         case dialog.exec
         when Qt::Dialog::Accepted
-          if (blue_limit_box.checkState() == Qt::Checked)
-            @limits_items.monitor_blue = true
+          if (operational_limit_box.checkState() == Qt::Checked)
+            @limits_items.monitor_operational = true
           else
-            @limits_items.monitor_blue = false
+            @limits_items.monitor_operational = false
           end
           if (colorblind_box.checkState() == Qt::Checked)
-            @colorblind = true
+            @limits_items.colorblind = true
           else
-            @colorblind = false
+            @limits_items.colorblind = false
           end
           (0...@scroll_layout.count).each do |index|
-            @scroll_layout.itemAt(index).widget.set_colorblind(@colorblind)
+            @scroll_layout.itemAt(index).widget.set_colorblind(@limits_items.colorblind)
           end
         end
         dialog.dispose
