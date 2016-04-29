@@ -596,13 +596,13 @@ module Cosmos
       when 3
         target_name, packet_name, item_name = extract_fields_from_tlm_text(args[0])
         expected_value = args[1]
-        tolerance = args[2]
+        tolerance = args[2].abs
       when 5
         target_name = args[0]
         packet_name = args[1]
         item_name = args[2]
         expected_value = args[3]
-        tolerance = args[4]
+        tolerance = args[4].abs
       else
         # Invalid number of arguments
         raise "ERROR: Invalid number of arguments (#{args.length}) passed to #{function_name}()"
@@ -676,7 +676,7 @@ module Cosmos
       when 4, 5
         target_name, packet_name, item_name = extract_fields_from_tlm_text(args[0])
         expected_value = args[1]
-        tolerance = args[2]
+        tolerance = args[2].abs
         timeout = args[3]
         if args.length == 5
           polling_rate = args[4]
@@ -688,7 +688,7 @@ module Cosmos
         packet_name = args[1]
         item_name = args[2]
         expected_value = args[3]
-        tolerance = args[4]
+        tolerance = args[4].abs
         timeout = args[5]
         if args.length == 7
           polling_rate = args[6]
@@ -799,7 +799,7 @@ module Cosmos
 
     def cosmos_script_wait_implementation_tolerance(target_name, packet_name, item_name, value_type, expected_value, tolerance, timeout, polling_rate = DEFAULT_TLM_POLLING_RATE)
       _cosmos_script_wait_implementation(target_name, packet_name, item_name, value_type, timeout, polling_rate) do
-        "((#{expected_value} - #{tolerance})..(#{expected_value} + #{tolerance})).include? value"
+        "((#{expected_value} - #{tolerance.abs})..(#{expected_value} + #{tolerance.abs})).include? value"
       end
     end
 
