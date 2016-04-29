@@ -342,15 +342,16 @@ module Cosmos
       begin
         @derived_row = 0
         if @derived_last_action.isChecked
+          derived = []
           System.telemetry.items(target_name, packet_name).each do |item|
-            next if item.data_type == :DERIVED # Skip DERIVED so they are last
-            tlm_items << [item.name, item.states, item.description]
-            @derived_row += 1
+            if item.data_type == :DERIVED
+              derived << [item.name, item.states, item.description]
+            else
+              tlm_items << [item.name, item.states, item.description]
+              @derived_row += 1
+            end
           end
-          System.telemetry.items(target_name, packet_name).each do |item|
-            next if item.data_type != :DERIVED # Skip anything not DERIVED
-            tlm_items << [item.name, item.states, item.description]
-          end
+	  tlm_items.concat(derived) # Tack the derived onto the end
         else
           System.telemetry.items(target_name, packet_name).each do |item|
             tlm_items << [item.name, item.states, item.description]
