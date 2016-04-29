@@ -22,10 +22,10 @@ unless ENV['COSMOS_NO_SIMPLECOV']
   require 'simplecov'
   require 'coveralls'
   Coveralls.wear!
-  SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter[
+  SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter.new([
     SimpleCov::Formatter::HTMLFormatter,
     Coveralls::SimpleCov::Formatter
-  ]
+  ])
   SimpleCov.start do
     merge_timeout 12 * 60 * 60 # merge the last 12 hours of results
     add_filter '/spec/'
