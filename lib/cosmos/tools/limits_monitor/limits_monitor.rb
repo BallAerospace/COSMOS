@@ -247,7 +247,7 @@ module Cosmos
             @ignored << ([params[0], params[1], nil])
           when 'COLOR_BLIND'
             @colorblind = true
-          when 'IGNORE_OPERATIONAL_TRANSITION'
+          when 'IGNORE_OPERATIONAL_LIMITS'
             @monitor_operational = false
           end
         end
@@ -272,7 +272,7 @@ module Cosmos
             file.puts("COLOR_BLIND")
           end
           unless @monitor_operational
-            file.puts("IGNORE_OPERATIONAL_TRANSITION")
+            file.puts("IGNORE_OPERATIONAL_LIMITS")
           end
           @ignored.each do |target, pkt_name, item_name|
             if item_name
