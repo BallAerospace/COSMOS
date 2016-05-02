@@ -25,8 +25,8 @@ describe Socket do
 
   describe "lookup_hostname_from_ip" do
     it "returns the hostname for the ip address" do
-      ipaddr = Resolv.getaddress "www.ball.com"
-      expect(Socket.lookup_hostname_from_ip(ipaddr)).to match "ball.com"
+      ipaddr = Resolv.getaddress "localhost"
+      expect(Socket.lookup_hostname_from_ip(ipaddr)).to match "localhost"
     end
   end
 end

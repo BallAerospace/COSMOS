@@ -33,10 +33,14 @@ module Cosmos
     end
 
     def value=(data)
-      @data << data.to_f
+      if data.is_a?(Array)
+        @data.push(data.map(&:to_f)).flatten!
+      else
+        @data << data.to_f
+      end
 
       if @data.length > @num_samples
-        @data = @data[1..-1]
+        @data = @data.last(@num_samples)
       end
       if not @data.empty?
         self.clear_lines

@@ -116,6 +116,14 @@ module Cosmos
         end
       end
 
+      @derived_last_action = Qt::Action.new(tr('&Display Derived Last'), self)
+      @derived_last_keyseq = Qt::KeySequence.new(tr('Ctrl+D'))
+      @derived_last_action.shortcut  = @derived_last_keyseq
+      @derived_last_action.statusTip = tr('Display derived telemetry items last')
+      @derived_last_action.setCheckable(true)
+      @derived_last_action.setChecked(false)
+      @derived_last_action.connect(SIGNAL('triggered()')) { update_tlm_items() }
+
       @formatted_tlm_units_action = Qt::Action.new(tr('Formatted Telemetry With &Units'), self)
       @formatted_tlm_units_keyseq = Qt::KeySequence.new(tr('Ctrl+U'))
       @formatted_tlm_units_action.shortcut  = @formatted_tlm_units_keyseq
@@ -177,6 +185,7 @@ module Cosmos
       view_menu = menuBar.addMenu(tr('&View'))
       view_menu.addAction(@color_blind_action)
       view_menu.addAction(@hide_ignored_action)
+      view_menu.addAction(@derived_last_action)
       view_menu.addSeparator.setText(tr('Formatting'));
       view_menu.addAction(@formatted_tlm_units_action)
       view_menu.addAction(@formatted_tlm_action)
@@ -253,7 +262,8 @@ module Cosmos
     end
 
     def file_options
-      @polling_rate = Qt::InputDialog.getDouble(self, tr("Options"), tr("Polling Rate (sec):"), @polling_rate, 0, 1000, 1, nil)
+      @polling_rate = Qt::InputDialog.getDouble(self, tr("Options"), tr("Polling Rate (sec):"),
+                                                @polling_rate, 0, 1000, 1, nil)
     end
 
     def update_all
@@ -330,8 +340,22 @@ module Cosmos
       # Update Telemetry Items
       tlm_items = []
       begin
-        System.telemetry.items(target_name, packet_name).each do |item|
-          tlm_items << [item.name, item.states, item.description]
+        @derived_row = 0
+        if @derived_last_action.isChecked
+          derived = []
+          System.telemetry.items(target_name, packet_name).each do |item|
+            if item.data_type == :DERIVED
+              derived << [item.name, item.states, item.description]
+            else
+              tlm_items << [item.name, item.states, item.description]
+              @derived_row += 1
+            end
+          end
+	  tlm_items.concat(derived) # Tack the derived onto the end
+        else
+          System.telemetry.items(target_name, packet_name).each do |item|
+            tlm_items << [item.name, item.states, item.description]
+          end
         end
       rescue
         # Unknown packet
@@ -371,9 +395,11 @@ module Cosmos
 
       # Handle Table Clicks
       @table.setMouseTracking(true)
-      connect(@table, SIGNAL('cellEntered(int, int)'), self, SLOT('mouse_over(int, int)'))
+      connect(@table, SIGNAL('cellEntered(int, int)'),
+              self, SLOT('mouse_over(int, int)'))
       @table.setContextMenuPolicy(Qt::CustomContextMenu)
-      connect(@table, SIGNAL('customContextMenuRequested(const QPoint&)'), self, SLOT('context_menu(const QPoint&)'))
+      connect(@table, SIGNAL('customContextMenuRequested(const QPoint&)'),
+              self, SLOT('context_menu(const QPoint&)'))
 
       # Start Update Thread
       update_needed = false
@@ -403,15 +429,23 @@ module Cosmos
 
             Qt.execute_in_main_thread(true) do
               # If we need an update (which indicates we've reconnected to the server)
-              # Then we call update_all which will update all the telemetry items and kill and respawn this thread
+              # Then we call update_all which will update all the telemetry items
+              # and kill and respawn this thread
               if update_needed
                 update_all()
               end
 
               if tlm_items
-                row = 0
+                # Start with wherever the first derived item is
+                # See above where we populate tlm_items
+                row = @derived_row
                 tlm_items.each do |name, value, limits_state|
                   text = value.to_s
+                  # If derived is last we need to reset the row to 0
+                  # to start populating the real items at the top
+                  if row == (tlm_items.length)
+                    row = 0
+                  end
 
                   case limits_state
                   when :GREEN, :GREEN_HIGH
@@ -527,7 +561,8 @@ module Cosmos
           options.height = 200
           options.title = 'Packet Viewer : Formatted Telemetry with Units'
           option_parser.separator "Packet Viewer Specific Options:"
-          option_parser.on("-p", "--packet 'TARGET_NAME PACKET_NAME'", "Start viewing the specified packet") do |arg|
+          option_parser.on("-p", "--packet 'TARGET_NAME PACKET_NAME'",
+                           "Start viewing the specified packet") do |arg|
             split = arg.split
             if split.length != 2
               puts "Packet must be specified as 'TARGET_NAME PACKET_NAME' in quotes"
@@ -535,7 +570,10 @@ module Cosmos
             end
             options.packet = split
           end
-          option_parser.on("-r", "--rate PERIOD", "Set the polling rate to PERIOD (unit seconds)") { |arg| options.rate = Float(arg) } 
+          option_parser.on("-r", "--rate PERIOD",
+                           "Set the polling rate to PERIOD (unit seconds)") do |arg|
+            options.rate = Float(arg)
+          end
         end
 
         super(option_parser, options)
@@ -545,3 +583,4 @@ module Cosmos
   end # class PacketViewer
 
 end # module Cosmos
+

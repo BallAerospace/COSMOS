@@ -190,6 +190,28 @@ module Cosmos
           stdout.rewind
         end
       end
+
+      it "handles a negative tolerance" do
+        capture_io do |stdout|
+          check_tolerance("INST HEALTH_STATUS TEMP1", -100.0, -1)
+          expect(stdout.string).to match "CHECK: INST HEALTH_STATUS TEMP1 was within range"
+          stdout.rewind
+
+          check_tolerance("INST", "HEALTH_STATUS", "TEMP1", -100.0, -1)
+          expect(stdout.string).to match "CHECK: INST HEALTH_STATUS TEMP1 was within range"
+          stdout.rewind
+
+          expect { check_tolerance("INST HEALTH_STATUS TEMP1", -200.0, -1) }.to raise_error(CheckError, /CHECK: INST HEALTH_STATUS TEMP1 failed to be within range/)
+          stdout.rewind
+
+          check_tolerance_raw("INST HEALTH_STATUS TEMP1", 0, -1)
+          expect(stdout.string).to match "CHECK: INST HEALTH_STATUS TEMP1 was within range"
+          stdout.rewind
+
+          expect { check_tolerance_raw("INST HEALTH_STATUS TEMP1", 100, -1) }.to raise_error(CheckError, /CHECK: INST HEALTH_STATUS TEMP1 failed to be within range/)
+          stdout.rewind
+        end
+      end
     end
 
     describe "check_expression" do

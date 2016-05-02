@@ -103,7 +103,11 @@ module Cosmos
       @select_keyseq = Qt::KeySequence.new(tr('Ctrl+S'))
       @select.shortcut = @select_keyseq
       @select.statusTip = tr('Select Test Suites/Groups/Cases')
-      @select.connect(SIGNAL('triggered()')) { show_select}
+      @select.connect(SIGNAL('triggered()')) { show_select }
+
+      @file_options = Qt::Action.new(tr('O&ptions'), self)
+      @file_options.statusTip = tr('Application Options')
+      @file_options.connect(SIGNAL('triggered()')) { file_options() }
 
       # Script Actions
       @test_results_log_message = Qt::Action.new(tr('Log Message to Test Results'), self)
@@ -141,21 +145,23 @@ module Cosmos
 
     def initialize_menus
       # File Menu
-      @file_menu = menuBar.addMenu(tr('&File'))
-      @file_menu.addAction(@show_last)
-      @file_menu.addAction(@select)
-      @file_menu.addSeparator()
-      @file_menu.addAction(@exit_action)
+      file_menu = menuBar.addMenu(tr('&File'))
+      file_menu.addAction(@show_last)
+      file_menu.addAction(@select)
+      file_menu.addSeparator()
+      file_menu.addAction(@file_options)
+      file_menu.addSeparator()
+      file_menu.addAction(@exit_action)
 
       # Script Menu
-      @script_menu = menuBar.addMenu(tr('&Script'))
-      @script_menu.addAction(@test_results_log_message)
-      @script_menu.addAction(@script_log_message)
-      @script_menu.addAction(@show_call_stack)
-      @script_menu.addAction(@toggle_debug)
-      @script_menu.addAction(@script_disconnect)
-      @script_menu.addSeparator()
-      @script_menu.addAction(@script_audit)
+      script_menu = menuBar.addMenu(tr('&Script'))
+      script_menu.addAction(@test_results_log_message)
+      script_menu.addAction(@script_log_message)
+      script_menu.addAction(@show_call_stack)
+      script_menu.addAction(@toggle_debug)
+      script_menu.addAction(@script_disconnect)
+      script_menu.addSeparator()
+      script_menu.addAction(@script_audit)
 
       # Help Menu
       @about_string  = "Test Runner provides a framework for developing high " \
@@ -886,6 +892,60 @@ module Cosmos
         box.setLayout(dialog_layout)
       end
       dialog.raise
+      dialog.exec
+      dialog.dispose
+    end
+
+    def file_options
+      dialog = Qt::Dialog.new(self)
+      dialog.setWindowTitle('Test Runner Options')
+      layout = Qt::VBoxLayout.new
+
+      form = Qt::FormLayout.new
+      box = Qt::DoubleSpinBox.new
+      box.setRange(0, 60)
+      box.setValue(ScriptRunnerFrame.line_delay)
+      form.addRow(tr("&Delay between each script line:"), box)
+      monitor = Qt::CheckBox.new
+      form.addRow(tr("&Monitor limits:"), monitor)
+      pause_on_red = Qt::CheckBox.new
+      form.addRow(tr("Pause on &red limit:"), pause_on_red)
+      if ScriptRunnerFrame.monitor_limits
+        monitor.setCheckState(Qt::Checked)
+        pause_on_red.setCheckState(Qt::Checked) if ScriptRunnerFrame.pause_on_red
+      else
+        pause_on_red.setEnabled(false)
+      end
+      monitor.connect(SIGNAL('stateChanged(int)')) do
+        if monitor.isChecked()
+          pause_on_red.setEnabled(true)
+        else
+          pause_on_red.setCheckState(Qt::Unchecked)
+          pause_on_red.setEnabled(false)
+        end
+      end
+      layout.addLayout(form)
+
+      divider = Qt::Frame.new
+      divider.setFrameStyle(Qt::Frame::HLine | Qt::Frame::Raised)
+      divider.setLineWidth(1)
+      layout.addWidget(divider)
+
+      ok = Qt::PushButton.new('Ok')
+      ok.setDefault(true)
+      ok.connect(SIGNAL('clicked(bool)')) do
+        ScriptRunnerFrame.line_delay = box.value
+        ScriptRunnerFrame.monitor_limits = (monitor.checkState == Qt::Checked)
+        ScriptRunnerFrame.pause_on_red = (pause_on_red.checkState == Qt::Checked)
+        dialog.accept
+      end
+      cancel = Qt::PushButton.new('Cancel')
+      cancel.connect(SIGNAL('clicked(bool)')) { dialog.reject }
+      button_layout = Qt::HBoxLayout.new
+      button_layout.addWidget(ok)
+      button_layout.addWidget(cancel)
+      layout.addLayout(button_layout)
+      dialog.setLayout(layout)
       dialog.exec
       dialog.dispose
     end
