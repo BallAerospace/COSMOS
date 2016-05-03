@@ -370,10 +370,51 @@ module Cosmos
                   attrs = { :name => (packet_name + '_Base'), :abstract => "true" }
                   xml['xtce'].SequenceContainer(attrs) do
                     xml['xtce'].EntryList do
+                      packed = packet.packed?
                       packet.sorted_items.each do |item|
                         next if item.data_type == :DERIVED
-                        # TODO: Handle explicit bit offset in packet and nonunique item names
-                        xml['xtce'].ParameterRefEntry(:parameterRef => item.name)
+                        # TODO: Handle nonunique item names
+                        if item.array_size
+                          xml['xtce'].ArrayParameterRefEntry(:parameterRef => item.name) do
+                            if !packed
+                              if item.bit_offset >= 0
+                                xml['xtce'].LocationInContainerInBits(:referenceLocation => 'containerStart') do
+                                  xml['xtce'].FixedValue(item.bit_offset)
+                                end
+                              else
+                                xml['xtce'].LocationInContainerInBits(:referenceLocation => 'containerEnd') do
+                                  xml['xtce'].FixedValue(-item.bit_offset)
+                                end
+                              end
+                            end
+                            xml['xtce'].DimensionList do
+                              xml['xtce'].Dimension do
+                                xml['xtce'].StartingIndex do
+                                  xml['xtce'].FixedValue(0)
+                                end
+                                xml['xtce'].EndingIndex do
+                                  xml['xtce'].FixedValue((item.array_size / item.bit_size) - 1)
+                                end
+                              end
+                            end
+                          end
+                        else
+                          if packed
+                            xml['xtce'].ParameterRefEntry(:parameterRef => item.name)
+                          else
+                            xml['xtce'].ParameterRefEntry(:parameterRef => item.name) do
+                              if item.bit_offset >= 0
+                                xml['xtce'].LocationInContainerInBits(:referenceLocation => 'containerStart') do
+                                  xml['xtce'].FixedValue(item.bit_offset)
+                                end
+                              else
+                                xml['xtce'].LocationInContainerInBits(:referenceLocation => 'containerEnd') do
+                                  xml['xtce'].FixedValue(-item.bit_offset)
+                                end
+                              end
+                            end
+                          end
+                        end
                       end
                     end
                   end # Abstract SequenceContainer
@@ -417,9 +458,50 @@ module Cosmos
                     end # ArgumentList
                     xml['xtce'].CommandContainer(:name => "#{target_name}_#{packet_name}_CommandContainer") do
                       xml['xtce'].EntryList do
+                        packed = packet.packed?
                         packet.sorted_items.each do |item|
                           next if item.data_type == :DERIVED
-                          xml['xtce'].ArgumentRefEntry(:argumentRef => item.name)
+                          if item.array_size
+                            xml['xtce'].ArrayArgumentRefEntry(:parameterRef => item.name) do
+                              if !packed
+                                if item.bit_offset >= 0
+                                  xml['xtce'].LocationInContainerInBits(:referenceLocation => 'containerStart') do
+                                    xml['xtce'].FixedValue(item.bit_offset)
+                                  end
+                                else
+                                  xml['xtce'].LocationInContainerInBits(:referenceLocation => 'containerEnd') do
+                                    xml['xtce'].FixedValue(-item.bit_offset)
+                                  end
+                                end
+                              end
+                              xml['xtce'].DimensionList do
+                                xml['xtce'].Dimension do
+                                  xml['xtce'].StartingIndex do
+                                    xml['xtce'].FixedValue(0)
+                                  end
+                                  xml['xtce'].EndingIndex do
+                                    xml['xtce'].FixedValue((item.array_size / item.bit_size) - 1)
+                                  end
+                                end
+                              end
+                            end
+                          else
+                            if packed
+                              xml['xtce'].ArgumentRefEntry(:argumentRef => item.name)
+                            else
+                              xml['xtce'].ArgumentRefEntry(:argumentRef => item.name) do
+                                if item.bit_offset >= 0
+                                  xml['xtce'].LocationInContainerInBits(:referenceLocation => 'containerStart') do
+                                    xml['xtce'].FixedValue(item.bit_offset)
+                                  end
+                                else
+                                  xml['xtce'].LocationInContainerInBits(:referenceLocation => 'containerEnd') do
+                                    xml['xtce'].FixedValue(-item.bit_offset)
+                                  end
+                                end
+                              end
+                            end
+                          end
                         end
                       end
                     end
@@ -492,11 +574,6 @@ module Cosmos
       if XTCE_IGNORED_ELEMENTS.include?(element.name)
         return false
       end
-      #~ if element.name == 'LongDescription'
-        #~ puts "#{'  ' * depth}<#{element.name}> #{xtce_format_attributes(element)} #{element.text}"
-      #~ else
-        #~ puts "#{'  ' * depth}<#{element.name}> #{xtce_format_attributes(element)}"
-      #~ end
 
       case element.name
       when 'SpaceSystem'
@@ -510,10 +587,15 @@ module Cosmos
         finish_packet()
         @current_cmd_or_tlm = COMMAND
 
-      when 'ParameterTypeSet', 'EnumerationList', 'ParameterSet', 'ContainerSet', 'EntryList', 'DefaultCalibrator', 'DefaultAlarm', 'RestrictionCriteria', 'ComparisonList', 'MetaCommandSet', 'DefaultCalibrator', 'ArgumentTypeSet', 'ArgumentList', 'ArgumentAssignmentList'
+      when 'ParameterTypeSet', 'EnumerationList', 'ParameterSet', 'ContainerSet', 'EntryList', 'DefaultCalibrator', 'DefaultAlarm',
+        'RestrictionCriteria', 'ComparisonList', 'MetaCommandSet', 'DefaultCalibrator', 'ArgumentTypeSet', 'ArgumentList', 'ArgumentAssignmentList',
+        'LocationInContainerInBits'
+
         # Do Nothing
 
-      when 'EnumeratedParameterType', 'EnumeratedArgumentType', 'IntegerParameterType', 'IntegerArgumentType', 'FloatParameterType', 'FloatArgumentType', 'StringParameterType', 'StringArgumentType', 'BinaryParameterType', 'BinaryArgumentType'
+      when 'EnumeratedParameterType', 'EnumeratedArgumentType', 'IntegerParameterType', 'IntegerArgumentType', 'FloatParameterType', 'FloatArgumentType',
+        'StringParameterType', 'StringArgumentType', 'BinaryParameterType', 'BinaryArgumentType'
+
         @current_type = OpenStruct.new
         @current_type.endianness = :BIG_ENDIAN
         element.attributes.each do |att_name, att|
@@ -540,6 +622,17 @@ module Cosmos
         when 'BinaryParameterType', 'BinaryArgumentType'
           @current_type.xtce_encoding = 'BinaryDataEncoding'
           @current_type.sizeInBits = 8 # This is undocumented but appears to be the design
+        end
+
+      when 'ArrayParameterType', 'ArrayArgumentType'
+        @current_type = OpenStruct.new
+        element.attributes.each do |att_name, att|
+          @current_type[att.name] = att.value
+        end
+        if element.name =~ /Argument/
+          @argument_types[element["name"]] = @current_type
+        else
+          @parameter_types[element["name"]] = @current_type
         end
 
       when 'ByteOrderList'
@@ -671,25 +764,80 @@ module Cosmos
           @current_packet.description = element.text
         end
 
-      when 'ParameterRefEntry', 'ArgumentRefEntry'
-        if element.name =~ /Argument/
-          # Look up the argument and argument type
-          argument = @arguments[element['argumentRef']]
-          raise "argumentRef #{element['argumentRef']} not found" unless argument
-          argument_type = @argument_types[argument.argumentTypeRef]
-          raise "argumentTypeRef #{argument.argumentTypeRef} not found" unless argument_type
-          refName = 'argumentRef'
-          object = argument
-          type = argument_type
-        else
+      when 'ParameterRefEntry', 'ArgumentRefEntry', 'ArrayParameterRefEntry', 'ArrayArgumentRefEntry'
+        reference_location, bit_offset = xtce_handle_location_in_container_in_bits(element)
+
+        array_type = nil
+        array_bit_size = nil
+        if element.name =~ /Parameter/
           # Look up the parameter and parameter type
           parameter = @parameters[element['parameterRef']]
           raise "parameterRef #{element['parameterRef']} not found" unless parameter
           parameter_type = @parameter_types[parameter.parameterTypeRef]
           raise "parameterTypeRef #{parameter.parameterTypeRef} not found" unless parameter_type
+          if element.name == 'ArrayParameterRefEntry'
+            array_type = parameter_type
+            parameter_type = @parameter_types[array_type.arrayTypeRef]
+            raise "arrayTypeRef #{parameter.arrayTypeRef} not found" unless parameter_type
+          end
           refName = 'parameterRef'
           object = parameter
           type = parameter_type
+        else
+          # Look up the argument and argument type
+          if element.name == 'ArrayArgumentRefEntry'
+            # Requiring parameterRef for argument arrays appears to be a defect in the schema
+            argument = @arguments[element['parameterRef']]
+            raise "parameterRef #{element['parameterRef']} not found" unless argument
+            argument_type = @argument_types[argument.argumentTypeRef]
+            raise "argumentTypeRef #{argument.argumentTypeRef} not found" unless argument_type
+            array_type = argument_type
+            argument_type = @argument_types[array_type.arrayTypeRef]
+            raise "arrayTypeRef #{array_type.arrayTypeRef} not found" unless argument_type
+            refName = 'parameterRef'
+          else
+            argument = @arguments[element['argumentRef']]
+            raise "argumentRef #{element['argumentRef']} not found" unless argument
+            argument_type = @argument_types[argument.argumentTypeRef]
+            raise "argumentTypeRef #{argument.argumentTypeRef} not found" unless argument_type
+            refName = 'argumentRef'
+          end
+          object = argument
+          type = argument_type
+        end
+
+        bit_size = Integer(type.sizeInBits)
+
+        if array_type
+          array_num_items = 1
+          # Need to determine dimensions
+          xtce_recurse_element(element, depth + 1) do |element, depth|
+            if element.name == 'Dimension'
+              starting_index = 0
+              ending_index = 0
+              element.children.each do |child_element|
+                if child_element.name == 'StartingIndex'
+                  child_element.children.each do |child_element2|
+                    if child_element2.name == 'FixedValue'
+                      starting_index = child_element2.text.to_i
+                    end
+                  end
+                elsif child_element.name == 'EndingIndex'
+                  child_element.children.each do |child_element2|
+                    if child_element2.name == 'FixedValue'
+                      ending_index = child_element2.text.to_i
+                    end
+                  end
+                  array_num_items *= ((ending_index - starting_index).abs + 1)
+                end
+                false # Don't recurse again
+              end
+              false # Don't recurse again
+            else
+              true # Keep recursing
+            end
+          end
+          array_bit_size = array_num_items * bit_size
         end
 
         # Add item to packet
@@ -711,7 +859,21 @@ module Cosmos
           raise "Referenced Parameter/Argument has no xtce_encoding: #{element[refName]}"
         end
 
-        item = @current_packet.append_item(object.name, Integer(type.sizeInBits), data_type, nil, type.endianness) # overflow = :ERROR, format_string = nil, read_conversion = nil, write_conversion = nil, id_value = nil)
+        if bit_offset
+          case reference_location
+          when 'containerStart'
+            item = @current_packet.define_item(object.name, bit_offset, bit_size, data_type, array_bit_size, type.endianness) # overflow = :ERROR, format_string = nil, read_conversion = nil, write_conversion = nil, id_value = nil)
+          when 'containerEnd'
+            item = @current_packet.define_item(object.name, -bit_offset, bit_size, data_type, array_bit_size, type.endianness) # overflow = :ERROR, format_string = nil, read_conversion = nil, write_conversion = nil, id_value = nil)
+          when 'previousEntry', nil
+            item = @current_packet.define_item(object.name, @current_packet.length + bit_offset, bit_size, data_type, array_bit_size, type.endianness) # overflow = :ERROR, format_string = nil, read_conversion = nil, write_conversion = nil, id_value = nil)
+          when 'nextEntry'
+            raise 'nextEntry is not supported'
+          end
+        else
+          item = @current_packet.append_item(object.name, bit_size, data_type, array_bit_size, type.endianness) # overflow = :ERROR, format_string = nil, read_conversion = nil, write_conversion = nil, id_value = nil)
+        end
+
         item.description = type.shortDescription if type.shortDescription
         if type.states
           item.states = type.states
@@ -732,22 +894,30 @@ module Cosmos
             if type.minInclusive and type.maxInclusive
               item.range = Integer(type.minInclusive)..Integer(type.maxInclusive)
             end
-            item.default = 0
-            if item.states and item.states[type.initialValue.to_s.upcase]
-              item.default = Integer(item.states[type.initialvalue.to_s.upcase])
+            if item.array_size
+              item.default = []
             else
-              item.default = Integer(type.initialValue) if type.initialValue
+              item.default = 0
+              if item.states and item.states[type.initialValue.to_s.upcase]
+                item.default = Integer(item.states[type.initialvalue.to_s.upcase])
+              else
+                item.default = Integer(type.initialValue) if type.initialValue
+              end
             end
           elsif data_type == :UINT
             item.range = 0..((2 ** Integer(type.sizeInBits)) - 1)
             if type.minInclusive and type.maxInclusive
               item.range = Integer(type.minInclusive)..Integer(type.maxInclusive)
             end
-            item.default = 0
-            if item.states and item.states[type.initialValue.to_s.upcase]
-              item.default = Integer(item.states[type.initialValue.to_s.upcase])
+            if item.array_size
+              item.default = []
             else
-              item.default = Integer(type.initialValue) if type.initialValue
+              item.default = 0
+              if item.states and item.states[type.initialValue.to_s.upcase]
+                item.default = Integer(item.states[type.initialValue.to_s.upcase])
+              else
+                item.default = Integer(type.initialValue) if type.initialValue
+              end
             end
           elsif data_type == :FLOAT
             if Integer(type.sizeInBits) == 32
@@ -758,19 +928,31 @@ module Cosmos
             if type.minInclusive and type.maxInclusive
               item.range = Float(type.minInclusive)..Float(type.maxInclusive)
             end
-            item.default = 0.0
-            item.default = Float(type.initialValue) if type.initialValue
-          elsif data_type == :STRING
-            if type.initialValue
-              item.default = type.initialValue
+            if item.array_size
+              item.default = []
             else
-              item.default = ''
+              item.default = 0.0
+              item.default = Float(type.initialValue) if type.initialValue
+            end
+          elsif data_type == :STRING
+            if item.array_size
+              item.default = []
+            else
+              if type.initialValue
+                item.default = type.initialValue
+              else
+                item.default = ''
+              end
             end
           elsif data_type == :BLOCK
-            if type.initialValue
-              item.default = type.initialValue
+            if item.array_size
+              item.default = []
             else
-              item.default = ''
+              if type.initialValue
+                item.default = type.initialValue
+              else
+                item.default = ''
+              end
             end
           end
         else
@@ -787,6 +969,8 @@ module Cosmos
             item.limits.values = values
           end
         end
+
+        return false # Already recursed
 
       when 'BaseContainer'
         # Handled in SequenceContainer/CommandContainer
@@ -891,6 +1075,19 @@ module Cosmos
       element.children.each do |child_element|
         xtce_handle_base_container(base_name, child_element)
       end
+    end
+
+    def xtce_handle_location_in_container_in_bits(element)
+      element.children.each do |child_element|
+        if child_element.name == 'LocationInContainerInBits'
+          child_element.children.each do |child_element2|
+            if child_element2.name == 'FixedValue'
+              return [child_element['referenceLocation'], Integer(child_element2.text)]
+            end
+          end
+        end
+      end
+      return [nil, nil]
     end
 
     def process_current_packet(parser, keyword, params)

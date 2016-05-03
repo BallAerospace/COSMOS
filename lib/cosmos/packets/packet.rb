@@ -185,36 +185,59 @@ module Cosmos
           Logger.instance.warn(msg)
           warnings << msg
         end
-        if item.array_size
-          if item.array_size > 0
-            expected_next_offset = item.bit_offset + item.array_size
-          else
-            expected_next_offset = item.array_size
-          end
-        else
-          expected_next_offset = nil
-          if item.bit_offset > 0
-            # Handle little-endian bit fields
-            byte_aligned = ((item.bit_offset % 8) == 0)
-            if item.endianness == :LITTLE_ENDIAN and (item.data_type == :INT or item.data_type == :UINT) and !(byte_aligned and (item.bit_size == 8 or item.bit_size == 16 or item.bit_size == 32 or item.bit_size == 64))
-              # Bit offset always refers to the most significant bit of a bitfield
-              bits_remaining_in_last_byte = 8 - (item.bit_offset % 8)
-              if item.bit_size > bits_remaining_in_last_byte
-                expected_next_offset = item.bit_offset + bits_remaining_in_last_byte
-              end
-            end
-          end
-          unless expected_next_offset
-            if item.bit_size > 0
-              expected_next_offset = item.bit_offset + item.bit_size
-            else
-              expected_next_offset = item.bit_size
-            end
-          end
-        end
+        expected_next_offset = Packet.next_bit_offset(item)
         previous_item = item
       end
       warnings
+    end
+
+    # Checks if the packet has any gaps or overlapped items
+    #
+    # @return [Boolean] true if the packet has no gaps or overlapped items
+    def packed?
+      expected_next_offset = nil
+      @sorted_items.each do |item|
+        if expected_next_offset and item.bit_offset != expected_next_offset
+          return false
+        end
+        expected_next_offset = Packet.next_bit_offset(item)
+      end
+      true
+    end
+
+    # Returns the bit offset of the next item after the current item if items are packed
+    #
+    # @param item [PacketItem] The item to calculate the next offset for
+    # @return [Integer] Bit Offset of Next Item if Packed
+    def self.next_bit_offset(item)
+      if item.array_size
+        if item.array_size > 0
+          next_offset = item.bit_offset + item.array_size
+        else
+          next_offset = item.array_size
+        end
+      else
+        next_offset = nil
+        if item.bit_offset > 0
+          # Handle little-endian bit fields
+          byte_aligned = ((item.bit_offset % 8) == 0)
+          if item.endianness == :LITTLE_ENDIAN and (item.data_type == :INT or item.data_type == :UINT) and !(byte_aligned and (item.bit_size == 8 or item.bit_size == 16 or item.bit_size == 32 or item.bit_size == 64))
+            # Bit offset always refers to the most significant bit of a bitfield
+            bits_remaining_in_last_byte = 8 - (item.bit_offset % 8)
+            if item.bit_size > bits_remaining_in_last_byte
+              next_offset = item.bit_offset + bits_remaining_in_last_byte
+            end
+          end
+        end
+        unless next_offset
+          if item.bit_size > 0
+            next_offset = item.bit_offset + item.bit_size
+          else
+            next_offset = item.bit_size
+          end
+        end
+      end
+      next_offset
     end
 
     # Id items are used by the identify? method to determine if a raw buffer of

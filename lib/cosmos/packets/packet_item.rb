@@ -366,7 +366,7 @@ module Cosmos
     end
 
     def to_xtce_type(param_or_arg, xml)
-      # TODO: Arrays, Spline Conversions
+      # TODO: Spline Conversions
       case self.data_type
       when :INT, :UINT
         attrs = { :name => (self.name + '_Type') }
@@ -498,10 +498,24 @@ module Cosmos
       when :DERIVED
         raise "DERIVED data type not supported in XTCE"
       end
+
+      # Handle arrays
+      if self.array_size
+        # The above will have created the type for the array entries.   Now we create the type for the actual array.
+        attrs = { :name => (self.name + '_ArrayType') }
+        attrs[:shortDescription] = self.description if self.description
+        attrs[:arrayTypeRef] = (self.name + '_Type')
+        attrs[:numberOfDimensions] = '1' # COSMOS Only supports one-dimensional arrays
+        xml['xtce'].send('Array' + param_or_arg + 'Type', attrs)
+      end
     end
 
     def to_xtce_item(param_or_arg, xml)
-      xml['xtce'].send(param_or_arg, :name => self.name, "#{param_or_arg.downcase}TypeRef" => self.name + '_Type')
+      if self.array_size
+        xml['xtce'].send(param_or_arg, :name => self.name, "#{param_or_arg.downcase}TypeRef" => self.name + '_ArrayType')
+      else
+        xml['xtce'].send(param_or_arg, :name => self.name, "#{param_or_arg.downcase}TypeRef" => self.name + '_Type')
+      end
     end
 
     protected
