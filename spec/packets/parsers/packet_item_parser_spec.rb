@@ -207,6 +207,23 @@ module Cosmos
           tf.unlink
         end
 
+        it "automatically sets range using MIN MAX range contants" do
+          %w(UINT INT FLOAT).each do |type|
+            [8,16,32,64].each do |size|
+              next if type == 'FLOAT' && size < 32
+              tf = Tempfile.new('unittest')
+              tf.puts 'COMMAND tgt1 pkt1 LITTLE_ENDIAN "Description"'
+              tf.puts "  PARAMETER ITEM 0 #{size} #{type} MIN MAX 0 \"Description\""
+              tf.close
+              @pc.process_file(tf.path, "TGT1")
+              item = @pc.commands["TGT1"]["PKT1"].get_item("ITEM")
+              expect(item.range.min).to eq ConfigParser.handle_defined_constants("MIN_#{type}#{size}")
+              expect(item.range.max).to eq ConfigParser.handle_defined_constants("MAX_#{type}#{size}")
+              tf.unlink
+            end
+          end
+        end
+
         it "supports arbitrary range, default and endianness per item" do
           tf = Tempfile.new('unittest')
           tf.puts 'COMMAND tgt1 pkt1 LITTLE_ENDIAN "Description"'

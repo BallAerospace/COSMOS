@@ -119,7 +119,12 @@ module Cosmos
       return nil if data_type == :STRING or data_type == :BLOCK
 
       index = append? ? 3 : 4
-      (ConfigParser.handle_defined_constants(@parser.parameters[index].convert_to_value))..(ConfigParser.handle_defined_constants(@parser.parameters[index+1].convert_to_value))
+      min = @parser.parameters[index].convert_to_value
+      min = "MIN_#{get_data_type}#{get_bit_size}" if min == 'MIN'
+      min = ConfigParser.handle_defined_constants(min)
+      max = @parser.parameters[index+1].convert_to_value
+      max = "MAX_#{get_data_type}#{get_bit_size}" if max == 'MAX'
+      ConfigParser.handle_defined_constants(min)..ConfigParser.handle_defined_constants(max)
     end
 
     def get_default

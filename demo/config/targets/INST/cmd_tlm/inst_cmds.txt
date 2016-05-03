@@ -1,6 +1,6 @@
 COMMAND INST COLLECT BIG_ENDIAN "Starts a collect on the instrument"
   <%= render "_ccsds_cmd.txt", locals: {id: 1} %>
-  PARAMETER    TYPE           64  16  UINT  0 65535   0 "Collect type"
+  PARAMETER    TYPE           64  16  UINT MIN MAX 0 "Collect type"
     REQUIRED
     STATE NORMAL  0
     STATE SPECIAL 1 HAZARDOUS
@@ -41,13 +41,13 @@ COMMAND INST ASCIICMD BIG_ENDIAN "Enumerated ASCII command"
 
 COMMAND INST FLTCMD BIG_ENDIAN "Command with float parameters"
   <%= render "_ccsds_cmd.txt", locals: {id: 6} %>
-  PARAMETER    FLOAT32        64  32  FLOAT MIN_FLOAT32 MAX_FLOAT32 0.0 "Float32 parameter"
-  PARAMETER    FLOAT64        96  64  FLOAT MIN_FLOAT64 MAX_FLOAT64 0.0 "Float64 parameter"
+  PARAMETER    FLOAT32        64  32  FLOAT MIN MAX 0.0 "Float32 parameter"
+  PARAMETER    FLOAT64        96  64  FLOAT MIN MAX 0.0 "Float64 parameter"
 
 COMMAND INST ARYCMD BIG_ENDIAN "Command with array parameter"
   <%= render "_ccsds_cmd.txt", locals: {id: 7} %>
   ARRAY_PARAMETER ARRAY       64  32  UINT -8 "Array parameter"
-  PARAMETER    CRC            -8   8  UINT  0   255   0 "CRC"
+  PARAMETER    CRC            -8   8  UINT MIN MAX 0 "CRC"
 
 COMMAND INST SLRPNLDEPLOY BIG_ENDIAN "Deploy solar array panels"
   <%= render "_ccsds_cmd.txt", locals: {id: 8} %>
