@@ -194,6 +194,16 @@ describe String do
     it "converts an array" do
       expect("[0,1,2,3]".convert_to_value).to eql [0,1,2,3]
     end
+
+    it "just returns the string if something goes wrong" do
+      expect("[.a,2,3]".convert_to_value).to eql "[.a,2,3]"
+    end
+
+    it "doesn't match multiline strings" do
+      expect("12345\n12345".convert_to_value).to eql "12345\n12345"
+      expect("5.123\n5.123".convert_to_value).to eql "5.123\n5.123"
+      expect("[0,1,2,3]\n[0,1,2,3]".convert_to_value).to eql "[0,1,2,3]\n[0,1,2,3]"
+    end
   end
 
   describe "hex_to_byte_string" do

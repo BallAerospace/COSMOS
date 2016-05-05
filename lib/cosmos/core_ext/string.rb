@@ -17,16 +17,16 @@ class String
   # The printable range of ASCII characters
   PRINTABLE_RANGE = 32..126
   # Regular expression to identify a String as a floating point number
-  FLOAT_CHECK_REGEX = /^\s*[-+]?\d*\.\d+\s*$/
+  FLOAT_CHECK_REGEX = /\A\s*[-+]?\d*\.\d+\s*\z/
   # Regular expression to identify a String as a floating point number in
   # scientific notation
-  SCIENTIFIC_CHECK_REGEX = /^\s*[-+]?(\d+((\.\d+)?)|(\.\d+))[eE][-+]?\d+\s*$/
+  SCIENTIFIC_CHECK_REGEX = /\A\s*[-+]?(\d+((\.\d+)?)|(\.\d+))[eE][-+]?\d+\s*\z/
   # Regular expression to identify a String as an integer
-  INT_CHECK_REGEX = /^\s*[-+]?\d+\s*$/
+  INT_CHECK_REGEX = /\A\s*[-+]?\d+\s*\z/
   # Regular expression to identify a String as an integer in hexadecimal format
-  HEX_CHECK_REGEX = /^\s*0[xX][\dabcdefABCDEF]+\s*$/
+  HEX_CHECK_REGEX = /\A\s*0[xX][\dabcdefABCDEF]+\s*\z/
   # Regular expression to identify a String as an Array of numbers
-  ARRAY_CHECK_REGEX = /^\s*\[.*\]\s*$/
+  ARRAY_CHECK_REGEX = /\A\s*\[.*\]\s*\z/
 
   # Displays a String containing binary data in a human readable format by
   # converting each byte to the hex representation.
@@ -191,18 +191,22 @@ class String
   # any of the above then the original String is returned.
   def convert_to_value
     return_value = self
-    if self.is_float?
-      # Floating Point in normal or scientific notation
-      return_value = self.to_f
-    elsif self.is_int?
-      # Integer
-      return_value = self.to_i
-    elsif self.is_hex?
-      # Hex
-      return_value = Integer(self)
-    elsif self.is_array?
-      # Array
-      return_value = eval(self)
+    begin
+      if self.is_float?
+        # Floating Point in normal or scientific notation
+        return_value = self.to_f
+      elsif self.is_int?
+        # Integer
+        return_value = self.to_i
+      elsif self.is_hex?
+        # Hex
+        return_value = Integer(self)
+      elsif self.is_array?
+        # Array
+        return_value = eval(self)
+      end
+    rescue Exception
+      # Something went wrong so just return the string as is
     end
     return return_value
   end
