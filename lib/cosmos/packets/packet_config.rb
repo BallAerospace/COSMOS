@@ -1279,9 +1279,9 @@ module Cosmos
         end
         usage = "MINIMUM_VALUE <MINIMUM VALUE>"
         parser.verify_num_parameters(1, 1, usage)
-        @current_item.range =
-          Range.new(ConfigParser.handle_defined_constants(
-            params[0].convert_to_value), @current_item.range.end)
+        min = ConfigParser.handle_defined_constants(
+          params[0].convert_to_value, @current_item.data_type, @current_item.bit_size)
+        @current_item.range = Range.new(min, @current_item.range.end)
 
       # Update the maximum value for the current command parameter
       when 'MAXIMUM_VALUE'
@@ -1290,9 +1290,9 @@ module Cosmos
         end
         usage = "MAXIMUM_VALUE <MAXIMUM VALUE>"
         parser.verify_num_parameters(1, 1, usage)
-        @current_item.range =
-          Range.new(@current_item.range.begin,
-                    ConfigParser.handle_defined_constants(params[0].convert_to_value))
+        max = ConfigParser.handle_defined_constants(
+          params[0].convert_to_value, @current_item.data_type, @current_item.bit_size)
+        @current_item.range = Range.new(@current_item.range.begin, max)
 
       # Update the default value for the current command parameter
       when 'DEFAULT_VALUE'
@@ -1305,8 +1305,8 @@ module Cosmos
             (@current_item.data_type == :BLOCK))
           @current_item.default = params[0]
         else
-          @current_item.default =
-            ConfigParser.handle_defined_constants(params[0].convert_to_value)
+          @current_item.default = ConfigParser.handle_defined_constants(
+            params[0].convert_to_value, @current_item.data_type, @current_item.bit_size)
         end
 
       # Update the overflow type for the current command parameter

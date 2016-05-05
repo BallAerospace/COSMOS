@@ -287,9 +287,11 @@ module Cosmos
     #
     # @param value [Object] Can be anything
     # @return [Numeric] The converted value. Either a Fixnum or Float.
-    def self.handle_defined_constants(value)
+    def self.handle_defined_constants(value, data_type = nil, bit_size = nil)
       if value.class == String
         case value.upcase
+        when 'MIN', 'MAX'
+          return self.calculate_range_value(value.upcase, data_type, bit_size)
         when 'MIN_INT8'
           return -128
         when 'MAX_INT8'
@@ -361,6 +363,38 @@ module Cosmos
         debug_file = nil
       end
       debug_file
+    end
+
+    def self.calculate_range_value(type, data_type, bit_size)
+      value = 0 # Default for UINT minimum
+
+      case data_type
+      when :INT
+        if type == 'MIN'
+          value = -2**(bit_size-1)
+        else # 'MAX'
+          value = 2**(bit_size-1) - 1
+        end
+      when :UINT
+        # Default is 0 for 'MIN'
+        if type == 'MAX'
+          value = 2**bit_size - 1
+        end
+      when :FLOAT
+        case bit_size
+        when 32
+          value = 3.402823e38
+          value *= -1 if type == 'MIN'
+        when 64
+          value = Float::MAX
+          value *= -1 if type == 'MIN'
+        else
+          raise ArgumentError, "Invalid bit size #{bit_size} for FLOAT type."
+        end
+      else
+        raise ArgumentError, "Invalid data type #{data_type} when calculating range."
+      end
+      value
     end
 
     # Iterates over each line of the io object and yields the keyword and
