@@ -822,6 +822,7 @@ module Cosmos
                                              Qt::DialogButtonBox::Cancel)
         connect(button_box, SIGNAL('rejected()'), box, SLOT('reject()'))
         connect(button_box, SIGNAL('accepted()')) do
+          ScriptRunnerFrame.instance = @script_runner_frame
           Cosmos.module_eval("class CustomTestSuite < TestSuite; end")
           tree.topLevelItems do |suite_node|
             next if suite_node.checkState == Qt::Unchecked
@@ -886,6 +887,7 @@ module Cosmos
             @test_runner_chooser.test_suites = @@suites
             @test_runner_chooser.select_suite("CustomTestSuite")
           end
+          ScriptRunnerFrame.instance = nil
           box.accept
         end
         dialog_layout.addWidget(button_box)

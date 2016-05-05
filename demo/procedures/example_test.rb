@@ -5,6 +5,10 @@ load 'cosmos/tools/test_runner/test.rb'
 # methods must be called exactly that. Other test methods must start
 # with 'test_' to be picked up by TestRunner.
 class ExampleTest < Cosmos::Test
+  def initialize
+    super()
+  end
+
   # Setup the test case by doing stuff
   def setup
     puts "Running #{Cosmos::Test.current_test_suite}:#{Cosmos::Test.current_test}:#{Cosmos::Test.current_test_case}"
