@@ -119,18 +119,10 @@ module Cosmos
       return nil if data_type == :STRING or data_type == :BLOCK
 
       index = append? ? 3 : 4
-      min = @parser.parameters[index].convert_to_value
-      if min == 'MIN'
-        min = calculate_range_value(:min)
-      else
-        min = ConfigParser.handle_defined_constants(min)
-      end
-      max = @parser.parameters[index+1].convert_to_value
-      if max == 'MAX'
-        max = calculate_range_value(:max)
-      else
-        max = ConfigParser.handle_defined_constants(max)
-      end
+      min = ConfigParser.handle_defined_constants(
+        @parser.parameters[index].convert_to_value, get_data_type(), get_bit_size())
+      max = ConfigParser.handle_defined_constants(
+        @parser.parameters[index+1].convert_to_value, get_data_type(), get_bit_size())
       min..max
     end
 
@@ -142,7 +134,8 @@ module Cosmos
       if data_type == :STRING or data_type == :BLOCK
         return @parser.parameters[index]
       else
-        return ConfigParser.handle_defined_constants(@parser.parameters[index+2].convert_to_value)
+        return ConfigParser.handle_defined_constants(
+          @parser.parameters[index+2].convert_to_value, get_data_type(), get_bit_size())
       end
     end
 
@@ -221,42 +214,6 @@ module Cosmos
       else
         "<ID VALUE> "
       end
-    end
-
-    private
-
-    def calculate_range_value(type)
-      data_type = get_data_type()
-      bit_size = get_bit_size()
-      value = 0 # Default for UINT minimum
-
-      case data_type
-      when :INT
-        if type == :min
-          value = -2**(bit_size-1)
-        else # :max
-          value = 2**(bit_size-1) - 1
-        end
-      when :UINT
-        # Default is 0 for :min
-        if type == :max
-          value = 2**bit_size - 1
-        end
-      when :FLOAT
-        case bit_size
-        when 32
-          value = 3.402823e38
-          value *= -1 if type == :min
-        when 64
-          value = Float::MAX
-          value *= -1 if type == :min
-        else
-          raise @parser.error("Invalid bit size #{bit_size} for FLOAT type.", @usage)
-        end
-      else
-        raise @parser.error("Invalid data type #{data_type} when calculating range.", @usage)
-      end
-      value
     end
 
   end

@@ -207,52 +207,6 @@ module Cosmos
           tf.unlink
         end
 
-        it "automatically sets range using MIN MAX range contants" do
-          %w(UINT INT FLOAT).each do |type|
-            (1..64).each do |size|
-              next if type == 'FLOAT' && (size != 32 || size != 64)
-              tf = Tempfile.new('unittest')
-              tf.puts 'COMMAND tgt1 pkt1 BIG_ENDIAN "Description"'
-              tf.puts "  PARAMETER ITEM 0 #{size} #{type} MIN MAX 0 \"Description\""
-              tf.close
-              @pc.process_file(tf.path, "TGT1")
-              item = @pc.commands["TGT1"]["PKT1"].get_item("ITEM")
-              case type
-              when 'UINT'
-                min = 0
-                max = 2**size - 1
-              when 'INT'
-                min = -2**(size-1)
-                max = 2**(size-1) - 1
-              when 'FLOAT'
-                if size == 32
-                  min = -3.402823e38
-                  max = 3.402823e38
-                else
-                  min = -Float::MAX
-                  max = Float::MAX
-                end
-              end
-              expect(item.range.min).to eq min
-              expect(item.range.max).to eq max
-              tf.unlink
-            end
-          end
-
-          # Run special test for NEG_INFINITY and POS_INFINITY
-          [32, 64].each do |size|
-            tf = Tempfile.new('unittest')
-            tf.puts 'COMMAND tgt1 pkt1 BIG_ENDIAN "Description"'
-            tf.puts "  PARAMETER ITEM 0 #{size} FLOAT NEG_INFINITY POS_INFINITY 0 \"Description\""
-            tf.close
-            @pc.process_file(tf.path, "TGT1")
-            item = @pc.commands["TGT1"]["PKT1"].get_item("ITEM")
-            expect(item.range.min).to eq -Float::INFINITY
-            expect(item.range.max).to eq Float::INFINITY
-            tf.unlink
-          end
-        end
-
         it "supports arbitrary range, default and endianness per item" do
           tf = Tempfile.new('unittest')
           tf.puts 'COMMAND tgt1 pkt1 LITTLE_ENDIAN "Description"'

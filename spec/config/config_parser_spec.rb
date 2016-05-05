@@ -221,11 +221,6 @@ module Cosmos
         expect(ConfigParser.handle_nil("HI")).to eql "HI"
         expect(ConfigParser.handle_nil(5.0)).to eql 5.0
       end
-
-      #it "should complain if it can't convert" do
-      #  expect { ConfigParser.handle_nil(0) }.to raise_error(ArgumentError, "Value is not nil: 0")
-      #  expect { ConfigParser.handle_nil(false) }.to raise_error(ArgumentError, "Value is not nil: false")
-      #end
     end
 
     describe "self.handle_true_false" do
@@ -245,11 +240,6 @@ module Cosmos
         expect(ConfigParser.handle_true_false("HI")).to eql "HI"
         expect(ConfigParser.handle_true_false(5.0)).to eql 5.0
       end
-
-      #it "should complain if it can't convert" do
-      #  expect { ConfigParser.handle_true_false(0) }.to raise_error(ArgumentError, "Value neither true or false: 0")
-      #  expect { ConfigParser.handle_true_false(nil) }.to raise_error(ArgumentError, "Value neither true or false: ")
-      #end
     end
 
     describe "self.handle_true_false_nil" do
@@ -281,15 +271,18 @@ module Cosmos
         expect(ConfigParser.handle_true_false("HI")).to eql "HI"
         expect(ConfigParser.handle_true_false(5.0)).to eql 5.0
       end
-
-      #it "should complain if it can't convert" do
-      #  expect { ConfigParser.handle_true_false_nil(0) }.to raise_error(ArgumentError, "Value neither true, false, or nil: 0")
-      #  expect { ConfigParser.handle_true_false_nil(1) }.to raise_error(ArgumentError, "Value neither true, false, or nil: 1")
-      #end
     end
 
     describe "self.handle_defined_constants" do
       it "converts string constants to numbers" do
+        (1..64).each do |val|
+          # Unsigned
+          expect(ConfigParser.handle_defined_constants("MIN", :UINT, val)).to eql 0
+          expect(ConfigParser.handle_defined_constants("MAX", :UINT, val)).to eql (2**val - 1)
+          # Signed
+          expect(ConfigParser.handle_defined_constants("MIN", :INT, val)).to eql -((2**val) / 2)
+          expect(ConfigParser.handle_defined_constants("MAX", :INT, val)).to eql ((2**val) / 2 - 1)
+        end
         [8,16,32,64].each do |val|
           # Unsigned
           expect(ConfigParser.handle_defined_constants("MIN_UINT#{val}")).to eql 0
