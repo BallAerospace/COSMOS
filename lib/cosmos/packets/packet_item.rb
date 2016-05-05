@@ -383,13 +383,13 @@ module Cosmos
           encoding = 'unsigned'
         end
         if @states
-			    xml['xtce'].send('Enumerated' + param_or_arg + 'Type', attrs) do
+          xml['xtce'].send('Enumerated' + param_or_arg + 'Type', attrs) do
             to_xtce_endianness(xml)
             to_xtce_units(xml)
             xml['xtce'].IntegerDataEncoding(:sizeInBits => self.bit_size, :encoding => encoding)
-				    xml['xtce'].EnumerationList do
+            xml['xtce'].EnumerationList do
               @states.each do |state_name, state_value|
-					      xml['xtce'].Enumeration(:value => state_value, :label => state_name)
+                xml['xtce'].Enumeration(:value => state_value, :label => state_name)
               end
             end
           end
@@ -473,7 +473,7 @@ module Cosmos
           to_xtce_endianness(xml)
           to_xtce_units(xml)
           xml['xtce'].StringDataEncoding(:encoding => 'UTF-8') do
-					  xml['xtce'].SizeInBits do
+            xml['xtce'].SizeInBits do
               xml['xtce'].Fixed do
                 xml['xtce'].FixedValue(self.bit_size.to_s)
               end
@@ -490,7 +490,7 @@ module Cosmos
           to_xtce_endianness(xml)
           to_xtce_units(xml)
           xml['xtce'].BinaryDataEncoding do
-					  xml['xtce'].SizeInBits do
+            xml['xtce'].SizeInBits do
               xml['xtce'].FixedValue(self.bit_size.to_s)
             end
           end
@@ -548,11 +548,11 @@ module Cosmos
       end
       if conversion and conversion.class == PolynomialConversion
         xml['xtce'].DefaultCalibrator do
-					xml['xtce'].PolynomialCalibrator do
+          xml['xtce'].PolynomialCalibrator do
             conversion.coeffs.each_with_index do |coeff, index|
-						  xml['xtce'].Term(:coefficient => coeff, :exponent => index)
+              xml['xtce'].Term(:coefficient => coeff, :exponent => index)
             end
-					end
+          end
         end
       end
     end

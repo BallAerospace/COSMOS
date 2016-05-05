@@ -889,23 +889,12 @@ module Cosmos
           end
 
           # Need to set min, max, and default
-          if data_type == :INT
-            item.range = (-(2 ** (Integer(type.sizeInBits) - 1)))..((2 ** (Integer(type.sizeInBits) - 1)) - 1)
-            if type.minInclusive and type.maxInclusive
-              item.range = Integer(type.minInclusive)..Integer(type.maxInclusive)
-            end
-            if item.array_size
-              item.default = []
+          if data_type == :INT or data_type == :UINT
+            if data_type == :INT
+              item.range = (-(2 ** (Integer(type.sizeInBits) - 1)))..((2 ** (Integer(type.sizeInBits) - 1)) - 1)
             else
-              item.default = 0
-              if item.states and item.states[type.initialValue.to_s.upcase]
-                item.default = Integer(item.states[type.initialvalue.to_s.upcase])
-              else
-                item.default = Integer(type.initialValue) if type.initialValue
-              end
+              item.range = 0..((2 ** Integer(type.sizeInBits)) - 1)
             end
-          elsif data_type == :UINT
-            item.range = 0..((2 ** Integer(type.sizeInBits)) - 1)
             if type.minInclusive and type.maxInclusive
               item.range = Integer(type.minInclusive)..Integer(type.maxInclusive)
             end
