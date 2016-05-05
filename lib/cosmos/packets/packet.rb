@@ -338,6 +338,15 @@ module Cosmos
             synchronize_allow_reads() do
               if @read_conversion_cache[item]
                 value = @read_conversion_cache[item]
+
+                # Make sure cached value is not modified by anyone by creating
+                # a deep copy
+                if String === value
+                  value = value.clone
+                elsif Array === value
+                  value = Marshal.load(Marshal.dump(value))
+                end
+
                 using_cached_value = true
               end
             end
@@ -355,6 +364,14 @@ module Cosmos
               synchronize_allow_reads() do
                 @read_conversion_cache ||= {}
                 @read_conversion_cache[item] = value
+
+                # Make sure cached value is not modified by anyone by creating
+                # a deep copy
+                if String === value
+                  value = value.clone
+                elsif Array === value
+                  value = Marshal.load(Marshal.dump(value))
+                end
               end
             end
           end

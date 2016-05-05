@@ -370,6 +370,36 @@ module Cosmos
         expect(@p.read_item(i, :CONVERTED, "\x02")).to eql 1
       end
 
+      it "prevents the read conversion cache from being corrupted" do
+        @p.append_item("item",8,:UINT)
+        i = @p.get_item("ITEM")
+        i.read_conversion = GenericConversion.new("'A String'")
+        i.units = "with units"
+        value = @p.read_item(i, :CONVERTED)
+        expect(value).to eql 'A String'
+        value << 'That got modified'
+        value = @p.read_item(i, :WITH_UNITS)
+        expect(value).to eql 'A String with units'
+        value << 'That got modified'
+        expect(@p.read_item(i, :WITH_UNITS)).to eql 'A String with units'
+        value = @p.read_item(i, :WITH_UNITS)
+        value << ' more things'
+        expect(@p.read_item(i, :WITH_UNITS)).to eql 'A String with units'
+
+        @p.buffer = "\x00"
+        i.read_conversion = GenericConversion.new("['A', 'B', 'C']")
+        value = @p.read_item(i, :CONVERTED)
+        expect(value).to eql ['A', 'B', 'C']
+        value << 'D'
+        value = @p.read_item(i, :WITH_UNITS)
+        expect(value).to eql ['A with units', 'B with units', 'C with units']
+        value << 'D'
+        expect(@p.read_item(i, :WITH_UNITS)).to eql ['A with units', 'B with units', 'C with units']
+        value = @p.read_item(i, :WITH_UNITS)
+        value << 'D'
+        expect(@p.read_item(i, :WITH_UNITS)).to eql ['A with units', 'B with units', 'C with units']
+      end
+
       it "reads the CONVERTED value with states" do
         @p.append_item("item",8,:UINT)
         i = @p.get_item("ITEM")
