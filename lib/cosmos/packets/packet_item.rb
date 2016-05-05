@@ -366,7 +366,7 @@ module Cosmos
     end
 
     def to_xtce_type(param_or_arg, xml)
-      # TODO: Arrays, Spline Conversions
+      # TODO: Spline Conversions
       case self.data_type
       when :INT, :UINT
         attrs = { :name => (self.name + '_Type') }
@@ -383,12 +383,13 @@ module Cosmos
           encoding = 'unsigned'
         end
         if @states
-			    xml['xtce'].send('Enumerated' + param_or_arg + 'Type', attrs) do
+          xml['xtce'].send('Enumerated' + param_or_arg + 'Type', attrs) do
+            to_xtce_endianness(xml)
             to_xtce_units(xml)
             xml['xtce'].IntegerDataEncoding(:sizeInBits => self.bit_size, :encoding => encoding)
-				    xml['xtce'].EnumerationList do
+            xml['xtce'].EnumerationList do
               @states.each do |state_name, state_value|
-					      xml['xtce'].Enumeration(:value => state_value, :label => state_name)
+                xml['xtce'].Enumeration(:value => state_value, :label => state_name)
               end
             end
           end
@@ -400,6 +401,7 @@ module Cosmos
             attrs[:signed] = signed
           end
           xml['xtce'].send(type_string, attrs) do
+            to_xtce_endianness(xml)
             to_xtce_units(xml)
             if (self.read_conversion and self.read_conversion.class == PolynomialConversion) or (self.write_conversion and self.write_conversion.class == PolynomialConversion)
               xml['xtce'].IntegerDataEncoding(:sizeInBits => self.bit_size, :encoding => encoding) do
@@ -432,6 +434,7 @@ module Cosmos
         attrs[:initialValue] = self.default if self.default and !self.array_size
         attrs[:shortDescription] = self.description if self.description
         xml['xtce'].send('Float' + param_or_arg + 'Type', attrs) do
+          to_xtce_endianness(xml)
           to_xtce_units(xml)
           if (self.read_conversion and self.read_conversion.class == PolynomialConversion) or (self.write_conversion and self.write_conversion.class == PolynomialConversion)
             xml['xtce'].FloatDataEncoding(:sizeInBits => self.bit_size, :encoding => 'IEEE754_1985') do
@@ -467,9 +470,10 @@ module Cosmos
         attrs[:initialValue] = self.default if self.default and !self.array_size
         attrs[:shortDescription] = self.description if self.description
         xml['xtce'].send('String' + param_or_arg + 'Type', attrs) do
+          to_xtce_endianness(xml)
           to_xtce_units(xml)
           xml['xtce'].StringDataEncoding(:encoding => 'UTF-8') do
-					  xml['xtce'].SizeInBits do
+            xml['xtce'].SizeInBits do
               xml['xtce'].Fixed do
                 xml['xtce'].FixedValue(self.bit_size.to_s)
               end
@@ -483,9 +487,10 @@ module Cosmos
         attrs[:shortDescription] = self.description if self.description
         #attrs[:initialValue] = self.default if self.default and !self.array_size
         xml['xtce'].send('Binary' + param_or_arg + 'Type', attrs) do
+          to_xtce_endianness(xml)
           to_xtce_units(xml)
           xml['xtce'].BinaryDataEncoding do
-					  xml['xtce'].SizeInBits do
+            xml['xtce'].SizeInBits do
               xml['xtce'].FixedValue(self.bit_size.to_s)
             end
           end
@@ -493,10 +498,24 @@ module Cosmos
       when :DERIVED
         raise "DERIVED data type not supported in XTCE"
       end
+
+      # Handle arrays
+      if self.array_size
+        # The above will have created the type for the array entries.   Now we create the type for the actual array.
+        attrs = { :name => (self.name + '_ArrayType') }
+        attrs[:shortDescription] = self.description if self.description
+        attrs[:arrayTypeRef] = (self.name + '_Type')
+        attrs[:numberOfDimensions] = '1' # COSMOS Only supports one-dimensional arrays
+        xml['xtce'].send('Array' + param_or_arg + 'Type', attrs)
+      end
     end
 
     def to_xtce_item(param_or_arg, xml)
-      xml['xtce'].send(param_or_arg, :name => self.name, "#{param_or_arg.downcase}TypeRef" => self.name + '_Type')
+      if self.array_size
+        xml['xtce'].send(param_or_arg, :name => self.name, "#{param_or_arg.downcase}TypeRef" => self.name + '_ArrayType')
+      else
+        xml['xtce'].send(param_or_arg, :name => self.name, "#{param_or_arg.downcase}TypeRef" => self.name + '_Type')
+      end
     end
 
     protected
@@ -511,6 +530,16 @@ module Cosmos
       end
     end
 
+    def to_xtce_endianness(xml)
+      if self.endianness == :LITTLE_ENDIAN and self.bit_size > 8
+        xml['xtce'].ByteOrderList do
+          (((self.bit_size - 1)/ 8) + 1).times do |byte_significance|
+            xml['xtce'].Byte(:byteSignificance => byte_significance)
+          end
+        end
+      end
+    end
+
     def to_xtce_conversion(xml)
       if self.read_conversion
         conversion = self.read_conversion
@@ -519,11 +548,11 @@ module Cosmos
       end
       if conversion and conversion.class == PolynomialConversion
         xml['xtce'].DefaultCalibrator do
-					xml['xtce'].PolynomialCalibrator do
+          xml['xtce'].PolynomialCalibrator do
             conversion.coeffs.each_with_index do |coeff, index|
-						  xml['xtce'].Term(:coefficient => coeff, :exponent => index)
+              xml['xtce'].Term(:coefficient => coeff, :exponent => index)
             end
-					end
+          end
         end
       end
     end

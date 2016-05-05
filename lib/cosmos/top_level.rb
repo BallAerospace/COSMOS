@@ -162,11 +162,12 @@ module Cosmos
       # No Gemfile - so no gem based extensions
     end
 
+    # Check CORE
     filename = File.join(::Cosmos::PATH, 'data', name)
     return filename if File.exist? filename
 
-    # Check CORE
-    filename = Cosmos.path('data', name)
+    # Check relative to executing file
+    filename = Cosmos.path($0, 'config/data/' + name)
     return filename if File.exist? filename
 
     nil
