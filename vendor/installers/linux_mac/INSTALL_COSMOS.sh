@@ -27,7 +27,7 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
   echo "Installing Ruby"
   CC=clang CONFIGURE_OPTS="--with-gcc=clang --enable-shared" rbenv install 2.2.2
   rbenv rehash
-  rbenv global 2.2.2
+  rbenv global 2.2.4
   echo 'gem: --no-ri --no-rdoc' >> ~/.gemrc
 
   # Install COSMOS
@@ -97,7 +97,7 @@ fi
     eval "$(rbenv init -)"
     CONFIGURE_OPTS="--enable-shared" rbenv install 2.2.2
     rbenv rehash
-    rbenv global 2.2.2
+    rbenv global 2.2.4
     echo 'gem: --no-ri --no-rdoc' >> ~/.gemrc
   fi
 
