@@ -319,8 +319,10 @@ module Cosmos
 
   describe "open_in_text_editor" do
     it "opens the file in a text editor" do
-      expect(Cosmos).to receive(:system).with(/#{File.basename(__FILE__)}/)
-      Cosmos.open_in_text_editor(__FILE__)
+      unless ENV['TRAVIS']
+        expect(Cosmos).to receive(:system).with(/#{File.basename(__FILE__)}/)
+        Cosmos.open_in_text_editor(__FILE__)
+      end
     end
   end
 
