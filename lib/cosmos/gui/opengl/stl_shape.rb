@@ -47,7 +47,11 @@ module Cosmos
             @progress_dialog.set_overall_progress(progress)
           end
         end
-        @progress_dialog.dispose if @progress_dialog
+        if @progress_dialog
+          Qt.execute_in_main_thread(true) do
+            @progress_dialog.dispose
+          end
+        end
         @progress_dialog = nil
       else
         @mystl.process(@stl_file, @stl_scaling_factor)
