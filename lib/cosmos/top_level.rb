@@ -620,7 +620,7 @@ module Cosmos
   def self.open_in_text_editor(filename)
     if filename
       if ENV['COSMOS_TEXT']
-        system_call = "#{ENV['COSMOS_TEXT']} \"#{filename}\""
+        self.run_process("#{ENV['COSMOS_TEXT']} \"#{filename}\"")
       else
         if Kernel.is_windows?
           if File.extname(filename).to_s.downcase == '.csv'
@@ -635,18 +635,18 @@ module Cosmos
           if which_gedit.to_s.strip == "" or which_gedit =~ /Command not found/i or which_gedit =~ /no .* in/i
             # No gedit
             ['xterm', 'gnome-terminal', 'urxvt', 'rxvt'].each do |terminal|
-              which_terminal = `which #{terminla} 2>&1`.chomp
+              which_terminal = `which #{terminal} 2>&1`.chomp
               next if which_terminal.to_s.strip == "" or which_terminal =~ /Command not found/i or which_terminal =~ /no .* in/i
               editor = ENV['VISUAL']
               editor = ENV['EDITOR'] unless editor
               editor = 'vi' unless editor
-              system_call = "#{terminal} -e #{editor} \"#{filename}\""
+              self.run_process("#{terminal} -e \"#{editor} '#{filename}'\"")
+              break
             end
           else
             # Have gedit
-            system_call = "gedit \"#{filename}\""
+            self.run_process("gedit \"#{filename}\"")
           end
-          self.run_process(system_call)
         end
       end
     end
