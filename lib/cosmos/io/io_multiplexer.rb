@@ -19,53 +19,20 @@ module Cosmos
       @streams = []
     end
 
-    # @param args [Array<String>] Argument to send to the print method of each
-    #   stream
-    def print(*args)
-      @streams.each {|stream| stream.print(*args)}
-      nil
-    end
-
-    # @param args [Array<String>] Argument to send to the printf method of each
-    #   stream
-    def printf(*args)
-      @streams.each {|stream| stream.printf(*args)}
-      nil
-    end
-
-    # @param object [Object] Argument to send to the putc method of each
-    #   stream
-    def putc(object)
-      @streams.each {|stream| stream.putc(object)}
-      object
-    end
-
-    # @param args [Array<String>] Argument to send to the puts method of each
-    #   stream
-    def puts(*args)
-      @streams.each {|stream| stream.puts(*args)}
-      nil
-    end
-
-    # Calls flush on each stream
-    def flush
-      @streams.each {|stream| stream.flush}
-    end
-
-    # @param string [String] Argument to send to the write method of each
-    #   stream
-    # @return [Integer] The length of the string argument
-    def write(string)
-      @streams.each {|stream| stream.write(string)}
-      string.length
-    end
-
-    # @param string [String] Argument to send to the write_nonblock method of each
-    #   stream
-    # @return [Integer] The length of the string argument
-    def write_nonblock(string)
-      @streams.each {|stream| stream.write_nonblock(string)}
-      string.length
+    # Forwards IO methods to all streams
+    def method_missing(method_name, *args)
+      first = true
+      result = nil
+      @streams.each do |stream|
+        if first
+          result = stream.send(method_name, *args)
+          result = self if result == stream
+          first = false
+        else
+          stream.send(method_name, *args)
+        end
+      end
+      result
     end
 
     # Removes STDOUT and STDERR from the array of streams

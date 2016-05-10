@@ -18,6 +18,15 @@ module Cosmos
       @io = IoMultiplexer.new
     end
 
+    describe "stream_operator" do
+      it "supports the << operator" do
+        @io.add_stream(STDOUT)
+        expect($stdout).to receive(:<<).with("TEST").and_return($stdout)
+        result = (@io << "TEST")
+        expect(result).to eql(@io)
+      end
+    end
+
     describe "add_stream" do
       it "adds a single stream" do
         @io.add_stream(STDOUT)
@@ -64,10 +73,10 @@ module Cosmos
     describe "write write_nonblock" do
       it "defers to the stream" do
         @io.add_stream(STDOUT)
-        expect($stdout).to receive(:write).with("TEST")
+        expect($stdout).to receive(:write).with("TEST").and_return(4)
         len = @io.write "TEST"
         expect(len).to eql 4
-        expect($stdout).to receive(:write_nonblock).with("TEST")
+        expect($stdout).to receive(:write_nonblock).with("TEST").and_return(4)
         len = @io.write_nonblock "TEST"
         expect(len).to eql 4
       end
@@ -88,7 +97,6 @@ module Cosmos
         File.delete("unittest.txt")
       end
     end
-
   end
 end
 
