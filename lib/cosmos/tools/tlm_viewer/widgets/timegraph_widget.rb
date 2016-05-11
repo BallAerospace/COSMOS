@@ -66,21 +66,24 @@ module Cosmos
       # Don't regraph old data
       return if @time[-1] == t_sec
 
-      # create time array
-      @time << t_sec
+      data2 = data.to_f
+      if data2.infinite? or data2.nan?
+        # create time array
+        @time << t_sec
 
-      # create data array and graph
-      @data << data.to_f
+        # create data array and graph
+        @data << data2
 
-      # truncate data if necessary
-      if @data.length > @num_samples
-        @data = @data[1..-1]
-        @time = @time[1..-1]
+        # truncate data if necessary
+        if @data.length > @num_samples
+          @data = @data[1..-1]
+          @time = @time[1..-1]
+        end
+
+        self.clear_lines
+        self.add_line('line', @data, @time)
+        self.graph
       end
-
-      self.clear_lines
-      self.add_line('line', @data, @time)
-      self.graph
     end
 
   end

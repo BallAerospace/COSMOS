@@ -34,9 +34,14 @@ module Cosmos
 
     def value=(data)
       if data.is_a?(Array)
-        @data.push(data.map(&:to_f)).flatten!
+        data2 = data.map(&:to_f)
+        data2.reject!{|val| val.nan? or val.infinite?}
+        @data.push(data2).flatten!
       else
-        @data << data.to_f
+        data2 = data.to_f
+        if !data2.infinite? and !data2.nan?
+          @data << data2
+        end
       end
 
       if @data.length > @num_samples
