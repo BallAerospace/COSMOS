@@ -255,32 +255,6 @@ module Cosmos
   end
 end
 
-#### TEMPORARY UNTIL INCLUDED IN QTBINDINGS ####
-class Qt::Application
-  def exec
-    begin
-      method_missing(:exec)
-    ensure
-      disable_threading()
-      self.dispose
-      Qt::Internal.application_terminated = true
-    end
-  end
-end
-
-class Qt::CoreApplication
-  def exec
-    begin
-      method_missing(:exec)
-    ensure
-      disable_threading()
-      self.dispose
-      Qt::Internal.application_terminated = true
-    end
-  end
-end
-#### END TEMPORARY UNTIL INCLUDED IN QTBINDINGS ####
-
 class Qt::Icon
   def initialize(param = nil)
     if param

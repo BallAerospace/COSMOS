@@ -305,7 +305,7 @@ module Cosmos
           if real_lines > 0
             Logger.error output
             self.write_unexpected_file(output)
-            if defined? ::Qt and ::Qt::Application.instance
+            if defined? ::Qt and $qApp
               Qt.execute_in_main_thread(false) do
                 dialog = Qt::Dialog.new do |box|
                   box.setWindowTitle('Unexpected text output')
@@ -529,7 +529,7 @@ module Cosmos
     Logger.level = Logger::FATAL unless try_gui
     Logger.fatal "Fatal Exception! Exiting..."
     Logger.fatal error.formatted
-    if defined? ExceptionDialog and try_gui and Qt::Application.instance
+    if defined? ExceptionDialog and try_gui and $qApp
       Qt.execute_in_main_thread(true) {||ExceptionDialog.new(nil, error, '', true, false, log_file)}
     else
       if $stdout != STDOUT
@@ -619,39 +619,35 @@ module Cosmos
   # @param filename [String] Name of the file to open in the editor
   def self.open_in_text_editor(filename)
     if filename
-      if Kernel.is_windows?
-        if File.extname(filename).to_s.downcase == '.csv'
-          self.run_process("cmd /c \"start wordpad \"#{filename.gsub('/','\\')}\"\"")
-        else
-          self.run_process("cmd /c \"start \"\" \"#{filename.gsub('/','\\')}\"\"")
-        end
-      elsif Kernel.is_mac?
-        self.run_process("open -a TextEdit \"#{filename}\"")
+      if ENV['COSMOS_TEXT']
+        self.run_process("#{ENV['COSMOS_TEXT']} \"#{filename}\"")
       else
-        which_gedit = `which gedit 2>&1`.chomp
-        if which_gedit =~ /Command not found/i or which_gedit =~ /no .* in/i
-          # No gedit
-          editor = ENV['EDITOR']
-          editor = 'vi' unless editor
-          which_xterm = `which xterm 2>&1`.chomp
-          if which_xterm =~ /Command not found/i or which_xterm =~ /no .* in/i
-            # No xterm
-            which_gnome_terminal = `which gnome-terminal 2>&1`.chomp
-            if which_gnome_terminal =~ /Command not found/i or which_gnome_terminal =~ /no .* in/i
-              # No gnome-terminal - Do nothing
-            else
-              # Have gnome-terminal
-              system_call = "gnome-terminal -e #{editor} \"#{filename}\""
+        if Kernel.is_windows?
+          if File.extname(filename).to_s.downcase == '.csv'
+            self.run_process("cmd /c \"start wordpad \"#{filename.gsub('/','\\')}\"\"")
+          else
+            self.run_process("cmd /c \"start \"\" \"#{filename.gsub('/','\\')}\"\"")
+          end
+        elsif Kernel.is_mac?
+          self.run_process("open -a TextEdit \"#{filename}\"")
+        else
+          which_gedit = `which gedit 2>&1`.chomp
+          if which_gedit.to_s.strip == "" or which_gedit =~ /Command not found/i or which_gedit =~ /no .* in/i
+            # No gedit
+            ['xterm', 'gnome-terminal', 'urxvt', 'rxvt'].each do |terminal|
+              which_terminal = `which #{terminal} 2>&1`.chomp
+              next if which_terminal.to_s.strip == "" or which_terminal =~ /Command not found/i or which_terminal =~ /no .* in/i
+              editor = ENV['VISUAL']
+              editor = ENV['EDITOR'] unless editor
+              editor = 'vi' unless editor
+              self.run_process("#{terminal} -e \"#{editor} '#{filename}'\"")
+              break
             end
           else
-            # Have xterm
-            system_call = "xterm -e #{editor} \"#{filename}\""
+            # Have gedit
+            self.run_process("gedit \"#{filename}\"")
           end
-        else
-          # Have gedit
-          system_call = "gedit \"#{filename}\""
         end
-        self.run_process(system_call)
       end
     end
   end
