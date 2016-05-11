@@ -24,11 +24,11 @@ module Cosmos
       result = nil
       @streams.each do |stream|
         if first
-          result = stream.send(method_name, *args)
+          result = stream.write(*args)
           result = self if result == stream
           first = false
         else
-          stream.send(method_name, *args)
+          stream.write(*args)
         end
       end
       result
