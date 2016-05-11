@@ -19,6 +19,21 @@ module Cosmos
       @streams = []
     end
 
+    def write(*args)
+      first = true
+      result = nil
+      @streams.each do |stream|
+        if first
+          result = stream.send(method_name, *args)
+          result = self if result == stream
+          first = false
+        else
+          stream.send(method_name, *args)
+        end
+      end
+      result
+    end
+
     # Forwards IO methods to all streams
     def method_missing(method_name, *args)
       first = true
