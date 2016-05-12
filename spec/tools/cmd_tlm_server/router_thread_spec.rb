@@ -27,7 +27,7 @@ module Cosmos
       allow(@interface).to receive(:disconnect)
       allow(@interface).to receive(:read) do
         sleep 0.06
-        @packet
+        @packet.clone
       end
     end
 
@@ -115,7 +115,7 @@ module Cosmos
           expect(Thread.list.length).to eql(1)
           expect(stdout.string).to match "Received unknown identified command: BOB SMITH"
         end
-        expect(target).to have_received(:interface).twice #and_return(@interface)
+        expect(target).to have_received(:interface).at_least(2).times #and_return(@interface)
       end
 
       it "does not send identified commands with a target and no interface" do
