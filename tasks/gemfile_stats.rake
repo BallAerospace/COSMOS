@@ -33,48 +33,43 @@ task :gemfile_stats do
   gem_data.map! {|x| [Date.strptime(x[0], "%Y-%m"), x[1], x[2]]}
   # Sort first by date and then version number
   gem_data.sort_by! {|x| [x[0], x[1]] }
-  # Collect all the minor version numbers counts
-  new_data = []
-  gem_data.each do |date, version, count|
-    if version.split('.')[2] == '0'
-      new_version = version[0..-2] + 'x'
-      new_data << [date, new_version, count]
-    else
-      new_data[-1][2] += count
-    end
-  end
-  gem_data = new_data
 
   g = Gruff::StackedArea.new
   g.title = 'COSMOS Downloads'
-  labels = {}
-  index = 0
 
+  # Build up date labels on the bottom of the graph
+  labels = {} # Must be hash with integer keys and label value
+  index = 0
   start_date = gem_data[0][0]
   end_date = gem_data[-1][0]
   while (start_date <= end_date)
-    labels[index] = start_date.strftime("%Y-%m")
+    labels[index] = start_date.strftime("%m/%y")
     index += 1
     start_date = start_date >> 1
   end
 
-  dataset = []
-  index = 0
-  gem_data.each do |date, version, count|
-    data = []
-    labels.each do |label|
-      if date <= Date.strptime(label[1], "%Y-%m")
-        data << count
-      else
-        data << 0
-      end
+  # Create an array of 0s the size of the labels which will hold the D/L counts
+  counts = Array.new(labels.length, 0)
+  dataset = {}
+  gem_data.each do |full_date, full_version, count|
+    # Build up just the major minor version: 1.0
+    version = full_version.split('.')[0..1].join('.')
+    date = full_date.strftime("%m/%y")
+    # Find the location in the count array to start adding counts
+    index = labels.key(date)
+    dataset[version] ||= counts.clone
+    # We fill in the count array starting at the first location
+    # and going until the end because this is a stacked area graph
+    # and all the counts are additive over time
+    (index...counts.length).each do |i|
+      dataset[version][i] += count
     end
-    dataset << [version, data]
   end
+
   g.labels = labels
   g.marker_font_size = 12
-  dataset.each do |data|
-    g.data(data[0], data[1])
+  dataset.each do |version, data|
+    g.data(version, data)
   end
   g.write('cosmos_downloads.png')
 end
