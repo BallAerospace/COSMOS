@@ -36,8 +36,8 @@ module Cosmos
                    sync_pattern = nil,
                    fill_sync_pattern = false)
       @write_termination_characters = write_termination_characters.hex_to_byte_string
-      @read_termination_characters  = read_termination_characters.hex_to_byte_string
-      @strip_read_termination       = ConfigParser.handle_true_false(strip_read_termination)
+      @read_termination_characters = read_termination_characters.hex_to_byte_string
+      @strip_read_termination = ConfigParser.handle_true_false(strip_read_termination)
 
       super(discard_leading_bytes, sync_pattern, fill_sync_pattern)
     end
@@ -62,10 +62,14 @@ module Cosmos
 
         # Reduce to packet data and setup current_data for next packet
         if index
-          if @strip_read_termination
-            packet_data = @data[0..(index - 1)]
+          if index > 0
+            if @strip_read_termination
+              packet_data = @data[0..(index - 1)]
+            else
+              packet_data = @data[0..(index + @read_termination_characters.length - 1)]
+            end
           else
-            packet_data = @data[0..(index + @read_termination_characters.length - 1)]
+            packet_data = ''
           end
           @data.replace(@data[(index + @read_termination_characters.length)..-1])
           return packet_data
