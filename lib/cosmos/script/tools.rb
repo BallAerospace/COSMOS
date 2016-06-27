@@ -76,7 +76,7 @@ module Cosmos
     #######################################
 
     def _ensure_script_runner_frame
-      yield if defined? ScriptRunnerFrame && ScriptRunnerFrame.instance
+      yield if (defined? ScriptRunnerFrame) && ScriptRunnerFrame.instance
     end
 
     def set_line_delay(delay)
@@ -101,7 +101,7 @@ module Cosmos
     end
 
     def disable_instrumentation
-      if defined? ScriptRunnerFrame && ScriptRunnerFrame.instance
+      if (defined? ScriptRunnerFrame) && ScriptRunnerFrame.instance
         ScriptRunnerFrame.instance.use_instrumentation = false
         begin
           yield
