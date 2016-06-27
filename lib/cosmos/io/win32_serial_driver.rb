@@ -60,6 +60,7 @@ module Cosmos
                                   Win32::NULL,
                                   Win32::OPEN_EXISTING,
                                   Win32::FILE_ATTRIBUTE_NORMAL)
+      @mutex = Mutex.new
 
       # Configure the Comm Port
       dcb = Win32.get_comm_state(@handle)
@@ -78,7 +79,9 @@ module Cosmos
       if @handle
         # Close the Comm Port
         Win32.close_handle(@handle)
-        @handle = nil
+        @mutex.synchronize do
+          @handle = nil
+        end
       end
     end
 
@@ -112,11 +115,16 @@ module Cosmos
 
       loop do
         loop do
-          buffer = Win32.read_file(@handle, @read_max_length - data.length)
+          buffer = nil
+          @mutex.synchronize do
+            break unless @handle
+            buffer = Win32.read_file(@handle, @read_max_length - data.length)
+          end
+          break unless buffer
           data << buffer
-          break if buffer.length <= 0 or data.length >= @read_max_length
+          break if buffer.length <= 0 or data.length >= @read_max_length or !@handle
         end
-        break if data.length > 0
+        break if data.length > 0 or !@handle
         if @read_timeout and sleep_time >= @read_timeout
           raise Timeout::Error, "Read Timeout"
         end
