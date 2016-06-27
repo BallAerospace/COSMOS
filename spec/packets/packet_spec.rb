@@ -370,6 +370,21 @@ module Cosmos
         expect(@p.read_item(i, :CONVERTED, "\x02")).to eql 1
       end
 
+      it "clears the read conversion cache on clone" do
+        @p.append_item("item",8,:UINT)
+        i = @p.get_item("ITEM")
+        i.read_conversion = GenericConversion.new("value / 2")
+        @p.buffer = "\x02"
+        expect(@p.read("ITEM", :CONVERTED)).to eql 1
+        expect(@p.read_item(i, :CONVERTED)).to eql 1
+        cloned = @p.clone
+        cloned.buffer = "\x04"
+        expect(@p.read("ITEM", :CONVERTED)).to eql 1
+        expect(@p.read_item(i, :CONVERTED)).to eql 1
+        expect(cloned.read("ITEM", :CONVERTED)).to eql 2
+        expect(cloned.read_item(i, :CONVERTED)).to eql 2
+      end
+
       it "prevents the read conversion cache from being corrupted" do
         @p.append_item("item",8,:UINT)
         i = @p.get_item("ITEM")
