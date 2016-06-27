@@ -683,6 +683,7 @@ module Cosmos
           packet.processors[processor_name] = processor.clone
         end
       end
+      packet.instance_variable_set("@read_conversion_cache".freeze, nil)
       packet
     end
     alias dup clone
