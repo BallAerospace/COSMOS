@@ -10,8 +10,8 @@ IF NOT EXIST !TOOL! (
   exit /b
 )
 
-IF NOT EXIST %~dp0tool_launch.rb (
-  echo %~dp0tool_launch.rb does not exist
+IF NOT EXIST "%~dp0tool_launch.rb" (
+  echo "%~dp0tool_launch.rb" does not exist
   pause
   exit /b
 )
@@ -42,11 +42,9 @@ goto loop
 
 IF EXIST "!DESTINATION_DIR!Vendor\Ruby" (
   :: Convert DESTINATION_DIR to absolute path
-  echo !DESTINATION_DIR!
   pushd !DESTINATION_DIR!
   SET "DESTINATION_DIR=!CD!\"
   popd
-  echo !DESTINATION_DIR!
 
   :: Set environmental variables
   for /f "delims=" %%a in ('dir "!DESTINATION_DIR!Vendor\Ruby\lib\ruby\gems\2*" /on /ad /b') do set RUBY_ABI=%%a
@@ -63,8 +61,7 @@ IF EXIST "!DESTINATION_DIR!Vendor\Ruby" (
   SET RUBYLIB=
 
   :: Run tool using Installer Ruby
-  ECHO !GEM_HOME!
-  ECHO Starting tool using installer ruby in !DESTINATION_DIR!
+  ECHO Starting tool using installer ruby in "!DESTINATION_DIR!"
   START "COSMOS" "!DESTINATION_DIR!Vendor\Ruby\bin\!RUBYEXE!" "!TOOL!" !PARAMS!
 ) else (
   :: Use System Ruby and Environment
