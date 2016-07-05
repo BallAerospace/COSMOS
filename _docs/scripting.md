@@ -1380,7 +1380,7 @@ wait_check_tolerance("<Target Name> <Packet Name> <Item Name>", <Expected Value>
 | Item Name | Name of the telemetry item. |
 | Expected Value | Expected value of the telemetry item. |
 | Tolerance | ± Tolerance on the expected value. |
-| Timeout | Timeout in seconds. Script will proceed if the wait statement times out waiting for the comparison to be true. |
+| Timeout | Timeout in seconds. Script will stop if the wait statement times out waiting for the comparison to be true. |
 | Polling Rate | How often the comparison is evaluated in seconds. Defaults to 0.25 if not specified. |
 
 Examples:
@@ -1404,7 +1404,7 @@ wait_check_tolerance_raw("<Target Name> <Packet Name> <Item Name>", <Expected Va
 | Item Name | Name of the telemetry item. |
 | Expected Value | Expected value of the telemetry item. |
 | Tolerance | ± Tolerance on the expected value. |
-| Timeout | Timeout in seconds. Script will proceed if the wait statement times out waiting for the comparison to be true. |
+| Timeout | Timeout in seconds. Script will stop if the wait statement times out waiting for the comparison to be true. |
 | Polling Rate | How often the comparison is evaluated in seconds. Defaults to 0.25 if not specified. |
 
 Examples:
