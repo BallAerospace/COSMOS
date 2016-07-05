@@ -1,5 +1,5 @@
 "lib/cosmos/io/json_drb.rb" 0x495EB58B
-"lib/cosmos/io/win32_serial_driver.rb" 0xB5AF7D58
+"lib/cosmos/io/win32_serial_driver.rb" 0xAA391322
 "lib/cosmos/io/io_multiplexer.rb" 0x9C3213AD
 "lib/cosmos/io/stderr.rb" 0x401624AF
 "lib/cosmos/io/tcpip_server.rb" 0x2A294912
@@ -18,7 +18,7 @@
 "lib/cosmos/processors/processor.rb" 0x1FEB7030
 "lib/cosmos/processors/statistics_processor.rb" 0xE732AE7F
 "lib/cosmos/processors/watermark_processor.rb" 0x8829E260
-"lib/cosmos/version.rb" 0x4EE6A9C7
+"lib/cosmos/version.rb" 0x88B858F6
 "lib/cosmos/conversions/new_packet_log_conversion.rb" 0x4AA03555
 "lib/cosmos/conversions/segmented_polynomial_conversion.rb" 0xC498CE81
 "lib/cosmos/conversions/processor_conversion.rb" 0xC72B73BD
@@ -98,7 +98,7 @@
 "lib/cosmos/packets/parsers/packet_parser.rb" 0x26478943
 "lib/cosmos/packets/telemetry.rb" 0x83D17863
 "lib/cosmos/packets/binary_accessor.rb" 0x7D41D474
-"lib/cosmos/packets/packet.rb" 0x3EFBEDE3
+"lib/cosmos/packets/packet.rb" 0xE0279245
 "lib/cosmos/packets/structure.rb" 0x85F4F979
 "lib/cosmos/packets/commands.rb" 0x1A33428E
 "lib/cosmos/packets/limits_response.rb" 0xB836D388
@@ -110,7 +110,7 @@
 "lib/cosmos/core_ext.rb" 0x1951B346
 "lib/cosmos/streams/stream_protocol.rb" 0xEC382CA0
 "lib/cosmos/streams/tcpip_client_stream.rb" 0xA644ADBA
-"lib/cosmos/streams/terminated_stream_protocol.rb" 0x5DBDE591
+"lib/cosmos/streams/terminated_stream_protocol.rb" 0x3B45B46D
 "lib/cosmos/streams/burst_stream_protocol.rb" 0xA9F43F1C
 "lib/cosmos/streams/tcpip_socket_stream.rb" 0x7096E4FA
 "lib/cosmos/streams/preidentified_stream_protocol.rb" 0xC258238E
@@ -144,7 +144,7 @@
 "lib/cosmos/script/cmd_tlm_server.rb" 0x15F91C95
 "lib/cosmos/script/limits.rb" 0x9CED41D8
 "lib/cosmos/script/script.rb" 0xF1B3E1F2
-"lib/cosmos/script/tools.rb" 0x18E9BE05
+"lib/cosmos/script/tools.rb" 0x6323067F
 "lib/cosmos/ccsds/ccsds_packet.rb" 0xA30EE27E
 "lib/cosmos/ccsds/ccsds_parser.rb" 0x89A5FB3A
 "lib/cosmos/win32/excel.rb" 0xB4D4195E
