@@ -905,7 +905,7 @@ module Cosmos
           option_parser, options = create_default_options()
           options.width = 750
           options.height = 600
-          options.title = "Script Runner : Untitiled"
+          options.title = "Script Runner : Untitled"
           options.auto_size = false
           options.config_file = "script_runner.txt"
           options.server_config_file = CmdTlmServer::DEFAULT_CONFIG_FILE
