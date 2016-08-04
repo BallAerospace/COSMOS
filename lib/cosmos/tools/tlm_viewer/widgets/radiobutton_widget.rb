@@ -16,9 +16,10 @@ module Cosmos
   class RadiobuttonWidget < Qt::RadioButton
     include Widget
 
-    def initialize (parent_layout, radiobutton_text)
+    def initialize(parent_layout, radiobutton_text, checked = false)
       super()
       setText(radiobutton_text.to_s)
+      setChecked(true) if checked
       parent_layout.addWidget(self) if parent_layout
     end
 
