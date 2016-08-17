@@ -291,6 +291,24 @@ module Cosmos
           Dir.rmdir(File.join(@config_targets, 'XYZ'))
           tf.unlink
         end
+
+        it "ignores previous DECLARE_TARGET directories" do
+          tf = Tempfile.new('unittest')
+          tf.puts("DECLARE_TARGET ABC CBA")
+          tf.puts("AUTO_DECLARE_TARGETS")
+          tf.close
+          FileUtils.mkdir_p(File.join(@config_targets, 'ABC'))
+          FileUtils.mkdir_p(File.join(@config_targets, 'SYSTEM'))
+          FileUtils.mkdir_p(File.join(@config_targets, 'XYZ'))
+          System.instance.process_file(tf.path)
+          # Since Ruby 1.9+ uses ordered Hashes we can ask for the keys and
+          # SYSTEM should be last
+          expect(System.instance.targets.keys).to eql %w(CBA XYZ SYSTEM)
+          Dir.rmdir(File.join(@config_targets, 'ABC'))
+          Dir.rmdir(File.join(@config_targets, 'SYSTEM'))
+          Dir.rmdir(File.join(@config_targets, 'XYZ'))
+          tf.unlink
+        end
       end
 
       context "with DECLARE_TARGET" do

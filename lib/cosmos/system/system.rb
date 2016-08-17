@@ -367,6 +367,10 @@ module Cosmos
           dirs.each do |dir_filename|
             if dir_filename[0] != '.'
               if dir_filename == dir_filename.upcase
+                # If any of the targets original directory name matches the
+                # current directory then it must have been already processed by
+                # DECLARE_TARGET so we skip it.
+                next if @targets.select {|name, target| target.original_name == dir_filename }.length > 0
                 if dir_filename == 'SYSTEM'
                   system_found = true
                   next
