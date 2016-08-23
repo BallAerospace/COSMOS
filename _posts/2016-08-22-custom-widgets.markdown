@@ -44,12 +44,12 @@ end
 
 We're extending the closest widget that Qt offers to what we're trying to achieve. In this case it's pretty obvious but you can get documentation on [all the Qt classes](http://doc.qt.io/qt-4.8/classes.html). In many cases it might be easier to extend an existing [COSMOS widget](https://github.com/BallAerospace/COSMOS/tree/master/lib/cosmos/tools/tlm_viewer/widgets).
 
-Note that our initialize method takes the parent_layout as the first value. All COSMOS widgets make the first parameter the parent_layout so they can be added. The next four paramaters are typically the target_name, packet_name, item_name and value_type. Additional parameters can follow the value_type parameter. The first thing we do in the initialize method is call super which calls the Widget initialize method. If you run this code you should see that the screen displays but doesn't look any different. That's because we haven't actually added our new widget to the parent_layout. Before adding widgets to the layout you typically want to configure them. For our table, we need to set the number of rows and columns. First I grab the telemetry value from the server using the ```tlm()``` scripting method defined in [telemetry.rb](https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/script/telemetry.rb). Since this is an array value I call ```length``` to determine how many rows to display in the table. I then use the Qt methods ```setRowCount``` and ```setColumnCount``` to initialize the table. You can find these methods in the [Qt::TableWidget](http://doc.qt.io/qt-4.8/qtablewidget.html) documentation. Finally I call the addWidget method which is a part of all the [Qt::Layout](http://doc.qt.io/qt-4.8/qlayout.html) classes. 
+Note that our initialize method takes the parent_layout as the first value. All COSMOS widgets make the first parameter the parent_layout so they can be added. The next four paramaters are typically the target_name, packet_name, item_name and value_type. Additional parameters can follow the value_type parameter. The first thing we do in the initialize method is call super which calls the Widget initialize method. If you run this code you should see that the screen displays but doesn't look any different. That's because we haven't actually added our new widget to the parent_layout. Before adding widgets to the layout you typically want to configure them. For our table, we need to set the number of rows and columns. First I grab the telemetry value from the server using the ```System.telemetry.value``` method defined in [telemetry.rb](https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/packets/telemetry.rb). Since this is an array value I call ```length``` to determine how many rows to display in the table. I then use the Qt methods ```setRowCount``` and ```setColumnCount``` to initialize the table. You can find these methods in the [Qt::TableWidget](http://doc.qt.io/qt-4.8/qtablewidget.html) documentation. Finally I call the addWidget method which is a part of all the [Qt::Layout](http://doc.qt.io/qt-4.8/qlayout.html) classes. 
 
 {% highlight ruby %}
     def initialize(parent_layout, target_name, packet_name, item_name, value_type = :WITH_UNITS)
       super(target_name, packet_name, item_name, value_type)
-      value = tlm(target_name, packet_name, item_name) # Get the value
+      value = System.telemetry.value(target_name, packet_name, item_name) # Get the value
       @rows = value.length # Store the rows
       setRowCount(@rows)
       setColumnCount(1)
@@ -80,12 +80,12 @@ Typically class methods are defined at the top of the source file and begin with
 {% highlight ruby %}
     def value=(data)
       (0...@rows).each do |row| # Note the extra 'dot' which means up to but not including
-        setItem(row, 0, Qt::TableWidgetItem.new(data[row]))
+        setItem(row, 0, Qt::TableWidgetItem.new(data[row].to_s))
       end
     end
 {% endhighlight %}
 
-The data value passed to the method is the same target, packet, and item used in the screen definition. In our value= method we are using our stored instance variable ```@rows``` to index into the array data and create new [Qt::TableWidgetItem](http://doc.qt.io/qt-4.8/qtablewidgetitem.html) instances to store the data. If you now re-launch Telemetry Viewer you should see the values populated in the table:
+The data value passed to the method is the same target, packet, and item used in the screen definition. In our value= method we are using our stored instance variable ```@rows``` to index into the array data and create new [Qt::TableWidgetItem](http://doc.qt.io/qt-4.8/qtablewidgetitem.html) instances to store the data. TableWidgetItems expect Strings to be passed so I call to_s on the data item to ensure it is a String. If you now re-launch Telemetry Viewer you should see the values populated in the table:
 
 ![COSMOS Inst Array](/img/2016_08_22_inst_array3.png)
 
@@ -103,7 +103,7 @@ module Cosmos
     def initialize(parent_layout, target_name, packet_name, item_name, value_type = :WITH_UNITS)
       super(target_name, packet_name, item_name, value_type)
       setup_aging()
-      value = tlm(target_name, packet_name, item_name) # Get the value
+      value = System.telemetry.value(target_name, packet_name, item_name) # Get the value
       @rows = value.length # Store the rows
       setRowCount(@rows)
       setColumnCount(1)
@@ -137,4 +137,4 @@ The end result is aging:
 
 Note that if you have a widget that implements aging and limits you'll want to keep the value returned by super and use it in your widget. If you don't want the aging routine to directly use your data value you can pass a string as the second parameter, e.g. super(data, text). This text string will be modified with the color blind settings. Basically that means that whatever the calculated ```@foreground``` color string is, a corresponding text character is added (R=Red, G=Green, etc) to aid people who can't distinguish colors. See [aging_widget.rb](https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/tools/tlm_viewer/widgets/aging_widget.rb) for more details.
 
-Good luck creating your own widgets and if you need additional support please contact us at [info@ball.com](info@ball.com).
+Good luck creating your own widgets and if you need additional support please contact us at [cosmos@ball.com](cosmos@ball.com).
