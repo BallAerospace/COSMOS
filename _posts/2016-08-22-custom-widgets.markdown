@@ -137,4 +137,4 @@ The end result is aging:
 
 Note that if you have a widget that implements aging and limits you'll want to keep the value returned by super and use it in your widget. If you don't want the aging routine to directly use your data value you can pass a string as the second parameter, e.g. super(data, text). This text string will be modified with the color blind settings. Basically that means that whatever the calculated ```@foreground``` color string is, a corresponding text character is added (R=Red, G=Green, etc) to aid people who can't distinguish colors. See [aging_widget.rb](https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/tools/tlm_viewer/widgets/aging_widget.rb) for more details.
 
-Good luck creating your own widgets and if you need additional support please contact us at [cosmos@ball.com](cosmos@ball.com).
+Good luck creating your own widgets and if you need additional support please contact us at <cosmos@ball.com>.
