@@ -39,8 +39,8 @@ module Cosmos
       plw.write(pkt)
       @cmd_packets << pkt
       plw.stop
-      plw = PacketLogWriter.new(:TLM,nil,true,nil,10000000,nil,false)
 
+      plw = PacketLogWriter.new(:TLM,nil,true,nil,10000000,nil,false)
       @tlm_packets = []
       pkt = System.telemetry.packet("COSMOS","VERSION").clone
       pkt.received_time = Time.new(2020,2,1,12,30,15)
@@ -259,7 +259,7 @@ module Cosmos
         end
       end
 
-      it "optionallies not identify and define packets" do
+      it "optionally does not identify and define packets" do
         index = 0
         @plr.each(Dir[File.join(@log_path,"*cmd.bin")][0], false) do |packet|
           expect(packet.target_name).to eql @cmd_packets[index].target_name
@@ -276,6 +276,70 @@ module Cosmos
           expect { packet.read('COSMOS') }.to raise_error(/does not exist/)
           index += 1
         end
+      end
+
+      it "increments the command received count" do
+        plw = PacketLogWriter.new(:CMD,'cnt',true,nil,10000000,nil,false)
+        plw.write(System.commands.packet("INST","COLLECT").clone)
+        plw.write(System.commands.packet("INST","ABORT").clone)
+        plw.write(System.commands.packet("INST","ABORT").clone)
+        plw.write(System.commands.packet("INST","COLLECT").clone)
+        plw.write(System.commands.packet("COSMOS","STOPLOGGING").clone)
+        plw.write(System.commands.packet("INST","ABORT").clone)
+        plw.stop
+
+        cnt = {}
+        @plr.each(Dir[File.join(@log_path,"*cntcmd.bin")][0]) do |packet|
+          cnt["#{packet.target_name}_#{packet.packet_name}"] ||= 0
+          cnt["#{packet.target_name}_#{packet.packet_name}"] += 1
+          expect(packet.received_count).to eql cnt["#{packet.target_name}_#{packet.packet_name}"]
+        end
+
+        # Resetting a packet should reset only that packet's received_count
+        collect = System.commands.packet("INST","COLLECT")
+        collect.reset
+        cnt["INST_COLLECT"] = 0
+        expect(collect.received_count).to eql 0
+
+        @plr.each(Dir[File.join(@log_path,"*cntcmd.bin")][0]) do |packet|
+          cnt["#{packet.target_name}_#{packet.packet_name}"] ||= 0
+          cnt["#{packet.target_name}_#{packet.packet_name}"] += 1
+          expect(packet.received_count).to eql cnt["#{packet.target_name}_#{packet.packet_name}"]
+        end
+
+        Dir[File.join(@log_path,"*cntcmd.bin")].each {|file| FileUtils.rm file }
+      end
+
+      it "increments the telemetry received count" do
+        plw = PacketLogWriter.new(:TLM,'cnt',true,nil,10000000,nil,false)
+        plw.write(System.telemetry.packet("INST","HEALTH_STATUS").clone)
+        plw.write(System.telemetry.packet("INST","ADCS").clone)
+        plw.write(System.telemetry.packet("INST","ADCS").clone)
+        plw.write(System.telemetry.packet("INST","HEALTH_STATUS").clone)
+        plw.write(System.telemetry.packet("COSMOS","LIMITS_CHANGE").clone)
+        plw.write(System.telemetry.packet("INST","ADCS").clone)
+        plw.stop
+
+        cnt = {}
+        @plr.each(Dir[File.join(@log_path,"*cnttlm.bin")][0]) do |packet|
+          cnt["#{packet.target_name}_#{packet.packet_name}"] ||= 0
+          cnt["#{packet.target_name}_#{packet.packet_name}"] += 1
+          expect(packet.received_count).to eql cnt["#{packet.target_name}_#{packet.packet_name}"]
+        end
+
+        # Resetting a packet should reset only that packet's received_count
+        status = System.telemetry.packet("INST","HEALTH_STATUS")
+        status.reset
+        cnt["INST_HEALTH_STATUS"] = 0
+        expect(status.received_count).to eql 0
+
+        @plr.each(Dir[File.join(@log_path,"*cnttlm.bin")][0]) do |packet|
+          cnt["#{packet.target_name}_#{packet.packet_name}"] ||= 0
+          cnt["#{packet.target_name}_#{packet.packet_name}"] += 1
+          expect(packet.received_count).to eql cnt["#{packet.target_name}_#{packet.packet_name}"]
+        end
+
+        Dir[File.join(@log_path,"*cnttlm.bin")].each {|file| FileUtils.rm file }
       end
 
       it "returns all packets if the start time is before all" do
