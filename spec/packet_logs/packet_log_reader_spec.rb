@@ -296,10 +296,10 @@ module Cosmos
         end
 
         # Resetting a packet should reset only that packet's received_count
-        packet = System.commands.packet("INST","COLLECT").clone
-        packet.reset
-        cnt["INST_COLLET"] = 0
-        expect(packet.received_count).to eql 0
+        collect = System.commands.packet("INST","COLLECT")
+        collect.reset
+        cnt["INST_COLLECT"] = 0
+        expect(collect.received_count).to eql 0
 
         @plr.each(Dir[File.join(@log_path,"*cntcmd.bin")][0]) do |packet|
           cnt["#{packet.target_name}_#{packet.packet_name}"] ||= 0
@@ -328,10 +328,10 @@ module Cosmos
         end
 
         # Resetting a packet should reset only that packet's received_count
-        packet = System.telemetry.packet("INST","HEALTH_STATUS")
-        packet.reset
+        status = System.telemetry.packet("INST","HEALTH_STATUS")
+        status.reset
         cnt["INST_HEALTH_STATUS"] = 0
-        expect(packet.received_count).to eql 0
+        expect(status.received_count).to eql 0
 
         @plr.each(Dir[File.join(@log_path,"*cnttlm.bin")][0]) do |packet|
           cnt["#{packet.target_name}_#{packet.packet_name}"] ||= 0
