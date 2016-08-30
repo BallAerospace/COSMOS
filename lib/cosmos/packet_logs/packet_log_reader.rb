@@ -148,6 +148,7 @@ module Cosmos
         packet.set_received_time_fast(received_time)
       end
 
+      packet.received_count += 1
       packet
     rescue => err
       close()
