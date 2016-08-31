@@ -16,10 +16,17 @@ module Cosmos
   class RadiobuttonWidget < Qt::RadioButton
     include Widget
 
-    def initialize(parent_layout, radiobutton_text, checked = false)
+    def initialize(parent_layout, radiobutton_text, checked = 'UNCHECKED')
       super()
       setText(radiobutton_text.to_s)
-      setChecked(true) if checked
+      case checked.to_s
+      when 'CHECKED'
+        setChecked(true)
+      when 'UNCHECKED'
+        setChecked(false)
+      else
+        raise "Unknown option '#{checked}' given to #{self.class}"
+      end
       parent_layout.addWidget(self) if parent_layout
     end
 
