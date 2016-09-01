@@ -15,7 +15,7 @@ module Cosmos
   class ComboboxWidget < Qt::ComboBox
     include Widget
 
-    def initialize (parent_layout, *combobox_items)
+    def initialize(parent_layout, *combobox_items)
       super()
       addItems(combobox_items)
       self.maxVisibleItems = combobox_items.length > 6 ? 6 : combobox_items.length

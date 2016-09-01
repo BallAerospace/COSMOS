@@ -16,16 +16,23 @@ module Cosmos
   class CheckbuttonWidget < Qt::CheckBox
     include Widget
 
-    def initialize(parent_layout, checkbutton_text)
+    def initialize(parent_layout, checkbutton_text, checked = 'UNCHECKED')
       super()
       setText(checkbutton_text.to_s)
+      case checked.to_s
+      when 'CHECKED'
+        setChecked(true)
+      when 'UNCHECKED'
+        setChecked(false)
+      else
+        raise "Unknown option '#{checked}' given to #{self.class}"
+      end
       parent_layout.addWidget(self) if parent_layout
     end
 
     def checked?
       self.isChecked()
     end
-
   end
 
 end # module Cosmos
