@@ -247,7 +247,7 @@ The FORMAT_STRING keyword adds printf style formatting to a command parameter. T
 
 | Parameter | Description | Required |
 |-----------|------------|---------|
-| Format | How to format the command parameter. For example: "0x%0X" will display a parameter in hex. | Yes |
+| Format | How to format the command parameter using printf syntax. For example: "0x%0X" will display a parameter in hex. | Yes |
 
 Example Usage:
 {% highlight bash %}
@@ -686,7 +686,7 @@ The FORMAT_STRING keyword adds printf style formatting to a telemetry item.
 
 | Parameter | Description | Required |
 |-----------|------------|---------|
-| Format | How to format the command parameter. For example: "0x%0X" will display an item in hex. | Yes |
+| Format | How to format the command parameter using printf syntax. For example: "0x%0X" will display an item in hex. | Yes |
 
 Example Usage:
 {% highlight bash %}
