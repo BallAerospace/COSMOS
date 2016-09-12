@@ -1,6 +1,6 @@
-load_utility 'clear_util.rb'
+load_utility 'utilities/clear.rb'
 
-def collect (type, duration, call_clear = false)
+def collect(type, duration, call_clear = false)
   # Get the current collects telemetry point
   collects = tlm('INST HEALTH_STATUS COLLECTS')
 

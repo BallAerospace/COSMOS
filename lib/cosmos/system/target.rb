@@ -168,6 +168,8 @@ module Cosmos
       end
       lib_dir = File.join(dir, 'lib')
       Cosmos.add_to_search_path(lib_dir, false) if File.exist?(lib_dir)
+      proc_dir = File.join(dir, 'procedures')
+      Cosmos.add_to_search_path(proc_dir, false) if File.exist?(proc_dir)
       dir
     end
 
