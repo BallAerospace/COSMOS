@@ -1045,3 +1045,27 @@ code.output {
     padding:0px;
   }
 }
+
+div.gsc-results-wrapper-overlay {
+  background-color:#333 !important;
+  table {
+    background-color:white !important;
+  }
+  .gs-result {
+    background-color:white !important;
+  }
+  a:hover {
+    background-color:#ddd !important;
+  }
+}
+
+.gsc-control-cse,
+.gsc-control-cse-en {
+  color: black;
+  width: 400px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  background-color:transparent !important;
+  border: none !important;
+}
+
