@@ -150,6 +150,7 @@ module Cosmos
       b = binding
       if options[:locals]
         options[:locals].each do |key, value|
+          value = "'#{value}'" if value.is_a? String
           eval("#{key} = #{value}", b)
         end
       end
