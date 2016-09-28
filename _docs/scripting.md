@@ -1175,7 +1175,7 @@ These methods allow the user to pause the script to wait for telemetry to change
 
 ### wait
 
-The wait method pauses the script for a configurable amount of time or until a converted telemetry item meets given criteria. It supports three different syntaxes as shown. If no parameters are given then an infinite wait occurs until the user presses Go.   Note that on a timeout, wait does not stop the script, usually wait_check is a better choice.
+The wait method pauses the script for a configurable amount of time (minimum 10ms) or until a converted telemetry item meets given criteria. It supports three different syntaxes as shown. If no parameters are given then an infinite wait occurs until the user presses Go.   Note that on a timeout, wait does not stop the script, usually wait_check is a better choice.
 
 Syntax:
 {% highlight ruby %}
