@@ -194,8 +194,14 @@ module Cosmos
           msg = Qt::MessageBox.new(window)
           msg.setText(string)
           msg.setWindowTitle("Message Box")
-          buttons.each {|text| msg.addButton(text, Qt::MessageBox::AcceptRole)}
-          msg.addButton("Cancel", Qt::MessageBox::RejectRole)
+          # Check if the last parameter is false which means they don't want
+          # the Cancel button to be displayed
+          if buttons[-1] == false
+            buttons[0..-2].each {|text| msg.addButton(text, Qt::MessageBox::AcceptRole)}
+          else
+            buttons.each {|text| msg.addButton(text, Qt::MessageBox::AcceptRole)}
+            msg.addButton("Cancel", Qt::MessageBox::RejectRole)
+          end
           msg.exec()
           if msg.clickedButton.text == "Cancel"
             Logger.warn "User pressed 'Cancel' for '#{string}'"
@@ -219,9 +225,18 @@ module Cosmos
         Qt.execute_in_main_thread(true, 0.05) do
           dialog = _build_dialog(string)
 
+          # Check if the last parameter is false which means they don't want
+          # the Cancel button to be displayed
+          if buttons[-1] == false
+            cancel = false
+            display_buttons = buttons[0..-2]
+          else
+            cancel = true
+            display_buttons = buttons
+          end
           button_layout = Qt::VBoxLayout.new
           button_layout.setContentsMargins(11,11,11,11)
-          buttons.each do |button_text|
+          display_buttons.each do |button_text|
             button = Qt::PushButton.new(button_text)
             button.connect(SIGNAL('clicked()')) do
               result = button_text
@@ -230,7 +245,7 @@ module Cosmos
             button_layout.addWidget(button)
           end
           dialog.layout.addLayout(button_layout)
-          dialog.layout.addWidget(_build_dialog_buttons(dialog, false))
+          dialog.layout.addWidget(_build_dialog_buttons(dialog, false, cancel))
           result = "Cancel" unless _exec_dialog(dialog, string, result)
         end
         if result == "Cancel"
@@ -246,11 +261,20 @@ module Cosmos
         result = options[0]
         Qt.execute_in_main_thread(true, 0.05) do
           dialog = _build_dialog(string)
-          chooser = ComboboxChooser.new(dialog, "Select:", options)
+          # Check if the last parameter is false which means they don't want
+          # the Cancel button to be displayed
+          if options[-1] == false
+            cancel = false
+            display_options = options[0..-2]
+          else
+            cancel = true
+            display_options = options
+          end
+          chooser = ComboboxChooser.new(dialog, "Select:", display_options)
           chooser.setContentsMargins(11,11,11,11)
           chooser.sel_command_callback = lambda { |value| result = value }
           dialog.layout.addWidget(chooser)
-          dialog.layout.addWidget(_build_dialog_buttons(dialog))
+          dialog.layout.addWidget(_build_dialog_buttons(dialog, true, cancel))
           result = "Cancel" unless _exec_dialog(dialog, string, result)
         end
         if result == "Cancel"
@@ -287,7 +311,7 @@ module Cosmos
       result
     end
 
-    def _build_dialog_buttons(dialog, ok_button = true)
+    def _build_dialog_buttons(dialog, ok_button = true, cancel_button = true)
       button_layout = Qt::HBoxLayout.new
       if ok_button
         ok = Qt::PushButton.new("Ok")
@@ -296,11 +320,13 @@ module Cosmos
         end
         button_layout.addWidget(ok)
       end
-      cancel = Qt::PushButton.new("Cancel")
-      cancel.connect(SIGNAL('clicked()')) do
-        dialog.reject()
+      if cancel_button
+        cancel = Qt::PushButton.new("Cancel")
+        cancel.connect(SIGNAL('clicked()')) do
+          dialog.reject()
+        end
+        button_layout.addWidget(cancel)
       end
-      button_layout.addWidget(cancel)
 
       widget = Qt::Widget.new
       widget.setLayout(button_layout)
