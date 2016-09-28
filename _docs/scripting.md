@@ -298,7 +298,11 @@ string = ask_string("Enter a value", "test")
 password = ask_string("Enter your password", false, true)
 {% endhighlight %}
 
-### message_box, vertical_message_box (COSMOS 3.5.0+), combo_box (COSMOS 3.5.0+)
+### message_box
+
+### vertical_message_box
+
+### combo_box
 
 The message_box, vertical_message_box, and combo_box methods create a message box with arbitrary buttons or selections that the user can click. The text of the button clicked is returned.
 
@@ -306,24 +310,29 @@ Syntax:
 
 ```
 message_box("<message>", "<button text 1>", …)
-vertical_message_box("<message>", "<button text 1>", …)
-combo_box("<message>", "<selection text 1>", …)
+message_box("<message>", "<button text 1>", …, false) # Since COSMOS 3.8.3
+vertical_message_box("<message>", "<button text 1>", …) # Since COSMOS 3.5.0
+vertical_message_box("<message>", "<button text 1>", …, false) # Since COSMOS 3.8.3
+combo_box("<message>", "<selection text 1>", …) # Since COSMOS 3.5.0
+combo_box("<message>", "<selection text 1>", …, false) # Since COSMOS 3.8.3
 ```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
 |message|Message to prompt the user with.|
-|button/selection text #x|Text for a button or selection|
+|button/selection text|Text for a button or selection|
+|false|Whether to display the "Cancel" button (since 3.8.3)|
 
 Example:
 {% highlight ruby %}
-value = message_box("Press OK to continue or CANCEL to cancel", 'OK', 'CANCEL')
-value = vertical_message_box("Press OK to continue or CANCEL to cancel", 'OK', 'CANCEL')
-value = combo_box("Select OK to continue or CANCEL to cancel", 'OK', 'CANCEL')
-if value == 'OK'
-  puts 'OK Pressed'
-else
-  puts 'CANCEL Pressed'
+value = message_box("Select the sensor number", 'One', 'Two')
+value = vertical_message_box("Select the sensor number", 'One', 'Two')
+value = combo_box("Select the sensor number", 'One', 'Two')
+case value
+when 'One'
+  puts 'Sensor One'
+when 'Two'
+  puts 'Sensor Two'
 end
 {% endhighlight %}
 
@@ -657,13 +666,13 @@ Example:
 hazardous = get_cmd_hazardous("INST", "COLLECT", {'TYPE' => 'SPECIAL'})
 {% endhighlight %}
 
-### get_cmd_value (COSMOS 3.5.0+)
+### get_cmd_value
 
 The get_cmd_value method returns reads a value from the most recently sent command packet.   The pseudo-parameters 'RECEIVED_COUNT', 'RECEIVED_TIMEFORMATTED', and 'RECEIVED_TIMESECONDS' are also supported.
 
 Syntax:
 {% highlight ruby %}
-get_cmd_value("<Target Name>", "<Command Name>", "<Parameter Name>", <Value Type - optional>)
+get_cmd_value("<Target Name>", "<Command Name>", "<Parameter Name>", <Value Type - optional>) # Since COSMOS 3.5.0
 {% endhighlight %}
 
 | Parameter | Description |
@@ -678,13 +687,13 @@ Example:
 value = get_cmd_value("INST", "COLLECT", "TEMP")
 {% endhighlight %}
 
-### get_cmd_time (COSMOS 3.5.0+)
+### get_cmd_time
 
 The get_cmd_time method returns the time of the most recent command sent.
 
 Syntax:
 {% highlight ruby %}
-get_cmd_time("<Target Name - optional>", "<Command Name - optional>")
+get_cmd_time("<Target Name - optional>", "<Command Name - optional>") # Since COSMOS 3.5.0
 {% endhighlight %}
 
 | Parameter | Description |
