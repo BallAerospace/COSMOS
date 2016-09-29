@@ -79,12 +79,6 @@ module Cosmos
       @file_new.statusTip = tr('Start a new script')
       @file_new.connect(SIGNAL('triggered()')) { file_new() }
 
-      @file_open = Qt::Action.new(Cosmos.get_icon('open.png'), tr('&Open'), self)
-      @file_open_keyseq = Qt::KeySequence.new(tr('Ctrl+O'))
-      @file_open.shortcut  = @file_open_keyseq
-      @file_open.statusTip = tr('Open a script')
-      @file_open.connect(SIGNAL('triggered()')) { file_open() }
-
       @file_close = Qt::Action.new(tr('&Close'), self)
       @file_close_keyseq = Qt::KeySequence.new(tr('Ctrl+W'))
       @file_close.shortcut  = @file_close_keyseq
@@ -249,18 +243,42 @@ module Cosmos
 
     def initialize_menus
       # File Menu
-      file_menu = menuBar.addMenu(tr('&File'))
-      file_menu.addAction(@file_new)
-      file_menu.addAction(@file_open)
-      file_menu.addAction(@file_close)
-      file_menu.addAction(@file_reload)
-      file_menu.addSeparator()
-      file_menu.addAction(@file_save)
-      file_menu.addAction(@file_save_as)
-      file_menu.addSeparator()
-      file_menu.addAction(@file_options)
-      file_menu.addSeparator()
-      file_menu.addAction(@exit_action)
+      @file_menu = menuBar.addMenu(tr('&File'))
+      @file_menu.addAction(@file_new)
+      open_action = Qt::Action.new(self)
+      open_action.shortcut = Qt::KeySequence.new(tr('Ctrl+O'))
+      open_action.connect(SIGNAL('triggered()')) { file_open(@procedure_dir) }
+      self.addAction(open_action)
+
+      open_menu = @file_menu.addMenu(tr('&Open'))
+      open_menu.setIcon(Cosmos.get_icon('open.png'))
+      System.paths['PROCEDURES'].each do |path|
+        next unless File.exist? path
+        path_context = path.split('/')[-2..-1].join('/')
+        action = Qt::Action.new(tr(path_context), self)
+        action.statusTip = "Open #{path}"
+        action.connect(SIGNAL('triggered()')) { file_open(path) }
+        open_menu.addAction(action)
+      end
+      open_menu.addSeparator()
+      System.targets.each do |target_name, target|
+        proc_dir = File.join(target.dir, 'procedures')
+        next unless File.exist? proc_dir
+        action = Qt::Action.new(tr("#{target_name}/procedures"), self)
+        action.statusTip = "Open #{proc_dir}"
+        action.connect(SIGNAL('triggered()')) { file_open(File.join(target.dir, 'procedures')) }
+        open_menu.addAction(action)
+      end
+
+      @file_menu.addAction(@file_close)
+      @file_menu.addAction(@file_reload)
+      @file_menu.addSeparator()
+      @file_menu.addAction(@file_save)
+      @file_menu.addAction(@file_save_as)
+      @file_menu.addSeparator()
+      @file_menu.addAction(@file_options)
+      @file_menu.addSeparator()
+      @file_menu.addAction(@exit_action)
 
       # Edit Menu
       mode_menu = menuBar.addMenu(tr('&Edit'))
@@ -366,8 +384,8 @@ module Cosmos
 
     # File->Open
     def file_open(filename = nil)
-      if !filename
-        filename = Qt::FileDialog.getOpenFileName(self, "Select Script", @procedure_dir)
+      if File.directory?(filename)
+        filename = Qt::FileDialog.getOpenFileName(self, "Select Script", filename)
       end
       unless filename.nil? || filename.empty?
         # If the user opens a file we already have open
