@@ -69,20 +69,28 @@ module Cosmos
 
       it "supports ERB partials via render" do
         tf2 = Tempfile.new('partial.txt')
-        tf2.puts "<% if bool %>"
-        tf2.puts "KEYWORD <%= id %> <%= desc %>"
-        tf2.puts "<% end %>"
+        tf2.puts '<% if output %>'
+        tf2.puts 'KEYWORD <%= id %> <%= desc %>'
+        tf2.puts '<% end %>'
         tf2.close
-        tf = Tempfile.new('unittest')
-        tf.puts "<%= render '#{File.basename(tf2.path)}', locals: {id: 1, desc: 'Description', bool: true} %>"
-        tf.close
 
-        @cp.parse_file(tf.path) do |keyword, params|
-          expect(keyword).to eql "KEYWORD"
-          expect(params[0]).to eql "1"
-          expect(params[1]).to eql "Description"
+        # Run the test twice to verify the KEYWORD gets rendered and then doesn't
+        [true, false].each do |output|
+          tf = Tempfile.new('unittest')
+          tf.puts "<%= render '#{File.basename(tf2.path)}', locals: {id: 1, desc: 'Description', output: #{output}} %>"
+          tf.close
+
+          yielded = false
+          @cp.parse_file(tf.path) do |keyword, params|
+            yielded = true
+            expect(keyword).to eql "KEYWORD"
+            expect(params[0]).to eql "1"
+            expect(params[1]).to eql "Description"
+          end
+          expect(yielded).to eql output
+          tf.unlink
         end
-        tf.unlink
+        tf2.unlink
       end
 
       it "optionally does not remove quotes" do
