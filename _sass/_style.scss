@@ -1061,11 +1061,19 @@ div.gsc-results-wrapper-overlay {
 
 .gsc-control-cse,
 .gsc-control-cse-en {
+  td {
+    padding: 3px !important;
+  }
   color: black;
-  width: 400px !important;
   padding: 0 !important;
   margin: 0 !important;
   background-color:transparent !important;
   border: none !important;
+
+  /* The search button needs no padding because it is 
+     next to the box and close button which have padding */
+  .gsc-search-button {
+    padding: 0px !important;
+  }
 }
 
