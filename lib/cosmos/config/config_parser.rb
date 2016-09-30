@@ -149,10 +149,7 @@ module Cosmos
     def render(template_name, options = {})
       b = binding
       if options[:locals]
-        options[:locals].each do |key, value|
-          value = "'#{value}'" if value.is_a? String
-          eval("#{key} = #{value}", b)
-        end
+        options[:locals].each {|key, value| b.local_variable_set(key, value) }
       end
       # Assume the file is there. If not we raise a pretty obvious error
       ERB.new(File.read(File.join(File.dirname(@filename), template_name))).result(b)
