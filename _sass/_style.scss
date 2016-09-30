@@ -1045,3 +1045,35 @@ code.output {
     padding:0px;
   }
 }
+
+div.gsc-results-wrapper-overlay {
+  background-color:#333 !important;
+  table {
+    background-color:white !important;
+  }
+  .gs-result {
+    background-color:white !important;
+  }
+  a:hover {
+    background-color:#ddd !important;
+  }
+}
+
+.gsc-control-cse,
+.gsc-control-cse-en {
+  td {
+    padding: 3px !important;
+  }
+  color: black;
+  padding: 0 !important;
+  margin: 0 !important;
+  background-color:transparent !important;
+  border: none !important;
+
+  /* The search button needs no padding because it is 
+     next to the box and close button which have padding */
+  .gsc-search-button {
+    padding: 0px !important;
+  }
+}
+
