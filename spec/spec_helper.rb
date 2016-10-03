@@ -46,13 +46,12 @@ end
 require 'rspec'
 require 'ruby-prof'
 require 'benchmark/ips'
-require 'cosmos'
-require 'cosmos/utilities/logger'
 
 # Set the user path to our COSMOS configuration in the spec directory
-Cosmos.disable_warnings do
-  Cosmos::USERPATH = File.join(File.expand_path(File.dirname(__FILE__)), 'install')
-end
+ENV['COSMOS_USERPATH'] = File.join(File.dirname(File.expand_path(__FILE__)), 'install')
+
+require 'cosmos'
+require 'cosmos/utilities/logger'
 
 DEFAULT_USERPATH = Cosmos::USERPATH
 
