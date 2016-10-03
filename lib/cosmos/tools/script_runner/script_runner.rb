@@ -245,29 +245,30 @@ module Cosmos
       # File Menu
       @file_menu = menuBar.addMenu(tr('&File'))
       @file_menu.addAction(@file_new)
+
       open_action = Qt::Action.new(self)
       open_action.shortcut = Qt::KeySequence.new(tr('Ctrl+O'))
       open_action.connect(SIGNAL('triggered()')) { file_open(@procedure_dir) }
       self.addAction(open_action)
 
-      open_menu = @file_menu.addMenu(tr('&Open'))
-      open_menu.setIcon(Cosmos.get_icon('open.png'))
+      @file_open = @file_menu.addMenu(tr('&Open'))
+      @file_open.setIcon(Cosmos.get_icon('open.png'))
       System.paths['PROCEDURES'].each do |path|
         next unless File.exist? path
         path_context = path.split('/')[-2..-1].join('/')
         action = Qt::Action.new(tr(path_context), self)
         action.statusTip = "Open #{path}"
         action.connect(SIGNAL('triggered()')) { file_open(path) }
-        open_menu.addAction(action)
+        @file_open.addAction(action)
       end
-      open_menu.addSeparator()
+      @file_open.addSeparator()
       System.targets.each do |target_name, target|
         proc_dir = File.join(target.dir, 'procedures')
         next unless File.exist? proc_dir
         action = Qt::Action.new(tr("#{target_name}/procedures"), self)
         action.statusTip = "Open #{proc_dir}"
         action.connect(SIGNAL('triggered()')) { file_open(File.join(target.dir, 'procedures')) }
-        open_menu.addAction(action)
+        @file_open.addAction(action)
       end
 
       @file_menu.addAction(@file_close)
