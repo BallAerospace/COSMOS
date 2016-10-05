@@ -597,7 +597,7 @@ The ARRAY_ITEM keyword defines a telemetry item in the current telemetry packet 
 
 Example Usage:
 {% highlight bash %}
-ARRAY_ITEM 64 32 FLOAT 320 "Array of 10 floats"
+ARRAY_ITEM ARRAY 64 32 FLOAT 320 "Array of 10 floats"
 {% endhighlight %}
 
 ### APPEND_ARRAY_ITEM
@@ -606,7 +606,7 @@ The APPEND_ARRAY_ITEM keyword appends a new array telemetry item to the end of t
 
 Example Usage:
 {% highlight bash %}
-APPEND_ARRAY_ITEM 32 FLOAT 320 "Array of 10 floats"
+APPEND_ARRAY_ITEM ARRAY 32 FLOAT 320 "Array of 10 floats"
 {% endhighlight %}
 
 ### SELECT_ITEM
