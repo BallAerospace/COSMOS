@@ -149,7 +149,17 @@ module Cosmos
     def render(template_name, options = {})
       b = binding
       if options[:locals]
-        options[:locals].each {|key, value| b.local_variable_set(key, value) }
+        if RUBY_VERSION.split('.')[0..1].join.to_i >= 21
+          options[:locals].each {|key, value| b.local_variable_set(key, value) }
+        else
+          options[:locals].each do |key, value|
+            if value.is_a? String
+              b.eval("#{key} = '#{value}'")
+            else
+              b.eval("#{key} = #{value}")
+            end
+          end
+        end
       end
       # Assume the file is there. If not we raise a pretty obvious error
       ERB.new(File.read(File.join(File.dirname(@filename), template_name))).result(b)
