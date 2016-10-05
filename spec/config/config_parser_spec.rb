@@ -55,7 +55,45 @@ module Cosmos
         tf.unlink
       end
 
-      it "optionallies not remove quotes" do
+      it "supports ERB syntax" do
+        tf = Tempfile.new('unittest')
+        tf.puts "KEYWORD <%= 5 * 2 %>"
+        tf.close
+
+        @cp.parse_file(tf.path) do |keyword, params|
+          expect(keyword).to eql "KEYWORD"
+          expect(params[0]).to eql "10"
+        end
+        tf.unlink
+      end
+
+      it "supports ERB partials via render" do
+        tf2 = Tempfile.new('partial.txt')
+        tf2.puts '<% if output %>'
+        tf2.puts 'KEYWORD <%= id %> <%= desc %>'
+        tf2.puts '<% end %>'
+        tf2.close
+
+        # Run the test twice to verify the KEYWORD gets rendered and then doesn't
+        [true, false].each do |output|
+          tf = Tempfile.new('unittest')
+          tf.puts "<%= render '#{File.basename(tf2.path)}', locals: {id: 1, desc: 'Description', output: #{output}} %>"
+          tf.close
+
+          yielded = false
+          @cp.parse_file(tf.path) do |keyword, params|
+            yielded = true
+            expect(keyword).to eql "KEYWORD"
+            expect(params[0]).to eql "1"
+            expect(params[1]).to eql "Description"
+          end
+          expect(yielded).to eql output
+          tf.unlink
+        end
+        tf2.unlink
+      end
+
+      it "optionally does not remove quotes" do
         tf = Tempfile.new('unittest')
         line = "KEYWORD PARAM1 PARAM2 'PARAM 3'"
         tf.puts line
@@ -106,7 +144,7 @@ module Cosmos
         tf.unlink
       end
 
-      it "optionallies yield comment lines" do
+      it "optionally yields comment lines" do
         tf = Tempfile.new('unittest')
         tf.puts "KEYWORD1 PARAM1"
         tf.puts "# This is a comment"
