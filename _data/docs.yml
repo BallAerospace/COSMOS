@@ -13,11 +13,16 @@
   - interfaces
   - tools
   - screens
+  - environment
 
 - title: User's Guides
   docs:
   - scripting
   - gemtargets
+
+- title: Tips
+  docs:
+  - chaining
 
 - title: Meta
   docs:

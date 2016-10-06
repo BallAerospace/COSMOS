@@ -13,15 +13,22 @@ Interface classes provide the code that COSMOS uses to receive real-time telemet
 
 Interfaces have the following methods that must be implemented:
 
-1. **connect** - Open the socket or port or somehow establish the connection to the target
-1. **connected?** - Return true or false depending on the connection state
-1. **disconnect** - Close the socket or port of somehow disconnect from the target
-1. **read** - Return the next packet of data from the target
-1. **write** - Send a packet of data to the target
-1. **write_raw** - Send a raw binary string of data to the target
-1. **read_allowed?** - Whether reading from the target over the interface is allowed
-1. **write_allowed?** - Whether writing a packet to the target over the interface is allowed
-1. **write_raw_allowed?** - Whether writing raw data to the target over the interface is allowed
+1. **connect** - Open the socket or port or somehow establish the connection to the target.  Note: This method may not block indefinitely.
+1. **connected?** - Return true or false depending on the connection state. Note: This method should return immediately
+1. **disconnect** - Close the socket or port of somehow disconnect from the target.  Note: This method may not block indefinitely.
+1. **read** - Return the next packet of data from the target. Note: This method should block until a packet is available or the interface disconnects.  On a clean disconnect it should return nil.
+1. **write** - Send a packet of data to the target. Note: This method may not block indefinitely.
+1. **write_raw** - Send a raw binary string of data to the target. Note: This method may not block indefinitely.
+1. **read_allowed?** - Whether reading from the target over the interface is allowed. Note: This method should return immediately
+1. **write_allowed?** - Whether writing a packet to the target over the interface is allowed. Note: This method should return immediately
+1. **write_raw_allowed?** - Whether writing raw data to the target over the interface is allowed. Note: This method should return immediately
+
+<div class="note warning">
+  <h5>Note on Naming</h5>
+  <p>When creating your own interfaces, in most cases they will be subclasses of one of the built-in interfaces described below.   It is important to know that both the filename and class name of the interface files must match with correct capitalization or you will receive "class not found" errors when trying to load your new interface.  For example, an interface file called labview_interface.rb must contain the class LabviewInterface.  If the class was named, LabVIEWInterface, for example, COSMOS would not be able to find the class because of the unexpected capitalization.</p>
+</div>
+
+
 
 ## Provided Interfaces
 Cosmos provides the following interfaces for use: TCPIP Client, TCPIP Server, UDP, Serial, Command Telemetry Server, and LINC.
