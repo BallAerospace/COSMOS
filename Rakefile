@@ -86,8 +86,14 @@ task :require_version do
 end
 
 task :devkit do
-  if File.exist?("C:/Devkit/bin")
-    ENV['PATH'] = 'C:\\Devkit\\bin;C:\\Devkit\\mingw\\bin;' + ENV['PATH']
+  if RUBY_PLATFORM[0..2] == 'x64'
+    if File.exist?("C:/Devkit64/bin")
+      ENV['PATH'] = 'C:\\Devkit64\\bin;C:\\Devkit64\\mingw\\bin;' + ENV['PATH']
+    end
+  else
+    if File.exist?("C:/Devkit/bin")
+      ENV['PATH'] = 'C:\\Devkit\\bin;C:\\Devkit\\mingw\\bin;' + ENV['PATH']
+    end
   end
 end
 
