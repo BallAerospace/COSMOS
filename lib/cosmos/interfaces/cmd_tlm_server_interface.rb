@@ -59,7 +59,7 @@ module Cosmos
         end
       end
 
-      while true
+      while connected?
         begin
           event = CmdTlmServer.instance.get_limits_event(@limit_id)
           if event
