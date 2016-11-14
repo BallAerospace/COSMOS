@@ -125,7 +125,9 @@ module Cosmos
     # @param range_checking [Boolean] Whether to perform range checking on the
     #   passed in parameters.
     # @param raw [Boolean] Indicates whether or not to run conversions on command parameters
-    def build_cmd(target_name, packet_name, params = {}, range_checking = true, raw = false)
+    # @param check_required_params [Boolean] Indicates whether or not to check
+    #   that the required command parameters are present
+    def build_cmd(target_name, packet_name, params = {}, range_checking = true, raw = false, check_required_params = true)
       target_upcase = target_name.to_s.upcase
       packet_upcase = packet_name.to_s.upcase
 
@@ -138,47 +140,8 @@ module Cosmos
       command.restore_defaults
       command.raw = raw
 
-      # Set any parameters
-      given_item_names = []
-      params.each do |item_name, value|
-        item_upcase = item_name.to_s.upcase
-        item = command.get_item(item_upcase)
-        range_check_value = value
-
-        # Convert from state to value if possible
-        if item.states and item.states[value.to_s.upcase]
-          range_check_value = item.states[value.to_s.upcase]
-        end
-
-        if range_checking
-          range = item.range
-          if range
-            # Perform Range Check on command parameter
-            if not range.include?(range_check_value)
-              range_check_value = "'#{range_check_value}'" if String === range_check_value
-              raise "Command parameter '#{target_upcase} #{packet_upcase} #{item_upcase}' = #{range_check_value} not in valid range of #{range.first} to #{range.last}"
-            end
-          end
-        end
-
-        # Update parameter in command
-        if raw
-          command.write(item_upcase, value, :RAW)
-        else
-          command.write(item_upcase, value, :CONVERTED)
-        end
-
-        given_item_names << item_upcase
-      end # cmd_params.each
-
-      # Script Runner could call this command with only some parameters
-      # so make sure any required parameters were actually passed in.
-      item_defs = command.items
-      item_defs.each do |item_name, item_def|
-        if item_def.required and not given_item_names.include? item_name
-          raise "Required command parameter '#{target_upcase} #{packet_upcase} #{item_name}' not given"
-        end
-      end
+      given_item_names = set_parameters(command, params, range_checking)
+      check_required_params(command, given_item_names) if check_required_params
 
       return command
     end
@@ -227,38 +190,9 @@ module Cosmos
     # are set. Thus any given parameter values are first applied to the command
     # and then checked for hazardous states.
     #
-    # @param target_name (see #packet)
-    # @param packet_name (see #packet)
-    # @param params (see #build_cmd)
-    def cmd_hazardous?(target_name, packet_name, params = {})
-      target_upcase = target_name.to_s.upcase
-      packet_upcase = packet_name.to_s.upcase
-
-      # Lookup the command
-      command = packet(target_upcase, packet_upcase)
-
-      # Overall command hazardous check
+    # @param command [Packet] The command to check for hazardous
+    def cmd_pkt_hazardous?(command)
       return [true, command.hazardous_description] if command.hazardous
-
-      # Create a light weight copy of command
-      command = command.clone()
-      # Set given command parameters and restore defaults
-      command.given_values = params
-      command.restore_defaults()
-
-      # Set any parameters
-      params.each do |item_name, value|
-        item_upcase = item_name.to_s.upcase
-        item = command.get_item(item_upcase)
-
-        if item.states
-          state_value = item.states[value.to_s.upcase]
-          value = state_value if state_value
-        end
-
-        # Update parameter in command
-        command.write(item_upcase, value)
-      end
 
       # Check each item for hazardous states
       item_defs = command.items
@@ -276,6 +210,20 @@ module Cosmos
       return [false, nil]
     end
 
+    # Returns whether the given command is hazardous. Commands are hazardous
+    # if they are marked hazardous overall or if any of their hardardous states
+    # are set. Thus any given parameter values are first applied to the command
+    # and then checked for hazardous states.
+    #
+    # @param target_name (see #packet)
+    # @param packet_name (see #packet)
+    # @param params (see #build_cmd)
+    def cmd_hazardous?(target_name, packet_name, params = {})
+      # Build a command without range checking, perform conversions, and don't
+      # check required parameters since we're not actually using the command.
+      cmd_pkt_hazardous?(build_cmd(target_name, packet_name, params, false, false, false))
+    end
+
     def clear_counters
       @config.commands.each do |target_name, target_packets|
         target_packets.each do |packet_name, packet|
@@ -286,6 +234,54 @@ module Cosmos
 
     def all
       @config.commands
+    end
+
+    protected
+
+    def set_parameters(command, params, range_checking)
+      given_item_names = []
+      params.each do |item_name, value|
+        item_upcase = item_name.to_s.upcase
+        item = command.get_item(item_upcase)
+        range_check_value = value
+
+        # Convert from state to value if possible
+        if item.states and item.states[value.to_s.upcase]
+          range_check_value = item.states[value.to_s.upcase]
+        end
+
+        if range_checking
+          range = item.range
+          if range
+            # Perform Range Check on command parameter
+            if not range.include?(range_check_value)
+              range_check_value = "'#{range_check_value}'" if String === range_check_value
+              raise "Command parameter '#{command.target_name} #{command.packet_name} #{item_upcase}' = #{range_check_value} not in valid range of #{range.first} to #{range.last}"
+            end
+          end
+        end
+
+        # Update parameter in command
+        if command.raw
+          command.write(item_upcase, value, :RAW)
+        else
+          command.write(item_upcase, value, :CONVERTED)
+        end
+
+        given_item_names << item_upcase
+      end
+      given_item_names
+    end
+
+    def check_required_params(command, given_item_names)
+      # Script Runner could call this command with only some parameters
+      # so make sure any required parameters were actually passed in.
+      item_defs = command.items
+      item_defs.each do |item_name, item_def|
+        if item_def.required and not given_item_names.include? item_name
+          raise "Required command parameter '#{command.target_name} #{command.packet_name} #{item_name}' not given"
+        end
+      end
     end
 
   end # class Commands
