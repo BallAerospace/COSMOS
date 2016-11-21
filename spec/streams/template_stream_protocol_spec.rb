@@ -21,11 +21,8 @@ module Cosmos
         tsp = TemplateStreamProtocol.new('0xABCD','0xABCD')
         expect(tsp.bytes_read).to eql 0
         expect(tsp.bytes_written).to eql 0
-        expect(tsp.interface).to be_nil
+        expect(tsp.interface).to be_a Interface
         expect(tsp.stream).to be_nil
-        expect(tsp.post_read_data_callback).to be_nil
-        expect(tsp.post_read_packet_callback).to be_nil
-        expect(tsp.pre_write_packet_callback).to be_nil
       end
     end
 
@@ -62,43 +59,16 @@ module Cosmos
       end
     end
 
-    describe "read" do
-      it "reads packets from the stream" do
-        class MyStream < Stream
-          def connect; end
-          def connected?; true; end
-          def read
-            case $index
-            when 0
-              $index += 1
-              $buffer1
-            when 1
-              $buffer2
-            end
-          end
-        end
-        stream = MyStream.new
-
-        tsp = TemplateStreamProtocol.new('','0xABCD')
-
-        tsp.connect(stream)
-        $index = 0
-        $buffer1 = "\x00\x01\x02\xAB"
-        $buffer2 = "\xCD\x44\x02\x03"
-        packet = tsp.read(false)
-        expect(packet.buffer.length).to eql 3
-      end
-    end
-
     describe "write" do
       it "works without a response" do
         $buffer = ''
-        class MyStream1 < Stream
+        class MyStream < Stream
           def connect; end
           def connected?; true; end
           def write(buffer) $buffer = buffer; end
         end
-        tsp = TemplateStreamProtocol.new('0xABCD','0xABCD')
+        interface = StreamInterface.new("Template",'0xABCD','0xABCD')
+        interface.instance_variable_get(:@stream_protocol).connect(MyStream.new)
         packet = Packet.new('TGT', 'CMD')
         packet.append_item("VOLTAGE", 16, :UINT)
         packet.get_item("VOLTAGE").default = 1
@@ -107,15 +77,14 @@ module Cosmos
         packet.append_item("CMD_TEMPLATE", 1024, :STRING)
         packet.get_item("CMD_TEMPLATE").default = "SOUR:VOLT <VOLTAGE>, (@<CHANNEL>)"
         packet.restore_defaults
-        tsp.connect(MyStream1.new)
-        tsp.write(packet)
-        expect($buffer).to eq "SOUR:VOLT 1, (@2)\xAB\xCD"
+        interface.write(packet)
+        expect($buffer).to eql("SOUR:VOLT 1, (@2)\xAB\xCD")
       end
 
       it "processes responses" do
         $buffer = ''
         $read_cnt = 0
-        class MyStream2 < Stream
+        class MyStream < Stream
           def connect; end
           def connected?; true; end
           def write(buffer) $buffer = buffer; end
@@ -128,9 +97,9 @@ module Cosmos
         rsp_pkt = Packet.new('TGT', 'READ_VOLTAGE')
         rsp_pkt.append_item("VOLTAGE", 16, :UINT)
         allow(System).to receive_message_chain(:telemetry, :packet).and_return(rsp_pkt)
-        tsp = TemplateStreamProtocol.new('0xABCD','0xABCD', 1)
-        class MyInterface; def target_names; ['TGT']; end; end
-        tsp.interface = MyInterface.new
+        interface = StreamInterface.new("Template",'0xABCD','0xABCD',1)
+        interface.instance_variable_get(:@stream_protocol).connect(MyStream.new)
+        interface.target_names = ['TGT']
         packet = Packet.new('TGT', 'CMD')
         packet.append_item("VOLTAGE", 16, :UINT)
         packet.get_item("VOLTAGE").default = 10
@@ -143,10 +112,9 @@ module Cosmos
         packet.append_item("RSP_PACKET", 1024, :STRING)
         packet.get_item("RSP_PACKET").default = "READ_VOLTAGE"
         packet.restore_defaults
-        tsp.connect(MyStream2.new)
-        tsp.write(packet)
-        expect($buffer).to eq "SOUR:VOLT 10, (@20)\xAB\xCD"
-        pkt = tsp.read()
+        interface.write(packet)
+        expect($buffer).to eql("SOUR:VOLT 10, (@20)\xAB\xCD")
+        pkt = interface.read()
         expect(pkt.read("VOLTAGE")).to eq 10
       end
     end

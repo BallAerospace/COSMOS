@@ -36,22 +36,25 @@ module Cosmos
     def pre_write_packet(packet)
       received_time = packet.received_time
       received_time = Time.now unless received_time
-      time_seconds = [received_time.tv_sec].pack('N') # UINT32
-      time_microseconds = [received_time.tv_usec].pack('N') # UINT32
-      target_name = packet.target_name
-      target_name = 'UNKNOWN' unless target_name
-      packet_name = packet.packet_name
-      packet_name = 'UNKNOWN' unless packet_name
-      data = packet.buffer
+      @time_seconds = [received_time.tv_sec].pack('N') # UINT32
+      @time_microseconds = [received_time.tv_usec].pack('N') # UINT32
+      @target_name = packet.target_name
+      @target_name = 'UNKNOWN' unless @target_name
+      @packet_name = packet.packet_name
+      @packet_name = 'UNKNOWN' unless @packet_name
+      packet
+    end
+
+    def pre_write_data(data)
       data_length = [data.length].pack('N') # UINT32
       data_to_send = ''
       data_to_send << @sync_pattern if @sync_pattern
-      data_to_send << time_seconds
-      data_to_send << time_microseconds
-      data_to_send << target_name.length
-      data_to_send << target_name
-      data_to_send << packet_name.length
-      data_to_send << packet_name
+      data_to_send << @time_seconds
+      data_to_send << @time_microseconds
+      data_to_send << @target_name.length
+      data_to_send << @target_name
+      data_to_send << @packet_name.length
+      data_to_send << @packet_name
       data_to_send << data_length
       data_to_send << data
       data_to_send

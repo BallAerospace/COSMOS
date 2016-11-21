@@ -24,13 +24,13 @@ module Cosmos
     # @param sync_pattern (see StreamProtocol#initialize)
     # @param telemetry_stream [Boolean] Whether the stream is returning
     #   telemetry (true) or commands (false)
-    # @param fill_sync_pattern (see StreamProtocol#initialize)
+    # @param fill_fields (see StreamProtocol#initialize)
     def initialize(min_id_size,
                    discard_leading_bytes = 0,
                    sync_pattern = nil,
                    telemetry_stream = true,
-                   fill_sync_pattern = false)
-      super(discard_leading_bytes, sync_pattern, fill_sync_pattern)
+                   fill_fields = false)
+      super(discard_leading_bytes, sync_pattern, fill_fields)
       @min_id_size = Integer(min_id_size)
       @telemetry_stream = telemetry_stream
     end

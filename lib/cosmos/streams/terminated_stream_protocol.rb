@@ -28,26 +28,24 @@ module Cosmos
     #   Packet.
     # @param discard_leading_bytes (see StreamProtocol#initialize)
     # @param sync_pattern (see StreamProtocol#initialize)
-    # @param fill_sync_pattern (see StreamProtocol#initialize)
+    # @param fill_fields (see StreamProtocol#initialize)
     def initialize(write_termination_characters,
                    read_termination_characters,
                    strip_read_termination = true,
                    discard_leading_bytes = 0,
                    sync_pattern = nil,
-                   fill_sync_pattern = false)
+                   fill_fields = false)
       @write_termination_characters = write_termination_characters.hex_to_byte_string
       @read_termination_characters = read_termination_characters.hex_to_byte_string
       @strip_read_termination = ConfigParser.handle_true_false(strip_read_termination)
 
-      super(discard_leading_bytes, sync_pattern, fill_sync_pattern)
+      super(discard_leading_bytes, sync_pattern, fill_fields)
     end
 
-    # See StreamProtocol#pre_write_packet
-    def pre_write_packet(packet)
-      data = super(packet)
+    # See StreamProtocol#pre_write_data
+    def pre_write_data(data)
       raise "Packet contains termination characters!" if data.index(@write_termination_characters)
-
-      data = data.clone # Don't want to modify the actual packet buffer with the termination characters
+      data = super(data)
       @write_termination_characters.each_byte do |byte|
         data << byte
       end

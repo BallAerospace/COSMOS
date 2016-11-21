@@ -26,30 +26,10 @@ module Cosmos
     # @return [Integer] The number of bytes written to the stream
     attr_accessor :bytes_written
     # @return [Interface] The interface associated with this
-    #   StreamProtocol. The interface is a higher level abstraction and is
-    #   passed down to the StreamProtocol to allow it to call the callbacks in
-    #   the interface when processing the {Stream}. otherwise subclass wins
-    #   when calling
+    #   StreamProtocol.
     attr_reader :interface
     # @return [Stream] The stream this StreamProtocol is processing data from
     attr_reader :stream
-
-    # @return [Proc] The name of a method in the {Interface} that #read calls
-    #   after reading data from the {Stream}. It should take a String binary data
-    #   buffer and return a String binary data buffer.
-    attr_accessor :post_read_data_callback
-    # @return [Proc] The name of a method in the {Interface} that #read calls
-    #   after converting the read data buffer into a {Packet}. It should take a
-    #   {Packet} and return a {Packet}.
-    attr_accessor :post_read_packet_callback
-    # @return [Proc] The name of a method in the {Interface} that #write
-    #   calls before writing the data to the stream.
-    #   It should take a {Packet} and return a binary String buffer.
-    attr_accessor :pre_write_packet_callback
-    # @return [Proc] The name of a method in the {Interface} that #write
-    #   calls after writing the data to the stream.  It should take a {Packet} and a String
-    #   and return nothing.
-    attr_accessor :post_write_data_callback
 
     # @param discard_leading_bytes [Integer] The number of bytes to discard
     #   from the binary data after reading from the {Stream}. Note that this is often
@@ -57,44 +37,26 @@ module Cosmos
     # @param sync_pattern [String] String representing a hex number ("0x1234")
     #   that will be searched for in the raw {Stream}. Bytes encountered before
     #   this pattern is found are discarded.
-    # @param fill_sync_pattern [Boolean] Fill the sync pattern when writing packets
-    def initialize(discard_leading_bytes = 0, sync_pattern = nil, fill_sync_pattern = false)
+    # @param fill_fields [Boolean] Fill any required fields when writing packets
+    def initialize(discard_leading_bytes = 0, sync_pattern = nil, fill_fields = false)
       @discard_leading_bytes = discard_leading_bytes.to_i
       @sync_pattern = ConfigParser.handle_nil(sync_pattern)
       @sync_pattern = @sync_pattern.hex_to_byte_string if @sync_pattern
-      @fill_sync_pattern = ConfigParser.handle_true_false(fill_sync_pattern)
+      @fill_fields = ConfigParser.handle_true_false(fill_fields)
 
       @stream = nil
       @data = ''
       @bytes_read = 0
       @bytes_written = 0
 
-      @interface = nil
-      @post_read_data_callback = nil
-      @post_read_packet_callback = nil
-      @pre_write_packet_callback = nil
-      @post_write_data_callback = nil
+      @interface = Interface.new
       @write_mutex = Mutex.new
     end
 
     # @param interface [Interface] Sets the higher level interface which is
-    #   using this StreamProtocol. If the interface defines post_read_data,
-    #   post_read_packet, or pre_write_packet, then these methods will be
-    #   called over any subclass implementations.
+    #   using this StreamProtocol.
     def interface=(interface)
       @interface = interface
-      if @interface.respond_to? :post_read_data
-        @post_read_data_callback = @interface.method(:post_read_data)
-      end
-      if @interface.respond_to? :post_read_packet
-        @post_read_packet_callback = @interface.method(:post_read_packet)
-      end
-      if @interface.respond_to? :pre_write_packet
-        @pre_write_packet_callback = @interface.method(:pre_write_packet)
-      end
-      if @interface.respond_to? :post_write_data
-        @post_write_data_callback = @interface.method(:post_write_data)
-      end
     end
 
     # @param stream [Stream] The stream this stream protocol should read and
@@ -127,11 +89,6 @@ module Cosmos
     # creating a Packet. It can discard a set number of bytes at the beginning
     # of the stream before creating the Packet.
     #
-    # If the post_read_data_callback is defined (post_read_data is
-    # implemented by the interface) then it is called to translate the
-    # raw data. Otherwise post_read_data is called which does nothing
-    # unless it is implemented by a subclass.
-    #
     # @return [Packet|nil] A Packet of consisting of the bytes read from the
     #   stream.
     def read
@@ -148,21 +105,10 @@ module Cosmos
         packet_data.replace(packet_data[@discard_leading_bytes..-1]) if @discard_leading_bytes > 0
 
         # Return data based on final_receive_processing
-        if @post_read_data_callback
-          packet_data = @post_read_data_callback.call(packet_data)
-        else
-          packet_data = post_read_data(packet_data)
-        end
+        packet_data = post_read_data(packet_data)
         if packet_data
           if packet_data.length > 0
-            # Valid packet
-            packet = Packet.new(nil, nil, :BIG_ENDIAN, nil, packet_data)
-            if @post_read_packet_callback
-              packet = @post_read_packet_callback.call(packet)
-            else
-              packet = post_read_packet(packet)
-            end
-            return packet
+            return post_read_packet(Packet.new(nil, nil, :BIG_ENDIAN, nil, packet_data))
           else
             # Packet should be ignored
             next
@@ -176,26 +122,14 @@ module Cosmos
 
     # Writes the packet data to the stream.
     #
-    # If the pre_write_packet_callback is defined (pre_write_packet is
-    # implemented by the interface) then that is called to translate the
-    # packet into data. Otherwise pre_write_packet is called which
-    # returns the packet buffer unless it is implemented by a subclass.
-    #
     # @param packet [Packet] Packet data to write to the stream
     def write(packet)
       @write_mutex.synchronize do
-        if @pre_write_packet_callback
-          data = @pre_write_packet_callback.call(packet)
-        else
-          data = pre_write_packet(packet)
-        end
+        packet = pre_write_packet(packet)
+        data = packet.buffer(false)
         if data
           write_raw(data, false)
-          if @post_write_data_callback
-            @post_write_data_callback.call(packet, data)
-          else
-            post_write_data(packet, data)
-          end
+          post_write_data(packet, data)
         else
           # write aborted - don't write data
         end
@@ -210,7 +144,7 @@ module Cosmos
       @write_mutex.lock if take_mutex
       begin
         if connected?()
-          @stream.write(data)
+          @stream.write(pre_write_data(data))
           @bytes_written += data.length
         else
           raise "Stream not connected for write_raw"
@@ -220,6 +154,8 @@ module Cosmos
       end
     end
 
+    protected
+
     # Called to perform modifications on read data before making it into a packet
     #
     # @param packet_data [String] Raw packet data
@@ -228,7 +164,8 @@ module Cosmos
       packet_data
     end
 
-    # Called to perform modifications on a read packet before it is given to the user
+    # Called to perform modifications on a read packet before it is inserted
+    # into the current value table.
     #
     # @param packet [Packet] Original packet
     # @return [Packet] Potentially modified packet
@@ -236,28 +173,37 @@ module Cosmos
       packet
     end
 
-    # Called to perform modifications on write data before writing it out the stream
+    # Called to perform modifications on a command packet before it is sent
     #
-    # @param packet [Packet] packet to write out
-    # @return [String] Potentially modified packet data
+    # @param packet [Packet] Original packet
+    # @return [Packet] Potentially modified packet
     def pre_write_packet(packet)
-      data = packet.buffer(false)
-      if @fill_sync_pattern
-        # Put leading bytes back on
-        data = ("\x00" * @discard_leading_bytes) << data if @discard_leading_bytes > 0
-
-        # Fill the sync pattern
-        if @sync_pattern
-          BinaryAccessor.write(@sync_pattern,
-            0,
-            @sync_pattern.length * 8,
-            :BLOCK,
-            data,
-            :BIG_ENDIAN,
-            :ERROR)
-        end
+      # If we're filling the sync pattern and the sync pattern is part of the
+      # packet (since we're not discarding any leading bytes) then we have to
+      # fill the sync pattern in the actual packet so do it here.
+      if @fill_fields && @sync_pattern && @discard_leading_bytes == 0
+        # Directly write the packet buffer and fill in the sync pattern
+        BinaryAccessor.write(@sync_pattern, 0, @sync_pattern.length * 8, :BLOCK,
+                             packet.buffer(false), :BIG_ENDIAN, :ERROR)
       end
-      data
+      packet
+    end
+
+    # Called to perform modifications on write data before sending it to the stream
+    #
+    # @param packet_data [String] Raw packet data
+    # @return [String] Potentially modified packet data
+    def pre_write_data(packet_data)
+      # If we're filling the sync pattern and discarding the leading bytes
+      # during a read then we need to put them back during a write.
+      # If we're discarding the bytes then by definition they can't be part
+      # of the packet so we just modify the data.
+      if @fill_fields && @sync_pattern && @discard_leading_bytes > 0
+        packet_data = ("\x00" * @discard_leading_bytes) << packet_data
+        BinaryAccessor.write(@sync_pattern, 0, @sync_pattern.length * 8, :BLOCK,
+                             packet_data, :BIG_ENDIAN, :ERROR)
+      end
+      packet_data
     end
 
     # Called to perform actions after writing data to the stream
@@ -268,8 +214,6 @@ module Cosmos
       # Default do nothing
     end
 
-    protected
-
     # @return [Boolean] Whether we successfully found a sync pattern
     def handle_sync_pattern
       if @sync_pattern
@@ -277,7 +221,6 @@ module Cosmos
           # Make sure we have some data to look for a sync word in
           read_minimum_size(@sync_pattern.length)
           return false if @data.length <= 0
-
           # Find the beginning of the sync pattern
           sync_index = @data.index(@sync_pattern.getbyte(0).chr)
           if sync_index

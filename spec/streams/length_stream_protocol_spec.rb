@@ -21,243 +21,384 @@ module Cosmos
         lsp = LengthStreamProtocol.new(1)
         expect(lsp.bytes_read).to eql 0
         expect(lsp.bytes_written).to eql 0
-        expect(lsp.interface).to be_nil
+        expect(lsp.interface).to be_a Interface
         expect(lsp.stream).to be_nil
-        expect(lsp.post_read_data_callback).to be_nil
-        expect(lsp.post_read_packet_callback).to be_nil
-        expect(lsp.pre_write_packet_callback).to be_nil
       end
     end
 
     describe "read" do
-      it "reads BIG_ENDIAN length fields from the stream" do
-        class MyStream < Stream
-          def connect; end
-          def connected?; true; end
-          def read
-            case $index
-            when 0
-              $index += 1
-              $buffer1
-            when 1
-              $buffer2
-            end
-          end
-        end
-        stream = MyStream.new
-
-        lsp = LengthStreamProtocol.new(16, # bit offset
-                                        16, # bit size
-                                        1,  # length offset
-                                        1,  # bytes per count
-                                        'BIG_ENDIAN')
-        lsp.connect(stream)
-        $index = 0
-        $buffer1 = "\x00\x01\x00\x05"
-        $buffer2 = "\x03\x04"
-        packet = lsp.read
-        expect(packet.buffer.length).to eql 6
-
-        lsp = LengthStreamProtocol.new(16, # bit offset
-                                        16, # bit size
-                                        1,  # length offset
-                                        2,  # bytes per count
-                                        'BIG_ENDIAN')
-        lsp.connect(stream)
-        $index = 0
-        $buffer1 = "\x00\x01\x00\x05"
-        $buffer2 = "\x03\x04\x05\x06\x07\x08\x09"
-        packet = lsp.read
-        expect(packet.buffer.length).to eql 11
-
-        lsp = LengthStreamProtocol.new(19, # bit offset
-                                        5,  # bit size
-                                        0,  # length offset
-                                        1,  # bytes per count
-                                        'BIG_ENDIAN')
-        lsp.connect(stream)
-        $index = 0
-        $buffer1 = "\x00\x01\x05"
-        $buffer2 = "\x03\x04"
-        packet = lsp.read
-        expect(packet.buffer.length).to eql 5
-
-        lsp = LengthStreamProtocol.new(16, # bit offset
-                                        16, # bit size
-                                        1,  # length offset
-                                        1,  # bytes per count
-                                        'BIG_ENDIAN',
-                                        0,
-                                        nil,
-                                        50)
-        lsp.connect(stream)
-        $index = 0
-        $buffer1 = "\x00\x01\xFF\xFF"
-        $buffer2 = "\x03\x04"
-        expect { packet = lsp.read }.to raise_error(RuntimeError, "Length value received larger than max_length: 65535 > 50")
+      class MyStream < Stream
+        def connect; end
+        def connected?; true; end
+        def read; $buffer; end
       end
 
-      it "reads LITTLE_ENDIAN length fields from the stream" do
-        class MyStream < Stream
-          def connect; end
-          def connected?; true; end
-          def read
-            case $index
-            when 0
-              $index += 1
-              $buffer1
-            when 1
-              $buffer2
-            end
-          end
-        end
-        stream = MyStream.new
+      before(:each) { $buffer = '' }
 
-        lsp = LengthStreamProtocol.new(16, # bit offset
+      it "reads LITTLE_ENDIAN length fields from the stream" do
+        interface = StreamInterface.new("Length",
+                                        16, # bit offset
                                         16, # bit size
-                                        1,  # length offset
+                                        0,  # length offset
                                         1,  # bytes per count
                                         'LITTLE_ENDIAN')
-        lsp.connect(stream)
-        $index = 0
-        $buffer1 = "\x00\x01\x05\x00"
-        $buffer2 = "\x03\x04"
-        packet = lsp.read
+        interface.instance_variable_get(:@stream_protocol).connect(MyStream.new)
+        $buffer = "\x00\x01\x06\x00\x03\x04"
+        packet = interface.read
         expect(packet.buffer.length).to eql 6
+      end
 
-        lsp = LengthStreamProtocol.new(16, # bit offset
-                                        16, # bit size
-                                        1,  # length offset
-                                        2,  # bytes per count
-                                        'LITTLE_ENDIAN')
-        lsp.connect(stream)
-        $index = 0
-        $buffer1 = "\x00\x01\x05\x00"
-        $buffer2 = "\x03\x04\x05\x06\x07\x08\x09"
-        packet = lsp.read
-        expect(packet.buffer.length).to eql 11
-
-        lsp = LengthStreamProtocol.new(19, # bit offset
+      it "reads LITTLE_ENDIAN bit fields from the stream" do
+        interface = StreamInterface.new("Length",
+                                        19, # bit offset
                                         5,  # bit size
                                         0,  # length offset
                                         1,  # bytes per count
                                         'LITTLE_ENDIAN')
-        lsp.connect(stream)
-        $index = 0
-        $buffer1 = "\x00\x01\x05"
-        $buffer2 = "\x03\x04"
-        packet = lsp.read
+        interface.instance_variable_get(:@stream_protocol).connect(MyStream.new)
+        $buffer = "\x00\x01\x05\x03\x04"
+        packet = interface.read
         expect(packet.buffer.length).to eql 5
+      end
 
-        lsp = LengthStreamProtocol.new(16, # bit offset
+      it "adjusts length by offset" do
+        interface = StreamInterface.new("Length",
+                                        16, # bit offset
                                         16, # bit size
-                                        1,  # length offset
-                                        1,  # bytes per count
-                                        'LITTLE_ENDIAN',
-                                        0,
-                                        nil,
-                                        239)
-        lsp.connect(stream)
-        $index = 0
-        $buffer1 = "\x00\x01\xF0\x00"
-        $buffer2 = "\x03\x04"
-        expect { packet = lsp.read }.to raise_error(RuntimeError, "Length value received larger than max_length: 240 > 239")
+                                        1, # length offset
+                                        1, # bytes per count
+                                        'BIG_ENDIAN')
+        interface.instance_variable_get(:@stream_protocol).connect(MyStream.new)
+        $buffer = "\x00\x01\x00\x05\x03\x04"
+        packet = interface.read
+        expect(packet.buffer.length).to eql 6
+      end
+
+      it "adjusts length by bytes per count" do
+        interface = StreamInterface.new("Length",
+                                       16, # bit offset
+                                       16, # bit size
+                                       1, # length offset
+                                       2, # bytes per count
+                                       'BIG_ENDIAN')
+        interface.instance_variable_get(:@stream_protocol).connect(MyStream.new)
+        $buffer = "\x00\x01\x00\x05\x03\x04\x05\x06\x07\x08\x09"
+        packet = interface.read
+        expect(packet.buffer.length).to eql 11
+      end
+
+      it "accesses length at odd offset and bit sizes" do
+        interface = StreamInterface.new("Length",
+                                        19, # bit offset
+                                        5, # bit size
+                                        0, # length offset
+                                        1, # bytes per count
+                                        'BIG_ENDIAN')
+        interface.instance_variable_get(:@stream_protocol).connect(MyStream.new)
+        $buffer = "\x00\x01\x05\x03\x04"
+        packet = interface.read
+        expect(packet.buffer.length).to eql 5
+      end
+
+      it "validates length against the maximum length" do
+        interface = StreamInterface.new("Length",
+                                        16, # bit offset
+                                        16, # bit size
+                                        0,  # length offset
+                                        1, # bytes per count
+                                        'BIG_ENDIAN',
+                                        0, # discard
+                                        nil, # sync
+                                        50) # max_length
+        interface.instance_variable_get(:@stream_protocol).connect(MyStream.new)
+        $buffer = "\x00\x01\xFF\xFF\x03\x04"
+        expect { packet = interface.read }.to raise_error(RuntimeError, "Length value received larger than max_length: 65535 > 50")
+      end
+
+      it "handles a sync value in the packet" do
+        interface = StreamInterface.new("Length",
+                                        16, # bit offset
+                                        16, # bit size
+                                        0, # length offset
+                                        1, # bytes per count
+                                        'BIG_ENDIAN',
+                                        0, # discard
+                                        "DEAD") # sync
+        interface.instance_variable_get(:@stream_protocol).connect(MyStream.new)
+        $buffer = "\x00\xDE\xAD\x00\x08\x01\x02\x03\x04\x05\x06"
+        packet = interface.read
+        expect(packet.buffer).to eql("\xDE\xAD\x00\x08\x01\x02\x03\x04")
+      end
+
+      it "handles a sync value that is discarded" do
+        interface = StreamInterface.new("Length",
+                                        16, # bit offset (past the discard)
+                                        16, # bit size
+                                        0, # length offset
+                                        1, # bytes per count
+                                        'BIG_ENDIAN',
+                                        2, # discard
+                                        "DEAD") # sync
+        interface.instance_variable_get(:@stream_protocol).connect(MyStream.new)
+        $buffer = "\x00\xDE\xAD\x00\x08\x01\x02\x03\x04\x05\x06\x07\x08"
+        packet = interface.read
+        expect(packet.buffer).to eql("\x00\x08\x01\x02\x03\x04")
+      end
+
+      it "handles a length value that is discarded" do
+        interface = StreamInterface.new("Length",
+                                        8, # bit offset
+                                        16, # bit size
+                                        0, # length offset
+                                        1, # bytes per count
+                                        'BIG_ENDIAN',
+                                        4, # discard
+                                        nil) # sync
+        interface.instance_variable_get(:@stream_protocol).connect(MyStream.new)
+        $buffer = "\x00\x00\x08\x00\x01\x02\x03\x04\x05\x06\x07\x08"
+        packet = interface.read
+        expect(packet.buffer).to eql("\x01\x02\x03\x04")
+      end
+
+      it "handles a sync and length value that are discarded" do
+        interface = StreamInterface.new("Length",
+                                        16, # bit offset
+                                        8, # bit size
+                                        0, # length offset
+                                        1, # bytes per count
+                                        'BIG_ENDIAN',
+                                        4, # discard
+                                        'DEAD') # sync
+        interface.instance_variable_get(:@stream_protocol).connect(MyStream.new)
+        $buffer = "\x00\xDE\xAD\x0A\x00\x01\x02\x03\x04\x05\x06\x07\x08"
+        packet = interface.read
+        expect(packet.buffer).to eql("\x01\x02\x03\x04\x05\x06")
       end
     end
 
     describe "write" do
-      it "fills the length field and sync pattern if told to" do
-        class MyStream < Stream
-          def connect; end
-          @@written_data = nil
-          def self.written_data
-            @@written_data
-          end
-          def connected?; true; end
-          def write(data)
-            @@written_data = data
-          end
-        end
-        stream = MyStream.new
+      $buffer = ''
+      class MyStream < Stream
+        def connect; end
+        def connected?; true; end
+        def disconnect; end
+        def write(data); $buffer = data; end
+      end
 
-        lsp = LengthStreamProtocol.new(32, # bit offset
+      before(:each) { $buffer = '' }
+
+      it "sends data directly to the stream if no fill" do
+        interface = StreamInterface.new("Length",
+                                        32, # bit offset
                                         16, # bit size
-                                        6,  # length offset
-                                        2,  # bytes per count
+                                        0, # length offset
+                                        1, # bytes per count
                                         'BIG_ENDIAN',
-                                        0,  # discard no leading bytes
-                                        "BA5EBA11",
-                                        nil,
-                                        true)
+                                        0, # discard no leading bytes
+                                        "DEAD", # sync
+                                        nil, # max length
+                                        false) # fill fields
+        interface.instance_variable_get(:@stream_protocol).connect(MyStream.new)
+        packet = Packet.new(nil, nil)
+        packet.buffer = "\x01\x02"
+        interface.write(packet)
+        expect($buffer).to eql("\x01\x02")
+      end
 
-        lsp.connect(stream)
+      it "complains if not enough data to write the sync and length fields" do
+        interface = StreamInterface.new("Length",
+                                        32, # bit offset
+                                        16, # bit size
+                                        0, # length offset
+                                        1, # bytes per count
+                                        'BIG_ENDIAN',
+                                        0, # discard no leading bytes
+                                        "DEAD", # sync
+                                        nil, # max length
+                                        true) # fill fields
+        interface.instance_variable_get(:@stream_protocol).connect(MyStream.new)
         packet = Packet.new(nil, nil)
         packet.buffer = "\x01\x02\x03\x04"
         # 4 bytes are not enough since we expect the length field at offset 32
-        expect { lsp.write(packet) }.to raise_error(ArgumentError, /buffer insufficient/)
+        expect { interface.write(packet) }.to raise_error(ArgumentError, /buffer insufficient/)
+      end
 
-        lsp = LengthStreamProtocol.new(32, # bit offset
+      it "adjusts length by offset" do
+        interface = StreamInterface.new("Length",
+                                        16, # bit offset
                                         16, # bit size
-                                        6,  # length offset
-                                        2,  # bytes per count
+                                        2, # length offset
+                                        1, # bytes per count
                                         'BIG_ENDIAN',
-                                        2,  # discard 2 leading bytes
-                                        "BA5EBA11",
+                                        0, # discard no leading bytes
+                                        nil, # sync
+                                        nil, # max length
+                                        true) # fill fields
+
+        interface.instance_variable_get(:@stream_protocol).connect(MyStream.new)
+        packet = Packet.new(nil, nil)
+        packet.buffer = "\x01\x02\x03\x04\x05\x06"
+        interface.write(packet)
+        # Length is 4 instead of 6 due to length offset
+        expect(packet.buffer).to eql("\x01\x02\x00\x04\x05\x06")
+        expect($buffer).to eql("\x01\x02\x00\x04\x05\x06")
+      end
+
+      it "adjusts length by bytes per count" do
+        interface = StreamInterface.new("Length",
+                                        0, # bit offset
+                                        16, # bit size
+                                        0, # length offset
+                                        2, # bytes per count
+                                        'BIG_ENDIAN',
+                                        0, # discard no leading bytes
+                                        nil, # sync
+                                        nil, # max length
+                                        true) # fill fields
+
+        interface.instance_variable_get(:@stream_protocol).connect(MyStream.new)
+        packet = Packet.new(nil, nil)
+        packet.buffer = "\x01\x02\x03\x04\x05\x06"
+        interface.write(packet)
+        # Length is 3 instead of 6 due to bytes per count
+        expect(packet.buffer).to eql("\x00\x03\x03\x04\x05\x06")
+        expect($buffer).to eql("\x00\x03\x03\x04\x05\x06")
+      end
+
+      it "writes length at odd offset and bit sizes" do
+        interface = StreamInterface.new("Length",
+                                        19, # bit offset
+                                        5, # bit size
+                                        0, # length offset
+                                        1, # bytes per count
+                                        'BIG_ENDIAN',
+                                        0, # discard no leading bytes
+                                        nil, # sync
+                                        nil, # max length
+                                        true) # fill fields
+
+        interface.instance_variable_get(:@stream_protocol).connect(MyStream.new)
+        packet = Packet.new(nil, nil)
+        packet.buffer = "\x55\xAA\x00\xAA\x55\xAA"
+        interface.write(packet)
+        expect(packet.buffer).to eql("\x55\xAA\x06\xAA\x55\xAA")
+        expect($buffer).to eql("\x55\xAA\x06\xAA\x55\xAA")
+      end
+
+      it "validates length against the maximum length" do
+        # Length inside packet
+        interface = StreamInterface.new("Length",
+                                        0, # bit offset
+                                        16, # bit size
+                                        0,  # length offset
+                                        1, # bytes per count
+                                        'BIG_ENDIAN',
+                                        0, # discard
+                                        nil, # sync
+                                        4, # max_length
+                                        true) # fill fields
+        interface.instance_variable_get(:@stream_protocol).connect(MyStream.new)
+        packet = Packet.new(nil, nil)
+        packet.buffer = "\x01\x02\x03\x04\x05\x06"
+        expect { packet = interface.write(packet)}.to raise_error(RuntimeError, "Calculated buffer length 6 larger than max_length 4")
+
+        # Length outside packet (data stream)
+        interface = StreamInterface.new("Length",
+                                        0, # bit offset
+                                        16, # bit size
+                                        0,  # length offset
+                                        1, # bytes per count
+                                        'BIG_ENDIAN',
+                                        2, # discard
+                                        nil, # sync
+                                        4, # max_length
+                                        true) # fill fields
+        interface.instance_variable_get(:@stream_protocol).connect(MyStream.new)
+        packet = Packet.new(nil, nil)
+        packet.buffer = "\x01\x02\x03\x04\x05\x06"
+        expect { packet = interface.write(packet)}.to raise_error(RuntimeError, "Calculated buffer length 6 larger than max_length 4")
+      end
+
+      it "inserts the sync and length fields into the packet" do
+        interface = StreamInterface.new("Length",
+                                        16, # bit offset
+                                        16, # bit size
+                                        0, # length offset
+                                        1, # bytes per count
+                                        'BIG_ENDIAN',
+                                        0, # discard no leading bytes
+                                        "DEAD", # sync
+                                        nil, # max length
+                                        true) # fill fields
+
+        interface.instance_variable_get(:@stream_protocol).connect(MyStream.new)
+        packet = Packet.new(nil, nil)
+        packet.buffer = "\x01\x02\x03\x04\x05\x06\x07\x08"
+        interface.write(packet)
+        expect(packet.buffer).to eql("\xDE\xAD\x00\x08\x05\x06\x07\x08")
+        expect($buffer).to eql("\xDE\xAD\x00\x08\x05\x06\x07\x08")
+
+        interface = StreamInterface.new("Length",
+                                        64, # bit offset
+                                        32, # bit size
+                                        12, # length offset
+                                        1,  # bytes per count
+                                        'BIG_ENDIAN',
+                                        0,  # discard no leading bytes
+                                        "BA5EBA11CAFEBABE",
                                         nil,
                                         true)
 
-        lsp.connect(stream)
+        interface.instance_variable_get(:@stream_protocol).connect(MyStream.new)
         packet = Packet.new(nil, nil)
-        # The packet buffer contains data
-        packet.buffer = "\x01\x02\x03\x04"
-        lsp.write(packet)
-        # Since we discarded 2 leading bytes, they are put back in the final stream data
-        # with the sync word and then then length is set to 0
-        expect(MyStream.written_data).to eql("\xBA\x5E\xBA\x11\x00\x00")
-        expect(packet.buffer).to eql("\x01\x02\x00\x00")
+        # The packet buffer contains the sync and length fields which are overwritten by the write call
+        packet.buffer = "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x02\x03\x04"
+        interface.write(packet)
+        # Since we discarded 0 leading bytes, they are simply written over by the write call
+        expect(packet.buffer).to eql("\xBA\x5E\xBA\x11\xCA\xFE\xBA\xBE\x00\x00\x00\x04\x01\x02\x03\x04")
+        expect($buffer).to eql("\xBA\x5E\xBA\x11\xCA\xFE\xBA\xBE\x00\x00\x00\x04\x01\x02\x03\x04")
+      end
 
-        lsp = LengthStreamProtocol.new(32, # bit offset
+      it "inserts the length field into the packet and sync into data stream" do
+        interface = StreamInterface.new("Length",
+                                        16, # bit offset
                                         16, # bit size
-                                        6,  # length offset
-                                        2,  # bytes per count
+                                        0, # length offset
+                                        1, # bytes per count
                                         'BIG_ENDIAN',
-                                        4,  # discard 4 leading bytes
-                                        "BA5EBA11",
-                                        nil,
-                                        true)
+                                        2, # discard sync
+                                        "DEAD", # sync
+                                        nil, # max length
+                                        true) # fill fields
 
-        lsp.connect(stream)
+        interface.instance_variable_get(:@stream_protocol).connect(MyStream.new)
         packet = Packet.new(nil, nil)
-        # The packet buffer contains data
-        packet.buffer = "\x01\x02\x03\x04"
-        lsp.write(packet)
-        # Since we discarded 4 leading bytes, they are put back in the final stream data
-        # with the sync word and then then length is set to 1 followed by the
-        # last two bytes in the buffer. The \x01\x02 get written over by the length.
-        expect(MyStream.written_data).to eql("\xBA\x5E\xBA\x11\x00\x01\x03\x04")
-        expect(packet.buffer).to eql("\x00\x01\x03\x04")
+        packet.buffer = "\x01\x02\x03\x04\x05\x06"
+        interface.write(packet)
+        expect(packet.buffer).to eql("\x00\x08\x03\x04\x05\x06")
+        expect($buffer).to eql("\xDE\xAD\x00\x08\x03\x04\x05\x06")
 
-        lsp = LengthStreamProtocol.new(32, # bit offset
+        $buffer = ''
+        interface = StreamInterface.new("Length",
+                                        32, # bit offset
                                         16, # bit size
-                                        6,  # length offset
-                                        2,  # bytes per count
+                                        0, # length offset
+                                        1, # bytes per count
                                         'BIG_ENDIAN',
-                                        6,  # discard 6 leading bytes (sync and length)
-                                        "BA5EBA11",
-                                        nil,
-                                        true)
+                                        4, # discard sync
+                                        "BA5EBA11", # sync
+                                        nil, # max length
+                                        true) # fill fields
 
-        lsp.connect(stream)
+        interface.instance_variable_get(:@stream_protocol).connect(MyStream.new)
         packet = Packet.new(nil, nil)
-        # The packet buffer contains only the data
-        packet.buffer = "\x01\x02\x03\x04"
-        lsp.write(packet)
-        # Since we discarded 6 leading bytes, they are put back in the final stream data
-        # with the sync word and then then length is set to 2 followed by the buffer data.
-        expect(MyStream.written_data).to eql("\xBA\x5E\xBA\x11\x00\x02\x01\x02\x03\x04")
-        expect(packet.buffer).to eql("\x01\x02\x03\x04")
+        packet.buffer = "\x01\x02\x03\x04\x05\x06"
+        interface.write(packet)
+        expect(packet.buffer).to eql("\x00\x0A\x03\x04\x05\x06")
+        expect($buffer).to eql("\xBA\x5E\xBA\x11\x00\x0A\x03\x04\x05\x06")
 
-        lsp = LengthStreamProtocol.new(64, # bit offset
+        interface = StreamInterface.new("Length",
+                                        64, # bit offset
                                         32, # bit size
                                         12, # length offset
                                         1,  # bytes per count
@@ -266,35 +407,98 @@ module Cosmos
                                         "BA5EBA11CAFEBABE",
                                         nil,
                                         true)
-        lsp.connect(stream)
+
+        interface.instance_variable_get(:@stream_protocol).connect(MyStream.new)
         packet = Packet.new(nil, nil)
         # The packet buffer contains the length field which is overwritten by the write call
         packet.buffer = "\x00\x00\x00\x00\x01\x02\x03\x04"
-        lsp.write(packet)
+        interface.write(packet)
         # Since we discarded 8 leading bytes, they are put back in the final stream data
-        expect(MyStream.written_data).to eql("\xBA\x5E\xBA\x11\xCA\xFE\xBA\xBE\x00\x00\x00\x04\x01\x02\x03\x04")
         expect(packet.buffer).to eql("\x00\x00\x00\x04\x01\x02\x03\x04")
+        expect($buffer).to eql("\xBA\x5E\xBA\x11\xCA\xFE\xBA\xBE\x00\x00\x00\x04\x01\x02\x03\x04")
 
-        lsp = LengthStreamProtocol.new(64, # bit offset
-                                        32, # bit size
-                                        12, # length offset
-                                        1,  # bytes per count
+      end
+
+      it "inserts the length field into the data stream" do
+        interface = StreamInterface.new("Length",
+                                        8, # bit offset
+                                        16, # bit size
+                                        0, # length offset
+                                        1, # bytes per count
                                         'BIG_ENDIAN',
-                                        0,  # discard no leading bytes
-                                        "BA5EBA11CAFEBABE",
-                                        nil,
-                                        true)
-        lsp.connect(stream)
+                                        4, # discard
+                                        nil, # sync
+                                        nil, # max length
+                                        true) # fill fields
+
+        interface.instance_variable_get(:@stream_protocol).connect(MyStream.new)
         packet = Packet.new(nil, nil)
-        # The packet buffer contains the sync and length fields which are overwritten by the write call
-        packet.buffer = "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x02\x03\x04"
-        lsp.write(packet)
-        # Since we discarded 0 leading bytes, they are simply written over by the write call
-        expect(MyStream.written_data).to eql("\xBA\x5E\xBA\x11\xCA\xFE\xBA\xBE\x00\x00\x00\x04\x01\x02\x03\x04")
-        expect(packet.buffer).to eql("\xBA\x5E\xBA\x11\xCA\xFE\xBA\xBE\x00\x00\x00\x04\x01\x02\x03\x04")
+        packet.buffer = "\x01\x02\x03\x04"
+        interface.write(packet)
+        expect(packet.buffer).to eql("\x01\x02\x03\x04")
+        expect($buffer).to eql("\x00\x00\x08\x00\x01\x02\x03\x04")
+
+        $buffer = ''
+        interface = StreamInterface.new("Length",
+                                        16, # bit offset
+                                        8, # bit size
+                                        0, # length offset
+                                        1, # bytes per count
+                                        'BIG_ENDIAN',
+                                        4, # discard
+                                        nil, # sync
+                                        nil, # max length
+                                        true) # fill fields
+
+        interface.instance_variable_get(:@stream_protocol).connect(MyStream.new)
+        packet = Packet.new(nil, nil)
+        packet.buffer = "\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A"
+        interface.write(packet)
+        expect(packet.buffer).to eql("\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A")
+        expect($buffer).to eql("\x00\x00\x0E\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A")
+      end
+
+      it "inserts the sync and length fields into the data stream" do
+        interface = StreamInterface.new("Length",
+                                        16, # bit offset
+                                        8, # bit size
+                                        0, # length offset
+                                        1, # bytes per count
+                                        'BIG_ENDIAN',
+                                        4, # discard
+                                        "0xDEAD", # sync
+                                        nil, # max length
+                                        true) # fill fields
+
+        interface.instance_variable_get(:@stream_protocol).connect(MyStream.new)
+        packet = Packet.new(nil, nil)
+        packet.buffer = "\x01\x02\x03\x04\x05\x06"
+        interface.write(packet)
+        expect(packet.buffer).to eql("\x01\x02\x03\x04\x05\x06")
+        expect($buffer).to eql("\xDE\xAD\x0A\x00\x01\x02\x03\x04\x05\x06")
+
+        $buffer = ''
+        interface = StreamInterface.new("Length",
+                                        32, # bit offset
+                                        8, # bit size
+                                        0, # length offset
+                                        1, # bytes per count
+                                        'BIG_ENDIAN',
+                                        5, # discard
+                                        "BA5EBA11", # sync
+                                        nil, # max length
+                                        true) # fill fields
+
+        interface.instance_variable_get(:@stream_protocol).connect(MyStream.new)
+        packet = Packet.new(nil, nil)
+        packet.buffer = "\x01\x02\x03\x04"
+        interface.write(packet)
+        expect(packet.buffer).to eql("\x01\x02\x03\x04")
+        expect($buffer).to eql("\xBA\x5E\xBA\x11\x09\x01\x02\x03\x04")
       end
     end
 
   end
 end
+
 

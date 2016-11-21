@@ -20,11 +20,8 @@ module Cosmos
         bsp = BurstStreamProtocol.new
         expect(bsp.bytes_read).to eql 0
         expect(bsp.bytes_written).to eql 0
-        expect(bsp.interface).to be_nil
+        expect(bsp.interface).to be_a Interface
         expect(bsp.stream).to be_nil
-        expect(bsp.post_read_data_callback).to be_nil
-        expect(bsp.post_read_packet_callback).to be_nil
-        expect(bsp.pre_write_packet_callback).to be_nil
       end
     end
   end

@@ -24,54 +24,23 @@ module Cosmos
       it "initializes attributes" do
         expect(@sp.bytes_read).to eql 0
         expect(@sp.bytes_written).to eql 0
-        expect(@sp.interface).to be_nil
+        expect(@sp.interface).to be_a Interface
         expect(@sp.stream).to be_nil
-        expect(@sp.post_read_data_callback).to be_nil
-        expect(@sp.post_read_packet_callback).to be_nil
-        expect(@sp.pre_write_packet_callback).to be_nil
       end
     end
 
     describe "interface=" do
       it "sets the interface" do
-        class MyInterface1 < Interface; end
-        interface = MyInterface1.new
+        interface = StreamInterface.new("")
         @sp.interface = interface
         expect(@sp.interface).to eql interface
-      end
-
-      it "sets the post_read_data callback" do
-        class MyInterface2 < Interface
-          def post_read_data(buffer); 1; end
-        end
-        interface = MyInterface2.new
-        @sp.interface = interface
-        expect(@sp.post_read_data_callback.call(nil)).to eql 1
-      end
-
-      it "sets the post_read_packet callback" do
-        class MyInterface3 < Interface
-          def post_read_packet(packet); 2; end
-        end
-        interface = MyInterface3.new
-        @sp.interface = interface
-        expect(@sp.post_read_packet_callback.call(nil)).to eql 2
-      end
-
-      it "sets the pre_write_packet callback" do
-        class MyInterface4 < Interface
-          def pre_write_packet(packet); 3; end
-        end
-        interface = MyInterface4.new
-        @sp.interface = interface
-        expect(@sp.pre_write_packet_callback.call(nil)).to eql 3
       end
     end
 
     describe "connect" do
       it "sets the stream" do
-        class MyStream1 < Stream; end
-        stream = MyStream1.new
+        class MyStream < Stream; end
+        stream = MyStream.new
         allow(stream).to receive(:connect)
         @sp.connect(stream)
         expect(@sp.stream).to eql stream
@@ -84,11 +53,11 @@ module Cosmos
       end
 
       it "returns the status of the stream connection" do
-        class MyStream2 < Stream
+        class MyStream < Stream
           def connect; end
           def connected?; true; end
         end
-        stream = MyStream2.new
+        stream = MyStream.new
         @sp.connect(stream)
         expect(@sp.connected?).to be true
       end
@@ -97,11 +66,11 @@ module Cosmos
     describe "disconnect" do
       it "calls disconnect on the stream" do
         $test = false
-        class MyStream3 < Stream
+        class MyStream < Stream
           def connect; end
           def disconnect; $test = true; end
         end
-        stream = MyStream3.new
+        stream = MyStream.new
         @sp.connect(stream)
         expect($test).to be false
         @sp.disconnect
@@ -111,31 +80,82 @@ module Cosmos
 
     describe "read" do
       it "reads data from the stream" do
-        class MyStream33 < Stream
+        class MyStream < Stream
           def connect; end
           def connected?; true; end
           def read; "\x01\x02\x03\x04"; end
         end
-        stream = MyStream33.new
+        stream = MyStream.new
         @sp.connect(stream)
         packet = @sp.read
         expect(packet.length).to eql 4
       end
 
       it "handles timeouts from the stream" do
-        class MyStream4 < Stream
+        class MyStream < Stream
           def connect; end
           def connected?; true; end
           def read; raise Timeout::Error; end
         end
-        stream = MyStream4.new
+        stream = MyStream.new
         @sp.connect(stream)
         expect(@sp.read).to be_nil
       end
 
+      it "discards leading bytes from the stream" do
+        class MyStream < Stream
+          def connect; end
+          def connected?; true; end
+          def read
+            "\x01\x02\x03\x04"
+          end
+        end
+        @sp = StreamProtocol.new(2, nil)
+        stream = MyStream.new
+        @sp.connect(stream)
+        packet = @sp.read
+        expect(packet.length).to eql 2
+        expect(packet.buffer.formatted).to match(/03 04/)
+      end
+
+      # The sync pattern is NOT part of the packet
+      it "discards the entire sync pattern" do
+        class MyStream < Stream
+          def connect; end
+          def connected?; true; end
+          def read
+            "\x12\x34\x56\x78\x9A\xBC"
+          end
+        end
+        @sp = StreamProtocol.new(2, '0x1234')
+        stream = MyStream.new
+        @sp.connect(stream)
+        packet = @sp.read
+        expect(packet.length).to eql 4
+        expect(packet.buffer.formatted).to match(/56 78 9A BC/)
+      end
+
+      # The sync pattern is partially part of the packet
+      it "discards part of the sync pattern" do
+        class MyStream < Stream
+          def connect; end
+          def connected?; true; end
+          def read
+            "\x12\x34\x56\x78\x9A\xBC"
+          end
+        end
+        @sp = StreamProtocol.new(1, '0x123456')
+        stream = MyStream.new
+        @sp.connect(stream)
+        packet = @sp.read
+        expect(packet.length).to eql 5
+        expect(packet.buffer.formatted).to match(/34 56 78 9A BC/)
+      end
+
+      # The sync pattern is completely part of the packet
       it "handles a sync pattern" do
         $read_cnt = 0
-        class MyStream5 < Stream
+        class MyStream < Stream
           def connect; end
           def connected?; true; end
           def read
@@ -151,15 +171,16 @@ module Cosmos
           end
         end
         @sp = StreamProtocol.new(0, '0x1234')
-        stream = MyStream5.new
+        stream = MyStream.new
         @sp.connect(stream)
         packet = @sp.read
         expect(packet.length).to eql 4 # sync plus two bytes
+        expect(packet.buffer.formatted).to match(/12 34 10 20/)
       end
 
       it "handles a sync pattern split across reads" do
         $read_cnt = 0
-        class MyStream6 < Stream
+        class MyStream < Stream
           def connect; end
           def connected?; true; end
           def read
@@ -175,7 +196,7 @@ module Cosmos
           end
         end
         @sp = StreamProtocol.new(0, '0x1234')
-        stream = MyStream6.new
+        stream = MyStream.new
         @sp.connect(stream)
         packet = @sp.read
         expect(packet.length).to eql 3 # sync plus one byte
@@ -183,7 +204,7 @@ module Cosmos
 
       it "handles a false positive sync pattern" do
         $read_cnt = 0
-        class MyStream7 < Stream
+        class MyStream < Stream
           def connect; end
           def connected?; true; end
           def read
@@ -199,145 +220,139 @@ module Cosmos
           end
         end
         @sp = StreamProtocol.new(0, '0x1234')
-        stream = MyStream7.new
+        stream = MyStream.new
         @sp.connect(stream)
         packet = @sp.read
         expect(packet.length).to eql 3 # sync plus one byte
       end
-
-      it "discards leading bytes from the stream" do
-        class MyStream8 < Stream
-          def connect; end
-          def connected?; true; end
-          def read
-            "\x01\x02\x03\x04"
-          end
-        end
-        @sp = StreamProtocol.new(2, nil)
-        stream = MyStream8.new
-        @sp.connect(stream)
-        packet = @sp.read
-        expect(packet.length).to eql 2
-        expect(packet.buffer.formatted).to match(/03 04/)
-      end
-
-      it "calls the post_read_data method on the inteface" do
-        class MyStream9 < Stream
-          def connect; end
-          def connected?; true; end
-          def read
-            "\x01\x02\x03\x04"
-          end
-        end
-        class MyInterface5 < Interface
-          def post_read_data(buffer); "\x00\x01\x02\x03"; end
-        end
-        interface = MyInterface5.new
-        @sp.interface = interface
-        stream = MyStream9.new
-        @sp.connect(stream)
-        packet = @sp.read
-        expect(packet.length).to eql 4
-        expect(packet.buffer.formatted).to match(/00 01 02 03/)
-
-        # Simulate the interface returning an empty string which means to skip
-        # this packet and go back to reading data.
-        $read_cnt = 0
-        class MyInterface5 < Interface
-          def post_read_data(buffer)
-            $read_cnt += 1
-            case $read_cnt
-            when 1
-              ""
-            when 2
-              "\x01\x02"
-            end
-          end
-        end
-        interface = MyInterface5.new
-        @sp.interface = interface
-        packet = @sp.read
-        expect(packet.length).to eql 2
-
-        # Simulate the interface returning nil which means the connection is
-        # lost.
-        $read_cnt = 0
-        class MyInterface5 < Interface
-          def post_read_data(buffer); nil; end
-        end
-        interface = MyInterface5.new
-        @sp.interface = interface
-        packet = @sp.read
-        expect(packet).to be_nil
-      end
-
-      it "calls the post_read_packet method on the inteface" do
-        class MyStream10 < Stream
-          def connect; end
-          def connected?; true; end
-          def read
-            "\x01\x02\x03\x04"
-          end
-        end
-        class MyInterface6 < Interface
-          def post_read_packet(packet)
-            packet.buffer = "\x00\x01\x02\x03"
-            packet
-          end
-        end
-        interface = MyInterface6.new
-        @sp.interface = interface
-        stream = MyStream10.new
-        @sp.connect(stream)
-        packet = @sp.read
-        expect(packet.length).to eql 4
-        expect(packet.buffer.formatted).to match(/00 01 02 03/)
-      end
     end
 
     describe "write" do
-      it "calls pre_write_packet on the interface" do
+      it "doesn't change the packet if fill_fields is false" do
         $buffer = ''
-        class MyStream11 < Stream
+        class MyStream < Stream
           def connect; end
           def connected?; true; end
           def write(buffer) $buffer = buffer; end
-        end
-        class MyInterface7 < Interface
-          def pre_write_packet(packet); "\x01\x02\x03\x04"; end
         end
         packet = Packet.new(nil, nil, :BIG_ENDIAN, nil, "\x00\x01\x02\x03")
-        @sp.interface = MyInterface7.new
-        @sp.connect(MyStream11.new)
-        @sp.write(packet)
-        expect($buffer).to eql "\x01\02\03\04"
+        @sp = StreamProtocol.new(0, '0x1234')
+        stream = MyStream.new
+        @sp.connect(stream)
+        packet = @sp.write(packet)
+        expect($buffer).to eql "\x00\x01\x02\x03"
       end
 
-      it "writes the packet buffer to the stream" do
+      it "complains if the packet isn't big enough to hold the sync pattern" do
         $buffer = ''
-        class MyStream11 < Stream
+        class MyStream < Stream
           def connect; end
           def connected?; true; end
           def write(buffer) $buffer = buffer; end
         end
-        packet = Packet.new(nil, nil, :BIG_ENDIAN, nil, "\x01\x02\x03\x04")
-        @sp.connect(MyStream11.new)
-        @sp.write(packet)
-        expect($buffer).to eql "\x01\02\03\04"
+        packet = Packet.new(nil, nil, :BIG_ENDIAN, nil, "\x00\x00")
+        # Don't discard bytes, include and fill the sync pattern
+        @sp = StreamProtocol.new(0, '0x12345678', true)
+        stream = MyStream.new
+        @sp.connect(stream)
+        # 2 bytes are not enough to hold the 4 byte sync
+        expect { @sp.write(packet) }.to raise_error(ArgumentError, /buffer insufficient/)
+      end
+
+      it "fills the sync pattern in the packet" do
+        $buffer = ''
+        class MyStream < Stream
+          def connect; end
+          def connected?; true; end
+          def write(buffer) $buffer = buffer; end
+        end
+        packet = Packet.new(nil, nil, :BIG_ENDIAN, nil, "\x00\x01\x02\x03")
+        # Don't discard bytes, include and fill the sync pattern
+        @sp = StreamProtocol.new(0, '0x1234', true)
+        stream = MyStream.new
+        @sp.connect(stream)
+        packet = @sp.write(packet)
+        expect($buffer).to eql "\x12\x34\x02\x03"
+      end
+
+      it "adds the sync pattern to the data stream" do
+        $buffer = ''
+        class MyStream < Stream
+          def connect; end
+          def connected?; true; end
+          def write(buffer) $buffer = buffer; end
+        end
+        packet = Packet.new(nil, nil, :BIG_ENDIAN, nil, "\x00\x01\x02\x03")
+        # Discard first 2 bytes (the sync pattern), include and fill the sync pattern
+        @sp = StreamProtocol.new(2, '0x1234', true)
+        stream = MyStream.new
+        @sp.connect(stream)
+        packet = @sp.write(packet)
+        expect($buffer).to eql "\x12\x34\x00\x01\x02\x03"
+      end
+
+      it "adds part of the sync pattern to the data stream" do
+        $buffer = ''
+        class MyStream < Stream
+          def connect; end
+          def connected?; true; end
+          def write(buffer) $buffer = buffer; end
+        end
+        packet = Packet.new(nil, nil, :BIG_ENDIAN, nil, "\x00\x00\x02\x03")
+        # Discard first byte (part of the sync pattern), include and fill the sync pattern
+        @sp = StreamProtocol.new(1, '0x123456', true)
+        stream = MyStream.new
+        @sp.connect(stream)
+        packet = @sp.write(packet)
+        expect($buffer).to eql "\x12\x34\x56\x02\x03"
       end
     end
 
     describe "write_raw" do
-      it "writes the raw buffer to the stream" do
+      it "doesn't change the data if fill_fields is false" do
         $buffer = ''
-        class MyStream11 < Stream
+        class MyStream < Stream
           def connect; end
           def connected?; true; end
           def write(buffer) $buffer = buffer; end
         end
-        @sp.connect(MyStream11.new)
-        @sp.write_raw("\x01\x02\x03\x04")
-        expect($buffer).to eql "\x01\02\03\04"
+        @sp = StreamProtocol.new(0, '0x1234')
+        stream = MyStream.new
+        @sp.connect(stream)
+        @sp.write_raw("\x00\x01\x02\x03")
+        expect($buffer).to eql "\x00\x01\x02\x03"
+      end
+
+      # Discard bytes 0 means sync pattern is inside the packet
+      # and write_raw only operates on the data stream
+      it "doesn't change the data if discard bytes is 0" do
+        $buffer = ''
+        class MyStream < Stream
+          def connect; end
+          def connected?; true; end
+          def write(buffer) $buffer = buffer; end
+        end
+        # Don't discard bytes, include and fill the sync pattern
+        @sp = StreamProtocol.new(0, '0x1234', true)
+        stream = MyStream.new
+        @sp.connect(stream)
+        @sp.write_raw("\x00\x01\x02\x03")
+        expect($buffer).to eql "\x00\x01\x02\x03"
+      end
+
+      it "adds the sync pattern to the data stream if discard bytes" do
+        $buffer = ''
+        class MyStream < Stream
+          def connect; end
+          def connected?; true; end
+          def write(buffer) $buffer = buffer; end
+        end
+        # Discard first 2 bytes (the sync pattern), include and fill the sync pattern
+        @sp = StreamProtocol.new(2, '0x1234', true)
+        stream = MyStream.new
+        @sp.connect(stream)
+        @sp.write_raw("\x00\x01\x02\x03")
+        expect($buffer).to eql "\x12\x34\x00\x01\x02\x03"
       end
     end
 

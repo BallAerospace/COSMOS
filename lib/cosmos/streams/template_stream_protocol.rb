@@ -24,13 +24,13 @@ module Cosmos
       strip_read_termination = true,
       discard_leading_bytes = 0,
       sync_pattern = nil,
-      fill_sync_pattern = false)
+      fill_fields = false)
       super(write_termination_characters,
             read_termination_characters,
             strip_read_termination,
             discard_leading_bytes,
             sync_pattern,
-            fill_sync_pattern)
+            fill_fields)
       @response_template = nil
       @response_packet = nil
       @read_queue = Queue.new
@@ -83,18 +83,19 @@ module Cosmos
       end
 
       # Grab the command template because that is all we eventually send
-      template = packet.read("CMD_TEMPLATE")
-      # Create a new empty packet to call super on
+      @template = packet.read("CMD_TEMPLATE")
+      # Create a new packet to populate with the template
       raw_packet = Packet.new(nil, nil)
-      raw_packet.buffer = template
-      # Call super to allow the super classes to massage the packet data
-      data = super(raw_packet)
+      raw_packet.buffer = @template
+      raw_packet = super(raw_packet)
+
+      data = raw_packet.buffer(false)
       # Scan the template for variables in brackets <VARIABLE>
       # Read these values from the packet and substitute them in the template
-      template.scan(/<(.*?)>/).each do |variable|
+      @template.scan(/<(.*?)>/).each do |variable|
         data.gsub!("<#{variable[0]}>", packet.read(variable[0], :RAW).to_s)
       end
-      data
+      raw_packet
     end
 
     def post_write_data(packet, data)

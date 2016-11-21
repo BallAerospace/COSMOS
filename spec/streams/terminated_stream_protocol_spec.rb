@@ -21,107 +21,119 @@ module Cosmos
         tsp = TerminatedStreamProtocol.new('0xABCD','0xABCD')
         expect(tsp.bytes_read).to eql 0
         expect(tsp.bytes_written).to eql 0
-        expect(tsp.interface).to be_nil
+        expect(tsp.interface).to be_a Interface
         expect(tsp.stream).to be_nil
-        expect(tsp.post_read_data_callback).to be_nil
-        expect(tsp.post_read_packet_callback).to be_nil
-        expect(tsp.pre_write_packet_callback).to be_nil
       end
     end
 
     describe "read" do
-      it "reads packets from the stream" do
-        class MyStream < Stream
-          def connect; end
-          def connected?; true; end
-          def read
-            case $index
-            when 0
-              $index += 1
-              $buffer1
-            when 1
-              $buffer2
-            end
-          end
-        end
-        stream = MyStream.new
-
-        lsp = TerminatedStreamProtocol.new('','0xABCD',true)
-
-        lsp.connect(stream)
-        $index = 0
-        $buffer1 = "\x00\x01\x02\xAB"
-        $buffer2 = "\xCD\x44\x02\x03"
-        packet = lsp.read
-        expect(packet.buffer.length).to eql 3
+      class MyStream < Stream
+        def connect; end
+        def connected?; true; end
+        def read; $buffer; end
       end
 
-      it "keeps the the termination characters" do
-        class MyStream < Stream
-          def connect; end
-          def connected?; true; end
-          def read
-            case $index
-            when 0
-              $index += 1
-              $buffer1
-            when 1
-              $buffer2
-            end
-          end
+      before(:each) { $buffer = '' }
+
+      context "when stripping termination characters" do
+        it "handles no sync pattern" do
+          interface = StreamInterface.new("Terminated",'','0xABCD',true)
+          interface.instance_variable_get(:@stream_protocol).connect(MyStream.new)
+          $buffer = "\x00\x01\x02\xAB\xCD\x44\x02\x03"
+          packet = interface.read
+          expect(packet.buffer).to eql("\x00\x01\x02")
         end
-        stream = MyStream.new
 
-        lsp = TerminatedStreamProtocol.new('','0xABCD',false)
+        it "handles a sync pattern inside the packet" do
+          interface = StreamInterface.new("Terminated",'','0xABCD',true,0,'DEAD')
+          interface.instance_variable_get(:@stream_protocol).connect(MyStream.new)
+          $buffer = "\xDE\xAD\x00\x01\x02\xAB\xCD\x44\x02\x03"
+          packet = interface.read
+          expect(packet.buffer).to eql("\xDE\xAD\x00\x01\x02")
+        end
 
-        lsp.connect(stream)
-        $index = 0
-        $buffer1 = "\x00\x01\x02\xAB"
-        $buffer2 = "\xCD\x44\x02\x03"
-        packet = lsp.read
-        expect(packet.buffer.length).to eql 5
-        expect(packet.buffer[-2].unpack('C')[0]).to eql 0xAB
-        expect(packet.buffer[-1].unpack('C')[0]).to eql 0xCD
+        it "handles a sync pattern outside the packet" do
+          interface = StreamInterface.new("Terminated",'','0xABCD',true,2,'DEAD')
+          interface.instance_variable_get(:@stream_protocol).connect(MyStream.new)
+          $buffer = "\xDE\xAD\x00\x01\x02\xAB\xCD\x44\x02\x03"
+          packet = interface.read
+          expect(packet.buffer).to eql("\x00\x01\x02")
+        end
+      end
+
+      context "when keeping termination characters" do
+        it "handles no sync pattern" do
+          interface = StreamInterface.new("Terminated",'','0xABCD',false)
+          interface.instance_variable_get(:@stream_protocol).connect(MyStream.new)
+          $buffer = "\x00\x01\x02\xAB\xCD\x44\x02\x03"
+          packet = interface.read
+          expect(packet.buffer).to eql("\x00\x01\x02\xAB\xCD")
+        end
+
+        it "handles a sync pattern inside the packet" do
+          interface = StreamInterface.new("Terminated",'','0xABCD',false,0,'DEAD')
+          interface.instance_variable_get(:@stream_protocol).connect(MyStream.new)
+          $buffer = "\xDE\xAD\x00\x01\x02\xAB\xCD\x44\x02\x03"
+          packet = interface.read
+          expect(packet.buffer).to eql("\xDE\xAD\x00\x01\x02\xAB\xCD")
+        end
+
+        it "handles a sync pattern outside the packet" do
+          interface = StreamInterface.new("Terminated",'','0xABCD',false,2,'DEAD')
+          interface.instance_variable_get(:@stream_protocol).connect(MyStream.new)
+          $buffer = "\xDE\xAD\x00\x01\x02\xAB\xCD\x44\x02\x03"
+          packet = interface.read
+          expect(packet.buffer).to eql("\x00\x01\x02\xAB\xCD")
+        end
       end
     end
 
     describe "write" do
+      $buffer = ''
+      class MyStream < Stream
+        def connect; end
+        def connected?; true; end
+        def disconnect; end
+        def write(data); $buffer = data; end
+      end
+
+      before(:each) { $buffer = '' }
+
       it "appends termination characters to the packet" do
-        class MyStream < Stream
-          def connect; end
-          def connected?; true; end
-          def write(data); $buffer = data; end
-        end
-        stream = MyStream.new
-
-        lsp = TerminatedStreamProtocol.new('0xCDEF','0xCDEF')
-
-        lsp.connect(stream)
+        interface = StreamInterface.new("Terminated", '0xCDEF','')
+        interface.instance_variable_get(:@stream_protocol).connect(MyStream.new)
         pkt = Packet.new('tgt','pkt')
         pkt.buffer = "\x00\x01\x02\x03"
-        packet = lsp.write(pkt)
-        expect($buffer.length).to eql 6
-        expect($buffer[-2].unpack('C')[0]).to eql 0xCD
-        expect($buffer[-1].unpack('C')[0]).to eql 0xEF
+        interface.write(pkt)
+        expect($buffer).to eql("\x00\x01\x02\x03\xCD\xEF")
       end
 
       it "complains if the packet buffer contains the termination characters" do
-        class MyStream < Stream
-          def connect; end
-          def connected?; true; end
-          def write(data); $buffer = data; end
-        end
-        stream = MyStream.new
-
-        lsp = TerminatedStreamProtocol.new('0xCDEF','0xCDEF')
-
-        lsp.connect(stream)
+        interface = StreamInterface.new("Terminated", '0xCDEF','')
+        interface.instance_variable_get(:@stream_protocol).connect(MyStream.new)
         pkt = Packet.new('tgt','pkt')
         pkt.buffer = "\x00\xCD\xEF\x03"
-        expect { lsp.write(pkt) }.to raise_error("Packet contains termination characters!")
+        expect { interface.write(pkt) }.to raise_error("Packet contains termination characters!")
+      end
+
+      it "handles writing the sync field inside the packet" do
+        interface = StreamInterface.new("Terminated", '0xCDEF','',true,0,'DEAD',true)
+        interface.instance_variable_get(:@stream_protocol).connect(MyStream.new)
+        pkt = Packet.new('tgt','pkt')
+        pkt.buffer = "\x00\x01\x02\x03"
+        interface.write(pkt)
+        expect($buffer).to eql("\xDE\xAD\x02\x03\xCD\xEF")
+      end
+
+      it "handles writing the sync field outside the packet" do
+        interface = StreamInterface.new("Terminated", '0xCDEF','',true,2,'DEAD',true)
+        interface.instance_variable_get(:@stream_protocol).connect(MyStream.new)
+        pkt = Packet.new('tgt','pkt')
+        pkt.buffer = "\x00\x01\x02\x03"
+        interface.write(pkt)
+        expect($buffer).to eql("\xDE\xAD\x00\x01\x02\x03\xCD\xEF")
       end
     end
-
   end
 end
 

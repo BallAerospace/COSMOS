@@ -15,41 +15,22 @@ require 'cosmos/streams/stream'
 
 module Cosmos
 
-  class MyInterface < Interface; end
-
   describe FixedStreamProtocol do
-    before(:each) do
-      @fsp = FixedStreamProtocol.new(1)
-    end
-
     after(:each) do
       clean_config()
     end
 
     describe "initialize" do
       it "initializes attributes" do
-        expect(@fsp.bytes_read).to eql 0
-        expect(@fsp.bytes_written).to eql 0
-        expect(@fsp.interface).to be_nil
-        expect(@fsp.stream).to be_nil
-        expect(@fsp.post_read_data_callback).to be_nil
-        expect(@fsp.post_read_packet_callback).to be_nil
-        expect(@fsp.pre_write_packet_callback).to be_nil
+        fsp = FixedStreamProtocol.new(1)
+        expect(fsp.bytes_read).to eql 0
+        expect(fsp.bytes_written).to eql 0
+        expect(fsp.interface).to be_a Interface
+        expect(fsp.stream).to be_nil
       end
     end
 
     describe "read" do
-      it "complains if no interface set" do
-        class MyStream < Stream
-          def connect; end
-          def connected?; true; end
-          def read; "\x01\x02\x03\x04"; end
-        end
-        stream = MyStream.new
-        @fsp.connect(stream)
-        expect { @fsp.read }.to raise_error(/Interface required/)
-      end
-
       it "reads telemetry data from the stream" do
         class MyStream < Stream
           def connect; end
@@ -57,31 +38,29 @@ module Cosmos
           def read; "\x01\x02"; end
         end
         stream = MyStream.new
-        @fsp.connect(stream)
-        interface = MyInterface.new
+        interface = StreamInterface.new("Fixed", 1)
         interface.target_names = %w(TEST COSMOS)
-        @fsp.interface = interface
-        packet = @fsp.read
+        fsp = interface.instance_variable_get(:@stream_protocol)
+        fsp.connect(stream)
+        packet = interface.read
         expect(packet.received_time.to_f).to be_within(0.1).of(Time.now.to_f)
         expect(packet.target_name).to eql 'COSMOS'
         expect(packet.packet_name).to eql 'VERSION'
-        packet = @fsp.read
+        packet = interface.read
         expect(packet.received_time.to_f).to be_within(0.1).of(Time.now.to_f)
         expect(packet.target_name).to eql 'COSMOS'
         expect(packet.packet_name).to eql 'LIMITS_CHANGE'
-        packet = @fsp.read
+        packet = interface.read
         expect(packet.received_time.to_f).to be_within(0.1).of(Time.now.to_f)
         expect(packet.target_name).to eql 'COSMOS'
         expect(packet.packet_name).to eql 'VERSION'
-        packet = @fsp.read
+        packet = interface.read
         expect(packet.received_time.to_f).to be_within(0.1).of(Time.now.to_f)
         expect(packet.target_name).to eql 'COSMOS'
         expect(packet.packet_name).to eql 'LIMITS_CHANGE'
       end
 
       it "reads command data from the stream" do
-        @fsp = FixedStreamProtocol.new(8, 0, '0x1ACFFC1D', false)
-
         $index = 0
         class MyStream < Stream
           def connect; end
@@ -97,11 +76,11 @@ module Cosmos
           end
         end
         stream = MyStream.new
-        @fsp.connect(stream)
-        interface = MyInterface.new
+        interface = StreamInterface.new("Fixed", 8, 0, '0x1ACFFC1D', false)
         interface.target_names = %w(TEST COSMOS)
-        @fsp.interface = interface
-        packet = @fsp.read
+        fsp = interface.instance_variable_get(:@stream_protocol)
+        fsp.connect(stream)
+        packet = interface.read
         expect(packet.received_time.to_f).to be_within(0.01).of(Time.now.to_f)
         expect(packet.target_name).to eql 'COSMOS'
         expect(packet.packet_name).to eql 'STARTLOGGING'
