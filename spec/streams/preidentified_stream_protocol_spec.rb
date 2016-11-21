@@ -18,8 +18,7 @@ module Cosmos
   class MyInterface < Interface; end
 
   describe PreidentifiedStreamProtocol do
-    before(:each) { $buffer = '' }
-    class MyStream < Stream
+    class PreStream < Stream
       def connect; end
       def connected?; true; end
       def disconnect; end
@@ -27,13 +26,14 @@ module Cosmos
       def write(data); $buffer = data; end
     end
 
+    before(:each) { $buffer = '' }
     after(:all) do
       clean_config()
     end
 
     it "handles receiving a bad packet length" do
       interface = StreamInterface.new("Preidentified", nil, 5)
-      interface.instance_variable_get(:@stream_protocol).connect(MyStream.new)
+      interface.instance_variable_get(:@stream_protocol).connect(PreStream.new)
       pkt = System.telemetry.packet("COSMOS","VERSION")
       time = Time.new(2020,1,31,12,15,30.5)
       pkt.received_time = time
@@ -54,7 +54,7 @@ module Cosmos
     describe "write" do
       it "creates a packet header" do
         interface = StreamInterface.new("Preidentified")
-        interface.instance_variable_get(:@stream_protocol).connect(MyStream.new)
+        interface.instance_variable_get(:@stream_protocol).connect(PreStream.new)
         pkt = System.telemetry.packet("COSMOS","VERSION")
         time = Time.new(2020,1,31,12,15,30.5)
         pkt.received_time = time
@@ -77,7 +77,7 @@ module Cosmos
 
       it "handles a sync pattern" do
         interface = StreamInterface.new("Preidentified", "DEAD")
-        interface.instance_variable_get(:@stream_protocol).connect(MyStream.new)
+        interface.instance_variable_get(:@stream_protocol).connect(PreStream.new)
         pkt = System.telemetry.packet("COSMOS","VERSION")
         time = Time.new(2020,1,31,12,15,30.5)
         pkt.received_time = time
@@ -103,7 +103,7 @@ module Cosmos
     describe "read" do
       it "returns a packet" do
         interface = StreamInterface.new("Preidentified")
-        interface.instance_variable_get(:@stream_protocol).connect(MyStream.new)
+        interface.instance_variable_get(:@stream_protocol).connect(PreStream.new)
         pkt = System.telemetry.packet("COSMOS","VERSION")
         pkt.write("PKT_ID", 1)
         pkt.write("COSMOS", "TEST")

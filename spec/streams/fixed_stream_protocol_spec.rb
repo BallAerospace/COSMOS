@@ -31,13 +31,14 @@ module Cosmos
     end
 
     describe "read" do
+      class FixedStream < Stream
+        def connect; end
+        def connected?; true; end
+        def read; "\x01\x02"; end
+      end
+
       it "reads telemetry data from the stream" do
-        class MyStream < Stream
-          def connect; end
-          def connected?; true; end
-          def read; "\x01\x02"; end
-        end
-        stream = MyStream.new
+        stream = FixedStream.new
         interface = StreamInterface.new("Fixed", 1)
         interface.target_names = %w(TEST COSMOS)
         fsp = interface.instance_variable_get(:@stream_protocol)
@@ -62,9 +63,7 @@ module Cosmos
 
       it "reads command data from the stream" do
         $index = 0
-        class MyStream < Stream
-          def connect; end
-          def connected?; true; end
+        class FixedStream < Stream
           def read
             case $index
             when 0
@@ -75,7 +74,7 @@ module Cosmos
             end
           end
         end
-        stream = MyStream.new
+        stream = FixedStream.new
         interface = StreamInterface.new("Fixed", 8, 0, '0x1ACFFC1D', false)
         interface.target_names = %w(TEST COSMOS)
         fsp = interface.instance_variable_get(:@stream_protocol)

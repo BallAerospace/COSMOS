@@ -26,13 +26,26 @@ module Cosmos
       end
     end
 
+    $buffer = ''
+    $read_cnt = 0
+    class TemplateStream < Stream
+      def connect; end
+      def connected?; true; end
+      def disconnect; end
+      def read_nonblock; []; end
+      def write(buffer) $buffer = buffer; end
+      def read
+        $read_cnt += 1
+        raise Timeout::Error if $read_cnt == 1
+        return "\x31\x30\xAB\xCD" if $read_cnt == 2
+      end
+    end
+
+    before(:each) { $buffer = ''; $read_cnt = 0 }
+
     describe "connect" do
       it "supports an initial read delay" do
-        class MyStream1 < Stream
-          def connect; end
-          def read_nonblock; []; end
-        end
-        stream = MyStream1.new
+        stream = TemplateStream.new
         tsp = TemplateStreamProtocol.new('0xABCD','0xABCD',0,2)
         time = Time.now
         tsp.connect(stream)
@@ -43,11 +56,7 @@ module Cosmos
     describe "disconnect" do
       it "unblocks the read queue" do
         tsp = TemplateStreamProtocol.new('0xABCD','0xABCD')
-        class MyStream1 < Stream
-          def connect; end
-          def disconnect; end
-        end
-        tsp.connect(MyStream1.new)
+        tsp.connect(TemplateStream.new)
 
         result = nil
         t = Thread.new { result = tsp.read() }
@@ -61,14 +70,8 @@ module Cosmos
 
     describe "write" do
       it "works without a response" do
-        $buffer = ''
-        class MyStream < Stream
-          def connect; end
-          def connected?; true; end
-          def write(buffer) $buffer = buffer; end
-        end
         interface = StreamInterface.new("Template",'0xABCD','0xABCD')
-        interface.instance_variable_get(:@stream_protocol).connect(MyStream.new)
+        interface.instance_variable_get(:@stream_protocol).connect(TemplateStream.new)
         packet = Packet.new('TGT', 'CMD')
         packet.append_item("VOLTAGE", 16, :UINT)
         packet.get_item("VOLTAGE").default = 1
@@ -82,23 +85,11 @@ module Cosmos
       end
 
       it "processes responses" do
-        $buffer = ''
-        $read_cnt = 0
-        class MyStream < Stream
-          def connect; end
-          def connected?; true; end
-          def write(buffer) $buffer = buffer; end
-          def read
-            $read_cnt += 1
-            raise Timeout::Error if $read_cnt == 1
-            return "\x31\x30\xAB\xCD" if $read_cnt == 2
-          end
-        end
         rsp_pkt = Packet.new('TGT', 'READ_VOLTAGE')
         rsp_pkt.append_item("VOLTAGE", 16, :UINT)
         allow(System).to receive_message_chain(:telemetry, :packet).and_return(rsp_pkt)
         interface = StreamInterface.new("Template",'0xABCD','0xABCD',1)
-        interface.instance_variable_get(:@stream_protocol).connect(MyStream.new)
+        interface.instance_variable_get(:@stream_protocol).connect(TemplateStream.new)
         interface.target_names = ['TGT']
         packet = Packet.new('TGT', 'CMD')
         packet.append_item("VOLTAGE", 16, :UINT)

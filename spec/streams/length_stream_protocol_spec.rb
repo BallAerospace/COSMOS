@@ -26,15 +26,17 @@ module Cosmos
       end
     end
 
+    $buffer = ''
+    class LengthStream < Stream
+      def connect; end
+      def connected?; true; end
+      def disconnect; end
+      def read; $buffer; end
+      def write(data); $buffer = data; end
+    end
+    before(:each) { $buffer = '' }
+
     describe "read" do
-      class MyStream < Stream
-        def connect; end
-        def connected?; true; end
-        def read; $buffer; end
-      end
-
-      before(:each) { $buffer = '' }
-
       it "reads LITTLE_ENDIAN length fields from the stream" do
         interface = StreamInterface.new("Length",
                                         16, # bit offset
@@ -42,7 +44,7 @@ module Cosmos
                                         0,  # length offset
                                         1,  # bytes per count
                                         'LITTLE_ENDIAN')
-        interface.instance_variable_get(:@stream_protocol).connect(MyStream.new)
+        interface.instance_variable_get(:@stream_protocol).connect(LengthStream.new)
         $buffer = "\x00\x01\x06\x00\x03\x04"
         packet = interface.read
         expect(packet.buffer.length).to eql 6
@@ -55,7 +57,7 @@ module Cosmos
                                         0,  # length offset
                                         1,  # bytes per count
                                         'LITTLE_ENDIAN')
-        interface.instance_variable_get(:@stream_protocol).connect(MyStream.new)
+        interface.instance_variable_get(:@stream_protocol).connect(LengthStream.new)
         $buffer = "\x00\x01\x05\x03\x04"
         packet = interface.read
         expect(packet.buffer.length).to eql 5
@@ -68,7 +70,7 @@ module Cosmos
                                         1, # length offset
                                         1, # bytes per count
                                         'BIG_ENDIAN')
-        interface.instance_variable_get(:@stream_protocol).connect(MyStream.new)
+        interface.instance_variable_get(:@stream_protocol).connect(LengthStream.new)
         $buffer = "\x00\x01\x00\x05\x03\x04"
         packet = interface.read
         expect(packet.buffer.length).to eql 6
@@ -81,7 +83,7 @@ module Cosmos
                                        1, # length offset
                                        2, # bytes per count
                                        'BIG_ENDIAN')
-        interface.instance_variable_get(:@stream_protocol).connect(MyStream.new)
+        interface.instance_variable_get(:@stream_protocol).connect(LengthStream.new)
         $buffer = "\x00\x01\x00\x05\x03\x04\x05\x06\x07\x08\x09"
         packet = interface.read
         expect(packet.buffer.length).to eql 11
@@ -94,7 +96,7 @@ module Cosmos
                                         0, # length offset
                                         1, # bytes per count
                                         'BIG_ENDIAN')
-        interface.instance_variable_get(:@stream_protocol).connect(MyStream.new)
+        interface.instance_variable_get(:@stream_protocol).connect(LengthStream.new)
         $buffer = "\x00\x01\x05\x03\x04"
         packet = interface.read
         expect(packet.buffer.length).to eql 5
@@ -110,7 +112,7 @@ module Cosmos
                                         0, # discard
                                         nil, # sync
                                         50) # max_length
-        interface.instance_variable_get(:@stream_protocol).connect(MyStream.new)
+        interface.instance_variable_get(:@stream_protocol).connect(LengthStream.new)
         $buffer = "\x00\x01\xFF\xFF\x03\x04"
         expect { packet = interface.read }.to raise_error(RuntimeError, "Length value received larger than max_length: 65535 > 50")
       end
@@ -124,7 +126,7 @@ module Cosmos
                                         'BIG_ENDIAN',
                                         0, # discard
                                         "DEAD") # sync
-        interface.instance_variable_get(:@stream_protocol).connect(MyStream.new)
+        interface.instance_variable_get(:@stream_protocol).connect(LengthStream.new)
         $buffer = "\x00\xDE\xAD\x00\x08\x01\x02\x03\x04\x05\x06"
         packet = interface.read
         expect(packet.buffer).to eql("\xDE\xAD\x00\x08\x01\x02\x03\x04")
@@ -139,7 +141,7 @@ module Cosmos
                                         'BIG_ENDIAN',
                                         2, # discard
                                         "DEAD") # sync
-        interface.instance_variable_get(:@stream_protocol).connect(MyStream.new)
+        interface.instance_variable_get(:@stream_protocol).connect(LengthStream.new)
         $buffer = "\x00\xDE\xAD\x00\x08\x01\x02\x03\x04\x05\x06\x07\x08"
         packet = interface.read
         expect(packet.buffer).to eql("\x00\x08\x01\x02\x03\x04")
@@ -154,7 +156,7 @@ module Cosmos
                                         'BIG_ENDIAN',
                                         4, # discard
                                         nil) # sync
-        interface.instance_variable_get(:@stream_protocol).connect(MyStream.new)
+        interface.instance_variable_get(:@stream_protocol).connect(LengthStream.new)
         $buffer = "\x00\x00\x08\x00\x01\x02\x03\x04\x05\x06\x07\x08"
         packet = interface.read
         expect(packet.buffer).to eql("\x01\x02\x03\x04")
@@ -169,7 +171,7 @@ module Cosmos
                                         'BIG_ENDIAN',
                                         4, # discard
                                         'DEAD') # sync
-        interface.instance_variable_get(:@stream_protocol).connect(MyStream.new)
+        interface.instance_variable_get(:@stream_protocol).connect(LengthStream.new)
         $buffer = "\x00\xDE\xAD\x0A\x00\x01\x02\x03\x04\x05\x06\x07\x08"
         packet = interface.read
         expect(packet.buffer).to eql("\x01\x02\x03\x04\x05\x06")
@@ -177,16 +179,6 @@ module Cosmos
     end
 
     describe "write" do
-      $buffer = ''
-      class MyStream < Stream
-        def connect; end
-        def connected?; true; end
-        def disconnect; end
-        def write(data); $buffer = data; end
-      end
-
-      before(:each) { $buffer = '' }
-
       it "sends data directly to the stream if no fill" do
         interface = StreamInterface.new("Length",
                                         32, # bit offset
@@ -198,7 +190,7 @@ module Cosmos
                                         "DEAD", # sync
                                         nil, # max length
                                         false) # fill fields
-        interface.instance_variable_get(:@stream_protocol).connect(MyStream.new)
+        interface.instance_variable_get(:@stream_protocol).connect(LengthStream.new)
         packet = Packet.new(nil, nil)
         packet.buffer = "\x01\x02"
         interface.write(packet)
@@ -216,7 +208,7 @@ module Cosmos
                                         "DEAD", # sync
                                         nil, # max length
                                         true) # fill fields
-        interface.instance_variable_get(:@stream_protocol).connect(MyStream.new)
+        interface.instance_variable_get(:@stream_protocol).connect(LengthStream.new)
         packet = Packet.new(nil, nil)
         packet.buffer = "\x01\x02\x03\x04"
         # 4 bytes are not enough since we expect the length field at offset 32
@@ -235,7 +227,7 @@ module Cosmos
                                         nil, # max length
                                         true) # fill fields
 
-        interface.instance_variable_get(:@stream_protocol).connect(MyStream.new)
+        interface.instance_variable_get(:@stream_protocol).connect(LengthStream.new)
         packet = Packet.new(nil, nil)
         packet.buffer = "\x01\x02\x03\x04\x05\x06"
         interface.write(packet)
@@ -256,7 +248,7 @@ module Cosmos
                                         nil, # max length
                                         true) # fill fields
 
-        interface.instance_variable_get(:@stream_protocol).connect(MyStream.new)
+        interface.instance_variable_get(:@stream_protocol).connect(LengthStream.new)
         packet = Packet.new(nil, nil)
         packet.buffer = "\x01\x02\x03\x04\x05\x06"
         interface.write(packet)
@@ -277,7 +269,7 @@ module Cosmos
                                         nil, # max length
                                         true) # fill fields
 
-        interface.instance_variable_get(:@stream_protocol).connect(MyStream.new)
+        interface.instance_variable_get(:@stream_protocol).connect(LengthStream.new)
         packet = Packet.new(nil, nil)
         packet.buffer = "\x55\xAA\x00\xAA\x55\xAA"
         interface.write(packet)
@@ -297,7 +289,7 @@ module Cosmos
                                         nil, # sync
                                         4, # max_length
                                         true) # fill fields
-        interface.instance_variable_get(:@stream_protocol).connect(MyStream.new)
+        interface.instance_variable_get(:@stream_protocol).connect(LengthStream.new)
         packet = Packet.new(nil, nil)
         packet.buffer = "\x01\x02\x03\x04\x05\x06"
         expect { packet = interface.write(packet)}.to raise_error(RuntimeError, "Calculated buffer length 6 larger than max_length 4")
@@ -313,7 +305,7 @@ module Cosmos
                                         nil, # sync
                                         4, # max_length
                                         true) # fill fields
-        interface.instance_variable_get(:@stream_protocol).connect(MyStream.new)
+        interface.instance_variable_get(:@stream_protocol).connect(LengthStream.new)
         packet = Packet.new(nil, nil)
         packet.buffer = "\x01\x02\x03\x04\x05\x06"
         expect { packet = interface.write(packet)}.to raise_error(RuntimeError, "Calculated buffer length 6 larger than max_length 4")
@@ -331,7 +323,7 @@ module Cosmos
                                         nil, # max length
                                         true) # fill fields
 
-        interface.instance_variable_get(:@stream_protocol).connect(MyStream.new)
+        interface.instance_variable_get(:@stream_protocol).connect(LengthStream.new)
         packet = Packet.new(nil, nil)
         packet.buffer = "\x01\x02\x03\x04\x05\x06\x07\x08"
         interface.write(packet)
@@ -349,7 +341,7 @@ module Cosmos
                                         nil,
                                         true)
 
-        interface.instance_variable_get(:@stream_protocol).connect(MyStream.new)
+        interface.instance_variable_get(:@stream_protocol).connect(LengthStream.new)
         packet = Packet.new(nil, nil)
         # The packet buffer contains the sync and length fields which are overwritten by the write call
         packet.buffer = "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x02\x03\x04"
@@ -371,7 +363,7 @@ module Cosmos
                                         nil, # max length
                                         true) # fill fields
 
-        interface.instance_variable_get(:@stream_protocol).connect(MyStream.new)
+        interface.instance_variable_get(:@stream_protocol).connect(LengthStream.new)
         packet = Packet.new(nil, nil)
         packet.buffer = "\x01\x02\x03\x04\x05\x06"
         interface.write(packet)
@@ -390,7 +382,7 @@ module Cosmos
                                         nil, # max length
                                         true) # fill fields
 
-        interface.instance_variable_get(:@stream_protocol).connect(MyStream.new)
+        interface.instance_variable_get(:@stream_protocol).connect(LengthStream.new)
         packet = Packet.new(nil, nil)
         packet.buffer = "\x01\x02\x03\x04\x05\x06"
         interface.write(packet)
@@ -408,7 +400,7 @@ module Cosmos
                                         nil,
                                         true)
 
-        interface.instance_variable_get(:@stream_protocol).connect(MyStream.new)
+        interface.instance_variable_get(:@stream_protocol).connect(LengthStream.new)
         packet = Packet.new(nil, nil)
         # The packet buffer contains the length field which is overwritten by the write call
         packet.buffer = "\x00\x00\x00\x00\x01\x02\x03\x04"
@@ -431,7 +423,7 @@ module Cosmos
                                         nil, # max length
                                         true) # fill fields
 
-        interface.instance_variable_get(:@stream_protocol).connect(MyStream.new)
+        interface.instance_variable_get(:@stream_protocol).connect(LengthStream.new)
         packet = Packet.new(nil, nil)
         packet.buffer = "\x01\x02\x03\x04"
         interface.write(packet)
@@ -450,7 +442,7 @@ module Cosmos
                                         nil, # max length
                                         true) # fill fields
 
-        interface.instance_variable_get(:@stream_protocol).connect(MyStream.new)
+        interface.instance_variable_get(:@stream_protocol).connect(LengthStream.new)
         packet = Packet.new(nil, nil)
         packet.buffer = "\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A"
         interface.write(packet)
@@ -470,7 +462,7 @@ module Cosmos
                                         nil, # max length
                                         true) # fill fields
 
-        interface.instance_variable_get(:@stream_protocol).connect(MyStream.new)
+        interface.instance_variable_get(:@stream_protocol).connect(LengthStream.new)
         packet = Packet.new(nil, nil)
         packet.buffer = "\x01\x02\x03\x04\x05\x06"
         interface.write(packet)
@@ -489,7 +481,7 @@ module Cosmos
                                         nil, # max length
                                         true) # fill fields
 
-        interface.instance_variable_get(:@stream_protocol).connect(MyStream.new)
+        interface.instance_variable_get(:@stream_protocol).connect(LengthStream.new)
         packet = Packet.new(nil, nil)
         packet.buffer = "\x01\x02\x03\x04"
         interface.write(packet)
