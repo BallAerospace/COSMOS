@@ -33,7 +33,7 @@ module Cosmos
       end
 
       @keywords = %w(TITLE PACKET_LOG_WRITER AUTO_INTERFACE_TARGETS INTERFACE_TARGET INTERFACE ROUTER)
-      @interface_keywords = %w(DONT_CONNECT DONT_RECONNECT RECONNECT_DELAY DISABLE_DISCONNECT LOG DONT_LOG TARGET)
+      @interface_keywords = %w(DONT_CONNECT DONT_RECONNECT RECONNECT_DELAY DISABLE_DISCONNECT LOG DONT_LOG TARGET ADAPTER)
     end
 
     after(:all) do
@@ -369,6 +369,27 @@ module Cosmos
         end
       end
 
+      context "with ADAPTER" do
+        it "complains about too many parameters" do
+          tf = Tempfile.new('unittest')
+          tf.puts "INTERFACE CtsConfigTestInterface cts_config_test_interface.rb"
+          tf.puts 'ADAPTER override.rb PARAM'
+          tf.close
+          expect { CmdTlmServerConfig.new(tf.path) }.to raise_error(ConfigParser::Error, /Too many parameters for ADAPTER./)
+          tf.unlink
+        end
+
+        it "adds the adaptor to the current interface" do
+          tf = Tempfile.new('unittest')
+          tf.puts "INTERFACE CtsConfigTestInterface cts_config_test_interface.rb"
+          tf.puts 'ADAPTER override.rb'
+          tf.close
+          config = CmdTlmServerConfig.new(tf.path)
+          expect(config.interfaces['CTSCONFIGTESTINTERFACE']).to respond_to(:override)
+          tf.unlink
+        end
+      end
+
       context "with two interfaces with the same name" do
         it "complains about duplicate interface names" do
           tf = Tempfile.new('unittest')
@@ -456,7 +477,7 @@ module Cosmos
             file.puts "  end"
             file.puts "end"
           end
-          
+
           background_task_args_file = File.join(Cosmos::USERPATH,'lib','cts_config_test_background_task_args.rb')
           File.open(background_task_args_file,'w') do |file|
             file.puts "require 'cosmos'"
@@ -469,7 +490,7 @@ module Cosmos
             file.puts "  end"
             file.puts "end"
           end
-          
+
           tf = Tempfile.new('unittest')
           tf.puts 'BACKGROUND_TASK cts_config_test_background_task_no_args.rb'
           tf.puts 'BACKGROUND_TASK cts_config_test_background_task_args.rb 1 2 3'
@@ -479,7 +500,7 @@ module Cosmos
           expect(config.background_tasks[0]).to be_a CtsConfigTestBackgroundTaskNoArgs
           expect(config.background_tasks[1]).to be_a CtsConfigTestBackgroundTaskArgs
           tf.unlink
-          
+
           File.delete background_task_no_args_file
           File.delete background_task_args_file
         end

@@ -17,7 +17,7 @@ module Cosmos
   class Completion < Qt::Completer
     CMD_KEYWORDS = %w(cmd cmd_no_range_check cmd_no_hazardous_check cmd_no_checks
       cmd_raw cmd_raw_no_range_check cmd_raw_no_hazardous_check cmd_raw_no_checks)
-    TLM_KEYWORDS = %w(set_tlm set_tlm_raw
+    TLM_KEYWORDS = %w(set_tlm set_tlm_raw override_tlm_raw
     tlm tlm_raw tlm_formatted tlm_with_units
     limits_enabled? enable_limits disable_limits
     check check_raw check_tolerance check_tolerance_raw

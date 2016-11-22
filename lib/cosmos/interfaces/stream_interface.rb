@@ -37,19 +37,30 @@ module Cosmos
       klass = Cosmos.require_class(stream_protocol_class.class_name_to_filename)
       @stream_protocol = klass.new(*stream_protocol_args)
       @stream_protocol.interface = self
+
+      # Build methods to simply defer to the underlying stream_protocol
+      %i(connected? disconnect bytes_read bytes_written).each do |method|
+        define_singleton_method(method) do
+          @stream_protocol.send(method)
+        end
+      end
+      # Build methods that take a parameter to simply defer to the underlying stream_protocol
+      %i(bytes_read= bytes_written=).each do |method|
+        define_singleton_method(method) do |var|
+          @stream_protocol.send(method, var)
+        end
+      end
+      # These methods only defer to the stream protocol if it implements them
+      %i(post_read_data post_read_packet pre_write_packet pre_write_data).each do |method|
+        if @stream_protocol.respond_to?(method)
+          define_singleton_method(method) do |var|
+            @stream_protocol.send(method, var)
+          end
+        end
+      end
     end
 
     # Connect is left undefined as it must be defined by a subclass.
-
-    # @return [Boolean] Whether the stream protocol is connected to the target
-    def connected?
-      @stream_protocol.connected?
-    end
-
-    # Disconnect the stream protocol from the target
-    def disconnect
-      @stream_protocol.disconnect
-    end
 
     # Read a packet from the stream protocol
     def read
@@ -93,43 +104,6 @@ module Cosmos
         raise "Interface not connected for write_raw : #{@name}"
       end
     end
-
-    # @return [Integer] The number of bytes read by the stream protocol
-    def bytes_read
-      @stream_protocol.bytes_read
-    end
-
-    # @return [Integer] Sets the number of bytes read by the stream protocol
-    def bytes_read=(bytes_read)
-      @stream_protocol.bytes_read = bytes_read
-    end
-
-    # @return [Integer] The number of bytes written to the stream protocol
-    def bytes_written
-      @stream_protocol.bytes_written
-    end
-
-    # @return [Integer] Sets the number of bytes written to the stream protocol
-    def bytes_written=(bytes_written)
-      @stream_protocol.bytes_written = bytes_written
-    end
-
-    # These methods do not exist in StreamInterface but can be implemented by
-    # subclasses and will be called by the {StreamProtocol} when processing
-    # the data in the {Stream}.
-    #
-    # Subclasses of {StreamProtocol} can implement the same method. However,
-    # if the callback method is implemented in the interface then the
-    # subclass method is not called.
-    #
-    # Thus if you are implementing an Interface that uses a {StreamProtocol}
-    # and choose to implement this method, you must be aware of any
-    # processing that the {StreamProtocol} does in the same method
-    # and re-implement it (or call @stream_protocol.post_read_data(packet_data), etc) in yours.
-    #
-    # @!method post_read_data(packet_data)
-    # @!method post_read_packet(packet)
-    # @!method pre_write_packet(packet)
 
   end # class StreamInterface
 

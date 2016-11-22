@@ -23,6 +23,7 @@ module Cosmos
       File.open(cts,'w') do |file|
         file.puts 'INTERFACE INST_INT interface.rb'
         file.puts 'TARGET INST'
+        file.puts 'ADAPTER override.rb'
       end
       System.class_eval('@@instance = nil')
 
@@ -65,7 +66,7 @@ module Cosmos
       end
     end
 
-    describe "set_tlm, set_tlm_raw" do
+    describe "set_tlm, set_tlm_raw, override_tlm_raw" do
       it "passes through to the cmd_tlm_server" do
         expect {
           set_tlm("INST HEALTH_STATUS TEMP3 = 1")
@@ -91,6 +92,12 @@ module Cosmos
           expect(tlm_raw("INST HEALTH_STATUS ASCIICMD")).to eql 'Hello World'
           set_tlm_raw("INST HEALTH_STATUS ASCIICMD='Hello = World'")
           expect(tlm_raw("INST HEALTH_STATUS ASCIICMD")).to eql 'Hello = World'
+          override_tlm_raw("INST HEALTH_STATUS TEMP3 = 0")
+          override_tlm_raw("INST HEALTH_STATUS ASCIICMD = 'Hi'")
+          override_tlm_raw("INST HEALTH_STATUS ASCIICMD ='Hello'")
+          override_tlm_raw("INST HEALTH_STATUS ASCIICMD= 'Hello World'")
+          override_tlm_raw("INST HEALTH_STATUS ASCIICMD='Hello World'")
+          override_tlm_raw("INST HEALTH_STATUS ASCIICMD='Hello = World'")
         }.to_not raise_error
       end
 
@@ -99,6 +106,12 @@ module Cosmos
         expect { set_tlm("INST HEALTH_STATUS = 5") }.to raise_error(/#{error_msg}/)
         expect { set_tlm("INST HEALTH_STATUS TEMP3") }.to raise_error(/#{error_msg}/)
         expect { set_tlm("INST HEALTH_STATUS TEMP3 = ") }.to raise_error(/#{error_msg}/)
+        expect { set_tlm_raw("INST HEALTH_STATUS = 5") }.to raise_error(/#{error_msg}/)
+        expect { set_tlm_raw("INST HEALTH_STATUS TEMP3") }.to raise_error(/#{error_msg}/)
+        expect { set_tlm_raw("INST HEALTH_STATUS = 5") }.to raise_error(/#{error_msg}/)
+        expect { override_tlm_raw("INST HEALTH_STATUS TEMP3") }.to raise_error(/#{error_msg}/)
+        expect { override_tlm_raw("INST HEALTH_STATUS TEMP3 = ") }.to raise_error(/#{error_msg}/)
+        expect { override_tlm_raw("INST HEALTH_STATUS TEMP3 = ") }.to raise_error(/#{error_msg}/)
       end
     end
 

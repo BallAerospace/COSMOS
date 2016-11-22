@@ -66,12 +66,22 @@ module Cosmos
     # Set the raw value of a telemetry point to a given value. Note this will
     # be over written in a live system by incoming new telemetry.
     # Usage:
-    #   set_tlm(target_name, packet_name, item_name, value)
+    #   set_tlm_raw(target_name, packet_name, item_name, value)
     # or
-    #   set_tlm("target_name packet_name item_name = value")
+    #   set_tlm_raw("target_name packet_name item_name = value")
     def set_tlm_raw(*args)
       return $cmd_tlm_server.set_tlm_raw(*args)
     end
+
+    # Permanently set the raw value of a telemetry point to a given value
+    # Usage:
+    #   override_tlm_raw(target_name, packet_name, item_name, value)
+    # or
+    #   override_tlm_raw("target_name packet_name item_name = value")
+    def override_tlm_raw(*args)
+      return $cmd_tlm_server.override_tlm_raw(*args)
+    end
+
 
     # Gets all the values from the given packet returned in a two dimensional
     # array containing the item_name, value, and limits state.
@@ -125,7 +135,7 @@ module Cosmos
     # Returns the buffer from the telemetry packet.
     def get_tlm_buffer(target_name, packet_name)
       return $cmd_tlm_server.get_tlm_buffer(target_name, packet_name)
-    end    
+    end
 
     # Subscribe to one or more telemetry packets. The queue ID is returned for
     # use in get_packet_data and unsubscribe_packet_data.

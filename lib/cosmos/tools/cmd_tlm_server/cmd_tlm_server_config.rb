@@ -146,7 +146,7 @@ module Cosmos
             current_interface_or_router.name = interface_name
             @interfaces[interface_name] = current_interface_or_router
 
-          when 'LOG', 'DONT_LOG', 'TARGET'
+          when 'LOG', 'DONT_LOG', 'TARGET', 'ADAPTER'
             raise parser.error("No current interface for #{keyword}") unless current_interface_or_router and current_type == :INTERFACE
 
             case keyword
@@ -172,6 +172,15 @@ module Cosmos
                 current_interface_or_router.target_names << target_name
               else
                 raise parser.error("Unknown target #{target_name} mapped to interface #{current_interface_or_router.name}")
+              end
+
+            when 'ADAPTER'
+              parser.verify_num_parameters(1, 1, "#{keyword} <adapter.rb>")
+              begin
+                require params[0] # Simple test to see if this file is in the path
+                current_interface_or_router.extend(Cosmos.require_class(params[0]))
+              rescue LoadError # Not in the path so look in our official COSMOS adapters directory
+                current_interface_or_router.extend(Cosmos.require_class("cosmos/interfaces/adapters/#{params[0]}"))
               end
 
             end # end case keyword for all keywords that require a current interface

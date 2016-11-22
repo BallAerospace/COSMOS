@@ -58,7 +58,7 @@ module Cosmos
     def read
       if @connected
         packet = first_pending_packet()
-        return packet if packet
+        return post_read_packet(packet) if packet
 
         while true
           # Calculate time to sleep to make ticks 10ms apart
@@ -77,7 +77,7 @@ module Cosmos
           @count_100hz += 1
 
           packet = first_pending_packet()
-          return packet if packet
+          return post_read_packet(packet) if packet
         end
       else
         raise "Interface not connected"
@@ -92,6 +92,7 @@ module Cosmos
         @bytes_written += packet.buffer.length
 
         # Have simulated target handle the packet
+        packet = pre_write_packet(packet)
         @sim_target.write(packet)
       else
         raise "Interface not connected"

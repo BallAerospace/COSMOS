@@ -119,7 +119,8 @@ module Cosmos
         @bytes_read += data.length
         @read_count += 1
 
-        return Packet.new(nil, nil, :BIG_ENDIAN, nil, data)
+        data = post_read_data(data)
+        return post_read_packet(Packet.new(nil, nil, :BIG_ENDIAN, nil, data))
       else
         # Write only interface so stop the thread which calls read
         Thread.stop
@@ -133,6 +134,7 @@ module Cosmos
     def write(packet)
       if @write_dest_port
         if connected?()
+          packet = pre_write_packet(packet)
           write_raw(packet.buffer)
         else
           raise "Interface not connected"
@@ -149,6 +151,7 @@ module Cosmos
     def write_raw(data)
       if @write_dest_port
         if connected?()
+          data = pre_write_data(data)
           @write_socket.write(data, @write_timeout)
           @bytes_written += data.length
           @write_count += 1

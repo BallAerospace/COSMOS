@@ -212,6 +212,47 @@ module Cosmos
       @options[option_name.upcase] = option_values.clone
     end
 
+    # Called to perform modifications on a read packet before it is inserted
+    # into the current value table.
+    #
+    # @param packet [Packet] Original packet
+    # @return [Packet] Potentially modified packet
+    def post_read_packet(packet)
+      packet
+    end
+
+    # Called to perform modifications on read data before making it into a packet
+    #
+    # @param packet_data [String] Raw packet data
+    # @return [String] Potentially modified packet data
+    def post_read_data(packet_data)
+      packet_data
+    end
+
+    # Called to perform modifications on a command packet before it is send
+    #
+    # @param packet [Packet] Original packet
+    # @return [Packet] Potentially modified packet
+    def pre_write_packet(packet)
+      packet
+    end
+
+    # Called to perform modifications on write data before making it into a packet
+    #
+    # @param packet_data [String] Raw packet data
+    # @return [String] Potentially modified packet data
+    def pre_write_data(packet_data)
+      packet_data
+    end
+
+    # Called to perform actions after writing data to the stream
+    #
+    # @param packet [Packet] packet that was written out
+    # @param data [String] binary data that was written out
+    def post_write_data(packet, data)
+      # Default do nothing
+    end
+
     # This method is called by the CmdTlmServer after each read packet is
     # identified. It can be used to perform custom processing/monitoring as
     # each packet is received by the CmdTlmServer.
