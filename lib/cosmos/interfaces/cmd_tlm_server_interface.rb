@@ -89,8 +89,8 @@ module Cosmos
           break
         end
       end
-      # Block forever
-      Thread.stop
+
+      return nil
     end
 
     # Write a packet to the CmdTlmServer to change various settings.
