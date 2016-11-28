@@ -17,7 +17,7 @@ module Cosmos
     def pre_write_packet(packet)
       packet = super(packet)
       flags = packet.read("CCSDSSEQFLAGS")
-      Logger.info "Processing CCSDS Sequenced packets. Flags:#{flags}" if flags != 3
+      Logger.info "Processing CCSDS Sequenced packets. Flags:#{flags}" if flags != @adapter_params['InstAdapter'][0]
       packet
     end
   end

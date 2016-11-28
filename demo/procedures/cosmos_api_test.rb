@@ -159,8 +159,7 @@ get_cmd_list("BOB", "TED")
 expected_list = [["CCSDSVER", 0, nil, "CCSDS primary header version number", nil, nil, false],
   ["CCSDSTYPE", 1, nil, "CCSDS primary header packet type", nil, nil, false],
   ["CCSDSSHF", 0, nil, "CCSDS primary header secondary header flag", nil, nil, false],
-  ["CCSDSAPID", 999, nil, "CCSDS primary header application id", nil, nil, false],
-  ["CCSDSSEQFLAGS", 3, nil, "CCSDS primary header sequence flags", nil, nil, false],
+  ["CCSDSAPID", 999, nil, "CCSDS primary header application id", nil, nil, false]")  ["CCSDSSEQFLAGS", 3, nil, "CCSDS primary header sequence flags", nil, nil, false],
   ["CCSDSSEQCNT", 0, nil, "CCSDS primary header sequence count", nil, nil, false],
   ["CCSDSLENGTH", 12, nil, "CCSDS primary header packet length", nil, nil, false],
   ["PKTID", 1, nil, "Packet id", nil, nil, false],
@@ -291,3 +290,20 @@ tlm_with_units("INST", "HEALTH_STATUS")
 tlm_with_units("INST", "HEALTH_STATUS", "BOB")
 tlm_with_units("INST", "HEALTH_STATUS", "ARY", "BOB")
 
+# override_tlm
+override_tlm("INST HEALTH_STATUS ARY = [0,0,0,0,0,0,0,0,0,0]")
+override_tlm("INST HEALTH_STATUS ASCIICMD = 'HI'")
+override_tlm("INST HEALTH_STATUS CCSDSAPID = 1000")
+override_tlm("INST HEALTH_STATUS TEMP1 = 15")
+
+# override_tlm_raw
+override_tlm_raw("INST HEALTH_STATUS ARY = [0,0,0,0,0,0,0,0,0,0]")
+override_tlm_raw("INST HEALTH_STATUS ASCIICMD = 'HI'")
+override_tlm_raw("INST HEALTH_STATUS CCSDSAPID = 1000")
+override_tlm_raw("INST HEALTH_STATUS TEMP1 = 10000")
+
+# normalize_tlm
+normalize_tlm("INST HEALTH_STATUS ARY")
+normalize_tlm("INST HEALTH_STATUS ASCIICMD")
+normalize_tlm("INST HEALTH_STATUS CCSDSAPID")
+normalize_tlm("INST HEALTH_STATUS TEMP1")

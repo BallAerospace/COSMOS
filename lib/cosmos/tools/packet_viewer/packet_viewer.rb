@@ -514,6 +514,7 @@ module Cosmos
           details_action.statusTip = tr("Popup details about #{target_name} #{packet_name} #{item_name}")
           details_action.connect(SIGNAL('triggered()')) do
             TlmDetailsDialog.new(nil, target_name, packet_name, item_name)
+            @table.clearSelection
           end
           menu.addAction(details_action)
 
@@ -521,12 +522,14 @@ module Cosmos
           edit_action.statusTip = tr("Edit Settings for #{target_name} #{packet_name} #{item_name}")
           edit_action.connect(SIGNAL('triggered()')) do
             TlmEditDialog.new(self, target_name, packet_name, item_name)
+            @table.clearSelection
           end
           menu.addAction(edit_action)
 
           graph_action = Qt::Action.new(tr("Graph #{target_name} #{packet_name} #{item_name}"), self)
           graph_action.statusTip = tr("Create a new COSMOS graph of #{target_name} #{packet_name} #{item_name}")
           graph_action.connect(SIGNAL('triggered()')) do
+            @table.clearSelection
             if Kernel.is_windows?
               Cosmos.run_process("rubyw tools/TlmGrapher -i \"#{target_name} #{packet_name} #{item_name}\" --system #{File.basename(System.initial_filename)}")
             elsif Kernel.is_mac? and File.exist?("tools/mac/TlmGrapher.app")

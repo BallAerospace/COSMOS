@@ -175,13 +175,16 @@ module Cosmos
               end
 
             when 'ADAPTER'
-              parser.verify_num_parameters(1, 1, "#{keyword} <adapter.rb>")
+              parser.verify_num_parameters(1, nil, "#{keyword} <adapter.rb> <Adapter specific parameters>")
               begin
                 require params[0] # Simple test to see if this file is in the path
-                current_interface_or_router.extend(Cosmos.require_class(params[0]))
+                klass = Cosmos.require_class(params[0])
               rescue LoadError # Not in the path so look in our official COSMOS adapters directory
-                current_interface_or_router.extend(Cosmos.require_class("cosmos/interfaces/adapters/#{params[0]}"))
+                klass = Cosmos.require_class("cosmos/interfaces/adapters/#{params[0]}")
               end
+              current_interface_or_router.extend(klass)
+              base = klass.to_s.split(':')[-1]
+              current_interface_or_router.set_adapter_params(base, params[1..-1])
 
             end # end case keyword for all keywords that require a current interface
 

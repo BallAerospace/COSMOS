@@ -41,7 +41,9 @@ module Cosmos
         'tlm_variable',
         'set_tlm',
         'set_tlm_raw',
+        'override_tlm',
         'override_tlm_raw',
+        'normalize_tlm',
         'get_tlm_buffer',
         'get_tlm_packet',
         'get_tlm_values',
@@ -495,6 +497,23 @@ module Cosmos
 
     # Override a telemetry item in a packet to a particular value such that it
     # is always returned even when new telemetry packets are received from the
+    # target.
+    #
+    # Accepts two different calling styles:
+    #   override_tlm("TGT PKT ITEM = 1.0")
+    #   override_tlm('TGT','PKT','ITEM', 10.0)
+    #
+    # Favor the first syntax where possible as it is more succinct.
+    #
+    # @param args The args must either be a string followed by a value or
+    #   three strings followed by a value (see the calling style in the
+    #   description).
+    def override_tlm(*args)
+      _override(__method__, set_tlm_process_args(args, __method__))
+    end
+
+    # Override a telemetry item in a packet to a particular value such that it
+    # is always returned even when new telemetry packets are received from the
     # target. This only accepts RAW data items and any conversions are applied
     # to the raw data when the packet is read.
     #
@@ -508,14 +527,60 @@ module Cosmos
     #   three strings followed by a value (see the calling style in the
     #   description).
     def override_tlm_raw(*args)
-      target_name, packet_name, item_name, value = set_tlm_process_args(args, 'override_tlm_raw')
+      _override(__method__, set_tlm_process_args(args, __method__))
+    end
+
+    # Normalize a telemetry item in a packet to its default behavior. Called
+    # after override_tlm and override_tlm_raw to restore standard processing.
+    #
+    # Accepts two different calling styles:
+    #   normalize_tlm("TGT PKT ITEM")
+    #   normalize_tlm('TGT','PKT','ITEM')
+    #
+    # Favor the first syntax where possible as it is more succinct.
+    #
+    # @param args The args must either be a string or three strings
+    #   (see the calling style in the description).
+    def normalize_tlm(*args)
+      _override(__method__, tlm_process_args(args, __method__))
+    end
+
+    private
+
+    def _override(method, tgt_pkt_item)
+      interface = System.targets[tgt_pkt_item[0]].interface
+      if interface.respond_to?(method) # Check to see if they have this functionality
+        # Test to see if this telemetry item exists
+        System.telemetry.value(tgt_pkt_item[0], tgt_pkt_item[1], tgt_pkt_item[2], :RAW)
+        interface.public_send(method, *tgt_pkt_item)
+      else
+        raise "Interface #{interface.name} does not have override ability. Is 'ADAPTER override_tlm.rb' under the interface definition?"
+      end
+      nil
+    end
+
+    public
+
+    # Normalize a telemetry item in a packet to its default behavior. Called
+    # after override_tlm and override_tlm_raw to restore standard processing.
+    #
+    # Accepts two different calling styles:
+    #   normalize_tlm("TGT PKT ITEM")
+    #   normalize_tlm('TGT','PKT','ITEM')
+    #
+    # Favor the first syntax where possible as it is more succinct.
+    #
+    # @param args The args must either be a string or three strings
+    #   (see the calling style in the description).
+    def normalize_tlm(*args)
+      target_name, packet_name, item_name = tlm_process_args(args, 'normalize_tlm_raw')
       interface = System.targets[target_name].interface
-      if interface.respond_to?(:override) # Check to see if they have this functionality
+      if interface.respond_to?(:normalize_tlm) # Check to see if they have this functionality
         # Test to see if this telemetry item exists
         System.telemetry.value(target_name, packet_name, item_name, :RAW)
-        interface.override(target_name, packet_name, item_name, value)
+        interface.normalize_tlm(target_name, packet_name, item_name)
       else
-        raise "Interface #{interface.name} does not have override ability. Is 'ADAPTER override.rb' under the interface definition?"
+        raise "Interface #{interface.name} does not have normalize ability. Is 'ADAPTER override_tlm.rb' under the interface definition?"
       end
       nil
     end

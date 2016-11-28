@@ -11,18 +11,25 @@
 module Cosmos
 
   module OverrideTlm
-    def override_tlm_raw(target_name, packet_name, item_name, value)
-      @override_tlm_raw ||= {}
-      @override_tlm_raw[target_name] ||= {}
-      @override_tlm_raw[target_name][packet_name] ||= {}
-      @override_tlm_raw[target_name][packet_name][item_name] = value
+    def override_tlm(target_name, packet_name, item_name, value)
+      @override_tlm||= {}
+      @override_tlm[target_name] ||= {}
+      @override_tlm[target_name][packet_name] ||= {}
+      @override_tlm[target_name][packet_name][item_name] = [value, :CONVERTED]
     end
 
-    def clear_override_tlm(target_name, packet_name, item_name)
-      @override_tlm_raw ||= {}
-      pkt = @override_tlm_raw[target_name]
+    def override_tlm_raw(target_name, packet_name, item_name, value)
+      @override_tlm||= {}
+      @override_tlm[target_name] ||= {}
+      @override_tlm[target_name][packet_name] ||= {}
+      @override_tlm[target_name][packet_name][item_name] = [value, :RAW]
+    end
+
+    def normalize_tlm(target_name, packet_name, item_name)
+      @override_tlm||= {}
+      pkt = @override_tlm[target_name]
       if pkt
-        items = @override_tlm_raw[target_name][packet_name]
+        items = @override_tlm[target_name][packet_name]
         items.delete(item_name) if items
       end
     end
@@ -33,14 +40,14 @@ module Cosmos
     # @return [Packet] Potentially modified packet
     def post_read_packet(packet)
       packet = super(packet)
-      if @override_tlm_raw && !@override_tlm_raw.empty?
-        packets = @override_tlm_raw[packet.target_name]
+      if @override_tlm && !@override_tlm.empty?
+        packets = @override_tlm[packet.target_name]
         if packets
           items = packets[packet.packet_name]
           if items
             items.each do |item_name, value|
               # This should be safe because we check at the API level it exists
-              packet.write(item_name, value)
+              packet.write(item_name, value[0], value[1])
             end
           end
         end

@@ -84,6 +84,10 @@ module Cosmos
     # @return [Hash<option name, option values>] Hash of options supplied to interface/router
     attr_accessor :options
 
+    # @return [Hash<adapter name, parameters>] Hash of parameters supplied to
+    # adapter
+    attr_accessor :adapter_params
+
     # Initialize default attribute values
     def initialize
       @name = self.class.to_s
@@ -108,6 +112,7 @@ module Cosmos
       @write_allowed = true
       @write_raw_allowed = true
       @options = {}
+      @adapter_params = {}
     end
 
     # Connects the interface to its target(s). Must be implemented by a
@@ -203,6 +208,7 @@ module Cosmos
       # write_queue_size is the number of packets in the queue so don't copy
       other_interface.interfaces = self.interfaces.clone
       other_interface.options = self.options.clone
+      other_interface.adapter_params = self.adapter_params.clone
     end
 
     # Set an interface or router specific option
@@ -210,6 +216,13 @@ module Cosmos
     # @param option_values array of option values
     def set_option(option_name, option_values)
       @options[option_name.upcase] = option_values.clone
+    end
+
+    # Set an adapter specific options
+    # @param adapter name of the adapter
+    # @param params array of parameter values
+    def set_adapter_params(adapter, params)
+      @adapter_params[adapter] = params.clone
     end
 
     # Called to perform modifications on a read packet before it is inserted
