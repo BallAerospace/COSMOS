@@ -59,7 +59,7 @@ module Cosmos
         end
       end
 
-      while true
+      while connected?
         begin
           event = CmdTlmServer.instance.get_limits_event(@limit_id)
           if event
@@ -89,8 +89,8 @@ module Cosmos
           break
         end
       end
-      # Block forever
-      Thread.stop
+
+      return nil
     end
 
     # Write a packet to the CmdTlmServer to change various settings.

@@ -79,6 +79,7 @@ module Cosmos
                                          @ttl,
                                          @bind_address) if @write_dest_port
       @read_socket = UdpReadSocket.new(@read_port, @hostname, @interface_address, @bind_address) if @read_port
+      @thread_sleeper = nil
     end
 
     # @return [Boolean] Whether the active ports (read and/or write) have
@@ -100,6 +101,8 @@ module Cosmos
       @write_socket = nil
       Cosmos.close_socket(@read_socket)
       @read_socket = nil
+      @thread_sleeper.cancel if @thread_sleeper
+      @thread_sleeper = nil
     end
 
     # If the read port was given, the read_socket is read and the data returned
@@ -113,7 +116,7 @@ module Cosmos
           @raw_logger_pair.read_logger.write(data) if @raw_logger_pair
         rescue IOError
           # Disconnected
-          Thread.stop
+          return nil
         end
 
         @bytes_read += data.length
@@ -122,7 +125,11 @@ module Cosmos
         return Packet.new(nil, nil, :BIG_ENDIAN, nil, data)
       else
         # Write only interface so stop the thread which calls read
-        Thread.stop
+        @thread_sleeper = Sleeper.new
+        while connected?()
+          @thread_sleeper.sleep(1000000)
+        end
+        return nil
       end
     end
 
