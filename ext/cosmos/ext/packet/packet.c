@@ -22,6 +22,7 @@ static ID id_method_packet_name_equals = 0;
 static ID id_method_description_equals = 0;
 static ID id_method_upcase = 0;
 static ID id_method_clone = 0;
+static ID id_method_clear = 0;
 
 static ID id_ivar_id_items = 0;
 static ID id_ivar_id_value = 0;
@@ -169,6 +170,7 @@ static VALUE description_equals(VALUE self, VALUE description) {
  *
  * @param received_time [Time] Time this packet was received */
 static VALUE received_time_equals(VALUE self, VALUE received_time) {
+  volatile VALUE read_conversion_cache = rb_ivar_get(self, id_ivar_read_conversion_cache);
   if (RTEST(received_time)) {
     if (rb_funcall(received_time, id_method_class, 0) != rb_cTime) {
       rb_raise(rb_eArgError, "received_time must be a Time but is a %s", RSTRING_PTR(rb_funcall(rb_funcall(received_time, id_method_class, 0), id_method_to_s, 0)));
@@ -176,6 +178,9 @@ static VALUE received_time_equals(VALUE self, VALUE received_time) {
     rb_ivar_set(self, id_ivar_received_time, rb_funcall(rb_funcall(received_time, id_method_clone, 0), id_method_freeze, 0));
   } else {
     rb_ivar_set(self, id_ivar_received_time, Qnil);
+  }
+  if (RTEST(read_conversion_cache)) {
+    rb_funcall(read_conversion_cache, id_method_clear, 0);
   }
   return rb_ivar_get(self, id_ivar_received_time);
 }
@@ -185,10 +190,14 @@ static VALUE received_time_equals(VALUE self, VALUE received_time) {
  * @param received_count [Integer] Number of times this packet has been
  *   received */
 static VALUE received_count_equals(VALUE self, VALUE received_count) {
+  volatile VALUE read_conversion_cache = rb_ivar_get(self, id_ivar_read_conversion_cache);
   if (rb_funcall(received_count, id_method_class, 0) != rb_cFixnum) {
     rb_raise(rb_eArgError, "received_count must be a Fixnum but is a %s", RSTRING_PTR(rb_funcall(rb_funcall(received_count, id_method_class, 0), id_method_to_s, 0)));
   }
   rb_ivar_set(self, id_ivar_received_count, received_count);
+  if (RTEST(read_conversion_cache)) {
+    rb_funcall(read_conversion_cache, id_method_clear, 0);
+  }
   return rb_ivar_get(self, id_ivar_received_count);
 }
 
@@ -299,6 +308,7 @@ void Init_packet (void)
   id_method_description_equals = rb_intern("description=");
   id_method_upcase = rb_intern("upcase");
   id_method_clone = rb_intern("clone");
+  id_method_clear = rb_intern("clear");
 
   id_ivar_id_items = rb_intern("@id_items");
   id_ivar_id_value = rb_intern("@id_value");
