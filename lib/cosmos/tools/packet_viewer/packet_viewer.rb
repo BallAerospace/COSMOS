@@ -125,8 +125,6 @@ module Cosmos
       @derived_last_action.connect(SIGNAL('triggered()')) { update_tlm_items() }
 
       @formatted_tlm_units_action = Qt::Action.new(tr('Formatted Telemetry With &Units'), self)
-      @formatted_tlm_units_keyseq = Qt::KeySequence.new(tr('Ctrl+U'))
-      @formatted_tlm_units_action.shortcut  = @formatted_tlm_units_keyseq
       @formatted_tlm_units_action.statusTip = tr('Formatted Telemetry with Units')
       @formatted_tlm_units_action.setCheckable(true)
       @formatted_tlm_units_action.setChecked(true)
@@ -136,8 +134,6 @@ module Cosmos
       end
 
       @formatted_tlm_action = Qt::Action.new(tr('&Formatted Telemetry'), self)
-      @formatted_tlm_keyseq = Qt::KeySequence.new(tr('Ctrl+F'))
-      @formatted_tlm_action.shortcut  = @formatted_tlm_keyseq
       @formatted_tlm_action.statusTip = tr('Formatted Telemetry')
       @formatted_tlm_action.setCheckable(true)
       @formatted_tlm_action.connect(SIGNAL('triggered()')) do
@@ -146,8 +142,6 @@ module Cosmos
       end
 
       @normal_tlm_action = Qt::Action.new(tr('Normal &Converted Telemetry'), self)
-      @normal_tlm_keyseq = Qt::KeySequence.new(tr('Ctrl+C'))
-      @normal_tlm_action.shortcut  = @normal_tlm_keyseq
       @normal_tlm_action.statusTip = tr('Normal Converted Telemetry')
       @normal_tlm_action.setCheckable(true)
       @normal_tlm_action.connect(SIGNAL('triggered()')) do
@@ -156,8 +150,6 @@ module Cosmos
       end
 
       @raw_tlm_action = Qt::Action.new(tr('&Raw Telemetry'), self)
-      @raw_tlm_keyseq = Qt::KeySequence.new(tr('Ctrl+A'))
-      @raw_tlm_action.shortcut  = @raw_tlm_keyseq
       @raw_tlm_action.statusTip = tr('Raw Unprocessed Telemetry')
       @raw_tlm_action.setCheckable(true)
       @raw_tlm_action.connect(SIGNAL('triggered()')) do
