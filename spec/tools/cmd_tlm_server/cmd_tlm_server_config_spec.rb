@@ -370,22 +370,25 @@ module Cosmos
       end
 
       context "with ADAPTER" do
-        it "complains about too many parameters" do
+        it "stores extra parameters" do
           tf = Tempfile.new('unittest')
           tf.puts "INTERFACE CtsConfigTestInterface cts_config_test_interface.rb"
-          tf.puts 'ADAPTER override.rb PARAM'
+          tf.puts 'ADAPTER override_tlm.rb PARAM'
           tf.close
-          expect { CmdTlmServerConfig.new(tf.path) }.to raise_error(ConfigParser::Error, /Too many parameters for ADAPTER./)
+          config = CmdTlmServerConfig.new(tf.path)
+          expect(config.interfaces['CTSCONFIGTESTINTERFACE'].adapter_params['OverrideTlm'][0]).to eq 'PARAM'
           tf.unlink
         end
 
         it "adds the adaptor to the current interface" do
           tf = Tempfile.new('unittest')
           tf.puts "INTERFACE CtsConfigTestInterface cts_config_test_interface.rb"
-          tf.puts 'ADAPTER override.rb'
+          tf.puts 'ADAPTER override_tlm.rb'
           tf.close
           config = CmdTlmServerConfig.new(tf.path)
-          expect(config.interfaces['CTSCONFIGTESTINTERFACE']).to respond_to(:override)
+          expect(config.interfaces['CTSCONFIGTESTINTERFACE']).to respond_to(:override_tlm)
+          expect(config.interfaces['CTSCONFIGTESTINTERFACE']).to respond_to(:override_tlm_raw)
+          expect(config.interfaces['CTSCONFIGTESTINTERFACE']).to respond_to(:normalize_tlm)
           tf.unlink
         end
       end

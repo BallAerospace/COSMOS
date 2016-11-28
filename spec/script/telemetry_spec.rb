@@ -23,7 +23,7 @@ module Cosmos
       File.open(cts,'w') do |file|
         file.puts 'INTERFACE INST_INT interface.rb'
         file.puts 'TARGET INST'
-        file.puts 'ADAPTER override.rb'
+        file.puts 'ADAPTER override_tlm.rb'
       end
       System.class_eval('@@instance = nil')
 
