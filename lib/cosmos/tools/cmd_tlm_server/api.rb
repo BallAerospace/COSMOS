@@ -500,7 +500,7 @@ module Cosmos
     def get_tlm_buffer(target_name, packet_name)
       packet = System.telemetry.packet(target_name, packet_name)
       return packet.buffer
-    end    
+    end
 
     # Returns all the values (along with their limits state) for a packet.
     #
@@ -977,8 +977,16 @@ module Cosmos
         raise "ERROR: Invalid number of arguments (#{args.length}) passed to #{method_name}()"
       end
 
+      # Build the command
+      begin
+        command = System.commands.build_cmd(target_name, cmd_name, cmd_params, range_check, raw)
+      rescue => e
+        Logger.error e.message
+        raise e
+      end
+
       if hazardous_check
-        hazardous, hazardous_description = System.commands.cmd_hazardous?(target_name, cmd_name, cmd_params)
+        hazardous, hazardous_description = System.commands.cmd_pkt_hazardous?(command)
         if hazardous
           error = HazardousError.new
           error.target_name = target_name
@@ -987,14 +995,6 @@ module Cosmos
           error.hazardous_description = hazardous_description
           raise error
         end
-      end
-
-      # Build the command
-      begin
-        command = System.commands.build_cmd(target_name, cmd_name, cmd_params, range_check, raw)
-      rescue Exception => e
-        Logger.error e.message
-        raise e
       end
 
       # Send the command
