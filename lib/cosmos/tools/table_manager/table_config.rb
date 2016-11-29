@@ -666,8 +666,8 @@ module Cosmos
     # backwards and that the minimum and maximum values make sense for the given
     # type and bit_size. For example, a maximum of 256 doesn't make sense for a UINT8.
     def convert_to_range(min, max, type, bit_size)
-      min = convert_to_type(min, type)
-      max = convert_to_type(max, type)
+      min = ConfigParser.handle_defined_constants(min.convert_to_value, type, bit_size)
+      max = ConfigParser.handle_defined_constants(max.convert_to_value, type, bit_size)
       range = min..max
 
       # First check for backwards ranges
