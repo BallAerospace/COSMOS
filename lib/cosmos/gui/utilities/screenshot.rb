@@ -15,6 +15,14 @@ module Cosmos
 
     # Take a screenshot of the given window
     def self.screenshot_window (window, filename)
+      if !Kernel.is_windows?()
+        # Delay for one second to allow any dialogs to fully clear first
+        start_time = Time.now
+        while ((Time.now - start_time) < 1.0)
+          Qt::CoreApplication.processEvents(Qt::EventLoop::AllEvents, 1000)
+        end
+      end
+
       # Create a Pixmap to save the screenshot into
       pixmap = Qt::Pixmap::grabWindow(window.winId())
       pixmap.save(filename)
