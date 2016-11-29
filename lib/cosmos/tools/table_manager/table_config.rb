@@ -116,7 +116,7 @@ module Cosmos
 
           when 'PARAMETER'
             usage = "PARAMETER <Parameter Name> <Parameter Description> <Data Type> <Bit Size> <Display Type> <Minimum Value> <Maximum Value> <Default Value - Only in ONE_DIMENTIONAL>"
-            parser.verify_num_parameters(7, 8, usage)
+            parser.verify_num_parameters(6, 8, usage)
             finish_parameter()
             if @current_table
               @current_table.num_rows += 1
@@ -134,15 +134,17 @@ module Cosmos
                 type = read_item_type(parameters[2])
                 bit_size = parameters[3].to_i
                 display_type, editable = read_display_type(parameters[4], type)
-                if type == :BLOCK
+                if type == :BLOCK || type == :STRING
                   range = nil
-                elsif type == :STRING
-                  range = convert_to_range(parameters[5], parameters[6], :UINT, 0)
                 else
                   range = convert_to_range(parameters[5], parameters[6], type, bit_size)
                 end
                 if @current_table.type == :ONE_DIMENSIONAL
-                  default = convert_to_type(parameters[7], type)
+                  if type == :STRING
+                    default = convert_to_type(parameters[5], type)
+                  else
+                    default = convert_to_type(parameters[7], type)
+                  end
                 else # TWO_DIMENSIONAL defaults are set by the DEFAULT keyword
                   default = 0
                 end

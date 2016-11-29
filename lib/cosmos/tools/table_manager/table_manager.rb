@@ -463,7 +463,7 @@ module Cosmos
           title = @currently_displayed_table_name
         end
         dialog.set_title_and_text("#{title} Hex Dump", str)
-        dialog.set_size(550, 400)
+        dialog.set_size(650, 400)
         dialog.exec
         dialog.dispose
       rescue => err
@@ -804,6 +804,10 @@ module Cosmos
 
             when :STATE
               x = item_def.states[gui_table.item(r,c).text]
+
+            when :STRING, :NONE
+              x = gui_table.item(r,c).text
+
             end
 
             # If there is a read conversion we first read the converted value before writing.
@@ -820,9 +824,7 @@ module Cosmos
           # in this case force the range check to fail
           rescue => error
             text = gui_table.item(r,c).text
-            result << "Error saving #{item_def.name} value of #{text} due to #{error.message}.\nReverting to default of #{item_def.default}\n"
-            table.write(item_def.name, item_def.default)
-            update_gui_item(name, table, item_def, r, c)
+            result << "Error saving #{item_def.name} value of '#{text}' due to #{error.message}.\nDefault value is '#{item_def.default}'\n"
           end
         end # end each table column
       end # end each table row
@@ -889,64 +891,64 @@ module Cosmos
       gui_table = @gui_tables[table_name]
 
       case item_def.display_type
-        when :STATE
-          item = Qt::TableWidgetItem.new
-          item.setData(Qt::DisplayRole, Qt::Variant.new(table_def.read(item_def.name)))
-          gui_table.setItem(table_row, table_column, item)
-          if item_def.editable
-            gui_table.item(table_row, table_column).setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsEditable)
-          else
-            gui_table.item(table_row, table_column).setFlags(Qt::NoItemFlags)
-          end
+      when :STATE
+        item = Qt::TableWidgetItem.new
+        item.setData(Qt::DisplayRole, Qt::Variant.new(table_def.read(item_def.name)))
+        gui_table.setItem(table_row, table_column, item)
+        if item_def.editable
+          gui_table.item(table_row, table_column).setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsEditable)
+        else
+          gui_table.item(table_row, table_column).setFlags(Qt::NoItemFlags)
+        end
 
-        when :CHECK
-          gui_table.setItem(table_row, table_column, Qt::TableWidgetItem.new(table_def.read(item_def.name)))
-          # the ItemData will be 0 for unchecked (corresponds with min value),
-          # and 1 for checked (corresponds with max value)
-          if table_def.read(item_def.name) == item_def.range.begin
-            gui_table.item(table_row, table_column).setCheckState(Qt::Unchecked)
-          else
-            gui_table.item(table_row, table_column).setCheckState(Qt::Checked)
-          end
-          if item_def.editable
-            gui_table.item(table_row, table_column).setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsUserCheckable)
-          else
-            gui_table.item(table_row, table_column).setFlags(Qt::NoItemFlags)
-          end
+      when :CHECK
+        gui_table.setItem(table_row, table_column, Qt::TableWidgetItem.new(table_def.read(item_def.name)))
+        # the ItemData will be 0 for unchecked (corresponds with min value),
+        # and 1 for checked (corresponds with max value)
+        if table_def.read(item_def.name) == item_def.range.begin
+          gui_table.item(table_row, table_column).setCheckState(Qt::Unchecked)
+        else
+          gui_table.item(table_row, table_column).setCheckState(Qt::Checked)
+        end
+        if item_def.editable
+          gui_table.item(table_row, table_column).setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsUserCheckable)
+        else
+          gui_table.item(table_row, table_column).setFlags(Qt::NoItemFlags)
+        end
 
-        when :DEC
-          gui_table.setItem(table_row, table_column, Qt::TableWidgetItem.new(tr(table_def.read(item_def.name).to_s)))
-          if item_def.editable
-            gui_table.item(table_row, table_column).setFlags(Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsEnabled)
-          else
-            gui_table.item(table_row, table_column).setFlags(Qt::NoItemFlags)
-          end
+      when :STRING, :NONE, :DEC
+        gui_table.setItem(table_row, table_column, Qt::TableWidgetItem.new(tr(table_def.read(item_def.name).to_s)))
+        if item_def.editable
+          gui_table.item(table_row, table_column).setFlags(Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsEnabled)
+        else
+          gui_table.item(table_row, table_column).setFlags(Qt::NoItemFlags)
+        end
 
-        when :HEX
-          case item_def.bit_size
-            when 8
-              x = sprintf("%02X", table_def.read(item_def.name).to_s)
-              # if the number was negative x will have .. and possibly another
-              # F in the string which we remove by taking the last 4 digits
-              x = /\w{2}$/.match(x)[0]
-            when 16
-              x = sprintf("%04X", table_def.read(item_def.name).to_s)
-              # if the number was negative x will have .. and possibly another
-              # F in the string which we remove by taking the last 4 digits
-              x = /\w{4}$/.match(x)[0]
-            else
-              x = sprintf("%08X", table_def.read(item_def.name).to_s)
-              # if the number was negative x will have .. and possibly another
-              # F in the string which we remove by taking the last 8 digits
-              x = /\w{8}$/.match(x)[0]
-          end
-          x = Integer("0x#{x}") # convert to Integer
-          gui_table.setItem(table_row, table_column, Qt::TableWidgetItem.new(tr("0x%X" % x)))
-          if item_def.editable
-            gui_table.item(table_row, table_column).setFlags(Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsEnabled)
-          else
-            gui_table.item(table_row, table_column).setFlags(Qt::NoItemFlags)
-          end
+      when :HEX
+        case item_def.bit_size
+        when 8
+          x = sprintf("%02X", table_def.read(item_def.name).to_s)
+          # if the number was negative x will have .. and possibly another
+          # F in the string which we remove by taking the last 4 digits
+          x = /\w{2}$/.match(x)[0]
+        when 16
+          x = sprintf("%04X", table_def.read(item_def.name).to_s)
+          # if the number was negative x will have .. and possibly another
+          # F in the string which we remove by taking the last 4 digits
+          x = /\w{4}$/.match(x)[0]
+        else
+          x = sprintf("%08X", table_def.read(item_def.name).to_s)
+          # if the number was negative x will have .. and possibly another
+          # F in the string which we remove by taking the last 8 digits
+          x = /\w{8}$/.match(x)[0]
+        end
+        x = Integer("0x#{x}") # convert to Integer
+        gui_table.setItem(table_row, table_column, Qt::TableWidgetItem.new(tr("0x%X" % x)))
+        if item_def.editable
+          gui_table.item(table_row, table_column).setFlags(Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsEnabled)
+        else
+          gui_table.item(table_row, table_column).setFlags(Qt::NoItemFlags)
+        end
       end
     end
 
