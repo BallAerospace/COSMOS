@@ -115,8 +115,8 @@ module Cosmos
             end
 
           when 'PARAMETER'
-            usage = "PARAMETER <Parameter Name> <Parameter Description> <Data Type> <Bit Size> <Display Type> <Minimum Value> <Maximum Value> <Default Value - Only in ONE_DIMENTIONAL>"
-            parser.verify_num_parameters(7, 8, usage)
+            usage = "PARAMETER <Parameter Name> <Parameter Description> <Data Type> <Bit Size> <Display Type> <Minimum Value> <Maximum Value> <Default Value (Only in ONE_DIMENTIONAL)> <ENDIANNESS (Optional)>"
+            parser.verify_num_parameters(6, 9, usage)
             finish_parameter()
             if @current_table
               @current_table.num_rows += 1
@@ -147,8 +147,14 @@ module Cosmos
                   default = 0
                 end
 
-                @current_parameter = @current_table.create_param(name, @cur_bit_offset,
-                  bit_size, type, description, range, default, display_type, editable)
+                endianness = parameters[-1].to_s.upcase.intern
+                if endianness != :BIG_ENDIAN && endianness != :LITTLE_ENDIAN
+                  endianness = @current_table.default_endianness
+                end
+
+                @current_parameter = @current_table.create_param(
+                  name, @cur_bit_offset, bit_size, type, description,
+                  range, default, display_type, editable, endianness)
                 @cur_bit_offset += parameters[3].to_i
               rescue ArgumentError => err
                 raise parser.error("#{err.message} with #{keyword}.\nUSAGE: #{usage}")
