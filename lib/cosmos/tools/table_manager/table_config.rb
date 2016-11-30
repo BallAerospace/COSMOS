@@ -134,13 +134,13 @@ module Cosmos
                 type = read_item_type(parameters[2])
                 bit_size = parameters[3].to_i
                 display_type, editable = read_display_type(parameters[4], type)
-                if type == :BLOCK || type == :STRING
+                if type == :STRING || type == :BLOCK
                   range = nil
                 else
                   range = convert_to_range(parameters[5], parameters[6], type, bit_size)
                 end
                 if @current_table.type == :ONE_DIMENSIONAL
-                  if type == :STRING
+                  if type == :STRING || type == :BLOCK
                     default = convert_to_type(parameters[5], type)
                   else
                     default = convert_to_type(parameters[7], type)
