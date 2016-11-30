@@ -474,9 +474,11 @@ module Cosmos
         end
         allow(ScriptRunnerFrame).to receive_message_chain(:instance, :use_instrumentation)
         allow(ScriptRunnerFrame).to receive_message_chain(:instance, :use_instrumentation=)
-        load_utility("cosmos.rb")
+        cached = load_utility("cosmos.rb")
+        expect(cached).to eq false
         # This one should use the cached version
-        load_utility("cosmos.rb")
+        cached = load_utility("cosmos.rb")
+        expect(cached).to eq true
       end
     end
 
