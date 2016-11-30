@@ -1006,7 +1006,7 @@ The TABLE keyword designates the start of a new table definition.
 <td colspan="1">Yes</td></tr>
 <tr>
 <td colspan="1">Endianness</td>
-<td colspan="1"><span>Whether to packet the table data as BIG_ENDIAN or LITTLE_ENDIAN.</span></td>
+<td colspan="1"><span>Whether to pack the table data as BIG_ENDIAN or LITTLE_ENDIAN.</span></td>
 <td colspan="1">Yes</td></tr>
 <tr>
 <td colspan="1">Identifier</td>
@@ -1059,13 +1059,18 @@ The PARAMETER keyword defines a table parameter in the current table.
 <tr>
 <td>Default Value</td>
 <td>Default value for this parameter</td>
-<td>Yes</td></tr></tbody></table>
+<td>Yes</td></tr>
+<tr>
+<td colspan="1">Endianness</td>
+<td colspan="1"><span>Whether to pack the parameter data as BIG_ENDIAN or LITTLE_ENDIAN.</span></td>
+<td colspan="1">No</td></tr>
+</tbody></table>
 
 Example Usage:
 {% highlight bash %}
 PARAMETER "Throttle" "Seconds to wait" FLOAT 32 DEC 0 0x0FFFFFFFF 2
 PARAMETER "Scrubbing" "Memory Scrubbing" UINT 8 CHECK 0 1 1
-PARAMETER "Pad" "Pad" UINT 16 HEX-U 0 0 0
+PARAMETER "Pad" "Pad" UINT 16 HEX-U 0 0 0 LITTLE_ENDIAN
 {% endhighlight %}
 
 ### STATE
