@@ -37,9 +37,9 @@ module Cosmos
 
     # Calls define_item in Packet but also incrememts @num_columns
     # if this table is a REPEATING table.
-    def create_param(name, bit_offset, bit_size, type, description, range, default, display_type, editable)
+    def create_param(name, bit_offset, bit_size, type, description, range, default, display_type, editable, endianness)
       @num_columns += 1 if @type == :TWO_DIMENSIONAL
-      item = define_item(name, bit_offset, bit_size, type)
+      item = define_item(name, bit_offset, bit_size, type, nil, endianness)
       item.description = description
       item.range = range
       item.default = default
