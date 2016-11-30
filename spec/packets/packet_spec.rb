@@ -832,6 +832,33 @@ module Cosmos
         p.restore_defaults
         expect(p.buffer).to eql "\x03\x04\x01\x02\x04\x06\x08\x0A"
       end
+
+      it "writes all except skipped items back to their default values" do
+        p = Packet.new("tgt","pkt")
+        p.append_item("test1", 8, :UINT, 16)
+        i = p.get_item("TEST1")
+        i.default = [3,4]
+        p.write("test1", [1,2])
+        p.append_item("test2", 16, :UINT)
+        i = p.get_item("TEST2")
+        i.default = 0x0102
+        i.states = {"TRUE"=>0x0304}
+        p.write("test2", 0x0304)
+        p.append_item("test3", 32, :UINT)
+        i = p.get_item("TEST3")
+        i.default = 0x02030405
+        i.write_conversion = GenericConversion.new("value * 2")
+        p.write("test3", 0x01020304)
+        expect(p.buffer).to eql "\x01\x02\x03\x04\x02\x04\x06\x08"
+        p.restore_defaults(p.buffer(false), ["test1", "test2", "test3"])
+        expect(p.buffer).to eql "\x01\x02\x03\x04\x02\x04\x06\x08"
+        p.restore_defaults(p.buffer(false), ["test1", "test3"])
+        expect(p.buffer).to eql "\x01\x02\x01\x02\x02\x04\x06\x08"
+        p.restore_defaults(p.buffer(false), ["test3"])
+        expect(p.buffer).to eql "\x03\x04\x01\x02\x02\x04\x06\x08"
+        p.restore_defaults(p.buffer(false))
+        expect(p.buffer).to eql "\x03\x04\x01\x02\x04\x06\x08\x0A"
+      end
     end
 
     describe "enable_limits" do
