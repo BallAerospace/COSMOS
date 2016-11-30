@@ -553,21 +553,21 @@ module Cosmos
 
     # Require an additional ruby file
     def load_utility(procedure_name)
-      cached = true
+      not_cached = false
       if defined? ScriptRunnerFrame and ScriptRunnerFrame.instance
         saved = ScriptRunnerFrame.instance.use_instrumentation
         begin
           ScriptRunnerFrame.instance.use_instrumentation = false
-          cached = start(procedure_name)
+          not_cached = start(procedure_name)
         ensure
           ScriptRunnerFrame.instance.use_instrumentation = saved
         end
       else # Just call start
-        cached = start(procedure_name)
+        not_cached = start(procedure_name)
       end
       # Return whether we had to load and instrument this file, i.e. it was not cached
       # This is designed to match the behavior of Ruby's require and load keywords
-      !cached
+      not_cached
     end
     alias require_utility load_utility
 
