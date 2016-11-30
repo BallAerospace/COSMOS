@@ -11,7 +11,7 @@ set START_PATH=!PATH!
 set PROTOCOL=https
 
 :: Update this version if making any changes to this script
-set INSTALLER_VERSION=1.2
+set INSTALLER_VERSION=1.3
 
 :: Paths and versions for COSMOS dependencies
 set RUBY_INSTALLER_32=rubyinstaller-2.2.3.exe
@@ -46,6 +46,13 @@ if not errorlevel 1 (
   set ADMIN=1
 ) else (
   set ADMIN=0
+)
+
+:: Detect if any gem files are present in current folder
+if exist *.gem (
+  echo WARNING: gem files found in the current directory
+  echo WARNING: This can cause the installation to fail or install old gems
+  pause  
 )
 
 ::::::::::::::::::::::
