@@ -137,7 +137,7 @@ module Cosmos
       # Set time, parameters, and restore defaults
       command.received_time = Time.now
       command.given_values = params
-      command.restore_defaults
+      command.restore_defaults(command.buffer(false), params.keys)
       command.raw = raw
 
       given_item_names = set_parameters(command, params, range_checking)
