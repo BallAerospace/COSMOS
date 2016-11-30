@@ -102,7 +102,7 @@ module Cosmos
       ensure
         reset()
       end
-      return bin_files
+      bin_files
     end
 
     # Opens a specified binary file using a specified definition file as the interpreter
@@ -143,8 +143,7 @@ module Cosmos
           result << "Error(s) in #{table.name}:\n" + table_result
         end
       end
-
-      return result
+      result
     end
 
     def file_hex
@@ -156,10 +155,7 @@ module Cosmos
         data << table.buffer
       end
 
-      str, size = create_hex_string(data)
-      str << "\n\nTotal Bytes Read: %d" % size
-
-      return str
+      "#{data.formatted}\n\nTotal Bytes Read: #{data.length}"
     end
 
     # Generate the RPT file for the currently opened file
@@ -304,31 +300,31 @@ module Cosmos
           end
 
           x = table.read(item_def.name, :RAW)
+          if item_def.data_type == :STRING
+            if x.length > item_def.bit_size / 8
+              result << "  #{item_def.name}: #{x} must be less than #{item_def.bit_size / 8} characters\n"
+            end
+          end
+
           unless item_def.range.nil?
-            if item_def.display_type == :STRING
-              if x.length > item_def.range.last || x.length < item_def.range.first
-                result << "  #{item_def.name}: #{x} must be between #{item_def.range.first} and #{item_def.range.last} characters\n"
+            # check to see if the value lies within its valid range
+            if not item_def.range.include?(x)
+              # if the value is displayed as hex, display the range as hex
+              if item_def.display_type == :HEX
+                range_first = "0x%X" % item_def.range.first
+                range_last = "0x%X" % item_def.range.last
+                x = "0x%X" % x
+              else
+                range_first = item_def.range.first
+                range_last = item_def.range.last
+                x = table.read(item_def.name)
               end
-            else
-              # check to see if the value lies within its valid range
-              if not item_def.range.include?(x)
-                # if the value is displayed as hex, display the range as hex
-                if item_def.display_type == :HEX
-                  range_first = "0x%X" % item_def.range.first
-                  range_last = "0x%X" % item_def.range.last
-                  x = "0x%X" % x
-                else
-                  range_first = item_def.range.first
-                  range_last = item_def.range.last
-                  x = table.read(item_def.name)
-                end
-                result << "  #{item_def.name}: #{x} outside valid range of #{range_first}..#{range_last}\n"
-              end
+              result << "  #{item_def.name}: #{x} outside valid range of #{range_first}..#{range_last}\n"
             end
           end
         end # end each column
       end # end each row
-      return result
+      result
     end
 
     def table_default(table_name)
@@ -342,11 +338,7 @@ module Cosmos
       table = @table_def.get_table(table_name)
       raise "Please open a table first." unless table
 
-      data = table.buffer
-      str, size = create_hex_string(data)
-      str << "\n\nTotal Bytes Read: %d" % size
-
-      return str
+      "#{table.buffer.formatted}\n\nTotal Bytes Read: #{table.buffer.length}"
     end
 
     # option to save the currently displayed table as a stand alone binary file
@@ -442,7 +434,6 @@ module Cosmos
     # Override on_save to perform additional actions before the file is
     # saved to disk.
     def on_save
-      return
     end
 
     # Determines the string representation of an item as it should be printed in a RPT file
@@ -463,30 +454,7 @@ module Cosmos
       when :HEX
         result = @table_def.format_hex(table, item_def)
       end
-
-      return result
-    end
-
-    # Create a hex string representation of the given binary data string
-    def create_hex_string(data)
-      index = 0
-      str = ""
-      while index < data.length
-        # after 16 bytes insert a newline in the display
-        if index % 16 == 0
-          # don't insert a newline the first time
-          if index != 0
-            str << "\n"
-          end
-          str << "0x%08X: " % index
-        # every 4 bytes insert a space for readability
-        elsif index % 4 == 0
-          str << " "
-        end
-        str << "%02X" % data.getbyte(index)
-        index += 1
-      end
-      return str, index
+      result
     end
 
     # Set all the binary data in the table definition to the default values
