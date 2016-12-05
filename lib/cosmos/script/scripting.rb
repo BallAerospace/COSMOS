@@ -23,9 +23,11 @@ module Cosmos
     end
 
     def status_bar(message)
-      script_runner = nil
-      ObjectSpace.each_object {|object| if ScriptRunner === object then script_runner = object; break; end}
-      script_runner.script_set_status(message) if script_runner
+      if defined? ScriptRunner
+        script_runner = nil
+        ObjectSpace.each_object {|object| if ScriptRunner === object then script_runner = object; break; end}
+        script_runner.script_set_status(message) if script_runner
+      end
     end
 
     def ask_string(question, blank_or_default = false, password = false)
