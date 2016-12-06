@@ -33,7 +33,7 @@ categories: [release]
 * [#327](https://github.com/BallAerospace/COSMOS/issues/327) TlmGrapher Screenshot in Linux captures the screenshot dialog box
 * [#332](https://github.com/BallAerospace/COSMOS/issues/332) ERB template local variables dont' support strings
 * [#338](https://github.com/BallAerospace/COSMOS/issues/338) Setting received_time and received_count on a packet should clear the read conversion cache
-* [#342](https://github.com/BallAerospace/COSMOS/issues/342) Cust and Paste Error in top_level.rb
+* [#342](https://github.com/BallAerospace/COSMOS/issues/342) Cut and Paste Error in top_level.rb
 * [#344](https://github.com/BallAerospace/COSMOS/issues/344) CmdTlmServer connect/disconnect button doesn't work after calling connect_interface from script
 * [#359](https://github.com/BallAerospace/COSMOS/issues/359) Table Manager doesn't support strings
 * [#372](https://github.com/BallAerospace/COSMOS/issues/372) TestRunner reinstantiating TestSuite/Test objects every execution
