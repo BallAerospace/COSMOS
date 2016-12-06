@@ -14,164 +14,69 @@ require 'cosmos/tools/table_manager/table_config'
 module Cosmos
 
   class TableManagerCore
-    # the currently opened definition file
-    attr_reader :current_def
-
-    # the currently opened binary file
-    attr_reader :current_bin
-
-    # an instance of TableDefinition
-    attr_reader :table_def
+    attr_reader :config, :definition_filename#, :binary_filename
 
     def initialize
       reset()
     end
 
     def reset
-      @current_bin = nil
-      @current_def = nil
-      @table_def = nil
+    #  @binary_filename = nil
+      @definition_filename = nil
+      @config = nil
     end
 
     def process_definition(filename)
-      @table_def = TableConfig.new()
-      @table_def.process(filename)
+      @definition_filename = filename
+      @config = TableConfig.new()
+      @config.process_file(filename)
     end
 
-    # INTERFACE METHODS
+    def file_new(definition_filename, output_dir)
+      progress = 0.0
+      process_definition(definition_filename)
+      yield 0.3 if block_given?
 
-    # Creates new binary files based on a list of definition files and an destination directory
-    def file_new(def_files, output_dir, bar = nil)
-      bin_files = []
-      begin
-        progress = 0.0
-        progress_increment = 100.0 / def_files.length.to_f / 4.0
+      @config.table_names.each {|table_name| set_binary_data_to_default(table_name) }
+      yield 0.7 if block_given?
 
-        def_files.each do |def_file|
-          @current_def = def_file
-
-          process_definition(def_file)
-          if bar
-            progress += progress_increment
-            bar.progress = progress.to_i
-          end
-
-          # Initialize all values to defaults
-          @table_def.get_all_tables.each do |table|
-            set_binary_data_to_default(table.name)
-          end
-
-          if bar
-            progress += progress_increment
-            bar.progress = progress.to_i
-          end
-
-          # Now verify the tables makes sense as defined by the table definition.
-          # It's possible to have a definition file with default values outside
-          # the allowable range so we check for that here.
-          result = file_check()
-          unless result.empty?
-            reset()
-            raise "The table definition file has incompatibilities. Please fix the following errors:\n\n" << result
-          end
-
-          if bar
-            progress += progress_increment
-            bar.progress = progress.to_i
-          end
-
-          if File.basename(def_file) =~ /_def\.txt/
-            basename = File.basename(def_file)[0...-8] # Get the basename without the _def.txt
-          else
-            basename = File.basename(def_file).split('.')[0...-1].join('.') # Get the basename without the extension
-          end
-
-          # Set the current_bin so the file_report function works correctly
-          @current_bin = File.join(output_dir, "#{basename}.dat")
-          file_save(@current_bin)
-          bin_files << @current_bin
-          if bar
-            progress += progress_increment
-            bar.progress = progress.to_i
-          end
-          file_report()
-        end
-
-        bar.progress = 100 if bar
-        sleep(0.5)
-      ensure
-        reset()
-      end
-      bin_files
-    end
-
-    # Opens a specified binary file using a specified definition file as the interpreter
-    def file_open(def_file, bin_file)
-      @current_bin = bin_file
-      @current_def = def_file
-      process_definition(def_file)
-      open_and_load_binary_file(bin_file)
-    end
-
-    def file_save(filename = nil)
-      raise "Please open a table first." unless @table_def
-      @current_bin = filename if filename
-
-      result = file_check()
-      unless result.empty?
-        raise "Please fix the following errors before saving:\n\n" << result
-      end
-
-      # Call the user defined function on_save to allow additional processing
-      # before the file is written out
-      on_save()
-
-      File.open(@current_bin, "wb") do |file|
-        @table_def.get_all_tables.each do |table|
-          file.write(table.buffer)
-        end
-      end
+      file_save(File.join(output_dir, def_to_bin_filename(definition_filename)))
     end
 
     def file_check
-      raise "Please open a table first." unless @table_def
+      raise "Please open a table first." unless @config
 
       result = ""
-      @table_def.get_all_tables.each do |table|
-        table_result = table_check(table.name)
+      @config.table_names.each do |name|
+        table_result = table_check(name)
         unless table_result.empty?
-          result << "Error(s) in #{table.name}:\n" + table_result
+          result << "Error(s) in #{name}:\n" + table_result
         end
       end
-      result
+      raise result unless result.empty?
     end
 
-    def file_hex
-      raise "Please open a table first." unless @table_def
-
-      data = ""
-      # collect the data from each table
-      @table_def.get_all_tables.each do |table|
-        data << table.buffer
+    def file_save(filename)
+      raise "Please open a table first." unless @config
+      file_check()
+      File.open(filename, "wb") do |file|
+        @config.tables.each do |table_name, table|
+          file.write(table.buffer)
+        end
       end
-
-      "#{data.formatted}\n\nTotal Bytes Read: #{data.length}"
+      file_report(filename)
     end
 
     # Generate the RPT file for the currently opened file
-    def file_report
-      raise "Please open a table first." unless @table_def
+    def file_report(binary_filename)
+      raise "Please open a table first." unless @config
+      file_check()
 
-      result = file_check()
-      unless result.empty?
-        raise "Please fix the following errors before generating the report:\n\n" << result
-      end
-
-      filename = File.basename(@current_bin, ".dat")
-      File.open(File.join(File.dirname(@current_bin), "#{filename}.rpt"), 'w+') do |file|
-        file.write("File Definition: #{@current_def}\n")
-        file.write("File Binary: #{@current_bin}\n\n")
-        @table_def.get_all_tables.each do |table|
+      filename = File.basename(binary_filename, ".dat")
+      File.open(File.join(File.dirname(binary_filename), "#{filename}.txt"), 'w+') do |file|
+        file.write("File Definition: #{@definition_file}\n")
+        file.write("File Binary: #{binary_filename}\n\n")
+        @config.tables.values.each do |table|
           items = table.sorted_items
           file.puts(table.name)
 
@@ -216,11 +121,11 @@ module Cosmos
           (0...table.num_rows).each do |r|
             (0...table.num_columns).each do |c|
               if table.type == :TWO_DIMENSIONAL
-                item_def = items[c + r * table.num_columns]
+                table_item = items[c + r * table.num_columns]
               else
-                item_def = items[r]
+                table_item = items[r]
               end
-              value = item_to_report_string(table, item_def)
+              value = item_to_report_string(table, table_item)
 
               if value.length > column_lengths[c+1]
                 column_lengths[c+1] = value.length
@@ -259,12 +164,12 @@ module Cosmos
             file.printf("%-#{column_lengths[0]}s ", rowtext)
             (0...table.num_columns).each do |c|
               if table.type == :TWO_DIMENSIONAL
-                item_def = items[c + r * table.num_columns]
+                table_item = items[c + r * table.num_columns]
               else
-                item_def = items[r]
+                table_item = items[r]
               end
 
-              value = item_to_report_string(table, item_def)
+              value = item_to_report_string(table, table_item)
 
               file.printf("%-#{column_lengths[c+1]}s ", value)
 
@@ -272,18 +177,30 @@ module Cosmos
             file.write("\n") # newline after each row
           end
           file.write("\n") # newline after each table
-        end # end @table_def.get_all_tables.each do |table|
+        end
       end
     end
 
-    def table_check(table_name)
-      raise "Please open a table first." unless @table_def
+    def file_open(definition_filename, binary_filename)
+      process_definition(definition_filename)
+      open_and_load_binary_file(binary_filename)
+    end
 
-      table = @table_def.get_table(table_name)
+    def file_hex
+      raise "Please open a table first." unless @config
+      data = ""
+      @config.tables.values.each {|table| data << table.buffer }
+      "#{data.formatted}\n\nTotal Bytes Read: #{data.length}"
+    end
+
+    def table_check(table_name)
+      raise "Please open a table first." unless @config
+
+      table = @config.table(table_name)
       raise "Please open a table first." unless table
 
       result = ""
-      item_defs = table.sorted_items
+      table_items = table.sorted_items
 
       # Check the ranges and constraints for each item in the table
       # We go through it this way (by row and columns) so we can grab the actual
@@ -291,35 +208,35 @@ module Cosmos
       (0...table.num_rows).each do |r|
         (0...table.num_columns).each do |c|
           # get the table item definition so we know how to save it
-          item_def = item_defs[r * table.num_columns + c]
+          table_item = table_items[r * table.num_columns + c]
 
           # if a constraint was defined call it here
           # this should set the underlying constraints
-          if (item_def.constraint != nil)
-            item_def.constraint.call(item_def, table, table.buffer)
+          if (table_item.constraint != nil)
+            table_item.constraint.call(table_item, table, table.buffer)
           end
 
-          x = table.read(item_def.name, :RAW)
-          if item_def.data_type == :STRING
-            if x.length > item_def.bit_size / 8
-              result << "  #{item_def.name}: #{x} must be less than #{item_def.bit_size / 8} characters\n"
+          x = table.read(table_item.name, :RAW)
+          if table_item.data_type == :STRING
+            if x.length > table_item.bit_size / 8
+              result << "  #{table_item.name}: #{x} must be less than #{table_item.bit_size / 8} characters\n"
             end
           end
 
-          unless item_def.range.nil?
+          unless table_item.range.nil?
             # check to see if the value lies within its valid range
-            if not item_def.range.include?(x)
+            if not table_item.range.include?(x)
               # if the value is displayed as hex, display the range as hex
-              if item_def.display_type == :HEX
-                range_first = "0x%X" % item_def.range.first
-                range_last = "0x%X" % item_def.range.last
+              if table_item.display_type == :HEX
+                range_first = "0x%X" % table_item.range.first
+                range_last = "0x%X" % table_item.range.last
                 x = "0x%X" % x
               else
-                range_first = item_def.range.first
-                range_last = item_def.range.last
-                x = table.read(item_def.name)
+                range_first = table_item.range.first
+                range_last = table_item.range.last
+                x = table.read(table_item.name)
               end
-              result << "  #{item_def.name}: #{x} outside valid range of #{range_first}..#{range_last}\n"
+              result << "  #{table_item.name}: #{x} outside valid range of #{range_first}..#{range_last}\n"
             end
           end
         end # end each column
@@ -328,39 +245,33 @@ module Cosmos
     end
 
     def table_default(table_name)
-      raise "Please open a table first." unless @table_def
+      raise "Please open a table first." unless @config
       set_binary_data_to_default(table_name)
     end
 
     # option to display a dialog containing a hex dump of the current table values
     def table_hex(table_name)
-      raise "Please open a table first." unless @table_def
-      table = @table_def.get_table(table_name)
+      raise "Please open a table first." unless @config
+      table = @config.table(table_name)
       raise "Please open a table first." unless table
-
       "#{table.buffer.formatted}\n\nTotal Bytes Read: #{table.buffer.length}"
     end
 
     # option to save the currently displayed table as a stand alone binary file
     def table_save(table_name, filename)
-      raise "Please open a table first." unless @table_def
+      raise "Please open a table first." unless @config
+      table_check(table_name)
 
-      result = table_check(table_name)
-      unless result.empty?
-        raise "Please fix the following errors before saving:\n\n" << result
-      end
-
-      File.open(filename, 'wb') do |datafile|
-        table = @table_def.get_table(table_name)
-        datafile.write(table.buffer)
+      File.open(filename, 'wb') do |file|
+        file.write(@config.get_table(table_name).buffer)
       end
     end
 
     # option to save the currently displayed table to an existing table binary file
     # containing that table.
     def table_commit(table_name, bin_file, def_file)
-      raise "Please open a table first." unless @table_def
-      save_table = @table_def.get_table(table_name)
+      raise "Please open a table first." unless @config
+      save_table = @config.get_table(table_name)
       raise "Please open a table first." unless save_table
 
       result = file_check()
@@ -368,8 +279,8 @@ module Cosmos
         raise "Please fix the following errors before saving:\n\n" << result
       end
 
-      @current_bin = bin_file
-      @current_def = def_file
+      @binary_file = bin_file
+      @definition_file = def_file
 
       parser = TableConfig.new
       begin
@@ -382,21 +293,21 @@ module Cosmos
         raise "#{table_name} not found in #{def_file} table definition file."
       end
 
-      @table_def = parser
+      @config = parser
       open_and_load_binary_file(bin_file)
 
       # Store the saved table data in the new table definition
-      table = @table_def.get_table(save_table.name)
+      table = @config.get_table(save_table.name)
       table.buffer = save_table.buffer[0...table.length]
       file_save(bin_file)
     end
 
     # Updates the definition file for a table.
     def table_update_def(table_name)
-      raise "Please open a table first." unless @table_def
+      raise "Please open a table first." unless @config
 
       # Check to see that the table definition file is writeable
-      table = @table_def.get_table(table_name)
+      table = @config.get_table(table_name)
       raise "Please open a table first." unless table
 
       if !File.writable?(table.filename)
@@ -410,7 +321,7 @@ module Cosmos
       end
 
       begin
-        @table_def.commit_default_values(table)
+        @config.commit_default_values(table)
       rescue => err
         raise "The table definition file could not be written due to the following error(s):\n#{err}"
       end
@@ -418,59 +329,58 @@ module Cosmos
 
     # Return a GenericTable given a String table name
     def get_table(table_name)
-      @table_def.get_table(table_name)
+      @config.table(table_name)
     end
 
     # Retrieves a value from a table
     def get_table_item(table_name, item_name)
-      @table_def.get_table(table_name).read(item_name)
+      @config.table(table_name).read(item_name)
     end
 
     # Updates a value in a table
     def set_table_item(table_name, item_name, value)
-      @table_def.get_table(table_name).write(item_name, value)
-    end
-
-    # Override on_save to perform additional actions before the file is
-    # saved to disk.
-    def on_save
+      @config.table(table_name).write(item_name, value)
     end
 
     # Determines the string representation of an item as it should be printed in a RPT file
-    def item_to_report_string(table, item_def)
+    def item_to_report_string(table, table_item)
       result = ""
-      case item_def.display_type
+      case table_item.display_type
       when :NONE
-        result = "\n#{table.read(item_def.name).formatted}"
+        result = "\n#{table.read(table_item.name).formatted}"
       when :STATE, :DEC, :STRING
-        result = table.read(item_def.name).to_s
+        result = table.read(table_item.name).to_s
       when :CHECK
-        value = table.read(item_def.name)
-        if value == item_def.range.end
-          result = "X (#{item_def.range.end.to_s})"
+        value = table.read(table_item.name)
+        if value == table_item.range.end
+          result = "X (#{table_item.range.end.to_s})"
         else
-          result = "- (#{item_def.range.begin.to_s})"
+          result = "- (#{table_item.range.begin.to_s})"
         end
       when :HEX
-        result = @table_def.format_hex(table, item_def)
+        result = @config.format_hex(table, table_item)
       end
       result
     end
 
-    # Set all the binary data in the table definition to the default values
+    protected
+
+    # Set all the binary data in the table to the default values
     def set_binary_data_to_default(table_name)
-      table = @table_def.get_table(table_name)
-
-      # if we can't find the table do nothing
+      table = @config.table(table_name)
       return unless table
+      table.restore_defaults
+    end
 
-      table.sorted_items.each do |item_def|
-        if item_def.data_type == :BLOCK
-          table.write(item_def.name, item_def.default.hex_to_byte_string)
-        else
-          table.write(item_def.name, item_def.default)
-        end
+    def def_to_bin_filename(definition_filename)
+      if File.basename(definition_filename) =~ /_def\.txt$/
+        # Remove _def.txt if present (should be)
+        basename = File.basename(definition_filename)[0...-8]
+      else
+        # Remove any extension if present
+        basename = File.basename(definition_filename, File.extname(definition_filename))
       end
+      "#{basename}.dat"
     end
 
     # Opens the given binary file and populates the table definition.
@@ -488,8 +398,8 @@ module Cosmos
 
       binary_data_index = 0
       total_table_length = 0
-      @table_def.get_all_tables.each {|table| total_table_length += table.length }
-      @table_def.get_all_tables.each do |table|
+      @config.get_all_tables.each {|table| total_table_length += table.length }
+      @config.get_all_tables.each do |table|
         if binary_data_index + table.length > data.length
           table.buffer = data[binary_data_index..-1]
           raise "Binary size of #{data.length} not large enough to fully represent table definition of length #{total_table_length}. The remaining table definition (starting with byte #{data.length - binary_data_index} in #{table.name}) will be filled with 0."

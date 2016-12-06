@@ -41,7 +41,7 @@ module Cosmos
     end
 
     def createEditor(parent, option, index)
-      table = TableManager.instance.core.table_def.get_table(TableManager.instance.currently_displayed_table_name)
+      table = TableManager.instance.core.config.get_table(TableManager.instance.currently_displayed_table_name)
       gui_table = TableManager.instance.gui_tables[TableManager.instance.currently_displayed_table_name]
       if table.type == :TWO_DIMENSIONAL
         item_name = gui_table.horizontalHeaderItem(index.column).text + index.row.to_s
@@ -171,7 +171,7 @@ module Cosmos
 
     # File name of the png icon to use for the application.
     # The application looks in the COSMOS PATH and USERPATH directories for the icon.
-    # This must be overloaded before calling super() in the intialize
+    # This must be overloaded before calling super() in the initialize
     # function to allow Table Manager to use the new file name.
     attr_accessor :app_icon_filename
 
@@ -489,7 +489,7 @@ module Cosmos
 
         # Display the new table
         delete_tabs()
-        @core.table_def.get_all_tables.each do |table|
+        @core.config.get_all_tables.each do |table|
           create_table_tab(table)
           display_gui_data(table.name)
         end
@@ -567,7 +567,7 @@ module Cosmos
 
         # display the file
         delete_tabs()
-        @core.table_def.get_all_tables.each do |table|
+        @core.config.get_all_tables.each do |table|
           create_table_tab(table)
           display_gui_data(table.name)
         end
@@ -640,7 +640,9 @@ module Cosmos
             ProgressDialog.execute(self, 'Create New Files', 500, 50, true, false, false, false, false) do |dialog|
               # create the file
               begin
-                bin_files = @core.file_new(filenames, output_dir, dialog)
+                bin_files = @core.file_new(filenames, output_dir, dialog) do |progress|
+                  dialog.set_overall_progress(progress)
+                end
                 success = true
                 dialog.close_done
               rescue => err
@@ -664,7 +666,7 @@ module Cosmos
 
     def mouse_over(row, col)
       return if @currently_displayed_table_name.empty?
-      table = @core.table_def.get_table(@currently_displayed_table_name)
+      table = @core.config.get_table(@currently_displayed_table_name)
       gui_table = @gui_tables[@currently_displayed_table_name]
       if table and gui_table
         if table.type == :TWO_DIMENSIONAL
@@ -680,14 +682,14 @@ module Cosmos
     end
 
     def click_callback(item)
-      table = @core.table_def.get_table(@currently_displayed_table_name)
+      table = @core.config.get_table(@currently_displayed_table_name)
       gui_table = @gui_tables[@currently_displayed_table_name]
       gui_table.editItem(item) if (item.flags & Qt::ItemIsEditable) != 0
     end
 
     def context_menu(point)
       begin
-        table = @core.table_def.get_table(@currently_displayed_table_name)
+        table = @core.config.get_table(@currently_displayed_table_name)
         gui_table = @gui_tables[@currently_displayed_table_name]
         if table and gui_table
           table_item = gui_table.itemAt(point)
@@ -732,6 +734,7 @@ module Cosmos
 
     # Creates a tab in the table manager gui
     def create_table_tab(table_definition)
+      STDOUT.puts "table:#{table_definition}"
       begin
         # Table
         @table = Qt::TableWidget.new(self)
@@ -760,7 +763,7 @@ module Cosmos
     # binary structure (although it does not commit it to disk).
     def save_gui_data(name)
       gui_table = @gui_tables[name]
-      table = @core.table_def.get_table(name)
+      table = @core.config.get_table(name)
       result = ""
 
       # Cancel any table selections so the text will be visible when it is refreshed
@@ -837,24 +840,24 @@ module Cosmos
     # Determines how to display all the binary table data based on
     # the table definition and displays it using the various gui elements.
     def display_gui_data(name)
-      table_def = @core.table_def.get_table(name)
+      config = @core.config.get_table(name)
       gui_table = @gui_tables[name]
 
       # Cancel any table selections so the text will be visible when it is refreshed
       gui_table.clearSelection
 
       # if we can't find the table do nothing
-      if table_def.nil? or gui_table.nil? then return end
+      if config.nil? or gui_table.nil? then return end
 
-      items = table_def.sorted_items
+      items = config.sorted_items
 
-      if table_def.type == :TWO_DIMENSIONAL
+      if config.type == :TWO_DIMENSIONAL
         row_headers = []
-        (0...table_def.num_rows).each {|i| row_headers << "#{i+1}" }
+        (0...config.num_rows).each {|i| row_headers << "#{i+1}" }
         gui_table.setVerticalHeaderLabels(row_headers)
 
         column_headers = []
-        (0...table_def.num_columns).each {|i| column_headers << items[i].name[0...-1] }
+        (0...config.num_columns).each {|i| column_headers << items[i].name[0...-1] }
         gui_table.setHorizontalHeaderLabels(column_headers)
       else
         row_headers = []
@@ -867,11 +870,11 @@ module Cosmos
       table_column = 0
 
       items.each do |item_def|
-        update_gui_item(name, table_def, item_def, table_row, table_column)
+        update_gui_item(name, config, item_def, table_row, table_column)
 
-        if table_def.type == :TWO_DIMENSIONAL
+        if config.type == :TWO_DIMENSIONAL
           # only increment our row when we've processed all the columns
-          if table_column == table_def.num_columns - 1
+          if table_column == config.num_columns - 1
             table_row += 1
             table_column = 0
           else
@@ -887,13 +890,13 @@ module Cosmos
     end
 
     # Updates the table by setting the value in the table to the properly formatted value.
-    def update_gui_item(table_name, table_def, item_def, table_row, table_column)
+    def update_gui_item(table_name, config, item_def, table_row, table_column)
       gui_table = @gui_tables[table_name]
 
       case item_def.display_type
       when :STATE
         item = Qt::TableWidgetItem.new
-        item.setData(Qt::DisplayRole, Qt::Variant.new(table_def.read(item_def.name)))
+        item.setData(Qt::DisplayRole, Qt::Variant.new(config.read(item_def.name)))
         gui_table.setItem(table_row, table_column, item)
         if item_def.editable
           gui_table.item(table_row, table_column).setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsEditable)
@@ -902,10 +905,10 @@ module Cosmos
         end
 
       when :CHECK
-        gui_table.setItem(table_row, table_column, Qt::TableWidgetItem.new(table_def.read(item_def.name)))
+        gui_table.setItem(table_row, table_column, Qt::TableWidgetItem.new(config.read(item_def.name)))
         # the ItemData will be 0 for unchecked (corresponds with min value),
         # and 1 for checked (corresponds with max value)
-        if table_def.read(item_def.name) == item_def.range.begin
+        if config.read(item_def.name) == item_def.range.begin
           gui_table.item(table_row, table_column).setCheckState(Qt::Unchecked)
         else
           gui_table.item(table_row, table_column).setCheckState(Qt::Checked)
@@ -917,7 +920,7 @@ module Cosmos
         end
 
       when :STRING, :NONE, :DEC
-        gui_table.setItem(table_row, table_column, Qt::TableWidgetItem.new(tr(table_def.read(item_def.name).to_s)))
+        gui_table.setItem(table_row, table_column, Qt::TableWidgetItem.new(tr(config.read(item_def.name).to_s)))
         if item_def.editable
           gui_table.item(table_row, table_column).setFlags(Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsEnabled)
         else
@@ -927,17 +930,17 @@ module Cosmos
       when :HEX
         case item_def.bit_size
         when 8
-          x = sprintf("%02X", table_def.read(item_def.name).to_s)
+          x = sprintf("%02X", config.read(item_def.name).to_s)
           # if the number was negative x will have .. and possibly another
           # F in the string which we remove by taking the last 4 digits
           x = /\w{2}$/.match(x)[0]
         when 16
-          x = sprintf("%04X", table_def.read(item_def.name).to_s)
+          x = sprintf("%04X", config.read(item_def.name).to_s)
           # if the number was negative x will have .. and possibly another
           # F in the string which we remove by taking the last 4 digits
           x = /\w{4}$/.match(x)[0]
         else
-          x = sprintf("%08X", table_def.read(item_def.name).to_s)
+          x = sprintf("%08X", config.read(item_def.name).to_s)
           # if the number was negative x will have .. and possibly another
           # F in the string which we remove by taking the last 8 digits
           x = /\w{8}$/.match(x)[0]
@@ -1046,6 +1049,16 @@ module Cosmos
       end
     end
 
+    def self.post_options_parsed_hook(options)
+      if options.create
+        core = TableManagerCore.new
+        core.file_new([options.create], options.output_dir)
+        false
+      else
+        true
+      end
+    end
+
     def self.run(option_parser = nil, options = nil)
       Cosmos.catch_fatal_exception do
         unless option_parser and options
@@ -1059,11 +1072,17 @@ module Cosmos
           option_parser.on("-n", "--notables", "Do not include table file editing options. This will remove the 'Table' menu.") do
             options.no_tables = true
           end
+          option_parser.on("-c", "--create FILE", "Use the specified definition file to create the table") do |arg|
+            options.create = arg
+          end
+          option_parser.on("-o", "--output DIRECTORY", "Create files in the specified directory") do |arg|
+            options.output_dir = arg
+          end
         end
-
         super(option_parser, options)
       end
     end
   end
 
 end # module Cosmos
+

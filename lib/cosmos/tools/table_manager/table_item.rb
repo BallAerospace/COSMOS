@@ -14,8 +14,7 @@ module Cosmos
 
   # Maintains knowledge of an item in a Table
   class TableItem < PacketItem
-    attr_reader :display_type
-    attr_accessor :editable
+    attr_reader :editable
     attr_reader :constraint
 
     # (see PacketItem#initialize)
@@ -27,13 +26,9 @@ module Cosmos
       @constraint = nil
     end
 
-    def display_type=(display_type)
-      if display_type
-        raise ArgumentError, "#{@name}: display_type must be a Symbol but is a #{display_type.class}" unless Symbol === display_type
-        @display_type = display_type
-      else
-        @display_type = nil
-      end
+    def editable=(editable)
+      raise ArgumentError, "#{@name}: editable must be a boolean but is a #{editable.class}" unless !!editable == editable
+      @editable = editable
     end
 
     def constraint=(constraint)
@@ -48,6 +43,7 @@ module Cosmos
     # Make a light weight clone of this item
     def clone
       item = super()
+      item.editable = self.editable
       item.constraint = self.constraint.clone if self.constraint
       item
     end
@@ -55,11 +51,6 @@ module Cosmos
 
     def to_hash
       hash = super()
-      if self.display_type
-        hash['display_type'] = self.display_type.to_s
-      else
-        hash['display_type'] = nil
-      end
       hash['editable'] = self.editable
       if self.constraint
         hash['constraint'] = self.constraint.to_s
