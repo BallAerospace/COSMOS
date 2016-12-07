@@ -22,7 +22,7 @@ module Cosmos
       it "returns the tables hash" do
         tf = Tempfile.new('unittest')
         tf.puts("TABLE table1 BIG_ENDIAN ONE_DIMENSIONAL")
-        tf.puts("TABLE table2 BIG_ENDIAN TWO_DIMENSIONAL")
+        tf.puts("TABLE table2 BIG_ENDIAN TWO_DIMENSIONAL 2")
         tf.puts("TABLE table3 BIG_ENDIAN ONE_DIMENSIONAL")
         tf.close
         tc.process_file(tf.path)
@@ -36,7 +36,7 @@ module Cosmos
       it "returns the table names" do
         tf = Tempfile.new('unittest')
         tf.puts("TABLE table1 BIG_ENDIAN ONE_DIMENSIONAL")
-        tf.puts("TABLE table2 BIG_ENDIAN TWO_DIMENSIONAL")
+        tf.puts("TABLE table2 BIG_ENDIAN TWO_DIMENSIONAL 2")
         tf.puts("TABLE table3 BIG_ENDIAN ONE_DIMENSIONAL")
         tf.close
         tc.process_file(tf.path)
@@ -49,7 +49,7 @@ module Cosmos
       it "returns a table" do
         tf = Tempfile.new('unittest')
         tf.puts("TABLE table1 BIG_ENDIAN ONE_DIMENSIONAL")
-        tf.puts("TABLE table2 BIG_ENDIAN TWO_DIMENSIONAL")
+        tf.puts("TABLE table2 BIG_ENDIAN TWO_DIMENSIONAL 2")
         tf.puts("TABLE table3 BIG_ENDIAN ONE_DIMENSIONAL")
         tf.close
         tc.process_file(tf.path)

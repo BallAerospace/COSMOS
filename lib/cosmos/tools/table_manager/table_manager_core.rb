@@ -40,7 +40,9 @@ module Cosmos
       @config.table_names.each {|table_name| set_binary_data_to_default(table_name) }
       yield 0.7 if block_given?
 
-      file_save(File.join(output_dir, def_to_bin_filename(definition_filename)))
+      binary_filename = File.join(output_dir, def_to_bin_filename(definition_filename))
+      file_save(binary_filename)
+      binary_filename
     end
 
     def file_check
@@ -78,7 +80,7 @@ module Cosmos
         file.write("File Binary: #{binary_filename}\n\n")
         @config.tables.values.each do |table|
           items = table.sorted_items
-          file.puts(table.name)
+          file.puts(table.table_name)
 
           column_lengths = []
 
@@ -227,15 +229,15 @@ module Cosmos
             # check to see if the value lies within its valid range
             if not table_item.range.include?(x)
               # if the value is displayed as hex, display the range as hex
-              if table_item.display_type == :HEX
-                range_first = "0x%X" % table_item.range.first
-                range_last = "0x%X" % table_item.range.last
-                x = "0x%X" % x
-              else
+              #if table_item.display_type == :HEX
+              #  range_first = "0x%X" % table_item.range.first
+              #  range_last = "0x%X" % table_item.range.last
+              #  x = "0x%X" % x
+              #else
                 range_first = table_item.range.first
                 range_last = table_item.range.last
                 x = table.read(table_item.name)
-              end
+              #end
               result << "  #{table_item.name}: #{x} outside valid range of #{range_first}..#{range_last}\n"
             end
           end
@@ -263,7 +265,7 @@ module Cosmos
       table_check(table_name)
 
       File.open(filename, 'wb') do |file|
-        file.write(@config.get_table(table_name).buffer)
+        file.write(@config.table(table_name).buffer)
       end
     end
 
@@ -271,7 +273,7 @@ module Cosmos
     # containing that table.
     def table_commit(table_name, bin_file, def_file)
       raise "Please open a table first." unless @config
-      save_table = @config.get_table(table_name)
+      save_table = @config.table(table_name)
       raise "Please open a table first." unless save_table
 
       result = file_check()
@@ -282,14 +284,14 @@ module Cosmos
       @binary_file = bin_file
       @definition_file = def_file
 
-      parser = TableConfig.new
+      config = TableConfig.new
       begin
-        parser.process(def_file)
+        config.process(def_file)
       rescue => err
         raise "The table definition file:#{def_file} has the following errors:\n#{err}"
       end
 
-      if !parser.get_table_names.include?(table_name)
+      if !config.table_names.include?(table_name)
         raise "#{table_name} not found in #{def_file} table definition file."
       end
 
@@ -297,7 +299,7 @@ module Cosmos
       open_and_load_binary_file(bin_file)
 
       # Store the saved table data in the new table definition
-      table = @config.get_table(save_table.name)
+      table = @config.table(save_table.table_name)
       table.buffer = save_table.buffer[0...table.length]
       file_save(bin_file)
     end
@@ -307,7 +309,7 @@ module Cosmos
       raise "Please open a table first." unless @config
 
       # Check to see that the table definition file is writeable
-      table = @config.get_table(table_name)
+      table = @config.table(table_name)
       raise "Please open a table first." unless table
 
       if !File.writable?(table.filename)
@@ -327,11 +329,6 @@ module Cosmos
       end
     end
 
-    # Return a GenericTable given a String table name
-    def get_table(table_name)
-      @config.table(table_name)
-    end
-
     # Retrieves a value from a table
     def get_table_item(table_name, item_name)
       @config.table(table_name).read(item_name)
@@ -345,21 +342,21 @@ module Cosmos
     # Determines the string representation of an item as it should be printed in a RPT file
     def item_to_report_string(table, table_item)
       result = ""
-      case table_item.display_type
-      when :NONE
-        result = "\n#{table.read(table_item.name).formatted}"
-      when :STATE, :DEC, :STRING
+      #case table_item.display_type
+      #when :NONE
+      #  result = "\n#{table.read(table_item.name).formatted}"
+      #when :STATE, :DEC, :STRING
         result = table.read(table_item.name).to_s
-      when :CHECK
-        value = table.read(table_item.name)
-        if value == table_item.range.end
-          result = "X (#{table_item.range.end.to_s})"
-        else
-          result = "- (#{table_item.range.begin.to_s})"
-        end
-      when :HEX
-        result = @config.format_hex(table, table_item)
-      end
+      #when :CHECK
+      #  value = table.read(table_item.name)
+      #  if value == table_item.range.end
+      #    result = "X (#{table_item.range.end.to_s})"
+      #  else
+      #    result = "- (#{table_item.range.begin.to_s})"
+      #  end
+      #when :HEX
+      #  result = @config.format_hex(table, table_item)
+      #end
       result
     end
 
@@ -398,11 +395,11 @@ module Cosmos
 
       binary_data_index = 0
       total_table_length = 0
-      @config.get_all_tables.each {|table| total_table_length += table.length }
-      @config.get_all_tables.each do |table|
+      @config.tables.each {|table_name, table| total_table_length += table.length }
+      @config.tables.each do |table_name, table|
         if binary_data_index + table.length > data.length
           table.buffer = data[binary_data_index..-1]
-          raise "Binary size of #{data.length} not large enough to fully represent table definition of length #{total_table_length}. The remaining table definition (starting with byte #{data.length - binary_data_index} in #{table.name}) will be filled with 0."
+          raise "Binary size of #{data.length} not large enough to fully represent table definition of length #{total_table_length}. The remaining table definition (starting with byte #{data.length - binary_data_index} in #{table.table_name}) will be filled with 0."
         end
         table.buffer = data[binary_data_index...binary_data_index+table.length]
         binary_data_index += table.length

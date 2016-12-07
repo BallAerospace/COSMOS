@@ -18,7 +18,7 @@ module Cosmos
   class Table < Packet
     TARGET = 'TABLE'
     attr_reader :type, :filename
-    attr_accessor :num_rows, :num_columns
+    attr_accessor :num_columns
 
     def table_name
       packet_name
@@ -32,11 +32,27 @@ module Cosmos
       end
       @type = type
       @filename = filename
-      @num_columns = 0
       @num_rows = 0
-      @num_columns = 1 if @type == :ONE_DIMENSIONAL
+      @num_columns = (@type == :ONE_DIMENSIONAL) ? 1 : 0
     end
 
+    def num_rows=(num_rows)
+      case @type
+      when :ONE_DIMENSIONAL
+        raise "Rows are fixed in a ONE_DIMENSIONAL table"
+      when :TWO_DIMENSIONAL
+        @num_rows = num_rows
+      end
+    end
+
+    def num_rows
+      case @type
+      when :ONE_DIMENSIONAL
+        @sorted_items.count {|item| !item.hidden }
+      when :TWO_DIMENSIONAL
+        @num_rows
+      end
+    end
   end
 end
 

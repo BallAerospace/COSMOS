@@ -41,7 +41,7 @@ module Cosmos
     end
 
     def createEditor(parent, option, index)
-      table = TableManager.instance.core.config.get_table(TableManager.instance.currently_displayed_table_name)
+      table = TableManager.instance.core.config.table(TableManager.instance.currently_displayed_table_name)
       gui_table = TableManager.instance.gui_tables[TableManager.instance.currently_displayed_table_name]
       if table.type == :TWO_DIMENSIONAL
         item_name = gui_table.horizontalHeaderItem(index.column).text + index.row.to_s
@@ -50,7 +50,7 @@ module Cosmos
         item_name = gui_table.verticalHeaderItem(index.row).text
         item = table.get_item(item_name)
       end
-      if item.display_type == :STATE and item.editable
+      if item.states && item.editable
         combo = Qt::ComboBox.new(parent)
         combo.addItems(item.states.keys.sort)
         combo.setCurrentText(table.read(item.name).to_s)
@@ -88,13 +88,13 @@ module Cosmos
   end
 
   # A dialog box containing a text field and ok button
-  class TextDialog < Qt::Dialog
+  class HexDialog < Qt::Dialog
     def initialize(parent)
-      super(parent)
-
-      layout = Qt::VBoxLayout.new
+      super(parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint)
+      setWindowTitle("Hex Dump")
 
       @text = Qt::PlainTextEdit.new
+      @text.setWordWrapMode(Qt::TextOption::NoWrap)
       if Kernel.is_windows?
         @text.setFont(Cosmos.getFont('courier', 10))
       else
@@ -102,6 +102,7 @@ module Cosmos
       end
       @text.setReadOnly(true)
 
+      layout = Qt::VBoxLayout.new
       layout.addWidget(@text)
 
       button_layout = Qt::HBoxLayout.new
@@ -113,6 +114,7 @@ module Cosmos
 
       layout.addLayout(button_layout)
       setLayout(layout)
+      resize(650, 250)
     end
 
     # Set the title of the dialog box and the text contents
@@ -186,7 +188,7 @@ module Cosmos
       initialize_menus(options.no_tables)
       initialize_central_widget()
       complete_initialize()
-      setMinimumSize(500, 300)
+      setMinimumSize(400, 250)
 
       statusBar.showMessage(tr("Ready")) # Show message to initialize status bar
 
@@ -315,33 +317,30 @@ module Cosmos
     end
 
     def initialize_central_widget
-      # Create the central widget
-      @central_widget = Qt::Widget.new
-      setCentralWidget(@central_widget)
-
-      # Create the top level vertical layout
-      @top_layout = Qt::VBoxLayout.new(@central_widget)
+      central_widget = Qt::Widget.new
+      setCentralWidget(central_widget)
+      top_layout = Qt::VBoxLayout.new(central_widget)
 
       # Create the information pane with the filenames
-      @filename_layout = Qt::FormLayout.new
+      filename_layout = Qt::FormLayout.new
       @table_def_label = Qt::Label.new("")
-      @filename_layout.addRow(tr("Definition File:"), @table_def_label)
+      filename_layout.addRow(tr("Definition File:"), @table_def_label)
       @table_bin_label = Qt::Label.new("")
-      @filename_layout.addRow(tr("Binary File:"), @table_bin_label)
-      @top_layout.addLayout(@filename_layout)
+      filename_layout.addRow(tr("Binary File:"), @table_bin_label)
+      top_layout.addLayout(filename_layout)
 
       # Separator before editor
-      @sep1 = Qt::Frame.new(@central_widget)
-      @sep1.setFrameStyle(Qt::Frame::HLine | Qt::Frame::Sunken)
-      @top_layout.addWidget(@sep1)
+      sep1 = Qt::Frame.new(central_widget)
+      sep1.setFrameStyle(Qt::Frame::HLine | Qt::Frame::Sunken)
+      top_layout.addWidget(sep1)
 
       @tabbook = Qt::TabWidget.new
       connect(@tabbook, SIGNAL('currentChanged(int)'), self, SLOT('handle_tab_change(int)'))
-      @top_layout.addWidget(@tabbook)
+      top_layout.addWidget(@tabbook)
 
-      @check_icons = []
-      @check_icons << Cosmos.get_icon("CheckBoxEmpty.gif")
-      @check_icons << Cosmos.get_icon("CheckBoxCheck.gif")
+      #@check_icons = []
+      #@check_icons << Cosmos.get_icon("CheckBoxEmpty.gif")
+      #@check_icons << Cosmos.get_icon("CheckBoxCheck.gif")
     end
 
     # Menu option to check every table tab's values against their allowable ranges
@@ -351,7 +350,7 @@ module Cosmos
         @ordered_gui_table_names.each do |name|
           save_result = save_gui_data(name)
           check_result = @core.table_check(name)
-          if not save_result.nil? or not check_result.empty?
+          if !save_result.nil? || !check_result.empty?
             result << "Error(s) in #{name}:\n" << save_result.to_s << check_result.to_s
           end
         end
@@ -369,7 +368,7 @@ module Cosmos
       begin
         save_result = save_gui_data(@currently_displayed_table_name)
         check_result = @core.table_check(@currently_displayed_table_name)
-        if save_result.nil? and check_result.empty?
+        if save_result.nil? && check_result.empty?
           result = "All parameters are within their constraints."
         elsif save_result.nil?
           result = check_result
@@ -454,7 +453,7 @@ module Cosmos
     # Menu option to display a dialog containing a hex dump of all table values
     def display_hex(type)
       begin
-        dialog = TextDialog.new(self)
+        dialog = HexDialog.new(self)
         if type == :file
           str = @core.file_hex()
           title = File.basename(@table_bin_label.text)
@@ -463,7 +462,6 @@ module Cosmos
           title = @currently_displayed_table_name
         end
         dialog.set_title_and_text("#{title} Hex Dump", str)
-        dialog.set_size(650, 400)
         dialog.exec
         dialog.dispose
       rescue => err
@@ -479,7 +477,7 @@ module Cosmos
 
         # Ask for the file to save the current table to
         bin_file, def_file = get_binary_and_definition_file_paths()
-        if bin_file.nil? or def_file.nil? then return 1 end
+        if bin_file.nil? || def_file.nil? then return 1 end
 
         @core.table_commit(@currently_displayed_table_name, bin_file, def_file)
 
@@ -489,9 +487,9 @@ module Cosmos
 
         # Display the new table
         delete_tabs()
-        @core.config.get_all_tables.each do |table|
+        @core.config.tables.each do |table_name, table|
           create_table_tab(table)
-          display_gui_data(table.name)
+          display_gui_data(table_name)
         end
         @currently_displayed_table_name = @ordered_gui_table_names[0]
         @currently_displayed_table_name ||= '' # ensure it's not nil
@@ -541,14 +539,15 @@ module Cosmos
     # is then opened and parsed to determine how to display the binary file in the gui.
     def file_open(bin_file = nil, def_file = nil)
       begin
-        unless bin_file and def_file
+        unless bin_file && def_file
           bin_file, def_file = get_binary_and_definition_file_paths()
         end
 
         # Do nothing if the binary or definition files are not found
-        if bin_file.nil? or def_file.nil? then return end
+        if bin_file.nil? || def_file.nil? then return end
 
         # Update the labels
+        STDOUT.puts "def:#{def_file} bin:#{bin_file}"
         @table_bin_label.text = bin_file
         @table_def_label.text = def_file
 
@@ -567,9 +566,9 @@ module Cosmos
 
         # display the file
         delete_tabs()
-        @core.config.get_all_tables.each do |table|
+        @core.config.tables.each do |table_name, table|
           create_table_tab(table)
-          display_gui_data(table.name)
+          display_gui_data(table_name)
         end
         @currently_displayed_table_name = @ordered_gui_table_names[0]
         @currently_displayed_table_name ||= '' # ensure it's not nil
@@ -612,7 +611,7 @@ module Cosmos
                                                   "Config File (*.txt)\nAll Files (*)")
 
         # Check for a 0 length string which indicates the user clicked "Cancel" on the dialog
-        if filenames and filenames.length != 0
+        if filenames && filenames.length != 0
           @def_path = File.dirname(filenames[0])
           file_close()
           output_dir = Qt::FileDialog.getExistingDirectory(self, "Select Output Directory", @bin_path)
@@ -640,8 +639,10 @@ module Cosmos
             ProgressDialog.execute(self, 'Create New Files', 500, 50, true, false, false, false, false) do |dialog|
               # create the file
               begin
-                bin_files = @core.file_new(filenames, output_dir, dialog) do |progress|
-                  dialog.set_overall_progress(progress)
+                filenames.each do |filename|
+                  bin_files << @core.file_new(filename, output_dir) do |progress|
+                    dialog.set_overall_progress(progress)
+                  end
                 end
                 success = true
                 dialog.close_done
@@ -651,7 +652,7 @@ module Cosmos
               end
             end
           end # end output_dir.nil? (user did NOT click cancel on dialog)
-          file_open(bin_files[0] ,filenames[0]) if success
+          file_open(bin_files[0], filenames[0]) if success
         end # end filename != 0 (user did NOT click cancel on dialog)
       rescue => err
         ExceptionDialog.new(self, err, "File New Errors", false)
@@ -666,9 +667,9 @@ module Cosmos
 
     def mouse_over(row, col)
       return if @currently_displayed_table_name.empty?
-      table = @core.config.get_table(@currently_displayed_table_name)
+      table = @core.config.table(@currently_displayed_table_name)
       gui_table = @gui_tables[@currently_displayed_table_name]
-      if table and gui_table
+      if table && gui_table
         if table.type == :TWO_DIMENSIONAL
           item_name = gui_table.horizontalHeaderItem(col).text + row.to_s
           item = table.get_item(item_name)
@@ -682,16 +683,16 @@ module Cosmos
     end
 
     def click_callback(item)
-      table = @core.config.get_table(@currently_displayed_table_name)
+      table = @core.config.table(@currently_displayed_table_name)
       gui_table = @gui_tables[@currently_displayed_table_name]
       gui_table.editItem(item) if (item.flags & Qt::ItemIsEditable) != 0
     end
 
     def context_menu(point)
       begin
-        table = @core.config.get_table(@currently_displayed_table_name)
+        table = @core.config.table(@currently_displayed_table_name)
         gui_table = @gui_tables[@currently_displayed_table_name]
-        if table and gui_table
+        if table && gui_table
           table_item = gui_table.itemAt(point)
           if table_item
             menu = Qt::Menu.new()
@@ -733,22 +734,20 @@ module Cosmos
     end
 
     # Creates a tab in the table manager gui
-    def create_table_tab(table_definition)
-      STDOUT.puts "table:#{table_definition}"
+    def create_table_tab(table)
       begin
-        # Table
         @table = Qt::TableWidget.new(self)
         delegate = ComboBoxItemDelegate.new(@table)
         @table.setItemDelegate(delegate)
         @table.setEditTriggers(Qt::AbstractItemView::AllEditTriggers)
         @table.setSelectionMode(Qt::AbstractItemView::NoSelection)
         #@table.setAlternatingRowColors(true)
-        @gui_tables[table_definition.name] = @table
-        @ordered_gui_table_names << table_definition.name
-        @tabbook.addTab(@table, table_definition.name)
+        @gui_tables[table.table_name] = @table
+        @ordered_gui_table_names << table.table_name
+        @tabbook.addTab(@table, table.table_name)
 
-        @table.setRowCount(table_definition.num_rows)
-        @table.setColumnCount(table_definition.num_columns)
+        @table.setRowCount(table.num_rows)
+        @table.setColumnCount(table.num_columns)
         @table.setMouseTracking(true)
         connect(@table, SIGNAL('cellEntered(int, int)'), self, SLOT('mouse_over(int, int)'))
         connect(@table, SIGNAL('itemClicked(QTableWidgetItem*)'), self, SLOT('click_callback(QTableWidgetItem*)'))
@@ -763,14 +762,14 @@ module Cosmos
     # binary structure (although it does not commit it to disk).
     def save_gui_data(name)
       gui_table = @gui_tables[name]
-      table = @core.config.get_table(name)
+      table = @core.config.table(name)
       result = ""
 
       # Cancel any table selections so the text will be visible when it is refreshed
       gui_table.clearSelection
 
       # don't do anything if we can't find the table
-      if gui_table.nil? or table.nil? then return end
+      if gui_table.nil? || table.nil? then return end
 
       # First go through the gui and set the underlying data to what is displayed
       (0...table.num_rows).each do |r|
@@ -782,45 +781,35 @@ module Cosmos
             # get the table item definition so we know how to save it
             item_def = table.get_item(gui_table.verticalHeaderItem(r).text)
           end
+          next if item_def.hidden
 
           # determine how to convert the display value to the actual value
           begin
-            case item_def.display_type
-            when :DEC
-              if item_def.data_type == :FLOAT
-                x = Float(gui_table.item(r,c).text)
-              else
-                x = Integer(gui_table.item(r,c).text)
-              end
-
-            when :HEX
-              x = Integer(gui_table.item(r,c).text)
-
-            when :CHECK
-              # the ItemData will be 0 for unchecked (corresponds with min value),
-              # and 1 for checked (corresponds with max value)
-              if gui_table.item(r,c).checkState == Qt::Checked
-                x = item_def.range.end.to_i
-              else
-                x = item_def.range.begin.to_i
-              end
-
-            when :STATE
-              x = item_def.states[gui_table.item(r,c).text]
-
-            when :STRING, :NONE
-              x = gui_table.item(r,c).text
-
+            text = gui_table.item(r,c).text
+            quotes_removed = text.remove_quotes
+            if text == quotes_removed
+              value = text.convert_to_value
+            else
+              value = quotes_removed
             end
+
+            #when :CHECK
+            #  # the ItemData will be 0 for unchecked (corresponds with min value),
+            #  # and 1 for checked (corresponds with max value)
+            #  if gui_table.item(r,c).checkState == Qt::Checked
+            #    x = item_def.range.end.to_i
+            #  else
+            #    x = item_def.range.begin.to_i
+            #  end
 
             # If there is a read conversion we first read the converted value before writing.
             # This is to prevent writing the displayed value (which has the conversion applied)
             # back to the binary data if they are already equal.
             if item_def.read_conversion
               converted = table.read(item_def.name, :CONVERTED)
-              table.write(item_def.name, x) if converted != x
+              table.write(item_def.name, value) if converted != value
             else
-              table.write(item_def.name, x)
+              table.write(item_def.name, value)
             end
 
           # if we have a problem casting the value it probably means the user put in garbage
@@ -840,28 +829,30 @@ module Cosmos
     # Determines how to display all the binary table data based on
     # the table definition and displays it using the various gui elements.
     def display_gui_data(name)
-      config = @core.config.get_table(name)
+      table = @core.config.table(name)
       gui_table = @gui_tables[name]
+
+      STDOUT.puts "display_gui_data name:#{name} table:#{table.table_name} gui:#{gui_table}"
 
       # Cancel any table selections so the text will be visible when it is refreshed
       gui_table.clearSelection
 
       # if we can't find the table do nothing
-      if config.nil? or gui_table.nil? then return end
+      if table.nil? || gui_table.nil? then return end
 
-      items = config.sorted_items
-
-      if config.type == :TWO_DIMENSIONAL
+      items = table.sorted_items
+      if table.type == :TWO_DIMENSIONAL
         row_headers = []
-        (0...config.num_rows).each {|i| row_headers << "#{i+1}" }
+        (0...table.num_rows).each {|i| row_headers << "#{i+1}" }
         gui_table.setVerticalHeaderLabels(row_headers)
 
         column_headers = []
-        (0...config.num_columns).each {|i| column_headers << items[i].name[0...-1] }
+        (0...table.num_columns).each {|i| column_headers << items[i].name[0...-1] unless items[i].hidden }
         gui_table.setHorizontalHeaderLabels(column_headers)
       else
         row_headers = []
-        items.each {|item_def| row_headers << item_def.name }
+        items.each {|item_def| row_headers << item_def.name unless item_def.hidden }
+        STDOUT.puts "headers:#{row_headers}"
         gui_table.setVerticalHeaderLabels(row_headers)
         gui_table.setHorizontalHeaderLabels(["Value"])
       end
@@ -870,11 +861,13 @@ module Cosmos
       table_column = 0
 
       items.each do |item_def|
-        update_gui_item(name, config, item_def, table_row, table_column)
+        STDOUT.puts "item:#{item_def.name} hidden:#{item_def.hidden}"
+        next if item_def.hidden
+        update_gui_item(name, table, item_def, table_row, table_column)
 
-        if config.type == :TWO_DIMENSIONAL
+        if table.type == :TWO_DIMENSIONAL
           # only increment our row when we've processed all the columns
-          if table_column == config.num_columns - 1
+          if table_column == table.num_columns - 1
             table_row += 1
             table_column = 0
           else
@@ -890,69 +883,81 @@ module Cosmos
     end
 
     # Updates the table by setting the value in the table to the properly formatted value.
-    def update_gui_item(table_name, config, item_def, table_row, table_column)
+    def update_gui_item(table_name, table, item_def, table_row, table_column)
       gui_table = @gui_tables[table_name]
+      STDOUT.puts "row:#{table_row} col:#{table_column} item:#{item_def.name} val:#{table.read(item_def.name, :FORMATTED)} hidden:#{item_def.hidden}"
 
-      case item_def.display_type
-      when :STATE
-        item = Qt::TableWidgetItem.new
-        item.setData(Qt::DisplayRole, Qt::Variant.new(config.read(item_def.name)))
-        gui_table.setItem(table_row, table_column, item)
-        if item_def.editable
-          gui_table.item(table_row, table_column).setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsEditable)
-        else
-          gui_table.item(table_row, table_column).setFlags(Qt::NoItemFlags)
-        end
-
-      when :CHECK
-        gui_table.setItem(table_row, table_column, Qt::TableWidgetItem.new(config.read(item_def.name)))
-        # the ItemData will be 0 for unchecked (corresponds with min value),
-        # and 1 for checked (corresponds with max value)
-        if config.read(item_def.name) == item_def.range.begin
-          gui_table.item(table_row, table_column).setCheckState(Qt::Unchecked)
-        else
-          gui_table.item(table_row, table_column).setCheckState(Qt::Checked)
-        end
-        if item_def.editable
-          gui_table.item(table_row, table_column).setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsUserCheckable)
-        else
-          gui_table.item(table_row, table_column).setFlags(Qt::NoItemFlags)
-        end
-
-      when :STRING, :NONE, :DEC
-        gui_table.setItem(table_row, table_column, Qt::TableWidgetItem.new(tr(config.read(item_def.name).to_s)))
-        if item_def.editable
-          gui_table.item(table_row, table_column).setFlags(Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsEnabled)
-        else
-          gui_table.item(table_row, table_column).setFlags(Qt::NoItemFlags)
-        end
-
-      when :HEX
-        case item_def.bit_size
-        when 8
-          x = sprintf("%02X", config.read(item_def.name).to_s)
-          # if the number was negative x will have .. and possibly another
-          # F in the string which we remove by taking the last 4 digits
-          x = /\w{2}$/.match(x)[0]
-        when 16
-          x = sprintf("%04X", config.read(item_def.name).to_s)
-          # if the number was negative x will have .. and possibly another
-          # F in the string which we remove by taking the last 4 digits
-          x = /\w{4}$/.match(x)[0]
-        else
-          x = sprintf("%08X", config.read(item_def.name).to_s)
-          # if the number was negative x will have .. and possibly another
-          # F in the string which we remove by taking the last 8 digits
-          x = /\w{8}$/.match(x)[0]
-        end
-        x = Integer("0x#{x}") # convert to Integer
-        gui_table.setItem(table_row, table_column, Qt::TableWidgetItem.new(tr("0x%X" % x)))
-        if item_def.editable
-          gui_table.item(table_row, table_column).setFlags(Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsEnabled)
-        else
-          gui_table.item(table_row, table_column).setFlags(Qt::NoItemFlags)
-        end
+      item = Qt::TableWidgetItem.new(table.read(item_def.name, :FORMATTED).to_s)
+      if item_def.editable
+        item.setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsEditable)
+      else
+        item.setFlags(Qt::NoItemFlags)
       end
+      gui_table.setItem(table_row, table_column, item)
+
+      #if item_def.states
+      #  item = Qt::TableWidgetItem.new(table.read(item_def.name, :FORMATTED).to_s)
+      #  #item.setData(Qt::DisplayRole, Qt::Variant.new(table.read(item_def.name, :FORMATTED)))
+      #  gui_table.setItem(table_row, table_column, item)
+      #  if item_def.editable
+      #    gui_table.item(table_row, table_column).setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsEditable)
+      #  else
+      #    gui_table.item(table_row, table_column).setFlags(Qt::NoItemFlags)
+      #  end
+      #else
+      #  gui_table.setItem(table_row, table_column, Qt::TableWidgetItem.new(tr(table.read(item_def.name, :FORMATTED).to_s)))
+      #end
+
+      #case item_def.display_type
+      #when :CHECK
+      #  gui_table.setItem(table_row, table_column, Qt::TableWidgetItem.new(table.read(item_def.name)))
+      #  # the ItemData will be 0 for unchecked (corresponds with min value),
+      #  # and 1 for checked (corresponds with max value)
+      #  if table.read(item_def.name) == item_def.range.begin
+      #    gui_table.item(table_row, table_column).setCheckState(Qt::Unchecked)
+      #  else
+      #    gui_table.item(table_row, table_column).setCheckState(Qt::Checked)
+      #  end
+      #  if item_def.editable
+      #    gui_table.item(table_row, table_column).setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsUserCheckable)
+      #  else
+      #    gui_table.item(table_row, table_column).setFlags(Qt::NoItemFlags)
+      #  end
+
+      #when :STRING, :NONE, :DEC
+      #  gui_table.setItem(table_row, table_column, Qt::TableWidgetItem.new(tr(table.read(item_def.name).to_s)))
+      #  if item_def.editable
+      #    gui_table.item(table_row, table_column).setFlags(Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsEnabled)
+      #  else
+      #    gui_table.item(table_row, table_column).setFlags(Qt::NoItemFlags)
+      #  end
+
+      #when :HEX
+      #  case item_def.bit_size
+      #  when 8
+      #    x = sprintf("%02X", table.read(item_def.name).to_s)
+      #    # if the number was negative x will have .. and possibly another
+      #    # F in the string which we remove by taking the last 4 digits
+      #    x = /\w{2}$/.match(x)[0]
+      #  when 16
+      #    x = sprintf("%04X", table.read(item_def.name).to_s)
+      #    # if the number was negative x will have .. and possibly another
+      #    # F in the string which we remove by taking the last 4 digits
+      #    x = /\w{4}$/.match(x)[0]
+      #  else
+      #    x = sprintf("%08X", table.read(item_def.name).to_s)
+      #    # if the number was negative x will have .. and possibly another
+      #    # F in the string which we remove by taking the last 8 digits
+      #    x = /\w{8}$/.match(x)[0]
+      #  end
+      #  x = Integer("0x#{x}") # convert to Integer
+      #  gui_table.setItem(table_row, table_column, Qt::TableWidgetItem.new(tr("0x%X" % x)))
+      #  if item_def.editable
+      #    gui_table.item(table_row, table_column).setFlags(Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsEnabled)
+      #  else
+      #    gui_table.item(table_row, table_column).setFlags(Qt::NoItemFlags)
+      #  end
+      #end
     end
 
     # Looks in a directory for a definition file for the given binary file.
@@ -987,7 +992,7 @@ module Cosmos
     end
 
     # Prompts the user to select a binary table file to open.
-    # (e.g. MyBinary_TC2.dat or MyBinaryJMT = MyBinary_def.dat)
+    # (e.g. MyBinary_TC2.dat or  MyBinaryJMT = MyBinary_def.dat)
     # Returns both the path to the binary file and the table definition file or
     # nil for both if either can not be found.
     def get_binary_and_definition_file_paths
@@ -996,7 +1001,7 @@ module Cosmos
 
       bin_file = Qt::FileDialog.getOpenFileName(
         self, "Open Binary", @bin_path, "Binary File (*.bin *.dat);;All Files (*)")
-      unless bin_file.nil? or bin_file.empty?
+      unless bin_file.nil? || bin_file.empty?
         @bin_path = File.dirname(bin_file)
         bin_file_base = File.basename(bin_file).split('.')[0]
 
@@ -1021,7 +1026,7 @@ module Cosmos
                                                     "Open Definition File",
                                                     @def_path,
                                                     "Definition File (*.txt)\nAll Files (*)")
-            unless def_file.nil? or def_file.empty?
+            unless def_file.nil? || def_file.empty?
               if File.basename(def_file) =~ /\.txt/
                 @def_path = File.dirname(def_file)
                 return bin_file, def_file
@@ -1061,7 +1066,7 @@ module Cosmos
 
     def self.run(option_parser = nil, options = nil)
       Cosmos.catch_fatal_exception do
-        unless option_parser and options
+        unless option_parser && options
           option_parser, options = create_default_options()
           options.width = 800
           options.height = 600

@@ -25,7 +25,13 @@ module Cosmos
 
       it "complains if there are not enough parameters" do
         tf = Tempfile.new('unittest')
-        tf.puts("TABLE")
+        tf.puts("TABLE table")
+        tf.close
+        expect { @tc.process_file(tf.path) }.to raise_error(ConfigParser::Error, /Not enough parameters for TABLE/)
+        tf.unlink
+
+        tf = Tempfile.new('unittest')
+        tf.puts("TABLE table BIG_ENDIAN TWO_DIMENSIONAL")
         tf.close
         expect { @tc.process_file(tf.path) }.to raise_error(ConfigParser::Error, /Not enough parameters for TABLE/)
         tf.unlink
@@ -34,6 +40,12 @@ module Cosmos
       it "complains if there are too many parameters" do
         tf = Tempfile.new('unittest')
         tf.puts "TABLE table LITTLE_ENDIAN ONE_DIMENSIONAL 'Table' extra"
+        tf.close
+        expect { @tc.process_file(tf.path) }.to raise_error(ConfigParser::Error, /Too many parameters for TABLE/)
+        tf.unlink
+
+        tf = Tempfile.new('unittest')
+        tf.puts "TABLE table LITTLE_ENDIAN TWO_DIMENSIONAL 2 'Table' extra"
         tf.close
         expect { @tc.process_file(tf.path) }.to raise_error(ConfigParser::Error, /Too many parameters for TABLE/)
         tf.unlink

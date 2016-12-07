@@ -68,14 +68,14 @@ module Cosmos
         #######################################################################
         # All the following keywords must have a current packet defined
         #######################################################################
-        when 'SELECT_PARAMETER', 'PARAMETER', 'ID_PARAMETER', 'ARRAY_PARAMETER', 'APPEND_PARAMETER', 'APPEND_ID_PARAMETER', 'APPEND_ARRAY_PARAMETER', 'ALLOW_SHORT', 'HAZARDOUS', 'PROCESSOR', 'META', 'DISABLE_MESSAGES', 'HIDDEN', 'DISABLED'
+        when 'SELECT_PARAMETER', 'PARAMETER', 'ID_PARAMETER', 'ARRAY_PARAMETER', 'APPEND_PARAMETER', 'APPEND_ID_PARAMETER', 'APPEND_ARRAY_PARAMETER', 'ALLOW_SHORT', 'HAZARDOUS', 'PROCESSOR', 'META', 'DISABLE_MESSAGES', 'DISABLED'
           raise parser.error("No current packet for #{keyword}") unless @current_packet
           process_current_packet(parser, keyword, params)
 
         #######################################################################
         # All the following keywords must have a current item defined
         #######################################################################
-        when 'STATE', 'READ_CONVERSION', 'WRITE_CONVERSION', 'POLY_READ_CONVERSION', 'POLY_WRITE_CONVERSION', 'SEG_POLY_READ_CONVERSION', 'SEG_POLY_WRITE_CONVERSION', 'GENERIC_READ_CONVERSION_START', 'GENERIC_WRITE_CONVERSION_START', 'REQUIRED', 'LIMITS', 'LIMITS_RESPONSE', 'UNITS', 'FORMAT_STRING', 'DESCRIPTION', 'MINIMUM_VALUE', 'MAXIMUM_VALUE', 'DEFAULT_VALUE', 'OVERFLOW', 'UNEDITABLE'
+        when 'STATE', 'READ_CONVERSION', 'WRITE_CONVERSION', 'POLY_READ_CONVERSION', 'POLY_WRITE_CONVERSION', 'SEG_POLY_READ_CONVERSION', 'SEG_POLY_WRITE_CONVERSION', 'GENERIC_READ_CONVERSION_START', 'GENERIC_WRITE_CONVERSION_START', 'REQUIRED', 'LIMITS', 'LIMITS_RESPONSE', 'UNITS', 'FORMAT_STRING', 'DESCRIPTION', 'MINIMUM_VALUE', 'MAXIMUM_VALUE', 'DEFAULT_VALUE', 'OVERFLOW', 'UNEDITABLE', 'HIDDEN'
           raise parser.error("No current item for #{keyword}") unless @current_item
           process_current_item(parser, keyword, params)
 
@@ -107,12 +107,32 @@ module Cosmos
         usage = "#{keyword}"
         parser.verify_num_parameters(0, 0, usage)
         @current_item.editable = false
+      when 'HIDDEN'
+        usage = "#{keyword}"
+        parser.verify_num_parameters(0, 0, usage)
+        @current_item.hidden = true
       end
     end
 
     def start_item(parser)
       finish_item()
       @current_item = TableItemParser.parse(parser, @current_packet)
+    end
+
+    def finish_packet
+      if @current_packet
+        if @current_packet.type == :TWO_DIMENSIONAL
+          items = @current_packet.sorted_items.clone
+          (@current_packet.num_rows-1).times do |row|
+            items.each do |item|
+              new_item = item.clone
+              new_item.name = "#{new_item.name[0...-1]}#{row+1}"
+              @current_packet.append(new_item)
+            end
+          end
+        end
+      end
+      super()
     end
 
   end # class TableConfig

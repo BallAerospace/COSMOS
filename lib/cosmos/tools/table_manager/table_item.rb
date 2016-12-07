@@ -15,6 +15,7 @@ module Cosmos
   # Maintains knowledge of an item in a Table
   class TableItem < PacketItem
     attr_reader :editable
+    attr_reader :hidden
     attr_reader :constraint
 
     # (see PacketItem#initialize)
@@ -23,12 +24,18 @@ module Cosmos
       super(name, bit_offset, bit_size, data_type, endianness, array_size, overflow)
       @display_type = nil
       @editable = true
+      @hidden = false
       @constraint = nil
     end
 
     def editable=(editable)
       raise ArgumentError, "#{@name}: editable must be a boolean but is a #{editable.class}" unless !!editable == editable
       @editable = editable
+    end
+
+    def hidden=(hidden)
+      raise ArgumentError, "#{@name}: hidden must be a boolean but is a #{hidden.class}" unless !!hidden == hidden
+      @hidden = hidden
     end
 
     def constraint=(constraint)
@@ -52,6 +59,7 @@ module Cosmos
     def to_hash
       hash = super()
       hash['editable'] = self.editable
+      hash['hidden'] = self.hidden
       if self.constraint
         hash['constraint'] = self.constraint.to_s
       else
