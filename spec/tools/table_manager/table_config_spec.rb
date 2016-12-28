@@ -72,6 +72,47 @@ module Cosmos
         tf.unlink
       end
 
+      context "with TABLEFILE" do
+        it "complains if not enough parameters" do
+          tf = Tempfile.new('unittest')
+          tf.puts 'TABLEFILE'
+          tf.close
+          expect { tc.process_file(tf.path) }.to raise_error(ConfigParser::Error, /Not enough parameters/)
+          tf.unlink
+        end
+
+        it "complains if too many parameters" do
+          tf = Tempfile.new('unittest')
+          tf.puts 'TABLEFILE table_file table_file'
+          tf.close
+          expect { tc.process_file(tf.path) }.to raise_error(ConfigParser::Error, /Too many parameters/)
+          tf.unlink
+        end
+
+        it "complains if the table file does not exist" do
+          tf = Tempfile.new('unittest')
+          tf.puts 'TABLEFILE table_file'
+          tf.close
+          expect { tc.process_file(tf.path) }.to raise_error(ConfigParser::Error, /not found/)
+          tf.unlink
+        end
+
+        it "parses the table definition file" do
+          tf = Tempfile.new('test_table')
+          tf.puts 'TABLE table LITTLE_ENDIAN ONE_DIMENSIONAL "Table"'
+          tf.puts '  APPEND_PARAMETER item1 16 UINT 0 0 0 "Item"'
+          tf.close
+          tf1 = Tempfile.new('unittest')
+          tf1.puts "TABLEFILE #{File.basename(tf.path)}"
+          tf1.close
+          tc.process_file(tf1.path)
+          tbl = tc.table("TABLE")
+          expect(tbl.get_item("ITEM1").description).to eql "Item"
+          tf1.unlink
+          tf.unlink
+        end
+      end
+
       context "with SELECT_TABLE" do
         it "complains if the table is not found" do
           tf = Tempfile.new('unittest')
@@ -127,16 +168,46 @@ module Cosmos
         end
       end
 
+      context "with TWO_DIMESIONAL tables" do
+        it "duplicates parameters to create rows" do
+          tf = Tempfile.new('unittest')
+          tf.puts 'TABLE table LITTLE_ENDIAN TWO_DIMENSIONAL 2 "Table"'
+          tf.puts '  APPEND_PARAMETER item1 16 UINT 0 0 0 "Item"'
+          tf.puts '  APPEND_PARAMETER item2 16 UINT 0 0 0 "Item"'
+          tf.close
+          tc.process_file(tf.path)
+          tbl = tc.table("TABLE")
+          names = []
+          tbl.sorted_items.each {|item| names << item.name }
+          expect(names).to eql %w(ITEM10 ITEM20 ITEM11 ITEM21)
+          tf.unlink
+        end
+      end
+
       context "with UNEDITABLE" do
         it "sets editable to false" do
           tf = Tempfile.new('unittest')
           tf.puts 'TABLE table LITTLE_ENDIAN ONE_DIMENSIONAL "Table"'
-          tf.puts '  APPEND_PARAMETER item1 16 UINT 0 0 0 "Item"'
+          tf.puts '  PARAMETER item1 0 16 UINT 0 0 0 "Item"'
           tf.puts '    UNEDITABLE'
           tf.close
           tc.process_file(tf.path)
           tbl = tc.table("TABLE")
           expect(tbl.get_item("ITEM1").editable).to eql false
+          tf.unlink
+        end
+      end
+
+      context "with HIDDEN" do
+        it "sets hidden to true" do
+          tf = Tempfile.new('unittest')
+          tf.puts 'TABLE table LITTLE_ENDIAN ONE_DIMENSIONAL "Table"'
+          tf.puts '  PARAMETER item1 0 16 UINT 0 0 0 "Item"'
+          tf.puts '    HIDDEN'
+          tf.close
+          tc.process_file(tf.path)
+          tbl = tc.table("TABLE")
+          expect(tbl.get_item("ITEM1").hidden).to eql true
           tf.unlink
         end
       end

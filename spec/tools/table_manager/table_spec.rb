@@ -40,10 +40,37 @@ module Cosmos
       end
     end
 
+    describe "num_rows=" do
+      it "raises an error for ONE_DIMENTIONAL" do
+        t = Table.new("table", :BIG_ENDIAN, :ONE_DIMENSIONAL, "description", "filename")
+        expect { t.num_rows = 2 }.to raise_error
+      end
+
+      it "sets num_rows for TWO_DIMENTIONAL" do
+        t = Table.new("table", :BIG_ENDIAN, :TWO_DIMENSIONAL, "description", "filename")
+        t.num_rows = 2
+        expect(t.num_rows).to eql 2
+      end
+    end
+
     describe "num_rows" do
       it "initializes to 0" do
         t = Table.new("table", :BIG_ENDIAN, :ONE_DIMENSIONAL, "description", "filename")
         expect(t.num_rows).to eql 0
+      end
+
+      it "equals the number of visible items in ONE_DIMENSIONAL" do
+        t = Table.new("table", :BIG_ENDIAN, :ONE_DIMENSIONAL, "description", "filename")
+        ti1 = TableItem.new("test1", 0, 32, :UINT, :BIG_ENDIAN, nil)
+        ti2 = TableItem.new("test2", 0, 32, :UINT, :BIG_ENDIAN, nil)
+        ti2.hidden = true
+        ti3 = TableItem.new("test3", 0, 32, :UINT, :BIG_ENDIAN, nil)
+        t.append(ti1)
+        expect(t.num_rows).to eql 1
+        t.append(ti2)
+        expect(t.num_rows).to eql 1
+        t.append(ti3)
+        expect(t.num_rows).to eql 2
       end
     end
 

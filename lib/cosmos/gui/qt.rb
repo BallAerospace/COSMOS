@@ -404,8 +404,15 @@ class Qt::TreeWidgetItem
 end
 
 class Qt::TabWidget
-  def tab(index)
-    widget(index)
+  def current_name
+    tabText(currentIndex)
+  end
+
+  def tab(tab_text)
+    (0...count()).each do |index|
+      return widget(index) if tabText(index) == tab_text
+    end
+    nil
   end
 
   def widgets

@@ -17,6 +17,8 @@ require 'cosmos/tools/table_manager/table_item_parser'
 module Cosmos
 
   class TableConfig < PacketConfig
+    attr_reader :filename
+
     def initialize
       super
       # Override commands with the Table::TARGET name to store tables
@@ -32,7 +34,7 @@ module Cosmos
     end
 
     def table(table_name)
-      tables[table_name]
+      tables[table_name.upcase]
     end
 
     #########################################################################
@@ -46,11 +48,18 @@ module Cosmos
     def process_file(filename)
       # Partial files are included into another file and thus aren't directly processed
       return if File.basename(filename)[0] == '_' # Partials start with underscore
+      @filename = filename
 
       parser = ConfigParser.new("http://cosmosrb.com/docs/cmdtlm")
       parser.parse_file(filename) do |keyword, params|
         case keyword
-        # Start a new table
+        when 'TABLEFILE'
+          usage = "#{keyword} <File name>"
+          parser.verify_num_parameters(1, 1, usage)
+          filename = File.join(File.dirname(filename), params[0])
+          raise parser.error("Table file #{filename} not found", usage) unless File.exist?(filename)
+          process_file(filename)
+
         when 'TABLE'
           finish_packet()
           @current_packet = TableParser.parse_table(parser, @commands, @warnings)
