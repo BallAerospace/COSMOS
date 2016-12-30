@@ -270,6 +270,29 @@ module Cosmos
         FileUtils.rm bin_filename
         FileUtils.rm def_filename
       end
+
+      it "returns a strings with out of range values" do
+        bin_filename = File.join(Dir.pwd, 'testfile.dat')
+        File.open(bin_filename,'w') {|file| file.write "\x00\x03\xFF\xFD\x48\x46\x4C\x4C\x4F\x00\x00" }
+        def_filename = File.join(Dir.pwd, 'testfile_def.txt')
+        File.open(def_filename,'w') do |file|
+          file.puts 'TABLE table1 BIG_ENDIAN ONE_DIMENSIONAL'
+          file.puts '  APPEND_PARAMETER item1 16 UINT 0 2 0 "Item"'
+          file.puts '  APPEND_PARAMETER item2 16 INT -2 2 0 "Item"'
+          file.puts '  APPEND_PARAMETER item3 40 STRING "HELLO" "Item"'
+          file.puts '  APPEND_PARAMETER item4 16 UINT 0 4 0 "Item"'
+          file.puts '    GENERIC_READ_CONVERSION_START'
+          file.puts '      myself.read("item1") * 2'
+          file.puts '    GENERIC_READ_CONVERSION_END'
+        end
+        core.file_open(bin_filename, def_filename)
+        result = core.table_check('table1')
+        expect(result).to match /ITEM1: 3 outside valid range/
+        expect(result).to match /ITEM2: -3 outside valid range/
+        expect(result).to match /ITEM4: 6 outside valid range/
+        FileUtils.rm bin_filename
+        FileUtils.rm def_filename
+      end
     end
 
     describe "table_default" do

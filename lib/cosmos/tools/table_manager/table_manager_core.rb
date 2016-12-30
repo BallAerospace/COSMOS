@@ -178,34 +178,18 @@ module Cosmos
           # get the table item definition so we know how to save it
           table_item = table_items[r * table.num_columns + c]
 
-          # if a constraint was defined call it here
-          # this should set the underlying constraints
-          if (table_item.constraint != nil)
-            table_item.constraint.call(table_item, table, table.buffer)
-          end
-
-          x = table.read(table_item.name, :RAW)
-          if table_item.data_type == :STRING
-            # TODO: Is this check necessary? If we read the item above how can it
-            # be bigger than its definition?
-            if x.length > table_item.bit_size / 8
-              result << "  #{table_item.name}: #{x} must be less than #{table_item.bit_size / 8} characters\n"
-            end
-          end
-
+          x = table.read(table_item.name)
           unless table_item.range.nil?
             # check to see if the value lies within its valid range
-            if not table_item.range.include?(x)
-              # if the value is displayed as hex, display the range as hex
-              #if table_item.display_type == :HEX
-              #  range_first = "0x%X" % table_item.range.first
-              #  range_last = "0x%X" % table_item.range.last
-              #  x = "0x%X" % x
-              #else
+            unless table_item.range.include?(x)
+              if table_item.format_string
+                range_first = sprintf(table_item.format_string, table_item.range.first)
+                range_last = sprintf(table_item.format_string, table_item.range.last)
+              else
                 range_first = table_item.range.first
                 range_last = table_item.range.last
-                x = table.read(table_item.name)
-              #end
+              end
+              x = table.read(table_item.name)
               result << "  #{table_item.name}: #{x} outside valid range of #{range_first}..#{range_last}\n"
             end
           end

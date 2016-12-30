@@ -16,7 +16,6 @@ module Cosmos
   class TableItem < PacketItem
     attr_reader :editable
     attr_reader :hidden
-    attr_reader :constraint
 
     # (see PacketItem#initialize)
     # It also initializes the attributes of the TableItem.
@@ -25,7 +24,6 @@ module Cosmos
       @display_type = nil
       @editable = true
       @hidden = false
-      @constraint = nil
     end
 
     def editable=(editable)
@@ -38,20 +36,10 @@ module Cosmos
       @hidden = hidden
     end
 
-    def constraint=(constraint)
-      if constraint
-        raise ArgumentError, "#{@name}: constraint must be a Conversion but is a #{constraint.class}" unless Cosmos::Conversion === constraint
-        @constraint = constraint.clone
-      else
-        @constraint = nil
-      end
-    end
-
     # Make a light weight clone of this item
     def clone
       item = super()
       item.editable = self.editable
-      item.constraint = self.constraint.clone if self.constraint
       item
     end
     alias dup clone
@@ -60,14 +48,8 @@ module Cosmos
       hash = super()
       hash['editable'] = self.editable
       hash['hidden'] = self.hidden
-      if self.constraint
-        hash['constraint'] = self.constraint.to_s
-      else
-        hash['constraint'] = nil
-      end
       hash
     end
+  end
+end
 
-  end # class TableItem
-
-end # module Cosmos

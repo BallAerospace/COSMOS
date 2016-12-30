@@ -32,19 +32,6 @@ module Cosmos
       end
     end
 
-    describe "constraint=" do
-      it "sets the constraint" do
-        @ti.constraint = Conversion.new
-        expect(@ti.constraint).to be_a(Conversion)
-        @ti.constraint = nil
-        expect(@ti.constraint).to be_nil
-      end
-
-      it "complains about non Conversion values" do
-        expect { @ti.constraint = 5 }.to raise_error(ArgumentError, "#{@ti.name}: constraint must be a Conversion but is a Fixnum")
-      end
-    end
-
     describe "clone" do
       it "duplicates the entire TableItem" do
         pi2 = @ti.clone
@@ -56,18 +43,15 @@ module Cosmos
       it "converts to a Hash" do
         hash = @ti.to_hash
         # Check the values from StructureItem
-        expect(hash.keys).to include('editable', 'constraint')
+        expect(hash.keys).to include('editable')
         expect(hash["editable"]).to eql true
-        expect(hash["constraint"]).to be_nil
 
         @ti.editable = false
-        @ti.constraint = Conversion.new
 
         hash = @ti.to_hash
         expect(hash["editable"]).to eql false
-        expect(hash["constraint"]).to match "Conversion"
       end
     end
-
   end
 end
+

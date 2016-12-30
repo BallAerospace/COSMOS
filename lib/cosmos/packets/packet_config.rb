@@ -114,7 +114,7 @@ module Cosmos
         if @building_generic_conversion
           case keyword
           # Complete a generic conversion
-          when 'GENERIC_READ_CONVERSION_END', 'GENERIC_WRITE_CONVERSION_END'
+          when 'GENERIC_READ_CONVERSION_END', 'GENERIC_WRITE_CONVERSION_END', 'CONSTRAINT_END'
             parser.verify_num_parameters(0, 0, keyword)
             @current_item.read_conversion =
               GenericConversion.new(@proc_text,
@@ -124,6 +124,10 @@ module Cosmos
               GenericConversion.new(@proc_text,
                                     @converted_type,
                                     @converted_bit_size) if keyword.include? "WRITE"
+            @current_item.constraint =
+              GenericConversion.new(@proc_text,
+                                    @converted_type,
+                                    @converted_bit_size) if keyword.include? "CONSTRAINT"
             @building_generic_conversion = false
           # Add the current config.line to the conversion being built
           else
