@@ -1112,16 +1112,21 @@ module Cosmos
       @@test_suites = @@test_suites.select {|my_suite| my_suite.name == 'CustomTestSuite'}
       tests         = []
       ObjectSpace.each_object(Class) do |object|
-        next if object.name == 'CustomTestSuite'
-        if (object.ancestors.include?(TestSuite) &&
-            object != TestSuite &&
-            !ignored_test_suite_classes.include?(object))
-          @@test_suites << object.new
-        end
-        if (object.ancestors.include?(Test) &&
-            object != Test &&
-            !ignored_test_classes.include?(object))
-          tests << object
+        begin
+          next if object.name == 'CustomTestSuite'
+          if (object.ancestors.include?(TestSuite) &&
+              object != TestSuite &&
+              !ignored_test_suite_classes.include?(object))
+            @@test_suites << object.new
+          end
+          if (object.ancestors.include?(Test) &&
+              object != Test &&
+              !ignored_test_classes.include?(object))
+            tests << object
+          end
+        rescue
+          # Ignore Classes where name, etc may raise exception
+          # Bundler::Molinillo::DependencyGraph::Action is one example
         end
       end
       # Raise error if no test suites or tests

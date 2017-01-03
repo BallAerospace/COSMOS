@@ -9,12 +9,14 @@
 # as published by the Free Software Foundation; version 3 with
 # attribution addendums as found in the LICENSE.txt
 
+# Set the user path to our COSMOS configuration in the autohotkey directory
+ENV['COSMOS_USERPATH'] = File.join(File.expand_path(File.dirname(__FILE__)), '..')
+
 def autohotkey(command_name, ahk_script = nil)
   Dir.chdir(File.join(File.dirname(__FILE__), '..', '..'))
   require "./spec/spec_helper.rb"
 
   ENV['COSMOS_USERPATH'] = File.join(File.dirname(File.expand_path(__FILE__)), '..')
-
   SimpleCov.command_name command_name
 
   if ahk_script

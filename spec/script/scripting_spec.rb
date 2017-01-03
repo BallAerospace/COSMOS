@@ -474,11 +474,14 @@ module Cosmos
         end
         allow(ScriptRunnerFrame).to receive_message_chain(:instance, :use_instrumentation)
         allow(ScriptRunnerFrame).to receive_message_chain(:instance, :use_instrumentation=)
-        cached = load_utility("cosmos.rb")
-        expect(cached).to eq false
+        script = File.join(Cosmos::USERPATH,'lib','example.rb')
+        File.open(script, 'w') { |file| file.puts "# Example script" }
+        not_cached = load_utility("example.rb")
+        expect(not_cached).to eq true
         # This one should use the cached version
-        cached = load_utility("cosmos.rb")
-        expect(cached).to eq true
+        not_cached = load_utility("example.rb")
+        expect(not_cached).to eq false
+        File.delete script
       end
     end
 
