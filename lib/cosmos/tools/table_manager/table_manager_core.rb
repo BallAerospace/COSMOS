@@ -180,6 +180,7 @@ module Cosmos
 
           x = table.read(table_item.name)
           unless table_item.range.nil?
+            x = table_item.states[x] if table_item.states
             # check to see if the value lies within its valid range
             unless table_item.range.include?(x)
               if table_item.format_string

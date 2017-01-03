@@ -55,10 +55,13 @@ module Cosmos
         File.open(def_filename,'w') do |file|
           file.puts 'TABLE table1 BIG_ENDIAN ONE_DIMENSIONAL'
           file.puts '  APPEND_PARAMETER item1 32 UINT MIN MAX 0xDEADBEEF "Item"'
+          file.puts '  APPEND_PARAMETER item2 16 UINT 0 1 0 "Item"'
+          file.puts '    STATE DISABLE 0'
+          file.puts '    STATE ENABLE 1'
         end
         bin_filename = core.file_new(def_filename, Dir.pwd)
         expect(bin_filename).to eq File.join(Dir.pwd, "table.dat")
-        expect(File.read(bin_filename).formatted).to match /DE AD BE EF/
+        expect(File.read(bin_filename).formatted).to match /DE AD BE EF 00 00/
         FileUtils.rm def_filename
         FileUtils.rm bin_filename
         FileUtils.rm 'table.csv'
@@ -271,13 +274,16 @@ module Cosmos
         FileUtils.rm def_filename
       end
 
-      it "returns a strings with out of range values" do
+      it "returns a string with out of range values" do
         bin_filename = File.join(Dir.pwd, 'testfile.dat')
         File.open(bin_filename,'w') {|file| file.write "\x00\x03\xFF\xFD\x48\x46\x4C\x4C\x4F\x00\x00" }
         def_filename = File.join(Dir.pwd, 'testfile_def.txt')
         File.open(def_filename,'w') do |file|
           file.puts 'TABLE table1 BIG_ENDIAN ONE_DIMENSIONAL'
           file.puts '  APPEND_PARAMETER item1 16 UINT 0 2 0 "Item"'
+          file.puts '    STATE DISABLE 0'
+          file.puts '    STATE ENABLE 1'
+          file.puts '    STATE UNKNOWN 2'
           file.puts '  APPEND_PARAMETER item2 16 INT -2 2 0 "Item"'
           file.puts '  APPEND_PARAMETER item3 40 STRING "HELLO" "Item"'
           file.puts '  APPEND_PARAMETER item4 16 UINT 0 4 0 "Item"'

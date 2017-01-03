@@ -150,23 +150,6 @@ module Cosmos
       @@instance
     end
 
-    # Called after parsing all the command line options passed to the
-    # application. Returns false to operate without a GUI when certain command
-    # line options are specified.
-    #
-    # @param options [OpenStruct] The application options as configured in the
-    #   command line
-    # @return [Boolean] Whether to contine running the application
-    def self.post_options_parsed_hook(options)
-      if options.create
-        core = TableManagerCore.new
-        core.file_new([options.create], options.output_dir)
-        false
-      else
-        true
-      end
-    end
-
     # Entry point into the application
     #
     # @param option_parser [OptionParser] Parses the command line options
@@ -188,11 +171,68 @@ module Cosmos
             options.create = arg
           end
           option_parser.on("-o", "--output DIRECTORY", "Create files in the specified directory") do |arg|
-            options.output_dir = arg
+            options.output_dir = File.expand_path(arg)
+          end
+          option_parser.on("--convert FILE", "Convert the specified configuration file to the new format") do |arg|
+            options.convert = arg
           end
         end
         super(option_parser, options)
       end
+    end
+
+    # Called after parsing all the command line options passed to the
+    # application. Returns false to operate without a GUI when certain command
+    # line options are specified.
+    #
+    # @param options [OpenStruct] The application options as configured in the
+    #   command line
+    # @return [Boolean] Whether to contine running the application
+    def self.post_options_parsed_hook(options)
+      if options.create
+        core = TableManagerCore.new
+        core.file_new(options.create, options.output_dir)
+        return false
+      end
+      if options.convert
+        if options.convert.include?("/")
+          parts = options.convert.split("/")
+        else
+          parts = options.convert.split("\\")
+        end
+        parts[-1] = "converted_#{parts[-1]}"
+        filename = parts.join(File::SEPARATOR)
+        out = File.open(filename, 'w')
+        config = File.read(options.convert).split("\n")
+        config.each do |line|
+          /TABLE\s+(\".*\")\s+(\".*\")\s+(ONE_DIMENSIONAL)\s+(.*_ENDIAN)/.match(line) do |m|
+            out.puts "TABLE #{m[1]} #{m[4]} #{m[3]} #{m[2]}"
+          end
+          /TABLE\s+(\".*\")\s+(\".*\")\s+(TWO_DIMENSIONAL)\s+(.*_ENDIAN)/.match(line) do |m|
+            rows = config.select {|item| item.strip =~ /^DEFAULT/ }.length
+            out.puts "TABLE #{m[1]} #{m[4]} #{m[3]} #{rows} #{m[2]}"
+          end
+          /PARAMETER\s+(\".*\")\s+(\".*\")\s+(.*)\s+(\d+)\s+(.*)\s+(.*)\s+(.*)\s+(.*)\s?/.match(line) do |m|
+            out.puts "  APPEND_PARAMETER #{m[1]} #{m[4]} #{m[3]} #{m[6]} #{m[7]} #{m[8]} #{m[2]}"
+            if m[5].include?('CHECK')
+              out.puts "    STATE UNCHECKED #{m[6]}"
+              out.puts "    STATE CHECKED #{m[7]}"
+            end
+            if m[5].include?('HEX')
+              out.puts '    FORMAT_STRING "0x%0X"'
+            end
+            if m[5].include?('-U')
+              out.puts '    UNEDITABLE'
+            end
+          end
+          if line.strip !~ /^(TABLE|PARAMETER|DEFAULT)/
+            out.puts line
+          end
+        end
+        puts "Created #{filename}"
+        return false
+      end
+      true
     end
 
     # Create a TableManager instance by initializing the globals,
@@ -448,16 +488,17 @@ module Cosmos
         # Mismatch errors are recoverable so just warn the user
         Qt::MessageBox.information(self, "Table Open Error", err.message)
       end
-
       @def_path = File.dirname(def_path)
       @bin_path = File.dirname(bin_path)
+      display_all_gui_data()
       @table_bin_label.text = bin_path
       @table_def_label.text = def_path
-      display_all_gui_data()
       Qt::Application.restoreOverrideCursor()
     rescue TableManagerCore::CoreError => err
+      Qt::Application.restoreOverrideCursor()
       Qt::MessageBox.warning(self, "File Open Errors", err.message)
     rescue => err
+      Qt::Application.restoreOverrideCursor()
       ExceptionDialog.new(self, err, "File Open Errors", false)
     end
 
@@ -471,6 +512,8 @@ module Cosmos
     def file_close
       return if abort_on_modified()
       @core.reset
+      @table_bin_label.text = ''
+      @table_def_label.text = ''
       reset_gui()
     rescue TableManagerCore::CoreError => err
       Qt::MessageBox.warning(self, "File Close Errors", err.message)
@@ -495,6 +538,7 @@ module Cosmos
       @bin_path = File.dirname(filename)
 
       display_all_gui_data()
+      @table_bin_label.text = filename
       statusBar.showMessage(tr("File Saved Successfully"))
     rescue TableManagerCore::CoreError, SaveError => err
       Qt::MessageBox.warning(self, "File Save Errors", err.message)
@@ -516,7 +560,7 @@ module Cosmos
       Qt::MessageBox.warning(self, "File Check Errors", err.message)
       false
     rescue => err
-      ExceptionDialog.new(self, err, "File Check Errors", false)
+      ExceptionDialog.new(self, err, "Unknown File Check Errors", false)
       false
     end
 
@@ -526,7 +570,7 @@ module Cosmos
       report_path = @core.file_report(@table_bin_label.text, @table_def_label.text)
 
       dialog = Qt::Dialog.new(self, Qt::WindowTitleHint | Qt::WindowSystemMenuHint)
-      dialog.setWindowTitle("Table Report")
+      dialog.setWindowTitle("File Report")
       dialog_layout = Qt::VBoxLayout.new
       dialog_layout.addWidget(Qt::Label.new("Report file created: #{report_path}"))
       button_layout = Qt::HBoxLayout.new
@@ -804,7 +848,6 @@ module Cosmos
 
     def abort_on_modified
       user_abort = false
-      STDOUT.puts "title:#{self.windowTitle} mod:#{self.windowTitle.include?("*")}"
       if self.windowTitle.include?("*")
         result = Qt::MessageBox.warning(self, "Table Modified",
           "Table has been modified. Continue and discard all changes?",
@@ -829,9 +872,6 @@ module Cosmos
     # prepare for the next table to load.
     def reset_gui
       set_table_modified(false)
-      @table_bin_label.text = ''
-      @table_def_label.text = ''
-
       @tabbook.tabs.each_with_index do |tab, index|
         tab.dispose
         @tabbook.removeTab(index)
@@ -839,7 +879,15 @@ module Cosmos
     end
 
     def save_all_gui_data
-      @core.config.tables.each {|table_name, table|  save_gui_data(table_name) }
+      result = ''
+      @core.config.tables.each do |table_name, table|
+        begin
+          save_gui_data(table_name)
+        rescue SaveError => err
+          result << "\nErrors in #{table_name}:\n#{err.message}"
+        end
+      end
+      raise SaveError, result.lstrip unless result.empty?
     end
 
     def display_all_gui_data
@@ -1021,7 +1069,7 @@ module Cosmos
             default_action.connect(SIGNAL('triggered()')) do
               item = table.get_item(item_name)
               table.write(item.name, item.default)
-              update_gui_item(current_table_name, table, item, table_item.row, table_item.column)
+              update_gui_item(current_table_name, table, gui_table, item, table_item.row, table_item.column)
             end
             menu.addAction(default_action)
 
@@ -1074,9 +1122,10 @@ module Cosmos
           statusBar.showMessage(item.description)
         end
       end
+    rescue
+      statusBar.showMessage('')
     end
 
   end
-
 end # module Cosmos
 
