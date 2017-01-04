@@ -154,7 +154,7 @@ module Cosmos
       button = Qt::PushButton.new(button_text)
       if name == ROUTERS
         button.connect(SIGNAL('clicked()')) do
-          if interface.thread
+          if CmdTlmServer.routers.all[interface_name].thread
             Logger.info "User disconnecting router #{interface_name}"
             CmdTlmServer.instance.disconnect_router(interface_name)
           else
@@ -164,7 +164,7 @@ module Cosmos
         end
       else
         button.connect(SIGNAL('clicked()')) do
-          if interface.thread
+          if CmdTlmServer.interfaces.all[interface_name].thread
             Logger.info "User disconnecting interface #{interface_name}"
             CmdTlmServer.instance.disconnect_interface(interface_name)
           else

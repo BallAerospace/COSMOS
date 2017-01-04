@@ -62,6 +62,11 @@ module Cosmos
       @about_action = Qt::Action.new(Cosmos.get_icon('help.png'), tr('&About'), self)
       @about_action.statusTip = tr('About the application')
       connect(@about_action, SIGNAL('triggered()'), self, SLOT('about()'))
+      @documentation_action = Qt::Action.new(tr('&Documentation'), self)
+      @documentation_action.statusTip = tr('COSMOS Online Documentation')
+      self.connect(@documentation_action, SIGNAL('triggered()')) do
+        Qt::DesktopServices.openUrl(Qt::Url.new("http://cosmosrb.com"))
+      end
     end
 
     # Creates the Help menu and adds the @about_action to it. Thus this MUST be
@@ -69,6 +74,7 @@ module Cosmos
     def initialize_help_menu
       @help_menu = menuBar().addMenu(tr('&Help'))
       @help_menu.addAction(@about_action)
+      @help_menu.addAction(@documentation_action)
     end
 
     # This should be called after the tool has been completely laid out and all

@@ -317,6 +317,11 @@ demo/config/targets/INST/cmd_tlm_server.txt
 demo/config/targets/INST/doc/README.txt
 demo/config/targets/INST/lib/example_limits_response.rb
 demo/config/targets/INST/lib/sim_inst.rb
+demo/config/targets/INST/procedures/checks.rb
+demo/config/targets/INST/procedures/collect.rb
+demo/config/targets/INST/procedures/disconnect.rb
+demo/config/targets/INST/procedures/utilities/clear.rb
+demo/config/targets/INST/procedures/utilities/collect.rb
 demo/config/targets/INST/screens/adcs.txt
 demo/config/targets/INST/screens/array.txt
 demo/config/targets/INST/screens/block.txt
@@ -400,12 +405,7 @@ demo/outputs/logs/README.txt
 demo/outputs/saved_config/README.txt
 demo/outputs/tables/README.txt
 demo/outputs/tmp/README.txt
-demo/procedures/checks.rb
-demo/procedures/clear_util.rb
-demo/procedures/collect.rb
-demo/procedures/collect_util.rb
 demo/procedures/cosmos_api_test.rb
-demo/procedures/disconnect.rb
 demo/procedures/example_test.rb
 demo/procedures/plot_test.rb
 demo/procedures/run_example_test.rb

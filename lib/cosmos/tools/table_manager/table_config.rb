@@ -115,8 +115,8 @@ module Cosmos
             end
 
           when 'PARAMETER'
-            usage = "PARAMETER <Parameter Name> <Parameter Description> <Data Type> <Bit Size> <Display Type> <Minimum Value> <Maximum Value> <Default Value - Only in ONE_DIMENTIONAL>"
-            parser.verify_num_parameters(7, 8, usage)
+            usage = "PARAMETER <Parameter Name> <Parameter Description> <Data Type> <Bit Size> <Display Type> <Minimum Value> <Maximum Value> <Default Value (Only in ONE_DIMENTIONAL)> <ENDIANNESS (Optional)>"
+            parser.verify_num_parameters(6, 9, usage)
             finish_parameter()
             if @current_table
               @current_table.num_rows += 1
@@ -134,21 +134,29 @@ module Cosmos
                 type = read_item_type(parameters[2])
                 bit_size = parameters[3].to_i
                 display_type, editable = read_display_type(parameters[4], type)
-                if type == :BLOCK
+                if type == :STRING || type == :BLOCK
                   range = nil
-                elsif type == :STRING
-                  range = convert_to_range(parameters[5], parameters[6], :UINT, 0)
                 else
                   range = convert_to_range(parameters[5], parameters[6], type, bit_size)
                 end
                 if @current_table.type == :ONE_DIMENSIONAL
-                  default = convert_to_type(parameters[7], type)
+                  if type == :STRING || type == :BLOCK
+                    default = convert_to_type(parameters[5], type)
+                  else
+                    default = convert_to_type(parameters[7], type)
+                  end
                 else # TWO_DIMENSIONAL defaults are set by the DEFAULT keyword
                   default = 0
                 end
 
-                @current_parameter = @current_table.create_param(name, @cur_bit_offset,
-                  bit_size, type, description, range, default, display_type, editable)
+                endianness = parameters[-1].to_s.upcase.intern
+                if endianness != :BIG_ENDIAN && endianness != :LITTLE_ENDIAN
+                  endianness = @current_table.default_endianness
+                end
+
+                @current_parameter = @current_table.create_param(
+                  name, @cur_bit_offset, bit_size, type, description,
+                  range, default, display_type, editable, endianness)
                 @cur_bit_offset += parameters[3].to_i
               rescue ArgumentError => err
                 raise parser.error("#{err.message} with #{keyword}.\nUSAGE: #{usage}")
@@ -664,8 +672,8 @@ module Cosmos
     # backwards and that the minimum and maximum values make sense for the given
     # type and bit_size. For example, a maximum of 256 doesn't make sense for a UINT8.
     def convert_to_range(min, max, type, bit_size)
-      min = convert_to_type(min, type)
-      max = convert_to_type(max, type)
+      min = ConfigParser.handle_defined_constants(min.convert_to_value, type, bit_size)
+      max = ConfigParser.handle_defined_constants(max.convert_to_value, type, bit_size)
       range = min..max
 
       # First check for backwards ranges

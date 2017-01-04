@@ -122,6 +122,11 @@ module Cosmos
     def set_received_time_fast(received_time)
       @received_time = received_time
       @received_time.freeze if @received_time
+      if @read_conversion_cache
+        synchronize() do
+          @read_conversion_cache.clear
+        end
+      end
     end
 
     # Sets the received count of the packet
@@ -440,11 +445,6 @@ module Cosmos
     # @param value_type (see #read_item)
     # @param buffer (see Structure#write_item)
     def write_item(item, value, value_type = :CONVERTED, buffer = @buffer)
-      if @read_conversion_cache
-        synchronize() do
-          @read_conversion_cache.clear
-        end
-      end
       case value_type
       when :RAW
         super(item, value, value_type, buffer)
@@ -472,6 +472,11 @@ module Cosmos
         raise ArgumentError, "Invalid value type on write: #{value_type}"
       else
         raise ArgumentError, "Unknown value type on write: #{value_type}"
+      end
+      if @read_conversion_cache
+        synchronize() do
+          @read_conversion_cache.clear
+        end
       end
     end
 
@@ -551,9 +556,11 @@ module Cosmos
     # Restore all items in the packet to their default value
     #
     # @param buffer [String] Raw buffer of binary data
-    def restore_defaults(buffer = @buffer)
+    # @param skip_items_names [Array] Array of item names to skip
+    def restore_defaults(buffer = @buffer, skip_item_names = nil)
+      upcase_skip_item_names = skip_item_names.map(&:upcase) if skip_item_names
       @sorted_items.each do |item|
-        write_item(item, item.default, :CONVERTED, buffer)
+        write_item(item, item.default, :CONVERTED, buffer) unless (skip_item_names and upcase_skip_item_names.include?(item.name))
       end
     end
 
