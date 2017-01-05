@@ -12,14 +12,8 @@ require 'spec_helper'
 require 'cosmos/interfaces/tcpip_client_interface'
 
 module Cosmos
-
   describe TcpipClientInterface do
-
     describe "initialize" do
-      it "initializes the instance variables" do
-        i = TcpipClientInterface.new('localhost','8888','8889','5','5','burst')
-      end
-
       it "is not writeable if no write port given" do
         i = TcpipClientInterface.new('localhost','nil','8889','nil','5','burst')
         expect(i.name).to eql "Cosmos::TcpipClientInterface"
@@ -52,4 +46,3 @@ module Cosmos
     end
   end
 end
-

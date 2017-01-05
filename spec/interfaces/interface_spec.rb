@@ -44,18 +44,6 @@ module Cosmos
       end
     end
 
-    describe "virtual methods" do
-      it "raises an error" do
-        i = Interface.new
-        expect { i.connect }.to raise_error(/connect method not implemented/)
-        expect { i.connected? }.to raise_error(/connected\? method not implemented/)
-        expect { i.disconnect}.to raise_error(/disconnect method not implemented/)
-        expect { i.read}.to raise_error(/read method not implemented/)
-        expect { i.write(nil) }.to raise_error(/write method not implemented/)
-        expect { i.write_raw(nil) }.to raise_error(/write_raw method not implemented/)
-      end
-    end
-
     describe "read_allowed?" do
       it "is true" do
         expect(Interface.new.read_allowed?).to be true

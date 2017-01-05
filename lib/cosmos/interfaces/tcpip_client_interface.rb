@@ -8,21 +8,20 @@
 # as published by the Free Software Foundation; version 3 with
 # attribution addendums as found in the LICENSE.txt
 
-require 'cosmos/interfaces/stream_interface'
+require 'cosmos/interfaces/interface'
 require 'cosmos/streams/tcpip_client_stream'
 
 module Cosmos
-
   # Base class for interfaces that act as a TCP/IP client
-  class TcpipClientInterface < StreamInterface
-
+  class TcpipClientInterface < Interface
     # @param hostname [String] Machine to connect to
     # @param write_port [Integer] Port to write commands to
     # @param read_port [Integer] Port to read telemetry from
     # @param write_timeout [Integer] Seconds to wait before aborting writes
     # @param read_timeout [Integer] Seconds to wait before aborting reads
-    # @param stream_protocol_type (see StreamInterface#initialize)
-    # @param stream_protocol_args (see StreamInterface#initialize)
+    # @param stream_protocol_type [String] Name of the stream protocol to use
+    #   with this interface
+    # @param stream_protocol_args [Array<String>] Arguments to pass to the protocol
     def initialize(hostname,
                    write_port,
                    read_port,
@@ -30,7 +29,11 @@ module Cosmos
                    read_timeout,
                    stream_protocol_type,
                    *stream_protocol_args)
-      super(stream_protocol_type, *stream_protocol_args)
+      super()
+      stream_protocol_class = stream_protocol_type.to_s.capitalize << 'StreamProtocol'
+      klass = Cosmos.require_class(stream_protocol_class.class_name_to_filename)
+      self.extend(klass)
+      configure_stream_protocol(*stream_protocol_args)
 
       @hostname = hostname
       @write_port = ConfigParser.handle_nil(write_port)
@@ -42,19 +45,24 @@ module Cosmos
       @write_raw_allowed = false unless @write_port
     end
 
-    # Connects the {StreamProtocol} to a {TcpipClientStream} by passing the
+    # Connects the {TcpipClientStream} by passing the
     # initialization parameters to the {TcpipClientStream}.
     def connect
-      stream = TcpipClientStream.new(
-        @hostname,
-        @write_port,
-        @read_port,
-        @write_timeout,
-        @read_timeout)
-      stream.raw_logger_pair = @raw_logger_pair
-      @stream_protocol.connect(stream)
+      @stream = TcpipClientStream.new(@hostname,
+                                      @write_port,
+                                      @read_port,
+                                      @write_timeout,
+                                      @read_timeout)
+      @stream.raw_logger_pair = @raw_logger_pair
+      @stream.connect
     end
 
-  end # class TcpipClientInterface
+    def connected?
+      @stream ? @stream.connected? : false
+    end
 
-end # module Cosmos
+    def disconnect
+      @stream.disconnect if @stream
+    end
+  end
+end

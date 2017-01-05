@@ -12,24 +12,22 @@ require 'cosmos/config/config_parser'
 require 'thread'
 
 module Cosmos
-
   # Processes a {Stream} on behalf of an {Interface}. A {Stream} is a
   # primative interface that simply reads and writes raw binary data. The
   # StreamProtocol adds higher level processing including the ability to
   # discard a certain number of bytes from the stream and to sync the stream
   # on a given synchronization pattern. The StreamProtocol operates at the
   # {Packet} abstraction level while the {Stream} operates on raw bytes.
-  class StreamProtocol
-
-    # @return [Integer] The number of bytes read from the stream
-    attr_accessor :bytes_read
-    # @return [Integer] The number of bytes written to the stream
-    attr_accessor :bytes_written
-    # @return [Interface] The interface associated with this
-    #   StreamProtocol.
-    attr_reader :interface
-    # @return [Stream] The stream this StreamProtocol is processing data from
-    attr_reader :stream
+  module StreamProtocol
+    ## @return [Integer] The number of bytes read from the stream
+    #attr_accessor :bytes_read
+    ## @return [Integer] The number of bytes written to the stream
+    #attr_accessor :bytes_written
+    ## @return [Interface] The interface associated with this
+    ##   StreamProtocol.
+    #attr_reader :interface
+    ## @return [Stream] The stream this StreamProtocol is processing data from
+    #attr_reader :stream
 
     # @param discard_leading_bytes [Integer] The number of bytes to discard
     #   from the binary data after reading from the {Stream}. Note that this is often
@@ -38,50 +36,24 @@ module Cosmos
     #   that will be searched for in the raw {Stream}. Bytes encountered before
     #   this pattern is found are discarded.
     # @param fill_fields [Boolean] Fill any required fields when writing packets
-    def initialize(discard_leading_bytes = 0, sync_pattern = nil, fill_fields = false)
+    def configure_stream_protocol(discard_leading_bytes = 0, sync_pattern = nil, fill_fields = false)
       @discard_leading_bytes = discard_leading_bytes.to_i
       @sync_pattern = ConfigParser.handle_nil(sync_pattern)
       @sync_pattern = @sync_pattern.hex_to_byte_string if @sync_pattern
       @fill_fields = ConfigParser.handle_true_false(fill_fields)
-
-      @stream = nil
       @data = ''
-      @bytes_read = 0
-      @bytes_written = 0
-
-      @interface = Interface.new
-      @write_mutex = Mutex.new
     end
 
-    # @param interface [Interface] Sets the higher level interface which is
-    #   using this StreamProtocol.
-    def interface=(interface)
-      @interface = interface
-    end
-
-    # @param stream [Stream] The stream this stream protocol should read and
-    #   write to
-    def connect(stream)
+    # Clears the data attribute and sets the data encoding
+    def connect
+      super()
       @data = ''
       @data.force_encoding('ASCII-8BIT')
-      @stream = stream
-      @stream.connect
     end
 
-    # @return [Boolean] Whether the stream attribute has been set and is
-    #   connected
-    def connected?
-      if @stream
-        @stream.connected?
-      else
-        false
-      end
-    end
-
-    # Disconnects from the underlying {Stream} by calling {Stream#disconnect}.
-    # Clears the data attribute.
+    # Clears the data attribute
     def disconnect
-      @stream.disconnect if @stream
+      super()
       @data = ''
     end
 
@@ -91,7 +63,7 @@ module Cosmos
     #
     # @return [Packet|nil] A Packet of consisting of the bytes read from the
     #   stream.
-    def read
+    def read_data
       # Loop until we have a packet to give
       loop do
         result = handle_sync_pattern()
@@ -105,10 +77,9 @@ module Cosmos
         packet_data.replace(packet_data[@discard_leading_bytes..-1]) if @discard_leading_bytes > 0
 
         # Return data based on final_receive_processing
-        packet_data = post_read_data(packet_data)
         if packet_data
           if packet_data.length > 0
-            return post_read_packet(Packet.new(nil, nil, :BIG_ENDIAN, nil, packet_data))
+            return packet_data
           else
             # Packet should be ignored
             next
@@ -122,55 +93,9 @@ module Cosmos
 
     # Writes the packet data to the stream.
     #
-    # @param packet [Packet] Packet data to write to the stream
-    def write(packet)
-      @write_mutex.synchronize do
-        packet = pre_write_packet(packet)
-        data = packet.buffer(false)
-        if data
-          write_raw(data, false)
-          post_write_data(packet, data)
-        else
-          # write aborted - don't write data
-        end
-      end
-    end
-
-    # Writes the raw binary string to the stream.
-    #
-    # @param data [String] Raw binary string
-    # @param take_mutex [Boolean] Whether or not to take the write_mutex
-    def write_raw(data, take_mutex = true)
-      @write_mutex.lock if take_mutex
-      begin
-        if connected?()
-          @stream.write(pre_write_data(data))
-          @bytes_written += data.length
-        else
-          raise "Stream not connected for write_raw"
-        end
-      ensure
-        @write_mutex.unlock if take_mutex
-      end
-    end
-
-    protected
-
-    # Called to perform modifications on read data before making it into a packet
-    #
-    # @param packet_data [String] Raw packet data
-    # @return [String] Potentially modified packet data
-    def post_read_data(packet_data)
-      packet_data
-    end
-
-    # Called to perform modifications on a read packet before it is inserted
-    # into the current value table.
-    #
-    # @param packet [Packet] Original packet
-    # @return [Packet] Potentially modified packet
-    def post_read_packet(packet)
-      packet
+    # @param data [String] Packet data to write to the stream
+    def write_data(data)
+      @stream.write(data)
     end
 
     # Called to perform modifications on a command packet before it is sent
@@ -178,6 +103,7 @@ module Cosmos
     # @param packet [Packet] Original packet
     # @return [Packet] Potentially modified packet
     def pre_write_packet(packet)
+      packet = super(packet)
       # If we're filling the sync pattern and the sync pattern is part of the
       # packet (since we're not discarding any leading bytes) then we have to
       # fill the sync pattern in the actual packet so do it here.
@@ -193,26 +119,21 @@ module Cosmos
     #
     # @param packet_data [String] Raw packet data
     # @return [String] Potentially modified packet data
-    def pre_write_data(packet_data)
+    def pre_write_data(data)
+      data = super(data)
       # If we're filling the sync pattern and discarding the leading bytes
       # during a read then we need to put them back during a write.
       # If we're discarding the bytes then by definition they can't be part
       # of the packet so we just modify the data.
       if @fill_fields && @sync_pattern && @discard_leading_bytes > 0
-        packet_data = ("\x00" * @discard_leading_bytes) << packet_data
+        data = ("\x00" * @discard_leading_bytes) << data
         BinaryAccessor.write(@sync_pattern, 0, @sync_pattern.length * 8, :BLOCK,
-                             packet_data, :BIG_ENDIAN, :ERROR)
+                             data, :BIG_ENDIAN, :ERROR)
       end
-      packet_data
+      data
     end
 
-    # Called to perform actions after writing data to the stream
-    #
-    # @param packet [Packet] packet that was written out
-    # @param data [String] binary data that was written out
-    def post_write_data(packet, data)
-      # Default do nothing
-    end
+    protected
 
     # @return [Boolean] Whether we successfully found a sync pattern
     def handle_sync_pattern
@@ -310,7 +231,5 @@ module Cosmos
         return if @data.length <= 0
       end
     end
-
-  end # class StreamProtocol
-
-end # module Cosmos
+  end
+end
