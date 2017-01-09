@@ -10,6 +10,7 @@
 
 require 'spec_helper'
 require 'cosmos/interfaces/udp_interface'
+require 'cosmos/io/udp_sockets'
 
 module Cosmos
 
@@ -21,7 +22,7 @@ module Cosmos
 
       it "is not writeable if no write port given" do
         i = UdpInterface.new('localhost','nil','8889')
-        expect(i.name).to eql "Cosmos::UdpInterface"
+        expect(i.name).to eql "UdpInterface"
         expect(i.write_allowed?).to be false
         expect(i.write_raw_allowed?).to be false
         expect(i.read_allowed?).to be true
@@ -29,7 +30,7 @@ module Cosmos
 
       it "is not readable if no read port given" do
         i = UdpInterface.new('localhost','8888','nil')
-        expect(i.name).to eql "Cosmos::UdpInterface"
+        expect(i.name).to eql "UdpInterface"
         expect(i.write_allowed?).to be true
         expect(i.write_raw_allowed?).to be true
         expect(i.read_allowed?).to be false
@@ -38,67 +39,42 @@ module Cosmos
 
     describe "connect, connected?, disconnect" do
       it "creates a UdpWriteSocket and UdpReadSocket if both given" do
-        write = double("write")
-        expect(write).to receive(:closed?).and_return(false)
-        expect(write).to receive(:close)
-        read = double("read")
-        expect(read).to receive(:closed?).and_return(false)
-        expect(read).to receive(:close)
-        expect(UdpWriteSocket).to receive(:new).and_return(write)
-        expect(UdpReadSocket).to receive(:new).and_return(read)
         i = UdpInterface.new('localhost','8888','8889')
         expect(i.connected?).to be false
         i.connect
         expect(i.connected?).to be true
+        expect(i.instance_variable_get(:@write_socket)).to_not be_nil
+        expect(i.instance_variable_get(:@read_socket)).to_not be_nil
         i.disconnect
         expect(i.connected?).to be false
+        expect(i.instance_variable_get(:@write_socket)).to be_nil
+        expect(i.instance_variable_get(:@read_socket)).to be_nil
       end
 
       it "creates a UdpWriteSocket if write port given" do
-        write = double("write")
-        expect(write).to receive(:closed?).and_return(false)
-        expect(write).to receive(:close)
-        expect(UdpWriteSocket).to receive(:new).and_return(write)
-        expect(UdpReadSocket).to_not receive(:new)
         i = UdpInterface.new('localhost','8888','nil')
         expect(i.connected?).to be false
         i.connect
         expect(i.connected?).to be true
+        expect(i.instance_variable_get(:@write_socket)).to_not be_nil
+        expect(i.instance_variable_get(:@read_socket)).to be_nil
         i.disconnect
         expect(i.connected?).to be false
+        expect(i.instance_variable_get(:@write_socket)).to be_nil
+        expect(i.instance_variable_get(:@read_socket)).to be_nil
       end
 
       it "creates a UdpReadSocket if read port given" do
-        read = double("read")
-        expect(read).to receive(:closed?).and_return(false)
-        expect(read).to receive(:close)
-        expect(UdpWriteSocket).to_not receive(:new)
-        expect(UdpReadSocket).to receive(:new).and_return(read)
         i = UdpInterface.new('localhost','nil','8889')
         expect(i.connected?).to be false
         i.connect
         expect(i.connected?).to be true
+        expect(i.instance_variable_get(:@write_socket)).to be_nil
+        expect(i.instance_variable_get(:@read_socket)).to_not be_nil
         i.disconnect
         expect(i.connected?).to be false
-      end
-    end
-
-    describe "disconnect" do
-      it "rescues IOError from close" do
-        write = double("write")
-        expect(write).to receive(:closed?).and_return(false)
-        expect(write).to receive(:close).and_raise(IOError)
-        read = double("read")
-        expect(read).to receive(:closed?).and_return(false)
-        expect(read).to receive(:close).and_raise(IOError)
-        expect(UdpWriteSocket).to receive(:new).and_return(write)
-        expect(UdpReadSocket).to receive(:new).and_return(read)
-        i = UdpInterface.new('localhost','8888','8889')
-        expect(i.connected?).to be false
-        i.connect
-        expect(i.connected?).to be true
-        i.disconnect
-        expect(i.connected?).to be false
+        expect(i.instance_variable_get(:@write_socket)).to be_nil
+        expect(i.instance_variable_get(:@read_socket)).to be_nil
       end
     end
 
@@ -124,27 +100,53 @@ module Cosmos
       end
 
       it "counts the packets received" do
-        read = double("read")
-        allow(read).to receive(:read) { "\x00\x01\x02\x03" }
-        expect(UdpReadSocket).to receive(:new).and_return(read)
+        write = UdpWriteSocket.new('localhost', 8889)
         i = UdpInterface.new('localhost','nil','8889')
         i.connect
         expect(i.read_count).to eql 0
         expect(i.bytes_read).to eql 0
-        i.read
+        packet = nil
+        t = Thread.new { packet = i.read }
+        write.write("\x00\x01\x02\x03")
+        t.join
         expect(i.read_count).to eql 1
         expect(i.bytes_read).to eql 4
-        i.read
+        expect(packet.buffer).to eql "\x00\x01\x02\x03"
+        t = Thread.new { packet = i.read }
+        write.write("\x04\x05\x06\x07")
+        t.join
         expect(i.read_count).to eql 2
         expect(i.bytes_read).to eql 8
+        expect(packet.buffer).to eql "\x04\x05\x06\x07"
+        i.disconnect
+        Cosmos.close_socket(write)
+      end
+
+      it "logs the raw data" do
+        write = UdpWriteSocket.new('localhost', 8889)
+        i = UdpInterface.new('localhost','nil','8889')
+        i.connect
+        expect(i.raw_logger_pair.read_logger.logging_enabled).to be false
+        i.start_raw_logging
+        expect(i.raw_logger_pair.read_logger.logging_enabled).to be true
+        packet = nil
+        t = Thread.new { packet = i.read }
+        write.write("\x00\x01\x02\x03")
+        t.join
+        filename = i.raw_logger_pair.read_logger.filename
+        i.stop_raw_logging
+        expect(i.raw_logger_pair.read_logger.logging_enabled).to be false
+        expect(File.read(filename)).to eq "\x00\x01\x02\x03"
+        i.disconnect
+        Cosmos.close_socket(write)
       end
     end
 
     describe "write, write_raw" do
       it "complains if write_dest not given" do
         i = UdpInterface.new('localhost','nil','8889')
-        expect { i.write(Packet.new('','')) }.to raise_error(/read only/)
-        expect { i.write_raw('') }.to raise_error(/read only/)
+        expect { i.write(Packet.new('','')) }.to raise_error(/not connected for write/)
+        expect { i.write_raw('') }.to raise_error(/not connected for write/)
       end
 
       it "complains if the server is not connected" do
@@ -154,20 +156,45 @@ module Cosmos
       end
 
       it "counts the packets written" do
-        write = double("write")
-        expect(UdpWriteSocket).to receive(:new).and_return(write)
-        allow(write).to receive(:write)
+        read = UdpReadSocket.new(8888, 'localhost')
         i = UdpInterface.new('localhost','8888','nil')
         i.connect
         expect(i.write_count).to eql 0
         pkt = Packet.new('tgt','pkt')
         pkt.buffer = "\x00\x01\x02\x03"
+        packet = nil
         i.write(pkt)
+        data = read.read
         expect(i.write_count).to eql 1
         expect(i.bytes_written).to eql 4
-        i.write_raw(pkt.buffer)
+        expect(data).to eq "\x00\x01\x02\x03"
+        i.write_raw("\x04\x05\x06\x07")
+        data = read.read
         expect(i.write_count).to eql 2
         expect(i.bytes_written).to eql 8
+        expect(data).to eq "\x04\x05\x06\x07"
+        i.disconnect
+        Cosmos.close_socket(read)
+      end
+
+      it "logs the raw data" do
+        read = UdpReadSocket.new(8888, 'localhost')
+        i = UdpInterface.new('localhost','8888','nil')
+        i.connect
+        expect(i.raw_logger_pair.write_logger.logging_enabled).to be false
+        i.start_raw_logging
+        expect(i.raw_logger_pair.write_logger.logging_enabled).to be true
+        pkt = Packet.new('tgt','pkt')
+        pkt.buffer = "\x00\x01\x02\x03"
+        packet = nil
+        i.write(pkt)
+        data = read.read
+        filename = i.raw_logger_pair.write_logger.filename
+        i.stop_raw_logging
+        expect(i.raw_logger_pair.write_logger.logging_enabled).to be false
+        expect(File.read(filename)).to eq "\x00\x01\x02\x03"
+        i.disconnect
+        Cosmos.close_socket(read)
       end
     end
   end

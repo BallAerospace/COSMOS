@@ -1,7 +1,6 @@
 # encoding: ascii-8bit
 
 require 'cosmos/interfaces/interface'
-require 'cosmos/interfaces/stream_interface'
 require 'cosmos/interfaces/cmd_tlm_server_interface'
 require 'cosmos/interfaces/serial_interface'
 require 'cosmos/interfaces/simulated_target_interface'

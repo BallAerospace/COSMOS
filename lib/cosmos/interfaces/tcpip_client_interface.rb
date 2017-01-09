@@ -12,8 +12,10 @@ require 'cosmos/interfaces/interface'
 require 'cosmos/streams/tcpip_client_stream'
 
 module Cosmos
+
   # Base class for interfaces that act as a TCP/IP client
   class TcpipClientInterface < Interface
+
     # @param hostname [String] Machine to connect to
     # @param write_port [Integer] Port to write commands to
     # @param read_port [Integer] Port to read telemetry from
@@ -32,7 +34,7 @@ module Cosmos
       super()
       stream_protocol_class = stream_protocol_type.to_s.capitalize << 'StreamProtocol'
       klass = Cosmos.require_class(stream_protocol_class.class_name_to_filename)
-      self.extend(klass)
+      extend(klass)
       configure_stream_protocol(*stream_protocol_args)
 
       @hostname = hostname

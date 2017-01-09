@@ -572,7 +572,7 @@ module Cosmos
       retry_count = 0
       begin
         yield
-      rescue Exception => error
+      rescue => error
         Logger.error "#{name} thread unexpectedly died. Retries: #{retry_count} of #{retry_attempts}"
         Logger.error error.formatted
         retry_count += 1
@@ -609,7 +609,7 @@ module Cosmos
   def self.require_file(filename)
     begin
       require filename
-    rescue Exception => err
+    rescue LoadError => err
       msg = "Unable to require #{filename} due to #{err.message}. Ensure #{filename} is in the COSMOS lib directory."
       Logger.error msg
       raise msg

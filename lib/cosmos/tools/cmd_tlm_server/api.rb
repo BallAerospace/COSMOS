@@ -554,7 +554,7 @@ module Cosmos
         System.telemetry.value(tgt_pkt_item[0], tgt_pkt_item[1], tgt_pkt_item[2], :RAW)
         interface.public_send(method, *tgt_pkt_item)
       else
-        raise "Interface #{interface.name} does not have override ability. Is 'ADAPTER override_tlm.rb' under the interface definition?"
+        raise "Interface #{interface.name} does not have override ability. Is 'PROTOCOL override_tlm.rb' under the interface definition?"
       end
       nil
     end
@@ -580,7 +580,7 @@ module Cosmos
         System.telemetry.value(target_name, packet_name, item_name, :RAW)
         interface.normalize_tlm(target_name, packet_name, item_name)
       else
-        raise "Interface #{interface.name} does not have normalize ability. Is 'ADAPTER override_tlm.rb' under the interface definition?"
+        raise "Interface #{interface.name} does not have normalize ability. Is 'PROTOCOL override_tlm.rb' under the interface definition?"
       end
       nil
     end

@@ -9,16 +9,13 @@
 # attribution addendums as found in the LICENSE.txt
 
 require 'thread' # For Mutex
-require 'timeout' # For Timeout::Error
 require 'cosmos/streams/stream'
 require 'cosmos/config/config_parser'
 require 'cosmos/io/serial_driver'
 
 module Cosmos
-
   # Stream that reads and writes to serial ports by using {SerialDriver}.
   class SerialStream < Stream
-
     # @param write_port_name [String] The name of the serial port to write.
     #   Pass nil if the stream is to be read only. On Windows the port name
     #   is typically 'COMX' where X can be any port number. On UNIX the port
@@ -99,9 +96,7 @@ module Cosmos
       raise "Attempt to read from write only stream" unless @read_serial_port
       # No read mutex is needed because there is only one stream procesor
       # reading
-      data = @read_serial_port.read
-      @raw_logger_pair.read_logger.write(data) if @raw_logger_pair
-      data
+      @read_serial_port.read
     end
 
     # @return [String] Returns a binary string of data from the serial port without blocking
@@ -109,9 +104,7 @@ module Cosmos
       raise "Attempt to read from write only stream" unless @read_serial_port
       # No read mutex is needed because there is only one stream procesor
       # reading
-      data = @read_serial_port.read_nonblock
-      @raw_logger_pair.read_logger.write(data) if @raw_logger_pair
-      data
+      @read_serial_port.read_nonblock
     end
 
     # @param data [String] A binary string of data to write to the serial port
@@ -119,7 +112,6 @@ module Cosmos
       raise "Attempt to write to read only stream" unless @write_serial_port
       @write_mutex.synchronize do
         @write_serial_port.write(data)
-        @raw_logger_pair.write_logger.write(data) if @raw_logger_pair
       end
     end
 
@@ -151,7 +143,5 @@ module Cosmos
         @connected = false
       end
     end
-
   end # class SerialStream
-
 end # module Cosmos

@@ -68,6 +68,10 @@ module Cosmos
     end
 
     describe "read" do
+      it "handles COSMOS VERSION not being defined" do
+
+      end
+
       it "returns the COSMOS VERSION packet and then COSMOS LIMITS_CHANGE" do
         @ctsi.connect
 
@@ -91,13 +95,13 @@ module Cosmos
 
     describe "write" do
       it "raises an error if the packet is not identified" do
-        pkt = Packet.new("COSMOS","STARTLOGGING")
+        pkt = Packet.new("COSMOS", "STARTLOGGING")
         pkt.buffer = "\x00\x00\x00\x00\x00\x00\x00\x00"
         expect { @ctsi.write(pkt) }.to raise_error(/Unknown command/)
       end
 
       it "raises an error if the command is not recognized" do
-        pkt = Packet.new("COSMOS","DOSOMETHING")
+        pkt = Packet.new("COSMOS", "DOSOMETHING")
         pkt.buffer = "\x00\x00\x00\x00\x00\x00\x00\x00"
         expect { @ctsi.write(pkt) }.to raise_error(/Unknown command/)
       end

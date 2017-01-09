@@ -31,11 +31,6 @@ module Cosmos
     # Callback method to call when a new client connects to the read port.
     # This method will be called with the StreamProtocol as the only argument.
     attr_accessor :read_connection_callback
-    # The number of bytes read from all connected sockets
-    attr_accessor :bytes_read
-    # The number of bytes written to the TcpipServer. This number does not vary
-    # with the number of clients connected to the write port.
-    attr_accessor :bytes_written
     # @return [RawLoggerPair] RawLoggerPair instance or nil
     attr_accessor :raw_logger_pair
     # @return [String] The ip address to bind to.  Default to ANY (0.0.0.0)
@@ -70,7 +65,7 @@ module Cosmos
       @read_timeout = @read_timeout.to_f if @read_timeout
 
       stream_protocol_class = stream_protocol_type.to_s.capitalize << 'StreamProtocol'
-      @stream_protocol_class = Cosmos.require_class(stream_protocol_class.class_name_to_filename)
+      @stream_protocol_class = Cosmos.require_class("cosmos/interfaces/protocols/#{stream_protocol_class.class_name_to_filename}")
       @stream_protocol_args = stream_protocol_args
 
       @listen_sockets = []
@@ -89,23 +84,11 @@ module Cosmos
       @write_condition_variable = ConditionVariable.new if @write_port
       @write_connection_callback = nil
       @read_connection_callback = nil
-      @bytes_read = 0
-      @bytes_written = 0
       @raw_logger_pair = nil
       @raw_logging_enabled = false
-      @interface = nil
       @connection_mutex = Mutex.new
       @listen_address = Socket::INADDR_ANY
-
       @connected = false
-    end
-
-    # @param interface [Interface] Sets the higher level interface which is
-    #   using this TcpipServer. If the interface defines post_read_data,
-    #   post_read_packet, or pre_write_packet, then these methods will be
-    #   called over any subclass implementations within the stream protocol.
-    def interface=(interface)
-      @interface = interface
     end
 
     # Create the read and write port listen threads. Incoming connections will
@@ -238,17 +221,7 @@ module Cosmos
       return nil unless @read_queue
       packet = @read_queue.pop
       return nil unless packet
-      @bytes_read += packet.buffer.length
       packet
-    end
-
-    # @param packet [Packet] Packet to write to all clients connected to the
-    #   write port.
-    def write(packet)
-      return unless @write_queue
-      @write_queue << packet.clone
-      @bytes_written += packet.buffer.length
-      @write_condition_variable.broadcast
     end
 
     # @param data [String] Data to write to all clients connected to the
@@ -258,7 +231,6 @@ module Cosmos
       packet = Packet.new(nil, nil)
       packet.buffer = data
       @write_queue << packet
-      @bytes_written += data.length
       @write_condition_variable.broadcast
     end
 
@@ -395,7 +367,6 @@ module Cosmos
       end
 
       stream_protocol = @stream_protocol_class.new(*@stream_protocol_args)
-      stream_protocol.interface = @interface if @interface
       stream_protocol.connect(stream)
 
       if listen_write

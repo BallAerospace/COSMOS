@@ -14,6 +14,7 @@ require 'cosmos/interfaces/interface'
 require 'cosmos/streams/stream'
 
 module Cosmos
+  module Protocols
 
   describe StreamProtocol do
     before(:each) do

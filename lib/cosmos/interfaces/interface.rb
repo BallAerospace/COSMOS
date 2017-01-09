@@ -13,6 +13,7 @@ require 'cosmos/io/raw_logger_pair'
 require 'thread'
 
 module Cosmos
+
   # Defines all the attributes and methods common to all interface classes
   # used by COSMOS.
   class Interface
@@ -83,13 +84,13 @@ module Cosmos
     # @return [Hash<option name, option values>] Hash of options supplied to interface/router
     attr_accessor :options
 
-    # @return [Hash<adapter name, parameters>] Hash of parameters supplied to
-    # adapter
-    attr_accessor :adapter_params
+    # @return [Hash<protocol name, parameters>] Hash of parameters supplied to
+    #   protocol
+    attr_accessor :protocol_params
 
     # Initialize default attribute values
     def initialize
-      @name = self.class.to_s
+      @name = self.class.to_s.split("::")[-1] # Remove namespacing if present
       @target_names = []
       @thread = nil
       @connect_on_startup = true
@@ -112,7 +113,7 @@ module Cosmos
       @write_allowed = true
       @write_raw_allowed = true
       @options = {}
-      @adapter_params = {}
+      @protocol_params = {}
     end
 
     # Connects the interface to its target(s). Must be implemented by a
@@ -137,6 +138,7 @@ module Cosmos
     def read
       raise "Interface not connected for read: #{@name}" unless connected?
       data = read_data
+      @raw_logger_pair.read_logger.write(data)
       return nil unless data
       @bytes_read += data.length
       # data could be modified by post_read_data (bytes added or subtracted)
@@ -150,39 +152,38 @@ module Cosmos
     # Method to send a packet on the interface.
     # @param packet [Packet] The Packet to send out the interface
     def write(packet)
-      raise "Interface not connected for write : #{@name}" unless connected?
-      @write_mutex.synchronize do
+      raise "Interface not connected for write: #{@name}" unless connected?
+      _write do
         packet = write_packet(pre_write_packet(packet))
         data = write_data(pre_write_data(packet.buffer(false)))
-        # Both the packet and data could be modified by pre_write_packet and
-        # pre_write_data but we count the number of bytes going out
-        @bytes_written += data.length
-        @write_count += 1
         post_write_data(packet, data)
+        data
       end
-    rescue => err
-      Logger.instance.error("Error writing to interface : #{@name}")
-      disconnect()
-      raise err
     end
 
     # Writes preformatted data onto the interface. Malformed data may cause
     # problems.
     # @param data [String] The raw data to send out the interface
     def write_raw(data)
-      raise "Interface not connected for write : #{@name}" unless connected?
+      raise "Interface not connected for write_raw : #{@name}" unless connected?
+      _write { write_data(pre_write_data(data)) }
+    end
+
+    protected
+
+    def _write
       @write_mutex.synchronize do
-        data = write_data(pre_write_data(data))
-        # data could be modified by pre_write_data but we count the number
-        # of bytes going out
+        data = yield
         @bytes_written += data.length
         @write_count += 1
       end
     rescue => err
       Logger.instance.error("Error writing to interface : #{@name}")
-      disconnect()
+      disconnect
       raise err
     end
+
+    public
 
     # @return [Boolean] Whether reading is allowed
     def read_allowed?
@@ -222,26 +223,26 @@ module Cosmos
     #
     # @param other_interface [Interface] The other interface to copy to
     def copy_to(other_interface)
-      other_interface.name = self.name.clone
-      other_interface.target_names = self.target_names.clone
+      other_interface.name = name.clone
+      other_interface.target_names = target_names.clone
       # The other interface has its own Thread
-      other_interface.connect_on_startup = self.connect_on_startup
-      other_interface.auto_reconnect = self.auto_reconnect
-      other_interface.reconnect_delay = self.reconnect_delay
-      other_interface.disable_disconnect = self.disable_disconnect
-      other_interface.packet_log_writer_pairs = self.packet_log_writer_pairs.clone
-      other_interface.routers = self.routers.clone
-      other_interface.read_count = self.read_count
-      other_interface.write_count = self.write_count
-      other_interface.bytes_read = self.bytes_read
-      other_interface.bytes_written = self.bytes_written
-      other_interface.raw_logger_pair = self.raw_logger_pair.clone if self.raw_logger_pair
+      other_interface.connect_on_startup = connect_on_startup
+      other_interface.auto_reconnect = auto_reconnect
+      other_interface.reconnect_delay = reconnect_delay
+      other_interface.disable_disconnect = disable_disconnect
+      other_interface.packet_log_writer_pairs = packet_log_writer_pairs.clone
+      other_interface.routers = routers.clone
+      other_interface.read_count = read_count
+      other_interface.write_count = write_count
+      other_interface.bytes_read = bytes_read
+      other_interface.bytes_written = bytes_written
+      other_interface.raw_logger_pair = raw_logger_pair.clone if raw_logger_pair
       # num_clients is per interface so don't copy
       # read_queue_size is the number of packets in the queue so don't copy
       # write_queue_size is the number of packets in the queue so don't copy
-      other_interface.interfaces = self.interfaces.clone
-      other_interface.options = self.options.clone
-      other_interface.adapter_params = self.adapter_params.clone
+      other_interface.interfaces = interfaces.clone
+      other_interface.options = options.clone
+      other_interface.protocol_params = protocol_params.clone
     end
 
     # Set an interface or router specific option
@@ -251,11 +252,11 @@ module Cosmos
       @options[option_name.upcase] = option_values.clone
     end
 
-    # Set an procotol specific options
-    # @param procotol name of the procotol
-    # @param params array of parameter values
-    def set_adapter_params(procotol, params)
-      @adapter_params[procotol] = params.clone
+    # Set procotol specific options
+    # @param procotol [String] Name of the procotol
+    # @param params [Array<Object>] Array of parameter values
+    def configure_protocol(procotol, params)
+      @protocol_params[procotol] = params.clone
     end
 
     # Called to read data and manipulate it until enough data is
@@ -263,7 +264,7 @@ module Cosmos
     # protocol used which is why this method exists. This method is also used
     # to perform operations on the data before it can be interpreted as packet
     # data such as decryption. After this method is called the post_read_data
-    # method is called.
+    # method is called. Subclasses must implement this method.
     #
     # @return [String] Raw packet data
     def read_data
@@ -309,7 +310,9 @@ module Cosmos
       packet
     end
 
-    # Called to write a packet to the underlying interface
+    # Called to write a packet to the underlying interface. Subclasses should
+    # implement this method if they need to do something with the packet during
+    # the write. Otherwise simply implement write_data.
     #
     # @param packet [Packet] Packet data
     # @return [Packet] The original packet
@@ -325,10 +328,12 @@ module Cosmos
     # @param packet_data [String] Raw packet data
     # @return [String] Potentially modified packet data
     def pre_write_data(packet_data)
+      @raw_logger_pair.write_logger.write(packet_data)
       packet_data
     end
 
-    # Called to write data to the underlying interface
+    # Called to write data to the underlying interface. Subclasses must
+    # implement this method.
     #
     # @param data [String] Raw packet data
     # @return [String] The original raw packet data
