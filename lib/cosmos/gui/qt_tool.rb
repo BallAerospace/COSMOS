@@ -49,9 +49,9 @@ module Cosmos
       Cosmos.load_cosmos_icon
     end
 
-    # Create the @exit_action and the @about_action. The @exit_action is not
+    # Create the exit_action and the about_action. The exit_action is not
     # placed in the File menu and must be manually added by the user. The
-    # @about_action is added to the Help menu by {#initialize_help_menu}.
+    # about_action is added to the Help menu by {#initialize_help_menu}.
     def initialize_actions
       @exit_action = Qt::Action.new(Cosmos.get_icon('close.png'), tr('E&xit'), self)
       @exit_keyseq = Qt::KeySequence.new(tr('Ctrl+Q'))
@@ -69,7 +69,7 @@ module Cosmos
       end
     end
 
-    # Creates the Help menu and adds the @about_action to it. Thus this MUST be
+    # Creates the Help menu and adds the about_action to it. Thus this MUST be
     # called after initialize_actions.
     def initialize_help_menu
       @help_menu = menuBar().addMenu(tr('&Help'))
