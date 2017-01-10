@@ -12,35 +12,17 @@ require 'cosmos'
 require 'cosmos/gui/choosers/value_chooser'
 
 module Cosmos
-
-  class IntegerChooserIntValidator < Qt::IntValidator
-    def initialize(*args)
-      super(*args)
-    end
-
-    def fixup(input)
-      begin
-        value = input.to_i
-        if value < bottom()
-          # Handle less than bottom
-          parent().setText(bottom().to_s)
-        elsif value > top()
-          # Handle greater than top
-          parent().setText(top().to_s)
-        elsif input != value.to_s
-          # Handle poorly formatted (only known case is float given as starting value)
-          parent().setText(value.to_s)
-        end
-      rescue Exception => err
-        # Oh well no fixup
-      end
-    end
-  end
-
+  # Widget which creates a horizontally laid out label and editable integer value.
+  # Minimum and maximum values can be specified to perform input validation.
+  # A callback can be specified which is called once the value is changed.
   class IntegerChooser < ValueChooser
-    # Callback called when the value changes
-    attr_accessor :sel_command_callback
-
+    # @param parent (see ValueChooser#initialize)
+    # @param label_text (see ValueChooser#initialize)
+    # @param initial_value (see ValueChooser#initialize)
+    # @param minimum_value [Integer] Minimum allowable value
+    # @param maximum_value [Integer] Maximum allowable value
+    # @param field_width (see ValueChooser#initialize)
+    # @param fill (see ValueChooser#initialize)
     def initialize(parent, label_text, initial_value,
                    minimum_value = nil, maximum_value = nil,
                    field_width = 20, fill = false)
@@ -48,20 +30,20 @@ module Cosmos
       @minimum_value = minimum_value
       @maximum_value = maximum_value
 
-      validator = IntegerChooserIntValidator.new(@value)
+      validator = Qt::IntValidator.new(@value)
       validator.setBottom(minimum_value) if minimum_value
       validator.setTop(maximum_value) if maximum_value
       @value.setValidator(validator)
     end
 
-    # Returns the value as an integer
+    # @return [Integer] Value as an integer. If minimum and/or maximum values were
+    #   specified and the the value falls outside, it will be set to the
+    #   minimum or maximum as appropriate.
     def value
       integer_value = @value.text.to_i
       integer_value = @minimum_value if @minimum_value && integer_value < @minimum_value
       integer_value = @maximum_value if @maximum_value && integer_value > @maximum_value
       integer_value
     end
-
   end
 end
-

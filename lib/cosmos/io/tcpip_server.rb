@@ -500,7 +500,7 @@ module Cosmos
             indexes_to_delete.each do |index_to_delete|
               @write_stream_protocols.delete_at(index_to_delete)
             end
-          end # @connection_mutex.synchronize
+          end # connection_mutex.synchronize
 
           # Sleep until we receive a packet or for 100ms
           @write_mutex.synchronize do
@@ -544,7 +544,7 @@ module Cosmos
           indexes_to_delete.each do |index_to_delete|
             @write_stream_protocols.delete_at(index_to_delete)
           end
-        end # @connection_mutex.synchronize
+        end # connection_mutex.synchronize
       end
     end
 

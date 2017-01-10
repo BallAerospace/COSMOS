@@ -11,43 +11,24 @@
 require 'cosmos'
 
 module Cosmos
-
-  class StringChooser < Qt::Widget
-
+  # Widget which creates a horizontally laid out label and editable string value.
+  # A callback can be specified which is called once the value is changed.
+  class StringChooser < ValueChooser
+    # @param parent (see ValueChooser#initialize)
+    # @param label_text (see ValueChooser#initialize)
+    # @param initial_value (see ValueChooser#initialize)
+    # @param field_width (see ValueChooser#initialize)
+    # @param fill (see ValueChooser#initialize)
+    # @param read_only [Boolean] Whether the string is editable
+    # @param alignment [Integer] The alignment of the string value field
     def initialize(
       parent, label_text, initial_value,
-      field_width = 20, fill = false, read_only = false, alignment = Qt::AlignLeft | Qt::AlignVCenter
+      field_width = 20, fill = false, read_only = false,
+      alignment = Qt::AlignLeft | Qt::AlignVCenter
     )
-      super(parent)
-      layout = Qt::HBoxLayout.new(self)
-      layout.setContentsMargins(0,0,0,0)
-      @string_label = Qt::Label.new(label_text)
-      @string_label.setSizePolicy(Qt::SizePolicy::Fixed, Qt::SizePolicy::Fixed) if fill
-      if fill
-        layout.addWidget(@string_label)
-      else
-        layout.addWidget(@string_label, 1)
-      end
-      layout.addStretch unless fill
-      @string_value = Qt::LineEdit.new(initial_value.to_s)
-      @string_value.setMinimumWidth(field_width)
-      @string_value.setReadOnly(true) if read_only
-      @string_value.setAlignment(alignment)
-      layout.addWidget(@string_value)
-      setLayout(layout)
+      super(parent, label_text, initial_value, field_width, fill)
+      @value.setReadOnly(true) if read_only
+      @value.setAlignment(alignment)
     end
-
-    # Returns the text field as a string
-    def string
-      @string_value.text
-    end
-    alias value string
-
-    # Sets the value
-    def value=(new_value)
-      @string_value.setText(new_value.to_s)
-    end
-
-  end # class StringChooser
-
-end # module Cosmos
+  end
+end

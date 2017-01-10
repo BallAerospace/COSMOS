@@ -13,8 +13,7 @@ require 'cosmos/tools/table_manager/table'
 
 module Cosmos
 
-  # TableConfig provides capabilities to read an ascii file that defines the
-  # table parameters in a system and create a set of Tables for each.
+  # Reads an ascii file that defines the table parameters and creates a Table for each.
   class TableConfig
 
     # Constructor for a TableConfig
