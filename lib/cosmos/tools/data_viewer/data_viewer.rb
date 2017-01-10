@@ -389,7 +389,7 @@ module Cosmos
 
     def handle_open_log_file
       # Prompt user for filename
-      packet_log_dialog = PacketLogDialog.new(self, 'Open Log File(s):', @log_file_directory, @packet_log_reader, [], nil, false, true, true, Cosmos::TLM_FILE_PATTERN)
+      packet_log_dialog = PacketLogDialog.new(self, 'Open Log File(s):', @log_file_directory, @packet_log_reader, [], Cosmos::TLM_FILE_PATTERN)
       begin
         packet_log_dialog.time_start = @time_start
         packet_log_dialog.time_end = @time_end

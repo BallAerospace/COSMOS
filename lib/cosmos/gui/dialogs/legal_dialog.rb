@@ -16,13 +16,14 @@ require 'cosmos/gui/qt'
 require 'open3'
 
 module Cosmos
-
+  # Creates a dialog displaying the COSMOS copyright information. Also
+  # calculates CRC checks across the entire project to determine if any of the
+  # COSMOS core files have been modified. This ensures the COSMOS system has
+  # not been modified since the last release.
   class LegalDialog < Qt::Dialog
-
+    # Create the dialog
     def initialize
       super() # MUST BE FIRST
-
-      # Set Default Icon
       Cosmos.load_cosmos_icon
 
       self.window_title = 'Legal Agreement'
@@ -81,16 +82,19 @@ module Cosmos
       hlayout.addWidget(update_crc_button, 0, Qt::AlignCenter) if update_crc_button
       hlayout.addWidget(cancel_button, 0, Qt::AlignRight)
       layout.addLayout(hlayout)
-  
+
       self.show()
       self.raise()
       result = exec()
       dispose()
       exit if result != Qt::Dialog::Accepted
-    end # initialize
+    end
 
+    # Check all the files listed in the <COSMOS>/data/crc.txt against their
+    # expected CRC values.
+    # @return [String] Either a success message or warning about all files
+    #   which did not match their expected CRCs.
     def check_all_crcs
-      # Check each file in crc.txt
       result_text = ''
       missing_text = ''
       core_file_count, core_error_count, _, _ = check_crcs(::Cosmos::PATH, File.join(::Cosmos::PATH,'data','crc.txt'), result_text, missing_text, 'CORE')
@@ -128,6 +132,13 @@ module Cosmos
       return project_error_count
     end
 
+    # @param base_path [String] Base path to the COSMOS source
+    # @param filename [String] Full path to the crc.txt file with the list of
+    #   expected CRC values
+    # @param result_text [String] String to append CRC check results to
+    # @param missing_text [String] String to append missing files to
+    # @param file_type [String] Whether the COSMOS core or project files. Must
+    #   be 'CORE' or 'PROJECT'.
     def check_crcs(base_path, filename, result_text, missing_text, file_type)
       file_count = 0
       error_count = 0
@@ -162,8 +173,6 @@ module Cosmos
         end
       end
       return file_count, error_count, missing_count, official
-    end # check_crcs
-
+    end
   end
-
-end # module Cosmos
+end

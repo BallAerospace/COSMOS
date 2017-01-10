@@ -16,36 +16,42 @@ require 'cosmos/gui/qt'
 require 'cosmos/gui/widgets/packet_log_frame'
 
 module Cosmos
-
+  # Creates a dialog to allow a user to browse for a COSMOS log and select the
+  # time period to process.
   class PacketLogDialog < Qt::Dialog
+    extend Forwardable
+    def_delegators :@packet_log_frame, :filenames, :time_start, :time_start=,\
+      :time_end, :time_end=, :packet_log_reader
+
+    # @param parent [Qt::Widget] Parent to this dialog
+    # @param title [String] Dialog title
+    # @param log_directory [String] Initial directory to display when browsing
+    #   for log files
+    # @param packet_log_reader [PacketLogReader] The COSMOS log reader class
+    #   used to parse the log
+    # @param initial_filenames [Array<String>] Array of filenames to
+    #   pre-populate the dialog with
+    # @param input_filename_filter [String] File filter to apply when
+    #   browsing with the FileDialog
     def initialize(parent,
                    title,
                    log_directory,
                    packet_log_reader,
                    initial_filenames = [],
-                   initial_output_filename = nil,
-                   show_output_filename = false,
-                   show_time = true,
-                   show_log_reader = true,
-                   input_filename_filter = Cosmos::BIN_FILE_PATTERN,
-                   output_filename_filter = Cosmos::BIN_FILE_PATTERN)
-      # Call base class constructor
+                   input_filename_filter = Cosmos::BIN_FILE_PATTERN)
       super(parent)
       setWindowTitle(title)
 
       @layout = Qt::VBoxLayout.new
-
-      # Create log frame
       @packet_log_frame = PacketLogFrame.new(self,
                                              log_directory,
                                              packet_log_reader,
                                              initial_filenames,
-                                             initial_output_filename,
-                                             show_output_filename,
-                                             show_time,
-                                             show_log_reader,
-                                             input_filename_filter,
-                                             output_filename_filter)
+                                             nil,
+                                             false,
+                                             true,
+                                             true,
+                                             input_filename_filter)
       @packet_log_frame.change_callback = method(:change_callback)
       @layout.addWidget(@packet_log_frame)
 
@@ -66,41 +72,6 @@ module Cosmos
 
       @layout.addLayout(@button_layout)
       setLayout(@layout)
-    end # def initialize
-
-    # Returns the chosen filenames
-    def filenames
-      @packet_log_frame.filenames
-    end
-
-    # Return the output filename
-    def output_filename
-      @packet_log_frame.output_filename
-    end
-
-    # Return Start time of packets to process
-    def time_start
-      @packet_log_frame.time_start
-    end
-
-    # Set the start time
-    def time_start=(new_time_start)
-      @packet_log_frame.time_start = new_time_start
-    end
-
-    # Return End time of packets to process
-    def time_end
-      @packet_log_frame.time_end
-    end
-
-    # Set the end time
-    def time_end=(new_time_end)
-      @packet_log_frame.time_end = new_time_end
-    end
-
-    # Return Log reader to use
-    def packet_log_reader
-      @packet_log_frame.packet_log_reader
     end
 
     protected
@@ -112,7 +83,5 @@ module Cosmos
         @ok_button.setEnabled(true)
       end
     end
-
-  end # class PacketLogDialog
-
-end # module Cosmos
+  end
+end

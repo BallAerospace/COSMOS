@@ -9,35 +9,37 @@
 # attribution addendums as found in the LICENSE.txt
 
 module Cosmos
-
+  # Displays the about dialog used by all COSMOS applications. Lists Ruby
+  # version, Qt version, and various environment variables. The about dialog
+  # also creates a {PryDialog} when the letters 'p', 'r', 'y' are typed. See
+  # {PryDialog} for more details.
   class AboutDialog < Qt::Dialog
-    ABOUT_COSMOS = ''
-    ABOUT_COSMOS << "COSMOS application icons are courtesy of http://icons8.com.\n"
-    ABOUT_COSMOS << "COSMOS application sounds are courtesy of http://www.freesfx.co.uk.\n"
-    ABOUT_COSMOS << "\n"
-    ABOUT_COSMOS << "COSMOS utilizes the QtRuby (http://rubyforge.org/projects/korundum) library under "
-    ABOUT_COSMOS << "the GNU Lesser General Public License. QtRuby is a Ruby extension module that provides an "
-    ABOUT_COSMOS << "interface to the Qt Gui Toolkit (http://qt-project.org) by Digia "
-    ABOUT_COSMOS << "under the GNU Lesser General Public License.\n"
-    ABOUT_COSMOS << "\n"
-    ABOUT_COSMOS << "Ruby Version: ruby #{RUBY_VERSION} (#{RUBY_RELEASE_DATE} patchlevel #{RUBY_PATCHLEVEL}) [#{RUBY_PLATFORM}]\n"
-    ABOUT_COSMOS << "Rubygems Version: #{Gem::VERSION}\n"
-    ABOUT_COSMOS << "Qt Version: #{Qt::qVersion}\n"
-    ABOUT_COSMOS << "Cosmos::PATH: #{Cosmos::PATH}\n"
-    ABOUT_COSMOS << "Cosmos::USERPATH: #{Cosmos::USERPATH}\n"
-    ABOUT_COSMOS << "\n"
-    ABOUT_COSMOS << "Environment Variables:\n"
-    ABOUT_COSMOS << "RUBYLIB: #{ENV['RUBYLIB']}\n"
-    ABOUT_COSMOS << "RUBYOPT: #{ENV['RUBYOPT']}\n"
-    ABOUT_COSMOS << "GEM_PATH: #{ENV['GEM_PATH']}\n"
-    ABOUT_COSMOS << "GEM_HOME: #{ENV['GEM_HOME']}\n"
-    ABOUT_COSMOS << "\n"
-    ABOUT_COSMOS << "Loaded Gems:\n"
+    # About text to display in the dialog
+    ABOUT_COSMOS = "COSMOS application icons are courtesy of http://icons8.com.\n"\
+      "COSMOS application sounds are courtesy of http://www.freesfx.co.uk.\n"\
+      "\n"\
+      "COSMOS utilizes the QtRuby (http://rubyforge.org/projects/korundum) "\
+      "library under the GNU Lesser General Public License. "\
+      "QtRuby is a Ruby extension module that provides an "\
+      "interface to the Qt Gui Toolkit (http://qt-project.org) by Digia "\
+      "under the GNU Lesser General Public License.\n\n"\
+      "Ruby Version: ruby #{RUBY_VERSION} (#{RUBY_RELEASE_DATE} "\
+      "patchlevel #{RUBY_PATCHLEVEL}) [#{RUBY_PLATFORM}]\n"\
+      "Rubygems Version: #{Gem::VERSION}\n"\
+      "Qt Version: #{Qt::qVersion}\n"\
+      "Cosmos::PATH: #{Cosmos::PATH}\n"\
+      "Cosmos::USERPATH: #{Cosmos::USERPATH}\n\n"\
+      "Environment Variables:\n"\
+      "RUBYLIB: #{ENV['RUBYLIB']}\n"\
+      "RUBYOPT: #{ENV['RUBYOPT']}\n"\
+      "GEM_PATH: #{ENV['GEM_PATH']}\n"\
+      "GEM_HOME: #{ENV['GEM_HOME']}\n\n"\
+      "Loaded Gems:\n"
     Gem.loaded_specs.values.map {|x| ABOUT_COSMOS << "#{x.name} #{x.version} #{x.platform}\n"}
 
-    @@pry_dialogs = []
-
-    def initialize (parent, about_string)
+    # @param parent [Qt::Widget] Part of the dialog (the application)
+    # @param about_string [String] Application specific informational text
+    def initialize(parent, about_string)
       super(parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint)
       @saved_text = ''
       setWindowTitle('About')
@@ -109,6 +111,8 @@ module Cosmos
       dispose()
     end
 
+    # Register key press events to listen for 'p', 'r', 'y' and popup a {PryDialog}
+    # @param event [Qt::Event] The keypress event
     def keyPressEvent(event)
       @saved_text << event.text.to_s
       if @saved_text[0] == 'p'
@@ -117,7 +121,7 @@ module Cosmos
             if @saved_text[2]
               if @saved_text[2] == 'y'
                 self.done(0)
-                @@pry_dialogs << PryDialog.new(nil, binding)
+                PryDialog.new(nil, binding)
                 return
               end
               @saved_text = ''
@@ -131,7 +135,5 @@ module Cosmos
       end
       super(event)
     end
-
-  end # class AboutDialog
-
-end # module Cosmos
+  end
+end

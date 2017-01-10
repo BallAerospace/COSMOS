@@ -430,7 +430,7 @@ module Cosmos
         update_window_title() if delete
         statusBar.showMessage(tr("#{action.capitalize} #{item} successful"))
       else
-        statusBar.showMessage(tr("#{action.capitalize} #{item} cancelled"))
+        statusBar.showMessage(tr("#{action.capitalize} #{item} canceled"))
       end
     end
     def reset(item)
