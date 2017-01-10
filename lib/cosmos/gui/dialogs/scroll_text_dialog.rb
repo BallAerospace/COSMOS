@@ -11,8 +11,11 @@
 require 'cosmos/gui/qt'
 
 module Cosmos
-
+  # Dialog which creates a read only list of text
   class ScrollTextDialog < Qt::Dialog
+    # @param parent [Qt::Widget] Parent of this dialog
+    # @param title [String] Dialog title
+    # @param text [String] Text to display
     def initialize(parent, title, text)
       super(parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint)
       setMinimumWidth(700)
@@ -32,6 +35,5 @@ module Cosmos
       self.exec
       self.dispose
     end
-  end # class ScrollTextDialog
-
-end # module Cosmos
+  end
+end

@@ -13,11 +13,17 @@ require 'cosmos/gui/qt'
 require 'cosmos/script'
 
 module Cosmos
-
+  # Creates a dialog showing the details about a given command or telemetry
+  # item. This class is a base class and should not be instantiated. Use
+  # CmdDetailsDialog or TlmDetailsDialog.
   class DetailsDialog < Qt::Dialog
-
+    # @return [Array<DetailsDialog>] Instances of the details dialog
     @@instances = []
 
+    # @param parent [Qt::Dialog] Parent for the dialog
+    # @param target_name [String] Name of the target
+    # @param packet_name [String] Name of the packet
+    # @param item_name [String] Name of the item
     def initialize(parent, target_name, packet_name, item_name)
       super(parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint)
 
@@ -30,6 +36,9 @@ module Cosmos
       @@instances << self
     end
 
+    protected
+
+    # Creates and populates the layout for the dialog
     def build_details_layout(item, cmd_tlm)
       details_layout = Qt::FormLayout.new
       details_layout.addRow("Bit Offset:", Qt::Label.new(tr("#{show_nil(item.bit_offset)}")))
@@ -51,34 +60,8 @@ module Cosmos
       details_layout.addRow("Units Full:", Qt::Label.new(tr("#{show_nil(item.units_full)}")))
       details_layout.addRow("Units Abbreviation:", Qt::Label.new(tr("#{show_nil(item.units)}")))
       details_layout.addRow("Endianness:", Qt::Label.new(tr("#{show_endianness(item.endianness)}")))
-      state_colors = item.state_colors
       if item.states
-        states_details = Qt::GroupBox.new(tr("States"))
-        scroll_layout = Qt::VBoxLayout.new
-        states_details.setLayout(scroll_layout)
-        scroll_area = Qt::ScrollArea.new
-        scroll_area.setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff)
-        scroll_layout.addWidget(scroll_area)
-        scroll_widget = Qt::Widget.new
-        scroll_area.setWidget(scroll_widget)
-        states_layout = Qt::FormLayout.new
-        scroll_widget.setLayout(states_layout)
-        item.states.sort {|a, b| a[1] <=> b[1]}.each do |state_name, state_value|
-          if state_colors
-            states_layout.addRow(tr("#{state_name}:"), Qt::Label.new(tr("#{state_value} #{state_colors[state_name]}")))
-          else
-            states_layout.addRow(tr("#{state_name}:"), Qt::Label.new(tr("#{state_value}")))
-          end
-        end
-        # Figure out the how big the states layout wants to be and set the
-        # scroll area to this height if possible. Otherwise limit it to 200px.
-        if states_layout.minimumSize.height > 200
-          scroll_area.setMinimumHeight(200)
-        else
-          scroll_area.setMinimumHeight(states_layout.minimumSize.height + 5)
-        end
-        scroll_widget.adjustSize
-        details_layout.addRow(states_details)
+        details_layout.addRow(build_states_details(item))
       else
         details_layout.addRow("States:", Qt::Label.new(tr("None")))
       end
@@ -87,23 +70,11 @@ module Cosmos
       else
         limits = item.limits.values
         if limits
-          limits_details = Qt::GroupBox.new(tr("Limits"))
-          @limits_layout = Qt::FormLayout.new
-          limits.each do |limits_set_name, limits_settings|
-            if limits_settings[4] and limits_settings[5]
-              label = Qt::Label.new("RL/#{limits_settings[0]} YL/#{limits_settings[1]} YH/#{limits_settings[2]} RH/#{limits_settings[3]} GL/#{limits_settings[4]} GH/#{limits_settings[5]}")
-            else
-              label = Qt::Label.new("RL/#{limits_settings[0]} YL/#{limits_settings[1]} YH/#{limits_settings[2]} RH/#{limits_settings[3]}")
-            end
-            @limits_labels[limits_set_name] = label
-            @limits_layout.addRow(tr("#{limits_set_name}:"), label)
-          end
-          limits_details.setLayout(@limits_layout)
-          details_layout.addRow(limits_details)
+          details_layout.addRow(build_limits_details(limits))
         else
           details_layout.addRow(tr("Limits:"), Qt::Label.new("None"))
         end
-        if limits || state_colors
+        if limits || item.state_colors
           details_layout.addRow(tr("Limits Checking Enabled:"), Qt::Label.new(tr("#{show_nil(item.limits.enabled)}")))
         end
         if limits
@@ -119,6 +90,53 @@ module Cosmos
         end
       end
       details_layout
+    end
+
+    # Create the states details layout
+    def build_states_details(item)
+      states_details = Qt::GroupBox.new(tr("States"))
+      scroll_layout = Qt::VBoxLayout.new
+      states_details.setLayout(scroll_layout)
+      scroll_area = Qt::ScrollArea.new
+      scroll_area.setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff)
+      scroll_layout.addWidget(scroll_area)
+      scroll_widget = Qt::Widget.new
+      scroll_area.setWidget(scroll_widget)
+      states_layout = Qt::FormLayout.new
+      scroll_widget.setLayout(states_layout)
+      item.states.sort {|a, b| a[1] <=> b[1]}.each do |state_name, state_value|
+        if item.state_colors
+          states_layout.addRow(tr("#{state_name}:"), Qt::Label.new(tr("#{state_value} #{item.state_colors[state_name]}")))
+        else
+          states_layout.addRow(tr("#{state_name}:"), Qt::Label.new(tr("#{state_value}")))
+        end
+      end
+      # Figure out the how big the states layout wants to be and set the
+      # scroll area to this height if possible. Otherwise limit it to 200px.
+      if states_layout.minimumSize.height > 200
+        scroll_area.setMinimumHeight(200)
+      else
+        scroll_area.setMinimumHeight(states_layout.minimumSize.height + 5)
+      end
+      scroll_widget.adjustSize
+      states_details
+    end
+
+    # Create the limits details layout
+    def build_limits_details(limits)
+      limits_details = Qt::GroupBox.new(tr("Limits"))
+      @limits_layout = Qt::FormLayout.new
+      limits.each do |limits_set_name, limits_settings|
+        if limits_settings[4] and limits_settings[5]
+          label = Qt::Label.new("RL/#{limits_settings[0]} YL/#{limits_settings[1]} YH/#{limits_settings[2]} RH/#{limits_settings[3]} GL/#{limits_settings[4]} GH/#{limits_settings[5]}")
+        else
+          label = Qt::Label.new("RL/#{limits_settings[0]} YL/#{limits_settings[1]} YH/#{limits_settings[2]} RH/#{limits_settings[3]}")
+        end
+        @limits_labels[limits_set_name] = label
+        @limits_layout.addRow(tr("#{limits_set_name}:"), label)
+      end
+      limits_details.setLayout(@limits_layout)
+      limits_details
     end
 
     def show_nil(object, show_as = 'nil')
@@ -168,7 +186,5 @@ module Cosmos
       @@instances.delete(self)
       self.dispose
     end
-
-  end # class DetailsDialog
-
-end # module Cosmos
+  end
+end
