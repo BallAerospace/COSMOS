@@ -12,11 +12,14 @@ require 'cosmos'
 require 'cosmos/gui/opengl/texture_mapped_sphere'
 
 module Cosmos
-
+  # Three dimensional model of the moon by mapping a picture of the moon onto
+  # a sphere.
   class MoonModel < TextureMappedSphere
+    # @param x (see TextureMappedSphere#initialize)
+    # @param y (see TextureMappedSphere#initialize)
+    # @param z (see TextureMappedSphere#initialize)
     def initialize(x, y, z)
       super(x, y, z, File.join(::Cosmos::PATH, 'data', 'moonmap1k.gif'))
     end
   end
-
-end # module Cosmos
+end

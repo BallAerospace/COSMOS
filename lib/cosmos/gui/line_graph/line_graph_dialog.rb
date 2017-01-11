@@ -13,12 +13,15 @@ require 'cosmos/gui/qt'
 require 'cosmos/gui/line_graph/line_graph'
 
 module Cosmos
-
+  # Creates a dialog with a {LineGraph} in it
   class LineGraphDialog < Qt::Dialog
-
+    # @return [LineGraph] The dialog line graph
     attr_accessor :line_graph
 
-    def initialize (title, width=400, height=300) 
+    # @param title [String] Dialog title
+    # @param width [Integer] Dialog width
+    # @param height [Integer] Dialog height
+    def initialize(title, width = 400, height = 300)
       super(Qt::CoreApplication.instance.activeWindow)
       self.window_title = title
       @layout = Qt::VBoxLayout.new
@@ -30,5 +33,4 @@ module Cosmos
       resize(width, height)
     end
   end
-
-end # end module Cosmos
+end
