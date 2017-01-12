@@ -12,17 +12,19 @@ require 'cosmos'
 require 'cosmos/tools/table_manager/table_item'
 
 module Cosmos
-
   # Table extends Packet by adding more attributes relative to
   # displaying binary data in a gui.
   class Table < Packet
+    # Define the target for tables as 'TABLE' since there is no target
     TARGET = 'TABLE'
-    attr_reader :type, :filename
+    # @return [Symbol] Either :ONE_DIMENSIONAL or :TWO_DIMENSIONAL
+    attr_reader :type
+    # @return [String] File which contains the table definition
+    attr_reader :filename
+    # @return [Integer] Number of columns in the table
     attr_accessor :num_columns
 
-    def table_name
-      packet_name
-    end
+    alias table_name packet_name
 
     # Constructor for a TableDefinition
     def initialize(name, endianness, type, description, filename)
@@ -36,6 +38,7 @@ module Cosmos
       @num_columns = (@type == :ONE_DIMENSIONAL) ? 1 : 0
     end
 
+    # @param num_rows [Integer] Set the number of rows in a TWO_DIMENSIONAL table
     def num_rows=(num_rows)
       case @type
       when :ONE_DIMENSIONAL
@@ -45,6 +48,7 @@ module Cosmos
       end
     end
 
+    # @return [Integer] Number of rows in the table
     def num_rows
       case @type
       when :ONE_DIMENSIONAL
@@ -55,4 +59,3 @@ module Cosmos
     end
   end
 end
-
