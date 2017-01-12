@@ -12,18 +12,22 @@ require 'cosmos'
 require 'cosmos/tools/table_manager/table_config'
 
 module Cosmos
+  # Provides the low level Table Manager methods which do not require a GUI.
   class TableManagerCore
+    # Generic error raised when a more specific error doesn't work
     class CoreError < StandardError; end
     # Raised when opening a file that is either larger or smaller than its definition
     class MismatchError < CoreError; end
     # Raised when there is no current table configuration
     class NoConfigError < CoreError
+      # @return [String] Error message
       def message
         "No current table configuration"
       end
     end
     # Raised when there is no table in the current configuration
     class NoTableError < CoreError
+      # @return [String] Error message
       def message
         "Table does not exist in current configuration"
       end
@@ -32,10 +36,12 @@ module Cosmos
     # @return [TableConfig] Configuration instance
     attr_reader :config
 
+    # Create the instance
     def initialize
       reset()
     end
 
+    # Clears the configuration
     def reset
       @config = nil
     end
@@ -71,7 +77,7 @@ module Cosmos
 
     # Saves the current tables in the config instance to the given filename.
     #
-    # @param [String] Filename to write, overwritten if it exists.
+    # @param filename [String] Filename to write, overwritten if it exists.
     def file_save(filename)
       raise NoConfigError unless @config
       file_check()
@@ -100,8 +106,9 @@ module Cosmos
 
     # Create a CSV report file based on the file contents.
     #
-    # @param [String] Binary filename currently open. Used to generate the
+    # @param bin_path [String] Binary filename currently open. Used to generate the
     #   report name such that it matches the binary filename.
+    # @param def_path [String] Definition filename currently open
     # @return [String] Report filename path
     def file_report(bin_path, def_path)
       raise NoConfigError unless @config
@@ -229,8 +236,8 @@ module Cosmos
     # Commit a table from the current configuration into a new binary
     #
     # @param table_name [String] Table name to commit to an existing binary
-    # @param bin_path [String] Binary file to open
-    # @param def_path [String] Definition file to use when opening
+    # @param bin_file [String] Binary file to open
+    # @param def_file [String] Definition file to use when opening
     def table_commit(table_name, bin_file, def_file)
       raise NoConfigError unless @config
       save_table = @config.table(table_name)

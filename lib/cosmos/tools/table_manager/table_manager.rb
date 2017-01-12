@@ -98,6 +98,7 @@ module Cosmos
 
   # A dialog box containing a text field and ok button
   class HexDumpDialog < Qt::Dialog
+    # @param parent [Qt::Widget] Dialog parent
     def initialize(parent)
       super(parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint)
       setWindowTitle("Hex Dump")
@@ -126,13 +127,15 @@ module Cosmos
       resize(650, 250)
     end
 
-    # Set the title of the dialog box and the text contents
+    # @param title [String] Dialog title
+    # @param text [String] Dialog text box is overwritten with this string
     def set_title_and_text(title, text)
       self.setWindowTitle(title)
       @text.setPlainText(text)
     end
 
-    # Set the size of the dialog box
+    # @param width [Integer]
+    # @param height [Integer]
     def set_size(width, height)
       resize(width, height)
     end
@@ -144,19 +147,22 @@ module Cosmos
     end
   end
 
-  # TableManager uses text based configuration files (see TableConfig) to define both
-  # the structure of the binary file and how it should be displayed. It takes this configuration
-  # information to dynamically build a tabbed GUI containing the visual representation of the binary data.
-  # In addition to displaying binary data it can also create the binary representation given
-  # the text configuration file. It can display the binary data as a hex dump and creates
-  # human readable reports of the given data.
+  # TableManager uses text based configuration files (see TableConfig) to define
+  # both the structure of the binary file and how it should be displayed. It
+  # takes this this configuration information to dynamically build a tabbed GUI
+  # containing the visual representation of the binary data.
+  # In addition to displaying binary data it can also create the binary
+  # representation given the text configuration file. It can display the binary
+  # data as a hex dump and creates human readable reports of the given data.
   class TableManager < QtTool
+    # Error raised when there is a problem saving a table
     class SaveError < StandardError; end
+    # Error raised when there is a problem displaying a table
     class DisplayError < StandardError; end
 
     # @return [TableManagerCore] TableManagerCore instance
     attr_reader :core
-    # @return [Qt::TabWidget] Qt TabWidget which holds the table tabs
+    # @return [Qt::TabWidget] TabWidget which holds the table tabs
     attr_reader :tabbook
 
     # @return [TableManager] Instance of the TableManager class

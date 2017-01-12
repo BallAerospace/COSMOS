@@ -15,30 +15,36 @@ require 'cosmos/tools/table_manager/table_parser'
 require 'cosmos/tools/table_manager/table_item_parser'
 
 module Cosmos
+  # Processes the Table Manager configuration files which define tables. Since
+  # this class inherits from {PacketConfig} it only needs to implement Table
+  # Manager specific keywords. All tables are accessed through the table
+  # and tables methods.
   class TableConfig < PacketConfig
+    # @return [String] Table configuration filename
     attr_reader :filename
 
+    # Create the table configuration
     def initialize
       super
       # Override commands with the Table::TARGET name to store tables
       @commands[Table::TARGET] = {}
     end
 
+    # @return [Array<Table>] All tables defined in the configuration file
     def tables
       @commands[Table::TARGET]
     end
 
+    # @return [Array<String>] All the table names
     def table_names
       tables.keys
     end
 
+    # @param table_name [String] Table name to return
+    # @return [Table]
     def table(table_name)
       tables[table_name.upcase]
     end
-
-    #########################################################################
-    # The following methods process a table config file
-    #########################################################################
 
     # Processes a COSMOS table configuration file and uses the keywords to build up
     # knowledge of the tables.
@@ -122,6 +128,7 @@ module Cosmos
       finish_packet()
     end
 
+    # (see PacketConfig#process_current_packet)
     def process_current_packet(parser, keyword, params)
       super(parser, keyword, params)
     rescue => err
@@ -132,6 +139,9 @@ module Cosmos
       end
     end
 
+    # Overridden method to handle the unique table item parameters: UNEDITABLE
+    # and HIDDEN.
+    # (see PacketConfig#process_current_item)
     def process_current_item(parser, keyword, params)
       super(parser, keyword, params)
       case keyword
@@ -146,11 +156,14 @@ module Cosmos
       end
     end
 
+    # (see PacketConfig#start_item)
     def start_item(parser)
       finish_item()
       @current_item = TableItemParser.parse(parser, @current_packet)
     end
 
+    # If the table is TWO_DIMENSIONAL all currently defined items are
+    # duplicated until the specified number of rows are created.
     def finish_packet
       if @current_packet
         if @current_packet.type == :TWO_DIMENSIONAL
@@ -166,5 +179,5 @@ module Cosmos
       end
       super()
     end
-  end # class TableConfig
-end # module Cosmos
+  end
+end

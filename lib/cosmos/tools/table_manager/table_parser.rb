@@ -11,6 +11,7 @@
 require 'cosmos/tools/table_manager/table'
 
 module Cosmos
+  # Parses the TABLE keyword definition in table configuration files.
   class TableParser < PacketParser
     # @param parser [ConfigParser] Configuration parser
     # @param tables [Hash] Hash of the currently defined tables
@@ -22,11 +23,14 @@ module Cosmos
       parser.create_table(tables, warnings)
     end
 
+    # Verify the correct number of arguments to the TABLE keyword
     def verify_parameters
       @usage = "TABLE <TABLE NAME> <ENDIANNESS: BIG_ENDIAN/LITTLE_ENDIAN> <DISPLAY: ONE_DIMENSIONAL/TWO_DIMENSIONAL> <TWO_DIMENSIONAL TABLE ROWS> <DESCRIPTION (Optional)>"
       @parser.verify_num_parameters(3, 5, @usage)
     end
 
+    # @param tables [Array<Table>] All tables defined in the configuration
+    # @param warnings [String] List of warnings to append to
     def create_table(tables, warnings)
       params = @parser.parameters
       table_name = params[0].to_s.upcase
@@ -67,5 +71,5 @@ module Cosmos
       warnings << warning if warning
       table
     end
-  end # class TableParser
-end # module Cosmos
+  end
+end

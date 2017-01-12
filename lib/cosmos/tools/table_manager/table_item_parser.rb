@@ -14,13 +14,14 @@ require 'cosmos/packets/packet_item'
 module Cosmos
   class TableItemParser < PacketItemParser
     # @param parser [ConfigParser] Configuration parser
-    # @param packet [Packet] The packet the item should be added to
+    # @param table [Table] Table all parsed items should be added to
     def self.parse(parser, table)
       parser = TableItemParser.new(parser)
       parser.verify_parameters(PacketConfig::COMMAND)
       parser.create_table_item(table)
     end
 
+    # @param table [Table] Table created items are added to
     def create_table_item(table)
       name = @parser.parameters[0]
       if table.type == :TWO_DIMENSIONAL
@@ -42,4 +43,4 @@ module Cosmos
       raise @parser.error(err, @usage)
     end
   end
-end # module Cosmos
+end
