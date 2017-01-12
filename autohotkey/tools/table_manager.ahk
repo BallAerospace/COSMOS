@@ -79,6 +79,7 @@ WinWaitActive Table Manager
 
 Send {Tab 2}1{Enter} ; Change something TBL-7, TBL-14
 Send ^s ; File -> Save TBL-7
+Sleep 2000
 Send {Tab 2}abc{Enter} ; Change something TBL-7, TBL-14
 Send ^s ; File -> Save TBL-7
 WinWaitActive File Check

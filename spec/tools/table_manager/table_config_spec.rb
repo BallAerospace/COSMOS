@@ -72,6 +72,15 @@ module Cosmos
         tf.unlink
       end
 
+      it "handles errors in processing elements" do
+        tf = Tempfile.new('unittest')
+        tf.puts 'TABLE table LITTLE_ENDIAN ONE_DIMENSIONAL "Table"'
+        tf.puts '  APPEND_PARAMETER item1'
+        tf.close
+        expect { tc.process_file(tf.path) }.to raise_error(ConfigParser::Error, /Not enough parameters/)
+        tf.unlink
+      end
+
       context "with TABLEFILE" do
         it "complains if not enough parameters" do
           tf = Tempfile.new('unittest')

@@ -178,20 +178,24 @@ module Cosmos
           # get the table item definition so we know how to save it
           table_item = table_items[r * table.num_columns + c]
 
-          x = table.read(table_item.name)
+          value = table.read(table_item.name)
           unless table_item.range.nil?
-            x = table_item.states[x] if table_item.states
+            # If the item has states which include the value, then convert
+            # the state back to the numeric value for range checking
+            if table_item.states && table_item.states.include?(value)
+              value = table_item.states[value]
+            end
             # check to see if the value lies within its valid range
-            unless table_item.range.include?(x)
+            unless table_item.range.include?(value)
               if table_item.format_string
+                value = table.read(table_item.name, :FORMATTED)
                 range_first = sprintf(table_item.format_string, table_item.range.first)
                 range_last = sprintf(table_item.format_string, table_item.range.last)
               else
                 range_first = table_item.range.first
                 range_last = table_item.range.last
               end
-              x = table.read(table_item.name)
-              result << "  #{table_item.name}: #{x} outside valid range of #{range_first}..#{range_last}\n"
+              result << "  #{table_item.name}: #{value} outside valid range of #{range_first}..#{range_last}\n"
             end
           end
         end # end each column

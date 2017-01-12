@@ -287,15 +287,16 @@ module Cosmos
           file.puts '  APPEND_PARAMETER item2 16 INT -2 2 0 "Item"'
           file.puts '  APPEND_PARAMETER item3 40 STRING "HELLO" "Item"'
           file.puts '  APPEND_PARAMETER item4 16 UINT 0 4 0 "Item"'
+          file.puts '    FORMAT_STRING "0x%0X"'
           file.puts '    GENERIC_READ_CONVERSION_START'
           file.puts '      myself.read("item1") * 2'
           file.puts '    GENERIC_READ_CONVERSION_END'
         end
         core.file_open(bin_filename, def_filename)
         result = core.table_check('table1')
-        expect(result).to match /ITEM1: 3 outside valid range/
-        expect(result).to match /ITEM2: -3 outside valid range/
-        expect(result).to match /ITEM4: 6 outside valid range/
+        expect(result).to match "ITEM1: 3 outside valid range of 0..2"
+        expect(result).to match "ITEM2: -3 outside valid range of -2..2"
+        expect(result).to match "ITEM4: 0x6 outside valid range of 0x0..0x4"
         FileUtils.rm bin_filename
         FileUtils.rm def_filename
       end
@@ -477,6 +478,28 @@ module Cosmos
         expect { core.table_commit('table1', 'testfile.dat', 'testfile_def.txt') }.to raise_error(TableManagerCore::CoreError)
         FileUtils.rm bin_filename
         FileUtils.rm def_filename
+      end
+
+      it "complains if the new definition has errors" do
+        bin_filename = File.join(Dir.pwd, 'testfile.dat')
+        File.open(bin_filename,'w') {|file| file.write "\xDE\xAD\xBE\xEF" }
+        def_filename = File.join(Dir.pwd, 'testfile_def.txt')
+        File.open(def_filename,'w') do |file|
+          file.puts 'TABLE table1 BIG_ENDIAN ONE_DIMENSIONAL'
+          file.puts '  APPEND_PARAMETER item1 16 UINT MIN MAX 0 "Item"'
+          file.puts '  APPEND_PARAMETER item2 16 UINT MIN MAX 0 "Item"'
+        end
+        new_def_filename = File.join(Dir.pwd, 'newtestfile_def.txt')
+        File.open(new_def_filename,'w') do |file|
+          file.puts 'TABLE table1'
+          file.puts '  APPEND_PARAMETER item1 16 UINT MIN MAX 0 "Item"'
+          file.puts '  APPEND_PARAMETER item2 16 UINT MIN MAX 0 "Item"'
+        end
+        core.file_open(bin_filename, def_filename)
+        expect { core.table_commit('table1', 'testfile.dat', 'newtestfile_def.txt') }.to raise_error(TableManagerCore::CoreError)
+        FileUtils.rm bin_filename
+        FileUtils.rm def_filename
+        FileUtils.rm new_def_filename
       end
 
       it "complains if the new file doesn't define the table" do
