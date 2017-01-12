@@ -22,7 +22,6 @@ Cosmos.catch_fatal_exception do
 end
 
 module Cosmos
-
   Cosmos.disable_warnings do
     module Script
       def prompt_for_script_abort
@@ -30,12 +29,12 @@ module Cosmos
         window.statusBar.showMessage(tr("Hazardous command not sent"))
         return true # Aborted - Don't retry
       end
-    end #module Script
+    end
   end
 
   $eval_binding = binding()
 
-  # Command Sender sends commands to the COSMOS server.  Itgives the user
+  # Command Sender sends commands to the COSMOS server. It gives the user
   # a drop down to select the target and then command to send.
   # It then displays all the command parameters. Once a
   # command is sent it is added to the command history window which allows the
@@ -52,22 +51,34 @@ module Cosmos
 
     MANUALLY = "MANUALLY ENTERED"
 
+    # @return [Integer] Number of commands sent
     def self.send_count
       @@send_count
     end
 
+    # @param val [Integer] Number of commands sent
     def self.send_count=(val)
       @@send_count = val
     end
 
+    # @return [Array<PacketItem, Qt::TableWidgetItem, Qt::TableWidgetItem>]
+    #   Array of the packet item, the table widget item representing the value,
+    #   and the table widget item representing states if the packet item has
+    #   states.
     def self.param_widgets
       @@param_widgets
     end
 
+    # @return [Qt::TableWidget] Table holding the command parameters. Each
+    #   parameter is a separate row in the table.
     def self.table
       @@table
     end
 
+    # Create the application by building the GUI and loading an initial target
+    # and command packet. This can be passed on the command line or the first
+    # target and packet will be loaded.
+    # @param (see QtTool#initialize)
     def initialize(options)
       # MUST BE FIRST - All code before super is executed twice in RubyQt Based classes
       super(options)
@@ -104,9 +115,10 @@ module Cosmos
       end
     end
 
+    # Create the File and Mode menu actions
     def initialize_actions
       super()
-
+      # File menu actions
       @send_raw_action = Qt::Action.new(Cosmos.get_icon('send_file.png'),
                                         tr('&Send Raw'),
                                         self)
@@ -114,6 +126,7 @@ module Cosmos
       @send_raw_action.statusTip = tr('Send raw data from a file')
       connect(@send_raw_action, SIGNAL('triggered()'), self, SLOT('file_send_raw()'))
 
+      # Mode menu actions
       @ignore_range = Qt::Action.new(tr('&Ignore Range Checks'), self)
       @ignore_range.statusTip = tr('Ignore range checks when processing command')
       @ignore_range.setCheckable(true)
@@ -137,30 +150,51 @@ module Cosmos
       @cmd_raw.setChecked(false)
     end
 
+    # Create the File and Mode menus and initialize the help menu
     def initialize_menus
-      # File Menu
       file_menu = menuBar.addMenu(tr('&File'))
       file_menu.addAction(@send_raw_action)
       file_menu.addAction(@exit_action)
       file_menu.insertSeparator(@exit_action)
 
-      # Mode Menu
       mode_menu = menuBar.addMenu(tr('&Mode'))
       mode_menu.addAction(@ignore_range)
       mode_menu.addAction(@states_in_hex)
       mode_menu.addAction(@show_ignored)
       mode_menu.addAction(@cmd_raw)
 
-      # Help Menu
       @about_string = "Command Sender allows the user to send any command defined in the system."
       initialize_help_menu()
     end
 
+    # Create the GUI which consists of a split window and add the top and
+    # bottom half widgets. The top half contains the command sender and the
+    # bottom half contains the history.
     def initialize_central_widget
-      # Create the central widget
       central_widget = Qt::Widget.new
       setCentralWidget(central_widget)
 
+      splitter = Qt::Splitter.new(central_widget)
+      splitter.setOrientation(Qt::Vertical)
+      splitter.addWidget(create_sender_widget)
+      splitter.addWidget(create_history_widget)
+      splitter.setStretchFactor(0,10)
+      splitter.setStretchFactor(1,1)
+
+      layout = Qt::VBoxLayout.new
+      layout.setSpacing(1)
+      layout.setContentsMargins(1, 1, 1, 1)
+      layout.setSizeConstraint(Qt::Layout::SetMaximumSize)
+      layout.addWidget(splitter)
+      central_widget.layout = layout
+
+      # Mark this window as the window for popups
+      set_cmd_tlm_gui_window(self)
+    end
+
+    # Create the top half widget which contains target and packet combobox
+    # selections that update a table of command parameters.
+    def create_sender_widget
       # Create the top half of the splitter window
       sender = Qt::Widget.new
 
@@ -229,6 +263,17 @@ module Cosmos
       # to get equal space.
       top_layout.addStretch(1)
 
+      # Create the scroll area
+      scroll = Qt::ScrollArea.new
+      scroll.setMinimumSize(500, 150)
+      scroll.setWidgetResizable(true)
+      scroll.setWidget(sender)
+      scroll
+    end
+
+    # Create the history widget which consists of a {CmdSenderTextEdit} that
+    # displays the history of sent commands.
+    def create_history_widget
       # Create the text edit where previously issued commands go and where
       # commands can be manually typed in and re-executed
       @input = CmdSenderTextEdit.new(statusBar)
@@ -242,185 +287,168 @@ module Cosmos
       layout.addWidget(@input)
       history = Qt::Widget.new
       history.layout = layout
-
-      # Create the scroll area
-      scroll = Qt::ScrollArea.new
-      scroll.setMinimumSize(500, 150)
-      scroll.setWidgetResizable(true)
-      scroll.setWidget(sender)
-
-      splitter = Qt::Splitter.new(central_widget)
-      splitter.setOrientation(Qt::Vertical)
-      splitter.addWidget(scroll)
-      splitter.addWidget(history)
-      splitter.setStretchFactor(0,10)
-      splitter.setStretchFactor(1,1)
-
-      layout = Qt::VBoxLayout.new
-      layout.setSpacing(1)
-      layout.setContentsMargins(1, 1, 1, 1)
-      layout.setSizeConstraint(Qt::Layout::SetMaximumSize)
-      layout.addWidget(splitter)
-      central_widget.layout = layout
-
-      # Mark this window as the window for popups
-      set_cmd_tlm_gui_window(self)
+      history
     end
 
+    # Changes the display of items with states to hex if checked is true.
+    # Otherwise state values are displayed as decimal.
+    # @param checked [Boolean] Whether to display state values in hex
     def menu_states_in_hex(checked)
-      @@param_widgets.each do |packet_item, value_item, state_value_item|
-        if state_value_item
-          text = state_value_item.text
-          quotes_removed = text.remove_quotes
-          if text == quotes_removed
-            if checked
-              if text.is_int?
-                @@table.blockSignals(true)
-                state_value_item.text = sprintf("0x%X", text.to_i)
-                @@table.blockSignals(false)
-              end
-            else
-              if text.is_hex?
-                @@table.blockSignals(true)
-                state_value_item.text = Integer(text).to_s
-                @@table.blockSignals(false)
-              end
+      @@param_widgets.each do |_, _, state_value_item|
+        next unless state_value_item
+        text = state_value_item.text
+        quotes_removed = text.remove_quotes
+        if text == quotes_removed
+          if checked
+            if text.is_int?
+              @@table.blockSignals(true)
+              state_value_item.text = sprintf("0x%X", text.to_i)
+              @@table.blockSignals(false)
+            end
+          else
+            if text.is_hex?
+              @@table.blockSignals(true)
+              state_value_item.text = Integer(text).to_s
+              @@table.blockSignals(false)
             end
           end
         end
       end
     end
 
+    # Opens a dialog which allows the user to select a file to read and send
+    # directly over the interface.
     def file_send_raw
-      begin
-        dialog = Qt::Dialog.new(self, Qt::WindowTitleHint | Qt::WindowSystemMenuHint)
-        dialog.setWindowTitle("Send Raw Data From File")
-        layout = Qt::GridLayout.new
-        interfaces = Qt::ComboBox.new
-        interfaces.addItems(get_interface_names())
-        interfaces.setMaxVisibleItems(30)
-        layout.addWidget(interfaces, 0, 1)
-        int_label = Qt::Label.new(tr("&Interface:"))
-        int_label.setBuddy(interfaces)
-        layout.addWidget(int_label, 0, 0)
+      dialog = Qt::Dialog.new(self, Qt::WindowTitleHint | Qt::WindowSystemMenuHint)
+      dialog.setWindowTitle("Send Raw Data From File")
+      layout = Qt::GridLayout.new
+      interfaces = Qt::ComboBox.new
+      interfaces.addItems(get_interface_names())
+      interfaces.setMaxVisibleItems(30)
+      layout.addWidget(interfaces, 0, 1)
+      int_label = Qt::Label.new(tr("&Interface:"))
+      int_label.setBuddy(interfaces)
+      layout.addWidget(int_label, 0, 0)
 
-        file_line = Qt::LineEdit.new(@send_raw_dir)
-        file_line.setMinimumSize(250, 0)
-        file_label = Qt::Label.new(tr("&Filename:"))
-        file_label.setBuddy(file_line)
-        get_file = Qt::PushButton.new("Select")
-        file_layout = Qt::BoxLayout.new(Qt::Horizontal)
-        file_layout.addWidget(get_file)
-        file_layout.addWidget(file_line)
-        get_file.connect(SIGNAL('clicked()')) do
-          Cosmos.set_working_dir do
-            file_line.text = Qt::FileDialog::getOpenFileName(self, "Select File", @send_raw_dir, tr("Binary Files (*.bin);;All Files (*)"))
-          end
+      file_line = Qt::LineEdit.new(@send_raw_dir)
+      file_line.setMinimumSize(250, 0)
+      file_label = Qt::Label.new(tr("&Filename:"))
+      file_label.setBuddy(file_line)
+      get_file = Qt::PushButton.new("Select")
+      file_layout = Qt::BoxLayout.new(Qt::Horizontal)
+      file_layout.addWidget(get_file)
+      file_layout.addWidget(file_line)
+      get_file.connect(SIGNAL('clicked()')) do
+        Cosmos.set_working_dir do
+          file_line.text = Qt::FileDialog::getOpenFileName(self, "Select File", @send_raw_dir, tr("Binary Files (*.bin);;All Files (*)"))
         end
-
-        layout.addWidget(file_label, 1, 0)
-        layout.addLayout(file_layout, 1, 1)
-
-        button_layout = Qt::BoxLayout.new(Qt::Horizontal)
-        ok = Qt::PushButton.new("Ok")
-        connect(ok, SIGNAL('clicked()'), dialog, SLOT('accept()'))
-        button_layout.addWidget(ok)
-        cancel = Qt::PushButton.new("Cancel")
-        connect(cancel, SIGNAL('clicked()'), dialog, SLOT('reject()'))
-        button_layout.addWidget(cancel)
-        layout.addLayout(button_layout, 2, 0, 1 ,2)
-
-        dialog.setLayout(layout)
-        if dialog.exec == Qt::Dialog::Accepted
-          @send_raw_dir = file_line.text
-          Cosmos.set_working_dir do
-            send_raw_file(interfaces.text, file_line.text)
-          end
-          statusBar.showMessage(tr("File #{file_line.text} sent to interface #{interfaces.text}"))
-        end
-        dialog.dispose
-      rescue Exception => err
-        message = "Error sending raw file due to #{err}"
-        @message_log.write(Time.now.formatted + '  ' + message + "\n")
-        statusBar.showMessage(message)
-      rescue DRb::DRbConnError
-        message = "Error Connecting to Command and Telemetry Server"
-        @message_log.write(Time.now.formatted + '  ' + message + "\n")
-        statusBar.showMessage(message)
       end
+
+      layout.addWidget(file_label, 1, 0)
+      layout.addLayout(file_layout, 1, 1)
+
+      button_layout = Qt::BoxLayout.new(Qt::Horizontal)
+      ok = Qt::PushButton.new("Ok")
+      connect(ok, SIGNAL('clicked()'), dialog, SLOT('accept()'))
+      button_layout.addWidget(ok)
+      cancel = Qt::PushButton.new("Cancel")
+      connect(cancel, SIGNAL('clicked()'), dialog, SLOT('reject()'))
+      button_layout.addWidget(cancel)
+      layout.addLayout(button_layout, 2, 0, 1 ,2)
+
+      dialog.setLayout(layout)
+      if dialog.exec == Qt::Dialog::Accepted
+        @send_raw_dir = file_line.text
+        Cosmos.set_working_dir do
+          send_raw_file(interfaces.text, file_line.text)
+        end
+        statusBar.showMessage(tr("File #{file_line.text} sent to interface #{interfaces.text}"))
+      end
+      dialog.dispose
+    rescue Exception => err
+      message = "Error sending raw file due to #{err}"
+      @message_log.write(Time.now.formatted + '  ' + message + "\n")
+      statusBar.showMessage(message)
+    rescue DRb::DRbConnError
+      message = "Error Connecting to Command and Telemetry Server"
+      @message_log.write(Time.now.formatted + '  ' + message + "\n")
+      statusBar.showMessage(message)
     end
 
+    # (see QtTool#closeEvent)
     def closeEvent(event)
       shutdown_cmd_tlm()
       @message_log.stop
       super(event)
     end
 
-    def target_changed(target)
+    # Updates the commands combobox and command parameters table
+    def target_changed(_)
       update_commands()
       update_cmd_params()
     end
 
-    def cmd_changed(command)
+    # Updates the command parameters table
+    def cmd_changed(_)
       update_cmd_params()
     end
 
+    # Sends the current command and parameters to the target
     def send_button
-      begin
-        target_name = @target_select.text
-        packet_name = @cmd_select.text
-        if target_name and packet_name
-          output_string, params = view_as_script()
-          @message_log.write(Time.now.formatted + '  ' + output_string + "\n")
-          if @cmd_raw.checked?
-            if @ignore_range.checked?
-              cmd_raw_no_range_check(target_name, packet_name, params)
-            else
-              cmd_raw(target_name, packet_name, params)
-            end
+      target_name = @target_select.text
+      packet_name = @cmd_select.text
+      if target_name && packet_name
+        output_string, params = view_as_script()
+        @message_log.write(Time.now.formatted + '  ' + output_string + "\n")
+        if @cmd_raw.checked?
+          if @ignore_range.checked?
+            cmd_raw_no_range_check(target_name, packet_name, params)
           else
-            if @ignore_range.checked?
-              cmd_no_range_check(target_name, packet_name, params)
-            else
-              cmd(target_name, packet_name, params)
-            end
+            cmd_raw(target_name, packet_name, params)
           end
-
-          if statusBar.currentMessage != 'Hazardous command not sent'
-            @@send_count += 1
-            statusBar.showMessage("#{output_string} sent. (#{@@send_count})")
-            @input.append(output_string)
-            @input.moveCursor(Qt::TextCursor::End)
-            @input.ensureCursorVisible()
+        else
+          if @ignore_range.checked?
+            cmd_no_range_check(target_name, packet_name, params)
+          else
+            cmd(target_name, packet_name, params)
           end
         end
-      rescue DRb::DRbConnError
-        message = "Error Connecting to Command and Telemetry Server"
-        @message_log.write(Time.now.formatted + '  ' + message + "\n")
-        statusBar.showMessage(message)
-        Qt::MessageBox.critical(self, 'Error', message)
-      rescue Exception => err
-        message = "Error sending #{target_name} #{packet_name} due to #{err}"
-        @message_log.write(Time.now.formatted + '  ' + message + "\n")
-        statusBar.showMessage(message)
-        Qt::MessageBox.critical(self, 'Error', message)
+
+        if statusBar.currentMessage != 'Hazardous command not sent'
+          @@send_count += 1
+          statusBar.showMessage("#{output_string} sent. (#{@@send_count})")
+          @input.append(output_string)
+          @input.moveCursor(Qt::TextCursor::End)
+          @input.ensureCursorVisible()
+        end
       end
+    rescue DRb::DRbConnError
+      message = "Error Connecting to Command and Telemetry Server"
+      @message_log.write(Time.now.formatted + '  ' + message + "\n")
+      statusBar.showMessage(message)
+      Qt::MessageBox.critical(self, 'Error', message)
+    rescue Exception => err
+      message = "Error sending #{target_name} #{packet_name} due to #{err}"
+      @message_log.write(Time.now.formatted + '  ' + message + "\n")
+      statusBar.showMessage(message)
+      Qt::MessageBox.critical(self, 'Error', message)
     end
 
+    # @return [String, Hash] Command as it would appear in a ScriptRunner script
     def view_as_script
       params = {}
 
       @@param_widgets.each do |packet_item, value_item, state_value_item|
         text = value_item.text
 
-        text = state_value_item.text if state_value_item and (text == MANUALLY or @cmd_raw.checked?)
+        text = state_value_item.text if state_value_item && (text == MANUALLY or @cmd_raw.checked?)
         quotes_removed = text.remove_quotes
         if text == quotes_removed
           params[packet_item.name] = text.convert_to_value
         else
           params[packet_item.name] = quotes_removed
         end
-        raise "#{packet_item.name} is required." if quotes_removed == '' and packet_item.required
+        raise "#{packet_item.name} is required." if quotes_removed == '' && packet_item.required
       end
       statusBar.clearMessage()
 
@@ -442,6 +470,7 @@ module Cosmos
       return output_string, params
     end
 
+    # Updates the targets combobox
     def update_targets
       @target_select.clearItems()
       target_names = System.commands.target_names
@@ -466,6 +495,7 @@ module Cosmos
       end
     end
 
+    # Updates the commands combobox based on the selected target
     def update_commands
       @cmd_select.clearItems()
       target_name = @target_select.text
@@ -482,12 +512,13 @@ module Cosmos
       end
     end
 
+    # Updates the command parameters table based on the selected target and
+    # packet comboboxes
+    # @param ignored_toggle [Boolean] Whether to display the ignored
+    #   parameters. Pass nil (the default) to keep the existing setting.
     def update_cmd_params(ignored_toggle = nil)
       old_params = {}
-      if ignored_toggle.nil?
-        ignored_toggle = false
-      else
-        ignored_toggle = true
+      if !ignored_toggle.nil?
         # Save parameter values
         @@param_widgets.each do |packet_item, value_item, state_value_item|
           text = value_item.text
@@ -505,12 +536,12 @@ module Cosmos
       target_name = @target_select.text
       target = System.targets[target_name]
       packet_name = @cmd_select.text
-      if target_name and packet_name
+      if target_name && packet_name
         packet = System.commands.packet(target_name, packet_name)
         packet_items = packet.sorted_items
         shown_packet_items = []
         packet_items.each do |packet_item|
-          next if target and target.ignored_parameters.include?(packet_item.name) && !@show_ignored.checked?
+          next if target && target.ignored_parameters.include?(packet_item.name) && !@show_ignored.checked?
           shown_packet_items << packet_item
         end
 
@@ -527,7 +558,7 @@ module Cosmos
 
         row = 0
         shown_packet_items.each do |packet_item|
-          next if target and target.ignored_parameters.include?(packet_item.name) && !@show_ignored.checked?
+          next if target && target.ignored_parameters.include?(packet_item.name) && !@show_ignored.checked?
           value_item = nil
           state_value_item = nil
 
@@ -586,7 +617,7 @@ module Cosmos
 
             # If the parameter is required set the combobox to MANUAL and
             # clear the value field so they have to choose something
-            if packet_item.required and !old_params[packet_item.name]
+            if packet_item.required && !old_params[packet_item.name]
               value_item.setText(MANUALLY)
               state_value_item.setText('')
             end
@@ -656,16 +687,19 @@ module Cosmos
           @@table.resizeColumnsToContents()
           @@table.resizeRowsToContents()
         end
-      end # if target_name and packet_name
+      end # if target_name && packet_name
     end
 
+    # If the user right clicks over a table item, this method displays a context
+    # menu with various options.
+    # @param point [Qt::Point] Point to display the context menu
     def context_menu(point)
       target_name = @target_select.text
       packet_name = @cmd_select.text
       item = @@table.itemAt(point)
       if item
         item_name = @@table.item(item.row, 0).text[0..-2] # Remove :
-        if target_name.length > 0 and packet_name.length > 0 and item_name.length > 0
+        if target_name.length > 0 && packet_name.length > 0 && item_name.length > 0
           menu = Qt::Menu.new()
 
           details_action = Qt::Action.new(tr("Details #{target_name} #{packet_name} #{item_name}"), self)
@@ -679,7 +713,7 @@ module Cosmos
           file_chooser_action.statusTip = tr("Select a file and place its name into this parameter")
           file_chooser_action.connect(SIGNAL('triggered()')) do
             filename = Qt::FileDialog::getOpenFileName(self, "Insert Filename:", @file_dir, "All Files (*)")
-            if filename and not filename.empty?
+            if filename && !filename.empty?
               @file_dir = File.dirname(filename)
               _, value_item, state_value_item = @@param_widgets[item.row]
               if state_value_item
@@ -697,11 +731,13 @@ module Cosmos
       end
     end
 
+    # @param item [Qt::TableWidgetItem] Item which was left clicked
     def click_callback(item)
       @@table.editItem(item) if (item.flags & Qt::ItemIsEditable) != 0
     end
 
-    def self.run (option_parser = nil, options = nil)
+    # (see QtTool.run)
+    def self.run(option_parser = nil, options = nil)
       Cosmos.catch_fatal_exception do
         unless option_parser && options
           option_parser, options = create_default_options()
@@ -722,7 +758,5 @@ module Cosmos
         super(option_parser, options)
       end
     end
-
-  end # CmdSender
-
-end # module Cosmos
+  end
+end
