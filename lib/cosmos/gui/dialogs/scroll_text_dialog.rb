@@ -25,7 +25,7 @@ module Cosmos
       # Intentionally don't load icon as this can cause loop of unexpected output running with --debug
 
       layout = Qt::VBoxLayout.new
-      text.gsub!("\n","<br>")
+      text.gsub!("\n", "<br>")
       @text_edit = Qt::TextEdit.new(text, self)
       @text_edit.setReadOnly(true)
       layout.addWidget(@text_edit)

@@ -18,40 +18,44 @@ module Cosmos
   class FindReplaceDialog < Qt::Dialog
     include Singleton
 
-    # Displays a Find dialog
-    # @param parent [Qt::Widget] Dialog parent which must implement a
-    #   search_text method which returns a String to search on
+    # (see #show_find)
     def self.show_find(parent)
       self.instance.show_find(parent)
     end
+    # Displays a Find dialog
+    # @param parent [Qt::Widget] Dialog parent which must implement a
+    #   search_text method which returns a String to search on
     def show_find(parent)
       @parent = parent
       disable_replace
       show_dialog
     end
 
-    # Displays a Find/Replace dialog
-    # @param parent [Qt::Widget] Dialog parent which must implement a
-    #   search_text method which returns a String to search on
+    # (see #show_replace)
     def self.show_replace(parent)
       self.instance.show_replace(parent)
     end
+    # Displays a Find/Replace dialog
+    # @param parent [Qt::Widget] Dialog parent which must implement a
+    #   search_text method which returns a String to search on
     def show_replace(parent)
       @parent = parent
       enable_replace
       show_dialog
     end
 
-    # @param parent [#search_text] Object which must implement a
-    #   search_text method which returns a String to search on
+    # (see #find_next)
     def self.find_next(parent)
       self.instance.find_next(parent)
     end
+    # Finds the next instance of the search term
+    # @param parent [#search_text] Object which must implement a
+    #   search_text method which returns a String to search on
     def find_next(parent)
       flags = find_flags()
       flags &= ~Qt::TextDocument::FindBackward.to_i
       found = parent.search_text.find(find_text(), flags)
-      if not found and wrap_around?
+      if !found && wrap_around?
         cursor = parent.search_text.textCursor
         cursor.movePosition(Qt::TextCursor::Start)
         parent.search_text.setTextCursor(cursor)
@@ -59,16 +63,18 @@ module Cosmos
       end
     end
 
-    # @param parent [#search_text] Object which must implement a
-    #   search_text method which returns a String to search on
+    # (see #find_previous)
     def self.find_previous(parent)
       self.instance.find_previous(parent)
     end
+    # Finds the previous instance of the search term
+    # @param parent [#search_text] Object which must implement a
+    #   search_text method which returns a String to search on
     def find_previous(parent)
       flags = find_flags()
       flags |= Qt::TextDocument::FindBackward.to_i
       found = parent.search_text.find(find_text(), flags)
-      if not found and wrap_around?
+      if !found && wrap_around?
         cursor = parent.search_text.textCursor
         cursor.movePosition(Qt::TextCursor::End)
         parent.search_text.setTextCursor(cursor)
@@ -206,7 +212,7 @@ module Cosmos
     def handle_find_next
       text = @parent.search_text
       found = text.find(find_text, find_flags)
-      if not found and wrap_around?
+      if !found && wrap_around?
         cursor = text.textCursor
         if find_up?
           cursor.movePosition(Qt::TextCursor::End)
@@ -225,7 +231,7 @@ module Cosmos
         found = true
       else
         found = text.find(find_text, find_flags)
-        if not found and wrap_around?
+        if !found && wrap_around?
           cursor = text.textCursor
           if find_up?
             cursor.movePosition(Qt::TextCursor::End)
@@ -262,6 +268,5 @@ module Cosmos
       end
       cursor.endEditBlock
     end
-
   end # class FindReplaceDialog
 end # module Cosmos

@@ -97,17 +97,17 @@ module Cosmos
     def check_all_crcs
       result_text = ''
       missing_text = ''
-      core_file_count, core_error_count, _, _ = check_crcs(::Cosmos::PATH, File.join(::Cosmos::PATH,'data','crc.txt'), result_text, missing_text, 'CORE')
+      core_file_count, core_error_count, _, _ = check_crcs(::Cosmos::PATH, File.join(::Cosmos::PATH, 'data', 'crc.txt'), result_text, missing_text, 'CORE')
       project_file_count = 0
       project_error_count = 0
       official = true
-      if File.exist?(File.join(::Cosmos::USERPATH,'config','data','crc.txt'))
-        project_file_count, project_error_count, _, official = check_crcs(::Cosmos::USERPATH, File.join(::Cosmos::USERPATH,'config','data','crc.txt'), result_text, missing_text, 'PROJECT')
+      if File.exist?(File.join(::Cosmos::USERPATH, 'config', 'data', 'crc.txt'))
+        project_file_count, project_error_count, _, official = check_crcs(::Cosmos::USERPATH, File.join(::Cosmos::USERPATH, 'config', 'data', 'crc.txt'), result_text, missing_text, 'PROJECT')
       end
 
       final_text = ''
-      if core_error_count == 0 and project_error_count == 0
-        if missing_text.empty? and official
+      if (core_error_count == 0) && (project_error_count == 0)
+        if missing_text.empty? && official
           @text_crc.setTextColor(Cosmos::GREEN)
         else
           @text_crc.setTextColor(Cosmos::YELLOW)

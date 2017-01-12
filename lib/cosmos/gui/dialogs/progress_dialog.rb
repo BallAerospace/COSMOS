@@ -123,7 +123,7 @@ module Cosmos
       @top_layout.addLayout(@overall) if show_overall
       @top_layout.addLayout(@step) if show_step
       @top_layout.addWidget(@progress_text) if show_text
-      @top_layout.addLayout(@button_layout) if show_done or show_cancel
+      @top_layout.addLayout(@button_layout) if show_done || show_cancel
 
       setLayout(@top_layout)
 
