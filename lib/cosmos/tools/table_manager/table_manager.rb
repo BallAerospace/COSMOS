@@ -65,6 +65,11 @@ module Cosmos
       end
     end
 
+    # Gets the current item from the combobox if it exists and writes it back
+    # to the model.
+    # @param editor [Qt::Widget] Editor widget
+    # @param model [Qt::AbstractItemModel] Model to write the gui data to
+    # @param index [Qt::ModelIndex] Where in the model to update the data
     def setModelData(editor, model, index)
       if Qt::ComboBox === editor
         model.setData(index, Qt::Variant.new(editor.currentText), Qt::EditRole)
@@ -73,6 +78,9 @@ module Cosmos
       end
     end
 
+    # Sets the current item in the combobox based on the model data
+    # @param editor [Qt::Widget] Editor widget
+    # @param index [Qt::ModelIndex] Where in the model to grab the data
     def setEditorData(editor, index)
       if Qt::ComboBox === editor
         v = index.data(Qt::EditRole)
