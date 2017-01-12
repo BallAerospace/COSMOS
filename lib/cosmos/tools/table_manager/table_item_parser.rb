@@ -12,7 +12,6 @@ require 'cosmos/packets/packet_config'
 require 'cosmos/packets/packet_item'
 
 module Cosmos
-
   class TableItemParser < PacketItemParser
     # @param parser [ConfigParser] Configuration parser
     # @param packet [Packet] The packet the item should be added to
@@ -44,4 +43,3 @@ module Cosmos
     end
   end
 end # module Cosmos
-

@@ -12,7 +12,6 @@ require 'cosmos'
 require 'cosmos/tools/table_manager/table_config'
 
 module Cosmos
-
   class TableManagerCore
     class CoreError < StandardError; end
     # Raised when opening a file that is either larger or smaller than its definition
@@ -130,7 +129,7 @@ module Cosmos
           # Write the table item values
           (0...table.num_rows).each do |r|
             if table.type == :TWO_DIMENSIONAL
-              rowtext = "#{r+1}"
+              rowtext = "#{r + 1}"
             else
               rowtext = items[r].name
             end
@@ -304,14 +303,12 @@ module Cosmos
           table.buffer = data[binary_data_index..-1]
           raise MismatchError, "Binary size of #{data.length} not large enough to fully represent table definition of length #{total_table_length}. The remaining table definition (starting with byte #{data.length - binary_data_index} in #{table.table_name}) will be filled with 0."
         end
-        table.buffer = data[binary_data_index...binary_data_index+table.length]
+        table.buffer = data[binary_data_index...binary_data_index + table.length]
         binary_data_index += table.length
       end
       if binary_data_index < data.length
         raise MismatchError, "Binary size of #{data.length} larger than table definition of length #{total_table_length}. Discarding the remaing #{data.length - binary_data_index} bytes."
       end
     end
-
   end
 end # module Cosmos
-

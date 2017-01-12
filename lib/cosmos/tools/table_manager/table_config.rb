@@ -15,7 +15,6 @@ require 'cosmos/tools/table_manager/table_parser'
 require 'cosmos/tools/table_manager/table_item_parser'
 
 module Cosmos
-
   class TableConfig < PacketConfig
     attr_reader :filename
 
@@ -156,10 +155,10 @@ module Cosmos
       if @current_packet
         if @current_packet.type == :TWO_DIMENSIONAL
           items = @current_packet.sorted_items.clone
-          (@current_packet.num_rows-1).times do |row|
+          (@current_packet.num_rows - 1).times do |row|
             items.each do |item|
               new_item = item.clone
-              new_item.name = "#{new_item.name[0...-1]}#{row+1}"
+              new_item.name = "#{new_item.name[0...-1]}#{row + 1}"
               @current_packet.append(new_item)
             end
           end
@@ -167,7 +166,5 @@ module Cosmos
       end
       super()
     end
-
   end # class TableConfig
 end # module Cosmos
-

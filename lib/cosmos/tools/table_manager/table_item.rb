@@ -11,7 +11,6 @@
 require 'cosmos'
 
 module Cosmos
-
   # Maintains knowledge of an item in a Table
   class TableItem < PacketItem
     attr_reader :editable
@@ -52,4 +51,3 @@ module Cosmos
     end
   end
 end
-

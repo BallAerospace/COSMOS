@@ -33,8 +33,14 @@ Cosmos.disable_warnings do
 end
 
 module Cosmos
-
+  # This class applies to all items in the table but its only purpose is to
+  # determine if table cells should be rendered as comboboxes. Any table items
+  # with states are rendered as comboboxes.
   class ComboBoxItemDelegate < Qt::StyledItemDelegate
+    # Create the combobox widget to display the values
+    # @param parent [Qt::Widget] Parent to created widget
+    # @param option [Qt::StyleOptionViewItem] Style options (not used)
+    # @param index [Qt::ModelIndex] Indicates which table item is active
     def createEditor(parent, option, index)
       table = TableManager.instance.core.config.table(TableManager.instance.current_table_name)
       gui_table = TableManager.instance.tabbook.tab(TableManager.instance.current_table_name)
@@ -337,9 +343,9 @@ module Cosmos
         @table_commit.statusTip = tr('Incorporate the current table data into a binary file which already contains the table')
         @table_commit.connect(SIGNAL('triggered()')) { table_commit() }
 
-#        @table_update = Qt::Action.new(tr('&Update Definition'), self)
-#        @table_update.statusTip = tr('Change the defaults in the definition file to the displayed table data')
-#        @table_update.connect(SIGNAL('triggered()')) { table_update() }
+        #        @table_update = Qt::Action.new(tr('&Update Definition'), self)
+        #        @table_update.statusTip = tr('Change the defaults in the definition file to the displayed table data')
+        #        @table_update.connect(SIGNAL('triggered()')) { table_update() }
       end
     end
 
@@ -372,7 +378,7 @@ module Cosmos
         table_menu.addSeparator()
         table_menu.addAction(@table_save)
         table_menu.addAction(@table_commit)
-#        table_menu.addAction(@table_update)
+        #        table_menu.addAction(@table_update)
       end
 
       # Help Menu
@@ -683,24 +689,6 @@ module Cosmos
       ExceptionDialog.new(self, err, "Table Commit Errors", false)
     end
 
-#    # Menu option to update the definition file defaults with the currently
-#    # displayed table values
-#    def table_update
-#      return if abort_on_no_current_table()
-#      begin
-#        save_gui_data(current_table_name)
-#
-#        result = Qt::MessageBox.question(self, "Update Table Definition File",
-#          "Are you sure you want to update the table definition file. This action is irreversable!",
-#          Qt::MessageBox::Yes | Qt::MessageBox::No, Qt::MessageBox::Yes)
-#        if result == Qt::MessageBox::Yes
-#          @core.table_update_def(current_table_name)
-#        end # end if result == MBOX_CLICKED_YES
-#      rescue => err
-#        ExceptionDialog.new(self, err, "Table Update Errors", false)
-#      end
-#    end
-
     def current_table_name
       @tabbook.current_name
     end
@@ -725,7 +713,7 @@ module Cosmos
           next if item.hidden
 
           begin
-            value = get_item_value(item, gui_table.item(r,c))
+            value = get_item_value(item, gui_table.item(r, c))
 
             # If there is a read conversion we first read the converted value before writing.
             # This is to prevent writing the displayed value (which has the conversion applied)
@@ -740,7 +728,7 @@ module Cosmos
           # if we have a problem casting the value it probably means the user put in garbage
           # in this case force the range check to fail
           rescue => error
-            text = gui_table.item(r,c).text
+            text = gui_table.item(r, c).text
             result << "Error saving #{item.name} value of '#{text}' due to #{error.message}.\nDefault value is '#{item.default}'\n"
           end
         end # end each table column
@@ -997,7 +985,7 @@ module Cosmos
       items = table.sorted_items
       if table.type == :TWO_DIMENSIONAL
         row_headers = []
-        (0...table.num_rows).each {|i| row_headers << "#{i+1}" }
+        (0...table.num_rows).each {|i| row_headers << "#{i + 1}" }
         gui_table.setVerticalHeaderLabels(row_headers)
 
         column_headers = []
@@ -1125,7 +1113,5 @@ module Cosmos
     rescue
       statusBar.showMessage('')
     end
-
   end
 end # module Cosmos
-

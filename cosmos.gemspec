@@ -83,7 +83,7 @@ spec = Gem::Specification.new do |s|
   s.add_runtime_dependency 'nokogiri', '~> 1.6'
 
   # Development Dependencies
-  s.add_development_dependency 'rspec', '~> 3.2.0'
+  s.add_development_dependency 'rspec', '~> 3.5.0'
   s.add_development_dependency 'flog', '~> 4.0'
   s.add_development_dependency 'flay', '~> 2.0'
   s.add_development_dependency 'reek', '~> 1.0'

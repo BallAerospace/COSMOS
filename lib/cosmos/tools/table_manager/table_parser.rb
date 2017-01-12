@@ -11,7 +11,6 @@
 require 'cosmos/tools/table_manager/table'
 
 module Cosmos
-
   class TableParser < PacketParser
     # @param parser [ConfigParser] Configuration parser
     # @param tables [Hash] Hash of the currently defined tables
@@ -68,7 +67,5 @@ module Cosmos
       warnings << warning if warning
       table
     end
-
   end # class TableParser
 end # module Cosmos
-
