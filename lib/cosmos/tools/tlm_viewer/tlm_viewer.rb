@@ -67,9 +67,9 @@ module Cosmos
           else
             additional_data << target.original_name
           end
-          Dir.new(screen_dir).each do |screen_dir_filename|
-            if screen_dir_filename[0..0] != '.'
-              tlmviewer_files << File.join(screen_dir, screen_dir_filename)
+          Dir.new(screen_dir).each do |filename|
+            if filename[0] != '.'
+              tlmviewer_files << File.join(screen_dir, filename)
             end
           end
         end
