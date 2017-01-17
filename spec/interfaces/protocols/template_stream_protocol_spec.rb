@@ -9,25 +9,12 @@
 # attribution addendums as found in the LICENSE.txt
 
 require 'spec_helper'
-require 'cosmos/streams/template_stream_protocol'
+require 'cosmos/interfaces/protocols/template_stream_protocol'
 require 'cosmos/interfaces/interface'
 require 'cosmos/streams/stream'
 
 module Cosmos
-
   describe TemplateStreamProtocol do
-    describe "initialize" do
-      it "initializes attributes" do
-        tsp = TemplateStreamProtocol.new('0xABCD','0xABCD')
-        expect(tsp.bytes_read).to eql 0
-        expect(tsp.bytes_written).to eql 0
-        expect(tsp.interface).to be_a Interface
-        expect(tsp.stream).to be_nil
-      end
-    end
-
-    $buffer = ''
-    $read_cnt = 0
     class TemplateStream < Stream
       def connect; end
       def connected?; true; end
@@ -41,28 +28,40 @@ module Cosmos
       end
     end
 
-    before(:each) { $buffer = ''; $read_cnt = 0 }
+    before(:each) do
+      @interface = Interface.new
+      @interface.extend(TemplateStreamProtocol)
+      allow(@interface).to receive(:connected?) { true }
+      $buffer = ''
+      $read_cnt = 0
+    end
+
+    describe "initialize" do
+      it "initializes attributes" do
+        @interface.configure_stream_protocol('0xABCD','0xABCD')
+        expect(@interface.instance_variable_get(:@data)).to eq ''
+      end
+    end
 
     describe "connect" do
       it "supports an initial read delay" do
-        stream = TemplateStream.new
-        tsp = TemplateStreamProtocol.new('0xABCD','0xABCD',0,2)
+        @interface.instance_variable_set(:@stream, TemplateStream.new)
+        @interface.configure_stream_protocol('0xABCD', '0xABCD', 0, 2)
         time = Time.now
-        tsp.connect(stream)
+        @interface.connect
         expect(Time.now - time).to be >= 2.0
       end
     end
 
     describe "disconnect" do
       it "unblocks the read queue" do
-        tsp = TemplateStreamProtocol.new('0xABCD','0xABCD')
-        tsp.connect(TemplateStream.new)
-
+        @interface.instance_variable_set(:@stream, TemplateStream.new)
+        @interface.configure_stream_protocol('0xABCD','0xABCD')
         result = nil
-        t = Thread.new { result = tsp.read() }
+        t = Thread.new { result = @interface.read() }
         sleep 0.1
         expect(t.status).to eq("sleep")
-        tsp.disconnect
+        @interface.disconnect
         sleep 0.1
         expect(t.status).to be false
       end
@@ -70,8 +69,8 @@ module Cosmos
 
     describe "write" do
       it "works without a response" do
-        interface = StreamInterface.new("Template",'0xABCD','0xABCD')
-        interface.instance_variable_get(:@stream_protocol).connect(TemplateStream.new)
+        @interface.instance_variable_set(:@stream, TemplateStream.new)
+        @interface.configure_stream_protocol('0xABCD','0xABCD')
         packet = Packet.new('TGT', 'CMD')
         packet.append_item("VOLTAGE", 16, :UINT)
         packet.get_item("VOLTAGE").default = 1
@@ -80,7 +79,7 @@ module Cosmos
         packet.append_item("CMD_TEMPLATE", 1024, :STRING)
         packet.get_item("CMD_TEMPLATE").default = "SOUR:VOLT <VOLTAGE>, (@<CHANNEL>)"
         packet.restore_defaults
-        interface.write(packet)
+        @interface.write(packet)
         expect($buffer).to eql("SOUR:VOLT 1, (@2)\xAB\xCD")
       end
 
@@ -88,9 +87,9 @@ module Cosmos
         rsp_pkt = Packet.new('TGT', 'READ_VOLTAGE')
         rsp_pkt.append_item("VOLTAGE", 16, :UINT)
         allow(System).to receive_message_chain(:telemetry, :packet).and_return(rsp_pkt)
-        interface = StreamInterface.new("Template",'0xABCD','0xABCD',1)
-        interface.instance_variable_get(:@stream_protocol).connect(TemplateStream.new)
-        interface.target_names = ['TGT']
+        @interface.instance_variable_set(:@stream, TemplateStream.new)
+        @interface.configure_stream_protocol('0xABCD','0xABCD', 1)
+        @interface.target_names = ['TGT']
         packet = Packet.new('TGT', 'CMD')
         packet.append_item("VOLTAGE", 16, :UINT)
         packet.get_item("VOLTAGE").default = 10
@@ -103,13 +102,12 @@ module Cosmos
         packet.append_item("RSP_PACKET", 1024, :STRING)
         packet.get_item("RSP_PACKET").default = "READ_VOLTAGE"
         packet.restore_defaults
-        interface.write(packet)
+        @interface.write(packet)
         expect($buffer).to eql("SOUR:VOLT 10, (@20)\xAB\xCD")
-        pkt = interface.read()
+        pkt = @interface.read()
         expect(pkt.read("VOLTAGE")).to eq 10
       end
     end
-
   end
 end
 

@@ -9,15 +9,23 @@
 # attribution addendums as found in the LICENSE.txt
 
 require 'spec_helper'
-require 'cosmos/streams/preidentified_stream_protocol'
+require 'cosmos/interfaces/protocols/preidentified_stream_protocol'
 require 'cosmos/interfaces/interface'
 require 'cosmos/streams/stream'
 
 module Cosmos
-
-  class MyInterface < Interface; end
-
   describe PreidentifiedStreamProtocol do
+    before(:each) do
+      $buffer = ''
+      @interface = Interface.new
+      @interface.extend(PreidentifiedStreamProtocol)
+      allow(@interface).to receive(:connected?) { true }
+    end
+
+    after(:all) do
+      clean_config()
+    end
+
     class PreStream < Stream
       def connect; end
       def connected?; true; end
@@ -26,39 +34,33 @@ module Cosmos
       def write(data); $buffer = data; end
     end
 
-    before(:each) { $buffer = '' }
-    after(:all) do
-      clean_config()
-    end
-
     it "handles receiving a bad packet length" do
-      interface = StreamInterface.new("Preidentified", nil, 5)
-      interface.instance_variable_get(:@stream_protocol).connect(PreStream.new)
+      @interface.instance_variable_set(:@stream, PreStream.new)
+      @interface.configure_stream_protocol(nil, 5)
       pkt = System.telemetry.packet("COSMOS","VERSION")
       time = Time.new(2020,1,31,12,15,30.5)
       pkt.received_time = time
-      interface.write(pkt)
-      expect { packet = interface.read }.to raise_error(RuntimeError)
+      @interface.write(pkt)
+      expect { packet = @interface.read }.to raise_error(RuntimeError)
     end
 
     describe "initialize" do
       it "initializes attributes" do
-        psp = PreidentifiedStreamProtocol.new
-        expect(psp.bytes_read).to eql 0
-        expect(psp.bytes_written).to eql 0
-        expect(psp.interface).to be_a Interface
-        expect(psp.stream).to be_nil
+        @interface.configure_stream_protocol('0xDEADBEEF', 100)
+        expect(@interface.instance_variable_get(:@data)).to eq ''
+        expect(@interface.instance_variable_get(:@sync_pattern)).to eq "\xDE\xAD\xBE\xEF"
+        expect(@interface.instance_variable_get(:@max_length)).to eq 100
       end
     end
 
     describe "write" do
       it "creates a packet header" do
-        interface = StreamInterface.new("Preidentified")
-        interface.instance_variable_get(:@stream_protocol).connect(PreStream.new)
+        @interface.instance_variable_set(:@stream, PreStream.new)
+        @interface.configure_stream_protocol(nil, 5)
         pkt = System.telemetry.packet("COSMOS","VERSION")
         time = Time.new(2020,1,31,12,15,30.5)
         pkt.received_time = time
-        interface.write(pkt)
+        @interface.write(pkt)
         expect($buffer[0..3].unpack('N')[0]).to eql time.to_f.to_i
         expect($buffer[4..7].unpack('N')[0]).to eql 500000
         offset = 8
@@ -76,12 +78,12 @@ module Cosmos
       end
 
       it "handles a sync pattern" do
-        interface = StreamInterface.new("Preidentified", "DEAD")
-        interface.instance_variable_get(:@stream_protocol).connect(PreStream.new)
+        @interface.instance_variable_set(:@stream, PreStream.new)
+        @interface.configure_stream_protocol("DEAD")
         pkt = System.telemetry.packet("COSMOS","VERSION")
         time = Time.new(2020,1,31,12,15,30.5)
         pkt.received_time = time
-        interface.write(pkt)
+        @interface.write(pkt)
         expect($buffer[0..1]).to eql("\xDE\xAD")
         expect($buffer[2..5].unpack('N')[0]).to eql time.to_f.to_i
         expect($buffer[6..9].unpack('N')[0]).to eql 500000
@@ -102,15 +104,15 @@ module Cosmos
 
     describe "read" do
       it "returns a packet" do
-        interface = StreamInterface.new("Preidentified")
-        interface.instance_variable_get(:@stream_protocol).connect(PreStream.new)
+        @interface.instance_variable_set(:@stream, PreStream.new)
+        @interface.configure_stream_protocol()
         pkt = System.telemetry.packet("COSMOS","VERSION")
         pkt.write("PKT_ID", 1)
         pkt.write("COSMOS", "TEST")
         time = Time.new(2020,1,31,12,15,30.5)
         pkt.received_time = time
-        interface.write(pkt)
-        packet = interface.read
+        @interface.write(pkt)
+        packet = @interface.read
         expect(packet.target_name).to eql 'COSMOS'
         expect(packet.packet_name).to eql 'VERSION'
         expect(packet.identified?).to be true

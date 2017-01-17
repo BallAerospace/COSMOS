@@ -14,38 +14,36 @@ require 'cosmos/interfaces/interface'
 require 'cosmos/streams/stream'
 
 module Cosmos
-  module Protocols
-
   describe StreamProtocol do
     before(:each) do
-      @sp = Interface.new
-      @sp.extend(StreamProtocol)
-      allow(@sp).to receive(:connected?) { true }
+      @interface = Interface.new
+      @interface.extend(StreamProtocol)
+      allow(@interface).to receive(:connected?) { true }
     end
 
     describe "configure_stream_protocol" do
       it "initializes attributes" do
-        @sp.configure_stream_protocol(1, '0xDEADBEEF', true)
-        expect(@sp.instance_variable_get(:@data)).to eq ''
-        expect(@sp.instance_variable_get(:@discard_leading_bytes)).to eq 1
-        expect(@sp.instance_variable_get(:@sync_pattern)).to eq "\xDE\xAD\xBE\xEF"
-        expect(@sp.instance_variable_get(:@fill_fields)).to be true
+        @interface.configure_stream_protocol(1, '0xDEADBEEF', true)
+        expect(@interface.instance_variable_get(:@data)).to eq ''
+        expect(@interface.instance_variable_get(:@discard_leading_bytes)).to eq 1
+        expect(@interface.instance_variable_get(:@sync_pattern)).to eq "\xDE\xAD\xBE\xEF"
+        expect(@interface.instance_variable_get(:@fill_fields)).to be true
       end
     end
 
     describe "connect" do
       it "clears the data" do
-        @sp.instance_variable_set(:@data, '\x00\x01\x02\x03')
-        @sp.connect
-        expect(@sp.instance_variable_get(:@data)).to eql ''
+        @interface.instance_variable_set(:@data, '\x00\x01\x02\x03')
+        @interface.connect
+        expect(@interface.instance_variable_get(:@data)).to eql ''
       end
     end
 
     describe "disconnect" do
       it "clears the data" do
-        @sp.instance_variable_set(:@data, '\x00\x01\x02\x03')
-        @sp.connect
-        expect(@sp.instance_variable_get(:@data)).to eql ''
+        @interface.instance_variable_set(:@data, '\x00\x01\x02\x03')
+        @interface.connect
+        expect(@interface.instance_variable_get(:@data)).to eql ''
       end
     end
 
@@ -56,9 +54,9 @@ module Cosmos
           def connected?; true; end
           def read; "\x01\x02\x03\x04"; end
         end
-        @sp.instance_variable_set(:@stream, MyStream.new)
-        @sp.configure_stream_protocol
-        data = @sp.read_data
+        @interface.instance_variable_set(:@stream, MyStream.new)
+        @interface.configure_stream_protocol
+        data = @interface.read_data
         expect(data.length).to eql 4
       end
 
@@ -68,9 +66,9 @@ module Cosmos
           def connected?; true; end
           def read; raise Timeout::Error; end
         end
-        @sp.instance_variable_set(:@stream, MyStream.new)
-        @sp.configure_stream_protocol
-        expect(@sp.read_data).to be_nil
+        @interface.instance_variable_set(:@stream, MyStream.new)
+        @interface.configure_stream_protocol
+        expect(@interface.read_data).to be_nil
       end
 
       it "discards leading bytes from the stream" do
@@ -81,9 +79,9 @@ module Cosmos
             "\x01\x02\x03\x04"
           end
         end
-        @sp.instance_variable_set(:@stream, MyStream.new)
-        @sp.configure_stream_protocol(2)
-        data = @sp.read_data
+        @interface.instance_variable_set(:@stream, MyStream.new)
+        @interface.configure_stream_protocol(2)
+        data = @interface.read_data
         expect(data.length).to eql 2
         expect(data.formatted).to match(/03 04/)
       end
@@ -97,9 +95,9 @@ module Cosmos
             "\x12\x34\x56\x78\x9A\xBC"
           end
         end
-        @sp.instance_variable_set(:@stream, MyStream.new)
-        @sp.configure_stream_protocol(2, '0x1234')
-        data = @sp.read_data
+        @interface.instance_variable_set(:@stream, MyStream.new)
+        @interface.configure_stream_protocol(2, '0x1234')
+        data = @interface.read_data
         expect(data.length).to eql 4
         expect(data.formatted).to match(/56 78 9A BC/)
       end
@@ -113,9 +111,9 @@ module Cosmos
             "\x12\x34\x56\x78\x9A\xBC"
           end
         end
-        @sp.instance_variable_set(:@stream, MyStream.new)
-        @sp.configure_stream_protocol(1, '0x123456')
-        data = @sp.read_data
+        @interface.instance_variable_set(:@stream, MyStream.new)
+        @interface.configure_stream_protocol(1, '0x123456')
+        data = @interface.read_data
         expect(data.length).to eql 5
         expect(data.formatted).to match(/34 56 78 9A BC/)
       end
@@ -138,9 +136,9 @@ module Cosmos
             end
           end
         end
-        @sp.instance_variable_set(:@stream, MyStream.new)
-        @sp.configure_stream_protocol(0, '0x1234')
-        data = @sp.read_data
+        @interface.instance_variable_set(:@stream, MyStream.new)
+        @interface.configure_stream_protocol(0, '0x1234')
+        data = @interface.read_data
         expect(data.length).to eql 4 # sync plus two bytes
         expect(data.formatted).to match(/12 34 10 20/)
       end
@@ -162,9 +160,9 @@ module Cosmos
             end
           end
         end
-        @sp.instance_variable_set(:@stream, MyStream.new)
-        @sp.configure_stream_protocol(0, '0x1234')
-        data = @sp.read_data
+        @interface.instance_variable_set(:@stream, MyStream.new)
+        @interface.configure_stream_protocol(0, '0x1234')
+        data = @interface.read_data
         expect(data.length).to eql 3 # sync plus one byte
       end
 
@@ -185,9 +183,9 @@ module Cosmos
             end
           end
         end
-        @sp.instance_variable_set(:@stream, MyStream.new)
-        @sp.configure_stream_protocol(0, '0x1234')
-        data = @sp.read_data
+        @interface.instance_variable_set(:@stream, MyStream.new)
+        @interface.configure_stream_protocol(0, '0x1234')
+        data = @interface.read_data
         expect(data.length).to eql 3 # sync plus one byte
       end
     end
@@ -201,9 +199,9 @@ module Cosmos
           def write(buffer) $buffer = buffer; end
         end
         data = Packet.new(nil, nil, :BIG_ENDIAN, nil, "\x00\x01\x02\x03")
-        @sp.instance_variable_set(:@stream, MyStream.new)
-        @sp.configure_stream_protocol(0, '0x1234')
-        data = @sp.write(data)
+        @interface.instance_variable_set(:@stream, MyStream.new)
+        @interface.configure_stream_protocol(0, '0x1234')
+        data = @interface.write(data)
         expect($buffer).to eql "\x00\x01\x02\x03"
       end
 
@@ -216,10 +214,10 @@ module Cosmos
         end
         data = Packet.new(nil, nil, :BIG_ENDIAN, nil, "\x00\x00")
         # Don't discard bytes, include and fill the sync pattern
-        @sp.instance_variable_set(:@stream, MyStream.new)
-        @sp.configure_stream_protocol(0, '0x12345678', true)
+        @interface.instance_variable_set(:@stream, MyStream.new)
+        @interface.configure_stream_protocol(0, '0x12345678', true)
         # 2 bytes are not enough to hold the 4 byte sync
-        expect { @sp.write(data) }.to raise_error(ArgumentError, /buffer insufficient/)
+        expect { @interface.write(data) }.to raise_error(ArgumentError, /buffer insufficient/)
       end
 
       it "fills the sync pattern in the data" do
@@ -231,9 +229,9 @@ module Cosmos
         end
         data = Packet.new(nil, nil, :BIG_ENDIAN, nil, "\x00\x01\x02\x03")
         # Don't discard bytes, include and fill the sync pattern
-        @sp.instance_variable_set(:@stream, MyStream.new)
-        @sp.configure_stream_protocol(0, '0x1234', true)
-        data = @sp.write(data)
+        @interface.instance_variable_set(:@stream, MyStream.new)
+        @interface.configure_stream_protocol(0, '0x1234', true)
+        data = @interface.write(data)
         expect($buffer).to eql "\x12\x34\x02\x03"
       end
 
@@ -246,9 +244,9 @@ module Cosmos
         end
         data = Packet.new(nil, nil, :BIG_ENDIAN, nil, "\x00\x01\x02\x03")
         # Discard first 2 bytes (the sync pattern), include and fill the sync pattern
-        @sp.instance_variable_set(:@stream, MyStream.new)
-        @sp.configure_stream_protocol(2, '0x1234', true)
-        data = @sp.write(data)
+        @interface.instance_variable_set(:@stream, MyStream.new)
+        @interface.configure_stream_protocol(2, '0x1234', true)
+        data = @interface.write(data)
         expect($buffer).to eql "\x12\x34\x00\x01\x02\x03"
       end
 
@@ -261,9 +259,9 @@ module Cosmos
         end
         data = Packet.new(nil, nil, :BIG_ENDIAN, nil, "\x00\x00\x02\x03")
         # Discard first byte (part of the sync pattern), include and fill the sync pattern
-        @sp.instance_variable_set(:@stream, MyStream.new)
-        @sp.configure_stream_protocol(1, '0x123456', true)
-        data = @sp.write(data)
+        @interface.instance_variable_set(:@stream, MyStream.new)
+        @interface.configure_stream_protocol(1, '0x123456', true)
+        data = @interface.write(data)
         expect($buffer).to eql "\x12\x34\x56\x02\x03"
       end
     end
@@ -276,9 +274,9 @@ module Cosmos
           def connected?; true; end
           def write(buffer) $buffer = buffer; end
         end
-        @sp.instance_variable_set(:@stream, MyStream.new)
-        @sp.configure_stream_protocol(0, '0x1234')
-        @sp.write_raw("\x00\x01\x02\x03")
+        @interface.instance_variable_set(:@stream, MyStream.new)
+        @interface.configure_stream_protocol(0, '0x1234')
+        @interface.write_raw("\x00\x01\x02\x03")
         expect($buffer).to eql "\x00\x01\x02\x03"
       end
 
@@ -292,9 +290,9 @@ module Cosmos
           def write(buffer) $buffer = buffer; end
         end
         # Don't discard bytes, include and fill the sync pattern
-        @sp.instance_variable_set(:@stream, MyStream.new)
-        @sp.configure_stream_protocol(0, '0x1234', true)
-        @sp.write_raw("\x00\x01\x02\x03")
+        @interface.instance_variable_set(:@stream, MyStream.new)
+        @interface.configure_stream_protocol(0, '0x1234', true)
+        @interface.write_raw("\x00\x01\x02\x03")
         expect($buffer).to eql "\x00\x01\x02\x03"
       end
 
@@ -306,12 +304,11 @@ module Cosmos
           def write(buffer) $buffer = buffer; end
         end
         # Discard first 2 bytes (the sync pattern), include and fill the sync pattern
-        @sp.instance_variable_set(:@stream, MyStream.new)
-        @sp.configure_stream_protocol(2, '0x1234', true)
-        @sp.write_raw("\x00\x01\x02\x03")
+        @interface.instance_variable_set(:@stream, MyStream.new)
+        @interface.configure_stream_protocol(2, '0x1234', true)
+        @interface.write_raw("\x00\x01\x02\x03")
         expect($buffer).to eql "\x12\x34\x00\x01\x02\x03"
       end
     end
-
   end
 end

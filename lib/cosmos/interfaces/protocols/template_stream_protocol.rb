@@ -9,14 +9,31 @@
 # attribution addendums as found in the LICENSE.txt
 
 require 'cosmos/config/config_parser'
-require 'cosmos/streams/stream_protocol'
-require 'cosmos/streams/terminated_stream_protocol'
+require 'cosmos/interfaces/protocols/stream_protocol'
+require 'cosmos/interfaces/protocols/terminated_stream_protocol'
 require 'thread' # For Queue
 
 module Cosmos
+  # Protocol which delineates packets using delimiter characters. Designed for
+  # text based protocols which expect a command and send a response. The
+  # protocol handles sending the command and capturing the response.
+  module TemplateStreamProtocol
+    include TerminatedStreamProtocol
 
-  class TemplateStreamProtocol < TerminatedStreamProtocol
-    def initialize(write_termination_characters,
+    # @param write_termination_characters (see TerminatedStreamProtocol#initialize)
+    # @param read_termination_characters (see TerminatedStreamProtocol#initialize)
+    # @param ignore_lines [Integer] Number of newline terminated reads to
+    #   ignore when processing the response
+    # @param initial_read_delay [Integer] Initial delay when connecting before
+    #   trying to read the stream
+    # @param response_lines [Integer] Number of newline terminated lines which
+    #   comprise the response
+    # @param strip_read_termination (see TerminatedStreamProtocol#initialize)
+    # @param discard_leading_bytes (see TerminatedStreamProtocol#initialize)
+    # @param sync_pattern (see TerminatedStreamProtocol#initialize)
+    # @param fill_fields (see TerminatedStreamProtocol#initialize)
+    def configure_stream_protocol(
+      write_termination_characters,
       read_termination_characters,
       ignore_lines = 0,
       initial_read_delay = nil,
@@ -40,14 +57,14 @@ module Cosmos
       @initial_read_delay = @initial_read_delay.to_f if @initial_read_delay
     end
 
-    def connect(stream)
+    def connect
       # Empty the read queue
       begin
         @read_queue.pop(true) while @read_queue.length > 0
       rescue
       end
 
-      super(stream)
+      super
 
       if @initial_read_delay
         sleep(@initial_read_delay)
@@ -111,7 +128,7 @@ module Cosmos
         end
 
         # Grab the response packet specified in the command
-        result_packet = System.telemetry.packet(@interface.target_names[0], @response_packet).clone
+        result_packet = System.telemetry.packet(@target_names[0], @response_packet).clone
         result_packet.received_time = nil
 
         # Convert the response template into a Regexp
@@ -135,7 +152,5 @@ module Cosmos
         @read_queue << result_packet
       end
     end
-
-  end # class TemplateStreamProtocol
-
-end # module Cosmos
+  end
+end

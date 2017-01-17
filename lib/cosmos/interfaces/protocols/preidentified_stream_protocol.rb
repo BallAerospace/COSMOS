@@ -11,11 +11,9 @@
 require 'cosmos/interfaces/protocols/stream_protocol'
 
 module Cosmos
-
-  # This StreamProtocol delineates packets using the COSMOS
-  # preidentification system
+  # This StreamProtocol delineates packets using the COSMOS preidentification system
   module PreidentifiedStreamProtocol
-    extend StreamProtocol
+    include StreamProtocol
 
     # @param sync_pattern (see StreamProtocol#initialize)
     # @param max_length [Integer] The maximum allowed value of the length field

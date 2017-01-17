@@ -9,13 +9,13 @@
 # attribution addendums as found in the LICENSE.txt
 
 require 'cosmos/config/config_parser'
-require 'cosmos/streams/stream_protocol'
+require 'cosmos/interfaces/protocols/stream_protocol'
 
 module Cosmos
-
-  # This StreamProtocol delineates packets using termination characters at
+  # Protocol which delineates packets using termination characters at
   # the end of the stream.
-  class TerminatedStreamProtocol < StreamProtocol
+  module TerminatedStreamProtocol
+    include StreamProtocol
 
     # @param write_termination_characters [String] The characters to write to
     #   the stream after writing the Packet buffer. Must be given as a
@@ -29,12 +29,14 @@ module Cosmos
     # @param discard_leading_bytes (see StreamProtocol#initialize)
     # @param sync_pattern (see StreamProtocol#initialize)
     # @param fill_fields (see StreamProtocol#initialize)
-    def initialize(write_termination_characters,
-                   read_termination_characters,
-                   strip_read_termination = true,
-                   discard_leading_bytes = 0,
-                   sync_pattern = nil,
-                   fill_fields = false)
+    def configure_stream_protocol(
+      write_termination_characters,
+      read_termination_characters,
+      strip_read_termination = true,
+      discard_leading_bytes = 0,
+      sync_pattern = nil,
+      fill_fields = false
+    )
       @write_termination_characters = write_termination_characters.hex_to_byte_string
       @read_termination_characters = read_termination_characters.hex_to_byte_string
       @strip_read_termination = ConfigParser.handle_true_false(strip_read_termination)
@@ -77,7 +79,5 @@ module Cosmos
         end
       end
     end
-
-  end # class TerminatedStreamProtocol
-
-end # module Cosmos
+  end
+end

@@ -9,14 +9,15 @@
 # attribution addendums as found in the LICENSE.txt
 
 require 'cosmos/config/config_parser'
-require 'cosmos/streams/stream_protocol'
+require 'cosmos/interfaces/protocols/stream_protocol'
 
 module Cosmos
 
   # This StreamProtocol delineates packets by identifying them and then
   # reading out their entire fixed length. Packets lengths can vary but
   # they must all be fixed.
-  class FixedStreamProtocol < StreamProtocol
+  module FixedStreamProtocol
+    include StreamProtocol
 
     # @param min_id_size [Integer] The minimum amount of data needed to
     #   identify a packet.
@@ -25,11 +26,11 @@ module Cosmos
     # @param telemetry_stream [Boolean] Whether the stream is returning
     #   telemetry (true) or commands (false)
     # @param fill_fields (see StreamProtocol#initialize)
-    def initialize(min_id_size,
-                   discard_leading_bytes = 0,
-                   sync_pattern = nil,
-                   telemetry_stream = true,
-                   fill_fields = false)
+    def configure_stream_protocol(min_id_size,
+                                  discard_leading_bytes = 0,
+                                  sync_pattern = nil,
+                                  telemetry_stream = true,
+                                  fill_fields = false)
       super(discard_leading_bytes, sync_pattern, fill_fields)
       @min_id_size = Integer(min_id_size)
       @telemetry_stream = telemetry_stream
@@ -57,8 +58,7 @@ module Cosmos
     def identify_and_finish_packet
       packet_data = nil
 
-      raise "Interface required for FixedStreamProtocol" unless @interface
-      @interface.target_names.each do |target_name|
+      @target_names.each do |target_name|
         target_packets = nil
         begin
           if @telemetry_stream
@@ -92,20 +92,15 @@ module Cosmos
             break
           end
         end
-
         break if identified_packet
       end
-
       packet_data
     end
 
     def reduce_to_single_packet
       read_minimum_size(@min_id_size)
       return nil if @data.length <= 0
-
       identify_and_finish_packet()
     end
-
-  end # class FixedStreamProtocol
-
-end # module Cosmos
+  end
+end

@@ -137,7 +137,7 @@ module Cosmos
     #   unidentified (nil target and packet names)
     def read
       raise "Interface not connected for read: #{@name}" unless connected?
-      data = read_data
+      data = read_data()
       @raw_logger_pair.read_logger.write(data)
       return nil unless data
       @bytes_read += data.length
@@ -155,7 +155,9 @@ module Cosmos
       raise "Interface not connected for write: #{@name}" unless connected?
       _write do
         packet = write_packet(pre_write_packet(packet))
+        next unless packet
         data = write_data(pre_write_data(packet.buffer(false)))
+        next unless data
         post_write_data(packet, data)
         data
       end
@@ -166,7 +168,11 @@ module Cosmos
     # @param data [String] The raw data to send out the interface
     def write_raw(data)
       raise "Interface not connected for write_raw : #{@name}" unless connected?
-      _write { write_data(pre_write_data(data)) }
+      _write do
+        data = pre_write_data(data)
+        next unless data
+        write_data(data)
+      end
     end
 
     protected

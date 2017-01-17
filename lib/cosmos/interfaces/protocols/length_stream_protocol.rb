@@ -9,14 +9,14 @@
 # attribution addendums as found in the LICENSE.txt
 
 require 'cosmos/packets/binary_accessor'
-require 'cosmos/streams/stream_protocol'
+require 'cosmos/interfaces/protocols/stream_protocol'
 require 'cosmos/config/config_parser'
 
 module Cosmos
-
-  # This StreamProtocol delineates packets using a length field at a fixed
+  # Protocol which delineates packets using a length field at a fixed
   # location in each packet.
-  class LengthStreamProtocol < StreamProtocol
+  module LengthStreamProtocol
+    include StreamProtocol
 
     # @param length_bit_offset [Integer] The bit offset of the length field
     # @param length_bit_size [Integer] The size in bits of the length field
@@ -35,7 +35,7 @@ module Cosmos
     # @param max_length [Integer] The maximum allowed value of the length field
     # @param fill_length_and_sync_pattern [Boolean] Fill the length field and sync
     #    pattern when writing packets
-    def initialize(
+    def configure_stream_protocol(
       length_bit_offset = 0,
       length_bit_size = 16,
       length_value_offset = 0,
@@ -157,7 +157,5 @@ module Cosmos
 
       packet_data
     end
-
-  end # class LengthStreamProtocol
-
-end # module Cosmos
+  end
+end

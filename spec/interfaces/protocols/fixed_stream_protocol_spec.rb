@@ -9,28 +9,35 @@
 # attribution addendums as found in the LICENSE.txt
 
 require 'spec_helper'
-require 'cosmos/streams/fixed_stream_protocol'
+require 'cosmos/interfaces/protocols/fixed_stream_protocol'
 require 'cosmos/interfaces/interface'
 require 'cosmos/streams/stream'
 
 module Cosmos
-
   describe FixedStreamProtocol do
+    before(:each) do
+      @interface = Interface.new
+      @interface.extend(FixedStreamProtocol)
+      allow(@interface).to receive(:connected?) { true }
+    end
+
     after(:each) do
       clean_config()
     end
 
     describe "initialize" do
       it "initializes attributes" do
-        fsp = FixedStreamProtocol.new(1)
-        expect(fsp.bytes_read).to eql 0
-        expect(fsp.bytes_written).to eql 0
-        expect(fsp.interface).to be_a Interface
-        expect(fsp.stream).to be_nil
+        @interface.configure_stream_protocol(2, 1, '0xDEADBEEF', false, true)
+        expect(@interface.instance_variable_get(:@data)).to eq ''
+        expect(@interface.instance_variable_get(:@min_id_size)).to eq 2
+        expect(@interface.instance_variable_get(:@discard_leading_bytes)).to eq 1
+        expect(@interface.instance_variable_get(:@sync_pattern)).to eq "\xDE\xAD\xBE\xEF"
+        expect(@interface.instance_variable_get(:@telemetry_stream)).to be false
+        expect(@interface.instance_variable_get(:@fill_fields)).to be true
       end
     end
 
-    describe "read" do
+    describe "read_data" do
       class FixedStream < Stream
         def connect; end
         def connected?; true; end
@@ -38,24 +45,22 @@ module Cosmos
       end
 
       it "reads telemetry data from the stream" do
-        stream = FixedStream.new
-        interface = StreamInterface.new("Fixed", 1)
-        interface.target_names = %w(TEST COSMOS)
-        fsp = interface.instance_variable_get(:@stream_protocol)
-        fsp.connect(stream)
-        packet = interface.read
+        @interface.instance_variable_set(:@stream, FixedStream.new)
+        @interface.configure_stream_protocol(1)
+        @interface.target_names = %w(TEST COSMOS)
+        packet = @interface.read
         expect(packet.received_time.to_f).to be_within(0.1).of(Time.now.to_f)
         expect(packet.target_name).to eql 'COSMOS'
         expect(packet.packet_name).to eql 'VERSION'
-        packet = interface.read
+        packet = @interface.read
         expect(packet.received_time.to_f).to be_within(0.1).of(Time.now.to_f)
         expect(packet.target_name).to eql 'COSMOS'
         expect(packet.packet_name).to eql 'LIMITS_CHANGE'
-        packet = interface.read
+        packet = @interface.read
         expect(packet.received_time.to_f).to be_within(0.1).of(Time.now.to_f)
         expect(packet.target_name).to eql 'COSMOS'
         expect(packet.packet_name).to eql 'VERSION'
-        packet = interface.read
+        packet = @interface.read
         expect(packet.received_time.to_f).to be_within(0.1).of(Time.now.to_f)
         expect(packet.target_name).to eql 'COSMOS'
         expect(packet.packet_name).to eql 'LIMITS_CHANGE'
@@ -74,18 +79,14 @@ module Cosmos
             end
           end
         end
-        stream = FixedStream.new
-        interface = StreamInterface.new("Fixed", 8, 0, '0x1ACFFC1D', false)
-        interface.target_names = %w(TEST COSMOS)
-        fsp = interface.instance_variable_get(:@stream_protocol)
-        fsp.connect(stream)
-        packet = interface.read
+        @interface.instance_variable_set(:@stream, FixedStream.new)
+        @interface.configure_stream_protocol(8, 0, '0x1ACFFC1D', false)
+        @interface.target_names = %w(TEST COSMOS)
+        packet = @interface.read
         expect(packet.received_time.to_f).to be_within(0.01).of(Time.now.to_f)
         expect(packet.target_name).to eql 'COSMOS'
         expect(packet.packet_name).to eql 'STARTLOGGING'
       end
     end
-
   end
 end
-
