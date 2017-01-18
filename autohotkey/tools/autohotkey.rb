@@ -13,9 +13,10 @@
 ENV['COSMOS_USERPATH'] = File.join(File.expand_path(File.dirname(__FILE__)), '..')
 
 def autohotkey(command_name, ahk_script = nil)
-  Dir.chdir(File.join(File.expand_path(File.dirname(__FILE__)), '..', '..'))
+  Dir.chdir(File.join(File.dirname(__FILE__), '..', '..'))
   require "./spec/spec_helper.rb"
 
+  ENV['COSMOS_USERPATH'] = File.join(File.dirname(File.expand_path(__FILE__)), '..')
   SimpleCov.command_name command_name
 
   if ahk_script

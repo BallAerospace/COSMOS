@@ -36,6 +36,7 @@ unless ENV['COSMOS_NO_SIMPLECOV']
     end
     add_group 'GUI', 'gui'
     add_group 'Tools', 'tools'
+    root = File.dirname(__FILE__)
   end
   SimpleCov.at_exit do
     Encoding.default_external = Encoding::UTF_8

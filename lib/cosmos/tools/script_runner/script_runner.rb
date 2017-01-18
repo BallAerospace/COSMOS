@@ -253,23 +253,7 @@ module Cosmos
 
       @file_open = @file_menu.addMenu(tr('&Open'))
       @file_open.setIcon(Cosmos.get_icon('open.png'))
-      System.paths['PROCEDURES'].each do |path|
-        next unless File.exist? path
-        path_context = path.split('/')[-2..-1].join('/')
-        action = Qt::Action.new(tr(path_context), self)
-        action.statusTip = "Open #{path}"
-        action.connect(SIGNAL('triggered()')) { file_open(path) }
-        @file_open.addAction(action)
-      end
-      @file_open.addSeparator()
-      System.targets.each do |target_name, target|
-        proc_dir = File.join(target.dir, 'procedures')
-        next unless File.exist? proc_dir
-        action = Qt::Action.new(tr("#{target_name}/procedures"), self)
-        action.statusTip = "Open #{proc_dir}"
-        action.connect(SIGNAL('triggered()')) { file_open(File.join(target.dir, 'procedures')) }
-        @file_open.addAction(action)
-      end
+      target_dirs_action(@file_open, System.paths['PROCEDURES'], 'procedures', method(:file_open))
 
       @file_menu.addAction(@file_close)
       @file_menu.addAction(@file_reload)
@@ -619,7 +603,7 @@ module Cosmos
       @debug = !@debug
       if @tab_book.count > 0
         (0..(@tab_book.count - 1)).each do |index|
-          @tab_book.tab(index).toggle_debug(@debug)
+          @tab_book.widget(index).toggle_debug(@debug)
         end
       end
     end

@@ -11,64 +11,48 @@
 require 'cosmos'
 
 module Cosmos
-
-  # Maintains knowledge of an item in a Table
+  # Implements the attributes that are unique to a TableItem such as editable
+  # and hidden. All other functionality is inherited from {PacketItem}.
   class TableItem < PacketItem
-    attr_reader :display_type
-    attr_accessor :editable
-    attr_reader :constraint
+    # @return [Boolean] Whether this item is editable
+    attr_reader :editable
+    # @return [Boolean] Whether this item is hidden (not displayed)
+    attr_reader :hidden
 
     # (see PacketItem#initialize)
-    # It also initializes the attributes of the TableItem.
     def initialize(name, bit_offset, bit_size, data_type, endianness, array_size = nil, overflow = :ERROR)
       super(name, bit_offset, bit_size, data_type, endianness, array_size, overflow)
       @display_type = nil
       @editable = true
-      @constraint = nil
+      @hidden = false
     end
 
-    def display_type=(display_type)
-      if display_type
-        raise ArgumentError, "#{@name}: display_type must be a Symbol but is a #{display_type.class}" unless Symbol === display_type
-        @display_type = display_type
-      else
-        @display_type = nil
-      end
+    # @param editable [Boolean] Whether this item can be edited
+    def editable=(editable)
+      raise ArgumentError, "#{@name}: editable must be a boolean but is a #{editable.class}" unless !!editable == editable
+      @editable = editable
     end
 
-    def constraint=(constraint)
-      if constraint
-        raise ArgumentError, "#{@name}: constraint must be a Conversion but is a #{constraint.class}" unless Cosmos::Conversion === constraint
-        @constraint = constraint.clone
-      else
-        @constraint = nil
-      end
+    # @param hidden [Boolean] Whether this item should be hidden
+    def hidden=(hidden)
+      raise ArgumentError, "#{@name}: hidden must be a boolean but is a #{hidden.class}" unless !!hidden == hidden
+      @hidden = hidden
     end
 
     # Make a light weight clone of this item
     def clone
       item = super()
-      item.constraint = self.constraint.clone if self.constraint
+      item.editable = self.editable
       item
     end
     alias dup clone
 
+    # Create a hash of this item's attributes
     def to_hash
       hash = super()
-      if self.display_type
-        hash['display_type'] = self.display_type.to_s
-      else
-        hash['display_type'] = nil
-      end
       hash['editable'] = self.editable
-      if self.constraint
-        hash['constraint'] = self.constraint.to_s
-      else
-        hash['constraint'] = nil
-      end
+      hash['hidden'] = self.hidden
       hash
     end
-
-  end # class TableItem
-
-end # module Cosmos
+  end
+end
