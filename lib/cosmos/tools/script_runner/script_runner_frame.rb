@@ -708,7 +708,7 @@ module Cosmos
     end
 
     def run_selection_while_paused
-      current_script = @tab_book.tab(@tab_book.currentIndex)
+      current_script = @tab_book.widget(@tab_book.currentIndex)
       selection = current_script.selected_lines
       if selection
         start_line_number = current_script.selection_start_line
@@ -845,7 +845,7 @@ module Cosmos
         if @tab_book_shown
           if @tab_book.count > 0
             (0..(@tab_book.count - 1)).each do |index|
-              @tab_book.tab(index).enable_breakpoints = true
+              @tab_book.widget(index).enable_breakpoints = true
             end
           end
         end
@@ -948,7 +948,7 @@ module Cosmos
       if @tab_book_shown
         if @tab_book.count > 0
           (0..(@tab_book.count - 1)).each do |index|
-            @tab_book.tab(index).enable_breakpoints = false
+            @tab_book.widget(index).enable_breakpoints = false
           end
         end
       end
@@ -984,13 +984,13 @@ module Cosmos
       Qt.execute_in_main_thread(true) do
         if @tab_book_shown
           @tab_book.setCurrentIndex(index)
-          @active_script = @tab_book.tab(@tab_book.currentIndex)
+          @active_script = @tab_book.widget(@tab_book.currentIndex)
 
           first_to_remove = index + 1
           last_to_remove  = @call_stack.length - 1
 
           last_to_remove.downto(first_to_remove) do |tab_index|
-            tab = @tab_book.tab(tab_index)
+            tab = @tab_book.widget(tab_index)
             @tab_book.removeTab(tab_index)
             tab.dispose
           end
@@ -1489,7 +1489,7 @@ module Cosmos
       # is shown
       if not self.class.running? or (running?() and @realtime_button_bar.state != 'Running')
         if @tab_book_shown
-          current_script = @tab_book.tab(@tab_book.currentIndex)
+          current_script = @tab_book.widget(@tab_book.currentIndex)
         else
           current_script = @script
         end

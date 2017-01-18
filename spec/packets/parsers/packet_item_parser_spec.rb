@@ -33,6 +33,36 @@ module Cosmos
           tf.unlink
         end
 
+        it "raises if given an incomplete definition" do
+          tf = Tempfile.new('unittest')
+          tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Description"'
+          tf.puts '  ITEM ITEM1 8 0'
+          tf.close
+          expect { @pc.process_file(tf.path, "TGT1") }.to raise_error(ConfigParser::Error, /Not enough parameters/)
+          tf.unlink
+
+          tf = Tempfile.new('unittest')
+          tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Description"'
+          tf.puts '  ITEM ITEM1 8'
+          tf.close
+          expect { @pc.process_file(tf.path, "TGT1") }.to raise_error(ConfigParser::Error, /Not enough parameters/)
+          tf.unlink
+
+          tf = Tempfile.new('unittest')
+          tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Description"'
+          tf.puts '  ITEM ITEM1'
+          tf.close
+          expect { @pc.process_file(tf.path, "TGT1") }.to raise_error(ConfigParser::Error, /Not enough parameters/)
+          tf.unlink
+
+          tf = Tempfile.new('unittest')
+          tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Description"'
+          tf.puts '  ITEM'
+          tf.close
+          expect { @pc.process_file(tf.path, "TGT1") }.to raise_error(ConfigParser::Error, /Not enough parameters/)
+          tf.unlink
+        end
+
         it "raises if given a bad bit offset" do
           tf = Tempfile.new('unittest')
           tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Description"'
@@ -145,6 +175,36 @@ module Cosmos
           tf.puts '  PARAMETER ITEM1 8 0 DERIVED 0 0 0'
           tf.close
           expect { @pc.process_file(tf.path, "TGT1") }.to raise_error(ConfigParser::Error, /PARAMETER types are only valid with COMMAND/)
+          tf.unlink
+        end
+
+        it "raises if given an incomplete definition" do
+          tf = Tempfile.new('unittest')
+          tf.puts 'COMMAND tgt1 pkt1 LITTLE_ENDIAN "Description"'
+          tf.puts '  PARAMETER ITEM1 8 0'
+          tf.close
+          expect { @pc.process_file(tf.path, "TGT1") }.to raise_error(ConfigParser::Error, /Not enough parameters/)
+          tf.unlink
+
+          tf = Tempfile.new('unittest')
+          tf.puts 'COMMAND tgt1 pkt1 LITTLE_ENDIAN "Description"'
+          tf.puts '  PARAMETER ITEM1 8'
+          tf.close
+          expect { @pc.process_file(tf.path, "TGT1") }.to raise_error(ConfigParser::Error, /Not enough parameters/)
+          tf.unlink
+
+          tf = Tempfile.new('unittest')
+          tf.puts 'COMMAND tgt1 pkt1 LITTLE_ENDIAN "Description"'
+          tf.puts '  PARAMETER ITEM1'
+          tf.close
+          expect { @pc.process_file(tf.path, "TGT1") }.to raise_error(ConfigParser::Error, /Not enough parameters/)
+          tf.unlink
+
+          tf = Tempfile.new('unittest')
+          tf.puts 'COMMAND tgt1 pkt1 LITTLE_ENDIAN "Description"'
+          tf.puts '  PARAMETER'
+          tf.close
+          expect { @pc.process_file(tf.path, "TGT1") }.to raise_error(ConfigParser::Error, /Not enough parameters/)
           tf.unlink
         end
 

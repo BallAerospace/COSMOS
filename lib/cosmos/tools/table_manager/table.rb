@@ -12,59 +12,50 @@ require 'cosmos'
 require 'cosmos/tools/table_manager/table_item'
 
 module Cosmos
-
   # Table extends Packet by adding more attributes relative to
   # displaying binary data in a gui.
   class Table < Packet
-    attr_accessor :num_rows
-    attr_accessor :num_columns
-    attr_reader :name
+    # Define the target for tables as 'TABLE' since there is no target
+    TARGET = 'TABLE'
+    # @return [Symbol] Either :ONE_DIMENSIONAL or :TWO_DIMENSIONAL
     attr_reader :type
-    attr_reader :table_id
+    # @return [String] File which contains the table definition
     attr_reader :filename
+    # @return [Integer] Number of columns in the table
+    attr_accessor :num_columns
+
+    alias table_name packet_name
 
     # Constructor for a TableDefinition
-    def initialize(name, description, type, endianness, table_id, filename)
-      super('TABLE', name, endianness, description, '', TableItem)
-      @name = name
+    def initialize(name, endianness, type, description, filename)
+      super(TARGET, name, endianness, description, '', TableItem)
+      if type != :ONE_DIMENSIONAL && type != :TWO_DIMENSIONAL
+        raise ArgumentError, "Invalid type '#{type}' for table '#{name}'. Must be ONE_DIMENSIONAL or TWO_DIMENSIONAL"
+      end
       @type = type
-      @table_id = table_id
       @filename = filename
-      @num_columns = 0
       @num_rows = 0
-      @num_columns = 1 if @type == :ONE_DIMENSIONAL
+      @num_columns = (@type == :ONE_DIMENSIONAL) ? 1 : 0
     end
 
-    # Calls define_item in Packet but also incrememts @num_columns
-    # if this table is a REPEATING table.
-    def create_param(name, bit_offset, bit_size, type, description, range, default, display_type, editable, endianness)
-      @num_columns += 1 if @type == :TWO_DIMENSIONAL
-      item = define_item(name, bit_offset, bit_size, type, nil, endianness)
-      item.description = description
-      item.range = range
-      item.default = default
-      item.display_type = display_type
-      item.editable = editable
-      item
+    # @param num_rows [Integer] Set the number of rows in a TWO_DIMENSIONAL table
+    def num_rows=(num_rows)
+      case @type
+      when :ONE_DIMENSIONAL
+        raise "Rows are fixed in a ONE_DIMENSIONAL table"
+      when :TWO_DIMENSIONAL
+        @num_rows = num_rows
+      end
     end
 
-    # Calls define_packet_item in GenericPacket to duplicate the passed in packet
-    # item. name_extension is concatenated with the orignal item name to make it
-    # unique.
-    def duplicate_item(item, name_extension, bit_offset)
-      new_item = define_item("#{item.name[0...-1]}#{name_extension}",
-                             bit_offset, item.bit_size, item.data_type, item.array_size,
-                             item.endianness, item.overflow,
-                             item.format_string, item.read_conversion,
-                             item.write_conversion, item.id_value)
-      new_item.description = item.description
-      new_item.range = item.range
-      new_item.display_type = item.display_type
-      new_item.editable = item.editable
-      new_item.states = item.states
-      new_item.constraint = item.constraint
-      new_item
+    # @return [Integer] Number of rows in the table
+    def num_rows
+      case @type
+      when :ONE_DIMENSIONAL
+        @sorted_items.count {|item| !item.hidden }
+      when :TWO_DIMENSIONAL
+        @num_rows
+      end
     end
-  end # class Table
-
-end # module Cosmos
+  end
+end

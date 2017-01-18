@@ -9,17 +9,16 @@
 # as published by the Free Software Foundation; version 3 with
 # attribution addendums as found in the LICENSE.txt
 
-# Clean up table output
-Dir["autohotkey/outputs/tables/*.dat"].each {|file| File.delete file }
-Dir["autohotkey/outputs/tables/*.csv"].each {|file| File.delete file }
-
+require 'fileutils'
 require_relative 'autohotkey.rb'
-autohotkey('TableManager', 'table_manager.ahk') do
+autohotkey('TableManager4') do
   require 'cosmos/tools/table_manager/table_manager'
   Cosmos::TableManager.run
 end
 
 # Clean up table output
-Dir["autohotkey/outputs/tables/*.dat"].each {|file| File.delete file }
-Dir["autohotkey/outputs/tables/*.csv"].each {|file| File.delete file }
+raise "Output file not created!" unless File.exist?("autohotkey/ConfigTables.dat")
+FileUtils.rm("autohotkey/ConfigTables.dat")
+raise "Report file not created!" unless File.exist?("autohotkey/ConfigTables.csv")
+FileUtils.rm("autohotkey/ConfigTables.csv")
 

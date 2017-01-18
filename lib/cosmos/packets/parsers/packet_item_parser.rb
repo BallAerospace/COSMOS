@@ -195,8 +195,14 @@ module Cosmos
       if keyword.include?("ARRAY")
         usage << "INT/UINT/FLOAT/STRING/BLOCK> "
       else
+        begin
+          data_type = get_data_type()
+        rescue
+          # If the data type could not be determined set something
+          data_type == :INT
+        end
         # STRING and BLOCK types do not have min or max values
-        if get_data_type() == :STRING || get_data_type() == :BLOCK
+        if data_type == :STRING || data_type == :BLOCK
           usage << "STRING/BLOCK> "
         else
           usage << "INT/UINT/FLOAT> <MIN VALUE> <MAX VALUE> "

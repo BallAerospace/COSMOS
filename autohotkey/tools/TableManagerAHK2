@@ -1,3 +1,4 @@
+#!/usr/bin/env ruby
 # encoding: ascii-8bit
 
 # Copyright 2014 Ball Aerospace & Technologies Corp.
@@ -8,11 +9,9 @@
 # as published by the Free Software Foundation; version 3 with
 # attribution addendums as found in the LICENSE.txt
 
-# COSMOS specific additions to the Ruby Range class
-class Range
-  # @return [Array<Float>] Array of each value within the Range converted to
-  #   Float
-  def to_a_to_f
-    collect {|value| value.to_f }
-  end
+require_relative 'autohotkey.rb'
+autohotkey('TableManager2') do
+  require 'cosmos/tools/table_manager/table_manager'
+  Cosmos::TableManager.run
 end
+
