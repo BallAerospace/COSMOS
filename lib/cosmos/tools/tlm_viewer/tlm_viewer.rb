@@ -36,10 +36,9 @@ module Cosmos
       end
     end
   end
-end # module Cosmos
+end
 
 module Cosmos
-
   # The Telemetry Viewer Application provides a frameword for user defined
   # 'screens'. Screens can contain telemetry items but also command senders,
   # graphs, and any other user defined widgets. The TlmViewer class itself is
@@ -54,7 +53,7 @@ module Cosmos
     end
 
     def self.load_config(filename)
-      # Determine MD5 over main config file and all screens
+      # Find all screen files so we can calculate MD5
       tlmviewer_files = [filename, System.initial_filename]
       additional_data = ''
       System.targets.each do |target_name, target|
@@ -67,31 +66,24 @@ module Cosmos
           else
             additional_data << target.original_name
           end
-          Dir.new(screen_dir).each do |filename|
-            if filename[0] != '.'
-              tlmviewer_files << File.join(screen_dir, filename)
+          Dir.new(screen_dir).each do |screen_dir_filename|
+            if screen_dir_filename[0] != '.'
+              tlmviewer_files << File.join(screen_dir, screen_dir_filename)
             end
           end
         end
       end
-
+      # Calculate MD5 and attempt to load marshal file
       md5 = Cosmos.md5_files(tlmviewer_files, additional_data)
-      md5_string = md5.hexdigest
-
-      # Build filename for marshal file
-      marshal_filename = File.join(System.paths['TMP'], 'tlmviewer_' << md5_string << '.bin')
-
-      # Attempt to load marshal file
+      marshal_filename = File.join(System.paths['TMP'], "tlmviewer_#{md5.hexdigest}.bin")
       config = Cosmos.marshal_load(marshal_filename)
       unless config
         # Marshal file load failed - Manually load configuration
         config = TlmViewerConfig.new(filename)
-
         # Create marshal file for next time
         Cosmos.marshal_dump(marshal_filename, config)
       end
-
-      return config
+      config
     end
 
     def initialize(options)
@@ -555,7 +547,5 @@ module Cosmos
         end
       end
     end
-
-  end # class TlmViewer
-
-end # module Cosmos
+  end
+end
