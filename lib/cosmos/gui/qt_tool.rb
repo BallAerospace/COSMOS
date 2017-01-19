@@ -73,7 +73,36 @@ module Cosmos
       end
     end
 
-    # Creates the Help menu and adds the about_action to it. Thus this MUST be
+    # Creates a default menu action based on the default_dir and iterates
+    # through all the target directories adding the target_sub_dir directory if
+    # it exists. Calls the callback option when the action is triggered.
+    def target_dirs_action(menu, default_dirs, target_sub_dir, callback, status_tip = nil)
+      default_dirs = [default_dirs] unless default_dirs.is_a? Array
+      default_dirs.each do |default_dir|
+        default_context = default_dir.split('/')[-2..-1].join('/')
+        action = Qt::Action.new(tr(default_context), self)
+        action.statusTip = status_tip if status_tip
+        action.connect(SIGNAL('triggered()')) { callback.call(default_dir) }
+        menu.addAction(action)
+      end
+
+      dirs = {}
+      System.targets.each do |target_name, target|
+        dir = File.join(target.dir, target_sub_dir)
+        dirs[target_name] = dir if File.exist?(dir)
+      end
+      unless dirs.empty?
+        menu.addSeparator()
+        dirs.each do |target_name, dir|
+          action = Qt::Action.new(tr("#{target_name}/#{target_sub_dir}"), self)
+          action.statusTip = status_tip if status_tip
+          action.connect(SIGNAL('triggered()')) { callback.call(dir) }
+          menu.addAction(action)
+        end
+      end
+    end
+
+    # Creates the Help menu and adds the @about_action to it. Thus this MUST be
     # called after initialize_actions.
     def initialize_help_menu
       @help_menu = menuBar().addMenu(tr('&Help'))

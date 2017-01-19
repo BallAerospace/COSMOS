@@ -13,6 +13,9 @@ call bundle exec ruby autohotkey\tools\ReplayAHK
 call bundle exec ruby autohotkey\tools\ScriptRunnerAHK -w 600 -t 800
 call bundle exec ruby autohotkey\tools\ScriptRunnerAHK2 -w 600 -t 800
 call bundle exec ruby autohotkey\tools\TableManagerAHK -w 800 -t 800
+call bundle exec ruby autohotkey\tools\TableManagerAHK2 --convert config\tools\table_manager\OldOneDimensionalTable_def.txt
+call bundle exec ruby autohotkey\tools\TableManagerAHK3 --convert config\tools\table_manager\OldTwoDimensionalTable_def.txt
+call bundle exec ruby autohotkey\tools\TableManagerAHK4 --create config\tools\table_manager\ConfigTables_def.txt -o .
 call bundle exec ruby autohotkey\tools\TestRunnerAHK -w 800 -t 800
 call bundle exec ruby autohotkey\tools\TestRunnerAHK2 -w 800 -t 800 -c test_runner2.txt
 call bundle exec ruby autohotkey\tools\TestRunnerAHK3 -w 800 -t 800 -c test_runner3.txt

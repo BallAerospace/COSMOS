@@ -252,17 +252,20 @@ module Cosmos
       screen_dir = File.join(@current_target.dir, 'screens')
       if File.exist?(screen_dir)
         Dir.new(screen_dir).each do |filename|
-          if filename[0..0] != '.'
-            start_screen(File.join(screen_dir, filename))
-          end
+          start_screen(File.join(screen_dir, filename)) if valid_screen_name(filename)
         end
       end
+    end
+
+    def valid_screen_name(filename)
+      # Ignore directories and dot files, underscore partials, and only process txt
+      filename[0] != '.' && filename[0] != '_' && File.extname(filename) == '.txt'
     end
 
     def num_screens(screen_dir)
       count = 0
       Dir.new(screen_dir).each do |filename|
-        count += 1 if filename[0..0] != '.'
+        count += 1 if valid_screen_name(filename)
       end
       count
     end
