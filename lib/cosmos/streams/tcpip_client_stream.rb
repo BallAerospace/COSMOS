@@ -91,7 +91,6 @@ module Cosmos
         rescue IOError, Errno::ENOTSOCK
           raise "Connect canceled"
         end
-        puts "sockets:#{sockets}"
         if sockets and !sockets.empty?
           begin
             socket.connect_nonblock(addr) # check connection failure

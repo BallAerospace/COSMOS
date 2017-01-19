@@ -11,10 +11,8 @@
 require 'cosmos/streams/serial_stream'
 
 module Cosmos
-
   # Provides a base class for interfaces that use serial ports
   class SerialInterface < Interface
-
     # Creates a serial interface which uses the specified stream protocol.
     #
     # @param write_port_name [String] The name of the serial port to write
@@ -40,7 +38,17 @@ module Cosmos
                    read_timeout,
                    stream_protocol_type,
                    *stream_protocol_args)
-      super(stream_protocol_type, *stream_protocol_args)
+      super()
+      stream_protocol_class = stream_protocol_type.to_s.capitalize << 'StreamProtocol'
+      begin
+        # Initially try to find the class directly in the path
+        klass = Cosmos.require_class(stream_protocol_class.class_name_to_filename)
+      rescue LoadError => error
+        # Try to load the class from the known COSMOS protocols path location
+        klass = Cosmos.require_class("cosmos/interfaces/protocols/#{stream_protocol_class.class_name_to_filename}")
+      end
+      extend(klass)
+      configure_stream_protocol(*stream_protocol_args)
 
       @write_port_name = ConfigParser.handle_nil(write_port_name)
       @read_port_name  = ConfigParser.handle_nil(read_port_name)
@@ -67,8 +75,15 @@ module Cosmos
         @write_timeout,
         @read_timeout
       )
-      @stream.raw_logger_pair = @raw_logger_pair
       @stream.connect
+    end
+
+    def connected?
+      @stream ? @stream.connected? : false
+    end
+
+    def disconnect
+      @stream.disconnect if @stream
     end
   end
 end

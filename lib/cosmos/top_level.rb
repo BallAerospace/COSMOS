@@ -612,7 +612,7 @@ module Cosmos
     rescue LoadError => err
       msg = "Unable to require #{filename} due to #{err.message}. Ensure #{filename} is in the COSMOS lib directory."
       Logger.error msg
-      raise msg
+      raise LoadError.new(msg)
     end
   end
 

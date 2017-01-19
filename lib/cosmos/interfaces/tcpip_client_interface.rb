@@ -12,7 +12,6 @@ require 'cosmos/interfaces/interface'
 require 'cosmos/streams/tcpip_client_stream'
 
 module Cosmos
-
   # Base class for interfaces that act as a TCP/IP client
   class TcpipClientInterface < Interface
 
@@ -33,7 +32,13 @@ module Cosmos
                    *stream_protocol_args)
       super()
       stream_protocol_class = stream_protocol_type.to_s.capitalize << 'StreamProtocol'
-      klass = Cosmos.require_class(stream_protocol_class.class_name_to_filename)
+      begin
+        # Initially try to find the class directly in the path
+        klass = Cosmos.require_class(stream_protocol_class.class_name_to_filename)
+      rescue LoadError => error
+        # Try to load the class from the known COSMOS protocols path location
+        klass = Cosmos.require_class("cosmos/interfaces/protocols/#{stream_protocol_class.class_name_to_filename}")
+      end
       extend(klass)
       configure_stream_protocol(*stream_protocol_args)
 
@@ -55,7 +60,6 @@ module Cosmos
                                       @read_port,
                                       @write_timeout,
                                       @read_timeout)
-      @stream.raw_logger_pair = @raw_logger_pair
       @stream.connect
     end
 

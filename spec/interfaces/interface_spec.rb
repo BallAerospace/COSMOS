@@ -24,7 +24,7 @@ module Cosmos
     describe "initialize" do
       it "initializes the instance variables" do
         i = Interface.new
-        expect(i.name).to eql "Cosmos::Interface"
+        expect(i.name).to eql "Interface"
         expect(i.target_names).to eql []
         expect(i.thread).to be_nil
         expect(i.connect_on_startup).to be true

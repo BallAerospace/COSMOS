@@ -23,11 +23,11 @@ module Cosmos
     describe "initialize" do
       it "initializes the instance variables" do
         i = TcpipServerInterface.new('8888','8889','5','5','burst')
+        expect(i.name).to eql "TcpipServerInterface"
       end
 
       it "is not writeable if no write port given" do
         i = TcpipServerInterface.new('nil','8889','nil','5','burst')
-        expect(i.name).to eql "Cosmos::TcpipServerInterface"
         expect(i.write_allowed?).to be false
         expect(i.write_raw_allowed?).to be false
         expect(i.read_allowed?).to be true
@@ -35,7 +35,6 @@ module Cosmos
 
       it "is not readable if no read port given" do
         i = TcpipServerInterface.new('8888','nil','5','nil','burst')
-        expect(i.name).to eql "Cosmos::TcpipServerInterface"
         expect(i.write_allowed?).to be true
         expect(i.write_raw_allowed?).to be true
         expect(i.read_allowed?).to be false

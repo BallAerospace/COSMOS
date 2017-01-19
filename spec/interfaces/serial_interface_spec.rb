@@ -18,12 +18,11 @@ module Cosmos
     describe "initialize" do
       it "initializes the instance variables" do
         i = SerialInterface.new('COM1','COM1','9600','NONE','1','0','0','burst')
-        expect(i.name).to eql "Cosmos::SerialInterface"
+        expect(i.name).to eql "SerialInterface"
       end
 
       it "is not writeable if no write port given" do
         i = SerialInterface.new('nil','COM1','9600','NONE','1','0','0','burst')
-        expect(i.name).to eql "Cosmos::SerialInterface"
         expect(i.write_allowed?).to be false
         expect(i.write_raw_allowed?).to be false
         expect(i.read_allowed?).to be true
@@ -31,7 +30,6 @@ module Cosmos
 
       it "is not readable if no read port given" do
         i = SerialInterface.new('COM1','nil','9600','NONE','1','0','0','burst')
-        expect(i.name).to eql "Cosmos::SerialInterface"
         expect(i.write_allowed?).to be true
         expect(i.write_raw_allowed?).to be true
         expect(i.read_allowed?).to be false
