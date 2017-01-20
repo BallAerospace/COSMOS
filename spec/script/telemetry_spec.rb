@@ -14,19 +14,16 @@ require 'cosmos/script/script'
 require 'tempfile'
 
 module Cosmos
-
   describe Script do
-
     before(:all) do
-      cts = File.join(Cosmos::USERPATH,'config','tools','cmd_tlm_server','cmd_tlm_server.txt')
-      FileUtils.mkdir_p(File.dirname(cts))
-      File.open(cts,'w') do |file|
+      @cts = File.join(Cosmos::USERPATH,'config','tools','cmd_tlm_server','cmd_tlm_server.txt')
+      FileUtils.mkdir_p(File.dirname(@cts))
+      File.open(@cts,'w') do |file|
         file.puts 'INTERFACE INST_INT interface.rb'
         file.puts 'TARGET INST'
-        file.puts 'ADAPTER override_tlm.rb'
+        file.puts 'PROTOCOL override_protocol.rb'
       end
       System.class_eval('@@instance = nil')
-
       require 'cosmos/script'
     end
 
@@ -173,7 +170,5 @@ module Cosmos
         unsubscribe_packet_data(id)
       end
     end
-
   end
 end
-

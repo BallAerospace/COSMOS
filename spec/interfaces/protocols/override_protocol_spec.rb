@@ -23,12 +23,12 @@ module Cosmos
       pkt.append_item("ITEM", 8, :INT, nil, :BIG_ENDIAN, :ERROR, nil, rc, wc)
       expect(pkt.read("ITEM")).to eql(0)
 
-      interface.override_tlm_raw("TGT","PKT","ITEM",-10)
+      interface._override_tlm_raw("TGT","PKT","ITEM",-10)
       pkt.write("ITEM", 0, :RAW)
       interface.post_read_packet(pkt)
       expect(pkt.read("ITEM")).to eql(-20)
 
-      interface.override_tlm("TGT","PKT","ITEM",-10) # Write conversion writes -40
+      interface._override_tlm("TGT","PKT","ITEM",-10) # Write conversion writes -40
       pkt.write("ITEM", 0, :RAW)
       interface.post_read_packet(pkt)
       expect(pkt.read("ITEM")).to eql(-80) # Read conversion reads -80
@@ -41,12 +41,12 @@ module Cosmos
       pkt.append_item("ITEM", 8, :UINT, nil, :BIG_ENDIAN, :ERROR, nil, rc, wc)
       expect(pkt.read("ITEM")).to eql(0)
 
-      interface.override_tlm_raw("TGT","PKT","ITEM",10)
+      interface._override_tlm_raw("TGT","PKT","ITEM",10)
       pkt.write("ITEM", 0, :RAW)
       interface.post_read_packet(pkt)
       expect(pkt.read("ITEM")).to eql(20)
 
-      interface.override_tlm("TGT","PKT","ITEM",10) # Write conversion writes 40
+      interface._override_tlm("TGT","PKT","ITEM",10) # Write conversion writes 40
       pkt.write("ITEM", 0, :RAW)
       interface.post_read_packet(pkt)
       expect(pkt.read("ITEM")).to eql(80) # Read conversion reads 80
@@ -59,12 +59,12 @@ module Cosmos
       pkt.append_item("ITEM", 32, :FLOAT, nil, :BIG_ENDIAN, :ERROR, nil, rc, wc)
       expect(pkt.read("ITEM")).to eql(0.0)
 
-      interface.override_tlm_raw("TGT","PKT","ITEM",10.5)
+      interface._override_tlm_raw("TGT","PKT","ITEM",10.5)
       pkt.write("ITEM", 0, :RAW)
       interface.post_read_packet(pkt)
       expect(pkt.read("ITEM")).to eql(21.0)
 
-      interface.override_tlm("TGT","PKT","ITEM",10.5) # Write conversion writes 42
+      interface._override_tlm("TGT","PKT","ITEM",10.5) # Write conversion writes 42
       pkt.write("ITEM", 0, :RAW)
       interface.post_read_packet(pkt)
       expect(pkt.read("ITEM")).to eql(84.0) # Read conversion reads 84
@@ -77,12 +77,12 @@ module Cosmos
       pkt.append_item("ITEM", 32, :FLOAT, nil, :BIG_ENDIAN, :ERROR, nil, rc, wc)
       expect(pkt.read("ITEM")).to eql(0.0)
 
-      interface.override_tlm_raw("TGT","PKT","ITEM",Float::INFINITY)
+      interface._override_tlm_raw("TGT","PKT","ITEM",Float::INFINITY)
       pkt.write("ITEM", 0, :RAW)
       interface.post_read_packet(pkt)
       expect(pkt.read("ITEM")).to eql(Float::INFINITY)
 
-      interface.override_tlm("TGT","PKT","ITEM",10.5) # Write conversion writes 42
+      interface._override_tlm("TGT","PKT","ITEM",10.5) # Write conversion writes 42
       pkt.write("ITEM", 0, :RAW)
       interface.post_read_packet(pkt)
       expect(pkt.read("ITEM")).to eql(84.0) # Read conversion reads 84
@@ -95,12 +95,12 @@ module Cosmos
       pkt.append_item("ITEM", 1024, :STRING, nil, :BIG_ENDIAN, :ERROR, nil, rc, wc)
       expect(pkt.read("ITEM")).to eql("")
 
-      interface.override_tlm_raw("TGT","PKT","ITEM","HI")
+      interface._override_tlm_raw("TGT","PKT","ITEM","HI")
       pkt.write("ITEM", 0, :RAW)
       interface.post_read_packet(pkt)
       expect(pkt.read("ITEM")).to eql("HIHI")
 
-      interface.override_tlm("TGT","PKT","ITEM","X") # Write conversion writes XXXX
+      interface._override_tlm("TGT","PKT","ITEM","X") # Write conversion writes XXXX
       pkt.write("ITEM", 0, :RAW)
       interface.post_read_packet(pkt)
       expect(pkt.read("ITEM")).to eql("XXXXXXXX")
@@ -113,15 +113,39 @@ module Cosmos
       pkt.append_item("ITEM", 8, :INT, nil, :BIG_ENDIAN, :ERROR, nil, rc, wc)
       expect(pkt.read("ITEM")).to eql(0)
 
-      interface.override_tlm_raw("TGT","PKT","ITEM",-10)
+      interface._override_tlm_raw("TGT","PKT","ITEM",-10)
       pkt.write("ITEM", 0, :RAW)
       interface.post_read_packet(pkt)
       expect(pkt.read("ITEM")).to eql(-20)
 
-      interface.normalize_tlm("TGT","PKT","ITEM")
+      interface._normalize_tlm("TGT","PKT","ITEM")
       pkt.write("ITEM", 0, :RAW)
       interface.post_read_packet(pkt)
       expect(pkt.read("ITEM")).to eql(0)
+    end
+
+    it "warns the user if the protocol is not required" do
+      cts = File.join(Cosmos::USERPATH,'config','tools','cmd_tlm_server','cmd_tlm_server.txt')
+      FileUtils.mkdir_p(File.dirname(cts))
+      File.open(cts,'w') do |file|
+        file.puts 'INTERFACE INST_INT simulated_target_interface.rb sim_inst.rb'
+        file.puts 'TARGET INST'
+        # We don't include: PROTOCOL override_protocol.rb
+      end
+      System.class_eval('@@instance = nil')
+      require 'cosmos/script'
+      @server = CmdTlmServer.new
+      shutdown_cmd_tlm()
+      initialize_script_module()
+      sleep 0.1
+
+      expect { override_tlm_raw("INST HEALTH_STATUS TEMP3 = 0") }.to raise_error(/INST_INT does not have override_tlm_raw/)
+
+      @server.stop
+      shutdown_cmd_tlm()
+      sleep(0.1)
+      clean_config()
+      FileUtils.rm_rf File.join(Cosmos::USERPATH,'config','tools')
     end
   end
 end

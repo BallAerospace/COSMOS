@@ -18,7 +18,7 @@ module Cosmos
 
     describe "call" do
       it "raises an error" do
-        expect { BackgroundTask.new.call }.to raise_error
+        expect { BackgroundTask.new.call }.to raise_error(/call method must be defined/)
       end
     end
 

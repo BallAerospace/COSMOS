@@ -55,20 +55,12 @@ module Cosmos
     # Connects the {TcpipClientStream} by passing the
     # initialization parameters to the {TcpipClientStream}.
     def connect
+      super()
       @stream = TcpipClientStream.new(@hostname,
                                       @write_port,
                                       @read_port,
                                       @write_timeout,
                                       @read_timeout)
-      @stream.connect
-    end
-
-    def connected?
-      @stream ? @stream.connected? : false
-    end
-
-    def disconnect
-      @stream.disconnect if @stream
     end
   end
 end

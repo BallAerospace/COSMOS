@@ -24,7 +24,7 @@ module Cosmos
 
     describe "initialize" do
       it "complains with an unknown log type" do
-        expect { RawLogger.new(:BOTH) }.to raise_error
+        expect { RawLogger.new('MYINT', :BOTH) }.to raise_error(/must be :READ or :WRITE/)
       end
 
       it "creates a raw write log" do

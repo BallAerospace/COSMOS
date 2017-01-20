@@ -33,7 +33,7 @@ module Cosmos
       end
 
       @keywords = %w(TITLE PACKET_LOG_WRITER AUTO_INTERFACE_TARGETS INTERFACE_TARGET INTERFACE ROUTER)
-      @interface_keywords = %w(DONT_CONNECT DONT_RECONNECT RECONNECT_DELAY DISABLE_DISCONNECT LOG DONT_LOG TARGET ADAPTER)
+      @interface_keywords = %w(DONT_CONNECT DONT_RECONNECT RECONNECT_DELAY DISABLE_DISCONNECT LOG DONT_LOG TARGET PROTOCOL)
     end
 
     after(:all) do
@@ -369,21 +369,21 @@ module Cosmos
         end
       end
 
-      context "with ADAPTER" do
+      context "with PROTOCOL" do
         it "stores extra parameters" do
           tf = Tempfile.new('unittest')
           tf.puts "INTERFACE CtsConfigTestInterface cts_config_test_interface.rb"
-          tf.puts 'ADAPTER override_tlm.rb PARAM'
+          tf.puts 'PROTOCOL override_protocol.rb PARAM'
           tf.close
           config = CmdTlmServerConfig.new(tf.path)
-          expect(config.interfaces['CTSCONFIGTESTINTERFACE'].adapter_params['OverrideTlm'][0]).to eq 'PARAM'
+          expect(config.interfaces['CTSCONFIGTESTINTERFACE'].protocol_params['OverrideProtocol'][0]).to eq 'PARAM'
           tf.unlink
         end
 
-        it "adds the adaptor to the current interface" do
+        it "adds the protocol to the current interface" do
           tf = Tempfile.new('unittest')
           tf.puts "INTERFACE CtsConfigTestInterface cts_config_test_interface.rb"
-          tf.puts 'ADAPTER override_tlm.rb'
+          tf.puts 'PROTOCOL override_protocol.rb'
           tf.close
           config = CmdTlmServerConfig.new(tf.path)
           expect(config.interfaces['CTSCONFIGTESTINTERFACE']).to respond_to(:override_tlm)

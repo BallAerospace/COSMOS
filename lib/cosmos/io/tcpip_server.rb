@@ -63,11 +63,15 @@ module Cosmos
       @write_timeout = @write_timeout.to_f if @write_timeout
       @read_timeout = ConfigParser.handle_nil(read_timeout)
       @read_timeout = @read_timeout.to_f if @read_timeout
-
       stream_protocol_class = stream_protocol_type.to_s.capitalize << 'StreamProtocol'
-      @stream_protocol_class = Cosmos.require_class("cosmos/interfaces/protocols/#{stream_protocol_class.class_name_to_filename}")
       @stream_protocol_args = stream_protocol_args
-
+      begin
+        # Initially try to find the class directly in the path
+        @stream_protocol_class = Cosmos.require_class(stream_protocol_class.class_name_to_filename)
+      rescue LoadError => error
+        # Try to load the class from the known COSMOS protocols path location
+        @stream_protocol_class = Cosmos.require_class("cosmos/interfaces/protocols/#{stream_protocol_class.class_name_to_filename}")
+      end
       @listen_sockets = []
       @listen_pipes = []
       @listen_threads = []
@@ -127,7 +131,7 @@ module Cosmos
             @connection_mutex.synchronize do
               @write_stream_protocols.each do |stream_protocol, hostname, host_ip, port|
                 stream_protocol.disconnect
-                stream_protocol.stream.raw_logger_pair.stop if stream_protocol.stream.raw_logger_pair
+                stream_protocol.raw_logger_pair.stop if stream_protocol.raw_logger_pair
               end
               @write_stream_protocols.clear
             end
@@ -181,7 +185,7 @@ module Cosmos
       @connection_mutex.synchronize do
         @read_stream_protocols.each do |stream_protocol, hostname, host_ip, port|
           stream_protocol.disconnect
-          stream_protocol.stream.raw_logger_pair.stop if stream_protocol.stream.raw_logger_pair
+          stream_protocol.raw_logger_pair.stop if stream_protocol.raw_logger_pair
         end
         @read_stream_protocols.clear
       end
@@ -202,7 +206,7 @@ module Cosmos
       @connection_mutex.synchronize do
         @write_stream_protocols.each do |stream_protocol, hostname, host_ip, port|
           stream_protocol.disconnect
-          stream_protocol.stream.raw_logger_pair.stop if stream_protocol.stream.raw_logger_pair
+          stream_protocol.raw_logger_pair.stop if stream_protocol.raw_logger_pair
         end
         @write_stream_protocols.clear
       end
@@ -222,6 +226,14 @@ module Cosmos
       packet = @read_queue.pop
       return nil unless packet
       packet
+    end
+
+    # @param packet [Packet] Packet to write to all clients connected to the
+    #   write port.
+    def write(packet)
+      return unless @write_queue
+      @write_queue << packet
+      @write_condition_variable.broadcast
     end
 
     # @param data [String] Data to write to all clients connected to the
@@ -269,10 +281,10 @@ module Cosmos
       @raw_logging_enabled = true
       if @raw_logger_pair
         @write_stream_protocols.each do |stream_protocol, hostname, host_ip, port|
-          stream_protocol.stream.raw_logger_pair.start if stream_protocol.stream.raw_logger_pair
+          stream_protocol.raw_logger_pair.start if stream_protocol.raw_logger_pair
         end
         @read_stream_protocols.each do |stream_protocol, hostname, host_ip, port|
-          stream_protocol.stream.raw_logger_pair.start if stream_protocol.stream.raw_logger_pair
+          stream_protocol.raw_logger_pair.start if stream_protocol.raw_logger_pair
         end
       end
     end
@@ -282,10 +294,10 @@ module Cosmos
       @raw_logging_enabled = false
       if @raw_logger_pair
         @write_stream_protocols.each do |stream_protocol, hostname, host_ip, port|
-          stream_protocol.stream.raw_logger_pair.stop if stream_protocol.stream.raw_logger_pair
+          stream_protocol.raw_logger_pair.stop if stream_protocol.raw_logger_pair
         end
         @read_stream_protocols.each do |stream_protocol, hostname, host_ip, port|
-          stream_protocol.stream.raw_logger_pair.stop if stream_protocol.stream.raw_logger_pair
+          stream_protocol.raw_logger_pair.stop if stream_protocol.raw_logger_pair
         end
       end
     end
@@ -361,24 +373,27 @@ module Cosmos
       write_socket = socket if listen_write
       read_socket = socket if listen_read
       stream = TcpipSocketStream.new(write_socket, read_socket, @write_timeout, @read_timeout)
-      if @raw_logger_pair
-        stream.raw_logger_pair = @raw_logger_pair.clone
-        stream.raw_logger_pair.start if @raw_logging_enabled
-      end
 
-      stream_protocol = @stream_protocol_class.new(*@stream_protocol_args)
-      stream_protocol.connect(stream)
+      interface = Interface.new
+      if @raw_logger_pair
+        interface.raw_logger_pair = @raw_logger_pair.clone
+        interface.raw_logger_pair.start if @raw_logging_enabled
+      end
+      interface.extend(@stream_protocol_class)
+      interface.configure_stream_protocol(*@stream_protocol_args)
+      interface.stream = stream
+      interface.connect
 
       if listen_write
-        @write_connection_callback.call(stream_protocol) if @write_connection_callback
+        @write_connection_callback.call(interface) if @write_connection_callback
         @connection_mutex.synchronize do
-          @write_stream_protocols << [stream_protocol, hostname, host_ip, port]
+          @write_stream_protocols << [interface, hostname, host_ip, port]
         end
       end
       if listen_read
-        @read_connection_callback.call(stream_protocol) if @read_connection_callback
+        @read_connection_callback.call(interface) if @read_connection_callback
         @connection_mutex.synchronize do
-          @read_stream_protocols << [stream_protocol, hostname, host_ip, port]
+          @read_stream_protocols << [interface, hostname, host_ip, port]
         end
 
         # Start read thread
@@ -386,7 +401,7 @@ module Cosmos
           index_to_delete = nil
           begin
             begin
-              read_thread_body(stream_protocol)
+              read_thread_body(interface)
             rescue Exception => err
               Logger.instance.error "Tcpip server read thread unexpectedly died"
               Logger.instance.error err.formatted
@@ -399,10 +414,10 @@ module Cosmos
               begin
                 index = 0
                 @read_stream_protocols.each do |read_stream_protocol, _, _, _|
-                  if read_stream_protocol == stream_protocol
+                  if read_stream_protocol == interface
                     index_to_delete = index
                     read_stream_protocol.disconnect
-                    read_stream_protocol.stream.raw_logger_pair.stop if read_stream_protocol.stream.raw_logger_pair
+                    read_stream_protocol.raw_logger_pair.stop if read_stream_protocol.raw_logger_pair
                     break
                   end
                   index += 1
@@ -452,13 +467,13 @@ module Cosmos
                 # Client has disconnected (or is invalidly sending data on the socket)
                 Logger.instance.info "Tcpip server lost write connection to #{hostname}(#{host_ip}):#{port}"
                 stream_protocol.disconnect
-                stream_protocol.stream.raw_logger_pair.stop if stream_protocol.stream.raw_logger_pair
+                stream_protocol.raw_logger_pair.stop if stream_protocol.raw_logger_pair
                 indexes_to_delete.unshift(index) # Put later indexes at front of array
               rescue Errno::ECONNRESET, Errno::ECONNABORTED, IOError
                 # Client has disconnected
                 Logger.instance.info "Tcpip server lost write connection to #{hostname}(#{host_ip}):#{port}"
                 stream_protocol.disconnect
-                stream_protocol.stream.raw_logger_pair.stop if stream_protocol.stream.raw_logger_pair
+                stream_protocol.raw_logger_pair.stop if stream_protocol.raw_logger_pair
                 indexes_to_delete.unshift(index) # Put later indexes at front of array
               rescue Errno::EWOULDBLOCK
                 # Client is still cleanly connected as far as we can tell without writing to the socket
@@ -504,7 +519,7 @@ module Cosmos
             if need_disconnect
               Logger.instance.info "Tcpip server lost write connection to #{hostname}(#{host_ip}):#{port}"
               stream_protocol.disconnect
-              stream_protocol.stream.raw_logger_pair.stop if stream_protocol.stream.raw_logger_pair
+              stream_protocol.raw_logger_pair.stop if stream_protocol.raw_logger_pair
               indexes_to_delete.unshift(index) # Put later indexes at front of array
             end
 
@@ -520,23 +535,19 @@ module Cosmos
     end
 
     def write_thread_hook(packet)
-      return packet # By default just return the packet
+      packet # By default just return the packet
     end
 
-    def read_thread_body(stream_protocol)
+    def read_thread_body(interface)
       loop do
-        packet = stream_protocol.read
+        packet = interface.read
         return if !packet or @cancel_threads
-
-        # Do work on received packet
-        read_thread_hook(packet)
-      end # loop do
+        read_thread_hook(packet) # Do work on received packet
+      end
     end
 
     def read_thread_hook(packet)
       @read_queue << packet.clone
     end
-
-  end # class TcpipServerStream
-
-end # module Cosmos
+  end
+end

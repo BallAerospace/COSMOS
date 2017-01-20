@@ -26,8 +26,8 @@ module Cosmos
     ## @return [Interface] The interface associated with this
     ##   StreamProtocol.
     #attr_reader :interface
-    ## @return [Stream] The stream this StreamProtocol is processing data from
-    #attr_reader :stream
+    # @return [Stream] The stream this StreamProtocol is processing data from
+    attr_accessor :stream
 
     # @param discard_leading_bytes [Integer] The number of bytes to discard
     #   from the binary data after reading from the {Stream}. Note that this is often
@@ -49,12 +49,19 @@ module Cosmos
       super()
       @data = ''
       @data.force_encoding('ASCII-8BIT')
+      @stream.connect if @stream
     end
 
     # Clears the data attribute
     def disconnect
       super()
       @data = ''
+      @stream.disconnect if @stream
+    end
+
+    def connected?
+      super()
+      @stream ? @stream.connected? : false
     end
 
     # Reads from the stream. It can look for a sync pattern before

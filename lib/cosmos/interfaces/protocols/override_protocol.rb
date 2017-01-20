@@ -9,22 +9,26 @@
 # attribution addendums as found in the LICENSE.txt
 
 module Cosmos
+  # Protocol which permanently overrides an item value such that reading the
+  # item returns the overriden value. Methods are prefixed with underscores
+  # so the API can include the original name which calls out to these
+  # methods. Clearing the override requires calling normalize_tlm.
   module OverrideProtocol
-    def override_tlm(target_name, packet_name, item_name, value)
+    def _override_tlm(target_name, packet_name, item_name, value)
       @override_tlm||= {}
       @override_tlm[target_name] ||= {}
       @override_tlm[target_name][packet_name] ||= {}
       @override_tlm[target_name][packet_name][item_name] = [value, :CONVERTED]
     end
 
-    def override_tlm_raw(target_name, packet_name, item_name, value)
+    def _override_tlm_raw(target_name, packet_name, item_name, value)
       @override_tlm||= {}
       @override_tlm[target_name] ||= {}
       @override_tlm[target_name][packet_name] ||= {}
       @override_tlm[target_name][packet_name][item_name] = [value, :RAW]
     end
 
-    def normalize_tlm(target_name, packet_name, item_name)
+    def _normalize_tlm(target_name, packet_name, item_name)
       @override_tlm||= {}
       pkt = @override_tlm[target_name]
       if pkt

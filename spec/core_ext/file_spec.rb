@@ -62,7 +62,7 @@ describe File do
 
   describe "find_in_search_path" do
     it "returns the path to the file" do
-      expect(File.find_in_search_path("cosmos.rb")).to match "/lib/cosmos.rb"
+      expect(File.find_in_search_path("cosmos.rb")).to match "lib/cosmos.rb"
     end
 
     it "returns nil if the file can't be found" do

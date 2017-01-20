@@ -211,6 +211,7 @@ module Cosmos
           def connect; end
           def connected?; true; end
           def write(buffer) $buffer = buffer; end
+          def disconnect; end
         end
         data = Packet.new(nil, nil, :BIG_ENDIAN, nil, "\x00\x00")
         # Don't discard bytes, include and fill the sync pattern
