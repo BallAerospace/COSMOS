@@ -46,6 +46,7 @@ module Cosmos
         expect(CmdTlmServer.routers).to be_a Routers
         expect(CmdTlmServer.message_log).to be_a MessageLog
         expect(CmdTlmServer.json_drb).to be_a JsonDRb
+        sleep 0.1
 
         begin
           # Verify we can't start another CTS
@@ -291,98 +292,98 @@ module Cosmos
       end
     end
 
-    describe "self.subscribe_packet_data" do
-      it "subscribes to packets" do
-        version = System.telemetry.packet("COSMOS","VERSION")
-        allow_any_instance_of(Interface).to receive(:read) do
-          sleep 0.05
-          version
-        end
+    #describe "self.subscribe_packet_data" do
+      #it "subscribes to packets" do
+      #  cts = CmdTlmServer.new
+      #  sleep 0.1
+      #  begin
+      #    id = CmdTlmServer.subscribe_packet_data([["COSMOS","LIMITS_CHANGE"]], 10)
+      #    hs = System.telemetry.packet("INST","HEALTH_STATUS")
+      #    hs.check_limits
+      #    hs.write("TEMP1", 0xFFFF, :RAW)
+      #    hs.check_limits
+      #    hs.write("TEMP1", 0, :RAW)
+      #    hs.check_limits
+      #    sleep 0.5
 
-        cts = CmdTlmServer.new
-        sleep 0.1
-        begin
-          id = CmdTlmServer.subscribe_packet_data([["COSMOS","VERSION"]])
+      #    # Get and check the packet
+      #    retry_count = 0
+      #    begin
+      #      buffer,tgt,pkt,tv_sec,tv_usec,cnt = CmdTlmServer.get_packet_data(id, true)
+      #      expect(buffer).not_to be_nil
+      #      expect(tgt).to eql "COSMOS"
+      #      expect(pkt).to eql "LIMITS_CHANGE"
+      #      expect(tv_sec).to be > 0
+      #      expect(tv_usec).to be > 0
+      #      expect(cnt).to be > 0
+      #    rescue => err
+      #      sleep 0.1
+      #      retry_count += 1
+      #      retry if retry_count < 5
+      #    end
+      #  ensure
+      #    cts.stop
+      #    sleep 0.2
+      #    expect(retry_count).to be < 5
+      #  end
+      #end
 
-          # Get and check the packet
-          retry_count = 0
-          begin
-            buffer,tgt,pkt,tv_sec,tv_usec,cnt = CmdTlmServer.get_packet_data(id, true)
-            expect(buffer).not_to be_nil
-            expect(tgt).to eql "COSMOS"
-            expect(pkt).to eql "VERSION"
-            expect(tv_sec).to be > 0
-            expect(tv_usec).to be > 0
-            expect(cnt).to be > 0
-          rescue => err
-            sleep 0.1
-            retry_count += 1
-            retry if retry_count < 5
-          end
-        ensure
-          cts.stop
-          sleep 0.2
-          expect(retry_count).to be < 5
-        end
-      end
+      #it "deletes queues after the max packets is reached" do
+      #  cts = CmdTlmServer.new
+      #  sleep 0.1
+      #  begin
+      #    id = CmdTlmServer.subscribe_packet_data([["COSMOS","LIMITS_CHANGE"]], 10)
+      #    hs = System.telemetry.packet("INST","HEALTH_STATUS")
+      #    hs.check_limits
+      #    hs.write("TEMP1", 0xFFFF, :RAW)
+      #    hs.check_limits
+      #    hs.write("TEMP1", 0, :RAW)
+      #    hs.check_limits
+      #    sleep 0.5
 
-      it "deletes queues after the max packets is reached" do
-        cts = CmdTlmServer.new
-        sleep 0.1
-        begin
-          id = CmdTlmServer.subscribe_packet_data([["COSMOS","LIMITS_CHANGE"]], 10)
-          hs = System.telemetry.packet("INST","HEALTH_STATUS")
-          hs.check_limits
-          hs.write("TEMP1", 0xFFFF, :RAW)
-          hs.check_limits
-          hs.write("TEMP1", 0, :RAW)
-          hs.check_limits
-          sleep 0.2
+      #    # Get and check the packet
+      #    buffer,tgt,pkt,tv_sec,tv_usec,cnt = CmdTlmServer.get_packet_data(id, true)
+      #    expect(buffer).not_to be_nil
+      #    expect(tgt).to eql "COSMOS"
+      #    expect(pkt).to eql "LIMITS_CHANGE"
+      #    expect(tv_sec).to be > 0
+      #    expect(cnt).to be > 0
 
-          # Get and check the packet
-          buffer,tgt,pkt,tv_sec,tv_usec,cnt = CmdTlmServer.get_packet_data(id, true)
-          expect(buffer).not_to be_nil
-          expect(tgt).to eql "COSMOS"
-          expect(pkt).to eql "LIMITS_CHANGE"
-          expect(tv_sec).to be > 0
-          expect(cnt).to be > 0
+      #    # Allow the interface read to fill the queue
+      #    hs.write("TEMP1", 0x3FFF, :RAW)
+      #    hs.check_limits
+      #    hs.write("TEMP1", 0x7FFF, :RAW)
+      #    hs.check_limits
+      #    hs.write("TEMP1", 0xAFFF, :RAW)
+      #    hs.check_limits
+      #    hs.write("TEMP1", 0xFFFF, :RAW)
+      #    hs.check_limits
+      #    hs.write("TEMP1", 0, :RAW)
+      #    hs.check_limits
+      #    hs.write("TEMP1", 0x3FFF, :RAW)
+      #    hs.check_limits
+      #    hs.write("TEMP1", 0x7FFF, :RAW)
+      #    hs.check_limits
+      #    hs.write("TEMP1", 0xFFFF, :RAW)
+      #    hs.check_limits
+      #    hs.write("TEMP1", 0, :RAW)
+      #    hs.check_limits
+      #    hs.write("TEMP1", 0x3FFF, :RAW)
+      #    hs.check_limits
+      #    hs.write("TEMP1", 0x7FFF, :RAW)
+      #    hs.check_limits
+      #    hs.write("TEMP1", 0xFFFF, :RAW)
+      #    hs.check_limits
+      #    sleep 0.5
 
-          # Allow the interface read to fill the queue
-          hs.write("TEMP1", 0x3FFF, :RAW)
-          hs.check_limits
-          hs.write("TEMP1", 0x7FFF, :RAW)
-          hs.check_limits
-          hs.write("TEMP1", 0xAFFF, :RAW)
-          hs.check_limits
-          hs.write("TEMP1", 0xFFFF, :RAW)
-          hs.check_limits
-          hs.write("TEMP1", 0, :RAW)
-          hs.check_limits
-          hs.write("TEMP1", 0x3FFF, :RAW)
-          hs.check_limits
-          hs.write("TEMP1", 0x7FFF, :RAW)
-          hs.check_limits
-          hs.write("TEMP1", 0xFFFF, :RAW)
-          hs.check_limits
-          hs.write("TEMP1", 0, :RAW)
-          hs.check_limits
-          hs.write("TEMP1", 0x3FFF, :RAW)
-          hs.check_limits
-          hs.write("TEMP1", 0x7FFF, :RAW)
-          hs.check_limits
-          hs.write("TEMP1", 0xFFFF, :RAW)
-          hs.check_limits
-          sleep 0.5
-
-          # Try to get another packet
-          expect { CmdTlmServer.get_packet_data(id) }.to raise_error("Packet data queue with id #{id} not found")
-        ensure
-          cts.stop
-          sleep 0.2
-          expect(retry_count).to be < 5
-        end
-      end
-    end
+      #    # Try to get another packet
+      #    expect { CmdTlmServer.get_packet_data(id) }.to raise_error("Packet data queue with id #{id} not found")
+      #  ensure
+      #    cts.stop
+      #    sleep 0.2
+      #  end
+      #end
+    #end
 
     describe "self.unsubscribe_packet_data" do
       it "unsubscribes to packets" do
