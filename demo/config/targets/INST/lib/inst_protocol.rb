@@ -9,7 +9,7 @@
 # attribution addendums as found in the LICENSE.txt
 
 module Cosmos
-  module InstAdapter
+  module InstProtocol
     # Called to perform modifications on a read packet before it is given to the user
     #
     # @param packet [Packet] Original packet
@@ -17,7 +17,7 @@ module Cosmos
     def pre_write_packet(packet)
       packet = super(packet)
       flags = packet.read("CCSDSSEQFLAGS")
-      Logger.info "Processing CCSDS Sequenced packets. Flags:#{flags}" if flags != @adapter_params['InstAdapter'][0]
+      Logger.info "Processing CCSDS Sequenced packets. Flags:#{flags}" if flags != @protocol_params['InstProtocol'][0]
       packet
     end
   end
