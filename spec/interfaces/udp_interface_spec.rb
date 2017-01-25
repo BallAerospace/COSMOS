@@ -143,20 +143,18 @@ module Cosmos
       end
     end
 
-    describe "write, write_raw" do
+    describe "write" do
       it "complains if write_dest not given" do
         i = UdpInterface.new('localhost','nil','8889')
         expect { i.write(Packet.new('','')) }.to raise_error(/not connected for write/)
-        expect { i.write_raw('') }.to raise_error(/not connected for write/)
       end
 
       it "complains if the server is not connected" do
         i = UdpInterface.new('localhost','8888','nil')
         expect { i.write(Packet.new('','')) }.to raise_error(/Interface not connected/)
-        expect { i.write_raw('') }.to raise_error(/Interface not connected/)
       end
 
-      it "counts the packets written" do
+      it "counts the packets and bytes written" do
         read = UdpReadSocket.new(8888, 'localhost')
         i = UdpInterface.new('localhost','8888','nil')
         i.connect
@@ -169,11 +167,6 @@ module Cosmos
         expect(i.write_count).to eql 1
         expect(i.bytes_written).to eql 4
         expect(data).to eq "\x00\x01\x02\x03"
-        i.write_raw("\x04\x05\x06\x07")
-        data = read.read
-        expect(i.write_count).to eql 2
-        expect(i.bytes_written).to eql 8
-        expect(data).to eq "\x04\x05\x06\x07"
         i.disconnect
         Cosmos.close_socket(read)
       end
@@ -189,6 +182,50 @@ module Cosmos
         pkt.buffer = "\x00\x01\x02\x03"
         packet = nil
         i.write(pkt)
+        data = read.read
+        filename = i.raw_logger_pair.write_logger.filename
+        i.stop_raw_logging
+        expect(i.raw_logger_pair.write_logger.logging_enabled).to be false
+        expect(File.read(filename)).to eq "\x00\x01\x02\x03"
+        i.disconnect
+        Cosmos.close_socket(read)
+      end
+    end
+
+    describe "write_raw" do
+      it "complains if write_dest not given" do
+        i = UdpInterface.new('localhost','nil','8889')
+        expect { i.write_raw('') }.to raise_error(/not connected for write/)
+      end
+
+      it "complains if the server is not connected" do
+        i = UdpInterface.new('localhost','8888','nil')
+        expect { i.write_raw('') }.to raise_error(/Interface not connected/)
+      end
+
+      it "counts the bytes written" do
+        read = UdpReadSocket.new(8888, 'localhost')
+        i = UdpInterface.new('localhost','8888','nil')
+        i.connect
+        expect(i.write_count).to eql 0
+        expect(i.bytes_written).to eql 0
+        i.write_raw("\x04\x05\x06\x07")
+        data = read.read
+        expect(i.write_count).to eql 0
+        expect(i.bytes_written).to eql 4
+        expect(data).to eq "\x04\x05\x06\x07"
+        i.disconnect
+        Cosmos.close_socket(read)
+      end
+
+      it "logs the raw data" do
+        read = UdpReadSocket.new(8888, 'localhost')
+        i = UdpInterface.new('localhost','8888','nil')
+        i.connect
+        expect(i.raw_logger_pair.write_logger.logging_enabled).to be false
+        i.start_raw_logging
+        expect(i.raw_logger_pair.write_logger.logging_enabled).to be true
+        i.write_raw("\x00\x01\x02\x03")
         data = read.read
         filename = i.raw_logger_pair.write_logger.filename
         i.stop_raw_logging

@@ -126,8 +126,8 @@ module Cosmos
     # Writes to the socket
     # @param data [String] Raw packet data
     def write_data(data)
+      super(data)
       @write_socket.write(data, @write_timeout)
-      data
     end
   end
 end

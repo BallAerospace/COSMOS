@@ -99,15 +99,18 @@ module Cosmos
         expect { i.write_raw(Packet.new('','')) }.to raise_error(/Interface not connected/)
       end
 
-      it "counts the packets written" do
+      it "counts the bytes written" do
         allow(@server).to receive(:connected?).and_return(true)
         allow(@server).to receive(:write_raw).with(kind_of(String))
         i = TcpipServerInterface.new('8888','8889','5','5','burst')
         expect(i.write_count).to eql 0
-        i.write_raw('')
-        expect(i.write_count).to eql 1
-        i.write_raw('')
-        expect(i.write_count).to eql 2
+        expect(i.bytes_written).to eql 0
+        i.write_raw("\x00\x01")
+        expect(i.write_count).to eql 0
+        expect(i.bytes_written).to eql 2
+        i.write_raw("\x02")
+        expect(i.write_count).to eql 0
+        expect(i.bytes_written).to eql 3
       end
 
       it "handles server exceptions and disconnect" do

@@ -101,10 +101,9 @@ module Cosmos
     # Writes the packet data to the stream.
     #
     # @param data [String] Packet data to write to the stream
-    # @return [String] The original raw packet data
     def write_data(data)
+      super(data)
       @stream.write(data)
-      data
     end
 
     # Called to perform modifications on a command packet before it is sent

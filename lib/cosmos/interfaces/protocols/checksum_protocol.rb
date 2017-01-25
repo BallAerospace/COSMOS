@@ -33,7 +33,8 @@ module Cosmos
     # checksum word removed.
     #
     # @param data [String] Raw packet data
-    # @return [String] Packet data with checksum word removed
+    # @return [String|nil] Packet data with checksum word removed or nil if bad
+    #   checksum
     def post_read_data(data)
       len = data.length
       calc_checksum = 0xFFFF
@@ -41,10 +42,10 @@ module Cosmos
       calc_checksum &= 0xFFFF
       truth_checksum = data[-2..-1].unpack("n") # 16 bit unsigned big endian
       if truth_checksum == calc_checksum
-        return data[0..(len - 2)]
+        data[0..(len - 2)]
       else
         puts "Bad checksum detected. Calculated 0x#{calc_checksum.to_s(16)} but received 0x#{truth_checksum.to_s(16)}. Dropping packet."
-        return ''
+        nil
       end
     end
   end

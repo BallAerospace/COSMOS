@@ -57,8 +57,8 @@ module Cosmos
     # Writes the raw data to the tcpip_server
     # @param data [String] Raw data
     def write_data(data)
+      super(data)
       @tcpip_server.write_raw(data)
-      data
     end
 
     # Supported Options

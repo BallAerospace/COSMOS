@@ -138,14 +138,16 @@ module Cosmos
     def read
       raise "Interface not connected for read: #{@name}" unless connected?
       data = read_data()
-      @raw_logger_pair.read_logger.write(data)
       return nil unless data
+      @raw_logger_pair.read_logger.write(data)
       @bytes_read += data.length
       # data could be modified by post_read_data (bytes added or subtracted)
       # but we count the number of bytes read from the lowest level above
       data = post_read_data(data)
+      return nil unless data
       packet = post_read_packet(Packet.new(nil, nil, :BIG_ENDIAN, nil, data))
-      @read_count += 1 if packet
+      return nil unless packet
+      @read_count += 1
       packet
     end
 
@@ -154,10 +156,13 @@ module Cosmos
     def write(packet)
       raise "Interface not connected for write: #{@name}" unless connected?
       _write do
-        packet = write_packet(pre_write_packet(packet))
+        packet = pre_write_packet(packet)
         next unless packet
-        data = write_data(pre_write_data(packet.buffer(false)))
+        data = pre_write_data(packet.buffer(false))
         next unless data
+        # Only bump the packet write count if we actually write out the data
+        @write_count += 1
+        write_data(data)
         post_write_data(packet, data)
         data
       end
@@ -177,15 +182,12 @@ module Cosmos
 
     protected
 
+    # Wrap all writes in a mutex and handle errors
     def _write
-      @write_mutex.synchronize do
-        data = yield
-        @bytes_written += data.length
-        @write_count += 1
-      end
+      @write_mutex.synchronize { yield }
     rescue => err
       Logger.instance.error("Error writing to interface : #{@name}")
-      disconnect
+      disconnect()
       raise err
     end
 
@@ -281,7 +283,7 @@ module Cosmos
     # After this method is called the post_read_packet method is called.
     #
     # @param packet_data [String] Raw packet data
-    # @return [String] Potentially modified packet data
+    # @return [String|nil] Potentially modified packet data or nil to abort read
     def post_read_data(packet_data)
       packet_data
     end
@@ -293,7 +295,7 @@ module Cosmos
     # post_identify_packet method is called.
     #
     # @param packet [Packet] Original packet
-    # @return [Packet] Potentially modified packet
+    # @return [Packet|nil] Potentially modified packet or nil to abort read
     def post_read_packet(packet)
       packet
     end
@@ -311,18 +313,8 @@ module Cosmos
     # value. After this method is called the pre_write_data method is called.
     #
     # @param packet [Packet] Original packet
-    # @return [Packet] Potentially modified packet
+    # @return [Packet|nil] Potentially modified packet or nil to abort writing
     def pre_write_packet(packet)
-      packet
-    end
-
-    # Called to write a packet to the underlying interface. Subclasses should
-    # implement this method if they need to do something with the packet during
-    # the write. Otherwise simply implement write_data.
-    #
-    # @param packet [Packet] Packet data
-    # @return [Packet] The original packet
-    def write_packet(packet)
       packet
     end
 
@@ -332,19 +324,19 @@ module Cosmos
     # After this method is called the post_write_data method is called.
     #
     # @param packet_data [String] Raw packet data
-    # @return [String] Potentially modified packet data
+    # @return [String|nil] Potentially modified data or nil to abort writing
     def pre_write_data(packet_data)
-      @raw_logger_pair.write_logger.write(packet_data)
       packet_data
     end
 
     # Called to write data to the underlying interface. Subclasses must
-    # implement this method.
+    # implement this method and call super to count the raw bytes and allow raw
+    # logging.
     #
     # @param data [String] Raw packet data
-    # @return [String] The original raw packet data
     def write_data(data)
-      data
+      @bytes_written += data.length
+      @raw_logger_pair.write_logger.write(data)
     end
 
     # Called to perform actions after writing data to the interface. For
