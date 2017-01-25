@@ -596,11 +596,8 @@ module Cosmos
     return class_name.to_class if class_name.to_class and defined? class_name.to_class
     self.require_file(class_filename)
     klass = class_name.to_class
-    if klass
-      return klass
-    else
-      raise "Ruby class #{class_name} not found"
-    end
+    raise "Ruby class #{class_name} not found" unless klass
+    klass
   end
 
   # Requires a file with a standard error message if it fails
@@ -612,7 +609,8 @@ module Cosmos
     rescue LoadError => err
       msg = "Unable to require #{filename} due to #{err.message}. Ensure #{filename} is in the COSMOS lib directory."
       Logger.error msg
-      raise err
+      # Reraise the existing exeption with the new message while keeping the backtrace
+      raise $!, msg, $!.backtrace
     end
   end
 
