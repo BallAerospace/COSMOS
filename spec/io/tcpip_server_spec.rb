@@ -217,15 +217,42 @@ module Cosmos
     describe "write" do
       it "does nothing if there is no write port" do
         server = TcpipServer.new(nil,8889,nil,nil,'Burst')
-        server.write(Packet.new('TGT','PKT'))
         expect { server.write(Packet.new('TGT','PKT')) }.to_not raise_error
+      end
+
+      it "handles errors during the interface write" do
+        allow(System).to receive_message_chain(:instance, :use_dns).and_return(false)
+        allow(System).to receive_message_chain(:instance, :acl).and_return(false)
+        class Interface
+          def pre_write_packet(packet)
+            raise "pre_write_packet error"
+          end
+        end
+
+        server = TcpipServer.new(8888,8888,nil,nil,'Burst')
+        server.connect
+        sleep 0.2
+        socket = TCPSocket.open("127.0.0.1",8888)
+        sleep 0.2
+        expect(server.num_clients).to eql 1
+        packet = Packet.new("TGT","PKT")
+        packet.buffer = "\x01\x02\x03\x04"
+        server.write(packet)
+        sleep 0.2
+        # Error causes client to disconnect
+        expect(server.num_clients).to eql 0
+        server.disconnect
+        sleep(0.2)
+        class Interface
+          def pre_write_packet(packet); packet; end
+        end
       end
 
       it "writes to all connected clients" do
         allow(System).to receive_message_chain(:instance, :use_dns).and_return(false)
         allow(System).to receive_message_chain(:instance, :acl).and_return(false)
 
-        server = TcpipServer.new(8888,8889,nil,nil,'Burst')
+        server = TcpipServer.new(8888,nil,nil,nil,'Burst')
         server.connect
         sleep 0.2
 
@@ -245,12 +272,12 @@ module Cosmos
         data = socket2.read_nonblock(packet.length)
         expect(data).to eql "\x01\x02\x03\x04"
         socket.close
-        #sleep 0.5
-        #expect(server.num_clients).to eql 1
+        sleep 0.5
+        expect(server.num_clients).to eql 1
         server.disconnect
         sleep 0.2
         expect(server.num_clients).to eql 0
-        socket.close
+        socket2.close
         sleep(0.2)
       end
 
@@ -446,9 +473,9 @@ module Cosmos
 
         # Ensure we can restart logging on exsting interfaces
         #
-        # Add additional delay to push us past 1s since we started logging so
-        # when we restart logging we'll get a new log file
-        sleep 0.4
+        # Add additional delay to push us past 1s since we started logging
+        # (time starts from the last write) so we'll get a new log file
+        sleep 0.6
         server.start_raw_logging
         packet.buffer = "\xAA\xBB\xCC\xDD"
         server.write(packet)

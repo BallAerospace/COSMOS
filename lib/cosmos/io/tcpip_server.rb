@@ -430,17 +430,15 @@ module Cosmos
 
     def check_for_dead_clients
       exercise_write_interfaces do |interface|
-        if @write_port != @read_port
-          # Socket should return EWOULDBLOCK if it is still cleanly connected
-          interface.interface.stream.write_socket.recvfrom_nonblock(10)
-        elsif !interface.interface.stream.write_socket.closed?
-          # write_port == read_port and since the write_socket isn't closed we
-          # let the read_thread detect any disconnects
-          next
-        else
-          # Client has disconnected (or is incorrectly sending data on the socket)
-          raise IOError
-        end
+        # If the write_port == read_port there's a single socket and if it
+        # isn't closed we let the read_thread detect any disconnects so skip
+        next if @write_port == @read_port && !interface.interface.stream.write_socket.closed?
+        # recvfrom_nonblock should raise EWOULDBLOCK if it is still cleanly
+        # connected and this error is handled by exercise_write_interfaces
+        interface.interface.stream.write_socket.recvfrom_nonblock(10)
+        # If we've made it this far we're not connected so raise IOError to be
+        # handled by exercise_write_interfaces
+        raise IOError
       end
     end
 
@@ -457,13 +455,15 @@ module Cosmos
         @write_interfaces.each do |interface|
           begin
             yield interface
+          rescue IO::WaitReadable
+            # This is an expected error when calling recvfrom_nonblock to test
+            # for an active connection so ignore it
           rescue Errno::EPIPE, Errno::ECONNRESET, Errno::ECONNABORTED, IOError
             # Client has normally disconnected
             interface_disconnect(interface)
             indexes_to_delete.unshift(index) # Put later indexes at front of array
-          rescue Errno::EWOULDBLOCK
-            # Client is still cleanly connected as far as we can tell without writing to the socket
           rescue => err
+            # Something unexpected happened with the client
             Logger.instance.error "Error sending to client: #{err.class} #{err.message}"
             interface_disconnect(interface)
             indexes_to_delete.unshift(index) # Put later indexes at front of array
