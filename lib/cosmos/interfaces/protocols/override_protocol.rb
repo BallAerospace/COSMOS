@@ -15,17 +15,11 @@ module Cosmos
   # methods. Clearing the override requires calling normalize_tlm.
   module OverrideProtocol
     def _override_tlm(target_name, packet_name, item_name, value)
-      @override_tlm||= {}
-      @override_tlm[target_name] ||= {}
-      @override_tlm[target_name][packet_name] ||= {}
-      @override_tlm[target_name][packet_name][item_name] = [value, :CONVERTED]
+      _override(target_name, packet_name, item_name, value, :CONVERTED)
     end
 
     def _override_tlm_raw(target_name, packet_name, item_name, value)
-      @override_tlm||= {}
-      @override_tlm[target_name] ||= {}
-      @override_tlm[target_name][packet_name] ||= {}
-      @override_tlm[target_name][packet_name][item_name] = [value, :RAW]
+      _override(target_name, packet_name, item_name, value, :RAW)
     end
 
     def _normalize_tlm(target_name, packet_name, item_name)
@@ -56,6 +50,15 @@ module Cosmos
         end
       end
       packet
+    end
+
+    protected
+
+    def _override(target_name, packet_name, item_name, value, type)
+      @override_tlm||= {}
+      @override_tlm[target_name] ||= {}
+      @override_tlm[target_name][packet_name] ||= {}
+      @override_tlm[target_name][packet_name][item_name] = [value, type]
     end
   end
 end

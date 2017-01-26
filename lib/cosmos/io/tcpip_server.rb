@@ -24,12 +24,22 @@ module Cosmos
   # write port, a thread is spawned that calls the write method from the stream
   # protocol when data is send to the TcpipServer via the write method.
   class TcpipServer
+    # Data class which stores the interface and associated information
+    class InterfaceInfo
+      attr_reader :interface, :hostname, :host_ip, :port
+      def initialize(interface, hostname, host_ip, port)
+        @interface = interface
+        @hostname = hostname
+        @host_ip = host_ip
+        @port = port
+      end
+    end
 
     # Callback method to call when a new client connects to the write port.
-    # This method will be called with the StreamProtocol as the only argument.
+    # This method will be called with the Interface as the only argument.
     attr_accessor :write_connection_callback
     # Callback method to call when a new client connects to the read port.
-    # This method will be called with the StreamProtocol as the only argument.
+    # This method will be called with the Interface as the only argument.
     attr_accessor :read_connection_callback
     # @return [RawLoggerPair] RawLoggerPair instance or nil
     attr_accessor :raw_logger_pair
@@ -47,8 +57,7 @@ module Cosmos
     # @param stream_protocol_type [String] The name of the stream protocol to
     #   use for both the read and write ports. This name is combined with
     #   'StreamProtocol' to result in a COSMOS StreamProtocol class.
-    # @param stream_protocol_args [Array] The arguments to pass to the
-    #   StreamProtocol class constructor
+    # @param stream_protocol_args [Array] Arguments to pass to the StreamProtocol
     def initialize(write_port,
                    read_port,
                    write_timeout,
@@ -76,8 +85,8 @@ module Cosmos
       @listen_pipes = []
       @listen_threads = []
       @read_threads = []
-      @write_stream_protocols = []
-      @read_stream_protocols = []
+      @write_interfaces = []
+      @read_interfaces = []
       @write_queue = nil
       @write_queue = Queue.new if @write_port
       @read_queue = nil
@@ -99,42 +108,23 @@ module Cosmos
     # spawn separate threads to process the reads and writes.
     def connect
       @cancel_threads = false
-      if @read_queue
-        # Empty the read queue of any residual
-        begin
-          @read_queue.pop(true) while @read_queue.length > 0
-        rescue
-        end
-      end
-      if @write_port == @read_port
-        # Handle one socket case
+      @read_queue.clear if @read_queue
+      if @write_port == @read_port # One socket
         start_listen_thread(@read_port, true, true)
       else
-        if @write_port
-          start_listen_thread(@write_port, true, false)
-        end
-
-        if @read_port
-          start_listen_thread(@read_port, false, true)
-        end
+        start_listen_thread(@write_port, true, false) if @write_port
+        start_listen_thread(@read_port, false, true) if @read_port
       end
 
       if @write_port
-        # Start write thread
         @write_thread = Thread.new do
           begin
-            while true
+            loop do
               write_thread_body()
               break if @cancel_threads
             end
           rescue Exception => err
-            @connection_mutex.synchronize do
-              @write_stream_protocols.each do |stream_protocol, hostname, host_ip, port|
-                stream_protocol.disconnect
-                stream_protocol.raw_logger_pair.stop if stream_protocol.raw_logger_pair
-              end
-              @write_stream_protocols.clear
-            end
+            shutdown_interfaces(@write_interfaces)
             Logger.instance.error("Tcpip server write thread unexpectedly died")
             Logger.instance.error(err.formatted)
           end
@@ -165,13 +155,11 @@ module Cosmos
       end
       @listen_pipes.clear
 
-      # Shutdown Listen Thread(s)
-      @listen_threads.each do |listen_thread|
-        Cosmos.kill_thread(self, listen_thread)
-      end
+      # Shutdown listen thread(s)
+      @listen_threads.each { |listen_thread| Cosmos.kill_thread(self, listen_thread) }
       @listen_threads.clear
 
-      # Shutdown Listen Socket(s)
+      # Shutdown listen socket(s)
       @listen_sockets.each do |listen_socket|
         begin
           Cosmos.close_socket(listen_socket)
@@ -181,36 +169,17 @@ module Cosmos
       end
       @listen_sockets.clear
 
-      # Shutdown Read Stream Protocols - This should unblock read threads
-      @connection_mutex.synchronize do
-        @read_stream_protocols.each do |stream_protocol, hostname, host_ip, port|
-          stream_protocol.disconnect
-          stream_protocol.raw_logger_pair.stop if stream_protocol.raw_logger_pair
-        end
-        @read_stream_protocols.clear
-      end
+      # This will unblock read threads
+      shutdown_interfaces(@read_interfaces)
 
-      # Shutdown Read Threads
-      @read_threads.each do |thread|
-        Cosmos.kill_thread(self, thread)
-      end
+      @read_threads.each { |thread| Cosmos.kill_thread(self, thread) }
       @read_threads.clear
-
-      # Shutdown Write Thread
       if @write_thread
         Cosmos.kill_thread(self, @write_thread)
         @write_thread = nil
       end
 
-      # Shutdown Write Stream Protocols
-      @connection_mutex.synchronize do
-        @write_stream_protocols.each do |stream_protocol, hostname, host_ip, port|
-          stream_protocol.disconnect
-          stream_protocol.raw_logger_pair.stop if stream_protocol.raw_logger_pair
-        end
-        @write_stream_protocols.clear
-      end
-
+      shutdown_interfaces(@write_interfaces)
       @connected = false
     end
 
@@ -248,30 +217,22 @@ module Cosmos
 
     # @return [Integer] The number of packets waiting on the read queue
     def read_queue_size
-      if @read_queue
-        @read_queue.size
-      else
-        0
-      end
+      @read_queue ? @read_queue.size : 0
     end
 
     # @return [Integer] The number of packets waiting on the write queue
     def write_queue_size
-      if @write_queue
-        @write_queue.size
-      else
-        0
-      end
+      @write_queue ? @write_queue.size : 0
     end
 
     # @return [Integer] The number of connected clients
     def num_clients
       clients = []
-      @write_stream_protocols.each do |stream_protocol, hostname, host_ip, port|
-        clients << [host_ip, port]
+      @write_interfaces.each do |interface|
+        clients << [interface.host_ip, interface.port]
       end
-      @read_stream_protocols.each do |stream_protocol, hostname, host_ip, port|
-        clients << [host_ip, port]
+      @read_interfaces.each do |interface|
+        clients << [interface.host_ip, interface.port]
       end
       clients.uniq.length
     end
@@ -279,30 +240,37 @@ module Cosmos
     # Start raw logging for this interface
     def start_raw_logging
       @raw_logging_enabled = true
-      if @raw_logger_pair
-        @write_stream_protocols.each do |stream_protocol, hostname, host_ip, port|
-          stream_protocol.raw_logger_pair.start if stream_protocol.raw_logger_pair
-        end
-        @read_stream_protocols.each do |stream_protocol, hostname, host_ip, port|
-          stream_protocol.raw_logger_pair.start if stream_protocol.raw_logger_pair
-        end
-      end
+      change_raw_logging(:start)
     end
 
     # Stop raw logging for this interface
     def stop_raw_logging
       @raw_logging_enabled = false
-      if @raw_logger_pair
-        @write_stream_protocols.each do |stream_protocol, hostname, host_ip, port|
-          stream_protocol.raw_logger_pair.stop if stream_protocol.raw_logger_pair
-        end
-        @read_stream_protocols.each do |stream_protocol, hostname, host_ip, port|
-          stream_protocol.raw_logger_pair.stop if stream_protocol.raw_logger_pair
-        end
-      end
+      change_raw_logging(:stop)
     end
 
     protected
+
+    def shutdown_interfaces(interfaces)
+      @connection_mutex.synchronize do
+        interfaces.each do |interface|
+          interface.interface.disconnect
+          interface.interface.raw_logger_pair.stop if interface.interface.raw_logger_pair
+        end
+        interfaces.clear
+      end
+    end
+
+    def change_raw_logging(method)
+      if @raw_logger_pair
+        @write_interfaces.each do |interface|
+          interface.interface.raw_logger_pair.send(method) if interface.interface.raw_logger_pair
+        end
+        @read_interfaces.each do |interface, _, _, _|
+          interface.interface.raw_logger_pair.send(method) if interface.interface.raw_logger_pair
+        end
+      end
+    end
 
     def start_listen_thread(port, listen_write = false, listen_read = false)
       # Create a socket to accept connections from clients
@@ -320,19 +288,16 @@ module Cosmos
       end
 
       listen_socket.listen(5)
-
       @listen_sockets << listen_socket
-
-      # Start Listen Thread
       @listen_threads << Thread.new do
         begin
           thread_reader, thread_writer = IO.pipe
           @listen_pipes << thread_writer
-          while true
+          loop do
             listen_thread_body(listen_socket, listen_write, listen_read, thread_reader)
             break if @cancel_threads
           end
-        rescue Exception => err
+        rescue => err
           Logger.instance.error("Tcpip server listen thread unexpectedly died")
           Logger.instance.error(err.formatted)
         end
@@ -344,7 +309,7 @@ module Cosmos
         socket, address = listen_socket.accept_nonblock
       rescue Errno::EAGAIN, Errno::ECONNABORTED, Errno::EINTR, Errno::EWOULDBLOCK
         read_ready, _ = IO.select([listen_socket, thread_reader])
-        if read_ready and read_ready.include?(thread_reader)
+        if read_ready && read_ready.include?(thread_reader)
           return
         else
           retry
@@ -387,55 +352,56 @@ module Cosmos
       if listen_write
         @write_connection_callback.call(interface) if @write_connection_callback
         @connection_mutex.synchronize do
-          @write_stream_protocols << [interface, hostname, host_ip, port]
+          @write_interfaces << InterfaceInfo.new(interface, hostname, host_ip, port)
         end
       end
       if listen_read
         @read_connection_callback.call(interface) if @read_connection_callback
         @connection_mutex.synchronize do
-          @read_stream_protocols << [interface, hostname, host_ip, port]
+          @read_interfaces << InterfaceInfo.new(interface, hostname, host_ip, port)
         end
+        start_read_thread(@read_interfaces[-1])
+      end
+      Logger.instance.info "Tcpip server accepted connection from #{hostname}(#{host_ip}):#{port}"
+    end
 
-        # Start read thread
-        @read_threads << Thread.new do
-          index_to_delete = nil
+    def start_read_thread(interface)
+      @read_threads << Thread.new do
+        index_to_delete = nil
+        begin
           begin
-            begin
-              read_thread_body(interface)
-            rescue Exception => err
-              Logger.instance.error "Tcpip server read thread unexpectedly died"
-              Logger.instance.error err.formatted
-            end
-            Logger.instance.info "Tcpip server lost read connection to #{hostname}(#{host_ip}):#{port}"
-            @read_threads.delete(Thread.current)
-
-            index_to_delete = nil
-            @connection_mutex.synchronize do
-              begin
-                index = 0
-                @read_stream_protocols.each do |read_stream_protocol, _, _, _|
-                  if read_stream_protocol == interface
-                    index_to_delete = index
-                    read_stream_protocol.disconnect
-                    read_stream_protocol.raw_logger_pair.stop if read_stream_protocol.raw_logger_pair
-                    break
-                  end
-                  index += 1
-                end
-              ensure
-                if index_to_delete
-                  @read_stream_protocols.delete_at(index_to_delete)
-                end
-              end
-            end
+            read_thread_body(interface.interface)
           rescue Exception => err
             Logger.instance.error "Tcpip server read thread unexpectedly died"
             Logger.instance.error err.formatted
           end
+          Logger.instance.info "Tcpip server lost read connection to #{interface.hostname}(#{interface.host_ip}):#{interface.port}"
+          @read_threads.delete(Thread.current)
+
+          index_to_delete = nil
+          @connection_mutex.synchronize do
+            begin
+              index = 0
+              @read_interfaces.each do |read_interface|
+                if interface.interface == read_interface.interface
+                  index_to_delete = index
+                  read_interface.interface.disconnect
+                  read_interface.interface.raw_logger_pair.stop if read_interface.interface.raw_logger_pair
+                  break
+                end
+                index += 1
+              end
+            ensure
+              if index_to_delete
+                @read_interfaces.delete_at(index_to_delete)
+              end
+            end
+          end
+        rescue Exception => err
+          Logger.instance.error "Tcpip server read thread unexpectedly died"
+          Logger.instance.error err.formatted
         end
       end
-
-      Logger.instance.info "Tcpip server accepted connection from #{hostname}(#{host_ip}):#{port}"
     end
 
     def write_thread_body
@@ -446,48 +412,10 @@ module Cosmos
       loop do
         break if @cancel_threads
         begin
-          packet = @write_queue.pop(true)
+          packet = @write_queue.pop(true) # non_block to raise ThreadError
           break
-        rescue ThreadError
-          # Timeout waiting for send - check for dead clients
-          indexes_to_delete = []
-          index = 0
-
-          @connection_mutex.synchronize do
-            @write_stream_protocols.each do |stream_protocol, hostname, host_ip, port|
-              begin
-                if (@write_port != @read_port)
-                  # Socket should return EWOULDBLOCK if it is still cleanly connected
-                  stream_protocol.stream.write_socket.recvfrom_nonblock(10)
-                elsif (!stream_protocol.stream.write_socket.closed?)
-                  # Let read thread detect disconnect
-                  next
-                end
-
-                # Client has disconnected (or is invalidly sending data on the socket)
-                Logger.instance.info "Tcpip server lost write connection to #{hostname}(#{host_ip}):#{port}"
-                stream_protocol.disconnect
-                stream_protocol.raw_logger_pair.stop if stream_protocol.raw_logger_pair
-                indexes_to_delete.unshift(index) # Put later indexes at front of array
-              rescue Errno::ECONNRESET, Errno::ECONNABORTED, IOError
-                # Client has disconnected
-                Logger.instance.info "Tcpip server lost write connection to #{hostname}(#{host_ip}):#{port}"
-                stream_protocol.disconnect
-                stream_protocol.raw_logger_pair.stop if stream_protocol.raw_logger_pair
-                indexes_to_delete.unshift(index) # Put later indexes at front of array
-              rescue Errno::EWOULDBLOCK
-                # Client is still cleanly connected as far as we can tell without writing to the socket
-              ensure
-                index += 1
-              end
-            end
-
-            # Delete any dead sockets
-            indexes_to_delete.each do |index_to_delete|
-              @write_stream_protocols.delete_at(index_to_delete)
-            end
-          end # @connection_mutex.synchronize
-
+        rescue ThreadError # There were no packets on the write_queue
+          check_for_dead_clients()
           # Sleep until we receive a packet or for 100ms
           @write_mutex.synchronize do
             @write_condition_variable.wait(@write_mutex, 0.1)
@@ -496,42 +424,65 @@ module Cosmos
       end
 
       packet = write_thread_hook(packet)
+      return unless packet
+      send_data_to_clients(packet)
+    end
 
-      if packet
-        @connection_mutex.synchronize do
-          # Send data to each client - On error drop the client
-          indexes_to_delete = []
-          index = 0
-          @write_stream_protocols.each do |stream_protocol, hostname, host_ip, port|
-            need_disconnect = false
-            begin
-              stream_protocol.write(packet)
-            rescue Errno::EPIPE, Errno::ECONNABORTED, IOError, Errno::ECONNRESET
-              # Client has normally disconnected
-              need_disconnect = true
-            rescue Exception => err
-              if err.message != "Stream not connected for write_raw"
-                Logger.instance.error "Error sending to client: #{err.class} #{err.message}"
-              end
-              need_disconnect = true
-            end
+    def check_for_dead_clients
+      exercise_write_interfaces do |interface|
+        if @write_port != @read_port
+          # Socket should return EWOULDBLOCK if it is still cleanly connected
+          interface.interface.stream.write_socket.recvfrom_nonblock(10)
+        elsif !interface.interface.stream.write_socket.closed?
+          # write_port == read_port and since the write_socket isn't closed we
+          # let the read_thread detect any disconnects
+          next
+        else
+          # Client has disconnected (or is incorrectly sending data on the socket)
+          raise IOError
+        end
+      end
+    end
 
-            if need_disconnect
-              Logger.instance.info "Tcpip server lost write connection to #{hostname}(#{host_ip}):#{port}"
-              stream_protocol.disconnect
-              stream_protocol.raw_logger_pair.stop if stream_protocol.raw_logger_pair
-              indexes_to_delete.unshift(index) # Put later indexes at front of array
-            end
+    def send_data_to_clients(packet)
+      exercise_write_interfaces do |interface|
+        interface.interface.write(packet)
+      end
+    end
 
+    def exercise_write_interfaces
+      @connection_mutex.synchronize do
+        indexes_to_delete = []
+        index = 0
+        @write_interfaces.each do |interface|
+          begin
+            yield interface
+          rescue Errno::EPIPE, Errno::ECONNRESET, Errno::ECONNABORTED, IOError
+            # Client has normally disconnected
+            interface_disconnect(interface)
+            indexes_to_delete.unshift(index) # Put later indexes at front of array
+          rescue Errno::EWOULDBLOCK
+            # Client is still cleanly connected as far as we can tell without writing to the socket
+          rescue => err
+            Logger.instance.error "Error sending to client: #{err.class} #{err.message}"
+            interface_disconnect(interface)
+            indexes_to_delete.unshift(index) # Put later indexes at front of array
+          ensure
             index += 1
           end
-
-          # Delete any dead sockets
-          indexes_to_delete.each do |index_to_delete|
-            @write_stream_protocols.delete_at(index_to_delete)
-          end
-        end # @connection_mutex.synchronize
+        end
+        # Delete any dead sockets
+        indexes_to_delete.each do |index_to_delete|
+          @write_interfaces.delete_at(index_to_delete)
+        end
       end
+    end
+
+    def interface_disconnect(interface)
+      Logger.instance.info "Tcpip server lost write connection to "\
+        "#{interface.hostname}(#{interface.host_ip}):#{interface.port}"
+      interface.interface.disconnect
+      interface.interface.raw_logger_pair.stop if interface.interface.raw_logger_pair
     end
 
     def write_thread_hook(packet)
@@ -541,13 +492,15 @@ module Cosmos
     def read_thread_body(interface)
       loop do
         packet = interface.read
-        return if !packet or @cancel_threads
-        read_thread_hook(packet) # Do work on received packet
+        return if !packet || @cancel_threads
+        packet = read_thread_hook(packet) # Do work on received packet
+        @read_queue << packet.clone
       end
     end
 
+    # @return [Packet] Return the packet
     def read_thread_hook(packet)
-      @read_queue << packet.clone
+      packet
     end
   end
 end

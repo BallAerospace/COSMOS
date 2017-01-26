@@ -154,7 +154,7 @@ module Cosmos
     # Method to send a packet on the interface.
     # @param packet [Packet] The Packet to send out the interface
     def write(packet)
-      raise "Interface not connected for write: #{@name}" unless connected?
+      raise "Interface not connected for write: #{@name}" unless connected? && write_allowed?
       _write do
         packet = pre_write_packet(packet)
         next unless packet
@@ -172,7 +172,7 @@ module Cosmos
     # problems.
     # @param data [String] The raw data to send out the interface
     def write_raw(data)
-      raise "Interface not connected for write_raw : #{@name}" unless connected?
+      raise "Interface not connected for write_raw : #{@name}" unless connected? && write_raw_allowed?
       _write do
         data = pre_write_data(data)
         next unless data
