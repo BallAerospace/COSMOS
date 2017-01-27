@@ -267,9 +267,9 @@ module Cosmos
         expect(server.write_queue_size).to eql 0
         server.write(packet)
         sleep 0.2
-        data = socket.read_nonblock(packet.length)
+        data = socket.read(packet.length)
         expect(data).to eql "\x01\x02\x03\x04"
-        data = socket2.read_nonblock(packet.length)
+        data = socket2.read(packet.length)
         expect(data).to eql "\x01\x02\x03\x04"
         socket.close
         sleep 0.5
@@ -379,7 +379,7 @@ module Cosmos
         expect(server.num_clients).to eql 1
         server.write_raw("\x01\x02\x03\x04")
         sleep 0.2
-        data = socket.read_nonblock(4)
+        data = socket.read(4)
         expect(data).to eql "\x01\x02\x03\x04"
         server.disconnect
         sleep 0.2
@@ -447,9 +447,9 @@ module Cosmos
         expect(pkt.buffer).to eq "\x00\x01"
         pkt = server.read
         expect(pkt.buffer).to eq "\x02\x03"
-        data = socket.read_nonblock(packet.length)
+        data = socket.read(packet.length)
         expect(data).to eql "\x05\x06\x07\x08"
-        data = socket2.read_nonblock(packet.length)
+        data = socket2.read(packet.length)
         expect(data).to eql "\x05\x06\x07\x08"
 
         # Capture the logger filenames before we close the logs and they go nil
@@ -480,9 +480,9 @@ module Cosmos
         packet.buffer = "\xAA\xBB\xCC\xDD"
         server.write(packet)
         sleep 0.1
-        data = socket.read_nonblock(packet.length)
+        data = socket.read(packet.length)
         expect(data).to eql "\xAA\xBB\xCC\xDD"
-        data = socket2.read_nonblock(packet.length)
+        data = socket2.read(packet.length)
         expect(data).to eql "\xAA\xBB\xCC\xDD"
         # Capture the logger filenames before we close the logs and they go nil
         read_log_filenames = read_loggers.collect {|logger| logger.filename }
