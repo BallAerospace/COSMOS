@@ -11,7 +11,7 @@ set START_PATH=!PATH!
 set PROTOCOL=https
 
 :: Update this version if making any changes to this script
-set INSTALLER_VERSION=1.3
+set INSTALLER_VERSION=1.4
 
 :: Paths and versions for COSMOS dependencies
 set RUBY_INSTALLER_32=rubyinstaller-2.2.3.exe
@@ -22,7 +22,7 @@ set DEVKIT_32=DevKit-mingw64-32-4.7.2-20130224-1151-sfx.exe
 set DEVKIT_64=DevKit-mingw64-64-4.7.2-20130224-1432-sfx.exe
 set WKHTMLTOPDF=wkhtmltox-0.11.0_rc1-installer.exe
 set WKHTMLPATHWITHPROTOCOL=http://download.gna.org/wkhtmltopdf/obsolete/windows/
-set QT_VERSION=4.8.6
+set QTBINDINGS_QT_VERSION=4.8.6.3
 
 :: Detect Ball
 if "%USERDNSDOMAIN%"=="AERO.BALL.COM" (
@@ -126,7 +126,7 @@ if errorlevel 1 (
 @echo DEVKIT_64=!DEVKIT_64! >> !COSMOS_INSTALL!\INSTALL.log
 @echo WKHTMLTOPDF=!WKHTMLTOPDF! >> !COSMOS_INSTALL!\INSTALL.log
 @echo WKHTMLPATHWITHPROTOCOL=!WKHTMLPATHWITHPROTOCOL! >> !COSMOS_INSTALL!\INSTALL.log
-@echo QT_VERSION=!QT_VERSION! >> !COSMOS_INSTALL!\INSTALL.log
+@echo QTBINDINGS_QT_VERSION=!QTBINDINGS_QT_VERSION! >> !COSMOS_INSTALL!\INSTALL.log
 @echo USERDNSDOMAIN=%USERDNSDOMAIN% >> !COSMOS_INSTALL!\INSTALL.log
 @echo BALL=!BALL! >> !COSMOS_INSTALL!\INSTALL.log
 @echo SSL_CERT_FILE=%SSL_CERT_FILE% >> !COSMOS_INSTALL!\INSTALL.log
@@ -398,9 +398,9 @@ if errorlevel 1 (
 
 :: move qt dlls to the ruby/bin folder - prevents conflicts with other versions of qt on the system
 if %PROCESSOR_ARCHITECTURE%==x86 (
-  move !COSMOS_INSTALL!\Vendor\Ruby\lib\ruby\gems\!RUBY_ABI_VERSION!\gems\qtbindings-qt-!QT_VERSION!-x86-mingw32\qtbin\*.dll !COSMOS_INSTALL!\Vendor\Ruby\bin
+  move !COSMOS_INSTALL!\Vendor\Ruby\lib\ruby\gems\!RUBY_ABI_VERSION!\gems\qtbindings-qt-!QTBINDINGS_QT_VERSION!-x86-mingw32\qtbin\*.dll !COSMOS_INSTALL!\Vendor\Ruby\bin
 ) else (
-  move !COSMOS_INSTALL!\Vendor\Ruby\lib\ruby\gems\!RUBY_ABI_VERSION!\gems\qtbindings-qt-!QT_VERSION!-x64-mingw32\qtbin\*.dll !COSMOS_INSTALL!\Vendor\Ruby\bin
+  move !COSMOS_INSTALL!\Vendor\Ruby\lib\ruby\gems\!RUBY_ABI_VERSION!\gems\qtbindings-qt-!QTBINDINGS_QT_VERSION!-x64-mingw32\qtbin\*.dll !COSMOS_INSTALL!\Vendor\Ruby\bin
 )
 if errorlevel 1 (
   echo ERROR: Problem moving qt dlls
