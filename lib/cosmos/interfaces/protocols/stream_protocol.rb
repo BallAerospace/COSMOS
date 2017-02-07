@@ -12,12 +12,13 @@ require 'cosmos/config/config_parser'
 require 'thread'
 
 module Cosmos
-  # Processes a {Stream} on behalf of an {Interface}. A {Stream} is a
-  # primative interface that simply reads and writes raw binary data. The
-  # StreamProtocol adds higher level processing including the ability to
-  # discard a certain number of bytes from the stream and to sync the stream
-  # on a given synchronization pattern. The StreamProtocol operates at the
-  # {Packet} abstraction level while the {Stream} operates on raw bytes.
+  # Processes a {Cosmos::Stream} on behalf of an {Cosmos::Interface}.
+  # A {Cosmos::Stream} is a primative interface that simply reads and writes
+  # raw binary data. The StreamProtocol adds higher level processing including
+  # the ability todiscard a certain number of bytes from the stream and to sync
+  # the stream on a given synchronization pattern. The StreamProtocol operates
+  # at the {Cosmos::Packet} abstraction level while the {Cosmos::Stream}
+  # operates on raw bytes.
   module StreamProtocol
     ## @return [Integer] The number of bytes read from the stream
     #attr_accessor :bytes_read
@@ -30,10 +31,10 @@ module Cosmos
     attr_accessor :stream
 
     # @param discard_leading_bytes [Integer] The number of bytes to discard
-    #   from the binary data after reading from the {Stream}. Note that this is often
+    #   from the binary data after reading from the stream. Note that this is often
     #   used to remove a sync pattern from the final packet data.
     # @param sync_pattern [String] String representing a hex number ("0x1234")
-    #   that will be searched for in the raw {Stream}. Bytes encountered before
+    #   that will be searched for in the raw stream. Bytes encountered before
     #   this pattern is found are discarded.
     # @param fill_fields [Boolean] Fill any required fields when writing packets
     def configure_stream_protocol(discard_leading_bytes = 0, sync_pattern = nil, fill_fields = false)
@@ -125,7 +126,7 @@ module Cosmos
 
     # Called to perform modifications on write data before sending it to the stream
     #
-    # @param packet_data [String] Raw packet data
+    # @param data [String] Raw packet data
     # @return [String] Potentially modified packet data
     def pre_write_data(data)
       data = super(data)

@@ -591,10 +591,12 @@ module Cosmos
   #
   # @param class_filename [String] The name of the file which contains the
   #   Ruby class to require
-  def self.require_class(class_filename)
+  # @param log_error [Boolean] Whether to log an error if we can not require
+  #   the class
+  def self.require_class(class_filename, log_error = true)
     class_name = class_filename.filename_to_class_name
     return class_name.to_class if class_name.to_class and defined? class_name.to_class
-    self.require_file(class_filename)
+    self.require_file(class_filename, log_error)
     klass = class_name.to_class
     raise "Ruby class #{class_name} not found" unless klass
     klass
@@ -603,12 +605,14 @@ module Cosmos
   # Requires a file with a standard error message if it fails
   #
   # @param filename [String] The name of the file to require
-  def self.require_file(filename)
+  # @param log_error [Boolean] Whether to log an error if we can not require
+  #   the class
+  def self.require_file(filename, log_error = true)
     begin
       require filename
     rescue LoadError => err
       msg = "Unable to require #{filename} due to #{err.message}. Ensure #{filename} is in the COSMOS lib directory."
-      Logger.error msg
+      Logger.error msg if log_error
       # Reraise the existing exeption with the new message while keeping the backtrace
       raise $!, msg, $!.backtrace
     end

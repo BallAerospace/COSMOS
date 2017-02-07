@@ -46,7 +46,10 @@ module Cosmos
     # @return [Packet] Initially returns the COSMOS VERSION packet and then
     #   returns COSMOS LIMITS_CHANGE packets as limits events are generated.
     def read
-      return cosmos_version_packet() if @read_count.zero?
+      if @read_count.zero?
+        version = cosmos_version_packet()
+        return version if version
+      end
       return nil unless connected?
       process_limits_change_events()
     end
@@ -111,12 +114,19 @@ module Cosmos
       packet
     rescue RuntimeError
       puts "Consider defining the COSMOS VERSION packet to allow "\
-           "startup version information to be logged"
+        "startup version information to be logged"
+      nil
     end
 
     def process_limits_change_events
-      event = CmdTlmServer.instance.get_limits_event(@limit_id)
-      return nil unless (event && event[0] == :LIMITS_CHANGE)
+      event = []
+      loop do
+        event = CmdTlmServer.instance.get_limits_event(@limit_id)
+        return nil unless event # Force a disconnect
+        # get_limits_event can return several events but we only want to
+        # process the :LIMITS_CHANGE event
+        break if event[0] == :LIMITS_CHANGE
+      end
       data = event[1]
       packet = System.telemetry.packet("COSMOS", "LIMITS_CHANGE")
       packet.received_time = Time.now
@@ -134,7 +144,7 @@ module Cosmos
     rescue RuntimeError
       puts "The COSMOS LIMITS_CHANGE packet is required to allow "\
         "limits change information packets to be generated."
-      nil
+      nil # Force a disconnect
     end
   end
 end

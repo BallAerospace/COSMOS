@@ -76,7 +76,7 @@ module Cosmos
       @stream_protocol_args = stream_protocol_args
       begin
         # Initially try to find the class directly in the path
-        @stream_protocol_class = Cosmos.require_class(stream_protocol_class.class_name_to_filename)
+        @stream_protocol_class = Cosmos.require_class(stream_protocol_class.class_name_to_filename, false)
       rescue LoadError => error
         # Try to load the class from the known COSMOS protocols path location
         @stream_protocol_class = Cosmos.require_class("cosmos/interfaces/protocols/#{stream_protocol_class.class_name_to_filename}")
