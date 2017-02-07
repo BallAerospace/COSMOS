@@ -1,11 +1,17 @@
 :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 :: Installs Ball Aerospace COSMOS on Windows 7+
-:: Usage: INSTALL_COSMOS [Install Directory] [COSMOS Version]
+:: Usage: INSTALL_COSMOS [Install Directory] [COSMOS Version] [OFFLINE]
 :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 @echo off
 SETLOCAL ENABLEEXTENSIONS ENABLEDELAYEDEXPANSION
 set START_PATH=!PATH!
+
+IF "%3"=="OFFLINE" (
+  set OFFLINE=1
+) else (
+  set OFFLINE=0
+)
 
 :: Change Protocol to http if you have SSL issues
 set PROTOCOL=https
@@ -52,7 +58,7 @@ if not errorlevel 1 (
 if exist *.gem (
   echo WARNING: gem files found in the current directory
   echo WARNING: This can cause the installation to fail or install old gems
-  pause  
+  pause
 )
 
 ::::::::::::::::::::::
@@ -86,27 +92,38 @@ echo Using Ball Aerospace COSMOS Version !COSMOS_VERSION!
 :: Create Installation Folder
 ::::::::::::::::::::::::::::::::::
 
-IF EXIST !COSMOS_INSTALL! (
-  echo ERROR: Installation folder already exists: "!COSMOS_INSTALL!"
-  echo INSTALL FAILED
-  pause
-  exit /b 1
-) else (
-  :: Create the installation folder
-  mkdir !COSMOS_INSTALL!
+IF !OFFLINE!==0 (
+  IF EXIST !COSMOS_INSTALL! (
+    echo ERROR: Installation folder already exists: "!COSMOS_INSTALL!"
+    echo INSTALL FAILED
+    pause
+    exit /b 1
+  ) else (
+    :: Create the installation folder
+    mkdir !COSMOS_INSTALL!
+    if errorlevel 1 (
+      echo ERROR: Failed to create directory: "!COSMOS_INSTALL!"
+      echo INSTALL FAILED
+      pause
+      exit /b 1
+    )
+  )
+  mkdir !COSMOS_INSTALL!\tmp > nul 2>&1
   if errorlevel 1 (
-    echo ERROR: Failed to create directory: "!COSMOS_INSTALL!"
+    echo ERROR: Failed to create directory: "!COSMOS_INSTALL!\tmp"
     echo INSTALL FAILED
     pause
     exit /b 1
   )
-)
-mkdir !COSMOS_INSTALL!\tmp > nul 2>&1
-if errorlevel 1 (
-  echo ERROR: Failed to create directory: "!COSMOS_INSTALL!\tmp"
-  echo INSTALL FAILED
-  pause
-  exit /b 1
+) else ( :: OFFLINE==1
+  IF not EXIST !COSMOS_INSTALL! (
+    echo ERROR: Installation folder does not exist: "!COSMOS_INSTALL!"
+    echo Copy previous installation of COSMOS before running OFFLINE install
+    echo INSTALL FAILED
+    pause
+    exit /b 1
+  )
+  GOTO SET_ENV
 )
 
 ::::::::::::::::::::::::::::::::::::::::
@@ -334,6 +351,7 @@ if errorlevel 1 (
 :: Install Gems
 ::::::::::::::::::::::::::::
 
+:SET_ENV
 :: Set environmental variables
 SET "GEM_HOME=!COSMOS_INSTALL!\Vendor\Ruby\lib\ruby\gems\!RUBY_ABI_VERSION!"
 SET "GEM_PATH=%GEM_HOME%"
@@ -346,6 +364,10 @@ SET "PATH=!COSMOS_INSTALL!\Vendor\Ruby\bin;%RI_DEVKIT%bin;%RI_DEVKIT%mingw\bin;%
 :: Remove RUBYOPT and RUBYLIB, which can cause serious problems.
 SET RUBYOPT=
 SET RUBYLIB=
+
+IF !OFFLINE!==1 (
+  GOTO DESKTOP
+)
 
 :: update rubygems to latest (workaround issue installing pry)
 call gem update --system 2.4.4
@@ -466,6 +488,7 @@ if errorlevel 1 (
 ::::::::::::::::::::::::::
 :: Desktop Icon
 ::::::::::::::::::::::::::
+:DESKTOP
 
 @echo Set oWS = WScript.CreateObject("WScript.Shell") > !COSMOS_INSTALL!\tmp\makeshortcut.vbs
 @echo sLinkFile = "!USERPROFILE!\Desktop\COSMOS.lnk" >> !COSMOS_INSTALL!\tmp\makeshortcut.vbs
