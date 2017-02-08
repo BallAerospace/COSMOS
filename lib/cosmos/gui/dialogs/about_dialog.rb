@@ -9,7 +9,10 @@
 # attribution addendums as found in the LICENSE.txt
 
 module Cosmos
-
+  # Help->About dialog which is part of all COSMOS tools. Displays the license
+  # information, version information, path information, application
+  # information, and general COSMOS information. Also provides a backdoor to a
+  # PRY dialog to aid in debugging.
   class AboutDialog < Qt::Dialog
     ABOUT_COSMOS = ''
     ABOUT_COSMOS << "COSMOS application icons are courtesy of http://icons8.com.\n"
@@ -37,28 +40,57 @@ module Cosmos
 
     @@pry_dialogs = []
 
-    def initialize (parent, about_string)
+    def initialize(parent, about_string)
       super(parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint)
       @saved_text = ''
       setWindowTitle('About')
 
-      # Get Word Icon
       filename = File.join(::Cosmos::USERPATH, 'config', 'data', 'cosmos_word.gif')
       filename = File.join(::Cosmos::PATH, 'data', 'cosmos_word.gif') unless File.exist?(filename)
       word_icon = Qt::Label.new
       word_icon.setPixmap(Qt::Pixmap.new(filename))
 
-      copyright = Qt::Label.new("Copyright 2014 - Ball Aerospace & Technologies Corp.")
+      copyright = Qt::Label.new("Copyright #{Time.new.year} - Ball Aerospace")
+      copyright.setFont(Cosmos.getFont("Arial", 12))
       authors = Qt::Label.new("Created by Ryan Melton (ryanmelt) and Jason Thomas (jmthomas)")
-      ver = Qt::Label.new("Version: " + COSMOS_VERSION)
-      user_ver = nil
-      user_ver = Qt::Label.new("User Version: " + USER_VERSION) if defined? USER_VERSION and USER_VERSION != 'Unofficial'
+      authors.setFont(Cosmos.getFont("Arial", 12))
+
+      version = Qt::Label.new("Version: " + COSMOS_VERSION)
+      version.setFont(Cosmos.getFont("Arial", 14))
+      open_cosmos_code = Qt::PushButton.new("Open COSMOS Gem Code") do
+        connect(SIGNAL('clicked()')) do
+          Cosmos.open_in_text_editor(File.join(Cosmos::PATH, 'lib', 'cosmos.rb'))
+        end
+      end
+      cosmos_layout = Qt::HBoxLayout.new
+      cosmos_layout.addWidget(version)
+      cosmos_layout.addWidget(open_cosmos_code)
+
+      user_layout = nil
+      if USER_VERSION && USER_VERSION != 'Unofficial'
+        user_version = Qt::Label.new("User Version: " + USER_VERSION)
+        user_version.setFont(Cosmos.getFont("Arial", 14))
+        open_user_code = Qt::PushButton.new("Open User Code") do
+          connect(SIGNAL('clicked()')) do
+            userpath = File.join(Cosmos::USERPATH, 'userpath.txt')
+            if File.exist? userpath
+              Cosmos.open_in_text_editor(userpath)
+            else # Hmm, no userpath
+              rakefile = File.join(Cosmos::USERPATH, 'Rakefile')
+              Cosmos.open_in_text_editor(rakefile) if File.exist? rakefile
+            end
+          end
+        end
+        user_layout = Qt::HBoxLayout.new
+        user_layout.addWidget(user_version)
+        user_layout.addWidget(open_user_code)
+      end
       icon_layout = Qt::VBoxLayout.new do
         addWidget(word_icon)
         addWidget(copyright)
         addWidget(authors)
-        addWidget(ver)
-        addWidget(user_ver) if user_ver
+        addLayout(cosmos_layout)
+        addLayout(user_layout) if user_layout
         addStretch
       end
 
@@ -68,7 +100,9 @@ module Cosmos
       configurable_about_text = File.read(filename)
       configurable_about_text.gsub!("\r", '') unless Kernel.is_windows?
       if Kernel.is_windows?
-        configurable_about_text << "\n" + "Main Application x:#{parent.x} y:#{parent.y} width:#{parent.frameGeometry.width + 16} height:#{parent.frameGeometry.height + 38}\n\n" +  ABOUT_COSMOS
+        configurable_about_text << "\n" \
+          "Main Application x:#{parent.x} y:#{parent.y} width:#{parent.frameGeometry.width + 16} " \
+          "height:#{parent.frameGeometry.height + 38}\n\n" +  ABOUT_COSMOS
       else
         configurable_about_text << "\n" + "Main Application x:#{parent.x} y:#{parent.y} width:#{parent.frameGeometry.width} height:#{parent.frameGeometry.height}\n\n" +  ABOUT_COSMOS      end
 
@@ -131,7 +165,5 @@ module Cosmos
       end
       super(event)
     end
-
-  end # class AboutDialog
-
-end # module Cosmos
+  end
+end
