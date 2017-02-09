@@ -50,7 +50,7 @@ module Cosmos
       word_icon = Qt::Label.new
       word_icon.setPixmap(Qt::Pixmap.new(filename))
 
-      copyright = Qt::Label.new("Copyright #{Time.new.year} - Ball Aerospace")
+      copyright = Qt::Label.new("Copyright 2014 - Ball Aerospace")
       copyright.setFont(Cosmos.getFont("Arial", 12))
       authors = Qt::Label.new("Created by Ryan Melton (ryanmelt) and Jason Thomas (jmthomas)")
       authors.setFont(Cosmos.getFont("Arial", 12))
