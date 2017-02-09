@@ -395,7 +395,7 @@ COMMAND INST SETPOINT BIG_ENDIAN "Control Setpoint"
   APPEND_PARAMETER SETPOINT 32 FLOAT 0 1000 0 "Setpoint"
     GENERIC_WRITE_CONVERSION_START
       result = nil
-      case myself.given_values['ZONE'] # Access the zone value
+      case packet.given_values['ZONE'] # Access the zone value
       when 'ONE'
         result = value * 1
       when 'TWO'
@@ -809,7 +809,7 @@ SEG_POLY_READ_CONVERSION 100 12 0.5 0.3 # Apply the conversion to all values >= 
 
 **NOTE: Generic conversions are not a good long term solution.  Consider creating a conversion class and using READ_CONVERSION instead.  READ_CONVERSION is easier to debug and higher performance. **
 
-The GENERIC_READ_CONVERSION_START keyword adds a generic conversion function to the current telemetry item. This conversion factor is applied to the raw value in the telemetry packet before it is displayed to the user. The user still has the ability to see the raw unconverted value in a details dialog. The conversion is specified as ruby code that receives two implied parameters: 'value' which is the raw value being read, and 'myself' which is a reference to the telemetry packet class. The last line of ruby code given should return the converted value. The GENERIC_READ_CONVERSION_END keyword specifies that all lines of ruby code for the conversion have been given.
+The GENERIC_READ_CONVERSION_START keyword adds a generic conversion function to the current telemetry item. This conversion factor is applied to the raw value in the telemetry packet before it is displayed to the user. The user still has the ability to see the raw unconverted value in a details dialog. The conversion is specified as ruby code that receives two implied parameters: 'value' which is the raw value being read, and 'packet' which is a reference to the telemetry packet class (Note: referencing the packet as 'myself' is still supported for backwards compatibility). The last line of ruby code given should return the converted value. The GENERIC_READ_CONVERSION_END keyword specifies that all lines of ruby code for the conversion have been given.
 
 Example Usage:
 {% highlight ruby %}
@@ -829,7 +829,7 @@ TELEMETRY INST HEALTH_STATUS BIG_ENDIAN "Health and status"
     STATE TWO 2
   ITEM ZONE_CONV 0 0 DERIVED
     GENERIC_READ_CONVERSION_START
-      result = myself.read('ZONE', :RAW) # Access the raw zone value
+      result = packet.read('ZONE', :RAW) # Access the raw zone value
       return result * 1.5
     GENERIC_READ_CONVERSION_END
 {% endhighlight %}
@@ -918,12 +918,11 @@ TELEMETRY MY_TARGET HS BIG_ENDIAN "Health and Status for My Target"
   MACRO_APPEND_END
   ITEM TIMESECONDS 0 0 FLOAT "DERIVED TIME SINCE EPOCH IN SECONDS"
     GENERIC_READ_CONVERSION_START
-      ((myself.ccsdsday.to_f * 86400.0) + (myself.ccsdsmsod.to_f / 1000.0) + (myself.ccsdsusoms.to_f / 1000000.0))
+      ((packet.read('ccsdsday') * 86400.0) + (packet.read('ccsdsmsod') / 1000.0) + (packet.read('ccsdsusoms') / 1000000.0))
     GENERIC_READ_CONVERSION_END
   ITEM TIMEFORMATTED 0 0 STRING "DERIVED TIME SINCE EPOCH AS A FORMATTED STRING"
     GENERIC_READ_CONVERSION_START
-      require 'time_util'
-      time = TimeUtil.cds_to_mdy(myself.ccsdsday, myself.ccsdsmsod, myself.ccsdsusoms)
+      time = Time.ccsds2mdy(packet.read('ccsdsday'), packet.read('ccsdsmsod'), packet.read('ccsdsusoms'))
       sprintf('%04u/%02u/%02u %02u:%02u:%02u.%06u', time[0], time[1], time[2], time[3], time[4], time[5], time[6])
     GENERIC_READ_CONVERSION_END
 {% endhighlight %}
