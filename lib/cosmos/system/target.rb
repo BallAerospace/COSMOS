@@ -11,7 +11,6 @@
 require 'cosmos/config/config_parser'
 
 module Cosmos
-
   # Target encapsulates the information about a COSMOS target. Targets are
   # accessed through interfaces and have command and telemetry definition files
   # which define their access.
@@ -124,7 +123,14 @@ module Cosmos
           usage = "#{keyword} <FILENAME>"
           parser.verify_num_parameters(1, 1, usage)
           begin
-            Cosmos.require_file(parameters[0])
+            # Determine if this file is in our target lib and should be namespaced
+            filename = File.join(@dir, 'lib', parameters[0])
+            if File.exist? filename
+              const = find_or_create_const(@name)
+              const.module_eval(File.read(File.join(@dir, 'lib', parameters[0])))
+            else
+              Cosmos.require_file(parameters[0])
+            end
           rescue Exception => err
             raise parser.error(err.message)
           end
@@ -157,6 +163,12 @@ module Cosmos
 
     protected
 
+    # Find the specified constant under the Cosmos namespace or create it
+    def find_or_create_const(str)
+      return Cosmos.const_get(str) if Cosmos.const_defined?(str)
+      return Cosmos.const_set(str, Module.new)
+    end
+
     # Get the target directory and add the target's lib folder to the
     # search path if it exists
     def get_target_dir(path, name, gem_path)
@@ -167,9 +179,9 @@ module Cosmos
         dir = File.join(path, name)
       end
       lib_dir = File.join(dir, 'lib')
-      Cosmos.add_to_search_path(lib_dir, false) if File.exist?(lib_dir)
+      Cosmos.add_to_search_path(lib_dir) if File.exist?(lib_dir)
       proc_dir = File.join(dir, 'procedures')
-      Cosmos.add_to_search_path(proc_dir, false) if File.exist?(proc_dir)
+      Cosmos.add_to_search_path(proc_dir) if File.exist?(proc_dir)
       dir
     end
 
@@ -209,7 +221,5 @@ module Cosmos
       @cmd_tlm_files.concat(partial_files)
       @cmd_tlm_files.uniq!
     end
-
-  end # class Target
-
-end # module Cosmos
+  end
+end

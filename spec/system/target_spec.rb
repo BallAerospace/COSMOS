@@ -127,19 +127,98 @@ module Cosmos
           tf.unlink
         end
 
-        it "requires the file" do
-          filename = File.join(File.dirname(__FILE__),'..','..','lib','my_file.rb')
+        it "requires a file in lib" do
+          filename = File.join(Cosmos::USERPATH, 'lib', 'my_file.rb')
           File.open(filename, 'w') do |file|
             file.puts "class MyFile"
+            file.puts "  CONST = 6"
             file.puts "end"
           end
           tf = Tempfile.new('unittest')
           tf.puts("REQUIRE my_file.rb")
           tf.close
           Target.new("TGT").process_file(tf.path)
-          expect { MyFile.new }.to_not raise_error
+          expect(MyFile::CONST).to eql 6
           File.delete filename
           tf.unlink
+        end
+
+        it "prefers files in target lib to system lib" do
+          tgt_lib_dir = File.join(Cosmos::USERPATH, 'config', 'targets', 'TEST', 'lib')
+          FileUtils.mkdir_p(tgt_lib_dir)
+          tgt_filename = File.join(tgt_lib_dir, 'tgt_file.rb')
+          File.open(tgt_filename, 'w') do |file|
+            file.puts "class TgtFile"
+            file.puts "  def self.location; 'tgt'; end"
+            file.puts "end"
+          end
+          lib_filename = File.join(Cosmos::USERPATH, 'lib', 'tgt_file.rb')
+          File.open(lib_filename, 'w') do |file|
+            file.puts "class TgtFile"
+            file.puts "  def self.location; 'lib'; end"
+            file.puts "end"
+          end
+
+          tf = Tempfile.new('unittest')
+          tf.puts("REQUIRE tgt_file.rb")
+          tf.close
+          Target.new("TEST").process_file(tf.path)
+          expect { TgtFile.location }.to raise_error(NameError)
+          expect { Cosmos::TgtFile.location }.to raise_error(NameError)
+          expect(Cosmos::TEST::TgtFile.location).to eql 'tgt'
+          File.delete lib_filename
+          FileUtils.rm_rf File.join(tgt_lib_dir, '..')
+          tf.unlink
+        end
+
+        it "namespaces files in target lib" do
+          lib_filename = File.join(Cosmos::USERPATH, 'lib', 'lib_file.rb')
+          File.open(lib_filename, 'w') do |file|
+            file.puts "class LibFile"
+            file.puts "  def self.location; 'lib'; end"
+            file.puts "end"
+          end
+
+          tgt_lib_dir = File.join(Cosmos::USERPATH, 'config', 'targets', 'TEST', 'lib')
+          FileUtils.mkdir_p(tgt_lib_dir)
+          tgt_filename = File.join(tgt_lib_dir, 'tgt_file.rb')
+          File.open(tgt_filename, 'w') do |file|
+            file.puts "require 'lib_file.rb'" # Verify we can require & use files in lib
+            file.puts "class TgtFile"
+            file.puts "  def self.location; LibFile.location + 'test'; end"
+            file.puts "end"
+          end
+          tgt2_lib_dir = File.join(Cosmos::USERPATH, 'config', 'targets', 'TEST2', 'lib')
+          FileUtils.mkdir_p(tgt2_lib_dir)
+          tgt2_filename = File.join(tgt2_lib_dir, 'tgt_file.rb')
+          File.open(tgt2_filename, 'w') do |file|
+            file.puts "class TgtFile"
+            file.puts "  def self.location; 'test2'; end"
+            file.puts "end"
+          end
+          tgt2_filename = File.join(tgt2_lib_dir, 'tgt2_file.rb')
+          File.open(tgt2_filename, 'w') do |file|
+            file.puts "class TgtFile" # Override the original
+            file.puts "  def self.location; 'test22'; end"
+            file.puts "end"
+          end
+
+          tf1 = Tempfile.new('unittest')
+          tf1.puts("REQUIRE tgt_file.rb")
+          tf1.close
+          tf2 = Tempfile.new('unittest')
+          tf2.puts("REQUIRE tgt_file.rb")
+          tf2.puts("REQUIRE tgt2_file.rb")
+          tf2.close
+          Target.new("TEST").process_file(tf1.path)
+          expect(TEST::TgtFile.location).to eql 'libtest'
+          Target.new("TEST2").process_file(tf2.path)
+          expect(TEST2::TgtFile.location).to eql 'test22'
+          FileUtils.rm_rf File.join(tgt_lib_dir, '..')
+          FileUtils.rm_rf File.join(tgt2_lib_dir, '..')
+          File.delete lib_filename
+          tf1.unlink
+          tf2.unlink
         end
       end
 
