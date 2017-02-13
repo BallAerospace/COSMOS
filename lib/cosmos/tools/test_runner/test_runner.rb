@@ -394,6 +394,17 @@ module Cosmos
       end
     end
 
+    # Called by cosmos_script_module by the user calling the status_bar scripting method
+    def script_set_status(message)
+      Qt.execute_in_main_thread(true) do
+        # Check for self.disposed? to work around crash when using SimpleCov
+        unless self.disposed?
+          status_bar = statusBar()
+          status_bar.showMessage(message)
+        end
+      end
+    end
+
     def continue_without_pausing_on_errors?
       if !@pause_on_error.isChecked()
         msg = ""
