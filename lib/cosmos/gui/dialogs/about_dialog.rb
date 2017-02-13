@@ -58,9 +58,7 @@ module Cosmos
       version = Qt::Label.new("Version: " + COSMOS_VERSION)
       version.setFont(Cosmos.getFont("Arial", 14))
       open_cosmos_code = Qt::PushButton.new("Open COSMOS Gem Code") do
-        connect(SIGNAL('clicked()')) do
-          Cosmos.open_in_text_editor(File.join(Cosmos::PATH, 'lib', 'cosmos.rb'))
-        end
+        connect(SIGNAL('clicked()')) { Cosmos.open_file_browser(Cosmos::PATH) }
       end
       cosmos_layout = Qt::HBoxLayout.new
       cosmos_layout.addWidget(version)
@@ -71,15 +69,7 @@ module Cosmos
         user_version = Qt::Label.new("User Version: " + USER_VERSION)
         user_version.setFont(Cosmos.getFont("Arial", 14))
         open_user_code = Qt::PushButton.new("Open User Code") do
-          connect(SIGNAL('clicked()')) do
-            userpath = File.join(Cosmos::USERPATH, 'userpath.txt')
-            if File.exist? userpath
-              Cosmos.open_in_text_editor(userpath)
-            else # Hmm, no userpath
-              rakefile = File.join(Cosmos::USERPATH, 'Rakefile')
-              Cosmos.open_in_text_editor(rakefile) if File.exist? rakefile
-            end
-          end
+          connect(SIGNAL('clicked()')) { Cosmos.open_file_browser(Cosmos::USERPATH) }
         end
         user_layout = Qt::HBoxLayout.new
         user_layout.addWidget(user_version)
