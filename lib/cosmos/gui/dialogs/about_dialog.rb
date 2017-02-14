@@ -50,37 +50,35 @@ module Cosmos
       word_icon = Qt::Label.new
       word_icon.setPixmap(Qt::Pixmap.new(filename))
 
-      copyright = Qt::Label.new("Copyright 2014 - Ball Aerospace")
+      copyright = Qt::Label.new("Copyright 2017 - Ball Aerospace & Technologies Corp.")
       copyright.setFont(Cosmos.getFont("Arial", 12))
       authors = Qt::Label.new("Created by Ryan Melton (ryanmelt) and Jason Thomas (jmthomas)")
       authors.setFont(Cosmos.getFont("Arial", 12))
 
+      cosmos_layout = Qt::GridLayout.new
       version = Qt::Label.new("Version: " + COSMOS_VERSION)
       version.setFont(Cosmos.getFont("Arial", 14))
       open_cosmos_code = Qt::PushButton.new("Open COSMOS Gem Code") do
         connect(SIGNAL('clicked()')) { Cosmos.open_file_browser(Cosmos::PATH) }
       end
-      cosmos_layout = Qt::HBoxLayout.new
-      cosmos_layout.addWidget(version)
-      cosmos_layout.addWidget(open_cosmos_code)
+      cosmos_layout.addWidget(version, 0, 0)
+      cosmos_layout.addWidget(open_cosmos_code, 0, 1)
 
-      user_layout = nil
       if USER_VERSION && USER_VERSION != 'Unofficial'
-        user_version = Qt::Label.new("User Version: " + USER_VERSION)
+        user_version = Qt::Label.new("Project Version: " + USER_VERSION)
         user_version.setFont(Cosmos.getFont("Arial", 14))
-        open_user_code = Qt::PushButton.new("Open User Code") do
-          connect(SIGNAL('clicked()')) { Cosmos.open_file_browser(Cosmos::USERPATH) }
-        end
-        user_layout = Qt::HBoxLayout.new
-        user_layout.addWidget(user_version)
-        user_layout.addWidget(open_user_code)
+        cosmos_layout.addWidget(user_version, 1, 0)
       end
+      open_user_code = Qt::PushButton.new("Open Project Code") do
+        connect(SIGNAL('clicked()')) { Cosmos.open_file_browser(Cosmos::USERPATH) }
+      end
+      cosmos_layout.addWidget(open_user_code, 1, 1)
+
       icon_layout = Qt::VBoxLayout.new do
         addWidget(word_icon)
         addWidget(copyright)
         addWidget(authors)
         addLayout(cosmos_layout)
-        addLayout(user_layout) if user_layout
         addStretch
       end
 
