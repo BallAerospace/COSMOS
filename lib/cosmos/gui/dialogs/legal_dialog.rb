@@ -34,12 +34,10 @@ module Cosmos
       label.setFrameStyle(Qt::Frame::Box)
       layout.addWidget(label)
 
-      version = Qt::Label.new("Version: " + COSMOS_VERSION)
+      version = Qt::Label.new("COSMOS Version: " + COSMOS_VERSION)
       version.setFont(Cosmos.getFont("Arial", 14))
       version_layout = Qt::HBoxLayout.new
-      version_layout.addStretch
-      version_layout.addWidget(version)
-      version_layout.addStretch
+      version_layout.addWidget(version, 0, Qt::AlignCenter)
       layout.addLayout(version_layout)
 
       legal_text = ''
@@ -52,10 +50,11 @@ module Cosmos
       legal_label = Qt::Label.new(legal_text)
       legal_label.setWordWrap(true)
       legal_label.setFrameStyle(Qt::Frame::Box)
+      legal_label.setStyleSheet("QLabel { background-color : white; padding: 5px; }");
       layout.addWidget(legal_label)
 
       @text_crc = Qt::TextEdit.new
-      @text_crc.setFixedHeight(100)
+      @text_crc.setMinimumHeight(100)
       @text_crc.setReadOnly(true)
       @text_crc.setFrameStyle(Qt::Frame::Box)
       layout.addWidget(@text_crc)
