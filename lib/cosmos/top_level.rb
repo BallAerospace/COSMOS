@@ -616,6 +616,18 @@ module Cosmos
     end
   end
 
+  # Open a platform specific file browser at the given path
+  # @param path [String] Directory path
+  def self.open_file_browser(path)
+    if Kernel.is_windows?
+      self.run_process("start #{path}")
+    elsif Kernel.is_mac?
+      self.run_process("open #{path}")
+    else
+      self.run_process("xdg-open #{path}")
+    end
+  end
+
   # @param filename [String] Name of the file to open in the editor
   def self.open_in_text_editor(filename)
     if filename
