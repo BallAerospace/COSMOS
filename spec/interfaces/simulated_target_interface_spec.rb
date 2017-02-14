@@ -20,7 +20,6 @@ module Cosmos
         file.puts <<-DOC
 require 'cosmos/utilities/simulated_target'
 require 'cosmos/packets/packet'
-module Cosmos
   class TestInst < SimulatedTarget
     def initialize(target)
       super(target)
@@ -34,7 +33,6 @@ module Cosmos
       pkts << Packet.new("COSMOS","VERSION")
       pkts << Packet.new("COSMOS","VERSION")
     end
-  end
 end
         DOC
       end
@@ -46,7 +44,7 @@ end
 
     describe "initialize" do
       it "complains if the simulated target file doesn't exist" do
-        expect { SimulatedTargetInterface.new("doesnt_exist.rb") }.to raise_error(/Unable to require doesnt_exist.rb/)
+        expect { SimulatedTargetInterface.new("does_not_exist.rb") }.to raise_error(/Unable to require does_not_exist.rb/)
       end
 
       it "creates the simulated target class" do

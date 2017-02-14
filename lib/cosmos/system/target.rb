@@ -122,19 +122,28 @@ module Cosmos
         when 'REQUIRE'
           usage = "#{keyword} <FILENAME>"
           parser.verify_num_parameters(1, 1, usage)
+          found = false
           begin
             # Determine if this file is in our target lib and should be namespaced
             filename = File.join(@dir, 'lib', parameters[0])
             if File.exist? filename
               const = find_or_create_const(@name)
               const.module_eval(File.read(File.join(@dir, 'lib', parameters[0])))
-            else
-              Cosmos.require_file(parameters[0])
+              found = true
+              @requires << filename
             end
           rescue Exception => err
             raise parser.error(err.message)
           end
-          @requires << parameters[0]
+
+          # Now simply require the file to allow it to be overriden elsewhere
+          begin
+            Cosmos.require_file(parameters[0], false)
+            @requires << parameters[0]
+          rescue LoadError => error
+            # Don't raise the error if it was found in the target lib dir
+            raise error unless found
+          end
 
         when 'IGNORE_PARAMETER', 'IGNORE_ITEM'
           usage = "#{keyword} <#{keyword.split('_')[1]} NAME>"
@@ -178,10 +187,10 @@ module Cosmos
         path = File.join(USERPATH,'config','targets') unless path
         dir = File.join(path, name)
       end
-      lib_dir = File.join(dir, 'lib')
-      Cosmos.add_to_search_path(lib_dir) if File.exist?(lib_dir)
+      # Don't add target/lib dir to search path
+      # Files in target/lib must be explicitly required in target.txt
       proc_dir = File.join(dir, 'procedures')
-      Cosmos.add_to_search_path(proc_dir) if File.exist?(proc_dir)
+      Cosmos.add_to_search_path(proc_dir, false) if File.exist?(proc_dir)
       dir
     end
 

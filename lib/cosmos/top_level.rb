@@ -606,13 +606,15 @@ module Cosmos
   # Requires a file with a standard error message if it fails
   #
   # @param filename [String] The name of the file to require
-  def self.require_file(filename)
+  # @param log_error [Boolean] Whether to log an error if the require fails
+  def self.require_file(filename, log_error = true)
     begin
       require filename
-    rescue Exception => err
+    rescue LoadError => err
       msg = "Unable to require #{filename} due to #{err.message}. Ensure #{filename} is in the COSMOS lib directory."
-      Logger.error msg
-      raise msg
+      Logger.error msg if log_error
+      # Reraise the existing exeption with the new message while keeping the backtrace
+      raise $!, msg, $!.backtrace
     end
   end
 

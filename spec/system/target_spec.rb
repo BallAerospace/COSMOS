@@ -123,7 +123,7 @@ module Cosmos
           tf = Tempfile.new('unittest')
           tf.puts("REQUIRE my_file.rb")
           tf.close
-          expect { Target.new("TGT").process_file(tf.path) }.to raise_error(ConfigParser::Error, /Unable to require my_file.rb/)
+          expect { Target.new("TGT").process_file(tf.path) }.to raise_error(LoadError, /Unable to require my_file.rb/)
           tf.unlink
         end
 
@@ -143,7 +143,7 @@ module Cosmos
           tf.unlink
         end
 
-        it "prefers files in target lib to system lib" do
+        it "allows system lib to override target lib" do
           tgt_lib_dir = File.join(Cosmos::USERPATH, 'config', 'targets', 'TEST', 'lib')
           FileUtils.mkdir_p(tgt_lib_dir)
           tgt_filename = File.join(tgt_lib_dir, 'tgt_file.rb')
@@ -154,18 +154,16 @@ module Cosmos
           end
           lib_filename = File.join(Cosmos::USERPATH, 'lib', 'tgt_file.rb')
           File.open(lib_filename, 'w') do |file|
-            file.puts "class TgtFile"
+            file.puts "module Cosmos; module TEST; class TgtFile"
             file.puts "  def self.location; 'lib'; end"
-            file.puts "end"
+            file.puts "end; end; end"
           end
 
           tf = Tempfile.new('unittest')
           tf.puts("REQUIRE tgt_file.rb")
           tf.close
           Target.new("TEST").process_file(tf.path)
-          expect { TgtFile.location }.to raise_error(NameError)
-          expect { Cosmos::TgtFile.location }.to raise_error(NameError)
-          expect(Cosmos::TEST::TgtFile.location).to eql 'tgt'
+          expect(TEST::TgtFile.location).to eql 'lib'
           File.delete lib_filename
           FileUtils.rm_rf File.join(tgt_lib_dir, '..')
           tf.unlink
@@ -219,6 +217,65 @@ module Cosmos
           File.delete lib_filename
           tf1.unlink
           tf2.unlink
+        end
+
+        it "allows target lib files to be used in cmd/tlm" do
+          tgt_dir = File.join(Cosmos::USERPATH, 'config', 'targets', 'TEST')
+          FileUtils.mkdir_p(tgt_dir)
+          File.open(File.join(tgt_dir,'target.txt'),'w') do |file|
+            file.puts("REQUIRE my_conversion.rb")
+            file.puts("REQUIRE my_response.rb")
+            file.puts("REQUIRE my_processor.rb")
+          end
+
+          tgt_lib_dir = File.join(tgt_dir, 'lib')
+          FileUtils.mkdir_p(tgt_lib_dir)
+          conversion_filename = File.join(tgt_lib_dir, 'my_conversion.rb')
+          File.open(conversion_filename, 'w') do |file|
+            file.puts "require 'cosmos/conversions/conversion'"
+            file.puts "class MyConversion < Cosmos::Conversion"
+            file.puts "  def call(value, packet, buffer)"
+            file.puts "    value * 2"
+            file.puts "  end"
+            file.puts "end"
+          end
+          response_filename = File.join(tgt_lib_dir, 'my_response.rb')
+          File.open(response_filename, 'w') do |file|
+            file.puts "require 'cosmos/packets/limits_response'"
+            file.puts "class MyResponse < Cosmos::LimitsResponse"
+            file.puts "  def call(packet, item, old_limits_state); end"
+            file.puts "end"
+          end
+          processor_filename = File.join(tgt_lib_dir, 'my_processor.rb')
+          File.open(processor_filename, 'w') do |file|
+            file.puts "require 'cosmos/processors/processor'"
+            file.puts "class MyProcessor < Cosmos::Processor"
+            file.puts "  def call(packet, buffer); end"
+            file.puts "end"
+          end
+          tgt_cmdtlm_dir = File.join(tgt_dir, 'cmd_tlm')
+          FileUtils.mkdir_p(tgt_cmdtlm_dir)
+          tlm_filename = File.join(tgt_cmdtlm_dir, 'tlm.txt')
+          File.open(tlm_filename, 'w') do |file|
+            file.puts "TELEMETRY TEST DATA BIG_ENDIAN \"Description\""
+            file.puts "APPEND_ITEM ITEM1 8 UINT \"Ground station #2 status\""
+            file.puts "  READ_CONVERSION my_conversion.rb"
+            file.puts "  LIMITS_RESPONSE my_response.rb"
+            file.puts "  PROCESSOR MyProcessor my_processor.rb"
+          end
+
+          target = Target.new("TEST")
+          config = PacketConfig.new
+          commands = Commands.new(config)
+          telemetry = Telemetry.new(config)
+          limits = Limits.new(config)
+          target.cmd_tlm_files.each do |cmd_tlm_file|
+            config.process_file(cmd_tlm_file, target.name)
+          end
+          packet = telemetry.packet("TEST", "DATA")
+          packet.buffer = "\x01" # 1 should be read out as 2 due to conversion
+          expect(packet.read("ITEM1")).to eq 2
+          FileUtils.rm_rf tgt_dir
         end
       end
 

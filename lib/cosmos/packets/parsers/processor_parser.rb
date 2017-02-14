@@ -40,6 +40,11 @@ module Cosmos
     def create_processor(packet)
       # require should be performed in target.txt
       klass = @parser.parameters[1].filename_to_class_name.to_class
+      unless klass
+        # Try the target namespaced class
+        target = @parser.filename.split('targets/')[1].split('/')[0]
+        klass = "Cosmos::#{target}::#{@parser.parameters[1].filename_to_class_name}".to_class
+      end
       raise @parser.error("#{@parser.parameters[1].filename_to_class_name} class not found. Did you require the file in target.txt?", @usage) unless klass
       if @parser.parameters[2]
         processor = klass.new(*@parser.parameters[2..(@parser.parameters.length - 1)])

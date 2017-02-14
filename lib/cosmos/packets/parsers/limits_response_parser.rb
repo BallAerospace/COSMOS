@@ -38,6 +38,11 @@ module Cosmos
     def create_limits_response(item)
       # require should be performed in target.txt
       klass = @parser.parameters[0].filename_to_class_name.to_class
+      unless klass
+        # Try the target namespaced class
+        target = @parser.filename.split('targets/')[1].split('/')[0]
+        klass = "Cosmos::#{target}::#{@parser.parameters[0].filename_to_class_name}".to_class
+      end
       raise @parser.error("#{@parser.parameters[0].filename_to_class_name} class not found. Did you require the file in target.txt?", @usage) unless klass
       if @parser.parameters[1]
         item.limits.response = klass.new(*@parser.parameters[1..(@parser.parameters.length - 1)])

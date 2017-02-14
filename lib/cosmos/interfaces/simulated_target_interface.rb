@@ -25,7 +25,8 @@ module Cosmos
       @next_tick_time = nil
       @pending_packets = []
 
-      @sim_target_class = Cosmos.require_class sim_target_file
+      @sim_target_file = sim_target_file
+      @sim_target_class = nil
       @sim_target = nil
       @write_raw_allowed = false
       @raw_logger_pair = nil
@@ -38,6 +39,7 @@ module Cosmos
         @next_tick_time = Time.now + 0.01
 
         # Create Simulated Target Object
+        @sim_target_class = "Cosmos::#{@target_names[0]}::#{@sim_target_file.filename_to_class_name}".to_class
         @sim_target = @sim_target_class.new(@target_names[0])
 
         # Set telemetry rates
