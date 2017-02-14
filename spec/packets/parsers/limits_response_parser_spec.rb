@@ -63,7 +63,7 @@ module Cosmos
         tf.puts '    LIMITS DEFAULT 3 ENABLED 1 2 6 7 3 5'
         tf.puts '    LIMITS_RESPONSE test_only.rb'
         tf.close
-        expect { @pc.process_file(tf.path, "TGT1") }.to raise_error(ConfigParser::Error, /TestOnly class not found/)
+        expect { @pc.process_file(tf.path, "TGT1") }.to raise_error(ConfigParser::Error, /TestOnly not found/)
         tf.unlink
       end
 

@@ -31,7 +31,7 @@ module Cosmos
 
       it "complains if the stream protocol has a bug" do
         File.open(@file, 'w') {|file| file.puts "blah" }
-        expect { StreamInterface.new("test") }.to raise_error(/Unable to require test_stream_protocol.rb/)
+        expect { StreamInterface.new("test") }.to raise_error(/undefined local variable or method/)
       end
     end
 

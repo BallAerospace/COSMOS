@@ -11,7 +11,6 @@
 require 'cosmos/interfaces/interface'
 
 module Cosmos
-
   # An interface class that provides simulated telemetry and command responses
   class SimulatedTargetInterface < Interface
 
@@ -38,16 +37,21 @@ module Cosmos
         # Save the current time + 10 ms as the next expected tick time
         @next_tick_time = Time.now + 0.01
 
+        begin
+          @sim_target_class = Cosmos.require_class @sim_target_file
+        rescue LoadError
+          begin
+            class_name = "Cosmos::#{@target_names[0]}::#{@sim_target_file.filename_to_class_name}"
+            @sim_target_class = class_name.to_class
+          rescue NameError => error
+            raise $!, "#{class_name} could not be found. Did you REQUIRE #{@sim_target_file} in target.txt?", $!.backtrace
+          end
+        end
         # Create Simulated Target Object
-        @sim_target_class = "Cosmos::#{@target_names[0]}::#{@sim_target_file.filename_to_class_name}".to_class
         @sim_target = @sim_target_class.new(@target_names[0])
-
-        # Set telemetry rates
         @sim_target.set_rates
-
         @initialized = true
       end
-
       @connected = true
     end
 
@@ -127,5 +131,4 @@ module Cosmos
       packet
     end
   end
-
-end # module Cosmos
+end

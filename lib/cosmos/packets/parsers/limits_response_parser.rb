@@ -9,7 +9,7 @@
 # attribution addendums as found in the LICENSE.txt
 
 module Cosmos
-
+  # Parses the LIMITS_RESPONSE configuration details and creates the response
   class LimitsResponseParser
     # @param parser [ConfigParser] Configuration parser
     # @param item [Packet] The current item
@@ -37,21 +37,23 @@ module Cosmos
     # @param item [PacketItem] The item the limits response should be added to
     def create_limits_response(item)
       # require should be performed in target.txt
-      klass = @parser.parameters[0].filename_to_class_name.to_class
+      class_name = @parser.parameters[0].filename_to_class_name
+      klass = class_name.to_class
       unless klass
         # Try the target namespaced class
         target = @parser.filename.split('targets/')[1].split('/')[0]
-        klass = "Cosmos::#{target}::#{@parser.parameters[0].filename_to_class_name}".to_class
+        class_name = "Cosmos::#{target}::#{@parser.parameters[0].filename_to_class_name}"
+        klass = "#{class_name}".to_class
       end
-      raise @parser.error("#{@parser.parameters[0].filename_to_class_name} class not found. Did you require the file in target.txt?", @usage) unless klass
       if @parser.parameters[1]
         item.limits.response = klass.new(*@parser.parameters[1..(@parser.parameters.length - 1)])
       else
         item.limits.response = klass.new
       end
+    rescue NameError => err
+      raise @parser.error("#{class_name} not found. Did you require #{@parser.parameters[0]} in target.txt?", @usage)
     rescue Exception => err
       raise @parser.error(err, @usage)
     end
-
   end
-end # module Cosmos
+end

@@ -463,7 +463,7 @@ module Cosmos
           tf.puts '  ITEM item1 0 16 INT "Integer Item"'
           tf.puts '  READ_CONVERSION test_only.rb'
           tf.close
-          expect { @pc.process_file(tf.path, "TGT1") }.to raise_error(ConfigParser::Error, /TestOnly class not found/)
+          expect { @pc.process_file(tf.path, "TGT1") }.to raise_error(ConfigParser::Error, /TestOnly not found/)
           tf.unlink
 
           tf = Tempfile.new('unittest')
@@ -471,7 +471,7 @@ module Cosmos
           tf.puts '  PARAMETER item1 0 16 INT 0 0 0'
           tf.puts '  WRITE_CONVERSION test_only.rb'
           tf.close
-          expect { @pc.process_file(tf.path, "TGT1") }.to raise_error(ConfigParser::Error, /TestOnly class not found/)
+          expect { @pc.process_file(tf.path, "TGT1") }.to raise_error(ConfigParser::Error, /TestOnly not found/)
           tf.unlink
         end
 

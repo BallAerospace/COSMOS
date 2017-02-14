@@ -185,28 +185,27 @@ module Cosmos
 
       context "with a custom target interface" do
         it "uses the target lib file" do
-          target = File.join(Cosmos::USERPATH,'config','targets','INST','target.txt')
-          File.open(target,'w') do |file|
-            file.puts "REQUIRE my_interface.rb"
+          target_filename = File.join(Cosmos::USERPATH,'config','targets','INST','target.txt')
+          target_txt = File.read(target_filename)
+          File.open(target_filename, 'w') do |file|
+            file.puts "REQUIRE my_cmd_tlm_server_interface.rb"
           end
-          interface = File.join(Cosmos::USERPATH,'config','targets','INST','lib','my_interface.rb')
-          File.open(interface,'w') do |file|
+          interface_filename = File.join(Cosmos::USERPATH,'config','targets','INST','lib','my_cmd_tlm_server_interface.rb')
+          File.open(interface_filename, 'w') do |file|
             file.puts "require 'cosmos/interfaces/interface'"
-            file.puts "class MyInterface < Interface"
-            file.puts "  def initialize; super(); end"
-            file.puts "end"
+            file.puts "class MyCmdTlmServerInterface < Interface; end"
           end
-          target = Target.new("INST").process_file(target)
+          target = Target.new("INST").process_file(target_filename)
 
           tf = Tempfile.new('unittest')
-          tf.puts 'INTERFACE INST_INT my_interface.rb'
+          tf.puts 'INTERFACE INST_INT my_cmd_tlm_server_interface.rb'
           tf.puts '  TARGET INST'
           tf.close
           config = CmdTlmServerConfig.new(tf.path)
           expect(config.interfaces.keys).to eql %w(INST_INT)
-          expect(config.interfaces['INST_INT'].class).to eql Cosmos::INST::MyInterface
-          FileUtils.rm target
-          FileUtils.rm interface
+          expect(config.interfaces['INST_INT'].class).to eql Cosmos::INST::MyCmdTlmServerInterface
+          FileUtils.rm interface_filename
+          File.open(target_filename, 'w') {|file| file.write target_txt }
           tf.unlink
         end
       end
