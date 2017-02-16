@@ -13,25 +13,20 @@
 require 'cosmos/tools/cmd_tlm_server/background_task'
 
 module Cosmos
-
-  # ExampleBackgroundTask class
-  #
-  # This class is an example background task
-  #
+  # Starts by sleeping 5 seconds then sends up to three collect commands
   class ExampleBackgroundTask < BackgroundTask
-
     def initialize
       super()
       @name = 'Example Background Task'
-      @sleeper = Sleeper.new
     end
 
     def call
       sent_count = 0
+      @sleeper = Sleeper.new
       @status = "Sleeping for 5 seconds"
       return if @sleeper.sleep(5) # allow interfaces time to start
       loop do
-        #Make sure we start up with 3 collects
+        # Start up with at least 3 collects
         if (tlm('INST', 'HEALTH_STATUS', 'COLLECTS') < 3)
           begin
             cmd('INST', 'COLLECT', 'TYPE' => 'NORMAL', 'DURATION' => 1)
@@ -50,8 +45,7 @@ module Cosmos
 
     def stop
       @sleeper.cancel
+      @status = "Stopped at #{Time.now.formatted}"
     end
-
-  end # class ExampleBackgroundTask
-
-end # module Cosmos
+  end
+end
