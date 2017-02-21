@@ -16,15 +16,25 @@ module Cosmos
   class BackgroundTask
     include Api
 
+    # @return [Integer] The number of background tasks created
+    @@count = 0
+
+    # @return [String] Name of the background task
     attr_accessor :name
+    # @return [Thread] Ruby thread running the task
     attr_accessor :thread
+    # @return [String] Status message to display in the CTS
     attr_accessor :status
+    # @return [Boolean] Whether the task is initially stopped when the CTS starts
+    attr_accessor :stopped
 
     # Constructor
     def initialize
-      @name = nil
+      @@count += 1
+      @name = "Background Task #{@@count}"
       @thread = nil
-      @status = nil
+      @status = ''
+      @stopped = false
     end
 
     # Subclasses should override the call method which is called once by
@@ -40,7 +50,5 @@ module Cosmos
     def stop
       # Nothing to do by default
     end
-
-  end # class BackgroundTask
-
+  end
 end
