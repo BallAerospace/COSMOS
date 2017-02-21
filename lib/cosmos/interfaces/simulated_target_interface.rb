@@ -40,12 +40,9 @@ module Cosmos
         begin
           @sim_target_class = Cosmos.require_class @sim_target_file
         rescue LoadError
-          begin
-            class_name = "Cosmos::#{@target_names[0]}::#{@sim_target_file.filename_to_class_name}"
-            @sim_target_class = class_name.to_class
-          rescue NameError => error
-            raise $!, "#{class_name} could not be found. Did you REQUIRE #{@sim_target_file} in target.txt?", $!.backtrace
-          end
+          @sim_target_class = @sim_target_file.filename_to_class_name.to_class(@target_names[0])
+          raise "#{@sim_target_file.filename_to_class_name} could not be found. "\
+            "Did you 'REQUIRE #{@sim_target_file}' in target.txt?" unless @sim_target_class
         end
         # Create Simulated Target Object
         @sim_target = @sim_target_class.new(@target_names[0])

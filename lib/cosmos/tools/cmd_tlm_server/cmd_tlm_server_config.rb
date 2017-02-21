@@ -177,7 +177,9 @@ module Cosmos
               if target
                 if @tgt_interface
                   # Interface should already be required by target.txt
-                  interface_class = "Cosmos::#{target_name}::#{@tgt_interface.filename.filename_to_class_name}".to_class
+                  interface_class = @tgt_interface.filename.filename_to_class_name.to_class(target_name)
+                  raise parser.error("#{@tgt_interface.filename.filename_to_class_name} class not found. "\
+                                     "Did you 'REQUIRE #{@tgt_interface.filename}' in target.txt?") unless interface_class
                   if @tgt_interface.params[0]
                     current_interface_or_router = interface_class.new(*params[0..-1])
                   else

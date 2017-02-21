@@ -1181,17 +1181,11 @@ module Cosmos
         parser.verify_num_parameters(1, nil, usage)
         begin
           # require should be performed in target.txt
-          klass = params[0].filename_to_class_name.to_class
-          unless klass
-            # Try the target namespaced class
-            class_name = "Cosmos::#{@current_packet.target_name}::#{params[0].filename_to_class_name}"
-            klass = class_name.to_class
-          end
-          raise parser.error("#{params[0].filename_to_class_name} class not found. Did you require the file in target.txt?", usage) unless klass
+          klass = params[0].filename_to_class_name.to_class(@current_packet.target_name)
+          raise parser.error("#{params[0].filename_to_class_name} class not found. "\
+                             "Did you 'REQUIRE #{params[0]}' in target.txt?", usage) unless klass
           @current_item.send("#{keyword.downcase}=".to_sym,
             klass.new(*params[1..(params.length - 1)]))
-        rescue NameError => err
-          raise parser.error("#{class_name} not found. Did you require #{params[0]} in target.txt?", usage)
         rescue Exception => err
           raise parser.error(err)
         end
