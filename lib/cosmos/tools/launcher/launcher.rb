@@ -93,8 +93,8 @@ module Cosmos
           end
           label = Qt::Label.new(text)
           stylesheet = "text-align:center; " \
-            "font-family:#{config.tool_font_settings[0]}; " \
-            "font-size:#{config.tool_font_settings[1]}px"
+            "font-family:#{config.label_font_settings[0]}; " \
+            "font-size:#{config.label_font_settings[1]}px"
           label.setStyleSheet(stylesheet)
           label.setObjectName("ButtonLabel")
           label.wordWrap = true
