@@ -85,9 +85,17 @@ module Cosmos
           if Kernel.is_mac?
             button.setFixedSize(84,84)
           else
+            stylesheet = "padding:4px; text-align:center; " \
+              "font-family:#{config.tool_font_settings[0]}; " \
+              "font-size:#{config.tool_font_settings[1]}px"
+            button.setStyleSheet(stylesheet)
             button.setFixedSize(74,74)
           end
           label = Qt::Label.new(text)
+          stylesheet = "text-align:center; " \
+            "font-family:#{config.tool_font_settings[0]}; " \
+            "font-size:#{config.tool_font_settings[1]}px"
+          label.setStyleSheet(stylesheet)
           label.setObjectName("ButtonLabel")
           label.wordWrap = true
           label.setFixedWidth(70)
@@ -110,6 +118,10 @@ module Cosmos
 
         when :LABEL
           label = Qt::Label.new(text)
+          stylesheet = "text-align:center; " \
+            "font-family:#{config.tool_font_settings[0]}; " \
+            "font-size:#{config.tool_font_settings[1]}px"
+          label.setStyleSheet(stylesheet)
           label.setObjectName("Label")
           widgets << label
 
