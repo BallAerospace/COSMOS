@@ -45,9 +45,36 @@ module Cosmos
       @options = options
       @about_string = nil
 
+      base_class = self.class.to_s.split('::')[-1].downcase
+      config_dir = File.join(Cosmos::USERPATH, 'config', 'tools', base_class)
+      if File.exist? config_dir
+        @options.config_dir = config_dir
+        options.config_file = verify_config(@options.config_file, ".txt", base_class)
+        options.stylesheet = verify_config(@options.stylesheet, ".css", base_class)
+      end
+
       self.window_title = options.title
       Cosmos.load_cosmos_icon
     end
+
+    def verify_config(file, type, base_class)
+      return file if file && File.exist?(file)
+      if file
+        # Add the configuration dir onto the filename. If this results in a bad
+        # configuration file the config file parsing code will notify the user.
+        File.join(@options.config_dir, file)
+      else
+        # No file passed so default to a file named after the class
+        config_file = File.join(@options.config_dir, "#{base_class}#{type}")
+        unless File.exist?(config_file)
+          # Grab the first file sorted alphabetically
+          # This could result in nil which is ok meaning no configuration file
+          config_file = Dir[File.join(@options.config_dir, "*#{type}")].sort[0]
+        end
+        config_file
+      end
+    end
+
 
     # Create the @exit_action and the @about_action. The @exit_action is not
     # placed in the File menu and must be manually added by the user. The
@@ -112,6 +139,8 @@ module Cosmos
     # position of the windows for subsequent launches of the application.
     # Finally it can initally show the application as minimized or maximized.
     def complete_initialize
+      setStyleSheet(File.read(@options.stylesheet)) if @options.stylesheet
+
       # Handle manually sizing the window
       resize(@options.width, @options.height) unless @options.auto_size
 
@@ -279,9 +308,18 @@ module Cosmos
         end
 
         # Create the system option
-        option_parser.on("--system VALUE", "Use an alternative system.txt file") do |arg|
+        option_parser.on("--system FILE", "Use an alternative system.txt file") do |arg|
           System.instance(File.join(USERPATH, 'config', 'system', arg))
         end
+        option_parser.on("-c", "--config FILE", "Use the specified configuration file") do |arg|
+          options.config_file = arg
+        end
+        option_parser.on("--stylesheet FILE", "Use the specified stylesheet") do |arg|
+          options.stylesheet = arg
+        end
+
+        option_parser.separator("")
+        option_parser.separator("Window Size Options:")
 
         # Create the minimized option
         option_parser.on("--minimized", "Start the tool minimized") do |arg|
