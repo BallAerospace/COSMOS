@@ -8,22 +8,18 @@
 # as published by the Free Software Foundation; version 3 with
 # attribution addendums as found in the LICENSE.txt
 
-# This file contains the implementation of the LegalDialog class.   This class
-# is used to display a legal dialog box
-
 require 'cosmos'
 require 'cosmos/gui/qt'
 require 'open3'
 
 module Cosmos
-  # Creates a dialog displaying the COSMOS copyright information. Also
-  # calculates CRC checks across the entire project to determine if any of the
-  # COSMOS core files have been modified. This ensures the COSMOS system has
-  # not been modified since the last release.
+  # Dialog showing the license which is displayed before starting the COSMOS
+  # Launcher. Accepting the dialog acknowledges the license. The dialog also
+  # calculates the CRCs across all the COSMOS gem files and user files to
+  # determine if anything has been modified.
   class LegalDialog < Qt::Dialog
-    # Create the dialog
     def initialize
-      super() # MUST BE FIRST
+      super()
       Cosmos.load_cosmos_icon
 
       self.window_title = 'Legal Agreement'
@@ -38,20 +34,27 @@ module Cosmos
       label.setFrameStyle(Qt::Frame::Box)
       layout.addWidget(label)
 
+      version = Qt::Label.new("COSMOS Version: " + COSMOS_VERSION)
+      version.setFont(Cosmos.getFont("Arial", 14))
+      version_layout = Qt::HBoxLayout.new
+      version_layout.addWidget(version, 0, Qt::AlignCenter)
+      layout.addLayout(version_layout)
+
       legal_text = ''
       legal_text_filename = File.join(::Cosmos::USERPATH, 'config', 'data', 'legal.txt')
       legal_text_filename = File.join(::Cosmos::PATH, 'data', 'legal.txt') unless File.exist?(legal_text_filename)
-      File.open(legal_text_filename, "r") {|file| legal_text << file.read}
+      legal_text << File.read(legal_text_filename)
+      legal_text.strip!
       legal_text.gsub!("\r", '') unless Kernel.is_windows?
 
-      text_edit = Qt::TextEdit.new
-      text_edit.text = legal_text
-      text_edit.setReadOnly(true)
-      text_edit.setFrameStyle(Qt::Frame::Box)
-      layout.addWidget(text_edit)
+      legal_label = Qt::Label.new(legal_text)
+      legal_label.setWordWrap(true)
+      legal_label.setFrameStyle(Qt::Frame::Box)
+      legal_label.setStyleSheet("QLabel { background-color : white; padding: 5px; }");
+      layout.addWidget(legal_label)
 
       @text_crc = Qt::TextEdit.new
-      @text_crc.setFixedHeight(100)
+      @text_crc.setMinimumHeight(100)
       @text_crc.setReadOnly(true)
       @text_crc.setFrameStyle(Qt::Frame::Box)
       layout.addWidget(@text_crc)
@@ -90,8 +93,11 @@ module Cosmos
       exit if result != Qt::Dialog::Accepted
     end
 
-    # Check all the files listed in the <COSMOS>/data/crc.txt against their
-    # expected CRC values.
+    # Opens all the files listed in <Cosmos::PATH>/data/crc.txt and calculates their CRCs
+    # against what is listed in the file to detect any modifications. Also
+    # opens all files listed in <Cosmos::USERPATH/config/data/crc.txt to verify
+    # the user defined COSMOS configuration files.
+    #
     # @return [String] Either a success message or warning about all files
     #   which did not match their expected CRCs.
     def check_all_crcs
@@ -132,13 +138,12 @@ module Cosmos
       return project_error_count
     end
 
-    # @param base_path [String] Base path to the COSMOS source
-    # @param filename [String] Full path to the crc.txt file with the list of
-    #   expected CRC values
-    # @param result_text [String] String to append CRC check results to
-    # @param missing_text [String] String to append missing files to
-    # @param file_type [String] Whether the COSMOS core or project files. Must
-    #   be 'CORE' or 'PROJECT'.
+    # @param base_path [String] Path to prepend to all the files in crc.txt
+    # @param filename [String] Full path to the crc.txt file
+    # @param result_text [String] String to append results of CRC checks
+    # @param missing_text [String] String to append missing files
+    # @param file_type [String] Whether we are checking the 'CORE' COSMOS files
+    #   or the 'PROJECT' specific files
     def check_crcs(base_path, filename, result_text, missing_text, file_type)
       file_count = 0
       error_count = 0

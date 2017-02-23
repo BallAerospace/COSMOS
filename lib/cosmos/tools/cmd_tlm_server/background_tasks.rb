@@ -11,7 +11,6 @@
 require 'cosmos/tools/cmd_tlm_server/cmd_tlm_server_config'
 
 module Cosmos
-
   # Manages starting and stopping all the background tasks which
   # were discovered when parsing the configuration file.
   class BackgroundTasks
@@ -22,35 +21,48 @@ module Cosmos
       @threads = []
     end
 
-    # Start background tasks by creating a new Ruby thread for each and then
-    # calling their 'call' method once.
-    def start
-      @config.background_tasks.each do |background_task|
-        new_thread = Thread.new do
-          background_task.thread = Thread.current
-          begin
-            background_task.call
-          rescue Exception => err
-            Logger.error "Background Task thread unexpectedly died"
-            Cosmos.handle_fatal_exception(err)
-          end
-        end
-        @threads << new_thread
+    # Start all background tasks by creating a new Ruby thread for each and then
+    # calling their 'call' method once. Tasks which have stopped set to true
+    # are not started and must be started by calling #start.
+    def start_all
+      (0...all.length).each do |index|
+        start(index) unless @config.background_tasks[index].stopped
       end
     end
 
-    # Stop background tasks by calling their stop method and then killing their
-    # Ruby threads.
-    def stop
-      @config.background_tasks.each do |background_task|
+    # Start an individual background task by creating a new Ruby thread and then
+    # calling the 'call' method once.
+    # @param index [Integer] Which background task to start
+    def start(index)
+      @threads[index] = Thread.new do
+        @config.background_tasks[index].thread = Thread.current
         begin
-          background_task.stop
-        rescue
-          # Ignore any errors because we're about to kill the thread anyway
+          @config.background_tasks[index].call
+        rescue Exception => err
+          Logger.error "Background Task '#{@config.background_tasks[index].name}' unexpectedly died"
+          Cosmos.handle_fatal_exception(err)
         end
       end
-      @threads.each {|thread| Cosmos.kill_thread(self, thread)}
+    end
+
+    # Stop all background tasks by calling their stop method and then killing
+    # their Ruby thread.
+    def stop_all
+      (0...all.length).each { |index| stop(index) }
       @threads = []
+    end
+
+    # Stop background task by calling their stop method and then killing their
+    # Ruby thread.
+    # @param index [Integer] Which background task to stop
+    def stop(index)
+      begin
+        @config.background_tasks[index].stop
+      rescue
+        # Ignore any errors because we're about to kill the thread anyway
+      end
+      Cosmos.kill_thread(self, @threads[index])
+      @threads[index] = nil
     end
 
     # Return the array of background tasks
@@ -61,7 +73,5 @@ module Cosmos
     def graceful_kill
       # This method is just here to remove warnings - background_task.stop should kill the thread
     end
-
-  end # class BackgroundTasks
-
-end # module Cosmos
+  end
+end

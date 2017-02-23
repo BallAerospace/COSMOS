@@ -36,6 +36,7 @@ module Cosmos
       "GEM_HOME: #{ENV['GEM_HOME']}\n\n"\
       "Loaded Gems:\n"
     Gem.loaded_specs.values.map {|x| ABOUT_COSMOS << "#{x.name} #{x.version} #{x.platform}\n"}
+    @@pry_dialogs = []
 
     # @param parent [Qt::Widget] Part of the dialog (the application)
     # @param about_string [String] Application specific informational text
@@ -44,23 +45,43 @@ module Cosmos
       @saved_text = ''
       setWindowTitle('About')
 
-      # Get Word Icon
       filename = File.join(::Cosmos::USERPATH, 'config', 'data', 'cosmos_word.gif')
       filename = File.join(::Cosmos::PATH, 'data', 'cosmos_word.gif') unless File.exist?(filename)
       word_icon = Qt::Label.new
       word_icon.setPixmap(Qt::Pixmap.new(filename))
 
       copyright = Qt::Label.new("Copyright 2014 - Ball Aerospace & Technologies Corp.")
+      copyright.setFont(Cosmos.getFont("Arial", 12))
       authors = Qt::Label.new("Created by Ryan Melton (ryanmelt) and Jason Thomas (jmthomas)")
       ver = Qt::Label.new("Version: " + COSMOS_VERSION)
       user_ver = nil
       user_ver = Qt::Label.new("User Version: " + USER_VERSION) if defined? USER_VERSION && (USER_VERSION != 'Unofficial')
+      authors.setFont(Cosmos.getFont("Arial", 12))
+
+      cosmos_layout = Qt::GridLayout.new
+      version = Qt::Label.new("Version: " + COSMOS_VERSION)
+      version.setFont(Cosmos.getFont("Arial", 14))
+      open_cosmos_code = Qt::PushButton.new("Open COSMOS Gem Code") do
+        connect(SIGNAL('clicked()')) { Cosmos.open_file_browser(Cosmos::PATH) }
+      end
+      cosmos_layout.addWidget(version, 0, 0)
+      cosmos_layout.addWidget(open_cosmos_code, 0, 1)
+
+      if USER_VERSION && USER_VERSION != 'Unofficial'
+        user_version = Qt::Label.new("Project Version: " + USER_VERSION)
+        user_version.setFont(Cosmos.getFont("Arial", 14))
+        cosmos_layout.addWidget(user_version, 1, 0)
+      end
+      open_user_code = Qt::PushButton.new("Open Project Code") do
+        connect(SIGNAL('clicked()')) { Cosmos.open_file_browser(Cosmos::USERPATH) }
+      end
+      cosmos_layout.addWidget(open_user_code, 1, 1)
+
       icon_layout = Qt::VBoxLayout.new do
         addWidget(word_icon)
         addWidget(copyright)
         addWidget(authors)
-        addWidget(ver)
-        addWidget(user_ver) if user_ver
+        addLayout(cosmos_layout)
         addStretch
       end
 
@@ -70,9 +91,9 @@ module Cosmos
       configurable_about_text = File.read(filename)
       configurable_about_text.gsub!("\r", '') unless Kernel.is_windows?
       if Kernel.is_windows?
-        configurable_about_text << "\n" + "Main Application x:#{parent.x} y:#{parent.y} width:#{parent.frameGeometry.width + 16} height:#{parent.frameGeometry.height + 38}\n\n" + ABOUT_COSMOS
-      else
-        configurable_about_text << "\n" + "Main Application x:#{parent.x} y:#{parent.y} width:#{parent.frameGeometry.width} height:#{parent.frameGeometry.height}\n\n" + ABOUT_COSMOS
+        configurable_about_text << "\n" \
+          "Main Application x:#{parent.x} y:#{parent.y} width:#{parent.frameGeometry.width + 16} " \
+          "height:#{parent.frameGeometry.height + 38}\n\n" +  ABOUT_COSMOS
       end
 
       # Set the application about text

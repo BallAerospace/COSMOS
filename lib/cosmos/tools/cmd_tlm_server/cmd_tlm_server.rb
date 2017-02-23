@@ -190,7 +190,7 @@ module Cosmos
       System.telemetry.limits_change_callback = method(:limits_change_callback)
       @interfaces.start
       @routers.start
-      @background_tasks.start
+      @background_tasks.start_all
 
       # Start staleness monitor thread
       @sleeper = Sleeper.new
@@ -221,7 +221,7 @@ module Cosmos
       # Shutdown staleness monitor thread
       Cosmos.kill_thread(self, @staleness_monitor_thread)
 
-      @background_tasks.stop
+      @background_tasks.stop_all
       @routers.stop
       @interfaces.stop
       @packet_logging.shutdown

@@ -138,30 +138,6 @@ if errorlevel 1 (
 :: Install Ruby
 ::::::::::::::::::::::::
 
-if %PROCESSOR_ARCHITECTURE%==x86 (
-  echo Downloading 32-bit Ruby
-  powershell -Command "(New-Object Net.WebClient).DownloadFile('!PROTOCOL!:!RUBY_INSTALLER_PATH!!RUBY_INSTALLER_32!', '!COSMOS_INSTALL!\tmp\!RUBY_INSTALLER_32!')"
-  if errorlevel 1 (
-    echo ERROR: Problem downloading 32-bit Ruby from: !PROTOCOL!:!RUBY_INSTALLER_PATH!!RUBY_INSTALLER_32!
-    echo INSTALL FAILED
-    @echo ERROR: Problem downloading 32-bit Ruby from: !PROTOCOL!:!RUBY_INSTALLER_PATH!!RUBY_INSTALLER_32! >> !COSMOS_INSTALL!\INSTALL.log
-    pause
-    exit /b 1
-  ) else (
-    @echo Successfully downloaded 32-bit Ruby from: !PROTOCOL!:!RUBY_INSTALLER_PATH!!RUBY_INSTALLER_32! >> !COSMOS_INSTALL!\INSTALL.log
-  )
-  echo Installing 32-bit Ruby
-  !COSMOS_INSTALL!\tmp\!RUBY_INSTALLER_32! /silent /dir="!COSMOS_INSTALL!\Vendor\Ruby"
-  if errorlevel 1 (
-    echo ERROR: Problem installing 32-bit Ruby
-    echo INSTALL FAILED
-    @echo ERROR: Problem installing 32-bit Ruby >> !COSMOS_INSTALL!\INSTALL.log
-    pause
-    exit /b 1
-  ) else (
-    @echo Successfully installed 32-bit Ruby >> !COSMOS_INSTALL!\INSTALL.log
-  )
-) else (
   echo Downloading 64-bit Ruby
   powershell -Command "(New-Object Net.WebClient).DownloadFile('!PROTOCOL!:!RUBY_INSTALLER_PATH!!RUBY_INSTALLER_64!', '!COSMOS_INSTALL!\tmp\!RUBY_INSTALLER_64!')"
   if errorlevel 1 (
@@ -184,36 +160,11 @@ if %PROCESSOR_ARCHITECTURE%==x86 (
   ) else (
     @echo Successfully installed 64-bit Ruby >> !COSMOS_INSTALL!\INSTALL.log
   )
-)
 
 ::::::::::::::::::::::::
 :: Install Devkit
 ::::::::::::::::::::::::
 
-if %PROCESSOR_ARCHITECTURE%==x86 (
-  echo Downloading 32-bit DevKit
-  powershell -Command "(New-Object Net.WebClient).DownloadFile('!PROTOCOL!:!RUBY_INSTALLER_PATH!!DEVKIT_32!', '!COSMOS_INSTALL!\tmp\!DEVKIT_32!')"
-  if errorlevel 1 (
-    echo ERROR: Problem downloading 32-bit Devkit from: !PROTOCOL!:!RUBY_INSTALLER_PATH!!DEVKIT_32!
-    echo INSTALL FAILED
-    @echo ERROR: Problem downloading 32-bit Devkit from: !PROTOCOL!:!RUBY_INSTALLER_PATH!!DEVKIT_32! >> !COSMOS_INSTALL!\INSTALL.log
-    pause
-    exit /b 1
-  ) else (
-    @echo Successfully downloaded 32-bit Devkit from: !PROTOCOL!:!RUBY_INSTALLER_PATH!!DEVKIT_32! >> !COSMOS_INSTALL!\INSTALL.log
-  )
-  echo Installing 32-bit DevKit
-  !COSMOS_INSTALL!\tmp\!DEVKIT_32! -y -ai -gm2 -o"!COSMOS_INSTALL!\Vendor\Devkit"
-  if errorlevel 1 (
-    echo ERROR: Problem installing 32-bit Devkit
-    echo INSTALL FAILED
-    @echo ERROR: Problem installing 32-bit Devkit >> !COSMOS_INSTALL!\INSTALL.log
-    pause
-    exit /b 1
-  ) else (
-    @echo Successfully installed 32-bit Devkit >> !COSMOS_INSTALL!\INSTALL.log
-  )
-) else (
   echo Downloading 64-bit DevKit
   powershell -Command "(New-Object Net.WebClient).DownloadFile('!PROTOCOL!:!RUBY_INSTALLER_PATH!!DEVKIT_64!', '!COSMOS_INSTALL!\tmp\!DEVKIT_64!')"
   if errorlevel 1 (
@@ -236,7 +187,6 @@ if %PROCESSOR_ARCHITECTURE%==x86 (
   ) else (
     @echo Successfully installed 64-bit Devkit >> !COSMOS_INSTALL!\INSTALL.log
   )
-)
 
 ::::::::::::::::::::::::
 :: Install WkHtmlToPdf
@@ -397,11 +347,7 @@ if errorlevel 1 (
 )
 
 :: move qt dlls to the ruby/bin folder - prevents conflicts with other versions of qt on the system
-if %PROCESSOR_ARCHITECTURE%==x86 (
-  move !COSMOS_INSTALL!\Vendor\Ruby\lib\ruby\gems\!RUBY_ABI_VERSION!\gems\qtbindings-qt-!QTBINDINGS_QT_VERSION!-x86-mingw32\qtbin\*.dll !COSMOS_INSTALL!\Vendor\Ruby\bin
-) else (
   move !COSMOS_INSTALL!\Vendor\Ruby\lib\ruby\gems\!RUBY_ABI_VERSION!\gems\qtbindings-qt-!QTBINDINGS_QT_VERSION!-x64-mingw32\qtbin\*.dll !COSMOS_INSTALL!\Vendor\Ruby\bin
-)
 if errorlevel 1 (
   echo ERROR: Problem moving qt dlls
   @echo ERROR: Problem moving qt dlls >> !COSMOS_INSTALL!\INSTALL.log

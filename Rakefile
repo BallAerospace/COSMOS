@@ -8,6 +8,8 @@
 # as published by the Free Software Foundation; version 3 with
 # attribution addendums as found in the LICENSE.txt
 
+require 'open3'
+
 # Pure Ruby CRC class to avoid circular dependency with c_cosmos
 class RakeCrc32
   attr_reader :crc32_poly
@@ -215,6 +217,37 @@ task :metrics do
   `reek lib > reek_report.txt`
   puts "\nRunning roodi and creating roodi_report.txt"
   `roodi -config=roodi.yml lib > roodi_report.txt`
+end
+
+task :stress do
+  puts "Running each spec individual with GC.stress = true..."
+  puts
+
+  ENV['STRESS'] = "1"
+  failed = []
+  Dir['spec/**/*_spec.rb'].each do |spec_file|
+    puts "Running: rspec #{spec_file}"
+    output, status = Open3.capture2e("rspec #{spec_file}")
+    if status.success?
+      puts "  success (#{status}):"
+      #puts output
+      puts
+    else
+      puts "  error (#{status}):"
+      puts output
+      puts
+      failed << spec_file
+    end
+  end
+
+  if failed.length > 0
+    puts "Failed specs:"
+    failed.each do |f|
+      puts "  #{f}"
+    end
+  else
+    puts "Success!"
+  end
 end
 
 YARD::Rake::YardocTask.new do |t|
