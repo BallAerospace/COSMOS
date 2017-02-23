@@ -9,8 +9,8 @@
 # attribution addendums as found in the LICENSE.txt
 
 module Cosmos
-  # Displays the about dialog used by all COSMOS applications. Lists Ruby
-  # version, Qt version, and various environment variables. The about dialog
+  # Help->About dialog which is part of all COSMOS tools. Displays information
+  # about licenses, software versions, and environment variables. This dialog
   # also creates a {PryDialog} when the letters 'p', 'r', 'y' are typed. See
   # {PryDialog} for more details.
   class AboutDialog < Qt::Dialog
@@ -19,21 +19,24 @@ module Cosmos
       "COSMOS application sounds are courtesy of http://www.freesfx.co.uk.\n"\
       "\n"\
       "COSMOS utilizes the QtRuby (http://rubyforge.org/projects/korundum) "\
-      "library under the GNU Lesser General Public License. "\
-      "QtRuby is a Ruby extension module that provides an "\
-      "interface to the Qt Gui Toolkit (http://qt-project.org) by Digia "\
-      "under the GNU Lesser General Public License.\n\n"\
+        "library under the GNU Lesser General Public License. "\
+        "QtRuby is a Ruby extension module that provides an "\
+        "interface to the Qt Gui Toolkit (http://qt-project.org) by Digia "\
+        "under the GNU Lesser General Public License.\n"\
+      "\n"\
       "Ruby Version: ruby #{RUBY_VERSION} (#{RUBY_RELEASE_DATE} "\
-      "patchlevel #{RUBY_PATCHLEVEL}) [#{RUBY_PLATFORM}]\n"\
+        "patchlevel #{RUBY_PATCHLEVEL}) [#{RUBY_PLATFORM}]\n"\
       "Rubygems Version: #{Gem::VERSION}\n"\
       "Qt Version: #{Qt::qVersion}\n"\
       "Cosmos::PATH: #{Cosmos::PATH}\n"\
-      "Cosmos::USERPATH: #{Cosmos::USERPATH}\n\n"\
+      "Cosmos::USERPATH: #{Cosmos::USERPATH}\n"\
+      "\n"\
       "Environment Variables:\n"\
       "RUBYLIB: #{ENV['RUBYLIB']}\n"\
       "RUBYOPT: #{ENV['RUBYOPT']}\n"\
       "GEM_PATH: #{ENV['GEM_PATH']}\n"\
-      "GEM_HOME: #{ENV['GEM_HOME']}\n\n"\
+      "GEM_HOME: #{ENV['GEM_HOME']}\n"\
+      "\n"\
       "Loaded Gems:\n"
     Gem.loaded_specs.values.map {|x| ABOUT_COSMOS << "#{x.name} #{x.version} #{x.platform}\n"}
     @@pry_dialogs = []
@@ -53,9 +56,6 @@ module Cosmos
       copyright = Qt::Label.new("Copyright 2014 - Ball Aerospace & Technologies Corp.")
       copyright.setFont(Cosmos.getFont("Arial", 12))
       authors = Qt::Label.new("Created by Ryan Melton (ryanmelt) and Jason Thomas (jmthomas)")
-      ver = Qt::Label.new("Version: " + COSMOS_VERSION)
-      user_ver = nil
-      user_ver = Qt::Label.new("User Version: " + USER_VERSION) if defined? USER_VERSION && (USER_VERSION != 'Unofficial')
       authors.setFont(Cosmos.getFont("Arial", 12))
 
       cosmos_layout = Qt::GridLayout.new
@@ -93,7 +93,11 @@ module Cosmos
       if Kernel.is_windows?
         configurable_about_text << "\n" \
           "Main Application x:#{parent.x} y:#{parent.y} width:#{parent.frameGeometry.width + 16} " \
-          "height:#{parent.frameGeometry.height + 38}\n\n" +  ABOUT_COSMOS
+          "height:#{parent.frameGeometry.height + 38}\n\n" + ABOUT_COSMOS
+      else
+        configurable_about_text << "\n" \
+          "Main Application x:#{parent.x} y:#{parent.y} width:#{parent.frameGeometry.width} " \
+          "height:#{parent.frameGeometry.height}\n\n" + ABOUT_COSMOS
       end
 
       # Set the application about text
@@ -143,7 +147,7 @@ module Cosmos
             if @saved_text[2]
               if @saved_text[2] == 'y'
                 self.done(0)
-                PryDialog.new(nil, binding)
+                @@pry_dialogs << PryDialog.new(nil, binding)
                 return
               end
               @saved_text = ''
