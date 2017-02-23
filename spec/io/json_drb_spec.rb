@@ -60,8 +60,8 @@ module Cosmos
 
       it "raises an error when passed incomplete parameters" do
         expect(@json.thread).to be_nil
-        expect { @json.start_service('127.0.0.1') }.to raise_error
-        expect { @json.start_service('127.0.0.1', 7777) }.to raise_error
+        expect { @json.start_service('127.0.0.1') }.to raise_error(/3 parameters must be given/)
+        expect { @json.start_service('127.0.0.1', 7777) }.to raise_error(/3 parameters must be given/)
         expect(@json.thread).to be_nil
       end
 

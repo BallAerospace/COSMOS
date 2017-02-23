@@ -78,19 +78,19 @@ module Cosmos
       end
 
       it "raises an exception if writing to an unopened archive" do
-        expect {@csv.write_archive([])}.to raise_error
+        expect { @csv.write_archive([]) }.to raise_error(/Archive file not opened/)
       end
 
       it "raises an exception if trying to reopen archive" do
         @csv.create_archive
-        expect {@csv.create_archive}.to raise_error
+        expect { @csv.create_archive }.to raise_error(/already open/)
         @csv.close_archive
       end
 
       it "raises an exception if trying to write closed archive" do
         @csv.create_archive
         @csv.close_archive
-        expect {@csv.write_archive([])}.to raise_error
+        expect { @csv.write_archive([]) }.to raise_error(/Archive file not opened/)
       end
     end
   end
