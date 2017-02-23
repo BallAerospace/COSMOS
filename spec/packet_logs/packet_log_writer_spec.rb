@@ -26,7 +26,7 @@ module Cosmos
 
     describe "initialize" do
       it "complains with an unknown log type" do
-        expect { PacketLogWriter.new(:BOTH) }.to raise_error
+        expect { PacketLogWriter.new(:BOTH) }.to raise_error(/log_type must be :CMD or :TLM/)
       end
 
       it "creates a command log writer" do
