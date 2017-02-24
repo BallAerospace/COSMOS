@@ -91,7 +91,7 @@ module Cosmos
     # knowledge of the commands, telemetry, and limits groups.
     #
     # @param filename [String] The name of the configuration file
-    # @param target_name [String] The target name
+    # @param process_target_name [String] The target name
     def process_file(filename, process_target_name)
       # Handle .xtce files
       if File.extname(filename).to_s.downcase == ".xtce"

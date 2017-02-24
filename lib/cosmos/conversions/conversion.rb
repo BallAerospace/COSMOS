@@ -9,10 +9,8 @@
 # attribution addendums as found in the LICENSE.txt
 
 module Cosmos
-
   # Performs a general conversion via the implementation of the call method
   class Conversion
-
     # @return [Symbol] The converted data type. Must be one of
     #   {Cosmos::StructureItem#data_type}
     attr_reader :converted_type
@@ -42,12 +40,10 @@ module Cosmos
       self.class.to_s.split('::')[-1]
     end
 
-    # @param (see Conversion#to_config)
+    # @param read_or_write [String] Either 'READ' or 'WRITE'
     # @return [String] Config fragment for this conversion
     def to_config(read_or_write)
       "    #{read_or_write}_CONVERSION #{self.class.name.class_name_to_filename}\n"
     end
-
-  end # class Conversion
-
-end # module Cosmos
+  end
+end

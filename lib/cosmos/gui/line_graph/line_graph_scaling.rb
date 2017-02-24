@@ -125,7 +125,7 @@ module Cosmos
     # Determine the y minimum and maximum values for the given lines and given
     # grid line scale
     #
-    # @param lines [Array] Array of lines containing the x and y values
+    # @param value_range [Range] Range of values over the y axis
     # @param manual_y_grid_line_scale [Float] Whether there is a manual grid
     #   line scale. The return values will be multiples of this scale if given.
     # @return [Float, Float] The minimum and maximum values
