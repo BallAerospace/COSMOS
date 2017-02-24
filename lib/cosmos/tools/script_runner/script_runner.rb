@@ -33,7 +33,6 @@ module Cosmos
       Cosmos.load_cosmos_icon("script_runner.png")
       setAcceptDrops(true) # Allow dropping in files
 
-      @config_file = options.config_file
       @server_config_file = options.server_config_file
 
       # Add procedures to search path
@@ -50,12 +49,10 @@ module Cosmos
       @running_icon = Cosmos.get_icon('running.png')
       @no_icon = Qt::Icon.new
 
-      # Handle configuration
-      filename = File.join(::Cosmos::USERPATH, %w(config tools script_runner), @config_file)
-      if File.exist?(filename)
-        ScriptRunnerConfig.new(filename)
-      elsif @config_file != 'script_runner.txt'
-        raise "Could not find config file #{filename}"
+      if File.exist?(options.config_file)
+        ScriptRunnerConfig.new(options.config_file)
+      else
+        raise "Could not find config file #{options.config_file}"
       end
 
       @procedure_dir = System.paths['PROCEDURES'][0]

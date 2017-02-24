@@ -1,10 +1,6 @@
 QMainWindow {
   background-color: #9a1f20;
 }
-QLabel {
-  font-size: 14px;
-  font-family: Arial;
-}
 #Label {
   font-size: 20px;
 }
@@ -12,16 +8,3 @@ QLabel {
   border: 2px solid #3585b3;
   border-radius: 1px;
 }
-QPushButton {
-  border: 1px solid black;
-  border-radius: 2px;
-  background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #b1bac4, stop: 1 #767c83);
-}
-QPushButton:hover:!pressed
-{
-  background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #4cbdff, stop: 1 #3585b3);
-}
-QPushButton:pressed {
-  background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #ff3335, stop: 1 #9a1f20);
-}
-

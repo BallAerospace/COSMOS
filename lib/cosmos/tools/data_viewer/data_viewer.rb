@@ -57,7 +57,7 @@ module Cosmos
       @components = []
       @packets = []
       @packet_to_components_mapping = {}
-      @config_filename = File.join(Cosmos::USERPATH, 'config', 'tools', 'data_viewer', options.config_file)
+      @config_filename = options.config_file
       process_config()
 
       # Load System Definition and Event Data

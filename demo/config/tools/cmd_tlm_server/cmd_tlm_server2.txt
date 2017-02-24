@@ -1,4 +1,4 @@
-TITLE 'COSMOS Command and Telemetry Server - Demo Configuration'
+TITLE 'COSMOS Command and Telemetry Server - Demo Configuration 2'
 
 PACKET_LOG_WRITER DEFAULT meta_packet_log_writer.rb META DATA config/data/meta_init.txt
 PACKET_LOG_WRITER COSMOSLOG packet_log_writer.rb cosmos

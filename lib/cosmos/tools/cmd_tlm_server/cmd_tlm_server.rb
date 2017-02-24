@@ -73,7 +73,7 @@ module Cosmos
     # The default host
     DEFAULT_HOST = 'localhost'
     # The default configuration file name
-    DEFAULT_CONFIG_FILE = 'cmd_tlm_server.txt'
+    DEFAULT_CONFIG_FILE = File.join(Cosmos::USERPATH, 'config', 'tools', 'cmd_tlm_server', 'cmd_tlm_server.txt')
     # The maximum number of limits events that are queued. Used when
     # subscribing to limits events.
     DEFAULT_LIMITS_EVENT_QUEUE_SIZE = 1000
@@ -128,7 +128,7 @@ module Cosmos
       @next_packet_data_queue_id = 1
 
       # Process cmd_tlm_server.txt
-      @config = CmdTlmServerConfig.new(File.join('config', 'tools', 'cmd_tlm_server', config_file))
+      @config = CmdTlmServerConfig.new(config_file)
       @background_tasks = BackgroundTasks.new(@config)
       @commanding = Commanding.new(@config)
       @interfaces = Interfaces.new(@config, method(:identified_packet_callback))

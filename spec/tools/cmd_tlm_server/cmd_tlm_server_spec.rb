@@ -55,7 +55,7 @@ module Cosmos
       it "creates the CTS in production mode" do
         # Production mode means we start logging
         expect_any_instance_of(PacketLogging).to receive(:start)
-        cts = CmdTlmServer.new('cmd_tlm_server.txt', true)
+        cts = CmdTlmServer.new(CmdTlmServer::DEFAULT_CONFIG_FILE, true)
         # Verify we disabled the ability to stop logging
         expect(CmdTlmServer.json_drb.method_whitelist).to include('start_logging')
         expect(CmdTlmServer.json_drb.method_whitelist).not_to include('stop_logging')
