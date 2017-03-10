@@ -11,14 +11,17 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
     :
   else
     echo "Installing Homebrew - You may need to enter your password and install xcode tools"
-    ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"  
+    ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
   fi
 
   # Install necessary packages
   echo "Installing Homebrew packages"
   brew update
-  brew install libksba cmake qt rbenv ruby-build openssl libyaml libffi
-  
+  brew tap cartr/qt4
+  brew tap-pin cartr/qt4
+  brew install qt
+  brew install libksba cmake rbenv ruby-build openssl libyaml libffi
+
   # Configure rbenv
   echo 'if hash rbenv > /dev/null; then eval "$(rbenv init -)"; fi' >> ~/.bash_profile
   source ~/.bash_profile
@@ -44,7 +47,7 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
     cosmos demo ~/cosmosdemo
     open ~/cosmosdemo/tools/mac/Launcher.app
   fi
-  
+
 else # Linux
 
   # Yum dependencies tested on Centos 6.5/6.6/7
@@ -83,7 +86,7 @@ else # Linux
    fi
 fi
 
-  
+
   # Install ruby
   read -p "Install ruby using rbenv (Yn): " -n 1 -r
   echo
@@ -114,5 +117,5 @@ fi
     cosmos demo ~/cosmosdemo
     ruby ~/cosmosdemo/tools/Launcher &
   fi
-  
+
 fi # OS check
