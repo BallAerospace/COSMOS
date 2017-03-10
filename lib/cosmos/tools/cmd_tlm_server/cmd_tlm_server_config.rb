@@ -15,7 +15,6 @@ require 'cosmos/packet_logs'
 require 'cosmos/io/raw_logger_pair'
 
 module Cosmos
-
   # Reads an ascii file that defines the configuration settings used to
   # configure the Command/Telemetry Server.
   class CmdTlmServerConfig
@@ -245,6 +244,11 @@ module Cosmos
               @background_tasks << background_task.new
             end
 
+          when 'STOPPED'
+            parser.verify_num_parameters(0, 0, "#{keyword}")
+            raise parser.error("No BACKGROUND_TASK defined") if @background_tasks.empty?
+            @background_tasks[-1].stopped = true
+
           # TODO: Deprecate COLLECT_META_DATA
           when 'COLLECT_METADATA', 'COLLECT_META_DATA'
             parser.verify_num_parameters(2, 2, "#{keyword} <Metadata Target Name> <Metadata Packet Name>")
@@ -259,7 +263,5 @@ module Cosmos
         end  # loop
       end
     end
-
-  end # class CmdTlmServerConfig
-
-end # module Cosmos
+  end
+end

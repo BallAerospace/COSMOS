@@ -17,65 +17,151 @@ load 'cosmos.rb' # Ensure COSMOS::USERPATH/lib is set
 module Cosmos
 
   describe BackgroundTasks do
-    after(:all) do
-      clean_config()
-    end
-
-    describe "start, stop" do
-      it "calls start on each task" do
-        File.open(File.join(Cosmos::USERPATH,'lib','my_bg_task1.rb'),'w') do |file|
+    before(:all) do
+      4.times.each do |i|
+        File.open(File.join(Cosmos::USERPATH,'lib',"my_bg_task#{i}.rb"),'w') do |file|
           file.puts "require 'cosmos/tools/cmd_tlm_server/background_task'"
-          file.puts "class MyBgTask1 < Cosmos::BackgroundTask"
-          file.puts "  def call; sleep 1 while true; end"
-          file.puts "  def stop; raise 'Error'; end"
+          file.puts "class MyBgTask#{i} < Cosmos::BackgroundTask"
+          if i == 3
+            file.puts "  def call; raise 'Error'; end"
+          else
+            file.puts "  def call; puts 'BG#{i} START'; @go = true; sleep 1 while @go; end"
+          end
+          file.puts "  def stop; puts 'BG#{i} STOP'; @go = false; end"
           file.puts "end"
         end
+      end
+    end
+
+    after(:all) do
+      clean_config()
+      4.times.each { |i| File.delete(File.join(Cosmos::USERPATH,'lib',"my_bg_task#{i}.rb")) }
+    end
+
+    describe "start_all, stop_all" do
+      it "starts and stops all background tasks" do
         tf = Tempfile.new('unittest')
+        tf.puts 'BACKGROUND_TASK my_bg_task0.rb'
         tf.puts 'BACKGROUND_TASK my_bg_task1.rb'
+        tf.puts '  STOPPED'
+        tf.puts 'BACKGROUND_TASK my_bg_task2.rb'
         tf.close
         config = CmdTlmServerConfig.new(tf.path)
         bt = BackgroundTasks.new(config)
-        bt.start
-        sleep 0.1
-        # 2 because the RSpec main thread plus the background task
-        expect(Thread.list.length).to eql(2)
-        bt.stop
-        sleep 0.2
-        expect(Thread.list.length).to eql(1)
+        expect(Thread.list.length).to eql(1) # RSpec main thread
+        expect(bt.instance_variable_get("@threads").length).to eq 0
 
+        capture_io do |stdout|
+          bt.start_all
+          sleep 0.2
+          expect(Thread.list.length).to eql(3)
+          expect(bt.instance_variable_get("@threads").compact.length).to eq 2
+          expect(stdout.string).to match "BG0 START"
+          expect(stdout.string).to match "BG2 START"
+
+          bt.start(1)
+          sleep 0.1
+          expect(Thread.list.length).to eql(4)
+          expect(bt.instance_variable_get("@threads").compact.length).to eq 3
+          expect(stdout.string).to match "BG1 START"
+
+          bt.stop_all
+          sleep 0.2
+          expect(Thread.list.length).to eql(1)
+          expect(bt.instance_variable_get("@threads").compact.length).to eq 0
+          expect(stdout.string).to match "BG0 STOP"
+          expect(stdout.string).to match "BG1 STOP"
+          expect(stdout.string).to match "BG2 STOP"
+        end
         tf.unlink
-        File.delete(File.join(Cosmos::USERPATH,'lib','my_bg_task1.rb'))
+      end
+    end
+
+    describe "start, stop" do
+      it "starts and stops individual background tasks" do
+        tf = Tempfile.new('unittest')
+        tf.puts 'BACKGROUND_TASK my_bg_task0.rb'
+        tf.puts 'BACKGROUND_TASK my_bg_task1.rb'
+        tf.puts 'BACKGROUND_TASK my_bg_task2.rb'
+        tf.close
+        config = CmdTlmServerConfig.new(tf.path)
+        bt = BackgroundTasks.new(config)
+        expect(Thread.list.length).to eql(1) # RSpec main thread
+        expect(bt.instance_variable_get("@threads").length).to eq 0
+
+        capture_io do |stdout|
+          bt.start(2)
+          sleep 0.1
+          expect(Thread.list.length).to eql(2)
+          expect(bt.instance_variable_get("@threads")[2].alive?).to eq true
+          expect(bt.instance_variable_get("@threads").compact.length).to eq 1
+          expect(stdout.string).to match "BG2 START"
+
+          bt.start(1)
+          sleep 0.1
+          expect(Thread.list.length).to eql(3)
+          expect(bt.instance_variable_get("@threads")[1].alive?).to eq true
+          expect(bt.instance_variable_get("@threads").compact.length).to eq 2
+          expect(stdout.string).to match "BG1 START"
+
+          bt.start(0)
+          sleep 0.1
+          expect(Thread.list.length).to eql(4)
+          expect(bt.instance_variable_get("@threads")[0].alive?).to eq true
+          expect(bt.instance_variable_get("@threads").compact.length).to eq 3
+          expect(stdout.string).to match "BG0 START"
+
+          bt.stop(1)
+          sleep 0.2
+          expect(Thread.list.length).to eql(3)
+          expect(bt.instance_variable_get("@threads")[1]).to be_nil
+          expect(bt.instance_variable_get("@threads").compact.length).to eq 2
+          expect(stdout.string).to match "BG1 STOP"
+
+          bt.stop(0)
+          sleep 0.2
+          expect(Thread.list.length).to eql(2)
+          expect(bt.instance_variable_get("@threads")[0]).to be_nil
+          expect(bt.instance_variable_get("@threads").compact.length).to eq 1
+          expect(stdout.string).to match "BG0 STOP"
+
+          bt.stop(2)
+          sleep 0.2
+          expect(Thread.list.length).to eql(1)
+          expect(bt.instance_variable_get("@threads")[2]).to be_nil
+          expect(bt.instance_variable_get("@threads").compact.length).to eq 0
+          expect(stdout.string).to match "BG2 STOP"
+        end
+        tf.unlink
       end
 
       it "handles exceptions" do
         tf = Tempfile.new('unittest')
-        tf.puts 'BACKGROUND_TASK my_bg_task2.rb'
+        tf.puts 'BACKGROUND_TASK my_bg_task3.rb'
         tf.close
+        config = CmdTlmServerConfig.new(tf.path)
+        bt = BackgroundTasks.new(config)
+        expect(Thread.list.length).to eql(1) # RSpec main thread
+        expect(bt.instance_variable_get("@threads").length).to eq 0
+
         capture_io do |stdout|
-          File.open(File.join(Cosmos::USERPATH,'lib','my_bg_task2.rb'),'w') do |file|
-            file.puts "require 'cosmos/tools/cmd_tlm_server/background_task'"
-            file.puts "class MyBgTask2 < Cosmos::BackgroundTask"
-            file.puts "  def call; raise 'Error'; end"
-            file.puts "  def stop; raise 'Error'; end"
-            file.puts "end"
-          end
-          config = CmdTlmServerConfig.new(tf.path)
-          bt = BackgroundTasks.new(config)
-          bt.start
+          bt.start_all
           # 2 because the RSpec main thread plus the background task
           expect(Thread.list.length).to eql(2)
           sleep 1.1 # Allow the thread to crash
           expect(Thread.list.length).to eql(1)
-          bt.stop
+          expect(bt.instance_variable_get("@threads").length).to eq 1
+          expect(bt.instance_variable_get("@threads")[0].alive?).to eq false
+
+          bt.stop_all
           sleep 0.2
           expect(Thread.list.length).to eql(1)
+          expect(bt.instance_variable_get("@threads").length).to eq 0
 
-          expect(stdout.string).to match "Background Task thread unexpectedly died"
+          expect(stdout.string).to match "unexpectedly died"
         end
         tf.unlink
-        File.delete(File.join(Cosmos::USERPATH,'lib','my_bg_task2.rb'))
       end
     end
-
   end
 end

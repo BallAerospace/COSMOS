@@ -129,7 +129,7 @@ describe Exception do
     json["class"] = "ClassWhichDoesNotExist"
     json["message"] = "Error"
     json["backtrace"] = "trace"
-    expect { Exception.from_hash(json) }.to raise_error
+    expect { Exception.from_hash(json) }.to raise_error(TypeError)
   end
 end
 

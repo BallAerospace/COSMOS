@@ -35,5 +35,6 @@ ROUTER INST_ROUTER tcpip_server_interface.rb 2055 2055 10.0 nil LENGTH 32 16 7
   # LOG_RAW
 
 BACKGROUND_TASK example_background_task.rb
+  STOPPED
 
 #COLLECT_METADATA META DATA

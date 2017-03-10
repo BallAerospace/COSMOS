@@ -43,7 +43,7 @@ module Cosmos
     describe "num_rows=" do
       it "raises an error for ONE_DIMENTIONAL" do
         t = Table.new("table", :BIG_ENDIAN, :ONE_DIMENSIONAL, "description", "filename")
-        expect { t.num_rows = 2 }.to raise_error
+        expect { t.num_rows = 2 }.to raise_error(/Rows are fixed/)
       end
 
       it "sets num_rows for TWO_DIMENTIONAL" do
