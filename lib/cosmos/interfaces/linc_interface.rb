@@ -177,7 +177,7 @@ module Cosmos
         @handshake_disable_commands.each do |handshake_disable_command|
           if handshake_disable_command.identify?(packet.buffer(false))
             @handshake_enabled = false
-            @handshake_enableds[handshake_disable_command.target_name] = true
+            @handshake_enableds[handshake_disable_command.target_name] = false
             return true
           end
         end
