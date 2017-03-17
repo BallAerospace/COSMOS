@@ -1,6 +1,6 @@
 # encoding: ascii-8bit
 
-# Copyright 2014 Ball Aerospace & Technologies Corp.
+# Copyright 2017 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
 # This program is free software; you can modify and/or redistribute it
@@ -40,13 +40,14 @@ module Cosmos
 
       # Configuration Settings
       @handshake_enabled = ConfigParser.handle_true_false(handshake_enabled)
+      @handshake_enableds = nil
       @response_timeout  = response_timeout.to_f
       @length_value_offset = Integer(length_value_offset)
       @fieldname_guid = ConfigParser.handle_nil(fieldname_guid)
       @fieldname_cmd_length = ConfigParser.handle_nil(fieldname_cmd_length)
 
       # Other instance variables
-      @ignored_error_codes = []
+      @ignored_error_codes = {}
       @handshake_cmds = []
       @handshakes_mutex = Mutex.new
 
@@ -56,29 +57,49 @@ module Cosmos
 
     def connect
       # Packet definitions need to be retrieved here because @target_names is not filled in until after initialize
-      @handshake_packet = System.telemetry.packet(@target_names[0], 'HANDSHAKE')
-      @error_packet = System.telemetry.packet(@target_names[0], 'ERROR')
+      unless @handshake_enableds
+        @handshake_enableds = {}
+        @target_names.each do |target_name|
+          @handshake_enableds[target_name] = @handshake_enabled
+          @ignored_error_codes[target_name] = []
+        end
+      end
+      @handshake_packets = []
+      @error_packets = []
+      @error_ignore_commands = nil
+      @error_handle_commands = nil
+      @handshake_enable_commands = nil
+      @handshake_disable_commands = nil
 
-      # Handle not defining the interface configuration commands (May not want to support this functionality)
-      begin
-        @error_ignore_command = nil
-        @error_ignore_command = System.commands.packet(@target_names[0], 'COSMOS_ERROR_IGNORE')
-      rescue
-      end
-      begin
-        @error_handle_command = nil
-        @error_handle_command = System.commands.packet(@target_names[0], 'COSMOS_ERROR_HANDLE')
-      rescue
-      end
-      begin
-        @handshake_enable_command = nil
-        @handshake_enable_command = System.commands.packet(@target_names[0], 'COSMOS_HANDSHAKE_EN')
-      rescue
-      end
-      begin
-        @handshake_disable_command = nil
-        @handshake_disable_command = System.commands.packet(@target_names[0], 'COSMOS_HANDSHAKE_DS')
-      rescue
+      @target_names.each do |target_name|
+        @handshake_packets << System.telemetry.packet(target_name, 'HANDSHAKE')
+        @error_packets << System.telemetry.packet(target_name, 'ERROR')
+
+        # Handle not defining the interface configuration commands (Targets may not want to support this functionality)
+        begin
+          command = System.commands.packet(target_name, 'COSMOS_ERROR_IGNORE')
+          @error_ignore_commands ||= []
+          @error_ignore_commands << command
+        rescue
+        end
+        begin
+          command = System.commands.packet(target_name, 'COSMOS_ERROR_HANDLE')
+          @error_handle_commands ||= []
+          @error_handle_commands << command
+        rescue
+        end
+        begin
+          command = System.commands.packet(target_name, 'COSMOS_HANDSHAKE_EN')
+          @handshake_enable_commands ||= []
+          @handshake_enable_commands << command
+        rescue
+        end
+        begin
+          command = System.commands.packet(target_name, 'COSMOS_HANDSHAKE_DS')
+          @handshake_disable_commands ||= []
+          @handshake_disable_commands << command
+        rescue
+        end
       end
 
       @handshakes_mutex.synchronize do
@@ -113,38 +134,56 @@ module Cosmos
       # it could be the handshake to this command.
       @handshakes_mutex.synchronize do
         super(packet) # Send the command
-        wait_for_response(packet, guid) if @handshake_enabled
+        wait_for_response(packet, guid) if @handshake_enableds[packet.target_name]
       end
     end
 
     def linc_interface_command(packet)
-      result = false
-      if @error_ignore_command and @error_ignore_command.identify?(packet.buffer(false))
-        linc_cmd = @error_ignore_command.clone
-        linc_cmd.buffer = packet.buffer
-        code = linc_cmd.read('CODE')
-        @ignored_error_codes << code unless @ignored_error_codes.include? code
-        result = true
+      if @error_ignore_commands
+        @error_ignore_commands.each do |error_ignore_command|
+          if error_ignore_command.identify?(packet.buffer(false))
+            linc_cmd = error_ignore_command.clone
+            linc_cmd.buffer = packet.buffer
+            code = linc_cmd.read('CODE')
+            @ignored_error_codes[error_ignore_command.target_name] << code unless @ignored_error_codes[error_ignore_command.target_name].include? code
+            return true
+          end
+        end
       end
 
-      if @error_handle_command and @error_handle_command.identify?(packet.buffer(false))
-        linc_cmd = @error_handle_command.clone
-        linc_cmd.buffer = packet.buffer
-        code = linc_cmd.read('CODE')
-        @ignored_error_codes.delete(code) if @ignored_error_codes.include? code
-        result = true
+      if @error_handle_commands
+        @error_handle_commands.each do |error_handle_command|
+          if error_handle_command.identify?(packet.buffer(false))
+            linc_cmd = error_handle_command.clone
+            linc_cmd.buffer = packet.buffer
+            code = linc_cmd.read('CODE')
+            @ignored_error_codes[error_handle_command.target_name].delete(code) if @ignored_error_codes[error_handle_command.target_name].include? code
+            return true
+          end
+        end
       end
 
-      if @handshake_enable_command and @handshake_enable_command.identify?(packet.buffer(false))
-        @handshake_enabled = true
-        result = true
+      if @handshake_enable_commands
+        @handshake_enable_commands.each do |handshake_enable_command|
+          if handshake_enable_command.identify?(packet.buffer(false))
+            @handshake_enabled = true
+            @handshake_enableds[handshake_enable_command.target_name] = true
+            return true
+          end
+        end
       end
 
-      if @handshake_disable_command and @handshake_disable_command.identify?(packet.buffer(false))
-        @handshake_enabled = false
-        result = true
+      if @handshake_disable_commands
+        @handshake_disable_commands.each do |handshake_disable_command|
+          if handshake_disable_command.identify?(packet.buffer(false))
+            @handshake_enabled = false
+            @handshake_enableds[handshake_disable_command.target_name] = true
+            return true
+          end
+        end
       end
-      return result
+
+      return false
     end
 
     def get_guid(packet)
@@ -187,7 +226,7 @@ module Cosmos
       if timed_out
         # Clean this command out of the array of items that require handshakes.
         @handshake_cmds.delete_if {|hsc| hsc == handshake_cmd}
-        raise "Timeout waiting for handshake from #{System.commands.format(packet, System.targets[@target_names[0]].ignored_parameters)}"
+        raise "Timeout waiting for handshake from #{System.commands.format(packet, System.targets[packet.target_name].ignored_parameters)}"
       end
 
       process_handshake_results(handshake_cmd)
@@ -217,11 +256,11 @@ module Cosmos
 
       # Handle handshake warnings and errors
       if status == "OK" and code != 0
-        unless @ignored_error_codes.include? code
+        unless @ignored_error_codes[handshake_cmd.handshake.handshake.target_name].include? code
           Logger.warn "Warning sending command (#{code}): #{source}"
         end
       elsif status == "ERROR"
-        unless @ignored_error_codes.include? code
+        unless @ignored_error_codes[handshake_cmd.handshake.handshake.target_name].include? code
           raise "Error sending command (#{code}): #{source}"
         end
       end
@@ -230,18 +269,20 @@ module Cosmos
     def read
       packet = super()
       if packet
-        if @handshake_packet.identify?(packet.buffer(false))
-          handshake_packet = @handshake_packet.clone
-          handshake_packet.buffer = packet.buffer
-          linc_handshake = LincHandshake.new(handshake_packet, @target_names[0])
+        @handshake_packets.each do |handshake_packet|
+          if handshake_packet.identify?(packet.buffer(false))
+            handshake_packet = handshake_packet.clone
+            handshake_packet.buffer = packet.buffer
+            linc_handshake = LincHandshake.new(handshake_packet, handshake_packet.target_name)
 
-          # Check for a local handshake
-          if handshake_packet.read('origin') == "LCL"
-            handle_local_handshake(linc_handshake)
-          else
-            handle_remote_handshake(linc_handshake) if @handshake_enabled
-          end # if handshake_packet.read('origin') == "LCL"
-        end # @handshake_packet.identify?(packet.buffer(false))
+            # Check for a local handshake
+            if handshake_packet.read('origin') == "LCL"
+              handle_local_handshake(linc_handshake)
+            else
+              handle_remote_handshake(linc_handshake) if @handshake_enableds[handshake_packet.target_name]
+            end # if handshake_packet.read('origin') == "LCL"
+          end # @handshake_packet.identify?(packet.buffer(false))
+        end
       end # if packet
 
       return packet
@@ -255,7 +296,7 @@ module Cosmos
       command.received_count += 1
 
       # Put a log of the command onto the server for the user to see
-      Logger.info("External Command: " + System.commands.format(linc_handshake.identified_command, System.targets[@target_names[0]].ignored_parameters))
+      Logger.info("External Command: " + System.commands.format(linc_handshake.identified_command, System.targets[linc_handshake.identified_command.target_name].ignored_parameters))
 
       # Log the command to the command log(s)
       @packet_log_writer_pairs.each do |packet_log_writer_pair|
