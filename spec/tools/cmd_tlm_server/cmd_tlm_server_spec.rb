@@ -269,6 +269,10 @@ module Cosmos
     end
 
     describe "self.subscribe_packet_data" do
+      it "rejects bad queue sizes" do
+        expect{ CmdTlmServer.subscribe_packet_data([["COSMOS","VERSION"]], true) }.to raise_error(ArgumentError)
+      end
+
       it "subscribes to packets" do
         version = System.telemetry.packet("COSMOS","VERSION")
         allow_any_instance_of(Interface).to receive(:read) do
