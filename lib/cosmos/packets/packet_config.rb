@@ -641,10 +641,9 @@ module Cosmos
             if element['byteSignificance'] and element['byteSignificance'].to_i == 0
               @current_type.endianness = :LITTLE_ENDIAN
             end
-            false
-          else
-            true
+            break # Stop after finding the first Byte
           end
+          true
         end
         return false # Already recursed
 
