@@ -431,6 +431,10 @@ module Cosmos
         raise ArgumentError, "packets must be nested array: [['TGT','PKT'],...]"
       end
 
+      unless queue_size.is_a? Integer and queue_size > 0
+        raise ArgumentError, "Invalid queue size for subscribe_packet_data: #{queue_size}"
+      end
+
       id = nil
       upcase_packets = []
 
