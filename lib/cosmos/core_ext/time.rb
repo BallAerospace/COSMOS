@@ -339,7 +339,7 @@ class Time
     (day + JULIAN_DATE_OF_CCSDS_EPOCH) + ((ms.to_f + (us / 1000.0)) / MSEC_PER_DAY_FLOAT)
   end
 
-  # @param [Float] julian date
+  # @param jdate [Float] julian date
   # @return [Array<day, ms, us>] Julian converted to CCSDS
   def self.julian2ccsds(jdate)
     day = jdate - JULIAN_DATE_OF_CCSDS_EPOCH
@@ -363,8 +363,8 @@ class Time
     (self.ccsds2julian(day, ms, us) - sec_epoch_jd) * SEC_PER_DAY_FLOAT
   end
 
-  # @param seconds [Float]
-  # @param sec_epoch_jd [Float] Epoch to of seconds value
+  # @param sec [Float] Number of seconds to convert
+  # @param sec_epoch_jd [Float] Epoch of seconds value
   # @return [Array<day, ms, us>] CCSDS date
   def self.sec2ccsds(sec, sec_epoch_jd = JULIAN_DATE_OF_CCSDS_EPOCH)
     self.julian2ccsds((sec / SEC_PER_DAY_FLOAT) + sec_epoch_jd)

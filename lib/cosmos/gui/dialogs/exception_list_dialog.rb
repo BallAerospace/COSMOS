@@ -16,10 +16,13 @@ require 'cosmos/gui/qt'
 require 'cosmos/gui/dialogs/exception_dialog'
 
 module Cosmos
-
   # Displays a list of exceptions in a dialog box. Clicking on any of the
   # exceptions creates a new ExceptionDialog which shows the details.
   class ExceptionListDialog < Qt::Dialog
+    # @param message [String] Text to display in the dialog
+    # @param exception_list [Array<Exception>] Array of exceptions to display
+    # @param title [String] Dialog title
+    # @param parent [Qt::Widget] Parent for this dialog
     def initialize(message, exception_list, title = 'COSMOS Exception List', parent = Qt::CoreApplication.instance.activeWindow)
       super(parent)
       self.window_title = title
@@ -53,7 +56,5 @@ module Cosmos
       exec()
       dispose()
     end
-  end # class ExceptionListDialog
-
-end # module Cosmos
-
+  end
+end

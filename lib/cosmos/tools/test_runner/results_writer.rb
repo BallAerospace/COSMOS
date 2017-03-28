@@ -197,7 +197,7 @@ module Cosmos
       file_list
     end
 
-    # @param progress_dialog [ProgressDialog] The dialog that was cancelled
+    # @param progress_dialog [ProgressDialog] The dialog that was canceled
     def cancel_callback(progress_dialog = nil)
       @canceled = true
       return true, false

@@ -337,7 +337,7 @@ module Cosmos
           handshake_cmd = @handshakes_cmds.pop
           handshake_cmd.got_your_handshake(linc_handshake)
         end # of handshaking type check
-      end # @handshakes_mutex.synchronize
+      end
     end
 
   end # class LincInterface

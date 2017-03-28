@@ -304,26 +304,26 @@ module Cosmos
     end
 
     # Edits the data object - show_limits_lines is the only edit_safe? attribute
-    def edit(editted_data_object)
-      self.show_limits_lines = editted_data_object.show_limits_lines
-      super(editted_data_object)
+    def edit(edited_data_object)
+      self.show_limits_lines = edited_data_object.show_limits_lines
+      super(edited_data_object)
     end
 
     # Determines if changes can be made to the data object without affecting data
     #
     # @param edited_data_object [DataObject] The data object which was edited
-    def edit_safe?(editted_data_object)
-      if @target_name != editted_data_object.target_name or
-         @packet_name != editted_data_object.packet_name or
-         @item_name != editted_data_object.item_name or
-         @time_item_name != editted_data_object.time_item_name or
-         @formatted_time_item_name != editted_data_object.formatted_time_item_name or
-         @value_type != editted_data_object.value_type or
-         @analysis != editted_data_object.analysis or
-         @analysis_samples != editted_data_object.analysis_samples
+    def edit_safe?(edited_data_object)
+      if @target_name != edited_data_object.target_name or
+         @packet_name != edited_data_object.packet_name or
+         @item_name != edited_data_object.item_name or
+         @time_item_name != edited_data_object.time_item_name or
+         @formatted_time_item_name != edited_data_object.formatted_time_item_name or
+         @value_type != edited_data_object.value_type or
+         @analysis != edited_data_object.analysis or
+         @analysis_samples != edited_data_object.analysis_samples
         false
       else
-        super(editted_data_object)
+        super(edited_data_object)
       end
     end
 

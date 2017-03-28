@@ -20,8 +20,8 @@ module Cosmos
   # Widget for adding a single X-Y data object to a plot
   class SinglexyDataObjectAdder < XyDataObjectAdder
 
-    # @parent [Qt::Widget] Parent widget to hold this frame
-    # @orientation [Integer] How to layout the frame.
+    # @param parent [Qt::Widget] Parent widget to hold this frame
+    # @param orientation [Integer] How to layout the frame.
     #   Must be Qt::Horizontal or Qt::Vertical.
     def initialize(parent, orientation = Qt::Horizontal)
       super(parent, orientation)

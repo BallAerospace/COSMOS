@@ -185,7 +185,7 @@ module Cosmos
     # defined states. If each line has identical states return the states
     # else return nil.
     #
-    # @param [Symbol] Axis which must be :LEFT or :RIGHT
+    # @param axis [Symbol] Axis which must be :LEFT or :RIGHT
     # @return [Hash|nil] The states for the given axis or nil
     def unique_y_states(axis)
       lines = left() if axis == :LEFT

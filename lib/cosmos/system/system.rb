@@ -176,7 +176,7 @@ module Cosmos
 
     # Change the system limits set
     #
-    # @param [Symbol] The name of the limits set. :DEFAULT is always an option
+    # @param limits_set [Symbol] The name of the limits set. :DEFAULT is always an option
     #   but limits sets are user defined
     def limits_set=(limits_set)
       load_packets() unless @config
@@ -197,6 +197,7 @@ module Cosmos
       self.instance.limits_set = limits_set
     end
 
+    # @param filename [String] System configuration file to parse
     # @return [System] The System singleton
     def self.instance(filename = nil)
       return @@instance if @@instance
