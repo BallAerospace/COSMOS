@@ -27,6 +27,7 @@ autohotkey/config/targets/INST/cmd_tlm_server.txt
 autohotkey/config/targets/INST/doc/README.txt
 autohotkey/config/targets/INST/lib/example_limits_response.rb
 autohotkey/config/targets/INST/lib/sim_inst.rb
+autohotkey/config/targets/INST/screens/_footer.txt
 autohotkey/config/targets/INST/screens/adcs.txt
 autohotkey/config/targets/INST/screens/array.txt
 autohotkey/config/targets/INST/screens/block.txt
@@ -69,6 +70,8 @@ autohotkey/config/tools/limits_monitor/README.txt
 autohotkey/config/tools/opengl_builder/error.txt
 autohotkey/config/tools/script_runner/script_runner.txt
 autohotkey/config/tools/table_manager/ConfigTables_def.txt
+autohotkey/config/tools/table_manager/OldOneDimensionalTable_def.txt
+autohotkey/config/tools/table_manager/OldTwoDimensionalTable_def.txt
 autohotkey/config/tools/table_manager/OneDimensionalTable_def.txt
 autohotkey/config/tools/table_manager/TwoDimensionalTable_def.txt
 autohotkey/config/tools/test_runner/test_runner.txt
@@ -131,6 +134,9 @@ autohotkey/tools/ScriptRunnerAHK
 autohotkey/tools/ScriptRunnerAHK2
 autohotkey/tools/TableManager
 autohotkey/tools/TableManagerAHK
+autohotkey/tools/TableManagerAHK2
+autohotkey/tools/TableManagerAHK3
+autohotkey/tools/TableManagerAHK4
 autohotkey/tools/TestRunner
 autohotkey/tools/TestRunnerAHK
 autohotkey/tools/TestRunnerAHK2
@@ -322,6 +328,7 @@ demo/config/targets/INST/procedures/collect.rb
 demo/config/targets/INST/procedures/disconnect.rb
 demo/config/targets/INST/procedures/utilities/clear.rb
 demo/config/targets/INST/procedures/utilities/collect.rb
+demo/config/targets/INST/screens/_footer.txt
 demo/config/targets/INST/screens/adcs.txt
 demo/config/targets/INST/screens/array.txt
 demo/config/targets/INST/screens/block.txt
@@ -948,8 +955,10 @@ lib/cosmos/tools/script_runner/script_runner_frame.rb
 lib/cosmos/tools/table_manager/table.rb
 lib/cosmos/tools/table_manager/table_config.rb
 lib/cosmos/tools/table_manager/table_item.rb
+lib/cosmos/tools/table_manager/table_item_parser.rb
 lib/cosmos/tools/table_manager/table_manager.rb
 lib/cosmos/tools/table_manager/table_manager_core.rb
+lib/cosmos/tools/table_manager/table_parser.rb
 lib/cosmos/tools/test_runner/results_writer.rb
 lib/cosmos/tools/test_runner/test.rb
 lib/cosmos/tools/test_runner/test_runner.rb
@@ -1208,6 +1217,11 @@ spec/tools/cmd_tlm_server/packet_logging_spec.rb
 spec/tools/cmd_tlm_server/router_thread_spec.rb
 spec/tools/cmd_tlm_server/routers_spec.rb
 spec/tools/launcher/launcher_config_spec.rb
+spec/tools/table_manager/table_config_spec.rb
+spec/tools/table_manager/table_item_spec.rb
+spec/tools/table_manager/table_parser_spec.rb
+spec/tools/table_manager/table_spec.rb
+spec/tools/table_manager/tablemanager_core_spec.rb
 spec/top_level/top_level_spec.rb
 spec/utilities/crc_spec.rb
 spec/utilities/csv_spec.rb
