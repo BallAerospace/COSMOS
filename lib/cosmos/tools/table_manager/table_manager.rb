@@ -222,33 +222,34 @@ module Cosmos
         end
         parts[-1] = "converted_#{parts[-1]}"
         filename = parts.join(File::SEPARATOR)
-        out = File.open(filename, 'w')
-        config = File.read(options.convert).split("\n")
-        config.each do |line|
-          /TABLE\s+(\".*\")\s+(\".*\")\s+(ONE_DIMENSIONAL)\s+(.*_ENDIAN)/.match(line) do |m|
-            out.puts "TABLE #{m[1]} #{m[4]} #{m[3]} #{m[2]}"
-          end
-          /TABLE\s+(\".*\")\s+(\".*\")\s+(TWO_DIMENSIONAL)\s+(.*_ENDIAN)/.match(line) do |m|
-            rows = config.select {|item| item.strip =~ /^DEFAULT/ }.length
-            out.puts "TABLE #{m[1]} #{m[4]} #{m[3]} #{rows} #{m[2]}"
-          end
-          /PARAMETER\s+(\".*\")\s+(\".*\")\s+(.*)\s+(\d+)\s+(.*)\s+(.*)\s+(.*)\s+(.*)\s?/.match(line) do |m|
-            out.puts "  APPEND_PARAMETER #{m[1]} #{m[4]} #{m[3]} #{m[6]} #{m[7]} #{m[8]} #{m[2]}"
-            if m[5].include?('CHECK')
-              out.puts "    STATE UNCHECKED #{m[6]}"
-              out.puts "    STATE CHECKED #{m[7]}"
+        File.open(filename, 'w') do |out|
+          config = File.read(options.convert).split("\n")
+          config.each do |line|
+            /TABLE\s+(\".*\")\s+(\".*\")\s+(ONE_DIMENSIONAL)\s+(.*_ENDIAN)/.match(line) do |m|
+              out.puts "TABLE #{m[1]} #{m[4]} #{m[3]} #{m[2]}"
             end
-            if m[5].include?('HEX')
-              out.puts '    FORMAT_STRING "0x%0X"'
+            /TABLE\s+(\".*\")\s+(\".*\")\s+(TWO_DIMENSIONAL)\s+(.*_ENDIAN)/.match(line) do |m|
+              rows = config.select {|item| item.strip =~ /^DEFAULT/ }.length
+              out.puts "TABLE #{m[1]} #{m[4]} #{m[3]} #{rows} #{m[2]}"
             end
-            if m[5].include?('-U')
-              out.puts '    UNEDITABLE'
+            /PARAMETER\s+(\".*\")\s+(\".*\")\s+(.*)\s+(\d+)\s+(.*)\s+(.*)\s+(.*)\s+(.*)\s?/.match(line) do |m|
+              out.puts "  APPEND_PARAMETER #{m[1]} #{m[4]} #{m[3]} #{m[6]} #{m[7]} #{m[8]} #{m[2]}"
+              if m[5].include?('CHECK')
+                out.puts "    STATE UNCHECKED #{m[6]}"
+                out.puts "    STATE CHECKED #{m[7]}"
+              end
+              if m[5].include?('HEX')
+                out.puts '    FORMAT_STRING "0x%0X"'
+              end
+              if m[5].include?('-U')
+                out.puts '    UNEDITABLE'
+              end
+            end
+            if line.strip !~ /^(TABLE|PARAMETER|DEFAULT)/
+              out.puts line
             end
           end
-          if line.strip !~ /^(TABLE|PARAMETER|DEFAULT)/
-            out.puts line
-          end
-        end
+		 end
         puts "Created #{filename}"
         return false
       end

@@ -25,4 +25,4 @@ File.delete('autohotkey/config/tools/tlm_viewer/test.txt')
 # Clean up telemetry viewer generated screens
 FileUtils.rm_r('autohotkey/config/targets/COSMOS/screens')
 FileUtils.rm_r('autohotkey/config/targets/META/screens')
-
+File.delete('autohotkey/config/targets/INST/screens/extra.txt')
