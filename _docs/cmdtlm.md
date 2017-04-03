@@ -76,6 +76,8 @@ The PARAMETER keyword defines a command parameter in the current command.
       The following special constants may be given for common values:
       <table>
         <tr><th>Constant</th><th>Value</th></tr>
+        <tr><td>MIN</td><td>Minimum value for the given data type (calculated dynamically)</td></tr>
+        <tr><td>MAX</td><td>Maximum value for the given data type (calculated dynamically)</td></tr>
         <tr><td>MIN_INT8</td><td>-128</td></tr>
         <tr><td>MAX_INT8</td><td>127</td></tr>
         <tr><td>MIN_INT16</td><td>-32768</td></tr>
@@ -109,9 +111,11 @@ The PARAMETER keyword defines a command parameter in the current command.
 
 Example Usage:
 {% highlight bash %}
+PARAMETER DATA 0 32 INT MIN MAX 0 "Data value"
 PARAMETER SYNC 0 32 UINT 0xDEADBEEF 0xDEADBEEF 0xDEADBEEF "Sync pattern"
 PARAMETER VALUE 32 32 FLOAT 0 10.5 2.5
 PARAMETER LABEL 64 0 STRING "COSMOS" "The label to apply"</pre>
+PARAMETER BLOCK 128 0 BLOCK '' "Block of binary data"</pre>
 {% endhighlight %}
 
 ### APPEND_PARAMETER
@@ -544,6 +548,7 @@ The ITEM keyword defines a telemetry item in the current telemetry packet.
 Example Usage:
 {% highlight bash %}
 ITEM PKTID 112 16 UINT "Packet ID"
+ITEM DATA 0 0 DERIVED "Derived data"
 {% endhighlight %}
 
 ### APPEND_ITEM

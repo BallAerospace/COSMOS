@@ -658,9 +658,9 @@ Test Runner configuration files define what tests should be run with what option
 
 ## Keywords:
 
-### REQUIRE_UTILITY
+### LOAD_UTILITY
 
-The REQUIRE_UTILITY keyword specifies a test procedure to run. This procedure will be found automatically in the procedures directory or can be given by a path relative to the COSMOS install directory or by an absolute path.
+The LOAD_UTILITY keyword specifies a test procedure to run. This procedure will be found automatically in the procedures directory or can be given by a path relative to the COSMOS install directory or by an absolute path. This keyword is used to load the script and execute it line by line by showing the current execution point. Sometimes you want to load utility code that is NOT executed line by line but is executed in the background. For example, a CRC routine or other long running calculation. The Ruby keyword 'load' can be used for this purpose, e.g. 'load utility.rb'. This code will be loaded but not shown when executing.
 
 <table>
 <tbody>
@@ -670,15 +670,19 @@ The REQUIRE_UTILITY keyword specifies a test procedure to run. This procedure wi
 <th>Required</th></tr>
 <tr>
 <td>Filename</td>
-<td>Name of the test file</td>
+<td>Name of the test file in quotes</td>
 <td>Yes</td></tr></tbody></table>
 
 Example Usage:
 {% highlight bash %}
-REQUIRE_UTILITY example_test # .rb is optional
-REQUIRE_UTILITY ../../example_test # Relative path from the base of the COSMOS configuration
-REQUIRE_UTILITY C:/procedures/example_test # Absolute path (not cross platform)
+LOAD_UTILITY 'example_test.rb'
+LOAD_UTILITY '../../example_test.rb' # Relative path from the base of the COSMOS configuration
+LOAD_UTILITY 'C:/procedures/example_test.rb' # Absolute path (not cross platform)
 {% endhighlight %}
+
+### REQUIRE_UTILITY
+
+This keyword behaves exactly like LOAD_UTILITY and has been deprecated.
 
 ### RESULTS_WRITER
 
@@ -956,9 +960,9 @@ Cosmos::Test.current_test_case
 
 * * *
 
-## Table Manager Configuration
+## Table Manager Configuration (COSMOS >= 3.9)
 
-Table definition files define the binary table format so the Table Manager tool knows how to create, load, and display the binary data file. Table definition files are expected to be placed in the config/tools/table_manager directory and have a .txt extension.
+Table definition files define the binary table format so the Table Manager tool knows how to create, load, and display the binary data file. Table definition files are expected to be placed in the config/tools/table_manager directory and have a .txt extension. NOTE: Table Manager was revised in COSMOS 3.9 to better match the structure of the command and telemetry definitions and thus the configurations files are NOT backwards compatible.
 
 ## Keywords:
 
@@ -966,16 +970,9 @@ Table definition files define the binary table format so the Table Manager tool 
 
 The TABLEFILE keyword specifies another file to open and process for table definitions
 
-<table>
-<tbody>
-<tr>
-<th>Parameter</th>
-<th>Description</th>
-<th>Required</th></tr>
-<tr>
-<td>File Name</td>
-<td>Name of the file. The file will be looked for in the directory of the current definition file.</td>
-<td>Yes</td></tr></tbody></table>
+| Parameter | Description | Required |
+|-----------|-------------|----------|
+| File Name | Name of the file. The file will be looked for in the directory of the current definition file. | Yes
 
 Example Usage:
 {% highlight bash %}
@@ -984,43 +981,124 @@ TABLEFILE "MCConfigurationTable_def.txt"
 
 ### TABLE
 
-The TABLE keyword designates the start of a new table definition.
+The TABLE keyword designates the start of a new table definition. This keyword was reworked in COSMOS 3.9 to better match the syntax of the [COMMAND](/docs/cmdtlm#command) and [TELEMETRY](/docs/cmdtlm#telemetry) keywords.
 
-<table>
-<tbody>
-<tr>
-<th>Parameter</th>
-<th>Description</th>
-<th>Required</th></tr>
-<tr>
-<td>Name</td>
-<td><span>Name of the table in double quotes. The name will appear on the GUI tab.</span></td>
-<td>Yes</td></tr>
-<tr>
-<td colspan="1">Description</td>
-<td colspan="1"><span>Description of this table in double quotes. The description is used in mouseover popups and status line information.</span></td>
-<td colspan="1">Yes</td></tr>
-<tr>
-<td colspan="1">Dimension</td>
-<td colspan="1"><span>Indicates the table is a ONE_DIMENSIONAL table which is a two column table consisting of unique rows, or a TWO_DIMENSIONAL table with multiple columns and identical rows with unique values.</span></td>
-<td colspan="1">Yes</td></tr>
-<tr>
-<td colspan="1">Endianness</td>
-<td colspan="1"><span>Whether to pack the table data as BIG_ENDIAN or LITTLE_ENDIAN.</span></td>
-<td colspan="1">Yes</td></tr>
-<tr>
-<td colspan="1">Identifier</td>
-<td colspan="1"><span>A unique numerical Table ID.</span></td>
-<td colspan="1">Yes</td></tr></tbody></table>
+| Parameter | Description | Required |
+|-----------|-------------|----------|
+| Name | Name of the table in double quotes. The name will appear on the GUI tab. | Yes
+| Endianness | Whether to pack the table data as BIG_ENDIAN or LITTLE_ENDIAN | Yes
+| Display | Indicates the table is a ONE_DIMENSIONAL table which is a two column table consisting of unique rows, or a TWO_DIMENSIONAL table with multiple columns and identical rows with unique values | Yes
+| Rows | If the table is declared as TWO_DIMENSIONAL, the next parameter indicates the number of rows in the table. This parameter does not exist in ONE_DIMENSIONAL table definitions. | Yes
+| Description | Description of this table in double quotes. The description is used in mouseover popups and status line information. | No
 
 Example Usage:
 {% highlight bash %}
-TABLE "MC Configuration" "Memory Control Configuration Table" ONE_DIMENSIONAL BIG_ENDIAN 9
+TABLE "MC Configuration" BIG_ENDIAN ONE_DIMENSIONAL "Memory Control Configuration Table"
+TABLE "TLM Monitoring " BIG_ENDIAN TWO_DIMENSIONAL 200 "Telemetry Monitory Table"
 {% endhighlight %}
 
 ### PARAMETER
 
-The PARAMETER keyword defines a table parameter in the current table.
+The PARAMETER keyword defines a table parameter in the current table. This keyword was reworked in COSMOS 3.9 to utilize the existing command parser. Please see the [PARAMETER](/docs/cmdtlm/#parameter) and [APPEND_PARAMETER](/docs/cmdtlm#append_parameter) documentation.
+
+## Parameter Modifiers
+
+The following keywords modify a parameter and are only applicable after the PARAMETER keyword as defined above. They are typically indented within the definition file to show ownership to the previously defined parameter. COSMOS 3.9 reworked the parser to accept any of the existing [command parameter modifiers](/docs/cmdtlm/#parameter-modifiers). In addition, the Table Manager parser supports the following parameter modifiers:
+
+### HIDDEN
+
+HIDDEN indicates that the parameter should not be shown to the user in the Table Manager GUI. The parameter still exists and will be saved to the resulting binary. This is useful for padding and other essential but non-user editable fields.
+
+Example Usage:
+{% highlight bash %}
+PARAMETER PAD 0 32 UINT MIN MAX 0 "Padding"
+  HIDDEN
+{% endhighlight %}
+
+### UNEDITABLE
+
+UNEDITABLE indicates that the parameter shoudl be shown to the user but no editable. This is useful for control fields which the user may be interested in but should not be able to edit.
+
+Example Usage:
+{% highlight bash %}
+PARAMETER TABLE_ID 0 32 UINT MIN MAX 10 "Table ID"
+  UNEDITABLE
+{% endhighlight %}
+ 
+## Example File
+
+**Example File: <COSMOSPATH>/config/table_manager/metable_def.txt**
+
+{% highlight bash %}
+TABLE "Mechanism Control" BIG_ENDIAN ONE_DIMENSIONAL "Mechanism Control" 
+  APPEND_PARAMETER "Total Steps" 32 UINT 0 2000 0
+    FORMAT_STRING "0x%0X" # Display as hex
+    GENERIC_READ_CONVERSION_START
+      # Depending on the state of Other Param we change this item's range
+      if packet.read("Other Param") == "OLD"
+        packet.get_item("Total Steps").range = (0..10)
+      else
+        packet.get_item("Total Steps").range = (0..2000)
+      end
+      # BE SURE TO RETURN THE EXISTING VALUE!!!
+      value
+    GENERIC_READ_CONVERSION_END
+  APPEND_PARAMETER "My Param" 16 UINT 0 2000 0
+    GENERIC_READ_CONVERSION_START
+      value * 2
+    GENERIC_READ_CONVERSION_END
+    GENERIC_WRITE_CONVERSION_START
+      value / 2
+    GENERIC_WRITE_CONVERSION_END
+  APPEND_PARAMETER "Other Param" 32 INT 0 1 1
+    STATE OLD 0
+    STATE NEW 1
+  APPEND_PARAMETER "Float Param" 64 FLOAT MIN MAX 0.0
+  APPEND_PARAMETER "String Param" 32 STRING "TEST"
+
+TABLE "Event Action" TWO_DIMENSIONAL 3 LITTLE_ENDIAN
+  APPEND_PARAMETER "Event" 16 UINT MIN MAX
+  APPEND_PARAMETER "Action" 32 INT 1 2
+    STATE OLD 1
+    STATE NEW 2
+{% endhighlight %}
+
+## Table Manager Configuration (COSMOS < 3.9)
+
+Table definition files define the binary table format so the Table Manager tool knows how to create, load, and display the binary data file. Table definition files are expected to be placed in the config/tools/table_manager directory and have a .txt extension. NOTE: Table Manager was revised in COSMOS 3.9 to better match the structure of the command and telemetry definitions and thus the configurations files are NOT backwards compatible.
+
+## Keywords (COSMOS < 3.9):
+
+### TABLEFILE (COSMOS < 3.9)
+
+The TABLEFILE keyword specifies another file to open and process for table definitions
+
+| Parameter | Description | Required |
+|-----------|-------------|----------|
+| File Name | Name of the file. The file will be looked for in the directory of the current definition file. | Yes
+
+Example Usage:
+{% highlight bash %}
+TABLEFILE "MCConfigurationTable_def.txt"
+{% endhighlight %}
+
+### TABLE (COSMOS < 3.9)
+
+| Parameter | Description | Required |
+|-----------|-------------|----------|
+| Name | Name of the table in double quotes. The name will appear on the GUI tab. | Yes
+| Description | Description of this table in double quotes. The description is used in mouseover popups and status line information | Yes
+| Dimension | Indicates the table is a ONE_DIMENSIONAL table which is a two column table consisting of unique rows, or a TWO_DIMENSIONAL table with multiple columns and identical rows with unique values | Yes
+| Endianness | Whether to pack the table data as BIG_ENDIAN or LITTLE_ENDIAN | Yes
+| Identifier | A unique numerical Table ID | Yes
+
+Example Usage:
+{% highlight bash %}
+TABLE "MC Configuration" "Memory Control Configuration Table" ONE_DIMENSIONAL BIG_ENDIAN 9
+TABLE "TLM Monitoring" "Telemetry Monitoring Table" TWO_DIMENSIONAL BIG_ENDIAN 10
+{% endhighlight %}
+
+### PARAMETER (COSMOS < 3.9)
 
 <table>
 <tbody>
@@ -1073,7 +1151,7 @@ PARAMETER "Scrubbing" "Memory Scrubbing" UINT 8 CHECK 0 1 1
 PARAMETER "Pad" "Pad" UINT 16 HEX-U 0 0 0 LITTLE_ENDIAN
 {% endhighlight %}
 
-### STATE
+### STATE (COSMOS < 3.9)
 
 The STATE keyword defines a key/value pair for the current table parameter (the one most recently defined). For example, you might define states for ON = 1 and OFF = 0. This allows the word ON to be used rather than the number 1 when setting the table parameter and allows for much greater clarity and less chance for user error.
 
@@ -1099,7 +1177,7 @@ PARAMETER "Scrubbing" "Memory Scrubbing" UINT 8 STATE 0 1 1
   STATE ENABLE 1
 {% endhighlight %}
 
-### DEFAULT
+### DEFAULT (COSMOS < 3.9)
 
 The DEFAULT keyword defines the default values for a row in a TWO_DIMENSIONAL table. Therefore, the number of DEFAULT lines defines the number of rows in the table. If no values are given after the keyword, the default as defined in the PARAMETER(s) will apply.
 
@@ -1137,7 +1215,7 @@ DEFAULT 0x2         # Override Threshold default of 0
 DEFAULT 0x3 30 WORD # Note the use of STATE names
 {% endhighlight %}
 
-### POLY_WRITE_CONVERSION
+### POLY_WRITE_CONVERSION (COSMOS < 3.9)
 
 The POLY_WRITE_CONVERSION keyword adds a polynomial conversion factor to the current table parameter (the one most recently defined). This conversion factor is applied to the value entered by the user before it is written into the binary table file. All parameters with a POLY_WRITE_CONVERSION must also have a POLY_READ_CONVERSION. This read conversion should be the inverse function of the write conversion or the value might be inadvertently changed every time it is loaded and saved.
 
@@ -1162,7 +1240,7 @@ POLY_WRITE_CONVERSION 1 2 # 2x + 1 when writing to the table binary
 POLY_READ_CONVERSION -0.5 0.5 # 0.5x - 0.5 when reading from the table binary
 {% endhighlight %}
 
-### POLY_READ_CONVERSION
+### POLY_READ_CONVERSION (COSMOS < 3.9)
 
 The POLY_READ_CONVERSION keyword adds a polynomial conversion factor to the current table parameter (the one most recently defined). This conversion factor is applied to a table parameter read from the binary table file before it is displayed. Read conversions can be applied independently to read-only table parameters. If a table parameter is writable it must have both a read and write conversion.
 
@@ -1187,9 +1265,9 @@ POLY_WRITE_CONVERSION -0.5 0.25 # 0.25x - 0.5 when writing to the table binary
 POLY_READ_CONVERSION 2 4 # 2x + 4 when reading from the table binary
 {% endhighlight %}
 
-### GENERIC_WRITE_CONVERSION_START / GENERIC_WRITE_CONVERSION_END
+### GENERIC_WRITE_CONVERSION_START / GENERIC_WRITE_CONVERSION_END (COSMOS < 3.9)
 
-### GENERIC_READ_CONVERSION_START / GENERIC_READ_CONVERSION_END
+### GENERIC_READ_CONVERSION_START / GENERIC_READ_CONVERSION_END (COSMOS < 3.9)
 
 The generic conversion keywords add generic conversion functions to the current table parameter (the one most recently defined). This conversion factor is applied to the value entered by the user before it is written into the binary table file (for WRITE) and after it is read from the binary (for READ). The conversion is specified as ruby code that receives two implied parameters: 'value' which is the raw table parameter, and 'myself' which is a reference to the TableManager class. The last line of ruby code given should return the converted value. The conversion END keywords specify that all lines of ruby code for the conversion have been given. If a generic write conversion is created a generic read conversion must also be created. This read conversion should be the inverse of the write conversion or the value might be inadvertently changed every time it is loaded and saved.
 
@@ -1203,7 +1281,7 @@ GENERIC_READ_CONVERSION_START
 GENERIC_READ_CONVERSION_END
 {% endhighlight %}
 
-### CONSTRAINT_START / CONSTRAINT_END
+### CONSTRAINT_START / CONSTRAINT_END (COSMOS < 3.9)
 
 The constraint keyword allows the user to modify the current parameter's allowable value range, default value, and/or conversion based on the value of another parameter.
 
@@ -1222,7 +1300,7 @@ TABLE "Mechanism Control" "Description" ONE_DIMENSIONAL BIG_ENDIAN 1
     STATE "NEW" 1
 {% endhighlight %}
 
-## Example File
+## Example File (COSMOS < 3.9)
 
 **Example File: <COSMOSPATH>/config/table_manager/metable_def.txt**
 

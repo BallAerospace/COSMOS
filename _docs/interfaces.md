@@ -79,16 +79,16 @@ INTERFACE INTERFACE_NAME tcpip_server_interface.rb 8080 8080 10.0 10.0 TERMINATE
 ### UDP Interface
 The UDP interface uses UDP packets to send and receive telemetry from the target. It can not use any stream protocols.
 
-| Parameter | Description | Required |
-|-----------|-------------|----------|
+| Parameter | Description | Required | Default |
+|-----------|-------------|----------|---------|
 | Host | Host name or IP address of the machine to send and receive data with | Yes |
 | Write Dest Port | Port on the remote machine to send commands to | Yes |
 | Read Port | Port on the remote machine to read telemetry from | Yes |
-| Write Source Port | Port on the local machine to send commands from. This can be 'nil' in which case the socket will not be bound to a outgoing port. | No |
-| Interface Address | If the remote machine supports multicast the interface address is used to configure the outgoing multicast address. This can be 'nil' if unused. | No |
-| TTL | Time to Live. The number of intermediate routers allowed before dropping the packet. The default on Windows platforms is 128. | No |
-| Write Timeout | Number of seconds to wait before aborting the write. Pass 'nil' to block on write. | No |
-| Read Timeout | Number of seconds to wait before aborting the read. Pass 'nil' to block on read. | No |
+| Write Source Port | Port on the local machine to send commands from | No | nil (socket is not bound to an outgoing port)
+| Interface Address | If the remote machine supports multicast the interface address is used to configure the outgoing multicast address | No | nil (not used)
+| TTL | Time to Live. The number of intermediate routers allowed before dropping the packet. | No | 128 (Windows)
+| Write Timeout | Number of seconds to wait before aborting the write | No | nil (block on write)
+| Read Timeout | Number of seconds to wait before aborting the read | No | nil (block on read)
 
 cmd_tlm_server.txt Example:
 {% highlight bash %}
@@ -130,25 +130,25 @@ INTERFACE COSMOSINT cmd_tlm_server_interface.rb
 ### LINC Interface
 The LINC interface uses a single TCPIP socket to talk to a Ball Aerospace LINC Labview target.
 
-| Parameter | Description | Required |
-|-----------|-------------|----------|
+| Parameter | Description | Required | Default |
+|-----------|-------------|----------|---------|
 | Host | Machine name to connect to | Yes |
 | Port | Port to write commands to and read telemetry from | Yes |
-| Handshake Enabled | Enable command handshaking where commands block until the corresponding handshake message is received. The default is true. | No |
-| Response Timeout | Number of seconds to wait for a handshaking response. The default is 5 seconds. | No |
-| Read Timeout | Number of seconds to wait before aborting the write. Pass 'nil' to block on read. The default is nil. | No |
-| Write Timeout | Number of seconds to wait before aborting the read. Pass 'nil' to block on write. The default is 5 seconds. | No |
-| Length Bit Offset | The bit offset of the length field. Every packet using this interface must have the same structure such that the length field is the same size at the same location. The default is 0. | No |
-| Length Bit Size | The size in bits of the length field. The default is 16. | No |
-| Length Value Offset | The offset to apply to the length field value. For example if the length field indicates packet length minus one, this value should be one. The default is 4. | No |
-| Fieldname GUID | Fieldname of the GUID field. The default is 'HDR_GUID' | No |
-| Length Endianness | The endianness of the length field. Must be either 'BIG_ENDIAN' or 'LITTLE_ENDIAN'. The default is 'BIG_ENDIAN'. | No |
-| Fieldname Cmd Length | Fieldname of the length field. The default is 'HDR_LENGTH' | No |
+| Handshake Enabled | Enable command handshaking where commands block until the corresponding handshake message is received | No | true
+| Response Timeout | Number of seconds to wait for a handshaking response | No | 5 seconds
+| Read Timeout | Number of seconds to wait before aborting the read | No | nil (block on read)
+| Write Timeout | Number of seconds to wait before aborting the write | No | 5 seconds
+| Length Bit Offset | The bit offset of the length field. Every packet using this interface must have the same structure such that the length field is the same size at the same location. | No | 0 bits
+| Length Bit Size | The size in bits of the length field | No | 16 bits
+| Length Value Offset | The offset to apply to the length field value. For example if the length field indicates packet length minus one, this value should be one. | No | 4
+| Fieldname GUID | Fieldname of the GUID field | No | 'HDR_GUID'
+| Length Endianness | The endianness of the length field. Must be either 'BIG_ENDIAN' or 'LITTLE_ENDIAN'. | No | 'BIG_ENDIAN'
+| Fieldname Cmd Length | Fieldname of the length field | No | 'HDR_LENGTH'
 
 cmd_tlm_server.txt Examples:
 {% highlight bash %}
 INTERFACE INTERFACE_NAME linc_interface.rb localhost 8080
-INTERFACE INTERFACE_NAME linc_client_interface.rb localhost 8080 true 5 nil 5 0 16 4 HDR_GUID BIG_ENDIAN HDR_LENGTH
+INTERFACE INTERFACE_NAME linc_interface.rb localhost 8080 true 5 nil 5 0 16 4 HDR_GUID BIG_ENDIAN HDR_LENGTH
 {% endhighlight %}
 
 ## Streams and Stream Protocols
@@ -159,69 +159,69 @@ StreamProtocols process a stream of data on behalf of an interface. Once they ar
 ### Burst Stream Protocol
 The Burst Stream Protocol simply reads as much data as it can from the stream before returning the data as a COSMOS Packet. This Protocol relies on regular bursts of data delimited by time and thus is not very robust. However it can utilize a sync pattern which does allow it to re-sync from the stream if necessary.
 
-| Parameter | Description | Required |
-|-----------|-------------|----------|
-| Discard Leading Bytes | The number of bytes to discard from the binary data after reading from the stream. Note that this applies to bytes starting with the sync pattern if the sync pattern is being used. The default is 0 which means to not discard any bytes. | No |
-| Sync Pattern | Hex string representing a byte pattern that will be searched for in the raw stream. This pattern represents a packet delimiter and all data found including the sync pattern will be returned. The default is 'nil' which means no sync pattern is used. | No |
-| Fill Sync Pattern | Whether or not to fill in the sync pattern on outgoing packets. Defaults to false. | No |
+| Parameter | Description | Required | Default |
+|-----------|-------------|----------|---------|
+| Discard Leading Bytes | The number of bytes to discard from the binary data after reading from the stream. Note that this applies to bytes starting with the sync pattern if the sync pattern is being used. | No | 0 (do not discard bytes)
+| Sync Pattern | Hex string representing a byte pattern that will be searched for in the raw stream. This pattern represents a packet delimiter and all data found including the sync pattern will be returned | No | nil (no sync pattern)
+| Fill Sync Pattern | Whether or not to fill in the sync pattern on outgoing packets | No | false
 
 ### Fixed Stream Protocol
 The Fixed Stream Protocol reads a preset minimum amount of data from the stream which is necessary to properly identify all the defined packets using the interface. It then identifies the packet and proceeds to read as much data from the stream as necessary to create the packet which it then returns. This stream relies on all the packets on the interface being fixed in length. For example, all the packets using the interface are a fixed size and contain a simple header with a 32 bit sync pattern followed by a 16 bit ID. The Fixed Stream Protocol would elegantly handle this case with a minimum read size of 6 bytes.
 
-| Parameter | Description | Required |
-|-----------|-------------|----------|
+| Parameter | Description | Required | Default |
+|-----------|-------------|----------|---------|
 | Minimum ID Size | The minimum amount of bytes needed to identify a packet. All the packet definitions must declare their ID_ITEM(s) within this given amount of bytes. | Yes |
-| Discard Leading Bytes | The number of bytes to discard from the binary data after reading from the stream. Note that this applies to bytes starting with the sync pattern if the sync pattern is being used. The default is 0 which means to not discard any bytes. | No |
-| Sync Pattern | Hex string representing a byte pattern that will be searched for in the raw stream. This pattern represents a packet delimiter and all data found including the sync pattern will be returned. The default is 'nil' which means no sync pattern is used. | No |
-| Telemetry Stream | Whether the stream is returning telemetry. The default is true which means this is a telemetry stream. Pass false to declare a command stream. | No |
-| Fill Sync Pattern | Whether or not to fill in the sync pattern on outgoing packets. Defaults to false. | No |
+| Discard Leading Bytes | The number of bytes to discard from the binary data after reading from the stream. Note that this applies to bytes starting with the sync pattern if the sync pattern is being used. | No | 0 (do not discard bytes)
+| Sync Pattern | Hex string representing a byte pattern that will be searched for in the raw stream. This pattern represents a packet delimiter and all data found including the sync pattern will be returned. | No | nil (no sync pattern)
+| Telemetry Stream | Whether the stream is returning telemetry | No | true (false means command stream)
+| Fill Sync Pattern | Whether or not to fill in the sync pattern on outgoing packets | No | false
 
 ### Length Stream Protocol
 The Length Stream Protocol depends on a length field at a fixed location in the defined packets using the interface. It then reads enough data to grab the length field, decodes it, and reads the remaining length of the packet. For example, all the packets using the interface contain a CCSDS header with a length field. The Length Stream Protocol can be set up to handle the length field and even the "length - 1" offset the CCSDS header uses.
 
-| Parameter | Description | Required |
-|-----------|-------------|----------|
-| Length Bit Offset | The bit offset of the length field. Every packet using this interface must have the same structure such that the length field is the same size at the same location. The default is 0. Be sure to account for the length of the Sync Pattern in this value (if present). | No |
-| Length Bit Size | The size in bits of the length field. The default is 16. | No |
-| Length Value Offset | The offset to apply to the length field value. For example if the length field indicates packet length minus one, this value should be one. The default is 0. Be sure to account for the length of the Sync Pattern in this value (if present). | No |
-| Bytes per Count | The number of bytes per each length field 'count'. This is used if the units of the length field is something other than bytes, for example if the length field count is in words. The default is 1. | No |
-| Length Endianness | The endianness of the length field. Must be either 'BIG_ENDIAN' or 'LITTLE_ENDIAN'. The default is 'BIG_ENDIAN'. | No |
-| Discard Leading Bytes | The number of bytes to discard from the binary data after reading from the stream. Note that this applies to bytes including the sync pattern if the sync pattern is being used. The default is 0 which means to not discard any bytes.  Discarding is one of the very last steps so any size and offsets above need to account for all the data before discarding.	| No |
-| Sync Pattern | Hex string representing a byte pattern that will be searched for in the raw stream. This pattern represents a packet delimiter and all data found including the sync pattern will be returned. The default is 'nil' which means no sync pattern is used. | No |
-| Max Length | The maximum allowed value in the length field. The default is nil which means there is no maximum length.	| No |
-| Fill Length and Sync Pattern | Setting this flag to true causes the length field and sync pattern (if present) to be filled automatically on outgoing packets. Defaults to false. | No |
+| Parameter | Description | Required | Default |
+|-----------|-------------|----------|---------|
+| Length Bit Offset | The bit offset of the length field. Every packet using this interface must have the same structure such that the length field is the same size at the same location. Be sure to account for the length of the Sync Pattern in this value (if present). | No | 0 bits
+| Length Bit Size | The size in bits of the length field | No | 16 bits
+| Length Value Offset | The offset to apply to the length field value. For example if the length field indicates packet length minus one, this value should be one. Be sure to account for the length of the Sync Pattern in this value (if present). | No | 0
+| Bytes per Count | The number of bytes per each length field 'count'. This is used if the units of the length field is something other than bytes, for example if the length field count is in words. | No | 1 byte
+| Length Endianness | The endianness of the length field. Must be either 'BIG_ENDIAN' or 'LITTLE_ENDIAN'. | No | 'BIG_ENDIAN'
+| Discard Leading Bytes | The number of bytes to discard from the binary data after reading from the stream. Note that this applies to bytes including the sync pattern if the sync pattern is being used. Discarding is one of the very last steps so any size and offsets above need to account for all the data before discarding. | No | 0 (do not discard bytes)
+| Sync Pattern | Hex string representing a byte pattern that will be searched for in the raw stream. This pattern represents a packet delimiter and all data found including the sync pattern will be returned. | No | nil (no sync pattern)
+| Max Length | The maximum allowed value in the length field | No | nil (no maximum length)
+| Fill Length and Sync Pattern | Setting this flag to true causes the length field and sync pattern (if present) to be filled automatically on outgoing packets. | No | false
 
 ### Terminated Stream Protocol
 The Terminated Stream Protocol delineates packets using termination characters found at the end of every packet. It continuously reads data from the stream until the termination characters are found at which point it returns the packet data. For example, all the packets using the interface are followed by 0xABCD. This data can either be a part of each packet that is kept or something which is known only by the Terminated Stream Protocol and simply thrown away.
 
-| Parameter | Description | Required |
-|-----------|-------------|----------|
-| Write Termination Characters | The data to write to the stream after writing a command packet. Given as a hex string such as 0xABCD. The default is the empty string '' which means to write no termination characters. | No |
-| Read Termination Characters | The characters at the end of the stream which delineate the end of a telemetry packet. Given as a hex string such as 0xABCD. The default is the empty string '' which won't work. | No |
-| Strip Read Termination | Whether to remove the read termination characters from the stream before returning the telemetry packet. The default is true. | No |
-| Discard Leading Bytes | The number of bytes to discard from the binary data after reading from the stream. Note that this applies to bytes including the sync pattern if the sync pattern is being used. The default is 0 which means to not discard any bytes. | No |
-| Sync Pattern | Hex string representing a byte pattern that will be searched for in the raw stream. This pattern represents a packet delimiter and all data found including the sync pattern will be returned. The default is 'nil' which means no sync pattern is used. | No |
-| Fill Sync Pattern | Whether or not to fill in the sync pattern on outgoing packets. Defaults to false. | No |
+| Parameter | Description | Required | Default |
+|-----------|-------------|----------|---------|
+| Write Termination Characters | The data to write to the stream after writing a command packet. Given as a hex string such as 0xABCD. | Yes |
+| Read Termination Characters | The characters at the end of the stream which delineate the end of a telemetry packet. Given as a hex string such as 0xABCD. | Yes |
+| Strip Read Termination | Whether to remove the read termination characters from the stream before returning the telemetry packet | No | true
+| Discard Leading Bytes | The number of bytes to discard from the binary data after reading from the stream. Note that this applies to bytes including the sync pattern if the sync pattern is being used. | No | 0 (do not discard bytes)
+| Sync Pattern | Hex string representing a byte pattern that will be searched for in the raw stream. This pattern represents a packet delimiter and all data found including the sync pattern will be returned. | No | nil (no sync pattern)
+| Fill Sync Pattern | Whether or not to fill in the sync pattern on outgoing packets | No | false
 
 ### Preidentified Stream Protocol
 The Preidentified Stream Protocol is used internally by the COSMOS Command and Telemetry Server only and delineates packets using a custom COSMOS header. This stream Protocol is configured by default on port 7779 and is created by the Command and Telemetry Server to allow tools to connect and receive the entire packet stream. The Telemetry Grapher uses this port to receive all the packets following through the Command and Telemetry Server in case any need to be graphed.
 
-| Parameter | Description | Required |
-|-----------|-------------|----------|
-| Sync Pattern | Hex string representing a byte pattern that will be searched for in the raw stream. This pattern represents a packet delimiter and all data found AFTER the sync pattern will be returned. The sync pattern itself is discarded. The default is 'nil' which means no sync pattern is used. | No |
-| Max Length | The maximum allowed value in the length field. The default is nil which means there is no maximum length.	| No |
+| Parameter | Description | Required | Default |
+|-----------|-------------|----------|---------|
+| Sync Pattern | Hex string representing a byte pattern that will be searched for in the raw stream. This pattern represents a packet delimiter and all data found AFTER the sync pattern will be returned. The sync pattern itself is discarded. | No | nil (no sync pattern)
+| Max Length | The maximum allowed value in the length field | No | nil (no maximum length)
 
 ### Templated Stream Protocol
 The Templated Stream Protocol works much like the Terminated Stream Protocol except it designed for text-based command and response type interfaces.  It delineates packets in the same way as the terminated stream protocol except each packet is referred to as a line (because each usually contains a line of text).  For outgoing packets a CMD_TEMPLATE field is expected to exist in the packet.  This field contains a template string with items to be filled in deliniated within HTML tag style brackets "<EXAMPLE>".  The Templated Stream Protocol will read the named items from within the packet fill in the CMD_TEMPLATE.  This filled in string is then sent out rather than the originally passed in packet.   Correspondingly, if a response is expected the outgoing packet should include a RSP_TEMPLATE and RSP_PACKET field.  The RSP_TEMPLATE is used to extract data from the response string and build a corresponding RSP_PACKET.   See the TEMPLATED target within the COSMOS Demo configuration for an example of usage.
 
-| Parameter | Description | Required |
-|-----------|-------------|----------|
-| Write Termination Characters | The data to write to the stream after writing a command packet. Given as a hex string such as 0xABCD. The default is the empty string '' which means to write no termination characters. | No |
-| Read Termination Characters | The characters at the end of the stream which delineate the end of a telemetry packet. Given as a hex string such as 0xABCD. The default is the empty string '' which won't work. | No |
-| Ignore Lines | Number of response lines to ignore (completely drop). Defaults to 0. | No |
-| Initial Read Delay | An initial delay after connecting after which the stream will be read till empty and data dropped. Useful for discarding connect headers and initial prompts. Defaults to nil which means no initial read. | 	No |
-| Response Lines | The number of lines that make up expected responses. Defaults to 1. | No |
-| Strip Read Termination | Whether to remove the read termination characters from the stream before returning the telemetry packet. The default is true. | No |
-| Discard Leading Bytes | The number of bytes to discard from the binary data after reading from the stream. Note that this applies to bytes including the sync pattern if the sync pattern is being used. The default is 0 which means to not discard any bytes. | No |
-| Sync Pattern | Hex string representing a byte pattern that will be searched for in the raw stream. This pattern represents a packet delimiter and all data found including the sync pattern will be returned. The default is 'nil' which means no sync pattern is used. | No |
-| Fill Sync Pattern | Whether or not to fill in the sync pattern on outgoing packets. Defaults to false. | No |
+| Parameter | Description | Required | Default |
+|-----------|-------------|----------|---------|
+| Write Termination Characters | The data to write to the stream after writing a command packet. Given as a hex string such as 0xABCD. | Yes |
+| Read Termination Characters | The characters at the end of the stream which delineate the end of a telemetry packet. Given as a hex string such as 0xABCD. | Yes |
+| Ignore Lines | Number of response lines to ignore (completely drop) | No | 0 lines
+| Initial Read Delay | An initial delay after connecting after which the stream will be read till empty and data dropped. Useful for discarding connect headers and initial prompts. | No | nil (no initial read)
+| Response Lines | The number of lines that make up expected responses | No | 1 line
+| Strip Read Termination | Whether to remove the read termination characters from the stream before returning the telemetry packet | No | true
+| Discard Leading Bytes | The number of bytes to discard from the binary data after reading from the stream. Note that this applies to bytes including the sync pattern if the sync pattern is being used. | No | 0 (do not discard bytes)
+| Sync Pattern | Hex string representing a byte pattern that will be searched for in the raw stream. This pattern represents a packet delimiter and all data found including the sync pattern will be returned. | No | nil (no sync pattern)
+| Fill Sync Pattern | Whether or not to fill in the sync pattern on outgoing packets | No | false
