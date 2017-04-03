@@ -13,24 +13,45 @@ require 'cosmos/gui/qt'
 require 'cosmos/gui/dialogs/calendar_dialog'
 
 module Cosmos
-
+  # Widget which displays a button to browse for log files. Files are listed
+  # and can be removed. Buttons exist to display start and stop time choosers
+  # which apply to all files in the list. The widget can also show a button
+  # which allows the user to change the Cosmos log file reader class.
   class PacketLogFrame < Qt::Widget
-
-    # Start time of packets to process
+    # @return [Time] Start time of packets to process
     attr_reader :time_start
-
-    # End time of packets to process
+    # @return [Time] End time of packets to process
     attr_reader :time_end
-
-    # Log reader to use
+    # @return [PacketLogReader] Log reader class to use
     attr_reader :packet_log_reader
-
-    # Output filename filter
+    # @return [String] Output filename filter. Must conform to the syntax as
+    #   described in the Qt::FileDialog class.
     attr_accessor :output_filename_filter
-
-    # Callback called when something changes
+    # @return [#call] Callback called when something changes. Called with
+    #   the item that was changed as a symbol. The possible values are
+    #   :INPUT_FILES, :OUTPUT_FILE, :OUTPUT_DIR, :TIME_START, :TIME_END,
+    #   :LOG_READER
     attr_accessor :change_callback
 
+    # @param parent [Qt::Widget] Parent to this dialog
+    # @param log_directory [String] Initial directory to display when browsing
+    #   for log files
+    # @param packet_log_reader [PacketLogReader] The COSMOS log reader class
+    #   used to parse the log
+    # @param initial_filenames [Array<String>] Array of filenames to
+    #   pre-populate the dialog with
+    # @param initial_output_filename [String] Initial output filename if
+    #   show_output_filename is true
+    # @param show_output_filename [Boolean] Whether to show the output filename
+    #   and button to open a file chooser
+    # @param show_time [Boolean] Whether to show the start and end time
+    #   fields and buttons which popup a calendar browser
+    # @param show_log_reader [Boolean] Whether to show the log reader class
+    #   and button which popup a dialog to select a new log reader
+    # @param input_filename_filter [String] File filter to apply when
+    #   selecting input log files with the FileDialog
+    # @param output_filename_filter [String] File filter to apply when
+    #   selecting an output filename with the FileDialog
     def initialize(parent,
                    log_directory,
                    packet_log_reader,
@@ -76,6 +97,10 @@ module Cosmos
       @filenames = Qt::ListWidget.new(self)
       @filenames.setSelectionMode(Qt::AbstractItemView::ExtendedSelection)
       @filenames.setSortingEnabled(true)
+      delete = Qt::Shortcut.new(Qt::KeySequence.new(Qt::Key_Delete), @filenames)
+      delete.connect(SIGNAL('activated()')) { handle_remove_button }
+      backspace = Qt::Shortcut.new(Qt::KeySequence.new(Qt::Key_Backspace), @filenames)
+      backspace.connect(SIGNAL('activated()')) { handle_remove_button }
       initial_filenames.each {|filename| @filenames.addItem(filename)}
       @filenames.setMinimumHeight(90)
       @layout.addWidget(@filenames, row, 0, 3, 4)
@@ -94,6 +119,7 @@ module Cosmos
         row += 1
       end
 
+      # Declare these regardless of if show_time is set so getters and setters work
       @time_start_field = Qt::LineEdit.new('N/A')
       @time_end_field = Qt::LineEdit.new('N/A')
       if show_time
@@ -135,38 +161,40 @@ module Cosmos
       end
 
       setLayout(@layout)
-    end # def initialize
+    end
 
-    # Returns the chosen filenames
+    # @return [Array<String>] The chosen filenames
     def filenames
       filename_array = []
       @filenames.each {|list_item| filename_array << list_item.text}
       filename_array
     end
 
-    # Return the output filename
+    # @return [String] The output filename
     def output_filename
       @output_filename.text
     end
 
-    # Set the output filename
-    def output_filename= (new_output_filename)
-      @output_filename.setText(new_output_filename.to_s)
+    # @param output_filename [String] Output filename to set
+    def output_filename=(output_filename)
+      @output_filename.setText(output_filename.to_s)
     end
 
+    # Change the output selection to select a file (not a directory)
     def select_output_file
       @output_filename_label.text = 'Output File:'
       @output_select = :FILE
     end
 
+    # Change the output selection to select a directory (not a file)
     def select_output_dir
       @output_filename_label.text = 'Output Dir:'
       @output_select = :DIR
     end
 
-    # Set the start time
-    def time_start=(new_time_start)
-      @time_start = new_time_start
+    # @param time_start [Time] Start time
+    def time_start=(time_start)
+      @time_start = time_start
       if @time_start
         @time_start_field.setText(@time_start.formatted)
       else
@@ -174,9 +202,9 @@ module Cosmos
       end
     end
 
-    # Set the end time
-    def time_end=(new_time_end)
-      @time_end = new_time_end
+    # @param time_end [Time] End time
+    def time_end=(time_end)
+      @time_end = time_end
       if @time_end
         @time_end_field.setText(@time_end.formatted)
       else
@@ -299,7 +327,5 @@ module Cosmos
         @change_callback.call(:LOG_READER) if @change_callback
       end
     end
-
-  end # class PacketLogFrame
-
-end # module Cosmos
+  end
+end

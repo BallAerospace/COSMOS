@@ -18,7 +18,6 @@ require 'ostruct'
 require 'optparse'
 
 module Cosmos
-
   # Base class of all COSMOS GUI Tools based on QT. It creates the help menu
   # which contains the About menu option. It provides configuration to all
   # tools to remember both the application window location and size across
@@ -29,6 +28,11 @@ module Cosmos
 
     @@redirect_io_thread = nil
 
+    # Create the main GUI application window. Redirect IO to prevent popups in
+    # the application. Store the options passed from the command line.
+    #
+    # @param options [OpenStruct] The command line options passed to the
+    #   application
     def initialize(options)
       # Call QT::MainWindow constructor
       super() # MUST BE FIRST - All code before super is executed twice in RubyQt Based classes
@@ -85,9 +89,9 @@ module Cosmos
       end
     end
 
-    # Create the @exit_action and the @about_action. The @exit_action is not
+    # Create the exit_action and the about_action. The exit_action is not
     # placed in the File menu and must be manually added by the user. The
-    # @about_action is added to the Help menu by {#initialize_help_menu}.
+    # about_action is added to the Help menu by {#initialize_help_menu}.
     def initialize_actions
       @exit_action = Qt::Action.new(Cosmos.get_icon('close.png'), tr('E&xit'), self)
       @exit_keyseq = Qt::KeySequence.new(tr('Ctrl+Q'))
@@ -105,9 +109,20 @@ module Cosmos
       end
     end
 
-    # Creates a default menu action based on the default_dir and iterates
-    # through all the target directories adding the target_sub_dir directory if
-    # it exists. Calls the callback option when the action is triggered.
+    # Adds menu actions for each target directory. The default_dirs parameter
+    # is added as a default and then a separator is added. The target_sub_dir
+    # is looked for in each of the target directories and if it exists, this
+    # directory is added to the menu. The callback method is called when the
+    # menu action is triggered. This method is used primarily in the File->New
+    # or File->Open menu since it references system and target directories.
+    #
+    # @param menu [Qt::Menu] Menu to add the actions to
+    # @param default_dirs [String|Array<String>] Either a directory or array of
+    #   directories which should correspond to a default system location.
+    # @param target_sub_dir [String] The directory name to look for under each target
+    # @param callback [#call] Callback method which will be passed the directory
+    # @param status_tip [String] Optional status tip string to display when
+    #   mousing over the menu action
     def target_dirs_action(menu, default_dirs, target_sub_dir, callback, status_tip = nil)
       default_dirs = [default_dirs] unless default_dirs.is_a? Array
       default_dirs.each do |default_dir|
@@ -134,7 +149,7 @@ module Cosmos
       end
     end
 
-    # Creates the Help menu and adds the @about_action to it. Thus this MUST be
+    # Creates the Help menu and adds the about_action to it. Thus this MUST be
     # called after initialize_actions.
     def initialize_help_menu
       @help_menu = menuBar().addMenu(tr('&Help'))
@@ -459,7 +474,5 @@ module Cosmos
     def self.graceful_kill
       # Just to remove warning
     end
-
-  end # class QtTool
-
-end # end module Cosmos
+  end
+end

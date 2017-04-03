@@ -12,6 +12,7 @@ require 'find'
 
 # COSMOS specific additions to the Ruby File class
 class File
+  # Non printable ASCII characters
   NON_ASCII_PRINTABLE = /[^\x21-\x7e\s]/
 
   # @return [Boolean] Whether the file only contains ASCII characters

@@ -266,14 +266,14 @@ module Cosmos
     end
 
     # Edits a data object in the definition
-    def edit_data_object(tab_index, plot_index, data_object_index, editted_data_object)
+    def edit_data_object(tab_index, plot_index, data_object_index, edited_data_object)
       data_object = @tabs[tab_index].plots[plot_index].data_objects[data_object_index]
-      if data_object.edit_safe?(editted_data_object)
+      if data_object.edit_safe?(edited_data_object)
         @mutex.synchronize do
-          data_object.edit(editted_data_object)
+          data_object.edit(edited_data_object)
         end
       else
-        replace_data_object(tab_index, plot_index, data_object_index, editted_data_object)
+        replace_data_object(tab_index, plot_index, data_object_index, edited_data_object)
       end
     end
 

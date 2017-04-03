@@ -223,7 +223,8 @@ module Cosmos
 
     # Load a new configuration of ignored items and packets and reset
     #
-    # @param config_file [String] Configuration file name
+    # @param filename [String] Configuration file base name which will be
+    #   expanded to find a file in the config/tools/limits_monitor dir.
     # @return [String] Message indicating success or fail
     def open_config(filename)
       return "" unless filename
@@ -258,7 +259,7 @@ module Cosmos
 
     # Save the current configuration of ignored items and packets.
     #
-    # @param config_file [String] Configuration file to save.
+    # @param filename [String] Configuration file to save.
     # @return [String] Message indicating success or fail
     def save_config(filename)
       begin
@@ -369,10 +370,10 @@ module Cosmos
       # @return [Widget] The widget which displays the value
       attr_accessor :value
 
-      # @parent [Qt::Widget] Parent widget (the LimitsMonitor tool)
-      # @target_name [String] Target name
-      # @packet_name [String] Packet name
-      # @item_name [String] Telemetry item name (nil for stale packets)
+      # @param parent [Qt::Widget] Parent widget (the LimitsMonitor tool)
+      # @param target_name [String] Target name
+      # @param packet_name [String] Packet name
+      # @param item_name [String] Telemetry item name (nil for stale packets)
       def initialize(parent, target_name, packet_name, item_name)
         super(parent)
         @layout = Qt::HBoxLayout.new
@@ -709,12 +710,12 @@ module Cosmos
       widget
     end
 
-    # Update out of limit item with a values
+    # Update a widget with new values
     #
-    # @param target_name [String] Target name of out of limits item.
-    # @param packet_name [String] Packet name of out of limits item.
-    # @param item_name [String] Item name of out of limits item or nil
-    #   if its a stale packet
+    # @param widget [Qt::Widget] The widget to update
+    # @param value [Object] Value to update
+    # @param limits_state [Symbol] The items limits state, e.g. :GREEN, :RED, etc
+    # @param limits_set [Symbol] The current limits set, e.g. :DEFAULT
     def update_gui_item(widget, value, limits_state, limits_set)
       Qt.execute_in_main_thread(true) do
         widget.set_values(value, limits_state, limits_set) if widget

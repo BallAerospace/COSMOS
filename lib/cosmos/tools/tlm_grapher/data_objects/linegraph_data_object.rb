@@ -139,18 +139,18 @@ module Cosmos
     end
 
     # Edits the data object
-    def edit(editted_data_object)
-      super(editted_data_object)
-      @horizontal_lines = editted_data_object.horizontal_lines
-      if @y_offset != editted_data_object.y_offset
+    def edit(edited_data_object)
+      super(edited_data_object)
+      @horizontal_lines = edited_data_object.horizontal_lines
+      if @y_offset != edited_data_object.y_offset
         old_y_offset = @y_offset
-        new_y_offset = editted_data_object.y_offset
+        new_y_offset = edited_data_object.y_offset
         @y_values.length.times {|index| @y_values[index] += (new_y_offset - old_y_offset)}
       end
-      @y_offset = editted_data_object.y_offset
-      @y_axis = editted_data_object.y_axis
-      @x_states = editted_data_object.x_states
-      @y_states = editted_data_object.y_states
+      @y_offset = edited_data_object.y_offset
+      @y_axis = edited_data_object.y_axis
+      @x_states = edited_data_object.x_states
+      @y_states = edited_data_object.y_states
     end
 
     protected

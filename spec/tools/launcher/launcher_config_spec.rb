@@ -19,7 +19,7 @@ module Cosmos
   describe LauncherConfig do
     describe "initialize" do
       it "checks for a given filename" do
-        expect { LauncherConfig.new('blah_file.txt') }.to raise_error
+        expect { LauncherConfig.new('blah_file.txt') }.to raise_error(/file does not exist/)
       end
 
       it "raises on unknown parameters" do

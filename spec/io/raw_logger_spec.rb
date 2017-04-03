@@ -23,8 +23,12 @@ module Cosmos
     end
 
     describe "initialize" do
+      it "complains with not enough arguments" do
+        expect { RawLogger.new('MYINT') }.to raise_error(ArgumentError)
+      end
+
       it "complains with an unknown log type" do
-        expect { RawLogger.new(:BOTH) }.to raise_error
+        expect { RawLogger.new('MYINT', :BOTH) }.to raise_error(/log_type must be :READ or :WRITE/)
       end
 
       it "creates a raw write log" do
