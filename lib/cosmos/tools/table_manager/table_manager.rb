@@ -738,7 +738,7 @@ module Cosmos
             else
               table.write(item.name, value)
             end
-            raise "out of range" unless item.range.include?(table.read(item.name, :RAW))
+            raise "out of range" if item.range && !item.range.include?(table.read(item.name, :RAW))
 
           # if we have a problem casting the value it probably means the user put in garbage
           # in this case force the range check to fail
