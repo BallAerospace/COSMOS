@@ -249,7 +249,7 @@ module Cosmos
               out.puts line
             end
           end
-		 end
+        end
         puts "Created #{filename}"
         return false
       end
@@ -358,9 +358,9 @@ module Cosmos
         @table_commit.statusTip = tr('Incorporate the current table data into a binary file which already contains the table')
         @table_commit.connect(SIGNAL('triggered()')) { table_commit() }
 
-        #        @table_update = Qt::Action.new(tr('&Update Definition'), self)
-        #        @table_update.statusTip = tr('Change the defaults in the definition file to the displayed table data')
-        #        @table_update.connect(SIGNAL('triggered()')) { table_update() }
+        #@table_update = Qt::Action.new(tr('&Update Definition'), self)
+        #@table_update.statusTip = tr('Change the defaults in the definition file to the displayed table data')
+        #@table_update.connect(SIGNAL('triggered()')) { table_update() }
       end
     end
 
@@ -385,7 +385,6 @@ module Cosmos
       file_menu.addAction(@exit_action)
 
       unless no_tables
-        # Table Menu
         table_menu = menuBar.addMenu(tr('&Table'))
         table_menu.addAction(@table_check)
         table_menu.addAction(@table_default)
@@ -393,7 +392,7 @@ module Cosmos
         table_menu.addSeparator()
         table_menu.addAction(@table_save)
         table_menu.addAction(@table_commit)
-        #        table_menu.addAction(@table_update)
+        #table_menu.addAction(@table_update)
       end
 
       # Help Menu
@@ -1130,4 +1129,4 @@ module Cosmos
       statusBar.showMessage('')
     end
   end
-end # module Cosmos
+end
