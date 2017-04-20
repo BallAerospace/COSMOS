@@ -60,7 +60,7 @@ module Cosmos
     instance_attr_reader :limits_set
 
     # Known COSMOS ports
-    KNOWN_PORTS = ['CTS_API', 'TLMVIEWER_API', 'CTS_PREIDENTIFIED']
+    KNOWN_PORTS = ['CTS_API', 'TLMVIEWER_API', 'CTS_PREIDENTIFIED', 'CTS_CMD_ROUTER']
     # Known COSMOS paths
     KNOWN_PATHS = ['LOGS', 'TMP', 'SAVED_CONFIG', 'TABLES', 'HANDBOOKS', 'PROCEDURES']
 
@@ -94,6 +94,7 @@ module Cosmos
       @ports['CTS_API'] = 7777
       @ports['TLMVIEWER_API'] = 7778
       @ports['CTS_PREIDENTIFIED'] = 7779
+      @ports['CTS_CMD_ROUTER'] = 7780
 
       @paths = {}
       @paths['LOGS'] = File.join(USERPATH, 'outputs', 'logs')

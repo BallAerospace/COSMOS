@@ -89,6 +89,15 @@ module Cosmos
         command.buffer = packet.buffer
       end
 
+      # Write to Command Routers
+      interface.cmd_routers.each do |cmd_router|
+        begin
+          cmd_router.write(command) if cmd_router.write_allowed? and cmd_router.connected?
+        rescue => err
+          Logger.error "Problem writing to cmd router #{cmd_router.name} - #{err.class}:#{err.message}"
+        end
+      end
+
       # Write to command packet logs
       interface.packet_log_writer_pairs.each do |packet_log_writer_pair|
         packet_log_writer_pair.cmd_log_writer.write(command)

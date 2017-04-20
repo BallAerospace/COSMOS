@@ -187,6 +187,7 @@ module Cosmos
       end
 
       @routers.add_preidentified('PREIDENTIFIED_ROUTER', System.instance.ports['CTS_PREIDENTIFIED'])
+      @routers.add_cmd_preidentified('PREIDENTIFIED_CMD_ROUTER', System.instance.ports['CTS_CMD_ROUTER'])
       System.telemetry.limits_change_callback = method(:limits_change_callback)
       @interfaces.start
       @routers.start

@@ -45,6 +45,23 @@ module Cosmos
       end
     end
 
+    # Adds a Preidentified command router to the system with given name and port.
+    # All interfaces defined by the Command/Telemetry configuration are
+    # directed to this router to output commands
+    #
+    # @param router_name [String] Name of the command router
+    # @param port [Integer] Port to pass to the {TcpipServerInterface}
+    def add_cmd_preidentified(cmd_router_name, port)
+      cmd_router_name = cmd_router_name.upcase
+      cmd_router = TcpipServerInterface.new(port, nil, 10.0, nil, 'PREIDENTIFIED')
+      cmd_router.name = cmd_router_name
+      cmd_router.disable_disconnect = true
+      @config.routers[cmd_router_name] = cmd_router
+      @config.interfaces.each do |interface_name, interface|
+        interface.cmd_routers << cmd_router
+      end
+    end
+
     # Recreate a router with new initialization parameters
     #
     # @param router_name [String] Name of the router
