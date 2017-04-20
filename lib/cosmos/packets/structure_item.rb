@@ -104,7 +104,14 @@ module Cosmos
     end
 
     def bit_offset=(bit_offset)
-      raise ArgumentError, "#{@name}: bit_offset must be a Fixnum" unless Fixnum === bit_offset
+      if 0.class == Integer
+        # Ruby version >= 2.4.0
+        raise ArgumentError, "#{@name}: bit_offset must be an Integer" unless Integer === bit_offset
+      else
+        # Ruby version < 2.4.0
+        raise ArgumentError, "#{@name}: bit_offset must be a Fixnum" unless Fixnum === bit_offset
+      end
+
       byte_aligned = ((bit_offset % 8) == 0)
       if (@data_type == :FLOAT or @data_type == :STRING or @data_type == :BLOCK) and !byte_aligned
         raise ArgumentError, "#{@name}: bit_offset for :FLOAT, :STRING, and :BLOCK items must be byte aligned"
@@ -118,7 +125,13 @@ module Cosmos
     end
 
     def bit_size=(bit_size)
-      raise ArgumentError, "#{name}: bit_size must be a Fixnum" unless Fixnum === bit_size
+      if 0.class == Integer
+        # Ruby version >=  2.4.0
+        raise ArgumentError, "#{name}: bit_size must be an Integer" unless Integer === bit_size
+      else
+        # Ruby version < 2.4.0
+        raise ArgumentError, "#{name}: bit_size must be a Fixnum" unless Fixnum === bit_size
+      end
       byte_multiple = ((bit_size % 8) == 0)
       if bit_size <= 0 and (@data_type == :INT or @data_type == :UINT or @data_type == :FLOAT)
         raise ArgumentError, "#{@name}: bit_size cannot be negative or zero for :INT, :UINT, and :FLOAT items: #{bit_size}"
@@ -150,7 +163,13 @@ module Cosmos
 
     def array_size=(array_size)
       if array_size
-        raise ArgumentError, "#{@name}: array_size must be a Fixnum" unless Fixnum === array_size
+        if 0.class == Integer
+          # Ruby version >=  2.4.0
+          raise ArgumentError, "#{@name}: array_size must be an Integer" unless Integer === array_size
+        else
+          # Ruby version < 2.4.0
+          raise ArgumentError, "#{@name}: array_size must be a Fixnum" unless Fixnum === array_size
+        end
         raise ArgumentError, "#{@name}: array_size must be a multiple of bit_size" unless (@bit_size == 0 or (array_size % @bit_size == 0) or array_size < 0)
         raise ArgumentError, "#{@name}: bit_size cannot be negative or zero for array items" if @bit_size <= 0
       end

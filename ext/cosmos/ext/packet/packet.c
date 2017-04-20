@@ -191,9 +191,15 @@ static VALUE received_time_equals(VALUE self, VALUE received_time) {
  *   received */
 static VALUE received_count_equals(VALUE self, VALUE received_count) {
   volatile VALUE read_conversion_cache = rb_ivar_get(self, id_ivar_read_conversion_cache);
+#ifdef RUBY_INTEGER_UNIFICATION /* Ruby 2.4.0 unified Fixnum and Bignum into Integer. This check allows the code to build pre- and post-2.4.0. */
+  if (rb_funcall(received_count, id_method_class, 0) != rb_cInteger) {
+      rb_raise(rb_eArgError, "received_count must be an Integer but is a %s", RSTRING_PTR(rb_funcall(rb_funcall(received_count, id_method_class, 0), id_method_to_s, 0)));
+  }
+#else
   if (rb_funcall(received_count, id_method_class, 0) != rb_cFixnum) {
     rb_raise(rb_eArgError, "received_count must be a Fixnum but is a %s", RSTRING_PTR(rb_funcall(rb_funcall(received_count, id_method_class, 0), id_method_to_s, 0)));
   }
+#endif
   rb_ivar_set(self, id_ivar_received_count, received_count);
   if (RTEST(read_conversion_cache)) {
     rb_funcall(read_conversion_cache, id_method_clear, 0);

@@ -23,7 +23,7 @@ module Cosmos
 
       it "complains about non String names" do
         expect { StructureItem.new(nil, 0, 8, :UINT, :BIG_ENDIAN, nil) }.to raise_error(ArgumentError, "name must be a String but is a NilClass")
-        expect { StructureItem.new(5, 0, 8, :UINT, :BIG_ENDIAN, nil) }.to raise_error(ArgumentError, "name must be a String but is a Fixnum")
+        expect { StructureItem.new(5.1, 0, 8, :UINT, :BIG_ENDIAN, nil) }.to raise_error(ArgumentError, "name must be a String but is a Float")
       end
 
       it "complains about blank names" do
@@ -69,7 +69,13 @@ module Cosmos
 
     describe "bit_offset=" do
       it "compains about bad bit offsets types" do
-        expect { StructureItem.new("test", nil, 8, :UINT, :BIG_ENDIAN, nil) }.to raise_error(ArgumentError, "TEST: bit_offset must be a Fixnum")
+        if 0.class == Integer
+          # Ruby version >= 2.4.0
+          expect { StructureItem.new("test", nil, 8, :UINT, :BIG_ENDIAN, nil) }.to raise_error(ArgumentError, "TEST: bit_offset must be an Integer")
+        else
+          # Ruby version < 2.4.0
+          expect { StructureItem.new("test", nil, 8, :UINT, :BIG_ENDIAN, nil) }.to raise_error(ArgumentError, "TEST: bit_offset must be a Fixnum")
+        end
       end
 
       it "complains about unaligned bit offsets" do
@@ -85,7 +91,13 @@ module Cosmos
 
     describe "bit_size=" do
       it "complains about bad bit sizes types" do
-        expect { StructureItem.new("test", 0, nil, :UINT, :BIG_ENDIAN, nil) }.to raise_error(ArgumentError, "TEST: bit_size must be a Fixnum")
+        if 0.class == Integer
+          # Ruby version >= 2.4.0
+          expect { StructureItem.new("test", 0, nil, :UINT, :BIG_ENDIAN, nil) }.to raise_error(ArgumentError, "TEST: bit_size must be an Integer")
+          else
+          # Ruby version < 2.4.0
+          expect { StructureItem.new("test", 0, nil, :UINT, :BIG_ENDIAN, nil) }.to raise_error(ArgumentError, "TEST: bit_size must be a Fixnum")
+        end
       end
 
       it "complains about 0 size INT, UINT, and FLOAT" do
@@ -110,7 +122,13 @@ module Cosmos
 
     describe "array_size=" do
       it "complains about bad array size types" do
-        expect { StructureItem.new("test", 0, 8, :UINT, :BIG_ENDIAN, "") }.to raise_error(ArgumentError, "TEST: array_size must be a Fixnum")
+        if 0.class == Integer
+          # Ruby version >= 2.4.0
+          expect { StructureItem.new("test", 0, 8, :UINT, :BIG_ENDIAN, "") }.to raise_error(ArgumentError, "TEST: array_size must be an Integer")
+        else
+          # Ruby version < 2.4.0
+          expect { StructureItem.new("test", 0, 8, :UINT, :BIG_ENDIAN, "") }.to raise_error(ArgumentError, "TEST: array_size must be a Fixnum")
+        end
       end
 
       it "complains about array size != multiple of bit size" do
