@@ -221,6 +221,10 @@ module Cosmos
       # regular TlmViewer application
       @single_screen = single_screen
 
+      # Read the application wide stylesheet if it exists
+      app_style = File.join(Cosmos::USERPATH, 'config', 'tools', 'application.css')
+      setStyleSheet(File.read(app_style)) if File.exist? app_style
+
       @widgets = Widgets.new(self, mode)
       @window = process(filename)
       @@open_screens << self if @window

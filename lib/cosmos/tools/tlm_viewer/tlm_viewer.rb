@@ -93,18 +93,11 @@ module Cosmos
       setMinimumWidth(300)
       @@instance = self
 
-      # Get Params from Config File
-      if options.config_file
-        filename = File.join(::Cosmos::USERPATH, 'config', 'tools', 'tlm_viewer', options.config_file)
-      else
-        filename = File.join(::Cosmos::USERPATH, 'config', 'tools', 'tlm_viewer', 'tlm_viewer.txt')
-      end
-
       Splash.execute(self, true) do |splash|
         ConfigParser.splash = splash
         splash.message = "Starting TlmViewer"
         System.telemetry
-        @tlm_viewer_config = self.class.load_config(filename)
+        @tlm_viewer_config = self.class.load_config(options.config_file)
         ConfigParser.splash = nil
       end
 

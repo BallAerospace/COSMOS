@@ -36,21 +36,57 @@ module Cosmos
     def initialize(options)
       # Call QT::MainWindow constructor
       super() # MUST BE FIRST - All code before super is executed twice in RubyQt Based classes
-
-      # Add Path for plugins
-      Qt::Application.instance.addLibraryPath(Qt::PLUGIN_PATH) if Kernel.is_windows?
-
-      # Prevent killing the parent process from killing this GUI application
-      Process.setpgrp unless Kernel.is_windows?
-
-      self.class.redirect_io if options.redirect_io
-
-      # Configure instance variables
       @options = options
       @about_string = nil
 
-      self.window_title = options.title
+      # Add Path for plugins
+      Qt::Application.instance.addLibraryPath(Qt::PLUGIN_PATH) if Kernel.is_windows?
+      # Prevent killing the parent process from killing this GUI application
+      Process.setpgrp unless Kernel.is_windows?
+
+      self.class.redirect_io if @options.redirect_io
+      self.window_title = @options.title
       Cosmos.load_cosmos_icon
+
+      # Read the application wide stylesheet if it exists
+      app_style = File.join(Cosmos::USERPATH, 'config', 'tools', 'application.css')
+      @stylesheet = ''
+      @stylesheet = File.read(app_style) if File.exist? app_style
+
+      # Get the source file location of the tool calling this method
+      location = self.class.instance_method(:initialize).source_location[0]
+      tool_name = location.split('/')[-2]
+      config_dir = File.join(Cosmos::USERPATH, 'config', 'tools', tool_name)
+      if File.exist? config_dir
+        @options.config_dir = config_dir
+        @options.config_file = config_path(@options.config_file, ".txt", tool_name)
+        @options.stylesheet = config_path(@options.stylesheet, ".css", tool_name)
+      end
+    end
+
+    # Creates a path to a configuration file. If the file is given it is
+    # checked for an absolute path. If it is not absolute, the configuration
+    # directory is prepended to the filename. If no file is given a default is
+    # generated based on the application name.
+    #
+    # @param filename [String] Path to a configuration file
+    # @param type [String] File extension, e.g. '.txt'
+    # @param tool_name [String] Name of the tool calling this method
+    # @return [String|nil] Path to a configuration file or nil if none found
+    def config_path(filename, type, tool_name)
+      return filename if filename && File.exist?(filename)
+      if filename
+        # Add the configuration dir onto the filename
+        filename = File.join(@options.config_dir, filename)
+      else
+        # No file passed so default to a file named after the class
+        filename = File.join(@options.config_dir, "#{tool_name}#{type}")
+      end
+      if File.exist? filename
+        filename
+      else
+        nil
+      end
     end
 
     # Create the exit_action and the about_action. The exit_action is not
@@ -127,6 +163,11 @@ module Cosmos
     # position of the windows for subsequent launches of the application.
     # Finally it can initally show the application as minimized or maximized.
     def complete_initialize
+      if @options.stylesheet
+        @stylesheet << File.read(@options.stylesheet)
+      end
+      setStyleSheet(@stylesheet)
+
       # Handle manually sizing the window
       resize(@options.width, @options.height) unless @options.auto_size
 
@@ -294,9 +335,18 @@ module Cosmos
         end
 
         # Create the system option
-        option_parser.on("--system VALUE", "Use an alternative system.txt file") do |arg|
+        option_parser.on("--system FILE", "Use an alternative system.txt file") do |arg|
           System.instance(File.join(USERPATH, 'config', 'system', arg))
         end
+        option_parser.on("-c", "--config FILE", "Use the specified configuration file") do |arg|
+          options.config_file = arg
+        end
+        option_parser.on("--stylesheet FILE", "Use the specified stylesheet") do |arg|
+          options.stylesheet = arg
+        end
+
+        option_parser.separator("")
+        option_parser.separator("Window Size Options:")
 
         # Create the minimized option
         option_parser.on("--minimized", "Start the tool minimized") do |arg|

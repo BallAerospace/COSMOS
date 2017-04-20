@@ -228,10 +228,6 @@ module Cosmos
     # @return [String] Message indicating success or fail
     def open_config(filename)
       return "" unless filename
-
-      unless Pathname.new(filename).absolute?
-        filename = File.join(::Cosmos::USERPATH, 'config', 'tools', 'limits_monitor', filename)
-      end
       return "Configuration file #{filename} not found!" unless File.exist?(filename)
 
       @ignored = []
@@ -595,7 +591,7 @@ module Cosmos
     end
 
     # @return [String] Fully qualified path to the configuration file
-    def config_path
+    def default_config_path
       # If the config file has been set then just return it
       return @filename if @filename
       # This is the default path to the configuration files
@@ -605,7 +601,7 @@ module Cosmos
     # Opens the configuration file and loads the ignored items
     def open_config_file
       filename = Qt::FileDialog::getOpenFileName(self,
-        "Open Configuration File", config_path())
+        "Open Configuration File", default_config_path())
       unless filename.nil? || filename.empty?
         result = @limits_items.open_config(filename)
         statusBar.showMessage(tr(result))
@@ -615,7 +611,7 @@ module Cosmos
     # Saves the ignored items to the configuration file
     def save_config_file
       filename = Qt::FileDialog.getSaveFileName(self,
-        'Save As...', config_path(), 'Configuration Files (*.txt)')
+        'Save As...', default_config_path(), 'Configuration Files (*.txt)')
       unless filename.nil? || filename.empty?
         result = @limits_items.save_config(filename)
         statusBar.showMessage(tr(result))
