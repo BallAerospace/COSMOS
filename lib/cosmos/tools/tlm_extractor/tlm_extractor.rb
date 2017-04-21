@@ -135,6 +135,12 @@ module Cosmos
       @share_columns_check = Qt::Action.new(tr('&Share Columns'), self)
       @share_columns_check.statusTip = tr('Share columns for items with the same name')
       @share_columns_check.setCheckable(true)
+      @share_columns_check.connect(SIGNAL('triggered()')) { share_columns_changed() }
+
+      @full_column_names_check = Qt::Action.new(tr('&Full Column Names'), self)
+      @full_column_names_check.statusTip = tr('Use full item names in each column')
+      @full_column_names_check.setCheckable(true)
+      @full_column_names_check.connect(SIGNAL('triggered()')) { full_column_names_changed() }
 
       @unique_only_check = Qt::Action.new(tr('&Unique Only'), self)
       @unique_only_check_keyseq = Qt::KeySequence.new(tr('Ctrl+U'))
@@ -176,6 +182,7 @@ module Cosmos
       @mode_menu.addAction(@fill_down_check)
       @mode_menu.addAction(@matlab_header_check)
       @mode_menu.addAction(@share_columns_check)
+      @mode_menu.addAction(@full_column_names_check)
       @mode_menu.addAction(@unique_only_check)
       @mode_menu.addAction(@batch_mode_check)
 
@@ -452,6 +459,7 @@ module Cosmos
       @tlm_extractor_config.matlab_header = @matlab_header_check.checked?
       @tlm_extractor_config.fill_down = @fill_down_check.checked?
       @tlm_extractor_config.share_columns = @share_columns_check.checked?
+      @tlm_extractor_config.full_column_names = @full_column_names_check.checked?
       @tlm_extractor_config.unique_only = @unique_only_check.checked?
       @tlm_extractor_config.downsample_seconds = @downsample_entry.value
       @tlm_extractor_config.output_filename = @packet_log_frame.output_filename
@@ -481,8 +489,11 @@ module Cosmos
       @matlab_header_check.setChecked(@tlm_extractor_config.matlab_header)
       @fill_down_check.setChecked(@tlm_extractor_config.fill_down)
       @share_columns_check.setChecked(@tlm_extractor_config.share_columns)
+      @full_column_names_check.setChecked(@tlm_extractor_config.full_column_names)
       @unique_only_check.setChecked(@tlm_extractor_config.unique_only)
       @downsample_entry.value = @tlm_extractor_config.downsample_seconds
+      share_columns_changed()
+      full_column_names_changed()
 
       clear_config_item_list()
       @tlm_extractor_config.items.each do |item_type, target_name_or_column_name, packet_name_or_text, item_name, value_type|
@@ -656,6 +667,24 @@ module Cosmos
       box.dispose
     end
 
+    def share_columns_changed
+      if @share_columns_check.checked?
+        @full_column_names_check.setChecked(false)
+        @full_column_names_check.setEnabled(false)
+      else
+        @full_column_names_check.setEnabled(true)
+      end
+    end
+
+    def full_column_names_changed
+      if @full_column_names_check.checked?
+        @share_columns_check.setChecked(false)
+        @share_columns_check.setEnabled(false)
+      else
+        @share_columns_check.setEnabled(true)
+      end
+    end
+
     def batch_mode_changed
       if @batch_mode_check.checked?
         @config_box.hide
@@ -665,6 +694,7 @@ module Cosmos
         @fill_down_check.setEnabled(false)
         @matlab_header_check.setEnabled(false)
         @share_columns_check.setEnabled(false)
+        @full_column_names_check.setEnabled(false)
         @unique_only_check.setEnabled(false)
         @open_config.setEnabled(false)
         @save_config.setEnabled(false)
@@ -679,6 +709,7 @@ module Cosmos
         @fill_down_check.setEnabled(true)
         @matlab_header_check.setEnabled(true)
         @share_columns_check.setEnabled(true)
+        @full_column_names_check.setEnabled(true)
         @unique_only_check.setEnabled(true)
         @open_config.setEnabled(true)
         @save_config.setEnabled(true)
