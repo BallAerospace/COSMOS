@@ -57,7 +57,11 @@ module Cosmos
       @thread = Thread.new do
         @cancel_thread = false
         begin
-          Logger.info "Starting packet reading for #{@interface.name}"
+          if @interface.read_allowed?
+            Logger.info "Starting packet reading for #{@interface.name}"
+          else
+            Logger.info "Starting connection maintenance for #{@interface.name}"
+          end
           while true
             break if @cancel_thread
             unless @interface.connected?
@@ -77,28 +81,33 @@ module Cosmos
               end
             end
 
-            begin
-              packet = @interface.read
-              unless packet
-                Logger.info "Clean disconnect from #{@interface.name} (returned nil)"
-                handle_connection_lost(nil)
+            if @interface.read_allowed?
+              begin
+                packet = @interface.read
+                unless packet
+                  Logger.info "Clean disconnect from #{@interface.name} (returned nil)"
+                  handle_connection_lost(nil)
+                  if @cancel_thread
+                    break
+                  else
+                    next
+                  end
+                end
+                packet.received_time = Time.now unless packet.received_time
+              rescue Exception => err
+                handle_connection_lost(err)
                 if @cancel_thread
                   break
                 else
                   next
                 end
               end
-              packet.received_time = Time.now unless packet.received_time
-            rescue Exception => err
-              handle_connection_lost(err)
-              if @cancel_thread
-                break
-              else
-                next
-              end
-            end
 
-            handle_packet(packet)
+              handle_packet(packet)
+            else
+              @thread_sleeper.sleep(1)
+              handle_connection_lost(nil) if !@interface.connected?
+            end
           end  # loop
         rescue Exception => error
           if @fatal_exception_callback
@@ -121,7 +130,7 @@ module Cosmos
         @thread_sleeper.cancel
         @interface.disconnect
       end
-      Cosmos.kill_thread(self, @thread) if @thread != Thread.current
+      Cosmos.kill_thread(self, @thread) if @thread and @thread != Thread.current
     end
 
     def graceful_kill

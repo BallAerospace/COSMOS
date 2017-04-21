@@ -104,9 +104,9 @@ module Cosmos
       interfaces_table.setRowCount(interfaces.all.length)
       interfaces_table.setColumnCount(10)
       if name == ROUTERS
-        interfaces_table.setHorizontalHeaderLabels(["Router", "Connect/Disconnect", "Connected?", "Clients", "Tx Q Size", "Rx Q Size", "   Bytes Tx   ", "   Bytes Rx   ", "  Cmd Pkts  ", "  Tlm Pkts  "])
+        interfaces_table.setHorizontalHeaderLabels(["Router", "Connect/Disconnect", "Connected?", "Clients", "Tx Q Size", "Rx Q Size", "   Bytes Tx   ", "   Bytes Rx   ", "  Pkts Rcvd  ", "  Pkts Sent  "])
       else
-        interfaces_table.setHorizontalHeaderLabels(["Interface", "Connect/Disconnect", "Connected?", "Clients", "Tx Q Size", "Rx Q Size", "   Bytes Tx   ", "   Bytes Rx   ", "  Cmd Pkts  ", "  Tlm Pkts  "])
+        interfaces_table.setHorizontalHeaderLabels(["Interface", "Connect/Disconnect", "Connected?", "Clients", "Tx Q Size", "Rx Q Size", "   Bytes Tx   ", "   Bytes Rx   ", "  Cmd Pkts  ", "  Tlm Pkts "])
       end
 
       populate_interface_table(name, interfaces, interfaces_table)
