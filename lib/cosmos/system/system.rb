@@ -362,7 +362,6 @@ module Cosmos
           unless File.exist? path
             raise parser.error("#{path} must exist", usage)
           end
-          system_found = false
           dirs = []
           Dir.foreach(File.join(USERPATH, 'config', 'targets')) { |dir_filename| dirs << dir_filename }
           dirs.sort!
@@ -373,10 +372,7 @@ module Cosmos
                 # current directory then it must have been already processed by
                 # DECLARE_TARGET so we skip it.
                 next if @targets.select {|name, target| target.original_name == dir_filename }.length > 0
-                if dir_filename == 'SYSTEM'
-                  system_found = true
-                  next
-                end
+                next if dir_filename == 'SYSTEM'
                 target = Target.new(dir_filename)
                 @targets[target.name] = target
               else
@@ -387,10 +383,9 @@ module Cosmos
 
           auto_detect_gem_based_targets()
 
-          if system_found
-            target = Target.new('SYSTEM')
-            @targets[target.name] = target
-          end
+          # Make sure SYSTEM target is always present and added last
+          target = Target.new('SYSTEM')
+          @targets[target.name] = target
 
         when 'DECLARE_TARGET'
           usage = "#{keyword} <TARGET NAME> <SUBSTITUTE TARGET NAME (Optional)> <TARGET FILENAME (Optional - defaults to target.txt)>"
