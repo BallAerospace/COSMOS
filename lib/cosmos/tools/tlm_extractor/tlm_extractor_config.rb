@@ -23,6 +23,7 @@ module Cosmos
     attr_accessor :matlab_header
     attr_accessor :fill_down
     attr_accessor :share_columns
+    attr_accessor :full_column_names
     attr_accessor :unique_only
     attr_accessor :delimiter
     attr_accessor :downsample_seconds
@@ -45,6 +46,7 @@ module Cosmos
       @matlab_header = false
       @fill_down = false
       @share_columns = false
+      @full_column_names = false
       @unique_only = false
       @delimiter = "\t"
       @unique_ignored = DEFAULT_UNIQUE_IGNORED.clone
@@ -73,7 +75,7 @@ module Cosmos
       if @share_columns and @columns_hash[hash_index]
         column_index = @columns_hash[hash_index]
       else
-        @columns << [item_name, value_type, nil]
+        @columns << [item_name, value_type, nil, target_name, packet_name]
         column_index = @columns.length - 1
         @columns_hash[hash_index] = column_index
       end
@@ -84,22 +86,31 @@ module Cosmos
     end
 
     def add_text(column_name, text)
-      @columns << [column_name, nil, nil]
+      @columns << [column_name, nil, nil, nil, nil]
       @items << [TEXT, column_name, text, nil, nil]
       @text_items << [@columns.length - 1, text]
     end
 
     def column_names
-      row = Array.new(@columns.length + 2)
-      row[0] = 'TARGET'
-      row[1] = 'PACKET'
+      if @full_column_names
+        col_offset = 0
+        row = Array.new(@columns.length)
+      else
+        col_offset = 2
+        row = Array.new(@columns.length + 2)
+        row[0] = 'TARGET'
+        row[1] = 'PACKET'
+      end
       index = 0
-      @columns.each do |column_name, column_value_type, item_data_type|
+      @columns.each do |column_name, column_value_type, item_data_type, target_name, packet_name|
+        if @full_column_names and target_name and packet_name
+          column_name = [target_name, packet_name, column_name].join(' ')
+        end
         case column_value_type
         when :CONVERTED, nil
-          row[index + 2] = column_name
+          row[index + col_offset] = column_name
         else
-          row[index + 2] = (column_name + '(' + column_value_type.to_s + ')')
+          row[index + col_offset] = (column_name + '(' + column_value_type.to_s + ')')
         end
         index += 1
       end
@@ -133,6 +144,13 @@ module Cosmos
             # Expect 0 parameters
             parser.verify_num_parameters(0, 0, "SHARE_COLUMNS")
             @share_columns = true
+            @full_column_names = false
+
+          when 'FULL_COLUMN_NAMES'
+            # Expect 0 parameters
+            parser.verify_num_parameters(0, 0, "FULL_COLUMN_NAMES")
+            @full_column_names = true
+            @share_columns = false
 
           when 'UNIQUE_ONLY'
             # Expect 0 parameters
@@ -204,6 +222,9 @@ module Cosmos
           end
           if @share_columns
             file.puts 'SHARE_COLUMNS'
+          end
+          if @full_column_names
+            file.puts 'FULL_COLUMN_NAMES'
           end
           if @unique_only
             file.puts 'UNIQUE_ONLY'
@@ -312,13 +333,13 @@ module Cosmos
 
           # Add each packet item to the row
           packet_mapping.each do |column_index|
-            column_name, column_value_type, item_data_type = @columns[column_index]
+            column_name, column_value_type, item_data_type, target_name, packet_name = @columns[column_index]
 
             # Lookup item data type on first use
             unless item_data_type
               _, item = System.telemetry.packet_and_item(packet.target_name, packet.packet_name, column_name)
               item_data_type = item.data_type
-              @columns[column_index] = [column_name, column_value_type, item_data_type]
+              @columns[column_index] = [column_name, column_value_type, item_data_type, target_name, packet_name]
             end
 
             if item_data_type == :BLOCK
@@ -349,11 +370,15 @@ module Cosmos
 
           if !@unique_only or changed
             # Output the row
-            @output_file.print packet.target_name
-            @output_file.print @delimiter
-            @output_file.print packet.packet_name
-            row.each_with_index do |value, index|
+            if !@full_column_names
+              @output_file.print packet.target_name
               @output_file.print @delimiter
+              @output_file.print packet.packet_name
+            end
+            row.each_with_index do |value, index|
+              if !@full_column_names or index != 0
+                @output_file.print @delimiter
+              end
               @output_file.print value if value
             end
             @output_file.puts ""
