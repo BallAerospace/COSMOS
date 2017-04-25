@@ -11,7 +11,7 @@
 module Cosmos
 
   module Extract
-    SCANNING_REGULAR_EXPRESSION = %r{ (?:"(?:[^\\"]|\\.)*") | (?:'(?:[^\\']|\\.)*') | (?:\[.*\]) | \S+ }x #"
+    SCANNING_REGULAR_EXPRESSION = %r{ (?:"(?:[^\\"]|\\.)*") | (?:'(?:[^\\']|\\.)*') | (?:\[(?:[^\\\[\]]|\\.)*\]) | \S+ }x #"
 
     private
 
@@ -26,22 +26,23 @@ module Cosmos
 
     def extract_fields_from_cmd_text(text)
       split_string = text.split(/\s+with\s+/i, 2)
-      raise "ERROR: 'with' must be followed by parameters : #{text}" if split_string.length == 1 and text =~ /\s*with\s*/i
+      raise "ERROR: text must not be empty" if split_string.length == 0
+      raise "ERROR: 'with' must be followed by parameters : #{text}" if (split_string.length == 1 and text =~ /\s*with\s*/i) or (split_string.length == 2 and split_string[1].empty?)
 
       # Extract target_name and cmd_name
       first_half = split_string[0].split
       raise "ERROR: Both Target Name and Command Name must be given : #{text}" if first_half.length < 2
       raise "ERROR: Only Target Name and Command Name must be given before 'with' : #{text}" if first_half.length > 2
       target_name = first_half[0]
-      cmd_name    = first_half[1]
-      cmd_params  = {}
+      cmd_name = first_half[1]
+      cmd_params = {}
 
       if split_string.length == 2
         # Extract Command Parameters
         second_half = split_string[1].scan(SCANNING_REGULAR_EXPRESSION)
-        keyword  = nil
-        value    = nil
-        comma    = nil
+        keyword = nil
+        value = nil
+        comma = nil
         second_half.each do |item|
           unless keyword
             keyword = item
@@ -61,8 +62,8 @@ module Cosmos
           end
           add_cmd_parameter(keyword, value, cmd_params)
           keyword = nil
-          value   = nil
-          comma   = nil
+          value = nil
+          comma = nil
         end
         if keyword
           if value
