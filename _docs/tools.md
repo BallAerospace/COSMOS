@@ -514,7 +514,7 @@ The UNIQUE_IGNORE keyword is used in conjunction with UNIQUE_ONLY to control whi
 
 ### SHARE_COLUMNS
 
-The SHARE_COLUMNS keyword causes Telemetry Extractor to put telemetry items with the same name into the same column in the output. For example if you have the following configuration file:
+The SHARE_COLUMNS keyword causes Telemetry Extractor to put telemetry items with the same name into the same column in the output.  For example if you have the following configuration file:
 
 {% highlight bash %}
 ITEM INST HEALTH_STATUS PKTID
@@ -567,7 +567,120 @@ Note how both telemetry packets got their own unique PKTID column. With SHARE_CO
 <td>ADCS</td>
 <td>1</td></tr></tbody></table>
 
-Note how both packets share the one PKTID column. This applies to all telemetry items with identical names.
+Note how both packets share the one PKTID column. This applies to all telemetry items with identical names.  If you want to share columns for only specific items, use the SHARE_COLUMN keyword instead. 
+
+### SHARE_COLUMN (COSMOS >= 3.9.2)
+
+The SHARE_COLUMN keyword causes Telemetry Extractor to put specific telemetry items with the same name into the same column in the output.  This is similar to the behavior of the SHARE_COLUMNS keyword, except it is used to share individual items instead of all items.  The SHARE_COLUMN keyword can be used multiple times to share different common items.
+
+<table>
+<tbody>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+<th>Required</th></tr>
+<tr>
+<td colspan="1">Item Name</td>
+<td colspan="1">Name of the telemtry item</td>
+<td colspan="1">Yes</td></tr>
+<tr>
+<td>Item Type</td>
+<td>RAW, FORMATTED, or WITH_UNITS (CONVERTED is implied if the parameter is omitted)</td>
+<td>No</td></tr></tbody></table>
+
+For example, if you have the following telemetry extractor configuration file:
+
+{% highlight bash %}
+SHARE_COLUMN TIMESECONDS
+ITEM INST HEALTH_STATUS TIMESECONDS
+ITEM INST ADCS TIMESECONDS
+ITEM INST HEALTH_STATUS PKTID
+ITEM INST ADCS PKTID
+{% endhighlight %}
+
+Your output would look something like this:
+
+<table><colgroup><col /> </colgroup>
+<tbody>
+<tr>
+<td>TARGET</td>
+<td>PACKET</td>
+<td>TIMESECONDS</td>
+<td>PKTID</td>
+<td>PKTID</td></tr>
+<tr>
+<td>INST</td>
+<td>ADCS</td>
+<td>1234567</td>
+<td>1</td>
+<td> </td></tr>
+<tr>
+<td>INST</td>
+<td>HEALTH_STATUS</td>
+<td>1234568</td>
+<td> </td>
+<td>1</td></tr>
+<tr>
+<td>INST</td>
+<td>ADCS</td>
+<td>1234569</td>
+<td>1</td>
+<td> </td></tr></tbody></table>
+
+Note how both packets share the same TIMESECONDS column, but each packet has its own PKTID column.
+
+### FULL_COLUMN_NAMES (COSMOS >= 3.9.2)
+
+The FULL_COLUMN_NAMES keyword causes Telemetry Extractor to use TARGET PACKET ITEM as the column header for each column instead of just ITEM.  Note that the common TARGET and PACKET columns are not generated when this mode is active.  For example if you have the following configuration file:
+
+{% highlight bash %}
+ITEM INST HEALTH_STATUS PKTID
+ITEM INST ADCS PKTID
+{% endhighlight %}
+
+Your normal output would look something like this:
+
+<table><colgroup><col /> </colgroup>
+<tbody>
+<tr>
+<td>TARGET</td>
+<td>PACKET</td>
+<td>PKTID</td>
+<td>PKTID</td></tr>
+<tr>
+<td>INST</td>
+<td>ADCS</td>
+<td> </td>
+<td>1</td></tr>
+<tr>
+<td>INST</td>
+<td>HEALTH_STATUS</td>
+<td>1</td>
+<td> </td></tr>
+<tr>
+<td>INST</td>
+<td>ADCS</td>
+<td> </td>
+<td>1</td></tr></tbody></table>
+
+Note that the TARGET and PACKET information is catpured in common TARGET and PACKET columns, but the PKTID column names are not fully qualified. With FULL_COLUMN_NAMES enabled you would get something like this:
+
+<table><colgroup><col /> </colgroup>
+<tbody>
+<tr>
+<td>INST HEALTH_STATUS PKTID</td>
+<td>INST ADCS PKTID</td></tr>
+<tr>
+<td> </td>
+<td>1</td></tr>
+<tr>
+<td>1</td>
+<td> </td></tr>
+<tr>
+<td> </td>
+<td>1</td></tr></tbody></table>
+
+Note that there are no TARGET or PACKET columns, but the column names include TARGET and PACKET instead. 
 
 ### DONT_OUTPUT_FILENAMES
 
