@@ -151,17 +151,17 @@ module Cosmos
       @normal_columns_check.setChecked(true)
       @normal_columns_check.connect(SIGNAL('triggered()')) { column_mode_changed() }
 
-      @share_columns_check = Qt::Action.new(tr('&Share Columns (All)'), self)
+      @share_columns_check = Qt::Action.new(tr('Share Columns (&All)'), self)
       @share_columns_check.statusTip = tr('Share columns for all items with the same name')
       @share_columns_check.setCheckable(true)
       @share_columns_check.connect(SIGNAL('triggered()')) { column_mode_changed() }
 
-      @share_indiv_columns_check = Qt::Action.new(tr('&Share Columns (Selected)'), self)
+      @share_indiv_columns_check = Qt::Action.new(tr('Share Columns (&Selected)'), self)
       @share_indiv_columns_check.statusTip = tr('Share columns for selected items with the same name')
       @share_indiv_columns_check.setCheckable(true)
       @share_indiv_columns_check.connect(SIGNAL('triggered()')) { column_mode_changed() }
 
-      @full_column_names_check = Qt::Action.new(tr('&Full Column Names'), self)
+      @full_column_names_check = Qt::Action.new(tr('Full &Column Names'), self)
       @full_column_names_check.statusTip = tr('Use full item names in each column')
       @full_column_names_check.setCheckable(true)
       @full_column_names_check.connect(SIGNAL('triggered()')) { column_mode_changed() }
@@ -174,7 +174,7 @@ module Cosmos
       column_group.addAction(@full_column_names_check)
 
       @shared_columns = []
-      @shared_columns_edit = Qt::Action.new(tr('&Select Shared Columns'), self)
+      @shared_columns_edit = Qt::Action.new(tr('S&elect Shared Columns'), self)
       @shared_columns_edit.statusTip = tr('Select which columns are shared')
       @shared_columns_edit.setEnabled(false)
       @shared_columns_edit.connect(SIGNAL('triggered()')) { shared_columns_edit() }
