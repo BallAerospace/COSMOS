@@ -19,7 +19,7 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
   brew update
   brew tap cartr/qt4
   brew tap-pin cartr/qt4
-  brew install qt
+  brew install qt@4
   brew install libksba cmake rbenv ruby-build openssl libyaml libffi
 
   # Configure rbenv
