@@ -92,7 +92,7 @@
 &nbsp;&nbsp;&nbsp;&nbsp; [wait_check_packet](#waitcheckpacket)<br/>
 <br/>
 <span>[Limits](#limits)</span><br/>
-&nbsp;&nbsp;&nbsp;&nbsp; [limits_enabled?](#limitsenabled)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp; [limits_enabled?](#limitsenabled?)<br/>
 &nbsp;&nbsp;&nbsp;&nbsp; [enable_limits](#enablelimits)<br/>
 &nbsp;&nbsp;&nbsp;&nbsp; [disable_limits](#disablelimits)<br/>
 &nbsp;&nbsp;&nbsp;&nbsp; [enable_limits_group](#enablelimitsgroup)<br/>
