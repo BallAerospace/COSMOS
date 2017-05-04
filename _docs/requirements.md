@@ -2,13 +2,8 @@
 layout: docs
 title: Requirements and Design
 permalink: /docs/requirements/
+toc: true
 ---
-
-<div class="toc">
-{% capture toc %}{% include requirements_toc.md %}{% endcapture %}
-{{ toc | markdownify }}
-</div>
-
 COSMOS is a command and control system providing commanding, scripting, and data visualization capabilities for embedded systems and systems of systems. COSMOS is intended for use during all phases of testing (board, box, integrated system) and during operations.
 
 COSMOS is made up of the following 15 applications:

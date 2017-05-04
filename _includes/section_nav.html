@@ -13,7 +13,7 @@ next, lets build a link to it.
 {% for document in docs %}
   {% assign document_url = document | prepend:"/docs/" | append:"/" %}
   {% if document_url == page.url %}
-    <div class="section-nav">
+    <div class="top-section-nav">
       <div class="left align-right">
           {% if forloop.first %}
             <span class="prev disabled">Back</span>

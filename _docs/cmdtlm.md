@@ -2,13 +2,8 @@
 layout: docs
 title: Command and Telemetry Configuration
 permalink: /docs/cmdtlm/
+toc: true
 ---
-
-<div class="toc">
-{% capture toc %}{% include cmdtlm_toc.md %}{% endcapture %}
-{{ toc | markdownify }}
-</div>
-
 ## Command Definition Files
 
 Command definition files define the command packets that can be sent to COSMOS targets. One large file can be used to define the command packets, or multiple files can be used at the user's discretion. Command definition files are placed in the config/TARGET/cmd_tlm directory and are processed alphabetically. Therefore if you have some command files that depend on others, e.g. they override or extend existing commands, they must be named last. Due to the way the [ASCII Table](http://www.asciitable.com/) is structured, files beginning with capital letters are processed before lower case letters. To force a file to be processed last either prepend it with 'z' or '~'.

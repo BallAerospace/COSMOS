@@ -2,13 +2,8 @@
 layout: docs
 title: Interface Configuration
 permalink: /docs/interfaces/
+toc: true
 ---
-
-<div class="toc">
-{% capture toc %}{% include interfaces_toc.md %}{% endcapture %}
-{{ toc | markdownify }}
-</div>
-
 Interface classes provide the code that COSMOS uses to receive real-time telemetry from targets and to send commands to targets. The interface that a target uses could be anything (TCP/IP, serial, GPIB, Firewire, etc.), therefore it is important that this is a customize-able portion of any reusable Command and Telemetry System. Fortunately the most common form of interfaces are over TCP/IP sockets, and COSMOS provides interface solutions for these. This guide will discuss how to use these interface classes, and how to create your own.
 
 Interfaces have the following methods that must be implemented:
@@ -53,6 +48,7 @@ INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 nil 
 INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 nil FIXED 6 0 nil true
 INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 nil PREIDENTIFIED 0xCAFEBABE
 INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 10.0 TERMINATED 0x0D0A 0x0D0A true 0 0xF005BA11
+INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 10.0 TEMPLATE 0xA 0xA
 {% endhighlight %}
 
 ### TCPIP Server Interface
@@ -74,6 +70,7 @@ INTERFACE INTERFACE_NAME tcpip_server_interface.rb 8080 8080 10.0 nil BURST 4 0x
 INTERFACE INTERFACE_NAME tcpip_server_interface.rb 8080 8080 10.0 nil FIXED 6 0 nil true
 INTERFACE INTERFACE_NAME tcpip_server_interface.rb 8080 8080 10.0 nil PREIDENTIFIED 0xCAFEBABE
 INTERFACE INTERFACE_NAME tcpip_server_interface.rb 8080 8080 10.0 10.0 TERMINATED 0x0D0A 0x0D0A true 0 0xF005BA11
+INTERFACE INTERFACE_NAME tcpip_client_interface.rb 8080 8080 10.0 10.0 TEMPLATE 0xA 0xA
 {% endhighlight %}
 
 ### UDP Interface
@@ -117,6 +114,7 @@ INTERFACE INTERFACE_NAME serial_interface.rb /dev/ttyS1 /dev/ttyS1 38400 ODD 1 1
 INTERFACE INTERFACE_NAME serial_interface.rb COM2 COM2 19200 EVEN 1 10.0 nil FIXED 6 0 nil true
 INTERFACE INTERFACE_NAME serial_interface.rb /dev/ttyS0 /dev/ttyS0 57600 NONE 1 10.0 nil PREIDENTIFIED 0xCAFEBABE
 INTERFACE INTERFACE_NAME serial_interface.rb COM4 COM4 115200 NONE 1 10.0 10.0 TERMINATED 0x0D0A 0x0D0A true 0 0xF005BA11
+INTERFACE INTERFACE_NAME serial_interface.rb COM4 COM4 115200 NONE 1 10.0 10.0 TEMPLATE 0xA 0xA
 {% endhighlight %}
 
 ### CmdTlmServer Interface
@@ -154,7 +152,7 @@ INTERFACE INTERFACE_NAME linc_interface.rb localhost 8080 true 5 nil 5 0 16 4 HD
 ## Streams and Stream Protocols
 Streams are simplified interfaces that only implement the read, read_nonblock, write, connected? and disconnect methods. They are basically just data sinks and sources which are further manipulated by stream protocols. COSMOS provides the following streams: SerialStream, TcpipClientStream, and TcpipSocketStream. As you might guess, the SerialInterface, TcpipClientInterface, TcpipServerInterface directly use the SerialStream, TcpipClientStream, and TcpipSocketStream respectively. In addition, these interfaces require a StreamProtocol to process the data on the stream.
 
-StreamProtocols process a stream of data on behalf of an interface. Once they are connected to their streams, they will continuously read from the stream to amass a buffer of raw data which is then processed according to the protocol type. COSMOS provides the following stream protocols: Burst, Fixed, Length, Terminated, Preidentified, and Templated.
+StreamProtocols process a stream of data on behalf of an interface. Once they are connected to their streams, they will continuously read from the stream to amass a buffer of raw data which is then processed according to the protocol type. COSMOS provides the following stream protocols: Burst, Fixed, Length, Terminated, Preidentified, and Template.
 
 ### Burst Stream Protocol
 The Burst Stream Protocol simply reads as much data as it can from the stream before returning the data as a COSMOS Packet. This Protocol relies on regular bursts of data delimited by time and thus is not very robust. However it can utilize a sync pattern which does allow it to re-sync from the stream if necessary.
@@ -211,8 +209,8 @@ The Preidentified Stream Protocol is used internally by the COSMOS Command and T
 | Sync Pattern | Hex string representing a byte pattern that will be searched for in the raw stream. This pattern represents a packet delimiter and all data found AFTER the sync pattern will be returned. The sync pattern itself is discarded. | No | nil (no sync pattern)
 | Max Length | The maximum allowed value in the length field | No | nil (no maximum length)
 
-### Templated Stream Protocol
-The Templated Stream Protocol works much like the Terminated Stream Protocol except it designed for text-based command and response type interfaces.  It delineates packets in the same way as the terminated stream protocol except each packet is referred to as a line (because each usually contains a line of text).  For outgoing packets a CMD_TEMPLATE field is expected to exist in the packet.  This field contains a template string with items to be filled in deliniated within HTML tag style brackets "<EXAMPLE>".  The Templated Stream Protocol will read the named items from within the packet fill in the CMD_TEMPLATE.  This filled in string is then sent out rather than the originally passed in packet.   Correspondingly, if a response is expected the outgoing packet should include a RSP_TEMPLATE and RSP_PACKET field.  The RSP_TEMPLATE is used to extract data from the response string and build a corresponding RSP_PACKET.   See the TEMPLATED target within the COSMOS Demo configuration for an example of usage.
+### Template Stream Protocol
+The Template Stream Protocol works much like the Terminated Stream Protocol except it designed for text-based command and response type interfaces such as SCPI (Standard Commands for Programmable Instruments).  It delineates packets in the same way as the terminated stream protocol except each packet is referred to as a line (because each usually contains a line of text).  For outgoing packets a CMD_TEMPLATE field is expected to exist in the packet.  This field contains a template string with items to be filled in deliniated within HTML tag style brackets "<EXAMPLE>".  The Template Stream Protocol will read the named items from within the packet fill in the CMD_TEMPLATE.  This filled in string is then sent out rather than the originally passed in packet.   Correspondingly, if a response is expected the outgoing packet should include a RSP_TEMPLATE and RSP_PACKET field.  The RSP_TEMPLATE is used to extract data from the response string and build a corresponding RSP_PACKET.   See the TEMPLATE target within the COSMOS Demo configuration for an example of usage.
 
 | Parameter | Description | Required | Default |
 |-----------|-------------|----------|---------|

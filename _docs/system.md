@@ -2,13 +2,8 @@
 layout: docs
 title: System Configuration
 permalink: /docs/system/
+toc: true
 ---
-
-<div class="toc">
-{% capture toc %}{% include system_toc.md %}{% endcapture %}
-{{ toc | markdownify }}
-</div>
-
 This document provides the information necessary to configure the COSMOS Command and Telemetry Server and other top level configuration options for your unique project.
 
 Configuration file formats for the following are provided:

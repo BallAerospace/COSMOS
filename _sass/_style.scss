@@ -468,7 +468,7 @@ aside {
   .content { padding: 0; }
 }
 
-.section-nav {
+.top-section-nav {
   text-align: center;
   padding-top: 40px;
   position: relative;
@@ -1022,18 +1022,22 @@ code.output {
 }
 
 .toc {
-  float:right;
-  width:300px;
-  font-size:14px;
+  clear: right;
+  float: right;
+  font-size: 16px;
+  width: 300px;
   background-color: #3e3e3e;
   @include border-radius(10px);
   padding:0px 15px;
   margin: 10px -20px 10px 10px;
-}
 
-.toc span {
-  font-size:16px;
-  font-weight:bold;
+  .toc-h2 {
+    font-weight: bold;
+  }
+  .toc-h3, .toc-h4, .toc-h5 {
+    font-size: 14px;
+    padding-left: 10px;
+  }
 }
 
 @media (max-width: 1000px) {

@@ -8,6 +8,9 @@ google_analytics_id: UA-60103689-1
 
 repository: https://github.com/BallAerospace/COSMOS
 
+gems:
+  - jekyll-toc
+
 collections:
   docs:
     output: true

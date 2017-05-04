@@ -2,13 +2,8 @@
 layout: docs
 title: Telemetry Screens
 permalink: /docs/screens/
+toc: true
 ---
-
-<div class="toc">
-{% capture toc %}{% include screens_toc.md %}{% endcapture %}
-{{ toc | markdownify }}
-</div>
-
 This document provides the information necessary to generate and use COSMOS Telemetry Screens, which are displayed by the COSMOS Telemetry Viewer application.
 
 <div style="clear:both;"></div>

@@ -2,13 +2,8 @@
 layout: docs
 title: Tool Configuration
 permalink: /docs/tools/
+toc: true
 ---
-
-<div class="toc">
-{% capture toc %}{% include tools_toc.md %}{% endcapture %}
-{{ toc | markdownify }}
-</div>
-
 Please see [Telemetry Screen Configuration](/docs/screens) for instructions on configuring Telemetry Viewer.
 
 * * *
