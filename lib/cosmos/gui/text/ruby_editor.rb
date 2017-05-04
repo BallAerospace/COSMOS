@@ -17,7 +17,7 @@ module Cosmos
 
   class RubyEditor < CompletionTextEdit
     # private slot used to connect to the blockCountChanged signal
-    slots 'line_count_changed()'
+    slots 'line_count_changed(int)'
     # private slot used to connect to the updateRequest signal
     slots 'update_line_number_area(const QRect &, int)'
 
@@ -26,6 +26,7 @@ module Cosmos
     signals 'breakpoints_cleared()'
 
     attr_accessor :enable_breakpoints
+    attr_accessor :filename
 
     # This works but slows down the GUI significantly when
     # pasting a large (10k line) block of code into the editor
@@ -153,6 +154,8 @@ module Cosmos
     end
 
     CHAR_57 = Qt::Char.new(57)
+    BREAKPOINT_SET = 1
+    BREAKPOINT_CLEAR = -1
 
     def initialize(parent)
       super(parent)
@@ -171,10 +174,10 @@ module Cosmos
       @syntax = RubySyntax.new(document())
       @lineNumberArea = LineNumberArea.new(self)
 
-      connect(self, SIGNAL('blockCountChanged(int)'), self, SLOT('line_count_changed()'))
+      connect(self, SIGNAL('blockCountChanged(int)'), self, SLOT('line_count_changed(int)'))
       connect(self, SIGNAL('updateRequest(const QRect &, int)'), self, SLOT('update_line_number_area(const QRect &, int)'))
 
-      line_count_changed()
+      line_count_changed(-1)
     end
 
     def dispose
@@ -196,17 +199,57 @@ module Cosmos
 
     def add_breakpoint(line)
       @breakpoints << line
+      block = document.findBlockByNumber(line-1)
+      block.setUserState(BREAKPOINT_SET)
+      block.dispose
+      block = nil
       @lineNumberArea.repaint
     end
 
     def clear_breakpoint(line)
       @breakpoints.delete(line)
+      block = document.findBlockByNumber(line-1)
+      block.setUserState(BREAKPOINT_CLEAR)
+      block.dispose
+      block = nil
       @lineNumberArea.repaint
     end
 
     def clear_breakpoints
       @breakpoints = []
+      block = document.firstBlock()
+      while (block.isValid())
+        block.setUserState(BREAKPOINT_CLEAR)
+        next_block = block.next()
+        block.dispose
+        block = next_block
+      end
+      block.dispose
+      block = nil
       @lineNumberArea.repaint
+    end
+
+    def update_breakpoints
+      breakpoints = []
+      block = document.firstBlock()
+      while (block.isValid())
+        if block.userState() == BREAKPOINT_SET
+          line = block.firstLineNumber() + 1
+          breakpoints << line
+        end
+        next_block = block.next()
+        block.dispose
+        block = next_block
+      end
+      block.dispose
+      block = nil
+
+      # Only emit signals if the breakpoints have changed.
+      if @breakpoints.sort != breakpoints.sort
+        emit breakpoints_cleared
+        breakpoints.each {|line| emit breakpoint_set(line)}
+        @breakpoints = breakpoints
+      end
     end
 
     def comment_or_uncomment_lines
@@ -281,7 +324,7 @@ module Cosmos
                              Qt::AlignRight,  # flags
                              number.to_s)     # text
 
-            if @enable_breakpoints and @breakpoints.include?(number)
+            if @enable_breakpoints and block.userState() == BREAKPOINT_SET
               painter.setBrush(Cosmos::RED)
               painter.drawEllipse(2,
                                   top+2,
@@ -312,7 +355,10 @@ module Cosmos
 
     private
 
-    def line_count_changed
+    def line_count_changed(new_block_count)
+      if new_block_count >= 0
+        update_breakpoints()
+      end
       setViewportMargins(line_number_area_width(), 0, 0, 0)
       update
     end
@@ -325,7 +371,7 @@ module Cosmos
       end
       my_viewport = viewport()
       viewport_rect = my_viewport.rect()
-      line_count_changed() if (rect.contains(viewport_rect))
+      line_count_changed(-1) if (rect.contains(viewport_rect))
       viewport_rect.dispose
     end
 

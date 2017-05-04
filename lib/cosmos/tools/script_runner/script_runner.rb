@@ -465,6 +465,7 @@ module Cosmos
           close_active_tab()
         else
           active_script_runner_frame().stop_message_log
+          active_script_runner_frame().clear_breakpoints
           @tab_book.setTabText(0, '  Untitled  ')
           @tab_book.currentTab.clear
         end
@@ -849,6 +850,7 @@ module Cosmos
     def close_active_tab
       if @tab_book.count > 1
         active_script_runner_frame().stop_message_log
+        active_script_runner_frame().clear_breakpoints
         tab_index = @tab_book.currentIndex
         @tab_book.removeTab(tab_index)
         if tab_index >= 1
