@@ -4,7 +4,7 @@ require "bundler/setup"
 "build website"
 task :build do
   puts "## Pulling any updates"
-  system "git co website"
+  system "git checkout website"
   system "git pull"
   puts "## Building website"
   system "jekyll build"
