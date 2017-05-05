@@ -1,0 +1,1650 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0"
+  xmlns:content="http://purl.org/rss/1.0/modules/content/"
+  xmlns:wfw="http://wellformedweb.org/CommentAPI/"
+  xmlns:dc="http://purl.org/dc/elements/1.1/"
+  xmlns:atom="http://www.w3.org/2005/Atom"
+  xmlns:sy="http://purl.org/rss/1.0/modules/syndication/"
+  xmlns:slash="http://purl.org/rss/1.0/modules/slash/"
+  >
+  <channel>
+    <title xml:lang="en">Ball Aerospace COSMOS News</title>
+    <atom:link type="application/atom+xml" href="http://cosmosrb/feed.xml" rel="self"/>
+    <link>http://cosmosrb.com/</link>
+    <pubDate>Fri, 05 May 2017 12:32:16 -0600</pubDate>
+    <lastBuildDate>Fri, 05 May 2017 12:32:16 -0600</lastBuildDate>
+    <language>en-US</language>
+    <generator>Jekyll v3.4.3</generator>
+    <description>The User Interface for Embedded Systems</description>
+    <image>
+      <description>The User Interface for Embedded Systems</description>
+      <url>http://cosmosrb.com/img/COSMOS-rss.png</url>
+      <title>Ball Aerospace COSMOS</title>
+      <link>http://cosmosrb.com/</link>
+      <width>144</width>
+      <height>73</height>
+    </image>
+    
+    <item>
+      <title>WIRED Article</title>
+      <link>http://cosmosrb.com/news/2017/04/24/wired/</link>
+      <pubDate>Mon, 24 Apr 2017 01:00:00 -0600</pubDate>
+      <dc:creator>jmthomas</dc:creator>
+      
+      
+      <category>post</category>
+      
+      <guid isPermaLink="true">http://cosmosrb.com/news/2017/04/24/wired/</guid>
+      <description>&lt;p&gt;Ball Aerospace COSMOS has been featured in an article on &lt;a href=&quot;https://www.wired.com/2017/04/aerospace-coder-drags-stodgy-industry-toward-open-source/&quot;&gt;WIRED.com&lt;/a&gt;. The article focues on the fact that COSMOS is open source and what that means for the industry. The author includes quotes from GitHub’s VP of Product Engineering, Aerospace Corporation’s Principle Director of IT, and of course Ryan Melton and Jason Thomas of Ball Aerospace.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Ball Aerospace COSMOS 3.9.1 Released</title>
+      <link>http://cosmosrb.com/news/2017/03/29/cosmos-3-9-1-released/</link>
+      <pubDate>Wed, 29 Mar 2017 13:00:00 -0600</pubDate>
+      <dc:creator>ryanmelt</dc:creator>
+      
+      
+      <category>release</category>
+      
+      <guid isPermaLink="true">http://cosmosrb.com/news/2017/03/29/cosmos-3-9-1-released/</guid>
+      <description>&lt;h3 id=&quot;new-features&quot;&gt;New Features:&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/382&quot;&gt;#382&lt;/a&gt; CmdTlmServer Start/Stop for background tasks&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/385&quot;&gt;#385&lt;/a&gt; Quick access to COSMOS gem code&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/388&quot;&gt;#388&lt;/a&gt; Legal Dialog should show COSMOS version&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/409&quot;&gt;#409&lt;/a&gt; Update LINC interface to support multiple targets on the same interface&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;maintenance&quot;&gt;Maintenance:&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/369&quot;&gt;#369&lt;/a&gt; Table Manager refactoring&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/386&quot;&gt;#386&lt;/a&gt; Batch file for offline installation&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;bug-fixes&quot;&gt;Bug Fixes:&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/236&quot;&gt;#236&lt;/a&gt; Test Runner doesn’t support status_bar&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/329&quot;&gt;#329&lt;/a&gt; Using XTCE file instead of .txt cmd_tlm file didn’t work as online docs suggest&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/378&quot;&gt;#378&lt;/a&gt; TlmViewer displaying partials in the screen list&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/402&quot;&gt;#402&lt;/a&gt; Mac installation is failed - Please help.&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/411&quot;&gt;#411&lt;/a&gt; xtce explicit byte order list processing isn’t correct&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/412&quot;&gt;#412&lt;/a&gt; subscribe_packet_data needs to validate parameters&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;migration-notes-from-cosmos-38x&quot;&gt;Migration Notes from COSMOS 3.8.x:&lt;/h3&gt;
+&lt;p&gt;&lt;strong&gt;The Table Manager configuration file format has changed.&lt;/strong&gt;
+Documentation will updated the first week of April.&lt;/p&gt;
+
+&lt;p&gt;You can migrate existing config files using:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;bundle exec ruby tools\TableManager --convert config\tools\table_manager\old_table_def.txt
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;To upgrade to the latest version of COSMOS, run “bundle update cosmos” in your COSMOS project folder.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Routers</title>
+      <link>http://cosmosrb.com/news/2017/02/22/routers/</link>
+      <pubDate>Wed, 22 Feb 2017 00:00:00 -0700</pubDate>
+      <dc:creator>jmthomas</dc:creator>
+      
+      
+      <category>post</category>
+      
+      <guid isPermaLink="true">http://cosmosrb.com/news/2017/02/22/routers/</guid>
+      <description>&lt;p&gt;COSMOS Routers can be a confusing topic for people new and old alike to the COSMOS system. Let’s break them down and explore how COSMOS uses them internally and how you might use them in your configuration.&lt;/p&gt;
+
+&lt;p&gt;A COSMOS Router is first and foremost an interface like any other COSMOS interface. In fact if you look through the source code you won’t even see a Router class because they are instances of the Interface class. As a reminder, an Interface provides the lowest level connection between COSMOS and a target (something you’re trying to get COSMOS to talk to). Thus a Router is also providing a low level connection between COSMOS and something. So what’s the difference? Normal Interfaces read the target and send data (telemetry) to COSMOS and send commands to the target. Routers do the exact opposite: they route telemetry out to clients connected to them and route commands sent to them back to a target. Thus they provide a conduit for other clients to communicate with a target.&lt;/p&gt;
+
+&lt;p&gt;The COSMOS Command and Telemetry Server always starts a Router called the PREIDENTIFIED_ROUTER which appears in the Routers tab of the GUI:
+&lt;img src=&quot;/img/2017_02_22_router_tab.png&quot; alt=&quot;Server Routers&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;The Preidentified Router is controlled by the system.txt configuration file:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;# Ethernet Ports
+PORT CTS_API 7777
+PORT TLMVIEWER_API 7778
+PORT CTS_PREIDENTIFIED 7779
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;This Router is called the PREIDENTIFIED router because it uses a special stream protocol which adds the packet received time, the target name, and the packet name before sending the packet. This stream is used by the Telemetry Grapher so it doesn’t have to spend additional cycles identifying packets and can directly graph the packets it is interested in. The Replay tool also creates this router for the exact same purpose.&lt;/p&gt;
+
+&lt;p&gt;If you look back at the picture you’ll see in our demo configuration that we also create another Router called the INST_ROUTER. This is how that Router is configured:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;ROUTER INST_ROUTER tcpip_server_interface.rb 2055 2055 10.0 nil LENGTH 32 16 7
+  OPTION LISTEN_ADDRESS 127.0.0.1
+  ROUTE INST_INT
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Basically we’re creating a Router that routes only the INST interface data. We create this Router using a TCPIP Server interface with a LENGTH protocol of bit offset 32, length field size of 16, and length value offset of 7. These values were chosen to match the INST command and telemetry which use CCSDS headers. The CCSDS standard specifies a 16 bit length field at offset 32. The CCSDS standard also specifies that the length field is the length of the packet past the length field minus 1. Thus we add 7 for the 4 bytes of offset, 2 bytes of length field, and the minus 1.&lt;/p&gt;
+
+&lt;p&gt;For more information about the options you can pass to a Router (and Interface) see the &lt;a href=&quot;http://cosmosrb.com/docs/system/#interface-and-router-modifiers&quot;&gt;Interface and Router Modifers&lt;/a&gt; part of the documentation.&lt;/p&gt;
+
+&lt;p&gt;To connect to the INST_ROUTER that we created we can write a little Ruby code using existing COSMOS interface classes and streams.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-ruby&quot; data-lang=&quot;ruby&quot;&gt;&lt;span class=&quot;nb&quot;&gt;require&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'cosmos'&lt;/span&gt;
+&lt;span class=&quot;nb&quot;&gt;require&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'cosmos/interfaces/tcpip_client_interface'&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;i&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;Cosmos&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;TcpipClientInterface&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;new&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'localhost'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2055&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2055&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;kp&quot;&gt;nil&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;kp&quot;&gt;nil&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'LENGTH'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;32&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;16&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;7&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;connect&lt;/span&gt;
+&lt;span class=&quot;kp&quot;&gt;loop&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt;
+  &lt;span class=&quot;n&quot;&gt;pkt&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;Cosmos&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;System&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;telemetry&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;identify!&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;read&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;buffer&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'INST'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt;
+  &lt;span class=&quot;nb&quot;&gt;puts&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;pkt&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;packet_name&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Obviously we need the TCPIP Client Interface to match the port number of the TCPIP Server and we also need to match the LENGTH protocol options. Notice how we have to call the System.telemetry.identify! method to identify the raw packet stream. When I run this from a command prompt after starting the Server I see a stream of packet names similar to this:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;MECH
+ADCS
+MECH
+IMAGE
+PARAMS
+ADCS
+HEALTH_STATUS
+MECH
+ADCS
+...
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;You should see MECH and ADCS come out at 10Hz and the IMAGE, PARAMS, and HEALTH_STATUS come out at 1Hz. This matches the Packet Count ratio on the Tlm Packets tab of the Server.&lt;/p&gt;
+
+&lt;p&gt;We can also write some code to connect to the PREIDENTIFIED router. It looks very similar to the previous code except we do not need to identify the packets as they are pre-identified!&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-ruby&quot; data-lang=&quot;ruby&quot;&gt;&lt;span class=&quot;nb&quot;&gt;require&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'cosmos'&lt;/span&gt;
+&lt;span class=&quot;nb&quot;&gt;require&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'cosmos/interfaces/tcpip_client_interface'&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;i&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;Cosmos&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;TcpipClientInterface&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;new&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'localhost'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;7779&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;7779&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;kp&quot;&gt;nil&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;kp&quot;&gt;nil&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'PREIDENTIFIED'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;connect&lt;/span&gt;
+&lt;span class=&quot;kp&quot;&gt;loop&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt;
+  &lt;span class=&quot;n&quot;&gt;pkt&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;read&lt;/span&gt;
+  &lt;span class=&quot;nb&quot;&gt;puts&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;pkt&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;packet_name&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;This time you should see some LIMITS_CHANGE packet names sprinkled in with the output from before. That’s because we’re accessing the ENTIRE COSMOS telemetry stream and not just the stream from the INST interface. Keep this in mind if you have performance issues when trying to process the entire telemetry stream.&lt;/p&gt;
+
+&lt;p&gt;Happy routing and if you need additional support please contact us at &lt;a href=&quot;mailto:cosmos@ball.com&quot;&gt;cosmos@ball.com&lt;/a&gt;.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Ball Aerospace COSMOS 3.8.3 Released</title>
+      <link>http://cosmosrb.com/news/2016/12/06/cosmos-3-8-3-released/</link>
+      <pubDate>Tue, 06 Dec 2016 12:00:00 -0700</pubDate>
+      <dc:creator>ryanmelt</dc:creator>
+      
+      
+      <category>release</category>
+      
+      <guid isPermaLink="true">http://cosmosrb.com/news/2016/12/06/cosmos-3-8-3-released/</guid>
+      <description>&lt;h3 id=&quot;new-features&quot;&gt;New Features:&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/230&quot;&gt;#230&lt;/a&gt; Make AUTO_TARGETS ignore target folders that have already been manually referenced&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/257&quot;&gt;#257&lt;/a&gt; Increment received_count in packet log reader&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/264&quot;&gt;#264&lt;/a&gt; Validate command/telemetry conversions during startup&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/292&quot;&gt;#292&lt;/a&gt; Target directory for API methods&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/314&quot;&gt;#314&lt;/a&gt; Update .bat files to handle spaces in path&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/316&quot;&gt;#316&lt;/a&gt; Add option to radiobutton widget to be checked by default&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/326&quot;&gt;#326&lt;/a&gt; Script Runner Crash using message_box with boolean parameter&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/339&quot;&gt;#339&lt;/a&gt; Add ‘Help’ menu item to open cosmosrb.com -&amp;gt; Documentation&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/340&quot;&gt;#340&lt;/a&gt; Packet Viewer - Allow select cell and copy value as text&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/357&quot;&gt;#357&lt;/a&gt; Add support for mixed endianness within tables&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/359&quot;&gt;#359&lt;/a&gt; Table Manager support MIN/MAX UINTX macros&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;maintenance&quot;&gt;Maintenance:&lt;/h3&gt;
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/349&quot;&gt;#349&lt;/a&gt; Optimize cmd() to not build commands twice&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/362&quot;&gt;#362&lt;/a&gt; restore_defaults should take an optional parameter to exclude specified parameters&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/365&quot;&gt;#365&lt;/a&gt; Windows installer can have issues if .gem files are present in same folder&lt;/li&gt;
+  &lt;li&gt;TestRunner support for newer Bundler (Abstract error when starting)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;bug-fixes&quot;&gt;Bug Fixes:&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/322&quot;&gt;#322&lt;/a&gt; Udp interface thread does not gracefully shutdown&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/327&quot;&gt;#327&lt;/a&gt; TlmGrapher Screenshot in Linux captures the screenshot dialog box&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/332&quot;&gt;#332&lt;/a&gt; ERB template local variables dont’ support strings&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/338&quot;&gt;#338&lt;/a&gt; Setting received_time and received_count on a packet should clear the read conversion cache&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/342&quot;&gt;#342&lt;/a&gt; Cut and Paste Error in top_level.rb&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/344&quot;&gt;#344&lt;/a&gt; CmdTlmServer connect/disconnect button doesn’t work after calling connect_interface from script&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/359&quot;&gt;#359&lt;/a&gt; Table Manager doesn’t support strings&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/372&quot;&gt;#372&lt;/a&gt; TestRunner reinstantiating TestSuite/Test objects every execution&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;migration-notes-from-cosmos-37x&quot;&gt;Migration Notes from COSMOS 3.7.x:&lt;/h3&gt;
+&lt;p&gt;None&lt;/p&gt;
+
+&lt;p&gt;To upgrade to the latest version of COSMOS, run “bundle update cosmos” in your COSMOS project folder.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>SmallSat Ops</title>
+      <link>http://cosmosrb.com/news/2016/10/13/cosmos-cubesat-ops/</link>
+      <pubDate>Thu, 13 Oct 2016 01:00:00 -0600</pubDate>
+      <dc:creator>jmthomas</dc:creator>
+      
+      
+      <category>post</category>
+      
+      <guid isPermaLink="true">http://cosmosrb.com/news/2016/10/13/cosmos-cubesat-ops/</guid>
+      <description>&lt;p&gt;The fact that COSMOS is the only open source C2 system has made it an ideal small satellite operations platform. This is one of the reasons Ryan attended the Small Satellite Conference back in August. He gave a very well received COSMOS presentation and was able to meet with many players in the industry.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/2016_10_13_ryan_smallsat.png&quot; alt=&quot;Ryan at SmallSat&quot; /&gt;
+&lt;em&gt;Ryan enjoying the moment at Small Sat 2016&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;I recently googled for “COSMOS Command and Control” and came across a &lt;a href=&quot;https://www.linkedin.com/pulse/cosmos-lightweight-command-control-system-cubesats-richard-ibbotson&quot;&gt;LinkedIn article&lt;/a&gt; about COSMOS. We had heard from Pat Stakem during the summer of 2015 but hadn’t heard much since. He and his students created a CubeSat using the open source &lt;a href=&quot;https://cfs.gsfc.nasa.gov/&quot;&gt;Core Flight System&lt;/a&gt; from NASA Goddard. Of course they used COSMOS for their ground system running on Ubuntu. They integrated Apache to serve up the COSMOS telemetry files generated from Telemetry Extractor to operate their satellite “lights out”. They put together a great &lt;a href=&quot;/assets/Stakem-etal-FSW-15.pdf&quot;&gt;PowerPoint&lt;/a&gt; presentation with screenshots of COSMOS. They also created a &lt;a href=&quot;/assets/A Lightweight Open Source Command and Control Center and its interface to Cubesats.pdf&quot;&gt;whitepaper&lt;/a&gt; detailing the entire process.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/2016_10_13_stakem_screenshot.png&quot; alt=&quot;Stakem Screenshot&quot; /&gt;
+&lt;em&gt;Screenshot showing COSMOS in action&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;Since COSMOS is open source, we don’t always hear about what people are doing with it. If you have a COSMOS success story you’d like to share with us please contact us at &lt;a href=&quot;mailto:cosmos@ball.com&quot;&gt;cosmos@ball.com&lt;/a&gt;.&lt;/p&gt;
+
+</description>
+    </item>
+    
+    <item>
+      <title>ERB Config Files</title>
+      <link>http://cosmosrb.com/news/2016/09/12/erb-config/</link>
+      <pubDate>Mon, 12 Sep 2016 01:00:00 -0600</pubDate>
+      <dc:creator>jmthomas</dc:creator>
+      
+      
+      <category>post</category>
+      
+      <guid isPermaLink="true">http://cosmosrb.com/news/2016/09/12/erb-config/</guid>
+      <description>&lt;p&gt;COSMOS configuration files support ERB (Embedded RuBy) which is used heavily by &lt;a href=&quot;http://rubyonrails.org/&quot;&gt;Ruby on Rails&lt;/a&gt;. I found a pretty good description of ERB &lt;a href=&quot;http://www.stuartellis.eu/articles/erb/&quot;&gt;here&lt;/a&gt;. ERB allows you to put executable Ruby code in your configuration files. The trick is to surround the Ruby code with the special markers: &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;% &amp;lt;code&amp;gt; %&amp;gt;&lt;/code&gt;. If you want the result of your Ruby code to be placed in the configuration file you need to add the equal sign to the first marker: &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;%= &amp;lt;code&amp;gt; %&amp;gt;&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;A COSMOS user recently asked if he could include environment variables in his COSMOS configuration. This is very easy using the ERB syntax. For example, you have an environment variable named “LOG_DIR” in your system which points to the path you want to store your COSMOS logs. To use this value you would modify your system.txt file as follows:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;...
+# Paths
+PATH LOGS &amp;lt;%= ENV[&quot;LOG_DIR&quot;] %&amp;gt;
+...
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;When this file gets parsed by COSMOS, the value of the LOG_DIR environment variable gets inserted into the system.txt output file. Note the %= syntax to insert the value and how I’m using the &lt;a href=&quot;https://ruby-doc.org/core-2.3.0/ENV.html&quot;&gt;ENV&lt;/a&gt; from the Ruby core library.&lt;/p&gt;
+
+&lt;p&gt;It’s recommended that you don’t put too much logic in these ERB statements to keep your configuration files readable and maintainable. If you have a complex piece of code you want to use in an ERB statement, you can create a utility in your ‘lib’ folder and define methods to use. For example, in your ‘lib’ folder create utilties.rb:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-ruby&quot; data-lang=&quot;ruby&quot;&gt;&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;log_path&lt;/span&gt;
+  &lt;span class=&quot;no&quot;&gt;File&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;join&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;Cosmos&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;USERPATH&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'outputs'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'mylogs'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Now in system.txt we can use that ‘log_path’ routine after we first require ‘utilities’.&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&amp;lt;% require 'utilities' %&amp;gt;
+...
+# Paths
+PATH LOGS &amp;lt;%= log_path() %&amp;gt;
+...
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;Notice how the first ERB statement does NOT use the %= syntax since I’m simply requiring the file I want to use. I don’t want to put anything in the template itself. Later in the PATH statement I use the %= syntax to insert the result of the log_path() method.&lt;/p&gt;
+
+&lt;p&gt;ERB templates are particularly useful in command and telemetry definitions as they allow you to reuse sections. We’ve added our own routine called ‘render’ (similar to Ruby on Rails) which can render a command or telemetry template. The best example of this is in the COSMOS Demo INST target. If you open the inst_cmds.txt file you’ll see this:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;COMMAND INST COLLECT BIG_ENDIAN &quot;Starts a collect on the instrument&quot;
+  &amp;lt;%= render &quot;_ccsds_cmd.txt&quot;, locals: {id: 1} %&amp;gt;
+  PARAMETER    TYPE           64  16  UINT MIN MAX 0 &quot;Collect type&quot;
+    REQUIRED
+    STATE NORMAL  0
+    STATE SPECIAL 1 HAZARDOUS
+  PARAMETER    DURATION       80  32  FLOAT 0.0 10.0 1.0 &quot;Collect duration&quot;
+  PARAMETER    OPCODE        112   8  UINT 0x0 0xFF 0xAB &quot;Collect opcode&quot;
+    FORMAT_STRING &quot;0x%0X&quot;
+  PARAMETER    TEMP          120  32  FLOAT 0.0 25.0 0.0 &quot;Collect temperature&quot;
+    UNITS Celcius C
+
+COMMAND INST ABORT BIG_ENDIAN &quot;Aborts a collect on the instrument&quot;
+  &amp;lt;%= render &quot;_ccsds_cmd.txt&quot;, locals: {id: 2} %&amp;gt;
+
+...
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Notice the call to &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;%= render &quot;_ccsds_cmd.txt&quot;, locals: {id: 1} %&amp;gt;&lt;/code&gt;. Opening the ‘_ccsds_cmd.txt’ file reveals this command template:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;  PARAMETER    CCSDSVER        0   3  UINT  0     0   0 &quot;CCSDS primary header version number&quot;
+  PARAMETER    CCSDSTYPE       3   1  UINT  1     1   1 &quot;CCSDS primary header packet type&quot;
+  PARAMETER    CCSDSSHF        4   1  UINT  0     0   0 &quot;CCSDS primary header secondary header flag&quot;
+  ID_PARAMETER CCSDSAPID       5  11  UINT  0  2047 999 &quot;CCSDS primary header application id&quot;
+  PARAMETER    CCSDSSEQFLAGS  16   2  UINT  3     3   3 &quot;CCSDS primary header sequence flags&quot;
+  PARAMETER    CCSDSSEQCNT    18  14  UINT  0 16383   0 &quot;CCSDS primary header sequence count&quot;
+    OVERFLOW TRUNCATE
+  PARAMETER    CCSDSLENGTH    32  16  UINT MIN MAX 12 &quot;CCSDS primary header packet length&quot;
+  ID_PARAMETER PKTID          48  16  UINT MIN MAX &amp;lt;%= id %&amp;gt; &quot;Packet id&quot;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;The call to render replaces everything in the named template with the render call. We follow the Ruby on Rails convention of naming these templates (Rails calls them ‘partials’) with a leading underscore to differentiate them from full command and telemetry definitions. Notice too that we are passing local variables to the template. The ‘id: 1’ syntax is basically setting the ‘id’ variable in the template to 1. This allows us to send a different PKTID to each command.&lt;/p&gt;
+
+&lt;p&gt;ERB is incredibly powerful and a great way to avoid WET (Write Each Time) command and telemetry definitions. Now go DRY (Don’t Repeat Yourself) up your COSMOS configuration and as always if you need additional support please contact us at &lt;a href=&quot;mailto:cosmos@ball.com&quot;&gt;cosmos@ball.com&lt;/a&gt;.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Custom Widgets</title>
+      <link>http://cosmosrb.com/news/2016/08/22/custom-widgets/</link>
+      <pubDate>Mon, 22 Aug 2016 01:00:00 -0600</pubDate>
+      <dc:creator>jmthomas</dc:creator>
+      
+      
+      <category>post</category>
+      
+      <guid isPermaLink="true">http://cosmosrb.com/news/2016/08/22/custom-widgets/</guid>
+      <description>&lt;p&gt;Sometimes we receive requests to make custom COSMOS widgets or to modify existing COSMOS widgets to add certain looks or functionality. While this is a project we’re happy to perform for our customers, it’s also something that can be done by end users willing to dig into some of the Qt and COSMOS documentation. In this post, I’m going to describe how to create a custom COSMOS widget.&lt;/p&gt;
+
+&lt;p&gt;When asked to perform customizations like this I first bring up the COSMOS Demo. We try to include all the COSMOS features in the Demo so end users have concrete examples to follow instead of relying solely on the excellent documentation at &lt;a href=&quot;http://cosmosrb.com/docs/home&quot;&gt;cosmosrb.com&lt;/a&gt;. Obviously you must first have COSMOS installed so follow the &lt;a href=&quot;http://cosmosrb.com/docs/installation/&quot;&gt;installation instructions&lt;/a&gt; and then launch the Demo by running the Launcher in the Demo folder. Here is how the server appears on my Windows machine:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/2016_08_22_server.png&quot; alt=&quot;COSMOS Demo Server&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;I’m going to create a custom widget in the INST target to display some of the Array data in a table. If you first launch the Telemetry Viewer and open the INST ARRAY screen you should see the following:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/2016_08_22_inst_array.png&quot; alt=&quot;COSMOS Inst Array&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;This screen is already using the Array widget to display this data in a text box. We will add our new widget to the top of the screen which will display the data in a table. Let’s add the line to the screen which will call our new widget. Edit &lt;code class=&quot;highlighter-rouge&quot;&gt;demo/config/targets/INST/screens/array.txt&lt;/code&gt; and add the following line in the middle:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;...
+TITLE &quot;Instrument Array Data&quot;
+DEMOTABLE INST HEALTH_STATUS ARY
+ARRAY INST HEALTH_STATUS ARY 300 50 nil 8 FORMATTED
+...
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Now we need to create the DemotableWidget which will implement the actual display. Create a new file called &lt;code class=&quot;highlighter-rouge&quot;&gt;demotable_widget.rb&lt;/code&gt; in &lt;code class=&quot;highlighter-rouge&quot;&gt;demo/config/targets/INST/lib&lt;/code&gt;. Note that the name of the line in the config file, DEMOTABLE, must be all lowercase followed by an underscore and ‘widget’. The class name in the file must be one word with the first letter and Widget capitalized. This is how it should start:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-ruby&quot; data-lang=&quot;ruby&quot;&gt;&lt;span class=&quot;nb&quot;&gt;require&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'cosmos/tools/tlm_viewer/widgets/widget'&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;module&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;Cosmos&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;DemotableWidget&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;Qt&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;TableWidget&lt;/span&gt;
+    &lt;span class=&quot;kp&quot;&gt;include&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;Widget&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;initialize&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;parent_layout&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;target_name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;packet_name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;item_name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;value_type&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;ss&quot;&gt;:WITH_UNITS&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+      &lt;span class=&quot;k&quot;&gt;super&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;target_name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;packet_name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;item_name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;value_type&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;We’re extending the closest widget that Qt offers to what we’re trying to achieve. In this case it’s pretty obvious but you can get documentation on &lt;a href=&quot;http://doc.qt.io/qt-4.8/classes.html&quot;&gt;all the Qt classes&lt;/a&gt;. In many cases it might be easier to extend an existing &lt;a href=&quot;https://github.com/BallAerospace/COSMOS/tree/master/lib/cosmos/tools/tlm_viewer/widgets&quot;&gt;COSMOS widget&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Note that our initialize method takes the parent_layout as the first value. All COSMOS widgets make the first parameter the parent_layout so they can be added. The next four paramaters are typically the target_name, packet_name, item_name and value_type. Additional parameters can follow the value_type parameter. The first thing we do in the initialize method is call super which calls the Widget initialize method. If you run this code you should see that the screen displays but doesn’t look any different. That’s because we haven’t actually added our new widget to the parent_layout. Before adding widgets to the layout you typically want to configure them. For our table, we need to set the number of rows and columns. First I grab the telemetry value from the server using the &lt;code class=&quot;highlighter-rouge&quot;&gt;System.telemetry.value&lt;/code&gt; method defined in &lt;a href=&quot;https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/packets/telemetry.rb&quot;&gt;telemetry.rb&lt;/a&gt;. Since this is an array value I call &lt;code class=&quot;highlighter-rouge&quot;&gt;length&lt;/code&gt; to determine how many rows to display in the table. I then use the Qt methods &lt;code class=&quot;highlighter-rouge&quot;&gt;setRowCount&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;setColumnCount&lt;/code&gt; to initialize the table. You can find these methods in the &lt;a href=&quot;http://doc.qt.io/qt-4.8/qtablewidget.html&quot;&gt;Qt::TableWidget&lt;/a&gt; documentation. Finally I call the addWidget method which is a part of all the &lt;a href=&quot;http://doc.qt.io/qt-4.8/qlayout.html&quot;&gt;Qt::Layout&lt;/a&gt; classes.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-ruby&quot; data-lang=&quot;ruby&quot;&gt;    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;initialize&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;parent_layout&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;target_name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;packet_name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;item_name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;value_type&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;ss&quot;&gt;:WITH_UNITS&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+      &lt;span class=&quot;k&quot;&gt;super&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;target_name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;packet_name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;item_name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;value_type&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+      &lt;span class=&quot;n&quot;&gt;value&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;System&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;telemetry&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;value&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;target_name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;packet_name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;item_name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;# Get the value&lt;/span&gt;
+      &lt;span class=&quot;vi&quot;&gt;@rows&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;value&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;length&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;# Store the rows&lt;/span&gt;
+      &lt;span class=&quot;n&quot;&gt;setRowCount&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;vi&quot;&gt;@rows&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+      &lt;span class=&quot;n&quot;&gt;setColumnCount&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+      &lt;span class=&quot;n&quot;&gt;parent_layout&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;addWidget&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;parent_layout&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Now if you stop and restart the Telemetry Viewer (so it can re-require the new widget code) it should display an empty table:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/2016_08_22_inst_array2.png&quot; alt=&quot;COSMOS Inst Array&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;To actually populate it with data we must follow the Cosmos Widget conventions. First of all by including Widget you include all the &lt;a href=&quot;https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/tools/tlm_viewer/widgets/widget.rb&quot;&gt;Widget&lt;/a&gt; code which creates two key class methods: &lt;code class=&quot;highlighter-rouge&quot;&gt;layout_manager?&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;takes_value?&lt;/code&gt;. These must be overridden to return true if your widget is either a layout or takes a value respectively. Since our widget will be taking the array data as a value we must override &lt;code class=&quot;highlighter-rouge&quot;&gt;takes_value?&lt;/code&gt;:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-ruby&quot; data-lang=&quot;ruby&quot;&gt;&lt;span class=&quot;nb&quot;&gt;require&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'cosmos/tools/tlm_viewer/widgets/widget'&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;module&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;Cosmos&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;DemotableWidget&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;Qt&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;TableWidget&lt;/span&gt;
+    &lt;span class=&quot;kp&quot;&gt;include&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;Widget&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;takes_value?&lt;/span&gt;
+      &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;kp&quot;&gt;true&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Typically class methods are defined at the top of the source file and begin with self. You can also type out the class name but this is less robust as changing the class name requires changing the method name. Implementing this class method allows Telemetry Viewer to call the &lt;code class=&quot;highlighter-rouge&quot;&gt;value=(data)&lt;/code&gt; method with new telemetry data. The value method implementation should look like this:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-ruby&quot; data-lang=&quot;ruby&quot;&gt;    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;value&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+      &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;vi&quot;&gt;@rows&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;each&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;row&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;|&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;# Note the extra 'dot' which means up to but not including&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;setItem&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;row&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;Qt&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;TableWidgetItem&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;new&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;row&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;].&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;to_s&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;
+      &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;The data value passed to the method is the same target, packet, and item used in the screen definition. In our value= method we are using our stored instance variable &lt;code class=&quot;highlighter-rouge&quot;&gt;@rows&lt;/code&gt; to index into the array data and create new &lt;a href=&quot;http://doc.qt.io/qt-4.8/qtablewidgetitem.html&quot;&gt;Qt::TableWidgetItem&lt;/a&gt; instances to store the data. TableWidgetItems expect Strings to be passed so I call to_s on the data item to ensure it is a String. If you now re-launch Telemetry Viewer you should see the values populated in the table:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/2016_08_22_inst_array3.png&quot; alt=&quot;COSMOS Inst Array&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;At this point you could be done. But wait! The Array widget below the table fades darker to implement “aging”, showing the user the values haven’t changed. How do we implement “aging” in our new widget? To start we require the aging_widget and include the AgingWidget module. Then we must call the setup_aging method in our initialize method as well as redefine the process_settings method:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-ruby&quot; data-lang=&quot;ruby&quot;&gt;&lt;span class=&quot;nb&quot;&gt;require&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'cosmos/tools/tlm_viewer/widgets/widget'&lt;/span&gt;
+&lt;span class=&quot;nb&quot;&gt;require&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'cosmos/tools/tlm_viewer/widgets/aging_widget'&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;module&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;Cosmos&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;DemotableWidget&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;Qt&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;TableWidget&lt;/span&gt;
+    &lt;span class=&quot;kp&quot;&gt;include&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;Widget&lt;/span&gt;
+    &lt;span class=&quot;kp&quot;&gt;include&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;AgingWidget&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;initialize&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;parent_layout&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;target_name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;packet_name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;item_name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;value_type&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;ss&quot;&gt;:WITH_UNITS&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+      &lt;span class=&quot;k&quot;&gt;super&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;target_name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;packet_name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;item_name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;value_type&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+      &lt;span class=&quot;n&quot;&gt;setup_aging&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+      &lt;span class=&quot;n&quot;&gt;value&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;System&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;telemetry&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;value&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;target_name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;packet_name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;item_name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;# Get the value&lt;/span&gt;
+      &lt;span class=&quot;vi&quot;&gt;@rows&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;value&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;length&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;# Store the rows&lt;/span&gt;
+      &lt;span class=&quot;n&quot;&gt;setRowCount&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;vi&quot;&gt;@rows&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+      &lt;span class=&quot;n&quot;&gt;setColumnCount&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+      &lt;span class=&quot;n&quot;&gt;parent_layout&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;addWidget&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;parent_layout&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;process_settings&lt;/span&gt;
+      &lt;span class=&quot;k&quot;&gt;super&lt;/span&gt;
+      &lt;span class=&quot;n&quot;&gt;process_aging_settings&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Note that we were able to remove the class method &lt;code class=&quot;highlighter-rouge&quot;&gt;self.takes_value?&lt;/code&gt; because AgingWidget already implements it. This is all required to setup aging but we must still modify the value= method to do the work. First in value= we call super to call the AgingWidget’s value= method. This method returns a string representation of the data with the correct foreground color and text character indicating the color, e.g. G=Green, Y=Yellow, R=Red. This is important for values with limits settings but since our array value doesn’t have limits I’m going to igore the return value and simply allow the aging routine to age the data. Interally this updates the &lt;code class=&quot;highlighter-rouge&quot;&gt;@background&lt;/code&gt; instance variable with the current ‘aged’ background color. I then set the TableWidgetItem’s background color to this color before adding it to the table:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-ruby&quot; data-lang=&quot;ruby&quot;&gt;    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;value&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+      &lt;span class=&quot;k&quot;&gt;super&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+      &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;vi&quot;&gt;@rows&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;each&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;row&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;item&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;Qt&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;TableWidgetItem&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;new&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;row&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;item&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;setBackgroundColor&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;vi&quot;&gt;@background&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;setItem&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;row&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;item&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+      &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;The end result is aging:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/2016_08_22_inst_array4.png&quot; alt=&quot;COSMOS Inst Array&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Note that if you have a widget that implements aging and limits you’ll want to keep the value returned by super and use it in your widget. If you don’t want the aging routine to directly use your data value you can pass a string as the second parameter, e.g. super(data, text). This text string will be modified with the color blind settings. Basically that means that whatever the calculated &lt;code class=&quot;highlighter-rouge&quot;&gt;@foreground&lt;/code&gt; color string is, a corresponding text character is added (R=Red, G=Green, etc) to aid people who can’t distinguish colors. See &lt;a href=&quot;https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/tools/tlm_viewer/widgets/aging_widget.rb&quot;&gt;aging_widget.rb&lt;/a&gt; for more details.&lt;/p&gt;
+
+&lt;p&gt;Good luck creating your own widgets and if you need additional support please contact us at &lt;a href=&quot;mailto:cosmos@ball.com&quot;&gt;cosmos@ball.com&lt;/a&gt;.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Custom COSMOS Interface</title>
+      <link>http://cosmosrb.com/news/2016/08/04/custom-cosmos_interface/</link>
+      <pubDate>Thu, 04 Aug 2016 01:00:00 -0600</pubDate>
+      <dc:creator>jmthomas</dc:creator>
+      
+      
+      <category>post</category>
+      
+      <guid isPermaLink="true">http://cosmosrb.com/news/2016/08/04/custom-cosmos_interface/</guid>
+      <description>&lt;p&gt;One of our Ball Aerospace engineers asked how they could add a checksum to an existing COSMOS interface when talking to their target. COSMOS does not support this directly so it requires creating a custom interface. While this might sound daunting, the COSMOS interfaces were designed just for this type of extension and provide hooks for customization.&lt;/p&gt;
+
+&lt;p&gt;In this example we will assume the original interface is the COSMOS &lt;a href=&quot;http://cosmosrb.com/docs/interfaces/#serial-interface&quot;&gt;Serial Interface&lt;/a&gt;. In your target’s lib folder create a new interface called checksum_serial_interface.rb:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-ruby&quot; data-lang=&quot;ruby&quot;&gt;&lt;span class=&quot;nb&quot;&gt;require&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'cosmos'&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;# always require cosmos&lt;/span&gt;
+&lt;span class=&quot;nb&quot;&gt;require&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'cosmos/interfaces/serial_interface'&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;# original interface being extended&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;module&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;Cosmos&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;ChecksumSerialInterface&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;SerialInterface&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;pre_write_packet&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;packet&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;data&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;packet&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;buffer&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;checksum&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mh&quot;&gt;0xFFFF&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;each_byte&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;|&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;checksum&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;x&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;checksum&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;=&lt;/span&gt; &lt;span class=&quot;mh&quot;&gt;0xFFFF&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;data&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;checksum&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;].&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;pack&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;n&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;# Pack as 16 bit unsigned bit endian&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;data&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+
+  &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;post_read_data&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;packet_data&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;len&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;packet_data&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;length&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;calc_checksum&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mh&quot;&gt;0xFFFF&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;packet_data&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;len&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;3&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)].&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;each_byte&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;|&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;calc_checksum&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;x&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;calc_checksum&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;=&lt;/span&gt; &lt;span class=&quot;mh&quot;&gt;0xFFFF&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;rx_checksum&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;packet_data&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;].&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;unpack&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;n&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;# Unpack as 16 bit unsigned big endian&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;calc_checksum&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;rx_checksum&lt;/span&gt;
+      &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;packet_data&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;else&lt;/span&gt;
+      &lt;span class=&quot;nb&quot;&gt;puts&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;Bad checksum detected. Calculated: 0x&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;#{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;calc_checksum&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;to_s&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;16&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt; Received: 0x&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;#{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;rx_checksum&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;to_s&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;16&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;. Dropping packet.&quot;&lt;/span&gt;
+      &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&quot;&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;# Also can return nil to break the connection and reconnect to the target&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;What we’re doing is overriding pre_write_packet in StreamInterface to allow us to modify the data before it is written to the packet and sent over the interface. We also override post_read_data to operate on data received before it is sent back to the COSMOS server and thus the tools. Note there is also a post_read_packet(packet) method which is called after post_read_data is called and after the COSMOS Packet has been created. All Interfaces inheriting from StreamInterface includes these callback methods, including SerialInterface, TcpipServerInterface, and TcpipClientInterface. Note that UdpInterface inherits directly from Interface and thus does NOT include these callbacks.&lt;/p&gt;
+
+&lt;p&gt;Then in your cmd_tlm_server.txt file for your target you use your new interface:&lt;/p&gt;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;#         interface name  file name                    write read baud   parity stop timeouts stream
+INTERFACE UART_INTERFACE  checksum_serial_interface.rb COM1  COM1 115200 NONE   1    nil nil  BURST
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;I added a comment line above the definition which describes the settings. For more information see the &lt;a href=&quot;http://cosmosrb.com/docs/interfaces/#serial-interface&quot;&gt;Serial Interface&lt;/a&gt; documentation.&lt;/p&gt;
+
+&lt;p&gt;This same technique can obviously be used to extend the the other TCPIP interfaces and can be used with all the various &lt;a href=&quot;http://cosmosrb.com/docs/interfaces/#streams-and-stream-protocols&quot;&gt;Stream Protocol&lt;/a&gt; classes COSMOS defines.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>COSMOS Cmd/Tlm Naming</title>
+      <link>http://cosmosrb.com/news/2016/07/06/cosmos-cmd-tlm-names/</link>
+      <pubDate>Wed, 06 Jul 2016 18:00:00 -0600</pubDate>
+      <dc:creator>jmthomas</dc:creator>
+      
+      
+      <category>post</category>
+      
+      <guid isPermaLink="true">http://cosmosrb.com/news/2016/07/06/cosmos-cmd-tlm-names/</guid>
+      <description>&lt;p&gt;Recently a user asked if they could add exclamation points and question marks to their command and telemetry items. Absolutely!  COSMOS provides great flexibility in command and telemetry naming conventions. (See &lt;a href=&quot;http://cosmosrb.com/docs/cmdtlm&quot;&gt;cmdtlm&lt;/a&gt;). For example, adding an exclamation point to a command to denote a more severe version of the same command:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;COMMAND TGT ABORT BIG_ENDIAN &quot;Tries to abort a collect on the instrument&quot;
+COMMAND TGT ABORT! BIG_ENDIAN &quot;Force aborts a collect on the instrument&quot;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;While it doesn’t make sense to define a command with a question mark, it works well with telemetry points. For example, there is a telemetry point which indicates whether a mechanism is deployed or not. It is an analog value that indicates deployed if the value is above zero. To view both the raw value and the deployed status, define a derived telemetry point which indicates a TRUE or FALSE status:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;APPEND_ITEM DEPLOYED 16 UINT &quot;Deployed raw value&quot;
+ITEM DEPLOYED? 0 0 DERIVED &quot;Deployed status&quot;
+  STATE FALSE 0
+  STATE TRUE 1
+  GENERIC_READ_CONVERSION_START UINT 8
+    myself.read('DEPLOYED') &amp;gt; 0 ? 1 : 0
+  GENERIC_READ_CONVERSION_END
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Note that this is probably overkill in this case because the conversion could just as easily be applied directly to the item. The raw value could then be obtained by calling tlm_raw(“TGT PKT DEPLOYED”) (see &lt;a href=&quot;http://cosmosrb.com/docs/scripting/#tlmraw&quot;&gt;tlm_raw&lt;/a&gt;).&lt;/p&gt;
+
+&lt;p&gt;These practices are similar to the Ruby convention of using methods with an exclamation point (bang) to indicate a dangerous method which typically directly modifies its caller. Ruby also has a convention of methods with question marks returning a boolean true or false value. Read more in the &lt;a href=&quot;http://docs.ruby-lang.org/en/trunk/syntax/methods_rdoc.html&quot;&gt;Ruby documentation&lt;/a&gt;.&lt;/p&gt;
+
+</description>
+    </item>
+    
+    <item>
+      <title>Ball Aerospace COSMOS 3.8.2 Released</title>
+      <link>http://cosmosrb.com/news/2016/07/05/cosmos-3-8-2-released/</link>
+      <pubDate>Tue, 05 Jul 2016 13:00:00 -0600</pubDate>
+      <dc:creator>jmthomas</dc:creator>
+      
+      
+      <category>release</category>
+      
+      <guid isPermaLink="true">http://cosmosrb.com/news/2016/07/05/cosmos-3-8-2-released/</guid>
+      <description>&lt;h3 id=&quot;new-features&quot;&gt;New Features:&lt;/h3&gt;
+
+&lt;h3 id=&quot;maintenance&quot;&gt;Maintenance:&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;COSMOS Downloads graph rake task updates&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;bug-fixes&quot;&gt;Bug Fixes:&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/303&quot;&gt;#303&lt;/a&gt; Need to clear read conversion cache on Packet#clone&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/304&quot;&gt;#304&lt;/a&gt; Win32 Serial Driver clean disconnect&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/309&quot;&gt;#309&lt;/a&gt; Fix Script Runner insert_return when not running&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;migration-notes-from-cosmos-37x&quot;&gt;Migration Notes from COSMOS 3.7.x:&lt;/h3&gt;
+&lt;p&gt;None&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Ball Aerospace COSMOS 3.8.1 Released</title>
+      <link>http://cosmosrb.com/news/2016/05/12/cosmos-3-8-1-released/</link>
+      <pubDate>Thu, 12 May 2016 13:00:00 -0600</pubDate>
+      <dc:creator>ryanmelt</dc:creator>
+      
+      
+      <category>release</category>
+      
+      <guid isPermaLink="true">http://cosmosrb.com/news/2016/05/12/cosmos-3-8-1-released/</guid>
+      <description>&lt;h3 id=&quot;new-features&quot;&gt;New Features:&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/184&quot;&gt;#184&lt;/a&gt; Limits Monitor show green for blue limits items&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/190&quot;&gt;#190&lt;/a&gt; Simpler MIN MAX syntax for command definitions&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/254&quot;&gt;#254&lt;/a&gt; Get buffer from commands&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/259&quot;&gt;#259&lt;/a&gt; Proper support for user selected text editor on linux&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/262&quot;&gt;#262&lt;/a&gt; PackerViewer option for listing derived items last&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/271&quot;&gt;#271&lt;/a&gt; Time.formatted option for no microseconds&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/288&quot;&gt;#288&lt;/a&gt; check_tolerance should enforce a positive tolerance&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/301&quot;&gt;#301&lt;/a&gt; Update use of COSMOS_DEVEL&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;maintenance&quot;&gt;Maintenance:&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/268&quot;&gt;#268&lt;/a&gt; xtce_converter doesn’t support byte order list&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/277&quot;&gt;#277&lt;/a&gt; Test Runner support for Script Runner options&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/285&quot;&gt;#285&lt;/a&gt; xtce converter doesn’t support LocationInContainerInBits&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;bug-fixes&quot;&gt;Bug Fixes:&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/256&quot;&gt;#256&lt;/a&gt; Defining initialize method in Cosmos::Test class breaks the class when using Test Selection in TestRunner&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/273&quot;&gt;#273&lt;/a&gt; Wrap Qt::Application.instance in main_thread&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/287&quot;&gt;#287&lt;/a&gt; Installer issue on newer versions of Ubuntu and Debian related to libssl&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/293&quot;&gt;#293&lt;/a&gt; Units applied after a read_conversion that returns a string modifies cached conversion value&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/294&quot;&gt;#294&lt;/a&gt; String#convert_to_value should always just return the starting string if the conversion fails&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/298&quot;&gt;#298&lt;/a&gt; COSMOS IoMultiplexer breaks gems that invoke stream operator on STDOUT/ERR&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;migration-notes-from-cosmos-37x&quot;&gt;Migration Notes from COSMOS 3.7.x:&lt;/h3&gt;
+&lt;p&gt;None&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Sparkfun Blog Post</title>
+      <link>http://cosmosrb.com/news/2016/03/03/sparkfun/</link>
+      <pubDate>Thu, 03 Mar 2016 00:00:00 -0700</pubDate>
+      <dc:creator>jmthomas</dc:creator>
+      
+      
+      <category>post</category>
+      
+      <guid isPermaLink="true">http://cosmosrb.com/news/2016/03/03/sparkfun/</guid>
+      <description>&lt;p&gt;Ball Aerospace COSMOS has been featured in a blog post on &lt;a href=&quot;https://www.sparkfun.com/news/2022&quot;&gt;SparkFun&lt;/a&gt;. SparkFun is an online retail store that sells electronics primarily for hobbyists. Ball recently purchased a Raspberry Pi, Arduino, and various other parts to interface to COSMOS. We think hobbyists will find COSMOS a great way to interface to their embedded projects and SparkFun agrees! &lt;a href=&quot;http://cosmosrb.com/docs/installation&quot;&gt;Get started&lt;/a&gt; with COSMOS now!&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>XTCE Support</title>
+      <link>http://cosmosrb.com/news/2016/02/27/xtce-support/</link>
+      <pubDate>Sat, 27 Feb 2016 12:00:00 -0700</pubDate>
+      <dc:creator>ryanmelt</dc:creator>
+      
+      
+      <category>post</category>
+      
+      <guid isPermaLink="true">http://cosmosrb.com/news/2016/02/27/xtce-support/</guid>
+      <description>&lt;p&gt;Ball Aerospace COSMOS now has support for the &lt;a href=&quot;http://www.omg.org/space/xtce/&quot; target=&quot;_blank&quot;&gt;XTCE Command and Telemetry Definition Standard&lt;/a&gt;. This is an open standard designed to allow command and telemetry definitions to be transferred between different ground systems. COSMOS can run directly using the .xtce files, or can convert them into the COSMOS configuration file format.&lt;/p&gt;
+
+&lt;p&gt;See the docs for more information: &lt;a href=&quot;/docs/xtce&quot;&gt;XTCE Support&lt;/a&gt;&lt;/p&gt;
+
+</description>
+    </item>
+    
+    <item>
+      <title>Fukuoka Special Award Winner</title>
+      <link>http://cosmosrb.com/news/2016/02/27/fukuoka-award/</link>
+      <pubDate>Sat, 27 Feb 2016 00:00:00 -0700</pubDate>
+      <dc:creator>ryanmelt</dc:creator>
+      
+      
+      <category>post</category>
+      
+      <guid isPermaLink="true">http://cosmosrb.com/news/2016/02/27/fukuoka-award/</guid>
+      <description>&lt;p&gt;Ball Aerospace COSMOS has been honored by the Ruby community by receiving one of the three Fukuoka Special Awards handed out this year! This is a great honor with the contest judging being led by Matz himself (the creator of the Ruby programming language).  Read more on the MyFukuoka website here: &lt;a href=&quot;http://myfukuoka.com/events/2016-fukuoka-ruby-award-winners/&quot; target=&quot;_blank&quot;&gt;MyFukuoka 2016 Ruby Award Winners&lt;/a&gt;&lt;/p&gt;
+
+</description>
+    </item>
+    
+    <item>
+      <title>Ball Aerospace COSMOS 3.8.0 Released</title>
+      <link>http://cosmosrb.com/news/2016/02/26/cosmos-3-8-0-released/</link>
+      <pubDate>Fri, 26 Feb 2016 12:00:00 -0700</pubDate>
+      <dc:creator>ryanmelt</dc:creator>
+      
+      
+      <category>release</category>
+      
+      <guid isPermaLink="true">http://cosmosrb.com/news/2016/02/26/cosmos-3-8-0-released/</guid>
+      <description>&lt;p&gt;With this release COSMOS now has initial support for the XTCE Command and Telemetry Definition standard.&lt;/p&gt;
+
+&lt;h3 id=&quot;new-features&quot;&gt;New Features:&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/251&quot;&gt;#251&lt;/a&gt; Create COSMOS XTCE Converter&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/252&quot;&gt;#252&lt;/a&gt; Add polling rate command line option to PacketViewer&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;bug-fixes&quot;&gt;Bug Fixes:&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/245&quot;&gt;#245&lt;/a&gt; TlmGrapher Crashes on Inf&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/248&quot;&gt;#248&lt;/a&gt; Can’t script commands containing ‘with’ in the name&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;migration-notes-from-cosmos-37x&quot;&gt;Migration Notes from COSMOS 3.7.x:&lt;/h3&gt;
+&lt;p&gt;None&lt;/p&gt;
+
+</description>
+    </item>
+    
+    <item>
+      <title>COSMOS Simulated Target</title>
+      <link>http://cosmosrb.com/news/2016/02/11/simulated-target/</link>
+      <pubDate>Thu, 11 Feb 2016 00:00:00 -0700</pubDate>
+      <dc:creator>jmthomas</dc:creator>
+      
+      
+      <category>post</category>
+      
+      <guid isPermaLink="true">http://cosmosrb.com/news/2016/02/11/simulated-target/</guid>
+      <description>&lt;h2 id=&quot;creating-a-cosmos-simulated-target&quot;&gt;Creating a COSMOS Simulated Target&lt;/h2&gt;
+
+&lt;p&gt;Sometimes you have a need to create a simulated target in COSMOS. This simulated target is not a physical target producing data and accepting commands but a software target which generates data and sends it to COSMOS. This is exactly how the COSMOS Demo operates within the INST target that it creates. While this is a very full featured example its complexity can be a little overwhelming. In this post I’m going to break down a much simpler simulated target so you can create your own.&lt;/p&gt;
+
+&lt;p&gt;First of all create a new COSMOS target directory in config/targets. I called mine INST (instrument) to match the COSMOS demo. Create the ‘cmd_tlm’ and ‘lib’ subdirectories. For my demo I created a simple ‘cmd.txt’ file which contains a single command:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;COMMAND INST SET_STATUS BIG_ENDIAN &quot;Set status&quot;
+  APPEND_PARAMETER STATUS 0 STRING &quot;STATUS&quot; &quot;Status&quot;
+    STATE &quot;OK&quot; &quot;OK&quot;
+    STATE &quot;ERROR&quot; &quot;ERROR&quot;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;I created a ‘tlm.txt’ file which contains two different telemetry packets:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;TELEMETRY INST STATUS BIG_ENDIAN &quot;Status from the instrument&quot;
+  APPEND_ID_ITEM ID 16 UINT 1 &quot;Packet ID&quot;
+  APPEND_ITEM COUNTER 16 UINT &quot;Packet counter&quot;
+  APPEND_ITEM STATUS 0 STRING &quot;Most recent ASCIICMD string&quot;
+    STATE &quot;OK&quot; &quot;OK&quot;
+    STATE &quot;ERROR&quot; &quot;ERROR&quot;
+
+TELEMETRY INST DATA BIG_ENDIAN &quot;Data from the instrument&quot;
+  APPEND_ID_ITEM ID 16 UINT 2 &quot;Packet ID&quot;
+  APPEND_ITEM COUNTER 16 UINT &quot;Packet counter&quot;
+  APPEND_ITEM TIMESEC 32 UINT &quot;Seconds since epoch (January 1st, 1970, midnight)&quot;
+  APPEND_ITEM TIMEUS  32 UINT &quot;Microseconds of second&quot;
+  APPEND_ITEM TEMP1 32 INT &quot;Temperature #1&quot;
+    UNITS CELCIUS C
+    FORMAT_STRING &quot;%0.3f&quot;
+    LIMITS DEFAULT 1 ENABLED -80.0 -70.0 60.0 80.0 -20.0 20.0
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;The cmd_tlm_server.txt file is very simple:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;INTERFACE INST_INT simulated_target_interface.rb sim_inst.rb
+  TARGET INST
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;The real work is in implementing how your simulated target is going to behave. This is done in the lib/sim_inst.rb file. Note that whatever you name your simulated target file must match the last parameter of the INTERFACE in the cmd_tlm_server.rb as shown above.&lt;/p&gt;
+
+&lt;p&gt;I’ll break down my sim_inst.rb piece by piece and then list it in its entirety. First you must inherit from the Cosmos::SimulatedTarget.&lt;/p&gt;
+
+&lt;div class=&quot;language-ruby highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nb&quot;&gt;require&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'cosmos'&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;module&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;Cosmos&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;SimInst&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;SimulatedTarget&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Next you can initialize any of your packets in the initialize method. This is entirely optional but I show how to use the &lt;code class=&quot;highlighter-rouge&quot;&gt;@tlm_packets&lt;/code&gt; hash to access all the defined packets. This hash is created automatically by the SimulatedTarget based on all the packets you have defined in your cmd_tlm/tlm.txt file. Note that there is NOT a corresponding &lt;code class=&quot;highlighter-rouge&quot;&gt;@cmd_packets&lt;/code&gt;.&lt;/p&gt;
+
+&lt;div class=&quot;language-ruby highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;initialize&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;target_name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;super&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;target_name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+  &lt;span class=&quot;c1&quot;&gt;# We grab the STATUS packet to set initial values&lt;/span&gt;
+  &lt;span class=&quot;n&quot;&gt;packet&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;vi&quot;&gt;@tlm_packets&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'STATUS'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+  &lt;span class=&quot;n&quot;&gt;packet&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;enable_method_missing&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;# required to use packet.&amp;lt;item&amp;gt; = value&lt;/span&gt;
+  &lt;span class=&quot;n&quot;&gt;packet&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;status&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;NONE&quot;&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;We then have to configure the telemetry packet rates of our target. That is, how fast do the packets get sent out. This is handled by implementing the &lt;code class=&quot;highlighter-rouge&quot;&gt;set_rates&lt;/code&gt; method and by calling &lt;code class=&quot;highlighter-rouge&quot;&gt;set_rate&lt;/code&gt; for each packet defined in your system. If you do not call &lt;code class=&quot;highlighter-rouge&quot;&gt;set_rate&lt;/code&gt; the packet will not be send out periodically (which may be desirable for event based packets).&lt;/p&gt;
+
+&lt;div class=&quot;language-ruby highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;set_rates&lt;/span&gt;
+  &lt;span class=&quot;c1&quot;&gt;# The SimulatedTarget operates on a 101Hz clock&lt;/span&gt;
+  &lt;span class=&quot;c1&quot;&gt;# Thus the rates are determined by dividing this rate&lt;/span&gt;
+  &lt;span class=&quot;c1&quot;&gt;# by the set rate to get the output rate of the packet&lt;/span&gt;
+  &lt;span class=&quot;n&quot;&gt;set_rate&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'STATUS'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;100&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;# 100 / 100 = 1Hz&lt;/span&gt;
+  &lt;span class=&quot;n&quot;&gt;set_rate&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'DATA'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;10&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;# 100 / 10 = 10Hz&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;If your target will accept command you need to implemented the &lt;code class=&quot;highlighter-rouge&quot;&gt;write(packet)&lt;/code&gt; method. My write method is simple in that I only have a single command that directly sets a value in one of my telemetry packets.&lt;/p&gt;
+
+&lt;div class=&quot;language-ruby highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;write&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;packet&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+  &lt;span class=&quot;c1&quot;&gt;# We directly set the telemetry value from the only command&lt;/span&gt;
+  &lt;span class=&quot;c1&quot;&gt;# If you have more than one command you'll need to switch&lt;/span&gt;
+  &lt;span class=&quot;c1&quot;&gt;# on the packet.packet_name to determine what command it is&lt;/span&gt;
+  &lt;span class=&quot;vi&quot;&gt;@tlm_packets&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'STATUS'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;].&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;status&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;packet&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;read&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;status&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Your target must implement the &lt;code class=&quot;highlighter-rouge&quot;&gt;read(count_100hz, time)&lt;/code&gt; method to return telemetry packets back to COSMOS. You’ll call the &lt;code class=&quot;highlighter-rouge&quot;&gt;get_pending_packets(count_100hz)&lt;/code&gt; method implemented by SimulatedTarget and then perform whatever operations you want on the packets before returning the array of packets back to COSMOS. Note my use of the &lt;code class=&quot;highlighter-rouge&quot;&gt;cycle_tlm_item&lt;/code&gt; method to automatically cycle the telemetry item as each packet is sent out. This is used heavily in the COSMOS Demo.&lt;/p&gt;
+
+&lt;div class=&quot;language-ruby highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;read&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;count_100hz&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;time&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+  &lt;span class=&quot;c1&quot;&gt;# The SimulatedTarget implements get_pending_packets to return&lt;/span&gt;
+  &lt;span class=&quot;c1&quot;&gt;# packets at the correct time interval based on their rates&lt;/span&gt;
+  &lt;span class=&quot;n&quot;&gt;pending_packets&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;get_pending_packets&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;count_100hz&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+  &lt;span class=&quot;n&quot;&gt;pending_packets&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;each&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;packet&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;case&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;packet&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;packet_name&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;when&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'STATUS'&lt;/span&gt;
+      &lt;span class=&quot;n&quot;&gt;packet&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;counter&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;when&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'DATA'&lt;/span&gt;
+      &lt;span class=&quot;c1&quot;&gt;# This method in SimulatedTarget cycles the specified telemetry&lt;/span&gt;
+      &lt;span class=&quot;c1&quot;&gt;# point between the two given values by the given increment for&lt;/span&gt;
+      &lt;span class=&quot;c1&quot;&gt;# each packet sent out.&lt;/span&gt;
+      &lt;span class=&quot;n&quot;&gt;cycle_tlm_item&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;packet&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'temp1'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;95&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;95&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+      &lt;span class=&quot;n&quot;&gt;packet&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;timesec&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;time&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;tv_sec&lt;/span&gt;
+      &lt;span class=&quot;n&quot;&gt;packet&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;timeus&lt;/span&gt;  &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;time&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;tv_usec&lt;/span&gt;
+      &lt;span class=&quot;n&quot;&gt;packet&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;counter&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+  &lt;span class=&quot;n&quot;&gt;pending_packets&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Hopefully that a little easier to understand than the full &lt;a href=&quot;https://github.com/BallAerospace/COSMOS/tree/master/demo&quot;&gt;COSMOS Demo&lt;/a&gt; which has much more complex command and telemetry definitions and simulated targets in order to better exercise the various COSMOS tools. While there are other ways to simulate COSMOS targets they can get you into trouble if you’re not careful about properly cloning packets sending back updated data. Additionally, using the SimulatedTargetInterface in your Interface makes it very clear to other developers that this target is indeed simulated.&lt;/p&gt;
+
+&lt;p&gt;Without further ado, here is my sim_inst.rb in its entirety:&lt;/p&gt;
+
+&lt;div class=&quot;language-ruby highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nb&quot;&gt;require&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'cosmos'&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;module&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;Cosmos&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;SimInst&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;SimulatedTarget&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;initialize&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;target_name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+      &lt;span class=&quot;k&quot;&gt;super&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;target_name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+      &lt;span class=&quot;c1&quot;&gt;# We grab the STATUS packet to set initial values&lt;/span&gt;
+      &lt;span class=&quot;n&quot;&gt;packet&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;vi&quot;&gt;@tlm_packets&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'STATUS'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+      &lt;span class=&quot;n&quot;&gt;packet&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;enable_method_missing&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;# required to use packet.&amp;lt;item&amp;gt; = value&lt;/span&gt;
+      &lt;span class=&quot;n&quot;&gt;packet&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;status&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;NONE&quot;&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;set_rates&lt;/span&gt;
+      &lt;span class=&quot;c1&quot;&gt;# The SimulatedTarget operates on a 100Hz clock&lt;/span&gt;
+      &lt;span class=&quot;c1&quot;&gt;# Thus the rates are determined by dividing this rate&lt;/span&gt;
+      &lt;span class=&quot;c1&quot;&gt;# by the set rate to get the output rate of the packet&lt;/span&gt;
+      &lt;span class=&quot;n&quot;&gt;set_rate&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'STATUS'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;100&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;# 100 / 100 = 1Hz&lt;/span&gt;
+      &lt;span class=&quot;n&quot;&gt;set_rate&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'DATA'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;10&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;# 100 / 10 = 10Hz&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;write&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;packet&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+      &lt;span class=&quot;c1&quot;&gt;# We directly set the telemetry value from the only command&lt;/span&gt;
+      &lt;span class=&quot;c1&quot;&gt;# If you have more than one command you'll need to switch&lt;/span&gt;
+      &lt;span class=&quot;c1&quot;&gt;# on the packet.packet_name to determine what command it is&lt;/span&gt;
+      &lt;span class=&quot;vi&quot;&gt;@tlm_packets&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'STATUS'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;].&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;status&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;packet&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;read&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;status&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;read&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;count_100hz&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;time&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+      &lt;span class=&quot;c1&quot;&gt;# The SimulatedTarget implements get_pending_packets to return&lt;/span&gt;
+      &lt;span class=&quot;c1&quot;&gt;# packets at the correct time interval based on their rates&lt;/span&gt;
+      &lt;span class=&quot;n&quot;&gt;pending_packets&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;get_pending_packets&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;count_100hz&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+      &lt;span class=&quot;n&quot;&gt;pending_packets&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;each&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;packet&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;case&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;packet&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;packet_name&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;when&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'STATUS'&lt;/span&gt;
+          &lt;span class=&quot;n&quot;&gt;packet&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;counter&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;when&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'DATA'&lt;/span&gt;
+          &lt;span class=&quot;c1&quot;&gt;# This method in SimulatedTarget cycles the specified telemetry&lt;/span&gt;
+          &lt;span class=&quot;c1&quot;&gt;# point between the two given values by the given increment for&lt;/span&gt;
+          &lt;span class=&quot;c1&quot;&gt;# each packet sent out.&lt;/span&gt;
+          &lt;span class=&quot;n&quot;&gt;cycle_tlm_item&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;packet&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'temp1'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;95&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;95&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+          &lt;span class=&quot;n&quot;&gt;packet&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;timesec&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;time&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;tv_sec&lt;/span&gt;
+          &lt;span class=&quot;n&quot;&gt;packet&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;timeus&lt;/span&gt;  &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;time&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;tv_usec&lt;/span&gt;
+          &lt;span class=&quot;n&quot;&gt;packet&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;counter&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+      &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+      &lt;span class=&quot;n&quot;&gt;pending_packets&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Happy simulated target programming!&lt;/p&gt;
+
+</description>
+    </item>
+    
+    <item>
+      <title>Ball Aerospace COSMOS 3.7.1 Released</title>
+      <link>http://cosmosrb.com/news/2015/12/29/cosmos-3-7-1-released/</link>
+      <pubDate>Tue, 29 Dec 2015 12:00:00 -0700</pubDate>
+      <dc:creator>ryanmelt</dc:creator>
+      
+      
+      <category>release</category>
+      
+      <guid isPermaLink="true">http://cosmosrb.com/news/2015/12/29/cosmos-3-7-1-released/</guid>
+      <description>&lt;h3 id=&quot;bug-fixes&quot;&gt;Bug Fixes:&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/228&quot;&gt;#228&lt;/a&gt; Fix typo in udp_interface&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/231&quot;&gt;#231&lt;/a&gt; MACRO_APPEND with multiple items not working&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/235&quot;&gt;#235&lt;/a&gt; Improve IntegerChooser and FloatChooser Validation&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/236&quot;&gt;#236&lt;/a&gt; TestRunner doesn’t support status_bar&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/240&quot;&gt;#240&lt;/a&gt; Make sure super() is called in all bundled conversion classes&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/241&quot;&gt;#241&lt;/a&gt; Don’t reformat BLOCK data types with a conversion in Structure#formatted&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;migration-notes-from-cosmos-36x&quot;&gt;Migration Notes from COSMOS 3.6.x:&lt;/h3&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Background task arguments are now broken out instead of being received as a single array&lt;/li&gt;
+  &lt;li&gt;udp_interface now takes an optional argument for bind_address&lt;/li&gt;
+  &lt;li&gt;line_graph_script has been significantly updated to support modifying plots from the script.&lt;/li&gt;
+&lt;/ol&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Ball Aerospace COSMOS 3.7.0 Released</title>
+      <link>http://cosmosrb.com/news/2015/11/25/cosmos-3-7-0-released/</link>
+      <pubDate>Wed, 25 Nov 2015 12:00:00 -0700</pubDate>
+      <dc:creator>ryanmelt</dc:creator>
+      
+      
+      <category>release</category>
+      
+      <guid isPermaLink="true">http://cosmosrb.com/news/2015/11/25/cosmos-3-7-0-released/</guid>
+      <description>&lt;h3 id=&quot;new-features&quot;&gt;New Features:&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/213&quot;&gt;#213&lt;/a&gt; Vertical Limits Bar&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/214&quot;&gt;#214&lt;/a&gt; TlmGrapher show full date for plotted points&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/219&quot;&gt;#219&lt;/a&gt; State Color Widget&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/225&quot;&gt;#225&lt;/a&gt; Set Bind Address in UDP interface&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;maintenance&quot;&gt;Maintenance:&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/223&quot;&gt;#223&lt;/a&gt; C Extension Improvements&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;bug-fixes&quot;&gt;Bug Fixes:&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/199&quot;&gt;#199&lt;/a&gt; Investigate TlmGrapher Formatted Time Item&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/211&quot;&gt;#211&lt;/a&gt; Background task with arguments not working&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/217&quot;&gt;#217&lt;/a&gt; Graph Right Margin Too Small&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;migration-notes-from-cosmos-36x&quot;&gt;Migration Notes from COSMOS 3.6.x:&lt;/h3&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Background task arguments are now broken out instead of being received as a single array&lt;/li&gt;
+  &lt;li&gt;udp_interface now takes an optional argument for bind_address&lt;/li&gt;
+  &lt;li&gt;line_graph_script has been significantly updated to support modifying plots from the script.&lt;/li&gt;
+&lt;/ol&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Ball Aerospace COSMOS 3.6.3 Released</title>
+      <link>http://cosmosrb.com/news/2015/10/30/cosmos-3-6-3-released/</link>
+      <pubDate>Fri, 30 Oct 2015 13:00:00 -0600</pubDate>
+      <dc:creator>ryanmelt</dc:creator>
+      
+      
+      <category>release</category>
+      
+      <guid isPermaLink="true">http://cosmosrb.com/news/2015/10/30/cosmos-3-6-3-released/</guid>
+      <description>&lt;h3 id=&quot;new-features&quot;&gt;New Features:&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/200&quot;&gt;#200&lt;/a&gt; ScriptRunner Find Dialog Does Not Cross Windows&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/201&quot;&gt;#201&lt;/a&gt; Table Manager to support arbitrary inputs on State Fields&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/209&quot;&gt;#209&lt;/a&gt; Add UTS Timestamp Flag to TlmGrapher Plots&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;maintenance&quot;&gt;Maintenance:&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/194&quot;&gt;#194&lt;/a&gt; Allow up to one minute for TlmViewer to start when calling display() from a script&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/203&quot;&gt;#203&lt;/a&gt; load_utility should raise LoadError like load and require&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/205&quot;&gt;#205&lt;/a&gt; Add testing for array and matrix&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;bug-fixes&quot;&gt;Bug Fixes:&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/191&quot;&gt;#191&lt;/a&gt; Installing COSMOS Issue on Windows 7&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/193&quot;&gt;#193&lt;/a&gt; Fix ask() on linux and qt 4.6.2&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/197&quot;&gt;#197&lt;/a&gt; Improve linc interface&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;migration-notes-from-cosmos-35x&quot;&gt;Migration Notes from COSMOS 3.5.x:&lt;/h3&gt;
+
+&lt;p&gt;None&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>COSMOS at the ATS Conference</title>
+      <link>http://cosmosrb.com/news/2015/10/28/cosmos-at-ats-conference/</link>
+      <pubDate>Wed, 28 Oct 2015 13:00:00 -0600</pubDate>
+      <dc:creator>ryanmelt</dc:creator>
+      
+      
+      <category>conference</category>
+      
+      <guid isPermaLink="true">http://cosmosrb.com/news/2015/10/28/cosmos-at-ats-conference/</guid>
+      <description>&lt;p&gt;Ball Aerospace COSMOS is being featured in three papers and presentations at this years &lt;a href=&quot;http://www.cvent.com/events/2015-aerospace-testing-seminar-ats-/custom-118-518ccae66e804adb9dac56355e03868b.aspx&quot;&gt;Aerospace Testing Seminar (ATS)&lt;/a&gt; taking place at the Renaissance Los Angeles Airport Hotel October 27-29, 2015.&lt;/p&gt;
+
+&lt;p&gt;The three papers presented are here:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;/assets/Ball_Aerospaces_COSMOS_Open_Source_Test_System.pdf&quot;&gt;Ball Aerospace’s COSMOS Open Source Test System&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;/assets/System_Level_Integration_And_Test_Leveraging_Software_Unit_Testing_Techniques.pdf&quot;&gt;System Level Integration and Test Leveraging Software Unit Testing Techniques&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;/assets/The_Hidden_Benefits_of_Automated_Testing.pdf&quot;&gt;The Hidden Benefits of Automated Testing&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Ball Aerospace COSMOS 3.6.2 Released</title>
+      <link>http://cosmosrb.com/news/2015/08/10/cosmos-3-6-2-released/</link>
+      <pubDate>Mon, 10 Aug 2015 17:00:00 -0600</pubDate>
+      <dc:creator>ryanmelt</dc:creator>
+      
+      
+      <category>release</category>
+      
+      <guid isPermaLink="true">http://cosmosrb.com/news/2015/08/10/cosmos-3-6-2-released/</guid>
+      <description>&lt;p&gt;Huge new feature in this release: All COSMOS configuration files are now interpreted with the ERB preprocessor!  This allows you to use Ruby code within the configuration files to help build them.  You can also render partials of common information such as packet headers so you only have to define them once.  See the INST target in the updated Demo project for examples.&lt;/p&gt;
+
+&lt;h3 id=&quot;bug-fixes&quot;&gt;Bug Fixes:&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/187&quot;&gt;#187&lt;/a&gt; Must require tempfile in config_parser.rb on non-windows systems&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;migration-notes-from-cosmos-35x&quot;&gt;Migration Notes from COSMOS 3.5.x:&lt;/h3&gt;
+
+&lt;p&gt;None&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Ball Aerospace COSMOS 3.6.1 Released</title>
+      <link>http://cosmosrb.com/news/2015/08/10/cosmos-3-6-1-released/</link>
+      <pubDate>Mon, 10 Aug 2015 13:00:00 -0600</pubDate>
+      <dc:creator>ryanmelt</dc:creator>
+      
+      
+      <category>release</category>
+      
+      <guid isPermaLink="true">http://cosmosrb.com/news/2015/08/10/cosmos-3-6-1-released/</guid>
+      <description>&lt;h3 id=&quot;bug-fixes&quot;&gt;Bug Fixes:&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/185&quot;&gt;#185&lt;/a&gt; target.txt order not being preserved&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;migration-notes-from-cosmos-35x&quot;&gt;Migration Notes from COSMOS 3.5.x:&lt;/h3&gt;
+
+&lt;p&gt;None&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Ball Aerospace COSMOS 3.6.0 Released</title>
+      <link>http://cosmosrb.com/news/2015/08/07/cosmos-3-6-0-released/</link>
+      <pubDate>Fri, 07 Aug 2015 13:00:00 -0600</pubDate>
+      <dc:creator>ryanmelt</dc:creator>
+      
+      
+      <category>release</category>
+      
+      <guid isPermaLink="true">http://cosmosrb.com/news/2015/08/07/cosmos-3-6-0-released/</guid>
+      <description>&lt;p&gt;Huge new feature in this release: All COSMOS configuration files are now interpreted with the ERB preprocessor!  This allows you to use Ruby code within the configuration files to help build them.  You can also render partials of common information such as packet headers so you only have to define them once.  See the INST target in the updated Demo project for examples.&lt;/p&gt;
+
+&lt;h3 id=&quot;bug-fixes&quot;&gt;Bug Fixes:&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/168&quot;&gt;#168&lt;/a&gt; Select unreliably unblocks when closing sockets on linux&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/177&quot;&gt;#177&lt;/a&gt; MACRO_APPEND in descending order is broken&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/179&quot;&gt;#179&lt;/a&gt; ScriptRunnerFrame Context Menu Crash&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/182&quot;&gt;#182&lt;/a&gt; Overriding LOG_WRITERS in cmd_tlm_server.txt can cause issues&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;new-features&quot;&gt;New Features:&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues170&quot;&gt;#170&lt;/a&gt; Consider supporting a preprocessor over COSMOS config files&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/171&quot;&gt;#171&lt;/a&gt; Script Runner should have file open and save GUI dialogs&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/174&quot;&gt;#174&lt;/a&gt; Add View in Command Sender in Server&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;maintenance&quot;&gt;Maintenance:&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/80&quot;&gt;#80&lt;/a&gt; Investigate performance of nonblocking IO without exceptions&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;migration-notes-from-cosmos-35x&quot;&gt;Migration Notes from COSMOS 3.5.x:&lt;/h3&gt;
+
+&lt;p&gt;None&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Ball Aerospace COSMOS 3.5.3 Released</title>
+      <link>http://cosmosrb.com/news/2015/07/14/cosmos-3-5-3-released/</link>
+      <pubDate>Tue, 14 Jul 2015 13:00:00 -0600</pubDate>
+      <dc:creator>ryanmelt</dc:creator>
+      
+      
+      <category>release</category>
+      
+      <guid isPermaLink="true">http://cosmosrb.com/news/2015/07/14/cosmos-3-5-3-released/</guid>
+      <description>&lt;h3 id=&quot;bug-fixes&quot;&gt;Bug Fixes:&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/169&quot;&gt;#169&lt;/a&gt; Make windows bat files support running outside of the current directory&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;new-features&quot;&gt;New Features:&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;N/A&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;maintenance&quot;&gt;Maintenance:&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;N/A&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;migration-notes-from-cosmos-342&quot;&gt;Migration Notes from COSMOS 3.4.2:&lt;/h3&gt;
+
+&lt;p&gt;The launcher scripts and .bat files that live in the COSMOS project tools folder have been updated to be easier to maintain and to ensure that the user always sees some sort of error message if a problem occurs starting a tool. All users should copy the new files from the tools folder in the COSMOS demo folder into their projects as part of the upgrade to COSMOS 3.5.1&lt;/p&gt;
+
+&lt;p&gt;COSMOS now disables reverse DNS lookups by default because they can take a long time in some environments. If you still want to see hostnames when someone connects to a TCP/IP server interface/router then you will need to add ENABLE_DNS to your system.txt file.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Ball Aerospace COSMOS 3.5.2 Released</title>
+      <link>http://cosmosrb.com/news/2015/07/14/cosmos-3-5-2-released/</link>
+      <pubDate>Tue, 14 Jul 2015 13:00:00 -0600</pubDate>
+      <dc:creator>ryanmelt</dc:creator>
+      
+      
+      <category>release</category>
+      
+      <guid isPermaLink="true">http://cosmosrb.com/news/2015/07/14/cosmos-3-5-2-released/</guid>
+      <description>&lt;h3 id=&quot;bug-fixes&quot;&gt;Bug Fixes:&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/167&quot;&gt;#167&lt;/a&gt; Use updated url for wkhtmltopdf downloads&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;new-features&quot;&gt;New Features:&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/pull/166&quot;&gt;#166&lt;/a&gt; Add install script for Ubuntu&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;maintenance&quot;&gt;Maintenance:&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;N/A&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;migration-notes-from-cosmos-342&quot;&gt;Migration Notes from COSMOS 3.4.2:&lt;/h3&gt;
+
+&lt;p&gt;The launcher scripts and .bat files that live in the COSMOS project tools folder have been updated to be easier to maintain and to ensure that the user always sees some sort of error message if a problem occurs starting a tool. All users should copy the new files from the tools folder in the COSMOS demo folder into their projects as part of the upgrade to COSMOS 3.5.1&lt;/p&gt;
+
+&lt;p&gt;COSMOS now disables reverse DNS lookups by default because they can take a long time in some environments. If you still want to see hostnames when someone connects to a TCP/IP server interface/router then you will need to add ENABLE_DNS to your system.txt file.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Ball Aerospace COSMOS 3.5.1 Released</title>
+      <link>http://cosmosrb.com/news/2015/07/08/cosmos-3-5-1-released/</link>
+      <pubDate>Wed, 08 Jul 2015 13:00:00 -0600</pubDate>
+      <dc:creator>jmthomas</dc:creator>
+      
+      
+      <category>release</category>
+      
+      <guid isPermaLink="true">http://cosmosrb.com/news/2015/07/08/cosmos-3-5-1-released/</guid>
+      <description>&lt;p&gt;This release fixes a bug and completes the installation scripts for linux/mac.&lt;/p&gt;
+
+&lt;h3 id=&quot;bug-fixes&quot;&gt;Bug Fixes:&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/pull/165&quot;&gt;#165&lt;/a&gt; Change launch_tool to tool_launch in Launcher&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;new-features&quot;&gt;New Features:&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;N/A&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;maintenance&quot;&gt;Maintenance:&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/102&quot;&gt;#102&lt;/a&gt; Create Installation Scripts&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;migration-notes-from-cosmos-342&quot;&gt;Migration Notes from COSMOS 3.4.2:&lt;/h3&gt;
+
+&lt;p&gt;The launcher scripts and .bat files that live in the COSMOS project tools folder have been updated to be easier to maintain and to ensure that the user always sees some sort of error message if a problem occurs starting a tool. All users should copy the new files from the tools folder in the COSMOS demo folder into their projects as part of the upgrade to COSMOS 3.5.1&lt;/p&gt;
+
+&lt;p&gt;COSMOS now disables reverse DNS lookups by default because they can take a long time in some environments. If you still want to see hostnames when someone connects to a TCP/IP server interface/router then you will need to add ENABLE_DNS to your system.txt file.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Ball Aerospace COSMOS 3.5.0 Released</title>
+      <link>http://cosmosrb.com/news/2015/06/22/cosmos-3-5-0-released/</link>
+      <pubDate>Mon, 22 Jun 2015 13:00:00 -0600</pubDate>
+      <dc:creator>ryanmelt</dc:creator>
+      
+      
+      <category>release</category>
+      
+      <guid isPermaLink="true">http://cosmosrb.com/news/2015/06/22/cosmos-3-5-0-released/</guid>
+      <description>&lt;p&gt;This release contains a lot of new functionality and a key new feature:  The ability to create new COSMOS targets and tools as reusable gems!  This will hopefully allow the open source community to create sharable configuration for a large amount of hardware and allow for community generated tools to be easily integrated.&lt;/p&gt;
+
+&lt;h3 id=&quot;bug-fixes&quot;&gt;Bug Fixes:&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/153&quot;&gt;#153&lt;/a&gt; set_tlm should support settings strings with spaces using the normal syntax&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/155&quot;&gt;#155&lt;/a&gt; Default to not performing DNS lookups&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;new-features&quot;&gt;New Features:&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/25&quot;&gt;#25&lt;/a&gt; Warn users if reading a packet log uses the latest instead of the version specified in the file header&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/106&quot;&gt;#106&lt;/a&gt; Allow the server to run headless&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/109&quot;&gt;#109&lt;/a&gt; Cmd value api&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/129&quot;&gt;#129&lt;/a&gt; Script Runner doesn’t syntax highlight module namespacing&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/133&quot;&gt;#133&lt;/a&gt; Add sound to COSMOS alerts&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/138&quot;&gt;#138&lt;/a&gt; Limits Monitor should show what is stale&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/142&quot;&gt;#142&lt;/a&gt; Support gem based targets and tools&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/144&quot;&gt;#144&lt;/a&gt; Never have nothing happen when trying to launch a tool&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/152&quot;&gt;#152&lt;/a&gt; Provide a method to retrieve current suite/group/case in TestRunner&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/157&quot;&gt;#157&lt;/a&gt; Launcher support command line options in combobox&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/163&quot;&gt;#163&lt;/a&gt; Allow message_box to display buttons vertically&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;maintenance&quot;&gt;Maintenance:&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/131&quot;&gt;#131&lt;/a&gt; Consolidate Find/Replace logic in the FindReplaceDialog&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/137&quot;&gt;#137&lt;/a&gt; Improve Server message log performance&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/142&quot;&gt;#142&lt;/a&gt; Improve Windows Installer bat file&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/146&quot;&gt;#146&lt;/a&gt; Need support for additional non-standard serial baud rates&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/150&quot;&gt;#150&lt;/a&gt; Improve Win32 serial driver performance&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;migration-notes-from-cosmos-342&quot;&gt;Migration Notes from COSMOS 3.4.2:&lt;/h3&gt;
+
+&lt;p&gt;The launcher scripts and .bat files that live in the COSMOS project tools folder have been updated to be easier to maintain and to ensure that the user always sees some sort of error message if a problem occurs starting a tool.  All users should copy the new files from the tools folder in the COSMOS demo folder into their projects as part of the upgrade to COSMOS 3.5.0&lt;/p&gt;
+
+&lt;p&gt;COSMOS now disables reverse DNS lookups by default because they can take a long time in some environments.  If you still want to see hostnames when someone connects to a TCP/IP server interface/router then you will need to add ENABLE_DNS to your system.txt file.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Ball Aerospace COSMOS 3.4.2 Released</title>
+      <link>http://cosmosrb.com/news/2015/05/08/cosmos-3-4-2-released/</link>
+      <pubDate>Fri, 08 May 2015 13:00:00 -0600</pubDate>
+      <dc:creator>ryanmelt</dc:creator>
+      
+      
+      <category>release</category>
+      
+      <guid isPermaLink="true">http://cosmosrb.com/news/2015/05/08/cosmos-3-4-2-released/</guid>
+      <description>&lt;h3 id=&quot;issues&quot;&gt;Issues:&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/123&quot;&gt;#123&lt;/a&gt; TestRunner command line option to launch a test automatically&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/125&quot;&gt;#125&lt;/a&gt; Fix COSMOS issues for qtbindings 4.8.6.2&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/126&quot;&gt;#126&lt;/a&gt; COSMOS GUI Chooser updates&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;migration-notes-from-cosmos-33x-or-34x&quot;&gt;Migration Notes from COSMOS 3.3.x or 3.4.x:&lt;/h3&gt;
+
+&lt;p&gt;COSMOS 3.4.2 requires qtbindings 4.8.6.2. You must also update qtbindings when installing this release. Also note that earlier versions of COSMOS will not work with qtbindings 4.8.6.2. All users are strongly recommended to update both gems.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Ball Aerospace COSMOS 3.4.1 Released</title>
+      <link>http://cosmosrb.com/news/2015/05/01/cosmos-3-4-1-released/</link>
+      <pubDate>Fri, 01 May 2015 13:00:00 -0600</pubDate>
+      <dc:creator>ryanmelt</dc:creator>
+      
+      
+      <category>release</category>
+      
+      <guid isPermaLink="true">http://cosmosrb.com/news/2015/05/01/cosmos-3-4-1-released/</guid>
+      <description>&lt;h3 id=&quot;issues&quot;&gt;Issues:&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/121&quot;&gt;#121&lt;/a&gt; BinaryAccessor write crashes with negative bit sizes&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;migration-notes-from-cosmos-33x&quot;&gt;Migration Notes from COSMOS 3.3.x:&lt;/h3&gt;
+
+&lt;p&gt;None&lt;/p&gt;
+
+&lt;p&gt;Note: COSMOS 3.4.0 has a serious regression when writing to variably sized packets. Please upgrade to 3.4.1 immediately if you are using 3.4.0.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Ball Aerospace COSMOS 3.4.0 Released</title>
+      <link>http://cosmosrb.com/news/2015/04/27/cosmos-3-4-0-released/</link>
+      <pubDate>Mon, 27 Apr 2015 13:00:00 -0600</pubDate>
+      <dc:creator>ryanmelt</dc:creator>
+      
+      
+      <category>release</category>
+      
+      <guid isPermaLink="true">http://cosmosrb.com/news/2015/04/27/cosmos-3-4-0-released/</guid>
+      <description>&lt;h3 id=&quot;issues&quot;&gt;Issues:&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/23&quot;&gt;#23&lt;/a&gt; Handbook Creator User’s Guide Mode&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/72&quot;&gt;#72&lt;/a&gt; Refactor binary_accessor&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/101&quot;&gt;#101&lt;/a&gt; Support Ruby 2.2 and 64-bit Ruby on Windows&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/104&quot;&gt;#104&lt;/a&gt; CmdTlmServer Loading Tmp &amp;amp; SVN Conflict Files&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/107&quot;&gt;#107&lt;/a&gt; Remove truthy and falsey from specs&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/110&quot;&gt;#110&lt;/a&gt; Optimize TlmGrapher&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/111&quot;&gt;#111&lt;/a&gt; Protect Interface Thread Stop from AutoReconnect&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/114&quot;&gt;#114&lt;/a&gt; Refactor Cosmos::Script module&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/118&quot;&gt;#118&lt;/a&gt; Allow PacketViewer to hide ignored items&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;migration-notes-from-cosmos-33x&quot;&gt;Migration Notes from COSMOS 3.3.x:&lt;/h3&gt;
+
+&lt;p&gt;None&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>COSMOS BinaryAccessor#write C Extension</title>
+      <link>http://cosmosrb.com/news/2015/04/06/cosmos-c-extension/</link>
+      <pubDate>Mon, 06 Apr 2015 13:00:00 -0600</pubDate>
+      <dc:creator>jmthomas</dc:creator>
+      
+      
+      <category>post</category>
+      
+      <guid isPermaLink="true">http://cosmosrb.com/news/2015/04/06/cosmos-c-extension/</guid>
+      <description>&lt;h2 id=&quot;how-i-created-a-cosmos-c-extension&quot;&gt;How I created a COSMOS C Extension&lt;/h2&gt;
+
+&lt;p&gt;The COSMOS framework has several &lt;a href=&quot;https://github.com/BallAerospace/COSMOS/tree/master/ext/cosmos/ext&quot;&gt;C extensions&lt;/a&gt; created to increase performance. One critical piece that was created early on is the extension to the &lt;a href=&quot;https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/packets/binary_accessor.rb&quot;&gt;BinaryAccessor&lt;/a&gt; class. This allows for increased performance when reading items from binary packets which is the most common operation in the COSMOS system. I created a COSMOS &lt;a href=&quot;https://github.com/BallAerospace/COSMOS/tree/master/test/performance&quot;&gt;performance configuration&lt;/a&gt; which spawns 30 fake targets and attempts to send commands to them as fast as possible. Sending commands exercies the write portion of BinaryAccessor and profiling showed this was now becoming a bottleneck. Therefore I set out to port the write method to the existing C extension.&lt;/p&gt;
+
+&lt;p&gt;The fact that &lt;a href=&quot;https://github.com/ryanatball&quot;&gt;Ryan&lt;/a&gt; had already implemented the read method as a C extension gave me a huge head start. I first copied all the Ruby code directly into the C extension so I could try to translate it line by line. Initially if I didn’t know how to do the translation I would just comment it out and see how much I could compile. A nice way to do this in C code is use &lt;code class=&quot;highlighter-rouge&quot;&gt;#if 0 ... #endif&lt;/code&gt;. I also copied the read method signature and locals since the methods are similar. Before I get to far into the guts I should note that this effort relied on a very comprehensive &lt;a href=&quot;https://github.com/BallAerospace/COSMOS/blob/master/spec/packets/binary_accessor_spec.rb&quot;&gt;spec&lt;/a&gt; or I would have had no idea if I was successful.&lt;/p&gt;
+
+&lt;p&gt;Once I implemented the initial parameter checking I dove into the String and Block (binary string) handling portion of the write method. The write method modifies the given buffer by writing a String or Block into it. I started with Google and found &lt;a href=&quot;http://clalance.blogspot.com/2011/01/writing-ruby-extensions-in-c-part-8.html&quot;&gt;Chris Lalancette’s&lt;/a&gt; post and this excellent write-up on &lt;a href=&quot;http://silverhammermba.github.io/emberb/c&quot;&gt;The Ruby C API&lt;/a&gt;. I also cloned &lt;a href=&quot;https://github.com/ruby/ruby&quot;&gt;ruby&lt;/a&gt; itself and went directly to the &lt;a href=&quot;https://github.com/ruby/ruby/blob/trunk/string.c&quot;&gt;code&lt;/a&gt;. I found the code a little difficult to follow but the important thing to remember is if the method is NOT delcared static then you can use it in your C extension. I ended up using &lt;code class=&quot;highlighter-rouge&quot;&gt;rb_str_concat&lt;/code&gt; to add to the buffer and &lt;code class=&quot;highlighter-rouge&quot;&gt;rb_str_update&lt;/code&gt; to directly modify the buffer.&lt;/p&gt;
+
+&lt;div class=&quot;note warning&quot;&gt;
+  &lt;h5&gt;Modifying Ruby strings&lt;/h5&gt;
+  &lt;p&gt;If you directly modify the Ruby string buffer in a C extension with memcpy, memmove, or memset (after getting a pointer with RSTRING_PTR), you need to tell the Ruby runtime with the rb_str_modify method. Calling Ruby's methods like rb_str_update automatically handles this for you.&lt;/p&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Another issue I ran into was the existing Ruby code was calling &lt;code class=&quot;highlighter-rouge&quot;&gt;to_s&lt;/code&gt; on the input value to ensure it was a String. In the C extension you can check for a type using &lt;code class=&quot;highlighter-rouge&quot;&gt;RB_TYPE_P(value, T_STRING)&lt;/code&gt; where value is a unknown Ruby VALUE instance and T_STRING can be any number of Ruby types. If the value was not a Ruby String I used &lt;code class=&quot;highlighter-rouge&quot;&gt;rb_funcall&lt;/code&gt; to directly call the Ruby runtime and call the &lt;code class=&quot;highlighter-rouge&quot;&gt;to_s&lt;/code&gt; method. If you are unable to find an appropriate method in the C library to do what you want, this is the way to use Ruby from within your C extension.&lt;/p&gt;
+
+&lt;p&gt;Next I started to tackle the writing of signed and unsigned integers. COSMOS supports overflow of integers by either truncating a passed in value, saturating to the high or low, or raising an error. So I implemented a &lt;code class=&quot;highlighter-rouge&quot;&gt;check_overflow&lt;/code&gt; method in C to handle this logic. This code was very difficult to get right because of the size of the values involved. Since COSMOS handles integers of any size, I had to create Ruby Bignum constants to perform the comparisons. This involved another dive into the Ruby source to understand &lt;a href=&quot;https://github.com/ruby/ruby/blob/trunk/bignum.c&quot;&gt;bignum.c&lt;/a&gt;. One of the tricks was to create Ruby Constants up front in the Initialization routine so I wasn’t constantly recalulating Bignums for comparison. COSMOS also handles bitfields so those values I generate dynamically using &lt;code class=&quot;highlighter-rouge&quot;&gt;rb_big_pow&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;rb_bit_minus&lt;/code&gt;. I also created a &lt;code class=&quot;highlighter-rouge&quot;&gt;TO_BIGNUM&lt;/code&gt; macro which converts Fixnum to Bignum so all the math uses Bignum methods. I could then use the &lt;code class=&quot;highlighter-rouge&quot;&gt;rb_big_cmp&lt;/code&gt; to compare the given value with the appropriate minimum and maximum values.&lt;/p&gt;
+
+&lt;p&gt;The bitfield logic was the most complex to convert to C. This required a lot of C printfs and Ruby puts at each step of the way to ensure all the intermediary calculations were matching up. COSMOS supports big and little endian data buffers so I had to ensure the bytes were reversed and shifted as necessary before finally writing them back to the buffer. Again the &lt;code class=&quot;highlighter-rouge&quot;&gt;rb_str_modify&lt;/code&gt; function is called to notify the Ruby runtime that the buffer has been changed.&lt;/p&gt;
+
+&lt;p&gt;The floating point values were probably the easiest because I simply called &lt;code class=&quot;highlighter-rouge&quot;&gt;RFLOAT_VALUE(value)&lt;/code&gt; to get the double value of the passed in Ruby value. At this point I was able to successfully run the full spec. However, once I ran the entire COSMOS spec suite I hit a failure on a simple write call in api_spec.rb. I determined the spec was trying to send an integer value where there was a floating point value defined. The old Ruby code simply converted this value inline but I was calling &lt;code class=&quot;highlighter-rouge&quot;&gt;RFLOAT_VALUE(value)&lt;/code&gt; which ASSUMES the value is a float. I updated the binary_accessor_spec.rb to capture this failure and also noted a similar issue in the integer logic. The Ruby code was calling &lt;code class=&quot;highlighter-rouge&quot;&gt;value = Integer(value)&lt;/code&gt; for integers and &lt;code class=&quot;highlighter-rouge&quot;&gt;value = Float(value)&lt;/code&gt; for floats. This not only handles the case of passing an integer value when you want to write a float, it also handles truncating a float to an integer and even handles parsing a String which contains a numeric value. When you have a tremendous amount of work being done by Ruby you are best to fall back to &lt;code class=&quot;highlighter-rouge&quot;&gt;rb_funcall&lt;/code&gt;. But how to call the &lt;code class=&quot;highlighter-rouge&quot;&gt;Integer()&lt;/code&gt; method which doesn’t appear to have a receiver. Remember that if a method doesn’t appear to have a receiver it’s probably being called on Kernel which is &lt;a href=&quot;http://www.rubydoc.info/stdlib/core/Kernel#Integer-instance_method&quot;&gt;exactly the case&lt;/a&gt;. Thus I call it with &lt;code class=&quot;highlighter-rouge&quot;&gt;value = rb_funcall(rb_mKernel, rb_intern(&quot;Float&quot;), 1, value);&lt;/code&gt;. (NOTE: I also discovered I could call the method passing ‘self’ instead of rb_mKernel but using Kernel felt more explicit).&lt;/p&gt;
+
+&lt;p&gt;At this point I refactored to combine some of the functionality in the read method with the new write method. I probably could have done more refactoring but refactoring C code just isn’t as much fun as refactoring Ruby code. Once I completed the refactor I wanted to benchmark my new C extension to determine how much faster (or slower?) I made it. I love the &lt;a href=&quot;https://github.com/evanphx/benchmark-ips&quot;&gt;benchmark-ips&lt;/a&gt; gem as it benchmarks iterations per second and automatically determines how many times to run the code to get good data. But I didn’t want to re-write our existing specs to support using this gem so I looked into how to integrate it with RSpec. It turns out this is all that was needed in our spec_helper.rb:&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;if ENV.key?(&quot;BENCHMARK&quot;)
+    c.around(:each) do |example|
+      Benchmark.ips do |x|
+        x.report(example.metadata[:full_description]) do
+          example.run
+        end
+      end
+    end
+  end
+&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;Benchmark-ips works by calculating the number of runs to get interesting data and then running the code in question. Thus defining BENCHMARK in the environment makes the specs run EXTREMELY slow. I used the ability of RSpec to filter only the examples I wanted to benchmark with the -e option:&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;rspec spec/packets/binary_accesor_spec.rb -e &quot;write only&quot;&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;Running this in master and then in my C-extension branch I calculated the difference in iterations and then filtered out all the “complains” (raise an exception) and “overflow” test cases to focus on just the tests which write values. The average improvement was 1.3x. Not quite as awesome as I was hoping for but an improvement in an area that is performance sensitive. I suspected I could get additional performance if I optimized the check_overflow method to not always use Bignums and to do Fixnum comparisons if possible. However, this did not yield any optimizations so I backed out the change.&lt;/p&gt;
+
+&lt;p&gt;At this point I submitted the &lt;a href=&quot;https://github.com/BallAerospace/COSMOS/pull/103&quot;&gt;pull request&lt;/a&gt; which broke the Travis build. &lt;a href=&quot;https://github.com/ryanatball&quot;&gt;Ryan&lt;/a&gt; then added a patch that corrected all my issues and the build passed. I re-benchmarked his changes and overall the results were actually slightly faster on average so the pull request was merged.&lt;/p&gt;
+
+&lt;p&gt;Enjoy a faster COSMOS write routine!&lt;/p&gt;
+
+</description>
+    </item>
+    
+    <item>
+      <title>Ball Aerospace COSMOS 3.3.3 Released</title>
+      <link>http://cosmosrb.com/news/2015/03/23/cosmos-3-3-3-released/</link>
+      <pubDate>Mon, 23 Mar 2015 13:00:00 -0600</pubDate>
+      <dc:creator>ryanmelt</dc:creator>
+      
+      
+      <category>release</category>
+      
+      <guid isPermaLink="true">http://cosmosrb.com/news/2015/03/23/cosmos-3-3-3-released/</guid>
+      <description>&lt;h3 id=&quot;issues&quot;&gt;Issues:&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/93&quot;&gt;#93&lt;/a&gt; Derived items that return arrays are not formatted to strings bug&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/94&quot;&gt;#94&lt;/a&gt; JsonDRb retry if first attempt hits a closed socket bug&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/96&quot;&gt;#96&lt;/a&gt; Make max lines written to output a variable in ScriptRunnerFrame enhancement&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/99&quot;&gt;#99&lt;/a&gt; Increase Block Count in DataViewer&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;migration-notes-from-cosmos-32x&quot;&gt;Migration Notes from COSMOS 3.2.x:&lt;/h3&gt;
+
+&lt;p&gt;System.telemetry.target_names and System.commands.target_names no longer contain the ‘UNKNOWN’ target.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Ball Aerospace COSMOS 3.3.1 - Startup Cheetah</title>
+      <link>http://cosmosrb.com/news/2015/03/19/cosmos-3-3-1-released/</link>
+      <pubDate>Thu, 19 Mar 2015 13:00:00 -0600</pubDate>
+      <dc:creator>ryanmelt</dc:creator>
+      
+      
+      <category>release</category>
+      
+      <guid isPermaLink="true">http://cosmosrb.com/news/2015/03/19/cosmos-3-3-1-released/</guid>
+      <description>&lt;p&gt;COSMOS first-time startup speed is now 16 times faster - hence this release is codenamed “Startup Cheetah”. Enjoy!&lt;/p&gt;
+
+&lt;h3 id=&quot;issues&quot;&gt;Issues:&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/91&quot;&gt;#91&lt;/a&gt; Add mutex around creation of System.instance&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/89&quot;&gt;#89&lt;/a&gt; Reduce maximum block count from 10000 to 100 everywhere&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/87&quot;&gt;#87&lt;/a&gt; MACRO doesn’t support more than one item&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/85&quot;&gt;#85&lt;/a&gt; Replace use of DL with Fiddle&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/82&quot;&gt;#82&lt;/a&gt; Improve COSMOS startup speed&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/81&quot;&gt;#81&lt;/a&gt; UNKNOWN target identifies all buffers before other targets have a chance&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/78&quot;&gt;#78&lt;/a&gt; Reduce COSMOS memory usage&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/76&quot;&gt;#76&lt;/a&gt; Fix specs to new expect syntax and remove ‘should’&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/74&quot;&gt;#74&lt;/a&gt; Server requests/sec and utilization are incorrect&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;migration-notes-from-cosmos-32x&quot;&gt;Migration Notes from COSMOS 3.2.x:&lt;/h3&gt;
+
+&lt;p&gt;System.telemetry.target_names and System.commands.target_names no longer contain the ‘UNKNOWN’ target.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>COSMOS at the GSAW Conference</title>
+      <link>http://cosmosrb.com/news/2015/02/27/cosmos-at-gsaw-conference/</link>
+      <pubDate>Fri, 27 Feb 2015 12:00:00 -0700</pubDate>
+      <dc:creator>ryanmelt</dc:creator>
+      
+      
+      <category>conference</category>
+      
+      <guid isPermaLink="true">http://cosmosrb.com/news/2015/02/27/cosmos-at-gsaw-conference/</guid>
+      <description>&lt;p&gt;Ball Aerospace COSMOS is participating in the poster session of this years &lt;a href=&quot;http://gsaw.org&quot;&gt;Ground System Architectures Workshop (GSAW)&lt;/a&gt; taking place at the Renaissance Los Angeles Airport Hotel March 2-5, 2015.&lt;/p&gt;
+
+&lt;p&gt;If you’re attending the conference, stop by our poster in the exhibit hall and say hi!&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Ball Aerospace COSMOS 3.2.1 Released</title>
+      <link>http://cosmosrb.com/news/2015/02/23/cosmos-3-2-1-released/</link>
+      <pubDate>Mon, 23 Feb 2015 12:00:00 -0700</pubDate>
+      <dc:creator>ryanmelt</dc:creator>
+      
+      
+      <category>release</category>
+      
+      <guid isPermaLink="true">http://cosmosrb.com/news/2015/02/23/cosmos-3-2-1-released/</guid>
+      <description>&lt;h3 id=&quot;issues&quot;&gt;Issues:&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/61&quot;&gt;#61&lt;/a&gt; Don’t crash TestRunner if there is an error during require_utilities()&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/63&quot;&gt;#63&lt;/a&gt; Creating interfaces with the same name does not cause an error&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/64&quot;&gt;#64&lt;/a&gt; Launcher RUBYW substitution broken by refactor&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/65&quot;&gt;#65&lt;/a&gt; CmdTlmServer ensure log messages start scrolled to bottom on Linux&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/66&quot;&gt;#66&lt;/a&gt; Improve graceful shutdown on linux and prevent continuous exceptions from InterfaceThread&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/70&quot;&gt;#70&lt;/a&gt; ask() should take a default&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;migration-notes-from-cosmos-31x&quot;&gt;Migration Notes from COSMOS 3.1.x:&lt;/h3&gt;
+
+&lt;p&gt;No significant updates to existing code should be needed. The primary reason for update to 3.2.x is fixing the slow shutdown present in all of 3.1.x.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Ball Aerospace COSMOS 3.2.0 Released</title>
+      <link>http://cosmosrb.com/news/2015/02/17/cosmos-3-2-0-released/</link>
+      <pubDate>Tue, 17 Feb 2015 12:00:00 -0700</pubDate>
+      <dc:creator>ryanmelt</dc:creator>
+      
+      
+      <category>release</category>
+      
+      <guid isPermaLink="true">http://cosmosrb.com/news/2015/02/17/cosmos-3-2-0-released/</guid>
+      <description>&lt;h3 id=&quot;issues&quot;&gt;Issues:&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/34&quot;&gt;#34&lt;/a&gt; Refactor packet_config&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/43&quot;&gt;#43&lt;/a&gt; Add ccsds_log_reader.rb as an example of alternative log readers&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/45&quot;&gt;#45&lt;/a&gt; Slow shutdown of CTS and TlmViewer with threads trying to connect&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/46&quot;&gt;#46&lt;/a&gt; Add mutex protection to Cosmos::MessageLog&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/47&quot;&gt;#47&lt;/a&gt; TlmGrapher RangeError in Overview Graph&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/49&quot;&gt;#49&lt;/a&gt; Make about dialog scroll&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/55&quot;&gt;#55&lt;/a&gt; Automatic require of stream_protocol fix and cleanup&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/57&quot;&gt;#57&lt;/a&gt; Add OPTION keyword to support passing arbitrary options to interfaces/routers&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/59&quot;&gt;#59&lt;/a&gt; Add password mode to ask and ask_string&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;migration-notes-from-cosmos-31x&quot;&gt;Migration Notes from COSMOS 3.1.x:&lt;/h3&gt;
+
+&lt;p&gt;No significant updates to existing code should be needed. The primary reason for update to 3.2.x is fixing the slow shutdown present in all of 3.1.x.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Ball Aerospace COSMOS 3.1.2 Released</title>
+      <link>http://cosmosrb.com/news/2015/02/03/cosmos-3-1-2-released/</link>
+      <pubDate>Tue, 03 Feb 2015 12:00:00 -0700</pubDate>
+      <dc:creator>ryanmelt</dc:creator>
+      
+      
+      <category>release</category>
+      
+      <guid isPermaLink="true">http://cosmosrb.com/news/2015/02/03/cosmos-3-1-2-released/</guid>
+      <description>&lt;h3 id=&quot;issues&quot;&gt;Issues:&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/20&quot;&gt;#20&lt;/a&gt; Handbook Creator should output relative paths&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/21&quot;&gt;#21&lt;/a&gt; Improve code metrics&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/26&quot;&gt;#26&lt;/a&gt; Dynamically created file for Mac launchers should not be included in CRC calculation&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/27&quot;&gt;#27&lt;/a&gt; TestRunner build_test_suites destroys CustomTestSuite if underlying test procedures change&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/28&quot;&gt;#28&lt;/a&gt; TlmGrapher - Undefined method nan? for 0:Fixnum&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/35&quot;&gt;#35&lt;/a&gt; Race condition starting new binary log&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/36&quot;&gt;#36&lt;/a&gt; TlmDetailsDialog non-functional&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/37&quot;&gt;#37&lt;/a&gt; Remaining TlmGrapher regression&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/38&quot;&gt;#38&lt;/a&gt; Allow INTERFACE_TARGET to work with target name substitutions&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;migration-notes-from-cosmos-30x&quot;&gt;Migration Notes from COSMOS 3.0.x:&lt;/h3&gt;
+
+&lt;p&gt;The definition of limits persistence has changed. Before it only applied when changing to a bad state (yellow or red). Now persistence applies for all changes including from stale to a valid state and from bad states back to green.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Ball Aerospace COSMOS 3.1.1 Released</title>
+      <link>http://cosmosrb.com/news/2015/01/28/cosmos-3-1-1-released/</link>
+      <pubDate>Wed, 28 Jan 2015 12:00:00 -0700</pubDate>
+      <dc:creator>ryanmelt</dc:creator>
+      
+      
+      <category>release</category>
+      
+      <guid isPermaLink="true">http://cosmosrb.com/news/2015/01/28/cosmos-3-1-1-released/</guid>
+      <description>&lt;h3 id=&quot;issues&quot;&gt;Issues:&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/10&quot;&gt;#10&lt;/a&gt; Simulated Targets Button only works on Windows&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/11&quot;&gt;#11&lt;/a&gt; Mac application folders not working&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/12&quot;&gt;#12&lt;/a&gt; Persistence should be applied even if changing from stale&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/14&quot;&gt;#14&lt;/a&gt; Allow information on logging page to be copied&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/16&quot;&gt;#16&lt;/a&gt; Ensure read conversion cache cannot be cleared mid-use&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/17&quot;&gt;#17&lt;/a&gt; NaNs in telemetry graph causes scaling crash&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;migration-notes-from-cosmos-30x&quot;&gt;Migration Notes from COSMOS 3.0.x:&lt;/h3&gt;
+
+&lt;p&gt;The definition of limits persistence has changed. Before it only applied when changing to a bad state (yellow or red). Now persistence applies for all changes including from stale to a valid state and from bad states back to green.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Ball Aerospace COSMOS Open Sourced</title>
+      <link>http://cosmosrb.com/news/2015/01/06/ball-aerospace-cosmos-open-sourced/</link>
+      <pubDate>Tue, 06 Jan 2015 12:00:00 -0700</pubDate>
+      <dc:creator>ryanmelt</dc:creator>
+      
+      
+      <category>release</category>
+      
+      <guid isPermaLink="true">http://cosmosrb.com/news/2015/01/06/ball-aerospace-cosmos-open-sourced/</guid>
+      <description>&lt;h2 id=&quot;ball-aerospace--technologies-corp-has-launched-ball-aerospace-cosmos-the-companys-second-open-source-software-project&quot;&gt;Ball Aerospace &amp;amp; Technologies Corp. has launched Ball Aerospace COSMOS, the company’s second open source software project.&lt;/h2&gt;
+
+&lt;p&gt;Ball Aerospace COSMOS brings an exciting set of functionality to Operations and Integration &amp;amp; Test that had previously only been available in proprietary
+and expensive COTS solutions or not available in any commercial product.  A full set of 15 applications provide features including automated test procedures,
+realtime and offline telemetry display and graphing, post-test analysis and CSV extraction, limits monitoring, command and telemetry handbook creation,
+and binary file editing.&lt;/p&gt;
+
+&lt;p&gt;Automated test procedures written for COSMOS offer the full power of the Ruby programming language allowing operators to send commands,
+verify telemetry, read and write files, access the network, and even send an email on completion.  Additional features include automated test
+report generation, standardized meta data collection (unit serial number, operator name), and loop testing (executing the same test repeatedly
+to wring out timing and other issues).  Advanced debugging functionality allows for single-stepping through procedures, setting breakpoints, and
+complete logging of all script and user interaction with the system under test.&lt;/p&gt;
+
+&lt;p&gt;Detailed data visualization allows for custom screen creation, line and x-y plotting of realtime data, easy creation of custom 3d visualizations,
+and the ability to quickly view any data provided by an embedded system.   Post-test analysis and data extraction capabilities make narrowing
+down anomalies easy and allow for data to be quickly imported into outside data analysis systems such as Matlab.&lt;/p&gt;
+
+&lt;p&gt;“Ball Aerospace’s COSMOS enables an amazing amount of functionality and can provide a standard interface for interacting with anything that
+contains embedded software”, said Ryan Melton, COSMOS’s creator and open source evangelist.  “By open sourcing this software we hope to
+change the whole playing field of Operations, Integration, and Test”.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
