@@ -1046,54 +1046,7 @@
           <div class="improve right">
             <a href="https://github.com/BallAerospace/COSMOS/edit/gh-pages/_docs/chaining.md" target="_blank"><i class="fa fa-pencil"></i> &nbsp;Improve this page</a>
           </div>
-          <div class="toc">
-            <p>Chaining CmdTlmServers allows for running the COSMOS tools on other workstations and removing that processing load from a main CmdTlmServer that is directly connected to your targets.  This is great for setting up workstations dedicated to graphing data, or viewing telemetry, without disturbing the main operation.</p>
-
-<h2 id="main-cmdtlmserver-configuration">Main CmdTlmServer Configuration</h2>
-
-<p>The default COSMOS Configuration already includes everything necessary to chain “child” CmdTlmServers.  There is a default router called the PREIDENTIFIED_ROUTER that is listening on port 7779 by default.  This is used to chain CmdTlmServers and is also used by TlmGrapher to access the full telemetry stream.</p>
-
-<p>The only issue on the main CmdTlmServer computer is that you must make sure that the firewall is either disabled or that access to port 7779 is permitted.</p>
-
-<h2 id="child-cmdtlmserver-configuration">Child CmdTlmServer Configuration</h2>
-
-<ol>
-  <li>Modify the example cmd_tlm_server_chain.txt file below
-    <ul>
-      <li>Change localhost to the IP address of your main CmdTlmServer</li>
-      <li>Update the TARGET keywords to include all of your targets</li>
-    </ul>
-  </li>
-  <li>Put the updated cmd_tlm_server_chain.txt into config/tools/cmd_tlm_server/cmd_tlm_server_chain.txt</li>
-  <li>Start CmdTlmServer with (probably create a modified launcher.txt and associated .bat file):
-    <ul>
-      <li><code class="highlighter-rouge">ruby CmdTlmServer --config cmd_tlm_server_chain.txt</code></li>
-    </ul>
-  </li>
-</ol>
-
-<h3 id="example-cmdtlmserver-configuration-for-child-cmdtlmserverchaintxt">Example CmdTlmServer Configuration for Child (cmd_tlm_server_chain.txt)</h3>
-
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="c"># Using this file WITH LOCALHOST requires changing the ports in system.txt</span>
-<span class="c"># Otherwise don't change the ports!</span>
-
-TITLE <span class="s1">'COSMOS Command and Telemetry Server - Chain Configuration'</span>
-
-<span class="c"># Don't log on the chained server</span>
-PACKET_LOG_WRITER DEFAULT packet_log_writer.rb nil <span class="nb">false</span>
-
-<span class="c"># Replace localhost below with the IP Address of the main CmdTlmServer</span>
-<span class="c"># Update the target list below to the full list of targets in your system</span>
-<span class="c"># To make this child unable to send commands change the first 7779 to nil</span>
-INTERFACE CHAININT tcpip_client_interface.rb localhost 7779 7779 10 5 PREIDENTIFIED
-  TARGET INST
-  TARGET INST2
-  TARGET EXAMPLE
-  TARGET TEMPLATED
-  TARGET COSMOS</code></pre></figure>
-
-
-          </div>
+          
           <h1>Chaining CmdTlmServers</h1>
           <p>Chaining CmdTlmServers allows for running the COSMOS tools on other workstations and removing that processing load from a main CmdTlmServer that is directly connected to your targets.  This is great for setting up workstations dedicated to graphing data, or viewing telemetry, without disturbing the main operation.</p>
 

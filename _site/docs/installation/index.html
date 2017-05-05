@@ -1046,63 +1046,7 @@
           <div class="improve right">
             <a href="https://github.com/BallAerospace/COSMOS/edit/gh-pages/_docs/installation.md" target="_blank"><i class="fa fa-pencil"></i> &nbsp;Improve this page</a>
           </div>
-          <div class="toc">
-            <h2 id="windows-7">Windows 7+</h2>
-<p>Run the COSMOS Installation bat file:</p>
-
-<ol>
-  <li>Right click this link and choose “Save Target As” or “Save Link As”: <a href="https://raw.githubusercontent.com/BallAerospace/COSMOS/master/vendor/installers/windows/INSTALL_COSMOS.bat">INSTALL_COSMOS.bat</a></li>
-  <li>Save the file to your harddrive</li>
-  <li>Run the bat from from Windows explorer or a cmd window</li>
-</ol>
-
-<p>NOTE: The COSMOS installation batch file downloads all the components of the COSMOS system from the Internet. If you want to create an offline installer simply zip up the resulting installation directory. Then manually create the COSMOS_DIR environment variable to point to the root directory where you unzip all the installation files. You might also want to add &lt;COSMOS&gt;\Vendor\Ruby\bin to your path to allow access to Ruby from your terminal.</p>
-
-<p>NOTE on IE - If you left click the link above and try to save it, IE will corrupt the bat file.</p>
-
-<h2 id="centos-linux-65667-ubuntu-linux-1404lts-and-mac-osx-mavericks">CentOS Linux 6.5/6.6/7, Ubuntu Linux 14.04LTS, and Mac OSX Mavericks+</h2>
-<p>The following instructions work for an installation on CentOS Linux 6.5, 6.6, or 7, and Ubuntu 14.04LTS from a clean install or any version of Mac OSX after and include Mavericks.  Similar steps should work on other distributions/versions, particularly Redhat.</p>
-
-<p>Run the following command in a terminal:</p>
-
-<div class="highlighter-rouge"><pre class="highlight"><code>bash &lt;(\curl -sSL https://raw.githubusercontent.com/BallAerospace/COSMOS/master/vendor/installers/linux_mac/INSTALL_COSMOS.sh)
-</code></pre>
-</div>
-
-<h2 id="linux-notes">Linux Notes</h2>
-
-<p>The install script will install all needed dependencies using the system package manager and install ruby using rbenv.   If another path to installing COSMOS is desired please feel free to just use the INSTALL_COSMOS.sh file as a basis.  As always, it is a good idea to review any remote shell script before executing it on your system.</p>
-
-<h2 id="mac-notes">Mac Notes</h2>
-
-<p>The install script will install all needed dependencies using homebrew and install ruby using rbenv.   If another path to installing COSMOS is desired please feel free to just use the INSTALL_COSMOS.sh file as a basis.  As always, it is a good idea to review any remote shell script before executing it on your system.</p>
-
-<p>In the tools/mac folder is a Mac application version of each tool.    Launcher.app can be copied into the overall Mac applications folder or the Desktop for easy launching.   For this to work you need to set an environment variable for each user so that COSMOS can find it configuration files:</p>
-
-<p>In your .bash_profile add this line (point to your actual COSMOS configuration folder):</p>
-
-<div class="highlighter-rouge"><pre class="highlight"><code>export COSMOS_USERPATH=/Users/username/demo
-</code></pre>
-</div>
-
-<h2 id="general">General</h2>
-
-<p>Notes:</p>
-
-<ol>
-  <li>
-    <p>ruby-termios is a dependency of COSMOS on non-windows platforms but is not listed in the gem dependencies because it is not a dependency on Windows.  An extension attempts to install it when gem install cosmos is run.  This should work as long as you are online. If attempting an offline installation of cosmos you will need to first manually install ruby-termios: <code class="highlighter-rouge">gem install ruby-termios</code></p>
-  </li>
-  <li>
-    <p>Installing the COSMOS gem (and many other binary gems) with rdoc 4.0.0 spits outs warnings like this:</p>
-  </li>
-</ol>
-
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">unable to convert <span class="s2">"</span><span class="se">\x</span><span class="s2">90"</span> from ASCII-8BIT to UTF-8 <span class="k">for </span>lib/cosmos/ext/array.so, skipping</code></pre></figure>
-
-<p>These are just warnings and can be safely ignored.  Updating rdoc before installing cosmos will remove the warnings: gem install rdoc.</p>
-
-          </div>
+          
           <h1>Installation</h1>
           <h2 id="windows-7">Windows 7+</h2>
 <p>Run the COSMOS Installation bat file:</p>

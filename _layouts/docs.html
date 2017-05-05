@@ -12,9 +12,11 @@ layout: default
           <div class="improve right">
             <a href="https://github.com/BallAerospace/COSMOS/edit/gh-pages/{{ page.relative_path }}" target="_blank"><i class="fa fa-pencil"></i> &nbsp;Improve this page</a>
           </div>
+          {% if page.toc %}
           <div class="toc">
             {{ content | toc_only }}
           </div>
+          {% endif %}
           <h1>{{ page.title }}</h1>
           {{ content | inject_anchors }}
           {% include section_nav.html %}
