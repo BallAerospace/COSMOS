@@ -14,3 +14,5 @@ gems:
 collections:
   docs:
     output: true
+
+destination: tmp
