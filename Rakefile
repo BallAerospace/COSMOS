@@ -21,7 +21,7 @@ task :deploy do
   system "git co gh-pages"
   system "git pull"
   system "git co website -- _site"
-  FileUtils.cp_r "_site/*", "."
+  FileUtils.cp_r "_site/.", "."
   FileUtils.rm_r "_site"
   system "git add -A"
   system "git diff --cached"
