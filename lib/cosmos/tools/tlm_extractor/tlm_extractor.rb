@@ -132,16 +132,6 @@ module Cosmos
       @matlab_header_check.statusTip = tr('Add a Matlab header to the output data')
       @matlab_header_check.setCheckable(true)
 
-      @share_columns_check = Qt::Action.new(tr('&Share Columns'), self)
-      @share_columns_check.statusTip = tr('Share columns for items with the same name')
-      @share_columns_check.setCheckable(true)
-      @share_columns_check.connect(SIGNAL('triggered()')) { share_columns_changed() }
-
-      @full_column_names_check = Qt::Action.new(tr('&Full Column Names'), self)
-      @full_column_names_check.statusTip = tr('Use full item names in each column')
-      @full_column_names_check.setCheckable(true)
-      @full_column_names_check.connect(SIGNAL('triggered()')) { full_column_names_changed() }
-
       @unique_only_check = Qt::Action.new(tr('&Unique Only'), self)
       @unique_only_check_keyseq = Qt::KeySequence.new(tr('Ctrl+U'))
       @unique_only_check.shortcut = @unique_only_check_keyseq
@@ -154,6 +144,40 @@ module Cosmos
       @batch_mode_check.statusTip = tr('Process multiple config files with the same input files')
       @batch_mode_check.setCheckable(true)
       @batch_mode_check.connect(SIGNAL('triggered()')) { batch_mode_changed() }
+
+      @normal_columns_check = Qt::Action.new(tr('&Normal Columns'), self)
+      @normal_columns_check.statusTip = tr('Normal Columns')
+      @normal_columns_check.setCheckable(true)
+      @normal_columns_check.setChecked(true)
+      @normal_columns_check.connect(SIGNAL('triggered()')) { column_mode_changed() }
+
+      @share_columns_check = Qt::Action.new(tr('Share Columns (&All)'), self)
+      @share_columns_check.statusTip = tr('Share columns for all items with the same name')
+      @share_columns_check.setCheckable(true)
+      @share_columns_check.connect(SIGNAL('triggered()')) { column_mode_changed() }
+
+      @share_indiv_columns_check = Qt::Action.new(tr('Share Columns (&Selected)'), self)
+      @share_indiv_columns_check.statusTip = tr('Share columns for selected items with the same name')
+      @share_indiv_columns_check.setCheckable(true)
+      @share_indiv_columns_check.connect(SIGNAL('triggered()')) { column_mode_changed() }
+
+      @full_column_names_check = Qt::Action.new(tr('Full &Column Names'), self)
+      @full_column_names_check.statusTip = tr('Use full item names in each column')
+      @full_column_names_check.setCheckable(true)
+      @full_column_names_check.connect(SIGNAL('triggered()')) { column_mode_changed() }
+
+      # The column options are mutually exclusive so create an action group
+      column_group = Qt::ActionGroup.new(self)
+      column_group.addAction(@normal_columns_check)
+      column_group.addAction(@share_columns_check)
+      column_group.addAction(@share_indiv_columns_check)
+      column_group.addAction(@full_column_names_check)
+
+      @shared_columns = []
+      @shared_columns_edit = Qt::Action.new(tr('S&elect Shared Columns'), self)
+      @shared_columns_edit.statusTip = tr('Select which columns are shared')
+      @shared_columns_edit.setEnabled(false)
+      @shared_columns_edit.connect(SIGNAL('triggered()')) { shared_columns_edit() }
 
       # Item Menu Actions
       @item_edit = Qt::Action.new(tr('&Edit Items'), self)
@@ -181,10 +205,15 @@ module Cosmos
       @mode_menu = menuBar.addMenu(tr('&Mode'))
       @mode_menu.addAction(@fill_down_check)
       @mode_menu.addAction(@matlab_header_check)
-      @mode_menu.addAction(@share_columns_check)
-      @mode_menu.addAction(@full_column_names_check)
       @mode_menu.addAction(@unique_only_check)
       @mode_menu.addAction(@batch_mode_check)
+      @mode_menu.addSeparator();
+      @mode_menu.addAction(@normal_columns_check)
+      @mode_menu.addAction(@share_columns_check)
+      @mode_menu.addAction(@share_indiv_columns_check)
+      @mode_menu.addAction(@full_column_names_check)
+      @mode_menu.addSeparator();
+      @mode_menu.addAction(@shared_columns_edit)
 
       # Item Menu
       @item_menu = menuBar.addMenu(tr('&Item'))
@@ -458,8 +487,22 @@ module Cosmos
     def sync_gui_to_config
       @tlm_extractor_config.matlab_header = @matlab_header_check.checked?
       @tlm_extractor_config.fill_down = @fill_down_check.checked?
-      @tlm_extractor_config.share_columns = @share_columns_check.checked?
-      @tlm_extractor_config.full_column_names = @full_column_names_check.checked?
+      if @share_columns_check.checked?
+        @tlm_extractor_config.set_column_mode(:SHARE_ALL_COLUMNS)
+      elsif @share_indiv_columns_check.checked?
+        @tlm_extractor_config.set_column_mode(:SHARE_INDIV_COLUMNS)
+        @tlm_extractor_config.clear_shared_columns
+        @shared_columns.each do |item|
+          split_item = item.scan ConfigParser::PARSING_REGEX
+          item_name = split_item[0]
+          value_type = split_item[1].to_sym
+          @tlm_extractor_config.add_shared_column(item_name, value_type)
+        end
+      elsif @full_column_names_check.checked?
+        @tlm_extractor_config.set_column_mode(:FULL_COLUMN_NAMES)
+      else
+        @tlm_extractor_config.set_column_mode(:NORMAL)
+      end
       @tlm_extractor_config.unique_only = @unique_only_check.checked?
       @tlm_extractor_config.downsample_seconds = @downsample_entry.value
       @tlm_extractor_config.output_filename = @packet_log_frame.output_filename
@@ -488,12 +531,23 @@ module Cosmos
     def sync_config_to_gui
       @matlab_header_check.setChecked(@tlm_extractor_config.matlab_header)
       @fill_down_check.setChecked(@tlm_extractor_config.fill_down)
-      @share_columns_check.setChecked(@tlm_extractor_config.share_columns)
-      @full_column_names_check.setChecked(@tlm_extractor_config.full_column_names)
+      case @tlm_extractor_config.column_mode
+      when :SHARE_ALL_COLUMNS
+        @share_columns_check.setChecked(true)
+      when :SHARE_INDIV_COLUMNS
+        @share_indiv_columns_check.setChecked(true)
+        @shared_columns = []
+        @tlm_extractor_config.shared_indiv_columns.each do |shared_column|
+          @shared_columns << shared_column
+        end
+      when :FULL_COLUMN_NAMES
+        @full_column_names_check.setChecked(true)
+      else
+        @normal_columns_check.setChecked(true)
+      end
+      column_mode_changed()
       @unique_only_check.setChecked(@tlm_extractor_config.unique_only)
       @downsample_entry.value = @tlm_extractor_config.downsample_seconds
-      share_columns_changed()
-      full_column_names_changed()
 
       clear_config_item_list()
       @tlm_extractor_config.items.each do |item_type, target_name_or_column_name, packet_name_or_text, item_name, value_type|
@@ -667,21 +721,12 @@ module Cosmos
       box.dispose
     end
 
-    def share_columns_changed
-      if @share_columns_check.checked?
-        @full_column_names_check.setChecked(false)
-        @full_column_names_check.setEnabled(false)
+    def column_mode_changed()
+      if @share_indiv_columns_check.checked?
+        @shared_columns_edit.setEnabled(true)
       else
-        @full_column_names_check.setEnabled(true)
-      end
-    end
-
-    def full_column_names_changed
-      if @full_column_names_check.checked?
-        @share_columns_check.setChecked(false)
-        @share_columns_check.setEnabled(false)
-      else
-        @share_columns_check.setEnabled(true)
+        @shared_columns_edit.setEnabled(false)
+        @shared_columns = []
       end
     end
 
@@ -865,6 +910,58 @@ module Cosmos
           dialog.dispose
         end
       end
+    end
+
+    def shared_columns_edit
+
+      # Get the list of "common" items in the config item list.
+      item_list = []
+      @config_item_list.each do |item|
+        split_item = item.text.scan ConfigParser::PARSING_REGEX
+        item_type = split_item[0]
+        item_name = split_item[3]
+        value_type = split_item[4]
+        if value_type
+          value_type = value_type.upcase.intern
+        else
+          value_type = :CONVERTED
+        end
+        if item_type == 'ITEM'
+          item_list << item_name + ' ' + value_type.to_s
+        end
+      end
+      shared_column_list = item_list.select {|item| item_list.count(item) > 1}
+      shared_column_list.uniq!
+
+      dialog = Qt::Dialog.new(self)
+      dialog.setWindowTitle("Select Common Items to Share Columns")
+      layout = Qt::VBoxLayout.new
+
+      list_layout = Qt::BoxLayout.new(Qt::Horizontal)
+      list = MyListWidget.new(self)
+      list.setSelectionMode(Qt::AbstractItemView::MultiSelection)
+      list.setMinimumHeight(150)
+      list.setMinimumWidth(400)
+      shared_column_list.each {|item| list.addItem(item)}
+      list_layout.addWidget(list)
+      layout.addLayout(list_layout)
+      list.each {|item| item.setSelected(true) if @shared_columns.include?(item.text)}
+
+      button_layout = Qt::BoxLayout.new(Qt::Horizontal)
+      cancel = Qt::PushButton.new("Cancel")
+      connect(cancel, SIGNAL('clicked()'), dialog, SLOT('reject()'))
+      button_layout.addWidget(cancel)
+      ok = Qt::PushButton.new("Save")
+      connect(ok, SIGNAL('clicked()'), dialog, SLOT('accept()'))
+      button_layout.addWidget(ok)
+      layout.addLayout(button_layout)
+      
+      dialog.setLayout(layout)
+      if dialog.exec == Qt::Dialog::Accepted
+        @shared_columns = []
+        list.each {|item| @shared_columns << item.text if item.isSelected()}
+      end
+      dialog.dispose
     end
 
     def open_button

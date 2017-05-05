@@ -92,6 +92,14 @@ WinWaitActive Log
 Click 455 307   ; Cancel
 WinWaitActive Telemetry Extractor
 
+; Add another packet so there will be common items in the shared column dialog
+Click 100, 347 ; Target dropdown
+Sleep 500
+Click 100, 391 ; Select INST2 target
+Sleep 500
+Click 640 350 ; Add Packet INST2 ADCS
+Sleep 500
+
 Send ^f         ; Toggle fill down checkbox
 Sleep 500
 Send ^m^m       ; Check and uncheck Matlab header checkbox (we leave checked below)
@@ -100,7 +108,35 @@ Send ^u         ; Check unique only
 Sleep 500
 Send !m         ; Mode
 Sleep 500
-Send s          ; Shared columns
+Send a          ; Shared columns (all)
+Sleep 500
+Send !m         ; Mode
+Sleep 500
+Send s          ; Shared columns (selected)
+Sleep 500
+Send !m         ; Mode
+Sleep 500
+Send e          ; Select shared columns
+WinWaitActive Select Common Items
+Sleep 500
+Send {Enter}    ; Cancel
+WinWaitActive Telemetry Extractor
+Send !m         ; Mode
+Sleep 500
+Send e          ; Select shared columns
+WinWaitActive Select Common Items
+Sleep 500
+Click 88,51     ; Select TIMEFORMATTED item
+Sleep 500
+Click 125, 250  ; save
+WinWaitActive Telemetry Extractor
+Send !m         ; Mode
+Sleep 500
+Send c          ; Full column names
+Sleep 500
+Send !m         ; Mode
+Sleep 500
+Send n          ; Normal columns
 Sleep 500
 Click 180 405  ; Click in Downsample
 Send +{Left 3}5.0{Enter} ; Downsample to 5 seconds
