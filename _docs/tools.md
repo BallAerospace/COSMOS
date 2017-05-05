@@ -4,7 +4,7 @@ title: Tool Configuration
 permalink: /docs/tools/
 toc: true
 ---
-Please see [Telemetry Screen Configuration](/docs/screens) for instructions on configuring Telemetry Viewer.
+Please see [Telemetry Screen Configuration](/docs/screens) for instructions on configuring Telemetry Viewer.  Please see [Telemetry Grapher Configuration](/docs/grapher) for instructions on configuring Telemetry Grapher.
 
 * * *
 
