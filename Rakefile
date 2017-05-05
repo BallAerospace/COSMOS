@@ -17,12 +17,12 @@ end
 "deploy website/_site to github pages"
 task :deploy do
   puts "## Deploying website/_site to Github Pages "
-  system "git co gh-pages"
-  system "git co website -- _site"
+  system "git checkout gh-pages"
+  system "git checkout website -- _site"
   FileUtils.cp_r "_site/.", "."
   FileUtils.rm_r "_site"
   system "git add -A"
   system "git commit -m \"Deploying website/_site at #{Time.now}\""
   system "git push"
-  system "git co website"
+  system "git checkout website"
 end
