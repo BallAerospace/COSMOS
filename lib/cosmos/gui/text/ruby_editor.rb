@@ -230,6 +230,8 @@ module Cosmos
     end
 
     def update_breakpoints
+      return if @breakpoints.empty?
+
       breakpoints = []
       block = document.firstBlock()
       while (block.isValid())
