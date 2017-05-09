@@ -259,6 +259,31 @@ WinWaitActive Confirm
 Send {Tab}{Enter}
 WinWaitActive Telemetry Extractor
 
+; Test Log Analyze
+Send !f{a} ; Analyze logs
+WinWaitActive Warning
+Sleep 500
+Send {Enter} ;
+WinWaitActive Warning
+Sleep 500
+Send {Enter} ;
+WinWaitActive Log File
+Click 450 305 ; Cancel
+WinWaitActive Telemetry Extractor
+Send !f{a} ; Analyze logs
+WinWaitActive Warning
+Sleep 500
+Send {Enter} ;
+WinWaitActive Warning
+Sleep 500
+Send {Enter} ;
+WinWaitActive Log File
+Sleep 4000
+Send {Enter} ; Done
+WinWaitActive Packet Counts
+Click 685 10 ; Close packet counts window
+WinWaitActive Telemetry Extractor
+
 ; Test Batch Mode
 Click 665 713 ; Clear Time Start
 Sleep 100
