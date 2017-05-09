@@ -53,11 +53,23 @@ module Cosmos
         end
 
         if !@cancel
-          if pkt_counts.empty?
-            results = "No files analyzed"
+          results = "Log Analysis Complete.\n"
+          results << "Log Reader: #{@packet_log_reader.class.to_s}\n"
+          if @time_start
+            results << "Start time: #{@time_start.formatted}\n"
           else
-            results = ""
+            results << "Start time: not specified\n"
+          end
+          if @time_end
+            results << "End time:   #{@time_end.formatted}\n"
+          else
+            results << "End time:   not specified\n"
+          end
+          results << "\n"
 
+          if pkt_counts.empty?
+            results << "No files analyzed"
+          else
             if pkt_counts.keys.size > 1
               pkt_counts_total = {}
               pkt_counts.each do |file, counts|
