@@ -19,6 +19,7 @@ Cosmos.catch_fatal_exception do
   require 'cosmos/gui/widgets/packet_log_frame'
   require 'cosmos/gui/dialogs/progress_dialog'
   require 'cosmos/gui/widgets/full_text_search_line_edit'
+  require 'cosmos/gui/utilities/analyze_log'
 end
 
 module Cosmos
@@ -119,6 +120,10 @@ module Cosmos
       @file_options.statusTip = tr('Open the options dialog')
       @file_options.connect(SIGNAL('triggered()')) { handle_options() }
 
+      @analyze_log = Qt::Action.new(tr('&Analyze Logs'), self)
+      @analyze_log.statusTip = tr('Analyze log file packet counts')
+      @analyze_log.connect(SIGNAL('triggered()')) { analyze_log_files() }
+
       # Mode Menu Actions
       @fill_down_check = Qt::Action.new(tr('&Fill Down'), self)
       @fill_down_check_keyseq = Qt::KeySequence.new(tr('Ctrl+F'))
@@ -198,6 +203,7 @@ module Cosmos
       @file_menu.addAction(@save_config)
       @file_menu.addSeparator()
       @file_menu.addAction(@file_options)
+      @file_menu.addAction(@analyze_log)
       @file_menu.addSeparator()
       @file_menu.addAction(@exit_action)
 
@@ -397,7 +403,6 @@ module Cosmos
 
       # Process and Open Buttons
       @button_layout = Qt::HBoxLayout.new
-
       @process_button = Qt::PushButton.new('&Process Files')
       @process_button.connect(SIGNAL('clicked()')) { process_log_files() }
       @button_layout.addWidget(@process_button)
@@ -566,6 +571,10 @@ module Cosmos
     ###############################################################################
     # File Menu Handlers
     ###############################################################################
+
+    def analyze_log_files
+      AnalyzeLog.execute(self, @packet_log_frame)
+    end
 
     # Handles processing log files
     def process_log_files

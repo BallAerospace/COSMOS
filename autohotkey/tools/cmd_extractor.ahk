@@ -29,5 +29,22 @@ Sleep 5000
 Send !f{x}      ; Exit text editor
 WinActivate Command Extractor
 WinWaitActive Command Extractor
+Send !f{a} ; Analyze logs
+WinWaitActive Warning
+Sleep 500
+Send {Enter} ;
+WinWaitActive Log File
+Click 450 305 ; Cancel
+WinWaitActive Command Extractor
+Send !f{a} ; Analyze logs
+WinWaitActive Warning
+Sleep 500
+Send {Enter} ;
+WinWaitActive Log File
+Sleep 2000
+Send {Enter} ; Done
+WinWaitActive Packet Counts
+Click 500 10 ; Close packet counts window
+WinWaitActive Command Extractor
 Send ^q
 
