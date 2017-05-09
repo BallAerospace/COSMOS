@@ -580,6 +580,8 @@ module Cosmos
         update_config(config)
         @config.name = configuration_name if configuration_name
 
+        setup_system_meta()
+
         # Marshal file load successful
         Logger.info "Marshal load success: #{marshal_filename}"
         @config.warnings.each {|warning| Logger.warn(warning)} if @config.warnings
@@ -607,11 +609,65 @@ module Cosmos
         else
           @config.name = md5_string
         end
+
+        setup_system_meta()
+
         Cosmos.marshal_dump(marshal_filename, @config)
       end
 
       @initial_config = @config unless @initial_config
       save_configuration()
+    end
+
+    def setup_system_meta
+      # Ensure SYSTEM META is defined and defined correctly
+      begin
+        tlm_meta = @telemetry.packet('SYSTEM', 'META')
+        cmd_meta = @commands.packet('SYSTEM', 'META')
+        tlm_meta.get_item('PKTID')
+        cmd_meta.get_item('PKTID')
+        tlm_meta.get_item('CMDTLM')
+        cmd_meta.get_item('CMDTLM')
+        tlm_meta.get_item('CONFIG')
+        cmd_meta.get_item('CONFIG')
+      rescue
+        Logger.error "SYSTEM META not defined or defined incorrectly - defaulting"
+
+        cmd_meta = Packet.new('SYSTEM', 'META', :BIG_ENDIAN)
+        item = cmd_meta.append_item('PKTID', 8, :UINT, nil, :BIG_ENDIAN, :ERROR, nil, nil, nil, 1)
+        item.range = 1..1
+        item.default = 1
+        item.description = 'Packet Id'
+        item = cmd_meta.append_item('CMDTLM', 8, :UINT)
+        item.range = 1..1
+        item.default = 1
+        item.description = 'Cmd or Tlm Flag'
+        item.states = {'TLM' => 0, 'CMD' => 1)
+        item = cmd_meta.append_item('CONFIG', 32 * 8, :STRING)
+        item.default = ''
+        item.description = 'Configuration Name'
+        @config.commands['SYSTEM'] ||= {}
+        @config.commands['SYSTEM']['META'] = cmd_meta
+
+        tlm_meta = Packet.new('SYSTEM', 'META', :BIG_ENDIAN)
+        item = tlm_meta.append_item('PKTID', 8, :UINT, nil, :BIG_ENDIAN, :ERROR, nil, nil, nil, 1)
+        item.description = 'Packet Id'
+        item = tlm_meta.append_item('CMDTLM', 8, :UINT)
+        item.description = 'Cmd or Tlm Flag'
+        item.states = {'TLM' => 0, 'CMD' => 1)
+        item = tlm_meta.append_item('CONFIG', 32 * 8, :STRING)
+        item.description = 'Configuration Name'
+        @config.telemetry['SYSTEM'] ||= {}
+        @config.telemetry['SYSTEM']['META'] = tlm_meta
+      end
+
+      # Set SYSTEM META CONFIG and CMDTLM
+      tlm_meta.write('PKTID', 1)
+      cmd_meta.write('PKTID', 1)
+      tlm_meta.write('CONFIG', @config.name)
+      cmd_meta.write('CONFIG', @config.name)
+      tlm_meta.write('CMDTLM', 0)
+      cmd_meta.write('CMDTLM', 1)
     end
 
   end # class System
