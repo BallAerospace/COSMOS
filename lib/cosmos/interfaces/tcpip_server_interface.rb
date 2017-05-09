@@ -155,7 +155,7 @@ module Cosmos
     # (see Interface#set_option)
     def set_option(option_name, option_values)
       super(option_name, option_values)
-      caseoption_name.upcase
+      case option_name.upcase
       when 'LISTEN_ADDRESS'
         @tcpip_server.listen_address = option_values[0]
       when 'AUTO_SYSTEM_META'

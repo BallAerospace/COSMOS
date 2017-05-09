@@ -642,7 +642,7 @@ module Cosmos
         item.range = 1..1
         item.default = 1
         item.description = 'Cmd or Tlm Flag'
-        item.states = {'TLM' => 0, 'CMD' => 1)
+        item.states = {'TLM' => 0, 'CMD' => 1}
         item = cmd_meta.append_item('CONFIG', 32 * 8, :STRING)
         item.default = ''
         item.description = 'Configuration Name'
@@ -654,7 +654,7 @@ module Cosmos
         item.description = 'Packet Id'
         item = tlm_meta.append_item('CMDTLM', 8, :UINT)
         item.description = 'Cmd or Tlm Flag'
-        item.states = {'TLM' => 0, 'CMD' => 1)
+        item.states = {'TLM' => 0, 'CMD' => 1}
         item = tlm_meta.append_item('CONFIG', 32 * 8, :STRING)
         item.description = 'Configuration Name'
         @config.telemetry['SYSTEM'] ||= {}
