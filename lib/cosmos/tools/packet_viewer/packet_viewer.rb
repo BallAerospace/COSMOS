@@ -498,6 +498,7 @@ module Cosmos
       item = @table.itemAt(point)
       if item
         item_name = @table.item(item.row, 0).text[0..-2] # Remove :
+        item_name = item_name[1..-1] if item_name[0] == '*'
         if target_name.length > 0 and packet_name.length > 0 and item_name.length > 0
           menu = Qt::Menu.new()
 
