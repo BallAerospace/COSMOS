@@ -334,16 +334,16 @@ module Cosmos
           derived = []
           System.telemetry.items(target_name, packet_name).each do |item|
             if item.data_type == :DERIVED
-              derived << [item.name, item.states, item.description]
+              derived << [item.name, item.states, item.description, true]
             else
-              tlm_items << [item.name, item.states, item.description]
+              tlm_items << [item.name, item.states, item.description, false]
               @derived_row += 1
             end
           end
           tlm_items.concat(derived) # Tack the derived onto the end
         else
           System.telemetry.items(target_name, packet_name).each do |item|
-            tlm_items << [item.name, item.states, item.description]
+            tlm_items << [item.name, item.states, item.description, item.data_type == :DERIVED]
           end
         end
       rescue
@@ -360,8 +360,9 @@ module Cosmos
       row = 0
       featured_item = nil
       @ignored_rows = []
-      tlm_items.each do |tlm_name, states, description|
+      tlm_items.each do |tlm_name, states, description, derived|
         @ignored_rows << row if System.targets[target_name].ignored_items.include?(tlm_name)
+        tlm_name = "*#{tlm_name}" if derived
         item = Qt::TableWidgetItem.new(tr("#{tlm_name}:"))
         item.setTextAlignment(Qt::AlignRight)
         item.setFlags(Qt::NoItemFlags | Qt::ItemIsSelectable)
@@ -497,6 +498,7 @@ module Cosmos
       item = @table.itemAt(point)
       if item
         item_name = @table.item(item.row, 0).text[0..-2] # Remove :
+        item_name = item_name[1..-1] if item_name[0] == '*'
         if target_name.length > 0 and packet_name.length > 0 and item_name.length > 0
           menu = Qt::Menu.new()
 
