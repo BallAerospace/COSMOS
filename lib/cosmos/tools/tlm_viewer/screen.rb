@@ -258,10 +258,15 @@ module Cosmos
           if keyword
             case keyword
             when 'SCREEN'
-              parser.verify_num_parameters(3, 3, "#{keyword} <Width or AUTO> <Height or AUTO> <Polling Period>")
+              parser.verify_num_parameters(3, 4, "#{keyword} <Width or AUTO> <Height or AUTO> <Polling Period> <FIXED>")
               @width = parameters[0].to_i
               @height = parameters[1].to_i
               @widgets.polling_period = parameters[2].to_f
+              if parameters.length == 4
+                @fixed = true
+              else
+                @fixed = false
+              end
 
               setWindowTitle(@full_name)
               top_widget = Qt::Widget.new()
@@ -332,6 +337,10 @@ module Cosmos
         resize(self.width, @height)
       elsif @width > 0 and height <= 0
         resize(@width, self.height)
+      end
+      if @fixed
+        setWindowFlags(windowFlags() | Qt::MSWindowsFixedSizeDialogHint)
+        setFixedSize(self.width, self.height)
       end
 
       if @x_pos or @y_pos
@@ -486,5 +495,4 @@ module Cosmos
     end
 
   end
-
-end # module Cosmos
+end
