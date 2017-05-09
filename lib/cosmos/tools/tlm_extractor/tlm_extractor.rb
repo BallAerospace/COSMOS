@@ -120,6 +120,10 @@ module Cosmos
       @file_options.statusTip = tr('Open the options dialog')
       @file_options.connect(SIGNAL('triggered()')) { handle_options() }
 
+      @analyze_log = Qt::Action.new(tr('&Analyze Logs'), self)
+      @analyze_log.statusTip = tr('Analyze log file packet counts')
+      @analyze_log.connect(SIGNAL('triggered()')) { analyze_log_files() }
+
       # Mode Menu Actions
       @fill_down_check = Qt::Action.new(tr('&Fill Down'), self)
       @fill_down_check_keyseq = Qt::KeySequence.new(tr('Ctrl+F'))
@@ -175,6 +179,7 @@ module Cosmos
       @file_menu.addAction(@save_config)
       @file_menu.addSeparator()
       @file_menu.addAction(@file_options)
+      @file_menu.addAction(@analyze_log)
       @file_menu.addSeparator()
       @file_menu.addAction(@exit_action)
 
@@ -367,12 +372,8 @@ module Cosmos
       @packet_log_frame.change_callback = method(:change_callback)
       @file_box_layout.addWidget(@packet_log_frame)
 
-      # Analyze, Process and Open Buttons
+      # Process and Open Buttons
       @button_layout = Qt::HBoxLayout.new
-      @analyze_button = Qt::PushButton.new('&Analyze Files')
-      @analyze_button.connect(SIGNAL('clicked()')) { analyze_log_files() }
-      @button_layout.addWidget(@analyze_button)
-
       @process_button = Qt::PushButton.new('&Process Files')
       @process_button.connect(SIGNAL('clicked()')) { process_log_files() }
       @button_layout.addWidget(@process_button)

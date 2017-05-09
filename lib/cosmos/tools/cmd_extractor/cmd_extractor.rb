@@ -53,6 +53,11 @@ module Cosmos
     def initialize_actions
       super()
 
+      # File Menu Actions
+      @analyze_log = Qt::Action.new(tr('&Analyze Logs'), self)
+      @analyze_log.statusTip = tr('Analyze log file packet counts')
+      @analyze_log.connect(SIGNAL('triggered()')) { analyze_log_files() }
+
       # Mode Menu Actions
       @include_raw = Qt::Action.new(tr('Include &Raw Data'), self)
       @include_raw_keyseq = Qt::KeySequence.new(tr('Ctrl+R'))
@@ -64,6 +69,8 @@ module Cosmos
     def initialize_menus
       # File Menu
       @file_menu = menuBar.addMenu(tr('&File'))
+      @file_menu.addAction(@analyze_log)
+      @file_menu.addSeparator()
       @file_menu.addAction(@exit_action)
 
       # Mode Menu
@@ -90,12 +97,8 @@ module Cosmos
       @sep2.setFrameStyle(Qt::Frame::HLine | Qt::Frame::Sunken)
       @top_layout.addWidget(@sep2)
 
-      # Analyze, Process and Open Buttons
+      # Process and Open Buttons
       @button_layout = Qt::HBoxLayout.new
-      @analyze_button = Qt::PushButton.new('&Analyze Files')
-      @analyze_button.connect(SIGNAL('clicked()')) { analyze_log_files() }
-      @button_layout.addWidget(@analyze_button)
-
       @process_button = Qt::PushButton.new('&Process Files')
       @process_button.connect(SIGNAL('clicked()')) { process_log_files() }
       @button_layout.addWidget(@process_button)
