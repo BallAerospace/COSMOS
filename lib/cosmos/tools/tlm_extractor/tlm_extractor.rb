@@ -19,6 +19,7 @@ Cosmos.catch_fatal_exception do
   require 'cosmos/gui/widgets/packet_log_frame'
   require 'cosmos/gui/dialogs/progress_dialog'
   require 'cosmos/gui/widgets/full_text_search_line_edit'
+  require 'cosmos/gui/utilities/analyze_log'
 end
 
 module Cosmos
@@ -366,8 +367,11 @@ module Cosmos
       @packet_log_frame.change_callback = method(:change_callback)
       @file_box_layout.addWidget(@packet_log_frame)
 
-      # Process and Open Buttons
+      # Analyze, Process and Open Buttons
       @button_layout = Qt::HBoxLayout.new
+      @analyze_button = Qt::PushButton.new('&Analyze Files')
+      @analyze_button.connect(SIGNAL('clicked()')) { analyze_log_files() }
+      @button_layout.addWidget(@analyze_button)
 
       @process_button = Qt::PushButton.new('&Process Files')
       @process_button.connect(SIGNAL('clicked()')) { process_log_files() }
@@ -512,6 +516,10 @@ module Cosmos
     ###############################################################################
     # File Menu Handlers
     ###############################################################################
+
+    def analyze_log_files
+      AnalyzeLog.execute(self, @packet_log_frame)
+    end
 
     # Handles processing log files
     def process_log_files

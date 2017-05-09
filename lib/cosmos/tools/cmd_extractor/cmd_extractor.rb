@@ -14,6 +14,7 @@ Cosmos.catch_fatal_exception do
   require 'cosmos/gui/dialogs/packet_log_dialog'
   require 'cosmos/gui/dialogs/splash'
   require 'cosmos/gui/dialogs/progress_dialog'
+  require 'cosmos/gui/utilities/analyze_log'
 end
 
 module Cosmos
@@ -89,8 +90,12 @@ module Cosmos
       @sep2.setFrameStyle(Qt::Frame::HLine | Qt::Frame::Sunken)
       @top_layout.addWidget(@sep2)
 
-      # Process and Open Buttons
+      # Analyze, Process and Open Buttons
       @button_layout = Qt::HBoxLayout.new
+      @analyze_button = Qt::PushButton.new('&Analyze Files')
+      @analyze_button.connect(SIGNAL('clicked()')) { analyze_log_files() }
+      @button_layout.addWidget(@analyze_button)
+
       @process_button = Qt::PushButton.new('&Process Files')
       @process_button.connect(SIGNAL('clicked()')) { process_log_files() }
       @button_layout.addWidget(@process_button)
@@ -120,6 +125,10 @@ module Cosmos
     ###############################################################################
     # File Menu Handlers
     ###############################################################################
+
+    def analyze_log_files
+      AnalyzeLog.execute(self, @packet_log_frame)
+    end
 
     def process_log_files
       @cancel = false
