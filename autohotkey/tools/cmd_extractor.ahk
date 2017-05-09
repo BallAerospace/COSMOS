@@ -44,7 +44,7 @@ WinWaitActive Log File
 Sleep 2000
 Send {Enter} ; Done
 WinWaitActive Packet Counts
-Click 685 10 ; Close packet counts window
+Click 500 10 ; Close packet counts window
 WinWaitActive Command Extractor
 Send ^q
 

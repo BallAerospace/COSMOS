@@ -281,7 +281,7 @@ WinWaitActive Log File
 Sleep 4000
 Send {Enter} ; Done
 WinWaitActive Packet Counts
-Click 685 10 ; Close packet counts window
+Click 265 10 ; Close packet counts window
 WinWaitActive Telemetry Extractor
 
 ; Test Batch Mode
