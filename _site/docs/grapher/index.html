@@ -5,7 +5,7 @@
   <title>Telemetry Grapher</title>
   <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="generator" content="Jekyll v3.4.3">
+  <meta name="generator" content="Jekyll v3.1.6">
   <link rel="alternate" type="application/rss+xml" title="Ball Aerospace COSMOS News" href="/feed.xml">
   <link rel="alternate" type="application/atom+xml" title="Recent commits to COSMOS’s master branch" href="https://github.com/BallAerospace/COSMOS/commits/master.atom">
   <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic,900">
@@ -1197,7 +1197,7 @@
 <h2 id="global-keywords">
 <a id="global-keywords" class="anchor" href="#global-keywords" aria-hidden="true"><span class="octicon octicon-link"></span></a>Global Keywords</h2>
 
-<h3 id="points_saved">
+<h3 id="pointssaved">
 <a id="points_saved" class="anchor" href="#points_saved" aria-hidden="true"><span class="octicon octicon-link"></span></a>POINTS_SAVED</h3>
 <p>The POINTS_SAVED keyword defines the number of data points that Telemetry Grapher will store before it begins to discard old points in favor of new ones.</p>
 
@@ -1222,7 +1222,7 @@
 
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">POINTS_SAVED 1000000</code></pre></figure>
 
-<h3 id="seconds_plotted">
+<h3 id="secondsplotted">
 <a id="seconds_plotted" class="anchor" href="#seconds_plotted" aria-hidden="true"><span class="octicon octicon-link"></span></a>SECONDS_PLOTTED</h3>
 <p>The SECONDS_PLOTTED keyword defines the number of seconds of telemetry that will be plotted on the main Telemetry Grapher display.</p>
 
@@ -1247,7 +1247,7 @@
 
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">SECONDS_PLOTTED 100.0</code></pre></figure>
 
-<h3 id="points_plotted">
+<h3 id="pointsplotted">
 <a id="points_plotted" class="anchor" href="#points_plotted" aria-hidden="true"><span class="octicon octicon-link"></span></a>POINTS_PLOTTED</h3>
 <p>The POINTS_PLOTTED keyword defines the number of points that will be plotted on the main Telemetry Grapher display.</p>
 
@@ -1272,7 +1272,7 @@
 
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">POINTS_PLOTTED 1000</code></pre></figure>
 
-<h3 id="refresh_rate_hz">
+<h3 id="refreshratehz">
 <a id="refresh_rate_hz" class="anchor" href="#refresh_rate_hz" aria-hidden="true"><span class="octicon octicon-link"></span></a>REFRESH_RATE_HZ</h3>
 <p>The REFRESH_RATE_HZ keyword defines the rate at which Telemetry Grapher will query new information from CTS and fresh the display.</p>
 
@@ -1297,7 +1297,7 @@
 
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">REFRESH_RATE_HZ 10.0</code></pre></figure>
 
-<h3 id="cts_timeout-cosmos--392">
+<h3 id="ctstimeout-cosmos--392">
 <a id="cts_timeout-cosmos--392" class="anchor" href="#cts_timeout-cosmos--392" aria-hidden="true"><span class="octicon octicon-link"></span></a>CTS_TIMEOUT (COSMOS &gt;= 3.9.2)</h3>
 <p>The CTS_TIMEOUT keyword defines the read timeout for the interface between Telemetry Grapher and the CTS.  If Telemetry Grapher is being used to graph low-rate telemetry, it may be necessary to increse this timeout.</p>
 
@@ -1406,7 +1406,7 @@
   PLOT LINEGRAPH
     TITLE <span class="s2">"Plot Title"</span></code></pre></figure>
 
-<h3 id="x_axis_title">
+<h3 id="xaxistitle">
 <a id="x_axis_title" class="anchor" href="#x_axis_title" aria-hidden="true"><span class="octicon octicon-link"></span></a>X_AXIS_TITLE</h3>
 <p>The X_AXIS_TITLE keyword is used to set the title for a plot’s x-axis.  This keyword applies to the most recently defined plot in the configuration file.</p>
 
@@ -1433,7 +1433,7 @@
   PLOT LINEGRAPH
     X_AXIS_TITLE <span class="s2">"X-axis Title"</span></code></pre></figure>
 
-<h3 id="y_axis_title">
+<h3 id="yaxistitle">
 <a id="y_axis_title" class="anchor" href="#y_axis_title" aria-hidden="true"><span class="octicon octicon-link"></span></a>Y_AXIS_TITLE</h3>
 <p>The Y_AXIS_TITLE keyword is used to set the title for a plot’s y-axis.  This keyword applies to the most recently defined plot in the configuration file.</p>
 
@@ -1460,7 +1460,7 @@
   PLOT LINEGRAPH
     Y_AXIS_TITLE <span class="s2">"Y-axis Title"</span></code></pre></figure>
 
-<h3 id="show_x_grid_lines">
+<h3 id="showxgridlines">
 <a id="show_x_grid_lines" class="anchor" href="#show_x_grid_lines" aria-hidden="true"><span class="octicon octicon-link"></span></a>SHOW_X_GRID_LINES</h3>
 <p>The SHOW_X_GRID_LINES keyword is used to enable or disable display of the X grid lines for a plot.  This keyword applies to the most recently defined plot in the configuration file.</p>
 
@@ -1487,7 +1487,7 @@
 PLOT LINEGRAPH
 SHOW_X_GRID_LINES TRUE</code></pre></figure>
 
-<h3 id="show_y_grid_lines">
+<h3 id="showygridlines">
 <a id="show_y_grid_lines" class="anchor" href="#show_y_grid_lines" aria-hidden="true"><span class="octicon octicon-link"></span></a>SHOW_Y_GRID_LINES</h3>
 <p>The SHOW_Y_GRID_LINES keyword is used to enable or disable display of the Y grid lines for a plot.  This keyword applies to the most recently defined plot in the configuration file.</p>
 
@@ -1514,7 +1514,7 @@ SHOW_X_GRID_LINES TRUE</code></pre></figure>
   PLOT LINEGRAPH
     SHOW_Y_GRID_LINES TRUE</code></pre></figure>
 
-<h3 id="point_size">
+<h3 id="pointsize">
 <a id="point_size" class="anchor" href="#point_size" aria-hidden="true"><span class="octicon octicon-link"></span></a>POINT_SIZE</h3>
 <p>The POINT_SIZE keyword is used to set the size of points shown on a plot.  This keyword applies to the most recently defined plot in the configuration file.</p>
 
@@ -1541,7 +1541,7 @@ SHOW_X_GRID_LINES TRUE</code></pre></figure>
   PLOT LINEGRAPH
     POINT_SIZE 7</code></pre></figure>
 
-<h3 id="show_lines">
+<h3 id="showlines">
 <a id="show_lines" class="anchor" href="#show_lines" aria-hidden="true"><span class="octicon octicon-link"></span></a>SHOW_LINES</h3>
 <p>The SHOW_LINES keyword is used to indicate whether or not points on a plot should be connected with lines.  This keyword applies to the most recently defined plot in the configuration file.</p>
 
@@ -1568,7 +1568,7 @@ SHOW_X_GRID_LINES TRUE</code></pre></figure>
   PLOT LINEGRAPH
     SHOW_LINES TRUE</code></pre></figure>
 
-<h3 id="show_legend">
+<h3 id="showlegend">
 <a id="show_legend" class="anchor" href="#show_legend" aria-hidden="true"><span class="octicon octicon-link"></span></a>SHOW_LEGEND</h3>
 <p>The SHOW_LEGEND keyword is used to indicate whether or not to display the legend on a plot.  This keyword applies to the most recently defined plot in the configuration file.</p>
 
@@ -1595,7 +1595,7 @@ SHOW_X_GRID_LINES TRUE</code></pre></figure>
   PLOT LINEGRAPH
     SHOW_LEGEND TRUE</code></pre></figure>
 
-<h3 id="manual_y_axis_scale">
+<h3 id="manualyaxisscale">
 <a id="manual_y_axis_scale" class="anchor" href="#manual_y_axis_scale" aria-hidden="true"><span class="octicon octicon-link"></span></a>MANUAL_Y_AXIS_SCALE</h3>
 <p>The MANUAL_Y_AXIS_SCALE keyword is used to set (and fix) the Y-axis scale on a plot.  If the y-axis scale is not set, the plot will auto-scale based upon the contents.  This keyword applies to the most recently defined plot in the configuration file.</p>
 
@@ -1632,7 +1632,7 @@ SHOW_X_GRID_LINES TRUE</code></pre></figure>
   PLOT LINEGRAPH
     MANUAL_Y_AXIS_SCALE -10 10 LEFT</code></pre></figure>
 
-<h3 id="manual_x_axis_scale">
+<h3 id="manualxaxisscale">
 <a id="manual_x_axis_scale" class="anchor" href="#manual_x_axis_scale" aria-hidden="true"><span class="octicon octicon-link"></span></a>MANUAL_X_AXIS_SCALE</h3>
 <p>The MANUAL_X_AXIS_SCALE keyword is used to set (and fix) the X-axis scale on a plot.  If the x-axis scale is not set, the plot will auto-scale based upon the contents.  Note that this parameter applies only to XY and SINGLEXY plots.  This keyword applies to the most recently defined plot in the configuration file.</p>
 
@@ -1664,7 +1664,7 @@ SHOW_X_GRID_LINES TRUE</code></pre></figure>
   PLOT XY
     MANUAL_X_AXIS_SCALE -10 10</code></pre></figure>
 
-<h3 id="manual_x_grid_line_scale">
+<h3 id="manualxgridlinescale">
 <a id="manual_x_grid_line_scale" class="anchor" href="#manual_x_grid_line_scale" aria-hidden="true"><span class="octicon octicon-link"></span></a>MANUAL_X_GRID_LINE_SCALE</h3>
 <p>The MANUAL_X_GRID_LINE_SCALE keyword is used to set the x grid line scale for a plot.  This keyword applies to the most recently defined plot in the configuration file.</p>
 
@@ -1691,7 +1691,7 @@ SHOW_X_GRID_LINES TRUE</code></pre></figure>
   PLOT LINEGRAPH
     MANUAL_X_GRID_LINE_SCALE 2</code></pre></figure>
 
-<h3 id="manual_y_grid_line_scale">
+<h3 id="manualygridlinescale">
 <a id="manual_y_grid_line_scale" class="anchor" href="#manual_y_grid_line_scale" aria-hidden="true"><span class="octicon octicon-link"></span></a>MANUAL_Y_GRID_LINE_SCALE</h3>
 <p>The MANUAL_Y_GRID_LINE_SCALE keyword is used to set the y grid line scale for a plot.  This keyword applies to the most recently defined plot in the configuration file.</p>
 
@@ -1718,7 +1718,7 @@ SHOW_X_GRID_LINES TRUE</code></pre></figure>
   PLOT LINEGRAPH
     MANUAL_Y_GRID_LINE_SCALE 2</code></pre></figure>
 
-<h3 id="unix_epoch_x_values">
+<h3 id="unixepochxvalues">
 <a id="unix_epoch_x_values" class="anchor" href="#unix_epoch_x_values" aria-hidden="true"><span class="octicon octicon-link"></span></a>UNIX_EPOCH_X_VALUES</h3>
 <p>The UNIX_EPOCH_X_VALUES keyword is used to enable conversion of x-axis values into timestamps, assuming that the x-axis values are seconds since the Unix epoch.  This keyword applies to the most recently defined plot in the configuration file.</p>
 
@@ -1745,7 +1745,7 @@ SHOW_X_GRID_LINES TRUE</code></pre></figure>
   PLOT LINEGRAPH
     UNIX_EPOCH_X_VALUES TRUE</code></pre></figure>
 
-<h3 id="utc_time">
+<h3 id="utctime">
 <a id="utc_time" class="anchor" href="#utc_time" aria-hidden="true"><span class="octicon octicon-link"></span></a>UTC_TIME</h3>
 <p>The UTC_TIME keyword is used to indicate that timestamps on a plot should be displayed in UTC.  If this keyword is not used, timestamps will be displayed in local time.  This keyword applies to the most recently defined plot in the configuration file.</p>
 
@@ -1758,7 +1758,7 @@ SHOW_X_GRID_LINES TRUE</code></pre></figure>
 <h2 id="data-object-keywords">
 <a id="data-object-keywords" class="anchor" href="#data-object-keywords" aria-hidden="true"><span class="octicon octicon-link"></span></a>Data Object Keywords</h2>
 
-<h3 id="data_object">
+<h3 id="dataobject">
 <a id="data_object" class="anchor" href="#data_object" aria-hidden="true"><span class="octicon octicon-link"></span></a>DATA_OBJECT</h3>
 <p>The DATA_OBJECT keyword is used to define a new data object in Telemetry Grapher.  The data object will be added to the most recently defined plot in the configuration file.</p>
 
@@ -1813,7 +1813,7 @@ SHOW_X_GRID_LINES TRUE</code></pre></figure>
     DATA_OBJECT HOUSEKEEPING
       COLOR BLUE</code></pre></figure>
 
-<h3 id="time_item">
+<h3 id="timeitem">
 <a id="time_item" class="anchor" href="#time_item" aria-hidden="true"><span class="octicon octicon-link"></span></a>TIME_ITEM</h3>
 <p>The TIME_ITEM keyword is used to define the telemetry item that will be used as the time for a data object.  This keyword applies to the most recently defined data object in the configuration file.  This keyword is valid for all data object types.</p>
 
@@ -1879,7 +1879,7 @@ SHOW_X_GRID_LINES TRUE</code></pre></figure>
     DATA_OBJECT HOUSEKEEPING
       ITEM INST HEALTH_STATUS TEMP1</code></pre></figure>
 
-<h3 id="formatted_time_item">
+<h3 id="formattedtimeitem">
 <a id="formatted_time_item" class="anchor" href="#formatted_time_item" aria-hidden="true"><span class="octicon octicon-link"></span></a>FORMATTED_TIME_ITEM</h3>
 <p>The FORMATTED_TIME_ITEM keyword is used to define a telemetry item that will be used to display a formatted time for a data object.  This keyword applies to the most recently defined data object in the configuration file.  This keyword is only valid for HOUSEKEEPING data objects.</p>
 
@@ -1907,7 +1907,7 @@ SHOW_X_GRID_LINES TRUE</code></pre></figure>
     DATA_OBJECT HOUSEKEEPING
       FORMATTED_TIME_ITEM RECEIVED_TIMEFORMATTED</code></pre></figure>
 
-<h3 id="value_type">
+<h3 id="valuetype">
 <a id="value_type" class="anchor" href="#value_type" aria-hidden="true"><span class="octicon octicon-link"></span></a>VALUE_TYPE</h3>
 <p>The VALUE_TYPE keyword is used to indicate whether the telemetry item specified by the ITEM keyword should be graphed using RAW or CONVERTED values.  This keyword applies to the most recently defined data object in the configuration file.  This keyword is only valid for HOUSEKEEPING data objects.</p>
 
@@ -1963,7 +1963,7 @@ SHOW_X_GRID_LINES TRUE</code></pre></figure>
     DATA_OBJECT HOUSEKEEPING
       ANALYSIS NONE</code></pre></figure>
 
-<h3 id="analysis_samples">
+<h3 id="analysissamples">
 <a id="analysis_samples" class="anchor" href="#analysis_samples" aria-hidden="true"><span class="octicon octicon-link"></span></a>ANALYSIS_SAMPLES</h3>
 <p>The ANALYSIS_SAMPLES keyword is used to define the number of samples to be used for analysis operations specified by the ANALYSIS keyword.  This keyword applies to the most recently defined data object in the configuration file.  This keyword is only valid for HOUSEKEEPING data objects.</p>
 
@@ -1992,7 +1992,7 @@ SHOW_X_GRID_LINES TRUE</code></pre></figure>
       ANALYSIS MAXIMUM
       ANALYSIS_SAMPLES 20</code></pre></figure>
 
-<h3 id="show_limits_lines">
+<h3 id="showlimitslines">
 <a id="show_limits_lines" class="anchor" href="#show_limits_lines" aria-hidden="true"><span class="octicon octicon-link"></span></a>SHOW_LIMITS_LINES</h3>
 <p>The SHOW_LIMITS_LINES keyword is used to enable or disable display of the limits lines for a data object.  This keyword applies to the most recently defined data object in the configuration file.  This keyword is only valid for HOUSEKEEPING data objects.</p>
 
@@ -2020,7 +2020,7 @@ SHOW_X_GRID_LINES TRUE</code></pre></figure>
     DATA_OBJECT HOUSEKEEPING
       SHOW_LIMITS_LINES TRUE</code></pre></figure>
 
-<h3 id="horizontal_line">
+<h3 id="horizontalline">
 <a id="horizontal_line" class="anchor" href="#horizontal_line" aria-hidden="true"><span class="octicon octicon-link"></span></a>HORIZONTAL_LINE</h3>
 <p>The HORIZONTAL_LINE keyword can be used to add a fixed horizontal line to the plot.  This keyword can be used multiple times to add more than one line.  This keyword applies to the most recently defined data object in the configuration file.  This keyword is only valid for HOUSEKEEPING data objects.</p>
 
@@ -2053,7 +2053,7 @@ SHOW_X_GRID_LINES TRUE</code></pre></figure>
     DATA_OBJECT HOUSEKEEPING
       HORIZONTAL_LINE 10 LIME</code></pre></figure>
 
-<h3 id="y_offset">
+<h3 id="yoffset">
 <a id="y_offset" class="anchor" href="#y_offset" aria-hidden="true"><span class="octicon octicon-link"></span></a>Y_OFFSET</h3>
 <p>The Y_OFFSET keyword can be used to apply a fixed offset to a data object.  This keyword applies to the most recently defined data object in the configuration file.  This keyword is only valid for HOUSEKEEPING data objects.</p>
 
@@ -2081,7 +2081,7 @@ SHOW_X_GRID_LINES TRUE</code></pre></figure>
     DATA_OBJECT HOUSEKEEPING
       Y_OFFSET 100</code></pre></figure>
 
-<h3 id="y_axis">
+<h3 id="yaxis">
 <a id="y_axis" class="anchor" href="#y_axis" aria-hidden="true"><span class="octicon octicon-link"></span></a>Y_AXIS</h3>
 <p>The Y_AXIS keyword can be used to associate a data object with a plot’s left or right y-axis.  This keyword applies to the most recently defined data object in the configuration file.  This keyword is only valid for HOUSEKEEPING data objects.</p>
 
@@ -2165,7 +2165,7 @@ SHOW_X_GRID_LINES TRUE</code></pre></figure>
     DATA_OBJECT SINGLEXY
       PACKET ADCS</code></pre></figure>
 
-<h3 id="x_item">
+<h3 id="xitem">
 <a id="x_item" class="anchor" href="#x_item" aria-hidden="true"><span class="octicon octicon-link"></span></a>X_ITEM</h3>
 <p>The X_ITEM keyword is used to specify the telemetry item associated with the x-axis for a SINGLEXY or XY data object.  This keyword applies to the most recently defined data object in the configuration file.  This keyword is only valid for SINGLEXY or XY data objects.</p>
 
@@ -2193,7 +2193,7 @@ SHOW_X_GRID_LINES TRUE</code></pre></figure>
     DATA_OBJECT SINGLEXY
       X_ITEM POSX</code></pre></figure>
 
-<h3 id="y_item">
+<h3 id="yitem">
 <a id="y_item" class="anchor" href="#y_item" aria-hidden="true"><span class="octicon octicon-link"></span></a>Y_ITEM</h3>
 <p>The Y_ITEM keyword is used to specify the telemetry item associated with the y-axis for a SINGLEXY or XY data object.  This keyword applies to the most recently defined data object in the configuration file.  This keyword is only valid for SINGLEXY or XY data objects.</p>
 
@@ -2221,7 +2221,7 @@ SHOW_X_GRID_LINES TRUE</code></pre></figure>
     DATA_OBJECT SINGLEXY
       Y_ITEM POSY</code></pre></figure>
 
-<h3 id="y_item-1">
+<h3 id="yitem-1">
 <a id="y_item-1" class="anchor" href="#y_item-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>Y_ITEM</h3>
 <p>The Y_ITEM keyword is used to specify the telemetry item associated with the y-axis for a SINGLEXY or XY data object.  This keyword applies to the most recently defined data object in the configuration file.  This keyword is only valid for SINGLEXY or XY data objects.</p>
 
@@ -2249,7 +2249,7 @@ SHOW_X_GRID_LINES TRUE</code></pre></figure>
     DATA_OBJECT SINGLEXY
       Y_ITEM POSY</code></pre></figure>
 
-<h3 id="x_value_type">
+<h3 id="xvaluetype">
 <a id="x_value_type" class="anchor" href="#x_value_type" aria-hidden="true"><span class="octicon octicon-link"></span></a>X_VALUE_TYPE</h3>
 <p>The X_VALUE_TYPE keyword is used to indicate whether the telemetry item specified by the X_ITEM keyword should be graphed using RAW or CONVERTED values.  This keyword applies to the most recently defined data object in the configuration file.  This keyword is only valid for SINGLEXY or XY data objects.</p>
 
@@ -2277,7 +2277,7 @@ SHOW_X_GRID_LINES TRUE</code></pre></figure>
     DATA_OBJECT SINGLEXY
       X_VALUE_TYPE CONVERTED</code></pre></figure>
 
-<h3 id="y_value_type">
+<h3 id="yvaluetype">
 <a id="y_value_type" class="anchor" href="#y_value_type" aria-hidden="true"><span class="octicon octicon-link"></span></a>Y_VALUE_TYPE</h3>
 <p>The Y_VALUE_TYPE keyword is used to indicate whether the telemetry item specified by the Y_ITEM keyword should be graphed using RAW or CONVERTED values.  This keyword applies to the most recently defined data object in the configuration file.  This keyword is only valid for SINGLEXY or XY data objects.</p>
 

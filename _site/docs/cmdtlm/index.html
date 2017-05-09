@@ -5,7 +5,7 @@
   <title>Command and Telemetry Configuration</title>
   <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="generator" content="Jekyll v3.4.3">
+  <meta name="generator" content="Jekyll v3.1.6">
   <link rel="alternate" type="application/rss+xml" title="Ball Aerospace COSMOS News" href="/feed.xml">
   <link rel="alternate" type="application/atom+xml" title="Recent commits to COSMOS’s master branch" href="https://github.com/BallAerospace/COSMOS/commits/master.atom">
   <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic,900">
@@ -1252,7 +1252,7 @@
 
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">COMMAND COSMOS START_LOGGING BIG_ENDIAN <span class="s2">"Starts logging"</span></code></pre></figure>
 
-<h3 id="select_command">
+<h3 id="selectcommand">
 <a id="select_command" class="anchor" href="#select_command" aria-hidden="true"><span class="octicon octicon-link"></span></a>SELECT_COMMAND</h3>
 
 <p>The SELECT_COMMAND keyword selects an existing command packet for editing.</p>
@@ -1476,7 +1476,7 @@ PARAMETER VALUE 32 32 FLOAT 0 10.5 2.5
 PARAMETER LABEL 64 0 STRING <span class="s2">"COSMOS"</span> <span class="s2">"The label to apply"</span>&lt;/pre&gt;
 PARAMETER BLOCK 128 0 BLOCK <span class="s1">''</span> <span class="s2">"Block of binary data"</span>&lt;/pre&gt;</code></pre></figure>
 
-<h3 id="append_parameter">
+<h3 id="appendparameter">
 <a id="append_parameter" class="anchor" href="#append_parameter" aria-hidden="true"><span class="octicon octicon-link"></span></a>APPEND_PARAMETER</h3>
 
 <p>The APPEND_PARAMETER keyword appends a command parameter to the end of the current command. Parameter details are the same as for the PARAMETER keyword except Bit Offset is not used. This is the preferred way to declare parameters as it allows for adding and removing parameters without having to recalculate bit offsets for all other parameters.</p>
@@ -1487,7 +1487,7 @@ PARAMETER BLOCK 128 0 BLOCK <span class="s1">''</span> <span class="s2">"Block o
 APPEND_PARAMETER VALUE 32 FLOAT 0 10.5 2.5
 APPEND_PARAMETER LABEL 0 STRING <span class="s2">"COSMOS"</span> <span class="s2">"The label to apply"</span></code></pre></figure>
 
-<h3 id="id_parameter">
+<h3 id="idparameter">
 <a id="id_parameter" class="anchor" href="#id_parameter" aria-hidden="true"><span class="octicon octicon-link"></span></a>ID_PARAMETER</h3>
 
 <p>Much like the PARAMETER keyword, the ID_PARAMETER keyword defines a command parameter in the current command. In addition, ID_PARAMETER(s) are used to identify a command given a binary array of data. A command packet may have one or more ID_PARAMETERs, all of which must match the binary data for the command to be identified.</p>
@@ -1548,7 +1548,7 @@ APPEND_PARAMETER LABEL 0 STRING <span class="s2">"COSMOS"</span> <span class="s2
 
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">ID_PARAMETER OPCODE 32 32 UINT 2 2 2 <span class="s2">"Opcode identifier"</span></code></pre></figure>
 
-<h3 id="append_id_parameter">
+<h3 id="appendidparameter">
 <a id="append_id_parameter" class="anchor" href="#append_id_parameter" aria-hidden="true"><span class="octicon octicon-link"></span></a>APPEND_ID_PARAMETER</h3>
 
 <p>The APPEND_ID_PARAMETER keyword appends an ID command parameter to the end of the current command. Parameter details are the same as for the ID_PARAMETER keyword except Bit Offset is not used.</p>
@@ -1557,7 +1557,7 @@ APPEND_PARAMETER LABEL 0 STRING <span class="s2">"COSMOS"</span> <span class="s2
 
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">APPEND_ID_PARAMETER OPCODE 32 UINT 2 2 2 <span class="s2">"Opcode identifier"</span></code></pre></figure>
 
-<h3 id="array_parameter">
+<h3 id="arrayparameter">
 <a id="array_parameter" class="anchor" href="#array_parameter" aria-hidden="true"><span class="octicon octicon-link"></span></a>ARRAY_PARAMETER</h3>
 
 <p>The ARRAY_PARAMETER keyword defines a command parameter in the current command that is an array.</p>
@@ -1608,7 +1608,7 @@ APPEND_PARAMETER LABEL 0 STRING <span class="s2">"COSMOS"</span> <span class="s2
 
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">ARRAY_PARAMETER ARRAY 64 64 FLOAT 640 <span class="s2">"Array of 10 64bit floats"</span></code></pre></figure>
 
-<h3 id="append_array_parameter">
+<h3 id="appendarrayparameter">
 <a id="append_array_parameter" class="anchor" href="#append_array_parameter" aria-hidden="true"><span class="octicon octicon-link"></span></a>APPEND_ARRAY_PARAMETER</h3>
 
 <p>The APPEND_ARRAY_PARAMETER keyword appends an array command parameter to the end of the current command. Parameter details are the same as for the ARRAY_PARAMETER keyword except Bit Offset is not used.</p>
@@ -1617,7 +1617,7 @@ APPEND_PARAMETER LABEL 0 STRING <span class="s2">"COSMOS"</span> <span class="s2
 
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">APPEND_ARRAY_PARAMETER ARRAY 64 FLOAT 640 <span class="s2">"Array of 10 64bit floats"</span></code></pre></figure>
 
-<h3 id="select_parameter">
+<h3 id="selectparameter">
 <a id="select_parameter" class="anchor" href="#select_parameter" aria-hidden="true"><span class="octicon octicon-link"></span></a>SELECT_PARAMETER</h3>
 
 <p>The SELECT_PARAMETER keyword selects an existing command parameter for editing in the current command.</p>
@@ -1644,7 +1644,7 @@ APPEND_PARAMETER LABEL 0 STRING <span class="s2">"COSMOS"</span> <span class="s2
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">SELECT_COMMAND COSMOS START_LOGGING
   SELECT_PARAMETER LABEL</code></pre></figure>
 
-<h3 id="macro_append_start-and-macro_append_end">
+<h3 id="macroappendstart-and-macroappendend">
 <a id="macro_append_start-and-macro_append_end" class="anchor" href="#macro_append_start-and-macro_append_end" aria-hidden="true"><span class="octicon octicon-link"></span></a>MACRO_APPEND_START and MACRO_APPEND_END</h3>
 
 <p>The MACRO_APPEND_START keyword is used to create a list of command parameters which are appended to the current command. Each of these parameters will be repeated with a number appended to their names to form a list of command parameters with a unique mnemonic for each parameter.</p>
@@ -1685,7 +1685,7 @@ MACRO_APPEND_END</code></pre></figure>
 
 <p>This results in a command with the following mnemonics: VALUE_1, DATA_1, VALUE_2, and DATA_2. All VALUE parameters will have the same default of 1 and all DATA parameters have the same default of 2. Note that due to the dynamic nature of this keyword you must use the APPEND variation of the PARAMETER keywords.</p>
 
-<h3 id="disable_messages">
+<h3 id="disablemessages">
 <a id="disable_messages" class="anchor" href="#disable_messages" aria-hidden="true"><span class="octicon octicon-link"></span></a>DISABLE_MESSAGES</h3>
 
 <p>Disable the COSMOS Command and Telemetry Server from printing cmd(…) messages for this command.  Commands are still logged.</p>
@@ -1731,7 +1731,7 @@ MACRO_APPEND_END</code></pre></figure>
 
 <p>Declares that when sending the command via Script Runner a value must always be given for the current command parameter. This prevents the user from relying on a default value. Note that this does not affect Command Sender which will still populate the field with the default value provided in the PARAMETER definition.</p>
 
-<h3 id="format_string">
+<h3 id="formatstring">
 <a id="format_string" class="anchor" href="#format_string" aria-hidden="true"><span class="octicon octicon-link"></span></a>FORMAT_STRING</h3>
 
 <p>The FORMAT_STRING keyword adds printf style formatting to a command parameter. This can be used to set how default command parameter values are displayed in Command Sender.</p>
@@ -1789,7 +1789,7 @@ MACRO_APPEND_END</code></pre></figure>
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">UNITS Celcius C
 UNITS Kilometers KM</code></pre></figure>
 
-<h3 id="minimum_value-maximum_value-default_value-description">
+<h3 id="minimumvalue-maximumvalue-defaultvalue-description">
 <a id="minimum_value-maximum_value-default_value-description" class="anchor" href="#minimum_value-maximum_value-default_value-description" aria-hidden="true"><span class="octicon octicon-link"></span></a>MINIMUM_VALUE, MAXIMUM_VALUE, DEFAULT_VALUE, DESCRIPTION</h3>
 
 <p>These keywords allow you to override an existing value. This is useful for changing things in conjunction with SELECT_COMMAND and SELECT_PARAMETER.</p>
@@ -1867,7 +1867,7 @@ APPEND_PARAMETER STRING 1024 STRING <span class="s2">"NOOP"</span> <span class="
   STATE <span class="s2">"ARM LASER"</span> <span class="s2">"ARM LASER"</span> HAZARDOUS <span class="s2">"Arming the laser is an eye safety hazard"</span>
   STATE <span class="s2">"FIRE LASER"</span> <span class="s2">"FIRE LASER"</span> HAZARDOUS <span class="s2">"WARNING! Laser will be fired!"</span></code></pre></figure>
 
-<h3 id="write_conversion">
+<h3 id="writeconversion">
 <a id="write_conversion" class="anchor" href="#write_conversion" aria-hidden="true"><span class="octicon octicon-link"></span></a>WRITE_CONVERSION</h3>
 
 <p>The WRITE_CONVERSION keyword applies a conversion to the current command parameter. This conversion is implemented in a custom Ruby file which should be located in the target’s lib folder and required by the target’s target.txt file. See the documentation in <link ac:anchor="TargetConfiguration">. The class must require ‘cosmos/conversions/conversion’ and inherit from Conversion. It must implement the initialize method if it takes extra parameters and must always implement the call method. The conversion factor is applied to the value entered by the user before it is written into the binary command packet and sent.</p>
@@ -1913,7 +1913,7 @@ APPEND_PARAMETER STRING 1024 STRING <span class="s2">"NOOP"</span> <span class="
   <span class="k">end</span>
 <span class="k">end</span></code></pre></figure>
 
-<h3 id="poly_write_conversion">
+<h3 id="polywriteconversion">
 <a id="poly_write_conversion" class="anchor" href="#poly_write_conversion" aria-hidden="true"><span class="octicon octicon-link"></span></a>POLY_WRITE_CONVERSION</h3>
 
 <p>The POLY_WRITE_CONVERSION keyword adds a polynomial conversion factor to the current command parameter. This conversion factor is applied to the value entered by the user before it is written into the binary command packet and sent.</p>
@@ -1944,7 +1944,7 @@ APPEND_PARAMETER STRING 1024 STRING <span class="s2">"NOOP"</span> <span class="
 
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">POLY_WRITE_CONVERSION 10 0.5 0.25</code></pre></figure>
 
-<h3 id="seg_poly_write_conversion">
+<h3 id="segpolywriteconversion">
 <a id="seg_poly_write_conversion" class="anchor" href="#seg_poly_write_conversion" aria-hidden="true"><span class="octicon octicon-link"></span></a>SEG_POLY_WRITE_CONVERSION</h3>
 
 <p>The SEG_POLY_WRITE_CONVERSION keyword adds a segmented polynomial conversion factor to the current command parameter. This conversion factor is applied to the value entered by the user before it is written into the binary command packet and sent.</p>
@@ -1982,7 +1982,7 @@ APPEND_PARAMETER STRING 1024 STRING <span class="s2">"NOOP"</span> <span class="
 SEG_POLY_WRITE_CONVERSION 50 11 0.5 0.275 <span class="c"># Apply the conversion to all values &gt;= 50 and &lt; 100</span>
 SEG_POLY_WRITE_CONVERSION 100 12 0.5 0.3 <span class="c"># Apply the conversion to all values &gt;= 100</span></code></pre></figure>
 
-<h3 id="generic_write_conversion_start-and-generic_write_conversion_end">
+<h3 id="genericwriteconversionstart-and-genericwriteconversionend">
 <a id="generic_write_conversion_start-and-generic_write_conversion_end" class="anchor" href="#generic_write_conversion_start-and-generic_write_conversion_end" aria-hidden="true"><span class="octicon octicon-link"></span></a>GENERIC_WRITE_CONVERSION_START and GENERIC_WRITE_CONVERSION_END</h3>
 
 <p>**NOTE: Generic conversions are not a good long term solution.  Consider creating a conversion class and using WRITE_CONVERSION instead.  WRITE_CONVERSION is easier to debug and higher performance. **</p>
@@ -2137,7 +2137,7 @@ COMMAND MY_TARGET SETTINGS BIG_ENDIAN <span class="s2">"Set the Settings"</span>
 
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">TELEMETRY COSMOS VERSION BIG_ENDIAN <span class="s2">"Version information"</span></code></pre></figure>
 
-<h3 id="select_telemetry">
+<h3 id="selecttelemetry">
 <a id="select_telemetry" class="anchor" href="#select_telemetry" aria-hidden="true"><span class="octicon octicon-link"></span></a>SELECT_TELEMETRY</h3>
 
 <p>The SELECT_TELEMETRY keyword selects an existing telemetry packet for editing.</p>
@@ -2168,7 +2168,7 @@ COMMAND MY_TARGET SETTINGS BIG_ENDIAN <span class="s2">"Set the Settings"</span>
 
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">SELECT_TELEMETRY COSMOS VERSION</code></pre></figure>
 
-<h3 id="limits_group">
+<h3 id="limitsgroup">
 <a id="limits_group" class="anchor" href="#limits_group" aria-hidden="true"><span class="octicon octicon-link"></span></a>LIMITS_GROUP</h3>
 
 <p>The LIMITS_GROUP keyword defines a related group of limits that can be enabled and disabled together. It can be used to group related limits as a subsystem that can be enabled or disabled as that particular subsystem is powered (for example). To enable a group call the enable_limits_group(“NAME”) method in Script Runner. To disable a group call the disable_limits_group(“NAME”) in Script Runner. Items can belong to multiple groups but the last enabled or disabled group “wins”. For example, if an item belongs to GROUP1 and GROUP2 and you first enable GROUP1 and then disable GROUP2 the item will be disabled. If you then enable GROUP1 again it will be enabled.</p>
@@ -2190,7 +2190,7 @@ COMMAND MY_TARGET SETTINGS BIG_ENDIAN <span class="s2">"Set the Settings"</span>
   </tbody>
 </table>
 
-<h3 id="limits_group_item">
+<h3 id="limitsgroupitem">
 <a id="limits_group_item" class="anchor" href="#limits_group_item" aria-hidden="true"><span class="octicon octicon-link"></span></a>LIMITS_GROUP_ITEM</h3>
 
 <p>The LIMITS_GROUP_ITEM keyword adds the specified telemetry item to the last defined LIMITS_GROUP.</p>
@@ -2283,7 +2283,7 @@ COMMAND MY_TARGET SETTINGS BIG_ENDIAN <span class="s2">"Set the Settings"</span>
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">ITEM PKTID 112 16 UINT <span class="s2">"Packet ID"</span>
 ITEM DATA 0 0 DERIVED <span class="s2">"Derived data"</span></code></pre></figure>
 
-<h3 id="append_item">
+<h3 id="appenditem">
 <a id="append_item" class="anchor" href="#append_item" aria-hidden="true"><span class="octicon octicon-link"></span></a>APPEND_ITEM</h3>
 
 <p>The APPEND_ITEM keyword appends a new telemetry item to the end of the current telemetry packet. Parameter details are the same as the ITEM keyword except that Bit Offset is not used. This is the preferred way to declare items as it allows for adding and removing items without having to recalculate bit offsets for all other items.</p>
@@ -2292,7 +2292,7 @@ ITEM DATA 0 0 DERIVED <span class="s2">"Derived data"</span></code></pre></figur
 
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">APPEND_ITEM PKTID 16 UINT <span class="s2">"Packet ID"</span></code></pre></figure>
 
-<h3 id="id_item">
+<h3 id="iditem">
 <a id="id_item" class="anchor" href="#id_item" aria-hidden="true"><span class="octicon octicon-link"></span></a>ID_ITEM</h3>
 
 <p>Much like the ITEM keyword, the ID_ITEM keyword defines a telemetry item in the current telemetry packet. However, ID_ITEMs are used to identify a telemetry packet from a binary array of data. The COSMOS Commmand and Telemetry Server identifies packets after they are received by an interface. A telemetry packet may have one or more ID_ITEMS, all of which must match the binary data for the telemetry packet to be identified.</p>
@@ -2343,7 +2343,7 @@ ITEM DATA 0 0 DERIVED <span class="s2">"Derived data"</span></code></pre></figur
 
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">ID_ITEM PKTID 112 16 UINT 1 <span class="s2">"Packet ID which must be 1"</span></code></pre></figure>
 
-<h3 id="append_id_item">
+<h3 id="appendiditem">
 <a id="append_id_item" class="anchor" href="#append_id_item" aria-hidden="true"><span class="octicon octicon-link"></span></a>APPEND_ID_ITEM</h3>
 
 <p>The APPEND_ID_ITEM keyword appends a new id telemetry item to the end of the current telemetry packet. Parameter details are the same as the ID_ITEM keyword except that Bit Offset is not used.</p>
@@ -2352,7 +2352,7 @@ ITEM DATA 0 0 DERIVED <span class="s2">"Derived data"</span></code></pre></figur
 
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">APPEND_ID_ITEM PKTID 16 UINT 1 <span class="s2">"Packet ID which must be 1"</span></code></pre></figure>
 
-<h3 id="array_item">
+<h3 id="arrayitem">
 <a id="array_item" class="anchor" href="#array_item" aria-hidden="true"><span class="octicon octicon-link"></span></a>ARRAY_ITEM</h3>
 
 <p>The ARRAY_ITEM keyword defines a telemetry item in the current telemetry packet that is an array.</p>
@@ -2403,7 +2403,7 @@ ITEM DATA 0 0 DERIVED <span class="s2">"Derived data"</span></code></pre></figur
 
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">ARRAY_ITEM ARRAY 64 32 FLOAT 320 <span class="s2">"Array of 10 floats"</span></code></pre></figure>
 
-<h3 id="append_array_item">
+<h3 id="appendarrayitem">
 <a id="append_array_item" class="anchor" href="#append_array_item" aria-hidden="true"><span class="octicon octicon-link"></span></a>APPEND_ARRAY_ITEM</h3>
 
 <p>The APPEND_ARRAY_ITEM keyword appends a new array telemetry item to the end of the current telemetry packet. Parameter details are the same as the ARRAY_ITEM keyword except that Bit Offset is not used.</p>
@@ -2412,7 +2412,7 @@ ITEM DATA 0 0 DERIVED <span class="s2">"Derived data"</span></code></pre></figur
 
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">APPEND_ARRAY_ITEM ARRAY 32 FLOAT 320 <span class="s2">"Array of 10 floats"</span></code></pre></figure>
 
-<h3 id="select_item">
+<h3 id="selectitem">
 <a id="select_item" class="anchor" href="#select_item" aria-hidden="true"><span class="octicon octicon-link"></span></a>SELECT_ITEM</h3>
 
 <p>The SELECT_ITEM keyword selects an existing telemetry item for editing in the current telemetry packet.</p>
@@ -2439,7 +2439,7 @@ ITEM DATA 0 0 DERIVED <span class="s2">"Derived data"</span></code></pre></figur
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">SELECT_TELEMETRY COSMOS VERSION
   SELECT_ITEM RUBY</code></pre></figure>
 
-<h3 id="macro_append_start-and-macro_append_end-1">
+<h3 id="macroappendstart-and-macroappendend-1">
 <a id="macro_append_start-and-macro_append_end-1" class="anchor" href="#macro_append_start-and-macro_append_end-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>MACRO_APPEND_START and MACRO_APPEND_END</h3>
 
 <p>The MACRO_APPEND_START keyword is used to create a list of telemetry items which are appended to the current telemetry packet. Each of these items will be repeated with a number appended to their names to form a list of items with a unique mnemonic for each.</p>
@@ -2547,7 +2547,7 @@ MACRO_APPEND_END</code></pre></figure>
 
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">PROCESSOR TEMP1HIGH watermark_processor.rb TEMP1</code></pre></figure>
 
-<h3 id="allow_short">
+<h3 id="allowshort">
 <a id="allow_short" class="anchor" href="#allow_short" aria-hidden="true"><span class="octicon octicon-link"></span></a>ALLOW_SHORT</h3>
 
 <p>Allows the telemetry packet to be received with a data portion that is smaller than the defined size without warnings.  Any extra space in the packet will be filled in with zeros by COSMOS.</p>
@@ -2557,7 +2557,7 @@ MACRO_APPEND_END</code></pre></figure>
 
 <p>The following keywords modify a telemetry item and are only applicable after the various ITEM keywords as defined above. They are typically indented within the definition file to show ownership to the previously defined telemetry item.</p>
 
-<h3 id="format_string-1">
+<h3 id="formatstring-1">
 <a id="format_string-1" class="anchor" href="#format_string-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>FORMAT_STRING</h3>
 
 <p>The FORMAT_STRING keyword adds printf style formatting to a telemetry item.</p>
@@ -2685,7 +2685,7 @@ APPEND_ITEM STRING 1024 STRING <span class="s2">"String"</span>
   STATE <span class="s2">"ARM LASER"</span> <span class="s2">"ARM LASER"</span> YELLOW
   STATE <span class="s2">"FIRE LASER"</span> <span class="s2">"FIRE LASER"</span> RED</code></pre></figure>
 
-<h3 id="read_conversion">
+<h3 id="readconversion">
 <a id="read_conversion" class="anchor" href="#read_conversion" aria-hidden="true"><span class="octicon octicon-link"></span></a>READ_CONVERSION</h3>
 
 <p>The READ_CONVERSION keyword applies a conversion to the current telemetry item. This conversion is implemented in a custom Ruby file which should be located in the target’s lib folder and required by the target’s target.txt file. See the documentation in <link ac:anchor="TargetConfiguration">. The class must require ‘cosmos/conversions/conversion’ and inherit from Conversion. It must implement the initialize method if it takes extra parameters and must always implement the call method. This conversion factor is applied to the raw value in the telemetry packet before it is displayed to the user. The user still has the ability to see the raw unconverted value in a details dialog.</p>
@@ -2731,7 +2731,7 @@ APPEND_ITEM STRING 1024 STRING <span class="s2">"String"</span>
   <span class="k">end</span>
 <span class="k">end</span></code></pre></figure>
 
-<h3 id="poly_read_conversion">
+<h3 id="polyreadconversion">
 <a id="poly_read_conversion" class="anchor" href="#poly_read_conversion" aria-hidden="true"><span class="octicon octicon-link"></span></a>POLY_READ_CONVERSION</h3>
 
 <p>The POLY_READ_CONVERSION keyword adds a polynomial conversion factor to the current telemetry item. This conversion factor is applied to the raw value in the telemetry packet before it is displayed to the user. The user still has the ability to see the raw unconverted value in a details dialog.</p>
@@ -2762,7 +2762,7 @@ APPEND_ITEM STRING 1024 STRING <span class="s2">"String"</span>
 
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">POLY_READ_CONVERSION 10 0.5 0.25</code></pre></figure>
 
-<h3 id="seg_poly_read_conversion">
+<h3 id="segpolyreadconversion">
 <a id="seg_poly_read_conversion" class="anchor" href="#seg_poly_read_conversion" aria-hidden="true"><span class="octicon octicon-link"></span></a>SEG_POLY_READ_CONVERSION</h3>
 
 <p>The SEG_POLY_READ_CONVERSION keyword adds a segmented polynomial conversion factor to the current telemetry item. This conversion factor is applied to the raw value in the telemetry packet before it is displayed to the user. The user still has the ability to see the raw unconverted value in a details dialog.</p>
@@ -2800,7 +2800,7 @@ APPEND_ITEM STRING 1024 STRING <span class="s2">"String"</span>
 SEG_POLY_READ_CONVERSION 50 11 0.5 0.275 <span class="c"># Apply the conversion to all values &gt;= 50 and &lt; 100</span>
 SEG_POLY_READ_CONVERSION 100 12 0.5 0.3 <span class="c"># Apply the conversion to all values &gt;= 100</span></code></pre></figure>
 
-<h3 id="generic_read_conversion_start-and-generic_read_conversion_end">
+<h3 id="genericreadconversionstart-and-genericreadconversionend">
 <a id="generic_read_conversion_start-and-generic_read_conversion_end" class="anchor" href="#generic_read_conversion_start-and-generic_read_conversion_end" aria-hidden="true"><span class="octicon octicon-link"></span></a>GENERIC_READ_CONVERSION_START and GENERIC_READ_CONVERSION_END</h3>
 
 <p>**NOTE: Generic conversions are not a good long term solution.  Consider creating a conversion class and using READ_CONVERSION instead.  READ_CONVERSION is easier to debug and higher performance. **</p>
@@ -2894,7 +2894,7 @@ SEG_POLY_READ_CONVERSION 100 12 0.5 0.3 <span class="c"># Apply the conversion t
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">LIMITS DEFAULT 3 ENABLED -80.0 -70.0 60.0 80.0 -20.0 20.0
 LIMITS TVAC 3 ENABLED -80.0 -30.0 30.0 80.0</code></pre></figure>
 
-<h3 id="limits_response">
+<h3 id="limitsresponse">
 <a id="limits_response" class="anchor" href="#limits_response" aria-hidden="true"><span class="octicon octicon-link"></span></a>LIMITS_RESPONSE</h3>
 
 <p>The LIMITS_RESPONSE keyword defines a response class that will be called when the limits state of the current item changes.</p>

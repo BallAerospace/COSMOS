@@ -5,7 +5,7 @@
   <title>Telemetry Screens</title>
   <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="generator" content="Jekyll v3.4.3">
+  <meta name="generator" content="Jekyll v3.1.6">
   <link rel="alternate" type="application/rss+xml" title="Ball Aerospace COSMOS News" href="/feed.xml">
   <link rel="alternate" type="application/atom+xml" title="Recent commits to COSMOS’s master branch" href="https://github.com/BallAerospace/COSMOS/commits/master.atom">
   <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic,900">
@@ -1324,7 +1324,7 @@
 <a id="end" class="anchor" href="#end" aria-hidden="true"><span class="octicon octicon-link"></span></a>END</h3>
 <p>The END keyword is used to indicate the close of a layout widget. For example a VERTICALBOX keyword must be matched with an END keyword to indicate where the VERTICALBOX ends.</p>
 
-<h3 id="global_setting">
+<h3 id="globalsetting">
 <a id="global_setting" class="anchor" href="#global_setting" aria-hidden="true"><span class="octicon octicon-link"></span></a>GLOBAL_SETTING</h3>
 <p>The GLOBAL_SETTING keyword is used to apply a widget setting to allow widgets of a certain type.  (See SETTING)</p>
 
@@ -1359,7 +1359,7 @@
 
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">GLOBAL_SETTING LABELVALUELIMITSBAR COLORBLIND TRUE</code></pre></figure>
 
-<h3 id="global_subsetting">
+<h3 id="globalsubsetting">
 <a id="global_subsetting" class="anchor" href="#global_subsetting" aria-hidden="true"><span class="octicon octicon-link"></span></a>GLOBAL_SUBSETTING</h3>
 <p>The GLOBAL_SUBSETTING keyword is used to apply a widget subsetting to allow widgets of a certain type.  (See SUBSETTING)</p>
 
@@ -1473,7 +1473,7 @@ SETTING BACKCOLOR 163 185 163 <span class="c"># RGB color for the box background
     SUBSETTING 0:0 TEXTCOLOR white <span class="c"># Change the label's text color to white</span>
 END</code></pre></figure>
 
-<h3 id="named_widget">
+<h3 id="namedwidget">
 <a id="named_widget" class="anchor" href="#named_widget" aria-hidden="true"><span class="octicon octicon-link"></span></a>NAMED_WIDGET</h3>
 <p>The NAMED_WIDGET keyword is used to give a name to a widget that allows it to be accessed from other widgets using the get_named_widget method of Cosmos::Screen. Note that get_named_widget returns the widget itself and thus must be operated on using methods native to that widget.</p>
 
@@ -1590,7 +1590,7 @@ SETTING BACKCOLOR 162 181 205</code></pre></figure>
 <h2 id="keywords-1">
 <a id="keywords-1" class="anchor" href="#keywords-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>Keywords:</h2>
 
-<h3 id="auto_targets">
+<h3 id="autotargets">
 <a id="auto_targets" class="anchor" href="#auto_targets" aria-hidden="true"><span class="octicon octicon-link"></span></a>AUTO_TARGETS</h3>
 <p>The AUTO_TARGETS keyword tells Telemetry Viewer to add all the screens defined in the screens directory of each target folder in the config/targets directory. Screens are grouped by target name in the display. For example: all the screens defined in config/targets/COSMOS/screens will be added to a single drop down selection labeled COSMOS.</p>
 
@@ -1598,7 +1598,7 @@ SETTING BACKCOLOR 162 181 205</code></pre></figure>
 
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">AUTO_TARGETS</code></pre></figure>
 
-<h3 id="auto_target">
+<h3 id="autotarget">
 <a id="auto_target" class="anchor" href="#auto_target" aria-hidden="true"><span class="octicon octicon-link"></span></a>AUTO_TARGET</h3>
 <p>The AUTO_TARGET keyword tells Telemetry Viewer to add all the screens defined in the screens directory of the specified target folder in the config/targets directory. Screens are grouped by target name in the display. For example: all the screens defined in config/targets/COSMOS/screens will be added to a single drop down selection labeled COSMOS. If AUTO_TARGETS is used this keyword does nothing.</p>
 
@@ -1606,7 +1606,7 @@ SETTING BACKCOLOR 162 181 205</code></pre></figure>
 
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">AUTO_TARGET COSMOS</code></pre></figure>
 
-<h3 id="new_column">
+<h3 id="newcolumn">
 <a id="new_column" class="anchor" href="#new_column" aria-hidden="true"><span class="octicon octicon-link"></span></a>NEW_COLUMN</h3>
 <p>The NEW_COLUMN keywords creates a new column of drop down selections in Telemetry Viewer. All the AUTO_TARGET or SCREEN keywords after this keyword will be added to a new column in the GUI.</p>
 
@@ -1671,11 +1671,11 @@ SETTING BACKCOLOR 162 181 205</code></pre></figure>
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">TARGET COSMOS
   SCREEN version.txt 50 50</code></pre></figure>
 
-<h3 id="show_on_startup">
+<h3 id="showonstartup">
 <a id="show_on_startup" class="anchor" href="#show_on_startup" aria-hidden="true"><span class="octicon octicon-link"></span></a>SHOW_ON_STARTUP</h3>
 <p>The SHOW_ON_STARTUP keyword causes the previously defined SCREEN to be automatically displayed when Telemetry Viewer starts. It must be preceeded by the SCREEN keyword.</p>
 
-<h3 id="add_show_on_startup">
+<h3 id="addshowonstartup">
 <a id="add_show_on_startup" class="anchor" href="#add_show_on_startup" aria-hidden="true"><span class="octicon octicon-link"></span></a>ADD_SHOW_ON_STARTUP</h3>
 <p>The ADD_SHOW_ON_STARTUP keyword adds show on startup to any screen that has already been defined.  This is useful for adding show on startup to screens defined with AUTO_TARGETS.</p>
 
@@ -4444,7 +4444,7 @@ SETTING BORDERCOLOR red</code></pre></figure>
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">LABELVALUELIMITSBAR INST HEALTH_STATUS TEMP1
   SETTING COLORBLIND TRUE</code></pre></figure>
 
-<h3 id="enable_aging">
+<h3 id="enableaging">
 <a id="enable_aging" class="anchor" href="#enable_aging" aria-hidden="true"><span class="octicon octicon-link"></span></a>ENABLE_AGING</h3>
 <p>The ENABLE_AGING setting enables/disables graying of widgets if there value doesn’t change. Supported by ARRAY, BLOCK, and all VALUE widgets.</p>
 
@@ -4470,7 +4470,7 @@ SETTING BORDERCOLOR red</code></pre></figure>
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">LABELVALUE INST HEALTH_STATUS COLLECTS
   SETTING ENABLE_AGING FALSE</code></pre></figure>
 
-<h3 id="gray_rate--grey_rate">
+<h3 id="grayrate--greyrate">
 <a id="gray_rate--grey_rate" class="anchor" href="#gray_rate--grey_rate" aria-hidden="true"><span class="octicon octicon-link"></span></a>GRAY_RATE / GREY_RATE</h3>
 <p>The GRAY_RATE and GREY_RATE settings change the rate at which graying occurs in widgets. Supported by ARRAY, BLOCK, and all VALUE widgets.</p>
 
@@ -4496,7 +4496,7 @@ SETTING BORDERCOLOR red</code></pre></figure>
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">LABELVALUE INST HEALTH_STATUS COLLECTS
   SETTING GRAY_RATE 5</code></pre></figure>
 
-<h3 id="gray_tolerance--grey_tolerance">
+<h3 id="graytolerance--greytolerance">
 <a id="gray_tolerance--grey_tolerance" class="anchor" href="#gray_tolerance--grey_tolerance" aria-hidden="true"><span class="octicon octicon-link"></span></a>GRAY_TOLERANCE / GREY_TOLERANCE</h3>
 <p>The GRAY_TOLERANCE and GREY_TOLERANCE settings set the maximum change in value that will not cause the widget to recognize an items value as changing. Supported by all VALUE widgets.</p>
 
@@ -4522,7 +4522,7 @@ SETTING BORDERCOLOR red</code></pre></figure>
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">LABELVALUE INST HEALTH_STATUS COLLECTS
   SETTING GRAY_TOLERANCE 1</code></pre></figure>
 
-<h3 id="min_gray--min_grey">
+<h3 id="mingray--mingrey">
 <a id="min_gray--min_grey" class="anchor" href="#min_gray--min_grey" aria-hidden="true"><span class="octicon octicon-link"></span></a>MIN_GRAY / MIN_GREY</h3>
 <p>The MIN_GRAY and MIN_GREY settings set the minimum shade of a gray that a widget will decay to if its value doesn’t change. Supported by ARRAY, BLOCK, and all VALUE widgets.</p>
 
@@ -4549,7 +4549,7 @@ SETTING BORDERCOLOR red</code></pre></figure>
   SETTING GRAY_TOLERANCE 1000 <span class="c"># Prevent the widget from refreshing by choosing a high tolerance</span>
   SETTING MIN_GRAY 0 <span class="c"># Set the minimum gray to black</span></code></pre></figure>
 
-<h3 id="trend_seconds">
+<h3 id="trendseconds">
 <a id="trend_seconds" class="anchor" href="#trend_seconds" aria-hidden="true"><span class="octicon octicon-link"></span></a>TREND_SECONDS</h3>
 <p>The TREND_SECONDS setting changes the number of seconds using during trending. Supported by the TREND widgets.</p>
 
@@ -4575,7 +4575,7 @@ SETTING BORDERCOLOR red</code></pre></figure>
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">TRENDBAR INST HEALTH_STATUS TEMP1
   SETTING TREND_SECONDS 10</code></pre></figure>
 
-<h3 id="value_eq">
+<h3 id="valueeq">
 <a id="value_eq" class="anchor" href="#value_eq" aria-hidden="true"><span class="octicon octicon-link"></span></a>VALUE_EQ</h3>
 <p>The VALUE_EQ setting configures for an equal to comparison for a canvas value widget to determine ‘ON’ state.  Supported widgets: CANVASIMAGEVALUE, CANVASLABELVALUE, CANVASLINEVALUE.</p>
 
@@ -4601,7 +4601,7 @@ SETTING BORDERCOLOR red</code></pre></figure>
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">CANVASIMAGEVALUE INST HEALTH_STATUS GROUND1STATUS <span class="s2">"ground"</span> 400 100
   SETTING VALUE_EQ 0</code></pre></figure>
 
-<h3 id="value_gt">
+<h3 id="valuegt">
 <a id="value_gt" class="anchor" href="#value_gt" aria-hidden="true"><span class="octicon octicon-link"></span></a>VALUE_GT</h3>
 <p>The VALUE_GT setting configures for a greater than comparison for a canvas value widget to determine ‘ON’ state.  Supported widgets: CANVASIMAGEVALUE, CANVASLABELVALUE, CANVASLINEVALUE.</p>
 
@@ -4627,7 +4627,7 @@ SETTING BORDERCOLOR red</code></pre></figure>
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">CANVASIMAGEVALUE INST HEALTH_STATUS TEMP1 <span class="s2">"ground"</span> 400 100
   SETTING VALUE_GT 10.0</code></pre></figure>
 
-<h3 id="value_gteq">
+<h3 id="valuegteq">
 <a id="value_gteq" class="anchor" href="#value_gteq" aria-hidden="true"><span class="octicon octicon-link"></span></a>VALUE_GTEQ</h3>
 <p>The VALUE_GTEQ setting configures for a greater than or equal to comparison for a canvas value widget to determine ‘ON’ state.  Supported widgets: CANVASIMAGEVALUE, CANVASLABELVALUE, CANVASLINEVALUE.</p>
 
@@ -4653,7 +4653,7 @@ SETTING BORDERCOLOR red</code></pre></figure>
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">CANVASIMAGEVALUE INST HEALTH_STATUS TEMP1 <span class="s2">"ground"</span> 400 100
   SETTING VALUE_GTEQ 10.0</code></pre></figure>
 
-<h3 id="value_lt">
+<h3 id="valuelt">
 <a id="value_lt" class="anchor" href="#value_lt" aria-hidden="true"><span class="octicon octicon-link"></span></a>VALUE_LT</h3>
 <p>The VALUE_LT setting configures for a less than comparison for a canvas value widget to determine ‘ON’ state.  Supported widgets: CANVASIMAGEVALUE, CANVASLABELVALUE, CANVASLINEVALUE.</p>
 
@@ -4679,7 +4679,7 @@ SETTING BORDERCOLOR red</code></pre></figure>
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">CANVASIMAGEVALUE INST HEALTH_STATUS TEMP1 <span class="s2">"ground"</span> 400 100
   SETTING VALUE_LT 10.0</code></pre></figure>
 
-<h3 id="value_lteq">
+<h3 id="valuelteq">
 <a id="value_lteq" class="anchor" href="#value_lteq" aria-hidden="true"><span class="octicon octicon-link"></span></a>VALUE_LTEQ</h3>
 <p>The VALUE_LTEQ setting configures for a less than or equal to comparison for a canvas value widget to determine ‘ON’ state.
 Supported widgets: CANVASIMAGEVALUE, CANVASLABELVALUE, CANVASLINEVALUE.</p>
@@ -4706,7 +4706,7 @@ Supported widgets: CANVASIMAGEVALUE, CANVASLABELVALUE, CANVASLINEVALUE.</p>
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">CANVASIMAGEVALUE INST HEALTH_STATUS TEMP1 <span class="s2">"ground"</span> 400 100
 SETTING VALUE_LTEQ 10.0</code></pre></figure>
 
-<h3 id="tlm_and">
+<h3 id="tlmand">
 <a id="tlm_and" class="anchor" href="#tlm_and" aria-hidden="true"><span class="octicon octicon-link"></span></a>TLM_AND</h3>
 <p>The TLM_AND setting allows added another comparison that is anded with the original comparison for a canvas value widget to determine ‘ON’ state.  Supported widgets: CANVASIMAGEVALUE, CANVASLABELVALUE, CANVASLINEVALUE.</p>
 
@@ -4753,7 +4753,7 @@ SETTING VALUE_LTEQ 10.0</code></pre></figure>
   SETTING VALUE_LTEQ 10.0
   SETTING TLM_AND INST HEALTH_STATUS TEMP2 VALUE_GT 20.0</code></pre></figure>
 
-<h3 id="tlm_or">
+<h3 id="tlmor">
 <a id="tlm_or" class="anchor" href="#tlm_or" aria-hidden="true"><span class="octicon octicon-link"></span></a>TLM_OR</h3>
 <p>The TLM_OR setting allows added another comparison that is ored with the original comparison for a canvas value widget to determine ‘ON’ state.  Supported widgets: CANVASIMAGEVALUE, CANVASLABELVALUE, CANVASLINEVALUE.</p>
 
