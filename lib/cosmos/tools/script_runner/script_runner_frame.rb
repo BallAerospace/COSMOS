@@ -120,6 +120,7 @@ module Cosmos
     @@limits_sleeper = Sleeper.new
     @@cancel_output = false
     @@cancel_limits = false
+    @@file_number = 1
 
     def initialize(parent, default_tab_text = 'Untitled')
       super(parent)
@@ -127,6 +128,11 @@ module Cosmos
       # Keep track of whether this frame has been fully initialized
       @initialized = false
       @debug_frame = nil
+
+      # Keep track of a unique file number so we can differentiate untitled tabs
+      @file_number = @@file_number
+      @@file_number +=1
+      @filename = ''
 
       @layout = Qt::VBoxLayout.new
       @layout.setContentsMargins(0,0,0,0)
@@ -149,6 +155,7 @@ module Cosmos
 
       # Add Initial Text Window
       @script = create_ruby_editor()
+      @script.filename = unique_filename()
       @script.connect(SIGNAL('modificationChanged(bool)')) do |changed|
         emit modificationChanged(changed)
       end
@@ -182,7 +189,6 @@ module Cosmos
 
       # Configure Variables
       @line_offset = 0
-      @filename = ''
       @output_io = StringIO.new('', 'r+')
       @output_io_mutex = Mutex.new
       @change_callback = nil
@@ -210,19 +216,22 @@ module Cosmos
       @find_dialog = nil
       @replace_dialog = nil
 
-      mark_breakpoints('')
+      mark_breakpoints(@script.filename)
+    end
+
+    def unique_filename
+      if @filename and !@filename.empty?
+        return @filename
+      else
+        return @default_tab_text.strip + @file_number.to_s
+      end
     end
 
     def current_tab_filename
       if @tab_book_shown
-        filename = @tab_book.tabText(@tab_book.currentIndex)
-        if filename == @default_tab_text
-          return ''
-        else
-          return filename.strip
-        end
+        return @tab_book.widget(@tab_book.currentIndex).filename
       else
-        return @filename
+        return @script.filename
       end
     end
 
@@ -262,7 +271,17 @@ module Cosmos
       # Stop the message log so a new one will be created with the new filename
       stop_message_log()
       @filename = filename
-      mark_breakpoints(filename)
+
+      # Deal with breakpoints created under the previous filename.
+      bkpt_filename = unique_filename()
+      if @@breakpoints[bkpt_filename].nil?
+        @@breakpoints[bkpt_filename] = @@breakpoints[@script.filename]
+      end
+      if bkpt_filename != @script.filename
+        @@breakpoints.delete(@script.filename)
+        @script.filename = bkpt_filename
+      end
+      mark_breakpoints(@script.filename)
     end
 
     def modified
@@ -298,6 +317,7 @@ module Cosmos
     def clear
       self.set_text('')
       self.filename = ''
+      @script.filename = unique_filename()
       self.modified = false
     end
 
@@ -384,13 +404,15 @@ module Cosmos
         @script.setPlainText(text)
         @script.stop_highlight
         @filename = filename
-        mark_breakpoints(filename)
+        @script.filename = unique_filename()
+        mark_breakpoints(@script.filename)
       end
     end
 
     def set_text_from_file(filename)
       unless running?()
         @@file_cache[filename] = nil
+        @@breakpoints[filename] = nil
         load_file_into_script(filename)
         @filename = filename
       end
@@ -960,24 +982,25 @@ module Cosmos
     end
 
     def self.set_breakpoint(filename, line_number)
-      filename = File.basename(filename)
       @@breakpoints[filename] ||= {}
       @@breakpoints[filename][line_number] = true
     end
 
     def self.clear_breakpoint(filename, line_number)
-      filename = File.basename(filename)
       @@breakpoints[filename] ||= {}
       @@breakpoints[filename].delete(line_number) if @@breakpoints[filename][line_number]
     end
 
     def self.clear_breakpoints(filename = nil)
-      filename = File.basename(filename) unless filename.nil?
       if filename == nil or filename.empty?
         @@breakpoints = {}
       else
-        @@breakpoints[filename] = {}
+        @@breakpoints.delete(filename)
       end
+    end
+
+    def clear_breakpoints
+      ScriptRunnerFrame.clear_breakpoints(unique_filename())
     end
 
     def select_tab_and_destroy_tabs_after_index(index)
@@ -1352,6 +1375,7 @@ module Cosmos
           else # new file
             # Create new tab
             new_script = create_ruby_editor()
+            new_script.filename = filename
             @tab_book.addTab(new_script, '  ' + File.basename(filename) + '  ')
 
             @call_stack.push(filename.dup)
@@ -1373,9 +1397,12 @@ module Cosmos
     end
 
     def handle_pause(filename, line_number)
-      filename = File.basename(filename)
+      bkpt_filename = ''
+      Qt.execute_in_main_thread(true) {bkpt_filename = @active_script.filename}
       breakpoint = false
-      breakpoint = true if @@breakpoints[filename] and @@breakpoints[filename][line_number]
+      breakpoint = true if @@breakpoints[bkpt_filename] and @@breakpoints[bkpt_filename][line_number]
+
+      filename = File.basename(filename)
       if @pause
         @pause = false unless @@step_mode
         if breakpoint
@@ -1544,8 +1571,7 @@ module Cosmos
     end
 
     def mark_breakpoints(filename)
-      @active_script.clear_breakpoints
-      breakpoints = @@breakpoints[File.basename(filename)]
+      breakpoints = @@breakpoints[filename]
       if breakpoints
         breakpoints.each do |line_number, present|
           @active_script.add_breakpoint(line_number) if present
