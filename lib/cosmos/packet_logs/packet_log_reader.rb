@@ -148,6 +148,11 @@ module Cosmos
         packet.set_received_time_fast(received_time)
       end
 
+      # Auto change configuration on SYSTEM META
+      if packet.target_name == 'SYSTEM'.freeze and packet.packet_name == 'META'.freeze
+        System.load_configuration(packet.read('CONFIG'))
+      end
+
       packet.received_count += 1
       packet
     rescue => err
