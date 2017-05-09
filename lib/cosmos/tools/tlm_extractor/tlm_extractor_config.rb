@@ -16,18 +16,20 @@ module Cosmos
   class TlmExtractorConfig
 
     VALUE_TYPES = [:RAW, :CONVERTED, :FORMATTED, :WITH_UNITS]
+    COLUMN_MODES = [:NORMAL, :SHARE_ALL_COLUMNS, :SHARE_INDIV_COLUMNS, :FULL_COLUMN_NAMES]
     DEFAULT_UNIQUE_IGNORED = ['RECEIVED_TIMEFORMATTED', 'RECEIVED_TIMESECONDS']
     ITEM = 'ITEM'.freeze
     TEXT = 'TEXT'.freeze
 
     attr_accessor :matlab_header
     attr_accessor :fill_down
-    attr_accessor :share_columns
+    attr_reader :column_mode
     attr_accessor :unique_only
     attr_accessor :delimiter
     attr_accessor :downsample_seconds
     attr_accessor :print_filenames_to_output
     attr_reader :items
+    attr_reader :shared_indiv_columns
 
     attr_accessor :output_filename
     attr_accessor :input_filenames
@@ -38,18 +40,19 @@ module Cosmos
       @output_file = nil
       reset_settings()
       clear_items()
+      clear_shared_columns()
       restore(config_file) if config_file
     end
 
     def reset_settings
       @matlab_header = false
       @fill_down = false
-      @share_columns = false
       @unique_only = false
       @delimiter = "\t"
       @unique_ignored = DEFAULT_UNIQUE_IGNORED.clone
       @downsample_seconds = 0.0
       @print_filenames_to_output = true
+      set_column_mode(:NORMAL)
     end
 
     def clear_items
@@ -70,10 +73,12 @@ module Cosmos
 
       hash_index = item_name + ' ' + value_type.to_s
 
-      if @share_columns and @columns_hash[hash_index]
+      if @column_mode == :SHARE_ALL_COLUMNS and @columns_hash[hash_index]
+        column_index = @columns_hash[hash_index]
+      elsif @column_mode == :SHARE_INDIV_COLUMNS and @shared_indiv_columns.include?(hash_index) and @columns_hash[hash_index]
         column_index = @columns_hash[hash_index]
       else
-        @columns << [item_name, value_type, nil]
+        @columns << [item_name, value_type, nil, target_name, packet_name]
         column_index = @columns.length - 1
         @columns_hash[hash_index] = column_index
       end
@@ -84,22 +89,52 @@ module Cosmos
     end
 
     def add_text(column_name, text)
-      @columns << [column_name, nil, nil]
+      @columns << [column_name, nil, nil, nil, nil]
       @items << [TEXT, column_name, text, nil, nil]
       @text_items << [@columns.length - 1, text]
     end
 
+    def set_column_mode(mode)
+      raise "Unknown Column Mode: #{mode}" unless COLUMN_MODES.include?(mode)
+
+      @column_mode = mode
+      if @column_mode != :SHARE_INDIV_COLUMNS
+        clear_shared_columns()
+      end
+    end
+
+    def clear_shared_columns()
+      @shared_indiv_columns = []
+    end
+
+    def add_shared_column(item_name, value_type = :CONVERTED)
+      raise "Unknown Value Type: #{value_type}" unless VALUE_TYPES.include?(value_type)
+
+      shared_column_name = item_name + ' ' + value_type.to_s
+      @shared_indiv_columns << shared_column_name
+      @shared_indiv_columns.uniq!
+    end
+
     def column_names
-      row = Array.new(@columns.length + 2)
-      row[0] = 'TARGET'
-      row[1] = 'PACKET'
+      if @column_mode == :FULL_COLUMN_NAMES
+        col_offset = 0
+        row = Array.new(@columns.length)
+      else
+        col_offset = 2
+        row = Array.new(@columns.length + 2)
+        row[0] = 'TARGET'
+        row[1] = 'PACKET'
+      end
       index = 0
-      @columns.each do |column_name, column_value_type, item_data_type|
+      @columns.each do |column_name, column_value_type, item_data_type, target_name, packet_name|
+        if @column_mode == :FULL_COLUMN_NAMES and target_name and packet_name
+          column_name = [target_name, packet_name, column_name].join(' ')
+        end
         case column_value_type
         when :CONVERTED, nil
-          row[index + 2] = column_name
+          row[index + col_offset] = column_name
         else
-          row[index + 2] = (column_name + '(' + column_value_type.to_s + ')')
+          row[index + col_offset] = (column_name + '(' + column_value_type.to_s + ')')
         end
         index += 1
       end
@@ -132,7 +167,30 @@ module Cosmos
           when 'SHARE_COLUMNS'
             # Expect 0 parameters
             parser.verify_num_parameters(0, 0, "SHARE_COLUMNS")
-            @share_columns = true
+            set_column_mode(:SHARE_ALL_COLUMNS)
+
+          when 'SHARE_COLUMN'
+            # Expect 1 or 2 parameters
+            parser.verify_num_parameters(1, 2, "SHARE_COLUMN <Item Name> <Data Type (optional)>")
+            item_name = params[0].upcase
+            if params.length == 1
+              value_type = :CONVERTED
+            else
+              value_type = params[1].upcase
+              case value_type
+              when 'CONVERTED', 'RAW', 'FORMATTED', 'WITH_UNITS'
+                value_type = value_type.intern
+              else
+                raise "Unknown Value Type: #{value_type}"
+              end
+            end
+            set_column_mode(:SHARE_INDIV_COLUMNS)
+            add_shared_column(item_name, value_type)
+
+          when 'FULL_COLUMN_NAMES'
+            # Expect 0 parameters
+            parser.verify_num_parameters(0, 0, "FULL_COLUMN_NAMES")
+            set_column_mode(:FULL_COLUMN_NAMES)
 
           when 'UNIQUE_ONLY'
             # Expect 0 parameters
@@ -202,8 +260,16 @@ module Cosmos
           if !@print_filenames_to_output
             file.puts 'DONT_OUTPUT_FILENAMES'
           end
-          if @share_columns
+          if @column_mode == :SHARE_ALL_COLUMNS
             file.puts 'SHARE_COLUMNS'
+          end
+          if @column_mode == :SHARE_INDIV_COLUMNS
+            @shared_indiv_columns.each do |shared_column|
+              file.puts "SHARE_COLUMN #{shared_column}"
+            end
+          end
+          if @column_mode == :FULL_COLUMN_NAMES
+            file.puts 'FULL_COLUMN_NAMES'
           end
           if @unique_only
             file.puts 'UNIQUE_ONLY'
@@ -312,13 +378,13 @@ module Cosmos
 
           # Add each packet item to the row
           packet_mapping.each do |column_index|
-            column_name, column_value_type, item_data_type = @columns[column_index]
+            column_name, column_value_type, item_data_type, target_name, packet_name = @columns[column_index]
 
             # Lookup item data type on first use
             unless item_data_type
               _, item = System.telemetry.packet_and_item(packet.target_name, packet.packet_name, column_name)
               item_data_type = item.data_type
-              @columns[column_index] = [column_name, column_value_type, item_data_type]
+              @columns[column_index] = [column_name, column_value_type, item_data_type, target_name, packet_name]
             end
 
             if item_data_type == :BLOCK
@@ -349,11 +415,15 @@ module Cosmos
 
           if !@unique_only or changed
             # Output the row
-            @output_file.print packet.target_name
-            @output_file.print @delimiter
-            @output_file.print packet.packet_name
-            row.each_with_index do |value, index|
+            if @column_mode != :FULL_COLUMN_NAMES
+              @output_file.print packet.target_name
               @output_file.print @delimiter
+              @output_file.print packet.packet_name
+            end
+            row.each_with_index do |value, index|
+              if @column_mode != :FULL_COLUMN_NAMES or index != 0
+                @output_file.print @delimiter
+              end
               @output_file.print value if value
             end
             @output_file.puts ""
