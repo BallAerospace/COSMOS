@@ -59,10 +59,25 @@ module Cosmos
       @debug = false
 
       # Create the initial tab(s)
-      if ARGV.length == 0
+      initial_tabs = []
+      ARGV.each do |argv_filename|
+        proc_filename = find_procedure(argv_filename)
+        initial_tabs << proc_filename if proc_filename
+      end
+      if options.run_procedure
+        options.run_procedure = find_procedure(options.run_procedure)
+        initial_tabs << options.run_procedure if options.run_procedure
+      end
+      initial_tabs.uniq!
+
+      if initial_tabs.length == 0
         create_tab()
       else
-        ARGV.each {|argv_filename| create_tab(argv_filename)}
+        initial_tabs.each {|filename| create_tab(filename)}
+      end
+
+      if options.run_procedure
+        run_procedure(options.run_procedure)
       end
     end
 
@@ -901,6 +916,37 @@ module Cosmos
       return safe_to_continue
     end
 
+    def find_procedure(filename)
+      # If the filename is already sufficient, just expand the path.
+      return File.expand_path(filename) if File.exist?(filename)
+
+      # If the filename wasn't sufficient, can we find the file in one of the
+      # system procedure directories?
+      System.paths['PROCEDURES'].each do |path|
+        new_filename = File.join(path, filename)
+        return File.expand_path(new_filename) if File.exist?(new_filename)
+      end
+
+      # Ok, how about one of the target procedure directories?
+      System.targets.each do |target_name, target|
+        new_filename = File.join(target.dir, 'procedures', filename)
+        return File.expand_path(new_filename) if File.exist?(new_filename)
+      end
+
+      # Couldn't find the file anywhere.
+      return nil
+    end
+
+    def run_procedure(filename)
+      # Switch to the desired tab and begin execution
+      @tab_book.tabs.each_with_index do |tab, index|
+        if tab.filename == filename
+          @tab_book.setCurrentIndex(index)
+        end
+      end
+      @tab_book.currentTab.run()
+    end
+
     def self.run(option_parser = nil, options = nil)
       Cosmos.catch_fatal_exception do
         unless option_parser and options
@@ -911,6 +957,7 @@ module Cosmos
           options.auto_size = false
           options.config_file = "script_runner.txt"
           options.server_config_file = CmdTlmServer::DEFAULT_CONFIG_FILE
+          options.run_procedure = nil
 
           option_parser.separator "Script Runner Specific Options:"
           option_parser.on("-c", "--config FILE", "Use the specified configuration file") do |arg|
@@ -918,6 +965,9 @@ module Cosmos
           end
           option_parser.on("-s", "--server FILE", "Use the specified server configuration file for disconnect mode") do |arg|
             options.server_config_file = arg
+          end
+          option_parser.on("-r", "--run FILE", "Open and run the specified procedure") do |arg|
+            options.run_procedure = arg
           end
         end
 
