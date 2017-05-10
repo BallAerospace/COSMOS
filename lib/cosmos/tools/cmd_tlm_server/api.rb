@@ -68,6 +68,7 @@ module Cosmos
         'subscribe_packet_data',
         'unsubscribe_packet_data',
         'get_packet_data',
+        'get_interface_targets',
         'get_interface_names',
         'connect_interface',
         'disconnect_interface',
@@ -767,6 +768,11 @@ module Cosmos
     #
     # Methods for scripting
     #
+
+    # @return [Array<String>] All the targets mapped to the given interface
+    def get_interface_targets(interface_name)
+      CmdTlmServer.interfaces.targets(interface_name)
+    end
 
     # @return [Array<String>] All the interface names
     def get_interface_names
