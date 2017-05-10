@@ -34,6 +34,10 @@ module Cosmos
       def clear(display_name)
         TlmViewer.instance.clear(display_name)
       end
+
+      def clear_all(target)
+        TlmViewer.instance.clear_all(target)
+      end
     end
   end
 end
@@ -125,7 +129,8 @@ module Cosmos
           @json_drb.acl = acl
           whitelist = [
             'display',
-            'clear']
+            'clear',
+            'clear_all']
           @json_drb.method_whitelist = whitelist
           begin
             @json_drb.start_service "localhost", port, self
@@ -476,10 +481,23 @@ module Cosmos
 
     # Close the specified screen
     def clear(screen_full_name)
-      # Find the specified screen
-      screen_info = find_screen_info(screen_full_name)
+      close_screen(find_screen_info(screen_full_name))
+    end
 
-      # Close the screen
+    # Close all screens
+    def clear_all(target_name)
+      if target_name.empty?
+        Qt.execute_in_main_thread(true) { Screen.close_all_screens(self) }
+      else
+        screens = @tlm_viewer_config.screen_infos.values.select do |screen_info|
+          screen_info.target_name == target_name.upcase
+        end
+        raise "Unknown screen target: #{target_name.upcase}" if screens.length == 0
+        screens.each { |screen_info| close_screen(screen_info) }
+      end
+    end
+
+    def close_screen(screen_info)
       Qt.execute_in_main_thread(true) do
         begin
           screen_info.screen.window.close if screen_info.screen
