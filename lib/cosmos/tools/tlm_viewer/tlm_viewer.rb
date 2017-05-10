@@ -35,7 +35,7 @@ module Cosmos
         TlmViewer.instance.clear(display_name)
       end
 
-      def clear_all(target)
+      def clear_all(target = nil)
         TlmViewer.instance.clear_all(target)
       end
     end
@@ -485,15 +485,15 @@ module Cosmos
     end
 
     # Close all screens
-    def clear_all(target_name)
-      if target_name.empty?
-        Qt.execute_in_main_thread(true) { Screen.close_all_screens(self) }
-      else
+    def clear_all(target_name = nil)
+      if target_name
         screens = @tlm_viewer_config.screen_infos.values.select do |screen_info|
           screen_info.target_name == target_name.upcase
         end
         raise "Unknown screen target: #{target_name.upcase}" if screens.length == 0
         screens.each { |screen_info| close_screen(screen_info) }
+      else
+        Qt.execute_in_main_thread(true) { Screen.close_all_screens(self) }
       end
     end
 

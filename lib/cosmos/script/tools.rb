@@ -29,7 +29,7 @@ module Cosmos
       end
     end
 
-    def clear_all(target = '')
+    def clear_all(target = nil)
       run_tlm_viewer("clear_all") do |tlm_viewer|
         tlm_viewer.clear_all(target)
       end
