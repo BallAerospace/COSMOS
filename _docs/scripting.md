@@ -1830,6 +1830,22 @@ Example:
 interface_names = get_interface_names()
 {% endhighlight %}
 
+### get_interface_targets (since 3.9.2)
+
+The get_interface_targets method returns the list of targets which are mapped to the given interface.
+
+Syntax:
+``` get_interface_targets("<Interface Name>") ```
+
+| Parameter | Description |
+| -------- | --------------------------------- |
+| Interface Name | Name of the interface. |
+
+Example:
+{% highlight ruby %}
+targets = get_interface_targets("INST_INT")
+{% endhighlight %}
+
 ## Routers
 
 These methods allow the user to manipulate COSMOS routers.
@@ -2190,6 +2206,23 @@ Syntax:
 Example:
 {% highlight ruby %}
 clear("INST ADCS")
+{% endhighlight %}
+
+### clear_all (since 3.9.2)
+
+The clear_all method closes all open screens or all screens of a particular target.
+
+Syntax:
+``` clear_all("<Target Name>") ```
+
+| Parameter | Description |
+| -------- | --------------------------------- |
+| Target Name | Close all screens associated with the target. If no target is passed, all screens are closed.|
+
+Example:
+{% highlight ruby %}
+clear_all("INST") # Clear all INST screens
+clear_all() # Clear all screens
 {% endhighlight %}
 
 ## Script Runner Specific Functionality

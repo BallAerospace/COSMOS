@@ -1242,6 +1242,7 @@
 <li class="toc-entry toc-h3"><a href="#interface_state">interface_state</a></li>
 <li class="toc-entry toc-h3"><a href="#map_target_to_interface">map_target_to_interface</a></li>
 <li class="toc-entry toc-h3"><a href="#get_interface_names">get_interface_names</a></li>
+<li class="toc-entry toc-h3"><a href="#get_interface_targets-since-392">get_interface_targets (since 3.9.2)</a></li>
 <li class="toc-entry toc-h2"><a href="#routers">Routers</a></li>
 <li class="toc-entry toc-h3"><a href="#connect_router">connect_router</a></li>
 <li class="toc-entry toc-h3"><a href="#disconnect_router">disconnect_router</a></li>
@@ -1268,6 +1269,7 @@
 <li class="toc-entry toc-h2"><a href="#opening-and-closing-telemetry-screens">Opening and Closing Telemetry Screens</a></li>
 <li class="toc-entry toc-h3"><a href="#display">display</a></li>
 <li class="toc-entry toc-h3"><a href="#clear">clear</a></li>
+<li class="toc-entry toc-h3"><a href="#clear_all-since-392">clear_all (since 3.9.2)</a></li>
 <li class="toc-entry toc-h2"><a href="#script-runner-specific-functionality">Script Runner Specific Functionality</a></li>
 <li class="toc-entry toc-h3"><a href="#set_line_delay">set_line_delay</a></li>
 <li class="toc-entry toc-h3"><a href="#get_line_delay">get_line_delay</a></li>
@@ -4428,6 +4430,33 @@ combo_box("&lt;message&gt;", "&lt;selection text 1&gt;", …, false) # Since COS
 
 <figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">interface_names</span> <span class="o">=</span> <span class="n">get_interface_names</span><span class="p">()</span></code></pre></figure>
 
+<h3 id="getinterfacetargets-since-392">
+<a id="get_interface_targets-since-392" class="anchor" href="#get_interface_targets-since-392" aria-hidden="true"><span class="octicon octicon-link"></span></a>get_interface_targets (since 3.9.2)</h3>
+
+<p>The get_interface_targets method returns the list of targets which are mapped to the given interface.</p>
+
+<p>Syntax:
+<code class="highlighter-rouge">get_interface_targets("&lt;Interface Name&gt;")</code></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Interface Name</td>
+      <td>Name of the interface.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">targets</span> <span class="o">=</span> <span class="n">get_interface_targets</span><span class="p">(</span><span class="s2">"INST_INT"</span><span class="p">)</span></code></pre></figure>
+
 <h2 id="routers">
 <a id="routers" class="anchor" href="#routers" aria-hidden="true"><span class="octicon octicon-link"></span></a>Routers</h2>
 
@@ -5020,6 +5049,34 @@ combo_box("&lt;message&gt;", "&lt;selection text 1&gt;", …, false) # Since COS
 <p>Example:</p>
 
 <figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">clear</span><span class="p">(</span><span class="s2">"INST ADCS"</span><span class="p">)</span></code></pre></figure>
+
+<h3 id="clearall-since-392">
+<a id="clear_all-since-392" class="anchor" href="#clear_all-since-392" aria-hidden="true"><span class="octicon octicon-link"></span></a>clear_all (since 3.9.2)</h3>
+
+<p>The clear_all method closes all open screens or all screens of a particular target.</p>
+
+<p>Syntax:
+<code class="highlighter-rouge">clear_all("&lt;Target Name&gt;")</code></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Target Name</td>
+      <td>Close all screens associated with the target. If no target is passed, all screens are closed.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">clear_all</span><span class="p">(</span><span class="s2">"INST"</span><span class="p">)</span> <span class="c1"># Clear all INST screens</span>
+<span class="n">clear_all</span><span class="p">()</span> <span class="c1"># Clear all screens</span></code></pre></figure>
 
 <h2 id="script-runner-specific-functionality">
 <a id="script-runner-specific-functionality" class="anchor" href="#script-runner-specific-functionality" aria-hidden="true"><span class="octicon octicon-link"></span></a>Script Runner Specific Functionality</h2>
