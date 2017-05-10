@@ -70,6 +70,18 @@ module Cosmos
       end
     end
 
+    describe "get_interface_cmd_pkt_count" do
+      it "returns interface command count" do
+        expect(get_interface_cmd_pkt_count("INST_INT")).to be >= 0
+      end
+    end
+
+    describe "get_interface_tlm_pkt_count" do
+      it "returns interface telemetry count" do
+        expect(get_interface_tlm_pkt_count("INST_INT")).to be >= 0
+      end
+    end
+
     describe "connect_router, disconnect_router, get_router_names, router_state" do
       it "returns connect, disconnect, and list the routers CTS-11" do
         expect(get_router_names).to include("PREIDENTIFIED_ROUTER")

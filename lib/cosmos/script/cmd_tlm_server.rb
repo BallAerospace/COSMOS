@@ -37,6 +37,14 @@ module Cosmos
       return $cmd_tlm_server.map_target_to_interface(target_name, interface_name)
     end
 
+    def get_interface_cmd_pkt_count(interface_name)
+      return $cmd_tlm_server.get_interface_cmd_pkt_count(interface_name)
+    end
+
+    def get_interface_tlm_pkt_count(interface_name)
+      return $cmd_tlm_server.get_interface_tlm_pkt_count(interface_name)
+    end
+
     def get_router_names
       return $cmd_tlm_server.get_router_names
     end

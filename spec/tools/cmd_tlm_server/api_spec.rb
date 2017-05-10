@@ -1094,6 +1094,8 @@ module Cosmos
         @api.disconnect_interface("INT")
         @api.interface_state("INT")
         @api.map_target_to_interface("INST", "INT")
+        @api.get_interface_cmd_pkt_count("INST")
+        @api.get_interface_tlm_pkt_count("INST")
         @api.get_router_names
         @api.connect_router("ROUTE")
         @api.disconnect_router("ROUTE")

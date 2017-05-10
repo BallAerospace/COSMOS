@@ -74,6 +74,8 @@ module Cosmos
         'disconnect_interface',
         'interface_state',
         'map_target_to_interface',
+        'get_interface_cmd_pkt_count',
+        'get_interface_tlm_pkt_count',
         'get_router_names',
         'connect_router',
         'disconnect_router',
@@ -814,6 +816,20 @@ module Cosmos
     def map_target_to_interface(target_name, interface_name)
       CmdTlmServer.interfaces.map_target(target_name, interface_name)
       nil
+    end
+
+    # @param interface_name (see #connect_interface)
+    # @return [Numeric] The number of command packets that have been sent
+    # on the interface.
+    def get_interface_cmd_pkt_count(interface_name)
+      CmdTlmServer.interfaces.cmd_pkt_count(interface_name)
+    end
+
+    # @param interface_name (see #connect_interface)
+    # @return [Numeric] The number of telemetry packets that have been received
+    # on the interface.
+    def get_interface_tlm_pkt_count(interface_name)
+      CmdTlmServer.interfaces.tlm_pkt_count(interface_name)
     end
 
     # @return [Array<String>] All the router names
