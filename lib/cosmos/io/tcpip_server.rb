@@ -403,11 +403,13 @@ module Cosmos
 
       if listen_write
         if @auto_system_meta
+          meta_packet = System.telemetry.packet('SYSTEM', 'META').clone
           if @auto_system_meta.to_s == 'CMD'
-            stream_protocol.write(System.commands.packet('SYSTEM', 'META'))
+            meta_packet.write('CMDTLM', 1)
           else
-            stream_protocol.write(System.telemetry.packet('SYSTEM', 'META'))
+            meta_packet.write('CMDTLM', 0)
           end
+          stream_protocol.write(meta_packet)
         end
 
         @write_connection_callback.call(stream_protocol) if @write_connection_callback

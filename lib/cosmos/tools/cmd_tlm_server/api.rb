@@ -463,7 +463,16 @@ module Cosmos
     #   description).
     def set_tlm(*args)
       target_name, packet_name, item_name, value = set_tlm_process_args(args, 'set_tlm')
+      if target_name == 'SYSTEM'.freeze and packet_name == 'META'.freeze
+        raise "set_tlm not allowed on #{target_name} #{packet_name} #{item_name}" if ['PKTID', 'CMDTLM', 'CONFIG'].include?(item_name)
+      end
       System.telemetry.set_value(target_name, packet_name, item_name, value, :CONVERTED)
+      if target_name == 'SYSTEM'.freeze and packet_name == 'META'.freeze
+        tlm_packet = System.telemetry.packet('SYSTEM', 'META')
+        cmd_packet = System.commands.packet('SYSTEM', 'META')
+        cmd_packet.buffer = tlm_packet.buffer
+        cmd_packet.write('CMDTLM', 1) # Set to Cmd
+      end
       System.telemetry.packet(target_name, packet_name).check_limits(System.limits_set, true)
       nil
     end

@@ -29,10 +29,8 @@ module Cosmos
     attr_accessor :background_tasks
     # @return [String] Command and Telemetry Server title
     attr_accessor :title
-    # @return [String or nil] Meta Target Name
-    attr_accessor :meta_target_name
-    # @return [String or nil] Meta Packet Name
-    attr_accessor :meta_packet_name
+    # @return [Boolean] Flag indicating if meta data should be collected
+    attr_accessor :metadata
 
     # Create a default pair of packet log writers and parses the
     # configuration file.
@@ -47,8 +45,7 @@ module Cosmos
       @packet_log_writer_pairs['DEFAULT'] = PacketLogWriterPair.new(cmd_log_writer, tlm_log_writer)
       @background_tasks = []
       @title = nil
-      @meta_target_name = nil
-      @meta_packet_name = nil
+      @metadata = false
       process_file(filename)
     end
 
@@ -251,10 +248,8 @@ module Cosmos
 
           # TODO: Deprecate COLLECT_META_DATA
           when 'COLLECT_METADATA', 'COLLECT_META_DATA'
-            parser.verify_num_parameters(2, 2, "#{keyword} <Metadata Target Name> <Metadata Packet Name>")
-            System.telemetry.packet(params[0], params[1])
-            @meta_target_name = params[0]
-            @meta_packet_name = params[1]
+            parser.verify_num_parameters(0, 0, "#{keyword}")
+            @metadata = true
 
           else
             # blank lines will have a nil keyword and should not raise an exception

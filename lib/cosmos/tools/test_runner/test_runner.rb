@@ -1079,9 +1079,8 @@ module Cosmos
 
         # TODO: Deprecate COLLECT_META_DATA
         when 'COLLECT_METADATA', 'COLLECT_META_DATA'
-          parser.verify_num_parameters(2, 2, "#{keyword} <Metadata Target Name> <Metadata Packet Name>")
-          System.telemetry.packet(params[0], params[1])
-          @@results_writer.metadata = [params[0], params[1]]
+          parser.verify_num_parameters(0, 0, "#{keyword}")
+          @@results_writer.metadata = true
 
         else
           raise "Unhandled keyword: #{keyword}" if keyword

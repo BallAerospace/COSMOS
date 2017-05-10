@@ -579,7 +579,6 @@ module Cosmos
       if config
         update_config(config)
         @config.name = configuration_name if configuration_name
-
         setup_system_meta()
 
         # Marshal file load successful
@@ -610,9 +609,8 @@ module Cosmos
           @config.name = md5_string
         end
 
-        setup_system_meta()
-
         Cosmos.marshal_dump(marshal_filename, @config)
+        setup_system_meta()
       end
 
       @initial_config = @config unless @initial_config
@@ -624,12 +622,18 @@ module Cosmos
       begin
         tlm_meta = @telemetry.packet('SYSTEM', 'META')
         cmd_meta = @commands.packet('SYSTEM', 'META')
-        tlm_meta.get_item('PKTID')
-        cmd_meta.get_item('PKTID')
-        tlm_meta.get_item('CMDTLM')
-        cmd_meta.get_item('CMDTLM')
-        tlm_meta.get_item('CONFIG')
-        cmd_meta.get_item('CONFIG')
+        item = tlm_meta.get_item('PKTID')
+        raise "PKTID Incorrect" unless item.bit_size == 8 and item.bit_offset == 0
+        item = cmd_meta.get_item('PKTID')
+        raise "PKTID Incorrect" unless item.bit_size == 8 and item.bit_offset == 0
+        item = tlm_meta.get_item('CMDTLM')
+        raise "CMDTLM Incorrect" unless item.bit_size == 8 and item.bit_offset == 8
+        item = cmd_meta.get_item('CMDTLM')
+        raise "CMDTLM Incorrect" unless item.bit_size == 8 and item.bit_offset == 8
+        item = tlm_meta.get_item('CONFIG')
+        raise "CONFIG Incorrect" unless item.bit_size == 256 and item.bit_offset == 16
+        item = cmd_meta.get_item('CONFIG')
+        raise "CONFIG Incorrect" unless item.bit_size == 256 and item.bit_offset == 16
       rescue
         Logger.error "SYSTEM META not defined or defined incorrectly - defaulting"
 
@@ -663,10 +667,9 @@ module Cosmos
 
       # Set SYSTEM META CONFIG and CMDTLM
       tlm_meta.write('PKTID', 1)
-      cmd_meta.write('PKTID', 1)
       tlm_meta.write('CONFIG', @config.name)
-      cmd_meta.write('CONFIG', @config.name)
       tlm_meta.write('CMDTLM', 0)
+      cmd_meta.buffer = tlm_meta.buffer
       cmd_meta.write('CMDTLM', 1)
     end
 
