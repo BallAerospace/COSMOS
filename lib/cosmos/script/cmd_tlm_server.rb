@@ -13,6 +13,10 @@ module Cosmos
   module Script
     private
 
+    def get_interface_targets(interface_name)
+      return $cmd_tlm_server.get_interface_targets(interface_name)
+    end
+
     def get_interface_names
       return $cmd_tlm_server.get_interface_names
     end
