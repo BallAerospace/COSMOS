@@ -413,55 +413,10 @@ if errorlevel 1 (
   @echo Successfully created cosmos Demo >> !COSMOS_INSTALL!\INSTALL.log
 )
 
-::::::::::::::::::::::::::
-:: Desktop Icon
-::::::::::::::::::::::::::
+:::::::::::::::::::::
+:: Perform offline configuration
+:::::::::::::::::::::
 
-@echo Set oWS = WScript.CreateObject("WScript.Shell") > !COSMOS_INSTALL!\tmp\makeshortcut.vbs
-@echo sLinkFile = "!USERPROFILE!\Desktop\COSMOS.lnk" >> !COSMOS_INSTALL!\tmp\makeshortcut.vbs
-@echo Set oLink = oWS.CreateShortcut(sLinkFile) >> !COSMOS_INSTALL!\tmp\makeshortcut.vbs
-@echo oLink.TargetPath = "!COSMOS_INSTALL!\LAUNCH_DEMO.bat" >> !COSMOS_INSTALL!\tmp\makeshortcut.vbs
-@echo oLink.IconLocation = "!COSMOS_INSTALL!\cosmos_icon.ico" >> !COSMOS_INSTALL!\tmp\makeshortcut.vbs
-@echo oLink.Save >> !COSMOS_INSTALL!\tmp\makeshortcut.vbs
-set /p COSMOS_CONTINUE="Create Desktop Shortcut? [Y/n]: "
-IF NOT "!COSMOS_CONTINUE!"=="n" (
-  cscript //B !COSMOS_INSTALL!\tmp\makeshortcut.vbs
-  if errorlevel 1 (
-    echo ERROR: Problem creating desktop shortcut
-    @echo ERROR: Problem creating desktop shortcut >> !COSMOS_INSTALL!\INSTALL.log
-    pause
-  ) else (
-    @echo Successfully created desktop shortcut >> !COSMOS_INSTALL!\INSTALL.log
-  )
-)
-
-::::::::::::::::::::::::::
-:: Environment Variables
-::::::::::::::::::::::::::
-
-set /p COSMOS_CONTINUE="Set COSMOS_DIR Environment Variable? [Y/n]: "
-IF NOT "!COSMOS_CONTINUE!"=="n" (
-  setx COSMOS_DIR "!COSMOS_INSTALL!"
-  if errorlevel 1 (
-    echo ERROR: Problem creating COSMOS_DIR environment variable
-    @echo ERROR: Problem creating COSMOS_DIR environment variable >> !COSMOS_INSTALL!\INSTALL.log
-    pause
-  ) else (
-    echo COSMOS_DIR set for Current User.
-    echo Add System Environment Variable if desired for all users.
-    @echo Successfully created COSMOS_DIR environment variable >> !COSMOS_INSTALL!\INSTALL.log
-  )
-)
-
-::::::::::::::::::::::::::::::::::::::::::
-:: Test Installation by Launching COSMOS
-::::::::::::::::::::::::::::::::::::::::::
-
-pushd !COSMOS_INSTALL!
-SET COSMOS_DEVEL=
-start !COSMOS_INSTALL!\Launch_Demo.bat
-echo COSMOS Launcher should start if installation was successful
-echo INSTALLATION COMPLETE
-@echo INSTALLATION COMPLETE >> !COSMOS_INSTALL!\INSTALL.log
+call !COSMOS_INSTALL!\OFFLINE_CONFIG_COSMOS.bat
 
 ENDLOCAL
