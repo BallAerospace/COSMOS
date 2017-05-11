@@ -275,27 +275,6 @@ if !ADMIN!==1 (
   @echo !WKHTMLPATHWITHPROTOCOL!!WKHTMLTOPDF! >> !COSMOS_INSTALL!\INSTALL.log
 )
 
-::::::::::::::::::::::::::::::::::::::::::::
-:: Setup gemrc to use the correct protocol
-::::::::::::::::::::::::::::::::::::::::::::
-
-mkdir !COSMOS_INSTALL!\Vendor\Ruby\lib\ruby\gems\etc > nul 2>&1
-if errorlevel 1 (
-  echo ERROR: Failed to create directory: "!COSMOS_INSTALL!\Vendor\Ruby\lib\ruby\gems\etc"
-  @echo ERROR: Failed to create directory: "!COSMOS_INSTALL!\Vendor\Ruby\lib\ruby\gems\etc" >> !COSMOS_INSTALL!\INSTALL.log
-  echo INSTALL FAILED
-  pause
-  exit /b 1
-)
-@echo --- > !COSMOS_INSTALL!\Vendor\Ruby\lib\ruby\gems\etc\gemrc
-@echo :backtrace: false >> !COSMOS_INSTALL!\Vendor\Ruby\lib\ruby\gems\etc\gemrc
-@echo :benchmark: false >> !COSMOS_INSTALL!\Vendor\Ruby\lib\ruby\gems\etc\gemrc
-@echo :bulk_threshold: 1000 >> !COSMOS_INSTALL!\Vendor\Ruby\lib\ruby\gems\etc\gemrc
-@echo :sources: >> !COSMOS_INSTALL!\Vendor\Ruby\lib\ruby\gems\etc\gemrc
-@echo - !PROTOCOL!://rubygems.org/ >> !COSMOS_INSTALL!\Vendor\Ruby\lib\ruby\gems\etc\gemrc
-@echo :update_sources: true >> !COSMOS_INSTALL!\Vendor\Ruby\lib\ruby\gems\etc\gemrc
-@echo :verbose: true >> !COSMOS_INSTALL!\Vendor\Ruby\lib\ruby\gems\etc\gemrc
-
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 :: Download and unzip additional files needed for the installation
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -331,6 +310,29 @@ if errorlevel 1 (
   @echo Successfully unzipped COSMOS Windows files >> !COSMOS_INSTALL!\INSTALL.log
 )
 
+::::::::::::::::::::::::::::::::::::::::::::
+:: Setup gemrc to use the correct protocol
+::::::::::::::::::::::::::::::::::::::::::::
+
+mkdir !COSMOS_INSTALL!\Vendor\Ruby\lib\ruby\gems\etc > nul 2>&1
+if errorlevel 1 (
+  echo ERROR: Failed to create directory: "!COSMOS_INSTALL!\Vendor\Ruby\lib\ruby\gems\etc"
+  @echo ERROR: Failed to create directory: "!COSMOS_INSTALL!\Vendor\Ruby\lib\ruby\gems\etc" >> !COSMOS_INSTALL!\INSTALL.log
+  echo INSTALL FAILED
+  pause
+  exit /b 1
+)
+SET "GEMRC=!COSMOS_INSTALL!\Vendor\Ruby\lib\ruby\gems\etc\gemrc"
+
+@echo --- > !GEMRC!
+@echo :backtrace: false >> !GEMRC!
+@echo :benchmark: false >> !GEMRC!
+@echo :bulk_threshold: 1000 >> !GEMRC!
+@echo :sources: >> !GEMRC!
+@echo - !PROTOCOL!://rubygems.org/ >> !GEMRC!
+@echo :update_sources: true >> !GEMRC!
+@echo :verbose: true >> !GEMRC!
+
 ::::::::::::::::::::::::::::
 :: Install Gems
 ::::::::::::::::::::::::::::
@@ -338,7 +340,6 @@ if errorlevel 1 (
 :: Set environmental variables
 SET "GEM_HOME=!COSMOS_INSTALL!\Vendor\Ruby\lib\ruby\gems\!RUBY_ABI_VERSION!"
 SET "GEM_PATH=%GEM_HOME%"
-SET "GEMRC=!COSMOS_INSTALL!\Vendor\Ruby\lib\ruby\gems\etc\gemrc"
 
 :: Prepend embedded bin to PATH so we prefer those binaries
 SET RI_DEVKIT=!COSMOS_INSTALL!\Vendor\Devkit\
