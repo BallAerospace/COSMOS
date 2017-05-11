@@ -11,7 +11,7 @@ set START_PATH=!PATH!
 set PROTOCOL=https
 
 :: Update this version if making any changes to this script
-set INSTALLER_VERSION=1.4
+set INSTALLER_VERSION=1.5
 
 :: Paths and versions for COSMOS dependencies
 set RUBY_INSTALLER_32=rubyinstaller-2.2.3.exe
@@ -23,6 +23,7 @@ set DEVKIT_64=DevKit-mingw64-64-4.7.2-20130224-1432-sfx.exe
 set WKHTMLTOPDF=wkhtmltox-0.11.0_rc1-installer.exe
 set WKHTMLPATHWITHPROTOCOL=http://download.gna.org/wkhtmltopdf/obsolete/windows/
 set QTBINDINGS_QT_VERSION=4.8.6.3
+set GEM_UPDATE_PATH=//rubygems.org/gems/rubygems-update-2.6.12.gem
 
 :: Detect Ball
 if "%USERDNSDOMAIN%"=="AERO.BALL.COM" (
@@ -52,7 +53,7 @@ if not errorlevel 1 (
 if exist *.gem (
   echo WARNING: gem files found in the current directory
   echo WARNING: This can cause the installation to fail or install old gems
-  pause  
+  pause
 )
 
 ::::::::::::::::::::::
@@ -297,16 +298,28 @@ SET "PATH=!COSMOS_INSTALL!\Vendor\Ruby\bin;%RI_DEVKIT%bin;%RI_DEVKIT%mingw\bin;%
 SET RUBYOPT=
 SET RUBYLIB=
 
+powershell -Command "(New-Object Net.WebClient).DownloadFile('!PROTOCOL!:!GEM_UPDATE_PATH!', '!COSMOS_INSTALL!\tmp\rubygem-update.gem')"
+
 :: update rubygems to latest (workaround issue installing pry)
-call gem update --system 2.4.4
+call gem install --local !COSMOS_INSTALL!\tmp\rubygem-update.gem
 if errorlevel 1 (
-  echo ERROR: Problem updating gem to 2.4.4
+  echo ERROR: Problem installing latest rubygem-update
   echo INSTALL FAILED
-  @echo ERROR: Problem updating gem to 2.4.4 >> !COSMOS_INSTALL!\INSTALL.log
+  @echo ERROR: Problem installing latest rubygem-update >> !COSMOS_INSTALL!\INSTALL.log
   pause
   exit /b 1
 ) else (
-  @echo Successfully updated gem to 2.4.4 >> !COSMOS_INSTALL!\INSTALL.log
+  @echo Successfully updated gem to latest >> !COSMOS_INSTALL!\INSTALL.log
+)
+call update_rubygems
+if errorlevel 1 (
+  echo ERROR: Problem updating gem to latest
+  echo INSTALL FAILED
+  @echo ERROR: Problem updating gem to latest >> !COSMOS_INSTALL!\INSTALL.log
+  pause
+  exit /b 1
+) else (
+  @echo Successfully updated gem to latest >> !COSMOS_INSTALL!\INSTALL.log
 )
 call gem install pry -v 0.10.1
 if errorlevel 1 (
@@ -317,16 +330,6 @@ if errorlevel 1 (
   exit /b 1
 ) else (
   @echo Successfully installed pry gem >> !COSMOS_INSTALL!\INSTALL.log
-)
-call gem update --system 2.4.8
-if errorlevel 1 (
-  echo ERROR: Problem updating gem to 2.4.8
-  echo INSTALL FAILED
-  @echo ERROR: Problem updating gem to 2.4.8 >> !COSMOS_INSTALL!\INSTALL.log
-  pause
-  exit /b 1
-) else (
-  @echo Successfully updated gem to latest >> !COSMOS_INSTALL!\INSTALL.log
 )
 
 :: install COSMOS gem and dependencies
