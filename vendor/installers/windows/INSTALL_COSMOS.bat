@@ -24,6 +24,7 @@ set WKHTMLTOPDF=wkhtmltox-0.11.0_rc1-installer.exe
 set WKHTMLPATHWITHPROTOCOL=http://download.gna.org/wkhtmltopdf/obsolete/windows/
 set QTBINDINGS_QT_VERSION=4.8.6.3
 set GEM_UPDATE_PATH=//rubygems.org/gems/rubygems-update-2.6.12.gem
+set WINDOWS_INSTALL_ZIP=//github.com/BallAerospace/COSMOS/blob/master/vendor/installers/windows/COSMOS_Windows_Install.zip
 
 :: Detect Ball
 if "%USERDNSDOMAIN%"=="AERO.BALL.COM" (
@@ -280,26 +281,17 @@ if !ADMIN!==1 (
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 echo Downloading COSMOS_Windows_Install.zip
-powershell -Command "(New-Object Net.WebClient).DownloadFile('!PROTOCOL!://github.com/BallAerospace/COSMOS/blob/master/vendor/installers/windows/COSMOS_Windows_Install.zip?raw=true', '!COSMOS_INSTALL!\tmp\COSMOS_Windows_Install.zip')"
+powershell -Command "(New-Object Net.WebClient).DownloadFile('!PROTOCOL!:!WINDOWS_INSTALL_ZIP!?raw=true', '!COSMOS_INSTALL!\tmp\COSMOS_Windows_Install.zip')"
 if errorlevel 1 (
-  echo ERROR: Problem downloading COSMOS Windows files from: !PROTOCOL!://github.com/BallAerospace/COSMOS/blob/master/vendor/installers/windows/COSMOS_Windows_Install.zip?raw=true
+  echo ERROR: Problem downloading COSMOS Windows files from: !PROTOCOL!:!WINDOWS_INSTALL_ZIP!?raw=true
   echo INSTALL FAILED
-  @echo ERROR: Problem downloading COSMOS Windows files from: !PROTOCOL!://github.com/BallAerospace/COSMOS/blob/master/vendor/installers/windows/COSMOS_Windows_Install.zip?raw=true >> !COSMOS_INSTALL!\INSTALL.log
+  @echo ERROR: Problem downloading COSMOS Windows files from: !PROTOCOL!:!WINDOWS_INSTALL_ZIP!?raw=true >> !COSMOS_INSTALL!\INSTALL.log
   pause
   exit /b 1
 ) else (
-  @echo Successfully downloaded COSMOS Windows files from: !PROTOCOL!://github.com/BallAerospace/COSMOS/blob/master/vendor/installers/windows/COSMOS_Windows_Install.zip?raw=true >> !COSMOS_INSTALL!\INSTALL.log
+  @echo Successfully downloaded COSMOS Windows files from: !PROTOCOL!:!WINDOWS_INSTALL_ZIP!?raw=true >> !COSMOS_INSTALL!\INSTALL.log
 )
-@echo Set ArgObj = WScript.Arguments > !COSMOS_INSTALL!\tmp\unzip.vbs
-@echo strFileZIP = ArgObj(0) >> !COSMOS_INSTALL!\tmp\unzip.vbs
-@echo outFolder = ArgObj(1) ^& "\" >> !COSMOS_INSTALL!\tmp\unzip.vbs
-@echo WScript.Echo ("Extracting file " ^& strFileZIP ^& " to " ^& outFolder) >> !COSMOS_INSTALL!\tmp\unzip.vbs
-@echo Set objShell = CreateObject( "Shell.Application" ) >> !COSMOS_INSTALL!\tmp\unzip.vbs
-@echo Set objSource = objShell.NameSpace(strFileZIP).Items() >> !COSMOS_INSTALL!\tmp\unzip.vbs
-@echo Set objTarget = objShell.NameSpace(outFolder) >> !COSMOS_INSTALL!\tmp\unzip.vbs
-@echo intOptions = 256 >> !COSMOS_INSTALL!\tmp\unzip.vbs
-@echo objTarget.CopyHere objSource, intOptions >> !COSMOS_INSTALL!\tmp\unzip.vbs
-cscript //B !COSMOS_INSTALL!\tmp\unzip.vbs !COSMOS_INSTALL!\tmp\COSMOS_Windows_Install.zip !COSMOS_INSTALL!
+powershell -Command "$shell = new-object -com shell.application; $zip = $shell.NameSpace('!COSMOS_INSTALL!\tmp\COSMOS_Windows_Install.zip'); foreach($item in $zip.items()) {$shell.NameSpace('!COSMOS_INSTALL!').copyhere($item)}"
 if errorlevel 1 (
   echo ERROR: Problem unzipping COSMOS Windows files
   echo INSTALL FAILED
