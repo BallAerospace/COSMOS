@@ -634,32 +634,6 @@ module Cosmos
           tf.unlink
         end
       end
-
-      context "with CMD_TLM_VERSION" do
-        it "takes 1 parameters" do
-          tf = Tempfile.new('unittest')
-          tf.puts("CMD_TLM_VERSION")
-          tf.close
-          expect { System.instance.process_file(tf.path) }.to raise_error(ConfigParser::Error, /Not enough parameters for CMD_TLM_VERSION./)
-          tf.unlink
-
-          tf = Tempfile.new('unittest')
-          tf.puts("CMD_TLM_VERSION 1 2")
-          tf.close
-          expect { System.instance.process_file(tf.path) }.to raise_error(ConfigParser::Error, /Too many parameters for CMD_TLM_VERSION./)
-          tf.unlink
-        end
-
-        it "sets the command and telemetry version" do
-          tf = Tempfile.new('unittest')
-          tf.puts("CMD_TLM_VERSION 2.1")
-          tf.close
-          expect(System.cmd_tlm_version).to be_nil
-          System.instance.process_file(tf.path)
-          expect(System.cmd_tlm_version).to eql "2.1"
-          tf.unlink
-        end
-      end
     end
 
     describe "Cosmos.write_exception_file" do
