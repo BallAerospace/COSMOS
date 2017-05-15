@@ -101,22 +101,6 @@ module Cosmos
       end
     end
 
-    # @return [Numeric] The number of packets written to a connection
-    def cmd_pkt_count(connection_name)
-      connection = @connections[connection_name.upcase]
-      raise "Unknown #{@keyword}: #{connection_name}" unless connection
-
-      return connection.write_count
-    end
-
-    # @return [Numeric] The number of packets read from a connection
-    def tlm_pkt_count(connection_name)
-      connection = @connections[connection_name.upcase]
-      raise "Unknown #{@keyword}: #{connection_name}" unless connection
-
-      return connection.read_count
-    end
-
     # @return [Array<String>] The names of all the connections
     def names
       names = []
