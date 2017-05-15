@@ -23,20 +23,20 @@ The Ruby programming language provides a script writer a lot of power. But with 
 
 * Use two spaces for indentation and do NOT use tabs
 * Constants should be all caps with underscores
-    * ``` SPEED_OF_LIGHT = 299792458 # meters per s ```
+    * `SPEED_OF_LIGHT = 299792458 # meters per s`
 * Variable names and method names should be in lowercase with underscores
-    * ``` last_name = "Smith" ```
-    * ``` perform_setup_operation() ```
+    * `last_name = "Smith"`
+    * `perform_setup_operation()`
 * Class names (when used) should be camel case and the files which contain them should match but be lowercase with underscores
-    * ``` class DataUploader # in 'data_uploader.rb' ```
-    * ``` class CcsdsUtility # in 'ccsds_utility.rb' ```
+    * `class DataUploader # in 'data_uploader.rb'`
+    * `class CcsdsUtility # in 'ccsds_utility.rb'`
 * Don't add useless comments but instead describe intent
 
 <div style="clear:both;"></div>
 
 The following is an example of good style:
-{% highlight ruby %}
-Example Code
+
+```ruby
 ######################################
 # Title block which describes the test
 # Author: John Doe
@@ -70,7 +70,7 @@ end
 
 clear_collects('INST')
 clear_collects('INST2')
-{% endhighlight %}
+```
 
 This example shows several features of COSMOS scripting in action. Notice the difference between 'load' and 'require_utility'. The first is to load additional scripts which will NOT be shown in Script Runner when executing. This is a good place to put code which takes a long time to run such as image analysis or other looping code where you just want the output. 'require_utility' will visually execute the code line by line to show the user what is happening.
 
@@ -105,7 +105,7 @@ Subroutines in COSMOS scripting are first class citizens. They can allow you to 
 
 ### Subroutines
 
-{% highlight ruby %}
+```ruby
 # My Utility Procedure: program_utilities.rb
 # Author: Bob
 
@@ -146,7 +146,9 @@ def turn_off_power
   check("GSE SOH CURRENT < 0.1")
   puts("Power supply is OFF")
 end
+```
 
+```ruby
 # My Test Procedure: run_instrument.rb
 # Author: Larry
 
@@ -159,11 +161,11 @@ goto_run_mode()
 
 goto_safe_mode()
 turn_off_power()
-{% endhighlight %}
+```
 
 ### Ruby Control Structures
 
-{% highlight ruby %}
+```ruby
 #if, elsif, else structure
 
 x = 3
@@ -176,48 +178,47 @@ else
   puts "Nothing interesting going on"
 end
 
-#Endless loop and single-line if
+# Endless loop and single-line if
 
 loop do
   break if tlm("INST HEALTH_STATUS TEMP1") > 25.0
   wait(1)
 end
 
-#Do something a given number of times
+# Do something a given number of times
 
 5.times do
   cmd("INST COLLECT")
 end
-{% endhighlight %}
+```
 
 ### Iterating over similarly named telemetry points
 
-{% highlight ruby %}
-#This block of code goes through the range of numbers 1 through 4 (1..4)
-#and checks telemetry items TEMP1, TEMP2, TEMP3, and TEMP4
+```ruby
+# This block of code goes through the range of numbers 1 through 4 (1..4)
+# and checks telemetry items TEMP1, TEMP2, TEMP3, and TEMP4
 
 (1..4).each do |num|
   check("INST HEALTH_STATUS TEMP#{num} > 25.0")
 end
 
-#You could also do
-
+# You could also do
 num = 1
 4.times do
   check("INST HEALTH_STATUS TEMP#{num} > 25.0")
   num = num + 1
 end
-{% endhighlight %}
+```
 
 ### Prompting for User Input
 
-{% highlight ruby %}
+```ruby
 numloops = ask("Please enter the number of times to loop")
 
 numloops.times do
   puts "Looping"
 end
-{% endhighlight %}
+```
 
 ## Running Test Procedures
 
@@ -236,10 +237,11 @@ Finally, displayed is the script output. All commands that are sent, errors that
 ### From the Command Line
 
 Note that any COSMOS script can also be run from the command line if the script begins with the following two lines:
-{% highlight ruby %}
+
+```ruby
 require 'cosmos'
 require 'cosmos/script'
-{% endhighlight %}
+```
 
 The Script Runner Tool automatically executes these lines for you so they aren't required for scripts that will only be run from Script Runner. Nice features such as display of the current line or the ability to pause a script are not available from the command line.
 
@@ -255,8 +257,10 @@ These methods allow the user to enter values that are needed by the script.
 
 The ask method prompts the user for input with a question. User input is automatically converted from a string to the appropriate data type. For example if the user enters "1", the number 1 as an integer will be returned.
 
-Syntax:
-```ask("<question>")```
+Syntax:  
+```ruby
+ask("<question>")
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
@@ -264,20 +268,22 @@ Syntax:
 | blank_or_default | Whether or not to allow empty responses (optional - defaults to false). If a non-boolean value is passed it is used as a default value. |
 | password | Whether to treat the entry as a password which is displayed with dots and not logged. |
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 value = ask("Enter an integer")
 value = ask("Enter a value or nothing", true)
 value = ask("Enter a value", 10)
 password = ask("Enter your password", false, true)
-{% endhighlight %}
+```
 
 ### ask_string
 
 The ask_string method prompts the user for input with a question. User input is always returned as a string. For exampe if the user enters "1", the string "1" will be returned.
 
-Syntax:
-```ask_string("<question>")```
+Syntax:  
+```ruby
+ask_string("<question>")
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
@@ -285,13 +291,13 @@ Syntax:
 | blank_or_default | Whether or not to allow empty responses (optional - defaults to false). If a non-boolean value is passed it is used as a default value. |
 | password | Whether to treat the entry as a password which is displayed with dots and not logged. |
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 string = ask_string("Enter a String")
 string = ask_string("Enter a value or nothing", true)
 string = ask_string("Enter a value", "test")
 password = ask_string("Enter your password", false, true)
-{% endhighlight %}
+```
 
 ### message_box
 
@@ -301,9 +307,8 @@ password = ask_string("Enter your password", false, true)
 
 The message_box, vertical_message_box, and combo_box methods create a message box with arbitrary buttons or selections that the user can click. The text of the button clicked is returned.
 
-Syntax:
-
-```
+Syntax:  
+```ruby
 message_box("<message>", "<button text 1>", …)
 message_box("<message>", "<button text 1>", …, false) # Since COSMOS 3.8.3
 vertical_message_box("<message>", "<button text 1>", …) # Since COSMOS 3.5.0
@@ -318,8 +323,8 @@ combo_box("<message>", "<selection text 1>", …, false) # Since COSMOS 3.8.3
 |button/selection text|Text for a button or selection|
 |false|Whether to display the "Cancel" button (since 3.8.3)|
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 value = message_box("Select the sensor number", 'One', 'Two')
 value = vertical_message_box("Select the sensor number", 'One', 'Two')
 value = combo_box("Select the sensor number", 'One', 'Two')
@@ -329,7 +334,7 @@ when 'One'
 when 'Two'
   puts 'Sensor Two'
 end
-{% endhighlight %}
+```
 
 ## Providing information to the user
 
@@ -339,49 +344,55 @@ These methods notify the user that something has occurred.
 
 The prompt method displays a message to the user and waits for them to press an ok button.
 
-Syntax:
-``` prompt("<message>") ```
+Syntax:  
+```ruby
+prompt("<message>")
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
 |message|Message to prompt the user with.|
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 prompt("Press OK to continue")
-{% endhighlight %}
+```
 
 ### status_bar
 
 The status_bar method displays a message to the user in the status bar (at the bottom of the tool).
 
-Syntax:
-``` status_bar("<message>") ```
+Syntax:  
+```ruby
+status_bar("<message>")
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
 |message|Message to display in the status bar|
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 status_bar("Connection Successful")
-{% endhighlight %}
+```
 
 ### play_wav_file
 
 The play_wav_file method plays the provided wav file once.  Note that the script will proceed while the wav file plays.
 
-Syntax:
-``` play_wav_file(wav_filename) ```
+Syntax:  
+```ruby
+play_wav_file(wav_filename)
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
 |wav_filename|Path and filename of the wav file to play.|
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 play_wav_file("config/data/alarm.wav")
-{% endhighlight %}
+```
 
 ## Commands
 
@@ -391,11 +402,11 @@ These methods provide capability to send commands to a target and receive inform
 
 The cmd method sends a specified command.
 
-Syntax:
-{% highlight ruby %}
-cmd("<Target Name> <Command Name> with <Param #1 Name> <Param #1 Value>, <Param #2 Name> <Param #2 Value>, …")
+Syntax:  
+```ruby
+cmd("<Target Name> <Command Name> with <Param #1 Name> <Param #1 Value>, <Param #2 Name> <Param #2 Value>, ...")
 cmd("<Target Name>", "<Command Name>", "Param #1 Name" => <Param #1 Value>, "Param #2 Name" => <Param #2 Value>, ...)
-{% endhighlight %}
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
@@ -404,21 +415,21 @@ cmd("<Target Name>", "<Command Name>", "Param #1 Name" => <Param #1 Value>, "Par
 | Param #x Name | Name of a command parameter. If there are no parameters then the 'with' keyword should not be given. |
 | Param #x Value | Value of the command parameter. Values are automatically converted to the appropriate type. |
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 cmd("INST COLLECT with DURATION 10, TYPE NORMAL")
 cmd("INST", "COLLECT", "DURATION" => 10, "TYPE" => "NORMAL")
-{% endhighlight %}
+```
 
 ### cmd_no_range_check
 
 The cmd_no_range_check method sends a specified command without performing range checking on its parameters. This should only be used when it is necessary to intentionally send a bad command parameter to test a target.
 
-Syntax:
-{% highlight ruby %}
-cmd_no_range_check("<Target Name> <Command Name> with <Param #1 Name> <Param #1 Value>, <Param #2 Name> <Param #2 Value>, …")
+Syntax:  
+```ruby
+cmd_no_range_check("<Target Name> <Command Name> with <Param #1 Name> <Param #1 Value>, <Param #2 Name> <Param #2 Value>, ...")
 cmd_no_range_check("<Target Name>", "<Command Name>", "Param #1 Name" => <Param #1 Value>, "Param #2 Name" => <Param #2 Value>, ...)
-{% endhighlight %}
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
@@ -427,21 +438,21 @@ cmd_no_range_check("<Target Name>", "<Command Name>", "Param #1 Name" => <Param 
 | Param #x Name | Name of a command parameter. If there are no parameters then the 'with' keyword should not be given. |
 | Param #x Value | Value of the command parameter. Values are automatically converted to the appropriate type. |
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 cmd_no_range_check("INST COLLECT with DURATION 11, TYPE NORMAL")
 cmd_no_range_check("INST", "COLLECT", "DURATION" => 11, "TYPE" => "NORMAL")
-{% endhighlight %}
+```
 
 ### cmd_no_hazardous_check
 
 The cmd_no_hazardous_check method sends a specified command without performing the notification if it is a hazardous command. This should only be used when it is necessary to fully automate testing involving hazardous commands.
 
-Syntax:
-{% highlight ruby %}
-cmd_no_hazardous_check("<Target Name> <Command Name> with <Param #1 Name> <Param #1 Value>, <Param #2 Name> <Param #2 Value>, …")
+Syntax:  
+```ruby
+cmd_no_hazardous_check("<Target Name> <Command Name> with <Param #1 Name> <Param #1 Value>, <Param #2 Name> <Param #2 Value>, ...")
 cmd_no_hazardous_check("<Target Name>", "<Command Name>", "Param #1 Name" => <Param #1 Value>, "Param #2 Name" => <Param #2 Value>, ...)
-{% endhighlight %}
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
@@ -450,21 +461,21 @@ cmd_no_hazardous_check("<Target Name>", "<Command Name>", "Param #1 Name" => <Pa
 | Param #x Name | Name of a command parameter. If there are no parameters then the 'with' keyword should not be given. |
 | Param #x Value | Value of the command parameter. Values are automatically converted to the appropriate type. |
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 cmd_no_hazardous_check("INST CLEAR")
 cmd_no_hazardous_check("INST", "CLEAR")
-{% endhighlight %}
+```
 
 ### cmd_no_checks
 
 The cmd_no_checks method sends a specified command without performing the parameter range checks or notification if it is a hazardous command. This should only be used when it is necessary to fully automate testing involving hazardous commands that intentially have invalid parameters.
 
-Syntax:
-{% highlight ruby %}
-cmd_no_checks("<Target Name> <Command Name> with <Param #1 Name> <Param #1 Value>, <Param #2 Name> <Param #2 Value>, …")
+Syntax:  
+```ruby
+cmd_no_checks("<Target Name> <Command Name> with <Param #1 Name> <Param #1 Value>, <Param #2 Name> <Param #2 Value>, ...")
 cmd_no_checks("<Target Name>", "<Command Name>", "Param #1 Name" => <Param #1 Value>, "Param #2 Name" => <Param #2 Value>, ...)
-{% endhighlight %}
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
@@ -473,21 +484,21 @@ cmd_no_checks("<Target Name>", "<Command Name>", "Param #1 Name" => <Param #1 Va
 | Param #x Name | Name of a command parameter. If there are no parameters then the 'with' keyword should not be given. |
 | Param #x Value | Value of the command parameter. Values are automatically converted to the appropriate type. |
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 cmd_no_checks("INST COLLECT with DURATION 11, TYPE SPECIAL")
 cmd_no_checks("INST", "COLLECT", "DURATION" => 11, "TYPE" => "SPECIAL")
-{% endhighlight %}
+```
 
 ### cmd_raw
 
 The cmd_raw method sends a specified command without running conversions.
 
-Syntax:
-{% highlight ruby %}
-cmd_raw("<Target Name> <Command Name> with <Param #1 Name> <Param #1 Value>, <Param #2 Name> <Param #2 Value>, …")
-cmd_raw("<Target Name>", "<Command Name>", "<Param #1 Name>" => <Param #1 Value>, "<Param #2 Name>" => <Param #2 Value>, …)
-{% endhighlight %}
+Syntax:  
+```ruby
+cmd_raw("<Target Name> <Command Name> with <Param #1 Name> <Param #1 Value>, <Param #2 Name> <Param #2 Value>, ...")
+cmd_raw("<Target Name>", "<Command Name>", "<Param #1 Name>" => <Param #1 Value>, "<Param #2 Name>" => <Param #2 Value>, ...)
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
@@ -496,21 +507,21 @@ cmd_raw("<Target Name>", "<Command Name>", "<Param #1 Name>" => <Param #1 Value>
 | Param #x Name | Name of a command parameter. If there are no parameters then the 'with' keyword should not be given. |
 | Param #x Value | Value of the command parameter. Values are automatically converted to the appropriate type. |
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 cmd_raw("INST COLLECT with DURATION 10, TYPE 0")
 cmd_raw("INST", "COLLECT", "DURATION" => 10, TYPE => 0)
-{% endhighlight %}
+```
 
 ### cmd_raw_no_range_check
 
 The cmd_raw_no_range_check method sends a specified command without running conversions or performing range checking on its parameters. This should only be used when it is necessary to intentionally send a bad command parameter to test a target.
 
-Syntax:
-{% highlight ruby %}
-cmd_raw_no_range_check("<Target Name> <Command Name> with <Param #1 Name> <Param #1 Value>, <Param #2 Name> <Param #2 Value>, …")
-cmd_raw_no_range_check("<Target Name>", "<Command Name>", "<Param #1 Name>" => <Param #1 Value>, "<Param #2 Name>" => <Param #2 Value>, …)
-{% endhighlight %}
+Syntax:  
+```ruby
+cmd_raw_no_range_check("<Target Name> <Command Name> with <Param #1 Name> <Param #1 Value>, <Param #2 Name> <Param #2 Value>, ...")
+cmd_raw_no_range_check("<Target Name>", "<Command Name>", "<Param #1 Name>" => <Param #1 Value>, "<Param #2 Name>" => <Param #2 Value>, ...)
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
@@ -519,21 +530,21 @@ cmd_raw_no_range_check("<Target Name>", "<Command Name>", "<Param #1 Name>" => <
 | Param #x Name | Name of a command parameter. If there are no parameters then the 'with' keyword should not be given. |
 | Param #x Value | Value of the command parameter. Values are automatically converted to the appropriate type. |
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 cmd_raw_no_range_check("INST COLLECT with DURATION 11, TYPE 0")
 cmd_raw_no_range_check("INST", "COLLECT", "DURATION" => 11, "TYPE" => 0)
-{% endhighlight %}
+```
 
 ### cmd_raw_no_hazardous_check
 
 The cmd_raw_no_hazardous_check method sends a specified command without running conversions or performing the notification if it is a hazardous command. This should only be used when it is necessary to fully automate testing involving hazardous commands.
 
-Syntax:
-{% highlight ruby %}
-cmd_raw_no_hazardous_check("<Target Name> <Command Name> with <Param #1 Name> <Param #1 Value>, <Param #2 Name> <Param #2 Value>, …")
-cmd_raw_no_hazardous_check("<Target Name>", "<Command Name>", "<Param #1 Name>" => <Param #1 Value>, "<Param #2 Name>" => <Param #2 Value>, …)
-{% endhighlight %}
+Syntax:  
+```ruby
+cmd_raw_no_hazardous_check("<Target Name> <Command Name> with <Param #1 Name> <Param #1 Value>, <Param #2 Name> <Param #2 Value>, ...")
+cmd_raw_no_hazardous_check("<Target Name>", "<Command Name>", "<Param #1 Name>" => <Param #1 Value>, "<Param #2 Name>" => <Param #2 Value>, ...)
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
@@ -542,21 +553,21 @@ cmd_raw_no_hazardous_check("<Target Name>", "<Command Name>", "<Param #1 Name>" 
 | Param #x Name | Name of a command parameter. If there are no parameters then the 'with' keyword should not be given. |
 | Param #x Value | Value of the command parameter. Values are automatically converted to the appropriate type. |
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 cmd_raw_no_hazardous_check("INST CLEAR")
 cmd_raw_no_hazardous_check("INST", "CLEAR")
-{% endhighlight %}
+```
 
 ### cmd_raw_no_checks
 
 The cmd_raw_no_checks method sends a specified command without running conversions or performing the parameter range checks or notification if it is a hazardous command. This should only be used when it is necessary to fully automate testing involving hazardous commands that intentially have invalid parameters.
 
-Syntax:
-{% highlight ruby %}
-cmd_raw_no_checks("<Target Name> <Command Name> with <Param #1 Name> <Param #1 Value>, <Param #2 Name> <Param #2 Value>, …")
-cmd_raw_no_checks("<Target Name>", "<Command Name>", "<Param #1 Name>" => <Param #1 Value>, "<Param #2 Name>" => <Param #2 Value>, …)
-{% endhighlight %}
+Syntax:  
+```ruby
+cmd_raw_no_checks("<Target Name> <Command Name> with <Param #1 Name> <Param #1 Value>, <Param #2 Name> <Param #2 Value>, ...")
+cmd_raw_no_checks("<Target Name>", "<Command Name>", "<Param #1 Name>" => <Param #1 Value>, "<Param #2 Name>" => <Param #2 Value>, ...)
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
@@ -565,90 +576,98 @@ cmd_raw_no_checks("<Target Name>", "<Command Name>", "<Param #1 Name>" => <Param
 | Param #x Name | Name of a command parameter. If there are no parameters then the 'with' keyword should not be given. |
 | Param #x Value | Value of the command parameter. Values are automatically converted to the appropriate type. |
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 cmd_raw_no_checks("INST COLLECT with DURATION 11, TYPE 1")
 cmd_raw_no_checks("INST", "COLLECT", "DURATION" => 11, "TYPE" => 1)
-{% endhighlight %}
+```
 
 ### send_raw
 
 The send_raw method sends raw data on an interface.
 
-Syntax:
-``` send_raw(<Interface Name>, <data>) ```
+Syntax:  
+```ruby
+send_raw(<Interface Name>, <data>)
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
 | Interface Name | Name of the interface to send the raw data on. |
 |Data | Raw ruby string of data to send. |
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 send_raw("INST1INT", data)
-{% endhighlight %}
+```
 
 ### send_raw_file
 
 The send_raw_file method sends raw data on an interface from a file.
 
-Syntax:
-``` send_raw_file(<Interface Name>, <filename>) ```
+Syntax:  
+```ruby
+send_raw_file(<Interface Name>, <filename>)
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
 | Interface Name | Name of the interface to send the raw data on. |
 | filename | Full path to the file with the data to send. |
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 send_raw_file("INST1INT", "/home/user/data_to_send.bin")
-{% endhighlight %}
+```
 
 ### get_cmd_list
 
 The get_cmd_list method returns an array of the commands that are available for a particular target.  The returned array is an array of array swhere each subarray contains the command name and description.
 
-Syntax:
-``` get_cmd_list("<Target Name>") ```
+Syntax:  
+```ruby
+get_cmd_list("<Target Name>")
+```
 
 
 | Parameter | Description |
 | -------- | --------------------------------- |
 | Target Name | Name of the target. |
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 cmd_list = get_cmd_list("INST")
 puts cmd_list.inspect # [['TARGET_NAME', 'DESCRIPTION'], ...]
-{% endhighlight %}
+```
 
 ### get_cmd_param_list
 
 The get_cmd_param_list method returns an array of the command parameters that are available for a particular command.   The returned array is an array of arrays where each subarray contains [parameter_name, default_value, states_hash, description, units_full, units, required_flag]
 
-Syntax:
-``` get_cmd_param_list("<Target Name>", "<Command Name>") ```
+Syntax:  
+```ruby
+get_cmd_param_list("<Target Name>", "<Command Name>")
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
 | Target Name | Name of the target. |
 | Command Name | Name of the command. |
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 cmd_param_list = get_cmd_param_list("INST", "COLLECT")
 puts cmd_param_list.inspect # [["CCSDSVER", 0, nil, "CCSDS primary header version number", nil, nil, false], ...]
-{% endhighlight %}
+```
 
 ### get_cmd_hazardous
 
 The get_cmd_hazardous method returns true/false indicating whether a particular command is flagged as hazardous.
 
-Syntax:
-{% highlight ruby %}
+Syntax:  
+```ruby
 get_cmd_hazardous("<Target Name>", "<Command Name>", <Command Params - optional>)
-{% endhighlight %}
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
@@ -656,19 +675,19 @@ get_cmd_hazardous("<Target Name>", "<Command Name>", <Command Params - optional>
 | Command Name | Name of the command. |
 | Command Params | Hash of the parameters given to the command (optional). Note that some commands are only hazardous based on parameter states. |
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 hazardous = get_cmd_hazardous("INST", "COLLECT", {'TYPE' => 'SPECIAL'})
-{% endhighlight %}
+```
 
 ### get_cmd_value
 
 The get_cmd_value method returns reads a value from the most recently sent command packet.   The pseudo-parameters 'RECEIVED_COUNT', 'RECEIVED_TIMEFORMATTED', and 'RECEIVED_TIMESECONDS' are also supported.
 
-Syntax:
-{% highlight ruby %}
+Syntax:  
+```ruby
 get_cmd_value("<Target Name>", "<Command Name>", "<Parameter Name>", <Value Type - optional>) # Since COSMOS 3.5.0
-{% endhighlight %}
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
@@ -677,31 +696,31 @@ get_cmd_value("<Target Name>", "<Command Name>", "<Parameter Name>", <Value Type
 | Parameter Name | Name of the command parameter. |
 | Value Type | Value Type to read. :RAW, :CONVERTED, :FORMATTED, or :WITH_UNITS |
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 value = get_cmd_value("INST", "COLLECT", "TEMP")
-{% endhighlight %}
+```
 
 ### get_cmd_time
 
 The get_cmd_time method returns the time of the most recent command sent.
 
-Syntax:
-{% highlight ruby %}
+Syntax:  
+```ruby
 get_cmd_time("<Target Name - optional>", "<Command Name - optional>") # Since COSMOS 3.5.0
-{% endhighlight %}
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
 | Target Name | Name of the target.  If not given, then the most recent command time to any target will be returned |
 | Command Name | Name of the command.  If not given, then the most recent command time to the given target will be returned |
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 target_name, command_name, time = get_cmd_time() # Name of the most recent command sent to any target and time
 target_name, command_name, time = get_cmd_time("INST") # Name of the most recent command sent to the INST target and time
 target_name, command_name, time = get_cmd_time("INST", "COLLECT") # Name of the most recent INST COLLECT command and time
-{% endhighlight %}
+```
 
 ## Handling Telemetry
 
@@ -710,10 +729,10 @@ These methods allow the user to interact with telemetry items.
 ### check
 The check method performs a verification of a telemetry item using its converted telemetry type. If the verification fails then the script will be paused with an error. If no comparision is given to check then the telemetry item is simply printed to the script output.   Note: In most cases using wait_check is a better choice than using check.
 
-Syntax:
-{% highlight ruby %}
+Syntax:  
+```ruby
 check("<Target Name> <Packet Name> <Item Name> <Comparison - optional>")
-{% endhighlight %}
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
@@ -722,19 +741,19 @@ check("<Target Name> <Packet Name> <Item Name> <Comparison - optional>")
 | Item Name | Name of the telemetry item. |
 | Comparison | A comparison to perform against the telemetry item. If a comparison is not given then the telemetry item will just be printed into the script log. |
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 check("INST HEALTH_STATUS COLLECTS > 1")
-{% endhighlight %}
+```
 
 ### check_raw
 
 The check_raw method performs a verification of a telemetry item using its raw telemetry type. If the verification fails then the script will be paused with an error. If no comparision is given to check then the telemetry item is simply printed to the script output.  Note: In most cases using wait_check_raw is a better choice than using check_raw.
 
-Syntax:
-{% highlight ruby %}
+Syntax:  
+```ruby
 check_raw("<Target Name> <Packet Name> <Item Name> <Comparison>")
-{% endhighlight %}
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
@@ -743,19 +762,19 @@ check_raw("<Target Name> <Packet Name> <Item Name> <Comparison>")
 | Item Name | Name of the telemetry item. |
 | Comparison | A comparison to perform against the telemetry item. If a comparison is not given then the telemetry item will just be printed into the script log. If a comparison is not given then the telemetry item will just be printed into the script log. |
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 check_raw("INST HEALTH_STATUS COLLECTS > 1")
-{% endhighlight %}
+```
 
 ### check_formatted
 
 The check_formatted method performs a verification of a telemetry item using its formatted telemetry type. If the verification fails then the script will be paused with an error. If no comparision is given to check then the telemetry item is simply printed to the script output.
 
-Syntax:
-{% highlight ruby %}
+Syntax:  
+```ruby
 check_formatted("<Target Name> <Packet Name> <Item Name> <Comparison>")
-{% endhighlight %}
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
@@ -764,19 +783,19 @@ check_formatted("<Target Name> <Packet Name> <Item Name> <Comparison>")
 | Item Name | Name of the telemetry item. |
 | Comparison | A comparison to perform against the telemetry item. If a comparison is not given then the telemetry item will just be printed into the script log. If a comparison is not given then the telemetry item will just be printed into the script log. |
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 check_formatted("INST HEALTH_STATUS COLLECTS == '1'")
-{% endhighlight %}
+```
 
 ### check_with_units
 
 The check_with_units method performs a verification of a telemetry item using its formatted with units telemetry type. If the verification fails then the script will be paused with an error. If no comparision is given to check then the telemetry item is simply printed to the script output.
 
-Syntax:
-{% highlight ruby %}
+Syntax:  
+```ruby
 check_with_units("<Target Name> <Packet Name> <Item Name> <Comparison>")
-{% endhighlight %}
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
@@ -785,19 +804,19 @@ check_with_units("<Target Name> <Packet Name> <Item Name> <Comparison>")
 | Item Name | Name of the telemetry item. |
 | Comparison | A comparison to perform against the telemetry item. If a comparison is not given then the telemetry item will just be printed into the script log. If a comparison is not given then the telemetry item will just be printed into the script log. |
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 check_with_units("INST HEALTH_STATUS COLLECTS == '1'")
-{% endhighlight %}
+```
 
 ### check_tolerance
 
 The check_tolerance method checks a converted telemetry item against an expected value with a tolerance. If the verification fails then the script will be paused with an error.  Note: In most cases using wait_check_tolerance is a better choice than using check_tolerance.
 
-Syntax:
-{% highlight ruby %}
+Syntax:  
+```ruby
 check_tolerance("<Target Name> <Packet Name> <Item Name>", <Expected Value>, <Tolerance>)
-{% endhighlight %}
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
@@ -807,19 +826,19 @@ check_tolerance("<Target Name> <Packet Name> <Item Name>", <Expected Value>, <To
 | Expected Value | Expected value of the telemetry item. |
 | Tolerance | ± Tolerance on the expected value. |
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 check_tolerance("INST HEALTH_STATUS COLLECTS", 10.0, 5.0)
-{% endhighlight %}
+```
 
 ### check_tolerance_raw
 
 The check_tolerance_raw method checks a raw telemetry item against an expected value with a tolerance. If the verification fails then the script will be paused with an error.  Note: In most cases using wait_check_tolerance_raw is a better choice than using check_tolerance_raw.
 
-Syntax:
-{% highlight ruby %}
+Syntax:  
+```ruby
 check_tolerance_raw("<Target Name> <Packet Name> <Item Name>", <Expected Value>, <Tolerance>)
-{% endhighlight %}
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
@@ -829,10 +848,10 @@ check_tolerance_raw("<Target Name> <Packet Name> <Item Name>", <Expected Value>,
 | Expected Value | Expected value of the telemetry item. |
 | Tolerance | ± Tolerance on the expected value. |
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 check_tolerance_raw("INST HEALTH_STATUS COLLECTS", 10.0, 5.0)
-{% endhighlight %}
+```
 
 ### check_expression
 
@@ -840,32 +859,36 @@ The check_expression method evaluates an expression. If the expression evaluates
 
 Remember that everything inside the check_expression string will be evaluated directly by the Ruby interpreter and thus must be valid syntax. A common mistake is to check a variable like so:
 
-```check_expression("#{answer} == 'yes'") # where answer contains 'yes' ```
+`check_expression("#{answer} == 'yes'") # where answer contains 'yes'`
 
-This evaluates to ```yes == 'yes'``` which is not valid syntax because the variable yes is not defined (usually). The correct way to write this expression is as follows:
+This evaluates to `yes == 'yes'` which is not valid syntax because the variable yes is not defined (usually). The correct way to write this expression is as follows:
 
-```check_expression("'#{answer}' == 'yes'") # where answer contains 'yes' ```
+`check_expression("'#{answer}' == 'yes'") # where answer contains 'yes'`
 
-Now this evaluates to ```'yes' == 'yes'``` which is true so the check passes.
+Now this evaluates to `'yes' == 'yes'` which is true so the check passes.
 
-Syntax:
-``` check_expression("<Expression>") ```
+Syntax:  
+```ruby
+check_expression("<Expression>")
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
 | Expression | A ruby expression to evaluate. |
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 check_expression("tlm('INST HEALTH_STATUS COLLECTS') > 5 and tlm('INST HEALTH_STATUS TEMP1') > 25.0")
-{% endhighlight %}
+```
 
 ### tlm
 
 The tlm method reads the converted form of a specified telemetry item.
 
-Syntax:
-``` tlm("<Target Name> <Packet Name> <Item Name>") ```
+Syntax:  
+```ruby
+tlm("<Target Name> <Packet Name> <Item Name>")
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
@@ -873,17 +896,19 @@ Syntax:
 | Packet Name | Name of the telemetry packet of the telemetry item. |
 | Item Name | Name of the telemetry item. |
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 value = tlm("INST HEALTH_STATUS COLLECTS")
-{% endhighlight %}
+```
 
 ### tlm_raw
 
 The tlm_raw method reads the raw form of a specified telemetry item.
 
-Syntax:
-``` tlm_raw("<Target Name> <Packet Name> <Item Name>") ```
+Syntax:  
+```ruby
+tlm_raw("<Target Name> <Packet Name> <Item Name>")
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
@@ -891,17 +916,19 @@ Syntax:
 | Packet Name | Name of the telemetry packet of the telemetry item. |
 | Item Name | Name of the telemetry item. |
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 value = tlm_raw("INST HEALTH_STATUS COLLECTS")
-{% endhighlight %}
+```
 
 ### tlm_formatted
 
 The tlm_formatted method reads the formatted form of a specified telemetry item.
 
-Syntax:
-``` tlm_formatted("<Target Name> <Packet Name> <Item Name>") ```
+Syntax:  
+```ruby
+tlm_formatted("<Target Name> <Packet Name> <Item Name>")
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
@@ -909,17 +936,19 @@ Syntax:
 | Packet Name | Name of the telemetry packet of the telemetry item. |
 | Item Name | Name of the telemetry item. |
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 value = tlm_formatted("INST HEALTH_STATUS COLLECTS")
-{% endhighlight %}
+```
 
 ### tlm_with_units
 
 The tlm_with_units method reads the formatted with units form of a specified telemetry item.
 
-Syntax:
-``` tlm_with_units("<Target Name> <Packet Name> <Item Name>") ```
+Syntax:  
+```ruby
+tlm_with_units("<Target Name> <Packet Name> <Item Name>")
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
@@ -927,17 +956,19 @@ Syntax:
 | Packet Name | Name of the telemetry packet of the telemetry item. |
 | Item Name | Name of the telemetry item. |
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 value = tlm_with_units("INST HEALTH_STATUS COLLECTS")
-{% endhighlight %}
+```
 
 ### tlm_variable
 
 The tlm_variable method reads a specified telemetry item with a variable value type.
 
-Syntax:
-``` tlm_variable("<Target Name> <Packet Name> <Item Name>", <Value Type>) ```
+Syntax:  
+```ruby
+tlm_variable("<Target Name> <Packet Name> <Item Name>", <Value Type>)
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
@@ -946,17 +977,19 @@ Syntax:
 | Item Name | Name of the telemetry item. |
 | Value Type | Value Type to read. :RAW, :CONVERTED, :FORMATTED, or :WITH_UNITS |
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 value = tlm_variable("INST HEALTH_STATUS COLLECTS", :RAW)
-{% endhighlight %}
+```
 
 ### get_tlm_packet
 
 The get_tlm_packet method returns the names, values, and limits states of all telemetry items in a specified packet.    The value is returned as an array of arrays with each entry containing [item_name, item_value, limits_state].
 
-Syntax:
-``` get_tlm_packet("<Target Name>", "<Packet Name>", value_type) ```
+Syntax:  
+```ruby
+get_tlm_packet("<Target Name>", "<Packet Name>", value_type)
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
@@ -964,87 +997,93 @@ Syntax:
 | Packet Name | Name of the packet. |
 | value_type | Telemetry Type to read the values in. :RAW, :CONVERTED, :FORMATTED, or :WITH_UNITS. Defaults to :CONVERTED |
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 names_values_and_limits_states = get_tlm_packet("INST", "HEALTH_STATUS", :FORMATTED)
-{% endhighlight %}
+```
 
 ### get_tlm_values
 
 The get_tlm_values method returns the values, limits_states, limits_settings, and current limits_set for a specified set of telemetry items. Items can be in any telemetry packet in the system. They can all be retrieved using the same value type or a specific value type can be specified for each item.
 
-Syntax:
-{% highlight ruby %}
+Syntax:  
+```ruby
 values, limits_states, limits_settings, limits_set = get_tlm_values(<items>, <value_types>)
-{% endhighlight %}
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
 | items | Array of item arrays of the form [[Target Name #1, Packet Name #1, Item Name #1], … ] |
 | value_types | Telemetry Type to read the values in. :RAW, :CONVERTED, :FORMATTED, or :WITH_UNITS. Defaults to :CONVERTED . May be specified as a single symbol that applies to all items or an array of symbols, one for each item. |
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 values, limits_states, limits_settings, limits_set = get_tlm_values([[INST", "ADCS", "Q1"], ["INST", "ADCS", "Q2"]], [:FORMATTED, :WITH_UNITS])
-{% endhighlight %}
+```
 
 ### get_tlm_list
 
 The get_tlm_list method returns an array of the telemetry packets and their descriptions that are available for a particular target.
 
-Syntax:
-{% highlight ruby %}
+Syntax:  
+```ruby
 packet_names_and_descriptions = get_tlm_pkt_list("<Target Name>")
-{% endhighlight %}
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
 | Target Name | Name of the target. |
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 packet_names_and_descriptions = = get_tlm_list("INST")
-{% endhighlight %}
+```
 
 ### get_tlm_item_list
 
 The get_tlm_item_list method returns an array of the telemetry items that are available for a particular telemetry packet.  The returned value is an array of arrays where each subarray contains [item_name, item_states_hash, description]
 
-Syntax:
-``` get_tlm_item_list("<Target Name>", "<Packet Name>") ```
+Syntax:  
+```ruby
+get_tlm_item_list("<Target Name>", "<Packet Name>")
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
 | Target Name | Name of the target. |
 | Packet Name | Name of the telemetry packet. |
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 item_names_states_and_descriptions = get_tlm_item_list("INST", "HEALTH_STATUS")
-{% endhighlight %}
+```
 
 ### get_tlm_details
 
 The get_tlm_details method returns an array with details about the specified telemetry items such as their limits and states.
 
-Syntax:
-``` get_tlm_item_details(<items>) ```
+Syntax:  
+```ruby
+get_tlm_item_details(<items>)
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
 | items | Array of item arrays of the form [[Target Name #1, Packet Name #1, Item Name #1], … ] |
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 details = get_tlm_item_details("INST", "HEALTH_STATUS", "COLLECTS")
-{% endhighlight %}
+```
 
 ### set_tlm
 
 The set_tlm method sets a telemetry item value in the Command and Telemetry Server. This value will be overwritten if a new packet is received from an interface.  For that reason this method is most useful if interfaces are disconnected or for testing via the Script Runner disconnect mode. (Note that in disconnect mode it will only set telemetry within ScriptRunner. Other tools like TlmViewer will not reflect any changes) Manually setting telemetry values allows for the execution of many logical paths in scripts.
 
-Syntax:
-``` set_tlm("<Target> <Packet> <Item> = <Value>") ```
+Syntax:  
+```ruby
+set_tlm("<Target> <Packet> <Item> = <Value>")
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
@@ -1053,18 +1092,20 @@ Syntax:
 | Item | Item name |
 | Value | Value to set |
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 set_tlm("INST HEALTH_STATUS COLLECTS = 5")
 check("INST HEALTH_STATUS COLLECTS == 5") # This will pass since we just set it to 5
-{% endhighlight %}
+```
 
 ### set_tlm_raw
 
 The set_tlm_raw method sets a raw telemetry item value in the Command and Telemetry Server. This value will be overwritten if a new packet is received from an interface.  For that reason this method is most useful if interfaces are disconnected or for testing via the Script Runner disconnect mode. (Note that in disconnect mode it will only set telemetry within ScriptRunner. Other tools like TlmViewer will not reflect any changes) Manually setting telemetry values allows for the execution of many logical paths in scripts.
 
-Syntax:
-``` set_tlm_raw("<Target> <Packet> <Item> = <Value>") ```
+Syntax:  
+```ruby
+set_tlm_raw("<Target> <Packet> <Item> = <Value>")
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
@@ -1073,14 +1114,14 @@ Syntax:
 | Item | Item name |
 | Value | Value to set |
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 # Assuming TEMP1 is defined with a conversion (as it is in the COSMOS demo)
 set_tlm("INST HEALTH_STATUS TEMP1 = 5")
 check_tolerance("INST HEALTH_STATUS TEMP1", 5, 0.5) # Pass
 set_tlm_raw("INST HEALTH_STATUS TEMP1 = 5")
 check_tolerance("INST HEALTH_STATUS TEMP1", 5, 0.5) # Fail because we set the raw value not the converted value
-{% endhighlight %}
+```
 
 ## Packet Data Subscriptions
 
@@ -1090,52 +1131,58 @@ Methods for subscribing to specific packets of data. This provides an interface 
 
  The subscribe_packet_data method allows the user to listen for one or more telemetry packets of data to arrive. A unique id is returned to the tool which is used to retrieve the data. The subscribed packets are placed into a queue where they can then be processed one at a time.
 
-Syntax:
-``` subscribe_packet_data(packets, queue_size) ```
+Syntax:  
+```ruby
+subscribe_packet_data(packets, queue_size)
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
 | packets | Nested array of target name/packet name pairs that the user wishes to subscribe to. |
 | queue_size | Number of packets to let queue up before dropping the connection. Defaults to 1000. |
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 id = subscribe_packet_data([['INST', 'HEALTH_STATUS'], ['INST', 'ADCS']], 2000)
-{% endhighlight %}
+```
 
 ### unsubscribe_packet_data
 
  The unsubscribe_packet_data method allows the user to stop listening for packet_data. This should be called to reduce the server's load if the subscription is no longer needed.
 
-Syntax:
-``` unsubscribe_packet_data(id) ```
+Syntax:  
+```ruby
+unsubscribe_packet_data(id)
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
 | id | Unique id given to the tool by subscribe_packet_data. |
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 unsubscribe_packet_data(id)
-{% endhighlight %}
+```
 
 ### get_packet
 
 Receives a subscribed telemetry packet. If get_packet is called non-blocking <non_block> = true, get_packet will raise an error if the queue is empty.
 
-Syntax:
-``` get_packet(id, non_block (optional)) ```
+Syntax:  
+```ruby
+get_packet(id, non_block (optional))
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
 | id | Unique id given to the tool by subscribe_packet_data. |
 | non_block | Boolean to indicate if the method should block until an packet of data is received or not. Defaults to false, blocks reading data from queue. |
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 packet = get_packet(id)
 value = packet.read('ITEM_NAME')
-{% endhighlight %}
+```
 
 ### get_packet_data
 
@@ -1145,16 +1192,18 @@ The returned packet data can be used to populate a packet object. A packet objec
 
 If get_packet_data is called non-blocking <non_block> = true, get_packet_data will raise an error if the queue is empty.
 
-Syntax:
-``` get_packet_data(id, non_block) ```
+Syntax:  
+```ruby
+get_packet_data(id, non_block)
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
 | id | Unique id given to the tool by subscribe_packet_data. |
 | non_block | Boolean to indicate if the method should block until an packet of data is received or not. Defaults to false, blocks reading data from queue. |
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 id = subscribe_packet_data([[“TGT, “PKT1”], [“TGT”, “PKT2”]]) # note double nested array
 
 buffer, target_name, packet_name, received_time, received_count = get_packet_data(id)
@@ -1162,7 +1211,7 @@ packet = System.telemetry.packet(target_name, packet_name).clone
 packet.buffer = buffer
 packet.received_time = received_time
 packet.received_count = received_count
-{% endhighlight %}
+```
 
 ## Delays
 
@@ -1172,19 +1221,19 @@ These methods allow the user to pause the script to wait for telemetry to change
 
 The wait method pauses the script for a configurable amount of time (minimum 10ms) or until a converted telemetry item meets given criteria. It supports three different syntaxes as shown. If no parameters are given then an infinite wait occurs until the user presses Go.   Note that on a timeout, wait does not stop the script, usually wait_check is a better choice.
 
-Syntax:
-{% highlight ruby %}
+Syntax:  
+```ruby
 wait()
 wait(<Time>)
-{% endhighlight %}
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
 | Time | Time in Seconds to delay for. |
 
-{% highlight ruby %}
+```ruby
 wait("<Target Name> <Packet Name> <Item Name> <Comparison>", <Timeout>, <Polling Rate (optional)>)
-{% endhighlight %}
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
@@ -1196,26 +1245,28 @@ wait("<Target Name> <Packet Name> <Item Name> <Comparison>", <Timeout>, <Polling
 | Polling Rate | How often the comparison is evaluated in seconds. Defaults to 0.25 if not specified. |
 
 Examples:
-{% highlight ruby %}
+```ruby
 wait()
 wait(5)
 wait("INST HEALTH_STATUS COLLECTS == 3", 10)
-{% endhighlight %}
+```
 
 ### wait_raw
 
 The wait_raw method pauses the script for a configurable amount of time or until a raw telemetry item meets given criteria. It supports two different syntaxes as shown. If no parameters are given then an infinite wait occurs until the user presses Go.  Note that on a timeout, wait_raw does not stop the script, usually wait_check_raw is a better choice.
 
-Syntax:
-``` wait_raw(<Time>) ```
+Syntax:  
+```ruby
+wait_raw(<Time>)
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
 | Time | Time in Seconds to delay for. |
 
-{% highlight ruby %}
+```ruby
 wait_raw("<Target Name> <Packet Name> <Item Name> <Comparison>", <Timeout>, <Polling Rate (optional)>)
-{% endhighlight %}
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
@@ -1227,19 +1278,19 @@ wait_raw("<Target Name> <Packet Name> <Item Name> <Comparison>", <Timeout>, <Pol
 | Polling Rate | How often the comparison is evaluated in seconds. Defaults to 0.25 if not specified. |
 
 Examples:
-{% highlight ruby %}
+```ruby
 wait_raw(5)
 wait_raw("INST HEALTH_STATUS COLLECTS == 3", 10)
-{% endhighlight %}
+```
 
 ### wait_tolerance
 
 The wait_tolerance method pauses the script for a configurable amount of time or until a converted telemetry item meets equals an expected value within a tolerance.  Note that on a timeout, wait_tolerance does not stop the script, usually wait_check_tolerance is a better choice.
 
-Syntax:
-{% highlight ruby %}
+Syntax:  
+```ruby
 wait_tolerance("<Target Name> <Packet Name> <Item Name>", <Expected Value>, <Tolerance>, <Timeout>, <Polling Rate (optional)>)
-{% endhighlight %}
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
@@ -1252,18 +1303,18 @@ wait_tolerance("<Target Name> <Packet Name> <Item Name>", <Expected Value>, <Tol
 | Polling Rate | How often the comparison is evaluated in seconds. Defaults to 0.25 if not specified. |
 
 Examples:
-{% highlight ruby %}
+```ruby
 wait_tolerance("INST HEALTH_STATUS COLLECTS", 10.0, 5.0, 10)
-{% endhighlight %}
+```
 
 ### wait_tolerance_raw
 
 The wait_tolerance_raw method pauses the script for a configurable amount of time or until a raw telemetry item meets equals an expected value within a tolerance.  Note that on a timeout, wait_tolerance_raw does not stop the script, usually wait_check_tolerance_raw is a better choice.
 
-Syntax:
-{% highlight ruby %}
+Syntax:  
+```ruby
 wait_tolerance_raw("<Target Name> <Packet Name> <Item Name>", <Expected Value>, <Tolerance>, <Timeout>, <Polling Rate (optional)>)
-{% endhighlight %}
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
@@ -1276,18 +1327,18 @@ wait_tolerance_raw("<Target Name> <Packet Name> <Item Name>", <Expected Value>, 
 | Polling Rate | How often the comparison is evaluated in seconds. Defaults to 0.25 if not specified. |
 
 Examples:
-{% highlight ruby %}
+```ruby
 wait_tolerance_raw("INST HEALTH_STATUS COLLECTS", 10.0, 5.0, 10)
-{% endhighlight %}
+```
 
 ### wait_expression
 
 The wait_expression method pauses the script until an expression is evaluated to be true or a timeout occurs. If a timeout occurs the script will continue. This method can be used to perform more complicated comparisons than using wait as shown in the example.  Note that on a timeout, wait_expression does not stop the script, usually [wait_check_expression](#waitcheckexpression) is a better choice.
 
-Syntax:
-{% highlight ruby %}
+Syntax:  
+```ruby
 wait_expression("<Expression>", <Timeout>, <Polling Rate (optional)>)
-{% endhighlight %}
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
@@ -1295,19 +1346,19 @@ wait_expression("<Expression>", <Timeout>, <Polling Rate (optional)>)
 | Timeout | Timeout in seconds. Script will proceed if the wait statement times out waiting for the comparison to be true. |
 | Polling Rate | How often the comparison is evaluated in seconds. Defaults to 0.25 if not specified. |
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 wait_expression("tlm('INST HEALTH_STATUS COLLECTS') > 5 and tlm('INST HEALTH_STATUS TEMP1') > 25.0", 10)
-{% endhighlight %}
+```
 
 ### wait_packet
 
 The wait_packet method pauses the script until a certain number of packets have been received. If a timeout occurs the script will continue.   Note that on a timeout, wait_packet does not stop the script, usually wait_check_packet is a better choice.
 
-Syntax:
-{% highlight ruby %}
+Syntax:  
+```ruby
 wait_packet("<Target>", "<Packet>", <Num Packets>, <Timeout>, <Polling Rate (optional)>)
-{% endhighlight %}
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
@@ -1317,19 +1368,19 @@ wait_packet("<Target>", "<Packet>", <Num Packets>, <Timeout>, <Polling Rate (opt
 | Timeout | Timeout in seconds. |
 | Polling Rate | How often the comparison is evaluated in seconds. Defaults to 0.25 if not specified. |
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 wait_packet('INST', 'HEALTH_STATUS', 5, 10) # Wait for 5 INST HEALTH_STATUS packets over 10s
-{% endhighlight %}
+```
 
 ### wait_check
 
 The wait_check method combines the wait and check keywords into one. This pauses the script until the converted value of a telemetry item meets given criteria or times out. On a timeout the script stops.
 
-Syntax:
-{% highlight ruby %}
+Syntax:  
+```ruby
 wait_check("<Target Name> <Packet Name> <Item Name> <Comparison>", <Timeout>, <Polling Rate (optional)>)
-{% endhighlight %}
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
@@ -1340,19 +1391,19 @@ wait_check("<Target Name> <Packet Name> <Item Name> <Comparison>", <Timeout>, <P
 | Timeout | Timeout in seconds. Script will stop if the wait statement times out waiting for the comparison to be true. |
 | Polling Rate | How often the comparison is evaluated in seconds. Defaults to 0.25 if not specified. |
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 wait_check("INST HEALTH_STATUS COLLECTS > 5", 10)
-{% endhighlight %}
+```
 
 ### wait_check_raw
 
 The wait_check_raw method combines the wait_raw and check_raw keywords into one. This pauses the script until the raw value of a telemetry item meets given criteria or times out. On a timeout the script stops.
 
-Syntax:
-{% highlight ruby %}
+Syntax:  
+```ruby
 wait_check_raw("<Target Name> <Packet Name> <Item Name> <Comparison>", <Timeout>, <Polling Rate (optional)>)
-{% endhighlight %}
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
@@ -1363,19 +1414,19 @@ wait_check_raw("<Target Name> <Packet Name> <Item Name> <Comparison>", <Timeout>
 | Timeout | Timeout in seconds. Script will stop if the wait statement times out waiting for the comparison to be true. |
 | Polling Rate | How often the comparison is evaluated in seconds. Defaults to 0.25 if not specified. |
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 wait_check_raw("INST HEALTH_STATUS COLLECTS > 5", 10)
-{% endhighlight %}
+```
 
 ### wait_check_tolerance
 
 The wait_check_tolerance method pauses the script for a configurable amount of time or until a converted telemetry item equals an expected value within a tolerance. On a timeout the script stops.
 
-Syntax:
-{% highlight ruby %}
+Syntax:  
+```ruby
 wait_check_tolerance("<Target Name> <Packet Name> <Item Name>", <Expected Value>, <Tolerance>, <Timeout>, <Polling Rate (optional)>)
-{% endhighlight %}
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
@@ -1388,18 +1439,18 @@ wait_check_tolerance("<Target Name> <Packet Name> <Item Name>", <Expected Value>
 | Polling Rate | How often the comparison is evaluated in seconds. Defaults to 0.25 if not specified. |
 
 Examples:
-{% highlight ruby %}
+```ruby
 wait_check_tolerance("INST HEALTH_STATUS COLLECTS", 10.0, 5.0, 10)
-{% endhighlight %}
+```
 
 ### wait_check_tolerance_raw
 
 The wait_check_tolerance_raw method pauses the script for a configurable amount of time or until a raw telemetry item meets equals an expected value within a tolerance. On a timeout the script stops.
 
-Syntax:
-{% highlight ruby %}
+Syntax:  
+```ruby
 wait_check_tolerance_raw("<Target Name> <Packet Name> <Item Name>", <Expected Value>, <Tolerance>, <Timeout>, <Polling Rate (optional)>)
-{% endhighlight %}
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
@@ -1412,18 +1463,18 @@ wait_check_tolerance_raw("<Target Name> <Packet Name> <Item Name>", <Expected Va
 | Polling Rate | How often the comparison is evaluated in seconds. Defaults to 0.25 if not specified. |
 
 Examples:
-{% highlight ruby %}
+```ruby
 wait_check_tolerance_raw("INST HEALTH_STATUS COLLECTS", 10.0, 5.0, 10)
-{% endhighlight %}
+```
 
 ### wait_check_expression
 
 The wait_check_expression method pauses the script until an expression is evaluated to be true or a timeout occurs. If a timeout occurs the script will stop. This method can be used to perform more complicated comparisons than using wait as shown in the example. Also see the syntax notes for [check_expression](#checkexpression).
 
-Syntax:
-{% highlight ruby %}
+Syntax:  
+```ruby
 wait_check_expression("<Expression>", <Timeout>, <Polling Rate (optional)>)
-{% endhighlight %}
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
@@ -1431,19 +1482,19 @@ wait_check_expression("<Expression>", <Timeout>, <Polling Rate (optional)>)
 | Timeout | Timeout in seconds. Script will stop if the wait statement times out waiting for the comparison to be true. |
 | Polling Rate | How often the comparison is evaluated in seconds. Defaults to 0.25 if not specified. |
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 wait_check_expression("tlm('INST HEALTH_STATUS COLLECTS') > 5 and tlm('INST HEALTH_STATUS TEMP1') > 25.0", 10)
-{% endhighlight %}
+```
 
 ### wait_check_packet
 
 The wait_check_packet method pauses the script until a certain number of packets have been received. If a timeout occurs the script will stop.
 
-Syntax:
-{% highlight ruby %}
+Syntax:  
+```ruby
 wait_check_packet("<Target>", "<Packet>", <Num Packets>, <Timeout>, <Polling Rate (optional)>)
-{% endhighlight %}
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
@@ -1453,10 +1504,10 @@ wait_check_packet("<Target>", "<Packet>", <Num Packets>, <Timeout>, <Polling Rat
 | Timeout | Timeout in seconds. Script will stop if the wait statement times out waiting specified number of packets. |
 | Polling Rate | How often the comparison is evaluated in seconds. Defaults to 0.25 if not specified. |
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 wait_check_packet('INST', 'HEALTH_STATUS', 5, 10) # Wait for 5 INST HEALTH_STATUS packets over 10s
-{% endhighlight %}
+```
 
 ## Limits
 
@@ -1465,8 +1516,10 @@ These methods deal with handling telemetry limits.
 ### limits_enabled?
 The limits_enabled? method returns true/false depending on whether limits are enabled for a telemetry item.
 
-Syntax:
-``` limits_enabled?("<Target Name> <Packet Name> <Item Name>") ```
+Syntax:  
+```ruby
+limits_enabled?("<Target Name> <Packet Name> <Item Name>")
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
@@ -1474,17 +1527,19 @@ Syntax:
 | Packet Name | Name of the telemetry packet of the telemetry item. |
 | Item Name| Name of the telemetry item. |
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 enabled = limits_enabled?("INST HEALTH_STATUS TEMP1")
-{% endhighlight %}
+```
 
 ### enable_limits
 
 The enable_limits method enables limits monitoring for the specified telemetry item.
 
-Syntax:
-``` enable_limits("<Target Name> <Packet Name> <Item Name>") ```
+Syntax:  
+```ruby
+enable_limits("<Target Name> <Packet Name> <Item Name>")
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
@@ -1492,16 +1547,18 @@ Syntax:
 | Packet Name | Name of the telemetry packet of the telemetry item. |
 | Item Name | Name of the telemetry item. |
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 enable_limits("INST HEALTH_STATUS TEMP1")
-{% endhighlight %}
+```
 
 ### disable_limits
 The disable_limits method disables limits monitoring for the specified telemetry item.
 
-Syntax:
-``` disable_limits("<Target Name> <Packet Name> <Item Name>") ```
+Syntax:  
+```ruby
+disable_limits("<Target Name> <Packet Name> <Item Name>")
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
@@ -1509,103 +1566,115 @@ Syntax:
 | Packet Name | Name of the telemetry packet of the telemetry item. |
 | Item Name | Name of the telemetry item. |
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 disable_limits("INST HEALTH_STATUS TEMP1")
-{% endhighlight %}
+```
 
 ### enable_limits_group
 
 The enable_limits_group method enables limits monitoring on a set of telemetry items specified in a limits group.
 
-Syntax:
-``` enable_limits_group("<Limits Group Name>") ```
+Syntax:  
+```ruby
+enable_limits_group("<Limits Group Name>")
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
 | Limits Group Name | Name of the limits group. |
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 enable_limits_group("SAFE_MODE")
-{% endhighlight %}
+```
 
 ### disable_limits_group
 
 The disable_limits_group method disables limits monitoring on a set of telemetry items specified in a limits group.
 
-Syntax:
-``` disable_limits_group("<Limits Group Name>") ```
+Syntax:  
+```ruby
+disable_limits_group("<Limits Group Name>")
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
 | Limits Group Name | Name of the limits group. |
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 disable_limits_group("SAFE_MODE")
-{% endhighlight %}
+```
 
 ### get_limits_groups
 
 The get_limits_groups method returns the list of limits groups in the system.
 
-Syntax:
-``` get_limits_groups() ```
+Syntax:  
+```ruby
+get_limits_groups()
+```
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 limits_groups = get_limits_groups()
-{% endhighlight %}
+```
 
 ### set_limits_set
 
 The set_limits_set method sets the current limits set. The default limits set is :DEFAULT.
 
-Syntax:
-``` set_limits_set("<Limits Set Name>") ```
+Syntax:  
+```ruby
+set_limits_set("<Limits Set Name>")
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
 | Limits Set Name | Name of the limits set. |
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 set_limits_set("DEFAULT")
-{% endhighlight %}
+```
 
 ### get_limits_set
 
 The get_limits_set method returns the name of the current limits set. The default limits set is :DEFAULT.
 
-Syntax:
-``` get_limits_set() ```
+Syntax:  
+```ruby
+get_limits_set()
+```
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 limits_set = get_limits_set()
-{% endhighlight %}
+```
 
 ### get_limits_sets
 
 The get_limits_sets method returns the list of limits sets in the system.
 
-Syntax:
-``` get_limits_sets() ```
+Syntax:  
+```ruby
+get_limits_sets()
+```
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 limits_sets = get_limits_sets()
-{% endhighlight %}
+```
 
 ### get_limits
 
 The get_limits method returns limits settings for a telemetry point.
 
-Syntax:
-{% highlight ruby %}
+Syntax:  
+```ruby
 get_limits(<Target Name>, <Packet Name>, <Item Name>, <Limits Set (optional)>)
-{% endhighlight %}e
+```e
 
 | Parameter | Description |
 | -------- | --------------------------------- |
@@ -1614,18 +1683,18 @@ get_limits(<Target Name>, <Packet Name>, <Item Name>, <Limits Set (optional)>)
 | Item Name | Name of the telemetry item. |
 | Limits Set | Get the limits for a specific limits set. If not given then it defaults to returning the settings for the current limits set. |
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 limits_set, persistence_setting, enabled, red_low, yellow_low, yellow_high, red_high, green_low, green_high = get_limits('INST', 'HEALTH_STATUS', 'TEMP1')
-{% endhighlight %}
+```
 
 ### set_limits
 The set_limits_method sets limits settings for a telemetry point.  Note: In most cases it would be better to update your config files or use different limits sets rather than changing limits settings in realtime.
 
-Syntax:
-{% highlight ruby %}
+Syntax:  
+```ruby
 set_limits(<Target Name>, <Packet Name>, <Item Name>, <Red Low>, <Yellow Low>, <Yellow High>, <Red High>, <Green Low (optional)>, <Green High (optional)>, <Limits Set (optional)>, <Persistence (optional)>, <Enabled (optional)>)
-{% endhighlight %}
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
@@ -1642,39 +1711,43 @@ set_limits(<Target Name>, <Packet Name>, <Item Name>, <Red Low>, <Yellow Low>, <
 | Persistence | Optional. Set the number of samples this item must be out of limits before changing limits state. Defaults to no change. Note: This affects all limits settings across limits sets. |
 | Enabled | Optional. Whether or not limits are enabled for this item. Defaults to true. Note: This affects all limits settings across limits sets. |
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 set_limits('INST', 'HEALTH_STATUS', 'TEMP1', -10.0, 0.0, 50.0, 60.0, 30.0, 40.0, :TVAC, 1, true)
-{% endhighlight %}
+```
 
 ### get_out_of_limits
 
 The get_out_of_limits method returns an array with the target_name, packet_name, item_name, and limits_state of all items that are out of their limits ranges.
 
-Syntax:
-``` get_out_of_limits() ```
+Syntax:  
+```ruby
+get_out_of_limits()
+```
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 out_of_limits_items = get_out_of_limits()
-{% endhighlight %}
+```
 
 ### get_overall_limits_state
 
 The get_overall_limits_state method returns the overall limits state for the COSMOS system.   Returns :GREEN, :YELLOW, :RED, or :STALE.
 
-Syntax:
-``` get_overall_limits_state(<ignored_items> (optional)) ```
+Syntax:  
+```ruby
+get_overall_limits_state(<ignored_items> (optional))
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
 | Ignored Items | Array of arrays with items to ignore when determining the overall limits state. [['TARGET_NAME', 'PACKE_NAME', 'ITEM_NAME'], ...] |
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 overall_limits_state = get_overall_limits_state()
 overall_limits_state = get_overall_limits_state([['INST', 'HEALTH_STATUS', 'TEMP1']])
-{% endhighlight %}
+```
 
 ## Limits Events
 
@@ -1684,53 +1757,59 @@ Methods for handling limits events.
 
 The subscribe_limits_events method allows the user to listen for events regarding telemetry items going out of limits or changes in limits set. A unique id is returned to the tool which is used to retrieve the events.
 
-Syntax:
-``` subscribe_limits_events(<Queue Size (optional)>) ```
+Syntax:  
+```ruby
+subscribe_limits_events(<Queue Size (optional)>)
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
 | Queue Size | How many limits events to queue up before dropping the client. Defaults to 1000 if not given. |
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 id = subscribe_limits_events()
-{% endhighlight %}
+```
 
 ### unsubscribe_limits_events
 
 The unsubscribe_limits_events method allows the user to stop listening for events regarding telemetry items going out of limits or changes in limits set.
 
-Syntax:
-``` unsubscribe_limits_events(<id>) ```
+Syntax:  
+```ruby
+unsubscribe_limits_events(<id>)
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
 | id | Unique id given to the user by subscribe_limits_events. |
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 unsubscribe_limits_events(id)
-{% endhighlight %}
+```
 
 ### get_limits_event
 
 The get_limits_event method returns a limits event to the user who has already subscribed to limits event. Can be run in a non-blocking or blocking manner.
 
-Syntax:
-``` get_limits_event(<id>, <non_block (optional)>) ```
+Syntax:  
+```ruby
+get_limits_event(<id>, <non_block (optional)>)
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
 | id | Unique id given to the tool by subscribe_limits_events. |
 | non_block | Boolean to indicate if the method should block until an event is received or not. Defaults to false. |
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 event = get_limits_event(id, true)
 puts event.inspect # [:LIMITS_CHANGE, "TARGET_NAME", "PACKET_NAME", "ITEM_NAME", :OLD_STATE, :NEW_STATE)
 puts event.inspect # [:LIMITS_SET, :NEW_LIMITS_SET)
 puts event.inspect # [:LIMITS_SETTINGS, "TARGET_NAME", "PACKET_NAME", "ITEM_NAME", :LIMITS_SET, persistence_setting, enabled_flag, red_low, yellow_low, yellow_high, red_high, green_low, green_high)
-{% endhighlight %}
+```
 
 ## Targets
 
@@ -1740,13 +1819,15 @@ Methods for getting knowledge about targets.
 
 The get_target_list method returns a list of the targets in the system in an array.
 
-Syntax:
-``` get_target_list() ```
+Syntax:  
+```ruby
+get_target_list()
+```
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 targets = get_target_list()
-{% endhighlight %}
+```
 
 ## Interfaces
 
@@ -1756,95 +1837,107 @@ These methods allow the user to manipulate COSMOS interfaces.
 
 The connect_interface method connects to targets associated with a COSMOS interface.
 
-Syntax:
-```connect_interface("<Interface Name>", <Interface Parameters (optional)>) ```
+Syntax:  
+```ruby
+connect_interface("<Interface Name>", <Interface Parameters (optional)>)
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
 | Interface Name | Name of the interface. |
 | Interface Parameters | Parameters used to initialize the interface. If none are given then the interface will use the parameters that were given in the server configuration file. |
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 connect_interface("INT1")
-{% endhighlight %}
+```
 
 ### disconnect_interface
 
 The disconnect_interface method disconnects from targets associated with a COSMOS interface.
 
-Syntax:
-``` disconnect_interface("<Interface Name>") ```
+Syntax:  
+```ruby
+disconnect_interface("<Interface Name>")
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
 | Interface Name| Name of the interface. |
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 disconnect_interface("INT1")
-{% endhighlight %}
+```
 
 ### interface_state
 
 The interface_state method retrieves the current state of a COSMOS interface. Returns either 'CONNECTED', 'DISCONNECTED', or 'ATTEMPTING'.
 
-Syntax:
-``` interface_state("<Interface Name>") ```
+Syntax:  
+```ruby
+interface_state("<Interface Name>")
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
 | Interface Name | Name of the interface. |
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 interface_state("INT1")
-{% endhighlight %}
+```
 
 ### map_target_to_interface
 
 The map_target_to_interface method allows a target to be mapped to an interface in realtime. If the target is already mapped to an interface it will be unmapped from the existing interface before being mapped to the new interface.
 
-Syntax:
-``` map_target_to_interface("<Target Name>", "<Interface Name>") ```
+Syntax:  
+```ruby
+map_target_to_interface("<Target Name>", "<Interface Name>")
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
 | Target Name | Name of the target. |
 | Interface Name | Name of the interface. |
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 map_target_to_interface("INST", "INT2")
-{% endhighlight %}
+```
 
 ### get_interface_names
 
 The get_interface_names method returns a list of the interfaces in the system in an array.
 
-Syntax:
-``` get_interface_names() ```
+Syntax:  
+```ruby
+get_interface_names()
+```
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 interface_names = get_interface_names()
-{% endhighlight %}
+```
 
 ### get_interface_targets (since 3.9.2)
 
 The get_interface_targets method returns the list of targets which are mapped to the given interface.
 
-Syntax:
-``` get_interface_targets("<Interface Name>") ```
+Syntax:  
+```ruby
+get_interface_targets("<Interface Name>")
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
 | Interface Name | Name of the interface. |
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 targets = get_interface_targets("INST_INT")
-{% endhighlight %}
+```
 
 ## Routers
 
@@ -1854,62 +1947,70 @@ These methods allow the user to manipulate COSMOS routers.
 
 The connect_router method connects a COSMOS router.
 
-Syntax:
-``` connect_router("<Router Name>", <Router Parameters (optional)>) ```
+Syntax:  
+```ruby
+connect_router("<Router Name>", <Router Parameters (optional)>)
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
 | Router Name | Name of the router. |
 | Router Parameters | Parameters used to initialize the router. If none are given then the routerwill use the parameters that were given in the server configuration file. |
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 connect_ROUTER("INT1_ROUTER")
-{% endhighlight %}
+```
 
 ### disconnect_router
 
 The disconnect_router method disconnects a COSMOS router.
 
-Syntax:
-``` disconnect_router("<Router Name>") ```
+Syntax:  
+```ruby
+disconnect_router("<Router Name>")
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
 | Router Name | Name of the router. |
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 disconnect_router("INT1_ROUTER")
-{% endhighlight %}
+```
 
 ### router_state
 
 The router_state method retrieves the current state of a COSMOS router. Returns either 'CONNECTED', 'DISCONNECTED', or 'ATTEMPTING'.
 
-Syntax:
-``` router_state("<Router Name>") ```
+Syntax:  
+```ruby
+router_state("<Router Name>")
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
 | Router Name | Name of the router. |
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 router_state("INT1_ROUTER")
-{% endhighlight %}
+```
 
 ### get_router_names
 
 The get_router_names method returns a list of the routers in the system in an array.
 
-Syntax:
-``` get_router_names() ```
+Syntax:  
+```ruby
+get_router_names()
+```
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 router_names = get_router_names()
-{% endhighlight %}
+```
 
 ## Logging
 
@@ -1919,220 +2020,248 @@ These methods control command and telemetry logging.
 
 The get_cmd_log_filename method retrieves the current command log file for the specified log writer. Returns nil if not logging.
 
-Syntax:
-``` get_cmd_log_filename("<Packet Log Writer Name (optional)>") ```
+Syntax:  
+```ruby
+get_cmd_log_filename("<Packet Log Writer Name (optional)>")
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
 | Packet Log Writer Name | Name of the packet log writer. Defaults to "DEFAULT" |
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 get_cmd_log_filename("INT1")
-{% endhighlight %}
+```
 
 ### get_tlm_log_filename
 
 The get_tlm_log_filename method retrieves the current telemetry log file for the specified log writer. Returns nil if not logging.
 
-Syntax:
-``` get_tlm_log_filename("<Packet Log Writer Name (optional)>") ```
+Syntax:  
+```ruby
+get_tlm_log_filename("<Packet Log Writer Name (optional)>")
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
 | Interface Name | Name of the interface. |
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 get_tlm_log_filename("INT1")
-{% endhighlight %}
+```
 
 ### start_logging
 
 The start_logging method starts logging of commands sent and telemetry received for a packet log writer.  If a log writer is already logging, this will start a new log file.
 
-Syntax:
-``` start_logging("<Packet Log Writer Name (optional)>", "<Label (optional)>") ```
+Syntax:  
+```ruby
+start_logging("<Packet Log Writer Name (optional)>", "<Label (optional)>")
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
 | Packet Log Writer Name | Name of the packet log writer to command to start logging. Defaults to 'ALL' which causes all packet log writers to start logging commands and telemetry. If a log writer is already logging it will start a new file. |
 | Label | Label to place on log files. Defaults to nil which means no label. Labels must consist of only letters and numbers (no underscores, hyphens, etc). |
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 start_logging("int1")
-{% endhighlight %}
+```
 
 ### start_cmd_log
 
 The start_cmd_log method starts logging of commands sent.   If a log writer is already logging, this will start a new log file.
 
-Syntax:
-``` start_cmd_log("<Packet Log Writer Name (optional)>") ```
+Syntax:  
+```ruby
+start_cmd_log("<Packet Log Writer Name (optional)>")
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
 | Packet Log Writer Name | Name of the packet log writer to command to start logging. Defaults to 'ALL' which causes all packet log writers to start logging commands. If a log writer is already logging it will start a new file. |
 | Label | Label to place on log files. Defaults to nil which means no label. |
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 start_cmd_log("int1")
-{% endhighlight %}
+```
 
 ### start_tlm_log
 
 The start_tlm_log method starts logging of telemetry received.   If a log writer is already logging, this will start a new log file.
 
-Syntax:
-``` start_tlm_log("<Packet Log Writer Name (optional)>") ```
+Syntax:  
+```ruby
+start_tlm_log("<Packet Log Writer Name (optional)>")
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
 | Packet Log Writer Name | Name of the packet log writer to command to start logging. Defaults to 'ALL' which causes all packet log writers to start logging telemetry. If a log writer is already logging it will start a new file. |
 | Label | Label to place on log files. Defaults to nil which means no label. |
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 start_tlm_log("int1")
-{% endhighlight %}
+```
 
 ### stop_logging
 
 The stop_logging method stops logging of commands sent and telemetry received for a packet log writer.
 
-Syntax:
-``` stop_logging("<Packet Log Writer Name (optional)>") ```
+Syntax:  
+```ruby
+stop_logging("<Packet Log Writer Name (optional)>")
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
 | Packet Log Writer Name | Name of the packet log writer to command to stop logging. Defaults to 'ALL' which causes all packet log writers to stop logging commands and telemetry. |
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 stop_logging("int1")
-{% endhighlight %}
+```
 
 ### stop_cmd_log
 
 The stop_cmd_log method stops logging of commands sent.
 
-Syntax:
-``` stop_cmd_log("<Packet Log Writer Name (optional)>") ```
+Syntax:  
+```ruby
+stop_cmd_log("<Packet Log Writer Name (optional)>")
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
 | Packet Log Writer Name | Name of the packet log writer to command to stop logging. Defaults to 'ALL' which causes all packet log writers to stop logging commands. |
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 stop_cmd_log()
-{% endhighlight %}
+```
 
 ### stop_tlm_log
 
 The stop_tlm_log method stops logging of telemetry received.
 
-Syntax:
-``` stop_tlm_log("<Packet Log Writer Name (optional)>") ```
+Syntax:  
+```ruby
+stop_tlm_log("<Packet Log Writer Name (optional)>")
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
 | Packet Log Writer Name | Name of the packet log writer to command to stop logging. Defaults to 'ALL' which causes all packet log writers to stop logging telemetry. |
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 stop_tlm_log()
-{% endhighlight %}
+```
 
 ### get_server_message_log_filename
 
 Returns the filename of the COSMOS Command and Telemetry Server message log.
 
-Syntax:
-``` get_server_message_log_filename() ```
+Syntax:  
+```ruby
+get_server_message_log_filename()
+```
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 filename = get_server_message_log_filename()
-{% endhighlight %}
+```
 
 ### start_new_server_message_log
 
 Starts a new COSMOS Command and Telemetry Server message log.
 
-Syntax:
-``` start_new_server_message_log() ```
-
-Example:
-{% highlight ruby %}
+Syntax:  
+```ruby
 start_new_server_message_log()
-{% endhighlight %}
+```
+
+Example:  
+```ruby
+start_new_server_message_log()
+```
 
 ### start_raw_logging_interface
 
 The start_raw_logging_interface method starts logging of raw data on one or all interfaces.   This is for debugging purposes only.
 
-Syntax:
-``` start_raw_logging_interface("<Interface Name (optional)>") ```
+Syntax:  
+```ruby
+start_raw_logging_interface("<Interface Name (optional)>")
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
 | Interface Name | Name of the Interface to command to start raw data logging. Defaults to 'ALL' which causes all interfaces that support raw data logging to start logging raw data. |
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 start_raw_logging_interface ("int1")
-{% endhighlight %}
+```
 
 ### stop_raw_logging_interface
 
 The stop_raw_logging_interface method stops logging of raw data on one or all interfaces.   This is for debugging purposes only.
 
-Syntax:
-``` stop_raw_logging_interface("<Interface Name (optional)>") ```
+Syntax:  
+```ruby
+stop_raw_logging_interface("<Interface Name (optional)>")
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
 | Interface Name | Name of the Interface to command to stop raw data logging. Defaults to 'ALL' which causes all interfaces that support raw data logging to stop logging raw data. |
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 stop_raw_logging_interface ("int1")
-{% endhighlight %}
+```
 
 ### start_raw_logging_router
 
 The start_raw_logging_router method starts logging of raw data on one or all routers.   This is for debugging purposes only.
 
-Syntax:
-``` start_raw_logging_router("<Router Name (optional)>") ```
+Syntax:  
+```ruby
+start_raw_logging_router("<Router Name (optional)>")
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
 | Router Name | Name of the Router to command to start raw data logging. Defaults to 'ALL' which causes all routers that support raw data logging to start logging raw data. |
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 start_raw_logging_router("router1")
-{% endhighlight %}
+```
 
 ### stop_raw_logging_router
 
 The stop_raw_logging_router method stops logging of raw data on one or all routers.   This is for debugging purposes only.
 
-Syntax:
-``` stop_raw_logging_router("<Router Name (optional)>") ```
+Syntax:  
+```ruby
+stop_raw_logging_router("<Router Name (optional)>")
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
 | Router Name | Name of the Router to command to stop raw data logging.  Defaults to 'ALL' which causes all routers that support raw data logging to stop logging raw data. |
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 stop_raw_logging_router("router1")
-{% endhighlight %}
+```
 
 ## Executing Other Procedures
 
@@ -2142,33 +2271,37 @@ These methods allow the user to bring in files of subroutines and execute other 
 
 The start method starts execution of another high level test procedure. No parameters can be given to high level test procedures. If parameters are necessary, then consider using a subroutine.
 
-Syntax:
-``` start("<Procedure Filename>") ```
+Syntax:  
+```ruby
+start("<Procedure Filename>")
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
 | Procedure Filename | Name of the test procedure file. These files are normally in the procedures folder but may be anywhere in the Ruby search path. Additionally, absolute paths are supported. |
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 start("test1.rb")
-{% endhighlight %}
+```
 
 ### load_utility
 
 The load_utility method reads in a script file that contains useful subroutines for use in your test procedure.   When these subroutines run in ScriptRunner or TestRunner, their lines will not be highlighted.  This is very useful for methods containing loops which can be slow to execute when highlighting lines.
 
-Syntax:
-``` load_utility("<Utility Filename>") ```
+Syntax:  
+```ruby
+load_utility("<Utility Filename>")
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
 | Utility Filename | Name of the script file containing subroutines. These files are normally in the procedures folder but may be anywhere in the Ruby search path. Additionally, absolute paths are supported. |
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 load_utility("mode_changes.rb")
-{% endhighlight %}
+```
 
 ## Opening and Closing Telemetry Screens
 
@@ -2178,8 +2311,10 @@ These methods allow the user to open or close telemetry screens from within a te
 
 The display method opens a telemetry screen at the specified position.
 
-Syntax:
-``` display("<Display Name>", <X Position (optional)>, <Y Position (optional)>) ```
+Syntax:  
+```ruby
+display("<Display Name>", <X Position (optional)>, <Y Position (optional)>)
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
@@ -2187,43 +2322,47 @@ Syntax:
 | X Position | The X coordinate on screen where the top left corner of the telemetry screen will be placed. |
 | Y Position | The Y coordinate on screen where the top left corner of the telemetry screen will be placed. |
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 display("INST ADCS", 100, 200)
-{% endhighlight %}
+```
 
 ### clear
 
 The clear method closes an open telemetry screen.
 
-Syntax:
-``` clear("<Display Name>") ```
+Syntax:  
+```ruby
+clear("<Display Name>")
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
 | Display Name | Name of the telemetry screen to close. Screens are normally named by "TARGET_NAME SCREEN_NAME" |
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 clear("INST ADCS")
-{% endhighlight %}
+```
 
 ### clear_all (since 3.9.2)
 
 The clear_all method closes all open screens or all screens of a particular target.
 
-Syntax:
-``` clear_all("<Target Name>") ```
+Syntax:  
+```ruby
+clear_all("<Target Name>")
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
 | Target Name | Close all screens associated with the target. If no target is passed, all screens are closed.|
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 clear_all("INST") # Clear all INST screens
 clear_all() # Clear all screens
-{% endhighlight %}
+```
 
 ## Script Runner Specific Functionality
 
@@ -2233,53 +2372,61 @@ These methods allow the user to interact with ScriptRunner functions.
 
 This method sets the line delay in script runner.
 
-Syntax:
-``` set_line_delay(<delay>) ```
+Syntax:  
+```ruby
+set_line_delay(<delay>)
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
 | delay | The amount of time script runner will wait between lines when executing a script, in seconds. Should be ≥ 0.0 |
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 set_line_delay(0.0)
-{% endhighlight %}
+```
 
 ### get_line_delay
 
 The method gets the line delay that script runner is currently using.
 
-Syntax:
-``` get_line_delay() ```
+Syntax:  
+```ruby
+get_line_delay()
+```
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 curr_line_delay = get_line_delay()
-{% endhighlight %}
+```
 
 ### get_scriptrunner_message_log_filename
 
 Returns the filename of the ScriptRunner message log.
 
-Syntax:
-``` get_scriptrunner_message_log_filename() ```
+Syntax:  
+```ruby
+get_scriptrunner_message_log_filename()
+```
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 filename = get_scriptrunner_message_log_filename()
-{% endhighlight %}
+```
 
 ### start_new_scriptrunner_message_log
 
 Starts a new ScriptRunner message log.   Note:  ScriptRunner will automatically start a new log whenever a script is started.  This method is only needed for starting a new log mid-script execution.
 
-Syntax:
-``` start_new_scriptrunner_message_log() ```
+Syntax:  
+```ruby
+start_new_scriptrunner_message_log()
+```
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 filename = start_new_scriptrunner_message_log()
-{% endhighlight %}
+```
 
 ### disable_instrumentation
 *** Added in COSMOS 3.3.3 ***
@@ -2289,34 +2436,38 @@ Consider breaking code like this into a seperate file and using either require/l
 
 *** WARNING:  Use with caution. Disabling instrumentation will cause any error that occurs while disabled to cause your script to completely stop. ***
 
-Syntax:
-``` disable_instrumentation do ```
+Syntax:  
+```ruby
+disable_instrumentation do
+```
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 disable_instrumentation do
   1000.times do
     # Don't want this to have to highlight 1000 times
   end
 end
-{% endhighlight %}
+```
 
 ### set_stdout_max_lines
 *** Added in COSMOS 3.3.3 ***
 
 This method sets the maximum amount of lines of output that a single line in Scriptrunner can generate without being truncated.
 
-Syntax:
-``` set_stdout_max_lines(max_lines) ```
+Syntax:  
+```ruby
+set_stdout_max_lines(max_lines)
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
 | max_lines | The maximum number of lines that will be written to the ScriptRunner log at once |
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 set_stdout_max_lines(2000)
-{% endhighlight %}
+```
 
 ## Debugging
 
@@ -2326,92 +2477,106 @@ These methods allow the user to debug scripts with ScriptRunner.
 
 Inserts a ruby return statement into the currently executing context. This can be used to break out of methods early from the ScriptRunner Debug prompt.
 
-Syntax:
-``` insert_return (<return value (optional)>, …) ```
+Syntax:  
+```ruby
+insert_return (<return value (optional)>, …)
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
 | return value | One or more values that are returned from the method |
 
 Example(s):
-{% highlight ruby %}
+```ruby
 insert_return()
 insert_return(5, 10)
-{% endhighlight %}
+```
 
 ### step_mode
 
 Places ScriptRunner into step mode where Go must be hit to proceed to the next line.
 
-Syntax:
-``` step_mode() ```
-
-Example:
-{% highlight ruby %}
+Syntax:  
+```ruby
 step_mode()
-{% endhighlight %}
+```
+
+Example:  
+```ruby
+step_mode()
+```
 
 ### run_mode
 
 Places ScriptRunner into run mode where the next line is run automatically.
 
-Syntax:
-``` run_mode() ```
-
-Example:
-{% highlight ruby %}
+Syntax:  
+```ruby
 run_mode()
-{% endhighlight %}
+```
+
+Example:  
+```ruby
+run_mode()
+```
 
 ### show_backtrace
 
 Makes ScriptRunner print out a backtrace when an error occurs.   Also prints out a backtrace for the most recent error.
 
-Syntax:
-``` show_backtrace(<true or false>) ```
+Syntax:  
+```ruby
+show_backtrace(<true or false>)
+```
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 show_backtrace(true)
-{% endhighlight %}
+```
 
 ### shutdown_cmd_tlm
 
 The shutdown_cmd_tlm method disconnects from the Command and Telemetry Server. This is good practice to do before your tool shuts down.
 
-Syntax:
-``` shutdown_cmd_tlm() ```
-
-Example:
-{% highlight ruby %}
+Syntax:  
+```ruby
 shutdown_cmd_tlm()
-{% endhighlight %}
+```
+
+Example:  
+```ruby
+shutdown_cmd_tlm()
+```
 
 ### set_cmd_tlm_disconnect
 
 The set_cmd_tlm_disconnect method puts scripting into or out of disconnect mode.  In disconnect mode, messages are not sent to CmdTlmServer.  Instead things are reported as nominally succeeding.   Disconnect mode is useful for dry-running scripts without having a connected CmdTlmServer.
 
-Syntax:
-``` set_cmd_tlm_disconnect(<Disconnect>, <Config File>) ```
+Syntax:  
+```ruby
+set_cmd_tlm_disconnect(<Disconnect>, <Config File>)
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
 | Disconnect | True or Fase. True enters disconnect mode and False leaves it. |
 | Config File | Command and Telemetry Server configuration file to use to simulate the CmdTlmServer. Defaults to cmd_tlm_server.txt. |
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 set_cmd_tlm_disconnect(true)
-{% endhighlight %}
+```
 
 ### get_cmd_tlm_disconnect
 
 The get_cmd_tlm_disconnect method returns true if currently in disconnect mode.
 
-Syntax:
-``` get_cmd_tlm_disconnect() ```
+Syntax:  
+```ruby
+get_cmd_tlm_disconnect()
+```
 
-Example:
-{% highlight ruby %}
+Example:  
+```ruby
 mode = get_cmd_tlm_disconnect()
-{% endhighlight %}
+```

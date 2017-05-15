@@ -5,7 +5,7 @@
   <title>News</title>
   <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="generator" content="Jekyll v3.1.6">
+  <meta name="generator" content="Jekyll v3.4.3">
   <link rel="alternate" type="application/rss+xml" title="Ball Aerospace COSMOS News" href="/feed.xml">
   <link rel="alternate" type="application/atom+xml" title="Recent commits to COSMOS’s master branch" href="https://github.com/BallAerospace/COSMOS/commits/master.atom">
   <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic,900">
@@ -270,7 +270,7 @@
 
 <p>The initialize method gets passed the parameters from the config file. Thus our config file of:
 <code class="highlighter-rouge">PROCESSOR TEMP1WATER watermark_processor.rb TEMP1</code><br />
-passes ‘TEMP1’ into ‘item_name’ of the initialize method:<br />
+passes ‘TEMP1’ into ‘item_name’ of the initialize method:
 <code class="highlighter-rouge">def initialize(item_name, value_type = :CONVERTED)</code><br />
 Since we only pass one value, we use the default value_type of :CONVERTED.</p>
 
@@ -313,9 +313,9 @@ Since we only pass one value, we use the default value_type of :CONVERTED.</p>
 
 <p>First of all note that ProcessorConversion inherits from the <a href="https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/conversions/conversion.rb">Conversion</a> base class. This is very similar to the WatermarkProcessor inheriting from the Processor base class. Again, there is an initialize method and a call method. The initialize method requires the processor_name and result_name and takes optional parameters that help describe the converted type. Let’s see how these map together in our definition.</p>
 
-<p>Our config file looked like the following:<br />
+<p>Our config file looked like the following:
 <code class="highlighter-rouge">READ_CONVERSION processor_conversion.rb TEMP1WATER HIGH_WATER</code><br />
-This passes TEMP1WATER and HIGH_WATER as processor_name and result_name into initialize:<br />
+This passes TEMP1WATER and HIGH_WATER as processor_name and result_name into initialize:
 <code class="highlighter-rouge">def initialize(processor_name, result_name, converted_type = nil, converted_bit_size = nil)</code></p>
 
 <p>We store the processor name and result name into Ruby instance variables (first turning them into upper case strings). We additionally turn the result name into a Ruby symbol by calling intern on it. This allows us to match the symbol names we used in the WatermarkProcessor code.</p>
@@ -360,7 +360,7 @@ This passes TEMP1WATER and HIGH_WATER as processor_name and result_name into ini
 
 <p>This class introduces some new Ruby syntax. Since we want to accept any number of items to average we have to accept a variable number of arguments in our initialize method. The ruby splat operator (or star operator) does this and places the arguments into a Ruby array. We store these names and then use them in our call method to perform the mean. I’m using a cool feature of Ruby’s Enumerable mixin, which is part of Array, to sum up the values (starting with 0) and then dividing by the number of values we have to get the mean. Note I’m also calling to_f to ensure the numerator is a floating point number so we do floating point math during the division. Integer division would truncate the value to an integer value.</p>
 
-<p>First to use this new processor you need to require it in your target’s <a href="/docs/system/#targettxt-keywords">target.txt</a> configuration file:<br />
+<p>First to use this new processor you need to require it in your target’s <a href="/docs/system/#targettxt-keywords">target.txt</a> configuration file:
 <code class="highlighter-rouge">REQUIRE mean_processor.rb</code><br />
 Then delcare the processing in your configuration definition as follows:
 <code class="highlighter-rouge">TELEMETRY INST HEALTH_STATUS BIG_ENDIAN "Health and status from the instrument"
@@ -374,7 +374,7 @@ Then delcare the processing in your configuration definition as follows:
 
 <p><img src="/img/2017_05_08_packet_viewer2.png" alt="Packet Viewer" /></p>
 
-<p>Creating a custom processor definitely requires you to dive into the COSMOS API and play with the underlying Ruby code. Hopefully the existing processor code and this blog post helps you to derive whatever telemetry points you need. Happy processing and if you need additional support please contact us at <a href="&#109;&#097;&#105;&#108;&#116;&#111;:&#099;&#111;&#115;&#109;&#111;&#115;&#064;&#098;&#097;&#108;&#108;&#046;&#099;&#111;&#109;">&#099;&#111;&#115;&#109;&#111;&#115;&#064;&#098;&#097;&#108;&#108;&#046;&#099;&#111;&#109;</a>.</p>
+<p>Creating a custom processor definitely requires you to dive into the COSMOS API and play with the underlying Ruby code. Hopefully the existing processor code and this blog post helps you to derive whatever telemetry points you need. Happy processing and if you need additional support please contact us at <a href="mailto:cosmos@ball.com">cosmos@ball.com</a>.</p>
 
   </div>
 </article>
@@ -562,7 +562,7 @@ ADCS
 
 <p>This time you should see some LIMITS_CHANGE packet names sprinkled in with the output from before. That’s because we’re accessing the ENTIRE COSMOS telemetry stream and not just the stream from the INST interface. Keep this in mind if you have performance issues when trying to process the entire telemetry stream.</p>
 
-<p>Happy routing and if you need additional support please contact us at <a href="&#109;&#097;&#105;&#108;&#116;&#111;:&#099;&#111;&#115;&#109;&#111;&#115;&#064;&#098;&#097;&#108;&#108;&#046;&#099;&#111;&#109;">&#099;&#111;&#115;&#109;&#111;&#115;&#064;&#098;&#097;&#108;&#108;&#046;&#099;&#111;&#109;</a>.</p>
+<p>Happy routing and if you need additional support please contact us at <a href="mailto:cosmos@ball.com">cosmos@ball.com</a>.</p>
 
   </div>
 </article>
@@ -666,7 +666,7 @@ ADCS
 <p><img src="/img/2016_10_13_stakem_screenshot.png" alt="Stakem Screenshot" />
 <em>Screenshot showing COSMOS in action</em></p>
 
-<p>Since COSMOS is open source, we don’t always hear about what people are doing with it. If you have a COSMOS success story you’d like to share with us please contact us at <a href="&#109;&#097;&#105;&#108;&#116;&#111;:&#099;&#111;&#115;&#109;&#111;&#115;&#064;&#098;&#097;&#108;&#108;&#046;&#099;&#111;&#109;">&#099;&#111;&#115;&#109;&#111;&#115;&#064;&#098;&#097;&#108;&#108;&#046;&#099;&#111;&#109;</a>.</p>
+<p>Since COSMOS is open source, we don’t always hear about what people are doing with it. If you have a COSMOS success story you’d like to share with us please contact us at <a href="mailto:cosmos@ball.com">cosmos@ball.com</a>.</p>
 
 
   </div>
@@ -761,7 +761,7 @@ COMMAND INST ABORT BIG_ENDIAN "Aborts a collect on the instrument"
 
 <p>The call to render replaces everything in the named template with the render call. We follow the Ruby on Rails convention of naming these templates (Rails calls them ‘partials’) with a leading underscore to differentiate them from full command and telemetry definitions. Notice too that we are passing local variables to the template. The ‘id: 1’ syntax is basically setting the ‘id’ variable in the template to 1. This allows us to send a different PKTID to each command.</p>
 
-<p>ERB is incredibly powerful and a great way to avoid WET (Write Each Time) command and telemetry definitions. Now go DRY (Don’t Repeat Yourself) up your COSMOS configuration and as always if you need additional support please contact us at <a href="&#109;&#097;&#105;&#108;&#116;&#111;:&#099;&#111;&#115;&#109;&#111;&#115;&#064;&#098;&#097;&#108;&#108;&#046;&#099;&#111;&#109;">&#099;&#111;&#115;&#109;&#111;&#115;&#064;&#098;&#097;&#108;&#108;&#046;&#099;&#111;&#109;</a>.</p>
+<p>ERB is incredibly powerful and a great way to avoid WET (Write Each Time) command and telemetry definitions. Now go DRY (Don’t Repeat Yourself) up your COSMOS configuration and as always if you need additional support please contact us at <a href="mailto:cosmos@ball.com">cosmos@ball.com</a>.</p>
 
   </div>
 </article>
@@ -907,7 +907,7 @@ ARRAY INST HEALTH_STATUS ARY 300 50 nil 8 FORMATTED
 
 <p>Note that if you have a widget that implements aging and limits you’ll want to keep the value returned by super and use it in your widget. If you don’t want the aging routine to directly use your data value you can pass a string as the second parameter, e.g. super(data, text). This text string will be modified with the color blind settings. Basically that means that whatever the calculated <code class="highlighter-rouge">@foreground</code> color string is, a corresponding text character is added (R=Red, G=Green, etc) to aid people who can’t distinguish colors. See <a href="https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/tools/tlm_viewer/widgets/aging_widget.rb">aging_widget.rb</a> for more details.</p>
 
-<p>Good luck creating your own widgets and if you need additional support please contact us at <a href="&#109;&#097;&#105;&#108;&#116;&#111;:&#099;&#111;&#115;&#109;&#111;&#115;&#064;&#098;&#097;&#108;&#108;&#046;&#099;&#111;&#109;">&#099;&#111;&#115;&#109;&#111;&#115;&#064;&#098;&#097;&#108;&#108;&#046;&#099;&#111;&#109;</a>.</p>
+<p>Good luck creating your own widgets and if you need additional support please contact us at <a href="mailto:cosmos@ball.com">cosmos@ball.com</a>.</p>
 
   </div>
 </article>
@@ -971,11 +971,11 @@ ARRAY INST HEALTH_STATUS ARY 300 50 nil 8 FORMATTED
 
 <p>What we’re doing is overriding pre_write_packet in StreamInterface to allow us to modify the data before it is written to the packet and sent over the interface. We also override post_read_data to operate on data received before it is sent back to the COSMOS server and thus the tools. Note there is also a post_read_packet(packet) method which is called after post_read_data is called and after the COSMOS Packet has been created. All Interfaces inheriting from StreamInterface includes these callback methods, including SerialInterface, TcpipServerInterface, and TcpipClientInterface. Note that UdpInterface inherits directly from Interface and thus does NOT include these callbacks.</p>
 
-<p>Then in your cmd_tlm_server.txt file for your target you use your new interface:
-<code class="highlighter-rouge">
-#         interface name  file name                    write read baud   parity stop timeouts stream
+<p>Then in your cmd_tlm_server.txt file for your target you use your new interface:</p>
+<div class="highlighter-rouge"><pre class="highlight"><code>#         interface name  file name                    write read baud   parity stop timeouts stream
 INTERFACE UART_INTERFACE  checksum_serial_interface.rb COM1  COM1 115200 NONE   1    nil nil  BURST
-</code></p>
+</code></pre>
+</div>
 
 <p>I added a comment line above the definition which describes the settings. For more information see the <a href="http://cosmosrb.com/docs/interfaces/#serial-interface">Serial Interface</a> documentation.</p>
 
