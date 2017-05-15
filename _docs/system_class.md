@@ -17,7 +17,7 @@ Almost all custom COSMOS code needs to interact with System as it provides acces
 [System.commands](https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/packets/commands.rb) provides access to all the command definitions in the COSMOS system. The primary developer access methods are:
 
 1. ```System.commands.target_names``` - Returns an array of strings containing the target names
-1. ```System.commands.all``` - Returns a hash keyed by the target name with a hash of Packets as the value. The second hash is indentical to what is returned by System.commands.packet("TARGET").
+1. ```System.commands.all``` - Returns a hash keyed by the target name with a hash of Packets as the value. The second hash is indentical to what is returned by System.commands.packets("TARGET").
 2. ```System.commands.packets("TARGET")``` - Returns a Hash keyed by the packet name with the Packet instance as the value 
 3. ```System.commands.packet("TARGET", "PACKET")``` - Returns the given Packet instance
 4. ```System.commands.identify(data)``` - Identify a raw buffer of data as a Packet and return the Packet instance.
@@ -25,7 +25,7 @@ Almost all custom COSMOS code needs to interact with System as it provides acces
 Additional methods are available which are not as commonly used:
 1. ```System.commands.build_cmd("TARGET", "PACKET", params)``` - Creates a Packet instance initialized with the values in the params hash.
 2. ```System.commands.format(packet)``` - Returns a string which represents how to send this command in Script Runner. For example: Given a COSMOS start logging command instance it returns "cmd('COSMOS STARTLOGGING')"
-3. ```System.commands.cmd_pkt_hazardous?(command)``` - Returns an array where the first boolean value indicates whether the give command is hazardous or not. If the first value is true (hazardous), the second value is a string with information about the hazard.
+3. ```System.commands.cmd_pkt_hazardous?(command)``` - Returns an array where the first boolean value indicates whether the given command is hazardous or not. If the first value is true (hazardous), the second value is a string with information about the hazard.
 4. ```System.commands.cmd_hazardous?("TARGET", "PACKET", params)``` - Returns the same data as cmd_pkt_hazardous? above.
 
 Other methods are available but generally should not be used by developers.
