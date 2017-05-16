@@ -78,6 +78,12 @@ module Cosmos
         'connect_router',
         'disconnect_router',
         'router_state',
+        'get_target_info',
+        'get_interface_info',
+        'get_router_info',
+        'get_cmd_cnt',
+        'get_tlm_cnt',
+        'get_packet_logger_info',
         'get_cmd_log_filename',
         'get_tlm_log_filename',
         'start_logging',
@@ -845,6 +851,78 @@ module Cosmos
     #   'ATTEMPTING' or 'DISCONNECTED'.
     def router_state(router_name)
       CmdTlmServer.routers.state(router_name)
+    end
+
+    # Get information about a target
+    #
+    # @param target_name [String] Target name
+    # @return [Array<Numeric, Numeric>] Array of \[cmd_cnt, tlm_cnt]
+    def get_target_info(target_name)
+      target = System.targets[target_name.upcase]
+      raise "Unknown target: #{target_name}" unless target
+      return [target.cmd_cnt, target.tlm_cnt]
+    end
+
+    # Get information about an interface
+    #
+    # @param interface_name [String] Interface name
+    # @return [Array<String, Numeric, Numeric, Numeric, Numeric, Numeric, 
+    #   Numeric, Numeric>] Array containing \[state, num clients, 
+    #   TX queue size, RX queue size, TX bytes, RX bytes, Command count,
+    #   Telemetry count] for the interface
+    def get_interface_info(interface_name)
+      CmdTlmServer.interfaces.get_info(interface_name)
+    end
+
+    # Get information about a router
+    #
+    # @param router_name [String] Router name
+    # @return [Array<String, Numeric, Numeric, Numeric, Numeric, Numeric, 
+    #   Numeric, Numeric>] Array containing \[state, num clients, 
+    #   TX queue size, RX queue size, TX bytes, RX bytes, Pkts received,
+    #   Pkts sent] for the router
+    def get_router_info(router_name)
+      CmdTlmServer.routers.get_info(router_name)
+    end
+
+    # Get the transmit count for a command packet
+    #
+    # @param target_name [String] Target name of the command
+    # @param command_name [String] Packet name of the command
+    # @return [Numeric] Transmit count for the command
+    def get_cmd_cnt(target_name, command_name)
+      packet = System.commands.packet(target_name, command_name)
+      return packet.received_count
+    end
+
+    # Get the receive count for a telemetry packet
+    #
+    # @param target_name [String] Name of the target
+    # @param packet_name [String] Name of the packet
+    # @return [Numeric] Receive count for the telemetry packet
+    def get_tlm_cnt(target_name, packet_name)
+      packet = System.telemetry.packet(target_name, packet_name)
+      return packet.received_count
+    end
+
+    # Get information about a packet logger.
+    #
+    # @param packet_logger_name [String] Name of the packet logger
+    # @return [Array<<Array<String>, Boolean, Numeric, String, Numeric,
+    #   Boolean, Numeric, String, Numeric>] Array containing \[interfaces,
+    #   cmd logging enabled, cmd queue size, cmd filename, cmd file size, 
+    #   tlm logging enabled, tlm queue size, tlm filename, tlm file size]
+    #   for the packet logger
+    def get_packet_logger_info(packet_logger_name = 'DEFAULT')
+      logger_info = CmdTlmServer.packet_logging.get_info(packet_logger_name)
+      packet_log_writer_pair = CmdTlmServer.packet_logging.all[packet_logger_name.upcase]
+      interfaces = []
+      CmdTlmServer.interfaces.all.each do |interface_name, interface|
+        if interface.packet_log_writer_pairs.include?(packet_log_writer_pair)
+          interfaces << interface.name
+        end
+      end
+      return [interfaces] + logger_info
     end
 
     # @param packet_log_writer_name [String] The name of the packet log writer which
