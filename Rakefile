@@ -8,9 +8,9 @@ task :build do
   system "git pull"
   puts "## Building website"
   system "jekyll build"
-  system "git add -A"
-  system "git diff --cached"
-  puts "\n\nReview diff and commit with 'git commit -m \"Message\"'"
+  system "git add _site/*"
+  puts "\n\nAll of _site has been added to the git commit."
+  puts "Add additional source files, review the diff, and commit with 'git commit -m \"Message\"'"
   puts "Then push with 'git push'"
 end
 

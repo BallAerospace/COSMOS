@@ -722,6 +722,25 @@ target_name, command_name, time = get_cmd_time("INST") # Name of the most recent
 target_name, command_name, time = get_cmd_time("INST", "COLLECT") # Name of the most recent INST COLLECT command and time
 ```
 
+### get_cmd_cnt (since 3.9.2)
+
+The get_cmd_cnt method returns the number of times a specified command has been sent.
+
+Syntax:
+{% highlight ruby %}
+get_cmd_cnt("<Target Name>", "<Command Name>")
+{% endhighlight %}
+
+| Parameter | Description |
+| -------- | --------------------------------- |
+| Target Name | Name of the target. |
+| Command Name | Name of the command. |
+
+Example:
+{% highlight ruby %}
+cmd_cnt = get_cmd_cnt("INST", "COLLECT") # Number of times the INST COLLECT command has been sent
+{% endhighlight %}
+
 ## Handling Telemetry
 
 These methods allow the user to interact with telemetry items.
@@ -1075,6 +1094,25 @@ Example:
 ```ruby
 details = get_tlm_item_details("INST", "HEALTH_STATUS", "COLLECTS")
 ```
+
+### get_tlm_cnt (since 3.9.2)
+
+The get_tlm_cnt method returns the number of times a specified telemetry packet has been received.
+
+Syntax:
+{% highlight ruby %}
+get_tlm_cnt("<Target Name>", "<Packet Name>")
+{% endhighlight %}
+
+| Parameter | Description |
+| -------- | --------------------------------- |
+| Target Name | Name of the target. |
+| Packet Name | Name of the telemetry packet. |
+
+Example:
+{% highlight ruby %}
+tlm_cnt = get_tlm_cnt("INST", "HEALTH_STATUS") # Number of times the INST HEALTH_STATUS telemetry packet has been received.
+{% endhighlight %}
 
 ### set_tlm
 
@@ -1829,6 +1867,22 @@ Example:
 targets = get_target_list()
 ```
 
+### get_target_info (since 3.9.2)
+
+The get_target_info method returns information about a target.  The information includes the number of commands sent to the target and the number of telemetry packets received from the target.
+
+Syntax:
+``` get_target_info("<Target Name>") ```
+
+| Parameter | Description |
+| -------- | --------------------------------- |
+| Target Name | Name of the target. |
+
+Example:
+{% highlight ruby %}
+cmd_cnt, tlm_cnt = get_target_info("INST")
+{% endhighlight %}
+
 ## Interfaces
 
 These methods allow the user to manipulate COSMOS interfaces.
@@ -1939,6 +1993,22 @@ Example:
 targets = get_interface_targets("INST_INT")
 ```
 
+### get_interface_info (since 3.9.2)
+
+The get_interface_info method returns information about an interface.  The information includes the connection state, number of connected clients, transmit queue size, receive queue size, bytes transmitted, bytes received, command count, and telemetry count.
+
+Syntax:
+``` get_interface_info("<Interface Name>") ```
+
+| Parameter | Description |
+| -------- | --------------------------------- |
+| Interface Name | Name of the interface. |
+
+Example:
+{% highlight ruby %}
+state, clients, tx_q_size, rx_q_size, bytes_tx, bytes_rx, cmd_cnt, tlm_cnt = get_interface_info("INST_INT")
+{% endhighlight %}
+
 ## Routers
 
 These methods allow the user to manipulate COSMOS routers.
@@ -2011,6 +2081,22 @@ Example:
 ```ruby
 router_names = get_router_names()
 ```
+
+### get_router_info (since 3.9.2)
+
+The get_router_info method returns information about a router.  The information includes the connection state, number of connected clients, transmit queue size, receive queue size, bytes transmitted, bytes received, packets received, and packets sent.
+
+Syntax:
+``` get_router_info("<Router Name>") ```
+
+| Parameter | Description |
+| -------- | --------------------------------- |
+| Router Name | Name of the router. |
+
+Example:
+{% highlight ruby %}
+state, clients, tx_q_size, rx_q_size, bytes_tx, bytes_rx, pkts_rcvd, pkts_sent = get_router_info("INST_ROUTER")
+{% endhighlight %}
 
 ## Logging
 
@@ -2262,6 +2348,22 @@ Example:
 ```ruby
 stop_raw_logging_router("router1")
 ```
+
+### get_packet_logger_info (since 3.9.2)
+
+The get_packet_logger_info method returns information about a packet logger.   The information includes the interfaces associated with the logger, command log enable flag, command queue size, command filename, command file size, telemetry log enable flag, telemetry queue size, telemetry filename, and telemetry file size.
+
+Syntax:
+``` get_packet_logger_info("<Packet logger name>") ```
+
+| Parameter | Description |
+| -------- | --------------------------------- |
+| Packet Logger name | Name of the packet logger to get information for. |
+
+Example:
+{% highlight ruby %}
+interfaces, cmd_logging, cmd_q_size, cmd_filename, cmd_file_size, tlm_logging, tlm_q_size, tlm_filename, tlm_file_size = get_packet_logger_info("DEFAULT")
+{% endhighlight %}
 
 ## Executing Other Procedures
 

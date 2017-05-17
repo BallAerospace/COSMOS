@@ -21,14 +21,14 @@
   - scripting
   - gemtargets
 
+- title: Tips
+  docs:
+  - chaining
+
 - title: Development
   docs:
   - system_class
   - packet_class
-
-- title: Tips
-  docs:
-  - chaining
 
 - title: Meta
   docs:

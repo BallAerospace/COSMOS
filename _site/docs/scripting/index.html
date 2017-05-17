@@ -887,6 +887,69 @@
 
     </optgroup>
     
+    <optgroup label="Tips">
+      
+
+
+  
+
+  
+    
+  
+    
+      <option value="/docs/chaining/">Chaining CmdTlmServers</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+
+    </optgroup>
+    
     <optgroup label="Development">
       
 
@@ -984,69 +1047,6 @@
   
     
       <option value="/docs/packet_class/">Packet Class</option>
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-
-
-    </optgroup>
-    
-    <optgroup label="Tips">
-      
-
-
-  
-
-  
-    
-  
-    
-      <option value="/docs/chaining/">Chaining CmdTlmServers</option>
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
     
   
     
@@ -1469,6 +1469,7 @@
 <li class="toc-entry toc-h3"><a href="#get_cmd_hazardous">get_cmd_hazardous</a></li>
 <li class="toc-entry toc-h3"><a href="#get_cmd_value">get_cmd_value</a></li>
 <li class="toc-entry toc-h3"><a href="#get_cmd_time">get_cmd_time</a></li>
+<li class="toc-entry toc-h3"><a href="#get_cmd_cnt-since-392">get_cmd_cnt (since 3.9.2)</a></li>
 <li class="toc-entry toc-h2"><a href="#handling-telemetry">Handling Telemetry</a></li>
 <li class="toc-entry toc-h3"><a href="#check">check</a></li>
 <li class="toc-entry toc-h3"><a href="#check_raw">check_raw</a></li>
@@ -1487,6 +1488,7 @@
 <li class="toc-entry toc-h3"><a href="#get_tlm_list">get_tlm_list</a></li>
 <li class="toc-entry toc-h3"><a href="#get_tlm_item_list">get_tlm_item_list</a></li>
 <li class="toc-entry toc-h3"><a href="#get_tlm_details">get_tlm_details</a></li>
+<li class="toc-entry toc-h3"><a href="#get_tlm_cnt-since-392">get_tlm_cnt (since 3.9.2)</a></li>
 <li class="toc-entry toc-h3"><a href="#set_tlm">set_tlm</a></li>
 <li class="toc-entry toc-h3"><a href="#set_tlm_raw">set_tlm_raw</a></li>
 <li class="toc-entry toc-h2"><a href="#packet-data-subscriptions">Packet Data Subscriptions</a></li>
@@ -1527,6 +1529,7 @@
 <li class="toc-entry toc-h3"><a href="#get_limits_event">get_limits_event</a></li>
 <li class="toc-entry toc-h2"><a href="#targets">Targets</a></li>
 <li class="toc-entry toc-h3"><a href="#get_target_list">get_target_list</a></li>
+<li class="toc-entry toc-h3"><a href="#get_target_info-since-392">get_target_info (since 3.9.2)</a></li>
 <li class="toc-entry toc-h2"><a href="#interfaces">Interfaces</a></li>
 <li class="toc-entry toc-h3"><a href="#connect_interface">connect_interface</a></li>
 <li class="toc-entry toc-h3"><a href="#disconnect_interface">disconnect_interface</a></li>
@@ -1534,11 +1537,13 @@
 <li class="toc-entry toc-h3"><a href="#map_target_to_interface">map_target_to_interface</a></li>
 <li class="toc-entry toc-h3"><a href="#get_interface_names">get_interface_names</a></li>
 <li class="toc-entry toc-h3"><a href="#get_interface_targets-since-392">get_interface_targets (since 3.9.2)</a></li>
+<li class="toc-entry toc-h3"><a href="#get_interface_info-since-392">get_interface_info (since 3.9.2)</a></li>
 <li class="toc-entry toc-h2"><a href="#routers">Routers</a></li>
 <li class="toc-entry toc-h3"><a href="#connect_router">connect_router</a></li>
 <li class="toc-entry toc-h3"><a href="#disconnect_router">disconnect_router</a></li>
 <li class="toc-entry toc-h3"><a href="#router_state">router_state</a></li>
 <li class="toc-entry toc-h3"><a href="#get_router_names">get_router_names</a></li>
+<li class="toc-entry toc-h3"><a href="#get_router_info-since-392">get_router_info (since 3.9.2)</a></li>
 <li class="toc-entry toc-h2"><a href="#logging">Logging</a></li>
 <li class="toc-entry toc-h3"><a href="#get_cmd_log_filename">get_cmd_log_filename</a></li>
 <li class="toc-entry toc-h3"><a href="#get_tlm_log_filename">get_tlm_log_filename</a></li>
@@ -1554,6 +1559,7 @@
 <li class="toc-entry toc-h3"><a href="#stop_raw_logging_interface">stop_raw_logging_interface</a></li>
 <li class="toc-entry toc-h3"><a href="#start_raw_logging_router">start_raw_logging_router</a></li>
 <li class="toc-entry toc-h3"><a href="#stop_raw_logging_router">stop_raw_logging_router</a></li>
+<li class="toc-entry toc-h3"><a href="#get_packet_logger_info-since-392">get_packet_logger_info (since 3.9.2)</a></li>
 <li class="toc-entry toc-h2"><a href="#executing-other-procedures">Executing Other Procedures</a></li>
 <li class="toc-entry toc-h3"><a href="#start">start</a></li>
 <li class="toc-entry toc-h3"><a href="#load_utility">load_utility</a></li>
@@ -2768,6 +2774,38 @@
 </code></pre>
 </div>
 
+<h3 id="get_cmd_cnt-since-392">
+<a id="get_cmd_cnt-since-392" class="anchor" href="#get_cmd_cnt-since-392" aria-hidden="true"><span class="octicon octicon-link"></span></a>get_cmd_cnt (since 3.9.2)</h3>
+
+<p>The get_cmd_cnt method returns the number of times a specified command has been sent.</p>
+
+<p>Syntax:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">get_cmd_cnt</span><span class="p">(</span><span class="s2">"&lt;Target Name&gt;"</span><span class="p">,</span> <span class="s2">"&lt;Command Name&gt;"</span><span class="p">)</span></code></pre></figure>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Target Name</td>
+      <td>Name of the target.</td>
+    </tr>
+    <tr>
+      <td>Command Name</td>
+      <td>Name of the command.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">cmd_cnt</span> <span class="o">=</span> <span class="n">get_cmd_cnt</span><span class="p">(</span><span class="s2">"INST"</span><span class="p">,</span> <span class="s2">"COLLECT"</span><span class="p">)</span> <span class="c1"># Number of times the INST COLLECT command has been sent</span></code></pre></figure>
+
 <h2 id="handling-telemetry">
 <a id="handling-telemetry" class="anchor" href="#handling-telemetry" aria-hidden="true"><span class="octicon octicon-link"></span></a>Handling Telemetry</h2>
 
@@ -3465,6 +3503,38 @@
 <pre class="highlight"><code><span class="n">details</span> <span class="o">=</span> <span class="n">get_tlm_item_details</span><span class="p">(</span><span class="s2">"INST"</span><span class="p">,</span> <span class="s2">"HEALTH_STATUS"</span><span class="p">,</span> <span class="s2">"COLLECTS"</span><span class="p">)</span>
 </code></pre>
 </div>
+
+<h3 id="get_tlm_cnt-since-392">
+<a id="get_tlm_cnt-since-392" class="anchor" href="#get_tlm_cnt-since-392" aria-hidden="true"><span class="octicon octicon-link"></span></a>get_tlm_cnt (since 3.9.2)</h3>
+
+<p>The get_tlm_cnt method returns the number of times a specified telemetry packet has been received.</p>
+
+<p>Syntax:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">get_tlm_cnt</span><span class="p">(</span><span class="s2">"&lt;Target Name&gt;"</span><span class="p">,</span> <span class="s2">"&lt;Packet Name&gt;"</span><span class="p">)</span></code></pre></figure>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Target Name</td>
+      <td>Name of the target.</td>
+    </tr>
+    <tr>
+      <td>Packet Name</td>
+      <td>Name of the telemetry packet.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">tlm_cnt</span> <span class="o">=</span> <span class="n">get_tlm_cnt</span><span class="p">(</span><span class="s2">"INST"</span><span class="p">,</span> <span class="s2">"HEALTH_STATUS"</span><span class="p">)</span> <span class="c1"># Number of times the INST HEALTH_STATUS telemetry packet has been received.</span></code></pre></figure>
 
 <h3 id="set_tlm">
 <a id="set_tlm" class="anchor" href="#set_tlm" aria-hidden="true"><span class="octicon octicon-link"></span></a>set_tlm</h3>
@@ -4920,6 +4990,33 @@ Example:
 </code></pre>
 </div>
 
+<h3 id="get_target_info-since-392">
+<a id="get_target_info-since-392" class="anchor" href="#get_target_info-since-392" aria-hidden="true"><span class="octicon octicon-link"></span></a>get_target_info (since 3.9.2)</h3>
+
+<p>The get_target_info method returns information about a target.  The information includes the number of commands sent to the target and the number of telemetry packets received from the target.</p>
+
+<p>Syntax:
+<code class="highlighter-rouge">get_target_info("&lt;Target Name&gt;")</code></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Target Name</td>
+      <td>Name of the target.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">cmd_cnt</span><span class="p">,</span> <span class="n">tlm_cnt</span> <span class="o">=</span> <span class="n">get_target_info</span><span class="p">(</span><span class="s2">"INST"</span><span class="p">)</span></code></pre></figure>
+
 <h2 id="interfaces">
 <a id="interfaces" class="anchor" href="#interfaces" aria-hidden="true"><span class="octicon octicon-link"></span></a>Interfaces</h2>
 
@@ -5110,6 +5207,33 @@ Example:
 </code></pre>
 </div>
 
+<h3 id="get_interface_info-since-392">
+<a id="get_interface_info-since-392" class="anchor" href="#get_interface_info-since-392" aria-hidden="true"><span class="octicon octicon-link"></span></a>get_interface_info (since 3.9.2)</h3>
+
+<p>The get_interface_info method returns information about an interface.  The information includes the connection state, number of connected clients, transmit queue size, receive queue size, bytes transmitted, bytes received, command count, and telemetry count.</p>
+
+<p>Syntax:
+<code class="highlighter-rouge">get_interface_info("&lt;Interface Name&gt;")</code></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Interface Name</td>
+      <td>Name of the interface.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">state</span><span class="p">,</span> <span class="n">clients</span><span class="p">,</span> <span class="n">tx_q_size</span><span class="p">,</span> <span class="n">rx_q_size</span><span class="p">,</span> <span class="n">bytes_tx</span><span class="p">,</span> <span class="n">bytes_rx</span><span class="p">,</span> <span class="n">cmd_cnt</span><span class="p">,</span> <span class="n">tlm_cnt</span> <span class="o">=</span> <span class="n">get_interface_info</span><span class="p">(</span><span class="s2">"INST_INT"</span><span class="p">)</span></code></pre></figure>
+
 <h2 id="routers">
 <a id="routers" class="anchor" href="#routers" aria-hidden="true"><span class="octicon octicon-link"></span></a>Routers</h2>
 
@@ -5231,6 +5355,33 @@ Example:
 <pre class="highlight"><code><span class="n">router_names</span> <span class="o">=</span> <span class="n">get_router_names</span><span class="p">()</span>
 </code></pre>
 </div>
+
+<h3 id="get_router_info-since-392">
+<a id="get_router_info-since-392" class="anchor" href="#get_router_info-since-392" aria-hidden="true"><span class="octicon octicon-link"></span></a>get_router_info (since 3.9.2)</h3>
+
+<p>The get_router_info method returns information about a router.  The information includes the connection state, number of connected clients, transmit queue size, receive queue size, bytes transmitted, bytes received, packets received, and packets sent.</p>
+
+<p>Syntax:
+<code class="highlighter-rouge">get_router_info("&lt;Router Name&gt;")</code></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Router Name</td>
+      <td>Name of the router.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">state</span><span class="p">,</span> <span class="n">clients</span><span class="p">,</span> <span class="n">tx_q_size</span><span class="p">,</span> <span class="n">rx_q_size</span><span class="p">,</span> <span class="n">bytes_tx</span><span class="p">,</span> <span class="n">bytes_rx</span><span class="p">,</span> <span class="n">pkts_rcvd</span><span class="p">,</span> <span class="n">pkts_sent</span> <span class="o">=</span> <span class="n">get_router_info</span><span class="p">(</span><span class="s2">"INST_ROUTER"</span><span class="p">)</span></code></pre></figure>
 
 <h2 id="logging">
 <a id="logging" class="anchor" href="#logging" aria-hidden="true"><span class="octicon octicon-link"></span></a>Logging</h2>
@@ -5666,6 +5817,33 @@ Example:
 <pre class="highlight"><code><span class="n">stop_raw_logging_router</span><span class="p">(</span><span class="s2">"router1"</span><span class="p">)</span>
 </code></pre>
 </div>
+
+<h3 id="get_packet_logger_info-since-392">
+<a id="get_packet_logger_info-since-392" class="anchor" href="#get_packet_logger_info-since-392" aria-hidden="true"><span class="octicon octicon-link"></span></a>get_packet_logger_info (since 3.9.2)</h3>
+
+<p>The get_packet_logger_info method returns information about a packet logger.   The information includes the interfaces associated with the logger, command log enable flag, command queue size, command filename, command file size, telemetry log enable flag, telemetry queue size, telemetry filename, and telemetry file size.</p>
+
+<p>Syntax:
+<code class="highlighter-rouge">get_packet_logger_info("&lt;Packet logger name&gt;")</code></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Packet Logger name</td>
+      <td>Name of the packet logger to get information for.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">interfaces</span><span class="p">,</span> <span class="n">cmd_logging</span><span class="p">,</span> <span class="n">cmd_q_size</span><span class="p">,</span> <span class="n">cmd_filename</span><span class="p">,</span> <span class="n">cmd_file_size</span><span class="p">,</span> <span class="n">tlm_logging</span><span class="p">,</span> <span class="n">tlm_q_size</span><span class="p">,</span> <span class="n">tlm_filename</span><span class="p">,</span> <span class="n">tlm_file_size</span> <span class="o">=</span> <span class="n">get_packet_logger_info</span><span class="p">(</span><span class="s2">"DEFAULT"</span><span class="p">)</span></code></pre></figure>
 
 <h2 id="executing-other-procedures">
 <a id="executing-other-procedures" class="anchor" href="#executing-other-procedures" aria-hidden="true"><span class="octicon octicon-link"></span></a>Executing Other Procedures</h2>
@@ -6746,6 +6924,26 @@ Consider breaking code like this into a seperate file and using either require/l
 </ul>
 
     
+    <h4>Tips</h4>
+    
+
+<ul>
+
+  
+
+  
+
+  
+    
+  
+    
+      <li class=""><a href="/docs/chaining/">Chaining CmdTlmServers</a></li>
+      
+
+
+</ul>
+
+    
     <h4>Development</h4>
     
 
@@ -6796,26 +6994,6 @@ Consider breaking code like this into a seperate file and using either require/l
   
     
       <li class=""><a href="/docs/packet_class/">Packet Class</a></li>
-      
-
-
-</ul>
-
-    
-    <h4>Tips</h4>
-    
-
-<ul>
-
-  
-
-  
-
-  
-    
-  
-    
-      <li class=""><a href="/docs/chaining/">Chaining CmdTlmServers</a></li>
       
 
 

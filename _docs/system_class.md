@@ -4,6 +4,11 @@ title: System Class
 permalink: /docs/system_class/
 ---
 
+<div class="note">
+  <h5>This documentation is for COSMOS Developers</h5>
+  <p markdown="1">If you're simply trying to setup a COSMOS system you're probably looking for the [System Configuration](/docs/system) page. If you're trying to create a custom interface, background task, conversion, or build a custom tool then this is the right place.</p>
+</div>
+
 The System class is the primary entry point into the COSMOS framework. It provides access to the targets, commands, and telemetry. It also captures system wide configuration items such as the available ports and paths used by the system. The System class is primarily responsible for loading the system configuration file and creating all the Target instances. It also saves and restores configurations using a MD5 checksum over the entire configuration to detect changes.
 
 The [system.rb](https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/system/system.rb) source code on Github.
@@ -17,10 +22,10 @@ Almost all custom COSMOS code needs to interact with System as it provides acces
 [System.commands](https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/packets/commands.rb) provides access to all the command definitions in the COSMOS system. The primary developer access methods are:
 
 1. ```System.commands.target_names``` - Returns an array of strings containing the target names
-1. ```System.commands.all``` - Returns a hash keyed by the target name with a hash of Packets as the value. The second hash is indentical to what is returned by System.commands.packets("TARGET").
-2. ```System.commands.packets("TARGET")``` - Returns a Hash keyed by the packet name with the Packet instance as the value 
-3. ```System.commands.packet("TARGET", "PACKET")``` - Returns the given Packet instance
-4. ```System.commands.identify(data)``` - Identify a raw buffer of data as a Packet and return the Packet instance.
+2. ```System.commands.all``` - Returns a hash keyed by the target name with a hash of Packets as the value. The second hash is indentical to what is returned by System.commands.packets("TARGET").
+3. ```System.commands.packets("TARGET")``` - Returns a Hash keyed by the packet name with the Packet instance as the value
+4. ```System.commands.packet("TARGET", "PACKET")``` - Returns the given Packet instance
+5. ```System.commands.identify(data)``` - Identify a raw buffer of data as a Packet and return the Packet instance.
 
 Additional methods are available which are not as commonly used:
 1. ```System.commands.build_cmd("TARGET", "PACKET", params)``` - Creates a Packet instance initialized with the values in the params hash.
@@ -90,23 +95,18 @@ Sometimes when you're creating a custom interface you want to respond to a COSMO
 require 'cosmos/interfaces/tcpip_client_interface'
 module Cosmos
   class TestInterface < Interface
-    def initialize(target_name,
-                   hostname,
-                   write_port,
-                   read_port,
-                   write_timeout,
-                   read_timeout,
-                   stream_protocol_type,
-                   *stream_protocol_args)
-      super(hostname, write_port, read_port, write_timeout, read_timeout, stream_protocol_type, *stream_protocol_args)
-      @target_name = target_name
+    def connect
+      super()
+      @target_name = @target_names[0]
       @configure = System.commands.packet(@target_name, 'CONFIGURE')
     end
   end
 end
 ```
 
-In this example, we pass in the target name so we can use it to grab the 'CONFIGURE' packet. Passing in the target name is good practice since targets are named after their enclosing folder and thus can change. Later on in the interface's write method we can check for the previously saved packet.
+In this example, we inherit from the COSMOS TcpipClientInterface. In the connect method we store the first target name from the @target_names array which is populated by the COSMOS Server when the interface is created. This allows you to dynamically get your target name since targets can be renamed by the server. We then grab a handle to the 'CONFIGURE' packet.
+
+In the interface's write method we can check for the previously saved packet.
 
 ```ruby
 # Defined inside the TestInterface class
@@ -126,12 +126,12 @@ We use the Packet class's identify? method to determine if the packet passed in 
 [System.telemetry](https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/packets/telemetry.rb) provides access to all the telemetry definitions in the COSMOS system. The primary developer access methods are:
 
 1. ```System.telemetry.target_names``` - Returns an array of strings containing the target names
-1. ```System.telemetry.all``` - Returns a hash keyed by the target name with a hash of Packets as the value. The second hash is indentical to what is returned by System.telemetry.packets("TARGET").
-2. ```System.telemetry.packets("TARGET")``` - Returns a Hash keyed by the packet name with the Packet instance as the value 
-3. ```System.telemetry.packet("TARGET", "PACKET")``` - Returns the given Packet instance
-4. ```System.telemetry.items("TARGET", "PACKET")``` - Returns an array of PacketItem instances for the given target and packet
-5. ```System.telemetry.value("TARGET", "PACKET", "ITEM")``` - Returns the telemetry value. Note this can take a fourth parameter indicating how to format the value.
-6. ```System.telemetry.identify!(data)``` - Identify a raw buffer of data as a Packet and return the Packet instance.
+2. ```System.telemetry.all``` - Returns a hash keyed by the target name with a hash of Packets as the value. The second hash is indentical to what is returned by System.telemetry.packets("TARGET").
+3. ```System.telemetry.packets("TARGET")``` - Returns a Hash keyed by the packet name with the Packet instance as the value
+4. ```System.telemetry.packet("TARGET", "PACKET")``` - Returns the given Packet instance
+5. ```System.telemetry.items("TARGET", "PACKET")``` - Returns an array of PacketItem instances for the given target and packet
+6. ```System.telemetry.value("TARGET", "PACKET", "ITEM")``` - Returns the telemetry value. Note this can take a fourth parameter indicating how to format the value.
+7. ```System.telemetry.identify!(data)``` - Identify a raw buffer of data as a Packet and return the Packet instance.
 
 Additional methods are available which are not as commonly used:
 1. ```System.telemetry.item_names("TARGET", "PACKET")``` - Returns an array of item name strings for the given target and packet
@@ -184,36 +184,41 @@ Once we have the items we call individual [PacketItem](https://github.com/BallAe
 
 #### Interface Example
 
-Sometimes you want to create a fake interface which returns internally generated data instead of returning data from an external device. To do this you need to populate the packets and return them from the interface's read method. In the interface's initialize method we get access to all the packets and setup an array to store the packet instances.
+Sometimes you want to create a fake interface which returns internally generated data instead of returning data from an external device. To do this you need to populate the packets and return them from the interface's read method. In the interface's initialize method we setup an array to store the packet instances. In the connect method we store the first target name from the @target_names array which is populated by the COSMOS Server when the interface is created. This allows you to dynamically get your target name since targets can be renamed by the server. We then grab all the packets defined by this target.
 
 ```ruby
 require 'cosmos/interfaces/interface'
 module Cosmos
   class TestInterface < Interface
-    def initialize(target_name)
-      @target_name = target_name
-      @packets = System.telemetry.packets(@target_name)
+    def initialize
+      super()
       @pending_packets = Array.new
       @next_read_time = nil
     end
 
     def connect
+      # Note we do NOT call super() here because the Interface base class simply
+      # raises an exception. This forces us to reimplement it in derived classes.
       @next_read_time = Time.now
       @connected = true
+      @target_name = @target_names[0]
+      @packets = System.telemetry.packets(@target_name)
     end
 
     def connected?
+      # No super (see connect)
       @connected
     end
 
     def disconnect
+      # No super (see connect)
       @connected = false
     end
   end
 end
 ```
 
-We pass in the target name so we can use it to grab the packets. Passing in the target name is good practice since targets are named after their enclosing folder and thus can change. In the interface's read method we both populate the packets and return them.
+In the interface's read method we both populate the packets and return them.
 
 ```ruby
 # Defined inside the TestInterface class
@@ -285,4 +290,3 @@ System.targets returns a hash keyed by the name of the target with [Target](http
 6. tlm_cnt - The number of telemetry packets received from this target
 
 Other methods are available but generally are not used by developers.
-
