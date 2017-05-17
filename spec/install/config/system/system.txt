@@ -24,10 +24,6 @@ PATH TABLES ./outputs/tables
 PATH HANDBOOKS ./outputs/handbooks
 PATH PROCEDURES ./procedures
 
-# Command and Telemetry Database Version (Optional)
-# CMD_TLM_VERSION version
-CMD_TLM_VERSION "Demo Version"
-
 # DISABLE_DNS
 
 ALLOW_ACCESS ALL

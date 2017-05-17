@@ -51,7 +51,6 @@ module Cosmos
           packet.write('PKT_ID',1)
           packet.write('COSMOS', Cosmos::VERSION)
           packet.write('RUBY', "#{RUBY_VERSION}p#{RUBY_PATCHLEVEL}")
-          packet.write('CTDB', System.cmd_tlm_version)
           packet.write('USER', USER_VERSION) if defined? USER_VERSION
           @read_count += 1
           return packet

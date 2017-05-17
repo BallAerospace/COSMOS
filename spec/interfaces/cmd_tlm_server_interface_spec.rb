@@ -78,7 +78,7 @@ module Cosmos
         @cts.limits_change_callback(pkt, pi, :RED, 100, true)
 
         result = @ctsi.read
-        expect(result.read('CTDB')).to eql "Demo Version"
+        expect(result.read('COSMOS')).to eql Cosmos::VERSION
 
         result = @ctsi.read
         expect(result.read('TARGET')).to eql "TGT"
@@ -147,4 +147,3 @@ module Cosmos
 
   end
 end
-
