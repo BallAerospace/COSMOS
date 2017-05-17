@@ -89,7 +89,7 @@ If the target and packet selections have been set, we grab the specified packet 
 
 #### Interface Example
 
-Sometimes when you're creating a custom interface you want to respond to a COSMOS command within the interface itself and not forward on that command to the target. In the interface's initialize method you can get a handle to the command you're interested in.
+Sometimes when you're creating a custom interface you want to respond to a COSMOS command within the interface itself and not forward on that command to the target. In the interface's connect method you can get a handle to the command you're interested in.
 
 ```ruby
 require 'cosmos/interfaces/tcpip_client_interface'
@@ -97,14 +97,13 @@ module Cosmos
   class TestInterface < Interface
     def connect
       super()
-      @target_name = @target_names[0]
-      @configure = System.commands.packet(@target_name, 'CONFIGURE')
+      @configure = System.commands.packet(@target_names[0], 'CONFIGURE')
     end
   end
 end
 ```
 
-In this example, we inherit from the COSMOS TcpipClientInterface. In the connect method we store the first target name from the @target_names array which is populated by the COSMOS Server when the interface is created. This allows you to dynamically get your target name since targets can be renamed by the server. We then grab a handle to the 'CONFIGURE' packet.
+In this example, we inherit from the COSMOS TcpipClientInterface. We grab a handle to the 'CONFIGURE' packet by using the @target_names array. This array is populated by the COSMOS Server when the target is assigned. This allows you to dynamically get your target name since targets can be renamed by the server.
 
 In the interface's write method we can check for the previously saved packet.
 
@@ -184,7 +183,7 @@ Once we have the items we call individual [PacketItem](https://github.com/BallAe
 
 #### Interface Example
 
-Sometimes you want to create a fake interface which returns internally generated data instead of returning data from an external device. To do this you need to populate the packets and return them from the interface's read method. In the interface's initialize method we setup an array to store the packet instances. In the connect method we store the first target name from the @target_names array which is populated by the COSMOS Server when the interface is created. This allows you to dynamically get your target name since targets can be renamed by the server. We then grab all the packets defined by this target.
+Sometimes you want to create a fake interface which returns internally generated data instead of returning data from an external device. To do this you need to populate the packets and return them from the interface's read method. In the interface's initialize method we setup an array to store the packet instances. In the connect method We grab a handle to all the target's packets by using the @target_names array. This array is populated by the COSMOS Server when the target is assigned. This allows you to dynamically get your target name since targets can be renamed by the server.
 
 ```ruby
 require 'cosmos/interfaces/interface'
@@ -201,8 +200,7 @@ module Cosmos
       # raises an exception. This forces us to reimplement it in derived classes.
       @next_read_time = Time.now
       @connected = true
-      @target_name = @target_names[0]
-      @packets = System.telemetry.packets(@target_name)
+      @packets = System.telemetry.packets(@target_names[0])
     end
 
     def connected?

@@ -108,8 +108,6 @@
     
   
     
-  
-    
       <option value="/docs/home/">Welcome</option>
     
   
@@ -139,13 +137,9 @@
   
     
   
-    
-  
 
   
 
-  
-    
   
     
   
@@ -195,15 +189,9 @@
   
     
   
-    
-  
 
   
 
-  
-    
-  
-    
   
     
   
@@ -292,10 +280,6 @@
     
   
     
-  
-    
-  
-    
       <option value="/docs/structure/">Directory structure</option>
     
   
@@ -326,11 +310,7 @@
     
   
     
-  
-    
       <option value="/docs/gettingstarted/">Getting Started</option>
-    
-  
     
   
     
@@ -413,10 +393,6 @@
     
   
     
-  
-    
-  
-    
       <option value="/docs/system/">System Configuration</option>
     
   
@@ -431,8 +407,6 @@
 
   
 
-  
-    
   
     
   
@@ -482,15 +456,9 @@
   
     
   
-    
-  
 
   
 
-  
-    
-  
-    
   
     
   
@@ -585,10 +553,6 @@
     
   
     
-  
-    
-  
-    
       <option value="/docs/tools/">Tool Configuration</option>
     
   
@@ -599,10 +563,6 @@
 
   
 
-  
-    
-  
-    
   
     
   
@@ -671,8 +631,6 @@
     
   
     
-  
-    
       <option value="/docs/grapher/">Telemetry Grapher</option>
     
   
@@ -706,13 +664,9 @@
   
     
   
-    
-  
 
   
 
-  
-    
   
     
   
@@ -724,8 +678,6 @@
   
     
       <option value="/docs/environment/">Environment Variables</option>
-    
-  
     
   
     
@@ -808,10 +760,6 @@
     
   
     
-  
-    
-  
-    
       <option value="/docs/scripting/">Scripting Guide</option>
     
   
@@ -830,8 +778,6 @@
 
   
 
-  
-    
   
     
   
@@ -881,8 +827,6 @@
   
     
   
-    
-  
 
 
     </optgroup>
@@ -895,11 +839,7 @@
 
   
     
-  
-    
       <option value="/docs/chaining/">Chaining CmdTlmServers</option>
-    
-  
     
   
     
@@ -958,8 +898,6 @@
 
   
     
-      <option value="/docs/system_class/">System Class</option>
-    
   
     
   
@@ -979,12 +917,6 @@
   
     
   
-    
-  
-    
-  
-    
-      <option value="/docs/system_class/">System Class</option>
     
   
     
@@ -1016,10 +948,6 @@
 
   
 
-  
-    
-  
-    
   
     
   
@@ -1079,10 +1007,6 @@
 
   
 
-  
-    
-  
-    
   
     
   
@@ -1181,18 +1105,12 @@
     
   
     
-  
-    
-  
-    
       <option value="/docs/xtce/">XTCE Support</option>
     
   
 
   
 
-  
-    
   
     
   
@@ -1242,13 +1160,9 @@
   
     
   
-    
-  
 
   
 
-  
-    
   
     
   
@@ -1298,13 +1212,9 @@
   
     
   
-    
-  
 
   
 
-  
-    
   
     
   
@@ -1354,15 +1264,9 @@
   
     
   
-    
-  
 
   
 
-  
-    
-  
-    
   
     
   
@@ -1516,22 +1420,21 @@
 
 <h4 id="interface-example">Interface Example</h4>
 
-<p>Sometimes when you’re creating a custom interface you want to respond to a COSMOS command within the interface itself and not forward on that command to the target. In the interface’s initialize method you can get a handle to the command you’re interested in.</p>
+<p>Sometimes when you’re creating a custom interface you want to respond to a COSMOS command within the interface itself and not forward on that command to the target. In the interface’s connect method you can get a handle to the command you’re interested in.</p>
 
 <div class="language-ruby highlighter-rouge"><pre class="highlight"><code><span class="nb">require</span> <span class="s1">'cosmos/interfaces/tcpip_client_interface'</span>
 <span class="k">module</span> <span class="nn">Cosmos</span>
   <span class="k">class</span> <span class="nc">TestInterface</span> <span class="o">&lt;</span> <span class="no">Interface</span>
     <span class="k">def</span> <span class="nf">connect</span>
       <span class="k">super</span><span class="p">()</span>
-      <span class="vi">@target_name</span> <span class="o">=</span> <span class="vi">@target_names</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-      <span class="vi">@configure</span> <span class="o">=</span> <span class="no">System</span><span class="p">.</span><span class="nf">commands</span><span class="p">.</span><span class="nf">packet</span><span class="p">(</span><span class="vi">@target_name</span><span class="p">,</span> <span class="s1">'CONFIGURE'</span><span class="p">)</span>
+      <span class="vi">@configure</span> <span class="o">=</span> <span class="no">System</span><span class="p">.</span><span class="nf">commands</span><span class="p">.</span><span class="nf">packet</span><span class="p">(</span><span class="vi">@target_names</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s1">'CONFIGURE'</span><span class="p">)</span>
     <span class="k">end</span>
   <span class="k">end</span>
 <span class="k">end</span>
 </code></pre>
 </div>
 
-<p>In this example, we inherit from the COSMOS TcpipClientInterface. In the connect method we store the first target name from the @target_names array which is populated by the COSMOS Server when the interface is created. This allows you to dynamically get your target name since targets can be renamed by the server. We then grab a handle to the ‘CONFIGURE’ packet.</p>
+<p>In this example, we inherit from the COSMOS TcpipClientInterface. We grab a handle to the ‘CONFIGURE’ packet by using the @target_names array. This array is populated by the COSMOS Server when the target is assigned. This allows you to dynamically get your target name since targets can be renamed by the server.</p>
 
 <p>In the interface’s write method we can check for the previously saved packet.</p>
 
@@ -1615,7 +1518,7 @@
 
 <h4 id="interface-example-1">Interface Example</h4>
 
-<p>Sometimes you want to create a fake interface which returns internally generated data instead of returning data from an external device. To do this you need to populate the packets and return them from the interface’s read method. In the interface’s initialize method we setup an array to store the packet instances. In the connect method we store the first target name from the @target_names array which is populated by the COSMOS Server when the interface is created. This allows you to dynamically get your target name since targets can be renamed by the server. We then grab all the packets defined by this target.</p>
+<p>Sometimes you want to create a fake interface which returns internally generated data instead of returning data from an external device. To do this you need to populate the packets and return them from the interface’s read method. In the interface’s initialize method we setup an array to store the packet instances. In the connect method We grab a handle to all the target’s packets by using the @target_names array. This array is populated by the COSMOS Server when the target is assigned. This allows you to dynamically get your target name since targets can be renamed by the server.</p>
 
 <div class="language-ruby highlighter-rouge"><pre class="highlight"><code><span class="nb">require</span> <span class="s1">'cosmos/interfaces/interface'</span>
 <span class="k">module</span> <span class="nn">Cosmos</span>
@@ -1631,8 +1534,7 @@
       <span class="c1"># raises an exception. This forces us to reimplement it in derived classes.</span>
       <span class="vi">@next_read_time</span> <span class="o">=</span> <span class="no">Time</span><span class="p">.</span><span class="nf">now</span>
       <span class="vi">@connected</span> <span class="o">=</span> <span class="kp">true</span>
-      <span class="vi">@target_name</span> <span class="o">=</span> <span class="vi">@target_names</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-      <span class="vi">@packets</span> <span class="o">=</span> <span class="no">System</span><span class="p">.</span><span class="nf">telemetry</span><span class="p">.</span><span class="nf">packets</span><span class="p">(</span><span class="vi">@target_name</span><span class="p">)</span>
+      <span class="vi">@packets</span> <span class="o">=</span> <span class="no">System</span><span class="p">.</span><span class="nf">telemetry</span><span class="p">.</span><span class="nf">packets</span><span class="p">(</span><span class="vi">@target_names</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
     <span class="k">end</span>
 
     <span class="k">def</span> <span class="nf">connected?</span>
@@ -1835,8 +1737,6 @@
     
   
     
-  
-    
       <li class=""><a href="/docs/home/">Welcome</a></li>
       
 
@@ -1867,8 +1767,6 @@
     
   
     
-  
-    
       <li class=""><a href="/docs/installation/">Installation</a></li>
       
 
@@ -1877,10 +1775,6 @@
 
   
 
-  
-    
-  
-    
   
     
   
@@ -1969,10 +1863,6 @@
     
   
     
-  
-    
-  
-    
       <li class=""><a href="/docs/structure/">Directory structure</a></li>
       
 
@@ -1981,8 +1871,6 @@
 
   
 
-  
-    
   
     
   
@@ -2051,10 +1939,6 @@
     
   
     
-  
-    
-  
-    
       <li class=""><a href="/docs/system/">System Configuration</a></li>
       
 
@@ -2063,8 +1947,6 @@
 
   
 
-  
-    
   
     
   
@@ -2101,10 +1983,6 @@
     
   
     
-  
-    
-  
-    
       <li class=""><a href="/docs/interfaces/">Interface Configuration</a></li>
       
 
@@ -2113,10 +1991,6 @@
 
   
 
-  
-    
-  
-    
   
     
   
@@ -2199,10 +2073,6 @@
     
   
     
-  
-    
-  
-    
       <li class=""><a href="/docs/screens/">Telemetry Screens</a></li>
       
 
@@ -2227,8 +2097,6 @@
     
   
     
-  
-    
       <li class=""><a href="/docs/grapher/">Telemetry Grapher</a></li>
       
 
@@ -2237,8 +2105,6 @@
 
   
 
-  
-    
   
     
   
@@ -2299,10 +2165,6 @@
     
   
     
-  
-    
-  
-    
       <li class=""><a href="/docs/scripting/">Scripting Guide</a></li>
       
 
@@ -2311,8 +2173,6 @@
 
   
 
-  
-    
   
     
   
@@ -2343,8 +2203,6 @@
 
   
     
-  
-    
       <li class=""><a href="/docs/chaining/">Chaining CmdTlmServers</a></li>
       
 
@@ -2363,6 +2221,44 @@
 
   
     
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
       <li class="current"><a href="/docs/system_class/">System Class</a></li>
       
 
@@ -2371,10 +2267,6 @@
 
   
 
-  
-    
-  
-    
   
     
   
@@ -2417,10 +2309,6 @@
 
   
 
-  
-    
-  
-    
   
     
   
@@ -2505,10 +2393,6 @@
     
   
     
-  
-    
-  
-    
       <li class=""><a href="/docs/xtce/">XTCE Support</a></li>
       
 
@@ -2525,8 +2409,6 @@
     
   
     
-  
-    
       <li class=""><a href="/docs/contributing/">Contributing</a></li>
       
 
@@ -2535,8 +2417,6 @@
 
   
 
-  
-    
   
     
   
@@ -2569,8 +2449,6 @@
     
   
     
-  
-    
       <li class=""><a href="/docs/history/">Release History</a></li>
       
 
@@ -2579,10 +2457,6 @@
 
   
 
-  
-    
-  
-    
   
     
   
