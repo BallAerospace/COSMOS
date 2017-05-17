@@ -1,0 +1,2710 @@
+<!DOCTYPE HTML>
+<html lang="en-US">
+<head>
+  <meta charset="UTF-8">
+  <title>System Class</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="generator" content="Jekyll v3.4.3">
+  <link rel="alternate" type="application/rss+xml" title="Ball Aerospace COSMOS News" href="/feed.xml">
+  <link rel="alternate" type="application/atom+xml" title="Recent commits to COSMOS’s master branch" href="https://github.com/BallAerospace/COSMOS/commits/master.atom">
+  <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic,900">
+  <link rel="stylesheet" href="/css/screen.css">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <!--[if lt IE 9]>
+  <script src="/js/html5shiv.min.js"></script>
+  <script src="/js/respond.min.js"></script>
+  <![endif]-->
+</head>
+
+
+<body class="wrap">
+  <header role="banner">
+  <nav class="mobile-nav show-on-mobiles">
+    <ul>
+  <li class="">
+    <a href="/">Home</a>
+  </li>
+  <li class="current">
+    <span class="hide-on-mobiles"><a href="/docs/home/">Documentation</a></span>
+    <span class="show-on-mobiles"><a href="/docs/home/">Docs</a></span>
+  </li>
+  <li class="">
+    <a href="/news/">News</a>
+  </li>
+  <li>
+    <a href="/help/">Help</a>
+  </li>
+  <li>
+    <a href="https://github.com/BallAerospace/COSMOS" target="_blank"><span class="hide-on-mobiles">View on </span>GitHub</a>
+  </li>
+</ul>
+
+  </nav>
+  <div class="grid wider">
+    <div class="unit one-third center-on-mobiles" style="margin-top:27px;">
+      <h1>
+        <a href="/">
+          <span class="sr-only">COSMOS</span>
+          <img src="/img/COSMOS.png" width="312" height="70" alt="COSMOS Logo">
+        </a>
+      </h1>
+    </div>
+    <nav class="main-nav unit two-thirds hide-on-mobiles">
+      <ul>
+  <li class="">
+    <a href="/">Home</a>
+  </li>
+  <li class="current">
+    <span class="hide-on-mobiles"><a href="/docs/home/">Documentation</a></span>
+    <span class="show-on-mobiles"><a href="/docs/home/">Docs</a></span>
+  </li>
+  <li class="">
+    <a href="/news/">News</a>
+  </li>
+  <li>
+    <a href="/help/">Help</a>
+  </li>
+  <li>
+    <a href="https://github.com/BallAerospace/COSMOS" target="_blank"><span class="hide-on-mobiles">View on </span>GitHub</a>
+  </li>
+</ul>
+
+    </nav>
+  </div>
+</header>
+
+
+    <section class="docs">
+    <div class="grid wider">
+
+      <div class="docs-nav-mobile unit whole show-on-mobiles">
+  <select onchange="if (this.value) window.location.href=this.value">
+    <option value="">Navigate the docs…</option>
+    
+    <optgroup label="Getting Started">
+      
+
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/home/">Welcome</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/installation/">Installation</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/upgrading/">Upgrading and the Gemfile</option>
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/structure/">Directory structure</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/gettingstarted/">Getting Started</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+
+    </optgroup>
+    
+    <optgroup label="Configuration">
+      
+
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/system/">System Configuration</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+      <option value="/docs/cmdtlm/">Command and Telemetry Configuration</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/interfaces/">Interface Configuration</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/tools/">Tool Configuration</option>
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/screens/">Telemetry Screens</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/grapher/">Telemetry Grapher</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/environment/">Environment Variables</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+
+    </optgroup>
+    
+    <optgroup label="User's Guides">
+      
+
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/scripting/">Scripting Guide</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/gemtargets/">Gem Based Targets and Tools</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+
+    </optgroup>
+    
+    <optgroup label="Tips">
+      
+
+
+  
+
+  
+    
+  
+    
+      <option value="/docs/chaining/">Chaining CmdTlmServers</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+
+    </optgroup>
+    
+    <optgroup label="Development">
+      
+
+
+  
+
+  
+    
+      <option value="/docs/system_class/">System Class</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/system_class/">System Class</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/system_class/">System Class</option>
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/packet_class/">Packet Class</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+
+    </optgroup>
+    
+    <optgroup label="Meta">
+      
+
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/requirements/">Requirements and Design</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/xtce/">XTCE Support</option>
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/contributing/">Contributing</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/contact/">Contact Us</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/history/">Release History</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/papers/">Papers</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+
+    </optgroup>
+    
+  </select>
+</div>
+
+
+      <div class="unit four-fifths">
+        <article>
+          <div class="improve right">
+            <a href="https://github.com/BallAerospace/COSMOS/edit/gh-pages/_docs/system_class.md" target="_blank"><i class="fa fa-pencil"></i> &nbsp;Improve this page</a>
+          </div>
+          
+          <h1>System Class</h1>
+          <div class="note">
+  <h5>This documentation is for COSMOS Developers</h5>
+  <p>If you’re simply trying to setup a COSMOS system you’re probably looking for the <a href="/docs/system">System Configuration</a> page. If you’re trying to create a custom interface, background task, conversion, or build a custom tool then this is the right place.</p>
+</div>
+
+<p>The System class is the primary entry point into the COSMOS framework. It provides access to the targets, commands, and telemetry. It also captures system wide configuration items such as the available ports and paths used by the system. The System class is primarily responsible for loading the system configuration file and creating all the Target instances. It also saves and restores configurations using a MD5 checksum over the entire configuration to detect changes.</p>
+
+<p>The <a href="https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/system/system.rb">system.rb</a> source code on Github.</p>
+
+<h2 id="programming-system">Programming System</h2>
+
+<p>Almost all custom COSMOS code needs to interact with System as it provides access to the COSMOS command and telemetry. The System clas is implemented as a <a href="https://en.wikipedia.org/wiki/Singleton_pattern">singleton</a> which basically means there is only one instance of the class. This makes sense because COSMOS can only have a single instance which controls access to its internal state.</p>
+
+<h3 id="systemcommands">System.commands</h3>
+
+<p><a href="https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/packets/commands.rb">System.commands</a> provides access to all the command definitions in the COSMOS system. The primary developer access methods are:</p>
+
+<ol>
+  <li><code class="highlighter-rouge">System.commands.target_names</code> - Returns an array of strings containing the target names</li>
+  <li><code class="highlighter-rouge">System.commands.all</code> - Returns a hash keyed by the target name with a hash of Packets as the value. The second hash is indentical to what is returned by System.commands.packets(“TARGET”).</li>
+  <li><code class="highlighter-rouge">System.commands.packets("TARGET")</code> - Returns a Hash keyed by the packet name with the Packet instance as the value</li>
+  <li><code class="highlighter-rouge">System.commands.packet("TARGET", "PACKET")</code> - Returns the given Packet instance</li>
+  <li><code class="highlighter-rouge">System.commands.identify(data)</code> - Identify a raw buffer of data as a Packet and return the Packet instance.</li>
+</ol>
+
+<p>Additional methods are available which are not as commonly used:</p>
+<ol>
+  <li><code class="highlighter-rouge">System.commands.build_cmd("TARGET", "PACKET", params)</code> - Creates a Packet instance initialized with the values in the params hash.</li>
+  <li><code class="highlighter-rouge">System.commands.format(packet)</code> - Returns a string which represents how to send this command in Script Runner. For example: Given a COSMOS start logging command instance it returns “cmd(‘COSMOS STARTLOGGING’)”</li>
+  <li><code class="highlighter-rouge">System.commands.cmd_pkt_hazardous?(command)</code> - Returns an array where the first boolean value indicates whether the given command is hazardous or not. If the first value is true (hazardous), the second value is a string with information about the hazard.</li>
+  <li><code class="highlighter-rouge">System.commands.cmd_hazardous?("TARGET", "PACKET", params)</code> - Returns the same data as cmd_pkt_hazardous? above.</li>
+</ol>
+
+<p>Other methods are available but generally should not be used by developers.</p>
+
+<h4 id="command-sender-example">Command Sender Example</h4>
+
+<p>COSMOS uses System.commands in many of its own applications. Let’s see how it’s used in the <a href="https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/tools/cmd_sender/cmd_sender.rb">Command Sender</a>. In the <code class="highlighter-rouge">update_targets</code> method it uses System.commands.target_names to populate the target drop down selection.</p>
+
+<div class="language-ruby highlighter-rouge"><pre class="highlight"><code><span class="k">def</span> <span class="nf">update_targets</span>
+  <span class="vi">@target_select</span><span class="p">.</span><span class="nf">clearItems</span><span class="p">()</span>
+  <span class="n">target_names</span> <span class="o">=</span> <span class="no">System</span><span class="p">.</span><span class="nf">commands</span><span class="p">.</span><span class="nf">target_names</span>
+  <span class="p">.</span><span class="nf">.</span><span class="o">.</span> <span class="c1"># Code to check for hidden commands</span>
+  <span class="n">target_names</span><span class="p">.</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">target_name</span><span class="o">|</span>
+    <span class="vi">@target_select</span><span class="p">.</span><span class="nf">addItem</span><span class="p">(</span><span class="n">target_name</span><span class="p">)</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</code></pre>
+</div>
+
+<p>Once it checks for hidden commands it adds all the target names to the drop down selection in the tool. In the same way the <code class="highlighter-rouge">update_commands</code> method accesses System.commands.packets to update the packet drop down selection.</p>
+
+<div class="language-ruby highlighter-rouge"><pre class="highlight"><code><span class="k">def</span> <span class="nf">update_commands</span>
+  <span class="vi">@cmd_select</span><span class="p">.</span><span class="nf">clearItems</span><span class="p">()</span>
+  <span class="n">target_name</span> <span class="o">=</span> <span class="vi">@target_select</span><span class="p">.</span><span class="nf">text</span>
+  <span class="k">if</span> <span class="n">target_name</span>
+    <span class="n">commands</span> <span class="o">=</span> <span class="no">System</span><span class="p">.</span><span class="nf">commands</span><span class="p">.</span><span class="nf">packets</span><span class="p">(</span><span class="vi">@target_select</span><span class="p">.</span><span class="nf">text</span><span class="p">)</span>
+    <span class="n">command_names</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">commands</span><span class="p">.</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">command_name</span><span class="p">,</span> <span class="n">command</span><span class="o">|</span>
+      <span class="n">command_names</span> <span class="o">&lt;&lt;</span> <span class="n">command_name</span> <span class="k">unless</span> <span class="n">command</span><span class="p">.</span><span class="nf">hidden</span>
+    <span class="k">end</span>
+    <span class="n">command_names</span><span class="p">.</span><span class="nf">sort!</span>
+    <span class="n">command_names</span><span class="p">.</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">command_name</span><span class="o">|</span>
+      <span class="vi">@cmd_select</span><span class="p">.</span><span class="nf">addItem</span><span class="p">(</span><span class="n">command_name</span><span class="p">)</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</code></pre>
+</div>
+
+<p>Later in the <code class="highlighter-rouge">update_cmd_params</code> method we access the individual command to grab the command parameters:</p>
+<div class="language-ruby highlighter-rouge"><pre class="highlight"><code><span class="k">def</span> <span class="nf">update_cmd_params</span><span class="p">(</span><span class="n">ignored_toggle</span> <span class="o">=</span> <span class="kp">nil</span><span class="p">)</span>
+  <span class="p">.</span><span class="nf">.</span><span class="p">.</span>
+  <span class="nf">target_name</span> <span class="o">=</span> <span class="vi">@target_select</span><span class="p">.</span><span class="nf">text</span>
+  <span class="n">target</span> <span class="o">=</span> <span class="no">System</span><span class="p">.</span><span class="nf">targets</span><span class="p">[</span><span class="n">target_name</span><span class="p">]</span>
+  <span class="n">packet_name</span> <span class="o">=</span> <span class="vi">@cmd_select</span><span class="p">.</span><span class="nf">text</span>
+  <span class="k">if</span> <span class="n">target_name</span> <span class="n">and</span> <span class="n">packet_name</span>
+    <span class="n">packet</span> <span class="o">=</span> <span class="no">System</span><span class="p">.</span><span class="nf">commands</span><span class="p">.</span><span class="nf">packet</span><span class="p">(</span><span class="n">target_name</span><span class="p">,</span> <span class="n">packet_name</span><span class="p">)</span>
+    <span class="n">packet_items</span> <span class="o">=</span> <span class="n">packet</span><span class="p">.</span><span class="nf">sorted_items</span>
+    <span class="p">.</span><span class="nf">.</span><span class="p">.</span>
+  <span class="nf">end</span>
+<span class="k">end</span>
+</code></pre>
+</div>
+
+<p>If the target and packet selections have been set, we grab the specified packet using System.commands.packet and then have access to the packet items through packet.sorted_items.</p>
+
+<h4 id="interface-example">Interface Example</h4>
+
+<p>Sometimes when you’re creating a custom interface you want to respond to a COSMOS command within the interface itself and not forward on that command to the target. In the interface’s initialize method you can get a handle to the command you’re interested in.</p>
+
+<div class="language-ruby highlighter-rouge"><pre class="highlight"><code><span class="nb">require</span> <span class="s1">'cosmos/interfaces/tcpip_client_interface'</span>
+<span class="k">module</span> <span class="nn">Cosmos</span>
+  <span class="k">class</span> <span class="nc">TestInterface</span> <span class="o">&lt;</span> <span class="no">Interface</span>
+    <span class="k">def</span> <span class="nf">connect</span>
+      <span class="k">super</span><span class="p">()</span>
+      <span class="vi">@target_name</span> <span class="o">=</span> <span class="vi">@target_names</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+      <span class="vi">@configure</span> <span class="o">=</span> <span class="no">System</span><span class="p">.</span><span class="nf">commands</span><span class="p">.</span><span class="nf">packet</span><span class="p">(</span><span class="vi">@target_name</span><span class="p">,</span> <span class="s1">'CONFIGURE'</span><span class="p">)</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</code></pre>
+</div>
+
+<p>In this example, we inherit from the COSMOS TcpipClientInterface. In the connect method we store the first target name from the @target_names array which is populated by the COSMOS Server when the interface is created. This allows you to dynamically get your target name since targets can be renamed by the server. We then grab a handle to the ‘CONFIGURE’ packet.</p>
+
+<p>In the interface’s write method we can check for the previously saved packet.</p>
+
+<div class="language-ruby highlighter-rouge"><pre class="highlight"><code><span class="c1"># Defined inside the TestInterface class</span>
+<span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="n">packet</span><span class="p">)</span>
+  <span class="k">if</span> <span class="vi">@configure</span><span class="p">.</span><span class="nf">identify?</span><span class="p">(</span><span class="n">packet</span><span class="p">.</span><span class="nf">buffer</span><span class="p">)</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="n">packet</span><span class="p">.</span><span class="nf">read</span><span class="p">(</span><span class="s2">"VALUE"</span><span class="p">)</span> <span class="c1"># Do something ...</span>
+  <span class="k">else</span>
+    <span class="k">super</span><span class="p">(</span><span class="n">packet</span><span class="p">)</span> <span class="c1"># Allow TcpipClientInterface to write the packet</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</code></pre>
+</div>
+
+<p>We use the Packet class’s identify? method to determine if the packet passed in is the one we’re interested in. Then we can read values from the packet and take whatever actions we want. If this is not the ‘CONFIGURE’ packet then we call super(packet) to allow the TcpipClientInterface logic to send the packet to the target.</p>
+
+<h3 id="systemtelemetry">System.telemetry</h3>
+
+<p><a href="https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/packets/telemetry.rb">System.telemetry</a> provides access to all the telemetry definitions in the COSMOS system. The primary developer access methods are:</p>
+
+<ol>
+  <li><code class="highlighter-rouge">System.telemetry.target_names</code> - Returns an array of strings containing the target names</li>
+  <li><code class="highlighter-rouge">System.telemetry.all</code> - Returns a hash keyed by the target name with a hash of Packets as the value. The second hash is indentical to what is returned by System.telemetry.packets(“TARGET”).</li>
+  <li><code class="highlighter-rouge">System.telemetry.packets("TARGET")</code> - Returns a Hash keyed by the packet name with the Packet instance as the value</li>
+  <li><code class="highlighter-rouge">System.telemetry.packet("TARGET", "PACKET")</code> - Returns the given Packet instance</li>
+  <li><code class="highlighter-rouge">System.telemetry.items("TARGET", "PACKET")</code> - Returns an array of PacketItem instances for the given target and packet</li>
+  <li><code class="highlighter-rouge">System.telemetry.value("TARGET", "PACKET", "ITEM")</code> - Returns the telemetry value. Note this can take a fourth parameter indicating how to format the value.</li>
+  <li><code class="highlighter-rouge">System.telemetry.identify!(data)</code> - Identify a raw buffer of data as a Packet and return the Packet instance.</li>
+</ol>
+
+<p>Additional methods are available which are not as commonly used:</p>
+<ol>
+  <li><code class="highlighter-rouge">System.telemetry.item_names("TARGET", "PACKET")</code> - Returns an array of item name strings for the given target and packet</li>
+  <li><code class="highlighter-rouge">System.telemetry.packet_and_item("TARGET", "PACKET", "ITEM")</code> - Returns an array where the first item is the Packet instance and second item is the PacketItem instance</li>
+  <li><code class="highlighter-rouge">System.telemetry.set_value("TARGET", "PACKET", "ITEM", value)</code> - Sets a telemetry value in a packet. Note that as soon as a new packet is received from the target this value will be overwritten.</li>
+  <li><code class="highlighter-rouge">System.telemetry.latest_packets("TARGET", "ITEM")</code> - Returns an array of Packet instances with the specified target and item</li>
+  <li><code class="highlighter-rouge">System.telemetry.values_and_limits_states([["TARGET", "PACKET", "ITEM"], ... ])</code> - Returns an array of three arrays: The first contains the item(s) value, the second the item(s) limits state, and the third the item(s) limits settings.</li>
+  <li><code class="highlighter-rouge">System.telemetry.stale</code> - Returns an array of all stale Packet instances. Packets are defined as stale if they haven’t been received for System.staleness_seconds.</li>
+</ol>
+
+<p>Other methods are available but generally are not used by developers.</p>
+
+<h4 id="packet-viewer-example">Packet Viewer Example</h4>
+
+<p>COSMOS uses System.telemetry in many of its own applications. Let’s see how it’s used in the <a href="https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/tools/packet_viewer/packet_viewer.rb">Packet Viewer</a>. In the <code class="highlighter-rouge">update_targets</code> method it uses System.telemetry.target_names and System.telemetry.packets.</p>
+
+<div class="language-ruby highlighter-rouge"><pre class="highlight"><code><span class="k">def</span> <span class="nf">update_targets</span>
+  <span class="vi">@target_select</span><span class="p">.</span><span class="nf">clearItems</span>
+
+  <span class="no">System</span><span class="p">.</span><span class="nf">telemetry</span><span class="p">.</span><span class="nf">target_names</span><span class="p">.</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">target_name</span><span class="o">|</span>
+    <span class="n">packets</span> <span class="o">=</span> <span class="no">System</span><span class="p">.</span><span class="nf">telemetry</span><span class="p">.</span><span class="nf">packets</span><span class="p">(</span><span class="n">target_name</span><span class="p">)</span>
+    <span class="n">has_non_hidden</span> <span class="o">=</span> <span class="kp">false</span>
+    <span class="n">packets</span><span class="p">.</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">packet_name</span><span class="p">,</span> <span class="n">packet</span><span class="o">|</span>
+      <span class="k">next</span> <span class="k">if</span> <span class="n">packet</span><span class="p">.</span><span class="nf">hidden</span>
+      <span class="n">has_non_hidden</span> <span class="o">=</span> <span class="kp">true</span>
+      <span class="k">break</span>
+    <span class="k">end</span>
+    <span class="vi">@target_select</span><span class="p">.</span><span class="nf">addItem</span><span class="p">(</span><span class="n">target_name</span><span class="p">)</span> <span class="k">if</span> <span class="n">has_non_hidden</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</code></pre>
+</div>
+
+<p>First we grab all the target names and then grab all the packets for each target. This is done to filter out targets in which all packets are hidden. Once it checks for hidden packets it adds all the target names to the drop down selection in the tool. In the same way the <code class="highlighter-rouge">update_packets</code> method access System.telemetry.packets to update the packet drop down selection.</p>
+
+<p>Later in the <code class="highlighter-rouge">update_tlm_items</code> method we call System.telemetry.items to get the individual packet items.</p>
+
+<div class="language-ruby highlighter-rouge"><pre class="highlight"><code><span class="k">def</span> <span class="nf">update_tlm_items</span><span class="p">(</span><span class="n">featured_item_name</span> <span class="o">=</span> <span class="kp">nil</span><span class="p">)</span>
+  <span class="n">target_name</span> <span class="o">=</span> <span class="vi">@target_select</span><span class="p">.</span><span class="nf">text</span>
+  <span class="n">packet_name</span> <span class="o">=</span> <span class="vi">@packet_select</span><span class="p">.</span><span class="nf">text</span>
+  <span class="p">.</span><span class="nf">.</span><span class="o">.</span>
+    <span class="no">System</span><span class="p">.</span><span class="nf">telemetry</span><span class="p">.</span><span class="nf">items</span><span class="p">(</span><span class="n">target_name</span><span class="p">,</span> <span class="n">packet_name</span><span class="p">).</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">item</span><span class="o">|</span>
+      <span class="n">tlm_items</span> <span class="o">&lt;&lt;</span> <span class="p">[</span><span class="n">item</span><span class="p">.</span><span class="nf">name</span><span class="p">,</span> <span class="n">item</span><span class="p">.</span><span class="nf">states</span><span class="p">,</span> <span class="n">item</span><span class="p">.</span><span class="nf">description</span><span class="p">,</span> <span class="n">item</span><span class="p">.</span><span class="nf">data_type</span> <span class="o">==</span> <span class="ss">:DERIVED</span><span class="p">]</span>
+    <span class="k">end</span>
+  <span class="p">.</span><span class="nf">.</span><span class="p">.</span>
+<span class="nf">end</span>
+</code></pre>
+</div>
+
+<p>Once we have the items we call individual <a href="https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/packets/packet_item.rb">PacketItem</a> methods to get the name, states, description, and data type.</p>
+
+<h4 id="interface-example-1">Interface Example</h4>
+
+<p>Sometimes you want to create a fake interface which returns internally generated data instead of returning data from an external device. To do this you need to populate the packets and return them from the interface’s read method. In the interface’s initialize method we setup an array to store the packet instances. In the connect method we store the first target name from the @target_names array which is populated by the COSMOS Server when the interface is created. This allows you to dynamically get your target name since targets can be renamed by the server. We then grab all the packets defined by this target.</p>
+
+<div class="language-ruby highlighter-rouge"><pre class="highlight"><code><span class="nb">require</span> <span class="s1">'cosmos/interfaces/interface'</span>
+<span class="k">module</span> <span class="nn">Cosmos</span>
+  <span class="k">class</span> <span class="nc">TestInterface</span> <span class="o">&lt;</span> <span class="no">Interface</span>
+    <span class="k">def</span> <span class="nf">initialize</span>
+      <span class="k">super</span><span class="p">()</span>
+      <span class="vi">@pending_packets</span> <span class="o">=</span> <span class="no">Array</span><span class="p">.</span><span class="nf">new</span>
+      <span class="vi">@next_read_time</span> <span class="o">=</span> <span class="kp">nil</span>
+    <span class="k">end</span>
+
+    <span class="k">def</span> <span class="nf">connect</span>
+      <span class="c1"># Note we do NOT call super() here because the Interface base class simply</span>
+      <span class="c1"># raises an exception. This forces us to reimplement it in derived classes.</span>
+      <span class="vi">@next_read_time</span> <span class="o">=</span> <span class="no">Time</span><span class="p">.</span><span class="nf">now</span>
+      <span class="vi">@connected</span> <span class="o">=</span> <span class="kp">true</span>
+      <span class="vi">@target_name</span> <span class="o">=</span> <span class="vi">@target_names</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+      <span class="vi">@packets</span> <span class="o">=</span> <span class="no">System</span><span class="p">.</span><span class="nf">telemetry</span><span class="p">.</span><span class="nf">packets</span><span class="p">(</span><span class="vi">@target_name</span><span class="p">)</span>
+    <span class="k">end</span>
+
+    <span class="k">def</span> <span class="nf">connected?</span>
+      <span class="c1"># No super (see connect)</span>
+      <span class="vi">@connected</span>
+    <span class="k">end</span>
+
+    <span class="k">def</span> <span class="nf">disconnect</span>
+      <span class="c1"># No super (see connect)</span>
+      <span class="vi">@connected</span> <span class="o">=</span> <span class="kp">false</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</code></pre>
+</div>
+
+<p>In the interface’s read method we both populate the packets and return them.</p>
+
+<div class="language-ruby highlighter-rouge"><pre class="highlight"><code><span class="c1"># Defined inside the TestInterface class</span>
+<span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="n">packet</span><span class="p">)</span>
+  <span class="k">if</span> <span class="n">not</span> <span class="vi">@pending_packets</span><span class="p">.</span><span class="nf">empty?</span>
+    <span class="vi">@read_count</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="c1"># Pop off the packet instance and clone it so it is standalone</span>
+    <span class="k">return</span> <span class="vi">@pending_packets</span><span class="p">.</span><span class="nf">pop</span><span class="p">.</span><span class="nf">clone</span>
+  <span class="k">end</span>
+
+  <span class="c1"># Calculate time to sleep to make ticks 1s apart</span>
+  <span class="n">delta</span> <span class="o">=</span> <span class="vi">@next_tick_time</span> <span class="o">-</span> <span class="no">Time</span><span class="p">.</span><span class="nf">now</span>
+  <span class="nb">sleep</span><span class="p">(</span><span class="n">delta</span><span class="p">)</span> <span class="k">if</span> <span class="n">delta</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="o">.</span><span class="mi">0</span> <span class="c1"># sleep up to 1s</span>
+  <span class="vi">@next_tick_time</span> <span class="o">+=</span> <span class="mi">1</span>
+
+  <span class="vi">@packets</span><span class="p">.</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="nb">name</span><span class="p">,</span> <span class="n">packet</span><span class="o">|</span>
+    <span class="c1"># Populate your packets with calculated values</span>
+    <span class="n">packet</span><span class="p">.</span><span class="nf">write</span><span class="p">(</span><span class="s2">"DATA"</span><span class="p">,</span> <span class="s2">"Sample data"</span><span class="p">)</span>
+    <span class="vi">@pending_packets</span><span class="p">.</span><span class="nf">push</span><span class="p">(</span><span class="n">packet</span><span class="p">)</span>
+  <span class="k">end</span>
+
+  <span class="vi">@read_count</span> <span class="o">+=</span> <span class="mi">1</span>
+  <span class="vi">@pending_packets</span><span class="p">.</span><span class="nf">pop</span><span class="p">.</span><span class="nf">clone</span> <span class="c1"># Return the first pending packet</span>
+<span class="k">end</span>
+</code></pre>
+</div>
+
+<p>The COSMOS Server will call the interface call method as rapidly as it can. The read method must return a Packet instance or nil to disconnect. Initially we check the pending_packets array for available packets and return them. Once the pending_packets array has been emptied we sleep a second to allow our interface to operate at 1Hz. An exercise left to the reader would be to pass the rate to the interface and use that. Next we iterate through the previously stored packet list, populate any values we want, and push the packets back on the pending_packets array. Finally we pop off the first packet on the pending packets array.</p>
+
+<h3 id="systemlimits">System.limits</h3>
+
+<p><a href="https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/packets/limits.rb">System.limits</a> provides access to all the limits definitions in the COSMOS system. The primary developer access methods are:</p>
+
+<ol>
+  <li><code class="highlighter-rouge">System.limits.sets</code> - Returns an array of symbols defining the system limits sets</li>
+  <li><code class="highlighter-rouge">System.limits.out_of_limits</code> - Returns an array indicating all items that are out of limits. The array values are arrays formatted as [“TARGET”, “PACKET”, “ITEM”, :LIMIT_STATE]. The last item is a symbol indicating the current limit state.</li>
+  <li><code class="highlighter-rouge">System.limits.overall_limits_state</code> - Returns a symbol indicating the current overall limits state.</li>
+  <li><code class="highlighter-rouge">System.limits.groups</code> - Returns a hash whose keys are the string limit group name and values are an array. Each item in the array is formatted as [“TARGET”, “PACKET”, “ITEM”] and thus identifies all the items in that particular limits group.</li>
+  <li><code class="highlighter-rouge">System.limits.enable_group("GROUP")</code> - Enable a limits group</li>
+  <li><code class="highlighter-rouge">System.limits.disable_group("GROUP")</code> - Disable a limits group</li>
+</ol>
+
+<p>Additional methods are available which are not as commonly used:</p>
+<ol>
+  <li><code class="highlighter-rouge">System.limits.enabled?("TARGET", "PACKET", "ITEM")</code> - Returns whether limits are enabled for the given item</li>
+  <li><code class="highlighter-rouge">System.limits.enable("TARGET", "PACKET", "ITEM")</code> - Enable limit checking for the given item</li>
+  <li><code class="highlighter-rouge">System.limits.disable("TARGET", "PACKET", "ITEM")</code> - Disable limit checking for the given item</li>
+  <li><code class="highlighter-rouge">System.limits.get("TARGET", "PACKET", "ITEM")</code> - Return information about an items limits. The values are returned in an array as [limits_set, persistence, enabled, red_low, yellow_low, red_high, yellow_high, green_low (optional), green_high (optional)]</li>
+</ol>
+
+<p>Other methods are available but generally are not used by developers.</p>
+
+<h4 id="example">Example</h4>
+
+<p>In general you should use the CmdTlmServer <a href="https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/tools/cmd_tlm_server/api.rb">API</a> methods instead of the System.limits methods directly.</p>
+
+<h3 id="systemports">System.ports</h3>
+
+<p>System.ports returns a hash keyed by the name of the port with the value the port number. This hash will always contain the known COSMOS ports of ‘CTS_API’, ‘TLMVIEWER_API’, ‘CTS_PREIDENTIFIED’, and ‘CTS_CMD_ROUTER’.</p>
+
+<h3 id="systempaths">System.paths</h3>
+
+<p>System.paths returns a hash keyed by the name of the path with the value the file system path. This hash typically contains the known COSMOS paths of ‘LOGS’, ‘TMP’, ‘SAVED_CONFIG’, ‘TABLES’, ‘HANDBOOKS’, ‘PROCEDURES’.</p>
+
+<h3 id="systemtargets">System.targets</h3>
+
+<p>System.targets returns a hash keyed by the name of the target with <a href="https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/system/target.rb">Target</a> instance values. The Target instance has instance variables which return useful information about the target. The most frequently used are:</p>
+
+<ol>
+  <li>name - Name of the target</li>
+  <li>ignored_parameters - Array of parameters which should be ignored by various tools</li>
+  <li>ignored_items - Array of items which should be ignored by various tools</li>
+  <li>interface - Interface instance which is mapped to this target</li>
+  <li>cmd_cnt - The number of command packets sent to this target</li>
+  <li>tlm_cnt - The number of telemetry packets received from this target</li>
+</ol>
+
+<p>Other methods are available but generally are not used by developers.</p>
+
+          
+
+
+
+
+
+  
+  
+
+  
+  
+
+  
+  
+
+  
+  
+
+  
+  
+
+  
+  
+
+  
+  
+
+  
+  
+
+  
+  
+
+  
+  
+
+  
+  
+
+  
+  
+
+  
+  
+
+  
+  
+
+  
+  
+
+  
+  
+    <div class="top-section-nav">
+      <div class="left align-right">
+          
+            
+            
+            <a href="/docs/chaining/" class="prev">Back</a>
+          
+      </div>
+      <div class="right align-left">
+          
+            
+            
+            <a href="/docs/packet_class/" class="next">Next</a>
+          
+      </div>
+    </div>
+    <div class="clear"></div>
+    
+
+        </article>
+      </div>
+
+      <div class="unit one-fifth hide-on-mobiles">
+  <aside>
+    
+    <h4>Getting Started</h4>
+    
+
+<ul>
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/home/">Welcome</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/installation/">Installation</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/upgrading/">Upgrading and the Gemfile</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/structure/">Directory structure</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/gettingstarted/">Getting Started</a></li>
+      
+
+
+</ul>
+
+    
+    <h4>Configuration</h4>
+    
+
+<ul>
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/system/">System Configuration</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/cmdtlm/">Command and Telemetry Configuration</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/interfaces/">Interface Configuration</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/tools/">Tool Configuration</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/screens/">Telemetry Screens</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/grapher/">Telemetry Grapher</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/environment/">Environment Variables</a></li>
+      
+
+
+</ul>
+
+    
+    <h4>User's Guides</h4>
+    
+
+<ul>
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/scripting/">Scripting Guide</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/gemtargets/">Gem Based Targets and Tools</a></li>
+      
+
+
+</ul>
+
+    
+    <h4>Tips</h4>
+    
+
+<ul>
+
+  
+
+  
+
+  
+    
+  
+    
+      <li class=""><a href="/docs/chaining/">Chaining CmdTlmServers</a></li>
+      
+
+
+</ul>
+
+    
+    <h4>Development</h4>
+    
+
+<ul>
+
+  
+
+  
+
+  
+    
+      <li class="current"><a href="/docs/system_class/">System Class</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/packet_class/">Packet Class</a></li>
+      
+
+
+</ul>
+
+    
+    <h4>Meta</h4>
+    
+
+<ul>
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/requirements/">Requirements and Design</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/xtce/">XTCE Support</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/contributing/">Contributing</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/contact/">Contact Us</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/history/">Release History</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/papers/">Papers</a></li>
+      
+
+
+</ul>
+
+    
+  </aside>
+</div>
+
+
+      <div class="clear"></div>
+
+    </div>
+  </section>
+
+
+  <script>
+  (function() {
+    var cx = '001663949569052626382:-enhin1layy';
+    var gcse = document.createElement('script');
+    gcse.type = 'text/javascript';
+    gcse.async = true;
+    gcse.src = 'https://cse.google.com/cse.js?cx=' + cx;
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(gcse, s);
+  })();
+</script>
+<footer role="contentinfo">
+  <div class="grid wider">
+    <div class="unit one-third center-on-mobiles">
+      <p>The contents of this website are &copy;&nbsp;2017 <a href="http://www.ballaerospace.com/" target="_blank">Ball Aerospace</a> under the terms of the <a href="https://github.com/BallAerospace/COSMOS/blob/master/LICENSE.txt" target="_blank">GPLv3&nbsp;License</a>.</p>
+      <p>Site design derived from the <a href="http://jekyllrb.com/" target="_blank">Jekyll</a> project documentation which is licensed under the terms of the <a href="https://github.com/jekyll/jekyll/blob/master/LICENSE" target="_blank">MIT License</a>.</p>
+    </div>
+    <div class="unit two-thirds align-right center-on-mobiles">
+      <p>
+        <gcse:search></gcse:search>
+        Proudly hosted by
+        <a href="https://github.com" target="_blank">
+          <img src="/img/footer-logo.png" width="100" height="30" alt="GitHub Social coding">
+        </a>
+      </p>
+    </div>
+  </div>
+</footer>
+
+  <script>
+  var anchorForId = function (id) {
+    var anchor = document.createElement("a");
+    anchor.className = "header-link";
+    anchor.href      = "#" + id;
+    anchor.innerHTML = "<span class=\"sr-only\">Permalink</span><i class=\"fa fa-link\"></i>";
+    anchor.title = "Permalink";
+    return anchor;
+  };
+
+  var linkifyAnchors = function (level, containingElement) {
+    var headers = containingElement.getElementsByTagName("h" + level);
+    for (var h = 0; h < headers.length; h++) {
+      var header = headers[h];
+
+      if (typeof header.id !== "undefined" && header.id !== "") {
+        header.appendChild(anchorForId(header.id));
+      }
+    }
+  };
+
+  document.onreadystatechange = function () {
+    if (this.readyState === "complete") {
+      var contentBlock = document.getElementsByClassName("docs")[0] || document.getElementsByClassName("news")[0];
+      if (!contentBlock) {
+        return;
+      }
+      for (var level = 1; level <= 6; level++) {
+        linkifyAnchors(level, contentBlock);
+      }
+    }
+  };
+</script>
+
+  
+  <!-- Google Analytics (http://google.com/analytics) -->
+  <script>
+    !function(j,e,k,y,l,L){j.GoogleAnalyticsObject=y,j[y]||(j[y]=function(){
+    (j[y].q=j[y].q||[]).push(arguments)}),j[y].l=+new Date,l=e.createElement(k),
+    L=e.getElementsByTagName(k)[0],l.src='//www.google-analytics.com/analytics.js',
+    L.parentNode.insertBefore(l,L)}(window,document,'script','ga');
+
+    ga('create', 'UA-60103689-1', 'cosmosrb.com');
+    ga('send', 'pageview');
+
+  </script>
+
+
+
+</body>
+</html>
