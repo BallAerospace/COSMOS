@@ -1,0 +1,4245 @@
+<!DOCTYPE HTML>
+<html lang="en-US">
+<head>
+  <meta charset="UTF-8">
+  <title>Command and Telemetry Configuration</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="generator" content="Jekyll v3.4.3">
+  <link rel="alternate" type="application/rss+xml" title="Ball Aerospace COSMOS News" href="/feed.xml">
+  <link rel="alternate" type="application/atom+xml" title="Recent commits to COSMOS’s master branch" href="https://github.com/BallAerospace/COSMOS/commits/master.atom">
+  <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic,900">
+  <link rel="stylesheet" href="/css/screen.css">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <!--[if lt IE 9]>
+  <script src="/js/html5shiv.min.js"></script>
+  <script src="/js/respond.min.js"></script>
+  <![endif]-->
+</head>
+
+
+<body class="wrap">
+  <header role="banner">
+  <nav class="mobile-nav show-on-mobiles">
+    <ul>
+  <li class="">
+    <a href="/">Home</a>
+  </li>
+  <li class="current">
+    <span class="hide-on-mobiles"><a href="/docs/home/">Documentation</a></span>
+    <span class="show-on-mobiles"><a href="/docs/home/">Docs</a></span>
+  </li>
+  <li class="">
+    <a href="/news/">News</a>
+  </li>
+  <li>
+    <a href="/help/">Help</a>
+  </li>
+  <li>
+    <a href="https://github.com/BallAerospace/COSMOS" target="_blank"><span class="hide-on-mobiles">View on </span>GitHub</a>
+  </li>
+</ul>
+
+  </nav>
+  <div class="grid wider">
+    <div class="unit one-third center-on-mobiles" style="margin-top:27px;">
+      <h1>
+        <a href="/">
+          <span class="sr-only">COSMOS</span>
+          <img src="/img/COSMOS.png" width="312" height="70" alt="COSMOS Logo">
+        </a>
+      </h1>
+    </div>
+    <nav class="main-nav unit two-thirds hide-on-mobiles">
+      <ul>
+  <li class="">
+    <a href="/">Home</a>
+  </li>
+  <li class="current">
+    <span class="hide-on-mobiles"><a href="/docs/home/">Documentation</a></span>
+    <span class="show-on-mobiles"><a href="/docs/home/">Docs</a></span>
+  </li>
+  <li class="">
+    <a href="/news/">News</a>
+  </li>
+  <li>
+    <a href="/help/">Help</a>
+  </li>
+  <li>
+    <a href="https://github.com/BallAerospace/COSMOS" target="_blank"><span class="hide-on-mobiles">View on </span>GitHub</a>
+  </li>
+</ul>
+
+    </nav>
+  </div>
+</header>
+
+
+    <section class="docs">
+    <div class="grid wider">
+
+      <div class="docs-nav-mobile unit whole show-on-mobiles">
+  <select onchange="if (this.value) window.location.href=this.value">
+    <option value="">Navigate the docs…</option>
+    
+    <optgroup label="Getting Started">
+      
+
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/home/">Welcome</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/installation/">Installation</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/upgrading/">Upgrading and the Gemfile</option>
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/structure/">Directory structure</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/gettingstarted/">Getting Started</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+
+    </optgroup>
+    
+    <optgroup label="Configuration">
+      
+
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/system/">System Configuration</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+      <option value="/docs/cmdtlm/">Command and Telemetry Configuration</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/interfaces/">Interface Configuration</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/tools/">Tool Configuration</option>
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/screens/">Telemetry Screens</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/grapher/">Telemetry Grapher</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/environment/">Environment Variables</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+
+    </optgroup>
+    
+    <optgroup label="User's Guides">
+      
+
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/scripting/">Scripting Guide</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/gemtargets/">Gem Based Targets and Tools</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+
+    </optgroup>
+    
+    <optgroup label="Tips">
+      
+
+
+  
+
+  
+    
+  
+    
+      <option value="/docs/chaining/">Chaining CmdTlmServers</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+
+    </optgroup>
+    
+    <optgroup label="Development">
+      
+
+
+  
+
+  
+    
+      <option value="/docs/system_class/">System Class</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/system_class/">System Class</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/system_class/">System Class</option>
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/packet_class/">Packet Class</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+
+    </optgroup>
+    
+    <optgroup label="Meta">
+      
+
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/requirements/">Requirements and Design</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/xtce/">XTCE Support</option>
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/contributing/">Contributing</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/contact/">Contact Us</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/history/">Release History</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/papers/">Papers</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+
+    </optgroup>
+    
+  </select>
+</div>
+
+
+      <div class="unit four-fifths">
+        <article>
+          <div class="improve right">
+            <a href="https://github.com/BallAerospace/COSMOS/edit/gh-pages/_docs/cmdtlm.md" target="_blank"><i class="fa fa-pencil"></i> &nbsp;Improve this page</a>
+          </div>
+          
+          <div class="toc">
+            <ul class="section-nav">
+<li class="toc-entry toc-h2"><a href="#command-definition-files">Command Definition Files</a></li>
+<li class="toc-entry toc-h2"><a href="#command-keywords">Command Keywords:</a></li>
+<li class="toc-entry toc-h3"><a href="#command">COMMAND</a></li>
+<li class="toc-entry toc-h3"><a href="#select_command">SELECT_COMMAND</a></li>
+<li class="toc-entry toc-h2"><a href="#command-modifiers">Command Modifiers</a></li>
+<li class="toc-entry toc-h3"><a href="#hazardous">HAZARDOUS</a></li>
+<li class="toc-entry toc-h3"><a href="#parameter">PARAMETER</a></li>
+<li class="toc-entry toc-h3"><a href="#append_parameter">APPEND_PARAMETER</a></li>
+<li class="toc-entry toc-h3"><a href="#id_parameter">ID_PARAMETER</a></li>
+<li class="toc-entry toc-h3"><a href="#append_id_parameter">APPEND_ID_PARAMETER</a></li>
+<li class="toc-entry toc-h3"><a href="#array_parameter">ARRAY_PARAMETER</a></li>
+<li class="toc-entry toc-h3"><a href="#append_array_parameter">APPEND_ARRAY_PARAMETER</a></li>
+<li class="toc-entry toc-h3"><a href="#select_parameter">SELECT_PARAMETER</a></li>
+<li class="toc-entry toc-h3"><a href="#macro_append_start-and-macro_append_end">MACRO_APPEND_START and MACRO_APPEND_END</a></li>
+<li class="toc-entry toc-h3"><a href="#disable_messages">DISABLE_MESSAGES</a></li>
+<li class="toc-entry toc-h3"><a href="#meta">META</a></li>
+<li class="toc-entry toc-h2"><a href="#parameter-modifiers">Parameter Modifiers</a></li>
+<li class="toc-entry toc-h3"><a href="#required">REQUIRED</a></li>
+<li class="toc-entry toc-h3"><a href="#format_string">FORMAT_STRING</a></li>
+<li class="toc-entry toc-h3"><a href="#units">UNITS</a></li>
+<li class="toc-entry toc-h3"><a href="#minimum_value-maximum_value-default_value-description">MINIMUM_VALUE, MAXIMUM_VALUE, DEFAULT_VALUE, DESCRIPTION</a></li>
+<li class="toc-entry toc-h3"><a href="#state">STATE</a></li>
+<li class="toc-entry toc-h3"><a href="#write_conversion">WRITE_CONVERSION</a></li>
+<li class="toc-entry toc-h3"><a href="#poly_write_conversion">POLY_WRITE_CONVERSION</a></li>
+<li class="toc-entry toc-h3"><a href="#seg_poly_write_conversion">SEG_POLY_WRITE_CONVERSION</a></li>
+<li class="toc-entry toc-h3"><a href="#generic_write_conversion_start-and-generic_write_conversion_end">GENERIC_WRITE_CONVERSION_START and GENERIC_WRITE_CONVERSION_END</a></li>
+<li class="toc-entry toc-h3"><a href="#meta-1">META</a></li>
+<li class="toc-entry toc-h2"><a href="#example-file">Example File</a></li>
+<li class="toc-entry toc-h2"><a href="#telemetry-definition-files">Telemetry Definition Files</a></li>
+<li class="toc-entry toc-h2"><a href="#telemetry-keywords">Telemetry Keywords:</a></li>
+<li class="toc-entry toc-h3"><a href="#telemetry">TELEMETRY</a></li>
+<li class="toc-entry toc-h3"><a href="#select_telemetry">SELECT_TELEMETRY</a></li>
+<li class="toc-entry toc-h3"><a href="#limits_group">LIMITS_GROUP</a></li>
+<li class="toc-entry toc-h3"><a href="#limits_group_item">LIMITS_GROUP_ITEM</a></li>
+<li class="toc-entry toc-h2"><a href="#telemetry-modifiers">Telemetry Modifiers</a></li>
+<li class="toc-entry toc-h3"><a href="#item">ITEM</a></li>
+<li class="toc-entry toc-h3"><a href="#append_item">APPEND_ITEM</a></li>
+<li class="toc-entry toc-h3"><a href="#id_item">ID_ITEM</a></li>
+<li class="toc-entry toc-h3"><a href="#append_id_item">APPEND_ID_ITEM</a></li>
+<li class="toc-entry toc-h3"><a href="#array_item">ARRAY_ITEM</a></li>
+<li class="toc-entry toc-h3"><a href="#append_array_item">APPEND_ARRAY_ITEM</a></li>
+<li class="toc-entry toc-h3"><a href="#select_item">SELECT_ITEM</a></li>
+<li class="toc-entry toc-h3"><a href="#macro_append_start-and-macro_append_end-1">MACRO_APPEND_START and MACRO_APPEND_END</a></li>
+<li class="toc-entry toc-h3"><a href="#meta-2">META</a></li>
+<li class="toc-entry toc-h3"><a href="#processor">PROCESSOR</a></li>
+<li class="toc-entry toc-h3"><a href="#allow_short">ALLOW_SHORT</a></li>
+<li class="toc-entry toc-h2"><a href="#item-modifiers">Item Modifiers</a></li>
+<li class="toc-entry toc-h3"><a href="#format_string-1">FORMAT_STRING</a></li>
+<li class="toc-entry toc-h3"><a href="#units-1">UNITS</a></li>
+<li class="toc-entry toc-h3"><a href="#description">DESCRIPTION</a></li>
+<li class="toc-entry toc-h3"><a href="#state-1">STATE</a></li>
+<li class="toc-entry toc-h3"><a href="#read_conversion">READ_CONVERSION</a></li>
+<li class="toc-entry toc-h3"><a href="#poly_read_conversion">POLY_READ_CONVERSION</a></li>
+<li class="toc-entry toc-h3"><a href="#seg_poly_read_conversion">SEG_POLY_READ_CONVERSION</a></li>
+<li class="toc-entry toc-h3"><a href="#generic_read_conversion_start-and-generic_read_conversion_end">GENERIC_READ_CONVERSION_START and GENERIC_READ_CONVERSION_END</a></li>
+<li class="toc-entry toc-h3"><a href="#limits">LIMITS</a></li>
+<li class="toc-entry toc-h3"><a href="#limits_response">LIMITS_RESPONSE</a></li>
+<li class="toc-entry toc-h3"><a href="#meta-3">META</a></li>
+<li class="toc-entry toc-h2"><a href="#example-file-1">Example File</a></li>
+</ul>
+          </div>
+          
+          <h1>Command and Telemetry Configuration</h1>
+          <h2 id="command-definition-files">
+<a id="command-definition-files" class="anchor" href="#command-definition-files" aria-hidden="true"><span class="octicon octicon-link"></span></a>Command Definition Files</h2>
+
+<p>Command definition files define the command packets that can be sent to COSMOS targets. One large file can be used to define the command packets, or multiple files can be used at the user’s discretion. Command definition files are placed in the config/TARGET/cmd_tlm directory and are processed alphabetically. Therefore if you have some command files that depend on others, e.g. they override or extend existing commands, they must be named last. Due to the way the <a href="http://www.asciitable.com/">ASCII Table</a> is structured, files beginning with capital letters are processed before lower case letters. To force a file to be processed last either prepend it with ‘z’ or ‘~’.</p>
+
+<div style="clear:both;"></div>
+
+<h2 id="command-keywords">
+<a id="command-keywords" class="anchor" href="#command-keywords" aria-hidden="true"><span class="octicon octicon-link"></span></a><strong>Command Keywords:</strong>
+</h2>
+
+<h3 id="command">
+<a id="command" class="anchor" href="#command" aria-hidden="true"><span class="octicon octicon-link"></span></a>COMMAND</h3>
+
+<p>The COMMAND keyword designates the start of a new command packet.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Target Name</td>
+      <td>Name of the target this command is associated with</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Command Name</td>
+      <td>Name of this command. Also referred to as its mnemonic. Must be unique to commands to this target. Ideally will be as short and clear as possible.</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>BIG_ENDIAN or LITTLE_ENDIAN</td>
+      <td>Indicates if the data in this command is to be sent in Big Endian or Little Endian format.</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Description</td>
+      <td>Description of this command. Must be enclosed with “”</td>
+      <td>No</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">COMMAND COSMOS START_LOGGING BIG_ENDIAN <span class="s2">"Starts logging"</span></code></pre></figure>
+
+<h3 id="select_command">
+<a id="select_command" class="anchor" href="#select_command" aria-hidden="true"><span class="octicon octicon-link"></span></a>SELECT_COMMAND</h3>
+
+<p>The SELECT_COMMAND keyword selects an existing command packet for editing.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Target Name</td>
+      <td>Name of the target this command is associated with</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Command Name</td>
+      <td>Name of this command. Also referred to as its mnemonic.</td>
+      <td>Yes</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">SELECT_COMMAND COSMOS START_LOGGING</code></pre></figure>
+
+<h2 id="command-modifiers">
+<a id="command-modifiers" class="anchor" href="#command-modifiers" aria-hidden="true"><span class="octicon octicon-link"></span></a>Command Modifiers</h2>
+
+<p>The following keywords modify a command and are only applicable after the COMMAND or SELECT_COMMAND keywords. They are typically indented within the definition file to show ownership to the previously defined command.</p>
+
+<h3 id="hazardous">
+<a id="hazardous" class="anchor" href="#hazardous" aria-hidden="true"><span class="octicon octicon-link"></span></a>HAZARDOUS</h3>
+
+<p>Designates the current command as a hazardous command. This affects scripts and the Command Sender tool by popping up a dialog asking for confirmation before sending the command.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Description</td>
+      <td>Why the command is hazardous. Must be enclosed with “”</td>
+      <td>No</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="parameter">
+<a id="parameter" class="anchor" href="#parameter" aria-hidden="true"><span class="octicon octicon-link"></span></a>PARAMETER</h3>
+
+<p>The PARAMETER keyword defines a command parameter in the current command.</p>
+
+<table>
+  <tr>
+<th>Parameter</th>
+<th>Description</th>
+<th>Required</th>
+</tr>
+  <tr>
+<td>Name</td>
+<td>Name of the parameter. Must be unique within the command.</td>
+<td>Yes</td>
+</tr>
+  <tr>
+<td>Bit Offset</td>
+<td>Bit offset into the command packet of the Most Significant Bit of this parameter. May be negative to indicate on offset from the end of the packet. Always use a bit offset of 0 for derived parameters.</td>
+<td>Yes</td>
+</tr>
+  <tr>
+<td>Bit Size</td>
+<td>Bit size of this parameter. Zero or Negative values may be used to indicate that a string fills the packet up to the offset from the end of the packet specified by this value. If Bit Offset = 0 and Bit Size = 0 then this is a derived parameter and the Data Type must be set to 'DERIVED'.</td>
+<td>Yes</td>
+</tr>
+  <tr>
+<td>Data Type</td>
+<td>Data Type of this parameter. Possible types: INT = Integer, UINT = Unsigned Integer, FLOAT = IEEE Floating point data, STRING = Character string data, BLOCK = Non-Ascii Data Block, DERIVED = Bit Offset and Bit Size of 0.</td>
+<td>Yes</td>
+</tr>
+  <tr>
+    <td>Minimum Value</td>
+    <td>
+      Minimum allowed value for this parameter (Not given if Data Type = STRING or BLOCK)
+      The following special constants may be given for common values:
+      <table>
+        <tr>
+<th>Constant</th>
+<th>Value</th>
+</tr>
+        <tr>
+<td>MIN</td>
+<td>Minimum value for the given data type (calculated dynamically)</td>
+</tr>
+        <tr>
+<td>MAX</td>
+<td>Maximum value for the given data type (calculated dynamically)</td>
+</tr>
+        <tr>
+<td>MIN_INT8</td>
+<td>-128</td>
+</tr>
+        <tr>
+<td>MAX_INT8</td>
+<td>127</td>
+</tr>
+        <tr>
+<td>MIN_INT16</td>
+<td>-32768</td>
+</tr>
+        <tr>
+<td>MAX_INT16</td>
+<td>32767</td>
+</tr>
+        <tr>
+<td>MIN_INT32</td>
+<td>-2147483648</td>
+</tr>
+        <tr>
+<td>MAX_INT32</td>
+<td>2147483647</td>
+</tr>
+        <tr>
+<td>MIN_INT64</td>
+<td>-9223372036854775808</td>
+</tr>
+        <tr>
+<td>MAX_INT64</td>
+<td>9223372036854775807</td>
+</tr>
+        <tr>
+<td>MIN_UINT8</td>
+<td>0</td>
+</tr>
+        <tr>
+<td>MAX_UINT8</td>
+<td>255</td>
+</tr>
+        <tr>
+<td>MIN_UINT16</td>
+<td>0</td>
+</tr>
+        <tr>
+<td>MAX_UINT16</td>
+<td>65535</td>
+</tr>
+        <tr>
+<td>MIN_UINT32</td>
+<td>0</td>
+</tr>
+        <tr>
+<td>MAX_UINT32</td>
+<td>4294967295</td>
+</tr>
+        <tr>
+<td>MIN_UINT64</td>
+<td>0</td>
+</tr>
+        <tr>
+<td>MAX_UINT64</td>
+<td>18446744073709551615</td>
+</tr>
+        <tr>
+<td>MIN_FLOAT32</td>
+<td>-3.402823e38</td>
+</tr>
+        <tr>
+<td>MAX_FLOAT32</td>
+<td>3.402823e38</td>
+</tr>
+        <tr>
+<td>MIN_FLOAT64</td>
+<td>-1.7976931348623157e308</td>
+</tr>
+        <tr>
+<td>MAX_FLOAT64</td>
+<td>1.7976931348623157e308</td>
+</tr>
+        <tr>
+<td>NEG_INFINITY</td>
+<td>-Float::INFINITY</td>
+</tr>
+        <tr>
+<td>POS_INFINITY</td>
+<td>Float::INFINITY</td>
+</tr>
+      </table>
+    </td>
+    <td>Yes</td>
+  </tr>
+  <tr>
+<td>Maximum Value</td>
+<td>Maximum allowed value for this parameter (Not given if Data Type = STRING or BLOCK) See PARAMETER#Minimum Value for a list of special constants like MIN_UINT16 that may be used for this field.</td>
+<td>Yes</td>
+</tr>
+  <tr>
+<td>Default Value</td>
+<td>Default value for this parameter. You must provide a default but if you mark the parameter REQUIRED then scripts will be forced to specify a value. See PARAMETER#Minimum Value for a list of special constants like MIN_UINT16 that may be used for this field.</td>
+<td>Yes</td>
+</tr>
+  <tr>
+<td>Description</td>
+<td>Description for this parameter. Must be enclosed with ""</td>
+<td>No</td>
+</tr>
+</table>
+
+<p>Example Usage:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">PARAMETER DATA 0 32 INT MIN MAX 0 <span class="s2">"Data value"</span>
+PARAMETER SYNC 0 32 UINT 0xDEADBEEF 0xDEADBEEF 0xDEADBEEF <span class="s2">"Sync pattern"</span>
+PARAMETER VALUE 32 32 FLOAT 0 10.5 2.5
+PARAMETER LABEL 64 0 STRING <span class="s2">"COSMOS"</span> <span class="s2">"The label to apply"</span>&lt;/pre&gt;
+PARAMETER BLOCK 128 0 BLOCK <span class="s1">''</span> <span class="s2">"Block of binary data"</span>&lt;/pre&gt;</code></pre></figure>
+
+<h3 id="append_parameter">
+<a id="append_parameter" class="anchor" href="#append_parameter" aria-hidden="true"><span class="octicon octicon-link"></span></a>APPEND_PARAMETER</h3>
+
+<p>The APPEND_PARAMETER keyword appends a command parameter to the end of the current command. Parameter details are the same as for the PARAMETER keyword except Bit Offset is not used. This is the preferred way to declare parameters as it allows for adding and removing parameters without having to recalculate bit offsets for all other parameters.</p>
+
+<p>Example Usage:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">APPEND_PARAMETER SYNC 32 UINT 0xDEADBEEF 0xDEADBEEF 0xDEADBEEF<span class="s2">"Sync pattern"</span>
+APPEND_PARAMETER VALUE 32 FLOAT 0 10.5 2.5
+APPEND_PARAMETER LABEL 0 STRING <span class="s2">"COSMOS"</span> <span class="s2">"The label to apply"</span></code></pre></figure>
+
+<h3 id="id_parameter">
+<a id="id_parameter" class="anchor" href="#id_parameter" aria-hidden="true"><span class="octicon octicon-link"></span></a>ID_PARAMETER</h3>
+
+<p>Much like the PARAMETER keyword, the ID_PARAMETER keyword defines a command parameter in the current command. In addition, ID_PARAMETER(s) are used to identify a command given a binary array of data. A command packet may have one or more ID_PARAMETERs, all of which must match the binary data for the command to be identified.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Name</td>
+      <td>Name of the parameter. Must be unique within the command.</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Bit Offset</td>
+      <td>Bit offset into the command packet of the Most Significant Bit of this parameter. May be negative to indicate on offset from the end of the packet. Always use a bit offset of 0 for derived parameters.</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Bit Size</td>
+      <td>Bit size of this parameter. Zero or Negative values may be used to indicate that a string fills the packet up to the offset from the end of the packet specified by this value. If Bit Offset = 0 and Bit Size = 0 then this is a derived parameter and the Data Type must be set to ‘DERIVED’.</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Data Type</td>
+      <td>Data Type of this parameter. Possible types: INT = Integer, UINT = Unsigned Integer, FLOAT = IEEE Floating point data, STRING = Character string data, BLOCK = Non-Ascii Data Block, DERIVED = Bit Offset and Bit Size of 0.</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Minimum Value</td>
+      <td>Minimum allowed value for this parameter (Not given if Data Type = STRING or BLOCK) See PARAMETER#Minimum Value for a list of special constants like MIN_UINT16 that may be used for this field.</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Maximum Value</td>
+      <td>Maximum allowed value for this parameter (Not given if Data Type = STRING or BLOCK) See PARAMETER#Minimum Value for a list of special constants like MIN_UINT16 that may be used for this field.</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>ID Value</td>
+      <td>Identification value for this parameter. The binary data must match this value for the buffer to be identified as this packet.</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Description</td>
+      <td>Description for this parameter. Must be enclosed with “”</td>
+      <td>No</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">ID_PARAMETER OPCODE 32 32 UINT 2 2 2 <span class="s2">"Opcode identifier"</span></code></pre></figure>
+
+<h3 id="append_id_parameter">
+<a id="append_id_parameter" class="anchor" href="#append_id_parameter" aria-hidden="true"><span class="octicon octicon-link"></span></a>APPEND_ID_PARAMETER</h3>
+
+<p>The APPEND_ID_PARAMETER keyword appends an ID command parameter to the end of the current command. Parameter details are the same as for the ID_PARAMETER keyword except Bit Offset is not used.</p>
+
+<p>Example Usage:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">APPEND_ID_PARAMETER OPCODE 32 UINT 2 2 2 <span class="s2">"Opcode identifier"</span></code></pre></figure>
+
+<h3 id="array_parameter">
+<a id="array_parameter" class="anchor" href="#array_parameter" aria-hidden="true"><span class="octicon octicon-link"></span></a>ARRAY_PARAMETER</h3>
+
+<p>The ARRAY_PARAMETER keyword defines a command parameter in the current command that is an array.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Name</td>
+      <td>Name of the parameter. Must be unique within the command.</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Bit Offset</td>
+      <td>Bit offset into the command packet of the Most Significant Bit of this parameter. May be negative to indicate on offset from the end of the packet. Always use a bit offset of 0 for derived parameters.</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Bit Size of Each Item</td>
+      <td>Bit size of each array item. Must be greater than or equal to 0.</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Data Type of Each Item</td>
+      <td>Data Type of each array item. Possible types: INT = Integer, UINT = Unsigned Integer, FLOAT = IEEE Floating point data, STRING = Character string data, BLOCK = Non-Ascii Data Block, DERIVED = Bit Offset and Bit Size of 0.</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Total Bit Size of Array</td>
+      <td>Total Bit Size of the Array. Zero or Negative values may be used to indicate the array fills the packet up to the offset from the end of the packet specified by this value.</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Description</td>
+      <td>Description for this parameter. Must be enclosed with “”.</td>
+      <td>No</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">ARRAY_PARAMETER ARRAY 64 64 FLOAT 640 <span class="s2">"Array of 10 64bit floats"</span></code></pre></figure>
+
+<h3 id="append_array_parameter">
+<a id="append_array_parameter" class="anchor" href="#append_array_parameter" aria-hidden="true"><span class="octicon octicon-link"></span></a>APPEND_ARRAY_PARAMETER</h3>
+
+<p>The APPEND_ARRAY_PARAMETER keyword appends an array command parameter to the end of the current command. Parameter details are the same as for the ARRAY_PARAMETER keyword except Bit Offset is not used.</p>
+
+<p>Example Usage:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">APPEND_ARRAY_PARAMETER ARRAY 64 FLOAT 640 <span class="s2">"Array of 10 64bit floats"</span></code></pre></figure>
+
+<h3 id="select_parameter">
+<a id="select_parameter" class="anchor" href="#select_parameter" aria-hidden="true"><span class="octicon octicon-link"></span></a>SELECT_PARAMETER</h3>
+
+<p>The SELECT_PARAMETER keyword selects an existing command parameter for editing in the current command.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Name</td>
+      <td>Name of the parameter to select for modification</td>
+      <td>Yes</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">SELECT_COMMAND COSMOS START_LOGGING
+  SELECT_PARAMETER LABEL</code></pre></figure>
+
+<h3 id="macro_append_start-and-macro_append_end">
+<a id="macro_append_start-and-macro_append_end" class="anchor" href="#macro_append_start-and-macro_append_end" aria-hidden="true"><span class="octicon octicon-link"></span></a>MACRO_APPEND_START and MACRO_APPEND_END</h3>
+
+<p>The MACRO_APPEND_START keyword is used to create a list of command parameters which are appended to the current command. Each of these parameters will be repeated with a number appended to their names to form a list of command parameters with a unique mnemonic for each parameter.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>First Number in Range</td>
+      <td>First value that will be appended to the parameter mnemonic</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Last Number in Range</td>
+      <td>Last number that will be appended to the parameter mnemonic</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Format String</td>
+      <td>An optional format string that defaults to “%s%d”. Where the %s represents the constant portion of the items mnemonic and the %d represents the number in the range that is appended. For example, with a range of 1 to 2 and two items named VALUE and DATA, the format string “%s_%d” would create the mnemonics VALUE_1, DATA_1, VALUE_2, and DATA_2.</td>
+      <td>No</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">MACRO_APPEND_START 1 2 <span class="s2">"%s_%d"</span>
+  APPEND_PARAMETER VALUE 16 UINT 0 5 1 <span class="s2">"Value"</span>
+  APPEND_PARAMETER DATA 16 UINT 0 5 2 <span class="s2">"Data"</span>
+MACRO_APPEND_END</code></pre></figure>
+
+<p>This results in a command with the following mnemonics: VALUE_1, DATA_1, VALUE_2, and DATA_2. All VALUE parameters will have the same default of 1 and all DATA parameters have the same default of 2. Note that due to the dynamic nature of this keyword you must use the APPEND variation of the PARAMETER keywords.</p>
+
+<h3 id="disable_messages">
+<a id="disable_messages" class="anchor" href="#disable_messages" aria-hidden="true"><span class="octicon octicon-link"></span></a>DISABLE_MESSAGES</h3>
+
+<p>Disable the COSMOS Command and Telemetry Server from printing cmd(…) messages for this command.  Commands are still logged.</p>
+
+<h3 id="meta">
+<a id="meta" class="anchor" href="#meta" aria-hidden="true"><span class="octicon octicon-link"></span></a>META</h3>
+
+<p>The META keyword stores metadata for the current command that can be used by custom tools for various purposes (For example to store additional information needed to generate FSW header files).</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Meta Name</td>
+      <td>Name of the metadata to store</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Meta Values</td>
+      <td>One or more values to be stored for this Meta Name</td>
+      <td>No</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">META FSW_TYPE <span class="s2">"struct command"</span></code></pre></figure>
+
+<h2 id="parameter-modifiers">
+<a id="parameter-modifiers" class="anchor" href="#parameter-modifiers" aria-hidden="true"><span class="octicon octicon-link"></span></a>Parameter Modifiers</h2>
+
+<p>The following keywords modify a parameter and are only applicable after the various PARAMETER keywords as defined above. They are typically indented within the definition file to show ownership to the previously defined parameter.</p>
+
+<h3 id="required">
+<a id="required" class="anchor" href="#required" aria-hidden="true"><span class="octicon octicon-link"></span></a>REQUIRED</h3>
+
+<p>Declares that when sending the command via Script Runner a value must always be given for the current command parameter. This prevents the user from relying on a default value. Note that this does not affect Command Sender which will still populate the field with the default value provided in the PARAMETER definition.</p>
+
+<h3 id="format_string">
+<a id="format_string" class="anchor" href="#format_string" aria-hidden="true"><span class="octicon octicon-link"></span></a>FORMAT_STRING</h3>
+
+<p>The FORMAT_STRING keyword adds printf style formatting to a command parameter. This can be used to set how default command parameter values are displayed in Command Sender.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Format</td>
+      <td>How to format the command parameter using printf syntax. For example: “0x%0X” will display a parameter in hex.</td>
+      <td>Yes</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">FORMAT_STRING <span class="s2">"0x%0X"</span></code></pre></figure>
+
+<h3 id="units">
+<a id="units" class="anchor" href="#units" aria-hidden="true"><span class="octicon octicon-link"></span></a>UNITS</h3>
+
+<p>The UNITS keyword add units knowledge to a parameter.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Full Name</td>
+      <td>Full name of the units type. For example: Celcius</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Abbreviated Name</td>
+      <td>Abbreviation for the units. For example: C</td>
+      <td>Yes</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">UNITS Celcius C
+UNITS Kilometers KM</code></pre></figure>
+
+<h3 id="minimum_value-maximum_value-default_value-description">
+<a id="minimum_value-maximum_value-default_value-description" class="anchor" href="#minimum_value-maximum_value-default_value-description" aria-hidden="true"><span class="octicon octicon-link"></span></a>MINIMUM_VALUE, MAXIMUM_VALUE, DEFAULT_VALUE, DESCRIPTION</h3>
+
+<p>These keywords allow you to override an existing value. This is useful for changing things in conjunction with SELECT_COMMAND and SELECT_PARAMETER.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Value</td>
+      <td>The new value to replace the previously defined value</td>
+      <td>Yes</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">SELECT_COMMAND COSMOS START_LOGGING
+  SELECT_PARAMETER OPCODE
+    MINIMUM_VALUE 1
+    MAXIMUM_VALUE 1
+    DEFAULT_VALUE 1
+    DESCRIPTION <span class="s2">"Opcode is the command identifier"</span></code></pre></figure>
+
+<h3 id="state">
+<a id="state" class="anchor" href="#state" aria-hidden="true"><span class="octicon octicon-link"></span></a>STATE</h3>
+
+<p>The STATE keyword defines a key/value pair for the current command parameter. For example, you might define states for ON = 1 and OFF = 0. This allows the word ON to be used rather than the number 1 when sending the command parameter and allows for much greater clarity and less chance for user error.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Key</td>
+      <td>The state name</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Value</td>
+      <td>The state value</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>HAZARDOUS</td>
+      <td>Keyword the indicates the state is hazardous. This will cause a popup to ask for user confirmation when sending this command.</td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>Hazardous Description</td>
+      <td>Description about why this state is hazardous.</td>
+      <td>No</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">APPEND_PARAMETER ENABLE 32 UINT 0 1 0 <span class="s2">"Enable setting"</span>
+  STATE FALSE 0
+  STATE TRUE 1
+APPEND_PARAMETER STRING 1024 STRING <span class="s2">"NOOP"</span> <span class="s2">"String parameter"</span>
+  STATE <span class="s2">"NOOP"</span> <span class="s2">"NOOP"</span>
+  STATE <span class="s2">"ARM LASER"</span> <span class="s2">"ARM LASER"</span> HAZARDOUS <span class="s2">"Arming the laser is an eye safety hazard"</span>
+  STATE <span class="s2">"FIRE LASER"</span> <span class="s2">"FIRE LASER"</span> HAZARDOUS <span class="s2">"WARNING! Laser will be fired!"</span></code></pre></figure>
+
+<h3 id="write_conversion">
+<a id="write_conversion" class="anchor" href="#write_conversion" aria-hidden="true"><span class="octicon octicon-link"></span></a>WRITE_CONVERSION</h3>
+
+<p>The WRITE_CONVERSION keyword applies a conversion to the current command parameter. This conversion is implemented in a custom Ruby file which should be located in the target’s lib folder and required by the target’s target.txt file. See the documentation in <link ac:anchor="TargetConfiguration">. The class must require ‘cosmos/conversions/conversion’ and inherit from Conversion. It must implement the initialize method if it takes extra parameters and must always implement the call method. The conversion factor is applied to the value entered by the user before it is written into the binary command packet and sent.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Class file name</td>
+      <td>The file name which contains the Ruby class. The file name must be named after the class such that the class is a CamelCase version of the underscored file name. For example: ‘the_great_conversion.rb’ should contain ‘class TheGreatConversion’.</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Param X</td>
+      <td>Parameter #x. Additional parameter values for the conversion which are passed to the class constructor.</td>
+      <td>No</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">WRITE_CONVERSION the_great_conversion.rb 1000</code></pre></figure>
+
+<p>the_great_conversion.rb:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="nb">require</span> <span class="s1">'cosmos/conversions/conversion'</span>
+<span class="k">module</span> <span class="nn">Cosmos</span>
+  <span class="k">class</span> <span class="nc">TheGreatConversion</span> <span class="o">&lt;</span> <span class="no">Conversion</span>
+    <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">multiplier</span><span class="p">)</span>
+      <span class="k">super</span><span class="p">()</span>
+      <span class="vi">@multiplier</span> <span class="o">=</span> <span class="n">multiplier</span>
+    <span class="k">end</span>
+    <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">packet</span><span class="p">,</span> <span class="n">buffer</span><span class="p">)</span>
+      <span class="k">return</span> <span class="n">value</span> <span class="o">*</span> <span class="n">multiplier</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+<span class="k">end</span></code></pre></figure>
+
+<h3 id="poly_write_conversion">
+<a id="poly_write_conversion" class="anchor" href="#poly_write_conversion" aria-hidden="true"><span class="octicon octicon-link"></span></a>POLY_WRITE_CONVERSION</h3>
+
+<p>The POLY_WRITE_CONVERSION keyword adds a polynomial conversion factor to the current command parameter. This conversion factor is applied to the value entered by the user before it is written into the binary command packet and sent.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>C0</td>
+      <td>Coefficient #0</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Cx</td>
+      <td>Coefficient #x. Additional coefficient values for the conversion. Any order polynomial conversion may be used so the value of ‘x’ will vary with the order of the polynomial. Note that larger order polynomials take longer to process than shorter order polynomials, but are sometimes more accurate.</td>
+      <td>No</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">POLY_WRITE_CONVERSION 10 0.5 0.25</code></pre></figure>
+
+<h3 id="seg_poly_write_conversion">
+<a id="seg_poly_write_conversion" class="anchor" href="#seg_poly_write_conversion" aria-hidden="true"><span class="octicon octicon-link"></span></a>SEG_POLY_WRITE_CONVERSION</h3>
+
+<p>The SEG_POLY_WRITE_CONVERSION keyword adds a segmented polynomial conversion factor to the current command parameter. This conversion factor is applied to the value entered by the user before it is written into the binary command packet and sent.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Lower Bound</td>
+      <td>Defines the lower bound of the range of values that this segmented polynomial applies to. Is ignored for the segment with the smallest lower bound.</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>C0</td>
+      <td>Coefficient #0</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Cx</td>
+      <td>Coefficient #x. Additional coefficient values for the conversion. Any order polynomial conversion may be used so the value of ‘x’ will vary with the order of the polynomial. Note that larger order polynomials take longer to process than shorter order polynomials, but are sometimes more accurate.</td>
+      <td>No</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">SEG_POLY_WRITE_CONVERSION 0 10 0.5 0.25 <span class="c"># Apply the conversion to all values &lt; 50</span>
+SEG_POLY_WRITE_CONVERSION 50 11 0.5 0.275 <span class="c"># Apply the conversion to all values &gt;= 50 and &lt; 100</span>
+SEG_POLY_WRITE_CONVERSION 100 12 0.5 0.3 <span class="c"># Apply the conversion to all values &gt;= 100</span></code></pre></figure>
+
+<h3 id="generic_write_conversion_start-and-generic_write_conversion_end">
+<a id="generic_write_conversion_start-and-generic_write_conversion_end" class="anchor" href="#generic_write_conversion_start-and-generic_write_conversion_end" aria-hidden="true"><span class="octicon octicon-link"></span></a>GENERIC_WRITE_CONVERSION_START and GENERIC_WRITE_CONVERSION_END</h3>
+
+<p>**NOTE: Generic conversions are not a good long term solution.  Consider creating a conversion class and using WRITE_CONVERSION instead.  WRITE_CONVERSION is easier to debug and higher performance. **</p>
+
+<p>The GENERIC_WRITE_CONVERSION_START keyword adds a generic conversion function to the current command parameter. This conversion factor is applied to the value entered by the user before it is written into the binary command packet and sent. The conversion is specified as ruby code that receives two implied parameters: ‘value’ which is the raw value being written, and ‘packet’ which is a reference to the command packet class (Note: referencing the packet as ‘myself’ is still supported for backwards compatibility). The last line of ruby code given should return the converted value. The GENERIC_WRITE_CONVERSION_END keyword specifies that all lines of ruby code for the conversion have been given.</p>
+
+<p>Example Usage:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">APPEND_PARAMETER ITEM1 32 UINT 0 0xFFFFFFFF 0
+  GENERIC_WRITE_CONVERSION_START
+    <span class="o">(</span>value <span class="k">*</span> 1.5<span class="o">)</span>.to_i <span class="c"># Convert the value by a scale factor</span>
+  GENERIC_WRITE_CONVERSION_END</code></pre></figure>
+
+<p>Note: If you need to apply a conversion that depends on another parameter being set then special code must be added to check the other parameter’s value. COSMOS processes the parameters as a Hash and the order or processing is NOT guaranteed. For example:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="no">COMMAND</span> <span class="no">INST</span> <span class="no">SETPOINT</span> <span class="no">BIG_ENDIAN</span> <span class="s2">"Control Setpoint"</span>
+  <span class="p">.</span><span class="nf">.</span>
+  <span class="no">APPEND_PARAMETER</span> <span class="no">ZONE</span> <span class="mi">8</span> <span class="no">UINT</span> <span class="mi">1</span> <span class="mi">10</span> <span class="mi">1</span> <span class="s2">"Heater zone"</span>
+    <span class="no">STATE</span> <span class="no">ONE</span> <span class="mi">1</span>
+    <span class="no">STATE</span> <span class="no">TWO</span> <span class="mi">2</span>
+  <span class="no">APPEND_PARAMETER</span> <span class="no">SETPOINT</span> <span class="mi">32</span> <span class="no">FLOAT</span> <span class="mi">0</span> <span class="mi">1000</span> <span class="mi">0</span> <span class="s2">"Setpoint"</span>
+    <span class="no">GENERIC_WRITE_CONVERSION_START</span>
+      <span class="n">result</span> <span class="o">=</span> <span class="kp">nil</span>
+      <span class="k">case</span> <span class="n">packet</span><span class="p">.</span><span class="nf">given_values</span><span class="p">[</span><span class="s1">'ZONE'</span><span class="p">]</span> <span class="c1"># Access the zone value</span>
+      <span class="k">when</span> <span class="s1">'ONE'</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">value</span> <span class="o">*</span> <span class="mi">1</span>
+      <span class="k">when</span> <span class="s1">'TWO'</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">value</span> <span class="o">*</span> <span class="mi">2</span>
+      <span class="k">end</span>
+      <span class="k">return</span> <span class="n">result</span>
+    <span class="no">GENERIC_WRITE_CONVERSION_END</span></code></pre></figure>
+
+<h3 id="meta-1">
+<a id="meta-1" class="anchor" href="#meta-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>META</h3>
+
+<p>The META keyword stores metadata for the current command parameter that can be used by custom tools for various purposes (For example to store additional information needed to generate FSW header files).</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Meta Name</td>
+      <td>Name of the metadata to store</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Meta Values</td>
+      <td>One or more values to be stored for this Meta Name</td>
+      <td>No</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">META TEST <span class="s2">"This parameter is for test purposes only"</span></code></pre></figure>
+
+<h2 id="example-file">
+<a id="example-file" class="anchor" href="#example-file" aria-hidden="true"><span class="octicon octicon-link"></span></a>Example File</h2>
+
+<p><strong>Example File: &lt;COSMOSPATH&gt;/config/MY_TARGET/cmd_tlm/cmds.txt</strong></p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">COMMAND MY_TARGET COLLECT_DATA BIG_ENDIAN <span class="s2">"Commands my target to collect data"</span>
+  PARAMETER CCSDSVER 0 3 UINT 0 0 0 <span class="s2">"CCSDS PRIMARY HEADER VERSION NUMBER"</span>
+  PARAMETER CCSDSTYPE 3 1 UINT 1 1 1 <span class="s2">"CCSDS PRIMARY HEADER PACKET TYPE"</span>
+  PARAMETER CCSDSSHF 4 1 UINT 0 0 0 <span class="s2">"CCSDS PRIMARY HEADER SECONDARY HEADER FLAG"</span>
+  ID_PARAMETER CCSDSAPID 5 11 UINT 0 2047 100 <span class="s2">"CCSDS PRIMARY HEADER APPLICATION ID"</span>
+  PARAMETER CCSDSSEQFLAGS 16 2 UINT 3 3 3 <span class="s2">"CCSDS PRIMARY HEADER SEQUENCE FLAGS"</span>
+  PARAMETER CCSDSSEQCNT 18 14 UINT 0 16383 0 <span class="s2">"CCSDS PRIMARY HEADER SEQUENCE COUNT"</span>
+  PARAMETER CCSDSLENGTH 32 16 UINT 4 4 4 <span class="s2">"CCSDS PRIMARY HEADER PACKET LENGTH"</span>
+  PARAMETER ANGLE 48 32 FLOAT -180.0 180.0 0.0 <span class="s2">"ANGLE OF INSTRUMENT IN DEGREES"</span>
+    POLY_WRITE_CONVERSION 0 0.01745 0 0
+  PARAMETER MODE 80 8 UINT 0 1 0 <span class="s2">"DATA COLLECTION MODE"</span>
+    STATE NORMAL 0
+    STATE DIAG 1
+
+COMMAND MY_TARGET NOOP BIG_ENDIAN <span class="s2">"Do Nothing"</span>
+  PARAMETER CCSDSVER 0 3 UINT 0 0 0 <span class="s2">"CCSDS PRIMARY HEADER VERSION NUMBER"</span>
+  PARAMETER CCSDSTYPE 3 1 UINT 1 1 1 <span class="s2">"CCSDS PRIMARY HEADER PACKET TYPE"</span>
+  PARAMETER CCSDSSHF 4 1 UINT 0 0 0 <span class="s2">"CCSDS PRIMARY HEADER SECONDARY HEADER FLAG"</span>
+  ID_PARAMETER CCSDSAPID 5 11 UINT 0 2047 101 <span class="s2">"CCSDS PRIMARY HEADER APPLICATION ID"</span>
+  PARAMETER CCSDSSEQFLAGS 16 2 UINT 3 3 3 <span class="s2">"CCSDS PRIMARY HEADER SEQUENCE FLAGS"</span>
+  PARAMETER CCSDSSEQCNT 18 14 UINT 0 16383 0 <span class="s2">"CCSDS PRIMARY HEADER SEQUENCE COUNT"</span>
+  PARAMETER CCSDSLENGTH 32 16 UINT 0 0 0 <span class="s2">"CCSDS PRIMARY HEADER PACKET LENGTH"</span>
+  PARAMETER DUMMY 48 8 UINT 0 0 0 <span class="s2">"DUMMY PARAMETER BECAUSE CCSDS REQUIRES 1 BYTE OF DATA"</span>
+
+COMMAND MY_TARGET SETTINGS BIG_ENDIAN <span class="s2">"Set the Settings"</span>
+  PARAMETER CCSDSVER 0 3 UINT 0 0 0 <span class="s2">"CCSDS PRIMARY HEADER VERSION NUMBER"</span>
+  PARAMETER CCSDSTYPE 3 1 UINT 1 1 1 <span class="s2">"CCSDS PRIMARY HEADER PACKET TYPE"</span>
+  PARAMETER CCSDSSHF 4 1 UINT 0 0 0 <span class="s2">"CCSDS PRIMARY HEADER SECONDARY HEADER FLAG"</span>
+  ID_PARAMETER CCSDSAPID 5 11 UINT 0 2047 102 <span class="s2">"CCSDS PRIMARY HEADER APPLICATION ID"</span>
+  PARAMETER CCSDSSEQFLAGS 16 2 UINT 3 3 3 <span class="s2">"CCSDS PRIMARY HEADER SEQUENCE FLAGS"</span>
+  PARAMETER CCSDSSEQCNT 18 14 UINT 0 16383 0 <span class="s2">"CCSDS PRIMARY HEADER SEQUENCE COUNT"</span>
+  PARAMETER CCSDSLENGTH 32 16 UINT 0 0 0 <span class="s2">"CCSDS PRIMARY HEADER PACKET LENGTH"</span>
+  MACRO_APPEND_START 1 5
+    APPEND_PARAMETER SETTING 16 UINT 0 5 0 <span class="s2">"Setting #x"</span>
+  MACRO_APPEND_END</code></pre></figure>
+
+<h2 id="telemetry-definition-files">
+<a id="telemetry-definition-files" class="anchor" href="#telemetry-definition-files" aria-hidden="true"><span class="octicon octicon-link"></span></a>Telemetry Definition Files</h2>
+
+<p>Telemetry definition files define the telemetry packets that can be received and processed from COSMOS targets. One large file can be used to define the telemetry packets, or multiple files can be used at the user’s discretion. Telemetry definition files are placed in the config/TARGET/cmd_tlm directory and are processed alphabetically. Therefore if you have some telemetry files that depend on others, e.g. they override or extend existing telemetry, they must be named last. Due to the way the <a href="http://www.asciitable.com/">ASCII Table</a> is structured, files beginning with capital letters are processed before lower case letters. To force a file to be processed last either prepend it with ‘z’ or ‘~’.</p>
+
+<h2 id="telemetry-keywords">
+<a id="telemetry-keywords" class="anchor" href="#telemetry-keywords" aria-hidden="true"><span class="octicon octicon-link"></span></a><strong>Telemetry Keywords:</strong>
+</h2>
+
+<h3 id="telemetry">
+<a id="telemetry" class="anchor" href="#telemetry" aria-hidden="true"><span class="octicon octicon-link"></span></a>TELEMETRY</h3>
+
+<p>The TELEMETRY keyword designates the start of a new telemetry packet.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Target Name</td>
+      <td>Name of the target this command is associated with</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Packet Name</td>
+      <td>Name of this telemetry packet. Also referred to as its mnemonic. Must be unique to telemetry packets in this target. Ideally will be as short and clear as possible.</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>BIG_ENDIAN or LITTLE_ENDIAN</td>
+      <td>Indicates if the data in this packet is in Big Endian or Little Endian format.</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Description</td>
+      <td>Description of this telemetry packet. Must be enclosed with “”</td>
+      <td>No</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">TELEMETRY COSMOS VERSION BIG_ENDIAN <span class="s2">"Version information"</span></code></pre></figure>
+
+<h3 id="select_telemetry">
+<a id="select_telemetry" class="anchor" href="#select_telemetry" aria-hidden="true"><span class="octicon octicon-link"></span></a>SELECT_TELEMETRY</h3>
+
+<p>The SELECT_TELEMETRY keyword selects an existing telemetry packet for editing.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Target Name</td>
+      <td>Name of the target this telemetry packet is associated with</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Packet Name</td>
+      <td>Name of this telemetry packet</td>
+      <td>Yes</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">SELECT_TELEMETRY COSMOS VERSION</code></pre></figure>
+
+<h3 id="limits_group">
+<a id="limits_group" class="anchor" href="#limits_group" aria-hidden="true"><span class="octicon octicon-link"></span></a>LIMITS_GROUP</h3>
+
+<p>The LIMITS_GROUP keyword defines a related group of limits that can be enabled and disabled together. It can be used to group related limits as a subsystem that can be enabled or disabled as that particular subsystem is powered (for example). To enable a group call the enable_limits_group(“NAME”) method in Script Runner. To disable a group call the disable_limits_group(“NAME”) in Script Runner. Items can belong to multiple groups but the last enabled or disabled group “wins”. For example, if an item belongs to GROUP1 and GROUP2 and you first enable GROUP1 and then disable GROUP2 the item will be disabled. If you then enable GROUP1 again it will be enabled.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Group Name</td>
+      <td>Name of the limits group</td>
+      <td>Yes</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="limits_group_item">
+<a id="limits_group_item" class="anchor" href="#limits_group_item" aria-hidden="true"><span class="octicon octicon-link"></span></a>LIMITS_GROUP_ITEM</h3>
+
+<p>The LIMITS_GROUP_ITEM keyword adds the specified telemetry item to the last defined LIMITS_GROUP.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Target Name</td>
+      <td>Name of the target</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Packet Name</td>
+      <td>Name of the packet</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Item Name</td>
+      <td>Name of the telemetry item to add to the group</td>
+      <td>Yes</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">LIMITS_GROUP SUBSYSTEM
+  LIMITS_GROUP_ITEM INST HEALTH_STATUS TEMP1
+  LIMITS_GROUP_ITEM INST HEALTH_STATUS TEMP2
+  LIMITS_GROUP_ITEM INST HEALTH_STATUS TEMP3</code></pre></figure>
+
+<p>This information is typically kept in a separate configuration file in the config/TARGET/cmd_tlm folder named limits_groups.txt. If you want to configure multiple target items in a particular group you should put this information in the config/SYSTEM/cmd_tlm/limits_groups.txt file. The SYSTEM target is processed last and contains information that crosses target boundaries.</p>
+
+<h2 id="telemetry-modifiers">
+<a id="telemetry-modifiers" class="anchor" href="#telemetry-modifiers" aria-hidden="true"><span class="octicon octicon-link"></span></a>Telemetry Modifiers</h2>
+
+<p>The following keywords modify a telemetry packet and are only applicable after the TELEMETRY or SELECT_TELEMETRY keywords. They are typically indented within the definition file to show ownership to the previously defined telemetry packet.</p>
+
+<h3 id="item">
+<a id="item" class="anchor" href="#item" aria-hidden="true"><span class="octicon octicon-link"></span></a>ITEM</h3>
+
+<p>The ITEM keyword defines a telemetry item in the current telemetry packet.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Name</td>
+      <td>Name of the telemetry item. Also referred to as its mnemonic. Must be unique within the packet.</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Bit Offset</td>
+      <td>Bit offset into the telemetry packet of the Most Significant Bit of this parameter. May be negative to indicate on offset from the end of the packet. Always use a bit offset of 0 for derived parameters.</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Bit Size</td>
+      <td>Bit size of this telemetry item. Zero or Negative values may be used to indicate that a string fills the packet up to the offset from the end of the packet specified by this value. If Bit Offset = 0 and Bit Size = 0 then this is a derived item and the Data Type must be set to ‘DERIVED’.</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Data Type</td>
+      <td>Data Type of this telemetry item. Possible types: INT = Integer, UINT = Unsigned Integer, FLOAT = IEEE Floating point data, STRING = Character string data, BLOCK = Non-Ascii Data Block, DERIVED = Bit Offset and Bit Size of 0.</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Description</td>
+      <td>Description for this telemetry item. Must be enclosed with “”.</td>
+      <td>No</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">ITEM PKTID 112 16 UINT <span class="s2">"Packet ID"</span>
+ITEM DATA 0 0 DERIVED <span class="s2">"Derived data"</span></code></pre></figure>
+
+<h3 id="append_item">
+<a id="append_item" class="anchor" href="#append_item" aria-hidden="true"><span class="octicon octicon-link"></span></a>APPEND_ITEM</h3>
+
+<p>The APPEND_ITEM keyword appends a new telemetry item to the end of the current telemetry packet. Parameter details are the same as the ITEM keyword except that Bit Offset is not used. This is the preferred way to declare items as it allows for adding and removing items without having to recalculate bit offsets for all other items.</p>
+
+<p>Example Usage:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">APPEND_ITEM PKTID 16 UINT <span class="s2">"Packet ID"</span></code></pre></figure>
+
+<h3 id="id_item">
+<a id="id_item" class="anchor" href="#id_item" aria-hidden="true"><span class="octicon octicon-link"></span></a>ID_ITEM</h3>
+
+<p>Much like the ITEM keyword, the ID_ITEM keyword defines a telemetry item in the current telemetry packet. However, ID_ITEMs are used to identify a telemetry packet from a binary array of data. The COSMOS Commmand and Telemetry Server identifies packets after they are received by an interface. A telemetry packet may have one or more ID_ITEMS, all of which must match the binary data for the telemetry packet to be identified.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Name</td>
+      <td>Name of the telemetry item. Also referred to as its mnemonic. Must be unique within the packet.</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Bit Offset</td>
+      <td>Bit offset into the telemetry packet of the Most Significant Bit of this parameter. May be negative to indicate on offset from the end of the packet. Always use a bit offset of 0 for derived parameters.</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Bit Size</td>
+      <td>Bit size of this telemetry item. Zero or Negative values may be used to indicate that a string fills the packet up to the offset from the end of the packet specified by this value. If Bit Offset = 0 and Bit Size = 0 then this is a derived item and the Data Type must be set to ‘DERIVED’.</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Data Type</td>
+      <td>Data Type of this telemetry item. Possible types: INT = Integer, UINT = Unsigned Integer, FLOAT = IEEE Floating point data, STRING = Character string data, BLOCK = Non-Ascii Data Block, DERIVED = Bit Offset and Bit Size of 0.</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>ID Value</td>
+      <td>The value of this telemetry item that uniquely identifies this telemetry packet</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Description</td>
+      <td>Description for this telemetry item. Must be enclosed with “”.</td>
+      <td>No</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">ID_ITEM PKTID 112 16 UINT 1 <span class="s2">"Packet ID which must be 1"</span></code></pre></figure>
+
+<h3 id="append_id_item">
+<a id="append_id_item" class="anchor" href="#append_id_item" aria-hidden="true"><span class="octicon octicon-link"></span></a>APPEND_ID_ITEM</h3>
+
+<p>The APPEND_ID_ITEM keyword appends a new id telemetry item to the end of the current telemetry packet. Parameter details are the same as the ID_ITEM keyword except that Bit Offset is not used.</p>
+
+<p>Example Usage:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">APPEND_ID_ITEM PKTID 16 UINT 1 <span class="s2">"Packet ID which must be 1"</span></code></pre></figure>
+
+<h3 id="array_item">
+<a id="array_item" class="anchor" href="#array_item" aria-hidden="true"><span class="octicon octicon-link"></span></a>ARRAY_ITEM</h3>
+
+<p>The ARRAY_ITEM keyword defines a telemetry item in the current telemetry packet that is an array.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Name</td>
+      <td>Name of the telemetry item. Also referred to as its mnemonic. Must be unique within the packet.</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Bit Offset</td>
+      <td>Bit offset into the telemetry packet of the Most Significant Bit of this parameter. May be negative to indicate on offset from the end of the packet. Always use a bit offset of 0 for derived parameters.</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Bit Size of Each Item</td>
+      <td>Bit size of each array item. Must be greater than or equal to 0. If Bit Offset = 0 and Bit Size = 0 then this is a derived parameter and the Data Type must be set to ‘DERIVED’.</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Data Type of Each Item</td>
+      <td>Data Type of each array item. Possible types: INT = Integer, UINT = Unsigned Integer, FLOAT = IEEE Floating point data, STRING = Character string data, BLOCK = Non-Ascii Data Block, DERIVED = Bit Offset and Bit Size of 0.</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Total Bit Size of Array</td>
+      <td>Total Bit Size of the Array. Zero or Negative values may be used to indicate the array fills the packet up to the offset from the end of the packet specified by this value.</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Description</td>
+      <td>Description for this parameter. Must be enclosed with “”.</td>
+      <td>No</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">ARRAY_ITEM ARRAY 64 32 FLOAT 320 <span class="s2">"Array of 10 floats"</span></code></pre></figure>
+
+<h3 id="append_array_item">
+<a id="append_array_item" class="anchor" href="#append_array_item" aria-hidden="true"><span class="octicon octicon-link"></span></a>APPEND_ARRAY_ITEM</h3>
+
+<p>The APPEND_ARRAY_ITEM keyword appends a new array telemetry item to the end of the current telemetry packet. Parameter details are the same as the ARRAY_ITEM keyword except that Bit Offset is not used.</p>
+
+<p>Example Usage:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">APPEND_ARRAY_ITEM ARRAY 32 FLOAT 320 <span class="s2">"Array of 10 floats"</span></code></pre></figure>
+
+<h3 id="select_item">
+<a id="select_item" class="anchor" href="#select_item" aria-hidden="true"><span class="octicon octicon-link"></span></a>SELECT_ITEM</h3>
+
+<p>The SELECT_ITEM keyword selects an existing telemetry item for editing in the current telemetry packet.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Name</td>
+      <td>Name of the telemetry item to select for modification</td>
+      <td>Yes</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">SELECT_TELEMETRY COSMOS VERSION
+  SELECT_ITEM RUBY</code></pre></figure>
+
+<h3 id="macro_append_start-and-macro_append_end-1">
+<a id="macro_append_start-and-macro_append_end-1" class="anchor" href="#macro_append_start-and-macro_append_end-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>MACRO_APPEND_START and MACRO_APPEND_END</h3>
+
+<p>The MACRO_APPEND_START keyword is used to create a list of telemetry items which are appended to the current telemetry packet. Each of these items will be repeated with a number appended to their names to form a list of items with a unique mnemonic for each.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>First Number in Range</td>
+      <td>First value that will be appended to the telemetry item mnemonic</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Last Number in Range</td>
+      <td>Last number that will be appended to the telemetry item mnemonic</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Format String</td>
+      <td>An optional format string that defaults to “%s%d”. Where the %s represents the constant portion of the items mnemonic and the %d represents the number in the range that is appended. For example, with a range of 1 to 2 and two items named VALUE and DATA, the format string “%s_%d” would create the mnemonics VALUE_1, DATA_1, VALUE_2, and DATA_2.</td>
+      <td>No</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">MACRO_APPEND_START 1 2 <span class="s2">"%s_%d"</span>
+  APPEND_ITEM VALUE 16 UINT <span class="s2">"Value"</span>
+  APPEND_ITEM DATA 16 UINT <span class="s2">"Data"</span>
+MACRO_APPEND_END</code></pre></figure>
+
+<p>This results in a telemtry packet with the following mnemonics: VALUE_1, DATA_1, VALUE_2, and DATA_2. Note that due to the dynamic nature of this keyword you must use the APPEND variation of the ITEM keywords.</p>
+
+<h3 id="meta-2">
+<a id="meta-2" class="anchor" href="#meta-2" aria-hidden="true"><span class="octicon octicon-link"></span></a>META</h3>
+
+<p>The META keyword stores metadata for the current telemetry packet that can be used by custom tools for various purposes (For example to store additional information needed to generate FSW header files).</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Meta Name</td>
+      <td>Name of the metadata to store</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Meta Values</td>
+      <td>One or more values to be stored for this Meta Name</td>
+      <td>No</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">META FSW_TYPE <span class="s2">"struct tlm_packet"</span></code></pre></figure>
+
+<h3 id="processor">
+<a id="processor" class="anchor" href="#processor" aria-hidden="true"><span class="octicon octicon-link"></span></a>PROCESSOR</h3>
+
+<p>The PROCESSOR keyword defines a processor class that execute code every time a packet is received.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Processor Name</td>
+      <td>The name of the processor</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Processor Class Filename</td>
+      <td>Name of the Ruby file which implements the processor. This file should be in the config/TARGET/lib directory so it can be found by COSMOS.</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Processor Specific Options</td>
+      <td>Variable length number of options that will be passed to the class constructor.</td>
+      <td>Processor Specific</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">PROCESSOR TEMP1HIGH watermark_processor.rb TEMP1</code></pre></figure>
+
+<h3 id="allow_short">
+<a id="allow_short" class="anchor" href="#allow_short" aria-hidden="true"><span class="octicon octicon-link"></span></a>ALLOW_SHORT</h3>
+
+<p>Allows the telemetry packet to be received with a data portion that is smaller than the defined size without warnings.  Any extra space in the packet will be filled in with zeros by COSMOS.</p>
+
+<h2 id="item-modifiers">
+<a id="item-modifiers" class="anchor" href="#item-modifiers" aria-hidden="true"><span class="octicon octicon-link"></span></a>Item Modifiers</h2>
+
+<p>The following keywords modify a telemetry item and are only applicable after the various ITEM keywords as defined above. They are typically indented within the definition file to show ownership to the previously defined telemetry item.</p>
+
+<h3 id="format_string-1">
+<a id="format_string-1" class="anchor" href="#format_string-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>FORMAT_STRING</h3>
+
+<p>The FORMAT_STRING keyword adds printf style formatting to a telemetry item.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Format</td>
+      <td>How to format the command parameter using printf syntax. For example: “0x%0X” will display an item in hex.</td>
+      <td>Yes</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">FORMAT_STRING <span class="s2">"0x%0X"</span></code></pre></figure>
+
+<h3 id="units-1">
+<a id="units-1" class="anchor" href="#units-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>UNITS</h3>
+
+<p>The UNITS keyword add units knowledge to a telemetry item.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Full Name</td>
+      <td>Full name of the units type. For example: Celcius</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Abbreviated Name</td>
+      <td>Abbreviation for the units. For example: C</td>
+      <td>Yes</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">UNITS Celcius C
+UNITS Kilometers KM</code></pre></figure>
+
+<h3 id="description">
+<a id="description" class="anchor" href="#description" aria-hidden="true"><span class="octicon octicon-link"></span></a>DESCRIPTION</h3>
+
+<p>The DESCRIPTION keywords allow you to override an existing description. This is useful for changing things in conjunction with SELECT_TELEMETRY and SELECT_ITEM.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Description</td>
+      <td>The new description</td>
+      <td>Yes</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">SELECT_TELEMETRY COSMOS VERSION
+  SELECT_PARAMETER RUBY
+    DESCRIPTION <span class="s2">"The Ruby version"</span></code></pre></figure>
+
+<h3 id="state-1">
+<a id="state-1" class="anchor" href="#state-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>STATE</h3>
+
+<p>The STATE keyword defines a key/value pair for the current telemetry item. For example, you might define states for ON = 1 and OFF = 0. This allows the word ON to be used rather than the number 1 when checking the telemetry item and allows for much greater clarity and less chance for user error.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Key</td>
+      <td>The state name</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Value</td>
+      <td>The state value</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Color</td>
+      <td>The color the state should be displayed as. Default is black. Choices are GREEN, YELLOW, RED.</td>
+      <td>No</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">APPEND_ITEM ENABLE 32 UINT <span class="s2">"Enable setting"</span>
+  STATE FALSE 0
+  STATE TRUE 1
+APPEND_ITEM STRING 1024 STRING <span class="s2">"String"</span>
+  STATE <span class="s2">"NOOP"</span> <span class="s2">"NOOP"</span> GREEN
+  STATE <span class="s2">"ARM LASER"</span> <span class="s2">"ARM LASER"</span> YELLOW
+  STATE <span class="s2">"FIRE LASER"</span> <span class="s2">"FIRE LASER"</span> RED</code></pre></figure>
+
+<h3 id="read_conversion">
+<a id="read_conversion" class="anchor" href="#read_conversion" aria-hidden="true"><span class="octicon octicon-link"></span></a>READ_CONVERSION</h3>
+
+<p>The READ_CONVERSION keyword applies a conversion to the current telemetry item. This conversion is implemented in a custom Ruby file which should be located in the target’s lib folder and required by the target’s target.txt file. See the documentation in <link ac:anchor="TargetConfiguration">. The class must require ‘cosmos/conversions/conversion’ and inherit from Conversion. It must implement the initialize method if it takes extra parameters and must always implement the call method. This conversion factor is applied to the raw value in the telemetry packet before it is displayed to the user. The user still has the ability to see the raw unconverted value in a details dialog.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Class file name</td>
+      <td>The file name which contains the Ruby class. The file name must be named after the class such that the class is a CamelCase version of the underscored file name. For example: ‘the_great_conversion.rb’ should contain ‘class TheGreatConversion’.</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Param X</td>
+      <td>Parameter #x. Additional parameter values for the conversion which are passed to the class constructor.</td>
+      <td>No</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">READ_CONVERSION the_great_conversion.rb 1000</code></pre></figure>
+
+<p>the_great_conversion.rb:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="nb">require</span> <span class="s1">'cosmos/conversions/conversion'</span>
+<span class="k">module</span> <span class="nn">Cosmos</span>
+  <span class="k">class</span> <span class="nc">TheGreatConversion</span> <span class="o">&lt;</span> <span class="no">Conversion</span>
+    <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">multiplier</span><span class="p">)</span>
+      <span class="k">super</span><span class="p">()</span>
+      <span class="vi">@multiplier</span> <span class="o">=</span> <span class="n">multiplier</span>
+    <span class="k">end</span>
+    <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">packet</span><span class="p">,</span> <span class="n">buffer</span><span class="p">)</span>
+      <span class="k">return</span> <span class="n">value</span> <span class="o">*</span> <span class="n">multiplier</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+<span class="k">end</span></code></pre></figure>
+
+<h3 id="poly_read_conversion">
+<a id="poly_read_conversion" class="anchor" href="#poly_read_conversion" aria-hidden="true"><span class="octicon octicon-link"></span></a>POLY_READ_CONVERSION</h3>
+
+<p>The POLY_READ_CONVERSION keyword adds a polynomial conversion factor to the current telemetry item. This conversion factor is applied to the raw value in the telemetry packet before it is displayed to the user. The user still has the ability to see the raw unconverted value in a details dialog.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>C0</td>
+      <td>Coefficient #0</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Cx</td>
+      <td>Coefficient #x. Additional coefficient values for the conversion. Any order polynomial conversion may be used so the value of ‘x’ will vary with the order of the polynomial. Note that larger order polynomials take longer to process than shorter order polynomials, but are sometimes more accurate.</td>
+      <td>No</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">POLY_READ_CONVERSION 10 0.5 0.25</code></pre></figure>
+
+<h3 id="seg_poly_read_conversion">
+<a id="seg_poly_read_conversion" class="anchor" href="#seg_poly_read_conversion" aria-hidden="true"><span class="octicon octicon-link"></span></a>SEG_POLY_READ_CONVERSION</h3>
+
+<p>The SEG_POLY_READ_CONVERSION keyword adds a segmented polynomial conversion factor to the current telemetry item. This conversion factor is applied to the raw value in the telemetry packet before it is displayed to the user. The user still has the ability to see the raw unconverted value in a details dialog.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Lower Bound</td>
+      <td>Defines the lower bound of the range of values that this segmented polynomial applies to. Is ignored for the segment with the smallest lower bound.</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>C0</td>
+      <td>Coefficient #0</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Cx</td>
+      <td>Coefficient #x. Additional coefficient values for the conversion. Any order polynomial conversion may be used so the value of ‘x’ will vary with the order of the polynomial. Note that larger order polynomials take longer to process than shorter order polynomials, but are sometimes more accurate.</td>
+      <td>No</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">SEG_POLY_READ_CONVERSION 0 10 0.5 0.25 <span class="c"># Apply the conversion to all values &lt; 50</span>
+SEG_POLY_READ_CONVERSION 50 11 0.5 0.275 <span class="c"># Apply the conversion to all values &gt;= 50 and &lt; 100</span>
+SEG_POLY_READ_CONVERSION 100 12 0.5 0.3 <span class="c"># Apply the conversion to all values &gt;= 100</span></code></pre></figure>
+
+<h3 id="generic_read_conversion_start-and-generic_read_conversion_end">
+<a id="generic_read_conversion_start-and-generic_read_conversion_end" class="anchor" href="#generic_read_conversion_start-and-generic_read_conversion_end" aria-hidden="true"><span class="octicon octicon-link"></span></a>GENERIC_READ_CONVERSION_START and GENERIC_READ_CONVERSION_END</h3>
+
+<p>**NOTE: Generic conversions are not a good long term solution.  Consider creating a conversion class and using READ_CONVERSION instead.  READ_CONVERSION is easier to debug and higher performance. **</p>
+
+<p>The GENERIC_READ_CONVERSION_START keyword adds a generic conversion function to the current telemetry item. This conversion factor is applied to the raw value in the telemetry packet before it is displayed to the user. The user still has the ability to see the raw unconverted value in a details dialog. The conversion is specified as ruby code that receives two implied parameters: ‘value’ which is the raw value being read, and ‘packet’ which is a reference to the telemetry packet class (Note: referencing the packet as ‘myself’ is still supported for backwards compatibility). The last line of ruby code given should return the converted value. The GENERIC_READ_CONVERSION_END keyword specifies that all lines of ruby code for the conversion have been given.</p>
+
+<p>Example Usage:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="no">APPEND_ITEM</span> <span class="no">ITEM1</span> <span class="mi">32</span> <span class="no">UINT</span>
+  <span class="no">GENERIC_READ_CONVERSION_START</span>
+    <span class="n">value</span> <span class="o">*</span> <span class="mi">1</span><span class="o">.</span><span class="mi">5</span>  <span class="c1"># Convert the value by a scale factor</span>
+  <span class="no">GENERIC_READ_CONVERSION_END</span></code></pre></figure>
+
+<p>You can also create a conversion that depends on another parameter For example:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="no">TELEMETRY</span> <span class="no">INST</span> <span class="no">HEALTH_STATUS</span> <span class="no">BIG_ENDIAN</span> <span class="s2">"Health and status"</span>
+  <span class="p">.</span><span class="nf">.</span>
+  <span class="no">APPEND_ITEM</span> <span class="no">ZONE</span> <span class="mi">8</span> <span class="no">UINT</span> <span class="s2">"Heater zone"</span>
+    <span class="no">STATE</span> <span class="no">ONE</span> <span class="mi">1</span>
+    <span class="no">STATE</span> <span class="no">TWO</span> <span class="mi">2</span>
+  <span class="no">ITEM</span> <span class="no">ZONE_CONV</span> <span class="mi">0</span> <span class="mi">0</span> <span class="no">DERIVED</span>
+    <span class="no">GENERIC_READ_CONVERSION_START</span>
+      <span class="n">result</span> <span class="o">=</span> <span class="n">packet</span><span class="p">.</span><span class="nf">read</span><span class="p">(</span><span class="s1">'ZONE'</span><span class="p">,</span> <span class="ss">:RAW</span><span class="p">)</span> <span class="c1"># Access the raw zone value</span>
+      <span class="k">return</span> <span class="n">result</span> <span class="o">*</span> <span class="mi">1</span><span class="o">.</span><span class="mi">5</span>
+    <span class="no">GENERIC_READ_CONVERSION_END</span></code></pre></figure>
+
+<h3 id="limits">
+<a id="limits" class="anchor" href="#limits" aria-hidden="true"><span class="octicon octicon-link"></span></a>LIMITS</h3>
+
+<p>The LIMITS keywords defines a set of limits for a telemetry item. If limits are violated a message is printed in the Command and Telemetry Server to indicate an item went out of limits. Other tools also use this information to update displays with different colored telemetry items or other useful information. The concept of “limits sets” is defined to allow for different limits values in different environments. For example, you might want tighter or looser limits on telemetry if your environment changes such as during thermal vacuum testing.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Limits Set</td>
+      <td>Name of the limits set. If you have no unique limits sets use the keyword DEFAULT.</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Persistence</td>
+      <td>Number of consecutive times the telemetry item must be within a different limits range before changing limits state.</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>ENABLED or DISABLED</td>
+      <td>Whether limits monitoring for this telemetry item is initially enabled or disabled.</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Red Low Limit</td>
+      <td>If the telemetry value is less than or equal to this value a Red Low condition will be detected.</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Yellow Low Limit</td>
+      <td>If the telemetry value is less than or equal to this value, but greater than the Red Low Limit, a Yellow Low condition will be detected.</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Yellow High Limit</td>
+      <td>If the telemetry value is greater than or equal to this value, but less than the Red High Limit, a Yellow High condition will be detected.</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Red High Limit</td>
+      <td>If the telemetry value is greater than or equal to this value a Red High condition will be detected.</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Green Low Limit</td>
+      <td>Setting the Green Low and Green High limits defines an “operational limit” which is colored blue by COSMOS. This allows for a distinct desired operational range which is narrower than the green safety limit. If the telemetry value is greater than or equal to this value, but less than the Green High Limit, a Blue operational condition will be detected.</td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>Green High Limit</td>
+      <td>See above. If the telemetry value is less than or equal to this value, but greater than the Green Low Limit, a Blue operational condition will be detected.</td>
+      <td>No</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">LIMITS DEFAULT 3 ENABLED -80.0 -70.0 60.0 80.0 -20.0 20.0
+LIMITS TVAC 3 ENABLED -80.0 -30.0 30.0 80.0</code></pre></figure>
+
+<h3 id="limits_response">
+<a id="limits_response" class="anchor" href="#limits_response" aria-hidden="true"><span class="octicon octicon-link"></span></a>LIMITS_RESPONSE</h3>
+
+<p>The LIMITS_RESPONSE keyword defines a response class that will be called when the limits state of the current item changes.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Response Class Filename</td>
+      <td>Name of the Ruby file which implements the limits response. This file should be in the config/TARGET/lib directory so it can be found by COSMOS.</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Response Specific Options</td>
+      <td>Variable length number of options that will be passed to the class constructor.</td>
+      <td>Response Specific</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">LIMITS_RESPONSE example_limits_response.rb 10</code></pre></figure>
+
+<h3 id="meta-3">
+<a id="meta-3" class="anchor" href="#meta-3" aria-hidden="true"><span class="octicon octicon-link"></span></a>META</h3>
+
+<p>The META keyword stores metadata for the current item that can be used by custom tools for various purposes (For example to store additional information needed to generate FSW header files).</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Meta Name</td>
+      <td>Name of the metadata to store</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Meta Values</td>
+      <td>One or more values to be stored for this Meta Name</td>
+      <td>No</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">META TEST <span class="s2">"This item is for test purposes only"</span></code></pre></figure>
+
+<h2 id="example-file-1">
+<a id="example-file-1" class="anchor" href="#example-file-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>Example File</h2>
+
+<p><strong>Example File: &lt;COSMOSPATH&gt;/config/MY_TARGET/cmd_tlm/tlm.txt</strong></p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">TELEMETRY MY_TARGET HS BIG_ENDIAN <span class="s2">"Health and Status for My Target"</span>
+  ITEM CCSDSVER 0 3 UINT <span class="s2">"CCSDS PACKET VERSION NUMBER (SEE CCSDS 133.0-B-1)"</span>
+  ITEM CCSDSTYPE 3 1 UINT <span class="s2">"CCSDS PACKET TYPE (COMMAND OR TELEMETRY)"</span>
+    STATE TLM 0
+    STATE CMD 1
+  ITEM CCSDSSHF 4 1 UINT <span class="s2">"CCSDS SECONDARY HEADER FLAG"</span>
+    STATE FALSE 0
+    STATE TRUE 1
+  ID_ITEM CCSDSAPID 5 11 UINT 102 <span class="s2">"CCSDS APPLICATION PROCESS ID"</span>
+  ITEM CCSDSSEQFLAGS 16 2 UINT <span class="s2">"CCSDS SEQUENCE FLAGS"</span>
+    STATE FIRST 0
+    STATE CONT 1
+    STATE LAST 2
+    STATE NOGROUP 3
+  ITEM CCSDSSEQCNT 18 14 UINT <span class="s2">"CCSDS PACKET SEQUENCE COUNT"</span>
+  ITEM CCSDSLENGTH 32 16 UINT <span class="s2">"CCSDS PACKET DATA LENGTH"</span>
+  ITEM CCSDSDAY 48 16 UINT <span class="s2">"DAYS SINCE EPOCH (JANUARY 1ST, 1958, MIDNIGHT)"</span>
+  ITEM CCSDSMSOD 64 32 UINT <span class="s2">"MILLISECONDS OF DAY (0 - 86399999)"</span>
+  ITEM CCSDSUSOMS 96 16 UINT <span class="s2">"MICROSECONDS OF MILLISECOND (0-999)"</span>
+  ITEM ANGLEDEG 112 16 INT <span class="s2">"Instrument Angle in Degrees"</span>
+    POLY_READ_CONVERSION 0 57.295
+  ITEM MODE 128 8 UINT <span class="s2">"Instrument Mode"</span>
+    STATE NORMAL 0 GREEN
+    STATE DIAG 1 YELLOW
+  MACRO_APPEND_START 1 5
+    APPEND_ITEM SETTING 16 UINT <span class="s2">"SETTING #x"</span>
+  MACRO_APPEND_END
+  ITEM TIMESECONDS 0 0 FLOAT <span class="s2">"DERIVED TIME SINCE EPOCH IN SECONDS"</span>
+    GENERIC_READ_CONVERSION_START
+      <span class="o">((</span>packet.read<span class="o">(</span><span class="s1">'ccsdsday'</span><span class="o">)</span> <span class="k">*</span> 86400.0<span class="o">)</span> + <span class="o">(</span>packet.read<span class="o">(</span><span class="s1">'ccsdsmsod'</span><span class="o">)</span> / 1000.0<span class="o">)</span> + <span class="o">(</span>packet.read<span class="o">(</span><span class="s1">'ccsdsusoms'</span><span class="o">)</span> / 1000000.0<span class="o">))</span>
+    GENERIC_READ_CONVERSION_END
+  ITEM TIMEFORMATTED 0 0 STRING <span class="s2">"DERIVED TIME SINCE EPOCH AS A FORMATTED STRING"</span>
+    GENERIC_READ_CONVERSION_START
+      <span class="nb">time</span> <span class="o">=</span> Time.ccsds2mdy<span class="o">(</span>packet.read<span class="o">(</span><span class="s1">'ccsdsday'</span><span class="o">)</span>, packet.read<span class="o">(</span><span class="s1">'ccsdsmsod'</span><span class="o">)</span>, packet.read<span class="o">(</span><span class="s1">'ccsdsusoms'</span><span class="o">))</span>
+      sprintf<span class="o">(</span><span class="s1">'%04u/%02u/%02u %02u:%02u:%02u.%06u'</span>, <span class="nb">time</span><span class="o">[</span>0], <span class="nb">time</span><span class="o">[</span>1], <span class="nb">time</span><span class="o">[</span>2], <span class="nb">time</span><span class="o">[</span>3], <span class="nb">time</span><span class="o">[</span>4], <span class="nb">time</span><span class="o">[</span>5], <span class="nb">time</span><span class="o">[</span>6]<span class="o">)</span>
+    GENERIC_READ_CONVERSION_END</code></pre></figure>
+
+
+          
+
+
+
+
+
+  
+  
+
+  
+  
+
+  
+  
+
+  
+  
+
+  
+  
+
+  
+  
+
+  
+  
+    <div class="top-section-nav">
+      <div class="left align-right">
+          
+            
+            
+            <a href="/docs/system/" class="prev">Back</a>
+          
+      </div>
+      <div class="right align-left">
+          
+            
+            
+            <a href="/docs/interfaces/" class="next">Next</a>
+          
+      </div>
+    </div>
+    <div class="clear"></div>
+    
+
+        </article>
+      </div>
+
+      <div class="unit one-fifth hide-on-mobiles">
+  <aside>
+    
+    <h4>Getting Started</h4>
+    
+
+<ul>
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/home/">Welcome</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/installation/">Installation</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/upgrading/">Upgrading and the Gemfile</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/structure/">Directory structure</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/gettingstarted/">Getting Started</a></li>
+      
+
+
+</ul>
+
+    
+    <h4>Configuration</h4>
+    
+
+<ul>
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/system/">System Configuration</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+      <li class="current"><a href="/docs/cmdtlm/">Command and Telemetry Configuration</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/interfaces/">Interface Configuration</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/tools/">Tool Configuration</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/screens/">Telemetry Screens</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/grapher/">Telemetry Grapher</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/environment/">Environment Variables</a></li>
+      
+
+
+</ul>
+
+    
+    <h4>User's Guides</h4>
+    
+
+<ul>
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/scripting/">Scripting Guide</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/gemtargets/">Gem Based Targets and Tools</a></li>
+      
+
+
+</ul>
+
+    
+    <h4>Tips</h4>
+    
+
+<ul>
+
+  
+
+  
+
+  
+    
+  
+    
+      <li class=""><a href="/docs/chaining/">Chaining CmdTlmServers</a></li>
+      
+
+
+</ul>
+
+    
+    <h4>Development</h4>
+    
+
+<ul>
+
+  
+
+  
+
+  
+    
+      <li class=""><a href="/docs/system_class/">System Class</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/packet_class/">Packet Class</a></li>
+      
+
+
+</ul>
+
+    
+    <h4>Meta</h4>
+    
+
+<ul>
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/requirements/">Requirements and Design</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/xtce/">XTCE Support</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/contributing/">Contributing</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/contact/">Contact Us</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/history/">Release History</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/papers/">Papers</a></li>
+      
+
+
+</ul>
+
+    
+  </aside>
+</div>
+
+
+      <div class="clear"></div>
+
+    </div>
+  </section>
+
+
+  <script>
+  (function() {
+    var cx = '001663949569052626382:-enhin1layy';
+    var gcse = document.createElement('script');
+    gcse.type = 'text/javascript';
+    gcse.async = true;
+    gcse.src = 'https://cse.google.com/cse.js?cx=' + cx;
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(gcse, s);
+  })();
+</script>
+<footer role="contentinfo">
+  <div class="grid wider">
+    <div class="unit one-third center-on-mobiles">
+      <p>The contents of this website are &copy;&nbsp;2017 <a href="http://www.ballaerospace.com/" target="_blank">Ball Aerospace</a> under the terms of the <a href="https://github.com/BallAerospace/COSMOS/blob/master/LICENSE.txt" target="_blank">GPLv3&nbsp;License</a>.</p>
+      <p>Site design derived from the <a href="http://jekyllrb.com/" target="_blank">Jekyll</a> project documentation which is licensed under the terms of the <a href="https://github.com/jekyll/jekyll/blob/master/LICENSE" target="_blank">MIT License</a>.</p>
+    </div>
+    <div class="unit two-thirds align-right center-on-mobiles">
+      <p>
+        <gcse:search></gcse:search>
+        Proudly hosted by
+        <a href="https://github.com" target="_blank">
+          <img src="/img/footer-logo.png" width="100" height="30" alt="GitHub Social coding">
+        </a>
+      </p>
+    </div>
+  </div>
+</footer>
+
+  <script>
+  var anchorForId = function (id) {
+    var anchor = document.createElement("a");
+    anchor.className = "header-link";
+    anchor.href      = "#" + id;
+    anchor.innerHTML = "<span class=\"sr-only\">Permalink</span><i class=\"fa fa-link\"></i>";
+    anchor.title = "Permalink";
+    return anchor;
+  };
+
+  var linkifyAnchors = function (level, containingElement) {
+    var headers = containingElement.getElementsByTagName("h" + level);
+    for (var h = 0; h < headers.length; h++) {
+      var header = headers[h];
+
+      if (typeof header.id !== "undefined" && header.id !== "") {
+        header.appendChild(anchorForId(header.id));
+      }
+    }
+  };
+
+  document.onreadystatechange = function () {
+    if (this.readyState === "complete") {
+      var contentBlock = document.getElementsByClassName("docs")[0] || document.getElementsByClassName("news")[0];
+      if (!contentBlock) {
+        return;
+      }
+      for (var level = 1; level <= 6; level++) {
+        linkifyAnchors(level, contentBlock);
+      }
+    }
+  };
+</script>
+
+  
+  <!-- Google Analytics (http://google.com/analytics) -->
+  <script>
+    !function(j,e,k,y,l,L){j.GoogleAnalyticsObject=y,j[y]||(j[y]=function(){
+    (j[y].q=j[y].q||[]).push(arguments)}),j[y].l=+new Date,l=e.createElement(k),
+    L=e.getElementsByTagName(k)[0],l.src='//www.google-analytics.com/analytics.js',
+    L.parentNode.insertBefore(l,L)}(window,document,'script','ga');
+
+    ga('create', 'UA-60103689-1', 'cosmosrb.com');
+    ga('send', 'pageview');
+
+  </script>
+
+
+
+</body>
+</html>

@@ -1,0 +1,652 @@
+<!DOCTYPE HTML>
+<html lang="en-US">
+<head>
+  <meta charset="UTF-8">
+  <title>Packet Processors</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="generator" content="Jekyll v3.4.3">
+  <link rel="alternate" type="application/rss+xml" title="Ball Aerospace COSMOS News" href="/feed.xml">
+  <link rel="alternate" type="application/atom+xml" title="Recent commits to COSMOS’s master branch" href="https://github.com/BallAerospace/COSMOS/commits/master.atom">
+  <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic,900">
+  <link rel="stylesheet" href="/css/screen.css">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <!--[if lt IE 9]>
+  <script src="/js/html5shiv.min.js"></script>
+  <script src="/js/respond.min.js"></script>
+  <![endif]-->
+</head>
+
+
+<body class="wrap">
+  <header role="banner">
+  <nav class="mobile-nav show-on-mobiles">
+    <ul>
+  <li class="">
+    <a href="/">Home</a>
+  </li>
+  <li class="">
+    <span class="hide-on-mobiles"><a href="/docs/home/">Documentation</a></span>
+    <span class="show-on-mobiles"><a href="/docs/home/">Docs</a></span>
+  </li>
+  <li class="current">
+    <a href="/news/">News</a>
+  </li>
+  <li>
+    <a href="/help/">Help</a>
+  </li>
+  <li>
+    <a href="https://github.com/BallAerospace/COSMOS" target="_blank"><span class="hide-on-mobiles">View on </span>GitHub</a>
+  </li>
+</ul>
+
+  </nav>
+  <div class="grid wider">
+    <div class="unit one-third center-on-mobiles" style="margin-top:27px;">
+      <h1>
+        <a href="/">
+          <span class="sr-only">COSMOS</span>
+          <img src="/img/COSMOS.png" width="312" height="70" alt="COSMOS Logo">
+        </a>
+      </h1>
+    </div>
+    <nav class="main-nav unit two-thirds hide-on-mobiles">
+      <ul>
+  <li class="">
+    <a href="/">Home</a>
+  </li>
+  <li class="">
+    <span class="hide-on-mobiles"><a href="/docs/home/">Documentation</a></span>
+    <span class="show-on-mobiles"><a href="/docs/home/">Docs</a></span>
+  </li>
+  <li class="current">
+    <a href="/news/">News</a>
+  </li>
+  <li>
+    <a href="/help/">Help</a>
+  </li>
+  <li>
+    <a href="https://github.com/BallAerospace/COSMOS" target="_blank"><span class="hide-on-mobiles">View on </span>GitHub</a>
+  </li>
+</ul>
+
+    </nav>
+  </div>
+</header>
+
+
+    <section class="news">
+    <div class="grid wider">
+
+      <div class="docs-nav-mobile unit whole show-on-mobiles">
+  <select onchange="if (this.value) window.location.href=this.value">
+    <option value="">Navigate the blog…</option>
+    <option value="/news/">Home</option>
+    <optgroup label="v1.x">
+      
+      <option value="/news/2017/05/08/packet_processors/">Packet Processors</option>
+      
+      <option value="/news/2017/04/24/wired/">WIRED Article</option>
+      
+      <option value="/news/2017/03/29/cosmos-3-9-1-released/">Ball Aerospace COSMOS 3.9.1 Released</option>
+      
+      <option value="/news/2017/02/22/routers/">Routers</option>
+      
+      <option value="/news/2016/12/06/cosmos-3-8-3-released/">Ball Aerospace COSMOS 3.8.3 Released</option>
+      
+      <option value="/news/2016/10/13/cosmos-cubesat-ops/">SmallSat Ops</option>
+      
+      <option value="/news/2016/09/12/erb-config/">ERB Config Files</option>
+      
+      <option value="/news/2016/08/22/custom-widgets/">Custom Widgets</option>
+      
+      <option value="/news/2016/08/04/custom-cosmos_interface/">Custom COSMOS Interface</option>
+      
+      <option value="/news/2016/07/06/cosmos-cmd-tlm-names/">COSMOS Cmd/Tlm Naming</option>
+      
+      <option value="/news/2016/07/05/cosmos-3-8-2-released/">Ball Aerospace COSMOS 3.8.2 Released</option>
+      
+      <option value="/news/2016/05/12/cosmos-3-8-1-released/">Ball Aerospace COSMOS 3.8.1 Released</option>
+      
+      <option value="/news/2016/03/03/sparkfun/">Sparkfun Blog Post</option>
+      
+      <option value="/news/2016/02/27/xtce-support/">XTCE Support</option>
+      
+      <option value="/news/2016/02/27/fukuoka-award/">Fukuoka Special Award Winner</option>
+      
+      <option value="/news/2016/02/26/cosmos-3-8-0-released/">Ball Aerospace COSMOS 3.8.0 Released</option>
+      
+      <option value="/news/2016/02/11/simulated-target/">COSMOS Simulated Target</option>
+      
+      <option value="/news/2015/12/29/cosmos-3-7-1-released/">Ball Aerospace COSMOS 3.7.1 Released</option>
+      
+      <option value="/news/2015/11/25/cosmos-3-7-0-released/">Ball Aerospace COSMOS 3.7.0 Released</option>
+      
+      <option value="/news/2015/10/30/cosmos-3-6-3-released/">Ball Aerospace COSMOS 3.6.3 Released</option>
+      
+      <option value="/news/2015/10/28/cosmos-at-ats-conference/">COSMOS at the ATS Conference</option>
+      
+      <option value="/news/2015/08/10/cosmos-3-6-2-released/">Ball Aerospace COSMOS 3.6.2 Released</option>
+      
+      <option value="/news/2015/08/10/cosmos-3-6-1-released/">Ball Aerospace COSMOS 3.6.1 Released</option>
+      
+      <option value="/news/2015/08/07/cosmos-3-6-0-released/">Ball Aerospace COSMOS 3.6.0 Released</option>
+      
+      <option value="/news/2015/07/14/cosmos-3-5-3-released/">Ball Aerospace COSMOS 3.5.3 Released</option>
+      
+      <option value="/news/2015/07/14/cosmos-3-5-2-released/">Ball Aerospace COSMOS 3.5.2 Released</option>
+      
+      <option value="/news/2015/07/08/cosmos-3-5-1-released/">Ball Aerospace COSMOS 3.5.1 Released</option>
+      
+      <option value="/news/2015/06/22/cosmos-3-5-0-released/">Ball Aerospace COSMOS 3.5.0 Released</option>
+      
+      <option value="/news/2015/05/08/cosmos-3-4-2-released/">Ball Aerospace COSMOS 3.4.2 Released</option>
+      
+      <option value="/news/2015/05/01/cosmos-3-4-1-released/">Ball Aerospace COSMOS 3.4.1 Released</option>
+      
+      <option value="/news/2015/04/27/cosmos-3-4-0-released/">Ball Aerospace COSMOS 3.4.0 Released</option>
+      
+      <option value="/news/2015/04/06/cosmos-c-extension/">COSMOS BinaryAccessor#write C Extension</option>
+      
+      <option value="/news/2015/03/23/cosmos-3-3-3-released/">Ball Aerospace COSMOS 3.3.3 Released</option>
+      
+      <option value="/news/2015/03/19/cosmos-3-3-1-released/">Ball Aerospace COSMOS 3.3.1 - Startup Cheetah</option>
+      
+      <option value="/news/2015/02/27/cosmos-at-gsaw-conference/">COSMOS at the GSAW Conference</option>
+      
+      <option value="/news/2015/02/23/cosmos-3-2-1-released/">Ball Aerospace COSMOS 3.2.1 Released</option>
+      
+      <option value="/news/2015/02/17/cosmos-3-2-0-released/">Ball Aerospace COSMOS 3.2.0 Released</option>
+      
+      <option value="/news/2015/02/03/cosmos-3-1-2-released/">Ball Aerospace COSMOS 3.1.2 Released</option>
+      
+      <option value="/news/2015/01/28/cosmos-3-1-1-released/">Ball Aerospace COSMOS 3.1.1 Released</option>
+      
+      <option value="/news/2015/01/06/ball-aerospace-cosmos-open-sourced/">Ball Aerospace COSMOS Open Sourced</option>
+      
+    </optgroup>
+  </select>
+</div>
+
+
+      <div class="unit four-fifths">
+        <article>
+  <h2>
+    Packet Processors
+    <a href="/news/2017/05/08/packet_processors/" class="permalink" title="Permalink">∞</a>
+  </h2>
+  <span class="post-category">
+    <span class="label">
+      post
+    </span>
+  </span>
+  <div class="post-meta">
+    <span class="post-date">
+      08 May 2017
+    </span>
+    <a href="https://github.com/jmthomas" class="post-author">
+      <img src="https://github.com/jmthomas.png" class="avatar" alt="jmthomas avatar" width="24" height="24">
+      jmthomas
+    </a>
+  </div>
+  <div class="post-content">
+    <p>COSMOS Packet Processors are a powerful concept that allow you to run code each time a specified packet is received. COSMOS provides a few generic Packet Processors which allows you to include statistics about individual telemetry points in your defined packets. Let’s break down how the COSMOS included processors are used and how you can implement your own Packet Processor.</p>
+
+<p>First <a href="/docs/installation">install</a> COSMOS and start up the demo application. You’ll notice we declare a few targets of which one is called INST (for instrument). If you open up Packet Viewer and navigate to the INST target and the HEALTH_STATUS packet you can see a bunch of derived telemetry points at the top.</p>
+
+<p><img src="/img/2017_05_08_packet_viewer.png" alt="Packet Viewer" /></p>
+
+<p>These points aren’t immediately obvious in the GUI (<a href="https://github.com/BallAerospace/COSMOS/issues/441">Ticket #441</a>) but here they include all the items down to and including TEMP1STDDEV. If you right click on one of them and choose “Details” you can see that Data Type is DERVIED.</p>
+
+<p><img src="/img/2017_05_08_details.png" alt="Derived" /></p>
+
+<p>This is all controlled by the INST target’s cmd/tlm definition files. If you open the INST/cmd_tlm/inst_tlm.txt file from the demo you’ll see the following at the end of the HEALTH_STATUS packet definition:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>  ITEM TEMP1HIGH 0 0 DERIVED "High-water mark for TEMP1"
+    READ_CONVERSION processor_conversion.rb TEMP1WATER HIGH_WATER
+  ITEM TEMP1LOW 0 0 DERIVED "Low-water mark for TEMP1"
+    READ_CONVERSION processor_conversion.rb TEMP1WATER LOW_WATER
+  ITEM TEMP1MAX 0 0 DERIVED "Maximum of most recent 100 samples for TEMP1"
+    READ_CONVERSION processor_conversion.rb TEMP1STAT MAX
+  ITEM TEMP1MIN 0 0 DERIVED "Minimum of most recent 100 samples for TEMP1"
+    READ_CONVERSION processor_conversion.rb TEMP1STAT MIN
+  ITEM TEMP1MEAN 0 0 DERIVED "Mean of most recent 100 samples for TEMP1"
+    READ_CONVERSION processor_conversion.rb TEMP1STAT MEAN
+  ITEM TEMP1STDDEV 0 0 DERIVED "Stddev of most recent 100 samples for TEMP1"
+    READ_CONVERSION processor_conversion.rb TEMP1STAT STDDEV
+  PROCESSOR TEMP1STAT statistics_processor.rb TEMP1 100
+  PROCESSOR TEMP1WATER watermark_processor.rb TEMP1
+</code></pre>
+</div>
+
+<p>These definitions create six new telemetry <a href="/docs/cmdtlm/#item">ITEMs</a>. The <a href="/docs/cmdtlm/#read_conversion">READ_CONVERSION</a> line takes a conversion class and then variable parameters that are passed to the class. Here we’re using the COSMOS provided processor_conversion.rb class which pulls a result calculated by a PROCESSOR. The last two lines define the two <a href="/docs/cmdtlm/#processor">PROCESSORs</a>.</p>
+
+<p>Currently COSMOS provides the following three processors:</p>
+
+<ol>
+  <li>new_packet_log_processor.rb - This processor creates a new packet log whenever the given Packet is seen.</li>
+  <li>watermark_processor.rb - This processor monitors a telemetry item and tracks the high and low water points of that item since the launch of the Command and Telemetry Server.</li>
+  <li>statistics_processor.rb - This processor collects a given number of samples of a telemetry item and calculates the minimum, maximum, mean, and standard deviation over the sample.</li>
+</ol>
+
+<p>If all you want to do is to calculate useful statistics on your telemetry items you can stop reading now. For those who want to know how this works or want to implement their own Packet Processors, let’s continue into the source code.</p>
+
+<h2 id="processor-implementation">Processor Implementation</h2>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="nb">require</span> <span class="s1">'cosmos/processors/processor'</span>
+<span class="k">module</span> <span class="nn">Cosmos</span>
+  <span class="k">class</span> <span class="nc">WatermarkProcessor</span> <span class="o">&lt;</span> <span class="no">Processor</span>
+    <span class="c1"># @param item_name [String] The name of the item to gather statistics on</span>
+    <span class="c1"># @param value_type #See Processor::initialize</span>
+    <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">item_name</span><span class="p">,</span> <span class="n">value_type</span> <span class="o">=</span> <span class="ss">:CONVERTED</span><span class="p">)</span>
+      <span class="k">super</span><span class="p">(</span><span class="n">value_type</span><span class="p">)</span>
+      <span class="vi">@item_name</span> <span class="o">=</span> <span class="n">item_name</span><span class="p">.</span><span class="nf">to_s</span><span class="p">.</span><span class="nf">upcase</span>
+      <span class="n">reset</span><span class="p">()</span>
+    <span class="k">end</span>
+
+    <span class="c1"># See Processor#call</span>
+    <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="n">packet</span><span class="p">,</span> <span class="n">buffer</span><span class="p">)</span>
+      <span class="n">value</span> <span class="o">=</span> <span class="n">packet</span><span class="p">.</span><span class="nf">read</span><span class="p">(</span><span class="vi">@item_name</span><span class="p">,</span> <span class="vi">@value_type</span><span class="p">,</span> <span class="n">buffer</span><span class="p">)</span>
+      <span class="n">high_water</span> <span class="o">=</span> <span class="vi">@results</span><span class="p">[</span><span class="ss">:HIGH_WATER</span><span class="p">]</span>
+      <span class="vi">@results</span><span class="p">[</span><span class="ss">:HIGH_WATER</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span> <span class="k">if</span> <span class="o">!</span><span class="n">high_water</span> <span class="n">or</span> <span class="n">value</span> <span class="o">&gt;</span> <span class="n">high_water</span>
+      <span class="n">low_water</span> <span class="o">=</span> <span class="vi">@results</span><span class="p">[</span><span class="ss">:LOW_WATER</span><span class="p">]</span>
+      <span class="vi">@results</span><span class="p">[</span><span class="ss">:LOW_WATER</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span> <span class="k">if</span> <span class="o">!</span><span class="n">low_water</span> <span class="n">or</span> <span class="n">value</span> <span class="o">&lt;</span> <span class="n">low_water</span>
+    <span class="k">end</span>
+
+    <span class="c1"># Reset any state</span>
+    <span class="k">def</span> <span class="nf">reset</span>
+      <span class="vi">@results</span><span class="p">[</span><span class="ss">:HIGH_WATER</span><span class="p">]</span> <span class="o">=</span> <span class="kp">nil</span>
+      <span class="vi">@results</span><span class="p">[</span><span class="ss">:LOW_WATER</span><span class="p">]</span> <span class="o">=</span> <span class="kp">nil</span>
+    <span class="k">end</span>
+
+    <span class="c1"># Convert to configuration file string</span>
+    <span class="k">def</span> <span class="nf">to_config</span>
+      <span class="s2">"  PROCESSOR </span><span class="si">#{</span><span class="vi">@name</span><span class="si">}</span><span class="s2"> </span><span class="si">#{</span><span class="nb">self</span><span class="p">.</span><span class="nf">class</span><span class="p">.</span><span class="nf">name</span><span class="p">.</span><span class="nf">to_s</span><span class="p">.</span><span class="nf">class_name_to_filename</span><span class="si">}</span><span class="s2"> </span><span class="si">#{</span><span class="vi">@item_name</span><span class="si">}</span><span class="s2"> </span><span class="si">#{</span><span class="vi">@value_type</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+<span class="k">end</span></code></pre></figure>
+
+<p>The initialize method gets passed the parameters from the config file. Thus our config file of:
+<code class="highlighter-rouge">PROCESSOR TEMP1WATER watermark_processor.rb TEMP1</code><br />
+passes ‘TEMP1’ into ‘item_name’ of the initialize method:
+<code class="highlighter-rouge">def initialize(item_name, value_type = :CONVERTED)</code><br />
+Since we only pass one value, we use the default value_type of :CONVERTED.</p>
+
+<p>We store the item_name into a Ruby instance variable @item_name and call reset() to initialize our @results. But how did we get a @results instance variable? If you look at the class definition we are inheriting from <a href="https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/processors/processor.rb">Processor</a> which is the base class for all COSMOS Processors. It declares a @results instance variable and initializes @results in its initialize method which we call using super(value_type).</p>
+
+<p>The call method is the most important Processor method. It is always passed the packet and buffer. The packet is the COSMOS Packet instance which contains the value you’re interested in. Buffer is the raw binary buffer which this packet is based on. The Processor base class should never be directly used as it defines but does not implement call. Instead, you inherit from Processor like we did with WatermarkProcessor and implement your own call method. WatermarkProcessor reads the item we’re interested in and then compares it with the currently stored high and low value to determine if it should be saved. Note how it is saving the value in the @results hash with the :HIGH_WATER and :LOW_WATER symbol keys.</p>
+
+<h2 id="processor-conversion">Processor Conversion</h2>
+
+<p>If you then open up the processor_conversion.rb code you can see how these results are converted into new telemetry items.</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="nb">require</span> <span class="s1">'cosmos/conversions/conversion'</span>
+<span class="k">module</span> <span class="nn">Cosmos</span>
+  <span class="c1"># Retrieves the result from an item processor</span>
+  <span class="k">class</span> <span class="nc">ProcessorConversion</span> <span class="o">&lt;</span> <span class="no">Conversion</span>
+    <span class="c1"># @param processor_name [String] The name of the associated processor</span>
+    <span class="c1"># @param result_name [String] The name of the associated result in the processor</span>
+    <span class="c1"># @param converted_type [String or nil] The datatype of the result of the processor</span>
+    <span class="c1"># @param converted_bit_size [Integer or nil] The bit size of the result of the processor</span>
+    <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">processor_name</span><span class="p">,</span> <span class="n">result_name</span><span class="p">,</span> <span class="n">converted_type</span> <span class="o">=</span> <span class="kp">nil</span><span class="p">,</span> <span class="n">converted_bit_size</span> <span class="o">=</span> <span class="kp">nil</span><span class="p">)</span>
+      <span class="k">super</span><span class="p">()</span>
+      <span class="vi">@processor_name</span> <span class="o">=</span> <span class="n">processor_name</span><span class="p">.</span><span class="nf">to_s</span><span class="p">.</span><span class="nf">upcase</span>
+      <span class="vi">@result_name</span> <span class="o">=</span> <span class="n">result_name</span><span class="p">.</span><span class="nf">to_s</span><span class="p">.</span><span class="nf">upcase</span><span class="p">.</span><span class="nf">intern</span>
+      <span class="k">if</span> <span class="no">ConfigParser</span><span class="p">.</span><span class="nf">handle_nil</span><span class="p">(</span><span class="n">converted_type</span><span class="p">)</span>
+        <span class="vi">@converted_type</span> <span class="o">=</span> <span class="n">converted_type</span><span class="p">.</span><span class="nf">to_s</span><span class="p">.</span><span class="nf">upcase</span><span class="p">.</span><span class="nf">intern</span>
+        <span class="k">raise</span> <span class="no">ArgumentError</span><span class="p">,</span> <span class="s2">"Unknown converted type: </span><span class="si">#{</span><span class="n">converted_type</span><span class="si">}</span><span class="s2">"</span> <span class="k">if</span> <span class="o">!</span><span class="no">BinaryAccessor</span><span class="o">::</span><span class="no">DATA_TYPES</span><span class="p">.</span><span class="nf">include?</span><span class="p">(</span><span class="vi">@converted_type</span><span class="p">)</span>
+      <span class="k">end</span>
+      <span class="vi">@converted_bit_size</span> <span class="o">=</span> <span class="no">Integer</span><span class="p">(</span><span class="n">converted_bit_size</span><span class="p">)</span> <span class="k">if</span> <span class="no">ConfigParser</span><span class="p">.</span><span class="nf">handle_nil</span><span class="p">(</span><span class="n">converted_bit_size</span><span class="p">)</span>
+    <span class="k">end</span>
+
+    <span class="c1"># @param (see Conversion#call)</span>
+    <span class="c1"># @return [Varies] The result of the associated processor</span>
+    <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">packet</span><span class="p">,</span> <span class="n">buffer</span><span class="p">)</span>
+      <span class="n">packet</span><span class="p">.</span><span class="nf">processors</span><span class="p">[</span><span class="vi">@processor_name</span><span class="p">].</span><span class="nf">results</span><span class="p">[</span><span class="vi">@result_name</span><span class="p">]</span> <span class="o">||</span> <span class="mi">0</span> <span class="c1"># Never return nil</span>
+    <span class="k">end</span>
+    <span class="k">def</span> <span class="nf">to_s</span><span class="p">;</span> <span class="k">end</span> <span class="c1"># Not shown for brevity</span>
+    <span class="k">def</span> <span class="nf">to_config</span><span class="p">(</span><span class="n">read_or_write</span><span class="p">);</span> <span class="k">end</span> <span class="c1"># Not shown for brevity</span>
+  <span class="k">end</span>
+<span class="k">end</span></code></pre></figure>
+
+<p>First of all note that ProcessorConversion inherits from the <a href="https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/conversions/conversion.rb">Conversion</a> base class. This is very similar to the WatermarkProcessor inheriting from the Processor base class. Again, there is an initialize method and a call method. The initialize method requires the processor_name and result_name and takes optional parameters that help describe the converted type. Let’s see how these map together in our definition.</p>
+
+<p>Our config file looked like the following:
+<code class="highlighter-rouge">READ_CONVERSION processor_conversion.rb TEMP1WATER HIGH_WATER</code><br />
+This passes TEMP1WATER and HIGH_WATER as processor_name and result_name into initialize:
+<code class="highlighter-rouge">def initialize(processor_name, result_name, converted_type = nil, converted_bit_size = nil)</code></p>
+
+<p>We store the processor name and result name into Ruby instance variables (first turning them into upper case strings). We additionally turn the result name into a Ruby symbol by calling intern on it. This allows us to match the symbol names we used in the WatermarkProcessor code.</p>
+
+<p>All Conversion classes also implement the call method except with a slightly different signature. In addition to the packet and buffer being passed, the raw value is returned. The ProcessorConversion class uses the packet instance to access the processors hash by the given processor name and then accesses the results hash by the passed result name. We add a ‘|| 0’ which does a logical OR on the initial result to ensure that we don’t return a nil value as a result of the conversion.</p>
+
+<h2 id="custom-processor">Custom Processor</h2>
+
+<p>So how could we implement our own Processor? Let’s say you had some telemetry points that you wanted to average and report that averaged value as a new telemetry item. This is useful because you can then add limits to this new item and act on its value in scripts without having to constantly perform the averaging operation.</p>
+
+<p>First create your new Processor class. Let’s call it MeanProcessor. This code should go into a file called mean_processor.rb and can either live in one of your target/lib folders or since it’s generic we can put it in the top level /lib directory in our project.</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="nb">require</span> <span class="s1">'cosmos/processors/processor'</span>
+<span class="k">module</span> <span class="nn">Cosmos</span>
+  <span class="k">class</span> <span class="nc">MeanProcessor</span> <span class="o">&lt;</span> <span class="no">Processor</span>
+    <span class="c1"># @param item_name [Array&lt;String&gt;] The names of the items to mean</span>
+    <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="o">*</span><span class="n">item_names</span><span class="p">)</span> <span class="c1"># the splat operator accepts a variable length argument list</span>
+      <span class="k">super</span><span class="p">(</span><span class="ss">:CONVERTED</span><span class="p">)</span> <span class="c1"># Hard code to work on converted values</span>
+      <span class="vi">@item_names</span> <span class="o">=</span> <span class="n">item_names</span> <span class="c1"># Array of the item names</span>
+      <span class="n">reset</span><span class="p">()</span>
+    <span class="k">end</span>
+
+    <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="n">packet</span><span class="p">,</span> <span class="n">buffer</span><span class="p">)</span>
+      <span class="n">values</span> <span class="o">=</span> <span class="p">[]</span>
+      <span class="vi">@item_names</span><span class="p">.</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">item</span><span class="o">|</span>
+        <span class="n">values</span> <span class="o">&lt;&lt;</span> <span class="n">packet</span><span class="p">.</span><span class="nf">read</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="ss">:CONVERTED</span><span class="p">,</span> <span class="n">buffer</span><span class="p">)</span>
+      <span class="k">end</span>
+      <span class="vi">@results</span><span class="p">[</span><span class="ss">:MEAN</span><span class="p">]</span> <span class="o">=</span> <span class="n">values</span><span class="p">.</span><span class="nf">inject</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">:</span><span class="o">+</span><span class="p">).</span><span class="nf">to_f</span> <span class="o">/</span> <span class="n">values</span><span class="p">.</span><span class="nf">length</span>
+    <span class="k">end</span>
+
+    <span class="c1"># Reset any state</span>
+    <span class="k">def</span> <span class="nf">reset</span>
+      <span class="vi">@results</span><span class="p">[</span><span class="ss">:MEAN</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">end</span>
+
+    <span class="c1"># Convert to configuration file string</span>
+    <span class="k">def</span> <span class="nf">to_config</span>
+      <span class="s2">"  PROCESSOR </span><span class="si">#{</span><span class="vi">@name</span><span class="si">}</span><span class="s2"> </span><span class="si">#{</span><span class="nb">self</span><span class="p">.</span><span class="nf">class</span><span class="p">.</span><span class="nf">name</span><span class="p">.</span><span class="nf">to_s</span><span class="p">.</span><span class="nf">class_name_to_filename</span><span class="si">}</span><span class="s2"> </span><span class="si">#{</span><span class="vi">@item_names</span><span class="p">.</span><span class="nf">join</span><span class="p">(</span><span class="s1">' '</span><span class="p">)</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+<span class="k">end</span></code></pre></figure>
+
+<p>This class introduces some new Ruby syntax. Since we want to accept any number of items to average we have to accept a variable number of arguments in our initialize method. The ruby splat operator (or star operator) does this and places the arguments into a Ruby array. We store these names and then use them in our call method to perform the mean. I’m using a cool feature of Ruby’s Enumerable mixin, which is part of Array, to sum up the values (starting with 0) and then dividing by the number of values we have to get the mean. Note I’m also calling to_f to ensure the numerator is a floating point number so we do floating point math during the division. Integer division would truncate the value to an integer value.</p>
+
+<p>First to use this new processor you need to require it in your target’s <a href="/docs/system/#targettxt-keywords">target.txt</a> configuration file:
+<code class="highlighter-rouge">REQUIRE mean_processor.rb</code><br />
+Then delcare the processing in your configuration definition as follows:
+<code class="highlighter-rouge">TELEMETRY INST HEALTH_STATUS BIG_ENDIAN "Health and status from the instrument"
+  ... # See demo configuration
+  ITEM TEMPS_MEAN 0 0 DERIVED "Mean of TEMP1, TEMP2, TEMP3, TEMP4"
+    READ_CONVERSION processor_conversion.rb TEMPMEAN MEAN
+  PROCESSOR TEMPMEAN mean_processor.rb TEMP1 TEMP2 TEMP3 TEMP4
+</code></p>
+
+<p>We define the processor on the INST HEALTH_STATUS packet and pass in 4 items to average. We also define a new derived item called TEMPS_MEAN which uses our previously described processor_conversion to pull out the MEAN value that we calculated. The result is shown in this PacketViewer screen shot:</p>
+
+<p><img src="/img/2017_05_08_packet_viewer2.png" alt="Packet Viewer" /></p>
+
+<p>Creating a custom processor definitely requires you to dive into the COSMOS API and play with the underlying Ruby code. Hopefully the existing processor code and this blog post helps you to derive whatever telemetry points you need. Happy processing and if you need additional support please contact us at <a href="mailto:cosmos@ball.com">cosmos@ball.com</a>.</p>
+
+  </div>
+</article>
+
+      </div>
+
+      <div class="unit one-fifth hide-on-mobiles">
+  <aside>
+    <ul>
+      <li class="">
+        <a href="/news/">All News</a>
+      </li>
+      <li class="">
+        <a href="/news/releases/">COSMOS Releases</a>
+      </li>
+    </ul>
+    <h4>Recent Releases</h4>
+    <ul>
+      
+      <li class="">
+        <a href="/news/2017/03/29/cosmos-3-9-1-released/">Version 3.9.1</a>
+      </li>
+      
+      <li class="">
+        <a href="/news/2016/12/06/cosmos-3-8-3-released/">Version 3.8.3</a>
+      </li>
+      
+      <li class="">
+        <a href="/news/2016/07/05/cosmos-3-8-2-released/">Version 3.8.2</a>
+      </li>
+      
+      <li class="">
+        <a href="/news/2016/05/12/cosmos-3-8-1-released/">Version 3.8.1</a>
+      </li>
+      
+      <li class="">
+        <a href="/news/2016/02/26/cosmos-3-8-0-released/">Version 3.8.0</a>
+      </li>
+      
+      <li>
+        <a href="/docs/history/">History »</a>
+      </li>
+    </ul>
+    <h4>Other News</h4>
+    <ul>
+        
+        
+        <li class="current">
+          <a href="/news/2017/05/08/packet_processors/">Packet Processors</a>
+        </li>
+        
+        
+        
+        <li class="">
+          <a href="/news/2017/04/24/wired/">WIRED Article</a>
+        </li>
+        
+        
+        
+        
+        
+        <li class="">
+          <a href="/news/2017/02/22/routers/">Routers</a>
+        </li>
+        
+        
+        
+        
+        
+        <li class="">
+          <a href="/news/2016/10/13/cosmos-cubesat-ops/">SmallSat Ops</a>
+        </li>
+        
+        
+        
+        <li class="">
+          <a href="/news/2016/09/12/erb-config/">ERB Config Files</a>
+        </li>
+        
+        
+        
+        <li class="">
+          <a href="/news/2016/08/22/custom-widgets/">Custom Widgets</a>
+        </li>
+        
+        
+        
+        <li class="">
+          <a href="/news/2016/08/04/custom-cosmos_interface/">Custom COSMOS Interface</a>
+        </li>
+        
+        
+        
+        <li class="">
+          <a href="/news/2016/07/06/cosmos-cmd-tlm-names/">COSMOS Cmd/Tlm Naming</a>
+        </li>
+        
+        
+        
+        
+        
+        
+        
+        <li class="">
+          <a href="/news/2016/03/03/sparkfun/">Sparkfun Blog Post</a>
+        </li>
+        
+        
+        
+        <li class="">
+          <a href="/news/2016/02/27/xtce-support/">XTCE Support</a>
+        </li>
+        
+        
+        
+        <li class="">
+          <a href="/news/2016/02/27/fukuoka-award/">Fukuoka Special Award Winner</a>
+        </li>
+        
+        
+        
+        
+        
+        <li class="">
+          <a href="/news/2016/02/11/simulated-target/">COSMOS Simulated Target</a>
+        </li>
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        <li class="">
+          <a href="/news/2015/10/28/cosmos-at-ats-conference/">COSMOS at the ATS Conference</a>
+        </li>
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        <li class="">
+          <a href="/news/2015/04/06/cosmos-c-extension/">COSMOS BinaryAccessor#write C Extension</a>
+        </li>
+        
+        
+        
+        
+        
+        
+        
+        <li class="">
+          <a href="/news/2015/02/27/cosmos-at-gsaw-conference/">COSMOS at the GSAW Conference</a>
+        </li>
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+    </ul>
+  </aside>
+</div>
+
+
+      <div class="clear"></div>
+
+    </div>
+  </section>
+
+
+  <script>
+  (function() {
+    var cx = '001663949569052626382:-enhin1layy';
+    var gcse = document.createElement('script');
+    gcse.type = 'text/javascript';
+    gcse.async = true;
+    gcse.src = 'https://cse.google.com/cse.js?cx=' + cx;
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(gcse, s);
+  })();
+</script>
+<footer role="contentinfo">
+  <div class="grid wider">
+    <div class="unit one-third center-on-mobiles">
+      <p>The contents of this website are &copy;&nbsp;2017 <a href="http://www.ballaerospace.com/" target="_blank">Ball Aerospace</a> under the terms of the <a href="https://github.com/BallAerospace/COSMOS/blob/master/LICENSE.txt" target="_blank">GPLv3&nbsp;License</a>.</p>
+      <p>Site design derived from the <a href="http://jekyllrb.com/" target="_blank">Jekyll</a> project documentation which is licensed under the terms of the <a href="https://github.com/jekyll/jekyll/blob/master/LICENSE" target="_blank">MIT License</a>.</p>
+    </div>
+    <div class="unit two-thirds align-right center-on-mobiles">
+      <p>
+        <gcse:search></gcse:search>
+        Proudly hosted by
+        <a href="https://github.com" target="_blank">
+          <img src="/img/footer-logo.png" width="100" height="30" alt="GitHub Social coding">
+        </a>
+      </p>
+    </div>
+  </div>
+</footer>
+
+  <script>
+  var anchorForId = function (id) {
+    var anchor = document.createElement("a");
+    anchor.className = "header-link";
+    anchor.href      = "#" + id;
+    anchor.innerHTML = "<span class=\"sr-only\">Permalink</span><i class=\"fa fa-link\"></i>";
+    anchor.title = "Permalink";
+    return anchor;
+  };
+
+  var linkifyAnchors = function (level, containingElement) {
+    var headers = containingElement.getElementsByTagName("h" + level);
+    for (var h = 0; h < headers.length; h++) {
+      var header = headers[h];
+
+      if (typeof header.id !== "undefined" && header.id !== "") {
+        header.appendChild(anchorForId(header.id));
+      }
+    }
+  };
+
+  document.onreadystatechange = function () {
+    if (this.readyState === "complete") {
+      var contentBlock = document.getElementsByClassName("docs")[0] || document.getElementsByClassName("news")[0];
+      if (!contentBlock) {
+        return;
+      }
+      for (var level = 1; level <= 6; level++) {
+        linkifyAnchors(level, contentBlock);
+      }
+    }
+  };
+</script>
+
+  
+  <!-- Google Analytics (http://google.com/analytics) -->
+  <script>
+    !function(j,e,k,y,l,L){j.GoogleAnalyticsObject=y,j[y]||(j[y]=function(){
+    (j[y].q=j[y].q||[]).push(arguments)}),j[y].l=+new Date,l=e.createElement(k),
+    L=e.getElementsByTagName(k)[0],l.src='//www.google-analytics.com/analytics.js',
+    L.parentNode.insertBefore(l,L)}(window,document,'script','ga');
+
+    ga('create', 'UA-60103689-1', 'cosmosrb.com');
+    ga('send', 'pageview');
+
+  </script>
+
+
+
+</body>
+</html>
