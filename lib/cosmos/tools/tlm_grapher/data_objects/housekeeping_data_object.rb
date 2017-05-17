@@ -31,6 +31,9 @@ module Cosmos
     # The housekeeping telemetry item's item name (string)
     attr_reader :item_name
 
+    # The housekeeping telemetry item's item array index, if applicable (integer)
+    attr_accessor :item_array_index
+
     # The housekeeping telemetry item's time item name (string)
     attr_accessor :time_item_name
 
@@ -58,6 +61,7 @@ module Cosmos
       @target_name = nil
       @packet_name = nil
       @item_name = nil
+      @item_array_index = nil
       @time_item_name = nil
       @formatted_time_item_name = nil
       @value_type = :CONVERTED
@@ -76,6 +80,7 @@ module Cosmos
     def configuration_string
       string = super()
       string << "      ITEM #{@target_name} #{@packet_name} #{@item_name}\n" if @target_name and @packet_name and @item_name
+      string << "      ITEM_ARRAY_INDEX #{@item_array_index}\n" if @item_array_index
       string << "      TIME_ITEM #{@time_item_name}\n" if @time_item_name
       string << "      FORMATTED_TIME_ITEM #{@formatted_time_item_name}\n" if @formatted_time_item_name
       string << "      VALUE_TYPE #{@value_type}\n"
@@ -92,6 +97,11 @@ module Cosmos
         # Expect 3 parameters
         parser.verify_num_parameters(3, 3, "ITEM <Target Name> <Packet Name> <Item Name>")
         set_item(parameters[0], parameters[1], parameters[2], true)
+
+      when 'ITEM_ARRAY_INDEX'
+        # Expect 1 parameter
+        parser.verify_num_parameters(1, 1, "ITEM_ARRAY_INDEX <Index>")
+        @item_array_index = parameters[0].to_i
 
       when 'TIME_ITEM'
         # Expect 1 parameter
@@ -159,6 +169,9 @@ module Cosmos
           y_value = packet.read(@item_name, :RAW)
         else
           y_value = packet.read(@item_name)
+        end
+        if y_value.is_a?(Array) and @item_array_index and @item_array_index < y_value.size
+          y_value = y_value[@item_array_index]
         end
         # Bail on the values if they are NaN or nil as we can't graph them
         return if x_value.nil? || y_value.nil? ||
@@ -261,15 +274,13 @@ module Cosmos
 
     # Returns the name of this data object
     def name
+      str = ""
       if @target_name and @packet_name and @item_name
-        if @analysis != :NONE
-          "#{@target_name} #{@packet_name} #{@item_name} (#{@analysis})"
-        else
-          "#{@target_name} #{@packet_name} #{@item_name}"
-        end
-      else
-        ''
+        str << "#{@target_name} #{@packet_name} #{@item_name}"
+        str << "[#{@item_array_index}]" if @item_array_index
+        str << " (#{@analysis})" if @analysis != :NONE
       end
+      str
     end
 
     # Resets the data object
@@ -286,6 +297,7 @@ module Cosmos
       if @target_name and @packet_name and @item_name
         data_object.set_item(@target_name.clone, @packet_name.clone, @item_name.clone)
       end
+      data_object.item_array_index = @item_array_index if @item_array_index
       data_object.time_item_name = @time_item_name.clone if @time_item_name
       data_object.formatted_time_item_name = @formatted_time_item_name.clone if @formatted_time_item_name
       data_object.value_type = @value_type
@@ -316,6 +328,7 @@ module Cosmos
       if @target_name != edited_data_object.target_name or
          @packet_name != edited_data_object.packet_name or
          @item_name != edited_data_object.item_name or
+         @item_array_index != edited_data_object.item_array_index or
          @time_item_name != edited_data_object.time_item_name or
          @formatted_time_item_name != edited_data_object.formatted_time_item_name or
          @value_type != edited_data_object.value_type or

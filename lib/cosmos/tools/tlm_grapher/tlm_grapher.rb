@@ -74,9 +74,19 @@ module Cosmos
     def handle_items
       plot_index = 0
       @items.each do |target_name, packet_name, item_name|
+        target_name.upcase!
+        packet_name.upcase!
+        item_name.upcase!
+        if (item_name =~ /\[\d+\]$/)
+          item_name = $`
+          item_array_index = $&.gsub(/[\[\]]/, "").to_i
+        else
+          item_array_index = nil
+        end
         # Default configuration has one plot so don't add plot for first item
         data_object = HousekeepingDataObject.new
         data_object.set_item(target_name, packet_name, item_name)
+        data_object.item_array_index = item_array_index
         @tabbed_plots_config.add_data_object(0, 0, data_object)
         plot_index += 1
       end

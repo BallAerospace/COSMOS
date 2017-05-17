@@ -38,14 +38,21 @@ module Cosmos
       @search_box.setStyleSheet("padding-right: 20px;padding-left: 5px;background: url(#{File.join(Cosmos::PATH, 'data', 'search-14.png')});background-position: right;background-repeat: no-repeat;")
       @search_box.completion_list = System.telemetry.all_item_strings(false, nil)
       @search_box.callback = lambda do |tlm|
+        tlm.upcase!
         split_tlm = tlm.split(" ")
         if split_tlm.length == 3
-          target_name = split_tlm[0].upcase
+          target_name = split_tlm[0]
           packet_name = split_tlm[1]
-          item_name = split_tlm[2]
+          if (split_tlm[2] =~ /\[\d+\]$/)
+            item_name = $`
+            item_array_index = $&.gsub(/[\[\]]/, "").to_i
+          else
+            item_name = split_tlm[2]
+            item_array_index = nil
+          end
           begin
             System.telemetry.packet_and_item(target_name, packet_name, item_name)
-            add_data_object(target_name, packet_name, item_name)
+            add_data_object(target_name, packet_name, item_name, item_array_index)
           rescue
             # Does not exist
           end
@@ -64,9 +71,10 @@ module Cosmos
     end
 
     # Adds a data object when the add button is pressed
-    def add_data_object(target_name, packet_name, item_name)
+    def add_data_object(target_name, packet_name, item_name, item_array_index)
       data_object = HousekeepingDataObject.new
       data_object.set_item(target_name, packet_name, item_name)
+      data_object.item_array_index = item_array_index
       @add_data_object_callback.call(data_object) if @add_data_object_callback
     end
 
