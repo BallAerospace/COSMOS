@@ -84,6 +84,8 @@
     <option value="/news/">Home</option>
     <optgroup label="v1.x">
       
+      <option value="/news/2017/05/18/cosmos-3-9-2-released/">Ball Aerospace COSMOS 3.9.1 Released</option>
+      
       <option value="/news/2017/05/08/packet_processors/">Packet Processors</option>
       
       <option value="/news/2017/04/24/wired/">WIRED Article</option>
@@ -171,6 +173,72 @@
 
       <div class="unit four-fifths">
         
+  <article>
+  <h2>
+    <a href="/news/2017/05/18/cosmos-3-9-2-released/">
+      Ball Aerospace COSMOS 3.9.1 Released
+    </a>
+  </h2>
+  <span class="post-category">
+    <span class="label">
+      release
+    </span>
+  </span>
+  <div class="post-meta">
+    <span class="post-date">
+      18 May 2017
+    </span>
+    <a href="https://github.com/ryanmelt" class="post-author">
+      <img src="https://github.com/ryanmelt.png" class="avatar" alt="ryanmelt avatar" width="24" height="24">
+      ryanmelt
+    </a>
+  </div>
+  <div class="post-content">
+    <h3 id="new-features">New Features:</h3>
+
+<ul>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/147">#147</a> TlmExtractor Full Column Names Mode</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/148">#148</a> TlmExtractor Share individual columns</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/189">#189</a> ScriptRunner Breakpoints don’t adapt to edits</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/233">#233</a> Add Config Option to Increase Tcpip Interface Timeout to TlmGrapher</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/280">#280</a> Method for determining interface packet count</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/313">#313</a> Add command line option to automatically start ScriptRunner</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/336">#336</a> Add Log Analyze Feature to TlmExtractor/CmdExtractor</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/395">#395</a> Implement Stylesheets Throughout</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/408">#408</a> Easy way to find which targets use an interface?</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/433">#433</a> Scripting support for TlmViewer close all screens</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/434">#434</a> TlmViewer option for no resize of screens</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/436">#436</a> PacketViewer option to ignore target.txt ignored items</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/441">#441</a> PacketViewer should identify derived items in the GUI</li>
+</ul>
+
+<h3 id="maintenance">Maintenance:</h3>
+
+<p>None</p>
+
+<h3 id="bug-fixes">Bug Fixes:</h3>
+
+<ul>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/417">#417</a>  Table Manager not checking ranges</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/419">#419</a>  Support multiple arrays in string based commands</li>
+</ul>
+
+<h3 id="migration-notes-from-cosmos-38x">Migration Notes from COSMOS 3.8.x:</h3>
+<p><strong>The Table Manager configuration file format has changed.</strong>
+Documentation will updated the first week of April.</p>
+
+<p>You can migrate existing config files using:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>bundle exec ruby tools\TableManager --convert config\tools\table_manager\old_table_def.txt
+</code></pre>
+</div>
+
+<p>To upgrade to the latest version of COSMOS, run “bundle update cosmos” in your COSMOS project folder.</p>
+
+  </div>
+</article>
+
+
   <article>
   <h2>
     <a href="/news/2017/05/08/packet_processors/">
@@ -2525,6 +2593,10 @@ change the whole playing field of Operations, Integration, and Test”.</p>
     <ul>
       
       <li class="">
+        <a href="/news/2017/05/18/cosmos-3-9-2-released/">Version 3.9.2</a>
+      </li>
+      
+      <li class="">
         <a href="/news/2017/03/29/cosmos-3-9-1-released/">Version 3.9.1</a>
       </li>
       
@@ -2540,16 +2612,14 @@ change the whole playing field of Operations, Integration, and Test”.</p>
         <a href="/news/2016/05/12/cosmos-3-8-1-released/">Version 3.8.1</a>
       </li>
       
-      <li class="">
-        <a href="/news/2016/02/26/cosmos-3-8-0-released/">Version 3.8.0</a>
-      </li>
-      
       <li>
         <a href="/docs/history/">History »</a>
       </li>
     </ul>
     <h4>Other News</h4>
     <ul>
+        
+        
         
         
         <li class="">

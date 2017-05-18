@@ -2,7 +2,7 @@
 <html lang="en-US">
 <head>
   <meta charset="UTF-8">
-  <title>Ball Aerospace COSMOS 3.8.0 Released</title>
+  <title>Ball Aerospace COSMOS 3.9.1 Released</title>
   <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="generator" content="Jekyll v3.4.3">
@@ -174,8 +174,8 @@
       <div class="unit four-fifths">
         <article>
   <h2>
-    Ball Aerospace COSMOS 3.8.0 Released
-    <a href="/news/2016/02/26/cosmos-3-8-0-released/" class="permalink" title="Permalink">∞</a>
+    Ball Aerospace COSMOS 3.9.1 Released
+    <a href="/news/2017/05/18/cosmos-3-9-2-released/" class="permalink" title="Permalink">∞</a>
   </h2>
   <span class="post-category">
     <span class="label">
@@ -184,7 +184,7 @@
   </span>
   <div class="post-meta">
     <span class="post-date">
-      26 Feb 2016
+      18 May 2017
     </span>
     <a href="https://github.com/ryanmelt" class="post-author">
       <img src="https://github.com/ryanmelt.png" class="avatar" alt="ryanmelt avatar" width="24" height="24">
@@ -192,25 +192,46 @@
     </a>
   </div>
   <div class="post-content">
-    <p>With this release COSMOS now has initial support for the XTCE Command and Telemetry Definition standard.</p>
-
-<h3 id="new-features">New Features:</h3>
+    <h3 id="new-features">New Features:</h3>
 
 <ul>
-  <li><a href="https://github.com/BallAerospace/COSMOS/issues/251">#251</a> Create COSMOS XTCE Converter</li>
-  <li><a href="https://github.com/BallAerospace/COSMOS/issues/252">#252</a> Add polling rate command line option to PacketViewer</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/147">#147</a> TlmExtractor Full Column Names Mode</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/148">#148</a> TlmExtractor Share individual columns</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/189">#189</a> ScriptRunner Breakpoints don’t adapt to edits</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/233">#233</a> Add Config Option to Increase Tcpip Interface Timeout to TlmGrapher</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/280">#280</a> Method for determining interface packet count</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/313">#313</a> Add command line option to automatically start ScriptRunner</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/336">#336</a> Add Log Analyze Feature to TlmExtractor/CmdExtractor</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/395">#395</a> Implement Stylesheets Throughout</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/408">#408</a> Easy way to find which targets use an interface?</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/433">#433</a> Scripting support for TlmViewer close all screens</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/434">#434</a> TlmViewer option for no resize of screens</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/436">#436</a> PacketViewer option to ignore target.txt ignored items</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/441">#441</a> PacketViewer should identify derived items in the GUI</li>
 </ul>
+
+<h3 id="maintenance">Maintenance:</h3>
+
+<p>None</p>
 
 <h3 id="bug-fixes">Bug Fixes:</h3>
 
 <ul>
-  <li><a href="https://github.com/BallAerospace/COSMOS/issues/245">#245</a> TlmGrapher Crashes on Inf</li>
-  <li><a href="https://github.com/BallAerospace/COSMOS/issues/248">#248</a> Can’t script commands containing ‘with’ in the name</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/417">#417</a>  Table Manager not checking ranges</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/419">#419</a>  Support multiple arrays in string based commands</li>
 </ul>
 
-<h3 id="migration-notes-from-cosmos-37x">Migration Notes from COSMOS 3.7.x:</h3>
-<p>None</p>
+<h3 id="migration-notes-from-cosmos-38x">Migration Notes from COSMOS 3.8.x:</h3>
+<p><strong>The Table Manager configuration file format has changed.</strong>
+Documentation will updated the first week of April.</p>
 
+<p>You can migrate existing config files using:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>bundle exec ruby tools\TableManager --convert config\tools\table_manager\old_table_def.txt
+</code></pre>
+</div>
+
+<p>To upgrade to the latest version of COSMOS, run “bundle update cosmos” in your COSMOS project folder.</p>
 
   </div>
 </article>
@@ -230,11 +251,11 @@
     <h4>Recent Releases</h4>
     <ul>
       
-      <li class="">
+      <li class="current">
         <a href="/news/2017/05/18/cosmos-3-9-2-released/">Version 3.9.2</a>
       </li>
       
-      <li class="">
+      <li class="current">
         <a href="/news/2017/03/29/cosmos-3-9-1-released/">Version 3.9.1</a>
       </li>
       

@@ -11,8 +11,8 @@
     <title xml:lang="en">Ball Aerospace COSMOS News</title>
     <atom:link type="application/atom+xml" href="http://cosmosrb/feed.xml" rel="self"/>
     <link>http://cosmosrb.com/</link>
-    <pubDate>Wed, 17 May 2017 16:35:20 -0600</pubDate>
-    <lastBuildDate>Wed, 17 May 2017 16:35:20 -0600</lastBuildDate>
+    <pubDate>Thu, 18 May 2017 13:59:23 -0600</pubDate>
+    <lastBuildDate>Thu, 18 May 2017 13:59:23 -0600</lastBuildDate>
     <language>en-US</language>
     <generator>Jekyll v3.4.3</generator>
     <description>The User Interface for Embedded Systems</description>
@@ -24,6 +24,59 @@
       <width>144</width>
       <height>73</height>
     </image>
+    
+    <item>
+      <title>Ball Aerospace COSMOS 3.9.1 Released</title>
+      <link>http://cosmosrb.com/news/2017/05/18/cosmos-3-9-2-released/</link>
+      <pubDate>Thu, 18 May 2017 13:00:00 -0600</pubDate>
+      <dc:creator>ryanmelt</dc:creator>
+      
+      
+      <category>release</category>
+      
+      <guid isPermaLink="true">http://cosmosrb.com/news/2017/05/18/cosmos-3-9-2-released/</guid>
+      <description>&lt;h3 id=&quot;new-features&quot;&gt;New Features:&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/147&quot;&gt;#147&lt;/a&gt; TlmExtractor Full Column Names Mode&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/148&quot;&gt;#148&lt;/a&gt; TlmExtractor Share individual columns&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/189&quot;&gt;#189&lt;/a&gt; ScriptRunner Breakpoints don’t adapt to edits&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/233&quot;&gt;#233&lt;/a&gt; Add Config Option to Increase Tcpip Interface Timeout to TlmGrapher&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/280&quot;&gt;#280&lt;/a&gt; Method for determining interface packet count&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/313&quot;&gt;#313&lt;/a&gt; Add command line option to automatically start ScriptRunner&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/336&quot;&gt;#336&lt;/a&gt; Add Log Analyze Feature to TlmExtractor/CmdExtractor&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/395&quot;&gt;#395&lt;/a&gt; Implement Stylesheets Throughout&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/408&quot;&gt;#408&lt;/a&gt; Easy way to find which targets use an interface?&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/433&quot;&gt;#433&lt;/a&gt; Scripting support for TlmViewer close all screens&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/434&quot;&gt;#434&lt;/a&gt; TlmViewer option for no resize of screens&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/436&quot;&gt;#436&lt;/a&gt; PacketViewer option to ignore target.txt ignored items&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/441&quot;&gt;#441&lt;/a&gt; PacketViewer should identify derived items in the GUI&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;maintenance&quot;&gt;Maintenance:&lt;/h3&gt;
+
+&lt;p&gt;None&lt;/p&gt;
+
+&lt;h3 id=&quot;bug-fixes&quot;&gt;Bug Fixes:&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/417&quot;&gt;#417&lt;/a&gt;  Table Manager not checking ranges&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/419&quot;&gt;#419&lt;/a&gt;  Support multiple arrays in string based commands&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;migration-notes-from-cosmos-38x&quot;&gt;Migration Notes from COSMOS 3.8.x:&lt;/h3&gt;
+&lt;p&gt;&lt;strong&gt;The Table Manager configuration file format has changed.&lt;/strong&gt;
+Documentation will updated the first week of April.&lt;/p&gt;
+
+&lt;p&gt;You can migrate existing config files using:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;bundle exec ruby tools\TableManager --convert config\tools\table_manager\old_table_def.txt
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;To upgrade to the latest version of COSMOS, run “bundle update cosmos” in your COSMOS project folder.&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>Packet Processors</title>
