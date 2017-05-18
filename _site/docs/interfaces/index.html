@@ -1,0 +1,2984 @@
+<!DOCTYPE HTML>
+<html lang="en-US">
+<head>
+  <meta charset="UTF-8">
+  <title>Interface Configuration</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="generator" content="Jekyll v3.4.3">
+  <link rel="alternate" type="application/rss+xml" title="Ball Aerospace COSMOS News" href="/feed.xml">
+  <link rel="alternate" type="application/atom+xml" title="Recent commits to COSMOS’s master branch" href="https://github.com/BallAerospace/COSMOS/commits/master.atom">
+  <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic,900">
+  <link rel="stylesheet" href="/css/screen.css">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <!--[if lt IE 9]>
+  <script src="/js/html5shiv.min.js"></script>
+  <script src="/js/respond.min.js"></script>
+  <![endif]-->
+</head>
+
+
+<body class="wrap">
+  <header role="banner">
+  <nav class="mobile-nav show-on-mobiles">
+    <ul>
+  <li class="">
+    <a href="/">Home</a>
+  </li>
+  <li class="current">
+    <span class="hide-on-mobiles"><a href="/docs/home/">Documentation</a></span>
+    <span class="show-on-mobiles"><a href="/docs/home/">Docs</a></span>
+  </li>
+  <li class="">
+    <a href="/news/">News</a>
+  </li>
+  <li>
+    <a href="/help/">Help</a>
+  </li>
+  <li>
+    <a href="https://github.com/BallAerospace/COSMOS" target="_blank"><span class="hide-on-mobiles">View on </span>GitHub</a>
+  </li>
+</ul>
+
+  </nav>
+  <div class="grid wider">
+    <div class="unit one-third center-on-mobiles" style="margin-top:27px;">
+      <h1>
+        <a href="/">
+          <span class="sr-only">COSMOS</span>
+          <img src="/img/COSMOS.png" width="312" height="70" alt="COSMOS Logo">
+        </a>
+      </h1>
+    </div>
+    <nav class="main-nav unit two-thirds hide-on-mobiles">
+      <ul>
+  <li class="">
+    <a href="/">Home</a>
+  </li>
+  <li class="current">
+    <span class="hide-on-mobiles"><a href="/docs/home/">Documentation</a></span>
+    <span class="show-on-mobiles"><a href="/docs/home/">Docs</a></span>
+  </li>
+  <li class="">
+    <a href="/news/">News</a>
+  </li>
+  <li>
+    <a href="/help/">Help</a>
+  </li>
+  <li>
+    <a href="https://github.com/BallAerospace/COSMOS" target="_blank"><span class="hide-on-mobiles">View on </span>GitHub</a>
+  </li>
+</ul>
+
+    </nav>
+  </div>
+</header>
+
+
+    <section class="docs">
+    <div class="grid wider">
+
+      <div class="docs-nav-mobile unit whole show-on-mobiles">
+  <select onchange="if (this.value) window.location.href=this.value">
+    <option value="">Navigate the docs…</option>
+    
+    <optgroup label="Getting Started">
+      
+
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/home/">Welcome</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/installation/">Installation</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/upgrading/">Upgrading and the Gemfile</option>
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/structure/">Directory structure</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/gettingstarted/">Getting Started</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+
+    </optgroup>
+    
+    <optgroup label="Configuration">
+      
+
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/system/">System Configuration</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+      <option value="/docs/cmdtlm/">Command and Telemetry Configuration</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/interfaces/">Interface Configuration</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/tools/">Tool Configuration</option>
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/screens/">Telemetry Screens</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/grapher/">Telemetry Grapher</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/environment/">Environment Variables</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+
+    </optgroup>
+    
+    <optgroup label="User's Guides">
+      
+
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/scripting/">Scripting Guide</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/gemtargets/">Gem Based Targets and Tools</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+
+    </optgroup>
+    
+    <optgroup label="Tips">
+      
+
+
+  
+
+  
+    
+      <option value="/docs/chaining/">Chaining CmdTlmServers</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+
+    </optgroup>
+    
+    <optgroup label="Development">
+      
+
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/system_class/">System Class</option>
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/packet_class/">Packet Class</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+
+    </optgroup>
+    
+    <optgroup label="Meta">
+      
+
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/requirements/">Requirements and Design</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/xtce/">XTCE Support</option>
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/contributing/">Contributing</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+      <option value="/docs/contact/">Contact Us</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/history/">Release History</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/papers/">Papers</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+
+    </optgroup>
+    
+  </select>
+</div>
+
+
+      <div class="unit four-fifths">
+        <article>
+          <div class="improve right">
+            <a href="https://github.com/BallAerospace/COSMOS/edit/gh-pages/_docs/interfaces.md" target="_blank"><i class="fa fa-pencil"></i> &nbsp;Improve this page</a>
+          </div>
+          
+          <div class="toc">
+            <ul class="section-nav">
+<li class="toc-entry toc-h5"><a href="#note-on-naming">Note on Naming</a></li>
+<li class="toc-entry toc-h2"><a href="#provided-interfaces">Provided Interfaces</a></li>
+<li class="toc-entry toc-h3"><a href="#tcpip-client-interface">TCPIP Client Interface</a></li>
+<li class="toc-entry toc-h3"><a href="#tcpip-server-interface">TCPIP Server Interface</a></li>
+<li class="toc-entry toc-h3"><a href="#udp-interface">UDP Interface</a></li>
+<li class="toc-entry toc-h3"><a href="#serial-interface">Serial Interface</a></li>
+<li class="toc-entry toc-h3"><a href="#cmdtlmserver-interface">CmdTlmServer Interface</a></li>
+<li class="toc-entry toc-h3"><a href="#linc-interface">LINC Interface</a></li>
+<li class="toc-entry toc-h2"><a href="#streams-and-stream-protocols">Streams and Stream Protocols</a></li>
+<li class="toc-entry toc-h3"><a href="#burst-stream-protocol">Burst Stream Protocol</a></li>
+<li class="toc-entry toc-h3"><a href="#fixed-stream-protocol">Fixed Stream Protocol</a></li>
+<li class="toc-entry toc-h3"><a href="#length-stream-protocol">Length Stream Protocol</a></li>
+<li class="toc-entry toc-h3"><a href="#terminated-stream-protocol">Terminated Stream Protocol</a></li>
+<li class="toc-entry toc-h3"><a href="#preidentified-stream-protocol">Preidentified Stream Protocol</a></li>
+<li class="toc-entry toc-h3"><a href="#template-stream-protocol">Template Stream Protocol</a></li>
+</ul>
+          </div>
+          
+          <h1>Interface Configuration</h1>
+          <p>Interface classes provide the code that COSMOS uses to receive real-time telemetry from targets and to send commands to targets. The interface that a target uses could be anything (TCP/IP, serial, GPIB, Firewire, etc.), therefore it is important that this is a customize-able portion of any reusable Command and Telemetry System. Fortunately the most common form of interfaces are over TCP/IP sockets, and COSMOS provides interface solutions for these. This guide will discuss how to use these interface classes, and how to create your own.</p>
+
+<p>Interfaces have the following methods that must be implemented:</p>
+
+<ol>
+  <li>
+<strong>connect</strong> - Open the socket or port or somehow establish the connection to the target.  Note: This method may not block indefinitely.</li>
+  <li>
+<strong>connected?</strong> - Return true or false depending on the connection state. Note: This method should return immediately</li>
+  <li>
+<strong>disconnect</strong> - Close the socket or port of somehow disconnect from the target.  Note: This method may not block indefinitely.</li>
+  <li>
+<strong>read</strong> - Return the next packet of data from the target. Note: This method should block until a packet is available or the interface disconnects.  On a clean disconnect it should return nil.</li>
+  <li>
+<strong>write</strong> - Send a packet of data to the target. Note: This method may not block indefinitely.</li>
+  <li>
+<strong>write_raw</strong> - Send a raw binary string of data to the target. Note: This method may not block indefinitely.</li>
+  <li>
+<strong>read_allowed?</strong> - Whether reading from the target over the interface is allowed. Note: This method should return immediately</li>
+  <li>
+<strong>write_allowed?</strong> - Whether writing a packet to the target over the interface is allowed. Note: This method should return immediately</li>
+  <li>
+<strong>write_raw_allowed?</strong> - Whether writing raw data to the target over the interface is allowed. Note: This method should return immediately</li>
+</ol>
+
+<div class="note warning">
+  <h5>
+<a id="note-on-naming" class="anchor" href="#note-on-naming" aria-hidden="true"><span class="octicon octicon-link"></span></a>Note on Naming</h5>
+  <p>When creating your own interfaces, in most cases they will be subclasses of one of the built-in interfaces described below.   It is important to know that both the filename and class name of the interface files must match with correct capitalization or you will receive "class not found" errors when trying to load your new interface.  For example, an interface file called labview_interface.rb must contain the class LabviewInterface.  If the class was named, LabVIEWInterface, for example, COSMOS would not be able to find the class because of the unexpected capitalization.</p>
+</div>
+
+<h2 id="provided-interfaces">
+<a id="provided-interfaces" class="anchor" href="#provided-interfaces" aria-hidden="true"><span class="octicon octicon-link"></span></a>Provided Interfaces</h2>
+<p>Cosmos provides the following interfaces for use: TCPIP Client, TCPIP Server, UDP, Serial, Command Telemetry Server, and LINC.</p>
+
+<h3 id="tcpip-client-interface">
+<a id="tcpip-client-interface" class="anchor" href="#tcpip-client-interface" aria-hidden="true"><span class="octicon octicon-link"></span></a>TCPIP Client Interface</h3>
+<p>The TCPIP client interface connects to a TCPIP socket to send commands and receive telemetry. This interface is used for targets which open a socket and wait for a connection. This is the most common type of interface.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Host</td>
+      <td>Machine name to connect to</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Write Port</td>
+      <td>Port to write commands to (can be the same as read port)</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Read Port</td>
+      <td>Port to read telemetry from (can be the same as write port)</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Write Timeout</td>
+      <td>Number of seconds to wait before aborting the write. Pass ‘nil’ to block on write.</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Read Timeout</td>
+      <td>Number of seconds to wait before aborting the read. Pass ‘nil’ to block on read.</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Stream Protocol Type</td>
+      <td>See Streams and Stream Protocols.</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Stream Protocol Arguments</td>
+      <td>See Streams and Stream Protocols for the arguments each stream protocol takes.</td>
+      <td>Yes</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>cmd_tlm_server.txt Examples:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8081 10.0 nil LENGTH 0 16 0 1 BIG_ENDIAN 4 0xBA5EBA11
+INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 nil BURST 4 0xDEADBEEF
+INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 nil FIXED 6 0 nil <span class="nb">true
+</span>INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 nil PREIDENTIFIED 0xCAFEBABE
+INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 10.0 TERMINATED 0x0D0A 0x0D0A <span class="nb">true </span>0 0xF005BA11
+INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 10.0 TEMPLATE 0xA 0xA</code></pre></figure>
+
+<h3 id="tcpip-server-interface">
+<a id="tcpip-server-interface" class="anchor" href="#tcpip-server-interface" aria-hidden="true"><span class="octicon octicon-link"></span></a>TCPIP Server Interface</h3>
+<p>The TCPIP server interface creates a TCPIP server which listens for incoming connections and dynamically creates sockets which communicate with the target. This interface is used for targets which open a socket and try to connect to a server.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Write Port</td>
+      <td>Port to write commands to (can be the same as read port)</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Read Port</td>
+      <td>Port to read telemetry from (can be the same as write port)</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Write Timeout</td>
+      <td>Number of seconds to wait before aborting the write. Pass ‘nil’ to block on write.</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Read Timeout</td>
+      <td>Number of seconds to wait before aborting the read. Pass ‘nil’ to block on read.</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Stream Protocol Type</td>
+      <td>See Streams and Stream Protocols.</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Stream Protocol Arguments</td>
+      <td>See Streams and Stream Protocols for the arguments each stream protocol takes.</td>
+      <td>Yes</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>cmd_tlm_server.txt Examples:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">INTERFACE INTERFACE_NAME tcpip_server_interface.rb 8080 8081 10.0 nil LENGTH 0 16 0 1 BIG_ENDIAN 4 0xBA5EBA11
+INTERFACE INTERFACE_NAME tcpip_server_interface.rb 8080 8080 10.0 nil BURST 4 0xDEADBEEF
+INTERFACE INTERFACE_NAME tcpip_server_interface.rb 8080 8080 10.0 nil FIXED 6 0 nil <span class="nb">true
+</span>INTERFACE INTERFACE_NAME tcpip_server_interface.rb 8080 8080 10.0 nil PREIDENTIFIED 0xCAFEBABE
+INTERFACE INTERFACE_NAME tcpip_server_interface.rb 8080 8080 10.0 10.0 TERMINATED 0x0D0A 0x0D0A <span class="nb">true </span>0 0xF005BA11
+INTERFACE INTERFACE_NAME tcpip_client_interface.rb 8080 8080 10.0 10.0 TEMPLATE 0xA 0xA</code></pre></figure>
+
+<h3 id="udp-interface">
+<a id="udp-interface" class="anchor" href="#udp-interface" aria-hidden="true"><span class="octicon octicon-link"></span></a>UDP Interface</h3>
+<p>The UDP interface uses UDP packets to send and receive telemetry from the target. It can not use any stream protocols.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Host</td>
+      <td>Host name or IP address of the machine to send and receive data with</td>
+      <td>Yes</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>Write Dest Port</td>
+      <td>Port on the remote machine to send commands to</td>
+      <td>Yes</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>Read Port</td>
+      <td>Port on the remote machine to read telemetry from</td>
+      <td>Yes</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>Write Source Port</td>
+      <td>Port on the local machine to send commands from</td>
+      <td>No</td>
+      <td>nil (socket is not bound to an outgoing port)</td>
+    </tr>
+    <tr>
+      <td>Interface Address</td>
+      <td>If the remote machine supports multicast the interface address is used to configure the outgoing multicast address</td>
+      <td>No</td>
+      <td>nil (not used)</td>
+    </tr>
+    <tr>
+      <td>TTL</td>
+      <td>Time to Live. The number of intermediate routers allowed before dropping the packet.</td>
+      <td>No</td>
+      <td>128 (Windows)</td>
+    </tr>
+    <tr>
+      <td>Write Timeout</td>
+      <td>Number of seconds to wait before aborting the write</td>
+      <td>No</td>
+      <td>nil (block on write)</td>
+    </tr>
+    <tr>
+      <td>Read Timeout</td>
+      <td>Number of seconds to wait before aborting the read</td>
+      <td>No</td>
+      <td>nil (block on read)</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>cmd_tlm_server.txt Example:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">INTERFACE INTERFACE_NAME udp_interface.rb localhost 8080 8081 8082 nil 128 10.0 nil</code></pre></figure>
+
+<h3 id="serial-interface">
+<a id="serial-interface" class="anchor" href="#serial-interface" aria-hidden="true"><span class="octicon octicon-link"></span></a>Serial Interface</h3>
+<p>The serial interface connects to a target over a serial port. COSMOS provides drivers for both Windows and POSIX drivers for UNIX based systems.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Write Port</td>
+      <td>Name of the serial port to write, e.g. ‘COM1’ or ‘/dev/ttyS0’. Pass ‘nil’ to disable writing.</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Read Port</td>
+      <td>Name of the serial port to read, e.g. ‘COM1’ or ‘/dev/ttyS0’. Pass ‘nil’ to disable reading.</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Baud Rate</td>
+      <td>Baud rate to read and write</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Parity</td>
+      <td>Serial port parity. Must be ‘NONE’, ‘EVEN’, or ‘ODD’.</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Stop Bits</td>
+      <td>Number of stop bits, e.g. 1.</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Write Timeout</td>
+      <td>Number of seconds to wait before aborting the write. Pass ‘nil’ to block on write.</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Read Timeout</td>
+      <td>Number of seconds to wait before aborting the read. Pass ‘nil’ to block on read.</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Stream Protocol Type</td>
+      <td>See Streams and Stream Protocols.</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Stream Protocol Arguments</td>
+      <td>See Streams and Stream Protocols for the arguments each stream protocol takes.</td>
+      <td>Yes</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>cmd_tlm_server.txt Examples:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">INTERFACE INTERFACE_NAME serial_interface.rb COM1 COM1 9600 NONE 1 10.0 nil LENGTH 0 16 0 1 BIG_ENDIAN 4 0xBA5EBA11
+INTERFACE INTERFACE_NAME serial_interface.rb /dev/ttyS1 /dev/ttyS1 38400 ODD 1 10.0 nil BURST 4 0xDEADBEEF
+INTERFACE INTERFACE_NAME serial_interface.rb COM2 COM2 19200 EVEN 1 10.0 nil FIXED 6 0 nil <span class="nb">true
+</span>INTERFACE INTERFACE_NAME serial_interface.rb /dev/ttyS0 /dev/ttyS0 57600 NONE 1 10.0 nil PREIDENTIFIED 0xCAFEBABE
+INTERFACE INTERFACE_NAME serial_interface.rb COM4 COM4 115200 NONE 1 10.0 10.0 TERMINATED 0x0D0A 0x0D0A <span class="nb">true </span>0 0xF005BA11
+INTERFACE INTERFACE_NAME serial_interface.rb COM4 COM4 115200 NONE 1 10.0 10.0 TEMPLATE 0xA 0xA</code></pre></figure>
+
+<h3 id="cmdtlmserver-interface">
+<a id="cmdtlmserver-interface" class="anchor" href="#cmdtlmserver-interface" aria-hidden="true"><span class="octicon octicon-link"></span></a>CmdTlmServer Interface</h3>
+<p>The CmdTlmServer interface provides a connection to the COSMOS Command and Telemetry Server. This allows scripts and other COSMOS tools to send commands to the CmdTlmServer to enable and disable logging. It also allows scripts and other tools to receive a COSMOS version information packet and a limits change packet which is sent when any telemetry items change limits states. The CmdTlmServer interface can be used by any COSMOS configuration.</p>
+
+<p>cmd_tlm_server.txt Example:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">INTERFACE COSMOSINT cmd_tlm_server_interface.rb</code></pre></figure>
+
+<h3 id="linc-interface">
+<a id="linc-interface" class="anchor" href="#linc-interface" aria-hidden="true"><span class="octicon octicon-link"></span></a>LINC Interface</h3>
+<p>The LINC interface uses a single TCPIP socket to talk to a Ball Aerospace LINC Labview target.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Host</td>
+      <td>Machine name to connect to</td>
+      <td>Yes</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>Port</td>
+      <td>Port to write commands to and read telemetry from</td>
+      <td>Yes</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>Handshake Enabled</td>
+      <td>Enable command handshaking where commands block until the corresponding handshake message is received</td>
+      <td>No</td>
+      <td>true</td>
+    </tr>
+    <tr>
+      <td>Response Timeout</td>
+      <td>Number of seconds to wait for a handshaking response</td>
+      <td>No</td>
+      <td>5 seconds</td>
+    </tr>
+    <tr>
+      <td>Read Timeout</td>
+      <td>Number of seconds to wait before aborting the read</td>
+      <td>No</td>
+      <td>nil (block on read)</td>
+    </tr>
+    <tr>
+      <td>Write Timeout</td>
+      <td>Number of seconds to wait before aborting the write</td>
+      <td>No</td>
+      <td>5 seconds</td>
+    </tr>
+    <tr>
+      <td>Length Bit Offset</td>
+      <td>The bit offset of the length field. Every packet using this interface must have the same structure such that the length field is the same size at the same location.</td>
+      <td>No</td>
+      <td>0 bits</td>
+    </tr>
+    <tr>
+      <td>Length Bit Size</td>
+      <td>The size in bits of the length field</td>
+      <td>No</td>
+      <td>16 bits</td>
+    </tr>
+    <tr>
+      <td>Length Value Offset</td>
+      <td>The offset to apply to the length field value. For example if the length field indicates packet length minus one, this value should be one.</td>
+      <td>No</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <td>Fieldname GUID</td>
+      <td>Fieldname of the GUID field</td>
+      <td>No</td>
+      <td>‘HDR_GUID’</td>
+    </tr>
+    <tr>
+      <td>Length Endianness</td>
+      <td>The endianness of the length field. Must be either ‘BIG_ENDIAN’ or ‘LITTLE_ENDIAN’.</td>
+      <td>No</td>
+      <td>‘BIG_ENDIAN’</td>
+    </tr>
+    <tr>
+      <td>Fieldname Cmd Length</td>
+      <td>Fieldname of the length field</td>
+      <td>No</td>
+      <td>‘HDR_LENGTH’</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>cmd_tlm_server.txt Examples:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">INTERFACE INTERFACE_NAME linc_interface.rb localhost 8080
+INTERFACE INTERFACE_NAME linc_interface.rb localhost 8080 <span class="nb">true </span>5 nil 5 0 16 4 HDR_GUID BIG_ENDIAN HDR_LENGTH</code></pre></figure>
+
+<h2 id="streams-and-stream-protocols">
+<a id="streams-and-stream-protocols" class="anchor" href="#streams-and-stream-protocols" aria-hidden="true"><span class="octicon octicon-link"></span></a>Streams and Stream Protocols</h2>
+<p>Streams are simplified interfaces that only implement the read, read_nonblock, write, connected? and disconnect methods. They are basically just data sinks and sources which are further manipulated by stream protocols. COSMOS provides the following streams: SerialStream, TcpipClientStream, and TcpipSocketStream. As you might guess, the SerialInterface, TcpipClientInterface, TcpipServerInterface directly use the SerialStream, TcpipClientStream, and TcpipSocketStream respectively. In addition, these interfaces require a StreamProtocol to process the data on the stream.</p>
+
+<p>StreamProtocols process a stream of data on behalf of an interface. Once they are connected to their streams, they will continuously read from the stream to amass a buffer of raw data which is then processed according to the protocol type. COSMOS provides the following stream protocols: Burst, Fixed, Length, Terminated, Preidentified, and Template.</p>
+
+<h3 id="burst-stream-protocol">
+<a id="burst-stream-protocol" class="anchor" href="#burst-stream-protocol" aria-hidden="true"><span class="octicon octicon-link"></span></a>Burst Stream Protocol</h3>
+<p>The Burst Stream Protocol simply reads as much data as it can from the stream before returning the data as a COSMOS Packet. This Protocol relies on regular bursts of data delimited by time and thus is not very robust. However it can utilize a sync pattern which does allow it to re-sync from the stream if necessary.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Discard Leading Bytes</td>
+      <td>The number of bytes to discard from the binary data after reading from the stream. Note that this applies to bytes starting with the sync pattern if the sync pattern is being used.</td>
+      <td>No</td>
+      <td>0 (do not discard bytes)</td>
+    </tr>
+    <tr>
+      <td>Sync Pattern</td>
+      <td>Hex string representing a byte pattern that will be searched for in the raw stream. This pattern represents a packet delimiter and all data found including the sync pattern will be returned</td>
+      <td>No</td>
+      <td>nil (no sync pattern)</td>
+    </tr>
+    <tr>
+      <td>Fill Sync Pattern</td>
+      <td>Whether or not to fill in the sync pattern on outgoing packets</td>
+      <td>No</td>
+      <td>false</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="fixed-stream-protocol">
+<a id="fixed-stream-protocol" class="anchor" href="#fixed-stream-protocol" aria-hidden="true"><span class="octicon octicon-link"></span></a>Fixed Stream Protocol</h3>
+<p>The Fixed Stream Protocol reads a preset minimum amount of data from the stream which is necessary to properly identify all the defined packets using the interface. It then identifies the packet and proceeds to read as much data from the stream as necessary to create the packet which it then returns. This stream relies on all the packets on the interface being fixed in length. For example, all the packets using the interface are a fixed size and contain a simple header with a 32 bit sync pattern followed by a 16 bit ID. The Fixed Stream Protocol would elegantly handle this case with a minimum read size of 6 bytes.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Minimum ID Size</td>
+      <td>The minimum amount of bytes needed to identify a packet. All the packet definitions must declare their ID_ITEM(s) within this given amount of bytes.</td>
+      <td>Yes</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>Discard Leading Bytes</td>
+      <td>The number of bytes to discard from the binary data after reading from the stream. Note that this applies to bytes starting with the sync pattern if the sync pattern is being used.</td>
+      <td>No</td>
+      <td>0 (do not discard bytes)</td>
+    </tr>
+    <tr>
+      <td>Sync Pattern</td>
+      <td>Hex string representing a byte pattern that will be searched for in the raw stream. This pattern represents a packet delimiter and all data found including the sync pattern will be returned.</td>
+      <td>No</td>
+      <td>nil (no sync pattern)</td>
+    </tr>
+    <tr>
+      <td>Telemetry Stream</td>
+      <td>Whether the stream is returning telemetry</td>
+      <td>No</td>
+      <td>true (false means command stream)</td>
+    </tr>
+    <tr>
+      <td>Fill Sync Pattern</td>
+      <td>Whether or not to fill in the sync pattern on outgoing packets</td>
+      <td>No</td>
+      <td>false</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="length-stream-protocol">
+<a id="length-stream-protocol" class="anchor" href="#length-stream-protocol" aria-hidden="true"><span class="octicon octicon-link"></span></a>Length Stream Protocol</h3>
+<p>The Length Stream Protocol depends on a length field at a fixed location in the defined packets using the interface. It then reads enough data to grab the length field, decodes it, and reads the remaining length of the packet. For example, all the packets using the interface contain a CCSDS header with a length field. The Length Stream Protocol can be set up to handle the length field and even the “length - 1” offset the CCSDS header uses.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Length Bit Offset</td>
+      <td>The bit offset of the length field. Every packet using this interface must have the same structure such that the length field is the same size at the same location. Be sure to account for the length of the Sync Pattern in this value (if present).</td>
+      <td>No</td>
+      <td>0 bits</td>
+    </tr>
+    <tr>
+      <td>Length Bit Size</td>
+      <td>The size in bits of the length field</td>
+      <td>No</td>
+      <td>16 bits</td>
+    </tr>
+    <tr>
+      <td>Length Value Offset</td>
+      <td>The offset to apply to the length field value. For example if the length field indicates packet length minus one, this value should be one. Be sure to account for the length of the Sync Pattern in this value (if present).</td>
+      <td>No</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <td>Bytes per Count</td>
+      <td>The number of bytes per each length field ‘count’. This is used if the units of the length field is something other than bytes, for example if the length field count is in words.</td>
+      <td>No</td>
+      <td>1 byte</td>
+    </tr>
+    <tr>
+      <td>Length Endianness</td>
+      <td>The endianness of the length field. Must be either ‘BIG_ENDIAN’ or ‘LITTLE_ENDIAN’.</td>
+      <td>No</td>
+      <td>‘BIG_ENDIAN’</td>
+    </tr>
+    <tr>
+      <td>Discard Leading Bytes</td>
+      <td>The number of bytes to discard from the binary data after reading from the stream. Note that this applies to bytes including the sync pattern if the sync pattern is being used. Discarding is one of the very last steps so any size and offsets above need to account for all the data before discarding.</td>
+      <td>No</td>
+      <td>0 (do not discard bytes)</td>
+    </tr>
+    <tr>
+      <td>Sync Pattern</td>
+      <td>Hex string representing a byte pattern that will be searched for in the raw stream. This pattern represents a packet delimiter and all data found including the sync pattern will be returned.</td>
+      <td>No</td>
+      <td>nil (no sync pattern)</td>
+    </tr>
+    <tr>
+      <td>Max Length</td>
+      <td>The maximum allowed value in the length field</td>
+      <td>No</td>
+      <td>nil (no maximum length)</td>
+    </tr>
+    <tr>
+      <td>Fill Length and Sync Pattern</td>
+      <td>Setting this flag to true causes the length field and sync pattern (if present) to be filled automatically on outgoing packets.</td>
+      <td>No</td>
+      <td>false</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="terminated-stream-protocol">
+<a id="terminated-stream-protocol" class="anchor" href="#terminated-stream-protocol" aria-hidden="true"><span class="octicon octicon-link"></span></a>Terminated Stream Protocol</h3>
+<p>The Terminated Stream Protocol delineates packets using termination characters found at the end of every packet. It continuously reads data from the stream until the termination characters are found at which point it returns the packet data. For example, all the packets using the interface are followed by 0xABCD. This data can either be a part of each packet that is kept or something which is known only by the Terminated Stream Protocol and simply thrown away.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Write Termination Characters</td>
+      <td>The data to write to the stream after writing a command packet. Given as a hex string such as 0xABCD.</td>
+      <td>Yes</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>Read Termination Characters</td>
+      <td>The characters at the end of the stream which delineate the end of a telemetry packet. Given as a hex string such as 0xABCD.</td>
+      <td>Yes</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>Strip Read Termination</td>
+      <td>Whether to remove the read termination characters from the stream before returning the telemetry packet</td>
+      <td>No</td>
+      <td>true</td>
+    </tr>
+    <tr>
+      <td>Discard Leading Bytes</td>
+      <td>The number of bytes to discard from the binary data after reading from the stream. Note that this applies to bytes including the sync pattern if the sync pattern is being used.</td>
+      <td>No</td>
+      <td>0 (do not discard bytes)</td>
+    </tr>
+    <tr>
+      <td>Sync Pattern</td>
+      <td>Hex string representing a byte pattern that will be searched for in the raw stream. This pattern represents a packet delimiter and all data found including the sync pattern will be returned.</td>
+      <td>No</td>
+      <td>nil (no sync pattern)</td>
+    </tr>
+    <tr>
+      <td>Fill Sync Pattern</td>
+      <td>Whether or not to fill in the sync pattern on outgoing packets</td>
+      <td>No</td>
+      <td>false</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="preidentified-stream-protocol">
+<a id="preidentified-stream-protocol" class="anchor" href="#preidentified-stream-protocol" aria-hidden="true"><span class="octicon octicon-link"></span></a>Preidentified Stream Protocol</h3>
+<p>The Preidentified Stream Protocol is used internally by the COSMOS Command and Telemetry Server only and delineates packets using a custom COSMOS header. This stream Protocol is configured by default on port 7779 and is created by the Command and Telemetry Server to allow tools to connect and receive the entire packet stream. The Telemetry Grapher uses this port to receive all the packets following through the Command and Telemetry Server in case any need to be graphed.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Sync Pattern</td>
+      <td>Hex string representing a byte pattern that will be searched for in the raw stream. This pattern represents a packet delimiter and all data found AFTER the sync pattern will be returned. The sync pattern itself is discarded.</td>
+      <td>No</td>
+      <td>nil (no sync pattern)</td>
+    </tr>
+    <tr>
+      <td>Max Length</td>
+      <td>The maximum allowed value in the length field</td>
+      <td>No</td>
+      <td>nil (no maximum length)</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="template-stream-protocol">
+<a id="template-stream-protocol" class="anchor" href="#template-stream-protocol" aria-hidden="true"><span class="octicon octicon-link"></span></a>Template Stream Protocol</h3>
+<p>The Template Stream Protocol works much like the Terminated Stream Protocol except it designed for text-based command and response type interfaces such as SCPI (Standard Commands for Programmable Instruments).  It delineates packets in the same way as the terminated stream protocol except each packet is referred to as a line (because each usually contains a line of text).  For outgoing packets a CMD_TEMPLATE field is expected to exist in the packet.  This field contains a template string with items to be filled in deliniated within HTML tag style brackets “<example>".  The Template Stream Protocol will read the named items from within the packet fill in the CMD_TEMPLATE.  This filled in string is then sent out rather than the originally passed in packet.   Correspondingly, if a response is expected the outgoing packet should include a RSP_TEMPLATE and RSP_PACKET field.  The RSP_TEMPLATE is used to extract data from the response string and build a corresponding RSP_PACKET.   See the TEMPLATE target within the COSMOS Demo configuration for an example of usage.</example></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Write Termination Characters</td>
+      <td>The data to write to the stream after writing a command packet. Given as a hex string such as 0xABCD.</td>
+      <td>Yes</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>Read Termination Characters</td>
+      <td>The characters at the end of the stream which delineate the end of a telemetry packet. Given as a hex string such as 0xABCD.</td>
+      <td>Yes</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>Ignore Lines</td>
+      <td>Number of response lines to ignore (completely drop)</td>
+      <td>No</td>
+      <td>0 lines</td>
+    </tr>
+    <tr>
+      <td>Initial Read Delay</td>
+      <td>An initial delay after connecting after which the stream will be read till empty and data dropped. Useful for discarding connect headers and initial prompts.</td>
+      <td>No</td>
+      <td>nil (no initial read)</td>
+    </tr>
+    <tr>
+      <td>Response Lines</td>
+      <td>The number of lines that make up expected responses</td>
+      <td>No</td>
+      <td>1 line</td>
+    </tr>
+    <tr>
+      <td>Strip Read Termination</td>
+      <td>Whether to remove the read termination characters from the stream before returning the telemetry packet</td>
+      <td>No</td>
+      <td>true</td>
+    </tr>
+    <tr>
+      <td>Discard Leading Bytes</td>
+      <td>The number of bytes to discard from the binary data after reading from the stream. Note that this applies to bytes including the sync pattern if the sync pattern is being used.</td>
+      <td>No</td>
+      <td>0 (do not discard bytes)</td>
+    </tr>
+    <tr>
+      <td>Sync Pattern</td>
+      <td>Hex string representing a byte pattern that will be searched for in the raw stream. This pattern represents a packet delimiter and all data found including the sync pattern will be returned.</td>
+      <td>No</td>
+      <td>nil (no sync pattern)</td>
+    </tr>
+    <tr>
+      <td>Fill Sync Pattern</td>
+      <td>Whether or not to fill in the sync pattern on outgoing packets</td>
+      <td>No</td>
+      <td>false</td>
+    </tr>
+  </tbody>
+</table>
+
+          
+
+
+
+
+
+  
+  
+
+  
+  
+
+  
+  
+
+  
+  
+
+  
+  
+
+  
+  
+
+  
+  
+
+  
+  
+    <div class="top-section-nav">
+      <div class="left align-right">
+          
+            
+            
+            <a href="/docs/cmdtlm/" class="prev">Back</a>
+          
+      </div>
+      <div class="right align-left">
+          
+            
+            
+            <a href="/docs/tools/" class="next">Next</a>
+          
+      </div>
+    </div>
+    <div class="clear"></div>
+    
+
+        </article>
+      </div>
+
+      <div class="unit one-fifth hide-on-mobiles">
+  <aside>
+    
+    <h4>Getting Started</h4>
+    
+
+<ul>
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/home/">Welcome</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/installation/">Installation</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/upgrading/">Upgrading and the Gemfile</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/structure/">Directory structure</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/gettingstarted/">Getting Started</a></li>
+      
+
+
+</ul>
+
+    
+    <h4>Configuration</h4>
+    
+
+<ul>
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/system/">System Configuration</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+      <li class=""><a href="/docs/cmdtlm/">Command and Telemetry Configuration</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class="current"><a href="/docs/interfaces/">Interface Configuration</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/tools/">Tool Configuration</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/screens/">Telemetry Screens</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/grapher/">Telemetry Grapher</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/environment/">Environment Variables</a></li>
+      
+
+
+</ul>
+
+    
+    <h4>User's Guides</h4>
+    
+
+<ul>
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/scripting/">Scripting Guide</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/gemtargets/">Gem Based Targets and Tools</a></li>
+      
+
+
+</ul>
+
+    
+    <h4>Tips</h4>
+    
+
+<ul>
+
+  
+
+  
+
+  
+    
+      <li class=""><a href="/docs/chaining/">Chaining CmdTlmServers</a></li>
+      
+
+
+</ul>
+
+    
+    <h4>Development</h4>
+    
+
+<ul>
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/system_class/">System Class</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/packet_class/">Packet Class</a></li>
+      
+
+
+</ul>
+
+    
+    <h4>Meta</h4>
+    
+
+<ul>
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/requirements/">Requirements and Design</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/xtce/">XTCE Support</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/contributing/">Contributing</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/contact/">Contact Us</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/history/">Release History</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/papers/">Papers</a></li>
+      
+
+
+</ul>
+
+    
+  </aside>
+</div>
+
+
+      <div class="clear"></div>
+
+    </div>
+  </section>
+
+
+  <script>
+  (function() {
+    var cx = '001663949569052626382:-enhin1layy';
+    var gcse = document.createElement('script');
+    gcse.type = 'text/javascript';
+    gcse.async = true;
+    gcse.src = 'https://cse.google.com/cse.js?cx=' + cx;
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(gcse, s);
+  })();
+</script>
+<footer role="contentinfo">
+  <div class="grid wider">
+    <div class="unit one-third center-on-mobiles">
+      <p>The contents of this website are &copy;&nbsp;2017 <a href="http://www.ballaerospace.com/" target="_blank">Ball Aerospace</a> under the terms of the <a href="https://github.com/BallAerospace/COSMOS/blob/master/LICENSE.txt" target="_blank">GPLv3&nbsp;License</a>.</p>
+      <p>Site design derived from the <a href="http://jekyllrb.com/" target="_blank">Jekyll</a> project documentation which is licensed under the terms of the <a href="https://github.com/jekyll/jekyll/blob/master/LICENSE" target="_blank">MIT License</a>.</p>
+    </div>
+    <div class="unit two-thirds align-right center-on-mobiles">
+      <p>
+        <gcse:search></gcse:search>
+        Proudly hosted by
+        <a href="https://github.com" target="_blank">
+          <img src="/img/footer-logo.png" width="100" height="30" alt="GitHub Social coding">
+        </a>
+      </p>
+    </div>
+  </div>
+</footer>
+
+  <script>
+  var anchorForId = function (id) {
+    var anchor = document.createElement("a");
+    anchor.className = "header-link";
+    anchor.href      = "#" + id;
+    anchor.innerHTML = "<span class=\"sr-only\">Permalink</span><i class=\"fa fa-link\"></i>";
+    anchor.title = "Permalink";
+    return anchor;
+  };
+
+  var linkifyAnchors = function (level, containingElement) {
+    var headers = containingElement.getElementsByTagName("h" + level);
+    for (var h = 0; h < headers.length; h++) {
+      var header = headers[h];
+
+      if (typeof header.id !== "undefined" && header.id !== "") {
+        header.appendChild(anchorForId(header.id));
+      }
+    }
+  };
+
+  document.onreadystatechange = function () {
+    if (this.readyState === "complete") {
+      var contentBlock = document.getElementsByClassName("docs")[0] || document.getElementsByClassName("news")[0];
+      if (!contentBlock) {
+        return;
+      }
+      for (var level = 1; level <= 6; level++) {
+        linkifyAnchors(level, contentBlock);
+      }
+    }
+  };
+</script>
+
+  
+  <!-- Google Analytics (http://google.com/analytics) -->
+  <script>
+    !function(j,e,k,y,l,L){j.GoogleAnalyticsObject=y,j[y]||(j[y]=function(){
+    (j[y].q=j[y].q||[]).push(arguments)}),j[y].l=+new Date,l=e.createElement(k),
+    L=e.getElementsByTagName(k)[0],l.src='//www.google-analytics.com/analytics.js',
+    L.parentNode.insertBefore(l,L)}(window,document,'script','ga');
+
+    ga('create', 'UA-60103689-1', 'cosmosrb.com');
+    ga('send', 'pageview');
+
+  </script>
+
+
+
+</body>
+</html>
