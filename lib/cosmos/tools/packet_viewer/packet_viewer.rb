@@ -14,6 +14,7 @@ Cosmos.catch_fatal_exception do
   require 'cosmos/gui/qt_tool'
   require 'cosmos/gui/dialogs/tlm_details_dialog'
   require 'cosmos/gui/dialogs/tlm_edit_dialog'
+  require 'cosmos/gui/dialogs/tlm_graph_dialog'
   require 'cosmos/gui/dialogs/exception_dialog'
   require 'cosmos/gui/dialogs/splash'
   require 'cosmos/gui/widgets/full_text_search_line_edit'
@@ -519,13 +520,7 @@ module Cosmos
           graph_action = Qt::Action.new(tr("Graph #{target_name} #{packet_name} #{item_name}"), self)
           graph_action.statusTip = tr("Create a new COSMOS graph of #{target_name} #{packet_name} #{item_name}")
           graph_action.connect(SIGNAL('triggered()')) do
-            if Kernel.is_windows?
-              Cosmos.run_process("rubyw tools/TlmGrapher -i \"#{target_name} #{packet_name} #{item_name}\" --system #{File.basename(System.initial_filename)}")
-            elsif Kernel.is_mac? and File.exist?("tools/mac/TlmGrapher.app")
-              Cosmos.run_process("open tools/mac/TlmGrapher.app --args -i \"#{target_name} #{packet_name} #{item_name}\" --system #{File.basename(System.initial_filename)}")
-            else
-              Cosmos.run_process("ruby tools/TlmGrapher -i \"#{target_name} #{packet_name} #{item_name}\" --system #{File.basename(System.initial_filename)}")
-            end
+            TlmGraphDialog.new(self, target_name, packet_name, item_name)
           end
           menu.addAction(graph_action)
 

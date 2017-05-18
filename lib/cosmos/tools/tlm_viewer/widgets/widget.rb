@@ -11,6 +11,7 @@
 require 'cosmos'
 require 'cosmos/gui/dialogs/tlm_details_dialog'
 require 'cosmos/gui/dialogs/tlm_edit_dialog'
+require 'cosmos/gui/dialogs/tlm_graph_dialog'
 
 module Cosmos
 
@@ -236,13 +237,7 @@ module Cosmos
 
       graph = Qt::Action.new("Graph #{@target_name} #{@packet_name} #{@item_name}", menu)
       graph.connect(SIGNAL('triggered()')) do
-        if Kernel.is_windows?
-          Cosmos.run_process("rubyw tools/TlmGrapher -i \"#{@target_name} #{@packet_name} #{@item_name}\" --system #{File.basename(System.initial_filename)}")
-        elsif Kernel.is_mac? and File.exist?("tools/mac/TlmGrapher.app")
-          Cosmos.run_process("open tools/mac/TlmGrapher.app --args -i \"#{@target_name} #{@packet_name} #{@item_name}\" --system #{File.basename(System.initial_filename)}")
-        else
-          Cosmos.run_process("ruby tools/TlmGrapher -i \"#{@target_name} #{@packet_name} #{@item_name}\" --system #{File.basename(System.initial_filename)}")
-        end
+        TlmGraphDialog.new(self, target_name, packet_name, item_name)
       end
       menu.addAction(graph)
 
