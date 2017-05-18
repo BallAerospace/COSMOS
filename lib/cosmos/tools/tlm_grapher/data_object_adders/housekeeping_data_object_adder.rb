@@ -43,15 +43,25 @@ module Cosmos
         if split_tlm.length == 3
           target_name = split_tlm[0]
           packet_name = split_tlm[1]
+          # Check to see if the item name is followed by an array index,
+          # notated by square brackets around an integer; i.e. ARRAY_ITEM[1]
           if (split_tlm[2] =~ /\[\d+\]$/)
+            # We found an array index.
+            # The $` special variable is the string before the regex match, i.e. ARRAY_ITEM
             item_name = $`
+            # The $& special variable is the string matched by the regex, i.e. [1].
+            # Strip off the brackets and then convert the array index to an integer.
             item_array_index = $&.gsub(/[\[\]]/, "").to_i
           else
             item_name = split_tlm[2]
             item_array_index = nil
           end
           begin
-            System.telemetry.packet_and_item(target_name, packet_name, item_name)
+            packet, item = System.telemetry.packet_and_item(target_name, packet_name, item_name)
+            # Default array index to zero if it wasn't specified.
+            item_array_index = 0 if item.array_size and !item_array_index
+            # Ignore array indicies for non-array items.
+            item_array_index = nil if !item.array_size
             add_data_object(target_name, packet_name, item_name, item_array_index)
           rescue
             # Does not exist

@@ -77,8 +77,14 @@ module Cosmos
         target_name.upcase!
         packet_name.upcase!
         item_name.upcase!
+        # Check to see if the item name is followed by an array index,
+        # notated by square brackets around an integer; i.e. ARRAY_ITEM[1]
         if (item_name =~ /\[\d+\]$/)
+          # We found an array index.
+          # The $` special variable is the string before the regex match, i.e. ARRAY_ITEM
           item_name = $`
+          # The $& special variable is the string matched by the regex, i.e. [1].
+          # Strip off the brackets and then convert the array index to an integer.
           item_array_index = $&.gsub(/[\[\]]/, "").to_i
         else
           item_array_index = nil
