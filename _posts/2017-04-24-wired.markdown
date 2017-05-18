@@ -1,9 +1,0 @@
----
-layout: news_item
-title: 'WIRED Article'
-date: 2017-04-24 00:00:00 -0700
-author: jmthomas 
-categories: [post]
----
-
-Ball Aerospace COSMOS has been featured in an article on [WIRED.com](https://www.wired.com/2017/04/aerospace-coder-drags-stodgy-industry-toward-open-source/). The article focues on the fact that COSMOS is open source and what that means for the industry. The author includes quotes from GitHub's VP of Product Engineering, Aerospace Corporation's Principle Director of IT, and of course Ryan Melton and Jason Thomas of Ball Aerospace.
