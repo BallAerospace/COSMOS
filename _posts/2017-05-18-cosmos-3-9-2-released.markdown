@@ -1,6 +1,6 @@
 ---
 layout: news_item
-title: 'Ball Aerospace COSMOS 3.9.1 Released'
+title: 'Ball Aerospace COSMOS 3.9.2 Released'
 date: 2017-05-18 12:00:00 -0700
 author: ryanmelt
 version: 3.9.2
