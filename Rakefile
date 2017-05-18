@@ -18,6 +18,7 @@ end
 task :deploy do
   puts "## Deploying website/_site to Github Pages "
   system "git checkout gh-pages"
+  system "git pull"
   system "git checkout website -- _site"
   FileUtils.cp_r "_site/.", "."
   FileUtils.rm_r "_site"
