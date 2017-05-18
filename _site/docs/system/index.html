@@ -1,0 +1,3126 @@
+<!DOCTYPE HTML>
+<html lang="en-US">
+<head>
+  <meta charset="UTF-8">
+  <title>System Configuration</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="generator" content="Jekyll v3.4.3">
+  <link rel="alternate" type="application/rss+xml" title="Ball Aerospace COSMOS News" href="/feed.xml">
+  <link rel="alternate" type="application/atom+xml" title="Recent commits to COSMOS’s master branch" href="https://github.com/BallAerospace/COSMOS/commits/master.atom">
+  <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic,900">
+  <link rel="stylesheet" href="/css/screen.css">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <!--[if lt IE 9]>
+  <script src="/js/html5shiv.min.js"></script>
+  <script src="/js/respond.min.js"></script>
+  <![endif]-->
+</head>
+
+
+<body class="wrap">
+  <header role="banner">
+  <nav class="mobile-nav show-on-mobiles">
+    <ul>
+  <li class="">
+    <a href="/">Home</a>
+  </li>
+  <li class="current">
+    <span class="hide-on-mobiles"><a href="/docs/home/">Documentation</a></span>
+    <span class="show-on-mobiles"><a href="/docs/home/">Docs</a></span>
+  </li>
+  <li class="">
+    <a href="/news/">News</a>
+  </li>
+  <li>
+    <a href="/help/">Help</a>
+  </li>
+  <li>
+    <a href="https://github.com/BallAerospace/COSMOS" target="_blank"><span class="hide-on-mobiles">View on </span>GitHub</a>
+  </li>
+</ul>
+
+  </nav>
+  <div class="grid wider">
+    <div class="unit one-third center-on-mobiles" style="margin-top:27px;">
+      <h1>
+        <a href="/">
+          <span class="sr-only">COSMOS</span>
+          <img src="/img/COSMOS.png" width="312" height="70" alt="COSMOS Logo">
+        </a>
+      </h1>
+    </div>
+    <nav class="main-nav unit two-thirds hide-on-mobiles">
+      <ul>
+  <li class="">
+    <a href="/">Home</a>
+  </li>
+  <li class="current">
+    <span class="hide-on-mobiles"><a href="/docs/home/">Documentation</a></span>
+    <span class="show-on-mobiles"><a href="/docs/home/">Docs</a></span>
+  </li>
+  <li class="">
+    <a href="/news/">News</a>
+  </li>
+  <li>
+    <a href="/help/">Help</a>
+  </li>
+  <li>
+    <a href="https://github.com/BallAerospace/COSMOS" target="_blank"><span class="hide-on-mobiles">View on </span>GitHub</a>
+  </li>
+</ul>
+
+    </nav>
+  </div>
+</header>
+
+
+    <section class="docs">
+    <div class="grid wider">
+
+      <div class="docs-nav-mobile unit whole show-on-mobiles">
+  <select onchange="if (this.value) window.location.href=this.value">
+    <option value="">Navigate the docs…</option>
+    
+    <optgroup label="Getting Started">
+      
+
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/home/">Welcome</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/installation/">Installation</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/upgrading/">Upgrading and the Gemfile</option>
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/structure/">Directory structure</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/gettingstarted/">Getting Started</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+
+    </optgroup>
+    
+    <optgroup label="Configuration">
+      
+
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/system/">System Configuration</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+      <option value="/docs/cmdtlm/">Command and Telemetry Configuration</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/interfaces/">Interface Configuration</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/tools/">Tool Configuration</option>
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/screens/">Telemetry Screens</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/grapher/">Telemetry Grapher</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/environment/">Environment Variables</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+
+    </optgroup>
+    
+    <optgroup label="User's Guides">
+      
+
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/scripting/">Scripting Guide</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/gemtargets/">Gem Based Targets and Tools</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+
+    </optgroup>
+    
+    <optgroup label="Tips">
+      
+
+
+  
+
+  
+    
+      <option value="/docs/chaining/">Chaining CmdTlmServers</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+
+    </optgroup>
+    
+    <optgroup label="Development">
+      
+
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/system_class/">System Class</option>
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/packet_class/">Packet Class</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+
+    </optgroup>
+    
+    <optgroup label="Meta">
+      
+
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/requirements/">Requirements and Design</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/xtce/">XTCE Support</option>
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/contributing/">Contributing</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+      <option value="/docs/contact/">Contact Us</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/history/">Release History</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/papers/">Papers</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+
+    </optgroup>
+    
+  </select>
+</div>
+
+
+      <div class="unit four-fifths">
+        <article>
+          <div class="improve right">
+            <a href="https://github.com/BallAerospace/COSMOS/edit/gh-pages/_docs/system.md" target="_blank"><i class="fa fa-pencil"></i> &nbsp;Improve this page</a>
+          </div>
+          
+          <div class="toc">
+            <ul class="section-nav">
+<li class="toc-entry toc-h2"><a href="#system-configuration">System Configuration</a></li>
+<li class="toc-entry toc-h2"><a href="#systemtxt-keywords">system.txt Keywords</a></li>
+<li class="toc-entry toc-h3"><a href="#auto_declare_targets">AUTO_DECLARE_TARGETS</a></li>
+<li class="toc-entry toc-h3"><a href="#declare_target">DECLARE_TARGET</a></li>
+<li class="toc-entry toc-h3"><a href="#port">PORT</a></li>
+<li class="toc-entry toc-h3"><a href="#path">PATH</a></li>
+<li class="toc-entry toc-h3"><a href="#default_packet_log_writer-and-default_packet_log_reader">DEFAULT_PACKET_LOG_WRITER and DEFAULT_PACKET_LOG_READER</a></li>
+<li class="toc-entry toc-h3"><a href="#cmd_tlm_version">CMD_TLM_VERSION</a></li>
+<li class="toc-entry toc-h3"><a href="#staleness_seconds">STALENESS_SECONDS</a></li>
+<li class="toc-entry toc-h3"><a href="#enable_dns-cosmos-350">ENABLE_DNS (COSMOS 3.5.0+)</a></li>
+<li class="toc-entry toc-h3"><a href="#disable_dns">DISABLE_DNS</a></li>
+<li class="toc-entry toc-h3"><a href="#enable_sound-cosmos-350">ENABLE_SOUND (COSMOS 3.5.0+)</a></li>
+<li class="toc-entry toc-h3"><a href="#allow_access">ALLOW_ACCESS</a></li>
+<li class="toc-entry toc-h2"><a href="#target-configuration">Target Configuration</a></li>
+<li class="toc-entry toc-h2"><a href="#targettxt-keywords">target.txt Keywords</a></li>
+<li class="toc-entry toc-h3"><a href="#require">REQUIRE</a></li>
+<li class="toc-entry toc-h3"><a href="#ignore_parameter">IGNORE_PARAMETER</a></li>
+<li class="toc-entry toc-h3"><a href="#ignore_item">IGNORE_ITEM</a></li>
+<li class="toc-entry toc-h3"><a href="#commands-and-telemetry">COMMANDS and TELEMETRY</a></li>
+<li class="toc-entry toc-h3"><a href="#auto_screen_substitute">AUTO_SCREEN_SUBSTITUTE</a></li>
+<li class="toc-entry toc-h2"><a href="#command-and-telemetry-server-configuration">Command and Telemetry Server Configuration</a></li>
+<li class="toc-entry toc-h2"><a href="#cmd_tlm_servertxt-keywords">cmd_tlm_server.txt Keywords</a></li>
+<li class="toc-entry toc-h3"><a href="#title">TITLE</a></li>
+<li class="toc-entry toc-h3"><a href="#packet_log_writer">PACKET_LOG_WRITER</a></li>
+<li class="toc-entry toc-h3"><a href="#auto_interface_targets">AUTO_INTERFACE_TARGETS</a></li>
+<li class="toc-entry toc-h3"><a href="#interface_target">INTERFACE_TARGET</a></li>
+<li class="toc-entry toc-h3"><a href="#interface">INTERFACE</a></li>
+<li class="toc-entry toc-h3"><a href="#router">ROUTER</a></li>
+<li class="toc-entry toc-h3"><a href="#collect_metadata">COLLECT_METADATA</a></li>
+<li class="toc-entry toc-h3"><a href="#background_task">BACKGROUND_TASK</a></li>
+<li class="toc-entry toc-h2"><a href="#interface-and-router-modifiers">Interface and Router Modifiers</a></li>
+<li class="toc-entry toc-h3"><a href="#target">TARGET</a></li>
+<li class="toc-entry toc-h3"><a href="#dont_connect">DONT_CONNECT</a></li>
+<li class="toc-entry toc-h3"><a href="#dont_reconnect">DONT_RECONNECT</a></li>
+<li class="toc-entry toc-h3"><a href="#reconnect_delay">RECONNECT_DELAY</a></li>
+<li class="toc-entry toc-h3"><a href="#disable_disconnect">DISABLE_DISCONNECT</a></li>
+<li class="toc-entry toc-h3"><a href="#log">LOG</a></li>
+<li class="toc-entry toc-h3"><a href="#dont_log">DONT_LOG</a></li>
+<li class="toc-entry toc-h3"><a href="#log_raw">LOG_RAW</a></li>
+<li class="toc-entry toc-h3"><a href="#option">OPTION</a></li>
+<li class="toc-entry toc-h3"><a href="#route">ROUTE</a></li>
+<li class="toc-entry toc-h2"><a href="#project-crc-checking">Project CRC Checking</a></li>
+</ul>
+          </div>
+          
+          <h1>System Configuration</h1>
+          <p>This document provides the information necessary to configure the COSMOS Command and Telemetry Server and other top level configuration options for your unique project.</p>
+
+<p>Configuration file formats for the following are provided:</p>
+
+<ul>
+  <li>system.txt (found in config/system)</li>
+  <li>target.txt (found in config/targets/TARGETNAME)</li>
+  <li>cmd_tlm_server.txt (found in config/targets/TARGETNAME and config/tools/cmd_tlm_server)</li>
+  <li>crc.txt (found in data/crc.txt)</li>
+</ul>
+
+<h2 id="system-configuration">
+<a id="system-configuration" class="anchor" href="#system-configuration" aria-hidden="true"><span class="octicon octicon-link"></span></a>System Configuration</h2>
+<p>The COSMOS system configuration is performed by system.txt in the config/system directory. This file declares all the targets that will be used by COSMOS as well as top level configuration information which is primarily used by the Command and Telemetry Server.</p>
+
+<p>By default, all COSMOS tools use the config/system/system.txt file. However, all tools can take a custom system configuration file by passing the “–system <filename>" option to the tool when it starts. NOTE: Mixing system configuration files between tools can be confusing as some tools could be configured with more or less targets than the Command and Telemetry Server. However, this is the only way to control which targets, ports, paths, and log writers are used by the various tools.</filename></p>
+
+<h2 id="systemtxt-keywords">
+<a id="systemtxt-keywords" class="anchor" href="#systemtxt-keywords" aria-hidden="true"><span class="octicon octicon-link"></span></a>system.txt Keywords</h2>
+
+<h3 id="auto_declare_targets">
+<a id="auto_declare_targets" class="anchor" href="#auto_declare_targets" aria-hidden="true"><span class="octicon octicon-link"></span></a>AUTO_DECLARE_TARGETS</h3>
+<p>If this keyword is present, COSMOS will automatically load all the target folders under config/targets into the system. The target folders must be uppercase and be named according to how COSMOS will access them. For example, if you create a config/targets/INST directory, COSMOS will create a target named ‘INST’ which is how it will be referenced in command and telemetry. This keyword is REQUIRED unless you individually declare your targets using the DECLARE_TARGET keyword.</p>
+
+<p>Example Usage:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">AUTO_DECLARE_TARGETS</code></pre></figure>
+
+<h3 id="declare_target">
+<a id="declare_target" class="anchor" href="#declare_target" aria-hidden="true"><span class="octicon octicon-link"></span></a>DECLARE_TARGET</h3>
+<p>Declare target is used in place of AUTO_DECLARE_TARGETS to give more fine grained control over how the target folder is loaded and named within COSMOS. This is required if AUTO_DECLARE_TARGET is not present.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Target Name</td>
+      <td>The directory name which contains the target information. This must match a directory under config/targets.</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Substitute Target Name</td>
+      <td>The target name in the COSMOS system. This is how the target will be referred to in scripts. If this is not given (or given as nil) the target name will be the directory name given above.</td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>Target Filename</td>
+      <td>The name of the file in the target directory which contains the configuration information for the target. By default this is ‘target.txt’ but if you want to rename this you need to set this parameter.</td>
+      <td>No</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">DECLARE_TARGET INST INST2 inst.txt</code></pre></figure>
+
+<h3 id="port">
+<a id="port" class="anchor" href="#port" aria-hidden="true"><span class="octicon octicon-link"></span></a>PORT</h3>
+<p>Port is used to set the default ports used by the Command and Telemetry Server. It is not necessary to set this option unless you wish to override the defaults (given in the example usage).   Overriding ports is necessary if you want to run two Command and Telemetry Servers on the same computer simultaneously.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Port Name</td>
+      <td>Port name to set. Must be one of the following: ‘CTS_API’, ‘TLMVIEWER_API’, ‘CTS_PREIDENTIFIED’. CTS_API - This port is what tools connect to to communicate with the COSMOS Scripting API. TLMVIEWER_API - This port is used to remotely open and close telemetry screens in Telemetry Viewer. CTS_PREIDENTIFIED - This port provides access to a preidentified stream of all telemetry packets in the system. This is currently used by Telemetry Grapher and can be used to chain Command and Telemetry Servers together.</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Port Value</td>
+      <td>Port number to use for the specified port name.</td>
+      <td>Yes</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">PORT CTS_API 7777 <span class="c"># Default</span>
+PORT TLMVIEWER_API 7778 <span class="c"># Default</span>
+PORT CTS_PREIDENTIFIED 7779 <span class="c"># Default</span></code></pre></figure>
+
+<h3 id="path">
+<a id="path" class="anchor" href="#path" aria-hidden="true"><span class="octicon octicon-link"></span></a>PATH</h3>
+<p>Path is used to set the default paths used by the Command and Telemetry Server to access or create files. It is not necessary to set this option unless you wish to override the defaults (given in the example usage).</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Path Name</td>
+      <td>Path name to set. Must be one of the following: ‘LOGS’, ‘TMP’, ‘SAVED_CONFIG’, ‘TABLES’, ‘PROCEDURES’, ‘HANDBOOKS’.</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Path Value</td>
+      <td>File system path to use for the specified path name.</td>
+      <td>Yes</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">PATH LOGS <span class="s1">'./logs'</span> <span class="c"># Default location of system and tool log files</span>
+PATH TMP <span class="s1">'./tmp'</span> <span class="c"># Default location of temporary marshal files</span>
+PATH SAVED_CONFIG <span class="s1">'./saved_config'</span> <span class="c"># Default location of saved configurations (see note)</span>
+PATH TABLES <span class="s1">'./tables'</span> <span class="c"># Default location of table files</span>
+PATH PROCEDURES <span class="s1">'./procedures'</span> <span class="c"># Default location of Script procedure files</span>
+PATH HANDBOOKS <span class="s1">'./handbooks'</span> <span class="c"># Default location to place handbook files</span></code></pre></figure>
+
+<p>The PROCEDURES path must be set for Script Runner and Test Runner to locate your procedure files. You can add multiple ‘PATH PROCEDURES’ lines to your configuration file to set multiple locations.</p>
+
+<p>The SAVED_CONFIG option sets the location of saved configuration. A saved configuration is a snapshot in time of when COSMOS parses all the target directories called out by either AUTO_DECLARE_TARGETS or DECLARE_TARGET. If something has changed in a target configuration, COSMOS will create a new directory in the saved_config folder containing this new target configuration. These directories should NOT be deleted as they provide a way for COSMOS to go back in time to a known configuration when parsing old binary log files. Only if you’re sure you do not want this configuration history, e.g. you are developing your configuration and it is constantly changing, you can delete these folders.</p>
+
+<h3 id="default_packet_log_writer-and-default_packet_log_reader">
+<a id="default_packet_log_writer-and-default_packet_log_reader" class="anchor" href="#default_packet_log_writer-and-default_packet_log_reader" aria-hidden="true"><span class="octicon octicon-link"></span></a>DEFAULT_PACKET_LOG_WRITER and DEFAULT_PACKET_LOG_READER</h3>
+<p>Default packet log writer and reader are used to set the class COSMOS uses when creating and reading binary packet log files. It is not necessary to set these options unless you wish to override the defaults (given in the example usage). NOTE: You should NOT override the default without consulting a COSMOS expert as this may break the ability to successfully read and write log files throughout the COSMOS system.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Filename</td>
+      <td>Ruby file to use when instantiating a new log writer / reader</td>
+      <td>Yes</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">DEFAULT_PACKET_LOG_WRITER packet_log_writer.rb <span class="c"># Default</span>
+DEFAULT_PACKET_LOG_READER packet_log_reader.rb <span class="c"># Default</span></code></pre></figure>
+
+<h3 id="cmd_tlm_version">
+<a id="cmd_tlm_version" class="anchor" href="#cmd_tlm_version" aria-hidden="true"><span class="octicon octicon-link"></span></a>CMD_TLM_VERSION</h3>
+<p>Cmd tlm version is used to set an arbitrary command and telemetry version string which can be accessed in telemetry. This is useful in scripts for reporting a program specific version that changes along with another configuration management system.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Version</td>
+      <td>Arbitrary string</td>
+      <td>Yes</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">CMD_TLM_VERSION 1.0
+CMD_TLM_VERSION A
+CMD_TLM_VERSION <span class="s1">'Version A'</span></code></pre></figure>
+
+<p>Note that quotes are only necessary to preserve spaces in your version string.</p>
+
+<h3 id="staleness_seconds">
+<a id="staleness_seconds" class="anchor" href="#staleness_seconds" aria-hidden="true"><span class="octicon octicon-link"></span></a>STALENESS_SECONDS</h3>
+<p>Staleness seconds represent the number of seconds that must expire without seeing a packet before COSMOS marks it as ‘stale’. This is identified in telemetry screens by all the telemetry items in the stale packet being colored purple. It is not necessary to set this option unless you wish to override the default (given in the example usage).</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Seconds</td>
+      <td>Integer number of seconds before packets are marked stale</td>
+      <td>Yes</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">STALENESS_SECONDS 30 <span class="c"># Default</span></code></pre></figure>
+
+<h3 id="enable_dns-cosmos-350">
+<a id="enable_dns-cosmos-350" class="anchor" href="#enable_dns-cosmos-350" aria-hidden="true"><span class="octicon octicon-link"></span></a>ENABLE_DNS (COSMOS 3.5.0+)</h3>
+<p>Enable DNS allows you to enable reverse DNS lookups for when tools connect to the Command and Telemetry Server’s pre-identified socket or to any target using the TCPIP Server Interface. As of COSMOS 3.5.0 the default is to not use DNS.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">Example Usage: ENABLE_DNS</code></pre></figure>
+
+<h3 id="disable_dns">
+<a id="disable_dns" class="anchor" href="#disable_dns" aria-hidden="true"><span class="octicon octicon-link"></span></a>DISABLE_DNS</h3>
+<p>Disable DNS allows you to disable reverse DNS lookups for when tools connect to the Command and Telemetry Server’s pre-identified socket or to any target using the TCPIP Server Interface. This is useful when you are in an environment where DNS is not available. As of COSMOS 3.5.0 the default is to not use DNS.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">Example Usage: DISABLE_DNS</code></pre></figure>
+
+<h3 id="enable_sound-cosmos-350">
+<a id="enable_sound-cosmos-350" class="anchor" href="#enable_sound-cosmos-350" aria-hidden="true"><span class="octicon octicon-link"></span></a>ENABLE_SOUND (COSMOS 3.5.0+)</h3>
+<p>Enable sound makes any prompts that occur in ScriptRunner/TestRunner make an audible sound when they popup to alert the operator of needed input.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">Example Usage: ENABLE_SOUND</code></pre></figure>
+
+<h3 id="allow_access">
+<a id="allow_access" class="anchor" href="#allow_access" aria-hidden="true"><span class="octicon octicon-link"></span></a>ALLOW_ACCESS</h3>
+<p>Allow access provides the ability to individually permit machines to connect to the COSMOS Command and Telemetry Server. It is not necessary to set this option unless you wish to override the default (given in the example usage).</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Machine Name or IP Address</td>
+      <td>Machine name to allow access</td>
+      <td>Yes</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">ALLOW_ACCESS ALL <span class="c"># Default</span></code></pre></figure>
+
+<h2 id="target-configuration">
+<a id="target-configuration" class="anchor" href="#target-configuration" aria-hidden="true"><span class="octicon octicon-link"></span></a>Target Configuration</h2>
+<p>Each target is self contained in a target directory named after the target and placed in the config/targets directory. In the target directory there is a configuration file named target.txt which configures the individual target.</p>
+
+<h2 id="targettxt-keywords">
+<a id="targettxt-keywords" class="anchor" href="#targettxt-keywords" aria-hidden="true"><span class="octicon octicon-link"></span></a>target.txt Keywords</h2>
+
+<h3 id="require">
+<a id="require" class="anchor" href="#require" aria-hidden="true"><span class="octicon octicon-link"></span></a>REQUIRE</h3>
+
+<p>Require is used to load additional Ruby files located in the target’s lib directory. These files are typically used to implement additional functionality like custom interfaces, limits responses, complex conversions, etc.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Filename</td>
+      <td>The name of the file to require. The file must be in the target’s lib directory to be located.</td>
+      <td>Yes</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">REQUIRE limits_response.rb</code></pre></figure>
+
+<h3 id="ignore_parameter">
+<a id="ignore_parameter" class="anchor" href="#ignore_parameter" aria-hidden="true"><span class="octicon octicon-link"></span></a>IGNORE_PARAMETER</h3>
+
+<p>Ignore Parameter is used to ignore those command parameters which are required by the command protocol but do not change and can be safely ignored by the user. A good example are the CCSDS header parameters which are required by the protocol but are fixed and therefore should not be displayed to the user (by default) as they do not require user input.
+The tools using the list of ignored parameters are:
+Command Sender - It will not display (by default) parameters in this list. It will display the list via a GUI option.
+Command and Telemetry Server - It will not display the ignored parameters in the command log
+Script Runner (and various others) - It will not display the ignored parameters when doing code completion on a command</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Parameter Name</td>
+      <td>The name of the parameter to ignore in various tools. For example, command sender will not display ignored parameters by default.</td>
+      <td>Yes</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">IGNORE_PARAMETER CCSDS_VERSION</code></pre></figure>
+
+<h3 id="ignore_item">
+<a id="ignore_item" class="anchor" href="#ignore_item" aria-hidden="true"><span class="octicon octicon-link"></span></a>IGNORE_ITEM</h3>
+<p>Ignore Item is used by various tools to ignore telemetry items which must be present but don’t change much or aren’t directly useful to the user. A good example are the CCSDS header parameters which are required by the protocol but are fixed.
+The tools using the list of ignore items are:
+Command and Telemetry Server - The API routine all_item_strings does not return ignored items
+Script Runner - Script Audits ignore items when determining which telemetry items were checked</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Item Name</td>
+      <td>The name of the item to ignore in various tools. For example, Telemetry Viewer will not include these items in the screen audit.</td>
+      <td>Yes</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">IGNORE_ITEM CCSDS_VERSION</code></pre></figure>
+
+<h3 id="commands-and-telemetry">
+<a id="commands-and-telemetry" class="anchor" href="#commands-and-telemetry" aria-hidden="true"><span class="octicon octicon-link"></span></a>COMMANDS and TELEMETRY</h3>
+<p>The commands and telemetry keywords are used to override the default COSMOS behavior of loading all the files located in the target’s cmd_tlm directory. If any commands or telemetry keywords are used, COSMOS will no longer load all files in the target’s cmd_tlm folder by default but will instead load only the files indicated by these keywords. This can be useful if you have different configurations of a target within a single target folder.  It is also necessary if you don’t want the files to be processed in alphabetical order.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Filename</td>
+      <td>The name of the file in the cmd_tlm directory to load.</td>
+      <td>Yes</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">COMMANDS inst_cmds_v2.txt
+TELEMETRY inst_tlm_v2.txt</code></pre></figure>
+
+<h3 id="auto_screen_substitute">
+<a id="auto_screen_substitute" class="anchor" href="#auto_screen_substitute" aria-hidden="true"><span class="octicon octicon-link"></span></a>AUTO_SCREEN_SUBSTITUTE</h3>
+<p>This keyword causes all screens in the target to force substitute the targets name for all target names specified in the targets screen definition files.  This is useful in that it allows your target to be renamed simply be changing the folder name and not having to change any internal files.   Can not be used if more than one target is mentioned in a screen definition file.</p>
+
+<p>Example Usage:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">AUTO_SCREEN_SUBSTITUTE</code></pre></figure>
+
+<h2 id="command-and-telemetry-server-configuration">
+<a id="command-and-telemetry-server-configuration" class="anchor" href="#command-and-telemetry-server-configuration" aria-hidden="true"><span class="octicon octicon-link"></span></a>Command and Telemetry Server Configuration</h2>
+<p>The Command and Telemetry Server’s configuration file is found in config/tools/cmd_tlm_server. This file is used to configure the server by primarily mapping the interfaces to the targets they service.</p>
+
+<h2 id="cmd_tlm_servertxt-keywords">
+<a id="cmd_tlm_servertxt-keywords" class="anchor" href="#cmd_tlm_servertxt-keywords" aria-hidden="true"><span class="octicon octicon-link"></span></a>cmd_tlm_server.txt Keywords</h2>
+
+<h3 id="title">
+<a id="title" class="anchor" href="#title" aria-hidden="true"><span class="octicon octicon-link"></span></a>TITLE</h3>
+<p>Title is used to set the title of the Command and Telemetry Server’s window.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Title</td>
+      <td>Text to put in the title of the Server window</td>
+      <td>Yes</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">TITLE <span class="s2">"COSMOS Command and Telemetry Server"</span></code></pre></figure>
+
+<h3 id="packet_log_writer">
+<a id="packet_log_writer" class="anchor" href="#packet_log_writer" aria-hidden="true"><span class="octicon octicon-link"></span></a>PACKET_LOG_WRITER</h3>
+<p>Packet log writer is used to declare a packet log writer class and give it a name which can be referenced by an interface. This is required if you want interfaces to have their own dedicated log writers or want to combine various interfaces into a single log file. By default, COSMOS logs all data on all interfaces into a single command log and a single telemetry log. This keyword can also be used if you want to declare a different log file class to create log files. NOTE: You should NOT override the default (excluding using the meta_packet_log_writer.rb) without consulting a COSMOS expert as this may break the ability to successfully read and write log files.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Log Writer Name</td>
+      <td>The name of the log writer as reference by other cmd_tlm_server keywords. This name also appears in the Logging tab on the Command and Telemetry Server.</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Filename</td>
+      <td>Ruby file to use when instantiating a new log writer (packet_log_writer.rb unless you have a custom log writer)</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Parameters</td>
+      <td>Optional parameters to pass to the log writer class when instantiating it. The following parameters are the ones used by the default packet_log_writer.rb class.</td>
+      <td>Class specific</td>
+    </tr>
+    <tr>
+      <td>Log Name</td>
+      <td>Identifier to put in the log file name. This will be prepended with a date / time stamp and appended by the log type (cmd or tlm). Thus if you specify ‘cosmos’ the telemetry log will result in a file name of ‘YYYY_MM_DD_HH_MM_SS_cosmostlm.bin’. The default is nil which means to just use ‘cmd’ and ‘tlm’ alone in the file names.</td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>Logging Enabled</td>
+      <td>Whether to start with logging enabled. The default is true.</td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>Cycle Time</td>
+      <td>The amount of time in seconds before creating a new log file. The default is nil which means files will grow indefinitely.</td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>Cycle Size</td>
+      <td>The size in bytes before creating a new log file. The default is 2GB.</td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>Log Directory</td>
+      <td>The directory to store the log files. The default is to use the system log directory defined in system.txt by the PATH LOGS.</td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>Asynchronous</td>
+      <td>Whether to spawn a new thread to write packets to the log or write the packet to the log in the interface thread. The default is true.</td>
+      <td>No</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">PACKET_LOG_WRITER DEFAULT packet_log_writer.rb <span class="c"># Default</span>
+<span class="c"># The default logger filename will be &lt;DATE&gt;_cosmostlm.bin and will create a new log every 1MB</span>
+PACKET_LOG_WRITER DEFAULT packet_log_writer.rb cosmos <span class="nb">true </span>nil 1000000
+<span class="c"># Create a logger named COSMOS_LOG which creates a new log every 5 min</span>
+PACKET_LOG_WRITER COSMOS_LOG packet_log_writer.rb cosmos <span class="nb">true </span>600</code></pre></figure>
+
+<h3 id="auto_interface_targets">
+<a id="auto_interface_targets" class="anchor" href="#auto_interface_targets" aria-hidden="true"><span class="octicon octicon-link"></span></a>AUTO_INTERFACE_TARGETS</h3>
+<p>Auto interface targets is used to tell COSMOS to automatically look for a cmd_tlm_server.txt file at the top level of each target directory and use this file to configure the interface for that target. This is a good way of keeping the knowledge of how to interface to a target within that target. However, if you use substitute target names (by using DECLARE_TARGET) or use different IP addresses then this will not work and you’ll have to use the INTERFACE_TARGET or INTERFACE keyword.</p>
+
+<p>Example Usage:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">AUTO_INTERFACE_TARGETS</code></pre></figure>
+
+<h3 id="interface_target">
+<a id="interface_target" class="anchor" href="#interface_target" aria-hidden="true"><span class="octicon octicon-link"></span></a>INTERFACE_TARGET</h3>
+<p>Interface target is used similarly to AUTO_INTERFACE_TARGETS except that it loads only the specified target’s interface configuration file rather than all target configuration files.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Target Name</td>
+      <td>Name of the target</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Configuration File</td>
+      <td>Configuration file name which contains the interface configuration. Defaults to ‘cmd_tlm_server.txt’.</td>
+      <td>No</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">INTERFACE_TARGET COSMOS <span class="c"># Look in the COSMOS target directory for cmd_tlm_server.txt</span>
+INTERFACE_TARGET COSMOS config.txt <span class="c"># Look in the COSMOS target directory for config.txt</span></code></pre></figure>
+
+<h3 id="interface">
+<a id="interface" class="anchor" href="#interface" aria-hidden="true"><span class="octicon octicon-link"></span></a>INTERFACE</h3>
+<p>Interface is the keyword that should be present in a target directory’s cmd_tlm_server.txt file if AUTO_INTERFACE_TARGETS or INTERFACE_TARGET is used. The interface keyword can also be used directly in the config/tools/cmd_tlm_server/cmd_tlm_server.txt file.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Interface Name</td>
+      <td>Name of the interface. This name will appear in the Interfaces tab of the Server and is also referenced by other keywords.</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Filename</td>
+      <td>Ruby file to use when instantiating the interface. See the Interface Guide to learn more about the interfaces provided by COSMOS.</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Parameters</td>
+      <td>Parameters to pass to the interface. See the Interface Guide to learn more about the interfaces provided by COSMOS.</td>
+      <td>Interface Specific</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">INTERFACE COSMOS_INT cmd_tlm_server_interface.rb</code></pre></figure>
+
+<p>More examples provided in the Interface Guide.</p>
+
+<h3 id="router">
+<a id="router" class="anchor" href="#router" aria-hidden="true"><span class="octicon octicon-link"></span></a>ROUTER</h3>
+<p>Router creates an interface which receives command packets from their remote targets and send them out their interfaces. They receive telemetry packets from their interfaces and send them to their remote targets. This allows routers to be intermediaries between an external client and an actual device.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Name</td>
+      <td>Name of the router</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Filename</td>
+      <td>Ruby file to use when instantiating the interface. See the Interface Guide to learn more about the interfaces provided by COSMOS.</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Parameters</td>
+      <td>Parameters to pass to the interface. See the Interface Guide to learn more about the interfaces provided by COSMOS.</td>
+      <td>Interface Specific</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="collect_metadata">
+<a id="collect_metadata" class="anchor" href="#collect_metadata" aria-hidden="true"><span class="octicon octicon-link"></span></a>COLLECT_METADATA</h3>
+<p>COLLECT_METADATA keyword prompts the user for meta data when starting the CmdTlmServer.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Target Name</td>
+      <td>Target Name of the Metadata telemetry packet</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Packet Name</td>
+      <td>Packet Name of the Metadata telemetry packet</td>
+      <td>Yes</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">COLLECT_METADATA META META</code></pre></figure>
+
+<h3 id="background_task">
+<a id="background_task" class="anchor" href="#background_task" aria-hidden="true"><span class="octicon octicon-link"></span></a>BACKGROUND_TASK</h3>
+<p>Create a background task in the Server. The Server instantiates the class which must inherit from BackgroundTask and then calls the call() method which the class must implement. The call() method is only called once so if your background task is supposed to live on while the Server is running, you must implement your code in a loop with a sleep to not use all the CPU.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Filename</td>
+      <td>Ruby file which contains the background task implementation. Must inherit from BackgroundTask and implement the call method.</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Optional Arguments</td>
+      <td>Optional arguments to the background task constructor</td>
+      <td>No</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">BACKGROUND_TASK example_background_task.rb</code></pre></figure>
+
+<p>example_background_task.rb:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="nb">require</span> <span class="s1">'cosmos/tools/cmd_tlm_server/background_task'</span>
+<span class="k">module</span> <span class="nn">Cosmos</span>
+  <span class="k">class</span> <span class="nc">ExampleBackgroundTask</span> <span class="o">&lt;</span> <span class="no">BackgroundTask</span>
+    <span class="k">def</span> <span class="nf">call</span>
+      <span class="k">while</span> <span class="kp">true</span>
+        <span class="c1"># Call COSMOS API methods</span>
+        <span class="nb">sleep</span> <span class="mi">1</span> <span class="c1"># 1Hz</span>
+      <span class="k">end</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+<span class="k">end</span></code></pre></figure>
+
+<h2 id="interface-and-router-modifiers">
+<a id="interface-and-router-modifiers" class="anchor" href="#interface-and-router-modifiers" aria-hidden="true"><span class="octicon octicon-link"></span></a>Interface and Router Modifiers</h2>
+<p>The following keywords modify an interface and are only applicable after the INTERFACE or ROUTER keywords. They are indented to show ownership to the previously defined interface.</p>
+
+<h3 id="target">
+<a id="target" class="anchor" href="#target" aria-hidden="true"><span class="octicon octicon-link"></span></a>TARGET</h3>
+<p>REQUIRED and only applicable to the INTERFACE keyword. Maps a target name to this interface which causes all the command and telemetry definitions to apply to the data being processed on the interface.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Target Name</td>
+      <td>Target name to map to this interface. Must match a known target name.</td>
+      <td>Yes</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="dont_connect">
+<a id="dont_connect" class="anchor" href="#dont_connect" aria-hidden="true"><span class="octicon octicon-link"></span></a>DONT_CONNECT</h3>
+<p>The Command and Telemetry Server will not try to connect to the given interface when starting up. Default is to connect on startup.</p>
+
+<h3 id="dont_reconnect">
+<a id="dont_reconnect" class="anchor" href="#dont_reconnect" aria-hidden="true"><span class="octicon octicon-link"></span></a>DONT_RECONNECT</h3>
+<p>The Command and Telemetry Server will not try to reconnect to the given interface if the connection is lost. Default is auto reconnect.</p>
+
+<h3 id="reconnect_delay">
+<a id="reconnect_delay" class="anchor" href="#reconnect_delay" aria-hidden="true"><span class="octicon octicon-link"></span></a>RECONNECT_DELAY</h3>
+<p>If DONT_RECONNECT is not present the Server will try to reconnect to an interface if the connection is lost. Reconnect delays sets the interval in seconds between reconnect tries.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Seconds</td>
+      <td>Delay in seconds between reconnect attempts. The default is 15 seconds.</td>
+      <td>Yes</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="disable_disconnect">
+<a id="disable_disconnect" class="anchor" href="#disable_disconnect" aria-hidden="true"><span class="octicon octicon-link"></span></a>DISABLE_DISCONNECT</h3>
+<p>Disable the Disconnect button on the Interfaces tab in the Server. This prevents the user from disconnecting from the interface.</p>
+
+<h3 id="log">
+<a id="log" class="anchor" href="#log" aria-hidden="true"><span class="octicon octicon-link"></span></a>LOG</h3>
+<p>Enable logging on the interface by the specified log writer. This is only required if you want a log writer other than the default to log commands and telemetry on this interface.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Log Writer Name</td>
+      <td>Log writer name as defined by PACKET_LOG_WRITER</td>
+      <td>Yes</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="dont_log">
+<a id="dont_log" class="anchor" href="#dont_log" aria-hidden="true"><span class="octicon octicon-link"></span></a>DONT_LOG</h3>
+<p>Disable logging commands and telemetry on this interface. Note this prevents logging from the Server on the Logging tab.</p>
+
+<h3 id="log_raw">
+<a id="log_raw" class="anchor" href="#log_raw" aria-hidden="true"><span class="octicon octicon-link"></span></a>LOG_RAW</h3>
+<p>Log all data on the interface exactly as it is sent and received. This does not add any COSMOS headers and thus can not be read by COSMOS tools. It is primarily useful for low level debugging of an interface.</p>
+
+<h3 id="option">
+<a id="option" class="anchor" href="#option" aria-hidden="true"><span class="octicon octicon-link"></span></a>OPTION</h3>
+<p>Pass a specific option to the interface or router.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Option Name</td>
+      <td>Name of the option.</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Option Value 1</td>
+      <td>Value of the option.</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Additional Option Values</td>
+      <td>0 or more additional values given to the option</td>
+      <td>Option Specific</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="route">
+<a id="route" class="anchor" href="#route" aria-hidden="true"><span class="octicon octicon-link"></span></a>ROUTE</h3>
+<p>Only applies to routers. ROUTE declares which interfaces should use the current router. The given interface will then route all of its commands and telemetry through the router and out the interface defined by the router.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Interface Name</td>
+      <td>A previously defined interface name given by the INTERFACE keyword.</td>
+      <td>Yes</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">PACKET_LOG_WRITER COSMOS_LOG packet_log_writer.rb cosmos
+
+INTERFACE COSMOS_INT cmd_tlm_server_interface.rb
+  TARGET COSMOS
+  DISABLE_DISCONNECT
+  RECONNECT_DELAY 5
+  LOG COSMOS_LOG</code></pre></figure>
+
+<h2 id="project-crc-checking">
+<a id="project-crc-checking" class="anchor" href="#project-crc-checking" aria-hidden="true"><span class="octicon octicon-link"></span></a>Project CRC Checking</h2>
+<p>The COSMOS Launcher will check CRCs on project files if a data/crc.txt file is present. The file is made up of filename, a space character, and the expected CRC for the file. If the user updates the file from the Launcher legal dialog, the keyword USER_MODIFIED will be added to the top. This line should be deleted for an official release.</p>
+
+<p>Example File:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">lib/example_background_task.rb 0xCF0A70AF
+lib/example_target.rb 0x5B7507D3
+lib/user_version.rb 0x8F282EE9</code></pre></figure>
+
+
+          
+
+
+
+
+
+  
+  
+
+  
+  
+
+  
+  
+
+  
+  
+
+  
+  
+
+  
+  
+    <div class="top-section-nav">
+      <div class="left align-right">
+          
+            
+            
+            <a href="/docs/gettingstarted/" class="prev">Back</a>
+          
+      </div>
+      <div class="right align-left">
+          
+            
+            
+            <a href="/docs/cmdtlm/" class="next">Next</a>
+          
+      </div>
+    </div>
+    <div class="clear"></div>
+    
+
+        </article>
+      </div>
+
+      <div class="unit one-fifth hide-on-mobiles">
+  <aside>
+    
+    <h4>Getting Started</h4>
+    
+
+<ul>
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/home/">Welcome</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/installation/">Installation</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/upgrading/">Upgrading and the Gemfile</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/structure/">Directory structure</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/gettingstarted/">Getting Started</a></li>
+      
+
+
+</ul>
+
+    
+    <h4>Configuration</h4>
+    
+
+<ul>
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class="current"><a href="/docs/system/">System Configuration</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+      <li class=""><a href="/docs/cmdtlm/">Command and Telemetry Configuration</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/interfaces/">Interface Configuration</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/tools/">Tool Configuration</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/screens/">Telemetry Screens</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/grapher/">Telemetry Grapher</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/environment/">Environment Variables</a></li>
+      
+
+
+</ul>
+
+    
+    <h4>User's Guides</h4>
+    
+
+<ul>
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/scripting/">Scripting Guide</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/gemtargets/">Gem Based Targets and Tools</a></li>
+      
+
+
+</ul>
+
+    
+    <h4>Tips</h4>
+    
+
+<ul>
+
+  
+
+  
+
+  
+    
+      <li class=""><a href="/docs/chaining/">Chaining CmdTlmServers</a></li>
+      
+
+
+</ul>
+
+    
+    <h4>Development</h4>
+    
+
+<ul>
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/system_class/">System Class</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/packet_class/">Packet Class</a></li>
+      
+
+
+</ul>
+
+    
+    <h4>Meta</h4>
+    
+
+<ul>
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/requirements/">Requirements and Design</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/xtce/">XTCE Support</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/contributing/">Contributing</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/contact/">Contact Us</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/history/">Release History</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/papers/">Papers</a></li>
+      
+
+
+</ul>
+
+    
+  </aside>
+</div>
+
+
+      <div class="clear"></div>
+
+    </div>
+  </section>
+
+
+  <script>
+  (function() {
+    var cx = '001663949569052626382:-enhin1layy';
+    var gcse = document.createElement('script');
+    gcse.type = 'text/javascript';
+    gcse.async = true;
+    gcse.src = 'https://cse.google.com/cse.js?cx=' + cx;
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(gcse, s);
+  })();
+</script>
+<footer role="contentinfo">
+  <div class="grid wider">
+    <div class="unit one-third center-on-mobiles">
+      <p>The contents of this website are &copy;&nbsp;2017 <a href="http://www.ballaerospace.com/" target="_blank">Ball Aerospace</a> under the terms of the <a href="https://github.com/BallAerospace/COSMOS/blob/master/LICENSE.txt" target="_blank">GPLv3&nbsp;License</a>.</p>
+      <p>Site design derived from the <a href="http://jekyllrb.com/" target="_blank">Jekyll</a> project documentation which is licensed under the terms of the <a href="https://github.com/jekyll/jekyll/blob/master/LICENSE" target="_blank">MIT License</a>.</p>
+    </div>
+    <div class="unit two-thirds align-right center-on-mobiles">
+      <p>
+        <gcse:search></gcse:search>
+        Proudly hosted by
+        <a href="https://github.com" target="_blank">
+          <img src="/img/footer-logo.png" width="100" height="30" alt="GitHub Social coding">
+        </a>
+      </p>
+    </div>
+  </div>
+</footer>
+
+  <script>
+  var anchorForId = function (id) {
+    var anchor = document.createElement("a");
+    anchor.className = "header-link";
+    anchor.href      = "#" + id;
+    anchor.innerHTML = "<span class=\"sr-only\">Permalink</span><i class=\"fa fa-link\"></i>";
+    anchor.title = "Permalink";
+    return anchor;
+  };
+
+  var linkifyAnchors = function (level, containingElement) {
+    var headers = containingElement.getElementsByTagName("h" + level);
+    for (var h = 0; h < headers.length; h++) {
+      var header = headers[h];
+
+      if (typeof header.id !== "undefined" && header.id !== "") {
+        header.appendChild(anchorForId(header.id));
+      }
+    }
+  };
+
+  document.onreadystatechange = function () {
+    if (this.readyState === "complete") {
+      var contentBlock = document.getElementsByClassName("docs")[0] || document.getElementsByClassName("news")[0];
+      if (!contentBlock) {
+        return;
+      }
+      for (var level = 1; level <= 6; level++) {
+        linkifyAnchors(level, contentBlock);
+      }
+    }
+  };
+</script>
+
+  
+  <!-- Google Analytics (http://google.com/analytics) -->
+  <script>
+    !function(j,e,k,y,l,L){j.GoogleAnalyticsObject=y,j[y]||(j[y]=function(){
+    (j[y].q=j[y].q||[]).push(arguments)}),j[y].l=+new Date,l=e.createElement(k),
+    L=e.getElementsByTagName(k)[0],l.src='//www.google-analytics.com/analytics.js',
+    L.parentNode.insertBefore(l,L)}(window,document,'script','ga');
+
+    ga('create', 'UA-60103689-1', 'cosmosrb.com');
+    ga('send', 'pageview');
+
+  </script>
+
+
+
+</body>
+</html>
