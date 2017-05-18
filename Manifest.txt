@@ -354,6 +354,7 @@ demo/config/targets/TEMPLATED/target.txt
 demo/config/tools/cmd_tlm_server/cmd_tlm_server.txt
 demo/config/tools/cmd_tlm_server/cmd_tlm_server2.txt
 demo/config/tools/data_viewer/data_viewer.txt
+demo/config/tools/example_application.css
 demo/config/tools/handbook_creator/default_toc.xsl
 demo/config/tools/handbook_creator/handbook_creator.txt
 demo/config/tools/handbook_creator/templates/command_packets.html.erb
@@ -369,7 +370,9 @@ demo/config/tools/handbook_creator/templates/pdf_header.html.erb
 demo/config/tools/handbook_creator/templates/telemetry_packets.html.erb
 demo/config/tools/handbook_creator/templates/telemetry_toc.html.erb
 demo/config/tools/handbook_creator/templates/title.html.erb
+demo/config/tools/launcher/launcher.css
 demo/config/tools/launcher/launcher.txt
+demo/config/tools/launcher/launcher2.css
 demo/config/tools/launcher/launcher2.txt
 demo/config/tools/limits_monitor/README.txt
 demo/config/tools/opengl_builder/README.txt
@@ -380,6 +383,7 @@ demo/config/tools/table_manager/MCConfigurationTable_fsw1_def.txt
 demo/config/tools/table_manager/MCConfigurationTable_fsw2_def.txt
 demo/config/tools/table_manager/PPSSelectionTable_def.txt
 demo/config/tools/table_manager/TLMMonitoringTable_def.txt
+demo/config/tools/test_runner/test_runner.css
 demo/config/tools/test_runner/test_runner.txt
 demo/config/tools/tlm_extractor/_adcs_time.txt
 demo/config/tools/tlm_extractor/tlm_extractor.txt
@@ -828,6 +832,7 @@ lib/cosmos/gui/text/completion.rb
 lib/cosmos/gui/text/completion_line_edit.rb
 lib/cosmos/gui/text/completion_text_edit.rb
 lib/cosmos/gui/text/ruby_editor.rb
+lib/cosmos/gui/utilities/analyze_log.rb
 lib/cosmos/gui/utilities/screenshot.rb
 lib/cosmos/gui/utilities/script_module_gui.rb
 lib/cosmos/gui/widgets/full_text_search_line_edit.rb
@@ -1185,6 +1190,7 @@ spec/processors/watermark_processor_spec.rb
 spec/script/cmd_tlm_server_spec.rb
 spec/script/commands_disconnect_spec.rb
 spec/script/commands_spec.rb
+spec/script/extract_spec.rb
 spec/script/limits_spec.rb
 spec/script/script_spec.rb
 spec/script/scripting_spec.rb
@@ -1218,6 +1224,7 @@ spec/tools/cmd_tlm_server/router_thread_spec.rb
 spec/tools/cmd_tlm_server/routers_spec.rb
 spec/tools/launcher/launcher_config_spec.rb
 spec/tools/table_manager/table_config_spec.rb
+spec/tools/table_manager/table_item_parser_spec.rb
 spec/tools/table_manager/table_item_spec.rb
 spec/tools/table_manager/table_parser_spec.rb
 spec/tools/table_manager/table_spec.rb
