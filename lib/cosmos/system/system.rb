@@ -627,9 +627,9 @@ module Cosmos
         item = cmd_meta.get_item('PKTID')
         raise "PKTID Incorrect" unless item.bit_size == 8 and item.bit_offset == 0
         item = tlm_meta.get_item('CONFIG')
-        raise "CONFIG Incorrect" unless item.bit_size == 256 and item.bit_offset == 16
+        raise "CONFIG Incorrect" unless item.bit_size == 256 and item.bit_offset == 8
         item = cmd_meta.get_item('CONFIG')
-        raise "CONFIG Incorrect" unless item.bit_size == 256 and item.bit_offset == 16
+        raise "CONFIG Incorrect" unless item.bit_size == 256 and item.bit_offset == 8
       rescue
         Logger.error "SYSTEM META not defined or defined incorrectly - defaulting"
 
