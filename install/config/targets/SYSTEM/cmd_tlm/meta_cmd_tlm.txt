@@ -1,14 +1,8 @@
 TELEMETRY SYSTEM META BIG_ENDIAN "System Meta Data Telemetry Packet"
   ID_ITEM PKTID 0 8 UINT 1 "Packet Id"
-  ITEM CMDTLM 8 8 UINT "Command or Telemetry Flag"
-    STATE TLM 0
-    STATE CMD 0
   ITEM CONFIG 16 256 STRING "Configuration Name"
 
 COMMAND SYSTEM META BIG_ENDIAN "System Meta Data Command Packet"
   DISABLED
   ID_PARAMETER PKTID 0 8 UINT 1 1 1 "Packet Id"
-  PARAMETER CMDTLM 8 8 UINT 1 1 1 "Command or Telemetry Flag"
-    STATE TLM 0
-    STATE CMD 0
   PARAMETER CONFIG 16 256 STRING "" "Configuration Name"
