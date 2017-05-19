@@ -41,6 +41,7 @@ module Cosmos
         'tlm_variable',
         'set_tlm',
         'set_tlm_raw',
+        'inject_tlm',
         'get_tlm_buffer',
         'get_tlm_packet',
         'get_tlm_values',
@@ -464,14 +465,13 @@ module Cosmos
     def set_tlm(*args)
       target_name, packet_name, item_name, value = set_tlm_process_args(args, 'set_tlm')
       if target_name == 'SYSTEM'.freeze and packet_name == 'META'.freeze
-        raise "set_tlm not allowed on #{target_name} #{packet_name} #{item_name}" if ['PKTID', 'CMDTLM', 'CONFIG'].include?(item_name)
+        raise "set_tlm not allowed on #{target_name} #{packet_name} #{item_name}" if ['PKTID', 'CONFIG'].include?(item_name)
       end
       System.telemetry.set_value(target_name, packet_name, item_name, value, :CONVERTED)
       if target_name == 'SYSTEM'.freeze and packet_name == 'META'.freeze
         tlm_packet = System.telemetry.packet('SYSTEM', 'META')
         cmd_packet = System.commands.packet('SYSTEM', 'META')
         cmd_packet.buffer = tlm_packet.buffer
-        cmd_packet.write('CMDTLM', 1) # Set to Cmd
       end
       System.telemetry.packet(target_name, packet_name).check_limits(System.limits_set, true)
       nil
@@ -498,6 +498,95 @@ module Cosmos
       target_name, packet_name, item_name, value = set_tlm_process_args(args, 'set_tlm_raw')
       System.telemetry.set_value(target_name, packet_name, item_name, value, :RAW)
       System.telemetry.packet(target_name, packet_name).check_limits(System.limits_set, true)
+      nil
+    end
+
+    # Injects a packet into the system as if it was received from an interface
+    #
+    # @param target_name[String] Target name of the packet
+    # @param packet_name[String] Packet name of the packet
+    # @param item_hash[Hash] Hash of item_name and value for each item you want to change from the current value table
+    # @param value_type[Symbol/String] Type of the values in the item_hash (RAW or CONVERTED)
+    # @param send_routers[Boolean] Whether or not to send to routers for the target's interface
+    # @param send_packet_log_writers[Boolean] Whether or not to send to the packet log writers for the target's interface
+    # @param create_new_logs[Boolean] Whether or not to create new log files before writing this packet to logs
+    def inject_tlm(target_name, packet_name, item_hash = nil, value_type = :CONVERTED, send_routers = true, send_packet_log_writers = true, create_new_logs = false)
+      received_time = Time.now
+      target = System.targets[target_name.upcase]
+      raise "Unknown target: #{target_name}" unless target
+
+      # Find and clone the telemetry packet
+      cvt_packet = System.telemetry.packet(target_name, packet_name)
+      packet = cvt_packet.clone
+      packet.received_time = received_time
+
+      # Update the packet with item_hash
+      value_type = value_type.to_s.intern
+      item_hash.each do |item_name, item_value|
+        packet.write(item_name, item_value, value_type)
+      end
+
+      # Update current value table
+      cvt_packet.buffer = packet.buffer(false)
+      cvt_packet.received_time = received_time
+
+      # The interface does the following line, but I don't think inject_tlm should because it could confuse the interface
+      # interface.post_identify_packet(packet)
+      target.tlm_cnt += 1
+      packet.received_count += 1
+      cvt_packet.received_count += 1
+      CmdTlmServer.instance.identified_packet_callback.call(packet)
+
+      # Find the interface for this target
+      interface = target.interface
+
+      if interface
+        # Write to routers
+        if send_routers
+          interface.routers.each do |router|
+            begin
+              router.write(packet) if router.write_allowed? and router.connected?
+            rescue => err
+              Logger.error "Problem writing to router #{router.name} - #{err.class}:#{err.message}"
+            end
+          end
+        end
+
+        # Write to packet log writers
+        if create_new_logs or send_packet_log_writers
+          interface.packet_log_writer_pairs.each do |packet_log_writer_pair|
+            # Optionally create new log files
+            packet_log_writer_pair.tlm_log_writer.start if create_new_logs
+
+            # Optionally write to packet logs - Write errors are handled by the log writer
+            packet_log_writer_pair.tlm_log_writer.write(packet) if send_packet_log_writers
+          end
+        end
+      else
+        # Some packets don't have an interface - Can still write to standard routers and packet logs
+
+        # Write to routers
+        if send_routers
+          router = CmdTlmServer.instance.routers.all['PREIDENTIFIED_ROUTER']
+          begin
+            router.write(packet) if router.write_allowed? and router.connected?
+          rescue => err
+            Logger.error "Problem writing to router #{router.name} - #{err.class}:#{err.message}"
+          end
+        end
+
+        if create_new_logs or send_packet_log_writers
+          # Handle packet logging
+          packet_log_writer_pair = CmdTlmServer.instance.packet_logging.all['DEFAULT']
+
+          # Optionally create new logs
+          packet_log_writer_pair.tlm_log_writer.start if create_new_logs
+
+          # Optionally write to packet logs - Write errors are handled by the log writer
+          packet_log_writer_pair.tlm_log_writer.write(packet) if send_packet_log_writers
+        end
+      end
+
       nil
     end
 

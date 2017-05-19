@@ -626,10 +626,6 @@ module Cosmos
         raise "PKTID Incorrect" unless item.bit_size == 8 and item.bit_offset == 0
         item = cmd_meta.get_item('PKTID')
         raise "PKTID Incorrect" unless item.bit_size == 8 and item.bit_offset == 0
-        item = tlm_meta.get_item('CMDTLM')
-        raise "CMDTLM Incorrect" unless item.bit_size == 8 and item.bit_offset == 8
-        item = cmd_meta.get_item('CMDTLM')
-        raise "CMDTLM Incorrect" unless item.bit_size == 8 and item.bit_offset == 8
         item = tlm_meta.get_item('CONFIG')
         raise "CONFIG Incorrect" unless item.bit_size == 256 and item.bit_offset == 16
         item = cmd_meta.get_item('CONFIG')
@@ -642,11 +638,6 @@ module Cosmos
         item.range = 1..1
         item.default = 1
         item.description = 'Packet Id'
-        item = cmd_meta.append_item('CMDTLM', 8, :UINT)
-        item.range = 1..1
-        item.default = 1
-        item.description = 'Cmd or Tlm Flag'
-        item.states = {'TLM' => 0, 'CMD' => 1}
         item = cmd_meta.append_item('CONFIG', 32 * 8, :STRING)
         item.default = ''
         item.description = 'Configuration Name'
@@ -656,21 +647,16 @@ module Cosmos
         tlm_meta = Packet.new('SYSTEM', 'META', :BIG_ENDIAN)
         item = tlm_meta.append_item('PKTID', 8, :UINT, nil, :BIG_ENDIAN, :ERROR, nil, nil, nil, 1)
         item.description = 'Packet Id'
-        item = tlm_meta.append_item('CMDTLM', 8, :UINT)
-        item.description = 'Cmd or Tlm Flag'
-        item.states = {'TLM' => 0, 'CMD' => 1}
         item = tlm_meta.append_item('CONFIG', 32 * 8, :STRING)
         item.description = 'Configuration Name'
         @config.telemetry['SYSTEM'] ||= {}
         @config.telemetry['SYSTEM']['META'] = tlm_meta
       end
 
-      # Set SYSTEM META CONFIG and CMDTLM
+      # Set SYSTEM META CONFIG
       tlm_meta.write('PKTID', 1)
       tlm_meta.write('CONFIG', @config.name)
-      tlm_meta.write('CMDTLM', 0)
       cmd_meta.buffer = tlm_meta.buffer
-      cmd_meta.write('CMDTLM', 1)
     end
 
   end # class System

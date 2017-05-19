@@ -404,11 +404,6 @@ module Cosmos
       if listen_write
         if @auto_system_meta
           meta_packet = System.telemetry.packet('SYSTEM', 'META').clone
-          if @auto_system_meta.to_s == 'CMD'
-            meta_packet.write('CMDTLM', 1)
-          else
-            meta_packet.write('CMDTLM', 0)
-          end
           stream_protocol.write(meta_packet)
         end
 
