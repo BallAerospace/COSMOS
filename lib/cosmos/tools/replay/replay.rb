@@ -258,7 +258,7 @@ module Cosmos
     def move_start
       if @log_filename and !@playback_thread
         packet = read_at_index(0, :FORWARD)
-        @start_time.value = packet.received_time.formatted if packet and packet.received_time
+        @start_time.value = packet.received_time.formatted(true, 3, true) if packet and packet.received_time
       else
         stop()
       end
@@ -307,7 +307,7 @@ module Cosmos
     def move_end
       if @log_filename and !@playback_thread
         packet = read_at_index(@packet_offsets.length - 1, :FORWARD)
-        @end_time.value = packet.received_time.formatted if packet and packet.received_time
+        @end_time.value = packet.received_time.formatted(true, 3, true) if packet and packet.received_time
       else
         stop()
       end
@@ -389,7 +389,7 @@ module Cosmos
         value = (((@playback_index - 1) / @packet_offsets.length.to_f) * 10000).to_i
         @slider.setSliderPosition(value)
         @slider.setValue(value)
-        @current_time.value = packet.received_time.formatted if packet and packet.received_time
+        @current_time.value = packet.received_time.formatted(true, 3, true) if packet and packet.received_time
       end
     end
 
