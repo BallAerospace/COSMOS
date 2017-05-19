@@ -92,6 +92,22 @@ module Cosmos
       return new_router
     end
 
+    # Get info about an router by name
+    #
+    # @return [Array<String, Numeric, Numeric, Numeric, Numeric, Numeric, 
+    #   Numeric, Numeric>] Array containing \[state, num_clients, 
+    #   write_queue_size, read_queue_size, bytes_written, bytes_read, 
+    #   read_count, write_count] for the interface
+    def get_info(router_name)
+      router = @config.routers[router_name.upcase]
+      raise "Unknown router: #{router_name}" unless router
+
+      return [state(router_name),      router.num_clients, 
+              router.write_queue_size, router.read_queue_size,
+              router.bytes_written,    router.bytes_read,
+              router.read_count,       router.write_count]
+    end
+
     protected
 
     # Start an router's packet reading thread

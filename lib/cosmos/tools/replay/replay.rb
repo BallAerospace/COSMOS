@@ -477,6 +477,16 @@ module Cosmos
       end
     end
 
+    def closeEvent(event)
+      Cosmos.kill_thread(self, @playback_thread)
+      super(event)
+    end
+
+    # Gracefully kill threads
+    def graceful_kill
+      stop()
+    end
+
     def self.run(option_parser = nil, options = nil)
       Cosmos.catch_fatal_exception do
         unless option_parser and options
@@ -496,6 +506,6 @@ module Cosmos
       end
     end
 
-  end # class TlmViewer
+  end # class Replay
 
 end # module Cosmos

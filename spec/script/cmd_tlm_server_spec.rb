@@ -70,6 +70,72 @@ module Cosmos
       end
     end
 
+    describe "get_interface_info" do 
+      it "returns interface info" do
+        state, clients, tx_q_size, rx_q_size, bytes_tx, bytes_rx, cmd_cnt, tlm_cnt = get_interface_info("INST_INT")
+        connect_interface("INST_INT")
+        expect(state).to eql "CONNECTED"
+        disconnect_interface("INST_INT")
+        expect(clients).to be >= 0
+        expect(tx_q_size).to be >= 0
+        expect(rx_q_size).to be >= 0
+        expect(bytes_tx).to be >= 0
+        expect(bytes_rx).to be >= 0
+        expect(cmd_cnt).to be >= 0
+        expect(tlm_cnt).to be >= 0
+      end
+    end
+
+    describe "get_router_info" do 
+      it "returns router info" do
+        connect_router("PREIDENTIFIED_ROUTER")
+        state, clients, tx_q_size, rx_q_size, bytes_tx, bytes_rx, pkts_rcvd, pkts_sent = get_router_info("PREIDENTIFIED_ROUTER")
+        disconnect_router("PREIDENTIFIED_ROUTER")
+        expect(state).to eql "CONNECTED"
+        expect(clients).to be >= 0
+        expect(tx_q_size).to be >= 0
+        expect(rx_q_size).to be >= 0
+        expect(bytes_tx).to be >= 0
+        expect(bytes_rx).to be >= 0
+        expect(pkts_rcvd).to be >= 0
+        expect(pkts_sent).to be >= 0
+      end
+    end
+
+    describe "get_target_info" do
+      it "returns target info" do
+        cmd_cnt, tlm_cnt = get_target_info("INST")
+        expect(cmd_cnt).to be >= 0
+        expect(tlm_cnt).to be >= 0
+      end
+    end
+
+    describe "get_cmd_cnt" do
+      it "returns cmd count" do
+        expect(get_cmd_cnt("INST", "COLLECT")).to be >= 0
+      end
+    end
+
+    describe "get_tlm_cnt" do
+      it "returns tlm count" do
+        expect(get_tlm_cnt("INST", "HEALTH_STATUS")).to be >= 0
+      end
+    end
+
+    describe "get_packet_logger_info" do
+      it "returns packet logger info" do
+        interfaces, cmd_logging, cmd_q_size, cmd_filename, cmd_file_size, 
+                    tlm_logging, tlm_q_size, tlm_filename, tlm_file_size, = get_packet_logger_info("DEFAULT")
+        expect(interfaces).to include("INST_INT")
+        expect(cmd_logging).to eql true
+        expect(cmd_q_size).to be >= 0
+        expect(cmd_file_size).to be >= 0
+        expect(tlm_logging).to eql true
+        expect(tlm_q_size).to be >= 0
+        expect(tlm_file_size).to be >= 0
+      end
+    end
+
     describe "connect_router, disconnect_router, get_router_names, router_state" do
       it "returns connect, disconnect, and list the routers CTS-11" do
         expect(get_router_names).to include("PREIDENTIFIED_ROUTER")

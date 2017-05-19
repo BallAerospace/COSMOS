@@ -74,9 +74,25 @@ module Cosmos
     def handle_items
       plot_index = 0
       @items.each do |target_name, packet_name, item_name|
+        target_name.upcase!
+        packet_name.upcase!
+        item_name.upcase!
+        # Check to see if the item name is followed by an array index,
+        # notated by square brackets around an integer; i.e. ARRAY_ITEM[1]
+        if (item_name =~ /\[\d+\]$/)
+          # We found an array index.
+          # The $` special variable is the string before the regex match, i.e. ARRAY_ITEM
+          item_name = $`
+          # The $& special variable is the string matched by the regex, i.e. [1].
+          # Strip off the brackets and then convert the array index to an integer.
+          item_array_index = $&.gsub(/[\[\]]/, "").to_i
+        else
+          item_array_index = nil
+        end
         # Default configuration has one plot so don't add plot for first item
         data_object = HousekeepingDataObject.new
         data_object.set_item(target_name, packet_name, item_name)
+        data_object.item_array_index = item_array_index
         @tabbed_plots_config.add_data_object(0, 0, data_object)
         plot_index += 1
       end

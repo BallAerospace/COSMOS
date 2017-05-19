@@ -121,6 +121,35 @@ module Cosmos
       return packet_log_writer_pair.tlm_log_writer.filename
     end
 
+    # @param packet_log_writer_name [String] The name of the log writer to
+    #   get info for
+    # @return [Array<Boolean, Numeric, String, Numeric, Boolean, Numeric, 
+    #   String, Numeric>] array containing \[cmd log enabled, cmd queue size, 
+    #   cmd filename, cmd file size, tlm log enabled, tlm queue size,
+    #   tlm filename, tlm file size] for the packet log writer
+    def get_info(packet_log_writer_name = 'DEFAULT')
+      packet_log_writer_pair = @config.packet_log_writer_pairs[packet_log_writer_name.upcase]
+      raise "Unknown packet log writer: #{packet_log_writer_name}" unless packet_log_writer_pair
+      cmd_file_size = 0
+      begin
+        cmd_file_size = File.size(packet_log_writer_pair.cmd_log_writer.filename) if packet_log_writer_pair.cmd_log_writer.filename
+      rescue Exception
+      end
+      tlm_file_size = 0
+      begin
+        tlm_file_size = File.size(packet_log_writer_pair.tlm_log_writer.filename) if packet_log_writer_pair.tlm_log_writer.filename
+      rescue Exception
+      end
+      return [packet_log_writer_pair.cmd_log_writer.logging_enabled,
+              packet_log_writer_pair.cmd_log_writer.queue.size,
+              packet_log_writer_pair.cmd_log_writer.filename,
+              cmd_file_size,
+              packet_log_writer_pair.tlm_log_writer.logging_enabled,
+              packet_log_writer_pair.tlm_log_writer.queue.size,
+              packet_log_writer_pair.tlm_log_writer.filename,
+              tlm_file_size]
+    end
+
     # @return [Hash<String, PacketLogWriterPair>] Packet log writer hash. Each
     #   pair encapsulates a command and telemetry log writer.
     def all
