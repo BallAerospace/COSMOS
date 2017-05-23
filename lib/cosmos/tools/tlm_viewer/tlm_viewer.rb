@@ -377,7 +377,7 @@ module Cosmos
             output_filename = File.join(System.paths['LOGS'],
                                         File.build_timestamped_filename(['screen','audit'], '.txt'))
             File.open(output_filename, 'w') do |file|
-              file.puts "Telemetry Viewer audit created on #{Time.now.formatted}.\n"
+              file.puts "Telemetry Viewer audit created on #{Time.now.sys.formatted}.\n"
               if all_telemetry.empty?
                 msg = "\nAll telemetry points accounted for in screens."
                 progress.append_text(msg)

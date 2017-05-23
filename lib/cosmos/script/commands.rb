@@ -171,7 +171,7 @@ module Cosmos
       results = $cmd_tlm_server.get_cmd_time(target_name, command_name)
       if Array === results
         if results[2] and results[3]
-          results[2] = Time.at(results[2], results[3])
+          results[2] = Time.at(results[2], results[3]).sys
         end
         results.delete_at(3)
       end

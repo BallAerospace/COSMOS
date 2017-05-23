@@ -135,7 +135,7 @@ module Cosmos
       command = packet(target_upcase, packet_upcase).clone
 
       # Set time, parameters, and restore defaults
-      command.received_time = Time.now
+      command.received_time = Time.now.sys
       command.given_values = params
       command.restore_defaults(command.buffer(false), params.keys)
       command.raw = raw

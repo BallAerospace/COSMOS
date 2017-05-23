@@ -149,7 +149,7 @@ module Cosmos
     def get_packet_data(id, non_block = false)
       results = $cmd_tlm_server.get_packet_data(id, non_block)
       if Array === results and results[3] and results[4]
-        results[3] = Time.at(results[3], results[4])
+        results[3] = Time.at(results[3], results[4]).sys
         results.delete_at(4)
       end
       results
