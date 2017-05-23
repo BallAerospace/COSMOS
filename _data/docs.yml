@@ -29,6 +29,7 @@
   docs:
   - system_class
   - packet_class
+  - json_api
 
 - title: Meta
   docs:
