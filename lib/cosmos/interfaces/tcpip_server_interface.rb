@@ -159,7 +159,7 @@ module Cosmos
       when 'LISTEN_ADDRESS'
         @tcpip_server.listen_address = option_values[0]
       when 'AUTO_SYSTEM_META'
-        @tcpip_server.auto_system_meta = CosmosConfig.handle_true_false(option_values[0])
+        @tcpip_server.auto_system_meta = ConfigParser.handle_true_false(option_values[0])
       end
     end
 

@@ -286,13 +286,13 @@ module Cosmos
         if @logging_enabled and (!@file or (@cycle_size and (@file_size + packet.length) > @cycle_size))
           start_new_file(packet)
         end
+        pre_write_entry_hook(packet)
         if @file
           @entry_header = build_entry_header(packet) # populate @entry_header
           if @entry_header
             @file.write(@entry_header)
             @file_size += @entry_header.length
           end
-          pre_write_buffer_hook(packet)
           buffer = packet.buffer(false)
           @file.write(buffer)
           @file_size += buffer.length
@@ -305,8 +305,8 @@ module Cosmos
       Cosmos.handle_critical_exception(err)
     end
 
-    # Hook to allow access to the packet immediately before writing its buffer
-    def pre_write_buffer_hook(packet)
+    # Hook to allow access to the packet immediately before writing its entry
+    def pre_write_entry_hook(packet)
     end
 
     def logging_thread_body
