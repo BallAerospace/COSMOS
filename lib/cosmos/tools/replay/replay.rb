@@ -330,17 +330,17 @@ module Cosmos
           previous_packet = nil
           while (@playing)
             if @playback_delay
-              packet_start = Time.now
+              packet_start = Time.now.sys
               packet = read_at_index(@playback_index, direction)
               break unless packet
               delay_time = 0.0
               if @playback_delay > 0.0
-                delay_time = @playback_delay - (Time.now - packet_start)
+                delay_time = @playback_delay - (Time.now.sys - packet_start)
               elsif previous_packet and packet.received_time and previous_packet.received_time
                 if direction == :FORWARD
-                  delay_time = packet.received_time - previous_packet.received_time - (Time.now - packet_start)
+                  delay_time = packet.received_time - previous_packet.received_time - (Time.now.sys - packet_start)
                 else
-                  delay_time = previous_packet.received_time - packet.received_time - (Time.now - packet_start)
+                  delay_time = previous_packet.received_time - packet.received_time - (Time.now.sys - packet_start)
                 end
               end
               sleep(delay_time) if delay_time > 0.0

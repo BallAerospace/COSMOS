@@ -66,7 +66,7 @@ module Cosmos
             if event[0] == :LIMITS_CHANGE
               data = event[1]
               packet ||= System.telemetry.packet("COSMOS","LIMITS_CHANGE")
-              packet.received_time = Time.now
+              packet.received_time = Time.now.sys
               packet.write('PKT_ID',2)
               packet.write('TARGET', data[0])
               packet.write('PACKET', data[1])

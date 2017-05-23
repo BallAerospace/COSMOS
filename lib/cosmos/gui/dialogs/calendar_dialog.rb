@@ -32,7 +32,7 @@ module Cosmos
       if initial_time
         @time = initial_time
       else
-        time_now = Time.now
+        time_now = Time.now.sys
         if time_now.utc?
           @time = Time.utc(time_now.year, time_now.mon, time_now.day)
         else

@@ -68,66 +68,29 @@ class Time
   USEC_PER_DAY_FLOAT = USEC_PER_DAY.to_f
   MINUTES_PER_DAY_FLOAT = MINUTES_PER_DAY.to_f
 
-  # Class variable that allows us to globally select whether to create
-  # UTC or local Time objects with new, now, or at.
+  # Class variable that allows us to globally select whether to use
+  # UTC or local time.
   @@use_utc = false
+  
+  # Set up the Time class so that a call to the sys method will set the 
+  # Time object being operated upon to be a UTC time. 
+  def self.use_utc
+    @@use_utc = true
+  end
+  
+  # Set up the Time class so that a call to the sys method will set the 
+  # Time object being operated upon to be a local time. 
+  def self.use_local
+    @@use_utc = false
+  end
 
-  class << self
-
-    # Set up the Time class so that Time objects created with new, now, or at 
-    # will be UTC.  Time objects created with local or mktime will still be 
-    # local. Time objects created with gm or utc will still be UTC.
-    def use_utc
-      @@use_utc = true
-    end
-
-    # Set up the Time class so that Time objects created with new, now, or at 
-    # will be local.  Time objects created with local or mktime will still be 
-    # local. Time objects created with gm or utc will still be UTC.
-    def use_local
-      @@use_utc = false
-    end
-
-    # Alias the original constructor so we can call it from the new one 
-    # we're about to create.
-    alias_method :__new__, :new  
-
-    # New constructor that returns a UTC or local time depending on 
-    # the use_utc flag.
-    def new(*args)
-      if @@use_utc
-        __new__(*args).utc
-      else
-        __new__(*args).localtime
-      end
-    end
-
-    # Alias the original "now" method so we can call it from the new one 
-    # we're about to create.
-    alias_method :__now__, :now
-
-    # New "now" method that returns a UTC or local time depending on 
-    # the use_utc flag.
-    def now(*args)
-      if @@use_utc
-        __now__(*args).utc
-      else
-        __now__(*args).localtime
-      end
-    end
-
-    # Alias the original "at" method so we can call it from the new one 
-    # we're about to create.
-    alias_method :__at__, :at
-
-    # New "at" method that returns a UTC or local time depending on
-    # the use_utc flag.
-    def at(*args)
-      if @@use_utc
-        __at__(*args).utc
-      else
-        __at__(*args).localtime
-      end
+  # Set the Time object to be either a UTC or local time depending on the
+  # use_utc flag.
+  def sys
+    if @@use_utc
+      self.utc
+    else
+      self.localtime
     end
   end
 

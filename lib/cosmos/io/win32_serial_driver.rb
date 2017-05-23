@@ -97,14 +97,14 @@ module Cosmos
     # (see SerialDriver#write)
     def write(data)
       # Write the data
-      time = Time.now
+      time = Time.now.sys
       bytes_to_write = data.length
       while (bytes_to_write > 0)
         bytes_written = Win32.write_file(@handle, data, data.length)
         raise "Error writing to comm port" if bytes_written <= 0
         bytes_to_write -= bytes_written
         data = data[bytes_written..-1]
-        raise Timeout::Error, "Write Timeout" if @write_timeout and (Time.now - time > @write_timeout) and bytes_to_write > 0
+        raise Timeout::Error, "Write Timeout" if @write_timeout and (Time.now.sys - time > @write_timeout) and bytes_to_write > 0
       end
     end
 

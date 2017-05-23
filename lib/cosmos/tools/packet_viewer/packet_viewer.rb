@@ -396,7 +396,7 @@ module Cosmos
       @tlm_thread = Thread.new do
         begin
           while true
-            time = Time.now
+            time = Time.now.sys
             break if @shutdown_tlm_thread
 
             begin
@@ -475,7 +475,7 @@ module Cosmos
             # Delay for 1/10 of polling rate
             10.times do
               break if @shutdown_tlm_thread
-              sleep(@polling_rate.to_f / 10.0) if (Time.now - time < @polling_rate)
+              sleep(@polling_rate.to_f / 10.0) if (Time.now.sys - time < @polling_rate)
             end
           end
         rescue Exception => error

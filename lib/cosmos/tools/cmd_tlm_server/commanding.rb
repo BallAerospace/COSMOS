@@ -45,7 +45,7 @@ module Cosmos
     # @param packet [Packet] Packet to send
     def send_command_to_interface(interface, packet)
       # Make sure packet received time is set
-      packet.received_time ||= Time.now
+      packet.received_time ||= Time.now.sys
 
       unless packet.identified?
         identified_command = System.commands.identify(packet.buffer, interface.target_names)

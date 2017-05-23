@@ -66,7 +66,7 @@ module Cosmos
       @mutex = Mutex.new
       @file = nil
       @filename = nil
-      @start_time = Time.now
+      @start_time = Time.now.sys
       @logging_enabled = ConfigParser.handle_true_false(logging_enabled)
     end
 
@@ -107,7 +107,7 @@ module Cosmos
     # not created until data is written by {#write} so this does not
     # immediately create a log file on the filesystem.
     def start
-      close_file() unless ((Time.now - @start_time) < 1.0) # Prevent close/open too fast
+      close_file() unless ((Time.now.sys - @start_time) < 1.0) # Prevent close/open too fast
       @mutex.synchronize { @logging_enabled = true }
     end
 
@@ -136,7 +136,7 @@ module Cosmos
           @filename = File.join(@log_directory, File.build_timestamped_filename([@log_name], '.bin'))
           @file = File.new(@filename, 'wb')
         end
-        @start_time = Time.now
+        @start_time = Time.now.sys
         Logger.instance.info "Raw Log File Opened : #{@filename}"
       end
     rescue => err
