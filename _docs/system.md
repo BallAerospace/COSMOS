@@ -156,7 +156,7 @@ Example Usage:
 ALLOW_ACCESS ALL # Default
 {% endhighlight %}
 
-### TIME_ZONE_UTC (COSMOS >= 3.10.0)
+### TIME_ZONE_UTC
 The TIME_ZONE_UTC keyword configures COSMOS to report all times as UTC times.  If this keyword is not used, COSMOS will report all times as local times, where the local time zone is determined automatically by Ruby based upon the operating system time settings.  This setting affects packet receive times, timestamped log filenames, message logs, Cmd/Tlm extractor time ranges, etc.
 
 Example Usage:
