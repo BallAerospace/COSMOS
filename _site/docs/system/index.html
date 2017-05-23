@@ -1345,6 +1345,7 @@
 <li class="toc-entry toc-h3"><a href="#disable_dns">DISABLE_DNS</a></li>
 <li class="toc-entry toc-h3"><a href="#enable_sound-cosmos-350">ENABLE_SOUND (COSMOS 3.5.0+)</a></li>
 <li class="toc-entry toc-h3"><a href="#allow_access">ALLOW_ACCESS</a></li>
+<li class="toc-entry toc-h3"><a href="#time_zone_utc-cosmos--3100">TIME_ZONE_UTC (COSMOS >= 3.10.0)</a></li>
 <li class="toc-entry toc-h2"><a href="#target-configuration">Target Configuration</a></li>
 <li class="toc-entry toc-h2"><a href="#targettxt-keywords">target.txt Keywords</a></li>
 <li class="toc-entry toc-h3"><a href="#require">REQUIRE</a></li>
@@ -1596,19 +1597,25 @@ CMD_TLM_VERSION <span class="s1">'Version A'</span></code></pre></figure>
 <a id="enable_dns-cosmos-350" class="anchor" href="#enable_dns-cosmos-350" aria-hidden="true"><span class="octicon octicon-link"></span></a>ENABLE_DNS (COSMOS 3.5.0+)</h3>
 <p>Enable DNS allows you to enable reverse DNS lookups for when tools connect to the Command and Telemetry Server’s pre-identified socket or to any target using the TCPIP Server Interface. As of COSMOS 3.5.0 the default is to not use DNS.</p>
 
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">Example Usage: ENABLE_DNS</code></pre></figure>
+<p>Example Usage:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">ENABLE_DNS</code></pre></figure>
 
 <h3 id="disable_dns">
 <a id="disable_dns" class="anchor" href="#disable_dns" aria-hidden="true"><span class="octicon octicon-link"></span></a>DISABLE_DNS</h3>
 <p>Disable DNS allows you to disable reverse DNS lookups for when tools connect to the Command and Telemetry Server’s pre-identified socket or to any target using the TCPIP Server Interface. This is useful when you are in an environment where DNS is not available. As of COSMOS 3.5.0 the default is to not use DNS.</p>
 
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">Example Usage: DISABLE_DNS</code></pre></figure>
+<p>Example Usage:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">DISABLE_DNS</code></pre></figure>
 
 <h3 id="enable_sound-cosmos-350">
 <a id="enable_sound-cosmos-350" class="anchor" href="#enable_sound-cosmos-350" aria-hidden="true"><span class="octicon octicon-link"></span></a>ENABLE_SOUND (COSMOS 3.5.0+)</h3>
 <p>Enable sound makes any prompts that occur in ScriptRunner/TestRunner make an audible sound when they popup to alert the operator of needed input.</p>
 
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">Example Usage: ENABLE_SOUND</code></pre></figure>
+<p>Example Usage:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">ENABLE_SOUND</code></pre></figure>
 
 <h3 id="allow_access">
 <a id="allow_access" class="anchor" href="#allow_access" aria-hidden="true"><span class="octicon octicon-link"></span></a>ALLOW_ACCESS</h3>
@@ -1634,6 +1641,14 @@ CMD_TLM_VERSION <span class="s1">'Version A'</span></code></pre></figure>
 <p>Example Usage:</p>
 
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">ALLOW_ACCESS ALL <span class="c"># Default</span></code></pre></figure>
+
+<h3 id="time_zone_utc-cosmos--3100">
+<a id="time_zone_utc-cosmos--3100" class="anchor" href="#time_zone_utc-cosmos--3100" aria-hidden="true"><span class="octicon octicon-link"></span></a>TIME_ZONE_UTC (COSMOS &gt;= 3.10.0)</h3>
+<p>The TIME_ZONE_UTC keyword configures COSMOS to report all times as UTC times.  If this keyword is not used, COSMOS will report all times as local times, where the local time zone is determined automatically by Ruby based upon the operating system time settings.  This setting affects packet receive times, timestamped log filenames, message logs, Cmd/Tlm extractor time ranges, etc.</p>
+
+<p>Example Usage:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">TIME_ZONE_UTC</code></pre></figure>
 
 <h2 id="target-configuration">
 <a id="target-configuration" class="anchor" href="#target-configuration" aria-hidden="true"><span class="octicon octicon-link"></span></a>Target Configuration</h2>

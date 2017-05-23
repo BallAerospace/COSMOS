@@ -123,22 +123,25 @@ STALENESS_SECONDS 30 # Default
 ### ENABLE_DNS (COSMOS 3.5.0+)
 Enable DNS allows you to enable reverse DNS lookups for when tools connect to the Command and Telemetry Server's pre-identified socket or to any target using the TCPIP Server Interface. As of COSMOS 3.5.0 the default is to not use DNS.
 
+Example Usage:
 {% highlight bash %}
-Example Usage: ENABLE_DNS
+ENABLE_DNS
 {% endhighlight %}
 
 ### DISABLE_DNS
 Disable DNS allows you to disable reverse DNS lookups for when tools connect to the Command and Telemetry Server's pre-identified socket or to any target using the TCPIP Server Interface. This is useful when you are in an environment where DNS is not available. As of COSMOS 3.5.0 the default is to not use DNS.
 
+Example Usage:
 {% highlight bash %}
-Example Usage: DISABLE_DNS
+DISABLE_DNS
 {% endhighlight %}
 
 ### ENABLE_SOUND (COSMOS 3.5.0+)
 Enable sound makes any prompts that occur in ScriptRunner/TestRunner make an audible sound when they popup to alert the operator of needed input.
 
+Example Usage:
 {% highlight bash %}
-Example Usage: ENABLE_SOUND
+ENABLE_SOUND
 {% endhighlight %}
 
 ### ALLOW_ACCESS
@@ -151,6 +154,14 @@ Allow access provides the ability to individually permit machines to connect to 
 Example Usage:
 {% highlight bash %}
 ALLOW_ACCESS ALL # Default
+{% endhighlight %}
+
+### TIME_ZONE_UTC
+The TIME_ZONE_UTC keyword configures COSMOS to report all times as UTC times.  If this keyword is not used, COSMOS will report all times as local times, where the local time zone is determined automatically by Ruby based upon the operating system time settings.  This setting affects packet receive times, timestamped log filenames, message logs, Cmd/Tlm extractor time ranges, etc.
+
+Example Usage:
+{% highlight bash %}
+TIME_ZONE_UTC
 {% endhighlight %}
 
 ## Target Configuration
