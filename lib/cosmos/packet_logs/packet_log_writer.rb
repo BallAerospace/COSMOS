@@ -237,7 +237,7 @@ module Cosmos
     # Mutex is held during this hook
     def start_new_file_hook(packet)
       # If the first packet is a SYSTEM META packet, make sure the file header matches
-      if packet.target_name == 'SYSTEM'.freeze and packet.packet_name == 'META'.freeze
+      if packet and packet.target_name == 'SYSTEM'.freeze and packet.packet_name == 'META'.freeze
         file_header = build_file_header(packet.read('CONFIG'))
         if file_header
           @file.seek(0, IO::SEEK_SET)
