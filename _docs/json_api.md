@@ -27,6 +27,13 @@ It is often desirable for a COSMOS target to be able to use the COSMOS API witho
 
 The list of methods supported by the COSMOS API may be found in the [api.rb](https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/tools/cmd_tlm_server/api.rb) source code on Github.  The @api_whitelist variable is initialized with an array of all methods accepted by the CTS.  This page will not show the full argument list for every method in the API, but it should be noted that the JSON API methods correspond to the COSMOS scripting API methods documented in the [Scripting Guide](/docs/scripting).  This page will show a few example JSON requests and responses, and the scripting guide can be used as a reference to extrapolate how to build requests and parse responses for methods not explicitly documented here.
 
+## Existing Implementations
+
+The COSMOS JSON API has been implemented in the following languages:
+ * [Python](https://github.com/BallAerospace/python-ballcosmos)
+
+## Example Usage
+
 ### Sending Commands
 
 The following methods are used to send commands:  cmd, cmd_no_range_check, cmd_no_hazardous_check, cmd_no_checks
@@ -82,12 +89,13 @@ The second is three parameters with the first parameter being a string denoting 
 
 Example Usage:
 {% highlight bash %}
---> {"method":"tlm","id":12,"params":["INST HEALTH_STATUS TEMP1"],"jsonrpc":"2.0"}
-<-- {"result":94.9438,"id":12,"jsonrpc":"2.0"}
+--> {"jsonrpc": "2.0", "method": "tlm", "params": ["INST HEALTH_STATUS TEMP1"], "id": 2}
+<-- {"jsonrpc": "2.0", "result": 94.9438, "id": 2}
 
---> {"method":"tlm","id":12,"params":["INST", "HEALTH_STATUS", "TEMP1"],"jsonrpc":"2.0"}
-<-- {"result":94.9438,"id":12,"jsonrpc":"2.0"}
+--> {"jsonrpc": "2.0", "method": "tlm", "params": ["INST", "HEALTH_STATUS", "TEMP1"], "id": 2}
+<-- {"jsonrpc": "2.0", "result": 94.9438, "id": 2}
 {% endhighlight %}
+
  
 
 
