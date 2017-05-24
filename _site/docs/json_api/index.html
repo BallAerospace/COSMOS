@@ -1454,6 +1454,15 @@
 
 <p>The list of methods supported by the COSMOS API may be found in the <a href="https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/tools/cmd_tlm_server/api.rb">api.rb</a> source code on Github.  The @api_whitelist variable is initialized with an array of all methods accepted by the CTS.  This page will not show the full argument list for every method in the API, but it should be noted that the JSON API methods correspond to the COSMOS scripting API methods documented in the <a href="/docs/scripting">Scripting Guide</a>.  This page will show a few example JSON requests and responses, and the scripting guide can be used as a reference to extrapolate how to build requests and parse responses for methods not explicitly documented here.</p>
 
+<h2 id="existing-implementations">Existing Implementations</h2>
+
+<p>The COSMOS JSON API has been implemented in the following languages:</p>
+<ul>
+  <li><a href="https://github.com/BallAerospace/python-ballcosmos">Python</a></li>
+</ul>
+
+<h2 id="example-usage">Example Usage</h2>
+
 <h3 id="sending-commands">Sending Commands</h3>
 
 <p>The following methods are used to send commands:  cmd, cmd_no_range_check, cmd_no_hazardous_check, cmd_no_checks</p>
@@ -1576,11 +1585,11 @@
 
 <p>Example Usage:</p>
 
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="gp">--&gt; </span><span class="o">{</span><span class="s2">"method"</span>:<span class="s2">"tlm"</span>,<span class="s2">"id"</span>:12,<span class="s2">"params"</span>:[<span class="s2">"INST HEALTH_STATUS TEMP1"</span><span class="o">]</span>,<span class="s2">"jsonrpc"</span>:<span class="s2">"2.0"</span><span class="o">}</span>
-&lt;-- <span class="o">{</span><span class="s2">"result"</span>:94.9438,<span class="s2">"id"</span>:12,<span class="s2">"jsonrpc"</span>:<span class="s2">"2.0"</span><span class="o">}</span>
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="gp">--&gt; </span><span class="o">{</span><span class="s2">"jsonrpc"</span>: <span class="s2">"2.0"</span>, <span class="s2">"method"</span>: <span class="s2">"tlm"</span>, <span class="s2">"params"</span>: <span class="o">[</span><span class="s2">"INST HEALTH_STATUS TEMP1"</span><span class="o">]</span>, <span class="s2">"id"</span>: 2<span class="o">}</span>
+&lt;-- <span class="o">{</span><span class="s2">"jsonrpc"</span>: <span class="s2">"2.0"</span>, <span class="s2">"result"</span>: 94.9438, <span class="s2">"id"</span>: 2<span class="o">}</span>
 
-<span class="gp">--&gt; </span><span class="o">{</span><span class="s2">"method"</span>:<span class="s2">"tlm"</span>,<span class="s2">"id"</span>:12,<span class="s2">"params"</span>:[<span class="s2">"INST"</span>, <span class="s2">"HEALTH_STATUS"</span>, <span class="s2">"TEMP1"</span><span class="o">]</span>,<span class="s2">"jsonrpc"</span>:<span class="s2">"2.0"</span><span class="o">}</span>
-&lt;-- <span class="o">{</span><span class="s2">"result"</span>:94.9438,<span class="s2">"id"</span>:12,<span class="s2">"jsonrpc"</span>:<span class="s2">"2.0"</span><span class="o">}</span></code></pre></figure>
+<span class="gp">--&gt; </span><span class="o">{</span><span class="s2">"jsonrpc"</span>: <span class="s2">"2.0"</span>, <span class="s2">"method"</span>: <span class="s2">"tlm"</span>, <span class="s2">"params"</span>: <span class="o">[</span><span class="s2">"INST"</span>, <span class="s2">"HEALTH_STATUS"</span>, <span class="s2">"TEMP1"</span><span class="o">]</span>, <span class="s2">"id"</span>: 2<span class="o">}</span>
+&lt;-- <span class="o">{</span><span class="s2">"jsonrpc"</span>: <span class="s2">"2.0"</span>, <span class="s2">"result"</span>: 94.9438, <span class="s2">"id"</span>: 2<span class="o">}</span></code></pre></figure>
 
 
           
