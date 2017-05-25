@@ -21,7 +21,7 @@ The COSMOS Command and Telemetry Server listens for connections to the COSMOS AP
 
 Each JSON-RPC string sent to the socket by the target must be preceded by a Big-Endian 32-bit integer indicating the number of bytes that make up the JSON-RPC string. Similarly, the response sent back on the socket with be preceded by a Big-Endian 32-bit integer indicating the length of the response string.
 
-It is often desirable for a COSMOS target to be able to use the COSMOS API without knowing the hostname or port of the COSMOS Command and Telemetry Server. In this case, the cosmos interface code used to connect to the target can also open a socket for use with the COSMOS API and register the socket using JsonDRb.create_client_thread(socket).  Note that the list of methods is 
+It is often desirable for a COSMOS target to be able to use the COSMOS API without knowing the hostname or port of the COSMOS Command and Telemetry Server. In this case, the cosmos interface code used to connect to the target can also open a socket for use with the COSMOS API and register the socket using JsonDRb.create_client_thread(socket).
 
 ## Supported Methods
 
