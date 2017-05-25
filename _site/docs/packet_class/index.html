@@ -1431,10 +1431,311 @@
           </div>
           
           <h1>Packet Class</h1>
-          <p>Coming Soon!</p>
+          <div class="note">
+  <h5>This documentation is for COSMOS Developers</h5>
+  <p>If you’re simply trying to setup a COSMOS system you’re probably looking for the <a href="/docs/system">System Configuration</a> page. If you’re trying to create a custom interface, background task, conversion, or build a custom tool then this is the right place.</p>
+</div>
+
+<p>The Packet class is used to access the command and telemetry packet instances. The primary way to access Packet instances is through the <a href="/docs/system_class">System</a> class. The Packet class provides access to information about the packet as well as all the packet items.</p>
 
 <p>The <a href="https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/packets/packet.rb">packet.rb</a> source code on Github.</p>
 
+<h2 id="programming-packet">Programming Packet</h2>
+
+<p>Most custom COSMOS code needs to interact with Packet as it provides access to the internal values defined by your command and telemetry definitions. Packet inherits from Structure which it uses to provide some of the lower level functionality associated with reading and writing packets. Typically you shouldn’t need to directly use any of the Structure methods. Packet instances can be either commands or telemetry and there is no way to directly know whether a packet instance is a command or telemetry packet. However, since you’re typically getting packet instances through <code class="highlighter-rouge">System.commands</code> or <code class="highlighter-rouge">System.telemetry</code> this is rarely an issue in practice.</p>
+
+<h3 id="packet-instance-variables">Packet Instance Variables</h3>
+<p>Packet defines a large number of instance variables that provide information about the packet. The most commonly used are as follows:</p>
+
+<ol>
+  <li><code class="highlighter-rouge">target_name</code> - Target name as a string</li>
+  <li><code class="highlighter-rouge">packet_name</code> - Packet name as a string</li>
+  <li><code class="highlighter-rouge">description</code> - Packet description as a string</li>
+  <li><code class="highlighter-rouge">received_time</code> - Time object representing when this packet was received by the COSMOS Server</li>
+  <li><code class="highlighter-rouge">received_count</code> - Number of times this packet was received by the COSMOS Server</li>
+</ol>
+
+<p>If you’re dealing with a Command packet instance there are additional instance variables that are useful:</p>
+<ol>
+  <li><code class="highlighter-rouge">hazardous</code> - Boolean indicating whether the command is hazardous (see <a href="/docs/cmdtlm/#hazardous">hazardous</a>)</li>
+  <li><code class="highlighter-rouge">hazardous_description</code> - String description of why the packet is hazardous</li>
+  <li><code class="highlighter-rouge">hidden</code> - Boolean indicating whether this packet is hidden (see <a href="/docs/cmdtlm/#hidden">hidden</a>)</li>
+  <li><code class="highlighter-rouge">disabled</code> - Boolean indicating whether this packet is disabled (see <a href="/docs/cmdtlm/#disabled">hidden</a>)</li>
+</ol>
+
+<h3 id="packet-methods">Packet Methods</h3>
+
+<h4 id="read">read</h4>
+
+<p>Read is used to retrieve packet values. The parameters are as follows:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>name</td>
+      <td>Name of the item to read</td>
+    </tr>
+    <tr>
+      <td>value_type</td>
+      <td>How the value should be read. Must be one of :RAW, :CONVERTED, :FORMATTED, or :WITH_UNITS. Defaults to :CONVERTED</td>
+    </tr>
+    <tr>
+      <td>buffer</td>
+      <td>Raw data buffer to read the value from (defaults to the current packet)</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example:</p>
+<div class="language-ruby highlighter-rouge"><pre class="highlight"><code><span class="n">value</span> <span class="o">=</span> <span class="n">packet</span><span class="p">.</span><span class="nf">read</span><span class="p">(</span><span class="s1">'ITEM'</span><span class="p">)</span> <span class="c1"># Converted value (default)</span>
+<span class="n">value</span> <span class="o">=</span> <span class="n">packet</span><span class="p">.</span><span class="nf">read</span><span class="p">(</span><span class="s2">"ITEM"</span><span class="p">,</span> <span class="ss">:RAW</span><span class="p">)</span> <span class="c1"># Raw value (no COSMOS conversions applied)</span>
+<span class="n">value</span> <span class="o">=</span> <span class="n">packet</span><span class="p">.</span><span class="nf">read</span><span class="p">(</span><span class="s2">"ITEM"</span><span class="p">,</span> <span class="ss">:FORMATTED</span><span class="p">)</span> <span class="c1"># String formatted value</span>
+<span class="n">value</span> <span class="o">=</span> <span class="n">packet</span><span class="p">.</span><span class="nf">read</span><span class="p">(</span><span class="s2">"ITEM"</span><span class="p">,</span> <span class="ss">:WITH_UNITS</span><span class="p">)</span> <span class="c1"># String formatted value with units</span>
+<span class="n">value</span> <span class="o">=</span> <span class="n">packet</span><span class="p">.</span><span class="nf">read</span><span class="p">(</span><span class="s2">"ITEM"</span><span class="p">,</span> <span class="ss">:CONVERTED</span><span class="p">,</span> <span class="n">buffer</span><span class="p">)</span> <span class="c1"># Read the value from the passed buffer (RARELY USED)</span>
+</code></pre>
+</div>
+
+<p>First a comment about syntax. The first parameter in the read method is a string which in Ruby can be either single or double quotes. The second parameter is a Ruby Symbol which is similar to a string but is prefixed with a colon.</p>
+
+<p>Note that there are four different ways to read a packet value as indicated above in the value_type description. :RAW means to return the value defined at that location in the packet without applying any COSMOS conversions or STATE names. :CONVERTED (the default) means to apply COSMOS conversions and any defined State values (see <a href="/docs/cmdtlm/#state">STATE</a>). :FORMATTED means to apply any format strings on the packet item (see <a href="/docs/cmdtlm/#format_string">FORMAT_STRING</a>) and return the resulting string. Note that :FORMATTED always returns a STRING even if there is no formatting being applied. This is distinct from :RAW and :CONVERTED which return a value of the type you specify in the packet definition. Finally :WITH_UNITS applies any units (see <a href="/docs/cmdtlm/#units">UNITS</a>) to the formatted value and again returns a string value.</p>
+
+<p>The final parameter is buffer. Typically you will just leave this off and write to the buffer contained by the current packet instance. However, if you have an unidentified buffer of data that you believe represents a particular packet instance, you can pass that into read.</p>
+
+<h4 id="write">write</h4>
+
+<p>Write is used to set packet values. Keep in mind that if you’re trying to write values to a packet which is part of a live telemtry stream, your value will be overwritten by the interface and never appear. The parameters are as follows:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>name</td>
+      <td>Name of the item to read</td>
+    </tr>
+    <tr>
+      <td>value</td>
+      <td>Value to write</td>
+    </tr>
+    <tr>
+      <td>value_type</td>
+      <td>How the value should be written. Must be either :RAW or :CONVERTED. Defaults to :CONVERTED</td>
+    </tr>
+    <tr>
+      <td>buffer</td>
+      <td>Raw data buffer to read the value from (defaults to the current packet)</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example:</p>
+<div class="language-ruby highlighter-rouge"><pre class="highlight"><code><span class="n">packet</span><span class="p">.</span><span class="nf">write</span><span class="p">(</span><span class="s1">'ITEM'</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span> <span class="c1"># Converted value</span>
+<span class="n">packet</span><span class="p">.</span><span class="nf">write</span><span class="p">(</span><span class="s2">"ITEM"</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="ss">:RAW</span><span class="p">)</span> <span class="c1"># Raw value</span>
+</code></pre>
+</div>
+
+<p>See <a href="/docs/packet_class#read">read</a> for a note about the syntax and what value_type means.</p>
+
+<p>There are a few gotchas associated with writing a value into a packet. If you’re writing a value marked as STRING then you can pass almost any value you want as Ruby will automatically convert it into a string. There is effectively no difference between :CONVERTED and :RAW so prefer the default of :CONVERTED. For example:</p>
+<div class="language-ruby highlighter-rouge"><pre class="highlight"><code><span class="n">packet</span><span class="p">.</span><span class="nf">write</span><span class="p">(</span><span class="s1">'STRING_ITEM'</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span> <span class="c1"># 10 will be converted to '10' automatically (Prefer this)</span>
+<span class="n">packet</span><span class="p">.</span><span class="nf">write</span><span class="p">(</span><span class="s2">"STRING_ITEM"</span><span class="p">,</span> <span class="mi">12</span><span class="o">.</span><span class="mi">5</span><span class="p">,</span> <span class="ss">:RAW</span><span class="p">)</span> <span class="c1"># 12.5 will be converted to '12.5' (:RAW unneeded)</span>
+</code></pre>
+</div>
+
+<p>If you’re writing into an integer or float value you must pass in something that can be converted to that value. This means that Strings will not work. However, float values work for integers (they are truncated) and integers work for floats. For example:</p>
+<div class="language-ruby highlighter-rouge"><pre class="highlight"><code><span class="n">packet</span><span class="p">.</span><span class="nf">write</span><span class="p">(</span><span class="s2">"INT_ITEM"</span><span class="p">,</span> <span class="s2">"STRING"</span><span class="p">)</span> <span class="c1">#=&gt; ArgumentError : invalid value for Integer(): "STRING"</span>
+<span class="n">packet</span><span class="p">.</span><span class="nf">write</span><span class="p">(</span><span class="s2">"INT_ITEM"</span><span class="p">,</span> <span class="mi">10</span><span class="o">.</span><span class="mi">5</span><span class="p">)</span> <span class="c1">#=&gt; packet.read("INT_ITEM") returns 10</span>
+<span class="n">packet</span><span class="p">.</span><span class="nf">write</span><span class="p">(</span><span class="s2">"FLOAT_ITEM"</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span> <span class="c1">#=&gt; packet.read("FLOAT_ITEM") returns 10.0</span>
+</code></pre>
+</div>
+
+<p>If there are no <a href="/docs/cmdtlm/#write_conversion">write conversions</a> or <a href="/docs/cmdtlm/#state">states</a> defined on the telemetry item then writing with :RAW or :CONVERTED will be equivalent. If you have states defined you must use the :CONVERTED syntax to use the state key and :RAW to use the state value.</p>
+
+<p>Definition File:</p>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>APPEND_ITEM INT_ITEM_WITH_STATES 32 UINT <span class="s2">"Item"</span>
+  STATE OFF 0
+  STATE ON 1
+</code></pre>
+</div>
+
+<p>Example:</p>
+<div class="language-ruby highlighter-rouge"><pre class="highlight"><code><span class="n">packet</span><span class="p">.</span><span class="nf">write</span><span class="p">(</span><span class="s2">"INT_ITEM_WITH_STATES"</span><span class="p">,</span> <span class="s2">"ON"</span><span class="p">)</span> <span class="c1"># Writes using the "ON" state value</span>
+<span class="n">packet</span><span class="p">.</span><span class="nf">write</span><span class="p">(</span><span class="s2">"INT_ITEM_WITH_STATES"</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="ss">:RAW</span><span class="p">)</span> <span class="c1"># Writes the raw value 0 which returns 'OFF' when read back</span>
+</code></pre>
+</div>
+
+<h4 id="read_all">read_all</h4>
+
+<p>Read all is used to retrieve all the packet values. The parameters are as follows:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>value_type</td>
+      <td>How the values should be read. Must be one of :RAW, :CONVERTED, :FORMATTED, or :WITH_UNITS. Defaults to :CONVERTED</td>
+    </tr>
+    <tr>
+      <td>buffer</td>
+      <td>Raw data buffer to read the value from (defaults to the current packet)</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example:</p>
+<div class="language-ruby highlighter-rouge"><pre class="highlight"><code><span class="n">values</span> <span class="o">=</span> <span class="n">packet</span><span class="p">.</span><span class="nf">read_all</span><span class="p">()</span> <span class="c1"># Converted values (default)</span>
+<span class="n">values</span> <span class="o">=</span> <span class="n">packet</span><span class="p">.</span><span class="nf">read_all</span><span class="p">(</span><span class="ss">:RAW</span><span class="p">)</span> <span class="c1"># Raw values (no COSMOS conversions applied)</span>
+<span class="n">values</span> <span class="o">=</span> <span class="n">packet</span><span class="p">.</span><span class="nf">read_all</span><span class="p">(</span><span class="ss">:FORMATTED</span><span class="p">)</span> <span class="c1"># String formatted values</span>
+<span class="n">values</span> <span class="o">=</span> <span class="n">packet</span><span class="p">.</span><span class="nf">read_all</span><span class="p">(</span><span class="ss">:WITH_UNITS</span><span class="p">)</span> <span class="c1"># String formatted values with units</span>
+</code></pre>
+</div>
+
+<p>The return result is an array of arrays. Each internal array has two elements, the item name and value. The overall structure is as follows: [[item name, item value], […], …].</p>
+
+<h4 id="length">length</h4>
+
+<p>Length returns the size of the internal packet buffer.</p>
+
+<h4 id="buffer">buffer</h4>
+
+<p>Buffer provides access to the internal packet buffer. Note that by default it returns a copy of the internal buffer so any modifications do NOT affect the packet.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>copy</td>
+      <td>Whether to return a copy of the buffer. Defaults to true.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h4 id="buffer-1">buffer=</h4>
+
+<p>Buffer= sets the internal packet buffer. Note that it copies the passed in buffer so any future modifications to the passed in buffer do NOT affect the packet.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>buffer</td>
+      <td>String containing the raw binary buffer to back this packet</td>
+    </tr>
+  </tbody>
+</table>
+
+<h4 id="clone-and-dup">clone and dup</h4>
+
+<p>Clone and dup make a copy of the packet instance with a new internal buffer. Thus the newly cloned packet can modify its values independently of the previous packet.</p>
+
+<h4 id="identified">identified?</h4>
+
+<p>Returns whether this packet has been identified which means it has its internal target_name and packet_name set. Initially when data is read from an interface a nil packet is created like so: <code class="highlighter-rouge">Packet.new(nil, nil, :BIG_ENDIAN, nil, data)</code>. The packet then needs to be identified by calling identify?.</p>
+
+<h4 id="identify">identify?</h4>
+
+<p>Returns whether the buffer of data parameter represents this packet. It does this by iterating over all the packet items that were created with an ID value (see <a href="/docs/cmdtlm/#id_parameter">id_parameter</a> and <a href="/docs/cmdtlm/#id_item">id_item</a>) and checking whether the ID values are present in the buffer.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>buffer</td>
+      <td>String containing the raw binary buffer to identify as this packet</td>
+    </tr>
+  </tbody>
+</table>
+
+<h4 id="restore_defaults">restore_defaults</h4>
+
+<p>Set all items in the packet to their default values. This only makes sense for command packets which define default values for parameters.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>buffer</td>
+      <td>Raw data buffer to write default values to (defaults to the current packet)</td>
+    </tr>
+    <tr>
+      <td>skip_item_names</td>
+      <td>Array of item names to skip when setting defaults</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Definition File:</p>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>COMMAND TGT PKT BIG_ENDIAN <span class="s2">"Packet"</span>
+  APPEND_PARAMETER VALUE 32 UINT MIN MAX 10 <span class="s2">"Value"</span>
+  APPEND_PARAMETER OTHER 32 UINT MIN MAX 1 <span class="s2">"Other"</span>
+</code></pre>
+</div>
+
+<p>Example:</p>
+<div class="language-ruby highlighter-rouge"><pre class="highlight"><code><span class="n">command</span> <span class="o">=</span> <span class="no">System</span><span class="p">.</span><span class="nf">commands</span><span class="p">.</span><span class="nf">packet</span><span class="p">(</span><span class="s2">"TGT"</span><span class="p">,</span> <span class="s2">"PKT"</span><span class="p">)</span>
+<span class="n">command</span><span class="p">.</span><span class="nf">read</span><span class="p">(</span><span class="s2">"VALUE"</span><span class="p">)</span> <span class="c1">#=&gt; Returns 0</span>
+<span class="n">command</span><span class="p">.</span><span class="nf">restore_defaults</span>
+<span class="n">command</span><span class="p">.</span><span class="nf">read</span><span class="p">(</span><span class="s2">"VALUE"</span><span class="p">)</span> <span class="c1">#=&gt; Returns 10</span>
+<span class="n">command</span><span class="p">.</span><span class="nf">read</span><span class="p">(</span><span class="s2">"OTHER"</span><span class="p">)</span> <span class="c1">#=&gt; Returns 1</span>
+<span class="n">command</span><span class="p">.</span><span class="nf">write</span><span class="p">(</span><span class="s2">"VALUE"</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<span class="n">command</span><span class="p">.</span><span class="nf">write</span><span class="p">(</span><span class="s2">"OTHER"</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<span class="c1"># Since we want to use the skip_item_names parameter we have to pass in the buffer</span>
+<span class="c1"># Since we want to directly modify this packet buffer we use command.buffer(false)</span>
+<span class="c1"># because the default command.buffer returns a COPY of the internal buffer</span>
+<span class="n">command</span><span class="p">.</span><span class="nf">restore_defaults</span><span class="p">(</span><span class="n">command</span><span class="p">.</span><span class="nf">buffer</span><span class="p">(</span><span class="kp">false</span><span class="p">),</span> <span class="p">[</span><span class="s1">'OTHER'</span><span class="p">])</span>
+<span class="n">command</span><span class="p">.</span><span class="nf">read</span><span class="p">(</span><span class="s2">"VALUE"</span><span class="p">)</span> <span class="c1">#=&gt; Returns 10 (default)</span>
+<span class="n">command</span><span class="p">.</span><span class="nf">read</span><span class="p">(</span><span class="s2">"OTHER"</span><span class="p">)</span> <span class="c1">#=&gt; Returns 0 (not default)</span>
+</code></pre>
+</div>
+
+<h4 id="out_of_limits">out_of_limits</h4>
+
+<p>Out of limits returns an array of arrays indicating all the items in the packet that are out of limits. The internal array has four elements: target name, packet name, item name, and the item limits state. The out of limits item states are :RED_HIGH, :YELLOW_HIGH, :RED_LOW, or :YELLOW_LOW.</p>
+
+<p>Example:</p>
+<div class="language-ruby highlighter-rouge"><pre class="highlight"><code><span class="n">packet</span> <span class="o">=</span> <span class="no">System</span><span class="p">.</span><span class="nf">telemetry</span><span class="p">.</span><span class="nf">packet</span><span class="p">(</span><span class="s2">"TGT"</span><span class="p">,</span> <span class="s2">"PKT"</span><span class="p">)</span>
+<span class="n">packet</span><span class="p">.</span><span class="nf">out_of_limits</span><span class="p">.</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">tgt</span><span class="p">,</span> <span class="n">pkt</span><span class="p">,</span> <span class="n">item</span><span class="p">,</span> <span class="n">state</span><span class="o">|</span>
+  <span class="nb">puts</span> <span class="s2">"tgt:</span><span class="si">#{</span><span class="n">tgt</span><span class="si">}</span><span class="s2"> pkt:</span><span class="si">#{</span><span class="n">pkt</span><span class="si">}</span><span class="s2"> item:</span><span class="si">#{</span><span class="n">item</span><span class="si">}</span><span class="s2"> state:</span><span class="si">#{</span><span class="n">state</span><span class="si">}</span><span class="s2">"</span>
+<span class="k">end</span>
+</code></pre>
+</div>
+
+<p>Note that this code only works as expected inside the COSMOS Server, for example in a background task. If this code is executed in Script Runner you will retrieve a local copy of the packet which will not have any out of limits items.</p>
 
           
 

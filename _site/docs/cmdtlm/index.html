@@ -1437,6 +1437,10 @@
 <li class="toc-entry toc-h3"><a href="#command">COMMAND</a></li>
 <li class="toc-entry toc-h3"><a href="#select_command">SELECT_COMMAND</a></li>
 <li class="toc-entry toc-h2"><a href="#command-modifiers">Command Modifiers</a></li>
+<li class="toc-entry toc-h3"><a href="#hidden">HIDDEN</a></li>
+<li class="toc-entry toc-h3"><a href="#disabled">DISABLED</a></li>
+<li class="toc-entry toc-h3"><a href="#disable_messages">DISABLE_MESSAGES</a></li>
+<li class="toc-entry toc-h3"><a href="#meta">META</a></li>
 <li class="toc-entry toc-h3"><a href="#hazardous">HAZARDOUS</a></li>
 <li class="toc-entry toc-h3"><a href="#parameter">PARAMETER</a></li>
 <li class="toc-entry toc-h3"><a href="#append_parameter">APPEND_PARAMETER</a></li>
@@ -1446,8 +1450,6 @@
 <li class="toc-entry toc-h3"><a href="#append_array_parameter">APPEND_ARRAY_PARAMETER</a></li>
 <li class="toc-entry toc-h3"><a href="#select_parameter">SELECT_PARAMETER</a></li>
 <li class="toc-entry toc-h3"><a href="#macro_append_start-and-macro_append_end">MACRO_APPEND_START and MACRO_APPEND_END</a></li>
-<li class="toc-entry toc-h3"><a href="#disable_messages">DISABLE_MESSAGES</a></li>
-<li class="toc-entry toc-h3"><a href="#meta">META</a></li>
 <li class="toc-entry toc-h2"><a href="#parameter-modifiers">Parameter Modifiers</a></li>
 <li class="toc-entry toc-h3"><a href="#required">REQUIRED</a></li>
 <li class="toc-entry toc-h3"><a href="#format_string">FORMAT_STRING</a></li>
@@ -1478,6 +1480,7 @@
 <li class="toc-entry toc-h3"><a href="#meta-2">META</a></li>
 <li class="toc-entry toc-h3"><a href="#processor">PROCESSOR</a></li>
 <li class="toc-entry toc-h3"><a href="#allow_short">ALLOW_SHORT</a></li>
+<li class="toc-entry toc-h3"><a href="#hidden-1">HIDDEN</a></li>
 <li class="toc-entry toc-h2"><a href="#item-modifiers">Item Modifiers</a></li>
 <li class="toc-entry toc-h3"><a href="#format_string-1">FORMAT_STRING</a></li>
 <li class="toc-entry toc-h3"><a href="#units-1">UNITS</a></li>
@@ -1582,6 +1585,52 @@
 <a id="command-modifiers" class="anchor" href="#command-modifiers" aria-hidden="true"><span class="octicon octicon-link"></span></a>Command Modifiers</h2>
 
 <p>The following keywords modify a command and are only applicable after the COMMAND or SELECT_COMMAND keywords. They are typically indented within the definition file to show ownership to the previously defined command.</p>
+
+<h3 id="hidden">
+<a id="hidden" class="anchor" href="#hidden" aria-hidden="true"><span class="octicon octicon-link"></span></a>HIDDEN</h3>
+
+<p>The HIDDEN keyword hides this command from all the COSMOS tools such as Command Sender and Handbook Creator. It also hides this command from appearing in the Script Runner popup helper when writing scripts. The command still exists in the system and can be sent by scripts.</p>
+
+<h3 id="disabled">
+<a id="disabled" class="anchor" href="#disabled" aria-hidden="true"><span class="octicon octicon-link"></span></a>DISABLED</h3>
+
+<p>The DISABLED keyword hides this command similar to the HIDDEN keyword. It also disables it from being sent by scripts. Attempts to send DISABLED commands result in the following error message: <code class="highlighter-rouge">ERROR: RuntimeError : Cannot send DISABLED command &lt;TGT&gt; &lt;PKT&gt;</code></p>
+
+<h3 id="disable_messages">
+<a id="disable_messages" class="anchor" href="#disable_messages" aria-hidden="true"><span class="octicon octicon-link"></span></a>DISABLE_MESSAGES</h3>
+
+<p>Disable the COSMOS Command and Telemetry Server from printing cmd(…) messages for this command.  Commands are still logged.</p>
+
+<h3 id="meta">
+<a id="meta" class="anchor" href="#meta" aria-hidden="true"><span class="octicon octicon-link"></span></a>META</h3>
+
+<p>The META keyword stores metadata for the current command that can be used by custom tools for various purposes (For example to store additional information needed to generate FSW header files).</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Meta Name</td>
+      <td>Name of the metadata to store</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Meta Values</td>
+      <td>One or more values to be stored for this Meta Name</td>
+      <td>No</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">META FSW_TYPE <span class="s2">"struct command"</span></code></pre></figure>
 
 <h3 id="hazardous">
 <a id="hazardous" class="anchor" href="#hazardous" aria-hidden="true"><span class="octicon octicon-link"></span></a>HAZARDOUS</h3>
@@ -1980,42 +2029,6 @@ MACRO_APPEND_END</code></pre></figure>
 
 <p>This results in a command with the following mnemonics: VALUE_1, DATA_1, VALUE_2, and DATA_2. All VALUE parameters will have the same default of 1 and all DATA parameters have the same default of 2. Note that due to the dynamic nature of this keyword you must use the APPEND variation of the PARAMETER keywords.</p>
 
-<h3 id="disable_messages">
-<a id="disable_messages" class="anchor" href="#disable_messages" aria-hidden="true"><span class="octicon octicon-link"></span></a>DISABLE_MESSAGES</h3>
-
-<p>Disable the COSMOS Command and Telemetry Server from printing cmd(…) messages for this command.  Commands are still logged.</p>
-
-<h3 id="meta">
-<a id="meta" class="anchor" href="#meta" aria-hidden="true"><span class="octicon octicon-link"></span></a>META</h3>
-
-<p>The META keyword stores metadata for the current command that can be used by custom tools for various purposes (For example to store additional information needed to generate FSW header files).</p>
-
-<table>
-  <thead>
-    <tr>
-      <th>Parameter</th>
-      <th>Description</th>
-      <th>Required</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>Meta Name</td>
-      <td>Name of the metadata to store</td>
-      <td>Yes</td>
-    </tr>
-    <tr>
-      <td>Meta Values</td>
-      <td>One or more values to be stored for this Meta Name</td>
-      <td>No</td>
-    </tr>
-  </tbody>
-</table>
-
-<p>Example Usage:</p>
-
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">META FSW_TYPE <span class="s2">"struct command"</span></code></pre></figure>
-
 <h2 id="parameter-modifiers">
 <a id="parameter-modifiers" class="anchor" href="#parameter-modifiers" aria-hidden="true"><span class="octicon octicon-link"></span></a>Parameter Modifiers</h2>
 
@@ -2165,7 +2178,7 @@ APPEND_PARAMETER STRING 1024 STRING <span class="s2">"NOOP"</span> <span class="
 <h3 id="write_conversion">
 <a id="write_conversion" class="anchor" href="#write_conversion" aria-hidden="true"><span class="octicon octicon-link"></span></a>WRITE_CONVERSION</h3>
 
-<p>The WRITE_CONVERSION keyword applies a conversion to the current command parameter. This conversion is implemented in a custom Ruby file which should be located in the target’s lib folder and required by the target’s target.txt file. See the documentation in <link ac:anchor="TargetConfiguration">. The class must require ‘cosmos/conversions/conversion’ and inherit from Conversion. It must implement the initialize method if it takes extra parameters and must always implement the call method. The conversion factor is applied to the value entered by the user before it is written into the binary command packet and sent.</p>
+<p>The WRITE_CONVERSION keyword applies a conversion to the current command parameter. This conversion is implemented in a custom Ruby file which should be located in the target’s lib folder and required by the target’s target.txt file (see <a href="/docs/system/#require">REQUIRE</a>). The class must require ‘cosmos/conversions/conversion’ and inherit from Conversion. It must implement the initialize method if it takes extra parameters and must always implement the call method. The conversion factor is applied to the value entered by the user before it is written into the binary command packet and sent.</p>
 
 <table>
   <thead>
@@ -2280,7 +2293,7 @@ SEG_POLY_WRITE_CONVERSION 100 12 0.5 0.3 <span class="c"># Apply the conversion 
 <h3 id="generic_write_conversion_start-and-generic_write_conversion_end">
 <a id="generic_write_conversion_start-and-generic_write_conversion_end" class="anchor" href="#generic_write_conversion_start-and-generic_write_conversion_end" aria-hidden="true"><span class="octicon octicon-link"></span></a>GENERIC_WRITE_CONVERSION_START and GENERIC_WRITE_CONVERSION_END</h3>
 
-<p>**NOTE: Generic conversions are not a good long term solution.  Consider creating a conversion class and using WRITE_CONVERSION instead.  WRITE_CONVERSION is easier to debug and higher performance. **</p>
+<p>** NOTE: Generic conversions are not a good long term solution.  Consider creating a conversion class and using WRITE_CONVERSION instead.  WRITE_CONVERSION is easier to debug and higher performance. **</p>
 
 <p>The GENERIC_WRITE_CONVERSION_START keyword adds a generic conversion function to the current command parameter. This conversion factor is applied to the value entered by the user before it is written into the binary command packet and sent. The conversion is specified as ruby code that receives two implied parameters: ‘value’ which is the raw value being written, and ‘packet’ which is a reference to the command packet class (Note: referencing the packet as ‘myself’ is still supported for backwards compatibility). The last line of ruby code given should return the converted value. The GENERIC_WRITE_CONVERSION_END keyword specifies that all lines of ruby code for the conversion have been given.</p>
 
@@ -2846,6 +2859,11 @@ MACRO_APPEND_END</code></pre></figure>
 <a id="allow_short" class="anchor" href="#allow_short" aria-hidden="true"><span class="octicon octicon-link"></span></a>ALLOW_SHORT</h3>
 
 <p>Allows the telemetry packet to be received with a data portion that is smaller than the defined size without warnings.  Any extra space in the packet will be filled in with zeros by COSMOS.</p>
+
+<h3 id="hidden-1">
+<a id="hidden-1" class="anchor" href="#hidden-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>HIDDEN</h3>
+
+<p>The HIDDEN keyword hides this telemetry packet from all the COSMOS tools such as Packet Viewer, Telemetry Grapher and Handbook Creator. It also hides this telemetry from appearing in the Script Runner popup helper when writing scripts. The telemetry still exists in the system and can received and checked by scripts.</p>
 
 <h2 id="item-modifiers">
 <a id="item-modifiers" class="anchor" href="#item-modifiers" aria-hidden="true"><span class="octicon octicon-link"></span></a>Item Modifiers</h2>

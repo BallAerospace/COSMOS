@@ -46,6 +46,33 @@ SELECT_COMMAND COSMOS START_LOGGING
 
 The following keywords modify a command and are only applicable after the COMMAND or SELECT_COMMAND keywords. They are typically indented within the definition file to show ownership to the previously defined command.
 
+### HIDDEN
+
+The HIDDEN keyword hides this command from all the COSMOS tools such as Command Sender and Handbook Creator. It also hides this command from appearing in the Script Runner popup helper when writing scripts. The command still exists in the system and can be sent by scripts.
+
+### DISABLED
+
+The DISABLED keyword hides this command similar to the HIDDEN keyword. It also disables it from being sent by scripts. Attempts to send DISABLED commands result in the following error message: ```ERROR: RuntimeError : Cannot send DISABLED command <TGT> <PKT>```
+
+
+### DISABLE_MESSAGES
+
+Disable the COSMOS Command and Telemetry Server from printing cmd(...) messages for this command.  Commands are still logged.
+
+### META
+
+The META keyword stores metadata for the current command that can be used by custom tools for various purposes (For example to store additional information needed to generate FSW header files).
+
+| Parameter | Description | Required |
+|-----------|------------|---------|
+| Meta Name | Name of the metadata to store | Yes |
+| Meta Values | One or more values to be stored for this Meta Name | No |
+
+Example Usage:
+{% highlight bash %}
+META FSW_TYPE "struct command"
+{% endhighlight %}
+
 ### HAZARDOUS
 
 Designates the current command as a hazardous command. This affects scripts and the Command Sender tool by popping up a dialog asking for confirmation before sending the command.
@@ -214,24 +241,6 @@ MACRO_APPEND_END
 
 This results in a command with the following mnemonics: VALUE_1, DATA_1, VALUE_2, and DATA_2. All VALUE parameters will have the same default of 1 and all DATA parameters have the same default of 2. Note that due to the dynamic nature of this keyword you must use the APPEND variation of the PARAMETER keywords.
 
-### DISABLE_MESSAGES
-
-Disable the COSMOS Command and Telemetry Server from printing cmd(...) messages for this command.  Commands are still logged.
-
-### META
-
-The META keyword stores metadata for the current command that can be used by custom tools for various purposes (For example to store additional information needed to generate FSW header files).
-
-| Parameter | Description | Required |
-|-----------|------------|---------|
-| Meta Name | Name of the metadata to store | Yes |
-| Meta Values | One or more values to be stored for this Meta Name | No |
-
-Example Usage:
-{% highlight bash %}
-META FSW_TYPE "struct command"
-{% endhighlight %}
-
 ## Parameter Modifiers
 
 The following keywords modify a parameter and are only applicable after the various PARAMETER keywords as defined above. They are typically indented within the definition file to show ownership to the previously defined parameter.
@@ -310,7 +319,7 @@ APPEND_PARAMETER STRING 1024 STRING "NOOP" "String parameter"
 
 ### WRITE_CONVERSION
 
-The WRITE_CONVERSION keyword applies a conversion to the current command parameter. This conversion is implemented in a custom Ruby file which should be located in the target's lib folder and required by the target's target.txt file. See the documentation in <ac:link ac:anchor="TargetConfiguration"><ri:page ri:content-title="System Configuration" /></ac:link>. The class must require 'cosmos/conversions/conversion' and inherit from Conversion. It must implement the initialize method if it takes extra parameters and must always implement the call method. The conversion factor is applied to the value entered by the user before it is written into the binary command packet and sent.
+The WRITE_CONVERSION keyword applies a conversion to the current command parameter. This conversion is implemented in a custom Ruby file which should be located in the target's lib folder and required by the target's target.txt file (see [REQUIRE](/docs/system/#require)). The class must require 'cosmos/conversions/conversion' and inherit from Conversion. It must implement the initialize method if it takes extra parameters and must always implement the call method. The conversion factor is applied to the value entered by the user before it is written into the binary command packet and sent.
 
 | Parameter | Description | Required |
 |-----------|------------|---------|
@@ -371,7 +380,7 @@ SEG_POLY_WRITE_CONVERSION 100 12 0.5 0.3 # Apply the conversion to all values >=
 
 ### GENERIC_WRITE_CONVERSION_START and GENERIC_WRITE_CONVERSION_END
 
-**NOTE: Generic conversions are not a good long term solution.  Consider creating a conversion class and using WRITE_CONVERSION instead.  WRITE_CONVERSION is easier to debug and higher performance. **
+** NOTE: Generic conversions are not a good long term solution.  Consider creating a conversion class and using WRITE_CONVERSION instead.  WRITE_CONVERSION is easier to debug and higher performance. **
 
 The GENERIC_WRITE_CONVERSION_START keyword adds a generic conversion function to the current command parameter. This conversion factor is applied to the value entered by the user before it is written into the binary command packet and sent. The conversion is specified as ruby code that receives two implied parameters: 'value' which is the raw value being written, and 'packet' which is a reference to the command packet class (Note: referencing the packet as 'myself' is still supported for backwards compatibility). The last line of ruby code given should return the converted value. The GENERIC_WRITE_CONVERSION_END keyword specifies that all lines of ruby code for the conversion have been given.
 
@@ -675,6 +684,10 @@ PROCESSOR TEMP1HIGH watermark_processor.rb TEMP1
 ### ALLOW_SHORT
 
 Allows the telemetry packet to be received with a data portion that is smaller than the defined size without warnings.  Any extra space in the packet will be filled in with zeros by COSMOS.
+
+### HIDDEN
+
+The HIDDEN keyword hides this telemetry packet from all the COSMOS tools such as Packet Viewer, Telemetry Grapher and Handbook Creator. It also hides this telemetry from appearing in the Script Runner popup helper when writing scripts. The telemetry still exists in the system and can received and checked by scripts.
 
 ## Item Modifiers
 
