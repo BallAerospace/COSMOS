@@ -63,35 +63,8 @@ module Cosmos
       cycle_time = nil,
       cycle_size = 2000000000,
       log_directory = nil,
-      asynchronous = false,
-      meta_default_filename = nil
+      asynchronous = false
     )
-      meta_default_filename = ConfigParser.handle_nil(meta_default_filename)
-
-      # Make sure the SYSTEM META packet exists in both commands and telemetry
-      System.commands.packet('SYSTEM', 'META')
-      packet = System.telemetry.packet('SYSTEM', 'META')
-
-      # Initialize the meta packet (if given default filename)
-      if meta_default_filename
-        parser = ConfigParser.new
-        Cosmos.set_working_dir do
-          parser.parse_file(meta_default_filename) do |keyword, params|
-            begin
-            item = packet.get_item(keyword)
-            if item.data_type == :STRING or item.data_type == :BLOCK
-              value = params[0]
-            else
-              value = params[0].convert_to_value
-            end
-            packet.write(keyword, value)
-            rescue => err
-              raise parser.error(err, "ITEM_NAME VALUE")
-            end
-          end
-        end
-      end
-
       raise "log_type must be :CMD or :TLM" unless LOG_TYPES.include? log_type
       @log_type = log_type
       if ConfigParser.handle_nil(log_name)

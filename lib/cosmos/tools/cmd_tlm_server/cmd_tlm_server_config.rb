@@ -246,8 +246,7 @@ module Cosmos
             raise parser.error("No BACKGROUND_TASK defined") if @background_tasks.empty?
             @background_tasks[-1].stopped = true
 
-          # TODO: Deprecate COLLECT_META_DATA
-          when 'COLLECT_METADATA', 'COLLECT_META_DATA'
+          when 'COLLECT_METADATA'
             parser.verify_num_parameters(0, 0, "#{keyword}")
             @metadata = true
 

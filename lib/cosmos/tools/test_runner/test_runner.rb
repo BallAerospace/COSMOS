@@ -1077,8 +1077,7 @@ module Cosmos
           parser.verify_num_parameters(0, 0, keyword)
           @@results_writer.auto_cycle_logs = true
 
-        # TODO: Deprecate COLLECT_META_DATA
-        when 'COLLECT_METADATA', 'COLLECT_META_DATA'
+        when 'COLLECT_METADATA'
           parser.verify_num_parameters(0, 0, "#{keyword}")
           @@results_writer.metadata = true
 
