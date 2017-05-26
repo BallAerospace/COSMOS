@@ -90,7 +90,7 @@ module Cosmos
       @filename = nil
       @label = nil
       @entry_header = String.new
-      @start_time = Time.now
+      @start_time = Time.now.sys
 
       @cancel_threads = false
       @logging_thread = nil
@@ -197,7 +197,7 @@ module Cosmos
         @file.write(file_header)
         @file_size += file_header.length
       end
-      @start_time = Time.now
+      @start_time = Time.now.sys
       Logger.instance.info "Log File Opened : #{@filename}"
       start_new_file_hook(packet)
     rescue => err
@@ -300,7 +300,7 @@ module Cosmos
         # The check against start_time needs to be mutex protected to prevent a packet coming in between the check
         # and closing the file
         @mutex.synchronize do
-          if @logging_enabled and @cycle_time and (Time.now - @start_time) > @cycle_time
+          if @logging_enabled and @cycle_time and (Time.now.sys - @start_time) > @cycle_time
             close_file(false)
           end
         end
@@ -318,7 +318,7 @@ module Cosmos
 
     def build_entry_header(packet)
       received_time = packet.received_time
-      received_time = Time.now unless received_time
+      received_time = Time.now.sys unless received_time
       # This is an optimization to avoid creating a new entry_header object
       # each time we create an entry_header which we do a LOT!
       @entry_header.clear

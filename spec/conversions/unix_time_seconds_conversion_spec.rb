@@ -63,12 +63,12 @@ module Cosmos
     describe "to_s" do
       it "returns the seconds conversion" do
         gc = UnixTimeSecondsConversion.new('TIME')
-        expect(gc.to_s).to eql "Time.at(packet.read('TIME', :RAW, buffer), 0).to_f"
+        expect(gc.to_s).to eql "Time.at(packet.read('TIME', :RAW, buffer), 0).sys.to_f"
       end
 
       it "returns the microseconds conversion" do
         gc = UnixTimeSecondsConversion.new('TIME','TIME_US')
-        expect(gc.to_s).to eql "Time.at(packet.read('TIME', :RAW, buffer), packet.read('TIME_US', :RAW, buffer)).to_f"
+        expect(gc.to_s).to eql "Time.at(packet.read('TIME', :RAW, buffer), packet.read('TIME_US', :RAW, buffer)).sys.to_f"
       end
     end
   end

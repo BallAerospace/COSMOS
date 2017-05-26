@@ -114,7 +114,7 @@ module Cosmos
           begin
             while(true)
               break if @@closing_all
-              time = Time.now
+              time = Time.now.sys
 
               begin
                 # Gather item values for value widgets
@@ -142,7 +142,7 @@ module Cosmos
               end
 
               Qt.execute_in_main_thread {update_gui()} if @alive and (@mode == :REALTIME)
-              delta = Time.now - time
+              delta = Time.now.sys - time
               break if @@closing_all
               if @polling_period - delta > 0
                 break if @value_sleeper.sleep(@polling_period - delta)

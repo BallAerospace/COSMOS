@@ -248,7 +248,7 @@ module Cosmos
     # @return [Array(Packet)] Array of the stale packets
     def check_stale
       stale = []
-      time = Time.now
+      time = Time.now.sys
       @config.telemetry.each do |target_name, target_packets|
         target_packets.each do |packet_name, packet|
           if packet.received_time and (!packet.stale) and (time - packet.received_time > System.staleness_seconds)

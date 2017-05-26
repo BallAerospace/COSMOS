@@ -40,7 +40,7 @@ module Cosmos
 
     def start(test_type, test_suite_class, test_class = nil, test_case = nil, settings = nil)
       @results = []
-      @start_time = Time.now
+      @start_time = Time.now.sys
       @filename = File.join(@path, File.build_timestamped_filename(['testrunner', 'results']))
       @data_package_filename = @filename[0..-5] + '.zip'
       Cosmos.set_working_dir do
@@ -111,7 +111,7 @@ module Cosmos
     end
 
     def complete
-      @stop_time = Time.now
+      @stop_time = Time.now.sys
       cycle_logs() if @auto_cycle_logs
       footer()
     ensure
@@ -243,12 +243,12 @@ module Cosmos
     end
 
     def write(string)
-      @file.write(Time.now.formatted + ': ' + string)
+      @file.write(Time.now.sys.formatted + ': ' + string)
       @file.flush
     end
 
     def puts(string)
-      @file.puts(Time.now.formatted + ': ' + string)
+      @file.puts(Time.now.sys.formatted + ': ' + string)
       @file.flush
     end
 

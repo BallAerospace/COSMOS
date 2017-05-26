@@ -125,9 +125,9 @@ module Cosmos
     def log_message(severity_string, message, &block)
       @mutex.synchronize do
         if block_given?
-          puts "#{Time.now.formatted} #{@detail_string ? "(#{@detail_string}):" : ''}#{severity_string} " << yield
+          puts "#{Time.now.sys.formatted} #{@detail_string ? "(#{@detail_string}):" : ''}#{severity_string} " << yield
         else
-          puts "#{Time.now.formatted} #{@detail_string ? "(#{@detail_string}):" : ''}#{severity_string} #{message}"
+          puts "#{Time.now.sys.formatted} #{@detail_string ? "(#{@detail_string}):" : ''}#{severity_string} #{message}"
         end
       end
     end

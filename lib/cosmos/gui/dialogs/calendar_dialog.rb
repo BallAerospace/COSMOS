@@ -32,8 +32,12 @@ module Cosmos
       if initial_time
         @time = initial_time
       else
-        time_now = Time.now
-        @time = Time.local(time_now.year, time_now.mon, time_now.day)
+        time_now = Time.now.sys
+        if time_now.utc?
+          @time = Time.utc(time_now.year, time_now.mon, time_now.day)
+        else
+          @time = Time.local(time_now.year, time_now.mon, time_now.day)
+        end
       end
       @show_time = show_time
 
@@ -54,7 +58,11 @@ module Cosmos
 
       if @show_time
         @time_layout = Qt::HBoxLayout.new
-        @time_label = Qt::Label.new('Time:')
+        if @time.utc?
+          @time_label = Qt::Label.new("Time (UTC):")
+        else
+          @time_label = Qt::Label.new("Time (UTC #{@time.strftime('%z')}):")
+        end
         @time_layout.addWidget(@time_label)
         @time_layout.addStretch
         @hour = Qt::LineEdit.new(sprintf("%02u", @time.hour))

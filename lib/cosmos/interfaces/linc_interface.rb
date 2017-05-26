@@ -450,7 +450,7 @@ module Cosmos
       # make packet - store on object as a defined packet of type command that this handshakes
       @identified_command = System.commands.packet(interface_target_name, packet_name).clone
       @identified_command.buffer = packet_data
-      @identified_command.received_time = Time.at(handshake.read('TIME_SECONDS'), handshake.read('TIME_MICROSECONDS'))
+      @identified_command.received_time = Time.at(handshake.read('TIME_SECONDS'), handshake.read('TIME_MICROSECONDS')).sys
     end
 
     def get_cmd_guid(fieldname_guid)

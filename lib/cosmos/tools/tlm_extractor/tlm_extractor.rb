@@ -599,7 +599,7 @@ module Cosmos
         # Configure Tlm Extractor Config
         sync_gui_to_config()
 
-        start_time = Time.now
+        start_time = Time.now.sys
         ProgressDialog.execute(self, 'Log File Progress', 600, 300) do |progress_dialog|
           progress_dialog.cancel_callback = method(:cancel_callback)
           progress_dialog.enable_cancel_button
@@ -657,7 +657,7 @@ module Cosmos
           ensure
             progress_dialog.set_step_progress(1.0) if !@cancel
             progress_dialog.set_overall_progress(1.0) if !@cancel
-            progress_dialog.append_text("Runtime: #{Time.now - start_time} s")
+            progress_dialog.append_text("Runtime: #{Time.now.sys - start_time} s")
             progress_dialog.complete
             if @batch_filenames.empty?
               Qt.execute_in_main_thread(true) do

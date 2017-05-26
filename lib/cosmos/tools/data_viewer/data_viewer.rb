@@ -253,7 +253,7 @@ module Cosmos
                   else
                     Qt.execute_in_main_thread(true) { @realtime_button_bar.state = 'Running' }
                   end
-                  Qt.execute_in_main_thread(true) { statusBar.showMessage("Connected to Command and Telemetry Server: #{Time.now.formatted}") }
+                  Qt.execute_in_main_thread(true) { statusBar.showMessage("Connected to Command and Telemetry Server: #{Time.now.sys.formatted}") }
                 rescue DRb::DRbConnError
                   break if @cancel_thread
                   Qt.execute_in_main_thread(true) do
@@ -294,7 +294,7 @@ module Cosmos
                   rescue RuntimeError => error
                     raise error unless error.message =~ /queue/
                     break if @cancel_thread
-                    Qt.execute_in_main_thread(true) { statusBar.showMessage(tr("Connection Dropped by Command and Telemetry Server: #{Time.now.formatted}")) }
+                    Qt.execute_in_main_thread(true) { statusBar.showMessage(tr("Connection Dropped by Command and Telemetry Server: #{Time.now.sys.formatted}")) }
                     break # Let outer loop resubscribe
                   end
                 end

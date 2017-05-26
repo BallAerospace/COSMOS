@@ -58,6 +58,8 @@ module Cosmos
     instance_attr_reader :staleness_seconds
     # @return [Symbol] The current limits set
     instance_attr_reader :limits_set
+    # @return [Boolean] Whether to use UTC or local times
+    instance_attr_reader :use_utc
 
     # Known COSMOS ports
     KNOWN_PORTS = ['CTS_API', 'TLMVIEWER_API', 'CTS_PREIDENTIFIED', 'CTS_CMD_ROUTER']
@@ -89,6 +91,7 @@ module Cosmos
       @acl = nil
       @staleness_seconds = 30
       @limits_set = :DEFAULT
+      @use_utc = false
 
       @ports = {}
       @ports['CTS_API'] = 7777
@@ -219,6 +222,7 @@ module Cosmos
       @targets = {}
       # Set config to nil so things will lazy load later
       @config = nil
+      @use_utc = false
       acl_list = []
       all_allowed = false
       first_procedures_path = true
@@ -337,6 +341,10 @@ module Cosmos
             parser.verify_num_parameters(1, 1, usage)
             @cmd_tlm_version = parameters[0]
 
+          when 'TIME_ZONE_UTC'
+            parser.verify_num_parameters(0, 0, "#{keyword}")
+            @use_utc = true
+
           else
             # blank lines will have a nil keyword and should not raise an exception
             raise parser.error("Unknown keyword '#{keyword}'") if keyword
@@ -344,6 +352,13 @@ module Cosmos
         end # parser.parse_file
 
         @acl = ACL.new(acl_list, ACL::ALLOW_DENY) unless acl_list.empty?
+
+        # Explicitly set up time to use UTC or local
+        if @use_utc
+          Time.use_utc()
+        else
+          Time.use_local()
+        end
 
         # Second pass - Process targets
         process_targets(parser, filename, configuration_directory)

@@ -297,7 +297,7 @@ module Cosmos
           while true
             begin
               request_data = JsonDRb.receive_message(my_socket, data, pipe_reader)
-              start_time = Time.now
+              start_time = Time.now.sys
               @request_count += 1
             rescue Errno::ECONNRESET, Errno::ECONNABORTED, Errno::ENOTSOCK, IOError
               # Socket was closed
@@ -373,7 +373,7 @@ module Cosmos
       response_data = response.to_json(:allow_nan => true)
       STDOUT.puts response_data if JsonDRb.debug?
       JsonDRb.send_data(socket, response_data)
-      end_time = Time.now
+      end_time = Time.now.sys
       request_time = end_time - start_time
       add_request_time(request_time)
     rescue

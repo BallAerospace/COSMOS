@@ -309,7 +309,7 @@ module Cosmos
       time_microseconds = @file.read(4)
       return [nil, nil, nil, nil] if time_microseconds.nil? or time_microseconds.length != 4
       time_microseconds = time_microseconds.unpack('N')[0]
-      received_time = Time.at(time_seconds, time_microseconds)
+      received_time = Time.at(time_seconds, time_microseconds).sys
 
       # Read Target Name
       target_name = @file.read_length_bytes(1)

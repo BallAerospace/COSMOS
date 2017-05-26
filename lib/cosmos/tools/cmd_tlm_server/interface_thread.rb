@@ -93,7 +93,7 @@ module Cosmos
                     next
                   end
                 end
-                packet.received_time = Time.now unless packet.received_time
+                packet.received_time = Time.now.sys unless packet.received_time
               rescue Exception => err
                 handle_connection_lost(err)
                 if @cancel_thread
