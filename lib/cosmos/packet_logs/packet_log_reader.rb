@@ -150,7 +150,12 @@ module Cosmos
 
       # Auto change configuration on SYSTEM META
       if packet.target_name == 'SYSTEM'.freeze and packet.packet_name == 'META'.freeze
-        System.load_configuration(packet.read('CONFIG'))
+        # Manually read the configuration from the buffer because the packet might not be identified if
+        # identify_and_define is false
+        buffer = packet.buffer(false)
+        if buffer.length >= 33
+          System.load_configuration(BinaryAccessor.read(8, 256, :STRING, buffer, :BIG_ENDIAN))
+        end
       end
 
       packet.received_count += 1
