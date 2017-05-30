@@ -34,7 +34,7 @@ class File
   # the date before appending the extension.
   #
   # For example:
-  #   File.build_timestamped_filename(['test','only'], '.bin', Time.now)
+  #   File.build_timestamped_filename(['test','only'], '.bin', Time.now.sys)
   #   # result is YYYY_MM_DD_HH_MM_SS_test_only.bin
   #
   # @param tags [Array<String>] An array of strings to be joined by underscores
@@ -43,7 +43,7 @@ class File
   # @param time [Time] The time to format into the filename
   # @return [String] The filename string containing the timestamp, tags, and
   #   extension
-  def self.build_timestamped_filename(tags = nil, extension = '.txt', time = Time.now)
+  def self.build_timestamped_filename(tags = nil, extension = '.txt', time = Time.now.sys)
     timestamp = sprintf("%04u_%02u_%02u_%02u_%02u_%02u", time.year, time.month, time.mday, time.hour, time.min, time.sec)
     tags ||= []
     tags.compact!

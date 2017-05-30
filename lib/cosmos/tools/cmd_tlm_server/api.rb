@@ -41,6 +41,7 @@ module Cosmos
         'tlm_variable',
         'set_tlm',
         'set_tlm_raw',
+        'inject_tlm',
         'get_tlm_buffer',
         'get_tlm_packet',
         'get_tlm_values',
@@ -78,6 +79,12 @@ module Cosmos
         'connect_router',
         'disconnect_router',
         'router_state',
+        'get_target_info',
+        'get_interface_info',
+        'get_router_info',
+        'get_cmd_cnt',
+        'get_tlm_cnt',
+        'get_packet_logger_info',
         'get_cmd_log_filename',
         'get_tlm_log_filename',
         'start_logging',
@@ -464,7 +471,15 @@ module Cosmos
     #   description).
     def set_tlm(*args)
       target_name, packet_name, item_name, value = set_tlm_process_args(args, 'set_tlm')
+      if target_name == 'SYSTEM'.freeze and packet_name == 'META'.freeze
+        raise "set_tlm not allowed on #{target_name} #{packet_name} #{item_name}" if ['PKTID', 'CONFIG'].include?(item_name)
+      end
       System.telemetry.set_value(target_name, packet_name, item_name, value, :CONVERTED)
+      if target_name == 'SYSTEM'.freeze and packet_name == 'META'.freeze
+        tlm_packet = System.telemetry.packet('SYSTEM', 'META')
+        cmd_packet = System.commands.packet('SYSTEM', 'META')
+        cmd_packet.buffer = tlm_packet.buffer
+      end
       System.telemetry.packet(target_name, packet_name).check_limits(System.limits_set, true)
       nil
     end
@@ -490,6 +505,95 @@ module Cosmos
       target_name, packet_name, item_name, value = set_tlm_process_args(args, 'set_tlm_raw')
       System.telemetry.set_value(target_name, packet_name, item_name, value, :RAW)
       System.telemetry.packet(target_name, packet_name).check_limits(System.limits_set, true)
+      nil
+    end
+
+    # Injects a packet into the system as if it was received from an interface
+    #
+    # @param target_name[String] Target name of the packet
+    # @param packet_name[String] Packet name of the packet
+    # @param item_hash[Hash] Hash of item_name and value for each item you want to change from the current value table
+    # @param value_type[Symbol/String] Type of the values in the item_hash (RAW or CONVERTED)
+    # @param send_routers[Boolean] Whether or not to send to routers for the target's interface
+    # @param send_packet_log_writers[Boolean] Whether or not to send to the packet log writers for the target's interface
+    # @param create_new_logs[Boolean] Whether or not to create new log files before writing this packet to logs
+    def inject_tlm(target_name, packet_name, item_hash = nil, value_type = :CONVERTED, send_routers = true, send_packet_log_writers = true, create_new_logs = false)
+      received_time = Time.now
+      target = System.targets[target_name.upcase]
+      raise "Unknown target: #{target_name}" unless target
+
+      # Find and clone the telemetry packet
+      cvt_packet = System.telemetry.packet(target_name, packet_name)
+      packet = cvt_packet.clone
+      packet.received_time = received_time
+
+      # Update the packet with item_hash
+      value_type = value_type.to_s.intern
+      item_hash.each do |item_name, item_value|
+        packet.write(item_name, item_value, value_type)
+      end
+
+      # Update current value table
+      cvt_packet.buffer = packet.buffer(false)
+      cvt_packet.received_time = received_time
+
+      # The interface does the following line, but I don't think inject_tlm should because it could confuse the interface
+      # interface.post_identify_packet(packet)
+      target.tlm_cnt += 1
+      packet.received_count += 1
+      cvt_packet.received_count += 1
+      CmdTlmServer.instance.identified_packet_callback.call(packet)
+
+      # Find the interface for this target
+      interface = target.interface
+
+      if interface
+        # Write to routers
+        if send_routers
+          interface.routers.each do |router|
+            begin
+              router.write(packet) if router.write_allowed? and router.connected?
+            rescue => err
+              Logger.error "Problem writing to router #{router.name} - #{err.class}:#{err.message}"
+            end
+          end
+        end
+
+        # Write to packet log writers
+        if create_new_logs or send_packet_log_writers
+          interface.packet_log_writer_pairs.each do |packet_log_writer_pair|
+            # Optionally create new log files
+            packet_log_writer_pair.tlm_log_writer.start if create_new_logs
+
+            # Optionally write to packet logs - Write errors are handled by the log writer
+            packet_log_writer_pair.tlm_log_writer.write(packet) if send_packet_log_writers
+          end
+        end
+      else
+        # Some packets don't have an interface - Can still write to standard routers and packet logs
+
+        # Write to routers
+        if send_routers
+          router = CmdTlmServer.instance.routers.all['PREIDENTIFIED_ROUTER']
+          begin
+            router.write(packet) if router.write_allowed? and router.connected?
+          rescue => err
+            Logger.error "Problem writing to router #{router.name} - #{err.class}:#{err.message}"
+          end
+        end
+
+        if create_new_logs or send_packet_log_writers
+          # Handle packet logging
+          packet_log_writer_pair = CmdTlmServer.instance.packet_logging.all['DEFAULT']
+
+          # Optionally create new logs
+          packet_log_writer_pair.tlm_log_writer.start if create_new_logs
+
+          # Optionally write to packet logs - Write errors are handled by the log writer
+          packet_log_writer_pair.tlm_log_writer.write(packet) if send_packet_log_writers
+        end
+      end
+
       nil
     end
 
@@ -845,6 +949,78 @@ module Cosmos
     #   'ATTEMPTING' or 'DISCONNECTED'.
     def router_state(router_name)
       CmdTlmServer.routers.state(router_name)
+    end
+
+    # Get information about a target
+    #
+    # @param target_name [String] Target name
+    # @return [Array<Numeric, Numeric>] Array of \[cmd_cnt, tlm_cnt]
+    def get_target_info(target_name)
+      target = System.targets[target_name.upcase]
+      raise "Unknown target: #{target_name}" unless target
+      return [target.cmd_cnt, target.tlm_cnt]
+    end
+
+    # Get information about an interface
+    #
+    # @param interface_name [String] Interface name
+    # @return [Array<String, Numeric, Numeric, Numeric, Numeric, Numeric, 
+    #   Numeric, Numeric>] Array containing \[state, num clients, 
+    #   TX queue size, RX queue size, TX bytes, RX bytes, Command count,
+    #   Telemetry count] for the interface
+    def get_interface_info(interface_name)
+      CmdTlmServer.interfaces.get_info(interface_name)
+    end
+
+    # Get information about a router
+    #
+    # @param router_name [String] Router name
+    # @return [Array<String, Numeric, Numeric, Numeric, Numeric, Numeric, 
+    #   Numeric, Numeric>] Array containing \[state, num clients, 
+    #   TX queue size, RX queue size, TX bytes, RX bytes, Pkts received,
+    #   Pkts sent] for the router
+    def get_router_info(router_name)
+      CmdTlmServer.routers.get_info(router_name)
+    end
+
+    # Get the transmit count for a command packet
+    #
+    # @param target_name [String] Target name of the command
+    # @param command_name [String] Packet name of the command
+    # @return [Numeric] Transmit count for the command
+    def get_cmd_cnt(target_name, command_name)
+      packet = System.commands.packet(target_name, command_name)
+      return packet.received_count
+    end
+
+    # Get the receive count for a telemetry packet
+    #
+    # @param target_name [String] Name of the target
+    # @param packet_name [String] Name of the packet
+    # @return [Numeric] Receive count for the telemetry packet
+    def get_tlm_cnt(target_name, packet_name)
+      packet = System.telemetry.packet(target_name, packet_name)
+      return packet.received_count
+    end
+
+    # Get information about a packet logger.
+    #
+    # @param packet_logger_name [String] Name of the packet logger
+    # @return [Array<<Array<String>, Boolean, Numeric, String, Numeric,
+    #   Boolean, Numeric, String, Numeric>] Array containing \[interfaces,
+    #   cmd logging enabled, cmd queue size, cmd filename, cmd file size, 
+    #   tlm logging enabled, tlm queue size, tlm filename, tlm file size]
+    #   for the packet logger
+    def get_packet_logger_info(packet_logger_name = 'DEFAULT')
+      logger_info = CmdTlmServer.packet_logging.get_info(packet_logger_name)
+      packet_log_writer_pair = CmdTlmServer.packet_logging.all[packet_logger_name.upcase]
+      interfaces = []
+      CmdTlmServer.interfaces.all.each do |interface_name, interface|
+        if interface.packet_log_writer_pairs.include?(packet_log_writer_pair)
+          interfaces << interface.name
+        end
+      end
+      return [interfaces] + logger_info
     end
 
     # @param packet_log_writer_name [String] The name of the packet log writer which

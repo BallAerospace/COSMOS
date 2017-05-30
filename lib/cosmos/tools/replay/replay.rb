@@ -258,7 +258,7 @@ module Cosmos
     def move_start
       if @log_filename and !@playback_thread
         packet = read_at_index(0, :FORWARD)
-        @start_time.value = packet.received_time.formatted if packet and packet.received_time
+        @start_time.value = packet.received_time.formatted(true, 3, true) if packet and packet.received_time
       else
         stop()
       end
@@ -307,7 +307,7 @@ module Cosmos
     def move_end
       if @log_filename and !@playback_thread
         packet = read_at_index(@packet_offsets.length - 1, :FORWARD)
-        @end_time.value = packet.received_time.formatted if packet and packet.received_time
+        @end_time.value = packet.received_time.formatted(true, 3, true) if packet and packet.received_time
       else
         stop()
       end
@@ -330,17 +330,17 @@ module Cosmos
           previous_packet = nil
           while (@playing)
             if @playback_delay
-              packet_start = Time.now
+              packet_start = Time.now.sys
               packet = read_at_index(@playback_index, direction)
               break unless packet
               delay_time = 0.0
               if @playback_delay > 0.0
-                delay_time = @playback_delay - (Time.now - packet_start)
+                delay_time = @playback_delay - (Time.now.sys - packet_start)
               elsif previous_packet and packet.received_time and previous_packet.received_time
                 if direction == :FORWARD
-                  delay_time = packet.received_time - previous_packet.received_time - (Time.now - packet_start)
+                  delay_time = packet.received_time - previous_packet.received_time - (Time.now.sys - packet_start)
                 else
-                  delay_time = previous_packet.received_time - packet.received_time - (Time.now - packet_start)
+                  delay_time = previous_packet.received_time - packet.received_time - (Time.now.sys - packet_start)
                 end
               end
               sleep(delay_time) if delay_time > 0.0
@@ -389,7 +389,7 @@ module Cosmos
         value = (((@playback_index - 1) / @packet_offsets.length.to_f) * 10000).to_i
         @slider.setSliderPosition(value)
         @slider.setValue(value)
-        @current_time.value = packet.received_time.formatted if packet and packet.received_time
+        @current_time.value = packet.received_time.formatted(true, 3, true) if packet and packet.received_time
       end
     end
 
@@ -477,6 +477,16 @@ module Cosmos
       end
     end
 
+    def closeEvent(event)
+      Cosmos.kill_thread(self, @playback_thread)
+      super(event)
+    end
+
+    # Gracefully kill threads
+    def graceful_kill
+      stop()
+    end
+
     def self.run(option_parser = nil, options = nil)
       Cosmos.catch_fatal_exception do
         unless option_parser and options
@@ -496,6 +506,6 @@ module Cosmos
       end
     end
 
-  end # class TlmViewer
+  end # class Replay
 
 end # module Cosmos

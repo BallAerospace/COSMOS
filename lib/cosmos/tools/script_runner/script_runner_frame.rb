@@ -203,7 +203,7 @@ module Cosmos
       @debug_history = []
       @debug_code_completion = nil
       @top_level_instrumented_cache = nil
-      @output_time = Time.now
+      @output_time = Time.now.sys
       initialize_variables()
 
       # Redirect $stdout and $stderr
@@ -391,7 +391,7 @@ module Cosmos
     def self.show_backtrace=(value)
       @@show_backtrace = value
       if @@show_backtrace and @@error
-        puts Time.now.formatted + " (SCRIPTRUNNER): "  + "Most recent exception:\n" + @@error.formatted
+        puts Time.now.sys.formatted + " (SCRIPTRUNNER): "  + "Most recent exception:\n" + @@error.formatted
       end
     end
 
@@ -1086,14 +1086,14 @@ module Cosmos
     end
 
     def scriptrunner_puts(string)
-      puts Time.now.formatted + " (SCRIPTRUNNER): "  + string
+      puts Time.now.sys.formatted + " (SCRIPTRUNNER): "  + string
     end
 
     def handle_output_io(filename = @current_filename, line_number = @current_line_number)
-      @output_time = Time.now
+      @output_time = Time.now.sys
       Qt.execute_in_main_thread(true) do
         if @output_io.string[-1..-1] == "\n"
-          time_formatted = Time.now.formatted
+          time_formatted = Time.now.sys.formatted
           lines_to_write = ''
           out_line_number = line_number.to_s
           out_filename = File.basename(filename) if filename
@@ -1165,7 +1165,7 @@ module Cosmos
       @use_instrumentation = true
       @active_script = @script
       @call_stack = []
-      @pre_line_time = Time.now
+      @pre_line_time = Time.now.sys
       @current_file = @filename
       @exceptions = nil
       @script_binding = nil
@@ -1291,7 +1291,7 @@ module Cosmos
 
           # Execute the script with warnings disabled
           Cosmos.disable_warnings do
-            @pre_line_time = Time.now
+            @pre_line_time = Time.now.sys
             Cosmos.set_working_dir do
               if text_binding
                 eval(instrumented_script, text_binding, @filename, 1)
@@ -1417,10 +1417,10 @@ module Cosmos
 
     def handle_line_delay
       if @@line_delay > 0.0
-        sleep_time = @@line_delay - (Time.now - @pre_line_time)
+        sleep_time = @@line_delay - (Time.now.sys - @pre_line_time)
         sleep(sleep_time) if sleep_time > 0.0
       end
-      @pre_line_time = Time.now
+      @pre_line_time = Time.now.sys
     end
 
     def continue_without_pausing_on_errors?
@@ -1717,7 +1717,7 @@ module Cosmos
       begin
         loop do
           break if @@cancel_output
-          handle_output_io() if (Time.now - @output_time) > 5.0
+          handle_output_io() if (Time.now.sys - @output_time) > 5.0
           break if @@cancel_output
           break if @@output_sleeper.sleep(1.0)
         end # loop

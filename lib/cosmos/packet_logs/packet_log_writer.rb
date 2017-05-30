@@ -11,6 +11,7 @@
 require 'thread'
 require 'socket' # For gethostname
 require 'cosmos/config/config_parser'
+require 'cosmos/packet_logs/packet_log_reader'
 
 module Cosmos
 
@@ -89,7 +90,7 @@ module Cosmos
       @filename = nil
       @label = nil
       @entry_header = String.new
-      @start_time = Time.now
+      @start_time = Time.now.sys
 
       @cancel_threads = false
       @logging_thread = nil
@@ -173,7 +174,7 @@ module Cosmos
     # Starting a new log file is a critical operation so the entire method is
     # wrapped with a rescue and handled with handle_critical_exception
     # Assumes mutex has already been taken
-    def start_new_file
+    def start_new_file(packet = nil)
       close_file(false)
       Cosmos.set_working_dir do
         # Create a filename that doesn't exist
@@ -196,19 +197,31 @@ module Cosmos
         @file.write(file_header)
         @file_size += file_header.length
       end
-      @start_time = Time.now
+      @start_time = Time.now.sys
       Logger.instance.info "Log File Opened : #{@filename}"
-      start_new_file_hook()
+      start_new_file_hook(packet)
     rescue => err
       Logger.instance.error "Error opening #{@filename} : #{err.formatted}"
       @logging_enabled = false
       Cosmos.handle_critical_exception(err)
     end
 
-    # Hook after writing the file header in start_new_file
+    # Adds the meta packet at the beginning of telemetry packet logs
     # Mutex is held during this hook
-    def start_new_file_hook
-      # Default do nothing
+    def start_new_file_hook(packet)
+      # If the first packet is a SYSTEM META packet, make sure the file header matches
+      if packet and packet.target_name == 'SYSTEM'.freeze and packet.packet_name == 'META'.freeze
+        file_header = build_file_header(packet.read('CONFIG'))
+        if file_header
+          @file.seek(0, IO::SEEK_SET)
+          @file.write(file_header)
+          @file_size = file_header.length
+        end
+      else
+        # Else log the first packet as the SYSTEM META packet
+        packet = System.telemetry.packet('SYSTEM', 'META')
+        write_packet(packet, false)
+      end
     end
 
     # Closing a log file isn't critical so we just log an error
@@ -244,15 +257,16 @@ module Cosmos
       begin
         # This check includes logging_enabled again because it might have changed since we acquired the mutex
         if @logging_enabled and (!@file or (@cycle_size and (@file_size + packet.length) > @cycle_size))
-          start_new_file()
+          start_new_file(packet)
         end
+        pre_write_entry_hook(packet)
         if @file
           @entry_header = build_entry_header(packet) # populate @entry_header
           if @entry_header
             @file.write(@entry_header)
             @file_size += @entry_header.length
           end
-          buffer = packet.buffer
+          buffer = packet.buffer(false)
           @file.write(buffer)
           @file_size += buffer.length
         end
@@ -262,6 +276,10 @@ module Cosmos
     rescue => err
       Logger.instance.error "Error writing #{@filename} : #{err.formatted}"
       Cosmos.handle_critical_exception(err)
+    end
+
+    # Hook to allow access to the packet immediately before writing its entry
+    def pre_write_entry_hook(packet)
     end
 
     def logging_thread_body
@@ -282,7 +300,7 @@ module Cosmos
         # The check against start_time needs to be mutex protected to prevent a packet coming in between the check
         # and closing the file
         @mutex.synchronize do
-          if @logging_enabled and @cycle_time and (Time.now - @start_time) > @cycle_time
+          if @logging_enabled and @cycle_time and (Time.now.sys - @start_time) > @cycle_time
             close_file(false)
           end
         end
@@ -291,16 +309,16 @@ module Cosmos
       end
     end
 
-    def build_file_header
+    def build_file_header(configuration_name = System.configuration_name)
       hostname = Socket.gethostname.to_s
-      file_header = "COSMOS2_#{@log_type}_#{System.configuration_name}_"
+      file_header = "COSMOS2_#{@log_type}_#{configuration_name.ljust(32, ' ')[0..31]}_"
       file_header << hostname.ljust(83)
       return file_header
     end
 
     def build_entry_header(packet)
       received_time = packet.received_time
-      received_time = Time.now unless received_time
+      received_time = Time.now.sys unless received_time
       # This is an optimization to avoid creating a new entry_header object
       # each time we create an entry_header which we do a LOT!
       @entry_header.clear

@@ -20,7 +20,7 @@
 "config/targets/INST/screens/limits.txt" 0x98430974
 "config/targets/INST/screens/ground.txt" 0x2D89624D
 "config/targets/INST/screens/block.txt" 0x77C3F2F0
-"config/targets/INST/screens/adcs.txt" 0xBF096628
+"config/targets/INST/screens/adcs.txt" 0x73D61F93
 "config/targets/INST/screens/other.txt" 0x2F7A1014
 "config/targets/INST/screens/tabs.txt" 0x8C8BB548
 "config/targets/INST/cmd_tlm_server.txt" 0x3FC45604
@@ -67,8 +67,11 @@
 "config/data/vswitchon.gif" 0xD747AC45
 "config/system/system.txt" 0xFA24EDAA
 "config/system/system2.txt" 0xC75EBA65
+"config/tools/launcher/launcher2.css" 0x69DA47AB
 "config/tools/launcher/launcher.txt" 0x1B96FE7C
 "config/tools/launcher/launcher2.txt" 0xB0B9B1D1
+"config/tools/launcher/launcher.css" 0x6314C0C0
+"config/tools/example_application.css" 0x2987FE3F
 "config/tools/table_manager/MCConfigurationTable_fsw1_def.txt" 0x6531613A
 "config/tools/table_manager/ConfigTables_def.txt" 0xC38DCB2A
 "config/tools/table_manager/ExampleTableDefinition.txt" 0x59060429
@@ -78,12 +81,13 @@
 "config/tools/tlm_viewer/tlm_viewer.txt" 0x825AF31C
 "config/tools/data_viewer/data_viewer.txt" 0xCAC3B017
 "config/tools/test_runner/test_runner.txt" 0x1EB7E49C
+"config/tools/test_runner/test_runner.css" 0x06987062
 "config/tools/tlm_extractor/tlm_extractor4.txt" 0x068824C2
 "config/tools/tlm_extractor/tlm_extractor3.txt" 0x475006AA
 "config/tools/tlm_extractor/tlm_extractor.txt" 0x0B97FA7D
 "config/tools/tlm_extractor/_adcs_time.txt" 0x3DAD5094
 "config/tools/tlm_extractor/tlm_extractor2.txt" 0x5C780BD2
-"config/tools/cmd_tlm_server/cmd_tlm_server2.txt" 0xF1C5C3B4
+"config/tools/cmd_tlm_server/cmd_tlm_server2.txt" 0x20C1091B
 "config/tools/cmd_tlm_server/cmd_tlm_server.txt" 0xFAE90F35
 "config/tools/tlm_grapher/README.txt" 0x93B2C07E
 "config/tools/opengl_builder/README.txt" 0x93B2C07E

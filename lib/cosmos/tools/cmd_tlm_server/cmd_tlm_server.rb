@@ -156,7 +156,7 @@ module Cosmos
       System.telemetry # Make sure definitions are loaded by starting anything
       return unless @json_drb.nil?
 
-      @@meta_callback.call(@config.meta_target_name, @config.meta_packet_name) if @@meta_callback if @config.meta_target_name and @config.meta_packet_name
+      @@meta_callback.call() if @@meta_callback if @config.metadata
 
       # Start DRb with access control
       @json_drb = JsonDRb.new
@@ -396,7 +396,7 @@ module Cosmos
             packets.each do |target_name, packet_name|
               if packet.target_name == target_name and packet.packet_name == packet_name
                 received_time = packet.received_time
-                received_time ||= Time.now
+                received_time ||= Time.now.sys
                 queue << [packet.buffer, target_name, packet_name,
                   received_time.tv_sec, received_time.tv_usec, packet.received_count]
                 if queue.length > queue_size
