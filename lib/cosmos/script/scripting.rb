@@ -463,6 +463,7 @@ module Cosmos
     end
 
     def check_file_cache_for_instrumented_script(path, md5)
+      original_script = ''
       instrumented_script = nil
       cached = true
       use_file_cache = true
@@ -478,41 +479,45 @@ module Cosmos
           end
         end
 
-        cache_filename = nil
+        cache_filename_orig = nil
+        cache_filename_inst = nil
         if use_file_cache
           # Check file based instrumented cache
           flat_path = path.tr("/", "_").gsub("\\", "_").tr(":", "_").tr(" ", "_")
-          flat_path_with_md5 = flat_path + '_' + md5
-          cache_filename = File.join(cache_path, flat_path_with_md5)
+          orig_filename = flat_path + '_orig_' + md5
+          inst_filename = flat_path + '_inst_' + md5
+          cache_filename_orig = File.join(cache_path, orig_filename)
+          cache_filename_inst = File.join(cache_path, inst_filename)
         end
 
-        if use_file_cache and File.exist?(cache_filename)
+        if use_file_cache and File.exist?(cache_filename_orig) and File.exist?(cache_filename_inst)
           # Use file cached instrumentation
-          File.open(cache_filename, 'r') {|file| instrumented_script = file.read}
+          File.open(cache_filename_orig, 'r') {|file| original_script = file.read}
+          File.open(cache_filename_inst, 'r') {|file| instrumented_script = file.read}
         else
           cached = false
 
           # Build instrumentation
-          file_text = ''
           begin
-            file_text = File.read(path)
+            original_script = File.read(path)
           rescue Exception => error
             raise "Error reading procedure file : #{path}"
           end
 
-          instrumented_script = ScriptRunnerFrame.instrument_script(file_text, path, true)
+          instrumented_script = ScriptRunnerFrame.instrument_script(original_script, path, true)
 
           # Cache instrumentation into file
           if use_file_cache
             begin
-              File.open(cache_filename, 'w') {|file| file.write(instrumented_script)}
+              File.open(cache_filename_orig, 'w') {|file| file.write(original_script)}
+              File.open(cache_filename_inst, 'w') {|file| file.write(instrumented_script)}
             rescue
               # Oh well, failed to write cache file
             end
           end
         end
       end
-      [instrumented_script, cached]
+      [original_script, instrumented_script, cached]
     end
 
     def start(procedure_name)
@@ -534,8 +539,9 @@ module Cosmos
           # Use cached instrumentation
           instrumented_script = instrumented_cache[0]
         else
-          instrumented_script, cached = check_file_cache_for_instrumented_script(path, md5)
+          original_script, instrumented_script, cached = check_file_cache_for_instrumented_script(path, md5)
           # Cache instrumentation into RAM
+          ScriptRunnerFrame.file_cache[path] = original_script
           ScriptRunnerFrame.instrumented_cache[path] = [instrumented_script, md5]
         end
 
