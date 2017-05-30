@@ -8,10 +8,10 @@ WinActivate Packet Viewer
 WinWaitActive Packet Viewer
 Sleep 500
 
-; Open the packet definition
+; Edit the packet definition
 Send !f ; File
 Sleep 500
-Send o ; Open
+Send e ; Edit
 Sleep 5000
 Send !f{x} ; Exit text editor
 WinWaitActive Packet Viewer
