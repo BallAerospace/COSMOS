@@ -40,6 +40,8 @@ module Cosmos
     attr_accessor :raw_logger_pair
     # @return [String] The ip address to bind to.  Default to ANY (0.0.0.0)
     attr_accessor :listen_address
+    # @return [boolean] Automatically send SYSTEM META on connect - Default false - Can be CMD/TLM
+    attr_accessor :auto_system_meta
 
     # @param write_port [Integer] The server write port. Clients should connect
     #   and expect to receive data from this port.
@@ -96,6 +98,7 @@ module Cosmos
       @interface = nil
       @connection_mutex = Mutex.new
       @listen_address = Socket::INADDR_ANY
+      @auto_system_meta = false
 
       @connected = false
     end
@@ -399,6 +402,11 @@ module Cosmos
       stream_protocol.connect(stream)
 
       if listen_write
+        if @auto_system_meta
+          meta_packet = System.telemetry.packet('SYSTEM', 'META').clone
+          stream_protocol.write(meta_packet)
+        end
+
         @write_connection_callback.call(stream_protocol) if @write_connection_callback
         @connection_mutex.synchronize do
           @write_stream_protocols << [stream_protocol, hostname, host_ip, port]

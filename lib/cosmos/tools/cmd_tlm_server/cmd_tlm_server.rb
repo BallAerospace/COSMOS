@@ -156,7 +156,7 @@ module Cosmos
       System.telemetry # Make sure definitions are loaded by starting anything
       return unless @json_drb.nil?
 
-      @@meta_callback.call(@config.meta_target_name, @config.meta_packet_name) if @@meta_callback if @config.meta_target_name and @config.meta_packet_name
+      @@meta_callback.call() if @@meta_callback if @config.metadata
 
       # Start DRb with access control
       @json_drb = JsonDRb.new

@@ -37,25 +37,25 @@ module Cosmos
         config = CmdTlmServerConfig.new(tf.path)
         cmd = Commanding.new(config)
         interfaces = Interfaces.new(config)
-        interfaces.map_target("COSMOS","MY_INT")
+        interfaces.map_target("SYSTEM","MY_INT")
         expect(interfaces.all["MY_INT"]).to receive(:write)
         expect(interfaces.all["MY_INT"].packet_log_writer_pairs[0].cmd_log_writer).to receive(:write)
 
         # Grab an existing packet
-        pkt = System.commands.packet('COSMOS','STARTLOGGING')
+        pkt = System.commands.packet('SYSTEM','STARTLOGGING')
         # Restore defaults so it can be identified
         pkt.restore_defaults
         # Set the target_name to nil to make it "unidentified"
         pkt.target_name = nil
 
-        count = System.targets['COSMOS'].cmd_cnt
-        cmd.send_command_to_target('COSMOS', pkt)
-        # Verify the COSMOS STARTLOGGING packet has been updated
-        expect(System.commands.packet("COSMOS","STARTLOGGING").buffer).to eql pkt.buffer
+        count = System.targets['SYSTEM'].cmd_cnt
+        cmd.send_command_to_target('SYSTEM', pkt)
+        # Verify the SYSTEM STARTLOGGING packet has been updated
+        expect(System.commands.packet("SYSTEM","STARTLOGGING").buffer).to eql pkt.buffer
         # Verify the target count didn't get updated
-        expect(System.targets['COSMOS'].cmd_cnt).to eq count
+        expect(System.targets['SYSTEM'].cmd_cnt).to eq count
         # Restore target name
-        pkt.target_name = 'COSMOS'
+        pkt.target_name = 'SYSTEM'
         tf.unlink
       end
 
@@ -66,18 +66,18 @@ module Cosmos
         config = CmdTlmServerConfig.new(tf.path)
         cmd = Commanding.new(config)
         interfaces = Interfaces.new(config)
-        interfaces.map_target("COSMOS","MY_INT")
+        interfaces.map_target("SYSTEM","MY_INT")
         expect(interfaces.all["MY_INT"]).to receive(:write)
         expect(interfaces.all["MY_INT"].packet_log_writer_pairs[0].cmd_log_writer).to receive(:write)
 
         # Grab an existing packet
-        pkt = System.commands.packet('COSMOS','STARTLOGGING')
+        pkt = System.commands.packet('SYSTEM','STARTLOGGING')
 
-        count = System.targets['COSMOS'].cmd_cnt
-        cmd.send_command_to_target('COSMOS', pkt)
-        # Verify the COSMOS STARTLOGGING packet has been updated
-        expect(System.commands.packet("COSMOS","STARTLOGGING").buffer).to eql pkt.buffer
-        expect(System.targets['COSMOS'].cmd_cnt).to eq count + 1
+        count = System.targets['SYSTEM'].cmd_cnt
+        cmd.send_command_to_target('SYSTEM', pkt)
+        # Verify the SYSTEM STARTLOGGING packet has been updated
+        expect(System.commands.packet("SYSTEM","STARTLOGGING").buffer).to eql pkt.buffer
+        expect(System.targets['SYSTEM'].cmd_cnt).to eq count + 1
         tf.unlink
       end
 
@@ -93,18 +93,18 @@ module Cosmos
         config = CmdTlmServerConfig.new(tf.path)
         cmd = Commanding.new(config)
         interfaces = Interfaces.new(config)
-        interfaces.map_target("COSMOS","MY_INT")
+        interfaces.map_target("SYSTEM","MY_INT")
         expect(interfaces.all["MY_INT"]).to receive(:write)
         expect(interfaces.all["MY_INT"].packet_log_writer_pairs[0].cmd_log_writer).to receive(:write)
 
         # Grab an existing packet
-        pkt = System.commands.packet('COSMOS','STARTLOGGING')
+        pkt = System.commands.packet('SYSTEM','STARTLOGGING')
         # Mess up the opcode so it won't be identifyable
         pkt.write('OPCODE',100)
         # Set the target_name to nil to make it "unidentified"
         pkt.target_name = nil
 
-        cmd.send_command_to_target('COSMOS', pkt)
+        cmd.send_command_to_target('SYSTEM', pkt)
         # Verify the unknown packet has been updated
         expect(System.commands.packet("UNKNOWN","UNKNOWN").buffer).to eql pkt.buffer
         tf.unlink

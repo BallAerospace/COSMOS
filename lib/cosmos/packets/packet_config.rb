@@ -73,10 +73,8 @@ module Cosmos
       @warnings = []
 
       # Create unknown packets
-      @commands['UNKNOWN']
       @commands['UNKNOWN'] = {}
       @commands['UNKNOWN']['UNKNOWN'] = Packet.new('UNKNOWN', 'UNKNOWN', :BIG_ENDIAN)
-      @telemetry['UNKNOWN']
       @telemetry['UNKNOWN'] = {}
       @telemetry['UNKNOWN']['UNKNOWN'] = Packet.new('UNKNOWN', 'UNKNOWN', :BIG_ENDIAN)
 

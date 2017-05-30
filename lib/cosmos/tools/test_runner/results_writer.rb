@@ -126,7 +126,7 @@ module Cosmos
       @file.puts "Detailed Test Output Logged to: #{get_scriptrunner_message_log_filename()}"
       if @metadata
         begin
-          items = get_tlm_packet(@metadata[0], @metadata[1])
+          items = get_tlm_packet('SYSTEM', 'META')
           @file.puts ''
           @file.puts "Metadata:"
           items.each do |item_name, item_value, _|
@@ -257,7 +257,7 @@ module Cosmos
       if @metadata
         Qt.execute_in_main_thread(true) do
           begin
-            success = SetTlmDialog.execute(parent, 'Enter Test Metadata', 'Start Test', 'Cancel Test', @metadata[0], @metadata[1])
+            success = SetTlmDialog.execute(parent, 'Enter Test Metadata', 'Start Test', 'Cancel Test', 'SYSTEM', 'META')
           rescue DRb::DRbConnError
             success = false
             Qt::MessageBox.critical(parent, 'Error', 'Error Connecting to Command and Telemetry Server')

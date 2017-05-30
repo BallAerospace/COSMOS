@@ -73,6 +73,19 @@ module Cosmos
       return $cmd_tlm_server.set_tlm_raw(*args)
     end
 
+    # Injects a packet into the system as if it was received from an interface
+    #
+    # @param target_name[String] Target name of the packet
+    # @param packet_name[String] Packet name of the packet
+    # @param item_hash[Hash] Hash of item_name and value for each item you want to change from the current value table
+    # @param value_type[Symbol/String] Type of the values in the item_hash (RAW or CONVERTED)
+    # @param send_routers[Boolean] Whether or not to send to routers for the target's interface
+    # @param send_packet_log_writers[Boolean] Whether or not to send to the packet log writers for the target's interface
+    # @param create_new_logs[Boolean] Whether or not to create new log files before writing this packet to logs
+    def inject_tlm(target_name, packet_name, item_hash = nil, value_type = :CONVERTED, send_routers = true, send_packet_log_writers = true, create_new_logs = false)
+      return $cmd_tlm_server.inject_tlm(target_name, packet_name, item_hash, value_type, send_routers, send_packet_log_writers, create_new_logs)
+    end
+
     # Gets all the values from the given packet returned in a two dimensional
     # array containing the item_name, value, and limits state.
     # Usage:
@@ -125,7 +138,7 @@ module Cosmos
     # Returns the buffer from the telemetry packet.
     def get_tlm_buffer(target_name, packet_name)
       return $cmd_tlm_server.get_tlm_buffer(target_name, packet_name)
-    end    
+    end
 
     # Subscribe to one or more telemetry packets. The queue ID is returned for
     # use in get_packet_data and unsubscribe_packet_data.

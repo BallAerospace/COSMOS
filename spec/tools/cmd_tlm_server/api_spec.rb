@@ -474,13 +474,13 @@ module Cosmos
         time2 = Time.now + 2
         packet = System.commands.packet("INST", "COLLECT")
         packet.received_time = time
-        packet2 = System.commands.packet("COSMOS", "STARTLOGGING")
+        packet2 = System.commands.packet("SYSTEM", "STARTLOGGING")
         packet2.received_time = time2
-        expect(@api.get_cmd_time()).to eql ['COSMOS', 'STARTLOGGING', time2.tv_sec, time2.tv_usec]
+        expect(@api.get_cmd_time()).to eql ['SYSTEM', 'STARTLOGGING', time2.tv_sec, time2.tv_usec]
         expect(@api.get_cmd_time('INST')).to eql ['INST', 'COLLECT', time.tv_sec, time.tv_usec]
-        expect(@api.get_cmd_time('COSMOS')).to eql ['COSMOS', 'STARTLOGGING', time2.tv_sec, time2.tv_usec]
+        expect(@api.get_cmd_time('SYSTEM')).to eql ['SYSTEM', 'STARTLOGGING', time2.tv_sec, time2.tv_usec]
         expect(@api.get_cmd_time('INST', 'COLLECT')).to eql ['INST', 'COLLECT', time.tv_sec, time.tv_usec]
-        expect(@api.get_cmd_time('COSMOS', 'STARTLOGGING')).to eql ['COSMOS', 'STARTLOGGING', time2.tv_sec, time2.tv_usec]
+        expect(@api.get_cmd_time('SYSTEM', 'STARTLOGGING')).to eql ['SYSTEM', 'STARTLOGGING', time2.tv_sec, time2.tv_usec]
       end
     end
 
@@ -1036,7 +1036,7 @@ module Cosmos
 
     describe "get_target_list" do
       it "returns all target names" do
-        expect(@api.get_target_list).to eql %w(COSMOS INST META SYSTEM)
+        expect(@api.get_target_list).to eql %w(INST SYSTEM)
       end
     end
 

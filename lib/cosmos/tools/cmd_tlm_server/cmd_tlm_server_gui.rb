@@ -43,9 +43,9 @@ module Cosmos
       end
     end
 
-    def meta_callback(meta_target_name, meta_packet_name)
+    def meta_callback
       Qt.execute_in_main_thread(true) do
-        result = SetTlmDialog.execute(self, 'Enter Metadata', 'Set Metadata', 'Cancel', meta_target_name, meta_packet_name)
+        result = SetTlmDialog.execute(self, 'Enter Metadata', 'Set Metadata', 'Cancel', 'SYSTEM', 'META')
         exit(1) unless result
       end
     end

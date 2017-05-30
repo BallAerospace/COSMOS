@@ -38,34 +38,18 @@ module Cosmos
       end
     end
 
-    # Read from the CmdTlmServer interface by first getting the COSMOS VERSION
-    # packet and then continuously waiting for limits events and returning
-    # COSMOS LIMITS_CHANGE packets.
+    # Continuously wait for limits events and returning
+    # SYSTEM LIMITS_CHANGE packets.
     #
-    # @return [Packet] Initially returns the COSMOS VERSION packet and then
-    #   returns COSMOS LIMITS_CHANGE packets as limits events are generated.
+    # @return [Packet] returns SYSTEM LIMITS_CHANGE packets as limits events are generated.
     def read
-      if @read_count == 0
-        begin
-          packet = System.telemetry.packet("COSMOS","VERSION")
-          packet.write('PKT_ID',1)
-          packet.write('COSMOS', Cosmos::VERSION)
-          packet.write('RUBY', "#{RUBY_VERSION}p#{RUBY_PATCHLEVEL}")
-          packet.write('CTDB', System.cmd_tlm_version)
-          packet.write('USER', USER_VERSION) if defined? USER_VERSION
-          @read_count += 1
-          return packet
-        rescue # if they haven't defined COSMOS VERSION we just fall through
-        end
-      end
-
       while connected?
         begin
           event = CmdTlmServer.instance.get_limits_event(@limit_id)
           if event
             if event[0] == :LIMITS_CHANGE
               data = event[1]
-              packet ||= System.telemetry.packet("COSMOS","LIMITS_CHANGE")
+              packet ||= System.telemetry.packet("SYSTEM","LIMITS_CHANGE")
               packet.received_time = Time.now.sys
               packet.write('PKT_ID',2)
               packet.write('TARGET', data[0])
@@ -84,7 +68,7 @@ module Cosmos
           end
         rescue => error
           puts error.formatted
-          # if they haven't defined COSMOS LIMITS_CHANGE we fall through
+          # if they haven't defined SYSTEM LIMITS_CHANGE we fall through
           # and break the loop because nothing will work
           break
         end
@@ -95,14 +79,14 @@ module Cosmos
 
     # Write a packet to the CmdTlmServer to change various settings.
     #
-    # @param packet [Packet] Must be one of COSMOS SETLOGLABEL, STARTLOGGING,
+    # @param packet [Packet] Must be one of SYSTEM SETLOGLABEL, STARTLOGGING,
     #   STARTCMDLOG, STARTTLMLOG, STOPLOGGING, STOPCMDLOG or STOPTLMLOG.
     def write(packet)
       @write_count += 1
       command_data = packet.buffer
       @bytes_written += command_data.length
 
-      identified_command = System.commands.identify(command_data, ['COSMOS'])
+      identified_command = System.commands.identify(command_data, ['SYSTEM'])
       if identified_command
         case identified_command.packet_name
         when 'STARTLOGGING'
@@ -125,10 +109,10 @@ module Cosmos
           interface_name = identified_command.read('interface')
           CmdTlmServer.instance.stop_tlm_log(interface_name)
         else
-          raise "Command unhandled at COSMOS server interface. : #{identifed_command.packet_name}"
+          raise "Command unhandled at SYSTEM interface. : #{identifed_command.packet_name}"
         end
       else
-        raise "Unknown command received at COSMOS Server Interface."
+        raise "Unknown command received at SYSTEM Interface."
       end
     end
 
