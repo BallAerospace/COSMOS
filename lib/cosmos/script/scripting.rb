@@ -463,6 +463,7 @@ module Cosmos
     end
 
     def check_file_cache_for_instrumented_script(path, md5)
+      file_text = nil
       instrumented_script = nil
       cached = true
       use_file_cache = true
@@ -486,6 +487,12 @@ module Cosmos
           cache_filename = File.join(cache_path, flat_path_with_md5)
         end
 
+        begin
+          file_text = File.read(path)
+        rescue Exception => error
+          raise "Error reading procedure file : #{path}"
+        end
+
         if use_file_cache and File.exist?(cache_filename)
           # Use file cached instrumentation
           File.open(cache_filename, 'r') {|file| instrumented_script = file.read}
@@ -493,13 +500,6 @@ module Cosmos
           cached = false
 
           # Build instrumentation
-          file_text = ''
-          begin
-            file_text = File.read(path)
-          rescue Exception => error
-            raise "Error reading procedure file : #{path}"
-          end
-
           instrumented_script = ScriptRunnerFrame.instrument_script(file_text, path, true)
 
           # Cache instrumentation into file
@@ -512,7 +512,7 @@ module Cosmos
           end
         end
       end
-      [instrumented_script, cached]
+      [file_text, instrumented_script, cached]
     end
 
     def start(procedure_name)
@@ -534,8 +534,9 @@ module Cosmos
           # Use cached instrumentation
           instrumented_script = instrumented_cache[0]
         else
-          instrumented_script, cached = check_file_cache_for_instrumented_script(path, md5)
+          file_text, instrumented_script, cached = check_file_cache_for_instrumented_script(path, md5)
           # Cache instrumentation into RAM
+          ScriptRunnerFrame.file_cache[path] = file_text
           ScriptRunnerFrame.instrumented_cache[path] = [instrumented_script, md5]
         end
 

@@ -447,9 +447,12 @@ module Cosmos
       it "starts a script within ScriptRunnerFrame" do
         class ScriptRunnerFrame
           @@instrumented_cache = {}
+          @@file_cache = {}
           def self.instance; true; end
           def self.instrumented_cache; @@instrumented_cache; end
           def self.instrumented_cache=(value); @@instrumented_cache = value; end
+          def self.file_cache; @@file_cache; end
+          def self.file_cache=(value); @@file_cache = value; end
           def self.instrument_script(file_text, path, bool); "#"; end
         end
         start("cosmos.rb")
@@ -467,9 +470,12 @@ module Cosmos
       it "requires a script within ScriptRunnerFrame" do
         class ScriptRunnerFrame
           @@instrumented_cache = {}
+          @@file_cache = {}
           def self.instance; true; end
           def self.instrumented_cache; @@instrumented_cache; end
           def self.instrumented_cache=(value); @@instrumented_cache = value; end
+          def self.file_cache; @@file_cache; end
+          def self.file_cache=(value); @@file_cache = value; end
           def self.instrument_script(file_text, path, bool); "#"; end
         end
         allow(ScriptRunnerFrame).to receive_message_chain(:instance, :use_instrumentation)
