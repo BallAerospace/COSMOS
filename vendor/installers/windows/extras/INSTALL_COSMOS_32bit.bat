@@ -11,7 +11,7 @@ set START_PATH=!PATH!
 set PROTOCOL=https
 
 :: Update this version if making any changes to this script
-set INSTALLER_VERSION=1.4
+set INSTALLER_VERSION=1.5
 
 :: Paths and versions for COSMOS dependencies
 set RUBY_INSTALLER_32=rubyinstaller-2.2.3.exe
@@ -23,6 +23,8 @@ set DEVKIT_64=DevKit-mingw64-64-4.7.2-20130224-1432-sfx.exe
 set WKHTMLTOPDF=wkhtmltox-0.11.0_rc1-installer.exe
 set WKHTMLPATHWITHPROTOCOL=http://download.gna.org/wkhtmltopdf/obsolete/windows/
 set QTBINDINGS_QT_VERSION=4.8.6.3
+set GEM_UPDATE_PATH=//rubygems.org/gems/rubygems-update-2.6.12.gem
+set WINDOWS_INSTALL_ZIP=//github.com/BallAerospace/COSMOS/blob/master/vendor/installers/windows/COSMOS_Windows_Install.zip
 
 :: Detect Ball
 if "%USERDNSDOMAIN%"=="AERO.BALL.COM" (
@@ -52,7 +54,7 @@ if not errorlevel 1 (
 if exist *.gem (
   echo WARNING: gem files found in the current directory
   echo WARNING: This can cause the installation to fail or install old gems
-  pause  
+  pause
 )
 
 ::::::::::::::::::::::
@@ -226,6 +228,32 @@ if !ADMIN!==1 (
   @echo !WKHTMLPATHWITHPROTOCOL!!WKHTMLTOPDF! >> !COSMOS_INSTALL!\INSTALL.log
 )
 
+::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+:: Download and unzip additional files needed for the installation
+::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+echo Downloading COSMOS_Windows_Install.zip
+powershell -Command "(New-Object Net.WebClient).DownloadFile('!PROTOCOL!:!WINDOWS_INSTALL_ZIP!?raw=true', '!COSMOS_INSTALL!\tmp\COSMOS_Windows_Install.zip')"
+if errorlevel 1 (
+  echo ERROR: Problem downloading COSMOS Windows files from: !PROTOCOL!:!WINDOWS_INSTALL_ZIP!?raw=true
+  echo INSTALL FAILED
+  @echo ERROR: Problem downloading COSMOS Windows files from: !PROTOCOL!:!WINDOWS_INSTALL_ZIP!?raw=true >> !COSMOS_INSTALL!\INSTALL.log
+  pause
+  exit /b 1
+) else (
+  @echo Successfully downloaded COSMOS Windows files from: !PROTOCOL!:!WINDOWS_INSTALL_ZIP!?raw=true >> !COSMOS_INSTALL!\INSTALL.log
+)
+powershell -Command "$shell = new-object -com shell.application; $zip = $shell.NameSpace('!COSMOS_INSTALL!\tmp\COSMOS_Windows_Install.zip'); foreach($item in $zip.items()) {$shell.NameSpace('!COSMOS_INSTALL!').copyhere($item)}"
+if errorlevel 1 (
+  echo ERROR: Problem unzipping COSMOS Windows files
+  echo INSTALL FAILED
+  @echo ERROR: Problem unzipping COSMOS Windows files >> !COSMOS_INSTALL!\INSTALL.log
+  pause
+  exit /b 1
+) else (
+  @echo Successfully unzipped COSMOS Windows files >> !COSMOS_INSTALL!\INSTALL.log
+)
+
 ::::::::::::::::::::::::::::::::::::::::::::
 :: Setup gemrc to use the correct protocol
 ::::::::::::::::::::::::::::::::::::::::::::
@@ -238,49 +266,16 @@ if errorlevel 1 (
   pause
   exit /b 1
 )
-@echo --- > !COSMOS_INSTALL!\Vendor\Ruby\lib\ruby\gems\etc\gemrc
-@echo :backtrace: false >> !COSMOS_INSTALL!\Vendor\Ruby\lib\ruby\gems\etc\gemrc
-@echo :benchmark: false >> !COSMOS_INSTALL!\Vendor\Ruby\lib\ruby\gems\etc\gemrc
-@echo :bulk_threshold: 1000 >> !COSMOS_INSTALL!\Vendor\Ruby\lib\ruby\gems\etc\gemrc
-@echo :sources: >> !COSMOS_INSTALL!\Vendor\Ruby\lib\ruby\gems\etc\gemrc
-@echo - !PROTOCOL!://rubygems.org/ >> !COSMOS_INSTALL!\Vendor\Ruby\lib\ruby\gems\etc\gemrc
-@echo :update_sources: true >> !COSMOS_INSTALL!\Vendor\Ruby\lib\ruby\gems\etc\gemrc
-@echo :verbose: true >> !COSMOS_INSTALL!\Vendor\Ruby\lib\ruby\gems\etc\gemrc
+SET "GEMRC=!COSMOS_INSTALL!\Vendor\Ruby\lib\ruby\gems\etc\gemrc"
 
-::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-:: Download and unzip additional files needed for the installation
-::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-
-echo Downloading COSMOS_Windows_Install.zip
-powershell -Command "(New-Object Net.WebClient).DownloadFile('!PROTOCOL!://github.com/BallAerospace/COSMOS/blob/master/vendor/installers/windows/COSMOS_Windows_Install.zip?raw=true', '!COSMOS_INSTALL!\tmp\COSMOS_Windows_Install.zip')"
-if errorlevel 1 (
-  echo ERROR: Problem downloading COSMOS Windows files from: !PROTOCOL!://github.com/BallAerospace/COSMOS/blob/master/vendor/installers/windows/COSMOS_Windows_Install.zip?raw=true
-  echo INSTALL FAILED
-  @echo ERROR: Problem downloading COSMOS Windows files from: !PROTOCOL!://github.com/BallAerospace/COSMOS/blob/master/vendor/installers/windows/COSMOS_Windows_Install.zip?raw=true >> !COSMOS_INSTALL!\INSTALL.log
-  pause
-  exit /b 1
-) else (
-  @echo Successfully downloaded COSMOS Windows files from: !PROTOCOL!://github.com/BallAerospace/COSMOS/blob/master/vendor/installers/windows/COSMOS_Windows_Install.zip?raw=true >> !COSMOS_INSTALL!\INSTALL.log
-)
-@echo Set ArgObj = WScript.Arguments > !COSMOS_INSTALL!\tmp\unzip.vbs
-@echo strFileZIP = ArgObj(0) >> !COSMOS_INSTALL!\tmp\unzip.vbs
-@echo outFolder = ArgObj(1) ^& "\" >> !COSMOS_INSTALL!\tmp\unzip.vbs
-@echo WScript.Echo ("Extracting file " ^& strFileZIP ^& " to " ^& outFolder) >> !COSMOS_INSTALL!\tmp\unzip.vbs
-@echo Set objShell = CreateObject( "Shell.Application" ) >> !COSMOS_INSTALL!\tmp\unzip.vbs
-@echo Set objSource = objShell.NameSpace(strFileZIP).Items() >> !COSMOS_INSTALL!\tmp\unzip.vbs
-@echo Set objTarget = objShell.NameSpace(outFolder) >> !COSMOS_INSTALL!\tmp\unzip.vbs
-@echo intOptions = 256 >> !COSMOS_INSTALL!\tmp\unzip.vbs
-@echo objTarget.CopyHere objSource, intOptions >> !COSMOS_INSTALL!\tmp\unzip.vbs
-cscript //B !COSMOS_INSTALL!\tmp\unzip.vbs !COSMOS_INSTALL!\tmp\COSMOS_Windows_Install.zip !COSMOS_INSTALL!
-if errorlevel 1 (
-  echo ERROR: Problem unzipping COSMOS Windows files
-  echo INSTALL FAILED
-  @echo ERROR: Problem unzipping COSMOS Windows files >> !COSMOS_INSTALL!\INSTALL.log
-  pause
-  exit /b 1
-) else (
-  @echo Successfully unzipped COSMOS Windows files >> !COSMOS_INSTALL!\INSTALL.log
-)
+@echo --- > !GEMRC!
+@echo :backtrace: false >> !GEMRC!
+@echo :benchmark: false >> !GEMRC!
+@echo :bulk_threshold: 1000 >> !GEMRC!
+@echo :sources: >> !GEMRC!
+@echo - !PROTOCOL!://rubygems.org/ >> !GEMRC!
+@echo :update_sources: true >> !GEMRC!
+@echo :verbose: true >> !GEMRC!
 
 ::::::::::::::::::::::::::::
 :: Install Gems
@@ -289,7 +284,6 @@ if errorlevel 1 (
 :: Set environmental variables
 SET "GEM_HOME=!COSMOS_INSTALL!\Vendor\Ruby\lib\ruby\gems\!RUBY_ABI_VERSION!"
 SET "GEM_PATH=%GEM_HOME%"
-SET "GEMRC=!COSMOS_INSTALL!\Vendor\Ruby\lib\ruby\gems\etc\gemrc"
 
 :: Prepend embedded bin to PATH so we prefer those binaries
 SET RI_DEVKIT=!COSMOS_INSTALL!\Vendor\Devkit\
@@ -299,16 +293,28 @@ SET "PATH=!COSMOS_INSTALL!\Vendor\Ruby\bin;%RI_DEVKIT%bin;%RI_DEVKIT%mingw\bin;%
 SET RUBYOPT=
 SET RUBYLIB=
 
+powershell -Command "(New-Object Net.WebClient).DownloadFile('!PROTOCOL!:!GEM_UPDATE_PATH!', '!COSMOS_INSTALL!\tmp\rubygem-update.gem')"
+
 :: update rubygems to latest (workaround issue installing pry)
-call gem update --system 2.4.4
+call gem install --local !COSMOS_INSTALL!\tmp\rubygem-update.gem
 if errorlevel 1 (
-  echo ERROR: Problem updating gem to 2.4.4
+  echo ERROR: Problem installing latest rubygem-update
   echo INSTALL FAILED
-  @echo ERROR: Problem updating gem to 2.4.4 >> !COSMOS_INSTALL!\INSTALL.log
+  @echo ERROR: Problem installing latest rubygem-update >> !COSMOS_INSTALL!\INSTALL.log
   pause
   exit /b 1
 ) else (
-  @echo Successfully updated gem to 2.4.4 >> !COSMOS_INSTALL!\INSTALL.log
+  @echo Successfully updated gem to latest >> !COSMOS_INSTALL!\INSTALL.log
+)
+call update_rubygems
+if errorlevel 1 (
+  echo ERROR: Problem updating gem to latest
+  echo INSTALL FAILED
+  @echo ERROR: Problem updating gem to latest >> !COSMOS_INSTALL!\INSTALL.log
+  pause
+  exit /b 1
+) else (
+  @echo Successfully updated gem to latest >> !COSMOS_INSTALL!\INSTALL.log
 )
 call gem install pry -v 0.10.1
 if errorlevel 1 (
@@ -319,16 +325,6 @@ if errorlevel 1 (
   exit /b 1
 ) else (
   @echo Successfully installed pry gem >> !COSMOS_INSTALL!\INSTALL.log
-)
-call gem update --system 2.4.8
-if errorlevel 1 (
-  echo ERROR: Problem updating gem to 2.4.8
-  echo INSTALL FAILED
-  @echo ERROR: Problem updating gem to 2.4.8 >> !COSMOS_INSTALL!\INSTALL.log
-  pause
-  exit /b 1
-) else (
-  @echo Successfully updated gem to latest >> !COSMOS_INSTALL!\INSTALL.log
 )
 
 :: install COSMOS gem and dependencies
@@ -350,7 +346,6 @@ if errorlevel 1 (
 
 :: move qt dlls to the ruby/bin folder - prevents conflicts with other versions of qt on the system
   move !COSMOS_INSTALL!\Vendor\Ruby\lib\ruby\gems\!RUBY_ABI_VERSION!\gems\qtbindings-qt-!QTBINDINGS_QT_VERSION!-x86-mingw32\qtbin\*.dll !COSMOS_INSTALL!\Vendor\Ruby\bin
-
 if errorlevel 1 (
   echo ERROR: Problem moving qt dlls
   @echo ERROR: Problem moving qt dlls >> !COSMOS_INSTALL!\INSTALL.log
@@ -412,55 +407,10 @@ if errorlevel 1 (
   @echo Successfully created cosmos Demo >> !COSMOS_INSTALL!\INSTALL.log
 )
 
-::::::::::::::::::::::::::
-:: Desktop Icon
-::::::::::::::::::::::::::
+:::::::::::::::::::::
+:: Perform offline configuration
+:::::::::::::::::::::
 
-@echo Set oWS = WScript.CreateObject("WScript.Shell") > !COSMOS_INSTALL!\tmp\makeshortcut.vbs
-@echo sLinkFile = "!USERPROFILE!\Desktop\COSMOS.lnk" >> !COSMOS_INSTALL!\tmp\makeshortcut.vbs
-@echo Set oLink = oWS.CreateShortcut(sLinkFile) >> !COSMOS_INSTALL!\tmp\makeshortcut.vbs
-@echo oLink.TargetPath = "!COSMOS_INSTALL!\LAUNCH_DEMO.bat" >> !COSMOS_INSTALL!\tmp\makeshortcut.vbs
-@echo oLink.IconLocation = "!COSMOS_INSTALL!\cosmos_icon.ico" >> !COSMOS_INSTALL!\tmp\makeshortcut.vbs
-@echo oLink.Save >> !COSMOS_INSTALL!\tmp\makeshortcut.vbs
-set /p COSMOS_CONTINUE="Create Desktop Shortcut? [Y/n]: "
-IF NOT "!COSMOS_CONTINUE!"=="n" (
-  cscript //B !COSMOS_INSTALL!\tmp\makeshortcut.vbs
-  if errorlevel 1 (
-    echo ERROR: Problem creating desktop shortcut
-    @echo ERROR: Problem creating desktop shortcut >> !COSMOS_INSTALL!\INSTALL.log
-    pause
-  ) else (
-    @echo Successfully created desktop shortcut >> !COSMOS_INSTALL!\INSTALL.log
-  )
-)
-
-::::::::::::::::::::::::::
-:: Environment Variables
-::::::::::::::::::::::::::
-
-set /p COSMOS_CONTINUE="Set COSMOS_DIR Environment Variable? [Y/n]: "
-IF NOT "!COSMOS_CONTINUE!"=="n" (
-  setx COSMOS_DIR "!COSMOS_INSTALL!"
-  if errorlevel 1 (
-    echo ERROR: Problem creating COSMOS_DIR environment variable
-    @echo ERROR: Problem creating COSMOS_DIR environment variable >> !COSMOS_INSTALL!\INSTALL.log
-    pause
-  ) else (
-    echo COSMOS_DIR set for Current User.
-    echo Add System Environment Variable if desired for all users.
-    @echo Successfully created COSMOS_DIR environment variable >> !COSMOS_INSTALL!\INSTALL.log
-  )
-)
-
-::::::::::::::::::::::::::::::::::::::::::
-:: Test Installation by Launching COSMOS
-::::::::::::::::::::::::::::::::::::::::::
-
-pushd !COSMOS_INSTALL!
-SET COSMOS_DEVEL=
-start !COSMOS_INSTALL!\Launch_Demo.bat
-echo COSMOS Launcher should start if installation was successful
-echo INSTALLATION COMPLETE
-@echo INSTALLATION COMPLETE >> !COSMOS_INSTALL!\INSTALL.log
+call !COSMOS_INSTALL!\OFFLINE_CONFIG_COSMOS.bat
 
 ENDLOCAL
