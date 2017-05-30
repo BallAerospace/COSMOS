@@ -84,11 +84,13 @@ module Cosmos
     def initialize_actions
       super()
 
-      @open_action = Qt::Action.new(tr('&Open Definition'), self)
-      @open_keyseq = Qt::KeySequence.new(tr('Ctrl+O'))
-      @open_action.shortcut = @open_keyseq
-      @open_action.statusTip = tr('Open packet definition in a editor')
-      @open_action.connect(SIGNAL('triggered()')) { open_definition }
+      @edit_action = Qt::Action.new(Cosmos.get_icon('edit.png'),
+                                    tr('&Edit Definition'),
+                                    self)
+      @edit_keyseq = Qt::KeySequence.new(tr('Ctrl+E'))
+      @edit_action.shortcut = @edit_keyseq
+      @edit_action.statusTip = tr('Open packet definition in a editor')
+      @edit_action.connect(SIGNAL('triggered()')) { edit_definition }
 
       @reset_action = Qt::Action.new(tr('&Reset'), self)
       @reset_keyseq = Qt::KeySequence.new(tr('Ctrl+R'))
@@ -175,7 +177,7 @@ module Cosmos
     def initialize_menus
       # File Menu
       file_menu = menuBar.addMenu(tr('&File'))
-      file_menu.addAction(@open_action)
+      file_menu.addAction(@edit_action)
       file_menu.addAction(@reset_action)
       file_menu.addAction(@option_action)
       file_menu.addSeparator()
@@ -266,7 +268,7 @@ module Cosmos
                                                 @polling_rate, 0, 1000, 1, nil)
     end
 
-    def open_definition
+    def edit_definition
       # Grab all the cmd_tlm_files and processes them in reverse sort order
       # because typically we'll have cmd.txt and tlm.txt and we want to process
       # tlm.txt first
