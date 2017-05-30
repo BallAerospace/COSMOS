@@ -34,8 +34,6 @@ module Cosmos
     instance_attr_reader :ports
     # @return [Hash<String,String>] Hash of all the known paths and their values
     instance_attr_reader :paths
-    # @return [String] Arbitrary string containing the version
-    instance_attr_reader :cmd_tlm_version
     # @return [PacketLogWriter] Class used to create log files
     instance_attr_reader :default_packet_log_writer
     # @return [PacketLogReader] Class used to read log files
@@ -83,7 +81,6 @@ module Cosmos
       @commands = nil
       @telemetry = nil
       @limits = nil
-      @cmd_tlm_version = nil
       @default_packet_log_writer = PacketLogWriter
       @default_packet_log_reader = PacketLogReader
       @sound = false
@@ -335,11 +332,6 @@ module Cosmos
           when 'META_INIT'
             parser.verify_num_parameters(1, 1, "#{keyword} <Filename>")
             @meta_init_filename = ConfigParser.handle_nil(parameters[0])
-
-          when 'CMD_TLM_VERSION'
-            usage = "#{keyword} <VERSION>"
-            parser.verify_num_parameters(1, 1, usage)
-            @cmd_tlm_version = parameters[0]
 
           when 'TIME_ZONE_UTC'
             parser.verify_num_parameters(0, 0, "#{keyword}")
