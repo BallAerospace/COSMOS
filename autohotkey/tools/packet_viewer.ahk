@@ -3,8 +3,18 @@ SetTitleMatchMode 2 ; Contain the title anywhere to match
 WinWaitActive Packet Viewer
 Sleep 2000
 Run ruby.exe %A_ScriptDir%/CmdTlmServer
-Sleep 2000
+Sleep 4000
 WinActivate Packet Viewer
+WinWaitActive Packet Viewer
+Sleep 500
+
+; Open the packet definition
+Send !f ; File
+Sleep 500
+Send o ; Open
+Sleep 5000
+Send !f{x} ; Exit text editor
+WinWaitActive Packet Viewer
 Sleep 500
 
 ; Setup some initial viewing/polling options for telemetry
@@ -13,21 +23,28 @@ Sleep 500
 Send p ; Options
 WinWaitActive Options
 Send 2.0{Enter}  ; Set polling rate to 2.0 seconds PV-8
+WinWaitActive Packet Viewer
 Sleep 500
 
 ; Inspect a few telemetry items
 Click right 500, 180 ; Inspect the first telemetry item PV-4
 Sleep 500
 Send {Tab}{Enter}
+WinWaitActive Details
 Sleep 1000
 Send {Enter}
+WinWaitActive Packet Viewer
 Sleep 500
+
 Click right 500, 205 ; Edit the next telemetry item PV-3, PV-5
 Sleep 500
 Send {Tab 2}{Enter}
-Sleep 500
+WinWaitActive Edit
+Sleep 1000
 Send {Enter}
+WinWaitActive Packet Viewer
 Sleep 500
+
 Click right 500, 225 ; Graph the next telemetry item PV-6
 Sleep 500
 Send {Tab 3}{Enter}
@@ -54,9 +71,11 @@ Sleep 500
 Send {Down}{Enter} ; Target: INST/HEALTH_STATUS
 Sleep 500
 Send ^b            ; Toggle colorblind mode PV-7, PV-9
+Sleep 1000
+Send !v            ; Switch to normal converted telemetry display PV-10
 Sleep 500
-Send ^c            ; Switch to normal converted telemetry display PV-10
-Sleep 500
+Send c
+Sleep 1000
 Send ^h            ; Hide ignored items
 Sleep 2000
 Send ^h            ; Show ignored items
@@ -69,14 +88,25 @@ Click 450 95
 Sleep 500
 Send {Down}{Enter} ; Target: INST/IMAGE
 Sleep 500
-Send ^a            ; Switch to raw telemetry display PV-10
+Send !v            ; Switch to raw telemetry display PV-10
 Sleep 500
+Send r
+Sleep 1000
+
 Click 450 95
 Sleep 500
 Send {Down}{Enter} ; Target: INST/MECH
 Sleep 500
-Send ^u            ; Switch to formatted telemetry with units display PV-10
+Send !v            ; Switch to formatted telemetry with units display PV-10
 Sleep 500
+Send u
+Sleep 1000
+
+Send !v            ; Switch to formatted telemetry display PV-10
+Sleep 500
+Send f
+Sleep 1000
+
 Click 450 95
 Sleep 500
 Send {Down}{Enter} ; Target: INST/MECH
