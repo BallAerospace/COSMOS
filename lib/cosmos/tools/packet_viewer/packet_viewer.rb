@@ -277,7 +277,8 @@ module Cosmos
         # Skip partials which begin with an underscore
         next if File.basename(filename)[0] == '_'
         file = File.read(filename)
-        if file.include?("TELEMETRY #{@target_select.text} #{@packet_select.text}")
+        # Wild card the target name because it is not used and is often aliased
+        if file =~ /TELEMETRY\s+.*\s+#{@packet_select.text}/
           Cosmos.open_in_text_editor(filename)
           found = true
           break
