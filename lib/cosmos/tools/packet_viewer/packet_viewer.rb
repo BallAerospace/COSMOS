@@ -84,6 +84,14 @@ module Cosmos
     def initialize_actions
       super()
 
+      @edit_action = Qt::Action.new(Cosmos.get_icon('edit.png'),
+                                    tr('&Edit Definition'),
+                                    self)
+      @edit_keyseq = Qt::KeySequence.new(tr('Ctrl+E'))
+      @edit_action.shortcut = @edit_keyseq
+      @edit_action.statusTip = tr('Open packet definition in a editor')
+      @edit_action.connect(SIGNAL('triggered()')) { edit_definition }
+
       @reset_action = Qt::Action.new(tr('&Reset'), self)
       @reset_keyseq = Qt::KeySequence.new(tr('Ctrl+R'))
       @reset_action.shortcut = @reset_keyseq
@@ -169,6 +177,7 @@ module Cosmos
     def initialize_menus
       # File Menu
       file_menu = menuBar.addMenu(tr('&File'))
+      file_menu.addAction(@edit_action)
       file_menu.addAction(@reset_action)
       file_menu.addAction(@option_action)
       file_menu.addSeparator()
@@ -257,6 +266,33 @@ module Cosmos
     def file_options
       @polling_rate = Qt::InputDialog.getDouble(self, tr("Options"), tr("Polling Rate (sec):"),
                                                 @polling_rate, 0, 1000, 1, nil)
+    end
+
+    def edit_definition
+      # Grab all the cmd_tlm_files and processes them in reverse sort order
+      # because typically we'll have cmd.txt and tlm.txt and we want to process
+      # tlm.txt first
+      found = false
+      System.targets[@target_select.text].cmd_tlm_files.sort.reverse.each do |filename|
+        # Skip partials which begin with an underscore
+        next if File.basename(filename)[0] == '_'
+        file = File.read(filename)
+        # Wild card the target name because it is not used and is often aliased
+        if file =~ /TELEMETRY\s+.*\s+#{@packet_select.text}/
+          Cosmos.open_in_text_editor(filename)
+          found = true
+          break
+        end
+      end
+      # A packet definition might not be found due to ERB templates or other
+      # strange things they're doing. Pop up a warning and make them go look.
+      if !found
+        target_name = System.targets[@target_select.text].original_name
+        Qt::MessageBox.warning(self, "Definition Not Found",
+                               "Could not find definition for #{@target_select.text} #{@packet_select.text}.\n"\
+                               "Perhaps some ERB code is preventing automatic detection.\n"\
+                               "You should manually explore the files in config/targets/#{target_name}/cmd_tlm.")
+      end
     end
 
     def update_all
