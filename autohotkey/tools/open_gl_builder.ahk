@@ -6,7 +6,7 @@ Send ^o
 WinWaitActive Open
 Send error.txt{Enter}
 WinWaitActive Error
-Click 430 200
+Click 430 215
 WinWaitActive OpenGL
 
 Send ^a ; Open shape

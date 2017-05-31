@@ -28,7 +28,7 @@ module Cosmos
 
     it "handles receiving a bad packet length" do
       @psp = PreidentifiedStreamProtocol.new(nil, 5)
-      pkt = System.telemetry.packet("COSMOS","VERSION")
+      pkt = System.telemetry.packet("SYSTEM","META")
       class MyStream < Stream
         def connect; end
         def connected?; true; end
@@ -57,7 +57,7 @@ module Cosmos
 
     describe "write" do
       it "creates a packet header" do
-        pkt = System.telemetry.packet("COSMOS","VERSION")
+        pkt = System.telemetry.packet("SYSTEM","META")
         class MyStream < Stream
           def connect; end
           def connected?; true; end
@@ -74,11 +74,11 @@ module Cosmos
         offset = 8
         tgt_name_length = $buffer[offset].unpack('C')[0]
         offset += 1 # for the length field
-        expect($buffer[offset...(offset+tgt_name_length)]).to eql 'COSMOS'
+        expect($buffer[offset...(offset+tgt_name_length)]).to eql 'SYSTEM'
         offset += tgt_name_length
         pkt_name_length = $buffer[offset].unpack('C')[0]
         offset += 1 # for the length field
-        expect($buffer[offset...(offset+pkt_name_length)]).to eql 'VERSION'
+        expect($buffer[offset...(offset+pkt_name_length)]).to eql 'META'
         offset += pkt_name_length
         expect($buffer[offset..(offset+3)].unpack('N')[0]).to eql pkt.buffer.length
         offset += 4
@@ -88,9 +88,8 @@ module Cosmos
 
     describe "read" do
       it "returns a packet" do
-        pkt = System.telemetry.packet("COSMOS","VERSION")
-        pkt.write("PKT_ID", 1)
-        pkt.write("COSMOS", "TEST")
+        pkt = System.telemetry.packet("SYSTEM","META")
+        pkt.write("COSMOS_VERSION", "TEST")
         class MyStream < Stream
           def connect; end
           def connected?; true; end
@@ -103,14 +102,13 @@ module Cosmos
         pkt.received_time = time
         @psp.write(pkt)
         packet = @psp.read
-        expect(packet.target_name).to eql 'COSMOS'
-        expect(packet.packet_name).to eql 'VERSION'
+        expect(packet.target_name).to eql 'SYSTEM'
+        expect(packet.packet_name).to eql 'META'
         expect(packet.identified?).to be true
         expect(packet.defined?).to be false
 
-        pkt2 = System.telemetry.update!("COSMOS","VERSION",packet.buffer)
-        expect(pkt2.read('PKT_ID')).to eql 1
-        expect(pkt2.read('COSMOS')).to eql 'TEST'
+        pkt2 = System.telemetry.update!("SYSTEM","META",packet.buffer)
+        expect(pkt2.read('COSMOS_VERSION')).to eql 'TEST'
         expect(pkt2.identified?).to be true
         expect(pkt2.defined?).to be true
       end

@@ -68,6 +68,32 @@ class Time
   USEC_PER_DAY_FLOAT = USEC_PER_DAY.to_f
   MINUTES_PER_DAY_FLOAT = MINUTES_PER_DAY.to_f
 
+  # Class variable that allows us to globally select whether to use
+  # UTC or local time.
+  @@use_utc = false
+  
+  # Set up the Time class so that a call to the sys method will set the 
+  # Time object being operated upon to be a UTC time. 
+  def self.use_utc
+    @@use_utc = true
+  end
+  
+  # Set up the Time class so that a call to the sys method will set the 
+  # Time object being operated upon to be a local time. 
+  def self.use_local
+    @@use_utc = false
+  end
+
+  # Set the Time object to be either a UTC or local time depending on the
+  # use_utc flag.
+  def sys
+    if @@use_utc
+      self.utc
+    else
+      self.localtime
+    end
+  end
+
   # @param seconds [Numeric] Total number of seconds
   # @return [String] Seconds formatted as a human readable string with days,
   #   hours, minutes, and seconds.
@@ -209,17 +235,20 @@ class Time
     Time.total_seconds(self.hour, self.min, self.sec, self.usec)
   end
 
-  # @return [String] Date formatted as YYYY/MM/DD HH:MM:SS.US
-  def formatted(include_year = true, fractional_digits = 3)
-    if include_year && fractional_digits > 0
-      self.strftime("%Y/%m/%d %H:%M:%S.%#{fractional_digits}N")
-    elsif include_year && fractional_digits == 0
-      self.strftime("%Y/%m/%d %H:%M:%S")
-    elsif fractional_digits > 0 # no year
-      self.strftime("%H:%M:%S.%#{fractional_digits}N")
-    else # no year and no fractional digits
-      self.strftime("%H:%M:%S")
+  # @return [String] Date formatted as YYYY/MM/DD HH:MM:SS.US UTC_OFFSET
+  def formatted(include_year = true, fractional_digits = 3, include_utc_offset = false)
+    str =  ""
+    str << "%Y/%m/%d " if include_year
+    str << "%H:%M:%S"
+    str << ".%#{fractional_digits}N" if fractional_digits > 0
+    if include_utc_offset
+      if self.utc?
+        str << " UTC"
+      else
+        str << " %z"
+      end
     end
+    self.strftime(str)
   end
 
   # @param time [Time]
@@ -339,7 +368,7 @@ class Time
     (day + JULIAN_DATE_OF_CCSDS_EPOCH) + ((ms.to_f + (us / 1000.0)) / MSEC_PER_DAY_FLOAT)
   end
 
-  # @param [Float] julian date
+  # @param jdate [Float] julian date
   # @return [Array<day, ms, us>] Julian converted to CCSDS
   def self.julian2ccsds(jdate)
     day = jdate - JULIAN_DATE_OF_CCSDS_EPOCH
@@ -363,8 +392,8 @@ class Time
     (self.ccsds2julian(day, ms, us) - sec_epoch_jd) * SEC_PER_DAY_FLOAT
   end
 
-  # @param seconds [Float]
-  # @param sec_epoch_jd [Float] Epoch to of seconds value
+  # @param sec [Float] Number of seconds to convert
+  # @param sec_epoch_jd [Float] Epoch of seconds value
   # @return [Array<day, ms, us>] CCSDS date
   def self.sec2ccsds(sec, sec_epoch_jd = JULIAN_DATE_OF_CCSDS_EPOCH)
     self.julian2ccsds((sec / SEC_PER_DAY_FLOAT) + sec_epoch_jd)

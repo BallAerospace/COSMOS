@@ -256,17 +256,17 @@ module Cosmos
     # Determines if changes can be made to the data object without affecting data
     #
     # @param edited_data_object [DataObject] The data object which was edited
-    def edit_safe?(editted_data_object)
-      if @target_name != editted_data_object.target_name or
-         @packet_name != editted_data_object.packet_name or
-         @x_item_name != editted_data_object.x_item_name or
-         @y_item_name != editted_data_object.y_item_name or
-         @time_item_name != editted_data_object.time_item_name or
-         @x_value_type != editted_data_object.x_value_type or
-         @y_value_type != editted_data_object.y_value_type
+    def edit_safe?(edited_data_object)
+      if @target_name != edited_data_object.target_name or
+         @packet_name != edited_data_object.packet_name or
+         @x_item_name != edited_data_object.x_item_name or
+         @y_item_name != edited_data_object.y_item_name or
+         @time_item_name != edited_data_object.time_item_name or
+         @x_value_type != edited_data_object.x_value_type or
+         @y_value_type != edited_data_object.y_value_type
         false
       else
-        super(editted_data_object)
+        super(edited_data_object)
       end
     end
 

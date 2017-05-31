@@ -222,31 +222,32 @@ module Cosmos
         end
         parts[-1] = "converted_#{parts[-1]}"
         filename = parts.join(File::SEPARATOR)
-        out = File.open(filename, 'w')
-        config = File.read(options.convert).split("\n")
-        config.each do |line|
-          /TABLE\s+(\".*\")\s+(\".*\")\s+(ONE_DIMENSIONAL)\s+(.*_ENDIAN)/.match(line) do |m|
-            out.puts "TABLE #{m[1]} #{m[4]} #{m[3]} #{m[2]}"
-          end
-          /TABLE\s+(\".*\")\s+(\".*\")\s+(TWO_DIMENSIONAL)\s+(.*_ENDIAN)/.match(line) do |m|
-            rows = config.select {|item| item.strip =~ /^DEFAULT/ }.length
-            out.puts "TABLE #{m[1]} #{m[4]} #{m[3]} #{rows} #{m[2]}"
-          end
-          /PARAMETER\s+(\".*\")\s+(\".*\")\s+(.*)\s+(\d+)\s+(.*)\s+(.*)\s+(.*)\s+(.*)\s?/.match(line) do |m|
-            out.puts "  APPEND_PARAMETER #{m[1]} #{m[4]} #{m[3]} #{m[6]} #{m[7]} #{m[8]} #{m[2]}"
-            if m[5].include?('CHECK')
-              out.puts "    STATE UNCHECKED #{m[6]}"
-              out.puts "    STATE CHECKED #{m[7]}"
+        File.open(filename, 'w') do |out|
+          config = File.read(options.convert).split("\n")
+          config.each do |line|
+            /TABLE\s+(\".*\")\s+(\".*\")\s+(ONE_DIMENSIONAL)\s+(.*_ENDIAN)/.match(line) do |m|
+              out.puts "TABLE #{m[1]} #{m[4]} #{m[3]} #{m[2]}"
             end
-            if m[5].include?('HEX')
-              out.puts '    FORMAT_STRING "0x%0X"'
+            /TABLE\s+(\".*\")\s+(\".*\")\s+(TWO_DIMENSIONAL)\s+(.*_ENDIAN)/.match(line) do |m|
+              rows = config.select {|item| item.strip =~ /^DEFAULT/ }.length
+              out.puts "TABLE #{m[1]} #{m[4]} #{m[3]} #{rows} #{m[2]}"
             end
-            if m[5].include?('-U')
-              out.puts '    UNEDITABLE'
+            /PARAMETER\s+(\".*\")\s+(\".*\")\s+(.*)\s+(\d+)\s+(.*)\s+(.*)\s+(.*)\s+(.*)\s?/.match(line) do |m|
+              out.puts "  APPEND_PARAMETER #{m[1]} #{m[4]} #{m[3]} #{m[6]} #{m[7]} #{m[8]} #{m[2]}"
+              if m[5].include?('CHECK')
+                out.puts "    STATE UNCHECKED #{m[6]}"
+                out.puts "    STATE CHECKED #{m[7]}"
+              end
+              if m[5].include?('HEX')
+                out.puts '    FORMAT_STRING "0x%0X"'
+              end
+              if m[5].include?('-U')
+                out.puts '    UNEDITABLE'
+              end
             end
-          end
-          if line.strip !~ /^(TABLE|PARAMETER|DEFAULT)/
-            out.puts line
+            if line.strip !~ /^(TABLE|PARAMETER|DEFAULT)/
+              out.puts line
+            end
           end
         end
         puts "Created #{filename}"
@@ -357,9 +358,9 @@ module Cosmos
         @table_commit.statusTip = tr('Incorporate the current table data into a binary file which already contains the table')
         @table_commit.connect(SIGNAL('triggered()')) { table_commit() }
 
-        #        @table_update = Qt::Action.new(tr('&Update Definition'), self)
-        #        @table_update.statusTip = tr('Change the defaults in the definition file to the displayed table data')
-        #        @table_update.connect(SIGNAL('triggered()')) { table_update() }
+        #@table_update = Qt::Action.new(tr('&Update Definition'), self)
+        #@table_update.statusTip = tr('Change the defaults in the definition file to the displayed table data')
+        #@table_update.connect(SIGNAL('triggered()')) { table_update() }
       end
     end
 
@@ -384,7 +385,6 @@ module Cosmos
       file_menu.addAction(@exit_action)
 
       unless no_tables
-        # Table Menu
         table_menu = menuBar.addMenu(tr('&Table'))
         table_menu.addAction(@table_check)
         table_menu.addAction(@table_default)
@@ -392,7 +392,7 @@ module Cosmos
         table_menu.addSeparator()
         table_menu.addAction(@table_save)
         table_menu.addAction(@table_commit)
-        #        table_menu.addAction(@table_update)
+        #table_menu.addAction(@table_update)
       end
 
       # Help Menu
@@ -738,6 +738,7 @@ module Cosmos
             else
               table.write(item.name, value)
             end
+            raise "out of range" if item.range && !item.range.include?(table.read(item.name, :RAW))
 
           # if we have a problem casting the value it probably means the user put in garbage
           # in this case force the range check to fail
@@ -1128,4 +1129,4 @@ module Cosmos
       statusBar.showMessage('')
     end
   end
-end # module Cosmos
+end

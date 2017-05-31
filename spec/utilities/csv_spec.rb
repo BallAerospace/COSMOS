@@ -16,21 +16,25 @@ module Cosmos
   describe CSV do
     before(:each) do
       @lines = []
+      # CSV data can't have extra spaces in array values
       @lines << "test,1,2,3\n"
-      @lines << "more,words,go,here\n"
-      @lines << "foo,two words,3.4,5.6\n"
+      @lines << "bool1,true,false\n"
+      @lines << "bool2,false,true\n"
+      @lines << "int,10,11\n"
+      @lines << "float,1.1,2.2\n"
 
       @test_file = File.open('cosmos_csv_spec.csv','w')
       @test_file.write(@lines.join(''))
       @test_file.close
 
       @csv = CSV.new(@test_file.path)
-
       @dir_name = System.paths['LOGS']
     end
 
     after(:each) do
-      File.delete("cosmos_csv_spec.csv")
+      Dir["*cosmos_csv_spec*"].each do |filename|
+        File.delete(filename)
+      end
       if @dir_created
         sleep(1)
         FileUtils.remove_dir(@dir_name, false)
@@ -41,13 +45,50 @@ module Cosmos
       clean_config()
     end
 
+    describe "initialize" do
+      it "loads the CSV data and overwrites existing key/values" do
+        lines = []
+
+        tf = Tempfile.new("test.csv")
+        tf.puts "test,1,2,3\n"
+        tf.puts "other,10\n"
+        tf.puts "test,1.1,2.2,3.3\n"
+        tf.close
+        csv = CSV.new(tf.path)
+        puts csv['test']
+
+        tf.unlink
+      end
+    end
+
     describe "access" do
       it "allows hash style access" do
         expect(@csv["test"]).to eq(%w(1 2 3))
       end
 
-      it "returns all valid keys" do
-        expect(@csv.keys).to eq(%w(test more foo))
+      it "returns all keys" do
+        expect(@csv.keys).to eq(%w(test bool1 bool2 int float))
+      end
+
+      it "returns boolean values" do
+        expect(@csv.boolean("bool1")).to be true
+        expect(@csv.bool("bool2")).to be false
+
+        expect(@csv.boolean("bool1", 1)).to be false
+        expect(@csv.bool("bool2", 1)).to be true
+      end
+
+      it "returns integer values" do
+        expect(@csv.integer("int")).to be(10)
+        expect(@csv.int("int")).to be(10)
+
+        expect(@csv.integer("int", 1)).to be(11)
+        expect(@csv.int("int", 1)).to be(11)
+      end
+
+      it "returns float values" do
+        expect(@csv.float("float")).to be(1.1)
+        expect(@csv.float("float", 1)).to be(2.2)
       end
     end
 
@@ -56,6 +97,16 @@ module Cosmos
         @csv.create_archive
         expect(File.exist?(@csv.archive_file)).to be true
         @csv.close_archive
+      end
+
+      it "automatically closes an existing open archive file" do
+        @csv.create_archive
+        first = @csv.archive_file
+        expect(File.basename(first)).to match(/.*#{File.basename(@test_file,'.csv')}.*/)
+        @csv.create_archive
+        second = @csv.archive_file
+        expect(File.basename(second)).to match(/.*#{File.basename(@test_file,'.csv')}.*/)
+        expect(first).to_not eql(second)
       end
 
       it "creates an archive file at an arbitrary path" do
@@ -77,20 +128,10 @@ module Cosmos
         expect(data.include?("HI,a,b,c")).to be true
       end
 
-      it "raises an exception if writing to an unopened archive" do
-        expect {@csv.write_archive([])}.to raise_error
-      end
-
-      it "raises an exception if trying to reopen archive" do
-        @csv.create_archive
-        expect {@csv.create_archive}.to raise_error
-        @csv.close_archive
-      end
-
-      it "raises an exception if trying to write closed archive" do
-        @csv.create_archive
-        @csv.close_archive
-        expect {@csv.write_archive([])}.to raise_error
+      it "automatically opens an archive for writing" do
+        expect(@csv.archive_file).to eq('')
+        @csv.write_archive([])
+        expect(File.basename(@csv.archive_file)).to match(/.*#{File.basename(@test_file,'.csv')}.*/)
       end
     end
   end

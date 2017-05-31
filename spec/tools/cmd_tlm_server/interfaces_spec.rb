@@ -77,8 +77,8 @@ module Cosmos
         tf.puts 'INTERFACE MY_INT interface.rb'
         tf.close
         interfaces = Interfaces.new(CmdTlmServerConfig.new(tf.path))
-        interfaces.map_target("COSMOS","MY_INT")
-        expect(System.targets["COSMOS"].interface.name).to eql "MY_INT"
+        interfaces.map_target("SYSTEM","MY_INT")
+        expect(System.targets["SYSTEM"].interface.name).to eql "MY_INT"
         tf.unlink
       end
     end

@@ -28,7 +28,7 @@ describe Array do
 
   describe "nearest_index" do
     it "raises error if empty" do
-      expect { Array.new.nearest_index(nil) }.to raise_error
+      expect { Array.new.nearest_index(nil) }.to raise_error(/empty array/)
     end
 
     def find_sorted_value(array, sorted)

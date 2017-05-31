@@ -34,8 +34,6 @@ module Cosmos
     instance_attr_reader :ports
     # @return [Hash<String,String>] Hash of all the known paths and their values
     instance_attr_reader :paths
-    # @return [String] Arbitrary string containing the version
-    instance_attr_reader :cmd_tlm_version
     # @return [PacketLogWriter] Class used to create log files
     instance_attr_reader :default_packet_log_writer
     # @return [PacketLogReader] Class used to read log files
@@ -58,9 +56,11 @@ module Cosmos
     instance_attr_reader :staleness_seconds
     # @return [Symbol] The current limits set
     instance_attr_reader :limits_set
+    # @return [Boolean] Whether to use UTC or local times
+    instance_attr_reader :use_utc
 
     # Known COSMOS ports
-    KNOWN_PORTS = ['CTS_API', 'TLMVIEWER_API', 'CTS_PREIDENTIFIED']
+    KNOWN_PORTS = ['CTS_API', 'TLMVIEWER_API', 'CTS_PREIDENTIFIED', 'CTS_CMD_ROUTER']
     # Known COSMOS paths
     KNOWN_PATHS = ['LOGS', 'TMP', 'SAVED_CONFIG', 'TABLES', 'HANDBOOKS', 'PROCEDURES']
 
@@ -81,7 +81,6 @@ module Cosmos
       @commands = nil
       @telemetry = nil
       @limits = nil
-      @cmd_tlm_version = nil
       @default_packet_log_writer = PacketLogWriter
       @default_packet_log_reader = PacketLogReader
       @sound = false
@@ -89,11 +88,13 @@ module Cosmos
       @acl = nil
       @staleness_seconds = 30
       @limits_set = :DEFAULT
+      @use_utc = false
 
       @ports = {}
       @ports['CTS_API'] = 7777
       @ports['TLMVIEWER_API'] = 7778
       @ports['CTS_PREIDENTIFIED'] = 7779
+      @ports['CTS_CMD_ROUTER'] = 7780
 
       @paths = {}
       @paths['LOGS'] = File.join(USERPATH, 'outputs', 'logs')
@@ -119,6 +120,7 @@ module Cosmos
 
       @initial_filename = filename
       @initial_config = nil
+      @meta_init_filename = nil
       @@instance = self
     end
 
@@ -176,7 +178,7 @@ module Cosmos
 
     # Change the system limits set
     #
-    # @param [Symbol] The name of the limits set. :DEFAULT is always an option
+    # @param limits_set [Symbol] The name of the limits set. :DEFAULT is always an option
     #   but limits sets are user defined
     def limits_set=(limits_set)
       load_packets() unless @config
@@ -197,6 +199,7 @@ module Cosmos
       self.instance.limits_set = limits_set
     end
 
+    # @param filename [String] System configuration file to parse
     # @return [System] The System singleton
     def self.instance(filename = nil)
       return @@instance if @@instance
@@ -216,6 +219,7 @@ module Cosmos
       @targets = {}
       # Set config to nil so things will lazy load later
       @config = nil
+      @use_utc = false
       acl_list = []
       all_allowed = false
       first_procedures_path = true
@@ -325,10 +329,13 @@ module Cosmos
             parser.verify_num_parameters(1, 1, "#{keyword} <Value in Seconds>")
             @staleness_seconds = Integer(parameters[0])
 
-          when 'CMD_TLM_VERSION'
-            usage = "#{keyword} <VERSION>"
-            parser.verify_num_parameters(1, 1, usage)
-            @cmd_tlm_version = parameters[0]
+          when 'META_INIT'
+            parser.verify_num_parameters(1, 1, "#{keyword} <Filename>")
+            @meta_init_filename = ConfigParser.handle_nil(parameters[0])
+
+          when 'TIME_ZONE_UTC'
+            parser.verify_num_parameters(0, 0, "#{keyword}")
+            @use_utc = true
 
           else
             # blank lines will have a nil keyword and should not raise an exception
@@ -337,6 +344,13 @@ module Cosmos
         end # parser.parse_file
 
         @acl = ACL.new(acl_list, ACL::ALLOW_DENY) unless acl_list.empty?
+
+        # Explicitly set up time to use UTC or local
+        if @use_utc
+          Time.use_utc()
+        else
+          Time.use_local()
+        end
 
         # Second pass - Process targets
         process_targets(parser, filename, configuration_directory)
@@ -360,7 +374,6 @@ module Cosmos
           unless File.exist? path
             raise parser.error("#{path} must exist", usage)
           end
-          system_found = false
           dirs = []
           Dir.foreach(File.join(USERPATH, 'config', 'targets')) { |dir_filename| dirs << dir_filename }
           dirs.sort!
@@ -371,10 +384,7 @@ module Cosmos
                 # current directory then it must have been already processed by
                 # DECLARE_TARGET so we skip it.
                 next if @targets.select {|name, target| target.original_name == dir_filename }.length > 0
-                if dir_filename == 'SYSTEM'
-                  system_found = true
-                  next
-                end
+                next if dir_filename == 'SYSTEM'
                 target = Target.new(dir_filename)
                 @targets[target.name] = target
               else
@@ -385,10 +395,9 @@ module Cosmos
 
           auto_detect_gem_based_targets()
 
-          if system_found
-            target = Target.new('SYSTEM')
-            @targets[target.name] = target
-          end
+          # Make sure SYSTEM target is always present and added last
+          target = Target.new('SYSTEM')
+          @targets[target.name] = target
 
         when 'DECLARE_TARGET'
           usage = "#{keyword} <TARGET NAME> <SUBSTITUTE TARGET NAME (Optional)> <TARGET FILENAME (Optional - defaults to target.txt)>"
@@ -610,11 +619,106 @@ module Cosmos
         else
           @config.name = md5_string
         end
+
         Cosmos.marshal_dump(marshal_filename, @config)
       end
+      setup_system_meta()
 
       @initial_config = @config unless @initial_config
       save_configuration()
+    end
+
+    def setup_system_meta
+      # Ensure SYSTEM META is defined and defined correctly
+      begin
+        tlm_meta = @telemetry.packet('SYSTEM', 'META')
+        cmd_meta = @commands.packet('SYSTEM', 'META')
+        item = tlm_meta.get_item('PKTID')
+        raise "PKTID Incorrect" unless item.bit_size == 8 and item.bit_offset == 0
+        item = cmd_meta.get_item('PKTID')
+        raise "PKTID Incorrect" unless item.bit_size == 8 and item.bit_offset == 0
+        item = tlm_meta.get_item('CONFIG')
+        raise "CONFIG Incorrect" unless item.bit_size == 256 and item.bit_offset == 8
+        item = cmd_meta.get_item('CONFIG')
+        raise "CONFIG Incorrect" unless item.bit_size == 256 and item.bit_offset == 8
+        item = tlm_meta.get_item('COSMOS_VERSION')
+        raise "CONFIG Incorrect" unless item.bit_size == 240 and item.bit_offset == 264
+        item = cmd_meta.get_item('COSMOS_VERSION')
+        raise "CONFIG Incorrect" unless item.bit_size == 240 and item.bit_offset == 264
+        item = tlm_meta.get_item('USER_VERSION')
+        raise "CONFIG Incorrect" unless item.bit_size == 240 and item.bit_offset == 504
+        item = cmd_meta.get_item('USER_VERSION')
+        raise "CONFIG Incorrect" unless item.bit_size == 240 and item.bit_offset == 504
+        item = tlm_meta.get_item('RUBY_VERSION')
+        raise "CONFIG Incorrect" unless item.bit_size == 240 and item.bit_offset == 744
+        item = cmd_meta.get_item('RUBY_VERSION')
+        raise "CONFIG Incorrect" unless item.bit_size == 240 and item.bit_offset == 744
+      rescue
+        Logger.error "SYSTEM META not defined or defined incorrectly - defaulting"
+
+        cmd_meta = Packet.new('SYSTEM', 'META', :BIG_ENDIAN)
+        item = cmd_meta.append_item('PKTID', 8, :UINT, nil, :BIG_ENDIAN, :ERROR, nil, nil, nil, 1)
+        item.range = 1..1
+        item.default = 1
+        item.description = 'Packet Id'
+        item = cmd_meta.append_item('CONFIG', 32 * 8, :STRING)
+        item.default = ''
+        item.description = 'Configuration Name'
+        item = cmd_meta.append_item('COSMOS_VERSION', 30 * 8, :STRING)
+        item.default = ''
+        item.description = 'COSMOS Version'
+        item = cmd_meta.append_item('USER_VERSION', 30 * 8, :STRING)
+        item.default = ''
+        item.description = 'User Project Version'
+        item = cmd_meta.append_item('RUBY_VERSION', 30 * 8, :STRING)
+        item.default = ''
+        item.description = 'Ruby Version'
+        @config.commands['SYSTEM'] ||= {}
+        @config.commands['SYSTEM']['META'] = cmd_meta
+
+        tlm_meta = Packet.new('SYSTEM', 'META', :BIG_ENDIAN)
+        item = tlm_meta.append_item('PKTID', 8, :UINT, nil, :BIG_ENDIAN, :ERROR, nil, nil, nil, 1)
+        item.description = 'Packet Id'
+        item = tlm_meta.append_item('CONFIG', 32 * 8, :STRING)
+        item.description = 'Configuration Name'
+        item = tlm_meta.append_item('COSMOS_VERSION', 30 * 8, :STRING)
+        item.description = 'COSMOS Version'
+        item = tlm_meta.append_item('USER_VERSION', 30 * 8, :STRING)
+        item.description = 'User Project Version'
+        item = tlm_meta.append_item('RUBY_VERSION', 30 * 8, :STRING)
+        item.description = 'Ruby Version'
+        @config.telemetry['SYSTEM'] ||= {}
+        @config.telemetry['SYSTEM']['META'] = tlm_meta
+      end
+
+      # Initialize the meta packet (if given init filename)
+      if @meta_init_filename
+        parser = ConfigParser.new
+        Cosmos.set_working_dir do
+          parser.parse_file(@meta_init_filename) do |keyword, params|
+            begin
+              item = tlm_meta.get_item(keyword)
+              if item.data_type == :STRING or item.data_type == :BLOCK
+                value = params[0]
+              else
+                value = params[0].convert_to_value
+              end
+              tlm_meta.write(keyword, value)
+            rescue => err
+              raise parser.error(err, "ITEM_NAME VALUE")
+            end
+          end
+        end
+      end
+
+      # Setup fixed part of SYSTEM META packet
+      tlm_meta.write('PKTID', 1)
+      tlm_meta.write('CONFIG', @config.name)
+      tlm_meta.write('COSMOS_VERSION', "#{COSMOS_VERSION}")
+      tlm_meta.write('USER_VERSION', USER_VERSION) if defined? USER_VERSION
+      tlm_meta.write('RUBY_VERSION', "#{RUBY_VERSION}p#{RUBY_PATCHLEVEL}")
+
+      cmd_meta.buffer = tlm_meta.buffer
     end
 
   end # class System

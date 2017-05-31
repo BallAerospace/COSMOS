@@ -51,12 +51,16 @@ module Cosmos
         File.open(File.join(cmd_tlm,'tlm2.txt'),'w') {}
         File.open(File.join(cmd_tlm,'tlm2.txt~'),'w') {}
         File.open(File.join(cmd_tlm,'tlm2.txt.mine'),'w') {}
+        File.open(File.join(cmd_tlm,'tlm3.xtce'),'w') {}
+        File.open(File.join(cmd_tlm,'tlm3.xtce~'),'w') {}
+        File.open(File.join(cmd_tlm,'tlm3.xtce.bak'),'w') {}
 
         tgt = Target.new(tgt_name,nil,tgt_path)
         expect(tgt.dir).to eql File.join(tgt_path,tgt_name)
         files = Dir[File.join(cmd_tlm,'*.txt')]
+        files.concat(Dir[File.join(cmd_tlm,'*.xtce')])
         expect(files).not_to be_empty
-        expect(tgt.cmd_tlm_files.length).to eql 4
+        expect(tgt.cmd_tlm_files.length).to eql 5
         expect(tgt.cmd_tlm_files.sort).to eql files.sort
 
         FileUtils.rm_r(tgt_path)

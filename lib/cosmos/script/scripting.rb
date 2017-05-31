@@ -23,11 +23,10 @@ module Cosmos
     end
 
     def status_bar(message)
-      if defined? ScriptRunner
-        script_runner = nil
-        ObjectSpace.each_object {|object| if ScriptRunner === object then script_runner = object; break; end}
-        script_runner.script_set_status(message) if script_runner
-      end
+      script_runner = ObjectSpace.find(ScriptRunner) if defined? ScriptRunner
+      script_runner.script_set_status(message) if script_runner
+      test_runner = ObjectSpace.find(TestRunner) if defined? TestRunner
+      test_runner.script_set_status(message) if test_runner
     end
 
     def ask_string(question, blank_or_default = false, password = false)
@@ -241,9 +240,9 @@ module Cosmos
       type_string = 'wait_tolerance'
       type_string << '_raw' if raw
       target_name, packet_name, item_name, expected_value, tolerance, timeout, polling_rate = wait_tolerance_process_args(args, type_string)
-      start_time = Time.now
+      start_time = Time.now.sys
       success, value = cosmos_script_wait_implementation_tolerance(target_name, packet_name, item_name, type, expected_value, tolerance, timeout, polling_rate)
-      time = Time.now - start_time
+      time = Time.now.sys - start_time
       range = (expected_value - tolerance)..(expected_value + tolerance)
       wait_str = "WAIT: #{_upcase(target_name, packet_name, item_name)}"
       range_str = "range #{range.first} to #{range.last} with value == #{value} after waiting #{time} seconds"
@@ -273,9 +272,9 @@ module Cosmos
 
     # Wait on a custom expression to be true
     def wait_expression(exp_to_eval, timeout, polling_rate = DEFAULT_TLM_POLLING_RATE, context = nil)
-      start_time = Time.now
+      start_time = Time.now.sys
       success = cosmos_script_wait_implementation_expression(exp_to_eval, timeout, polling_rate, context)
-      time = Time.now - start_time
+      time = Time.now.sys - start_time
       if success
         Logger.info "WAIT: #{exp_to_eval} is TRUE after waiting #{time} seconds"
       else
@@ -287,9 +286,9 @@ module Cosmos
     def _wait_check(raw, *args)
       type = (raw ? :RAW : :CONVERTED)
       target_name, packet_name, item_name, comparison_to_eval, timeout, polling_rate = wait_check_process_args(args, 'wait_check')
-      start_time = Time.now
+      start_time = Time.now.sys
       success, value = cosmos_script_wait_implementation(target_name, packet_name, item_name, type, comparison_to_eval, timeout, polling_rate)
-      time = Time.now - start_time
+      time = Time.now.sys - start_time
       check_str = "CHECK: #{_upcase(target_name, packet_name, item_name)} #{comparison_to_eval}"
       with_value_str = "with value == #{value} after waiting #{time} seconds"
       if success
@@ -330,9 +329,9 @@ module Cosmos
       type_string << '_raw' if raw
       type = (raw ? :RAW : :CONVERTED)
       target_name, packet_name, item_name, expected_value, tolerance, timeout, polling_rate = wait_tolerance_process_args(args, type_string)
-      start_time = Time.now
+      start_time = Time.now.sys
       success, value = cosmos_script_wait_implementation_tolerance(target_name, packet_name, item_name, type, expected_value, tolerance, timeout, polling_rate)
-      time = Time.now - start_time
+      time = Time.now.sys - start_time
       range = (expected_value - tolerance)..(expected_value + tolerance)
       check_str = "CHECK: #{_upcase(target_name, packet_name, item_name)}"
       range_str = "range #{range.first} to #{range.last} with value == #{value} after waiting #{time} seconds"
@@ -362,12 +361,12 @@ module Cosmos
                               timeout,
                               polling_rate = DEFAULT_TLM_POLLING_RATE,
                               context = nil)
-      start_time = Time.now
+      start_time = Time.now.sys
       success = cosmos_script_wait_implementation_expression(exp_to_eval,
                                                              timeout,
                                                              polling_rate,
                                                              context)
-      time = Time.now - start_time
+      time = Time.now.sys - start_time
       if success
         Logger.info "CHECK: #{exp_to_eval} is TRUE after waiting #{time} seconds"
       else
@@ -391,7 +390,7 @@ module Cosmos
                      polling_rate = DEFAULT_TLM_POLLING_RATE)
       type = (check ? 'CHECK' : 'WAIT')
       initial_count = tlm(target_name, packet_name, 'RECEIVED_COUNT')
-      start_time = Time.now
+      start_time = Time.now.sys
       success, value = cosmos_script_wait_implementation(target_name,
                                                          packet_name,
                                                          'RECEIVED_COUNT',
@@ -399,7 +398,7 @@ module Cosmos
                                                          ">= #{initial_count + num_packets}",
                                                          timeout,
                                                          polling_rate)
-      time = Time.now - start_time
+      time = Time.now.sys - start_time
       if success
         Logger.info "#{type}: #{target_name.upcase} #{packet_name.upcase} received #{value - initial_count} times after waiting #{time} seconds"
       else
@@ -613,9 +612,9 @@ module Cosmos
     end
 
     def _execute_wait(target_name, packet_name, item_name, value_type, comparison_to_eval, timeout, polling_rate)
-      start_time = Time.now
+      start_time = Time.now.sys
       success, value = cosmos_script_wait_implementation(target_name, packet_name, item_name, value_type, comparison_to_eval, timeout, polling_rate)
-      time = Time.now - start_time
+      time = Time.now.sys - start_time
       wait_str = "WAIT: #{_upcase(target_name, packet_name, item_name)} #{comparison_to_eval}"
       value_str = "with value == #{value} after waiting #{time} seconds"
       if success
@@ -630,15 +629,15 @@ module Cosmos
 
       case args.length
       when 0
-        start_time = Time.now
+        start_time = Time.now.sys
         cosmos_script_sleep()
-        time = Time.now - start_time
+        time = Time.now.sys - start_time
         Logger.info("WAIT: Indefinite for actual time of #{time} seconds")
       when 1
         if args[0].kind_of? Numeric
-          start_time = Time.now
+          start_time = Time.now.sys
           cosmos_script_sleep(args[0])
-          time = Time.now - start_time
+          time = Time.now.sys - start_time
           Logger.info("WAIT: #{args[0]} seconds with actual time of #{time} seconds")
         else
           raise "Non-numeric wait time specified"
@@ -738,8 +737,8 @@ module Cosmos
       if defined? ScriptRunnerFrame and ScriptRunnerFrame.instance
         sleep_time = 30000000 unless sleep_time # Handle infinite wait
         if sleep_time > 0.0
-          end_time = Time.now + sleep_time
-          until (Time.now >= end_time)
+          end_time = Time.now.sys + sleep_time
+          until (Time.now.sys >= end_time)
             sleep(0.01)
             if ScriptRunnerFrame.instance.pause?
               ScriptRunnerFrame.instance.perform_pause
@@ -761,20 +760,20 @@ module Cosmos
     end
 
     def _cosmos_script_wait_implementation(target_name, packet_name, item_name, value_type, timeout, polling_rate)
-      end_time = Time.now + timeout
+      end_time = Time.now.sys + timeout
       exp_to_eval = yield
 
       while true
-        work_start = Time.now
+        work_start = Time.now.sys
         value = tlm_variable(target_name, packet_name, item_name, value_type)
         if eval(exp_to_eval)
           return true, value
         end
-        break if Time.now >= end_time || $cmd_tlm_disconnect
+        break if Time.now.sys >= end_time || $cmd_tlm_disconnect
 
-        delta = Time.now - work_start
+        delta = Time.now.sys - work_start
         sleep_time = polling_rate - delta
-        end_delta = end_time - Time.now
+        end_delta = end_time - Time.now.sys
         sleep_time = end_delta if end_delta < sleep_time
         sleep_time = 0 if sleep_time < 0
         canceled = cosmos_script_sleep(sleep_time)
@@ -807,19 +806,19 @@ module Cosmos
 
     # Wait on an expression to be true.
     def cosmos_script_wait_implementation_expression(exp_to_eval, timeout, polling_rate, context)
-      end_time = Time.now + timeout
+      end_time = Time.now.sys + timeout
       context = ScriptRunnerFrame.instance.script_binding if !context and defined? ScriptRunnerFrame and ScriptRunnerFrame.instance
 
       while true
-        work_start = Time.now
+        work_start = Time.now.sys
         if eval(exp_to_eval, context)
           return true
         end
-        break if Time.now >= end_time
+        break if Time.now.sys >= end_time
 
-        delta = Time.now - work_start
+        delta = Time.now.sys - work_start
         sleep_time = polling_rate - delta
-        end_delta = end_time - Time.now
+        end_delta = end_time - Time.now.sys
         sleep_time = end_delta if end_delta < sleep_time
         sleep_time = 0 if sleep_time < 0
         canceled = cosmos_script_sleep(sleep_time)

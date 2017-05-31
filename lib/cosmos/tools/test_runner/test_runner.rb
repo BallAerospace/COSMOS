@@ -182,10 +182,13 @@ module Cosmos
       # Check boxes
       @pause_on_error = Qt::CheckBox.new('Pause on Error')
       @pause_on_error.setChecked(true)
+      @pause_on_error.setObjectName('PauseOnError')
       @continue_test_case_after_error = Qt::CheckBox.new('Continue Test Case after Error')
       @continue_test_case_after_error.setChecked(true)
+      @continue_test_case_after_error.setObjectName('ContinueTestCaseAfterError')
       @abort_testing_after_error = Qt::CheckBox.new('Abort Testing after Error')
       @abort_testing_after_error.setChecked(false)
+      @abort_testing_after_error.setObjectName('AbortTestingAfterError')
 
       @checkbox_frame = Qt::VBoxLayout.new
       @checkbox_frame.setContentsMargins(0,0,0,0)
@@ -201,6 +204,7 @@ module Cosmos
 
       @manual = Qt::CheckBox.new('Manual')
       @manual.setChecked(true)
+      @manual.setObjectName('Manual')
       @manual.connect(SIGNAL('stateChanged(int)')) do
         if @manual.isChecked()
           $manual = true
@@ -212,6 +216,7 @@ module Cosmos
       $manual = true
       @loop_testing = Qt::CheckBox.new('Loop Testing')
       @loop_testing.setChecked(false)
+      @loop_testing.setObjectName('LoopTesting')
       @loop_testing.connect(SIGNAL('stateChanged(int)')) do
         if @loop_testing.isChecked()
           $loop_testing = true
@@ -226,6 +231,7 @@ module Cosmos
       @break_loop_after_error = Qt::CheckBox.new('Break Loop after Error')
       @break_loop_after_error.setChecked(false)
       @break_loop_after_error.setEnabled(false)
+      @break_loop_after_error.setObjectName('BreakLoopAfterError')
 
       @checkbox_frame = Qt::VBoxLayout.new
       @checkbox_frame.setContentsMargins(0,0,0,0)
@@ -390,6 +396,17 @@ module Cosmos
         if result
           @@results_writer.process_result(result)
           raise StopScript if result.stopped
+        end
+      end
+    end
+
+    # Called by cosmos_script_module by the user calling the status_bar scripting method
+    def script_set_status(message)
+      Qt.execute_in_main_thread(true) do
+        # Check for self.disposed? to work around crash when using SimpleCov
+        unless self.disposed?
+          status_bar = statusBar()
+          status_bar.showMessage(message)
         end
       end
     end
@@ -1060,11 +1077,9 @@ module Cosmos
           parser.verify_num_parameters(0, 0, keyword)
           @@results_writer.auto_cycle_logs = true
 
-        # TODO: Deprecate COLLECT_META_DATA
-        when 'COLLECT_METADATA', 'COLLECT_META_DATA'
-          parser.verify_num_parameters(2, 2, "#{keyword} <Metadata Target Name> <Metadata Packet Name>")
-          System.telemetry.packet(params[0], params[1])
-          @@results_writer.metadata = [params[0], params[1]]
+        when 'COLLECT_METADATA'
+          parser.verify_num_parameters(0, 0, "#{keyword}")
+          @@results_writer.metadata = true
 
         else
           raise "Unhandled keyword: #{keyword}" if keyword

@@ -19,6 +19,7 @@ Cosmos.catch_fatal_exception do
   require 'cosmos/gui/widgets/packet_log_frame'
   require 'cosmos/gui/dialogs/progress_dialog'
   require 'cosmos/gui/widgets/full_text_search_line_edit'
+  require 'cosmos/gui/utilities/analyze_log'
 end
 
 module Cosmos
@@ -119,6 +120,10 @@ module Cosmos
       @file_options.statusTip = tr('Open the options dialog')
       @file_options.connect(SIGNAL('triggered()')) { handle_options() }
 
+      @analyze_log = Qt::Action.new(tr('&Analyze Logs'), self)
+      @analyze_log.statusTip = tr('Analyze log file packet counts')
+      @analyze_log.connect(SIGNAL('triggered()')) { analyze_log_files() }
+
       # Mode Menu Actions
       @fill_down_check = Qt::Action.new(tr('&Fill Down'), self)
       @fill_down_check_keyseq = Qt::KeySequence.new(tr('Ctrl+F'))
@@ -132,10 +137,6 @@ module Cosmos
       @matlab_header_check.statusTip = tr('Add a Matlab header to the output data')
       @matlab_header_check.setCheckable(true)
 
-      @share_columns_check = Qt::Action.new(tr('&Share Columns'), self)
-      @share_columns_check.statusTip = tr('Share columns for items with the same name')
-      @share_columns_check.setCheckable(true)
-
       @unique_only_check = Qt::Action.new(tr('&Unique Only'), self)
       @unique_only_check_keyseq = Qt::KeySequence.new(tr('Ctrl+U'))
       @unique_only_check.shortcut = @unique_only_check_keyseq
@@ -148,6 +149,40 @@ module Cosmos
       @batch_mode_check.statusTip = tr('Process multiple config files with the same input files')
       @batch_mode_check.setCheckable(true)
       @batch_mode_check.connect(SIGNAL('triggered()')) { batch_mode_changed() }
+
+      @normal_columns_check = Qt::Action.new(tr('&Normal Columns'), self)
+      @normal_columns_check.statusTip = tr('Normal Columns')
+      @normal_columns_check.setCheckable(true)
+      @normal_columns_check.setChecked(true)
+      @normal_columns_check.connect(SIGNAL('triggered()')) { column_mode_changed() }
+
+      @share_columns_check = Qt::Action.new(tr('Share Columns (&All)'), self)
+      @share_columns_check.statusTip = tr('Share columns for all items with the same name')
+      @share_columns_check.setCheckable(true)
+      @share_columns_check.connect(SIGNAL('triggered()')) { column_mode_changed() }
+
+      @share_indiv_columns_check = Qt::Action.new(tr('Share Columns (&Selected)'), self)
+      @share_indiv_columns_check.statusTip = tr('Share columns for selected items with the same name')
+      @share_indiv_columns_check.setCheckable(true)
+      @share_indiv_columns_check.connect(SIGNAL('triggered()')) { column_mode_changed() }
+
+      @full_column_names_check = Qt::Action.new(tr('Full &Column Names'), self)
+      @full_column_names_check.statusTip = tr('Use full item names in each column')
+      @full_column_names_check.setCheckable(true)
+      @full_column_names_check.connect(SIGNAL('triggered()')) { column_mode_changed() }
+
+      # The column options are mutually exclusive so create an action group
+      column_group = Qt::ActionGroup.new(self)
+      column_group.addAction(@normal_columns_check)
+      column_group.addAction(@share_columns_check)
+      column_group.addAction(@share_indiv_columns_check)
+      column_group.addAction(@full_column_names_check)
+
+      @shared_columns = []
+      @shared_columns_edit = Qt::Action.new(tr('S&elect Shared Columns'), self)
+      @shared_columns_edit.statusTip = tr('Select which columns are shared')
+      @shared_columns_edit.setEnabled(false)
+      @shared_columns_edit.connect(SIGNAL('triggered()')) { shared_columns_edit() }
 
       # Item Menu Actions
       @item_edit = Qt::Action.new(tr('&Edit Items'), self)
@@ -168,6 +203,7 @@ module Cosmos
       @file_menu.addAction(@save_config)
       @file_menu.addSeparator()
       @file_menu.addAction(@file_options)
+      @file_menu.addAction(@analyze_log)
       @file_menu.addSeparator()
       @file_menu.addAction(@exit_action)
 
@@ -175,9 +211,15 @@ module Cosmos
       @mode_menu = menuBar.addMenu(tr('&Mode'))
       @mode_menu.addAction(@fill_down_check)
       @mode_menu.addAction(@matlab_header_check)
-      @mode_menu.addAction(@share_columns_check)
       @mode_menu.addAction(@unique_only_check)
       @mode_menu.addAction(@batch_mode_check)
+      @mode_menu.addSeparator();
+      @mode_menu.addAction(@normal_columns_check)
+      @mode_menu.addAction(@share_columns_check)
+      @mode_menu.addAction(@share_indiv_columns_check)
+      @mode_menu.addAction(@full_column_names_check)
+      @mode_menu.addSeparator();
+      @mode_menu.addAction(@shared_columns_edit)
 
       # Item Menu
       @item_menu = menuBar.addMenu(tr('&Item'))
@@ -361,7 +403,6 @@ module Cosmos
 
       # Process and Open Buttons
       @button_layout = Qt::HBoxLayout.new
-
       @process_button = Qt::PushButton.new('&Process Files')
       @process_button.connect(SIGNAL('clicked()')) { process_log_files() }
       @button_layout.addWidget(@process_button)
@@ -451,7 +492,22 @@ module Cosmos
     def sync_gui_to_config
       @tlm_extractor_config.matlab_header = @matlab_header_check.checked?
       @tlm_extractor_config.fill_down = @fill_down_check.checked?
-      @tlm_extractor_config.share_columns = @share_columns_check.checked?
+      if @share_columns_check.checked?
+        @tlm_extractor_config.set_column_mode(:SHARE_ALL_COLUMNS)
+      elsif @share_indiv_columns_check.checked?
+        @tlm_extractor_config.set_column_mode(:SHARE_INDIV_COLUMNS)
+        @tlm_extractor_config.clear_shared_columns
+        @shared_columns.each do |item|
+          split_item = item.scan ConfigParser::PARSING_REGEX
+          item_name = split_item[0]
+          value_type = split_item[1].to_sym
+          @tlm_extractor_config.add_shared_column(item_name, value_type)
+        end
+      elsif @full_column_names_check.checked?
+        @tlm_extractor_config.set_column_mode(:FULL_COLUMN_NAMES)
+      else
+        @tlm_extractor_config.set_column_mode(:NORMAL)
+      end
       @tlm_extractor_config.unique_only = @unique_only_check.checked?
       @tlm_extractor_config.downsample_seconds = @downsample_entry.value
       @tlm_extractor_config.output_filename = @packet_log_frame.output_filename
@@ -480,7 +536,21 @@ module Cosmos
     def sync_config_to_gui
       @matlab_header_check.setChecked(@tlm_extractor_config.matlab_header)
       @fill_down_check.setChecked(@tlm_extractor_config.fill_down)
-      @share_columns_check.setChecked(@tlm_extractor_config.share_columns)
+      case @tlm_extractor_config.column_mode
+      when :SHARE_ALL_COLUMNS
+        @share_columns_check.setChecked(true)
+      when :SHARE_INDIV_COLUMNS
+        @share_indiv_columns_check.setChecked(true)
+        @shared_columns = []
+        @tlm_extractor_config.shared_indiv_columns.each do |shared_column|
+          @shared_columns << shared_column
+        end
+      when :FULL_COLUMN_NAMES
+        @full_column_names_check.setChecked(true)
+      else
+        @normal_columns_check.setChecked(true)
+      end
+      column_mode_changed()
       @unique_only_check.setChecked(@tlm_extractor_config.unique_only)
       @downsample_entry.value = @tlm_extractor_config.downsample_seconds
 
@@ -501,6 +571,10 @@ module Cosmos
     ###############################################################################
     # File Menu Handlers
     ###############################################################################
+
+    def analyze_log_files
+      AnalyzeLog.execute(self, @packet_log_frame)
+    end
 
     # Handles processing log files
     def process_log_files
@@ -525,7 +599,7 @@ module Cosmos
         # Configure Tlm Extractor Config
         sync_gui_to_config()
 
-        start_time = Time.now
+        start_time = Time.now.sys
         ProgressDialog.execute(self, 'Log File Progress', 600, 300) do |progress_dialog|
           progress_dialog.cancel_callback = method(:cancel_callback)
           progress_dialog.enable_cancel_button
@@ -583,7 +657,7 @@ module Cosmos
           ensure
             progress_dialog.set_step_progress(1.0) if !@cancel
             progress_dialog.set_overall_progress(1.0) if !@cancel
-            progress_dialog.append_text("Runtime: #{Time.now - start_time} s")
+            progress_dialog.append_text("Runtime: #{Time.now.sys - start_time} s")
             progress_dialog.complete
             if @batch_filenames.empty?
               Qt.execute_in_main_thread(true) do
@@ -656,6 +730,15 @@ module Cosmos
       box.dispose
     end
 
+    def column_mode_changed()
+      if @share_indiv_columns_check.checked?
+        @shared_columns_edit.setEnabled(true)
+      else
+        @shared_columns_edit.setEnabled(false)
+        @shared_columns = []
+      end
+    end
+
     def batch_mode_changed
       if @batch_mode_check.checked?
         @config_box.hide
@@ -665,6 +748,7 @@ module Cosmos
         @fill_down_check.setEnabled(false)
         @matlab_header_check.setEnabled(false)
         @share_columns_check.setEnabled(false)
+        @full_column_names_check.setEnabled(false)
         @unique_only_check.setEnabled(false)
         @open_config.setEnabled(false)
         @save_config.setEnabled(false)
@@ -679,6 +763,7 @@ module Cosmos
         @fill_down_check.setEnabled(true)
         @matlab_header_check.setEnabled(true)
         @share_columns_check.setEnabled(true)
+        @full_column_names_check.setEnabled(true)
         @unique_only_check.setEnabled(true)
         @open_config.setEnabled(true)
         @save_config.setEnabled(true)
@@ -834,6 +919,58 @@ module Cosmos
           dialog.dispose
         end
       end
+    end
+
+    def shared_columns_edit
+
+      # Get the list of "common" items in the config item list.
+      item_list = []
+      @config_item_list.each do |item|
+        split_item = item.text.scan ConfigParser::PARSING_REGEX
+        item_type = split_item[0]
+        item_name = split_item[3]
+        value_type = split_item[4]
+        if value_type
+          value_type = value_type.upcase.intern
+        else
+          value_type = :CONVERTED
+        end
+        if item_type == 'ITEM'
+          item_list << item_name + ' ' + value_type.to_s
+        end
+      end
+      shared_column_list = item_list.select {|item| item_list.count(item) > 1}
+      shared_column_list.uniq!
+
+      dialog = Qt::Dialog.new(self)
+      dialog.setWindowTitle("Select Common Items to Share Columns")
+      layout = Qt::VBoxLayout.new
+
+      list_layout = Qt::BoxLayout.new(Qt::Horizontal)
+      list = MyListWidget.new(self)
+      list.setSelectionMode(Qt::AbstractItemView::MultiSelection)
+      list.setMinimumHeight(150)
+      list.setMinimumWidth(400)
+      shared_column_list.each {|item| list.addItem(item)}
+      list_layout.addWidget(list)
+      layout.addLayout(list_layout)
+      list.each {|item| item.setSelected(true) if @shared_columns.include?(item.text)}
+
+      button_layout = Qt::BoxLayout.new(Qt::Horizontal)
+      cancel = Qt::PushButton.new("Cancel")
+      connect(cancel, SIGNAL('clicked()'), dialog, SLOT('reject()'))
+      button_layout.addWidget(cancel)
+      ok = Qt::PushButton.new("Save")
+      connect(ok, SIGNAL('clicked()'), dialog, SLOT('accept()'))
+      button_layout.addWidget(ok)
+      layout.addLayout(button_layout)
+      
+      dialog.setLayout(layout)
+      if dialog.exec == Qt::Dialog::Accepted
+        @shared_columns = []
+        list.each {|item| @shared_columns << item.text if item.isSelected()}
+      end
+      dialog.dispose
     end
 
     def open_button

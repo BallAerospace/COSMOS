@@ -341,11 +341,11 @@ module Cosmos
         dialog.dispose
       rescue Exception => err
         message = "Error sending raw file due to #{err}"
-        @message_log.write(Time.now.formatted + '  ' + message + "\n")
+        @message_log.write(Time.now.sys.formatted + '  ' + message + "\n")
         statusBar.showMessage(message)
       rescue DRb::DRbConnError
         message = "Error Connecting to Command and Telemetry Server"
-        @message_log.write(Time.now.formatted + '  ' + message + "\n")
+        @message_log.write(Time.now.sys.formatted + '  ' + message + "\n")
         statusBar.showMessage(message)
       end
     end
@@ -371,7 +371,7 @@ module Cosmos
         packet_name = @cmd_select.text
         if target_name and packet_name
           output_string, params = view_as_script()
-          @message_log.write(Time.now.formatted + '  ' + output_string + "\n")
+          @message_log.write(Time.now.sys.formatted + '  ' + output_string + "\n")
           if @cmd_raw.checked?
             if @ignore_range.checked?
               cmd_raw_no_range_check(target_name, packet_name, params)
@@ -396,12 +396,12 @@ module Cosmos
         end
       rescue DRb::DRbConnError
         message = "Error Connecting to Command and Telemetry Server"
-        @message_log.write(Time.now.formatted + '  ' + message + "\n")
+        @message_log.write(Time.now.sys.formatted + '  ' + message + "\n")
         statusBar.showMessage(message)
         Qt::MessageBox.critical(self, 'Error', message)
       rescue Exception => err
         message = "Error sending #{target_name} #{packet_name} due to #{err}"
-        @message_log.write(Time.now.formatted + '  ' + message + "\n")
+        @message_log.write(Time.now.sys.formatted + '  ' + message + "\n")
         statusBar.showMessage(message)
         Qt::MessageBox.critical(self, 'Error', message)
       end

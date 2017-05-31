@@ -27,7 +27,7 @@ module Cosmos
     # @return [Boolean] Is logging enabled?
     attr_reader :logging_enabled
 
-    # @retuen [String] Original name passed to raw logger
+    # @return [String] Original name passed to raw logger
     attr_reader :orig_name
 
     # The allowable log types
@@ -41,12 +41,8 @@ module Cosmos
     #    name of the corresponding interface
     # @param log_type [Symbol] The type of log to create. Must be :READ
     #   or :WRITE.
-    # @param cycle_time [Integer] The amount of time in seconds before creating
-    #   a new log file. This can be combined with cycle_size but is better used
-    #   independently.
-    # @param cycle_size [Integer] The size in bytes before creating a new log
-    #   file. This can be combined with cycle_time but is better used
-    #   independently.
+    # @param logging_enabled [Boolean] Whether to enable raw logging
+    # @param cycle_size [Integer] The size in bytes before creating a new log file.
     # @param log_directory [String] The directory to store the log files.
     #   Passing nil will use the system default 'LOGS' directory.
     def initialize(
@@ -70,12 +66,12 @@ module Cosmos
       @mutex = Mutex.new
       @file = nil
       @filename = nil
-      @start_time = Time.now
+      @start_time = Time.now.sys
       @logging_enabled = ConfigParser.handle_true_false(logging_enabled)
     end
 
     # Set the raw logger name
-    # @param name [String] new name
+    # @param log_name [String] new name
     def name=(log_name)
       @orig_name = log_name
       @log_name = (log_name.to_s.downcase + '_raw_' + @log_type.to_s.downcase + '_' + self.object_id.to_s).freeze
@@ -111,7 +107,7 @@ module Cosmos
     # not created until data is written by {#write} so this does not
     # immediately create a log file on the filesystem.
     def start
-      close_file() unless ((Time.now - @start_time) < 1.0) # Prevent close/open too fast
+      close_file() unless ((Time.now.sys - @start_time) < 1.0) # Prevent close/open too fast
       @mutex.synchronize { @logging_enabled = true }
     end
 
@@ -140,7 +136,7 @@ module Cosmos
           @filename = File.join(@log_directory, File.build_timestamped_filename([@log_name], '.bin'))
           @file = File.new(@filename, 'wb')
         end
-        @start_time = Time.now
+        @start_time = Time.now.sys
         Logger.instance.info "Raw Log File Opened : #{@filename}"
       end
     rescue => err

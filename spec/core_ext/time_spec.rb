@@ -207,4 +207,14 @@ describe Time do
       expect(Time.init_epoch_delta("1969/12/31 12:00:00")).to eql 60*60*12
     end
   end
+
+  describe "Time.sys" do
+    it "converts time to UTC or local" do
+      Time.use_utc
+      expect(Time.now.sys.utc?).to eql true
+      Time.use_local
+      expect(Time.now.sys.utc?).to eql false
+    end
+  end
+
 end

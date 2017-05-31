@@ -223,15 +223,11 @@ module Cosmos
 
     # Load a new configuration of ignored items and packets and reset
     #
-    # @param config_file [String] Configuration file base name which will be
+    # @param filename [String] Configuration file base name which will be
     #   expanded to find a file in the config/tools/limits_monitor dir.
     # @return [String] Message indicating success or fail
     def open_config(filename)
       return "" unless filename
-
-      unless Pathname.new(filename).absolute?
-        filename = File.join(::Cosmos::USERPATH, 'config', 'tools', 'limits_monitor', filename)
-      end
       return "Configuration file #{filename} not found!" unless File.exist?(filename)
 
       @ignored = []
@@ -263,7 +259,7 @@ module Cosmos
 
     # Save the current configuration of ignored items and packets.
     #
-    # @param config_file [String] Configuration file to save.
+    # @param filename [String] Configuration file to save.
     # @return [String] Message indicating success or fail
     def save_config(filename)
       begin
@@ -374,10 +370,10 @@ module Cosmos
       # @return [Widget] The widget which displays the value
       attr_accessor :value
 
-      # @parent [Qt::Widget] Parent widget (the LimitsMonitor tool)
-      # @target_name [String] Target name
-      # @packet_name [String] Packet name
-      # @item_name [String] Telemetry item name (nil for stale packets)
+      # @param parent [Qt::Widget] Parent widget (the LimitsMonitor tool)
+      # @param target_name [String] Target name
+      # @param packet_name [String] Packet name
+      # @param item_name [String] Telemetry item name (nil for stale packets)
       def initialize(parent, target_name, packet_name, item_name)
         super(parent)
         @layout = Qt::HBoxLayout.new
@@ -595,7 +591,7 @@ module Cosmos
     end
 
     # @return [String] Fully qualified path to the configuration file
-    def config_path
+    def default_config_path
       # If the config file has been set then just return it
       return @filename if @filename
       # This is the default path to the configuration files
@@ -605,7 +601,7 @@ module Cosmos
     # Opens the configuration file and loads the ignored items
     def open_config_file
       filename = Qt::FileDialog::getOpenFileName(self,
-        "Open Configuration File", config_path())
+        "Open Configuration File", default_config_path())
       unless filename.nil? || filename.empty?
         result = @limits_items.open_config(filename)
         statusBar.showMessage(tr(result))
@@ -615,7 +611,7 @@ module Cosmos
     # Saves the ignored items to the configuration file
     def save_config_file
       filename = Qt::FileDialog.getSaveFileName(self,
-        'Save As...', config_path(), 'Configuration Files (*.txt)')
+        'Save As...', default_config_path(), 'Configuration Files (*.txt)')
       unless filename.nil? || filename.empty?
         result = @limits_items.save_config(filename)
         statusBar.showMessage(tr(result))
@@ -714,12 +710,12 @@ module Cosmos
       widget
     end
 
-    # Update out of limit item with a values
+    # Update a widget with new values
     #
-    # @param target_name [String] Target name of out of limits item.
-    # @param packet_name [String] Packet name of out of limits item.
-    # @param item_name [String] Item name of out of limits item or nil
-    #   if its a stale packet
+    # @param widget [Qt::Widget] The widget to update
+    # @param value [Object] Value to update
+    # @param limits_state [Symbol] The items limits state, e.g. :GREEN, :RED, etc
+    # @param limits_set [Symbol] The current limits set, e.g. :DEFAULT
     def update_gui_item(widget, value, limits_state, limits_set)
       Qt.execute_in_main_thread(true) do
         widget.set_values(value, limits_state, limits_set) if widget

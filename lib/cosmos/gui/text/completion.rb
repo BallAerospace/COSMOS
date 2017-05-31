@@ -338,12 +338,29 @@ module Cosmos
           widget.textCursor.deletePreviousChar
           widget.textCursor.deletePreviousChar
           widget.textCursor.insertText('")')
+        elsif current_line.rstrip =~ /with$/
+          6.times { widget.textCursor.deletePreviousChar }
+          widget.textCursor.insertText('")')
         end
         return
       end
 
       if event.key == Qt::Key_Backspace
         popup.close
+        return
+      end
+
+      if event.key == Qt::Key_Return
+        # We've already processed the return and moved down a line
+        # Thus we need to move up and check the line before
+        cursor = widget.textCursor
+        cursor.movePosition(Qt::TextCursor::Up)
+        widget.setTextCursor(cursor)
+        current_line = widget.textCursor.block.text
+        indent = current_line.length - current_line.lstrip.length
+        cursor.movePosition(Qt::TextCursor::Down)
+        widget.setTextCursor(cursor)
+        widget.textCursor.insertText(' ' * indent)
         return
       end
 

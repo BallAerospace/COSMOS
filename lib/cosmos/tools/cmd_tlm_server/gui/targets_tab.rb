@@ -22,9 +22,6 @@ module Cosmos
     def populate(tab_widget)
       num_targets = System.targets.length
       if num_targets > 0
-        return if num_targets == 1 and System.targets['SYSTEM']
-        num_targets -= 1 if System.targets['SYSTEM']
-
         scroll = Qt::ScrollArea.new
         widget = Qt::Widget.new
         layout = Qt::VBoxLayout.new(widget)
@@ -51,7 +48,6 @@ module Cosmos
     def update
       row = 0
       System.targets.sort.each do |target_name, target|
-        next if target_name == 'SYSTEM'
         @targets_table.item(row,2).setText(target.cmd_cnt.to_s)
         @targets_table.item(row,3).setText(target.tlm_cnt.to_s)
         row += 1
@@ -63,7 +59,6 @@ module Cosmos
     def populate_targets_table
       row = 0
       System.targets.sort.each do |target_name, target|
-        next if target_name == 'SYSTEM'
         target_name_widget = Qt::TableWidgetItem.new(Qt::Object.tr(target_name))
         target_name_widget.setTextAlignment(Qt::AlignCenter)
         @targets_table.setItem(row, 0, target_name_widget)

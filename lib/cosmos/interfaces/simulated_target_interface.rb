@@ -35,7 +35,7 @@ module Cosmos
     def connect
       unless @initialized
         # Save the current time + 10 ms as the next expected tick time
-        @next_tick_time = Time.now + 0.01
+        @next_tick_time = Time.now.sys + 0.01
 
         begin
           @sim_target_class = Cosmos.require_class @sim_target_file
@@ -65,14 +65,14 @@ module Cosmos
 
         while true
           # Calculate time to sleep to make ticks 10ms apart
-          now = Time.now
+          now = Time.now.sys
           delta = @next_tick_time - now
           if delta > 0.0
             sleep(delta) # Sleep up to 10 ms
             return nil unless @connected
           elsif delta < -1.0
             # Fell way behind - jump next tick time
-            @next_tick_time = Time.now
+            @next_tick_time = Time.now.sys
           end
 
           @pending_packets = @sim_target.read(@count_100hz, @next_tick_time)

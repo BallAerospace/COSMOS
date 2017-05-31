@@ -31,8 +31,8 @@ module Cosmos
     end
     def read(count, time)
       pkts = []
-      pkts << Packet.new("COSMOS","VERSION")
-      pkts << Packet.new("COSMOS","VERSION")
+      pkts << Packet.new("SYSTEM","LIMITS_CHANGE")
+      pkts << Packet.new("SYSTEM","LIMITS_CHANGE")
     end
   end
 end
@@ -59,7 +59,7 @@ end
 
       it "creates the simulated target" do
         sti = SimulatedTargetInterface.new("test_inst.rb")
-        sti.target_names = ['COSMOS']
+        sti.target_names = ['SYSTEM']
         sti.connect
       end
     end
@@ -67,7 +67,7 @@ end
     describe "connected?" do
       it "initiallies be false" do
         sti = SimulatedTargetInterface.new("test_inst.rb")
-        sti.target_names = ['COSMOS']
+        sti.target_names = ['SYSTEM']
         expect(sti.connected?).to be false
         sti.connect
         expect(sti.connected?).to be true
@@ -81,15 +81,15 @@ end
 
       it "returns a simulated packet" do
         sti = SimulatedTargetInterface.new("test_inst.rb")
-        sti.target_names = ['COSMOS']
+        sti.target_names = ['SYSTEM']
         expect(sti.connected?).to be false
         sti.connect
         pkt = sti.read
-        expect(pkt.target_name).to eql "COSMOS"
-        expect(pkt.packet_name).to eql "VERSION"
+        expect(pkt.target_name).to eql "SYSTEM"
+        expect(pkt.packet_name).to eql "LIMITS_CHANGE"
         pkt = sti.read
-        expect(pkt.target_name).to eql "COSMOS"
-        expect(pkt.packet_name).to eql "VERSION"
+        expect(pkt.target_name).to eql "SYSTEM"
+        expect(pkt.packet_name).to eql "LIMITS_CHANGE"
       end
     end
 
@@ -100,10 +100,10 @@ end
 
       it "writes commands to the simulator" do
         sti = SimulatedTargetInterface.new("test_inst.rb")
-        sti.target_names = ['COSMOS']
+        sti.target_names = ['SYSTEM']
         expect(sti.connected?).to be false
         sti.connect
-        sti.write(Packet.new("COSMOS","SETLOGLABEL"))
+        sti.write(Packet.new("SYSTEM","SETLOGLABEL"))
       end
     end
 
@@ -116,7 +116,7 @@ end
     describe "disconnect" do
       it "disconnects from the simulator" do
         sti = SimulatedTargetInterface.new("test_inst.rb")
-        sti.target_names = ['COSMOS']
+        sti.target_names = ['SYSTEM']
         expect(sti.connected?).to be false
         sti.connect
         expect(sti.connected?).to be true

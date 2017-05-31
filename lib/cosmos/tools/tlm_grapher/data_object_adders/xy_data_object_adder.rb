@@ -24,8 +24,8 @@ module Cosmos
     # Callback called when the add button is pressed - call(data_object)
     attr_accessor :add_data_object_callback
 
-    # @parent [Qt::Widget] Parent widget to hold this frame
-    # @orientation [Integer] How to layout the frame.
+    # @param parent [Qt::Widget] Parent widget to hold this frame
+    # @param orientation [Integer] How to layout the frame.
     #   Must be Qt::Horizontal or Qt::Vertical.
     def initialize(parent, orientation = Qt::Horizontal)
       super(parent)
