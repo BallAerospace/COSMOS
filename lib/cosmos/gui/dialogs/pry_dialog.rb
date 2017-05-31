@@ -17,7 +17,7 @@ Cosmos.catch_fatal_exception do
 end
 
 module Cosmos
-
+  # Class to intercept keyPressEvents
   class PryLineEdit < Qt::LineEdit
     attr_accessor :keyPressCallback
     def keyPressEvent(event)
@@ -26,7 +26,11 @@ module Cosmos
     end
   end
 
+  # Creates a dialog with a {http://pryrepl.org pry instance}.
   class PryDialog < Qt::Dialog
+    # @param parent [Qt::Widget] Parent to this dialog
+    # @param pry_binding [Object] Ruby binding
+    # @param title [String] Dialog title
     def initialize(parent, pry_binding, title = 'Pry Dialog')
       super(parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint)
       setMinimumWidth(700)
@@ -102,6 +106,8 @@ module Cosmos
       end
     end
 
+    # @param text [String] Text to append to the dialog and send to the pry
+    #   instance
     def sendToPry(text)
       @text_edit.appendPlainText(text)
       @queue << text
@@ -159,7 +165,5 @@ module Cosmos
     def graceful_kill
       sendToPry("throw :breakout")
     end
-
-  end # class PryDialog
-
-end # module Cosmos
+  end
+end

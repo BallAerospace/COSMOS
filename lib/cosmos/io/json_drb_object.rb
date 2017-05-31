@@ -99,9 +99,9 @@ module Cosmos
             next if was_first_try
           end
           return handle_response(response)
-        end # loop
-      end # @mutex.synchronize
-    end # def method_missing
+        end
+      end
+    end
 
     private
 

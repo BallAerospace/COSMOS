@@ -68,11 +68,7 @@ module Cosmos
     end
 
     describe "read" do
-      it "handles COSMOS VERSION not being defined" do
-
-      end
-
-      it "returns the COSMOS VERSION packet and then COSMOS LIMITS_CHANGE" do
+      it "returns SYSTEM LIMITS_CHANGE" do
         @ctsi.connect
 
         pkt = Packet.new("TGT","PKT")
@@ -80,9 +76,6 @@ module Cosmos
         # Create a limits change event
         pi.limits.state = :GREEN
         @cts.limits_change_callback(pkt, pi, :RED, 100, true)
-
-        result = @ctsi.read
-        expect(result.read('CTDB')).to eql "Demo Version"
 
         result = @ctsi.read
         expect(result.read('TARGET')).to eql "TGT"
@@ -107,42 +100,42 @@ module Cosmos
       end
 
       it "accepts STARTLOGGING" do
-        pkt = System.commands.packet("COSMOS","STARTLOGGING")
+        pkt = System.commands.packet("SYSTEM","STARTLOGGING")
         pkt.restore_defaults
         pkt.write('INTERFACE','DEFAULT')
         @ctsi.write(pkt)
       end
 
       it "accepts STARTCMDLOG" do
-        pkt = System.commands.packet("COSMOS","STARTCMDLOG")
+        pkt = System.commands.packet("SYSTEM","STARTCMDLOG")
         pkt.restore_defaults
         pkt.write('INTERFACE','DEFAULT')
         @ctsi.write(pkt)
       end
 
       it "accepts STARTTLMLOG" do
-        pkt = System.commands.packet("COSMOS","STARTTLMLOG")
+        pkt = System.commands.packet("SYSTEM","STARTTLMLOG")
         pkt.restore_defaults
         pkt.write('INTERFACE','DEFAULT')
         @ctsi.write(pkt)
       end
 
       it "accepts STOPLOGGING" do
-        pkt = System.commands.packet("COSMOS","STOPLOGGING")
+        pkt = System.commands.packet("SYSTEM","STOPLOGGING")
         pkt.restore_defaults
         pkt.write('INTERFACE','DEFAULT')
         @ctsi.write(pkt)
       end
 
       it "accepts STOPCMDLOG" do
-        pkt = System.commands.packet("COSMOS","STOPCMDLOG")
+        pkt = System.commands.packet("SYSTEM","STOPCMDLOG")
         pkt.restore_defaults
         pkt.write('INTERFACE','DEFAULT')
         @ctsi.write(pkt)
       end
 
       it "accepts STOPTLMLOG" do
-        pkt = System.commands.packet("COSMOS","STOPTLMLOG")
+        pkt = System.commands.packet("SYSTEM","STOPTLMLOG")
         pkt.restore_defaults
         pkt.write('INTERFACE','DEFAULT')
         @ctsi.write(pkt)
@@ -151,4 +144,3 @@ module Cosmos
 
   end
 end
-

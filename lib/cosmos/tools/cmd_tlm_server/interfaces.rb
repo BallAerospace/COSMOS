@@ -27,6 +27,16 @@ module Cosmos
       @identified_packet_callback = identified_packet_callback
     end
 
+    # Get the targets of an interface
+    #
+    # @param interface_name [String] Interface to return target list
+    # @return [Array<String>] All the targets mapped to this interface
+    def targets(interface_name)
+      interface = @config.interfaces[interface_name.upcase]
+      raise "Unknown interface: #{interface_name}" unless interface
+      interface.target_names
+    end
+
     # Determines all targets in the system and maps them to the given interface
     #
     # @param interface_name [String] The interface to map all targets to
@@ -100,6 +110,22 @@ module Cosmos
       stop_thread(interface)
 
       return new_interface
+    end
+
+    # Get info about an interface by name
+    #
+    # @return [Array<String, Numeric, Numeric, Numeric, Numeric, Numeric, 
+    #   Numeric, Numeric>] Array containing \[state, num_clients, 
+    #   write_queue_size, read_queue_size, bytes_written, bytes_read, 
+    #   write_count, read_count] for the interface
+    def get_info(interface_name)
+      interface = @config.interfaces[interface_name.upcase]
+      raise "Unknown interface: #{interface_name}" unless interface
+
+      return [state(interface_name),      interface.num_clients, 
+              interface.write_queue_size, interface.read_queue_size,
+              interface.bytes_written,    interface.bytes_read,
+              interface.write_count,      interface.read_count]
     end
 
     protected

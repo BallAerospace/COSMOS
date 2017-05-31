@@ -15,8 +15,9 @@ require 'cosmos'
 require 'cosmos/gui/dialogs/details_dialog'
 
 module Cosmos
-
+  # Creates a dialog which shows the details of the given command.
   class CmdDetailsDialog < DetailsDialog
+    # (see DetailsDialog#initialize)
     def initialize(parent, target_name, packet_name, item_name)
       super(parent, target_name, packet_name, item_name)
 
@@ -45,8 +46,6 @@ module Cosmos
       rescue DRb::DRbConnError
         # Just do nothing
       end
-
     end
-  end # class CmdDetailsDialog
-
-end # module Cosmos
+  end
+end

@@ -9,56 +9,77 @@
 # attribution addendums as found in the LICENSE.txt
 
 module Cosmos
-
+  # Help->About dialog which is part of all COSMOS tools. Displays the license,
+  # software versions, environment variables, and general COSMOS information.
+  # Also provides a backdoor to a PRY dialog to aid in debugging. See
+  # {PryDialog} for more details.
   class AboutDialog < Qt::Dialog
-    ABOUT_COSMOS = ''
-    ABOUT_COSMOS << "COSMOS application icons are courtesy of http://icons8.com.\n"
-    ABOUT_COSMOS << "COSMOS application sounds are courtesy of http://www.freesfx.co.uk.\n"
-    ABOUT_COSMOS << "\n"
-    ABOUT_COSMOS << "COSMOS utilizes the QtRuby (http://rubyforge.org/projects/korundum) library under "
-    ABOUT_COSMOS << "the GNU Lesser General Public License. QtRuby is a Ruby extension module that provides an "
-    ABOUT_COSMOS << "interface to the Qt Gui Toolkit (http://qt-project.org) by Digia "
-    ABOUT_COSMOS << "under the GNU Lesser General Public License.\n"
-    ABOUT_COSMOS << "\n"
-    ABOUT_COSMOS << "Ruby Version: ruby #{RUBY_VERSION} (#{RUBY_RELEASE_DATE} patchlevel #{RUBY_PATCHLEVEL}) [#{RUBY_PLATFORM}]\n"
-    ABOUT_COSMOS << "Rubygems Version: #{Gem::VERSION}\n"
-    ABOUT_COSMOS << "Qt Version: #{Qt::qVersion}\n"
-    ABOUT_COSMOS << "Cosmos::PATH: #{Cosmos::PATH}\n"
-    ABOUT_COSMOS << "Cosmos::USERPATH: #{Cosmos::USERPATH}\n"
-    ABOUT_COSMOS << "\n"
-    ABOUT_COSMOS << "Environment Variables:\n"
-    ABOUT_COSMOS << "RUBYLIB: #{ENV['RUBYLIB']}\n"
-    ABOUT_COSMOS << "RUBYOPT: #{ENV['RUBYOPT']}\n"
-    ABOUT_COSMOS << "GEM_PATH: #{ENV['GEM_PATH']}\n"
-    ABOUT_COSMOS << "GEM_HOME: #{ENV['GEM_HOME']}\n"
-    ABOUT_COSMOS << "\n"
-    ABOUT_COSMOS << "Loaded Gems:\n"
+    # About text to display in the dialog
+    ABOUT_COSMOS = "COSMOS application icons are courtesy of http://icons8.com.\n"\
+      "COSMOS application sounds are courtesy of http://www.freesfx.co.uk.\n"\
+      "\n"\
+      "COSMOS utilizes the QtRuby (http://rubyforge.org/projects/korundum) "\
+      "library under the GNU Lesser General Public License. "\
+      "QtRuby is a Ruby extension module that provides an "\
+      "interface to the Qt Gui Toolkit (http://qt-project.org) by Digia "\
+      "under the GNU Lesser General Public License.\n\n"\
+      "Ruby Version: ruby #{RUBY_VERSION} (#{RUBY_RELEASE_DATE} "\
+      "patchlevel #{RUBY_PATCHLEVEL}) [#{RUBY_PLATFORM}]\n"\
+      "Rubygems Version: #{Gem::VERSION}\n"\
+      "Qt Version: #{Qt::qVersion}\n"\
+      "Cosmos::PATH: #{Cosmos::PATH}\n"\
+      "Cosmos::USERPATH: #{Cosmos::USERPATH}\n\n"\
+      "Environment Variables:\n"\
+      "RUBYLIB: #{ENV['RUBYLIB']}\n"\
+      "RUBYOPT: #{ENV['RUBYOPT']}\n"\
+      "GEM_PATH: #{ENV['GEM_PATH']}\n"\
+      "GEM_HOME: #{ENV['GEM_HOME']}\n\n"\
+      "Loaded Gems:\n"
     Gem.loaded_specs.values.map {|x| ABOUT_COSMOS << "#{x.name} #{x.version} #{x.platform}\n"}
 
     @@pry_dialogs = []
 
-    def initialize (parent, about_string)
+    # @param parent [Qt::Widget] Part of the dialog (the application)
+    # @param about_string [String] Application specific informational text
+    def initialize(parent, about_string)
       super(parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint)
       @saved_text = ''
       setWindowTitle('About')
 
-      # Get Word Icon
       filename = File.join(::Cosmos::USERPATH, 'config', 'data', 'cosmos_word.gif')
       filename = File.join(::Cosmos::PATH, 'data', 'cosmos_word.gif') unless File.exist?(filename)
       word_icon = Qt::Label.new
       word_icon.setPixmap(Qt::Pixmap.new(filename))
 
-      copyright = Qt::Label.new("Copyright 2014 - Ball Aerospace & Technologies Corp.")
+      copyright = Qt::Label.new("Copyright 2017 - Ball Aerospace & Technologies Corp.")
+      copyright.setFont(Cosmos.getFont("Arial", 12))
       authors = Qt::Label.new("Created by Ryan Melton (ryanmelt) and Jason Thomas (jmthomas)")
-      ver = Qt::Label.new("Version: " + COSMOS_VERSION)
-      user_ver = nil
-      user_ver = Qt::Label.new("User Version: " + USER_VERSION) if defined? USER_VERSION and USER_VERSION != 'Unofficial'
+      authors.setFont(Cosmos.getFont("Arial", 12))
+
+      cosmos_layout = Qt::GridLayout.new
+      version = Qt::Label.new("Version: " + COSMOS_VERSION)
+      version.setFont(Cosmos.getFont("Arial", 14))
+      open_cosmos_code = Qt::PushButton.new("Open COSMOS Gem Code") do
+        connect(SIGNAL('clicked()')) { Cosmos.open_file_browser(Cosmos::PATH) }
+      end
+      cosmos_layout.addWidget(version, 0, 0)
+      cosmos_layout.addWidget(open_cosmos_code, 0, 1)
+
+      if USER_VERSION && USER_VERSION != 'Unofficial'
+        user_version = Qt::Label.new("Project Version: " + USER_VERSION)
+        user_version.setFont(Cosmos.getFont("Arial", 14))
+        cosmos_layout.addWidget(user_version, 1, 0)
+      end
+      open_user_code = Qt::PushButton.new("Open Project Code") do
+        connect(SIGNAL('clicked()')) { Cosmos.open_file_browser(Cosmos::USERPATH) }
+      end
+      cosmos_layout.addWidget(open_user_code, 1, 1)
+
       icon_layout = Qt::VBoxLayout.new do
         addWidget(word_icon)
         addWidget(copyright)
         addWidget(authors)
-        addWidget(ver)
-        addWidget(user_ver) if user_ver
+        addLayout(cosmos_layout)
         addStretch
       end
 
@@ -68,7 +89,9 @@ module Cosmos
       configurable_about_text = File.read(filename)
       configurable_about_text.gsub!("\r", '') unless Kernel.is_windows?
       if Kernel.is_windows?
-        configurable_about_text << "\n" + "Main Application x:#{parent.x} y:#{parent.y} width:#{parent.frameGeometry.width + 16} height:#{parent.frameGeometry.height + 38}\n\n" +  ABOUT_COSMOS
+        configurable_about_text << "\n" \
+          "Main Application x:#{parent.x} y:#{parent.y} width:#{parent.frameGeometry.width + 16} " \
+          "height:#{parent.frameGeometry.height + 38}\n\n" +  ABOUT_COSMOS
       else
         configurable_about_text << "\n" + "Main Application x:#{parent.x} y:#{parent.y} width:#{parent.frameGeometry.width} height:#{parent.frameGeometry.height}\n\n" +  ABOUT_COSMOS      end
 
@@ -104,11 +127,14 @@ module Cosmos
       end
 
       setMaximumWidth(800)
+      ok.setFocus
       self.raise()
       exec()
       dispose()
     end
 
+    # Register key press events to listen for 'p', 'r', 'y' and popup a {PryDialog}
+    # @param event [Qt::Event] The keypress event
     def keyPressEvent(event)
       @saved_text << event.text.to_s
       if @saved_text[0] == 'p'
@@ -131,7 +157,5 @@ module Cosmos
       end
       super(event)
     end
-
-  end # class AboutDialog
-
-end # module Cosmos
+  end
+end

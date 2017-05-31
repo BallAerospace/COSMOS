@@ -556,7 +556,7 @@ module Cosmos
     # Restore all items in the packet to their default value
     #
     # @param buffer [String] Raw buffer of binary data
-    # @param skip_items_names [Array] Array of item names to skip
+    # @param skip_item_names [Array] Array of item names to skip
     def restore_defaults(buffer = @buffer, skip_item_names = nil)
       upcase_skip_item_names = skip_item_names.map(&:upcase) if skip_item_names
       @sorted_items.each do |item|

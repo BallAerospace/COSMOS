@@ -50,19 +50,19 @@ module Cosmos
         @interface.target_names = %w(TEST COSMOS)
         packet = @interface.read
         expect(packet.received_time.to_f).to be_within(0.1).of(Time.now.to_f)
-        expect(packet.target_name).to eql 'COSMOS'
-        expect(packet.packet_name).to eql 'VERSION'
+        expect(packet.target_name).to eql 'SYSTEM'
+        expect(packet.packet_name).to eql 'META'
         packet = @interface.read
         expect(packet.received_time.to_f).to be_within(0.1).of(Time.now.to_f)
-        expect(packet.target_name).to eql 'COSMOS'
+        expect(packet.target_name).to eql 'SYSTEM'
         expect(packet.packet_name).to eql 'LIMITS_CHANGE'
         packet = @interface.read
         expect(packet.received_time.to_f).to be_within(0.1).of(Time.now.to_f)
-        expect(packet.target_name).to eql 'COSMOS'
-        expect(packet.packet_name).to eql 'VERSION'
+        expect(packet.target_name).to eql 'SYSTEM'
+        expect(packet.packet_name).to eql 'META'
         packet = @interface.read
         expect(packet.received_time.to_f).to be_within(0.1).of(Time.now.to_f)
-        expect(packet.target_name).to eql 'COSMOS'
+        expect(packet.target_name).to eql 'SYSTEM'
         expect(packet.packet_name).to eql 'LIMITS_CHANGE'
       end
 
@@ -84,7 +84,7 @@ module Cosmos
         @interface.target_names = %w(TEST COSMOS)
         packet = @interface.read
         expect(packet.received_time.to_f).to be_within(0.01).of(Time.now.to_f)
-        expect(packet.target_name).to eql 'COSMOS'
+        expect(packet.target_name).to eql 'SYSTEM'
         expect(packet.packet_name).to eql 'STARTLOGGING'
       end
     end

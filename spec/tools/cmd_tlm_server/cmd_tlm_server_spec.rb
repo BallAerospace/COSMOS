@@ -60,7 +60,7 @@ module Cosmos
       it "creates the CTS in production mode" do
         # Production mode means we start logging
         expect_any_instance_of(PacketLogging).to receive(:start)
-        cts = CmdTlmServer.new('cmd_tlm_server.txt', true)
+        cts = CmdTlmServer.new(CmdTlmServer::DEFAULT_CONFIG_FILE, true)
         begin
           # Verify we disabled the ability to stop logging
           expect(CmdTlmServer.json_drb.method_whitelist).to include('start_logging')
@@ -292,54 +292,34 @@ module Cosmos
       end
     end
 
-    #describe "self.subscribe_packet_data" do
-      #it "subscribes to packets" do
-      #  cts = CmdTlmServer.new
-      #  sleep 0.1
-      #  begin
-      #    id = CmdTlmServer.subscribe_packet_data([["COSMOS","LIMITS_CHANGE"]], 10)
-      #    hs = System.telemetry.packet("INST","HEALTH_STATUS")
-      #    hs.check_limits
-      #    hs.write("TEMP1", 0xFFFF, :RAW)
-      #    hs.check_limits
-      #    hs.write("TEMP1", 0, :RAW)
-      #    hs.check_limits
-      #    sleep 0.5
+    describe "self.subscribe_packet_data" do
+      it "rejects bad queue sizes" do
+        expect{ CmdTlmServer.subscribe_packet_data([["SYSTEM","LIMITS_CHANGE"]], true) }.to raise_error(ArgumentError)
+      end
 
-      #    # Get and check the packet
-      #    retry_count = 0
-      #    begin
-      #      buffer,tgt,pkt,tv_sec,tv_usec,cnt = CmdTlmServer.get_packet_data(id, true)
-      #      expect(buffer).not_to be_nil
-      #      expect(tgt).to eql "COSMOS"
-      #      expect(pkt).to eql "LIMITS_CHANGE"
-      #      expect(tv_sec).to be > 0
-      #      expect(tv_usec).to be > 0
-      #      expect(cnt).to be > 0
-      #    rescue => err
-      #      sleep 0.1
-      #      retry_count += 1
-      #      retry if retry_count < 5
-      #    end
-      #  ensure
-      #    cts.stop
-      #    sleep 0.2
-      #    expect(retry_count).to be < 5
-      #  end
-      #end
+      it "subscribes to packets" do
+        limts_change = System.telemetry.packet("SYSTEM","LIMITS_CHANGE")
+        allow_any_instance_of(Interface).to receive(:read) do
+          sleep 0.05
+          limts_change
+        end
 
-      #it "deletes queues after the max packets is reached" do
-      #  cts = CmdTlmServer.new
-      #  sleep 0.1
-      #  begin
-      #    id = CmdTlmServer.subscribe_packet_data([["COSMOS","LIMITS_CHANGE"]], 10)
-      #    hs = System.telemetry.packet("INST","HEALTH_STATUS")
-      #    hs.check_limits
-      #    hs.write("TEMP1", 0xFFFF, :RAW)
-      #    hs.check_limits
-      #    hs.write("TEMP1", 0, :RAW)
-      #    hs.check_limits
-      #    sleep 0.5
+        cts = CmdTlmServer.new
+        id = CmdTlmServer.subscribe_packet_data([["SYSTEM","LIMITS_CHANGE"]])
+
+        # Get and check the packet
+        begin
+          buffer,tgt,pkt,tv_sec,tv_usec,cnt = CmdTlmServer.get_packet_data(id, true)
+          expect(buffer).not_to be_nil
+          expect(tgt).to eql "SYSTEM"
+          expect(pkt).to eql "LIMITS_CHANGE"
+          expect(tv_sec).to be > 0
+          expect(tv_usec).to be > 0
+          expect(cnt).to eql 1
+        rescue => err
+          sleep 0.1
+          retry
+        end
 
       #    # Get and check the packet
       #    buffer,tgt,pkt,tv_sec,tv_usec,cnt = CmdTlmServer.get_packet_data(id, true)
@@ -349,32 +329,19 @@ module Cosmos
       #    expect(tv_sec).to be > 0
       #    expect(cnt).to be > 0
 
-      #    # Allow the interface read to fill the queue
-      #    hs.write("TEMP1", 0x3FFF, :RAW)
-      #    hs.check_limits
-      #    hs.write("TEMP1", 0x7FFF, :RAW)
-      #    hs.check_limits
-      #    hs.write("TEMP1", 0xAFFF, :RAW)
-      #    hs.check_limits
-      #    hs.write("TEMP1", 0xFFFF, :RAW)
-      #    hs.check_limits
-      #    hs.write("TEMP1", 0, :RAW)
-      #    hs.check_limits
-      #    hs.write("TEMP1", 0x3FFF, :RAW)
-      #    hs.check_limits
-      #    hs.write("TEMP1", 0x7FFF, :RAW)
-      #    hs.check_limits
-      #    hs.write("TEMP1", 0xFFFF, :RAW)
-      #    hs.check_limits
-      #    hs.write("TEMP1", 0, :RAW)
-      #    hs.check_limits
-      #    hs.write("TEMP1", 0x3FFF, :RAW)
-      #    hs.check_limits
-      #    hs.write("TEMP1", 0x7FFF, :RAW)
-      #    hs.check_limits
-      #    hs.write("TEMP1", 0xFFFF, :RAW)
-      #    hs.check_limits
-      #    sleep 0.5
+        # Get and check the second one
+        begin
+          buffer,tgt,pkt,tv_sec,tv_usec,cnt = CmdTlmServer.get_packet_data(id, true)
+          expect(buffer).not_to be_nil
+          expect(tgt).to eql "SYSTEM"
+          expect(pkt).to eql "LIMITS_CHANGE"
+          expect(tv_sec).to be > 0
+          expect(tv_usec).to be > 0
+          expect(cnt).to eql 2
+        rescue
+          sleep 0.1
+          retry
+        end
 
       #    # Try to get another packet
       #    expect { CmdTlmServer.get_packet_data(id) }.to raise_error("Packet data queue with id #{id} not found")
@@ -385,40 +352,65 @@ module Cosmos
       #end
     #end
 
-    describe "self.unsubscribe_packet_data" do
-      it "unsubscribes to packets" do
-        version = System.telemetry.packet("COSMOS","VERSION")
+      it "deletes queues after the max packets is reached" do
+        limits_change = System.telemetry.packet("SYSTEM","LIMITS_CHANGE")
         allow_any_instance_of(Interface).to receive(:read) do
-          sleep 0.05
-          version
+          sleep 0.1
+          limits_change
         end
 
         cts = CmdTlmServer.new
-        begin
-          id = CmdTlmServer.subscribe_packet_data([["COSMOS","VERSION"]], 2)
+        id = CmdTlmServer.subscribe_packet_data([["SYSTEM","LIMITS_CHANGE"]], 2)
 
-          # Get and check the packet
-          retry_count = 0
-          begin
-            buffer,tgt,pkt,tv_sec,tv_usec,cnt = CmdTlmServer.get_packet_data(id, true)
-            expect(buffer).not_to be_nil
-            expect(tgt).to eql "COSMOS"
-            expect(pkt).to eql "VERSION"
-            expect(tv_sec).to be > 0
-            expect(tv_usec).to be > 0
-            expect(cnt).to be > 0
-          rescue => err
-            sleep 0.1
-            retry_count += 1
-            retry if retry_count < 5
-          end
-          # Unsubscribe and try to get another packet
-          CmdTlmServer.unsubscribe_packet_data(id)
-          expect { CmdTlmServer.get_packet_data(id) }.to raise_error("Packet data queue with id #{id} not found")
-        ensure
-          cts.stop
-          sleep 0.2
-          expect(retry_count).to be < 5
+        # Get and check the packet
+        begin
+          buffer,tgt,pkt,tv_sec,tv_usec,cnt = CmdTlmServer.get_packet_data(id, true)
+          expect(buffer).not_to be_nil
+          expect(tgt).to eql "SYSTEM"
+          expect(pkt).to eql "LIMITS_CHANGE"
+          expect(tv_sec).to be > 0
+
+          expect(tv_usec).to be > 0
+          expect(cnt).to be > 0
+        rescue
+          sleep 0.1
+          retry
+        end
+
+        # Allow the interface read to fill the queue
+        sleep 0.4
+
+        # Try to get another packet
+        expect { CmdTlmServer.get_packet_data(id) }.to raise_error("Packet data queue with id #{id} not found")
+
+        cts.stop
+        sleep 0.2
+      end
+    end
+
+    describe "self.unsubscribe_packet_data" do
+      it "unsubscribes to packets" do
+        limits_change = System.telemetry.packet("SYSTEM","LIMITS_CHANGE")
+        allow_any_instance_of(Interface).to receive(:read) do
+          sleep 0.05
+          limits_change
+        end
+
+        cts = CmdTlmServer.new
+        id = CmdTlmServer.subscribe_packet_data([["SYSTEM","LIMITS_CHANGE"]], 2)
+
+        # Get and check the packet
+        begin
+          buffer,tgt,pkt,tv_sec,tv_usec,cnt = CmdTlmServer.get_packet_data(id, true)
+          expect(buffer).not_to be_nil
+          expect(tgt).to eql "SYSTEM"
+          expect(pkt).to eql "LIMITS_CHANGE"
+          expect(tv_sec).to be > 0
+          expect(tv_usec).to be > 0
+          expect(cnt).to be > 0
+        rescue => err
+          sleep 0.1
+          retry
         end
       end
     end
@@ -426,13 +418,11 @@ module Cosmos
     describe "self.get_packet_data" do
       it "raises an error if the queue is empty and non_block" do
         cts = CmdTlmServer.new
-        begin
-          id = CmdTlmServer.subscribe_packet_data([["COSMOS","VERSION"]])
-          expect { CmdTlmServer.get_packet_data(id, true) }.to raise_error(ThreadError)
-        ensure
-          cts.stop
-          sleep 0.2
-        end
+        id = CmdTlmServer.subscribe_packet_data([["SYSTEM","LIMITS_CHANGE"]])
+
+        expect { CmdTlmServer.get_packet_data(id, true) }.to raise_error(ThreadError)
+        cts.stop
+        sleep 0.2
       end
     end
 

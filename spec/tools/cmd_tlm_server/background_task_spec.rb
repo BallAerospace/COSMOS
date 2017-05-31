@@ -13,12 +13,25 @@ require 'cosmos'
 require 'cosmos/tools/cmd_tlm_server/background_task'
 
 module Cosmos
-
   describe BackgroundTask do
+    describe "initialize" do
+      it "initializes local variables" do
+        b1 = BackgroundTask.new
+        expect(b1.name).to eq "Background Task 1"
+        expect(b1.thread).to be_nil
+        expect(b1.status).to eq ''
+        expect(b1.stopped).to eq false
+        b2 = BackgroundTask.new
+        expect(b2.name).to eq "Background Task 2"
+        expect(b1.thread).to be_nil
+        expect(b1.status).to eq ''
+        expect(b2.stopped).to eq false
+      end
+    end
 
     describe "call" do
       it "raises an error" do
-        expect { BackgroundTask.new.call }.to raise_error(/call method must be defined/)
+        expect { BackgroundTask.new.call }.to raise_error(/must be defined by subclass/)
       end
     end
 
@@ -29,4 +42,3 @@ module Cosmos
     end
   end
 end
-

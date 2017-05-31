@@ -14,6 +14,7 @@ Cosmos.catch_fatal_exception do
   require 'cosmos/gui/dialogs/packet_log_dialog'
   require 'cosmos/gui/dialogs/splash'
   require 'cosmos/gui/dialogs/progress_dialog'
+  require 'cosmos/gui/utilities/analyze_log'
 end
 
 module Cosmos
@@ -52,6 +53,11 @@ module Cosmos
     def initialize_actions
       super()
 
+      # File Menu Actions
+      @analyze_log = Qt::Action.new(tr('&Analyze Logs'), self)
+      @analyze_log.statusTip = tr('Analyze log file packet counts')
+      @analyze_log.connect(SIGNAL('triggered()')) { analyze_log_files() }
+
       # Mode Menu Actions
       @include_raw = Qt::Action.new(tr('Include &Raw Data'), self)
       @include_raw_keyseq = Qt::KeySequence.new(tr('Ctrl+R'))
@@ -63,6 +69,8 @@ module Cosmos
     def initialize_menus
       # File Menu
       @file_menu = menuBar.addMenu(tr('&File'))
+      @file_menu.addAction(@analyze_log)
+      @file_menu.addSeparator()
       @file_menu.addAction(@exit_action)
 
       # Mode Menu
@@ -120,6 +128,10 @@ module Cosmos
     ###############################################################################
     # File Menu Handlers
     ###############################################################################
+
+    def analyze_log_files
+      AnalyzeLog.execute(self, @packet_log_frame)
+    end
 
     def process_log_files
       @cancel = false

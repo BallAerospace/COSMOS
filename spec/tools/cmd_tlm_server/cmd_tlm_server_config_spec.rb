@@ -142,7 +142,7 @@ module Cosmos
           tf.puts 'AUTO_INTERFACE_TARGETS'
           tf.close
           config = CmdTlmServerConfig.new(tf.path)
-          expect(config.interfaces.keys).to eql %w(INST_INT COSMOSINT)
+          expect(config.interfaces.keys).to eql %w(INST_INT SYSTEM_INT)
           tf.unlink
         end
       end

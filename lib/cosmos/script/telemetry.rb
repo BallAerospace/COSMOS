@@ -73,6 +73,19 @@ module Cosmos
       return $cmd_tlm_server.set_tlm_raw(*args)
     end
 
+    # Injects a packet into the system as if it was received from an interface
+    #
+    # @param target_name[String] Target name of the packet
+    # @param packet_name[String] Packet name of the packet
+    # @param item_hash[Hash] Hash of item_name and value for each item you want to change from the current value table
+    # @param value_type[Symbol/String] Type of the values in the item_hash (RAW or CONVERTED)
+    # @param send_routers[Boolean] Whether or not to send to routers for the target's interface
+    # @param send_packet_log_writers[Boolean] Whether or not to send to the packet log writers for the target's interface
+    # @param create_new_logs[Boolean] Whether or not to create new log files before writing this packet to logs
+    def inject_tlm(target_name, packet_name, item_hash = nil, value_type = :CONVERTED, send_routers = true, send_packet_log_writers = true, create_new_logs = false)
+      return $cmd_tlm_server.inject_tlm(target_name, packet_name, item_hash, value_type, send_routers, send_packet_log_writers, create_new_logs)
+    end
+
     # Permanently set the converted value of a telemetry point to a given value
     # Usage:
     #   override_tlm(target_name, packet_name, item_name, value)
@@ -176,7 +189,7 @@ module Cosmos
     def get_packet_data(id, non_block = false)
       results = $cmd_tlm_server.get_packet_data(id, non_block)
       if Array === results and results[3] and results[4]
-        results[3] = Time.at(results[3], results[4])
+        results[3] = Time.at(results[3], results[4]).sys
         results.delete_at(4)
       end
       results

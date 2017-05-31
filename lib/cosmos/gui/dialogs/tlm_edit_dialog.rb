@@ -16,66 +16,64 @@ require 'cosmos/gui/qt'
 require 'cosmos/script'
 
 module Cosmos
-
-  # TlmEditDialog class
-  #
+  # Dialog which allows the user to enable or disable limits checking for the
+  # given item.
   class TlmEditDialog
-    def initialize (parent, target_name, packet_name, item_name)
+    # @param parent [Qt::Widget] Dialog parent
+    # @param target_name [String] Name of the target
+    # @param packet_name [String] Name of the packet
+    # @param item_name [String] Name of the item
+    def initialize(parent, target_name, packet_name, item_name)
       begin
-        begin
-          limits_enabled = limits_enabled?(target_name, packet_name, item_name)
-        rescue RuntimeError
-          # Error most likely due to LATEST packet - Ignore
-          limits_enabled = nil
-        end
-
-        unless limits_enabled.nil?
-          dialog = Qt::Dialog.new(parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint)
-          dialog.setWindowTitle("Edit Settings for #{target_name} #{packet_name} #{item_name}")
-          dialog_layout = Qt::VBoxLayout.new
-          dialog_layout.addWidget(Qt::Label.new("Warning: Edits affect all COSMOS tools, not just this application!"))
-
-          check_layout = Qt::HBoxLayout.new
-          check_label = Qt::Label.new("Limits Checking Enabled:")
-          checkbox = Qt::CheckBox.new
-          checkbox.setChecked(limits_enabled)
-          check_label.setBuddy(checkbox)
-          check_layout.addWidget(check_label)
-          check_layout.addWidget(checkbox)
-          dialog_layout.addLayout(check_layout)
-
-          button_layout = Qt::HBoxLayout.new
-          ok = Qt::PushButton.new("Ok")
-          ok.connect(SIGNAL('clicked()')) do
-            dialog.accept()
-          end
-          button_layout.addWidget(ok)
-          cancel = Qt::PushButton.new("Cancel")
-          cancel.connect(SIGNAL('clicked()')) do
-            dialog.reject()
-          end
-          button_layout.addWidget(cancel)
-          dialog_layout.addLayout(button_layout)
-
-          dialog.setLayout(dialog_layout)
-          dialog.show
-          dialog.raise
-          if dialog.exec == Qt::Dialog::Accepted
-            if checkbox.isChecked()
-              enable_limits(target_name, packet_name, item_name)
-            else
-              disable_limits(target_name, packet_name, item_name)
-            end
-          end
-          dialog.dispose
-        else
-          Qt::MessageBox.information(parent, "Edit Settings for #{target_name} #{packet_name} #{item_name}",
-            'No Editable Fields for this Item')
-        end
-      rescue DRb::DRbConnError
-        #Just do nothing
+        limits_enabled = limits_enabled?(target_name, packet_name, item_name)
+      rescue RuntimeError
+        # Error most likely due to LATEST packet - Ignore
+        limits_enabled = nil
       end
-    end
-  end # class TlmEditDialog
 
-end # module Cosmos
+      # Check for nil because true and false are both valid values
+      if limits_enabled.nil?
+        Qt::MessageBox.information(parent, "Edit Settings for #{target_name} #{packet_name} #{item_name}",
+          'No Editable Fields for this Item')
+        return
+      end
+
+      dialog = Qt::Dialog.new(parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint)
+      dialog.setWindowTitle("Edit Settings for #{target_name} #{packet_name} #{item_name}")
+      dialog_layout = Qt::VBoxLayout.new
+      dialog_layout.addWidget(Qt::Label.new("Warning: Edits affect all COSMOS tools, not just this application!"))
+
+      check_layout = Qt::HBoxLayout.new
+      check_label = Qt::Label.new("Limits Checking Enabled:")
+      checkbox = Qt::CheckBox.new
+      checkbox.setChecked(limits_enabled)
+      check_label.setBuddy(checkbox)
+      check_layout.addWidget(check_label)
+      check_layout.addWidget(checkbox)
+      dialog_layout.addLayout(check_layout)
+
+      button_layout = Qt::HBoxLayout.new
+      ok = Qt::PushButton.new("Ok")
+      ok.connect(SIGNAL('clicked()')) { dialog.accept }
+      button_layout.addWidget(ok)
+      cancel = Qt::PushButton.new("Cancel")
+      cancel.connect(SIGNAL('clicked()')) { dialog.reject }
+      button_layout.addWidget(cancel)
+      dialog_layout.addLayout(button_layout)
+
+      dialog.setLayout(dialog_layout)
+      dialog.show
+      dialog.raise
+      if dialog.exec == Qt::Dialog::Accepted
+        if checkbox.isChecked()
+          enable_limits(target_name, packet_name, item_name)
+        else
+          disable_limits(target_name, packet_name, item_name)
+        end
+      end
+      dialog.dispose
+    rescue DRb::DRbConnError
+      # Just do nothing
+    end
+  end
+end

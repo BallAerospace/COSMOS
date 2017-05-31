@@ -70,11 +70,11 @@ spec = Gem::Specification.new do |s|
   # Runtime Dependencies
   s.add_runtime_dependency 'bundler', '~> 1.3'
   s.add_runtime_dependency 'rdoc', '>= 3', '< 5'
-  s.add_runtime_dependency 'rake', '>= 0', '< 11'
+  s.add_runtime_dependency 'rake', '>= 0', '< 13'
   s.add_runtime_dependency 'json', '>= 1.5', '< 1.9'
   s.add_runtime_dependency 'pry', '>= 0.9', '< 0.11'
   s.add_runtime_dependency 'pry-doc', '>= 0.5', '< 0.7'
-  s.add_runtime_dependency 'yard', '~> 0.8.0'
+  s.add_runtime_dependency 'yard', '>= 0.8', '< 0.10'
   s.add_runtime_dependency 'uuidtools', '~> 2.1.0'
   s.add_runtime_dependency 'opengl', '>= 0.7', '< 0.10'
   s.add_runtime_dependency 'snmp', '~> 1.0'

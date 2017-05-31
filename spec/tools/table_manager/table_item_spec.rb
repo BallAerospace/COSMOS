@@ -28,7 +28,7 @@ module Cosmos
       end
 
       it "complains about non boolean values" do
-        expect { @ti.editable = 5 }.to raise_error(ArgumentError, "#{@ti.name}: editable must be a boolean but is a Fixnum")
+        expect { @ti.editable = 5.1 }.to raise_error(ArgumentError, "#{@ti.name}: editable must be a boolean but is a Float")
       end
     end
 

@@ -82,7 +82,7 @@ module Cosmos
             end
             # Set some variables so we can update the packet in
             # post_read_packet
-            @received_time = Time.now
+            @received_time = Time.now.sys
             @target_name = identified_packet.target_name
             @packet_name = identified_packet.packet_name
 

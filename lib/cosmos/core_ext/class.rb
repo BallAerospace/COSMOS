@@ -32,7 +32,7 @@ class Class
   #   MyClass.test # returns "Test"
   #
   # @param args [Array<Symbol>] Array of symbols which should be turned into
-  #   instance variables with class method accessors
+  #   instance variables with class method readers
   def instance_attr_reader(*args)
     args.each do |arg|
       self.class_eval("def #{arg};@#{arg};end")
@@ -40,6 +40,8 @@ class Class
     end
   end
 
+  # @param args [Array<Symbol>] Array of symbols which should be turned into
+  #   instance variables with class method accessors (read and write)
   def instance_attr_accessor(*args)
     args.each do |arg|
       self.class_eval("def #{arg};@#{arg};end")

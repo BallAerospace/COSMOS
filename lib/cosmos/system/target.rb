@@ -192,6 +192,10 @@ module Cosmos
         Dir[File.join(dir, 'cmd_tlm', '**', '*.txt')].each do |filename|
           cmd_tlm_files << filename
         end
+        # Grab All *.xtce files in the cmd_tlm folder and subfolders
+        Dir[File.join(dir, 'cmd_tlm', '**', '*.xtce')].each do |filename|
+          cmd_tlm_files << filename
+        end
       end
       cmd_tlm_files.sort!
     end

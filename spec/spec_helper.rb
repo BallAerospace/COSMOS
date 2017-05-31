@@ -176,6 +176,16 @@ RSpec.configure do |c|
       end
     end
   end
+  if ENV.key?("STRESS")
+    c.around(:each) do |example|
+      begin
+        GC.stress = true
+        example.run
+      ensure
+        GC.stress = false
+      end
+    end
+  end
 # This code causes a new profile file to be created for each test case which is excessive and hard to read
 #  c.around(:each) do |example|
 #    if ENV.key?("PROFILE")

@@ -38,6 +38,10 @@ module Cosmos
         data_object.set_item(packet.target_name, packet.packet_name, item_name)
       end
 
+      packet, item = System.telemetry.packet_and_item(data_object.target_name,
+                                                      data_object.packet_name,
+                                                      data_object.item_name)
+
       local_layout = Qt::VBoxLayout.new
       local_layout.setContentsMargins(0,0,0,0)
 
@@ -52,6 +56,18 @@ module Cosmos
       @telemetry_chooser.packet_label.text = '*Packet:'
       @telemetry_chooser.item_label.text   = '*Item:'
       local_layout.addWidget(@telemetry_chooser)
+
+      # Integer Field for array index
+      @item_array_index = IntegerChooser.new(self, '*Item Array Index:', 0, 0)
+      @item_array_index.value = data_object.item_array_index if data_object.item_array_index
+      if item.array_size
+        @array_item = true
+        @item_array_index.show
+      else
+        @array_item = false
+        @item_array_index.hide
+      end
+      local_layout.addWidget(@item_array_index)
 
       # Chooser for time item
       time_item_names = @telemetry_chooser.item_names
@@ -90,9 +106,6 @@ module Cosmos
       local_layout.addWidget(@analysis_samples)
       @layout.addLayout(local_layout)
 
-      packet, item = System.telemetry.packet_and_item(data_object.target_name,
-                                                      data_object.packet_name,
-                                                      data_object.item_name)
       if item.limits.values
         choices = ['TRUE', 'FALSE']
         @show_limits_lines = ComboboxChooser.new(self, 'Show Limits Lines:', choices)
@@ -122,6 +135,11 @@ module Cosmos
       data_object.set_item(@telemetry_chooser.target_name,
                            @telemetry_chooser.packet_name,
                            @telemetry_chooser.item_name)
+      if @array_item
+        data_object.item_array_index = @item_array_index.value
+      else
+        data_object.item_array_index = nil
+      end
       data_object.time_item_name = @time_item_name.string
       formatted_time_item_name = @formatted_time_item_name.string
       if formatted_time_item_name.strip.empty?
@@ -164,6 +182,18 @@ module Cosmos
       value_types.delete(data_object.value_type.to_s)
       value_types.unshift(data_object.value_type.to_s)
       @value_type.update_items(value_types, false)
+
+      packet, item = System.telemetry.packet_and_item(data_object.target_name,
+                                                      data_object.packet_name,
+                                                      data_object.item_name)
+      if item.array_size
+        @array_item = true
+        @item_array_index.show
+      else
+        @array_item = false
+        @item_array_index.hide 
+      end
+
     end
 
     # Handle the item name changing
@@ -174,6 +204,17 @@ module Cosmos
       value_types.delete(data_object.value_type.to_s)
       value_types.unshift(data_object.value_type.to_s)
       @value_type.update_items(value_types, false)
+
+      packet, item = System.telemetry.packet_and_item(data_object.target_name,
+                                                      data_object.packet_name,
+                                                      data_object.item_name)
+      if item.array_size
+        @array_item = true
+        @item_array_index.show
+      else
+        @array_item = false
+        @item_array_index.hide 
+      end
     end
 
   end # class HousekeepingDataObjectEditor

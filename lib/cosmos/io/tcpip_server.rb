@@ -45,6 +45,8 @@ module Cosmos
     attr_accessor :raw_logger_pair
     # @return [String] The ip address to bind to.  Default to ANY (0.0.0.0)
     attr_accessor :listen_address
+    # @return [boolean] Automatically send SYSTEM META on connect - Default false - Can be CMD/TLM
+    attr_accessor :auto_system_meta
 
     # @param write_port [Integer] The server write port. Clients should connect
     #   and expect to receive data from this port.
@@ -101,6 +103,8 @@ module Cosmos
       @raw_logging_enabled = false
       @connection_mutex = Mutex.new
       @listen_address = Socket::INADDR_ANY
+      @auto_system_meta = false
+
       @connected = false
     end
 
@@ -350,7 +354,12 @@ module Cosmos
       interface.connect
 
       if listen_write
-        @write_connection_callback.call(interface) if @write_connection_callback
+        if @auto_system_meta
+          meta_packet = System.telemetry.packet('SYSTEM', 'META').clone
+          stream_protocol.write(meta_packet)
+        end
+
+        @write_connection_callback.call(stream_protocol) if @write_connection_callback
         @connection_mutex.synchronize do
           @write_interfaces << InterfaceInfo.new(interface, hostname, host_ip, port)
         end
@@ -414,8 +423,46 @@ module Cosmos
         begin
           packet = @write_queue.pop(true) # non_block to raise ThreadError
           break
-        rescue ThreadError # There were no packets on the write_queue
-          check_for_dead_clients()
+        rescue ThreadError
+          # Timeout waiting for send - check for dead clients
+          indexes_to_delete = []
+          index = 0
+
+          @connection_mutex.synchronize do
+            @write_stream_protocols.each do |stream_protocol, hostname, host_ip, port|
+              begin
+                if (@write_port != @read_port)
+                  # Socket should return EWOULDBLOCK if it is still cleanly connected
+                  stream_protocol.stream.write_socket.recvfrom_nonblock(10)
+                elsif (!stream_protocol.stream.write_socket.closed?)
+                  # Let read thread detect disconnect
+                  next
+                end
+
+                # Client has disconnected (or is invalidly sending data on the socket)
+                Logger.instance.info "Tcpip server lost write connection to #{hostname}(#{host_ip}):#{port}"
+                stream_protocol.disconnect
+                stream_protocol.stream.raw_logger_pair.stop if stream_protocol.stream.raw_logger_pair
+                indexes_to_delete.unshift(index) # Put later indexes at front of array
+              rescue Errno::ECONNRESET, Errno::ECONNABORTED, IOError
+                # Client has disconnected
+                Logger.instance.info "Tcpip server lost write connection to #{hostname}(#{host_ip}):#{port}"
+                stream_protocol.disconnect
+                stream_protocol.stream.raw_logger_pair.stop if stream_protocol.stream.raw_logger_pair
+                indexes_to_delete.unshift(index) # Put later indexes at front of array
+              rescue Errno::EWOULDBLOCK
+                # Client is still cleanly connected as far as we can tell without writing to the socket
+              ensure
+                index += 1
+              end
+            end
+
+            # Delete any dead sockets
+            indexes_to_delete.each do |index_to_delete|
+              @write_stream_protocols.delete_at(index_to_delete)
+            end
+          end # connection_mutex.synchronize
+
           # Sleep until we receive a packet or for 100ms
           @write_mutex.synchronize do
             @write_condition_variable.wait(@write_mutex, 0.1)
@@ -424,57 +471,21 @@ module Cosmos
       end
 
       packet = write_thread_hook(packet)
-      return unless packet
-      send_data_to_clients(packet)
-    end
 
-    def check_for_dead_clients
-      exercise_write_interfaces do |interface|
-        # If the write_port == read_port there's a single socket and if it
-        # isn't closed we let the read_thread detect any disconnects so skip
-        next if @write_port == @read_port && !interface.interface.stream.write_socket.closed?
-        # recvfrom_nonblock should raise EWOULDBLOCK if it is still cleanly
-        # connected and this error is handled by exercise_write_interfaces
-        interface.interface.stream.write_socket.recvfrom_nonblock(10)
-        # If we've made it this far we're not connected so raise IOError to be
-        # handled by exercise_write_interfaces
-        raise IOError
-      end
-    end
 
-    def send_data_to_clients(packet)
-      exercise_write_interfaces do |interface|
-        interface.interface.write(packet)
-      end
-    end
 
-    def exercise_write_interfaces
-      @connection_mutex.synchronize do
-        indexes_to_delete = []
-        index = 0
-        @write_interfaces.each do |interface|
-          begin
-            yield interface
-          rescue IO::WaitReadable
-            # This is an expected error when calling recvfrom_nonblock to test
-            # for an active connection so ignore it
-          rescue Errno::EPIPE, Errno::ECONNRESET, Errno::ECONNABORTED, IOError
-            # Client has normally disconnected
-            interface_disconnect(interface)
-            indexes_to_delete.unshift(index) # Put later indexes at front of array
-          rescue => err
-            # Something unexpected happened with the client
-            Logger.instance.error "Error sending to client: #{err.class} #{err.message}"
-            interface_disconnect(interface)
-            indexes_to_delete.unshift(index) # Put later indexes at front of array
-          ensure
+
+
+
+
             index += 1
           end
-        end
-        # Delete any dead sockets
-        indexes_to_delete.each do |index_to_delete|
-          @write_interfaces.delete_at(index_to_delete)
-        end
+
+          # Delete any dead sockets
+          indexes_to_delete.each do |index_to_delete|
+            @write_stream_protocols.delete_at(index_to_delete)
+          end
+        end # connection_mutex.synchronize
       end
     end
 

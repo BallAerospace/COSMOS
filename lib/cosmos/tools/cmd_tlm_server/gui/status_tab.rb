@@ -12,12 +12,9 @@ require 'cosmos'
 require 'cosmos/gui/qt'
 
 module Cosmos
-
   # Implements the status tab in the Command and Telemetry Server GUI
   class StatusTab
-
     # Create the status tab and add it to the tab_widget
-    #
     # @param tab_widget [Qt::TabWidget] The tab widget to add the tab to
     def populate(tab_widget)
       scroll = Qt::ScrollArea.new
@@ -141,22 +138,22 @@ module Cosmos
       @background_tasks_table = Qt::TableWidget.new()
       @background_tasks_table.verticalHeader.hide()
       @background_tasks_table.setRowCount(CmdTlmServer.background_tasks.all.length)
-      @background_tasks_table.setColumnCount(3)
-      @background_tasks_table.setHorizontalHeaderLabels(["Name", "State", "Status"])
+      @background_tasks_table.setColumnCount(4)
+      @background_tasks_table.setHorizontalHeaderLabels(["Name", "State", "Status", "Control"])
 
       background_tasks = CmdTlmServer.background_tasks.all
       if background_tasks.length > 0
         row = 0
         background_tasks.each_with_index do |background_task, index|
-          background_task_name = background_task.name
-          background_task_name = "Background Task ##{index + 1}" unless background_task_name
-          background_task_name_widget = Qt::TableWidgetItem.new(background_task_name)
+          background_task_name_widget = Qt::TableWidgetItem.new(background_task.name)
           background_task_name_widget.setTextAlignment(Qt::AlignCenter)
           @background_tasks_table.setItem(row, 0, background_task_name_widget)
+          button_text = 'START'
           if background_task.thread
             status = background_task.thread.status
             status = 'complete' if status == false
             background_task_state_widget = Qt::TableWidgetItem.new(status.to_s)
+            button_text = background_task.thread.alive? ? 'STOP' : 'START'
           else
             background_task_state_widget = Qt::TableWidgetItem.new('no thread')
           end
@@ -165,9 +162,12 @@ module Cosmos
           @background_tasks_table.setItem(row, 1, background_task_state_widget)
           background_task_status_widget = Qt::TableWidgetItem.new(background_task.status.to_s)
           background_task_status_widget.setTextAlignment(Qt::AlignCenter)
-          background_task_status_widget.setSizeHint(Qt::Size.new(500, 30))
+          background_task_status_widget.setSizeHint(Qt::Size.new(400, 30))
           @background_tasks_table.setItem(row, 2, background_task_status_widget)
 
+          background_task_button = Qt::PushButton.new(button_text)
+          background_task_button.connect(SIGNAL('clicked()')) { start_stop_task(background_task_button) }
+          @background_tasks_table.setCellWidget(row, 3, background_task_button)
           row += 1
         end
       end
@@ -231,6 +231,8 @@ module Cosmos
             status = background_task.thread.status
             status = 'complete' if status == false
             @background_tasks_table.item(row, 1).setText(status.to_s)
+            text = background_task.thread.alive? ? 'STOP' : 'START'
+            @background_tasks_table.cellWidget(row, 3).setText(text)
           else
             @background_tasks_table.item(row, 1).setText('no thread')
           end
@@ -240,5 +242,14 @@ module Cosmos
       end
     end
 
+    # Start or stop the background task
+    def start_stop_task(button)
+      row = @background_tasks_table.indexAt(button.pos()).row
+      if button.text == 'STOP'
+        CmdTlmServer.background_tasks.stop(row)
+      else
+        CmdTlmServer.background_tasks.start(row)
+      end
+    end
   end
-end # module Cosmos
+end

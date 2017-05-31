@@ -618,6 +618,18 @@ module Cosmos
     end
   end
 
+  # Open a platform specific file browser at the given path
+  # @param path [String] Directory path
+  def self.open_file_browser(path)
+    if Kernel.is_windows?
+      self.run_process("start #{path}")
+    elsif Kernel.is_mac?
+      self.run_process("open #{path}")
+    else
+      self.run_process("xdg-open #{path}")
+    end
+  end
+
   # @param filename [String] Name of the file to open in the editor
   def self.open_in_text_editor(filename)
     if filename
@@ -695,8 +707,8 @@ module Cosmos
       if owner and owner.respond_to? :graceful_kill
         if Thread.current != thread
           owner.graceful_kill
-          end_time = Time.now + graceful_timeout
-          while thread.alive? && ((end_time - Time.now) > 0)
+          end_time = Time.now.sys + graceful_timeout
+          while thread.alive? && ((end_time - Time.now.sys) > 0)
             sleep(timeout_interval)
           end
         else
@@ -709,8 +721,8 @@ module Cosmos
         # Graceful failed
         Logger.warn "Failed to gracefully kill thread:\n  Caller Backtrace:\n  #{caller().join("\n  ")}\n  \n  Thread Backtrace:\n  #{thread.backtrace.join("\n  ")}\n\n"
         thread.kill
-        end_time = Time.now + hard_timeout
-        while thread.alive? && ((end_time - Time.now) > 0)
+        end_time = Time.now.sys + hard_timeout
+        while thread.alive? && ((end_time - Time.now.sys) > 0)
           sleep(timeout_interval)
         end
       end

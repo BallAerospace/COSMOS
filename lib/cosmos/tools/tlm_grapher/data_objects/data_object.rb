@@ -147,10 +147,10 @@ module Cosmos
     end
 
     # Edits the data object by updating its settings from another data object
-    def edit(editted_data_object)
-      @assigned_color = editted_data_object.assigned_color
-      @color = editted_data_object.color
-      self.max_points_saved = editted_data_object.max_points_saved
+    def edit(edited_data_object)
+      @assigned_color = edited_data_object.assigned_color
+      @color = edited_data_object.color
+      self.max_points_saved = edited_data_object.max_points_saved
     end
 
     # Indicates if the changes made to the data object are safe to perform without reseting

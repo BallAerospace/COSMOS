@@ -53,7 +53,7 @@ module Cosmos
       end
 
       it "complains about non String target_names" do
-        expect { Packet.new(5, "pkt") }.to raise_error(ArgumentError, "target_name must be a String but is a Fixnum")
+        expect { Packet.new(5.1, "pkt") }.to raise_error(ArgumentError, "target_name must be a String but is a Float")
       end
     end
 
@@ -69,7 +69,7 @@ module Cosmos
       end
 
       it "complains about non String packet_names" do
-        expect { Packet.new("tgt", 5) }.to raise_error(ArgumentError, "packet_name must be a String but is a Fixnum")
+        expect { Packet.new("tgt", 5.1) }.to raise_error(ArgumentError, "packet_name must be a String but is a Float")
       end
     end
 
@@ -87,7 +87,7 @@ module Cosmos
 
       it "complains about non String descriptions" do
         p = Packet.new("tgt","pkt")
-        expect { p.description = 5 }.to raise_error(ArgumentError, "description must be a String but is a Fixnum")
+        expect { p.description = 5.1 }.to raise_error(ArgumentError, "description must be a String but is a Float")
       end
     end
 
@@ -140,12 +140,24 @@ module Cosmos
 
       it "complains about nil received_count" do
         p = Packet.new("tgt","pkt")
-        expect {p.received_count = nil }.to raise_error(ArgumentError, "received_count must be a Fixnum but is a NilClass")
+        if 0.class == Integer
+          # Ruby version >= 2.4.0
+          expect {p.received_count = nil }.to raise_error(ArgumentError, "received_count must be an Integer but is a NilClass")
+        else
+          # Ruby version < 2.4.0
+          expect {p.received_count = nil }.to raise_error(ArgumentError, "received_count must be a Fixnum but is a NilClass")
+        end
       end
 
       it "complains about non Fixnum received_counts" do
         p = Packet.new("tgt","pkt")
-        expect {p.received_count = "5" }.to raise_error(ArgumentError, "received_count must be a Fixnum but is a String")
+        if 0.class == Integer
+          # Ruby version >= 2.4.0
+          expect {p.received_count = "5" }.to raise_error(ArgumentError, "received_count must be an Integer but is a String")
+        else
+          # Ruby version < 2.4.0
+          expect {p.received_count = "5" }.to raise_error(ArgumentError, "received_count must be a Fixnum but is a String")
+        end
       end
     end
 
@@ -164,7 +176,7 @@ module Cosmos
 
       it "complains about non String hazardous_descriptions" do
         p = Packet.new("tgt","pkt")
-        expect {p.hazardous_description = 5 }.to raise_error(ArgumentError, "hazardous_description must be a String but is a Fixnum")
+        expect {p.hazardous_description = 5.1 }.to raise_error(ArgumentError, "hazardous_description must be a String but is a Float")
       end
     end
 
