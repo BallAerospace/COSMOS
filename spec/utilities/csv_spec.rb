@@ -55,7 +55,8 @@ module Cosmos
         tf.puts "test,1.1,2.2,3.3\n"
         tf.close
         csv = CSV.new(tf.path)
-        puts csv['test']
+        # Expect 1.1, 2.2, 3.3 not 1, 2, 3 because the same key was used
+        expect(csv["test"]).to eql(%w(1.1 2.2 3.3))
 
         tf.unlink
       end
