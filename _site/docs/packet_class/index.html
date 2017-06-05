@@ -1460,7 +1460,7 @@
   <li><code class="highlighter-rouge">hazardous</code> - Boolean indicating whether the command is hazardous (see <a href="/docs/cmdtlm/#hazardous">hazardous</a>)</li>
   <li><code class="highlighter-rouge">hazardous_description</code> - String description of why the packet is hazardous</li>
   <li><code class="highlighter-rouge">hidden</code> - Boolean indicating whether this packet is hidden (see <a href="/docs/cmdtlm/#hidden">hidden</a>)</li>
-  <li><code class="highlighter-rouge">disabled</code> - Boolean indicating whether this packet is disabled (see <a href="/docs/cmdtlm/#disabled">hidden</a>)</li>
+  <li><code class="highlighter-rouge">disabled</code> - Boolean indicating whether this packet is disabled (see <a href="/docs/cmdtlm/#disabled">disabled</a>)</li>
 </ol>
 
 <h3 id="packet-methods">Packet Methods</h3>
@@ -1546,9 +1546,9 @@
 
 <p>See <a href="/docs/packet_class#read">read</a> for a note about the syntax and what value_type means.</p>
 
-<p>There are a few gotchas associated with writing a value into a packet. If you’re writing a value marked as STRING then you can pass almost any value you want as Ruby will automatically convert it into a string. There is effectively no difference between :CONVERTED and :RAW so prefer the default of :CONVERTED. For example:</p>
-<div class="language-ruby highlighter-rouge"><pre class="highlight"><code><span class="n">packet</span><span class="p">.</span><span class="nf">write</span><span class="p">(</span><span class="s1">'STRING_ITEM'</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span> <span class="c1"># 10 will be converted to '10' automatically (Prefer this)</span>
-<span class="n">packet</span><span class="p">.</span><span class="nf">write</span><span class="p">(</span><span class="s2">"STRING_ITEM"</span><span class="p">,</span> <span class="mi">12</span><span class="o">.</span><span class="mi">5</span><span class="p">,</span> <span class="ss">:RAW</span><span class="p">)</span> <span class="c1"># 12.5 will be converted to '12.5' (:RAW unneeded)</span>
+<p>There are a few gotchas associated with writing a value into a packet. If you’re writing a value marked as STRING then you can pass almost any value you want as Ruby will automatically convert it into a string. If the packet item has any <a href="/docs/cmdtlm/#write_conversion">write conversions</a> then using the :RAW value_type will bypass that conversion. For example:</p>
+<div class="language-ruby highlighter-rouge"><pre class="highlight"><code><span class="n">packet</span><span class="p">.</span><span class="nf">write</span><span class="p">(</span><span class="s1">'STRING_ITEM'</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span> <span class="c1"># 10 will be converted to '10' automatically</span>
+<span class="n">packet</span><span class="p">.</span><span class="nf">write</span><span class="p">(</span><span class="s2">"STRING_ITEM"</span><span class="p">,</span> <span class="mi">12</span><span class="o">.</span><span class="mi">5</span><span class="p">,</span> <span class="ss">:RAW</span><span class="p">)</span> <span class="c1"># 12.5 will be converted to '12.5'</span>
 </code></pre>
 </div>
 
@@ -1559,7 +1559,7 @@
 </code></pre>
 </div>
 
-<p>If there are no <a href="/docs/cmdtlm/#write_conversion">write conversions</a> or <a href="/docs/cmdtlm/#state">states</a> defined on the telemetry item then writing with :RAW or :CONVERTED will be equivalent. If you have states defined you must use the :CONVERTED syntax to use the state key and :RAW to use the state value.</p>
+<p>If there are no <a href="/docs/cmdtlm/#write_conversion">write conversions</a> or <a href="/docs/cmdtlm/#state">states</a> defined on the telemetry item then writing with :RAW or :CONVERTED will be equivalent.</p>
 
 <p>Definition File:</p>
 <div class="language-bash highlighter-rouge"><pre class="highlight"><code>APPEND_ITEM INT_ITEM_WITH_STATES 32 UINT <span class="s2">"Item"</span>
@@ -1570,7 +1570,9 @@
 
 <p>Example:</p>
 <div class="language-ruby highlighter-rouge"><pre class="highlight"><code><span class="n">packet</span><span class="p">.</span><span class="nf">write</span><span class="p">(</span><span class="s2">"INT_ITEM_WITH_STATES"</span><span class="p">,</span> <span class="s2">"ON"</span><span class="p">)</span> <span class="c1"># Writes using the "ON" state value</span>
-<span class="n">packet</span><span class="p">.</span><span class="nf">write</span><span class="p">(</span><span class="s2">"INT_ITEM_WITH_STATES"</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="ss">:RAW</span><span class="p">)</span> <span class="c1"># Writes the raw value 0 which returns 'OFF' when read back</span>
+<span class="n">packet</span><span class="p">.</span><span class="nf">read</span><span class="p">(</span><span class="s2">"INT_ITEM_WITH_STATES"</span><span class="p">,</span> <span class="ss">:RAW</span><span class="p">)</span> <span class="c1">#=&gt; returns 1</span>
+<span class="n">packet</span><span class="p">.</span><span class="nf">write</span><span class="p">(</span><span class="s2">"INT_ITEM_WITH_STATES"</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="c1"># Writes the value 0</span>
+<span class="n">packet</span><span class="p">.</span><span class="nf">read</span><span class="p">(</span><span class="s2">"INT_ITEM_WITH_STATES"</span><span class="p">)</span> <span class="c1">#=&gt; returns "OFF"</span>
 </code></pre>
 </div>
 
