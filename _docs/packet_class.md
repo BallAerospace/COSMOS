@@ -30,7 +30,7 @@ If you're dealing with a Command packet instance there are additional instance v
 1. ```hazardous``` - Boolean indicating whether the command is hazardous (see [hazardous](/docs/cmdtlm/#hazardous))
 2. ```hazardous_description``` - String description of why the packet is hazardous
 3. ```hidden``` - Boolean indicating whether this packet is hidden (see [hidden](/docs/cmdtlm/#hidden))
-4. ```disabled``` - Boolean indicating whether this packet is disabled (see [hidden](/docs/cmdtlm/#disabled))
+4. ```disabled``` - Boolean indicating whether this packet is disabled (see [disabled](/docs/cmdtlm/#disabled))
 
 ### Packet Methods
 
@@ -78,10 +78,10 @@ packet.write("ITEM", value, :RAW) # Raw value
 
 See [read](/docs/packet_class#read) for a note about the syntax and what value_type means.
 
-There are a few gotchas associated with writing a value into a packet. If you're writing a value marked as STRING then you can pass almost any value you want as Ruby will automatically convert it into a string. There is effectively no difference between :CONVERTED and :RAW so prefer the default of :CONVERTED. For example:  
+There are a few gotchas associated with writing a value into a packet. If you're writing a value marked as STRING then you can pass almost any value you want as Ruby will automatically convert it into a string. If the packet item has any [write conversions](/docs/cmdtlm/#write_conversion) then using the :RAW value_type will bypass that conversion. For example:  
 ```ruby
-packet.write('STRING_ITEM', 10) # 10 will be converted to '10' automatically (Prefer this)
-packet.write("STRING_ITEM", 12.5, :RAW) # 12.5 will be converted to '12.5' (:RAW unneeded)
+packet.write('STRING_ITEM', 10) # 10 will be converted to '10' automatically
+packet.write("STRING_ITEM", 12.5, :RAW) # 12.5 will be converted to '12.5'
 ```
 
 If you're writing into an integer or float value you must pass in something that can be converted to that value. This means that Strings will not work. However, float values work for integers (they are truncated) and integers work for floats. For example:  
@@ -91,7 +91,7 @@ packet.write("INT_ITEM", 10.5) #=> packet.read("INT_ITEM") returns 10
 packet.write("FLOAT_ITEM", 10) #=> packet.read("FLOAT_ITEM") returns 10.0
 ```
 
-If there are no [write conversions](/docs/cmdtlm/#write_conversion) or [states](/docs/cmdtlm/#state) defined on the telemetry item then writing with :RAW or :CONVERTED will be equivalent. If you have states defined you must use the :CONVERTED syntax to use the state key and :RAW to use the state value.
+If there are no [write conversions](/docs/cmdtlm/#write_conversion) or [states](/docs/cmdtlm/#state) defined on the telemetry item then writing with :RAW or :CONVERTED will be equivalent.
 
 Definition File:
 ```bash
@@ -103,7 +103,9 @@ APPEND_ITEM INT_ITEM_WITH_STATES 32 UINT "Item"
 Example:  
 ```ruby
 packet.write("INT_ITEM_WITH_STATES", "ON") # Writes using the "ON" state value
-packet.write("INT_ITEM_WITH_STATES", 0, :RAW) # Writes the raw value 0 which returns 'OFF' when read back
+packet.read("INT_ITEM_WITH_STATES", :RAW) #=> returns 1
+packet.write("INT_ITEM_WITH_STATES", 0) # Writes the value 0
+packet.read("INT_ITEM_WITH_STATES") #=> returns "OFF"
 ```
 
 #### read_all
