@@ -45,7 +45,7 @@ module Cosmos
       @tlm_log_system = nil
       @subscription_thread = nil
       @subscription_id = nil
-      @packet_log_reader = System.default_packet_log_reader.new
+      @packet_log_reader = System.default_packet_log_reader.new(*System.default_packet_log_reader_params)
       @time_start = nil
       @time_end = nil
       @log_filenames = []

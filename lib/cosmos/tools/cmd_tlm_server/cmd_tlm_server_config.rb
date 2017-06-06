@@ -40,8 +40,8 @@ module Cosmos
       @interfaces = {}
       @routers = {}
       @packet_log_writer_pairs = {}
-      cmd_log_writer = System.default_packet_log_writer.new(:CMD)
-      tlm_log_writer = System.default_packet_log_writer.new(:TLM)
+      cmd_log_writer = System.default_packet_log_writer.new(:CMD, *System.default_packet_log_writer_params)
+      tlm_log_writer = System.default_packet_log_writer.new(:TLM, *System.default_packet_log_writer_params)
       @packet_log_writer_pairs['DEFAULT'] = PacketLogWriterPair.new(cmd_log_writer, tlm_log_writer)
       @background_tasks = []
       @title = nil
