@@ -1,0 +1,19 @@
+SCREEN AUTO AUTO 1.0
+
+  VERTICALBOX
+    LABELVALUE INST EXTRA RECEIVED_TIMESECONDS # COSMOS Received Time (UTC, Floating point, Unix epoch)
+    LABELVALUE INST EXTRA RECEIVED_TIMEFORMATTED # COSMOS Received Time (Local time zone, Formatted string)
+    LABELVALUE INST EXTRA RECEIVED_COUNT # COSMOS packet received count
+    LABELVALUE INST EXTRA CCSDSVER # CCSDS packet version number (See CCSDS 133.0-B-1)
+    LABELVALUE INST EXTRA CCSDSTYPE # CCSDS packet type (command or telemetry)
+    LABELVALUE INST EXTRA CCSDSSHF # CCSDS secondary header flag
+    LABELVALUE INST EXTRA CCSDSAPID # CCSDS application process id
+    LABELVALUE INST EXTRA CCSDSSEQFLAGS # CCSDS sequence flags
+    LABELVALUE INST EXTRA CCSDSSEQCNT # CCSDS packet sequence count
+    LABELVALUE INST EXTRA CCSDSLENGTH # CCSDS packet data length
+    LABELVALUE INST EXTRA TIMESEC # Seconds since epoch (January 1st, 1970, midnight)
+    LABELVALUE INST EXTRA TIMEUS # Microseconds of second
+    LABELVALUE INST EXTRA PKTID # Packet id (The combination of CCSDS_APID and PACKET_ID identify the packet)
+    LABELVALUE INST EXTRA VALUE # Value
+  END
+
