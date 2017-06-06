@@ -36,11 +36,11 @@ module Cosmos
     instance_attr_reader :paths
     # @return [PacketLogWriter] Class used to create log files
     instance_attr_reader :default_packet_log_writer
-    # @return [Array<misc>/nil] Parameters to be used with the default log writer
+    # @return [Array<String>] Parameters to be used with the default log writer
     instance_attr_reader :default_packet_log_writer_params
     # @return [PacketLogReader] Class used to read log files
     instance_attr_reader :default_packet_log_reader
-    # @return [Array<misc>/nil] Parameters to be used with the default log reader
+    # @return [Array<String>] Parameters to be used with the default log reader
     instance_attr_reader :default_packet_log_reader_params
     # @return [Boolean] Whether to use sound for alerts
     instance_attr_reader :sound
