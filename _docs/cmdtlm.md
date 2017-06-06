@@ -129,6 +129,7 @@ The PARAMETER keyword defines a command parameter in the current command.
   <tr><td>Maximum Value</td><td>Maximum allowed value for this parameter (Not given if Data Type = STRING or BLOCK) See PARAMETER#Minimum Value for a list of special constants like MIN_UINT16 that may be used for this field.</td><td>Yes</td></tr>
   <tr><td>Default Value</td><td>Default value for this parameter. You must provide a default but if you mark the parameter REQUIRED then scripts will be forced to specify a value. See PARAMETER#Minimum Value for a list of special constants like MIN_UINT16 that may be used for this field.</td><td>Yes</td></tr>
   <tr><td>Description</td><td>Description for this parameter. Must be enclosed with ""</td><td>No</td></tr>
+  <tr><td>BIG_ENDIAN or LITTLE_ENDIAN</td><td>Indicates if this parameter is to be sent in Big Endian or Little Endian format. This is an optional parameter that can be used to override the endianness specified for the command.</td><td>No</td></tr>
 </table>
 
 Example Usage:
@@ -165,6 +166,7 @@ Much like the PARAMETER keyword, the ID_PARAMETER keyword defines a command para
 | Maximum Value | Maximum allowed value for this parameter (Not given if Data Type = STRING or BLOCK) See PARAMETER#Minimum Value for a list of special constants like MIN_UINT16 that may be used for this field. | Yes |
 | ID Value | Identification value for this parameter. The binary data must match this value for the buffer to be identified as this packet. | Yes |
 | Description | Description for this parameter. Must be enclosed with "" | No |
+| BIG_ENDIAN or LITTLE_ENDIAN | Indicates if this parameter is to be sent in Big Endian or Little Endian format. This is an optional parameter that can be used to override the endianness specified for the command. | No |
 
 Example Usage:
 {% highlight bash %}
@@ -192,6 +194,7 @@ The ARRAY_PARAMETER keyword defines a command parameter in the current command t
 | Data Type of Each Item | Data Type of each array item. Possible types: INT = Integer, UINT = Unsigned Integer, FLOAT = IEEE Floating point data, STRING = Character string data, BLOCK = Non-Ascii Data Block, DERIVED = Bit Offset and Bit Size of 0. | Yes |
 | Total Bit Size of Array | Total Bit Size of the Array. Zero or Negative values may be used to indicate the array fills the packet up to the offset from the end of the packet specified by this value. | Yes |
 | Description | Description for this parameter. Must be enclosed with "". | No |
+| BIG_ENDIAN or LITTLE_ENDIAN | Indicates if this parameter is to be sent in Big Endian or Little Endian format. This is an optional parameter that can be used to override the endianness specified for the command. | No |
 
 Example Usage:
 {% highlight bash %}
@@ -548,6 +551,7 @@ The ITEM keyword defines a telemetry item in the current telemetry packet.
 | Bit Size | Bit size of this telemetry item. Zero or Negative values may be used to indicate that a string fills the packet up to the offset from the end of the packet specified by this value. If Bit Offset = 0 and Bit Size = 0 then this is a derived item and the Data Type must be set to 'DERIVED'. | Yes |
 | Data Type | Data Type of this telemetry item. Possible types: INT = Integer, UINT = Unsigned Integer, FLOAT = IEEE Floating point data, STRING = Character string data, BLOCK = Non-Ascii Data Block, DERIVED = Bit Offset and Bit Size of 0. | Yes |
 | Description | Description for this telemetry item. Must be enclosed with "". | No |
+| BIG_ENDIAN or LITTLE_ENDIAN | Indicates if this item is to be sent in Big Endian or Little Endian format. This is an optional parameter that can be used to override the endianness specified for the packet. | No | 
 
 Example Usage:
 {% highlight bash %}
@@ -576,6 +580,7 @@ Much like the ITEM keyword, the ID_ITEM keyword defines a telemetry item in the 
 | Data Type | Data Type of this telemetry item. Possible types: INT = Integer, UINT = Unsigned Integer, FLOAT = IEEE Floating point data, STRING = Character string data, BLOCK = Non-Ascii Data Block, DERIVED = Bit Offset and Bit Size of 0. | Yes |
 | ID Value | The value of this telemetry item that uniquely identifies this telemetry packet | Yes |
 | Description | Description for this telemetry item. Must be enclosed with "". | No |
+| BIG_ENDIAN or LITTLE_ENDIAN | Indicates if this item is to be sent in Big Endian or Little Endian format. This is an optional parameter that can be used to override the endianness specified for the packet. | No |
 
 Example Usage:
 {% highlight bash %}
@@ -603,6 +608,7 @@ The ARRAY_ITEM keyword defines a telemetry item in the current telemetry packet 
 | Data Type of Each Item | Data Type of each array item. Possible types: INT = Integer, UINT = Unsigned Integer, FLOAT = IEEE Floating point data, STRING = Character string data, BLOCK = Non-Ascii Data Block, DERIVED = Bit Offset and Bit Size of 0. | Yes |
 | Total Bit Size of Array | Total Bit Size of the Array. Zero or Negative values may be used to indicate the array fills the packet up to the offset from the end of the packet specified by this value. | Yes |
 | Description | Description for this parameter. Must be enclosed with "". | No |
+| BIG_ENDIAN or LITTLE_ENDIAN | Indicates if this item is to be sent in Big Endian or Little Endian format. This is an optional parameter that can be used to override the endianness specified for the packet. | No |
 
 Example Usage:
 {% highlight bash %}

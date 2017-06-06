@@ -1810,6 +1810,11 @@
 <td>Description for this parameter. Must be enclosed with ""</td>
 <td>No</td>
 </tr>
+  <tr>
+<td>BIG_ENDIAN or LITTLE_ENDIAN</td>
+<td>Indicates if this parameter is to be sent in Big Endian or Little Endian format. This is an optional parameter that can be used to override the endianness specified for the command.</td>
+<td>No</td>
+</tr>
 </table>
 
 <p>Example Usage:</p>
@@ -1885,6 +1890,11 @@ APPEND_PARAMETER LABEL 0 STRING <span class="s2">"COSMOS"</span> <span class="s2
       <td>Description for this parameter. Must be enclosed with “”</td>
       <td>No</td>
     </tr>
+    <tr>
+      <td>BIG_ENDIAN or LITTLE_ENDIAN</td>
+      <td>Indicates if this parameter is to be sent in Big Endian or Little Endian format. This is an optional parameter that can be used to override the endianness specified for the command.</td>
+      <td>No</td>
+    </tr>
   </tbody>
 </table>
 
@@ -1943,6 +1953,11 @@ APPEND_PARAMETER LABEL 0 STRING <span class="s2">"COSMOS"</span> <span class="s2
     <tr>
       <td>Description</td>
       <td>Description for this parameter. Must be enclosed with “”.</td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>BIG_ENDIAN or LITTLE_ENDIAN</td>
+      <td>Indicates if this parameter is to be sent in Big Endian or Little Endian format. This is an optional parameter that can be used to override the endianness specified for the command.</td>
       <td>No</td>
     </tr>
   </tbody>
@@ -2583,6 +2598,11 @@ COMMAND MY_TARGET SETTINGS BIG_ENDIAN <span class="s2">"Set the Settings"</span>
       <td>Description for this telemetry item. Must be enclosed with “”.</td>
       <td>No</td>
     </tr>
+    <tr>
+      <td>BIG_ENDIAN or LITTLE_ENDIAN</td>
+      <td>Indicates if this item is to be sent in Big Endian or Little Endian format. This is an optional parameter that can be used to override the endianness specified for the packet.</td>
+      <td>No</td>
+    </tr>
   </tbody>
 </table>
 
@@ -2644,6 +2664,11 @@ ITEM DATA 0 0 DERIVED <span class="s2">"Derived data"</span></code></pre></figur
       <td>Description for this telemetry item. Must be enclosed with “”.</td>
       <td>No</td>
     </tr>
+    <tr>
+      <td>BIG_ENDIAN or LITTLE_ENDIAN</td>
+      <td>Indicates if this item is to be sent in Big Endian or Little Endian format. This is an optional parameter that can be used to override the endianness specified for the packet.</td>
+      <td>No</td>
+    </tr>
   </tbody>
 </table>
 
@@ -2702,6 +2727,11 @@ ITEM DATA 0 0 DERIVED <span class="s2">"Derived data"</span></code></pre></figur
     <tr>
       <td>Description</td>
       <td>Description for this parameter. Must be enclosed with “”.</td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>BIG_ENDIAN or LITTLE_ENDIAN</td>
+      <td>Indicates if this item is to be sent in Big Endian or Little Endian format. This is an optional parameter that can be used to override the endianness specified for the packet.</td>
       <td>No</td>
     </tr>
   </tbody>
