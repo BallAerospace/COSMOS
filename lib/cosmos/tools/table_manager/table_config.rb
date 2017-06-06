@@ -15,8 +15,6 @@ require 'cosmos/tools/table_manager/table_parser'
 require 'cosmos/tools/table_manager/table_item_parser'
 
 module Cosmos
-  # Reads an ascii file that defines the table parameters and creates a Table for each.
-  class TableConfig
   # Processes the Table Manager configuration files which define tables. Since
   # this class inherits from {PacketConfig} it only needs to implement Table
   # Manager specific keywords. All tables are accessed through the table

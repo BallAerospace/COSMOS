@@ -32,7 +32,7 @@ module Cosmos
     # @param extensions [String] List of file filters which can be selected by
     #   the user. Must be formatted with the filter name followed by the
     #   extension in parens. Multiple filters must be separated by double
-    #   semicolons. For example:
+    #   semicolons. For example:
     #     "Images (*.png *.jpg);;Text files (*.txt)"
     def initialize(
       parent, label_text, initial_value, button_text, file_path,
