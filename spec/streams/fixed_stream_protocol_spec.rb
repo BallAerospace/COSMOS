@@ -59,23 +59,23 @@ module Cosmos
         stream = MyStream.new
         @fsp.connect(stream)
         interface = MyInterface.new
-        interface.target_names = %w(TEST COSMOS)
+        interface.target_names = %w(SYSTEM TEST)
         @fsp.interface = interface
         packet = @fsp.read
         expect(packet.received_time.to_f).to be_within(0.1).of(Time.now.to_f)
-        expect(packet.target_name).to eql 'COSMOS'
-        expect(packet.packet_name).to eql 'VERSION'
+        expect(packet.target_name).to eql 'SYSTEM'
+        expect(packet.packet_name).to eql 'META'
         packet = @fsp.read
         expect(packet.received_time.to_f).to be_within(0.1).of(Time.now.to_f)
-        expect(packet.target_name).to eql 'COSMOS'
+        expect(packet.target_name).to eql 'SYSTEM'
         expect(packet.packet_name).to eql 'LIMITS_CHANGE'
         packet = @fsp.read
         expect(packet.received_time.to_f).to be_within(0.1).of(Time.now.to_f)
-        expect(packet.target_name).to eql 'COSMOS'
-        expect(packet.packet_name).to eql 'VERSION'
+        expect(packet.target_name).to eql 'SYSTEM'
+        expect(packet.packet_name).to eql 'META'
         packet = @fsp.read
         expect(packet.received_time.to_f).to be_within(0.1).of(Time.now.to_f)
-        expect(packet.target_name).to eql 'COSMOS'
+        expect(packet.target_name).to eql 'SYSTEM'
         expect(packet.packet_name).to eql 'LIMITS_CHANGE'
       end
 
@@ -99,11 +99,11 @@ module Cosmos
         stream = MyStream.new
         @fsp.connect(stream)
         interface = MyInterface.new
-        interface.target_names = %w(TEST COSMOS)
+        interface.target_names = %w(SYSTEM TEST)
         @fsp.interface = interface
         packet = @fsp.read
         expect(packet.received_time.to_f).to be_within(0.01).of(Time.now.to_f)
-        expect(packet.target_name).to eql 'COSMOS'
+        expect(packet.target_name).to eql 'SYSTEM'
         expect(packet.packet_name).to eql 'STARTLOGGING'
       end
     end

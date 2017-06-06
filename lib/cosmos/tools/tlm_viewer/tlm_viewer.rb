@@ -34,6 +34,10 @@ module Cosmos
       def clear(display_name)
         TlmViewer.instance.clear(display_name)
       end
+
+      def clear_all(target = nil)
+        TlmViewer.instance.clear_all(target)
+      end
     end
   end
 end
@@ -93,18 +97,11 @@ module Cosmos
       setMinimumWidth(300)
       @@instance = self
 
-      # Get Params from Config File
-      if options.config_file
-        filename = File.join(::Cosmos::USERPATH, 'config', 'tools', 'tlm_viewer', options.config_file)
-      else
-        filename = File.join(::Cosmos::USERPATH, 'config', 'tools', 'tlm_viewer', 'tlm_viewer.txt')
-      end
-
       Splash.execute(self, true) do |splash|
         ConfigParser.splash = splash
         splash.message = "Starting TlmViewer"
         System.telemetry
-        @tlm_viewer_config = self.class.load_config(filename)
+        @tlm_viewer_config = self.class.load_config(options.config_file)
         ConfigParser.splash = nil
       end
 
@@ -132,7 +129,8 @@ module Cosmos
           @json_drb.acl = acl
           whitelist = [
             'display',
-            'clear']
+            'clear',
+            'clear_all']
           @json_drb.method_whitelist = whitelist
           begin
             @json_drb.start_service "localhost", port, self
@@ -379,7 +377,7 @@ module Cosmos
             output_filename = File.join(System.paths['LOGS'],
                                         File.build_timestamped_filename(['screen','audit'], '.txt'))
             File.open(output_filename, 'w') do |file|
-              file.puts "Telemetry Viewer audit created on #{Time.now.formatted}.\n"
+              file.puts "Telemetry Viewer audit created on #{Time.now.sys.formatted}.\n"
               if all_telemetry.empty?
                 msg = "\nAll telemetry points accounted for in screens."
                 progress.append_text(msg)
@@ -483,10 +481,23 @@ module Cosmos
 
     # Close the specified screen
     def clear(screen_full_name)
-      # Find the specified screen
-      screen_info = find_screen_info(screen_full_name)
+      close_screen(find_screen_info(screen_full_name))
+    end
 
-      # Close the screen
+    # Close all screens
+    def clear_all(target_name = nil)
+      if target_name
+        screens = @tlm_viewer_config.screen_infos.values.select do |screen_info|
+          screen_info.target_name == target_name.upcase
+        end
+        raise "Unknown screen target: #{target_name.upcase}" if screens.length == 0
+        screens.each { |screen_info| close_screen(screen_info) }
+      else
+        Qt.execute_in_main_thread(true) { Screen.close_all_screens(self) }
+      end
+    end
+
+    def close_screen(screen_info)
       Qt.execute_in_main_thread(true) do
         begin
           screen_info.screen.window.close if screen_info.screen

@@ -31,18 +31,18 @@ module Cosmos
     # @return [Float] Packet time in seconds since UNIX epoch
     def call(value, packet, buffer)
       if @microseconds_item_name
-        return Time.at(packet.read(@seconds_item_name, :RAW, buffer), packet.read(@microseconds_item_name, :RAW, buffer))
+        return Time.at(packet.read(@seconds_item_name, :RAW, buffer), packet.read(@microseconds_item_name, :RAW, buffer)).sys
       else
-        return Time.at(packet.read(@seconds_item_name, :RAW, buffer), 0)
+        return Time.at(packet.read(@seconds_item_name, :RAW, buffer), 0).sys
       end
     end
 
     # @return [String] The name of the class followed by the time conversion
     def to_s
       if @microseconds_item_name
-        return "Time.at(packet.read('#{@seconds_item_name}', :RAW, buffer), packet.read('#{@microseconds_item_name}', :RAW, buffer))"
+        return "Time.at(packet.read('#{@seconds_item_name}', :RAW, buffer), packet.read('#{@microseconds_item_name}', :RAW, buffer)).sys"
       else
-        return "Time.at(packet.read('#{@seconds_item_name}', :RAW, buffer), 0)"
+        return "Time.at(packet.read('#{@seconds_item_name}', :RAW, buffer), 0).sys"
       end
     end
 

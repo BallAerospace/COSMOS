@@ -35,7 +35,7 @@ module Cosmos
     # See StreamProtocol#pre_write_packet
     def pre_write_packet(packet)
       received_time = packet.received_time
-      received_time = Time.now unless received_time
+      received_time = Time.now.sys unless received_time
       time_seconds = [received_time.tv_sec].pack('N') # UINT32
       time_microseconds = [received_time.tv_usec].pack('N') # UINT32
       target_name = packet.target_name
@@ -98,7 +98,7 @@ module Cosmos
       return nil if @data.length <= 0
       time_seconds = @data[0..3].unpack('N')[0] # UINT32
       time_microseconds = @data[4..7].unpack('N')[0] # UINT32
-      @received_time = Time.at(time_seconds, time_microseconds)
+      @received_time = Time.at(time_seconds, time_microseconds).sys
       @data.replace(@data[8..-1])
 
       # Read and remove the target name

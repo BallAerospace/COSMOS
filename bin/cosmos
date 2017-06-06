@@ -22,6 +22,7 @@ def print_usage
   puts "  cosmos install directory_name # Creates a barebones COSMOS user directory"
   puts "  cosmos demo directory_name    # Creates a demo COSMOS user directory"
   puts "  cosmos docs                   # Launches the documentation server"
+  puts "  cosmos generate target <NAME> # Generate a COSMOS target"
   puts ""
   puts "Other Tools included with COSMOS:"
   puts "  rubysloc                      # Counts Ruby SLOC recursively"
@@ -51,6 +52,184 @@ def install(install_type, install_folder)
   end
 end
 
+def gen_tgt(target)
+  %Q(# If you have custom limits responses or conversions you require them here
+#REQUIRE #{target}_limits_response.rb
+#REQUIRE #{target}_conversion.rb
+
+# Ignored Parameters
+# (parameters you don't want to see by default in various tools)
+IGNORE_PARAMETER ID
+
+# Ignored Items
+# (items you don't want to see by default in various tools)
+IGNORE_ITEM ID
+
+# You can explicitly define the command and telemetry files
+# you want to process and the order they are processed.
+# If not then all files in cmd_tlm are processed in alphabetical order
+#COMMANDS cmd.txt
+#TELEMETRY tlm.txt
+)
+end
+
+def gen_int(target)
+  %Q(# This is a segment of the main config/tools/cmd_tlm_server/cmd_tlm_server.txt
+# that will be used when that files specifies AUTO_INTERFACE_TARGETS or INTERFACE_TARGET #{target}.
+
+# Modify this according to your actual target connection
+# Please see the COSMOS Interface Configuration documentation
+
+INTERFACE #{target}_INT tcpip_client_interface.rb localhost 8080 8081 10.0 nil BURST 4 0xDEADBEEF
+  TARGET #{target}
+)
+end
+
+def gen_cmd(target)
+  %Q(COMMAND #{target} COMMAND BIG_ENDIAN "Packet description"
+  # Keyword           Name  BitSize Type   Min Max  Default  Description
+  APPEND_ID_PARAMETER ID    16      INT    1   1    1        "Identifier"
+  APPEND_PARAMETER    VALUE 32      FLOAT  0   10.5 2.5      "Value"
+  APPEND_PARAMETER    BOOL  8       UINT   MIN MAX  0        "Boolean"
+    STATE FALSE 0
+    STATE TRUE 1
+  APPEND_PARAMETER    LABEL 0       STRING          "COSMOS" "The label to apply"
+)
+end
+
+def gen_tlm(target)
+  %Q(TELEMETRY #{target} STATUS BIG_ENDIAN "Telemetry description"
+  # Keyword      Name  BitSize Type   ID Description
+  APPEND_ID_ITEM ID    16      INT    1  "Identifier"
+  APPEND_ITEM    VALUE 32      FLOAT     "Value"
+  APPEND_ITEM    BOOL  8       UINT      "Boolean"
+    STATE FALSE 0
+    STATE TRUE 1
+  APPEND_ITEM    LABEL 0       STRING    "The label to apply"
+)
+end
+
+def gen_lib(target)
+  %Q(# This class can be used in your scripts like so:
+#   require '#{target.downcase}'
+#   #{target.downcase} = #{target.capitalize}.new
+#   #{target.downcase}.utility
+# For more information see the COSMOS scripting guide
+
+class #{target.capitalize}
+  def utility
+  end
+end
+)
+end
+
+def gen_proc(target)
+  %Q(# Script Runner test script
+cmd("#{target} COMMAND")
+wait_check("#{target} STATUS BOOL == 'FALSE'", 5)
+)
+end
+
+def gen_test(target)
+  %Q(# To add this test to Test Runner edit config/tools/test_runner/test_runner.txt
+# Add this line:
+#   REQUIRE_UTILITY '#{target.downcase}_test'
+#
+# Test Runner test script
+class #{target.capitalize}Test < Cosmos::Test
+  # def setup
+  #   # Implement group level setup
+  # end
+
+  def test_command
+    cmd("#{target} COMMAND")
+    wait_check("#{target} STATUS BOOL == 'FALSE'", 5)
+  end
+
+  # def teardown
+  #   # Implement group level teardown
+  # end
+end
+
+class #{target.capitalize}Suite < Cosmos::TestSuite
+  # def setup
+  #   # Implement suite level setup
+  # end
+
+  def initialize
+    super()
+    add_test('#{target.capitalize}Test')
+  end
+
+  # def teardown
+  #   # Implement suite level teardown
+  # end
+end
+)
+end
+
+def gen_screen(target)
+  %Q(SCREEN AUTO AUTO 1.0
+
+TITLE "Status"
+
+VERTICALBOX
+  SECTIONHEADER "Information"
+  LABELVALUE #{target} STATUS VALUE
+  LABELVALUE #{target} STATUS BOOL
+END
+)
+end
+
+def generate(args)
+  case args[0]
+  when 'target'
+    unless File.exist?('./config/targets/')
+      puts "generator must be run at the root of the COSMOS user installation"
+      return
+    end
+    if args.length != 2
+      puts "Usage: cosmos generate target <NAME>"
+      return
+    end
+    target = args[1].upcase
+    target_path = File.join("./config/targets/#{target}")
+    if File.exist?(target_path)
+      puts "Warning! Target #{target} already exists! Completely DELETE existing target? (N/y)"
+      STDOUT.flush # Output the warning
+      name = STDIN.gets.chomp
+      if name != 'y'
+        puts "Aborting generator"
+        return
+      end
+      FileUtils.rm_rf target_path
+      sleep 1 # Allow the delete to occur
+    end
+    FileUtils.mkdir(target_path)
+    File.open(File.join(target_path, 'target.txt'), 'w') { |file| file.write(gen_tgt(target)) }
+    File.open(File.join(target_path, 'cmd_tlm_server.txt'), 'w') { |file| file.write(gen_int(target)) }
+    FileUtils.mkdir(File.join(target_path, 'cmd_tlm'))
+    File.open(File.join(target_path, 'cmd_tlm', 'cmd.txt'), 'w') { |file| file.write(gen_cmd(target)) }
+    File.open(File.join(target_path, 'cmd_tlm', 'tlm.txt'), 'w') { |file| file.write(gen_tlm(target)) }
+    FileUtils.mkdir(File.join(target_path, 'lib'))
+    File.open(File.join(target_path, 'lib', "#{target.downcase}.rb"), 'w') { |file| file.write(gen_lib(target)) }
+    FileUtils.mkdir(File.join(target_path, 'procedures'))
+    File.open(File.join(target_path, 'procedures', "#{target.downcase}_script.rb"), 'w') { |file| file.write(gen_proc(target)) }
+    File.open(File.join(target_path, 'procedures', "#{target.downcase}_test.rb"), 'w') { |file| file.write(gen_test(target)) }
+    FileUtils.mkdir(File.join(target_path, 'screens'))
+    File.open(File.join(target_path, 'screens', "status.txt"), 'w') { |file| file.write(gen_screen(target)) }
+
+    puts "Target #{target} successfully generated!\n"
+    puts "Edit config/system/system.txt add add the line 'DECLARE_TARGET #{target}'"
+# AUTO_INTERFACE_TARGETS # Use cmd_tlm_server.txt from all targets declared in system.txt
+    puts "You may also have to edit your config/tools/cmd_tlm_server/cmd_tlm_server.txt"
+    puts "and interface the target unless you're using AUTO_INTERFACE_TARGETS."
+    puts "See the COSMOS System Configuration documentation for more details.\n"
+  else # Unknown generator
+    puts "Unknown generator #{args[0]}"
+  end
+end
+
 if not ARGV[0].nil? # argument(s) given
 
   # Handle each task
@@ -64,29 +243,20 @@ if not ARGV[0].nil? # argument(s) given
     thread.join
 
   when 'install'
-    ####################################
     # Create a COSMOS barebones user directory
-    ####################################
     install('', 'install')
 
   when 'demo'
-    ####################################
     # Create a COSMOS demo user directory
-    ####################################
     install('Demo', 'demo')
 
-  when 'help'
-    ####################################
-    # Print Usage
-    ####################################
+  when 'generate'
+    generate(ARGV[1..-1])
 
+  when 'help'
     print_usage()
 
   else # Unknown task
-    ####################################
-    # Unknown task
-    ####################################
-
     puts "Unknown task: #{ARGV[0]}\n"
     print_usage()
   end

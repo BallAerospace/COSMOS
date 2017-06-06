@@ -13,6 +13,10 @@ module Cosmos
   module Script
     private
 
+    def get_interface_targets(interface_name)
+      return $cmd_tlm_server.get_interface_targets(interface_name)
+    end
+
     def get_interface_names
       return $cmd_tlm_server.get_interface_names
     end
@@ -47,6 +51,30 @@ module Cosmos
 
     def router_state(router_name)
       return $cmd_tlm_server.router_state(router_name)
+    end
+
+    def get_target_info(target_name)
+      return $cmd_tlm_server.get_target_info(target_name)
+    end
+
+    def get_interface_info(interface_name)
+      return $cmd_tlm_server.get_interface_info(interface_name)
+    end
+
+    def get_router_info(router_name)
+      return $cmd_tlm_server.get_router_info(router_name)
+    end
+
+    def get_cmd_cnt(target_name, command_name)
+      return $cmd_tlm_server.get_cmd_cnt(target_name, command_name)
+    end
+
+    def get_tlm_cnt(target_name, packet_name)
+      return $cmd_tlm_server.get_tlm_cnt(target_name, packet_name)
+    end
+
+    def get_packet_logger_info(packet_logger_name)
+      return $cmd_tlm_server.get_packet_logger_info(packet_logger_name)
     end
 
     def get_cmd_log_filename(packet_log_writer_name = 'DEFAULT')

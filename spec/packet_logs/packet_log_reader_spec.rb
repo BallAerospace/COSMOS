@@ -22,7 +22,7 @@ module Cosmos
 
       plw = PacketLogWriter.new(:CMD,nil,true,nil,10000000,nil,false)
       @cmd_packets = []
-      pkt = System.commands.packet("COSMOS","STARTLOGGING").clone
+      pkt = System.commands.packet("SYSTEM","STARTLOGGING").clone
       pkt.received_time = Time.new(2020,1,31,12,30,15)
       pkt.write('label','PKT1')
       plw.write(pkt)
@@ -42,20 +42,20 @@ module Cosmos
 
       plw = PacketLogWriter.new(:TLM,nil,true,nil,10000000,nil,false)
       @tlm_packets = []
-      pkt = System.telemetry.packet("COSMOS","VERSION").clone
+      pkt = System.telemetry.packet("SYSTEM","LIMITS_CHANGE").clone
       pkt.received_time = Time.new(2020,2,1,12,30,15)
-      pkt.write('COSMOS','PKT1')
+      pkt.write('PACKET','PKT1')
       plw.write(pkt)
       @tlm_packet_length = pkt.length
       @tlm_packets << pkt
       pkt = pkt.clone
       pkt.received_time += 1
-      pkt.write('COSMOS','PKT2')
+      pkt.write('PACKET','PKT2')
       plw.write(pkt)
       @tlm_packets << pkt
       pkt = pkt.clone
       pkt.received_time += 1
-      pkt.write('COSMOS','PKT3')
+      pkt.write('PACKET','PKT3')
       plw.write(pkt)
       @tlm_packets << pkt
       plw.stop
@@ -87,7 +87,7 @@ module Cosmos
       end
 
       it "complains if the log does not have a COSMOS header" do
-        pkt = System.telemetry.packet("COSMOS","VERSION").clone
+        pkt = System.telemetry.packet("SYSTEM","LIMITS_CHANGE").clone
         filename = File.join(@log_path,'test.bin')
         File.open(filename,'wb') do |file|
           file.write "OASIS CMD                            TEST"
@@ -99,7 +99,7 @@ module Cosmos
       end
 
       it "complains if the log is not CMD or TLM" do
-        pkt = System.telemetry.packet("COSMOS","VERSION").clone
+        pkt = System.telemetry.packet("SYSTEM","LIMITS_CHANGE").clone
         filename = File.join(@log_path,'test.bin')
         File.open(filename,'wb') do |file|
           file.write "COSMOSBOTH                            TEST"
@@ -111,7 +111,7 @@ module Cosmos
       end
 
       it "opens COSMOS1 log files" do
-        pkt = System.telemetry.packet("COSMOS","VERSION").clone
+        pkt = System.telemetry.packet("SYSTEM","LIMITS_CHANGE").clone
         filename = File.join(@log_path,'test.bin')
         File.open(filename,'wb') do |file|
           file.write "COSMOSCMD                             TEST"
@@ -152,24 +152,24 @@ module Cosmos
         @config_targets = File.join(Cosmos::USERPATH,'config','targets')
 
         File.open(@config_file,'w') do |file|
-          file.puts "DECLARE_TARGET COSMOS"
-          file.puts "DECLARE_TARGET COSMOS OVERRIDE"
+          file.puts "DECLARE_TARGET INST OVERRIDE"
+          file.puts "DECLARE_TARGET SYSTEM"
         end
 
         # Load the original configuration
         original_config_name, err = System.load_configuration
         expect(err).to eql nil
-        expect(System.telemetry.target_names).to eql %w(COSMOS OVERRIDE)
-        original_pkts = System.telemetry.packets('COSMOS').keys
+        expect(System.telemetry.target_names).to eql %w(OVERRIDE SYSTEM)
+        original_pkts = System.telemetry.packets('SYSTEM').keys
 
         # Create a new configuration by writing another telemetry file
-        File.open(File.join(@config_targets,'COSMOS','cmd_tlm','test1_tlm.txt'),'w') do |file|
-          file.puts "TELEMETRY COSMOS TEST1 BIG_ENDIAN"
+        File.open(File.join(@config_targets,'SYSTEM','cmd_tlm','test1_tlm.txt'),'w') do |file|
+          file.puts "TELEMETRY SYSTEM TEST1 BIG_ENDIAN"
           file.puts "  APPEND_ITEM DATA 240 STRING"
         end
         System.instance.process_file(@config_file)
         # Verify the new telemetry packet is there
-        expect(System.telemetry.packets('COSMOS').keys).to include "TEST1"
+        expect(System.telemetry.packets('SYSTEM').keys).to include "TEST1"
         second_config_name = System.configuration_name
 
         # Create a log file for the second config
@@ -195,7 +195,7 @@ module Cosmos
         FileUtils.mv File.join(Cosmos::USERPATH, 'system.txt'),
           File.join(Cosmos::USERPATH,'config','system')
 
-        File.delete(File.join(@config_targets,'COSMOS','cmd_tlm','test1_tlm.txt'))
+        File.delete(File.join(@config_targets,'SYSTEM','cmd_tlm','test1_tlm.txt'))
       end
     end
 
@@ -206,11 +206,13 @@ module Cosmos
         expect(@plr.configuration_name).not_to be_nil
         expect(@plr.hostname).to eql Socket.gethostname
         header_length = 8 + 1 + 6 + 1 + 12 + 4
-        expect(packet_offsets).to eql [PacketLogReader::COSMOS2_HEADER_LENGTH, PacketLogReader::COSMOS2_HEADER_LENGTH + header_length + @cmd_packet_length, PacketLogReader::COSMOS2_HEADER_LENGTH + (header_length + @cmd_packet_length) * 2]
+        meta_header_length = 8 + 1 + 6 + 1 + 4 + 4
+        meta_length = System.telemetry.packet('SYSTEM', 'META').length
+        expect(packet_offsets).to eql [PacketLogReader::COSMOS2_HEADER_LENGTH, PacketLogReader::COSMOS2_HEADER_LENGTH + meta_header_length + meta_length, PacketLogReader::COSMOS2_HEADER_LENGTH + meta_header_length + meta_length + header_length + @cmd_packet_length, PacketLogReader::COSMOS2_HEADER_LENGTH + meta_header_length + meta_length + (header_length + @cmd_packet_length) * 2]
 
         expect(@plr.open(Dir[File.join(@log_path,"*cmd.bin")][0])).to eql [true, nil]
-        pkt = @plr.read_at_offset(packet_offsets[1])
-        expect(pkt.target_name).to eql "COSMOS"
+        pkt = @plr.read_at_offset(packet_offsets[2])
+        expect(pkt.target_name).to eql "SYSTEM"
         expect(pkt.packet_name).to eql "STARTLOGGING"
         expect(pkt.received_time).to eql Time.new(2020,1,31,12,30,16)
         @plr.close
@@ -221,13 +223,15 @@ module Cosmos
         expect(@plr.log_type).to eql :TLM
         expect(@plr.configuration_name).not_to be_nil
         expect(@plr.hostname).to eql Socket.gethostname
-        header_length = 8 + 1 + 6 + 1 + 7 + 4
-        expect(packet_offsets).to eql [PacketLogReader::COSMOS2_HEADER_LENGTH, PacketLogReader::COSMOS2_HEADER_LENGTH + header_length + @tlm_packet_length, PacketLogReader::COSMOS2_HEADER_LENGTH + (header_length + @tlm_packet_length) * 2]
+        header_length = 8 + 1 + 6 + 1 + 13 + 4
+        meta_header_length = 8 + 1 + 6 + 1 + 4 + 4
+        meta_length = System.telemetry.packet('SYSTEM', 'META').length
+        expect(packet_offsets).to eql [PacketLogReader::COSMOS2_HEADER_LENGTH, PacketLogReader::COSMOS2_HEADER_LENGTH + meta_header_length + meta_length, PacketLogReader::COSMOS2_HEADER_LENGTH + meta_header_length + meta_length + header_length + @tlm_packet_length, PacketLogReader::COSMOS2_HEADER_LENGTH + meta_header_length + meta_length + (header_length + @tlm_packet_length) * 2]
 
         expect(@plr.open(Dir[File.join(@log_path,"*tlm.bin")][0])).to eql [true, nil]
-        pkt = @plr.read_at_offset(packet_offsets[1])
-        expect(pkt.target_name).to eql "COSMOS"
-        expect(pkt.packet_name).to eql "VERSION"
+        pkt = @plr.read_at_offset(packet_offsets[2])
+        expect(pkt.target_name).to eql "SYSTEM"
+        expect(pkt.packet_name).to eql "LIMITS_CHANGE"
         expect(pkt.received_time).to eql Time.new(2020,2,1,12,30,16)
         @plr.close
       end
@@ -236,25 +240,33 @@ module Cosmos
     describe "each" do
       it "returns packets" do
         index = 0
-        bytes_read = 208
+        meta_header_length = 8 + 1 + 6 + 1 + 4 + 4
+        meta_length = System.telemetry.packet('SYSTEM', 'META').length
+        packet_length = System.commands.packet('SYSTEM', 'STARTLOGGING').length
+        packet_header_length = 8 + 1 + 'SYSTEM'.length + 1 + 'STARTLOGGING'.length + 4
+        bytes_read = 128 + packet_header_length + packet_length + meta_header_length + meta_length
         @plr.each(Dir[File.join(@log_path,"*cmd.bin")][0]) do |packet|
+          next if packet.packet_name == 'META'
           expect(packet.target_name).to eql @cmd_packets[index].target_name
           expect(packet.packet_name).to eql @cmd_packets[index].packet_name
           expect(packet.received_time).to eql @cmd_packets[index].received_time
           expect(packet.read('LABEL')).to eql @cmd_packets[index].read('LABEL')
           expect(@plr.bytes_read).to eql bytes_read
-          bytes_read += 80
+          bytes_read += packet_header_length + packet_length
           index += 1
         end
         index = 0
-        bytes_read = 276
+        packet_length = System.telemetry.packet('SYSTEM', 'LIMITS_CHANGE').length
+        packet_header_length = 8 + 1 + 'SYSTEM'.length + 1 + 'LIMITS_CHANGE'.length + 4
+        bytes_read = 128 + packet_header_length + packet_length + meta_header_length + meta_length
         @plr.each(Dir[File.join(@log_path,"*tlm.bin")][0]) do |packet|
+          next if packet.packet_name == 'META'
           expect(packet.target_name).to eql @tlm_packets[index].target_name
           expect(packet.packet_name).to eql @tlm_packets[index].packet_name
           expect(packet.received_time).to eql @tlm_packets[index].received_time
-          expect(packet.read('COSMOS')).to eql @tlm_packets[index].read('COSMOS')
+          expect(packet.read('PACKET')).to eql @tlm_packets[index].read('PACKET')
           expect(@plr.bytes_read).to eql bytes_read
-          bytes_read += 148
+          bytes_read += packet_header_length + packet_length
           index += 1
         end
       end
@@ -262,6 +274,7 @@ module Cosmos
       it "optionally does not identify and define packets" do
         index = 0
         @plr.each(Dir[File.join(@log_path,"*cmd.bin")][0], false) do |packet|
+          next if packet.packet_name == 'META'
           expect(packet.target_name).to eql @cmd_packets[index].target_name
           expect(packet.packet_name).to eql @cmd_packets[index].packet_name
           expect(packet.received_time).to eql @cmd_packets[index].received_time
@@ -270,10 +283,11 @@ module Cosmos
         end
         index = 0
         @plr.each(Dir[File.join(@log_path,"*tlm.bin")][0], false) do |packet|
+          next if packet.packet_name == 'META'
           expect(packet.target_name).to eql @tlm_packets[index].target_name
           expect(packet.packet_name).to eql @tlm_packets[index].packet_name
           expect(packet.received_time).to eql @tlm_packets[index].received_time
-          expect { packet.read('COSMOS') }.to raise_error(/does not exist/)
+          expect { packet.read('PACKET') }.to raise_error(/does not exist/)
           index += 1
         end
       end
@@ -284,12 +298,13 @@ module Cosmos
         plw.write(System.commands.packet("INST","ABORT").clone)
         plw.write(System.commands.packet("INST","ABORT").clone)
         plw.write(System.commands.packet("INST","COLLECT").clone)
-        plw.write(System.commands.packet("COSMOS","STOPLOGGING").clone)
+        plw.write(System.commands.packet("SYSTEM","STOPLOGGING").clone)
         plw.write(System.commands.packet("INST","ABORT").clone)
         plw.stop
 
         cnt = {}
         @plr.each(Dir[File.join(@log_path,"*cntcmd.bin")][0]) do |packet|
+          next if packet.packet_name == 'META'
           cnt["#{packet.target_name}_#{packet.packet_name}"] ||= 0
           cnt["#{packet.target_name}_#{packet.packet_name}"] += 1
           expect(packet.received_count).to eql cnt["#{packet.target_name}_#{packet.packet_name}"]
@@ -302,6 +317,7 @@ module Cosmos
         expect(collect.received_count).to eql 0
 
         @plr.each(Dir[File.join(@log_path,"*cntcmd.bin")][0]) do |packet|
+          next if packet.packet_name == 'META'
           cnt["#{packet.target_name}_#{packet.packet_name}"] ||= 0
           cnt["#{packet.target_name}_#{packet.packet_name}"] += 1
           expect(packet.received_count).to eql cnt["#{packet.target_name}_#{packet.packet_name}"]
@@ -316,12 +332,12 @@ module Cosmos
         plw.write(System.telemetry.packet("INST","ADCS").clone)
         plw.write(System.telemetry.packet("INST","ADCS").clone)
         plw.write(System.telemetry.packet("INST","HEALTH_STATUS").clone)
-        plw.write(System.telemetry.packet("COSMOS","LIMITS_CHANGE").clone)
         plw.write(System.telemetry.packet("INST","ADCS").clone)
         plw.stop
 
         cnt = {}
         @plr.each(Dir[File.join(@log_path,"*cnttlm.bin")][0]) do |packet|
+          next if packet.packet_name == 'META'
           cnt["#{packet.target_name}_#{packet.packet_name}"] ||= 0
           cnt["#{packet.target_name}_#{packet.packet_name}"] += 1
           expect(packet.received_count).to eql cnt["#{packet.target_name}_#{packet.packet_name}"]
@@ -334,6 +350,7 @@ module Cosmos
         expect(status.received_count).to eql 0
 
         @plr.each(Dir[File.join(@log_path,"*cnttlm.bin")][0]) do |packet|
+          next if packet.packet_name == 'META'
           cnt["#{packet.target_name}_#{packet.packet_name}"] ||= 0
           cnt["#{packet.target_name}_#{packet.packet_name}"] += 1
           expect(packet.received_count).to eql cnt["#{packet.target_name}_#{packet.packet_name}"]
@@ -346,6 +363,7 @@ module Cosmos
         time = Time.new(2000,1,31,12,30,16)
         index = 0
         @plr.each(Dir[File.join(@log_path,"*cmd.bin")][0], true, time) do |packet|
+          next if packet.packet_name == 'META'
           expect(packet.target_name).to eql @cmd_packets[index].target_name
           expect(packet.packet_name).to eql @cmd_packets[index].packet_name
           expect(packet.received_time).to eql @cmd_packets[index].received_time
@@ -382,7 +400,7 @@ module Cosmos
           expect(packet.target_name).to eql @tlm_packets[index+1].target_name
           expect(packet.packet_name).to eql @tlm_packets[index+1].packet_name
           expect(packet.received_time).to eql @tlm_packets[index+1].received_time
-          expect(packet.read('COSMOS')).to eql @tlm_packets[index+1].read('COSMOS')
+          expect(packet.read('PACKET')).to eql @tlm_packets[index+1].read('PACKET')
           index += 1
         end
         expect(index).to eql 2
@@ -401,6 +419,7 @@ module Cosmos
         time = Time.new(2030,2,1,12,30,16)
         index = 0
         @plr.each(Dir[File.join(@log_path,"*cmd.bin")][0], true, nil, time) do |packet|
+          next if packet.packet_name == 'META'
           expect(packet.target_name).to eql @cmd_packets[index].target_name
           expect(packet.packet_name).to eql @cmd_packets[index].packet_name
           expect(packet.received_time).to eql @cmd_packets[index].received_time
@@ -414,6 +433,7 @@ module Cosmos
         time = Time.new(2020,1,31,12,30,16)
         index = 0
         @plr.each(Dir[File.join(@log_path,"*cmd.bin")][0], true, nil, time) do |packet|
+          next if packet.packet_name == 'META'
           expect(packet.target_name).to eql @cmd_packets[index].target_name
           expect(packet.packet_name).to eql @cmd_packets[index].packet_name
           expect(packet.received_time).to eql @cmd_packets[index].received_time
@@ -425,10 +445,11 @@ module Cosmos
         time = Time.new(2020,2,1,12,30,16)
         index = 0
         @plr.each(Dir[File.join(@log_path,"*tlm.bin")][0], true, nil, time) do |packet|
+          next if packet.packet_name == 'META'
           expect(packet.target_name).to eql @tlm_packets[index].target_name
           expect(packet.packet_name).to eql @tlm_packets[index].packet_name
           expect(packet.received_time).to eql @tlm_packets[index].received_time
-          expect(packet.read('COSMOS')).to eql @tlm_packets[index].read('COSMOS')
+          expect(packet.read('PACKET')).to eql @tlm_packets[index].read('PACKET')
           index += 1
         end
         expect(index).to eql 2
@@ -439,16 +460,15 @@ module Cosmos
       it "returns the first command packet and retain the file position" do
         expect(@plr.open(Dir[File.join(@log_path,"*cmd.bin")][0])).to eql [true, nil]
         pkt1 = @plr.read
+        pkt1 = @plr.read
         expect(pkt1.target_name).to eql @cmd_packets[0].target_name
         expect(pkt1.packet_name).to eql @cmd_packets[0].packet_name
         expect(pkt1.received_time).to eql @cmd_packets[0].received_time
         expect(pkt1.read('LABEL')).to eql @cmd_packets[0].read('LABEL')
 
         first = @plr.first
-        expect(first.target_name).to eql @cmd_packets[0].target_name
-        expect(first.packet_name).to eql @cmd_packets[0].packet_name
-        expect(first.received_time).to eql @cmd_packets[0].received_time
-        expect(first.read('LABEL')).to eql @cmd_packets[0].read('LABEL')
+        expect(first.target_name).to eql 'SYSTEM'
+        expect(first.packet_name).to eql 'META'
 
         pkt2 = @plr.read
         expect(pkt2.target_name).to eql @cmd_packets[1].target_name
@@ -461,22 +481,21 @@ module Cosmos
       it "returns the first telemetry packet and retain the file position" do
         expect(@plr.open(Dir[File.join(@log_path,"*tlm.bin")][0])).to eql [true, nil]
         pkt1 = @plr.read
+        pkt1 = @plr.read
         expect(pkt1.target_name).to eql @tlm_packets[0].target_name
         expect(pkt1.packet_name).to eql @tlm_packets[0].packet_name
         expect(pkt1.received_time).to eql @tlm_packets[0].received_time
-        expect(pkt1.read('COSMOS')).to eql @tlm_packets[0].read('COSMOS')
+        expect(pkt1.read('PACKET')).to eql @tlm_packets[0].read('PACKET')
 
         first = @plr.first
-        expect(first.target_name).to eql @tlm_packets[0].target_name
-        expect(first.packet_name).to eql @tlm_packets[0].packet_name
-        expect(first.received_time).to eql @tlm_packets[0].received_time
-        expect(first.read('COSMOS')).to eql @tlm_packets[0].read('COSMOS')
+        expect(first.target_name).to eql 'SYSTEM'
+        expect(first.packet_name).to eql 'META'
 
         pkt2 = @plr.read
         expect(pkt2.target_name).to eql @tlm_packets[1].target_name
         expect(pkt2.packet_name).to eql @tlm_packets[1].packet_name
         expect(pkt2.received_time).to eql @tlm_packets[1].received_time
-        expect(pkt2.read('COSMOS')).to eql @tlm_packets[1].read('COSMOS')
+        expect(pkt2.read('PACKET')).to eql @tlm_packets[1].read('PACKET')
         @plr.close
       end
     end
@@ -484,6 +503,7 @@ module Cosmos
     describe "last" do
       it "returns the last command packet and retain the file position" do
         expect(@plr.open(Dir[File.join(@log_path,"*cmd.bin")][0])).to eql [true, nil]
+        pkt1 = @plr.read
         pkt1 = @plr.read
         expect(pkt1.target_name).to eql @cmd_packets[0].target_name
         expect(pkt1.packet_name).to eql @cmd_packets[0].packet_name
@@ -507,22 +527,23 @@ module Cosmos
       it "returns the last telemetry packet and retain the file position" do
         expect(@plr.open(Dir[File.join(@log_path,"*tlm.bin")][0])).to eql [true, nil]
         pkt1 = @plr.read
+        pkt1 = @plr.read
         expect(pkt1.target_name).to eql @tlm_packets[0].target_name
         expect(pkt1.packet_name).to eql @tlm_packets[0].packet_name
         expect(pkt1.received_time).to eql @tlm_packets[0].received_time
-        expect(pkt1.read('COSMOS')).to eql @tlm_packets[0].read('COSMOS')
+        expect(pkt1.read('PACKET')).to eql @tlm_packets[0].read('PACKET')
 
         last = @plr.last
         expect(last.target_name).to eql @tlm_packets[2].target_name
         expect(last.packet_name).to eql @tlm_packets[2].packet_name
         expect(last.received_time).to eql @tlm_packets[2].received_time
-        expect(last.read('COSMOS')).to eql @tlm_packets[2].read('COSMOS')
+        expect(last.read('PACKET')).to eql @tlm_packets[2].read('PACKET')
 
         pkt2 = @plr.read
         expect(pkt2.target_name).to eql @tlm_packets[1].target_name
         expect(pkt2.packet_name).to eql @tlm_packets[1].packet_name
         expect(pkt2.received_time).to eql @tlm_packets[1].received_time
-        expect(pkt2.read('COSMOS')).to eql @tlm_packets[1].read('COSMOS')
+        expect(pkt2.read('PACKET')).to eql @tlm_packets[1].read('PACKET')
         @plr.close
       end
     end

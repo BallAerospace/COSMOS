@@ -246,7 +246,7 @@ module Cosmos
       if !@show_popup_x_y && @unix_epoch_x_values
         # Determine if the value is a time stamp and should be converted
         if value > 1 && value < 2147483647
-          time = Time.at(value)
+          time = Time.at(value).sys
           time = time.utc if @utc_time
           if full_date
             time.formatted # full date with day, month, year

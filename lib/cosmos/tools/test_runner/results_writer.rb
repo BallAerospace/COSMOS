@@ -40,7 +40,7 @@ module Cosmos
 
     def start(test_type, test_suite_class, test_class = nil, test_case = nil, settings = nil)
       @results = []
-      @start_time = Time.now
+      @start_time = Time.now.sys
       @filename = File.join(@path, File.build_timestamped_filename(['testrunner', 'results']))
       @data_package_filename = @filename[0..-5] + '.zip'
       Cosmos.set_working_dir do
@@ -111,7 +111,7 @@ module Cosmos
     end
 
     def complete
-      @stop_time = Time.now
+      @stop_time = Time.now.sys
       cycle_logs() if @auto_cycle_logs
       footer()
     ensure
@@ -126,7 +126,7 @@ module Cosmos
       @file.puts "Detailed Test Output Logged to: #{get_scriptrunner_message_log_filename()}"
       if @metadata
         begin
-          items = get_tlm_packet(@metadata[0], @metadata[1])
+          items = get_tlm_packet('SYSTEM', 'META')
           @file.puts ''
           @file.puts "Metadata:"
           items.each do |item_name, item_value, _|
@@ -243,12 +243,12 @@ module Cosmos
     end
 
     def write(string)
-      @file.write(Time.now.formatted + ': ' + string)
+      @file.write(Time.now.sys.formatted + ': ' + string)
       @file.flush
     end
 
     def puts(string)
-      @file.puts(Time.now.formatted + ': ' + string)
+      @file.puts(Time.now.sys.formatted + ': ' + string)
       @file.flush
     end
 
@@ -257,7 +257,7 @@ module Cosmos
       if @metadata
         Qt.execute_in_main_thread(true) do
           begin
-            success = SetTlmDialog.execute(parent, 'Enter Test Metadata', 'Start Test', 'Cancel Test', @metadata[0], @metadata[1])
+            success = SetTlmDialog.execute(parent, 'Enter Test Metadata', 'Start Test', 'Cancel Test', 'SYSTEM', 'META')
           rescue DRb::DRbConnError
             success = false
             Qt::MessageBox.critical(parent, 'Error', 'Error Connecting to Command and Telemetry Server')

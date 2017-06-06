@@ -18,19 +18,21 @@ Cosmos.catch_fatal_exception do
 end
 
 module Cosmos
-
+  # Provides a group of buttons which can be configured to launch any of the
+  # COSMOS tools as well as any custom applications.
   class Launcher < QtTool
-
     def initialize(options)
       super(options) # MUST BE FIRST - All code before super is executed twice in RubyQt Based classes
 
-      # Set environment variable of COSMOS_USERPATH so that all launched apps know where to find the configuration
+      # Set environment variable of COSMOS_USERPATH so that all launched apps
+      # know where to find the configuration
       ENV['COSMOS_USERPATH'] = Cosmos::USERPATH
 
       Cosmos.load_cosmos_icon("launcher.png")
       layout.setSizeConstraint(Qt::Layout::SetFixedSize)
 
-      @about_string = "Launcher provides a list of applications to launch at the click of a button. It can also launch multiple applications and configure their exact placement on the screen."
+      @about_string = "Launcher provides a list of applications to launch at the click of a button. "\
+        "It can also launch multiple applications and configure their exact placement on the screen."
       initialize_actions()
       initialize_menus()
       initialize_central_widget()
@@ -38,29 +40,21 @@ module Cosmos
     end
 
     def initialize_menus
-      # File Menu
       @file_menu = menuBar().addMenu(tr('&File'))
       @file_menu.addAction(@exit_action)
-
-      # Help Menu
       initialize_help_menu()
     end
 
     def initialize_central_widget
-      # Create the central widget
-      central_widget = Qt::Widget.new
-      setCentralWidget(central_widget)
-
-      # Read the configuration file
-      config_file = File.join(Cosmos::USERPATH, 'config', 'tools', 'launcher', @options.config_file)
       begin
-        config = LauncherConfig.new(config_file)
+        config = LauncherConfig.new(@options.config_file)
       rescue => error
-        ExceptionDialog.new(self, error, "Error parsing #{config_file}")
+        ExceptionDialog.new(self, error, "Error parsing #{@options.config_file}")
       end
 
-      # Set the title
       self.window_title = config.title
+      central_widget = Qt::Widget.new
+      setCentralWidget(central_widget)
 
       # Create each button or divider
       default_icon_filename = 'COSMOS_64x64.png'
@@ -102,6 +96,7 @@ module Cosmos
             "font-family:#{config.tool_font_settings[0]}; " \
             "font-size:#{config.tool_font_settings[1]}px"
           label.setStyleSheet(stylesheet)
+          label.setObjectName("ButtonLabel")
           label.wordWrap = true
           label.setFixedWidth(70)
           label.setSizePolicy(Qt::SizePolicy::Fixed, Qt::SizePolicy::Fixed)
@@ -115,6 +110,7 @@ module Cosmos
 
         when :DIVIDER
           divider = Qt::Frame.new
+          divider.setObjectName("Divider")
           divider.setFrameStyle(Qt::Frame::HLine | Qt::Frame::Raised)
           divider.setLineWidth(1)
           divider.setMidLineWidth(1)
@@ -126,6 +122,7 @@ module Cosmos
             "font-family:#{config.label_font_settings[0]}; " \
             "font-size:#{config.label_font_settings[1]}px"
           label.setStyleSheet(stylesheet)
+          label.setObjectName("Label")
           widgets << label
 
         else
@@ -172,17 +169,9 @@ module Cosmos
         unless option_parser and options
           option_parser, options = create_default_options()
           options.title = 'Launcher'
-          options.config_file = 'launcher.txt'
-          option_parser.separator "Launcher Specific Options:"
-          option_parser.on("-c", "--config FILE", "Use the specified configuration file") do |arg|
-            options.config_file = arg
-          end
         end
-
         super(option_parser, options)
       end
     end
-
-  end # class Launcher
-
+  end
 end

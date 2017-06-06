@@ -23,22 +23,28 @@ module Cosmos
     def_delegators :@packet_log_frame, :filenames, :time_start, :time_start=,\
       :time_end, :time_end=, :packet_log_reader
 
-    # @param parent [Qt::Widget] Parent to this dialog
+    # @param parent (see PacketLogFrame#initialize)
     # @param title [String] Dialog title
-    # @param log_directory [String] Initial directory to display when browsing
-    #   for log files
-    # @param packet_log_reader [PacketLogReader] The COSMOS log reader class
-    #   used to parse the log
-    # @param initial_filenames [Array<String>] Array of filenames to
-    #   pre-populate the dialog with
-    # @param input_filename_filter [String] File filter to apply when
-    #   browsing with the FileDialog
+    # @param log_directory (see PacketLogFrame#initialize)
+    # @param packet_log_reader (see PacketLogFrame#initialize)
+    # @param initial_filenames (see PacketLogFrame#initialize)
+    # @param initial_output_filename (see PacketLogFrame#initialize)
+    # @param show_output_filename (see PacketLogFrame#initialize)
+    # @param show_time (see PacketLogFrame#initialize)
+    # @param show_log_reader (see PacketLogFrame#initialize)
+    # @param input_filename_filter (see PacketLogFrame#initialize)
+    # @param output_filename_filter (see PacketLogFrame#initialize)
     def initialize(parent,
                    title,
                    log_directory,
                    packet_log_reader,
                    initial_filenames = [],
-                   input_filename_filter = Cosmos::BIN_FILE_PATTERN)
+                   initial_output_filename = nil,
+                   show_output_filename = false,
+                   show_time = true,
+                   show_log_reader = true,
+                   input_filename_filter = Cosmos::BIN_FILE_PATTERN,
+                   output_filename_filter = Cosmos::BIN_FILE_PATTERN)
       super(parent)
       setWindowTitle(title)
 

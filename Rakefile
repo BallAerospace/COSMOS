@@ -144,11 +144,11 @@ end
 task :install_crc do
   saved = Dir.pwd
   Dir.chdir 'demo'
-  system('rake crc_official')
+  system('bundle exec rake crc_official')
   Dir.chdir saved
   saved = Dir.pwd
   Dir.chdir 'install'
-  system('rake crc_official')
+  system('bundle exec rake crc_official')
   Dir.chdir saved
 end
 

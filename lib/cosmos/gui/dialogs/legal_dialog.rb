@@ -13,13 +13,13 @@ require 'cosmos/gui/qt'
 require 'open3'
 
 module Cosmos
-  # Dialog showing the license which is displayed before starting the COSMOS
-  # Launcher. Accepting the dialog acknowledges the license. The dialog also
-  # calculates the CRCs across all the COSMOS gem files and user files to
-  # determine if anything has been modified.
+  # Creates a dialog displaying the COSMOS copyright information. Also
+  # calculates CRC checks across the entire project to determine if any of the
+  # COSMOS core files have been modified. This ensures the COSMOS system has
+  # not been modified since the last release.
   class LegalDialog < Qt::Dialog
     def initialize
-      super()
+      super() # MUST BE FIRST
       Cosmos.load_cosmos_icon
 
       self.window_title = 'Legal Agreement'
@@ -142,8 +142,8 @@ module Cosmos
     # @param filename [String] Full path to the crc.txt file
     # @param result_text [String] String to append results of CRC checks
     # @param missing_text [String] String to append missing files
-    # @param file_type [String] Whether we are checking the 'CORE' COSMOS files
-    #   or the 'PROJECT' specific files
+    # @param file_type [String] Whether the COSMOS core or project files. Must
+    #   be 'CORE' or 'PROJECT'.
     def check_crcs(base_path, filename, result_text, missing_text, file_type)
       file_count = 0
       error_count = 0

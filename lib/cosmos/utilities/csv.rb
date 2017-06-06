@@ -11,7 +11,6 @@
 require 'csv'
 
 module Cosmos
-
   # Reads in a comma separated values (CSV) configuration file and
   # allows access via the Hash bracket syntax. It allows the user to write
   # back data to the configuration file to store state.
@@ -43,6 +42,47 @@ module Cosmos
       @hash[index]
     end
 
+    # Convenience method to access a value by key and convert it to a boolean.
+    # The csv value must be 'TRUE' or 'FALSE' (case doesn't matter)
+    # and will be converted to Ruby true or false values.
+    #
+    # @param item [String] Key to access the value
+    # @param index [Integer] Which value to return
+    # @return [Boolean] Single value converted to a boolean (true or false)
+    def bool(item, index = 0)
+      raise "#{item} not found" unless keys.include?(item)
+      case @hash[item][index].upcase
+      when 'TRUE'
+        true
+      when 'FALSE'
+        false
+      else
+        raise "#{item} value of #{@hash[item][index]} not boolean. Must be 'TRUE' 'or 'FALSE'."
+      end
+    end
+    alias boolean bool
+
+    # Convenience method to access a value by key and convert it to an integer
+    #
+    # @param item [String] Key to access the value
+    # @param index [Integer] Which value to return
+    # @return [Integer] Single value converted to an integer
+    def int(item, index = 0)
+      raise "#{item} not found" unless keys.include?(item)
+      @hash[item][index].to_i
+    end
+    alias integer int
+
+    # Convenience method to access a value by key and convert it to a float
+    #
+    # @param item [String] Key to access the value
+    # @param index [Integer] Which value to return
+    # @return [Float] Single value converted to a float
+    def float(item, index = 0)
+      raise "#{item} not found" unless keys.include?(item)
+      @hash[item][index].to_f
+    end
+
     # Creates a copy of the CSV file passed into the constructor. The file will
     # be prefixed by the current date and time to create a unique filename.
     # By default this file is created in the COSMOS/logs directory. Subsequent
@@ -52,10 +92,22 @@ module Cosmos
     # @param path [String] Path location to create the archive file. If nil the
     #   file will be created in COSMOS/logs.
     def create_archive(path = nil)
-      raise "Archive file \"#{@archive.path}\" already open." unless @archive.nil?
+      close_archive() if @archive
       path = System.paths['LOGS'] if path.nil?
-      @archive_file = File.join(path, File.build_timestamped_filename([File.basename(@filename)], ''))
-      @archive = File.open(@archive_file,"w")
+
+      attempt = nil
+      while true
+        name = File.build_timestamped_filename([File.basename(@filename, '.csv'), attempt], '.csv')
+        @archive_file = File.join(path, name)
+        if File.exist?(@archive_file)
+          attempt ||= 0
+          attempt += 1
+        else
+          break
+        end
+      end
+
+      @archive = File.open(@archive_file, "w")
       @hash.each do |key, values|
         @archive.puts "#{key},#{values.join(',')}"
       end
@@ -63,21 +115,23 @@ module Cosmos
     end
 
     # Write the archive file created by #{CSV#create_archive}. This method will
-    # append a CSV row to the archive file by joining all the values in the
-    # array into a CSV entry.
+    # append a row to the archive file by joining writing the value.
     #
-    # @param [Array] values Array of values which will go in columns 1-n
-    def write_archive(values)
-      raise "Archive file not opened! Call create_archive." if @archive.nil?
-      @archive.puts values.join(',')
+    # @param value [Objct|Array] Simply value to write to the end of the
+    #   archive or array of values which will be written out as CSV
+    def write_archive(value)
+      create_archive() unless @archive
+      if value.is_a? Array
+        @archive.puts value.join(',')
+      else
+        @archive.puts value
+      end
     end
 
-    # Closes the archive file created by #{CSV#create_archive}. Once this method is
-    # called, {#write_archive} will throw an exception.
+    # Closes the archive file created by #{CSV#create_archive}.
     def close_archive
       @archive.close
       @archive = nil
     end
-
-  end # class Csv
+  end
 end

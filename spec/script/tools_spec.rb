@@ -63,7 +63,7 @@ module Cosmos
         allow_any_instance_of(Object).to receive(:sleep)
         allow_any_instance_of(Object).to receive(:cosmos_script_sleep).and_return(true)
         allow(Cosmos).to receive(:run_process)
-        expect { display("HI") }.to raise_error(RuntimeError, /HI could not be displayed/)
+        expect { display("HI") }.to raise_error(RuntimeError, /Could not display HI/)
       end
 
       it "complains if the screen doesn't exist" do
@@ -83,12 +83,27 @@ module Cosmos
         allow_any_instance_of(Object).to receive(:sleep)
         allow_any_instance_of(Object).to receive(:cosmos_script_sleep).and_return(true)
         allow(Cosmos).to receive(:run_process)
-        expect { clear("HI") }.to raise_error(RuntimeError, /HI could not be cleared/)
+        expect { clear("HI") }.to raise_error(RuntimeError, /Could not clear HI/)
       end
 
       it "complains if the screen doesn't exist" do
         allow_any_instance_of(JsonDRbObject).to receive(:clear).and_raise(Errno::ENOENT)
         expect { clear("HI") }.to raise_error(RuntimeError, /HI.txt does not exist/)
+      end
+    end
+
+    describe "clear_all" do
+      it "closes all telemetry viewer screens" do
+        allow_any_instance_of(JsonDRbObject).to receive(:clear_all)
+        clear_all
+      end
+
+      it "complains if unable to start telemetry viewer" do
+        # Avoid the needless delay by stubbing sleep
+        allow_any_instance_of(Object).to receive(:sleep)
+        allow_any_instance_of(Object).to receive(:cosmos_script_sleep).and_return(true)
+        allow(Cosmos).to receive(:run_process)
+        expect { clear_all }.to raise_error(RuntimeError, /Could not clear_all/)
       end
     end
 

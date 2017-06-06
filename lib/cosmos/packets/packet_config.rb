@@ -73,10 +73,8 @@ module Cosmos
       @warnings = []
 
       # Create unknown packets
-      @commands['UNKNOWN']
       @commands['UNKNOWN'] = {}
       @commands['UNKNOWN']['UNKNOWN'] = Packet.new('UNKNOWN', 'UNKNOWN', :BIG_ENDIAN)
-      @telemetry['UNKNOWN']
       @telemetry['UNKNOWN'] = {}
       @telemetry['UNKNOWN']['UNKNOWN'] = Packet.new('UNKNOWN', 'UNKNOWN', :BIG_ENDIAN)
 
@@ -220,8 +218,12 @@ module Cosmos
       finish_packet()
 
       # Remove abstract
-      @commands[@current_target_name].delete_if {|packet_name, packet| packet.abstract}
-      @telemetry[@current_target_name].delete_if {|packet_name, packet| packet.abstract}
+      if @commands[@current_target_name]
+        @commands[@current_target_name].delete_if {|packet_name, packet| packet.abstract}
+      end
+      if @telemetry[@current_target_name]
+        @telemetry[@current_target_name].delete_if {|packet_name, packet| packet.abstract}
+      end
 
       # Reverse order of packets for the target so ids work correctly
       reverse_packet_order(@current_target_name, @commands)
@@ -554,17 +556,19 @@ module Cosmos
     end
 
     def reverse_packet_order(target_name, cmd_or_tlm_hash)
-      packets = []
-      names_to_remove = []
-      cmd_or_tlm_hash[target_name].each do |packet_name, packet|
-        packets << packet
-        names_to_remove << packet_name
-      end
-      cmd_or_tlm_hash[target_name].length.times do |i|
-        cmd_or_tlm_hash[target_name].delete(names_to_remove[i])
-      end
-      packets.reverse.each do |packet|
-        cmd_or_tlm_hash[target_name][packet.packet_name] = packet
+      if cmd_or_tlm_hash[target_name]
+        packets = []
+        names_to_remove = []
+        cmd_or_tlm_hash[target_name].each do |packet_name, packet|
+          packets << packet
+          names_to_remove << packet_name
+        end
+        cmd_or_tlm_hash[target_name].length.times do |i|
+          cmd_or_tlm_hash[target_name].delete(names_to_remove[i])
+        end
+        packets.reverse.each do |packet|
+          cmd_or_tlm_hash[target_name][packet.packet_name] = packet
+        end
       end
     end
 
@@ -636,16 +640,45 @@ module Cosmos
         end
 
       when 'ByteOrderList'
+        byte_list = []
         xtce_recurse_element(element, depth + 1) do |element, depth|
           if element.name == 'Byte'
-            if element['byteSignificance'] and element['byteSignificance'].to_i == 0
-              @current_type.endianness = :LITTLE_ENDIAN
+            if element['byteSignificance']
+              byte_list << element['byteSignificance'].to_i
             end
-            false
-          else
-            true
+          end
+          true
+        end
+        if byte_list[0] == 0
+          # Little endian will always start with 0 - Its ok if a single byte item is marked little endian
+          @current_type.endianness = :LITTLE_ENDIAN
+        end
+
+        # Verify ordering of byte list is supported
+        if byte_list[0] >= byte_list[-1]
+          ordered_byte_list = byte_list.reverse
+        else
+          ordered_byte_list = byte_list.clone
+        end
+        if ordered_byte_list[0] != 0
+          msg = "Invalid ByteOrderList detected: #{byte_list.join(", ")}"
+          Logger.instance.warn msg
+          @warnings << msg
+        else
+          previous_byte = nil
+          ordered_byte_list.each do |byte|
+            if previous_byte
+              if byte - previous_byte != 1
+                msg = "Invalid ByteOrderList detected: #{byte_list.join(", ")}"
+                Logger.instance.warn msg
+                @warnings << msg
+                break
+              end
+            end
+            previous_byte = byte
           end
         end
+
         return false # Already recursed
 
       when "SizeInBits"

@@ -73,7 +73,7 @@ module Cosmos
     # The default host
     DEFAULT_HOST = 'localhost'
     # The default configuration file name
-    DEFAULT_CONFIG_FILE = 'cmd_tlm_server.txt'
+    DEFAULT_CONFIG_FILE = File.join(Cosmos::USERPATH, 'config', 'tools', 'cmd_tlm_server', 'cmd_tlm_server.txt')
     # The maximum number of limits events that are queued. Used when
     # subscribing to limits events.
     DEFAULT_LIMITS_EVENT_QUEUE_SIZE = 1000
@@ -128,7 +128,7 @@ module Cosmos
       @next_packet_data_queue_id = 1
 
       # Process cmd_tlm_server.txt
-      @config = CmdTlmServerConfig.new(File.join('config', 'tools', 'cmd_tlm_server', config_file))
+      @config = CmdTlmServerConfig.new(config_file)
       @background_tasks = BackgroundTasks.new(@config)
       @commanding = Commanding.new(@config)
       @interfaces = Interfaces.new(@config, method(:identified_packet_callback))
@@ -156,7 +156,7 @@ module Cosmos
       System.telemetry # Make sure definitions are loaded by starting anything
       return unless @json_drb.nil?
 
-      @@meta_callback.call(@config.meta_target_name, @config.meta_packet_name) if @@meta_callback if @config.meta_target_name and @config.meta_packet_name
+      @@meta_callback.call() if @@meta_callback if @config.metadata
 
       # Start DRb with access control
       @json_drb = JsonDRb.new
@@ -187,6 +187,7 @@ module Cosmos
       end
 
       @routers.add_preidentified('PREIDENTIFIED_ROUTER', System.instance.ports['CTS_PREIDENTIFIED'])
+      @routers.add_cmd_preidentified('PREIDENTIFIED_CMD_ROUTER', System.instance.ports['CTS_CMD_ROUTER'])
       System.telemetry.limits_change_callback = method(:limits_change_callback)
       @interfaces.start
       @routers.start
@@ -395,7 +396,7 @@ module Cosmos
             packets.each do |target_name, packet_name|
               if packet.target_name == target_name and packet.packet_name == packet_name
                 received_time = packet.received_time
-                received_time ||= Time.now
+                received_time ||= Time.now.sys
                 queue << [packet.buffer, target_name, packet_name,
                   received_time.tv_sec, received_time.tv_usec, packet.received_count]
                 if queue.length > queue_size
@@ -429,6 +430,10 @@ module Cosmos
                                    queue_size = CmdTlmServer::DEFAULT_PACKET_DATA_QUEUE_SIZE)
       if !packets.is_a?(Array) || !packets[0].is_a?(Array)
         raise ArgumentError, "packets must be nested array: [['TGT','PKT'],...]"
+      end
+
+      unless queue_size.is_a? Integer and queue_size > 0
+        raise ArgumentError, "Invalid queue size for subscribe_packet_data: #{queue_size}"
       end
 
       id = nil

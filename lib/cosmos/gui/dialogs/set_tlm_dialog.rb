@@ -20,7 +20,7 @@ module Cosmos
   # are written back into the packet.
   class SetTlmDialog < Qt::Dialog
     # @return [Array<String>] Items which should not be displayed in the dialog
-    IGNORED_ITEMS = ['RECEIVED_TIMESECONDS', 'RECEIVED_TIMEFORMATTED', 'RECEIVED_COUNT']
+    IGNORED_ITEMS = ['RECEIVED_TIMESECONDS', 'RECEIVED_TIMEFORMATTED', 'RECEIVED_COUNT', 'PKTID', 'CONFIG']
 
     # @return [String] Errors encountered when trying to set the values back
     #   into the packet
@@ -49,7 +49,6 @@ module Cosmos
       super(parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint)
       @target_name = target_name
       @packet_name = packet_name
-      @current_item_name = nil
 
       extend Api if CmdTlmServer.instance
 
@@ -58,7 +57,7 @@ module Cosmos
       else
         @items = packet.read_all_with_limits_states
       end
-      @items.delete_if {|item_name, _, _| ['RECEIVED_TIMESECONDS', 'RECEIVED_TIMEFORMATTED', 'RECEIVED_COUNT'].include?(item_name)}
+      @items.delete_if {|item_name, _, _| IGNORED_ITEMS.include?(item_name)}
 
       setWindowTitle(title)
       Cosmos.load_cosmos_icon
@@ -125,11 +124,13 @@ module Cosmos
     # Set all user edited items from the dialog back into the packet
     def set_items
       index = 0
+      item_hash = {}
       @items.each do |item_name, _, _|
-        @current_item_name = item_name
-        set_tlm(@target_name, @packet_name, item_name, @editors[index].text)
+        item_hash[item_name] = @editors[index].text
         index += 1
       end
+      # Send to routers, and start new logs (which should inject the META packet)
+      inject_tlm(@target_name, @packet_name, item_hash, :CONVERTED, true, false, true)
     end
 
     # (see #initialize)

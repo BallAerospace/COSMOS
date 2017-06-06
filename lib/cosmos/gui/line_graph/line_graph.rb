@@ -251,7 +251,7 @@ module Cosmos
       @in_update_graph_size = false
 
       # Time of previous left button release
-      @previous_left_button_release_time = Time.now
+      @previous_left_button_release_time = Time.now.sys
 
       # List of line colors to use
       @color_list = ['blue','red','green','darkorange', 'gold', 'purple', 'hotpink', 'lime', 'cornflowerblue', 'brown', 'coral', 'crimson', 'indigo', 'tan', 'lightblue', 'cyan', 'peru', 'maroon','orange','navy','teal','black']
@@ -322,7 +322,7 @@ module Cosmos
     end # def mousePressEvent
 
     def mouseReleaseEvent(event)
-      left_button_release_time = Time.now
+      left_button_release_time = Time.now.sys
 
       if @error and ((left_button_release_time - @previous_left_button_release_time) < DOUBLE_CLICK_SECONDS)
         @pre_error_callback.call(self) if @pre_error_callback
