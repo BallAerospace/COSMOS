@@ -4,7 +4,6 @@
 # AUTO_DECLARE_TARGETS
 DECLARE_TARGET INST
 DECLARE_TARGET INST INST2
-DECLARE_TARGET COSMOS
 DECLARE_TARGET META
 DECLARE_TARGET SYSTEM
 
@@ -24,10 +23,6 @@ PATH SAVED_CONFIG ./outputs/saved_config
 PATH TABLES ./outputs/tables
 PATH HANDBOOKS ./outputs/handbooks
 PATH PROCEDURES ./procedures
-
-# Command and Telemetry Database Version (Optional)
-# CMD_TLM_VERSION version
-CMD_TLM_VERSION "Demo Version"
 
 # DISABLE_DNS
 

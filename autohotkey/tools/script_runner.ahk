@@ -524,7 +524,7 @@ Sleep 500
 
 ; Start the CmdTlmServer
 Run ruby.exe %A_ScriptDir%/CmdTlmServer
-Sleep 2000
+Sleep 4000
 WinActivate Script Runner
 Sleep 1000
 
@@ -586,4 +586,3 @@ Click 135 95 ; Yes
 WinWaitActive Save
 Send n
 Sleep 500
-

@@ -1,15 +1,15 @@
 SetWinDelay 1000
 WinWaitActive Command Sender
-Sleep 2000
+Sleep 500
 Run ruby.exe %A_ScriptDir%/CmdTlmServer
-Sleep 2000
+Sleep 4000
 WinActivate Command Sender
 Sleep 500
 Click 60 600 ; Click in the Command History
 Sleep 500
 Send cmd( ; Cause a popup completion
 Sleep 500
-Send {Down 2}{Enter} ; INST
+Send {Down 1}{Enter} ; INST
 Sleep 500
 Send {Enter} ; ABORT
 Sleep 500
@@ -33,8 +33,6 @@ Click 310 105 ; Click OK CMD-10
 WinWaitActive Command Sender
 Sleep 500
 Click 85 75 ; Target dropdown CMD-1
-Sleep 500
-Click 75 103 ; INST
 Sleep 500
 Click 610 75 ; Send CMD-2
 Sleep 500
@@ -141,7 +139,7 @@ WinWaitActive Command Sender
 Sleep 500
 Click 85 75 ; Target dropdown
 Sleep 500
-Click 75 115 ; INST2
+Click 75 103 ; INST2
 Sleep 500
 Click 365 75 ; Command dropdown
 Sleep 500

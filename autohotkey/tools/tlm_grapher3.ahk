@@ -3,7 +3,7 @@ WinWaitActive Telemetry Grapher
 
 ; Connect to the CT server
 Run ruby.exe %A_ScriptDir%/CmdTlmServer
-Sleep 2000
+Sleep 4000
 WinActivate Telemetry Grapher
 Send {Enter}
 
@@ -21,4 +21,3 @@ Sleep 2000
 ; Quit Telemetry Grapher
 WinActivate Telemetry Grapher
 Send ^q
-
