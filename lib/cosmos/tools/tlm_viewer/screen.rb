@@ -116,29 +116,31 @@ module Cosmos
               break if @@closing_all
               time = Time.now.sys
 
-              begin
-                # Gather item values for value widgets
-                if @mode == :REALTIME
-                  values, limits_states, limits_settings, limits_set = get_tlm_values(@items, @value_types)
-                  index = 0
-                  @items.each do |target_name, packet_name, item_name|
-                    begin
-                      System.limits.set(target_name, packet_name, item_name, limits_settings[index][0], limits_settings[index][1], limits_settings[index][2], limits_settings[index][3], limits_settings[index][4], limits_settings[index][5], limits_set) if limits_settings[index]
-                    rescue
-                      # This can fail if we missed setting the DEFAULT limits set earlier - Oh well
+              if !@item.empty?
+                begin
+                  # Gather item values for value widgets
+                  if @mode == :REALTIME
+                    values, limits_states, limits_settings, limits_set = get_tlm_values(@items, @value_types)
+                    index = 0
+                    @items.each do |target_name, packet_name, item_name|
+                      begin
+                        System.limits.set(target_name, packet_name, item_name, limits_settings[index][0], limits_settings[index][1], limits_settings[index][2], limits_settings[index][3], limits_settings[index][4], limits_settings[index][5], limits_set) if limits_settings[index]
+                      rescue
+                        # This can fail if we missed setting the DEFAULT limits set earlier - Oh well
+                      end
+                      index += 1
                     end
-                    index += 1
                   end
+                  @mutex.synchronize do
+                    @values = values
+                    @limits_states = limits_states
+                    @limits_set = limits_set
+                  end
+                rescue DRb::DRbConnError
+                  break if @@closing_all
+                  break if @value_sleeper.sleep(1)
+                  next
                 end
-                @mutex.synchronize do
-                  @values = values
-                  @limits_states = limits_states
-                  @limits_set = limits_set
-                end
-              rescue DRb::DRbConnError
-                break if @@closing_all
-                break if @value_sleeper.sleep(1)
-                next
               end
 
               Qt.execute_in_main_thread {update_gui()} if @alive and (@mode == :REALTIME)
@@ -161,14 +163,16 @@ module Cosmos
       def update_gui
         begin
           if @alive
-            # Handle change in limits set
-            update_limits_set()
+            if !@item.empty?
+              # Handle change in limits set
+              update_limits_set()
 
-            # Update widgets with values and limits_states
-            @mutex.synchronize do
-              (0..(@values.length - 1)).each do |index|
-                @item[index].limits_state = @limits_states[index]
-                @item[index].value = @values[index]
+              # Update widgets with values and limits_states
+              @mutex.synchronize do
+                (0..(@values.length - 1)).each do |index|
+                  @item[index].limits_state = @limits_states[index]
+                  @item[index].value = @values[index]
+                end
               end
             end
 
