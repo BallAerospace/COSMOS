@@ -32,7 +32,6 @@ module Cosmos
 
     def pre_write_packet(packet)
       received_time = packet.received_time
-<<<<<<< HEAD:lib/cosmos/interfaces/protocols/preidentified_stream_protocol.rb
       received_time = Time.now unless received_time
       @time_seconds = [received_time.tv_sec].pack('N') # UINT32
       @time_microseconds = [received_time.tv_usec].pack('N') # UINT32
@@ -44,16 +43,6 @@ module Cosmos
     end
 
     def pre_write_data(data)
-=======
-      received_time = Time.now.sys unless received_time
-      time_seconds = [received_time.tv_sec].pack('N') # UINT32
-      time_microseconds = [received_time.tv_usec].pack('N') # UINT32
-      target_name = packet.target_name
-      target_name = 'UNKNOWN' unless target_name
-      packet_name = packet.packet_name
-      packet_name = 'UNKNOWN' unless packet_name
-      data = packet.buffer
->>>>>>> master:lib/cosmos/streams/preidentified_stream_protocol.rb
       data_length = [data.length].pack('N') # UINT32
       data_to_send = ''
       data_to_send << @sync_pattern if @sync_pattern

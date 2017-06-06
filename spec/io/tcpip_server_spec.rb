@@ -10,6 +10,7 @@
 
 require 'spec_helper'
 require 'cosmos/io/tcpip_server'
+require 'cosmos/interfaces/protocols/burst_stream_protocol'
 
 module Cosmos
   describe TcpipServer do
@@ -32,10 +33,13 @@ module Cosmos
       it "creates a listener thread for the read port" do
         server = TcpipServer.new(nil,8889,nil,nil,'Burst')
         server.connect
-        sleep 0.2
+        sleep 0.5
         expect(server.connected?).to be true
         # 2 because the RSpec main thread plus the listener
         expect(Thread.list.length).to eql 2
+        socket = TCPSocket.open("127.0.0.1",8889)
+        sleep 0.2
+        expect(server.num_clients).to eql 1
         server.disconnect
         sleep 0.2
         expect(server.connected?).to be false
@@ -45,11 +49,14 @@ module Cosmos
       it "creates a listener thread for the write port" do
         server = TcpipServer.new(8888,nil,nil,nil,'Burst')
         server.connect
-        sleep 0.2
+        sleep 0.5
         expect(server.connected?).to be true
         # 3 because the RSpec main thread plus the listener
         # plus one for the write thread
         expect(Thread.list.length).to eql 3
+        socket = TCPSocket.open("127.0.0.1",8888)
+        sleep 0.2
+        expect(server.num_clients).to eql 1
         server.disconnect
         sleep 0.2
         expect(server.connected?).to be false
@@ -59,11 +66,14 @@ module Cosmos
       it "creates a single listener thread if read = write port" do
         server = TcpipServer.new(8888,8888,nil,nil,'Burst')
         server.connect
-        sleep 0.2
+        sleep 0.5
         expect(server.connected?).to be true
         # 3 because the RSpec main thread plus the listener
         # plus one for the write thread
         expect(Thread.list.length).to eql 3
+        socket = TCPSocket.open("127.0.0.1",8888)
+        sleep 0.2
+        expect(server.num_clients).to eql 1
         server.disconnect
         sleep 0.2
         expect(server.connected?).to be false
@@ -73,7 +83,7 @@ module Cosmos
       it "creates two listener threads if read != write port" do
         server = TcpipServer.new(8888,8889,nil,nil,'Burst')
         server.connect
-        sleep 0.2
+        sleep 0.5
         expect(server.connected?).to be true
         # 4 because the RSpec main thread plus the two listeners
         # plus one for the write thread
@@ -92,7 +102,7 @@ module Cosmos
 
           server = TcpipServer.new(8888,8888,nil,nil,'Burst')
           server.connect
-          sleep 0.2
+          sleep 0.5
           socket = TCPSocket.open("127.0.0.1",8888)
           sleep 0.2
           server.disconnect
@@ -123,7 +133,7 @@ module Cosmos
 
         server = TcpipServer.new(nil,8889,nil,nil,'Burst')
         server.connect
-        sleep 0.2
+        sleep 0.5
 
         socket = TCPSocket.open("127.0.0.1",8889)
         socket.write("\x00\x01")
@@ -157,7 +167,7 @@ module Cosmos
 
           server = TcpipServer.new(nil,8889,nil,nil,'Burst')
           server.connect
-          sleep 0.2
+          sleep 0.5
           socket = TCPSocket.open("127.0.0.1",8889)
           sleep 0.2
           expect(server.num_clients).to eql 0
@@ -180,7 +190,7 @@ module Cosmos
 
           server = TcpipServer.new(nil,8889,nil,nil,'Burst')
           server.connect
-          sleep 0.2
+          sleep 0.5
           socket = TCPSocket.open("127.0.0.1",8889)
           sleep 0.2
           server.disconnect
@@ -201,7 +211,7 @@ module Cosmos
 
           server = TcpipServer.new(8888,8888,nil,nil,'Burst')
           server.connect
-          sleep 0.2
+          sleep 0.5
           socket = TCPSocket.open("127.0.0.1",8888)
           socket.write("\x00\x01")
           sleep 0.2
@@ -220,41 +230,13 @@ module Cosmos
         expect { server.write(Packet.new('TGT','PKT')) }.to_not raise_error
       end
 
-      it "handles errors during the interface write" do
-        allow(System).to receive_message_chain(:instance, :use_dns).and_return(false)
-        allow(System).to receive_message_chain(:instance, :acl).and_return(false)
-        class Interface
-          def pre_write_packet(packet)
-            raise "pre_write_packet error"
-          end
-        end
-
-        server = TcpipServer.new(8888,8888,nil,nil,'Burst')
-        server.connect
-        sleep 0.2
-        socket = TCPSocket.open("127.0.0.1",8888)
-        sleep 0.2
-        expect(server.num_clients).to eql 1
-        packet = Packet.new("TGT","PKT")
-        packet.buffer = "\x01\x02\x03\x04"
-        server.write(packet)
-        sleep 0.2
-        # Error causes client to disconnect
-        expect(server.num_clients).to eql 0
-        server.disconnect
-        sleep(0.2)
-        class Interface
-          def pre_write_packet(packet); packet; end
-        end
-      end
-
       it "writes to all connected clients" do
         allow(System).to receive_message_chain(:instance, :use_dns).and_return(false)
         allow(System).to receive_message_chain(:instance, :acl).and_return(false)
 
         server = TcpipServer.new(8888,nil,nil,nil,'Burst')
         server.connect
-        sleep 0.2
+        sleep 0.5
 
         socket = TCPSocket.open("127.0.0.1",8888)
         sleep 0.2
@@ -281,6 +263,35 @@ module Cosmos
         sleep(0.2)
       end
 
+      it "handles errors during the interface write" do
+        allow(System).to receive_message_chain(:instance, :use_dns).and_return(false)
+        allow(System).to receive_message_chain(:instance, :acl).and_return(false)
+        class Interface
+          def pre_write_packet(packet)
+            raise "pre_write_packet error"
+          end
+        end
+
+        server = TcpipServer.new(8888,8888,nil,nil,'Burst')
+        server.connect
+        sleep 0.5
+        expect(Thread.list.length).to eql 3
+        socket = TCPSocket.open("127.0.0.1",8888)
+        sleep 0.2
+        expect(server.num_clients).to eql 1
+        packet = Packet.new("TGT","PKT")
+        packet.buffer = "\x01\x02\x03\x04"
+        server.write(packet)
+        sleep 0.2
+        # Error causes client to disconnect
+        expect(server.num_clients).to eql 0
+        server.disconnect
+        sleep(0.2)
+        class Interface
+          def pre_write_packet(packet); packet; end
+        end
+      end
+
       it "logs an error if the write thread dies" do
         class MyTcpipServer3 < TcpipServer
           def write_thread_hook(packet)
@@ -293,7 +304,7 @@ module Cosmos
 
           server = MyTcpipServer3.new(8888,nil,nil,nil,'Burst')
           server.connect
-          sleep 0.2
+          sleep 0.5
           socket = TCPSocket.open("127.0.0.1",8888)
           sleep 0.2
           expect(server.num_clients).to eql 1
@@ -318,7 +329,7 @@ module Cosmos
           server = TcpipServer.new(8888,8889,nil,nil,'Burst')
           server.connect
           expect(server.num_clients).to eql 0
-          sleep 0.2
+          sleep 0.5
           socket = TCPSocket.open("127.0.0.1",8888)
           sleep 0.2
           expect(server.num_clients).to eql 0
@@ -372,7 +383,7 @@ module Cosmos
 
         server = TcpipServer.new(8888,8889,nil,nil,'Burst')
         server.connect
-        sleep 0.2
+        sleep 0.5
 
         socket = TCPSocket.open("127.0.0.1",8888)
         sleep 0.2
@@ -407,6 +418,33 @@ module Cosmos
       end
     end
 
+    # server = TcpipServer.new(8888,nil,nil,nil,'Burst')
+    # server.connect
+    # sleep 0.5
+    # socket = TCPSocket.open("127.0.0.1",8888)
+    # sleep 0.2
+    # expect(server.num_clients).to eql 1
+    # socket2 = TCPSocket.open("127.0.0.1",8888)
+    # sleep 0.2
+    # expect(server.num_clients).to eql 2
+    # packet = Packet.new("TGT","PKT")
+    # packet.buffer = "\x01\x02\x03\x04"
+    # expect(server.write_queue_size).to eql 0
+    # server.write(packet)
+    # sleep 0.2
+    # data = socket.read(packet.length)
+    # expect(data).to eql "\x01\x02\x03\x04"
+    # data = socket2.read(packet.length)
+    # expect(data).to eql "\x01\x02\x03\x04"
+    # socket.close
+    # sleep 0.5
+    # expect(server.num_clients).to eql 1
+    # server.disconnect
+    # sleep 0.2
+    # expect(server.num_clients).to eql 0
+    # socket2.close
+    # sleep(0.2)
+
     describe "start_raw_logging" do
       it "enables raw logging on all clients" do
         allow(System).to receive_message_chain(:instance, :use_dns).and_return(false)
@@ -426,7 +464,7 @@ module Cosmos
         end
         server.connect
         server.start_raw_logging
-        sleep 0.2
+        sleep 0.5
 
         socket = TCPSocket.open("127.0.0.1",8888)
         socket.write("\x00\x01")
@@ -504,4 +542,3 @@ module Cosmos
     end
   end
 end
-

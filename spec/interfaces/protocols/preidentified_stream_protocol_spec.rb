@@ -57,7 +57,7 @@ module Cosmos
       it "creates a packet header" do
         @interface.instance_variable_set(:@stream, PreStream.new)
         @interface.configure_stream_protocol(nil, 5)
-        pkt = System.telemetry.packet("COSMOS","VERSION")
+        pkt = System.telemetry.packet("SYSTEM","META")
         time = Time.new(2020,1,31,12,15,30.5)
         pkt.received_time = time
         @interface.write(pkt)
@@ -80,7 +80,7 @@ module Cosmos
       it "handles a sync pattern" do
         @interface.instance_variable_set(:@stream, PreStream.new)
         @interface.configure_stream_protocol("DEAD")
-        pkt = System.telemetry.packet("COSMOS","VERSION")
+        pkt = System.telemetry.packet("SYSTEM","META")
         time = Time.new(2020,1,31,12,15,30.5)
         pkt.received_time = time
         @interface.write(pkt)
@@ -90,11 +90,11 @@ module Cosmos
         offset = 10
         tgt_name_length = $buffer[offset].unpack('C')[0]
         offset += 1 # for the length field
-        expect($buffer[offset...(offset+tgt_name_length)]).to eql 'COSMOS'
+        expect($buffer[offset...(offset+tgt_name_length)]).to eql 'SYSTEM'
         offset += tgt_name_length
         pkt_name_length = $buffer[offset].unpack('C')[0]
         offset += 1 # for the length field
-        expect($buffer[offset...(offset+pkt_name_length)]).to eql 'VERSION'
+        expect($buffer[offset...(offset+pkt_name_length)]).to eql 'META'
         offset += pkt_name_length
         expect($buffer[offset..(offset+3)].unpack('N')[0]).to eql pkt.buffer.length
         offset += 4
@@ -126,4 +126,3 @@ module Cosmos
 
   end
 end
-

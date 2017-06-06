@@ -19,8 +19,8 @@ module Cosmos
       cts = File.join(Cosmos::USERPATH,'config','tools','cmd_tlm_server','cmd_tlm_server.txt')
       FileUtils.mkdir_p(File.dirname(cts))
       File.open(cts,'w') do |file|
-        file.puts 'INTERFACE COSMOS_INT cmd_tlm_server_interface.rb'
-        file.puts '  TARGET COSMOS'
+        file.puts 'INTERFACE SYSTEM_INT cmd_tlm_server_interface.rb'
+        file.puts '  TARGET SYSTEM'
       end
     end
 
@@ -298,87 +298,59 @@ module Cosmos
       end
 
       it "subscribes to packets" do
-        limts_change = System.telemetry.packet("SYSTEM","LIMITS_CHANGE")
-        allow_any_instance_of(Interface).to receive(:read) do
-          sleep 0.05
-          limts_change
-        end
-
         cts = CmdTlmServer.new
         id = CmdTlmServer.subscribe_packet_data([["SYSTEM","LIMITS_CHANGE"]])
 
-        # Get and check the packet
-        begin
-          buffer,tgt,pkt,tv_sec,tv_usec,cnt = CmdTlmServer.get_packet_data(id, true)
-          expect(buffer).not_to be_nil
-          expect(tgt).to eql "SYSTEM"
-          expect(pkt).to eql "LIMITS_CHANGE"
-          expect(tv_sec).to be > 0
-          expect(tv_usec).to be > 0
-          expect(cnt).to eql 1
-        rescue => err
-          sleep 0.1
-          retry
-        end
+        limits_change = System.telemetry.packet("SYSTEM","LIMITS_CHANGE")
+        # Manually set the received_count since we're going to directly call
+        # post_packet without going through the normal processing chain
+        limits_change.received_count = 1
+        cts.post_packet(limits_change)
+        limits_change.received_count = 2
+        cts.post_packet(limits_change)
 
-      #    # Get and check the packet
-      #    buffer,tgt,pkt,tv_sec,tv_usec,cnt = CmdTlmServer.get_packet_data(id, true)
-      #    expect(buffer).not_to be_nil
-      #    expect(tgt).to eql "COSMOS"
-      #    expect(pkt).to eql "LIMITS_CHANGE"
-      #    expect(tv_sec).to be > 0
-      #    expect(cnt).to be > 0
+        # Get and check the packet
+        buffer,tgt,pkt,tv_sec,tv_usec,cnt = CmdTlmServer.get_packet_data(id, true)
+        expect(buffer).not_to be_nil
+        expect(tgt).to eql "SYSTEM"
+        expect(pkt).to eql "LIMITS_CHANGE"
+        expect(tv_sec).to be > 0
+        expect(tv_usec).to be > 0
+        expect(cnt).to eql 1
 
         # Get and check the second one
-        begin
-          buffer,tgt,pkt,tv_sec,tv_usec,cnt = CmdTlmServer.get_packet_data(id, true)
-          expect(buffer).not_to be_nil
-          expect(tgt).to eql "SYSTEM"
-          expect(pkt).to eql "LIMITS_CHANGE"
-          expect(tv_sec).to be > 0
-          expect(tv_usec).to be > 0
-          expect(cnt).to eql 2
-        rescue
-          sleep 0.1
-          retry
-        end
+        buffer,tgt,pkt,tv_sec,tv_usec,cnt = CmdTlmServer.get_packet_data(id, true)
+        expect(buffer).not_to be_nil
+        expect(tgt).to eql "SYSTEM"
+        expect(pkt).to eql "LIMITS_CHANGE"
+        expect(tv_sec).to be > 0
+        expect(tv_usec).to be > 0
+        expect(cnt).to eql 2
 
-      #    # Try to get another packet
-      #    expect { CmdTlmServer.get_packet_data(id) }.to raise_error("Packet data queue with id #{id} not found")
-      #  ensure
-      #    cts.stop
-      #    sleep 0.2
-      #  end
-      #end
-    #end
+        cts.stop
+        sleep 0.2
+      end
 
       it "deletes queues after the max packets is reached" do
-        limits_change = System.telemetry.packet("SYSTEM","LIMITS_CHANGE")
-        allow_any_instance_of(Interface).to receive(:read) do
-          sleep 0.1
-          limits_change
-        end
-
         cts = CmdTlmServer.new
         id = CmdTlmServer.subscribe_packet_data([["SYSTEM","LIMITS_CHANGE"]], 2)
+        limits_change = System.telemetry.packet("SYSTEM","LIMITS_CHANGE")
+        # Manually set the received_count since we're going to directly call
+        # post_packet without going through the normal processing chain
+        limits_change.received_count = 1
+        cts.post_packet(limits_change)
 
         # Get and check the packet
-        begin
-          buffer,tgt,pkt,tv_sec,tv_usec,cnt = CmdTlmServer.get_packet_data(id, true)
-          expect(buffer).not_to be_nil
-          expect(tgt).to eql "SYSTEM"
-          expect(pkt).to eql "LIMITS_CHANGE"
-          expect(tv_sec).to be > 0
+        buffer,tgt,pkt,tv_sec,tv_usec,cnt = CmdTlmServer.get_packet_data(id, true)
+        expect(buffer).not_to be_nil
+        expect(tgt).to eql "SYSTEM"
+        expect(pkt).to eql "LIMITS_CHANGE"
+        expect(tv_sec).to be > 0
+        expect(tv_usec).to be > 0
+        expect(cnt).to eql 1
 
-          expect(tv_usec).to be > 0
-          expect(cnt).to be > 0
-        rescue
-          sleep 0.1
-          retry
-        end
-
-        # Allow the interface read to fill the queue
-        sleep 0.4
+        # Fill the queue
+        1001.times { cts.post_packet(limits_change) }
 
         # Try to get another packet
         expect { CmdTlmServer.get_packet_data(id) }.to raise_error("Packet data queue with id #{id} not found")
@@ -390,28 +362,29 @@ module Cosmos
 
     describe "self.unsubscribe_packet_data" do
       it "unsubscribes to packets" do
-        limits_change = System.telemetry.packet("SYSTEM","LIMITS_CHANGE")
-        allow_any_instance_of(Interface).to receive(:read) do
-          sleep 0.05
-          limits_change
-        end
-
         cts = CmdTlmServer.new
         id = CmdTlmServer.subscribe_packet_data([["SYSTEM","LIMITS_CHANGE"]], 2)
 
+        limits_change = System.telemetry.packet("SYSTEM","LIMITS_CHANGE")
+        # Manually set the received_count since we're going to directly call
+        # post_packet without going through the normal processing chain
+        limits_change.received_count = 1
+        cts.post_packet(limits_change)
+
         # Get and check the packet
-        begin
-          buffer,tgt,pkt,tv_sec,tv_usec,cnt = CmdTlmServer.get_packet_data(id, true)
-          expect(buffer).not_to be_nil
-          expect(tgt).to eql "SYSTEM"
-          expect(pkt).to eql "LIMITS_CHANGE"
-          expect(tv_sec).to be > 0
-          expect(tv_usec).to be > 0
-          expect(cnt).to be > 0
-        rescue => err
-          sleep 0.1
-          retry
-        end
+        buffer,tgt,pkt,tv_sec,tv_usec,cnt = CmdTlmServer.get_packet_data(id, true)
+        expect(buffer).not_to be_nil
+        expect(tgt).to eql "SYSTEM"
+        expect(pkt).to eql "LIMITS_CHANGE"
+        expect(tv_sec).to be > 0
+        expect(tv_usec).to be > 0
+        expect(cnt).to eql 1
+
+        CmdTlmServer.unsubscribe_packet_data(id)
+        cts.post_packet(limits_change)
+        expect { CmdTlmServer.get_packet_data(id) }.to raise_error("Packet data queue with id #{id} not found")
+        cts.stop
+        sleep 0.2
       end
     end
 

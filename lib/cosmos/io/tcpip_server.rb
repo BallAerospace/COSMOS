@@ -270,11 +270,13 @@ module Cosmos
         @write_interfaces.each do |interface|
           interface.interface.raw_logger_pair.send(method) if interface.interface.raw_logger_pair
         end
-        @read_interfaces.each do |interface, _, _, _|
+        @read_interfaces.each do |interface|
           interface.interface.raw_logger_pair.send(method) if interface.interface.raw_logger_pair
         end
       end
     end
+
+    protected
 
     def start_listen_thread(port, listen_write = false, listen_read = false)
       # Create a socket to accept connections from clients
@@ -359,7 +361,7 @@ module Cosmos
           stream_protocol.write(meta_packet)
         end
 
-        @write_connection_callback.call(stream_protocol) if @write_connection_callback
+        @write_connection_callback.call(interface) if @write_connection_callback
         @connection_mutex.synchronize do
           @write_interfaces << InterfaceInfo.new(interface, hostname, host_ip, port)
         end
@@ -424,69 +426,12 @@ module Cosmos
           packet = @write_queue.pop(true) # non_block to raise ThreadError
           break
         rescue ThreadError
-          # Timeout waiting for send - check for dead clients
-          indexes_to_delete = []
-          index = 0
-
-          @connection_mutex.synchronize do
-            @write_stream_protocols.each do |stream_protocol, hostname, host_ip, port|
-              begin
-                if (@write_port != @read_port)
-                  # Socket should return EWOULDBLOCK if it is still cleanly connected
-                  stream_protocol.stream.write_socket.recvfrom_nonblock(10)
-                elsif (!stream_protocol.stream.write_socket.closed?)
-                  # Let read thread detect disconnect
-                  next
-                end
-
-                # Client has disconnected (or is invalidly sending data on the socket)
-                Logger.instance.info "Tcpip server lost write connection to #{hostname}(#{host_ip}):#{port}"
-                stream_protocol.disconnect
-                stream_protocol.stream.raw_logger_pair.stop if stream_protocol.stream.raw_logger_pair
-                indexes_to_delete.unshift(index) # Put later indexes at front of array
-              rescue Errno::ECONNRESET, Errno::ECONNABORTED, IOError
-                # Client has disconnected
-                Logger.instance.info "Tcpip server lost write connection to #{hostname}(#{host_ip}):#{port}"
-                stream_protocol.disconnect
-                stream_protocol.stream.raw_logger_pair.stop if stream_protocol.stream.raw_logger_pair
-                indexes_to_delete.unshift(index) # Put later indexes at front of array
-              rescue Errno::EWOULDBLOCK
-                # Client is still cleanly connected as far as we can tell without writing to the socket
-              ensure
-                index += 1
-              end
-            end
-
-            # Delete any dead sockets
-            indexes_to_delete.each do |index_to_delete|
-              @write_stream_protocols.delete_at(index_to_delete)
-            end
-          end # connection_mutex.synchronize
-
-          # Sleep until we receive a packet or for 100ms
-          @write_mutex.synchronize do
-            @write_condition_variable.wait(@write_mutex, 0.1)
-          end
+          check_for_dead_clients()
         end
       end
 
       packet = write_thread_hook(packet)
-
-
-
-
-
-
-
-            index += 1
-          end
-
-          # Delete any dead sockets
-          indexes_to_delete.each do |index_to_delete|
-            @write_stream_protocols.delete_at(index_to_delete)
-          end
-        end # connection_mutex.synchronize
-      end
+      write_packet_to_clients(packet) if packet
     end
 
     def interface_disconnect(interface)
@@ -512,6 +457,85 @@ module Cosmos
     # @return [Packet] Return the packet
     def read_thread_hook(packet)
       packet
+    end
+
+    def check_for_dead_clients
+      indexes_to_delete = []
+      index = 0
+
+      @connection_mutex.synchronize do
+        @write_interfaces.each do |interface|
+          begin
+            if (@write_port != @read_port)
+              # Socket should return EWOULDBLOCK if it is still cleanly connected
+              interface.interface.stream.write_socket.recvfrom_nonblock(10)
+            elsif (!interface.interface.stream.write_socket.closed?)
+              # Let read thread detect disconnect
+              next
+            end
+            # Client has disconnected (or is invalidly sending data on the socket)
+            Logger.instance.info "Tcpip server lost write connection to #{interface.hostname}(#{interface.host_ip}):#{interface.port}"
+            interface.interface.disconnect
+            interface.interface.raw_logger_pair.stop if interface.interface.raw_logger_pair
+            indexes_to_delete.unshift(index) # Put later indexes at front of array
+          rescue Errno::ECONNRESET, Errno::ECONNABORTED, IOError
+            # Client has disconnected
+            Logger.instance.info "Tcpip server lost write connection to #{interface.hostname}(#{interface.host_ip}):#{interface.port}"
+            interface.interface.disconnect
+            interface.interface.raw_logger_pair.stop if interface.interface.raw_logger_pair
+            indexes_to_delete.unshift(index) # Put later indexes at front of array
+          rescue Errno::EWOULDBLOCK
+            # Client is still cleanly connected as far as we can tell without writing to the socket
+          ensure
+            index += 1
+          end
+        end
+
+        # Delete any dead sockets
+        indexes_to_delete.each do |index_to_delete|
+          @write_interfaces.delete_at(index_to_delete)
+        end
+      end # connection_mutex.synchronize
+
+      # Sleep until we receive a packet or for 100ms
+      @write_mutex.synchronize do
+        @write_condition_variable.wait(@write_mutex, 0.1)
+      end
+    end
+
+    def write_packet_to_clients(packet)
+      @connection_mutex.synchronize do
+        # Send data to each client - On error drop the client
+        indexes_to_delete = []
+        index = 0
+        @write_interfaces.each do |interface|
+          need_disconnect = false
+          begin
+            interface.interface.write(packet)
+          rescue Errno::EPIPE, Errno::ECONNABORTED, IOError, Errno::ECONNRESET
+            # Client has normally disconnected
+            need_disconnect = true
+          rescue Exception => err
+            if err.message != "Stream not connected for write_raw"
+              Logger.instance.error "Error sending to client: #{err.class} #{err.message}"
+            end
+            need_disconnect = true
+          end
+
+          if need_disconnect
+            Logger.instance.info "Tcpip server lost write connection to #{interface.hostname}(#{interface.host_ip}):#{interface.port}"
+            interface.interface.disconnect
+            interface.interface.raw_logger_pair.stop if interface.interface.raw_logger_pair
+            indexes_to_delete.unshift(index) # Put later indexes at front of array
+          end
+          index += 1
+        end
+
+        # Delete any dead sockets
+        indexes_to_delete.each do |index_to_delete|
+          @write_interfaces.delete_at(index_to_delete)
+        end
+      end # connection_mutex.synchronize
     end
   end
 end

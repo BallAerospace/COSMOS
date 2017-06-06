@@ -116,7 +116,7 @@ module Cosmos
       else
         # Write only interface so stop the thread which calls read
         @thread_sleeper = Sleeper.new
-        @thread_sleeper.sleep(1_000_000) while connected?
+        @thread_sleeper.sleep(1_000_000_000) while connected?
         nil
       end
     rescue IOError # Disconnected

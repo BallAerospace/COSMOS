@@ -33,9 +33,12 @@ module Cosmos
       false
     end
 
-    # Read from the CmdTlmServer interface by first getting the COSMOS VERSION
-    # packet and then continuously waiting for limits events and returning
-    # COSMOS LIMITS_CHANGE packets.
+    # Unsubscribe from the limits events
+    def disconnect
+      CmdTlmServer.instance.unsubscribe_limits_events(@limit_id) if @limit_id
+      @limit_id = nil
+    end
+
     # Continuously wait for limits events and returning
     # SYSTEM LIMITS_CHANGE packets.
     #
@@ -123,9 +126,5 @@ module Cosmos
     def raw_logger_pair=(_raw_logger_pair)
       raise "Raw logging not supported for CmdTlmServerInterface"
     end
-
-    protected
-
-
-  end # end class CmdTlmServerInterface
-
+  end
+end

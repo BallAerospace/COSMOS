@@ -114,15 +114,15 @@ module Cosmos
 
     # Get info about an interface by name
     #
-    # @return [Array<String, Numeric, Numeric, Numeric, Numeric, Numeric, 
-    #   Numeric, Numeric>] Array containing \[state, num_clients, 
-    #   write_queue_size, read_queue_size, bytes_written, bytes_read, 
+    # @return [Array<String, Numeric, Numeric, Numeric, Numeric, Numeric,
+    #   Numeric, Numeric>] Array containing \[state, num_clients,
+    #   write_queue_size, read_queue_size, bytes_written, bytes_read,
     #   write_count, read_count] for the interface
     def get_info(interface_name)
       interface = @config.interfaces[interface_name.upcase]
       raise "Unknown interface: #{interface_name}" unless interface
 
-      return [state(interface_name),      interface.num_clients, 
+      return [state(interface_name),      interface.num_clients,
               interface.write_queue_size, interface.read_queue_size,
               interface.bytes_written,    interface.bytes_read,
               interface.write_count,      interface.read_count]

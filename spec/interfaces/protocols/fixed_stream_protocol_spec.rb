@@ -47,7 +47,7 @@ module Cosmos
       it "reads telemetry data from the stream" do
         @interface.instance_variable_set(:@stream, FixedStream.new)
         @interface.configure_stream_protocol(1)
-        @interface.target_names = %w(TEST COSMOS)
+        @interface.target_names = ['SYSTEM']
         packet = @interface.read
         expect(packet.received_time.to_f).to be_within(0.1).of(Time.now.to_f)
         expect(packet.target_name).to eql 'SYSTEM'
@@ -81,7 +81,7 @@ module Cosmos
         end
         @interface.instance_variable_set(:@stream, FixedStream.new)
         @interface.configure_stream_protocol(8, 0, '0x1ACFFC1D', false)
-        @interface.target_names = %w(TEST COSMOS)
+        @interface.target_names = ['SYSTEM']
         packet = @interface.read
         expect(packet.received_time.to_f).to be_within(0.01).of(Time.now.to_f)
         expect(packet.target_name).to eql 'SYSTEM'
