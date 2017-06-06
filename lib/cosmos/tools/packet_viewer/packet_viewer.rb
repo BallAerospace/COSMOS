@@ -227,11 +227,8 @@ module Cosmos
       cmd_label.setBuddy(@packet_select)
 
       # Mnemonic Search Box
-      @search_layout = Qt::HBoxLayout.new
       @search_box = FullTextSearchLineEdit.new(self)
-      @search_box.setStyleSheet("padding-right: 20px;padding-left: 5px;background: url(#{File.join(Cosmos::PATH, 'data', 'search-14.png')});background-position: right;background-repeat: no-repeat;")
-      @search_layout.addWidget(@search_box)
-      top_layout.addLayout(@search_layout)
+      top_layout.addWidget(@search_box)
 
       # Layout the top level selection
       select_layout = Qt::HBoxLayout.new

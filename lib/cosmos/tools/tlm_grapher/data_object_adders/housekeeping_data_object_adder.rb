@@ -35,7 +35,6 @@ module Cosmos
       @search_layout = Qt::HBoxLayout.new
       @search_label = Qt::Label.new("Add Housekeeping Data Object: ", self)
       @search_box = FullTextSearchLineEdit.new(self)
-      @search_box.setStyleSheet("padding-right: 20px;padding-left: 5px;background: url(#{File.join(Cosmos::PATH, 'data', 'search-14.png')});background-position: right;background-repeat: no-repeat;")
       @search_box.completion_list = System.telemetry.all_item_strings(false, nil)
       @search_box.callback = lambda do |tlm|
         tlm.upcase!

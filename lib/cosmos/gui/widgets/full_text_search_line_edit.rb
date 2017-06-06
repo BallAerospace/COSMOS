@@ -9,13 +9,23 @@
 # attribution addendums as found in the LICENSE.txt
 
 module Cosmos
+  # Provides a text completion LineEdit which pops up values as the user types.
+  # Hitting Return completes the currently selected popup item and calls the
+  # registered callback method.
   class FullTextSearchLineEdit < Qt::LineEdit
-
     attr_accessor :completion_list
     attr_accessor :callback
 
     def initialize(parent)
       super(parent)
+      # Add the magnifying glass to the box
+      setStyleSheet(
+        "padding-right: 20px;"\
+        "padding-left: 5px;"\
+        "background: url(#{File.join(Cosmos::PATH, 'data', 'search-14.png')});"\
+        "background-position: right;"\
+        "background-repeat: no-repeat;"
+      )
       @listView = Qt::ListWidget.new(parent)
       @listView.setWindowFlags(0xc | 0x1) # Qt::ToolTip
       @completion_list = []
