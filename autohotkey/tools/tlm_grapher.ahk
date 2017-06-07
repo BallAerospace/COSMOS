@@ -20,7 +20,7 @@ Sleep 500
 
 ; Connect to the CT server
 Run ruby.exe %A_ScriptDir%/CmdTlmServer
-Sleep 2000
+Sleep 4000
 WinActivate Telemetry Grapher
 Click 55 95  ; Start TG-3
 Sleep 500
@@ -656,5 +656,3 @@ Send {Enter}
 Sleep 500
 Send y
 Sleep 500
-
-

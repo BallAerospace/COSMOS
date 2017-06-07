@@ -1,7 +1,7 @@
 SetWinDelay 500
 SetTitleMatchMode 2 ; Contain the title anywhere to match
 WinWaitActive Packet Viewer
-Sleep 2000
+Sleep 500
 Run ruby.exe %A_ScriptDir%/CmdTlmServer
 Sleep 4000
 WinActivate Packet Viewer
@@ -54,21 +54,8 @@ Send ^q
 WinActivate Packet Viewer
 Sleep 500
 
-; Scroll through a bunch of telemetry pages
-Click 450 95       ; Target: COSMOS/LIMITS_CHANGE
-Sleep 500
-Send {Down}{Enter} ; Target: COSMOS/VERSION
-Sleep 500
-
 ; Switch target, and options, scroll through a bunch of telemetry pages
 Send ^f            ; Switch to formatted telemetry display
-Click 145 95
-Sleep 500
-Send {Down}{Enter} ; Target: INST/ADCS PV-1, PV-2
-Sleep 500
-Click 450 95
-Sleep 500
-Send {Down}{Enter} ; Target: INST/HEALTH_STATUS
 Sleep 500
 Send ^b            ; Toggle colorblind mode PV-7, PV-9
 Sleep 1000
@@ -84,18 +71,18 @@ Send ^d            ; Show derived items last
 Sleep 2000
 Send ^d            ; Show derived items first
 Sleep 1000
-Click 450 95
+Send !p            ; Select the Packet drop down
 Sleep 500
-Send {Down}{Enter} ; Target: INST/IMAGE
+Send {Down}{Enter} ; Target: INST/ADCS
 Sleep 500
 Send !v            ; Switch to raw telemetry display PV-10
 Sleep 500
 Send r
 Sleep 1000
 
-Click 450 95
+Send !p            ; Select the Packet drop down
 Sleep 500
-Send {Down}{Enter} ; Target: INST/MECH
+Send {Down}{Enter} ; Target: INST/PARAMS
 Sleep 500
 Send !v            ; Switch to formatted telemetry with units display PV-10
 Sleep 500
@@ -107,13 +94,13 @@ Sleep 500
 Send f
 Sleep 1000
 
-Click 450 95
+Send !p            ; Select the Packet drop down
+Sleep 500
+Send {Down}{Enter} ; Target: INST/IMAGE
+Sleep 500
+Send !p            ; Select the Packet drop down
 Sleep 500
 Send {Down}{Enter} ; Target: INST/MECH
-Sleep 500
-Click 450 95
-Sleep 500
-Send {Down}{Enter} ; Target: INST/PARAMS
 Sleep 500
 
 ; Reset to last of the options we haven't touched, and go through
@@ -128,23 +115,23 @@ Send 1.0{Enter}
 Sleep 500
 
 ; Go through the last page of telemetry screens
-Click 145 95
+Send !t            ; Select Target drop down
 Sleep 500
-Send {Down 2}{Enter} ; Target: INST2/HEALTH_STATUS
+Send {Down}{Enter} ; Target: INST2/HEALTH_STATUS
 Sleep 500
-Click 450 95
+Send !p            ; Select the Packet drop down
 Sleep 500
 Send {Down}{Enter} ; Target: INST2/ADCS
 Sleep 500
-Click 450 95
+Send !p            ; Select the Packet drop down
 Sleep 500
 Send {Down}{Enter} ; Target: INST2/PARAMS
 Sleep 500
-Click 450 95
+Send !p            ; Select the Packet drop down
 Sleep 500
 Send {Down}{Enter} ; Target: INST2/IMAGE
 Sleep 500
-Click 450 95
+Send !p            ; Select the Packet drop down
 Sleep 500
 Send {Down}{Enter} ; Target: INST2/MECH
 Sleep 500
@@ -227,4 +214,3 @@ Send !h{Enter}     ; Bring up Help page
 Sleep 1000
 Send {Enter}
 Send ^q            ; Exit packet viewer GUI
-
