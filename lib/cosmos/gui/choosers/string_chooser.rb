@@ -9,6 +9,7 @@
 # attribution addendums as found in the LICENSE.txt
 
 require 'cosmos'
+require 'cosmos/gui/choosers/value_chooser'
 
 module Cosmos
   # Widget which creates a horizontally laid out label and editable string value.

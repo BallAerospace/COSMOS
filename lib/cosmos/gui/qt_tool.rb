@@ -42,9 +42,6 @@ module Cosmos
       @options = options
       @about_string = nil
 
-      @options = options
-      @about_string = nil
-
       # Add Path for plugins
       Qt::Application.instance.addLibraryPath(Qt::PLUGIN_PATH) if Kernel.is_windows?
       # Prevent killing the parent process from killing this GUI application

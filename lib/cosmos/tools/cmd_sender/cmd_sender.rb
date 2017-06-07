@@ -362,15 +362,6 @@ module Cosmos
         Cosmos.set_working_dir do
           send_raw_file(interfaces.text, file_line.text)
         end
-        dialog.dispose
-      rescue Exception => err
-        message = "Error sending raw file due to #{err}"
-        @message_log.write(Time.now.sys.formatted + '  ' + message + "\n")
-        statusBar.showMessage(message)
-      rescue DRb::DRbConnError
-        message = "Error Connecting to Command and Telemetry Server"
-        @message_log.write(Time.now.sys.formatted + '  ' + message + "\n")
-        statusBar.showMessage(message)
       end
       dialog.dispose
     rescue Exception => err
@@ -403,18 +394,14 @@ module Cosmos
 
     # Sends the current command and parameters to the target
     def send_button
-      begin
-        target_name = @target_select.text
-        packet_name = @cmd_select.text
-        if target_name and packet_name
-          output_string, params = view_as_script()
-          @message_log.write(Time.now.sys.formatted + '  ' + output_string + "\n")
-          if @cmd_raw.checked?
-            if @ignore_range.checked?
-              cmd_raw_no_range_check(target_name, packet_name, params)
-            else
-              cmd_raw(target_name, packet_name, params)
-            end
+      target_name = @target_select.text
+      packet_name = @cmd_select.text
+      if target_name and packet_name
+        output_string, params = view_as_script()
+        @message_log.write(Time.now.sys.formatted + '  ' + output_string + "\n")
+        if @cmd_raw.checked?
+          if @ignore_range.checked?
+            cmd_raw_no_range_check(target_name, packet_name, params)
           else
             cmd_raw(target_name, packet_name, params)
           end
@@ -425,16 +412,13 @@ module Cosmos
             cmd(target_name, packet_name, params)
           end
         end
-      rescue DRb::DRbConnError
-        message = "Error Connecting to Command and Telemetry Server"
-        @message_log.write(Time.now.sys.formatted + '  ' + message + "\n")
-        statusBar.showMessage(message)
-        Qt::MessageBox.critical(self, 'Error', message)
-      rescue Exception => err
-        message = "Error sending #{target_name} #{packet_name} due to #{err}"
-        @message_log.write(Time.now.sys.formatted + '  ' + message + "\n")
-        statusBar.showMessage(message)
-        Qt::MessageBox.critical(self, 'Error', message)
+        if statusBar.currentMessage != 'Hazardous command not sent'
+          @@send_count += 1
+          statusBar.showMessage("#{output_string} sent. (#{@@send_count})")
+          @input.append(output_string)
+          @input.moveCursor(Qt::TextCursor::End)
+          @input.ensureCursorVisible()
+        end
       end
     rescue DRb::DRbConnError
       message = "Error Connecting to Command and Telemetry Server"
