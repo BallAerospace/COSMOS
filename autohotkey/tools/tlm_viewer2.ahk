@@ -8,9 +8,9 @@ Send {Tab}
 Sleep 500
 Send {Enter}
 
-Sleep 2000
+Sleep 500
 Run ruby.exe %A_ScriptDir%/CmdTlmServer
-Sleep 2000
+Sleep 4000
 Run ruby.exe %A_ScriptDir%/ScriptRunner -w 600 -t 600
 
 WinWaitActive Script
@@ -47,4 +47,3 @@ Sleep 500
 Send ^q
 Sleep 500
 Send y
-
