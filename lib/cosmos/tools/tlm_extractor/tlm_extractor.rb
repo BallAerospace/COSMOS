@@ -396,7 +396,7 @@ module Cosmos
       @top_layout.addWidget(@file_box)
 
       # Packet Log Frame
-      @packet_log_frame = PacketLogFrame.new(self, @log_dir, System.default_packet_log_reader.new, @input_filenames, nil, true, true, true, Cosmos::TLM_FILE_PATTERN, Cosmos::TXT_FILE_PATTERN)
+      @packet_log_frame = PacketLogFrame.new(self, @log_dir, System.default_packet_log_reader.new(*System.default_packet_log_reader_params), @input_filenames, nil, true, true, true, Cosmos::TLM_FILE_PATTERN, Cosmos::TXT_FILE_PATTERN)
       @packet_log_frame.change_callback = method(:change_callback)
       @file_box_layout.addWidget(@packet_log_frame)
 

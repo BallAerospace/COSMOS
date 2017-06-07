@@ -31,7 +31,7 @@ module Cosmos
       @input_filenames = []
       @log_dir = System.paths['LOGS']
       @export_dir = @log_dir.clone
-      @packet_log_reader = System.default_packet_log_reader.new
+      @packet_log_reader = System.default_packet_log_reader.new(*System.default_packet_log_reader_params)
       @time_start = nil
       @time_end = nil
 
@@ -88,7 +88,7 @@ module Cosmos
       @top_layout = Qt::VBoxLayout.new(@central_widget)
 
       # Packet Log Frame
-      @packet_log_frame = PacketLogFrame.new(self, @log_dir, System.default_packet_log_reader.new, @input_filenames, @output_filename, true, true, true, Cosmos::CMD_FILE_PATTERN, Cosmos::TXT_FILE_PATTERN)
+      @packet_log_frame = PacketLogFrame.new(self, @log_dir, System.default_packet_log_reader.new(*System.default_packet_log_reader_params), @input_filenames, @output_filename, true, true, true, Cosmos::CMD_FILE_PATTERN, Cosmos::TXT_FILE_PATTERN)
       @packet_log_frame.change_callback = method(:change_callback)
       @top_layout.addWidget(@packet_log_frame)
 

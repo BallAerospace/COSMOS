@@ -36,8 +36,12 @@ module Cosmos
     instance_attr_reader :paths
     # @return [PacketLogWriter] Class used to create log files
     instance_attr_reader :default_packet_log_writer
+    # @return [Array<String>] Parameters to be used with the default log writer
+    instance_attr_reader :default_packet_log_writer_params
     # @return [PacketLogReader] Class used to read log files
     instance_attr_reader :default_packet_log_reader
+    # @return [Array<String>] Parameters to be used with the default log reader
+    instance_attr_reader :default_packet_log_reader_params
     # @return [Boolean] Whether to use sound for alerts
     instance_attr_reader :sound
     # @return [Boolean] Whether to use DNS to lookup IP addresses or not
@@ -82,7 +86,9 @@ module Cosmos
       @telemetry = nil
       @limits = nil
       @default_packet_log_writer = PacketLogWriter
+      @default_packet_log_writer_params = []
       @default_packet_log_reader = PacketLogReader
+      @default_packet_log_reader_params = []
       @sound = false
       @use_dns = false
       @acl = nil
@@ -266,14 +272,16 @@ module Cosmos
             Logger.warn("Unknown path name given: #{path_name}") unless KNOWN_PATHS.include?(path_name)
 
           when 'DEFAULT_PACKET_LOG_WRITER'
-            usage = "#{keyword} <FILENAME>"
-            parser.verify_num_parameters(1, 1, usage)
+            usage = "#{keyword} <FILENAME> <Specific Parameters>"
+            parser.verify_num_parameters(1, nil, usage)
             @default_packet_log_writer = Cosmos.require_class(parameters[0])
+            @default_packet_log_writer_params = parameters[1..-1] if parameters.size > 1
 
           when 'DEFAULT_PACKET_LOG_READER'
-            usage = "#{keyword} <FILENAME>"
-            parser.verify_num_parameters(1, 1, usage)
+            usage = "#{keyword} <FILENAME> <Specific Parameters>"
+            parser.verify_num_parameters(1, nil, usage)
             @default_packet_log_reader = Cosmos.require_class(parameters[0])
+            @default_packet_log_reader_params = parameters[1..-1] if parameters.size > 1
 
           when 'ENABLE_SOUND'
             usage = "#{keyword}"

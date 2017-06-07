@@ -48,7 +48,7 @@ module Cosmos
       end
 
       # Initialize variables
-      @packet_log_reader = System.default_packet_log_reader.new
+      @packet_log_reader = System.default_packet_log_reader.new(*System.default_packet_log_reader_params)
       @log_directory = System.paths['LOGS']
       @log_directory << '/' unless @log_directory[-1..-1] == '\\' or @log_directory[-1..-1] == '/'
       @log_filename = nil
