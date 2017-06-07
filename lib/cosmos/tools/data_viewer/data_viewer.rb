@@ -389,7 +389,10 @@ module Cosmos
 
     def handle_open_log_file
       # Prompt user for filename
-      packet_log_dialog = PacketLogDialog.new(self, 'Open Log File(s):', @log_file_directory, @packet_log_reader, [], Cosmos::TLM_FILE_PATTERN)
+      packet_log_dialog = PacketLogDialog.new(
+        self, 'Open Log File(s):', @log_file_directory, @packet_log_reader,
+        [], nil, false, true, true, Cosmos::TLM_FILE_PATTERN
+      )
       begin
         packet_log_dialog.time_start = @time_start
         packet_log_dialog.time_end = @time_end
@@ -402,11 +405,8 @@ module Cosmos
           @log_file_directory = File.dirname(@log_filenames[0])
           @log_file_directory << '/' unless @log_file_directory[-1..-1] == '\\'
 
-          # Stop realtime collection
-          handle_stop()
-
-          # Reset components
-          handle_reset()
+          handle_stop()  # Stop realtime collection
+          handle_reset() # Reset since we're processing a new log file
 
           @cancel_progress = false
           ProgressDialog.execute(self, 'Processing Log File', 500, 200, @log_filenames.length > 1, true, true, true, true) do |dialog|
@@ -475,24 +475,15 @@ module Cosmos
     end
 
     def closeEvent(event)
-      # Stop GUI update timeout
-      @pause = true
-
-      # Stop Processing Packets
-      handle_stop()
+      @pause = true # Stop GUI update timeout
+      handle_stop() # Stop realtime processing
 
       # Shutdown each component
       @component_mutex.synchronize do
         @components.each {|component| component.shutdown}
       end
-
-      # Give things time to complete
-      sleep(0.1)
-
-      # Standard COSMOS Shutdown
+      sleep(0.1) # Give things time to complete
       shutdown_cmd_tlm()
-
-      # Accept closure
       super(event)
     end
 

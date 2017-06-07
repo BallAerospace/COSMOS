@@ -53,11 +53,12 @@ module Cosmos
                                              log_directory,
                                              packet_log_reader,
                                              initial_filenames,
-                                             nil,
-                                             false,
-                                             true,
-                                             true,
-                                             input_filename_filter)
+                                             initial_output_filename,
+                                             show_output_filename,
+                                             show_time,
+                                             show_log_reader,
+                                             input_filename_filter,
+                                             output_filename_filter)
       @packet_log_frame.change_callback = method(:change_callback)
       @layout.addWidget(@packet_log_frame)
 
