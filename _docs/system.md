@@ -92,6 +92,16 @@ DEFAULT_PACKET_LOG_WRITER packet_log_writer.rb # Default
 DEFAULT_PACKET_LOG_READER packet_log_reader.rb # Default
 {% endhighlight %}
 
+For COSMOS >= 4.0.0, parameters for the default log writer/reader can also be specified with this keyword.  The parameters are identical to those used for the CTS PACKET_LOG_WRITER keyword, except it is not necessary to specify the Log Writer Name.
+
+Example Usage:
+{% highlight bash %}
+# The default logger filename will be <DATE>_cosmos_tlm.bin and will create a new log every 1MB
+DEFAULT_PACKET_LOG_WRITER packet_log_writer.rb cosmos_ true nil 1000000
+# The default log reader does not have any parameters to configure
+DEFAULT_PACKET_LOG_READER packet_log_reader.rb
+{% endhighlight %}
+
 ### CMD_TLM_VERSION
 Cmd tlm version is used to set an arbitrary command and telemetry version string which can be accessed in telemetry. This is useful in scripts for reporting a program specific version that changes along with another configuration management system.
 

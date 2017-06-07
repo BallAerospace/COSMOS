@@ -1639,6 +1639,15 @@ PATH HANDBOOKS <span class="s1">'./handbooks'</span> <span class="c"># Default l
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">DEFAULT_PACKET_LOG_WRITER packet_log_writer.rb <span class="c"># Default</span>
 DEFAULT_PACKET_LOG_READER packet_log_reader.rb <span class="c"># Default</span></code></pre></figure>
 
+<p>For COSMOS &gt;= 4.0.0, parameters for the default log writer/reader can also be specified with this keyword.  The parameters are identical to those used for the CTS PACKET_LOG_WRITER keyword, except it is not necessary to specify the Log Writer Name.</p>
+
+<p>Example Usage:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="c"># The default logger filename will be &lt;DATE&gt;_cosmos_tlm.bin and will create a new log every 1MB</span>
+DEFAULT_PACKET_LOG_WRITER packet_log_writer.rb cosmos_ <span class="nb">true </span>nil 1000000
+<span class="c"># The default log reader does not have any parameters to configure</span>
+DEFAULT_PACKET_LOG_READER packet_log_reader.rb</code></pre></figure>
+
 <h3 id="cmd_tlm_version">
 <a id="cmd_tlm_version" class="anchor" href="#cmd_tlm_version" aria-hidden="true"><span class="octicon octicon-link"></span></a>CMD_TLM_VERSION</h3>
 <p>Cmd tlm version is used to set an arbitrary command and telemetry version string which can be accessed in telemetry. This is useful in scripts for reporting a program specific version that changes along with another configuration management system.</p>
