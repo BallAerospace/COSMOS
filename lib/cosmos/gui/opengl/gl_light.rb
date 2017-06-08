@@ -9,7 +9,7 @@
 # attribution addendums as found in the LICENSE.txt
 
 module Cosmos
-
+  # Captures all the parameters associated with an OpenGL light
   class GlLight
     attr_accessor :ambient
     attr_accessor :diffuse
@@ -34,6 +34,5 @@ module Cosmos
       @l_attn = 0.0
       @q_attn = 0.0
     end
-  end # class Light
-
-end # module Cosmos
+  end
+end

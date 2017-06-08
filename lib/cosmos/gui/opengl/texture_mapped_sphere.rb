@@ -12,15 +12,17 @@ require 'cosmos'
 require 'cosmos/gui/opengl/gl_shape'
 
 module Cosmos
-
+  # Maps an image onto a 3D sphere in OpenGl.
   class TextureMappedSphere < GlShape
-
+    # @param x (see GlShape#initialize)
+    # @param y (see GlShape#initialize)
+    # @param z (see GlShape#initialize)
+    # @param texture_filename [String] Image filename to load and apply to the
+    #   sphere
     def initialize(x, y, z, texture_filename)
       super(x, y, z)
-
       @vdata = [ [1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [-1.0, 0.0, 0.0], [0.0, -1.0, 0.0],
                  [0.0, 0.0, 1.0], [0.0, 0.0, -1.0]]
-
       @tindices = [ [0,4,1], [1,4,2], [2,4,3], [3,4,0], [1,5,0],
                     [2,5,1], [3,5,2], [0,5,3] ]
 
@@ -196,7 +198,5 @@ module Cosmos
       string << "  ROTATION_Z #{@rotation_z}\n" if @rotation_z
       return string
     end
-
   end
-
-end # module Cosmos
+end

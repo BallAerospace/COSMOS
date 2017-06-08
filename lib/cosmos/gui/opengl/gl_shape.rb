@@ -12,7 +12,8 @@ require 'cosmos'
 require 'cosmos/gui/opengl/opengl'
 
 module Cosmos
-
+  # Defines an OpenGL shape including its color, position and how to draw it.
+  # These objects should be used within a {GlScene}.
   class GlShape
     attr_accessor :base_color
     attr_accessor :click_handler
@@ -25,7 +26,10 @@ module Cosmos
     attr_accessor :tipText
     attr_accessor :dragable
 
-    #Constructor for the StlShape class
+    # Create a OpenGL shape to be placed in a {GlScene}.
+    # @param x [Integer] Shape center X position
+    # @param y [Integer] Shape center Y position
+    # @param z [Integer] Shape center Z position
     def initialize(x, y, z)
       @color = [0.5, 0.5, 0.5, 1.0]
       @base_color = [0.5, 0.5, 0.5, 1.0]

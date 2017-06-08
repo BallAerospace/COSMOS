@@ -11,13 +11,20 @@
 require 'cosmos/gui/opengl/gl_bounds'
 
 module Cosmos
-
+  # Creates an OpenGL scene with associated shapes. It defers to the shapes to
+  # draw themselves.
   class GlScene
+    # @return [Array<GlShape>] Shapes to draw in the scene
     attr_reader :shapes
+    # @return [GlBounds] Bounds of the scene
     attr_accessor :bounds
+    # @return [Integer] Zoom factor
     attr_accessor :zoom
+    # @return [Quaternion] Orientation of the scene
     attr_accessor :orientation
+    # @return [Array<Float, Float, Float>] Center of the scene
     attr_accessor :center
+    # @return [Symbol] The type of projection matrix to use :PARALLEL or :PERSPECTIVE
     attr_accessor :projection
 
     def initialize
@@ -67,6 +74,5 @@ module Cosmos
     def append(shape)
       @shapes << shape
     end
-  end # class Material
-
-end # module Cosmos
+  end
+end

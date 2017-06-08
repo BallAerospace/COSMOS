@@ -151,7 +151,7 @@ module Cosmos
     def update_limits_details(limits_settings, limits_set)
       return unless limits_settings[0]
       label_text = "RL/#{limits_settings[0][0]} YL/#{limits_settings[0][1]} YH/#{limits_settings[0][2]} RH/#{limits_settings[0][3]}"
-      if limits_settings[0][4] and limits_settings[0][5]
+      if limits_settings[0][4] && limits_settings[0][5]
         label_text << " GL/#{limits_settings[0][4]} GH/#{limits_settings[0][5]}"
       end
       if @limits_labels[limits_set]

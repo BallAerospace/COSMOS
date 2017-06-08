@@ -15,7 +15,9 @@ require 'cosmos/gui/qt'
 require 'cosmos/gui/opengl/opengl'
 
 module Cosmos
-
+  # Widget which paints an OpenGL scene. Handles user interaction with the
+  # scene by tracking mouse movements to drag objects and scale and pan within
+  # the scene.
   class GlViewer < Qt::GLWidget
     MAX_PICKBUF = 1024
     MAX_SELPATH = 64
@@ -706,7 +708,5 @@ module Cosmos
       @transform.trans4(-@center[0], -@center[1], -@center[2]);
       @itransform = @transform.inverse
     end
-
-  end # class OpenGLViewer
-
-end # module Cosmos
+  end
+end

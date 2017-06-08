@@ -93,7 +93,7 @@ module Cosmos
           @editors[-1].text = item_value.to_s
         end
         values_layout.addRow(item_name, @editors[-1])
-        if ((@editors.length % 10) == 0 and @items.length > @editors.length)
+        if (@editors.length % 10 == 0) && (@items.length > @editors.length)
           values_layout = Qt::FormLayout.new
           widget = Qt::Widget.new
           widget.layout = values_layout

@@ -28,11 +28,14 @@ module Cosmos
 
     @@redirect_io_thread = nil
 
-    # Create the main GUI application window. Redirect IO to prevent popups in
-    # the application. Store the options passed from the command line.
+    # Create a new application. IO is redirected such that writing to stdout or
+    # stderr will result in a popup to be displayed to the user. Thus
+    # applications should not write to stdout (i.e. puts or write) or stderr
+    # unless they want a popup titled "Unexpected STD[OUT/ERR] output". By
+    # default the title is set to the options.title and the default COSMOS icon
+    # is set.
     #
-    # @param options [OpenStruct] The command line options passed to the
-    #   application
+    # @param options [OpenStruct] Application command line options
     def initialize(options)
       # Call QT::MainWindow constructor
       super() # MUST BE FIRST - All code before super is executed twice in RubyQt Based classes
@@ -234,7 +237,7 @@ module Cosmos
       super(event)
     end
 
-    # Display the AboutDialog with the @about_string. The @about_string should
+    # Display the {AboutDialog} with the about_string. The about_string should
     # be set by the user in the constructor of their application.
     def about
       AboutDialog.new(self, @about_string)
@@ -245,8 +248,7 @@ module Cosmos
     # will cause the application to exit without being shown. Return true to
     # contine creating the window and execing the application.
     #
-    # @param options [OpenStruct] The application options as configured in the
-    #   command line
+    # @param (see #initialize)
     # @return [Boolean] Whether to contine running the application
     def self.post_options_parsed_hook(options)
       true
@@ -256,14 +258,17 @@ module Cosmos
     # application itself has been created. This is the last chance to execute
     # custom code before the application executes.
     #
-    # @param options [OpenStruct] The application options as configured in the
-    #   command line
+    # @param (see #initialize)
     def self.pre_window_new_hook(options)
     end
 
     # Create the default application options and parse the command line
     # options. Create the application instance and call exec on the
     # Qt::Application.
+    #
+    # @param option_parser [OptionParser] Parses the command line options
+    # @param options [OpenStruct] Stores all the command line options that are
+    #   parsed by the option_parser
     def self.run(option_parser = nil, options = nil)
       Cosmos.set_working_dir do
         option_parser, options = create_default_options() unless option_parser and options
@@ -471,6 +476,7 @@ module Cosmos
       @@redirect_io_thread = nil
     end
 
+    # Unimplemented to provide this method to all QtTools
     def self.graceful_kill
       # Just to remove warning
     end

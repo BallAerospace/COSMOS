@@ -64,7 +64,7 @@ module Cosmos
       Logger.info "Processing CmdTlmServer configuration in file: #{File.expand_path(filename)}"
 
       Cosmos.set_working_dir do
-      parser = ConfigParser.new
+        parser = ConfigParser.new
         parser.parse_file(filename) do |keyword, params|
           case keyword
           when 'TITLE'
