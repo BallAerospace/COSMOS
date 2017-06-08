@@ -13,7 +13,6 @@ require 'tempfile'
 require 'erb'
 
 module Cosmos
-
   # Reads COSMOS style configuration data which consists of keywords followed
   # by 0 or more comma delimited parameters. Parameters with spaces must be
   # enclosed in quotes. Quotes should also be used to indicate a parameter is a
@@ -197,7 +196,7 @@ module Cosmos
                    size,
                    PARSING_REGEX,
                    &block)
-      rescue => e
+      rescue Exception => e # Catch EVERYTHING so we can re-raise with additional info
         raise e, "#{e}\n\nParsed output in #{file.path}", e.backtrace
       ensure
         file.close unless file.closed?
@@ -215,7 +214,7 @@ module Cosmos
       # for a backwards range
       (1..min_num_params).each do |index|
         # If the parameter is nil (0 based) then we have a problem
-        if @parameters[index-1].nil?
+        if @parameters[index - 1].nil?
           raise Error.new(self, "Not enough parameters for #{@keyword}.", usage, @url)
         end
       end
@@ -319,7 +318,7 @@ module Cosmos
         when 'MIN_FLOAT64'
           return -Float::MAX
         when 'MAX_FLOAT64'
-           return Float::MAX
+          return Float::MAX
         when 'MIN_FLOAT32'
           return -3.402823e38
         when 'MAX_FLOAT32'
@@ -352,7 +351,13 @@ module Cosmos
       # Make a copy of the filename since we're calling slice! which modifies
       # it directly. Downcase to avoid filesytem case issues.
       copy = filename.downcase.dup
-      copy.slice!(Cosmos::USERPATH.downcase) # Remove the USERPATH
+      if copy.include?(Cosmos::USERPATH.downcase)
+        copy.slice!(Cosmos::USERPATH.downcase) # Remove the USERPATH
+      else
+        # If we can't slice out the USERPATH then make sure to get rid of
+        # anything before the first slash like the Windows drive letter
+        copy = copy.split(File::SEPARATOR)[1..-1].join(File::SEPARATOR)
+      end
       parsed_filename = File.join(Cosmos::USERPATH, 'outputs', 'tmp', copy)
       FileUtils.mkdir_p(File.dirname(parsed_filename)) # Create the path
       file = File.open(parsed_filename, 'w+')
@@ -367,9 +372,9 @@ module Cosmos
       case data_type
       when :INT
         if type == 'MIN'
-          value = -2**(bit_size-1)
+          value = -2**(bit_size - 1)
         else # 'MAX'
-          value = 2**(bit_size-1) - 1
+          value = 2**(bit_size - 1) - 1
         end
       when :UINT
         # Default is 0 for 'MIN'
@@ -393,16 +398,13 @@ module Cosmos
       value
     end
 
-    # Iterates over each line of the io object and yields the keyword and
-    # parameters
-    #~ def parse_loop(
-      #~ io,
-      #~ yield_non_keyword_lines,
-      #~ remove_quotes,
-      #~ size,
-      #~ rx,
-      #~ &block)
-
-  end # class ConfigParser
-
-end # module Cosmos
+    # Iterates over each line of the io object and yields the keyword and parameters
+    # def parse_loop(
+    #   io,
+    #   yield_non_keyword_lines,
+    #   remove_quotes,
+    #   size,
+    #   rx,
+    #   &block)
+  end
+end
