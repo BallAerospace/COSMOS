@@ -18,7 +18,7 @@ module Cosmos
     attr_accessor :packet_log_reader
 
     def initialize
-      @packet_log_reader = System.default_packet_log_reader.new
+      @packet_log_reader = System.default_packet_log_reader.new(*System.default_packet_log_reader_params)
     end
 
     def process_batch(batch_name, input_filenames, output_dir, output_extension, config_filenames, time_start = nil, time_end = nil, &block)

@@ -38,10 +38,29 @@ module Cosmos
       router = TcpipServerInterface.new(port, port, 10.0, nil, 'PREIDENTIFIED')
       router.name = router_name
       router.disable_disconnect = true
+      router.set_option('AUTO_SYSTEM_META', [true])
       @config.routers[router_name] = router
       @config.interfaces.each do |interface_name, interface|
         router.interfaces << interface
         interface.routers << router
+      end
+    end
+
+    # Adds a Preidentified command router to the system with given name and port.
+    # All interfaces defined by the Command/Telemetry configuration are
+    # directed to this router to output commands
+    #
+    # @param router_name [String] Name of the command router
+    # @param port [Integer] Port to pass to the {TcpipServerInterface}
+    def add_cmd_preidentified(cmd_router_name, port)
+      cmd_router_name = cmd_router_name.upcase
+      cmd_router = TcpipServerInterface.new(port, nil, 10.0, nil, 'PREIDENTIFIED')
+      cmd_router.name = cmd_router_name
+      cmd_router.disable_disconnect = true
+      cmd_router.set_option('AUTO_SYSTEM_META', [true])
+      @config.routers[cmd_router_name] = cmd_router
+      @config.interfaces.each do |interface_name, interface|
+        interface.cmd_routers << cmd_router
       end
     end
 
@@ -71,6 +90,22 @@ module Cosmos
       stop_thread(router)
 
       return new_router
+    end
+
+    # Get info about an router by name
+    #
+    # @return [Array<String, Numeric, Numeric, Numeric, Numeric, Numeric,
+    #   Numeric, Numeric>] Array containing \[state, num_clients,
+    #   write_queue_size, read_queue_size, bytes_written, bytes_read,
+    #   read_count, write_count] for the interface
+    def get_info(router_name)
+      router = @config.routers[router_name.upcase]
+      raise "Unknown router: #{router_name}" unless router
+
+      return [state(router_name),      router.num_clients,
+              router.write_queue_size, router.read_queue_size,
+              router.bytes_written,    router.bytes_read,
+              router.read_count,       router.write_count]
     end
 
     protected

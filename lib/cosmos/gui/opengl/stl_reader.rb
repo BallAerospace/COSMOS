@@ -12,9 +12,10 @@ require 'cosmos'
 require 'cosmos/gui/opengl/opengl'
 
 module Cosmos
-
+  # Reads a STL file to build up a number of triangles (x, y, z coordinates)
+  # representing the shape. Implements a draw method to directly render the
+  # triangles into an OpenGL shape.
   class StlReader
-
     attr_accessor :triangles
     attr_accessor :use_cache
 
@@ -134,7 +135,7 @@ module Cosmos
       end
     end
 
-    #Reads up to max_triangles from the file - returns number read
+    # Reads up to max_triangles from the file - returns number read
     def read_triangles_ascii(max_triangles, scaling_factor = 1.0)
       triangle = nil
       read_count = 0
@@ -166,7 +167,7 @@ module Cosmos
       read_count = 0
 
       if @triangles.empty?
-        #Assemble Generic Packet to Read Each Triangle
+        # Assemble Generic Packet to Read Each Triangle
         @packet = Packet.new(nil, nil, :LITTLE_ENDIAN)
         @packet.append_item('normal0', 32, :FLOAT)
         @packet.append_item('normal1', 32, :FLOAT)
@@ -183,10 +184,10 @@ module Cosmos
         @packet.append_item('attribute_length', 16, :UINT)
         @packet.enable_method_missing
 
-        #Read 80 Ascii Characters at beginning of file and throw away
+        # Read 80 Ascii Characters at beginning of file and throw away
         @file.read(80)
 
-        #Read number of facets (triangles) in the file
+        # Read number of facets (triangles) in the file
         @num_facets = @file.read(4)
         @num_facets = @num_facets.unpack('V')[0]
       end
@@ -205,7 +206,5 @@ module Cosmos
 
       return read_count
     end
-
   end
-
-end # module Cosmos
+end

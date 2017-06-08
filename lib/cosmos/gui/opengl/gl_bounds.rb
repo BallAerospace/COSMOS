@@ -9,9 +9,9 @@
 # attribution addendums as found in the LICENSE.txt
 
 module Cosmos
-
+  # Defines the boundary for a {GlScene}.
   class GlBounds
-    def initialize (x0, x1, y0, y1, z0, z1)
+    def initialize(x0, x1, y0, y1, z0, z1)
       @x0 = x0
       @x1 = x1
       @y0 = y0
@@ -20,7 +20,10 @@ module Cosmos
       @z1 = z1
     end
 
-    def [] (index)
+    # @param index [Integer] 0 based index into the bounds variables. Bounds
+    #   are returned in the following order: x0, x1, y0, y1, z0, z1.
+    # @return [Integer] Boundary value
+    def [](index)
       case index
       when 0
         @x0
@@ -39,29 +42,14 @@ module Cosmos
       end
     end
 
+    # @return [Array<Integer, Integer, Integer>] The center of the bounds
     def center
       [(@x0 + @x1) / 2.0, (@y0 + @y1) / 2.0, (@z0 + @z1) / 2.0]
     end
 
+    # @return [Integer] The longest dimension of the bounds
     def longest
-      x = @x1 - @x0
-      y = @y1 - @y0
-      z = @z1 - @z0
-      if x > y
-        if x > z
-          x
-        else
-          z
-        end
-      else
-        if y > z
-          y
-        else
-          z
-        end
-      end
+      [@x1 - @x0, @y1 - @y0, @z1 - @z0].max
     end
-
-  end # class Bounds
-
-end # module Cosmos
+  end
+end

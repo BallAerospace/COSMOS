@@ -15,10 +15,12 @@ require 'cosmos/gui/qt_tool'
 require 'cosmos/gui/dialogs/exception_dialog'
 
 module Cosmos
-
+  # Provides a single class method which creates a splash screen dialog box.
+  # This dialog has both a text message box and progress bar.
   class Splash
-
+    # Creates a dialog with a message box and a progress bar.
     class SplashDialogBox < Qt::Dialog
+      # @param parent [Qt::Widget] The dialog parent
       def initialize(parent)
         super(parent, Qt::WindowTitleHint | Qt::CustomizeWindowHint)
         setWindowTitle(parent.windowTitle)
@@ -43,6 +45,8 @@ module Cosmos
         @complete = false
       end
 
+      # @param message [String] Text to place in the message box. Text is
+      #   replaced and not appended.
       def message=(message)
         unless @complete
           Qt.execute_in_main_thread(false) do
@@ -51,9 +55,10 @@ module Cosmos
         end
       end
 
+      # @param progress [Float] Set the progress bar to a percentage from 0 to 1
       def progress=(progress)
         progress_int = (progress * 100).to_i
-        if !@complete and @progress != progress_int
+        if !@complete && (@progress != progress_int)
           @progress = progress_int
           Qt.execute_in_main_thread(false) do
             @progress_bar.setValue(progress_int)
@@ -61,14 +66,18 @@ module Cosmos
         end
       end
 
+      # @return [Method] message= method
       def message_callback
         method(:message=)
       end
 
+      # @return [Method] progress= method
       def progress_callback
         method(:progress=)
       end
 
+      # Override keyPressEvent to prevent Esc from closing the splash dialog
+      # @param event [Qt::KeyEvent] Pressed key event
       def keyPressEvent(event)
         # Don't allow the Escape key to close this dialog
         if event.key == Qt::Key_Escape
@@ -79,6 +88,10 @@ module Cosmos
       end
     end
 
+    # @param parent [Qt::Widget] Dialog parent
+    # @param wait_for_complete [Boolean] Whether to call dialog.exec and block
+    #   other threads from running until this dialog is closed
+    # @yieldparam dialog [SplashDialogBox] The dialog box
     def self.execute(parent, wait_for_complete = false, &block)
       # Create the dialog and show it
       dialog = SplashDialogBox.new(parent)
@@ -122,14 +135,11 @@ module Cosmos
       end
       if wait_for_complete
         dialog.exec
-
-        # Need to make sure all Qt.execute_in_main_thread() have completed before disposing or
-        # we will segfault
+        # Need to make sure all Qt.execute_in_main_thread() have completed
+        # before disposing or we will segfault
         Qt::RubyThreadFix.queue.pop.call until Qt::RubyThreadFix.queue.empty?
-
         dialog.dispose
       end
     end
   end
-
-end # module Cosmos
+end

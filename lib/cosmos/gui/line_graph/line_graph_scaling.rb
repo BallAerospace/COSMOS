@@ -9,10 +9,7 @@
 # attribution addendums as found in the LICENSE.txt
 
 module Cosmos
-
-  # LineGraph class continued
   class LineGraph < Qt::Widget
-
     # Spacer between items
     GRAPH_SPACER = 5
 
@@ -125,7 +122,7 @@ module Cosmos
     # Determine the y minimum and maximum values for the given lines and given
     # grid line scale
     #
-    # @param lines [Array] Array of lines containing the x and y values
+    # @param value_range [Range] Range of values over the y axis
     # @param manual_y_grid_line_scale [Float] Whether there is a manual grid
     #   line scale. The return values will be multiples of this scale if given.
     # @return [Float, Float] The minimum and maximum values
@@ -451,7 +448,5 @@ module Cosmos
       end
       return scale
     end
-
-  end # class LineGraph
-
-end # module Cosmos
+  end
+end

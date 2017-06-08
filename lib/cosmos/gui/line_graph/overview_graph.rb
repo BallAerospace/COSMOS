@@ -12,9 +12,14 @@ require 'cosmos'
 require 'cosmos/gui/line_graph/line_graph'
 
 module Cosmos
-
+  # The overview graph provides a graph which contains the entire graph
+  # history. It provides a window with draggable bars that expands the viewport
+  # on graph. Expanding this viewport results in a callback that can be used to
+  # adjust the view on a different graph.
   class OverviewGraph < LineGraph
+    # Default zoom when pressing the up or down arrow keys
     DEFAULT_ZOOM_FACTOR = 0.1 # 10 percent
+    # Default pan when pressing the left or right arrow keys
     DEFAULT_PAN_FACTOR  = 0.1 # 10 percent
 
     # Minimum allowed size of the window in seconds plotted

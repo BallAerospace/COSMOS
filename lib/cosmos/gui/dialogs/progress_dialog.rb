@@ -15,41 +15,45 @@ require 'cosmos/gui/qt'
 require 'cosmos/gui/dialogs/exception_dialog'
 
 module Cosmos
-
-  # ProgressDialog class
-  #
-  # The QT GUI model is to use slots and signals to connect GUI elements together.
-  # This is especially important with multithreaded applications because only the main thread
-  # can update the GUI and other attempts will cause crashes.
-  #
-  # It seems like we should be able to do something like the following:
-  #   progress_dialog = ProgressDialog.new(self, 'Progress')
-  #   thread = MyRubyThreadWorker.new
-  #   connect(thread, SIGNAL('finished(int)'), progress_dialog, SLOT('done(int)'), Qt::QueuedConnection)
-  #   thread.start
-  #   progress_dialog.exec
-  #
-  # This is creating a thread (but not starting the thread) and then connecting the thread
-  # classes 'finished(int)' signal to the progress_dialog classes 'done(int)' signal.
-  # It then starts the thread and calls exec on the dialog which makes it a modal dialog
-  # that starts its internal QEventLoop going. This allows the GUI to remain updating
-  # (so we can click cancel) while the thread runs. Then when the thread finished it should emit
-  # its 'finished(int)' signal which closes the dialog.
-  #
-  # This all SHOULD work but it tends to randomly crash on Ruby 1.8.6.
-  # HOWEVER, it appears to work well on 1.9.1. We should consider going to this model
-  # in COSMOS 2.0 as it avoids the hacky
-
+  # Dialog which shows a progress bar. Optionally can display two progress
+  # bars: one for overall progress and one for a sub-task. Can also optionally
+  # display informational text.
   class ProgressDialog < Qt::Dialog
+    # @return [#call] Called when the dialog is canceled. Passed the current
+    #   instance of the ProgressDialog
     attr_accessor :cancel_callback
+    # @return [Thread] Ruby thread associated with this dialog. If specified,
+    #   it will automatically be killed if the dialog is canceled.
     attr_accessor :thread
+    # Accessor to set the complete flag
     attr_writer :complete
 
     slots 'append_text(const QString&)'
     slots 'set_step_progress(int)'
     slots 'set_overall_progress(int)'
 
-    def initialize(parent, title, width = 500, height = 300, show_overall = true, show_step = true, show_text = true, show_done = true, show_cancel = true)
+    # @param parent [Qt::Widget] Parent of this dialog
+    # @param title [String] Dialog title
+    # @param width [Integer] Dialog width
+    # @param height [Integer] Dialog height
+    # @param show_overall [Boolean] Whether to show the overall progress bar
+    # @param show_step [Boolean] Whether to show the individual step progress
+    #   bar
+    # @param show_text [Boolean] Whether to show informational text along with
+    #   the progress bar
+    # @param show_done [Boolean] Whether to show a "Done" button which closes
+    #   the dialog once the progress is complete
+    # @param show_cancel [Boolean] Whether to show a "Cancel" button which
+    #   cancels and closes the dialog
+    def initialize(parent,
+                   title,
+                   width = 500,
+                   height = 300,
+                   show_overall = true,
+                   show_step = true,
+                   show_text = true,
+                   show_done = true,
+                   show_cancel = true)
       if show_cancel
         super(parent)
       else
@@ -119,7 +123,7 @@ module Cosmos
       @top_layout.addLayout(@overall) if show_overall
       @top_layout.addLayout(@step) if show_step
       @top_layout.addWidget(@progress_text) if show_text
-      @top_layout.addLayout(@button_layout) if show_done or show_cancel
+      @top_layout.addLayout(@button_layout) if show_done || show_cancel
 
       setLayout(@top_layout)
 
@@ -129,24 +133,29 @@ module Cosmos
       @step_progress = 0
     end
 
+    # @return [Boolean] Whether this dialog was canceled
     def self.canceled?
       @@canceled
     end
 
+    # @return [Boolean] Whether this dialog was canceled
     def canceled?
       @@canceled
     end
 
+    # @return [Boolean] Whether this dialog successfully completed
     def complete?
-      return @complete
+      @complete
     end
 
+    # Enable the cancel button if it was specified
     def enable_cancel_button
       Qt.execute_in_main_thread(true) do
         @cancel_button.setEnabled(true) if @cancel_button
       end
     end
 
+    # Set complete to true and close the dialog
     def close_done
       Qt.execute_in_main_thread(true) do
         @complete = true
@@ -154,6 +163,8 @@ module Cosmos
       end
     end
 
+    # Call the cancel_callback if given to determine how to proceed. Set
+    # canceled to true and kill any associated threads.
     def close_cancel
       Qt.execute_in_main_thread(true) do
         kill_thread = true
@@ -174,25 +185,30 @@ module Cosmos
       end
     end
 
+    # Empty method to remove warning
+    # @comment TODO: What warning? How does this manifest?
     def graceful_kill
-      # Do nothing - just to remove warning
     end
 
+    # @param font [Font] Font to apply on the progress text
     def set_text_font(font)
       @progress_text.setFont(font)
     end
 
-    def append_text(string)
+    # @param text [String] Text to append to the progress text
+    def append_text(text)
       unless @complete
         Qt.execute_in_main_thread(false) do
           if @progress_text
-            @progress_text.appendPlainText(string)
+            @progress_text.appendPlainText(text)
             @progress_text.ensureCursorVisible
           end
         end
       end
     end
 
+    # Mark the dialog complete by enabling the Done and Cancel button if they
+    # were specified. This method does NOT close the dialog automatically.
     def complete
       Qt.execute_in_main_thread(true) do
         @done_button.setEnabled(true) if @done_button
@@ -200,9 +216,12 @@ module Cosmos
       end
     end
 
-    def set_step_progress (value)
+    # @comment TODO: Rename to step_progress=
+    # @param value [Float] Fraction from 0 to 1 of the current step that is
+    #   complete.
+    def set_step_progress(value)
       progress_int = (value * 100).to_i
-      if !@complete and @step_progress != progress_int
+      if !@complete && @step_progress != progress_int
         @step_progress = progress_int
         Qt.execute_in_main_thread(false) do
           @step_bar.setValue(progress_int) if @step_bar
@@ -210,9 +229,12 @@ module Cosmos
       end
     end
 
-    def set_overall_progress (value)
+    # @comment TODO: Rename to overall_progress=
+    # @param value [Float] Fraction from 0 to 1 of the overall progress that is
+    #   complete.
+    def set_overall_progress(value)
       progress_int = (value * 100).to_i
-      if !@complete and @overall_progress != progress_int
+      if !@complete && @overall_progress != progress_int
         @overall_progress = progress_int
         Qt.execute_in_main_thread(false) do
           @overall_bar.setValue(progress_int) if @overall_bar
@@ -220,6 +242,9 @@ module Cosmos
       end
     end
 
+    # @comment TODO: Rename to step_progress
+    # @return [Float] Fraction from 0 to 1 of the step progress that is
+    #   complete
     def get_step_progress
       result = nil
       Qt.execute_in_main_thread(true) do
@@ -228,6 +253,9 @@ module Cosmos
       return result
     end
 
+    # @comment TODO: Rename to overall_progress
+    # @return [Float] Fraction from 0 to 1 of the overall progress that is
+    #   complete
     def get_overall_progress
       result = nil
       Qt.execute_in_main_thread(true) do
@@ -236,7 +264,16 @@ module Cosmos
       return result
     end
 
-    def self.execute(parent, title, width = 500, height = 300, show_overall = true, show_step = true, show_text = true, show_done = true, show_cancel = true)
+    # (see #initialize)
+    def self.execute(parent,
+                     title,
+                     width = 500,
+                     height = 300,
+                     show_overall = true,
+                     show_step = true,
+                     show_text = true,
+                     show_done = true,
+                     show_cancel = true)
       # Create a non-modal dialog by default
       dialog = ProgressDialog.new(parent, title, width, height, show_overall, show_step, show_text, show_done, show_cancel)
       dialog.setModal(true)
@@ -250,8 +287,9 @@ module Cosmos
           yield dialog
         rescue Exception => error
           Qt.execute_in_main_thread(true) do
-            # If something bad happened during the yield we'll show the error but not exit the application
-            # Once the block has completed we hide and dispose the dialog to allow the main application to take over
+            # If something bad happened during the yield we'll show the error
+            # but not exit the application. Once the block has completed we
+            # hide and dispose the dialog to allow the main application to run
             dialog.hide
             ExceptionDialog.new(parent, error, "Error During Progress", false)
           end
@@ -265,12 +303,11 @@ module Cosmos
       dialog.thread = nil
       dialog.complete = true
 
-      # Need to make sure all Qt.execute_in_main_thread() have completed before disposing or
-      # we will segfault
+      # Need to make sure all Qt.execute_in_main_thread() have completed before
+      # disposing or we will segfault
       Qt::RubyThreadFix.queue.pop.call until Qt::RubyThreadFix.queue.empty?
 
       dialog.dispose
     end
-  end # class ProgressDialog
-
-end # module Cosmos
+  end
+end

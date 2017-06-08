@@ -13,13 +13,13 @@ require 'cosmos/gui/qt'
 require 'open3'
 
 module Cosmos
-  # Dialog showing the license which is displayed before starting the COSMOS
-  # Launcher. Accepting the dialog acknowledges the license. The dialog also
-  # calculates the CRCs across all the COSMOS gem files and user files to
-  # determine if anything has been modified.
+  # Creates a dialog displaying the COSMOS copyright information. Also
+  # calculates CRC checks across the entire project to determine if any of the
+  # COSMOS core files have been modified. This ensures the COSMOS system has
+  # not been modified since the last release.
   class LegalDialog < Qt::Dialog
     def initialize
-      super()
+      super() # MUST BE FIRST
       Cosmos.load_cosmos_icon
 
       self.window_title = 'Legal Agreement'
@@ -97,21 +97,23 @@ module Cosmos
     # against what is listed in the file to detect any modifications. Also
     # opens all files listed in <Cosmos::USERPATH/config/data/crc.txt to verify
     # the user defined COSMOS configuration files.
+    #
+    # @return [String] Either a success message or warning about all files
+    #   which did not match their expected CRCs.
     def check_all_crcs
-      # Check each file in crc.txt
       result_text = ''
       missing_text = ''
-      core_file_count, core_error_count, _, _ = check_crcs(::Cosmos::PATH, File.join(::Cosmos::PATH,'data','crc.txt'), result_text, missing_text, 'CORE')
+      core_file_count, core_error_count, _, _ = check_crcs(::Cosmos::PATH, File.join(::Cosmos::PATH, 'data', 'crc.txt'), result_text, missing_text, 'CORE')
       project_file_count = 0
       project_error_count = 0
       official = true
-      if File.exist?(File.join(::Cosmos::USERPATH,'config','data','crc.txt'))
-        project_file_count, project_error_count, _, official = check_crcs(::Cosmos::USERPATH, File.join(::Cosmos::USERPATH,'config','data','crc.txt'), result_text, missing_text, 'PROJECT')
+      if File.exist?(File.join(::Cosmos::USERPATH, 'config', 'data', 'crc.txt'))
+        project_file_count, project_error_count, _, official = check_crcs(::Cosmos::USERPATH, File.join(::Cosmos::USERPATH, 'config', 'data', 'crc.txt'), result_text, missing_text, 'PROJECT')
       end
 
       final_text = ''
-      if core_error_count == 0 and project_error_count == 0
-        if missing_text.empty? and official
+      if (core_error_count == 0) && (project_error_count == 0)
+        if missing_text.empty? && official
           @text_crc.setTextColor(Cosmos::GREEN)
         else
           @text_crc.setTextColor(Cosmos::YELLOW)
@@ -140,8 +142,8 @@ module Cosmos
     # @param filename [String] Full path to the crc.txt file
     # @param result_text [String] String to append results of CRC checks
     # @param missing_text [String] String to append missing files
-    # @param file_type [String] Whether we are checking the 'CORE' COSMOS files
-    #   or the 'PROJECT' specific files
+    # @param file_type [String] Whether the COSMOS core or project files. Must
+    #   be 'CORE' or 'PROJECT'.
     def check_crcs(base_path, filename, result_text, missing_text, file_type)
       file_count = 0
       error_count = 0

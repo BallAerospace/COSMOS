@@ -16,8 +16,24 @@ require 'cosmos/gui/qt'
 require 'cosmos/gui/widgets/packet_log_frame'
 
 module Cosmos
-
+  # Creates a dialog to allow a user to browse for a COSMOS log and select the
+  # time period to process.
   class PacketLogDialog < Qt::Dialog
+    extend Forwardable
+    def_delegators :@packet_log_frame, :filenames, :time_start, :time_start=,\
+      :time_end, :time_end=, :packet_log_reader
+
+    # @param parent (see PacketLogFrame#initialize)
+    # @param title [String] Dialog title
+    # @param log_directory (see PacketLogFrame#initialize)
+    # @param packet_log_reader (see PacketLogFrame#initialize)
+    # @param initial_filenames (see PacketLogFrame#initialize)
+    # @param initial_output_filename (see PacketLogFrame#initialize)
+    # @param show_output_filename (see PacketLogFrame#initialize)
+    # @param show_time (see PacketLogFrame#initialize)
+    # @param show_log_reader (see PacketLogFrame#initialize)
+    # @param input_filename_filter (see PacketLogFrame#initialize)
+    # @param output_filename_filter (see PacketLogFrame#initialize)
     def initialize(parent,
                    title,
                    log_directory,
@@ -29,13 +45,10 @@ module Cosmos
                    show_log_reader = true,
                    input_filename_filter = Cosmos::BIN_FILE_PATTERN,
                    output_filename_filter = Cosmos::BIN_FILE_PATTERN)
-      # Call base class constructor
       super(parent)
       setWindowTitle(title)
 
       @layout = Qt::VBoxLayout.new
-
-      # Create log frame
       @packet_log_frame = PacketLogFrame.new(self,
                                              log_directory,
                                              packet_log_reader,
@@ -66,41 +79,6 @@ module Cosmos
 
       @layout.addLayout(@button_layout)
       setLayout(@layout)
-    end # def initialize
-
-    # Returns the chosen filenames
-    def filenames
-      @packet_log_frame.filenames
-    end
-
-    # Return the output filename
-    def output_filename
-      @packet_log_frame.output_filename
-    end
-
-    # Return Start time of packets to process
-    def time_start
-      @packet_log_frame.time_start
-    end
-
-    # Set the start time
-    def time_start=(new_time_start)
-      @packet_log_frame.time_start = new_time_start
-    end
-
-    # Return End time of packets to process
-    def time_end
-      @packet_log_frame.time_end
-    end
-
-    # Set the end time
-    def time_end=(new_time_end)
-      @packet_log_frame.time_end = new_time_end
-    end
-
-    # Return Log reader to use
-    def packet_log_reader
-      @packet_log_frame.packet_log_reader
     end
 
     protected
@@ -112,7 +90,5 @@ module Cosmos
         @ok_button.setEnabled(true)
       end
     end
-
-  end # class PacketLogDialog
-
-end # module Cosmos
+  end
+end

@@ -18,10 +18,11 @@ require 'cosmos/gui/line_graph/line_graph_scaling'
 require 'cosmos/gui/line_graph/line_graph_popups'
 
 module Cosmos
-
-  # GUI object to display a line graph
+  # Widget which displays a line graph. Graph provides decorations such as
+  # titles, labels, grid lines, and a legend. Mouse tracking is provided to allow
+  # popups on graph values. Automatic scaling is provided to scale the X and Y
+  # axis according to the data values.
   class LineGraph < Qt::Widget
-
     # Create attr_accessors that automatically set the redraw_needed flag when
     # they are set
     def self.attr_accessor_with_redraw(*symbols)
@@ -250,7 +251,7 @@ module Cosmos
       @in_update_graph_size = false
 
       # Time of previous left button release
-      @previous_left_button_release_time = Time.now
+      @previous_left_button_release_time = Time.now.sys
 
       # List of line colors to use
       @color_list = ['blue','red','green','darkorange', 'gold', 'purple', 'hotpink', 'lime', 'cornflowerblue', 'brown', 'coral', 'crimson', 'indigo', 'tan', 'lightblue', 'cyan', 'peru', 'maroon','orange','navy','teal','black']
@@ -321,7 +322,7 @@ module Cosmos
     end # def mousePressEvent
 
     def mouseReleaseEvent(event)
-      left_button_release_time = Time.now
+      left_button_release_time = Time.now.sys
 
       if @error and ((left_button_release_time - @previous_left_button_release_time) < DOUBLE_CLICK_SECONDS)
         @pre_error_callback.call(self) if @pre_error_callback
@@ -477,7 +478,5 @@ module Cosmos
       @horizontal_lines << [y_value, color, axis]
       @redraw_needed = true
     end
-
-  end # class LineGraph
-end # module Cosmos
-
+  end
+end

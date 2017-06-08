@@ -59,17 +59,17 @@ module Cosmos
         cmd.restore_defaults
         cmd.write("CODE", 0x55)
         @i.write(cmd)
-        expect(@i.instance_variable_get(:@ignored_error_codes)).to include(0x55)
+        expect(@i.instance_variable_get(:@ignored_error_codes)["INST"]).to include(0x55)
       end
 
       it "removes from the ignored list upon an error handle command" do
-        @i.instance_variable_get(:@ignored_error_codes) << 0x66
-        expect(@i.instance_variable_get(:@ignored_error_codes)).to include(0x66)
+        @i.instance_variable_get(:@ignored_error_codes)["INST"] << 0x66
+        expect(@i.instance_variable_get(:@ignored_error_codes)["INST"]).to include(0x66)
         cmd = System.commands.packet("INST","COSMOS_ERROR_HANDLE")
         cmd.restore_defaults
         cmd.write("CODE", 0x66)
         @i.write(cmd)
-        expect(@i.instance_variable_get(:@ignored_error_codes)).not_to include(0x66)
+        expect(@i.instance_variable_get(:@ignored_error_codes)["INST"]).not_to include(0x66)
       end
 
       it "enables and disable handshakes upon command" do

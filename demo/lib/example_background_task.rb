@@ -31,7 +31,7 @@ module Cosmos
           begin
             cmd('INST', 'COLLECT', 'TYPE' => 'NORMAL', 'DURATION' => 1)
             sent_count += 1
-            @status = "Sent COLLECT ##{sent_count} at #{Time.now.formatted}"
+            @status = "Sent COLLECT ##{sent_count} at #{Time.now.sys.formatted}"
           rescue
             # Oh well - probably disconnected
           end
@@ -40,12 +40,12 @@ module Cosmos
         end
         return if @sleeper.sleep(1)
       end
-      @status = "Finished at #{Time.now.formatted}"
+      @status = "Finished at #{Time.now.sys.formatted}"
     end
 
     def stop
       @sleeper.cancel
-      @status = "Stopped at #{Time.now.formatted}"
+      @status = "Stopped at #{Time.now.sys.formatted}"
     end
   end
 end

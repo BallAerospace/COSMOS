@@ -114,35 +114,37 @@ module Cosmos
           begin
             while(true)
               break if @@closing_all
-              time = Time.now
+              time = Time.now.sys
 
-              begin
-                # Gather item values for value widgets
-                if @mode == :REALTIME
-                  values, limits_states, limits_settings, limits_set = get_tlm_values(@items, @value_types)
-                  index = 0
-                  @items.each do |target_name, packet_name, item_name|
-                    begin
-                      System.limits.set(target_name, packet_name, item_name, limits_settings[index][0], limits_settings[index][1], limits_settings[index][2], limits_settings[index][3], limits_settings[index][4], limits_settings[index][5], limits_set) if limits_settings[index]
-                    rescue
-                      # This can fail if we missed setting the DEFAULT limits set earlier - Oh well
+              if !@item.empty?
+                begin
+                  # Gather item values for value widgets
+                  if @mode == :REALTIME
+                    values, limits_states, limits_settings, limits_set = get_tlm_values(@items, @value_types)
+                    index = 0
+                    @items.each do |target_name, packet_name, item_name|
+                      begin
+                        System.limits.set(target_name, packet_name, item_name, limits_settings[index][0], limits_settings[index][1], limits_settings[index][2], limits_settings[index][3], limits_settings[index][4], limits_settings[index][5], limits_set) if limits_settings[index]
+                      rescue
+                        # This can fail if we missed setting the DEFAULT limits set earlier - Oh well
+                      end
+                      index += 1
                     end
-                    index += 1
                   end
+                  @mutex.synchronize do
+                    @values = values
+                    @limits_states = limits_states
+                    @limits_set = limits_set
+                  end
+                rescue DRb::DRbConnError
+                  break if @@closing_all
+                  break if @value_sleeper.sleep(1)
+                  next
                 end
-                @mutex.synchronize do
-                  @values = values
-                  @limits_states = limits_states
-                  @limits_set = limits_set
-                end
-              rescue DRb::DRbConnError
-                break if @@closing_all
-                break if @value_sleeper.sleep(1)
-                next
               end
 
               Qt.execute_in_main_thread {update_gui()} if @alive and (@mode == :REALTIME)
-              delta = Time.now - time
+              delta = Time.now.sys - time
               break if @@closing_all
               if @polling_period - delta > 0
                 break if @value_sleeper.sleep(@polling_period - delta)
@@ -161,14 +163,16 @@ module Cosmos
       def update_gui
         begin
           if @alive
-            # Handle change in limits set
-            update_limits_set()
+            if !@item.empty?
+              # Handle change in limits set
+              update_limits_set()
 
-            # Update widgets with values and limits_states
-            @mutex.synchronize do
-              (0..(@values.length - 1)).each do |index|
-                @item[index].limits_state = @limits_states[index]
-                @item[index].value = @values[index]
+              # Update widgets with values and limits_states
+              @mutex.synchronize do
+                (0..(@values.length - 1)).each do |index|
+                  @item[index].limits_state = @limits_states[index]
+                  @item[index].value = @values[index]
+                end
               end
             end
 
@@ -221,6 +225,10 @@ module Cosmos
       # regular TlmViewer application
       @single_screen = single_screen
 
+      # Read the application wide stylesheet if it exists
+      app_style = File.join(Cosmos::USERPATH, 'config', 'tools', 'application.css')
+      setStyleSheet(File.read(app_style)) if File.exist? app_style
+
       @widgets = Widgets.new(self, mode)
       @window = process(filename)
       @@open_screens << self if @window
@@ -254,10 +262,15 @@ module Cosmos
           if keyword
             case keyword
             when 'SCREEN'
-              parser.verify_num_parameters(3, 3, "#{keyword} <Width or AUTO> <Height or AUTO> <Polling Period>")
+              parser.verify_num_parameters(3, 4, "#{keyword} <Width or AUTO> <Height or AUTO> <Polling Period> <FIXED>")
               @width = parameters[0].to_i
               @height = parameters[1].to_i
               @widgets.polling_period = parameters[2].to_f
+              if parameters.length == 4
+                @fixed = true
+              else
+                @fixed = false
+              end
 
               setWindowTitle(@full_name)
               top_widget = Qt::Widget.new()
@@ -328,6 +341,10 @@ module Cosmos
         resize(self.width, @height)
       elsif @width > 0 and height <= 0
         resize(@width, self.height)
+      end
+      if @fixed
+        setWindowFlags(windowFlags() | Qt::MSWindowsFixedSizeDialogHint)
+        setFixedSize(self.width, self.height)
       end
 
       if @x_pos or @y_pos
@@ -482,5 +499,4 @@ module Cosmos
     end
 
   end
-
-end # module Cosmos
+end

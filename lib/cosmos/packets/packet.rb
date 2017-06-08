@@ -43,7 +43,7 @@ module Cosmos
     # @return [String] Description of why the packet is hazardous
     attr_reader :hazardous_description
 
-    # Containst the values given by the user for a command (distinguished from defaults)
+    # Contains the values given by the user for a command (distinguished from defaults)
     # These values should be used within command conversions if present because the order
     # that values are written into the actual packet can vary
     # @return [Hash<Item Name, Value>] Given values when constructing the packet
@@ -556,7 +556,7 @@ module Cosmos
     # Restore all items in the packet to their default value
     #
     # @param buffer [String] Raw buffer of binary data
-    # @param skip_items_names [Array] Array of item names to skip
+    # @param skip_item_names [Array] Array of item names to skip
     def restore_defaults(buffer = @buffer, skip_item_names = nil)
       upcase_skip_item_names = skip_item_names.map(&:upcase) if skip_item_names
       @sorted_items.each do |item|

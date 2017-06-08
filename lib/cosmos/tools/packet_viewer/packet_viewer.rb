@@ -14,6 +14,7 @@ Cosmos.catch_fatal_exception do
   require 'cosmos/gui/qt_tool'
   require 'cosmos/gui/dialogs/tlm_details_dialog'
   require 'cosmos/gui/dialogs/tlm_edit_dialog'
+  require 'cosmos/gui/dialogs/tlm_graph_dialog'
   require 'cosmos/gui/dialogs/exception_dialog'
   require 'cosmos/gui/dialogs/splash'
   require 'cosmos/gui/widgets/full_text_search_line_edit'
@@ -82,6 +83,14 @@ module Cosmos
 
     def initialize_actions
       super()
+
+      @edit_action = Qt::Action.new(Cosmos.get_icon('edit.png'),
+                                    tr('&Edit Definition'),
+                                    self)
+      @edit_keyseq = Qt::KeySequence.new(tr('Ctrl+E'))
+      @edit_action.shortcut = @edit_keyseq
+      @edit_action.statusTip = tr('Open packet definition in a editor')
+      @edit_action.connect(SIGNAL('triggered()')) { edit_definition }
 
       @reset_action = Qt::Action.new(tr('&Reset'), self)
       @reset_keyseq = Qt::KeySequence.new(tr('Ctrl+R'))
@@ -168,6 +177,7 @@ module Cosmos
     def initialize_menus
       # File Menu
       file_menu = menuBar.addMenu(tr('&File'))
+      file_menu.addAction(@edit_action)
       file_menu.addAction(@reset_action)
       file_menu.addAction(@option_action)
       file_menu.addSeparator()
@@ -217,11 +227,8 @@ module Cosmos
       cmd_label.setBuddy(@packet_select)
 
       # Mnemonic Search Box
-      @search_layout = Qt::HBoxLayout.new
       @search_box = FullTextSearchLineEdit.new(self)
-      @search_box.setStyleSheet("padding-right: 20px;padding-left: 5px;background: url(#{File.join(Cosmos::PATH, 'data', 'search-14.png')});background-position: right;background-repeat: no-repeat;")
-      @search_layout.addWidget(@search_box)
-      top_layout.addLayout(@search_layout)
+      top_layout.addWidget(@search_box)
 
       # Layout the top level selection
       select_layout = Qt::HBoxLayout.new
@@ -256,6 +263,33 @@ module Cosmos
     def file_options
       @polling_rate = Qt::InputDialog.getDouble(self, tr("Options"), tr("Polling Rate (sec):"),
                                                 @polling_rate, 0, 1000, 1, nil)
+    end
+
+    def edit_definition
+      # Grab all the cmd_tlm_files and processes them in reverse sort order
+      # because typically we'll have cmd.txt and tlm.txt and we want to process
+      # tlm.txt first
+      found = false
+      System.targets[@target_select.text].cmd_tlm_files.sort.reverse.each do |filename|
+        # Skip partials which begin with an underscore
+        next if File.basename(filename)[0] == '_'
+        file = File.read(filename)
+        # Wild card the target name because it is not used and is often aliased
+        if file =~ /TELEMETRY\s+.*\s+#{@packet_select.text}/
+          Cosmos.open_in_text_editor(filename)
+          found = true
+          break
+        end
+      end
+      # A packet definition might not be found due to ERB templates or other
+      # strange things they're doing. Pop up a warning and make them go look.
+      if !found
+        target_name = System.targets[@target_select.text].original_name
+        Qt::MessageBox.warning(self, "Definition Not Found",
+                               "Could not find definition for #{@target_select.text} #{@packet_select.text}.\n"\
+                               "Perhaps some ERB code is preventing automatic detection.\n"\
+                               "You should manually explore the files in config/targets/#{target_name}/cmd_tlm.")
+      end
     end
 
     def update_all
@@ -334,16 +368,16 @@ module Cosmos
           derived = []
           System.telemetry.items(target_name, packet_name).each do |item|
             if item.data_type == :DERIVED
-              derived << [item.name, item.states, item.description]
+              derived << [item.name, item.states, item.description, true]
             else
-              tlm_items << [item.name, item.states, item.description]
+              tlm_items << [item.name, item.states, item.description, false]
               @derived_row += 1
             end
           end
           tlm_items.concat(derived) # Tack the derived onto the end
         else
           System.telemetry.items(target_name, packet_name).each do |item|
-            tlm_items << [item.name, item.states, item.description]
+            tlm_items << [item.name, item.states, item.description, item.data_type == :DERIVED]
           end
         end
       rescue
@@ -360,8 +394,9 @@ module Cosmos
       row = 0
       featured_item = nil
       @ignored_rows = []
-      tlm_items.each do |tlm_name, states, description|
+      tlm_items.each do |tlm_name, states, description, derived|
         @ignored_rows << row if System.targets[target_name].ignored_items.include?(tlm_name)
+        tlm_name = "*#{tlm_name}" if derived
         item = Qt::TableWidgetItem.new(tr("#{tlm_name}:"))
         item.setTextAlignment(Qt::AlignRight)
         item.setFlags(Qt::NoItemFlags | Qt::ItemIsSelectable)
@@ -395,7 +430,7 @@ module Cosmos
       @tlm_thread = Thread.new do
         begin
           while true
-            time = Time.now
+            time = Time.now.sys
             break if @shutdown_tlm_thread
 
             begin
@@ -474,7 +509,7 @@ module Cosmos
             # Delay for 1/10 of polling rate
             10.times do
               break if @shutdown_tlm_thread
-              sleep(@polling_rate.to_f / 10.0) if (Time.now - time < @polling_rate)
+              sleep(@polling_rate.to_f / 10.0) if (Time.now.sys - time < @polling_rate)
             end
           end
         rescue Exception => error
@@ -497,6 +532,7 @@ module Cosmos
       item = @table.itemAt(point)
       if item
         item_name = @table.item(item.row, 0).text[0..-2] # Remove :
+        item_name = item_name[1..-1] if item_name[0] == '*'
         if target_name.length > 0 and packet_name.length > 0 and item_name.length > 0
           menu = Qt::Menu.new()
 
@@ -517,13 +553,7 @@ module Cosmos
           graph_action = Qt::Action.new(tr("Graph #{target_name} #{packet_name} #{item_name}"), self)
           graph_action.statusTip = tr("Create a new COSMOS graph of #{target_name} #{packet_name} #{item_name}")
           graph_action.connect(SIGNAL('triggered()')) do
-            if Kernel.is_windows?
-              Cosmos.run_process("rubyw tools/TlmGrapher -i \"#{target_name} #{packet_name} #{item_name}\" --system #{File.basename(System.initial_filename)}")
-            elsif Kernel.is_mac? and File.exist?("tools/mac/TlmGrapher.app")
-              Cosmos.run_process("open tools/mac/TlmGrapher.app --args -i \"#{target_name} #{packet_name} #{item_name}\" --system #{File.basename(System.initial_filename)}")
-            else
-              Cosmos.run_process("ruby tools/TlmGrapher -i \"#{target_name} #{packet_name} #{item_name}\" --system #{File.basename(System.initial_filename)}")
-            end
+            TlmGraphDialog.new(self, target_name, packet_name, item_name)
           end
           menu.addAction(graph_action)
 

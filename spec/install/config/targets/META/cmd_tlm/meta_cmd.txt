@@ -1,4 +1,0 @@
-COMMAND META DATA BIG_ENDIAN "Metadata"
-  APPEND_PARAMETER VERSION 1024 STRING '' "Version Metadata"
-  APPEND_PARAMETER NUMBER 32 UINT 0 0 0 "Number Metadata"
-    WRITE_CONVERSION new_packet_log_conversion.rb

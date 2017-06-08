@@ -32,7 +32,7 @@ module Cosmos
       end
 
       it "complains about non String format_strings" do
-        expect { @pi.format_string = 5 }.to raise_error(ArgumentError, "#{@pi.name}: format_string must be a String but is a Fixnum")
+        expect { @pi.format_string = 5.1 }.to raise_error(ArgumentError, "#{@pi.name}: format_string must be a String but is a Float")
       end
 
       it "complains about badly formatted format_strings" do
@@ -130,7 +130,7 @@ module Cosmos
       end
 
       it "complains about description that aren't Strings" do
-        expect { @pi.description = 5}.to raise_error(ArgumentError, "#{@pi.name}: description must be a String but is a Fixnum")
+        expect { @pi.description = 5.1}.to raise_error(ArgumentError, "#{@pi.name}: description must be a String but is a Float")
       end
     end
 
@@ -147,7 +147,7 @@ module Cosmos
       end
 
       it "complains about units_full that aren't Strings" do
-        expect { @pi.units_full = 5}.to raise_error(ArgumentError, "#{@pi.name}: units_full must be a String but is a Fixnum")
+        expect { @pi.units_full = 5.1}.to raise_error(ArgumentError, "#{@pi.name}: units_full must be a String but is a Float")
       end
     end
 
@@ -164,7 +164,7 @@ module Cosmos
       end
 
       it "complains about units that aren't Strings" do
-        expect { @pi.units = 5}.to raise_error(ArgumentError, "#{@pi.name}: units must be a String but is a Fixnum")
+        expect { @pi.units = 5.1}.to raise_error(ArgumentError, "#{@pi.name}: units must be a String but is a Float")
       end
     end
 
@@ -193,8 +193,8 @@ module Cosmos
     describe "check_default_and_range_data_types" do
       it "complains about default not matching data_type" do
         pi = PacketItem.new("test", 0, 8, :UINT, :BIG_ENDIAN, 16)
-        pi.default = 1
-        expect { pi.check_default_and_range_data_types }.to raise_error(ArgumentError, "TEST: default must be an Array but is a Fixnum")
+        pi.default = 1.1
+        expect { pi.check_default_and_range_data_types }.to raise_error(ArgumentError, "TEST: default must be an Array but is a Float")
         pi = PacketItem.new("test", 0, 8, :UINT, :BIG_ENDIAN, 16)
         pi.default = []
         expect { pi.check_default_and_range_data_types }.to_not raise_error
@@ -214,8 +214,8 @@ module Cosmos
         pi.default = 5.5
         expect { pi.check_default_and_range_data_types  }.to_not raise_error
         pi = PacketItem.new("test", 0, 32, :STRING, :BIG_ENDIAN, nil)
-        pi.default = 5
-        expect { pi.check_default_and_range_data_types }.to raise_error(ArgumentError, "TEST: default must be a String but is a Fixnum")
+        pi.default = 5.1
+        expect { pi.check_default_and_range_data_types }.to raise_error(ArgumentError, "TEST: default must be a String but is a Float")
         pi = PacketItem.new("test", 0, 32, :STRING, :BIG_ENDIAN, nil)
         pi.default = ''
         expect { pi.check_default_and_range_data_types }.to_not raise_error
@@ -258,7 +258,7 @@ module Cosmos
       end
 
       it "complains about ranges that aren't Ranges" do
-        expect { @pi.range = 5}.to raise_error(ArgumentError, "#{@pi.name}: range must be a Range but is a Fixnum")
+        expect { @pi.range = 5.1}.to raise_error(ArgumentError, "#{@pi.name}: range must be a Range but is a Float")
       end
     end
 

@@ -34,6 +34,10 @@ module Cosmos
       def clear(display_name)
         TlmViewer.instance.clear(display_name)
       end
+
+      def clear_all(target = nil)
+        TlmViewer.instance.clear_all(target)
+      end
     end
   end
 end
@@ -93,18 +97,11 @@ module Cosmos
       setMinimumWidth(300)
       @@instance = self
 
-      # Get Params from Config File
-      if options.config_file
-        filename = File.join(::Cosmos::USERPATH, 'config', 'tools', 'tlm_viewer', options.config_file)
-      else
-        filename = File.join(::Cosmos::USERPATH, 'config', 'tools', 'tlm_viewer', 'tlm_viewer.txt')
-      end
-
       Splash.execute(self, true) do |splash|
         ConfigParser.splash = splash
         splash.message = "Starting TlmViewer"
         System.telemetry
-        @tlm_viewer_config = self.class.load_config(filename)
+        @tlm_viewer_config = self.class.load_config(options.config_file)
         ConfigParser.splash = nil
       end
 
@@ -132,7 +129,8 @@ module Cosmos
           @json_drb.acl = acl
           whitelist = [
             'display',
-            'clear']
+            'clear',
+            'clear_all']
           @json_drb.method_whitelist = whitelist
           begin
             @json_drb.start_service "localhost", port, self
@@ -201,70 +199,76 @@ module Cosmos
     end
 
     def initialize_central_widget(options)
-      # Create the central widget
-      @central_widget = Qt::Widget.new
-      setCentralWidget(@central_widget)
-      @top_layout = Qt::VBoxLayout.new
+      central_widget = Qt::Widget.new
+      setCentralWidget(central_widget)
+      top_layout = Qt::VBoxLayout.new
 
-      # Create Search box
-      @search_layout = Qt::HBoxLayout.new
       @search_box = FullTextSearchLineEdit.new(self)
-      @search_box.setStyleSheet("padding-right: 20px;padding-left: 5px;background: url(#{File.join(Cosmos::PATH, 'data', 'search-14.png')});background-position: right;background-repeat: no-repeat;")
-      @search_layout.addWidget(@search_box)
-      @top_layout.addLayout(@search_layout)
+      top_layout.addWidget(@search_box)
 
       # Create Screen Drop Down Lists
-      @selection_pane = Qt::HBoxLayout.new
-      @top_layout.addLayout(@selection_pane)
-      @column_widgets = []
-      @tlm_viewer_config.columns.each_with_index do |target_screen_infos, column_index|
-        @column_widgets[column_index] = {}
-        if column_index != 0
-          # Separator before editor
-          @column_widgets[column_index][:sep1] = Qt::Frame.new(@central_widget)
-          @column_widgets[column_index][:sep1].setFrameStyle(Qt::Frame::VLine | Qt::Frame::Sunken)
-          @selection_pane.addWidget(@column_widgets[column_index][:sep1])
+      selection_pane = Qt::HBoxLayout.new
+      top_layout.addLayout(selection_pane)
+
+      column_widgets = []
+      @tlm_viewer_config.columns.each_with_index do |target_screen_infos, col|
+        if col != 0 # Don't add separator for the first column
+          separator = Qt::Frame.new(central_widget)
+          separator.setFrameStyle(Qt::Frame::VLine | Qt::Frame::Sunken)
+          selection_pane.addWidget(separator)
         end
-        @column_widgets[column_index][:grid] = Qt::GridLayout.new
-        @selection_pane.addLayout(@column_widgets[column_index][:grid])
+        grid = Qt::GridLayout.new
+        selection_pane.addLayout(grid)
         row = 0
-        @column_widgets[column_index][:rows] = []
         target_screen_infos.each do |target_name, screen_infos|
-          @column_widgets[column_index][:rows][row] = {}
+          grid.addWidget(Qt::Label.new("#{target_name}:"), row, 0)
 
-          # Create Label for Category
-          @column_widgets[column_index][:rows][row][:label] = Qt::Label.new("#{target_name}:")
-          @column_widgets[column_index][:grid].addWidget(@column_widgets[column_index][:rows][row][:label], row, 0)
-
-          # Create Drop Down Menu for Category
-          @column_widgets[column_index][:rows][row][:screen_select] = Qt::ComboBox.new
-          @variants = []
+          # Create drop down of screens for this target
+          combo = Qt::ComboBox.new
           screen_infos.each do |screen_name, screen_info|
-            @variants <<  Qt::Variant.new(screen_info.full_name)
-            @column_widgets[column_index][:rows][row][:screen_select].addItem(screen_info.name, @variants[-1])
+            # Store both the screen name (for display) and the screen filename
+            # (for the edit button) in a variant we can access in button handlers
+            combo.addItem(screen_info.name,
+                          Qt::Variant.new("#{screen_info.full_name};#{screen_info.filename}"))
           end
           if screen_infos.length >= 20
-            @column_widgets[column_index][:rows][row][:screen_select].setMaxVisibleItems(20)
+            combo.setMaxVisibleItems(20)
           else
-            @column_widgets[column_index][:rows][row][:screen_select].setMaxVisibleItems(screen_infos.length)
+            combo.setMaxVisibleItems(screen_infos.length)
           end
-          my_row = row
-          handler = lambda do
-            screen_full_name = @column_widgets[column_index][:rows][my_row][:screen_select].itemData(@column_widgets[column_index][:rows][my_row][:screen_select].currentIndex)
-            display(screen_full_name.value)
-          end
-          @column_widgets[column_index][:rows][row][:screen_select].connect(SIGNAL('activated(int)')) { handler.call }
-          @column_widgets[column_index][:grid].addWidget(@column_widgets[column_index][:rows][row][:screen_select], row, 1)
 
-          @column_widgets[column_index][:rows][row][:show_screen] = Qt::PushButton.new("Show Screen")
-          @column_widgets[column_index][:rows][row][:show_screen].connect(SIGNAL('clicked(bool)')) { handler.call }
-          @column_widgets[column_index][:grid].addWidget(@column_widgets[column_index][:rows][row][:show_screen], row, 2)
+          # Create an anonymous method to display the screen which we can
+          # attach to both the combobox activated signal and the button press
+          display_handler = lambda do
+            # Access the variant we created for this screen name
+            string = combo.itemData(combo.currentIndex)
+            # The first part of the variant before the semicolon is the screen name
+            display(string.value.split(';')[0])
+          end
+          combo.connect(SIGNAL('activated(int)')) { display_handler.call }
+          grid.addWidget(combo, row, 1)
+
+          show_button =  Qt::PushButton.new("Show Screen")
+          show_button.connect(SIGNAL('clicked(bool)')) { display_handler.call }
+          grid.addWidget(show_button, row, 2)
+
+          unless options.production
+            edit_button = Qt::PushButton.new(Cosmos.get_icon('edit.png'), '')
+            edit_button.setFixedSize(24, 24)
+            edit_button.connect(SIGNAL('clicked(bool)')) do
+              # Access the variant we created for this screen name
+              string = combo.itemData(combo.currentIndex)
+              # The second part of the variant after the semicolon is the screen filename
+              Cosmos.open_in_text_editor(string.value.split(';')[1])
+            end
+            grid.addWidget(edit_button, row, 3)
+          end
 
           row += 1
         end
       end
 
-      @central_widget.setLayout(@top_layout)
+      central_widget.setLayout(top_layout)
     end
 
     # Handles saving the current configuration to a file
@@ -290,7 +294,7 @@ module Cosmos
         filename << '.txt' if File.extname(filename).empty?
         @tlm_viewer_config.save(filename)
       end
-    end # def on_file_save_config
+    end
 
     def generate_target(target_name)
       target = System.targets[target_name]
@@ -379,7 +383,7 @@ module Cosmos
             output_filename = File.join(System.paths['LOGS'],
                                         File.build_timestamped_filename(['screen','audit'], '.txt'))
             File.open(output_filename, 'w') do |file|
-              file.puts "Telemetry Viewer audit created on #{Time.now.formatted}.\n"
+              file.puts "Telemetry Viewer audit created on #{Time.now.sys.formatted}.\n"
               if all_telemetry.empty?
                 msg = "\nAll telemetry points accounted for in screens."
                 progress.append_text(msg)
@@ -483,10 +487,23 @@ module Cosmos
 
     # Close the specified screen
     def clear(screen_full_name)
-      # Find the specified screen
-      screen_info = find_screen_info(screen_full_name)
+      close_screen(find_screen_info(screen_full_name))
+    end
 
-      # Close the screen
+    # Close all screens
+    def clear_all(target_name = nil)
+      if target_name
+        screens = @tlm_viewer_config.screen_infos.values.select do |screen_info|
+          screen_info.target_name == target_name.upcase
+        end
+        raise "Unknown screen target: #{target_name.upcase}" if screens.length == 0
+        screens.each { |screen_info| close_screen(screen_info) }
+      else
+        Qt.execute_in_main_thread(true) { Screen.close_all_screens(self) }
+      end
+    end
+
+    def close_screen(screen_info)
       Qt.execute_in_main_thread(true) do
         begin
           screen_info.screen.window.close if screen_info.screen
@@ -505,6 +522,7 @@ module Cosmos
           options.listen = true
           options.config_file = nil
           options.restore_size = false
+          options.production = false
 
           option_parser.separator "Telemetry Viewer Specific Options:"
           option_parser.on("-c", "--config FILE", "Use the specified config file") { |arg| options.config_file = arg }
@@ -512,6 +530,9 @@ module Cosmos
           option_parser.on("-n", "--nolisten", "Don't listen for requests") do
             options.listen = false
             options.title << ' : Not Listening'
+          end
+          option_parser.on("-p", "--production", "Run TlmServer in production mode which disables the edit buttons.") do |arg|
+            options.production = true
           end
           option_parser.parse!(ARGV)
         end

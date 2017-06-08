@@ -53,6 +53,10 @@ module Cosmos
     #   read from the interface
     attr_accessor :routers
 
+    # @return [Array<Routers>] Array of cmd routers that mirror packets
+    #   sent from the interface
+    attr_accessor :cmd_routers
+
     # @return [Integer] The number of packets read from this interface
     attr_accessor :read_count
 
@@ -96,6 +100,7 @@ module Cosmos
       @packet_log_writer_pairs = []
       @raw_logger_pair = RawLoggerPair.new(@name)
       @routers = []
+      @cmd_routers = []
       @read_count = 0
       @write_count = 0
       @bytes_read = 0
@@ -193,6 +198,7 @@ module Cosmos
       other_interface.disable_disconnect = self.disable_disconnect
       other_interface.packet_log_writer_pairs = self.packet_log_writer_pairs.clone
       other_interface.routers = self.routers.clone
+      other_interface.cmd_routers = self.cmd_routers.clone
       other_interface.read_count = self.read_count
       other_interface.write_count = self.write_count
       other_interface.bytes_read = self.bytes_read

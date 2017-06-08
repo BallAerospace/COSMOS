@@ -148,6 +148,16 @@ module Cosmos
         packet.set_received_time_fast(received_time)
       end
 
+      # Auto change configuration on SYSTEM META
+      if packet.target_name == 'SYSTEM'.freeze and packet.packet_name == 'META'.freeze
+        # Manually read the configuration from the buffer because the packet might not be identified if
+        # identify_and_define is false
+        buffer = packet.buffer(false)
+        if buffer.length >= 33
+          System.load_configuration(BinaryAccessor.read(8, 256, :STRING, buffer, :BIG_ENDIAN))
+        end
+      end
+
       packet.received_count += 1
       packet
     rescue => err
@@ -299,7 +309,7 @@ module Cosmos
       time_microseconds = @file.read(4)
       return [nil, nil, nil, nil] if time_microseconds.nil? or time_microseconds.length != 4
       time_microseconds = time_microseconds.unpack('N')[0]
-      received_time = Time.at(time_seconds, time_microseconds)
+      received_time = Time.at(time_seconds, time_microseconds).sys
 
       # Read Target Name
       target_name = @file.read_length_bytes(1)

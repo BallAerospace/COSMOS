@@ -13,15 +13,23 @@
 
 require 'cosmos'
 require 'cosmos/gui/dialogs/details_dialog'
+require 'cosmos/packets/packet'
 
 module Cosmos
-
+  # Creates a dialog which shows the details of the given telemetry item.
   class TlmDetailsDialog < DetailsDialog
     slots 'value_update_timeout()'
 
+    # Period for the update thread which updates the dialog values
     VALUE_UPDATE_PERIOD_MS = 1000
-    VALUE_TYPES = [:RAW, :CONVERTED, :FORMATTED, :WITH_UNITS]
 
+    # @param parent (see DetailsDialog#initialize)
+    # @param target_name (see DetailsDialog#initialize)
+    # @param packet_name (see DetailsDialog#initialize)
+    # @param item_name (see DetailsDialog#initialize)
+    # @param packet [Packet] If a Packet is given the dialog will read the
+    #   value from the given packet and will not update. If the packet
+    #   parameters is nil the value will be read continously from the System.
     def initialize(parent, target_name, packet_name, item_name, packet = nil)
       super(parent, target_name, packet_name, item_name)
 
@@ -116,14 +124,12 @@ module Cosmos
     end
 
     def value_update_timeout
-      begin
-        # Gather updated values
-        values, limits_states, limits_settings, limits_set = get_tlm_values(@item_array, VALUE_TYPES)
-        update_limits_details(limits_settings, limits_set)
-        update_text_fields(values, limits_states[0])
-      rescue DRb::DRbConnError
-        # Just do nothing
-      end
+      # Gather updated values
+      values, limits_states, limits_settings, limits_set = get_tlm_values(@item_array, Packet::VALUE_TYPES)
+      update_limits_details(limits_settings, limits_set)
+      update_text_fields(values, limits_states[0])
+    rescue DRb::DRbConnError
+      # Just do nothing
     end
 
     protected
@@ -143,44 +149,35 @@ module Cosmos
     end
 
     def update_limits_details(limits_settings, limits_set)
-      if limits_settings[0]
-        label_text = "RL/#{limits_settings[0][0]} YL/#{limits_settings[0][1]} YH/#{limits_settings[0][2]} RH/#{limits_settings[0][3]}"
-        if limits_settings[0][4] and limits_settings[0][5]
-          label_text << " GL/#{limits_settings[0][4]} GH/#{limits_settings[0][5]}"
-        end
-        if @limits_labels[limits_set]
-          @limits_labels[limits_set].text = label_text
-        elsif @limits_layout
-          label = Qt::Label.new(label_text)
-          @limits_labels[limits_set] = label
-          @limits_layout.addRow(tr("#{limits_set}:"), label)
-        end
+      return unless limits_settings[0]
+      label_text = "RL/#{limits_settings[0][0]} YL/#{limits_settings[0][1]} YH/#{limits_settings[0][2]} RH/#{limits_settings[0][3]}"
+      if limits_settings[0][4] && limits_settings[0][5]
+        label_text << " GL/#{limits_settings[0][4]} GH/#{limits_settings[0][5]}"
+      end
+      if @limits_labels[limits_set]
+        @limits_labels[limits_set].text = label_text
+      elsif @limits_layout
+        label = Qt::Label.new(label_text)
+        @limits_labels[limits_set] = label
+        @limits_layout.addRow(tr("#{limits_set}:"), label)
       end
     end
 
     def determine_limits_color(limit_state)
-      color = nil
       case limit_state
-      when :RED, :RED_HIGH
-        color = Cosmos::RED
-      when :RED_LOW
-        color = Cosmos::RED
-      when :YELLOW, :YELLOW_HIGH
-        color = Cosmos::YELLOW
-      when :YELLOW_LOW
-        color = Cosmos::YELLOW
-      when :GREEN, :GREEN_HIGH
-        color = Cosmos::GREEN
-      when :GREEN_LOW
-        color = Cosmos::GREEN
+      when :RED, :RED_HIGH, :RED_LOW
+        Cosmos::RED
+      when :YELLOW, :YELLOW_HIGH, :YELLOW_LOW
+        Cosmos::YELLOW
+      when :GREEN, :GREEN_HIGH, :GREEN_LOW
+        Cosmos::GREEN
       when :BLUE
-        color = Cosmos::BLUE
+        Cosmos::BLUE
       when :STALE
-        color = Cosmos::PURPLE
+        Cosmos::PURPLE
       else
-        color = Cosmos::BLACK
+        Cosmos::BLACK
       end
-      color
     end
 
     def update_text_fields(values, limits_state)
@@ -200,7 +197,5 @@ module Cosmos
       @limits_state.setColors(color, Cosmos::WHITE)
       @limits_state.text = limits_state.to_s
     end
-
-  end # class TlmDetailsDialog
-
-end # module Cosmos
+  end
+end

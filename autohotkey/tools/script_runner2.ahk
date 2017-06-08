@@ -1,4 +1,4 @@
-SetWinDelay 500
+SetWinDelay 1000
 WinWaitActive Script Runner
 Sleep 1000
 
@@ -48,4 +48,3 @@ WinWaitActive Script Runner
 Sleep 2000
 Send ^q ; File Quit
 Sleep 500
-

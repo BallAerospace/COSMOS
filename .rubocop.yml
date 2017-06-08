@@ -1,0 +1,23 @@
+# Base our rules on Rails
+inherit_from:
+  - https://raw.githubusercontent.com/rails/rails/master/.rubocop.yml
+Style/StringLiterals:
+  Enabled: false # Don't care about single vs double quoted strings
+Style/SpaceInsideBlockBraces:
+  Enabled: false # We have a lot of {|block| block } vs this { |block| block }
+Style/IndentationConsistency:
+  Enabled: true
+  EnforcedStyle: normal # Rails uses the 'rails' style
+
+# Our code has a lot of instances of the following:
+Style/EmptyLinesAroundModuleBody:
+  Enabled: false
+Style/EmptyLinesAroundClassBody:
+  Enabled: false
+Style/AndOr:
+  Enabled: false
+Style/SpaceAfterComma:
+  Enabled: false
+Style/HashSyntax:
+  Enabled: false
+

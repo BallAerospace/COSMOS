@@ -43,7 +43,7 @@ module Cosmos
     describe "instance" do
       it "creates default ports" do
         # Don't check the actual port numbers but just that they exist
-        expect(System.ports.keys).to eql %w(CTS_API TLMVIEWER_API CTS_PREIDENTIFIED)
+        expect(System.ports.keys).to eql %w(CTS_API TLMVIEWER_API CTS_PREIDENTIFIED CTS_CMD_ROUTER)
       end
 
       it "creates default paths" do
@@ -53,8 +53,8 @@ module Cosmos
     end
 
     describe "System.commands" do
-      it "is empty" do
-        expect(System.commands.target_names).to eql []
+      it "is just SYSTEM" do
+        expect(System.commands.target_names).to eql ['SYSTEM']
       end
 
       it "logs errors saving the configuration" do
@@ -63,15 +63,15 @@ module Cosmos
 
         capture_io do |stdout|
           allow(FileUtils).to receive(:mkdir_p) { raise "Error" }
-          expect(System.commands.target_names).to eql []
+          expect(System.commands.target_names).to eql ['SYSTEM']
           expect(stdout.string).to match "Problem saving configuration"
         end
       end
     end
 
     describe "System.telemetry" do
-      it "is empty" do
-        expect(System.telemetry.target_names).to eql []
+      it "is just SYSTEM" do
+        expect(System.telemetry.target_names).to eql ['SYSTEM']
       end
     end
 
@@ -119,8 +119,8 @@ module Cosmos
         it "calculates MD5s across all the target files" do
           capture_io do |stdout|
             # This line actually does the work of reading the configuration
-            expect(System.telemetry.target_names).to eql ['COSMOS','INST','META']
-            expect(System.commands.target_names).to eql ['COSMOS','INST','META']
+            expect(System.telemetry.target_names).to eql ['INST', 'SYSTEM']
+            expect(System.commands.target_names).to eql ['INST', 'SYSTEM']
 
             expect(stdout.string).to match "Marshal file does not exist"
 
@@ -129,8 +129,8 @@ module Cosmos
             # Reset the instance variable so it will read the new configuration
             System.class_eval('@@instance = nil')
             # This line actually does the work of reading the configuration
-            expect(System.telemetry.target_names).to eql ['COSMOS','INST','META']
-            expect(System.commands.target_names).to eql ['COSMOS','INST','META']
+            expect(System.telemetry.target_names).to eql ['INST', 'SYSTEM']
+            expect(System.commands.target_names).to eql ['INST', 'SYSTEM']
 
             expect(stdout.string).to match "Marshal load success"
           end
@@ -149,53 +149,53 @@ module Cosmos
 
       describe "load_configuration" do
         after(:all) do
-          File.delete(File.join(@config_targets,'COSMOS','cmd_tlm','test1_tlm.txt'))
-          File.delete(File.join(@config_targets,'COSMOS','cmd_tlm','test2_tlm.txt'))
+          File.delete(File.join(@config_targets,'SYSTEM','cmd_tlm','test1_tlm.txt'))
+          File.delete(File.join(@config_targets,'SYSTEM','cmd_tlm','test2_tlm.txt'))
         end
 
         it "loads the initial configuration" do
           System.load_configuration
-          expect(System.commands.target_names).to eql ['COSMOS','INST','META']
-          expect(System.telemetry.target_names).to eql ['COSMOS','INST','META']
+          expect(System.commands.target_names).to eql ['INST', 'SYSTEM']
+          expect(System.telemetry.target_names).to eql ['INST', 'SYSTEM']
         end
 
         it "loads a named configuration" do
           File.open(@config_file,'w') do |file|
-            file.puts "DECLARE_TARGET COSMOS"
-            file.puts "DECLARE_TARGET COSMOS OVERRIDE"
+            file.puts "DECLARE_TARGET INST OVERRIDE"
+            file.puts "DECLARE_TARGET SYSTEM"
           end
 
           # Load the original configuration
           original_config_name, err = System.load_configuration
           expect(err).to eql nil
-          expect(System.telemetry.target_names).to eql %w(COSMOS OVERRIDE)
-          original_pkts = System.telemetry.packets('COSMOS').keys
+          expect(System.telemetry.target_names).to eql %w(OVERRIDE SYSTEM)
+          original_pkts = System.telemetry.packets('SYSTEM').keys
 
           # Create a new configuration by writing another telemetry file
-          File.open(File.join(@config_targets,'COSMOS','cmd_tlm','test1_tlm.txt'),'w') do |file|
-            file.puts "TELEMETRY COSMOS TEST1 BIG_ENDIAN"
+          File.open(File.join(@config_targets,'SYSTEM','cmd_tlm','test1_tlm.txt'),'w') do |file|
+            file.puts "TELEMETRY SYSTEM TEST1 BIG_ENDIAN"
             file.puts "  APPEND_ITEM DATA 240 STRING"
           end
           System.instance.process_file(@config_file)
           # Verify the new telemetry packet is there
-          expect(System.telemetry.packets('COSMOS').keys).to include "TEST1"
+          expect(System.telemetry.packets('SYSTEM').keys).to include "TEST1"
           second_config_name = System.configuration_name
 
           # Now load the original configuration
           name, err = System.load_configuration(original_config_name)
           expect(err).to eql nil
           expect(original_config_name).to eql name
-          expect(System.telemetry.packets('COSMOS').keys).not_to include "TEST1"
+          expect(System.telemetry.packets('SYSTEM').keys).not_to include "TEST1"
 
           # Create yet another configuration by writing another telemetry file
-          File.open(File.join(@config_targets,'COSMOS','cmd_tlm','test2_tlm.txt'),'w') do |file|
-            file.puts "TELEMETRY COSMOS TEST2 BIG_ENDIAN"
+          File.open(File.join(@config_targets,'SYSTEM','cmd_tlm','test2_tlm.txt'),'w') do |file|
+            file.puts "TELEMETRY SYSTEM TEST2 BIG_ENDIAN"
             file.puts "  APPEND_ITEM DATA 240 STRING"
           end
           System.instance.process_file(@config_file)
           names = []
           # Verify the new telemetry packet is there as well as the second one
-          expect(System.telemetry.packets('COSMOS').keys).to include("TEST1", "TEST2")
+          expect(System.telemetry.packets('SYSTEM').keys).to include("TEST1", "TEST2")
           third_config_name = System.configuration_name
 
           # Try loading something that doesn't exist
@@ -207,8 +207,8 @@ module Cosmos
           # Now load the second configuration. It shouldn't have the most
           # recently defined telemetry packet.
           System.load_configuration(second_config_name)
-          expect(System.telemetry.packets('COSMOS').keys).to include "TEST1"
-          expect(System.telemetry.packets('COSMOS').keys).not_to include "TEST2"
+          expect(System.telemetry.packets('SYSTEM').keys).to include "TEST1"
+          expect(System.telemetry.packets('SYSTEM').keys).not_to include "TEST2"
 
           # Now remove system.txt from the third configuration and try to load it again to cause an error
           third_config_path = System.instance.send(:find_configuration, third_config_name)
@@ -442,7 +442,7 @@ module Cosmos
       end
 
       context "with DEFAULT_PACKET_LOG_WRITER" do
-        it "takes 1 parameters" do
+        it "takes 1 or more parameters" do
           tf = Tempfile.new('unittest')
           tf.puts("DEFAULT_PACKET_LOG_WRITER")
           tf.close
@@ -450,9 +450,11 @@ module Cosmos
           tf.unlink
 
           tf = Tempfile.new('unittest')
-          tf.puts("DEFAULT_PACKET_LOG_WRITER my_nonexistent_class TRUE")
+          tf.puts("DEFAULT_PACKET_LOG_WRITER packet_log_writer.rb nil false")
           tf.close
-          expect { System.instance.process_file(tf.path) }.to raise_error(ConfigParser::Error, /Too many parameters for DEFAULT_PACKET_LOG_WRITER./)
+          System.instance.process_file(tf.path)
+          expect(System.default_packet_log_writer).to eql PacketLogWriter
+          expect(System.default_packet_log_writer_params).to eql ["nil", "false"]
           tf.unlink
         end
 
@@ -481,7 +483,7 @@ module Cosmos
       end
 
       context "with DEFAULT_PACKET_LOG_READER" do
-        it "takes 1 parameters" do
+        it "takes 1 or more parameters" do
           tf = Tempfile.new('unittest')
           tf.puts("DEFAULT_PACKET_LOG_READER")
           tf.close
@@ -489,9 +491,11 @@ module Cosmos
           tf.unlink
 
           tf = Tempfile.new('unittest')
-          tf.puts("DEFAULT_PACKET_LOG_READER my_nonexistent_class TRUE")
+          tf.puts("DEFAULT_PACKET_LOG_READER packet_log_reader.rb nil false")
           tf.close
-          expect { System.instance.process_file(tf.path) }.to raise_error(ConfigParser::Error, /Too many parameters for DEFAULT_PACKET_LOG_READER./)
+          System.instance.process_file(tf.path)
+          expect(System.default_packet_log_reader).to eql PacketLogReader
+          expect(System.default_packet_log_reader_params).to eql ["nil", "false"]
           tf.unlink
         end
 
@@ -631,32 +635,6 @@ module Cosmos
           expect(System.staleness_seconds).to eql 30
           System.instance.process_file(tf.path)
           expect(System.staleness_seconds).to eql 3
-          tf.unlink
-        end
-      end
-
-      context "with CMD_TLM_VERSION" do
-        it "takes 1 parameters" do
-          tf = Tempfile.new('unittest')
-          tf.puts("CMD_TLM_VERSION")
-          tf.close
-          expect { System.instance.process_file(tf.path) }.to raise_error(ConfigParser::Error, /Not enough parameters for CMD_TLM_VERSION./)
-          tf.unlink
-
-          tf = Tempfile.new('unittest')
-          tf.puts("CMD_TLM_VERSION 1 2")
-          tf.close
-          expect { System.instance.process_file(tf.path) }.to raise_error(ConfigParser::Error, /Too many parameters for CMD_TLM_VERSION./)
-          tf.unlink
-        end
-
-        it "sets the command and telemetry version" do
-          tf = Tempfile.new('unittest')
-          tf.puts("CMD_TLM_VERSION 2.1")
-          tf.close
-          expect(System.cmd_tlm_version).to be_nil
-          System.instance.process_file(tf.path)
-          expect(System.cmd_tlm_version).to eql "2.1"
           tf.unlink
         end
       end

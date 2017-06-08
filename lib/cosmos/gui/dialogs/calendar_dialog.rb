@@ -14,17 +14,16 @@
 require 'cosmos'
 
 module Cosmos
-
-  # CalendarDialog class
-  #
+  # Creates a dialog with a date and optional time selection
   class CalendarDialog < Qt::Dialog
-
-    # The selected time
+    # @return [Time] User entered time
     attr_reader :time
 
-    # Constructor
-    def initialize (parent, title, initial_time = nil, show_time = true)
-      # Call base class constructor
+    # @param parent [Qt::Widget] Parent of this dialog
+    # @param title [String] Dialog title
+    # @param initial_time [Time] Initial time to display
+    # @param show_time [Boolean] Whether to display the time selection
+    def initialize(parent, title, initial_time = nil, show_time = true)
       super(parent)
       setWindowTitle(title)
 
@@ -33,8 +32,12 @@ module Cosmos
       if initial_time
         @time = initial_time
       else
-        time_now = Time.now
-        @time = Time.local(time_now.year, time_now.mon, time_now.day)
+        time_now = Time.now.sys
+        if time_now.utc?
+          @time = Time.utc(time_now.year, time_now.mon, time_now.day)
+        else
+          @time = Time.local(time_now.year, time_now.mon, time_now.day)
+        end
       end
       @show_time = show_time
 
@@ -55,7 +58,11 @@ module Cosmos
 
       if @show_time
         @time_layout = Qt::HBoxLayout.new
-        @time_label = Qt::Label.new('Time:')
+        if @time.utc?
+          @time_label = Qt::Label.new("Time (UTC):")
+        else
+          @time_label = Qt::Label.new("Time (UTC #{@time.strftime('%z')}):")
+        end
         @time_layout.addWidget(@time_label)
         @time_layout.addStretch
         @hour = Qt::LineEdit.new(sprintf("%02u", @time.hour))
@@ -90,13 +97,12 @@ module Cosmos
       @layout.addLayout(@button_layout)
 
       setLayout(@layout)
-    end # def initialize
+    end
 
     protected
 
     # Handler for the OK button being pressed - builds the time object
     def handle_ok_button
-      # Get calendar selected day
       @date = @calendar.selectedDate
 
       # Reduce @time to time at midnight of day
@@ -130,7 +136,5 @@ module Cosmos
       @date = @calendar.selectedDate
       @year_month_day.setText(sprintf("%04u/%02u/%02u", @date.year, @date.month, @date.day))
     end
-
-  end # class CalendarDialog
-
-end # module Cosmos
+  end
+end

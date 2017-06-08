@@ -5,9 +5,7 @@ if (ErrorLevel == 0) ; if we did not time out waiting
 {
   Send {Enter}{Esc} ; Close the window
 }
-WinWaitActive Error
 Sleep 1000
-Send {Tab}{Enter}
+Send {Esc}
 Sleep 1000
 Send ^q
-

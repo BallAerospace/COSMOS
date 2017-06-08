@@ -45,7 +45,7 @@ module Cosmos
       @tlm_log_system = nil
       @subscription_thread = nil
       @subscription_id = nil
-      @packet_log_reader = System.default_packet_log_reader.new
+      @packet_log_reader = System.default_packet_log_reader.new(*System.default_packet_log_reader_params)
       @time_start = nil
       @time_end = nil
       @log_filenames = []
@@ -57,7 +57,7 @@ module Cosmos
       @components = []
       @packets = []
       @packet_to_components_mapping = {}
-      @config_filename = File.join(Cosmos::USERPATH, 'config', 'tools', 'data_viewer', options.config_file)
+      @config_filename = options.config_file
       process_config()
 
       # Load System Definition and Event Data
@@ -253,7 +253,7 @@ module Cosmos
                   else
                     Qt.execute_in_main_thread(true) { @realtime_button_bar.state = 'Running' }
                   end
-                  Qt.execute_in_main_thread(true) { statusBar.showMessage("Connected to Command and Telemetry Server: #{Time.now.formatted}") }
+                  Qt.execute_in_main_thread(true) { statusBar.showMessage("Connected to Command and Telemetry Server: #{Time.now.sys.formatted}") }
                 rescue DRb::DRbConnError
                   break if @cancel_thread
                   Qt.execute_in_main_thread(true) do
@@ -294,7 +294,7 @@ module Cosmos
                   rescue RuntimeError => error
                     raise error unless error.message =~ /queue/
                     break if @cancel_thread
-                    Qt.execute_in_main_thread(true) { statusBar.showMessage(tr("Connection Dropped by Command and Telemetry Server: #{Time.now.formatted}")) }
+                    Qt.execute_in_main_thread(true) { statusBar.showMessage(tr("Connection Dropped by Command and Telemetry Server: #{Time.now.sys.formatted}")) }
                     break # Let outer loop resubscribe
                   end
                 end
@@ -389,7 +389,10 @@ module Cosmos
 
     def handle_open_log_file
       # Prompt user for filename
-      packet_log_dialog = PacketLogDialog.new(self, 'Open Log File(s):', @log_file_directory, @packet_log_reader, [], nil, false, true, true, Cosmos::TLM_FILE_PATTERN)
+      packet_log_dialog = PacketLogDialog.new(
+        self, 'Open Log File(s):', @log_file_directory, @packet_log_reader,
+        [], nil, false, true, true, Cosmos::TLM_FILE_PATTERN
+      )
       begin
         packet_log_dialog.time_start = @time_start
         packet_log_dialog.time_end = @time_end
@@ -402,11 +405,8 @@ module Cosmos
           @log_file_directory = File.dirname(@log_filenames[0])
           @log_file_directory << '/' unless @log_file_directory[-1..-1] == '\\'
 
-          # Stop realtime collection
-          handle_stop()
-
-          # Reset components
-          handle_reset()
+          handle_stop()  # Stop realtime collection
+          handle_reset() # Reset since we're processing a new log file
 
           @cancel_progress = false
           ProgressDialog.execute(self, 'Processing Log File', 500, 200, @log_filenames.length > 1, true, true, true, true) do |dialog|
@@ -475,24 +475,15 @@ module Cosmos
     end
 
     def closeEvent(event)
-      # Stop GUI update timeout
-      @pause = true
-
-      # Stop Processing Packets
-      handle_stop()
+      @pause = true # Stop GUI update timeout
+      handle_stop() # Stop realtime processing
 
       # Shutdown each component
       @component_mutex.synchronize do
         @components.each {|component| component.shutdown}
       end
-
-      # Give things time to complete
-      sleep(0.1)
-
-      # Standard COSMOS Shutdown
+      sleep(0.1) # Give things time to complete
       shutdown_cmd_tlm()
-
-      # Accept closure
       super(event)
     end
 

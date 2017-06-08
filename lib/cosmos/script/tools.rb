@@ -18,18 +18,24 @@ module Cosmos
     #######################################
 
     def display(display_name, x_pos = nil, y_pos = nil)
-      run_tlm_viewer(display_name, "displayed") do |tlm_viewer|
+      run_tlm_viewer("display", display_name) do |tlm_viewer|
         tlm_viewer.display(display_name, x_pos, y_pos)
       end
     end
 
     def clear(display_name)
-      run_tlm_viewer(display_name, "cleared") do |tlm_viewer|
+      run_tlm_viewer("clear", display_name) do |tlm_viewer|
         tlm_viewer.clear(display_name)
       end
     end
 
-    def run_tlm_viewer(display_name, action)
+    def clear_all(target = nil)
+      run_tlm_viewer("clear_all") do |tlm_viewer|
+        tlm_viewer.clear_all(target)
+      end
+    end
+
+    def run_tlm_viewer(action, display_name = '')
       tlm_viewer = JsonDRbObject.new "localhost", System.ports['TLMVIEWER_API']
       begin
         yield tlm_viewer
@@ -48,7 +54,7 @@ module Cosmos
             canceled = cosmos_script_sleep(1)
             retry unless canceled
           end
-          raise "Unable to Successfully Start Listening Telemetry Viewer: #{display_name} could not be #{action}"
+          raise "Unable to Successfully Start Listening Telemetry Viewer: Could not #{action} #{display_name}"
         rescue Errno::ENOENT
           raise "Display Screen File: #{display_name}.txt does not exist"
         end

@@ -32,6 +32,7 @@ module Cosmos
     DEFAULT_POINTS_SAVED = 1000000
     DEFAULT_POINTS_PLOTTED = 1000
     DEFAULT_REFRESH_RATE_HZ = 10.0
+    DEFAULT_CTS_TIMEOUT = 10.0
 
     # Gives access to the array of tabs defined by the configuration file
     attr_accessor :tabs
@@ -47,6 +48,9 @@ module Cosmos
 
     # Global Refresh Rate Hz Setting
     attr_accessor :refresh_rate_hz
+
+    # Global CTS Timeout Setting
+    attr_accessor :cts_timeout
 
     # Plot types known by this tabbed plots definition
     attr_accessor :plot_types
@@ -75,6 +79,7 @@ module Cosmos
       @seconds_plotted = DEFAULT_SECONDS_PLOTTED
       @points_plotted = DEFAULT_POINTS_PLOTTED
       @refresh_rate_hz = DEFAULT_REFRESH_RATE_HZ
+      @cts_timeout = DEFAULT_CTS_TIMEOUT
       @packet_count = 0
       @configuration_errors = []
 
@@ -158,6 +163,14 @@ module Cosmos
                   @refresh_rate_hz = parameters[0].to_f
                   raise ArgumentError, "Invalid Refresh Rate Hz: #{@refresh_rate_hz}" if @refresh_rate_hz <= 0.0
 
+                when 'CTS_TIMEOUT'
+                  # Expect 1 parameter
+                  parser.verify_num_parameters(1, 1, "CTS_TIMEOUT <CTS Timeout in Seconds>")
+
+                  # Update CTS Timeout
+                  @cts_timeout = parameters[0].to_f
+                  raise ArgumentError, "Invalid CTS Timeout: #{@cts_timeout}" if @cts_timeout <= 0.0
+
                 else
                   # Handle unknown keywords
                   raise ArgumentError, "A TAB must be defined before using keyword: #{keyword}"
@@ -189,6 +202,7 @@ module Cosmos
         configuration << "POINTS_SAVED #{@points_saved}\n"
         configuration << "POINTS_PLOTTED #{@points_plotted}\n"
         configuration << "REFRESH_RATE_HZ #{@refresh_rate_hz}\n"
+        configuration << "CTS_TIMEOUT #{@cts_timeout}\n"
         @tabs.each do |tab|
           configuration << "\n"
           configuration << tab.configuration_string
@@ -266,14 +280,14 @@ module Cosmos
     end
 
     # Edits a data object in the definition
-    def edit_data_object(tab_index, plot_index, data_object_index, editted_data_object)
+    def edit_data_object(tab_index, plot_index, data_object_index, edited_data_object)
       data_object = @tabs[tab_index].plots[plot_index].data_objects[data_object_index]
-      if data_object.edit_safe?(editted_data_object)
+      if data_object.edit_safe?(edited_data_object)
         @mutex.synchronize do
-          data_object.edit(editted_data_object)
+          data_object.edit(edited_data_object)
         end
       else
-        replace_data_object(tab_index, plot_index, data_object_index, editted_data_object)
+        replace_data_object(tab_index, plot_index, data_object_index, edited_data_object)
       end
     end
 

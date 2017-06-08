@@ -17,7 +17,7 @@ Cosmos.catch_fatal_exception do
 end
 
 module Cosmos
-
+  # Class to intercept keyPressEvents
   class PryLineEdit < Qt::LineEdit
     attr_accessor :keyPressCallback
     def keyPressEvent(event)
@@ -26,7 +26,11 @@ module Cosmos
     end
   end
 
+  # Creates a dialog with a {http://pryrepl.org pry instance}.
   class PryDialog < Qt::Dialog
+    # @param parent [Qt::Widget] Parent to this dialog
+    # @param pry_binding [Object] Ruby binding
+    # @param title [String] Dialog title
     def initialize(parent, pry_binding, title = 'Pry Dialog')
       super(parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint)
       setMinimumWidth(700)
@@ -47,7 +51,7 @@ module Cosmos
 
       @pry_history = []
       @pry_frame = Qt::HBoxLayout.new
-      @pry_frame.setContentsMargins(0,0,0,0)
+      @pry_frame.setContentsMargins(0, 0, 0, 0)
       @pry_frame_label = Qt::Label.new("Pry:")
       @pry_frame.addWidget(@pry_frame_label)
       @pry_text = PryLineEdit.new(self)
@@ -59,7 +63,7 @@ module Cosmos
           pry_text = @pry_text.text
           @pry_history.unshift(pry_text)
           @pry_history_index = 0
-          if pry_text.strip == 'exit' or pry_text.strip == 'quit'
+          if (pry_text.strip == 'exit') || (pry_text.strip == 'quit')
             return_value = false
             self.close
           else
@@ -71,7 +75,7 @@ module Cosmos
             @pry_text.setText(@pry_history[@pry_history_index])
             @pry_history_index += 1
             if @pry_history_index == @pry_history.length
-              @pry_history_index = @pry_history.length-1
+              @pry_history_index = @pry_history.length - 1
             end
           end
         when Qt::Key_Down
@@ -97,11 +101,13 @@ module Cosmos
         Pry.config.pager = false
         Pry.config.color = false
         Pry.config.correct_indent = false
-        Pry.start pry_binding, :input => self, :output => self
+        Pry.start pry_binding, input: self, output: self
         @pry_thread = nil
       end
     end
 
+    # @param text [String] Text to append to the dialog and send to the pry
+    #   instance
     def sendToPry(text)
       @text_edit.appendPlainText(text)
       @queue << text
@@ -159,7 +165,5 @@ module Cosmos
     def graceful_kill
       sendToPry("throw :breakout")
     end
-
-  end # class PryDialog
-
-end # module Cosmos
+  end
+end

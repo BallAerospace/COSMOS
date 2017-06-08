@@ -14,23 +14,25 @@ Cosmos.catch_fatal_exception do
   require 'cosmos/gui/dialogs/packet_log_dialog'
   require 'cosmos/gui/dialogs/splash'
   require 'cosmos/gui/dialogs/progress_dialog'
+  require 'cosmos/gui/utilities/analyze_log'
 end
 
 module Cosmos
-
-  # Breaks a binary log of commands into readable text.
+  # Breaks a binary log of commands into readable text
   class CmdExtractor < QtTool
-
+    # Create a new CmdExtractor by instantiating a new packet log reader,
+    # loading the custom icon, building the application and loading the system
+    # commands.
+    # @param (see QtTool#initialize)
     def initialize(options)
       # MUST BE FIRST - All code before super is executed twice in RubyQt Based classes
       super(options)
 
-      # Define instance variables
       @output_filename = nil
       @input_filenames = []
       @log_dir = System.paths['LOGS']
       @export_dir = @log_dir.clone
-      @packet_log_reader = System.default_packet_log_reader.new
+      @packet_log_reader = System.default_packet_log_reader.new(*System.default_packet_log_reader_params)
       @time_start = nil
       @time_end = nil
 
@@ -49,8 +51,14 @@ module Cosmos
       end
     end
 
+    # Initialize the Mode menu actions
     def initialize_actions
       super()
+
+      # File Menu Actions
+      @analyze_log = Qt::Action.new(tr('&Analyze Logs'), self)
+      @analyze_log.statusTip = tr('Analyze log file packet counts')
+      @analyze_log.connect(SIGNAL('triggered()')) { analyze_log_files() }
 
       # Mode Menu Actions
       @include_raw = Qt::Action.new(tr('Include &Raw Data'), self)
@@ -60,27 +68,27 @@ module Cosmos
       @include_raw.setCheckable(true)
     end
 
+    # Create the File and Mode menus and initialize the Help menu
     def initialize_menus
-      # File Menu
       @file_menu = menuBar.addMenu(tr('&File'))
+      @file_menu.addAction(@analyze_log)
+      @file_menu.addSeparator()
       @file_menu.addAction(@exit_action)
-
-      # Mode Menu
       @mode_menu = menuBar.addMenu(tr('&Mode'))
       @mode_menu.addAction(@include_raw)
-
-      # Help Menu
       @about_string = "Command Extractor extracts commands from a binary command log file into a human readable text file."
       initialize_help_menu()
     end
 
+    # Create the CmdExtractor application which primarily consists of a
+    # {PacketLogFrame}
     def initialize_central_widget
       @central_widget = Qt::Widget.new
       setCentralWidget(@central_widget)
       @top_layout = Qt::VBoxLayout.new(@central_widget)
 
       # Packet Log Frame
-      @packet_log_frame = PacketLogFrame.new(self, @log_dir, System.default_packet_log_reader.new, @input_filenames, @output_filename, true, true, true, Cosmos::CMD_FILE_PATTERN, Cosmos::TXT_FILE_PATTERN)
+      @packet_log_frame = PacketLogFrame.new(self, @log_dir, System.default_packet_log_reader.new(*System.default_packet_log_reader_params), @input_filenames, @output_filename, true, true, true, Cosmos::CMD_FILE_PATTERN, Cosmos::TXT_FILE_PATTERN)
       @packet_log_frame.change_callback = method(:change_callback)
       @top_layout.addWidget(@packet_log_frame)
 
@@ -102,6 +110,7 @@ module Cosmos
       @top_layout.addLayout(@button_layout)
     end
 
+    # (see QtTool.run)
     def self.run(option_parser = nil, options = nil)
       Cosmos.catch_fatal_exception do
         unless option_parser and options
@@ -120,6 +129,10 @@ module Cosmos
     ###############################################################################
     # File Menu Handlers
     ###############################################################################
+
+    def analyze_log_files
+      AnalyzeLog.execute(self, @packet_log_frame)
+    end
 
     def process_log_files
       @cancel = false

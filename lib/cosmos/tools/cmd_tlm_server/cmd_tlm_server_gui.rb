@@ -43,9 +43,9 @@ module Cosmos
       end
     end
 
-    def meta_callback(meta_target_name, meta_packet_name)
+    def meta_callback
       Qt.execute_in_main_thread(true) do
-        result = SetTlmDialog.execute(self, 'Enter Metadata', 'Set Metadata', 'Cancel', meta_target_name, meta_packet_name)
+        result = SetTlmDialog.execute(self, 'Enter Metadata', 'Set Metadata', 'Cancel', 'SYSTEM', 'META')
         exit(1) unless result
       end
     end
@@ -223,9 +223,9 @@ module Cosmos
       @tab_thread = Thread.new do
         begin
           while true
-            start_time = Time.now
+            start_time = Time.now.sys
             Qt.execute_in_main_thread(true) { @status_tab.update }
-            total_time = Time.now - start_time
+            total_time = Time.now.sys - start_time
             if total_time > 0.0 and total_time < 1.0
               break if @tab_sleeper.sleep(1.0 - total_time)
             end

@@ -26,7 +26,7 @@ module Cosmos
 
     describe "initialize" do
       it "complains with an unknown log type" do
-        expect { PacketLogWriter.new(:BOTH) }.to raise_error
+        expect { PacketLogWriter.new(:BOTH) }.to raise_error(/log_type must be :CMD or :TLM/)
       end
 
       it "creates a command log writer" do
@@ -92,16 +92,18 @@ module Cosmos
       end
 
       it "cycles the log when it a size" do
-        plw = PacketLogWriter.new(:TLM,nil,true,nil,200,nil,false)
+        meta_length = System.telemetry.packet('SYSTEM', 'META').length
+        meta_header_length = 8 + 1 + 6 + 1 + 4 + 4
+        plw = PacketLogWriter.new(:TLM,nil,true,nil,128 + meta_header_length + meta_length + 72,nil,false)
         pkt = Packet.new('tgt','pkt')
         pkt.buffer = "\x01\x02\x03\x04"
-        plw.write(pkt) # size 152
+        plw.write(pkt) # size goal - 48
         sleep 0.5
-        plw.write(pkt) # size 176
+        plw.write(pkt) # size goal - 24
         sleep 0.5
-        plw.write(pkt) # size 200
+        plw.write(pkt) # size goal
         expect(Dir[File.join(@log_path,"*.bin")].length).to eql 1
-        # This write pushs us past 200 so we should start a new file
+        # This write pushs us past the specified size so we should start a new file
         plw.write(pkt)
         expect(Dir[File.join(@log_path,"*.bin")].length).to eql 2
         plw.shutdown

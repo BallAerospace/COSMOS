@@ -56,7 +56,7 @@ module Cosmos
       return items
     end
 
-    # @ignored_items [Array of Arrays] Items to ignore from the consideration
+    # @param ignored_items [Array<Array<String, String, String>>] Items to ignore from the consideration
     # @return [Symbol] The overall limits state for the system
     def overall_limits_state(ignored_items = nil)
       overall = :GREEN
@@ -260,8 +260,5 @@ module Cosmos
       end
       return false
     end
-
-  end # class Limits
-
+  end
 end
-

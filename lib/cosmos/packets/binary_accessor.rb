@@ -542,7 +542,7 @@ module Cosmos
     # Adjusts the packed array to be the given number of bytes
     #
     # @param num_bytes [Integer] The desired number of bytes
-    # @param packet [Array] The packed data buffer
+    # @param packed [Array] The packed data buffer
     def self.adjust_packed_size(num_bytes, packed)
       difference = num_bytes - packed.length
       if difference > 0

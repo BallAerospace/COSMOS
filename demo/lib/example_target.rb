@@ -57,7 +57,7 @@ module Cosmos
           begin
             while true
               packet.write('PACKET_ID', 1)
-              packet.write('STRING', "The time is now: #{Time.now.formatted}")
+              packet.write('STRING', "The time is now: #{Time.now.sys.formatted}")
               @interface.write(packet)
               break if @sleeper.sleep(1)
             end

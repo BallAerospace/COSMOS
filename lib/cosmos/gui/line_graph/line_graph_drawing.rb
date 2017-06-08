@@ -9,8 +9,6 @@
 # attribution addendums as found in the LICENSE.txt
 
 module Cosmos
-
-  # LineGraph class continued
   class LineGraph < Qt::Widget
     # Pixels for a label tick
     LABEL_TICK_SIZE = 3
@@ -248,7 +246,7 @@ module Cosmos
       if !@show_popup_x_y && @unix_epoch_x_values
         # Determine if the value is a time stamp and should be converted
         if value > 1 && value < 2147483647
-          time = Time.at(value)
+          time = Time.at(value).sys
           time = time.utc if @utc_time
           if full_date
             time.formatted # full date with day, month, year
@@ -519,7 +517,5 @@ module Cosmos
       end
       text
     end
-
-  end # end class LineGraph
-
-end # module Cosmos
+  end
+end

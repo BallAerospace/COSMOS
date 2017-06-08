@@ -15,22 +15,30 @@ require 'cosmos'
 require 'cosmos/gui/qt'
 
 module Cosmos
-
+  # Creates a dialog showing a packet formatted as a binary hex dump
   class RawDialog < Qt::Dialog
     slots 'packet_update_timeout()'
 
+    # Constant to indicate a command packet dump
     CMD_TYPE = 'cmd'
+    # Constant to indicate a telemetry packet dump
     TLM_TYPE = 'tlm'
+    # Dialog update period
     PACKET_UPDATE_PERIOD_MS = 1000
-    HEADER1 = "Address   Data                                             Ascii\n"
-    HEADER2 = "---------------------------------------------------------------------------\n"
-    HEADER  = HEADER1 + HEADER2
+    # Header string to display over the dump
+    HEADER = "Address   Data                                             Ascii\n"\
+             "---------------------------------------------------------------------------\n"
 
+    # @return [Qt::Font] Font to display the dialog dump (should be monospaced)
     @@font = nil
 
+    # @param parent [Qt::Dialog] Parent for the dialog
+    # @param type [String] Dialog type which must be 'cmd' or 'tlm'
+    # @param target_name [String] Name of the target
+    # @param packet_name [String] Name of the packet
     def initialize(parent, type, target_name, packet_name)
       super(parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint)
-      raise "RawDialog: Undefined type:#{type}" if type != CMD_TYPE and type != TLM_TYPE
+      raise "RawDialog: Undefined type:#{type}" if (type != CMD_TYPE) && (type != TLM_TYPE)
 
       @type = type
       @done = false
@@ -97,6 +105,7 @@ module Cosmos
       end
     end
 
+    # Callback to get the latest packet and update the dialog
     def packet_update_timeout
       if (@type == CMD_TYPE)
         packet = System.commands.packet(@target_name, @packet_name)
@@ -115,35 +124,40 @@ module Cosmos
 
     def reject
       super()
-      if @timer
-        @timer.stop
-        @timer.dispose
-        @timer = nil
-      end
+      stop_timer if @timer
       self.dispose
     end
 
     def closeEvent(event)
       super(event)
-      if @timer
-        @timer.stop
-        @timer.dispose
-        @timer = nil
-      end
+      stop_timer if @timer
       self.dispose
     end
-  end # class RawDialog
 
+    def stop_timer
+      @timer.stop
+      @timer.dispose
+      @timer = nil
+    end
+  end
+
+  # Creates a dialog which displays a command packet as a hex dump
   class CmdRawDialog < RawDialog
+    # @param parent (see RawDialog#initialize)
+    # @param target_name (see RawDialog#initialize)
+    # @param packet_name (see RawDialog#initialize)
     def initialize(parent, target_name, packet_name)
       super(parent, RawDialog::CMD_TYPE, target_name, packet_name)
     end
   end
 
+  # Creates a dialog which displays a telemetry packet as a hex dump
   class TlmRawDialog < RawDialog
+    # @param parent (see RawDialog#initialize)
+    # @param target_name (see RawDialog#initialize)
+    # @param packet_name (see RawDialog#initialize)
     def initialize(parent, target_name, packet_name)
       super(parent, RawDialog::TLM_TYPE, target_name, packet_name)
     end
   end
-
-end # module Cosmos
+end
