@@ -12,13 +12,27 @@ require 'cosmos'
 require 'cosmos/gui/choosers/value_chooser'
 
 module Cosmos
+  class FloatChooserDoubleValidator < Qt::DoubleValidator
+    def fixup(input)
+      begin
+        value = input.to_f
+        if value < bottom()
+          # Handle less than bottom
+          parent().setText(bottom().to_s)
+        elsif value > top()
+          # Handle greater than top
+          parent().setText(top().to_s)
+        end
+      rescue Exception => err
+        # Oh well no fixup
+      end
+    end
+  end
+
   # Widget which creates a horizontally laid out label and editable float value.
   # Minimum and maximum values can be specified to perform input validation.
   # A callback can be specified which is called once the value is changed.
   class FloatChooser < ValueChooser
-    # Callback for a new value entered into the text field
-    attr_accessor :sel_command_callback
-
     # @param parent (see ValueChooser#initialize)
     # @param label_text (see ValueChooser#initialize)
     # @param initial_value (see ValueChooser#initialize)
@@ -33,7 +47,7 @@ module Cosmos
       @minimum_value = minimum_value
       @maximum_value = maximum_value
 
-      validator = Qt::DoubleValidator.new(@value)
+      validator = FloatChooserDoubleValidator.new(@value)
       validator.setBottom(minimum_value) if minimum_value
       validator.setTop(maximum_value) if maximum_value
       validator.setNotation(Qt::DoubleValidator::StandardNotation)
@@ -51,4 +65,3 @@ module Cosmos
     end
   end
 end
-

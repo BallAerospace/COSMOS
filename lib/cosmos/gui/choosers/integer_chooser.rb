@@ -12,6 +12,26 @@ require 'cosmos'
 require 'cosmos/gui/choosers/value_chooser'
 
 module Cosmos
+  class IntegerChooserIntValidator < Qt::IntValidator
+    def fixup(input)
+      begin
+        value = input.to_i
+        if value < bottom()
+          # Handle less than bottom
+          parent().setText(bottom().to_s)
+        elsif value > top()
+          # Handle greater than top
+          parent().setText(top().to_s)
+        elsif input != value.to_s
+          # Handle poorly formatted (only known case is float given as starting value)
+          parent().setText(value.to_s)
+        end
+      rescue Exception => err
+        # Oh well no fixup
+      end
+    end
+  end
+
   # Widget which creates a horizontally laid out label and editable integer value.
   # Minimum and maximum values can be specified to perform input validation.
   # A callback can be specified which is called once the value is changed.
@@ -30,7 +50,7 @@ module Cosmos
       @minimum_value = minimum_value
       @maximum_value = maximum_value
 
-      validator = Qt::IntValidator.new(@value)
+      validator = IntegerChooserIntValidator.new(@value)
       validator.setBottom(minimum_value) if minimum_value
       validator.setTop(maximum_value) if maximum_value
       @value.setValidator(validator)
