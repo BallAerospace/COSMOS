@@ -347,16 +347,13 @@ module Cosmos
         line_number = match.captures[0] if match
         raise e, "ERB error at #{filename}:#{line_number}\n#{e}", e.backtrace
       end
-
       # Make a copy of the filename since we're calling slice! which modifies
       # it directly. Downcase to avoid filesytem case issues.
       copy = filename.downcase.dup
       if copy.include?(Cosmos::USERPATH.downcase)
         copy.slice!(Cosmos::USERPATH.downcase) # Remove the USERPATH
-      else
-        # If we can't slice out the USERPATH then make sure to get rid of
-        # anything before the first slash like the Windows drive letter
-        copy = copy.split(File::SEPARATOR)[1..-1].join(File::SEPARATOR)
+      elsif copy.include?(':') # Check for Windows drive letter
+        copy = copy.split(':')[1]
       end
       parsed_filename = File.join(Cosmos::USERPATH, 'outputs', 'tmp', copy)
       FileUtils.mkdir_p(File.dirname(parsed_filename)) # Create the path
