@@ -231,7 +231,7 @@ module Cosmos
       first_procedures_path = true
 
       Cosmos.set_working_dir do
-        parser = ConfigParser.new
+        parser = ConfigParser.new("http://cosmosrb.com/docs/system")
 
         # First pass - Everything except targets
         parser.parse_file(filename) do |keyword, parameters|
@@ -701,7 +701,7 @@ module Cosmos
 
       # Initialize the meta packet (if given init filename)
       if @meta_init_filename
-        parser = ConfigParser.new
+        parser = ConfigParser.new("http://cosmosrb.com/docs/cmdtlm")
         Cosmos.set_working_dir do
           parser.parse_file(@meta_init_filename) do |keyword, params|
             begin

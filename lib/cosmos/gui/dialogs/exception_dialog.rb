@@ -53,7 +53,7 @@ module Cosmos
             usage = exception.usage.gsub("<","&#060;").gsub(">","&#062;").gsub("\n","<br/>")
             message = exception.message.gsub("<","&#060;").gsub(">","&#062;").gsub("\n","<br/>")
             line = exception.keyword + ' ' + exception.parameters.join(' ').gsub("<","&#060;").gsub(">","&#062;").gsub("\n","<br/>")
-            text = "Error in #{exception.filename}<br/><br/>Line #{exception.line_number}: #{line}<br/><br/>#{message}<br/><br/>#{usage}"
+            text = "Error at #{exception.filename}:#{exception.line_number}<br/><br/>#{line}<br/><br/>Usage: #{usage}<br/><br/>#{message}"
             unless exception.url.nil?
               text << "<br/><br/>For more information see <a href='#{exception.url}'>#{exception.url}</a>."
             end
