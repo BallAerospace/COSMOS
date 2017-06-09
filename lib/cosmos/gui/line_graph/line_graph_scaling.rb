@@ -9,10 +9,7 @@
 # attribution addendums as found in the LICENSE.txt
 
 module Cosmos
-
-  # LineGraph class continued
   class LineGraph < Qt::Widget
-
     # Spacer between items
     GRAPH_SPACER = 5
 
@@ -451,7 +448,5 @@ module Cosmos
       end
       return scale
     end
-
-  end # class LineGraph
-
-end # module Cosmos
+  end
+end

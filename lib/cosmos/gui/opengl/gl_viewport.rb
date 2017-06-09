@@ -9,7 +9,7 @@
 # attribution addendums as found in the LICENSE.txt
 
 module Cosmos
-
+  # Captures all the attributes associated with an OpenGL viewport
   class GlViewport
     attr_accessor :left
     attr_accessor :right
@@ -21,15 +21,14 @@ module Cosmos
     attr_accessor :h
 
     def initialize
-      @left=-1.0;
-      @right=1.0;
-      @top=1.0;
-      @bottom=-1.0;
-      @hither=0.1;
-      @yon=1.0;
-      @w=100;
-      @h=100;
+      @left = -1.0
+      @right = 1.0
+      @top = 1.0
+      @bottom = -1.0
+      @hither = 0.1
+      @yon = 1.0
+      @w = 100
+      @h = 100
     end
-  end # class Viewport
-
-end # module Cosmos
+  end
+end

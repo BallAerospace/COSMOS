@@ -38,7 +38,7 @@ module Cosmos
     # @param packet_name [String] Name of the packet
     def initialize(parent, type, target_name, packet_name)
       super(parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint)
-      raise "RawDialog: Undefined type:#{type}" if type != CMD_TYPE and type != TLM_TYPE
+      raise "RawDialog: Undefined type:#{type}" if (type != CMD_TYPE) && (type != TLM_TYPE)
 
       @type = type
       @done = false

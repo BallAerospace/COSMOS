@@ -9,7 +9,7 @@
 # attribution addendums as found in the LICENSE.txt
 
 module Cosmos
-
+  # Captures all the parameters associated with an OpenGL material
   class GlMaterial
     attr_accessor :ambient
     attr_accessor :diffuse
@@ -24,6 +24,5 @@ module Cosmos
       @emission = [0.0, 0.0, 0.0, 1.0]
       @shininess = 30.0;
     end
-  end # class Material
-
-end # module Cosmos
+  end
+end

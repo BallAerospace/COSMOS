@@ -11,29 +11,36 @@
 require 'cosmos'
 
 module Cosmos
-
-  # This class implements the ComboboxChooser
+  # Widget which creates a horizontally laid out label, and combobox.
+  # A callback can be specified which is called once the combobox is changed.
   class ComboboxChooser < Qt::Widget
-
     # Width of the button in the combobox
     COMBOBOX_BUTTON_WIDTH = 30
-
     # Optional callback for when the combobox value changes
     attr_accessor :sel_command_callback
 
+    # @param parent [Qt::Widget] Widget to parent this widget to
+    # @param label_text [String] Text to place in the label
+    # @param items [Array<#to_s>] Array of items to add to the combobox
+    # @param allow_user_entry [Boolean] Whether to allow the user to enter an
+    #   arbitrary string in the combobox
+    # @param compact_combobox [Boolean] Whether to fix the size of the combobox
+    #   or let it expand to fill the space
+    # @param color_chooser [Boolean] Whether to create a rectangular color
+    #   swatch based on each item name
     def initialize(
       parent, label_text, items, # required
       allow_user_entry: false, compact_combobox: true, color_chooser: false
     )
       super(parent)
       layout = Qt::HBoxLayout.new(self)
-      layout.setContentsMargins(0,0,0,0)
+      layout.setContentsMargins(0, 0, 0, 0)
       @combo_label = Qt::Label.new(label_text)
       @combo_label.setSizePolicy(Qt::SizePolicy::Fixed, Qt::SizePolicy::Fixed) unless compact_combobox
       layout.addWidget(@combo_label)
       @combo_value = Qt::ComboBox.new
       @combo_value.setEditable(allow_user_entry)
-      string_items = items.map {|item| item.to_s}
+      string_items = items.map {|item| item.to_s }
       @combo_value.addItems(string_items)
       @color_chooser = color_chooser
       set_colors(string_items) if @color_chooser
@@ -50,11 +57,15 @@ module Cosmos
       @sel_command_callback = nil
     end
 
-    # Changes the items in the combobox and resizes it
+    # Clears the combobox and adds new items
+    # @param items [Array<String>] Items to add to the combobox
+    # @param include_blank [Boolean] Whether to add a blank item as the first
+    #   combobox item. This is typically done to indicate to the user that a
+    #   value must be selected.
     def update_items(items, include_blank = true)
       @combo_value.clearItems
       @combo_value.addItem(' ') if include_blank
-      string_items = items.map {|item| item.to_s}
+      string_items = items.map {|item| item.to_s }
       @combo_value.addItems(string_items)
       set_colors(string_items) if @color_chooser
       if items.length < 20
@@ -64,11 +75,34 @@ module Cosmos
       end
     end
 
-    def set_current(string)
-      @combo_value.setCurrentText(string.to_s)
+    # @param text [String] Text to set in the current combobox item
+    def set_current(text)
+      @combo_value.setCurrentText(text.to_s)
     end
 
-    # Supports a callback on item changing
+    # @return [Integer] Current item as an integer
+    def integer
+      Integer(@combo_value.currentText)
+    end
+
+    # @return [Float] Current item as a float
+    def float
+      @combo_value.currentText.to_f if @combo_value.currentText
+    end
+
+    # @return [String] Current item as a string
+    def string
+      @combo_value.currentText
+    end
+
+    # @return [Symbol] Current item as a symbol
+    def symbol
+      @combo_value.currentText.intern if @combo_value.currentText
+    end
+
+    protected
+
+    # Calls the combobox selection changed callback if it exists
     def handle_combobox_sel_command(index)
       if index >= 0
         @sel_command_callback.call(string()) if @sel_command_callback
@@ -76,28 +110,7 @@ module Cosmos
       0
     end
 
-    # Returns the selected item as an integer
-    def integer
-      Integer(@combo_value.currentText)
-    end
-
-    # Returns the selected item as a float
-    def float
-      @combo_value.currentText.to_f if @combo_value.currentText
-    end
-
-    # Returns the selected item as a string
-    def string
-      @combo_value.currentText
-    end
-
-    # Returns the selected item as a symbol
-    def symbol
-      @combo_value.currentText.intern if @combo_value.currentText
-    end
-
-    protected
-
+    # Creates a rectangle of color based on the combobox item name
     def set_colors(string_items)
       # Create an image we can draw into
       img = Qt::Image.new(16, 16, Qt::Image::Format_RGB32)
@@ -124,7 +137,5 @@ module Cosmos
       img.dispose
       p.dispose
     end
-
-  end # class ComboboxChooser
-
-end # module Cosmos
+  end
+end

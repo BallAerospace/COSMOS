@@ -58,7 +58,7 @@ module Cosmos
       # @param progress [Float] Set the progress bar to a percentage from 0 to 1
       def progress=(progress)
         progress_int = (progress * 100).to_i
-        if !@complete and @progress != progress_int
+        if !@complete && (@progress != progress_int)
           @progress = progress_int
           Qt.execute_in_main_thread(false) do
             @progress_bar.setValue(progress_int)
