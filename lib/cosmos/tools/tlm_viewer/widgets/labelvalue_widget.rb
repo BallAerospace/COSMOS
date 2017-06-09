@@ -20,16 +20,16 @@ module Cosmos
     include Widget
     include MultiWidget
 
-    def initialize(parent_layout, target_name, packet_name, item_name, value_type = :WITH_UNITS, characters = 12, align = 'center')
+    def initialize(parent_layout, target_name, packet_name, item_name, value_type = :WITH_UNITS, characters = 12, align = 'split')
       super(target_name, packet_name, item_name, value_type)
       setLayout(Qt::HBoxLayout.new)
       layout.setSpacing(0)
       layout.setContentsMargins(0,0,0,0)
-      layout.addStretch(1) if align.downcase == 'right'
+      layout.addStretch(1) if align.downcase == 'right' || align.downcase == 'center'
       @widgets << LabelWidget.new(layout, item_name.to_s + ':')
-      layout.addStretch(1) if align.downcase == 'center'
+      layout.addStretch(1) if align.downcase == 'split'
       @widgets << ValueWidget.new(layout, target_name, packet_name, item_name, value_type, characters.to_i)
-      layout.addStretch(1) if align.downcase == 'left'
+      layout.addStretch(1) if align.downcase == 'left' || align.downcase == 'center'
       parent_layout.addWidget(self) if parent_layout
     end
 
