@@ -58,7 +58,7 @@ module Cosmos
       multitool = nil
 
       # Loop over each line of the configuration file
-      parser = ConfigParser.new
+      parser = ConfigParser.new("http://cosmosrb.com/docs/tools/#launcher-configuration")
       parser.parse_file(filename) do |keyword, params|
         # Handle each keyword
         case keyword

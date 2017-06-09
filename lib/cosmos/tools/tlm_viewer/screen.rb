@@ -256,7 +256,7 @@ module Cosmos
       global_subsettings = {}
 
       begin
-        parser = ConfigParser.new
+        parser = ConfigParser.new("http://cosmosrb.com/docs/screens/")
         parser.parse_file(filename) do |keyword, parameters|
 
           if keyword
