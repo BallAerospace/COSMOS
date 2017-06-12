@@ -554,4 +554,3 @@ module Cosmos
 
   end # describe TableManagerCore
 end
-

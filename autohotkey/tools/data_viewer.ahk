@@ -1,7 +1,7 @@
 WinWaitActive, Data Viewer ahk_class QWidget
-Sleep 2000
+Sleep 500
 Run ruby.exe %A_ScriptDir%/CmdTlmServer
-Sleep 2000
+Sleep 4000
 WinActivate Data Viewer
 Sleep 500
 Send ^r ; Reset
@@ -138,4 +138,3 @@ Sleep 500
 Send {Enter}
 Sleep 500
 Send ^q
-

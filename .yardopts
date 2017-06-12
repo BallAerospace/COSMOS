@@ -1,0 +1,3 @@
+--exclude ext/cosmos/ext
+--tag comment
+--hide-tag comment

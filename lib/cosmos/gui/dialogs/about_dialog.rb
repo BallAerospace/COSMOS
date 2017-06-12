@@ -9,9 +9,9 @@
 # attribution addendums as found in the LICENSE.txt
 
 module Cosmos
-  # Help->About dialog which is part of all COSMOS tools. Displays the license,
-  # software versions, environment variables, and general COSMOS information.
-  # Also provides a backdoor to a PRY dialog to aid in debugging. See
+  # Help->About dialog which is part of all COSMOS tools. Displays information
+  # about licenses, software versions, and environment variables. This dialog
+  # also creates a {PryDialog} when the letters 'p', 'r', 'y' are typed. See
   # {PryDialog} for more details.
   class AboutDialog < Qt::Dialog
     # About text to display in the dialog
@@ -19,24 +19,26 @@ module Cosmos
       "COSMOS application sounds are courtesy of http://www.freesfx.co.uk.\n"\
       "\n"\
       "COSMOS utilizes the QtRuby (http://rubyforge.org/projects/korundum) "\
-      "library under the GNU Lesser General Public License. "\
-      "QtRuby is a Ruby extension module that provides an "\
-      "interface to the Qt Gui Toolkit (http://qt-project.org) by Digia "\
-      "under the GNU Lesser General Public License.\n\n"\
+        "library under the GNU Lesser General Public License. "\
+        "QtRuby is a Ruby extension module that provides an "\
+        "interface to the Qt Gui Toolkit (http://qt-project.org) by Digia "\
+        "under the GNU Lesser General Public License.\n"\
+      "\n"\
       "Ruby Version: ruby #{RUBY_VERSION} (#{RUBY_RELEASE_DATE} "\
-      "patchlevel #{RUBY_PATCHLEVEL}) [#{RUBY_PLATFORM}]\n"\
+        "patchlevel #{RUBY_PATCHLEVEL}) [#{RUBY_PLATFORM}]\n"\
       "Rubygems Version: #{Gem::VERSION}\n"\
       "Qt Version: #{Qt::qVersion}\n"\
       "Cosmos::PATH: #{Cosmos::PATH}\n"\
-      "Cosmos::USERPATH: #{Cosmos::USERPATH}\n\n"\
+      "Cosmos::USERPATH: #{Cosmos::USERPATH}\n"\
+      "\n"\
       "Environment Variables:\n"\
       "RUBYLIB: #{ENV['RUBYLIB']}\n"\
       "RUBYOPT: #{ENV['RUBYOPT']}\n"\
       "GEM_PATH: #{ENV['GEM_PATH']}\n"\
-      "GEM_HOME: #{ENV['GEM_HOME']}\n\n"\
+      "GEM_HOME: #{ENV['GEM_HOME']}\n"\
+      "\n"\
       "Loaded Gems:\n"
     Gem.loaded_specs.values.map {|x| ABOUT_COSMOS << "#{x.name} #{x.version} #{x.platform}\n"}
-
     @@pry_dialogs = []
 
     # @param parent [Qt::Widget] Part of the dialog (the application)
@@ -91,9 +93,12 @@ module Cosmos
       if Kernel.is_windows?
         configurable_about_text << "\n" \
           "Main Application x:#{parent.x} y:#{parent.y} width:#{parent.frameGeometry.width + 16} " \
-          "height:#{parent.frameGeometry.height + 38}\n\n" +  ABOUT_COSMOS
+          "height:#{parent.frameGeometry.height + 38}\n\n" + ABOUT_COSMOS
       else
-        configurable_about_text << "\n" + "Main Application x:#{parent.x} y:#{parent.y} width:#{parent.frameGeometry.width} height:#{parent.frameGeometry.height}\n\n" +  ABOUT_COSMOS      end
+        configurable_about_text << "\n" \
+          "Main Application x:#{parent.x} y:#{parent.y} width:#{parent.frameGeometry.width} " \
+          "height:#{parent.frameGeometry.height}\n\n" + ABOUT_COSMOS
+      end
 
       # Set the application about text
       about = Qt::Label.new(about_string + "\n\n" + configurable_about_text)

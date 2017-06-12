@@ -127,7 +127,7 @@ module Cosmos
       limits_details = Qt::GroupBox.new(tr("Limits"))
       @limits_layout = Qt::FormLayout.new
       limits.each do |limits_set_name, limits_settings|
-        if limits_settings[4] and limits_settings[5]
+        if limits_settings[4] && limits_settings[5]
           label = Qt::Label.new("RL/#{limits_settings[0]} YL/#{limits_settings[1]} YH/#{limits_settings[2]} RH/#{limits_settings[3]} GL/#{limits_settings[4]} GH/#{limits_settings[5]}")
         else
           label = Qt::Label.new("RL/#{limits_settings[0]} YL/#{limits_settings[1]} YH/#{limits_settings[2]} RH/#{limits_settings[3]}")

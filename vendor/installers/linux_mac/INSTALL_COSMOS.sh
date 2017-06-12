@@ -54,7 +54,7 @@ else # Linux
   cmdtoyum="yum update -y; yum install -y gcc gcc-c++ openssl-devel libyaml-devel libffi-devel readline-devel zlib-devel gdbm-devel ncurses-devel git gstreamer-plugins-base-devel cmake freeglut freeglut-devel qt4 qt4-devel"
 
   #apt dependencies - lightly tested on Ubuntu 14.04 LTS
-  cmdtoapt="apt-get update -y; apt-get install -y gcc g++ libssl-dev libyaml-dev libffi-dev libreadline6-dev zlib1g-dev libgdbm3 libgdbm-dev libncurses5-dev git libgstreamer0.10-dev libgstreamer-plugins-base0.10-dev  cmake freeglut3 freeglut3-dev qt4-default qt4-dev-tools"
+  cmdtoapt="apt-get update -y; apt-get install -y gcc g++ libssl-dev libyaml-dev libffi-dev libreadline6-dev zlib1g-dev libgdbm3 libgdbm-dev libncurses5-dev git libgstreamer0.10-dev libgstreamer-plugins-base0.10-dev  cmake freeglut3 freeglut3-dev qt4-default qt4-dev-tools libsmokeqt4-dev"
   YUM_CMD=$(which yum)
   APT_GET_CMD=$(which apt-get)
 

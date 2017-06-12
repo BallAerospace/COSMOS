@@ -1,9 +1,9 @@
 SetWinDelay 500
 SetKeyDelay 10
 
-Sleep 2000
+Sleep 500
 Run ruby.exe %A_ScriptDir%/CmdTlmServer
-Sleep 2000
+Sleep 4000
 
 WinActivate Telemetry Viewer
 Sleep 1000
@@ -15,6 +15,12 @@ WinWaitActive Generating
 Send {Enter}
 WinWaitActive Telemetry Viewer
 Sleep 1000
+
+Click 260 95 ; Edit Screen
+Sleep 2000
+Send !f{x}      ; Exit text editor
+WinActivate Telemetry Viewer
+WinWaitActive Telemetry Viewer
 
 Click 200 95 ; Show Screen TV-1, TV-2
 Sleep 2000
@@ -130,4 +136,3 @@ Send ^q
 WinWaitActive Confirm
 Send {Enter}
 Sleep 500
-

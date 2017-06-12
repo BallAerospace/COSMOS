@@ -360,6 +360,14 @@ module Cosmos
       @@instrumented_cache = value
     end
 
+    def self.file_cache
+      @@file_cache
+    end
+    
+    def self.file_cache=(value)
+      @@file_cache = value
+    end
+
     def self.pause_on_error
       @@pause_on_error
     end
@@ -1152,7 +1160,6 @@ module Cosmos
     protected
 
     def initialize_variables
-      @@file_cache = {}
       @@error = nil
       @go = false
       if @@step_mode

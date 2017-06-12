@@ -212,6 +212,88 @@ module Cosmos
           stdout.rewind
         end
       end
+
+      it "handles array items" do
+        capture_io do |stdout|
+          check_tolerance("INST HEALTH_STATUS ARY2", 0.0, 0.1)
+          expect(stdout.string).to match /CHECK: INST HEALTH_STATUS ARY2\[0\] was within range/
+          expect(stdout.string).to match /CHECK: INST HEALTH_STATUS ARY2\[1\] was within range/
+          expect(stdout.string).to match /CHECK: INST HEALTH_STATUS ARY2\[2\] was within range/
+          expect(stdout.string).to match /CHECK: INST HEALTH_STATUS ARY2\[3\] was within range/
+          expect(stdout.string).to match /CHECK: INST HEALTH_STATUS ARY2\[4\] was within range/
+          expect(stdout.string).to match /CHECK: INST HEALTH_STATUS ARY2\[5\] was within range/
+          expect(stdout.string).to match /CHECK: INST HEALTH_STATUS ARY2\[6\] was within range/
+          expect(stdout.string).to match /CHECK: INST HEALTH_STATUS ARY2\[7\] was within range/
+          expect(stdout.string).to match /CHECK: INST HEALTH_STATUS ARY2\[8\] was within range/
+          expect(stdout.string).to match /CHECK: INST HEALTH_STATUS ARY2\[9\] was within range/
+          stdout.rewind
+
+          check_tolerance("INST", "HEALTH_STATUS", "ARY2", 0.0, 0.1)
+          expect(stdout.string).to match /CHECK: INST HEALTH_STATUS ARY2\[0\] was within range/
+          expect(stdout.string).to match /CHECK: INST HEALTH_STATUS ARY2\[1\] was within range/
+          expect(stdout.string).to match /CHECK: INST HEALTH_STATUS ARY2\[2\] was within range/
+          expect(stdout.string).to match /CHECK: INST HEALTH_STATUS ARY2\[3\] was within range/
+          expect(stdout.string).to match /CHECK: INST HEALTH_STATUS ARY2\[4\] was within range/
+          expect(stdout.string).to match /CHECK: INST HEALTH_STATUS ARY2\[5\] was within range/
+          expect(stdout.string).to match /CHECK: INST HEALTH_STATUS ARY2\[6\] was within range/
+          expect(stdout.string).to match /CHECK: INST HEALTH_STATUS ARY2\[7\] was within range/
+          expect(stdout.string).to match /CHECK: INST HEALTH_STATUS ARY2\[8\] was within range/
+          expect(stdout.string).to match /CHECK: INST HEALTH_STATUS ARY2\[9\] was within range/
+          stdout.rewind
+
+          exp_array = Array.new(10, 0.0)
+          tol_array = Array.new(10, 0.1)
+          check_tolerance("INST HEALTH_STATUS ARY2", exp_array, tol_array)
+          expect(stdout.string).to match /CHECK: INST HEALTH_STATUS ARY2\[0\] was within range/
+          expect(stdout.string).to match /CHECK: INST HEALTH_STATUS ARY2\[1\] was within range/
+          expect(stdout.string).to match /CHECK: INST HEALTH_STATUS ARY2\[2\] was within range/
+          expect(stdout.string).to match /CHECK: INST HEALTH_STATUS ARY2\[3\] was within range/
+          expect(stdout.string).to match /CHECK: INST HEALTH_STATUS ARY2\[4\] was within range/
+          expect(stdout.string).to match /CHECK: INST HEALTH_STATUS ARY2\[5\] was within range/
+          expect(stdout.string).to match /CHECK: INST HEALTH_STATUS ARY2\[6\] was within range/
+          expect(stdout.string).to match /CHECK: INST HEALTH_STATUS ARY2\[7\] was within range/
+          expect(stdout.string).to match /CHECK: INST HEALTH_STATUS ARY2\[8\] was within range/
+          expect(stdout.string).to match /CHECK: INST HEALTH_STATUS ARY2\[9\] was within range/
+          stdout.rewind
+
+          exp_array = Array.new(10, 0.0)
+          tol_array = Array.new(10, 0.1)
+          check_tolerance_raw("INST HEALTH_STATUS ARY2", exp_array, tol_array)
+          expect(stdout.string).to match /CHECK: INST HEALTH_STATUS ARY2\[0\] was within range/
+          expect(stdout.string).to match /CHECK: INST HEALTH_STATUS ARY2\[1\] was within range/
+          expect(stdout.string).to match /CHECK: INST HEALTH_STATUS ARY2\[2\] was within range/
+          expect(stdout.string).to match /CHECK: INST HEALTH_STATUS ARY2\[3\] was within range/
+          expect(stdout.string).to match /CHECK: INST HEALTH_STATUS ARY2\[4\] was within range/
+          expect(stdout.string).to match /CHECK: INST HEALTH_STATUS ARY2\[5\] was within range/
+          expect(stdout.string).to match /CHECK: INST HEALTH_STATUS ARY2\[6\] was within range/
+          expect(stdout.string).to match /CHECK: INST HEALTH_STATUS ARY2\[7\] was within range/
+          expect(stdout.string).to match /CHECK: INST HEALTH_STATUS ARY2\[8\] was within range/
+          expect(stdout.string).to match /CHECK: INST HEALTH_STATUS ARY2\[9\] was within range/
+          stdout.rewind
+
+          exp_array[0] = 0.11
+          expect { check_tolerance("INST HEALTH_STATUS ARY2", exp_array, tol_array) }.to raise_error(CheckError, /CHECK: INST HEALTH_STATUS ARY2\[0\] failed to be within range/)
+          stdout.rewind
+
+          exp_array[0] = 0.0
+          exp_array[9] = 0.11
+          expect { check_tolerance("INST HEALTH_STATUS ARY2", exp_array, tol_array) }.to raise_error(CheckError, /CHECK: INST HEALTH_STATUS ARY2\[9\] failed to be within range/)
+          stdout.rewind
+
+          exp_array = Array.new(10, 1)
+          tol_array = Array.new(10, 1.1)
+          tol_array[1] = 0.9
+          expect { check_tolerance("INST HEALTH_STATUS ARY2", exp_array, tol_array) }.to raise_error(CheckError, /CHECK: INST HEALTH_STATUS ARY2\[1\] failed to be within range/)
+          stdout.rewind
+
+        end
+      end
+
+      it "checks size of array parameters" do
+        bad_array = Array.new(9, 0)
+        expect { check_tolerance("INST HEALTH_STATUS ARY2", bad_array, 0.1) }.to raise_error(/Invalid array size for expected_value/)
+        expect { check_tolerance("INST HEALTH_STATUS ARY2", 0.0, bad_array) }.to raise_error(/Invalid array size for tolerance/)
+      end
     end
 
     describe "check_expression" do
@@ -314,6 +396,90 @@ module Cosmos
           stdout.rewind
         end
       end
+
+      it "handles array items" do
+        capture_io do |stdout|
+          wait_tolerance("INST HEALTH_STATUS ARY2", 0.0, 0.1, 0.1)
+          expect(stdout.string).to match /WAIT: INST HEALTH_STATUS ARY2\[0\] was within range/
+          expect(stdout.string).to match /WAIT: INST HEALTH_STATUS ARY2\[1\] was within range/
+          expect(stdout.string).to match /WAIT: INST HEALTH_STATUS ARY2\[2\] was within range/
+          expect(stdout.string).to match /WAIT: INST HEALTH_STATUS ARY2\[3\] was within range/
+          expect(stdout.string).to match /WAIT: INST HEALTH_STATUS ARY2\[4\] was within range/
+          expect(stdout.string).to match /WAIT: INST HEALTH_STATUS ARY2\[5\] was within range/
+          expect(stdout.string).to match /WAIT: INST HEALTH_STATUS ARY2\[6\] was within range/
+          expect(stdout.string).to match /WAIT: INST HEALTH_STATUS ARY2\[7\] was within range/
+          expect(stdout.string).to match /WAIT: INST HEALTH_STATUS ARY2\[8\] was within range/
+          expect(stdout.string).to match /WAIT: INST HEALTH_STATUS ARY2\[9\] was within range/
+          stdout.rewind
+
+          wait_tolerance("INST", "HEALTH_STATUS", "ARY2", 0.0, 0.1, 0.1)
+          expect(stdout.string).to match /WAIT: INST HEALTH_STATUS ARY2\[0\] was within range/
+          expect(stdout.string).to match /WAIT: INST HEALTH_STATUS ARY2\[1\] was within range/
+          expect(stdout.string).to match /WAIT: INST HEALTH_STATUS ARY2\[2\] was within range/
+          expect(stdout.string).to match /WAIT: INST HEALTH_STATUS ARY2\[3\] was within range/
+          expect(stdout.string).to match /WAIT: INST HEALTH_STATUS ARY2\[4\] was within range/
+          expect(stdout.string).to match /WAIT: INST HEALTH_STATUS ARY2\[5\] was within range/
+          expect(stdout.string).to match /WAIT: INST HEALTH_STATUS ARY2\[6\] was within range/
+          expect(stdout.string).to match /WAIT: INST HEALTH_STATUS ARY2\[7\] was within range/
+          expect(stdout.string).to match /WAIT: INST HEALTH_STATUS ARY2\[8\] was within range/
+          expect(stdout.string).to match /WAIT: INST HEALTH_STATUS ARY2\[9\] was within range/
+          stdout.rewind
+
+          exp_array = Array.new(10, 0.0)
+          tol_array = Array.new(10, 0.1)
+          wait_tolerance("INST HEALTH_STATUS ARY2", exp_array, tol_array, 0.1)
+          expect(stdout.string).to match /WAIT: INST HEALTH_STATUS ARY2\[0\] was within range/
+          expect(stdout.string).to match /WAIT: INST HEALTH_STATUS ARY2\[1\] was within range/
+          expect(stdout.string).to match /WAIT: INST HEALTH_STATUS ARY2\[2\] was within range/
+          expect(stdout.string).to match /WAIT: INST HEALTH_STATUS ARY2\[3\] was within range/
+          expect(stdout.string).to match /WAIT: INST HEALTH_STATUS ARY2\[4\] was within range/
+          expect(stdout.string).to match /WAIT: INST HEALTH_STATUS ARY2\[5\] was within range/
+          expect(stdout.string).to match /WAIT: INST HEALTH_STATUS ARY2\[6\] was within range/
+          expect(stdout.string).to match /WAIT: INST HEALTH_STATUS ARY2\[7\] was within range/
+          expect(stdout.string).to match /WAIT: INST HEALTH_STATUS ARY2\[8\] was within range/
+          expect(stdout.string).to match /WAIT: INST HEALTH_STATUS ARY2\[9\] was within range/
+          stdout.rewind
+
+          exp_array = Array.new(10, 0.0)
+          tol_array = Array.new(10, 0.1)
+          wait_tolerance_raw("INST HEALTH_STATUS ARY2", exp_array, tol_array, 0.1)
+          expect(stdout.string).to match /WAIT: INST HEALTH_STATUS ARY2\[0\] was within range/
+          expect(stdout.string).to match /WAIT: INST HEALTH_STATUS ARY2\[1\] was within range/
+          expect(stdout.string).to match /WAIT: INST HEALTH_STATUS ARY2\[2\] was within range/
+          expect(stdout.string).to match /WAIT: INST HEALTH_STATUS ARY2\[3\] was within range/
+          expect(stdout.string).to match /WAIT: INST HEALTH_STATUS ARY2\[4\] was within range/
+          expect(stdout.string).to match /WAIT: INST HEALTH_STATUS ARY2\[5\] was within range/
+          expect(stdout.string).to match /WAIT: INST HEALTH_STATUS ARY2\[6\] was within range/
+          expect(stdout.string).to match /WAIT: INST HEALTH_STATUS ARY2\[7\] was within range/
+          expect(stdout.string).to match /WAIT: INST HEALTH_STATUS ARY2\[8\] was within range/
+          expect(stdout.string).to match /WAIT: INST HEALTH_STATUS ARY2\[9\] was within range/
+          stdout.rewind
+
+          exp_array[0] = 0.11
+          wait_tolerance("INST HEALTH_STATUS ARY2", exp_array, tol_array, 0.1)
+          expect(stdout.string).to match /WAIT: INST HEALTH_STATUS ARY2\[0\] failed to be within range/
+          stdout.rewind
+
+          exp_array[0] = 0.0
+          exp_array[9] = 0.11
+          wait_tolerance("INST HEALTH_STATUS ARY2", exp_array, tol_array, 0.1)
+          expect(stdout.string).to match /WAIT: INST HEALTH_STATUS ARY2\[9\] failed to be within range/
+          stdout.rewind
+
+          exp_array = Array.new(10, 1)
+          tol_array = Array.new(10, 1.1)
+          tol_array[1] = 0.9
+          wait_tolerance("INST HEALTH_STATUS ARY2", exp_array, tol_array, 0.1)
+          expect(stdout.string).to match /WAIT: INST HEALTH_STATUS ARY2\[1\] failed to be within range/
+          stdout.rewind
+        end
+      end
+
+      it "checks size of array parameters" do
+        bad_array = Array.new(9, 0)
+        expect { wait_tolerance("INST HEALTH_STATUS ARY2", bad_array, 0.1, 0.1) }.to raise_error(/Invalid array size for expected_value/)
+        expect { wait_tolerance("INST HEALTH_STATUS ARY2", 0.0, bad_array, 0.1) }.to raise_error(/Invalid array size for tolerance/)
+      end
     end
 
     describe "wait_expression" do
@@ -393,6 +559,87 @@ module Cosmos
         expect { wait_check_tolerance_raw("INST HEALTH_STATUS TEMP1", 100, 1, 0.1) }.to raise_error(CheckError, /CHECK: INST HEALTH_STATUS TEMP1 failed to be within/)
 
       end
+
+      it "handles array items" do
+        capture_io do |stdout|
+          wait_check_tolerance("INST HEALTH_STATUS ARY2", 0.0, 0.1, 0.1)
+          expect(stdout.string).to match /CHECK: INST HEALTH_STATUS ARY2\[0\] was within range/
+          expect(stdout.string).to match /CHECK: INST HEALTH_STATUS ARY2\[1\] was within range/
+          expect(stdout.string).to match /CHECK: INST HEALTH_STATUS ARY2\[2\] was within range/
+          expect(stdout.string).to match /CHECK: INST HEALTH_STATUS ARY2\[3\] was within range/
+          expect(stdout.string).to match /CHECK: INST HEALTH_STATUS ARY2\[4\] was within range/
+          expect(stdout.string).to match /CHECK: INST HEALTH_STATUS ARY2\[5\] was within range/
+          expect(stdout.string).to match /CHECK: INST HEALTH_STATUS ARY2\[6\] was within range/
+          expect(stdout.string).to match /CHECK: INST HEALTH_STATUS ARY2\[7\] was within range/
+          expect(stdout.string).to match /CHECK: INST HEALTH_STATUS ARY2\[8\] was within range/
+          expect(stdout.string).to match /CHECK: INST HEALTH_STATUS ARY2\[9\] was within range/
+          stdout.rewind
+
+          wait_check_tolerance("INST", "HEALTH_STATUS", "ARY2", 0.0, 0.1, 0.1)
+          expect(stdout.string).to match /CHECK: INST HEALTH_STATUS ARY2\[0\] was within range/
+          expect(stdout.string).to match /CHECK: INST HEALTH_STATUS ARY2\[1\] was within range/
+          expect(stdout.string).to match /CHECK: INST HEALTH_STATUS ARY2\[2\] was within range/
+          expect(stdout.string).to match /CHECK: INST HEALTH_STATUS ARY2\[3\] was within range/
+          expect(stdout.string).to match /CHECK: INST HEALTH_STATUS ARY2\[4\] was within range/
+          expect(stdout.string).to match /CHECK: INST HEALTH_STATUS ARY2\[5\] was within range/
+          expect(stdout.string).to match /CHECK: INST HEALTH_STATUS ARY2\[6\] was within range/
+          expect(stdout.string).to match /CHECK: INST HEALTH_STATUS ARY2\[7\] was within range/
+          expect(stdout.string).to match /CHECK: INST HEALTH_STATUS ARY2\[8\] was within range/
+          expect(stdout.string).to match /CHECK: INST HEALTH_STATUS ARY2\[9\] was within range/
+          stdout.rewind
+
+          exp_array = Array.new(10, 0.0)
+          tol_array = Array.new(10, 0.1)
+          wait_check_tolerance("INST HEALTH_STATUS ARY2", exp_array, tol_array, 0.1)
+          expect(stdout.string).to match /CHECK: INST HEALTH_STATUS ARY2\[0\] was within range/
+          expect(stdout.string).to match /CHECK: INST HEALTH_STATUS ARY2\[1\] was within range/
+          expect(stdout.string).to match /CHECK: INST HEALTH_STATUS ARY2\[2\] was within range/
+          expect(stdout.string).to match /CHECK: INST HEALTH_STATUS ARY2\[3\] was within range/
+          expect(stdout.string).to match /CHECK: INST HEALTH_STATUS ARY2\[4\] was within range/
+          expect(stdout.string).to match /CHECK: INST HEALTH_STATUS ARY2\[5\] was within range/
+          expect(stdout.string).to match /CHECK: INST HEALTH_STATUS ARY2\[6\] was within range/
+          expect(stdout.string).to match /CHECK: INST HEALTH_STATUS ARY2\[7\] was within range/
+          expect(stdout.string).to match /CHECK: INST HEALTH_STATUS ARY2\[8\] was within range/
+          expect(stdout.string).to match /CHECK: INST HEALTH_STATUS ARY2\[9\] was within range/
+          stdout.rewind
+
+          exp_array = Array.new(10, 0.0)
+          tol_array = Array.new(10, 0.1)
+          wait_check_tolerance("INST HEALTH_STATUS ARY2", exp_array, tol_array, 0.1)
+          expect(stdout.string).to match /CHECK: INST HEALTH_STATUS ARY2\[0\] was within range/
+          expect(stdout.string).to match /CHECK: INST HEALTH_STATUS ARY2\[1\] was within range/
+          expect(stdout.string).to match /CHECK: INST HEALTH_STATUS ARY2\[2\] was within range/
+          expect(stdout.string).to match /CHECK: INST HEALTH_STATUS ARY2\[3\] was within range/
+          expect(stdout.string).to match /CHECK: INST HEALTH_STATUS ARY2\[4\] was within range/
+          expect(stdout.string).to match /CHECK: INST HEALTH_STATUS ARY2\[5\] was within range/
+          expect(stdout.string).to match /CHECK: INST HEALTH_STATUS ARY2\[6\] was within range/
+          expect(stdout.string).to match /CHECK: INST HEALTH_STATUS ARY2\[7\] was within range/
+          expect(stdout.string).to match /CHECK: INST HEALTH_STATUS ARY2\[8\] was within range/
+          expect(stdout.string).to match /CHECK: INST HEALTH_STATUS ARY2\[9\] was within range/
+          stdout.rewind
+
+          exp_array[0] = 0.11
+          expect { wait_check_tolerance("INST HEALTH_STATUS ARY2", exp_array, tol_array, 0.1) }.to raise_error(/CHECK: INST HEALTH_STATUS ARY2\[0\] failed to be within range/)
+          stdout.rewind
+
+          exp_array[0] = 0.0
+          exp_array[9] = 0.11
+          expect { wait_check_tolerance("INST HEALTH_STATUS ARY2", exp_array, tol_array, 0.1) }.to raise_error(/CHECK: INST HEALTH_STATUS ARY2\[9\] failed to be within range/)
+          stdout.rewind
+
+          exp_array = Array.new(10, 1)
+          tol_array = Array.new(10, 1.1)
+          tol_array[1] = 0.9
+          expect {wait_check_tolerance("INST HEALTH_STATUS ARY2", exp_array, tol_array, 0.1) }.to raise_error(/CHECK: INST HEALTH_STATUS ARY2\[1\] failed to be within range/)
+          stdout.rewind
+        end
+      end
+
+      it "checks size of array parameters" do
+        bad_array = Array.new(9, 0)
+        expect { wait_check_tolerance("INST HEALTH_STATUS ARY2", bad_array, 0.1, 0.1) }.to raise_error(/Invalid array size for expected_value/)
+        expect { wait_check_tolerance("INST HEALTH_STATUS ARY2", 0.0, bad_array, 0.1) }.to raise_error(/Invalid array size for tolerance/)
+      end
     end
 
     describe "wait_check_expression" do
@@ -447,9 +694,12 @@ module Cosmos
       it "starts a script within ScriptRunnerFrame" do
         class ScriptRunnerFrame
           @@instrumented_cache = {}
+          @@file_cache = {}
           def self.instance; true; end
           def self.instrumented_cache; @@instrumented_cache; end
           def self.instrumented_cache=(value); @@instrumented_cache = value; end
+          def self.file_cache; @@file_cache; end
+          def self.file_cache=(value); @@file_cache = value; end
           def self.instrument_script(file_text, path, bool); "#"; end
         end
         start("cosmos.rb")
@@ -467,9 +717,12 @@ module Cosmos
       it "requires a script within ScriptRunnerFrame" do
         class ScriptRunnerFrame
           @@instrumented_cache = {}
+          @@file_cache = {}
           def self.instance; true; end
           def self.instrumented_cache; @@instrumented_cache; end
           def self.instrumented_cache=(value); @@instrumented_cache = value; end
+          def self.file_cache; @@file_cache; end
+          def self.file_cache=(value); @@file_cache = value; end
           def self.instrument_script(file_text, path, bool); "#"; end
         end
         allow(ScriptRunnerFrame).to receive_message_chain(:instance, :use_instrumentation)

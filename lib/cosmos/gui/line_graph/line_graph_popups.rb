@@ -9,10 +9,7 @@
 # attribution addendums as found in the LICENSE.txt
 
 module Cosmos
-
-  # LineGraph class continued
   class LineGraph < Qt::Widget
-
     # Builds popups associated with an x value
     def build_popups_from_x_value(x_value)
       # Clear any existing popups
@@ -110,8 +107,6 @@ module Cosmos
           next_graph_y += @popups[popup_index][4] + 2
         end
       end
-    end # def adjust_popup_positions
-
-  end # class LineGraph
-end # module Cosmos
-
+    end
+  end
+end

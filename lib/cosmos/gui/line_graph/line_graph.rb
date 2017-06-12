@@ -18,10 +18,11 @@ require 'cosmos/gui/line_graph/line_graph_scaling'
 require 'cosmos/gui/line_graph/line_graph_popups'
 
 module Cosmos
-
-  # GUI object to display a line graph
+  # Widget which displays a line graph. Graph provides decorations such as
+  # titles, labels, grid lines, and a legend. Mouse tracking is provided to allow
+  # popups on graph values. Automatic scaling is provided to scale the X and Y
+  # axis according to the data values.
   class LineGraph < Qt::Widget
-
     # Create attr_accessors that automatically set the redraw_needed flag when
     # they are set
     def self.attr_accessor_with_redraw(*symbols)
@@ -477,7 +478,5 @@ module Cosmos
       @horizontal_lines << [y_value, color, axis]
       @redraw_needed = true
     end
-
-  end # class LineGraph
-end # module Cosmos
-
+  end
+end

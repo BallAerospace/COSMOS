@@ -1,7 +1,7 @@
 SetWinDelay 500
 SetKeyDelay 10
 
-Sleep 2000
+Sleep 500
 Run ruby.exe %A_ScriptDir%/CmdTlmServer
 WinActivate "INST ADCS"
 Sleep 4000
@@ -17,4 +17,3 @@ WinActivate "INST ADCS"
 Sleep 2000
 Click 497 10 ; Close the window
 Sleep 500
-

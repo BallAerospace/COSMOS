@@ -9,8 +9,6 @@
 # attribution addendums as found in the LICENSE.txt
 
 module Cosmos
-
-  # LineGraph class continued
   class LineGraph < Qt::Widget
     # Pixels for a label tick
     LABEL_TICK_SIZE = 3
@@ -519,7 +517,5 @@ module Cosmos
       end
       text
     end
-
-  end # end class LineGraph
-
-end # module Cosmos
+  end
+end

@@ -20,7 +20,6 @@ require 'drb/acl'
 require 'bundler'
 
 module Cosmos
-
   # System is the primary entry point into the COSMOS framework. It captures
   # system wide configuration items such as the available ports and paths to
   # various files used by the system. The #commands, #telemetry, and #limits
@@ -36,8 +35,12 @@ module Cosmos
     instance_attr_reader :paths
     # @return [PacketLogWriter] Class used to create log files
     instance_attr_reader :default_packet_log_writer
+    # @return [Array<String>] Parameters to be used with the default log writer
+    instance_attr_reader :default_packet_log_writer_params
     # @return [PacketLogReader] Class used to read log files
     instance_attr_reader :default_packet_log_reader
+    # @return [Array<String>] Parameters to be used with the default log reader
+    instance_attr_reader :default_packet_log_reader_params
     # @return [Boolean] Whether to use sound for alerts
     instance_attr_reader :sound
     # @return [Boolean] Whether to use DNS to lookup IP addresses or not
@@ -82,7 +85,9 @@ module Cosmos
       @telemetry = nil
       @limits = nil
       @default_packet_log_writer = PacketLogWriter
+      @default_packet_log_writer_params = []
       @default_packet_log_reader = PacketLogReader
+      @default_packet_log_reader_params = []
       @sound = false
       @use_dns = false
       @acl = nil
@@ -187,7 +192,7 @@ module Cosmos
         if @config.limits_sets.include?(new_limits_set)
           @limits_set = new_limits_set
           Logger.info("Limits Set Changed to: #{@limits_set}")
-          CmdTlmServer.instance.post_limits_event(:LIMITS_SET, System.limits_set) if defined? CmdTlmServer and CmdTlmServer.instance
+          CmdTlmServer.instance.post_limits_event(:LIMITS_SET, System.limits_set) if defined? CmdTlmServer && CmdTlmServer.instance
         else
           raise "Unknown limits set requested: #{new_limits_set}"
         end
@@ -225,7 +230,7 @@ module Cosmos
       first_procedures_path = true
 
       Cosmos.set_working_dir do
-        parser = ConfigParser.new
+        parser = ConfigParser.new("http://cosmosrb.com/docs/system")
 
         # First pass - Everything except targets
         parser.parse_file(filename) do |keyword, parameters|
@@ -266,14 +271,16 @@ module Cosmos
             Logger.warn("Unknown path name given: #{path_name}") unless KNOWN_PATHS.include?(path_name)
 
           when 'DEFAULT_PACKET_LOG_WRITER'
-            usage = "#{keyword} <FILENAME>"
-            parser.verify_num_parameters(1, 1, usage)
+            usage = "#{keyword} <FILENAME> <Specific Parameters>"
+            parser.verify_num_parameters(1, nil, usage)
             @default_packet_log_writer = Cosmos.require_class(parameters[0])
+            @default_packet_log_writer_params = parameters[1..-1] if parameters.size > 1
 
           when 'DEFAULT_PACKET_LOG_READER'
-            usage = "#{keyword} <FILENAME>"
-            parser.verify_num_parameters(1, 1, usage)
+            usage = "#{keyword} <FILENAME> <Specific Parameters>"
+            parser.verify_num_parameters(1, nil, usage)
             @default_packet_log_reader = Cosmos.require_class(parameters[0])
+            @default_packet_log_reader_params = parameters[1..-1] if parameters.size > 1
 
           when 'ENABLE_SOUND'
             usage = "#{keyword}"
@@ -301,7 +308,7 @@ module Cosmos
 
               unless all_allowed
                 first_char = addr[0..0]
-                if !((first_char =~ /[1234567890]/) or (first_char == '*') or (addr.upcase == 'ALL'))
+                if !((first_char =~ /[1234567890]/) || (first_char == '*') || (addr.upcase == 'ALL'))
                   # Try to lookup IP Address
                   info = Socket.gethostbyname(addr)
                   addr = "#{info[3].getbyte(0)}.#{info[3].getbyte(1)}.#{info[3].getbyte(2)}.#{info[3].getbyte(3)}"
@@ -441,7 +448,7 @@ module Cosmos
     #   configuration. Pass nil to load the default configuration.
     # @return [String, Exception/nil] The actual configuration loaded
     def load_configuration(name = nil)
-      if name and @config
+      if name && @config
         # Make sure they're requesting something other than the current
         # configuration.
         if name != @config.name
@@ -488,7 +495,7 @@ module Cosmos
     def auto_detect_gem_based_targets
       Bundler.load.specs.each do |spec|
         spec_name_split = spec.name.split('-')
-        if spec_name_split.length > 1 and spec_name_split[0] == 'cosmos'
+        if spec_name_split.length > 1 && (spec_name_split[0] == 'cosmos')
           # Filter to just targets and not tools and other extensions
           if File.exist?(File.join(spec.gem_dir, 'cmd_tlm'))
             target_name = spec_name_split[1..-1].join('-').to_s.upcase
@@ -521,7 +528,7 @@ module Cosmos
       Cosmos.set_working_dir do
         Dir.foreach(@paths['SAVED_CONFIG']) do |filename|
           full_path = File.join(@paths['SAVED_CONFIG'], filename)
-          if Dir.exist?(full_path) and filename[-32..-1] == name
+          if Dir.exist?(full_path) && (filename[-32..-1] == name)
             return full_path
           end
         end
@@ -634,25 +641,25 @@ module Cosmos
         tlm_meta = @telemetry.packet('SYSTEM', 'META')
         cmd_meta = @commands.packet('SYSTEM', 'META')
         item = tlm_meta.get_item('PKTID')
-        raise "PKTID Incorrect" unless item.bit_size == 8 and item.bit_offset == 0
+        raise "PKTID Incorrect" unless (item.bit_size == 8) && (item.bit_offset == 0)
         item = cmd_meta.get_item('PKTID')
-        raise "PKTID Incorrect" unless item.bit_size == 8 and item.bit_offset == 0
+        raise "PKTID Incorrect" unless (item.bit_size == 8) && (item.bit_offset == 0)
         item = tlm_meta.get_item('CONFIG')
-        raise "CONFIG Incorrect" unless item.bit_size == 256 and item.bit_offset == 8
+        raise "CONFIG Incorrect" unless (item.bit_size == 256) && (item.bit_offset == 8)
         item = cmd_meta.get_item('CONFIG')
-        raise "CONFIG Incorrect" unless item.bit_size == 256 and item.bit_offset == 8
+        raise "CONFIG Incorrect" unless (item.bit_size == 256) && (item.bit_offset == 8)
         item = tlm_meta.get_item('COSMOS_VERSION')
-        raise "CONFIG Incorrect" unless item.bit_size == 240 and item.bit_offset == 264
+        raise "CONFIG Incorrect" unless (item.bit_size == 240) && (item.bit_offset == 264)
         item = cmd_meta.get_item('COSMOS_VERSION')
-        raise "CONFIG Incorrect" unless item.bit_size == 240 and item.bit_offset == 264
+        raise "CONFIG Incorrect" unless (item.bit_size == 240) && (item.bit_offset == 264)
         item = tlm_meta.get_item('USER_VERSION')
-        raise "CONFIG Incorrect" unless item.bit_size == 240 and item.bit_offset == 504
+        raise "CONFIG Incorrect" unless (item.bit_size == 240) && (item.bit_offset == 504)
         item = cmd_meta.get_item('USER_VERSION')
-        raise "CONFIG Incorrect" unless item.bit_size == 240 and item.bit_offset == 504
+        raise "CONFIG Incorrect" unless (item.bit_size == 240) && (item.bit_offset == 504)
         item = tlm_meta.get_item('RUBY_VERSION')
-        raise "CONFIG Incorrect" unless item.bit_size == 240 and item.bit_offset == 744
+        raise "CONFIG Incorrect" unless (item.bit_size == 240) && (item.bit_offset == 744)
         item = cmd_meta.get_item('RUBY_VERSION')
-        raise "CONFIG Incorrect" unless item.bit_size == 240 and item.bit_offset == 744
+        raise "CONFIG Incorrect" unless (item.bit_size == 240) && (item.bit_offset == 744)
       rescue
         Logger.error "SYSTEM META not defined or defined incorrectly - defaulting"
 
@@ -693,12 +700,12 @@ module Cosmos
 
       # Initialize the meta packet (if given init filename)
       if @meta_init_filename
-        parser = ConfigParser.new
+        parser = ConfigParser.new("http://cosmosrb.com/docs/cmdtlm")
         Cosmos.set_working_dir do
           parser.parse_file(@meta_init_filename) do |keyword, params|
             begin
               item = tlm_meta.get_item(keyword)
-              if item.data_type == :STRING or item.data_type == :BLOCK
+              if (item.data_type == :STRING) || (item.data_type == :BLOCK)
                 value = params[0]
               else
                 value = params[0].convert_to_value
@@ -720,7 +727,5 @@ module Cosmos
 
       cmd_meta.buffer = tlm_meta.buffer
     end
-
-  end # class System
-
-end # module Cosmos
+  end
+end

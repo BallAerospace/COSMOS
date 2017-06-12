@@ -17,7 +17,7 @@ module Cosmos
       @parent = parent
       @packet_log_frame = packet_log_frame
       @input_filenames = []
-      @packet_log_reader = System.default_packet_log_reader.new
+      @packet_log_reader = System.default_packet_log_reader.new(*System.default_packet_log_reader_params)
       @time_start = nil
       @time_end = nil
       @cancel = false

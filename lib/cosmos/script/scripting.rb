@@ -103,7 +103,7 @@ module Cosmos
       "#{target_name.upcase} #{packet_name.upcase} #{item_name.upcase}"
     end
 
-    # Implementaiton of the various check commands. It yields back to the
+    # Implementaton of the various check commands. It yields back to the
     # caller to allow the return of the value through various telemetry calls.
     # This method should not be called directly by application code.
     def _check(*args)
@@ -164,17 +164,45 @@ module Cosmos
       target_name, packet_name, item_name, expected_value, tolerance =
         check_tolerance_process_args(args, 'check_tolerance')
       value = yield(target_name, packet_name, item_name)
-      range = (expected_value - tolerance)..(expected_value + tolerance)
-      check_str = "CHECK: #{_upcase(target_name, packet_name, item_name)}"
-      range_str = "range #{range.first} to #{range.last} with value == #{value}"
-      if range.include?(value)
-        Logger.info "#{check_str} was within #{range_str}"
-      else
-        message = "#{check_str} failed to be within #{range_str}"
-        if $cmd_tlm_disconnect
-          Logger.error message
+      if value.is_a?(Array)
+        expected_value, tolerance = array_tolerance_process_args(value.size, expected_value, tolerance, 'check_tolerance')
+
+        message = ""
+        all_checks_ok = true
+        value.size.times do |i|
+          range = (expected_value[i]-tolerance[i]..expected_value[i]+tolerance[i])
+          check_str = "CHECK: #{_upcase(target_name, packet_name, item_name)}[#{i}]"
+          range_str = "range #{range.first} to #{range.last} with value == #{value[i]}"
+          if range.include?(value[i])
+            message << "#{check_str} was within #{range_str}\n"
+          else
+            message << "#{check_str} failed to be within #{range_str}\n"
+            all_checks_ok = false
+          end
+        end
+
+        if all_checks_ok
+          Logger.info message
         else
-          raise CheckError, message
+          if $cmd_tlm_disconnect
+            Logger.error message
+          else
+            raise CheckError, message
+          end
+        end
+      else
+        range = (expected_value - tolerance)..(expected_value + tolerance)
+        check_str = "CHECK: #{_upcase(target_name, packet_name, item_name)}"
+        range_str = "range #{range.first} to #{range.last} with value == #{value}"
+        if range.include?(value)
+          Logger.info "#{check_str} was within #{range_str}"
+        else
+          message = "#{check_str} failed to be within #{range_str}"
+          if $cmd_tlm_disconnect
+            Logger.error message
+          else
+            raise CheckError, message
+          end
         end
       end
     end
@@ -241,15 +269,41 @@ module Cosmos
       type_string << '_raw' if raw
       target_name, packet_name, item_name, expected_value, tolerance, timeout, polling_rate = wait_tolerance_process_args(args, type_string)
       start_time = Time.now.sys
-      success, value = cosmos_script_wait_implementation_tolerance(target_name, packet_name, item_name, type, expected_value, tolerance, timeout, polling_rate)
-      time = Time.now.sys - start_time
-      range = (expected_value - tolerance)..(expected_value + tolerance)
-      wait_str = "WAIT: #{_upcase(target_name, packet_name, item_name)}"
-      range_str = "range #{range.first} to #{range.last} with value == #{value} after waiting #{time} seconds"
-      if success
-        Logger.info "#{wait_str} was within #{range_str}"
+      value = tlm_variable(target_name, packet_name, item_name, type)
+      if value.is_a?(Array)
+        expected_value, tolerance = array_tolerance_process_args(value.size, expected_value, tolerance, type_string)
+
+        success, value = cosmos_script_wait_implementation_array_tolerance(value.size, target_name, packet_name, item_name, type, expected_value, tolerance, timeout, polling_rate)
+        time = Time.now.sys - start_time
+
+        message = ""
+        value.size.times do |i|
+          range = (expected_value[i]-tolerance[i]..expected_value[i]+tolerance[i])
+          wait_str = "WAIT: #{_upcase(target_name, packet_name, item_name)}[#{i}]"
+          range_str = "range #{range.first} to #{range.last} with value == #{value[i]} after waiting #{time} seconds"
+          if range.include?(value[i])
+            message << "#{wait_str} was within #{range_str}\n"
+          else
+            message << "#{wait_str} failed to be within #{range_str}\n"
+          end
+        end
+
+        if success
+          Logger.info message
+        else
+          Logger.warn message
+        end
       else
-        Logger.warn "#{wait_str} failed to be within #{range_str}"
+        success, value = cosmos_script_wait_implementation_tolerance(target_name, packet_name, item_name, type, expected_value, tolerance, timeout, polling_rate)
+        time = Time.now.sys - start_time
+        range = (expected_value - tolerance)..(expected_value + tolerance)
+        wait_str = "WAIT: #{_upcase(target_name, packet_name, item_name)}"
+        range_str = "range #{range.first} to #{range.last} with value == #{value} after waiting #{time} seconds"
+        if success
+          Logger.info "#{wait_str} was within #{range_str}"
+        else
+          Logger.warn "#{wait_str} failed to be within #{range_str}"
+        end
       end
       time
     end
@@ -330,21 +384,52 @@ module Cosmos
       type = (raw ? :RAW : :CONVERTED)
       target_name, packet_name, item_name, expected_value, tolerance, timeout, polling_rate = wait_tolerance_process_args(args, type_string)
       start_time = Time.now.sys
-      success, value = cosmos_script_wait_implementation_tolerance(target_name, packet_name, item_name, type, expected_value, tolerance, timeout, polling_rate)
-      time = Time.now.sys - start_time
-      range = (expected_value - tolerance)..(expected_value + tolerance)
-      check_str = "CHECK: #{_upcase(target_name, packet_name, item_name)}"
-      range_str = "range #{range.first} to #{range.last} with value == #{value} after waiting #{time} seconds"
-      if success
-        Logger.info "#{check_str} was within #{range_str}"
-      else
-        message = "#{check_str} failed to be within #{range_str}"
-        if $cmd_tlm_disconnect
-          Logger.error message
+      value = tlm_variable(target_name, packet_name, item_name, type)
+      if value.is_a?(Array)
+        expected_value, tolerance = array_tolerance_process_args(value.size, expected_value, tolerance, type_string)
+
+        success, value = cosmos_script_wait_implementation_array_tolerance(value.size, target_name, packet_name, item_name, type, expected_value, tolerance, timeout, polling_rate)
+        time = Time.now.sys - start_time
+
+        message = ""
+        value.size.times do |i|
+          range = (expected_value[i]-tolerance[i]..expected_value[i]+tolerance[i])
+          check_str = "CHECK: #{_upcase(target_name, packet_name, item_name)}[#{i}]"
+          range_str = "range #{range.first} to #{range.last} with value == #{value[i]} after waiting #{time} seconds"
+          if range.include?(value[i])
+            message << "#{check_str} was within #{range_str}\n"
+          else
+            message << "#{check_str} failed to be within #{range_str}\n"
+          end
+        end
+
+        if success
+          Logger.info message
         else
-          raise CheckError, message
+          if $cmd_tlm_disconnect
+            Logger.error message
+          else
+            raise CheckError, message
+          end
+        end
+      else
+        success, value = cosmos_script_wait_implementation_tolerance(target_name, packet_name, item_name, type, expected_value, tolerance, timeout, polling_rate)
+        time = Time.now.sys - start_time
+        range = (expected_value - tolerance)..(expected_value + tolerance)
+        check_str = "CHECK: #{_upcase(target_name, packet_name, item_name)}"
+        range_str = "range #{range.first} to #{range.last} with value == #{value} after waiting #{time} seconds"
+        if success
+          Logger.info "#{check_str} was within #{range_str}"
+        else
+          message = "#{check_str} failed to be within #{range_str}"
+          if $cmd_tlm_disconnect
+            Logger.error message
+          else
+            raise CheckError, message
+          end
         end
       end
+
       time
     end
 
@@ -463,6 +548,7 @@ module Cosmos
     end
 
     def check_file_cache_for_instrumented_script(path, md5)
+      file_text = nil
       instrumented_script = nil
       cached = true
       use_file_cache = true
@@ -486,6 +572,12 @@ module Cosmos
           cache_filename = File.join(cache_path, flat_path_with_md5)
         end
 
+        begin
+          file_text = File.read(path)
+        rescue Exception => error
+          raise "Error reading procedure file : #{path}"
+        end
+
         if use_file_cache and File.exist?(cache_filename)
           # Use file cached instrumentation
           File.open(cache_filename, 'r') {|file| instrumented_script = file.read}
@@ -493,13 +585,6 @@ module Cosmos
           cached = false
 
           # Build instrumentation
-          file_text = ''
-          begin
-            file_text = File.read(path)
-          rescue Exception => error
-            raise "Error reading procedure file : #{path}"
-          end
-
           instrumented_script = ScriptRunnerFrame.instrument_script(file_text, path, true)
 
           # Cache instrumentation into file
@@ -512,7 +597,7 @@ module Cosmos
           end
         end
       end
-      [instrumented_script, cached]
+      [file_text, instrumented_script, cached]
     end
 
     def start(procedure_name)
@@ -534,8 +619,9 @@ module Cosmos
           # Use cached instrumentation
           instrumented_script = instrumented_cache[0]
         else
-          instrumented_script, cached = check_file_cache_for_instrumented_script(path, md5)
+          file_text, instrumented_script, cached = check_file_cache_for_instrumented_script(path, md5)
           # Cache instrumentation into RAM
+          ScriptRunnerFrame.file_cache[path] = file_text
           ScriptRunnerFrame.instrumented_cache[path] = [instrumented_script, md5]
         end
 
@@ -597,13 +683,21 @@ module Cosmos
       when 3
         target_name, packet_name, item_name = extract_fields_from_tlm_text(args[0])
         expected_value = args[1]
-        tolerance = args[2].abs
+        if args[2].is_a?(Array)
+          tolerance = args[2].map!(&:abs)
+        else
+          tolerance = args[2].abs
+        end
       when 5
         target_name = args[0]
         packet_name = args[1]
         item_name = args[2]
         expected_value = args[3]
-        tolerance = args[4].abs
+        if args[4].is_a?(Array)
+          tolerance = args[4].map!(&:abs)
+        else
+          tolerance = args[4].abs
+        end
       else
         # Invalid number of arguments
         raise "ERROR: Invalid number of arguments (#{args.length}) passed to #{function_name}()"
@@ -677,7 +771,11 @@ module Cosmos
       when 4, 5
         target_name, packet_name, item_name = extract_fields_from_tlm_text(args[0])
         expected_value = args[1]
-        tolerance = args[2].abs
+        if args[2].is_a?(Array)
+          tolerance = args[2].map!(&:abs)
+        else
+          tolerance = args[2].abs
+        end
         timeout = args[3]
         if args.length == 5
           polling_rate = args[4]
@@ -689,7 +787,11 @@ module Cosmos
         packet_name = args[1]
         item_name = args[2]
         expected_value = args[3]
-        tolerance = args[4].abs
+        if args[4].is_a?(Array)
+          tolerance = args[4].map!(&:abs)
+        else
+          tolerance = args[4].abs
+        end
         timeout = args[5]
         if args.length == 7
           polling_rate = args[6]
@@ -701,6 +803,27 @@ module Cosmos
         raise "ERROR: Invalid number of arguments (#{args.length}) passed to #{function_name}()"
       end
       return [target_name, packet_name, item_name, expected_value, tolerance, timeout, polling_rate]
+    end
+
+    # When testing an array with a tolerance, the expected value and tolerance
+    # can both be supplied as either an array or a single value.  If a single
+    # value is passed in, that value will be used for all array elements.
+    def array_tolerance_process_args(array_size, expected_value, tolerance, function_name)
+      if expected_value.is_a?(Array)
+        if array_size != expected_value.size
+          raise "ERROR: Invalid array size for expected_value passed to #{function_name}()"
+        end
+      else
+        expected_value = Array.new(array_size, expected_value)
+      end
+      if tolerance.is_a?(Array)
+        if array_size != tolerance.size
+          raise "ERROR: Invalid array size for tolerance passed to #{function_name}()"
+        end
+      else
+        tolerance = Array.new(array_size, tolerance)
+      end
+      return [expected_value, tolerance]
     end
 
     def wait_check_process_args(args, function_name)
@@ -800,7 +923,16 @@ module Cosmos
 
     def cosmos_script_wait_implementation_tolerance(target_name, packet_name, item_name, value_type, expected_value, tolerance, timeout, polling_rate = DEFAULT_TLM_POLLING_RATE)
       _cosmos_script_wait_implementation(target_name, packet_name, item_name, value_type, timeout, polling_rate) do
-        "((#{expected_value} - #{tolerance.abs})..(#{expected_value} + #{tolerance.abs})).include? value"
+        "((#{expected_value} - #{tolerance})..(#{expected_value} + #{tolerance})).include? value"
+      end
+    end
+
+    def cosmos_script_wait_implementation_array_tolerance(array_size, target_name, packet_name, item_name, value_type, expected_value, tolerance, timeout, polling_rate = DEFAULT_TLM_POLLING_RATE)
+      statements = []
+      array_size.times {|i| statements << "(((#{expected_value[i]} - #{tolerance[i]})..(#{expected_value[i]} + #{tolerance[i]})).include? value[#{i}])"}
+      exp_to_eval = statements.join(" && ")
+      _cosmos_script_wait_implementation(target_name, packet_name, item_name, value_type, timeout, polling_rate) do
+        exp_to_eval
       end
     end
 

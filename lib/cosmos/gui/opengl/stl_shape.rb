@@ -13,7 +13,8 @@ require 'cosmos/gui/opengl/stl_reader'
 require 'cosmos/gui/dialogs/progress_dialog'
 
 module Cosmos
-
+  # Uses a {StlReader} to read a STL file and create an OpenGL shape which can
+  # be rendered in a scene.
   class StlShape < GlShape
     @@splash = nil
 
@@ -122,7 +123,5 @@ module Cosmos
       # Set Pixel Storage Size
       GL.PixelStorei(GL::UNPACK_ALIGNMENT, 1)
     end
-
-  end # StlShape
-
-end # module Cosmos
+  end
+end

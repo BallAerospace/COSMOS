@@ -1,8 +1,8 @@
-SetWinDelay 500
+SetWinDelay 1000
 WinWaitActive Limits Monitor
-Sleep 2000
+Sleep 500
 Run ruby.exe %A_ScriptDir%/CmdTlmServer
-Sleep 2000
+Sleep 4000
 WinActivate Limits Monitor
 Sleep 3000
 Send !fp ; Options
@@ -119,5 +119,3 @@ Send {Enter}
 WinActivate Limits Monitor
 Sleep 500
 Send ^q
-
-
