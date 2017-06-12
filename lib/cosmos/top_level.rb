@@ -610,7 +610,9 @@ module Cosmos
   def self.require_file(filename, log_error = true)
     begin
       require filename
-    rescue LoadError => err
+    # Rescue Exception to handle LoadErrors as well as any internal errors
+    # in the script being loaded
+    rescue Exception => err
       msg = "Unable to require #{filename} due to #{err.message}. Ensure #{filename} is in the COSMOS lib directory."
       Logger.error msg if log_error
       # Reraise the existing exeption with the new message while keeping the backtrace

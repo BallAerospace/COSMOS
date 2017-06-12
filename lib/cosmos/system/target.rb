@@ -130,7 +130,6 @@ module Cosmos
               const = find_or_create_const(@name)
               const.module_eval(File.read(File.join(@dir, 'lib', parameters[0])))
               found = true
-              @requires << filename
             end
           rescue Exception => err
             raise parser.error(err.message)

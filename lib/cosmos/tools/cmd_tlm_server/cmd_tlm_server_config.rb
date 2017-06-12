@@ -143,6 +143,10 @@ module Cosmos
               current_interface_or_router.name = interface_name
               @interfaces[interface_name] = current_interface_or_router
             rescue LoadError
+              # Clear the current_interface_or_router since the require failed
+              # This prevents a previously defined interface from working with
+              # subsequent keywords when it should be out of context
+              current_interface_or_router = nil
               @tgt_interface = OpenStruct.new
               @tgt_interface.name = interface_name
               @tgt_interface.filename = params[1]
