@@ -16,10 +16,18 @@ module Cosmos
 
   describe CmdTlmServer do
     before(:all) do
-      cts = File.join(Cosmos::USERPATH,'config','tools','cmd_tlm_server','cmd_tlm_server.txt')
+      @filename = File.join(Cosmos::USERPATH,'config','tools','cmd_tlm_server','cmd_tlm_server.txt')
+      cts = File.join(@filename)
       FileUtils.mkdir_p(File.dirname(cts))
       File.open(cts,'w') do |file|
-        file.puts 'INTERFACE INT interface.rb'
+        file.puts 'INTERFACE INST_INT my_interface.rb'
+        file.puts '  TARGET INST'
+      end
+      class MyInterface < Interface
+        def read
+          sleep 0.05
+          System.telemetry.packet("SYSTEM","LIMITS_CHANGE")
+        end
       end
     end
 
@@ -274,16 +282,11 @@ module Cosmos
       end
 
       it "subscribes to packets" do
-        limts_change = System.telemetry.packet("SYSTEM","LIMITS_CHANGE")
-        allow_any_instance_of(Interface).to receive(:read) do
-          sleep 0.05
-          limts_change
-        end
-
         cts = CmdTlmServer.new
         id = CmdTlmServer.subscribe_packet_data([["SYSTEM","LIMITS_CHANGE"]])
 
         # Get and check the packet
+        times = 0
         begin
           buffer,tgt,pkt,tv_sec,tv_usec,cnt = CmdTlmServer.get_packet_data(id, true)
           expect(buffer).not_to be_nil
@@ -291,15 +294,18 @@ module Cosmos
           expect(pkt).to eql "LIMITS_CHANGE"
           expect(tv_sec).to be > 0
           expect(tv_usec).to be > 0
-          expect(cnt).to eql 1
+          expect(cnt).to be > 0
         rescue => err
           sleep 0.1
-          retry
+          times += 1
+          retry if times < 10
         end
+        expect(times).to be < 10
 
         sleep 0.1
 
         # Get and check the second one
+        times = 0
         begin
           buffer,tgt,pkt,tv_sec,tv_usec,cnt = CmdTlmServer.get_packet_data(id, true)
           expect(buffer).not_to be_nil
@@ -307,27 +313,24 @@ module Cosmos
           expect(pkt).to eql "LIMITS_CHANGE"
           expect(tv_sec).to be > 0
           expect(tv_usec).to be > 0
-          expect(cnt).to eql 2
+          expect(cnt).to be > 0
         rescue
           sleep 0.1
-          retry
+          times += 1
+          retry if times < 10
         end
+        expect(times).to be < 10
 
         cts.stop
         sleep 0.2
       end
 
       it "deletes queues after the max packets is reached" do
-        limits_change = System.telemetry.packet("SYSTEM","LIMITS_CHANGE")
-        allow_any_instance_of(Interface).to receive(:read) do
-          sleep 0.1
-          limits_change
-        end
-
         cts = CmdTlmServer.new
         id = CmdTlmServer.subscribe_packet_data([["SYSTEM","LIMITS_CHANGE"]], 2)
 
         # Get and check the packet
+        times = 0
         begin
           buffer,tgt,pkt,tv_sec,tv_usec,cnt = CmdTlmServer.get_packet_data(id, true)
           expect(buffer).not_to be_nil
@@ -339,8 +342,10 @@ module Cosmos
           expect(cnt).to be > 0
         rescue
           sleep 0.1
-          retry
+          times += 1
+          retry if times < 10
         end
+        expect(times).to be < 10
 
         # Allow the interface read to fill the queue
         sleep 0.4
@@ -355,16 +360,11 @@ module Cosmos
 
     describe "self.unsubscribe_packet_data" do
       it "unsubscribes to packets" do
-        limits_change = System.telemetry.packet("SYSTEM","LIMITS_CHANGE")
-        allow_any_instance_of(Interface).to receive(:read) do
-          sleep 0.05
-          limits_change
-        end
-
         cts = CmdTlmServer.new
         id = CmdTlmServer.subscribe_packet_data([["SYSTEM","LIMITS_CHANGE"]], 2)
 
         # Get and check the packet
+        times = 0
         begin
           buffer,tgt,pkt,tv_sec,tv_usec,cnt = CmdTlmServer.get_packet_data(id, true)
           expect(buffer).not_to be_nil
@@ -375,8 +375,10 @@ module Cosmos
           expect(cnt).to be > 0
         rescue => err
           sleep 0.1
-          retry
+          times += 1
+          retry if times < 10
         end
+        expect(times).to be < 10
 
         # Unsubscribe and try to get another packet
         CmdTlmServer.unsubscribe_packet_data(id)
@@ -416,4 +418,3 @@ module Cosmos
 
   end
 end
-
