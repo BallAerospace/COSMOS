@@ -442,7 +442,11 @@ module Cosmos
         text = state_value_item.text if state_value_item && (text == MANUALLY or @cmd_raw.checked?)
         quotes_removed = text.remove_quotes
         if text == quotes_removed
-          params[packet_item.name] = text.convert_to_value
+          if (packet_item.data_type == :STRING or packet_item.data_type == :BLOCK) and text.upcase.start_with?("0X")
+            params[packet_item.name] = text.hex_to_byte_string
+          else  
+            params[packet_item.name] = text.convert_to_value
+          end
         else
           params[packet_item.name] = quotes_removed
         end
@@ -606,7 +610,12 @@ module Cosmos
               if @states_in_hex.checked? && packet_item.default.kind_of?(Integer)
                 state_value_item = Qt::TableWidgetItem.new(sprintf("0x%X", packet_item.default))
               else
-                state_value_item = Qt::TableWidgetItem.new(packet_item.default.to_s)
+                default_str = packet_item.default.to_s
+                if default_str.is_printable?
+                  state_value_item = Qt::TableWidgetItem.new(default_str)
+                else
+                  state_value_item = Qt::TableWidgetItem.new("0x" + default_str.simple_formatted)
+                end
               end
             end
             state_value_item.setTextAlignment(Qt::AlignRight | Qt::AlignVCenter)
@@ -625,19 +634,23 @@ module Cosmos
               value_item = Qt::TableWidgetItem.new(old_params[packet_item.name])
             else
               if packet_item.required
-                value_item = Qt::TableWidgetItem.new('')
+                value_text = ''
               else
                 if packet_item.format_string
                   begin
-                    value_item = Qt::TableWidgetItem.new(sprintf(packet_item.format_string, packet_item.default))
+                    value_text = sprintf(packet_item.format_string, packet_item.default)
                   rescue
                     # Oh well - Don't use the format string
-                    value_item = Qt::TableWidgetItem.new(packet_item.default.to_s)
+                    value_text = packet_item.default.to_s
                   end
                 else
-                  value_item = Qt::TableWidgetItem.new(packet_item.default.to_s)
+                  value_text = packet_item.default.to_s
+                end
+                if !value_text.is_printable?
+                  value_text = "0x" + value_text.simple_formatted
                 end
               end
+              value_item = Qt::TableWidgetItem.new(value_text)
             end
             value_item.setTextAlignment(Qt::AlignRight | Qt::AlignVCenter)
             value_item.setFlags(Qt::NoItemFlags | Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsEditable)
