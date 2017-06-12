@@ -36,14 +36,8 @@ module Cosmos
       unless @initialized
         # Save the current time + 10 ms as the next expected tick time
         @next_tick_time = Time.now.sys + 0.01
-
-        begin
-          @sim_target_class = Cosmos.require_class @sim_target_file
-        rescue LoadError
-          @sim_target_class = @sim_target_file.filename_to_class_name.to_class(@target_names[0])
-          raise "#{@sim_target_file.filename_to_class_name} could not be found. "\
-            "Did you 'REQUIRE #{@sim_target_file}' in target.txt?" unless @sim_target_class
-        end
+        # sim_target_file should already be REQUIRED in the target.txt file
+        @sim_target_class = @sim_target_file.filename_to_class_name.to_class(@target_names[0])
         # Create Simulated Target Object
         @sim_target = @sim_target_class.new(@target_names[0])
         @sim_target.set_rates

@@ -131,8 +131,8 @@ module Cosmos
               const.module_eval(File.read(File.join(@dir, 'lib', parameters[0])))
               found = true
             end
-          rescue Exception => err
-            raise parser.error(err.message)
+          rescue Exception => error
+            raise parser.error(error.message)
           end
 
           # Now simply require the file to allow it to be overriden elsewhere
