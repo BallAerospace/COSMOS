@@ -738,13 +738,27 @@ module Cosmos
             else
               table.write(item.name, value)
             end
-            raise "out of range" if item.range && !item.range.include?(table.read(item.name, :RAW))
+            if item.range && !item.range.include?(table.read(item.name, :RAW))
+              if gui_table.item(r, c).text.upcase.start_with?("0X") # display as hex
+                min = "0x#{item.range.min.to_s(16).upcase}"
+                max = "0x#{item.range.max.to_s(16).upcase}"
+              else
+                min = item.range.min
+                max = item.range.max
+              end
+              raise "out of range. Minimum is #{min}. Maximum is #{max}"
+            end
 
           # if we have a problem casting the value it probably means the user put in garbage
           # in this case force the range check to fail
           rescue => error
             text = gui_table.item(r, c).text
-            result << "Error saving #{item.name} value of '#{text}' due to #{error.message}.\nDefault value is '#{item.default}'\n"
+            if text.upcase.start_with?("0X") # display as hex
+              default = "0x#{item.default.to_s(16).upcase}"
+            else
+              default = item.default
+            end
+            result << "Error saving #{item.name} value of #{text} due to #{error.message}. Default value is #{default}.\n\n"
           end
         end # end each table column
       end # end each table row
@@ -939,6 +953,8 @@ module Cosmos
     # Updates the table by setting the value in the table to the properly formatted value.
     def update_gui_item(table_name, table, gui_table, item, row, column)
       value = table.read(item.name, :FORMATTED)
+      # Handle binary strings
+      value = "0x" + value.simple_formatted unless value.is_printable?
 
       if item.states && item.states.keys.sort == %w(CHECKED UNCHECKED)
         table_item = create_checkable_table_item(item, value)
@@ -961,12 +977,16 @@ module Cosmos
           value = gui_item.text # convert_to_value?
         end
       else
-        text = gui_item.text
-        quotes_removed = text.remove_quotes
-        if text == quotes_removed
-          value = text.convert_to_value
+        if (item.data_type == :STRING || item.data_type == :BLOCK) && gui_item.text.upcase.start_with?("0X")
+          value = gui_item.text.hex_to_byte_string
         else
-          value = quotes_removed
+          text = gui_item.text
+          quotes_removed = text.remove_quotes
+          if text == quotes_removed
+            value = text.convert_to_value
+          else
+            value = quotes_removed
+          end
         end
       end
       value
