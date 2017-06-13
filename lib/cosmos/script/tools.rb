@@ -86,11 +86,15 @@ module Cosmos
     end
 
     def set_line_delay(delay)
-      _ensure_script_runner_frame { ScriptRunnerFrame.line_delay = delay if delay >= 0.0 }
+      if defined? ScriptRunnerFrame
+        ScriptRunnerFrame.line_delay = delay if delay >= 0.0
+      end
     end
 
     def get_line_delay
-      _ensure_script_runner_frame { ScriptRunnerFrame.line_delay }
+      if defined? ScriptRunnerFrame
+        ScriptRunnerFrame.line_delay
+      end
     end
 
     def get_scriptrunner_message_log_filename
@@ -135,15 +139,21 @@ module Cosmos
     end
 
     def step_mode
-      _ensure_script_runner_frame { ScriptRunnerFrame.step_mode = true }
+      if defined? ScriptRunnerFrame
+        ScriptRunnerFrame.step_mode = true
+      end
     end
 
     def run_mode
-      _ensure_script_runner_frame { ScriptRunnerFrame.step_mode = false }
+      if defined? ScriptRunnerFrame
+        ScriptRunnerFrame.step_mode = false
+      end
     end
 
     def show_backtrace(value = true)
-      _ensure_script_runner_frame { ScriptRunnerFrame.show_backtrace = value }
+      if defined? ScriptRunnerFrame
+        ScriptRunnerFrame.show_backtrace = value
+      end
     end
 
   end # module Script
