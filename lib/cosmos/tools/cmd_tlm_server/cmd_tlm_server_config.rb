@@ -130,23 +130,42 @@ module Cosmos
             parser.verify_num_parameters(2, nil, usage)
             interface_name = params[0].upcase
             raise parser.error("Interface '#{interface_name}' defined twice") if @interfaces[interface_name]
-            interface_class = Cosmos.require_class(params[1])
-            if params[2]
-              current_interface_or_router = interface_class.new(*params[2..-1])
-            else
-              current_interface_or_router = interface_class.new
+            begin
+              # Require the file first with logging disabled because the file
+              # is probably in the target lib folder and thus will be namespaced
+              # so we want to catch the fail in the rescue LoadError
+              Cosmos.require_file(params[1], false)
+              interface_class = Cosmos.require_class(params[1])
+              if params[2]
+                current_interface_or_router = interface_class.new(*params[2..-1])
+              else
+                current_interface_or_router = interface_class.new
+              end
+              current_type = :INTERFACE
+              current_interface_log_added = false
+              current_interface_or_router.packet_log_writer_pairs << @packet_log_writer_pairs['DEFAULT']
+              current_interface_or_router.name = interface_name
+              @interfaces[interface_name] = current_interface_or_router
+            rescue LoadError
+              # Clear the current_interface_or_router since the require failed
+              # This prevents a previously defined interface from working with
+              # subsequent keywords when it should be out of context
+              current_interface_or_router = nil
+              # Store all the interface parameters so later on when the interface
+              # is assigned with the TARGET keyword we can create it with the
+              # proper target namespace
+              @tgt_interface = OpenStruct.new
+              @tgt_interface.name = interface_name
+              @tgt_interface.filename = params[1]
+              @tgt_interface.params = params[2..-1]
             end
-            current_type = :INTERFACE
-            current_interface_log_added = false
-            current_interface_or_router.packet_log_writer_pairs << @packet_log_writer_pairs['DEFAULT']
-            current_interface_or_router.name = interface_name
-            @interfaces[interface_name] = current_interface_or_router
 
           when 'LOG', 'DONT_LOG', 'TARGET'
-            raise parser.error("No current interface for #{keyword}") unless current_interface_or_router and current_type == :INTERFACE
+            unless (current_interface_or_router && current_type == :INTERFACE) || @tgt_interface
+              raise parser.error("No current interface for #{keyword}")
+            end
 
             case keyword
-
             when 'LOG'
               parser.verify_num_parameters(1, 1, "#{keyword} <Packet Log Writer Name>")
               packet_log_writer_pair = @packet_log_writer_pairs[params[0].upcase]
@@ -164,6 +183,27 @@ module Cosmos
               target_name = params[0].upcase
               target = System.targets[target_name]
               if target
+                if @tgt_interface
+                  # Interface should already be required by target.txt
+                  interface_class = @tgt_interface.filename.filename_to_class_name.to_class(target_name)
+                  raise parser.error("#{@tgt_interface.filename.filename_to_class_name} class not found. "\
+                                     "Did you 'REQUIRE #{@tgt_interface.filename}' in target.txt?") unless interface_class
+                  begin
+                    if @tgt_interface.params[0]
+                      current_interface_or_router = interface_class.new(*@tgt_interface.params[0..-1])
+                    else
+                      current_interface_or_router = interface_class.new
+                    end
+                  rescue => error
+                    raise parser.error("Target #{target_name} could not create interface #{interface_class} with parameters #{params} due to:\n#{error.message}")
+                  end
+                  current_type = :INTERFACE
+                  current_interface_log_added = false
+                  current_interface_or_router.packet_log_writer_pairs << @packet_log_writer_pairs['DEFAULT']
+                  current_interface_or_router.name = @tgt_interface.name
+                  @interfaces[@tgt_interface.name] = current_interface_or_router
+                  @tgt_interface = nil
+                end
                 target.interface = current_interface_or_router
                 current_interface_or_router.target_names << target_name
               else
@@ -253,8 +293,8 @@ module Cosmos
           else
             # blank lines will have a nil keyword and should not raise an exception
             raise parser.error("Unknown keyword: #{keyword}") unless keyword.nil?
-          end  # case
-        end  # loop
+          end # case
+        end # loop
       end
     end
   end

@@ -45,16 +45,18 @@ end
     end
 
     describe "initialize" do
-      it "complains if the simulated target file doesn't exist" do
-        expect { SimulatedTargetInterface.new("doesnt_exist.rb") }.to raise_error(/Unable to require doesnt_exist.rb/)
-      end
-
       it "creates the simulated target class" do
         SimulatedTargetInterface.new("test_inst.rb")
       end
     end
 
     describe "connect" do
+      it "complains if the simulated target file doesn't exist" do
+        sti = SimulatedTargetInterface.new("does_not_exist.rb")
+        sti.target_names = ['COSMOS']
+        expect { sti.connect }.to raise_error(/DoesNotExist could not be found/)
+      end
+
       it "creates the simulated target" do
         sti = SimulatedTargetInterface.new("test_inst.rb")
         sti.target_names = ['SYSTEM']

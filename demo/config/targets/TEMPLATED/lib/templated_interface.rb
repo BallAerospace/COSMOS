@@ -10,47 +10,42 @@
 
 require 'cosmos'
 
-module Cosmos
+class TemplatedInterface < TcpipClientInterface
+  def initialize(*args)
+    super(*args)
+    @polling_thread = nil
+    @sleeper = Sleeper.new
+  end
 
-  class TemplatedInterface < TcpipClientInterface
-    def initialize(*args)
-      super(*args)
-      @polling_thread = nil
+  def connect
+    super()
+    # Start a thread to poll telemetry
+    Thread.new do |thread|
+      Cosmos.kill_thread(self, @polling_thread)
       @sleeper = Sleeper.new
-    end
-
-    def connect
-      super()
-
-      # Start a thread to poll telemetry
-      Thread.new do |thread|
-        Cosmos.kill_thread(self, @polling_thread)
-        @sleeper = Sleeper.new
-        @polling_thread = Thread.current
-        begin
-          while connected?
-            cmd("#{@target_names[0]} GET_SETPT_VOLTAGE")
-            break if @sleeper.sleep(1)
-          end
-        rescue Errno::ECONNRESET
-          # This typically means the target disconnected
-        rescue Exception => err
-          Logger.error "Polling Thread Unexpectedly Died.\n#{err.formatted}"
+      @polling_thread = Thread.current
+      begin
+        while connected?
+          cmd("#{@target_names[0]} GET_SETPT_VOLTAGE")
+          break if @sleeper.sleep(1)
         end
+      rescue Errno::ECONNRESET
+        # This typically means the target disconnected
+      rescue Exception => err
+        Logger.error "Polling Thread Unexpectedly Died.\n#{err.formatted}"
       end
-    end
-
-    def disconnect
-      super()
-      # Note: This must be after super or the disconnect process will be interrupted by killing
-      # the thread
-      Cosmos.kill_thread(self, @polling_thread) if Thread.current != @polling_thread
-      @polling_thread = nil
-    end
-
-    def graceful_kill
-      @sleeper.cancel
     end
   end
 
-end # module Cosmos
+  def disconnect
+    super()
+    # Note: This must be after super or the disconnect process will be interrupted by killing
+    # the thread
+    Cosmos.kill_thread(self, @polling_thread) if Thread.current != @polling_thread
+    @polling_thread = nil
+  end
+
+  def graceful_kill
+    @sleeper.cancel
+  end
+end

@@ -21,11 +21,13 @@ module Cosmos
     describe "process_file" do
       before(:each) do
         @pc = PacketConfig.new
+        @temp_dir = File.join(Dir.tmpdir, 'targets', 'TEST')
+        FileUtils.mkdir_p @temp_dir
       end
 
       it "complains if a current packet is not defined" do
         # Check for missing TELEMETRY line
-        tf = Tempfile.new('unittest')
+        tf = Tempfile.new('unittest', @temp_dir)
         tf.puts('PROCESSOR')
         tf.close
         expect { @pc.process_file(tf.path, "SYSTEM") }.to raise_error(ConfigParser::Error, /No current packet for PROCESSOR/)
@@ -33,7 +35,7 @@ module Cosmos
       end
 
       it "complains if there are not enough parameters" do
-        tf = Tempfile.new('unittest')
+        tf = Tempfile.new('unittest', @temp_dir)
         tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Packet"'
         tf.puts '  PROCESSOR'
         tf.close
@@ -46,7 +48,7 @@ module Cosmos
         File.delete(filename) if File.exist?(filename)
         @pc = PacketConfig.new
 
-        tf = Tempfile.new('unittest')
+        tf = Tempfile.new('unittest', @temp_dir)
         tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Packet"'
         tf.puts '  PROCESSOR TEST test_only.rb'
         tf.close
@@ -65,7 +67,7 @@ module Cosmos
         load 'processor1.rb'
         File.delete(filename) if File.exist?(filename)
 
-        tf = Tempfile.new('unittest')
+        tf = Tempfile.new('unittest', @temp_dir)
         tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Packet"'
         tf.puts '  PROCESSOR P1 processor1.rb'
         tf.close
@@ -85,7 +87,7 @@ module Cosmos
         end
         load 'processor2.rb'
 
-        tf = Tempfile.new('unittest')
+        tf = Tempfile.new('unittest', @temp_dir)
         tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Packet"'
         tf.puts '  ITEM item1 0 16 INT "Integer Item"'
         tf.puts '    READ_CONVERSION processor_conversion.rb P2 TEST'
@@ -101,7 +103,7 @@ module Cosmos
       end
 
       it "complains if applied to a command packet" do
-        tf = Tempfile.new('unittest')
+        tf = Tempfile.new('unittest', @temp_dir)
         tf.puts 'COMMAND tgt1 pkt1 LITTLE_ENDIAN "Packet"'
         tf.puts '  PROCESSOR P1 processor1.rb'
         tf.close

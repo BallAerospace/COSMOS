@@ -183,6 +183,33 @@ module Cosmos
         end
       end
 
+      context "with a custom target interface" do
+        it "uses the target lib file" do
+          target_filename = File.join(Cosmos::USERPATH,'config','targets','INST','target.txt')
+          target_txt = File.read(target_filename)
+          File.open(target_filename, 'w') do |file|
+            file.puts "REQUIRE my_cmd_tlm_server_interface.rb"
+          end
+          interface_filename = File.join(Cosmos::USERPATH,'config','targets','INST','lib','my_cmd_tlm_server_interface.rb')
+          File.open(interface_filename, 'w') do |file|
+            file.puts "require 'cosmos/interfaces/interface'"
+            file.puts "class MyCmdTlmServerInterface < Interface; end"
+          end
+          target = Target.new("INST").process_file(target_filename)
+
+          tf = Tempfile.new('unittest')
+          tf.puts 'INTERFACE INST_INT my_cmd_tlm_server_interface.rb'
+          tf.puts '  TARGET INST'
+          tf.close
+          config = CmdTlmServerConfig.new(tf.path)
+          expect(config.interfaces.keys).to eql %w(INST_INT)
+          expect(config.interfaces['INST_INT'].class).to eql Cosmos::INST::MyCmdTlmServerInterface
+          FileUtils.rm interface_filename
+          File.open(target_filename, 'w') {|file| file.write target_txt }
+          tf.unlink
+        end
+      end
+
       context "with DONT_CONNECT" do
         it "complains about too many parameters" do
           tf = Tempfile.new('unittest')

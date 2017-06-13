@@ -21,10 +21,12 @@ module Cosmos
     describe "parse" do
       before(:each) do
         @pc = PacketConfig.new
+        @temp_dir = File.join(Dir.tmpdir, 'targets', 'TEST')
+        FileUtils.mkdir_p @temp_dir
       end
 
       it "complains if a current item is not defined" do
-        tf = Tempfile.new('unittest')
+        tf = Tempfile.new('unittest', @temp_dir)
         tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Packet"'
         tf.puts '  LIMITS_RESPONSE'
         tf.close
@@ -33,7 +35,7 @@ module Cosmos
       end
 
       it "complains if there are not enough parameters" do
-        tf = Tempfile.new('unittest')
+        tf = Tempfile.new('unittest', @temp_dir)
         tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Packet"'
         tf.puts 'ITEM myitem 0 8 UINT "Test Item"'
         tf.puts '  LIMITS_RESPONSE'
@@ -43,7 +45,7 @@ module Cosmos
       end
 
       it "complains if applied to a command PARAMETER" do
-        tf = Tempfile.new('unittest')
+        tf = Tempfile.new('unittest', @temp_dir)
         tf.puts 'COMMAND tgt1 pkt1 LITTLE_ENDIAN "Packet"'
         tf.puts '  APPEND_PARAMETER item1 16 UINT 0 0 0 "Item"'
         tf.puts '    LIMITS_RESPONSE test.rb'
@@ -57,7 +59,7 @@ module Cosmos
         File.delete(filename) if File.exist?(filename)
         @pc = PacketConfig.new
 
-        tf = Tempfile.new('unittest')
+        tf = Tempfile.new('unittest', @temp_dir)
         tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Packet"'
         tf.puts '  ITEM item1 0 16 INT "Integer Item"'
         tf.puts '    LIMITS DEFAULT 3 ENABLED 1 2 6 7 3 5'
@@ -78,7 +80,7 @@ module Cosmos
         load 'limits_response1.rb'
         File.delete(filename) if File.exist?(filename)
 
-        tf = Tempfile.new('unittest')
+        tf = Tempfile.new('unittest', @temp_dir)
         tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Packet"'
         tf.puts '  ITEM item1 0 16 INT "Integer Item"'
         tf.puts '    LIMITS DEFAULT 3 ENABLED 1 2 6 7 3 5'
@@ -100,7 +102,7 @@ module Cosmos
         end
         load 'limits_response2.rb'
 
-        tf = Tempfile.new('unittest')
+        tf = Tempfile.new('unittest', @temp_dir)
         tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Packet"'
         tf.puts '  ITEM item1 0 16 INT "Integer Item"'
         tf.puts '    LIMITS DEFAULT 1 ENABLED 1 2 6 7 3 5'
@@ -129,7 +131,7 @@ module Cosmos
         end
         load 'limits_response2.rb'
 
-        tf = Tempfile.new('unittest')
+        tf = Tempfile.new('unittest', @temp_dir)
         tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Packet"'
         tf.puts '  ITEM item1 0 16 INT "Integer Item"'
         tf.puts '    LIMITS DEFAULT 1 ENABLED 1 2 6 7 3 5'

@@ -13,7 +13,6 @@ require 'cosmos/ext/string'
 
 # COSMOS specific additions to the Ruby String class
 class String
-
   # The printable range of ASCII characters
   PRINTABLE_RANGE = 32..126
   # Regular expression to identify a String as a floating point number
@@ -288,8 +287,11 @@ class String
   # Converts a String representing a class (i.e. "MyGreatClass") to the actual
   # class that has been required and is present in the Ruby runtime.
   #
+  # @param target_name [String] Optional target_name to namespace the class
+  #   under after trying the base class. Namespaced class will be placed under
+  #   the Cosmos top level namespace like so: Cosmos::<target_name>::ClassName
   # @return [Class]
-  def to_class
+  def to_class(target_name = nil)
     klass = nil
     split_self = self.split('::')
     if split_self.length > 1
@@ -303,11 +305,20 @@ class String
     else
       begin
         klass = Cosmos.const_get(self)
-      rescue
+      rescue NameError
         begin
           klass = Object.const_get(self)
-        rescue
+        rescue NameError
+          klass = nil
         end
+      end
+    end
+    if klass.nil? && target_name
+      begin
+        # Re-call this method after adding namespacing
+        klass = "Cosmos::#{target_name}::#{self}".to_class
+      rescue NameError # Even the namespaced class couldn't be found
+        klass = nil
       end
     end
     klass
@@ -324,5 +335,4 @@ class String
       return self
     end
   end
-
-end # class String
+end
