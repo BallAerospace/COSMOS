@@ -13,9 +13,7 @@ require 'cosmos/interfaces'
 require 'cosmos/tools/cmd_tlm_server/interface_thread'
 
 module Cosmos
-
   class ExampleTarget
-
     class ExampleServerInterface < TcpipServerInterface
       PORT = 9999
 
@@ -23,15 +21,13 @@ module Cosmos
         super(PORT, PORT, 5.0, nil, 'LENGTH', 0, 32, 4, 1, 'BIG_ENDIAN', 4)
       end
 
-      def pre_write_packet(packet)
-        [packet.length].pack('N') << packet.buffer(false)
+      def pre_write_data(packet_data)
+        packet_data.prepend([packet_data.length].pack('N'))
       end
     end
 
     class ExampleInterfaceThread < InterfaceThread
-
       protected
-
       def handle_packet(packet)
         identified_packet = System.commands.identify(packet.buffer, ['EXAMPLE'])
         if identified_packet
@@ -55,7 +51,7 @@ module Cosmos
         @thread = Thread.new do
           @stop_thread = false
           begin
-            while true
+            loop do
               packet.write('PACKET_ID', 1)
               packet.write('STRING', "The time is now: #{Time.now.sys.formatted}")
               @interface.write(packet)
@@ -107,7 +103,5 @@ module Cosmos
         target.stop
       end
     end
-
-  end # class ExampleTarget
-
-end # module Cosmos
+  end
+end

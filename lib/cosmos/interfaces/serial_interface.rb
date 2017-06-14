@@ -77,13 +77,5 @@ module Cosmos
       )
       @stream.connect
     end
-
-    def connected?
-      @stream ? @stream.connected? : false
-    end
-
-    def disconnect
-      @stream.disconnect if @stream
-    end
   end
 end

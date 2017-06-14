@@ -13,9 +13,7 @@ require 'cosmos/interfaces'
 require 'cosmos/tools/cmd_tlm_server/interface_thread'
 
 module Cosmos
-
   class ScpiTarget
-
     class ScpiServerInterface < TcpipServerInterface
       PORT = 5025
 
@@ -61,14 +59,10 @@ module Cosmos
       target = self.new
       begin
         target.start
-        while true
-          sleep 1
-        end
+        loop { sleep 1 }
       rescue SystemExit, Interrupt
         target.stop
       end
     end
-
-  end # class ScpiTarget
-
-end # module Cosmos
+  end
+end
