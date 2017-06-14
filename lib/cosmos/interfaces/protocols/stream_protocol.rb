@@ -113,6 +113,7 @@ module Cosmos
     def write_data(data)
       super(data)
       @stream.write(data)
+      data
     end
 
     # Called to perform modifications on a command packet before it is sent

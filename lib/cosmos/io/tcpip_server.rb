@@ -211,6 +211,7 @@ module Cosmos
       packet.buffer = data
       @write_queue << packet
       @write_condition_variable.broadcast
+      return data
     end
 
     # @return [Integer] The number of packets waiting on the read queue

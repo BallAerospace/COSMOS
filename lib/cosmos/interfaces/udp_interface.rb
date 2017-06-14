@@ -132,6 +132,7 @@ module Cosmos
     def write_data(data)
       super(data)
       @write_socket.write(data, @write_timeout)
+      data
     end
   end
 end
