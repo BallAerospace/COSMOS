@@ -268,36 +268,7 @@ module Cosmos
     end
 
     describe "write_raw" do
-      it "doesn't change the data if fill_fields is false" do
-        $buffer = ''
-        class MyStream < Stream
-          def connect; end
-          def connected?; true; end
-          def write(buffer) $buffer = buffer; end
-        end
-        @interface.instance_variable_set(:@stream, MyStream.new)
-        @interface.configure_stream_protocol(0, '0x1234')
-        @interface.write_raw("\x00\x01\x02\x03")
-        expect($buffer).to eql "\x00\x01\x02\x03"
-      end
-
-      # Discard bytes 0 means sync pattern is inside the data
-      # and write_raw only operates on the data stream
-      it "doesn't change the data if discard bytes is 0" do
-        $buffer = ''
-        class MyStream < Stream
-          def connect; end
-          def connected?; true; end
-          def write(buffer) $buffer = buffer; end
-        end
-        # Don't discard bytes, include and fill the sync pattern
-        @interface.instance_variable_set(:@stream, MyStream.new)
-        @interface.configure_stream_protocol(0, '0x1234', true)
-        @interface.write_raw("\x00\x01\x02\x03")
-        expect($buffer).to eql "\x00\x01\x02\x03"
-      end
-
-      it "adds the sync pattern to the data stream if discard bytes" do
+      it "doesnt change the data" do
         $buffer = ''
         class MyStream < Stream
           def connect; end
@@ -308,7 +279,7 @@ module Cosmos
         @interface.instance_variable_set(:@stream, MyStream.new)
         @interface.configure_stream_protocol(2, '0x1234', true)
         @interface.write_raw("\x00\x01\x02\x03")
-        expect($buffer).to eql "\x12\x34\x00\x01\x02\x03"
+        expect($buffer).to eql "\x00\x01\x02\x03"
       end
     end
   end

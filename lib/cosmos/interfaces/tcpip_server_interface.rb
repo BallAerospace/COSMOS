@@ -1,6 +1,6 @@
 # encoding: ascii-8bit
 
-# Copyright 2014 Ball Aerospace & Technologies Corp.
+# Copyright 2017 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
 # This program is free software; you can modify and/or redistribute it
@@ -26,19 +26,22 @@ module Cosmos
     # @param read_timeout [Integer] Seconds to wait before aborting reads
     # @param stream_protocol_type (see StreamInterface#initialize)
     # @param stream_protocol_args (see StreamInterface#initialize)
-    def initialize(write_port,
-                   read_port,
-                   write_timeout,
-                   read_timeout,
-                   stream_protocol_type,
-                   *stream_protocol_args)
+    def initialize(
+      write_port,
+      read_port,
+      write_timeout,
+      read_timeout,
+      stream_protocol_type,
+      *stream_protocol_args)
+
       super()
-      @tcpip_server = TcpipServer.new(write_port,
-                                      read_port,
-                                      write_timeout,
-                                      read_timeout,
-                                      stream_protocol_type,
-                                      *stream_protocol_args)
+      @tcpip_server = TcpipServer.new(
+        write_port,
+        read_port,
+        write_timeout,
+        read_timeout,
+        stream_protocol_type,
+        *stream_protocol_args)
       @tcpip_server.raw_logger_pair = @raw_logger_pair
       @read_allowed = false unless ConfigParser.handle_nil(read_port)
       @write_allowed = false unless ConfigParser.handle_nil(write_port)

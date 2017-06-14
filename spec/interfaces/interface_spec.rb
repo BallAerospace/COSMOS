@@ -320,32 +320,6 @@ module Cosmos
         expect(interface.write_count).to eq 0
         expect(interface.bytes_written).to eq 40
       end
-
-      it "aborts if pre_write_data returns nil" do
-        class <<interface
-          def connected?; true; end
-          def pre_write_data(data); nil; end
-        end
-        interface.write_raw(data)
-        expect(interface.write_count).to be 0
-        expect(interface.bytes_written).to be 0
-      end
-
-      it "allows pre_write_data to modify the data" do
-        class <<interface
-          def connected?; true; end
-          def pre_write_data(data)
-            "\x02\x03\x04\x05"
-          end
-        end
-        interface.start_raw_logging
-        interface.write_raw(data)
-        expect(interface.write_count).to be 0
-        expect(interface.bytes_written).to be 4
-        filename = interface.raw_logger_pair.write_logger.filename
-        interface.stop_raw_logging
-        expect(File.read(filename)).to eq "\x02\x03\x04\x05"
-      end
     end
 
     describe "copy_to" do

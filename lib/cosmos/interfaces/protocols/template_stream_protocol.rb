@@ -1,6 +1,6 @@
 # encoding: ascii-8bit
 
-# Copyright 2014 Ball Aerospace & Technologies Corp.
+# Copyright 2017 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
 # This program is free software; you can modify and/or redistribute it
@@ -19,6 +19,14 @@ module Cosmos
   # protocol handles sending the command and capturing the response.
   module TemplateStreamProtocol
     include TerminatedStreamProtocol
+
+    # Set procotol specific options
+    # @param procotol [String] Name of the procotol
+    # @param params [Array<Object>] Array of parameter values
+    def configure_protocol(protocol, params)
+      super(protocol, params)
+      configure_stream_protocol(*params) if protocol == 'TemplateStreamProtocol'
+    end
 
     # @param write_termination_characters (see TerminatedStreamProtocol#initialize)
     # @param read_termination_characters (see TerminatedStreamProtocol#initialize)

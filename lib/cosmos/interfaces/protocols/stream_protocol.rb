@@ -1,6 +1,6 @@
 # encoding: ascii-8bit
 
-# Copyright 2014 Ball Aerospace & Technologies Corp.
+# Copyright 2017 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
 # This program is free software; you can modify and/or redistribute it
@@ -29,6 +29,14 @@ module Cosmos
     #attr_reader :interface
     # @return [Stream] The stream this StreamProtocol is processing data from
     attr_accessor :stream
+
+    # Set procotol specific options
+    # @param procotol [String] Name of the procotol
+    # @param params [Array<Object>] Array of parameter values
+    def configure_protocol(protocol, params)
+      super(protocol, params)
+      configure_stream_protocol(*params) if protocol == 'StreamProtocol'
+    end
 
     # @param discard_leading_bytes [Integer] The number of bytes to discard
     #   from the binary data after reading from the stream. Note that this is often

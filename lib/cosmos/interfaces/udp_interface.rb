@@ -1,6 +1,6 @@
 # encoding: ascii-8bit
 
-# Copyright 2014 Ball Aerospace & Technologies Corp.
+# Copyright 2017 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
 # This program is free software; you can modify and/or redistribute it
@@ -27,15 +27,17 @@ module Cosmos
     # @param write_timeout [Integer] Seconds to wait before aborting writes
     # @param read_timeout [Integer] Seconds to wait before aborting reads
     # @param bind_address [String] Address to bind UDP ports to
-    def initialize(hostname,
-                   write_dest_port,
-                   read_port,
-                   write_src_port = nil,
-                   interface_address = nil,
-                   ttl = 128, # default for Windows
-                   write_timeout = 10.0,
-                   read_timeout = nil,
-                   bind_address = '0.0.0.0')
+    def initialize(
+      hostname,
+      write_dest_port,
+      read_port,
+      write_src_port = nil,
+      interface_address = nil,
+      ttl = 128, # default for Windows
+      write_timeout = 10.0,
+      read_timeout = nil,
+      bind_address = '0.0.0.0')
+
       super()
       @hostname = ConfigParser.handle_nil(hostname)
       if @hostname
@@ -73,16 +75,18 @@ module Cosmos
     # the constructor and a new {UdpReadSocket} if the read_port was given in
     # the constructor.
     def connect
-      @write_socket = UdpWriteSocket.new(@hostname,
-                                         @write_dest_port,
-                                         @write_src_port,
-                                         @interface_address,
-                                         @ttl,
-                                         @bind_address) if @write_dest_port
-      @read_socket = UdpReadSocket.new(@read_port,
-                                       @hostname,
-                                       @interface_address,
-                                       @bind_address) if @read_port
+      @write_socket = UdpWriteSocket.new(
+        @hostname,
+        @write_dest_port,
+        @write_src_port,
+        @interface_address,
+        @ttl,
+        @bind_address) if @write_dest_port
+      @read_socket = UdpReadSocket.new(
+        @read_port,
+        @hostname,
+        @interface_address,
+        @bind_address) if @read_port
       @thread_sleeper = nil
     end
 

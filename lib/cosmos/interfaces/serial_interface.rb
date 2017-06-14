@@ -1,6 +1,6 @@
 # encoding: ascii-8bit
 
-# Copyright 2014 Ball Aerospace & Technologies Corp.
+# Copyright 2017 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
 # This program is free software; you can modify and/or redistribute it
@@ -39,33 +39,24 @@ module Cosmos
                    stream_protocol_type,
                    *stream_protocol_args)
       super()
-      stream_protocol_class = stream_protocol_type.to_s.capitalize << 'StreamProtocol'
-      begin
-        # Initially try to find the class directly in the path
-        klass = Cosmos.require_class(stream_protocol_class.class_name_to_filename, false)
-      rescue LoadError => error
-        # Try to load the class from the known COSMOS protocols path location
-        klass = Cosmos.require_class("cosmos/interfaces/protocols/#{stream_protocol_class.class_name_to_filename}")
-      end
-      extend(klass)
-      configure_stream_protocol(*stream_protocol_args)
+      setup_stream_protocol(stream_protocol_type, stream_protocol_args)
 
       @write_port_name = ConfigParser.handle_nil(write_port_name)
-      @read_port_name  = ConfigParser.handle_nil(read_port_name)
+      @read_port_name = ConfigParser.handle_nil(read_port_name)
       @baud_rate = baud_rate
       @parity = parity.to_s.intern
       @stop_bits = stop_bits
       @write_timeout = write_timeout
       @read_timeout = read_timeout
-
-      @write_allowed     = false unless @write_port_name
+      @write_allowed = false unless @write_port_name
       @write_raw_allowed = false unless @write_port_name
-      @read_allowed      = false unless @read_port_name
+      @read_allowed = false unless @read_port_name
     end
 
     # Connects the stream protocol to a new {SerialStream} using the
     # parameters passed in the constructor.
     def connect
+      super()
       @stream = SerialStream.new(
         @write_port_name,
         @read_port_name,
@@ -75,7 +66,6 @@ module Cosmos
         @write_timeout,
         @read_timeout
       )
-      @stream.connect
     end
   end
 end

@@ -74,15 +74,9 @@ module Cosmos
       @write_timeout = @write_timeout.to_f if @write_timeout
       @read_timeout = ConfigParser.handle_nil(read_timeout)
       @read_timeout = @read_timeout.to_f if @read_timeout
-      stream_protocol_class = stream_protocol_type.to_s.capitalize << 'StreamProtocol'
+      @stream_protocol_class_name = stream_protocol_type.to_s.capitalize << 'StreamProtocol'
       @stream_protocol_args = stream_protocol_args
-      begin
-        # Initially try to find the class directly in the path
-        @stream_protocol_class = Cosmos.require_class(stream_protocol_class.class_name_to_filename, false)
-      rescue LoadError => error
-        # Try to load the class from the known COSMOS protocols path location
-        @stream_protocol_class = Cosmos.require_class("cosmos/interfaces/protocols/#{stream_protocol_class.class_name_to_filename}")
-      end
+      @stream_protocol_class = Cosmos.require_class(@stream_protocol_class_name.class_name_to_filename)
       @listen_sockets = []
       @listen_pipes = []
       @listen_threads = []
@@ -351,7 +345,7 @@ module Cosmos
         interface.raw_logger_pair.start if @raw_logging_enabled
       end
       interface.extend(@stream_protocol_class)
-      interface.configure_stream_protocol(*@stream_protocol_args)
+      interface.configure_protocol(@stream_protocol_class_name, @stream_protocol_args)
       interface.stream = stream
       interface.connect
 

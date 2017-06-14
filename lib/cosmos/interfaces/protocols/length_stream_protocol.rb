@@ -1,6 +1,6 @@
 # encoding: ascii-8bit
 
-# Copyright 2014 Ball Aerospace & Technologies Corp.
+# Copyright 2017 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
 # This program is free software; you can modify and/or redistribute it
@@ -17,6 +17,14 @@ module Cosmos
   # location in each packet.
   module LengthStreamProtocol
     include StreamProtocol
+
+    # Set procotol specific options
+    # @param procotol [String] Name of the procotol
+    # @param params [Array<Object>] Array of parameter values
+    def configure_protocol(protocol, params)
+      super(protocol, params)
+      configure_stream_protocol(*params) if protocol == 'LengthStreamProtocol'
+    end
 
     # @param length_bit_offset [Integer] The bit offset of the length field
     # @param length_bit_size [Integer] The size in bits of the length field

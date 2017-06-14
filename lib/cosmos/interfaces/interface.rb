@@ -1,6 +1,6 @@
 # encoding: ascii-8bit
 
-# Copyright 2014 Ball Aerospace & Technologies Corp.
+# Copyright 2017 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
 # This program is free software; you can modify and/or redistribute it
@@ -144,13 +144,15 @@ module Cosmos
       raise "Interface not connected for read: #{@name}" unless connected?
       data = read_data()
       return nil unless data
-      @raw_logger_pair.read_logger.write(data)
+      @raw_logger_pair.read_logger.write(data) if @raw_logger_pair
       @bytes_read += data.length
       # data could be modified by post_read_data (bytes added or subtracted)
       # but we count the number of bytes read from the lowest level above
       data = post_read_data(data)
       return nil unless data
-      packet = post_read_packet(Packet.new(nil, nil, :BIG_ENDIAN, nil, data))
+      packet = convert_data_to_packet(data)
+      return nil unless packet
+      packet = post_read_packet(packet)
       return nil unless packet
       @read_count += 1
       packet
@@ -163,11 +165,13 @@ module Cosmos
       _write do
         packet = pre_write_packet(packet)
         next unless packet
-        data = pre_write_data(packet.buffer(false))
+        data = convert_packet_to_data(packet)
+        next unless data
+        data = pre_write_data(data)
         next unless data
         # Only bump the packet write count if we actually write out the data
         @write_count += 1
-        write_data(data)
+        data = write_data(data)
         post_write_data(packet, data)
         data
       end
@@ -179,9 +183,9 @@ module Cosmos
     def write_raw(data)
       raise "Interface not connected for write_raw : #{@name}" unless connected? && write_raw_allowed?
       _write do
-        data = pre_write_data(data)
-        next unless data
-        write_data(data)
+        data = write_data(data)
+        post_write_data(nil, data)
+        data
       end
     end
 
@@ -190,7 +194,7 @@ module Cosmos
     # Wrap all writes in a mutex and handle errors
     def _write
       @write_mutex.synchronize { yield }
-    rescue => err
+    rescue Exception => err
       Logger.instance.error("Error writing to interface : #{@name}")
       disconnect()
       raise err
@@ -250,7 +254,7 @@ module Cosmos
       other_interface.write_count = self.write_count
       other_interface.bytes_read = self.bytes_read
       other_interface.bytes_written = self.bytes_written
-      other_interface.raw_logger_pair = self.raw_logger_pair.clone if self.raw_logger_pair
+      other_interface.raw_logger_pair = self.raw_logger_pair.clone if @raw_logger_pair
       # num_clients is per interface so don't copy
       # read_queue_size is the number of packets in the queue so don't copy
       # write_queue_size is the number of packets in the queue so don't copy
@@ -267,10 +271,10 @@ module Cosmos
     end
 
     # Set procotol specific options
-    # @param procotol [String] Name of the procotol
+    # @param protocol [String] Name of the procotol
     # @param params [Array<Object>] Array of parameter values
-    def configure_protocol(procotol, params)
-      @protocol_params[procotol] = params.clone
+    def configure_protocol(protocol, params)
+      @protocol_params[protocol] = params.clone
     end
 
     # Called to read data and manipulate it until enough data is
@@ -282,16 +286,24 @@ module Cosmos
     #
     # @return [String] Raw packet data
     def read_data
+      nil
     end
 
     # Called to perform modifications on read data before making it into a packet.
-    # TODO: Example of using this method
     # After this method is called the post_read_packet method is called.
     #
     # @param packet_data [String] Raw packet data
     # @return [String|nil] Potentially modified packet data or nil to abort read
     def post_read_data(packet_data)
       packet_data
+    end
+
+    # Called to convert the read data into a COSMOS Packet object
+    #
+    # @param data [String] Raw packet data
+    # @return [Packet] COSMOS Packet with buffer filled with data
+    def convert_data_to_packet(data)
+      Packet.new(nil, nil, :BIG_ENDIAN, nil, data)
     end
 
     # Called to perform modifications on a read packet before it is identified
@@ -324,9 +336,16 @@ module Cosmos
       packet
     end
 
+    # Called to convert a packet into the data to send
+    #
+    # @param packet [Packet] Packet to extract data from
+    # @return data
+    def convert_packet_to_data(packet)
+      packet.buffer(false)
+    end
+
     # Called to perform modifications on write data before writing it over the
     # interface.
-    # TODO: Example of using this interface
     # After this method is called the post_write_data method is called.
     #
     # @param packet_data [String] Raw packet data
@@ -340,9 +359,11 @@ module Cosmos
     # logging.
     #
     # @param data [String] Raw packet data
+    # @return data [String] The exact data written
     def write_data(data)
       @bytes_written += data.length
-      @raw_logger_pair.write_logger.write(data)
+      @raw_logger_pair.write_logger.write(data) if @raw_logger_pair
+      data
     end
 
     # Called to perform actions after writing data to the interface. For
@@ -350,10 +371,22 @@ module Cosmos
     # previous command you can implement response processing. Nothing is called
     # after this method completes.
     #
-    # @param packet [Packet] packet that was written out
+    # @param packet [Packet] packet that was written out. Will be nil from write_raw
     # @param data [String] binary data that was written out
     def post_write_data(packet, data)
       # Default do nothing
     end
+
+    # Handle Stream Protocol passed into COSMOS interface that use streams
+    #
+    # @param stream_protocol_type [String] Name of the Stream Protocol minus "StreamProtocol"
+    # @param stream_protocol_args [Array] Array of arguments to pass to the stream_protocol
+    def setup_stream_protocol(stream_protocol_type, stream_protocol_args)
+      stream_protocol_class_name = stream_protocol_type.to_s.capitalize << 'StreamProtocol'
+      klass = Cosmos.require_class(stream_protocol_class_name.class_name_to_filename)
+      extend(klass)
+      configure_protocol(stream_protocol_class_name, stream_protocol_args)
+    end
+
   end
 end

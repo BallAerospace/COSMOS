@@ -1,6 +1,6 @@
 # encoding: ascii-8bit
 
-# Copyright 2014 Ball Aerospace & Technologies Corp.
+# Copyright 2017 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
 # This program is free software; you can modify and/or redistribute it
@@ -23,24 +23,17 @@ module Cosmos
     # @param stream_protocol_type [String] Name of the stream protocol to use
     #   with this interface
     # @param stream_protocol_args [Array<String>] Arguments to pass to the protocol
-    def initialize(hostname,
-                   write_port,
-                   read_port,
-                   write_timeout,
-                   read_timeout,
-                   stream_protocol_type,
-                   *stream_protocol_args)
+    def initialize(
+      hostname,
+      write_port,
+      read_port,
+      write_timeout,
+      read_timeout,
+      stream_protocol_type,
+      *stream_protocol_args)
+
       super()
-      stream_protocol_class = stream_protocol_type.to_s.capitalize << 'StreamProtocol'
-      begin
-        # Initially try to find the class directly in the path
-        klass = Cosmos.require_class(stream_protocol_class.class_name_to_filename, false)
-      rescue LoadError => error
-        # Try to load the class from the known COSMOS protocols path location
-        klass = Cosmos.require_class("cosmos/interfaces/protocols/#{stream_protocol_class.class_name_to_filename}")
-      end
-      extend(klass)
-      configure_stream_protocol(*stream_protocol_args)
+      setup_stream_protocol(stream_protocol_type, stream_protocol_args)
 
       @hostname = hostname
       @write_port = ConfigParser.handle_nil(write_port)
@@ -56,11 +49,13 @@ module Cosmos
     # initialization parameters to the {TcpipClientStream}.
     def connect
       super()
-      @stream = TcpipClientStream.new(@hostname,
-                                      @write_port,
-                                      @read_port,
-                                      @write_timeout,
-                                      @read_timeout)
+      @stream = TcpipClientStream.new(
+        @hostname,
+        @write_port,
+        @read_port,
+        @write_timeout,
+        @read_timeout
+      )
     end
   end
 end
