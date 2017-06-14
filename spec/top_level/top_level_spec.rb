@@ -301,18 +301,46 @@ module Cosmos
 
   describe "require_class" do
     it "requires the class represented by the filename" do
+      filename = File.join(Cosmos::USERPATH,"lib","my_test_class.rb")
+      File.delete(filename) if File.exist? filename
+
       # Explicitly load cosmos.rb to ensure the Cosmos::USERPATH/lib
       # directory is in the path
       load 'cosmos.rb'
-
-      expect { Cosmos.require_class("my_test_class.rb") }.to raise_error(/Unable to require my_test_class.rb/)
-      filename = File.join(Cosmos::USERPATH,"lib","my_test_class.rb")
       File.open(filename,'w') do |file|
         file.puts "class MyTestClass"
         file.puts "end"
       end
 
-      Cosmos.require_class("my_test_class.rb")
+      klass = Cosmos.require_class("my_test_class.rb")
+      expect(klass).to be_a(Class)
+      expect(klass).to eq MyTestClass
+      File.delete(filename)
+    end
+  end
+
+  describe "require_file" do
+    it "requires the file" do
+      filename = File.join(Cosmos::USERPATH,"lib","my_test_file.rb")
+      File.delete(filename) if File.exist? filename
+
+      # Explicitly load cosmos.rb to ensure the Cosmos::USERPATH/lib
+      # directory is in the path
+      load 'cosmos.rb'
+      expect { Cosmos.require_file("my_test_file.rb") }.to raise_error(LoadError, /Unable to require my_test_file.rb/)
+
+      File.open(filename,'w') do |file|
+        file.puts "class MyTestFile"
+        file.puts "  blah" # This will cause an error
+        file.puts "end"
+      end
+      expect { Cosmos.require_file("my_test_file.rb") }.to raise_error(NameError, /Unable to require my_test_file.rb/)
+
+      File.open(filename,'w') do |file|
+        file.puts "class MyTestFile"
+        file.puts "end"
+      end
+      Cosmos.require_file("my_test_file.rb")
       File.delete(filename)
     end
   end
@@ -342,4 +370,3 @@ module Cosmos
     end
   end
 end
-

@@ -610,9 +610,10 @@ module Cosmos
     begin
       require filename
     rescue Exception => err
-      msg = "Unable to require #{filename} due to #{err.message}. Ensure #{filename} is in the COSMOS lib directory."
+      msg = "Unable to require #{filename} due to #{err.message}. "\
+        "Ensure #{filename} is in the COSMOS lib directory."
       Logger.error msg
-      raise msg
+      raise $!, msg, $!.backtrace
     end
   end
 
