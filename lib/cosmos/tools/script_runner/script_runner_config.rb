@@ -16,7 +16,7 @@ module Cosmos
   class ScriptRunnerConfig
     # Processes the config file
     def initialize(filename)
-      parser = ConfigParser.new
+      parser = ConfigParser.new("http://cosmosrb.com/docs/tools/#script-runner-configuration")
       parser.parse_file(filename) do |keyword, params|
         case keyword
         when 'LINE_DELAY'

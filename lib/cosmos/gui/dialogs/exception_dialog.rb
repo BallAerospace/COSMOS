@@ -50,10 +50,10 @@ module Cosmos
           # by the ConfigParser
           when ConfigParser::Error
             # Substitute the html tags '<' and '>' and then replace newlines with html breaks
-            usage = exception.usage.gsub("<","&#060;").gsub(">","&#062;").gsub("\n","<br/>")
-            message = exception.message.gsub("<","&#060;").gsub(">","&#062;").gsub("\n","<br/>")
-            line = exception.keyword + ' ' + exception.parameters.join(' ').gsub("<","&#060;").gsub(">","&#062;").gsub("\n","<br/>")
-            text = "Error in #{exception.filename}<br/><br/>Line #{exception.line_number}: #{line}<br/><br/>#{message}<br/><br/>#{usage}"
+            usage = exception.usage.gsub("<", "&#060;").gsub(">", "&#062;").gsub("\n", "<br/>")
+            message = exception.message.gsub("<", "&#060;").gsub(">", "&#062;").gsub("\n", "<br/>")
+            line = exception.keyword + ' ' + exception.parameters.join(' ').gsub("<", "&#060;").gsub(">", "&#062;").gsub("\n", "<br/>")
+            text = "Error at #{exception.filename}:#{exception.line_number}<br/><br/>#{line}<br/><br/>Usage: #{usage}<br/><br/>#{message}"
             unless exception.url.nil?
               text << "<br/><br/>For more information see <a href='#{exception.url}'>#{exception.url}</a>."
             end
@@ -61,14 +61,14 @@ module Cosmos
           # occurs. Since it is a known issue we don't put up the full error
           # dialog.
           when FatalError
-            text = "Error: #{exception.message.gsub("\n","<br/>")}"
+            text = "Error: #{exception.message.gsub("\n", "<br/>")}"
           else
             file_contents = ""
             # First read the log_file we wrote out to the logs directory
             # Change newlines to %0A for Outlook and remove all quotes to avoid breaking the link
             begin
-              message = exception.message.gsub("\n","<br/>")
-              file_contents = File.read(log_file).gsub("\n","%0A").gsub("'","").gsub("\"","") if log_file
+              message = exception.message.gsub("\n", "<br/>")
+              file_contents = File.read(log_file).gsub("\n", "%0A").gsub("'", "").gsub("\"", "") if log_file
             rescue
             end
             text = "The following error occurred:<br/>#{message}"

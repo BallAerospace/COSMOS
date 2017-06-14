@@ -13,13 +13,11 @@ require 'cosmos/gui/qt'
 require 'cosmos/system/system'
 
 module Cosmos
-
   # Provides dropdowns to select from all the defined Targets, Packets, and
   # Items. Callbacks can be added when any of the dropdown values are changed
   # as well as when the select button is pressed. Provides an option to orient
   # the dropdowns horizontally or vertically.
   class TelemetryChooser < Qt::Widget
-
     # Width of the button in the Combobox
     COMBOBOX_BUTTON_WIDTH = 30
 
@@ -44,6 +42,14 @@ module Cosmos
     # Label for the item
     attr_accessor :item_label
 
+    # Custom error which we raise and catch
+    class NotFoundError < StandardError
+      # @param msg [String] The error message
+      def initialize(msg)
+        super(msg)
+      end
+    end
+
     # @param parent [Qt::Widget] Parent of this widget
     # @param orientation [Integer] Must be Qt::Horizontal or Qt::Vertical
     # @param choose_item [Boolean] Whether to allow choosing items. Choosing
@@ -52,6 +58,8 @@ module Cosmos
     #   You can disable the button if you just want to implement the dropdown
     #   change callbacks.
     # @param support_latest [Boolean] Whether to add LATEST to the list of packets
+    # @param fill [Boolean] Whether to allow this widget to take all available
+    #   space or have a fixed width/height
     def initialize(
       parent,
       orientation = Qt::Horizontal,
@@ -60,7 +68,6 @@ module Cosmos
       support_latest = false,
       fill = false
     )
-
       super(parent)
       if orientation == Qt::Horizontal
         # Horizontal Frame for overall widget
@@ -69,7 +76,7 @@ module Cosmos
         # Vertical Frame for overall widget
         @overall_frame = Qt::VBoxLayout.new(self)
       end
-      @overall_frame.setContentsMargins(0,0,0,0)
+      @overall_frame.setContentsMargins(0, 0, 0, 0)
 
       # Target Selection
       @target_layout = Qt::HBoxLayout.new
@@ -120,8 +127,6 @@ module Cosmos
       end
 
       if select_button
-        # Select Button
-        #@overall_frame.addStretch()
         @select_button = Qt::PushButton.new('Select')
         @select_button.connect(SIGNAL('clicked()')) do
           @select_button_callback.call(target_name(), packet_name(), item_name()) if @select_button_callback
@@ -137,118 +142,117 @@ module Cosmos
       @support_latest = support_latest
     end
 
-    # Update items
+    # Update all items in all comboboxes. If a previous item was selected that
+    # item will be reselected if it still exists.
     def update
       current_target_name = target_name()
       current_packet_name = packet_name()
       current_item_name = item_name()
       update_targets()
-      if current_target_name and current_packet_name and (current_item_name or !@item_combobox)
+      if current_target_name && current_packet_name && (current_item_name || !@item_combobox)
         begin
           set_item(current_target_name, current_packet_name, current_item_name)
-        rescue Exception
+        rescue NotFoundError
           # Oh well - Tried to keep the same item
         end
       end
     end
 
-    # Set the text of the button
-    def button_text=(button_text)
-      @select_button.setText(button_text)
+    # @param text [String] Select button text
+    def button_text=(text)
+      @select_button.setText(text)
     end
 
-    # Returns the selected target name
+    # @return [String] Selected target name
     def target_name
       @target_combobox.text
     end
 
-    # Returns the selected packet name
+    # @return [String] Selected packet name
     def packet_name
       @packet_combobox.text
     end
 
-    # Returns the selected item name
+    # @return [String] Selected item name
     def item_name
-      if @item_combobox
-        @item_combobox.text
-      else
-        nil
-      end
+      @item_combobox ? @item_combobox.text : nil
     end
 
-    # Returns the list of all target names in the target combobox
+    # @return [Array<String>] List of all target names in the target combobox
     def target_names
       target_names_array = []
-      @target_combobox.each {|item_text, item_data| target_names_array << item_text}
+      @target_combobox.each {|item_text, _item_data| target_names_array << item_text}
       target_names_array
     end
 
-    # Returns the list of all packet names in the packet combobox
+    # @return [Array<String>] List of all packet names in the packet combobox
     def packet_names
       packet_names_array = []
-      @packet_combobox.each {|item_text, item_data| packet_names_array << item_text}
+      @packet_combobox.each {|item_text, _item_data| packet_names_array << item_text}
       packet_names_array
     end
 
-    # Returns the list of all item names in the item combobox
+    # @return [Array<String>] List of all item names in the item combobox
     def item_names
       item_names_array = []
       if @item_combobox
-        @item_combobox.each {|item_text, item_data| item_names_array << item_text}
+        @item_combobox.each {|item_text, _item_data| item_names_array << item_text}
       end
       item_names_array
     end
 
-    # Sets the current packet
+    # Sets the packet combobox
+    # @param target_name [String] Name of the target
+    # @param packet_name [String] Name of the packet
     def set_packet(target_name, packet_name)
       # Select desired target
       index = 0
       found = false
-      @target_combobox.each do |item_text, item_data|
-        if target_name.upcase == item_text.upcase
+      @target_combobox.each do |item_text, _item_data|
+        if target_name.casecmp(item_text).zero?
           found = true
           break
         end
         index += 1
       end
-      Kernel.raise "TelemetryChooser unknown target_name #{target_name}" unless found
+      raise NotFoundError, "TelemetryChooser unknown target_name #{target_name}" unless found
       @target_combobox.setCurrentIndex(index)
       update_packets()
 
       # Select desired packet
       index = 0
       found = false
-      @packet_combobox.each do |item_text, item_data|
-        if packet_name.upcase == item_text.upcase
+      @packet_combobox.each do |item_text, _item_data|
+        if packet_name.casecmp(item_text).zero?
           found = true
           break
         end
         index += 1
       end
-      Kernel.raise "TelemetryChooser unknown packet_name #{packet_name}" unless found
+      raise NotFoundError, "TelemetryChooser unknown packet_name #{packet_name}" unless found
       @packet_combobox.setCurrentIndex(index)
       update_items()
     end
 
-    # Sets the current item
+    # Sets the item combobox
+    # @param target_name [String] Name of the target
+    # @param packet_name [String] Name of the packet
+    # @param item_name [String] Name of the item
     def set_item(target_name, packet_name, item_name)
-      # Set the desired packet
       set_packet(target_name, packet_name)
+      return unless @item_combobox
 
-      # Select desired item
-      if @item_combobox
-        index = 0
-        found = false
-        @item_combobox.each do |item_text, item_data|
-          if item_name.upcase == item_text.upcase
-            found = true
-            break
-          end
-          index += 1
+      index = 0
+      found = false
+      @item_combobox.each do |item_text, _item_data|
+        if item_name.casecmp(item_text).zero?
+          found = true
+          break
         end
-        Kernel.raise "TelemetryChooser unknown item_name #{item_name}" unless found
-        @item_combobox.setCurrentIndex(index)
+        index += 1
       end
+      raise NotFoundError, "TelemetryChooser unknown item_name #{item_name}" unless found
+      @item_combobox.setCurrentIndex(index)
     end
 
     protected
@@ -305,22 +309,18 @@ module Cosmos
 
     # Updates the item names based on a change
     def update_items
-      return unless target_name() and packet_name()
-      if @item_combobox
-        @item_combobox.clearItems()
-        item_names = System.telemetry.item_names(target_name(), packet_name())
-        item_names.sort!
-        item_names.each do |name|
-          @item_combobox.addItem(name)
-        end
-        if item_names.length > 20
-          @item_combobox.setMaxVisibleItems(20)
-        else
-          @item_combobox.setMaxVisibleItems(item_names.length)
-        end
+      return unless target_name() && packet_name() && @item_combobox
+      @item_combobox.clearItems()
+      item_names = System.telemetry.item_names(target_name(), packet_name())
+      item_names.sort!
+      item_names.each do |name|
+        @item_combobox.addItem(name)
+      end
+      if item_names.length > 20
+        @item_combobox.setMaxVisibleItems(20)
+      else
+        @item_combobox.setMaxVisibleItems(item_names.length)
       end
     end
-
-  end # class TelemetryChooser
-
-end # module Cosmos
+  end
+end

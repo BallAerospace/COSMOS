@@ -40,8 +40,8 @@ module Cosmos
       @interfaces = {}
       @routers = {}
       @packet_log_writer_pairs = {}
-      cmd_log_writer = System.default_packet_log_writer.new(:CMD)
-      tlm_log_writer = System.default_packet_log_writer.new(:TLM)
+      cmd_log_writer = System.default_packet_log_writer.new(:CMD, *System.default_packet_log_writer_params)
+      tlm_log_writer = System.default_packet_log_writer.new(:TLM, *System.default_packet_log_writer_params)
       @packet_log_writer_pairs['DEFAULT'] = PacketLogWriterPair.new(cmd_log_writer, tlm_log_writer)
       @background_tasks = []
       @title = nil
@@ -64,7 +64,7 @@ module Cosmos
       Logger.info "Processing CmdTlmServer configuration in file: #{File.expand_path(filename)}"
 
       Cosmos.set_working_dir do
-      parser = ConfigParser.new
+        parser = ConfigParser.new("http://cosmosrb.com/docs/system/#command-and-telemetry-server-configuration")
         parser.parse_file(filename) do |keyword, params|
           case keyword
           when 'TITLE'

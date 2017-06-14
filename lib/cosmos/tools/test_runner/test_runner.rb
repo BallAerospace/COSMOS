@@ -977,7 +977,7 @@ module Cosmos
 
       # Ensure the file exists
       raise "Configuration File: #{filename} does not exist" unless test(?f, filename)
-      parser = ConfigParser.new
+      parser = ConfigParser.new("http://cosmosrb.com/docs/tools/#test-runner-configuration")
       parser.parse_file(filename) do |keyword, params|
         case keyword
         when 'REQUIRE_UTILITY'

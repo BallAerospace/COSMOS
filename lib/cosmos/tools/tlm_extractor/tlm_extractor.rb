@@ -278,7 +278,6 @@ module Cosmos
       # Telemetry Search
       @search_layout = Qt::HBoxLayout.new
       @search_box = FullTextSearchLineEdit.new(self)
-      @search_box.setStyleSheet("padding-right: 20px;padding-left: 5px;background: url(#{File.join(Cosmos::PATH, 'data', 'search-14.png')});background-position: right;background-repeat: no-repeat;")
       @search_add_item_button = Qt::PushButton.new('Add Item')
       @search_add_item_button.connect(SIGNAL('clicked()')) do
         split_tlm = @search_box.text.to_s.split(" ")
@@ -397,7 +396,7 @@ module Cosmos
       @top_layout.addWidget(@file_box)
 
       # Packet Log Frame
-      @packet_log_frame = PacketLogFrame.new(self, @log_dir, System.default_packet_log_reader.new, @input_filenames, nil, true, true, true, Cosmos::TLM_FILE_PATTERN, Cosmos::TXT_FILE_PATTERN)
+      @packet_log_frame = PacketLogFrame.new(self, @log_dir, System.default_packet_log_reader.new(*System.default_packet_log_reader_params), @input_filenames, nil, true, true, true, Cosmos::TLM_FILE_PATTERN, Cosmos::TXT_FILE_PATTERN)
       @packet_log_frame.change_callback = method(:change_callback)
       @file_box_layout.addWidget(@packet_log_frame)
 
@@ -964,7 +963,7 @@ module Cosmos
       connect(ok, SIGNAL('clicked()'), dialog, SLOT('accept()'))
       button_layout.addWidget(ok)
       layout.addLayout(button_layout)
-      
+
       dialog.setLayout(layout)
       if dialog.exec == Qt::Dialog::Accepted
         @shared_columns = []

@@ -89,7 +89,7 @@ MouseClickDrag, L, 800, 300, 15, 300, 60 ; Move the bar left
 
 ; Start CmdTlmServer RPY-3
 Run ruby.exe %A_ScriptDir%/CmdTlmServer
-Sleep 2000
+Sleep 4000
 
 ; Shut down the CTS
 WinActivate, Command and Telemetry Server
@@ -101,4 +101,3 @@ WinActivate, Replay
 Sleep 1000
 Send ^q
 Sleep 500
-

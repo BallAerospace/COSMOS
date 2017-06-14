@@ -43,7 +43,7 @@ module Cosmos
     # @return [String] Description of why the packet is hazardous
     attr_reader :hazardous_description
 
-    # Containst the values given by the user for a command (distinguished from defaults)
+    # Contains the values given by the user for a command (distinguished from defaults)
     # These values should be used within command conversions if present because the order
     # that values are written into the actual packet can vary
     # @return [Hash<Item Name, Value>] Given values when constructing the packet

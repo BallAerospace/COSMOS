@@ -154,6 +154,12 @@ module Cosmos
       @settings.each do |setting_name, setting_values|
         begin
           case setting_name
+          when 'TEXTALIGN'
+            sheet << "qproperty-alignment:Align#{setting_values[0].capitalize}"
+          when 'PADDING'
+            sheet << "padding:#{setting_values[0]}"
+          when 'MARGIN'
+            sheet << "margin:#{setting_values[0]}"
           when 'BACKCOLOR'
             case setting_values.size
             when 1 # color name
@@ -246,7 +252,5 @@ module Cosmos
       point.dispose
       menu.dispose
     end
-
   end
-
-end # module Cosmos
+end

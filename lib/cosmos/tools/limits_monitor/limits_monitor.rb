@@ -232,7 +232,7 @@ module Cosmos
 
       @ignored = []
       begin
-        parser = ConfigParser.new
+        parser = ConfigParser.new("http://cosmosrb.com/docs/tools/#limits-monitor-configuration")
         parser.parse_file(filename) do |keyword, params|
           case keyword
           # TODO: Eventually we can deprecate 'IGNORE' in favor

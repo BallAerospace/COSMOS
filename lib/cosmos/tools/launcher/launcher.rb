@@ -62,7 +62,11 @@ module Cosmos
       config.items.each do |item_type, text, shell_command_or_settings, capture_io, icon_filename, variable_parameters|
         case item_type
         when :TOOL, :MULTITOOL
-          layout = Qt::VBoxLayout.new
+          if @options.mini
+            layout = Qt::HBoxLayout.new
+          else
+            layout = Qt::VBoxLayout.new
+          end
           if icon_filename
             icon = Cosmos.get_icon(icon_filename)
           else
@@ -70,7 +74,9 @@ module Cosmos
           end
           button = Qt::PushButton.new('')
           button.setIcon(icon)
-          button.setIconSize(Qt::Size.new(64,64))
+          size = @options.mini ? 20 : 64
+          button.setIconSize(Qt::Size.new(size, size))
+
           if item_type == :TOOL
             connect(button,
                     SIGNAL('clicked()'),
@@ -83,13 +89,15 @@ module Cosmos
                     SLOT('button_clicked()'))
           end
           if Kernel.is_mac?
-            button.setFixedSize(84,84)
+            size = @options.mini ? 40 : 84
+            button.setFixedSize(size, size)
           else
             stylesheet = "padding:4px; text-align:center; " \
               "font-family:#{config.tool_font_settings[0]}; " \
               "font-size:#{config.tool_font_settings[1]}px"
             button.setStyleSheet(stylesheet)
-            button.setFixedSize(74,74)
+            size = @options.mini ? 30 : 70
+            button.setFixedSize(size, size)
           end
           label = Qt::Label.new(text)
           stylesheet = "text-align:center; " \
@@ -97,15 +105,19 @@ module Cosmos
             "font-size:#{config.tool_font_settings[1]}px"
           label.setStyleSheet(stylesheet)
           label.setObjectName("ButtonLabel")
-          label.wordWrap = true
-          label.setFixedWidth(70)
-          label.setSizePolicy(Qt::SizePolicy::Fixed, Qt::SizePolicy::Fixed)
-          label.setMinimumSize(label.sizeHint)
-          label.setAlignment(Qt::AlignHCenter)
+          unless @options.mini
+            label.wordWrap = true
+            label.setFixedWidth(70)
+            label.setSizePolicy(Qt::SizePolicy::Fixed, Qt::SizePolicy::Fixed)
+            label.setMinimumSize(label.sizeHint)
+            label.setAlignment(Qt::AlignHCenter)
+          end
           layout.addWidget(button)
           layout.addWidget(label)
-          layout.setAlignment(button, Qt::AlignHCenter)
-          layout.setAlignment(label, Qt::AlignHCenter)
+          unless @options.mini
+            layout.setAlignment(button, Qt::AlignHCenter)
+            layout.setAlignment(label, Qt::AlignHCenter)
+          end
           widgets << layout
 
         when :DIVIDER
@@ -136,7 +148,7 @@ module Cosmos
       v_layout = Qt::VBoxLayout.new
       central_widget.layout = v_layout
       widgets.each do |widget|
-        if Qt::VBoxLayout === widget
+        if widget.is_a?(Qt::BoxLayout)
           unless h_layout
             h_layout = Qt::HBoxLayout.new
             v_layout.addLayout(h_layout)
@@ -170,6 +182,11 @@ module Cosmos
           option_parser, options = create_default_options()
           options.title = 'Launcher'
         end
+        option_parser.separator "Launcher Specific Options:"
+        option_parser.on("-m", "--mini", "Create mini launcher") do |arg|
+          options.mini = true
+        end
+
         super(option_parser, options)
       end
     end

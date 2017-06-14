@@ -545,7 +545,7 @@ module Cosmos
       target.tlm_cnt += 1
       packet.received_count += 1
       cvt_packet.received_count += 1
-      CmdTlmServer.instance.identified_packet_callback.call(packet)
+      CmdTlmServer.instance.identified_packet_callback(packet)
 
       # Find the interface for this target
       interface = target.interface
@@ -1033,8 +1033,8 @@ module Cosmos
     # Get information about an interface
     #
     # @param interface_name [String] Interface name
-    # @return [Array<String, Numeric, Numeric, Numeric, Numeric, Numeric, 
-    #   Numeric, Numeric>] Array containing \[state, num clients, 
+    # @return [Array<String, Numeric, Numeric, Numeric, Numeric, Numeric,
+    #   Numeric, Numeric>] Array containing \[state, num clients,
     #   TX queue size, RX queue size, TX bytes, RX bytes, Command count,
     #   Telemetry count] for the interface
     def get_interface_info(interface_name)
@@ -1044,8 +1044,8 @@ module Cosmos
     # Get information about a router
     #
     # @param router_name [String] Router name
-    # @return [Array<String, Numeric, Numeric, Numeric, Numeric, Numeric, 
-    #   Numeric, Numeric>] Array containing \[state, num clients, 
+    # @return [Array<String, Numeric, Numeric, Numeric, Numeric, Numeric,
+    #   Numeric, Numeric>] Array containing \[state, num clients,
     #   TX queue size, RX queue size, TX bytes, RX bytes, Pkts received,
     #   Pkts sent] for the router
     def get_router_info(router_name)
@@ -1077,7 +1077,7 @@ module Cosmos
     # @param packet_logger_name [String] Name of the packet logger
     # @return [Array<<Array<String>, Boolean, Numeric, String, Numeric,
     #   Boolean, Numeric, String, Numeric>] Array containing \[interfaces,
-    #   cmd logging enabled, cmd queue size, cmd filename, cmd file size, 
+    #   cmd logging enabled, cmd queue size, cmd filename, cmd file size,
     #   tlm logging enabled, tlm queue size, tlm filename, tlm file size]
     #   for the packet logger
     def get_packet_logger_info(packet_logger_name = 'DEFAULT')
