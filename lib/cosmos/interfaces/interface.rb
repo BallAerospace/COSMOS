@@ -292,10 +292,10 @@ module Cosmos
     # Called to perform modifications on read data before making it into a packet.
     # After this method is called the post_read_packet method is called.
     #
-    # @param packet_data [String] Raw packet data
+    # @param data [String] Raw packet data
     # @return [String|nil] Potentially modified packet data or nil to abort read
-    def post_read_data(packet_data)
-      packet_data
+    def post_read_data(data)
+      data
     end
 
     # Called to convert the read data into a COSMOS Packet object
@@ -324,6 +324,7 @@ module Cosmos
     #
     # @param packet [Packet] The identified packet read from the interface
     def post_identify_packet(packet)
+      nil
     end
 
     # Called to perform modifications on a command packet before it is turned
@@ -348,10 +349,10 @@ module Cosmos
     # interface.
     # After this method is called the post_write_data method is called.
     #
-    # @param packet_data [String] Raw packet data
+    # @param data [String] Raw packet data
     # @return [String|nil] Potentially modified data or nil to abort writing
-    def pre_write_data(packet_data)
-      packet_data
+    def pre_write_data(data)
+      data
     end
 
     # Called to write data to the underlying interface. Subclasses must
