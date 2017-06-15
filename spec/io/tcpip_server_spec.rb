@@ -513,7 +513,7 @@ module Cosmos
         #
         # Add additional delay to push us past 1s since we started logging
         # (time starts from the last write) so we'll get a new log file
-        sleep 0.6
+        sleep 1
         server.start_raw_logging
         packet.buffer = "\xAA\xBB\xCC\xDD"
         server.write(packet)
