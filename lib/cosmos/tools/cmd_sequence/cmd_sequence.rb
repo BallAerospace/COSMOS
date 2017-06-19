@@ -15,31 +15,21 @@ Cosmos.catch_fatal_exception do
   require 'cosmos/config/config_parser'
   require 'cosmos/gui/utilities/script_module_gui'
   require 'cosmos/gui/dialogs/splash'
-  require 'cosmos/tools/cmd_sequence/cmd_sequence_item_delegate'
+  require 'cosmos/tools/cmd_sender/cmd_param_table_item_delegate'
 end
 
 module Cosmos
-  class SequenceItem < Qt::Frame
+  class SequenceItem < Qt::Frame # Inherit from Frame so we can use setFrameStyle
     MANUALLY = "MANUALLY ENTERED"
-    HEIGHT = 30
-    attr_accessor :index
-
-    def self.param_widgets
-      @@param_widgets
-    end
-
-    def self.table
-      @@table
-    end
+    attr_reader :index, :param_widgets, :table
 
     def initialize(command, index)
       super()
       @command = command
       @index = index
-      @@table = nil
-      @@param_widgets = []
+      @table = nil
+      @param_widgets = []
 
-      #setFixedHeight(HEIGHT)
       setStyleSheet("background-color:white")
       setFrameStyle(Qt::Frame::Box)
       #setAcceptDrops(true)
@@ -103,7 +93,7 @@ module Cosmos
       @show_ignored.statusTip = tr('Show ignored parameters which are normally hidden')
       @show_ignored.setCheckable(true)
       @show_ignored.setChecked(false)
-      #connect(@show_ignored, SIGNAL('toggled(bool)'), self, SLOT('update_cmd_params(bool)'))
+      @show_ignored.connect(SIGNAL('toggled(bool)')) { update_cmd_params(bool) }
 
       @states_in_hex = Qt::Action.new(tr('&Display State Values in Hex'), self)
       @states_in_hex.statusTip = tr('Display states values in hex instead of decimal')
@@ -130,11 +120,11 @@ module Cosmos
       end
 
       # Destroy the old table widget
-      @@table.dispose if @@table
-      @@table = nil
+      @table.dispose if @table
+      @table = nil
 
       # Update Parameters
-      @@param_widgets = []
+      @param_widgets = []
       drawn_header = false
 
       row = 0
@@ -144,21 +134,21 @@ module Cosmos
         state_value_item = nil
 
         unless drawn_header
-          @@table = Qt::TableWidget.new()
-          @@table.setSizePolicy(Qt::SizePolicy::Expanding, Qt::SizePolicy::Expanding)
-          @@table.setWordWrap(true)
-          @@table.setRowCount(shown_packet_items.length)
-          @@table.setColumnCount(5)
-          @@table.setHorizontalHeaderLabels(['Name', '         Value or State         ', '         ', 'Units', 'Description'])
-          @@table.horizontalHeader.setStretchLastSection(true)
-          @@table.verticalHeader.setVisible(false)
-          @@table.setItemDelegate(CmdSequenceItemDelegate.new(@@table))
-          @@table.setContextMenuPolicy(Qt::CustomContextMenu)
-          @@table.verticalHeader.setResizeMode(Qt::HeaderView::ResizeToContents)
-          @@table.setEditTriggers(Qt::AbstractItemView::AllEditTriggers)
-          @@table.setSelectionMode(Qt::AbstractItemView::NoSelection)
-          connect(@@table, SIGNAL('customContextMenuRequested(const QPoint&)'), self, SLOT('context_menu(const QPoint&)'))
-          connect(@@table, SIGNAL('itemClicked(QTableWidgetItem*)'), self, SLOT('click_callback(QTableWidgetItem*)'))
+          @table = Qt::TableWidget.new()
+          @table.setSizePolicy(Qt::SizePolicy::Expanding, Qt::SizePolicy::Expanding)
+          @table.setWordWrap(true)
+          @table.setRowCount(shown_packet_items.length)
+          @table.setColumnCount(5)
+          @table.setHorizontalHeaderLabels(['Name', '         Value or State         ', '         ', 'Units', 'Description'])
+          @table.horizontalHeader.setStretchLastSection(true)
+          @table.verticalHeader.setVisible(false)
+          @table.setItemDelegate(CmdParamTableItemDelegate.new(@table, @param_widgets))
+          # @table.setContextMenuPolicy(Qt::CustomContextMenu)
+          @table.verticalHeader.setResizeMode(Qt::HeaderView::ResizeToContents)
+          @table.setEditTriggers(Qt::AbstractItemView::DoubleClicked | Qt::AbstractItemView::SelectedClicked | Qt::AbstractItemView::AnyKeyPressed)
+          @table.setSelectionMode(Qt::AbstractItemView::NoSelection)
+          # connect(@table, SIGNAL('customContextMenuRequested(const QPoint&)'), self, SLOT('context_menu(const QPoint&)'))
+          # connect(@table, SIGNAL('itemClicked(QTableWidgetItem*)'), self, SLOT('click_callback(QTableWidgetItem*)'))
           drawn_header = true
         end
 
@@ -166,7 +156,7 @@ module Cosmos
         item = Qt::TableWidgetItem.new("#{packet_item.name}:")
         item.setTextAlignment(Qt::AlignRight | Qt::AlignVCenter)
         item.setFlags(Qt::NoItemFlags | Qt::ItemIsSelectable | Qt::ItemIsEnabled)
-        @@table.setItem(row, 0, item)
+        @table.setItem(row, 0, item)
 
         if packet_item.states
           default_state = packet_item.states.key(packet_item.default)
@@ -181,7 +171,7 @@ module Cosmos
           end
           value_item.setTextAlignment(Qt::AlignRight | Qt::AlignVCenter)
           value_item.setFlags(Qt::NoItemFlags | Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsEditable)
-          @@table.setItem(row, 1, value_item)
+          @table.setItem(row, 1, value_item)
 
           if old_params[packet_item.name]
             state_value_item = Qt::TableWidgetItem.new(old_params[packet_item.name][1])
@@ -194,7 +184,7 @@ module Cosmos
           end
           state_value_item.setTextAlignment(Qt::AlignRight | Qt::AlignVCenter)
           state_value_item.setFlags(Qt::NoItemFlags | Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsEditable)
-          @@table.setItem(row, 2, state_value_item)
+          @table.setItem(row, 2, state_value_item)
 
           # If the parameter is required set the combobox to MANUAL and
           # clear the value field so they have to choose something
@@ -224,57 +214,57 @@ module Cosmos
           end
           value_item.setTextAlignment(Qt::AlignRight | Qt::AlignVCenter)
           value_item.setFlags(Qt::NoItemFlags | Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsEditable)
-          @@table.setItem(row, 1, value_item)
-          @@table.setSpan(row, 1, 1, 2)
+          @table.setItem(row, 1, value_item)
+          @table.setSpan(row, 1, 1, 2)
         end
 
         # Units
         item = Qt::TableWidgetItem.new(packet_item.units.to_s)
         item.setTextAlignment(Qt::AlignRight | Qt::AlignVCenter)
         item.setFlags(Qt::NoItemFlags | Qt::ItemIsSelectable | Qt::ItemIsEnabled)
-        @@table.setItem(row, 3, item)
+        @table.setItem(row, 3, item)
 
         # Description
         item = Qt::TableWidgetItem.new(packet_item.description.to_s)
         item.setTextAlignment(Qt::AlignLeft | Qt::AlignVCenter)
         item.setFlags(Qt::NoItemFlags | Qt::ItemIsSelectable | Qt::ItemIsEnabled)
-        @@table.setItem(row, 4, item)
+        @table.setItem(row, 4, item)
 
-        @@param_widgets << [packet_item, value_item, state_value_item]
+        @param_widgets << [packet_item, value_item, state_value_item]
         row += 1
       end
 
-      if @@table
-        @@table.connect(SIGNAL('itemChanged(QTableWidgetItem*)')) do |item|
-          packet_item, value_item, state_value_item = @@param_widgets[item.row]
+      if @table
+        @table.connect(SIGNAL('itemChanged(QTableWidgetItem*)')) do |item|
+          packet_item, value_item, state_value_item = @param_widgets[item.row]
           if item.column == 1
             if packet_item.states
               value = packet_item.states[value_item.text]
-              @@table.blockSignals(true)
+              @table.blockSignals(true)
               if @states_in_hex.checked? && value.kind_of?(Integer)
                 state_value_item.setText(sprintf("0x%X", value))
               else
                 state_value_item.setText(value.to_s)
               end
-              @@table.blockSignals(false)
+              @table.blockSignals(false)
             end
           elsif item.column == 2
-            @@table.blockSignals(true)
-            @@table.item(item.row, 1).setText(MANUALLY)
-            @@table.blockSignals(false)
+            @table.blockSignals(true)
+            @table.item(item.row, 1).setText(MANUALLY)
+            @table.blockSignals(false)
           end
         end
-        @table_layout.addWidget(@@table, 500)
-        @@table.resizeColumnsToContents()
-        @@table.resizeRowsToContents()
-      end
+        @table_layout.addWidget(@table)
+        @table.resizeColumnsToContents()
+        @table.resizeRowsToContents()
 
-      height = 0
-      @@table.rowCount.times do |x|
-        height += @@table.verticalHeader.sectionSize(x) + 1
+        height = 0
+        @table.rowCount.times do |x|
+          height += @table.verticalHeader.sectionSize(x) + 1
+        end
+        height += @table.horizontalHeader.height + 1
+        @table.setMaximumHeight(height)
       end
-      height += @@table.horizontalHeader.height + 1
-      @@table.setMaximumHeight(height)
     end
 
     # These methods are for drag and drop support. It kind of works but the
@@ -355,7 +345,7 @@ module Cosmos
     def view_as_script
       params = {}
 
-      @@param_widgets.each do |packet_item, value_item, state_value_item|
+      @param_widgets.each do |packet_item, value_item, state_value_item|
         text = value_item.text
 
         text = state_value_item.text if state_value_item and (text == MANUALLY or @cmd_raw.checked?)
