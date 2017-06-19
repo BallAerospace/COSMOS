@@ -289,7 +289,11 @@ module Cosmos
             if not target.ignored_parameters.include?(param.name)
               if param.states.nil? or param.states.empty? or raw
                 param.default = "'X' " if param.default.is_a? String and param.default.strip.length == 0
-                parameters << (param.name + ' ' + param.default.to_s + ', ')
+                if param.default.to_s.is_printable?
+                  parameters << (param.name + ' ' + param.default.to_s + ', ')
+                else
+                  parameters << (param.name + ' 0x' + param.default.to_s.simple_formatted + ', ')
+                end
               else
                 states = param.states.keys
                 states.sort!

@@ -148,41 +148,65 @@ module Cosmos
 
     # Formatted version of a command
     def format(packet, ignored_parameters = [])
-      first = true
       if packet.raw
         items = packet.read_all(:RAW)
-        string = "cmd_raw('#{packet.target_name} #{packet.packet_name}"
+        raw = true
       else
         items = packet.read_all(:FORMATTED)
-        string = "cmd('#{packet.target_name} #{packet.packet_name}"
+        raw = false
       end
-      items.each do |item_name, item_value|
-        unless ignored_parameters.include?(item_name)
-          if first
-            string << ' with '.freeze
-            first = false
-          else
-            string << ', '.freeze
+      items.delete_if {|item_name, item_value| ignored_parameters.include?(item_name)}
+      return build_cmd_output_string(packet.target_name, packet.packet_name, items, raw)
+    end
+
+    def build_cmd_output_string(target_name, cmd_name, cmd_params, raw = false)
+      if raw
+        output_string = 'cmd_raw("'
+      else
+        output_string = 'cmd("'
+      end
+      output_string << target_name + ' ' + cmd_name
+      if cmd_params.nil? or cmd_params.empty?
+        output_string << '")'
+      else
+        begin
+          command_items = packet(target_name, cmd_name).items
+        rescue
+        end
+
+        params = []
+        cmd_params.each do |key, value|
+
+          begin
+            item_type = command_items[key].data_type
+          rescue
+            item_type = nil
           end
 
-          item = packet.get_item(item_name)
-          if item.data_type ==:STRING or item.data_type == :BLOCK
-            item_value = item_value.inspect
-            if item_value.length > 256
-              item_value = item_value[0..255] + '..."'.freeze
-            end
-            string << "#{item_name} #{item_value}"
-          else
-            if (Array === item_value) && (!packet.raw)
-              string << "#{item_name} [#{item_value.join(", ")}]"
+          if value.is_a?(String)
+            value = value.dup
+            if item_type == :BLOCK or item_type == :STRING
+              if !value.is_printable?
+                value = "0x" + value.simple_formatted
+              else
+                value = value.inspect
+              end
             else
-              string << "#{item_name} #{item_value}"
+              value = value.convert_to_value.to_s
             end
+            if value.length > 256
+              value = value[0..255] + "...'"
+            end
+            value.tr!('"',"'")
+          elsif value.is_a?(Array)
+            value = "[#{value.join(", ")}]"
           end
+          params << "#{key} #{value}"
         end
+        params = params.join(", ")
+        output_string << ' with ' + params + '")'
       end
-      string << "')".freeze
-      string
+      return output_string
     end
 
     # Returns whether the given command is hazardous. Commands are hazardous

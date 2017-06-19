@@ -983,35 +983,6 @@ module Cosmos
       end
     end
 
-    def build_cmd_output_string(target_name, cmd_name, cmd_params, raw = false)
-      if raw
-        output_string = 'cmd_raw("'
-      else
-        output_string = 'cmd("'
-      end
-      output_string << target_name + ' ' + cmd_name
-      if cmd_params.nil? or cmd_params.empty?
-        output_string << '")'
-      else
-        params = []
-        cmd_params.each do |key, value|
-          if value.class == String
-            if value.convert_to_value.class == String
-              value = value.inspect
-              if value.length > 256
-                value = value[0..255] + "...'"
-              end
-              value.tr!('"',"'")
-            end
-          end
-          params << "#{key} #{value}"
-        end
-        params = params.join(", ")
-        output_string << ' with ' + params + '")'
-      end
-      return output_string
-    end
-
     def prompt_for_hazardous(target_name, cmd_name, hazardous_description)
       message = "Warning: Command #{target_name} #{cmd_name} is Hazardous. "
       message << "\n#{hazardous_description}\n" if hazardous_description

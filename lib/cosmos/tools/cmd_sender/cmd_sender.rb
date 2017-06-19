@@ -454,7 +454,7 @@ module Cosmos
       end
       statusBar.clearMessage()
 
-      output_string = build_cmd_output_string(@target_select.text, @cmd_select.text, params, @cmd_raw.checked?)
+      output_string = System.commands.build_cmd_output_string(@target_select.text, @cmd_select.text, params, @cmd_raw.checked?)
       if output_string =~ /[\x00-\x08\x0B-\x0C\x0E-\x1F\x7F-\xFF]/
         output_string = output_string.inspect.remove_quotes
       end
