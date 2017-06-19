@@ -11,8 +11,8 @@
     <title xml:lang="en">Ball Aerospace COSMOS News</title>
     <atom:link type="application/atom+xml" href="http://cosmosrb/feed.xml" rel="self"/>
     <link>http://cosmosrb.com/</link>
-    <pubDate>Wed, 07 Jun 2017 10:33:12 -0600</pubDate>
-    <lastBuildDate>Wed, 07 Jun 2017 10:33:12 -0600</lastBuildDate>
+    <pubDate>Mon, 19 Jun 2017 12:16:02 -0600</pubDate>
+    <lastBuildDate>Mon, 19 Jun 2017 12:16:02 -0600</lastBuildDate>
     <language>en-US</language>
     <generator>Jekyll v3.4.3</generator>
     <description>The User Interface for Embedded Systems</description>
@@ -24,6 +24,80 @@
       <width>144</width>
       <height>73</height>
     </image>
+    
+    <item>
+      <title>Template Protocol</title>
+      <link>http://cosmosrb.com/news/2017/06/19/template_protocol/</link>
+      <pubDate>Mon, 19 Jun 2017 01:00:00 -0600</pubDate>
+      <dc:creator>jmthomas</dc:creator>
+      
+      
+      <category>post</category>
+      
+      <guid isPermaLink="true">http://cosmosrb.com/news/2017/06/19/template_protocol/</guid>
+      <description>&lt;p&gt;The &lt;a href=&quot;http://cosmosrb.com/docs/interfaces/#template-stream-protocol&quot;&gt;Template Stream Protocol&lt;/a&gt; is probably one of the more confusing protocols in the COSMOS stream protocol library but it is extremely helpful when implementing string based protocols such as Standard Commands for Programmable Instruments (SCPI; often pronounced “skippy”).&lt;/p&gt;
+
+&lt;p&gt;For this example we’ll assume we’re trying to talk to a SCPI enabled power supply such as the Keysight N6700. We start by creating a directory under our config/targets called POWER. The supply has a TCP/IP interface so we’ll use the &lt;a href=&quot;http://cosmosrb.com/docs/interfaces/#tcpip-client-interface&quot;&gt;TCP/IP Client Interface&lt;/a&gt; to connect to it. Thus we create our POWER/cmd_tlm_server.txt file as follows:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;INTERFACE POWER_INT tcpip_client_interface.rb 127.0.0.1 5025 5025 10.0 nil TEMPLATE 0x0A 0x0A
+  TARGET POWER
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;This definition declares an interface named POWER_INT using the TCP/IP client interface which connects to ‘127.0.0.1’ (obviously you’ll change this to your actual power supply IP addres) using a write and read port of 5025 (standard SCPI ports for Keysight instruments) with a write timeout of 10s and no read timeout (block on read). We specify the TEMPLATE protocol with both write and read termination characters of 0x0A (ASCII newline). Note the &lt;a href=&quot;http://cosmosrb.com/docs/interfaces/#template-stream-protocol&quot;&gt;TEMPLATE protocol&lt;/a&gt; takes many additional parameters to allow you to work with off nominal protocol conditions.&lt;/p&gt;
+
+&lt;p&gt;Now you can define your target’s command and telemetry definitions. We’ll create example commands which get and set the voltage setting in our power supply. Create a POWER/cmd_tlm/cmd.txt file which has the following:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;COMMAND POWER GET_VOLTAGE BIG_ENDIAN &quot;Get voltage&quot;
+  APPEND_ID_PARAMETER CMD_ID 8 UINT 1 1 1 &quot;Command Id&quot; # Unique command ID
+  APPEND_PARAMETER CHANNEL 8 UINT 1 4 1 &quot;Channel&quot;
+  APPEND_PARAMETER CMD_TEMPLATE 512 STRING &quot;MEAS:VOLT? (@&amp;lt;CHANNEL&amp;gt;)&quot;
+  APPEND_PARAMETER RSP_TEMPLATE 512 STRING &quot;&amp;lt;VOLTAGE&amp;gt;&quot;
+  APPEND_PARAMETER RSP_PACKET 512 STRING &quot;TLM&quot;
+
+COMMAND POWER SET_VOLTAGE BIG_ENDIAN &quot;Set voltage&quot;
+  APPEND_ID_PARAMETER CMD_ID 8 UINT 2 2 2 &quot;Command Id&quot; # Unique command ID
+  APPEND_PARAMETER CHANNEL 8 UINT 1 4 1 &quot;Channel&quot;
+  APPEND_PARAMETER VOLTAGE 8 UINT 0 100 10 &quot;Voltage&quot;
+  APPEND_PARAMETER CMD_TEMPLATE 512 STRING &quot;VOLT &amp;lt;VOLTAGE&amp;gt;,(@&amp;lt;CHANNEL&amp;gt;)&quot;
+  APPEND_PARAMETER RSP_TEMPLATE 512 STRING &quot;&amp;lt;SET_VOLTAGE&amp;gt;&quot;
+  APPEND_PARAMETER RSP_PACKET 512 STRING &quot;TLM&quot;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;The CMD_ID parameter is defined by &lt;a href=&quot;/docs/cmdtlm/#append_id_parameter&quot;&gt;APPEND_ID_PARAMETER&lt;/a&gt;. This ID parameter is not used by the SCPI protocol but is needed for COSMOS to identify the command when it is logged. The CMD_TEMPLATE parameter is the actual SCPI command which is being sent to the target. Anything inside brackets &amp;lt;&amp;gt; will be replaced by the value in the named parameter. For example, both commands define the CHANNEL parameter and thus &amp;lt;CHANNEL&amp;gt; will be replaced by the value of that parameter when constructing the command. The RSP_TEMPLATE is the expected string response back from the target. This is parsed by pulling out values into the bracket delimited values. The RSP_PACKET defines the packet where the bracket delimited values are defined. So for our GET_VOLTAGE example we parse the VOLTAGE value and place it in the TLM packet.&lt;/p&gt;
+
+&lt;p&gt;Create a POWER/cmd_tlm/tlm.txt file to define the response telemetry:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;TELEMETRY POWER TLM BIG_ENDIAN &quot;Power Supply Telemetry&quot;
+  APPEND_ID_ITEM TLM_ID 32 INT 1 &quot;Packet Identifier&quot; # Unique telemetry ID
+  APPEND_ITEM VOLTAGE 32 FLOAT &quot;PS Measured Voltage&quot;
+    FORMAT_STRING &quot;%0.3f&quot;
+    UNITS &quot;Volts&quot; &quot;V&quot;
+  APPEND_ITEM SET_VOLTAGE 32 FLOAT &quot;PS Set Voltage&quot;
+    FORMAT_STRING &quot;%0.3f&quot;
+    UNITS &quot;Volts&quot; &quot;V&quot;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;The TLM_ID item is defined by &lt;a href=&quot;/docs/cmdtlm/#append_id_item&quot;&gt;APPEND_ID_ITEM&lt;/a&gt;. This ID item is not used by the SCPI protocol but is needed by COSMOS to decode this logged telemetry packet. The packet is named TLM which matches our RSP_PACKET definition in the commands. We define VOLTAGE and SET_VOLTAGE which also match the values used in the RSP_TEMPLATE parameters in our commands.&lt;/p&gt;
+
+&lt;p&gt;With Keysight supplies you can string together a bunch of SCIP commands in one CMD_TEMPLATE if you delimit them with semicolons. Then in the RSP_TEMPLATE you can break the response apart and set a bunch of telemetry items at once. For example:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;COMMAND POWER GET_STATUS BIG_ENDIAN &quot;Get status&quot;
+  APPEND_ID_PARAMETER CMD_ID 8 UINT 3 3 3 &quot;Command Id&quot; # Unique command ID
+  APPEND_PARAMETER CHANNEL 8 UINT 1 4 1 &quot;Channel&quot;
+  APPEND_PARAMETER CMD_TEMPLATE 512 STRING &quot;MEAS:VOLT (@&amp;lt;CHANNEL&amp;gt;);CURR (@&amp;lt;CHANNEL&amp;gt;);POW (@&amp;lt;CHANNEL&amp;gt;)&quot;
+  APPEND_PARAMETER RSP_TEMPLATE 512 STRING &quot;&amp;lt;VOLTAGE&amp;gt;,&amp;lt;CURRENT&amp;gt;,&amp;lt;POWER&amp;gt;&quot;
+  APPEND_PARAMETER RSP_PACKET 512 STRING &quot;TLM&quot;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;The RSP_TEMPLATE expects to have three values delimited by the comma character. For this example to be complete you would also need to declare CURRENT and POWER items in the TLM packet.&lt;/p&gt;
+
+&lt;p&gt;Using the TEMPLATE processor can be complex but makes working with with string based command / response protocols like SCPI much easier. If you need additional support please contact us at &lt;a href=&quot;mailto:cosmos@ball.com&quot;&gt;cosmos@ball.com&lt;/a&gt;.&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>Ball Aerospace COSMOS 3.9.2 Released</title>
