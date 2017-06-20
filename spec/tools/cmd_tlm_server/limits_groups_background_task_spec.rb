@@ -119,21 +119,19 @@ module Cosmos
       end
 
       it "warns if can't process check methods at 1Hz" do
-        class MyLimitsGroups3 < LimitsGroupsBackgroundTask
+        class MyLimitsGroups4 < LimitsGroupsBackgroundTask
           def check_first
             sleep 1.1
           end
         end
-        message = ''
-        allow(Logger).to receive(:warn) {|msg| message = msg }
 
         Thread.abort_on_exception = true
-        my = MyLimitsGroups3.new
+        my = MyLimitsGroups4.new
         thread = Thread.new do
           my.call
         end
         sleep 1.2
-        expect(message).to match /LimitsGroupsBackgroundTask took 1\.1\d+ to process check methods/
+        expect(my.status).to match /Checking groups took 1.1\d+/
         Cosmos.kill_thread(self, thread)
       end
     end

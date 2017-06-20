@@ -59,8 +59,6 @@ module Cosmos
           # Reset the instance variable to a distance future time
           # so it won't satisfy any of the other checks and enable the group
           self.instance_variable_set(var_name, FUTURE_TIME)
-          @status = "Enabling group #{group.upcase} at #{Time.now}"
-          #Logger.info "Enabling group #{group.upcase}"
           enable_limits_group(group)
           # Call any additional enable code passed to the method
           enable_code.call if enable_code
@@ -72,8 +70,6 @@ module Cosmos
         # won't satisfy any of the other checks and disable the group
         if !var || var == FUTURE_TIME
           self.instance_variable_set(var_name, PAST_TIME)
-          @status = "Disabling group #{group.upcase} at #{Time.now}"
-          #Logger.info "Disabling group #{group.upcase}"
           disable_limits_group(group)
           # Call any additional disable code passed to the method
           disable_code.call if disable_code
@@ -82,20 +78,24 @@ module Cosmos
     end
 
     def call
-      Logger.info "Starting the LimitsGroupsBackgroundTask"
+      @status = "Starting the LimitsGroupsBackgroundTask"
       check_methods = find_check_methods()
       sleep @initial_delay
+      @sleeper = Sleeper.new
       loop do
         start = Time.now
         check_methods.each {|method| self.send(method.intern) }
         now = Time.now
-        if (now - start) > 1.0
-          Logger.warn "LimitsGroupsBackgroundTask took #{now - start} to process check methods"
-          # No need to sleep because we're already over 1Hz. Just go back around.
-        else
-          sleep(1 - (now - start)) # Run the checks at 1Hz
-        end
+        @status = "#{now.formatted}: Checking groups took #{now - start}s"
+        sleep_time = 1 - (now - start)
+        sleep_time = 0 if sleep_time < 0
+        broken = @sleeper.sleep(sleep_time) # Run the checks at 1Hz
+        break if broken
       end
+    end
+
+    def stop
+      @sleeper.cancel
     end
 
     protected
