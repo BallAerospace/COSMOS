@@ -12,12 +12,14 @@ require 'cosmos/tools/cmd_tlm_server/limits_groups_background_task'
 
 module Cosmos
   class LimitsGroups < LimitsGroupsBackgroundTask
-    def initialize
-      super()
+    def initialize(initial_delay)
+      super(initial_delay)
       @temp1_enable_code = Proc.new do
+        #Logger.info "Enabling group GROUND"
         enable_limits_group('GROUND')
       end
       @temp1_disable_code = Proc.new do
+        #Logger.info "Disabling group GROUND"
         disable_limits_group('GROUND')
       end
     end

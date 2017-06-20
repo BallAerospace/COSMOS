@@ -15,14 +15,15 @@ module Cosmos
   class LimitsGroupsBackgroundTask < BackgroundTask
     attr_reader :groups
     # Time in the future that we will never hit to allow the logic to work
-    FUTURE_TIME = Time.new("2100")
+    FUTURE_TIME = Time.new("3000")
+    PAST_TIME = Time.new("1900")
 
-    def initialize
+    def initialize(initial_delay = 0)
       super()
+      @initial_delay = Float(initial_delay)
       @name = "Limits Groups"
       @groups = get_limits_groups()
-      # Initialize all the group names as instance variables. We don't need
-      # them all but initialize them all just to be safe.
+      # Initialize all the group names as instance variables
       @groups.each {|group| self.instance_variable_set("@#{group.downcase}", nil) }
     end
 
@@ -45,30 +46,34 @@ module Cosmos
       var = self.instance_variable_get(var_name)
       # Yield to the block to perform the telemetry check
       if yield
-        # If the instance variable is not set it means the group isn't enabled
-        # yet so print out a message and store the current time
-        if not var
-          Logger.info "Detected group #{group.upcase} enable condition"
+        # If the instance variable is not set or set in the past
+        # (by the disable logic) it means the group isn't enabled
+        # so store the current time to allow for an enable delay
+        if !var || var == PAST_TIME
           self.instance_variable_set(var_name, Time.now)
           # After setting the variable we need to get it again
           var = self.instance_variable_get(var_name)
         end
         # After the requested delay after power on we enable the group
         if Time.now > (var + delay)
-          # Reset the instance variable to a distance future time so it won't satisfy
-          # the above check but is also not nil which would trigger the first check
+          # Reset the instance variable to a distance future time
+          # so it won't satisfy any of the other checks and enable the group
           self.instance_variable_set(var_name, FUTURE_TIME)
           @status = "Enabling group #{group.upcase} at #{Time.now}"
-          Logger.info "Enabling group #{group.upcase}"
+          #Logger.info "Enabling group #{group.upcase}"
           enable_limits_group(group)
           # Call any additional enable code passed to the method
           enable_code.call if enable_code
         end
       else
-        if var
-          self.instance_variable_set(var_name, nil)
+        # If the instance variable is not set or set in the future
+        # (by the enable logic) it means the group isn't disabled
+        # Reset the instance variable to a distance past time so it
+        # won't satisfy any of the other checks and disable the group
+        if !var || var == FUTURE_TIME
+          self.instance_variable_set(var_name, PAST_TIME)
           @status = "Disabling group #{group.upcase} at #{Time.now}"
-          Logger.info "Disabling group #{group.upcase}"
+          #Logger.info "Disabling group #{group.upcase}"
           disable_limits_group(group)
           # Call any additional disable code passed to the method
           disable_code.call if disable_code
@@ -79,9 +84,7 @@ module Cosmos
     def call
       Logger.info "Starting the LimitsGroupsBackgroundTask"
       check_methods = find_check_methods()
-      # Initially disable all the groups as we assume everything is off
-      @groups.each {|group| disable_limits_group(group) }
-      sleep 5 # allow interfaces time to start
+      sleep @initial_delay
       loop do
         start = Time.now
         check_methods.each {|method| self.send(method.intern) }

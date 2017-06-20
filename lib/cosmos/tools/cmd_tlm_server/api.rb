@@ -794,12 +794,14 @@ module Cosmos
 
     # (see Cosmos::Limits#enable_group)
     def enable_limits_group(group_name)
+      Logger.info("Enabling Limits Group: #{group_name.upcase}")
       System.limits.enable_group(group_name)
       nil
     end
 
     # (see Cosmos::Limits#disable_group)
     def disable_limits_group(group_name)
+      Logger.info("Disabling Limits Group: #{group_name.upcase}")
       System.limits.disable_group(group_name)
       nil
     end

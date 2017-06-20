@@ -34,8 +34,30 @@ module Cosmos
         expect { MyLimitsGroups1.new.call }.to raise_error(/check_blah doesn't match a group name/)
       end
 
-      it "processes the check methods at 1Hz" do
+      it "requires a floating point delay parameter" do
+        class MyLimitsGroups1 < LimitsGroupsBackgroundTask
+        end
+        expect { MyLimitsGroups1.new("HI") }.to raise_error(/invalid value for Float/)
+      end
+
+      it "delays before processing the groups" do
         class MyLimitsGroups2 < LimitsGroupsBackgroundTask
+          attr_accessor :called
+          def check_first
+            @called = Time.now
+          end
+        end
+        my = MyLimitsGroups2.new(2.1)
+        thread = Thread.new do
+          my.call
+        end
+        sleep 2.2
+        expect(Time.now - my.called).to be < 0.15
+        Cosmos.kill_thread(self, thread)
+      end
+
+      it "processes the check methods at 1Hz" do
+        class MyLimitsGroups3 < LimitsGroupsBackgroundTask
           attr_accessor :first_count, :second_count, :on_logic, :off_logic
           def initialize
             super()
@@ -57,15 +79,16 @@ module Cosmos
             process_group { false } # Never enable
           end
         end
-        my = MyLimitsGroups2.new
+        my = MyLimitsGroups3.new
         thread = Thread.new do
           my.call
         end
-        sleep 5 # The first 5s are to allow interfaces to start
+        sleep 0.1
         p = System.telemetry.packet("INST","HEALTH_STATUS")
-        # Initially the groups are disabled
-        expect(p.get_item("TEMP1").limits.enabled).to be false
-        expect(p.get_item("TEMP3").limits.enabled).to be false
+        # First group is enabled
+        expect(p.get_item("TEMP1").limits.enabled).to be true
+        expect(p.get_item("TEMP3").limits.enabled).to be true
+        # Second group is disabled
         expect(p.get_item("TEMP2").limits.enabled).to be false
         expect(p.get_item("TEMP4").limits.enabled).to be false
         expect(my.on_logic).to be false
@@ -109,7 +132,7 @@ module Cosmos
         thread = Thread.new do
           my.call
         end
-        sleep 6.5 # The first 5s are to allow interfaces to start
+        sleep 1.2
         expect(message).to match /LimitsGroupsBackgroundTask took 1\.1\d+ to process check methods/
         Cosmos.kill_thread(self, thread)
       end
