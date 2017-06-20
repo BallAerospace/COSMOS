@@ -32,7 +32,6 @@ module Cosmos
 
       setStyleSheet("background-color:white")
       setFrameStyle(Qt::Frame::Box)
-      #setAcceptDrops(true)
 
       top_layout = Qt::VBoxLayout.new
       top_layout.setContentsMargins(0, 0, 0, 0)
@@ -271,7 +270,6 @@ module Cosmos
     # indexing is off. Would need more support to make it useful to drag
     # commands in between existing commands. Currently it only supports
     # swapping commands with each other.
-
     def mousePressEvent(event)
       super(event)
       if event.button == Qt::LeftButton
@@ -285,33 +283,17 @@ module Cosmos
       end
     end
 
-    #def mouseMoveEvent(event)
-    #  super(event)
-    #  return unless (event.buttons & Qt::LeftButton)
-    #  return if (event.pos - @dragStartPosition).manhattanLength() < Qt::Application::startDragDistance()
+    def mouseMoveEvent(event)
+      super(event)
+      return unless (event.buttons & Qt::LeftButton)
+      return if (event.pos - @dragStartPosition).manhattanLength() < Qt::Application::startDragDistance()
 
-    #  mime = Qt::MimeData.new()
-    #  mime.setText(@index.to_s)
-    #  drag = Qt::Drag.new(self)
-    #  drag.setMimeData(mime)
-    #  drop = drag.exec(Qt::MoveAction)
-    #end
-
-    #def dragEnterEvent(event)
-    #  if event.mimeData.text != @text.to_s
-    #    event.acceptProposedAction
-    #    setStyleSheet("background-color:grey")
-    #  end
-    #end
-
-    #def dragLeaveEvent(event)
-    #  setStyleSheet("background-color:white")
-    #end
-
-    #def dropEvent(event)
-    #  setStyleSheet("background-color:white")
-    #  parentWidget.swap(@index, event.mimeData.text.to_i)
-    #end
+      mime = Qt::MimeData.new()
+      mime.setText(@index.to_s)
+      drag = Qt::Drag.new(self)
+      drag.setMimeData(mime)
+      drop = drag.exec(Qt::MoveAction)
+    end
 
     # Code to draw the drop down arrows. Not sure this is really needed.
 
@@ -369,19 +351,95 @@ module Cosmos
   end
 
   class SequenceList < Qt::Widget
-  # Code for drag and drop support. Needs additional work. Also needs work to
-  # add support for dragging a command in between existing commands.
+    class Spacer < Qt::Widget
+      def initialize(parent)
+        super(parent)
+        @parent = parent
+        setAcceptDrops(true)
+        setFixedHeight(20)
+        setContentsMargins(0, 0, 0, 0)
+      end
 
-  #  def swap(index1, index2)
-  #    STDOUT.puts "swap:#{index1}, #{index2} count:#{layout.count}"
-  #    widget1 = layout.takeAt(index1).widget
-  #    index1 = widget1.index
-  #    widget2 = layout.takeAt(index2).widget
-  #    index2 = widget2.index
-  #    widget2.index = index1
-  #    widget1.index = index2
-  #    layout.insertWidget(index1, widget2)
-  #    layout.insertWidget(index2, widget1)
+      def dragEnterEvent(event)
+        event.acceptProposedAction
+        setStyleSheet("background-color:grey")
+      end
+
+      def dragLeaveEvent(event)
+        setStyleSheet("background-color:")
+      end
+
+      def dropEvent(event)
+        setStyleSheet("background-color:white")
+        @parent.swap(event.mimeData.text)
+        STDOUT.puts "event:#{event} mime:#{event.mimeData.text()}"
+      end
+    end
+
+    def initialize()
+      super()
+      layout = Qt::VBoxLayout.new()
+      layout.setContentsMargins(0, 0, 0, 0)
+      layout.setSpacing(0)
+      setLayout(layout)
+      setSizePolicy(1, 0)
+    end
+
+    def add(widget)
+      layout.addWidget(widget)
+      layout.addWidget(Spacer.new(self))
+    end
+
+    def swap(index1, index2)
+      STDOUT.puts "swap:#{index1}, #{index2} count:#{layout.count}"
+    #  widget1 = layout.takeAt(index1).widget
+    #  index1 = widget1.index
+    #  widget2 = layout.takeAt(index2).widget
+    #  index2 = widget2.index
+    #  widget2.index = index1
+    #  widget1.index = index2
+    #  layout.insertWidget(index1, widget2)
+    #  layout.insertWidget(index2, widget1)
+    end
+
+  #  def mousePressEvent(event)
+  #    super(event)
+  #    if event.button == Qt::LeftButton
+  #      @dragStartPosition = event.pos
+  #    end
+  #    @expanded = !@expanded
+  #    if @expanded
+  #      @parameters.show
+  #    else
+  #      @parameters.hide
+  #    end
+  #  end
+   #
+  #  def mouseMoveEvent(event)
+  #   super(event)
+  #   return unless (event.buttons & Qt::LeftButton)
+  #   return if (event.pos - @dragStartPosition).manhattanLength() < Qt::Application::startDragDistance()
+   #
+  #   mime = Qt::MimeData.new()
+  #   mime.setText(@index.to_s)
+  #   drag = Qt::Drag.new(self)
+  #   drag.setMimeData(mime)
+  #   drop = drag.exec(Qt::MoveAction)
+  #  end
+   #
+  #  def dragEnterEvent(event)
+  #   if event.mimeData.text != @text.to_s
+  #     event.acceptProposedAction
+  #     setStyleSheet("background-color:grey")
+  #   end
+  #  end
+   #
+  #  def dragLeaveEvent(event)
+  #   setStyleSheet("background-color:")
+  #  end
+   #
+  #  def dropEvent(event)
+  #   setStyleSheet("background-color:white")
   #  end
   end
 
@@ -555,9 +613,6 @@ module Cosmos
       # Initialize scroll area
       @sequence_index = 0
       @sequence_list = SequenceList.new()
-      list_layout = Qt::VBoxLayout.new()
-      @sequence_list.setLayout(list_layout)
-      @sequence_list.setSizePolicy(1, 0)
 
       @scroll = Qt::ScrollArea.new()
       @scroll.setWidgetResizable(true)
@@ -617,7 +672,7 @@ module Cosmos
 
     def add_command
       command = System.commands.packet(@target_select.text, @cmd_select.text)
-      @sequence_list.layout.addWidget(SequenceItem.new(command, @sequence_index))
+      @sequence_list.add(SequenceItem.new(command, @sequence_index))
       @sequence_index += 1
     end
 
