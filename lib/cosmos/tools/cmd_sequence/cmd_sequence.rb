@@ -11,10 +11,12 @@
 require 'cosmos'
 Cosmos.catch_fatal_exception do
   require 'cosmos/script'
-  require 'cosmos/gui/qt_tool'
   require 'cosmos/config/config_parser'
+  require 'cosmos/gui/qt_tool'
   require 'cosmos/gui/utilities/script_module_gui'
   require 'cosmos/gui/dialogs/splash'
+  require 'cosmos/gui/dialogs/calendar_dialog'
+  require 'cosmos/gui/widgets/realtime_button_bar'
   require 'cosmos/tools/cmd_sender/cmd_param_table_item_delegate'
 end
 
@@ -30,7 +32,8 @@ module Cosmos
       @table = nil
       @param_widgets = []
 
-      setStyleSheet("background-color:white")
+      setAutoFillBackground(true)
+      setPalette(Cosmos.getPalette("black", "white"))
       setFrameStyle(Qt::Frame::Box)
 
       top_layout = Qt::VBoxLayout.new
@@ -40,21 +43,30 @@ module Cosmos
       layout = Qt::HBoxLayout.new
       layout.setContentsMargins(0, 0, 0, 0)
 
+      time = Qt::LineEdit.new(Time.now.formatted)
+      fm = time.fontMetrics
+      time.setFixedWidth(fm.boundingRect(Time.now.formatted).width + 10)
+      time.text = "<NO DELAY>"
+      time.setEnabled(false)
+      time.setReadOnly(true)
+
       edit_time = Qt::PushButton.new
       edit_time.setFixedSize(25, 25)
       time_icon = Cosmos.get_icon('edit.png')
       edit_time.setIcon(time_icon)
+      edit_time.connect(SIGNAL('clicked()')) do
+        dialog = CalendarDialog.new(self, "Select Absolute Execution Time:", Time.now, true)
+        case dialog.exec
+        when Qt::Dialog::Accepted
+          time.setText(dialog.time.formatted)
+        end
+      end
       layout.addWidget(edit_time)
-
-      time = Qt::LineEdit.new(Time.now.formatted)
-      fm = time.fontMetrics
-      time.setFixedWidth(fm.boundingRect(Time.now.formatted).width + 10)
-      time.setEnabled(false)
-      time.setReadOnly(true)
-
       layout.addWidget(time)
       layout.addWidget(Qt::Label.new(command.target_name))
       layout.addWidget(Qt::Label.new(command.packet_name))
+      @cmd_info = Qt::Label.new("")
+      layout.addWidget(@cmd_info)
       layout.addStretch()
 
       delete = Qt::PushButton.new
@@ -100,6 +112,14 @@ module Cosmos
       @states_in_hex.setChecked(false)
 
       update_cmd_params()
+      begin
+        output, params = view_as_script
+        if get_cmd_hazardous(@command.target_name, @command.packet_name, params)
+          @cmd_info.text = "(Hazarous)"
+        end
+      rescue
+        @cmd_info.text = ""
+      end
     end
 
     def update_cmd_params(ignored_toggle = nil)
@@ -252,6 +272,16 @@ module Cosmos
             @table.item(item.row, 1).setText(MANUALLY)
             @table.blockSignals(false)
           end
+          begin
+            output, params = view_as_script
+            if get_cmd_hazardous(@command.target_name, @command.packet_name, params)
+              @cmd_info.text = "(Hazarous)"
+            else
+              @cmd_info.text = ""
+            end
+          rescue
+            @cmd_info.text = ''
+          end
         end
         @table_layout.addWidget(@table)
         @table.resizeColumnsToContents()
@@ -266,63 +296,36 @@ module Cosmos
       end
     end
 
-    # These methods are for drag and drop support. It kind of works but the
-    # indexing is off. Would need more support to make it useful to drag
-    # commands in between existing commands. Currently it only supports
-    # swapping commands with each other.
-    def mousePressEvent(event)
+    def mouseReleaseEvent(event)
       super(event)
       if event.button == Qt::LeftButton
-        @dragStartPosition = event.pos
-      end
-      @expanded = !@expanded
-      if @expanded
-        @parameters.show
-      else
-        @parameters.hide
+        @expanded = !@expanded
+        if @expanded
+          @parameters.show
+        else
+          @parameters.hide
+        end
       end
     end
 
-    def mouseMoveEvent(event)
-      super(event)
-      return unless (event.buttons & Qt::LeftButton)
-      return if (event.pos - @dragStartPosition).manhattanLength() < Qt::Application::startDragDistance()
-
-      mime = Qt::MimeData.new()
-      mime.setText(@index.to_s)
-      drag = Qt::Drag.new(self)
-      drag.setMimeData(mime)
-      drop = drag.exec(Qt::MoveAction)
-    end
-
-    # Code to draw the drop down arrows. Not sure this is really needed.
-
-    #def paintEvent(event)
-    #  painter = Qt::Painter.new(self)
-    #  painter.setPen(palette.foreground.color)
-    #  rect = event.rect
-    #  painter.fillRect(rect, Qt::lightGray)
-    #  painter.drawRect(rect.left, rect.top, rect.right, rect.bottom)
-
-    #  # Draw the expand/collapse arrow
-    #  painter.fillRect(rect.right - 15, rect.top + 1, 15, 21, Qt::lightGray)
-    #  path = Qt::PainterPath.new()
-    #  middle = HEIGHT / 2
-    #  if @expanded == 1
-    #    path.moveTo(rect.right - 12, middle)
-    #    path.lineTo(rect.right - 4, middle)
-    #    path.lineTo(rect.right - 8, middle + 4)
-    #    path.lineTo(rect.right - 12, middle)
-    #  else
-    #    path.moveTo(rect.right - 9, middle + 4)
-    #    path.lineTo(rect.right - 9, middle - 4)
-    #    path.lineTo(rect.right - 5, middle)
-    #    path.lineTo(rect.right - 9, middle + 4)
-    #  end
-    #  painter.drawPath(path)
-    #  painter.end
-    #  painter.dispose
-    #end
+    # These methods are for drag and drop support
+    # def mousePressEvent(event)
+    #   super(event)
+    #   if event.button == Qt::LeftButton
+    #     @dragStartPosition = event.pos
+    #   end
+    # end
+    # def mouseMoveEvent(event)
+    #   super(event)
+    #   return unless (event.buttons & Qt::LeftButton)
+    #   return if (event.pos - @dragStartPosition).manhattanLength() < Qt::Application::startDragDistance()
+    #
+    #   mime = Qt::MimeData.new()
+    #   mime.setText(@index.to_s)
+    #   drag = Qt::Drag.new(self)
+    #   drag.setMimeData(mime)
+    #   drop = drag.exec(Qt::MoveAction)
+    # end
 
     def view_as_script
       params = {}
@@ -330,16 +333,16 @@ module Cosmos
       @param_widgets.each do |packet_item, value_item, state_value_item|
         text = value_item.text
 
-        text = state_value_item.text if state_value_item and (text == MANUALLY or @cmd_raw.checked?)
+        text = state_value_item.text if state_value_item && (text == MANUALLY)# || @cmd_raw.checked?)
         quotes_removed = text.remove_quotes
         if text == quotes_removed
           params[packet_item.name] = text.convert_to_value
         else
           params[packet_item.name] = quotes_removed
         end
-        raise "#{packet_item.name} is required." if quotes_removed == '' and packet_item.required
+        raise "#{packet_item.name} is required." if quotes_removed == '' && packet_item.required
       end
-      statusBar.clearMessage()
+      #statusBar.clearMessage()
 
       output_string = build_cmd_output_string(@command.target_name, @command.packet_name, params, false)
       if output_string =~ /[\x00-\x08\x0B-\x0C\x0E-\x1F\x7F-\xFF]/
@@ -348,6 +351,49 @@ module Cosmos
 
       return output_string, params
     end
+
+    # Sends the current command and parameters to the target
+    def execute
+      target_name = @command.target_name
+      packet_name = @command.packet_name
+      if target_name and packet_name
+        output_string, params = view_as_script()
+        message = Time.now.sys.formatted + '  ' + output_string
+        # if @cmd_raw.checked?
+        #   if @ignore_range.checked?
+        #     cmd_raw_no_range_check(target_name, packet_name, params)
+        #   else
+        #     cmd_raw(target_name, packet_name, params)
+        #   end
+        # else
+        #   if @ignore_range.checked?
+        #     cmd_no_range_check(target_name, packet_name, params)
+        #   else
+            cmd_no_hazardous_check(target_name, packet_name, params)
+        #   end
+        # end
+        # if statusBar.currentMessage != 'Hazardous command not sent'
+        #   @@send_count += 1
+        #   statusBar.showMessage("#{output_string} sent. (#{@@send_count})")
+        #   @input.append(output_string)
+        #   @input.moveCursor(Qt::TextCursor::End)
+        #   @input.ensureCursorVisible()
+        # end
+      end
+      message
+    rescue DRb::DRbConnError
+      message = "Error Connecting to Command and Telemetry Server"
+      # @message_log.write(Time.now.formatted + '  ' + message + "\n")
+      # statusBar.showMessage(message)
+      Qt::MessageBox.critical(self, 'Error', message)
+      message
+    rescue Exception => err
+      message = "Error sending #{target_name} #{packet_name} due to #{err}"
+      # @message_log.write(Time.now.formatted + '  ' + message + "\n")
+      # statusBar.showMessage(message)
+      Qt::MessageBox.critical(self, 'Error', message)
+      message
+    end
   end
 
   class SequenceList < Qt::Widget
@@ -355,29 +401,32 @@ module Cosmos
       def initialize(parent)
         super(parent)
         @parent = parent
-        setAcceptDrops(true)
-        setFixedHeight(20)
+        # setAcceptDrops(true)
+        setFixedHeight(15)
         setContentsMargins(0, 0, 0, 0)
       end
 
-      def dragEnterEvent(event)
-        event.acceptProposedAction
-        setStyleSheet("background-color:grey")
-      end
-
-      def dragLeaveEvent(event)
-        setStyleSheet("background-color:")
-      end
-
-      def dropEvent(event)
-        setStyleSheet("background-color:white")
-        @parent.swap(event.mimeData.text)
-        STDOUT.puts "event:#{event} mime:#{event.mimeData.text()}"
-      end
+      # Methods for drag and drop support
+      # def dragEnterEvent(event)
+      #   event.acceptProposedAction
+      #   setStyleSheet("background-color:grey")
+      # end
+      #
+      # def dragLeaveEvent(event)
+      #   setStyleSheet("background-color:")
+      # end
+      #
+      # def dropEvent(event)
+      #   setStyleSheet("background-color:white")
+      #   #@parent.swap(event.mimeData.text)
+      #   STDOUT.puts "event:#{event} mime:#{event.mimeData.text()}"
+      # end
     end
 
-    def initialize()
-      super()
+    def initialize(parent)
+      super(parent)
+      @parent = parent
+      @items = []
       layout = Qt::VBoxLayout.new()
       layout.setContentsMargins(0, 0, 0, 0)
       layout.setSpacing(0)
@@ -386,12 +435,30 @@ module Cosmos
     end
 
     def add(widget)
+      @items << widget
       layout.addWidget(widget)
-      layout.addWidget(Spacer.new(self))
+      # layout.addWidget(Spacer.new(self))
     end
 
-    def swap(index1, index2)
-      STDOUT.puts "swap:#{index1}, #{index2} count:#{layout.count}"
+    def start
+      @parent.output.append("Executing Sequence at #{Time.now}")
+      @items.each do |widget|
+        output = widget.execute
+        @parent.output.append(output)
+        @parent.output.moveCursor(Qt::TextCursor::End)
+        @parent.output.ensureCursorVisible()
+      end
+      @parent.output.append("\n")
+    end
+
+    def pause
+    end
+
+    def stop
+    end
+
+    # def swap(index1, index2)
+    #   STDOUT.puts "swap:#{index1}, #{index2} count:#{layout.count}"
     #  widget1 = layout.takeAt(index1).widget
     #  index1 = widget1.index
     #  widget2 = layout.takeAt(index2).widget
@@ -400,7 +467,7 @@ module Cosmos
     #  widget1.index = index2
     #  layout.insertWidget(index1, widget2)
     #  layout.insertWidget(index2, widget1)
-    end
+    # end
 
   #  def mousePressEvent(event)
   #    super(event)
@@ -414,63 +481,43 @@ module Cosmos
   #      @parameters.hide
   #    end
   #  end
-   #
+  #
   #  def mouseMoveEvent(event)
   #   super(event)
   #   return unless (event.buttons & Qt::LeftButton)
   #   return if (event.pos - @dragStartPosition).manhattanLength() < Qt::Application::startDragDistance()
-   #
+  #
   #   mime = Qt::MimeData.new()
   #   mime.setText(@index.to_s)
   #   drag = Qt::Drag.new(self)
   #   drag.setMimeData(mime)
   #   drop = drag.exec(Qt::MoveAction)
   #  end
-   #
+  #
   #  def dragEnterEvent(event)
   #   if event.mimeData.text != @text.to_s
   #     event.acceptProposedAction
   #     setStyleSheet("background-color:grey")
   #   end
   #  end
-   #
+  #
   #  def dragLeaveEvent(event)
   #   setStyleSheet("background-color:")
   #  end
-   #
+  #
   #  def dropEvent(event)
   #   setStyleSheet("background-color:white")
   #  end
   end
 
   class CmdSequence < QtTool
-    attr_accessor :open_action, :open_flash_action, :new_action, :save_action, :sort_action, :save_flash_action, :alert_box, :scroll
-    attr_accessor :commands, :seq_top, :opcode_lookup, :desc_lookup, :currentRow, :dupIDs, :versionID
-    attr_accessor :b_change_commands, :b_insert_before, :b_insert_after, :b_delete_commands, :b_move_up, :b_move_down
-    attr_accessor :b_change_seqid, :b_move_seq_up, :b_move_seq_down
-    attr_accessor :got_commands
-
-    slots 'refresh_command_view_widget(int, int, int, int)'
-
-    #seq_top->0[ seqid, cmdarr[] ]
-    #                     @->0[ delay, opcode, description, expanded, checked, paramarr[] ]
-    #                                                                            @->0[ name, value, states, description, units_full, units_abbrev, required ]
-    #                                                                               1[ name, value, states, description, units_full, units_abbrev, required ]
-    #                                                                               2[ name, value, states, description, units_full, units_abbrev, required ]
-    #                        1[ delay, opcode, description, expanded, checked, paramarr[] ]
-    #                                                                            @->0[ name, value, states, description, units_full, units_abbrev, required ]
-    #                        2[ delay, opcode, description, expanded, checked, paramarr[] ]
-    #                        3[ delay, opcode, description, expanded, checked, paramarr[] ]
-    #                                                                            @->0[ name, value, states, description, units_full, units_abbrev, required ]
-    #         1[ seqid, cmdarr[] ]
-    # and so on...
-
+    attr_accessor :output
     MANUALLY = "MANUALLY ENTERED"
 
     def self.run(option_parser = nil, options = nil)
       unless option_parser && options
         option_parser, options = create_default_options()
-        options.width = 800
+        options.width = 600
         options.height = 425
         options.title = 'Command Sequence'
       end
@@ -584,6 +631,14 @@ module Cosmos
       central_layout = Qt::VBoxLayout.new
       central_widget.layout = central_layout
 
+      # Realtime Button Bar
+      @realtime_button_bar = RealtimeButtonBar.new(self)
+      @realtime_button_bar.start_callback = method(:handle_start)
+      @realtime_button_bar.pause_callback = method(:handle_pause)
+      @realtime_button_bar.stop_callback  = method(:handle_stop)
+      @realtime_button_bar.state = 'Stopped'
+      central_layout.addWidget(@realtime_button_bar)
+
       # Set the target combobox selection
       @target_select = Qt::ComboBox.new
       @target_select.setMaxVisibleItems(6)
@@ -610,15 +665,34 @@ module Cosmos
       select_layout.addWidget(add)
       central_layout.addLayout(select_layout)
 
+      # Create a splitter to hold the sequence area and the script output text area
+      splitter = Qt::Splitter.new(Qt::Vertical, self)
+      central_layout.addWidget(splitter)
+
       # Initialize scroll area
       @sequence_index = 0
-      @sequence_list = SequenceList.new()
+      @sequence_list = SequenceList.new(self)
 
-      @scroll = Qt::ScrollArea.new()
-      @scroll.setWidgetResizable(true)
-      @scroll.setWidget(@sequence_list)
-      connect(@scroll.verticalScrollBar(), SIGNAL("valueChanged(int)"), @sequence_list, SLOT("update()"))
-      central_layout.addWidget(@scroll)
+      scroll = Qt::ScrollArea.new()
+      scroll.setSizePolicy(Qt::SizePolicy::Preferred, Qt::SizePolicy::Expanding)
+      scroll.setWidgetResizable(true)
+      scroll.setWidget(@sequence_list)
+      connect(scroll.verticalScrollBar(), SIGNAL("valueChanged(int)"), @sequence_list, SLOT("update()"))
+      splitter.addWidget(scroll)
+
+      # Output Text
+      bottom_frame = Qt::Widget.new
+      bottom_layout = Qt::VBoxLayout.new
+      bottom_layout.setContentsMargins(0,0,0,0)
+      bottom_layout_label = Qt::Label.new("Script Output:")
+      bottom_layout.addWidget(bottom_layout_label)
+      @output = Qt::TextEdit.new
+      @output.setReadOnly(true)
+      bottom_layout.addWidget(@output)
+      bottom_frame.setLayout(bottom_layout)
+      splitter.addWidget(bottom_frame)
+      splitter.setStretchFactor(0,100)
+      splitter.setStretchFactor(1,0)
 
       statusBar.showMessage("")
 
@@ -674,6 +748,18 @@ module Cosmos
       command = System.commands.packet(@target_select.text, @cmd_select.text)
       @sequence_list.add(SequenceItem.new(command, @sequence_index))
       @sequence_index += 1
+    end
+
+    def handle_start
+      @sequence_list.start
+    end
+
+    def handle_pause
+      @sequence_list.pause
+    end
+
+    def handle_stop
+      @sequence_list.stop
     end
 
     #def menu_states_in_hex(checked)
