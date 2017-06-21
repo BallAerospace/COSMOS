@@ -19,15 +19,16 @@ TABLE "MC Configuration" BIG_ENDIAN ONE_DIMENSIONAL "Memory Control Configuratio
   APPEND_PARAMETER "Scrub Region 2 Throttle Ticks" 32 UINT 0 0x0FFFFFFFF 2
   APPEND_PARAMETER "Dump Packet Throttle (sec)" 32 UINT 0 0x0FFFFFFFF 2 "Number of seconds to wait between dumping large packets"
   APPEND_PARAMETER "Memory Scrubbing" 8 UINT 0 1 1
-    STATE DISABLE 0 
-    STATE ENABLE 1 
+    STATE DISABLE 0
+    STATE ENABLE 1
   APPEND_PARAMETER "SIOC Memory Config" 8 UINT 1 3 3
-    #CONSTRAINT_START
-    #  if packet.read("Memory Scrubbing") == 'DISABLE'
-    #    packet.get_item("SIOC Memory Config").range = (10..20)
-    #  else
-    #    packet.get_item("SIOC Memory Config").range = (1..3)
-    #  end
-    #CONSTRAINT_END
-  APPEND_PARAMETER "Pad" 16 UINT 0 0 0 
-
+    GENERIC_WRITE_CONVERSION_START
+      if packet.read("Memory Scrubbing") == 'DISABLE'
+        packet.get_item("SIOC Memory Config").range = (10..20)
+      else
+        packet.get_item("SIOC Memory Config").range = (1..3)
+      end
+      value
+    GENERIC_WRITE_CONVERSION_END
+  APPEND_PARAMETER "Binary" 32 STRING 0xDEADBEEF "Binary string"
+  APPEND_PARAMETER "Pad" 16 UINT 0 0 0

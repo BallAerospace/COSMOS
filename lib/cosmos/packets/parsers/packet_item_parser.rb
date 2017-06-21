@@ -131,8 +131,16 @@ module Cosmos
 
       index = append? ? 3 : 4
       data_type = get_data_type()
-      if data_type == :STRING or data_type == :BLOCK
-        return @parser.parameters[index]
+      if data_type == :STRING or data_type == :BLOCK        
+        # If the default value is 0x<data> (no quotes), it is treated as
+        # binary data.  Otherwise, the default value is considered to be a string.
+        if (@parser.parameters[index].upcase.start_with?("0X")         and
+            !@parser.line.include?("\"#{@parser.parameters[index]}\"") and
+            !@parser.line.include?("\'#{@parser.parameters[index]}\'"))
+          return @parser.parameters[index].hex_to_byte_string
+        else
+          return @parser.parameters[index]
+        end
       else
         return ConfigParser.handle_defined_constants(
           @parser.parameters[index+2].convert_to_value, get_data_type(), get_bit_size())

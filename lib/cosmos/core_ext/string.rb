@@ -16,6 +16,8 @@ class String
 
   # The printable range of ASCII characters
   PRINTABLE_RANGE = 32..126
+  # Regular expression to identify a character that is not in the printable range
+  NON_PRINTABLE_REGEX = /[^ -~]/
   # Regular expression to identify a String as a floating point number
   FLOAT_CHECK_REGEX = /\A\s*[-+]?\d*\.\d+\s*\z/
   # Regular expression to identify a String as a floating point number in
@@ -182,6 +184,11 @@ class String
   # @return [Boolean] Whether the String represents an Array
   def is_array?
     if self =~ ARRAY_CHECK_REGEX then true else false end
+  end
+
+  # @return [Boolean] Whether the string contains only printable characters
+  def is_printable?
+    if self =~ NON_PRINTABLE_REGEX then false else true end
   end
 
   # @return Converts the String into either a Float, Integer, or Array

@@ -22,7 +22,7 @@ module Cosmos
       if no_hazardous
         Logger.warn "Command #{target_name} #{cmd_name} being sent ignoring hazardous warnings"
       end
-      Logger.info build_cmd_output_string(target_name, cmd_name, cmd_params, raw)
+      Logger.info System.commands.build_cmd_output_string(target_name, cmd_name, cmd_params, raw)
     end
 
     # Send the command and log the results
