@@ -9,6 +9,7 @@
 # attribution addendums as found in the LICENSE.txt
 
 require 'cosmos/config/config_parser'
+require 'cosmos/interfaces/protocols/protocol'
 require 'thread'
 
 module Cosmos
@@ -19,25 +20,7 @@ module Cosmos
   # the stream on a given synchronization pattern. The StreamProtocol operates
   # at the {Cosmos::Packet} abstraction level while the {Cosmos::Stream}
   # operates on raw bytes.
-  module StreamProtocol
-    ## @return [Integer] The number of bytes read from the stream
-    #attr_accessor :bytes_read
-    ## @return [Integer] The number of bytes written to the stream
-    #attr_accessor :bytes_written
-    ## @return [Interface] The interface associated with this
-    ##   StreamProtocol.
-    #attr_reader :interface
-    # @return [Stream] The stream this StreamProtocol is processing data from
-    attr_accessor :stream
-
-    # Set procotol specific options
-    # @param procotol [String] Name of the procotol
-    # @param params [Array<Object>] Array of parameter values
-    def configure_protocol(protocol, params)
-      super(protocol, params)
-      configure_stream_protocol(*params) if protocol == 'StreamProtocol'
-    end
-
+  class StreamProtocol < Protocol
     # @param discard_leading_bytes [Integer] The number of bytes to discard
     #   from the binary data after reading from the stream. Note that this is often
     #   used to remove a sync pattern from the final packet data.
@@ -45,83 +28,48 @@ module Cosmos
     #   that will be searched for in the raw stream. Bytes encountered before
     #   this pattern is found are discarded.
     # @param fill_fields [Boolean] Fill any required fields when writing packets
-    def configure_stream_protocol(discard_leading_bytes = 0, sync_pattern = nil, fill_fields = false)
+    def initialize(discard_leading_bytes = 0, sync_pattern = nil, fill_fields = false)
+      super()
       @discard_leading_bytes = discard_leading_bytes.to_i
       @sync_pattern = ConfigParser.handle_nil(sync_pattern)
       @sync_pattern = @sync_pattern.hex_to_byte_string if @sync_pattern
       @fill_fields = ConfigParser.handle_true_false(fill_fields)
-      @data = ''
     end
 
-    # Clears the data attribute and sets the data encoding
-    def connect
-      super()
+    def reset
       @data = ''
       @data.force_encoding('ASCII-8BIT')
-      @stream.connect if @stream
-    end
-
-    # Clears the data attribute
-    def disconnect
-      super()
-      @data = ''
-      @stream.disconnect if @stream
-    end
-
-    def connected?
-      super()
-      @stream ? @stream.connected? : false
+      @sync_state = :SEARCHING
     end
 
     # Reads from the stream. It can look for a sync pattern before
     # creating a Packet. It can discard a set number of bytes at the beginning
     # of the stream before creating the Packet.
     #
-    # @return [Packet|nil] A Packet of consisting of the bytes read from the
+    # @return [String|nil] Data for a packet consisting of the bytes read from the
     #   stream.
-    def read_data
-      # Loop until we have a packet to give
-      loop do
-        result = handle_sync_pattern()
-        return nil unless result
+    def read_data(data)
+      @data << data
 
-        # Reduce the data to a single packet
-        packet_data = reduce_to_single_packet()
-        return nil unless packet_data
+      control = handle_sync_pattern()
+      return nil, control if control
 
-        # Discard leading bytes if necessary
-        packet_data.replace(packet_data[@discard_leading_bytes..-1]) if @discard_leading_bytes > 0
+      # Reduce the data to a single packet
+      packet_data, control = reduce_to_single_packet()
+      return nil, control if control
+      @sync_state = :SEARCHING
 
-        # Return data based on final_receive_processing
-        if packet_data
-          if packet_data.length > 0
-            return packet_data
-          else
-            # Packet should be ignored
-            next
-          end
-        else
-          # Connection lost
-          return nil
-        end
-      end # loop do
-    end
+      # Discard leading bytes if necessary
+      packet_data.replace(packet_data[@discard_leading_bytes..-1]) if @discard_leading_bytes > 0
 
-    # Writes the packet data to the stream.
-    #
-    # @param data [String] Packet data to write to the stream
-    def write_data(data)
-      super(data)
-      @stream.write(data)
-      data
+      return packet_data, nil
     end
 
     # Called to perform modifications on a command packet before it is sent
     #
     # @param packet [Packet] Original packet
     # @return [Packet] Potentially modified packet
-    def pre_write_packet(packet)
-      packet = super(packet)
+    def write_packet(packet)
       # If we're filling the sync pattern and the sync pattern is part of the
       # packet (since we're not discarding any leading bytes) then we have to
       # fill the sync pattern in the actual packet so do it here.
@@ -130,14 +78,14 @@ module Cosmos
         BinaryAccessor.write(@sync_pattern, 0, @sync_pattern.length * 8, :BLOCK,
                              packet.buffer(false), :BIG_ENDIAN, :ERROR)
       end
-      packet
+      return packet, nil
     end
 
     # Called to perform modifications on write data before sending it to the stream
     #
     # @param data [String] Raw packet data
     # @return [String] Potentially modified packet data
-    def pre_write_data(data)
+    def write_data(data)
       data = super(data)
       # If we're filling the sync pattern and discarding the leading bytes
       # during a read then we need to put them back during a write.
@@ -148,24 +96,21 @@ module Cosmos
         BinaryAccessor.write(@sync_pattern, 0, @sync_pattern.length * 8, :BLOCK,
                              data, :BIG_ENDIAN, :ERROR)
       end
-      data
+      return data, nil
     end
 
-    protected
-
-    # @return [Boolean] Whether we successfully found a sync pattern
+    # @return [Boolean] control code (nil, :STOP, :DISCONNECT)
     def handle_sync_pattern
-      if @sync_pattern
+      if @sync_pattern and @sync_state == :SEARCHING
         loop do
           # Make sure we have some data to look for a sync word in
-          read_minimum_size(@sync_pattern.length)
-          return false if @data.length <= 0
+          return :STOP if @data.length < @sync_pattern.length
+
           # Find the beginning of the sync pattern
           sync_index = @data.index(@sync_pattern.getbyte(0).chr)
           if sync_index
             # Make sure we have enough data for the whole sync pattern past this index
-            read_minimum_size(sync_index + @sync_pattern.length)
-            return false if @data.length <= 0
+            return :STOP if @data.length < (sync_index + @sync_pattern.length)
 
             # Check for the rest of the sync pattern
             found = true
@@ -185,7 +130,8 @@ module Cosmos
                 # Delete Data Before Sync Pattern
                 @data.replace(@data[sync_index..-1])
               end
-              return true
+              @sync_state = :FOUND
+              return nil
 
             else # not found
               log_discard(@data[0..sync_index].length, false)
@@ -197,57 +143,38 @@ module Cosmos
           else # sync_index = nil
             log_discard(@data.length, false)
             @data.replace('')
-            next
+            return :STOP
           end # unless sync_index.nil?
         end # end loop
       end # if @sync_pattern
 
-      true
+      nil
     end
 
     def log_discard(length, found)
       Logger.error("Sync #{'not ' unless found}found. Discarding #{length} bytes of data.")
-      if @data.length >= 6
+      if @data.length >= 0
         Logger.error(sprintf("Starting: 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X\n",
-          @data.getbyte(0), @data.getbyte(1), @data.getbyte(2), @data.getbyte(3), @data.getbyte(4), @data.getbyte(5)))
+          @data.length >= 1 ? @data.getbyte(0) : 0,
+          @data.length >= 2 ? @data.getbyte(1) : 0,
+          @data.length >= 3 ? @data.getbyte(2) : 0,
+          @data.length >= 4 ? @data.getbyte(3) : 0,
+          @data.length >= 5 ? @data.getbyte(4) : 0,
+          @data.length >= 6 ? @data.getbyte(5) : 0))
       end
     end
 
     def reduce_to_single_packet
       if @data.length <= 0
-        # Need to get some data
-        read_and_handle_timeout()
-        return nil if @data.length <= 0
+        # Need some data
+        return nil, :STOP
       end
 
       # Reduce to packet data and clear data for next packet
       packet_data = @data.clone
       @data.replace('')
 
-      packet_data
-    end
-
-    def read_and_handle_timeout
-      begin
-        data = @stream.read
-        @bytes_read += data.length
-      rescue Timeout::Error
-        Logger.instance.error "Timeout waiting for data to be read"
-        data = ''
-      end
-      # data.length == 0 means that the stream was closed.  Need to clear out @data and be done.
-      if data.length == 0
-        @data.replace('')
-        return
-      end
-      @data << data
-    end
-
-    def read_minimum_size(required_num_bytes)
-      while (@data.length < required_num_bytes)
-        read_and_handle_timeout()
-        return if @data.length <= 0
-      end
+      return packet_data, nil
     end
   end
 end

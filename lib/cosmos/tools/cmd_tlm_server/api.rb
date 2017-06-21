@@ -654,12 +654,16 @@ module Cosmos
 
     def _override(method, tgt_pkt_item)
       interface = System.targets[tgt_pkt_item[0]].interface
-      if interface.respond_to?("_#{method}") # Check to see if they have this functionality
+      found = false
+      interface.read_protocols.each do |protocol|
+        found = true if protocol.kindof? OverrideProtocol
+      end
+      if found
         # Test to see if this telemetry item exists
         System.telemetry.value(tgt_pkt_item[0], tgt_pkt_item[1], tgt_pkt_item[2], :RAW)
         interface.public_send("_#{method}", *tgt_pkt_item)
       else
-        raise "Interface #{interface.name} does not have #{method} ability. Is 'PROTOCOL override_tlm.rb' under the interface definition?"
+        raise "Interface #{interface.name} does not have override ability. Is 'PROTOCOL OverrideProtocol' under the interface definition?"
       end
       nil
     end

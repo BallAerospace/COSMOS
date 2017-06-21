@@ -171,16 +171,11 @@ module Cosmos
               end
 
             when 'PROTOCOL'
-              parser.verify_num_parameters(1, nil, "#{keyword} <protocol.rb> <Protocol specific parameters>")
-              begin
-                require params[0] # Simple test to see if this file is in the path
-                klass = Cosmos.require_class(params[0])
-              rescue LoadError # Not in the path so look in our official COSMOS protocols directory
-                klass = Cosmos.require_class("cosmos/interfaces/protocols/#{params[0]}")
-              end
-              current_interface_or_router.extend(klass)
-              base = klass.to_s.split(':')[-1]
-              current_interface_or_router.configure_protocol(base, params[1..-1])
+              #~ parser.verify_num_parameters(1, nil, "#{keyword} <protocol.rb> <Protocol specific parameters>")
+              #~ klass = Cosmos.require_class(params[0])
+              #~ current_interface_or_router.extend(klass)
+              #~ base = klass.to_s.split(':')[-1]
+              #~ current_interface_or_router.configure_protocol(base, params[1..-1])
 
             end # end case keyword for all keywords that require a current interface
 

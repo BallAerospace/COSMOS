@@ -114,14 +114,16 @@ module Cosmos
     end
 
     # Reads from the socket if the read_port is defined
-    def read_data
+    def read_interface
       if @read_port
-        @read_socket.read(@read_timeout)
+        data = @read_socket.read(@read_timeout)
+        read_interface_base(data)
+        return data
       else
         # Write only interface so stop the thread which calls read
         @thread_sleeper = Sleeper.new
         @thread_sleeper.sleep(1_000_000_000) while connected?
-        nil
+        return nil
       end
     rescue IOError # Disconnected
       return nil
@@ -129,8 +131,8 @@ module Cosmos
 
     # Writes to the socket
     # @param data [String] Raw packet data
-    def write_data(data)
-      super(data)
+    def write_interface(data)
+      write_interface_base(data)
       @write_socket.write(data, @write_timeout)
       data
     end

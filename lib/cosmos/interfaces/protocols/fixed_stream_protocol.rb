@@ -16,17 +16,7 @@ module Cosmos
   # This StreamProtocol delineates packets by identifying them and then
   # reading out their entire fixed length. Packets lengths can vary but
   # they must all be fixed.
-  module FixedStreamProtocol
-    include StreamProtocol
-
-    # Set procotol specific options
-    # @param procotol [String] Name of the procotol
-    # @param params [Array<Object>] Array of parameter values
-    def configure_protocol(protocol, params)
-      super(protocol, params)
-      configure_stream_protocol(*params) if protocol == 'FixedStreamProtocol'
-    end
-
+  class FixedStreamProtocol < StreamProtocol
     # @param min_id_size [Integer] The minimum amount of data needed to
     #   identify a packet.
     # @param discard_leading_bytes (see StreamProtocol#initialize)
@@ -34,25 +24,29 @@ module Cosmos
     # @param telemetry_stream [Boolean] Whether the stream is returning
     #   telemetry (true) or commands (false)
     # @param fill_fields (see StreamProtocol#initialize)
-    def configure_stream_protocol(min_id_size,
-                                  discard_leading_bytes = 0,
-                                  sync_pattern = nil,
-                                  telemetry_stream = true,
-                                  fill_fields = false)
+    def initialize(
+      min_id_size,
+      discard_leading_bytes = 0,
+      sync_pattern = nil,
+      telemetry_stream = true,
+      fill_fields = false,
+      unknown_raise = false
+    )
       super(discard_leading_bytes, sync_pattern, fill_fields)
       @min_id_size = Integer(min_id_size)
       @telemetry_stream = telemetry_stream
+      @unknown_raise = ConfigParser::handle_true_false(unknown_raise)
     end
 
     # Set the received_time, target_name and packet_name which we recorded when
     # we identified this packet. The server will also do this but since we know
     # the information here, we perform this optimization.
     # See StreamProtocol#post_read_packet
-    def post_read_packet(packet)
+    def read_packet(packet)
       packet.received_time = @received_time
       packet.target_name = @target_name
       packet.packet_name = @packet_name
-      packet
+      return packet, nil
     end
 
     protected
@@ -84,9 +78,8 @@ module Cosmos
           if (packet.identify?(@data))
             identified_packet = packet
             if identified_packet.defined_length > @data.length
-              # Need more data to finish packet
-              read_minimum_size(identified_packet.defined_length)
-              return nil if @data.length <= 0
+              # Check if need more data to finish packet
+              return nil, :STOP if @data.length < identified_packet.defined_length
             end
             # Set some variables so we can update the packet in
             # post_read_packet
@@ -102,12 +95,19 @@ module Cosmos
         end
         break if identified_packet
       end
-      packet_data
+
+      unless identified_packet
+        raise "Unknown data received by FixedStreamProtocol" if unknown_raise
+        # Unknown packet?  Just return all the current data
+        packet_data = @data.clone
+        @data.replace('')
+      end
+
+      return packet_data, nil
     end
 
     def reduce_to_single_packet
-      read_minimum_size(@min_id_size)
-      return nil if @data.length <= 0
+      return nil, :STOP if @data.length < @min_id_size
       identify_and_finish_packet()
     end
   end

@@ -8,11 +8,12 @@
 # as published by the Free Software Foundation; version 3 with
 # attribution addendums as found in the LICENSE.txt
 
+require 'cosmos/interfaces/stream_interface'
 require 'cosmos/streams/serial_stream'
 
 module Cosmos
   # Provides a base class for interfaces that use serial ports
-  class SerialInterface < Interface
+  class SerialInterface < StreamInterface
     # Creates a serial interface which uses the specified stream protocol.
     #
     # @param write_port_name [String] The name of the serial port to write
@@ -38,8 +39,7 @@ module Cosmos
                    read_timeout,
                    stream_protocol_type,
                    *stream_protocol_args)
-      super()
-      setup_stream_protocol(stream_protocol_type, stream_protocol_args)
+      super(stream_protocol_type, stream_protocol_args)
 
       @write_port_name = ConfigParser.handle_nil(write_port_name)
       @read_port_name = ConfigParser.handle_nil(read_port_name)
@@ -56,7 +56,6 @@ module Cosmos
     # Connects the stream protocol to a new {SerialStream} using the
     # parameters passed in the constructor.
     def connect
-      super()
       @stream = SerialStream.new(
         @write_port_name,
         @read_port_name,
@@ -66,6 +65,7 @@ module Cosmos
         @write_timeout,
         @read_timeout
       )
+      super()
     end
   end
 end

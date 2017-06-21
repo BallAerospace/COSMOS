@@ -15,17 +15,7 @@ require 'cosmos/config/config_parser'
 module Cosmos
   # Protocol which delineates packets using a length field at a fixed
   # location in each packet.
-  module LengthStreamProtocol
-    include StreamProtocol
-
-    # Set procotol specific options
-    # @param procotol [String] Name of the procotol
-    # @param params [Array<Object>] Array of parameter values
-    def configure_protocol(protocol, params)
-      super(protocol, params)
-      configure_stream_protocol(*params) if protocol == 'LengthStreamProtocol'
-    end
-
+  class LengthStreamProtocol < StreamProtocol
     # @param length_bit_offset [Integer] The bit offset of the length field
     # @param length_bit_size [Integer] The size in bits of the length field
     # @param length_value_offset [Integer] The offset to apply to the length
@@ -43,7 +33,7 @@ module Cosmos
     # @param max_length [Integer] The maximum allowed value of the length field
     # @param fill_length_and_sync_pattern [Boolean] Fill the length field and sync
     #    pattern when writing packets
-    def configure_stream_protocol(
+    def initialize(
       length_bit_offset = 0,
       length_bit_size = 16,
       length_value_offset = 0,
@@ -87,8 +77,7 @@ module Cosmos
     #
     # @param packet [Packet] Original packet
     # @return [Packet] Potentially modified packet
-    def pre_write_packet(packet)
-      packet = super(packet) # Allow stream_protocol to set the sync if needed
+    def write_packet(packet)
       if @fill_fields
         # If the start of the length field is past what we discard, then the
         # length field is inside the packet
@@ -102,32 +91,33 @@ module Cosmos
                                packet.buffer(false), @length_endianness, :ERROR)
         end
       end
-      packet
+      packet = super(packet) # Allow stream_protocol to set the sync if needed
+      return packet, nil
     end
 
     # Called to perform modifications on write data before making it into a packet
     #
-    # @param packet_data [String] Raw packet data
+    # @param data [String] Raw packet data
     # @return [String] Potentially modified packet data
-    def pre_write_data(packet_data)
+    def write_data(data)
       if @fill_fields
         # If the start of the length field is before what we discard, then the
         # length field is outside the packet
         if @length_bit_offset < (@discard_leading_bytes * 8)
-          length = calculate_length(packet_data.length)
+          length = calculate_length(data.length)
           sync_length = @sync_pattern ? @sync_pattern.length : 0
           # Prepend data except for the sync which will be done by super()
-          packet_data = ("\x00" * (@discard_leading_bytes - sync_length)) << packet_data
+          data = ("\x00" * (@discard_leading_bytes - sync_length)) << data
           # Adjust the discard so super() adds the correct amount
           @discard_leading_bytes -= (@discard_leading_bytes - sync_length)
           offset = @length_bit_offset - (sync_length * 8)
           # Directly write the packet buffer and fill in the length
           BinaryAccessor.write(length, offset, @length_bit_size, :UINT,
-                               packet_data, @length_endianness, :ERROR)
+                               data, @length_endianness, :ERROR)
         end
-        packet_data = super(packet_data) # Allow stream_protocol to set the sync if needed
       end
-      packet_data
+      data = super(data) # Allow stream_protocol to set the sync if needed
+      return data, nil
     end
 
     protected
@@ -143,8 +133,7 @@ module Cosmos
 
     def reduce_to_single_packet
       # Make sure we have at least enough data to reach the length field
-      read_minimum_size(@length_bytes_needed)
-      return nil if @data.length <= 0
+      return nil, :STOP if @data.length < @length_bytes_needed
 
       # Determine the packet's length
       length = BinaryAccessor.read(@length_bit_offset,
@@ -156,14 +145,13 @@ module Cosmos
       packet_length = (length * @length_bytes_per_count) + @length_value_offset
 
       # Make sure we have enough data for the packet
-      read_minimum_size(packet_length)
-      return nil if @data.length <= 0
+      return nil, :STOP if @data.length < packet_length
 
       # Reduce to packet data and setup current_data for next packet
       packet_data = @data[0..(packet_length - 1)]
       @data.replace(@data[packet_length..-1])
 
-      packet_data
+      return packet_data, nil
     end
   end
 end

@@ -12,33 +12,28 @@ require 'cosmos/interfaces/protocols/stream_protocol'
 
 module Cosmos
   # This StreamProtocol delineates packets using the COSMOS preidentification system
-  module PreidentifiedStreamProtocol
-    include StreamProtocol
-
-    # Set procotol specific options
-    # @param procotol [String] Name of the procotol
-    # @param params [Array<Object>] Array of parameter values
-    def configure_protocol(protocol, params)
-      super(protocol, params)
-      configure_stream_protocol(*params) if protocol == 'PreidentifiedStreamProtocol'
-    end
+  class PreidentifiedStreamProtocol < StreamProtocol
 
     # @param sync_pattern (see StreamProtocol#initialize)
     # @param max_length [Integer] The maximum allowed value of the length field
-    def configure_stream_protocol(sync_pattern = nil, max_length = nil)
+    def initialize(sync_pattern = nil, max_length = nil)
       super(0, sync_pattern)
       @max_length = ConfigParser.handle_nil(max_length)
       @max_length = Integer(@max_length) if @max_length
     end
 
-    def post_read_packet(packet)
+    def reset
+      @reduction_state = :START
+    end
+
+    def read_packet(packet)
       packet.received_time = @received_time
       packet.target_name = @target_name
       packet.packet_name = @packet_name
-      packet
+      return packet, nil
     end
 
-    def pre_write_packet(packet)
+    def write_packet(packet)
       received_time = packet.received_time
       received_time = Time.now unless received_time
       @time_seconds = [received_time.tv_sec].pack('N') # UINT32
@@ -47,10 +42,10 @@ module Cosmos
       @target_name = 'UNKNOWN' unless @target_name
       @packet_name = packet.packet_name
       @packet_name = 'UNKNOWN' unless @packet_name
-      packet
+      return packet, nil
     end
 
-    def pre_write_data(data)
+    def write_data(data)
       data_length = [data.length].pack('N') # UINT32
       data_to_send = ''
       data_to_send << @sync_pattern if @sync_pattern
@@ -62,15 +57,14 @@ module Cosmos
       data_to_send << @packet_name
       data_to_send << data_length
       data_to_send << data
-      data_to_send
+      return data_to_send, nil
     end
 
     protected
 
     def read_length_field_followed_by_string(length_num_bytes)
       # Read bytes for string length
-      read_minimum_size(length_num_bytes)
-      return nil if @data.length <= 0
+      return nil, :STOP if @data.length < length_num_bytes
       string_length = @data[0..(length_num_bytes - 1)]
 
       case length_num_bytes
@@ -82,43 +76,61 @@ module Cosmos
         string_length = string_length.unpack('N')[0] # UINT32
         raise "Length value received larger than max_length: #{string_length} > #{@max_length}" if @max_length and string_length > @max_length
       else
-        return nil
+        raise "Unsupported length given to read_length_field_followed_by_string: #{length_num_bytes}"
       end
 
       # Read String
-      read_minimum_size(string_length + length_num_bytes)
-      return nil if @data.length <= 0
+      return nil, :STOP if @data.length < (string_length + length_num_bytes)
       next_index = string_length + length_num_bytes
       string = @data[length_num_bytes..(next_index - 1)]
 
       # Remove data from current_data
       @data.replace(@data[next_index..-1])
 
-      string
+      return string, nil
     end
 
     def reduce_to_single_packet
       # Discard sync pattern if present
-      @data.replace(@data[(@sync_pattern.length)..-1]) if @sync_pattern
+      if @sync_pattern and @reduction_state == :START
+        return nil, :STOP if @data.length < @sync_pattern.length
+        @data.replace(@data[(@sync_pattern.length)..-1])
+        @reduction_state = :SYNC_REMOVED
+      end
 
       # Read and remove packet received time
-      read_minimum_size(8)
-      return nil if @data.length <= 0
-      time_seconds = @data[0..3].unpack('N')[0] # UINT32
-      time_microseconds = @data[4..7].unpack('N')[0] # UINT32
-      @received_time = Time.at(time_seconds, time_microseconds).sys
-      @data.replace(@data[8..-1])
+      if @reduction_state == :SYNC_REMOVED
+        return nil, :STOP if @data.length < 8
+        time_seconds = @data[0..3].unpack('N')[0] # UINT32
+        time_microseconds = @data[4..7].unpack('N')[0] # UINT32
+        @received_time = Time.at(time_seconds, time_microseconds).sys
+        @data.replace(@data[8..-1])
+        @reduction_state = :TIME_REMOVED
+      end
 
-      # Read and remove the target name
-      @target_name = read_length_field_followed_by_string(1)
-      return nil unless @target_name
+      if @reduction_state == :TIME_REMOVED
+        # Read and remove the target name
+        @target_name, control = read_length_field_followed_by_string(1)
+        return nil, control if control
+        @reduction_state = :TARGET_NAME_REMOVED
+      end
 
-      # Read and remove the packet name
-      @packet_name = read_length_field_followed_by_string(1)
-      return nil unless @packet_name
+      if @reduction_state == :TARGET_NAME_REMOVED
+        # Read and remove the packet name
+        @packet_name, control = read_length_field_followed_by_string(1)
+        return nil, control if control
+        @reduction_state = :PACKET_NAME_REMOVED
+      end
 
-      # Read packet data and return
-      read_length_field_followed_by_string(4)
+      if @reduction_state == :PACKET_NAME_REMOVED
+        # Read packet data and return
+        packet_data, control = read_length_field_followed_by_string(4)
+        return nil, control if control
+        @reduction_state = :START
+        return packet_data, nil
+      end
+
+      raise "Error should never reach end of method"
     end
   end
 end

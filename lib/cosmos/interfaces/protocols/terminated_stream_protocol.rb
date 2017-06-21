@@ -14,16 +14,7 @@ require 'cosmos/interfaces/protocols/stream_protocol'
 module Cosmos
   # Protocol which delineates packets using termination characters at
   # the end of the stream.
-  module TerminatedStreamProtocol
-    include StreamProtocol
-
-    # Set procotol specific options
-    # @param procotol [String] Name of the procotol
-    # @param params [Array<Object>] Array of parameter values
-    def configure_protocol(protocol, params)
-      super(protocol, params)
-      configure_stream_protocol(*params) if protocol == 'TerminatedStreamProtocol'
-    end
+  class TerminatedStreamProtocol < StreamProtocol
 
     # @param write_termination_characters [String] The characters to write to
     #   the stream after writing the Packet buffer. Must be given as a
@@ -37,7 +28,7 @@ module Cosmos
     # @param discard_leading_bytes (see StreamProtocol#initialize)
     # @param sync_pattern (see StreamProtocol#initialize)
     # @param fill_fields (see StreamProtocol#initialize)
-    def configure_stream_protocol(
+    def initialize(
       write_termination_characters,
       read_termination_characters,
       strip_read_termination = true,
@@ -52,39 +43,35 @@ module Cosmos
       super(discard_leading_bytes, sync_pattern, fill_fields)
     end
 
-    # See StreamProtocol#pre_write_data
-    def pre_write_data(data)
+    def write_data(data)
       raise "Packet contains termination characters!" if data.index(@write_termination_characters)
       data = super(data)
       @write_termination_characters.each_byte do |byte|
         data << byte
       end
-      data
+      return data, nil
     end
 
     protected
 
     def reduce_to_single_packet
-      while true
-        index = @data.index(@read_termination_characters)
+      index = @data.index(@read_termination_characters)
 
-        # Reduce to packet data and setup current_data for next packet
-        if index
-          if index > 0
-            if @strip_read_termination
-              packet_data = @data[0..(index - 1)]
-            else
-              packet_data = @data[0..(index + @read_termination_characters.length - 1)]
-            end
+      # Reduce to packet data and setup current_data for next packet
+      if index
+        if index > 0
+          if @strip_read_termination
+            packet_data = @data[0..(index - 1)]
           else
-            packet_data = ''
+            packet_data = @data[0..(index + @read_termination_characters.length - 1)]
           end
-          @data.replace(@data[(index + @read_termination_characters.length)..-1])
-          return packet_data
         else
-          read_and_handle_timeout()
-          return nil if @data.length <= 0
+          packet_data = ''
         end
+        @data.replace(@data[(index + @read_termination_characters.length)..-1])
+        return packet_data, nil
+      else
+        return nil, :STOP
       end
     end
   end

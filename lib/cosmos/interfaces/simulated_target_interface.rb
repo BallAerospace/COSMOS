@@ -9,6 +9,7 @@
 # attribution addendums as found in the LICENSE.txt
 
 require 'cosmos/interfaces/interface'
+require 'cosmos/interfaces/protocols/override_protocol'
 
 module Cosmos
   # An interface class that provides simulated telemetry and command responses
@@ -26,6 +27,8 @@ module Cosmos
       @sim_target = nil
       @write_raw_allowed = false
       @raw_logger_pair = nil
+      @read_protocols << OverrideProtocol.new
+      @protocol_info << [OverrideProtocol, [], :READ]
     end
 
     # Initialize the simulated target object and "connect" to the target
@@ -52,7 +55,10 @@ module Cosmos
     def read
       if @connected
         packet = first_pending_packet()
-        return post_read_packet(packet) if packet
+
+        # This is just to support the override functionality
+        # Generic protocol use is not supported
+        packet, _ = @read_protocols[0].read_packet(packet)
 
         while true
           # Calculate time to sleep to make ticks 10ms apart
@@ -71,7 +77,6 @@ module Cosmos
           @count_100hz += 1
 
           packet = first_pending_packet()
-          return post_read_packet(packet) if packet
         end
       else
         raise "Interface not connected"

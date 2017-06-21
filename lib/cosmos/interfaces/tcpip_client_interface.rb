@@ -8,12 +8,12 @@
 # as published by the Free Software Foundation; version 3 with
 # attribution addendums as found in the LICENSE.txt
 
-require 'cosmos/interfaces/interface'
+require 'cosmos/interfaces/stream_interface'
 require 'cosmos/streams/tcpip_client_stream'
 
 module Cosmos
   # Base class for interfaces that act as a TCP/IP client
-  class TcpipClientInterface < Interface
+  class TcpipClientInterface < StreamInterface
 
     # @param hostname [String] Machine to connect to
     # @param write_port [Integer] Port to write commands to
@@ -32,8 +32,7 @@ module Cosmos
       stream_protocol_type,
       *stream_protocol_args)
 
-      super()
-      setup_stream_protocol(stream_protocol_type, stream_protocol_args)
+      super(stream_protocol_type, stream_protocol_args)
 
       @hostname = hostname
       @write_port = ConfigParser.handle_nil(write_port)
@@ -48,7 +47,6 @@ module Cosmos
     # Connects the {TcpipClientStream} by passing the
     # initialization parameters to the {TcpipClientStream}.
     def connect
-      super()
       @stream = TcpipClientStream.new(
         @hostname,
         @write_port,
@@ -56,6 +54,7 @@ module Cosmos
         @write_timeout,
         @read_timeout
       )
+      super()
     end
   end
 end

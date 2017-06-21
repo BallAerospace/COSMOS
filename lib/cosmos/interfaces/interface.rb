@@ -88,9 +88,14 @@ module Cosmos
     # @return [Hash<option name, option values>] Hash of options supplied to interface/router
     attr_accessor :options
 
-    # @return [Hash<protocol name, parameters>] Hash of parameters supplied to
-    #   protocol
-    attr_accessor :protocol_params
+    # @return [Array<Protocol>] Array of protocols for reading
+    attr_accessor :read_protocols
+
+    # @return [Array<Protocol>] Array of protocols for writing
+    attr_accessor :write_protocols
+
+    # @return [Array<[Protocol Class, Protocol Args, Protocol kind (:READ, :WRITE, :READ_WRITE)>] Info to recreate protocols
+    attr_accessor :protocol_info
 
     # Initialize default attribute values
     def initialize
@@ -118,23 +123,35 @@ module Cosmos
       @write_allowed = true
       @write_raw_allowed = true
       @options = {}
-      @protocol_params = {}
+      @read_protocols = []
+      @write_protocols = []
+      @protocol_info = []
     end
 
     # Connects the interface to its target(s). Must be implemented by a
     # subclass.
     def connect
+      (@read_protocols | @write_protocols).each {|protocol| protocol.connect_reset}
     end
 
     # Indicates if the interface is connected to its target(s) or not. Must be
     # implemented by a subclass.
     def connected?
-      false
+      raise "connected? not defined by Interface"
     end
 
     # Disconnects the interface from its target(s). Must be implemented by a
     # subclass.
     def disconnect
+      (@read_protocols | @write_protocols).each {|protocol| protocol.reset}
+    end
+
+    def read_interface
+      raise "read_interface not defined by Interface"
+    end
+
+    def write_interface
+      raise "write_interface not defined by Interface"
     end
 
     # Retrieves the next packet from the interface.
@@ -142,20 +159,37 @@ module Cosmos
     #   unidentified (nil target and packet names)
     def read
       raise "Interface not connected for read: #{@name}" unless connected?
-      data = read_data()
-      return nil unless data
-      @raw_logger_pair.read_logger.write(data) if @raw_logger_pair
-      @bytes_read += data.length
-      # data could be modified by post_read_data (bytes added or subtracted)
-      # but we count the number of bytes read from the lowest level above
-      data = post_read_data(data)
-      return nil unless data
-      packet = convert_data_to_packet(data)
-      return nil unless packet
-      packet = post_read_packet(packet)
-      return nil unless packet
-      @read_count += 1
-      packet
+
+      loop do
+        # Read data for a packet
+        data = read_interface()
+        control = nil
+        @read_protocols.each do |protocol|
+          data, control = protocol.read_data(data)
+          return nil if control == :DISCONNECT # Disconnect handled by thread
+          break if control == :STOP
+        end
+        next if control == :STOP
+
+        packet = convert_data_to_packet(data)
+
+        # Potentially modify packet
+        control = nil
+        @read_protocols.each do |protocol|
+          packet, control = protocol.read_packet(packet)
+          return nil if control == :DISCONNECT # Disconnect handled by thread
+          break if control == :STOP
+        end
+        next if control == :STOP
+
+        # Return packet
+        @read_count += 1
+        return packet
+      end
+    rescue Exception => err
+      Logger.instance.error("Error reading from interface : #{@name}")
+      disconnect()
+      raise err
     end
 
     # Method to send a packet on the interface.
@@ -163,17 +197,46 @@ module Cosmos
     def write(packet)
       raise "Interface not connected for write: #{@name}" unless connected? && write_allowed?
       _write do
-        packet = pre_write_packet(packet)
-        next unless packet
-        data = convert_packet_to_data(packet)
-        next unless data
-        data = pre_write_data(data)
-        next unless data
-        # Only bump the packet write count if we actually write out the data
         @write_count += 1
-        data = write_data(data)
-        post_write_data(packet, data)
-        data
+
+        # Potentially modify packet
+        packet = nil
+        control = nil
+        @write_protocols.each do |protocol|
+          packet, control = protocol.write_packet(packet)
+          if control == :DISCONNECT
+            disconnect()
+            return
+          end
+          return if control == :STOP
+        end
+
+        data = convert_packet_to_data(packet)
+
+        # Potentially modify packet data
+        control = nil
+        @write_protocols.each do |protocol|
+          data, control = protocol.write_data(data)
+          if control == :DISCONNECT
+            disconnect()
+            return
+          end
+          return if control == :STOP
+        end
+
+        # Actually write out data if not handled by protocol
+        write_interface(data)
+
+        # Potentially block and wait for response
+        control = nil
+        @write_protocols.each do |protocol|
+          packet, data, control = protocol.post_write_interface(packet, data)
+          if control == :DISCONNECT
+            disconnect()
+            return
+          end
+          return if control == :STOP
+        end
       end
     end
 
@@ -183,13 +246,9 @@ module Cosmos
     def write_raw(data)
       raise "Interface not connected for write_raw : #{@name}" unless connected? && write_raw_allowed?
       _write do
-        data = write_data(data)
-        post_write_data(nil, data)
-        data
+        write_interface(data)
       end
     end
-
-    protected
 
     # Wrap all writes in a mutex and handle errors
     def _write
@@ -199,8 +258,6 @@ module Cosmos
       disconnect()
       raise err
     end
-
-    public
 
     # @return [Boolean] Whether reading is allowed
     def read_allowed?
@@ -270,71 +327,12 @@ module Cosmos
       @options[option_name.upcase] = option_values.clone
     end
 
-    # Set procotol specific options
-    # @param protocol [String] Name of the procotol
-    # @param params [Array<Object>] Array of parameter values
-    def configure_protocol(protocol, params)
-      @protocol_params[protocol] = params.clone
-    end
-
-    # Called to read data and manipulate it until enough data is
-    # returned. The definition of 'enough data' changes depending on the
-    # protocol used which is why this method exists. This method is also used
-    # to perform operations on the data before it can be interpreted as packet
-    # data such as decryption. After this method is called the post_read_data
-    # method is called. Subclasses must implement this method.
-    #
-    # @return [String] Raw packet data
-    def read_data
-      nil
-    end
-
-    # Called to perform modifications on read data before making it into a packet.
-    # After this method is called the post_read_packet method is called.
-    #
-    # @param data [String] Raw packet data
-    # @return [String|nil] Potentially modified packet data or nil to abort read
-    def post_read_data(data)
-      data
-    end
-
     # Called to convert the read data into a COSMOS Packet object
     #
     # @param data [String] Raw packet data
     # @return [Packet] COSMOS Packet with buffer filled with data
     def convert_data_to_packet(data)
       Packet.new(nil, nil, :BIG_ENDIAN, nil, data)
-    end
-
-    # Called to perform modifications on a read packet before it is identified
-    # and inserted into the current value table. This is the final place to
-    # modify data before it is used by the COSMOS system. An example would be
-    # to set the packet timestamp. After this method is called the
-    # post_identify_packet method is called.
-    #
-    # @param packet [Packet] Original packet
-    # @return [Packet|nil] Potentially modified packet or nil to abort read
-    def post_read_packet(packet)
-      packet
-    end
-
-    # This method is called by the CmdTlmServer after each read packet is
-    # identified. It can be used to perform custom processing/monitoring as
-    # each packet is received by the CmdTlmServer.
-    #
-    # @param packet [Packet] The identified packet read from the interface
-    def post_identify_packet(packet)
-      nil
-    end
-
-    # Called to perform modifications on a command packet before it is turned
-    # into packet data to send. An example would be to override a known packet
-    # value. After this method is called the pre_write_data method is called.
-    #
-    # @param packet [Packet] Original packet
-    # @return [Packet|nil] Potentially modified packet or nil to abort writing
-    def pre_write_packet(packet)
-      packet
     end
 
     # Called to convert a packet into the data to send
@@ -345,49 +343,53 @@ module Cosmos
       packet.buffer(false)
     end
 
-    # Called to perform modifications on write data before writing it over the
-    # interface.
-    # After this method is called the post_write_data method is called.
+    # Called to read data and manipulate it until enough data is
+    # returned. The definition of 'enough data' changes depending on the
+    # protocol used which is why this method exists. This method is also used
+    # to perform operations on the data before it can be interpreted as packet
+    # data such as decryption. After this method is called the post_read_data
+    # method is called. Subclasses must implement this method.
     #
-    # @param data [String] Raw packet data
-    # @return [String|nil] Potentially modified data or nil to abort writing
-    def pre_write_data(data)
-      data
+    # @return [String] Raw packet data
+    def read_interface_base(data)
+      @bytes_read += data.length
+      @raw_logger_pair.read_logger.write(data) if @raw_logger_pair
     end
 
     # Called to write data to the underlying interface. Subclasses must
     # implement this method and call super to count the raw bytes and allow raw
     # logging.
     #
+    #
     # @param data [String] Raw packet data
     # @return data [String] The exact data written
-    def write_data(data)
+    def write_interface_base(data)
       @bytes_written += data.length
       @raw_logger_pair.write_logger.write(data) if @raw_logger_pair
-      data
     end
 
-    # Called to perform actions after writing data to the interface. For
-    # example if your interface expects an immediate telemetry response from a
-    # previous command you can implement response processing. Nothing is called
-    # after this method completes.
-    #
-    # @param packet [Packet] packet that was written out. Will be nil from write_raw
-    # @param data [String] binary data that was written out
-    def post_write_data(packet, data)
-      # Default do nothing
+    def _override_tlm(target_name, packet_name, item_name, value)
+      _override(target_name, packet_name, item_name, value, :CONVERTED)
     end
 
-    # Handle Stream Protocol passed into COSMOS interface that use streams
-    #
-    # @param stream_protocol_type [String] Name of the Stream Protocol minus "StreamProtocol"
-    # @param stream_protocol_args [Array] Array of arguments to pass to the stream_protocol
-    def setup_stream_protocol(stream_protocol_type, stream_protocol_args)
-      stream_protocol_class_name = stream_protocol_type.to_s.capitalize << 'StreamProtocol'
-      klass = Cosmos.require_class(stream_protocol_class_name.class_name_to_filename)
-      extend(klass)
-      configure_protocol(stream_protocol_class_name, stream_protocol_args)
+    def _override_tlm_raw(target_name, packet_name, item_name, value)
+      _override(target_name, packet_name, item_name, value, :RAW)
     end
 
+    def _normalize_tlm(target_name, packet_name, item_name)
+      @override_tlm ||= {}
+      pkt = @override_tlm[target_name]
+      if pkt
+        items = @override_tlm[target_name][packet_name]
+        items.delete(item_name) if items
+      end
+    end
+
+    def _override(target_name, packet_name, item_name, value, type)
+      @override_tlm ||= {}
+      @override_tlm[target_name] ||= {}
+      @override_tlm[target_name][packet_name] ||= {}
+      @override_tlm[target_name][packet_name][item_name] = [value, type]
+    end
   end
 end
