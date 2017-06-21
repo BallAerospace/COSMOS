@@ -20,17 +20,18 @@ module Cosmos
     include Widget
     include LayoutWidget
 
-    def initialize(parent_layout = nil, title = "", vSpacing = 3)
+    def initialize(parent_layout = nil, title = "", vSpacing = 3, vPack = true)
       super()
       box = Qt::GroupBox.new(title.to_s)
       setSpacing(vSpacing.to_i)
       box.setLayout(self)
       parent_layout.addWidget(box) if parent_layout
+      @v_pack = ConfigParser::handle_true_false(vPack)
     end
 
     def process_settings
       super()
-      addStretch(1)
+      addStretch(1) if @v_pack
     end
   end
 

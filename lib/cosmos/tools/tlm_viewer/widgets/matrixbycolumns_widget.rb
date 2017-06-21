@@ -17,6 +17,9 @@ module Cosmos
     include Widget
     include LayoutWidget
 
+    attr_accessor :row
+    attr_accessor :column
+
     def initialize(parent_layout, num_columns, hSpacing = 0, vSpacing = 0)
       super()
       @num_columns = num_columns.to_i
@@ -36,6 +39,15 @@ module Cosmos
 
     def addWidget(widget_to_add)
       super(widget_to_add, @row, @column)
+      @column += 1
+      if @column >= @num_columns
+        @row += 1
+        @column = 0
+      end
+    end
+
+    def addItem(item_to_add)
+      super(item_to_add, @row, @column)
       @column += 1
       if @column >= @num_columns
         @row += 1
