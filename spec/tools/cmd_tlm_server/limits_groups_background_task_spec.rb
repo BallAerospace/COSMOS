@@ -14,6 +14,12 @@ require 'cosmos/tools/cmd_tlm_server/limits_groups_background_task'
 
 module Cosmos
   describe LimitsGroupsBackgroundTask do
+    before(:each) do
+      (1..4).each do |i|
+        System.telemetry.packet("INST","HEALTH_STATUS").get_item("TEMP#{i}").limits.enabled = true
+      end
+    end
+
     describe "initialize" do
       it "initializes local variables" do
         b1 = LimitsGroupsBackgroundTask.new
@@ -118,10 +124,10 @@ module Cosmos
         expect(my.second_count).to be >= 5
       end
 
-      it "warns if can't process check methods at 1Hz" do
+      it "reports how long it took to process" do
         class MyLimitsGroups4 < LimitsGroupsBackgroundTask
           def check_first
-            sleep 1.1
+            sleep 0.2
           end
         end
 
@@ -130,8 +136,8 @@ module Cosmos
         thread = Thread.new do
           my.call
         end
-        sleep 1.2
-        expect(my.status).to match /Checking groups took 1.1\d+/
+        sleep 0.3
+        expect(my.status).to match /Checking groups took 0.\d+/
         Cosmos.kill_thread(self, thread)
       end
     end
