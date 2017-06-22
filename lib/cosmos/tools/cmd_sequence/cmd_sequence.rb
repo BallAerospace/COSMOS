@@ -8,6 +8,7 @@
 # as published by the Free Software Foundation; version 3 with
 # attribution addendums as found in the LICENSE.txt
 
+require 'time'
 require 'cosmos'
 Cosmos.catch_fatal_exception do
   require 'cosmos/script'
@@ -17,444 +18,73 @@ Cosmos.catch_fatal_exception do
   require 'cosmos/gui/dialogs/splash'
   require 'cosmos/gui/dialogs/calendar_dialog'
   require 'cosmos/gui/widgets/realtime_button_bar'
+  require 'cosmos/gui/choosers/file_chooser'
+  require 'cosmos/gui/choosers/float_chooser'
   require 'cosmos/tools/cmd_sender/cmd_param_table_item_delegate'
+  require 'cosmos/tools/cmd_sequence/sequence_item'
 end
 
 module Cosmos
-  class SequenceItem < Qt::Frame # Inherit from Frame so we can use setFrameStyle
-    MANUALLY = "MANUALLY ENTERED"
-    attr_reader :index, :param_widgets, :table
-
-    def initialize(command, index)
-      super()
-      @command = command
-      @index = index
-      @table = nil
-      @param_widgets = []
-
-      setAutoFillBackground(true)
-      setPalette(Cosmos.getPalette("black", "white"))
-      setFrameStyle(Qt::Frame::Box)
-
-      top_layout = Qt::VBoxLayout.new
-      top_layout.setContentsMargins(0, 0, 0, 0)
-      setLayout(top_layout)
-
-      layout = Qt::HBoxLayout.new
-      layout.setContentsMargins(0, 0, 0, 0)
-
-      time = Qt::LineEdit.new(Time.now.formatted)
-      fm = time.fontMetrics
-      time.setFixedWidth(fm.boundingRect(Time.now.formatted).width + 10)
-      time.text = "<NO DELAY>"
-      time.setEnabled(false)
-      time.setReadOnly(true)
-
-      edit_time = Qt::PushButton.new
-      edit_time.setFixedSize(25, 25)
-      time_icon = Cosmos.get_icon('edit.png')
-      edit_time.setIcon(time_icon)
-      edit_time.connect(SIGNAL('clicked()')) do
-        dialog = CalendarDialog.new(self, "Select Absolute Execution Time:", Time.now, true)
-        case dialog.exec
-        when Qt::Dialog::Accepted
-          time.setText(dialog.time.formatted)
-        end
-      end
-      layout.addWidget(edit_time)
-      layout.addWidget(time)
-      layout.addWidget(Qt::Label.new(command.target_name))
-      layout.addWidget(Qt::Label.new(command.packet_name))
-      @cmd_info = Qt::Label.new("")
-      layout.addWidget(@cmd_info)
-      layout.addStretch()
-
-      delete = Qt::PushButton.new
-      delete.setFixedSize(25, 25)
-      delete_icon = Cosmos.get_icon('delete.png')
-      delete.setIcon(delete_icon)
-      delete.connect(SIGNAL('clicked()')) { self.dispose }
-      layout.addWidget(delete)
-      top_layout.addLayout(layout)
-
-      @parameters = Qt::Widget.new
-      parameters_layout = Qt::VBoxLayout.new
-      # Command Description Label
-      dec_label = Qt::Label.new(tr("Description:"))
-      description = Qt::Label.new(command.description)
-      description.setWordWrap(true)
-      desc_layout = Qt::HBoxLayout.new
-      desc_layout.addWidget(dec_label)
-      desc_layout.addWidget(description, 1)
-      parameters_layout.addLayout(desc_layout)
-
-      # Parameters Label
-      param_label = Qt::Label.new(tr("Parameters:"))
-      parameters_layout.addWidget(param_label)
-
-      # Grid Layout for Parameters
-      @table_layout = Qt::VBoxLayout.new
-      parameters_layout.addLayout(@table_layout, 500)
-      @parameters.setLayout(parameters_layout)
-      @parameters.hide
-      top_layout.addWidget(@parameters)
-      @expanded = false
-
-      @show_ignored = Qt::Action.new(tr('&Show Ignored Parameters'), self)
-      @show_ignored.statusTip = tr('Show ignored parameters which are normally hidden')
-      @show_ignored.setCheckable(true)
-      @show_ignored.setChecked(false)
-      @show_ignored.connect(SIGNAL('toggled(bool)')) { update_cmd_params(bool) }
-
-      @states_in_hex = Qt::Action.new(tr('&Display State Values in Hex'), self)
-      @states_in_hex.statusTip = tr('Display states values in hex instead of decimal')
-      @states_in_hex.setCheckable(true)
-      @states_in_hex.setChecked(false)
-
-      update_cmd_params()
-      begin
-        output, params = view_as_script
-        if get_cmd_hazardous(@command.target_name, @command.packet_name, params)
-          @cmd_info.text = "(Hazarous)"
-        end
-      rescue
-        @cmd_info.text = ""
-      end
-    end
-
-    def update_cmd_params(ignored_toggle = nil)
-      old_params = {}
-      if ignored_toggle.nil?
-        ignored_toggle = false
-      else
-        ignored_toggle = true
-      end
-
-      target = System.targets[@command.target_name]
-      packet_items = @command.sorted_items
-      shown_packet_items = []
-      packet_items.each do |packet_item|
-        next if target and target.ignored_parameters.include?(packet_item.name) && !@show_ignored.checked?
-        shown_packet_items << packet_item
-      end
-
-      # Destroy the old table widget
-      @table.dispose if @table
-      @table = nil
-
-      # Update Parameters
-      @param_widgets = []
-      drawn_header = false
-
-      row = 0
-      shown_packet_items.each do |packet_item|
-        next if target and target.ignored_parameters.include?(packet_item.name) && !@show_ignored.checked?
-        value_item = nil
-        state_value_item = nil
-
-        unless drawn_header
-          @table = Qt::TableWidget.new()
-          @table.setSizePolicy(Qt::SizePolicy::Expanding, Qt::SizePolicy::Expanding)
-          @table.setWordWrap(true)
-          @table.setRowCount(shown_packet_items.length)
-          @table.setColumnCount(5)
-          @table.setHorizontalHeaderLabels(['Name', '         Value or State         ', '         ', 'Units', 'Description'])
-          @table.horizontalHeader.setStretchLastSection(true)
-          @table.verticalHeader.setVisible(false)
-          @table.setItemDelegate(CmdParamTableItemDelegate.new(@table, @param_widgets))
-          # @table.setContextMenuPolicy(Qt::CustomContextMenu)
-          @table.verticalHeader.setResizeMode(Qt::HeaderView::ResizeToContents)
-          @table.setEditTriggers(Qt::AbstractItemView::DoubleClicked | Qt::AbstractItemView::SelectedClicked | Qt::AbstractItemView::AnyKeyPressed)
-          @table.setSelectionMode(Qt::AbstractItemView::NoSelection)
-          # connect(@table, SIGNAL('customContextMenuRequested(const QPoint&)'), self, SLOT('context_menu(const QPoint&)'))
-          # connect(@table, SIGNAL('itemClicked(QTableWidgetItem*)'), self, SLOT('click_callback(QTableWidgetItem*)'))
-          drawn_header = true
-        end
-
-        # Parameter Name
-        item = Qt::TableWidgetItem.new("#{packet_item.name}:")
-        item.setTextAlignment(Qt::AlignRight | Qt::AlignVCenter)
-        item.setFlags(Qt::NoItemFlags | Qt::ItemIsSelectable | Qt::ItemIsEnabled)
-        @table.setItem(row, 0, item)
-
-        if packet_item.states
-          default_state = packet_item.states.key(packet_item.default)
-          if old_params[packet_item.name]
-            value_item = Qt::TableWidgetItem.new(old_params[packet_item.name][0])
-          else
-            if default_state
-              value_item = Qt::TableWidgetItem.new(default_state.to_s)
-            else
-              value_item = Qt::TableWidgetItem.new(MANUALLY)
-            end
-          end
-          value_item.setTextAlignment(Qt::AlignRight | Qt::AlignVCenter)
-          value_item.setFlags(Qt::NoItemFlags | Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsEditable)
-          @table.setItem(row, 1, value_item)
-
-          if old_params[packet_item.name]
-            state_value_item = Qt::TableWidgetItem.new(old_params[packet_item.name][1])
-          else
-            if @states_in_hex.checked? && packet_item.default.kind_of?(Integer)
-              state_value_item = Qt::TableWidgetItem.new(sprintf("0x%X", packet_item.default))
-            else
-              state_value_item = Qt::TableWidgetItem.new(packet_item.default.to_s)
-            end
-          end
-          state_value_item.setTextAlignment(Qt::AlignRight | Qt::AlignVCenter)
-          state_value_item.setFlags(Qt::NoItemFlags | Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsEditable)
-          @table.setItem(row, 2, state_value_item)
-
-          # If the parameter is required set the combobox to MANUAL and
-          # clear the value field so they have to choose something
-          if packet_item.required and !old_params[packet_item.name]
-            value_item.setText(MANUALLY)
-            state_value_item.setText('')
-          end
-        else
-          # Parameter Value
-          if old_params[packet_item.name]
-            value_item = Qt::TableWidgetItem.new(old_params[packet_item.name])
-          else
-            if packet_item.required
-              value_item = Qt::TableWidgetItem.new('')
-            else
-              if packet_item.format_string
-                begin
-                  value_item = Qt::TableWidgetItem.new(sprintf(packet_item.format_string, packet_item.default))
-                rescue
-                  # Oh well - Don't use the format string
-                  value_item = Qt::TableWidgetItem.new(packet_item.default.to_s)
-                end
-              else
-                value_item = Qt::TableWidgetItem.new(packet_item.default.to_s)
-              end
-            end
-          end
-          value_item.setTextAlignment(Qt::AlignRight | Qt::AlignVCenter)
-          value_item.setFlags(Qt::NoItemFlags | Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsEditable)
-          @table.setItem(row, 1, value_item)
-          @table.setSpan(row, 1, 1, 2)
-        end
-
-        # Units
-        item = Qt::TableWidgetItem.new(packet_item.units.to_s)
-        item.setTextAlignment(Qt::AlignRight | Qt::AlignVCenter)
-        item.setFlags(Qt::NoItemFlags | Qt::ItemIsSelectable | Qt::ItemIsEnabled)
-        @table.setItem(row, 3, item)
-
-        # Description
-        item = Qt::TableWidgetItem.new(packet_item.description.to_s)
-        item.setTextAlignment(Qt::AlignLeft | Qt::AlignVCenter)
-        item.setFlags(Qt::NoItemFlags | Qt::ItemIsSelectable | Qt::ItemIsEnabled)
-        @table.setItem(row, 4, item)
-
-        @param_widgets << [packet_item, value_item, state_value_item]
-        row += 1
-      end
-
-      if @table
-        @table.connect(SIGNAL('itemChanged(QTableWidgetItem*)')) do |item|
-          packet_item, value_item, state_value_item = @param_widgets[item.row]
-          if item.column == 1
-            if packet_item.states
-              value = packet_item.states[value_item.text]
-              @table.blockSignals(true)
-              if @states_in_hex.checked? && value.kind_of?(Integer)
-                state_value_item.setText(sprintf("0x%X", value))
-              else
-                state_value_item.setText(value.to_s)
-              end
-              @table.blockSignals(false)
-            end
-          elsif item.column == 2
-            @table.blockSignals(true)
-            @table.item(item.row, 1).setText(MANUALLY)
-            @table.blockSignals(false)
-          end
-          begin
-            output, params = view_as_script
-            if get_cmd_hazardous(@command.target_name, @command.packet_name, params)
-              @cmd_info.text = "(Hazarous)"
-            else
-              @cmd_info.text = ""
-            end
-          rescue
-            @cmd_info.text = ''
-          end
-        end
-        @table_layout.addWidget(@table)
-        @table.resizeColumnsToContents()
-        @table.resizeRowsToContents()
-
-        height = 0
-        @table.rowCount.times do |x|
-          height += @table.verticalHeader.sectionSize(x) + 1
-        end
-        height += @table.horizontalHeader.height + 1
-        @table.setMaximumHeight(height)
-      end
-    end
-
-    def mouseReleaseEvent(event)
-      super(event)
-      if event.button == Qt::LeftButton
-        @expanded = !@expanded
-        if @expanded
-          @parameters.show
-        else
-          @parameters.hide
-        end
-      end
-    end
-
-    # These methods are for drag and drop support
-    # def mousePressEvent(event)
-    #   super(event)
-    #   if event.button == Qt::LeftButton
-    #     @dragStartPosition = event.pos
-    #   end
-    # end
-    # def mouseMoveEvent(event)
-    #   super(event)
-    #   return unless (event.buttons & Qt::LeftButton)
-    #   return if (event.pos - @dragStartPosition).manhattanLength() < Qt::Application::startDragDistance()
-    #
-    #   mime = Qt::MimeData.new()
-    #   mime.setText(@index.to_s)
-    #   drag = Qt::Drag.new(self)
-    #   drag.setMimeData(mime)
-    #   drop = drag.exec(Qt::MoveAction)
-    # end
-
-    def view_as_script
-      params = {}
-
-      @param_widgets.each do |packet_item, value_item, state_value_item|
-        text = value_item.text
-
-        text = state_value_item.text if state_value_item && (text == MANUALLY)# || @cmd_raw.checked?)
-        quotes_removed = text.remove_quotes
-        if text == quotes_removed
-          params[packet_item.name] = text.convert_to_value
-        else
-          params[packet_item.name] = quotes_removed
-        end
-        raise "#{packet_item.name} is required." if quotes_removed == '' && packet_item.required
-      end
-      #statusBar.clearMessage()
-
-      output_string = build_cmd_output_string(@command.target_name, @command.packet_name, params, false)
-      if output_string =~ /[\x00-\x08\x0B-\x0C\x0E-\x1F\x7F-\xFF]/
-        output_string = output_string.inspect.remove_quotes
-      end
-
-      return output_string, params
-    end
-
-    # Sends the current command and parameters to the target
-    def execute
-      target_name = @command.target_name
-      packet_name = @command.packet_name
-      if target_name and packet_name
-        output_string, params = view_as_script()
-        message = Time.now.sys.formatted + '  ' + output_string
-        # if @cmd_raw.checked?
-        #   if @ignore_range.checked?
-        #     cmd_raw_no_range_check(target_name, packet_name, params)
-        #   else
-        #     cmd_raw(target_name, packet_name, params)
-        #   end
-        # else
-        #   if @ignore_range.checked?
-        #     cmd_no_range_check(target_name, packet_name, params)
-        #   else
-            cmd_no_hazardous_check(target_name, packet_name, params)
-        #   end
-        # end
-        # if statusBar.currentMessage != 'Hazardous command not sent'
-        #   @@send_count += 1
-        #   statusBar.showMessage("#{output_string} sent. (#{@@send_count})")
-        #   @input.append(output_string)
-        #   @input.moveCursor(Qt::TextCursor::End)
-        #   @input.ensureCursorVisible()
-        # end
-      end
-      message
-    rescue DRb::DRbConnError
-      message = "Error Connecting to Command and Telemetry Server"
-      # @message_log.write(Time.now.formatted + '  ' + message + "\n")
-      # statusBar.showMessage(message)
-      Qt::MessageBox.critical(self, 'Error', message)
-      message
-    rescue Exception => err
-      message = "Error sending #{target_name} #{packet_name} due to #{err}"
-      # @message_log.write(Time.now.formatted + '  ' + message + "\n")
-      # statusBar.showMessage(message)
-      Qt::MessageBox.critical(self, 'Error', message)
-      message
-    end
-  end
-
   class SequenceList < Qt::Widget
-    class Spacer < Qt::Widget
-      def initialize(parent)
-        super(parent)
-        @parent = parent
-        # setAcceptDrops(true)
-        setFixedHeight(15)
-        setContentsMargins(0, 0, 0, 0)
-      end
+    include Enumerable
 
-      # Methods for drag and drop support
-      # def dragEnterEvent(event)
-      #   event.acceptProposedAction
-      #   setStyleSheet("background-color:grey")
-      # end
-      #
-      # def dragLeaveEvent(event)
-      #   setStyleSheet("background-color:")
-      # end
-      #
-      # def dropEvent(event)
-      #   setStyleSheet("background-color:white")
-      #   #@parent.swap(event.mimeData.text)
-      #   STDOUT.puts "event:#{event} mime:#{event.mimeData.text()}"
-      # end
-    end
-
-    def initialize(parent)
-      super(parent)
-      @parent = parent
-      @items = []
+    def initialize
+      super()
       layout = Qt::VBoxLayout.new()
       layout.setContentsMargins(0, 0, 0, 0)
       layout.setSpacing(0)
       setLayout(layout)
       setSizePolicy(1, 0)
+      layout.addWidget(create_header())
     end
 
-    def add(widget)
-      @items << widget
-      layout.addWidget(widget)
-      # layout.addWidget(Spacer.new(self))
+    def create_header
+      header = Qt::Widget.new
+      header_layout = Qt::HBoxLayout.new
+      header_layout.setContentsMargins(5, 5, 5, 5)
+      header.setLayout(header_layout)
+      time = Qt::Label.new("Time (Delay or Absolute)")
+      time.setFixedWidth(130)
+      header_layout.addWidget(time)
+      command = Qt::Label.new("Command")
+      header_layout.addWidget(command)
+      header_layout.addStretch()
+      header
     end
 
-    def start
-      @parent.output.append("Executing Sequence at #{Time.now}")
-      @items.each do |widget|
-        output = widget.execute
-        @parent.output.append(output)
-        @parent.output.moveCursor(Qt::TextCursor::End)
-        @parent.output.ensureCursorVisible()
+    def position(item)
+      position = 0
+      found = false
+      Qt.execute_in_main_thread do
+        # Start at 1 to avoid the header item
+        (1...layout.count).each do |index|
+          position = index
+          if item == layout.itemAt(index).widget
+            found = true
+            break
+          end
+        end
       end
-      @parent.output.append("\n")
+      # Subtract one for the header item so we're 0 based
+      found ? position - 1 : -1
     end
 
-    def pause
+    def add(command)
+      layout.addWidget(SequenceItem.new(self, command))
     end
 
-    def stop
+    def clear
+      layout.removeAll
+    end
+
+    def each
+      total_items = 1
+      Qt.execute_in_main_thread { total_items = layout.count }
+      (1...total_items).each do |index|
+        item = nil
+        Qt.execute_in_main_thread { item = layout.itemAt(index).widget }
+        yield item
+      end
     end
 
     # def swap(index1, index2)
@@ -511,7 +141,6 @@ module Cosmos
   end
 
   class CmdSequence < QtTool
-    attr_accessor :output
     MANUALLY = "MANUALLY ENTERED"
 
     def self.run(option_parser = nil, options = nil)
@@ -528,8 +157,7 @@ module Cosmos
       # MUST BE FIRST - All code before super is executed twice in RubyQt Based classes
       super(options)
       Cosmos.load_cosmos_icon("cmd_sequence.png")
-
-      @currentRow = 0
+      @procedure_dir = System.paths['PROCEDURES'][0]
 
       initialize_actions()
       initialize_menus()
@@ -557,27 +185,35 @@ module Cosmos
     def initialize_actions
       super()
 
-      @new_action = Qt::Action.new(tr('&New'), self)
-      @new_action.shortcut = Qt::KeySequence.new(tr('Ctrl+N'))
-      @new_action.statusTip = tr('New Sequence')
-      @new_action.connect(SIGNAL('triggered()')) { new_sequence() }
+      @file_new = Qt::Action.new(Cosmos.get_icon('file.png'), tr('&New'), self)
+      @file_new_keyseq = Qt::KeySequence.new(tr('Ctrl+N'))
+      @file_new.shortcut  = @file_new_keyseq
+      @file_new.statusTip = tr('Start a new sequence')
+      @file_new.connect(SIGNAL('triggered()')) { file_new() }
 
-      @open_action = Qt::Action.new(tr('&Open'), self)
-      @open_action.shortcut = Qt::KeySequence.new(tr('Ctrl+O'))
-      @open_action.statusTip = tr('Open Sequence')
-      @open_action.connect(SIGNAL('triggered()')) { open_sequence() }
+      @file_save = Qt::Action.new(Cosmos.get_icon('save.png'), tr('&Save'), self)
+      @file_save_keyseq = Qt::KeySequence.new(tr('Ctrl+S'))
+      @file_save.shortcut  = @file_save_keyseq
+      @file_save.statusTip = tr('Save the sequence')
+      @file_save.connect(SIGNAL('triggered()')) { file_save(false) }
 
-      @save_action = Qt::Action.new(tr('&Save'), self)
-      @save_action.shortcut = Qt::KeySequence.new(tr('Ctrl+S'))
-      @save_action.statusTip = tr('Save Sequence')
-      @save_action.connect(SIGNAL('triggered()')) { save_sequence() }
-
-      # TODO Save As
+      @file_save_as = Qt::Action.new(Cosmos.get_icon('save_as.png'), tr('Save &As'), self)
+      @file_save_as.statusTip = tr('Save the sequence')
+      @file_save_as.connect(SIGNAL('triggered()')) { file_save(true) }
 
       @export_action = Qt::Action.new(tr('&Export Sequence'), self)
       @export_action.shortcut = Qt::KeySequence.new(tr('Ctrl+E'))
       @export_action.statusTip = tr('Export the current sequence to a custom binary format')
       @export_action.connect(SIGNAL('triggered()')) { export() }
+
+      @script_disconnect = Qt::Action.new(Cosmos.get_icon('disconnected.png'), tr('&Toggle Disconnect'), self)
+      @script_disconnect_keyseq = Qt::KeySequence.new(tr('Ctrl+T'))
+      @script_disconnect.shortcut  = @script_disconnect_keyseq
+      @script_disconnect.statusTip = tr('Toggle disconnect from the server')
+      @script_disconnect.connect(SIGNAL('triggered()')) do
+        @server_config_file ||= CmdTlmServer::DEFAULT_CONFIG_FILE
+        @server_config_file = toggle_disconnect(@server_config_file)
+      end
 
       @expand_action = Qt::Action.new(tr('&Expand All'), self)
       @expand_action.shortcut = Qt::KeySequence.new(tr('Ctrl+E'))
@@ -609,14 +245,25 @@ module Cosmos
     def initialize_menus
       # File menu
       file_menu = menuBar.addMenu(tr('&File'))
-      file_menu.addAction(@new_action)
-      file_menu.addAction(@open_action)
-      file_menu.addAction(@save_action)
+      file_menu.addAction(@file_new)
+
+      open_action = Qt::Action.new(self)
+      open_action.shortcut = Qt::KeySequence.new(tr('Ctrl+O'))
+      open_action.connect(SIGNAL('triggered()')) { file_open(@procedure_dir) }
+      self.addAction(open_action)
+
+      file_open = file_menu.addMenu(tr('&Open'))
+      file_open.setIcon(Cosmos.get_icon('open.png'))
+      target_dirs_action(file_open, System.paths['PROCEDURES'], 'procedures', method(:file_open))
+
+      file_menu.addAction(@file_save)
+      file_menu.addAction(@file_save_as)
       file_menu.addSeparator()
       file_menu.addAction(@exit_action)
 
       # Action Menu
       action_menu = menuBar.addMenu(tr('&Actions'))
+      action_menu.addAction(@script_disconnect)
       action_menu.addAction(@expand_action)
       action_menu.addAction(@collapse_action)
 
@@ -670,8 +317,8 @@ module Cosmos
       central_layout.addWidget(splitter)
 
       # Initialize scroll area
+      @sequence_list = SequenceList.new
       @sequence_index = 0
-      @sequence_list = SequenceList.new(self)
 
       scroll = Qt::ScrollArea.new()
       scroll.setSizePolicy(Qt::SizePolicy::Preferred, Qt::SizePolicy::Expanding)
@@ -691,13 +338,10 @@ module Cosmos
       bottom_layout.addWidget(@output)
       bottom_frame.setLayout(bottom_layout)
       splitter.addWidget(bottom_frame)
-      splitter.setStretchFactor(0,100)
+      splitter.setStretchFactor(0,1)
       splitter.setStretchFactor(1,0)
 
       statusBar.showMessage("")
-
-      @versionID = 0
-      @seq_top = nil
     end
 
     def target_changed(target)
@@ -746,22 +390,203 @@ module Cosmos
 
     def add_command
       command = System.commands.packet(@target_select.text, @cmd_select.text)
-      @sequence_list.add(SequenceItem.new(command, @sequence_index))
-      @sequence_index += 1
+      @sequence_list.add(command)
     end
 
     def handle_start
-      @sequence_list.start
+      case @realtime_button_bar.state
+      when 'Stopped'
+        @pause = false
+        @go = false
+        @realtime_button_bar.state = 'Running'
+        @realtime_button_bar.start_button.setText('Go')
+        @output.append("Executing Sequence at #{Time.now}")
+        @run_thread = Thread.new do
+          @sequence_list.each_with_index do |item, index|
+            execute_item(item, index)
+          end
+          Qt.execute_in_main_thread do
+            @output.append("")
+            @realtime_button_bar.start_button.setText('Start')
+            @realtime_button_bar.start_button.setEnabled(true)
+            @realtime_button_bar.state = 'Stopped'
+          end
+        end
+      when 'Paused'
+        @realtime_button_bar.state = 'Running'
+        @pause = false
+      when 'Running'
+        @realtime_button_bar.state = 'Running'
+        @go = true
+      end
     end
 
     def handle_pause
-      @sequence_list.pause
+      @pause = true
+      @realtime_button_bar.state = 'Paused'
+      @realtime_button_bar.start_button.setEnabled(true)
     end
 
     def handle_stop
-      @sequence_list.stop
+      Cosmos.kill_thread(nil, @run_thread)
+      @realtime_button_bar.start_button.setEnabled(true)
+      @realtime_button_bar.start_button.setText('Start')
+      @realtime_button_bar.state = 'Stopped'
     end
 
+    def execute_item(item, index)
+      result = ''
+      Qt.execute_in_main_thread do
+        item.setStyleSheet("color: green")
+        Qt::CoreApplication.processEvents()
+      end
+
+      # Check for the first item containing a date
+      if index == 0 && item.time.include?('/')
+        start_time = Time.parse(item.time)
+        if start_time - Time.now > 0
+          while start_time - Time.now > 0
+            if @go
+              @go = false
+              break
+            end
+            if @pause
+              sleep 0.1 while @pause
+            else
+              sleep 0.1
+            end
+          end
+        else
+          result = "WARNING: Start time #{start_time} has already passed!\n"
+        end
+      else
+        start = Time.now
+        while (Time.now - start) < item.time.to_f
+          if @go
+            @go = false
+            break
+          end
+          if @pause
+            sleep 0.1 while @pause
+          else
+            sleep 0.1
+          end
+        end
+      end
+
+      target, packet, params = item.command_parts
+      output_string, _ = item.view_as_script
+      result += Time.now.sys.formatted + ':  ' + output_string
+      cmd_no_hazardous_check(target, packet, params)
+    rescue DRb::DRbConnError
+      result = "Error Connecting to Command and Telemetry Server"
+    rescue Exception => err
+      result = "Error sending #{target} #{packet} due to #{err}\n#{err.backtrace}"
+    ensure
+      Qt.execute_in_main_thread do
+        item.setStyleSheet("")
+        @output.append(result)
+        @output.moveCursor(Qt::TextCursor::End)
+        @output.ensureCursorVisible()
+      end
+    end
+
+    def toggle_disconnect(config_file)
+      if get_cmd_tlm_disconnect
+        set_cmd_tlm_disconnect(false)
+        self.setPalette(Cosmos::DEFAULT_PALETTE)
+      else
+        dialog = Qt::Dialog.new(self, Qt::WindowTitleHint | Qt::WindowSystemMenuHint)
+        dialog.setWindowTitle(tr("Server Config File"))
+        dialog_layout = Qt::VBoxLayout.new
+
+        chooser = FileChooser.new(self, "Config File", config_file, 'Select',
+                                  File.join('config', 'tools', 'cmd_tlm_server', config_file))
+        chooser.callback = lambda do |filename|
+          chooser.filename = File.basename(filename)
+        end
+        dialog_layout.addWidget(chooser)
+
+        button_layout = Qt::HBoxLayout.new
+        ok = Qt::PushButton.new("Ok")
+        ok.setDefault(true)
+        ok.connect(SIGNAL('clicked()')) do
+          dialog.accept()
+        end
+        button_layout.addWidget(ok)
+        cancel = Qt::PushButton.new("Cancel")
+        cancel.connect(SIGNAL('clicked()')) do
+          dialog.reject()
+        end
+        button_layout.addWidget(cancel)
+        dialog_layout.addLayout(button_layout)
+
+        dialog.setLayout(dialog_layout)
+        if dialog.exec == Qt::Dialog::Accepted
+          config_file = chooser.filename
+          self.setPalette(Qt::Palette.new(Cosmos.getColor(170, 57, 57)))
+          Splash.execute(self) do |splash|
+            ConfigParser.splash = splash
+            splash.message = "Initializing Command and Telemetry Server"
+            set_cmd_tlm_disconnect(true, config_file)
+            ConfigParser.splash = nil
+          end
+        end
+        dialog.dispose
+      end
+      config_file
+    end
+
+    def file_new
+      # TODO Check for changes and offer save
+      @sequence_list.clear
+    end
+
+    def file_open(filename = nil)
+      if File.directory?(filename)
+        filename = Qt::FileDialog.getOpenFileName(self, "Select Script", filename)
+      end
+      unless filename.nil? || filename.empty?
+        @sequence_list.add()
+
+        @procedure_dir = File.dirname(filename)
+        @procedure_dir << '/' if @procedure_dir[-1..-1] != '/' and @procedure_dir[-1..-1] != '\\'
+      end
+    end
+
+    # File->Save and File->Save As
+    def file_save(save_as = false)
+      saved = false
+      filename = active_script_runner_frame().filename
+      if filename.empty?
+        filename = Qt::FileDialog::getSaveFileName(self,         # parent
+                                                   'Save As...', # caption
+                                                   @procedure_dir + '/procedure.rb', # dir
+                                                   'Procedure Files (*.rb)') # filter
+      elsif save_as
+        filename = Qt::FileDialog::getSaveFileName(self,         # parent
+                                                   'Save As...', # caption
+                                                   filename,     # dir
+                                                   'Procedure Files (*.rb)') # filter
+      end
+      if not filename.nil? and not filename.empty?
+        begin
+          @tab_book.currentTab.filename = filename
+          @tab_book.currentTab.modified = false
+          @tab_book.setTabText(@tab_book.currentIndex, File.basename(filename))
+          active_script_runner_frame().filename = filename
+          File.open(filename, "w") {|file| file.write(active_script_runner_frame().text)}
+          saved = true
+          update_title()
+          statusBar.showMessage(tr("#{filename} saved"))
+          @procedure_dir = File.dirname(filename)
+          @procedure_dir << '/' if @procedure_dir[-1..-1] != '/' and @procedure_dir[-1..-1] != '\\'
+        rescue => error
+          statusBar.showMessage(tr("Error Saving Script : #{error.class} : #{error.message}"))
+        end
+      end
+      saved
+    end
     #def menu_states_in_hex(checked)
     #  if not @param_widgets.nil?
     #    @param_widgets.each do |label, control, state_value_field, units, desc, required|
@@ -784,7 +609,7 @@ module Cosmos
     #  end
     #end #menu_states_in_hex
 
-    def open_sequence
+    def open_sequence2
       if @got_commands == 1
         tfd = TwoFileDialog.new()
         tfd.exec()
@@ -854,7 +679,7 @@ module Cosmos
       end
     end
 
-    def save_sequence
+    def save_sequence2
       if @seq_top
         if check_duplicate_sequence_ids
           dupstr = ""
@@ -937,26 +762,6 @@ module Cosmos
         alert("Error: No sequences are currently open.", "Error")
       end
     end #save_sequences
-
-    def new_sequence
-      if @got_commands == 1
-
-        @seq_top = []
-        param_arr = []
-
-        (1..200).each do |i|
-          cmd_arr = []
-          #cmd_arr << [0, 'SQNOOP', @desc_lookup['SQNOOP'], 0, 0, param_arr]
-          @seq_top << [65535, cmd_arr]
-        end
-
-        refresh_table_view_widget
-        enable_buttons
-      else
-        update_commands
-        new_sequences unless @got_commands == 0
-      end
-    end
 
     def refresh_table_view_widget
       #TODO: create calculate offset function
