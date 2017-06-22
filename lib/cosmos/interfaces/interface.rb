@@ -143,7 +143,7 @@ module Cosmos
     # Disconnects the interface from its target(s). Must be implemented by a
     # subclass.
     def disconnect
-      (@read_protocols | @write_protocols).each {|protocol| protocol.reset}
+      (@read_protocols | @write_protocols).each {|protocol| protocol.disconnect_reset}
     end
 
     def read_interface

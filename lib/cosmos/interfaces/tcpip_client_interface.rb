@@ -29,7 +29,7 @@ module Cosmos
       read_port,
       write_timeout,
       read_timeout,
-      stream_protocol_type,
+      stream_protocol_type = nil,
       *stream_protocol_args)
 
       super(stream_protocol_type, stream_protocol_args)
