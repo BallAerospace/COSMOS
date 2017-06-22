@@ -70,15 +70,17 @@ module Cosmos
     $VERBOSE = saved_verbose
   end
 
-  # Searches for the file userpath.txt to define the USERPATH constant
+  # Searches for the /config/system and /config/targets directories to define 
+  # the USERPATH constant
   #
-  # @param start_dir [String] Path to start the search for userpath.txt. The
-  #   search will continue by moving up directories until the root directory is
-  #   reached.
+  # @param start_dir [String] Path to start the search for the /config/system
+  #   and /config/targets directories.  The search will continue by moving up
+  #   directories until the root directory is reached.
   def self.define_user_path(start_dir = Dir.pwd)
     current_dir = File.expand_path(start_dir)
     while true
-      if File.exist?(File.join(current_dir, 'userpath.txt'))
+      if File.exist?(File.join(current_dir, 'config', 'system')) and 
+         File.exist?(File.join(current_dir, 'config', 'targets'))
         disable_warnings do
           Cosmos.const_set(:USERPATH, current_dir)
         end
@@ -113,7 +115,7 @@ module Cosmos
           Cosmos.const_set(:USERPATH, ENV['COSMOS_USERPATH'])
         end
       else
-        # Give up and assume we are in the tools directory and there is no userpath.txt file
+        # Give up and assume we are in the tools directory
         disable_warnings do
           Cosmos.const_set(:USERPATH, File.expand_path(File.join(File.dirname($0), '..')))
         end
