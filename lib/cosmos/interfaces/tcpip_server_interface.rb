@@ -252,6 +252,20 @@ module Cosmos
       change_raw_logging(:stop)
     end
 
+    # Supported Options
+    # LISTEN_ADDRESS - Ip address of the interface to accept connections on - Default: 0.0.0.0
+    # AUTO_SYSTEM_META - Automatically send SYSTEM META on connect - Default false
+    # (see Interface#set_option)
+    def set_option(option_name, option_values)
+      super(option_name, option_values)
+      case option_name.upcase
+      when 'LISTEN_ADDRESS'
+        @listen_address = option_values[0]
+      when 'AUTO_SYSTEM_META'
+        @auto_system_meta = ConfigParser.handle_true_false(option_values[0])
+      end
+    end
+
     protected
 
     def shutdown_interfaces(interfaces)
@@ -534,20 +548,6 @@ module Cosmos
           @write_interfaces.delete_at(index_to_delete)
         end
       end # connection_mutex.synchronize
-    end
-
-    # Supported Options
-    # LISTEN_ADDRESS - Ip address of the interface to accept connections on - Default: 0.0.0.0
-    # AUTO_SYSTEM_META - Automatically send SYSTEM META on connect - Default false
-    # (see Interface#set_option)
-    def set_option(option_name, option_values)
-      super(option_name, option_values)
-      case option_name.upcase
-      when 'LISTEN_ADDRESS'
-        @listen_address = option_values[0]
-      when 'AUTO_SYSTEM_META'
-        @auto_system_meta = ConfigParser.handle_true_false(option_values[0])
-      end
     end
   end
 end
