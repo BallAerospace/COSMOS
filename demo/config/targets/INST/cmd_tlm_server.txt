@@ -3,6 +3,3 @@
 
 INTERFACE INST_INT simulated_target_interface.rb sim_inst.rb
   TARGET INST
-  PROTOCOL override_protocol.rb
-  PROTOCOL inst_protocol.rb 3
-

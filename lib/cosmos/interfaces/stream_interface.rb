@@ -20,10 +20,7 @@ module Cosmos
       if @stream_protocol_type
         stream_protocol_class_name = stream_protocol_type.to_s.capitalize << 'StreamProtocol'
         klass = Cosmos.require_class(stream_protocol_class_name.class_name_to_filename)
-        protocol = klass.new(*stream_protocol_args)
-        @read_protocols << protocol
-        @write_protocols.unshift(protocol)
-        @protocol_info << [klass, stream_protocol_args.clone, :READ_WRITE]
+        add_protocol(klass, stream_protocol_args, :READ_WRITE)
       end
     end
 

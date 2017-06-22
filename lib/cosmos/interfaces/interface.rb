@@ -368,6 +368,21 @@ module Cosmos
       @raw_logger_pair.write_logger.write(data) if @raw_logger_pair
     end
 
+    def add_protocol(protocol_class, protocol_args, read_write)
+      protocol_args = protocol_args.clone
+      protocol = protocol_class.new(*protocol_args)
+      case read_write
+      when :READ
+        @read_protocols << protocol
+      when :WRITE
+        @write_protocols.unshift(protocol)
+      else
+        @read_protocols << protocol
+        @write_protocols.unshift(protocol)
+      end
+      @protocol_info << [protocol_class, protocol_args, read_write]
+    end
+
     def _override_tlm(target_name, packet_name, item_name, value)
       _override(target_name, packet_name, item_name, value, :CONVERTED)
     end

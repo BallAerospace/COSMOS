@@ -27,8 +27,7 @@ module Cosmos
       @sim_target = nil
       @write_raw_allowed = false
       @raw_logger_pair = nil
-      @read_protocols << OverrideProtocol.new
-      @protocol_info << [OverrideProtocol, [], :READ]
+      add_protocol(OverrideProtocol, [], :READ)
     end
 
     # Initialize the simulated target object and "connect" to the target
