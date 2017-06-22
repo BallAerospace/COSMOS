@@ -589,12 +589,18 @@ module Cosmos
   # convention of having a single class per file where the class name is camel
   # cased and filename is lowercase with underscores.
   #
-  # @param class_filename [String] The name of the file which contains the
+  # @param class_name_or_class_filename [String] The name of the class or the file which contains the
   #   Ruby class to require
   # @param log_error [Boolean] Whether to log an error if we can not require
   #   the class
-  def self.require_class(class_filename, log_error = true)
-    class_name = class_filename.filename_to_class_name
+  def self.require_class(class_name_or_class_filename, log_error = true)
+    if class_name_or_class_filename.downcase[-3..-1] == '.rb'
+      class_filename = class_name_or_class_filename
+      class_name = class_filename.filename_to_class_name
+    else
+      class_name = class_name_or_class_filename
+      class_filename = class_name.class_name_to_filename
+    end
     return class_name.to_class if class_name.to_class and defined? class_name.to_class
     self.require_file(class_filename, log_error)
     klass = class_name.to_class

@@ -171,11 +171,9 @@ module Cosmos
               end
 
             when 'PROTOCOL'
-              #~ parser.verify_num_parameters(1, nil, "#{keyword} <protocol.rb> <Protocol specific parameters>")
-              #~ klass = Cosmos.require_class(params[0])
-              #~ current_interface_or_router.extend(klass)
-              #~ base = klass.to_s.split(':')[-1]
-              #~ current_interface_or_router.configure_protocol(base, params[1..-1])
+              parser.verify_num_parameters(2, nil, "#{keyword} <READ WRITE READ_WRITE> <protocol filename or classname> <Protocol specific parameters>")
+              klass = Cosmos.require_class(params[1])
+              current_interface_or_router.add_protocol(klass, params[2..-1], params[0].intern)
 
             end # end case keyword for all keywords that require a current interface
 
