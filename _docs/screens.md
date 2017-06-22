@@ -277,6 +277,7 @@ The VERTICAL widget places the widgets it encapsulates vertically on the screen.
 | Parameter | Description | Required |
 |-----------|-------------|----------|
 | Vertical spacing | Vertical spacing between widgets in pixels (default = 1) | No |
+| Vertical packing | Pack all widgets vertically (default = true) | No |
 
 Example Usage:
 {% highlight bash %}
@@ -293,6 +294,7 @@ The VERTICALBOX widget places the widgets it encapsulates vertically on the scre
 |-----------|-------------|----------|
 | Title | Text to place within the border to label the box | No |
 | Vertical spacing | Vertical spacing between widgets in pixels (default = 1) | No |
+| Vertical packing | Pack all widgets vertically (default = true) | No |
 
 Example Usage:
 {% highlight bash %}
@@ -440,6 +442,25 @@ TITLE "Title"
 HORIZONTALLINE
 SECTIONHEADER "Section Header"
 LABEL "Label"
+{% endhighlight %}
+
+### SPACER
+The SPACER widget inserts a spacer into a layout.  This can be used to separate or align other widgets.
+
+| Parameter | Description | Required |
+|-----------|-------------|----------|
+| Width | The width of the spacer in pixels. | Yes |
+| Height | The height of the spacer in pixels. | Yes |
+| Horizontal Policy | The horizontal size policy of the spacer.  Can be FIXED, MINIMUM, MAXIMUM, PREFERRED, EXPANDING, MINIMUMEXPANDING, or IGNORED.  Defaults to MINIMUM. | No |
+| Vertical Policy | The vertical size policy of the spacer.  Can be FIXED, MINIMUM, MAXIMUM, PREFERRED, EXPANDING, MINIMUMEXPANDING, or IGNORED.  Defaults to MINIMUM. | No |
+
+Example Usage:
+{% highlight bash %}
+VERTICAL 3 FALSE
+  LABEL "Spacer below"
+  SPACER 0 100 MINIMUM EXPANDING
+  LABEL "Spacer above"
+END
 {% endhighlight %}
 
 ## Telemetry widgets

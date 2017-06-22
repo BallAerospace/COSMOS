@@ -1470,6 +1470,7 @@
 <li class="toc-entry toc-h3"><a href="#horizontalline">HORIZONTALLINE</a></li>
 <li class="toc-entry toc-h3"><a href="#sectionheader">SECTIONHEADER</a></li>
 <li class="toc-entry toc-h3"><a href="#title">TITLE</a></li>
+<li class="toc-entry toc-h3"><a href="#spacer">SPACER</a></li>
 <li class="toc-entry toc-h2"><a href="#telemetry-widgets">Telemetry widgets</a></li>
 <li class="toc-entry toc-h3"><a href="#array">ARRAY</a></li>
 <li class="toc-entry toc-h3"><a href="#block">BLOCK</a></li>
@@ -2053,6 +2054,11 @@ TARGET COSMOS
       <td>Vertical spacing between widgets in pixels (default = 1)</td>
       <td>No</td>
     </tr>
+    <tr>
+      <td>Vertical packing</td>
+      <td>Pack all widgets vertically (default = true)</td>
+      <td>No</td>
+    </tr>
   </tbody>
 </table>
 
@@ -2084,6 +2090,11 @@ END</code></pre></figure>
     <tr>
       <td>Vertical spacing</td>
       <td>Vertical spacing between widgets in pixels (default = 1)</td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>Vertical packing</td>
+      <td>Pack all widgets vertically (default = true)</td>
       <td>No</td>
     </tr>
   </tbody>
@@ -2333,6 +2344,50 @@ END</code></pre></figure>
 HORIZONTALLINE
 SECTIONHEADER <span class="s2">"Section Header"</span>
 LABEL <span class="s2">"Label"</span></code></pre></figure>
+
+<h3 id="spacer">
+<a id="spacer" class="anchor" href="#spacer" aria-hidden="true"><span class="octicon octicon-link"></span></a>SPACER</h3>
+<p>The SPACER widget inserts a spacer into a layout.  This can be used to separate or align other widgets.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Width</td>
+      <td>The width of the spacer in pixels.</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Height</td>
+      <td>The height of the spacer in pixels.</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Horizontal Policy</td>
+      <td>The horizontal size policy of the spacer.  Can be FIXED, MINIMUM, MAXIMUM, PREFERRED, EXPANDING, MINIMUMEXPANDING, or IGNORED.  Defaults to MINIMUM.</td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>Vertical Policy</td>
+      <td>The vertical size policy of the spacer.  Can be FIXED, MINIMUM, MAXIMUM, PREFERRED, EXPANDING, MINIMUMEXPANDING, or IGNORED.  Defaults to MINIMUM.</td>
+      <td>No</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">VERTICAL 3 FALSE
+  LABEL <span class="s2">"Spacer below"</span>
+  SPACER 0 100 MINIMUM EXPANDING
+  LABEL <span class="s2">"Spacer above"</span>
+END</code></pre></figure>
 
 <h2 id="telemetry-widgets">
 <a id="telemetry-widgets" class="anchor" href="#telemetry-widgets" aria-hidden="true"><span class="octicon octicon-link"></span></a>Telemetry widgets</h2>
