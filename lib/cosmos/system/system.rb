@@ -66,7 +66,7 @@ module Cosmos
     # Known COSMOS ports
     KNOWN_PORTS = ['CTS_API', 'TLMVIEWER_API', 'CTS_PREIDENTIFIED', 'CTS_CMD_ROUTER']
     # Known COSMOS paths
-    KNOWN_PATHS = ['LOGS', 'TMP', 'SAVED_CONFIG', 'TABLES', 'HANDBOOKS', 'PROCEDURES']
+    KNOWN_PATHS = ['LOGS', 'TMP', 'SAVED_CONFIG', 'TABLES', 'HANDBOOKS', 'PROCEDURES', 'SEQUENCES']
 
     @@instance = nil
     @@instance_mutex = Mutex.new
@@ -109,6 +109,7 @@ module Cosmos
       @paths['TABLES'] = File.join(USERPATH, 'outputs', 'tables')
       @paths['HANDBOOKS'] = File.join(USERPATH, 'outputs', 'handbooks')
       @paths['PROCEDURES'] = [File.join(USERPATH, 'procedures')]
+      @paths['SEQUENCES'] = File.join(USERPATH, 'outputs', 'sequences')
 
       unless filename
         system_arg = false
