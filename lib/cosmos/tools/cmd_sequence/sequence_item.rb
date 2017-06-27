@@ -110,7 +110,11 @@ module Cosmos
         end
         quotes_removed = text.remove_quotes
         if text == quotes_removed
-          params[packet_item.name] = text.convert_to_value
+          if (packet_item.data_type == :STRING or packet_item.data_type == :BLOCK) and text.upcase.start_with?("0X")
+            params[packet_item.name] = text.hex_to_byte_string
+          else
+            params[packet_item.name] = text.convert_to_value
+          end
         else
           params[packet_item.name] = quotes_removed
         end
@@ -121,7 +125,7 @@ module Cosmos
 
     # @return [String] Command to be executed with no quotes or other decorations
     def command_string
-      output_string = build_cmd_output_string(@command.target_name, @command.packet_name, command_params(), false)
+      output_string =  System.commands.build_cmd_output_string(@command.target_name, @command.packet_name, command_params(), false)
       if output_string =~ /[\x00-\x08\x0B-\x0C\x0E-\x1F\x7F-\xFF]/
         output_string = output_string.inspect.remove_quotes
       end
@@ -189,15 +193,15 @@ module Cosmos
     # user to select and absolute time to execute the sequence item.
     # @param time [String] The initial value for the time delay
     def create_time_edit(time)
-      @time = Qt::LineEdit.new(Time.now.formatted)
+      @time = Qt::LineEdit.new(Time.now.sys.formatted)
       fm = @time.fontMetrics
       # Set the width to support an absolute time
-      @time.setFixedWidth(fm.boundingRect(Time.now.formatted).width + 10)
+      @time.setFixedWidth(fm.boundingRect(Time.now.sys.formatted).width + 10)
       @time.text = time ? time : "0.00"
       # Setting the absolute time is via a Right-Click custom context menu
       @time.setContextMenuPolicy(Qt::CustomContextMenu)
       @time.connect(SIGNAL('customContextMenuRequested(const QPoint&)')) do
-        dialog = CalendarDialog.new(@time, "Select Absolute Execution Time:", Time.now, true)
+        dialog = CalendarDialog.new(@time, "Select Absolute Execution Time:", Time.now.sys, true)
         case dialog.exec
         when Qt::Dialog::Accepted
           @time.text = dialog.time.formatted
@@ -286,13 +290,22 @@ module Cosmos
           if @states_in_hex && packet_item.default.kind_of?(Integer)
             state_value_item = Qt::TableWidgetItem.new(sprintf("0x%X", packet_item.default))
           else
-            state_value_item = Qt::TableWidgetItem.new(packet_item.default.to_s)
+            default_str = packet_item.default.to_s
+            if default_str.is_printable?
+              state_value_item = Qt::TableWidgetItem.new(default_str)
+            else
+              state_value_item = Qt::TableWidgetItem.new("0x" + default_str.simple_formatted)
+            end
           end
           state_value_item.setTextAlignment(Qt::AlignRight | Qt::AlignVCenter)
           state_value_item.setFlags(Qt::NoItemFlags | Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsEditable)
           @table.setItem(row, 2, state_value_item)
         else
-          value_item = Qt::TableWidgetItem.new(@command.read_item(packet_item).to_s)
+          value_text = @command.read_item(packet_item).to_s
+          if !value_text.is_printable?
+            value_text = "0x" + value_text.simple_formatted
+          end
+          value_item = Qt::TableWidgetItem.new(value_text)
           value_item.setTextAlignment(Qt::AlignRight | Qt::AlignVCenter)
           value_item.setFlags(Qt::NoItemFlags | Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsEditable)
           @table.setItem(row, 1, value_item)
