@@ -13,7 +13,7 @@ This document provides the information necessary for external applications to in
 
 ## JSON-RPC 2.0
 
-The COSMOS API is implemented to the JSON-RPC 2.0 Specification which can be found [here](http://www.jsonrpc.org/specification). Requests with an "id" of NULL are not supported. Request params must be specified by-position, by-name is not supported. Section 6 of the spec, Batch Operations, is not supported. 
+The COSMOS API implements a relaxed version of the [JSON-RPC 2.0 Specification](http://www.jsonrpc.org/specification). Requests with an "id" of NULL are not supported. Numbers can contain special non-string literal's such as NaN, and +/-inf. Request params must be specified by-position, by-name is not supported. Section 6 of the spec, Batch Operations, is not supported. 
 
 ## Socket Connections
 
