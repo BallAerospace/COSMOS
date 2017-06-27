@@ -222,8 +222,9 @@ module Cosmos
             packets = System.telemetry.latest_packets(@target_name, @item_name)
             offset = 0
             packets.each do |packet|
-              @dialogs << TlmDetailsDialog.new(nil, @target_name, packet.packet_name, @item_name)
-              @dialogs[-1].move(dialog.x + offset, dialog.y + offset)
+              dialog = TlmDetailsDialog.new(nil, @target_name, packet.packet_name, @item_name)
+              dialog.move(dialog.x + offset, dialog.y + offset)
+              @dialogs << dialog
               offset += 30
             end
           else
