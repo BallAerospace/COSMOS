@@ -147,7 +147,7 @@ module Cosmos
         reset_settings()
         clear_items()
 
-        parser = ConfigParser.new
+        parser = ConfigParser.new("http://cosmosrb.com/docs/tools/#telemetry-extractor-configuration")
         parser.parse_file(filename) do |keyword, params|
           case keyword
           when 'DELIMITER'

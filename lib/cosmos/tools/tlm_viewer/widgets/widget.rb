@@ -154,6 +154,12 @@ module Cosmos
       @settings.each do |setting_name, setting_values|
         begin
           case setting_name
+          when 'TEXTALIGN'
+            sheet << "qproperty-alignment:Align#{setting_values[0].capitalize}"
+          when 'PADDING'
+            sheet << "padding:#{setting_values[0]}"
+          when 'MARGIN'
+            sheet << "margin:#{setting_values[0]}"
           when 'BACKCOLOR'
             case setting_values.size
             when 1 # color name
@@ -216,8 +222,9 @@ module Cosmos
             packets = System.telemetry.latest_packets(@target_name, @item_name)
             offset = 0
             packets.each do |packet|
-              @dialogs << TlmDetailsDialog.new(nil, @target_name, packet.packet_name, @item_name)
-              @dialogs[-1].move(dialog.x + offset, dialog.y + offset)
+              dialog = TlmDetailsDialog.new(nil, @target_name, packet.packet_name, @item_name)
+              dialog.move(dialog.x + offset, dialog.y + offset)
+              @dialogs << dialog
               offset += 30
             end
           else
@@ -246,7 +253,5 @@ module Cosmos
       point.dispose
       menu.dispose
     end
-
   end
-
-end # module Cosmos
+end

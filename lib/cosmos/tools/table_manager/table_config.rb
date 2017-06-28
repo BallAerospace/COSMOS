@@ -59,7 +59,7 @@ module Cosmos
       @proc_text = ''
       @building_generic_conversion = false
 
-      parser = ConfigParser.new("http://cosmosrb.com/docs/tools/#table-manager-configuration")
+      parser = ConfigParser.new("http://cosmosrb.com/docs/tools/#table-manager-configuration-cosmos--39")
       parser.parse_file(filename) do |keyword, params|
         if @building_generic_conversion
           case keyword
@@ -106,14 +106,20 @@ module Cosmos
           #######################################################################
           # All the following keywords must have a current packet defined
           #######################################################################
-          when 'SELECT_PARAMETER', 'PARAMETER', 'ID_PARAMETER', 'ARRAY_PARAMETER', 'APPEND_PARAMETER', 'APPEND_ID_PARAMETER', 'APPEND_ARRAY_PARAMETER', 'ALLOW_SHORT', 'HAZARDOUS', 'PROCESSOR', 'META', 'DISABLE_MESSAGES', 'DISABLED'
+          when 'SELECT_PARAMETER', 'PARAMETER', 'ID_PARAMETER', 'ARRAY_PARAMETER',
+            'APPEND_PARAMETER', 'APPEND_ID_PARAMETER', 'APPEND_ARRAY_PARAMETER',
+            'ALLOW_SHORT', 'HAZARDOUS', 'PROCESSOR', 'META', 'DISABLE_MESSAGES', 'DISABLED'
             raise parser.error("No current packet for #{keyword}") unless @current_packet
             process_current_packet(parser, keyword, params)
 
           #######################################################################
           # All the following keywords must have a current item defined
           #######################################################################
-          when 'STATE', 'READ_CONVERSION', 'WRITE_CONVERSION', 'POLY_READ_CONVERSION', 'POLY_WRITE_CONVERSION', 'SEG_POLY_READ_CONVERSION', 'SEG_POLY_WRITE_CONVERSION', 'GENERIC_READ_CONVERSION_START', 'GENERIC_WRITE_CONVERSION_START', 'REQUIRED', 'LIMITS', 'LIMITS_RESPONSE', 'UNITS', 'FORMAT_STRING', 'DESCRIPTION', 'MINIMUM_VALUE', 'MAXIMUM_VALUE', 'DEFAULT_VALUE', 'OVERFLOW', 'UNEDITABLE', 'HIDDEN'
+          when 'STATE', 'READ_CONVERSION', 'WRITE_CONVERSION', 'POLY_READ_CONVERSION',
+            'POLY_WRITE_CONVERSION', 'SEG_POLY_READ_CONVERSION', 'SEG_POLY_WRITE_CONVERSION',
+            'GENERIC_READ_CONVERSION_START', 'GENERIC_WRITE_CONVERSION_START', 'REQUIRED',
+            'LIMITS', 'LIMITS_RESPONSE', 'UNITS', 'FORMAT_STRING', 'DESCRIPTION', 'HIDDEN',
+            'MINIMUM_VALUE', 'MAXIMUM_VALUE', 'DEFAULT_VALUE', 'OVERFLOW', 'UNEDITABLE'
             raise parser.error("No current item for #{keyword}") unless @current_item
             process_current_item(parser, keyword, params)
 

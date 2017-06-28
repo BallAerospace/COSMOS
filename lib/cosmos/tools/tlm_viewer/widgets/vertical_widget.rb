@@ -20,15 +20,16 @@ module Cosmos
     include Widget
     include LayoutWidget
 
-    def initialize(parent_layout = nil, vSpacing = 3)
+    def initialize(parent_layout = nil, vSpacing = 3, vPack = true)
       super()
       setSpacing(vSpacing.to_i)
       parent_layout.addLayout(self) if parent_layout
+      @v_pack = ConfigParser::handle_true_false(vPack)
     end
 
     def process_settings
       super()
-      addStretch(1)
+      addStretch(1) if @v_pack
     end
   end
 

@@ -15,10 +15,19 @@ module Cosmos
 
     private
 
-    def add_cmd_parameter(keyword, value, cmd_params)
+    def add_cmd_parameter(keyword, value, packet, cmd_params)
       quotes_removed = value.remove_quotes
+      begin
+        type = packet.items[keyword].data_type
+      rescue
+        type = nil
+      end
       if value == quotes_removed
-        cmd_params[keyword] = value.convert_to_value
+        if (type == :STRING or type == :BLOCK) and value.upcase.start_with?("0X")
+          cmd_params[keyword] = value.hex_to_byte_string
+        else
+          cmd_params[keyword] = value.convert_to_value
+        end
       else
         cmd_params[keyword] = quotes_removed
       end
@@ -36,6 +45,12 @@ module Cosmos
       target_name = first_half[0]
       cmd_name = first_half[1]
       cmd_params = {}
+    
+      begin
+        packet = System.commands.packet(target_name, cmd_name).clone
+      rescue
+        packet = nil
+      end
 
       if split_string.length == 2
         # Extract Command Parameters
@@ -60,14 +75,14 @@ module Cosmos
           unless comma
             raise "Missing comma in command parameters: #{text}" if item != ','
           end
-          add_cmd_parameter(keyword, value, cmd_params)
+          add_cmd_parameter(keyword, value, packet, cmd_params)
           keyword = nil
           value = nil
           comma = nil
         end
         if keyword
           if value
-            add_cmd_parameter(keyword, value, cmd_params)
+            add_cmd_parameter(keyword, value, packet, cmd_params)
           else
             raise "Missing value for last command parameter: #{text}"
           end

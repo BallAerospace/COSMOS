@@ -58,14 +58,16 @@ module Cosmos
       end
 
       it "logs errors saving the configuration" do
-        # Force a reload of the configuration
-        System.class_eval('@@instance = nil')
-
-        capture_io do |stdout|
-          allow(FileUtils).to receive(:mkdir_p) { raise "Error" }
-          expect(System.commands.target_names).to eql ['SYSTEM']
-          expect(stdout.string).to match "Problem saving configuration"
-        end
+       # Write the system.txt file to auto declare targets
+       File.open(@config_file, 'w') { |file| file.puts "AUTO_DECLARE_TARGETS" }
+       # Force a reload of the configuration
+       System.class_eval('@@instance = nil')
+       capture_io do |stdout|
+         allow(FileUtils).to receive(:cp_r) { raise "Error" }
+         System.commands
+         expect(stdout.string).to match "Problem saving configuration"
+       end
+       File.open(@config_file, 'w') { |file| file.puts "# Comment" }
       end
     end
 
@@ -89,6 +91,7 @@ module Cosmos
 
       describe "System.clear_counters" do
         it "clears the target, command and telemetry counters" do
+          expect(System.targets.length).to be > 0
           System.targets.each do |name, tgt|
             tgt.cmd_cnt = 100
             tgt.tlm_cnt = 100
