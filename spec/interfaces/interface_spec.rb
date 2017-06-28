@@ -40,13 +40,15 @@ module Cosmos
         expect(i.write_queue_size).to eql 0
         expect(i.interfaces).to eql []
         expect(i.options).to be_empty
-        expect(i.protocol_params).to be_empty
+        expect(i.read_protocols).to be_empty
+        expect(i.write_protocols).to be_empty
+        expect(i.protocol_info).to be_empty
       end
     end
 
     describe "connected?" do
-      it "is false" do
-        expect(Interface.new.connected?).to be false
+      it "raises an exception" do
+        expect { Interface.new.connected? }.to raise_error(/connected\? not defined by Interface/)
       end
     end
 
@@ -72,13 +74,16 @@ module Cosmos
       let(:interface) { Interface.new }
 
       it "raises unless connected" do
+        class <<interface
+          def connected?; false; end
+        end
         expect { interface.read }.to raise_error(/Interface not connected/)
       end
 
-      it "optionally logs raw data received from read_data" do
+      it "optionally logs raw data received from read_interface" do
         class <<interface
           def connected?; true; end
-          def read_data; "\x01\x02\x03\x04"; end
+          def read_interface; data = "\x01\x02\x03\x04"; read_interface_base(data); data; end
         end
         interface.start_raw_logging
         packet = interface.read
@@ -90,10 +95,10 @@ module Cosmos
         expect(File.read(filename)).to eq "\x01\x02\x03\x04"
       end
 
-      it "aborts and doesn't log if no data is returned from read_data" do
+      it "aborts and doesn't log if no data is returned from read_interface" do
         class <<interface
           def connected?; true; end
-          def read_data; nil end
+          def read_interface; nil end
         end
         interface.start_raw_logging
         expect(interface.read).to be_nil
@@ -106,18 +111,20 @@ module Cosmos
         $i = 0
         class <<interface
           def connected?; true; end
-          def read_data
+          def read_interface
             case $i
             when 0
               $i += 1
-              "\x01\x02\x03\x04"
+              data = "\x01\x02\x03\x04"
             when 1
               $i += 1
-              "\x01\x02"
+              data = "\x01\x02"
             when 2
               $i += 1
-              "\x01\x02\x03\x04\x01\x02"
+              data = "\x01\x02\x03\x04\x01\x02"
             end
+            read_interface_base(data)
+            data
           end
         end
         interface.read
@@ -131,7 +138,7 @@ module Cosmos
       it "allows post_read_data to manipulate data" do
         class <<interface
           def connected?; true; end
-          def read_data; "\x01\x02\x03\x04"; end
+          def read_interface; data = "\x01\x02\x03\x04"; read_interface_base(data); data; end
           def post_read_data(data); "\x02\x03\x04\x05"; end
         end
         interface.start_raw_logging
@@ -148,7 +155,7 @@ module Cosmos
       it "aborts if post_read_data returns nil" do
         class <<interface
           def connected?; true; end
-          def read_data; "\x01\x02\x03\x04"; end
+          def read_interface; data = "\x01\x02\x03\x04"; read_interface_base(data); data; end
           def post_read_data(data); nil; end
         end
         interface.start_raw_logging
@@ -164,7 +171,7 @@ module Cosmos
       it "allows post_read_packet to manipulate packet" do
         class <<interface
           def connected?; true; end
-          def read_data; "\x01\x02\x03\x04"; end
+          def read_interface; data = "\x01\x02\x03\x04"; read_interface_base(data); data; end
           def post_read_packet(packet); packet.buffer = "\x02\x03\x04\x05"; packet; end
         end
         packet = interface.read
@@ -176,7 +183,7 @@ module Cosmos
       it "aborts if post_read_packet returns nil" do
         class <<interface
           def connected?; true; end
-          def read_data; "\x01\x02\x03\x04"; end
+          def read_interface; data = "\x01\x02\x03\x04"; read_interface_base(data); data; end
           def post_read_packet(packet); nil; end
         end
         packet = interface.read
@@ -188,7 +195,7 @@ module Cosmos
       it "returns an unidentified packet" do
         class <<interface
           def connected?; true; end
-          def read_data; "\x01\x02\x03\x04"; end
+          def read_interface; data = "\x01\x02\x03\x04"; read_interface_base(data); data; end
         end
         packet = interface.read
         expect(packet.target_name).to be_nil

@@ -158,7 +158,7 @@ module Cosmos
     # @return [Packet] Packet constructed from the data. Packet will be
     #   unidentified (nil target and packet names)
     def read
-      raise "Interface not connected for read: #{@name}" unless connected?
+      raise "Interface not connected for read: #{@name}" unless connected? && read_allowed?
 
       loop do
         # Read data for a packet

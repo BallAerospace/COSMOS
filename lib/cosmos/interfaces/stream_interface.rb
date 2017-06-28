@@ -13,6 +13,8 @@ require 'cosmos/interfaces/interface'
 module Cosmos
   # Base class for interfaces that act read and write from a stream
   class StreamInterface < Interface
+    attr_accessor :stream
+
     def initialize(stream_protocol_type = nil, stream_protocol_args = [])
       super()
       @stream_protocol_type = ConfigParser::handle_nil(stream_protocol_type)
