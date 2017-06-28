@@ -1445,9 +1445,9 @@
 <p>NOTE on IE - If you left click the link above and try to save it, IE will corrupt the bat file.</p>
 
 <h2 id="centos-linux-65667-ubuntu-linux-1404lts-and-mac-osx-mavericks">CentOS Linux 6.5/6.6/7, Ubuntu Linux 14.04LTS, and Mac OSX Mavericks+</h2>
-<p>The following instructions work for an installation on CentOS Linux 6.5, 6.6, or 7, and Ubuntu 14.04LTS from a clean install or any version of Mac OSX after and include Mavericks.  Similar steps should work on other distributions/versions, particularly Redhat.</p>
+<p>The following instructions work for an installation on CentOS Linux 6.5, 6.6, or 7, and Ubuntu 14.04LTS from a clean install or any version of Mac OS X after and include Mavericks.  Similar steps should work on other distributions/versions, particularly Redhat.</p>
 
-<p>Run the following command in a terminal:</p>
+<p>Run the following command in a terminal running the <strong>bash</strong> shell:</p>
 
 <div class="highlighter-rouge"><pre class="highlight"><code>bash &lt;(\curl -sSL https://raw.githubusercontent.com/BallAerospace/COSMOS/master/vendor/installers/linux_mac/INSTALL_COSMOS.sh)
 </code></pre>
@@ -1474,6 +1474,9 @@
 <p>Notes:</p>
 
 <ol>
+  <li>
+    <p>The bash shell is required on Linux and Mac</p>
+  </li>
   <li>
     <p>ruby-termios is a dependency of COSMOS on non-windows platforms but is not listed in the gem dependencies because it is not a dependency on Windows.  An extension attempts to install it when gem install cosmos is run.  This should work as long as you are online. If attempting an offline installation of cosmos you will need to first manually install ruby-termios: <code class="highlighter-rouge">gem install ruby-termios</code></p>
   </li>

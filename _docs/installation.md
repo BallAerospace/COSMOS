@@ -16,9 +16,9 @@ NOTE: The COSMOS installation batch file downloads all the components of the COS
 NOTE on IE - If you left click the link above and try to save it, IE will corrupt the bat file.
 
 ## CentOS Linux 6.5/6.6/7, Ubuntu Linux 14.04LTS, and Mac OSX Mavericks+
-The following instructions work for an installation on CentOS Linux 6.5, 6.6, or 7, and Ubuntu 14.04LTS from a clean install or any version of Mac OSX after and include Mavericks.  Similar steps should work on other distributions/versions, particularly Redhat.
+The following instructions work for an installation on CentOS Linux 6.5, 6.6, or 7, and Ubuntu 14.04LTS from a clean install or any version of Mac OS X after and include Mavericks.  Similar steps should work on other distributions/versions, particularly Redhat.
 
-Run the following command in a terminal:
+Run the following command in a terminal running the **bash** shell:
 
 ```
 bash <(\curl -sSL https://raw.githubusercontent.com/BallAerospace/COSMOS/master/vendor/installers/linux_mac/INSTALL_COSMOS.sh)
@@ -43,6 +43,8 @@ export COSMOS_USERPATH=/Users/username/demo
 ## General
 
 Notes:
+
+1. The bash shell is required on Linux and Mac
 
 1. ruby-termios is a dependency of COSMOS on non-windows platforms but is not listed in the gem dependencies because it is not a dependency on Windows.  An extension attempts to install it when gem install cosmos is run.  This should work as long as you are online. If attempting an offline installation of cosmos you will need to first manually install ruby-termios: ```gem install ruby-termios```
 
