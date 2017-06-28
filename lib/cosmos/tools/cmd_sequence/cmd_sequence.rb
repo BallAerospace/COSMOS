@@ -287,13 +287,13 @@ module Cosmos
       if filename == 'Untitled' # No file is currently open
         filename = Qt::FileDialog::getSaveFileName(self,         # parent
                                                    'Save As...', # caption
-                                                   @sequence_dir + '/sequence.tsv', # dir
-                                                   'Sequence Files (*.tsv)') # filter
+                                                   @sequence_dir + '/sequence.txt', # dir
+                                                   'Sequence Files (*.txt)') # filter
       elsif save_as
         filename = Qt::FileDialog::getSaveFileName(self,         # parent
                                                    'Save As...', # caption
                                                    filename,     # dir
-                                                   'Sequence Files (*.tsv)') # filter
+                                                   'Sequence Files (*.txt)') # filter
       end
       if !filename.nil? && !filename.empty?
         begin
