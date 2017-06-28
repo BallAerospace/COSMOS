@@ -125,7 +125,7 @@ module Cosmos
 
     # @return [String] Command to be executed with no quotes or other decorations
     def command_string
-      output_string =  System.commands.build_cmd_output_string(@command.target_name, @command.packet_name, command_params(), false)
+      output_string =  build_cmd_output_string(@command.target_name, @command.packet_name, command_params(), false)
       if output_string =~ /[\x00-\x08\x0B-\x0C\x0E-\x1F\x7F-\xFF]/
         output_string = output_string.inspect.remove_quotes
       end

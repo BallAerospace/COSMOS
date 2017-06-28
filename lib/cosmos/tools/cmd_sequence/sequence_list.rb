@@ -108,6 +108,7 @@ module Cosmos
       File.open(filename, "w") do |file|
         # Each SequenceItem's save method returns the save string
         file.write(collect {|item| item.save }.join("\n"))
+        file.write("\n") # final newline
       end
     end
 
