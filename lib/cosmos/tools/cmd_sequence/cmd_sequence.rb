@@ -487,9 +487,9 @@ module Cosmos
         return true
       end
       if @pause
-        sleep 0.1 while @pause
+        sleep 0.01 while @pause
       else
-        sleep 0.1
+        sleep 0.01
       end
       false
     end

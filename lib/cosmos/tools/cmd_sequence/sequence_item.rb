@@ -26,24 +26,22 @@ module Cosmos
     signals 'modified()'
     MANUALLY = "MANUALLY ENTERED"
 
-    # Parse a command line into a SequenceItem which is returned
-    # @param line [String] Tab delimited line with the time (absolute or
-    #   relative delay) followed by the command string. The command String
-    #   is not quoted and is everything inside the quotes of a command.
+    # Parse a time and command string into a SequenceItem which is returned
+    # @param time [String] Time (absolute or relative delay). Supports a single
+    #   float value (relative delay) or a absolute time specified as
+    #   "YYYY/MM/DD HH:MM:SS.MS"
+    # @param command [String] Command String which should not be
+    #   quoted and is everything inside the quotes of a command.
     #   For example: TGT PKT with STRING 'HI', VALUE 12. Parse errors are
     #   raised as execptions which must be handled by higher level code.
     # @return [SequenceItem] SequenceItem which the line represents
-    def self.parse(line)
-      raise "Line must be tab delimited" unless line.include?("\t")
-      parts = line.split("\t")
-      raise "Line must be formatted as <TIME>\\t<COMMAND>" unless parts.length == 2
-
-      tgt_name, pkt_name, cmd_params = extract_fields_from_cmd_text(parts[1])
+    def self.parse(time, command)
+      tgt_name, pkt_name, cmd_params = extract_fields_from_cmd_text(command)
       packet = System.commands.packet(tgt_name, pkt_name)
       cmd_params.each do |param_name, param_value|
         packet.write(param_name, param_value)
       end
-      SequenceItem.new(packet, parts[0])
+      SequenceItem.new(packet, time)
     end
 
     # Create a new SequenceItem based on the given command with the given delay
@@ -125,7 +123,7 @@ module Cosmos
 
     # @return [String] Command to be executed with no quotes or other decorations
     def command_string
-      output_string =  build_cmd_output_string(@command.target_name, @command.packet_name, command_params(), false)
+      output_string =  System.commands.build_cmd_output_string(@command.target_name, @command.packet_name, command_params(), false)
       if output_string =~ /[\x00-\x08\x0B-\x0C\x0E-\x1F\x7F-\xFF]/
         output_string = output_string.inspect.remove_quotes
       end
@@ -139,9 +137,9 @@ module Cosmos
       time
     end
 
-    # @return [String] Tab delimited time and command string
+    # @return [String] Time and command string
     def save
-      "#{time}\t#{command_string}"
+      "COMMAND \"#{time}\" \"#{command_string}\""
     end
 
     # Handles showing and hiding the command parameters. Must be part of the

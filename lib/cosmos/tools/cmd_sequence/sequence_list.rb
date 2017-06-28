@@ -37,25 +37,30 @@ module Cosmos
     # @param filename [String] File containing a sequence definition
     def open(filename)
       clear()
-      line_no = 0
-      File.open(filename) do |file|
-        file.each do |line|
-          line_no += 1
-          next if line.strip[0] == '#' # Ignore comments
-          item = SequenceItem.parse(line)
-          # Connect the SequenceItems modified signal to propagate it
-          # forward by emitting our own modified signal
-          item.connect(SIGNAL("modified()")) do
-            @modified = true
-            emit modified()
+
+      parser = ConfigParser.new("http://cosmosrb.com/docs/tools/#command-sequence-configuration")
+      parser.parse_file(filename) do |keyword, params|
+        case keyword
+        when 'COMMAND'
+          usage = "#{keyword} <Delay Time> <Command>"
+          parser.verify_num_parameters(2, 2, usage)
+          begin
+            item = SequenceItem.parse(params[0], params[1])
+            # Connect the SequenceItems modified signal to propagate it
+            # forward by emitting our own modified signal
+            item.connect(SIGNAL("modified()")) do
+              @modified = true
+              emit modified()
+            end
+            layout.addWidget(item)
+          rescue => error
+            Kernel.raise parser.error("#{usage} passed '#{params[0]} #{params[1]}'\n#{error.message}")
           end
-          layout.addWidget(item)
+        else
+          Kernel.raise parser.error("Unknown keyword '#{keyword}'.") if keyword
         end
       end
       @modified = false # Initially we're not modified
-    #rescue => error
-      # Re-raise with the filename and line number
-    #  raise $!, "#{filename}:#{line_no}\n#{error.message}", $!.backtrace
     end
 
     # Add a new SequenceItem to the list.
