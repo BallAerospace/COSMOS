@@ -37,7 +37,8 @@ module Cosmos
     # @return [SequenceItem] SequenceItem which the line represents
     def self.parse(time, command)
       tgt_name, pkt_name, cmd_params = extract_fields_from_cmd_text(command)
-      packet = System.commands.packet(tgt_name, pkt_name)
+      packet = System.commands.packet(tgt_name, pkt_name).dup
+      packet.restore_defaults
       cmd_params.each do |param_name, param_value|
         packet.write(param_name, param_value)
       end
@@ -71,18 +72,44 @@ module Cosmos
       set_cmd_name_info()
     end
 
+    # Set or clear read only status on the item
+    # @param bool [Boolean] Whether to make the item read only
+    def read_only(bool)
+      @time.setReadOnly(bool)
+    end
+
     # Show or hide ignored parameters
     # @param bool [Boolean] Whether to show ignored command items
     def show_ignored(bool)
       @show_ignored = bool
-      update_cmd_params()
+      update_cmd_params(bool)
     end
 
     # Display state values in hex (or decimal)
     # @param bool [Boolean] Whether to display state values in hex
     def states_in_hex(bool)
       @states_in_hex = bool
-      update_cmd_params()
+      @param_widgets.each do |_, _, state_value_item|
+        next unless state_value_item
+        text = state_value_item.text
+        quotes_removed = text.remove_quotes
+        if text == quotes_removed
+          if bool
+            if text.is_int?
+              @table.blockSignals(true)
+              state_value_item.text = sprintf("0x%X", text.to_i)
+              @table.blockSignals(false)
+            end
+          else
+            if text.is_hex?
+              @table.blockSignals(true)
+              state_value_item.text = Integer(text).to_s
+              @table.blockSignals(false)
+            end
+          end
+        end
+      end
+
     end
 
     # Show the command parameters part of the GUI
@@ -233,12 +260,44 @@ module Cosmos
     end
 
     # Update the command parameters table for the given command
-    def update_cmd_params
+    # @param ignored_toggle [Boolean] Whether to display the ignored
+    #   parameters. Pass nil (the default) to keep the existing setting.
+    def update_cmd_params(ignored_toggle = nil)
+      old_params = {}
+      if !ignored_toggle.nil?
+        # Save parameter values
+        @param_widgets.each do |packet_item, value_item, state_value_item|
+          text = value_item.text
+          if state_value_item
+            old_params[packet_item.name] = [text, state_value_item.text]
+          else
+            old_params[packet_item.name] = text
+          end
+        end
+      end
+
       target = System.targets[@command.target_name]
       packet_items = @command.sorted_items
       shown_packet_items = []
       packet_items.each do |packet_item|
-        next if target && target.ignored_parameters.include?(packet_item.name) && !@show_ignored
+        if target && target.ignored_parameters.include?(packet_item.name) && !@show_ignored
+          if @param_widgets.empty? # First time rendering the parameters
+            if packet_item.states
+              # Skip this if the default matches the saved value
+              next if @command.read_item(packet_item, :RAW) == packet_item.default
+            else
+              # Skip this if the default matches the saved value
+              next if @command.read_item(packet_item) == packet_item.default
+            end
+          else # Check the current values
+            result = @param_widgets.select {|item,_,_| item == packet_item }
+            next if result.empty?
+            _, value_item, state_value_item = result[0]
+            value = state_value_item ? state_value_item.text : value_item.text
+            # Skip this if the default matches the current value
+            next if packet_item.default.to_s == value
+          end
+        end
         shown_packet_items << packet_item
       end
 
@@ -251,7 +310,6 @@ module Cosmos
 
       row = 0
       shown_packet_items.each do |packet_item|
-        next if target && target.ignored_parameters.include?(packet_item.name) && !@show_ignored
         value_item = nil
         state_value_item = nil
 
@@ -280,30 +338,58 @@ module Cosmos
         @table.setItem(row, 0, item)
 
         if packet_item.states
-          value_item = Qt::TableWidgetItem.new(@command.read_item(packet_item).to_s)
+          default = @command.read_item(packet_item, :RAW)
+          default_state = packet_item.states.key(default)
+          if old_params[packet_item.name]
+            value_item = Qt::TableWidgetItem.new(old_params[packet_item.name][0])
+          else
+            if default_state
+              value_item = Qt::TableWidgetItem.new(default_state.to_s)
+            else
+              value_item = Qt::TableWidgetItem.new(MANUALLY)
+            end
+          end
           value_item.setTextAlignment(Qt::AlignRight | Qt::AlignVCenter)
           value_item.setFlags(Qt::NoItemFlags | Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsEditable)
           @table.setItem(row, 1, value_item)
 
-          if @states_in_hex && packet_item.default.kind_of?(Integer)
-            state_value_item = Qt::TableWidgetItem.new(sprintf("0x%X", packet_item.default))
+          if old_params[packet_item.name]
+            state_value_item = Qt::TableWidgetItem.new(old_params[packet_item.name][1])
           else
-            default_str = packet_item.default.to_s
-            if default_str.is_printable?
-              state_value_item = Qt::TableWidgetItem.new(default_str)
+            if @states_in_hex && packet_item.default.kind_of?(Integer)
+              state_value_item = Qt::TableWidgetItem.new(sprintf("0x%X", default))
             else
-              state_value_item = Qt::TableWidgetItem.new("0x" + default_str.simple_formatted)
+              default_str = default.to_s
+              if default_str.is_printable?
+                state_value_item = Qt::TableWidgetItem.new(default_str)
+              else
+                state_value_item = Qt::TableWidgetItem.new("0x" + default_str.simple_formatted)
+              end
             end
           end
           state_value_item.setTextAlignment(Qt::AlignRight | Qt::AlignVCenter)
           state_value_item.setFlags(Qt::NoItemFlags | Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsEditable)
           @table.setItem(row, 2, state_value_item)
-        else
-          value_text = @command.read_item(packet_item).to_s
-          if !value_text.is_printable?
-            value_text = "0x" + value_text.simple_formatted
+        else # Parameter Value
+          if old_params[packet_item.name]
+            value_item = Qt::TableWidgetItem.new(old_params[packet_item.name])
+          else
+            default = @command.read_item(packet_item)
+            if packet_item.format_string
+              begin
+                value_text = sprintf(packet_item.format_string, default)
+              rescue
+                # Oh well - Don't use the format string
+                value_text = default.to_s
+              end
+            else
+              value_text = default.to_s
+            end
+            if !value_text.is_printable?
+              value_text = "0x" + value_text.simple_formatted
+            end
+            value_item = Qt::TableWidgetItem.new(value_text)
           end
-          value_item = Qt::TableWidgetItem.new(value_text)
           value_item.setTextAlignment(Qt::AlignRight | Qt::AlignVCenter)
           value_item.setFlags(Qt::NoItemFlags | Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsEditable)
           @table.setItem(row, 1, value_item)

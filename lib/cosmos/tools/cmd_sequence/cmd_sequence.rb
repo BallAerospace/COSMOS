@@ -208,8 +208,11 @@ module Cosmos
 
       add = Qt::PushButton.new("Add")
       add.connect(SIGNAL('clicked()')) do
-        command = System.commands.packet(@target_select.text, @cmd_select.text)
-        @sequence_list.add(command)
+        command = System.commands.packet(@target_select.text, @cmd_select.text).dup
+        command.restore_defaults
+        item = @sequence_list.add(command)
+        item.show_ignored(@show_ignored.isChecked())
+        item.states_in_hex(@states_in_hex.isChecked())
       end
 
       # Layout the target and command selection with Add button
@@ -228,12 +231,12 @@ module Cosmos
       @sequence_list = SequenceList.new
       @sequence_list.connect(SIGNAL("modified()")) { update_title }
 
-      scroll = Qt::ScrollArea.new()
-      scroll.setSizePolicy(Qt::SizePolicy::Preferred, Qt::SizePolicy::Expanding)
-      scroll.setWidgetResizable(true)
-      scroll.setWidget(@sequence_list)
-      connect(scroll.verticalScrollBar(), SIGNAL("valueChanged(int)"), @sequence_list, SLOT("update()"))
-      splitter.addWidget(scroll)
+      @scroll = Qt::ScrollArea.new()
+      @scroll.setSizePolicy(Qt::SizePolicy::Preferred, Qt::SizePolicy::Expanding)
+      @scroll.setWidgetResizable(true)
+      @scroll.setWidget(@sequence_list)
+      connect(@scroll.verticalScrollBar(), SIGNAL("valueChanged(int)"), @sequence_list, SLOT("update()"))
+      splitter.addWidget(@scroll)
 
       bottom_frame = Qt::Widget.new
       bottom_layout = Qt::VBoxLayout.new
@@ -268,6 +271,8 @@ module Cosmos
       if !filename.nil? && File.exist?(filename) && !File.directory?(filename)
         # Try to open and load the file. Errors are handled here.
         @sequence_list.open(filename)
+        @sequence_list.map {|item| item.show_ignored(@show_ignored.isChecked()) }
+        @sequence_list.map {|item| item.states_in_hex(@states_in_hex.isChecked()) }
         @filename = filename
         @sequence_dir = File.dirname(filename)
         @sequence_dir << '/' if @sequence_dir[-1..-1] != '/' and @sequence_dir[-1..-1] != '\\'
@@ -326,9 +331,9 @@ module Cosmos
         dialog_layout = Qt::VBoxLayout.new
 
         chooser = FileChooser.new(self, "Config File", config_file, 'Select',
-                                  File.join('config', 'tools', 'cmd_tlm_server', config_file))
+                                  File.dirname(config_file))
         chooser.callback = lambda do |filename|
-          chooser.filename = File.basename(filename)
+          chooser.filename = filename
         end
         dialog_layout.addWidget(chooser)
 
@@ -384,6 +389,8 @@ module Cosmos
       case @realtime_button_bar.state
       when 'Stopped'
         return unless prompt_for_save_if_needed()
+        # Collapse all items
+        @sequence_list.map {|item| item.collapse }
         @pause = false
         @go = false
         @realtime_button_bar.state = 'Running'
@@ -391,6 +398,7 @@ module Cosmos
         output_append("*** Sequence Started ***")
         @run_thread = Thread.new do
           @sequence_list.each do |item|
+            Qt.execute_in_main_thread { @scroll.ensureWidgetVisible(item) }
             execute_item(item)
           end
           # Since we're inside a new Ruby thread
@@ -437,7 +445,10 @@ module Cosmos
     # time and then sending the command via cmd_no_hazardous_check.
     # @param item [SequenceItem] Item to execute, e.g. send the command
     def execute_item(item)
-      Qt.execute_in_main_thread { item.setStyleSheet("color: green") }
+      Qt.execute_in_main_thread do
+        item.read_only(true)
+        item.setStyleSheet("color: green")
+      end
       result = process_delay(item)
       command = item.command_string
       result += command # += in case we added a warning above
@@ -445,10 +456,11 @@ module Cosmos
     rescue DRb::DRbConnError
       result = "Error Connecting to Command and Telemetry Server"
     rescue Exception => err
-      result = "Error sending #{target} #{packet} due to #{err}\n#{err.backtrace}"
+      result = "Error executing #{item.save} due to #{err}\n#{err.backtrace}"
     ensure
       Qt.execute_in_main_thread do
         item.setStyleSheet("")
+        item.read_only(false)
         output_append(result)
       end
     end
@@ -457,9 +469,10 @@ module Cosmos
     # @param item [SequenceItem] Item with given delay time
     def process_delay(item)
       result = ''
+      time = item.time
       # Check for item containing a date
-      if item.time.include?('/')
-        start_time = Time.parse(item.time)
+      if time.include?('/')
+        start_time = Time.parse(time)
         if start_time - Time.now > 0
           while start_time - Time.now > 0
             break if check_go_and_pause()
@@ -469,7 +482,7 @@ module Cosmos
         end
       else # Relative delay
         start = Time.now
-        while Time.now - start < item.time.to_f
+        while Time.now - start < time.to_f
           break if check_go_and_pause()
         end
       end
@@ -626,6 +639,7 @@ module Cosmos
 
     # Append string to the output with the current time
     def output_append(string)
+      return unless string
       Qt.execute_in_main_thread do
         string.split("\n").each do |line|
           @output.append(Time.now.sys.formatted + ':  ' + line)

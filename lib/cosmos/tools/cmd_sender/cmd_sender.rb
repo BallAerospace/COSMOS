@@ -444,7 +444,7 @@ module Cosmos
         if text == quotes_removed
           if (packet_item.data_type == :STRING or packet_item.data_type == :BLOCK) and text.upcase.start_with?("0X")
             params[packet_item.name] = text.hex_to_byte_string
-          else  
+          else
             params[packet_item.name] = text.convert_to_value
           end
         else

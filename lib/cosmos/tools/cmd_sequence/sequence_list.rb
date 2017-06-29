@@ -65,6 +65,7 @@ module Cosmos
 
     # Add a new SequenceItem to the list.
     # @param command [Packet] Command packet to base the SequenceItem on
+    # @return [SequenceItem] The item added
     def add(command)
       @modified = true
       item = SequenceItem.new(command)
@@ -76,6 +77,7 @@ module Cosmos
       end
       layout.addWidget(item)
       emit modified()
+      item
     end
 
     # Clear the list by removing all SequenceItems and disposing them
