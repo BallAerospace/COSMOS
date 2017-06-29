@@ -1446,6 +1446,7 @@
 <li class="toc-entry toc-h3"><a href="#enable_sound-cosmos-350">ENABLE_SOUND (COSMOS 3.5.0+)</a></li>
 <li class="toc-entry toc-h3"><a href="#allow_access">ALLOW_ACCESS</a></li>
 <li class="toc-entry toc-h3"><a href="#time_zone_utc-cosmos--3100">TIME_ZONE_UTC (COSMOS >= 3.10.0)</a></li>
+<li class="toc-entry toc-h3"><a href="#add_md5_file-cosmos--40">ADD_MD5_FILE (COSMOS >= 4.0)</a></li>
 <li class="toc-entry toc-h2"><a href="#target-configuration">Target Configuration</a></li>
 <li class="toc-entry toc-h2"><a href="#targettxt-keywords">target.txt Keywords</a></li>
 <li class="toc-entry toc-h3"><a href="#require">REQUIRE</a></li>
@@ -1758,6 +1759,31 @@ CMD_TLM_VERSION <span class="s1">'Version A'</span></code></pre></figure>
 <p>Example Usage:</p>
 
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">TIME_ZONE_UTC</code></pre></figure>
+
+<h3 id="add_md5_file-cosmos--40">
+<a id="add_md5_file-cosmos--40" class="anchor" href="#add_md5_file-cosmos--40" aria-hidden="true"><span class="octicon octicon-link"></span></a>ADD_MD5_FILE (COSMOS &gt;= 4.0)</h3>
+<p>The ADD_MD5_FILE keyword can be used to add a file to the set of files used in marshal file MD5 sum calculation.  Upon startup, COSMOS calculates an MD5 sum over the command/telemetry definition files for all targets.  After the definitions have been processed, COSMOS saves the resulting objects as marshal files in a folder with the MD5 sum as part of the name.  The next time COSMOS runs, if the MD5 checksum of the cmd/tlm definition files has not changed, COSMOS can load the marshal files instead of re-processing the definitions.  If a file is specified with the ADD_MD5_FILE keyword, COSMOS will include it in the MD5 sum calculation.  This means that a change in the file will cause COSMOS to re-process the cmd/tlm defintions and create a new set of marshal files.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Filename</td>
+      <td>Filename, either fully qualified, or relative to Cosmos::USERPATH</td>
+      <td>Yes</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">ADD_MD5_FILE lib/user_version.rb </code></pre></figure>
 
 <h2 id="target-configuration">
 <a id="target-configuration" class="anchor" href="#target-configuration" aria-hidden="true"><span class="octicon octicon-link"></span></a>Target Configuration</h2>

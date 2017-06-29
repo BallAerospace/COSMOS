@@ -174,6 +174,18 @@ Example Usage:
 TIME_ZONE_UTC
 {% endhighlight %}
 
+### ADD_MD5_FILE (COSMOS >= 4.0)
+The ADD_MD5_FILE keyword can be used to add a file to the set of files used in marshal file MD5 sum calculation.  Upon startup, COSMOS calculates an MD5 sum over the command/telemetry definition files for all targets.  After the definitions have been processed, COSMOS saves the resulting objects as marshal files in a folder with the MD5 sum as part of the name.  The next time COSMOS runs, if the MD5 checksum of the cmd/tlm definition files has not changed, COSMOS can load the marshal files instead of re-processing the definitions.  If a file is specified with the ADD_MD5_FILE keyword, COSMOS will include it in the MD5 sum calculation.  This means that a change in the file will cause COSMOS to re-process the cmd/tlm defintions and create a new set of marshal files. 
+
+| Parameter | Description | Required |
+| --------- | ----------- | -------- |
+| Filename | Filename, either fully qualified, or relative to Cosmos::USERPATH | Yes |
+
+Example Usage:
+{% highlight bash %}
+ADD_MD5_FILE lib/user_version.rb 
+{% endhighlight %}
+
 ## Target Configuration
 Each target is self contained in a target directory named after the target and placed in the config/targets directory. In the target directory there is a configuration file named target.txt which configures the individual target.
 
