@@ -70,7 +70,7 @@ module Cosmos
     $VERBOSE = saved_verbose
   end
 
-  # Searches for the /config/system and /config/targets directories to define 
+  # Searches for the /config/system and /config/targets directories to define
   # the USERPATH constant
   #
   # @param start_dir [String] Path to start the search for the /config/system
@@ -79,7 +79,7 @@ module Cosmos
   def self.define_user_path(start_dir = Dir.pwd)
     current_dir = File.expand_path(start_dir)
     while true
-      if File.exist?(File.join(current_dir, 'config', 'system')) and 
+      if File.exist?(File.join(current_dir, 'config', 'system')) and
          File.exist?(File.join(current_dir, 'config', 'targets'))
         disable_warnings do
           Cosmos.const_set(:USERPATH, current_dir)
@@ -596,7 +596,7 @@ module Cosmos
   # @param log_error [Boolean] Whether to log an error if we can not require
   #   the class
   def self.require_class(class_name_or_class_filename, log_error = true)
-    if class_name_or_class_filename.downcase[-3..-1] == '.rb'
+    if class_name_or_class_filename.downcase[-3..-1] == '.rb' or (class_name_or_class_filename[0] == class_name_or_class_filename[0].downcase)
       class_filename = class_name_or_class_filename
       class_name = class_filename.filename_to_class_name
     else
