@@ -23,6 +23,7 @@ module Cosmos
     end
 
     def reset
+      super()
       @reduction_state = :START
     end
 
@@ -30,7 +31,7 @@ module Cosmos
       packet.received_time = @received_time
       packet.target_name = @target_name
       packet.packet_name = @packet_name
-      return packet, nil
+      return packet
     end
 
     def write_packet(packet)
@@ -42,7 +43,7 @@ module Cosmos
       @target_name = 'UNKNOWN' unless @target_name
       @packet_name = packet.packet_name
       @packet_name = 'UNKNOWN' unless @packet_name
-      return packet, nil
+      return packet
     end
 
     def write_data(data)
@@ -57,14 +58,14 @@ module Cosmos
       data_to_send << @packet_name
       data_to_send << data_length
       data_to_send << data
-      return data_to_send, nil
+      return data_to_send
     end
 
     protected
 
     def read_length_field_followed_by_string(length_num_bytes)
       # Read bytes for string length
-      return nil, :STOP if @data.length < length_num_bytes
+      return :STOP if @data.length < length_num_bytes
       string_length = @data[0..(length_num_bytes - 1)]
 
       case length_num_bytes
@@ -80,27 +81,31 @@ module Cosmos
       end
 
       # Read String
-      return nil, :STOP if @data.length < (string_length + length_num_bytes)
+      return :STOP if @data.length < (string_length + length_num_bytes)
       next_index = string_length + length_num_bytes
       string = @data[length_num_bytes..(next_index - 1)]
 
       # Remove data from current_data
       @data.replace(@data[next_index..-1])
 
-      return string, nil
+      return string
     end
 
     def reduce_to_single_packet
       # Discard sync pattern if present
-      if @sync_pattern and @reduction_state == :START
-        return nil, :STOP if @data.length < @sync_pattern.length
-        @data.replace(@data[(@sync_pattern.length)..-1])
+      if @sync_pattern
+        if @reduction_state == :START
+          return :STOP if @data.length < @sync_pattern.length
+          @data.replace(@data[(@sync_pattern.length)..-1])
+          @reduction_state = :SYNC_REMOVED
+        end
+      elsif @reduction_state == :START
         @reduction_state = :SYNC_REMOVED
       end
 
       # Read and remove packet received time
       if @reduction_state == :SYNC_REMOVED
-        return nil, :STOP if @data.length < 8
+        return :STOP if @data.length < 8
         time_seconds = @data[0..3].unpack('N')[0] # UINT32
         time_microseconds = @data[4..7].unpack('N')[0] # UINT32
         @received_time = Time.at(time_seconds, time_microseconds).sys
@@ -110,27 +115,27 @@ module Cosmos
 
       if @reduction_state == :TIME_REMOVED
         # Read and remove the target name
-        @target_name, control = read_length_field_followed_by_string(1)
-        return nil, control if control
+        @target_name = read_length_field_followed_by_string(1)
+        return :STOP if @target_name == :STOP
         @reduction_state = :TARGET_NAME_REMOVED
       end
 
       if @reduction_state == :TARGET_NAME_REMOVED
         # Read and remove the packet name
-        @packet_name, control = read_length_field_followed_by_string(1)
-        return nil, control if control
+        @packet_name = read_length_field_followed_by_string(1)
+        return :STOP if @packet_name == :STOP
         @reduction_state = :PACKET_NAME_REMOVED
       end
 
       if @reduction_state == :PACKET_NAME_REMOVED
         # Read packet data and return
-        packet_data, control = read_length_field_followed_by_string(4)
-        return nil, control if control
+        packet_data = read_length_field_followed_by_string(4)
+        return :STOP if packet_data == :STOP
         @reduction_state = :START
-        return packet_data, nil
+        return packet_data
       end
 
-      raise "Error should never reach end of method"
+      raise "Error should never reach end of method #{@reduction_state}"
     end
   end
 end

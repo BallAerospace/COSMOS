@@ -49,7 +49,7 @@ module Cosmos
       @write_termination_characters.each_byte do |byte|
         data << byte
       end
-      return data, nil
+      return data
     end
 
     protected
@@ -69,9 +69,9 @@ module Cosmos
           packet_data = ''
         end
         @data.replace(@data[(index + @read_termination_characters.length)..-1])
-        return packet_data, nil
+        return packet_data
       else
-        return nil, :STOP
+        return :STOP
       end
     end
   end

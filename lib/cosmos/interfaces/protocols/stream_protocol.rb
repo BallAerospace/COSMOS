@@ -37,6 +37,7 @@ module Cosmos
     end
 
     def reset
+      super()
       @data = ''
       @data.force_encoding('ASCII-8BIT')
       @sync_state = :SEARCHING
@@ -52,17 +53,17 @@ module Cosmos
       @data << data
 
       control = handle_sync_pattern()
-      return nil, control if control
+      return control if control
 
       # Reduce the data to a single packet
-      packet_data, control = reduce_to_single_packet()
-      return nil, control if control
+      packet_data = reduce_to_single_packet()
+      return packet_data if Symbol === packet_data
       @sync_state = :SEARCHING
 
       # Discard leading bytes if necessary
       packet_data.replace(packet_data[@discard_leading_bytes..-1]) if @discard_leading_bytes > 0
 
-      return packet_data, nil
+      return packet_data
     end
 
     # Called to perform modifications on a command packet before it is sent
@@ -78,7 +79,7 @@ module Cosmos
         BinaryAccessor.write(@sync_pattern, 0, @sync_pattern.length * 8, :BLOCK,
                              packet.buffer(false), :BIG_ENDIAN, :ERROR)
       end
-      return packet, nil
+      return packet
     end
 
     # Called to perform modifications on write data before sending it to the stream
@@ -96,10 +97,10 @@ module Cosmos
         BinaryAccessor.write(@sync_pattern, 0, @sync_pattern.length * 8, :BLOCK,
                              data, :BIG_ENDIAN, :ERROR)
       end
-      return data, nil
+      return data
     end
 
-    # @return [Boolean] control code (nil, :STOP, :DISCONNECT)
+    # @return [Boolean] control code (nil, :STOP)
     def handle_sync_pattern
       if @sync_pattern and @sync_state == :SEARCHING
         loop do
@@ -167,14 +168,14 @@ module Cosmos
     def reduce_to_single_packet
       if @data.length <= 0
         # Need some data
-        return nil, :STOP
+        return :STOP
       end
 
       # Reduce to packet data and clear data for next packet
       packet_data = @data.clone
       @data.replace('')
 
-      return packet_data, nil
+      return packet_data
     end
   end
 end

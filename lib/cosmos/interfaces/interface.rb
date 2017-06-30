@@ -97,6 +97,9 @@ module Cosmos
     # @return [Array<[Protocol Class, Protocol Args, Protocol kind (:READ, :WRITE, :READ_WRITE)>] Info to recreate protocols
     attr_accessor :protocol_info
 
+    # @return [Hash or nil] Hash of overridden telemetry points
+    attr_accessor :override_tlm
+
     # Initialize default attribute values
     def initialize
       @name = self.class.to_s.split("::")[-1] # Remove namespacing if present
@@ -126,6 +129,7 @@ module Cosmos
       @read_protocols = []
       @write_protocols = []
       @protocol_info = []
+      @override_tlm = nil
     end
 
     # Connects the interface to its target(s). Must be implemented by a
@@ -163,24 +167,23 @@ module Cosmos
       loop do
         # Read data for a packet
         data = read_interface()
-        control = nil
+        return nil unless data
         @read_protocols.each do |protocol|
-          data, control = protocol.read_data(data)
-          return nil if control == :DISCONNECT # Disconnect handled by thread
-          break if control == :STOP
+          data = protocol.read_data(data)
+          return nil if data == :DISCONNECT # Disconnect handled by thread
+          break if data == :STOP
         end
-        next if control == :STOP
+        next if data == :STOP
 
         packet = convert_data_to_packet(data)
 
         # Potentially modify packet
-        control = nil
         @read_protocols.each do |protocol|
-          packet, control = protocol.read_packet(packet)
-          return nil if control == :DISCONNECT # Disconnect handled by thread
-          break if control == :STOP
+          packet = protocol.read_packet(packet)
+          return nil if packet == :DISCONNECT # Disconnect handled by thread
+          break if packet == :STOP
         end
-        next if control == :STOP
+        next if packet == :STOP
 
         # Return packet
         @read_count += 1
@@ -200,44 +203,42 @@ module Cosmos
         @write_count += 1
 
         # Potentially modify packet
-        packet = nil
-        control = nil
         @write_protocols.each do |protocol|
-          packet, control = protocol.write_packet(packet)
-          if control == :DISCONNECT
+          packet = protocol.write_packet(packet)
+          if packet == :DISCONNECT
             disconnect()
             return
           end
-          return if control == :STOP
+          return if packet == :STOP
         end
 
         data = convert_packet_to_data(packet)
 
         # Potentially modify packet data
-        control = nil
         @write_protocols.each do |protocol|
-          data, control = protocol.write_data(data)
-          if control == :DISCONNECT
+          data = protocol.write_data(data)
+          if data == :DISCONNECT
             disconnect()
             return
           end
-          return if control == :STOP
+          return if data == :STOP
         end
 
         # Actually write out data if not handled by protocol
         write_interface(data)
 
         # Potentially block and wait for response
-        control = nil
         @write_protocols.each do |protocol|
-          packet, data, control = protocol.post_write_interface(packet, data)
-          if control == :DISCONNECT
+          packet, data = protocol.post_write_interface(packet, data)
+          if packet == :DISCONNECT
             disconnect()
             return
           end
-          return if control == :STOP
+          return if packet == :STOP
         end
       end
+
+      return nil
     end
 
     # Writes preformatted data onto the interface. Malformed data may cause
@@ -297,8 +298,8 @@ module Cosmos
     #
     # @param other_interface [Interface] The other interface to copy to
     def copy_to(other_interface)
-      other_interface.name = name.clone
-      other_interface.target_names = target_names.clone
+      other_interface.name = self.name.clone
+      other_interface.target_names = self.target_names.clone
       # The other interface has its own Thread
       other_interface.connect_on_startup = self.connect_on_startup
       other_interface.auto_reconnect = self.auto_reconnect
@@ -315,9 +316,14 @@ module Cosmos
       # num_clients is per interface so don't copy
       # read_queue_size is the number of packets in the queue so don't copy
       # write_queue_size is the number of packets in the queue so don't copy
-      other_interface.interfaces = interfaces.clone
-      other_interface.options = options.clone
-      other_interface.protocol_params = protocol_params.clone
+      other_interface.interfaces = self.interfaces.clone
+      other_interface.options = self.options.clone
+      other_interface.protocol_info = []
+      self.protocol_info.each do |protocol_class, protocol_args, read_write|
+        other_interface.add_protocol(protocol_class, protocol_args, read_write)
+      end
+      other_interface.override_tlm = nil
+      other_interface.override_tlm = self.override_tlm.clone if self.override_tlm
     end
 
     # Set an interface or router specific option
@@ -381,6 +387,7 @@ module Cosmos
         @write_protocols.unshift(protocol)
       end
       @protocol_info << [protocol_class, protocol_args, read_write]
+      protocol.interface = self
     end
 
     def _override_tlm(target_name, packet_name, item_name, value)

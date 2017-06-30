@@ -33,23 +33,23 @@ module Cosmos
     end
 
     def read_data(data)
-      return data, nil
+      return data
     end
 
     def read_packet(packet)
-      return packet, nil
+      return packet
     end
 
     def write_packet(packet)
-      return packet, nil
+      return packet
     end
 
     def write_data(data)
-      return data, nil
+      return data
     end
 
     def post_write_interface(packet, data)
-      return packet, data, nil
+      return packet, data
     end
   end
 end

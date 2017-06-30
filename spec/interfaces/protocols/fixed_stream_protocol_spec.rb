@@ -16,9 +16,9 @@ require 'cosmos/streams/stream'
 module Cosmos
   describe FixedStreamProtocol do
     before(:each) do
-      @interface = Interface.new
-      @interface.extend(FixedStreamProtocol)
+      @interface = StreamInterface.new
       allow(@interface).to receive(:connected?) { true }
+      allow(@interface).to receive(:disconnect) { nil }
     end
 
     after(:each) do
@@ -27,13 +27,13 @@ module Cosmos
 
     describe "initialize" do
       it "initializes attributes" do
-        @interface.configure_stream_protocol(2, 1, '0xDEADBEEF', false, true)
-        expect(@interface.instance_variable_get(:@data)).to eq ''
-        expect(@interface.instance_variable_get(:@min_id_size)).to eq 2
-        expect(@interface.instance_variable_get(:@discard_leading_bytes)).to eq 1
-        expect(@interface.instance_variable_get(:@sync_pattern)).to eq "\xDE\xAD\xBE\xEF"
-        expect(@interface.instance_variable_get(:@telemetry_stream)).to be false
-        expect(@interface.instance_variable_get(:@fill_fields)).to be true
+        @interface.add_protocol(FixedStreamProtocol, [2, 1, '0xDEADBEEF', false, true], :READ_WRITE)
+        expect(@interface.read_protocols[0].instance_variable_get(:@data)).to eq ''
+        expect(@interface.read_protocols[0].instance_variable_get(:@min_id_size)).to eq 2
+        expect(@interface.read_protocols[0].instance_variable_get(:@discard_leading_bytes)).to eq 1
+        expect(@interface.read_protocols[0].instance_variable_get(:@sync_pattern)).to eq "\xDE\xAD\xBE\xEF"
+        expect(@interface.read_protocols[0].instance_variable_get(:@telemetry_stream)).to be false
+        expect(@interface.read_protocols[0].instance_variable_get(:@fill_fields)).to be true
       end
     end
 
@@ -45,8 +45,8 @@ module Cosmos
       end
 
       it "reads telemetry data from the stream" do
+        @interface.add_protocol(FixedStreamProtocol, [1], :READ_WRITE)
         @interface.instance_variable_set(:@stream, FixedStream.new)
-        @interface.configure_stream_protocol(1)
         @interface.target_names = ['SYSTEM']
         packet = @interface.read
         expect(packet.received_time.to_f).to be_within(0.1).of(Time.now.to_f)
@@ -79,8 +79,8 @@ module Cosmos
             end
           end
         end
+        @interface.add_protocol(FixedStreamProtocol, [8, 0, '0x1ACFFC1D', false], :READ_WRITE)
         @interface.instance_variable_set(:@stream, FixedStream.new)
-        @interface.configure_stream_protocol(8, 0, '0x1ACFFC1D', false)
         @interface.target_names = ['SYSTEM']
         packet = @interface.read
         expect(packet.received_time.to_f).to be_within(0.01).of(Time.now.to_f)

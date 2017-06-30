@@ -541,7 +541,6 @@ module Cosmos
       cvt_packet.received_time = received_time
 
       # The interface does the following line, but I don't think inject_tlm should because it could confuse the interface
-      # interface.post_identify_packet(packet)
       target.tlm_cnt += 1
       packet.received_count += 1
       cvt_packet.received_count += 1

@@ -52,12 +52,13 @@ module Cosmos
 
     # @return [Packet] Returns a simulated target packet from the simulator
     def read
+      packet = nil
       if @connected
         packet = first_pending_packet()
 
         # This is just to support the override functionality
         # Generic protocol use is not supported
-        packet, _ = @read_protocols[0].read_packet(packet)
+        packet = @read_protocols[0].read_packet(packet)
 
         while true
           # Calculate time to sleep to make ticks 10ms apart
@@ -76,10 +77,12 @@ module Cosmos
           @count_100hz += 1
 
           packet = first_pending_packet()
+          return packet if packet
         end
       else
         raise "Interface not connected"
       end
+      return packet
     end
 
     # @param packet [Packet] Command packet to send to the simulator
@@ -90,7 +93,6 @@ module Cosmos
         @bytes_written += packet.buffer.length
 
         # Have simulated target handle the packet
-        packet = pre_write_packet(packet)
         @sim_target.write(packet)
       else
         raise "Interface not connected"

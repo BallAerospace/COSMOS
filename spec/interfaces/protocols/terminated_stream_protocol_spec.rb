@@ -24,16 +24,15 @@ module Cosmos
     end
 
     before(:each) do
-      @interface = Interface.new
-      @interface.extend(TerminatedStreamProtocol)
+      @interface = StreamInterface.new
       allow(@interface).to receive(:connected?) { true }
       $buffer = ''
     end
 
     describe "initialize" do
       it "initializes attributes" do
-        @interface.configure_stream_protocol('0xABCD','0xABCD')
-        expect(@interface.instance_variable_get(:@data)).to eq ''
+        @interface.add_protocol(TerminatedStreamProtocol, ['0xABCD','0xABCD'], :READ_WRITE)
+        expect(@interface.read_protocols[0].instance_variable_get(:@data)).to eq ''
       end
     end
 
@@ -41,7 +40,7 @@ module Cosmos
       context "when stripping termination characters" do
         it "handles no sync pattern" do
           @interface.instance_variable_set(:@stream, TerminatedStream.new)
-          @interface.configure_stream_protocol('', '0xABCD', true)
+          @interface.add_protocol(TerminatedStreamProtocol, ['', '0xABCD', true], :READ_WRITE)
           $buffer = "\x00\x01\x02\xAB\xCD\x44\x02\x03"
           packet = @interface.read
           expect(packet.buffer).to eql("\x00\x01\x02")
@@ -49,7 +48,7 @@ module Cosmos
 
         it "handles a sync pattern inside the packet" do
           @interface.instance_variable_set(:@stream, TerminatedStream.new)
-          @interface.configure_stream_protocol('', '0xABCD', true, 0, 'DEAD')
+          @interface.add_protocol(TerminatedStreamProtocol, ['', '0xABCD', true, 0, 'DEAD'], :READ_WRITE)
           $buffer = "\xDE\xAD\x00\x01\x02\xAB\xCD\x44\x02\x03"
           packet = @interface.read
           expect(packet.buffer).to eql("\xDE\xAD\x00\x01\x02")
@@ -57,7 +56,7 @@ module Cosmos
 
         it "handles a sync pattern outside the packet" do
           @interface.instance_variable_set(:@stream, TerminatedStream.new)
-          @interface.configure_stream_protocol('', '0xABCD', true, 2, 'DEAD')
+          @interface.add_protocol(TerminatedStreamProtocol, ['', '0xABCD', true, 2, 'DEAD'], :READ_WRITE)
           $buffer = "\xDE\xAD\x00\x01\x02\xAB\xCD\x44\x02\x03"
           packet = @interface.read
           expect(packet.buffer).to eql("\x00\x01\x02")
@@ -67,7 +66,7 @@ module Cosmos
       context "when keeping termination characters" do
         it "handles no sync pattern" do
           @interface.instance_variable_set(:@stream, TerminatedStream.new)
-          @interface.configure_stream_protocol('', '0xABCD', false)
+          @interface.add_protocol(TerminatedStreamProtocol, ['', '0xABCD', false], :READ_WRITE)
           $buffer = "\x00\x01\x02\xAB\xCD\x44\x02\x03"
           packet = @interface.read
           expect(packet.buffer).to eql("\x00\x01\x02\xAB\xCD")
@@ -75,7 +74,7 @@ module Cosmos
 
         it "handles a sync pattern inside the packet" do
           @interface.instance_variable_set(:@stream, TerminatedStream.new)
-          @interface.configure_stream_protocol('','0xABCD',false,0,'DEAD')
+          @interface.add_protocol(TerminatedStreamProtocol, ['','0xABCD',false,0,'DEAD'], :READ_WRITE)
           $buffer = "\xDE\xAD\x00\x01\x02\xAB\xCD\x44\x02\x03"
           packet = @interface.read
           expect(packet.buffer).to eql("\xDE\xAD\x00\x01\x02\xAB\xCD")
@@ -83,7 +82,7 @@ module Cosmos
 
         it "handles a sync pattern outside the packet" do
           @interface.instance_variable_set(:@stream, TerminatedStream.new)
-          @interface.configure_stream_protocol('','0xABCD',false,2,'DEAD')
+          @interface.add_protocol(TerminatedStreamProtocol, ['','0xABCD',false,2,'DEAD'], :READ_WRITE)
           $buffer = "\xDE\xAD\x00\x01\x02\xAB\xCD\x44\x02\x03"
           packet = @interface.read
           expect(packet.buffer).to eql("\x00\x01\x02\xAB\xCD")
@@ -94,7 +93,7 @@ module Cosmos
     describe "write" do
       it "appends termination characters to the packet" do
         @interface.instance_variable_set(:@stream, TerminatedStream.new)
-        @interface.configure_stream_protocol('0xCDEF','')
+        @interface.add_protocol(TerminatedStreamProtocol, ['0xCDEF',''], :READ_WRITE)
         pkt = Packet.new('tgt','pkt')
         pkt.buffer = "\x00\x01\x02\x03"
         @interface.write(pkt)
@@ -103,7 +102,7 @@ module Cosmos
 
       it "complains if the packet buffer contains the termination characters" do
         @interface.instance_variable_set(:@stream, TerminatedStream.new)
-        @interface.configure_stream_protocol('0xCDEF','')
+        @interface.add_protocol(TerminatedStreamProtocol, ['0xCDEF',''], :READ_WRITE)
         pkt = Packet.new('tgt','pkt')
         pkt.buffer = "\x00\xCD\xEF\x03"
         expect { @interface.write(pkt) }.to raise_error("Packet contains termination characters!")
@@ -111,7 +110,7 @@ module Cosmos
 
       it "handles writing the sync field inside the packet" do
         @interface.instance_variable_set(:@stream, TerminatedStream.new)
-        @interface.configure_stream_protocol('0xCDEF','',true,0,'DEAD',true)
+        @interface.add_protocol(TerminatedStreamProtocol, ['0xCDEF','',true,0,'DEAD',true], :READ_WRITE)
         pkt = Packet.new('tgt','pkt')
         pkt.buffer = "\x00\x01\x02\x03"
         @interface.write(pkt)
@@ -120,7 +119,7 @@ module Cosmos
 
       it "handles writing the sync field outside the packet" do
         @interface.instance_variable_set(:@stream, TerminatedStream.new)
-        @interface.configure_stream_protocol('0xCDEF','',true,2,'DEAD',true)
+        @interface.add_protocol(TerminatedStreamProtocol, ['0xCDEF','',true,2,'DEAD',true], :READ_WRITE)
         pkt = Packet.new('tgt','pkt')
         pkt.buffer = "\x00\x01\x02\x03"
         @interface.write(pkt)

@@ -66,6 +66,7 @@ module Cosmos
     end
 
     def reset
+      super()
       @initial_read_delay_needed = true
     end
 
@@ -88,50 +89,60 @@ module Cosmos
       # Drop all data until the initial_read_delay is complete.   This gets rid of unused welcome messages,
       # prompts, and other junk on initial connections
       if @initial_read_delay and @initial_read_delay_needed and @connect_complete_time
-        return nil, :STOP if Time.now < @connect_complete_time
+        return :STOP if Time.now < @connect_complete_time
         @initial_read_delay_needed = false
       end
       super(data)
     end
 
     def read_packet(packet)
-      # If lines make it this far they are part of a response
-      @response_packets << packet
-      return nil, :STOP if @response_packets.length < (@ignore_lines + @response_lines)
+      if @response_template && @response_packet
+        # If lines make it this far they are part of a response
+        @response_packets << packet
+        return :STOP if @response_packets.length < (@ignore_lines + @response_lines)
 
-      @ignore_lines.times do
-        @response_packets.pop
+        @ignore_lines.times do
+          @response_packets.pop
+        end
+        response_string = ''
+        @response_lines.times do
+          response = @response_packets.pop
+          response_string << response.buffer
+        end
+
+        # Grab the response packet specified in the command
+        result_packet = System.telemetry.packet(@interface.target_names[0], @response_packet).clone
+        result_packet.received_time = nil
+
+        # Convert the response template into a Regexp
+        response_item_names = []
+        response_template = @response_template.clone
+        response_template_items = @response_template.scan(/<.*?>/)
+        response_template_items.each do |item|
+          response_item_names << item[1..-2]
+          response_template.gsub!(item, "(.*)")
+        end
+        response_regexp = Regexp.new(response_template)
+
+        # Scan the response for the variables in brackets <VARIABLE>
+        # Write the packet value with each of the values received
+        response_values = response_string.scan(response_regexp)[0]
+        raise "Unexpected response received: #{response_string}" if !response_values or (response_values.length != response_item_names.length)
+        response_values.each_with_index do |value, i|
+          result_packet.write(response_item_names[i], value)
+        end
+
+        @response_packets.clear
+
+        # Release the write
+        if @response_template && @response_packet
+          @write_block_queue << nil
+        end
+
+        return result_packet
+      else
+        return :STOP
       end
-      response_string = ''
-      @response_lines.times do
-        response = @response_packets.pop
-        response_string << response.buffer
-      end
-
-      # Grab the response packet specified in the command
-      result_packet = System.telemetry.packet(@target_names[0], @response_packet).clone
-      result_packet.received_time = nil
-
-      # Convert the response template into a Regexp
-      response_item_names = []
-      response_template = @response_template.clone
-      response_template_items = @response_template.scan(/<.*?>/)
-      response_template_items.each do |item|
-        response_item_names << item[1..-2]
-        response_template.gsub!(item, "(.*)")
-      end
-      response_regexp = Regexp.new(response_template)
-
-      # Scan the response for the variables in brackets <VARIABLE>
-      # Write the packet value with each of the values received
-      response_values = response_string.scan(response_regexp)[0]
-      raise "Unexpected response received: #{response_string}" if !response_values or (response_values.length != response_item_names.length)
-      response_values.each_with_index do |value, i|
-        result_packet.write(response_item_names[i], value)
-      end
-
-      @response_packets.clear
-      return result_packet, nil
     end
 
     def write_packet(packet)
@@ -156,8 +167,8 @@ module Cosmos
       # Create a new packet to populate with the template
       raw_packet = Packet.new(nil, nil)
       raw_packet.buffer = @template
-      raw_packet, control = super(raw_packet)
-      return nil, control if control
+      raw_packet = super(raw_packet)
+      return raw_packet if Symbol === raw_packet
 
       data = raw_packet.buffer(false)
       # Scan the template for variables in brackets <VARIABLE>
@@ -166,7 +177,7 @@ module Cosmos
         data.gsub!("<#{variable[0]}>", packet.read(variable[0], :RAW).to_s)
       end
 
-      return raw_packet, nil
+      return raw_packet
     end
 
     def post_write_interface(packet, data)

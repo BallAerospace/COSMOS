@@ -21,14 +21,14 @@ module Cosmos
     # @param packet [Packet] Original packet
     # @return [Packet] Potentially modified packet
     def read_packet(packet)
-      if @override_tlm && !@override_tlm.empty?
+      if @interface.override_tlm && !@interface.override_tlm.empty?
         # Need to make sure packet is identified and defined
         target_names = nil
         target_names = @interface.target_names if @interface
         identified_packet = System.telemetry.identify_and_define_packet(packet, target_names)
         if identified_packet
           packet = identified_packet
-          packets = @override_tlm[packet.target_name]
+          packets = @interface.override_tlm[packet.target_name]
           if packets
             items = packets[packet.packet_name]
             if items
@@ -40,7 +40,7 @@ module Cosmos
           end
         end
       end
-      return packet, nil
+      return packet
     end
   end
 end

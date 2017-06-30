@@ -376,6 +376,7 @@ module Cosmos
       stream = TcpipSocketStream.new(write_socket, read_socket, @write_timeout, @read_timeout)
 
       interface = StreamInterface.new
+      interface.target_names = @target_names
       if @raw_logger_pair
         interface.raw_logger_pair = @raw_logger_pair.clone
         interface.raw_logger_pair.start if @raw_logging_enabled

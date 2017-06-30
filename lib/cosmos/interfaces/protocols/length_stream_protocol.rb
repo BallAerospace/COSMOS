@@ -91,8 +91,7 @@ module Cosmos
                                packet.buffer(false), @length_endianness, :ERROR)
         end
       end
-      packet = super(packet) # Allow stream_protocol to set the sync if needed
-      return packet, nil
+      return super(packet) # Allow stream_protocol to set the sync if needed
     end
 
     # Called to perform modifications on write data before making it into a packet
@@ -116,8 +115,7 @@ module Cosmos
                                data, @length_endianness, :ERROR)
         end
       end
-      data = super(data) # Allow stream_protocol to set the sync if needed
-      return data, nil
+      return super(data) # Allow stream_protocol to set the sync if needed
     end
 
     protected
@@ -133,7 +131,7 @@ module Cosmos
 
     def reduce_to_single_packet
       # Make sure we have at least enough data to reach the length field
-      return nil, :STOP if @data.length < @length_bytes_needed
+      return :STOP if @data.length < @length_bytes_needed
 
       # Determine the packet's length
       length = BinaryAccessor.read(@length_bit_offset,
@@ -145,13 +143,13 @@ module Cosmos
       packet_length = (length * @length_bytes_per_count) + @length_value_offset
 
       # Make sure we have enough data for the packet
-      return nil, :STOP if @data.length < packet_length
+      return:STOP if @data.length < packet_length
 
       # Reduce to packet data and setup current_data for next packet
       packet_data = @data[0..(packet_length - 1)]
       @data.replace(@data[packet_length..-1])
 
-      return packet_data, nil
+      return packet_data
     end
   end
 end

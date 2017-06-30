@@ -113,18 +113,19 @@ module Cosmos
       @thread_sleeper = nil
     end
 
+    def read
+      return super() if @read_port
+      # Write only interface so stop the thread which calls read
+      @thread_sleeper = Sleeper.new
+      @thread_sleeper.sleep(1_000_000_000) while connected?
+      return nil
+    end
+
     # Reads from the socket if the read_port is defined
     def read_interface
-      if @read_port
-        data = @read_socket.read(@read_timeout)
-        read_interface_base(data)
-        return data
-      else
-        # Write only interface so stop the thread which calls read
-        @thread_sleeper = Sleeper.new
-        @thread_sleeper.sleep(1_000_000_000) while connected?
-        return nil
-      end
+      data = @read_socket.read(@read_timeout)
+      read_interface_base(data)
+      return data
     rescue IOError # Disconnected
       return nil
     end

@@ -17,8 +17,7 @@ module Cosmos
   describe PreidentifiedStreamProtocol do
     before(:each) do
       $buffer = ''
-      @interface = Interface.new
-      @interface.extend(PreidentifiedStreamProtocol)
+      @interface = StreamInterface.new
       allow(@interface).to receive(:connected?) { true }
     end
 
@@ -36,7 +35,7 @@ module Cosmos
 
     it "handles receiving a bad packet length" do
       @interface.instance_variable_set(:@stream, PreStream.new)
-      @interface.configure_stream_protocol(nil, 5)
+      @interface.add_protocol(PreidentifiedStreamProtocol, [nil, 5], :READ_WRITE)
       pkt = System.telemetry.packet("SYSTEM","META")
       time = Time.new(2020,1,31,12,15,30.5)
       pkt.received_time = time
@@ -46,17 +45,17 @@ module Cosmos
 
     describe "initialize" do
       it "initializes attributes" do
-        @interface.configure_stream_protocol('0xDEADBEEF', 100)
-        expect(@interface.instance_variable_get(:@data)).to eq ''
-        expect(@interface.instance_variable_get(:@sync_pattern)).to eq "\xDE\xAD\xBE\xEF"
-        expect(@interface.instance_variable_get(:@max_length)).to eq 100
+        @interface.add_protocol(PreidentifiedStreamProtocol, ['0xDEADBEEF', 100], :READ_WRITE)
+        expect(@interface.read_protocols[0].instance_variable_get(:@data)).to eq ''
+        expect(@interface.read_protocols[0].instance_variable_get(:@sync_pattern)).to eq "\xDE\xAD\xBE\xEF"
+        expect(@interface.read_protocols[0].instance_variable_get(:@max_length)).to eq 100
       end
     end
 
     describe "write" do
       it "creates a packet header" do
         @interface.instance_variable_set(:@stream, PreStream.new)
-        @interface.configure_stream_protocol(nil, 5)
+        @interface.add_protocol(PreidentifiedStreamProtocol, [nil, 5], :READ_WRITE)
         pkt = System.telemetry.packet("SYSTEM","META")
         time = Time.new(2020,1,31,12,15,30.5)
         pkt.received_time = time
@@ -79,7 +78,7 @@ module Cosmos
 
       it "handles a sync pattern" do
         @interface.instance_variable_set(:@stream, PreStream.new)
-        @interface.configure_stream_protocol("DEAD")
+        @interface.add_protocol(PreidentifiedStreamProtocol, ["DEAD"], :READ_WRITE)
         pkt = System.telemetry.packet("SYSTEM","META")
         time = Time.new(2020,1,31,12,15,30.5)
         pkt.received_time = time
@@ -105,7 +104,7 @@ module Cosmos
     describe "read" do
       it "returns a packet" do
         @interface.instance_variable_set(:@stream, PreStream.new)
-        @interface.configure_stream_protocol()
+        @interface.add_protocol(PreidentifiedStreamProtocol, [], :READ_WRITE)
         pkt = System.telemetry.packet("SYSTEM","META")
         pkt.write("COSMOS_VERSION", "TEST")
         time = Time.new(2020,1,31,12,15,30.5)

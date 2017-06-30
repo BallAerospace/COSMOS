@@ -14,7 +14,14 @@ require 'cosmos/interfaces/protocols/override_protocol'
 
 module Cosmos
   describe OverrideProtocol do
-    let(:interface) { Interface.new.extend(OverrideProtocol) }
+    let(:interface) do
+      interface = Interface.new
+      class << interface
+        def read_interface; ""; end
+      end
+      interface.add_protocol(OverrideProtocol, [], :READ)
+      interface
+    end
 
     it "overrides INT values" do
       pkt = Packet.new("TGT","PKT")
@@ -25,12 +32,12 @@ module Cosmos
 
       interface._override_tlm_raw("TGT","PKT","ITEM",-10)
       pkt.write("ITEM", 0, :RAW)
-      interface.post_read_packet(pkt)
+      pkt = interface.read_protocols[0].read_packet(pkt)
       expect(pkt.read("ITEM")).to eql(-20)
 
       interface._override_tlm("TGT","PKT","ITEM",-10) # Write conversion writes -40
       pkt.write("ITEM", 0, :RAW)
-      interface.post_read_packet(pkt)
+      pkt = interface.read_protocols[0].read_packet(pkt)
       expect(pkt.read("ITEM")).to eql(-80) # Read conversion reads -80
     end
 
@@ -43,12 +50,12 @@ module Cosmos
 
       interface._override_tlm_raw("TGT","PKT","ITEM",10)
       pkt.write("ITEM", 0, :RAW)
-      interface.post_read_packet(pkt)
+      pkt = interface.read_protocols[0].read_packet(pkt)
       expect(pkt.read("ITEM")).to eql(20)
 
       interface._override_tlm("TGT","PKT","ITEM",10) # Write conversion writes 40
       pkt.write("ITEM", 0, :RAW)
-      interface.post_read_packet(pkt)
+      pkt = interface.read_protocols[0].read_packet(pkt)
       expect(pkt.read("ITEM")).to eql(80) # Read conversion reads 80
     end
 
@@ -61,12 +68,12 @@ module Cosmos
 
       interface._override_tlm_raw("TGT","PKT","ITEM",10.5)
       pkt.write("ITEM", 0, :RAW)
-      interface.post_read_packet(pkt)
+      pkt = interface.read_protocols[0].read_packet(pkt)
       expect(pkt.read("ITEM")).to eql(21.0)
 
       interface._override_tlm("TGT","PKT","ITEM",10.5) # Write conversion writes 42
       pkt.write("ITEM", 0, :RAW)
-      interface.post_read_packet(pkt)
+      pkt = interface.read_protocols[0].read_packet(pkt)
       expect(pkt.read("ITEM")).to eql(84.0) # Read conversion reads 84
     end
 
@@ -79,12 +86,12 @@ module Cosmos
 
       interface._override_tlm_raw("TGT","PKT","ITEM",Float::INFINITY)
       pkt.write("ITEM", 0, :RAW)
-      interface.post_read_packet(pkt)
+      pkt = interface.read_protocols[0].read_packet(pkt)
       expect(pkt.read("ITEM")).to eql(Float::INFINITY)
 
       interface._override_tlm("TGT","PKT","ITEM",10.5) # Write conversion writes 42
       pkt.write("ITEM", 0, :RAW)
-      interface.post_read_packet(pkt)
+      pkt = interface.read_protocols[0].read_packet(pkt)
       expect(pkt.read("ITEM")).to eql(84.0) # Read conversion reads 84
     end
 
@@ -97,12 +104,12 @@ module Cosmos
 
       interface._override_tlm_raw("TGT","PKT","ITEM","HI")
       pkt.write("ITEM", 0, :RAW)
-      interface.post_read_packet(pkt)
+      pkt = interface.read_protocols[0].read_packet(pkt)
       expect(pkt.read("ITEM")).to eql("HIHI")
 
       interface._override_tlm("TGT","PKT","ITEM","X") # Write conversion writes XXXX
       pkt.write("ITEM", 0, :RAW)
-      interface.post_read_packet(pkt)
+      pkt = interface.read_protocols[0].read_packet(pkt)
       expect(pkt.read("ITEM")).to eql("XXXXXXXX")
     end
 
@@ -115,12 +122,12 @@ module Cosmos
 
       interface._override_tlm_raw("TGT","PKT","ITEM",-10)
       pkt.write("ITEM", 0, :RAW)
-      interface.post_read_packet(pkt)
+      pkt = interface.read_protocols[0].read_packet(pkt)
       expect(pkt.read("ITEM")).to eql(-20)
 
       interface._normalize_tlm("TGT","PKT","ITEM")
       pkt.write("ITEM", 0, :RAW)
-      interface.post_read_packet(pkt)
+      pkt = interface.read_protocols[0].read_packet(pkt)
       expect(pkt.read("ITEM")).to eql(0)
     end
 
@@ -128,7 +135,7 @@ module Cosmos
       cts = File.join(Cosmos::USERPATH,'config','tools','cmd_tlm_server','cmd_tlm_server.txt')
       FileUtils.mkdir_p(File.dirname(cts))
       File.open(cts,'w') do |file|
-        file.puts 'INTERFACE INST_INT simulated_target_interface.rb sim_inst.rb'
+        file.puts 'INTERFACE INST_INT interface.rb'
         file.puts 'TARGET INST'
         # We don't include: PROTOCOL override_protocol.rb
       end
@@ -139,7 +146,7 @@ module Cosmos
       initialize_script_module()
       sleep 0.1
 
-      expect { override_tlm_raw("INST HEALTH_STATUS TEMP3 = 0") }.to raise_error(/INST_INT does not have override_tlm_raw/)
+      expect { override_tlm_raw("INST HEALTH_STATUS TEMP3 = 0") }.to raise_error(/INST_INT does not have override ability/)
 
       @server.stop
       shutdown_cmd_tlm()

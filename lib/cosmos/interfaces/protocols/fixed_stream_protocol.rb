@@ -46,7 +46,7 @@ module Cosmos
       packet.received_time = @received_time
       packet.target_name = @target_name
       packet.packet_name = @packet_name
-      return packet, nil
+      return packet
     end
 
     protected
@@ -59,8 +59,9 @@ module Cosmos
     #   closed
     def identify_and_finish_packet
       packet_data = nil
+      identified_packet = nil
 
-      @target_names.each do |target_name|
+      @interface.target_names.each do |target_name|
         target_packets = nil
         begin
           if @telemetry_stream
@@ -73,13 +74,12 @@ module Cosmos
           next
         end
 
-        identified_packet = nil
         target_packets.each do |packet_name, packet|
           if (packet.identify?(@data))
             identified_packet = packet
             if identified_packet.defined_length > @data.length
               # Check if need more data to finish packet
-              return nil, :STOP if @data.length < identified_packet.defined_length
+              return :STOP if @data.length < identified_packet.defined_length
             end
             # Set some variables so we can update the packet in
             # post_read_packet
@@ -103,11 +103,11 @@ module Cosmos
         @data.replace('')
       end
 
-      return packet_data, nil
+      return packet_data
     end
 
     def reduce_to_single_packet
-      return nil, :STOP if @data.length < @min_id_size
+      return :STOP if @data.length < @min_id_size
       identify_and_finish_packet()
     end
   end
