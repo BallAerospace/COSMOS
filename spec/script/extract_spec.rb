@@ -19,24 +19,38 @@ module Cosmos
     describe "add_cmd_parameter" do
       it "should remove quotes and preserve quoted strings" do
         cmd_params = {}
-        add_cmd_parameter('TEST', '"3"', cmd_params)
+        add_cmd_parameter('TEST', '"3"', nil, cmd_params)
         expect(cmd_params['TEST']).to eql('3')
       end
 
       it "should convert unquoted strings to the correct value type" do
         cmd_params = {}
-        add_cmd_parameter('TEST', '3', cmd_params)
+        add_cmd_parameter('TEST', '3', nil, cmd_params)
         expect(cmd_params['TEST']).to eql(3)
-        add_cmd_parameter('TEST2', '3.0', cmd_params)
+        add_cmd_parameter('TEST2', '3.0', nil, cmd_params)
         expect(cmd_params['TEST2']).to eql(3.0)
-        add_cmd_parameter('TEST3', '0xA', cmd_params)
+        add_cmd_parameter('TEST3', '0xA', nil, cmd_params)
         expect(cmd_params['TEST3']).to eql(0xA)
-        add_cmd_parameter('TEST4', '3e3', cmd_params)
+        add_cmd_parameter('TEST4', '3e3', nil, cmd_params)
         expect(cmd_params['TEST4']).to eql(3e3)
-        add_cmd_parameter('TEST5', 'Ryan', cmd_params)
+        add_cmd_parameter('TEST5', 'Ryan', nil, cmd_params)
         expect(cmd_params['TEST5']).to eql('Ryan')
-        add_cmd_parameter('TEST6', '3 4', cmd_params)
+        add_cmd_parameter('TEST6', '3 4', nil, cmd_params)
         expect(cmd_params['TEST6']).to eql('3 4')
+      end
+
+      it "should convert unquoted hex values into binary for blocks and strings" do
+        cmd_params = {}
+        packet = System.commands.packet("INST", "ASCIICMD").clone
+        add_cmd_parameter('STRING', '0xAABBCCDD', packet, cmd_params)
+        expect(cmd_params['STRING']).to eql("\xAA\xBB\xCC\xDD")
+      end
+
+      it "should preserve quoted hex values for blocks and strings" do
+        cmd_params = {}
+        packet = System.commands.packet("INST", "ASCIICMD").clone
+        add_cmd_parameter('STRING', "'0xAABBCCDD'", packet, cmd_params)
+        expect(cmd_params['STRING']).to eql("0xAABBCCDD")
       end
     end
 

@@ -281,31 +281,31 @@ module Cosmos
     describe "format" do
       it "creates a string representation of a command" do
         pkt = @cmd.packet("TGT1","PKT1")
-        expect(@cmd.format(pkt)).to eql "cmd('TGT1 PKT1 with ITEM1 0, ITEM2 0, ITEM3 0, ITEM4 0')"
+        expect(@cmd.format(pkt)).to eql "cmd(\"TGT1 PKT1 with ITEM1 0, ITEM2 0, ITEM3 0, ITEM4 0\")"
 
         pkt = @cmd.packet("TGT2","PKT4")
         string = ''
         pkt.write("ITEM2","HELLO WORLD")
-        expect(@cmd.format(pkt)).to eql "cmd('TGT2 PKT4 with ITEM1 0, ITEM2 \"HELLO WORLD\"')"
+        expect(@cmd.format(pkt)).to eql "cmd(\"TGT2 PKT4 with ITEM1 0, ITEM2 'HELLO WORLD'\")"
 
         pkt = @cmd.packet("TGT2","PKT4")
         string = ''
         pkt.write("ITEM2","HELLO WORLD")
         pkt.raw = true
-        expect(@cmd.format(pkt)).to eql "cmd_raw('TGT2 PKT4 with ITEM1 0, ITEM2 \"HELLO WORLD\"')"
+        expect(@cmd.format(pkt)).to eql "cmd_raw(\"TGT2 PKT4 with ITEM1 0, ITEM2 'HELLO WORLD'\")"
 
         # If the string is too big it should truncate it
         (1..2028).each {|i| string << 'A' }
         pkt.write("ITEM2",string)
         pkt.raw = false
         result = @cmd.format(pkt)
-        expect(result).to match(/cmd\('TGT2 PKT4 with ITEM1 0, ITEM2 \"AAAAAAAAAAA/)
+        expect(result).to match(/cmd\(\"TGT2 PKT4 with ITEM1 0, ITEM2 'AAAAAAAAAAA/)
         expect(result).to match(/AAAAAAAAAAA.../)
       end
 
       it "ignores parameters" do
         pkt = @cmd.packet("TGT1","PKT1")
-        expect(@cmd.format(pkt,['ITEM3','ITEM4'])).to eql "cmd('TGT1 PKT1 with ITEM1 0, ITEM2 0')"
+        expect(@cmd.format(pkt,['ITEM3','ITEM4'])).to eql "cmd(\"TGT1 PKT1 with ITEM1 0, ITEM2 0\")"
       end
     end
 

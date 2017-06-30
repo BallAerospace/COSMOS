@@ -70,21 +70,22 @@ module Cosmos
       expect(Cosmos::USERPATH).not_to be_nil
     end
 
-    context "when searching for userpath.txt" do
+    context "when searching for config/system and config/targets" do
       it "giveups if it can't be found" do
         old = Cosmos::USERPATH
         Cosmos.define_user_path(Dir.home)
         expect(Cosmos::USERPATH).to eql old
       end
 
-      it "sets the path to where userpath.txt is found" do
+      it "sets the path to where config/system and config/targets are found" do
         ENV.delete('COSMOS_USERPATH')
         old = Cosmos::USERPATH
         expect(old).not_to eql File.dirname(__FILE__)
-        File.open(File.join(File.dirname(__FILE__), 'userpath.txt'),'w') {|f| f.puts '' }
+        FileUtils.mkdir_p(File.join(File.dirname(__FILE__), 'config', 'system'))
+        FileUtils.mkdir_p(File.join(File.dirname(__FILE__), 'config', 'targets'))
         Cosmos.define_user_path(File.dirname(__FILE__))
         expect(Cosmos::USERPATH).to eql File.dirname(__FILE__)
-        File.delete(File.join(File.dirname(__FILE__), 'userpath.txt'))
+        FileUtils.rm_rf(File.join(File.dirname(__FILE__), 'config'))
       end
     end
   end

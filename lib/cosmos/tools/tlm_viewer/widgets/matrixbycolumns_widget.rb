@@ -42,6 +42,15 @@ module Cosmos
         @column = 0
       end
     end
+
+    def addItem(item_to_add)
+      super(item_to_add, @row, @column)
+      @column += 1
+      if @column >= @num_columns
+        @row += 1
+        @column = 0
+      end
+    end
   end
 
 end # module Cosmos
