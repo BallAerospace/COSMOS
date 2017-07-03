@@ -62,6 +62,8 @@ module Cosmos
               packet.write('OLD_STATE', data[3])
               packet.write('NEW_STATE', data[4])
               @read_count += 1
+              @read_raw_data_time = Time.now
+              @read_raw_data = packet.buffer
               return packet
             end
           else
@@ -86,6 +88,8 @@ module Cosmos
       @write_count += 1
       command_data = packet.buffer
       @bytes_written += command_data.length
+      @written_raw_data_time = Time.now
+      @written_raw_data = command_data
 
       identified_command = System.commands.identify(command_data, ['SYSTEM'])
       if identified_command

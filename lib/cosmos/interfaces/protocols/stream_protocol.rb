@@ -87,17 +87,18 @@ module Cosmos
     # @param data [String] Raw packet data
     # @return [String] Potentially modified packet data
     def write_data(data)
-      data = super(data)
       # If we're filling the sync pattern and discarding the leading bytes
       # during a read then we need to put them back during a write.
       # If we're discarding the bytes then by definition they can't be part
       # of the packet so we just modify the data.
-      if @fill_fields && @sync_pattern && @discard_leading_bytes > 0
+      if @fill_fields && @discard_leading_bytes > 0
         data = ("\x00" * @discard_leading_bytes) << data
-        BinaryAccessor.write(@sync_pattern, 0, @sync_pattern.length * 8, :BLOCK,
-                             data, :BIG_ENDIAN, :ERROR)
+        if @sync_pattern
+          BinaryAccessor.write(@sync_pattern, 0, @sync_pattern.length * 8, :BLOCK,
+                               data, :BIG_ENDIAN, :ERROR)
+        end
       end
-      return data
+      return super(data)
     end
 
     # @return [Boolean] control code (nil, :STOP)
