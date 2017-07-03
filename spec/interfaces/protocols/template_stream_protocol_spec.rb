@@ -71,7 +71,7 @@ module Cosmos
         rsp_pkt.append_item("VOLTAGE", 16, :UINT)
         allow(System).to receive_message_chain(:telemetry, :packet).and_return(rsp_pkt)
         @interface.instance_variable_set(:@stream, TemplateStream.new)
-        @interface.add_protocol(TemplateStreamProtocol, ['0xABCD','0xABCD', 1], true)
+        @interface.add_protocol(TemplateStreamProtocol, ['0xABCD','0xABCD', 1], :READ_WRITE)
         @interface.target_names = ['TGT']
         packet = Packet.new('TGT', 'CMD')
         packet.append_item("VOLTAGE", 16, :UINT)
@@ -87,7 +87,7 @@ module Cosmos
         packet.restore_defaults
         @interface.connect
         read_result = nil
-        Thread.new { sleep(1); STDOUT.puts "read"; read_result = @interface.read }
+        Thread.new { sleep(1); read_result = @interface.read }
         @interface.write(packet)
         expect($buffer).to eql("SOUR:VOLT 10, (@20)\xAB\xCD")
         expect(read_result.read("VOLTAGE")).to eq 10
@@ -95,4 +95,3 @@ module Cosmos
     end
   end
 end
-

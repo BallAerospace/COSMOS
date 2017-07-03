@@ -382,9 +382,11 @@ module Cosmos
         @read_protocols << protocol
       when :WRITE
         @write_protocols.unshift(protocol)
-      else
+      when :READ_WRITE
         @read_protocols << protocol
         @write_protocols.unshift(protocol)
+      else
+        raise "Unknown protocol descriptor: #{read_write}. Must be :READ, :WRITE, or :READ_WRITE."
       end
       @protocol_info << [protocol_class, protocol_args, read_write]
       protocol.interface = self

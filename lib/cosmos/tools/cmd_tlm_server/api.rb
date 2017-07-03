@@ -655,7 +655,7 @@ module Cosmos
       interface = System.targets[tgt_pkt_item[0]].interface
       found = false
       interface.read_protocols.each do |protocol|
-        found = true if protocol.kindof? OverrideProtocol
+        found = true if protocol.kind_of? OverrideProtocol
       end
       if found
         # Test to see if this telemetry item exists

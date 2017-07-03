@@ -171,9 +171,17 @@ module Cosmos
               end
 
             when 'PROTOCOL'
-              parser.verify_num_parameters(2, nil, "#{keyword} <READ WRITE READ_WRITE> <protocol filename or classname> <Protocol specific parameters>")
-              klass = Cosmos.require_class(params[1])
-              current_interface_or_router.add_protocol(klass, params[2..-1], params[0].upcase.intern)
+              usage = "#{keyword} <READ WRITE READ_WRITE> <protocol filename or classname> <Protocol specific parameters>"
+              parser.verify_num_parameters(2, nil, usage)
+              unless %w(READ WRITE READ_WRITE).include? params[0].upcase
+                raise parser.error("Invalid protocol type: #{params[0]}", usage)
+              end
+              begin
+                klass = Cosmos.require_class(params[1])
+                current_interface_or_router.add_protocol(klass, params[2..-1], params[0].upcase.intern)
+              rescue LoadError, StandardError => error
+                raise parser.error(error.message, usage)
+              end
 
             end # end case keyword for all keywords that require a current interface
 
