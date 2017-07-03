@@ -55,10 +55,12 @@ module Cosmos
       packet = nil
       if @connected
         packet = first_pending_packet()
-
-        # This is just to support the override functionality
-        # Generic protocol use is not supported
-        packet = @read_protocols[0].read_packet(packet)
+        if packet
+          # This is just to support the override functionality
+          # Generic protocol use is not supported
+          packet = @read_protocols[0].read_packet(packet)
+          return packet
+        end
 
         while true
           # Calculate time to sleep to make ticks 10ms apart
@@ -77,7 +79,12 @@ module Cosmos
           @count_100hz += 1
 
           packet = first_pending_packet()
-          return packet if packet
+          if packet
+            # This is just to support the override functionality
+            # Generic protocol use is not supported
+            packet = @read_protocols[0].read_packet(packet)
+            return packet
+          end
         end
       else
         raise "Interface not connected"
@@ -90,7 +97,9 @@ module Cosmos
       if @connected
         # Update count of commands sent through this interface
         @write_count += 1
-        @bytes_written += packet.buffer.length
+        @bytes_written += packet.length
+        @written_raw_data_time = Time.now
+        @written_raw_data = packet.buffer
 
         # Have simulated target handle the packet
         @sim_target.write(packet)
@@ -121,7 +130,9 @@ module Cosmos
       unless @pending_packets.empty?
         @read_count += 1
         packet = @pending_packets.pop.clone
-        @bytes_read += packet.buffer.length
+        @bytes_read += packet.length
+        @read_raw_data_time = Time.now
+        @read_raw_data = packet.buffer
       end
       packet
     end

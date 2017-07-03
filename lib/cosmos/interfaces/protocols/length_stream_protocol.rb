@@ -82,9 +82,9 @@ module Cosmos
         # If the start of the length field is past what we discard, then the
         # length field is inside the packet
         if @length_bit_offset >= (@discard_leading_bytes * 8)
-          length = calculate_length(packet.buffer.length)
+          length = calculate_length(packet.buffer.length + @discard_leading_bytes)
           # Subtract off the discarded bytes since they haven't been added yet
-          # Adding bytes to the stream happens in the pre_write_data method
+          # Adding bytes to the stream happens in the write_data method
           offset = @length_bit_offset - (@discard_leading_bytes * 8)
           # Directly write the packet buffer and fill in the length
           BinaryAccessor.write(length, offset, @length_bit_size, :UINT,
@@ -99,30 +99,22 @@ module Cosmos
     # @param data [String] Raw packet data
     # @return [String] Potentially modified packet data
     def write_data(data)
+      data = super(data)
       if @fill_fields
         # If the start of the length field is before what we discard, then the
         # length field is outside the packet
         if @length_bit_offset < (@discard_leading_bytes * 8)
-          length = calculate_length(data.length)
-          sync_length = @sync_pattern ? @sync_pattern.length : 0
-          # Prepend data except for the sync which will be done by super()
-          data = ("\x00" * (@discard_leading_bytes - sync_length)) << data
-          # Adjust the discard so super() adds the correct amount
-          @discard_leading_bytes -= (@discard_leading_bytes - sync_length)
-          offset = @length_bit_offset - (sync_length * 8)
-          # Directly write the packet buffer and fill in the length
-          BinaryAccessor.write(length, offset, @length_bit_size, :UINT,
+          BinaryAccessor.write(calculate_length(data.length), @length_bit_offset, @length_bit_size, :UINT,
                                data, @length_endianness, :ERROR)
         end
       end
-      return super(data) # Allow stream_protocol to set the sync if needed
+      return data
     end
 
     protected
 
     def calculate_length(buffer_length)
-      length = (buffer_length + @discard_leading_bytes) /
-        @length_bytes_per_count - @length_value_offset
+      length = (buffer_length / @length_bytes_per_count) - @length_value_offset
       if @max_length && length > @max_length
         raise "Calculated buffer length #{buffer_length} larger than max_length #{@max_length}"
       end

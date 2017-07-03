@@ -514,6 +514,8 @@ module Cosmos
         end
         return if !packet || @cancel_threads
         packet = read_thread_hook(packet) # Do work on received packet
+        @read_raw_data_time = interface.read_raw_data_time
+        @read_raw_data = interface.read_raw_data
         @read_queue << packet.clone
       end
     end
@@ -578,6 +580,8 @@ module Cosmos
             interface_bytes_written = interface_info.interface.bytes_written
             interface_info.interface.send(method, packet_or_data)
             diff = interface_info.interface.bytes_written - interface_bytes_written
+            @written_raw_data_time = interface_info.interface.written_raw_data_time
+            @written_raw_data = interface_info.interface.written_raw_data
             @bytes_written += diff
           rescue Errno::EPIPE, Errno::ECONNABORTED, IOError, Errno::ECONNRESET
             # Client has normally disconnected

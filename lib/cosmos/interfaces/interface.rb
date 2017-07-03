@@ -100,6 +100,18 @@ module Cosmos
     # @return [Hash or nil] Hash of overridden telemetry points
     attr_accessor :override_tlm
 
+    # @return [String] Most recently read raw data
+    attr_accessor :read_raw_data
+
+    # @return [String] Most recently written raw data
+    attr_accessor :written_raw_data
+
+    # @return [Time] Most recent read raw data time
+    attr_accessor :read_raw_data_time
+
+    # @return [Time] Most recent written raw data time
+    attr_accessor :written_raw_data_time
+
     # Initialize default attribute values
     def initialize
       @name = self.class.to_s.split("::")[-1] # Remove namespacing if present
@@ -130,6 +142,10 @@ module Cosmos
       @write_protocols = []
       @protocol_info = []
       @override_tlm = nil
+      @read_raw_data = ''
+      @written_raw_data = ''
+      @read_raw_data_time = nil
+      @written_raw_data_time = nil
     end
 
     # Connects the interface to its target(s). Must be implemented by a
@@ -358,6 +374,8 @@ module Cosmos
     #
     # @return [String] Raw packet data
     def read_interface_base(data)
+      @read_raw_data_time = Time.now
+      @read_raw_data = data.clone
       @bytes_read += data.length
       @raw_logger_pair.read_logger.write(data) if @raw_logger_pair
     end
@@ -370,6 +388,8 @@ module Cosmos
     # @param data [String] Raw packet data
     # @return data [String] The exact data written
     def write_interface_base(data)
+      @written_raw_data_time = Time.now
+      @written_raw_data = data.clone
       @bytes_written += data.length
       @raw_logger_pair.write_logger.write(data) if @raw_logger_pair
     end

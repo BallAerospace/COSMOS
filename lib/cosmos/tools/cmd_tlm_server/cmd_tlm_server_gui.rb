@@ -59,7 +59,7 @@ module Cosmos
       @message_log = nil
       @output_sleeper = Sleeper.new
       @first_output = 0
-      @interfaces_tab = InterfacesTab.new
+      @interfaces_tab = InterfacesTab.new(self)
       @targets_tab = TargetsTab.new
       @packets_tab = PacketsTab.new(self)
       @logging_tab = LoggingTab.new(@production)

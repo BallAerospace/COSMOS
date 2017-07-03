@@ -18,11 +18,7 @@ module Cosmos
       PORT = 9999
 
       def initialize
-        super(PORT, PORT, 5.0, nil, 'LENGTH', 0, 32, 4, 1, 'BIG_ENDIAN', 4)
-      end
-
-      def pre_write_data(packet_data)
-        packet_data.prepend([packet_data.length].pack('N'))
+        super(PORT, PORT, 5.0, nil, 'LENGTH', 0, 32, 4, 1, 'BIG_ENDIAN', 4, nil, nil, true)
       end
     end
 

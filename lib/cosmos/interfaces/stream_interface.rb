@@ -51,7 +51,7 @@ module Cosmos
         Logger.instance.error "Timeout waiting for data to be read"
         data = nil
       end
-      return nil unless data
+      return nil if data.nil? or data.length <= 0
       read_interface_base(data)
       data
     end
