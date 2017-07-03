@@ -298,7 +298,7 @@ module Cosmos
           true], :READ_WRITE) # fill fields
         packet = Packet.new(nil, nil)
         packet.buffer = "\x01\x02\x03\x04\x05\x06"
-        expect { packet = @interface.write(packet)}.to raise_error(RuntimeError, "Calculated buffer length 6 larger than max_length 4")
+        expect { packet = @interface.write(packet)}.to raise_error(RuntimeError, "Calculated length 6 larger than max_length 4")
       end
 
       it "validates length against the maximum length 2" do
@@ -316,7 +316,7 @@ module Cosmos
           true], :READ_WRITE) # fill fields
         packet = Packet.new(nil, nil)
         packet.buffer = "\x01\x02\x03\x04\x05\x06"
-        expect { packet = @interface.write(packet)}.to raise_error(RuntimeError, "Calculated buffer length 6 larger than max_length 4")
+        expect { packet = @interface.write(packet)}.to raise_error(RuntimeError, "Calculated length 8 larger than max_length 4")
       end
 
       it "inserts the sync and length fields into the packet 1" do

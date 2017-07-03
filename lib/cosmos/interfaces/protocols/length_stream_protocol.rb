@@ -116,7 +116,7 @@ module Cosmos
     def calculate_length(buffer_length)
       length = (buffer_length / @length_bytes_per_count) - @length_value_offset
       if @max_length && length > @max_length
-        raise "Calculated buffer length #{buffer_length} larger than max_length #{@max_length}"
+        raise "Calculated length #{length} larger than max_length #{@max_length}"
       end
       length
     end
