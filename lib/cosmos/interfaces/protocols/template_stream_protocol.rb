@@ -86,7 +86,8 @@ module Cosmos
     end
 
     def read_data(data)
-      # Drop all data until the initial_read_delay is complete.   This gets rid of unused welcome messages,
+      # Drop all data until the initial_read_delay is complete.
+      # This gets rid of unused welcome messages,
       # prompts, and other junk on initial connections
       if @initial_read_delay and @initial_read_delay_needed and @connect_complete_time
         return :STOP if Time.now < @connect_complete_time
@@ -102,11 +103,11 @@ module Cosmos
         return :STOP if @response_packets.length < (@ignore_lines + @response_lines)
 
         @ignore_lines.times do
-          @response_packets.pop
+          @response_packets.shift
         end
         response_string = ''
         @response_lines.times do
-          response = @response_packets.pop
+          response = @response_packets.shift
           response_string << response.buffer
         end
 
@@ -118,6 +119,7 @@ module Cosmos
         response_item_names = []
         response_template = @response_template.clone
         response_template_items = @response_template.scan(/<.*?>/)
+
         response_template_items.each do |item|
           response_item_names << item[1..-2]
           response_template.gsub!(item, "(.*)")
@@ -127,7 +129,7 @@ module Cosmos
         # Scan the response for the variables in brackets <VARIABLE>
         # Write the packet value with each of the values received
         response_values = response_string.scan(response_regexp)[0]
-        raise "Unexpected response received: #{response_string}" if !response_values or (response_values.length != response_item_names.length)
+        raise "Unexpected response received: #{response_string}" if !response_values || (response_values.length != response_item_names.length)
         response_values.each_with_index do |value, i|
           result_packet.write(response_item_names[i], value)
         end
@@ -141,7 +143,7 @@ module Cosmos
 
         return result_packet
       else
-        return :STOP
+        return packet
       end
     end
 

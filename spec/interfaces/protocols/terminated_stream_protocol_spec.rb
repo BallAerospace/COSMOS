@@ -37,7 +37,39 @@ module Cosmos
     end
 
     describe "read" do
+      it "handles multiple reads" do
+        $index = 0
+        class MultiTerminatedStream < TerminatedStream
+          def read
+            case $index
+            when 0
+              $index += 1
+              "\x01\x02"
+            when 1
+              $index += 1
+              "\xAB"
+            when 2
+              $index += 1
+              "\xCD"
+            end
+          end
+        end
+
+        @interface.instance_variable_set(:@stream, MultiTerminatedStream.new)
+        @interface.add_protocol(TerminatedStreamProtocol, ['', '0xABCD', true], :READ_WRITE)
+        packet = @interface.read
+        expect(packet.buffer).to eql("\x01\x02")
+      end
+
       context "when stripping termination characters" do
+        it "handles empty packets" do
+          @interface.instance_variable_set(:@stream, TerminatedStream.new)
+          @interface.add_protocol(TerminatedStreamProtocol, ['', '0xABCD', true], :READ_WRITE)
+          $buffer = "\xAB\xCD"
+          packet = @interface.read
+          expect(packet.buffer.length).to eql 0
+        end
+
         it "handles no sync pattern" do
           @interface.instance_variable_set(:@stream, TerminatedStream.new)
           @interface.add_protocol(TerminatedStreamProtocol, ['', '0xABCD', true], :READ_WRITE)
@@ -64,6 +96,14 @@ module Cosmos
       end
 
       context "when keeping termination characters" do
+        it "handles empty packets" do
+          @interface.instance_variable_set(:@stream, TerminatedStream.new)
+          @interface.add_protocol(TerminatedStreamProtocol, ['', '0xABCD', false], :READ_WRITE)
+          $buffer = "\xAB\xCD"
+          packet = @interface.read
+          expect(packet.buffer).to eql("\xAB\xCD")
+        end
+
         it "handles no sync pattern" do
           @interface.instance_variable_set(:@stream, TerminatedStream.new)
           @interface.add_protocol(TerminatedStreamProtocol, ['', '0xABCD', false], :READ_WRITE)
@@ -128,4 +168,3 @@ module Cosmos
     end
   end
 end
-
