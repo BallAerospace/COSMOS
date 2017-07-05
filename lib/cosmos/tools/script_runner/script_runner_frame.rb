@@ -363,7 +363,7 @@ module Cosmos
     def self.file_cache
       @@file_cache
     end
-    
+
     def self.file_cache=(value)
       @@file_cache = value
     end
@@ -1042,9 +1042,9 @@ module Cosmos
         dialog_layout = Qt::VBoxLayout.new
 
         chooser = FileChooser.new(self, "Config File", config_file, 'Select',
-                                  File.join('config', 'tools', 'cmd_tlm_server', config_file))
+                                  File.dirname(config_file))
         chooser.callback = lambda do |filename|
-          chooser.filename = File.basename(filename)
+          chooser.filename = filename
         end
         dialog_layout.addWidget(chooser)
 

@@ -18,7 +18,7 @@ Cosmos.catch_fatal_exception do
   require 'cosmos/gui/dialogs/splash'
   require 'cosmos/gui/dialogs/cmd_details_dialog'
   require 'cosmos/tools/cmd_sender/cmd_sender_text_edit'
-  require 'cosmos/tools/cmd_sender/cmd_sender_item_delegate'
+  require 'cosmos/tools/cmd_sender/cmd_param_table_item_delegate'
 end
 
 module Cosmos
@@ -444,7 +444,7 @@ module Cosmos
         if text == quotes_removed
           if (packet_item.data_type == :STRING or packet_item.data_type == :BLOCK) and text.upcase.start_with?("0X")
             params[packet_item.name] = text.hex_to_byte_string
-          else  
+          else
             params[packet_item.name] = text.convert_to_value
           end
         else
@@ -573,10 +573,10 @@ module Cosmos
             @@table.setHorizontalHeaderLabels(['Name', '         Value or State         ', '         ', 'Units', 'Description'])
             @@table.horizontalHeader.setStretchLastSection(true)
             @@table.verticalHeader.setVisible(false)
-            @@table.setItemDelegate(CmdSenderItemDelegate.new(@@table))
+            @@table.setItemDelegate(CmdParamTableItemDelegate.new(@@table, @@param_widgets))
             @@table.setContextMenuPolicy(Qt::CustomContextMenu)
             @@table.verticalHeader.setResizeMode(Qt::HeaderView::ResizeToContents)
-            @@table.setEditTriggers(Qt::AbstractItemView::AllEditTriggers)
+            @@table.setEditTriggers(Qt::AbstractItemView::DoubleClicked | Qt::AbstractItemView::SelectedClicked | Qt::AbstractItemView::AnyKeyPressed)
             @@table.setSelectionMode(Qt::AbstractItemView::NoSelection)
             connect(@@table, SIGNAL('customContextMenuRequested(const QPoint&)'), self, SLOT('context_menu(const QPoint&)'))
             connect(@@table, SIGNAL('itemClicked(QTableWidgetItem*)'), self, SLOT('click_callback(QTableWidgetItem*)'))

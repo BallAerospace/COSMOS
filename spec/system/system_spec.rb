@@ -48,7 +48,7 @@ module Cosmos
 
       it "creates default paths" do
         # Don't check the actual paths but just that they exist
-        expect(System.paths.keys).to eql %w(LOGS TMP SAVED_CONFIG TABLES HANDBOOKS PROCEDURES)
+        expect(System.paths.keys).to eql %w(LOGS TMP SAVED_CONFIG TABLES HANDBOOKS PROCEDURES SEQUENCES)
       end
     end
 
