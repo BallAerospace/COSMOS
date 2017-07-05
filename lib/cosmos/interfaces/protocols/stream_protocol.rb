@@ -165,6 +165,11 @@ module Cosmos
     end
 
     def reduce_to_single_packet
+      if @data.length <= 0
+        # Need some data
+        return :STOP
+      end
+
       # Reduce to packet data and clear data for next packet
       packet_data = @data.clone
       @data.replace('')
