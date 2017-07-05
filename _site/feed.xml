@@ -11,8 +11,8 @@
     <title xml:lang="en">Ball Aerospace COSMOS News</title>
     <atom:link type="application/atom+xml" href="http://cosmosrb/feed.xml" rel="self"/>
     <link>http://cosmosrb.com/</link>
-    <pubDate>Fri, 30 Jun 2017 07:29:19 -0600</pubDate>
-    <lastBuildDate>Fri, 30 Jun 2017 07:29:19 -0600</lastBuildDate>
+    <pubDate>Wed, 05 Jul 2017 13:54:53 -0600</pubDate>
+    <lastBuildDate>Wed, 05 Jul 2017 13:54:53 -0600</lastBuildDate>
     <language>en-US</language>
     <generator>Jekyll v3.4.3</generator>
     <description>The User Interface for Embedded Systems</description>
@@ -24,6 +24,20 @@
       <width>144</width>
       <height>73</height>
     </image>
+    
+    <item>
+      <title>Arduinos &amp; Battle Bots</title>
+      <link>http://cosmosrb.com/news/2017/07/05/arduino-battle-bots/</link>
+      <pubDate>Wed, 05 Jul 2017 01:00:00 -0600</pubDate>
+      <dc:creator>jmthomas</dc:creator>
+      
+      
+      <category>post</category>
+      
+      <guid isPermaLink="true">http://cosmosrb.com/news/2017/07/05/arduino-battle-bots/</guid>
+      <description>&lt;p&gt;Ball Aerospace COSMOS has been featured in a &lt;a href=&quot;http://www.williamosman.com/2016/08/cosmos-and-arduino-20-telemetry-system.html&quot;&gt;blog post&lt;/a&gt; by &lt;a href=&quot;http://www.williamosman.com/&quot;&gt;William Osman&lt;/a&gt; about creating a telemetry system for a race car. William mentions first seeing COSMOS in action on the set of Battle Bots &lt;a href=&quot;http://www.battlebots.com/bracket-s2/&quot;&gt;Season 2&lt;/a&gt; where &lt;a href=&quot;http://battlebots.com/robot/chomp-2/&quot;&gt;Team Chomp&lt;/a&gt; was using it enroute to their quarterfinal finish. What an awesome example of COSMOS in action!&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>Template Protocol</title>
