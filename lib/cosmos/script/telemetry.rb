@@ -66,9 +66,9 @@ module Cosmos
     # Set the raw value of a telemetry point to a given value. Note this will
     # be over written in a live system by incoming new telemetry.
     # Usage:
-    #   set_tlm(target_name, packet_name, item_name, value)
+    #   set_tlm_raw(target_name, packet_name, item_name, value)
     # or
-    #   set_tlm("target_name packet_name item_name = value")
+    #   set_tlm_raw("target_name packet_name item_name = value")
     def set_tlm_raw(*args)
       return $cmd_tlm_server.set_tlm_raw(*args)
     end
@@ -84,6 +84,33 @@ module Cosmos
     # @param create_new_logs[Boolean] Whether or not to create new log files before writing this packet to logs
     def inject_tlm(target_name, packet_name, item_hash = nil, value_type = :CONVERTED, send_routers = true, send_packet_log_writers = true, create_new_logs = false)
       return $cmd_tlm_server.inject_tlm(target_name, packet_name, item_hash, value_type, send_routers, send_packet_log_writers, create_new_logs)
+    end
+
+    # Permanently set the converted value of a telemetry point to a given value
+    # Usage:
+    #   override_tlm(target_name, packet_name, item_name, value)
+    # or
+    #   override_tlm("target_name packet_name item_name = value")
+    def override_tlm(*args)
+      return $cmd_tlm_server.override_tlm(*args)
+    end
+
+    # Permanently set the raw value of a telemetry point to a given value
+    # Usage:
+    #   override_tlm_raw(target_name, packet_name, item_name, value)
+    # or
+    #   override_tlm_raw("target_name packet_name item_name = value")
+    def override_tlm_raw(*args)
+      return $cmd_tlm_server.override_tlm_raw(*args)
+    end
+
+    # Clear an override of a telemetry point
+    # Usage:
+    #   normalize_tlm(target_name, packet_name, item_name)
+    # or
+    #   normalize_tlm("target_name packet_name item_name")
+    def normalize_tlm(*args)
+      return $cmd_tlm_server.normalize_tlm(*args)
     end
 
     # Gets all the values from the given packet returned in a two dimensional

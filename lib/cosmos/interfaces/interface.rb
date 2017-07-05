@@ -1,6 +1,6 @@
 # encoding: ascii-8bit
 
-# Copyright 2014 Ball Aerospace & Technologies Corp.
+# Copyright 2017 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
 # This program is free software; you can modify and/or redistribute it
@@ -10,13 +10,13 @@
 
 require 'cosmos/tools/cmd_tlm_server/api'
 require 'cosmos/io/raw_logger_pair'
+require 'thread'
 
 module Cosmos
 
   # Defines all the attributes and methods common to all interface classes
   # used by COSMOS.
   class Interface
-
     include Api
 
     # @return [String] Name of the interface
@@ -88,9 +88,33 @@ module Cosmos
     # @return [Hash<option name, option values>] Hash of options supplied to interface/router
     attr_accessor :options
 
+    # @return [Array<Protocol>] Array of protocols for reading
+    attr_accessor :read_protocols
+
+    # @return [Array<Protocol>] Array of protocols for writing
+    attr_accessor :write_protocols
+
+    # @return [Array<[Protocol Class, Protocol Args, Protocol kind (:READ, :WRITE, :READ_WRITE)>] Info to recreate protocols
+    attr_accessor :protocol_info
+
+    # @return [Hash or nil] Hash of overridden telemetry points
+    attr_accessor :override_tlm
+
+    # @return [String] Most recently read raw data
+    attr_accessor :read_raw_data
+
+    # @return [String] Most recently written raw data
+    attr_accessor :written_raw_data
+
+    # @return [Time] Most recent read raw data time
+    attr_accessor :read_raw_data_time
+
+    # @return [Time] Most recent written raw data time
+    attr_accessor :written_raw_data_time
+
     # Initialize default attribute values
     def initialize
-      @name = self.class.to_s
+      @name = self.class.to_s.split("::")[-1] # Remove namespacing if present
       @target_names = []
       @thread = nil
       @connect_on_startup = true
@@ -108,47 +132,148 @@ module Cosmos
       @num_clients = 0
       @read_queue_size = 0
       @write_queue_size = 0
+      @write_mutex = Mutex.new
       @interfaces = []
       @read_allowed = true
       @write_allowed = true
       @write_raw_allowed = true
       @options = {}
+      @read_protocols = []
+      @write_protocols = []
+      @protocol_info = []
+      @override_tlm = nil
+      @read_raw_data = ''
+      @written_raw_data = ''
+      @read_raw_data_time = nil
+      @written_raw_data_time = nil
     end
 
     # Connects the interface to its target(s). Must be implemented by a
     # subclass.
     def connect
-      raise "Interface connect method not implemented"
+      (@read_protocols | @write_protocols).each {|protocol| protocol.connect_reset}
     end
 
     # Indicates if the interface is connected to its target(s) or not. Must be
     # implemented by a subclass.
     def connected?
-      raise "Interface connected? method not implemented"
+      raise "connected? not defined by Interface"
     end
 
     # Disconnects the interface from its target(s). Must be implemented by a
     # subclass.
     def disconnect
-      raise "Interface disconnect method not implemented"
+      (@read_protocols | @write_protocols).each {|protocol| protocol.disconnect_reset}
     end
 
-    # Retrieves the next packet from the interface. Must be implemented by a
-    # subclass.
+    def read_interface
+      raise "read_interface not defined by Interface"
+    end
+
+    def write_interface
+      raise "write_interface not defined by Interface"
+    end
+
+    # Retrieves the next packet from the interface.
+    # @return [Packet] Packet constructed from the data. Packet will be
+    #   unidentified (nil target and packet names)
     def read
-      raise "Interface read method not implemented"
+      raise "Interface not connected for read: #{@name}" unless connected? && read_allowed?
+
+      loop do
+        # Read data for a packet
+        data = read_interface()
+        return nil unless data
+        @read_protocols.each do |protocol|
+          data = protocol.read_data(data)
+          return nil if data == :DISCONNECT # Disconnect handled by thread
+          break if data == :STOP
+        end
+        next if data == :STOP
+
+        packet = convert_data_to_packet(data)
+
+        # Potentially modify packet
+        @read_protocols.each do |protocol|
+          packet = protocol.read_packet(packet)
+          return nil if packet == :DISCONNECT # Disconnect handled by thread
+          break if packet == :STOP
+        end
+        next if packet == :STOP
+
+        # Return packet
+        @read_count += 1
+        return packet
+      end
+    rescue Exception => err
+      Logger.instance.error("Error reading from interface : #{@name}")
+      disconnect()
+      raise err
     end
 
-    # Method to send a packet on the interface. Must be implemented by a
-    # subclass.
+    # Method to send a packet on the interface.
+    # @param packet [Packet] The Packet to send out the interface
     def write(packet)
-      raise "Interface write method not implemented"
+      raise "Interface not connected for write: #{@name}" unless connected? && write_allowed?
+      _write do
+        @write_count += 1
+
+        # Potentially modify packet
+        @write_protocols.each do |protocol|
+          packet = protocol.write_packet(packet)
+          if packet == :DISCONNECT
+            disconnect()
+            return
+          end
+          return if packet == :STOP
+        end
+
+        data = convert_packet_to_data(packet)
+
+        # Potentially modify packet data
+        @write_protocols.each do |protocol|
+          data = protocol.write_data(data)
+          if data == :DISCONNECT
+            disconnect()
+            return
+          end
+          return if data == :STOP
+        end
+
+        # Actually write out data if not handled by protocol
+        write_interface(data)
+
+        # Potentially block and wait for response
+        @write_protocols.each do |protocol|
+          packet, data = protocol.post_write_interface(packet, data)
+          if packet == :DISCONNECT
+            disconnect()
+            return
+          end
+          return if packet == :STOP
+        end
+      end
+
+      return nil
     end
 
     # Writes preformatted data onto the interface. Malformed data may cause
-    # problems. Must be implemented by a subclass.
+    # problems.
+    # @param data [String] The raw data to send out the interface
     def write_raw(data)
-      raise "Interface write_raw method not implemented"
+      raise "Interface not connected for write_raw : #{@name}" unless connected? && write_raw_allowed?
+      _write do
+        write_interface(data)
+      end
+    end
+
+    # Wrap all writes in a mutex and handle errors
+    def _write
+      @write_mutex.synchronize { yield }
+    rescue Exception => err
+      Logger.instance.error("Error writing to interface : #{@name}")
+      disconnect()
+      raise err
     end
 
     # @return [Boolean] Whether reading is allowed
@@ -203,12 +328,18 @@ module Cosmos
       other_interface.write_count = self.write_count
       other_interface.bytes_read = self.bytes_read
       other_interface.bytes_written = self.bytes_written
-      other_interface.raw_logger_pair = self.raw_logger_pair.clone if self.raw_logger_pair
+      other_interface.raw_logger_pair = self.raw_logger_pair.clone if @raw_logger_pair
       # num_clients is per interface so don't copy
       # read_queue_size is the number of packets in the queue so don't copy
       # write_queue_size is the number of packets in the queue so don't copy
       other_interface.interfaces = self.interfaces.clone
       other_interface.options = self.options.clone
+      other_interface.protocol_info = []
+      self.protocol_info.each do |protocol_class, protocol_args, read_write|
+        other_interface.add_protocol(protocol_class, protocol_args, read_write)
+      end
+      other_interface.override_tlm = nil
+      other_interface.override_tlm = self.override_tlm.clone if self.override_tlm
     end
 
     # Set an interface or router specific option
@@ -218,14 +349,91 @@ module Cosmos
       @options[option_name.upcase] = option_values.clone
     end
 
-    # This method is called by the CmdTlmServer after each read packet is
-    # identified. It can be used to perform custom processing/monitoring as
-    # each packet is received by the CmdTlmServer.
+    # Called to convert the read data into a COSMOS Packet object
     #
-    # @param packet [Packet] The identified packet read from the interface
-    def post_identify_packet(packet)
+    # @param data [String] Raw packet data
+    # @return [Packet] COSMOS Packet with buffer filled with data
+    def convert_data_to_packet(data)
+      Packet.new(nil, nil, :BIG_ENDIAN, nil, data)
     end
 
-  end # class Interface
+    # Called to convert a packet into the data to send
+    #
+    # @param packet [Packet] Packet to extract data from
+    # @return data
+    def convert_packet_to_data(packet)
+      packet.buffer(false)
+    end
 
-end # module Cosmos
+    # Called to read data and manipulate it until enough data is
+    # returned. The definition of 'enough data' changes depending on the
+    # protocol used which is why this method exists. This method is also used
+    # to perform operations on the data before it can be interpreted as packet
+    # data such as decryption. After this method is called the post_read_data
+    # method is called. Subclasses must implement this method.
+    #
+    # @return [String] Raw packet data
+    def read_interface_base(data)
+      @read_raw_data_time = Time.now
+      @read_raw_data = data.clone
+      @bytes_read += data.length
+      @raw_logger_pair.read_logger.write(data) if @raw_logger_pair
+    end
+
+    # Called to write data to the underlying interface. Subclasses must
+    # implement this method and call super to count the raw bytes and allow raw
+    # logging.
+    #
+    #
+    # @param data [String] Raw packet data
+    # @return data [String] The exact data written
+    def write_interface_base(data)
+      @written_raw_data_time = Time.now
+      @written_raw_data = data.clone
+      @bytes_written += data.length
+      @raw_logger_pair.write_logger.write(data) if @raw_logger_pair
+    end
+
+    def add_protocol(protocol_class, protocol_args, read_write)
+      protocol_args = protocol_args.clone
+      protocol = protocol_class.new(*protocol_args)
+      case read_write
+      when :READ
+        @read_protocols << protocol
+      when :WRITE
+        @write_protocols.unshift(protocol)
+      when :READ_WRITE
+        @read_protocols << protocol
+        @write_protocols.unshift(protocol)
+      else
+        raise "Unknown protocol descriptor: #{read_write}. Must be :READ, :WRITE, or :READ_WRITE."
+      end
+      @protocol_info << [protocol_class, protocol_args, read_write]
+      protocol.interface = self
+    end
+
+    def _override_tlm(target_name, packet_name, item_name, value)
+      _override(target_name, packet_name, item_name, value, :CONVERTED)
+    end
+
+    def _override_tlm_raw(target_name, packet_name, item_name, value)
+      _override(target_name, packet_name, item_name, value, :RAW)
+    end
+
+    def _normalize_tlm(target_name, packet_name, item_name)
+      @override_tlm ||= {}
+      pkt = @override_tlm[target_name]
+      if pkt
+        items = @override_tlm[target_name][packet_name]
+        items.delete(item_name) if items
+      end
+    end
+
+    def _override(target_name, packet_name, item_name, value, type)
+      @override_tlm ||= {}
+      @override_tlm[target_name] ||= {}
+      @override_tlm[target_name][packet_name] ||= {}
+      @override_tlm[target_name][packet_name][item_name] = [value, type]
+    end
+  end
+end

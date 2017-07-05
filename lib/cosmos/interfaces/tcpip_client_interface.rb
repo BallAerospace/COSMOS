@@ -1,6 +1,6 @@
 # encoding: ascii-8bit
 
-# Copyright 2014 Ball Aerospace & Technologies Corp.
+# Copyright 2017 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
 # This program is free software; you can modify and/or redistribute it
@@ -12,7 +12,6 @@ require 'cosmos/interfaces/stream_interface'
 require 'cosmos/streams/tcpip_client_stream'
 
 module Cosmos
-
   # Base class for interfaces that act as a TCP/IP client
   class TcpipClientInterface < StreamInterface
 
@@ -21,16 +20,19 @@ module Cosmos
     # @param read_port [Integer] Port to read telemetry from
     # @param write_timeout [Integer] Seconds to wait before aborting writes
     # @param read_timeout [Integer] Seconds to wait before aborting reads
-    # @param stream_protocol_type (see StreamInterface#initialize)
-    # @param stream_protocol_args (see StreamInterface#initialize)
-    def initialize(hostname,
-                   write_port,
-                   read_port,
-                   write_timeout,
-                   read_timeout,
-                   stream_protocol_type,
-                   *stream_protocol_args)
-      super(stream_protocol_type, *stream_protocol_args)
+    # @param stream_protocol_type [String] Name of the stream protocol to use
+    #   with this interface
+    # @param stream_protocol_args [Array<String>] Arguments to pass to the protocol
+    def initialize(
+      hostname,
+      write_port,
+      read_port,
+      write_timeout,
+      read_timeout,
+      stream_protocol_type = nil,
+      *stream_protocol_args)
+
+      super(stream_protocol_type, stream_protocol_args)
 
       @hostname = hostname
       @write_port = ConfigParser.handle_nil(write_port)
@@ -42,19 +44,17 @@ module Cosmos
       @write_raw_allowed = false unless @write_port
     end
 
-    # Connects the {StreamProtocol} to a {TcpipClientStream} by passing the
+    # Connects the {TcpipClientStream} by passing the
     # initialization parameters to the {TcpipClientStream}.
     def connect
-      stream = TcpipClientStream.new(
+      @stream = TcpipClientStream.new(
         @hostname,
         @write_port,
         @read_port,
         @write_timeout,
-        @read_timeout)
-      stream.raw_logger_pair = @raw_logger_pair
-      @stream_protocol.connect(stream)
+        @read_timeout
+      )
+      super()
     end
-
-  end # class TcpipClientInterface
-
-end # module Cosmos
+  end
+end

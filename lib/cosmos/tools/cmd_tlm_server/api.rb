@@ -42,6 +42,9 @@ module Cosmos
         'set_tlm',
         'set_tlm_raw',
         'inject_tlm',
+        'override_tlm',
+        'override_tlm_raw',
+        'normalize_tlm',
         'get_tlm_buffer',
         'get_tlm_packet',
         'get_tlm_values',
@@ -538,7 +541,6 @@ module Cosmos
       cvt_packet.received_time = received_time
 
       # The interface does the following line, but I don't think inject_tlm should because it could confuse the interface
-      # interface.post_identify_packet(packet)
       target.tlm_cnt += 1
       packet.received_count += 1
       cvt_packet.received_count += 1
@@ -596,6 +598,76 @@ module Cosmos
 
       nil
     end
+
+    # Override a telemetry item in a packet to a particular value such that it
+    # is always returned even when new telemetry packets are received from the
+    # target.
+    #
+    # Accepts two different calling styles:
+    #   override_tlm("TGT PKT ITEM = 1.0")
+    #   override_tlm('TGT','PKT','ITEM', 10.0)
+    #
+    # Favor the first syntax where possible as it is more succinct.
+    #
+    # @param args The args must either be a string followed by a value or
+    #   three strings followed by a value (see the calling style in the
+    #   description).
+    def override_tlm(*args)
+      _override(__method__, set_tlm_process_args(args, __method__))
+    end
+
+    # Override a telemetry item in a packet to a particular value such that it
+    # is always returned even when new telemetry packets are received from the
+    # target. This only accepts RAW data items and any conversions are applied
+    # to the raw data when the packet is read.
+    #
+    # Accepts two different calling styles:
+    #   override_tlm_raw("TGT PKT ITEM = 1.0")
+    #   override_tlm_raw('TGT','PKT','ITEM', 10.0)
+    #
+    # Favor the first syntax where possible as it is more succinct.
+    #
+    # @param args The args must either be a string followed by a value or
+    #   three strings followed by a value (see the calling style in the
+    #   description).
+    def override_tlm_raw(*args)
+      _override(__method__, set_tlm_process_args(args, __method__))
+    end
+
+    # Normalize a telemetry item in a packet to its default behavior. Called
+    # after override_tlm and override_tlm_raw to restore standard processing.
+    #
+    # Accepts two different calling styles:
+    #   normalize_tlm("TGT PKT ITEM")
+    #   normalize_tlm('TGT','PKT','ITEM')
+    #
+    # Favor the first syntax where possible as it is more succinct.
+    #
+    # @param args The args must either be a string or three strings
+    #   (see the calling style in the description).
+    def normalize_tlm(*args)
+      _override(__method__, tlm_process_args(args, __method__))
+    end
+
+    private
+
+    def _override(method, tgt_pkt_item)
+      interface = System.targets[tgt_pkt_item[0]].interface
+      found = false
+      interface.read_protocols.each do |protocol|
+        found = true if protocol.kind_of? OverrideProtocol
+      end
+      if found
+        # Test to see if this telemetry item exists
+        System.telemetry.value(tgt_pkt_item[0], tgt_pkt_item[1], tgt_pkt_item[2], :RAW)
+        interface.public_send("_#{method}", *tgt_pkt_item)
+      else
+        raise "Interface #{interface.name} does not have override ability. Is 'PROTOCOL OverrideProtocol' under the interface definition?"
+      end
+      nil
+    end
+
+    public
 
     # Returns the raw buffer for a telemetry packet.
     #

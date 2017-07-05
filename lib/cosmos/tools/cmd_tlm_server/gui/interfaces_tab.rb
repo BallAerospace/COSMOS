@@ -10,6 +10,7 @@
 
 require 'cosmos'
 require 'cosmos/gui/qt'
+require 'cosmos/gui/dialogs/interface_raw_dialog'
 
 module Cosmos
 
@@ -19,7 +20,8 @@ module Cosmos
     ROUTERS = 'Routers'
     ALIGN_CENTER = Qt::AlignCenter
 
-    def initialize
+    def initialize(server_gui)
+      @server_gui = server_gui
       @interfaces_table = {}
     end
 
@@ -102,11 +104,11 @@ module Cosmos
       interfaces_table = Qt::TableWidget.new()
       interfaces_table.verticalHeader.hide()
       interfaces_table.setRowCount(interfaces.all.length)
-      interfaces_table.setColumnCount(10)
+      interfaces_table.setColumnCount(11)
       if name == ROUTERS
-        interfaces_table.setHorizontalHeaderLabels(["Router", "Connect/Disconnect", "Connected?", "Clients", "Tx Q Size", "Rx Q Size", "   Bytes Tx   ", "   Bytes Rx   ", "  Pkts Rcvd  ", "  Pkts Sent  "])
+        interfaces_table.setHorizontalHeaderLabels(["Router", "Connect/Disconnect", "Connected?", "Clients", "Tx Q Size", "Rx Q Size", "   Bytes Tx   ", "   Bytes Rx   ", "  Pkts Rcvd  ", "  Pkts Sent  ", "View Raw"])
       else
-        interfaces_table.setHorizontalHeaderLabels(["Interface", "Connect/Disconnect", "Connected?", "Clients", "Tx Q Size", "Rx Q Size", "   Bytes Tx   ", "   Bytes Rx   ", "  Cmd Pkts  ", "  Tlm Pkts "])
+        interfaces_table.setHorizontalHeaderLabels(["Interface", "Connect/Disconnect", "Connected?", "Clients", "Tx Q Size", "Rx Q Size", "   Bytes Tx   ", "   Bytes Rx   ", "  Cmd Pkts  ", "  Tlm Pkts ", "View Raw"])
       end
 
       populate_interface_table(name, interfaces, interfaces_table)
@@ -137,6 +139,17 @@ module Cosmos
           interfaces_table.setItem(row, index, item)
           index += 1
         end
+        view_raw = Qt::PushButton.new("View Raw")
+        view_raw.connect(SIGNAL('clicked()')) do
+          @raw_dialogs ||= []
+          if name == ROUTERS
+            current_interface = CmdTlmServer.routers.all[interface_name]
+          else
+            current_interface = CmdTlmServer.interfaces.all[interface_name]
+          end
+          @raw_dialogs << InterfaceRawDialog.new(@server_gui, current_interface)
+        end
+        interfaces_table.setCellWidget(row, index, view_raw)
         row += 1
       end
     end

@@ -54,6 +54,7 @@ module Cosmos
       # if the item should be drawn on the canvas as "on" or "off".
       begin
         @item_settings.each_with_index do |item,index|
+          next if @values[index].to_f.nan? || @values[index].to_f.infinite?
           eval_string << " " << item[0].to_s << " (" << @values[index].to_s << " " << item[1].to_s << " " << item[2].to_s << ")"
         end
         on = eval(eval_string)

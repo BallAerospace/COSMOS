@@ -1,6 +1,6 @@
 # encoding: ascii-8bit
 
-# Copyright 2014 Ball Aerospace & Technologies Corp.
+# Copyright 2017 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
 # This program is free software; you can modify and/or redistribute it
@@ -13,10 +13,8 @@ require 'cosmos/io/udp_sockets'
 require 'cosmos/config/config_parser'
 
 module Cosmos
-
   # Base class for interfaces that send and receive messages over UDP
   class UdpInterface < Interface
-
     # @param hostname [String] Machine to connect to
     # @param write_dest_port [Integer] Port to write commands to
     # @param read_port [Integer] Port to read telemetry from
@@ -29,21 +27,22 @@ module Cosmos
     # @param write_timeout [Integer] Seconds to wait before aborting writes
     # @param read_timeout [Integer] Seconds to wait before aborting reads
     # @param bind_address [String] Address to bind UDP ports to
-    def initialize(hostname,
-                   write_dest_port,
-                   read_port,
-                   write_src_port = nil,
-                   interface_address = nil,
-                   ttl = 128, # default for Windows
-                   write_timeout = 10.0,
-                   read_timeout = nil,
-                   bind_address = "0.0.0.0")
-      super()
+    def initialize(
+      hostname,
+      write_dest_port,
+      read_port,
+      write_src_port = nil,
+      interface_address = nil,
+      ttl = 128, # default for Windows
+      write_timeout = 10.0,
+      read_timeout = nil,
+      bind_address = '0.0.0.0')
 
+      super()
       @hostname = ConfigParser.handle_nil(hostname)
       if @hostname
         @hostname = @hostname.to_s
-        @hostname = '127.0.0.1' if @hostname.upcase == 'LOCALHOST'
+        @hostname = '127.0.0.1' if @hostname.casecmp('LOCALHOST')
       end
       @write_dest_port = ConfigParser.handle_nil(write_dest_port)
       @write_dest_port = write_dest_port.to_i if @write_dest_port
@@ -52,7 +51,9 @@ module Cosmos
       @write_src_port = ConfigParser.handle_nil(write_src_port)
       @write_src_port = @write_src_port.to_i if @write_src_port
       @interface_address = ConfigParser.handle_nil(interface_address)
-      @interface_address = '127.0.0.1' if @interface_address and @interface_address.upcase == 'LOCALHOST'
+      if @interface_address && @interface_address.casecmp('LOCALHOST')
+        @interface_address = '127.0.0.1'
+      end
       @ttl = ttl.to_i
       @ttl = 1 if @ttl < 1
       @write_timeout = ConfigParser.handle_nil(write_timeout)
@@ -60,7 +61,9 @@ module Cosmos
       @read_timeout = ConfigParser.handle_nil(read_timeout)
       @read_timeout = @read_timeout.to_f if @read_timeout
       @bind_address = ConfigParser.handle_nil(bind_address)
-      @bind_address = '127.0.0.1' if @bind_address and @bind_address.upcase == 'LOCALHOST'
+      if @bind_address && @bind_address.casecmp('LOCALHOST')
+        @bind_address = '127.0.0.1'
+      end
       @write_socket = nil
       @read_socket = nil
       @read_allowed = false unless @read_port
@@ -72,13 +75,18 @@ module Cosmos
     # the constructor and a new {UdpReadSocket} if the read_port was given in
     # the constructor.
     def connect
-      @write_socket = UdpWriteSocket.new(@hostname,
-                                         @write_dest_port,
-                                         @write_src_port,
-                                         @interface_address,
-                                         @ttl,
-                                         @bind_address) if @write_dest_port
-      @read_socket = UdpReadSocket.new(@read_port, @hostname, @interface_address, @bind_address) if @read_port
+      @write_socket = UdpWriteSocket.new(
+        @hostname,
+        @write_dest_port,
+        @write_src_port,
+        @interface_address,
+        @ttl,
+        @bind_address) if @write_dest_port
+      @read_socket = UdpReadSocket.new(
+        @read_port,
+        @hostname,
+        @interface_address,
+        @bind_address) if @read_port
       @thread_sleeper = nil
     end
 
@@ -105,69 +113,29 @@ module Cosmos
       @thread_sleeper = nil
     end
 
-    # If the read port was given, the read_socket is read and the data returned
-    # in a {Packet}. bytes_read and read_count are updated.
-    #
-    # @return [Packet]
     def read
-      if @read_port
-        begin
-          data = @read_socket.read(@read_timeout)
-          @raw_logger_pair.read_logger.write(data) if @raw_logger_pair
-        rescue IOError
-          # Disconnected
-          return nil
-        end
-
-        @bytes_read += data.length
-        @read_count += 1
-
-        return Packet.new(nil, nil, :BIG_ENDIAN, nil, data)
-      else
-        # Write only interface so stop the thread which calls read
-        @thread_sleeper = Sleeper.new
-        while connected?()
-          @thread_sleeper.sleep(1000000)
-        end
-        return nil
-      end
+      return super() if @read_port
+      # Write only interface so stop the thread which calls read
+      @thread_sleeper = Sleeper.new
+      @thread_sleeper.sleep(1_000_000_000) while connected?
+      return nil
     end
 
-    # If the write_dest_port was given, the write_socket is written with the
-    # packet data. bytes_written and write_count are updated.
-    #
-    # @param packet [Packet] Packet buffer to write
-    def write(packet)
-      if @write_dest_port
-        if connected?()
-          write_raw(packet.buffer)
-        else
-          raise "Interface not connected"
-        end
-      else
-        raise "Attempt to write to read only interface"
-      end
+    # Reads from the socket if the read_port is defined
+    def read_interface
+      data = @read_socket.read(@read_timeout)
+      read_interface_base(data)
+      return data
+    rescue IOError # Disconnected
+      return nil
     end
 
-    # If the write_dest_port was given, the write_socket is written with the
-    # data. bytes_written and write_count are updated.
-    #
-    # @param data [String] Raw binary data to write
-    def write_raw(data)
-      if @write_dest_port
-        if connected?()
-          @write_socket.write(data, @write_timeout)
-          @bytes_written += data.length
-          @write_count += 1
-          @raw_logger_pair.write_logger.write(data) if @raw_logger_pair
-        else
-          raise "Interface not connected"
-        end
-      else
-        raise "Attempt to write to read only interface"
-      end
+    # Writes to the socket
+    # @param data [String] Raw packet data
+    def write_interface(data)
+      write_interface_base(data)
+      @write_socket.write(data, @write_timeout)
+      data
     end
-
-  end # class UdpInterface
-
-end # module Cosmos
+  end
+end

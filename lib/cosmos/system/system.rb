@@ -61,11 +61,15 @@ module Cosmos
     instance_attr_reader :limits_set
     # @return [Boolean] Whether to use UTC or local times
     instance_attr_reader :use_utc
+    # @return [Array<String>] List of files that are to be included in the MD5 
+    #   calculation in addition to the cmd/tlm definition files that are 
+    #   automatically included
+    instance_attr_reader :additional_md5_files
 
     # Known COSMOS ports
     KNOWN_PORTS = ['CTS_API', 'TLMVIEWER_API', 'CTS_PREIDENTIFIED', 'CTS_CMD_ROUTER']
     # Known COSMOS paths
-    KNOWN_PATHS = ['LOGS', 'TMP', 'SAVED_CONFIG', 'TABLES', 'HANDBOOKS', 'PROCEDURES']
+    KNOWN_PATHS = ['LOGS', 'TMP', 'SAVED_CONFIG', 'TABLES', 'HANDBOOKS', 'PROCEDURES', 'SEQUENCES']
 
     @@instance = nil
     @@instance_mutex = Mutex.new
@@ -94,6 +98,7 @@ module Cosmos
       @staleness_seconds = 30
       @limits_set = :DEFAULT
       @use_utc = false
+      @additional_md5_files = []
 
       @ports = {}
       @ports['CTS_API'] = 7777
@@ -108,6 +113,7 @@ module Cosmos
       @paths['TABLES'] = File.join(USERPATH, 'outputs', 'tables')
       @paths['HANDBOOKS'] = File.join(USERPATH, 'outputs', 'handbooks')
       @paths['PROCEDURES'] = [File.join(USERPATH, 'procedures')]
+      @paths['SEQUENCES'] = File.join(USERPATH, 'outputs', 'sequences')
 
       unless filename
         system_arg = false
@@ -228,6 +234,7 @@ module Cosmos
       acl_list = []
       all_allowed = false
       first_procedures_path = true
+      @additional_md5_files = []
 
       Cosmos.set_working_dir do
         parser = ConfigParser.new("http://cosmosrb.com/docs/system")
@@ -343,6 +350,16 @@ module Cosmos
           when 'TIME_ZONE_UTC'
             parser.verify_num_parameters(0, 0, "#{keyword}")
             @use_utc = true
+
+          when 'ADD_MD5_FILE'
+            parser.verify_num_parameters(1, 1, "#{keyword} <Filename>")
+            if File.file?(parameters[0])
+              @additional_md5_files << File.expand_path(parameters[0])
+            elsif File.file?(File.join(Cosmos::USERPATH, parameters[0]))
+              @additional_md5_files << File.expand_path(File.join(Cosmos::USERPATH, parameters[0]))
+            else
+              raise "Missing expected file: #{parameters[0]}"
+            end
 
           else
             # blank lines will have a nil keyword and should not raise an exception
@@ -587,7 +604,7 @@ module Cosmos
         end
       end
 
-      md5 = Cosmos.md5_files(cmd_tlm_files, additional_data)
+      md5 = Cosmos.md5_files(cmd_tlm_files + @additional_md5_files, additional_data)
       md5_string = md5.hexdigest
 
       # Build filename for marshal file

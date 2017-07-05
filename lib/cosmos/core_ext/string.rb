@@ -199,7 +199,14 @@ class String
   def convert_to_value
     return_value = self
     begin
-      if self.is_float?
+      upcase_self = self.upcase
+      if upcase_self == 'INFINITY'.freeze
+        return_value = Float::INFINITY
+      elsif upcase_self == '-INFINITY'.freeze
+        return_value = -Float::INFINITY
+      elsif upcase_self == 'NAN'.freeze
+        return_value = Float::NAN
+      elsif self.is_float?
         # Floating Point in normal or scientific notation
         return_value = self.to_f
       elsif self.is_int?

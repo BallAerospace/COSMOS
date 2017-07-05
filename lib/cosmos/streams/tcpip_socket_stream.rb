@@ -77,7 +77,6 @@ module Cosmos
                 data = ''
               end
             end
-            @raw_logger_pair.read_logger.write(data) if @raw_logger_pair
             break
           end
         rescue Errno::ECONNRESET, Errno::ECONNABORTED, IOError, Errno::ENOTSOCK
@@ -86,7 +85,6 @@ module Cosmos
       else
         begin
           data = @read_socket.read_nonblock(65535)
-          @raw_logger_pair.read_logger.write(data) if @raw_logger_pair
         rescue IO::WaitReadable
           # Wait for the socket to be ready for reading or for the timeout
           begin
@@ -124,14 +122,9 @@ module Cosmos
         if FAST_READ
           data = @read_socket.read_nonblock(65535, exception: false)
           raise EOFError, 'end of file reached' unless data
-          if data == :wait_readable
-            data = ''
-          else
-            @raw_logger_pair.read_logger.write(data) if @raw_logger_pair
-          end
+          data = '' if data == :wait_readable
         else
           data = @read_socket.read_nonblock(65535)
-          @raw_logger_pair.read_logger.write(data) if @raw_logger_pair
         end
       rescue Errno::EAGAIN, Errno::EWOULDBLOCK, Errno::ECONNRESET, Errno::ECONNABORTED, IOError
         data = ''
@@ -153,7 +146,6 @@ module Cosmos
         loop do
           begin
             bytes_sent = @write_socket.write_nonblock(data_to_send)
-            @raw_logger_pair.write_logger.write(data_to_send[0..(bytes_sent - 1)]) if @raw_logger_pair and bytes_sent > 0
           rescue Errno::EAGAIN, Errno::EWOULDBLOCK
             # Wait for the socket to be ready for writing or for the timeout
             result = IO.fast_select(nil, [@write_socket], nil, @write_timeout)

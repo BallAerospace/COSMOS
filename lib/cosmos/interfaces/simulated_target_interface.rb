@@ -1,6 +1,6 @@
 # encoding: ascii-8bit
 
-# Copyright 2014 Ball Aerospace & Technologies Corp.
+# Copyright 2017 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
 # This program is free software; you can modify and/or redistribute it
@@ -9,26 +9,25 @@
 # attribution addendums as found in the LICENSE.txt
 
 require 'cosmos/interfaces/interface'
+require 'cosmos/interfaces/protocols/override_protocol'
 
 module Cosmos
-
   # An interface class that provides simulated telemetry and command responses
   class SimulatedTargetInterface < Interface
 
     # @param sim_target_file [String] Filename of the simulator target class
     def initialize(sim_target_file)
       super()
-
       @connected = false
       @initialized = false
       @count_100hz = 0
       @next_tick_time = nil
       @pending_packets = []
-
       @sim_target_class = Cosmos.require_class sim_target_file
       @sim_target = nil
       @write_raw_allowed = false
       @raw_logger_pair = nil
+      add_protocol(OverrideProtocol, [], :READ)
     end
 
     # Initialize the simulated target object and "connect" to the target
@@ -36,16 +35,13 @@ module Cosmos
       unless @initialized
         # Save the current time + 10 ms as the next expected tick time
         @next_tick_time = Time.now.sys + 0.01
-
         # Create Simulated Target Object
         @sim_target = @sim_target_class.new(@target_names[0])
-
         # Set telemetry rates
         @sim_target.set_rates
 
         @initialized = true
       end
-
       @connected = true
     end
 
@@ -56,9 +52,15 @@ module Cosmos
 
     # @return [Packet] Returns a simulated target packet from the simulator
     def read
+      packet = nil
       if @connected
         packet = first_pending_packet()
-        return packet if packet
+        if packet
+          # This is just to support the override functionality
+          # Generic protocol use is not supported
+          packet = @read_protocols[0].read_packet(packet)
+          return packet
+        end
 
         while true
           # Calculate time to sleep to make ticks 10ms apart
@@ -77,11 +79,17 @@ module Cosmos
           @count_100hz += 1
 
           packet = first_pending_packet()
-          return packet if packet
+          if packet
+            # This is just to support the override functionality
+            # Generic protocol use is not supported
+            packet = @read_protocols[0].read_packet(packet)
+            return packet
+          end
         end
       else
         raise "Interface not connected"
       end
+      return packet
     end
 
     # @param packet [Packet] Command packet to send to the simulator
@@ -89,7 +97,9 @@ module Cosmos
       if @connected
         # Update count of commands sent through this interface
         @write_count += 1
-        @bytes_written += packet.buffer.length
+        @bytes_written += packet.length
+        @written_raw_data_time = Time.now
+        @written_raw_data = packet.buffer
 
         # Have simulated target handle the packet
         @sim_target.write(packet)
@@ -120,10 +130,11 @@ module Cosmos
       unless @pending_packets.empty?
         @read_count += 1
         packet = @pending_packets.pop.clone
-        @bytes_read += packet.buffer.length
+        @bytes_read += packet.length
+        @read_raw_data_time = Time.now
+        @read_raw_data = packet.buffer
       end
       packet
     end
   end
-
-end # module Cosmos
+end

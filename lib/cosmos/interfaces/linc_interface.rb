@@ -12,7 +12,6 @@ require 'cosmos/interfaces/tcpip_client_interface'
 require 'uuidtools'
 
 module Cosmos
-
   # Interface for connecting to Ball Aerospace LINC Labview targets
   class LincInterface < TcpipClientInterface
     # The maximum number of asynchronous commands we can wait for at a time.
@@ -456,6 +455,5 @@ module Cosmos
     def get_cmd_guid(fieldname_guid)
       return @identified_command.read(fieldname_guid)
     end
-  end  # class LincHandshake
-
-end # module Cosmos
+  end
+end

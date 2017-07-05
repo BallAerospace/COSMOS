@@ -51,10 +51,10 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
 else # Linux
 
   # Yum dependencies tested on Centos 6.5/6.6/7
-  cmdtoyum="yum update -y; yum install -y gcc gcc-c++ openssl-devel libyaml-devel libffi-devel readline-devel zlib-devel gdbm-devel ncurses-devel git gstreamer-plugins-base-devel cmake freeglut freeglut-devel qt4 qt4-devel"
+  cmdtoyum="yum update -y; yum install -y gcc; yum install -y gcc-c++; yum install -y openssl-devel; yum install -y libyaml-devel; yum install -y libffi-devel; yum install -y readline-devel; yum install -y zlib-devel; yum install -y gdbm-devel; yum install -y ncurses-devel; yum install -y git; yum install -y gstreamer-plugins-base-devel; yum install -y cmake; yum install -y freeglut; yum install -y freeglut-devel; yum install -y qt4; yum install -y qt4-devel;"
 
   #apt dependencies - lightly tested on Ubuntu 14.04 LTS
-  cmdtoapt="apt-get update -y; apt-get install -y gcc g++ libssl-dev libyaml-dev libffi-dev libreadline6-dev zlib1g-dev libgdbm3 libgdbm-dev libncurses5-dev git libgstreamer0.10-dev libgstreamer-plugins-base0.10-dev  cmake freeglut3 freeglut3-dev qt4-default qt4-dev-tools libsmokeqt4-dev"
+  cmdtoapt="apt-get update -y; apt-get install -y gcc; apt-get install -y g++; apt-get install -y libssl-dev; apt-get install -y libyaml-dev; apt-get install -y libffi-dev; apt-get install -y libreadline6-dev; apt-get install -y zlib1g-dev; apt-get install -y libgdbm3; apt-get install -y libgdbm-dev; apt-get install -y libncurses5-dev; apt-get install -y git; apt-get install -y libgstreamer0.10-dev; apt-get install -y libgstreamer-plugins-base0.10-dev; apt-get install -y cmake; apt-get install -y freeglut3; apt-get install -y freeglut3-dev; apt-get install -y qt4-default; apt-get install -y qt4-dev-tools; apt-get install -y libsmokeqt4-dev;"
   YUM_CMD=$(which yum)
   APT_GET_CMD=$(which apt-get)
 

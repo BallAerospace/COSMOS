@@ -32,13 +32,27 @@ module Cosmos
         file.puts "end"
       end
 
+      @protocol_filename = File.join(Cosmos::USERPATH,'lib','cts_config_test_protocol.rb')
+      File.open(@protocol_filename,'w') do |file|
+        file.puts "require 'cosmos'"
+        file.puts "require 'cosmos/interfaces/protocols/protocol'"
+        file.puts "module Cosmos"
+        file.puts "  class CtsConfigTestProtocol < Protocol"
+        file.puts "    def initialize(*args)" # Allow any args
+        file.puts "      super()"
+        file.puts "    end"
+        file.puts "  end"
+        file.puts "end"
+      end
+
       @keywords = %w(TITLE PACKET_LOG_WRITER AUTO_INTERFACE_TARGETS INTERFACE_TARGET INTERFACE ROUTER)
-      @interface_keywords = %w(DONT_CONNECT DONT_RECONNECT RECONNECT_DELAY DISABLE_DISCONNECT LOG DONT_LOG TARGET)
+      @interface_keywords = %w(DONT_CONNECT DONT_RECONNECT RECONNECT_DELAY DISABLE_DISCONNECT LOG DONT_LOG TARGET PROTOCOL)
     end
 
     after(:all) do
       clean_config()
       File.delete @interface_filename
+      File.delete @protocol_filename
     end
 
     describe "process_file" do
@@ -365,6 +379,112 @@ module Cosmos
           tf.puts 'TARGET BLAH'
           tf.close
           expect { CmdTlmServerConfig.new(tf.path) }.to raise_error(ConfigParser::Error, /Unknown target BLAH mapped to interface CTSCONFIGTESTINTERFACE/)
+          tf.unlink
+        end
+      end
+
+      context "with PROTOCOL" do
+        it "requires two parameters" do
+          tf = Tempfile.new('unittest')
+          tf.puts "INTERFACE CtsConfigTestInterface cts_config_test_interface.rb"
+          tf.puts 'PROTOCOL'
+          tf.close
+          expect { CmdTlmServerConfig.new(tf.path) }.to raise_error(ConfigParser::Error, /Not enough parameters for PROTOCOL/)
+          tf.unlink
+        end
+
+        it "requires a READ, WRITE, or READ_WRITE descriptor" do
+          tf = Tempfile.new('unittest')
+          tf.puts "INTERFACE CtsConfigTestInterface cts_config_test_interface.rb"
+          tf.puts 'PROTOCOL BLAH cts_config_test_protocol.rb'
+          tf.close
+          expect { CmdTlmServerConfig.new(tf.path) }.to raise_error(ConfigParser::Error, /Invalid protocol type: BLAH/)
+          tf.unlink
+        end
+
+        it "requires a protocol filename or class" do
+          tf = Tempfile.new('unittest')
+          tf.puts "INTERFACE CtsConfigTestInterface cts_config_test_interface.rb"
+          tf.puts 'PROTOCOL READ'
+          tf.close
+          expect { CmdTlmServerConfig.new(tf.path) }.to raise_error(ConfigParser::Error, /Not enough parameters for PROTOCOL/)
+          tf.unlink
+        end
+
+        it "instantiates via the file name" do
+          tf = Tempfile.new('unittest')
+          tf.puts "INTERFACE CtsConfigTestInterface cts_config_test_interface.rb"
+          tf.puts 'PROTOCOL READ cts_config_test_protocol.rb'
+          tf.close
+          config = CmdTlmServerConfig.new(tf.path)
+          expect(config.interfaces['CTSCONFIGTESTINTERFACE'].read_protocols[0].class).to be CtsConfigTestProtocol
+          tf.unlink
+        end
+
+        it "instantiates via the class name" do
+          tf = Tempfile.new('unittest')
+          tf.puts "INTERFACE CtsConfigTestInterface cts_config_test_interface.rb"
+          tf.puts 'PROTOCOL READ CtsConfigTestProtocol'
+          tf.close
+          config = CmdTlmServerConfig.new(tf.path)
+          expect(config.interfaces['CTSCONFIGTESTINTERFACE'].read_protocols[0].class).to be CtsConfigTestProtocol
+          tf.unlink
+        end
+
+        it "appends to the list of READ protocols" do
+          tf = Tempfile.new('unittest')
+          tf.puts "INTERFACE CtsConfigTestInterface cts_config_test_interface.rb"
+          tf.puts 'PROTOCOL READ OverrideProtocol'
+          tf.puts 'PROTOCOL READ CtsConfigTestProtocol'
+          tf.close
+          config = CmdTlmServerConfig.new(tf.path)
+          read_protocols = config.interfaces['CTSCONFIGTESTINTERFACE'].read_protocols
+          expect(read_protocols[0].class).to be OverrideProtocol
+          expect(read_protocols[1].class).to be CtsConfigTestProtocol
+          expect(config.interfaces['CTSCONFIGTESTINTERFACE'].write_protocols).to be_empty
+          tf.unlink
+        end
+
+        it "prepends to the list of WRITE protocols" do
+          tf = Tempfile.new('unittest')
+          tf.puts "INTERFACE CtsConfigTestInterface cts_config_test_interface.rb"
+          tf.puts 'PROTOCOL WRITE OverrideProtocol'
+          tf.puts 'PROTOCOL WRITE CtsConfigTestProtocol'
+          tf.close
+          config = CmdTlmServerConfig.new(tf.path)
+          write_protocols = config.interfaces['CTSCONFIGTESTINTERFACE'].write_protocols
+          expect(write_protocols[0].class).to be CtsConfigTestProtocol
+          expect(write_protocols[1].class).to be OverrideProtocol
+          expect(config.interfaces['CTSCONFIGTESTINTERFACE'].read_protocols).to be_empty
+          tf.unlink
+        end
+
+        it "adds to both with READ_WRITE" do
+          tf = Tempfile.new('unittest')
+          tf.puts "INTERFACE CtsConfigTestInterface cts_config_test_interface.rb"
+          tf.puts 'PROTOCOL READ_WRITE OverrideProtocol'
+          tf.puts 'PROTOCOL READ_WRITE CtsConfigTestProtocol'
+          tf.close
+          config = CmdTlmServerConfig.new(tf.path)
+          read_protocols = config.interfaces['CTSCONFIGTESTINTERFACE'].read_protocols
+          write_protocols = config.interfaces['CTSCONFIGTESTINTERFACE'].write_protocols
+          expect(read_protocols[0].class).to be OverrideProtocol
+          expect(read_protocols[1].class).to be CtsConfigTestProtocol
+          expect(write_protocols[0].class).to be CtsConfigTestProtocol
+          expect(write_protocols[1].class).to be OverrideProtocol
+          tf.unlink
+        end
+
+        it "stores initialization parameters" do
+          tf = Tempfile.new('unittest')
+          tf.puts "INTERFACE CtsConfigTestInterface cts_config_test_interface.rb"
+          tf.puts 'PROTOCOL READ cts_config_test_protocol.rb PARAM1 20'
+          tf.close
+          config = CmdTlmServerConfig.new(tf.path)
+          pinfo = config.interfaces['CTSCONFIGTESTINTERFACE'].protocol_info[0]
+          expect(pinfo[0]).to be CtsConfigTestProtocol
+          expect(pinfo[1]).to eq ['PARAM1', '20']
+          expect(pinfo[2]).to eq :READ
           tf.unlink
         end
       end

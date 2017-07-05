@@ -48,7 +48,7 @@ module Cosmos
 
       it "creates default paths" do
         # Don't check the actual paths but just that they exist
-        expect(System.paths.keys).to eql %w(LOGS TMP SAVED_CONFIG TABLES HANDBOOKS PROCEDURES)
+        expect(System.paths.keys).to eql %w(LOGS TMP SAVED_CONFIG TABLES HANDBOOKS PROCEDURES SEQUENCES)
       end
     end
 
@@ -638,6 +638,41 @@ module Cosmos
           expect(System.staleness_seconds).to eql 30
           System.instance.process_file(tf.path)
           expect(System.staleness_seconds).to eql 3
+          tf.unlink
+        end
+      end
+
+      context "with ADD_MD5_FILE" do
+        it "takes 1 parameters" do
+          tf = Tempfile.new('unittest')
+          tf.puts("ADD_MD5_FILE")
+          tf.close
+          expect { System.instance.process_file(tf.path) }.to raise_error(ConfigParser::Error, /Not enough parameters for ADD_MD5_FILE./)
+          tf.unlink
+
+          tf = Tempfile.new('unittest')
+          tf.puts("ADD_MD5_FILE 1 2")
+          tf.close
+          expect { System.instance.process_file(tf.path) }.to raise_error(ConfigParser::Error, /Too many parameters for ADD_MD5_FILE./)
+          tf.unlink
+        end
+
+        it "complains about missing files" do
+          tf = Tempfile.new('unittest')
+          tf.puts("ADD_MD5_FILE missing_file")
+          tf.close
+          expect { System.instance.process_file(tf.path) }.to raise_error(/Missing expected file: missing_file/)
+          tf.unlink
+        end
+
+        it "adds a file to the MD5 calculation" do
+          md5f = Tempfile.new('md5_file')
+          tf = Tempfile.new('unittest')
+          tf.puts("ADD_MD5_FILE #{File.expand_path(md5f.path)}")
+          tf.close
+          System.instance.process_file(tf.path)
+          expect(System.additional_md5_files.include?(File.expand_path(md5f.path))).to be true
+          md5f.unlink
           tf.unlink
         end
       end

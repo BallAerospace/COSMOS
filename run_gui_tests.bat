@@ -1,5 +1,7 @@
 call bundle exec ruby autohotkey\tools\CmdExtractorAHK --defaultsize
 call bundle exec ruby autohotkey\tools\CmdSenderAHK -w 650 -t 650
+call bundle exec ruby autohotkey\tools\CmdSequenceAHK -w 650 -t 650
+call bundle exec ruby autohotkey\tools\CmdSequenceAHK2 -w 650 -t 650 -r run_sequence.txt -o procedures
 call bundle exec ruby autohotkey\tools\CmdTlmServerAHK -x 50 -y 50 -w 900 -t 1000
 call bundle exec ruby autohotkey\tools\CmdTlmServerAHK2 -w 900 -t 1000 -p -n -c cmd_tlm_server.txt
 call bundle exec ruby autohotkey\tools\DataViewerAHK -w 600 -t 800

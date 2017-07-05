@@ -1,6 +1,6 @@
 # encoding: ascii-8bit
 
-# Copyright 2014 Ball Aerospace & Technologies Corp.
+# Copyright 2017 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
 # This program is free software; you can modify and/or redistribute it
@@ -11,11 +11,9 @@
 require 'cosmos/interfaces/interface'
 
 module Cosmos
-
   # Allows commands to be sent and telemetry received from the the
   # CmdTlmServer.
   class CmdTlmServerInterface < Interface
-
     # Create the interface and disallow raw writes
     def initialize
       super()
@@ -29,13 +27,16 @@ module Cosmos
       @limit_id = CmdTlmServer.instance.subscribe_limits_events
     end
 
-    # @return [Boolean] Always returns true
+    # @return [Boolean] Returns whether subscribed to limits events
     def connected?
-      if @limit_id
-        return true
-      else
-        return false
-      end
+      return true if @limit_id
+      false
+    end
+
+    # Unsubscribe from the limits events
+    def disconnect
+      CmdTlmServer.instance.unsubscribe_limits_events(@limit_id) if @limit_id
+      @limit_id = nil
     end
 
     # Continuously wait for limits events and returning
@@ -61,6 +62,8 @@ module Cosmos
               packet.write('OLD_STATE', data[3])
               packet.write('NEW_STATE', data[4])
               @read_count += 1
+              @read_raw_data_time = Time.now
+              @read_raw_data = packet.buffer
               return packet
             end
           else
@@ -85,6 +88,8 @@ module Cosmos
       @write_count += 1
       command_data = packet.buffer
       @bytes_written += command_data.length
+      @written_raw_data_time = Time.now
+      @written_raw_data = command_data
 
       identified_command = System.commands.identify(command_data, ['SYSTEM'])
       if identified_command
@@ -117,21 +122,13 @@ module Cosmos
     end
 
     # Raise an error because this method is not implemented for this interface
-    def write_raw(data)
+    def write_raw(_data)
       raise "write_raw not implemented for CmdTlmServerInterface"
     end
 
     # Raise an error because raw logging is not supported for this interface
-    def raw_logger_pair=(raw_logger_pair)
+    def raw_logger_pair=(_raw_logger_pair)
       raise "Raw logging not supported for CmdTlmServerInterface"
     end
-
-    # Unsubscribe from the limits events
-    def disconnect
-      CmdTlmServer.instance.unsubscribe_limits_events(@limit_id) if @limit_id
-      @limit_id = nil
-    end
-
-  end # end class CmdTlmServerInterface
-
-end # module Cosmos
+  end
+end

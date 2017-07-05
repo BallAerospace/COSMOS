@@ -23,7 +23,11 @@ COMMAND INST ABORT BIG_ENDIAN "Aborts a collect on the instrument"
   PARAMETER    CCSDSTYPE       3   1  UINT  1     1   1 "CCSDS primary header packet type"
   PARAMETER    CCSDSSHF        4   1  UINT  0     0   0 "CCSDS primary header secondary header flag"
   ID_PARAMETER CCSDSAPID       5  11  UINT  0  2047 999 "CCSDS primary header application id"
-  PARAMETER    CCSDSSEQFLAGS  16   2  UINT  3     3   3 "CCSDS primary header sequence flags"
+  PARAMETER    CCSDSSEQFLAGS  16   2  UINT  0     3   3 "CCSDS primary header sequence flags"
+    STATE FIRST 1
+    STATE CONT 0
+    STATE LAST 2
+    STATE NOGROUP 3
   PARAMETER    CCSDSSEQCNT    18  14  UINT  0 16383   0 "CCSDS primary header sequence count"
     OVERFLOW TRUNCATE
   PARAMETER    CCSDSLENGTH    32  16  UINT  0 65535   1 "CCSDS primary header packet length"
@@ -71,6 +75,7 @@ COMMAND INST ASCIICMD BIG_ENDIAN "Enumerated ASCII command"
     STATE "NOOP" "NOOP"
     STATE "ARM LASER" "ARM LASER" HAZARDOUS "Arming the laser poses an eye safety hazard."
     STATE "FIRE LASER" "FIRE LASER" HAZARDOUS "WARNING Laser will be fired!"
+  APPEND_PARAMETER BINARY 32 STRING 0xDEADBEEF "Binary string"
 
 COMMAND INST FLTCMD BIG_ENDIAN "Command with float parameters"
   PARAMETER    CCSDSVER        0   3  UINT  0     0   0 "CCSDS primary header version number"

@@ -291,3 +291,20 @@ tlm_with_units("INST", "HEALTH_STATUS")
 tlm_with_units("INST", "HEALTH_STATUS", "BOB")
 tlm_with_units("INST", "HEALTH_STATUS", "ARY", "BOB")
 
+# override_tlm
+override_tlm("INST HEALTH_STATUS ARY = [0,0,0,0,0,0,0,0,0,0]")
+override_tlm("INST HEALTH_STATUS ASCIICMD = 'HI'")
+override_tlm("INST HEALTH_STATUS CCSDSAPID = 1000")
+override_tlm("INST HEALTH_STATUS TEMP1 = 15")
+
+# override_tlm_raw
+override_tlm_raw("INST HEALTH_STATUS ARY = [0,0,0,0,0,0,0,0,0,0]")
+override_tlm_raw("INST HEALTH_STATUS ASCIICMD = 'HI'")
+override_tlm_raw("INST HEALTH_STATUS CCSDSAPID = 1000")
+override_tlm_raw("INST HEALTH_STATUS TEMP1 = 10000")
+
+# normalize_tlm
+normalize_tlm("INST HEALTH_STATUS ARY")
+normalize_tlm("INST HEALTH_STATUS ASCIICMD")
+normalize_tlm("INST HEALTH_STATUS CCSDSAPID")
+normalize_tlm("INST HEALTH_STATUS TEMP1")

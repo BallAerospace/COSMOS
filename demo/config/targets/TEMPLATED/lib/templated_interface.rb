@@ -28,7 +28,11 @@ module Cosmos
         @sleeper = Sleeper.new
         @polling_thread = Thread.current
         begin
-          while connected?
+          # Wait for the connection to actually occur
+          while !connected?
+            @sleeper.sleep(1)
+          end
+          loop do
             cmd("#{@target_names[0]} GET_SETPT_VOLTAGE")
             break if @sleeper.sleep(1)
           end
@@ -42,8 +46,8 @@ module Cosmos
 
     def disconnect
       super()
-      # Note: This must be after super or the disconnect process will be interrupted by killing
-      # the thread
+      # Note: This must be after super or the disconnect process
+      # will be interrupted by killing the thread
       Cosmos.kill_thread(self, @polling_thread) if Thread.current != @polling_thread
       @polling_thread = nil
     end
@@ -52,5 +56,4 @@ module Cosmos
       @sleeper.cancel
     end
   end
-
-end # module Cosmos
+end
