@@ -24,6 +24,7 @@ module Cosmos
     # @param telemetry_stream [Boolean] Whether the stream is returning
     #   telemetry (true) or commands (false)
     # @param fill_fields (see StreamProtocol#initialize)
+    # @param unknown_raise Whether to raise an exception on an unknown packet
     def initialize(
       min_id_size,
       discard_leading_bytes = 0,
@@ -97,7 +98,7 @@ module Cosmos
       end
 
       unless identified_packet
-        raise "Unknown data received by FixedStreamProtocol" if unknown_raise
+        raise "Unknown data received by FixedStreamProtocol" if @unknown_raise
         # Unknown packet?  Just return all the current data
         packet_data = @data.clone
         @data.replace('')

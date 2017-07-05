@@ -102,6 +102,28 @@ module Cosmos
     end
 
     describe "read" do
+      it "handles a sync pattern" do
+        @interface.instance_variable_set(:@stream, PreStream.new)
+        @interface.add_protocol(PreidentifiedStreamProtocol, ["0x1234"], :READ_WRITE)
+        pkt = System.telemetry.packet("SYSTEM","META")
+        pkt.write("COSMOS_VERSION", "TEST")
+        time = Time.new(2020,1,31,12,15,30.5)
+        pkt.received_time = time
+        @interface.write(pkt)
+        expect($buffer[0]).to eql "\x12"
+        expect($buffer[1]).to eql "\x34"
+        packet = @interface.read
+        expect(packet.target_name).to eql 'SYSTEM'
+        expect(packet.packet_name).to eql 'META'
+        expect(packet.identified?).to be true
+        expect(packet.defined?).to be false
+
+        pkt2 = System.telemetry.update!("SYSTEM","META",packet.buffer)
+        expect(pkt2.read('COSMOS_VERSION')).to eql 'TEST'
+        expect(pkt2.identified?).to be true
+        expect(pkt2.defined?).to be true
+      end
+
       it "returns a packet" do
         @interface.instance_variable_set(:@stream, PreStream.new)
         @interface.add_protocol(PreidentifiedStreamProtocol, [], :READ_WRITE)

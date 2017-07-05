@@ -62,8 +62,7 @@ module Cosmos
 
       # Discard leading bytes if necessary
       packet_data.replace(packet_data[@discard_leading_bytes..-1]) if @discard_leading_bytes > 0
-
-      return packet_data
+      packet_data
     end
 
     # Called to perform modifications on a command packet before it is sent
@@ -79,7 +78,7 @@ module Cosmos
         BinaryAccessor.write(@sync_pattern, 0, @sync_pattern.length * 8, :BLOCK,
                              packet.buffer(false), :BIG_ENDIAN, :ERROR)
       end
-      return packet
+      packet
     end
 
     # Called to perform modifications on write data before sending it to the stream
@@ -98,7 +97,7 @@ module Cosmos
                                data, :BIG_ENDIAN, :ERROR)
         end
       end
-      return super(data)
+      super(data)
     end
 
     # @return [Boolean] control code (nil, :STOP)
@@ -149,7 +148,6 @@ module Cosmos
           end # unless sync_index.nil?
         end # end loop
       end # if @sync_pattern
-
       nil
     end
 
@@ -167,16 +165,10 @@ module Cosmos
     end
 
     def reduce_to_single_packet
-      if @data.length <= 0
-        # Need some data
-        return :STOP
-      end
-
       # Reduce to packet data and clear data for next packet
       packet_data = @data.clone
       @data.replace('')
-
-      return packet_data
+      packet_data
     end
   end
 end

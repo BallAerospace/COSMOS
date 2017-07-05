@@ -44,6 +44,33 @@ module Cosmos
         def read; "\x01\x02"; end
       end
 
+      it "returns unknown packets" do
+        @interface.add_protocol(FixedStreamProtocol, [1], :READ)
+        @interface.instance_variable_set(:@stream, FixedStream.new)
+        packet = @interface.read
+        expect(packet.received_time.to_f).to eql 0.0
+        expect(packet.target_name).to eql nil
+        expect(packet.packet_name).to eql nil
+        expect(packet.buffer).to eql "\x01\x02"
+      end
+
+      it "raises an exception if unknown packet" do
+        @interface.add_protocol(FixedStreamProtocol, [1, 0, nil, true, false, true], :READ)
+        @interface.instance_variable_set(:@stream, FixedStream.new)
+        expect { @interface.read }.to raise_error(/Unknown data/)
+      end
+
+      it "handles targets with no defined telemetry" do
+        @interface.add_protocol(FixedStreamProtocol, [1], :READ)
+        @interface.instance_variable_set(:@stream, FixedStream.new)
+        @interface.target_names = ['BLAH']
+        packet = @interface.read
+        expect(packet.received_time.to_f).to eql 0.0
+        expect(packet.target_name).to eql nil
+        expect(packet.packet_name).to eql nil
+        expect(packet.buffer).to eql "\x01\x02"
+      end
+
       it "reads telemetry data from the stream" do
         @interface.add_protocol(FixedStreamProtocol, [1], :READ_WRITE)
         @interface.instance_variable_set(:@stream, FixedStream.new)
