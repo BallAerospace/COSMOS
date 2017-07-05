@@ -69,7 +69,7 @@ module Cosmos
           if @strip_read_termination
             packet_data = ''
           else # Keep everything
-            packet_data = @data[0..-1]
+            packet_data = @data[0..(@read_termination_characters.length - 1)]
           end
         end
         @data.replace(@data[(index + @read_termination_characters.length)..-1])

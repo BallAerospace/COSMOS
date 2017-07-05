@@ -65,9 +65,11 @@ module Cosmos
         it "handles empty packets" do
           @interface.instance_variable_set(:@stream, TerminatedStream.new)
           @interface.add_protocol(TerminatedStreamProtocol, ['', '0xABCD', true], :READ_WRITE)
-          $buffer = "\xAB\xCD"
+          $buffer = "\xAB\xCD\x01\x02\xAB\xCD"
           packet = @interface.read
           expect(packet.buffer.length).to eql 0
+          packet = @interface.read
+          expect(packet.buffer).to eql("\x01\x02")
         end
 
         it "handles no sync pattern" do
@@ -99,9 +101,11 @@ module Cosmos
         it "handles empty packets" do
           @interface.instance_variable_set(:@stream, TerminatedStream.new)
           @interface.add_protocol(TerminatedStreamProtocol, ['', '0xABCD', false], :READ_WRITE)
-          $buffer = "\xAB\xCD"
+          $buffer = "\xAB\xCD\x01\x02\xAB\xCD"
           packet = @interface.read
           expect(packet.buffer).to eql("\xAB\xCD")
+          packet = @interface.read
+          expect(packet.buffer).to eql("\x01\x02\xAB\xCD")
         end
 
         it "handles no sync pattern" do
