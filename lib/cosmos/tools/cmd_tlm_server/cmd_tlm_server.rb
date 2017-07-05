@@ -197,11 +197,31 @@ module Cosmos
       @sleeper = Sleeper.new
       @staleness_monitor_thread = Thread.new do
         begin
+          stale = []
+          prev_stale = []
           while true
-            stale = System.telemetry.check_stale
-            stale.each do |packet|
-              post_limits_event(:STALE_PACKET, [packet.target_name, packet.packet_name])
+            # The check_stale method drives System.telemetry to iterate through
+            # the packets and mark them stale as necessary.
+            System.telemetry.check_stale
+
+            # Get all stale packets that include limits items.
+            stale_pkts = System.telemetry.stale(true)
+
+            # Send :STALE_PACKET events for all newly stale packets.
+            stale = []
+            stale_pkts.each do |packet|
+              pkt_name = [packet.target_name, packet.packet_name]
+              stale << pkt_name
+              post_limits_event(:STALE_PACKET, pkt_name) unless prev_stale.include?(pkt_name)
             end
+
+            # Send :STALE_PACKET_RCVD events for all packets that were stale
+            # but are no longer stale.
+            prev_stale.each do |pkt_name|
+              post_limits_event(:STALE_PACKET_RCVD, pkt_name) unless stale.include?(pkt_name)
+            end
+            prev_stale = stale.dup
+
             broken = @sleeper.sleep(10)
             break if broken
           end
@@ -288,6 +308,8 @@ module Cosmos
     #   :LIMITS_CHANGE which means an individual item has changed limits state,
     #   :LIMITS_SETTINGS which means an individual item has new settings, or
     #   :STALE_PACKET which means a packet with limits has gone stale
+    #   :STALE_PACKET_RCVD which means a packet with limits that had previously
+    #   been stale is no longer stale.
     # @param event_data [Symbol|Array<String,String,String,Symbol,Symbol>]
     #   Returns the current limits set name for event_type == :LIMITS_SET.
     #   Returns an array containing the target name, packet name, item name,

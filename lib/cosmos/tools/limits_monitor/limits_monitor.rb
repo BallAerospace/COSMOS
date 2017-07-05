@@ -33,6 +33,17 @@ class Array
     return index
   end
 
+  def find_packet_items(item)
+    packet_items = []
+    self.each do |target_name, packet_name, item_name|
+      if ((target_name == item[0]) &&
+          (packet_name == item[1]))
+        packet_items << [target_name, packet_name, item_name]
+      end
+    end
+    return packet_items
+  end
+
   private
   def find_item(item)
     found = false
@@ -56,6 +67,8 @@ module Cosmos
   class LimitsItems
     # @return [Array<String,String,String>] Target name, packet name, item name
     attr_reader :ignored
+    # @return [Array<String,String>] Target name, packet name
+    attr_reader :ignored_stale
     # @return [Boolean] Whether the limits items have been fetched from the server
     attr_reader :initialized
     # @return [Boolean] Whether to display an item with a colorblind option
@@ -70,13 +83,17 @@ module Cosmos
     # @param new_item_callback [Proc] Method to create a new item in the GUI
     # @param update_item_callback [Proc] Method to update an item in the GUI
     # @param clear_items_callback [Proc] Method to clear all items in the GUI
-    def initialize(new_item_callback, update_item_callback, clear_items_callback)
+    # @param remove_item_callback [Proc] Method to remove an item from the GUI
+    def initialize(new_item_callback, update_item_callback, clear_items_callback, remove_item_callback)
       @new_item_callback = new_item_callback
       @update_item_callback = update_item_callback
       @clear_items_callback = clear_items_callback
+      @remove_item_callback = remove_item_callback
       @ignored = []
+      @ignored_stale = []
       @items = {}
       @out_of_limits = []
+      @stale = []
       @queue_id = nil
       @limits_set = :DEFAULT
       @colorblind = false
@@ -96,31 +113,62 @@ module Cosmos
     # @param item [Array<String,String,String>] Target name, packet name,
     #   item name to ignore
     def ignore(item)
-      index = @out_of_limits.delete_item(item)
-      @items.delete("#{item[0]} #{item[1]} #{item[2]}") if index
+      if item[2]
+        items_to_delete = [item]
+      else
+        items_to_delete = @out_of_limits.find_packet_items(item)
+      end
+      items_to_delete.each do |item_to_delete|
+        index = @out_of_limits.delete_item(item_to_delete)
+        widget = @items.delete("#{item_to_delete[0]} #{item_to_delete[1]} #{item_to_delete[2]}") if index
+        @remove_item_callback.call(widget) if widget
+      end
       unless @ignored.includes_item?(item)
         @ignored << item
+      end
+    end
+
+    # Ignore a stale packet. Don't display it in the GUI and don't have it 
+    # count towards the overall limit state.
+    #
+    # @param item [Array<String,String>] Target name, packet name
+    def ignore_stale(item)
+      index = @stale.delete_item(item)
+      widget = @items.delete("#{item[0]} #{item[1]}") if index
+      @remove_item_callback.call(widget) if widget
+      unless @ignored_stale.includes_item?(item)
+        @ignored_stale << item
       end
     end
 
     # Remove an item from the ignored list to have it be displayed and
     # count towards the overall limits state.
     #
-    # @param item [Array<String,String,String> Target name, packet name,
+    # @param item [Array<String,String,String>] Target name, packet name,
     #   item name to remove from ignored list
     def remove_ignored(item)
       index = @ignored.delete_item(item)
       if index
+        # If we deleted an item get all the current out of limit items
+        get_out_of_limits().each do |target, packet, item, state|
+          limits_change(target, packet, item, state)
+        end
+      end
+    rescue DRb::DRbConnError
+      # Do nothing
+    end
+
+    # Remove an item from the ignored_stale list to have it be displayed and
+    # count towards the overall limits state.
+    #
+    # @param item [Array<String,String>] Target name, packet name to remove 
+    #   from ignored list
+    def remove_ignored_stale(item)
+      index = @ignored_stale.delete_item(item)
+      if index
         # If we deleted a packet we need to recalculate the stale packets
-        if item[2].empty?
-          get_stale(true).each do |target, packet|
-            stale_packet(target, packet)
-          end
-        # We deleted an item so get all the current out of limit items
-        else
-          get_out_of_limits().each do |target, packet, item, state|
-            limits_change(target, packet, item, state)
-          end
+        get_stale(true).each do |target, packet|
+          stale_packet(target, packet)
         end
       end
     rescue DRb::DRbConnError
@@ -129,13 +177,15 @@ module Cosmos
 
     # @return [Boolean] Whether there are any items being ignored
     def ignored_items?
-      !@ignored.empty?
+      !@ignored.empty? or !@ignored_stale.empty?
     end
 
     # @return [Symbol] The overall limits state. Returns :STALE if there
     #   is no connection to the server.
     def overall_state
-      get_overall_limits_state(@ignored)
+      state = get_overall_limits_state(@ignored)
+      state = get_overall_limits_state(@ignored + @ignored_stale) if state == :STALE
+      return state
     rescue DRb::DRbConnError
       :STALE
     end
@@ -189,18 +239,20 @@ module Cosmos
       when :STALE_PACKET
         # A packet has gone stale: target, packet
         result = stale_packet(data[0], data[1])
+
+      when :STALE_PACKET_RCVD
+        # A packet that was previously stale has been received: target, packet
+        result = refresh_stale_packet(data[0], data[1])
       end
       result
     end
 
     # Update the values for all the out of limits items being tracked.
     def update_values
-      # Reject any out of limits packets as they don't have values
-      items = @out_of_limits.reject {|item| item[2].nil? }
 
-      values, limits_states, limits_settings, limits_set = get_tlm_values(items, :WITH_UNITS)
+      values, limits_states, limits_settings, limits_set = get_tlm_values(@out_of_limits, :WITH_UNITS)
       index = 0
-      items.each do |target_name, packet_name, item_name|
+      @out_of_limits.each do |target_name, packet_name, item_name|
         begin
           # Update the limits settings each time we update values
           # to stay in sync with the Server. Responding to :LIMITS_SETTINGS
@@ -231,6 +283,7 @@ module Cosmos
       return "Configuration file #{filename} not found!" unless File.exist?(filename)
 
       @ignored = []
+      @ignored_stale = []
       begin
         parser = ConfigParser.new("http://cosmosrb.com/docs/tools/#limits-monitor-configuration")
         parser.parse_file(filename) do |keyword, params|
@@ -241,6 +294,8 @@ module Cosmos
             @ignored << ([params[0], params[1], params[2]])
           when 'IGNORE_PACKET'
             @ignored << ([params[0], params[1], nil])
+          when 'IGNORE_STALE'
+            @ignored_stale << ([params[0], params[1], nil])
           when 'COLOR_BLIND'
             @colorblind = true
           when 'IGNORE_OPERATIONAL_LIMITS'
@@ -277,6 +332,9 @@ module Cosmos
               file.puts("IGNORE_PACKET #{target} #{pkt_name}")
             end
           end
+          @ignored_stale.each do |target, pkt_name|
+            file.puts("IGNORE_STALE #{target} #{pkt_name}")
+          end
         end
         result = "#{filename} saved"
       rescue => e
@@ -295,6 +353,7 @@ module Cosmos
     def reset
       @items = {}
       @out_of_limits = []
+      @stale = []
       @limits_set = get_limits_set()
       unsubscribe_limits_events(@queue_id) if @queue_id
       @queue_id = subscribe_limits_events(100000)
@@ -343,8 +402,21 @@ module Cosmos
 
     # Record the stale packet and generate a log message
     def stale_packet(target_name, packet_name)
-      out_of_limit([target_name, packet_name, nil])
+      item = [target_name, packet_name, nil]
+      unless (@stale.includes_item?(item) || @ignored_stale.includes_item?(item) || UNKNOWN_ARRAY.includes_item?(item))
+        @stale << item
+        @items["#{item[0]} #{item[1]}"] = @new_item_callback.call(*item) 
+      end
       return ["INFO: Packet #{target_name} #{packet_name} is STALE\n", :BLACK]
+    end
+
+    def refresh_stale_packet(target_name, packet_name)
+      item = [target_name, packet_name, nil]
+      index = @stale.delete_item(item)
+      widget = @items.delete("#{target_name} #{packet_name}") if index
+      @remove_item_callback.call(widget) if widget
+      # TBD get all out-of-limits items for the packet that is no longer stale.
+      return ["INFO: Packet #{target_name} #{packet_name} is no longer STALE\n", :BLACK]
     end
 
     # Record an out of limits item and call the new item callback.
@@ -369,6 +441,8 @@ module Cosmos
     class LimitsWidget < Qt::Widget
       # @return [Widget] The widget which displays the value
       attr_accessor :value
+      # @return [Symbol] The type that the widget represents :ITEM or :STALE
+      attr_accessor :type
 
       # @param parent [Qt::Widget] Parent widget (the LimitsMonitor tool)
       # @param target_name [String] Target name
@@ -382,17 +456,29 @@ module Cosmos
         setLayout(@layout)
 
         item = [target_name, packet_name, item_name]
-        if item_name
-          @value = LabelvaluelimitsbarWidget.new(@layout, target_name, packet_name, item_name)
-	  @value.set_setting('COLORBLIND', [parent.limits_items.colorblind])
-          @value.process_settings
-        else
-          @value = LabelWidget.new(layout, "#{target_name} #{packet_name} is STALE")
-        end
+        packet = [target_name, packet_name, nil]
 
-        @ignore_button = Qt::PushButton.new('Ignore')
-        @ignore_button.connect(SIGNAL('clicked()')) { parent.ignore(self, item) }
-        @layout.addWidget(@ignore_button)
+        if item_name
+          @type = :ITEM
+          @packet = LabelWidget.new(@layout, "#{target_name} #{packet_name} ")
+          @value = LabelvaluelimitsbarWidget.new(@layout, target_name, packet_name, item_name)
+          @value.set_setting('COLORBLIND', [parent.limits_items.colorblind])
+          @value.process_settings
+          @ignore_button = Qt::PushButton.new('Ignore Item')
+          @ignore_button.connect(SIGNAL('clicked()')) { parent.ignore(self, item) }
+          @layout.addWidget(@ignore_button)
+          
+          @ignore_packet_button = Qt::PushButton.new('Ignore Packet')
+          @ignore_packet_button.connect(SIGNAL('clicked()')) { parent.ignore(self, packet) }
+          @layout.addWidget(@ignore_packet_button)
+        else
+          @type = :STALE
+          @value = LabelWidget.new(@layout, "#{target_name} #{packet_name} is STALE")
+          @layout.addStretch(1)
+          @ignore_button = Qt::PushButton.new('Ignore Stale Packet')
+          @ignore_button.connect(SIGNAL('clicked()')) { parent.ignore(self, packet) }
+          @layout.addWidget(@ignore_button)         
+        end
       end
 
       # Update the widget's value, limits_state, and limits_set
@@ -415,6 +501,8 @@ module Cosmos
       # Dispose of the widget
       def dispose
         @ignore_button.dispose
+        @ignore_packet_button.dispose if  @type == :ITEM
+        @packet.dispose if @type == :ITEM
         @value.dispose
         @layout.dispose
         super()
@@ -440,7 +528,7 @@ module Cosmos
       complete_initialize()
 
       @limits_items = LimitsItems.new(
-        method(:new_gui_item), method(:update_gui_item), method(:clear_gui_items))
+        method(:new_gui_item), method(:update_gui_item), method(:clear_gui_items), method(:remove_gui_item))
       result = @limits_items.open_config(options.config_file)
       statusBar.showMessage(tr(result))
 
@@ -622,12 +710,21 @@ module Cosmos
     # Opens a dialog to allow the user to remove ignored items
     def edit_ignored_items
       items = []
-      index = 0
-      @limits_items.ignored.each do |target_name, packet_name, item_name|
-        item = Qt::ListWidgetItem.new("#{target_name} #{packet_name} #{item_name}")
-        item.setData(Qt::UserRole, Qt::Variant.new(@limits_items.ignored[index]))
-        items << item
-        index += 1
+      @limits_items.ignored.each do |item|
+        target_name, packet_name, item_name = item
+        if item_name
+          widget = Qt::ListWidgetItem.new("ITEM: #{target_name} #{packet_name} #{item_name}")
+        else
+          widget = Qt::ListWidgetItem.new("PACKET: #{target_name} #{packet_name}")
+        end
+        widget.setData(Qt::UserRole, Qt::Variant.new(item))
+        items << widget
+      end
+      @limits_items.ignored_stale.each do |item|
+        target_name, packet_name = item
+        widget = Qt::ListWidgetItem.new("STALE: #{target_name} #{packet_name}")
+        widget.setData(Qt::UserRole, Qt::Variant.new(item))
+        items << widget
       end
 
       Qt::Dialog.new(self) do |dialog|
@@ -642,7 +739,13 @@ module Cosmos
         list.connect(shortcut, SIGNAL('activated()')) do
           items = list.selectedItems()
           (0...items.length).each do |index|
-            @limits_items.remove_ignored(items[index].data(Qt::UserRole).value)
+            item = items[index].data(Qt::UserRole).value
+            item_text = items[index].text
+            if !item_text.start_with?("STALE:")
+              @limits_items.remove_ignored(item)
+            else
+              @limits_items.remove_ignored_stale(item)
+            end
           end
           list.remove_selected_items
           list.setCurrentRow(0)
@@ -722,6 +825,14 @@ module Cosmos
       end
     end
 
+    def remove_gui_item(widget)
+      Qt.execute_in_main_thread(true) do
+        @scroll_layout.removeWidget(widget)
+        widget.dispose
+        @scroll_widget.adjustSize
+      end
+    end
+
     # Reset the GUI by clearing all items
     def clear_gui_items
       Qt.execute_in_main_thread(true) { @scroll_layout.removeAll }
@@ -732,11 +843,12 @@ module Cosmos
     # @param item [Array<String,String,String] Array containing the target name,
     #   packet name, and item name of the item to ignore.
     def ignore(widget, item)
-      @limits_items.ignore(item)
+      if widget.type == :ITEM
+        @limits_items.ignore(item)
+      else
+        @limits_items.ignore_stale(item)
+      end
       Qt.execute_in_main_thread(true) do
-        @scroll_layout.removeWidget(widget)
-        widget.dispose
-        @scroll_widget.adjustSize
         statusBar.showMessage('Warning: Some Telemetry Items are Ignored')
       end
     end
@@ -839,7 +951,7 @@ module Cosmos
       Cosmos.catch_fatal_exception do
         unless option_parser and options
           option_parser, options = create_default_options()
-          options.width = 600
+          options.width = 700
           options.height = 500
           options.remember_geometry = false
           options.title = "Limits Monitor"
