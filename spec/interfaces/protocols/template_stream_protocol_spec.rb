@@ -77,7 +77,7 @@ module Cosmos
         @interface.connect
         $read_buffer = "\x31\x30\xAB\xCD"
         data = @interface.read
-        expect(Time.now - start).to be_within(0.01).of(1.5)
+        expect(Time.now - start).to be_within(0.1).of(1.5)
         expect(data.buffer).to eql("\x31\x30")
       end
     end
@@ -97,7 +97,7 @@ module Cosmos
         @interface.connect
         write = Time.now
         @interface.write(packet)
-        expect(Time.now - write).to be_within(0.01).of(1.5)
+        expect(Time.now - write).to be_within(0.1).of(1.5)
       end
 
       it "works without a response" do
@@ -130,7 +130,7 @@ module Cosmos
         @interface.connect
         start = Time.now
         expect { @interface.write(packet) }.to raise_error(Timeout::Error)
-        expect(Time.now - start).to be_within(0.01).of(1.5)
+        expect(Time.now - start).to be_within(0.1).of(1.5)
       end
 
       it "processes responses" do
