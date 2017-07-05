@@ -204,6 +204,12 @@ describe String do
       expect("5.123\n5.123".convert_to_value).to eql "5.123\n5.123"
       expect("[0,1,2,3]\n[0,1,2,3]".convert_to_value).to eql "[0,1,2,3]\n[0,1,2,3]"
     end
+
+    it "handles special float values" do
+      expect("Infinity".convert_to_value).to eql Float::INFINITY
+      expect("-Infinity".convert_to_value).to eql -Float::INFINITY
+      expect("NAN".convert_to_value.nan?).to eql true # Note Float::NAN != Float::NAN by definition
+    end
   end
 
   describe "hex_to_byte_string" do
