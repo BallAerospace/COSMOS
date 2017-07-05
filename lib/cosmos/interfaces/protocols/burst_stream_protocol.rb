@@ -1,6 +1,6 @@
 # encoding: ascii-8bit
 
-# Copyright 2014 Ball Aerospace & Technologies Corp.
+# Copyright 2017 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
 # This program is free software; you can modify and/or redistribute it
@@ -8,10 +8,9 @@
 # as published by the Free Software Foundation; version 3 with
 # attribution addendums as found in the LICENSE.txt
 
-require 'cosmos/streams/stream_protocol'
+require 'cosmos/interfaces/protocols/stream_protocol'
 
 module Cosmos
-
   # Reads all data available in the stream and creates a packet
   # with that data.
   class BurstStreamProtocol < StreamProtocol
@@ -21,5 +20,4 @@ module Cosmos
     # 'StreamProtocol' to the name of the protocol. Thus we need a
     # BurstStreamProtocol so 'burst' can be used by the {StreamInterface}.
   end
-
-end # module Cosmos
+end

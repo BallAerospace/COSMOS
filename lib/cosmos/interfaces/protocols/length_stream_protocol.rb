@@ -1,6 +1,6 @@
 # encoding: ascii-8bit
 
-# Copyright 2014 Ball Aerospace & Technologies Corp.
+# Copyright 2017 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
 # This program is free software; you can modify and/or redistribute it
@@ -9,15 +9,13 @@
 # attribution addendums as found in the LICENSE.txt
 
 require 'cosmos/packets/binary_accessor'
-require 'cosmos/streams/stream_protocol'
+require 'cosmos/interfaces/protocols/stream_protocol'
 require 'cosmos/config/config_parser'
 
 module Cosmos
-
-  # This StreamProtocol delineates packets using a length field at a fixed
+  # Protocol which delineates packets using a length field at a fixed
   # location in each packet.
   class LengthStreamProtocol < StreamProtocol
-
     # @param length_bit_offset [Integer] The bit offset of the length field
     # @param length_bit_size [Integer] The size in bits of the length field
     # @param length_value_offset [Integer] The offset to apply to the length
@@ -75,45 +73,57 @@ module Cosmos
       @max_length = Integer(@max_length) if @max_length
     end
 
-    # See StreamProtocol#pre_write_packet
-    def pre_write_packet(packet)
-      data = super(packet)
-      if @fill_sync_pattern # and length
-        # Fill the length field
-        length = (data.length - @length_value_offset) / @length_bytes_per_count
-        BinaryAccessor.write(length,
-          @length_bit_offset,
-          @length_bit_size,
-          :UINT,
-          data,
-          @length_endianness,
-          :ERROR)
-
-        # Also write the new length field into the packet that will be logged if it exists in the packet
-        if @discard_leading_bytes > 0
-          # The write above did not write into the original packet
-          original_length_bit_offset = @length_bit_offset - (@discard_leading_bytes * 8)
-          if original_length_bit_offset >= 0
-            original_data = packet.buffer(false)
-            BinaryAccessor.write(length,
-              original_length_bit_offset,
-              @length_bit_size,
-              :UINT,
-              original_data,
-              @length_endianness,
-              :ERROR)
-          end
+    # Called to perform modifications on a command packet before it is send
+    #
+    # @param packet [Packet] Original packet
+    # @return [Packet] Potentially modified packet
+    def write_packet(packet)
+      if @fill_fields
+        # If the start of the length field is past what we discard, then the
+        # length field is inside the packet
+        if @length_bit_offset >= (@discard_leading_bytes * 8)
+          length = calculate_length(packet.buffer.length + @discard_leading_bytes)
+          # Subtract off the discarded bytes since they haven't been added yet
+          # Adding bytes to the stream happens in the write_data method
+          offset = @length_bit_offset - (@discard_leading_bytes * 8)
+          # Directly write the packet buffer and fill in the length
+          BinaryAccessor.write(length, offset, @length_bit_size, :UINT,
+                               packet.buffer(false), @length_endianness, :ERROR)
         end
       end
-      data
+      return super(packet) # Allow stream_protocol to set the sync if needed
+    end
+
+    # Called to perform modifications on write data before making it into a packet
+    #
+    # @param data [String] Raw packet data
+    # @return [String] Potentially modified packet data
+    def write_data(data)
+      data = super(data)
+      if @fill_fields
+        # If the start of the length field is before what we discard, then the
+        # length field is outside the packet
+        if @length_bit_offset < (@discard_leading_bytes * 8)
+          BinaryAccessor.write(calculate_length(data.length), @length_bit_offset, @length_bit_size, :UINT,
+                               data, @length_endianness, :ERROR)
+        end
+      end
+      return data
     end
 
     protected
 
+    def calculate_length(buffer_length)
+      length = (buffer_length / @length_bytes_per_count) - @length_value_offset
+      if @max_length && length > @max_length
+        raise "Calculated length #{length} larger than max_length #{@max_length}"
+      end
+      length
+    end
+
     def reduce_to_single_packet
       # Make sure we have at least enough data to reach the length field
-      read_minimum_size(@length_bytes_needed)
-      return nil if @data.length <= 0
+      return :STOP if @data.length < @length_bytes_needed
 
       # Determine the packet's length
       length = BinaryAccessor.read(@length_bit_offset,
@@ -125,16 +135,13 @@ module Cosmos
       packet_length = (length * @length_bytes_per_count) + @length_value_offset
 
       # Make sure we have enough data for the packet
-      read_minimum_size(packet_length)
-      return nil if @data.length <= 0
+      return:STOP if @data.length < packet_length
 
       # Reduce to packet data and setup current_data for next packet
       packet_data = @data[0..(packet_length - 1)]
       @data.replace(@data[packet_length..-1])
 
-      packet_data
+      return packet_data
     end
-
-  end # class LengthStreamProtocol
-
-end # module Cosmos
+  end
+end

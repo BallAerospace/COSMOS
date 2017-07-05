@@ -81,7 +81,7 @@ module Cosmos
                           enable_limits disable_limits wait_tolerance wait_tolerance_raw \
                           check_tolerance check_tolerance_raw wait_check_tolerance \
                           wait_check_tolerance_raw)
-    SET_TLM_KEYWORDS = %w(set_tlm set_tlm_raw)
+    SET_TLM_KEYWORDS = %w(set_tlm set_tlm_raw override_tlm_raw normalize_tlm_raw)
     CHECK_KEYWORDS   = %w(check check_raw wait wait_raw wait_check wait_check_raw)
 
     attr_accessor :use_instrumentation

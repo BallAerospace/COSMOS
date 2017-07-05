@@ -96,7 +96,7 @@ RSpec.configure do |config|
 
   config.after(:each) do
     # Make sure we didn't leave any lingering threads
-    expect(Thread.list.length).to eql(1)
+    expect(Thread.list.length).to eql(1), "At end of test expect 1 remaining thread but found #{Thread.list.length}.\nEnsure you kill all spawned threads before the test finishes."
   end
 end
 

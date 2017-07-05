@@ -8,20 +8,13 @@
 # as published by the Free Software Foundation; version 3 with
 # attribution addendums as found in the LICENSE.txt
 
-require 'timeout' # For Timeout::Error
-
 module Cosmos
-
   # Class that implments the following methods: read, write(data),
   # connect, connected? and disconnect. Streams are simply data sources which
   # {StreamProtocol} classes read and write to. This separation of concerns
   # allows Streams to simply focus on getting and sending raw data while the
   # higher level processing occurs in {StreamProtocol}.
   class Stream
-
-    # @return [RawLoggerPair] Raw logger pair associated with this stream
-    attr_accessor :raw_logger_pair
-
     # Expected to return any amount of data on success, or a blank string on
     # closed/EOF, and may raise Timeout::Error, or other errors
     def read
@@ -57,7 +50,5 @@ module Cosmos
     def disconnect
       raise "disconnect not defined by Stream"
     end
-
   end # class Stream
-
 end # module Cosmos

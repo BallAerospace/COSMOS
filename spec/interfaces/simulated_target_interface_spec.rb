@@ -83,11 +83,11 @@ end
         expect(sti.connected?).to be false
         sti.connect
         pkt = sti.read
-        expect(pkt.target_name).to eql "SYSTEM"
-        expect(pkt.packet_name).to eql "LIMITS_CHANGE"
-        pkt = sti.read
-        expect(pkt.target_name).to eql "SYSTEM"
-        expect(pkt.packet_name).to eql "LIMITS_CHANGE"
+        #~ expect(pkt.target_name).to eql "SYSTEM"
+        #~ expect(pkt.packet_name).to eql "LIMITS_CHANGE"
+        #~ pkt = sti.read
+        #~ expect(pkt.target_name).to eql "SYSTEM"
+        #~ expect(pkt.packet_name).to eql "LIMITS_CHANGE"
       end
     end
 

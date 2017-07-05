@@ -179,7 +179,6 @@ module Cosmos
         Logger.error string
       end
 
-      @interface.post_identify_packet(packet)
       target = System.targets[packet.target_name]
       target.tlm_cnt += 1 if target
       packet.received_count += 1

@@ -13,9 +13,7 @@ require 'cosmos/interfaces'
 require 'cosmos/tools/cmd_tlm_server/interface_thread'
 
 module Cosmos
-
   class ScpiTarget
-
     class ScpiServerInterface < TcpipServerInterface
       PORT = 5025
 
@@ -35,7 +33,7 @@ module Cosmos
       def handle_packet(packet)
         Logger.info "Received command: #{packet.buffer}"
         if packet.buffer.include?('?')
-          @interface.write_raw(@index.to_s)
+          @interface.write_raw(@index.to_s + "\x0A")
         end
         @index += 1
       end
@@ -61,14 +59,10 @@ module Cosmos
       target = self.new
       begin
         target.start
-        while true
-          sleep 1
-        end
+        loop { sleep 1 }
       rescue SystemExit, Interrupt
         target.stop
       end
     end
-
-  end # class ScpiTarget
-
-end # module Cosmos
+  end
+end

@@ -173,8 +173,19 @@ module Cosmos
     # @return [Packet] The identified packet with its data set to the given
     #   packet_data buffer. Returns nil if no packet could be identified.
     def identify!(packet_data, target_names = nil)
-      identified_packet = nil
+      identified_packet = identify(packet_data, target_names)
+      identified_packet.buffer = packet_data if identified_packet
+      return identified_packet
+    end
 
+    # Finds a packet from the Current Value Table that matches the given data
+    # and returns it.  Does not fill the packets buffer.  Use identify! to update the CVT.
+    #
+    # @param packet_data [String] The binary packet data buffer
+    # @param target_names [Array<String>] List of target names to limit the search. The
+    #   default value of nil means to search all known targets.
+    # @return [Packet] The identified packet, Returns nil if no packet could be identified.
+    def identify(packet_data, target_names = nil)
       target_names = target_names() unless target_names
 
       target_names.each do |target_name|
@@ -188,15 +199,36 @@ module Cosmos
 
         # Iterate through the packets and see if any represent the buffer
         target_packets.each do |packet_name, packet|
-          if packet.identify?(packet_data)
-            identified_packet = packet
-            identified_packet.buffer = packet_data
-            break
-          end
+          return packet if packet.identify?(packet_data)
         end
-        break if identified_packet
       end
-      return identified_packet
+
+      return nil
+    end
+
+    def identify_and_define_packet(packet, target_names = nil)
+      if !packet.identified?
+        identified_packet = identify(packet.buffer(false), target_names)
+        return nil unless identified_packet
+        identified_packet = identified_packet.clone
+        identified_packet.buffer = packet.buffer
+        identified_packet.received_time = packet.received_time
+        return identified_packet
+      end
+
+      if !packet.defined?
+        begin
+          identified_packet = self.packet(packet.target_name, packet.packet_name)
+        rescue RuntimeError
+          return nil
+        end
+        identified_packet = identified_packet.clone
+        identified_packet.buffer = packet.buffer
+        identified_packet.received_time = packet.received_time
+        return identified_packet
+      end
+
+      return packet
     end
 
     # Updates the specified packet with the given packet data. Raises an error

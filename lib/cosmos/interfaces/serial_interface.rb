@@ -1,6 +1,6 @@
 # encoding: ascii-8bit
 
-# Copyright 2014 Ball Aerospace & Technologies Corp.
+# Copyright 2017 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
 # This program is free software; you can modify and/or redistribute it
@@ -12,10 +12,8 @@ require 'cosmos/interfaces/stream_interface'
 require 'cosmos/streams/serial_stream'
 
 module Cosmos
-
   # Provides a base class for interfaces that use serial ports
   class SerialInterface < StreamInterface
-
     # Creates a serial interface which uses the specified stream protocol.
     #
     # @param write_port_name [String] The name of the serial port to write
@@ -39,38 +37,35 @@ module Cosmos
                    stop_bits,
                    write_timeout,
                    read_timeout,
-                   stream_protocol_type,
+                   stream_protocol_type = nil,
                    *stream_protocol_args)
-      super(stream_protocol_type, *stream_protocol_args)
+      super(stream_protocol_type, stream_protocol_args)
 
       @write_port_name = ConfigParser.handle_nil(write_port_name)
-      @read_port_name  = ConfigParser.handle_nil(read_port_name)
+      @read_port_name = ConfigParser.handle_nil(read_port_name)
       @baud_rate = baud_rate
       @parity = parity.to_s.intern
       @stop_bits = stop_bits
       @write_timeout = write_timeout
       @read_timeout = read_timeout
-
-      @write_allowed     = false unless @write_port_name
+      @write_allowed = false unless @write_port_name
       @write_raw_allowed = false unless @write_port_name
-      @read_allowed      = false unless @read_port_name
+      @read_allowed = false unless @read_port_name
     end
 
     # Connects the stream protocol to a new {SerialStream} using the
     # parameters passed in the constructor.
     def connect
-      stream = SerialStream.new(
+      @stream = SerialStream.new(
         @write_port_name,
         @read_port_name,
         @baud_rate,
         @parity,
         @stop_bits,
         @write_timeout,
-        @read_timeout)
-      stream.raw_logger_pair = @raw_logger_pair
-      @stream_protocol.connect(stream)
+        @read_timeout
+      )
+      super()
     end
-
-  end # class SerialInterface
-
-end # module Cosmos
+  end
+end

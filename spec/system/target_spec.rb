@@ -113,13 +113,13 @@ module Cosmos
           tf = Tempfile.new('unittest')
           tf.puts("REQUIRE")
           tf.close
-          expect { Target.new("TGT").process_file(tf.path) }.to raise_error(ConfigParser::Error, /Not enough parameters for REQUIRE./)
+          expect { Target.new("INST").process_file(tf.path) }.to raise_error(ConfigParser::Error, /Not enough parameters for REQUIRE./)
           tf.unlink
 
           tf = Tempfile.new('unittest')
           tf.puts("REQUIRE my_file.rb TRUE")
           tf.close
-          expect { Target.new("TGT").process_file(tf.path) }.to raise_error(ConfigParser::Error, /Too many parameters for REQUIRE./)
+          expect { Target.new("INST").process_file(tf.path) }.to raise_error(ConfigParser::Error, /Too many parameters for REQUIRE./)
           tf.unlink
         end
 
@@ -127,12 +127,12 @@ module Cosmos
           tf = Tempfile.new('unittest')
           tf.puts("REQUIRE my_file.rb")
           tf.close
-          expect { Target.new("TGT").process_file(tf.path) }.to raise_error(ConfigParser::Error, /Unable to require my_file.rb/)
+          expect { Target.new("INST").process_file(tf.path) }.to raise_error(ConfigParser::Error, /Unable to require .*my_file.rb/)
           tf.unlink
         end
 
-        it "requires the file" do
-          filename = File.join(File.dirname(__FILE__),'..','..','lib','my_file.rb')
+        it "requires the file in the target lib directory" do
+          filename = File.join(Cosmos::USERPATH, 'config', 'targets', 'INST', 'lib', 'my_file.rb')
           File.open(filename, 'w') do |file|
             file.puts "class MyFile"
             file.puts "end"
@@ -140,7 +140,7 @@ module Cosmos
           tf = Tempfile.new('unittest')
           tf.puts("REQUIRE my_file.rb")
           tf.close
-          Target.new("TGT").process_file(tf.path)
+          Target.new("INST").process_file(tf.path)
           expect { MyFile.new }.to_not raise_error
           File.delete filename
           tf.unlink
@@ -278,4 +278,3 @@ module Cosmos
 
   end
 end
-

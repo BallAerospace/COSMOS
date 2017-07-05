@@ -124,7 +124,9 @@ module Cosmos
           usage = "#{keyword} <FILENAME>"
           parser.verify_num_parameters(1, 1, usage)
           begin
-            Cosmos.require_file(parameters[0])
+            # Require absolute path to file in target lib folder.  Prevents name
+            # conflicts at the require step
+            Cosmos.require_file(File.join(@dir, 'lib', parameters[0]))
           rescue Exception => err
             raise parser.error(err.message)
           end

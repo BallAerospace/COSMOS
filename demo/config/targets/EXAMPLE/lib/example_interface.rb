@@ -1,6 +1,6 @@
 # encoding: ascii-8bit
 
-# Copyright 2014 Ball Aerospace & Technologies Corp.
+# Copyright 2017 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
 # This program is free software; you can modify and/or redistribute it
@@ -13,10 +13,6 @@ require 'cosmos/interfaces/tcpip_client_interface'
 
 class ExampleInterface < Cosmos::TcpipClientInterface
   def initialize (hostname, port, write_timeout = 10.0, read_timeout = nil)
-    super(hostname, port, port, write_timeout, read_timeout, 'LENGTH', 0, 32, 4, 1, 'BIG_ENDIAN', 4)
-  end
-
-  def pre_write_packet(packet)
-    [packet.length].pack('N') << packet.buffer
+    super(hostname, port, port, write_timeout, read_timeout, 'LENGTH', 0, 32, 4, 1, 'BIG_ENDIAN', 4, nil, nil, true)
   end
 end

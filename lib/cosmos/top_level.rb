@@ -70,7 +70,7 @@ module Cosmos
     $VERBOSE = saved_verbose
   end
 
-  # Searches for the /config/system and /config/targets directories to define 
+  # Searches for the /config/system and /config/targets directories to define
   # the USERPATH constant
   #
   # @param start_dir [String] Path to start the search for the /config/system
@@ -79,7 +79,7 @@ module Cosmos
   def self.define_user_path(start_dir = Dir.pwd)
     current_dir = File.expand_path(start_dir)
     while true
-      if File.exist?(File.join(current_dir, 'config', 'system')) and 
+      if File.exist?(File.join(current_dir, 'config', 'system')) and
          File.exist?(File.join(current_dir, 'config', 'targets'))
         disable_warnings do
           Cosmos.const_set(:USERPATH, current_dir)
@@ -574,7 +574,7 @@ module Cosmos
       retry_count = 0
       begin
         yield
-      rescue Exception => error
+      rescue => error
         Logger.error "#{name} thread unexpectedly died. Retries: #{retry_count} of #{retry_attempts}"
         Logger.error error.formatted
         retry_count += 1
@@ -591,30 +591,37 @@ module Cosmos
   # convention of having a single class per file where the class name is camel
   # cased and filename is lowercase with underscores.
   #
-  # @param class_filename [String] The name of the file which contains the
+  # @param class_name_or_class_filename [String] The name of the class or the file which contains the
   #   Ruby class to require
-  def self.require_class(class_filename)
-    class_name = class_filename.filename_to_class_name
-    return class_name.to_class if class_name.to_class and defined? class_name.to_class
-    self.require_file(class_filename)
-    klass = class_name.to_class
-    if klass
-      return klass
+  # @param log_error [Boolean] Whether to log an error if we can not require
+  #   the class
+  def self.require_class(class_name_or_class_filename, log_error = true)
+    if class_name_or_class_filename.downcase[-3..-1] == '.rb' or (class_name_or_class_filename[0] == class_name_or_class_filename[0].downcase)
+      class_filename = class_name_or_class_filename
+      class_name = class_filename.filename_to_class_name
     else
-      raise "Ruby class #{class_name} not found"
+      class_name = class_name_or_class_filename
+      class_filename = class_name.class_name_to_filename
     end
+    return class_name.to_class if class_name.to_class and defined? class_name.to_class
+    self.require_file(class_filename, log_error)
+    klass = class_name.to_class
+    raise "Ruby class #{class_name} not found" unless klass
+    klass
   end
 
   # Requires a file with a standard error message if it fails
   #
   # @param filename [String] The name of the file to require
-  def self.require_file(filename)
+  # @param log_error [Boolean] Whether to log an error if we can not require
+  #   the class
+  def self.require_file(filename, log_error = true)
     begin
       require filename
     rescue Exception => err
       msg = "Unable to require #{filename} due to #{err.message}. "\
         "Ensure #{filename} is in the COSMOS lib directory."
-      Logger.error msg
+      Logger.error msg if log_error
       raise $!, msg, $!.backtrace
     end
   end

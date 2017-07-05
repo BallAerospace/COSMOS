@@ -1,6 +1,6 @@
 # encoding: ascii-8bit
 
-# Copyright 2014 Ball Aerospace & Technologies Corp.
+# Copyright 2017 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
 # This program is free software; you can modify and/or redistribute it
@@ -9,11 +9,10 @@
 # attribution addendums as found in the LICENSE.txt
 
 require 'cosmos/config/config_parser'
-require 'cosmos/streams/stream_protocol'
+require 'cosmos/interfaces/protocols/stream_protocol'
 
 module Cosmos
-
-  # This StreamProtocol delineates packets using termination characters at
+  # Protocol which delineates packets using termination characters at
   # the end of the stream.
   class TerminatedStreamProtocol < StreamProtocol
 
@@ -28,58 +27,56 @@ module Cosmos
     #   Packet.
     # @param discard_leading_bytes (see StreamProtocol#initialize)
     # @param sync_pattern (see StreamProtocol#initialize)
-    # @param fill_sync_pattern (see StreamProtocol#initialize)
-    def initialize(write_termination_characters,
-                   read_termination_characters,
-                   strip_read_termination = true,
-                   discard_leading_bytes = 0,
-                   sync_pattern = nil,
-                   fill_sync_pattern = false)
+    # @param fill_fields (see StreamProtocol#initialize)
+    def initialize(
+      write_termination_characters,
+      read_termination_characters,
+      strip_read_termination = true,
+      discard_leading_bytes = 0,
+      sync_pattern = nil,
+      fill_fields = false
+    )
       @write_termination_characters = write_termination_characters.hex_to_byte_string
       @read_termination_characters = read_termination_characters.hex_to_byte_string
       @strip_read_termination = ConfigParser.handle_true_false(strip_read_termination)
 
-      super(discard_leading_bytes, sync_pattern, fill_sync_pattern)
+      super(discard_leading_bytes, sync_pattern, fill_fields)
     end
 
-    # See StreamProtocol#pre_write_packet
-    def pre_write_packet(packet)
-      data = super(packet)
+    def write_data(data)
       raise "Packet contains termination characters!" if data.index(@write_termination_characters)
-
-      data = data.clone # Don't want to modify the actual packet buffer with the termination characters
+      data = super(data)
       @write_termination_characters.each_byte do |byte|
         data << byte
       end
-      data
+      return data
     end
 
     protected
 
     def reduce_to_single_packet
-      while true
-        index = @data.index(@read_termination_characters)
+      index = @data.index(@read_termination_characters)
 
-        # Reduce to packet data and setup current_data for next packet
-        if index
-          if index > 0
-            if @strip_read_termination
-              packet_data = @data[0..(index - 1)]
-            else
-              packet_data = @data[0..(index + @read_termination_characters.length - 1)]
-            end
+      # Reduce to packet data and setup current_data for next packet
+      if index
+        if index > 0
+          if @strip_read_termination
+            packet_data = @data[0..(index - 1)]
           else
-            packet_data = ''
+            packet_data = @data[0..(index + @read_termination_characters.length - 1)]
           end
-          @data.replace(@data[(index + @read_termination_characters.length)..-1])
-          return packet_data
-        else
-          read_and_handle_timeout()
-          return nil if @data.length <= 0
+        else # @data begins with the termination characters
+          if @strip_read_termination
+            packet_data = ''
+          else # Keep everything
+            packet_data = @data[0..(@read_termination_characters.length - 1)]
+          end
         end
+        @data.replace(@data[(index + @read_termination_characters.length)..-1])
+        return packet_data
+      else
+        return :STOP
       end
     end
-
-  end # class TerminatedStreamProtocol
-
-end # module Cosmos
+  end
+end
