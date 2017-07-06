@@ -344,6 +344,9 @@ module Cosmos
 
     def self.post_options_parsed_hook(options)
       if options.no_gui
+        Signal.trap("TERM") {exit}
+        Signal.trap("INT") {exit}
+
         begin
           @output_sleeper = Sleeper.new
           @string_output = StringIO.new("", "r+")
