@@ -1447,7 +1447,11 @@
 <li class="toc-entry toc-h2"><a href="#example-file">Example File</a></li>
 <li class="toc-entry toc-h2"><a href="#limits-monitor-configuration">Limits Monitor Configuration</a></li>
 <li class="toc-entry toc-h2"><a href="#keywords-1">Keywords:</a></li>
-<li class="toc-entry toc-h3"><a href="#ignore">IGNORE</a></li>
+<li class="toc-entry toc-h3"><a href="#ignore_item">IGNORE_ITEM</a></li>
+<li class="toc-entry toc-h3"><a href="#ignore_packet">IGNORE_PACKET</a></li>
+<li class="toc-entry toc-h3"><a href="#ignore_stale-cosmos--40">IGNORE_STALE (COSMOS >= 4.0)</a></li>
+<li class="toc-entry toc-h3"><a href="#color_blind">COLOR_BLIND</a></li>
+<li class="toc-entry toc-h3"><a href="#ignore_operational_limits">IGNORE_OPERATIONAL_LIMITS</a></li>
 <li class="toc-entry toc-h2"><a href="#script-runner-configuration">Script Runner Configuration</a></li>
 <li class="toc-entry toc-h2"><a href="#keywords-2">Keywords:</a></li>
 <li class="toc-entry toc-h3"><a href="#line_delay">LINE_DELAY</a></li>
@@ -1837,10 +1841,10 @@ TOOL <span class="s2">"Table Manager"</span> <span class="s2">"RUBYW tools/Table
 <h2 id="keywords-1">
 <a id="keywords-1" class="anchor" href="#keywords-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>Keywords:</h2>
 
-<h3 id="ignore">
-<a id="ignore" class="anchor" href="#ignore" aria-hidden="true"><span class="octicon octicon-link"></span></a>IGNORE</h3>
+<h3 id="ignore_item">
+<a id="ignore_item" class="anchor" href="#ignore_item" aria-hidden="true"><span class="octicon octicon-link"></span></a>IGNORE_ITEM</h3>
 
-<p>The IGNORE keyword instructs Limits Monitor to ignore a particular telemetry item when reporting the overall system limits state.</p>
+<p>The IGNORE_ITEM keyword instructs Limits Monitor to ignore a particular telemetry item when reporting the overall system limits state.</p>
 
 <table>
 <tbody>
@@ -1869,8 +1873,84 @@ TOOL <span class="s2">"Table Manager"</span> <span class="s2">"RUBYW tools/Table
 
 <p>Example Usage:</p>
 
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">IGNORE INST HEALTH_STATUS TEMP1
-IGNORE INST HEALTH_STATUS TEMP2</code></pre></figure>
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">IGNORE_ITEM INST HEALTH_STATUS TEMP1
+IGNORE_ITEM INST HEALTH_STATUS TEMP2</code></pre></figure>
+
+<h3 id="ignore_packet">
+<a id="ignore_packet" class="anchor" href="#ignore_packet" aria-hidden="true"><span class="octicon octicon-link"></span></a>IGNORE_PACKET</h3>
+
+<p>The IGNORE_PACKET keyword instructs Limits Monitor to ignore all telemetry items for a specified packet when reporting the overall system limits state.</p>
+
+<table>
+<tbody>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+<th>Required</th>
+</tr>
+<tr>
+<td>Target Name</td>
+<td>Name of the telemetry target</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td colspan="1">Packet Name</td>
+<td colspan="1">Name of the telemetry packet</td>
+<td colspan="1">Yes</td>
+</tr>
+</tbody>
+</table>
+
+<p>Example Usage:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">IGNORE_PACKET INST HEALTH_STATUS</code></pre></figure>
+
+<h3 id="ignore_stale-cosmos--40">
+<a id="ignore_stale-cosmos--40" class="anchor" href="#ignore_stale-cosmos--40" aria-hidden="true"><span class="octicon octicon-link"></span></a>IGNORE_STALE (COSMOS &gt;= 4.0)</h3>
+
+<p>The IGNORE_STALE keyword instructs Limits Monitor to ignore the staleness of a specified packet when reporting the overall system limits state.  Note that only packet staleness is ignored; if the packet is received and an item is out-of-limits, that will still count against the overal system limits state unless the item or packet is separately ignored with the IGNORE_ITEM or IGNORE_PACKET keyword.</p>
+
+<table>
+<tbody>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+<th>Required</th>
+</tr>
+<tr>
+<td>Target Name</td>
+<td>Name of the telemetry target</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td colspan="1">Packet Name</td>
+<td colspan="1">Name of the telemetry packet</td>
+<td colspan="1">Yes</td>
+</tr>
+</tbody>
+</table>
+
+<p>Example Usage:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">IGNORE_STALE INST HEALTH_STATUS</code></pre></figure>
+
+<h3 id="color_blind">
+<a id="color_blind" class="anchor" href="#color_blind" aria-hidden="true"><span class="octicon octicon-link"></span></a>COLOR_BLIND</h3>
+
+<p>The COLOR_BLIND keyword instructs Limits Monitor to use a color-blind accessibility mode.  In this mode, the value for out-of-limits items have a code appended to indicate the limits status.  The code is r = red low, y = yellow low, g = green low, B = blue, G = green or green high, Y = yellow high, R = red high.</p>
+
+<p>Example Usage:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">COLOR_BLIND</code></pre></figure>
+
+<h3 id="ignore_operational_limits">
+<a id="ignore_operational_limits" class="anchor" href="#ignore_operational_limits" aria-hidden="true"><span class="octicon octicon-link"></span></a>IGNORE_OPERATIONAL_LIMITS</h3>
+
+<p>The IGNORE_OPERATIONAL_LIMITS keyword instructs Limits Monitor to ignore GREEN_HIGH or GREEN_LOW limits states for items that have operational limits defined.  If this keyword is used, items with operational limits will only show up in limits monitor if they go yellow or red.</p>
+
+<p>Example Usage:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">IGNORE_OPERATIONAL_LIMITS</code></pre></figure>
 
 <hr>
 

@@ -280,9 +280,9 @@ Limits Monitor has the ability to ignore telemetry items and no longer monitor t
 
 ## Keywords:
 
-### IGNORE
+### IGNORE_ITEM
 
-The IGNORE keyword instructs Limits Monitor to ignore a particular telemetry item when reporting the overall system limits state.
+The IGNORE_ITEM keyword instructs Limits Monitor to ignore a particular telemetry item when reporting the overall system limits state.
 
 <table>
 <tbody>
@@ -306,8 +306,76 @@ The IGNORE keyword instructs Limits Monitor to ignore a particular telemetry ite
 
 Example Usage:
 {% highlight bash %}
-IGNORE INST HEALTH_STATUS TEMP1
-IGNORE INST HEALTH_STATUS TEMP2
+IGNORE_ITEM INST HEALTH_STATUS TEMP1
+IGNORE_ITEM INST HEALTH_STATUS TEMP2
+{% endhighlight %}
+
+### IGNORE_PACKET
+
+The IGNORE_PACKET keyword instructs Limits Monitor to ignore all telemetry items for a specified packet when reporting the overall system limits state.
+
+<table>
+<tbody>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+<th>Required</th></tr>
+<tr>
+<td>Target Name</td>
+<td>Name of the telemetry target</td>
+<td>Yes</td></tr>
+<tr>
+<td colspan="1">Packet Name</td>
+<td colspan="1">Name of the telemetry packet</td>
+<td colspan="1">Yes</td></tr></tbody></table>
+
+
+Example Usage:
+{% highlight bash %}
+IGNORE_PACKET INST HEALTH_STATUS
+{% endhighlight %}
+
+### IGNORE_STALE (COSMOS >= 4.0)
+
+The IGNORE_STALE keyword instructs Limits Monitor to ignore the staleness of a specified packet when reporting the overall system limits state.  Note that only packet staleness is ignored; if the packet is received and an item is out-of-limits, that will still count against the overal system limits state unless the item or packet is separately ignored with the IGNORE_ITEM or IGNORE_PACKET keyword.
+
+<table>
+<tbody>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+<th>Required</th></tr>
+<tr>
+<td>Target Name</td>
+<td>Name of the telemetry target</td>
+<td>Yes</td></tr>
+<tr>
+<td colspan="1">Packet Name</td>
+<td colspan="1">Name of the telemetry packet</td>
+<td colspan="1">Yes</td></tr></tbody></table>
+
+
+Example Usage:
+{% highlight bash %}
+IGNORE_STALE INST HEALTH_STATUS
+{% endhighlight %}
+
+### COLOR_BLIND
+
+The COLOR_BLIND keyword instructs Limits Monitor to use a color-blind accessibility mode.  In this mode, the value for out-of-limits items have a code appended to indicate the limits status.  The code is r = red low, y = yellow low, g = green low, B = blue, G = green or green high, Y = yellow high, R = red high.
+
+Example Usage:
+{% highlight bash %}
+COLOR_BLIND
+{% endhighlight %}
+
+### IGNORE_OPERATIONAL_LIMITS
+
+The IGNORE_OPERATIONAL_LIMITS keyword instructs Limits Monitor to ignore GREEN_HIGH or GREEN_LOW limits states for items that have operational limits defined.  If this keyword is used, items with operational limits will only show up in limits monitor if they go yellow or red.
+
+Example Usage:
+{% highlight bash %}
+IGNORE_OPERATIONAL_LIMITS
 {% endhighlight %}
 
 * * *
