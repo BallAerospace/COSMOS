@@ -127,21 +127,44 @@ module Cosmos
           tf = Tempfile.new('unittest')
           tf.puts("REQUIRE my_file.rb")
           tf.close
-          expect { Target.new("INST").process_file(tf.path) }.to raise_error(ConfigParser::Error, /Unable to require .*my_file.rb/)
+          expect { Target.new("INST").process_file(tf.path) }.to raise_error(ConfigParser::Error, /Unable to require my_file.rb/)
           tf.unlink
         end
 
-        it "requires the file in the target lib directory" do
-          filename = File.join(Cosmos::USERPATH, 'config', 'targets', 'INST', 'lib', 'my_file.rb')
+        it "requires the file in the target lib directory over system lib" do
+          filename = File.join(Cosmos::USERPATH, 'config', 'targets', 'INST', 'lib', 'tgt_file.rb')
           File.open(filename, 'w') do |file|
-            file.puts "class MyFile"
+            file.puts "class TgtLibFile"
+            file.puts "end"
+          end
+          filename = File.join(Cosmos::USERPATH, 'lib', 'tgt_file.rb')
+          File.open(filename, 'w') do |file|
+            file.puts "class SystemLibFile"
+            file.puts "end"
+          end
+
+          tf = Tempfile.new('unittest')
+          tf.puts("REQUIRE tgt_file.rb")
+          tf.close
+          Target.new("INST").process_file(tf.path)
+          expect { TgtLibFile.new }.to_not raise_error
+          expect(Object.const_defined?('TgtLibFile')).to be true
+          expect(Object.const_defined?('SystemLibFile')).to be false
+          File.delete filename
+          tf.unlink
+        end
+
+        it "requires the file in the system lib directory" do
+          filename = File.join(Cosmos::USERPATH, 'lib', 'system_file.rb')
+          File.open(filename, 'w') do |file|
+            file.puts "class SystemFile"
             file.puts "end"
           end
           tf = Tempfile.new('unittest')
-          tf.puts("REQUIRE my_file.rb")
+          tf.puts("REQUIRE system_file.rb")
           tf.close
           Target.new("INST").process_file(tf.path)
-          expect { MyFile.new }.to_not raise_error
+          expect { SystemFile.new }.to_not raise_error
           File.delete filename
           tf.unlink
         end
