@@ -415,7 +415,6 @@ module Cosmos
       index = @stale.delete_item(item)
       widget = @items.delete("#{target_name} #{packet_name}") if index
       @remove_item_callback.call(widget) if widget
-      # TBD get all out-of-limits items for the packet that is no longer stale.
       return ["INFO: Packet #{target_name} #{packet_name} is no longer STALE\n", :BLACK]
     end
 
@@ -484,9 +483,9 @@ module Cosmos
       # Update the widget's value, limits_state, and limits_set
       def set_values(value, limits_state, limits_set)
         if LabelvaluelimitsbarWidget === @value
-          @value.value = value
           @value.limits_state = limits_state
           @value.limits_set = limits_set
+          @value.value = value
         end
       end
 
@@ -876,7 +875,7 @@ module Cosmos
         end
         @tf.setForeground(brush)
         @log_output.setCurrentCharFormat(@tf)
-        @log_output.appendPlainText(message.chomp)
+        @log_output.appendPlainText(Time.now.sys.formatted + ' ' + message.chomp)
       end
     end
 
