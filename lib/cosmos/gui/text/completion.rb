@@ -20,7 +20,7 @@ module Cosmos
     TLM_KEYWORDS = %w(set_tlm set_tlm_raw override_tlm override_tlm_raw normalize_tlm
     tlm tlm_raw tlm_formatted tlm_with_units
     limits_enabled? enable_limits disable_limits
-    check check_raw check_tolerance check_tolerance_raw
+    check check_raw check_tolerance check_tolerance_raw check_exception
     wait wait_raw wait_tolerance wait_tolerance_raw wait_check wait_check_raw wait_check_tolerance wait_check_tolerance_raw)
 
     slots 'insertCompletion(const QString&)'

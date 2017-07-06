@@ -160,6 +160,29 @@ module Cosmos
       _check(*args) {|tgt,pkt,item| tlm_raw(tgt,pkt,item) }
     end
 
+    # Executes the passed method and expects and exception to be raised.
+    # Raises a CheckError if an Exception is not raised.
+    # Usage:
+    #   check_exception { cmd(target_name, cmd_name, cmd_params = {}) }
+    # or
+    #   check_exception { cmd('target_name cmd_name with cmd_param1 value1, cmd_param2 value2') }
+    def check_exception(&block)
+      method = ''
+      begin
+        begin
+          # Try to get the block source. This doesn't always work ...
+          method = block.source.split('{')[1].split('}')[0].strip
+        rescue => error # Rescue errors with getting block source
+          method = block.source_location # source_location always works
+        end
+        yield
+      rescue Exception => error
+        Logger.info "CHECK: #{method} raised #{error.message}"
+      else
+        raise(CheckError, "#{method} should have raised an exception but did not.")
+      end
+    end
+
     def _check_tolerance(*args)
       target_name, packet_name, item_name, expected_value, tolerance =
         check_tolerance_process_args(args, 'check_tolerance')
