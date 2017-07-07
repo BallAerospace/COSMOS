@@ -15,9 +15,12 @@ require 'thread'
 module Cosmos
   class Protocol
     attr_accessor :interface
+    attr_accessor :allow_empty_data
 
-    def initialize
+    # @param allow_empty_data [true/false] Whether STOP should be returned on empty data
+    def initialize(allow_empty_data = false)
       @interface = nil
+      @allow_empty_data = ConfigParser.handle_true_false(allow_empty_data)
       reset()
     end
 
@@ -32,8 +35,10 @@ module Cosmos
       reset()
     end
 
+    # Ensure we have some data in case this is the only protocol
     def read_data(data)
-      return data
+      return :STOP if (data.length <= 0) && !@allow_empty_data
+      data
     end
 
     def read_packet(packet)

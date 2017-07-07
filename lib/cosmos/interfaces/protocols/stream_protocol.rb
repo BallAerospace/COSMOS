@@ -28,8 +28,8 @@ module Cosmos
     #   that will be searched for in the raw stream. Bytes encountered before
     #   this pattern is found are discarded.
     # @param fill_fields [Boolean] Fill any required fields when writing packets
-    def initialize(discard_leading_bytes = 0, sync_pattern = nil, fill_fields = false)
-      super()
+    def initialize(discard_leading_bytes = 0, sync_pattern = nil, fill_fields = false, allow_empty_data = false)
+      super(allow_empty_data)
       @discard_leading_bytes = discard_leading_bytes.to_i
       @sync_pattern = ConfigParser.handle_nil(sync_pattern)
       @sync_pattern = @sync_pattern.hex_to_byte_string if @sync_pattern
