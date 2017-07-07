@@ -180,10 +180,20 @@ module Cosmos
     def read
       raise "Interface not connected for read: #{@name}" unless connected? && read_allowed?
 
+      first = true
       loop do
-        # Read data for a packet
-        data = read_interface()
-        return nil unless data
+        # Protocols may have cached data for a packet, so initially just inject a blank string
+        # Otherwise we can hold off outputing other packets where all the data has already
+        # been received
+        if !first or @read_protocols.length <= 0
+          # Read data for a packet
+          data = read_interface()
+          return nil unless data
+        else
+          data = ''
+          first = false
+        end
+
         @read_protocols.each do |protocol|
           data = protocol.read_data(data)
           return nil if data == :DISCONNECT # Disconnect handled by thread

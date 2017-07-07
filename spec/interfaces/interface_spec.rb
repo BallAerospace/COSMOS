@@ -23,6 +23,7 @@ module Cosmos
     end
 
     def read_data(data)
+      return :STOP if data == ''
       if @stop_count > 0
         @stop_count -= 1
         return :STOP
