@@ -9,12 +9,12 @@
 # attribution addendums as found in the LICENSE.txt
 
 require 'spec_helper'
-require 'cosmos/interfaces/protocols/fixed_stream_protocol'
+require 'cosmos/interfaces/protocols/fixed_protocol'
 require 'cosmos/interfaces/interface'
 require 'cosmos/streams/stream'
 
 module Cosmos
-  describe FixedStreamProtocol do
+  describe FixedProtocol do
     before(:each) do
       @interface = StreamInterface.new
       allow(@interface).to receive(:connected?) { true }
@@ -27,12 +27,12 @@ module Cosmos
 
     describe "initialize" do
       it "initializes attributes" do
-        @interface.add_protocol(FixedStreamProtocol, [2, 1, '0xDEADBEEF', false, true], :READ_WRITE)
+        @interface.add_protocol(FixedProtocol, [2, 1, '0xDEADBEEF', false, true], :READ_WRITE)
         expect(@interface.read_protocols[0].instance_variable_get(:@data)).to eq ''
         expect(@interface.read_protocols[0].instance_variable_get(:@min_id_size)).to eq 2
         expect(@interface.read_protocols[0].instance_variable_get(:@discard_leading_bytes)).to eq 1
         expect(@interface.read_protocols[0].instance_variable_get(:@sync_pattern)).to eq "\xDE\xAD\xBE\xEF"
-        expect(@interface.read_protocols[0].instance_variable_get(:@telemetry_stream)).to be false
+        expect(@interface.read_protocols[0].instance_variable_get(:@telemetry)).to be false
         expect(@interface.read_protocols[0].instance_variable_get(:@fill_fields)).to be true
       end
     end
@@ -45,7 +45,7 @@ module Cosmos
       end
 
       it "returns unknown packets" do
-        @interface.add_protocol(FixedStreamProtocol, [1], :READ)
+        @interface.add_protocol(FixedProtocol, [1], :READ)
         @interface.instance_variable_set(:@stream, FixedStream.new)
         packet = @interface.read
         expect(packet.received_time.to_f).to eql 0.0
@@ -55,13 +55,13 @@ module Cosmos
       end
 
       it "raises an exception if unknown packet" do
-        @interface.add_protocol(FixedStreamProtocol, [1, 0, nil, true, false, true], :READ)
+        @interface.add_protocol(FixedProtocol, [1, 0, nil, true, false, true], :READ)
         @interface.instance_variable_set(:@stream, FixedStream.new)
         expect { @interface.read }.to raise_error(/Unknown data/)
       end
 
       it "handles targets with no defined telemetry" do
-        @interface.add_protocol(FixedStreamProtocol, [1], :READ)
+        @interface.add_protocol(FixedProtocol, [1], :READ)
         @interface.instance_variable_set(:@stream, FixedStream.new)
         @interface.target_names = ['BLAH']
         packet = @interface.read
@@ -72,7 +72,7 @@ module Cosmos
       end
 
       it "reads telemetry data from the stream" do
-        @interface.add_protocol(FixedStreamProtocol, [1], :READ_WRITE)
+        @interface.add_protocol(FixedProtocol, [1], :READ_WRITE)
         @interface.instance_variable_set(:@stream, FixedStream.new)
         @interface.target_names = ['SYSTEM']
         packet = @interface.read
@@ -106,7 +106,7 @@ module Cosmos
             end
           end
         end
-        @interface.add_protocol(FixedStreamProtocol, [8, 0, '0x1ACFFC1D', false], :READ_WRITE)
+        @interface.add_protocol(FixedProtocol, [8, 0, '0x1ACFFC1D', false], :READ_WRITE)
         @interface.instance_variable_set(:@stream, FixedStream.new)
         @interface.target_names = ['SYSTEM']
         packet = @interface.read

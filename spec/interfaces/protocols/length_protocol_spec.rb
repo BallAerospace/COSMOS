@@ -9,12 +9,12 @@
 # attribution addendums as found in the LICENSE.txt
 
 require 'spec_helper'
-require 'cosmos/interfaces/protocols/length_stream_protocol'
+require 'cosmos/interfaces/protocols/length_protocol'
 require 'cosmos/interfaces/interface'
 require 'cosmos/streams/stream'
 
 module Cosmos
-  describe LengthStreamProtocol do
+  describe LengthProtocol do
     class LengthStream < Stream
       def connect; end
       def connected?; true; end
@@ -31,7 +31,7 @@ module Cosmos
 
     describe "initialize" do
       it "initializes attributes" do
-        @interface.add_protocol(LengthStreamProtocol, [16, 32, 16, 2, 'LITTLE_ENDIAN', 2, '0xDEADBEEF', 100, true], :READ_WRITE)
+        @interface.add_protocol(LengthProtocol, [16, 32, 16, 2, 'LITTLE_ENDIAN', 2, '0xDEADBEEF', 100, true], :READ_WRITE)
         expect(@interface.read_protocols[0].instance_variable_get(:@data)).to eq ''
         expect(@interface.read_protocols[0].instance_variable_get(:@length_bit_offset)).to eq 16
         expect(@interface.read_protocols[0].instance_variable_get(:@length_bit_size)).to eq 32
@@ -48,7 +48,7 @@ module Cosmos
     describe "read" do
       it "reads LITTLE_ENDIAN length fields from the stream" do
         @interface.instance_variable_set(:@stream, LengthStream.new)
-        @interface.add_protocol(LengthStreamProtocol, [
+        @interface.add_protocol(LengthProtocol, [
           16, # bit offset
           16, # bit size
           0,  # length offset
@@ -61,7 +61,7 @@ module Cosmos
 
       it "reads LITTLE_ENDIAN bit fields from the stream" do
         @interface.instance_variable_set(:@stream, LengthStream.new)
-        @interface.add_protocol(LengthStreamProtocol, [
+        @interface.add_protocol(LengthProtocol, [
           19, # bit offset
           5,  # bit size
           0,  # length offset
@@ -74,7 +74,7 @@ module Cosmos
 
       it "adjusts length by offset" do
         @interface.instance_variable_set(:@stream, LengthStream.new)
-        @interface.add_protocol(LengthStreamProtocol, [
+        @interface.add_protocol(LengthProtocol, [
           16, # bit offset
           16, # bit size
           1, # length offset
@@ -87,7 +87,7 @@ module Cosmos
 
       it "adjusts length by bytes per count" do
         @interface.instance_variable_set(:@stream, LengthStream.new)
-        @interface.add_protocol(LengthStreamProtocol, [
+        @interface.add_protocol(LengthProtocol, [
           16, # bit offset
           16, # bit size
           1, # length offset
@@ -100,7 +100,7 @@ module Cosmos
 
       it "accesses length at odd offset and bit sizes" do
         @interface.instance_variable_set(:@stream, LengthStream.new)
-        @interface.add_protocol(LengthStreamProtocol, [
+        @interface.add_protocol(LengthProtocol, [
           19, # bit offset
           5, # bit size
           0, # length offset
@@ -113,7 +113,7 @@ module Cosmos
 
       it "validates length against the maximum length" do
         @interface.instance_variable_set(:@stream, LengthStream.new)
-        @interface.add_protocol(LengthStreamProtocol, [
+        @interface.add_protocol(LengthProtocol, [
           16, # bit offset
           16, # bit size
           0,  # length offset
@@ -128,7 +128,7 @@ module Cosmos
 
       it "handles a sync value in the packet" do
         @interface.instance_variable_set(:@stream, LengthStream.new)
-        @interface.add_protocol(LengthStreamProtocol, [
+        @interface.add_protocol(LengthProtocol, [
           16, # bit offset
           16, # bit size
           0, # length offset
@@ -143,7 +143,7 @@ module Cosmos
 
       it "handles a sync value that is discarded" do
         @interface.instance_variable_set(:@stream, LengthStream.new)
-        @interface.add_protocol(LengthStreamProtocol, [
+        @interface.add_protocol(LengthProtocol, [
           16, # bit offset (past the discard)
           16, # bit size
           0, # length offset
@@ -158,7 +158,7 @@ module Cosmos
 
       it "handles a length value that is discarded" do
         @interface.instance_variable_set(:@stream, LengthStream.new)
-        @interface.add_protocol(LengthStreamProtocol, [
+        @interface.add_protocol(LengthProtocol, [
           8, # bit offset
           16, # bit size
           0, # length offset
@@ -173,7 +173,7 @@ module Cosmos
 
       it "handles a sync and length value that are discarded" do
         @interface.instance_variable_set(:@stream, LengthStream.new)
-        @interface.add_protocol(LengthStreamProtocol, [
+        @interface.add_protocol(LengthProtocol, [
           16, # bit offset
           8, # bit size
           0, # length offset
@@ -190,7 +190,7 @@ module Cosmos
     describe "write" do
       it "sends data directly to the stream if no fill" do
         @interface.instance_variable_set(:@stream, LengthStream.new)
-        @interface.add_protocol(LengthStreamProtocol, [
+        @interface.add_protocol(LengthProtocol, [
           32, # bit offset
           16, # bit size
           0, # length offset
@@ -208,7 +208,7 @@ module Cosmos
 
       it "complains if not enough data to write the sync and length fields" do
         @interface.instance_variable_set(:@stream, LengthStream.new)
-        @interface.add_protocol(LengthStreamProtocol, [
+        @interface.add_protocol(LengthProtocol, [
           32, # bit offset
           16, # bit size
           0, # length offset
@@ -226,7 +226,7 @@ module Cosmos
 
       it "adjusts length by offset" do
         @interface.instance_variable_set(:@stream, LengthStream.new)
-        @interface.add_protocol(LengthStreamProtocol, [
+        @interface.add_protocol(LengthProtocol, [
           16, # bit offset
           16, # bit size
           2, # length offset
@@ -246,7 +246,7 @@ module Cosmos
 
       it "adjusts length by bytes per count" do
         @interface.instance_variable_set(:@stream, LengthStream.new)
-        @interface.add_protocol(LengthStreamProtocol, [
+        @interface.add_protocol(LengthProtocol, [
           0, # bit offset
           16, # bit size
           0, # length offset
@@ -266,7 +266,7 @@ module Cosmos
 
       it "writes length at odd offset and bit sizes" do
         @interface.instance_variable_set(:@stream, LengthStream.new)
-        @interface.add_protocol(LengthStreamProtocol, [
+        @interface.add_protocol(LengthProtocol, [
           19, # bit offset
           5, # bit size
           0, # length offset
@@ -286,7 +286,7 @@ module Cosmos
       it "validates length against the maximum length 1" do
         # Length inside packet
         @interface.instance_variable_set(:@stream, LengthStream.new)
-        @interface.add_protocol(LengthStreamProtocol, [
+        @interface.add_protocol(LengthProtocol, [
           0, # bit offset
           16, # bit size
           0,  # length offset
@@ -304,7 +304,7 @@ module Cosmos
       it "validates length against the maximum length 2" do
         # Length outside packet (data stream)
         @interface.instance_variable_set(:@stream, LengthStream.new)
-        @interface.add_protocol(LengthStreamProtocol, [
+        @interface.add_protocol(LengthProtocol, [
           0, # bit offset
           16, # bit size
           0,  # length offset
@@ -321,7 +321,7 @@ module Cosmos
 
       it "inserts the sync and length fields into the packet 1" do
         @interface.instance_variable_set(:@stream, LengthStream.new)
-        @interface.add_protocol(LengthStreamProtocol, [
+        @interface.add_protocol(LengthProtocol, [
           16, # bit offset
           16, # bit size
           0, # length offset
@@ -340,7 +340,7 @@ module Cosmos
 
       it "inserts the sync and length fields into the packet 2" do
         @interface.instance_variable_set(:@stream, LengthStream.new)
-        @interface.add_protocol(LengthStreamProtocol, [
+        @interface.add_protocol(LengthProtocol, [
           64, # bit offset
           32, # bit size
           12, # length offset
@@ -361,7 +361,7 @@ module Cosmos
 
       it "inserts the length field into the packet and sync into data stream 1" do
         @interface.instance_variable_set(:@stream, LengthStream.new)
-        @interface.add_protocol(LengthStreamProtocol, [
+        @interface.add_protocol(LengthProtocol, [
           16, # bit offset
           16, # bit size
           0, # length offset
@@ -380,7 +380,7 @@ module Cosmos
 
       it "inserts the length field into the packet and sync into data stream 2" do
         @interface.instance_variable_set(:@stream, LengthStream.new)
-        @interface.add_protocol(LengthStreamProtocol, [
+        @interface.add_protocol(LengthProtocol, [
           32, # bit offset
           16, # bit size
           0, # length offset
@@ -399,7 +399,7 @@ module Cosmos
 
       it "inserts the length field into the packet and sync into data stream 3" do
         @interface.instance_variable_set(:@stream, LengthStream.new)
-        @interface.add_protocol(LengthStreamProtocol, [
+        @interface.add_protocol(LengthProtocol, [
           64, # bit offset
           32, # bit size
           12, # length offset
@@ -420,7 +420,7 @@ module Cosmos
 
       it "inserts the length field into the data stream 1" do
         @interface.instance_variable_set(:@stream, LengthStream.new)
-        @interface.add_protocol(LengthStreamProtocol, [
+        @interface.add_protocol(LengthProtocol, [
           8, # bit offset
           16, # bit size
           0, # length offset
@@ -439,7 +439,7 @@ module Cosmos
 
       it "inserts the length field into the data stream 2" do
         @interface.instance_variable_set(:@stream, LengthStream.new)
-        @interface.add_protocol(LengthStreamProtocol, [
+        @interface.add_protocol(LengthProtocol, [
           16, # bit offset
           8, # bit size
           0, # length offset
@@ -458,7 +458,7 @@ module Cosmos
 
       it "inserts the sync and length fields into the data stream 1" do
         @interface.instance_variable_set(:@stream, LengthStream.new)
-        @interface.add_protocol(LengthStreamProtocol, [
+        @interface.add_protocol(LengthProtocol, [
           16, # bit offset
           8, # bit size
           0, # length offset
@@ -478,7 +478,7 @@ module Cosmos
       it "inserts the sync and length fields into the data stream 2" do
         $buffer = ''
         @interface.instance_variable_set(:@stream, LengthStream.new)
-        @interface.add_protocol(LengthStreamProtocol, [
+        @interface.add_protocol(LengthProtocol, [
           32, # bit offset
           8, # bit size
           0, # length offset

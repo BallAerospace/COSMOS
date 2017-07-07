@@ -8,13 +8,13 @@
 # as published by the Free Software Foundation; version 3 with
 # attribution addendums as found in the LICENSE.txt
 
-require 'cosmos/interfaces/protocols/stream_protocol'
+require 'cosmos/interfaces/protocols/burst_protocol'
 
 module Cosmos
-  # This StreamProtocol delineates packets using the COSMOS preidentification system
-  class PreidentifiedStreamProtocol < StreamProtocol
+  # Delineates packets using the COSMOS preidentification system
+  class PreidentifiedProtocol < BurstProtocol
 
-    # @param sync_pattern (see StreamProtocol#initialize)
+    # @param sync_pattern (see BurstProtocol#initialize)
     # @param max_length [Integer] The maximum allowed value of the length field
     def initialize(sync_pattern = nil, max_length = nil)
       super(0, sync_pattern)

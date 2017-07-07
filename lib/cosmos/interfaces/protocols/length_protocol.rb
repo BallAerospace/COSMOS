@@ -9,27 +9,27 @@
 # attribution addendums as found in the LICENSE.txt
 
 require 'cosmos/packets/binary_accessor'
-require 'cosmos/interfaces/protocols/stream_protocol'
+require 'cosmos/interfaces/protocols/burst_protocol'
 require 'cosmos/config/config_parser'
 
 module Cosmos
   # Protocol which delineates packets using a length field at a fixed
   # location in each packet.
-  class LengthStreamProtocol < StreamProtocol
+  class LengthProtocol < BurstProtocol
     # @param length_bit_offset [Integer] The bit offset of the length field
     # @param length_bit_size [Integer] The size in bits of the length field
     # @param length_value_offset [Integer] The offset to apply to the length
     #   value once it has been read from the packet. The value in the length
-    #   field itself plus the length value offset MUST equal the total bytes in
-    #   the stream including any discarded bytes.
+    #   field itself plus the length value offset MUST equal the total bytes
+    #   including any discarded bytes.
     #   For example: if your length field really means "length - 1" this value should be 1.
     # @param length_bytes_per_count [Integer] The number of bytes per each
     #   length field 'count'. This is used if the units of the length field is
     #   something other than bytes, for example words.
     # @param length_endianness [String] The endianness of the length field.
     #   Must be either BIG_ENDIAN or LITTLE_ENDIAN.
-    # @param discard_leading_bytes (see StreamProtocol#initialize)
-    # @param sync_pattern (see StreamProtocol#initialize)
+    # @param discard_leading_bytes (see BurstProtocol#initialize)
+    # @param sync_pattern (see BurstProtocol#initialize)
     # @param max_length [Integer] The maximum allowed value of the length field
     # @param fill_length_and_sync_pattern [Boolean] Fill the length field and sync
     #    pattern when writing packets
@@ -84,14 +84,14 @@ module Cosmos
         if @length_bit_offset >= (@discard_leading_bytes * 8)
           length = calculate_length(packet.buffer.length + @discard_leading_bytes)
           # Subtract off the discarded bytes since they haven't been added yet
-          # Adding bytes to the stream happens in the write_data method
+          # Adding bytes happens in the write_data method
           offset = @length_bit_offset - (@discard_leading_bytes * 8)
           # Directly write the packet buffer and fill in the length
           BinaryAccessor.write(length, offset, @length_bit_size, :UINT,
                                packet.buffer(false), @length_endianness, :ERROR)
         end
       end
-      return super(packet) # Allow stream_protocol to set the sync if needed
+      return super(packet) # Allow burst_protocol to set the sync if needed
     end
 
     # Called to perform modifications on write data before making it into a packet

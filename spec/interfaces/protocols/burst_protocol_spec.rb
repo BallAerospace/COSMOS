@@ -9,20 +9,20 @@
 # attribution addendums as found in the LICENSE.txt
 
 require 'spec_helper'
-require 'cosmos/interfaces/protocols/stream_protocol'
+require 'cosmos/interfaces/protocols/burst_protocol'
 require 'cosmos/interfaces/interface'
 require 'cosmos/streams/stream'
 
 module Cosmos
-  describe StreamProtocol do
+  describe BurstProtocol do
     before(:each) do
       @interface = StreamInterface.new
       allow(@interface).to receive(:connected?) { true }
     end
 
-    describe "configure_stream_protocol" do
+    describe "configure_protocol" do
       it "initializes attributes" do
-        @interface.add_protocol(StreamProtocol, [1, '0xDEADBEEF', true], :READ_WRITE)
+        @interface.add_protocol(BurstProtocol, [1, '0xDEADBEEF', true], :READ_WRITE)
         expect(@interface.read_protocols[0].instance_variable_get(:@data)).to eq ''
         expect(@interface.read_protocols[0].instance_variable_get(:@discard_leading_bytes)).to eq 1
         expect(@interface.read_protocols[0].instance_variable_get(:@sync_pattern)).to eq "\xDE\xAD\xBE\xEF"
@@ -32,7 +32,7 @@ module Cosmos
 
     describe "connect" do
       it "clears the data" do
-        @interface.add_protocol(StreamProtocol, [1, '0xDEADBEEF', true], :READ_WRITE)
+        @interface.add_protocol(BurstProtocol, [1, '0xDEADBEEF', true], :READ_WRITE)
         @interface.read_protocols[0].instance_variable_set(:@data, '\x00\x01\x02\x03')
         @interface.connect
         expect(@interface.read_protocols[0].instance_variable_get(:@data)).to eql ''
@@ -41,7 +41,7 @@ module Cosmos
 
     describe "disconnect" do
       it "clears the data" do
-        @interface.add_protocol(StreamProtocol, [1, '0xDEADBEEF', true], :READ_WRITE)
+        @interface.add_protocol(BurstProtocol, [1, '0xDEADBEEF', true], :READ_WRITE)
         @interface.read_protocols[0].instance_variable_set(:@data, '\x00\x01\x02\x03')
         @interface.connect
         expect(@interface.read_protocols[0].instance_variable_get(:@data)).to eql ''
@@ -57,7 +57,7 @@ module Cosmos
           def read; "\x01\x02\x03\x04"; end
         end
         @interface.instance_variable_set(:@stream, MyStream.new)
-        @interface.add_protocol(StreamProtocol, [], :READ_WRITE)
+        @interface.add_protocol(BurstProtocol, [], :READ_WRITE)
         pkt = @interface.read
         expect(pkt.length).to eql 4
       end
@@ -70,7 +70,7 @@ module Cosmos
           def read; raise Timeout::Error; end
         end
         @interface.instance_variable_set(:@stream, MyStream.new)
-        @interface.add_protocol(StreamProtocol, [], :READ_WRITE)
+        @interface.add_protocol(BurstProtocol, [], :READ_WRITE)
         expect(@interface.read).to be_nil
       end
 
@@ -84,7 +84,7 @@ module Cosmos
           end
         end
         @interface.instance_variable_set(:@stream, MyStream.new)
-        @interface.add_protocol(StreamProtocol, [2], :READ_WRITE)
+        @interface.add_protocol(BurstProtocol, [2], :READ_WRITE)
         pkt = @interface.read
         expect(pkt.length).to eql 2
         expect(pkt.buffer.formatted).to match(/03 04/)
@@ -101,7 +101,7 @@ module Cosmos
           end
         end
         @interface.instance_variable_set(:@stream, MyStream.new)
-        @interface.add_protocol(StreamProtocol, [2, '0x1234'], :READ_WRITE)
+        @interface.add_protocol(BurstProtocol, [2, '0x1234'], :READ_WRITE)
         pkt = @interface.read
         expect(pkt.length).to eql 4
         expect(pkt.buffer.formatted).to match(/56 78 9A BC/)
@@ -118,7 +118,7 @@ module Cosmos
           end
         end
         @interface.instance_variable_set(:@stream, MyStream.new)
-        @interface.add_protocol(StreamProtocol, [1, '0x123456'], :READ_WRITE)
+        @interface.add_protocol(BurstProtocol, [1, '0x123456'], :READ_WRITE)
         pkt = @interface.read
         expect(pkt.length).to eql 5
         expect(pkt.buffer.formatted).to match(/34 56 78 9A BC/)
@@ -144,7 +144,7 @@ module Cosmos
           end
         end
         @interface.instance_variable_set(:@stream, MyStream.new)
-        @interface.add_protocol(StreamProtocol, [0, '0x1234'], :READ_WRITE)
+        @interface.add_protocol(BurstProtocol, [0, '0x1234'], :READ_WRITE)
         pkt = @interface.read
         expect(pkt.length).to eql 4 # sync plus two bytes
         expect(pkt.buffer.formatted).to match(/12 34 10 20/)
@@ -169,7 +169,7 @@ module Cosmos
           end
         end
         @interface.instance_variable_set(:@stream, MyStream.new)
-        @interface.add_protocol(StreamProtocol, [0, '0x1234'], :READ_WRITE)
+        @interface.add_protocol(BurstProtocol, [0, '0x1234'], :READ_WRITE)
         pkt = @interface.read
         expect(pkt.length).to eql 3 # sync plus one byte
       end
@@ -193,7 +193,7 @@ module Cosmos
           end
         end
         @interface.instance_variable_set(:@stream, MyStream.new)
-        @interface.add_protocol(StreamProtocol, [0, '0x1234'], :READ_WRITE)
+        @interface.add_protocol(BurstProtocol, [0, '0x1234'], :READ_WRITE)
         pkt = @interface.read
         expect(pkt.length).to eql 3 # sync plus one byte
       end
@@ -210,7 +210,7 @@ module Cosmos
         end
         data = Packet.new(nil, nil, :BIG_ENDIAN, nil, "\x00\x01\x02\x03")
         @interface.instance_variable_set(:@stream, MyStream.new)
-        @interface.add_protocol(StreamProtocol, [0, '0x1234'], :READ_WRITE)
+        @interface.add_protocol(BurstProtocol, [0, '0x1234'], :READ_WRITE)
         data = @interface.write(data)
         expect($buffer).to eql "\x00\x01\x02\x03"
       end
@@ -226,7 +226,7 @@ module Cosmos
         data = Packet.new(nil, nil, :BIG_ENDIAN, nil, "\x00\x00")
         # Don't discard bytes, include and fill the sync pattern
         @interface.instance_variable_set(:@stream, MyStream.new)
-        @interface.add_protocol(StreamProtocol, [0, '0x12345678', true], :READ_WRITE)
+        @interface.add_protocol(BurstProtocol, [0, '0x12345678', true], :READ_WRITE)
         # 2 bytes are not enough to hold the 4 byte sync
         expect { @interface.write(data) }.to raise_error(ArgumentError, /buffer insufficient/)
       end
@@ -242,7 +242,7 @@ module Cosmos
         data = Packet.new(nil, nil, :BIG_ENDIAN, nil, "\x00\x01\x02\x03")
         # Don't discard bytes, include and fill the sync pattern
         @interface.instance_variable_set(:@stream, MyStream.new)
-        @interface.add_protocol(StreamProtocol, [0, '0x1234', true], :READ_WRITE)
+        @interface.add_protocol(BurstProtocol, [0, '0x1234', true], :READ_WRITE)
         @interface.write(data)
         expect($buffer).to eql "\x12\x34\x02\x03"
       end
@@ -258,7 +258,7 @@ module Cosmos
         data = Packet.new(nil, nil, :BIG_ENDIAN, nil, "\x00\x01\x02\x03")
         # Discard first 2 bytes (the sync pattern), include and fill the sync pattern
         @interface.instance_variable_set(:@stream, MyStream.new)
-        @interface.add_protocol(StreamProtocol, [2, '0x12345678', true], :READ_WRITE)
+        @interface.add_protocol(BurstProtocol, [2, '0x12345678', true], :READ_WRITE)
         @interface.write(data)
         expect($buffer).to eql "\x12\x34\x56\x78\x02\x03"
       end
@@ -274,7 +274,7 @@ module Cosmos
         data = Packet.new(nil, nil, :BIG_ENDIAN, nil, "\x00\x00\x02\x03")
         # Discard first byte (part of the sync pattern), include and fill the sync pattern
         @interface.instance_variable_set(:@stream, MyStream.new)
-        @interface.add_protocol(StreamProtocol, [1, '0x123456', true], :READ_WRITE)
+        @interface.add_protocol(BurstProtocol, [1, '0x123456', true], :READ_WRITE)
         @interface.write(data)
         expect($buffer).to eql "\x12\x34\x56\x02\x03"
       end
@@ -291,7 +291,7 @@ module Cosmos
         end
         # Discard first 2 bytes (the sync pattern), include and fill the sync pattern
         @interface.instance_variable_set(:@stream, MyStream.new)
-        @interface.add_protocol(StreamProtocol, [2, '0x1234', true], :READ_WRITE)
+        @interface.add_protocol(BurstProtocol, [2, '0x1234', true], :READ_WRITE)
         @interface.write_raw("\x00\x01\x02\x03")
         expect($buffer).to eql "\x00\x01\x02\x03"
       end

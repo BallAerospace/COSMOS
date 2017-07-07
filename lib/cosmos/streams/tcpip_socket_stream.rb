@@ -49,8 +49,7 @@ module Cosmos
     def read
       raise "Attempt to read from write only stream" unless @read_socket
 
-      # No read mutex is needed because there is only one stream procesor
-      # reading
+      # No read mutex is needed because reads happen serially
       if FAST_READ
         begin
           while true # Loop until we get some data
@@ -116,8 +115,7 @@ module Cosmos
 
     # @return [String] Returns a binary string of data from the socket. Always returns immediately
     def read_nonblock
-      # No read mutex is needed because there is only one stream procesor
-      # reading
+      # No read mutex is needed because reads happen serially
       begin
         if FAST_READ
           data = @read_socket.read_nonblock(65535, exception: false)

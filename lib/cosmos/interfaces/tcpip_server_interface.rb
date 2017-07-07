@@ -20,12 +20,11 @@ module Cosmos
   # TCP/IP Server which can both read and write on a single port or two
   # independent ports. A listen thread is setup which waits for client
   # connections. For each connection to the read port, a thread is spawned that
-  # calls the read method from the stream protocol. This data is then
+  # calls the read method from the interface. This data is then
   # available by calling the TcpipServer read method. For each connection to the
-  # write port, a thread is spawned that calls the write method from the stream
-  # protocol when data is send to the TcpipServer via the write method.
+  # write port, a thread is spawned that calls the write method from the
+  # interface when data is send to the TcpipServer via the write method.
   class TcpipServerInterface < StreamInterface
-
     # Data class which stores the interface and associated information
     class InterfaceInfo
       attr_reader :interface, :hostname, :host_ip, :port
@@ -58,17 +57,17 @@ module Cosmos
     #   write to complete. Pass nil to block until the write is complete.
     # @param read_timeout [Float|nil] The number of seconds to wait for the
     #   read to complete. Pass nil to block until the read is complete.
-    # @param stream_protocol_type [String] The name of the stream protocol to
+    # @param protocol_type [String] The name of the stream to
     #   use for both the read and write ports. This name is combined with
-    #   'StreamProtocol' to result in a COSMOS StreamProtocol class.
-    # @param stream_protocol_args [Array] Arguments to pass to the StreamProtocol
+    #   'Protocol' to result in a COSMOS Protocol class.
+    # @param protocol_args [Array] Arguments to pass to the Protocol
     def initialize(write_port,
                    read_port,
                    write_timeout,
                    read_timeout,
-                   stream_protocol_type = nil,
-                   *stream_protocol_args)
-      super(stream_protocol_type, stream_protocol_args)
+                   protocol_type = nil,
+                   *protocol_args)
+      super(protocol_type, protocol_args)
       @write_port = ConfigParser.handle_nil(write_port)
       @write_port = Integer(write_port) if @write_port
       @read_port = ConfigParser.handle_nil(read_port)
@@ -163,7 +162,7 @@ module Cosmos
 
     # Shutdowns the listener threads for both the read and write ports as well
     # as any client connections. As a part of shutting down client connections,
-    # the {StreamProtocol#disconnect} method is called.
+    # the {Protocol#disconnect} method is called.
     def disconnect
       @cancel_threads = true
       @read_queue << nil if @read_queue

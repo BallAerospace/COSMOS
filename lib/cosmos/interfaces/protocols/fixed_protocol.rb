@@ -9,40 +9,39 @@
 # attribution addendums as found in the LICENSE.txt
 
 require 'cosmos/config/config_parser'
-require 'cosmos/interfaces/protocols/stream_protocol'
+require 'cosmos/interfaces/protocols/burst_protocol'
 
 module Cosmos
 
-  # This StreamProtocol delineates packets by identifying them and then
+  # Delineates packets by identifying them and then
   # reading out their entire fixed length. Packets lengths can vary but
   # they must all be fixed.
-  class FixedStreamProtocol < StreamProtocol
+  class FixedProtocol < BurstProtocol
     # @param min_id_size [Integer] The minimum amount of data needed to
     #   identify a packet.
-    # @param discard_leading_bytes (see StreamProtocol#initialize)
-    # @param sync_pattern (see StreamProtocol#initialize)
-    # @param telemetry_stream [Boolean] Whether the stream is returning
+    # @param discard_leading_bytes (see BurstProtocol#initialize)
+    # @param sync_pattern (see BurstProtocol#initialize)
+    # @param telemetry [Boolean] Whether the interface is returning
     #   telemetry (true) or commands (false)
-    # @param fill_fields (see StreamProtocol#initialize)
+    # @param fill_fields (see BurstProtocol#initialize)
     # @param unknown_raise Whether to raise an exception on an unknown packet
     def initialize(
       min_id_size,
       discard_leading_bytes = 0,
       sync_pattern = nil,
-      telemetry_stream = true,
+      telemetry = true,
       fill_fields = false,
       unknown_raise = false
     )
       super(discard_leading_bytes, sync_pattern, fill_fields)
       @min_id_size = Integer(min_id_size)
-      @telemetry_stream = telemetry_stream
+      @telemetry = telemetry
       @unknown_raise = ConfigParser::handle_true_false(unknown_raise)
     end
 
     # Set the received_time, target_name and packet_name which we recorded when
     # we identified this packet. The server will also do this but since we know
     # the information here, we perform this optimization.
-    # See StreamProtocol#post_read_packet
     def read_packet(packet)
       packet.received_time = @received_time
       packet.target_name = @target_name
@@ -56,8 +55,8 @@ module Cosmos
     # returned but the packet that matched is recorded so it can be set in the
     # post_read_packet callback.
     #
-    # @return [String|nil] The identified packet data or nil if the stream was
-    #   closed
+    # @return [String|Symbol] The identified packet data or :STOP if more data
+    #   is required to build a packet
     def identify_and_finish_packet
       packet_data = nil
       identified_packet = nil
@@ -65,7 +64,7 @@ module Cosmos
       @interface.target_names.each do |target_name|
         target_packets = nil
         begin
-          if @telemetry_stream
+          if @telemetry
             target_packets = System.telemetry.packets(target_name)
           else
             target_packets = System.commands.packets(target_name)
@@ -98,7 +97,7 @@ module Cosmos
       end
 
       unless identified_packet
-        raise "Unknown data received by FixedStreamProtocol" if @unknown_raise
+        raise "Unknown data received by FixedProtocol" if @unknown_raise
         # Unknown packet?  Just return all the current data
         packet_data = @data.clone
         @data.replace('')
