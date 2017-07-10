@@ -16,6 +16,12 @@ module Cosmos
   # so the API can include the original name which calls out to these
   # methods. Clearing the override requires calling normalize_tlm.
   class OverrideProtocol < Protocol
+
+    # @param allow_empty_data [true/false] Whether STOP should be returned on empty data
+    def initialize(allow_empty_data = false)
+      super(allow_empty_data)
+    end
+
     # Called to perform modifications on a read packet before it is given to the user
     #
     # @param packet [Packet] Original packet
