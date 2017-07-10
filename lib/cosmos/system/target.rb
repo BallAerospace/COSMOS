@@ -127,6 +127,13 @@ module Cosmos
             # Require absolute path to file in target lib folder.  Prevents name
             # conflicts at the require step
             Cosmos.require_file(File.join(@dir, 'lib', parameters[0]))
+          rescue LoadError
+            begin
+              # If we couldn't load at the target/lib level check everywhere
+              Cosmos.require_file(parameters[0])
+            rescue Exception => err
+              raise parser.error(err.message)
+            end
           rescue Exception => err
             raise parser.error(err.message)
           end
