@@ -20,19 +20,19 @@ module Cosmos
     # @param read_port [Integer] Port to read telemetry from
     # @param write_timeout [Integer] Seconds to wait before aborting writes
     # @param read_timeout [Integer] Seconds to wait before aborting reads
-    # @param stream_protocol_type [String] Name of the stream protocol to use
+    # @param protocol_type [String] Name of the protocol to use
     #   with this interface
-    # @param stream_protocol_args [Array<String>] Arguments to pass to the protocol
+    # @param protocol_args [Array<String>] Arguments to pass to the protocol
     def initialize(
       hostname,
       write_port,
       read_port,
       write_timeout,
       read_timeout,
-      stream_protocol_type = nil,
-      *stream_protocol_args)
+      protocol_type = nil,
+      *protocol_args)
 
-      super(stream_protocol_type, stream_protocol_args)
+      super(protocol_type, protocol_args)
 
       @hostname = hostname
       @write_port = ConfigParser.handle_nil(write_port)

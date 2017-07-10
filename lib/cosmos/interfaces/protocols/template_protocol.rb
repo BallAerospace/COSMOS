@@ -9,8 +9,7 @@
 # attribution addendums as found in the LICENSE.txt
 
 require 'cosmos/config/config_parser'
-require 'cosmos/interfaces/protocols/stream_protocol'
-require 'cosmos/interfaces/protocols/terminated_stream_protocol'
+require 'cosmos/interfaces/protocols/terminated_protocol'
 require 'thread' # For Queue
 require 'timeout' # For Timeout::Error
 
@@ -18,19 +17,19 @@ module Cosmos
   # Protocol which delineates packets using delimiter characters. Designed for
   # text based protocols which expect a command and send a response. The
   # protocol handles sending the command and capturing the response.
-  class TemplateStreamProtocol < TerminatedStreamProtocol
-    # @param write_termination_characters (see TerminatedStreamProtocol#initialize)
-    # @param read_termination_characters (see TerminatedStreamProtocol#initialize)
+  class TemplateProtocol < TerminatedProtocol
+    # @param write_termination_characters (see TerminatedProtocol#initialize)
+    # @param read_termination_characters (see TerminatedProtocol#initialize)
     # @param ignore_lines [Integer] Number of newline terminated reads to
     #   ignore when processing the response
     # @param initial_read_delay [Integer] Initial delay when connecting before
-    #   trying to read the stream
+    #   trying to read
     # @param response_lines [Integer] Number of newline terminated lines which
     #   comprise the response
-    # @param strip_read_termination (see TerminatedStreamProtocol#initialize)
-    # @param discard_leading_bytes (see TerminatedStreamProtocol#initialize)
-    # @param sync_pattern (see TerminatedStreamProtocol#initialize)
-    # @param fill_fields (see TerminatedStreamProtocol#initialize)
+    # @param strip_read_termination (see TerminatedProtocol#initialize)
+    # @param discard_leading_bytes (see TerminatedProtocol#initialize)
+    # @param sync_pattern (see TerminatedProtocol#initialize)
+    # @param fill_fields (see TerminatedProtocol#initialize)
     def initialize(
       write_termination_characters,
       read_termination_characters,

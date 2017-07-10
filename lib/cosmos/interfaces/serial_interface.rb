@@ -26,10 +26,9 @@ module Cosmos
     #   before aborting
     # @param read_timeout [Integer] The number of seconds to attempt to read
     #   data from the serial port before aborting
-    # @param stream_protocol_type [String] Combined with 'StreamProtocol'
-    #   this should resolve to a COSMOS stream protocol class
-    # @param stream_protocol_args [Array] Arguments to pass to the stream
-    #   protocol class constructor
+    # @param protocol_type [String] Combined with 'Protocol' to resolve
+    #   to a COSMOS protocol class
+    # @param protocol_args [Array] Arguments to pass to the protocol constructor
     def initialize(write_port_name,
                    read_port_name,
                    baud_rate,
@@ -37,9 +36,9 @@ module Cosmos
                    stop_bits,
                    write_timeout,
                    read_timeout,
-                   stream_protocol_type = nil,
-                   *stream_protocol_args)
-      super(stream_protocol_type, stream_protocol_args)
+                   protocol_type = nil,
+                   *protocol_args)
+      super(protocol_type, protocol_args)
 
       @write_port_name = ConfigParser.handle_nil(write_port_name)
       @read_port_name = ConfigParser.handle_nil(read_port_name)
@@ -53,8 +52,7 @@ module Cosmos
       @read_allowed = false unless @read_port_name
     end
 
-    # Connects the stream protocol to a new {SerialStream} using the
-    # parameters passed in the constructor.
+    # Creates a new {SerialStream} using the parameters passed in the constructor
     def connect
       @stream = SerialStream.new(
         @write_port_name,

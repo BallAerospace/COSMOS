@@ -9,25 +9,24 @@
 # attribution addendums as found in the LICENSE.txt
 
 require 'cosmos/config/config_parser'
-require 'cosmos/interfaces/protocols/stream_protocol'
+require 'cosmos/interfaces/protocols/burst_protocol'
 
 module Cosmos
   # Protocol which delineates packets using termination characters at
-  # the end of the stream.
-  class TerminatedStreamProtocol < StreamProtocol
-
-    # @param write_termination_characters [String] The characters to write to
-    #   the stream after writing the Packet buffer. Must be given as a
+  # the end of the data.
+  class TerminatedProtocol < BurstProtocol
+    # @param write_termination_characters [String] The characters to write
+    #   after writing the Packet buffer. Must be given as a
     #   hexadecimal string such as '0xABCD'.
     # @param read_termination_characters [String] The characters at the end of
-    #   the stream which delineate the end of a Packet. Must be given as a
+    #   the data which delineate the end of a Packet. Must be given as a
     #   hexadecimal string such as '0xABCD'.
     # @param strip_read_termination [Boolean] Whether to remove the
-    #   read_termination_characters before turning the stream data into a
+    #   read_termination_characters before turning the data into a
     #   Packet.
-    # @param discard_leading_bytes (see StreamProtocol#initialize)
-    # @param sync_pattern (see StreamProtocol#initialize)
-    # @param fill_fields (see StreamProtocol#initialize)
+    # @param discard_leading_bytes (see BurstProtocol#initialize)
+    # @param sync_pattern (see BurstProtocol#initialize)
+    # @param fill_fields (see BurstProtocol#initialize)
     def initialize(
       write_termination_characters,
       read_termination_characters,

@@ -13,19 +13,14 @@ require 'cosmos/interfaces/protocols/protocol'
 require 'thread'
 
 module Cosmos
-  # Processes a {Cosmos::Stream} on behalf of an {Cosmos::Interface}.
-  # A {Cosmos::Stream} is a primative interface that simply reads and writes
-  # raw binary data. The StreamProtocol adds higher level processing including
-  # the ability todiscard a certain number of bytes from the stream and to sync
-  # the stream on a given synchronization pattern. The StreamProtocol operates
-  # at the {Cosmos::Packet} abstraction level while the {Cosmos::Stream}
-  # operates on raw bytes.
-  class StreamProtocol < Protocol
+  # Reads all data available on the interface and creates a packet
+  # with that data.
+  class BurstProtocol < Protocol
     # @param discard_leading_bytes [Integer] The number of bytes to discard
-    #   from the binary data after reading from the stream. Note that this is often
+    #   from the binary data after reading. Note that this is often
     #   used to remove a sync pattern from the final packet data.
     # @param sync_pattern [String] String representing a hex number ("0x1234")
-    #   that will be searched for in the raw stream. Bytes encountered before
+    #   that will be searched for in the raw data. Bytes encountered before
     #   this pattern is found are discarded.
     # @param fill_fields [Boolean] Fill any required fields when writing packets
     def initialize(discard_leading_bytes = 0, sync_pattern = nil, fill_fields = false, allow_empty_data = false)
@@ -43,12 +38,11 @@ module Cosmos
       @sync_state = :SEARCHING
     end
 
-    # Reads from the stream. It can look for a sync pattern before
+    # Reads from the interface. It can look for a sync pattern before
     # creating a Packet. It can discard a set number of bytes at the beginning
-    # of the stream before creating the Packet.
+    # before creating the Packet.
     #
-    # @return [String|nil] Data for a packet consisting of the bytes read from the
-    #   stream.
+    # @return [String|nil] Data for a packet consisting of the bytes read
     def read_data(data)
       @data << data
 
@@ -81,7 +75,7 @@ module Cosmos
       packet
     end
 
-    # Called to perform modifications on write data before sending it to the stream
+    # Called to perform modifications on write data before sending it to the interface
     #
     # @param data [String] Raw packet data
     # @return [String] Potentially modified packet data

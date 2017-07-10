@@ -15,14 +15,14 @@ module Cosmos
   class StreamInterface < Interface
     attr_accessor :stream
 
-    def initialize(stream_protocol_type = nil, stream_protocol_args = [])
+    def initialize(protocol_type = nil, protocol_args = [])
       super()
-      @stream_protocol_type = ConfigParser::handle_nil(stream_protocol_type)
-      @stream_protocol_args = stream_protocol_args
-      if @stream_protocol_type
-        stream_protocol_class_name = stream_protocol_type.to_s.capitalize << 'StreamProtocol'
-        klass = Cosmos.require_class(stream_protocol_class_name.class_name_to_filename)
-        add_protocol(klass, stream_protocol_args, :READ_WRITE)
+      @protocol_type = ConfigParser::handle_nil(protocol_type)
+      @protocol_args = protocol_args
+      if @protocol_type
+        protocol_class_name = protocol_type.to_s.capitalize << 'Protocol'
+        klass = Cosmos.require_class(protocol_class_name.class_name_to_filename)
+        add_protocol(klass, protocol_args, :READ_WRITE)
       end
     end
 

@@ -11,9 +11,9 @@
 module Cosmos
   # Class that implments the following methods: read, write(data),
   # connect, connected? and disconnect. Streams are simply data sources which
-  # {StreamProtocol} classes read and write to. This separation of concerns
+  # {Protocol} classes read and write to. This separation of concerns
   # allows Streams to simply focus on getting and sending raw data while the
-  # higher level processing occurs in {StreamProtocol}.
+  # higher level processing occurs in {Protocol}.
   class Stream
     # Expected to return any amount of data on success, or a blank string on
     # closed/EOF, and may raise Timeout::Error, or other errors

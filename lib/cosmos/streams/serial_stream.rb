@@ -94,16 +94,14 @@ module Cosmos
     # @return [String] Returns a binary string of data from the serial port
     def read
       raise "Attempt to read from write only stream" unless @read_serial_port
-      # No read mutex is needed because there is only one stream procesor
-      # reading
+      # No read mutex is needed because reads happen serially
       @read_serial_port.read
     end
 
     # @return [String] Returns a binary string of data from the serial port without blocking
     def read_nonblock
       raise "Attempt to read from write only stream" unless @read_serial_port
-      # No read mutex is needed because there is only one stream procesor
-      # reading
+      # No read mutex is needed because reads happen serially
       @read_serial_port.read_nonblock
     end
 
