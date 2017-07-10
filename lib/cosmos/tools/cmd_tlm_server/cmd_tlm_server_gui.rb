@@ -34,6 +34,8 @@ module Cosmos
 
     TOOL_NAME = "Command and Telemetry Server"
 
+    attr_writer :no_prompt
+
     # For the CTS we display all the tables as full size
     # Thus we don't want the table to absorb the scroll wheel events but
     # instead pass them up to the container so the entire window will scroll.
@@ -344,6 +346,8 @@ module Cosmos
 
     def self.post_options_parsed_hook(options)
       if options.no_gui
+        ["TERM", "INT"].each {|sig| Signal.trap(sig) {exit}}
+
         begin
           @output_sleeper = Sleeper.new
           @string_output = StringIO.new("", "r+")
@@ -367,6 +371,19 @@ module Cosmos
         end
         return false
       else
+        ["TERM", "INT"].each do |sig|
+          Signal.trap(sig) do
+            # No synchronization is allowed in trap context, so we have 
+            # to spawn a thread here to send the close event.
+            Thread.new do
+              Qt.execute_in_main_thread(true) do
+                @@window.no_prompt = true
+                @@window.closeEvent(Qt::CloseEvent.new())
+                exit
+              end
+            end
+          end
+        end
         return true
       end
     end

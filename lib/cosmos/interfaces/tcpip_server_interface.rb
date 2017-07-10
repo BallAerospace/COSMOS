@@ -389,7 +389,7 @@ module Cosmos
       if listen_write
         if @auto_system_meta
           meta_packet = System.telemetry.packet('SYSTEM', 'META').clone
-          interface.stream.write(meta_packet.buffer(false))
+          interface.write(meta_packet)
         end
 
         @write_connection_callback.call(interface) if @write_connection_callback

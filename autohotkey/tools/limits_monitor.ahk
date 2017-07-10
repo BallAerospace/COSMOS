@@ -35,19 +35,19 @@ Send n
 ; Ignore limits items
 WinWaitActive Limits Monitor
 Sleep 500
-Click 400 130 ; Ignore LM-2
+Click 500 130 ; Ignore item
 Sleep 500
-Click 400 130 ; Ignore
+Click 500 130 ; Ignore item
 Sleep 500
-Click 400 130 ; Ignore
+Click 590 130 ; Ignore stale
 Sleep 500
-Click 400 130 ; Ignore
+Click 590 130 ; Ignore stale
 Sleep 500
-Click 400 130 ; Ignore
+Click 590 130 ; Ignore packet
 Send ^r ; Reset
 Sleep 3000
 Sleep 500
-Click 400 130 ; Ignore
+Click 500 130 ; Ignore item
 Sleep 500
 Send ^e ; Edit Ignored
 WinWaitActive Ignored
