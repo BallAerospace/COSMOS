@@ -57,8 +57,12 @@ module Cosmos
       @components = []
       @packets = []
       @packet_to_components_mapping = {}
-      @config_filename = options.config_file
-      process_config()
+
+      begin
+        process_config(options.config_file)
+      rescue => error
+        ExceptionDialog.new(self, error, "Error parsing #{options.config_file}")
+      end
 
       # Load System Definition and Event Data
       Splash.execute(self) do |splash|
@@ -487,20 +491,42 @@ module Cosmos
       super(event)
     end
 
-    def process_config
+    def process_config(filename)
       # ensure the file exists
-      unless test ?f, @config_filename
-        raise "Configuration File Does not Exist: #{@config_filename}"
+      unless test ?f, filename
+        raise "Configuration File Does not Exist: #{filename}"
       end
 
       parser = ConfigParser.new
-      parser.parse_file(@config_filename) do |keyword, params|
+      parser.parse_file(filename) do |keyword, params|
         case keyword
 
         when 'AUTO_START'
           usage = "#{keyword}"
           parser.verify_num_parameters(0, 0, usage)
           @auto_start = true
+
+        when 'AUTO_TARGET_COMPONENTS'
+          usage = "#{keyword}"
+          parser.verify_num_parameters(0, 0, usage)
+          System.targets.each do |target_name, target|
+            config = File.join(target.dir, 'tools', 'data_viewer', 'data_viewer.txt')
+            process_config(config) if File.exist?(config)
+          end
+
+        when 'TARGET_COMPONENT'
+          usage = "#{keyword} <Target Name> <Config File>"
+          parser.verify_num_parameters(1, 2, usage)
+          target_dir = File.join(Cosmos::USERPATH, 'config', 'targets', params[0].upcase)
+          if File.exist? target_dir
+            if params[1]
+              process_config(File.join(target_dir, 'tools', 'data_viewer', params[1]))
+            else
+              process_config(File.join(target_dir, 'tools', 'data_viewer', 'data_viewer.txt'))
+            end
+          else
+            raise parser.error("Unknown target #{params[0].upcase}", usage)
+          end
 
         when 'COMPONENT'
           usage = "#{keyword} <tab name> <component class filename> <component specific options...>"

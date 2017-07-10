@@ -11,7 +11,6 @@
 require 'cosmos'
 
 module Cosmos
-
   class DataViewerComponent < Qt::Widget
     attr_reader :tab_name
     attr_reader :packets
@@ -28,7 +27,6 @@ module Cosmos
       @processed_queue = Queue.new
       @log_file_directory = System.paths['LOGS']
       @max_block_count = 1000
-      @timer = nil
     end
 
     # Adds a packet to the list of packets this components processes
@@ -68,11 +66,6 @@ module Cosmos
         end
       end
       @top_layout.addWidget(@button)
-
-      @timer = Qt::Timer.new(self)
-      @timer.connect(SIGNAL('timeout()')) { scroll_to_bottom() }
-      @timer.setSingleShot(true)
-
       setLayout(@top_layout)
     end
 
@@ -80,11 +73,8 @@ module Cosmos
     def update_gui
       begin
         loop do
-          # Get new processed text
-          processed_text = @processed_queue.pop(true)
-
-          # Add text to text widget
-          @text.appendPlainText(processed_text)
+          # Get new processed text and append to text
+          @text.appendPlainText(@processed_queue.pop(true))
         end
       rescue ThreadError
         # Nothing to do
@@ -96,17 +86,14 @@ module Cosmos
       @text.setPlainText("")
     end
 
+    # QT method called when this widget is displayed
     def showEvent(event)
-      # When the tab is shown we want to ensure the scroll bar is at the
-      # maximum to allow the PlainTextArea to automatically hold the scroll
+      # When the tab is shown we want to ensure the cursor is visible
+      # to allow the PlainTextArea to automatically hold the scroll
       # at the bottom of the display while appending things.
       # If this is not done, switching tabs will cause the scroll bar
       # to "stick" and not stay at the bottom with the newest text.
-      @timer.start(100)
-    end
-
-    def scroll_to_bottom
-      @text.verticalScrollBar.value = @text.verticalScrollBar.maximum
+      @text.ensureCursorVisible()
     end
 
     # Processes the given packet. No gui interaction should be done in this
@@ -127,8 +114,7 @@ module Cosmos
 
     # Shutdown the Data Viewer Component. Called when program is closed.
     def shutdown
-      # Do nothing by default
+      # Do nothing by default, this should be overridden by subclasses
     end
   end
-
-end # module Cosmos
+end
