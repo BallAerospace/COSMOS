@@ -26,9 +26,9 @@ task :gemfile_stats do
 
   # This is useful for testing to prevent server round trips
   #File.open("gemdata.marshall", 'w') {|file| file.write(Marshal.dump(get_latest_gem_data)) }
-  #gem_data = Marshal.load(File.read("gemdata.marshall"))
+  gem_data = Marshal.load(File.read("gemdata.marshall"))
 
-  gem_data = get_latest_gem_data()
+  #gem_data = get_latest_gem_data()
   # Convert all the date text into Ruby Dates
   gem_data.map! {|x| [Date.strptime(x[0], "%Y-%m"), x[1], x[2]]}
   # Sort first by date and then version number
@@ -66,6 +66,10 @@ task :gemfile_stats do
     end
   end
 
+  # Reduce the number of labels due to overlap
+  labels.each do |index, label|
+    labels[index] = '' if index % 2 == 0
+  end
   g.labels = labels
   g.marker_font_size = 12
   dataset.each do |version, data|
@@ -73,4 +77,3 @@ task :gemfile_stats do
   end
   g.write('cosmos_downloads.png')
 end
-
