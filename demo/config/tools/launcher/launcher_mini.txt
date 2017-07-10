@@ -38,7 +38,8 @@ TOOL "DataViewer" "LAUNCH DataViewer" "data_viewer.png"
 
 DIVIDER
 
+TOOL "ConfigEditor" "LAUNCH ConfigEditor" "config_editor.png"
 TOOL "TlmExtractor" "LAUNCH TlmExtractor" "tlm_extractor.png"
-TOOL "CmdExtractor" "LAUNCH CmdExtractor" "cmd_extractor.png"
 TOOL "Handbooks" "LAUNCH HandbookCreator" "handbook_creator.png"
+TOOL "CmdExtractor" "LAUNCH CmdExtractor" "cmd_extractor.png"
 TOOL "TblManager" "LAUNCH TableManager" "table_manager.png"

@@ -51,6 +51,18 @@ module Cosmos
       end
     end
 
+    def line_number
+      textCursor.blockNumber + 1
+    end
+
+    def column_number
+      textCursor.positionInBlock + 1
+    end
+
+    def current_line
+      textCursor.block.text
+    end
+
     def dispose
       super()
       @cursor.dispose
