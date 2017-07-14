@@ -15,8 +15,6 @@ require 'cosmos/gui/dialogs/splash'
 module Cosmos
 
   class CompletionTextEdit < Qt::PlainTextEdit
-    slots 'highlight_line()'
-
     TRUE_VARIANT = Qt::Variant.new(true)
     SELECTION_DETAILS_POOL = []
 
@@ -61,6 +59,58 @@ module Cosmos
 
     def current_line
       textCursor.block.text
+    end
+
+    def current_word(highlight_color = nil)
+      blockSignals(true) # block signals while we programatically update it
+      c = textCursor
+      original_position = c.position
+
+      # Programatically select the word under the cursor
+      # I tried: c.select(Qt::TextCursor::WordUnderCursor) and
+      # c.movePosition(Qt::TextCursor::StartOfWord)
+      # c.movePosition(Qt::TextCursor::EndOfWord, Qt::TextCursor::KeepAnchor)
+      # but this doesn't work with non-alpha numeric characters like '.' which
+      # shows up in strings like my_ruby_file.rb. Thus we manually search for
+      # white space while staying in the same block (line).
+
+      if !c.atBlockStart()
+        c.movePosition(Qt::TextCursor::Left, Qt::TextCursor::KeepAnchor)
+        while !c.atBlockStart() && c.selectedText[0] != ' '
+          c.movePosition(Qt::TextCursor::Left, Qt::TextCursor::KeepAnchor)
+        end
+        if c.atBlockStart()
+          # Reset the anchor by moving right and left. I tried Qt::TextCursor::NoMove
+          # and this did not reset the anchor.
+          c.movePosition(Qt::TextCursor::Right)
+          c.movePosition(Qt::TextCursor::Left)
+        else
+          c.movePosition(Qt::TextCursor::Right)
+        end
+      end
+      if !c.atBlockEnd()
+        c.movePosition(Qt::TextCursor::Right, Qt::TextCursor::KeepAnchor)
+        while !c.atBlockEnd() && c.selectedText[-1] != ' '
+          c.movePosition(Qt::TextCursor::Right, Qt::TextCursor::KeepAnchor)
+        end
+        c.movePosition(Qt::TextCursor::Left, Qt::TextCursor::KeepAnchor) if !c.atBlockEnd()
+      end
+
+      setTextCursor(c)
+      text = textCursor.selectedText()
+
+      if highlight_color
+        brush = Cosmos.getBrush(Cosmos::getColor(highlight_color))
+        selection = Qt::TextEdit::ExtraSelection.new
+        selection.format.setBackground(brush)
+        selection.cursor = c
+        setExtraSelections([selection])
+      end
+
+      c.setPosition(original_position)
+      setTextCursor(c)
+      blockSignals(false) # re-enable signals
+      text
     end
 
     def dispose
@@ -157,24 +207,24 @@ module Cosmos
       cursor.endEditBlock
     end
 
-    def highlight_line(line, color = 'palegreen') #102, 255, 102
-      color = Cosmos::getColor(color)
-      # Store the line number in case we need to rehighlight this line
-      @last_hightlighted_line = line
-      brush = Cosmos.getBrush(color)
+    def highlight_line(color = 'palegreen') #102, 255, 102
+      brush = Cosmos.getBrush(Cosmos::getColor(color))
       @selection_details.format.setBackground(brush)
-      # Get the textCursor and move it to the specified line
-      @cursor.movePosition(Qt::TextCursor::Start)
-      # The line number is based in 1 based but the PlainTextEdit is 0 based
-      @cursor.movePosition(Qt::TextCursor::Down, Qt::TextCursor::MoveAnchor, line-1)
-      @cursor.clearSelection
-      # By setting the text cursor after moving it we ensure we can see the highlight
-      # If we just called setExtraSelections without setting the cursor we might not be able to see it
-      setTextCursor(@cursor)
       @selection_details.selection.format = @selection_details.format
-      @selection_details.selection.cursor = @cursor
+      # We can use the textCursor directly since we're not changing it
+      @selection_details.selection.cursor = textCursor
       setExtraSelections([@selection_details.selection])
-      # Center the cursor to ensure it is visible
+    end
+
+    def center_line(line_number = nil)
+      if line_number
+        # Get the textCursor and move it to the start
+        @cursor.movePosition(Qt::TextCursor::Start)
+        # Move down to the specified line number
+        # The line number is 1 based but the PlainTextEdit is 0 based
+        @cursor.movePosition(Qt::TextCursor::Down, Qt::TextCursor::MoveAnchor, line_number - 1)
+        setTextCursor(@cursor)
+      end
       centerCursor()
     end
 
@@ -182,10 +232,5 @@ module Cosmos
       # Clearing the extra selections with a nil array clears the selection
       self.setExtraSelections([])
     end
-
-    def rehighlight(color = 'palegreen')
-      highlight_line(@last_hightlighted_line, color)
-    end
   end
-
-end # module Cosmos
+end

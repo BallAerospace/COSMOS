@@ -23,7 +23,8 @@ module Cosmos
     slots 'context_menu(const QPoint&)'
     slots 'undo_available(bool)'
 
-    UNTITLED_TAB_TEXT = '  Untitled  '
+    UNTITLED = 'Untitled'
+    UNTITLED_TAB_TEXT = "  #{UNTITLED}  "
 
     def initialize(options)
       # All code before super is executed twice in RubyQt Based classes
@@ -32,6 +33,8 @@ module Cosmos
       setAcceptDrops(true) # Allow dropping in files
 
       @server_config_file = options.server_config_file
+      @procedure_dir = Cosmos::USERPATH
+      @file_type = "none"
 
       initialize_actions()
       initialize_menus()
@@ -171,7 +174,7 @@ module Cosmos
 
       @file_open = @file_menu.addMenu(tr('&Open'))
       @file_open.setIcon(Cosmos.get_icon('open.png'))
-      target_dirs_action(@file_open, System.paths['PROCEDURES'], 'procedures', method(:file_open))
+      target_dirs_action(@file_open, Cosmos::USERPATH, '', method(:file_open))
 
       @file_menu.addAction(@file_close)
       @file_menu.addAction(@file_reload)
@@ -368,7 +371,7 @@ module Cosmos
         if @tab_book.count > 1
           close_active_tab()
         else
-          @tab_book.setTabText(0, '  Untitled  ')
+          @tab_book.setTabText(0, UNTITLED_TAB_TEXT)
           @tab_book.currentTab.clear
         end
         update_title()
@@ -452,12 +455,8 @@ module Cosmos
     end
 
     def closeEvent(event)
-      if active_config_editor_frame().prompt_if_running_on_close()
-        if prompt_for_save_if_needed_on_close()
-          super(event)
-        else
-          event.ignore()
-        end
+      if prompt_for_save_if_needed_on_close()
+        super(event)
       else
         event.ignore()
       end
@@ -578,7 +577,7 @@ module Cosmos
     # Updates the title appropriately to show the tabs filename and modified status
     def update_title
       if @tab_book.currentTab.filename.empty?
-        self.setWindowTitle("Script Runner : Untitled")
+        self.setWindowTitle("Script Runner : #{UNTITLED}")
       else
         self.setWindowTitle("Script Runner : #{@tab_book.currentTab.filename}")
       end
@@ -661,7 +660,7 @@ module Cosmos
         if tab.modified
           @tab_book.setCurrentIndex(index)
           if tab.filename.empty?
-            message = "Save changes to 'Untitled'?"
+            message = "Save changes to '#{UNTITLED}'?"
           else
             message = "Save changes to '#{tab.filename}'?"
           end
@@ -672,44 +671,13 @@ module Cosmos
       return safe_to_continue
     end
 
-    def find_procedure(filename)
-      # If the filename is already sufficient, just expand the path.
-      return File.expand_path(filename) if File.exist?(filename)
-
-      # If the filename wasn't sufficient, can we find the file in one of the
-      # system procedure directories?
-      System.paths['PROCEDURES'].each do |path|
-        new_filename = File.join(path, filename)
-        return File.expand_path(new_filename) if File.exist?(new_filename)
-      end
-
-      # Ok, how about one of the target procedure directories?
-      System.targets.each do |target_name, target|
-        new_filename = File.join(target.dir, 'procedures', filename)
-        return File.expand_path(new_filename) if File.exist?(new_filename)
-      end
-
-      # Couldn't find the file anywhere.
-      return nil
-    end
-
-    def run_procedure(filename)
-      # Switch to the desired tab and begin execution
-      @tab_book.tabs.each_with_index do |tab, index|
-        if tab.filename == filename
-          @tab_book.setCurrentIndex(index)
-        end
-      end
-      @tab_book.currentTab.run()
-    end
-
     def self.run(option_parser = nil, options = nil)
       Cosmos.catch_fatal_exception do
         unless option_parser and options
           option_parser, options = create_default_options()
           options.width = 750
           options.height = 600
-          options.title = "Script Runner : Untitled"
+          options.title = "Script Runner : #{UNTITLED}"
           options.auto_size = false
           options.config_file = "script_runner.txt"
           options.server_config_file = CmdTlmServer::DEFAULT_CONFIG_FILE

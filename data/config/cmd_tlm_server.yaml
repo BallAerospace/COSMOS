@@ -1,0 +1,40 @@
+---
+- :INTERFACE:
+    :summary: Defines a connection to a physical target
+    :description: Interfaces are what COSMOS uses to talk to a particular piece
+      of hardware. Interfaces require a Ruby file which implements all the interface
+      methods necessary to talk to the hardware. COSMOS defines many built in interfaces
+      or you can define your own as long as it implements the interface protocol.
+    :parameters:
+    - :NAME:
+        :type: string
+        :description: Name of the interface. This name will appear in the
+          Interfaces tab of the Server and is also referenced by other keywords.
+          The COSMOS convention is to name interfaces after their targets with
+          '_INT' appended to the name, e.g. INST_INT for the INST target.
+        :values: ".*"
+        :required: true
+    - :FILENAME:
+        :type: string
+        :description: Ruby file to use when instantiating the interface.
+        :values:
+          - tcpip_client_interface.rb
+          - tcpip_server_interface.rb
+          - udp_interface.rb
+          - serial_interface.rb
+          - cmd_tlm_server_interface.rb
+          - linc_interface.rb
+        :required: true
+    - :PARAMETERS:
+        :type: mixed
+        :description: Parameters to pass to the interface when creating it. These
+          vary by interface.
+        :required: false
+- :TITLE:
+    :summary: Sets the Command and Telemetry Server window title
+    :parameters:
+    - :TEXT:
+        :type: string
+        :description: Text to put in the title of the Command and Telemetry Server window
+        :values: ".*"
+        :required: true

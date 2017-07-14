@@ -513,7 +513,7 @@ module Cosmos
                                false,  # don't show text
                                false,  # don't show done
                                true) do |progress_dialog| # show cancel
-          progress_dialog.cancel_callback = lambda {|dialog| @cancel_instrumentation = true; [true, false]}
+          progress_dialog.cancel_callback = lambda { |dialog| @cancel_instrumentation = true; [true, false] }
           progress_dialog.enable_cancel_button
           comments_removed_text = ruby_lex_utils.remove_comments(text)
           num_lines = comments_removed_text.num_lines.to_f
@@ -617,7 +617,10 @@ module Cosmos
         Logger.detail_string = detail_string
 
         # Highlight the line that is about to run
-        Qt.execute_in_main_thread(true) {@active_script.highlight_line(line_number)}
+        Qt.execute_in_main_thread(true) do
+          @active_script.center_line(line_number)
+          @active_script.highlight_line
+        end
 
         # Handle pausing the script
         handle_pause(filename, line_number)
@@ -1206,7 +1209,7 @@ module Cosmos
     def mark_running
       Qt.execute_in_main_thread(true) do
         @run_callback.call(self) if @run_callback
-        @active_script.rehighlight
+        @active_script.highlight_line
         @realtime_button_bar.state = 'Running'
         @realtime_button_bar.start_button.setText('Go')
         @realtime_button_bar.pause_button.setText('Pause')
@@ -1216,7 +1219,7 @@ module Cosmos
     def mark_paused
       Qt.execute_in_main_thread(true) do
         @pause_callback.call(self) if @pause_callback
-        @active_script.rehighlight('lightblue')
+        @active_script.highlight_line('lightblue')
         @realtime_button_bar.state = 'Paused'
       end
     end
@@ -1224,7 +1227,7 @@ module Cosmos
     def mark_error
       Qt.execute_in_main_thread(true) do
         @error_callback.call(self) if @error_callback
-        @active_script.rehighlight('pink')
+        @active_script.highlight_line('pink')
         @realtime_button_bar.state = 'Error'
         @realtime_button_bar.pause_button.setText('Retry')
       end
@@ -1242,7 +1245,7 @@ module Cosmos
 
     def mark_breakpoint
       Qt.execute_in_main_thread(true) do
-        @active_script.rehighlight('tan')
+        @active_script.highlight_line('tan')
         @realtime_button_bar.state = 'Breakpoint'
       end
     end
@@ -1321,7 +1324,7 @@ module Cosmos
             handle_exception(error, true, filename, line_number)
             scriptrunner_puts "Exception in Control Statement - Script stopped: #{File.basename(@filename)}"
             handle_output_io()
-            Qt.execute_in_main_thread(true) {@script.rehighlight('red') }
+            Qt.execute_in_main_thread(true) { @script.highlight_line('red') }
           end
         ensure
           # Change Go Button to Start Button and remove highlight

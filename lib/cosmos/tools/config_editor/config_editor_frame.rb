@@ -19,8 +19,7 @@ require 'cosmos/gui/text/ruby_editor'
 require 'cosmos/gui/dialogs/progress_dialog'
 require 'cosmos/gui/dialogs/find_replace_dialog'
 require 'cosmos/gui/choosers/file_chooser'
-require 'cosmos/io/stdout'
-require 'cosmos/io/stderr'
+require 'cosmos/config/meta_config_parser'
 
 module Cosmos
   class ConfigEditorFrame < Qt::Widget
@@ -64,30 +63,22 @@ module Cosmos
       @editor.connect(SIGNAL('modificationChanged(bool)')) do |changed|
         emit modificationChanged(changed)
       end
+      @editor.connect(SIGNAL('undoAvailable(bool)')) { |bool| undo_available(bool) }
+      @editor.connect(SIGNAL('cursorPositionChanged()')) { cursor_position_changed() }
       @top_frame.addWidget(@editor)
 
       # Set self as the gui window to allow prompts and other popups to appear
       set_cmd_tlm_gui_window(self)
 
-      # Add change handlers
-      connect(@editor,
-              SIGNAL('undoAvailable(bool)'),
-              self,
-              SLOT('undo_available(bool)'))
-      connect(@editor,
-              SIGNAL('cursorPositionChanged()'),
-              self,
-              SLOT('cursor_position_changed()'))
-
       # Add GUI Frame
-      @bottom_frame = Qt::Widget.new
-      @bottom_layout = Qt::VBoxLayout.new
-      @bottom_layout.setContentsMargins(5,0,0,0)
-      @bottom_layout_label = Qt::Label.new("COSMOS Config File Help")
-      @bottom_layout.addWidget(@bottom_layout_label)
-      @bottom_frame.setLayout(@bottom_layout)
-      @splitter.addWidget(@bottom_frame)
-      @splitter.setStretchFactor(0,1)
+      @gui_frame = Qt::Widget.new
+      gui_layout = Qt::VBoxLayout.new
+      gui_layout.setContentsMargins(5,0,0,0)
+      gui_layout_label = Qt::Label.new("COSMOS Config File Help")
+      gui_layout.addWidget(gui_layout_label)
+      @gui_frame.setLayout(gui_layout)
+      @splitter.addWidget(@gui_frame)
+      @splitter.setStretchFactor(0,10)
       @splitter.setStretchFactor(1,0)
 
       setLayout(@layout)
@@ -109,15 +100,23 @@ module Cosmos
       if @filename and !@filename.empty?
         return @filename
       else
+        @file_type = 'none'
         return @default_tab_text.strip + @file_number.to_s
       end
     end
 
-    def current_tab_filename
-      if @tab_book_shown
-        return @tab_book.widget(@tab_book.currentIndex).filename
+    def determine_file_type
+      if @filename.empty?
+        @file_type = :none
       else
-        return @editor.filename
+        # Check for inside target directory
+        if @filename.include?('/config/targets/')
+          if @filename.split('/')[-3] == 'targets'
+            @file_type = :target_base
+          else
+            @file_type = :target_config
+          end
+        end
       end
     end
 
@@ -134,6 +133,7 @@ module Cosmos
 
     def filename=(filename)
       @filename = filename
+      determine_file_type()
     end
 
     def modified
@@ -150,11 +150,11 @@ module Cosmos
 
     def cursor_position_changed()
       emit cursorPositionChanged()
+      display_keyword_help()
     end
 
     def key_press_callback=(callback)
       @editor.keyPressCallback = callback
-
     end
 
     def setFocus
@@ -174,7 +174,6 @@ module Cosmos
 
     def set_text(text, filename = '')
       @editor.setPlainText(text)
-      @editor.stop_highlight
       @filename = filename
       @editor.filename = unique_filename()
     end
@@ -236,34 +235,143 @@ module Cosmos
       current_line.strip.split(" ")[0]
     end
 
-    def current_word
-      @editor.blockSignals(true) # block signals while we programatically update it
-      c = cursor
-      position = c.position
-      # Programatically select the word under the cursor
-      # I also tried: c.select(Qt::TextCursor::WordUnderCursor)
-      # but this doesn't work as well with words with periods like ruby.rb
-      c.movePosition(Qt::TextCursor::StartOfWord)
-      c.movePosition(Qt::TextCursor::EndOfWord, Qt::TextCursor::KeepAnchor)
-      @editor.setTextCursor(c)
-      text = @editor.textCursor.selectedText()
-      c.setPosition(position)
-      @editor.setTextCursor(c)
-      @editor.blockSignals(false) # re-enable signals
-      text
-    end
-
     def graceful_kill
       # Just to avoid warning
     end
 
     protected
 
+    def display_keyword_help
+      meta = get_keyword_meta()
+      if !meta
+        @gui_frame.dispose()
+        return
+      end
+
+      # if meta.keys[0] == @current_keyword
+      #   # Do stuff
+      # else
+        build_help_frame(meta)
+      # end
+    end
+
+    def build_help_frame(meta)
+      word = @editor.current_word('palegreen')
+      line_parts = current_line.split
+      @gui_frame.dispose()
+      @gui_frame = Qt::Widget.new
+      layout = Qt::VBoxLayout.new
+      @gui_frame.setLayout(layout)
+      meta.each do |key, attributes|
+        @current_keyword = key.to_s
+        keyword = Qt::Label.new(key.to_s)
+        keyword.setFont(Cosmos.getFont("Arial", 16, Qt::Font::Bold))
+        layout.addWidget(keyword)
+        attributes.each do |attribute_name, value|
+          if attribute_name != :parameters
+            case attribute_name
+            when :summary
+              summary = Qt::Label.new(value)
+              summary.setFont(Cosmos.getFont("Arial", 12))
+              summary.setWordWrap(true)
+              layout.addWidget(summary)
+            when :description
+              description = Qt::Label.new(value)
+              description.setFont(Cosmos.getFont("Arial", 9))
+              description.setWordWrap(true)
+              layout.addWidget(description)
+            end
+          else # Process parameters
+            next if value.empty?
+            line = Qt::Frame.new(@gui_frame)
+            line.setFrameStyle(Qt::Frame::HLine | Qt::Frame::Sunken)
+            layout.addWidget(line)
+            param = Qt::Label.new("Parameters:")
+            param.setFont(Cosmos.getFont("Arial", 14, Qt::Font::Bold))
+            layout.addWidget(param)
+
+            value.each_with_index do |parameter, parameter_index|
+              parameter.each do |parameter_name, parameter_attributes|
+                name_layout = Qt::HBoxLayout.new
+                param = Qt::Label.new(parameter_name.to_s)
+                param.setFont(Cosmos.getFont("Arial", 12, Qt::Font::Bold))
+                param.setWordWrap(true)
+                name_layout.addWidget(param)
+                value_widget = Qt::Widget.new
+                parameter_attributes.each do |name, value|
+                  case name
+                  when :description
+                    description = Qt::Label.new(value)
+                    description.setFont(Cosmos.getFont("Arial", 9))
+                    description.setWordWrap(true)
+                  when :required
+                    if value == true
+                      required = Qt::Label.new("(Required)")
+                    else
+                      required = Qt::Label.new("(Optional)")
+                    end
+                    required.setFont(Cosmos.getFont("Arial", 10))
+                    name_layout.addWidget(required)
+                  when :values
+                    if value.is_a? Array
+                      value_widget = Qt::ComboBox.new()
+                      value_widget.addItem(line_parts[parameter_index + 1])
+                      value_widget.addItems(value)
+                      value_widget.setEditable(true)
+                      value_widget.connect(SIGNAL('currentIndexChanged(const QString&)')) do |text|
+                        new_parts = @editor.current_line.split
+                        new_parts[parameter_index + 1] = text
+                        c = @editor.textCursor
+                        c.movePosition(Qt::TextCursor::StartOfLine)
+                        c.movePosition(Qt::TextCursor::EndOfLine, Qt::TextCursor::KeepAnchor)
+                        c.insertText(new_parts.join(' '))
+                      end
+                      value_widget.connect(SIGNAL('editTextChanged(const QString&)')) do |text|
+                        @editor.current_line.gsub(word, text)
+                      end
+
+                    else
+                      value_widget = Qt::LineEdit.new(line_parts[parameter_index + 1])
+                    end
+                  end
+                end
+                layout.addLayout(name_layout)
+                layout.addWidget(description)
+                layout.addWidget(value_widget)
+
+                # if word == line_parts[index + 1]
+                #   value_widget.setStyleSheet("QLineEdit {background-color: green}")
+                # end
+              end
+            end
+          end
+        end
+      end
+      layout.addStretch
+      @splitter.addWidget(@gui_frame)
+    end
+
+    def get_keyword_meta
+      return nil if keyword().empty?
+
+      keyword_symbol = keyword().intern
+      case @file_type
+      when :target_base
+        target = MetaConfigParser.load('target.yaml')
+        keyword_meta = target.select {|item| item.keys[0] == keyword_symbol }[0]
+        unless keyword_meta
+          target = MetaConfigParser.load('cmd_tlm_server.yaml')
+          keyword_meta = target.select {|item| item.keys[0] == keyword_symbol }[0]
+        end
+      when :target_config
+      end
+      keyword_meta
+    end
+
     def initialize_variables
       @active_script = @editor
       @current_file = @filename
       @current_filename = nil
-      @editor.stop_highlight
     end
 
     def show_active_tab
@@ -284,7 +392,6 @@ module Cosmos
 
     def load_file_into_script(filename)
       @active_script.setPlainText(File.read(filename).gsub("\r", ''))
-      @active_script.stop_highlight
     end
 
     def create_tabs
