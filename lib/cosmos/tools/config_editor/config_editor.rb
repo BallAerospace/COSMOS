@@ -571,7 +571,7 @@ module Cosmos
       num = active_config_editor_frame.line_number
       col = active_config_editor_frame.column_number
       status = "#{num}:#{col}"
-      show_message(status, active_config_editor_frame.keyword)
+      show_message(status, active_config_editor_frame.line_keyword)
     end
 
     # Updates the title appropriately to show the tabs filename and modified status

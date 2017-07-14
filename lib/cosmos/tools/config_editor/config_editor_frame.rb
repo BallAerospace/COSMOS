@@ -100,23 +100,7 @@ module Cosmos
       if @filename and !@filename.empty?
         return @filename
       else
-        @file_type = 'none'
         return @default_tab_text.strip + @file_number.to_s
-      end
-    end
-
-    def determine_file_type
-      if @filename.empty?
-        @file_type = :none
-      else
-        # Check for inside target directory
-        if @filename.include?('/config/targets/')
-          if @filename.split('/')[-3] == 'targets'
-            @file_type = :target_base
-          else
-            @file_type = :target_config
-          end
-        end
       end
     end
 
@@ -230,9 +214,9 @@ module Cosmos
       @editor.current_line
     end
 
-    def keyword
-      return '' if current_line.strip[0] == '#' || current_line.strip.empty?
-      current_line.strip.split(" ")[0]
+    def line_keyword(line = current_line())
+      return '' if line.nil? || line.strip.empty? || line.strip[0] == '#'
+      line.strip.split(" ")[0]
     end
 
     def graceful_kill
@@ -241,131 +225,227 @@ module Cosmos
 
     protected
 
-    def display_keyword_help
-      meta = get_keyword_meta()
-      if !meta
-        @gui_frame.dispose()
-        return
+    def determine_file_type
+      if @filename.empty?
+        @file_type = "unknown"
+      else
+        # Check for inside target directory
+        if @filename.include?('/config/targets/')
+          if @filename.split('/')[-3] == 'targets'
+            if File.basename(@filename).include?('cmd_tlm_server')
+              @file_type = 'cmd_tlm_server'
+            elsif File.basename(@filename).include?('target')
+              @file_type = 'target'
+            else
+              @file_type = 'unknown' #FileTypeDialog.new(%w(cmd_tlm_server.txt))
+            end
+          else
+            @file_type = :target_config
+          end
+        end
       end
+      @file_meta = MetaConfigParser.load("#{@file_type}.yaml")
+      display_keyword_help()
+    end
 
-      # if meta.keys[0] == @current_keyword
-      #   # Do stuff
-      # else
-        build_help_frame(meta)
+    def display_keyword_help
+      return unless @file_meta
+      keyword = line_keyword()
+      if keyword.empty?
+        build_blank_help(@file_meta)
+      # elsif keyword == @current_keyword
+      #   # do something?
+      else
+        build_help_frame(find_meta_keyword(@file_meta, keyword))
+      end
+      # if !meta
+      #   @current_keyword = nil
+      #   @gui_frame.dispose()
+      #   return
       # end
     end
 
-    def build_help_frame(meta)
-      word = @editor.current_word('palegreen')
-      line_parts = current_line.split
+    def find_meta_keyword(meta, keyword)
+      meta.each do |meta_keyword, data|
+        if meta_keyword == keyword
+          return meta[keyword]
+        elsif data["modifiers"]
+          return find_meta_keyword(data["modifiers"], keyword)
+        end
+      end
+      nil
+    end
+
+    def build_blank_help(meta)
       @gui_frame.dispose()
       @gui_frame = Qt::Widget.new
-      layout = Qt::VBoxLayout.new
-      @gui_frame.setLayout(layout)
-      meta.each do |key, attributes|
-        @current_keyword = key.to_s
-        keyword = Qt::Label.new(key.to_s)
-        keyword.setFont(Cosmos.getFont("Arial", 16, Qt::Font::Bold))
-        layout.addWidget(keyword)
-        attributes.each do |attribute_name, value|
-          if attribute_name != :parameters
-            case attribute_name
-            when :summary
-              summary = Qt::Label.new(value)
-              summary.setFont(Cosmos.getFont("Arial", 12))
-              summary.setWordWrap(true)
-              layout.addWidget(summary)
-            when :description
-              description = Qt::Label.new(value)
-              description.setFont(Cosmos.getFont("Arial", 9))
-              description.setWordWrap(true)
-              layout.addWidget(description)
+      @gui_layout = Qt::VBoxLayout.new
+      @gui_frame.setLayout(@gui_layout)
+
+      info = Qt::Label.new("Top Level Keywords")
+      info.setFont(Cosmos.getFont("Arial", 16, Qt::Font::Bold))
+      @gui_layout.addWidget(info)
+
+      keys = meta.keys
+      value_widget = Qt::ComboBox.new()
+      value_widget.addItems(keys)
+      @gui_layout.addWidget(value_widget)
+
+      summary = Qt::Label.new(meta[keys[0]]['summary'])
+      summary.setFont(Cosmos.getFont("Arial", 12))
+      summary.setWordWrap(true)
+      @gui_layout.addWidget(summary)
+
+      description = Qt::Label.new(meta[keys[0]]['description'])
+      description.setFont(Cosmos.getFont("Arial", 9))
+      description.setWordWrap(true)
+      @gui_layout.addWidget(description)
+
+      value_widget.connect(SIGNAL('currentIndexChanged(const QString&)')) do |word|
+        summary.setText(meta[word]['summary'])
+        description.setText(meta[word]['description'])
+      end
+
+      add_keyword = Qt::PushButton.new("Add Keyword")
+      add_keyword.connect(SIGNAL('clicked()')) do
+        insert_word(value_widget.text, nil) # nil means prepend
+        display_keyword_help() # Regenerate the help
+      end
+      @gui_layout.addWidget(add_keyword)
+
+      @gui_layout.addStretch
+      @splitter.addWidget(@gui_frame)
+    end
+
+    def build_help_frame(meta)
+      return unless meta
+      word = @editor.current_word#('palegreen')
+      @gui_frame.dispose()
+      @gui_frame = Qt::Widget.new
+      @gui_layout = Qt::VBoxLayout.new
+      @gui_frame.setLayout(@gui_layout)
+
+      @current_keyword = line_keyword()
+      keyword = Qt::Label.new(@current_keyword)
+      keyword.setFont(Cosmos.getFont("Arial", 16, Qt::Font::Bold))
+      @gui_layout.addWidget(keyword)
+
+      meta.each do |attribute_name, attribute_value|
+        if attribute_name != 'parameters'
+          case attribute_name
+          when 'summary'
+            summary = Qt::Label.new(attribute_value)
+            summary.setFont(Cosmos.getFont("Arial", 12))
+            summary.setWordWrap(true)
+            @gui_layout.addWidget(summary)
+          when 'description'
+            description = Qt::Label.new(attribute_value)
+            description.setFont(Cosmos.getFont("Arial", 9))
+            description.setWordWrap(true)
+            @gui_layout.addWidget(description)
+          end
+        else # Process parameters
+          next if attribute_value.empty?
+          line = Qt::Frame.new(@gui_frame)
+          line.setFrameStyle(Qt::Frame::HLine | Qt::Frame::Sunken)
+          @gui_layout.addWidget(line)
+          param = Qt::Label.new("Parameters:")
+          param.setFont(Cosmos.getFont("Arial", 14, Qt::Font::Bold))
+          @gui_layout.addWidget(param)
+          process_parameters(attribute_value)
+        end
+      end
+      @gui_layout.addStretch
+      @splitter.addWidget(@gui_frame)
+    end
+
+    def process_parameters(parameters, parameter_offset = 1)
+      line_parts = current_line.split
+      parameters.each_with_index do |parameter, parameter_index|
+        parameter_index += parameter_offset
+        name_layout = Qt::HBoxLayout.new
+        description = Qt::Label.new()
+        value_widget = Qt::Widget.new
+        parameter.each do |attribute_name, attribute_value|
+          case attribute_name
+          when 'name'
+            param = Qt::Label.new(attribute_value)
+            param.setFont(Cosmos.getFont("Arial", 12, Qt::Font::Bold))
+            param.setWordWrap(true)
+            name_layout.addWidget(param)
+          when 'description'
+            description.text = attribute_value
+            description.setFont(Cosmos.getFont("Arial", 9))
+            description.setWordWrap(true)
+            @gui_layout.addWidget(description)
+          when 'required'
+            if attribute_value == true
+              required = Qt::Label.new("(Required)")
+            else
+              required = Qt::Label.new("(Optional)")
             end
-          else # Process parameters
-            next if value.empty?
-            line = Qt::Frame.new(@gui_frame)
-            line.setFrameStyle(Qt::Frame::HLine | Qt::Frame::Sunken)
-            layout.addWidget(line)
-            param = Qt::Label.new("Parameters:")
-            param.setFont(Cosmos.getFont("Arial", 14, Qt::Font::Bold))
-            layout.addWidget(param)
-
-            value.each_with_index do |parameter, parameter_index|
-              parameter.each do |parameter_name, parameter_attributes|
-                name_layout = Qt::HBoxLayout.new
-                param = Qt::Label.new(parameter_name.to_s)
-                param.setFont(Cosmos.getFont("Arial", 12, Qt::Font::Bold))
-                param.setWordWrap(true)
-                name_layout.addWidget(param)
-                value_widget = Qt::Widget.new
-                parameter_attributes.each do |name, value|
-                  case name
-                  when :description
-                    description = Qt::Label.new(value)
-                    description.setFont(Cosmos.getFont("Arial", 9))
-                    description.setWordWrap(true)
-                  when :required
-                    if value == true
-                      required = Qt::Label.new("(Required)")
-                    else
-                      required = Qt::Label.new("(Optional)")
-                    end
-                    required.setFont(Cosmos.getFont("Arial", 10))
-                    name_layout.addWidget(required)
-                  when :values
-                    if value.is_a? Array
-                      value_widget = Qt::ComboBox.new()
-                      value_widget.addItem(line_parts[parameter_index + 1])
-                      value_widget.addItems(value)
-                      value_widget.setEditable(true)
-                      value_widget.connect(SIGNAL('currentIndexChanged(const QString&)')) do |text|
-                        new_parts = @editor.current_line.split
-                        new_parts[parameter_index + 1] = text
-                        c = @editor.textCursor
-                        c.movePosition(Qt::TextCursor::StartOfLine)
-                        c.movePosition(Qt::TextCursor::EndOfLine, Qt::TextCursor::KeepAnchor)
-                        c.insertText(new_parts.join(' '))
-                      end
-                      value_widget.connect(SIGNAL('editTextChanged(const QString&)')) do |text|
-                        @editor.current_line.gsub(word, text)
-                      end
-
-                    else
-                      value_widget = Qt::LineEdit.new(line_parts[parameter_index + 1])
-                    end
-                  end
-                end
-                layout.addLayout(name_layout)
-                layout.addWidget(description)
-                layout.addWidget(value_widget)
-
-                # if word == line_parts[index + 1]
-                #   value_widget.setStyleSheet("QLineEdit {background-color: green}")
-                # end
+            required.setFont(Cosmos.getFont("Arial", 10))
+            name_layout.addWidget(required)
+            @gui_layout.addLayout(name_layout)
+          when 'values'
+            current_value = line_parts[parameter_index]
+            if attribute_value.is_a? Hash
+              # If the value is a Hash then we have parameter specific
+              # parameters embedded in this parameter we have to parse
+              value_widget = Qt::ComboBox.new()
+              value_widget.addItem(current_value) unless attribute_value.keys.include?(current_value)
+              value_widget.addItems(attribute_value.keys)
+              value_widget.setCurrentText(current_value)
+              value_widget.connect(SIGNAL('currentIndexChanged(const QString&)')) do |word|
+                insert_word(word, parameter_index, -1)
+                @current_keyword = nil # Clear the current keyword to force a re-layout
+                display_keyword_help() # Rebuild the GUI since we may have new parameters
               end
+              @gui_layout.addWidget(value_widget)
+              if current_value && attribute_value[current_value]
+                process_parameters(attribute_value[current_value]['parameters'], parameter_index + 1)
+              end
+            elsif attribute_value.is_a? Array # Just a bunch of strings
+              value_widget = Qt::ComboBox.new()
+              value_widget.addItem(current_value) unless attribute_value.include?(current_value)
+              value_widget.addItems(attribute_value)
+              value_widget.connect(SIGNAL('currentIndexChanged(const QString&)')) do |word|
+                insert_word(word, parameter_index)
+              end
+              @gui_layout.addWidget(value_widget)
+            else
+              value_widget = Qt::LineEdit.new(current_value)
+              value_widget.connect(SIGNAL('editingFinished()')) do
+                insert_word(value_widget.text, parameter_index)
+                #value_widget.setFocus
+              end
+              @gui_layout.addWidget(value_widget)
             end
           end
         end
       end
-      layout.addStretch
-      @splitter.addWidget(@gui_frame)
     end
 
-    def get_keyword_meta
-      return nil if keyword().empty?
-
-      keyword_symbol = keyword().intern
-      case @file_type
-      when :target_base
-        target = MetaConfigParser.load('target.yaml')
-        keyword_meta = target.select {|item| item.keys[0] == keyword_symbol }[0]
-        unless keyword_meta
-          target = MetaConfigParser.load('cmd_tlm_server.yaml')
-          keyword_meta = target.select {|item| item.keys[0] == keyword_symbol }[0]
-        end
-      when :target_config
+    def insert_word(word, start_index, end_index = nil)
+      @editor.blockSignals(true)
+      c = @editor.textCursor
+      current = @editor.current_line
+      line_parts = current.split
+      indentation = current.length - current.lstrip.length
+      if start_index.nil?
+        c.movePosition(Qt::TextCursor::StartOfLine)
+        c.insertText(word)
+      elsif start_index < line_parts.length
+        end_index = start_index unless end_index
+        line_parts[start_index..end_index] = word
+        c.movePosition(Qt::TextCursor::StartOfLine)
+        c.movePosition(Qt::TextCursor::EndOfLine, Qt::TextCursor::KeepAnchor)
+        c.insertText("#{' '*indentation}#{line_parts.join(' ')}")
+      elsif start_index >= line_parts.length || start_index == -1
+        c.movePosition(Qt::TextCursor::EndOfLine)
+        c.insertText(" #{word}")
       end
-      keyword_meta
+      @editor.blockSignals(false)
     end
 
     def initialize_variables

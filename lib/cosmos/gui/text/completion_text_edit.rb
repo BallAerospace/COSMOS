@@ -61,6 +61,27 @@ module Cosmos
       textCursor.block.text
     end
 
+    def get_line(line_number)
+      blockSignals(true) # block signals while we programatically update it
+      cursor = textCursor()
+      original_position = cursor.position
+      # Get the textCursor and move it to the start
+      result = cursor.movePosition(Qt::TextCursor::Start)
+      # Move down to the specified line number
+      # The line number is 1 based but the PlainTextEdit is 0 based
+      result = cursor.movePosition(Qt::TextCursor::Down, Qt::TextCursor::MoveAnchor, line_number - 1)
+      # Select the line
+      result = cursor.movePosition(Qt::TextCursor::StartOfLine)
+      result = cursor.movePosition(Qt::TextCursor::EndOfLine, Qt::TextCursor::KeepAnchor)
+      setTextCursor(cursor)
+      line = textCursor.selectedText
+      # Restore original cursor
+      cursor.setPosition(original_position)
+      setTextCursor(cursor)
+      blockSignals(false)
+      line
+    end
+
     def current_word(highlight_color = nil)
       blockSignals(true) # block signals while we programatically update it
       c = textCursor
@@ -76,7 +97,7 @@ module Cosmos
 
       if !c.atBlockStart()
         c.movePosition(Qt::TextCursor::Left, Qt::TextCursor::KeepAnchor)
-        while !c.atBlockStart() && c.selectedText[0] != ' '
+        while !c.atBlockStart() && c.selectedText && c.selectedText[0] != ' '
           c.movePosition(Qt::TextCursor::Left, Qt::TextCursor::KeepAnchor)
         end
         if c.atBlockStart()

@@ -1,0 +1,8 @@
+---
+TARGET:
+  summary: Maps a target name to an interface
+  parameters:
+    - name: Target Name
+      required: true
+      description: Target name to map to this interface
+      values: <%= System.targets.keys %>
