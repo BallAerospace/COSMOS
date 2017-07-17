@@ -10,6 +10,7 @@
 
 require 'cosmos'
 require 'cosmos/script'
+require 'cosmos/config/config_parser'
 require 'cosmos/gui/utilities/script_module_gui'
 require 'cosmos/gui/dialogs/splash'
 require 'cosmos/gui/dialogs/exception_dialog'
@@ -71,13 +72,16 @@ module Cosmos
       set_cmd_tlm_gui_window(self)
 
       # Add GUI Frame
-      @gui_frame = Qt::Widget.new
+      @gui_widget = Qt::Widget.new
       gui_layout = Qt::VBoxLayout.new
       gui_layout.setContentsMargins(5,0,0,0)
       gui_layout_label = Qt::Label.new("COSMOS Config File Help")
       gui_layout.addWidget(gui_layout_label)
-      @gui_frame.setLayout(gui_layout)
-      @splitter.addWidget(@gui_frame)
+      @gui_widget.setLayout(gui_layout)
+      @gui_area = Qt::ScrollArea.new
+      @gui_area.setWidgetResizable(true) # Key to allow sub widget to resize
+      @gui_area.setWidget(@gui_widget)
+      @splitter.addWidget(@gui_area)
       @splitter.setStretchFactor(0,10)
       @splitter.setStretchFactor(1,0)
 
@@ -219,6 +223,23 @@ module Cosmos
       line.strip.split(" ")[0]
     end
 
+    # def previous_keyword
+    #   count = 1
+    #   line = @editor.previous_line(count)
+    #   while line && !line.strip.empty? && line.strip[0] != '#'
+    #     keyword = line_keyword(line)
+    #     return keyword unless keyword.empty?
+    #     count += 1
+    #     line = @editor.previous_line(count)
+    #   end
+    #   ''
+    # end
+
+    def previous_keyword
+      previous_line = @editor.previous_line
+      line_keyword(previous_line)
+    end
+
     def graceful_kill
       # Just to avoid warning
     end
@@ -240,7 +261,13 @@ module Cosmos
               @file_type = 'unknown' #FileTypeDialog.new(%w(cmd_tlm_server.txt))
             end
           else
-            @file_type = :target_config
+            if @filename.include?('/cmd_tlm/')
+              if @filename.include?('cmd') || @filename.include?('command')
+                @file_type = 'command'
+              elsif @filename.include?('tlm') || @filename.include?('telemetry')
+                @file_type = 'telemetry'
+              end
+            end
           end
         end
       end
@@ -251,38 +278,54 @@ module Cosmos
     def display_keyword_help
       return unless @file_meta
       keyword = line_keyword()
-      if keyword.empty?
-        build_blank_help(@file_meta)
+      unless keyword.empty?
+        build_help_frame(find_meta_keyword(@file_meta, keyword))
+      else
+        keyword = previous_keyword()
+        if keyword.empty?
+          build_blank_help(@file_meta)
+        else
+          meta = find_meta_keyword(@file_meta, keyword)
+          @modifiers = meta['modifiers'] if meta && meta['modifiers']
+          if @modifiers
+            build_blank_help(@modifiers)
+            @modifiers = nil
+          else
+            build_blank_help(@file_meta)
+          end
+        end
+      end
       # elsif keyword == @current_keyword
       #   # do something?
-      else
-        build_help_frame(find_meta_keyword(@file_meta, keyword))
-      end
       # if !meta
       #   @current_keyword = nil
-      #   @gui_frame.dispose()
+      #   @gui_widget.dispose()
       #   return
       # end
     end
 
     def find_meta_keyword(meta, keyword)
+      result = nil
       meta.each do |meta_keyword, data|
         if meta_keyword == keyword
-          return meta[keyword]
+          result = meta[keyword]
+          break
         elsif data["modifiers"]
-          return find_meta_keyword(data["modifiers"], keyword)
+          @modifiers = data['modifiers']
+          result = find_meta_keyword(data["modifiers"], keyword)
+          break if result
         end
       end
-      nil
+      result
     end
 
     def build_blank_help(meta)
-      @gui_frame.dispose()
-      @gui_frame = Qt::Widget.new
+      @gui_widget.dispose()
+      @gui_widget = Qt::Widget.new
       @gui_layout = Qt::VBoxLayout.new
-      @gui_frame.setLayout(@gui_layout)
+      @gui_widget.setLayout(@gui_layout)
 
-      info = Qt::Label.new("Top Level Keywords")
+      info = Qt::Label.new("Available Keywords")
       info.setFont(Cosmos.getFont("Arial", 16, Qt::Font::Bold))
       @gui_layout.addWidget(info)
 
@@ -314,16 +357,16 @@ module Cosmos
       @gui_layout.addWidget(add_keyword)
 
       @gui_layout.addStretch
-      @splitter.addWidget(@gui_frame)
+      @gui_area.setWidget(@gui_widget)
     end
 
     def build_help_frame(meta)
       return unless meta
-      word = @editor.current_word#('palegreen')
-      @gui_frame.dispose()
-      @gui_frame = Qt::Widget.new
+      word = @editor.current_word
+      @gui_widget.dispose()
+      @gui_widget = Qt::Widget.new
       @gui_layout = Qt::VBoxLayout.new
-      @gui_frame.setLayout(@gui_layout)
+      @gui_widget.setLayout(@gui_layout)
 
       @current_keyword = line_keyword()
       keyword = Qt::Label.new(@current_keyword)
@@ -346,7 +389,7 @@ module Cosmos
           end
         else # Process parameters
           next if attribute_value.empty?
-          line = Qt::Frame.new(@gui_frame)
+          line = Qt::Frame.new(@gui_widget)
           line.setFrameStyle(Qt::Frame::HLine | Qt::Frame::Sunken)
           @gui_layout.addWidget(line)
           param = Qt::Label.new("Parameters:")
@@ -356,16 +399,17 @@ module Cosmos
         end
       end
       @gui_layout.addStretch
-      @splitter.addWidget(@gui_frame)
+      @gui_area.setWidget(@gui_widget)
     end
 
     def process_parameters(parameters, parameter_offset = 1)
-      line_parts = current_line.split
+      line_parts = current_line.scan(ConfigParser::PARSING_REGEX)
       parameters.each_with_index do |parameter, parameter_index|
         parameter_index += parameter_offset
         name_layout = Qt::HBoxLayout.new
         description = Qt::Label.new()
         value_widget = Qt::Widget.new
+        required = false
         parameter.each do |attribute_name, attribute_value|
           case attribute_name
           when 'name'
@@ -380,12 +424,14 @@ module Cosmos
             @gui_layout.addWidget(description)
           when 'required'
             if attribute_value == true
-              required = Qt::Label.new("(Required)")
+              required = true
+              required_label = Qt::Label.new("(Required)")
             else
-              required = Qt::Label.new("(Optional)")
+              required = false
+              required_label = Qt::Label.new("(Optional)")
             end
-            required.setFont(Cosmos.getFont("Arial", 10))
-            name_layout.addWidget(required)
+            required_label.setFont(Cosmos.getFont("Arial", 10))
+            name_layout.addWidget(required_label)
             @gui_layout.addLayout(name_layout)
           when 'values'
             current_value = line_parts[parameter_index]
@@ -407,17 +453,31 @@ module Cosmos
               end
             elsif attribute_value.is_a? Array # Just a bunch of strings
               value_widget = Qt::ComboBox.new()
-              value_widget.addItem(current_value) unless attribute_value.include?(current_value)
               value_widget.addItems(attribute_value)
+              if required && current_value.nil?
+                value_widget.setStyleSheet("border: 1px solid red")
+              end
+              if current_value
+                value_widget.addItem(current_value) unless attribute_value.include?(current_value)
+                value_widget.setCurrentText(current_value)
+              end
               value_widget.connect(SIGNAL('currentIndexChanged(const QString&)')) do |word|
+                value_widget.setStyleSheet("")
                 insert_word(word, parameter_index)
               end
               @gui_layout.addWidget(value_widget)
             else
               value_widget = Qt::LineEdit.new(current_value)
+              if required && current_value.nil?
+                value_widget.setStyleSheet("border: 1px solid red")
+              end
               value_widget.connect(SIGNAL('editingFinished()')) do
-                insert_word(value_widget.text, parameter_index)
-                #value_widget.setFocus
+                if value_widget.text =~ Regexp.new("^#{attribute_value}$")
+                  value_widget.setStyleSheet("")
+                  insert_word(value_widget.text, parameter_index)
+                else
+                  value_widget.setStyleSheet("border: 1px solid red")
+                end
               end
               @gui_layout.addWidget(value_widget)
             end
@@ -430,10 +490,10 @@ module Cosmos
       @editor.blockSignals(true)
       c = @editor.textCursor
       current = @editor.current_line
-      line_parts = current.split
+      line_parts = current_line.scan(ConfigParser::PARSING_REGEX)
       indentation = current.length - current.lstrip.length
       if start_index.nil?
-        c.movePosition(Qt::TextCursor::StartOfLine)
+        #c.movePosition(Qt::TextCursor::StartOfLine)
         c.insertText(word)
       elsif start_index < line_parts.length
         end_index = start_index unless end_index
@@ -445,7 +505,10 @@ module Cosmos
         c.movePosition(Qt::TextCursor::EndOfLine)
         c.insertText(" #{word}")
       end
+      # c.movePosition(Qt::TextCursor::EndOfLine)
+      # @editor.setTextCursor(cursor)
       @editor.blockSignals(false)
+      @editor.setFocus
     end
 
     def initialize_variables

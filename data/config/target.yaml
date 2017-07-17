@@ -13,7 +13,7 @@ REQUIRE:
         under the lib directory then you must specify the folder name, e.g. "REQUIRE
         folder/my_file". The filename can also be an absolute path but this is not
         common. Note the ".rb" extension is optional when specifying the filename.
-      values: ".*"
+      values: .+
 IGNORE_PARAMETER:
   summary: Ignore the given command parameter
   description: Hint to other COSMOS tools to hide or ignore this command parameter
@@ -25,7 +25,7 @@ IGNORE_PARAMETER:
       required: true
       description: The name of a command parameter. Note that this parameter will
         be ignored in ALL the commands it appears in.
-      values: ".*"
+      values: .+
 IGNORE_ITEM:
   summary: Ignore the given telemetry item
   description: Hint to other COSMOS tools to hide or ignore this telemetry item
@@ -36,7 +36,7 @@ IGNORE_ITEM:
       required: true
       description: The name of a telemetry item. Note that this item will be ignored
         in ALL the telemetry it appears in.
-      values: ".*"
+      values: .+
 COMMANDS:
   summary: Process the given command definition file
   description: This keyword is used to explicitly add the command definition file

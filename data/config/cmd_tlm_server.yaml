@@ -14,7 +14,7 @@ INTERFACE:
         Interfaces tab of the Server and is also referenced by other keywords.
         The COSMOS convention is to name interfaces after their targets with
         '_INT' appended to the name, e.g. INST_INT for the INST target.
-      values: ".*"
+      values: \D\S*
     - name: Filename
       required: true
       description: Ruby file to use when instantiating the interface.
@@ -25,25 +25,25 @@ INTERFACE:
               required: true
               description: Machine name to connect to. Can be either a named
                 machine (DNS entry) or IP address.
-              values: ".*"
+              values: .+
             - name: Write Port
               required: true
               description: Port which COSMOS writes commands to
-              values: '\d{2,5}'
+              values: \d{2,5}
             - name: Read Port
               required: true
               description: Port which COSMOS reads telemetry from
-              values: '\d{2,5}'
+              values: \d{2,5}
         tcpip_server_interface.rb:
           parameters:
             - name: Write Port
               required: true
               description: Port which COSMOS writes commands to
-              values: '\d{2,5}'
+              values: \d{2,5}
             - name: Read Port
               required: true
               description: Port which COSMOS reads telemetry from
-              values: '\d{2,5}'
+              values: \d{2,5}
         # - udp_interface.rb
         # - serial_interface.rb
         # - cmd_tlm_server_interface.rb
@@ -54,4 +54,4 @@ TITLE:
   - name: Text
     required: true
     description: Text to put in the title of the Command and Telemetry Server window
-    values: [one, two, three]
+    values: .+

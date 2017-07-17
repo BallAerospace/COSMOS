@@ -61,6 +61,32 @@ module Cosmos
       textCursor.block.text
     end
 
+    def previous_line(number = 1)
+      blockSignals(true)
+      cursor = textCursor()
+      original_position = cursor.position
+      cursor.movePosition(Qt::TextCursor::StartOfLine)
+      if number > 1
+        result = cursor.movePosition(Qt::TextCursor::Up, Qt::TextCursor::MoveAnchor, number - 1)
+        if !result
+          blockSignals(false)
+          return nil
+        end
+      end
+      result = cursor.movePosition(Qt::TextCursor::Up, Qt::TextCursor::KeepAnchor)
+      if !result
+        blockSignals(false)
+        return nil
+      end
+      setTextCursor(cursor)
+      line = textCursor.selectedText[0..-4] # Remove unicode paragraph separator
+      # Restore original cursor
+      cursor.setPosition(original_position)
+      setTextCursor(cursor)
+      blockSignals(false)
+      line
+    end
+
     def get_line(line_number)
       blockSignals(true) # block signals while we programatically update it
       cursor = textCursor()

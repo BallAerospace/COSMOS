@@ -1,0 +1,167 @@
+---
+REQUIRED:
+  summary: Parameter is required to be populated in scripts
+  description: When sending the command via Script Runner a value must always be
+    given for the current command parameter. This prevents the user from relying
+    on a default value. Note that this does not affect Command Sender which will
+    still populate the field with the default value provided in the PARAMETER definition.
+FORMAT_STRING:
+  summary: Adds printf style formatting to a command parameter
+  parameters:
+    - name: Format
+      required: true
+      description: How to format the command parameter using printf syntax.
+        For example, '0x%0X' will display a parameter in hex.
+      values: .*
+UNITS:
+  summary: Add displayed units to a parameter
+  parameters:
+    - name: Full Name
+      required: true
+      description: Full name of the units type, e.g. Celcius
+      values: .*
+    - name: Abbreviated
+      required: true
+      description: Abbreviation for the units, e.g. C
+      values: .*
+MINIMUM_VALUE:
+  summary: Override the defined minimum value
+  parameters:
+    - name: Value
+      required: true
+      description: The new minimum value for the parameter
+      values: .*
+MAXIMUM_VALUE:
+  summary: Override the defined maximum value
+  parameters:
+    - name: Value
+      required: true
+      description: The new maximum value for the parameter
+      values: .*
+DEFAULT_VALUE:
+  summary: Override the defined default value
+  parameters:
+    - name: Value
+      required: true
+      description: The new default value for the parameter
+      values: .*
+DESCRIPTION:
+  summary: Override the defined description
+  parameters:
+    - name: Value
+      required: true
+      description: The new description for the parameter
+      values: .*
+STATE:
+  summary: Defines a key/value pair for the current command parameter
+  description: Key value pairs allow for user friendly strings. For example,
+    you might define states for ON = 1 and OFF = 0. This allows the word ON to be
+    used rather than the number 1 when sending the command parameter and allows
+    for much greater clarity and less chance for user error.
+  parameters:
+    - name: Key
+      required: true
+      description: The string state name
+      values: .*
+    - name: Value
+      required: true
+      description: The numerical state value
+      values: .*
+    - name: Hazardous
+      required: false
+      description: Indicates the state is hazardous. This will cause a popup
+        to ask for user confirmation when sending this command.
+      values: ['HAZARDOUS']
+    - name: Hazardous Description
+      required: false
+      description: String describing why this state is hazardous
+      values: "['\"].*['\"]"
+WRITE_CONVERSION:
+  summary: Applies a conversion when writing the current command parameter
+  description: Conversions are implemented in a custom Ruby file which should be
+    located in the target's lib folder and required by the target's target.txt
+    file (see REQUIRE). The class must require 'cosmos/conversions/conversion'
+    and inherit from Conversion. It must implement the initialize method if it
+    takes extra parameters and must always implement the call method. The conversion
+    factor is applied to the value entered by the user before it is written into
+    the binary command packet and sent.
+  parameters:
+    - name: Class File Name
+      required: true
+      description: The file name which contains the Ruby class. The file name must
+        be named after the class such that the class is a CamelCase version of the
+        underscored file name. For example, 'the_great_conversion.rb' should contain
+        'class TheGreatConversion'.
+      values: .*\.rb
+    - name: Parameter
+      required: false
+      description: Additional parameter values for the conversion which are passed
+        to the class constructor.
+      values: .*
+POLY_WRITE_CONVERSION:
+  summary: Adds a polynomial conversion factor to the current command parameter
+  description: The conversion factor is applied to the value entered by the user
+    before it is written into the binary command packet and sent.
+  parameters:
+    - name: C0
+      required: true
+      description: Coefficient
+      values: .*
+    - name: Cx
+      required: false
+      description: Additional coefficient values for the conversion. Any order
+        polynomial conversion may be used so the value of 'x' will vary with the
+        order of the polynomial. Note that larger order polynomials take longer
+        to process than shorter order polynomials, but are sometimes more accurate.
+      values: .*
+SEG_POLY_WRITE_CONVERSION:
+  summary: Adds a segmented polynomial conversion factor to the current command parameter
+  description: This conversion factor is applied to the value entered by the user
+    before it is written into the binary command packet and sent.
+  parameters:
+    - name: Lower Bound
+      required: true
+      description: Defines the lower bound of the range of values that this segmented
+        polynomial applies to. Is ignored for the segment with the smallest lower bound.
+      values: .*
+    - name: C0
+      required: true
+      description: Coefficient
+      values: .*
+    - name: Cx
+      required: false
+      description: Additional coefficient values for the conversion. Any order
+        polynomial conversion may be used so the value of 'x' will vary with the
+        order of the polynomial. Note that larger order polynomials take longer
+        to process than shorter order polynomials, but are sometimes more accurate.
+      values: .*
+GENERIC_WRITE_CONVERSION_START:
+  summary: Start a generic write conversion
+  description: Adds a generic conversion function to the current command parameter.
+    This conversion factor is applied to the value entered by the user before it
+    is written into the binary command packet and sent. The conversion is specified
+    as ruby code that receives two implied parameters. 'value' which is the raw
+    value being written and 'packet' which is a reference to the command packet
+    class (Note, referencing the packet as 'myself' is still supported for backwards
+    compatibility). The last line of ruby code given should return the converted
+    value. The GENERIC_WRITE_CONVERSION_END keyword specifies that all lines of
+    ruby code for the conversion have been given.
+  warning: Generic conversions are not a good long term solution. Consider creating
+    a conversion class and using WRITE_CONVERSION instead. WRITE_CONVERSION is easier
+    to debug and higher performance.
+GENERIC_WRITE_CONVERSION_END:
+  summary: Complete a generic write conversion
+META:
+  summary: Stores metadata for the current command parameter
+  description: Meta data is user specific data that can be used by custom tools
+    for various purposes. One example is to store additional information needed
+    to generate source code header files.
+  parameters:
+    - name: Meta Name
+      required: true
+      description: Name of the metadata to store
+      values: .*
+    - name: Meta Values
+      required: false
+      description: One or more values to be stored for this Meta Name
+      values: .*

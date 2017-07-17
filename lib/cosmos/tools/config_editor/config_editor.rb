@@ -32,7 +32,6 @@ module Cosmos
       Cosmos.load_cosmos_icon("config_editor.png")
       setAcceptDrops(true) # Allow dropping in files
 
-      @server_config_file = options.server_config_file
       @procedure_dir = Cosmos::USERPATH
       @file_type = "none"
 
@@ -41,11 +40,6 @@ module Cosmos
       initialize_central_widget()
       complete_initialize()
 
-      # if File.exist?(options.config_file)
-      #   ScriptRunnerConfig.new(options.config_file)
-      # else
-      #   raise "Could not find config file #{options.config_file}"
-      # end
       create_tab()
     end
 
@@ -80,10 +74,6 @@ module Cosmos
       @file_save_as = Qt::Action.new(Cosmos.get_icon('save_as.png'), tr('Save &As'), self)
       @file_save_as.statusTip = tr('Save the script')
       @file_save_as.connect(SIGNAL('triggered()')) { file_save(true) }
-
-      @file_options = Qt::Action.new(tr('O&ptions'), self)
-      @file_options.statusTip = tr('Application Options')
-      @file_options.connect(SIGNAL('triggered()')) { file_options() }
 
       # Edit actions
       @edit_undo = Qt::Action.new(Cosmos.get_icon('undo.png'), tr('&Undo'), self)
@@ -182,8 +172,6 @@ module Cosmos
       @file_menu.addAction(@file_save)
       @file_menu.addAction(@file_save_as)
       @file_menu.addSeparator()
-      @file_menu.addAction(@file_options)
-      @file_menu.addSeparator()
       @file_menu.addAction(@exit_action)
 
       # Edit Menu
@@ -207,10 +195,8 @@ module Cosmos
       view_menu.addAction(@search_replace)
 
       # Help Menu
-      @about_string = "Script Runner allows the user to execute commands "\
-        "and take action on telemetry within a saveable script. "\
-        "It allows the full power of the Ruby programming language "\
-        "while defining several keywords to manipulate commands and telemetry in COSMOS.\n"
+      @about_string = "Config Editor allows the user to edit COSMOS configuration "\
+        "files with contextual help. "\
 
       initialize_help_menu()
     end
@@ -378,69 +364,6 @@ module Cosmos
       end
     end
 
-    # File->Options
-    def file_options
-      dialog = Qt::Dialog.new(self)
-      dialog.setWindowTitle('Script Runner Options')
-      layout = Qt::VBoxLayout.new
-
-      form = Qt::FormLayout.new
-      box = Qt::DoubleSpinBox.new
-      box.setRange(0, 60)
-      box.setValue(ConfigEditorFrame.line_delay)
-      form.addRow(tr("&Delay between each script line:"), box)
-      pause_on_error = Qt::CheckBox.new
-      form.addRow(tr("&Pause on error:"), pause_on_error)
-      monitor = Qt::CheckBox.new
-      form.addRow(tr("&Monitor limits:"), monitor)
-      if ConfigEditorFrame.pause_on_error
-        pause_on_error.setCheckState(Qt::Checked)
-      else
-        pause_on_error.setCheckState(Qt::Unchecked)
-      end
-      pause_on_red = Qt::CheckBox.new
-      form.addRow(tr("Pause on &red limit:"), pause_on_red)
-      if ConfigEditorFrame.monitor_limits
-        monitor.setCheckState(Qt::Checked)
-        pause_on_red.setCheckState(Qt::Checked) if ConfigEditorFrame.pause_on_red
-      else
-        pause_on_red.setEnabled(false)
-      end
-      monitor.connect(SIGNAL('stateChanged(int)')) do
-        if monitor.isChecked()
-          pause_on_red.setEnabled(true)
-        else
-          pause_on_red.setCheckState(Qt::Unchecked)
-          pause_on_red.setEnabled(false)
-        end
-      end
-      layout.addLayout(form)
-
-      divider = Qt::Frame.new
-      divider.setFrameStyle(Qt::Frame::HLine | Qt::Frame::Raised)
-      divider.setLineWidth(1)
-      layout.addWidget(divider)
-
-      ok = Qt::PushButton.new('Ok')
-      ok.setDefault(true)
-      ok.connect(SIGNAL('clicked(bool)')) do
-        ConfigEditorFrame.line_delay = box.value
-        ConfigEditorFrame.pause_on_error = (pause_on_error.checkState == Qt::Checked)
-        ConfigEditorFrame.monitor_limits = (monitor.checkState == Qt::Checked)
-        ConfigEditorFrame.pause_on_red = (pause_on_red.checkState == Qt::Checked)
-        dialog.accept
-      end
-      cancel = Qt::PushButton.new('Cancel')
-      cancel.connect(SIGNAL('clicked(bool)')) { dialog.reject }
-      button_layout = Qt::HBoxLayout.new
-      button_layout.addWidget(ok)
-      button_layout.addWidget(cancel)
-      layout.addLayout(button_layout)
-      dialog.setLayout(layout)
-      dialog.exec
-      dialog.dispose
-    end
-
     ###########################################
     # Callbacks
     ###########################################
@@ -577,14 +500,14 @@ module Cosmos
     # Updates the title appropriately to show the tabs filename and modified status
     def update_title
       if @tab_book.currentTab.filename.empty?
-        self.setWindowTitle("Script Runner : #{UNTITLED}")
+        self.setWindowTitle("Config Editor : #{UNTITLED}")
       else
-        self.setWindowTitle("Script Runner : #{@tab_book.currentTab.filename}")
+        self.setWindowTitle("Config Editor : #{@tab_book.currentTab.filename}")
       end
       self.setWindowTitle(self.windowTitle << '*') if @tab_book.currentTab.modified
     end
 
-    # Returns the script runner frame of the active tab
+    # Returns the frame of the active tab
     def active_config_editor_frame
       @tab_book.currentTab
     end
@@ -677,24 +600,9 @@ module Cosmos
           option_parser, options = create_default_options()
           options.width = 750
           options.height = 600
-          options.title = "Script Runner : #{UNTITLED}"
+          options.title = "Config Editor : #{UNTITLED}"
           options.auto_size = false
-          options.config_file = "script_runner.txt"
-          options.server_config_file = CmdTlmServer::DEFAULT_CONFIG_FILE
-          options.run_procedure = nil
-
-          option_parser.separator "Script Runner Specific Options:"
-          option_parser.on("-c", "--config FILE", "Use the specified configuration file") do |arg|
-            options.config_file = arg
-          end
-          option_parser.on("-s", "--server FILE", "Use the specified server configuration file for GUI help") do |arg|
-            options.server_config_file = arg
-          end
-          option_parser.on("-r", "--run FILE", "Open and run the specified procedure") do |arg|
-            options.run_procedure = arg
-          end
         end
-
         super(option_parser, options)
       end
     end

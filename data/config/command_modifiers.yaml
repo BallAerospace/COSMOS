@@ -1,0 +1,316 @@
+---
+PARAMETER:
+  modifiers:
+    <%= MetaConfigParser.load('parameter_modifiers.yaml').to_meta_config_yaml(4) %>
+  summary: Defines a command parameter in the current command packet
+  parameters:
+    - name: Name
+      required: true
+      description: Name of the parameter. Must be unique within the command.
+      values: '\D\S*'
+    - name: Bit Offset
+      required: true
+      description: Bit offset into the command packet of the Most Significant Bit of this parameter.
+        May be negative to indicate on offset from the end of the packet.
+        Always use a bit offset of 0 for derived parameters.
+      values: '[-]?\d+'
+    - name: Bit Size
+      required: true
+      description: Bit size of this parameter. Zero or Negative values may be used
+        to indicate that a string fills the packet up to the offset from the end of
+        the packet specified by this value. If Bit Offset is 0 and Bit Size is 0 then
+        this is a derived parameter and the Data Type must be set to 'DERIVED'.
+      values: \d+
+    - name: Data Type
+      required: true
+      description: Data Type of this parameter
+      values:
+        INT:
+          parameters: &params
+            - name: Minimum Value
+              required: true
+              description: Minimum allowed value for this parameter
+              values: .*
+            - name: Maximum Value
+              required: true
+              description: Maximum allowed value for this parameter
+              values: .*
+            - name: Default Value
+              required: true
+              description: Default value for this parameter. You must provide a default
+                but if you mark the parameter REQUIRED then scripts will be forced to specify a value.
+              values: .*
+            - name: Description
+              required: false
+              description: Description for this parameter which must be enclosed with quotes
+              values: "['\"].*['\"]"
+            - name: Endianness
+              required: false
+              description: Indicates if the data in this command is to be sent in Big Endian or Little Endian format
+              values: <%= %w(BIG_ENDIAN LITTLE_ENDIAN) %>
+        UINT:
+          parameters: *params
+        FLOAT:
+          parameters: *params
+        DERVIED:
+          parameters: *params
+        STRING:
+          parameters: &sparams
+            - name: Default Value
+              required: true
+              description: Default value for this parameter. You must provide a default
+                but if you mark the parameter REQUIRED then scripts will be forced to specify a value.
+              values: .*
+            - name: Description
+              required: false
+              description: Description for this parameter which must be enclosed with quotes
+              values: "['\"].*['\"]"
+            - name: Endianness
+              required: false
+              description: Indicates if the data in this command is to be sent in Big Endian or Little Endian format
+              values: <%= %w(BIG_ENDIAN LITTLE_ENDIAN) %>
+        BLOCK:
+          parameters: *sparams
+ID_PARAMETER:
+  modifiers:
+    <%= MetaConfigParser.load('parameter_modifiers.yaml').to_meta_config_yaml(4) %>
+  summary: Defines an identification command parameter in the current command packet
+  description: ID parameters are used to identify the binary block of data as a
+    particular command. A command packet may have one or more ID_PARAMETERs and all
+    must match the binary data for the command to be identified.
+  parameters:
+    - name: Name
+      required: true
+      description: Name of the parameter. Must be unique within the command.
+      values: .+
+    - name: Bit Offset
+      required: true
+      description: Bit offset into the command packet of the Most Significant Bit of this parameter.
+        May be negative to indicate on offset from the end of the packet.
+        Always use a bit offset of 0 for derived parameters.
+      values: '[-]?\d+'
+    - name: Bit Size
+      required: true
+      description: Bit size of this parameter. Zero or Negative values may be used
+        to indicate that a string fills the packet up to the offset from the end of
+        the packet specified by this value. If Bit Offset is 0 and Bit Size is 0 then
+        this is a derived parameter and the Data Type must be set to 'DERIVED'.
+      values: \d+
+    - name: Data Type
+      required: true
+      description: Data Type of this parameter
+      values: <%= %w(INT UINT FLOAT STRING BLOCK DERIVED) %>
+    - name: Minimum Value
+      required: true
+      description: Minimum allowed value for this parameter (Not given if Data Type is STRING or BLOCK)
+      values: .*
+    - name: Maximum Value
+      required: true
+      description: Maximum allowed value for this parameter (Not given if Data Type is STRING or BLOCK)
+      values: .*
+    - name: ID Value
+      required: true
+      description: Identification value for this parameter. The binary data must
+        match this value for the buffer to be identified as this packet.
+      values: .*
+    - name: Description
+      required: false
+      description: Description for this parameter which must be enclosed with quotes
+      values: "['\"].*['\"]"
+    - name: Endianness
+      required: false
+      description: Indicates if the data in this command is to be sent in Big Endian or Little Endian format
+      values: <%= %w(BIG_ENDIAN LITTLE_ENDIAN) %>
+ARRAY_PARAMETER:
+  modifiers:
+    <%= MetaConfigParser.load('parameter_modifiers.yaml').to_meta_config_yaml(4) %>
+  summary: Defines a command parameter in the current command packet that is an array
+  parameters:
+    - name: Name
+      required: true
+      description: Name of the parameter. Must be unique within the command.
+      values: \'
+    - name: Bit Offset
+      required: true
+      description: Bit offset into the command packet of the Most Significant Bit of this parameter.
+        May be negative to indicate on offset from the end of the packet.
+        Always use a bit offset of 0 for derived parameters.
+      values: '[-]?\d+'
+    - name: Item Bit Size
+      required: true
+      description: Bit size of each array item
+      values: \d+
+    - name: Item Data Type
+      required: true
+      description: Data Type of each array item
+      values: <%= %w(INT UINT FLOAT STRING BLOCK DERIVED) %>
+    - name: Array Bit Size
+      required: true
+      description: Total Bit Size of the Array. Zero or Negative values may be used
+        to indicate the array fills the packet up to the offset from the end of the
+        packet specified by this value.
+      values: '[-]?\d+'
+    - name: Description
+      required: false
+      description: Description for this parameter which must be enclosed with quotes
+      values: "['\"].*['\"]"
+    - name: Endianness
+      required: false
+      description: Indicates if the data in this command is to be sent in Big Endian or Little Endian format
+      values: <%= %w(BIG_ENDIAN LITTLE_ENDIAN) %>
+APPEND_PARAMETER:
+  modifiers:
+    <%= MetaConfigParser.load('parameter_modifiers.yaml').to_meta_config_yaml(4) %>
+  summary: Defines a command parameter in the current command packet
+  parameters:
+    - name: Name
+      required: true
+      description: Name of the parameter. Must be unique within the command.
+      values: \'
+    - name: Bit Size
+      required: true
+      description: Bit size of this parameter. Zero or Negative values may be used
+        to indicate that a string fills the packet up to the offset from the end of
+        the packet specified by this value. If Bit Offset is 0 and Bit Size is 0 then
+        this is a derived parameter and the Data Type must be set to 'DERIVED'.
+      values: \d+
+    - name: Data Type
+      required: true
+      description: Data Type of this parameter
+      values: <%= %w(INT UINT FLOAT STRING BLOCK DERIVED) %>
+    - name: Minimum Value
+      required: true
+      description: Minimum allowed value for this parameter (Not given if Data Type is STRING or BLOCK)
+      values: .*
+    - name: Maximum Value
+      required: true
+      description: Maximum allowed value for this parameter (Not given if Data Type is STRING or BLOCK)
+      values: .*
+    - name: Default Value
+      required: true
+      description: Default value for this parameter. You must provide a default
+        but if you mark the parameter REQUIRED then scripts will be forced to specify a value.
+      values: .*
+    - name: Description
+      required: false
+      description: Description for this parameter which must be enclosed with quotes
+      values: "['\"].*['\"]"
+    - name: Endianness
+      required: false
+      description: Indicates if the data in this command is to be sent in Big Endian or Little Endian format
+      values: <%= %w(BIG_ENDIAN LITTLE_ENDIAN) %>
+APPEND_ID_PARAMETER:
+  modifiers:
+    <%= MetaConfigParser.load('parameter_modifiers.yaml').to_meta_config_yaml(4) %>
+  summary: Defines an identification command parameter in the current command packet
+  description: ID parameters are used to identify the binary block of data as a
+    particular command. A command packet may have one or more ID_PARAMETERs and all
+    must match the binary data for the command to be identified.
+  parameters:
+    - name: Name
+      required: true
+      description: Name of the parameter. Must be unique within the command.
+      values: '\D\S*'
+    - name: Bit Size
+      required: true
+      description: Bit size of this parameter. Zero or Negative values may be used
+        to indicate that a string fills the packet up to the offset from the end of
+        the packet specified by this value. If Bit Offset is 0 and Bit Size is 0 then
+        this is a derived parameter and the Data Type must be set to 'DERIVED'.
+      values: \d+
+    - name: Data Type
+      required: true
+      description: Data Type of this parameter
+      values: <%= %w(INT UINT FLOAT STRING BLOCK DERIVED) %>
+    - name: Minimum Value
+      required: true
+      description: Minimum allowed value for this parameter (Not given if Data Type is STRING or BLOCK)
+      values: .*
+    - name: Maximum Value
+      required: true
+      description: Maximum allowed value for this parameter (Not given if Data Type is STRING or BLOCK)
+      values: .*
+    - name: ID Value
+      required: true
+      description: Identification value for this parameter. The binary data must
+        match this value for the buffer to be identified as this packet.
+      values: .*
+    - name: Description
+      required: false
+      description: Description for this parameter which must be enclosed with quotes
+      values: "['\"].*['\"]"
+    - name: Endianness
+      required: false
+      description: Indicates if the data in this command is to be sent in Big Endian or Little Endian format
+      values: <%= %w(BIG_ENDIAN LITTLE_ENDIAN) %>
+APPEND_ARRAY_PARAMETER:
+  modifiers:
+    <%= MetaConfigParser.load('parameter_modifiers.yaml').to_meta_config_yaml(4) %>
+  summary: Defines a command parameter in the current command packet that is an array
+  parameters:
+    - name: Name
+      required: true
+      description: Name of the parameter. Must be unique within the command.
+      values: '\D\S*'
+    - name: Item Bit Size
+      required: true
+      description: Bit size of each array item
+      values: \d+
+    - name: Item Data Type
+      required: true
+      description: Data Type of each array item
+      values: <%= %w(INT UINT FLOAT STRING BLOCK DERIVED) %>
+    - name: Array Bit Size
+      required: true
+      description: Total Bit Size of the Array. Zero or Negative values may be used
+        to indicate the array fills the packet up to the offset from the end of the
+        packet specified by this value.
+      values: '[-]?\d+'
+    - name: Description
+      required: false
+      description: Description for this parameter which must be enclosed with quotes
+      values: "['\"].*['\"]"
+    - name: Endianness
+      required: false
+      description: Indicates if the data in this command is to be sent in Big Endian or Little Endian format
+      values: <%= %w(BIG_ENDIAN LITTLE_ENDIAN) %>
+SELECT_PARAMETER:
+  summary: Selects an existing command parameter for editing
+  parameters:
+    - name: parameter
+      required: true
+      description: Name of the parameter to select for modification
+      values: .+
+HIDDEN:
+  summary: Hides this command from all COSMOS tools such as Command Sender and Handbook Creator
+  description: Hidden commands do not appear in the Script Runner popup helper when writing scripts.
+    The command still exists in the system and can be sent by scripts.
+DISABLED:
+  summary: Disables this command from being sent
+  description: Hides the command and also disables it from being sent by scripts.
+    Attempts to send DISABLED commands result in an error message.
+DISABLE_MESSAGES:
+  summary: Disable the Server from printing cmd(...) messages. Commands are still logged.
+META:
+  summary: Stores metadata for the current command
+  description: Meta data is user specific data that can be used by custom tools
+    for various purposes. One example is to store additional information needed
+    to generate source code header files.
+  parameters:
+    - name: Meta Name
+      required: true
+      description: Name of the metadata to store
+      values: .*
+    - name: Meta Values
+      required: false
+      description: One or more values to be stored for this Meta Name
+      values: .*
+HAZARDOUS:
+  summary: Designates the current command as hazardous
+  description: Sending a hazardous command causes a dialog asking for confirmation
+    before sending the command
+  parameters:
+    - name: Description
+      required: false
+      description: Description for why the command is hazardous which must be enclosed with quotes
+      values: "['\"].*['\"]"

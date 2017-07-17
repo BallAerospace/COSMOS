@@ -6,3 +6,39 @@ TARGET:
       required: true
       description: Target name to map to this interface
       values: <%= System.targets.keys %>
+DONT_CONNECT:
+  summary: Server will not automatically try to connect to the interface at startup
+DONT_RECONNECT:
+  summary: Server will not try to reconnect to the interface if the connection is lost
+RECONNECT_DELAY:
+  summary: Reconnect delay in seconds
+  description: If DONT_RECONNECT is not present the Server will try to reconnect to an
+    interface if the connection is lost. Reconnect delay sets the interval in seconds
+    between reconnect tries.
+  parameters:
+    - name: Delay
+      required: true
+      description: Delay in seconds between reconnect attempts. The default is 15 seconds.
+      values: ([0-9]*[.])?[0-9]+
+DISABLE_DISCONNECT:
+  summary: Disable the Disconnect button on the Interfaces tab in the Server
+  description: Use this keyword to prevent the user from disconnecting from the interface.
+    This is typically used in a 'production' environment where you would not want
+    the user to inadvertantly disconnect from a target.
+LOG:
+  summary: Enable logging on the interface by the specified log writer
+  description: LOG is only required if you want a log writer other than the default
+    to log commands and telemetry on this interface
+  warning: Choosing a custom log writer can prevent COSMOS from reading back your log files
+  parameters:
+    - name: Name
+      required: true
+      description: Log writer name as defined by PACKET_LOG_WRITER
+      values: \D\S*
+DONT_LOG:
+  summary: Disable logging commands and telemetry on this interface
+LOG_RAW:
+  summary: Log all data on the interface exactly as it is sent and received
+  description: LOG_RAW does not add any COSMOS headers and thus can not be read by COSMOS tools.
+    It is primarily useful for low level debugging of an interface. You will have to
+    manually parse these logs yourself using a hex editor or other application.
