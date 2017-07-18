@@ -137,7 +137,7 @@ module Cosmos
       end
       if !c.atBlockEnd()
         c.movePosition(Qt::TextCursor::Right, Qt::TextCursor::KeepAnchor)
-        while !c.atBlockEnd() && c.selectedText[-1] != ' '
+        while !c.atBlockEnd() && c.selectedText && c.selectedText[-1] != ' '
           c.movePosition(Qt::TextCursor::Right, Qt::TextCursor::KeepAnchor)
         end
         c.movePosition(Qt::TextCursor::Left, Qt::TextCursor::KeepAnchor) if !c.atBlockEnd()

@@ -1,0 +1,58 @@
+---
+- name: Bit Size
+  required: true
+  description: Bit size of this parameter. Zero or Negative values may be used
+    to indicate that a string fills the packet up to the offset from the end of
+    the packet specified by this value. If Bit Offset is 0 and Bit Size is 0 then
+    this is a derived parameter and the Data Type must be set to 'DERIVED'.
+  values: \d+
+- name: Data Type
+  required: true
+  description: Data Type of this parameter
+  values:
+    INT:
+      parameters: &params
+        - name: Minimum Value
+          required: true
+          description: Minimum allowed value for this parameter
+          values: .*
+        - name: Maximum Value
+          required: true
+          description: Maximum allowed value for this parameter
+          values: .*
+        - name: Default Value
+          required: true
+          description: Default value for this parameter. You must provide a default
+            but if you mark the parameter REQUIRED then scripts will be forced to specify a value.
+          values: .*
+        - name: Description
+          required: false
+          description: Description for this parameter which must be enclosed with quotes
+          values: "['\"].*['\"]"
+        - name: Endianness
+          required: false
+          description: Indicates if the data in this command is to be sent in Big Endian or Little Endian format
+          values: <%= %w(BIG_ENDIAN LITTLE_ENDIAN) %>
+    UINT:
+      parameters: *params
+    FLOAT:
+      parameters: *params
+    DERVIED:
+      parameters: *params
+    STRING:
+      parameters: &sparams
+        - name: Default Value
+          required: true
+          description: Default value for this parameter. You must provide a default
+            but if you mark the parameter REQUIRED then scripts will be forced to specify a value.
+          values: .*
+        - name: Description
+          required: false
+          description: Description for this parameter which must be enclosed with quotes
+          values: "['\"].*['\"]"
+        - name: Endianness
+          required: false
+          description: Indicates if the data in this command is to be sent in Big Endian or Little Endian format
+          values: <%= %w(BIG_ENDIAN LITTLE_ENDIAN) %>
+    BLOCK:
+      parameters: *sparams

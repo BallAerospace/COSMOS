@@ -138,11 +138,36 @@ module Cosmos
 
     def cursor_position_changed()
       emit cursorPositionChanged()
-      display_keyword_help()
+      display_keyword_help() if @display_help
+    end
+
+    def key_press(event)
+      @display_help = true
+      @key_press_callback.call(event)
+      # Check for any kind of selection so we don't try to display help
+      # Trying to display help during a selection breaks the selection due to
+      # how we move the cursor to find the keywords
+      if event.matches(Qt::KeySequence::SelectEndOfBlock) ||
+        event.matches(Qt::KeySequence::SelectEndOfDocument) ||
+        event.matches(Qt::KeySequence::SelectEndOfLine) ||
+        event.matches(Qt::KeySequence::SelectNextChar) ||
+        event.matches(Qt::KeySequence::SelectNextLine) ||
+        event.matches(Qt::KeySequence::SelectNextPage) ||
+        event.matches(Qt::KeySequence::SelectPreviousChar) ||
+        event.matches(Qt::KeySequence::SelectPreviousLine) ||
+        event.matches(Qt::KeySequence::SelectPreviousPage) ||
+        event.matches(Qt::KeySequence::SelectPreviousWord) ||
+        event.matches(Qt::KeySequence::SelectStartOfBlock) ||
+        event.matches(Qt::KeySequence::SelectStartOfDocument) ||
+        event.matches(Qt::KeySequence::SelectStartOfLine)
+        @display_help = false
+      end
+      true # Always process the event
     end
 
     def key_press_callback=(callback)
-      @editor.keyPressCallback = callback
+      @key_press_callback = callback
+      @editor.keyPressCallback = method(:key_press)
     end
 
     def setFocus
@@ -222,18 +247,6 @@ module Cosmos
       return '' if line.nil? || line.strip.empty? || line.strip[0] == '#'
       line.strip.split(" ")[0]
     end
-
-    # def previous_keyword
-    #   count = 1
-    #   line = @editor.previous_line(count)
-    #   while line && !line.strip.empty? && line.strip[0] != '#'
-    #     keyword = line_keyword(line)
-    #     return keyword unless keyword.empty?
-    #     count += 1
-    #     line = @editor.previous_line(count)
-    #   end
-    #   ''
-    # end
 
     def previous_keyword
       previous_line = @editor.previous_line
