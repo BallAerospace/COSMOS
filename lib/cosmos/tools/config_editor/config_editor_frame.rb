@@ -222,8 +222,8 @@ module Cosmos
       line.strip.split(" ")[0]
     end
 
-    def previous_keyword
-      previous_line = @editor.previous_line
+    def previous_keyword(lines_back = 1)
+      previous_line = @editor.previous_line(lines_back)
       line_keyword(previous_line)
     end
 
@@ -267,7 +267,18 @@ module Cosmos
       return unless @file_meta
       keyword = line_keyword()
       unless keyword.empty?
-        build_help_frame(find_meta_keyword(@file_meta, keyword))
+
+        previous = nil
+        # STATE is the only keyword that is different depending on higher
+        # order keywords. It depends if we're building a command vs a telemetry.
+        if keyword == 'STATE'
+          previous = previous_keyword(1)
+          (2..line_number).each do |index|
+            break if previous.include?('COMMAND') || previous.include?('TELEMETRY')
+            previous = previous_keyword(index)
+          end
+        end
+        build_help_frame(find_meta_keyword(@file_meta, keyword, previous))
       else
         keyword = previous_keyword()
         if keyword.empty?
@@ -283,22 +294,18 @@ module Cosmos
           end
         end
       end
-      # elsif keyword == @current_keyword
-      #   # do something?
-      # if !meta
-      #   @current_keyword = nil
-      #   @gui_widget.dispose()
-      #   return
-      # end
     end
 
-    def find_meta_keyword(meta, keyword)
+    def find_meta_keyword(meta, keyword, previous = nil)
       result = nil
       meta.each do |meta_keyword, data|
         if meta_keyword == keyword
           result = meta[keyword]
           break
         elsif data["modifiers"]
+          if previous
+            next unless meta_keyword == previous
+          end
           @modifiers = data['modifiers']
           result = find_meta_keyword(data["modifiers"], keyword)
           break if result

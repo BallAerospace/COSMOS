@@ -84,6 +84,8 @@ APPEND_ARRAY_PARAMETER:
       values: '\D\S*'
     <%= MetaConfigParser.load('_array_params.yaml').to_meta_config_yaml(4) %>
 SELECT_PARAMETER:
+  modifiers:
+    <%= MetaConfigParser.load('parameter_modifiers.yaml').to_meta_config_yaml(4) %>
   summary: Selects an existing command parameter for editing
   parameters:
     - name: Parameter

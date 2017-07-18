@@ -1,0 +1,128 @@
+---
+ITEM:
+  modifiers:
+    <%= MetaConfigParser.load('item_modifiers.yaml').to_meta_config_yaml(4) %>
+  summary: Defines a telemetry item in the current telemetry packet
+  parameters:
+    - name: Name
+      required: true
+      description: Name of the telemety item. Must be unique within the packet.
+      values: '\D\S*'
+    - name: Bit Offset
+      required: true
+      description: Bit offset into the telemetry packet of the Most Significant Bit of this item.
+        May be negative to indicate on offset from the end of the packet.
+        Always use a bit offset of 0 for derived item.
+      values: '[-]?\d+'
+    <%= MetaConfigParser.load('_items.yaml').to_meta_config_yaml(4) %>
+APPEND_ITEM:
+  modifiers:
+    <%= MetaConfigParser.load('item_modifiers.yaml').to_meta_config_yaml(4) %>
+  summary: Defines a telemetry item in the current telemetry packet
+  parameters:
+    - name: Name
+      required: true
+      description: Name of the telemety item. Must be unique within the packet.
+      values: \'
+    <%= MetaConfigParser.load('_items.yaml').to_meta_config_yaml(4) %>
+ID_ITEM:
+  modifiers:
+    <%= MetaConfigParser.load('item_modifiers.yaml').to_meta_config_yaml(4) %>
+  summary: Defines a telemetry item in the current telemetry packet
+  parameters:
+    - name: Name
+      required: true
+      description: Name of the telemety item. Must be unique within the packet.
+      values: '\D\S*'
+    - name: Bit Offset
+      required: true
+      description: Bit offset into the telemetry packet of the Most Significant Bit of this item.
+        May be negative to indicate on offset from the end of the packet.
+        Always use a bit offset of 0 for derived item.
+      values: '[-]?\d+'
+    <%= MetaConfigParser.load('_id_items.yaml').to_meta_config_yaml(4) %>
+APPEND_ID_ITEM:
+  modifiers:
+    <%= MetaConfigParser.load('item_modifiers.yaml').to_meta_config_yaml(4) %>
+  summary: Defines a telemetry item in the current telemetry packet
+  parameters:
+    - name: Name
+      required: true
+      description: Name of the telemety item. Must be unique within the packet.
+      values: \'
+    <%= MetaConfigParser.load('_id_items.yaml').to_meta_config_yaml(4) %>
+ARRAY_ITEM:
+  modifiers:
+    <%= MetaConfigParser.load('item_modifiers.yaml').to_meta_config_yaml(4) %>
+  summary: Defines a telemetry item in the current telemetry packet that is an array
+  parameters:
+    - name: Name
+      required: true
+      description: Name of the telemety item. Must be unique within the packet.
+      values: '\D\S*'
+    - name: Bit Offset
+      required: true
+      description: Bit offset into the telemetry packet of the Most Significant Bit of this item.
+        May be negative to indicate on offset from the end of the packet.
+        Always use a bit offset of 0 for derived item.
+      values: '[-]?\d+'
+    <%= MetaConfigParser.load('_array_params.yaml').to_meta_config_yaml(4) %>
+APPEND_ARRAY_ITEM:
+  modifiers:
+    <%= MetaConfigParser.load('item_modifiers.yaml').to_meta_config_yaml(4) %>
+  summary: Defines a telemetry item in the current telemetry packedt that is an array
+  parameters:
+    - name: Name
+      required: true
+      description: Name of the telemety item. Must be unique within the packet.
+      values: \'
+    <%= MetaConfigParser.load('_array_params.yaml').to_meta_config_yaml(4) %>
+SELECT_ITEM:
+  modifiers:
+    <%= MetaConfigParser.load('item_modifiers.yaml').to_meta_config_yaml(4) %>
+  summary: Selects an existing telemetry item for editing
+  parameters:
+    - name: Item
+      required: true
+      description: Name of the item to select for modification
+      values: .+
+META:
+  summary: Stores metadata for the current telemetry packet
+  description: Meta data is user specific data that can be used by custom tools
+    for various purposes. One example is to store additional information needed
+    to generate source code header files.
+  parameters:
+    - name: Meta Name
+      required: true
+      description: Name of the metadata to store
+      values: .*
+    - name: Meta Values
+      required: false
+      description: One or more values to be stored for this Meta Name
+      values: .*
+PROCESSOR:
+  summary: Defines a processor class that executes code every time a packet is received
+  parameters:
+    - name: Processor Name
+      required: true
+      description: The name of the processor
+      values: .+
+    - name: Processor Class Filename
+      required: true
+      description: Name of the Ruby file which implements the processor.
+        This file should be in the config/TARGET/lib directory so it can be found by COSMOS.
+      values: '.+\.rb'
+    - name: Processor Specific Options
+      required: false
+      description: Variable length number of options that will be passed to the class constructor.
+ALLOW_SHORT:
+  summary: Process telemetry packets which are less than their defined length
+  description: Allows the telemetry packet to be received with a data portion that
+    is smaller than the defined size without warnings. Any extra space in the packet
+    will be filled in with zeros by COSMOS.
+HIDDEN:
+  summary: Hides this telemetry packet from all the COSMOS tools
+  description: This packet will not appear in Packet Viewer, Telemetry Grapher and Handbook Creator.
+    It also hides this telemetry from appearing in the Script Runner popup helper
+    when writing scripts. The telemetry still exists in the system and can received
+    and checked by scripts.
