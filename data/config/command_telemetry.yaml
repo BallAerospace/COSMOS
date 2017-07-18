@@ -1,0 +1,2 @@
+---
+<%= MetaConfigParser.load('command.yaml').to_meta_config_yaml(0) %>

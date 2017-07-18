@@ -165,3 +165,19 @@ META:
       required: false
       description: One or more values to be stored for this Meta Name
       values: .*
+OVERFLOW:
+  summary: Set the behavior when writing a value overflows the type
+  description: By default COSMOS throws an error if you try to write a value
+    which overflows its specified type, e.g. writing 255 to a 8 bit signed value.
+    Setting the overflow behavior also allows for COSMOS to 'TRUNCATE'
+    the value by eliminating any high order bits. You can also set 'SATURATE' which
+    causes COSMOS to replace the value with the maximum or minimum allowable value
+    for that type. Finally you can specify 'ERROR_ALLOW_HEX' which will allow for
+    a maximum hex value to be writen, e.g. you can successfully write 255 to a 8
+    bit signed value.
+  parameters:
+    - name: Behavior
+      required: true
+      description: How COSMOS treats an overflow value. Only applies to signed and
+        unsigned integer data types.
+      values: <%= %w(ERROR ERROR_ALLOW_HEX TRUNCATE SATURATE) %>

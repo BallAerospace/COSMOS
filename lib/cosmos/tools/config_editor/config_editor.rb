@@ -487,14 +487,18 @@ module Cosmos
 
     def show_message(message, right_label = nil)
       statusBar.showMessage(message)
-      @status_bar_right_label.text = right_label if right_label
+      if right_label
+        @status_bar_right_label.text = right_label
+      else
+        @status_bar_right_label.text = ''
+      end
     end
 
     def update_cursor
       num = active_config_editor_frame.line_number
       col = active_config_editor_frame.column_number
-      status = "#{num}:#{col}"
-      show_message(status, active_config_editor_frame.line_keyword)
+      status = "#{num}:#{col}  #{active_config_editor_frame.line_keyword}"
+      show_message(status, active_config_editor_frame.file_type)
     end
 
     # Updates the title appropriately to show the tabs filename and modified status
@@ -505,6 +509,7 @@ module Cosmos
         self.setWindowTitle("Config Editor : #{@tab_book.currentTab.filename}")
       end
       self.setWindowTitle(self.windowTitle << '*') if @tab_book.currentTab.modified
+      update_cursor()
     end
 
     # Returns the frame of the active tab

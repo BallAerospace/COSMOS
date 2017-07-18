@@ -62,102 +62,13 @@ module Cosmos
     end
 
     def previous_line(number = 1)
-      blockSignals(true)
-      cursor = textCursor()
-      original_position = cursor.position
-      cursor.movePosition(Qt::TextCursor::StartOfLine)
-      if number > 1
-        result = cursor.movePosition(Qt::TextCursor::Up, Qt::TextCursor::MoveAnchor, number - 1)
-        if !result
-          blockSignals(false)
-          return nil
-        end
-      end
-      result = cursor.movePosition(Qt::TextCursor::Up, Qt::TextCursor::KeepAnchor)
-      if !result
-        blockSignals(false)
-        return nil
-      end
-      setTextCursor(cursor)
-      line = textCursor.selectedText[0..-4] # Remove unicode paragraph separator
-      # Restore original cursor
-      cursor.setPosition(original_position)
-      setTextCursor(cursor)
-      blockSignals(false)
-      line
+      block = textCursor.block
+      number.times { block = block.previous }
+      block.text
     end
 
     def get_line(line_number)
-      blockSignals(true) # block signals while we programatically update it
-      cursor = textCursor()
-      original_position = cursor.position
-      # Get the textCursor and move it to the start
-      result = cursor.movePosition(Qt::TextCursor::Start)
-      # Move down to the specified line number
-      # The line number is 1 based but the PlainTextEdit is 0 based
-      result = cursor.movePosition(Qt::TextCursor::Down, Qt::TextCursor::MoveAnchor, line_number - 1)
-      # Select the line
-      result = cursor.movePosition(Qt::TextCursor::StartOfLine)
-      result = cursor.movePosition(Qt::TextCursor::EndOfLine, Qt::TextCursor::KeepAnchor)
-      setTextCursor(cursor)
-      line = textCursor.selectedText
-      # Restore original cursor
-      cursor.setPosition(original_position)
-      setTextCursor(cursor)
-      blockSignals(false)
-      line
-    end
-
-    def current_word(highlight_color = nil)
-      blockSignals(true) # block signals while we programatically update it
-      c = textCursor
-      original_position = c.position
-
-      # Programatically select the word under the cursor
-      # I tried: c.select(Qt::TextCursor::WordUnderCursor) and
-      # c.movePosition(Qt::TextCursor::StartOfWord)
-      # c.movePosition(Qt::TextCursor::EndOfWord, Qt::TextCursor::KeepAnchor)
-      # but this doesn't work with non-alpha numeric characters like '.' which
-      # shows up in strings like my_ruby_file.rb. Thus we manually search for
-      # white space while staying in the same block (line).
-
-      if !c.atBlockStart()
-        c.movePosition(Qt::TextCursor::Left, Qt::TextCursor::KeepAnchor)
-        while !c.atBlockStart() && c.selectedText && c.selectedText[0] != ' '
-          c.movePosition(Qt::TextCursor::Left, Qt::TextCursor::KeepAnchor)
-        end
-        if c.atBlockStart()
-          # Reset the anchor by moving right and left. I tried Qt::TextCursor::NoMove
-          # and this did not reset the anchor.
-          c.movePosition(Qt::TextCursor::Right)
-          c.movePosition(Qt::TextCursor::Left)
-        else
-          c.movePosition(Qt::TextCursor::Right)
-        end
-      end
-      if !c.atBlockEnd()
-        c.movePosition(Qt::TextCursor::Right, Qt::TextCursor::KeepAnchor)
-        while !c.atBlockEnd() && c.selectedText && c.selectedText[-1] != ' '
-          c.movePosition(Qt::TextCursor::Right, Qt::TextCursor::KeepAnchor)
-        end
-        c.movePosition(Qt::TextCursor::Left, Qt::TextCursor::KeepAnchor) if !c.atBlockEnd()
-      end
-
-      setTextCursor(c)
-      text = textCursor.selectedText()
-
-      if highlight_color
-        brush = Cosmos.getBrush(Cosmos::getColor(highlight_color))
-        selection = Qt::TextEdit::ExtraSelection.new
-        selection.format.setBackground(brush)
-        selection.cursor = c
-        setExtraSelections([selection])
-      end
-
-      c.setPosition(original_position)
-      setTextCursor(c)
-      blockSignals(false) # re-enable signals
-      text
+      textCursor.document.findBlockByLineNumber(line_number).text
     end
 
     def dispose

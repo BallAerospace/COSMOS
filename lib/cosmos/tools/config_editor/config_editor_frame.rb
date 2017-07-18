@@ -31,8 +31,7 @@ module Cosmos
     signals 'modificationChanged(bool)'
     signals 'cursorPositionChanged()'
 
-    attr_reader :filename
-    attr_reader :editor
+    attr_reader :filename, :editor, :file_type
 
     @@file_number = 1
 
@@ -138,36 +137,11 @@ module Cosmos
 
     def cursor_position_changed()
       emit cursorPositionChanged()
-      display_keyword_help() if @display_help
-    end
-
-    def key_press(event)
-      @display_help = true
-      @key_press_callback.call(event)
-      # Check for any kind of selection so we don't try to display help
-      # Trying to display help during a selection breaks the selection due to
-      # how we move the cursor to find the keywords
-      if event.matches(Qt::KeySequence::SelectEndOfBlock) ||
-        event.matches(Qt::KeySequence::SelectEndOfDocument) ||
-        event.matches(Qt::KeySequence::SelectEndOfLine) ||
-        event.matches(Qt::KeySequence::SelectNextChar) ||
-        event.matches(Qt::KeySequence::SelectNextLine) ||
-        event.matches(Qt::KeySequence::SelectNextPage) ||
-        event.matches(Qt::KeySequence::SelectPreviousChar) ||
-        event.matches(Qt::KeySequence::SelectPreviousLine) ||
-        event.matches(Qt::KeySequence::SelectPreviousPage) ||
-        event.matches(Qt::KeySequence::SelectPreviousWord) ||
-        event.matches(Qt::KeySequence::SelectStartOfBlock) ||
-        event.matches(Qt::KeySequence::SelectStartOfDocument) ||
-        event.matches(Qt::KeySequence::SelectStartOfLine)
-        @display_help = false
-      end
-      true # Always process the event
+      display_keyword_help()
     end
 
     def key_press_callback=(callback)
-      @key_press_callback = callback
-      @editor.keyPressCallback = method(:key_press)
+      @editor.keyPressCallback = callback
     end
 
     def setFocus
@@ -261,30 +235,31 @@ module Cosmos
 
     def determine_file_type
       if @filename.empty?
-        @file_type = "unknown"
+        @file_type = "Unknown"
+        type = 'unknown'
       else
+        if @filename.include?('/config/system/')
+            @file_type = 'System Configuration'
+            type = 'system'
         # Check for inside target directory
-        if @filename.include?('/config/targets/')
+        elsif @filename.include?('/config/targets/')
           if @filename.split('/')[-3] == 'targets'
             if File.basename(@filename).include?('cmd_tlm_server')
-              @file_type = 'cmd_tlm_server'
+              @file_type = "Command and Telemetry Server Configuration"
+              type = 'cmd_tlm_server'
             elsif File.basename(@filename).include?('target')
-              @file_type = 'target'
-            else
-              @file_type = 'unknown' #FileTypeDialog.new(%w(cmd_tlm_server.txt))
+              @file_type = 'Target Configuration'
+              type = 'target'
             end
           else
             if @filename.include?('/cmd_tlm/')
-              if @filename.include?('cmd') || @filename.include?('command')
-                @file_type = 'command'
-              elsif @filename.include?('tlm') || @filename.include?('telemetry')
-                @file_type = 'telemetry'
-              end
+              @file_type = "Command and Telemetry Configuration"
+              type = 'command_telemetry'
             end
           end
         end
       end
-      @file_meta = MetaConfigParser.load("#{@file_type}.yaml")
+      @file_meta = MetaConfigParser.load("#{type}.yaml")
       display_keyword_help()
     end
 
@@ -332,6 +307,30 @@ module Cosmos
       result
     end
 
+    def build_warning_widget(text)
+      warning = Qt::Widget.new
+      warning_layout = Qt::VBoxLayout.new
+      warning_layout.setContentsMargins(0, 0, 0, 0)
+      warning.setLayout(warning_layout)
+      warning_label = Qt::Label.new('Warning:')
+      warning_label.setFont(Cosmos.getFont("Arial", 12))
+      warning_label.setStyleSheet("color: red; font: bold")
+      warning_layout.addWidget(warning_label)
+      warning_text = Qt::Label.new(text)
+      warning_text.setFont(Cosmos.getFont("Arial", 9))
+      warning_text.setWordWrap(true)
+      warning_layout.addWidget(warning_text)
+      warning
+    end
+
+    def build_since_widget(text)
+      since = Qt::Label.new("Since: #{text}")
+      since.setStyleSheet("font: bold")
+      since.setFont(Cosmos.getFont("Arial", 9))
+      since.setWordWrap(true)
+      since
+    end
+
     def build_blank_help(meta)
       @gui_widget.dispose()
       @gui_widget = Qt::Widget.new
@@ -357,20 +356,13 @@ module Cosmos
       description.setWordWrap(true)
       @gui_layout.addWidget(description)
 
-      warning = Qt::Widget.new
-      warning_layout = Qt::VBoxLayout.new
-      warning_layout.setContentsMargins(0, 0, 0, 0)
-      warning.setLayout(warning_layout)
-      warning_label = Qt::Label.new('Warning:')
-      warning_label.setFont(Cosmos.getFont("Arial", 12))
-      warning_label.setStyleSheet("color: red; font: bold")
-      warning_layout.addWidget(warning_label)
-      warning_text = Qt::Label.new(meta[keys[0]]['warning'])
-      warning_text.setFont(Cosmos.getFont("Arial", 9))
-      warning_text.setWordWrap(true)
-      warning_layout.addWidget(warning_text)
+      warning = build_warning_widget(meta[keys[0]]['warning'])
       @gui_layout.addWidget(warning)
       warning.hide unless meta[keys[0]]['warning']
+
+      since = build_since_widget(meta[keys[0]]['since'])
+      @gui_layout.addWidget(since)
+      since.hide unless meta[keys[0]]['since']
 
       value_widget.connect(SIGNAL('currentIndexChanged(const QString&)')) do |word|
         if meta[word]['warning']
@@ -378,6 +370,12 @@ module Cosmos
           warning.show
         else
           warning.hide
+        end
+        if meta[word]['since']
+          since.setText("Since: #{meta[word]['since']}")
+          since.show
+        else
+          since.hide
         end
         summary.setText(meta[word]['summary'])
         description.setText(meta[word]['description'])
@@ -396,7 +394,6 @@ module Cosmos
 
     def build_help_frame(meta)
       return unless meta
-      word = @editor.current_word
       @gui_widget.dispose()
       @gui_widget = Qt::Widget.new
       @gui_layout = Qt::VBoxLayout.new
@@ -420,6 +417,12 @@ module Cosmos
             description.setFont(Cosmos.getFont("Arial", 9))
             description.setWordWrap(true)
             @gui_layout.addWidget(description)
+          when 'warning'
+            warning = build_warning_widget(attribute_value)
+            @gui_layout.addWidget(warning)
+          when 'since'
+            since = build_since_widget(attribute_value)
+            @gui_layout.addWidget(since)
           end
         else # Process parameters
           next if attribute_value.empty?
