@@ -316,10 +316,10 @@ module Cosmos
       warning_label.setFont(Cosmos.getFont("Arial", 12))
       warning_label.setStyleSheet("color: red; font: bold")
       warning_layout.addWidget(warning_label)
-      warning_text = Qt::Label.new(text)
-      warning_text.setFont(Cosmos.getFont("Arial", 9))
-      warning_text.setWordWrap(true)
-      warning_layout.addWidget(warning_text)
+      @warning_text = Qt::Label.new(text)
+      @warning_text.setFont(Cosmos.getFont("Arial", 9))
+      @warning_text.setWordWrap(true)
+      warning_layout.addWidget(@warning_text)
       warning
     end
 
@@ -366,7 +366,7 @@ module Cosmos
 
       value_widget.connect(SIGNAL('currentIndexChanged(const QString&)')) do |word|
         if meta[word]['warning']
-          warning_text.setText(meta[word]['warning'])
+          @warning_text.setText(meta[word]['warning'])
           warning.show
         else
           warning.hide

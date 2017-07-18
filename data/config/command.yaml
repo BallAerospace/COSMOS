@@ -7,7 +7,7 @@ COMMAND:
     - name: Target
       required: true
       description: Name of the target this command is associated with
-      values: \D\S*
+      values: <%= System.targets.keys %>
     - name: Command
       required: true
       description: Name of this command. Also referred to as its mnemonic.

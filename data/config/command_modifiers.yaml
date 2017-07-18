@@ -86,7 +86,7 @@ APPEND_ARRAY_PARAMETER:
 SELECT_PARAMETER:
   summary: Selects an existing command parameter for editing
   parameters:
-    - name: parameter
+    - name: Parameter
       required: true
       description: Name of the parameter to select for modification
       values: .+

@@ -15,9 +15,9 @@
   values: '[-]?\d+'
 - name: Description
   required: false
-  description: Description for this parameter which must be enclosed with quotes
+  description: Description which must be enclosed with quotes
   values: "['\"].*['\"]"
 - name: Endianness
   required: false
-  description: Indicates if the data in this command is to be sent in Big Endian or Little Endian format
+  description: Indicates if the data is to be sent in Big Endian or Little Endian format
   values: <%= %w(BIG_ENDIAN LITTLE_ENDIAN) %>
