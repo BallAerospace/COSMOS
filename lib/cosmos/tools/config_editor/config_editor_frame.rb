@@ -357,7 +357,28 @@ module Cosmos
       description.setWordWrap(true)
       @gui_layout.addWidget(description)
 
+      warning = Qt::Widget.new
+      warning_layout = Qt::VBoxLayout.new
+      warning_layout.setContentsMargins(0, 0, 0, 0)
+      warning.setLayout(warning_layout)
+      warning_label = Qt::Label.new('Warning:')
+      warning_label.setFont(Cosmos.getFont("Arial", 12))
+      warning_label.setStyleSheet("color: red; font: bold")
+      warning_layout.addWidget(warning_label)
+      warning_text = Qt::Label.new(meta[keys[0]]['warning'])
+      warning_text.setFont(Cosmos.getFont("Arial", 9))
+      warning_text.setWordWrap(true)
+      warning_layout.addWidget(warning_text)
+      @gui_layout.addWidget(warning)
+      warning.hide unless meta[keys[0]]['warning']
+
       value_widget.connect(SIGNAL('currentIndexChanged(const QString&)')) do |word|
+        if meta[word]['warning']
+          warning_text.setText(meta[word]['warning'])
+          warning.show
+        else
+          warning.hide
+        end
         summary.setText(meta[word]['summary'])
         description.setText(meta[word]['description'])
       end
