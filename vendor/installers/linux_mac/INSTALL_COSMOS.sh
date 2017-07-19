@@ -92,8 +92,19 @@ fi
   echo
   if [[ $REPLY =~ ^[Yy]?$ ]]
   then
-    git clone https://github.com/sstephenson/rbenv.git ~/.rbenv
-    git clone https://github.com/sstephenson/ruby-build.git ~/.rbenv/plugins/ruby-build
+    if [ -d ~\.rbenv ]; then
+      read -p ".rbenv folder already exists. Delete for clean install? (Yn): " -n 1 -r
+      if [[ $REPLY =~ ^[Yy]?$ ]]; then
+        rm -rf ~\.rbenv
+      fi
+    fi
+
+    if [ ! -d ~\.rbenv ]; then
+      git clone https://github.com/sstephenson/rbenv.git ~/.rbenv
+      git clone https://github.com/sstephenson/ruby-build.git ~/.rbenv/plugins/ruby-build
+    else
+      echo ".rbenv folder exists. Skipping git clone..."
+    fi
     echo 'export PATH="$HOME/.rbenv/bin:$PATH"' >> ~/.bashrc
     export PATH="$HOME/.rbenv/bin:$PATH"
     echo 'eval "$(rbenv init -)"' >> ~/.bashrc
