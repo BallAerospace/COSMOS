@@ -28,6 +28,15 @@ bash <(\curl -sSL https://raw.githubusercontent.com/BallAerospace/COSMOS/master/
 
 The install script will install all needed dependencies using the system package manager and install ruby using rbenv.   If another path to installing COSMOS is desired please feel free to just use the INSTALL_COSMOS.sh file as a basis.  As always, it is a good idea to review any remote shell script before executing it on your system.
 
+If installing in an environment where SSL Certificates are not setup correctly.  The following commands will let COSMOS install in an insecure fashion:
+
+```
+echo "insecure" >> ~/.curlrc
+export RUBY_BUILD_CURL_OPTS="-k"
+git config --global http.sslVerify false
+bash <(\curl -sSL https://raw.githubusercontent.com/BallAerospace/COSMOS/master/vendor/installers/linux_mac/INSTALL_COSMOS.sh)
+```
+
 ## Mac Notes
 
 The install script will install all needed dependencies using homebrew and install ruby using rbenv.   If another path to installing COSMOS is desired please feel free to just use the INSTALL_COSMOS.sh file as a basis.  As always, it is a good idea to review any remote shell script before executing it on your system.
