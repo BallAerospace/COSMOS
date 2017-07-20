@@ -160,26 +160,17 @@ module Cosmos
       _check(*args) {|tgt,pkt,item| tlm_raw(tgt,pkt,item) }
     end
 
-    # Executes the passed method and expects and exception to be raised.
+    # Executes the passed method and expects an exception to be raised.
     # Raises a CheckError if an Exception is not raised.
     # Usage:
-    #   check_exception { cmd(target_name, cmd_name, cmd_params = {}) }
-    # or
-    #   check_exception { cmd('target_name cmd_name with cmd_param1 value1, cmd_param2 value2') }
-    def check_exception(&block)
-      method = ''
+    #   check_exception(method_name, method_params}
+    def check_exception(method_name, *method_params)
       begin
-        begin
-          # Try to get the block source. This doesn't always work ...
-          method = block.source.split('{')[1].split('}')[0].strip
-        rescue => error # Rescue errors with getting block source
-          method = block.source_location # source_location always works
-        end
-        yield
+        send(method_name, *method_params)
       rescue Exception => error
-        Logger.info "CHECK: #{method} raised #{error.message}"
+        Logger.info "CHECK: #{method_name}(#{method_params.join(", ")}) raised #{error.class}:#{error.message}"
       else
-        raise(CheckError, "#{method} should have raised an exception but did not.")
+        raise(CheckError, "#{method_name}(#{method_params.join(", ")}) should have raised an exception but did not.")
       end
     end
 
