@@ -50,6 +50,7 @@ module Cosmos
       @write_allowed = false unless @write_port_name
       @write_raw_allowed = false unless @write_port_name
       @read_allowed = false unless @read_port_name
+      @flow_control = :NONE
     end
 
     # Creates a new {SerialStream} using the parameters passed in the constructor
@@ -61,9 +62,20 @@ module Cosmos
         @parity,
         @stop_bits,
         @write_timeout,
-        @read_timeout
+        @read_timeout,
+        @flow_control
       )
       super()
+    end
+
+    # Supported Options
+    # FLOW_CONTROL - Flow control method NONE or RTSCTS. Defaults to NONE
+    def set_option(option_name, option_values)
+      super(option_name, option_values)
+      case option_name.upcase
+      when 'FLOW_CONTROL'
+        @flow_control = option_values[0]
+      end
     end
   end
 end
