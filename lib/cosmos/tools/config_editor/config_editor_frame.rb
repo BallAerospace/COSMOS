@@ -1,4 +1,4 @@
-# encoding: ascii-8bit
+    type = # encoding: ascii-8bit
 
 # Copyright 2014 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
@@ -30,6 +30,7 @@ module Cosmos
     signals 'undoAvailable(bool)'
     signals 'modificationChanged(bool)'
     signals 'cursorPositionChanged()'
+    signals 'file_type_changed()'
 
     attr_reader :filename, :editor, :file_type
 
@@ -48,6 +49,7 @@ module Cosmos
 
       @layout = Qt::VBoxLayout.new
       @layout.setContentsMargins(0,0,0,0)
+      setLayout(@layout)
 
       # Create a splitter to hold the config text area and the config GUI help
       @splitter = Qt::Splitter.new(Qt::Horizontal, self)
@@ -71,20 +73,14 @@ module Cosmos
       set_cmd_tlm_gui_window(self)
 
       # Add GUI Frame
-      @gui_widget = Qt::Widget.new
-      gui_layout = Qt::VBoxLayout.new
-      gui_layout.setContentsMargins(5,0,0,0)
-      gui_layout_label = Qt::Label.new("COSMOS Config File Help")
-      gui_layout.addWidget(gui_layout_label)
-      @gui_widget.setLayout(gui_layout)
       @gui_area = Qt::ScrollArea.new
       @gui_area.setWidgetResizable(true) # Key to allow sub widget to resize
       @gui_area.setWidget(@gui_widget)
       @splitter.addWidget(@gui_area)
-      @splitter.setStretchFactor(0,10)
-      @splitter.setStretchFactor(1,0)
+      @splitter.setSizes([700, 300]) # Rough split of the widget
 
-      setLayout(@layout)
+      @gui_widget = Qt::Widget.new
+      build_unknown_help()
 
       # Configure Variables
       @key_press_callback = nil
@@ -121,6 +117,11 @@ module Cosmos
     def filename=(filename)
       @filename = filename
       determine_file_type()
+    end
+
+    def set_file_type(type)
+      @file_type = type
+      load_meta_data()
     end
 
     def modified
@@ -235,81 +236,94 @@ module Cosmos
 
     def determine_file_type
       if @filename.empty?
-        @file_type = "Unknown"
-        type = 'unknown'
+        @file_type = "Unknown File Type"
       else
         if @filename.include?('/config/system/')
-            @file_type = 'System Configuration'
-            type = 'system'
+          @file_type = 'System Configuration'
         elsif @filename.include?('/config/tools/')
           if @filename.include?('cmd_tlm_server')
             @file_type = "Server Configuration"
-            type = 'cmd_tlm_server'
           elsif @filename.include?('data_viewer')
+            @file_type = "Data Viewer Configuration"
           elsif @filename.include?('handbook_creator')
+            @file_type = "Handbook Creator Configuration"
           elsif @filename.include?('launcher')
+            @file_type = "Launcher Configuration"
           elsif @filename.include?('limits_monitor')
+            @file_type = "Limits Monitor Configuration"
           elsif @filename.include?('script_runner')
+            @file_type = "Script Runner Configuration"
           elsif @filename.include?('table_manager')
+            @file_type = "Table Manager Configuration"
           elsif @filename.include?('test_runner')
+            @file_type = "Test Runner Configuration"
           elsif @filename.include?('tlm_extractor')
+            @file_type = "Telemetry Extractor Configuration"
           elsif @filename.include?('tlm_grapher')
+            @file_type = "Telemetry Grapher Configuration"
           elsif @filename.include?('tlm_viewer')
+            @file_type = "Telemetry Viewer Configuration"
           end
         elsif @filename.include?('/config/targets/')
           if @filename.split('/')[-3] == 'targets'
             if File.basename(@filename).include?('cmd_tlm_server')
               @file_type = "Server Configuration"
-              type = 'cmd_tlm_server'
             elsif File.basename(@filename).include?('target')
               @file_type = 'Target Configuration'
-              type = 'target'
             end
           else
             if @filename.include?('/cmd_tlm/')
               @file_type = "Command and Telemetry Configuration"
-              type = 'command_telemetry'
             end
           end
         end
       end
+      emit file_type_changed # Tell ConfigEditor about the file type
+      load_meta_data()
+      display_keyword_help()
+    end
+
+    def load_meta_data
       begin
+        type = ConfigEditor::CONFIGURATION_FILES[@file_type][0]
         @file_meta = MetaConfigParser.load("#{type}.yaml")
       rescue
-        @file_type = "Unknown"
-        @file_meta = MetaConfigParser.load("unknown.yaml")
+        @file_meta = nil
       end
       display_keyword_help()
     end
 
     def display_keyword_help
-      return unless @file_meta
-      keyword = line_keyword()
-      unless keyword.empty?
-
-        previous = nil
-        # STATE is the only keyword that is different depending on higher
-        # order keywords. It depends if we're building a command vs a telemetry.
-        if keyword == 'STATE'
-          previous = previous_keyword(1)
-          (2..line_number).each do |index|
-            break if previous.include?('COMMAND') || previous.include?('TELEMETRY')
-            previous = previous_keyword(index)
-          end
-        end
-        build_help_frame(find_meta_keyword(@file_meta, keyword, previous))
+      unless @file_meta
+        build_unknown_help()
       else
-        keyword = previous_keyword()
-        if keyword.empty?
-          build_blank_help(@file_meta)
+        keyword = line_keyword()
+        unless keyword.empty?
+
+          previous = nil
+          # STATE is the only keyword that is different depending on higher
+          # order keywords. It depends if we're building a command vs a telemetry.
+          if keyword == 'STATE'
+            previous = previous_keyword(1)
+            (2..line_number).each do |index|
+              break if previous.include?('COMMAND') || previous.include?('TELEMETRY')
+              previous = previous_keyword(index)
+            end
+          end
+          build_help_frame(find_meta_keyword(@file_meta, keyword, previous))
         else
-          meta = find_meta_keyword(@file_meta, keyword)
-          @modifiers = meta['modifiers'] if meta && meta['modifiers']
-          if @modifiers
-            build_blank_help(@modifiers)
-            @modifiers = nil
-          else
+          keyword = previous_keyword()
+          if keyword.empty?
             build_blank_help(@file_meta)
+          else
+            meta = find_meta_keyword(@file_meta, keyword)
+            @modifiers = meta['modifiers'] if meta && meta['modifiers']
+            if @modifiers
+              build_blank_help(@modifiers)
+              @modifiers = nil
+            else
+              build_blank_help(@file_meta)
+            end
           end
         end
       end
@@ -355,6 +369,26 @@ module Cosmos
       since.setFont(Cosmos.getFont("Arial", 9))
       since.setWordWrap(true)
       since
+    end
+
+    def build_unknown_help
+      @gui_widget.dispose()
+      @gui_widget = Qt::Widget.new
+      @gui_layout = Qt::VBoxLayout.new
+      @gui_widget.setLayout(@gui_layout)
+
+      title = Qt::Label.new("COSMOS Config File Help")
+      title.setFont(Cosmos.getFont("Arial", 16, Qt::Font::Bold))
+      @gui_layout.addWidget(title)
+      description = Qt::Label.new("Open a COSMOS configuration file and context "\
+        "specific help will appear in this pane. If the configuration file type "\
+        "can't be automatically detected (or is detected incorrectly) you can manually "\
+        "set the configuration file type with the File Type menu.")
+      description.setFont(Cosmos.getFont("Arial", 12))
+      description.setWordWrap(true)
+      @gui_layout.addWidget(description)
+      @gui_layout.addStretch
+      @gui_area.setWidget(@gui_widget)
     end
 
     def build_blank_help(meta)

@@ -25,6 +25,39 @@ module Cosmos
 
     UNTITLED = 'Untitled'
     UNTITLED_TAB_TEXT = "  #{UNTITLED}  "
+    # Mapping of the human readable configuration name to an array containing the
+    # yaml file name and typical location of the configuration file
+    CONFIGURATION_FILES = {
+      "System Configuration" =>
+        ["system", "/config/system/system.txt"],
+      "Target Configuration" =>
+        ["target", "/config/targets/TARGET/target.txt"],
+      "Server Configuration" =>
+        ["cmd_tlm_server", "/config/tools/cmd_tlm_server/cmd_tlm_server.txt"],
+      "Command and Telemetry Configuration" =>
+        ["command_telemetry", "/config/targets/TARGET/cmd_tlm/*.txt"],
+      "Separator" => [nil, nil],
+      "Data Viewer Configuration" =>
+        ["data_viewer", "/config/tools/data_viewer/data_viewer.txt"],
+      "Handbook Creator Configuration" =>
+        ["handbook_creator", "/config/tools/handbook_creator/handbook_creator.txt"],
+      "Launcher Configuration" =>
+        ["launcher", "/config/tools/launcher/launcher.txt"],
+      "Limits Monitor Configuration" =>
+        ["limits_monitor", "/config/tools/limits_monitor/limits_monitor.txt"],
+      "Script Runner Configuration" =>
+        ["script_runner", "/config/tools/script_runner/script_runner.txt"],
+      "Table Manager Configuration" =>
+        ["table_manager", "/config/tools/table_manager/table_manager.txt"],
+      "Test Runner Configuration" =>
+        ["test_runner", "/config/tools/test_runner/test_runner.txt"],
+      "Telemetry Extractor Configuration" =>
+        ["tlm_extractor", "/config/tools/tlm_extractor/tlm_extractor.txt"],
+      "Telemetry Grapher Configuration" =>
+        ["tlm_grapher", "/config/tools/tlm_grapher/tlm_grapher.txt"],
+      "Telemetry Viewer Configuration" =>
+        ["tlm_viewer", "/config/tools/tlm_viewer/tlm_viewer.txt"],
+    }
 
     def initialize(options)
       # All code before super is executed twice in RubyQt Based classes
@@ -150,6 +183,28 @@ module Cosmos
       @search_replace.connect(SIGNAL('triggered()')) do
         FindReplaceDialog.show_replace(self)
       end
+
+      @type_group = Qt::ActionGroup.new(self)
+      CONFIGURATION_FILES.each do |name, info|
+        if name == 'Separator'
+          action = Qt::Action.new(@type_group)
+          action.setSeparator(true)
+        else
+          action = Qt::Action.new(name, @type_group)
+          action.statusTip = info[1] # Path
+          action.setCheckable(true)
+        end
+      end
+      # Throw Unknown on the end after a separator
+      action = Qt::Action.new(@type_group)
+      action.setSeparator(true)
+      action = Qt::Action.new("Unknown", @type_group)
+      action.setCheckable(true)
+
+      @type_group.connect(SIGNAL('triggered(QAction*)')) do |action|
+        active_config_editor_frame.set_file_type(action.text)
+        update_cursor()
+      end
     end
 
     def initialize_menus
@@ -193,6 +248,10 @@ module Cosmos
       view_menu.addAction(@search_find_next)
       view_menu.addAction(@search_find_previous)
       view_menu.addAction(@search_replace)
+
+      # File Type Menu
+      type_menu = menuBar.addMenu(tr('File &Type'))
+      type_menu.addActions(@type_group.actions)
 
       # Help Menu
       @about_string = "Config Editor allows the user to edit COSMOS configuration "\
@@ -428,6 +487,7 @@ module Cosmos
     # Handle the user changing tabs
     def handle_tab_change(index)
       update_title()
+      update_type_group()
     end
 
     def handle_script_keypress(event)
@@ -501,6 +561,16 @@ module Cosmos
       show_message(status, active_config_editor_frame.file_type)
     end
 
+    def update_type_group
+      @type_group.actions[-1].setChecked(true)
+      @type_group.actions.each do |action|
+        if action.text == active_config_editor_frame.file_type
+          action.setChecked(true)
+        end
+      end
+      update_cursor()
+    end
+
     # Updates the title appropriately to show the tabs filename and modified status
     def update_title
       if @tab_book.currentTab.filename.empty?
@@ -538,6 +608,7 @@ module Cosmos
       # Update the title if the frame changes so we can add/remove the asterix
       config_editor_frame.connect(SIGNAL('modificationChanged(bool)')) { update_title() }
       config_editor_frame.connect(SIGNAL('cursorPositionChanged()')) { update_cursor() }
+      config_editor_frame.connect(SIGNAL('file_type_changed()')) { update_type_group() }
 
       @tab_book.addTab(config_editor_frame, tab_item_name)
       @tab_book.setCurrentIndex(@tab_book.count-1) # index is 0 based
@@ -603,7 +674,7 @@ module Cosmos
       Cosmos.catch_fatal_exception do
         unless option_parser and options
           option_parser, options = create_default_options()
-          options.width = 750
+          options.width = 80
           options.height = 600
           options.title = "Config Editor : #{UNTITLED}"
           options.auto_size = false
