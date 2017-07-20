@@ -1,7 +1,58 @@
 ---
+TITLE:
+  summary: Sets the Command and Telemetry Server window title
+  parameters:
+  - name: Text
+    required: true
+    description: Text to put in the title of the Command and Telemetry Server window
+    values: .+
+PACKET_LOG_WRITER:
+  summary: Declare a packet log writer
+  description: Packet log writer is used to declare a packet log writer class and
+    give it a name which can be referenced by an interface. This is required if you
+    want interfaces to have their own dedicated log writers or want to combine
+    various interfaces into a single log file. By default, COSMOS logs all data
+    on all interfaces into a single command log and a single telemetry log.
+    This keyword can also be used if you want to declare a different log file class
+    to create log files.
+  warning: You should NOT override the default without consulting a COSMOS expert
+    as this may break the ability to successfully read and write log files.
+  parameters:
+    - name: Log Writer Name
+      required: true
+      description: The name of the log writer as reference by other cmd_tlm_server keywords.
+        This name also appears in the Logging tab on the Command and Telemetry Server.
+      values: .+
+    - name: Filename
+      required: true
+      description: Ruby file to use when instantiating a new log writer
+      values: '.+\.rb'
+    - name: Parameters
+      required: false
+      description: Optional parameters to pass to the log writer class when instantiating it.
+AUTO_INTERFACE_TARGETS:
+  summary: Automatically use each target's cmd_tlm_server.txt file to define the interface
+  description: Look for a cmd_tlm_server.txt file at the top level
+    of each target directory and use this file to configure the interface for that target.
+    This is a good way of keeping the knowledge of how to interface to a target
+    within that target. However, if you use substitute target names (by using DECLARE_TARGET)
+    or use different IP addresses then this will not work and you'll have to use the
+    INTERFACE_TARGET or INTERFACE keyword.
+INTERFACE_TARGET:
+  summary: Load the specified target's cmd_tlm_server.txt configuration file
+  parameters:
+    - name: Target Name
+      required: true
+      description: Name of the target
+      values: <%= System.targets.keys %>
+    - name: Configuration File
+      required: false
+      description: Configuration file name which contains the interface configuration.
+        Defaults to 'cmd_tlm_server.txt'.
+      values: .+
 INTERFACE:
   modifiers:
-    <%= MetaConfigParser.load('interface.yaml').to_meta_config_yaml(4) %>
+    <%= MetaConfigParser.load('interface_modifiers.yaml').to_meta_config_yaml(4) %>
   summary: Defines a connection to a physical target
   description: Interfaces are what COSMOS uses to talk to a particular piece
     of hardware. Interfaces require a Ruby file which implements all the interface
@@ -19,39 +70,41 @@ INTERFACE:
       required: true
       description: Ruby file to use when instantiating the interface.
       values:
-        tcpip_client_interface.rb:
-          parameters:
-            - name: Host
-              required: true
-              description: Machine name to connect to. Can be either a named
-                machine (DNS entry) or IP address.
-              values: .+
-            - name: Write Port
-              required: true
-              description: Port which COSMOS writes commands to
-              values: \d{2,5}
-            - name: Read Port
-              required: true
-              description: Port which COSMOS reads telemetry from
-              values: \d{2,5}
-        tcpip_server_interface.rb:
-          parameters:
-            - name: Write Port
-              required: true
-              description: Port which COSMOS writes commands to
-              values: \d{2,5}
-            - name: Read Port
-              required: true
-              description: Port which COSMOS reads telemetry from
-              values: \d{2,5}
-        # - udp_interface.rb
-        # - serial_interface.rb
-        # - cmd_tlm_server_interface.rb
-        # - linc_interface.rb
-TITLE:
-  summary: Sets the Command and Telemetry Server window title
+        <%= MetaConfigParser.load('_interfaces.yaml').to_meta_config_yaml(8) %>
+ROUTER:
+  modifiers:
+    <%= MetaConfigParser.load('interface_modifiers.yaml').to_meta_config_yaml(4) %>
+  summary: Create an interface which reverses cmd/tlm data
+  description: Router creates an interface which receives command packets from
+    their remote targets and send them out their interfaces. They receive telemetry
+    packets from their interfaces and send them to their remote targets. This allows
+    routers to be intermediaries between an external client and an actual device.
   parameters:
-  - name: Text
-    required: true
-    description: Text to put in the title of the Command and Telemetry Server window
-    values: .+
+    - name: Name
+      required: true
+      description: Name of the router
+      values: .+
+    - name: Filename
+      required: true
+      description: Ruby file to use when instantiating the interface.
+      values:
+        <%= MetaConfigParser.load('_interfaces.yaml').to_meta_config_yaml(8) %>
+COLLECT_METADATA:
+  summary: Prompts the user for meta data when starting the Command and Telemetry Server
+BACKGROUND_TASK:
+  summary: Create a background task in the Command and Telemetry Server
+  description: The Server instantiates the class which must inherit from BackgroundTask
+    and then calls the call() method which the class must implement. The call() method
+    is only called once so if your background task is supposed to live on while the
+    Server is running, you must implement your code in a loop with a sleep to not
+    use all the CPU.
+  parameters:
+    - name: Filename
+      required: true
+      description: Ruby file which contains the background task implementation.
+        Must inherit from BackgroundTask and implement the call method.
+      values: '.+\.rb'
+    - name: Optional Arguments
+      required: false
+      description: Optional arguments to the background task constructor
+      values: .+

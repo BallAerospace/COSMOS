@@ -241,11 +241,25 @@ module Cosmos
         if @filename.include?('/config/system/')
             @file_type = 'System Configuration'
             type = 'system'
-        # Check for inside target directory
+        elsif @filename.include?('/config/tools/')
+          if @filename.include?('cmd_tlm_server')
+            @file_type = "Server Configuration"
+            type = 'cmd_tlm_server'
+          elsif @filename.include?('data_viewer')
+          elsif @filename.include?('handbook_creator')
+          elsif @filename.include?('launcher')
+          elsif @filename.include?('limits_monitor')
+          elsif @filename.include?('script_runner')
+          elsif @filename.include?('table_manager')
+          elsif @filename.include?('test_runner')
+          elsif @filename.include?('tlm_extractor')
+          elsif @filename.include?('tlm_grapher')
+          elsif @filename.include?('tlm_viewer')
+          end
         elsif @filename.include?('/config/targets/')
           if @filename.split('/')[-3] == 'targets'
             if File.basename(@filename).include?('cmd_tlm_server')
-              @file_type = "Command and Telemetry Server Configuration"
+              @file_type = "Server Configuration"
               type = 'cmd_tlm_server'
             elsif File.basename(@filename).include?('target')
               @file_type = 'Target Configuration'
@@ -259,7 +273,12 @@ module Cosmos
           end
         end
       end
-      @file_meta = MetaConfigParser.load("#{type}.yaml")
+      begin
+        @file_meta = MetaConfigParser.load("#{type}.yaml")
+      rescue
+        @file_type = "Unknown"
+        @file_meta = MetaConfigParser.load("unknown.yaml")
+      end
       display_keyword_help()
     end
 
@@ -406,8 +425,7 @@ module Cosmos
       @gui_layout = Qt::VBoxLayout.new
       @gui_widget.setLayout(@gui_layout)
 
-      @current_keyword = line_keyword()
-      keyword = Qt::Label.new(@current_keyword)
+      keyword = Qt::Label.new(line_keyword())
       keyword.setFont(Cosmos.getFont("Arial", 16, Qt::Font::Bold))
       @gui_layout.addWidget(keyword)
 
@@ -488,11 +506,10 @@ module Cosmos
               value_widget.setCurrentText(current_value)
               value_widget.connect(SIGNAL('currentIndexChanged(const QString&)')) do |word|
                 insert_word(word, parameter_index, -1)
-                @current_keyword = nil # Clear the current keyword to force a re-layout
                 display_keyword_help() # Rebuild the GUI since we may have new parameters
               end
               @gui_layout.addWidget(value_widget)
-              if current_value && attribute_value[current_value]
+              if current_value && attribute_value[current_value] && attribute_value[current_value]['parameters']
                 process_parameters(attribute_value[current_value]['parameters'], parameter_index + 1)
               end
             elsif attribute_value.is_a? Array # Just a bunch of strings
@@ -549,10 +566,7 @@ module Cosmos
         c.movePosition(Qt::TextCursor::EndOfLine)
         c.insertText(" #{word}")
       end
-      # c.movePosition(Qt::TextCursor::EndOfLine)
-      # @editor.setTextCursor(cursor)
       @editor.blockSignals(false)
-      @editor.setFocus
     end
 
     def initialize_variables

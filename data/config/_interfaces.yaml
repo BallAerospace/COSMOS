@@ -1,0 +1,206 @@
+---
+tcpip_client_interface.rb:
+  parameters:
+    - name: Host
+      required: true
+      description: Machine name to connect to. Can be either a named
+        machine (DNS entry) or IP address.
+      values: .+
+    - name: Write Port
+      required: true
+      description: Port which COSMOS writes commands to
+      values: \d{2,5}
+    - name: Read Port
+      required: true
+      description: Port which COSMOS reads telemetry from
+      values: \d{2,5}
+    - name: Write Timeout
+      required: true
+      description: Number of seconds to wait before aborting the write.
+        Pass 'nil' to block on write.
+      values: .+
+    - name: Read Timeout
+      required: true
+      description: Number of seconds to wait before aborting the read.
+        Pass 'nil' to block on read.
+      values: .+
+    - name: Protocol Type
+      required: true
+      description: Protocol to apply on the interface data
+      values:
+        <%= MetaConfigParser.load('protocols.yaml').to_meta_config_yaml(8) %>
+tcpip_server_interface.rb:
+  parameters:
+    - name: Write Port
+      required: true
+      description: Port which COSMOS writes commands to
+      values: \d{2,5}
+    - name: Read Port
+      required: true
+      description: Port which COSMOS reads telemetry from
+      values: \d{2,5}
+    - name: Write Timeout
+      required: true
+      description: Number of seconds to wait before aborting the write.
+        Pass 'nil' to block on write.
+      values: .+
+    - name: Read Timeout
+      required: true
+      description: Number of seconds to wait before aborting the read.
+        Pass 'nil' to block on read.
+      values: .+
+    - name: Protocol Type
+      required: true
+      description: Protocol to apply on the interface data
+      values:
+        <%= MetaConfigParser.load('protocols.yaml').to_meta_config_yaml(8) %>
+udp_interface.rb:
+  description: The UDP interface uses UDP packets to send and receive telemetry
+    from the target
+  parameters:
+    - name: Host
+      required: true
+      description: Machine name to connect to. Can be either a named
+        machine (DNS entry) or IP address.
+      values: .+
+    - name: Write Port
+      required: true
+      description: Port which COSMOS writes commands to
+      values: \d{2,5}
+    - name: Read Port
+      required: true
+      description: Port which COSMOS reads telemetry from
+      values: \d{2,5}
+    - name: Write Source Port
+      required: false
+      description: Port on the local machine to send commands from. Default is
+        'nil' (socket is not bound to an outgoing port).
+      values: \d{2,5}
+    - name: Inteface Address
+      required: false
+      description: If the remote machine supports multicast the interface address
+        is used to configure the outgoing multicast address
+      values: .+
+    - name: Time To Live
+      required: false
+      description: The number of intermediate routers allowed before dropping the packet
+      values: .+
+    - name: Write Timeout
+      required: false
+      description: Number of seconds to wait before aborting the write. Default is
+        'nil' (block on write).
+      values: .+
+    - name: Read Timeout
+      required: false
+      description: Number of seconds to wait before aborting the read. Default is
+        'nil' (block on read).
+      values: .+
+serial_interface.rb:
+  description: Connects to a target over a serial port. COSMOS provides drivers
+    for both Windows and POSIX drivers for UNIX based systems.
+  parameters:
+    - name: Write Port
+      required: true
+      description: Name of the serial port to write, e.g. 'COM1' or '/dev/ttyS0'.
+        Pass 'nil' to disable writing.
+      values: \d{2,5}
+    - name: Read Port
+      required: true
+      description: Name of the serial port to read, e.g. 'COM1' or '/dev/ttyS0'.
+        Pass 'nil' to disable reading.
+      values: \d{2,5}
+    - name: Baud Rate
+      required: true
+      description: Baud rate to read and write
+      values: .+
+    - name: Parity
+      required: true
+      description: Serial port parity
+      values: ['NONE','EVENT','ODD']
+    - name: Stop Bits
+      required: true
+      description: Number of stop bits
+      values: .+
+    - name: Write Timeout
+      required: true
+      description: Number of seconds to wait before aborting the write.
+        Pass 'nil' to block on write.
+      values: .+
+    - name: Read Timeout
+      required: true
+      description: Number of seconds to wait before aborting the read.
+        Pass 'nil' to block on read.
+      values: .+
+    - name: Protocol Type
+      required: true
+      description: Protocol to apply on the interface data
+      values:
+        <%= MetaConfigParser.load('protocols.yaml').to_meta_config_yaml(8) %>
+cmd_tlm_server_interface.rb:
+  description: Provides a connection to the COSMOS Command and Telemetry Server.
+    This allows scripts and other COSMOS tools to send commands to the CmdTlmServer
+    to enable and disable logging. It also allows scripts and other tools to
+    receive a COSMOS version information packet and a limits change packet which
+    is sent when any telemetry items change limits states. The CmdTlmServer
+    interface can be used by any COSMOS configuration.
+linc_interface.rb:
+  description: The LINC interface uses a single TCPIP socket to talk to a Ball
+    Aerospace LINC Labview target.
+  parameters:
+    - name: Host
+      required: true
+      description: Machine name to connect to. Can be either a named
+        machine (DNS entry) or IP address.
+      values: .+
+    - name: Port
+      required: true
+      description: Port to write commands to and read telemetry from
+      values: \d{2,5}
+    - name: Handshake Enabled
+      required: false
+      description: Enable command handshaking where commands block until the
+        corresponding handshake message is received. Default is true.
+      values: ['true','false']
+    - name: Response Timeout
+      required: false
+      description: Number of seconds to wait for a handshaking response.
+        Default is 5 seconds
+      values: \d+
+    - name: Read Timeout
+      required: true
+      description: Number of seconds to wait before aborting the read.
+        Pass 'nil' to block on read. Default is nil.
+      values: .+
+    - name: Write Timeout
+      required: true
+      description: Number of seconds to wait before aborting the write.
+        Pass 'nil' to block on write. Default is 5 seconds.
+      values: .+
+    - name: Length Bit Offset
+      required: false
+      description: The bit offset of the length field. Every packet using this
+        interface must have the same structure such that the length field is the
+        same size at the same location. Default is 0.
+      values: \d+
+    - name: Length Bit Size
+      required: false
+      description: The size in bits of the length field. Default is 16 bits.
+      values: \d+
+    - name: Length Value Offset
+      required: false
+      description: The offset to apply to the length field value. For example if
+        the length field indicates packet length minus one, this value should be one.
+        Default is 4.
+      values: \d+
+    - name: GUID Fieldname
+      required: false
+      description: Fieldname of the GUID field. Default is 'HDR_GUID'.
+      values: .+
+    - name: Length Endianness
+      required: false
+      description: The endianness of the length field. Default is BIG_ENDIAN.
+      values: ['BIG_ENDIAN','LITTLE_ENDIAN']
+    - name: Length Fieldname
+      required: false
+      description: Fieldname of the length field. Defaults is 'HDR_LENGTH'.
+      values: .+

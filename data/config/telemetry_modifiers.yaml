@@ -115,6 +115,7 @@ PROCESSOR:
     - name: Processor Specific Options
       required: false
       description: Variable length number of options that will be passed to the class constructor.
+      values: .+
 ALLOW_SHORT:
   summary: Process telemetry packets which are less than their defined length
   description: Allows the telemetry packet to be received with a data portion that

@@ -1,0 +1,257 @@
+---
+BURST:
+  description: The Burst Stream Protocol simply reads as much data as it can from
+    the stream before returning the data as a COSMOS Packet. This Protocol relies
+    on regular bursts of data delimited by time and thus is not very robust.
+    However it can utilize a sync pattern which does allow it to re-sync from the
+    stream if necessary.
+  parameters:
+    - name: Discard Leading Bytes
+      required: false
+      description: The number of bytes to discard from the binary data after reading
+        from the stream. Note that this applies to bytes starting with the sync
+        pattern if the sync pattern is being used. Default is 0 (don't discard bytes).
+      values: \d+
+    - name: Sync Pattern
+      required: false
+      description: Hex string representing a byte pattern that will be searched
+        for in the raw stream. This pattern represents a packet delimiter and all
+        data found including the sync pattern will be returned. Default is 'nil'
+        (no sync pattern).
+      values: .+
+    - name: Fill Sync Pattern
+      required: false
+      description: Whether or not to fill in the sync pattern on outgoing packets
+        Default is false.
+      values: ['true', 'false']
+FIXED:
+  description: The Fixed Stream Protocol reads a preset minimum amount of data
+    from the stream which is necessary to properly identify all the defined packets
+    using the interface. It then identifies the packet and proceeds to read as much
+    data from the stream as necessary to create the packet which it then returns.
+    This stream relies on all the packets on the interface being fixed in length.
+    For example, all the packets using the interface are a fixed size and contain
+    a simple header with a 32 bit sync pattern followed by a 16 bit ID. The Fixed
+    Stream Protocol would elegantly handle this case with a minimum read size of
+    6 bytes.
+  parameters:
+    - name: Minimum ID Size
+      required: true
+      description: The minimum amount of bytes needed to identify a packet.
+        All the packet definitions must declare their ID_ITEM(s) within this given
+        amount of bytes.
+      values: \d+
+    - name: Discard Leading Bytes
+      required: false
+      description: The number of bytes to discard from the binary data after reading
+        from the stream. Note that this applies to bytes starting with the sync
+        pattern if the sync pattern is being used. Default is 0 (do not discard bytes).
+      values: \d+
+    - name: Sync Pattern
+      required: false
+      description: Hex string representing a byte pattern that will be searched
+        for in the raw stream. This pattern represents a packet delimiter and all
+        data found including the sync pattern will be returned. Default is 'nil'
+        (no sync pattern).
+      values: .+
+    - name: Telemetry Stream
+      required: false
+      description: Whether the stream is returning telemetry. Default is true.
+      values: ['true','false']
+    - name: Fill Sync Pattern
+      required: false
+      description: Whether or not to fill in the sync pattern on outgoing packets.
+        Default is false.
+      values: ['false','true']
+LENGTH:
+  description: The Length Stream Protocol depends on a length field at a fixed
+    location in the defined packets using the interface. It then reads enough data
+    to grab the length field, decodes it, and reads the remaining length of the
+    packet. For example, all the packets using the interface contain a CCSDS
+    header with a length field. The Length Stream Protocol can be set up to handle
+    the length field and even the "length - 1" offset the CCSDS header uses.
+  parameters:
+    - name: Length Bit Offset
+      required: false
+      description: The bit offset of the length field. Every packet using this
+        interface must have the same structure such that the length field is the
+        same size at the same location. Be sure to account for the length of the
+        Sync Pattern in this value (if present). Default is 0.
+      values: \d+
+    - name: Length Bit Size
+      required: false
+      description: The size in bits of the length field. Default is 16.
+      values: \d+
+    - name: Length Value Offset
+      required: false
+      description: The offset to apply to the length field value. For example if
+        the length field indicates packet length minus one, this value should be
+        one. Be sure to account for the length of the Sync Pattern in this value
+        (if present). Default is 0.
+      values: \d+
+    - name: Bytes per Count
+      required: false
+      description: The number of bytes per each length field 'count'. This is used
+        if the units of the length field is something other than bytes,
+        for example if the length field count is in words. Default is 1.
+      values: \d+
+    - name: Length Endianness
+      required: false
+      description: The endianness of the length field.
+      values: ['BIG_ENDIAN','LITTLE_ENDIAN']
+    - name: Discard Leading Bytes
+      required: false
+      description: The number of bytes to discard from the binary data after
+        reading from the stream. Note that this applies to bytes including the
+        sync pattern if the sync pattern is being used. Discarding is one of the
+        very last steps so any size and offsets above need to account for all the
+        data before discarding. Default is 0 (do not discard bytes).
+      values: \d+
+    - name: Sync Pattern
+      required: false
+      description: Hex string representing a byte pattern that will be searched
+        for in the raw stream. This pattern represents a packet delimiter and all
+        data found including the sync pattern will be returned.
+        Default is nil (no sync pattern)
+      values: .+
+    - name: Max Length
+      required: false
+      description: The maximum allowed value in the length field.
+        Default is nil (no maximum length)
+      values: .+
+    - name: Fill Length and Sync Pattern
+      required: false
+      description: Setting this flag to true causes the length field and sync
+        pattern (if present) to be filled automatically on outgoing packets.
+        Default is false
+      values: ['false','true']
+TERMINATED:
+  description: The Terminated Stream Protocol delineates packets using termination
+    characters found at the end of every packet. It continuously reads data from
+    the stream until the termination characters are found at which point it returns
+    the packet data. For example, all the packets using the interface are followed
+    by 0xABCD. This data can either be a part of each packet that is kept or
+    something which is known only by the Terminated Stream Protocol and simply
+    thrown away.
+  parameters:
+    - name: Write Termination Characters
+      required: true
+      description: The data to write to the stream after writing a command packet.
+        Given as a hex string such as 0xABCD.
+      values: .+
+    - name: Read Termination Characters
+      required: true
+      description: The characters at the end of the stream which delineate the end
+        of a telemetry packet. Given as a hex string such as 0xABCD.
+      values: .+
+    - name: Strip Read Termination
+      required: false
+      description: Whether to remove the read termination characters from the
+        stream before returning the telemetry packet. Default is true.
+      values: ['true','false']
+    - name: Discard Leading Bytes
+      required: false
+      description: The number of bytes to discard from the binary data after
+        reading from the stream. Note that this applies to bytes including the
+        sync pattern if the sync pattern is being used.
+        Default is 0 (do not discard bytes)
+      values: \d+
+    - name: Sync Pattern
+      required: false
+      description: Hex string representing a byte pattern that will be searched
+        for in the raw stream. This pattern represents a packet delimiter and all
+        data found including the sync pattern will be returned.
+        Default is nil (no sync pattern)
+      values: .+
+    - name: Fill Sync Pattern
+      required: false
+      description: Whether or not to fill in the sync pattern on outgoing packets
+        Default is false
+      values: ['false','true']
+PREIDENTIFIED:
+  description: The Preidentified Stream Protocol is used internally by the COSMOS
+    Command and Telemetry Server only and delineates packets using a custom COSMOS
+    header. This stream Protocol is configured by default on port 7779 and is
+    created by the Command and Telemetry Server to allow tools to connect and
+    receive the entire packet stream. The Telemetry Grapher uses this port to
+    receive all the packets following through the Command and Telemetry Server
+    in case any need to be graphed.
+  parameters:
+    - name: Sync Pattern
+      required: false
+      description: Hex string representing a byte pattern that will be searched
+        for in the raw stream. This pattern represents a packet delimiter and all
+        data found AFTER the sync pattern will be returned. The sync pattern itself
+        is discarded. Default is nil (no sync pattern)
+      values: .+
+    - name: Max Length
+      required: false
+      description: The maximum allowed value in the length field.
+        Default is nil (no maximum length)
+      values: .+
+TEMPLATE:
+  description: The Template Stream Protocol works much like the Terminated Stream
+    Protocol except it designed for text-based command and response type interfaces
+    such as SCPI (Standard Commands for Programmable Instruments). It delineates
+    packets in the same way as the terminated stream protocol except each packet
+    is referred to as a line (because each usually contains a line of text).
+    For outgoing packets a CMD_TEMPLATE field is expected to exist in the packet.
+    This field contains a template string with items to be filled in deliniated
+    within HTML tag style brackets “". The Template Stream Protocol will read the
+    named items from within the packet fill in the CMD_TEMPLATE. This filled in
+    string is then sent out rather than the originally passed in packet.
+    Correspondingly, if a response is expected the outgoing packet should include
+    a RSP_TEMPLATE and RSP_PACKET field. The RSP_TEMPLATE is used to extract data
+    from the response string and build a corresponding RSP_PACKET. See the TEMPLATE
+    target within the COSMOS Demo configuration for an example of usage.
+  parameters:
+    - name: Write Termination Characters
+      required: true
+      description: The data to write to the stream after writing a command packet.
+        Given as a hex string such as 0xABCD.
+      values: .+
+    - name: Read Termination Characters
+      required: true
+      description: The characters at the end of the stream which delineate the end
+        of a telemetry packet. Given as a hex string such as 0xABCD.
+      values: .+
+    - name: Ignore Lines
+      required: false
+      description: Number of response lines to ignore (completely drop).
+        Default is 0.
+      values: \d+
+    - name: Initial Read Delay
+      required: false
+      description: An initial delay after connecting after which the stream will
+        be read till empty and data dropped. Useful for discarding connect headers
+        and initial prompts. Default is nil (no initial read)
+      values: \d+
+    - name: Response Lines
+      required: false
+      description: The number of lines that make up expected responses.
+        Default is 1.
+      values: \d+
+    - name: Strip Read Termination
+      required: false
+      description: Whether to remove the read termination characters from the
+        stream before returning the telemetry packet. Default is true.
+      values: ['true','false']
+    - name: Discard Leading Bytes
+      required: false
+      description: The number of bytes to discard from the binary data after
+        reading from the stream. Note that this applies to bytes including the
+        sync pattern if the sync pattern is being used.
+        Default is 0 (do not discard bytes)
+      values: \d+
+    - name: Sync Pattern
+      required: false
+      description: Hex string representing a byte pattern that will be searched
+        for in the raw stream. This pattern represents a packet delimiter and all
+        data found including the sync pattern will be returned.
+        Default is nil (no sync pattern)
+      values: .+
+    - name: Fill Sync Pattern
+      required: false
+      description: Whether or not to fill in the sync pattern on outgoing packets
+        Default is false
+      values: ['false','true']

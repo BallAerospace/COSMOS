@@ -805,7 +805,7 @@ end
         if item.layout
           item.removeAll
         else
-          item.widget.dispose
+          item.widget.dispose if item.widget
         end
       end
     end
