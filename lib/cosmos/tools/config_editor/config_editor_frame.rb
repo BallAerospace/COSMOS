@@ -410,7 +410,9 @@ module Cosmos
       add_keyword = Qt::PushButton.new("Add Keyword")
       add_keyword.connect(SIGNAL('clicked()')) do
         insert_word(value_widget.text, nil) # nil means prepend
-        display_keyword_help() # Regenerate the help
+        Qt.execute_in_main_thread(false, 0.001, true) do
+          display_keyword_help() # Regenerate the help
+        end
       end
       @gui_layout.addWidget(add_keyword)
 
@@ -506,7 +508,9 @@ module Cosmos
               value_widget.setCurrentText(current_value)
               value_widget.connect(SIGNAL('currentIndexChanged(const QString&)')) do |word|
                 insert_word(word, parameter_index, -1)
-                display_keyword_help() # Rebuild the GUI since we may have new parameters
+                Qt.execute_in_main_thread(false, 0.001, true) do
+                  display_keyword_help() # Rebuild the GUI since we may have new parameters
+                end
               end
               @gui_layout.addWidget(value_widget)
               if current_value && attribute_value[current_value] && attribute_value[current_value]['parameters']
