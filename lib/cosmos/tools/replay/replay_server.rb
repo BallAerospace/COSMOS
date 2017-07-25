@@ -34,7 +34,7 @@ module Cosmos
 
       @json_drb.method_whitelist = @api_whitelist
       begin
-        @json_drb.start_service("localhost", System.ports['CTS_API'], self)
+        @json_drb.start_service(System.listen_hosts['CTS_API'], System.ports['CTS_API'], self)
       rescue Exception
         raise FatalError.new("Error starting JsonDRb on port #{System.ports['CTS_API']}.\nPerhaps a Command and Telemetry Server is already running?")
       end

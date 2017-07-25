@@ -49,7 +49,7 @@ module Cosmos
         $cmd_tlm_server = CmdTlmServer.new(config_file, false, true)
       else
         # Start a Json connect to the real CTS server
-        $cmd_tlm_server = JsonDRbObject.new('127.0.0.1', System.ports['CTS_API'])
+        $cmd_tlm_server = JsonDRbObject.new(System.connect_hosts['CTS_API'], System.ports['CTS_API'])
       end
     end
 

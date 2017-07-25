@@ -31,6 +31,10 @@ module Cosmos
   class System
     # @return [Hash<String,Fixnum>] Hash of all the known ports and their values
     instance_attr_reader :ports
+    # @return [Hash<String,String>] Hash of host names or ip addresses for tools to listen on
+    instance_attr_reader :listen_hosts
+    # @return [Hash<String,String>] Hash of host names or ip addresses for tools to connect to
+    instance_attr_reader :connect_hosts
     # @return [Hash<String,String>] Hash of all the known paths and their values
     instance_attr_reader :paths
     # @return [PacketLogWriter] Class used to create log files
@@ -61,13 +65,15 @@ module Cosmos
     instance_attr_reader :limits_set
     # @return [Boolean] Whether to use UTC or local times
     instance_attr_reader :use_utc
-    # @return [Array<String>] List of files that are to be included in the MD5 
-    #   calculation in addition to the cmd/tlm definition files that are 
+    # @return [Array<String>] List of files that are to be included in the MD5
+    #   calculation in addition to the cmd/tlm definition files that are
     #   automatically included
     instance_attr_reader :additional_md5_files
 
     # Known COSMOS ports
     KNOWN_PORTS = ['CTS_API', 'TLMVIEWER_API', 'CTS_PREIDENTIFIED', 'CTS_CMD_ROUTER']
+    # Known COSMOS hosts
+    KNOWN_HOSTS = ['CTS_API', 'TLMVIEWER_API', 'CTS_PREIDENTIFIED', 'CTS_CMD_ROUTER']
     # Known COSMOS paths
     KNOWN_PATHS = ['LOGS', 'TMP', 'SAVED_CONFIG', 'TABLES', 'HANDBOOKS', 'PROCEDURES', 'SEQUENCES']
 
@@ -105,6 +111,19 @@ module Cosmos
       @ports['TLMVIEWER_API'] = 7778
       @ports['CTS_PREIDENTIFIED'] = 7779
       @ports['CTS_CMD_ROUTER'] = 7780
+
+      @listen_hosts = {}
+      @listen_hosts['CTS_API'] = '127.0.0.1'
+      @listen_hosts['TLMVIEWER_API'] = '127.0.0.1'
+      # Localhost would be more secure but historically these are open to allow for chaining servers by default
+      @listen_hosts['CTS_PREIDENTIFIED'] = '0.0.0.0'
+      @listen_hosts['CTS_CMD_ROUTER'] = '0.0.0.0'
+
+      @connect_hosts = {}
+      @connect_hosts['CTS_API'] = '127.0.0.1'
+      @connect_hosts['TLMVIEWER_API'] = '127.0.0.1'
+      @connect_hosts['CTS_PREIDENTIFIED'] = '127.0.0.1'
+      @connect_hosts['CTS_CMD_ROUTER'] = '127.0.0.1'
 
       @paths = {}
       @paths['LOGS'] = File.join(USERPATH, 'outputs', 'logs')
@@ -251,6 +270,19 @@ module Cosmos
             port_name = parameters[0].to_s.upcase
             @ports[port_name] = Integer(parameters[1])
             Logger.warn("Unknown port name given: #{port_name}") unless KNOWN_PORTS.include?(port_name)
+
+          when 'LISTEN_HOST', 'CONNECT_HOST'
+            usage = "#{keyword} <HOST NAME> <HOST VALUE>"
+            parser.verify_num_parameters(2, 2, usage)
+            host_name = parameters[0].to_s.upcase
+            host = parameters[1]
+            host = '127.0.0.1' if host.to_s.upcase == 'LOCALHOST'
+            if keyword == 'LISTEN_HOST'
+              @listen_hosts[host_name] = host
+            else
+              @connect_hosts[host_name] = host
+            end
+            Logger.warn("Unknown host name given: #{host_name}") unless KNOWN_HOSTS.include?(host_name)
 
           when 'PATH'
             usage = "#{keyword} <PATH NAME> <PATH>"

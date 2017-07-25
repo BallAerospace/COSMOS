@@ -125,15 +125,14 @@ module Cosmos
           # Start DRb with access control
           @json_drb = JsonDRb.new
           port = System.ports['TLMVIEWER_API']
-          acl = ACL.new(['allow', '127.0.0.1'], ACL::ALLOW_DENY)
-          @json_drb.acl = acl
+          @json_drb.acl = System.acl
           whitelist = [
             'display',
             'clear',
             'clear_all']
           @json_drb.method_whitelist = whitelist
           begin
-            @json_drb.start_service "localhost", port, self
+            @json_drb.start_service System.listen_hosts['TLMVIEWER_API'], port, self
           rescue Exception
             raise FatalError.new("Error starting JsonDRb on port #{port}.\nPerhaps a Telemetry Viewer is already running?")
           end

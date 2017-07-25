@@ -7,10 +7,23 @@ DECLARE_TARGET INST INST2
 DECLARE_TARGET EXAMPLE
 DECLARE_TARGET SYSTEM
 
+# Listen Hosts - Ip addresses or hostnames to listen on when running the tools
+LISTEN_HOST CTS_API 127.0.0.1
+LISTEN_HOST TLMVIEWER_API 127.0.0.1
+LISTEN_HOST CTS_PREIDENTIFIED 0.0.0.0 # 127.0.0.1 is more secure if you don't need external connections
+LISTEN_HOST CTS_CMD_ROUTER 0.0.0.0 # 127.0.0.1 is more secure if you don't need external connections
+
+# Connect Hosts - Ip addresses or hostnames to connect to when running the tools
+CONNECT_HOST CTS_API 127.0.0.1
+CONNECT_HOST TLMVIEWER_API 127.0.0.1
+CONNECT_HOST CTS_PREIDENTIFIED 127.0.0.1
+CONNECT_HOST CTS_CMD_ROUTER 127.0.0.1
+
 # Ethernet Ports
 PORT CTS_API 8777
 PORT TLMVIEWER_API 8778
 PORT CTS_PREIDENTIFIED 8779
+PORT CTS_CMD_ROUTER 7780
 
 # Default Packet Log Writer and Reader
 DEFAULT_PACKET_LOG_WRITER packet_log_writer.rb
