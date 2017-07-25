@@ -71,8 +71,6 @@ module Cosmos
     #   packet_data_queues hash to access the queue.
     attr_accessor :next_packet_data_queue_id
 
-    # The default host
-    DEFAULT_HOST = 'localhost'
     # The default configuration file name
     DEFAULT_CONFIG_FILE = File.join(Cosmos::USERPATH, 'config', 'tools', 'cmd_tlm_server', 'cmd_tlm_server.txt')
     # The maximum number of limits events that are queued. Used when
@@ -179,7 +177,7 @@ module Cosmos
       end
       @json_drb.method_whitelist = @api_whitelist
       begin
-        @json_drb.start_service("localhost", System.ports['CTS_API'], self)
+        @json_drb.start_service(System.listen_hosts['CTS_API'], System.ports['CTS_API'], self)
       rescue Exception
         # Call packet_logging shutdown here to explicitly kill the logging
         # threads since this CTS is not going to launch

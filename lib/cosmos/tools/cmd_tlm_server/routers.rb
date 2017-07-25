@@ -38,6 +38,7 @@ module Cosmos
       router = TcpipServerInterface.new(port, port, 10.0, nil, 'PREIDENTIFIED')
       router.name = router_name
       router.disable_disconnect = true
+      router.set_option('LISTEN_ADDRESS', [System.listen_hosts['CTS_PREIDENTIFIED']])
       router.set_option('AUTO_SYSTEM_META', [true])
       @config.routers[router_name] = router
       @config.interfaces.each do |interface_name, interface|
@@ -57,6 +58,7 @@ module Cosmos
       cmd_router = TcpipServerInterface.new(port, nil, 10.0, nil, 'PREIDENTIFIED')
       cmd_router.name = cmd_router_name
       cmd_router.disable_disconnect = true
+      cmd_router.set_option('LISTEN_ADDRESS', [System.listen_hosts['CTS_CMD_ROUTER']])
       cmd_router.set_option('AUTO_SYSTEM_META', [true])
       @config.routers[cmd_router_name] = cmd_router
       @config.interfaces.each do |interface_name, interface|
