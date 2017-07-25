@@ -23,7 +23,8 @@ module Cosmos
                    parity = :NONE,
                    stop_bits = 1,
                    write_timeout = 10.0,
-                   read_timeout = nil)
+                   read_timeout = nil,
+                   flow_control = :NONE)
 
       # Convert Baud Rate into Termios constant
       begin
@@ -57,6 +58,7 @@ module Cosmos
       cflags |= Termios::CSTOPB if stop_bits == 2
       cflags |= Termios::PARENB if parity
       cflags |= Termios::PADODD if parity == :ODD
+      cflags |= Termios::CRTSCTS if flow_control == :RTSCTS
       tio.iflag = iflags
       tio.oflag = 0
       tio.cflag = cflags

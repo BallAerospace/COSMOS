@@ -35,13 +35,15 @@ module Cosmos
     #   complete. Pass nil to create no timeout. The {SerialDriver} will
     #   continously try to read data until it has received data or an error
     #   occurs.
+    # @param flow_control [Symbol] Currently supported :NONE and :RTSCTS
     def initialize(write_port_name,
                    read_port_name,
                    baud_rate,
                    parity,
                    stop_bits,
                    write_timeout,
-                   read_timeout)
+                   read_timeout,
+                   flow_control = :NONE)
       super()
 
       # The SerialDriver class will validate the parameters
@@ -54,6 +56,7 @@ module Cosmos
       @write_timeout   = @write_timeout.to_f if @write_timeout
       @read_timeout    = ConfigParser.handle_nil(read_timeout)
       @read_timeout    = @read_timeout.to_f if @read_timeout
+      @flow_control = flow_control.to_s.intern
 
       if @write_port_name
         @write_serial_port = SerialDriver.new(@write_port_name,
@@ -61,7 +64,8 @@ module Cosmos
                                               @parity,
                                               @stop_bits,
                                               @write_timeout,
-                                              @read_timeout)
+                                              @read_timeout,
+                                              @flow_control)
       else
         @write_serial_port = nil
       end
@@ -74,7 +78,8 @@ module Cosmos
                                                @parity,
                                                @stop_bits,
                                                @write_timeout,
-                                               @read_timeout)
+                                               @read_timeout,
+                                               @flow_control)
         end
       else
         @read_serial_port = nil

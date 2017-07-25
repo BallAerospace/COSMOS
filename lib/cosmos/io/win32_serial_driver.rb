@@ -24,7 +24,8 @@ module Cosmos
                    write_timeout = 10.0,
                    read_timeout = nil,
                    read_polling_period = 0.01,
-                   read_max_length = 1000)
+                   read_max_length = 1000,
+                   flow_control = :NONE)
 
       # Verify Parameters
       port_name = '\\\\.\\' + port_name if port_name =~ /^COM[0-9]{2,3}$/
@@ -62,12 +63,22 @@ module Cosmos
                                   Win32::FILE_ATTRIBUTE_NORMAL)
       @mutex = Mutex.new
 
-      # Configure the Comm Port
+      # Configure the Comm Port - See: https://msdn.microsoft.com/en-us/library/windows/desktop/aa363214(v=vs.85).aspx
       dcb = Win32.get_comm_state(@handle)
       dcb.write('BaudRate', baud_rate)
       dcb.write('ByteSize', 8)
       dcb.write('Parity',   parity)
       dcb.write('StopBits', stop_bits)
+      if flow_control == :RTSCTS
+        # Monitor CTS
+        dcb.write('fOutxCtsFlow', 1)
+
+        # 0x00 - RTS_CONTROL_DISABLE - Disables the RTS line when the device is opened and leaves it disabled.
+        # 0x01 - RTS_CONTROL_ENABLE - Enables the RTS line when the device is opened and leaves it on.
+        # 0x02 - RTS_CONTROL_HANDSHAKE - Enables RTS handshaking. The driver raises the RTS line when the "type-ahead" (input) buffer is less than one-half full and lowers the RTS line when the buffer is more than three-quarters full. If handshaking is enabled, it is an error for the application to adjust the line by using the EscapeCommFunction function.
+        # 0x03 - RTS_CONTROL_TOGGLE - Specifies that the RTS line will be high if bytes are available for transmission. After all buffered bytes have been sent, the RTS line will be low.
+        dcb.write('fRtsControl', 0x03)
+      end
       Win32.set_comm_state(@handle, dcb)
 
       # Configure Timeouts
