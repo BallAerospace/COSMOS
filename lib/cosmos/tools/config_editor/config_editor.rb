@@ -271,7 +271,9 @@ module Cosmos
       @tree_view.setRootIndex(@fs_model.index(Cosmos::USERPATH))
       @tree_view.setColumnWidth(0, 200)
       @tree_view.connect(SIGNAL('activated(const QModelIndex&)')) do |index|
-        file_open(@fs_model.filePath(index))
+        unless File.directory?(@fs_model.filePath(index))
+          file_open(@fs_model.filePath(index))
+        end
       end
 
       @tab_book = Qt::TabWidget.new(@splitter)
