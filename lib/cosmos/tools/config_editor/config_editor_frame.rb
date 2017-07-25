@@ -108,14 +108,14 @@ module Cosmos
     end
 
     def create_ruby_editor
-      script = RubyEditor.new(self)
+      editor = RubyEditor.new(self)
       # Add right click menu
-      script.setContextMenuPolicy(Qt::CustomContextMenu)
-      connect(script,
+      editor.setContextMenuPolicy(Qt::CustomContextMenu)
+      connect(editor,
               SIGNAL('customContextMenuRequested(const QPoint&)'),
               self,
               SLOT('context_menu(const QPoint&)'))
-      script
+      editor
     end
 
     def filename=(filename)
@@ -278,6 +278,8 @@ module Cosmos
           else
             if @filename.include?('/cmd_tlm/')
               @file_type = "Command and Telemetry Configuration"
+            elsif @filename.include?('/screens/')
+              @file_type = "Screen Definition"
             end
           end
         end
@@ -639,7 +641,7 @@ module Cosmos
       @tab_book.setCurrentIndex(@call_stack.length - 1) if @tab_book_shown
     end
 
-    # Right click context_menu for the script
+    # Right click context_menu for the file
     def context_menu(point)
       if @tab_book_shown
         current_script = @tab_book.widget(@tab_book.currentIndex)
@@ -665,7 +667,7 @@ module Cosmos
 
     def remove_tabs
       @top_frame.takeAt(0) # Remove the @tab_book from the layout
-      @top_frame.addWidget(@editor) # Add back the script
+      @top_frame.addWidget(@editor) # Add back the editor
       @editor.show
       @tab_book_shown = false
     end

@@ -3,15 +3,15 @@ AUTO_TARGETS
 
 # Create a new dropdown with a few specific sceens
 GROUP "My group"
-  GROUP_SCREEN "SYSTEM" "status.txt"
-  GROUP_SCREEN "INST" "hs.txt"
-  GROUP_SCREEN "INST2" "hs.txt"
+  GROUP_SCREEN SYSTEM "status.txt"
+  GROUP_SCREEN INST "hs.txt"
+  GROUP_SCREEN INST2 "hs.txt"
 
 # NEW_COLUMN
 
 # AUTO_TARGET INST
 
-# TARGET "INST"
+# TARGET INST
 #  SCREEN "adcs.txt"
 #  SCREEN "array.txt"
 #  SCREEN "block.txt"
@@ -24,7 +24,7 @@ GROUP "My group"
 #  SCREEN "other.txt"
 #  SCREEN "tabs.txt"
 
-#TARGET "INST2"
+#TARGET INST2
 #  SCREEN "adcs.txt"
 #  SCREEN "array.txt"
 #  SCREEN "block.txt"

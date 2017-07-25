@@ -36,6 +36,8 @@ module Cosmos
         ["cmd_tlm_server", "/config/tools/cmd_tlm_server/cmd_tlm_server.txt"],
       "Command and Telemetry Configuration" =>
         ["command_telemetry", "/config/targets/TARGET/cmd_tlm/*.txt"],
+      "Screen Definition" =>
+        ["screen", "/config/targets/TARGET/screens/*.txt"],
       "Separator" => [nil, nil],
       "Data Viewer Configuration" =>
         ["data_viewer", "/config/tools/data_viewer/data_viewer.txt"],
@@ -83,29 +85,29 @@ module Cosmos
       @file_new = Qt::Action.new(Cosmos.get_icon('file.png'), tr('&New'), self)
       @file_new_keyseq = Qt::KeySequence.new(tr('Ctrl+N'))
       @file_new.shortcut  = @file_new_keyseq
-      @file_new.statusTip = tr('Start a new script')
+      @file_new.statusTip = tr('Start a new file')
       @file_new.connect(SIGNAL('triggered()')) { file_new() }
 
       @file_close = Qt::Action.new(tr('&Close'), self)
       @file_close_keyseq = Qt::KeySequence.new(tr('Ctrl+W'))
       @file_close.shortcut  = @file_close_keyseq
-      @file_close.statusTip = tr('Close the script')
+      @file_close.statusTip = tr('Close the file')
       @file_close.connect(SIGNAL('triggered()')) { file_close() }
 
       @file_reload = Qt::Action.new(tr('&Reload'), self)
       @file_reload_keyseq = Qt::KeySequence.new(tr('Ctrl+R'))
       @file_reload.shortcut  = @file_reload_keyseq
-      @file_reload.statusTip = tr('Reload a script')
+      @file_reload.statusTip = tr('Reload a file')
       @file_reload.connect(SIGNAL('triggered()')) { file_reload() }
 
       @file_save = Qt::Action.new(Cosmos.get_icon('save.png'), tr('&Save'), self)
       @file_save_keyseq = Qt::KeySequence.new(tr('Ctrl+S'))
       @file_save.shortcut  = @file_save_keyseq
-      @file_save.statusTip = tr('Save the script')
+      @file_save.statusTip = tr('Save the file')
       @file_save.connect(SIGNAL('triggered()')) { file_save(false) }
 
       @file_save_as = Qt::Action.new(Cosmos.get_icon('save_as.png'), tr('Save &As'), self)
-      @file_save_as.statusTip = tr('Save the script')
+      @file_save_as.statusTip = tr('Save the file')
       @file_save_as.connect(SIGNAL('triggered()')) { file_save(true) }
 
       # Edit actions
@@ -269,11 +271,14 @@ module Cosmos
       @tree_view = Qt::TreeView.new(@splitter)
       @tree_view.setModel(@fs_model)
       @tree_view.setRootIndex(@fs_model.index(Cosmos::USERPATH))
-      @tree_view.setColumnWidth(0, 200)
+      @tree_view.setColumnHidden(1, true) # Size
+      @tree_view.setColumnHidden(2, true) # Type
+      @tree_view.setColumnHidden(3, true) # Date Modified
       @tree_view.connect(SIGNAL('activated(const QModelIndex&)')) do |index|
-        unless File.directory?(@fs_model.filePath(index))
-          file_open(@fs_model.filePath(index))
-        end
+        select_or_load_file(@fs_model.filePath(index))
+      end
+      @tree_view.connect(SIGNAL('clicked(const QModelIndex&)')) do |index|
+        select_or_load_file(@fs_model.filePath(index))
       end
 
       @tab_book = Qt::TabWidget.new(@splitter)
@@ -296,9 +301,18 @@ module Cosmos
       statusBar.addPermanentWidget(@status_bar_right_label)
     end
 
-    ###########################################
-    # Drag files into ScriptRunner support
-    ###########################################
+    def select_or_load_file(file_path)
+      return if File.directory?(file_path)
+      found = false
+      # If the file is already open select the tab
+      @tab_book.tabs.each_with_index do |tab, index|
+        if tab.filename == file_path
+          found = true
+          @tab_book.setCurrentIndex(index)
+        end
+      end
+      file_open(file_path) unless found
+    end
 
     def dragEnterEvent(event)
       if event.mimeData.hasUrls
@@ -334,7 +348,7 @@ module Cosmos
     # File->Open
     def file_open(filename = nil)
       if File.directory?(filename)
-        filename = Qt::FileDialog.getOpenFileName(self, "Select Script", filename)
+        filename = Qt::FileDialog.getOpenFileName(self, "Select File", filename)
       end
       unless filename.nil? || filename.empty?
         # If the user opens a file we already have open
@@ -418,7 +432,7 @@ module Cosmos
           @procedure_dir = File.dirname(filename)
           @procedure_dir << '/' if @procedure_dir[-1..-1] != '/' and @procedure_dir[-1..-1] != '\\'
         rescue => error
-          statusBar.showMessage(tr("Error Saving Script : #{error.class} : #{error.message}"))
+          statusBar.showMessage(tr("Error Saving File : #{error.class} : #{error.message}"))
         end
       end
 
@@ -427,7 +441,7 @@ module Cosmos
 
     # File->Close
     def file_close
-      if prompt_for_save_if_needed('Save Current Script?')
+      if prompt_for_save_if_needed('Save Current File?')
         if @tab_book.count > 1
           close_active_tab()
         else
@@ -444,7 +458,7 @@ module Cosmos
 
     # Called by the FindReplaceDialog to get the text to search
     def search_text
-      active_config_editor_frame().script
+      active_config_editor_frame().editor
     end
 
     def undo_available(bool)
@@ -534,22 +548,22 @@ module Cosmos
       menu = Qt::Menu.new()
 
       new_action = Qt::Action.new(tr("&New"), self)
-      new_action.statusTip = tr("Create a new script")
+      new_action.statusTip = tr("Create a new file")
       new_action.connect(SIGNAL('triggered()')) { file_new() }
       menu.addAction(new_action)
 
       close_action = Qt::Action.new(tr("&Close"), self)
-      close_action.statusTip = tr("Close the script")
+      close_action.statusTip = tr("Close the file")
       close_action.connect(SIGNAL('triggered()')) { file_close() }
       menu.addAction(close_action)
 
       save_action = Qt::Action.new(tr("&Save"), self)
-      save_action.statusTip = tr("Save the script")
+      save_action.statusTip = tr("Save the file")
       save_action.connect(SIGNAL('triggered()')) { file_save(false) }
       menu.addAction(save_action)
 
       save_action = Qt::Action.new(tr("Save &As"), self)
-      save_action.statusTip = tr("Save the script as")
+      save_action.statusTip = tr("Save the file as")
       save_action.connect(SIGNAL('triggered()')) { file_save(true) }
       menu.addAction(save_action)
 
