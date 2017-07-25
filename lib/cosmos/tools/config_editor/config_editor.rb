@@ -261,8 +261,20 @@ module Cosmos
     end
 
     def initialize_central_widget
-      # Create the central widget
-      @tab_book = Qt::TabWidget.new
+      # Create a splitter to hold the file tree and tab widget
+      @splitter = Qt::Splitter.new(Qt::Horizontal, self)
+
+      @fs_model = Qt::FileSystemModel.new
+      @fs_model.setRootPath(Cosmos::USERPATH)
+      @tree_view = Qt::TreeView.new(@splitter)
+      @tree_view.setModel(@fs_model)
+      @tree_view.setRootIndex(@fs_model.index(Cosmos::USERPATH))
+      @tree_view.setColumnWidth(0, 200)
+      @tree_view.connect(SIGNAL('activated(const QModelIndex&)')) do |index|
+        file_open(@fs_model.filePath(index))
+      end
+
+      @tab_book = Qt::TabWidget.new(@splitter)
       @tab_book.setMovable(true)
       @tab_book.setContextMenuPolicy(Qt::CustomContextMenu)
       connect(@tab_book,
@@ -273,7 +285,8 @@ module Cosmos
               SIGNAL('currentChanged(int)'),
               self,
               SLOT('handle_tab_change(int)'))
-      setCentralWidget(@tab_book)
+      @splitter.setSizes([200, 800]) # Rough split of the widget
+      setCentralWidget(@splitter)
 
       # Display a blank message to force the statusBar to show
       statusBar.showMessage("")
@@ -488,6 +501,7 @@ module Cosmos
     def handle_tab_change(index)
       update_title()
       update_type_group()
+      update_tree()
     end
 
     def handle_script_keypress(event)
@@ -580,6 +594,10 @@ module Cosmos
       end
       self.setWindowTitle(self.windowTitle << '*') if @tab_book.currentTab.modified
       update_cursor()
+    end
+
+    def update_tree
+      @tree_view.setCurrentIndex(@fs_model.index(@tab_book.currentTab.filename))
     end
 
     # Returns the frame of the active tab

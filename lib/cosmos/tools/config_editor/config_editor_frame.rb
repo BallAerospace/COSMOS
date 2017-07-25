@@ -57,6 +57,7 @@ module Cosmos
       # Create a splitter to hold the config text area and the config GUI help
       @splitter = Qt::Splitter.new(Qt::Horizontal, self)
       @layout.addWidget(@splitter)
+
       @top_widget = Qt::Widget.new(@splitter)
       @top_widget.setContentsMargins(0,0,0,0)
       @top_frame = Qt::VBoxLayout.new(@top_widget)
@@ -614,7 +615,6 @@ module Cosmos
       line_parts = current_line.scan(PARSING_REGEX)
       indentation = current.length - current.lstrip.length
       if start_index.nil?
-        #c.movePosition(Qt::TextCursor::StartOfLine)
         c.insertText(word)
       elsif start_index < line_parts.length
         end_index = start_index unless end_index
