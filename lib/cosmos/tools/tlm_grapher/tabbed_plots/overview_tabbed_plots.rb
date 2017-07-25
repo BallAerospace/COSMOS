@@ -1041,7 +1041,7 @@ module Cosmos
 
       type_list.each do |data_object_type|
         begin
-          filename = data_object_type.to_s.downcase + '_data_object_adder'
+          filename = data_object_type.to_s.downcase + '_data_object_adder.rb'
           @data_object_adders << Cosmos.require_class(filename).new(self, @adder_orientation)
           layout.addWidget(@data_object_adders[-1])
           @data_object_adders[-1].add_data_object_callback = method(:adder_add_data_object)

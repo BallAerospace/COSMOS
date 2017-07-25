@@ -1,0 +1,50 @@
+---
+TARGET:
+  summary: Specify a target name for the ITEM keywords
+  parameters:
+    - name: Target Name
+      description: The target name
+      required: true
+      values: <%= System.targets.keys %>
+PACKET:
+  summary: Specify a packet name for the ITEM keywords
+  parameters:
+    - name: Packet Name
+      description: The packet name
+      required: true
+      values: .+
+X_ITEM:
+  summary: Specify the item to graph vs the X axis
+  parameters:
+    - name: Item Name
+      description: The item name
+      required: true
+      values: .+
+Y_ITEM:
+  summary: Specify the item to graph vs the Y axis
+  parameters:
+    - name: Item Name
+      description: The item name
+      required: true
+      values: .+
+TIME_ITEM:
+  summary: Specify the item in the packet representing the time value
+  parameters:
+    - name: Time Item Name
+      description: The time item is typically RECEIVED_TIMESECONDS
+      required: true
+      values: .+
+X_VALUE_TYPE:
+  summary: How the X value should be displayed
+  parameters:
+    - name: Item Value Type
+      description: Should the value be used raw or converted
+      required: true
+      values: ['RAW','CONVERTED']
+Y_VALUE_TYPE:
+  summary: How the Y value should be displayed
+  parameters:
+    - name: Item Value Type
+      description: Should the value be used raw or converted
+      required: true
+      values: ['RAW','CONVERTED']

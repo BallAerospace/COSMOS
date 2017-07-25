@@ -23,7 +23,7 @@ APPEND_PARAMETER:
     - name: Name
       required: true
       description: Name of the parameter. Must be unique within the command.
-      values: \'
+      values: .+
     <%= MetaConfigParser.load('_params.yaml').to_meta_config_yaml(4) %>
 ID_PARAMETER:
   modifiers:

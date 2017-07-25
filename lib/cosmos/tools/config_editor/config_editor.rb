@@ -219,7 +219,7 @@ module Cosmos
 
       @file_open = @file_menu.addMenu(tr('&Open'))
       @file_open.setIcon(Cosmos.get_icon('open.png'))
-      target_dirs_action(@file_open, Cosmos::USERPATH, '', method(:file_open))
+      target_dirs_action(@file_open, File.join(Cosmos::USERPATH,'config'), '', method(:file_open))
 
       @file_menu.addAction(@file_close)
       @file_menu.addAction(@file_reload)

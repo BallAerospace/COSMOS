@@ -1,0 +1,117 @@
+---
+TITLE:
+  summary: Sets the title of the COSMOS Launcher
+  parameters:
+    - name: Title
+      required: true
+      description: Launcher title. Default is "COSMOS Launcher".
+      values: .+
+TOOL_FONT:
+  summary: Sets the font used for tool buttons
+  warning: Only set the TOOL_FONT once as the last encountered setting will apply
+    to all button labels
+  parameters:
+    - name: Font Family
+      required: true
+      description: The font family to use
+      values: ["Arial", "Calibri", "Cambria", "Candara", "Castellar", "Centaur", "Century", "Chiller", "Consolas", "Constantia", "Courier", "Courier New", "Dotum", "Elephant", "Euphemia", "Fixedsys", "Georgia", "Impact", "Lucida", "Papyrus", "Rockwell", "Rod", "System", "Tahoma", "Terminal", "Times New Roman", "Verdana", "Wide Latin"]
+    - name: Font Size
+      required: true
+      description: The size of the font in standard points
+      values: \d+
+LABEL_FONT:
+  summary: Sets the font used for labels
+  warning: Only set the LABEL_FONT once as the last encountered setting will apply
+    to all text labels
+  parameters:
+    - name: Font Family
+      required: true
+      description: The font family to use
+      values: ["Arial", "Calibri", "Cambria", "Candara", "Castellar", "Centaur", "Century", "Chiller", "Consolas", "Constantia", "Courier", "Courier New", "Dotum", "Elephant", "Euphemia", "Fixedsys", "Georgia", "Impact", "Lucida", "Papyrus", "Rockwell", "Rod", "System", "Tahoma", "Terminal", "Times New Roman", "Verdana", "Wide Latin"]
+    - name: Font Size
+      required: true
+      description: The size of the font in standard points
+      values: \d+
+LABEL:
+  summary: Creates a label of text in the current font style
+  parameters:
+    - name: Text
+      required: true
+      description: The text of the label
+      values: .+
+DIVIDER:
+  summary: Creates a horizontal line between tools
+NUM_COLUMNS:
+  summary: Specifies how many launcher buttons should be created per row
+  parameters:
+    - name: Columns
+      required: true
+      description: The number of launcher buttons per row before Launcher automatically
+        creates a new row of buttons.	Default is 4.
+      values: \d+
+TOOL:
+  summary: Create a new tool launcher button
+  parameters:
+    - name: Button Text
+      required: true
+      description: Label that is put on the button that launches the tool
+      values: .+
+    - name: Shell Command
+      required: true
+      description: Command that is executed to launch the tool. (The same thing you
+        would type at a command terminal). Note that you can include tool parameters
+        here which will be applied when the tool starts.
+      values: .+
+    - name: Icon Filename
+      required: false
+      description: Filename of a an icon located in the data directory. Passing 'nil'
+        or an empty string '' will result in Launcher using the default COSMOS icon.
+      values: .*
+    - name: Tool Parameters
+      required: false
+      description: Tool parameters as you would type on the command line.
+        Specifying parameters here rather than in the 'Shell Command' parameter
+        will cause a dialog box to appear which allows the user to edit parameters
+        if desired. Expected to be in parameter name/parameter value pairs,
+        e.g. --config filename.txt.
+      values: .*
+      warning: The full configuration option name must be used rather than the short
+        name. These parameters will override any parameters specified in the Shell
+        Command.
+  modifiers:
+    DONT_CAPTURE_IO:
+      summary: Don't capture IO when running the command
+MULTITOOL_START:
+  summary: Creates a button which launches multiple tools
+  parameters:
+    - name: Button Text
+      required: true
+      description: Label that is put on the button that launches the tools
+      values: .+
+    - name: Icon Filename
+      required: false
+      description: Filename of a an icon located in the data directory. Passing 'nil'
+        or an empty string '' will result in Launcher using the default COSMOS icon.
+      values: .*
+  modifiers:
+    TOOL:
+      summary: Create a new tool launcher button
+      parameters:
+        - name: Shell Command
+          required: true
+          description: Command that is executed to launch the tool. (The same thing you
+            would type at a command terminal). Note that you can include tool parameters
+            here which will be applied when the tool starts.
+          values: .+
+      modifiers:
+        DONT_CAPTURE_IO:
+          summary: Don't capture IO when running the command
+    DELAY:
+      summary: Inserts a delay between launching multiple tools
+      parameters:
+        - name: Delay
+          required: true
+          description: Delay time in seconds
+          values: \d+
+MULTITOOL_END:
+  summary: Ends the creation of a multi-tool button

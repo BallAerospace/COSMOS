@@ -1,0 +1,12 @@
+---
+MANUAL_X_AXIS_SCALE:
+  summary: Manually scale the X axis
+  parameters:
+    - name: Minimum
+      required: true
+      description: X axis minimum value
+      values: '[0-9]*\.?[0-9]+'
+    - name: Maximum
+      required: true
+      description: X axis maximum value
+      values: '[0-9]*\.?[0-9]+'

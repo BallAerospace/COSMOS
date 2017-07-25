@@ -1,0 +1,128 @@
+---
+NO_PDF:
+  summary: Indicates this page should not be generated when building the PDF
+  description: Handbook Creator can create webpages and export them to PDFs. Use
+    this keyword when you have an index webpage or another page for which you do not
+    want a PDF created.
+PDF_COVER:
+  summary: Defines an HTML ERB template which is used to create the PDF cover page
+  description: The template is simply HTML tags which can reference 'title'
+    set by this keyword from ERB context
+  parameters:
+    - name: Filename
+      required: true
+      description: Name of the HTML ERB template file which is found in the
+        config/tools/handbook_creator/templates directory.
+      values: .+
+    - name: Title Text
+      required: true
+      description: Title text which is accessable in the template
+      values: .+
+PDF_TOC:
+  summary: Insert the PDF table of contents
+  description: The table of contents is generated from the XSL templated found
+    in config/tools/handbook_creator/default_toc.xsl
+PDF_HEADER:
+  summary: Defines an HTML ERB template which is used to create the header on each PDF page
+  description: The template is simply HTML tags which can reference 'title'
+    set by this keyword from ERB context
+  parameters:
+    - name: Filename
+      required: true
+      description: Name of the HTML ERB template file which is found in the
+        config/tools/handbook_creator/templates directory.
+      values: .+
+    - name: Title Text
+      required: true
+      description: Title text which is accessable in the template
+      values: .+
+PDF_FOOTER:
+  summary: Defines an HTML ERB template which is used to create the footer on each PDF page
+  description: The template is simply HTML tags which can reference 'title'
+    set by this keyword from ERB context
+  parameters:
+    - name: Filename
+      required: true
+      description: Name of the HTML ERB template file which is found in the
+        config/tools/handbook_creator/templates directory.
+      values: .+
+    - name: Title Text
+      required: true
+      description: Title text which is accessable in the template
+      values: .+
+PDF_TOP_MARGIN:
+  summary: The margin from the top of the PDF page before the header
+  parameters:
+    - name: Margin
+      required: true
+      description: The margin in pixels
+      values: \d+
+PDF_BOTTOM_MARGIN:
+  summary: The margin below the footer to the bottom of the PDF page
+  parameters:
+    - name: Margin
+      required: true
+      description: The margin in pixels
+      values: \d+
+PDF_SIDE_MARGIN:
+  summary: The margin on both sides on the PDF page
+  parameters:
+    - name: Margin
+      required: true
+      description: The margin in pixels
+      values: \d+
+TARGET:
+  summary: Specify a target which this page is generated for
+  parameters:
+    - name: Target
+      required: true
+      description: The target name
+      values: <%= System.targets.keys %>
+SECTION:
+  summary: Define a page SECTION
+  parameters:
+    - name: Filename
+      required: true
+      description: Name of the HTML ERB template file which is found in the
+        config/tools/handbook_creator/templates directory.
+      values: .+
+    - name: Output
+      required: true
+      description: What output formats should contain this section
+      values: ['ALl', 'HTML', 'PDF']
+    - name: Title Text
+      required: false
+      description: Title text which is accessable in the template
+      values: .+
+CMD_SECTION:
+  summary: Define a page SECTION which is generated for all command packets
+  parameters:
+    - name: Filename
+      required: true
+      description: Name of the HTML ERB template file which is found in the
+        config/tools/handbook_creator/templates directory.
+      values: .+
+    - name: Output
+      required: true
+      description: What output formats should contain this section
+      values: ['ALl', 'HTML', 'PDF']
+    - name: Title Text
+      required: false
+      description: Title text which is accessable in the template
+      values: .+
+TLM_SECTION:
+  summary: Define a page SECTION which is generated for all telemetry packets
+  parameters:
+    - name: Filename
+      required: true
+      description: Name of the HTML ERB template file which is found in the
+        config/tools/handbook_creator/templates directory.
+      values: .+
+    - name: Output
+      required: true
+      description: What output formats should contain this section
+      values: ['ALl', 'HTML', 'PDF']
+    - name: Title Text
+      required: false
+      description: Title text which is accessable in the template
+      values: .+

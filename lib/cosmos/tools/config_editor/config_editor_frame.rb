@@ -1,4 +1,4 @@
-    type = # encoding: ascii-8bit
+# encoding: ascii-8bit
 
 # Copyright 2014 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
@@ -35,6 +35,9 @@ module Cosmos
     attr_reader :filename, :editor, :file_type
 
     @@file_number = 1
+    # Parsing Regex which captures ERB delimited values: <%= code %>
+    # Double quotes: "String with space" and single quotes: 'Another one'
+    PARSING_REGEX = %r{ (?:\S*<%(?:[^%>]|\\.)*%>\S*) | (?:"(?:[^\\"]|\\.)*") | (?:'(?:[^\\']|\\.)*') | \S+ }x #"
 
     def initialize(parent, default_tab_text = 'Untitled')
       super(parent)
@@ -287,7 +290,8 @@ module Cosmos
       begin
         type = ConfigEditor::CONFIGURATION_FILES[@file_type][0]
         @file_meta = MetaConfigParser.load("#{type}.yaml")
-      rescue
+      rescue => error
+        Kernel.raise $! if error.is_a? Psych::SyntaxError
         @file_meta = nil
       end
       display_keyword_help()
@@ -301,16 +305,31 @@ module Cosmos
         unless keyword.empty?
 
           previous = nil
-          # STATE is the only keyword that is different depending on higher
-          # order keywords. It depends if we're building a command vs a telemetry.
+          # Some keywords are different depending on higher order keywords
+          # We handle those special cases here
           if keyword == 'STATE'
             previous = previous_keyword(1)
             (2..line_number).each do |index|
-              break if previous.include?('COMMAND') || previous.include?('TELEMETRY')
+              break if previous.include?('COMMAND') || previous.include?('TELEMETRY') || previous.include?('TABLE')
               previous = previous_keyword(index)
             end
+            meta = find_meta_keyword(@file_meta, keyword, previous)
+          elsif keyword == 'TOOL'
+            previous = previous_keyword(1)
+            (2..line_number).each do |index|
+              break if previous.include?('MULTITOOL_START') || previous.include?('MULTITOOL_END')
+              previous = previous_keyword(index)
+            end
+            if previous == 'MULTITOOL_START'
+              meta = find_meta_keyword(@file_meta, 'MULTITOOL_START')
+              meta = meta['modifiers']['TOOL']
+            else
+              meta = find_meta_keyword(@file_meta, keyword)
+            end
+          else
+            meta = find_meta_keyword(@file_meta, keyword)
           end
-          build_help_frame(find_meta_keyword(@file_meta, keyword, previous))
+          build_help_frame(meta)
         else
           keyword = previous_keyword()
           if keyword.empty?
@@ -455,7 +474,10 @@ module Cosmos
     end
 
     def build_help_frame(meta)
-      return unless meta
+      unless meta
+        build_blank_help(@file_meta)
+        return
+      end
       @gui_widget.dispose()
       @gui_widget = Qt::Widget.new
       @gui_layout = Qt::VBoxLayout.new
@@ -501,7 +523,7 @@ module Cosmos
     end
 
     def process_parameters(parameters, parameter_offset = 1)
-      line_parts = current_line.scan(ConfigParser::PARSING_REGEX)
+      line_parts = current_line.scan(PARSING_REGEX)
       parameters.each_with_index do |parameter, parameter_index|
         parameter_index += parameter_offset
         name_layout = Qt::HBoxLayout.new
@@ -589,7 +611,7 @@ module Cosmos
       @editor.blockSignals(true)
       c = @editor.textCursor
       current = @editor.current_line
-      line_parts = current_line.scan(ConfigParser::PARSING_REGEX)
+      line_parts = current_line.scan(PARSING_REGEX)
       indentation = current.length - current.lstrip.length
       if start_index.nil?
         #c.movePosition(Qt::TextCursor::StartOfLine)

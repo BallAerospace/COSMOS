@@ -1,0 +1,53 @@
+---
+IGNORE_ITEM:
+  summary: Ignore a particular telemetry item
+  parameters:
+    - name: Target Name
+      required: true
+      description: Name of the telemetry target
+      values: <%= System.targets.keys %>
+    - name: Packet Name
+      required: true
+      description: Name of the telemetry packet
+      values: .+
+    - name: Item Name
+      required: true
+      description: Name of the telemetry item
+      values: .+
+IGNORE_PACKET:
+  summary: Ignore all telemetry items for a specified packet
+  parameters:
+    - name: Target Name
+      required: true
+      description: Name of the telemetry target
+      values: <%= System.targets.keys %>
+    - name: Packet Name
+      required: true
+      description: Name of the telemetry packet
+      values: .+
+IGNORE_STALE:
+  summary: Ignore the staleness of a specified packet
+  description: Note that only the packet staleness is ignored. If the packet is
+    received and an item is out-of-limits, that will still count against the overall
+    system limits state unless the item or packet is separately ignored with the
+    IGNORE_ITEM or IGNORE_PACKET keyword.
+  since: 4.0.0
+  parameters:
+    - name: Target Name
+      required: true
+      description: Name of the telemetry target
+      values: <%= System.targets.keys %>
+    - name: Packet Name
+      required: true
+      description: Name of the telemetry packet
+      values: .+
+COLOR_BLIND:
+  summary: Use a color-blind accessibility mode
+  description: Color blind mode causes the value for out-of-limits items to have
+    a code appended to indicate the limits status. The code is r = red low,
+    y = yellow low, g = green low, B = blue, G = green or green high,
+    Y = yellow high, R = red high.
+IGNORE_OPERATIONAL_LIMITS:
+  summary: Ignore GREEN_HIGH or GREEN_LOW limits states
+  description: Items with operational limits will only show up in limits monitor
+    if they go yellow or red
