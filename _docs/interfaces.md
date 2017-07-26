@@ -34,8 +34,8 @@ The TCPIP client interface connects to a TCPIP socket to send commands and recei
 | Read Port | Port to read telemetry from (can be the same as write port) | Yes |
 | Write Timeout | Number of seconds to wait before aborting the write. Pass 'nil' to block on write. | Yes |
 | Read Timeout | Number of seconds to wait before aborting the read. Pass 'nil' to block on read. | Yes |
-| Stream Protocol Type | See Streams and Stream Protocols. | No |
-| Stream Protocol Arguments | See Streams and Stream Protocols for the arguments each stream protocol takes. | No |
+| Protocol Type | See Protocols. | No |
+| Protocol Arguments | See Protocols for the arguments each stream protocol takes. | No |
 
 cmd_tlm_server.txt Examples:
 {% highlight bash %}
@@ -56,8 +56,8 @@ The TCPIP server interface creates a TCPIP server which listens for incoming con
 | Read Port | Port to read telemetry from (can be the same as write port) | Yes |
 | Write Timeout | Number of seconds to wait before aborting the write. Pass 'nil' to block on write. | Yes |
 | Read Timeout | Number of seconds to wait before aborting the read. Pass 'nil' to block on read. | Yes |
-| Stream Protocol Type | See Streams and Stream Protocols. | No |
-| Stream Protocol Arguments | See Streams and Stream Protocols for the arguments each stream protocol takes. | No |
+| Protocol Type | See Protocols. | No |
+| Protocol Arguments | See Protocols for the arguments each stream protocol takes. | No |
 
 cmd_tlm_server.txt Examples:
 {% highlight bash %}
@@ -100,8 +100,8 @@ The serial interface connects to a target over a serial port. COSMOS provides dr
 | Stop Bits | Number of stop bits, e.g. 1. | Yes |
 | Write Timeout | Number of seconds to wait before aborting the write. Pass 'nil' to block on write. | Yes |
 | Read Timeout | Number of seconds to wait before aborting the read. Pass 'nil' to block on read. | Yes |
-| Stream Protocol Type | See Streams and Stream Protocols. | No |
-| Stream Protocol Arguments | See Streams and Stream Protocols for the arguments each stream protocol takes. | No |
+| Protocol Type | See Protocols. | No |
+| Protocol Arguments | See Protocols for the arguments each stream protocol takes. | No |
 
 cmd_tlm_server.txt Examples:
 {% highlight bash %}
