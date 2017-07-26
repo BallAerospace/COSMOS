@@ -33,6 +33,8 @@ module Cosmos
     #   :LOG_READER
     attr_accessor :change_callback
 
+    signals 'log_file_activated(QListWidgetItem*)'
+
     # @param parent [Qt::Widget] Parent to this dialog
     # @param log_directory [String] Initial directory to display when browsing
     #   for log files
@@ -97,6 +99,9 @@ module Cosmos
       @filenames = Qt::ListWidget.new(self)
       @filenames.setSelectionMode(Qt::AbstractItemView::ExtendedSelection)
       @filenames.setSortingEnabled(true)
+      @filenames.connect(SIGNAL('itemActivated(QListWidgetItem*)')) do |item|
+        emit log_file_activated(item)
+      end
       delete = Qt::Shortcut.new(Qt::KeySequence.new(Qt::Key_Delete), @filenames)
       delete.connect(SIGNAL('activated()')) { handle_remove_button }
       backspace = Qt::Shortcut.new(Qt::KeySequence.new(Qt::Key_Backspace), @filenames)
