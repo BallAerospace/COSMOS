@@ -6,7 +6,7 @@ Send ^o
 WinWaitActive Open
 Send error.txt{Enter}
 WinWaitActive Error
-Click 430 215
+Click 450 250
 WinWaitActive OpenGL
 
 Send ^a ; Open shape
@@ -131,4 +131,3 @@ Sleep 500
 ; Quit OpenGL Builder
 Send ^q
 Sleep 500
-
