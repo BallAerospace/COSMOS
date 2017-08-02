@@ -9,7 +9,7 @@
 # attribution addendums as found in the LICENSE.txt
 
 require 'cosmos'
-require 'cosmos/ext/tabbed_plots_config'
+require 'cosmos/ext/tabbed_plots_config' if RUBY_ENGINE == 'ruby' and !ENV['COSMOS_NO_EXT']
 require 'cosmos/tools/tlm_grapher/tabbed_plots_tool/tabbed_plots_tab'
 require 'cosmos/tools/tlm_grapher/plots/plot'
 require 'cosmos/tools/tlm_grapher/plots/linegraph_plot'
@@ -405,8 +405,15 @@ module Cosmos
 
     protected
 
-    # Optimization method to move each call to C code
-    # def process_packet_in_each_data_object(data_objects, packet, packet_count)
+    if RUBY_ENGINE != 'ruby' or ENV['COSMOS_NO_EXT']
+      # Optimization method to move each call to C code
+      def process_packet_in_each_data_object(data_objects, packet, packet_count)
+        data_objects.each do |data_object|
+          data_object.process_packet(packet, packet_count)
+        end
+        return nil
+      end
+    end
 
     # Build (or rebuild) the mapping between packets and data objects that process them
     # Note: This is an optimization to prevent looping through all the data objects

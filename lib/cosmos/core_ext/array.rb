@@ -8,7 +8,7 @@
 # as published by the Free Software Foundation; version 3 with
 # attribution addendums as found in the LICENSE.txt
 
-require 'cosmos/ext/array'
+require 'cosmos/ext/array' if RUBY_ENGINE == 'ruby' and !ENV['COSMOS_NO_EXT']
 
 # COSMOS specific additions to the Ruby Array class
 class Array
@@ -229,11 +229,51 @@ class Array
     self.map {|value| value * value}
   end
 
-  # return [Numeric, Fixnum] The first maximum value and its index
-  # def max_with_index
+  if RUBY_ENGINE != 'ruby' or ENV['COSMOS_NO_EXT']
+    # return [Numeric, Fixnum] The first maximum value and its index
+    def max_with_index
+      maximum = nil
+      maximum_index = nil
 
-  # return [Numeric, Fixnum] The first minimum value and its index
-  # def min_with_index
+      if self.length > 0
+        maximum = self[0]
+        maximum_index = 0
+
+        (1..(self.length - 1)).each do |index|
+          value = self[index]
+
+          if value > maximum
+            maximum = value
+            maximum_index = index
+          end
+        end
+      end
+
+      return [maximum, maximum_index]
+    end
+
+    # return [Numeric, Fixnum] The first minimum value and its index
+    def min_with_index
+      minimum = nil
+      minimum_index = nil
+
+      if self.length > 0
+        minimum = self[0]
+        minimum_index = 0
+
+        (1..(self.length - 1)).each do |index|
+          value = self[index]
+
+          if value < minimum
+            minimum = value
+            minimum_index = index
+          end
+        end
+      end
+
+      return [minimum, minimum_index]
+    end
+  end
 
   # @param num_buckets [Integer] The number of buckets (groups of numbers) that
   #   will be used when histogramming. nil indicates to use as many buckets as

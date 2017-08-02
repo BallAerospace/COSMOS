@@ -8,6 +8,7 @@
 # as published by the Free Software Foundation; version 3 with
 # attribution addendums as found in the LICENSE.txt
 
+require 'cosmos/core_ext/kernel'
 if Kernel.is_windows?
   require 'cosmos/io/win32_serial_driver'
 else
@@ -47,6 +48,8 @@ module Cosmos
                                         stop_bits,
                                         write_timeout,
                                         read_timeout,
+                                        0.01,
+                                        1000,
                                         flow_control)
       else
         @driver = PosixSerialDriver.new(port_name,

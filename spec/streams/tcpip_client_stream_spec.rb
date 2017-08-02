@@ -15,11 +15,19 @@ module Cosmos
 
   describe TcpipClientStream do
     before(:all) do
-      addr = Socket.pack_sockaddr_in(8888, Socket::INADDR_ANY)
-      @listen_socket = Socket.new(Socket::AF_INET, Socket::SOCK_STREAM, 0)
+      addr = Socket.pack_sockaddr_in(8888, "0.0.0.0")
+      if RUBY_ENGINE == 'ruby'
+        @listen_socket = Socket.new(Socket::AF_INET, Socket::SOCK_STREAM, 0)
+      else
+        @listen_socket = ServerSocket.new(Socket::AF_INET, Socket::SOCK_STREAM, 0)
+      end
       @listen_socket.setsockopt(Socket::SOL_SOCKET, Socket::SO_REUSEADDR, 1) unless Kernel.is_windows?
-      @listen_socket.bind(addr)
-      @listen_socket.listen(5)
+      if RUBY_ENGINE == 'ruby'
+        @listen_socket.bind(addr)
+        @listen_socket.listen(5)
+      else
+        @listen_socket.bind(addr, 5)
+      end
     end
 
     after(:all) do

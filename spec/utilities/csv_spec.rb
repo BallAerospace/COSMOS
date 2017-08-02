@@ -88,8 +88,8 @@ module Cosmos
       end
 
       it "returns float values" do
-        expect(@csv.float("float")).to be(1.1)
-        expect(@csv.float("float", 1)).to be(2.2)
+        expect(@csv.float("float")).to eq(1.1)
+        expect(@csv.float("float", 1)).to eq(2.2)
       end
     end
 

@@ -8,4 +8,12 @@
 # as published by the Free Software Foundation; version 3 with
 # attribution addendums as found in the LICENSE.txt
 
-require 'cosmos/ext/low_fragmentation_array'
+if RUBY_ENGINE == 'ruby' and !ENV['COSMOS_NO_EXT']
+  require 'cosmos/ext/low_fragmentation_array'
+else
+  module Cosmos
+    class LowFragmentationArray < Array
+      # Can't implement low fragmention in native ruby easily
+    end
+  end
+end

@@ -9,7 +9,7 @@
 # attribution addendums as found in the LICENSE.txt
 
 require 'cosmos/packets/packet_config'
-require 'cosmos/ext/telemetry'
+require 'cosmos/ext/telemetry' if RUBY_ENGINE == 'ruby' and !ENV['COSMOS_NO_EXT']
 
 module Cosmos
 
@@ -46,16 +46,114 @@ module Cosmos
       return result
     end
 
-    # @param target_name [String] The target name
-    # @return [Hash<packet_name=>Packet>] Hash of the telemetry packets for the given
-    #   target name keyed by the packet name
-    # def packets(target_name)
+    if RUBY_ENGINE != 'ruby' or ENV['COSMOS_NO_EXT']
+      # @param target_name [String] The target name
+      # @return [Hash<packet_name=>Packet>] Hash of the telemetry packets for the given
+      #   target name keyed by the packet name
+      def packets(target_name)
+        upcase_target_name = target_name.to_s.upcase
+        target_packets = @config.telemetry[upcase_target_name]
+        raise "Telemetry target '#{upcase_target_name}' does not exist" unless target_packets
+        target_packets
+      end
 
-    # @param target_name [String] The target name
-    # @param packet_name [String] The packet name. Must be a defined packet name
-    #   and not 'LATEST'.
-    # @return [Packet] The telemetry packet for the given target and packet name
-    # def packet(target_name, packet_name)
+      # @param target_name [String] The target name
+      # @param packet_name [String] The packet name. Must be a defined packet name
+      #   and not 'LATEST'.
+      # @return [Packet] The telemetry packet for the given target and packet name
+      def packet(target_name, packet_name)
+        target_packets = packets(target_name)
+        upcase_packet_name = packet_name.to_s.upcase
+        packet = target_packets[upcase_packet_name]
+        unless packet
+          upcase_target_name = target_name.to_s.upcase
+          raise "Telemetry packet '#{upcase_target_name} #{upcase_packet_name}' does not exist"
+        end
+        packet
+      end
+
+      # @param target_name (see #packet)
+      # @param packet_name [String] The packet name. 'LATEST' can also be given
+      #   to specify the last received (or defined if no packets have been
+      #   received) packet within the given target that contains the
+      #   item_name.
+      # @param item_name [String] The item name
+      # @return [Packet, PacketItem] The packet and the packet item
+      def packet_and_item(target_name, packet_name, item_name)
+        upcase_packet_name = packet_name.to_s.upcase
+        if upcase_packet_name == "LATEST".freeze
+          return_packet = newest_packet(target_name, item_name)
+        else
+          return_packet = packet(target_name, packet_name)
+        end
+        item = return_packet.get_item(item_name)
+        return [return_packet, item]
+      end
+
+      # Return a telemetry value from a packet.
+      #
+      # @param target_name (see #packet_and_item)
+      # @param packet_name (see #packet_and_item)
+      # @param item_name (see #packet_and_item)
+      # @param value_type [Symbol] How to convert the item before returning.
+      #   Must be one of {Packet::VALUE_TYPES}
+      # @return The value. :FORMATTED and :WITH_UNITS values are always returned
+      #   as Strings. :RAW values will match their data_type. :CONVERTED values
+      #   can be any type.
+      def value(target_name, packet_name, item_name, value_type = :CONVERTED)
+        packet, _ = packet_and_item(target_name, packet_name, item_name) # Handles LATEST
+        return packet.read(item_name, value_type)
+      end
+
+      # Reads the specified list of items and returns their values and limits
+      # state.
+      #
+      # @param item_array [Array<Array(String String String)>] An array
+      #   consisting of [target name, packet name, item name]
+      # @param value_types [Symbol|Array<Symbol>] How to convert the items before
+      #   returning. A single symbol of {Packet::VALUE_TYPES}
+      #   can be passed which will convert all items the same way. Or
+      #   an array of symbols can be passed to control how each item is
+      #   converted.
+      # @return [Array, Array, Array] The first array contains the item values and the
+      #   second their limits state, and the third their limits settings which includes
+      #   the red, yellow, and green (if given) limits values.
+      def values_and_limits_states(item_array, value_types = :CONVERTED)
+        items = []
+
+        # Verify item_array is a nested array
+        raise(ArgumentError, "item_array must be a nested array consisting of [[tgt,pkt,item],[tgt,pkt,item],...]") unless Array === item_array[0]
+
+        states = []
+        settings = []
+        limits_set = System.limits_set
+
+        raise(ArgumentError, "Passed #{item_array.length} items but only #{value_types.length} value types") if (Array === value_types) and item_array.length != value_types.length
+
+        value_type = value_types.intern unless Array === value_types
+        item_array.length.times do |index|
+          entry = item_array[index]
+          target_name = entry[0]
+          packet_name = entry[1]
+          item_name = entry[2]
+          value_type = value_types[index].intern if Array === value_types
+
+          packet, item = packet_and_item(target_name, packet_name, item_name) # Handles LATEST
+          items << packet.read(item_name, value_type)
+          limits = item.limits
+          states << limits.state
+          limits_values = limits.values
+          if limits_values
+            limits_settings = limits_values[limits_set]
+          else
+            limits_settings = nil
+          end
+          settings << limits_settings
+        end
+
+        return [items, states, settings]
+      end
+    end
 
     # @param target_name (see #packet)
     # @param packet_name (see #packet)
@@ -80,27 +178,6 @@ module Cosmos
       end
       item_names
     end
-
-    # @param target_name (see #packet)
-    # @param packet_name [String] The packet name. 'LATEST' can also be given
-    #   to specify the last received (or defined if no packets have been
-    #   received) packet within the given target that contains the
-    #   item_name.
-    # @param item_name [String] The item name
-    # @return [Packet, PacketItem] The packet and the packet item
-    # def packet_and_item(target_name, packet_name, item_name)
-
-    # Return a telemetry value from a packet.
-    #
-    # @param target_name (see #packet_and_item)
-    # @param packet_name (see #packet_and_item)
-    # @param item_name (see #packet_and_item)
-    # @param value_type [Symbol] How to convert the item before returning.
-    #   Must be one of {Packet::VALUE_TYPES}
-    # @return The value. :FORMATTED and :WITH_UNITS values are always returned
-    #   as Strings. :RAW values will match their data_type. :CONVERTED values
-    #   can be any type.
-    # def value(target_name, packet_name, item_name, value_type = :CONVERTED)
 
     # Set a telemetry value in a packet.
     #
@@ -258,21 +335,6 @@ module Cosmos
         end
       end
     end
-
-    # Reads the specified list of items and returns their values and limits
-    # state.
-    #
-    # @param item_array [Array<Array(String String String)>] An array
-    #   consisting of [target name, packet name, item name]
-    # @param value_types [Symbol|Array<Symbol>] How to convert the items before
-    #   returning. A single symbol of {Packet::VALUE_TYPES}
-    #   can be passed which will convert all items the same way. Or
-    #   an array of symbols can be passed to control how each item is
-    #   converted.
-    # @return [Array, Array, Array] The first array contains the item values and the
-    #   second their limits state, and the third their limits settings which includes
-    #   the red, yellow, and green (if given) limits values.
-    # def values_and_limits_states(item_array, value_types = :CONVERTED)
 
     # Iterates through all the telemetry packets and marks them stale if they
     # haven't been received for over the System.staleness_seconds value.

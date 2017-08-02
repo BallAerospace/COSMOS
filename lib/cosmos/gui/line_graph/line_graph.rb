@@ -9,7 +9,7 @@
 # attribution addendums as found in the LICENSE.txt
 
 require 'cosmos'
-require 'cosmos/ext/line_graph'
+require 'cosmos/ext/line_graph' # Only supported with MRI
 require 'cosmos/gui/qt'
 require 'cosmos/gui/dialogs/exception_dialog'
 require 'cosmos/gui/line_graph/lines'

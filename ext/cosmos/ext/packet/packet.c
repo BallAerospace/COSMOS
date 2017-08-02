@@ -128,7 +128,7 @@ static VALUE target_name_equals(VALUE self, VALUE target_name) {
     if (rb_funcall(target_name, id_method_class, 0) != rb_cString) {
       rb_raise(rb_eArgError, "target_name must be a String but is a %s", RSTRING_PTR(rb_funcall(rb_funcall(target_name, id_method_class, 0), id_method_to_s, 0)));
     }
-    rb_ivar_set(self, id_ivar_target_name, rb_funcall(rb_funcall(rb_funcall(target_name, id_method_upcase, 0), id_method_clone, 0), id_method_freeze, 0));
+    rb_ivar_set(self, id_ivar_target_name, rb_funcall(rb_funcall(target_name, id_method_upcase, 0), id_method_freeze, 0));
   } else {
     rb_ivar_set(self, id_ivar_target_name, Qnil);
   }
@@ -144,7 +144,7 @@ static VALUE packet_name_equals(VALUE self, VALUE packet_name) {
     if (rb_funcall(packet_name, id_method_class, 0) != rb_cString) {
       rb_raise(rb_eArgError, "packet_name must be a String but is a %s", RSTRING_PTR(rb_funcall(rb_funcall(packet_name, id_method_class, 0), id_method_to_s, 0)));
     }
-    rb_ivar_set(self, id_ivar_packet_name, rb_funcall(rb_funcall(rb_funcall(packet_name, id_method_upcase, 0), id_method_clone, 0), id_method_freeze, 0));
+    rb_ivar_set(self, id_ivar_packet_name, rb_funcall(rb_funcall(packet_name, id_method_upcase, 0), id_method_freeze, 0));
   } else {
     rb_ivar_set(self, id_ivar_packet_name, Qnil);
   }
@@ -193,11 +193,11 @@ static VALUE received_count_equals(VALUE self, VALUE received_count) {
   volatile VALUE read_conversion_cache = rb_ivar_get(self, id_ivar_read_conversion_cache);
 #ifdef RUBY_INTEGER_UNIFICATION /* Ruby 2.4.0 unified Fixnum and Bignum into Integer. This check allows the code to build pre- and post-2.4.0. */
   if (rb_funcall(received_count, id_method_class, 0) != rb_cInteger) {
-      rb_raise(rb_eArgError, "received_count must be an Integer but is a %s", RSTRING_PTR(rb_funcall(rb_funcall(received_count, id_method_class, 0), id_method_to_s, 0)));
+    rb_raise(rb_eArgError, "received_count must be an Integer but is a %s", RSTRING_PTR(rb_funcall(rb_funcall(received_count, id_method_class, 0), id_method_to_s, 0)));
   }
 #else
-  if (rb_funcall(received_count, id_method_class, 0) != rb_cFixnum) {
-    rb_raise(rb_eArgError, "received_count must be a Fixnum but is a %s", RSTRING_PTR(rb_funcall(rb_funcall(received_count, id_method_class, 0), id_method_to_s, 0)));
+  if ((rb_funcall(received_count, id_method_class, 0) != rb_cFixnum) && (rb_funcall(received_count, id_method_class, 0) != rb_cBignum)) {
+    rb_raise(rb_eArgError, "received_count must be an Integer but is a %s", RSTRING_PTR(rb_funcall(rb_funcall(received_count, id_method_class, 0), id_method_to_s, 0)));
   }
 #endif
   rb_ivar_set(self, id_ivar_received_count, received_count);
