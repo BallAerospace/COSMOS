@@ -1,6 +1,6 @@
 # encoding: ascii-8bit
 
-source 'http://rubygems.org'
+source 'https://rubygems.org'
 
 gem 'ruby-termios', '~> 0.9' if RbConfig::CONFIG['target_os'] !~ /mswin|mingw|cygwin/i
 # This is commented out because wdm does not currently support Ruby 2.2
