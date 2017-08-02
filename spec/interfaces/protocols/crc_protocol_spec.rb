@@ -74,6 +74,22 @@ module Cosmos
           :READ_WRITE) }.to raise_error(/Invalid bit offset/)
       end
 
+      it "complains if the endianness is not a BIG_ENDIAN or LITTLE_ENDIAN" do
+        expect { @interface.add_protocol(CrcProtocol, [
+          nil, # item name
+          'FALSE', # strip crc
+          'ERROR', # bad strategy
+          -16, # bit offset
+          16, # bit size
+          'TRUE', # endianness
+          0xDEAD, # poly
+          0x0, # seed
+          'TRUE', # xor
+          'TRUE', # reflect
+          ],
+          :READ_WRITE) }.to raise_error(/Invalid endianness/)
+      end
+
       it "complains if the poly is not a number" do
         expect { @interface.add_protocol(CrcProtocol, [
           nil, # item name
@@ -81,6 +97,7 @@ module Cosmos
           'ERROR', # bad strategy
           -16, # bit offset
           16, # bit size
+          'BIG_ENDIAN', # endianness
           'TRUE', # poly
           0x0, # seed
           'TRUE', # xor
@@ -96,6 +113,7 @@ module Cosmos
           'ERROR', # bad strategy
           -16, # bit offset
           16, # bit size
+          'LITTLE_ENDIAN', # endianness
           0xABCD, # poly
           'TRUE', # seed
           'TRUE', # xor
@@ -111,6 +129,7 @@ module Cosmos
           'ERROR', # bad strategy
           -16, # bit offset
           16, # bit size
+          'BIG_ENDIAN', # endianness
           0xABCD, # poly
           0, # seed
           0, # xor
@@ -126,6 +145,7 @@ module Cosmos
           'ERROR', # bad strategy
           -16, # bit offset
           16, # bit size
+          'BIG_ENDIAN', # endianness
           0xABCD, # poly
           0, # seed
           'TRUE', # xor
@@ -246,6 +266,7 @@ module Cosmos
             'ERROR', # bad strategy
             -16, # bit offset
             16, # bit size
+            :BIG_ENDIAN, # endianness
             0x8005, # poly
             0x0, # seed
             'TRUE', # xor
@@ -277,6 +298,7 @@ module Cosmos
             'ERROR', # bad strategy
             -32, # bit offset
             32, # bit size
+            :BIG_ENDIAN, # endianness
             0x1EDC6F41, # poly
             0x0, # seed
             'FALSE', # xor
@@ -308,6 +330,7 @@ module Cosmos
             'ERROR', # bad strategy
             -64, # bit offset
             64, # bit size
+            :BIG_ENDIAN, # endianness
             0x000000000000001B, # poly
             0x0, # seed
             'FALSE', # xor

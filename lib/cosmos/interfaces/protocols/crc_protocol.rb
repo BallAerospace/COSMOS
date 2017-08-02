@@ -20,15 +20,26 @@ module Cosmos
     DISCONNECT = "DISCONNECT" # on CRC mismatch
 
     def initialize(write_item_name, strip_crc, bad_strategy, bit_offset,
-                   bit_size = 32, poly = nil, seed = nil, xor = nil, reflect = nil)
+                   bit_size = 32, endianness = 'BIG_ENDIAN',
+                   poly = nil, seed = nil, xor = nil, reflect = nil)
       @write_item_name = ConfigParser.handle_nil(write_item_name)
       @strip_crc = ConfigParser.handle_true_false(strip_crc)
       raise "Invalid strip CRC of '#{strip_crc}'. Must be TRUE or FALSE." unless !!@strip_crc == @strip_crc
+
       case bad_strategy
       when ERROR, DISCONNECT
         @bad_strategy = bad_strategy
       else
         raise "Invalid bad CRC strategy of #{bad_strategy}. Must be ERROR or DISCONNECT."
+      end
+
+      case endianness.to_s.upcase
+      when 'BIG_ENDIAN'
+        @endianness = :BIG_ENDIAN # Convert to symbol for use in BinaryAccessor.write
+      when 'LITTLE_ENDIAN'
+        @endianness = :LITTLE_ENDIAN # Convert to symbol for use in BinaryAccessor.write
+      else
+        raise "Invalid endianness '#{endianness}'. Must be BIG_ENDIAN or LITTLE_ENDIAN."
       end
 
       @bit_offset = Integer(bit_offset)
@@ -58,21 +69,21 @@ module Cosmos
 
       case bit_size
       when 16
-        @pack = 'n'
+        @pack = (@endianness == :BIG_ENDIAN) ? 'n' : 'v'
         if args.empty?
           @crc = Crc16.new
         else
           @crc = Crc16.new(*args)
         end
       when 32
-        @pack = 'N'
+        @pack = (@endianness == :BIG_ENDIAN) ? 'N' : 'V'
         if args.empty?
           @crc = Crc32.new
         else
           @crc = Crc32.new(*args)
         end
       when 64
-        @pack = 'NN'
+        @pack = (@endianness == :BIG_ENDIAN) ? 'N' : 'V'
         if args.empty?
           @crc = Crc64.new
         else
@@ -84,15 +95,8 @@ module Cosmos
     end
 
     def read_data(data)
-      end_range = (@bit_offset + @bit_size) / 8
-      end_range = -1 if end_range == 0
-      if @bit_size == 64
-        crc = data[(@bit_offset/8)..end_range].unpack(@pack)
-        crc = (crc[0] << 32) | crc[1]
-      else
-        crc = data[(@bit_offset/8)..end_range].unpack(@pack)[0]
-      end
-      calculated_crc = @crc.calc(data[0...(@bit_offset/8)])
+      crc = BinaryAccessor.read(@bit_offset, @bit_size, :UINT, data, @endianness)
+      calculated_crc = @crc.calc(data[0...(@bit_offset / 8)])
       if calculated_crc != crc
         Logger.error "Invalid CRC detected! Calculated 0x#{calculated_crc.to_s(16).upcase} vs found 0x#{crc.to_s(16).upcase}."
         if @bad_strategy == DISCONNECT
@@ -101,8 +105,9 @@ module Cosmos
       end
       if @strip_crc
         new_data = data.dup
-        new_data = new_data[0...(@bit_offset/8)]
-        new_data << data[end_range..-1] unless end_range == -1
+        new_data = new_data[0...(@bit_offset / 8)]
+        end_range = (@bit_offset + @bit_size) / 8
+        new_data << data[end_range..-1] if end_range != 0
         return new_data
       end
       return data
@@ -121,10 +126,13 @@ module Cosmos
       unless @write_item_name
         if @bit_size == 64
           crc = @crc.calc(data)
-          data << [crc >> 32].pack("N")
-          data << [crc & 0xFFFFFFFF].pack("N")
+          data << ("\x00" * 8)
+          BinaryAccessor.write((crc >> 32), -64, 32, :UINT, data, @endianness, :ERROR)
+          BinaryAccessor.write((crc & 0xFFFFFFFF), -32, 32, :UINT, data, @endianness, :ERROR)
         else
-          data << [@crc.calc(data)].pack(@pack)
+          crc = @crc.calc(data)
+          data << ("\x00" * (@bit_size / 8))
+          BinaryAccessor.write(crc, -@bit_size, @bit_size, :UINT, data, @endianness, :ERROR)
         end
       end
       data
