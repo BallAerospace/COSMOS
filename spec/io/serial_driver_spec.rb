@@ -8,13 +8,13 @@
 # as published by the Free Software Foundation; version 3 with
 # attribution addendums as found in the LICENSE.txt
 
-require 'spec_helper'
-require 'cosmos/io/serial_driver'
-require 'cosmos/io/win32_serial_driver'
+if RUBY_ENGINE == 'ruby' or Gem.win_platform?
 
-module Cosmos
+  require 'spec_helper'
+  require 'cosmos/io/serial_driver'
+  require 'cosmos/io/win32_serial_driver'
 
-  if RUBY_ENGINE == 'ruby' or Gem.win_platform?
+  module Cosmos
 
     describe SerialDriver do
 
@@ -58,8 +58,5 @@ module Cosmos
         end
       end
     end
-
   end
-
 end
-
