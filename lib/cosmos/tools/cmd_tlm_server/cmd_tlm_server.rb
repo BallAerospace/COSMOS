@@ -524,8 +524,6 @@ module Cosmos
       self.instance.json_drb.request_count = 0
     end
 
-    protected
-
     # Method called by all interfaces when a packet has been identified. It
     # checks the limits of the packet and then posts the packet to any
     # registered subscribers.
@@ -535,7 +533,5 @@ module Cosmos
       packet.check_limits(System.limits_set)
       post_packet(packet)
     end
-
-  end # class CmdTlmServer
-
-end # module Cosmos
+  end
+end
