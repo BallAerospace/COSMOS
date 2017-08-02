@@ -11,7 +11,7 @@
 require 'cosmos/core_ext/kernel'
 if Kernel.is_windows?
   require 'cosmos/io/win32_serial_driver'
-else
+elsif RUBY_ENGINE == 'ruby'
   require 'cosmos/io/posix_serial_driver'
 end
 
@@ -51,7 +51,7 @@ module Cosmos
                                         0.01,
                                         1000,
                                         flow_control)
-      else
+      elsif RUBY_ENGINE == 'ruby'
         @driver = PosixSerialDriver.new(port_name,
                                         baud_rate,
                                         parity,
@@ -59,6 +59,8 @@ module Cosmos
                                         write_timeout,
                                         read_timeout,
                                         flow_control)
+      else
+        @driver = nil # JRuby Serial on Linux not currently supported
       end
     end
 

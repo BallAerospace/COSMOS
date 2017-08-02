@@ -95,7 +95,6 @@ module Cosmos
         expect(ss.read).to eql 'test'
         Cosmos.close_socket(socket)
         Cosmos.close_socket(server)
-        a.join
         thread.kill
         sleep 0.1
       end
@@ -115,7 +114,6 @@ module Cosmos
         sleep 0.2
         Cosmos.close_socket(socket)
         Cosmos.close_socket(server)
-        a.join
         thread.kill
         sleep 0.1
       end
