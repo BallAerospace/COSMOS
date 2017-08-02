@@ -45,8 +45,8 @@ module Cosmos
     #    while bytes < 400000
     #      bytes += ss.read.length
     #    end
-    #    Cosmos.close_socket(server)
     #    Cosmos.close_socket(socket)
+    #    Cosmos.close_socket(server)
     #    thread.kill
     #    sleep 0.1
     #  end
@@ -74,11 +74,8 @@ module Cosmos
         expect(ss.read_nonblock).to eql ''
         sleep 0.2
         expect(ss.read_nonblock).to eql 'test'
-        a = Thread.new do
-          Cosmos.close_socket(server)
-          Cosmos.close_socket(socket)
-        end
-        a.join
+        Cosmos.close_socket(socket)
+        Cosmos.close_socket(server)
         thread.kill
         sleep 0.1
       end
@@ -96,10 +93,8 @@ module Cosmos
         socket = TCPSocket.new('localhost', 2000)
         ss = TcpipSocketStream.new(nil,socket,nil,nil)
         expect(ss.read).to eql 'test'
-        a = Thread.new do
-          Cosmos.close_socket(server)
-          Cosmos.close_socket(socket)
-        end
+        Cosmos.close_socket(socket)
+        Cosmos.close_socket(server)
         a.join
         thread.kill
         sleep 0.1
@@ -118,10 +113,8 @@ module Cosmos
         ss = TcpipSocketStream.new(nil,socket,nil,0.1)
         expect { ss.read }.to raise_error(Timeout::Error)
         sleep 0.2
-        a = Thread.new do
-          Cosmos.close_socket(server)
-          Cosmos.close_socket(socket)
-        end
+        Cosmos.close_socket(socket)
+        Cosmos.close_socket(server)
         a.join
         thread.kill
         sleep 0.1
@@ -138,12 +131,9 @@ module Cosmos
         socket = TCPSocket.new('localhost', 2000)
         ss = TcpipSocketStream.new(nil,socket,nil,5)
         # Close the socket before trying to read from it
-        a = Thread.new do
-          Cosmos.close_socket(server)
-          Cosmos.close_socket(socket)
-        end
-        a.join
+        Cosmos.close_socket(socket)
         expect(ss.read).to eql ''
+        Cosmos.close_socket(server)
         thread.kill
         sleep 0.1
       end
