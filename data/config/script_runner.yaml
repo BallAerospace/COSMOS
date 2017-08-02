@@ -1,0 +1,15 @@
+---
+LINE_DELAY:
+  summary: Sets the amount of time in seconds before the next line of a script will be executed
+  parameters:
+    - name: Delay
+      required: true
+      description: Delay in seconds before the next line is executed. A value of
+        0 means to execute the scripts as fast as possible.
+      values: '[0-9]*\.?[0-9]+'
+MONITOR_LIMITS:
+  summary: Log limits events to the Script Runner log file while a script is running
+  description: Limits events are always logged by the Command and Telemetry Server
+    but are not put in the Script Runner log without this keyword.
+PAUSE_ON_RED:
+  summary: Pause a running script if a red limit occurs

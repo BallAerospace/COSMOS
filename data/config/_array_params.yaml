@@ -1,0 +1,23 @@
+---
+- name: Item Bit Size
+  required: true
+  description: Bit size of each array item
+  values: \d+
+- name: Item Data Type
+  required: true
+  description: Data Type of each array item
+  values: <%= %w(INT UINT FLOAT STRING BLOCK DERIVED) %>
+- name: Array Bit Size
+  required: true
+  description: Total Bit Size of the Array. Zero or Negative values may be used
+    to indicate the array fills the packet up to the offset from the end of the
+    packet specified by this value.
+  values: '[-]?\d+'
+- name: Description
+  required: false
+  description: Description which must be enclosed with quotes
+  values: "['\"].*['\"]"
+- name: Endianness
+  required: false
+  description: Indicates if the data is to be sent in Big Endian or Little Endian format
+  values: <%= %w(BIG_ENDIAN LITTLE_ENDIAN) %>

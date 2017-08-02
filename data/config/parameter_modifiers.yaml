@@ -1,0 +1,144 @@
+---
+<%= MetaConfigParser.load('param_item_modifiers.yaml').to_meta_config_yaml(0) %>
+REQUIRED:
+  summary: Parameter is required to be populated in scripts
+  description: When sending the command via Script Runner a value must always be
+    given for the current command parameter. This prevents the user from relying
+    on a default value. Note that this does not affect Command Sender which will
+    still populate the field with the default value provided in the PARAMETER definition.
+MINIMUM_VALUE:
+  summary: Override the defined minimum value
+  parameters:
+    - name: Value
+      required: true
+      description: The new minimum value for the parameter
+      values: .*
+MAXIMUM_VALUE:
+  summary: Override the defined maximum value
+  parameters:
+    - name: Value
+      required: true
+      description: The new maximum value for the parameter
+      values: .*
+DEFAULT_VALUE:
+  summary: Override the defined default value
+  parameters:
+    - name: Value
+      required: true
+      description: The new default value for the parameter
+      values: .*
+STATE:
+  summary: Defines a key/value pair for the current command parameter
+  description: Key value pairs allow for user friendly strings. For example,
+    you might define states for ON = 1 and OFF = 0. This allows the word ON to be
+    used rather than the number 1 when sending the command parameter and allows
+    for much greater clarity and less chance for user error.
+  parameters:
+    - name: Key
+      required: true
+      description: The string state name
+      values: .*
+    - name: Value
+      required: true
+      description: The numerical state value
+      values: .*
+    - name: Hazardous
+      required: false
+      description: Indicates the state is hazardous. This will cause a popup
+        to ask for user confirmation when sending this command.
+      values: ['HAZARDOUS']
+    - name: Hazardous Description
+      required: false
+      description: String describing why this state is hazardous
+      values: "['\"].*['\"]"
+WRITE_CONVERSION:
+  summary: Applies a conversion when writing the current command parameter
+  description: Conversions are implemented in a custom Ruby file which should be
+    located in the target's lib folder and required by the target's target.txt
+    file (see REQUIRE). The class must require 'cosmos/conversions/conversion'
+    and inherit from Conversion. It must implement the initialize method if it
+    takes extra parameters and must always implement the call method. The conversion
+    factor is applied to the value entered by the user before it is written into
+    the binary command packet and sent.
+  parameters:
+    - name: Class File Name
+      required: true
+      description: The file name which contains the Ruby class. The file name must
+        be named after the class such that the class is a CamelCase version of the
+        underscored file name. For example, 'the_great_conversion.rb' should contain
+        'class TheGreatConversion'.
+      values: .*\.rb
+    - name: Parameter
+      required: false
+      description: Additional parameter values for the conversion which are passed
+        to the class constructor.
+      values: .*
+POLY_WRITE_CONVERSION:
+  summary: Adds a polynomial conversion factor to the current command parameter
+  description: The conversion factor is applied to the value entered by the user
+    before it is written into the binary command packet and sent.
+  parameters:
+    - name: C0
+      required: true
+      description: Coefficient
+      values: .*
+    - name: Cx
+      required: false
+      description: Additional coefficient values for the conversion. Any order
+        polynomial conversion may be used so the value of 'x' will vary with the
+        order of the polynomial. Note that larger order polynomials take longer
+        to process than shorter order polynomials, but are sometimes more accurate.
+      values: .*
+SEG_POLY_WRITE_CONVERSION:
+  summary: Adds a segmented polynomial conversion factor to the current command parameter
+  description: This conversion factor is applied to the value entered by the user
+    before it is written into the binary command packet and sent.
+  parameters:
+    - name: Lower Bound
+      required: true
+      description: Defines the lower bound of the range of values that this segmented
+        polynomial applies to. Is ignored for the segment with the smallest lower bound.
+      values: .*
+    - name: C0
+      required: true
+      description: Coefficient
+      values: .*
+    - name: Cx
+      required: false
+      description: Additional coefficient values for the conversion. Any order
+        polynomial conversion may be used so the value of 'x' will vary with the
+        order of the polynomial. Note that larger order polynomials take longer
+        to process than shorter order polynomials, but are sometimes more accurate.
+      values: .*
+GENERIC_WRITE_CONVERSION_START:
+  summary: Start a generic write conversion
+  description: Adds a generic conversion function to the current command parameter.
+    This conversion factor is applied to the value entered by the user before it
+    is written into the binary command packet and sent. The conversion is specified
+    as ruby code that receives two implied parameters. 'value' which is the raw
+    value being written and 'packet' which is a reference to the command packet
+    class (Note, referencing the packet as 'myself' is still supported for backwards
+    compatibility). The last line of ruby code given should return the converted
+    value. The GENERIC_WRITE_CONVERSION_END keyword specifies that all lines of
+    ruby code for the conversion have been given.
+  warning: Generic conversions are not a good long term solution. Consider creating
+    a conversion class and using WRITE_CONVERSION instead. WRITE_CONVERSION is easier
+    to debug and higher performance.
+GENERIC_WRITE_CONVERSION_END:
+  summary: Complete a generic write conversion
+OVERFLOW:
+  summary: Set the behavior when writing a value overflows the type
+  description: By default COSMOS throws an error if you try to write a value
+    which overflows its specified type, e.g. writing 255 to a 8 bit signed value.
+    Setting the overflow behavior also allows for COSMOS to 'TRUNCATE'
+    the value by eliminating any high order bits. You can also set 'SATURATE' which
+    causes COSMOS to replace the value with the maximum or minimum allowable value
+    for that type. Finally you can specify 'ERROR_ALLOW_HEX' which will allow for
+    a maximum hex value to be writen, e.g. you can successfully write 255 to a 8
+    bit signed value.
+  parameters:
+    - name: Behavior
+      required: true
+      description: How COSMOS treats an overflow value. Only applies to signed and
+        unsigned integer data types.
+      values: <%= %w(ERROR ERROR_ALLOW_HEX TRUNCATE SATURATE) %>

@@ -1,0 +1,38 @@
+---
+COMMAND:
+  modifiers:
+    <%= MetaConfigParser.load('command_modifiers.yaml').to_meta_config_yaml(4) %>
+  summary: Defines a new command packet
+  parameters:
+    - name: Target
+      required: true
+      description: Name of the target this command is associated with
+      values: <%= System.targets.keys %>
+    - name: Command
+      required: true
+      description: Name of this command. Also referred to as its mnemonic.
+        Must be unique to commands to this target. Ideally will be as short and clear as possible.
+      values: \D\S*
+    - name: Endianness
+      required: true
+      description: Indicates if the data in this command is to be sent in Big Endian or Little Endian format
+      values: ['BIG_ENDIAN', 'LITTLE_ENDIAN']
+    - name: Description
+      required: false
+      description: Description of this command which must be enclosed with quotes
+      values: "['\"].*['\"]"
+SELECT_COMMAND:
+  modifiers:
+    <%= MetaConfigParser.load('command_modifiers.yaml').to_meta_config_yaml(4) %>
+  summary: Selects an existing command packet for editing
+  description: Typically used in a separate configuration file from where the original
+    command is defined to override or add to the existing command definition
+  parameters:
+    - name: Target Name
+      required: true
+      description: Name of the target this command is associated with
+      values: <%= System.targets.keys %>
+    - name: Command Name
+      required: true
+      description: Name of the command to select
+      values: .*

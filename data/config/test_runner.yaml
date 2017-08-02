@@ -1,0 +1,118 @@
+---
+<%= MetaConfigParser.load('script_runner.yaml').to_meta_config_yaml(0) %>
+LOAD_UTILITY:
+  summary: Specify a test procedure to run
+  description: Procedures will be found automatically in the procedures directory
+    or can be given by a path relative to the COSMOS install directory or by an
+    absolute path. This keyword is used to load the script and execute it line
+    by line by showing the current execution point. Sometimes you want to load
+    utility code that is NOT executed line by line but is executed in the background.
+    For example, a CRC routine or other long running calculation. The Ruby keyword
+    'load' can be used for this purpose, e.g. 'load utility.rb'. This code will
+    be loaded but not shown when executing.
+  parameters:
+    - name: Filename
+      required: true
+      description: Name of the test file in quotes
+      values: '.+\.rb'
+REQUIRE_UTILITY:
+  summary: DEPRECATED in favor of LOAD_UTILITY
+RESULTS_WRITER:
+  summary: Specify a different Ruby file to interpret and print the Test Runner results
+  description: The specified Ruby file must define a class which implements the
+    Cosmos::ResultsWriter API
+  parameters:
+    - name: Filename
+      required: true
+      description: Name of the Ruby file which implements a result writer
+      values: '.+\.rb'
+    - name: Class Parameters
+      required: false
+      description: Parameters to pass to the constructor of the results writer
+      values: .*
+ALLOW_DEBUG:
+  summary: Whether to allow the user to enable the debug line where the user can enter arbitrary statements
+PAUSE_ON_ERROR:
+  summary: Set or clear the pause on error checkbox
+  description: If this is checked, Test Runner will pause if the test encounters
+    an error. Otherwise the error will be logged but the script will continue.
+  parameters:
+    - name: Enable
+      required: true
+      description: Whether to pause when the script encounters an error
+      values: ['TRUE', 'FALSE']
+CONTINUE_TEST_CASE_AFTER_ERROR:
+  summary: Set or clear the continue test case after error checkbox
+  description: If this is checked, Test Runner will continue executing the current
+    test case after encountering an error. Otherwise the test case will stop at
+    the error and the next test case will execute.
+  parameters:
+    - name: Enable
+      required: true
+      description: Whether to continue the test case when the script encounters an error
+      values: ['TRUE', 'FALSE']
+ABORT_TESTING_AFTER_ERROR:
+  summary: Set or clear the abort testing after error checkbox
+  description: If this is checked, Test Runner will stop executing after the current
+    test case completes (how it completes depends on CONTINUE_TEST_CASE_AFTER_ERROR).
+    Otherwise the next test case will execute.
+  parameters:
+    - name: Enable
+      required: true
+      description: Whether to continue to the next test case when the script encounters an error
+      values: ['TRUE', 'FALSE']
+MANUAL:
+  summary: Set the $manual global variable for all executing scripts
+  description: The $manual variable can be checked during tests to allow for fully
+    automated tests if it is not set, or for user input if it is set. This capability
+    is completely dependent on user specific code which checks the $manual variable.
+  parameters:
+    - name: Enable
+      required: true
+      description: Whether to set the $manual global to true
+      values: ['TRUE', 'FALSE']
+LOOP_TESTING:
+  summary: Set or clear the loop testing checkbox
+  description: If this is checked, Test Runner will continue to run whatever level
+    of tests that were initially started. If either "Abort Testing after Error"
+    or "Break Loop after Error" are checked, then the loop testing will stop if
+    an error is encountered. The difference is that the "Abort Testing after Error"
+    will stop testing immediately after the current test case completes.
+    "Break Loop after Error" continues the current loop by executing the remaining
+    suite or group before stopping. In the case of executing a single test case
+    the options effectively do the same thing.
+  parameters:
+    - name: Enable
+      required: true
+      description: Whether to loop the selected test level
+      values: ['TRUE', 'FALSE']
+BREAK_LOOP_AFTER_ERROR:
+  summary: Set or clear the break loop after error checkbox
+  description: If this is checked, Test Runner continues the current loop by
+    executing the remaining suite or group before stopping.
+  parameters:
+    - name: Enable
+      required: true
+      description: Whether to break the loop after encountering an error
+      values: ['TRUE', 'FALSE']
+IGNORE_TEST:
+  summary: Ignore the given test class name when parsing the tests
+  parameters:
+    - name: Test Class Name
+      required: true
+      description: The test class to ignore when building the list of available tests
+      values: .+
+IGNORE_TEST_SUITE:
+  summary: Ignores the given test suite name when parsing the tests
+  parameters:
+    - name: Test Suite Name
+      required: true
+      description: The test suite to ignore when building the list of available tests
+      values: .+
+CREATE_DATA_PACKAGE:
+  summary: Creates a data package of every file created during the test
+AUTO_CYCLE_LOGS:
+  summary: Automatically start a new server message log and cmd/tlm logs at the
+    beginning and end of each test. Typically used in combination with CREATE_DATA_PACKAGE.
+COLLECT_METADATA:
+  summary: Prompt for Meta Data before starting tests

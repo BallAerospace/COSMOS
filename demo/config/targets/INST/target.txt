@@ -32,3 +32,6 @@ IGNORE_ITEM RECEIVED_TIMEFORMATTED
 # alphabetical order
 COMMANDS inst_cmds.txt
 TELEMETRY inst_tlm.txt
+
+# Automatically substitute the target name in screen definitions
+AUTO_SCREEN_SUBSTITUTE

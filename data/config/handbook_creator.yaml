@@ -1,0 +1,23 @@
+---
+PAGE:
+  modifiers:
+    <%= MetaConfigParser.load('page_modifiers.yaml').to_meta_config_yaml(4) %>
+  summary: Create a new top level webpage
+  parameters:
+    - name: Filename
+      required: true
+      description: Name of the HTML file
+      values: '.*\.html'
+TARGET_PAGES:
+  modifiers:
+    <%= MetaConfigParser.load('page_modifiers.yaml').to_meta_config_yaml(4) %>
+  summary: Create a new webpage for each of the defined TARGETS
+  description: The page will be generated for each target. A top level "Targets"
+    drop down will be created with links to all the generated target pages.
+  parameters:
+    - name: Filename Postfix
+      required: true
+      description: The postfix will be applied to each generated target file.
+        For example, a target named INST with a postfix of '_cmd_tlm.html' will
+        result in a file named 'inst_cmd_tlm.html'.
+      values: '.*\.html'

@@ -1,0 +1,172 @@
+---
+<%= MetaConfigParser.load('param_item_modifiers.yaml').to_meta_config_yaml(0) %>
+STATE:
+  summary: Defines a key/value pair for the current item
+  description: Key value pairs allow for user friendly strings. For example,
+    you might define states for ON = 1 and OFF = 0. This allows the word ON to be
+    used rather than the number 1 when sending the telemetry item and allows
+    for much greater clarity and less chance for user error.
+  parameters:
+    - name: Key
+      required: true
+      description: The string state name
+      values: .*
+    - name: Value
+      required: true
+      description: The numerical state value
+      values: .*
+    - name: Color
+      required: false
+      description: The color the state should be displayed as
+      values: ['GREEN', 'YELLOW', 'RED']
+READ_CONVERSION:
+  summary: Applies a conversion to the current telemetry item
+  description: Conversions are implemented in a custom Ruby file which should be
+    located in the target's lib folder and required by the target's target.txt
+    file (see REQUIRE). The class must require 'cosmos/conversions/conversion'
+    and inherit from Conversion. It must implement the initialize method if it
+    takes extra parameters and must always implement the call method. The conversion
+    factor is applied to the raw value in the telemetry packet before it is displayed
+    to the user. The user still has the ability to see the raw unconverted value
+    in a details dialog.
+  parameters:
+    - name: Class File Name
+      required: true
+      description: The file name which contains the Ruby class. The file name must
+        be named after the class such that the class is a CamelCase version of the
+        underscored file name. For example, 'the_great_conversion.rb' should contain
+        'class TheGreatConversion'.
+      values: .*\.rb
+    - name: Parameter
+      required: false
+      description: Additional parameter values for the conversion which are passed
+        to the class constructor.
+      values: .*
+POLY_READ_CONVERSION:
+  summary: Adds a polynomial conversion factor to the current telemetry item
+  description: The conversion factor is applied to raw value in the telemetry
+    packet before it is displayed to the user. The user still has the ability
+    to see the raw unconverted value in a details dialog.
+  parameters:
+    - name: C0
+      required: true
+      description: Coefficient
+      values: .*
+    - name: Cx
+      required: false
+      description: Additional coefficient values for the conversion. Any order
+        polynomial conversion may be used so the value of 'x' will vary with the
+        order of the polynomial. Note that larger order polynomials take longer
+        to process than shorter order polynomials, but are sometimes more accurate.
+      values: .*
+SEG_POLY_READ_CONVERSION:
+  summary: Adds a segmented polynomial conversion factor to the current telemetry item
+  description: This conversion factor is applied to the raw value in the telemetry packet
+    before it is displayed to the user. The user still has the ability to see the raw
+    unconverted value in a details dialog.
+  parameters:
+    - name: Lower Bound
+      required: true
+      description: Defines the lower bound of the range of values that this segmented
+        polynomial applies to. Is ignored for the segment with the smallest lower bound.
+      values: .*
+    - name: C0
+      required: true
+      description: Coefficient
+      values: .*
+    - name: Cx
+      required: false
+      description: Additional coefficient values for the conversion. Any order
+        polynomial conversion may be used so the value of 'x' will vary with the
+        order of the polynomial. Note that larger order polynomials take longer
+        to process than shorter order polynomials, but are sometimes more accurate.
+      values: .*
+GENERIC_READ_CONVERSION_START:
+  summary: Start a generic write conversion
+  description: Adds a generic conversion function to the current telemetry item.
+    This conversion factor is applied to the raw value in the telemetry packet
+    before it is displayed to the user. The user still has the ability to see the
+    raw unconverted value in a details dialog. The conversion is specified as
+    ruby code that receives two implied parameters. 'value' which is the raw
+    value being written and 'packet' which is a reference to the telemetry packet
+    class (Note, referencing the packet as 'myself' is still supported for backwards
+    compatibility). The last line of ruby code given should return the converted
+    value. The GENERIC_READ_CONVERSION_END keyword specifies that all lines of
+    ruby code for the conversion have been given.
+  warning: Generic conversions are not a good long term solution. Consider creating
+    a conversion class and using READ_CONVERSION instead. READ_CONVERSION is easier
+    to debug and higher performance.
+GENERIC_READ_CONVERSION_END:
+  summary: Complete a generic write conversion
+LIMITS:
+  summary: Defines a set of limits for a telemetry item
+  description: If limits are violated a message is printed in the Command and Telemetry Server
+    to indicate an item went out of limits. Other tools also use this information
+    to update displays with different colored telemetry items or other useful information.
+    The concept of "limits sets" is defined to allow for different limits values
+    in different environments. For example, you might want tighter or looser limits
+    on telemetry if your environment changes such as during thermal vacuum testing.
+  parameters:
+    - name: Limits Set
+      required: true
+      description: Name of the limits set. If you have no unique limits sets use
+        the keyword DEFAULT.
+      values: .+
+    - name: Persistence
+      required: true
+      description: Number of consecutive times the telemetry item must be within
+        a different limits range before changing limits state.
+      values: \d+
+    - name: Initial State
+      required: true
+      description: Whether limits monitoring for this telemetry item is initially enabled or disabled
+      values: ['ENABLED', 'DISABLED']
+    - name: Red Low Limit
+      required: true
+      description: If the telemetry value is less than or equal to this value a
+        Red Low condition will be detected
+      values: .+
+    - name: Yellow Low Limit
+      required: true
+      description: If the telemetry value is less than or equal to this value,
+        but greater than the Red Low Limit, a Yellow Low condition will be detected
+      values: .+
+    - name: Yellow High Limit
+      required: true
+      description: If the telemetry value is greater than or equal to this value,
+        but less than the Red High Limit, a Yellow High condition will be detected
+      values: .+
+    - name: Red High Limit
+      required: true
+      description: If the telemetry value is greater than or equal to this value
+        a Red High condition will be detected
+      values: .+
+    - name: Green Low Limit
+      required: false
+      description: Setting the Green Low and Green High limits defines an
+        "operational limit" which is colored blue by COSMOS. This allows for a
+        distinct desired operational range which is narrower than the green safety limit.
+        If the telemetry value is greater than or equal to this value, but less
+        than the Green High Limit, a Blue operational condition will be detected.
+      values: .+
+    - name: Green High Limit
+      required: false
+      description: Setting the Green Low and Green High limits defines an
+        "operational limit" which is colored blue by COSMOS. This allows for a
+        distinct desired operational range which is narrower than the green safety limit.
+        If the telemetry value is less than or equal to this value, but greater
+        than the Green Low Limit, a Blue operational condition will be detected.
+      values: .+
+LIMITS_RESPONSE:
+  summary: Defines a response class that is called when the limits state of the current item changes
+  parameters:
+    - name: Response Class Filename
+      required: true
+      description: Name of the Ruby file which implements the limits response.
+        This file should be in the config/TARGET/lib directory so it can be found by COSMOS.
+      values: .+
+    - name: Response Specific Options
+      required: false
+      description: Variable length number of options that will be passed to the
+        class constructor
+      values: .+

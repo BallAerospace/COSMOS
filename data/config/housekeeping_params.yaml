@@ -1,0 +1,71 @@
+---
+# Require housekeeping_data_object for the ANALYSIS_TYPES
+<% require 'cosmos/tools/tlm_grapher/data_objects/housekeeping_data_object.rb' %>
+ITEM:
+  summary: Graph the specified item
+  parameters:
+    - name: Target Name
+      description: The target name
+      required: true
+      values: <%= System.targets.keys %>
+    - name: Packet Name
+      description: The packet name
+      required: true
+      values: .+
+    - name: Item Name
+      description: The item name
+      required: true
+      values: .+
+ITEM_ARRAY_INDEX:
+  summary: If the ITEM is an ARRAY, this keyword specifies which array item to graph
+  parameters:
+    - name: Index
+      required: true
+      description: 0 based array Index
+      values: \d+
+TIME_ITEM:
+  summary: Specify the item in the packet representing the time value
+  parameters:
+    - name: Time Item Name
+      description: The time item is typically RECEIVED_TIMESECONDS
+      required: true
+      values: .+
+FORMATTED_TIME_ITEM:
+  summary: Specify the item in the packet representing the formatted time value
+  parameters:
+    - name: Time Item Name
+      description: The time item is typically RECEIVED_TIMEFORMATTED
+      required: true
+      values: .+
+VALUE_TYPE:
+  summary: How the value should be displayed
+  parameters:
+    - name: Item Value Type
+      description: Should the value be used raw or converted
+      required: true
+      values: ['RAW','CONVERTED']
+ANALYSIS:
+  summary: Apply an analysis to the given value
+  parameters:
+    - name: Analysis Type
+      description: The type of analysis to perform on the value before graphing
+      required: true
+      values: <%= HousekeepingDataObject::ANALYSIS_TYPES.collect {|type| type.to_s } %>
+ANALYSIS_SAMPLES:
+  summary: The number of samples to use when performing analysis. Only valid with the
+    ANALYSIS keyword.
+  parameters:
+    - name: Samples
+      description: Number of samples
+      required: true
+      values: \d+
+SHOW_LIMITS_LINES:
+  summary: Whether to show the limits line on the graph
+  description: The limits lines are horizontal lines which intercept the Y value at the
+    defined limits values. The red, yellow, and green limits are drawn with lines with the
+    respective colors.
+  parameters:
+    - name: Display
+      description: Whether to display the limits lines
+      required: true
+      values: ['TRUE','FALSE']

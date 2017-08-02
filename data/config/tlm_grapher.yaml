@@ -1,0 +1,78 @@
+---
+# Require data_object to access the COLOR_LIST
+<% require 'cosmos/tools/tlm_grapher/data_objects/data_object' %>
+POINTS_SAVED:
+  summary: Number of points saved in the plot history
+  warning: The larger the number the more memory Telemetry Grapher will use.
+    Eventually you will run out of memory!
+  parameters:
+    - name: Points
+      required: true
+      description: Number of points saved
+      values: \d+
+SECONDS_PLOTTED:
+  summary: Number of seconds plotted on each graph
+  parameters:
+    - name: Seconds
+      required: true
+      description: Number of seconds plotted
+      values: \d+
+POINTS_PLOTTED:
+  summary: Number of points plotted on each graph
+  warning: The larger the number the more performace is affected
+  parameters:
+    - name: Points
+      required: true
+      description: Number of points plotted per graph
+      values: \d+
+REFRESH_RATE_HZ:
+  summary: Telemetry Grapher refresh rate
+  parameters:
+    - name: Rate
+      required: true
+      description: Refresh rate in Hertz
+      values: '[0-9]*\.?[0-9]+'
+CTS_TIMEOUT:
+  summary: Timeout when trying to connect to the Server
+  parameters:
+    - name: Seconds
+      required: true
+      description: Timeout in seconds
+      values: '[0-9]*\.?[0-9]+'
+TAB:
+  summary: Create a new tab in the Telemetry Grapher GUI
+  parameters:
+    - name: Tab Text
+      required: false
+      description: Text to display on the tab
+      values: .*
+  modifiers:
+    PLOT:
+      summary: Create a new plot
+      parameters:
+        - name: Plot Type
+          required: true
+          description: Type of plot to create
+          values: ['LINEGRAPH', 'SINGLEXY', 'XY']
+      modifiers:
+        <%= MetaConfigParser.load('linegraph_plot.yaml').to_meta_config_yaml(8) %>
+        <%= MetaConfigParser.load('xy_plot.yaml').to_meta_config_yaml(8) %>
+        DATA_OBJECT:
+          modifiers:
+            COLOR:
+              summary: Color of the Data object
+              parameters:
+                - name: Color
+                  required: true
+                  description: Line color to draw the Data Object
+                  values: <%= DataObject::COLOR_LIST %>
+            <%= MetaConfigParser.load('housekeeping_params.yaml').to_meta_config_yaml(12) %>
+            <%= MetaConfigParser.load('linegraph_params.yaml').to_meta_config_yaml(12) %>
+            <%= MetaConfigParser.load('xy_params.yaml').to_meta_config_yaml(12) %>
+          summary: Type of data object on the plot
+          parameters:
+            - name: Data Object Type
+              required: true
+              description: Describes how the telemetry item is stored.
+                Typically matches the Plot Type.
+              values: ['LINEGRAPH','HOUSEKEEPING','SINGLEXY','XY']

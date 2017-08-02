@@ -1,0 +1,1339 @@
+---
+VERTICAL:
+  summary: Places the widgets it encapsulates vertically on
+    the screen. The screen defaults to a vertical layout, so if no layout widgets
+    are specified, all widgets will be automatically placed within a VERTICAL
+    layout widget. The VERTICAL widget sizes itself to fit its contents.
+  parameters:
+    - name: Vertical Spacing
+      required: false
+      description: Vertical spacing between widgets in pixels (default = 1)
+      values: .*
+    - name: Vertical Packing
+      required: false
+      description: Pack all widgets vertically (default = true)
+      values: .*
+VERTICALBOX:
+  summary: Places the widgets it encapsulates vertically
+    on the screen inside of a thin border. The VERTICALBOX widget sizes itself
+    to fit its contents vertically and to fit the screen horizontally.
+  parameters:
+    - name: Title
+      required: false
+      description: Text to place within the border to label the box
+      values: .*
+    - name: Vertical spacing
+      required: false
+      description: Vertical spacing between widgets in pixels (default = 1)
+      values: .*
+    - name: Vertical packing
+      required: false
+      description: Pack all widgets vertically (default = true)
+      values: .*
+HORIZONTAL:
+  summary: Places the widgets it encapsulates horizontally
+    on the screen. The HORIZONTAL widget sizes itself to fit its contents.
+  parameters:
+    - name: Horizontal spacing
+      required: false
+      description: Horizontal spacing between widgets in pixels (default = 1)
+      values: .*
+HORIZONTALBOX:
+  summary: Places the widgets it encapsulates horizontally
+    on the screen inside of a thin border. The HORIZONTALBOX widget sizes itself
+    to fit its contents.
+  parameters:
+    - name: Title
+      required: false
+      description: Text to place within the border to label the box
+      values: .*
+    - name: Horizontal spacing
+      required: false
+      description: Horizontal spacing between widgets in pixels (default = 1)
+      values: .*
+MATRIXBYCOLUMNS:
+  summary: Places the widgets into a table-like matrix.
+    The MATRIXBYCOLUMNS widget sizes itself to fit its contents.
+  parameters:
+    - name: Columns
+      required: true
+      description: The number of columns to create
+      values: .*
+SCROLLWINDOW:
+  summary: Places the widgets inside of it into a scrollable
+    area. The SCROLLWINDOW widget sizes itself to fit the screen in which it is contained.
+TABBOOK:
+  summary: Creates a tabbed area in which to place TABITEM widgets
+    to form a tabbed layout.
+TABITEM:
+  summary: Creates a tab into which to place widgets. The tab
+    automatically acts like a VERTICAL widget.
+  parameters:
+    - name: Tab text
+      required: true
+      description: Text to diplay in the tab
+      values: .*
+LABEL:
+  summary: Displays text on the screen. Generally, label widgets
+    contain a telemetry mnemonic and are placed next to the telemetry VALUE widget.
+  parameters:
+    - name: Text
+      required: true
+      description: Text to display on the label
+      values: .*
+HORIZONTALLINE:
+  summary: Displays a horizontal line on the screen that can be used as a separator
+SECTIONHEADER:
+  summary: Displays a label that is underlined with a
+    horizontal line. Generally, SECTIONHEADER widgets are the first widget placed
+    inside of a VERTICALBOX widget.
+  parameters:
+    - name: Text
+      required: true
+      description: Text to display above the horizontal line
+      values: .*
+TITLE:
+  summary: Displays a large centered title on the screen.
+  parameters:
+    - name: Text
+      required: true
+      description: Text to display above the horizontal line
+      values: .*
+SPACER:
+  summary: Inserts a spacer into a layout. This can be used to
+    separate or align other widgets.
+  parameters:
+    - name: Width
+      required: true
+      description: The width of the spacer in pixels.
+      values: .*
+    - name: Height
+      required: true
+      description: The height of the spacer in pixels.
+      values: .*
+    - name: Horizontal Policy
+      required: false
+      description: The horizontal size policy of the spacer. Default is MINIMUM.
+      values: <%= %w(FIXED MINIMUM MAXIMUM PREFERRED EXPANDING MINIMUMEXPANDING IGNORED) %>
+    - name: Vertical Policy
+      required: false
+      description: The vertical size policy of the spacer. Default is MINIMUM.
+      values: <%= %w(FIXED MINIMUM MAXIMUM PREFERRED EXPANDING MINIMUMEXPANDING IGNORED) %>
+ARRAY:
+  summary: Displays data from an array telemetry item.
+    Data is organized into rows and by default space separated.
+  parameters:
+    - name: Target name
+      required: true
+      description: The target name
+      values: <%= System.targets.keys %>
+    - name: Packet name
+      required: true
+      description: The packet name
+      values: .+
+    - name: Item name
+      required: true
+      description: The item name
+      values: .+
+    - name: Width
+      required: false
+      description: Width of the widget (default = 200)
+      values: .*
+    - name: Height
+      required: false
+      description: Height of the widget (default = 100)
+      values: .*
+    - name: Format string
+      required: false
+      description: Format string applied to each array item (default = nil)
+      values: .*
+    - name: Items per row
+      required: false
+      description: Number of array items per row (default = 4)
+      values: .*
+    - name: Value type
+      required: false
+      description: The type of the value to display. Default is CONVERTED.
+      values: <%= %w(RAW CONVERTED FORMATTED WITH_UNITS) %>
+BLOCK:
+  summary: Displays data from a block telemetry item.
+    Data is organized into rows and space separated.
+  parameters:
+    - name: Target name
+      required: true
+      description: The target name
+      values: <%= System.targets.keys %>
+    - name: Packet name
+      required: true
+      description: The packet name
+      values: .+
+    - name: Item name
+      required: true
+      description: The item name
+      values: .+
+    - name: Width
+      required: false
+      description: Width of the widget (default = 200)
+      values: .*
+    - name: Height
+      required: false
+      description: Height of the widget (default = 100)
+      values: .*
+    - name: Format string
+      required: false
+      description: Format string applied to each array item (default = nil)
+      values: .*
+    - name: Bytes per word
+      required: false
+      description: Number of bytes per word (default = 4)
+      values: .*
+    - name: Words per row
+      required: false
+      description: Number of words per row (default = 4
+      values: .*
+    - name: Address format
+      required: false
+      description: Format for the address printed at the beginning of each line
+        (default = nil which means do not print an address)
+      values: .*
+    - name: Value type
+      required: false
+      description: The type of the value to display. Default is CONVERTED.
+      values: <%= %w(RAW CONVERTED FORMATTED WITH_UNITS) %>
+FORMATFONTVALUE:
+  summary: Displays a box with a value printed inside
+    that is formatted by the specified string rather than by a format string given
+    in the telemetry definition files. Additionally, this widget can use a specified
+    font. The white portion of the box darkens to gray while the value remains
+    stagnant, then brightens to white each time the value changes. Additionally
+    the value is colored based on the items limits state (Red for example if it is out of limits).
+  parameters:
+    - name: Target name
+      required: true
+      description: The target name
+      values: <%= System.targets.keys %>
+    - name: Packet name
+      required: true
+      description: The packet name
+      values: .+
+    - name: Item name
+      required: true
+      description: The item name
+      values: .+
+    - name: Format string
+      required: false
+      description: Printf style format string to apply to the telemetry item
+      values: .*
+    - name: Value type
+      required: false
+      description: The type of the value to display. Default is CONVERTED.
+      values: <%= %w(RAW CONVERTED FORMATTED WITH_UNITS) %>
+    - name: Number of characters
+      required: false
+      description: The number of characters wide to make the value box (default = 12)
+      values: .*
+    - name: Font name
+      required: false
+      description: The font to use. (default = arial)
+      values: .*
+    - name: Font size
+      required: false
+      description: The font size. (default = 100)
+      values: .*
+FORMATVALUE:
+  summary: Displays a box with a value printed inside that
+    is formatted by the specified string rather than by a format string given in
+    the telemetry definition files. The white portion of the box darkens to gray
+    while the value remains stagnant, then brightens to white each time the value
+    changes. Additionally the value is colored based on the items limits state
+    (Red for example if it is out of limits).
+  parameters:
+    - name: Target name
+      required: true
+      description: The target name
+      values: <%= System.targets.keys %>
+    - name: Packet name
+      required: true
+      description: The packet name
+      values: .+
+    - name: Item name
+      required: true
+      description: The item name
+      values: .+
+    - name: Format string
+      required: false
+      description: Printf style format string to apply to the telemetry item
+      values: .*
+    - name: Value type
+      required: false
+      description: The type of the value to display. Default is CONVERTED.
+      values: <%= %w(RAW CONVERTED FORMATTED WITH_UNITS) %>
+    - name: Number of characters
+      required: false
+      description: The number of characters wide to make the value box (default = 12)
+      values: .*
+LABELPROGRESSBAR:
+  summary: Displays a LABEL widget showing the items
+    name followed by a PROGRESSBAR widget to show the items value.
+  parameters:
+    - name: Target name
+      required: true
+      description: The target name
+      values: <%= System.targets.keys %>
+    - name: Packet name
+      required: true
+      description: The packet name
+      values: .+
+    - name: Item name
+      required: true
+      description: The item name
+      values: .+
+    - name: Scale factor
+      required: false
+      description: Value to multiple the telemetry item by before displaying the
+        in the progress bar. Final value should be in the range of 0 to 100. Default is 1.0.
+      values: .*
+    - name: Width
+      required: false
+      description: Width of the progress bar (default = 80 pixels
+      values: .*
+    - name: Value type
+      required: false
+      description: The type of the value to display. Default is CONVERTED.
+      values: <%= %w(RAW CONVERTED FORMATTED WITH_UNITS) %>
+LABELTRENDLIMITSBAR:
+  summary: Displays a LABEL widget to show the
+    item's name, a VALUE widget to show the telemetry items current value,
+    a VALUE widget to display the value of the item X seconds ago, and a TRENDBAR
+    widget to display the items value within its limits ranges and its trend.
+  parameters:
+    - name: Target name
+      required: true
+      description: The target name
+      values: <%= System.targets.keys %>
+    - name: Packet name
+      required: true
+      description: The packet name
+      values: .+
+    - name: Item name
+      required: true
+      description: The item name
+      values: .+
+    - name: Value type
+      required: false
+      description: The type of the value to display. Default is CONVERTED.
+      values: <%= %w(RAW CONVERTED FORMATTED WITH_UNITS) %>
+    - name: Trend seconds
+      required: false
+      description: The number of seconds in the past to display the trend value (default = 60)
+      values: .*
+    - name: Characters
+      required: false
+      description: The number of characters to display the telemetry value (default = 12)
+      values: .*
+    - name: Width
+      required: false
+      description: Width of the limits bar (default = 160)
+      values: .*
+    - name: Height
+      required: false
+      description: Height of the limits bar (default = 25)
+      values: .*
+LABELVALUE:
+  summary: Displays a LABEL widget to shows the telemetry
+    items name followed by a VALUE widget to display the items value.
+  parameters:
+    - name: Target name
+      required: true
+      description: The target name
+      values: <%= System.targets.keys %>
+    - name: Packet name
+      required: true
+      description: The packet name
+      values: .+
+    - name: Item name
+      required: true
+      description: The item name
+      values: .+
+    - name: Value type
+      required: false
+      description: The type of the value to display. Default is CONVERTED.
+      values: <%= %w(RAW CONVERTED FORMATTED WITH_UNITS) %>
+    - name: Number of characters
+      required: false
+      description: The number of characters wide to make the value box (default = 12)
+      values: .*
+    - name: Justification
+      required: false
+      description: How to justify the label and value together. The default of
+        'SPLIT' aligns the label to the left and the value to the right with any
+        additional space going between them. 'CENTER' pushes the label and value
+        together with any additional space to the left and right. 'LEFT' or 'RIGHT'
+        pushes them to the respective side with the space going on the opposite.
+      values: ['SPLIT','CENTER','LEFT','RIGHT']
+LABELVALUEDESC:
+  summary: Displays a LABEL widget to shows the telemetry
+    items description followed by a VALUE widget to display the items value.
+  parameters:
+    - name: Target name
+      required: true
+      description: The target name
+      values: <%= System.targets.keys %>
+    - name: Packet name
+      required: true
+      description: The packet name
+      values: .+
+    - name: Item name
+      required: true
+      description: The item name
+      values: .+
+    - name: Description
+      required: false
+      description: The description to display in the label (default is to display
+        the description text associated with the telemetry item)
+      values: .*
+    - name: Value type
+      required: false
+      description: The type of the value to display. Default is CONVERTED.
+      values: <%= %w(RAW CONVERTED FORMATTED WITH_UNITS) %>
+    - name: Number of characters
+      required: false
+      description: The number of characters wide to make the value box (default = 12)
+      values: .*
+LABELVALUELIMITSBAR:
+  summary: Displays a LABEL widget to shows the
+    telemetry item's name, followed by a VALUE widget to display the item's value,
+    followed by a LIMITSBAR widget.
+  parameters:
+    - name: Target name
+      required: true
+      description: The target name
+      values: <%= System.targets.keys %>
+    - name: Packet name
+      required: true
+      description: The packet name
+      values: .+
+    - name: Item name
+      required: true
+      description: The item name
+      values: .+
+    - name: Value type
+      required: false
+      description: The type of the value to display. Default is CONVERTED.
+      values: <%= %w(RAW CONVERTED FORMATTED WITH_UNITS) %>
+    - name: Number of characters
+      required: false
+      description: The number of characters wide to make the value box (default = 12)
+      values: .*
+LABELVALUELIMITSCOLUMN:
+  summary: Displays a LABEL widget to shows
+    the telemetry itemls name, followed by a VALUE widget to display the item's
+    value, followed by a LIMITSCOLUMN widget.
+  parameters:
+    - name: Target name
+      required: true
+      description: The target name
+      values: <%= System.targets.keys %>
+    - name: Packet name
+      required: true
+      description: The packet name
+      values: .+
+    - name: Item name
+      required: true
+      description: The item name
+      values: .+
+    - name: Value type
+      required: false
+      description: The type of the value to display. Default is CONVERTED.
+      values: <%= %w(RAW CONVERTED FORMATTED WITH_UNITS) %>
+    - name: Number of characters
+      required: false
+      description: The number of characters wide to make the value box (default = 12)
+      values: .*
+LABELVALUERANGEBAR:
+  summary: Displays a LABEL widget to shows the
+    telemetry item's name, followed by a VALUE widget to display the item's value,
+    followed by a RANGEBAR widget.
+  parameters:
+    - name: Target name
+      required: true
+      description: The target name
+      values: <%= System.targets.keys %>
+    - name: Packet name
+      required: true
+      description: The packet name
+      values: .+
+    - name: Item name
+      required: true
+      description: The item name
+      values: .+
+    - name: Low Value
+      required: true
+      description: Minimum value to display on the range bar. If the telemetry
+        item goes below this value the bar is “pegged” on the low end.
+      values: .+
+    - name: High Value
+      required: true
+      description: Maximum value to display on the range bar. If the telemetry
+        item goes above this value the bar is “pegged” on the high end.
+      values: .+
+    - name: Value type
+      required: false
+      description: The type of the value to display. Default is CONVERTED.
+      values: <%= %w(RAW CONVERTED FORMATTED WITH_UNITS) %>
+    - name: Number of characters
+      required: false
+      description: The number of characters wide to make the value box (default = 12)
+      values: .*
+    - name: Width
+      required: false
+      description: Width of the range bar (default = 160)
+      values: .*
+    - name: Height
+      required: false
+      description: Height of the range bar (default = 25)
+      values: .*
+LABELVALUERANGECOLUMN:
+  summary: Displays a LABEL widget to shows the
+    telemetry item's name, followed by a VALUE widget to display the item's value,
+    followed by a RANGECOLUMN widget.
+  parameters:
+    - name: Target name
+      required: true
+      description: The target name
+      values: <%= System.targets.keys %>
+    - name: Packet name
+      required: true
+      description: The packet name
+      values: .+
+    - name: Item name
+      required: true
+      description: The item name
+      values: .+
+    - name: Low Value
+      required: true
+      description: Minimum value to display on the range bar. If the telemetry
+        item goes below this value the bar is “pegged” on the low end.
+      values: .+
+    - name: High Value
+      required: true
+      description: Maximum value to display on the range bar. If the telemetry
+        item goes above this value the bar is “pegged” on the high end.
+      values: .+
+    - name: Value type
+      required: false
+      description: The type of the value to display. Default is CONVERTED.
+      values: <%= %w(RAW CONVERTED FORMATTED WITH_UNITS) %>
+    - name: Number of characters
+      required: false
+      description: The number of characters wide to make the value box (default = 12)
+      values: .*
+    - name: Width
+      required: false
+      description: Width of the range bar (default = 160)
+      values: .*
+    - name: Height
+      required: false
+      description: Height of the range bar (default = 25)
+      values: .*
+LIMITSBAR:
+  summary: Displays a graphical representation of where an
+    item's value falls withing its limits ranges horizontally.
+  parameters:
+    - name: Target name
+      required: true
+      description: The target name
+      values: <%= System.targets.keys %>
+    - name: Packet name
+      required: true
+      description: The packet name
+      values: .+
+    - name: Item name
+      required: true
+      description: The item name
+      values: .+
+    - name: Value type
+      required: false
+      description: The type of the value to display. Default is CONVERTED.
+      values: <%= %w(RAW CONVERTED FORMATTED WITH_UNITS) %>
+    - name: Width
+      required: false
+      description: Width of the range bar (default = 160)
+      values: .*
+    - name: Height
+      required: false
+      description: Height of the range bar (default = 25)
+      values: .*
+LIMITSCOLUMN:
+  summary: Displays a graphical representation of where an
+    item's value falls withing its limits ranges vertically.
+  parameters:
+    - name: Target name
+      required: true
+      description: The target name
+      values: <%= System.targets.keys %>
+    - name: Packet name
+      required: true
+      description: The packet name
+      values: .+
+    - name: Item name
+      required: true
+      description: The item name
+      values: .+
+    - name: Value type
+      required: false
+      description: The type of the value to display. Default is CONVERTED.
+      values: <%= %w(RAW CONVERTED FORMATTED WITH_UNITS) %>
+    - name: Width
+      required: false
+      description: Width of the range bar (default = 160)
+      values: .*
+    - name: Height
+      required: false
+      description: Height of the range bar (default = 25)
+      values: .*
+LIMITSCOLOR:
+  summary: Displays a stoplight-like circle depicting the
+    limits color of an item
+  parameters:
+    - name: Target name
+      required: true
+      description: The target name
+      values: <%= System.targets.keys %>
+    - name: Packet name
+      required: true
+      description: The packet name
+      values: .+
+    - name: Item name
+      required: true
+      description: The item name
+      values: .+
+    - name: Value type
+      required: false
+      description: The type of the value to display. Default is CONVERTED.
+      values: <%= %w(RAW CONVERTED FORMATTED WITH_UNITS) %>
+    - name: Radius
+      required: false
+      description: Radius of the circle (default is 10)
+      values: .*
+    - name: Full Item Name
+      required: false
+      description: Show the full item name (default is false)
+      values: .*
+VALUELIMITSBAR:
+  summary: Displays a graphical representation of where
+    an items value falls withing its limits ranges horizontally and its value in
+    a VALUE widget.
+  parameters:
+    - name: Target name
+      required: true
+      description: The target name
+      values: <%= System.targets.keys %>
+    - name: Packet name
+      required: true
+      description: The packet name
+      values: .+
+    - name: Item name
+      required: true
+      description: The item name
+      values: .+
+    - name: Value type
+      required: false
+      description: The type of the value to display. Default is CONVERTED.
+      values: <%= %w(RAW CONVERTED FORMATTED WITH_UNITS) %>
+    - name: Number of characters
+      required: false
+      description: The number of characters wide to make the value box (default = 8)
+      values: .*
+VALUELIMITSCOLUMN:
+  summary: Displays a graphical representation of where
+    an item's value falls within its limits ranges vertically and its value in a
+    VALUE widget.
+  parameters:
+    - name: Target name
+      required: true
+      description: The target name
+      values: <%= System.targets.keys %>
+    - name: Packet name
+      required: true
+      description: The packet name
+      values: .+
+    - name: Item name
+      required: true
+      description: The item name
+      values: .+
+    - name: Value type
+      required: false
+      description: The type of the value to display. Default is CONVERTED.
+      values: <%= %w(RAW CONVERTED FORMATTED WITH_UNITS) %>
+    - name: Number of characters
+      required: false
+      description: The number of characters wide to make the value box (default = 8)
+      values: .*
+VALUERANGEBAR:
+  summary: Displays a graphical representation of where an
+    item's value falls within a range horizontally and its value in a VALUE widget.
+  parameters:
+    - name: Target name
+      required: true
+      description: The target name
+      values: <%= System.targets.keys %>
+    - name: Packet name
+      required: true
+      description: The packet name
+      values: .+
+    - name: Item name
+      required: true
+      description: The item name
+      values: .+
+    - name: Low Value
+      required: true
+      description: Minimum value to display on the range bar. If the telemetry
+        item goes below this value the bar is “pegged” on the low end.
+      values: .+
+    - name: High Value
+      required: true
+      description: Maximum value to display on the range bar. If the telemetry
+        item goes above this value the bar is “pegged” on the high end.
+      values: .+
+    - name: Value type
+      required: false
+      description: The type of the value to display. Default is CONVERTED.
+      values: <%= %w(RAW CONVERTED FORMATTED WITH_UNITS) %>
+    - name: Number of characters
+      required: false
+      description: The number of characters wide to make the value box (default = 12)
+      values: .*
+    - name: Width
+      required: false
+      description: Width of the range bar (default = 160)
+      values: .*
+    - name: Height
+      required: false
+      description: Height of the range bar (default = 25)
+      values: .*
+VALUERANGECOLUMN:
+  summary: Displays a graphical representation of where
+    an item's value falls within a range vertically and its value in a VALUE widget.
+  parameters:
+    - name: Target name
+      required: true
+      description: The target name
+      values: <%= System.targets.keys %>
+    - name: Packet name
+      required: true
+      description: The packet name
+      values: .+
+    - name: Item name
+      required: true
+      description: The item name
+      values: .+
+    - name: Low Value
+      required: true
+      description: Minimum value to display on the range bar. If the telemetry
+        item goes below this value the bar is “pegged” on the low end.
+      values: .+
+    - name: High Value
+      required: true
+      description: Maximum value to display on the range bar. If the telemetry
+        item goes above this value the bar is “pegged” on the high end.
+      values: .+
+    - name: Value type
+      required: false
+      description: The type of the value to display. Default is CONVERTED.
+      values: <%= %w(RAW CONVERTED FORMATTED WITH_UNITS) %>
+    - name: Number of characters
+      required: false
+      description: The number of characters wide to make the value box (default = 12)
+      values: .*
+    - name: Width
+      required: false
+      description: Width of the range bar (default = 160)
+      values: .*
+    - name: Height
+      required: false
+      description: Height of the range bar (default = 25)
+      values: .*
+LINEGRAPH:
+  summary: Displays a line graph of a telemetry items value
+    verses sample number
+  parameters:
+    - name: Target name
+      required: true
+      description: The target name
+      values: <%= System.targets.keys %>
+    - name: Packet name
+      required: true
+      description: The packet name
+      values: .+
+    - name: Item name
+      required: true
+      description: The item name
+      values: .+
+    - name: Num Samples
+      required: false
+      description: Number of samples to display on the graph (default = 100)
+      values: .*
+    - name: Width
+      required: false
+      description: Width of the graph (default = 300)
+      values: .*
+    - name: Height
+      required: false
+      description: Height of the graph (default = 200)
+      values: .*
+    - name: Value type
+      required: false
+      description: The type of the value to display. Default is CONVERTED.
+      values: <%= %w(RAW CONVERTED FORMATTED WITH_UNITS) %>
+PROGRESSBAR:
+  summary: Displays a progress bar that is useful for displaying percentages
+  parmeters:
+    - name: Target name
+      required: true
+      description: The target name
+      values: <%= System.targets.keys %>
+    - name: Packet name
+      required: true
+      description: The packet name
+      values: .+
+    - name: Item name
+      required: true
+      description: The item name
+      values: .+
+    - name: Scale factor
+      required: false
+      description: Value to multiple the telemetry item by before displaying the
+        in the progress bar. Final value should be in the range of 0 to 100. Default is 1.0.
+      values: .*
+    - name: Width
+      required: false
+      description: Width of the progress bar (default = 80 pixels
+      values: .*
+    - name: Value type
+      required: false
+      description: The type of the value to display. Default is CONVERTED.
+      values: <%= %w(RAW CONVERTED FORMATTED WITH_UNITS) %>
+RANGEBAR:
+  summary: Displays a graphical representation of where an
+    item's value falls withing a range horizontally.
+  parameters:
+    - name: Target name
+      required: true
+      description: The target name
+      values: <%= System.targets.keys %>
+    - name: Packet name
+      required: true
+      description: The packet name
+      values: .+
+    - name: Item name
+      required: true
+      description: The item name
+      values: .+
+    - name: Low Value
+      required: true
+      description: Minimum value to display on the range bar. If the telemetry
+        item goes below this value the bar is “pegged” on the low end.
+      values: .+
+    - name: High Value
+      required: true
+      description: Maximum value to display on the range bar. If the telemetry
+        item goes above this value the bar is “pegged” on the high end.
+      values: .+
+    - name: Value type
+      required: false
+      description: The type of the value to display. Default is CONVERTED.
+      values: <%= %w(RAW CONVERTED FORMATTED WITH_UNITS) %>
+    - name: Width
+      required: false
+      description: Width of the range bar (default = 160)
+      values: .*
+    - name: Height
+      required: false
+      description: Height of the range bar (default = 25)
+      values: .*
+RANGECOLUMN:
+  summary: Displays a graphical representation of where
+    an item's value falls withing a range vertically
+  parameters:
+    - name: Target name
+      required: true
+      description: The target name
+      values: <%= System.targets.keys %>
+    - name: Packet name
+      required: true
+      description: The packet name
+      values: .+
+    - name: Item name
+      required: true
+      description: The item name
+      values: .+
+    - name: Low Value
+      required: true
+      description: Minimum value to display on the range bar. If the telemetry
+        item goes below this value the bar is “pegged” on the low end.
+      values: .+
+    - name: High Value
+      required: true
+      description: Maximum value to display on the range bar. If the telemetry
+        item goes above this value the bar is “pegged” on the high end.
+      values: .+
+    - name: Value type
+      required: false
+      description: The type of the value to display. Default is CONVERTED.
+      values: <%= %w(RAW CONVERTED FORMATTED WITH_UNITS) %>
+    - name: Width
+      required: false
+      description: Width of the range bar (default = 30)
+      values: .*
+    - name: Height
+      required: false
+      description: Height of the range bar (default = 100)
+      values: .*
+TEXTBOX:
+  summary: Provides a large box for multiline text
+  parameters:
+    - name: Target name
+      required: true
+      description: The target name
+      values: <%= System.targets.keys %>
+    - name: Packet name
+      required: true
+      description: The packet name
+      values: .+
+    - name: Item name
+      required: true
+      description: The item name
+      values: .+
+    - name: Width
+      required: false
+      description: Width of the range bar (default = 30)
+      values: .*
+    - name: Height
+      required: false
+      description: Height of the range bar (default = 100)
+      values: .*
+TIMEGRAPH:
+  summary: Displays a line graph of a telemetry items value verses time
+  parameters:
+    - name: Target name
+      required: true
+      description: The target name
+      values: <%= System.targets.keys %>
+    - name: Packet name
+      required: true
+      description: The packet name
+      values: .+
+    - name: Item name
+      required: true
+      description: The item name
+      values: .+
+    - name: Num Samples
+      required: false
+      description: Number of samples to display on graph (default = 100)
+      values: .*
+    - name: Width
+      required: false
+      description: Width of the graph (default = 300)
+      values: .*
+    - name: Height
+      required: false
+      description: Height of the graph (default = 200)
+      values: .*
+    - name: Show Points
+      required: false
+      description: Whether to show points or just draw lines between points (default = true)
+      values: ['TRUE','FALSE']
+    - name: Time item name
+      required: false
+      description: The telemetry item to use as the time on the X axis (default = TIMESECONDS)
+      value: .*
+    - name: Value type
+      required: false
+      description: The type of the value to display. Default is CONVERTED.
+      values: <%= %w(RAW CONVERTED FORMATTED WITH_UNITS) %>
+TRENDBAR:
+  summary: Provides the same functionality as the LIMITSBAR
+    widget except that it also keeps a history of the telemetry item and
+    graphically shows where the value was X seconds ago.
+  parameters:
+    - name: Target name
+      required: true
+      description: The target name
+      values: <%= System.targets.keys %>
+    - name: Packet name
+      required: true
+      description: The packet name
+      values: .+
+    - name: Item name
+      required: true
+      description: The item name
+      values: .+
+    - name: Value type
+      required: false
+      description: The type of the value to display. Default is CONVERTED.
+      values: <%= %w(RAW CONVERTED FORMATTED WITH_UNITS) %>
+    - name: Trend Seconds
+      required: false
+      description: The number of seconds in the past to display the trend value (default = 60)
+      values: .*
+    - name: Width
+      required: false
+      description: Width of the limits bar (default = 160)
+      values: .*
+    - name: Height
+      required: false
+      description: Height of the limits bar (default = 25)
+      values: .*
+TRENDLIMITSBAR:
+  summary: Displays a VALUE widget to show the telemetry items current value,
+    a VALUE widget to display the value of the item X seconds ago, and a TRENDBAR
+    widget to display the items value within its limits ranges and its trend.
+  parameters:
+    - name: Target name
+      required: true
+      description: The target name
+      values: <%= System.targets.keys %>
+    - name: Packet name
+      required: true
+      description: The packet name
+      values: .+
+    - name: Item name
+      required: true
+      description: The item name
+      values: .+
+    - name: Value type
+      required: false
+      description: The type of the value to display. Default is CONVERTED.
+      values: <%= %w(RAW CONVERTED FORMATTED WITH_UNITS) %>
+    - name: Trend Seconds
+      required: false
+      description: The number of seconds in the past to display the trend value (default = 60)
+      values: .*
+    - name: Characters
+      required: false
+      description: The number of characters to display the telemetry value (default = 12)
+      values: .*
+    - name: Width
+      required: false
+      description: Width of the limits bar (default = 160)
+      values: .*
+    - name: Height
+      required: false
+      description: Height of the limits bar (default = 25)
+      values: .*
+VALUE:
+  summary: The VALUE widget displays a box with a value printed inside. The white
+    portion of the box darkens to gray while the value remains stagnant, then
+    brightens to white each time the value changes. Additionally the value is
+    colored based on the items limits state (Red for example if it is out of limits).
+  parameters:
+    - name: Target name
+      required: true
+      description: The target name
+      values: <%= System.targets.keys %>
+    - name: Packet name
+      required: true
+      description: The packet name
+      values: .+
+    - name: Item name
+      required: true
+      description: The item name
+      values: .+
+    - name: Value type
+      required: false
+      description: The type of the value to display. Default is CONVERTED.
+      values: <%= %w(RAW CONVERTED FORMATTED WITH_UNITS) %>
+    - name: Number of characters
+      required: false
+      description: The number of characters wide to make the value box (default = 12)
+      values: .*
+BUTTON:
+  summary: Displays a rectangular clickable button
+  description: Upon clicking, the button executes the Ruby code assigned. Buttons
+    can be used to send commands and perform other tasks. If you want your button
+    to use values from other widgets, define them as named widgets and read their
+    values using the get_named_widget("WIDGET_NAME").text method.
+  warning: If your button logic gets complex it's recommended to require a separate
+    script and pass the screen to the script using self,
+    e.g. require utility.rb; utility_method(self).
+  parameters:
+    - name: Button Text
+      required: true
+      description: Text displayed on the button
+      values: .+
+    - name: Button Code
+      required: true
+      description: Ruby code to execute when the button is pressed
+      values: .+
+CHECKBUTTON:
+  summary: Displays a check box
+  description: Note this is of limited use by itself and is primarily used in
+    conjunction with NAMED_WIDGET.
+  parameters:
+    - name: Checkbox Text
+      required: true
+      description: Text displayed next to the checkbox
+      values: .+
+COMBOBOX:
+  summary: Displays a drop down list of text items
+  description: Note this is of limited use by itself and is primarily used in
+    conjunction with NAMED_WIDGET.
+  parameters:
+    - name: Option Text
+      required: true
+      description: Text to display in the selection drop down
+      value: .+
+RADIOBUTTON:
+  summary: Displays a radio button and text
+  description: Note this is of limited use by itself and is primarily used in
+    conjunction with NAMED_WIDGET.
+  parameters:
+    - name: Text
+      required: true
+      description: Text to display next to the radio button
+      values: .+
+TEXTFIELD:
+  summary: Displays a rectangular box where the user can enter text
+  parameters:
+    - name: Characters
+      required: false
+      description: Width of the text field in characters (default = 12)
+      values: .*
+    - name: Text
+      required: false
+      description: Default text to put in the text field (default is blank)
+      values: .*
+CANVAS:
+  summary: Layout widget for the other canvas widgets
+  description: All canvas widgets must be enclosed within a CANVAS widget.
+  warning: The canvas coordinate frame places (0,0) in the upper-left corner of the canvas.
+  parameters:
+    - name: Width
+      required: true
+      description: Width of the canvas
+      values: .+
+    - name: Height
+      required: true
+      description: Height of the canvas
+      values: .+
+CANVASLABEL:
+  summary: Draws text onto the canvas
+  parameters:
+    - name: X Position
+      required: true
+      description: X position of the upper-left corner of the text on the canvas
+      values: \d+
+    - name: Y Position
+      required: true
+      description: Y position of the upper-left corner of the text on the canvas
+      values: \d+
+    - name: Text
+      required: true
+      description: Text to draw onto the canvas
+      values: .+
+    - name: Font Size
+      required: false
+      description: Font size of the text (Default = 12)
+      values: \d+
+    - name: Color
+      required: false
+      description: Color of the text
+      values: .+
+CANVASLABELVALUE:
+  summary: Draws the text value of a telemetry item onto the canvas in an optional frame
+  parameters:
+    - name: Target name
+      required: true
+      description: The target name
+      values: <%= System.targets.keys %>
+    - name: Packet name
+      required: true
+      description: The packet name
+      values: .+
+    - name: Item name
+      required: true
+      description: The item name
+      values: .+
+    - name: X Position
+      required: true
+      description: X position of the upper-left corner of the text on the canvas
+      values: \d+
+    - name: Y Position
+      required: true
+      description: Y position of the upper-left corner of the text on the canvas
+      values: \d+
+    - name: Font Size
+      required: false
+      description: Font size of the text (Default = 12)
+      values: \d+
+    - name: Color
+      required: false
+      description: Color of the text
+      values: .+
+    - name: Frame
+      required: false
+      description: Whether to draw a frame around the value
+      values: ['FALSE', 'TRUE']
+    - name: Frame Width
+      required: false
+      description: Frame width in pixels
+      values: .*
+    - name: Value type
+      required: false
+      description: The type of the value to display. Default is CONVERTED.
+      values: <%= %w(RAW CONVERTED FORMATTED WITH_UNITS) %>
+CANVASIMAGE:
+  summary: Displays a GIF image on the canvas
+  parameters:
+    - name: Image name
+      required: true
+      description: Name of a image file. The file must be located in the
+        <CONFIG>/data directory.
+      values: .+
+    - name: X Position
+      required: true
+      description: X position of the upper-left corner of the image on the canvas
+      values: \d+
+    - name: Y Position
+      required: true
+      description: Y position of the upper-left corner of the image on the canvas
+      values: \d+
+CANVASIMAGEVALUE:
+  summary: Displays a GIF image on the canvas that changes with a telemetry value
+  parameters:
+    - name: Target name
+      required: true
+      description: The target name
+      values: <%= System.targets.keys %>
+    - name: Packet name
+      required: true
+      description: The packet name
+      values: .+
+    - name: Item name
+      required: true
+      description: The item name
+      values: .+
+    - name: Filename Prefix
+      required: true
+      description: The prefix part of the filename of the gif images (expected
+        to be in the <CONFIG>/data directory). The actual filenames will be this
+        value plus the word 'on' or the word 'off' and '.gif'. For example, your
+        prefix is 'ground' so the files 'groundon.gif' and 'groundoff.gif' will
+        be searched for in the <CONFIG>/data directory.
+      values: .+
+    - name: X Position
+      required: true
+      description: X position of the upper-left corner of the image on the canvas
+      values: \d+
+    - name: Y Position
+      required: true
+      description: Y position of the upper-left corner of the image on the canvas
+      values: \d+
+CANVASLINE:
+  summary: Draws a line onto the canvas
+  parameters:
+    - name: Start X Position
+      required: true
+      description: X position of the start of the line on the canvas
+      values: \d+
+    - name: Start Y Position
+      required: true
+      description: Y position of the start of the line on the canvas
+      values: \d+
+    - name: End X Position
+      required: true
+      description: X position of the end of the line on the canvas
+      values: \d+
+    - name: End Y Position
+      required: true
+      description: Y position of the end of the line on the canvas
+      values: \d+
+    - name: Color
+      required: false
+      description: Color of the line
+      values: .+
+    - name: Width
+      required: false
+      description: Width of the line in pixels (default = 1)
+      values: \d+
+    - name: Connector
+      required: false
+      description: Indicates whether or not to draw a circle at the endpoint of
+        the line
+      values: ['NO_CONNECTOR','CONNECTOR']
+CANVASLINEVALUE:
+  summary: Draws a line onto the canvas in one of two colors based on the value
+    of the associated telemetry item
+  parameters:
+    - name: Target name
+      required: true
+      description: The target name
+      values: <%= System.targets.keys %>
+    - name: Packet name
+      required: true
+      description: The packet name
+      values: .+
+    - name: Item name
+      required: true
+      description: The item name
+      values: .+
+    - name: Start X Position
+      required: true
+      description: X position of the start of the line on the canvas
+      values: \d+
+    - name: Start Y Position
+      required: true
+      description: Y position of the start of the line on the canvas
+      values: \d+
+    - name: End X Position
+      required: true
+      description: X position of the end of the line on the canvas
+      values: \d+
+    - name: End Y Position
+      required: true
+      description: Y position of the end of the line on the canvas
+      values: \d+
+    - name: Color On
+      required: false
+      description: Color of the line when the telmetry point is considered on
+        Default is green.
+      values: .+
+    - name: Color Off
+      required: false
+      description: Color of the line when the telmetry point is considered off
+        Default is blue.
+      values: .+
+    - name: Width
+      required: false
+      description: Width of the line in pixels (default = 3)
+      values: \d+
+    - name: Connector
+      required: false
+      description: Indicates whether or not to draw a circle at the endpoint of
+        the line
+      values: ['NO_CONNECTOR','CONNECTOR']
+    - name: Value type
+      required: false
+      description: The type of the value to display. Default is RAW
+      values: <%= %w(RAW CONVERTED FORMATTED WITH_UNITS) %>
+CANVASDOT:
+  summary: The CANVASDOT widget draws a dot onto the canvas, and it can be
+    programmed to change its position with ruby code
+  parameters:
+    - name: X Position or Ruby Code
+      required: true
+      description: X position of the dot or a String of Ruby code to evalulate
+      values: .+
+    - name: Y Position or Ruby Code
+      required: true
+      description: Y position of the dot or a String of Ruby code to evalulate
+      values: .+
+    - name: Color
+      required: false
+      description: Color of the dot. Default is black.
+      values: .+
+    - name: Width
+      required: false
+      description: Width of the dot in pixels (default = 3)
+      values: \d+

@@ -52,7 +52,7 @@ module Cosmos
       end
       @editor_layout = Qt::VBoxLayout.new
       @layout.addLayout(@editor_layout)
-      @editor = Cosmos.require_class(plot_type + '_plot_editor').new(self, plot)
+      @editor = Cosmos.require_class(plot_type + '_plot_editor.rb').new(self, plot)
       @editor_layout.addWidget(@editor)
 
       # Separator before buttons
@@ -92,7 +92,7 @@ module Cosmos
     def handle_plot_type_change
       plot_type = @combobox.currentText.downcase
       @editor.dispose
-      @editor = Cosmos.require_class(plot_type.capitalize + '_plot_editor').new(self)
+      @editor = Cosmos.require_class(plot_type.capitalize + '_plot_editor.rb').new(self)
       @editor_layout.addWidget(@editor)
     end
 

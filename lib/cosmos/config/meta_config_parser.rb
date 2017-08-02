@@ -1,0 +1,57 @@
+# encoding: ascii-8bit
+
+# Copyright 2014 Ball Aerospace & Technologies Corp.
+# All Rights Reserved.
+#
+# This program is free software; you can modify and/or redistribute it
+# under the terms of the GNU General Public License
+# as published by the Free Software Foundation; version 3 with
+# attribution addendums as found in the LICENSE.txt
+
+require 'erb'
+require 'psych'
+require 'tempfile'
+
+class Array
+  def to_meta_config_yaml(indentation = 0)
+    Psych.dump(self).split("\n")[1..-1].join("\n#{' '*indentation}")
+  end
+end
+class Hash
+  def to_meta_config_yaml(indentation = 0)
+    Psych.dump(self).split("\n")[1..-1].join("\n#{' '*indentation}")
+  end
+end
+
+module Cosmos
+  # Reads YAML formatted files describing a configuration file
+  class MetaConfigParser
+    def self.load(filename)
+      data = nil
+      if File.exist?(filename)
+        path = filename
+      else
+        path = Cosmos.data_path("config/#{filename}")
+      end
+      tf = Tempfile.new("temp.yaml")
+      output = ERB.new(File.read(path)).result(binding)
+      tf.write(output)
+      tf.close
+      begin
+        data = Psych.load_file(tf.path)
+      rescue => error
+        error_file = "ERROR_#{filename}"
+        File.open(error_file, 'w') { |file| file.puts output }
+        raise error.exception("#{error.message}\n\nParsed output written to #{File.expand_path(error_file)}\n")
+      end
+      tf.unlink
+      data
+    end
+
+    def self.dump(object, filename)
+      File.open(filename, 'w') do |file|
+        file.write Psych.dump(object)
+      end
+    end
+  end
+end

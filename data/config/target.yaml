@@ -1,0 +1,71 @@
+---
+REQUIRE:
+  summary: Requires a Ruby file
+  description: Ruby files must be required to be available to call in other code.
+    Files are first required from the target's lib folder. If no file is found the
+    Ruby system path is checked which includes the base COSMOS/lib folder.
+  parameters:
+    - name: Filename
+      required: true
+      description: Filename to require. For files in the target's lib directory
+        simply supply the filename, e.g. "REQUIRE my_file". Files in the base COSMOS
+        lib directory also should just list the filename. If a file is in a folder
+        under the lib directory then you must specify the folder name, e.g. "REQUIRE
+        folder/my_file". The filename can also be an absolute path but this is not
+        common. Note the ".rb" extension is optional when specifying the filename.
+      values: .+
+IGNORE_PARAMETER:
+  summary: Ignore the given command parameter
+  description: Hint to other COSMOS tools to hide or ignore this command parameter
+    when processing the command. For example, Command Sender and Command Sequence
+    will not display the parameter (by default) when showing the command and Script
+    Runner code completion will not display the parameter.
+  parameters:
+    - name: Parameter Name
+      required: true
+      description: The name of a command parameter. Note that this parameter will
+        be ignored in ALL the commands it appears in.
+      values: .+
+IGNORE_ITEM:
+  summary: Ignore the given telemetry item
+  description: Hint to other COSMOS tools to hide or ignore this telemetry item
+    when processing the telemetry. For example, Packet Viewer will not display the
+    item (by default) when showing the packet.
+  parameters:
+    - name: Item name
+      required: true
+      description: The name of a telemetry item. Note that this item will be ignored
+        in ALL the telemetry it appears in.
+      values: .+
+COMMANDS:
+  summary: Process the given command definition file
+  description: This keyword is used to explicitly add the command definition file
+    to the list of command and telemetry files to process.
+  warning: Usage of this keyword overrides automatic command and telemetry file
+    discovery. If this keyword is used, you must also use the TELEMETRY keyword
+    to specify the telemetry files to process.
+  parameters:
+    - name: Filename
+      required: true
+      description: Name of a command definition file in the target's cmd_tlm directory, e.g. "cmd.txt".
+      values: '.*\.txt'
+TELEMETRY:
+  summary: Process the given telemetry definition file
+  description: This keyword is used to explicitly add the telemetry definition
+    file to the list of command and telemetry files to process.
+  warning: Usage of this keyword overrides automatic command and telemetry file
+    discovery. If this keyword is used, you must also use the COMMAND keyword to
+    specify the command files to process.
+  parameters:
+    - name: Filename
+      required: true
+      description: Name of a telemetry definition file in the target's cmd_tlm
+        directory, e.g. "tlm.txt".
+      values: '.*\.txt'
+AUTO_SCREEN_SUBSTITUTE:
+  summary: Automatically substitute the target's name in screen definitions
+  description: Targets can be renamed when they are declared which would break
+    any screen definitions using the explicit target name. This keyword automatically
+    replaces the target name in the screen definitions with the actual target name.
+  warning: Replaces ALL target names in a screen definition file, so this is not
+    suitable for screens with multiple targets.

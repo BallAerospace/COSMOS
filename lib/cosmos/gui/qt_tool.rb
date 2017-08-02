@@ -144,7 +144,12 @@ module Cosmos
       unless dirs.empty?
         menu.addSeparator()
         dirs.each do |target_name, dir|
-          action = Qt::Action.new(tr("#{target_name}/#{target_sub_dir}"), self)
+          if target_sub_dir.empty?
+            name = target_name
+          else
+            name = "#{target_name}/#{target_sub_dir}"
+          end
+          action = Qt::Action.new(tr(name), self)
           action.statusTip = status_tip if status_tip
           action.connect(SIGNAL('triggered()')) { callback.call(dir) }
           menu.addAction(action)

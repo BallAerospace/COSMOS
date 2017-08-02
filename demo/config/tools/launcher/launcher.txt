@@ -13,14 +13,14 @@ MULTITOOL_START "Simulated Targets" NULL
     DONT_CAPTURE_IO # Without this you get an "Unexpected Output" dialog
 MULTITOOL_END
 # Example of another multitool button
-#MULTITOOL_START "COSMOS"
-#  TOOL "LAUNCH CmdTlmServer -x 827 -y 2 -w 756 -t 475 -c cmd_tlm_server.txt"
-#  DELAY 5
-#  TOOL "LAUNCH TlmViewer -x 827 -y 517 -w 424 -t 111"
-#  TOOL "LAUNCH PacketViewer -x 827 -y 669 -w 422 -t 450"
-#  TOOL "LAUNCH ScriptRunner -x 4 -y 2 -w 805 -t 545"
-#  TOOL "LAUNCH CmdSender -x 4 -y 586 -w 805 -t 533"
-#MULTITOOL_END
+MULTITOOL_START "COSMOS"
+  TOOL "LAUNCH CmdTlmServer -x 827 -y 2 -w 756 -t 475 -c cmd_tlm_server.txt"
+  DELAY 5
+  TOOL "LAUNCH TlmViewer -x 827 -y 517 -w 424 -t 111"
+  TOOL "LAUNCH PacketViewer -x 827 -y 669 -w 422 -t 450"
+  TOOL "LAUNCH ScriptRunner -x 4 -y 2 -w 805 -t 545"
+  TOOL "LAUNCH CmdSender -x 4 -y 586 -w 805 -t 533"
+MULTITOOL_END
 
 DIVIDER
 LABEL "Commanding and Scripting"
@@ -41,6 +41,7 @@ TOOL "Data Viewer" "LAUNCH DataViewer" "data_viewer.png"
 DIVIDER
 LABEL Utilities
 
+TOOL "Config Editor" "LAUNCH ConfigEditor" "config_editor.png"
 TOOL "Telemetry Extractor" "LAUNCH TlmExtractor" "tlm_extractor.png"
 TOOL "Command Extractor" "LAUNCH CmdExtractor" "cmd_extractor.png"
 TOOL "Handbook Creator" "LAUNCH HandbookCreator" "handbook_creator.png"

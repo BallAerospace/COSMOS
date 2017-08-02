@@ -1,0 +1,153 @@
+---
+AUTO_DECLARE_TARGETS:
+  summary: Automatically load all the target folders under config/targets into the system
+  description: When automatically discovering target folders the COSMOS naming convention
+    must be followed. Target folders must be uppercase and be named according to how
+    COSMOS will access them. For example, if you create a config/targets/INST directory,
+    COSMOS will create a target named 'INST' which is how it will be referenced.
+    This keyword is REQUIRED unless you individually declare your targets using the
+    DECLARE_TARGET keyword.
+DECLARE_TARGET:
+  summary: Declare a COSMOS target and name it
+  description: Declare target is used in place of AUTO_DECLARE_TARGETS to give more
+    fine grained control over how the target folder is loaded and named within COSMOS.
+    This is required if AUTO_DECLARE_TARGET is not present.
+  parameters:
+    - name: Target Name
+      required: true
+      description: The directory name which contains the target information.
+        This must match a directory under config/targets.
+      values: <%= System.targets.keys %>
+    - name: Substitute Target Name
+      required: false
+      description: The target name in the COSMOS system. This is how the target
+        will be referred to in scripts. If this is not given (or given as nil)
+        the target name will be the directory name given above.
+    - name: Target Filename
+      required: false
+      description: The name of the file in the target directory which contains the
+        configuration information for the target. By default this is 'target.txt'
+        but if you want to rename this you need to set this parameter.
+PORT:
+  summary: Set a Server Port
+  description: Port is used to set the default ports used by the Command and Telemetry Server.
+    It is not necessary to set this option unless you wish to override the defaults
+    (given in the example usage). Overriding ports is necessary if you want to run
+    two Command and Telemetry Servers on the same computer simultaneously.
+  parameters:
+    - name: Port Name
+      required: true
+      description: CTS_API - This port is what tools connect to to communicate with the COSMOS Scripting API.
+        TLMVIEWER_API - This port is used to remotely open and close telemetry screens in Telemetry Viewer.
+        CTS_PREIDENTIFIED - This port provides access to a preidentified stream of all telemetry packets
+        in the system. This is currently used by Telemetry Grapher and can be used to chain Command
+        and Telemetry Servers together.
+      values: <%= %w(CTS_API TLMVIEWER_API CTS_PREIDENTIFIED) %>
+    - name: Port Value
+      required: true
+      description: Port number to use for the specified port name
+      values: '\d{2,}'
+PATH:
+  summary: Set a Server Path
+  description: Path is used to set the default paths used by the Command and Telemetry Server
+    to access or create files. It is not necessary to set this option unless you wish to
+    override the defaults (given in the example usage).
+  warning: The PROCEDURES path must be set for Script Runner and Test Runner to locate your
+    procedure files. You can add multiple 'PATH PROCEDURES' lines to your configuration file
+    to set multiple locations.
+  parameters:
+    - name: Path Name
+      required: true
+      description: Path name to set.
+      values: <%= %w(LOGS TMP SAVED_CONFIG TABLES PROCEDURES HANDBOOK) %>
+    - name: Path Value
+      required: true
+      description: File system path to use for the specified path name
+      values: .+
+DEFAULT_PACKET_LOG_WRITER:
+  summary: Set the class used when creating binary packet log files
+  warning: Overriding the default log writer can break the ability to write log
+    files that COSMOS can interpret. Proceed with caution!
+  parameters:
+    - name: Filename
+      required: true
+      description: Ruby file to use when instantiating a new log writer
+      values: '.+\.rb'
+    - name: parameter
+      required: false
+      description: Parameters which are passed to the log read upon initialization
+      values: .*
+      since: 4.0.0
+DEFAULT_PACKET_LOG_READER:
+  summary: Set the class used when reading binary packet log file
+  warning: Overriding the default log read can break the ability to read log
+    files. Proceed with caution!
+  parameters:
+    - name: Filename
+      required: true
+      description: Ruby file to use when instantiating a new log writer
+      values: '.+\.rb'
+    - name: parameter
+      required: false
+      description: Parameters which are passed to the log read upon initialization
+      values: .*
+      since: 4.0.0
+STALENESS_SECONDS:
+  summary: Number of seconds before marking the packet stale
+  description: A stale packet is identified in telemetry screens by all the telemetry
+    items in the stale packet being colored purple..
+  parameters:
+    - name: Seconds
+      required: true
+      description: Integer number of seconds before packets are marked stale
+      values: '\d+'
+ENABLE_DNS:
+  summary: Enable reverse DNS lookups for tools
+  description: Enables reverse DNS lookups when tools connect to the Command and
+    Telemetry Server's pre-identified socket or to any target using the TCPIP Server
+    Interface. As of COSMOS 3.5.0 the default is to not use DNS.
+  since: 3.5.0
+DISABLE_DNS:
+  summary: Disable reverse DNS lookups for tools
+  description: Disable reverse DNS lookups when tools connect to the Command and
+    Telemetry Server's pre-identified socket or to any target using the TCPIP Server
+    Interface. This is useful when you are in an environment where DNS is not available.
+    As of COSMOS 3.5.0 the default is to not use DNS
+ENABLE_SOUND:
+  summary: Enable audible sounds when popups occur
+  description: Enable sound makes any prompts that occur in ScriptRunner/TestRunner
+    make an audible sound when they popup to alert the operator of needed input.
+  since: 3.5.0
+ALLOW_ACCESS:
+  summary: White list machines that are allowed to connect to the Server
+  parameters:
+    - name: Name or IP Address
+      required: true
+      description: Machine name to allow access or you can specify 'ALL' to allow
+        all machines access
+      values: .+
+TIME_ZONE_UTC:
+  summary: Report all times as UTC
+  description: COSMOS will report all times as UTC time. If this keyword is not used,
+    COSMOS will report all times as local times, where the local time zone is determined
+    automatically by Ruby based upon the operating system time settings. This setting
+    affects packet receive times, timestamped log filenames, message logs,
+    Cmd/Tlm extractor time ranges, etc.
+  since: 3.10.0
+ADD_MD5_FILE:
+  summary: Add a file to the MD5 sum calculation
+  description: Adds a file to the set of files used in marshal file MD5 sum calculation.
+    Upon startup, COSMOS calculates an MD5 sum over the command/telemetry definition files
+    for all targets. After the definitions have been processed, COSMOS saves the resulting
+    objects as marshal files in a folder with the MD5 sum as part of the name.
+    The next time COSMOS runs, if the MD5 checksum of the cmd/tlm definition files
+    has not changed, COSMOS can load the marshal files instead of re-processing the definitions.
+    If a file is specified with the ADD_MD5_FILE keyword, COSMOS will include it in the
+    MD5 sum calculation. This means that a change in the file will cause COSMOS to
+    re-process the cmd/tlm defintions and create a new set of marshal files.
+  since: 4.0.0
+  parameters:
+    - name: Filename
+      required: true
+      description: Filename, either fully qualified, or relative to Cosmos::USERPATH
+      values: '.+\.rb'

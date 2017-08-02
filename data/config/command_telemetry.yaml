@@ -1,0 +1,3 @@
+---
+<%= MetaConfigParser.load('command.yaml').to_meta_config_yaml(0) %>
+<%= MetaConfigParser.load('telemetry.yaml').to_meta_config_yaml(0) %>

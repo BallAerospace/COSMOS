@@ -1,0 +1,151 @@
+---
+SCREEN:
+  summary: Define a telemetry viewer screen
+  parameters:
+    - name: Width
+      required: true
+      description: Width in pixels or AUTO to let Telemetry Viewer automatically
+        layout the screen
+      values: \d+
+    - name: Height
+      required: true
+      description: Height in pixels or AUTO to let Telemetry Viewer automatically
+        layout the screen
+      values: \d+
+    - name: Polling Period
+      required: true
+      description: Number of seconds between screen updates
+      values: '[0-9]*\.?[0-9]+'
+END:
+  summary: Indicates the close of a layout widget
+  description: All layout widgets must be closed to properly identify where they
+    stop. For example, a VERTICALBOX keyword must be matched with an END keyword
+    to indicate where the VERTICALBOX ends.
+GLOBAL_SETTING:
+  summary: Applies a widget setting to all widgets of a certain type
+  parameters:
+    - name: Widget Class Name
+      required: true
+      description: The name of the class of widgets that this setting will be
+        applied to. For example, LABEL or BUTTON.
+      values: .+
+    - name: Setting Name
+      required: true
+      description: Widget specific setting name. COSMOS defines several settings
+        which apply across many different widget types. However, you can also use
+        the 'RAW' setting which allows any stylesheet values that QT supports.
+        See the QT Stylesheet documentation for more information.
+      values: <%= %w(TEXTALIGN PADDING MARGIN BACKCOLOR TEXTCOLOR BORDERCOLOR WIDTH HEIGHT RAW) %>
+    - name: Setting Value(s)
+      required: false
+      description: >
+        The setting value which varies by setting. Note that color
+        settings can be given as a common string, e.g. 'red', or by RGB values,
+        e.g. 255 0 0. If the setting is RAW the value should be the raw stylesheet
+        string, e.g. "font-size: 10px"
+      values: .*
+GLOBAL_SUBSETTING:
+  summary: Applies a widget subsetting to all widgets of a certain type
+  description: Subsettings are only valid for widgets that are
+    made up of more than one subwidget. For example, LABELVALUE is made up of a LABEL
+    at subwidget index 0 and a VALUE at subwidget index 1. This allows for passing
+    settings to specific subwidgets. Some widgets are made up of multiple subwidgets,
+    e.g. LABELVALUELIMITSBAR. To set the label text color, pass '0:0' as the Subwidget
+    Index to first index the LABELVALUE and then the LABEL.
+  parameters:
+    - name: Widget Class Name
+      required: true
+      description: The name of the class of widgets that this setting will be
+        applied to. For example, LABELVALUE.
+      values: .+
+    - name: Subwidget Index
+      required: true
+      description: Index to the desired subwidget or 'ALL' to apply the setting
+        to all the subwidgets of this composite widget.
+      values: .+
+    - name: Setting Name
+      required: true
+      description: Widget specific setting name. COSMOS defines several settings
+        which apply across many different widget types. However, you can also use
+        the 'RAW' setting which allows any stylesheet values that QT supports.
+        See the QT Stylesheet documentation for more information.
+      values: <%= %w(TEXTALIGN PADDING MARGIN BACKCOLOR TEXTCOLOR BORDERCOLOR WIDTH HEIGHT RAW) %>
+    - name: Setting Value(s)
+      required: false
+      description: >
+        The setting value which varies by setting. Note that color
+        settings can be given as a common string, e.g. 'red', or by RGB values,
+        e.g. 255 0 0. If the setting is RAW the value should be the raw stylesheet
+        string, e.g. "font-size: 10px"
+      values: .*
+SETTING:
+  summary: Applies a widget setting to the previously defined widget
+  parameters:
+    - name: Setting Name
+      required: true
+      description: Widget specific setting name. COSMOS defines several settings
+        which apply across many different widget types. However, you can also use
+        the 'RAW' setting which allows any stylesheet values that QT supports.
+        See the QT Stylesheet documentation for more information.
+      values: <%= %w(TEXTALIGN PADDING MARGIN BACKCOLOR TEXTCOLOR BORDERCOLOR WIDTH HEIGHT RAW) %>
+    - name: Setting Value(s)
+      required: false
+      description: >
+        The setting value which varies by setting. Note that color
+        settings can be given as a common string, e.g. 'red', or by RGB values,
+        e.g. 255 0 0. If the setting is RAW the value should be the raw stylesheet
+        string, e.g. "font-size: 10px"
+      values: .*
+SUBSETTING:
+  summary: Applies a widget subsetting to the previously defined widget
+  description: Subsettings are only valid for widgets that are
+    made up of more than one subwidget. For example, LABELVALUE is made up of a LABEL
+    at subwidget index 0 and a VALUE at subwidget index 1. This allows for passing
+    settings to specific subwidgets. Some widgets are made up of multiple subwidgets,
+    e.g. LABELVALUELIMITSBAR. To set the label text color, pass '0:0' as the Subwidget
+    Index to first index the LABELVALUE and then the LABEL.
+  parameters:
+    - name: Subwidget Index
+      required: true
+      description: Index to the desired subwidget or 'ALL' to apply the setting
+        to all the subwidgets of this composite widget.
+      values: .+
+    - name: Setting Name
+      required: true
+      description: Widget specific setting name. COSMOS defines several settings
+        which apply across many different widget types. However, you can also use
+        the 'RAW' setting which allows any stylesheet values that QT supports.
+        See the QT Stylesheet documentation for more information.
+      values: <%= %w(TEXTALIGN PADDING MARGIN BACKCOLOR TEXTCOLOR BORDERCOLOR WIDTH HEIGHT RAW) %>
+    - name: Setting Value(s)
+      required: false
+      description: >
+        The setting value which varies by setting. Note that color
+        settings can be given as a common string, e.g. 'red', or by RGB values,
+        e.g. 255 0 0. If the setting is RAW the value should be the raw stylesheet
+        string, e.g. "font-size: 10px"
+      values: .*
+NAMED_WIDGET:
+  summary: Name a widget to allow access to it via the get_named_widget method
+  description: To programatically accesss parts of a telemetry screen you need
+    to name the widget. This is useful when creating screens with buttons that
+    read values from other widgets.
+  warning: get_named_widget returns the widget itself and thus must be operated
+    on using methods native to that widget
+  parameters:
+    - name: Widget Name
+      required: true
+      description: The unique name applied to the following widget instance.
+        Names must be unique per screen.
+      values: .+
+    - name: Widget Type
+      required: true
+      description: One of the widget types listed in Widget Descriptions
+      values: .+
+    - name: Widget Parameters
+      required: true
+      description: The unique parameters for the given widget type
+      values: .+
+# Even though these are technically SCREEN modifiers we load them at the top_frame
+# level so they appear as available keywords
+<%= MetaConfigParser.load('widgets.yaml').to_meta_config_yaml(0) %>
