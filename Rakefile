@@ -88,52 +88,56 @@ task :require_version do
 end
 
 task :devkit do
-  if RUBY_PLATFORM[0..2] == 'x64'
-    if File.exist?("C:/Devkit64/bin")
-      ENV['PATH'] = 'C:\\Devkit64\\bin;C:\\Devkit64\\mingw\\bin;' + ENV['PATH']
-    end
-  else
-    if File.exist?("C:/Devkit/bin")
-      ENV['PATH'] = 'C:\\Devkit\\bin;C:\\Devkit\\mingw\\bin;' + ENV['PATH']
+  if RUBY_ENGINE == 'ruby'
+    if RUBY_PLATFORM[0..2] == 'x64'
+      if File.exist?("C:/Devkit64/bin")
+        ENV['PATH'] = 'C:\\Devkit64\\bin;C:\\Devkit64\\mingw\\bin;' + ENV['PATH']
+      end
+    else
+      if File.exist?("C:/Devkit/bin")
+        ENV['PATH'] = 'C:\\Devkit\\bin;C:\\Devkit\\mingw\\bin;' + ENV['PATH']
+      end
     end
   end
 end
 
 task :build => [:devkit] do
-  _, platform, *_ = RUBY_PLATFORM.split("-")
-  saved = Dir.pwd
-  shared_extension = 'so'
-  shared_extension = 'bundle' if platform =~ /darwin/
+  if RUBY_ENGINE == 'ruby'
+    _, platform, *_ = RUBY_PLATFORM.split("-")
+    saved = Dir.pwd
+    shared_extension = 'so'
+    shared_extension = 'bundle' if platform =~ /darwin/
 
-  extensions = [
-    'crc',
-    'low_fragmentation_array',
-    'polynomial_conversion',
-    'config_parser',
-    'string',
-    'array',
-    'cosmos_io',
-    'tabbed_plots_config',
-    'telemetry',
-    'line_graph',
-    'packet',
-    'platform',
-    'buffered_file']
+    extensions = [
+      'crc',
+      'low_fragmentation_array',
+      'polynomial_conversion',
+      'config_parser',
+      'string',
+      'array',
+      'cosmos_io',
+      'tabbed_plots_config',
+      'telemetry',
+      'line_graph',
+      'packet',
+      'platform',
+      'buffered_file']
 
-  extensions.each do |extension_name|
-    Dir.chdir "ext/cosmos/ext/#{extension_name}"
-    FileUtils.rm_f Dir.glob('*.o')
-    FileUtils.rm_f Dir.glob("*.#{shared_extension}")
-    FileUtils.rm_f Dir.glob('*.def')
-    FileUtils.rm_f 'Makefile'
-    system('ruby extconf.rb')
-    system('make')
-    FileUtils.copy("#{extension_name}.#{shared_extension}", '../../../../lib/cosmos/ext/.')
-    FileUtils.rm_f Dir.glob('*.o')
-    FileUtils.rm_f Dir.glob("*.#{shared_extension}")
-    FileUtils.rm_f Dir.glob('*.def')
-    FileUtils.rm_f 'Makefile'
-    Dir.chdir saved
+    extensions.each do |extension_name|
+      Dir.chdir "ext/cosmos/ext/#{extension_name}"
+      FileUtils.rm_f Dir.glob('*.o')
+      FileUtils.rm_f Dir.glob("*.#{shared_extension}")
+      FileUtils.rm_f Dir.glob('*.def')
+      FileUtils.rm_f 'Makefile'
+      system('ruby extconf.rb')
+      system('make')
+      FileUtils.copy("#{extension_name}.#{shared_extension}", '../../../../lib/cosmos/ext/.')
+      FileUtils.rm_f Dir.glob('*.o')
+      FileUtils.rm_f Dir.glob("*.#{shared_extension}")
+      FileUtils.rm_f Dir.glob('*.def')
+      FileUtils.rm_f 'Makefile'
+      Dir.chdir saved
+    end
   end
 end
 
