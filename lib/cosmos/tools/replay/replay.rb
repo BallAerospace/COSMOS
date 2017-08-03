@@ -15,12 +15,10 @@ Cosmos.catch_fatal_exception do
   require 'cosmos/gui/dialogs/progress_dialog'
   require 'cosmos/tools/replay/replay_server'
   require 'cosmos/gui/choosers/string_chooser'
-  require 'cosmos/gui/widgets/packet_log_frame'
 end
 
 module Cosmos
-  # Replay existing COSMOS telemetry and act as the Server so other COSMOS tools
-  # can connect to it and receive telemetry.
+
   class Replay < QtTool
     # The number of bytes to print when an UNKNOWN packet is received
     UNKNOWN_BYTES_TO_PRINT = 36
@@ -29,16 +27,6 @@ module Cosmos
       # MUST BE FIRST - All code before super is executed twice in RubyQt Based classes
       super(options)
       Cosmos.load_cosmos_icon("replay.png")
-
-      # Initialize variables
-      @log_directory = System.paths['LOGS']
-      @log_directory << '/' unless @log_directory[-1..-1] == '\\' or @log_directory[-1..-1] == '/'
-      @log_filename = nil
-      @playing = false
-      @playback_thread = nil
-      @playback_index = 0
-      @packet_offsets = []
-      @input_filenames = []
 
       initialize_actions()
       initialize_menus()
@@ -58,6 +46,16 @@ module Cosmos
 
         ConfigParser.splash = nil
       end
+
+      # Initialize variables
+      @packet_log_reader = System.default_packet_log_reader.new(*System.default_packet_log_reader_params)
+      @log_directory = System.paths['LOGS']
+      @log_directory << '/' unless @log_directory[-1..-1] == '\\' or @log_directory[-1..-1] == '/'
+      @log_filename = nil
+      @playing = false
+      @playback_thread = nil
+      @playback_index = 0
+      @packet_offsets = []
     end
 
     def initialize_menus
@@ -87,22 +85,17 @@ module Cosmos
       @log_layout.setContentsMargins(0,0,0,0)
       @log_widget.setLayout(@log_layout)
 
-      # Packet Log Frame
+      # Create the log file GUI
       @log_file_selection = Qt::GroupBox.new("Log File Selection")
-      @log_file_layout = Qt::VBoxLayout.new(@log_file_selection)
-      @packet_log_frame = PacketLogFrame.new(
-        self, @log_directory,
-        System.default_packet_log_reader.new(*System.default_packet_log_reader_params),
-        @input_filenames, nil, false, false, true, # show log reader only
-        Cosmos::TLM_FILE_PATTERN)
-      # @packet_log_reader = @packet_log_frame.packet_log_reader
-      @packet_log_frame.connect(SIGNAL('log_file_activated(QListWidgetItem*)')) do |item|
-        select_log_file(item.text)
-      end
-      @packet_log_frame.change_callback = method(:log_frame_change_callback)
-      @packet_log_frame.instance_variable_get(:@filenames).setSizePolicy(Qt::SizePolicy::Preferred, Qt::SizePolicy::Ignored)
-      @log_file_layout.addWidget(@packet_log_frame)
+      @log_select = Qt::HBoxLayout.new(@log_file_selection)
+      @log_name = Qt::LineEdit.new
+      @log_name.setReadOnly(true)
+      @log_select.addWidget(@log_name)
+      @log_open = Qt::PushButton.new("Browse...")
+      @log_select.addWidget(@log_open)
       @log_layout.addWidget(@log_file_selection)
+
+      @log_open.connect(SIGNAL('clicked()')) { select_log_file() }
 
       # Create the operation buttons GUI
       @op = Qt::GroupBox.new(tr("Playback Control"))
@@ -214,49 +207,47 @@ module Cosmos
       @central_widget.setLayout(@top_layout)
     end
 
-    def log_frame_change_callback(item_changed)
-      reset_log()
-    end
+    def select_log_file
+      unless @playback_thread
+        selection = Qt::FileDialog.getOpenFileName(
+          self, "Select Log File", @log_directory, Cosmos::TLM_FILE_PATTERN)
+        if selection
+          stop()
+          @log_directory = File.dirname(selection)
+          @log_name.text = selection
+          @log_filename = selection
 
-    def select_log_file(filename)
-      return if @playback_thread
-      stop()
-      @log_directory = File.dirname(filename)
-      @log_filename = filename
+          System.telemetry.reset
 
-      System.telemetry.reset
-      @packet_log_reader = @packet_log_frame.packet_log_reader
+          @cancel = false
+          ProgressDialog.execute(self, 'Analyzing Log File', 500, 10, true, false, true, false, true) do |progress_dialog|
+            progress_dialog.append_text("Processing File: #{selection}\n")
+            progress_dialog.set_overall_progress(0.0)
+            progress_dialog.cancel_callback = method(:cancel_callback)
+            progress_dialog.enable_cancel_button
+            Cosmos.check_log_configuration(@packet_log_reader, selection)
+            @packet_offsets = @packet_log_reader.packet_offsets(selection, lambda {|percentage| progress_dialog.set_overall_progress(percentage); @cancel})
+            @playback_index = 0
+            update_slider_and_current_time(nil)
+            @packet_log_reader.open(selection)
+            progress_dialog.close_done
+          end
 
-      @cancel = false
-      ProgressDialog.execute(self, 'Analyzing Log File', 500, 10, true, false, true, false, true) do |progress_dialog|
-        progress_dialog.append_text("Processing File: #{filename}\n")
-        progress_dialog.set_overall_progress(0.0)
-        progress_dialog.cancel_callback = method(:cancel_callback)
-        progress_dialog.enable_cancel_button
-        Cosmos.check_log_configuration(@packet_log_reader, filename)
-        @packet_offsets = @packet_log_reader.packet_offsets(filename, lambda {|percentage| progress_dialog.set_overall_progress(percentage); @cancel})
-        @playback_index = 0
-        update_slider_and_current_time(nil)
-        @packet_log_reader.open(filename)
-        progress_dialog.close_done
+          if ProgressDialog.canceled?
+            @packet_log_reader.close
+            @log_name.text = ''
+            @log_filename = nil
+            @packet_offsets = []
+            @playback_index = 0
+            @start_time.value = ''
+            @current_time.value = ''
+            @end_time.value = ''
+          else
+            move_end()
+            move_start()
+          end
+        end
       end
-
-      if ProgressDialog.canceled?
-        @packet_log_reader.close
-        reset_log()
-      else
-        move_end()
-        move_start()
-      end
-    end
-
-    def reset_log
-      @log_filename = nil
-      @packet_offsets = []
-      @playback_index = 0
-      @start_time.value = ''
-      @current_time.value = ''
-      @end_time.value = ''
     end
 
     def cancel_callback(progress_dialog = nil)
