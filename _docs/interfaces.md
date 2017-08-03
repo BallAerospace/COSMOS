@@ -15,8 +15,8 @@ Interfaces have the following methods that must be implemented:
 1. **write_interface** - Lowest level write of data on the interface. Note: This method may not block indefinitely.
 
 Interfaces also have the following methods that exist and have default implementations. They can be overridden if necessary but be sure to call super() to allow the default implementation to be executed.
-1. **read_interface_base** - Called to read data and manipulate it until enough data is returned. The definition of 'enough data' changes depending on the protocol used which is why this method exists. This method is also used to perform operations on the data before it can be interpreted as packet data such as decryption. After this method is called the post_read_data method is called.
-1. **write_interface_base** - Called to write data to the underlying interface. This method is also used to perform operations on the data before it can be interpreted as packet data such as decryption. After this method is called the post_read_data method is called.
+1. **read_interface_base** - This method should always be called from read_interface().  It updates interface specific variables that are displayed by CmdTLmServer including the bytes read count, the most recent raw data read, and it handles raw logging if enabled.
+1. **write_interface_base** - This method should always be called from write_interface().  It updates interface specific variables that are displayed by CmdTLmServer including the bytes written count, the most recent raw data written, and it handles raw logging if enabled.
 1. **read** - Read the next packet from the interface. COSMOS implements this method to allow the Protocol system to operate on the data and the packet before it is returned.
 1. **write** - Send a packet to the interface. COSMOS implements this method to allow the Protocol system to operate on the packet and the data before it is sent.
 1. **write_raw** - Send a raw binary string of data to the target. COSMOS implements this method by basically calling write_interface with the raw data.
