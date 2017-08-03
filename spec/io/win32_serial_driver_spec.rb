@@ -8,81 +8,84 @@
 # as published by the Free Software Foundation; version 3 with
 # attribution addendums as found in the LICENSE.txt
 
-require 'spec_helper'
-require 'cosmos/io/win32_serial_driver'
+if RUBY_ENGINE == 'ruby' or Gem.win_platform?
 
-module Cosmos
+  require 'spec_helper'
+  require 'cosmos/io/win32_serial_driver'
 
-  describe Win32SerialDriver do
-    before(:each) do
-      allow(Win32).to receive(:create_file).and_return(Object.new)
-      state = double("comm_state")
-      allow(state).to receive(:write)
-      allow(Win32).to receive(:get_comm_state).and_return(state)
-      allow(Win32).to receive(:set_comm_state)
-      allow(Win32).to receive(:set_comm_timeouts)
-    end
+  module Cosmos
 
-    describe "instance" do
-      it "enforces the baud rate to a known value" do
-        expect { Win32SerialDriver.new('COM1',10,:NONE) }.to raise_error(ArgumentError, "Invalid baud rate: 10")
+    describe Win32SerialDriver do
+      before(:each) do
+        allow(Win32).to receive(:create_file).and_return(Object.new)
+        state = double("comm_state")
+        allow(state).to receive(:write)
+        allow(Win32).to receive(:get_comm_state).and_return(state)
+        allow(Win32).to receive(:set_comm_state)
+        allow(Win32).to receive(:set_comm_timeouts)
       end
 
-      it "supports even, odd, or no parity" do
-        expect { Win32SerialDriver.new('COM1',9600,:EVEN) }.to_not raise_error
-        expect { Win32SerialDriver.new('COM1',9600,:ODD) }.to_not raise_error
-        expect { Win32SerialDriver.new('COM1',9600,:NONE) }.to_not raise_error
-        expect { Win32SerialDriver.new('COM1',9600,:BLAH) }.to raise_error(ArgumentError, "Invalid parity: BLAH")
-      end
-
-      it "supports 1 or 2 stop bits" do
-        expect { Win32SerialDriver.new('COM1',9600,:NONE,1) }.to_not raise_error
-        expect { Win32SerialDriver.new('COM1',9600,:NONE,2) }.to_not raise_error
-        expect { Win32SerialDriver.new('COM1',9600,:NONE,3) }.to raise_error(ArgumentError, "Invalid stop bits: 3")
-      end
-    end
-
-    describe "close, closed?" do
-      it "closes the handle" do
-        expect(Win32).to receive(:close_handle)
-        driver = Win32SerialDriver.new('COM1',9600)
-        expect(driver.closed?).to be false
-        driver.close
-        expect(driver.closed?).to be true
-      end
-    end
-
-    describe "write" do
-      it "handles write errors" do
-        expect(Win32).to receive(:write_file).and_return 0
-        driver = Win32SerialDriver.new('COM1',9600)
-        expect { driver.write('\x00') }.to raise_error("Error writing to comm port")
-      end
-
-      it "uses the write timeout" do
-        expect(Win32).to receive(:write_file) do
-          sleep 2
-          1
+      describe "instance" do
+        it "enforces the baud rate to a known value" do
+          expect { Win32SerialDriver.new('COM1',10,:NONE) }.to raise_error(ArgumentError, "Invalid baud rate: 10")
         end
-        driver = Win32SerialDriver.new('COM1',9600,:NONE,1,1)
-        expect { driver.write('\x00\x01') }.to raise_error(Timeout::Error)
+
+        it "supports even, odd, or no parity" do
+          expect { Win32SerialDriver.new('COM1',9600,:EVEN) }.to_not raise_error
+          expect { Win32SerialDriver.new('COM1',9600,:ODD) }.to_not raise_error
+          expect { Win32SerialDriver.new('COM1',9600,:NONE) }.to_not raise_error
+          expect { Win32SerialDriver.new('COM1',9600,:BLAH) }.to raise_error(ArgumentError, "Invalid parity: BLAH")
+        end
+
+        it "supports 1 or 2 stop bits" do
+          expect { Win32SerialDriver.new('COM1',9600,:NONE,1) }.to_not raise_error
+          expect { Win32SerialDriver.new('COM1',9600,:NONE,2) }.to_not raise_error
+          expect { Win32SerialDriver.new('COM1',9600,:NONE,3) }.to raise_error(ArgumentError, "Invalid stop bits: 3")
+        end
       end
+
+      describe "close, closed?" do
+        it "closes the handle" do
+          expect(Win32).to receive(:close_handle)
+          driver = Win32SerialDriver.new('COM1',9600)
+          expect(driver.closed?).to be false
+          driver.close
+          expect(driver.closed?).to be true
+        end
+      end
+
+      describe "write" do
+        it "handles write errors" do
+          expect(Win32).to receive(:write_file).and_return 0
+          driver = Win32SerialDriver.new('COM1',9600)
+          expect { driver.write('\x00') }.to raise_error("Error writing to comm port")
+        end
+
+        it "uses the write timeout" do
+          expect(Win32).to receive(:write_file) do
+            sleep 2
+            1
+          end
+          driver = Win32SerialDriver.new('COM1',9600,:NONE,1,1)
+          expect { driver.write('\x00\x01') }.to raise_error(Timeout::Error)
+        end
+      end
+
+      describe "read" do
+        it "return the data read" do
+          expect(Win32).to receive(:read_file) { '\x00' }
+          driver = Win32SerialDriver.new('COM1',9600,:NONE,1,1,nil,0.01,1)
+          expect(driver.read).to eql '\x00'
+        end
+
+        it "uses the read timeout" do
+          allow(Win32).to receive(:read_file) { '' }
+          driver = Win32SerialDriver.new('COM1',9600,:NONE,1,1,1.0,0.5,10)
+          expect { driver.read }.to raise_error(Timeout::Error)
+        end
+      end
+
     end
-
-    describe "read" do
-      it "return the data read" do
-        expect(Win32).to receive(:read_file) { '\x00' }
-        driver = Win32SerialDriver.new('COM1',9600,:NONE,1,1,nil,0.01,1)
-        expect(driver.read).to eql '\x00'
-      end
-
-      it "uses the read timeout" do
-        allow(Win32).to receive(:read_file) { '' }
-        driver = Win32SerialDriver.new('COM1',9600,:NONE,1,1,1.0,0.5,10)
-        expect { driver.read }.to raise_error(Timeout::Error)
-      end
-    end
-
   end
-end
 
+end

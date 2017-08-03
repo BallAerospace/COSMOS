@@ -64,12 +64,14 @@ module Cosmos
       end
     end
 
-    describe "status_bar" do
-      it "sets the ScriptRunner status bar" do
-        class ScriptRunner; end
-        sc = ScriptRunner.new
-        expect(sc).to receive(:script_set_status).with("HI")
-        status_bar("HI")
+    if RUBY_ENGINE == 'ruby'
+      describe "status_bar" do
+        it "sets the ScriptRunner status bar" do
+          class ScriptRunner; end
+          sc = ScriptRunner.new
+          expect(sc).to receive(:script_set_status).with("HI")
+          status_bar("HI")
+        end
       end
     end
 

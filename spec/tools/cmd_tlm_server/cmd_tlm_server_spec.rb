@@ -85,7 +85,10 @@ module Cosmos
           expect(CmdTlmServer.json_drb.method_whitelist).to include('stop_tlm_log')
           threads = Thread.list.length
           cts.start # Call start again ... it should do nothing
-          expect(Thread.list.length).to eql threads
+          expect(CmdTlmServer.json_drb.method_whitelist).to include('start_logging')
+          expect(CmdTlmServer.json_drb.method_whitelist).to include('stop_logging')
+          expect(CmdTlmServer.json_drb.method_whitelist).to include('stop_cmd_log')
+          expect(CmdTlmServer.json_drb.method_whitelist).to include('stop_tlm_log')
         ensure
           cts.stop
           sleep 0.2
@@ -199,6 +202,9 @@ module Cosmos
 
     describe "self.subscribe_limits_events" do
       it "subscribes to limits events" do
+        allow(System).to receive_message_chain(:telemetry,:stale).and_return([])
+        allow(System).to receive_message_chain(:telemetry,:limits_change_callback=)
+        allow(System).to receive_message_chain(:telemetry,:check_stale)
         cts = CmdTlmServer.new
         begin
           pkt = Packet.new("TGT","PKT")
@@ -237,6 +243,9 @@ module Cosmos
       end
 
       it "deletes queues after the max events is reached" do
+        allow(System).to receive_message_chain(:telemetry,:stale).and_return([])
+        allow(System).to receive_message_chain(:telemetry,:limits_change_callback=)
+        allow(System).to receive_message_chain(:telemetry,:check_stale)
         cts = CmdTlmServer.new
         begin
           pkt = Packet.new("TGT","PKT")
@@ -267,6 +276,9 @@ module Cosmos
 
     describe "self.unsubscribe_limits_events" do
       it "unsubscribes to limits events" do
+        allow(System).to receive_message_chain(:telemetry,:stale).and_return([])
+        allow(System).to receive_message_chain(:telemetry,:limits_change_callback=)
+        allow(System).to receive_message_chain(:telemetry,:check_stale)
         cts = CmdTlmServer.new
         begin
           pkt = Packet.new("TGT","PKT")

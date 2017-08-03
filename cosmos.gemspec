@@ -1,6 +1,6 @@
 # encoding: ascii-8bit
 
-# Copyright 2014 Ball Aerospace & Technologies Corp.
+# Copyright 2017 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
 # This program is free software; you can modify and/or redistribute it
@@ -25,7 +25,11 @@ spec = Gem::Specification.new do |s|
   s.email = ['rmelton@ball.com', 'jmthomas@ball.com']
   s.homepage = 'https://github.com/BallAerospace/COSMOS'
 
-  s.platform = Gem::Platform::RUBY
+  if RUBY_ENGINE == 'ruby'
+    s.platform = Gem::Platform::RUBY
+  else
+    s.platform = Gem::Platform::CURRENT
+  end
   if ENV['VERSION']
     s.version = ENV['VERSION'].dup
   else
@@ -39,21 +43,23 @@ spec = Gem::Specification.new do |s|
   s.executables << 'cstol_converter'
   s.executables << 'xtce_converter'
 
-  # Ruby C Extensions
-  s.extensions << 'ext/cosmos/ext/array/extconf.rb'
-  s.extensions << 'ext/cosmos/ext/buffered_file/extconf.rb'
-  s.extensions << 'ext/cosmos/ext/config_parser/extconf.rb'
-  s.extensions << 'ext/cosmos/ext/cosmos_io/extconf.rb'
-  s.extensions << 'ext/cosmos/ext/crc/extconf.rb'
-  s.extensions << 'ext/cosmos/ext/line_graph/extconf.rb'
-  s.extensions << 'ext/cosmos/ext/low_fragmentation_array/extconf.rb'
-  s.extensions << 'ext/cosmos/ext/packet/extconf.rb'
-  s.extensions << 'ext/cosmos/ext/platform/extconf.rb'
-  s.extensions << 'ext/cosmos/ext/polynomial_conversion/extconf.rb'
-  s.extensions << 'ext/cosmos/ext/string/extconf.rb'
-  s.extensions << 'ext/cosmos/ext/tabbed_plots_config/extconf.rb'
-  s.extensions << 'ext/cosmos/ext/telemetry/extconf.rb'
-  s.extensions << 'ext/mkrf_conf.rb'
+  if RUBY_ENGINE == 'ruby'
+    # Ruby C Extensions - MRI Only
+    s.extensions << 'ext/cosmos/ext/array/extconf.rb'
+    s.extensions << 'ext/cosmos/ext/buffered_file/extconf.rb'
+    s.extensions << 'ext/cosmos/ext/config_parser/extconf.rb'
+    s.extensions << 'ext/cosmos/ext/cosmos_io/extconf.rb'
+    s.extensions << 'ext/cosmos/ext/crc/extconf.rb'
+    s.extensions << 'ext/cosmos/ext/line_graph/extconf.rb'
+    s.extensions << 'ext/cosmos/ext/low_fragmentation_array/extconf.rb'
+    s.extensions << 'ext/cosmos/ext/packet/extconf.rb'
+    s.extensions << 'ext/cosmos/ext/platform/extconf.rb'
+    s.extensions << 'ext/cosmos/ext/polynomial_conversion/extconf.rb'
+    s.extensions << 'ext/cosmos/ext/string/extconf.rb'
+    s.extensions << 'ext/cosmos/ext/tabbed_plots_config/extconf.rb'
+    s.extensions << 'ext/cosmos/ext/telemetry/extconf.rb'
+    s.extensions << 'ext/mkrf_conf.rb'
+  end
 
   # Files are defined in Manifest.txt
   s.files =
@@ -76,11 +82,11 @@ spec = Gem::Specification.new do |s|
   s.add_runtime_dependency 'pry-doc', '>= 0.5', '< 0.7'
   s.add_runtime_dependency 'yard', '>= 0.8', '< 0.10'
   s.add_runtime_dependency 'uuidtools', '~> 2.1.0'
-  s.add_runtime_dependency 'opengl', '>= 0.7', '< 0.10'
   s.add_runtime_dependency 'snmp', '~> 1.0'
   s.add_runtime_dependency 'rubyzip', '~> 1.1.0'
-  s.add_runtime_dependency 'qtbindings', '~> 4.8.6', '>= 4.8.6.2'
   s.add_runtime_dependency 'nokogiri', '~> 1.6'
+  s.add_runtime_dependency 'opengl', '>= 0.7', '< 0.10' if RUBY_ENGINE == 'ruby' # MRI Only
+  s.add_runtime_dependency 'qtbindings', '~> 4.8.6', '>= 4.8.6.2' if RUBY_ENGINE == 'ruby' # MRI Only
 
   # Development Dependencies
   s.add_development_dependency 'rspec', '~> 3.5.0'
@@ -93,9 +99,9 @@ spec = Gem::Specification.new do |s|
   s.add_development_dependency 'guard-bundler', '~> 2.0'
   s.add_development_dependency 'guard-rspec', '~> 4.0'
   s.add_development_dependency 'simplecov', '~> 0.11'
-  s.add_development_dependency 'ruby-prof', '~> 0.15.0'
   s.add_development_dependency 'coveralls', '~> 0.8'
   s.add_development_dependency 'benchmark-ips', '~> 2.0'
+  s.add_development_dependency 'ruby-prof', '~> 0.15.0' if RUBY_ENGINE == 'ruby' # MRI Only
 
   s.post_install_message = "Thanks for installing Ball Aerospace COSMOS!\nStart your first project with: cosmos demo demo\n"
 end

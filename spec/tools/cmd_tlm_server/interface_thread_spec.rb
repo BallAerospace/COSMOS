@@ -59,10 +59,18 @@ module Cosmos
           thread = InterfaceThread.new(@interface)
           thread.start
           sleep 0.1
-          expect(Thread.list.length).to eql(2)
+          if RUBY_ENGINE == 'ruby'
+            expect(Thread.list.length).to eql(2)
+          else
+            expect(Thread.list.length).to eql(3)
+          end
           thread.stop
           sleep 0.2
-          expect(Thread.list.length).to eql(1)
+          if RUBY_ENGINE == 'ruby'
+            expect(Thread.list.length).to eql(1)
+          else
+            expect(Thread.list.length).to eql(2)
+          end
 
           expect(stdout.string).to match "Connection Failed: RuntimeError : ConnectError"
         end
@@ -84,10 +92,18 @@ module Cosmos
           end
           thread.start
           sleep 0.2
-          expect(Thread.list.length).to eql(2)
+          if RUBY_ENGINE == 'ruby'
+            expect(Thread.list.length).to eql(2)
+          else
+            expect(Thread.list.length).to eql(3)
+          end
           thread.stop
           sleep 0.2
-          expect(Thread.list.length).to eql(1)
+          if RUBY_ENGINE == 'ruby'
+            expect(Thread.list.length).to eql(1)
+          else
+            expect(Thread.list.length).to eql(2)
+          end
           expect(error_count).to eql 2
 
           expect(stdout.string).not_to match "Connection Failed: ConnectError"
@@ -99,10 +115,18 @@ module Cosmos
           thread = InterfaceThread.new(@interface)
           thread.start
           sleep 0.1
-          expect(Thread.list.length).to eql(2)
+          if RUBY_ENGINE == 'ruby'
+            expect(Thread.list.length).to eql(2)
+          else
+            expect(Thread.list.length).to eql(3)
+          end
           thread.stop
           sleep 0.2
-          expect(Thread.list.length).to eql(1)
+          if RUBY_ENGINE == 'ruby'
+            expect(Thread.list.length).to eql(1)
+          else
+            expect(Thread.list.length).to eql(2)
+          end
 
           expect(stdout.string).to match "Connection Success"
         end
@@ -117,10 +141,18 @@ module Cosmos
           end
           thread.start
           sleep 0.1
-          expect(Thread.list.length).to eql(2)
+          if RUBY_ENGINE == 'ruby'
+            expect(Thread.list.length).to eql(2)
+          else
+            expect(Thread.list.length).to eql(3)
+          end
           thread.stop
           sleep 0.2
-          expect(Thread.list.length).to eql(1)
+          if RUBY_ENGINE == 'ruby'
+            expect(Thread.list.length).to eql(1)
+          else
+            expect(Thread.list.length).to eql(2)
+          end
           expect(callback_called).to be true
 
           expect(stdout.string).not_to match "Connection Success"
@@ -137,10 +169,18 @@ module Cosmos
           thread = InterfaceThread.new(@interface)
           thread.start
           sleep 0.1
-          expect(Thread.list.length).to eql(2)
+          if RUBY_ENGINE == 'ruby'
+            expect(Thread.list.length).to eql(2)
+          else
+            expect(Thread.list.length).to eql(3)
+          end
           thread.stop
           sleep 0.2
-          expect(Thread.list.length).to eql(1)
+          if RUBY_ENGINE == 'ruby'
+            expect(Thread.list.length).to eql(1)
+          else
+            expect(Thread.list.length).to eql(2)
+          end
 
           expect(stdout.string).to match "Connection Lost"
         end
@@ -159,10 +199,18 @@ module Cosmos
           sleep 1
           # Since we set auto_reconnect to false we shouldn't see the interface
           # thread because it will be killed
-          expect(Thread.list.length).to eql(1)
+          if RUBY_ENGINE == 'ruby'
+            expect(Thread.list.length).to eql(1)
+          else
+            expect(Thread.list.length).to eql(2)
+          end
           thread.stop
           sleep 0.2
-          expect(Thread.list.length).to eql(1)
+          if RUBY_ENGINE == 'ruby'
+            expect(Thread.list.length).to eql(1)
+          else
+            expect(Thread.list.length).to eql(2)
+          end
           expect(callback_called).to be true
 
           expect(stdout.string).not_to match "Connection Lost"
@@ -175,11 +223,18 @@ module Cosmos
           thread = InterfaceThread.new(@interface)
           thread.start
           sleep 0.1
-          expect(Thread.list.length).to eql(2)
+          if RUBY_ENGINE == 'ruby'
+            expect(Thread.list.length).to eql(2)
+          else
+            expect(Thread.list.length).to eql(3)
+          end
           thread.stop
           sleep 0.2
-          expect(Thread.list.length).to eql(1)
-
+          if RUBY_ENGINE == 'ruby'
+            expect(Thread.list.length).to eql(1)
+          else
+            expect(Thread.list.length).to eql(2)
+          end
           expect(stdout.string).to match "ReadError"
         end
       end
@@ -194,10 +249,18 @@ module Cosmos
           thread = InterfaceThread.new(@interface)
           thread.start
           sleep 0.1
-          expect(Thread.list.length).to eql(2)
+          if RUBY_ENGINE == 'ruby'
+            expect(Thread.list.length).to eql(2)
+          else
+            expect(Thread.list.length).to eql(3)
+          end
           thread.stop
           sleep 0.2
-          expect(Thread.list.length).to eql(1)
+          if RUBY_ENGINE == 'ruby'
+            expect(Thread.list.length).to eql(1)
+          else
+            expect(Thread.list.length).to eql(2)
+          end
 
           expect(stdout.string).to match "ECONNRESET"
         end
@@ -241,10 +304,18 @@ module Cosmos
           thread = InterfaceThread.new(@interface)
           thread.start
           sleep 0.1
-          expect(Thread.list.length).to eql(2)
+          if RUBY_ENGINE == 'ruby'
+            expect(Thread.list.length).to eql(2)
+          else
+            expect(Thread.list.length).to eql(3)
+          end
           thread.stop
           sleep 0.2
-          expect(Thread.list.length).to eql(1)
+          if RUBY_ENGINE == 'ruby'
+            expect(Thread.list.length).to eql(1)
+          else
+            expect(Thread.list.length).to eql(2)
+          end
 
           expect(stdout.string).to match "Unknown 2 byte packet"
         end
@@ -258,10 +329,19 @@ module Cosmos
           thread = InterfaceThread.new(@interface)
           thread.start
           sleep 0.1
-          expect(Thread.list.length).to eql(2)
+
+          if RUBY_ENGINE == 'ruby'
+            expect(Thread.list.length).to eql(2)
+          else
+            expect(Thread.list.length).to eql(3)
+          end
           thread.stop
           sleep 0.2
-          expect(Thread.list.length).to eql(1)
+          if RUBY_ENGINE == 'ruby'
+            expect(Thread.list.length).to eql(1)
+          else
+            expect(Thread.list.length).to eql(2)
+          end
           expect(stdout.string).to match "Received unknown identified telemetry: BOB SMITH"
         end
       end
@@ -277,10 +357,18 @@ module Cosmos
           thread = InterfaceThread.new(@interface)
           thread.start
           sleep 0.1
-          expect(Thread.list.length).to eql(2)
+          if RUBY_ENGINE == 'ruby'
+            expect(Thread.list.length).to eql(2)
+          else
+            expect(Thread.list.length).to eql(3)
+          end
           thread.stop
           sleep 0.2
-          expect(Thread.list.length).to eql(1)
+          if RUBY_ENGINE == 'ruby'
+            expect(Thread.list.length).to eql(1)
+          else
+            expect(Thread.list.length).to eql(2)
+          end
 
           expect(stdout.string).to match "Problem writing to router"
         end
@@ -294,10 +382,18 @@ module Cosmos
         threads = Thread.list.length
         thread.start
         sleep 0.1
-        expect(Thread.list.length).to eql(2)
+        if RUBY_ENGINE == 'ruby'
+          expect(Thread.list.length).to eql(2)
+        else
+          expect(Thread.list.length).to eql(3)
+        end
         thread.stop
         sleep 0.2
-        expect(Thread.list.length).to eql(1)
+        if RUBY_ENGINE == 'ruby'
+          expect(Thread.list.length).to eql(1)
+        else
+          expect(Thread.list.length).to eql(2)
+        end
       end
 
     end

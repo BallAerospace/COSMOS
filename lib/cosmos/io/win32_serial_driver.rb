@@ -8,6 +8,7 @@
 # as published by the Free Software Foundation; version 3 with
 # attribution addendums as found in the LICENSE.txt
 
+require 'cosmos/io/serial_driver'
 require 'cosmos/win32/win32'
 require 'timeout' # For Timeout::Error
 

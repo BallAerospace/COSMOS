@@ -11,14 +11,16 @@
 # Redefine Object.load so simplecov doesn't overwrite the results after
 # re-loading a file during test.
 def load(file, wrap = false)
-  SimpleCov.start do
-    command_name "#{command_name}1"
+  if defined? SimpleCov
+    SimpleCov.start do
+      command_name "#{command_name}1"
+    end
   end
   Kernel.load(file, wrap)
 end
 
 # NOTE: You MUST require simplecov before anything else!
-unless ENV['COSMOS_NO_SIMPLECOV']
+if RUBY_ENGINE == 'ruby' and !ENV['COSMOS_NO_SIMPLECOV']
   require 'simplecov'
   require 'coveralls'
   Coveralls.wear!
@@ -45,7 +47,7 @@ unless ENV['COSMOS_NO_SIMPLECOV']
   end
 end
 require 'rspec'
-require 'ruby-prof'
+require 'ruby-prof' if RUBY_ENGINE == 'ruby'
 require 'benchmark/ips'
 
 # Set the user path to our COSMOS configuration in the spec directory
@@ -85,18 +87,32 @@ RSpec.configure do |config|
     Cosmos.disable_warnings do
       Object.const_set(:STDOUT, $saved_stdout_const)
     end
-    # Kill any leftover threads
-    if Thread.list.length > 1
-      Thread.list.each do |t|
-        t.kill if t != Thread.current
+    if RUBY_ENGINE == 'ruby'
+      # Kill any leftover threads
+      if Thread.list.length > 1
+        Thread.list.each do |t|
+          t.kill if t != Thread.current
+        end
+        sleep(0.2)
       end
-      sleep(0.2)
+    else
+      # Kill any leftover threads
+      if Thread.list.length > 2
+        Thread.list[2..-1].each do |t|
+          t.kill if t != Thread.current
+        end
+        sleep(0.2)
+      end
     end
   end
 
   config.after(:each) do
     # Make sure we didn't leave any lingering threads
-    expect(Thread.list.length).to eql(1), "At end of test expect 1 remaining thread but found #{Thread.list.length}.\nEnsure you kill all spawned threads before the test finishes."
+    if RUBY_ENGINE == 'ruby'
+      expect(Thread.list.length).to eql(1), "At end of test expect 1 remaining thread but found #{Thread.list.length}.\nEnsure you kill all spawned threads before the test finishes."
+    else
+      expect(Thread.list.length).to be <= 2, "At end of test expect 2 remaining thread but found #{Thread.list.length}.\nEnsure you kill all spawned threads before the test finishes."
+    end
   end
 end
 

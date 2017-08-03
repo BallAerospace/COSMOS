@@ -128,7 +128,7 @@ module Cosmos
         system_exit_count = $system_exit_count
         Cosmos.marshal_dump('marshal_test', Proc.new { '' })
         expect($system_exit_count).to be > system_exit_count
-        expect(stdout.string).to match "no _dump_data is defined for class Proc"
+        expect(stdout.string).to match "is defined for class Proc"
       end
       Cosmos.cleanup_exceptions()
     end
@@ -172,7 +172,7 @@ module Cosmos
 
   describe "run_process_check_output" do
     it "executes a command while capturing output" do
-      if Kernel.is_windows?
+      if RUBY_ENGINE == 'ruby' and Kernel.is_windows?
         require 'Qt'
         allow(::Qt::Application).to receive(:instance).and_return(nil)
         output = ''

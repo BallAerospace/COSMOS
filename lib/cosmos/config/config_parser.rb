@@ -8,7 +8,7 @@
 # as published by the Free Software Foundation; version 3 with
 # attribution addendums as found in the LICENSE.txt
 
-require 'cosmos/ext/config_parser'
+require 'cosmos/ext/config_parser' if RUBY_ENGINE == 'ruby' and !ENV['COSMOS_NO_EXT']
 require 'tempfile'
 require 'erb'
 
@@ -395,13 +395,114 @@ module Cosmos
       value
     end
 
-    # Iterates over each line of the io object and yields the keyword and parameters
-    # def parse_loop(
-    #   io,
-    #   yield_non_keyword_lines,
-    #   remove_quotes,
-    #   size,
-    #   rx,
-    #   &block)
+    if RUBY_ENGINE != 'ruby' or ENV['COSMOS_NO_EXT']
+      # Iterates over each line of the io object and yields the keyword and parameters
+      def parse_loop(io, yield_non_keyword_lines, remove_quotes, size, rx)
+        line_continuation = false
+
+        @line_number = 0
+        @keyword = nil
+        @parameters = []
+        @line = nil
+
+        while true
+          @line_number += 1
+
+          if @@progress_callback && ((@line_number % 10) == 0)
+            @@progress_callback.call(io.pos / size) if size > 0.0
+          end
+
+          begin
+            line = io.readline
+          rescue Exception
+            break
+          end
+
+          line.strip!
+          data = line.scan(rx)
+          first_item = data[0].to_s
+
+          if line_continuation
+            @line << line
+            # Carry over keyword and parameters
+          else
+            @line = line
+            if (first_item.length == 0) || (first_item[0] == '#')
+              @keyword = nil
+            else
+              @keyword = first_item.upcase
+            end
+            @parameters = []
+          end
+
+          # Ignore comments and blank lines
+          if @keyword.nil?
+            if (yield_non_keyword_lines) && (!line_continuation)
+              yield(@keyword, @parameters)
+            end
+            next
+          end
+
+          if line_continuation
+            if remove_quotes
+              @parameters << first_item.remove_quotes
+            else
+              @parameters << first_item
+            end
+            line_continuation = false
+          end
+
+          length = data.length
+          if (length > 1)
+            (1..(length - 1)).each do |index|
+              string = data[index]
+
+              # Don't process trailing comments such as:
+              # KEYWORD PARAM #This is a comment
+              # But still process Ruby string interpolations such as:
+              # KEYWORD PARAM #{var}
+              if (string.length > 0) && (string[0] == '#')
+                if !((string.length > 1) && (string[1] == '{'))
+                  break
+                end
+              end
+
+              # If the string is simply '&' and its the last string then its a line continuation so break the loop
+              if (string.length == 1) && (string[0] == '&') && (index == (length - 1))
+                line_continuation = true
+                next
+              end
+
+              line_continuation = false
+              if remove_quotes
+                @parameters << string.remove_quotes
+              else
+                @parameters << string
+              end
+            end
+          end
+
+          # If we detected a line continuation while going through all the
+          # strings on the line then we strip off the continuation character and
+          # return to the top of the loop to continue processing the line.
+          if line_continuation
+            # Strip the continuation character
+            if @line.length >= 1
+              @line = @line[0..-2]
+            else
+              @line = ""
+            end
+            next
+          end
+
+          yield(@keyword, @parameters)
+        end
+
+        @@progress_callback.call(1.0) if @@progress_callback
+
+        return nil
+      end
+    end
+
   end
 end

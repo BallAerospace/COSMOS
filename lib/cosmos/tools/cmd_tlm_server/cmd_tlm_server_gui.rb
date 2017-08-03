@@ -10,15 +10,68 @@
 
 require 'cosmos'
 require 'cosmos/tools/cmd_tlm_server/cmd_tlm_server'
-require 'cosmos/tools/cmd_tlm_server/gui/interfaces_tab'
-require 'cosmos/tools/cmd_tlm_server/gui/targets_tab'
-require 'cosmos/tools/cmd_tlm_server/gui/packets_tab'
-require 'cosmos/tools/cmd_tlm_server/gui/logging_tab'
-require 'cosmos/tools/cmd_tlm_server/gui/status_tab'
-require 'cosmos/gui/qt_tool'
-require 'cosmos/gui/dialogs/splash'
-require 'cosmos/gui/dialogs/exception_dialog'
-require 'cosmos/gui/dialogs/set_tlm_dialog'
+if RUBY_ENGINE == 'ruby'
+  require 'cosmos/tools/cmd_tlm_server/gui/interfaces_tab'
+  require 'cosmos/tools/cmd_tlm_server/gui/targets_tab'
+  require 'cosmos/tools/cmd_tlm_server/gui/packets_tab'
+  require 'cosmos/tools/cmd_tlm_server/gui/logging_tab'
+  require 'cosmos/tools/cmd_tlm_server/gui/status_tab'
+  require 'cosmos/gui/qt_tool'
+  require 'cosmos/gui/dialogs/splash'
+  require 'cosmos/gui/dialogs/exception_dialog'
+  require 'cosmos/gui/dialogs/set_tlm_dialog'
+else
+  # The following stubs allow the CmdTlmServer to run under JRuby with no gui
+  require 'ostruct'
+  require 'optparse'
+
+  class QtTool
+    def self.slots(*args)
+      # Do nothing
+    end
+
+    def self.create_default_options
+      options = OpenStruct.new
+      options.redirect_io = true
+      options.title = "COSMOS Tool"
+      parser = OptionParser.new do |option_parser|
+        option_parser.banner = "Usage: ruby #{option_parser.program_name} [options]"
+        option_parser.separator("")
+
+        # Create the help option
+        option_parser.on("-h", "--help", "Show this message") do
+          puts option_parser
+          exit
+        end
+
+        # Create the version option
+        option_parser.on("-v", "--version", "Show version") do
+          puts "COSMOS Version: #{COSMOS_VERSION}"
+          puts "User Version: #{USER_VERSION}" if defined? USER_VERSION
+          exit
+        end
+
+        # Create the system option
+        option_parser.on("--system FILE", "Use an alternative system.txt file") do |arg|
+          System.instance(File.join(USERPATH, 'config', 'system', arg))
+        end
+        option_parser.on("-c", "--config FILE", "Use the specified configuration file") do |arg|
+          options.config_file = arg
+        end
+      end
+
+      return parser, options
+    end
+
+    def self.run(option_parser = nil, options = nil)
+      Cosmos.set_working_dir do
+        option_parser, options = create_default_options() unless option_parser and options
+        option_parser.parse!(ARGV)
+        post_options_parsed_hook(options)
+      end
+    end
+  end
+end
 
 module Cosmos
 
@@ -36,12 +89,14 @@ module Cosmos
 
     attr_writer :no_prompt
 
-    # For the CTS we display all the tables as full size
-    # Thus we don't want the table to absorb the scroll wheel events but
-    # instead pass them up to the container so the entire window will scroll.
-    class Qt::TableWidget
-      def wheelEvent(event)
-        event.ignore()
+    if RUBY_ENGINE == 'ruby'
+      # For the CTS we display all the tables as full size
+      # Thus we don't want the table to absorb the scroll wheel events but
+      # instead pass them up to the container so the entire window will scroll.
+      class Qt::TableWidget
+        def wheelEvent(event)
+          event.ignore()
+        end
       end
     end
 
@@ -373,7 +428,7 @@ module Cosmos
       else
         ["TERM", "INT"].each do |sig|
           Signal.trap(sig) do
-            # No synchronization is allowed in trap context, so we have 
+            # No synchronization is allowed in trap context, so we have
             # to spawn a thread here to send the close event.
             Thread.new do
               Qt.execute_in_main_thread(true) do

@@ -140,24 +140,12 @@ module Cosmos
 
       it "complains about nil received_count" do
         p = Packet.new("tgt","pkt")
-        if 0.class == Integer
-          # Ruby version >= 2.4.0
-          expect {p.received_count = nil }.to raise_error(ArgumentError, "received_count must be an Integer but is a NilClass")
-        else
-          # Ruby version < 2.4.0
-          expect {p.received_count = nil }.to raise_error(ArgumentError, "received_count must be a Fixnum but is a NilClass")
-        end
+        expect {p.received_count = nil }.to raise_error(ArgumentError, "received_count must be an Integer but is a NilClass")
       end
 
       it "complains about non Fixnum received_counts" do
         p = Packet.new("tgt","pkt")
-        if 0.class == Integer
-          # Ruby version >= 2.4.0
-          expect {p.received_count = "5" }.to raise_error(ArgumentError, "received_count must be an Integer but is a String")
-        else
-          # Ruby version < 2.4.0
-          expect {p.received_count = "5" }.to raise_error(ArgumentError, "received_count must be a Fixnum but is a String")
-        end
+        expect {p.received_count = "5" }.to raise_error(ArgumentError, "received_count must be an Integer but is a String")
       end
     end
 

@@ -12,12 +12,7 @@
 module Kernel
   # @return [Boolean] Whether the current platform is Windows
   def is_windows?
-    _, platform, *_ = RUBY_PLATFORM.split("-")
-    result = false
-    if platform == 'mswin32' or platform == 'mingw32'
-      result = true
-    end
-    return result
+    Gem.win_platform?
   end
 
   # @return [Boolean] Whether the current platform is Mac

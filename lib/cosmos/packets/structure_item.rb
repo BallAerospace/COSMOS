@@ -8,7 +8,7 @@
 # as published by the Free Software Foundation; version 3 with
 # attribution addendums as found in the LICENSE.txt
 
-require 'cosmos/ext/packet'
+require 'cosmos/ext/packet' if RUBY_ENGINE == 'ruby' and !ENV['COSMOS_NO_EXT']
 
 module Cosmos
 
@@ -190,10 +190,50 @@ module Cosmos
       verify_overall() if @structure_item_constructed
     end
 
-    # Comparison Operator based on bit_offset. This means that StructureItems
-    # with different names or bit sizes are equal if they have the same bit
-    # offset.
-    # def <=>(other_item)
+    if RUBY_ENGINE != 'ruby' or ENV['COSMOS_NO_EXT']
+      # Comparison Operator based on bit_offset. This means that StructureItems
+      # with different names or bit sizes are equal if they have the same bit
+      # offset.
+      def <=>(other_item)
+        other_bit_offset = other_item.bit_offset
+        other_bit_size = other_item.bit_size
+
+        # Handle same bit offset case
+        if (@bit_offset == 0) && (other_bit_offset == 0)
+          # Both bit_offsets are 0 so sort by bit_size
+          # This allows derived items with bit_size of 0 to be listed first
+          # Compare based on bit size
+          if @bit_size == other_bit_size
+            return 0
+          elsif @bit_size < other_bit_size
+            return -1
+          else
+            return 1
+          end
+        end
+
+        # Handle different bit offsets
+        if ((@bit_offset >= 0) && (other_bit_offset >= 0)) || ((@bit_offset < 0) && (other_bit_offset < 0))
+          # Both Have Same Sign
+          if @bit_offset == other_bit_offset
+            return 0
+          elsif @bit_offset < other_bit_offset
+            return -1
+          else
+            return 1
+          end
+        else
+          # Different Signs
+          if @bit_offset == other_bit_offset
+            return 0
+          elsif @bit_offset < other_bit_offset
+            return 1
+          else
+            return -1
+          end
+        end
+      end
+    end
 
     # Make a light weight clone of this item
     def clone

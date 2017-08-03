@@ -34,7 +34,7 @@ if Kernel.is_windows?
 else
   ENV['PATH'] = File.join(File.dirname(__FILE__), '../bin') + ':' + ENV['PATH']
 end
-require 'cosmos/ext/platform'
+require 'cosmos/ext/platform' if RUBY_ENGINE == 'ruby' and !ENV['COSMOS_NO_EXT']
 
 # Remove warning about dl deprecation in Ruby 2.0 and 2.1
 saved_verbose = $VERBOSE; $VERBOSE = nil

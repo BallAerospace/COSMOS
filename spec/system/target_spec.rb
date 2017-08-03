@@ -294,7 +294,7 @@ module Cosmos
           expect(tgt.cmd_tlm_files.length).to eql 4
           expect(tgt.cmd_tlm_files).to eql [tgt_dir + '/cmd_tlm/tgt_cmds3.txt', tgt_dir + '/cmd_tlm/tgt_cmds2.txt', tgt_dir + '/cmd_tlm/tgt_tlm3.txt', tgt_dir + '/cmd_tlm/tgt_tlm.txt']
 
-          FileUtils.rm_r(tgt_dir)
+          FileUtils.rm_rf(tgt_dir)
         end
       end
     end

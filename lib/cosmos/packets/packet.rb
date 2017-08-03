@@ -10,7 +10,7 @@
 
 require 'cosmos/packets/structure'
 require 'cosmos/packets/packet_item'
-require 'cosmos/ext/packet'
+require 'cosmos/ext/packet' if RUBY_ENGINE == 'ruby' and !ENV['COSMOS_NO_EXT']
 
 module Cosmos
 
@@ -70,16 +70,144 @@ module Cosmos
     # Valid format types
     VALUE_TYPES = [:RAW, :CONVERTED, :FORMATTED, :WITH_UNITS]
 
-    # Creates a new packet by initalizing the attributes.
-    #
-    # @param target_name [String] Name of the target this packet is associated with
-    # @param packet_name [String] Name of the packet
-    # @param default_endianness [Symbol] One of {BinaryAccessor::ENDIANNESS}
-    # @param description [String] Description of the packet
-    # @param buffer [String] String buffer to hold the packet data
-    # @param item_class [Class] Class used to instantiate items (Must be a
-    #   subclass of PacketItem)
-    # def initialize(target_name, packet_name, default_endianness = :BIG_ENDIAN, description = nil, buffer = '', item_class = PacketItem)
+    if RUBY_ENGINE != 'ruby' or ENV['COSMOS_NO_EXT']
+      # Creates a new packet by initalizing the attributes.
+      #
+      # @param target_name [String] Name of the target this packet is associated with
+      # @param packet_name [String] Name of the packet
+      # @param default_endianness [Symbol] One of {BinaryAccessor::ENDIANNESS}
+      # @param description [String] Description of the packet
+      # @param buffer [String] String buffer to hold the packet data
+      # @param item_class [Class] Class used to instantiate items (Must be a
+      #   subclass of PacketItem)
+      def initialize(target_name, packet_name, default_endianness = :BIG_ENDIAN, description = nil, buffer = '', item_class = PacketItem)
+        super(default_endianness, buffer, item_class)
+        self.target_name = target_name
+        self.packet_name = packet_name
+        self.description = description
+        @received_time = nil
+        @received_count = 0
+        @id_items = nil
+        @hazardous = false
+        @hazardous_description = nil
+        @given_values = nil
+        @limits_items = nil
+        @processors = nil
+        @stale = true
+        @limits_change_callback = nil
+        @read_conversion_cache = nil
+        @raw = nil
+        @messages_disabled = false
+        @meta = nil
+        @hidden = false
+        @disabled = false
+      end
+
+      # Sets the target name this packet is associated with. Unidentified packets
+      # will have target name set to nil.
+      #
+      # @param target_name [String] Name of the target this packet is associated with
+      def target_name=(target_name)
+        if target_name
+          if !(String === target_name)
+            raise(ArgumentError, "target_name must be a String but is a #{target_name.class}")
+          end
+          @target_name = target_name.upcase.freeze
+        else
+          @target_name = nil
+        end
+        @target_name
+      end
+
+      # Sets the packet name. Unidentified packets will have packet name set to
+      # nil.
+      #
+      # @param packet_name [String] Name of the packet
+      def packet_name=(packet_name)
+        if packet_name
+          if !(String === packet_name)
+            raise(ArgumentError, "packet_name must be a String but is a #{packet_name.class}")
+          end
+          @packet_name = packet_name.upcase.freeze
+        else
+          @packet_name = nil
+        end
+        @packet_name
+      end
+
+      # Sets the description of the packet
+      #
+      # @param description [String] Description of the packet
+      def description=(description)
+        if description
+          if !(String === description)
+            raise(ArgumentError, "description must be a String but is a #{description.class}")
+          end
+          @description = description.clone.freeze
+        else
+          @description = nil
+        end
+        @description
+      end
+
+      # Sets the received time of the packet
+      #
+      # @param received_time [Time] Time this packet was received
+      def received_time=(received_time)
+        if received_time
+          if !(Time === received_time)
+            raise(ArgumentError, "received_time must be a Time but is a #{received_time.class}")
+          end
+          @received_time = received_time.clone.freeze
+        else
+          @received_time = nil
+        end
+        @read_conversion_cache.clear if @read_conversion_cache
+        @received_time
+      end
+
+      # Sets the received count of the packet
+      #
+      # @param received_count [Integer] Number of times this packet has been
+      #   received
+      def received_count=(received_count)
+        if !(Integer === received_count)
+          raise(ArgumentError, "received_count must be an Integer but is a #{received_count.class}")
+        end
+        @received_count = received_count
+        @read_conversion_cache.clear if @read_conversion_cache
+        @received_count
+      end
+
+      # Tries to identify if a buffer represents the currently defined packet. It
+      # does this by iterating over all the packet items that were created with
+      # an ID value and checking whether that ID value is present at the correct
+      # location in the buffer.
+      #
+      # Incorrectly sized buffers will still positively identify if there is
+      # enough data to match the ID values. This is to allow incorrectly sized
+      # packets to still be processed as well as possible given the incorrectly
+      # sized data.
+      #
+      # @param buffer [String] Raw buffer of binary data
+      # @return [Boolean] Whether or not the buffer of data is this packet
+      def identify?(buffer)
+        return false unless buffer
+        return true unless @id_items
+
+        @id_items.each do |item|
+          begin
+            value = read_item(item, :RAW, buffer)
+          rescue Exception
+            value = nil
+          end
+          return false if item.id_value != value
+        end
+
+        true
+      end
+
+    end
 
     # (see Structure#buffer=)
     def buffer=(buffer)
@@ -94,28 +222,6 @@ module Cosmos
       end
     end
 
-    # Sets the target name this packet is associated with. Unidentified packets
-    # will have target name set to nil.
-    #
-    # @param target_name [String] Name of the target this packet is associated with
-    # def target_name=(target_name)
-
-    # Sets the packet name. Unidentified packets will have packet name set to
-    # nil.
-    #
-    # @param packet_name [String] Name of the packet
-    # def packet_name=(packet_name)
-
-    # Sets the description of the packet
-    #
-    # @param description [String] Description of the packet
-    # def description=(description)
-
-    # Sets the received time of the packet
-    #
-    # @param received_time [Time] Time this packet was received
-    # def received_time=(received_time)
-
     # Sets the received time of the packet (without cloning)
     #
     # @param received_time [Time] Time this packet was received
@@ -128,12 +234,6 @@ module Cosmos
         end
       end
     end
-
-    # Sets the received count of the packet
-    #
-    # @param received_count [Integer] Number of times this packet has been
-    #   received
-    # def received_count=(received_count)
 
     # Sets the hazardous description of the packet
     #
@@ -538,20 +638,6 @@ module Cosmos
     def formatted(value_type = :CONVERTED, indent = 0, buffer = @buffer)
       return super(value_type, indent, buffer)
     end
-
-    # Tries to identify if a buffer represents the currently defined packet. It
-    # does this by iterating over all the packet items that were created with
-    # an ID value and checking whether that ID value is present at the correct
-    # location in the buffer.
-    #
-    # Incorrectly sized buffers will still positively identify if there is
-    # enough data to match the ID values. This is to allow incorrectly sized
-    # packets to still be processed as well as possible given the incorrectly
-    # sized data.
-    #
-    # @param buffer [String] Raw buffer of binary data
-    # @return [Boolean] Whether or not the buffer of data is this packet
-    # def identify?(buffer)
 
     # Restore all items in the packet to their default value
     #

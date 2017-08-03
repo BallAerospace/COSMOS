@@ -9,7 +9,7 @@
 # attribution addendums as found in the LICENSE.txt
 
 require 'cosmos/conversions/conversion'
-require 'cosmos/ext/polynomial_conversion'
+require 'cosmos/ext/polynomial_conversion' if RUBY_ENGINE == 'ruby' and !ENV['COSMOS_NO_EXT']
 
 module Cosmos
 
@@ -33,9 +33,25 @@ module Cosmos
       @converted_bit_size = 64
     end
 
-    # @param (see Conversion#call)
-    # @return [Float] The value with the polynomial applied
-    # def call(value, myself, buffer)
+    if RUBY_ENGINE != 'ruby' or ENV['COSMOS_NO_EXT']
+      # @param (see Conversion#call)
+      # @return [Float] The value with the polynomial applied
+      def call(value, myself, buffer)
+        value = value.to_f
+
+        # Handle C0
+        result = @coeffs[0]
+
+        # Handle Coefficients raised to a power
+        raised_to_power = 1.0
+        @coeffs[1..-1].each do |coeff|
+          raised_to_power *= value
+          result += (coeff * raised_to_power)
+        end
+
+        return result
+      end
+    end
 
     # @return [String] Class followed by the list of coefficients
     def to_s

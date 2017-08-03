@@ -11,7 +11,7 @@
 # This file contains the implementation of the BinaryAccessor class.
 # This class allows for easy reading and writing of binary data in Ruby
 
-require 'cosmos/ext/packet'
+require 'cosmos/ext/packet' if RUBY_ENGINE == 'ruby' and !ENV['COSMOS_NO_EXT']
 
 module Cosmos
 
@@ -49,6 +49,21 @@ module Cosmos
     PACK_LITTLE_ENDIAN_64_BIT_FLOAT_ARRAY = 'E*'
     PACK_BIG_ENDIAN_32_BIT_FLOAT_ARRAY = 'g*'
     PACK_BIG_ENDIAN_64_BIT_FLOAT_ARRAY = 'G*'
+
+    if RUBY_ENGINE != 'ruby' or ENV['COSMOS_NO_ENV']
+      MIN_INT8 = -128
+      MAX_INT8 = 127
+      MAX_UINT8 = 255
+      MIN_INT16 = -32768
+      MAX_INT16 = 32767
+      MAX_UINT16 = 65535
+      MIN_INT32  = -(2 ** 31)
+      MAX_INT32  = (2 ** 31) - 1
+      MAX_UINT32 = (2 ** 32) - 1
+      MIN_INT64  = -(2 ** 63)
+      MAX_INT64  = (2 ** 63) - 1
+      MAX_UINT64 = (2 ** 64) - 1
+    end
 
     # Additional Constants
     ZERO_STRING = "\000"
@@ -89,29 +104,578 @@ module Cosmos
     # Valid endianess
     ENDIANNESS = [:BIG_ENDIAN, :LITTLE_ENDIAN]
 
-    # Reads binary data of any data type from a buffer
-    #
-    # @param bit_offset [Integer] Bit offset to the start of the item. A
-    #   negative number means to offset from the end of the buffer.
-    # @param bit_size [Integer] Size of the item in bits
-    # @param data_type [Symbol] {DATA_TYPES}
-    # @param buffer [String] Binary string buffer to read from
-    # @param endianness [Symbol] {ENDIANNESS}
-    # @return [Integer] value read from the buffer
-    # def self.read(bit_offset, bit_size, data_type, buffer, endianness)
+    if RUBY_ENGINE != 'ruby' or ENV['COSMOS_NO_EXT']
+      # Reads binary data of any data type from a buffer
+      #
+      # @param bit_offset [Integer] Bit offset to the start of the item. A
+      #   negative number means to offset from the end of the buffer.
+      # @param bit_size [Integer] Size of the item in bits
+      # @param data_type [Symbol] {DATA_TYPES}
+      # @param buffer [String] Binary string buffer to read from
+      # @param endianness [Symbol] {ENDIANNESS}
+      # @return [Integer] value read from the buffer
+      def self.read(bit_offset, bit_size, data_type, buffer, endianness)
+        given_bit_offset = bit_offset
+        given_bit_size = bit_size
 
-    # Writes binary data of any data type to a buffer
-    #
-    # @param value [Varies] Value to write into the buffer
-    # @param bit_offset [Integer] Bit offset to the start of the item. A
-    #   negative number means to offset from the end of the buffer.
-    # @param bit_size [Integer] Size of the item in bits
-    # @param data_type [Symbol] {DATA_TYPES}
-    # @param buffer [String] Binary string buffer to write to
-    # @param endianness [Symbol] {ENDIANNESS}
-    # @param overflow [Symbol] {OVERFLOW_TYPES}
-    # @return [Integer] value passed in as a parameter
-    # def self.write(value, bit_offset, bit_size, data_type, buffer, endianness, overflow)
+        bit_offset = check_bit_offset_and_size(:read, given_bit_offset, given_bit_size, data_type, buffer)
+
+        # If passed a negative bit size with strings or blocks
+        # recalculate based on the buffer length
+        if (bit_size <= 0) && ((data_type == :STRING) || (data_type == :BLOCK))
+          bit_size = (buffer.length * 8) - bit_offset + bit_size
+          if bit_size == 0
+            return ""
+          elsif bit_size < 0
+            raise_buffer_error(:read, buffer, data_type, given_bit_offset, given_bit_size)
+          end
+        end
+
+        result, lower_bound, upper_bound = check_bounds_and_buffer_size(bit_offset, bit_size, buffer.length, endianness, data_type)
+        raise_buffer_error(:read, buffer, data_type, given_bit_offset, given_bit_size) unless result
+
+        if (data_type == :STRING) || (data_type == :BLOCK)
+          #######################################
+          # Handle :STRING and :BLOCK data types
+          #######################################
+
+          if byte_aligned(bit_offset)
+            if data_type == :STRING
+              return buffer[lower_bound..upper_bound].unpack('Z*')[0]
+            else
+              return buffer[lower_bound..upper_bound].unpack('a*')[0]
+            end
+          else
+            raise(ArgumentError, "bit_offset #{given_bit_offset} is not byte aligned for data_type #{data_type}")
+          end
+
+        elsif (data_type == :INT) || (data_type == :UINT)
+          ###################################
+          # Handle :INT and :UINT data types
+          ###################################
+
+          if byte_aligned(bit_offset) && even_bit_size(bit_size)
+
+            if data_type == :INT
+              ###########################################################
+              # Handle byte-aligned 8, 16, 32, and 64 bit :INT
+              ###########################################################
+
+              case bit_size
+              when 8
+                return buffer[lower_bound].unpack(PACK_8_BIT_INT)[0]
+              when 16
+                if endianness == HOST_ENDIANNESS
+                  return buffer[lower_bound..upper_bound].unpack(PACK_NATIVE_16_BIT_INT)[0]
+                else # endianness != HOST_ENDIANNESS
+                  temp = buffer[lower_bound..upper_bound].reverse
+                  return temp.unpack(PACK_NATIVE_16_BIT_INT)[0]
+                end
+              when 32
+                if endianness == HOST_ENDIANNESS
+                  return buffer[lower_bound..upper_bound].unpack(PACK_NATIVE_32_BIT_INT)[0]
+                else # endianness != HOST_ENDIANNESS
+                  temp = buffer[lower_bound..upper_bound].reverse
+                  return temp.unpack(PACK_NATIVE_32_BIT_INT)[0]
+                end
+              when 64
+                if endianness == HOST_ENDIANNESS
+                  return buffer[lower_bound..upper_bound].unpack(PACK_NATIVE_64_BIT_INT)[0]
+                else # endianness != HOST_ENDIANNESS
+                  temp = buffer[lower_bound..upper_bound].reverse
+                  return temp.unpack(PACK_NATIVE_64_BIT_INT)[0]
+                end
+              end
+            else # data_type == :UINT
+              ###########################################################
+              # Handle byte-aligned 8, 16, 32, and 64 bit :UINT
+              ###########################################################
+
+              case bit_size
+              when 8
+                return buffer.getbyte(lower_bound)
+              when 16
+                if endianness == :BIG_ENDIAN
+                  return buffer[lower_bound..upper_bound].unpack(PACK_BIG_ENDIAN_16_BIT_UINT)[0]
+                else # endianness == :LITTLE_ENDIAN
+                  return buffer[lower_bound..upper_bound].unpack(PACK_LITTLE_ENDIAN_16_BIT_UINT)[0]
+                end
+              when 32
+                if endianness == :BIG_ENDIAN
+                  return buffer[lower_bound..upper_bound].unpack(PACK_BIG_ENDIAN_32_BIT_UINT)[0]
+                else # endianness == :LITTLE_ENDIAN
+                  return buffer[lower_bound..upper_bound].unpack(PACK_LITTLE_ENDIAN_32_BIT_UINT)[0]
+                end
+              when 64
+                if endianness == HOST_ENDIANNESS
+                  return buffer[lower_bound..upper_bound].unpack(PACK_NATIVE_64_BIT_UINT)[0]
+                else # endianness != HOST_ENDIANNESS
+                  temp = buffer[lower_bound..upper_bound].reverse
+                  return temp.unpack(PACK_NATIVE_64_BIT_UINT)[0]
+                end
+              end
+            end
+
+          else
+            ##########################
+            # Handle :INT and :UINT Bitfields
+            ##########################
+
+            #Extract Data for Bitfield
+            if endianness == :LITTLE_ENDIAN
+              #Bitoffset always refers to the most significant bit of a bitfield
+              num_bytes = (((bit_offset % 8) + bit_size - 1) / 8) + 1
+              upper_bound = bit_offset / 8
+              lower_bound = upper_bound - num_bytes + 1
+
+              if lower_bound < 0
+                raise(ArgumentError, "LITTLE_ENDIAN bitfield with bit_offset #{given_bit_offset} and bit_size #{given_bit_size} is invalid")
+              end
+
+              temp_data = buffer[lower_bound..upper_bound].reverse
+            else
+              temp_data = buffer[lower_bound..upper_bound]
+            end
+
+            #Determine temp upper bound
+            temp_upper = upper_bound - lower_bound
+
+            # Handle Bitfield
+            start_bits = bit_offset % 8
+            start_mask = ~(0xFF << (8 - start_bits))
+            total_bits = (temp_upper + 1) * 8
+            right_shift = total_bits - start_bits - bit_size
+
+            #Mask off unwanted bits at beginning
+            temp = temp_data.getbyte(0) & start_mask
+
+            if upper_bound > lower_bound
+              #Combine bytes into a FixNum
+              temp_data[1..temp_upper].each_byte {|temp_value| temp = temp << 8; temp = temp + temp_value }
+            end
+
+            # Shift off unwanted bits at end
+            temp = temp >> right_shift
+
+            if data_type == :INT
+              #Convert to negative if necessary
+              if ((bit_size > 1) && (temp[bit_size - 1] == 1))
+                temp = -((1 << bit_size) - temp)
+              end
+            end
+
+            return temp
+          end
+
+        elsif data_type == :FLOAT
+          ##########################
+          # Handle :FLOAT data type
+          ##########################
+
+          if byte_aligned(bit_offset)
+            case bit_size
+            when 32
+              if endianness == :BIG_ENDIAN
+                return buffer[lower_bound..upper_bound].unpack(PACK_BIG_ENDIAN_32_BIT_FLOAT)[0]
+              else # endianness == :LITTLE_ENDIAN
+                return buffer[lower_bound..upper_bound].unpack(PACK_LITTLE_ENDIAN_32_BIT_FLOAT)[0]
+              end
+            when 64
+              if endianness == :BIG_ENDIAN
+                return buffer[lower_bound..upper_bound].unpack(PACK_BIG_ENDIAN_64_BIT_FLOAT)[0]
+              else # endianness == :LITTLE_ENDIAN
+                return buffer[lower_bound..upper_bound].unpack(PACK_LITTLE_ENDIAN_64_BIT_FLOAT)[0]
+              end
+            else
+              raise(ArgumentError, "bit_size is #{given_bit_size} but must be 32 or 64 for data_type #{data_type}")
+            end
+          else
+            raise(ArgumentError, "bit_offset #{given_bit_offset} is not byte aligned for data_type #{data_type}")
+          end
+
+        else
+          ############################
+          # Handle Unknown data types
+          ############################
+
+          raise(ArgumentError, "data_type #{data_type} is not recognized")
+        end
+
+        return return_value
+      end
+
+      # Writes binary data of any data type to a buffer
+      #
+      # @param value [Varies] Value to write into the buffer
+      # @param bit_offset [Integer] Bit offset to the start of the item. A
+      #   negative number means to offset from the end of the buffer.
+      # @param bit_size [Integer] Size of the item in bits
+      # @param data_type [Symbol] {DATA_TYPES}
+      # @param buffer [String] Binary string buffer to write to
+      # @param endianness [Symbol] {ENDIANNESS}
+      # @param overflow [Symbol] {OVERFLOW_TYPES}
+      # @return [Integer] value passed in as a parameter
+      def self.write(value, bit_offset, bit_size, data_type, buffer, endianness, overflow)
+        given_bit_offset = bit_offset
+        given_bit_size = bit_size
+
+        bit_offset = check_bit_offset_and_size(:write, given_bit_offset, given_bit_size, data_type, buffer)
+
+        # If passed a negative bit size with strings or blocks
+        # recalculate based on the value length in bytes
+        if (bit_size <= 0) && ((data_type == :STRING) || (data_type == :BLOCK))
+          value = value.to_s
+          bit_size = value.length * 8
+        end
+
+        result, lower_bound, upper_bound = check_bounds_and_buffer_size(bit_offset, bit_size, buffer.length, endianness, data_type)
+        raise_buffer_error(:write, buffer, data_type, given_bit_offset, given_bit_size) if !result && (given_bit_size > 0)
+
+        # Check overflow type
+        if (overflow != :TRUNCATE) && (overflow != :SATURATE) && (overflow != :ERROR) && (overflow != :ERROR_ALLOW_HEX)
+          raise(ArgumentError, "unknown overflow type #{overflow}")
+        end
+
+        if (data_type == :STRING) || (data_type == :BLOCK)
+          #######################################
+          # Handle :STRING and :BLOCK data types
+          #######################################
+          value = value.to_s
+
+          if byte_aligned(bit_offset)
+            temp = value
+            if given_bit_size <= 0
+              end_bytes = -(given_bit_size / 8)
+              old_upper_bound = buffer.length - 1 - end_bytes
+              # Lower bound + end_bytes can never be more than 1 byte outside of the given buffer
+              if (lower_bound + end_bytes) > buffer.length
+                raise_buffer_error(:write, buffer, data_type, given_bit_offset, given_bit_size)
+              end
+
+              if old_upper_bound < lower_bound
+                # String was completely empty
+                if end_bytes > 0
+                  # Preserve bytes at end of buffer
+                  buffer_length = buffer.length
+                  buffer << "\000" * value.length
+                  buffer[lower_bound + value.length, end_bytes] = buffer[lower_bound, end_bytes]
+                end
+              elsif bit_size == 0
+                # Remove entire string
+                buffer[lower_bound, old_upper_bound - lower_bound + 1] = ''
+              elsif upper_bound < old_upper_bound
+                # Remove extra bytes from old string
+                buffer[upper_bound + 1, old_upper_bound - upper_bound] = ''
+              elsif (upper_bound > old_upper_bound) && (end_bytes > 0)
+                # Preserve bytes at end of buffer
+                buffer_length = buffer.length
+                diff = upper_bound - old_upper_bound
+                buffer << "\000" * diff
+                buffer[upper_bound + 1, end_bytes] = buffer[old_upper_bound + 1, end_bytes]
+              end
+            else # given_bit_size > 0
+              byte_size = bit_size / 8
+              if value.length < byte_size
+                # Pad the requested size with zeros
+                temp = value.ljust(byte_size, "\000")
+              elsif value.length > byte_size
+                if overflow == :TRUNCATE
+                  # Resize the value to fit the field
+                  value[byte_size, value.length - byte_size] = ''
+                else
+                  raise(ArgumentError, "value of #{value.length} bytes does not fit into #{byte_size} bytes for data_type #{data_type}")
+                end
+              end
+            end
+            if bit_size != 0
+              buffer[lower_bound, temp.length] = temp
+            end
+          else
+            raise(ArgumentError, "bit_offset #{given_bit_offset} is not byte aligned for data_type #{data_type}")
+          end
+
+        elsif (data_type == :INT) || (data_type == :UINT)
+          ###################################
+          # Handle :INT data type
+          ###################################
+          value = Integer(value)
+          min_value, max_value, hex_max_value = get_check_overflow_ranges(bit_size, data_type)
+          value = check_overflow(value, min_value, max_value, hex_max_value, bit_size, data_type, overflow)
+
+          if byte_aligned(bit_offset) && even_bit_size(bit_size)
+            ###########################################################
+            # Handle byte-aligned 8, 16, 32, and 64 bit
+            ###########################################################
+
+            if data_type == :INT
+              ###########################################################
+              # Handle byte-aligned 8, 16, 32, and 64 bit :INT
+              ###########################################################
+
+              case bit_size
+              when 8
+                buffer.setbyte(lower_bound, value)
+              when 16
+                if endianness == HOST_ENDIANNESS
+                  buffer[lower_bound..upper_bound] = [value].pack(PACK_NATIVE_16_BIT_INT)
+                else # endianness != HOST_ENDIANNESS
+                  buffer[lower_bound..upper_bound] = [value].pack(PACK_NATIVE_16_BIT_INT).reverse
+                end
+              when 32
+                if endianness == HOST_ENDIANNESS
+                  buffer[lower_bound..upper_bound] = [value].pack(PACK_NATIVE_32_BIT_INT)
+                else # endianness != HOST_ENDIANNESS
+                  buffer[lower_bound..upper_bound] = [value].pack(PACK_NATIVE_32_BIT_INT).reverse
+                end
+              when 64
+                if endianness == HOST_ENDIANNESS
+                  buffer[lower_bound..upper_bound] = [value].pack(PACK_NATIVE_64_BIT_INT)
+                else # endianness != HOST_ENDIANNESS
+                  buffer[lower_bound..upper_bound] = [value].pack(PACK_NATIVE_64_BIT_INT).reverse
+                end
+              end
+            else # data_type == :UINT
+              ###########################################################
+              # Handle byte-aligned 8, 16, 32, and 64 bit :UINT
+              ###########################################################
+
+              case bit_size
+              when 8
+                buffer.setbyte(lower_bound, value)
+              when 16
+                if endianness == :BIG_ENDIAN
+                  buffer[lower_bound..upper_bound] = [value].pack(PACK_BIG_ENDIAN_16_BIT_UINT)
+                else # endianness == :LITTLE_ENDIAN
+                  buffer[lower_bound..upper_bound] = [value].pack(PACK_LITTLE_ENDIAN_16_BIT_UINT)
+                end
+              when 32
+                if endianness == :BIG_ENDIAN
+                  buffer[lower_bound..upper_bound] = [value].pack(PACK_BIG_ENDIAN_32_BIT_UINT)
+                else # endianness == :LITTLE_ENDIAN
+                  buffer[lower_bound..upper_bound] = [value].pack(PACK_LITTLE_ENDIAN_32_BIT_UINT)
+                end
+              when 64
+                if endianness == HOST_ENDIANNESS
+                  buffer[lower_bound..upper_bound] = [value].pack(PACK_NATIVE_64_BIT_UINT)
+                else # endianness != HOST_ENDIANNESS
+                  buffer[lower_bound..upper_bound] = [value].pack(PACK_NATIVE_64_BIT_UINT).reverse
+                end
+              end
+            end
+
+          else
+            ###########################################################
+            # Handle bit fields
+            ###########################################################
+
+            # Extract Existing Data
+            if endianness == :LITTLE_ENDIAN
+              # Bitoffset always refers to the most significant bit of a bitfield
+              num_bytes = (((bit_offset % 8) + bit_size - 1) / 8) + 1
+              upper_bound = bit_offset / 8
+              lower_bound = upper_bound - num_bytes + 1
+              if lower_bound < 0
+                raise(ArgumentError, "LITTLE_ENDIAN bitfield with bit_offset #{given_bit_offset} and bit_size #{given_bit_size} is invalid")
+              end
+              temp_data = buffer[lower_bound..upper_bound].reverse
+            else
+              temp_data = buffer[lower_bound..upper_bound]
+            end
+
+            # Determine temp upper bound
+            temp_upper = upper_bound - lower_bound
+
+            # Determine Values needed to Handle Bitfield
+            start_bits = bit_offset % 8
+            start_mask = (0xFF << (8 - start_bits))
+            total_bits = (temp_upper + 1) * 8
+            end_bits = total_bits - start_bits - bit_size
+            end_mask = ~(0xFF << end_bits)
+
+            # Add in Start Bits
+            temp = temp_data.getbyte(0) & start_mask
+
+            # Adjust value to correct number of bits
+            temp_mask = (2 ** bit_size) - 1
+            temp_value = value & temp_mask
+
+            # Add in New Data
+            temp = (temp << (bit_size - (8 - start_bits))) + temp_value
+
+            # Add in Remainder of Existing Data
+            temp = (temp << end_bits) + (temp_data.getbyte(temp_upper) & end_mask)
+
+            # Extract into an array of bytes
+            temp_array = []
+            (0..temp_upper).each { temp_array.insert(0, (temp & 0xFF)); temp = temp >> 8 }
+
+            # Store into data
+            if endianness == :LITTLE_ENDIAN
+              buffer[lower_bound..upper_bound] = temp_array.pack(PACK_8_BIT_UINT_ARRAY).reverse
+            else
+              buffer[lower_bound..upper_bound] = temp_array.pack(PACK_8_BIT_UINT_ARRAY)
+            end
+
+          end
+
+        elsif data_type == :FLOAT
+          ##########################
+          # Handle :FLOAT data type
+          ##########################
+          value = Float(value)
+
+          if byte_aligned(bit_offset)
+            case bit_size
+            when 32
+              if endianness == :BIG_ENDIAN
+                buffer[lower_bound..upper_bound] = [value].pack(PACK_BIG_ENDIAN_32_BIT_FLOAT)
+              else # endianness == :LITTLE_ENDIAN
+                buffer[lower_bound..upper_bound] = [value].pack(PACK_LITTLE_ENDIAN_32_BIT_FLOAT)
+              end
+            when 64
+              if endianness == :BIG_ENDIAN
+                buffer[lower_bound..upper_bound] = [value].pack(PACK_BIG_ENDIAN_64_BIT_FLOAT)
+              else # endianness == :LITTLE_ENDIAN
+                buffer[lower_bound..upper_bound] = [value].pack(PACK_LITTLE_ENDIAN_64_BIT_FLOAT)
+              end
+            else
+              raise(ArgumentError, "bit_size is #{given_bit_size} but must be 32 or 64 for data_type #{data_type}")
+            end
+          else
+            raise(ArgumentError, "bit_offset #{given_bit_offset} is not byte aligned for data_type #{data_type}")
+          end
+
+        else
+          ############################
+          # Handle Unknown data types
+          ############################
+
+          raise(ArgumentError, "data_type #{data_type} is not recognized")
+        end
+
+        return value
+      end
+
+      protected
+
+      # Check the bit size and bit offset for problems. Recalulate the bit offset
+      # and return back through the passed in pointer.
+      def self.check_bit_offset_and_size(read_or_write, given_bit_offset, given_bit_size, data_type, buffer)
+        bit_offset = given_bit_offset
+
+        if (given_bit_size <= 0) && (data_type != :STRING) && (data_type != :BLOCK)
+          raise(ArgumentError, "bit_size #{given_bit_size} must be positive for data types other than :STRING and :BLOCK")
+        end
+
+        if (given_bit_size <= 0) && (given_bit_offset < 0)
+          raise(ArgumentError, "negative or zero bit_sizes (#{given_bit_size}) cannot be given with negative bit_offsets (#{given_bit_offset})")
+        end
+
+        if given_bit_offset < 0
+          bit_offset = (buffer.length * 8) + bit_offset
+          if bit_offset < 0
+            raise_buffer_error(read_or_write, buffer, data_type, given_bit_offset, given_bit_size)
+          end
+        end
+
+        return bit_offset
+      end
+
+      # Calculate the bounds of the string to access the item based on the bit_offset and bit_size.
+      # Also determine if the buffer size is sufficient.
+      def self.check_bounds_and_buffer_size(bit_offset, bit_size, buffer_length, endianness, data_type)
+        result = true # Assume ok
+
+        # Define bounds of string to access this item
+        lower_bound = bit_offset / 8
+        upper_bound = (bit_offset + bit_size - 1) / 8
+
+        # Sanity check buffer size
+        if upper_bound >= buffer_length
+          # If it's not the special case of little endian bit field then we fail and return false
+          if !( (endianness == :LITTLE_ENDIAN) &&
+                 ((data_type == :INT) || (data_type == :UINT)) &&
+                 # Not byte aligned with an even bit size
+                 (!( (byte_aligned(bit_offset)) && (even_bit_size(bit_size)) )) &&
+                 (lower_bound < buffer_length)
+             )
+            result = false
+          end
+        end
+        return result, lower_bound, upper_bound
+      end
+
+      def self.get_check_overflow_ranges(bit_size, data_type)
+        min_value = 0 # Default for UINT cases
+
+        case bit_size
+        when 8
+          hex_max_value = MAX_UINT8
+          if data_type == :INT
+            min_value = MIN_INT8
+            max_value = MAX_INT8
+          else
+            max_value = MAX_UINT8
+          end
+        when 16
+          hex_max_value = MAX_UINT16
+          if data_type == :INT
+            min_value = MIN_INT16
+            max_value = MAX_INT16
+          else
+            max_value = MAX_UINT16
+          end
+        when 32
+          hex_max_value = MAX_UINT32
+          if data_type == :INT
+            min_value = MIN_INT32
+            max_value = MAX_INT32
+          else
+            max_value = MAX_UINT32
+          end
+        when 64
+          hex_max_value = MAX_UINT64
+          if data_type == :INT
+            min_value = MIN_INT64
+            max_value = MAX_INT64
+          else
+            max_value = MAX_UINT64
+          end
+        else # Bitfield
+          if data_type == :INT
+            # Note signed integers must allow up to the maximum unsigned value to support values given in hex
+            if bit_size > 1
+              max_value = 2 ** (bit_size - 1)
+              # min_value = -(2 ** bit_size - 1)
+              min_value = -max_value
+              # max_value = (2 ** bit_size - 1) - 1
+              max_value -= 1
+              # hex_max_value = (2 ** bit_size) - 1
+              hex_max_value = (2 ** bit_size) - 1
+            else # 1-bit signed
+              min_value = -1
+              max_value = 1
+              hex_max_value = 1
+            end
+          else
+            max_value = (2 ** bit_size) - 1
+            hex_max_value = max_value
+          end
+        end
+
+        return min_value, max_value, hex_max_value
+      end
+
+      def self.byte_aligned(value)
+        (value % 8) == 0
+      end
+
+      def self.even_bit_size(bit_size)
+        (bit_size == 8) || (bit_size == 16) || (bit_size == 32) || (bit_size == 64)
+      end
+
+      public
+    end
 
     # Reads an array of binary data of any data type from a buffer
     #
@@ -418,16 +982,16 @@ module Cosmos
           case bit_size
           when 8
             if data_type == :INT
-              values = self.check_overflow_array(values, -128, 127, 255, bit_size, data_type, overflow)
+              values = self.check_overflow_array(values, MIN_INT8, MAX_INT8, MAX_UINT8, bit_size, data_type, overflow)
               packed = values.pack(PACK_8_BIT_INT_ARRAY)
             else # data_type == :UINT
-              values = self.check_overflow_array(values, 0, 255, 255, bit_size, data_type, overflow)
+              values = self.check_overflow_array(values, 0, MAX_UINT8, MAX_UINT8, bit_size, data_type, overflow)
               packed = values.pack(PACK_8_BIT_UINT_ARRAY)
             end
 
           when 16
             if data_type == :INT
-              values = self.check_overflow_array(values, -32768, 32767, 65535, bit_size, data_type, overflow)
+              values = self.check_overflow_array(values, MIN_INT16, MAX_INT16, MAX_UINT16, bit_size, data_type, overflow)
               if endianness == HOST_ENDIANNESS
                 packed = values.pack(PACK_NATIVE_16_BIT_INT_ARRAY)
               else # endianness != HOST_ENDIANNESS
@@ -435,7 +999,7 @@ module Cosmos
                 self.byte_swap_buffer!(packed, 2)
               end
             else # data_type == :UINT
-              values = self.check_overflow_array(values, 0, 65535, 65535, bit_size, data_type, overflow)
+              values = self.check_overflow_array(values, 0, MAX_UINT16, MAX_UINT16, bit_size, data_type, overflow)
               if endianness == :BIG_ENDIAN
                 packed = values.pack(PACK_BIG_ENDIAN_16_BIT_UINT_ARRAY)
               else # endianness == :LITTLE_ENDIAN
@@ -445,7 +1009,7 @@ module Cosmos
 
           when 32
             if data_type == :INT
-              values = self.check_overflow_array(values, -2147483648, 2147483647, 4294967295, bit_size, data_type, overflow)
+              values = self.check_overflow_array(values, MIN_INT32, MAX_INT32, MAX_UINT32, bit_size, data_type, overflow)
               if endianness == HOST_ENDIANNESS
                 packed = values.pack(PACK_NATIVE_32_BIT_INT_ARRAY)
               else # endianness != HOST_ENDIANNESS
@@ -453,7 +1017,7 @@ module Cosmos
                 self.byte_swap_buffer!(packed, 4)
               end
             else # data_type == :UINT
-              values = self.check_overflow_array(values, 0, 4294967295, 4294967295, bit_size, data_type, overflow)
+              values = self.check_overflow_array(values, 0, MAX_UINT32, MAX_UINT32, bit_size, data_type, overflow)
               if endianness == :BIG_ENDIAN
                 packed = values.pack(PACK_BIG_ENDIAN_32_BIT_UINT_ARRAY)
               else # endianness == :LITTLE_ENDIAN
@@ -463,7 +1027,7 @@ module Cosmos
 
           when 64
             if data_type == :INT
-              values = self.check_overflow_array(values, -9223372036854775808, 9223372036854775807, 18446744073709551615, bit_size, data_type, overflow)
+              values = self.check_overflow_array(values, MIN_INT64, MAX_INT64, MAX_UINT64, bit_size, data_type, overflow)
               if endianness == HOST_ENDIANNESS
                 packed = values.pack(PACK_NATIVE_64_BIT_INT_ARRAY)
               else # endianness != HOST_ENDIANNESS
@@ -471,7 +1035,7 @@ module Cosmos
                 self.byte_swap_buffer!(packed, 8)
               end
             else # data_type == :UINT
-              values = self.check_overflow_array(values, 0, 18446744073709551615, 18446744073709551615, bit_size, data_type, overflow)
+              values = self.check_overflow_array(values, 0, MAX_UINT64, MAX_UINT64, bit_size, data_type, overflow)
               if endianness == HOST_ENDIANNESS
                 packed = values.pack(PACK_NATIVE_64_BIT_UINT_ARRAY)
               else # endianness != HOST_ENDIANNESS
@@ -590,7 +1154,10 @@ module Cosmos
     # @param overflow [Symbol] {OVERFLOW_TYPES}
     # @return [Integer] Potentially modified value
     def self.check_overflow(value, min_value, max_value, hex_max_value, bit_size, data_type, overflow)
-      if overflow != :TRUNCATE
+      if overflow == :TRUNCATE
+        # Note this will always convert to unsigned equivalent for signed integers
+        value = value % (hex_max_value + 1)
+      else
         if value > max_value
           if overflow == :SATURATE
             value = max_value

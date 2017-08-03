@@ -9,7 +9,7 @@
 # attribution addendums as found in the LICENSE.txt
 
 require 'cosmos/packets/binary_accessor'
-require 'cosmos/ext/string'
+require 'cosmos/ext/string' if RUBY_ENGINE == 'ruby' and !ENV['COSMOS_NO_EXT']
 
 # COSMOS specific additions to the Ruby String class
 class String
@@ -163,8 +163,17 @@ class String
     value
   end
 
-  # @return [String] The string with leading and trailing quotes removed
-  # def remove_quotes
+  if RUBY_ENGINE != 'ruby' or ENV['COSMOS_NO_EXT']
+   # @return [String] The string with leading and trailing quotes removed
+    def remove_quotes
+      return self if self.length < 2
+      first_char = self[0]
+      return self if (first_char != '"') && (first_char != "'")
+      last_char = self[-1]
+      return self if first_char != last_char
+      return self[1..-2]
+    end
+  end
 
   # @return [Boolean] Whether the String represents a floating point number
   def is_float?

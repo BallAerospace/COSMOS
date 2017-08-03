@@ -672,6 +672,7 @@ module Cosmos
           tf.close
           System.instance.process_file(tf.path)
           expect(System.additional_md5_files.include?(File.expand_path(md5f.path))).to be true
+          md5f.close
           md5f.unlink
           tf.unlink
         end

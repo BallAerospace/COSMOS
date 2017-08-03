@@ -101,7 +101,7 @@ module Cosmos
       @raw_logger_pair = nil
       @raw_logging_enabled = false
       @connection_mutex = Mutex.new
-      @listen_address = Socket::INADDR_ANY
+      @listen_address = "0.0.0.0"
       @auto_system_meta = false
 
       @read_allowed = false unless ConfigParser.handle_nil(read_port)
@@ -310,19 +310,33 @@ module Cosmos
     def start_listen_thread(port, listen_write = false, listen_read = false)
       # Create a socket to accept connections from clients
       addr = Socket.pack_sockaddr_in(port, @listen_address)
-      listen_socket = Socket.new(Socket::AF_INET, Socket::SOCK_STREAM, 0)
-      listen_socket.setsockopt(Socket::SOL_SOCKET, Socket::SO_REUSEADDR, 1) unless Kernel.is_windows?
-      begin
-        listen_socket.bind(addr)
-      rescue Errno::EADDRINUSE
-        raise "Error binding to port #{port}.\n" +
-              "Either another application is using this port\n" +
-              "or the operating system is being slow cleaning up.\n" +
-              "Make sure all sockets/streams are closed in all applications,\n" +
-              "wait 1 minute and try again."
-      end
+      if RUBY_ENGINE == 'ruby'
+        listen_socket = Socket.new(Socket::AF_INET, Socket::SOCK_STREAM, 0)
+        listen_socket.setsockopt(Socket::SOL_SOCKET, Socket::SO_REUSEADDR, 1) unless Kernel.is_windows?
+        begin
+          listen_socket.bind(addr)
+        rescue Errno::EADDRINUSE
+          raise "Error binding to port #{port}.\n" +
+                "Either another application is using this port\n" +
+                "or the operating system is being slow cleaning up.\n" +
+                "Make sure all sockets/streams are closed in all applications,\n" +
+                "wait 1 minute and try again."
+        end
 
-      listen_socket.listen(5)
+        listen_socket.listen(5)
+      else
+        listen_socket = ServerSocket.new(Socket::AF_INET, Socket::SOCK_STREAM, 0)
+        listen_socket.setsockopt(Socket::SOL_SOCKET, Socket::SO_REUSEADDR, 1) unless Kernel.is_windows?
+        begin
+          listen_socket.bind(addr, 5)
+        rescue Errno::EADDRINUSE
+          raise "Error binding to port #{port}.\n" +
+                "Either another application is using this port\n" +
+                "or the operating system is being slow cleaning up.\n" +
+                "Make sure all sockets/streams are closed in all applications,\n" +
+                "wait 1 minute and try again."
+        end
+      end
       @listen_sockets << listen_socket
       @listen_threads << Thread.new do
         begin

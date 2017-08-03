@@ -10,7 +10,7 @@
 
 require 'cosmos/packets/binary_accessor'
 require 'cosmos/packets/structure_item'
-require 'cosmos/ext/packet'
+require 'cosmos/ext/packet' if RUBY_ENGINE == 'ruby' and !ENV['COSMOS_NO_EXT']
 
 module Cosmos
 
@@ -44,21 +44,87 @@ module Cosmos
     #   required data size is allowed.
     attr_accessor :short_buffer_allowed
 
-    # String providing a single 0 byte
-    # ZERO_STRING = "\000"
-    # ZERO_STRING.freeze
+    if RUBY_ENGINE != 'ruby' or ENV['COSMOS_NO_EXT']
+      # Used to force encoding
+      ASCII_8BIT_STRING = "ASCII-8BIT".freeze
 
-    # Structure constructor
-    #
-    # @param default_endianness [Symbol] Must be one of
-    #   {BinaryAccessor::ENDIANNESS}. By default it uses
-    #   BinaryAccessor::HOST_ENDIANNESS to determine the endianness of the host platform.
-    # @param buffer [String] Buffer used to store the structure
-    # @param item_class [Class] Class used to instantiate new structure items.
-    #   Must be StructureItem or one of its subclasses.
-    # def initialize(default_endianness = BinaryAccessor::HOST_ENDIANNESS,
-    #               buffer = '',
-    #               item_class = StructureItem)
+      # String providing a single 0 byte
+      ZERO_STRING = "\000".freeze
+
+      # Structure constructor
+      #
+      # @param default_endianness [Symbol] Must be one of
+      #   {BinaryAccessor::ENDIANNESS}. By default it uses
+      #   BinaryAccessor::HOST_ENDIANNESS to determine the endianness of the host platform.
+      # @param buffer [String] Buffer used to store the structure
+      # @param item_class [Class] Class used to instantiate new structure items.
+      #   Must be StructureItem or one of its subclasses.
+      def initialize(default_endianness = BinaryAccessor::HOST_ENDIANNESS, buffer = '', item_class = StructureItem)
+        if (default_endianness == :BIG_ENDIAN) || (default_endianness == :LITTLE_ENDIAN)
+          @default_endianness = default_endianness
+          if buffer
+            raise TypeError, "wrong argument type #{buffer.class} (expected String)" unless String === buffer
+            @buffer = buffer.force_encoding(ASCII_8BIT_STRING)
+          else
+            @buffer = nil
+          end
+          @item_class = item_class
+          @items = {}
+          @sorted_items = []
+          @defined_length = 0
+          @defined_length_bits = 0
+          @pos_bit_size = 0
+          @neg_bit_size = 0
+          @fixed_size = true
+          @short_buffer_allowed = false
+          @mutex = nil
+        else
+          raise(ArgumentError, "Unrecognized endianness: #{default_endianness} - Must be :BIG_ENDIAN or :LITTLE_ENDIAN")
+        end
+      end
+
+      # Read an item in the structure
+      #
+      # @param item [StructureItem] Instance of StructureItem or one of its subclasses
+      # @param value_type [Symbol] Not used. Subclasses should overload this
+      #   parameter to check whether to perform conversions on the item.
+      # @param buffer [String] The binary buffer to read the item from
+      # @return Value based on the item definition. This could be a string, integer,
+      #   float, or array of values.
+      def read_item(item, value_type = :RAW, buffer = @buffer)
+        return nil if item.data_type == :DERIVED
+
+        if buffer
+          if item.array_size
+            return BinaryAccessor.read_array(item.bit_offset, item.bit_size, item.data_type, item.array_size, buffer, item.endianness)
+          else
+            return BinaryAccessor.read(item.bit_offset, item.bit_size, item.data_type, buffer, item.endianness)
+          end
+        else
+          raise "No buffer given to read_item"
+        end
+      end
+
+      # Get the length of the buffer used by the structure
+      #
+      # @return [Integer] Size of the buffer in bytes
+      def length
+        return @buffer.length if @buffer
+        return 0
+      end
+
+      # Resize the buffer at least the defined length of the structure
+      def resize_buffer
+        if @buffer
+          # Extend data size
+          if @buffer.length < @defined_length
+            @buffer << (ZERO_STRING * (@defined_length - @buffer.length))
+          end
+        end
+
+        return self
+      end
+    end
 
     # Indicates if any items have been defined for this structure
     # @return [TrueClass or FalseClass]
@@ -229,16 +295,6 @@ module Cosmos
       end
     end
 
-    # Read an item in the structure
-    #
-    # @param item [StructureItem] Instance of StructureItem or one of its subclasses
-    # @param value_type [Symbol] Not used. Subclasses should overload this
-    #   parameter to check whether to perform conversions on the item.
-    # @param buffer [String] The binary buffer to read the item from
-    # @return Value based on the item definition. This could be a string, integer,
-    #   float, or array of values.
-    # def read_item(item, value_type = :RAW, buffer = @buffer)
-
     # Write a value to the buffer based on the item definition
     #
     # @param item [StructureItem] Instance of StructureItem or one of its subclasses
@@ -329,11 +385,6 @@ module Cosmos
       end
       return string
     end
-
-    # Get the length of the buffer used by the structure
-    #
-    # @return [Integer] Size of the buffer in bytes
-    # def length
 
     # Get the buffer used by the structure. The current buffer is copied and
     # thus modifications to the returned buffer will have no effect on the
@@ -437,9 +488,6 @@ module Cosmos
         end
       end
     end
-
-    # Resize the buffer at least the defined length of the structure
-    # def resize_buffer
 
     def internal_buffer_equals(buffer)
       raise ArgumentError, "Buffer class is #{buffer.class} but must be String" unless String === buffer

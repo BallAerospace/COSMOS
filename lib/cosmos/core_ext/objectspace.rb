@@ -8,8 +8,6 @@
 # as published by the Free Software Foundation; version 3 with
 # attribution addendums as found in the LICENSE.txt
 
-require 'cosmos/ext/array'
-
 # COSMOS specific additions to the ObjectSpace class
 module ObjectSpace
   def self.find(klass)
