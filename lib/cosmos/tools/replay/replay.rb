@@ -13,6 +13,7 @@ Cosmos.catch_fatal_exception do
   require 'cosmos/gui/qt_tool'
   require 'cosmos/gui/dialogs/splash'
   require 'cosmos/gui/dialogs/progress_dialog'
+  require 'cosmos/gui/dialogs/packet_log_dialog'
   require 'cosmos/tools/replay/replay_server'
   require 'cosmos/gui/choosers/string_chooser'
 end
@@ -209,27 +210,32 @@ module Cosmos
 
     def select_log_file
       unless @playback_thread
-        selection = Qt::FileDialog.getOpenFileName(
-          self, "Select Log File", @log_directory, Cosmos::TLM_FILE_PATTERN)
-        if selection
+        packet_log_dialog = PacketLogDialog.new(
+          self, 'Select Log File', @log_directory, @packet_log_reader,
+          [], nil, false, false, true, Cosmos::TLM_FILE_PATTERN,
+          Cosmos::BIN_FILE_PATTERN, false
+        )
+        case packet_log_dialog.exec
+        when Qt::Dialog::Accepted
           stop()
-          @log_directory = File.dirname(selection)
-          @log_name.text = selection
-          @log_filename = selection
+          @packet_log_reader = packet_log_dialog.packet_log_reader
+          @log_filename = packet_log_dialog.filenames[0]
+          @log_directory = File.dirname(@log_filename)
+          @log_directory << '/' unless @log_directory[-1..-1] == '\\'
+          @log_name.text = @log_filename
 
           System.telemetry.reset
-
           @cancel = false
           ProgressDialog.execute(self, 'Analyzing Log File', 500, 10, true, false, true, false, true) do |progress_dialog|
-            progress_dialog.append_text("Processing File: #{selection}\n")
+            progress_dialog.append_text("Processing File: #{@log_filename}\n")
             progress_dialog.set_overall_progress(0.0)
             progress_dialog.cancel_callback = method(:cancel_callback)
             progress_dialog.enable_cancel_button
-            Cosmos.check_log_configuration(@packet_log_reader, selection)
-            @packet_offsets = @packet_log_reader.packet_offsets(selection, lambda {|percentage| progress_dialog.set_overall_progress(percentage); @cancel})
+            Cosmos.check_log_configuration(@packet_log_reader, @log_filename)
+            @packet_offsets = @packet_log_reader.packet_offsets(@log_filename, lambda {|percentage| progress_dialog.set_overall_progress(percentage); @cancel})
             @playback_index = 0
             update_slider_and_current_time(nil)
-            @packet_log_reader.open(selection)
+            @packet_log_reader.open(@log_filename)
             progress_dialog.close_done
           end
 

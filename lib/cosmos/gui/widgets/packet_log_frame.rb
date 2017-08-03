@@ -52,6 +52,8 @@ module Cosmos
     #   selecting input log files with the FileDialog
     # @param output_filename_filter [String] File filter to apply when
     #   selecting an output filename with the FileDialog
+    # @param multiple_file_select [Boolean] Whether to allow multiple file
+    #   selections when browsing for files
     def initialize(parent,
                    log_directory,
                    packet_log_reader,
@@ -61,12 +63,14 @@ module Cosmos
                    show_time = true,
                    show_log_reader = true,
                    input_filename_filter = Cosmos::BIN_FILE_PATTERN,
-                   output_filename_filter = Cosmos::BIN_FILE_PATTERN)
+                   output_filename_filter = Cosmos::BIN_FILE_PATTERN,
+                   multiple_file_select = true)
       super(parent)
 
       @output_select = :FILE
       @input_filename_filter = input_filename_filter
       @output_filename_filter = output_filename_filter
+      @multiple_file_select = multiple_file_select
       @log_directory = log_directory
       if initial_output_filename
         @output_directory = File.dirname(initial_output_filename)
@@ -223,11 +227,20 @@ module Cosmos
     # Handles browsing for log files
     def handle_browse_button
       Cosmos.set_working_dir do
-        filenames = Qt::FileDialog::getOpenFileNames(
-          self, "Select Log File(s):", @log_directory, @input_filename_filter)
-        if filenames and not filenames.empty?
-          @log_directory.replace(File.dirname(filenames[0]) + '/')
-          filenames.each {|filename| @filenames.addItem(filename) if @filenames.findItems(filename, Qt::MatchExactly).empty? }
+        if @multiple_file_select
+          filenames = Qt::FileDialog::getOpenFileNames(
+            self, "Select Log File(s):", @log_directory, @input_filename_filter)
+          if filenames and not filenames.empty?
+            @log_directory.replace(File.dirname(filenames[0]) + '/')
+            filenames.each {|filename| @filenames.addItem(filename) if @filenames.findItems(filename, Qt::MatchExactly).empty? }
+          end
+        else
+          filename = Qt::FileDialog::getOpenFileName(
+            self, "Select Log File:", @log_directory, @input_filename_filter)
+          if filename
+            @log_directory.replace(File.dirname(filename) + '/')
+            @filenames.addItem(filename)
+          end
         end
         @change_callback.call(:INPUT_FILES) if @change_callback
       end

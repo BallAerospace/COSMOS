@@ -34,6 +34,7 @@ module Cosmos
     # @param show_log_reader (see PacketLogFrame#initialize)
     # @param input_filename_filter (see PacketLogFrame#initialize)
     # @param output_filename_filter (see PacketLogFrame#initialize)
+    # @param multiple_file_select (see PacketLogFrame#initialize)
     def initialize(parent,
                    title,
                    log_directory,
@@ -44,7 +45,8 @@ module Cosmos
                    show_time = true,
                    show_log_reader = true,
                    input_filename_filter = Cosmos::BIN_FILE_PATTERN,
-                   output_filename_filter = Cosmos::BIN_FILE_PATTERN)
+                   output_filename_filter = Cosmos::BIN_FILE_PATTERN,
+                   multiple_file_select = true)
       super(parent)
       setWindowTitle(title)
 
@@ -58,7 +60,8 @@ module Cosmos
                                              show_time,
                                              show_log_reader,
                                              input_filename_filter,
-                                             output_filename_filter)
+                                             output_filename_filter,
+                                             multiple_file_select)
       @packet_log_frame.change_callback = method(:change_callback)
       @layout.addWidget(@packet_log_frame)
 
