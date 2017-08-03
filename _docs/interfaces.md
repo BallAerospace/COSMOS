@@ -8,16 +8,22 @@ Interface classes provide the code that COSMOS uses to receive real-time telemet
 
 Interfaces have the following methods that must be implemented:
 
-1. **connect** - Open the socket or port or somehow establish the connection to the target.  Note: This method may not block indefinitely.
-1. **connected?** - Return true or false depending on the connection state. Note: This method should return immediately
-1. **disconnect** - Close the socket or port of somehow disconnect from the target.  Note: This method may not block indefinitely.
-1. **read_interface** - Lowest level read of data on the interface. Note: This method should block until data is available or the interface disconnects.  On a clean disconnect it should return nil.
+1. **connect** - Open the socket or port or somehow establish the connection to the target. Note: This method may not block indefinitely. Be sure to call super() in your implementation.
+1. **connected?** - Return true or false depending on the connection state. Note: This method should return immediately.
+1. **disconnect** - Close the socket or port of somehow disconnect from the target. Note: This method may not block indefinitely. Be sure to call super() in your implementation.
+1. **read_interface** - Lowest level read of data on the interface. Note: This method should block until data is available or the interface disconnects. On a clean disconnect it should return nil.
 1. **write_interface** - Lowest level write of data on the interface. Note: This method may not block indefinitely.
-1. **write_raw** - Send a raw binary string of data to the target. Note: This method may not block indefinitely.
+
+Interfaces also have the following methods that exist and have default implementations. They can be overridden if necessary but be sure to call super() to allow the default implementation to be executed.
+1. **read_interface_base** - Called to read data and manipulate it until enough data is returned. The definition of 'enough data' changes depending on the protocol used which is why this method exists. This method is also used to perform operations on the data before it can be interpreted as packet data such as decryption. After this method is called the post_read_data method is called.
+1. **write_interface_base** - Called to write data to the underlying interface. This method is also used to perform operations on the data before it can be interpreted as packet data such as decryption. After this method is called the post_read_data method is called.
+1. **read** - Read the next packet from the interface. COSMOS implements this method to allow the Protocol system to operate on the data and the packet before it is returned.
+1. **write** - Send a packet to the interface. COSMOS implements this method to allow the Protocol system to operate on the packet and the data before it is sent.
+1. **write_raw** - Send a raw binary string of data to the target. COSMOS implements this method by basically calling write_interface with the raw data.
 
 <div class="note warning">
   <h5>Note on Naming</h5>
-  <p>When creating your own interfaces, in most cases they will be subclasses of one of the built-in interfaces described below.   It is important to know that both the filename and class name of the interface files must match with correct capitalization or you will receive "class not found" errors when trying to load your new interface.  For example, an interface file called labview_interface.rb must contain the class LabviewInterface.  If the class was named, LabVIEWInterface, for example, COSMOS would not be able to find the class because of the unexpected capitalization.</p>
+  <p>When creating your own interfaces, in most cases they will be subclasses of one of the built-in interfaces described below.  It is important to know that both the filename and class name of the interface files must match with correct capitalization or you will receive "class not found" errors when trying to load your new interface. For example, an interface file called labview_interface.rb must contain the class LabviewInterface. If the class was named, LabVIEWInterface, for example, COSMOS would not be able to find the class because of the unexpected capitalization.</p>
 </div>
 
 
