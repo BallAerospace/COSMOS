@@ -9,11 +9,13 @@
 # attribution addendums as found in the LICENSE.txt
 
 require 'cosmos/script/extract'
+require 'cosmos/script/api_shared'
 
 module Cosmos
 
   module Api
     include Extract
+    include ApiShared
 
     # Sets api_requests to 0 and initializes the whitelist of allowable API
     # method calls
