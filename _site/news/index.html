@@ -84,6 +84,8 @@
     <option value="/news/">Home</option>
     <optgroup label="v1.x">
       
+      <option value="/news/2017/08/04/cosmos-4-0-0-released/">Ball Aerospace COSMOS 4.0.0 Released</option>
+      
       <option value="/news/2017/07/05/arduino-battle-bots/">Arduinos & Battle Bots</option>
       
       <option value="/news/2017/06/19/template_protocol/">Template Protocol</option>
@@ -177,6 +179,132 @@
 
       <div class="unit four-fifths">
         
+  <article>
+  <h2>
+    <a href="/news/2017/08/04/cosmos-4-0-0-released/">
+      Ball Aerospace COSMOS 4.0.0 Released
+    </a>
+  </h2>
+  <span class="post-category">
+    <span class="label">
+      release
+    </span>
+  </span>
+  <div class="post-meta">
+    <span class="post-date">
+      04 Aug 2017
+    </span>
+    <a href="https://github.com/ryanmelt" class="post-author">
+      <img src="https://github.com/ryanmelt.png" class="avatar" alt="ryanmelt avatar" width="24" height="24">
+      ryanmelt
+    </a>
+  </div>
+  <div class="post-content">
+    <p>COSMOS 4 is here!</p>
+
+<p>48 tickets have gone into this release, and it brings with it two new tools and some great under the hood improvements.</p>
+
+<p>New Tools:</p>
+
+<p>COSMOS now has a dedicated Configuration Editor and Command Sequence Builder.</p>
+
+<p>The config editor gives you contextual help when building config files, and make it super easy to define packets and configure tools without having to have the online documentation up in front of you.  It’s going to make setting up COSMOS even easier than it was before.</p>
+
+<p>Command Sequence builder allows you to define series of commands that should be sent at either absolute or relative timestamps to each other.  This is great for planning time specific commanding.  You can execute these on the ground directly from the tool, or you can convert them to your own internal format and upload to the system you are commanding.</p>
+
+<p>Highlighted changes:</p>
+
+<ol>
+  <li>New protocol system allows assigning multiple protocols to each interface to support layered protocols, and common functionality like CRC checking/adding to commands.</li>
+  <li>The ability to View the most recent raw data received or sent on each interface</li>
+  <li>The Command and Telemetry Server can now run on JRuby in –no-gui mode (may help performance for huge projects with 50+ targets)</li>
+  <li>New router provides the ability to get a copy of every command sent out from COSMOS in a stream</li>
+  <li>New SYSTEM META packet output by the CmdTlmServer</li>
+  <li>Lots more!  See the full ticket list below</li>
+</ol>
+
+<h3 id="new-features">New Features:</h3>
+
+<ul>
+  <li>
+    <p><a href="https://github.com/BallAerospace/COSMOS/issues/229">#229</a></p>
+  </li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/229">#229</a> Gem Based Targets should support DataViewer and other tool configurations</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/234">#234</a> Add a method to system.txt to add files used in the marshall file MD5 sum calculation</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/253">#253</a> Create “generators” for targets, tools, etc</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/258">#258</a> Create COSMOS Command Sequence Tool</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/261">#261</a> Provide a method for specifying binary data in STRING and BLOCK default values</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/278">#278</a> Consider adding wait_ methods to internal API for use in Background tasks</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/281">#281</a> Add support for stretch and spacers in widget layouts</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/319">#319</a> Add the ability to grab telemetry ARRAY_ITEMs</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/337">#337</a> Support specifying default parameters to default log reader and log writer in system.txt</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/347">#347</a> COSMOS GLobal Time Zone Setting (Local/UTC)</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/356">#356</a> Interface protocols</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/360">#360</a> Add raw stream preamble and postamble data to “View Raw”</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/381">#381</a> Float Infinity and NaN as command values</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/401">#401</a> tolerance scripting calls should support array telemetry items</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/404">#404</a> Packet Viewer easy access to edit configuration files</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/405">#405</a> Telemetry Viewer easy access to edit screen definition</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/423">#423</a> Add “Cmd router” to CmdTlmServer to support external logging of all commands</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/424">#424</a> TlmViewer should call update_widget for a screen with no value items and with CmdTlmServer not running</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/426">#426</a> Standardize meta data to SYSTEM META packet</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/432">#432</a> Export processed config files</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/442">#442</a> Label value widgets should support right aligned labels</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/459">#459</a> Script Editor code completion enhancements</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/479">#479</a> Limits Monitor doesn’t detect newly connected targets</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/489">#489</a> Built in support for limits group enable and disable</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/497">#497</a> Update serial_interface.rb to support hardware flow control</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/498">#498</a> Script helper for activities that should cause an exception</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/511">#511</a> Make CmdTlmServer run on JRuby</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/512">#512</a> Create a CRC Protocol</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/513">#513</a> Create a GUI config file editor</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/516">#516</a> Recreate COSMOS C Extension Code in Pure Ruby</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/517">#517</a> Make hostname for tools to connect to CTS API configurable in system.txt</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/519">#519</a> Replay should support alternate packet log readers</li>
+</ul>
+
+<h3 id="maintenance">Maintenance:</h3>
+
+<ul>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/354">#354</a> Targets need to be path namespaced to avoid conflicts</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/323">#323</a> Catch Signals in CmdTlmServer</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/341">#341</a> Document COSMOS JSON API on cosmosrb.com</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/398">#398</a> Documentation, code cleanup</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/429">#429</a> Command Endianness and Parameter Endianness</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/437">#437</a> Remove CMD_TLM_VERSION from system.txt</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/438">#438</a> Cache script text as part of instrumenting script</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/446">#446</a> Windows 10 Install fails</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/476">#476</a> Separate apt and yum package install lines</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/477">#477</a> Deprecate userpath.txt</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/484">#484</a> require_file should re-raise existing exception</li>
+</ul>
+
+<h3 id="bug-fixes">Bug Fixes:</h3>
+
+<ul>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/456">#456</a> Replay doesn’t shut down properly if closed while playing</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/481">#481</a> show_backtrace not working in ScriptRunner</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/494">#494</a> Details dialog crashes for items with LATEST packet</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/502">#502</a> Target REQUIRE should also search system path</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/506">#506</a> Don’t call read_interface if data is cached in protocols for another packet</li>
+</ul>
+
+<h3 id="migration-notes-from-cosmos-38x">Migration Notes from COSMOS 3.8.x:</h3>
+
+<p>COSMOS 4 includes several breaking changes from the COSMOS 3.x series.</p>
+
+<p>The first and simplest is that the Command and Telemetry Server now opens an additional port at 7780 by default, that provides a router that will send out each command that the system has sent.  This can allow external systems to also log all commands sent by COSMOS.  For most people this change will be transparent and no updates to your COSMOS configuration will be required.</p>
+
+<p>The second is that the Command and Telemetry Server now always supports a meta data packet called SYSTEM META.  This packet will always contain the MD5 sum for the current running COSMOS configuration, the version of COSMOS running, the version of your COSMOS Project, and the version of Ruby being used.  You can also add your own requirements for meta data with things like the name of the operator currently running the system, or the name of a specific test you are currently running.  In general you shouldn’t need to do anything for this change unless you were using the previous metadata functionality in COSMOS.  If you were, then you will need to migrate your meta data to the new SYSTEM META packet, and change the parameters in your CmdTlmServer or TestRunner configurations regarding meta data.  If you weren’t using metadata before, then you will probably just notice this new packet in your log files, and in your telemetry stream.</p>
+
+<p>Finally the most exciting breaking change is in how COSMOS interfaces handle protocols.  Before, the COSMOS TCP/IP and Serial interface classes each took a protocol like LENGTH, TERMINATED, etc that defined how packets were delineated by the interface.  Now each interface can take a set of one or more protocols.  This allows COSMOS to much more easily support nested protocols, such as the frame focused protocols of CCSDS.  It also allows for creating helpful reusable protocols such as the new CRC protocol for automatically adding CRCs to outgoing commands and verifying incoming CRCs on telemetry packets.  It’s a great change, but if you have any custom interface classes you have written, they will probably require some modification.  See the Interfaces section at cosmosrb.com to see how the new interface classes work. We will also be writing up a blog post to help document the process of upgrading.  Look for this in a week or two.</p>
+
+<p>To upgrade to the latest version of COSMOS, run “bundle update cosmos” in your COSMOS project folder.</p>
+
+  </div>
+</article>
+
+
   <article>
   <h2>
     <a href="/news/2017/07/05/arduino-battle-bots/">
@@ -2711,6 +2839,10 @@ change the whole playing field of Operations, Integration, and Test”.</p>
     <ul>
       
       <li class="">
+        <a href="/news/2017/08/04/cosmos-4-0-0-released/">Version 4.0.0</a>
+      </li>
+      
+      <li class="">
         <a href="/news/2017/05/18/cosmos-3-9-2-released/">Version 3.9.2</a>
       </li>
       
@@ -2726,16 +2858,14 @@ change the whole playing field of Operations, Integration, and Test”.</p>
         <a href="/news/2016/07/05/cosmos-3-8-2-released/">Version 3.8.2</a>
       </li>
       
-      <li class="">
-        <a href="/news/2016/05/12/cosmos-3-8-1-released/">Version 3.8.1</a>
-      </li>
-      
       <li>
         <a href="/docs/history/">History »</a>
       </li>
     </ul>
     <h4>Other News</h4>
     <ul>
+        
+        
         
         
         <li class="">

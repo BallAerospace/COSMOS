@@ -1440,46 +1440,53 @@
 <li class="toc-entry toc-h3"><a href="#serial-interface">Serial Interface</a></li>
 <li class="toc-entry toc-h3"><a href="#cmdtlmserver-interface">CmdTlmServer Interface</a></li>
 <li class="toc-entry toc-h3"><a href="#linc-interface">LINC Interface</a></li>
-<li class="toc-entry toc-h2"><a href="#streams-and-stream-protocols">Streams and Stream Protocols</a></li>
-<li class="toc-entry toc-h3"><a href="#burst-stream-protocol">Burst Stream Protocol</a></li>
-<li class="toc-entry toc-h3"><a href="#fixed-stream-protocol">Fixed Stream Protocol</a></li>
-<li class="toc-entry toc-h3"><a href="#length-stream-protocol">Length Stream Protocol</a></li>
-<li class="toc-entry toc-h3"><a href="#terminated-stream-protocol">Terminated Stream Protocol</a></li>
-<li class="toc-entry toc-h3"><a href="#preidentified-stream-protocol">Preidentified Stream Protocol</a></li>
-<li class="toc-entry toc-h3"><a href="#template-stream-protocol">Template Stream Protocol</a></li>
+<li class="toc-entry toc-h2"><a href="#streams">Streams</a></li>
+<li class="toc-entry toc-h2"><a href="#protocols">Protocols</a></li>
+<li class="toc-entry toc-h3"><a href="#burst-protocol">Burst Protocol</a></li>
+<li class="toc-entry toc-h3"><a href="#fixed-protocol">Fixed Protocol</a></li>
+<li class="toc-entry toc-h3"><a href="#length-protocol">Length Protocol</a></li>
+<li class="toc-entry toc-h3"><a href="#terminated-protocol">Terminated Protocol</a></li>
+<li class="toc-entry toc-h3"><a href="#preidentified-protocol">Preidentified Protocol</a></li>
+<li class="toc-entry toc-h3"><a href="#template-protocol">Template Protocol</a></li>
 </ul>
           </div>
           
           <h1>Interface Configuration</h1>
-          <p>Interface classes provide the code that COSMOS uses to receive real-time telemetry from targets and to send commands to targets. The interface that a target uses could be anything (TCP/IP, serial, GPIB, Firewire, etc.), therefore it is important that this is a customize-able portion of any reusable Command and Telemetry System. Fortunately the most common form of interfaces are over TCP/IP sockets, and COSMOS provides interface solutions for these. This guide will discuss how to use these interface classes, and how to create your own.</p>
+          <p>Interface classes provide the code that COSMOS uses to receive real-time telemetry from targets and to send commands to targets. The interface that a target uses could be anything (TCP/IP, serial, GPIB, Firewire, etc.), therefore it is important that this is a customizable portion of any reusable Command and Telemetry System. Fortunately the most common form of interfaces are over TCP/IP sockets, and COSMOS provides interface solutions for these. This guide will discuss how to use these interface classes, and how to create your own.</p>
 
 <p>Interfaces have the following methods that must be implemented:</p>
 
 <ol>
   <li>
-<strong>connect</strong> - Open the socket or port or somehow establish the connection to the target.  Note: This method may not block indefinitely.</li>
+<strong>connect</strong> - Open the socket or port or somehow establish the connection to the target. Note: This method may not block indefinitely. Be sure to call super() in your implementation.</li>
   <li>
-<strong>connected?</strong> - Return true or false depending on the connection state. Note: This method should return immediately</li>
+<strong>connected?</strong> - Return true or false depending on the connection state. Note: This method should return immediately.</li>
   <li>
-<strong>disconnect</strong> - Close the socket or port of somehow disconnect from the target.  Note: This method may not block indefinitely.</li>
+<strong>disconnect</strong> - Close the socket or port of somehow disconnect from the target. Note: This method may not block indefinitely. Be sure to call super() in your implementation.</li>
   <li>
-<strong>read</strong> - Return the next packet of data from the target. Note: This method should block until a packet is available or the interface disconnects.  On a clean disconnect it should return nil.</li>
+<strong>read_interface</strong> - Lowest level read of data on the interface. Note: This method should block until data is available or the interface disconnects. On a clean disconnect it should return nil.</li>
   <li>
-<strong>write</strong> - Send a packet of data to the target. Note: This method may not block indefinitely.</li>
+<strong>write_interface</strong> - Lowest level write of data on the interface. Note: This method may not block indefinitely.</li>
+</ol>
+
+<p>Interfaces also have the following methods that exist and have default implementations. They can be overridden if necessary but be sure to call super() to allow the default implementation to be executed.</p>
+<ol>
   <li>
-<strong>write_raw</strong> - Send a raw binary string of data to the target. Note: This method may not block indefinitely.</li>
+<strong>read_interface_base</strong> - This method should always be called from read_interface().  It updates interface specific variables that are displayed by CmdTLmServer including the bytes read count, the most recent raw data read, and it handles raw logging if enabled.</li>
   <li>
-<strong>read_allowed?</strong> - Whether reading from the target over the interface is allowed. Note: This method should return immediately</li>
+<strong>write_interface_base</strong> - This method should always be called from write_interface().  It updates interface specific variables that are displayed by CmdTLmServer including the bytes written count, the most recent raw data written, and it handles raw logging if enabled.</li>
   <li>
-<strong>write_allowed?</strong> - Whether writing a packet to the target over the interface is allowed. Note: This method should return immediately</li>
+<strong>read</strong> - Read the next packet from the interface. COSMOS implements this method to allow the Protocol system to operate on the data and the packet before it is returned.</li>
   <li>
-<strong>write_raw_allowed?</strong> - Whether writing raw data to the target over the interface is allowed. Note: This method should return immediately</li>
+<strong>write</strong> - Send a packet to the interface. COSMOS implements this method to allow the Protocol system to operate on the packet and the data before it is sent.</li>
+  <li>
+<strong>write_raw</strong> - Send a raw binary string of data to the target. COSMOS implements this method by basically calling write_interface with the raw data.</li>
 </ol>
 
 <div class="note warning">
   <h5>
 <a id="note-on-naming" class="anchor" href="#note-on-naming" aria-hidden="true"><span class="octicon octicon-link"></span></a>Note on Naming</h5>
-  <p>When creating your own interfaces, in most cases they will be subclasses of one of the built-in interfaces described below.   It is important to know that both the filename and class name of the interface files must match with correct capitalization or you will receive "class not found" errors when trying to load your new interface.  For example, an interface file called labview_interface.rb must contain the class LabviewInterface.  If the class was named, LabVIEWInterface, for example, COSMOS would not be able to find the class because of the unexpected capitalization.</p>
+  <p>When creating your own interfaces, in most cases they will be subclasses of one of the built-in interfaces described below.  It is important to know that both the filename and class name of the interface files must match with correct capitalization or you will receive "class not found" errors when trying to load your new interface. For example, an interface file called labview_interface.rb must contain the class LabviewInterface. If the class was named, LabVIEWInterface, for example, COSMOS would not be able to find the class because of the unexpected capitalization.</p>
 </div>
 
 <h2 id="provided-interfaces">
@@ -1525,14 +1532,14 @@
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Stream Protocol Type</td>
-      <td>See Streams and Stream Protocols.</td>
-      <td>Yes</td>
+      <td>Protocol Type</td>
+      <td>See Protocols.</td>
+      <td>No</td>
     </tr>
     <tr>
-      <td>Stream Protocol Arguments</td>
-      <td>See Streams and Stream Protocols for the arguments each stream protocol takes.</td>
-      <td>Yes</td>
+      <td>Protocol Arguments</td>
+      <td>See Protocols for the arguments each stream protocol takes.</td>
+      <td>No</td>
     </tr>
   </tbody>
 </table>
@@ -1580,14 +1587,14 @@ INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 10.0
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Stream Protocol Type</td>
-      <td>See Streams and Stream Protocols.</td>
-      <td>Yes</td>
+      <td>Protocol Type</td>
+      <td>See Protocols.</td>
+      <td>No</td>
     </tr>
     <tr>
-      <td>Stream Protocol Arguments</td>
-      <td>See Streams and Stream Protocols for the arguments each stream protocol takes.</td>
-      <td>Yes</td>
+      <td>Protocol Arguments</td>
+      <td>See Protocols for the arguments each stream protocol takes.</td>
+      <td>No</td>
     </tr>
   </tbody>
 </table>
@@ -1603,7 +1610,7 @@ INTERFACE INTERFACE_NAME tcpip_client_interface.rb 8080 8080 10.0 10.0 TEMPLATE 
 
 <h3 id="udp-interface">
 <a id="udp-interface" class="anchor" href="#udp-interface" aria-hidden="true"><span class="octicon octicon-link"></span></a>UDP Interface</h3>
-<p>The UDP interface uses UDP packets to send and receive telemetry from the target. It can not use any stream protocols.</p>
+<p>The UDP interface uses UDP packets to send and receive telemetry from the target.</p>
 
 <table>
   <thead>
@@ -1719,14 +1726,14 @@ INTERFACE INTERFACE_NAME tcpip_client_interface.rb 8080 8080 10.0 10.0 TEMPLATE 
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Stream Protocol Type</td>
-      <td>See Streams and Stream Protocols.</td>
-      <td>Yes</td>
+      <td>Protocol Type</td>
+      <td>See Protocols.</td>
+      <td>No</td>
     </tr>
     <tr>
-      <td>Stream Protocol Arguments</td>
-      <td>See Streams and Stream Protocols for the arguments each stream protocol takes.</td>
-      <td>Yes</td>
+      <td>Protocol Arguments</td>
+      <td>See Protocols for the arguments each stream protocol takes.</td>
+      <td>No</td>
     </tr>
   </tbody>
 </table>
@@ -1842,15 +1849,17 @@ INTERFACE INTERFACE_NAME serial_interface.rb COM4 COM4 115200 NONE 1 10.0 10.0 T
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">INTERFACE INTERFACE_NAME linc_interface.rb localhost 8080
 INTERFACE INTERFACE_NAME linc_interface.rb localhost 8080 <span class="nb">true </span>5 nil 5 0 16 4 HDR_GUID BIG_ENDIAN HDR_LENGTH</code></pre></figure>
 
-<h2 id="streams-and-stream-protocols">
-<a id="streams-and-stream-protocols" class="anchor" href="#streams-and-stream-protocols" aria-hidden="true"><span class="octicon octicon-link"></span></a>Streams and Stream Protocols</h2>
-<p>Streams are simplified interfaces that only implement the read, read_nonblock, write, connected? and disconnect methods. They are basically just data sinks and sources which are further manipulated by stream protocols. COSMOS provides the following streams: SerialStream, TcpipClientStream, and TcpipSocketStream. As you might guess, the SerialInterface, TcpipClientInterface, TcpipServerInterface directly use the SerialStream, TcpipClientStream, and TcpipSocketStream respectively. In addition, these interfaces require a StreamProtocol to process the data on the stream.</p>
+<h2 id="streams">
+<a id="streams" class="anchor" href="#streams" aria-hidden="true"><span class="octicon octicon-link"></span></a>Streams</h2>
+<p>Streams are low level classes that implement read, read_nonblock, write, connect, connected? and disconnect methods. The build-in Stream classes are SerialStream, TcpipSocketStream and TcpipClientStream and they are automatically used when creating a Serial Interface, TCP/IP Server Interface, or TCP/IP Client Interface.</p>
 
-<p>StreamProtocols process a stream of data on behalf of an interface. Once they are connected to their streams, they will continuously read from the stream to amass a buffer of raw data which is then processed according to the protocol type. COSMOS provides the following stream protocols: Burst, Fixed, Length, Terminated, Preidentified, and Template.</p>
+<h2 id="protocols">
+<a id="protocols" class="anchor" href="#protocols" aria-hidden="true"><span class="octicon octicon-link"></span></a>Protocols</h2>
+<p>Protocols process data on behalf of an interface. They can modify the data being written, data being read, or both. Protocols can be layered and will be processed in order. For example, if you have a low level encryption layer that must be first removed before processing a higher level buffer length protocol. COSMOS provides the following protocols: Burst, Fixed, Length, Override, Preidentified, Template, and Terminated.</p>
 
-<h3 id="burst-stream-protocol">
-<a id="burst-stream-protocol" class="anchor" href="#burst-stream-protocol" aria-hidden="true"><span class="octicon octicon-link"></span></a>Burst Stream Protocol</h3>
-<p>The Burst Stream Protocol simply reads as much data as it can from the stream before returning the data as a COSMOS Packet. This Protocol relies on regular bursts of data delimited by time and thus is not very robust. However it can utilize a sync pattern which does allow it to re-sync from the stream if necessary.</p>
+<h3 id="burst-protocol">
+<a id="burst-protocol" class="anchor" href="#burst-protocol" aria-hidden="true"><span class="octicon octicon-link"></span></a>Burst Protocol</h3>
+<p>The Burst Protocol simply reads as much data as it can from the interface before returning the data as a COSMOS Packet. This Protocol relies on regular bursts of data delimited by time and thus is not very robust. However it can utilize a sync pattern which does allow it to re-sync if necessary. It can also discard bytes from the incoming data to remove the sync pattern. Finally it can add sync patterns to data being written out of the interface.</p>
 
 <table>
   <thead>
@@ -1864,13 +1873,13 @@ INTERFACE INTERFACE_NAME linc_interface.rb localhost 8080 <span class="nb">true 
   <tbody>
     <tr>
       <td>Discard Leading Bytes</td>
-      <td>The number of bytes to discard from the binary data after reading from the stream. Note that this applies to bytes starting with the sync pattern if the sync pattern is being used.</td>
+      <td>The number of bytes to discard from the binary data after reading. Note that this applies to bytes starting with the sync pattern if the sync pattern is being used.</td>
       <td>No</td>
       <td>0 (do not discard bytes)</td>
     </tr>
     <tr>
       <td>Sync Pattern</td>
-      <td>Hex string representing a byte pattern that will be searched for in the raw stream. This pattern represents a packet delimiter and all data found including the sync pattern will be returned</td>
+      <td>Hex string representing a byte pattern that will be searched for in the raw data. This pattern represents a packet delimiter and all data found including the sync pattern will be returned</td>
       <td>No</td>
       <td>nil (no sync pattern)</td>
     </tr>
@@ -1883,9 +1892,9 @@ INTERFACE INTERFACE_NAME linc_interface.rb localhost 8080 <span class="nb">true 
   </tbody>
 </table>
 
-<h3 id="fixed-stream-protocol">
-<a id="fixed-stream-protocol" class="anchor" href="#fixed-stream-protocol" aria-hidden="true"><span class="octicon octicon-link"></span></a>Fixed Stream Protocol</h3>
-<p>The Fixed Stream Protocol reads a preset minimum amount of data from the stream which is necessary to properly identify all the defined packets using the interface. It then identifies the packet and proceeds to read as much data from the stream as necessary to create the packet which it then returns. This stream relies on all the packets on the interface being fixed in length. For example, all the packets using the interface are a fixed size and contain a simple header with a 32 bit sync pattern followed by a 16 bit ID. The Fixed Stream Protocol would elegantly handle this case with a minimum read size of 6 bytes.</p>
+<h3 id="fixed-protocol">
+<a id="fixed-protocol" class="anchor" href="#fixed-protocol" aria-hidden="true"><span class="octicon octicon-link"></span></a>Fixed Protocol</h3>
+<p>The Fixed Protocol reads a preset minimum amount of data which is necessary to properly identify all the defined packets using the interface. It then identifies the packet and proceeds to read as much data from the interface as necessary to create the packet which it then returns. This protocol relies on all the packets on the interface being fixed in length. For example, all the packets using the interface are a fixed size and contain a simple header with a 32 bit sync pattern followed by a 16 bit ID. The Fixed Protocol would elegantly handle this case with a minimum read size of 6 bytes. The Fixed Protocol also supports a sync pattern, discarding leading bytes, and filling the sync pattern similar to the Burst Protocol.</p>
 
 <table>
   <thead>
@@ -1905,21 +1914,21 @@ INTERFACE INTERFACE_NAME linc_interface.rb localhost 8080 <span class="nb">true 
     </tr>
     <tr>
       <td>Discard Leading Bytes</td>
-      <td>The number of bytes to discard from the binary data after reading from the stream. Note that this applies to bytes starting with the sync pattern if the sync pattern is being used.</td>
+      <td>The number of bytes to discard from the binary data after reading. Note that this applies to bytes starting with the sync pattern if the sync pattern is being used.</td>
       <td>No</td>
       <td>0 (do not discard bytes)</td>
     </tr>
     <tr>
       <td>Sync Pattern</td>
-      <td>Hex string representing a byte pattern that will be searched for in the raw stream. This pattern represents a packet delimiter and all data found including the sync pattern will be returned.</td>
+      <td>Hex string representing a byte pattern that will be searched for in the raw data. This pattern represents a packet delimiter and all data found including the sync pattern will be returned.</td>
       <td>No</td>
       <td>nil (no sync pattern)</td>
     </tr>
     <tr>
-      <td>Telemetry Stream</td>
-      <td>Whether the stream is returning telemetry</td>
+      <td>Telemetry</td>
+      <td>Whether the data is telemetry</td>
       <td>No</td>
-      <td>true (false means command stream)</td>
+      <td>true (false means command)</td>
     </tr>
     <tr>
       <td>Fill Sync Pattern</td>
@@ -1930,9 +1939,9 @@ INTERFACE INTERFACE_NAME linc_interface.rb localhost 8080 <span class="nb">true 
   </tbody>
 </table>
 
-<h3 id="length-stream-protocol">
-<a id="length-stream-protocol" class="anchor" href="#length-stream-protocol" aria-hidden="true"><span class="octicon octicon-link"></span></a>Length Stream Protocol</h3>
-<p>The Length Stream Protocol depends on a length field at a fixed location in the defined packets using the interface. It then reads enough data to grab the length field, decodes it, and reads the remaining length of the packet. For example, all the packets using the interface contain a CCSDS header with a length field. The Length Stream Protocol can be set up to handle the length field and even the “length - 1” offset the CCSDS header uses.</p>
+<h3 id="length-protocol">
+<a id="length-protocol" class="anchor" href="#length-protocol" aria-hidden="true"><span class="octicon octicon-link"></span></a>Length Protocol</h3>
+<p>The Length Protocol depends on a length field at a fixed location in the defined packets using the interface. It then reads enough data to grab the length field, decodes it, and reads the remaining length of the packet. For example, all the packets using the interface contain a CCSDS header with a length field. The Length Protocol can be set up to handle the length field and even the “length - 1” offset the CCSDS header uses. The Length Protocol also supports a sync pattern, discarding leading bytes, and filling the length and sync pattern similar to the Burst Protocol.</p>
 
 <table>
   <thead>
@@ -1976,13 +1985,13 @@ INTERFACE INTERFACE_NAME linc_interface.rb localhost 8080 <span class="nb">true 
     </tr>
     <tr>
       <td>Discard Leading Bytes</td>
-      <td>The number of bytes to discard from the binary data after reading from the stream. Note that this applies to bytes including the sync pattern if the sync pattern is being used. Discarding is one of the very last steps so any size and offsets above need to account for all the data before discarding.</td>
+      <td>The number of bytes to discard from the binary data after reading. Note that this applies to bytes including the sync pattern if the sync pattern is being used. Discarding is one of the very last steps so any size and offsets above need to account for all the data before discarding.</td>
       <td>No</td>
       <td>0 (do not discard bytes)</td>
     </tr>
     <tr>
       <td>Sync Pattern</td>
-      <td>Hex string representing a byte pattern that will be searched for in the raw stream. This pattern represents a packet delimiter and all data found including the sync pattern will be returned.</td>
+      <td>Hex string representing a byte pattern that will be searched for in the raw data. This pattern represents a packet delimiter and all data found including the sync pattern will be returned.</td>
       <td>No</td>
       <td>nil (no sync pattern)</td>
     </tr>
@@ -2001,9 +2010,9 @@ INTERFACE INTERFACE_NAME linc_interface.rb localhost 8080 <span class="nb">true 
   </tbody>
 </table>
 
-<h3 id="terminated-stream-protocol">
-<a id="terminated-stream-protocol" class="anchor" href="#terminated-stream-protocol" aria-hidden="true"><span class="octicon octicon-link"></span></a>Terminated Stream Protocol</h3>
-<p>The Terminated Stream Protocol delineates packets using termination characters found at the end of every packet. It continuously reads data from the stream until the termination characters are found at which point it returns the packet data. For example, all the packets using the interface are followed by 0xABCD. This data can either be a part of each packet that is kept or something which is known only by the Terminated Stream Protocol and simply thrown away.</p>
+<h3 id="terminated-protocol">
+<a id="terminated-protocol" class="anchor" href="#terminated-protocol" aria-hidden="true"><span class="octicon octicon-link"></span></a>Terminated Protocol</h3>
+<p>The Terminated Protocol delineates packets using termination characters found at the end of every packet. It continuously reads data until the termination characters are found at which point it returns the packet data. For example, all the packets using the interface are followed by 0xABCD. This data can either be a part of each packet that is kept or something which is known only by the Terminated Protocol and simply thrown away.</p>
 
 <table>
   <thead>
@@ -2017,31 +2026,31 @@ INTERFACE INTERFACE_NAME linc_interface.rb localhost 8080 <span class="nb">true 
   <tbody>
     <tr>
       <td>Write Termination Characters</td>
-      <td>The data to write to the stream after writing a command packet. Given as a hex string such as 0xABCD.</td>
+      <td>The data to write after writing a command packet. Given as a hex string such as 0xABCD.</td>
       <td>Yes</td>
       <td> </td>
     </tr>
     <tr>
       <td>Read Termination Characters</td>
-      <td>The characters at the end of the stream which delineate the end of a telemetry packet. Given as a hex string such as 0xABCD.</td>
+      <td>The characters which delineate the end of a telemetry packet. Given as a hex string such as 0xABCD.</td>
       <td>Yes</td>
       <td> </td>
     </tr>
     <tr>
       <td>Strip Read Termination</td>
-      <td>Whether to remove the read termination characters from the stream before returning the telemetry packet</td>
+      <td>Whether to remove the read termination characters before returning the telemetry packet</td>
       <td>No</td>
       <td>true</td>
     </tr>
     <tr>
       <td>Discard Leading Bytes</td>
-      <td>The number of bytes to discard from the binary data after reading from the stream. Note that this applies to bytes including the sync pattern if the sync pattern is being used.</td>
+      <td>The number of bytes to discard from the binary data after reading. Note that this applies to bytes including the sync pattern if the sync pattern is being used.</td>
       <td>No</td>
       <td>0 (do not discard bytes)</td>
     </tr>
     <tr>
       <td>Sync Pattern</td>
-      <td>Hex string representing a byte pattern that will be searched for in the raw stream. This pattern represents a packet delimiter and all data found including the sync pattern will be returned.</td>
+      <td>Hex string representing a byte pattern that will be searched for in the raw data. This pattern represents a packet delimiter and all data found including the sync pattern will be returned.</td>
       <td>No</td>
       <td>nil (no sync pattern)</td>
     </tr>
@@ -2054,9 +2063,9 @@ INTERFACE INTERFACE_NAME linc_interface.rb localhost 8080 <span class="nb">true 
   </tbody>
 </table>
 
-<h3 id="preidentified-stream-protocol">
-<a id="preidentified-stream-protocol" class="anchor" href="#preidentified-stream-protocol" aria-hidden="true"><span class="octicon octicon-link"></span></a>Preidentified Stream Protocol</h3>
-<p>The Preidentified Stream Protocol is used internally by the COSMOS Command and Telemetry Server only and delineates packets using a custom COSMOS header. This stream Protocol is configured by default on port 7779 and is created by the Command and Telemetry Server to allow tools to connect and receive the entire packet stream. The Telemetry Grapher uses this port to receive all the packets following through the Command and Telemetry Server in case any need to be graphed.</p>
+<h3 id="preidentified-protocol">
+<a id="preidentified-protocol" class="anchor" href="#preidentified-protocol" aria-hidden="true"><span class="octicon octicon-link"></span></a>Preidentified Protocol</h3>
+<p>The Preidentified Protocol is used internally by the COSMOS Command and Telemetry Server only and delineates packets using a custom COSMOS header. This Protocol is configured by default on port 7779 and is created by the Command and Telemetry Server to allow tools to connect and receive the entire packet stream. The Telemetry Grapher uses this port to receive all the packets following through the Command and Telemetry Server in case any need to be graphed.</p>
 
 <table>
   <thead>
@@ -2070,7 +2079,7 @@ INTERFACE INTERFACE_NAME linc_interface.rb localhost 8080 <span class="nb">true 
   <tbody>
     <tr>
       <td>Sync Pattern</td>
-      <td>Hex string representing a byte pattern that will be searched for in the raw stream. This pattern represents a packet delimiter and all data found AFTER the sync pattern will be returned. The sync pattern itself is discarded.</td>
+      <td>Hex string representing a byte pattern that will be searched for in the raw data. This pattern represents a packet delimiter and all data found AFTER the sync pattern will be returned. The sync pattern itself is discarded.</td>
       <td>No</td>
       <td>nil (no sync pattern)</td>
     </tr>
@@ -2083,9 +2092,12 @@ INTERFACE INTERFACE_NAME linc_interface.rb localhost 8080 <span class="nb">true 
   </tbody>
 </table>
 
-<h3 id="template-stream-protocol">
-<a id="template-stream-protocol" class="anchor" href="#template-stream-protocol" aria-hidden="true"><span class="octicon octicon-link"></span></a>Template Stream Protocol</h3>
-<p>The Template Stream Protocol works much like the Terminated Stream Protocol except it designed for text-based command and response type interfaces such as SCPI (Standard Commands for Programmable Instruments).  It delineates packets in the same way as the terminated stream protocol except each packet is referred to as a line (because each usually contains a line of text).  For outgoing packets a CMD_TEMPLATE field is expected to exist in the packet.  This field contains a template string with items to be filled in deliniated within HTML tag style brackets “<example>".  The Template Stream Protocol will read the named items from within the packet fill in the CMD_TEMPLATE.  This filled in string is then sent out rather than the originally passed in packet.   Correspondingly, if a response is expected the outgoing packet should include a RSP_TEMPLATE and RSP_PACKET field.  The RSP_TEMPLATE is used to extract data from the response string and build a corresponding RSP_PACKET.   See the TEMPLATE target within the COSMOS Demo configuration for an example of usage.</example></p>
+<h3 id="template-protocol">
+<a id="template-protocol" class="anchor" href="#template-protocol" aria-hidden="true"><span class="octicon octicon-link"></span></a>Template Protocol</h3>
+
+<p>The Template Protocol works much like the Terminated Protocol except it designed for text-based command and response type interfaces such as SCPI (Standard Commands for Programmable Instruments).  It delineates packets in the same way as the Terminated Protocol except each packet is referred to as a line (because each usually contains a line of text). For outgoing packets a CMD_TEMPLATE field is expected to exist in the packet. This field contains a template string with items to be filled in deliniated within HTML tag style brackets “<example>". The Template Protocol will read the named items from within the packet fill in the CMD_TEMPLATE. This filled in string is then sent out rather than the originally passed in packet.   Correspondingly, if a response is expected the outgoing packet should include a RSP_TEMPLATE and RSP_PACKET field. The RSP_TEMPLATE is used to extract data from the response string and build a corresponding RSP_PACKET. See the TEMPLATE target within the COSMOS Demo configuration for an example of usage.</example></p>
+
+<p>Check out this <a href="/news/2017/06/19/template_protocol">Template Protocol</a> blog post for additional tips.</p>
 
 <table>
   <thead>
@@ -2099,13 +2111,13 @@ INTERFACE INTERFACE_NAME linc_interface.rb localhost 8080 <span class="nb">true 
   <tbody>
     <tr>
       <td>Write Termination Characters</td>
-      <td>The data to write to the stream after writing a command packet. Given as a hex string such as 0xABCD.</td>
+      <td>The data to write after writing a command packet. Given as a hex string such as 0xABCD.</td>
       <td>Yes</td>
       <td> </td>
     </tr>
     <tr>
       <td>Read Termination Characters</td>
-      <td>The characters at the end of the stream which delineate the end of a telemetry packet. Given as a hex string such as 0xABCD.</td>
+      <td>The characters which delineate the end of a telemetry packet. Given as a hex string such as 0xABCD.</td>
       <td>Yes</td>
       <td> </td>
     </tr>
@@ -2117,7 +2129,7 @@ INTERFACE INTERFACE_NAME linc_interface.rb localhost 8080 <span class="nb">true 
     </tr>
     <tr>
       <td>Initial Read Delay</td>
-      <td>An initial delay after connecting after which the stream will be read till empty and data dropped. Useful for discarding connect headers and initial prompts.</td>
+      <td>An initial delay after connecting after which the interface will be read till empty and data dropped. Useful for discarding connect headers and initial prompts.</td>
       <td>No</td>
       <td>nil (no initial read)</td>
     </tr>
@@ -2129,19 +2141,19 @@ INTERFACE INTERFACE_NAME linc_interface.rb localhost 8080 <span class="nb">true 
     </tr>
     <tr>
       <td>Strip Read Termination</td>
-      <td>Whether to remove the read termination characters from the stream before returning the telemetry packet</td>
+      <td>Whether to remove the read termination characters before returning the telemetry packet</td>
       <td>No</td>
       <td>true</td>
     </tr>
     <tr>
       <td>Discard Leading Bytes</td>
-      <td>The number of bytes to discard from the binary data after reading from the stream. Note that this applies to bytes including the sync pattern if the sync pattern is being used.</td>
+      <td>The number of bytes to discard from the binary data after reading. Note that this applies to bytes including the sync pattern if the sync pattern is being used.</td>
       <td>No</td>
       <td>0 (do not discard bytes)</td>
     </tr>
     <tr>
       <td>Sync Pattern</td>
-      <td>Hex string representing a byte pattern that will be searched for in the raw stream. This pattern represents a packet delimiter and all data found including the sync pattern will be returned.</td>
+      <td>Hex string representing a byte pattern that will be searched for in the raw data. This pattern represents a packet delimiter and all data found including the sync pattern will be returned.</td>
       <td>No</td>
       <td>nil (no sync pattern)</td>
     </tr>

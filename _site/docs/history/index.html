@@ -1431,9 +1431,112 @@
           </div>
           
           <h1>Release History</h1>
-          <h2 id="v3-9-2">3.9.2 / 2017-05-18</h2>
+          <h2 id="v4-0-0">4.0.0 / 2017-08-04</h2>
+
+<p>COSMOS 4 is here!</p>
+
+<p>48 tickets have gone into this release, and it brings with it two new tools and some great under the hood improvements.</p>
+
+<p>New Tools:</p>
+
+<p>COSMOS now has a dedicated Configuration Editor and Command Sequence Builder.</p>
+
+<p>The config editor gives you contextual help when building config files, and make it super easy to define packets and configure tools without having to have the online documentation up in front of you.  It’s going to make setting up COSMOS even easier than it was before.</p>
+
+<p>Command Sequence builder allows you to define series of commands that should be sent at either absolute or relative timestamps to each other.  This is great for planning time specific commanding.  You can execute these on the ground directly from the tool, or you can convert them to your own internal format and upload to the system you are commanding.</p>
+
+<p>Highlighted changes:</p>
+
+<ol>
+  <li>New protocol system allows assigning multiple protocols to each interface to support layered protocols, and common functionality like CRC checking/adding to commands.</li>
+  <li>The ability to View the most recent raw data received or sent on each interface</li>
+  <li>The Command and Telemetry Server can now run on JRuby in –no-gui mode (may help performance for huge projects with 50+ targets)</li>
+  <li>New router provides the ability to get a copy of every command sent out from COSMOS in a stream</li>
+  <li>New SYSTEM META packet output by the CmdTlmServer</li>
+  <li>Lots more!  See the full ticket list below</li>
+</ol>
 
 <h3 id="new-features">New Features:</h3>
+
+<ul>
+  <li>
+    <p><a href="https://github.com/BallAerospace/COSMOS/issues/229">#229</a></p>
+  </li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/229">#229</a> Gem Based Targets should support DataViewer and other tool configurations</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/234">#234</a> Add a method to system.txt to add files used in the marshall file MD5 sum calculation</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/253">#253</a> Create “generators” for targets, tools, etc</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/258">#258</a> Create COSMOS Command Sequence Tool</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/261">#261</a> Provide a method for specifying binary data in STRING and BLOCK default values</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/278">#278</a> Consider adding wait_ methods to internal API for use in Background tasks</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/281">#281</a> Add support for stretch and spacers in widget layouts</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/319">#319</a> Add the ability to grab telemetry ARRAY_ITEMs</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/337">#337</a> Support specifying default parameters to default log reader and log writer in system.txt</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/347">#347</a> COSMOS GLobal Time Zone Setting (Local/UTC)</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/356">#356</a> Interface protocols</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/360">#360</a> Add raw stream preamble and postamble data to “View Raw”</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/381">#381</a> Float Infinity and NaN as command values</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/401">#401</a> tolerance scripting calls should support array telemetry items</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/404">#404</a> Packet Viewer easy access to edit configuration files</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/405">#405</a> Telemetry Viewer easy access to edit screen definition</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/423">#423</a> Add “Cmd router” to CmdTlmServer to support external logging of all commands</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/424">#424</a> TlmViewer should call update_widget for a screen with no value items and with CmdTlmServer not running</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/426">#426</a> Standardize meta data to SYSTEM META packet</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/432">#432</a> Export processed config files</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/442">#442</a> Label value widgets should support right aligned labels</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/459">#459</a> Script Editor code completion enhancements</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/479">#479</a> Limits Monitor doesn’t detect newly connected targets</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/489">#489</a> Built in support for limits group enable and disable</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/497">#497</a> Update serial_interface.rb to support hardware flow control</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/498">#498</a> Script helper for activities that should cause an exception</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/511">#511</a> Make CmdTlmServer run on JRuby</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/512">#512</a> Create a CRC Protocol</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/513">#513</a> Create a GUI config file editor</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/516">#516</a> Recreate COSMOS C Extension Code in Pure Ruby</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/517">#517</a> Make hostname for tools to connect to CTS API configurable in system.txt</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/519">#519</a> Replay should support alternate packet log readers</li>
+</ul>
+
+<h3 id="maintenance">Maintenance:</h3>
+
+<ul>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/354">#354</a> Targets need to be path namespaced to avoid conflicts</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/323">#323</a> Catch Signals in CmdTlmServer</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/341">#341</a> Document COSMOS JSON API on cosmosrb.com</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/398">#398</a> Documentation, code cleanup</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/429">#429</a> Command Endianness and Parameter Endianness</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/437">#437</a> Remove CMD_TLM_VERSION from system.txt</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/438">#438</a> Cache script text as part of instrumenting script</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/446">#446</a> Windows 10 Install fails</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/476">#476</a> Separate apt and yum package install lines</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/477">#477</a> Deprecate userpath.txt</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/484">#484</a> require_file should re-raise existing exception</li>
+</ul>
+
+<h3 id="bug-fixes">Bug Fixes:</h3>
+
+<ul>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/456">#456</a> Replay doesn’t shut down properly if closed while playing</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/481">#481</a> show_backtrace not working in ScriptRunner</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/494">#494</a> Details dialog crashes for items with LATEST packet</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/502">#502</a> Target REQUIRE should also search system path</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/506">#506</a> Don’t call read_interface if data is cached in protocols for another packet</li>
+</ul>
+
+<h3 id="migration-notes-from-cosmos-38x">Migration Notes from COSMOS 3.8.x:</h3>
+
+<p>COSMOS 4 includes several breaking changes from the COSMOS 3.x series.</p>
+
+<p>The first and simplest is that the Command and Telemetry Server now opens an additional port at 7780 by default, that provides a router that will send out each command that the system has sent.  This can allow external systems to also log all commands sent by COSMOS.  For most people this change will be transparent and no updates to your COSMOS configuration will be required.</p>
+
+<p>The second is that the Command and Telemetry Server now always supports a meta data packet called SYSTEM META.  This packet will always contain the MD5 sum for the current running COSMOS configuration, the version of COSMOS running, the version of your COSMOS Project, and the version of Ruby being used.  You can also add your own requirements for meta data with things like the name of the operator currently running the system, or the name of a specific test you are currently running.  In general you shouldn’t need to do anything for this change unless you were using the previous metadata functionality in COSMOS.  If you were, then you will need to migrate your meta data to the new SYSTEM META packet, and change the parameters in your CmdTlmServer or TestRunner configurations regarding meta data.  If you weren’t using metadata before, then you will probably just notice this new packet in your log files, and in your telemetry stream.</p>
+
+<p>Finally the most exciting breaking change is in how COSMOS interfaces handle protocols.  Before, the COSMOS TCP/IP and Serial interface classes each took a protocol like LENGTH, TERMINATED, etc that defined how packets were delineated by the interface.  Now each interface can take a set of one or more protocols.  This allows COSMOS to much more easily support nested protocols, such as the frame focused protocols of CCSDS.  It also allows for creating helpful reusable protocols such as the new CRC protocol for automatically adding CRCs to outgoing commands and verifying incoming CRCs on telemetry packets.  It’s a great change, but if you have any custom interface classes you have written, they will probably require some modification.  See the Interfaces section at cosmosrb.com to see how the new interface classes work. We will also be writing up a blog post to help document the process of upgrading.  Look for this in a week or two.</p>
+
+<p>To upgrade to the latest version of COSMOS, run “bundle update cosmos” in your COSMOS project folder.</p>
+
+<h2 id="v3-9-2">3.9.2 / 2017-05-18</h2>
+
+<h3 id="new-features-1">New Features:</h3>
 
 <ul>
   <li><a href="https://github.com/BallAerospace/COSMOS/issues/147">#147</a> TlmExtractor Full Column Names Mode</li>
@@ -1451,56 +1554,15 @@
   <li><a href="https://github.com/BallAerospace/COSMOS/issues/441">#441</a> PacketViewer should identify derived items in the GUI</li>
 </ul>
 
-<h3 id="maintenance">Maintenance:</h3>
-
-<p>None</p>
-
-<h3 id="bug-fixes">Bug Fixes:</h3>
-
-<ul>
-  <li><a href="https://github.com/BallAerospace/COSMOS/issues/417">#417</a>  Table Manager not checking ranges</li>
-  <li><a href="https://github.com/BallAerospace/COSMOS/issues/419">#419</a>  Support multiple arrays in string based commands</li>
-</ul>
-
-<h3 id="migration-notes-from-cosmos-38x">Migration Notes from COSMOS 3.8.x:</h3>
-<p><strong>The Table Manager configuration file format has changed.</strong>
-Documentation will updated the first week of April.</p>
-
-<p>You can migrate existing config files using:</p>
-
-<div class="highlighter-rouge"><pre class="highlight"><code>bundle exec ruby tools\TableManager --convert config\tools\table_manager\old_table_def.txt
-</code></pre>
-</div>
-
-<p>To upgrade to the latest version of COSMOS, run “bundle update cosmos” in your COSMOS project folder.</p>
-
-<h2 id="v3-9-1">3.9.1 / 2017-03-29</h2>
-
-<h3 id="new-features-1">New Features:</h3>
-
-<ul>
-  <li><a href="https://github.com/BallAerospace/COSMOS/issues/382">#382</a> CmdTlmServer Start/Stop for background tasks</li>
-  <li><a href="https://github.com/BallAerospace/COSMOS/issues/385">#385</a> Quick access to COSMOS gem code</li>
-  <li><a href="https://github.com/BallAerospace/COSMOS/issues/388">#388</a> Legal Dialog should show COSMOS version</li>
-  <li><a href="https://github.com/BallAerospace/COSMOS/issues/409">#409</a> Update LINC interface to support multiple targets on the same interface</li>
-</ul>
-
 <h3 id="maintenance-1">Maintenance:</h3>
 
-<ul>
-  <li><a href="https://github.com/BallAerospace/COSMOS/issues/369">#369</a> Table Manager refactoring</li>
-  <li><a href="https://github.com/BallAerospace/COSMOS/issues/386">#386</a> Batch file for offline installation</li>
-</ul>
+<p>None</p>
 
 <h3 id="bug-fixes-1">Bug Fixes:</h3>
 
 <ul>
-  <li><a href="https://github.com/BallAerospace/COSMOS/issues/236">#236</a> Test Runner doesn’t support status_bar</li>
-  <li><a href="https://github.com/BallAerospace/COSMOS/issues/329">#329</a> Using XTCE file instead of .txt cmd_tlm file didn’t work as online docs suggest</li>
-  <li><a href="https://github.com/BallAerospace/COSMOS/issues/378">#378</a> TlmViewer displaying partials in the screen list</li>
-  <li><a href="https://github.com/BallAerospace/COSMOS/issues/402">#402</a> Mac installation is failed - Please help.</li>
-  <li><a href="https://github.com/BallAerospace/COSMOS/issues/411">#411</a> xtce explicit byte order list processing isn’t correct</li>
-  <li><a href="https://github.com/BallAerospace/COSMOS/issues/412">#412</a> subscribe_packet_data needs to validate parameters</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/417">#417</a>  Table Manager not checking ranges</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/419">#419</a>  Support multiple arrays in string based commands</li>
 </ul>
 
 <h3 id="migration-notes-from-cosmos-38x-1">Migration Notes from COSMOS 3.8.x:</h3>
@@ -1515,9 +1577,50 @@ Documentation will updated the first week of April.</p>
 
 <p>To upgrade to the latest version of COSMOS, run “bundle update cosmos” in your COSMOS project folder.</p>
 
-<h2 id="v3-8-3">3.8.3 / 2016-12-06</h2>
+<h2 id="v3-9-1">3.9.1 / 2017-03-29</h2>
 
 <h3 id="new-features-2">New Features:</h3>
+
+<ul>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/382">#382</a> CmdTlmServer Start/Stop for background tasks</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/385">#385</a> Quick access to COSMOS gem code</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/388">#388</a> Legal Dialog should show COSMOS version</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/409">#409</a> Update LINC interface to support multiple targets on the same interface</li>
+</ul>
+
+<h3 id="maintenance-2">Maintenance:</h3>
+
+<ul>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/369">#369</a> Table Manager refactoring</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/386">#386</a> Batch file for offline installation</li>
+</ul>
+
+<h3 id="bug-fixes-2">Bug Fixes:</h3>
+
+<ul>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/236">#236</a> Test Runner doesn’t support status_bar</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/329">#329</a> Using XTCE file instead of .txt cmd_tlm file didn’t work as online docs suggest</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/378">#378</a> TlmViewer displaying partials in the screen list</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/402">#402</a> Mac installation is failed - Please help.</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/411">#411</a> xtce explicit byte order list processing isn’t correct</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/412">#412</a> subscribe_packet_data needs to validate parameters</li>
+</ul>
+
+<h3 id="migration-notes-from-cosmos-38x-2">Migration Notes from COSMOS 3.8.x:</h3>
+<p><strong>The Table Manager configuration file format has changed.</strong>
+Documentation will updated the first week of April.</p>
+
+<p>You can migrate existing config files using:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>bundle exec ruby tools\TableManager --convert config\tools\table_manager\old_table_def.txt
+</code></pre>
+</div>
+
+<p>To upgrade to the latest version of COSMOS, run “bundle update cosmos” in your COSMOS project folder.</p>
+
+<h2 id="v3-8-3">3.8.3 / 2016-12-06</h2>
+
+<h3 id="new-features-3">New Features:</h3>
 
 <ul>
   <li><a href="https://github.com/BallAerospace/COSMOS/issues/230">#230</a> Make AUTO_TARGETS ignore target folders that have already been manually referenced</li>
@@ -1533,7 +1636,7 @@ Documentation will updated the first week of April.</p>
   <li><a href="https://github.com/BallAerospace/COSMOS/issues/359">#359</a> Table Manager support MIN/MAX UINTX macros</li>
 </ul>
 
-<h3 id="maintenance-2">Maintenance:</h3>
+<h3 id="maintenance-3">Maintenance:</h3>
 <ul>
   <li><a href="https://github.com/BallAerospace/COSMOS/issues/349">#349</a> Optimize cmd() to not build commands twice</li>
   <li><a href="https://github.com/BallAerospace/COSMOS/issues/362">#362</a> restore_defaults should take an optional parameter to exclude specified parameters</li>
@@ -1541,7 +1644,7 @@ Documentation will updated the first week of April.</p>
   <li>TestRunner support for newer Bundler (Abstract error when starting)</li>
 </ul>
 
-<h3 id="bug-fixes-2">Bug Fixes:</h3>
+<h3 id="bug-fixes-3">Bug Fixes:</h3>
 
 <ul>
   <li><a href="https://github.com/BallAerospace/COSMOS/issues/322">#322</a> Udp interface thread does not gracefully shutdown</li>
@@ -1561,15 +1664,15 @@ Documentation will updated the first week of April.</p>
 
 <h2 id="v3-8-2">3.8.2 / 2016-07-05</h2>
 
-<h3 id="new-features-3">New Features:</h3>
+<h3 id="new-features-4">New Features:</h3>
 
-<h3 id="maintenance-3">Maintenance:</h3>
+<h3 id="maintenance-4">Maintenance:</h3>
 
 <ul>
   <li>COSMOS Downloads graph rake task updates</li>
 </ul>
 
-<h3 id="bug-fixes-3">Bug Fixes:</h3>
+<h3 id="bug-fixes-4">Bug Fixes:</h3>
 
 <ul>
   <li><a href="https://github.com/BallAerospace/COSMOS/issues/303">#303</a> Need to clear read conversion cache on Packet#clone</li>
@@ -1582,7 +1685,7 @@ Documentation will updated the first week of April.</p>
 
 <h2 id="v3-8-1">3.8.1 / 2016-05-12</h2>
 
-<h3 id="new-features-4">New Features:</h3>
+<h3 id="new-features-5">New Features:</h3>
 
 <ul>
   <li><a href="https://github.com/BallAerospace/COSMOS/issues/184">#184</a> Limits Monitor show green for blue limits items</li>
@@ -1595,7 +1698,7 @@ Documentation will updated the first week of April.</p>
   <li><a href="https://github.com/BallAerospace/COSMOS/issues/301">#301</a> Update use of COSMOS_DEVEL</li>
 </ul>
 
-<h3 id="maintenance-4">Maintenance:</h3>
+<h3 id="maintenance-5">Maintenance:</h3>
 
 <ul>
   <li><a href="https://github.com/BallAerospace/COSMOS/issues/268">#268</a> xtce_converter doesn’t support byte order list</li>
@@ -1603,7 +1706,7 @@ Documentation will updated the first week of April.</p>
   <li><a href="https://github.com/BallAerospace/COSMOS/issues/285">#285</a> xtce converter doesn’t support LocationInContainerInBits</li>
 </ul>
 
-<h3 id="bug-fixes-4">Bug Fixes:</h3>
+<h3 id="bug-fixes-5">Bug Fixes:</h3>
 
 <ul>
   <li><a href="https://github.com/BallAerospace/COSMOS/issues/256">#256</a> Defining initialize method in Cosmos::Test class breaks the class when using Test Selection in TestRunner</li>
@@ -1621,14 +1724,14 @@ Documentation will updated the first week of April.</p>
 
 <p>With this release COSMOS now has initial support for the XTCE Command and Telemetry Definition standard.</p>
 
-<h3 id="new-features-5">New Features:</h3>
+<h3 id="new-features-6">New Features:</h3>
 
 <ul>
   <li><a href="https://github.com/BallAerospace/COSMOS/issues/251">#251</a> Create COSMOS XTCE Converter</li>
   <li><a href="https://github.com/BallAerospace/COSMOS/issues/252">#252</a> Add polling rate command line option to PacketViewer</li>
 </ul>
 
-<h3 id="bug-fixes-5">Bug Fixes:</h3>
+<h3 id="bug-fixes-6">Bug Fixes:</h3>
 
 <ul>
   <li><a href="https://github.com/BallAerospace/COSMOS/issues/245">#245</a> TlmGrapher Crashes on Inf</li>
@@ -1640,7 +1743,7 @@ Documentation will updated the first week of April.</p>
 
 <h2 id="v3-7-1">3.7.1 / 2015-12-29</h2>
 
-<h3 id="bug-fixes-6">Bug Fixes:</h3>
+<h3 id="bug-fixes-7">Bug Fixes:</h3>
 
 <ul>
   <li><a href="https://github.com/BallAerospace/COSMOS/issues/228">#228</a> Fix typo in udp_interface</li>
@@ -1661,7 +1764,7 @@ Documentation will updated the first week of April.</p>
 
 <h2 id="v3-7-0">3.7.0 / 2015-11-25</h2>
 
-<h3 id="new-features-6">New Features:</h3>
+<h3 id="new-features-7">New Features:</h3>
 
 <ul>
   <li><a href="https://github.com/BallAerospace/COSMOS/issues/213">#213</a> Vertical Limits Bar</li>
@@ -1670,13 +1773,13 @@ Documentation will updated the first week of April.</p>
   <li><a href="https://github.com/BallAerospace/COSMOS/issues/225">#225</a> Set Bind Address in UDP interface</li>
 </ul>
 
-<h3 id="maintenance-5">Maintenance:</h3>
+<h3 id="maintenance-6">Maintenance:</h3>
 
 <ul>
   <li><a href="https://github.com/BallAerospace/COSMOS/issues/223">#223</a> C Extension Improvements</li>
 </ul>
 
-<h3 id="bug-fixes-7">Bug Fixes:</h3>
+<h3 id="bug-fixes-8">Bug Fixes:</h3>
 
 <ul>
   <li><a href="https://github.com/BallAerospace/COSMOS/issues/199">#199</a> Investigate TlmGrapher Formatted Time Item</li>
@@ -1694,7 +1797,7 @@ Documentation will updated the first week of April.</p>
 
 <h2 id="v3-6-3">3.6.3 / 2015-10-30</h2>
 
-<h3 id="new-features-7">New Features:</h3>
+<h3 id="new-features-8">New Features:</h3>
 
 <ul>
   <li><a href="https://github.com/BallAerospace/COSMOS/issues/200">#200</a> ScriptRunner Find Dialog Does Not Cross Windows</li>
@@ -1702,7 +1805,7 @@ Documentation will updated the first week of April.</p>
   <li><a href="https://github.com/BallAerospace/COSMOS/issues/209">#209</a> Add UTS Timestamp Flag to TlmGrapher Plots</li>
 </ul>
 
-<h3 id="maintenance-6">Maintenance:</h3>
+<h3 id="maintenance-7">Maintenance:</h3>
 
 <ul>
   <li><a href="https://github.com/BallAerospace/COSMOS/issues/194">#194</a> Allow up to one minute for TlmViewer to start when calling display() from a script</li>
@@ -1710,7 +1813,7 @@ Documentation will updated the first week of April.</p>
   <li><a href="https://github.com/BallAerospace/COSMOS/issues/205">#205</a> Add testing for array and matrix</li>
 </ul>
 
-<h3 id="bug-fixes-8">Bug Fixes:</h3>
+<h3 id="bug-fixes-9">Bug Fixes:</h3>
 
 <ul>
   <li><a href="https://github.com/BallAerospace/COSMOS/issues/191">#191</a> Installing COSMOS Issue on Windows 7</li>
@@ -1724,7 +1827,7 @@ Documentation will updated the first week of April.</p>
 
 <h2 id="v3-6-2">3.6.2 / 2015-08-10</h2>
 
-<h3 id="bug-fixes-9">Bug Fixes:</h3>
+<h3 id="bug-fixes-10">Bug Fixes:</h3>
 
 <ul>
   <li><a href="https://github.com/BallAerospace/COSMOS/issues/187">#187</a> Must require tempfile in config_parser.rb on non-windows systems</li>
@@ -1736,7 +1839,7 @@ Documentation will updated the first week of April.</p>
 
 <h2 id="v3-6-1">3.6.1 / 2015-08-10</h2>
 
-<h3 id="bug-fixes-10">Bug Fixes:</h3>
+<h3 id="bug-fixes-11">Bug Fixes:</h3>
 
 <ul>
   <li><a href="https://github.com/BallAerospace/COSMOS/issues/185">#185</a> target.txt order not being preserved</li>
@@ -1750,7 +1853,7 @@ Documentation will updated the first week of April.</p>
 
 <p>Huge new feature in this release: All COSMOS configuration files are now interpreted with the ERB preprocessor!  This allows you to use Ruby code within the configuration files to help build them.  You can also render partials of common information such as packet headers so you only have to define them once.  See the INST target in the updated Demo project for examples.</p>
 
-<h3 id="bug-fixes-11">Bug Fixes:</h3>
+<h3 id="bug-fixes-12">Bug Fixes:</h3>
 
 <ul>
   <li><a href="https://github.com/BallAerospace/COSMOS/issues/168">#168</a> Select unreliably unblocks when closing sockets on linux</li>
@@ -1759,7 +1862,7 @@ Documentation will updated the first week of April.</p>
   <li><a href="https://github.com/BallAerospace/COSMOS/issues/182">#182</a> Overriding LOG_WRITERS in cmd_tlm_server.txt can cause issues</li>
 </ul>
 
-<h3 id="new-features-8">New Features:</h3>
+<h3 id="new-features-9">New Features:</h3>
 
 <ul>
   <li><a href="https://github.com/BallAerospace/COSMOS/issues/170">#170</a> Consider supporting a preprocessor over COSMOS config files</li>
@@ -1767,7 +1870,7 @@ Documentation will updated the first week of April.</p>
   <li><a href="https://github.com/BallAerospace/COSMOS/issues/174">#174</a> Add View in Command Sender in Server</li>
 </ul>
 
-<h3 id="maintenance-7">Maintenance:</h3>
+<h3 id="maintenance-8">Maintenance:</h3>
 
 <ul>
   <li><a href="https://github.com/BallAerospace/COSMOS/issues/80">#80</a> Investigate performance of nonblocking IO without exceptions</li>
@@ -1779,19 +1882,19 @@ Documentation will updated the first week of April.</p>
 
 <h2 id="v3-5-3">3.5.3 / 2015-07-14</h2>
 
-<h3 id="bug-fixes-12">Bug Fixes:</h3>
+<h3 id="bug-fixes-13">Bug Fixes:</h3>
 
 <ul>
   <li><a href="https://github.com/BallAerospace/COSMOS/issues/169">#169</a> Make windows bat files support running outside of the current directory</li>
 </ul>
 
-<h3 id="new-features-9">New Features:</h3>
+<h3 id="new-features-10">New Features:</h3>
 
 <ul>
   <li>N/A</li>
 </ul>
 
-<h3 id="maintenance-8">Maintenance:</h3>
+<h3 id="maintenance-9">Maintenance:</h3>
 
 <ul>
   <li>N/A</li>
@@ -1805,19 +1908,19 @@ Documentation will updated the first week of April.</p>
 
 <h2 id="v3-5-2">3.5.2 / 2015-07-14</h2>
 
-<h3 id="bug-fixes-13">Bug Fixes:</h3>
+<h3 id="bug-fixes-14">Bug Fixes:</h3>
 
 <ul>
   <li><a href="https://github.com/BallAerospace/COSMOS/issues/167">#167</a> Use updated url for wkhtmltopdf downloads</li>
 </ul>
 
-<h3 id="new-features-10">New Features:</h3>
+<h3 id="new-features-11">New Features:</h3>
 
 <ul>
   <li><a href="https://github.com/BallAerospace/COSMOS/pull/166">#166</a> Add install script for Ubuntu</li>
 </ul>
 
-<h3 id="maintenance-9">Maintenance:</h3>
+<h3 id="maintenance-10">Maintenance:</h3>
 
 <ul>
   <li>N/A</li>
@@ -1833,19 +1936,19 @@ Documentation will updated the first week of April.</p>
 
 <p>This release fixes a bug and completes the installation scripts for linux/mac.</p>
 
-<h3 id="bug-fixes-14">Bug Fixes:</h3>
+<h3 id="bug-fixes-15">Bug Fixes:</h3>
 
 <ul>
   <li><a href="https://github.com/BallAerospace/COSMOS/pull/165">#165</a> Change launch_tool to tool_launch in Launcher</li>
 </ul>
 
-<h3 id="new-features-11">New Features:</h3>
+<h3 id="new-features-12">New Features:</h3>
 
 <ul>
   <li>N/A</li>
 </ul>
 
-<h3 id="maintenance-10">Maintenance:</h3>
+<h3 id="maintenance-11">Maintenance:</h3>
 
 <ul>
   <li><a href="https://github.com/BallAerospace/COSMOS/issues/102">#102</a> Create Installation Scripts</li>
@@ -1861,14 +1964,14 @@ Documentation will updated the first week of April.</p>
 
 <p>This release contains a lot of new functionality and a key new feature:  The ability to create new COSMOS targets and tools as reusable gems!  This will hopefully allow the open source community to create sharable configuration for a large amount of hardware and allow for community generated tools to be easily integrated.</p>
 
-<h3 id="bug-fixes-15">Bug Fixes:</h3>
+<h3 id="bug-fixes-16">Bug Fixes:</h3>
 
 <ul>
   <li><a href="https://github.com/BallAerospace/COSMOS/issues/153">#153</a> set_tlm should support settings strings with spaces using the normal syntax</li>
   <li><a href="https://github.com/BallAerospace/COSMOS/issues/155">#155</a> Default to not performing DNS lookups</li>
 </ul>
 
-<h3 id="new-features-12">New Features:</h3>
+<h3 id="new-features-13">New Features:</h3>
 
 <ul>
   <li><a href="https://github.com/BallAerospace/COSMOS/issues/25">#25</a> Warn users if reading a packet log uses the latest instead of the version specified in the file header</li>
@@ -1884,7 +1987,7 @@ Documentation will updated the first week of April.</p>
   <li><a href="https://github.com/BallAerospace/COSMOS/issues/163">#163</a> Allow message_box to display buttons vertically</li>
 </ul>
 
-<h3 id="maintenance-11">Maintenance:</h3>
+<h3 id="maintenance-12">Maintenance:</h3>
 
 <ul>
   <li><a href="https://github.com/BallAerospace/COSMOS/issues/131">#131</a> Consolidate Find/Replace logic in the FindReplaceDialog</li>
