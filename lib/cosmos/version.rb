@@ -1,12 +1,12 @@
 # encoding: ascii-8bit
 
-COSMOS_VERSION = '3.9.2'
+COSMOS_VERSION = '4.0.0'
 module Cosmos
   module Version
-    MAJOR = '3'
-    MINOR = '9'
-    PATCH = '2'
-    BUILD = '82298a42b756edd3783b51c2d7d17535b6ab8f1a'
+    MAJOR = '4'
+    MINOR = '0'
+    PATCH = '0'
+    BUILD = '5fd7539d1e07cb9a71388e9cd0ec60b97a0f625a'
   end
-  VERSION = '3.9.2'
+  VERSION = '4.0.0'
 end
