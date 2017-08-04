@@ -1,6 +1,6 @@
 # encoding: ascii-8bit
 
-# Copyright 2014 Ball Aerospace & Technologies Corp.
+# Copyright 2017 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
 # This program is free software; you can modify and/or redistribute it
@@ -25,13 +25,17 @@ module Cosmos
       @sleeper = Sleeper.new
       @status = "Sleeping for 5 seconds"
       return if @sleeper.sleep(5) # allow interfaces time to start
+      initial_count = tlm('INST', 'HEALTH_STATUS', 'COLLECTS')
       loop do
         # Start up with at least 3 collects
-        if (tlm('INST', 'HEALTH_STATUS', 'COLLECTS') < 3)
+        count = tlm('INST', 'HEALTH_STATUS', 'COLLECTS')
+        if (count < (initial_count + 3))
           begin
             cmd('INST', 'COLLECT', 'TYPE' => 'NORMAL', 'DURATION' => 1)
             sent_count += 1
             @status = "Sent COLLECT ##{sent_count} at #{Time.now.sys.formatted}"
+            wait("INST HEALTH_STATUS COLLECTS > #{count}", 5)
+            @status = "Tlm Updated at #{Time.now.sys.formatted}"
           rescue
             # Oh well - probably disconnected
           end
