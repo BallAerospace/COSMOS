@@ -70,7 +70,7 @@ class RakeCrc32
 
 end
 
-require 'yard'
+require 'yard' if RUBY_ENGINE == 'ruby'
 
 # Import the rake tasks
 import 'tasks/manifest.rake'
@@ -254,8 +254,10 @@ task :stress do
   end
 end
 
-YARD::Rake::YardocTask.new do |t|
-  t.options = ['--protected'] # See all options by typing 'yardoc --help'
+if RUBY_ENGINE == 'ruby'
+  YARD::Rake::YardocTask.new do |t|
+    t.options = ['--protected'] # See all options by typing 'yardoc --help'
+  end
 end
 
 task :release => [:require_version, :git_checkout_master, :build, :spec, :manifest, :version, :install_crc, :gem]
