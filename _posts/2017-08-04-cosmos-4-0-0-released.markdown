@@ -30,8 +30,6 @@ Highlighted changes:
 
 ### New Features:
 
-* [#229](https://github.com/BallAerospace/COSMOS/issues/229)
-
 * [#229](https://github.com/BallAerospace/COSMOS/issues/229) Gem Based Targets should support DataViewer and other tool configurations
 * [#234](https://github.com/BallAerospace/COSMOS/issues/234) Add a method to system.txt to add files used in the marshall file MD5 sum calculation
 * [#253](https://github.com/BallAerospace/COSMOS/issues/253) Create "generators" for targets, tools, etc

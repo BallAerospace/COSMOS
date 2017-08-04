@@ -11,8 +11,8 @@
     <title xml:lang="en">Ball Aerospace COSMOS News</title>
     <atom:link type="application/atom+xml" href="http://cosmosrb/feed.xml" rel="self"/>
     <link>http://cosmosrb.com/</link>
-    <pubDate>Fri, 04 Aug 2017 17:32:03 -0600</pubDate>
-    <lastBuildDate>Fri, 04 Aug 2017 17:32:03 -0600</lastBuildDate>
+    <pubDate>Fri, 04 Aug 2017 17:36:22 -0600</pubDate>
+    <lastBuildDate>Fri, 04 Aug 2017 17:36:22 -0600</lastBuildDate>
     <language>en-US</language>
     <generator>Jekyll v3.4.3</generator>
     <description>The User Interface for Embedded Systems</description>
@@ -61,9 +61,6 @@
 &lt;h3 id=&quot;new-features&quot;&gt;New Features:&lt;/h3&gt;
 
 &lt;ul&gt;
-  &lt;li&gt;
-    &lt;p&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/229&quot;&gt;#229&lt;/a&gt;&lt;/p&gt;
-  &lt;/li&gt;
   &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/229&quot;&gt;#229&lt;/a&gt; Gem Based Targets should support DataViewer and other tool configurations&lt;/li&gt;
   &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/234&quot;&gt;#234&lt;/a&gt; Add a method to system.txt to add files used in the marshall file MD5 sum calculation&lt;/li&gt;
   &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/253&quot;&gt;#253&lt;/a&gt; Create “generators” for targets, tools, etc&lt;/li&gt;
