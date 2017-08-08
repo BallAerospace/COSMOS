@@ -28,6 +28,29 @@ DECLARE_TARGET:
       description: The name of the file in the target directory which contains the
         configuration information for the target. By default this is 'target.txt'
         but if you want to rename this you need to set this parameter.
+DECLARE_GEM_TARGET:
+  summary: Declare a COSMOS target which resides in a Ruby gem
+  description: COSMOS targets can be distributed in gem form in which case they
+    must be named 'cosmos-<gem-name>' where <gem-name> is the descriptive name of
+    the gem. See the COSMOS documentation at cosmosrb.com for for information on
+    creating a COSMOS gem target.
+  parameters:
+    - name: Gem Name
+      required: true
+      description: The COSMOS gem name which must be cosmos-<gem-name> where <gem-name>
+        is the descriptive gem name. In the above example, the target will be named
+        'GEM-NAME' (note the cosmos- prefix is stripped off).
+      values: .+
+    - name: Substitute Target Name
+      required: false
+      description: The target name in the COSMOS system. This is how the target
+        will be referred to in scripts. If this is not given (or given as nil)
+        the target name will be the gem name as described above.
+    - name: Target Filename
+      required: false
+      description: The name of the file in the target directory which contains the
+        configuration information for the target. By default this is 'target.txt'
+        but if you want to rename this you need to set this parameter.
 PORT:
   summary: Set a Server Port
   description: Port is used to set the default ports used by the Command and Telemetry Server.
@@ -41,12 +64,55 @@ PORT:
         TLMVIEWER_API - This port is used to remotely open and close telemetry screens in Telemetry Viewer.
         CTS_PREIDENTIFIED - This port provides access to a preidentified stream of all telemetry packets
         in the system. This is currently used by Telemetry Grapher and can be used to chain Command
-        and Telemetry Servers together.
-      values: <%= %w(CTS_API TLMVIEWER_API CTS_PREIDENTIFIED) %>
+        and Telemetry Servers together as it also accepts commands.
+        CTS_CMD_ROUTER - This port provides access to a stream of all command packets
+        that have been accepted by COSMOS.
+      values: <%= %w(CTS_API TLMVIEWER_API CTS_PREIDENTIFIED CTS_CMD_ROUTER) %>
     - name: Port Value
       required: true
       description: Port number to use for the specified port name
       values: '\d{2,}'
+LISTEN_HOST:
+  summary: IP addresses or host names to bind API ports to
+  since: 4.0.0
+  parameters:
+    - name: Host Port Name
+      required: true
+      description: CTS_API - This port is what tools connect to to communicate with the COSMOS Scripting API.
+        TLMVIEWER_API - This port is used to remotely open and close telemetry screens in Telemetry Viewer.
+        CTS_PREIDENTIFIED - This port provides access to a preidentified stream of all telemetry packets
+        in the system. This is currently used by Telemetry Grapher and can be used to chain Command
+        and Telemetry Servers together as it also accepts commands.
+        CTS_CMD_ROUTER - This port provides access to a stream of all command packets
+        that have been accepted by COSMOS.
+      values: <%= %w(CTS_API TLMVIEWER_API CTS_PREIDENTIFIED CTS_CMD_ROUTER) %>
+    - name: Host Value
+      required: true
+      description: The IP address or host name to bind the Host Port Name to. By default,
+        the CTS_API and TLMVIEWER_API are bound to localhost meaning that only tools
+        on the same machine can connect. By default, CTS_PREIDENTIFIED and CTS_CMD_ROUTER
+        are bound to '0.0.0.0' to allow for tools on any machines to connect. This
+        allows for chaining two or more Servers out of the box.
+      values: .+
+CONNECT_HOST:
+  summary: IP addresses or host names to connect tools to
+  since: 4.0.0
+  parameters:
+    - name: Host Port Name
+      required: true
+      description: CTS_API - This port is what tools connect to to communicate with the COSMOS Scripting API.
+        TLMVIEWER_API - This port is used to remotely open and close telemetry screens in Telemetry Viewer.
+        CTS_PREIDENTIFIED - This port provides access to a preidentified stream of all telemetry packets
+        in the system. This is currently used by Telemetry Grapher and can be used to chain Command
+        and Telemetry Servers together as it also accepts commands.
+        CTS_CMD_ROUTER - This port provides access to a stream of all command packets
+        that have been accepted by COSMOS.
+      values: <%= %w(CTS_API TLMVIEWER_API CTS_PREIDENTIFIED CTS_CMD_ROUTER) %>
+    - name: Host Value
+      required: true
+      description: The IP address or host name to connect tools to. By default all
+        ports are bound to localhost so all tools connect to the local machine.
+      values: .+
 PATH:
   summary: Set a Server Path
   description: Path is used to set the default paths used by the Command and Telemetry Server
@@ -125,6 +191,17 @@ ALLOW_ACCESS:
       required: true
       description: Machine name to allow access or you can specify 'ALL' to allow
         all machines access
+      values: .+
+META_INIT:
+  summary: Specify a file to initialize the SYSTEM META packet
+  description: Filename should be a text file with key value pairs where the keyword
+    matches an item in the SYSTEM META packet. Note you do not have to specify ALL
+    the items in the SYSTEM META packet.
+  since: 4.0.0
+  parameters:
+    - name: Filename
+      required: true
+      description: Filename, either fully qualified, or relative to Cosmos::USERPATH
       values: .+
 TIME_ZONE_UTC:
   summary: Report all times as UTC
