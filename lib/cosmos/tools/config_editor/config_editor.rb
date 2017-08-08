@@ -75,7 +75,11 @@ module Cosmos
       initialize_central_widget()
       complete_initialize()
 
-      create_tab()
+      if options.filename
+        file_open(options.filename)
+      else
+        create_tab()
+      end
     end
 
     def initialize_actions
@@ -712,6 +716,10 @@ module Cosmos
           options.height = 600
           options.title = "Config Editor : #{UNTITLED}"
           options.auto_size = false
+          option_parser.separator "Config Editor Specific Options:"
+          option_parser.on("-f", "--file FILENAME", "Open the specified configuration file") do |arg|
+            options.filename = arg
+          end
         end
         super(option_parser, options)
       end

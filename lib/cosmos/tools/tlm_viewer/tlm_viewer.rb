@@ -258,7 +258,7 @@ module Cosmos
               # Access the variant we created for this screen name
               string = combo.itemData(combo.currentIndex)
               # The second part of the variant after the semicolon is the screen filename
-              Cosmos.open_in_text_editor(string.value.split(';')[1])
+              Cosmos.run_cosmos_tool('ConfigEditor', "-f #{string.value.split(';')[1]}")
             end
             grid.addWidget(edit_button, row, 3)
           end

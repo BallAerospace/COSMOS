@@ -9,7 +9,7 @@
 # attribution addendums as found in the LICENSE.txt
 
 # This file contains the implementation and TlmGraphDialog class.   This class
-# is used to open a telemetry grapher to graph a telemetry item, typically on 
+# is used to open a telemetry grapher to graph a telemetry item, typically on
 # a right click.
 
 require 'cosmos'
@@ -19,7 +19,7 @@ require 'cosmos/script'
 
 module Cosmos
   # Dialog which allows the user to start graphing the given item.  If the
-  # item is a fixed-size array, this allows the user to determine whether to 
+  # item is a fixed-size array, this allows the user to determine whether to
   # graph a single index within the array or all indices within the array.
   # If the item is a variable-sized array, this allows the user to select a
   # single index to graph.
@@ -41,7 +41,7 @@ module Cosmos
           num_array_elements = -1
         end
       end
-      
+
       item_string = ""
 
       if num_array_elements != 0
@@ -49,13 +49,13 @@ module Cosmos
         dialog.setWindowTitle("Select array index")
         dialog_layout = Qt::VBoxLayout.new
         dialog_layout.addWidget(Qt::Label.new("#{target_name} #{packet_name} #{item_name} is an array."))
-        
+
         if num_array_elements > 0
           dialog_layout.addWidget(Qt::Label.new("Select array index to graph or graph all:"))
           index_chooser = IntegerChooser.new(parent, 'Array Index:', 0, 0, num_array_elements-1)
         else
           dialog_layout.addWidget(Qt::Label.new("Select array index to graph:"))
-          index_chooser = IntegerChooser.new(parent, 'Array Index:', 0, 0)  
+          index_chooser = IntegerChooser.new(parent, 'Array Index:', 0, 0)
         end
         dialog_layout.addWidget(index_chooser)
 
@@ -99,15 +99,9 @@ module Cosmos
         item_string << "-i \"#{target_name} #{packet_name} #{item_name}\" "
       end
 
-      # Start grapher if necessary.
+      # Start grapher if necessary
       if !item_string.empty?
-        if Kernel.is_windows?
-          Cosmos.run_process("rubyw tools/TlmGrapher #{item_string} --system #{File.basename(System.initial_filename)}")
-        elsif Kernel.is_mac? and File.exist?("tools/mac/TlmGrapher.app")
-          Cosmos.run_process("open tools/mac/TlmGrapher.app --args #{item_string} --system #{File.basename(System.initial_filename)}")
-        else
-          Cosmos.run_process("ruby tools/TlmGrapher #{item_string} --system #{File.basename(System.initial_filename)}")
-        end
+        Cosmos.run_cosmos_tool("TlmGrapher", "#{item_string} --system #{File.basename(System.initial_filename)}")
       end
     end
   end
