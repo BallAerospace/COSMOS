@@ -556,7 +556,6 @@ module Cosmos
           graph_action.statusTip = tr("Create a new COSMOS graph of #{target_name} #{packet_name} #{item_name}")
           graph_action.connect(SIGNAL('triggered()')) do
             @table.clearSelection
-            Cosmos.run_cosmos_tool('TlmGrapher', "-i \"#{target_name} #{packet_name} #{item_name}\" --system #{File.basename(System.initial_filename)}")
             TlmGraphDialog.new(self, target_name, packet_name, item_name)
           end
           menu.addAction(graph_action)
