@@ -276,7 +276,7 @@ module Cosmos
         file = File.read(filename)
         # Wild card the target name because it is not used and is often aliased
         if file =~ /TELEMETRY\s+.*\s+#{@packet_select.text}/
-          Cosmos.open_in_text_editor(filename)
+          Cosmos.run_cosmos_tool('ConfigEditor', "-f #{filename}")
           found = true
           break
         end
@@ -556,13 +556,6 @@ module Cosmos
           graph_action.statusTip = tr("Create a new COSMOS graph of #{target_name} #{packet_name} #{item_name}")
           graph_action.connect(SIGNAL('triggered()')) do
             @table.clearSelection
-            if Kernel.is_windows?
-              Cosmos.run_process("rubyw tools/TlmGrapher -i \"#{target_name} #{packet_name} #{item_name}\" --system #{File.basename(System.initial_filename)}")
-            elsif Kernel.is_mac? and File.exist?("tools/mac/TlmGrapher.app")
-              Cosmos.run_process("open tools/mac/TlmGrapher.app --args -i \"#{target_name} #{packet_name} #{item_name}\" --system #{File.basename(System.initial_filename)}")
-            else
-              Cosmos.run_process("ruby tools/TlmGrapher -i \"#{target_name} #{packet_name} #{item_name}\" --system #{File.basename(System.initial_filename)}")
-            end
             TlmGraphDialog.new(self, target_name, packet_name, item_name)
           end
           menu.addAction(graph_action)
@@ -613,4 +606,3 @@ module Cosmos
   end # class PacketViewer
 
 end # module Cosmos
-

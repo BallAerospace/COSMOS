@@ -984,17 +984,8 @@ module Cosmos
 
     def start_tlm_viewer
       system_file = File.basename(System.initial_filename)
-      mac_app = File.join(Cosmos::USERPATH, 'tools', 'mac', 'TlmViewer.app')
-
-      if Kernel.is_mac? && File.exist?(mac_app)
-        Cosmos.run_process("open '#{mac_app}' --args --system #{system_file}")
-      else
-        cmd = 'ruby'
-        cmd << 'w' if Kernel.is_windows? # Windows uses rubyw to avoid creating a DOS shell
-        Cosmos.run_process("#{cmd} '#{File.join(Cosmos::USERPATH, 'tools', 'TlmViewer')}' --system #{system_file}")
-      end
+      Cosmos.run_cosmos_tool('TlmViewer', "--system #{system_file}")
       cosmos_script_sleep(1)
     end
-
   end
 end

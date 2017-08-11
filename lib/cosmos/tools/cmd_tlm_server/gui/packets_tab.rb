@@ -137,13 +137,7 @@ module Cosmos
         view_pv = Qt::PushButton.new("View in #{tool_name}")
         view_pv.connect(SIGNAL('clicked()')) do
           tool_name = tool_name.split.join.gsub("Command","Cmd") # remove space and convert name
-          if Kernel.is_windows?
-            Cosmos.run_process("rubyw tools/#{tool_name} -p \"#{target_name} #{packet_name}\" --system #{File.basename(System.initial_filename)}")
-          elsif Kernel.is_mac? and File.exist?("tools/mac/#{tool_name}.app")
-            Cosmos.run_process("open tools/mac/#{tool_name}.app --args -p \"#{target_name} #{packet_name}\" --system #{File.basename(System.initial_filename)}")
-          else
-            Cosmos.run_process("ruby tools/#{tool_name} -p \"#{target_name} #{packet_name}\" --system #{File.basename(System.initial_filename)}")
-          end
+          Cosmos.run_cosmos_tool(tool_name, "-p \"#{target_name} #{packet_name}\" --system #{File.basename(System.initial_filename)}")
         end
         table.setCellWidget(row, 4, view_pv)
       else

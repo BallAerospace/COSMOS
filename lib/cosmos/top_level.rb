@@ -345,6 +345,20 @@ module Cosmos
     thread
   end
 
+  # Runs a COSMOS tool
+  #
+  # @param tool_name [String] COSMOS tool to execute
+  # @param parameters [String] Parameters string to pass to the tool
+  def self.run_cosmos_tool(tool_name, parameters = '')
+    if Kernel.is_windows?
+      Cosmos.run_process("rubyw tools/#{tool_name} #{parameters}")
+    elsif Kernel.is_mac? and File.exist?("tools/mac/#{tool_name}.app")
+      Cosmos.run_process("open tools/mac/#{tool_name}.app --args #{parameters}")
+    else
+      Cosmos.run_process("ruby tools/#{tool_name} #{parameters}")
+    end
+  end
+
   # Runs an md5 sum over one or more files and returns the Digest::MD5 object.
   # Handles windows/unix new line differences but changes in whitespace will
   # change the md5 sum.
