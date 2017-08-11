@@ -23,6 +23,13 @@ require 'cosmos/gui/choosers/file_chooser'
 require 'cosmos/config/meta_config_parser'
 
 module Cosmos
+  class FocusComboBox < Qt::ComboBox
+    signals 'focus_in()'
+    def focusInEvent(event)
+      emit focus_in
+    end
+  end
+
   class ConfigEditorFrame < Qt::Widget
     slots 'context_menu(const QPoint&)'
     slots 'undo_available(bool)'
@@ -576,7 +583,7 @@ module Cosmos
                 process_parameters(attribute_value[current_value]['parameters'], parameter_index + 1)
               end
             elsif attribute_value.is_a? Array # Just a bunch of strings
-              value_widget = Qt::ComboBox.new()
+              value_widget = FocusComboBox.new()
               value_widget.addItems(attribute_value)
               if required && current_value.nil?
                 value_widget.setStyleSheet("border: 1px solid red")
@@ -584,6 +591,14 @@ module Cosmos
               if current_value
                 value_widget.addItem(current_value) unless attribute_value.include?(current_value)
                 value_widget.setCurrentText(current_value)
+              end
+              # If a user is typing in a line from scratch and tabs to a ComboBox
+              # field we want to insert the current value as it gets focus so
+              # something gets populated. This will happen even in a fully populated
+              # line as well but has no effect since we're replacing with the currentText.
+              value_widget.connect(SIGNAL('focus_in()')) do |event|
+                value_widget.setStyleSheet("")
+                insert_word(value_widget.currentText(), parameter_index)
               end
               value_widget.connect(SIGNAL('currentIndexChanged(const QString&)')) do |word|
                 value_widget.setStyleSheet("")
