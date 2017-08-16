@@ -17,14 +17,13 @@ require 'cosmos/tools/tlm_viewer/widgets/widget'
 require 'cosmos/tools/tlm_viewer/widgets/layout_widget'
 
 module Cosmos
-
   class CanvasWidget < Qt::Widget
     include Widget
     include LayoutWidget
 
     def initialize(parent_layout, width, height)
       super()
-      @repaintObjects = []
+      @repaint_objects = []
       self.minimumWidth = width.to_i
       self.minimumHeight = height.to_i
       parent_layout.addWidget(self) if parent_layout
@@ -35,7 +34,7 @@ module Cosmos
     # the order in which child widgets are painted is the order in which they
     # are created.
     def add_repaint(obj)
-      @repaintObjects << obj
+      @repaint_objects << obj
     end
 
     def paintEvent(event)
@@ -44,7 +43,7 @@ module Cosmos
         painter.begin(self)
         painter.setBackgroundMode(Qt::OpaqueMode)
         painter.setBackground(Cosmos.getBrush(Qt::white))
-        @repaintObjects.each do |obj|
+        @repaint_objects.each do |obj|
           obj.paint(painter)
         end
         painter.end
@@ -54,9 +53,18 @@ module Cosmos
       end
     end
 
+    def mouseReleaseEvent(event)
+      cur_x = mapFromGlobal(self.cursor.pos).x
+      cur_y = mapFromGlobal(self.cursor.pos).y
+      @repaint_objects.each do |obj|
+        if obj.respond_to?(:on_click)
+          break if obj.on_click(event, cur_x, cur_y)
+        end
+      end
+    end
+
     def update_widget
       self.update
     end
   end
-
-end # module Cosmos
+end

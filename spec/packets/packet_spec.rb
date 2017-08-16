@@ -501,6 +501,68 @@ module Cosmos
         expect(@p.read("ITEM2", :FORMATTED, "")).to eql ["1", "2", "3", "4", "5"]
         expect(@p.read("ITEM2", :WITH_UNITS, "")).to eql ["1 V", "2 V", "3 V", "4 V", "5 V"]
       end
+
+      context "with :DERIVED items" do
+        it "returns nil if no read_conversion defined" do
+          @p.append_item("item",0,:DERIVED)
+          i = @p.get_item("ITEM")
+          i.format_string = "0x%x"
+          i.states = {"TRUE"=>1, "FALSE"=>0}
+          i.units = "V"
+          expect(@p.read("ITEM", :RAW, "")).to be_nil
+          expect(@p.read_item(i, :RAW, "")).to be_nil
+        end
+
+        it "reads the RAW value" do
+          @p.append_item("item",0,:DERIVED)
+          i = @p.get_item("ITEM")
+          i.format_string = "0x%x"
+          i.states = {"TRUE"=>1, "FALSE"=>0}
+          i.units = "V"
+          i.read_conversion = GenericConversion.new("0")
+          expect(@p.read("ITEM", :RAW, "")).to eql 0
+          expect(@p.read_item(i, :RAW, "")).to eql 0
+          i.read_conversion = GenericConversion.new("1")
+          expect(@p.read("ITEM", :RAW, "")).to eql 1
+          expect(@p.read_item(i, :RAW, "")).to eql 1
+        end
+
+        it "reads the CONVERTED value" do
+          @p.append_item("item",0,:DERIVED)
+          i = @p.get_item("ITEM")
+          i.format_string = "0x%x"
+          i.states = {"TRUE"=>1, "FALSE"=>0}
+          i.units = "V"
+          i.read_conversion = GenericConversion.new("0")
+          expect(@p.read("ITEM", :CONVERTED, "")).to eql "FALSE"
+          expect(@p.read_item(i, :CONVERTED, "")).to eql "FALSE"
+          i.read_conversion = GenericConversion.new("1")
+          expect(@p.read("ITEM", :CONVERTED, "")).to eql "TRUE"
+          expect(@p.read_item(i, :CONVERTED, "")).to eql "TRUE"
+        end
+
+        it "reads the FORMATTED value" do
+          @p.append_item("item",0,:DERIVED)
+          i = @p.get_item("ITEM")
+          i.format_string = "0x%x"
+          i.states = {"TRUE"=>1, "FALSE"=>0}
+          i.units = "V"
+          i.read_conversion = GenericConversion.new("3")
+          expect(@p.read("ITEM", :FORMATTED, "")).to eql "0x3"
+          expect(@p.read_item(i, :FORMATTED, "")).to eql "0x3"
+        end
+
+        it "reads the WITH_UNITS value" do
+          @p.append_item("item",0,:DERIVED)
+          i = @p.get_item("ITEM")
+          i.format_string = "0x%x"
+          i.states = {"TRUE"=>1, "FALSE"=>0}
+          i.units = "V"
+          i.read_conversion = GenericConversion.new("3")
+          expect(@p.read("ITEM", :WITH_UNITS, "")).to eql "0x3 V"
+          expect(@p.read_item(i, :WITH_UNITS, "")).to eql "0x3 V"
+        end
+      end
     end
 
     describe "write and write_item" do

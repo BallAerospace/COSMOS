@@ -15,10 +15,8 @@
 require 'cosmos/tools/tlm_viewer/widgets/canvasvalue_widget'
 
 module Cosmos
-
   class CanvaslinevalueWidget < CanvasvalueWidget
-
-    def initialize (parent_layout, target_name, packet_name, item_name, x1, y1, x2, y2, coloron='green', coloroff='blue', width=3, connector='NO_CONNECTOR', value_type = :RAW)
+    def initialize(parent_layout, target_name, packet_name, item_name, x1, y1, x2, y2, color_on = 'green', color_off = 'blue', width = 3, connector = 'NO_CONNECTOR', value_type = :RAW)
       super(parent_layout, target_name, packet_name, item_name, value_type)
       @x1 = x1.to_i
       @y1 = y1.to_i
@@ -30,10 +28,10 @@ module Cosmos
       else
         @connector = false
       end
-      @coloron = Cosmos::getColor(coloron)
-      @coloroff = Cosmos::getColor(coloroff)
-      @pen_on = Cosmos::getPen(coloron)
-      @pen_off = Cosmos::getPen(coloroff)
+      @color_on = Cosmos::getColor(color_on)
+      @color_off = Cosmos::getColor(color_off)
+      @pen_on = Cosmos::getPen(color_on)
+      @pen_off = Cosmos::getPen(color_off)
       @width = width.to_i
     end
 
@@ -41,10 +39,10 @@ module Cosmos
       painter.save
       if (on_state == true)
         pen = @pen_on
-        color = @coloron
+        color = @color_on
       else
         pen = @pen_off
-        color = @coloroff
+        color = @color_off
       end
 
       pen.setWidth(@width)
@@ -62,5 +60,4 @@ module Cosmos
       @point.dispose
     end
   end
-
-end # module Cosmos
+end

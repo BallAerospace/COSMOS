@@ -454,6 +454,11 @@ module Cosmos
     #   can be any type.
     def read_item(item, value_type = :CONVERTED, buffer = @buffer)
       value = super(item, :RAW, buffer)
+      derived_raw = false
+      if item.data_type == :DERIVED && value_type == :RAW
+        value_type = :CONVERTED
+        derived_raw = true
+      end
       case value_type
       when :RAW
         # Done above
@@ -504,6 +509,9 @@ module Cosmos
             end
           end
         end
+
+        # Derived raw values perform read_conversions but nothing else
+        return value if derived_raw
 
         # Convert from value to state if possible
         if item.states

@@ -14,44 +14,46 @@
 # telemetry point value of 1 or 0 respectively.
 
 require 'cosmos/tools/tlm_viewer/widgets/canvasvalue_widget'
+require 'cosmos/tools/tlm_viewer/widgets/canvas_clickable'
 
 module Cosmos
-
   class CanvasimagevalueWidget < CanvasvalueWidget
-
-    def initialize(parent_layout, target_name, packet_name, item_name, filename, x, y, value_type=:RAW)
+    include CanvasClickable
+    
+    def initialize(parent_layout, target_name, packet_name, item_name, filename, x, y, value_type = :RAW)
       super(parent_layout, target_name, packet_name, item_name, value_type)
       @x = x.to_i
       @y = y.to_i
-      @imageOn = nil
-      @imageOff = nil
+      @image_on = nil
+      @image_off = nil
 
-      filenameOn = File.join(::Cosmos::USERPATH, 'config', 'data', filename+'on.gif')
+      filenameOn = Dir[File.join(::Cosmos::USERPATH, 'config', 'data', filename + 'on.*')][0]
       unless File.exist?(filenameOn)
         raise "Can't find the file #{filenameOn} in #{::Cosmos::USERPATH}/config/data"
       end
-      @imageOn = Qt::Image.new(filenameOn)
+      @image_on = Qt::Image.new(filenameOn)
 
-      filenameOff = File.join(::Cosmos::USERPATH, 'config', 'data', filename+'off.gif')
+      filenameOff = Dir[File.join(::Cosmos::USERPATH, 'config', 'data', filename + 'off.*')][0]
       unless File.exist?(filenameOff)
         raise "Can't find the file #{filenameOff} in #{::Cosmos::USERPATH}/config/data"
       end
-      @imageOff = Qt::Image.new(filenameOff)
+      @image_off = Qt::Image.new(filenameOff)
+      @x_end = @x + [@image_on.width, @image_off.width].max
+      @y_end = @y + [@image_on.height, @image_off.height].max
     end
 
     def draw_widget(painter, on_value)
       if on_value
-        painter.drawImage(@x, @y, @imageOn) if @imageOn
+        painter.drawImage(@x, @y, @image_on) if @image_on
       else
-        painter.drawImage(@x, @y, @imageOff) if @imageOff
+        painter.drawImage(@x, @y, @image_off) if @image_off
       end
     end
 
     def dispose
       super()
-      @imageOn.dispose
-      @imageOff.dispose
+      @image_on.dispose
+      @image_off.dispose
     end
   end
-
-end # module Cosmos
+end
