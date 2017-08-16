@@ -11,11 +11,10 @@
 require 'cosmos/tools/tlm_viewer/widgets/widget'
 
 module Cosmos
-
   class CanvaslineWidget
     include Widget
 
-    def initialize(parent_layout, x1, y1, x2, y2, color='black', width=1, connector='NO_CONNECTOR')
+    def initialize(parent_layout, x1, y1, x2, y2, color = 'black', width = 1, connector = 'NO_CONNECTOR')
       super()
       @x1 = x1.to_i
       @y1 = y1.to_i
@@ -51,5 +50,4 @@ module Cosmos
       @point.dispose
     end
   end
-
-end # module Cosmos
+end

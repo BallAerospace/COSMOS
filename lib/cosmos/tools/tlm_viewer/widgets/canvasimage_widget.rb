@@ -9,11 +9,12 @@
 # attribution addendums as found in the LICENSE.txt
 
 require 'cosmos/tools/tlm_viewer/widgets/widget'
+require 'cosmos/tools/tlm_viewer/widgets/canvas_clickable'
 
 module Cosmos
-
   class CanvasimageWidget
     include Widget
+    include CanvasClickable
 
     def initialize(parent_layout, filename, x, y)
       super()
@@ -26,6 +27,8 @@ module Cosmos
       end
       @image = Qt::Image.new(filename)
       parent_layout.add_repaint(self)
+      @x_end = @x + @image.width
+      @y_end = @y + @image.height
     end
 
     def paint(painter)
@@ -37,5 +40,4 @@ module Cosmos
       @image.dispose
     end
   end
-
-end # module Cosmos
+end
