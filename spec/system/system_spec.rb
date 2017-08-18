@@ -12,6 +12,7 @@ require 'spec_helper'
 require 'cosmos'
 require 'cosmos/system/system'
 require 'tempfile'
+require 'fileutils'
 
 module Cosmos
 
@@ -49,6 +50,143 @@ module Cosmos
       it "creates default paths" do
         # Don't check the actual paths but just that they exist
         expect(System.paths.keys).to eql %w(LOGS TMP SAVED_CONFIG TABLES HANDBOOKS PROCEDURES SEQUENCES)
+      end
+
+      context "initializing SYSTEM META" do
+        before(:all) do
+          FileUtils.mv(File.join(@config_targets, 'SYSTEM', 'cmd_tlm', 'meta_tlm.txt'), Dir.pwd)
+        end
+        after(:all) do
+          FileUtils.mv(File.join(Dir.pwd, 'meta_tlm.txt'), File.join(@config_targets, 'SYSTEM', 'cmd_tlm'))
+        end
+
+        it "initializes the SYSTEM META with no definitions" do
+          tlm = System.telemetry.packet("SYSTEM", "META")
+          expect(tlm.read("PKTID")).to_not be_nil
+          expect(tlm.read("CONFIG")).to_not be_nil
+          expect(tlm.read("COSMOS_VERSION")).to_not be_nil
+          expect(tlm.read("RUBY_VERSION")).to_not be_nil
+          expect(tlm.read("USER_VERSION")).to_not be_nil
+          cmd = System.commands.packet("SYSTEM", "META")
+          expect(cmd.read("PKTID")).to eql tlm.read("PKTID")
+          expect(cmd.read("CONFIG")).to eql tlm.read("CONFIG")
+          expect(cmd.read("COSMOS_VERSION")).to eql tlm.read("COSMOS_VERSION")
+          expect(cmd.read("RUBY_VERSION")).to eql tlm.read("RUBY_VERSION")
+          expect(cmd.read("USER_VERSION")).to eql tlm.read("USER_VERSION")
+        end
+
+        it "defaults badly defined TELEMETRY SYSTEM META" do
+          file = File.open(File.join(@config_targets, 'SYSTEM', 'cmd_tlm', 'meta_tlm.txt'), 'w')
+          file.puts "TELEMETRY SYSTEM META BIG_ENDIAN"
+          file.puts "APPEND_ID_ITEM PKTID 8 UINT 1"
+          file.puts "APPEND_ITEM CONFIG 256 STRING"
+          file.puts "APPEND_ITEM COSMOS_VERSION 240 STRING"
+          file.puts "APPEND_ITEM USER_VERSION 240 STRING"
+          file.puts "APPEND_ITEM RUBY_VERSION 200 STRING" # Error in the RUBY_VERSION length
+          file.close
+
+          expect(Logger).to receive(:error) do |msg|
+            expect(msg).to eql "SYSTEM META not defined correctly due to RUBY_VERSION incorrect - defaulting"
+          end
+          tf = Tempfile.new('unittest')
+          tf.puts("AUTO_DECLARE_TARGETS")
+          tf.close
+          System.class_variable_set(:@@instance, nil)
+          System.new(tf.path)
+          tlm = System.telemetry.packet("SYSTEM", "META")
+          expect(tlm.read("PKTID")).to_not be_nil
+          expect(tlm.read("CONFIG")).to_not be_nil
+          expect(tlm.read("COSMOS_VERSION")).to_not be_nil
+          expect(tlm.get_item("COSMOS_VERSION").bit_size).to eql(240)
+          expect(tlm.read("RUBY_VERSION")).to_not be_nil
+          expect(tlm.read("USER_VERSION")).to_not be_nil
+          cmd = System.commands.packet("SYSTEM", "META")
+          expect(cmd.read("PKTID")).to eql tlm.read("PKTID")
+          expect(cmd.read("CONFIG")).to eql tlm.read("CONFIG")
+          expect(cmd.read("COSMOS_VERSION")).to eql tlm.read("COSMOS_VERSION")
+          expect(cmd.read("RUBY_VERSION")).to eql tlm.read("RUBY_VERSION")
+          expect(cmd.read("USER_VERSION")).to eql tlm.read("USER_VERSION")
+          tf.unlink
+        end
+
+        it "doesn't allow COMMAND SYSTEM META definitions" do
+          file = File.open(File.join(@config_targets, 'SYSTEM', 'cmd_tlm', 'meta_tlm.txt'), 'w')
+          file.puts "TELEMETRY SYSTEM META BIG_ENDIAN"
+          file.puts "APPEND_ID_ITEM PKTID 8 UINT 1"
+          file.puts "APPEND_ITEM CONFIG 256 STRING"
+          file.puts "APPEND_ITEM COSMOS_VERSION 240 STRING"
+          file.puts "APPEND_ITEM USER_VERSION 240 STRING"
+          file.puts "APPEND_ITEM RUBY_VERSION 240 STRING"
+          file.puts "APPEND_ITEM TEST 512 STRING ''"
+          # The command system meta definition is correct but not allowed
+          file.puts "COMMAND SYSTEM META BIG_ENDIAN"
+          file.puts "APPEND_ID_PARAMETER PKTID 8 UINT 1 1 1"
+          file.puts "APPEND_PARAMETER CONFIG 256 STRING ''"
+          file.puts "APPEND_PARAMETER COSMOS_VERSION 240 STRING ''"
+          file.puts "APPEND_PARAMETER USER_VERSION 240 STRING ''"
+          file.puts "APPEND_PARAMETER RUBY_VERSION 240 STRING ''"
+          file.puts "APPEND_PARAMETER TEST 512 STRING ''"
+          file.close
+
+          expect(Logger).to receive(:error) do |msg|
+            expect(msg).to eql "SYSTEM META not defined correctly due to COMMAND SYSTEM META defined - defaulting"
+          end
+          tf = Tempfile.new('unittest')
+          tf.puts("AUTO_DECLARE_TARGETS")
+          tf.close
+          System.class_variable_set(:@@instance, nil)
+          System.new(tf.path)
+          tlm = System.telemetry.packet("SYSTEM", "META")
+          expect(tlm.read("PKTID")).to_not be_nil
+          expect(tlm.read("CONFIG")).to_not be_nil
+          expect(tlm.read("COSMOS_VERSION")).to_not be_nil
+          expect(tlm.get_item("COSMOS_VERSION").bit_size).to eql(240)
+          expect(tlm.read("RUBY_VERSION")).to_not be_nil
+          expect(tlm.read("USER_VERSION")).to_not be_nil
+          expect(tlm.items.keys.include?("TEST")).to be false
+          cmd = System.commands.packet("SYSTEM", "META")
+          expect(cmd.read("PKTID")).to eql tlm.read("PKTID")
+          expect(cmd.read("CONFIG")).to eql tlm.read("CONFIG")
+          expect(cmd.read("COSMOS_VERSION")).to eql tlm.read("COSMOS_VERSION")
+          expect(cmd.read("RUBY_VERSION")).to eql tlm.read("RUBY_VERSION")
+          expect(cmd.read("USER_VERSION")).to eql tlm.read("USER_VERSION")
+          expect(cmd.items.keys.include?("TEST")).to be false
+          tf.unlink
+        end
+
+        it "defines COMMAND SYSTEM META based on TELEMETRY" do
+          file = File.open(File.join(@config_targets, 'SYSTEM', 'cmd_tlm', 'meta_tlm.txt'), 'w')
+          file.puts "TELEMETRY SYSTEM META BIG_ENDIAN"
+          file.puts "APPEND_ID_ITEM PKTID 8 UINT 1"
+          file.puts "APPEND_ITEM CONFIG 256 STRING"
+          file.puts "APPEND_ITEM COSMOS_VERSION 240 STRING"
+          file.puts "APPEND_ITEM USER_VERSION 240 STRING"
+          file.puts "APPEND_ITEM RUBY_VERSION 240 STRING"
+          file.puts "APPEND_ITEM TEST 240 STRING"
+          file.close
+
+          expect(Logger).to_not receive(:error)
+          tf = Tempfile.new('unittest')
+          tf.puts("AUTO_DECLARE_TARGETS")
+          tf.close
+          System.class_variable_set(:@@instance, nil)
+          System.new(tf.path)
+          tlm = System.telemetry.packet("SYSTEM", "META")
+          expect(tlm.read("PKTID")).to_not be_nil
+          expect(tlm.read("CONFIG")).to_not be_nil
+          expect(tlm.read("COSMOS_VERSION")).to_not be_nil
+          expect(tlm.read("RUBY_VERSION")).to_not be_nil
+          expect(tlm.read("USER_VERSION")).to_not be_nil
+          expect(tlm.read("TEST")).to_not be_nil
+          cmd = System.commands.packet("SYSTEM", "META")
+          expect(cmd.read("PKTID")).to eql tlm.read("PKTID")
+          expect(cmd.read("CONFIG")).to eql tlm.read("CONFIG")
+          expect(cmd.read("COSMOS_VERSION")).to eql tlm.read("COSMOS_VERSION")
+          expect(cmd.read("RUBY_VERSION")).to eql tlm.read("RUBY_VERSION")
+          expect(cmd.read("USER_VERSION")).to eql tlm.read("USER_VERSION")
+          expect(cmd.read("TEST")).to eql tlm.read("TEST")
+          tf.unlink
+        end
       end
     end
 
@@ -639,6 +777,60 @@ module Cosmos
           System.instance.process_file(tf.path)
           expect(System.staleness_seconds).to eql 3
           tf.unlink
+        end
+      end
+
+      context "with META_INIT" do
+        it "takes 1 parameters" do
+          tf = Tempfile.new('unittest')
+          tf.puts("META_INIT")
+          tf.close
+          expect { System.instance.process_file(tf.path) }.to raise_error(ConfigParser::Error, /Not enough parameters for META_INIT./)
+          tf.unlink
+
+          tf = Tempfile.new('unittest')
+          tf.puts("META_INIT 1 2")
+          tf.close
+          expect { System.instance.process_file(tf.path) }.to raise_error(ConfigParser::Error, /Too many parameters for META_INIT./)
+          tf.unlink
+        end
+
+        it "populates the SYSTEM META packet with the file" do
+          FileUtils.rm_rf @config_targets
+          FileUtils.mkdir_p(File.join(@config_targets, 'SYSTEM', 'cmd_tlm'))
+          file = File.open(File.join(@config_targets, 'SYSTEM', 'cmd_tlm', 'meta_tlm.txt'), 'w')
+          file.puts "TELEMETRY SYSTEM META BIG_ENDIAN"
+          file.puts "APPEND_ID_ITEM PKTID 8 UINT 1"
+          file.puts "APPEND_ITEM CONFIG 256 STRING"
+          file.puts "APPEND_ITEM COSMOS_VERSION 240 STRING"
+          file.puts "APPEND_ITEM USER_VERSION 240 STRING"
+          file.puts "APPEND_ITEM RUBY_VERSION 240 STRING"
+          file.puts "APPEND_ITEM TEST 512 STRING"
+          file.puts "APPEND_ITEM ID 32 UINT"
+          file.close
+
+          meta = Tempfile.new('meta')
+          meta.puts("USER_VERSION 4.5")
+          meta.puts("TEST hello")
+          meta.puts("ID 123456789")
+          meta.close
+          tf = Tempfile.new('unittest')
+          tf.puts("AUTO_DECLARE_TARGETS")
+          tf.puts("META_INIT #{meta.path}")
+          tf.close
+          System.class_variable_set(:@@instance, nil)
+          System.new(tf.path)
+          tlm = System.telemetry.packet("SYSTEM", "META")
+          expect(tlm.read("USER_VERSION")).to eql '4.5'
+          expect(tlm.read("TEST")).to eql 'hello'
+          expect(tlm.read("ID")).to eql 123456789
+          cmd = System.commands.packet("SYSTEM", "META")
+          expect(cmd.read("USER_VERSION")).to eql tlm.read("USER_VERSION")
+          expect(cmd.read("TEST")).to eql tlm.read("TEST")
+          expect(cmd.read("ID")).to eql tlm.read("ID")
+          tf.unlink
+          meta.unlink
+          FileUtils.rm_rf(File.join(@config_targets, 'SYSTEM'))
         end
       end
 

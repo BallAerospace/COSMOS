@@ -248,6 +248,15 @@ module Cosmos
       @meta ||= {}
     end
 
+    def meta=(meta)
+      if meta
+        raise ArgumentError, "#{@name}: meta must be a Hash but is a #{meta.class}" unless Hash === meta
+        @meta = meta.clone
+      else
+        @meta = nil
+      end
+    end
+
     # Make a light weight clone of this item
     def clone
       item = super()
