@@ -105,6 +105,7 @@ module Cosmos
       @limits_set = :DEFAULT
       @use_utc = false
       @additional_md5_files = []
+      @meta_init_filename = nil
 
       @ports = {}
       @ports['CTS_API'] = 7777
@@ -150,7 +151,6 @@ module Cosmos
 
       @initial_filename = filename
       @initial_config = nil
-      @meta_init_filename = nil
       @@instance = self
     end
 
