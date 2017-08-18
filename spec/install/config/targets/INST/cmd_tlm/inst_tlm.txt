@@ -163,11 +163,11 @@ TELEMETRY INST PARAMS BIG_ENDIAN "Params set by SETPARAMS command"
   ITEM TIMESEC           48 32 UINT     "Seconds since epoch (January 1st, 1970, midnight)"
   ITEM TIMEUS            80 32 UINT     "Microseconds of second"
   ID_ITEM PKTID         112 16 UINT   1 "Packet id (The combination of CCSDS_APID and PACKET_ID identify the packet)"
-  MACRO_APPEND_START 5 1
-    APPEND_ITEM Value 16 UINT "Value setting"
+  <% 5.times do |i| %>
+    APPEND_ITEM VALUE<%= i %> 16 UINT "Value setting"
       STATE GOOD 0 GREEN
       STATE BAD 1 RED
-  MACRO_APPEND_END
+  <% end %>
   ITEM TIMESECONDS 0 0 DERIVED "Derived floating-point time since epoch in seconds"
     READ_CONVERSION unix_time_seconds_conversion.rb TIMESEC TIMEUS
     FORMAT_STRING '%0.6f'
