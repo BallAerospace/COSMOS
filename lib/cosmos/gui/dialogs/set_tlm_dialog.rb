@@ -92,6 +92,9 @@ module Cosmos
           @editors << Qt::LineEdit.new
           @editors[-1].text = item_value.to_s
         end
+        if item.meta.keys && item.meta.keys.include?("READ_ONLY")
+          @editors[-1].setEnabled(false)
+        end
         values_layout.addRow(item_name, @editors[-1])
         if (@editors.length % 10 == 0) && (@items.length > @editors.length)
           values_layout = Qt::FormLayout.new
