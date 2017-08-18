@@ -687,23 +687,25 @@ module Cosmos
     def setup_system_meta
       # Ensure SYSTEM META is defined and defined correctly
       begin
-        pkts = @commands.packets('SYSTEM')
-        # User should not define COMMAND SYSTEM META as we build it to match TELEMETRY
-        raise "COMMAND SYSTEM META defined" if pkts.keys.include?('META')
+        if @commands.target_names.include?("SYSTEM")
+          pkts = @commands.packets('SYSTEM')
+          # User should not define COMMAND SYSTEM META as we build it to match TELEMETRY
+          raise "COMMAND SYSTEM META defined" if pkts.keys.include?('META')
+        end
         tlm_meta = @telemetry.packet('SYSTEM', 'META')
         item = tlm_meta.get_item('PKTID')
-        raise "PKTID Incorrect" unless (item.bit_size == 8) && (item.bit_offset == 0)
+        raise "PKTID incorrect" unless (item.bit_size == 8) && (item.bit_offset == 0)
         item = tlm_meta.get_item('CONFIG')
-        raise "CONFIG Incorrect" unless (item.bit_size == 256) && (item.bit_offset == 8)
+        raise "CONFIG incorrect" unless (item.bit_size == 256) && (item.bit_offset == 8)
         item = tlm_meta.get_item('COSMOS_VERSION')
-        raise "CONFIG Incorrect" unless (item.bit_size == 240) && (item.bit_offset == 264)
+        raise "COSMOS_VERSION incorrect" unless (item.bit_size == 240) && (item.bit_offset == 264)
         item = tlm_meta.get_item('USER_VERSION')
-        raise "CONFIG Incorrect" unless (item.bit_size == 240) && (item.bit_offset == 504)
+        raise "USER_VERSION incorrect" unless (item.bit_size == 240) && (item.bit_offset == 504)
         item = tlm_meta.get_item('RUBY_VERSION')
-        raise "CONFIG Incorrect" unless (item.bit_size == 240) && (item.bit_offset == 744)
+        raise "RUBY_VERSION incorrect" unless (item.bit_size == 240) && (item.bit_offset == 744)
         cmd_meta = build_cmd_system_meta()
-      rescue
-        Logger.error "SYSTEM META not defined or defined incorrectly - defaulting"
+      rescue => err
+        Logger.error "SYSTEM META not defined correctly due to #{err.message} - defaulting"
         tlm_meta = build_tlm_system_meta()
         cmd_meta = build_cmd_system_meta()
       end
