@@ -9,7 +9,6 @@
 # attribution addendums as found in the LICENSE.txt
 
 module Cosmos
-
   module Script
     private
 
@@ -19,7 +18,7 @@ module Cosmos
     # or
     #   tlm('target_name packet_name item_name')
     def tlm(*args)
-      return $cmd_tlm_server.tlm(*args)
+      $cmd_tlm_server.tlm(*args)
     end
 
     # Poll for the raw value of a telemetry item
@@ -28,7 +27,7 @@ module Cosmos
     # or
     #   tlm_raw('target_name packet_name item_name')
     def tlm_raw(*args)
-      return $cmd_tlm_server.tlm_raw(*args)
+      $cmd_tlm_server.tlm_raw(*args)
     end
 
     # Poll for the formatted value of a telemetry item
@@ -37,7 +36,7 @@ module Cosmos
     # or
     #   tlm_formatted('target_name packet_name item_name')
     def tlm_formatted(*args)
-      return $cmd_tlm_server.tlm_formatted(*args)
+      $cmd_tlm_server.tlm_formatted(*args)
     end
 
     # Poll for the formatted with units value of a telemetry item
@@ -46,11 +45,11 @@ module Cosmos
     # or
     #   tlm_with_units('target_name packet_name item_name')
     def tlm_with_units(*args)
-      return $cmd_tlm_server.tlm_with_units(*args)
+      $cmd_tlm_server.tlm_with_units(*args)
     end
 
     def tlm_variable(*args)
-      return $cmd_tlm_server.tlm_variable(*args)
+      $cmd_tlm_server.tlm_variable(*args)
     end
 
     # Set a telemetry point to a given value. Note this will be over written in
@@ -60,7 +59,7 @@ module Cosmos
     # or
     #   set_tlm("target_name packet_name item_name = value")
     def set_tlm(*args)
-      return $cmd_tlm_server.set_tlm(*args)
+      $cmd_tlm_server.set_tlm(*args)
     end
 
     # Set the raw value of a telemetry point to a given value. Note this will
@@ -70,7 +69,7 @@ module Cosmos
     # or
     #   set_tlm_raw("target_name packet_name item_name = value")
     def set_tlm_raw(*args)
-      return $cmd_tlm_server.set_tlm_raw(*args)
+      $cmd_tlm_server.set_tlm_raw(*args)
     end
 
     # Injects a packet into the system as if it was received from an interface
@@ -83,7 +82,7 @@ module Cosmos
     # @param send_packet_log_writers[Boolean] Whether or not to send to the packet log writers for the target's interface
     # @param create_new_logs[Boolean] Whether or not to create new log files before writing this packet to logs
     def inject_tlm(target_name, packet_name, item_hash = nil, value_type = :CONVERTED, send_routers = true, send_packet_log_writers = true, create_new_logs = false)
-      return $cmd_tlm_server.inject_tlm(target_name, packet_name, item_hash, value_type, send_routers, send_packet_log_writers, create_new_logs)
+      $cmd_tlm_server.inject_tlm(target_name, packet_name, item_hash, value_type, send_routers, send_packet_log_writers, create_new_logs)
     end
 
     # Permanently set the converted value of a telemetry point to a given value
@@ -92,7 +91,7 @@ module Cosmos
     # or
     #   override_tlm("target_name packet_name item_name = value")
     def override_tlm(*args)
-      return $cmd_tlm_server.override_tlm(*args)
+      $cmd_tlm_server.override_tlm(*args)
     end
 
     # Permanently set the raw value of a telemetry point to a given value
@@ -101,7 +100,7 @@ module Cosmos
     # or
     #   override_tlm_raw("target_name packet_name item_name = value")
     def override_tlm_raw(*args)
-      return $cmd_tlm_server.override_tlm_raw(*args)
+      $cmd_tlm_server.override_tlm_raw(*args)
     end
 
     # Clear an override of a telemetry point
@@ -110,7 +109,7 @@ module Cosmos
     # or
     #   normalize_tlm("target_name packet_name item_name")
     def normalize_tlm(*args)
-      return $cmd_tlm_server.normalize_tlm(*args)
+      $cmd_tlm_server.normalize_tlm(*args)
     end
 
     # Gets all the values from the given packet returned in a two dimensional
@@ -144,18 +143,18 @@ module Cosmos
     # Gets the packets for a given target name. Returns an array of arrays
     # consisting of packet names and packet descriptions.
     def get_tlm_list(target_name)
-      return $cmd_tlm_server.get_tlm_list(target_name)
+      $cmd_tlm_server.get_tlm_list(target_name)
     end
 
     # Gets all the telemetry mnemonics for a given target and packet. Returns an
     # array of arrays consisting of item names, item states, and item descriptions.
     def get_tlm_item_list(target_name, packet_name)
-      return $cmd_tlm_server.get_tlm_item_list(target_name, packet_name)
+      $cmd_tlm_server.get_tlm_item_list(target_name, packet_name)
     end
 
     # Gets the list of all defined targets.
     def get_target_list
-      return $cmd_tlm_server.get_target_list
+      $cmd_tlm_server.get_target_list
     end
 
     def get_tlm_details(items)
@@ -164,7 +163,7 @@ module Cosmos
 
     # Returns the buffer from the telemetry packet.
     def get_tlm_buffer(target_name, packet_name)
-      return $cmd_tlm_server.get_tlm_buffer(target_name, packet_name)
+      $cmd_tlm_server.get_tlm_buffer(target_name, packet_name)
     end
 
     # Subscribe to one or more telemetry packets. The queue ID is returned for
@@ -172,8 +171,7 @@ module Cosmos
     # Usage:
     #   id = subscribe_packet_data([[target_name,packet_name], ...], <queue_size>)
     def subscribe_packet_data(packets, queue_size = CmdTlmServer::DEFAULT_PACKET_DATA_QUEUE_SIZE)
-      result = $cmd_tlm_server.subscribe_packet_data(packets, queue_size)
-      result
+      $cmd_tlm_server.subscribe_packet_data(packets, queue_size)
     end
 
     # Unsubscribe to telemetry packets. Pass the queue ID which was returned by
@@ -181,20 +179,11 @@ module Cosmos
     # Usage:
     #   unsubscribe_packet_data(id)
     def unsubscribe_packet_data(id)
-      result = $cmd_tlm_server.unsubscribe_packet_data(id)
-      result
+      $cmd_tlm_server.unsubscribe_packet_data(id)
     end
 
-    # DEPRECATED
     def get_packet_data(id, non_block = false)
-      results = $cmd_tlm_server.get_packet_data(id, non_block)
-      if Array === results and results[3] and results[4]
-        results[3] = Time.at(results[3], results[4]).sys
-        results.delete_at(4)
-      end
-      results
+      $cmd_tlm_server.get_packet_data(id, non_block)
     end
-
   end
 end
-

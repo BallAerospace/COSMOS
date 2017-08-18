@@ -532,10 +532,12 @@ module Cosmos
       packet = cvt_packet.clone
       packet.received_time = received_time
 
-      # Update the packet with item_hash
-      value_type = value_type.to_s.intern
-      item_hash.each do |item_name, item_value|
-        packet.write(item_name, item_value, value_type)
+      if item_hash
+        # Update the packet with item_hash
+        value_type = value_type.to_s.intern
+        item_hash.each do |item_name, item_value|
+          packet.write(item_name, item_value, value_type)
+        end
       end
 
       # Update current value table

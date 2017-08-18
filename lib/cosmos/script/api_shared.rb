@@ -23,12 +23,12 @@ module Cosmos
     #   get_packet(id, <true or false to block>)
     def get_packet(id, non_block = false)
       packet = nil
-      buffer, target_name, packet_name, received_time, received_count = get_packet_data(id, non_block)
+      buffer, target_name, packet_name, rx_sec, rx_usec, rx_count = get_packet_data(id, non_block)
       if buffer
         packet = System.telemetry.packet(target_name, packet_name).clone
         packet.buffer = buffer
-        packet.received_time = received_time
-        packet.received_count = received_count
+        packet.received_time = Time.at(rx_sec, rx_usec).sys
+        packet.received_count = rx_count
       end
       packet
     end
