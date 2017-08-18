@@ -20,6 +20,27 @@ module Cosmos
     # Include additional shared functionality
     include ApiShared
 
+    # Get a packet which was previously subscribed to by
+    # subscribe_packet_data. This method can block waiting for new packets or
+    # not based on the second parameter. It returns a single Cosmos::Packet instance
+    # and will return nil when no more packets are buffered (assuming non_block
+    # is false).
+    # Usage:
+    #   get_packet(id, <true or false to block>)
+    def get_packet(id, non_block = false)
+      packet = nil
+      # The get_packet_data in the Script module (defined in telemetry.rb)
+      # returns a Ruby time after the packet_name. This is different that the API.
+      buffer, target_name, packet_name, time, rx_count = get_packet_data(id, non_block)
+      if buffer
+        packet = System.telemetry.packet(target_name, packet_name).clone
+        packet.buffer = buffer
+        packet.received_time = time
+        packet.received_count = rx_count
+      end
+      packet
+    end
+
     def play_wav_file(wav_filename)
       Cosmos.play_wav_file(wav_filename)
     end
@@ -140,7 +161,5 @@ module Cosmos
     def prompt_combo_box(string, options)
       prompt_message_box(string, options)
     end
-
-  end # module Script
-
-end # module Cosmos
+  end
+end

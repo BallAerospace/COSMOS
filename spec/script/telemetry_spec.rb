@@ -167,7 +167,7 @@ module Cosmos
         packet = get_packet(id)
         expect(packet.target_name).to eql "SYSTEM"
         expect(packet.packet_name).to eql "META"
-        expect(packet.received_time).to be_within(0.1).of Time.now
+        expect(packet.received_time).to be_within(1).of Time.now
         expect(packet.received_count).to eql 1
         unsubscribe_packet_data(id)
       end

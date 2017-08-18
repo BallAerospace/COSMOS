@@ -182,8 +182,14 @@ module Cosmos
       $cmd_tlm_server.unsubscribe_packet_data(id)
     end
 
+    # DEPRECATED for Ruby APIs although still necessary
     def get_packet_data(id, non_block = false)
-      $cmd_tlm_server.get_packet_data(id, non_block)
+      results = $cmd_tlm_server.get_packet_data(id, non_block)
+      if Array === results and results[3] and results[4]
+        results[3] = Time.at(results[3], results[4]).sys
+        results.delete_at(4)
+      end
+      results
     end
   end
 end
