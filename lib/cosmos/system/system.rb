@@ -687,64 +687,25 @@ module Cosmos
     def setup_system_meta
       # Ensure SYSTEM META is defined and defined correctly
       begin
+        pkts = @commands.packets('SYSTEM')
+        # User should not define COMMAND SYSTEM META as we build it to match TELEMETRY
+        raise "COMMAND SYSTEM META defined" if pkts.keys.include?('META')
         tlm_meta = @telemetry.packet('SYSTEM', 'META')
-        cmd_meta = @commands.packet('SYSTEM', 'META')
         item = tlm_meta.get_item('PKTID')
-        raise "PKTID Incorrect" unless (item.bit_size == 8) && (item.bit_offset == 0)
-        item = cmd_meta.get_item('PKTID')
         raise "PKTID Incorrect" unless (item.bit_size == 8) && (item.bit_offset == 0)
         item = tlm_meta.get_item('CONFIG')
         raise "CONFIG Incorrect" unless (item.bit_size == 256) && (item.bit_offset == 8)
-        item = cmd_meta.get_item('CONFIG')
-        raise "CONFIG Incorrect" unless (item.bit_size == 256) && (item.bit_offset == 8)
         item = tlm_meta.get_item('COSMOS_VERSION')
-        raise "CONFIG Incorrect" unless (item.bit_size == 240) && (item.bit_offset == 264)
-        item = cmd_meta.get_item('COSMOS_VERSION')
         raise "CONFIG Incorrect" unless (item.bit_size == 240) && (item.bit_offset == 264)
         item = tlm_meta.get_item('USER_VERSION')
         raise "CONFIG Incorrect" unless (item.bit_size == 240) && (item.bit_offset == 504)
-        item = cmd_meta.get_item('USER_VERSION')
-        raise "CONFIG Incorrect" unless (item.bit_size == 240) && (item.bit_offset == 504)
         item = tlm_meta.get_item('RUBY_VERSION')
         raise "CONFIG Incorrect" unless (item.bit_size == 240) && (item.bit_offset == 744)
-        item = cmd_meta.get_item('RUBY_VERSION')
-        raise "CONFIG Incorrect" unless (item.bit_size == 240) && (item.bit_offset == 744)
+        cmd_meta = build_cmd_system_meta()
       rescue
         Logger.error "SYSTEM META not defined or defined incorrectly - defaulting"
-
-        cmd_meta = Packet.new('SYSTEM', 'META', :BIG_ENDIAN)
-        item = cmd_meta.append_item('PKTID', 8, :UINT, nil, :BIG_ENDIAN, :ERROR, nil, nil, nil, 1)
-        item.range = 1..1
-        item.default = 1
-        item.description = 'Packet Id'
-        item = cmd_meta.append_item('CONFIG', 32 * 8, :STRING)
-        item.default = ''
-        item.description = 'Configuration Name'
-        item = cmd_meta.append_item('COSMOS_VERSION', 30 * 8, :STRING)
-        item.default = ''
-        item.description = 'COSMOS Version'
-        item = cmd_meta.append_item('USER_VERSION', 30 * 8, :STRING)
-        item.default = ''
-        item.description = 'User Project Version'
-        item = cmd_meta.append_item('RUBY_VERSION', 30 * 8, :STRING)
-        item.default = ''
-        item.description = 'Ruby Version'
-        @config.commands['SYSTEM'] ||= {}
-        @config.commands['SYSTEM']['META'] = cmd_meta
-
-        tlm_meta = Packet.new('SYSTEM', 'META', :BIG_ENDIAN)
-        item = tlm_meta.append_item('PKTID', 8, :UINT, nil, :BIG_ENDIAN, :ERROR, nil, nil, nil, 1)
-        item.description = 'Packet Id'
-        item = tlm_meta.append_item('CONFIG', 32 * 8, :STRING)
-        item.description = 'Configuration Name'
-        item = tlm_meta.append_item('COSMOS_VERSION', 30 * 8, :STRING)
-        item.description = 'COSMOS Version'
-        item = tlm_meta.append_item('USER_VERSION', 30 * 8, :STRING)
-        item.description = 'User Project Version'
-        item = tlm_meta.append_item('RUBY_VERSION', 30 * 8, :STRING)
-        item.description = 'Ruby Version'
-        @config.telemetry['SYSTEM'] ||= {}
-        @config.telemetry['SYSTEM']['META'] = tlm_meta
+        tlm_meta = build_tlm_system_meta()
+        cmd_meta = build_cmd_system_meta()
       end
 
       # Initialize the meta packet (if given init filename)
@@ -775,6 +736,41 @@ module Cosmos
       tlm_meta.write('RUBY_VERSION', "#{RUBY_VERSION}p#{RUBY_PATCHLEVEL}")
 
       cmd_meta.buffer = tlm_meta.buffer
+    end
+
+    def build_cmd_system_meta
+      cmd_meta = Packet.new('SYSTEM', 'META', :BIG_ENDIAN)
+      cmd_meta.disabled = true
+      tlm_meta = @telemetry.packet('SYSTEM', 'META')
+      tlm_meta.sorted_items.each do |item|
+        next if item.name.include?("RECEIVED") # Tlm only items
+        cmd_meta.define(item.clone)
+      end
+      @config.commands['SYSTEM'] ||= {}
+      @config.commands['SYSTEM']['META'] = cmd_meta
+      cmd_meta
+    end
+
+    def build_tlm_system_meta
+      tlm_meta = Packet.new('SYSTEM', 'META', :BIG_ENDIAN)
+      item = tlm_meta.append_item('PKTID', 8, :UINT, nil, :BIG_ENDIAN, :ERROR, nil, nil, nil, 1)
+      item.description = 'Packet Id'
+      item.meta["READ_ONLY"] = []
+      item = tlm_meta.append_item('CONFIG', 32 * 8, :STRING)
+      item.description = 'Configuration Name'
+      item.meta["READ_ONLY"] = []
+      item = tlm_meta.append_item('COSMOS_VERSION', 30 * 8, :STRING)
+      item.description = 'COSMOS Version'
+      item.meta["READ_ONLY"] = []
+      item = tlm_meta.append_item('USER_VERSION', 30 * 8, :STRING)
+      item.description = 'User Project Version'
+      item.meta["READ_ONLY"] = []
+      item = tlm_meta.append_item('RUBY_VERSION', 30 * 8, :STRING)
+      item.description = 'Ruby Version'
+      item.meta["READ_ONLY"] = []
+      @config.telemetry['SYSTEM'] ||= {}
+      @config.telemetry['SYSTEM']['META'] = tlm_meta
+      tlm_meta
     end
   end
 end
