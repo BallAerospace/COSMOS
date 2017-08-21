@@ -191,5 +191,26 @@ module Cosmos
       end
       results
     end
+
+    # Get a packet which was previously subscribed to by
+    # subscribe_packet_data. This method can block waiting for new packets or
+    # not based on the second parameter. It returns a single Cosmos::Packet instance
+    # and will return nil when no more packets are buffered (assuming non_block
+    # is false).
+    # Usage:
+    #   get_packet(id, <true or false to block>)
+    def get_packet(id, non_block = false)
+      packet = nil
+      # The get_packet_data above returns a Ruby time after the packet_name.
+      # This is different from the API.s
+      buffer, target_name, packet_name, time, rx_count = get_packet_data(id, non_block)
+      if buffer
+        packet = System.telemetry.packet(target_name, packet_name).clone
+        packet.buffer = buffer
+        packet.received_time = time
+        packet.received_count = rx_count
+      end
+      packet
+    end
   end
 end
