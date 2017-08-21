@@ -46,4 +46,4 @@ BACKGROUND_TASK example_background_task.rb
   STOPPED
 BACKGROUND_TASK limits_groups.rb 5 # Initial delay to allow interfaces to connect
 
-#COLLECT_METADATA
+COLLECT_METADATA
