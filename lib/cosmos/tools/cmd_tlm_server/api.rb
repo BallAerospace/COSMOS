@@ -532,10 +532,12 @@ module Cosmos
       packet = cvt_packet.clone
       packet.received_time = received_time
 
-      # Update the packet with item_hash
-      value_type = value_type.to_s.intern
-      item_hash.each do |item_name, item_value|
-        packet.write(item_name, item_value, value_type)
+      if item_hash
+        # Update the packet with item_hash
+        value_type = value_type.to_s.intern
+        item_hash.each do |item_name, item_value|
+          packet.write(item_name, item_value, value_type)
+        end
       end
 
       # Update current value table
@@ -943,6 +945,27 @@ module Cosmos
     # @see CmdTlmServer.get_packet_data
     def get_packet_data(id, non_block = false)
       CmdTlmServer.get_packet_data(id, non_block)
+    end
+
+    # Get a packet which was previously subscribed to by
+    # subscribe_packet_data. This method can block waiting for new packets or
+    # not based on the second parameter. It returns a single Cosmos::Packet instance
+    # and will return nil when no more packets are buffered (assuming non_block
+    # is false).
+    # Usage:
+    #   get_packet(id, <true or false to block>)
+    def get_packet(id, non_block = false)
+      packet = nil
+      # The get_packet_data in the CmdTlmServer returns the number of seconds
+      # followed by microseconds after the packet_name. This is different that the Script API.
+      buffer, target_name, packet_name, rx_sec, rx_usec, rx_count = get_packet_data(id, non_block)
+      if buffer
+        packet = System.telemetry.packet(target_name, packet_name).clone
+        packet.buffer = buffer
+        packet.received_time = Time.at(rx_sec, rx_usec).sys
+        packet.received_count = rx_count
+      end
+      packet
     end
 
     #

@@ -140,7 +140,5 @@ module Cosmos
     def prompt_combo_box(string, options)
       prompt_message_box(string, options)
     end
-
-  end # module Script
-
-end # module Cosmos
+  end
+end

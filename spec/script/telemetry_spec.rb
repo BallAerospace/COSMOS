@@ -161,12 +161,14 @@ module Cosmos
         unsubscribe_packet_data(id)
       end
 
-      it "subscribes and get limits events" do
-        id = subscribe_packet_data([["INST","HEALTH_STATUS"]])
-        CmdTlmServer.instance.post_packet(System.telemetry.packet("INST","HEALTH_STATUS"))
-        packet = get_packet(id, true)
-        expect(packet.target_name).to eql "INST"
-        expect(packet.packet_name).to eql "HEALTH_STATUS"
+      it "subscribes and gets packets" do
+        id = subscribe_packet_data([["SYSTEM","META"]])
+        inject_tlm("SYSTEM", "META")
+        packet = get_packet(id)
+        expect(packet.target_name).to eql "SYSTEM"
+        expect(packet.packet_name).to eql "META"
+        expect(packet.received_time).to be_within(1).of Time.now
+        expect(packet.received_count).to eql 1
         unsubscribe_packet_data(id)
       end
     end
