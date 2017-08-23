@@ -11,8 +11,8 @@
     <title xml:lang="en">Ball Aerospace COSMOS News</title>
     <atom:link type="application/atom+xml" href="http://cosmosrb/feed.xml" rel="self"/>
     <link>http://cosmosrb.com/</link>
-    <pubDate>Fri, 04 Aug 2017 17:36:22 -0600</pubDate>
-    <lastBuildDate>Fri, 04 Aug 2017 17:36:22 -0600</lastBuildDate>
+    <pubDate>Wed, 23 Aug 2017 15:45:01 -0600</pubDate>
+    <lastBuildDate>Wed, 23 Aug 2017 15:45:01 -0600</lastBuildDate>
     <language>en-US</language>
     <generator>Jekyll v3.4.3</generator>
     <description>The User Interface for Embedded Systems</description>
@@ -24,6 +24,134 @@
       <width>144</width>
       <height>73</height>
     </image>
+    
+    <item>
+      <title>Deploying COSMOS to the Cloud</title>
+      <link>http://cosmosrb.com/news/2017/08/23/cloud-deploy/</link>
+      <pubDate>Wed, 23 Aug 2017 01:00:00 -0600</pubDate>
+      <dc:creator>jmthomas</dc:creator>
+      
+      
+      <category>post</category>
+      
+      <guid isPermaLink="true">http://cosmosrb.com/news/2017/08/23/cloud-deploy/</guid>
+      <description>&lt;p&gt;COSMOS is a GUI application which runs equally well on Windows, Linux, and Mac OS X due to the QT GUI framework and Ruby language it is written in. Traditionally this means you install it locally on your own workstation and you’re off and running. But can COSMOS also be deployed to the cloud? Yes! This post describes how I deployed COSMOS to Amazon Web Services (AWS) using several different technologies.&lt;/p&gt;
+
+&lt;h3 id=&quot;aws&quot;&gt;AWS&lt;/h3&gt;
+
+&lt;p&gt;AWS consists of a lot of different services. To deploy COSMOS you need to create an AWS EC2 instance. The first step is to sign up for AWS which enables you to use their Free Tier for 12 months. This includes 750hrs each on Linux and Windows Server.&lt;/p&gt;
+
+&lt;h3 id=&quot;deploying-to-windows-server&quot;&gt;Deploying to Windows Server&lt;/h3&gt;
+
+&lt;p&gt;Deploying to Windows Server is probably the easiest way to get COSMOS in the cloud. Simply create a Windows Server instance by selecting the following image:&lt;br /&gt;
+&lt;img src=&quot;/img/2017_08_23_aws_win_server.png&quot; alt=&quot;Windows Image&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Then select the t2.micro Type which is marked “Free tier eligible”. Launch the Instance and you should see the key pair dialog:&lt;br /&gt;
+&lt;img src=&quot;/img/2017_08_23_aws_key_pair.png&quot; alt=&quot;Key Pair Dialog&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Create a new key pair and give the name something generic because you can use the same key pair for all the EC2 instances you create. Create the instance and then View Instance which will show the instance status. Click the Connect button at top which will bring up the Connect dialog:&lt;br /&gt;
+&lt;img src=&quot;/img/2017_08_23_aws_win_connect.png&quot; alt=&quot;Connect Dialog&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Click the Download Remote Desktop File and open it in Remote Desktop to connect to the Windows Server instance. Note that it does take a while for the Windows instance to boot so this won’t work until your Status Checks show a green check. Also note that many corporate firewalls may block doing a Remote Desktop outside your corporate network.&lt;/p&gt;
+
+&lt;p&gt;You also need to click Get Password and locate your ‘pem’ file you saved earlier to Decrypt your password. Login to the instance as Administrator with the decrypted password. Once you’ve logged in you can change the password to something a little more reasonable. Then simply follow the usual &lt;a href=&quot;/docs/installation/&quot;&gt;COSMOS installation &lt;/a&gt; instructions.&lt;/p&gt;
+
+&lt;p&gt;Here is a screenshot of my successful COSMOS installation running on the AWS Microsoft Server instance:&lt;br /&gt;
+&lt;img src=&quot;/img/2017_08_23_aws_windows.png&quot; alt=&quot;COSMOS on Windows&quot; /&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;deploying-to-red-hat-linux-with-x-forwarding&quot;&gt;Deploying to Red Hat Linux (with X forwarding)&lt;/h3&gt;
+
+&lt;p&gt;Deploying to Red Hat Linux is similar to Windows. Create a Red Hat instance by selecting the following image:&lt;br /&gt;
+&lt;img src=&quot;/img/2017_08_23_aws_red_hat.png&quot; alt=&quot;Red Hat Image&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Use the same key pair when creating your Windows instance and create the instance. View Instance and click the Connect button which brings up the Connect dialog:&lt;br /&gt;
+&lt;img src=&quot;/img/2017_08_23_aws_red_hat_connect.png&quot; alt=&quot;Connect Dialog&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;SSH to the instance using the connection string provided making sure to specify the full path to your ‘pem’ file in the quoted path after the -i option. Install a GUI by issuing the following command:&lt;/p&gt;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;sudo yum groupinstall 'Server with GUI'
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Install COSMOS using the installation bash file:&lt;/p&gt;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;bash &amp;lt;(\curl -sSL https://raw.githubusercontent.com/BallAerospace/COSMOS/master/vendor/installers/linux_mac/INSTALL_COSMOS.sh)
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Chose the sudo option when asked how to install. To enable X forwarding edit the SSH config file:&lt;/p&gt;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;sudo vim /etc/ssh/sshd_config
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Enable the following settings:&lt;/p&gt;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;X11Forwarding yes
+X11DisplayOffset 10
+X11UseLocalhost no
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Close your current SSH connection and reconnect with SSH adding the -X option to enable X11 forwarding and -Y to enable trusted X11 fowarding. If you host OS is Mac OS X you’ll need to install &lt;a href=&quot;https://www.xquartz.org/&quot;&gt;XQuartz&lt;/a&gt;. Linux has X11 forward support built-in. Windows should probably install Xming which is an exercise left to the reader.&lt;/p&gt;
+
+&lt;p&gt;Now launch COSMOS and you should see the COSMOS windows appear on your own machine. While this approach works I found the performance to be significantly slower than VNC. Here is a screenshot of it running while I connected via a Mac OS X machine:
+&lt;img src=&quot;/img/2017_08_23_aws_red_hat_x.png&quot; alt=&quot;Red Hat X&quot; /&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;deploying-on-ubuntu-with-vnc&quot;&gt;Deploying on Ubuntu (with VNC)&lt;/h3&gt;
+
+&lt;p&gt;Deploying to Ubuntu Linux is very similar to Red Hat. Create an Ubuntu instance by selecting the following image:&lt;br /&gt;
+&lt;img src=&quot;/img/2017_08_23_aws_ubuntu.png&quot; alt=&quot;Ubuntu Image&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Use the same key pair as when creating your Windows or Red Hat instance and create the instance. View Instance and click the Connect button which brings up the Connect dialog:&lt;br /&gt;
+&lt;img src=&quot;/img/2017_08_23_aws_red_hat_connect.png&quot; alt=&quot;Connect Dialog&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Click on the instance and click the Description tab which appears below the instance. Click the link next to Security groups to open the Security Groups configuration. Click the Inbound tab and create Edit to create a new Custom TCP Rule to enable TCP traffic on Ports 5900-5910 from Anywhere. Your rule should look like the following:
+&lt;img src=&quot;/img/2017_08_23_aws_security_group.png&quot; alt=&quot;Security Group&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;SSH to the instance using the connection string provided making sure to specify the full path to your ‘pem’ file in the quoted path after the -i option. Install a GUI by issuing the following command:&lt;/p&gt;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;sudo apt-get update
+sudo apt install xfce4 xfce4-goodies tightvncserver
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Run the following commands to setup the VNC server:&lt;/p&gt;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;vncserver
+vncserver -kill :1
+vim ~/.vnc/xstartup
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Ensure your xstartup file matches the following:&lt;/p&gt;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;#!/bin/sh&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;# Uncomment the following two lines for normal desktop:&lt;/span&gt;
+&lt;span class=&quot;nb&quot;&gt;unset &lt;/span&gt;SESSION_MANAGER
+&lt;span class=&quot;c&quot;&gt;# exec /etc/X11/xinit/xinitrc&lt;/span&gt;
+&lt;span class=&quot;nb&quot;&gt;unset &lt;/span&gt;DBUS_SESSION_BUS_ADDRESS
+startxfce4 &amp;amp;
+
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt; -x /etc/vnc/xstartup &lt;span class=&quot;o&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;exec&lt;/span&gt; /etc/vnc/xstartup
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt; -r &lt;span class=&quot;nv&quot;&gt;$HOME&lt;/span&gt;/.Xresources &lt;span class=&quot;o&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; xrdb &lt;span class=&quot;nv&quot;&gt;$HOME&lt;/span&gt;/.Xresources
+xsetroot -solid grey
+vncconfig -iconic &amp;amp;
+&lt;span class=&quot;c&quot;&gt;#x-terminal-emulator -geometry 80x24+10+10 -ls -title &quot;$VNCDESKTOP Desktop&quot; &amp;amp;&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;#x-window-manager &amp;amp;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Restart VNC:&lt;/p&gt;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;vncserver
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Install COSMOS using the installation bash file:&lt;/p&gt;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;bash &amp;lt;(\curl -sSL https://raw.githubusercontent.com/BallAerospace/COSMOS/master/vendor/installers/linux_mac/INSTALL_COSMOS.sh)
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Chose the sudo option when asked how to install. On your local machine install a VNC viewer such as TightVNC and connect by entering the Public DNS address of your AWS instance in the Remote Host as well as the Port number of 5901. Typically this is added by appending it to the Remote Host address with a colon. Here is a screenshot of it running while I connected via TightVNC:
+&lt;img src=&quot;/img/2017_08_23_aws_ubuntu_vnc.png&quot; alt=&quot;Red Hat X&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;If you need additional support please contact us at &lt;a href=&quot;mailto:cosmos@ball.com&quot;&gt;cosmos@ball.com&lt;/a&gt;.&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>Ball Aerospace COSMOS 4.0.0 Released</title>
