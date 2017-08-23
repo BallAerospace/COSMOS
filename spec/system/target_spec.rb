@@ -132,13 +132,13 @@ module Cosmos
         end
 
         it "requires the file in the target lib directory over system lib" do
-          filename = File.join(Cosmos::USERPATH, 'config', 'targets', 'INST', 'lib', 'tgt_file.rb')
-          File.open(filename, 'w') do |file|
+          filename1 = File.join(Cosmos::USERPATH, 'config', 'targets', 'INST', 'lib', 'tgt_file.rb')
+          File.open(filename1, 'w') do |file|
             file.puts "class TgtLibFile"
             file.puts "end"
           end
-          filename = File.join(Cosmos::USERPATH, 'lib', 'tgt_file.rb')
-          File.open(filename, 'w') do |file|
+          filename2 = File.join(Cosmos::USERPATH, 'lib', 'tgt_file.rb')
+          File.open(filename2, 'w') do |file|
             file.puts "class SystemLibFile"
             file.puts "end"
           end
@@ -150,7 +150,8 @@ module Cosmos
           expect { TgtLibFile.new }.to_not raise_error
           expect(Object.const_defined?('TgtLibFile')).to be true
           expect(Object.const_defined?('SystemLibFile')).to be false
-          File.delete filename
+          File.delete filename1
+          File.delete filename2
           tf.unlink
         end
 

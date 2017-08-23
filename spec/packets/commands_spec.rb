@@ -276,6 +276,16 @@ module Cosmos
         expect(cmd.raw).to eql true
         expect(cmd.read("ITEM2")).to eql 10
       end
+
+      it "resets the buffer size" do
+        packet = @cmd.packet('TGT1', 'PKT1')
+        packet.buffer = "\x00" * (packet.defined_length + 1)
+        expect(packet.length).to eql 5
+        items = {"ITEM2" => 10}
+        cmd = @cmd.build_cmd("TGT1","PKT1",items)
+        expect(cmd.read("ITEM2")).to eql 10
+        expect(cmd.length).to eql 4
+      end
     end
 
     describe "format" do
