@@ -86,6 +86,8 @@
       
       <option value="/news/2017/08/23/cloud-deploy/">Deploying COSMOS to the Cloud</option>
       
+      <option value="/news/2017/08/23/cosmos-4-0-1-released/">Ball Aerospace COSMOS 4.0.1 Released</option>
+      
       <option value="/news/2017/08/04/cosmos-4-0-0-released/">Ball Aerospace COSMOS 4.0.0 Released</option>
       
       <option value="/news/2017/07/05/arduino-battle-bots/">Arduinos & Battle Bots</option>
@@ -210,28 +212,28 @@
 
 <h3 id="deploying-to-windows-server">Deploying to Windows Server</h3>
 
-<p>Deploying to Windows Server is probably the easiest way to get COSMOS in the cloud. Simply create a Windows Server instance by selecting the following image:<br />
+<p>Deploying to Windows Server is probably the easiest way to get COSMOS in the cloud. Simply create a Windows Server instance by selecting the following image:
 <img src="/img/2017_08_23_aws_win_server.png" alt="Windows Image" /></p>
 
-<p>Then select the t2.micro Type which is marked “Free tier eligible”. Launch the Instance and you should see the key pair dialog:<br />
+<p>Then select the t2.micro Type which is marked “Free tier eligible”. Launch the Instance and you should see the key pair dialog:
 <img src="/img/2017_08_23_aws_key_pair.png" alt="Key Pair Dialog" /></p>
 
-<p>Create a new key pair and give the name something generic because you can use the same key pair for all the EC2 instances you create. Create the instance and then View Instance which will show the instance status. Click the Connect button at top which will bring up the Connect dialog:<br />
+<p>Create a new key pair and give the name something generic because you can use the same key pair for all the EC2 instances you create. Create the instance and then View Instance which will show the instance status. Click the Connect button at top which will bring up the Connect dialog:
 <img src="/img/2017_08_23_aws_win_connect.png" alt="Connect Dialog" /></p>
 
 <p>Click the Download Remote Desktop File and open it in Remote Desktop to connect to the Windows Server instance. Note that it does take a while for the Windows instance to boot so this won’t work until your Status Checks show a green check. Also note that many corporate firewalls may block doing a Remote Desktop outside your corporate network.</p>
 
 <p>You also need to click Get Password and locate your ‘pem’ file you saved earlier to Decrypt your password. Login to the instance as Administrator with the decrypted password. Once you’ve logged in you can change the password to something a little more reasonable. Then simply follow the usual <a href="/docs/installation/">COSMOS installation </a> instructions.</p>
 
-<p>Here is a screenshot of my successful COSMOS installation running on the AWS Microsoft Server instance:<br />
+<p>Here is a screenshot of my successful COSMOS installation running on the AWS Microsoft Server instance:
 <img src="/img/2017_08_23_aws_windows.png" alt="COSMOS on Windows" /></p>
 
 <h3 id="deploying-to-red-hat-linux-with-x-forwarding">Deploying to Red Hat Linux (with X forwarding)</h3>
 
-<p>Deploying to Red Hat Linux is similar to Windows. Create a Red Hat instance by selecting the following image:<br />
+<p>Deploying to Red Hat Linux is similar to Windows. Create a Red Hat instance by selecting the following image:
 <img src="/img/2017_08_23_aws_red_hat.png" alt="Red Hat Image" /></p>
 
-<p>Use the same key pair when creating your Windows instance and create the instance. View Instance and click the Connect button which brings up the Connect dialog:<br />
+<p>Use the same key pair when creating your Windows instance and create the instance. View Instance and click the Connect button which brings up the Connect dialog:
 <img src="/img/2017_08_23_aws_red_hat_connect.png" alt="Connect Dialog" /></p>
 
 <p>SSH to the instance using the connection string provided making sure to specify the full path to your ‘pem’ file in the quoted path after the -i option. Install a GUI by issuing the following command:</p>
@@ -263,10 +265,10 @@ X11UseLocalhost no
 
 <h3 id="deploying-on-ubuntu-with-vnc">Deploying on Ubuntu (with VNC)</h3>
 
-<p>Deploying to Ubuntu Linux is very similar to Red Hat. Create an Ubuntu instance by selecting the following image:<br />
+<p>Deploying to Ubuntu Linux is very similar to Red Hat. Create an Ubuntu instance by selecting the following image:
 <img src="/img/2017_08_23_aws_ubuntu.png" alt="Ubuntu Image" /></p>
 
-<p>Use the same key pair as when creating your Windows or Red Hat instance and create the instance. View Instance and click the Connect button which brings up the Connect dialog:<br />
+<p>Use the same key pair as when creating your Windows or Red Hat instance and create the instance. View Instance and click the Connect button which brings up the Connect dialog:
 <img src="/img/2017_08_23_aws_red_hat_connect.png" alt="Connect Dialog" /></p>
 
 <p>Click on the instance and click the Description tab which appears below the instance. Click the link next to Security groups to open the Security Groups configuration. Click the Inbound tab and create Edit to create a new Custom TCP Rule to enable TCP traffic on Ports 5900-5910 from Anywhere. Your rule should look like the following:
@@ -317,6 +319,69 @@ vncconfig -iconic &amp;
 <img src="/img/2017_08_23_aws_ubuntu_vnc.png" alt="Red Hat X" /></p>
 
 <p>If you need additional support please contact us at <a href="mailto:cosmos@ball.com">cosmos@ball.com</a>.</p>
+
+  </div>
+</article>
+
+
+  <article>
+  <h2>
+    <a href="/news/2017/08/23/cosmos-4-0-1-released/">
+      Ball Aerospace COSMOS 4.0.1 Released
+    </a>
+  </h2>
+  <span class="post-category">
+    <span class="label">
+      release
+    </span>
+  </span>
+  <div class="post-meta">
+    <span class="post-date">
+      23 Aug 2017
+    </span>
+    <a href="https://github.com/ryanmelt" class="post-author">
+      <img src="https://github.com/ryanmelt.png" class="avatar" alt="ryanmelt avatar" width="24" height="24">
+      ryanmelt
+    </a>
+  </div>
+  <div class="post-content">
+    <h3 id="new-features">New Features:</h3>
+
+<ul>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/527">#527</a> Editing config files should now bring up ConfigEditor</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/528">#528</a> ConfigEditor missing some keywords</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/534">#534</a> Create ConfigEditor Mac app</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/536">#536</a> Clickable canvas objects open screens</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/543">#542</a> Automatically populate COMMAND SYSTEM META</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/543">#543</a> Allow SYSTEM META items to be read only</li>
+</ul>
+
+<h3 id="maintenance">Maintenance:</h3>
+
+<ul>
+  <li>None</li>
+</ul>
+
+<h3 id="bug-fixes">Bug Fixes:</h3>
+
+<ul>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/533">#533</a> TestRunner strips all comments when running</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/538">#538</a> META_INIT broken</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/540">#540</a> Background task packet subscription get_packet broken</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/547">#547</a> convert_packet_to_data should copy buffer</li>
+</ul>
+
+<h3 id="migration-notes-from-cosmos-38x">Migration Notes from COSMOS 3.8.x:</h3>
+
+<p>COSMOS 4 includes several breaking changes from the COSMOS 3.x series.</p>
+
+<p>The first and simplest is that the Command and Telemetry Server now opens an additional port at 7780 by default, that provides a router that will send out each command that the system has sent.  This can allow external systems to also log all commands sent by COSMOS.  For most people this change will be transparent and no updates to your COSMOS configuration will be required.</p>
+
+<p>The second is that the Command and Telemetry Server now always supports a meta data packet called SYSTEM META.  This packet will always contain the MD5 sum for the current running COSMOS configuration, the version of COSMOS running, the version of your COSMOS Project, and the version of Ruby being used.  You can also add your own requirements for meta data with things like the name of the operator currently running the system, or the name of a specific test you are currently running.  In general you shouldn’t need to do anything for this change unless you were using the previous metadata functionality in COSMOS.  If you were, then you will need to migrate your meta data to the new SYSTEM META packet, and change the parameters in your CmdTlmServer or TestRunner configurations regarding meta data.  If you weren’t using metadata before, then you will probably just notice this new packet in your log files, and in your telemetry stream.</p>
+
+<p>Finally the most exciting breaking change is in how COSMOS interfaces handle protocols.  Before, the COSMOS TCP/IP and Serial interface classes each took a protocol like LENGTH, TERMINATED, etc that defined how packets were delineated by the interface.  Now each interface can take a set of one or more protocols.  This allows COSMOS to much more easily support nested protocols, such as the frame focused protocols of CCSDS.  It also allows for creating helpful reusable protocols such as the new CRC protocol for automatically adding CRCs to outgoing commands and verifying incoming CRCs on telemetry packets.  It’s a great change, but if you have any custom interface classes you have written, they will probably require some modification.  See the Interfaces section at cosmosrb.com to see how the new interface classes work. We will also be writing up a blog post to help document the process of upgrading.  Look for this in a week or two.</p>
+
+<p>To upgrade to the latest version of COSMOS, run “bundle update cosmos” in your COSMOS project folder.</p>
 
   </div>
 </article>
@@ -2979,6 +3044,10 @@ change the whole playing field of Operations, Integration, and Test”.</p>
     <ul>
       
       <li class="">
+        <a href="/news/2017/08/23/cosmos-4-0-1-released/">Version 4.0.1</a>
+      </li>
+      
+      <li class="">
         <a href="/news/2017/08/04/cosmos-4-0-0-released/">Version 4.0.0</a>
       </li>
       
@@ -2994,10 +3063,6 @@ change the whole playing field of Operations, Integration, and Test”.</p>
         <a href="/news/2016/12/06/cosmos-3-8-3-released/">Version 3.8.3</a>
       </li>
       
-      <li class="">
-        <a href="/news/2016/07/05/cosmos-3-8-2-released/">Version 3.8.2</a>
-      </li>
-      
       <li>
         <a href="/docs/history/">History »</a>
       </li>
@@ -3009,6 +3074,8 @@ change the whole playing field of Operations, Integration, and Test”.</p>
         <li class="">
           <a href="/news/2017/08/23/cloud-deploy/">Deploying COSMOS to the Cloud</a>
         </li>
+        
+        
         
         
         
