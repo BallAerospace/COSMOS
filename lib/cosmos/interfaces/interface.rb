@@ -372,7 +372,7 @@ module Cosmos
     # @param packet [Packet] Packet to extract data from
     # @return data
     def convert_packet_to_data(packet)
-      packet.buffer(false)
+      packet.buffer(true) # Copy buffer so logged command isn't modified
     end
 
     # Called to read data and manipulate it until enough data is
