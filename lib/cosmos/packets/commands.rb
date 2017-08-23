@@ -134,6 +134,11 @@ module Cosmos
       # Lookup the command and create a light weight copy
       command = packet(target_upcase, packet_upcase).clone
 
+      # Restore the command's buffer to a zeroed string of defined length
+      # This will undo any side effects from earlier commands that may have altered the size
+      # of the buffer
+      command.buffer = "\x00" * command.defined_length
+
       # Set time, parameters, and restore defaults
       command.received_time = Time.now.sys
       command.given_values = params
