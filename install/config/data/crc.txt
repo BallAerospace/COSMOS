@@ -1,6 +1,6 @@
 "lib/user_version.rb" 0x8F282EE9
 "config/targets/SYSTEM/target.txt" 0x07E82776
-"config/targets/SYSTEM/cmd_tlm/meta_cmd_tlm.txt" 0x84E416C1
+"config/targets/SYSTEM/cmd_tlm/meta_tlm.txt" 0x07CDABCB
 "config/data/README.txt" 0x93B2C07E
 "config/system/system.txt" 0x6CB79668
 "config/tools/launcher/launcher.txt" 0x2F6ABBDB
@@ -126,6 +126,11 @@
 "tools/mac/Launcher.app/Contents/MacOS/tool_launch.rb" 0x0BDB6696
 "tools/mac/Launcher.app/Contents/MacOS/main.sh" 0x0B32DAE8
 "tools/mac/Launcher.app/Contents/MacOS/Launcher.rb" 0xFD4E356C
+"tools/mac/ConfigEditor.app/Contents/Info.plist" 0x5E9C6081
+"tools/mac/ConfigEditor.app/Contents/Resources/appIcon.icns" 0xD9774799
+"tools/mac/ConfigEditor.app/Contents/MacOS/tool_launch.rb" 0x0BDB6696
+"tools/mac/ConfigEditor.app/Contents/MacOS/main.sh" 0x7C087C20
+"tools/mac/ConfigEditor.app/Contents/MacOS/ConfigEditor.rb" 0xD1205371
 "tools/mac/TlmGrapher.app/Contents/Info.plist" 0x3623B978
 "tools/mac/TlmGrapher.app/Contents/Resources/appIcon.icns" 0xCA324F50
 "tools/mac/TlmGrapher.app/Contents/MacOS/tool_launch.rb" 0x0BDB6696

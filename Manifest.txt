@@ -131,6 +131,7 @@ autohotkey/tools/CmdSequenceAHK2
 autohotkey/tools/CmdTlmServer
 autohotkey/tools/CmdTlmServerAHK
 autohotkey/tools/CmdTlmServerAHK2
+autohotkey/tools/ConfigEditor
 autohotkey/tools/DataViewer
 autohotkey/tools/DataViewerAHK
 autohotkey/tools/HandbookCreatorAHK
@@ -203,6 +204,7 @@ autohotkey/tools/tlm_viewer.ahk
 autohotkey/tools/tlm_viewer2.ahk
 autohotkey/tools/tlm_viewer4.ahk
 autohotkey/tools/tlm_viewer5.ahk
+autohotkey/tools/tool_launch.rb
 bin/cosmos
 bin/cstol_converter
 bin/exchndl20-x64.dll
@@ -404,7 +406,7 @@ demo/config/targets/INST/tools/data_viewer/data_viewer2.txt
 demo/config/targets/INST/tools/table_manager/EventAction_def.txt
 demo/config/targets/INST/tools/table_manager/McConfigTable_def.txt
 demo/config/targets/SYSTEM/cmd_tlm/limits_groups.txt
-demo/config/targets/SYSTEM/cmd_tlm/meta_cmd_tlm.txt
+demo/config/targets/SYSTEM/cmd_tlm/meta_tlm.txt
 demo/config/targets/SYSTEM/cmd_tlm/override.txt
 demo/config/targets/SYSTEM/cmd_tlm/system_cmds.txt
 demo/config/targets/SYSTEM/cmd_tlm/system_tlm.txt
@@ -550,6 +552,11 @@ demo/tools/mac/CmdTlmServer.app/Contents/MacOS/CmdTlmServer.rb
 demo/tools/mac/CmdTlmServer.app/Contents/MacOS/main.sh
 demo/tools/mac/CmdTlmServer.app/Contents/MacOS/tool_launch.rb
 demo/tools/mac/CmdTlmServer.app/Contents/Resources/appIcon.icns
+demo/tools/mac/ConfigEditor.app/Contents/Info.plist
+demo/tools/mac/ConfigEditor.app/Contents/MacOS/ConfigEditor.rb
+demo/tools/mac/ConfigEditor.app/Contents/MacOS/main.sh
+demo/tools/mac/ConfigEditor.app/Contents/MacOS/tool_launch.rb
+demo/tools/mac/ConfigEditor.app/Contents/Resources/appIcon.icns
 demo/tools/mac/DataViewer.app/Contents/Info.plist
 demo/tools/mac/DataViewer.app/Contents/MacOS/DataViewer.rb
 demo/tools/mac/DataViewer.app/Contents/MacOS/main.sh
@@ -651,7 +658,7 @@ install/Rakefile
 install/config/data/README.txt
 install/config/data/crc.txt
 install/config/system/system.txt
-install/config/targets/SYSTEM/cmd_tlm/meta_cmd_tlm.txt
+install/config/targets/SYSTEM/cmd_tlm/meta_tlm.txt
 install/config/targets/SYSTEM/target.txt
 install/config/tools/cmd_tlm_server/cmd_tlm_server.txt
 install/config/tools/data_viewer/data_viewer.txt
@@ -758,6 +765,11 @@ install/tools/mac/CmdTlmServer.app/Contents/MacOS/CmdTlmServer.rb
 install/tools/mac/CmdTlmServer.app/Contents/MacOS/main.sh
 install/tools/mac/CmdTlmServer.app/Contents/MacOS/tool_launch.rb
 install/tools/mac/CmdTlmServer.app/Contents/Resources/appIcon.icns
+install/tools/mac/ConfigEditor.app/Contents/Info.plist
+install/tools/mac/ConfigEditor.app/Contents/MacOS/ConfigEditor.rb
+install/tools/mac/ConfigEditor.app/Contents/MacOS/main.sh
+install/tools/mac/ConfigEditor.app/Contents/MacOS/tool_launch.rb
+install/tools/mac/ConfigEditor.app/Contents/Resources/appIcon.icns
 install/tools/mac/DataViewer.app/Contents/Info.plist
 install/tools/mac/DataViewer.app/Contents/MacOS/DataViewer.rb
 install/tools/mac/DataViewer.app/Contents/MacOS/main.sh
@@ -1102,6 +1114,7 @@ lib/cosmos/tools/tlm_viewer/widgets/aging_widget.rb
 lib/cosmos/tools/tlm_viewer/widgets/array_widget.rb
 lib/cosmos/tools/tlm_viewer/widgets/block_widget.rb
 lib/cosmos/tools/tlm_viewer/widgets/button_widget.rb
+lib/cosmos/tools/tlm_viewer/widgets/canvas_clickable.rb
 lib/cosmos/tools/tlm_viewer/widgets/canvas_widget.rb
 lib/cosmos/tools/tlm_viewer/widgets/canvasdot_widget.rb
 lib/cosmos/tools/tlm_viewer/widgets/canvasimage_widget.rb
@@ -1218,7 +1231,7 @@ spec/install/config/targets/INST/cmd_tlm_server.txt
 spec/install/config/targets/INST/lib/sim_inst.rb
 spec/install/config/targets/INST/target.txt
 spec/install/config/targets/SYSTEM/cmd_tlm/limits_groups.txt
-spec/install/config/targets/SYSTEM/cmd_tlm/meta_cmd_tlm.txt
+spec/install/config/targets/SYSTEM/cmd_tlm/meta_tlm.txt
 spec/install/config/targets/SYSTEM/cmd_tlm/system_cmds.txt
 spec/install/config/targets/SYSTEM/cmd_tlm/system_tlm.txt
 spec/install/config/targets/SYSTEM/cmd_tlm_server.txt
