@@ -186,7 +186,7 @@ class RubyLexUtils
   #   progress will be set as the processing progresses
   # @return [String] The text with all comments removed
   def remove_comments(text, progress_dialog = nil)
-    comments_removed = text
+    comments_removed = text.clone
     @lex.reinitialize
     @lex.exception_on_syntax_error = false
     @lex_io.string = text
