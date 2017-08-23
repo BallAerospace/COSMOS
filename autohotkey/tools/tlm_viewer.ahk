@@ -18,6 +18,8 @@ Sleep 1000
 
 Click 260 95 ; Edit Screen
 Sleep 2000
+WinWaitActive Config Editor
+Sleep 2000
 Send !f{x}      ; Exit text editor
 WinActivate Telemetry Viewer
 WinWaitActive Telemetry Viewer

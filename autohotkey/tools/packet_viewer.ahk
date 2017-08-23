@@ -13,7 +13,8 @@ Send !f ; File
 Sleep 500
 Send e ; Edit
 Sleep 5000
-Send !f{x} ; Exit text editor
+WinWaitActive Config Editor
+Send !f{x} ; Exit config editor
 WinWaitActive Packet Viewer
 Sleep 500
 
