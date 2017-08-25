@@ -62,11 +62,11 @@ module Cosmos
         Cosmos.kill_thread(self, thread)
       end
 
-      it "processes the check methods at 1Hz" do
+      it "processes the check methods at a configurable rate" do
         class MyLimitsGroups3 < LimitsGroupsBackgroundTask
           attr_accessor :first_count, :second_count, :on_logic, :off_logic
-          def initialize
-            super()
+          def initialize(connect_delay, task_delay)
+            super(connect_delay, task_delay)
             @first_count = 0
             @second_count = 0
             @on_logic = false
@@ -85,7 +85,7 @@ module Cosmos
             process_group { false } # Never enable
           end
         end
-        my = MyLimitsGroups3.new
+        my = MyLimitsGroups3.new(0, 1) # Run at 1Hz
         thread = Thread.new do
           my.call
         end

@@ -18,9 +18,10 @@ module Cosmos
     FUTURE_TIME = Time.new("3000")
     PAST_TIME = Time.new("1900")
 
-    def initialize(initial_delay = 0)
+    def initialize(initial_delay = 0, task_delay = 0.5)
       super()
       @initial_delay = Float(initial_delay)
+      @task_delay = Float(task_delay)
       @name = "Limits Groups"
       @groups = get_limits_groups()
       # Initialize all the group names as instance variables
@@ -87,9 +88,9 @@ module Cosmos
         check_methods.each {|method| self.send(method.intern) }
         now = Time.now
         @status = "#{now.formatted}: Checking groups took #{now - start}s"
-        sleep_time = 1 - (now - start)
+        sleep_time = @task_delay - (now - start)
         sleep_time = 0 if sleep_time < 0
-        broken = @sleeper.sleep(sleep_time) # Run the checks at 1Hz
+        broken = @sleeper.sleep(sleep_time)
         break if broken
       end
     end
