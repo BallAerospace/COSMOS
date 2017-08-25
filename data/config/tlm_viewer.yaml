@@ -10,6 +10,11 @@ AUTO_TARGET:
     all the screens defined in config/targets/COSMOS/screens will be added to a
     single drop down selection labeled COSMOS.
   warning: If AUTO_TARGETS is used this keyword does nothing
+  parameters:
+    - name: Target
+      required: true
+      description: Name of the target
+      values: <%= System.targets.keys %>
 NEW_COLUMN:
   summary: Creates a new column of drop down selections in Telemetry Viewer
   description: All the AUTO_TARGET or SCREEN keywords after this keyword will be
