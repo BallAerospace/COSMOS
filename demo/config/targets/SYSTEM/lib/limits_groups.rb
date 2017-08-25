@@ -21,18 +21,18 @@ module Cosmos
       # Creating a Proc allows for arbitrary code to be executed when a group
       # is enabled or disabled.
       @temp2_enable_code = Proc.new do
-        enable_limits_group('GROUND') # Enable the GROUND group
+        enable_limits_group('INST2_GROUND') # Enable the INST2_GROUND group
       end
       @temp2_disable_code = Proc.new do
-        disable_limits_group('GROUND') # Disable the GROUP group
+        disable_limits_group('INST2_GROUND') # Disable the INST2_GROUND group
       end
     end
 
     # This method name is important. It must begin with 'check_' and end with
     # the name of a Limits Group defined by the LIMITS_GROUP keyword. In the
     # demo this is defined in config/targets/SYSTEM/cmd_tlm/limits_groups.txt.
-    # Note that there is a LIMITS_GROUP TEMP2 so we have a match.
-    def check_temp2
+    # Note that there is a LIMITS_GROUP INST2_TEMP2 so we have a match.
+    def check_inst2_temp2
       # Inside this method you must call process_group. The first parameter is
       # the number of seconds to delay before enabling the group when the telemetry
       # check is true. When the telemetry check is false the group is instantly
@@ -40,7 +40,7 @@ module Cosmos
       # the group is enabled and disabled respectively. We defined our Proc objects
       # in the constructor to enable and disable the GROUND group.
       process_group(0, @temp2_enable_code, @temp2_disable_code) do
-        val = tlm("INST HEALTH_STATUS TEMP2")
+        val = tlm("INST2 HEALTH_STATUS TEMP2")
         # The expression returns TRUE (to enable the group) when the value is
         # not NAN  and not Infinite. If the value is NAN or Infinite the group
         # is disabled. Note that this can't prevent false positives because the
