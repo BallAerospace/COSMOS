@@ -3,6 +3,7 @@ TELEMETRY:
   modifiers:
     <%= MetaConfigParser.load('telemetry_modifiers.yaml').to_meta_config_yaml(4) %>
   summary: Defines a new telemetry packet
+  example: TELEMETRY SYSTEM LIMITS_CHANGE BIG_ENDIAN "COSMOS limits change"
   parameters:
     - name: Target
       required: true
@@ -27,6 +28,7 @@ SELECT_TELEMETRY:
   summary: Selects an existing telemetry packet for editing
   description: Typically used in a separate configuration file from where the original
     telemetry is defined to override or add to the existing telemetry definition
+  example: SELECT_TELEMETRY SYSTEM LIMITS_CHANGE
   parameters:
     - name: Target Name
       required: true
@@ -58,6 +60,11 @@ LIMITS_GROUP_ITEM:
     configure multiple target items in a particular group you should put this information
     in the config/SYSTEM/cmd_tlm/limits_groups.txt file. The SYSTEM target is processed
     last and contains information that crosses target boundaries.
+  example: |
+    LIMITS_GROUP SUBSYSTEM
+      LIMITS_GROUP_ITEM INST HEALTH_STATUS TEMP1
+      LIMITS_GROUP_ITEM INST HEALTH_STATUS TEMP2
+      LIMITS_GROUP_ITEM INST HEALTH_STATUS TEMP3
   parameters:
     - name: Target Name
       required: true

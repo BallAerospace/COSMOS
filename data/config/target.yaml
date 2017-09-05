@@ -4,6 +4,7 @@ REQUIRE:
   description: Ruby files must be required to be available to call in other code.
     Files are first required from the target's lib folder. If no file is found the
     Ruby system path is checked which includes the base COSMOS/lib folder.
+  example: REQUIRE limits_response.rb
   parameters:
     - name: Filename
       required: true
@@ -20,6 +21,7 @@ IGNORE_PARAMETER:
     when processing the command. For example, Command Sender and Command Sequence
     will not display the parameter (by default) when showing the command and Script
     Runner code completion will not display the parameter.
+  example: IGNORE_PARAMETER CCSDS_VERSION
   parameters:
     - name: Parameter Name
       required: true
@@ -31,6 +33,7 @@ IGNORE_ITEM:
   description: Hint to other COSMOS tools to hide or ignore this telemetry item
     when processing the telemetry. For example, Packet Viewer will not display the
     item (by default) when showing the packet.
+  example: IGNORE_ITEM CCSDS_VERSION
   parameters:
     - name: Item name
       required: true
@@ -44,6 +47,9 @@ COMMANDS:
   warning: Usage of this keyword overrides automatic command and telemetry file
     discovery. If this keyword is used, you must also use the TELEMETRY keyword
     to specify the telemetry files to process.
+  example: |
+    COMMANDS inst_cmds_v2.txt
+    TELEMETRY inst_tlm_v2.txt
   parameters:
     - name: Filename
       required: true
@@ -56,6 +62,9 @@ TELEMETRY:
   warning: Usage of this keyword overrides automatic command and telemetry file
     discovery. If this keyword is used, you must also use the COMMAND keyword to
     specify the command files to process.
+  example: |
+    COMMANDS inst_cmds_v2.txt
+    TELEMETRY inst_tlm_v2.txt
   parameters:
     - name: Filename
       required: true

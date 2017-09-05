@@ -135,7 +135,7 @@ module Cosmos
       packet_length = (length * @length_bytes_per_count) + @length_value_offset
 
       # Make sure we have enough data for the packet
-      return:STOP if @data.length < packet_length
+      return :STOP if @data.length < packet_length
 
       # Reduce to packet data and setup current_data for next packet
       packet_data = @data[0..(packet_length - 1)]

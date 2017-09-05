@@ -3,6 +3,9 @@ ITEM:
   modifiers:
     <%= MetaConfigParser.load('item_modifiers.yaml').to_meta_config_yaml(4) %>
   summary: Defines a telemetry item in the current telemetry packet
+  example: |
+    ITEM PKTID 112 16 UINT "Packet ID"
+    ITEM DATA 0 0 DERIVED "Derived data"
   parameters:
     - name: Name
       required: true
@@ -19,6 +22,7 @@ APPEND_ITEM:
   modifiers:
     <%= MetaConfigParser.load('item_modifiers.yaml').to_meta_config_yaml(4) %>
   summary: Defines a telemetry item in the current telemetry packet
+  example: APPEND_ITEM PKTID 16 UINT "Packet ID"
   parameters:
     - name: Name
       required: true
@@ -29,6 +33,7 @@ ID_ITEM:
   modifiers:
     <%= MetaConfigParser.load('item_modifiers.yaml').to_meta_config_yaml(4) %>
   summary: Defines a telemetry item in the current telemetry packet
+  example: ID_ITEM PKTID 112 16 UINT 1 "Packet ID which must be 1"
   parameters:
     - name: Name
       required: true
@@ -45,6 +50,7 @@ APPEND_ID_ITEM:
   modifiers:
     <%= MetaConfigParser.load('item_modifiers.yaml').to_meta_config_yaml(4) %>
   summary: Defines a telemetry item in the current telemetry packet
+  example: APPEND_ID_ITEM PKTID 16 UINT 1 "Packet ID which must be 1"
   parameters:
     - name: Name
       required: true
@@ -55,6 +61,7 @@ ARRAY_ITEM:
   modifiers:
     <%= MetaConfigParser.load('item_modifiers.yaml').to_meta_config_yaml(4) %>
   summary: Defines a telemetry item in the current telemetry packet that is an array
+  example: ARRAY_ITEM ARRAY 64 32 FLOAT 320 "Array of 10 floats"
   parameters:
     - name: Name
       required: true
@@ -71,6 +78,7 @@ APPEND_ARRAY_ITEM:
   modifiers:
     <%= MetaConfigParser.load('item_modifiers.yaml').to_meta_config_yaml(4) %>
   summary: Defines a telemetry item in the current telemetry packedt that is an array
+  example: APPEND_ARRAY_ITEM ARRAY 32 FLOAT 320 "Array of 10 floats"
   parameters:
     - name: Name
       required: true
@@ -81,6 +89,9 @@ SELECT_ITEM:
   modifiers:
     <%= MetaConfigParser.load('item_modifiers.yaml').to_meta_config_yaml(4) %>
   summary: Selects an existing telemetry item for editing
+  example: |
+    SELECT_TELEMETRY SYSTEM LIMITS_CHANGE
+      SELECT_ITEM ITEM
   parameters:
     - name: Item
       required: true
@@ -91,6 +102,7 @@ META:
   description: Meta data is user specific data that can be used by custom tools
     for various purposes. One example is to store additional information needed
     to generate source code header files.
+  example: META FSW_TYPE "struct tlm_packet"
   parameters:
     - name: Meta Name
       required: true
@@ -102,6 +114,7 @@ META:
       values: .*
 PROCESSOR:
   summary: Defines a processor class that executes code every time a packet is received
+  example: PROCESSOR TEMP1HIGH watermark_processor.rb TEMP1
   parameters:
     - name: Processor Name
       required: true

@@ -1,6 +1,7 @@
 ---
 FORMAT_STRING:
   summary: Adds printf style formatting
+  example: FORMAT_STRING "0x%0X"
   parameters:
     - name: Format
       required: true
@@ -9,6 +10,9 @@ FORMAT_STRING:
       values: .*
 UNITS:
   summary: Add displayed units
+  example: |
+    UNITS Celcius C
+    UNITS Kilometers KM
   parameters:
     - name: Full Name
       required: true
@@ -30,6 +34,7 @@ META:
   description: Meta data is user specific data that can be used by custom tools
     for various purposes. One example is to store additional information needed
     to generate source code header files.
+  example: META TEST "This parameter is for test purposes only"
   parameters:
     - name: Meta Name
       required: true

@@ -6,6 +6,14 @@ STATE:
     you might define states for ON = 1 and OFF = 0. This allows the word ON to be
     used rather than the number 1 when sending the telemetry item and allows
     for much greater clarity and less chance for user error.
+  example: |
+    APPEND_ITEM ENABLE 32 UINT "Enable setting"
+      STATE FALSE 0
+      STATE TRUE 1
+    APPEND_ITEM STRING 1024 STRING "String"
+      STATE "NOOP" "NOOP" GREEN
+      STATE "ARM LASER" "ARM LASER" YELLOW
+      STATE "FIRE LASER" "FIRE LASER" RED
   parameters:
     - name: Key
       required: true
@@ -29,6 +37,23 @@ READ_CONVERSION:
     factor is applied to the raw value in the telemetry packet before it is displayed
     to the user. The user still has the ability to see the raw unconverted value
     in a details dialog.
+  example: |
+    READ_CONVERSION the_great_conversion.rb 1000
+
+    Defined in the_great_conversion.rb:
+
+    require 'cosmos/conversions/conversion'
+    module Cosmos
+      class TheGreatConversion < Conversion
+        def initialize(multiplier)
+          super()
+          @multiplier = multiplier
+        end
+        def call(value, packet, buffer)
+          return value * multiplier
+        end
+      end
+    end
   parameters:
     - name: Class File Name
       required: true
@@ -47,6 +72,7 @@ POLY_READ_CONVERSION:
   description: The conversion factor is applied to raw value in the telemetry
     packet before it is displayed to the user. The user still has the ability
     to see the raw unconverted value in a details dialog.
+  example: POLY_READ_CONVERSION 10 0.5 0.25
   parameters:
     - name: C0
       required: true
@@ -64,6 +90,10 @@ SEG_POLY_READ_CONVERSION:
   description: This conversion factor is applied to the raw value in the telemetry packet
     before it is displayed to the user. The user still has the ability to see the raw
     unconverted value in a details dialog.
+  example: |
+    SEG_POLY_READ_CONVERSION 0 10 0.5 0.25 # Apply the conversion to all values < 50
+    SEG_POLY_READ_CONVERSION 50 11 0.5 0.275 # Apply the conversion to all values >= 50 and < 100
+    SEG_POLY_READ_CONVERSION 100 12 0.5 0.3 # Apply the conversion to all values >= 100
   parameters:
     - name: Lower Bound
       required: true
@@ -96,6 +126,11 @@ GENERIC_READ_CONVERSION_START:
   warning: Generic conversions are not a good long term solution. Consider creating
     a conversion class and using READ_CONVERSION instead. READ_CONVERSION is easier
     to debug and higher performance.
+  example: |
+    APPEND_ITEM ITEM1 32 UINT
+      GENERIC_READ_CONVERSION_START
+        value * 1.5  # Convert the value by a scale factor
+      GENERIC_READ_CONVERSION_END
 GENERIC_READ_CONVERSION_END:
   summary: Complete a generic write conversion
 LIMITS:
@@ -106,6 +141,9 @@ LIMITS:
     The concept of "limits sets" is defined to allow for different limits values
     in different environments. For example, you might want tighter or looser limits
     on telemetry if your environment changes such as during thermal vacuum testing.
+  example: |
+    LIMITS DEFAULT 3 ENABLED -80.0 -70.0 60.0 80.0 -20.0 20.0
+    LIMITS TVAC 3 ENABLED -80.0 -30.0 30.0 80.0
   parameters:
     - name: Limits Set
       required: true
@@ -159,6 +197,7 @@ LIMITS:
       values: .+
 LIMITS_RESPONSE:
   summary: Defines a response class that is called when the limits state of the current item changes
+  example: LIMITS_RESPONSE example_limits_response.rb 10
   parameters:
     - name: Response Class Filename
       required: true

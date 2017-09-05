@@ -17,6 +17,12 @@ PACKET_LOG_WRITER:
     to create log files.
   warning: You should NOT override the default without consulting a COSMOS expert
     as this may break the ability to successfully read and write log files.
+  example: |
+    PACKET_LOG_WRITER DEFAULT packet_log_writer.rb # Default
+    # The default logger filename will be <DATE>_cosmostlm.bin and will create a new log every 1MB
+    PACKET_LOG_WRITER DEFAULT packet_log_writer.rb cosmos true nil 1000000
+    # Create a logger named COSMOS_LOG which creates a new log every 5 min (600s)
+    PACKET_LOG_WRITER COSMOS_LOG packet_log_writer.rb cosmos true 600
   parameters:
     - name: Log Writer Name
       required: true
@@ -40,6 +46,9 @@ AUTO_INTERFACE_TARGETS:
     INTERFACE_TARGET or INTERFACE keyword.
 INTERFACE_TARGET:
   summary: Load the specified target's cmd_tlm_server.txt configuration file
+  example: |
+    INTERFACE_TARGET COSMOS # Look in the COSMOS target directory for cmd_tlm_server.txt
+    INTERFACE_TARGET COSMOS config.txt # Look in the COSMOS target directory for config.txt
   parameters:
     - name: Target Name
       required: true
@@ -71,6 +80,8 @@ INTERFACE:
       description: Ruby file to use when instantiating the interface.
       values:
         <%= MetaConfigParser.load('_interfaces.yaml').to_meta_config_yaml(8) %>
+      documentation: Additional parameters are required. Please see the [Interfaces](/docs/interfaces)
+        documentation for more details.
 ROUTER:
   modifiers:
     <%= MetaConfigParser.load('interface_modifiers.yaml').to_meta_config_yaml(4) %>
@@ -89,6 +100,8 @@ ROUTER:
       description: Ruby file to use when instantiating the interface.
       values:
         <%= MetaConfigParser.load('_interfaces.yaml').to_meta_config_yaml(8) %>
+      documentation: Additional parameters are required. Please see the [Interfaces](/docs/interfaces)
+        documentation for more details.
 COLLECT_METADATA:
   summary: Prompts the user for meta data when starting the Command and Telemetry Server
 BACKGROUND_TASK:
@@ -98,6 +111,7 @@ BACKGROUND_TASK:
     is only called once so if your background task is supposed to live on while the
     Server is running, you must implement your code in a loop with a sleep to not
     use all the CPU.
+  example: BACKGROUND_TASK example_background_task.rb
   parameters:
     - name: Filename
       required: true

@@ -3,6 +3,7 @@ COMMAND:
   modifiers:
     <%= MetaConfigParser.load('command_modifiers.yaml').to_meta_config_yaml(4) %>
   summary: Defines a new command packet
+  example: COMMAND SYSTEM STARTLOGGING BIG_ENDIAN "Starts logging both commands and telemetry for an interface"
   parameters:
     - name: Target
       required: true
@@ -27,6 +28,7 @@ SELECT_COMMAND:
   summary: Selects an existing command packet for editing
   description: Typically used in a separate configuration file from where the original
     command is defined to override or add to the existing command definition
+  example: SELECT_COMMAND SYSTEM STARTLOGGING
   parameters:
     - name: Target Name
       required: true

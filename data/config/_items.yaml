@@ -9,7 +9,7 @@
 - name: Data Type
   required: true
   description: Data Type of this telemetry item
-  values: <%= %w(INT UINT FLOAT STRING BLOCK DERVIED) %>
+  values: <%= %w(INT UINT FLOAT STRING BLOCK DERIVED) %>
 - name: Description
   required: false
   description: Description for this telemetry item which must be enclosed with quotes
