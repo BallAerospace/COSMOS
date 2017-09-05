@@ -37,7 +37,7 @@
       parameters: *params
     FLOAT:
       parameters: *params
-    DERVIED:
+    DERIVED:
       parameters: *params
     STRING:
       parameters: &sparams

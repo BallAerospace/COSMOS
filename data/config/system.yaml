@@ -12,6 +12,7 @@ DECLARE_TARGET:
   description: Declare target is used in place of AUTO_DECLARE_TARGETS to give more
     fine grained control over how the target folder is loaded and named within COSMOS.
     This is required if AUTO_DECLARE_TARGET is not present.
+  example: DECLARE_TARGET INST INST2 inst.txt
   parameters:
     - name: Target Name
       required: true
@@ -57,6 +58,10 @@ PORT:
     It is not necessary to set this option unless you wish to override the defaults
     (given in the example usage). Overriding ports is necessary if you want to run
     two Command and Telemetry Servers on the same computer simultaneously.
+  example: |
+    PORT CTS_API 7777 # Default
+    PORT TLMVIEWER_API 7778 # Default
+    PORT CTS_PREIDENTIFIED 7779 # Default
   parameters:
     - name: Port Name
       required: true
@@ -121,6 +126,13 @@ PATH:
   warning: The PROCEDURES path must be set for Script Runner and Test Runner to locate your
     procedure files. You can add multiple 'PATH PROCEDURES' lines to your configuration file
     to set multiple locations.
+  example: |
+    PATH LOGS './logs' # Default location of system and tool log files
+    PATH TMP './tmp' # Default location of temporary marshal files
+    PATH SAVED_CONFIG './saved_config' # Default location of saved configurations (see note)
+    PATH TABLES './tables' # Default location of table files
+    PATH PROCEDURES './procedures' # Default location of Script procedure files
+    PATH HANDBOOKS './handbooks' # Default location to place handbook files
   parameters:
     - name: Path Name
       required: true
@@ -134,6 +146,7 @@ DEFAULT_PACKET_LOG_WRITER:
   summary: Set the class used when creating binary packet log files
   warning: Overriding the default log writer can break the ability to write log
     files that COSMOS can interpret. Proceed with caution!
+  example: DEFAULT_PACKET_LOG_WRITER packet_log_writer.rb # Default
   parameters:
     - name: Filename
       required: true
@@ -148,6 +161,7 @@ DEFAULT_PACKET_LOG_READER:
   summary: Set the class used when reading binary packet log file
   warning: Overriding the default log read can break the ability to read log
     files. Proceed with caution!
+  example: DEFAULT_PACKET_LOG_READER packet_log_reader.rb # Default
   parameters:
     - name: Filename
       required: true
@@ -162,6 +176,7 @@ STALENESS_SECONDS:
   summary: Number of seconds before marking the packet stale
   description: A stale packet is identified in telemetry screens by all the telemetry
     items in the stale packet being colored purple..
+  example: STALENESS_SECONDS 30 # Default
   parameters:
     - name: Seconds
       required: true
@@ -186,6 +201,7 @@ ENABLE_SOUND:
   since: 3.5.0
 ALLOW_ACCESS:
   summary: White list machines that are allowed to connect to the Server
+  example: ALLOW_ACCESS ALL # Default
   parameters:
     - name: Name or IP Address
       required: true
@@ -223,6 +239,7 @@ ADD_MD5_FILE:
     MD5 sum calculation. This means that a change in the file will cause COSMOS to
     re-process the cmd/tlm defintions and create a new set of marshal files.
   since: 4.0.0
+  example: ADD_MD5_FILE lib/user_version.rb
   parameters:
     - name: Filename
       required: true

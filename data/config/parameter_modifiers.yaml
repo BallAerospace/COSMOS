@@ -33,6 +33,14 @@ STATE:
     you might define states for ON = 1 and OFF = 0. This allows the word ON to be
     used rather than the number 1 when sending the command parameter and allows
     for much greater clarity and less chance for user error.
+  example: |
+    APPEND_PARAMETER ENABLE 32 UINT 0 1 0 "Enable setting"
+      STATE FALSE 0
+      STATE TRUE 1
+    APPEND_PARAMETER STRING 1024 STRING "NOOP" "String parameter"
+      STATE "NOOP" "NOOP"
+      STATE "ARM LASER" "ARM LASER" HAZARDOUS "Arming the laser is an eye safety hazard"
+      STATE "FIRE LASER" "FIRE LASER" HAZARDOUS "WARNING! Laser will be fired!"
   parameters:
     - name: Key
       required: true
@@ -60,6 +68,23 @@ WRITE_CONVERSION:
     takes extra parameters and must always implement the call method. The conversion
     factor is applied to the value entered by the user before it is written into
     the binary command packet and sent.
+  example: |
+    WRITE_CONVERSION the_great_conversion.rb 1000
+
+    Defined in the_great_conversion.rb:
+
+    require 'cosmos/conversions/conversion'
+    module Cosmos
+      class TheGreatConversion < Conversion
+        def initialize(multiplier)
+          super()
+          @multiplier = multiplier
+        end
+        def call(value, packet, buffer)
+          return value * multiplier
+        end
+      end
+    end
   parameters:
     - name: Class File Name
       required: true
@@ -77,6 +102,7 @@ POLY_WRITE_CONVERSION:
   summary: Adds a polynomial conversion factor to the current command parameter
   description: The conversion factor is applied to the value entered by the user
     before it is written into the binary command packet and sent.
+  example: POLY_WRITE_CONVERSION 10 0.5 0.25
   parameters:
     - name: C0
       required: true
@@ -93,6 +119,10 @@ SEG_POLY_WRITE_CONVERSION:
   summary: Adds a segmented polynomial conversion factor to the current command parameter
   description: This conversion factor is applied to the value entered by the user
     before it is written into the binary command packet and sent.
+  example: |
+    SEG_POLY_WRITE_CONVERSION 0 10 0.5 0.25 # Apply the conversion to all values < 50
+    SEG_POLY_WRITE_CONVERSION 50 11 0.5 0.275 # Apply the conversion to all values >= 50 and < 100
+    SEG_POLY_WRITE_CONVERSION 100 12 0.5 0.3 # Apply the conversion to all values >= 100
   parameters:
     - name: Lower Bound
       required: true
@@ -124,6 +154,11 @@ GENERIC_WRITE_CONVERSION_START:
   warning: Generic conversions are not a good long term solution. Consider creating
     a conversion class and using WRITE_CONVERSION instead. WRITE_CONVERSION is easier
     to debug and higher performance.
+  example: |
+    APPEND_PARAMETER ITEM1 32 UINT 0 0xFFFFFFFF 0
+      GENERIC_WRITE_CONVERSION_START
+        (value * 1.5).to_i # Convert the value by a scale factor
+      GENERIC_WRITE_CONVERSION_END
 GENERIC_WRITE_CONVERSION_END:
   summary: Complete a generic write conversion
 OVERFLOW:
@@ -136,6 +171,7 @@ OVERFLOW:
     for that type. Finally you can specify 'ERROR_ALLOW_HEX' which will allow for
     a maximum hex value to be writen, e.g. you can successfully write 255 to a 8
     bit signed value.
+  example: OVERFLOW TRUNCATE
   parameters:
     - name: Behavior
       required: true
