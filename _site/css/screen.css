@@ -1075,6 +1075,11 @@ article h2:first-child {
   box-shadow: 0 -1px 0 #2f2f2f; }
 
 /* Code Highlighting */
+.values {
+  margin: 0;
+  font: 18px/1.0em Menlo, Consolas, "Courier New", Courier, "Liberation Mono", monospace;
+  padding: 0 0.5em; }
+
 pre,
 code {
   white-space: pre;
@@ -1348,6 +1353,15 @@ code.output {
   background-image: linear-gradient(to bottom, #9e2812 0%, #6f0d0d 100%);
   filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#9e2812', endColorstr='#6f0d0d',GradientType=0 ); }
 
+.param_warning {
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+  padding: 7px;
+  background-color: #9e2812;
+  display: block;
+  overflow: auto; }
+
 .unreleased {
   background-color: #cd9239;
   background-image: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIwJSIgeTI9IjEwMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2NkOTIzOSIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiNhMjc1MjgiIHN0b3Atb3BhY2l0eT0iMSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CiAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
@@ -1457,6 +1471,8 @@ code.output {
   .toc .toc-h3, .toc .toc-h4, .toc .toc-h5 {
     font-size: 14px;
     padding-left: 10px; }
+  .toc ul {
+    padding-left: 20px; }
 
 @media (max-width: 1000px) {
   .toc {
@@ -1481,7 +1497,7 @@ div.gsc-results-wrapper-overlay {
   margin: 0 !important;
   background-color: transparent !important;
   border: none !important;
-  /* The search button needs no padding because it is 
+  /* The search button needs no padding because it is
      next to the box and close button which have padding */ }
   .gsc-control-cse td,
   .gsc-control-cse-en td {

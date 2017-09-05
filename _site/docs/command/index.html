@@ -1,0 +1,5224 @@
+<!DOCTYPE HTML>
+<html lang="en-US">
+<head>
+  <meta charset="UTF-8">
+  <title>Command Configuration</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="generator" content="Jekyll v3.5.2">
+  <link rel="alternate" type="application/rss+xml" title="Ball Aerospace COSMOS News" href="/feed.xml">
+  <link rel="alternate" type="application/atom+xml" title="Recent commits to COSMOS's master branch" href="https://github.com/BallAerospace/COSMOS/commits/master.atom">
+  <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic,900">
+  <link rel="stylesheet" href="/css/screen.css">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <!--[if lt IE 9]>
+  <script src="/js/html5shiv.min.js"></script>
+  <script src="/js/respond.min.js"></script>
+  <![endif]-->
+</head>
+
+
+<body class="wrap">
+  <header role="banner">
+  <nav class="mobile-nav show-on-mobiles">
+    <ul>
+  <li class="">
+    <a href="/">Home</a>
+  </li>
+  <li class="current">
+    <span class="hide-on-mobiles"><a href="/docs/home/">Documentation</a></span>
+    <span class="show-on-mobiles"><a href="/docs/home/">Docs</a></span>
+  </li>
+  <li class="">
+    <a href="/news/">News</a>
+  </li>
+  <li>
+    <a href="/help/">Help</a>
+  </li>
+  <li>
+    <a href="https://github.com/BallAerospace/COSMOS" target="_blank"><span class="hide-on-mobiles">View on </span>GitHub</a>
+  </li>
+</ul>
+
+  </nav>
+  <div class="grid wider">
+    <div class="unit one-third center-on-mobiles" style="margin-top:27px;">
+      <h1>
+        <a href="/">
+          <span class="sr-only">COSMOS</span>
+          <img src="/img/COSMOS.png" width="312" height="70" alt="COSMOS Logo">
+        </a>
+      </h1>
+    </div>
+    <nav class="main-nav unit two-thirds hide-on-mobiles">
+      <ul>
+  <li class="">
+    <a href="/">Home</a>
+  </li>
+  <li class="current">
+    <span class="hide-on-mobiles"><a href="/docs/home/">Documentation</a></span>
+    <span class="show-on-mobiles"><a href="/docs/home/">Docs</a></span>
+  </li>
+  <li class="">
+    <a href="/news/">News</a>
+  </li>
+  <li>
+    <a href="/help/">Help</a>
+  </li>
+  <li>
+    <a href="https://github.com/BallAerospace/COSMOS" target="_blank"><span class="hide-on-mobiles">View on </span>GitHub</a>
+  </li>
+</ul>
+
+    </nav>
+  </div>
+</header>
+
+
+    <section class="docs">
+    <div class="grid wider">
+
+      <div class="docs-nav-mobile unit whole show-on-mobiles">
+  <select onchange="if (this.value) window.location.href=this.value">
+    <option value="">Navigate the docs...</option>
+    
+    <optgroup label="Getting Started">
+      
+
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/home/">Welcome</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/installation/">Installation</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/upgrading/">Upgrading and the Gemfile</option>
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/structure/">Directory structure</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/gettingstarted/">Getting Started</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+
+    </optgroup>
+    
+    <optgroup label="System Configuration">
+      
+
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/system/">System Configuration</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+      <option value="/docs/command/">Command Configuration</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/telemetry/">Telemetry Configuration</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/interfaces/">Interface Configuration</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/environment/">Environment Variables</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+
+    </optgroup>
+    
+    <optgroup label="Tool Configuration">
+      
+
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/launcher/">Launcher</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/data_viewer/">Data Viewer</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/handbook_creator/">Handbook Creator</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/limits_monitor/">Limits Monitor</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/script_runner/">Script Runner</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/table_manager/">Table Manager</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/test_runner/">Test Runner</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/tlm_extractor/">Telemetry Extractor</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/tlm_viewer/">Telemetry Viewer</option>
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/screens/">Telemetry Screens</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+
+    </optgroup>
+    
+    <optgroup label="User's Guides">
+      
+
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/scripting/">Scripting Guide</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/gemtargets/">Gem Based Targets and Tools</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+
+    </optgroup>
+    
+    <optgroup label="Tips">
+      
+
+
+  
+
+  
+    
+      <option value="/docs/chaining/">Chaining CmdTlmServers</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+
+    </optgroup>
+    
+    <optgroup label="Development">
+      
+
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/system_class/">System Class</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/packet_class/">Packet Class</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/json_api/">JSON API</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+
+    </optgroup>
+    
+    <optgroup label="Meta">
+      
+
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/requirements/">Requirements and Design</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/xtce/">XTCE Support</option>
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/contributing/">Contributing</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+      <option value="/docs/contact/">Contact Us</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/history/">Release History</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/papers/">Papers</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+
+    </optgroup>
+    
+  </select>
+</div>
+
+
+      <div class="unit four-fifths">
+        <article>
+          <div class="improve right">
+            <a href="https://github.com/BallAerospace/COSMOS/edit/website/_docs/command.md" target="_blank"><i class="fa fa-pencil"></i> &nbsp;Improve this page</a>
+          </div>
+          
+          <div class="toc">
+            <ul class="section-nav">
+<li class="toc-entry toc-h2"><a href="#command-definition-files">Command Definition Files</a></li>
+<li class="toc-entry toc-h2"><a href="#command">COMMAND</a></li>
+<li class="toc-entry toc-h2"><a href="#select_command">SELECT_COMMAND</a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#command-modifiers">COMMAND Modifiers</a></li>
+<li class="toc-entry toc-h3"><a href="#parameter">PARAMETER</a></li>
+<li class="toc-entry toc-h3"><a href="#append_parameter">APPEND_PARAMETER</a></li>
+<li class="toc-entry toc-h3"><a href="#id_parameter">ID_PARAMETER</a></li>
+<li class="toc-entry toc-h3"><a href="#append_id_parameter">APPEND_ID_PARAMETER</a></li>
+<li class="toc-entry toc-h3"><a href="#array_parameter">ARRAY_PARAMETER</a></li>
+<li class="toc-entry toc-h3"><a href="#append_array_parameter">APPEND_ARRAY_PARAMETER</a></li>
+<li class="toc-entry toc-h3"><a href="#select_parameter">SELECT_PARAMETER</a></li>
+<li class="toc-entry toc-h3"><a href="#hidden">HIDDEN</a></li>
+<li class="toc-entry toc-h3"><a href="#disabled">DISABLED</a></li>
+<li class="toc-entry toc-h3"><a href="#disable_messages">DISABLE_MESSAGES</a></li>
+<li class="toc-entry toc-h3"><a href="#meta">META</a></li>
+<li class="toc-entry toc-h3"><a href="#hazardous">HAZARDOUS</a>
+<ul>
+<li class="toc-entry toc-h4"><a href="#parameter-modifiers">PARAMETER Modifiers</a></li>
+<li class="toc-entry toc-h4"><a href="#format_string">FORMAT_STRING</a></li>
+<li class="toc-entry toc-h4"><a href="#units">UNITS</a></li>
+<li class="toc-entry toc-h4"><a href="#description">DESCRIPTION</a></li>
+<li class="toc-entry toc-h4"><a href="#meta-1">META</a></li>
+<li class="toc-entry toc-h4"><a href="#required">REQUIRED</a></li>
+<li class="toc-entry toc-h4"><a href="#minimum_value">MINIMUM_VALUE</a></li>
+<li class="toc-entry toc-h4"><a href="#maximum_value">MAXIMUM_VALUE</a></li>
+<li class="toc-entry toc-h4"><a href="#default_value">DEFAULT_VALUE</a></li>
+<li class="toc-entry toc-h4"><a href="#state">STATE</a></li>
+<li class="toc-entry toc-h4"><a href="#write_conversion">WRITE_CONVERSION</a></li>
+<li class="toc-entry toc-h4"><a href="#poly_write_conversion">POLY_WRITE_CONVERSION</a></li>
+<li class="toc-entry toc-h4"><a href="#seg_poly_write_conversion">SEG_POLY_WRITE_CONVERSION</a></li>
+<li class="toc-entry toc-h4"><a href="#generic_write_conversion_start">GENERIC_WRITE_CONVERSION_START</a></li>
+<li class="toc-entry toc-h4"><a href="#generic_write_conversion_end">GENERIC_WRITE_CONVERSION_END</a></li>
+<li class="toc-entry toc-h4"><a href="#overflow">OVERFLOW</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-entry toc-h2"><a href="#example-file">Example File</a></li>
+</ul>
+          </div>
+          
+          <h1>Command Configuration</h1>
+          <h2 id="command-definition-files">
+<a id="command-definition-files" class="anchor" href="#command-definition-files" aria-hidden="true"><span class="octicon octicon-link"></span></a>Command Definition Files</h2>
+
+<p>Command definition files define the command packets that can be sent to COSMOS targets. One large file can be used to define the command packets, or multiple files can be used at the user’s discretion. Command definition files are placed in the config/TARGET/cmd_tlm directory and are processed alphabetically. Therefore if you have some command files that depend on others, e.g. they override or extend existing commands, they must be named last. The easist way to do this is to add an extension to an existing file name. For example, if you already have cmd.txt you can create cmd_override.txt for telemetry that depends on the definitions in tlm.txt. Also note that due to the way the <a href="http://www.asciitable.com/">ASCII Table</a> is structured, files beginning with capital letters are processed before lower case letters.</p>
+
+<div style="clear:both;"></div>
+
+<h2 id="command">
+<a id="command" class="anchor" href="#command" aria-hidden="true"><span class="octicon octicon-link"></span></a>COMMAND</h2>
+<p><strong>Defines a new command packet</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Target</td>
+      <td>Name of the target this command is associated with<br><br>Valid Values: <span class="values">Any Target Name</span>
+</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Command</td>
+      <td>Name of this command. Also referred to as its mnemonic. Must be unique to commands to this target. Ideally will be as short and clear as possible.</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Endianness</td>
+      <td>Indicates if the data in this command is to be sent in Big Endian or Little Endian format<br><br>Valid Values: <span class="values">BIG_ENDIAN, LITTLE_ENDIAN</span>
+</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Description</td>
+      <td>Description of this command which must be enclosed with quotes</td>
+      <td>False</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">COMMAND SYSTEM STARTLOGGING BIG_ENDIAN "Starts logging both commands and telemetry for an interface"</code></pre></figure>
+
+<h2 id="select_command">
+<a id="select_command" class="anchor" href="#select_command" aria-hidden="true"><span class="octicon octicon-link"></span></a>SELECT_COMMAND</h2>
+<p><strong>Selects an existing command packet for editing</strong></p>
+
+<p>Typically used in a separate configuration file from where the original command is defined to override or add to the existing command definition</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Target Name</td>
+      <td>Name of the target this command is associated with<br><br>Valid Values: <span class="values">Any Target Name</span>
+</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Command Name</td>
+      <td>Name of the command to select</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">SELECT_COMMAND SYSTEM STARTLOGGING</code></pre></figure>
+
+<h3 id="command-modifiers">
+<a id="command-modifiers" class="anchor" href="#command-modifiers" aria-hidden="true"><span class="octicon octicon-link"></span></a>COMMAND Modifiers</h3>
+<p>The following keywords must follow a COMMAND keyword.</p>
+
+<h3 id="parameter">
+<a id="parameter" class="anchor" href="#parameter" aria-hidden="true"><span class="octicon octicon-link"></span></a>PARAMETER</h3>
+<p><strong>Defines a command parameter in the current command packet</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Name</td>
+      <td>Name of the parameter. Must be unique within the command.</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Bit Offset</td>
+      <td>Bit offset into the command packet of the Most Significant Bit of this parameter. May be negative to indicate on offset from the end of the packet. Always use a bit offset of 0 for derived parameters.</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Bit Size</td>
+      <td>Bit size of this parameter. Zero or Negative values may be used to indicate that a string fills the packet up to the offset from the end of the packet specified by this value. If Bit Offset is 0 and Bit Size is 0 then this is a derived parameter and the Data Type must be set to ‘DERIVED’.</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Data Type</td>
+      <td>Data Type of this parameter<br><br>Valid Values: <span class="values">INT, UINT, FLOAT, DERIVED, STRING, BLOCK</span>
+</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>When Data Type is INT, UINT, FLOAT, DERIVED the remaining parameters are:</p>
+
+<table>
+  <tbody>
+    <tr>
+      <td>Minimum Value</td>
+      <td>Minimum allowed value for this parameter</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Maximum Value</td>
+      <td>Maximum allowed value for this parameter</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Default Value</td>
+      <td>Default value for this parameter. You must provide a default but if you mark the parameter REQUIRED then scripts will be forced to specify a value.</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Description</td>
+      <td>Description for this parameter which must be enclosed with quotes</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>Endianness</td>
+      <td>Indicates if the data in this command is to be sent in Big Endian or Little Endian format<br><br>Valid Values: <span class="values">BIG_ENDIAN, LITTLE_ENDIAN</span>
+</td>
+      <td>False</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>When Data Type is STRING, BLOCK the remaining parameters are:</p>
+
+<table>
+  <tbody>
+    <tr>
+      <td>Default Value</td>
+      <td>Default value for this parameter. You must provide a default but if you mark the parameter REQUIRED then scripts will be forced to specify a value.</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Description</td>
+      <td>Description for this parameter which must be enclosed with quotes</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>Endianness</td>
+      <td>Indicates if the data in this command is to be sent in Big Endian or Little Endian format<br><br>Valid Values: <span class="values">BIG_ENDIAN, LITTLE_ENDIAN</span>
+</td>
+      <td>False</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">PARAMETER SYNC 0 32 UINT 0xDEADBEEF 0xDEADBEEF 0xDEADBEEF "Sync pattern"
+PARAMETER DATA 32 32 INT MIN MAX 0 "Data value"
+PARAMETER VALUE 64 32 FLOAT 0 10.5 2.5
+PARAMETER LABEL 96 96 STRING "COSMOS" "The label to apply"
+PARAMETER BLOCK 192 0 BLOCK '' "Block of binary data"
+</code></pre></figure>
+
+<h3 id="append_parameter">
+<a id="append_parameter" class="anchor" href="#append_parameter" aria-hidden="true"><span class="octicon octicon-link"></span></a>APPEND_PARAMETER</h3>
+<p><strong>Defines a command parameter in the current command packet</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Name</td>
+      <td>Name of the parameter. Must be unique within the command.</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Bit Size</td>
+      <td>Bit size of this parameter. Zero or Negative values may be used to indicate that a string fills the packet up to the offset from the end of the packet specified by this value. If Bit Offset is 0 and Bit Size is 0 then this is a derived parameter and the Data Type must be set to ‘DERIVED’.</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Data Type</td>
+      <td>Data Type of this parameter<br><br>Valid Values: <span class="values">INT, UINT, FLOAT, DERIVED, STRING, BLOCK</span>
+</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>When Data Type is INT, UINT, FLOAT, DERIVED the remaining parameters are:</p>
+
+<table>
+  <tbody>
+    <tr>
+      <td>Minimum Value</td>
+      <td>Minimum allowed value for this parameter</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Maximum Value</td>
+      <td>Maximum allowed value for this parameter</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Default Value</td>
+      <td>Default value for this parameter. You must provide a default but if you mark the parameter REQUIRED then scripts will be forced to specify a value.</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Description</td>
+      <td>Description for this parameter which must be enclosed with quotes</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>Endianness</td>
+      <td>Indicates if the data in this command is to be sent in Big Endian or Little Endian format<br><br>Valid Values: <span class="values">BIG_ENDIAN, LITTLE_ENDIAN</span>
+</td>
+      <td>False</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>When Data Type is STRING, BLOCK the remaining parameters are:</p>
+
+<table>
+  <tbody>
+    <tr>
+      <td>Default Value</td>
+      <td>Default value for this parameter. You must provide a default but if you mark the parameter REQUIRED then scripts will be forced to specify a value.</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Description</td>
+      <td>Description for this parameter which must be enclosed with quotes</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>Endianness</td>
+      <td>Indicates if the data in this command is to be sent in Big Endian or Little Endian format<br><br>Valid Values: <span class="values">BIG_ENDIAN, LITTLE_ENDIAN</span>
+</td>
+      <td>False</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">APPEND_PARAMETER SYNC 32 UINT 0xDEADBEEF 0xDEADBEEF 0xDEADBEEF "Sync pattern"
+APPEND_PARAMETER VALUE 32 FLOAT 0 10.5 2.5
+APPEND_PARAMETER LABEL 0 STRING "COSMOS" "The label to apply"
+</code></pre></figure>
+
+<h3 id="id_parameter">
+<a id="id_parameter" class="anchor" href="#id_parameter" aria-hidden="true"><span class="octicon octicon-link"></span></a>ID_PARAMETER</h3>
+<p><strong>Defines an identification command parameter in the current command packet</strong></p>
+
+<p>ID parameters are used to identify the binary block of data as a particular command. A command packet may have one or more ID_PARAMETERs and all must match the binary data for the command to be identified.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Name</td>
+      <td>Name of the parameter. Must be unique within the command.</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Bit Offset</td>
+      <td>Bit offset into the command packet of the Most Significant Bit of this parameter. May be negative to indicate on offset from the end of the packet. Always use a bit offset of 0 for derived parameters.</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Bit Size</td>
+      <td>Bit size of this parameter. Zero or Negative values may be used to indicate that a string fills the packet up to the offset from the end of the packet specified by this value. If Bit Offset is 0 and Bit Size is 0 then this is a derived parameter and the Data Type must be set to ‘DERIVED’.</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Data Type</td>
+      <td>Data Type of this parameter<br><br>Valid Values: <span class="values">INT, UINT, FLOAT, DERIVED, STRING, BLOCK</span>
+</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>When Data Type is INT, UINT, FLOAT, DERIVED the remaining parameters are:</p>
+
+<table>
+  <tbody>
+    <tr>
+      <td>Minimum Value</td>
+      <td>Minimum allowed value for this parameter</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Maximum Value</td>
+      <td>Maximum allowed value for this parameter</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>ID Value</td>
+      <td>Identification value for this parameter. The binary data must match this value for the buffer to be identified as this packet.</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Description</td>
+      <td>Description for this parameter which must be enclosed with quotes</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>Endianness</td>
+      <td>Indicates if the data in this command is to be sent in Big Endian or Little Endian format<br><br>Valid Values: <span class="values">BIG_ENDIAN, LITTLE_ENDIAN</span>
+</td>
+      <td>False</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>When Data Type is STRING, BLOCK the remaining parameters are:</p>
+
+<table>
+  <tbody>
+    <tr>
+      <td>Default Value</td>
+      <td>Default value for this parameter. You must provide a default but if you mark the parameter REQUIRED then scripts will be forced to specify a value.</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Description</td>
+      <td>Description for this parameter which must be enclosed with quotes</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>Endianness</td>
+      <td>Indicates if the data in this command is to be sent in Big Endian or Little Endian format<br><br>Valid Values: <span class="values">BIG_ENDIAN, LITTLE_ENDIAN</span>
+</td>
+      <td>False</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">ID_PARAMETER OPCODE 32 32 UINT 2 2 2 "Opcode identifier"</code></pre></figure>
+
+<h3 id="append_id_parameter">
+<a id="append_id_parameter" class="anchor" href="#append_id_parameter" aria-hidden="true"><span class="octicon octicon-link"></span></a>APPEND_ID_PARAMETER</h3>
+<p><strong>Defines an identification command parameter in the current command packet</strong></p>
+
+<p>ID parameters are used to identify the binary block of data as a particular command. A command packet may have one or more ID_PARAMETERs and all must match the binary data for the command to be identified.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Name</td>
+      <td>Name of the parameter. Must be unique within the command.</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Bit Size</td>
+      <td>Bit size of this parameter. Zero or Negative values may be used to indicate that a string fills the packet up to the offset from the end of the packet specified by this value. If Bit Offset is 0 and Bit Size is 0 then this is a derived parameter and the Data Type must be set to ‘DERIVED’.</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Data Type</td>
+      <td>Data Type of this parameter<br><br>Valid Values: <span class="values">INT, UINT, FLOAT, DERIVED, STRING, BLOCK</span>
+</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>When Data Type is INT, UINT, FLOAT, DERIVED the remaining parameters are:</p>
+
+<table>
+  <tbody>
+    <tr>
+      <td>Minimum Value</td>
+      <td>Minimum allowed value for this parameter</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Maximum Value</td>
+      <td>Maximum allowed value for this parameter</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>ID Value</td>
+      <td>Identification value for this parameter. The binary data must match this value for the buffer to be identified as this packet.</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Description</td>
+      <td>Description for this parameter which must be enclosed with quotes</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>Endianness</td>
+      <td>Indicates if the data in this command is to be sent in Big Endian or Little Endian format<br><br>Valid Values: <span class="values">BIG_ENDIAN, LITTLE_ENDIAN</span>
+</td>
+      <td>False</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>When Data Type is STRING, BLOCK the remaining parameters are:</p>
+
+<table>
+  <tbody>
+    <tr>
+      <td>Default Value</td>
+      <td>Default value for this parameter. You must provide a default but if you mark the parameter REQUIRED then scripts will be forced to specify a value.</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Description</td>
+      <td>Description for this parameter which must be enclosed with quotes</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>Endianness</td>
+      <td>Indicates if the data in this command is to be sent in Big Endian or Little Endian format<br><br>Valid Values: <span class="values">BIG_ENDIAN, LITTLE_ENDIAN</span>
+</td>
+      <td>False</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">APPEND_ID_PARAMETER OPCODE 32 UINT 2 2 2 "Opcode identifier"</code></pre></figure>
+
+<h3 id="array_parameter">
+<a id="array_parameter" class="anchor" href="#array_parameter" aria-hidden="true"><span class="octicon octicon-link"></span></a>ARRAY_PARAMETER</h3>
+<p><strong>Defines a command parameter in the current command packet that is an array</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Name</td>
+      <td>Name of the parameter. Must be unique within the command.</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Bit Offset</td>
+      <td>Bit offset into the command packet of the Most Significant Bit of this parameter. May be negative to indicate on offset from the end of the packet. Always use a bit offset of 0 for derived parameters.</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Item Bit Size</td>
+      <td>Bit size of each array item</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Item Data Type</td>
+      <td>Data Type of each array item<br><br>Valid Values: <span class="values">INT, UINT, FLOAT, STRING, BLOCK, DERIVED</span>
+</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Array Bit Size</td>
+      <td>Total Bit Size of the Array. Zero or Negative values may be used to indicate the array fills the packet up to the offset from the end of the packet specified by this value.</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Description</td>
+      <td>Description which must be enclosed with quotes</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>Endianness</td>
+      <td>Indicates if the data is to be sent in Big Endian or Little Endian format<br><br>Valid Values: <span class="values">BIG_ENDIAN, LITTLE_ENDIAN</span>
+</td>
+      <td>False</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">ARRAY_PARAMETER ARRAY 64 64 FLOAT 640 "Array of 10 64bit floats"</code></pre></figure>
+
+<h3 id="append_array_parameter">
+<a id="append_array_parameter" class="anchor" href="#append_array_parameter" aria-hidden="true"><span class="octicon octicon-link"></span></a>APPEND_ARRAY_PARAMETER</h3>
+<p><strong>Defines a command parameter in the current command packet that is an array</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Name</td>
+      <td>Name of the parameter. Must be unique within the command.</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Item Bit Size</td>
+      <td>Bit size of each array item</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Item Data Type</td>
+      <td>Data Type of each array item<br><br>Valid Values: <span class="values">INT, UINT, FLOAT, STRING, BLOCK, DERIVED</span>
+</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Array Bit Size</td>
+      <td>Total Bit Size of the Array. Zero or Negative values may be used to indicate the array fills the packet up to the offset from the end of the packet specified by this value.</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Description</td>
+      <td>Description which must be enclosed with quotes</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>Endianness</td>
+      <td>Indicates if the data is to be sent in Big Endian or Little Endian format<br><br>Valid Values: <span class="values">BIG_ENDIAN, LITTLE_ENDIAN</span>
+</td>
+      <td>False</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">APPEND_ARRAY_PARAMETER ARRAY 64 FLOAT 640 "Array of 10 64bit floats"</code></pre></figure>
+
+<h3 id="select_parameter">
+<a id="select_parameter" class="anchor" href="#select_parameter" aria-hidden="true"><span class="octicon octicon-link"></span></a>SELECT_PARAMETER</h3>
+<p><strong>Selects an existing command parameter for editing</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Parameter</td>
+      <td>Name of the parameter to select for modification</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">SELECT_COMMAND SYSTEM STARTLOGGING
+  SELECT_PARAMETER LABEL
+</code></pre></figure>
+
+<h3 id="hidden">
+<a id="hidden" class="anchor" href="#hidden" aria-hidden="true"><span class="octicon octicon-link"></span></a>HIDDEN</h3>
+<p><strong>Hides this command from all COSMOS tools such as Command Sender and Handbook Creator</strong></p>
+
+<p>Hidden commands do not appear in the Script Runner popup helper when writing scripts. The command still exists in the system and can be sent by scripts.</p>
+
+<h3 id="disabled">
+<a id="disabled" class="anchor" href="#disabled" aria-hidden="true"><span class="octicon octicon-link"></span></a>DISABLED</h3>
+<p><strong>Disables this command from being sent</strong></p>
+
+<p>Hides the command and also disables it from being sent by scripts. Attempts to send DISABLED commands result in an error message.</p>
+
+<h3 id="disable_messages">
+<a id="disable_messages" class="anchor" href="#disable_messages" aria-hidden="true"><span class="octicon octicon-link"></span></a>DISABLE_MESSAGES</h3>
+<p><strong>Disable the Server from printing cmd(…) messages. Commands are still logged.</strong></p>
+
+<h3 id="meta">
+<a id="meta" class="anchor" href="#meta" aria-hidden="true"><span class="octicon octicon-link"></span></a>META</h3>
+<p><strong>Stores metadata for the current command</strong></p>
+
+<p>Meta data is user specific data that can be used by custom tools for various purposes. One example is to store additional information needed to generate source code header files.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Meta Name</td>
+      <td>Name of the metadata to store</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Meta Values</td>
+      <td>One or more values to be stored for this Meta Name</td>
+      <td>False</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">META FSW_TYPE "struct command"</code></pre></figure>
+
+<h3 id="hazardous">
+<a id="hazardous" class="anchor" href="#hazardous" aria-hidden="true"><span class="octicon octicon-link"></span></a>HAZARDOUS</h3>
+<p><strong>Designates the current command as hazardous</strong></p>
+
+<p>Sending a hazardous command causes a dialog asking for confirmation before sending the command</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Description</td>
+      <td>Description for why the command is hazardous which must be enclosed with quotes</td>
+      <td>False</td>
+    </tr>
+  </tbody>
+</table>
+
+<h4 id="parameter-modifiers">
+<a id="parameter-modifiers" class="anchor" href="#parameter-modifiers" aria-hidden="true"><span class="octicon octicon-link"></span></a>PARAMETER Modifiers</h4>
+<p>The following keywords must follow a PARAMETER keyword.</p>
+
+<h4 id="format_string">
+<a id="format_string" class="anchor" href="#format_string" aria-hidden="true"><span class="octicon octicon-link"></span></a>FORMAT_STRING</h4>
+<p><strong>Adds printf style formatting</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Format</td>
+      <td>How to format using printf syntax. For example, ‘0x%0X’ will display the value in hex.</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">FORMAT_STRING "0x%0X"</code></pre></figure>
+
+<h4 id="units">
+<a id="units" class="anchor" href="#units" aria-hidden="true"><span class="octicon octicon-link"></span></a>UNITS</h4>
+<p><strong>Add displayed units</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Full Name</td>
+      <td>Full name of the units type, e.g. Celcius</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Abbreviated</td>
+      <td>Abbreviation for the units, e.g. C</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">UNITS Celcius C
+UNITS Kilometers KM
+</code></pre></figure>
+
+<h4 id="description">
+<a id="description" class="anchor" href="#description" aria-hidden="true"><span class="octicon octicon-link"></span></a>DESCRIPTION</h4>
+<p><strong>Override the defined description</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Value</td>
+      <td>The new description</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+
+<h4 id="meta-1">
+<a id="meta-1" class="anchor" href="#meta-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>META</h4>
+<p><strong>Stores custom user metadata</strong></p>
+
+<p>Meta data is user specific data that can be used by custom tools for various purposes. One example is to store additional information needed to generate source code header files.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Meta Name</td>
+      <td>Name of the metadata to store</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Meta Values</td>
+      <td>One or more values to be stored for this Meta Name</td>
+      <td>False</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">META TEST "This parameter is for test purposes only"</code></pre></figure>
+
+<h4 id="required">
+<a id="required" class="anchor" href="#required" aria-hidden="true"><span class="octicon octicon-link"></span></a>REQUIRED</h4>
+<p><strong>Parameter is required to be populated in scripts</strong></p>
+
+<p>When sending the command via Script Runner a value must always be given for the current command parameter. This prevents the user from relying on a default value. Note that this does not affect Command Sender which will still populate the field with the default value provided in the PARAMETER definition.</p>
+
+<h4 id="minimum_value">
+<a id="minimum_value" class="anchor" href="#minimum_value" aria-hidden="true"><span class="octicon octicon-link"></span></a>MINIMUM_VALUE</h4>
+<p><strong>Override the defined minimum value</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Value</td>
+      <td>The new minimum value for the parameter</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+
+<h4 id="maximum_value">
+<a id="maximum_value" class="anchor" href="#maximum_value" aria-hidden="true"><span class="octicon octicon-link"></span></a>MAXIMUM_VALUE</h4>
+<p><strong>Override the defined maximum value</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Value</td>
+      <td>The new maximum value for the parameter</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+
+<h4 id="default_value">
+<a id="default_value" class="anchor" href="#default_value" aria-hidden="true"><span class="octicon octicon-link"></span></a>DEFAULT_VALUE</h4>
+<p><strong>Override the defined default value</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Value</td>
+      <td>The new default value for the parameter</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+
+<h4 id="state">
+<a id="state" class="anchor" href="#state" aria-hidden="true"><span class="octicon octicon-link"></span></a>STATE</h4>
+<p><strong>Defines a key/value pair for the current command parameter</strong></p>
+
+<p>Key value pairs allow for user friendly strings. For example, you might define states for ON = 1 and OFF = 0. This allows the word ON to be used rather than the number 1 when sending the command parameter and allows for much greater clarity and less chance for user error.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Key</td>
+      <td>The string state name</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Value</td>
+      <td>The numerical state value</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Hazardous</td>
+      <td>Indicates the state is hazardous. This will cause a popup to ask for user confirmation when sending this command.<br><br>Valid Values: <span class="values">HAZARDOUS</span>
+</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>Hazardous Description</td>
+      <td>String describing why this state is hazardous</td>
+      <td>False</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">APPEND_PARAMETER ENABLE 32 UINT 0 1 0 "Enable setting"
+  STATE FALSE 0
+  STATE TRUE 1
+APPEND_PARAMETER STRING 1024 STRING "NOOP" "String parameter"
+  STATE "NOOP" "NOOP"
+  STATE "ARM LASER" "ARM LASER" HAZARDOUS "Arming the laser is an eye safety hazard"
+  STATE "FIRE LASER" "FIRE LASER" HAZARDOUS "WARNING! Laser will be fired!"
+</code></pre></figure>
+
+<h4 id="write_conversion">
+<a id="write_conversion" class="anchor" href="#write_conversion" aria-hidden="true"><span class="octicon octicon-link"></span></a>WRITE_CONVERSION</h4>
+<p><strong>Applies a conversion when writing the current command parameter</strong></p>
+
+<p>Conversions are implemented in a custom Ruby file which should be located in the target’s lib folder and required by the target’s target.txt file (see REQUIRE). The class must require ‘cosmos/conversions/conversion’ and inherit from Conversion. It must implement the initialize method if it takes extra parameters and must always implement the call method. The conversion factor is applied to the value entered by the user before it is written into the binary command packet and sent.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Class File Name</td>
+      <td>The file name which contains the Ruby class. The file name must be named after the class such that the class is a CamelCase version of the underscored file name. For example, ‘the_great_conversion.rb’ should contain ‘class TheGreatConversion’.</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Parameter</td>
+      <td>Additional parameter values for the conversion which are passed to the class constructor.</td>
+      <td>False</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">WRITE_CONVERSION the_great_conversion.rb 1000
+
+Defined in the_great_conversion.rb:
+
+require 'cosmos/conversions/conversion'
+module Cosmos
+  class TheGreatConversion &lt; Conversion
+    def initialize(multiplier)
+      super()
+      @multiplier = multiplier
+    end
+    def call(value, packet, buffer)
+      return value * multiplier
+    end
+  end
+end
+</code></pre></figure>
+
+<h4 id="poly_write_conversion">
+<a id="poly_write_conversion" class="anchor" href="#poly_write_conversion" aria-hidden="true"><span class="octicon octicon-link"></span></a>POLY_WRITE_CONVERSION</h4>
+<p><strong>Adds a polynomial conversion factor to the current command parameter</strong></p>
+
+<p>The conversion factor is applied to the value entered by the user before it is written into the binary command packet and sent.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>C0</td>
+      <td>Coefficient</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Cx</td>
+      <td>Additional coefficient values for the conversion. Any order polynomial conversion may be used so the value of ‘x’ will vary with the order of the polynomial. Note that larger order polynomials take longer to process than shorter order polynomials, but are sometimes more accurate.</td>
+      <td>False</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">POLY_WRITE_CONVERSION 10 0.5 0.25</code></pre></figure>
+
+<h4 id="seg_poly_write_conversion">
+<a id="seg_poly_write_conversion" class="anchor" href="#seg_poly_write_conversion" aria-hidden="true"><span class="octicon octicon-link"></span></a>SEG_POLY_WRITE_CONVERSION</h4>
+<p><strong>Adds a segmented polynomial conversion factor to the current command parameter</strong></p>
+
+<p>This conversion factor is applied to the value entered by the user before it is written into the binary command packet and sent.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Lower Bound</td>
+      <td>Defines the lower bound of the range of values that this segmented polynomial applies to. Is ignored for the segment with the smallest lower bound.</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>C0</td>
+      <td>Coefficient</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Cx</td>
+      <td>Additional coefficient values for the conversion. Any order polynomial conversion may be used so the value of ‘x’ will vary with the order of the polynomial. Note that larger order polynomials take longer to process than shorter order polynomials, but are sometimes more accurate.</td>
+      <td>False</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">SEG_POLY_WRITE_CONVERSION 0 10 0.5 0.25 # Apply the conversion to all values &lt; 50
+SEG_POLY_WRITE_CONVERSION 50 11 0.5 0.275 # Apply the conversion to all values &gt;= 50 and &lt; 100
+SEG_POLY_WRITE_CONVERSION 100 12 0.5 0.3 # Apply the conversion to all values &gt;= 100
+</code></pre></figure>
+
+<h4 id="generic_write_conversion_start">
+<a id="generic_write_conversion_start" class="anchor" href="#generic_write_conversion_start" aria-hidden="true"><span class="octicon octicon-link"></span></a>GENERIC_WRITE_CONVERSION_START</h4>
+<p><strong>Start a generic write conversion</strong></p>
+
+<p>Adds a generic conversion function to the current command parameter. This conversion factor is applied to the value entered by the user before it is written into the binary command packet and sent. The conversion is specified as ruby code that receives two implied parameters. ‘value’ which is the raw value being written and ‘packet’ which is a reference to the command packet class (Note, referencing the packet as ‘myself’ is still supported for backwards compatibility). The last line of ruby code given should return the converted value. The GENERIC_WRITE_CONVERSION_END keyword specifies that all lines of ruby code for the conversion have been given.</p>
+
+<div class="note warning"><p>Generic conversions are not a good long term solution. Consider creating a conversion class and using WRITE_CONVERSION instead. WRITE_CONVERSION is easier to debug and higher performance.</p></div>
+
+<p>Example Usage:</p>
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">APPEND_PARAMETER ITEM1 32 UINT 0 0xFFFFFFFF 0
+  GENERIC_WRITE_CONVERSION_START
+    (value * 1.5).to_i # Convert the value by a scale factor
+  GENERIC_WRITE_CONVERSION_END
+</code></pre></figure>
+
+<h4 id="generic_write_conversion_end">
+<a id="generic_write_conversion_end" class="anchor" href="#generic_write_conversion_end" aria-hidden="true"><span class="octicon octicon-link"></span></a>GENERIC_WRITE_CONVERSION_END</h4>
+<p><strong>Complete a generic write conversion</strong></p>
+
+<h4 id="overflow">
+<a id="overflow" class="anchor" href="#overflow" aria-hidden="true"><span class="octicon octicon-link"></span></a>OVERFLOW</h4>
+<p><strong>Set the behavior when writing a value overflows the type</strong></p>
+
+<p>By default COSMOS throws an error if you try to write a value which overflows its specified type, e.g. writing 255 to a 8 bit signed value. Setting the overflow behavior also allows for COSMOS to ‘TRUNCATE’ the value by eliminating any high order bits. You can also set ‘SATURATE’ which causes COSMOS to replace the value with the maximum or minimum allowable value for that type. Finally you can specify ‘ERROR_ALLOW_HEX’ which will allow for a maximum hex value to be writen, e.g. you can successfully write 255 to a 8 bit signed value.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Behavior</td>
+      <td>How COSMOS treats an overflow value. Only applies to signed and unsigned integer data types.<br><br>Valid Values: <span class="values">ERROR, ERROR_ALLOW_HEX, TRUNCATE, SATURATE</span>
+</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">OVERFLOW TRUNCATE</code></pre></figure>
+
+<h2 id="example-file">
+<a id="example-file" class="anchor" href="#example-file" aria-hidden="true"><span class="octicon octicon-link"></span></a>Example File</h2>
+
+<p><strong>Example File: &lt;COSMOSPATH&gt;/config/TARGET/cmd_tlm/cmd.txt</strong></p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">COMMAND TARGET COLLECT_DATA BIG_ENDIAN <span class="s2">"Commands my target to collect data"</span>
+  PARAMETER CCSDSVER 0 3 UINT 0 0 0 <span class="s2">"CCSDS PRIMARY HEADER VERSION NUMBER"</span>
+  PARAMETER CCSDSTYPE 3 1 UINT 1 1 1 <span class="s2">"CCSDS PRIMARY HEADER PACKET TYPE"</span>
+  PARAMETER CCSDSSHF 4 1 UINT 0 0 0 <span class="s2">"CCSDS PRIMARY HEADER SECONDARY HEADER FLAG"</span>
+  ID_PARAMETER CCSDSAPID 5 11 UINT 0 2047 100 <span class="s2">"CCSDS PRIMARY HEADER APPLICATION ID"</span>
+  PARAMETER CCSDSSEQFLAGS 16 2 UINT 3 3 3 <span class="s2">"CCSDS PRIMARY HEADER SEQUENCE FLAGS"</span>
+  PARAMETER CCSDSSEQCNT 18 14 UINT 0 16383 0 <span class="s2">"CCSDS PRIMARY HEADER SEQUENCE COUNT"</span>
+  PARAMETER CCSDSLENGTH 32 16 UINT 4 4 4 <span class="s2">"CCSDS PRIMARY HEADER PACKET LENGTH"</span>
+  PARAMETER ANGLE 48 32 FLOAT -180.0 180.0 0.0 <span class="s2">"ANGLE OF INSTRUMENT IN DEGREES"</span>
+    POLY_WRITE_CONVERSION 0 0.01745 0 0
+  PARAMETER MODE 80 8 UINT 0 1 0 <span class="s2">"DATA COLLECTION MODE"</span>
+    STATE NORMAL 0
+    STATE DIAG 1
+
+COMMAND TARGET NOOP BIG_ENDIAN <span class="s2">"Do Nothing"</span>
+  PARAMETER CCSDSVER 0 3 UINT 0 0 0 <span class="s2">"CCSDS PRIMARY HEADER VERSION NUMBER"</span>
+  PARAMETER CCSDSTYPE 3 1 UINT 1 1 1 <span class="s2">"CCSDS PRIMARY HEADER PACKET TYPE"</span>
+  PARAMETER CCSDSSHF 4 1 UINT 0 0 0 <span class="s2">"CCSDS PRIMARY HEADER SECONDARY HEADER FLAG"</span>
+  ID_PARAMETER CCSDSAPID 5 11 UINT 0 2047 101 <span class="s2">"CCSDS PRIMARY HEADER APPLICATION ID"</span>
+  PARAMETER CCSDSSEQFLAGS 16 2 UINT 3 3 3 <span class="s2">"CCSDS PRIMARY HEADER SEQUENCE FLAGS"</span>
+  PARAMETER CCSDSSEQCNT 18 14 UINT 0 16383 0 <span class="s2">"CCSDS PRIMARY HEADER SEQUENCE COUNT"</span>
+  PARAMETER CCSDSLENGTH 32 16 UINT 0 0 0 <span class="s2">"CCSDS PRIMARY HEADER PACKET LENGTH"</span>
+  PARAMETER DUMMY 48 8 UINT 0 0 0 <span class="s2">"DUMMY PARAMETER BECAUSE CCSDS REQUIRES 1 BYTE OF DATA"</span>
+
+COMMAND TARGET SETTINGS BIG_ENDIAN <span class="s2">"Set the Settings"</span>
+  PARAMETER CCSDSVER 0 3 UINT 0 0 0 <span class="s2">"CCSDS PRIMARY HEADER VERSION NUMBER"</span>
+  PARAMETER CCSDSTYPE 3 1 UINT 1 1 1 <span class="s2">"CCSDS PRIMARY HEADER PACKET TYPE"</span>
+  PARAMETER CCSDSSHF 4 1 UINT 0 0 0 <span class="s2">"CCSDS PRIMARY HEADER SECONDARY HEADER FLAG"</span>
+  ID_PARAMETER CCSDSAPID 5 11 UINT 0 2047 102 <span class="s2">"CCSDS PRIMARY HEADER APPLICATION ID"</span>
+  PARAMETER CCSDSSEQFLAGS 16 2 UINT 3 3 3 <span class="s2">"CCSDS PRIMARY HEADER SEQUENCE FLAGS"</span>
+  PARAMETER CCSDSSEQCNT 18 14 UINT 0 16383 0 <span class="s2">"CCSDS PRIMARY HEADER SEQUENCE COUNT"</span>
+  PARAMETER CCSDSLENGTH 32 16 UINT 0 0 0 <span class="s2">"CCSDS PRIMARY HEADER PACKET LENGTH"</span>
+  &lt;% 5.times <span class="k">do</span> |x| %&gt;
+    APPEND_PARAMETER SETTING&lt;%<span class="o">=</span> x %&gt; 16 UINT 0 5 0 <span class="s2">"Setting &lt;%= x %&gt;"</span>
+  &lt;% end %&gt;</code></pre></figure>
+
+
+          
+
+
+
+
+
+  
+  
+
+  
+  
+
+  
+  
+
+  
+  
+
+  
+  
+
+  
+  
+
+  
+  
+    <div class="top-section-nav">
+      <div class="left align-right">
+          
+            
+            
+            <a href="/docs/system/" class="prev">Back</a>
+          
+      </div>
+      <div class="right align-left">
+          
+            
+            
+            <a href="/docs/telemetry/" class="next">Next</a>
+          
+      </div>
+    </div>
+    <div class="clear"></div>
+    
+
+        </article>
+      </div>
+
+      <div class="unit one-fifth hide-on-mobiles">
+  <aside>
+    
+    <h4>Getting Started</h4>
+    
+
+<ul>
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/home/">Welcome</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/installation/">Installation</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/upgrading/">Upgrading and the Gemfile</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/structure/">Directory structure</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/gettingstarted/">Getting Started</a></li>
+      
+
+
+</ul>
+
+    
+    <h4>System Configuration</h4>
+    
+
+<ul>
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/system/">System Configuration</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+      <li class="current"><a href="/docs/command/">Command Configuration</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/telemetry/">Telemetry Configuration</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/interfaces/">Interface Configuration</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/environment/">Environment Variables</a></li>
+      
+
+
+</ul>
+
+    
+    <h4>Tool Configuration</h4>
+    
+
+<ul>
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/launcher/">Launcher</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/data_viewer/">Data Viewer</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/handbook_creator/">Handbook Creator</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/limits_monitor/">Limits Monitor</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/script_runner/">Script Runner</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/table_manager/">Table Manager</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/test_runner/">Test Runner</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/tlm_extractor/">Telemetry Extractor</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/tlm_viewer/">Telemetry Viewer</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/screens/">Telemetry Screens</a></li>
+      
+
+
+</ul>
+
+    
+    <h4>User's Guides</h4>
+    
+
+<ul>
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/scripting/">Scripting Guide</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/gemtargets/">Gem Based Targets and Tools</a></li>
+      
+
+
+</ul>
+
+    
+    <h4>Tips</h4>
+    
+
+<ul>
+
+  
+
+  
+
+  
+    
+      <li class=""><a href="/docs/chaining/">Chaining CmdTlmServers</a></li>
+      
+
+
+</ul>
+
+    
+    <h4>Development</h4>
+    
+
+<ul>
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/system_class/">System Class</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/packet_class/">Packet Class</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/json_api/">JSON API</a></li>
+      
+
+
+</ul>
+
+    
+    <h4>Meta</h4>
+    
+
+<ul>
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/requirements/">Requirements and Design</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/xtce/">XTCE Support</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/contributing/">Contributing</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/contact/">Contact Us</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/history/">Release History</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/papers/">Papers</a></li>
+      
+
+
+</ul>
+
+    
+  </aside>
+</div>
+
+
+      <div class="clear"></div>
+
+    </div>
+  </section>
+
+
+  <script>
+  (function() {
+    var cx = '001663949569052626382:-enhin1layy';
+    var gcse = document.createElement('script');
+    gcse.type = 'text/javascript';
+    gcse.async = true;
+    gcse.src = 'https://cse.google.com/cse.js?cx=' + cx;
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(gcse, s);
+  })();
+</script>
+<footer role="contentinfo">
+  <div class="grid wider">
+    <div class="unit one-third center-on-mobiles">
+      <p>The contents of this website are &copy;&nbsp;2017 <a href="http://www.ballaerospace.com/" target="_blank">Ball Aerospace</a> under the terms of the <a href="https://github.com/BallAerospace/COSMOS/blob/master/LICENSE.txt" target="_blank">GPLv3&nbsp;License</a>.</p>
+      <p>Site design derived from the <a href="http://jekyllrb.com/" target="_blank">Jekyll</a> project documentation which is licensed under the terms of the <a href="https://github.com/jekyll/jekyll/blob/master/LICENSE" target="_blank">MIT License</a>.</p>
+    </div>
+    <div class="unit two-thirds align-right center-on-mobiles">
+      <p>
+        <gcse:search></gcse:search>
+        Proudly hosted by
+        <a href="https://github.com" target="_blank">
+          <img src="/img/footer-logo.png" width="100" height="30" alt="GitHub Social coding">
+        </a>
+      </p>
+    </div>
+  </div>
+</footer>
+
+  <script>
+  var anchorForId = function (id) {
+    var anchor = document.createElement("a");
+    anchor.className = "header-link";
+    anchor.href      = "#" + id;
+    anchor.innerHTML = "<span class=\"sr-only\">Permalink</span><i class=\"fa fa-link\"></i>";
+    anchor.title = "Permalink";
+    return anchor;
+  };
+
+  var linkifyAnchors = function (level, containingElement) {
+    var headers = containingElement.getElementsByTagName("h" + level);
+    for (var h = 0; h < headers.length; h++) {
+      var header = headers[h];
+
+      if (typeof header.id !== "undefined" && header.id !== "") {
+        header.appendChild(anchorForId(header.id));
+      }
+    }
+  };
+
+  document.onreadystatechange = function () {
+    if (this.readyState === "complete") {
+      var contentBlock = document.getElementsByClassName("docs")[0] || document.getElementsByClassName("news")[0];
+      if (!contentBlock) {
+        return;
+      }
+      for (var level = 1; level <= 6; level++) {
+        linkifyAnchors(level, contentBlock);
+      }
+    }
+  };
+</script>
+
+  
+  <!-- Google Analytics (http://google.com/analytics) -->
+  <script>
+    !function(j,e,k,y,l,L){j.GoogleAnalyticsObject=y,j[y]||(j[y]=function(){
+    (j[y].q=j[y].q||[]).push(arguments)}),j[y].l=+new Date,l=e.createElement(k),
+    L=e.getElementsByTagName(k)[0],l.src='//www.google-analytics.com/analytics.js',
+    L.parentNode.insertBefore(l,L)}(window,document,'script','ga');
+
+    ga('create', 'UA-60103689-1', 'cosmosrb.com');
+    ga('send', 'pageview');
+
+  </script>
+
+
+
+</body>
+</html>

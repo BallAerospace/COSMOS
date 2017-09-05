@@ -309,12 +309,12 @@ The message_box, vertical_message_box, and combo_box methods create a message bo
 
 Syntax:  
 ```ruby
-message_box("<message>", "<button text 1>", …)
-message_box("<message>", "<button text 1>", …, false) # Since COSMOS 3.8.3
-vertical_message_box("<message>", "<button text 1>", …) # Since COSMOS 3.5.0
-vertical_message_box("<message>", "<button text 1>", …, false) # Since COSMOS 3.8.3
-combo_box("<message>", "<selection text 1>", …) # Since COSMOS 3.5.0
-combo_box("<message>", "<selection text 1>", …, false) # Since COSMOS 3.8.3
+message_box("<message>", "<button text 1>", ...)
+message_box("<message>", "<button text 1>", ..., false) # Since COSMOS 3.8.3
+vertical_message_box("<message>", "<button text 1>", ...) # Since COSMOS 3.5.0
+vertical_message_box("<message>", "<button text 1>", ..., false) # Since COSMOS 3.8.3
+combo_box("<message>", "<selection text 1>", ...) # Since COSMOS 3.5.0
+combo_box("<message>", "<selection text 1>", ..., false) # Since COSMOS 3.8.3
 ```
 
 | Parameter | Description |
@@ -1032,7 +1032,7 @@ values, limits_states, limits_settings, limits_set = get_tlm_values(<items>, <va
 
 | Parameter | Description |
 | -------- | --------------------------------- |
-| items | Array of item arrays of the form [[Target Name #1, Packet Name #1, Item Name #1], … ] |
+| items | Array of item arrays of the form [[Target Name #1, Packet Name #1, Item Name #1], ... ] |
 | value_types | Telemetry Type to read the values in. :RAW, :CONVERTED, :FORMATTED, or :WITH_UNITS. Defaults to :CONVERTED . May be specified as a single symbol that applies to all items or an array of symbols, one for each item. |
 
 Example:  
@@ -1088,7 +1088,7 @@ get_tlm_item_details(<items>)
 
 | Parameter | Description |
 | -------- | --------------------------------- |
-| items | Array of item arrays of the form [[Target Name #1, Packet Name #1, Item Name #1], … ] |
+| items | Array of item arrays of the form [[Target Name #1, Packet Name #1, Item Name #1], ... ] |
 
 Example:  
 ```ruby
@@ -2581,7 +2581,7 @@ Inserts a ruby return statement into the currently executing context. This can b
 
 Syntax:  
 ```ruby
-insert_return (<return value (optional)>, …)
+insert_return (<return value (optional)>, ...)
 ```
 
 | Parameter | Description |

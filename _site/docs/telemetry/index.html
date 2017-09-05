@@ -1,0 +1,5114 @@
+<!DOCTYPE HTML>
+<html lang="en-US">
+<head>
+  <meta charset="UTF-8">
+  <title>Telemetry Configuration</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="generator" content="Jekyll v3.5.2">
+  <link rel="alternate" type="application/rss+xml" title="Ball Aerospace COSMOS News" href="/feed.xml">
+  <link rel="alternate" type="application/atom+xml" title="Recent commits to COSMOS's master branch" href="https://github.com/BallAerospace/COSMOS/commits/master.atom">
+  <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic,900">
+  <link rel="stylesheet" href="/css/screen.css">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <!--[if lt IE 9]>
+  <script src="/js/html5shiv.min.js"></script>
+  <script src="/js/respond.min.js"></script>
+  <![endif]-->
+</head>
+
+
+<body class="wrap">
+  <header role="banner">
+  <nav class="mobile-nav show-on-mobiles">
+    <ul>
+  <li class="">
+    <a href="/">Home</a>
+  </li>
+  <li class="current">
+    <span class="hide-on-mobiles"><a href="/docs/home/">Documentation</a></span>
+    <span class="show-on-mobiles"><a href="/docs/home/">Docs</a></span>
+  </li>
+  <li class="">
+    <a href="/news/">News</a>
+  </li>
+  <li>
+    <a href="/help/">Help</a>
+  </li>
+  <li>
+    <a href="https://github.com/BallAerospace/COSMOS" target="_blank"><span class="hide-on-mobiles">View on </span>GitHub</a>
+  </li>
+</ul>
+
+  </nav>
+  <div class="grid wider">
+    <div class="unit one-third center-on-mobiles" style="margin-top:27px;">
+      <h1>
+        <a href="/">
+          <span class="sr-only">COSMOS</span>
+          <img src="/img/COSMOS.png" width="312" height="70" alt="COSMOS Logo">
+        </a>
+      </h1>
+    </div>
+    <nav class="main-nav unit two-thirds hide-on-mobiles">
+      <ul>
+  <li class="">
+    <a href="/">Home</a>
+  </li>
+  <li class="current">
+    <span class="hide-on-mobiles"><a href="/docs/home/">Documentation</a></span>
+    <span class="show-on-mobiles"><a href="/docs/home/">Docs</a></span>
+  </li>
+  <li class="">
+    <a href="/news/">News</a>
+  </li>
+  <li>
+    <a href="/help/">Help</a>
+  </li>
+  <li>
+    <a href="https://github.com/BallAerospace/COSMOS" target="_blank"><span class="hide-on-mobiles">View on </span>GitHub</a>
+  </li>
+</ul>
+
+    </nav>
+  </div>
+</header>
+
+
+    <section class="docs">
+    <div class="grid wider">
+
+      <div class="docs-nav-mobile unit whole show-on-mobiles">
+  <select onchange="if (this.value) window.location.href=this.value">
+    <option value="">Navigate the docs...</option>
+    
+    <optgroup label="Getting Started">
+      
+
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/home/">Welcome</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/installation/">Installation</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/upgrading/">Upgrading and the Gemfile</option>
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/structure/">Directory structure</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/gettingstarted/">Getting Started</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+
+    </optgroup>
+    
+    <optgroup label="System Configuration">
+      
+
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/system/">System Configuration</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+      <option value="/docs/command/">Command Configuration</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/telemetry/">Telemetry Configuration</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/interfaces/">Interface Configuration</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/environment/">Environment Variables</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+
+    </optgroup>
+    
+    <optgroup label="Tool Configuration">
+      
+
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/launcher/">Launcher</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/data_viewer/">Data Viewer</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/handbook_creator/">Handbook Creator</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/limits_monitor/">Limits Monitor</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/script_runner/">Script Runner</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/table_manager/">Table Manager</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/test_runner/">Test Runner</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/tlm_extractor/">Telemetry Extractor</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/tlm_viewer/">Telemetry Viewer</option>
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/screens/">Telemetry Screens</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+
+    </optgroup>
+    
+    <optgroup label="User's Guides">
+      
+
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/scripting/">Scripting Guide</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/gemtargets/">Gem Based Targets and Tools</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+
+    </optgroup>
+    
+    <optgroup label="Tips">
+      
+
+
+  
+
+  
+    
+      <option value="/docs/chaining/">Chaining CmdTlmServers</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+
+    </optgroup>
+    
+    <optgroup label="Development">
+      
+
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/system_class/">System Class</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/packet_class/">Packet Class</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/json_api/">JSON API</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+
+    </optgroup>
+    
+    <optgroup label="Meta">
+      
+
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/requirements/">Requirements and Design</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/xtce/">XTCE Support</option>
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/contributing/">Contributing</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+      <option value="/docs/contact/">Contact Us</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/history/">Release History</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/papers/">Papers</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+
+    </optgroup>
+    
+  </select>
+</div>
+
+
+      <div class="unit four-fifths">
+        <article>
+          <div class="improve right">
+            <a href="https://github.com/BallAerospace/COSMOS/edit/website/_docs/telemetry.md" target="_blank"><i class="fa fa-pencil"></i> &nbsp;Improve this page</a>
+          </div>
+          
+          <div class="toc">
+            <ul class="section-nav">
+<li class="toc-entry toc-h2"><a href="#telemetry-definition-files">Telemetry Definition Files</a></li>
+<li class="toc-entry toc-h2"><a href="#telemetry">TELEMETRY</a></li>
+<li class="toc-entry toc-h2"><a href="#select_telemetry">SELECT_TELEMETRY</a></li>
+<li class="toc-entry toc-h2"><a href="#limits_group">LIMITS_GROUP</a></li>
+<li class="toc-entry toc-h2"><a href="#limits_group_item">LIMITS_GROUP_ITEM</a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#telemetry-modifiers">TELEMETRY Modifiers</a></li>
+<li class="toc-entry toc-h3"><a href="#item">ITEM</a></li>
+<li class="toc-entry toc-h3"><a href="#append_item">APPEND_ITEM</a></li>
+<li class="toc-entry toc-h3"><a href="#id_item">ID_ITEM</a></li>
+<li class="toc-entry toc-h3"><a href="#append_id_item">APPEND_ID_ITEM</a></li>
+<li class="toc-entry toc-h3"><a href="#array_item">ARRAY_ITEM</a></li>
+<li class="toc-entry toc-h3"><a href="#append_array_item">APPEND_ARRAY_ITEM</a></li>
+<li class="toc-entry toc-h3"><a href="#select_item">SELECT_ITEM</a></li>
+<li class="toc-entry toc-h3"><a href="#meta">META</a></li>
+<li class="toc-entry toc-h3"><a href="#processor">PROCESSOR</a></li>
+<li class="toc-entry toc-h3"><a href="#allow_short">ALLOW_SHORT</a></li>
+<li class="toc-entry toc-h3"><a href="#hidden">HIDDEN</a>
+<ul>
+<li class="toc-entry toc-h4"><a href="#item-modifiers">ITEM Modifiers</a></li>
+<li class="toc-entry toc-h4"><a href="#format_string">FORMAT_STRING</a></li>
+<li class="toc-entry toc-h4"><a href="#units">UNITS</a></li>
+<li class="toc-entry toc-h4"><a href="#description">DESCRIPTION</a></li>
+<li class="toc-entry toc-h4"><a href="#meta-1">META</a></li>
+<li class="toc-entry toc-h4"><a href="#state">STATE</a></li>
+<li class="toc-entry toc-h4"><a href="#read_conversion">READ_CONVERSION</a></li>
+<li class="toc-entry toc-h4"><a href="#poly_read_conversion">POLY_READ_CONVERSION</a></li>
+<li class="toc-entry toc-h4"><a href="#seg_poly_read_conversion">SEG_POLY_READ_CONVERSION</a></li>
+<li class="toc-entry toc-h4"><a href="#generic_read_conversion_start">GENERIC_READ_CONVERSION_START</a></li>
+<li class="toc-entry toc-h4"><a href="#generic_read_conversion_end">GENERIC_READ_CONVERSION_END</a></li>
+<li class="toc-entry toc-h4"><a href="#limits">LIMITS</a></li>
+<li class="toc-entry toc-h4"><a href="#limits_response">LIMITS_RESPONSE</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-entry toc-h2"><a href="#example-file">Example File</a></li>
+</ul>
+          </div>
+          
+          <h1>Telemetry Configuration</h1>
+          <h2 id="telemetry-definition-files">
+<a id="telemetry-definition-files" class="anchor" href="#telemetry-definition-files" aria-hidden="true"><span class="octicon octicon-link"></span></a>Telemetry Definition Files</h2>
+
+<p>Telemetry definition files define the telemetry packets that can be received and processed from COSMOS targets. One large file can be used to define the telemetry packets, or multiple files can be used at the user’s discretion. Telemetry definition files are placed in the config/TARGET/cmd_tlm directory and are processed alphabetically. Therefore if you have some telemetry files that depend on others, e.g. they override or extend existing telemetry, they must be named last. The easist way to do this is to add an extension to an existing file name. For example, if you already have tlm.txt you can create tlm_override.txt for telemetry that depends on the definitions in tlm.txt. Note that due to the way the <a href="http://www.asciitable.com/">ASCII Table</a> is structured, files beginning with capital letters are processed before lower case letters.</p>
+
+<div style="clear:both;"></div>
+
+<h2 id="telemetry">
+<a id="telemetry" class="anchor" href="#telemetry" aria-hidden="true"><span class="octicon octicon-link"></span></a>TELEMETRY</h2>
+<p><strong>Defines a new telemetry packet</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Target</td>
+      <td>Name of the target this telemetry packet is associated with<br><br>Valid Values: <span class="values">Any Target Name</span>
+</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Command</td>
+      <td>Name of this telemetry packet. Also referred to as its mnemonic. Must be unique to telemetry packets in this target. Ideally will be as short and clear as possible.</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Endianness</td>
+      <td>Indicates if the data in this packet is in Big Endian or Little Endian format<br><br>Valid Values: <span class="values">BIG_ENDIAN, LITTLE_ENDIAN</span>
+</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Description</td>
+      <td>Description of this telemetry packet which must be enclosed with quotes</td>
+      <td>False</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">TELEMETRY SYSTEM LIMITS_CHANGE BIG_ENDIAN "COSMOS limits change"</code></pre></figure>
+
+<h2 id="select_telemetry">
+<a id="select_telemetry" class="anchor" href="#select_telemetry" aria-hidden="true"><span class="octicon octicon-link"></span></a>SELECT_TELEMETRY</h2>
+<p><strong>Selects an existing telemetry packet for editing</strong></p>
+
+<p>Typically used in a separate configuration file from where the original telemetry is defined to override or add to the existing telemetry definition</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Target Name</td>
+      <td>Name of the target this telemetry packet is associated with<br><br>Valid Values: <span class="values">Any Target Name</span>
+</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Command Name</td>
+      <td>Name of the telemetry packet to select</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">SELECT_TELEMETRY SYSTEM LIMITS_CHANGE</code></pre></figure>
+
+<h2 id="limits_group">
+<a id="limits_group" class="anchor" href="#limits_group" aria-hidden="true"><span class="octicon octicon-link"></span></a>LIMITS_GROUP</h2>
+<p><strong>Defines a group of related limits Items</strong></p>
+
+<p>Limits groups contain telemetry items that can be enabled and disabled together. It can be used to group related limits as a subsystem that can be enabled or disabled as that particular subsystem is powered (for example). To enable a group call the enable_limits_group(“NAME”) method in Script Runner. To disable a group call the disable_limits_group(“NAME”) in Script Runner. Items can belong to multiple groups but the last enabled or disabled group “wins”. For example, if an item belongs to GROUP1 and GROUP2 and you first enable GROUP1 and then disable GROUP2 the item will be disabled. If you then enable GROUP1 again it will be enabled.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Group Name</td>
+      <td>Name of the limits group</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="limits_group_item">
+<a id="limits_group_item" class="anchor" href="#limits_group_item" aria-hidden="true"><span class="octicon octicon-link"></span></a>LIMITS_GROUP_ITEM</h2>
+<p><strong>Adds the specified telemetry item to the last defined LIMITS_GROUP</strong></p>
+
+<p>Limits group information is typically kept in a separate configuration file in the config/TARGET/cmd_tlm folder named limits_groups.txt. If you want to configure multiple target items in a particular group you should put this information in the config/SYSTEM/cmd_tlm/limits_groups.txt file. The SYSTEM target is processed last and contains information that crosses target boundaries.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Target Name</td>
+      <td>Name of the target<br><br>Valid Values: <span class="values">Any Target Name</span>
+</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Packet Name</td>
+      <td>Name of the packet</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Item Name</td>
+      <td>Name of the telemetry item to add to the group</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">LIMITS_GROUP SUBSYSTEM
+  LIMITS_GROUP_ITEM INST HEALTH_STATUS TEMP1
+  LIMITS_GROUP_ITEM INST HEALTH_STATUS TEMP2
+  LIMITS_GROUP_ITEM INST HEALTH_STATUS TEMP3
+</code></pre></figure>
+
+<h3 id="telemetry-modifiers">
+<a id="telemetry-modifiers" class="anchor" href="#telemetry-modifiers" aria-hidden="true"><span class="octicon octicon-link"></span></a>TELEMETRY Modifiers</h3>
+<p>The following keywords must follow a TELEMETRY keyword.</p>
+
+<h3 id="item">
+<a id="item" class="anchor" href="#item" aria-hidden="true"><span class="octicon octicon-link"></span></a>ITEM</h3>
+<p><strong>Defines a telemetry item in the current telemetry packet</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Name</td>
+      <td>Name of the telemety item. Must be unique within the packet.</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Bit Offset</td>
+      <td>Bit offset into the telemetry packet of the Most Significant Bit of this item. May be negative to indicate on offset from the end of the packet. Always use a bit offset of 0 for derived item.</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Bit Size</td>
+      <td>Bit size of this telemetry item. Zero or Negative values may be used to indicate that a string fills the packet up to the offset from the end of the packet specified by this value. If Bit Offset is 0 and Bit Size is 0 then this is a derived parameter and the Data Type must be set to ‘DERIVED’.</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Data Type</td>
+      <td>Data Type of this telemetry item<br><br>Valid Values: <span class="values">INT, UINT, FLOAT, STRING, BLOCK, DERIVED</span>
+</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Description</td>
+      <td>Description for this telemetry item which must be enclosed with quotes</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>Endianness</td>
+      <td>Indicates if the item is to be interpreted in Big Endian or Little Endian format<br><br>Valid Values: <span class="values">BIG_ENDIAN, LITTLE_ENDIAN</span>
+</td>
+      <td>False</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">ITEM PKTID 112 16 UINT "Packet ID"
+ITEM DATA 0 0 DERIVED "Derived data"
+</code></pre></figure>
+
+<h3 id="append_item">
+<a id="append_item" class="anchor" href="#append_item" aria-hidden="true"><span class="octicon octicon-link"></span></a>APPEND_ITEM</h3>
+<p><strong>Defines a telemetry item in the current telemetry packet</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Name</td>
+      <td>Name of the telemety item. Must be unique within the packet.</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Bit Size</td>
+      <td>Bit size of this telemetry item. Zero or Negative values may be used to indicate that a string fills the packet up to the offset from the end of the packet specified by this value. If Bit Offset is 0 and Bit Size is 0 then this is a derived parameter and the Data Type must be set to ‘DERIVED’.</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Data Type</td>
+      <td>Data Type of this telemetry item<br><br>Valid Values: <span class="values">INT, UINT, FLOAT, STRING, BLOCK, DERIVED</span>
+</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Description</td>
+      <td>Description for this telemetry item which must be enclosed with quotes</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>Endianness</td>
+      <td>Indicates if the item is to be interpreted in Big Endian or Little Endian format<br><br>Valid Values: <span class="values">BIG_ENDIAN, LITTLE_ENDIAN</span>
+</td>
+      <td>False</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">APPEND_ITEM PKTID 16 UINT "Packet ID"</code></pre></figure>
+
+<h3 id="id_item">
+<a id="id_item" class="anchor" href="#id_item" aria-hidden="true"><span class="octicon octicon-link"></span></a>ID_ITEM</h3>
+<p><strong>Defines a telemetry item in the current telemetry packet</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Name</td>
+      <td>Name of the telemety item. Must be unique within the packet.</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Bit Offset</td>
+      <td>Bit offset into the telemetry packet of the Most Significant Bit of this item. May be negative to indicate on offset from the end of the packet. Always use a bit offset of 0 for derived item.</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Bit Size</td>
+      <td>Bit size of this telemetry item. Zero or Negative values may be used to indicate that a string fills the packet up to the offset from the end of the packet specified by this value. If Bit Offset is 0 and Bit Size is 0 then this is a derived parameter and the Data Type must be set to ‘DERIVED’.</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Data Type</td>
+      <td>Data Type of this telemetry item<br><br>Valid Values: <span class="values">INT, UINT, FLOAT, STRING, BLOCK, DERIVED</span>
+</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>ID Value</td>
+      <td>The value of this telemetry item that uniquely identifies this telemetry packet</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Description</td>
+      <td>Description for this telemetry item which must be enclosed with quotes</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>Endianness</td>
+      <td>Indicates if the item is to be interpreted in Big Endian or Little Endian format<br><br>Valid Values: <span class="values">BIG_ENDIAN, LITTLE_ENDIAN</span>
+</td>
+      <td>False</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">ID_ITEM PKTID 112 16 UINT 1 "Packet ID which must be 1"</code></pre></figure>
+
+<h3 id="append_id_item">
+<a id="append_id_item" class="anchor" href="#append_id_item" aria-hidden="true"><span class="octicon octicon-link"></span></a>APPEND_ID_ITEM</h3>
+<p><strong>Defines a telemetry item in the current telemetry packet</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Name</td>
+      <td>Name of the telemety item. Must be unique within the packet.</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Bit Size</td>
+      <td>Bit size of this telemetry item. Zero or Negative values may be used to indicate that a string fills the packet up to the offset from the end of the packet specified by this value. If Bit Offset is 0 and Bit Size is 0 then this is a derived parameter and the Data Type must be set to ‘DERIVED’.</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Data Type</td>
+      <td>Data Type of this telemetry item<br><br>Valid Values: <span class="values">INT, UINT, FLOAT, STRING, BLOCK, DERIVED</span>
+</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>ID Value</td>
+      <td>The value of this telemetry item that uniquely identifies this telemetry packet</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Description</td>
+      <td>Description for this telemetry item which must be enclosed with quotes</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>Endianness</td>
+      <td>Indicates if the item is to be interpreted in Big Endian or Little Endian format<br><br>Valid Values: <span class="values">BIG_ENDIAN, LITTLE_ENDIAN</span>
+</td>
+      <td>False</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">APPEND_ID_ITEM PKTID 16 UINT 1 "Packet ID which must be 1"</code></pre></figure>
+
+<h3 id="array_item">
+<a id="array_item" class="anchor" href="#array_item" aria-hidden="true"><span class="octicon octicon-link"></span></a>ARRAY_ITEM</h3>
+<p><strong>Defines a telemetry item in the current telemetry packet that is an array</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Name</td>
+      <td>Name of the telemety item. Must be unique within the packet.</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Bit Offset</td>
+      <td>Bit offset into the telemetry packet of the Most Significant Bit of this item. May be negative to indicate on offset from the end of the packet. Always use a bit offset of 0 for derived item.</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Item Bit Size</td>
+      <td>Bit size of each array item</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Item Data Type</td>
+      <td>Data Type of each array item<br><br>Valid Values: <span class="values">INT, UINT, FLOAT, STRING, BLOCK, DERIVED</span>
+</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Array Bit Size</td>
+      <td>Total Bit Size of the Array. Zero or Negative values may be used to indicate the array fills the packet up to the offset from the end of the packet specified by this value.</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Description</td>
+      <td>Description which must be enclosed with quotes</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>Endianness</td>
+      <td>Indicates if the data is to be sent in Big Endian or Little Endian format<br><br>Valid Values: <span class="values">BIG_ENDIAN, LITTLE_ENDIAN</span>
+</td>
+      <td>False</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">ARRAY_ITEM ARRAY 64 32 FLOAT 320 "Array of 10 floats"</code></pre></figure>
+
+<h3 id="append_array_item">
+<a id="append_array_item" class="anchor" href="#append_array_item" aria-hidden="true"><span class="octicon octicon-link"></span></a>APPEND_ARRAY_ITEM</h3>
+<p><strong>Defines a telemetry item in the current telemetry packedt that is an array</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Name</td>
+      <td>Name of the telemety item. Must be unique within the packet.</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Item Bit Size</td>
+      <td>Bit size of each array item</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Item Data Type</td>
+      <td>Data Type of each array item<br><br>Valid Values: <span class="values">INT, UINT, FLOAT, STRING, BLOCK, DERIVED</span>
+</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Array Bit Size</td>
+      <td>Total Bit Size of the Array. Zero or Negative values may be used to indicate the array fills the packet up to the offset from the end of the packet specified by this value.</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Description</td>
+      <td>Description which must be enclosed with quotes</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>Endianness</td>
+      <td>Indicates if the data is to be sent in Big Endian or Little Endian format<br><br>Valid Values: <span class="values">BIG_ENDIAN, LITTLE_ENDIAN</span>
+</td>
+      <td>False</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">APPEND_ARRAY_ITEM ARRAY 32 FLOAT 320 "Array of 10 floats"</code></pre></figure>
+
+<h3 id="select_item">
+<a id="select_item" class="anchor" href="#select_item" aria-hidden="true"><span class="octicon octicon-link"></span></a>SELECT_ITEM</h3>
+<p><strong>Selects an existing telemetry item for editing</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Item</td>
+      <td>Name of the item to select for modification</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">SELECT_TELEMETRY SYSTEM LIMITS_CHANGE
+  SELECT_ITEM ITEM
+</code></pre></figure>
+
+<h3 id="meta">
+<a id="meta" class="anchor" href="#meta" aria-hidden="true"><span class="octicon octicon-link"></span></a>META</h3>
+<p><strong>Stores metadata for the current telemetry packet</strong></p>
+
+<p>Meta data is user specific data that can be used by custom tools for various purposes. One example is to store additional information needed to generate source code header files.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Meta Name</td>
+      <td>Name of the metadata to store</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Meta Values</td>
+      <td>One or more values to be stored for this Meta Name</td>
+      <td>False</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">META FSW_TYPE "struct tlm_packet"</code></pre></figure>
+
+<h3 id="processor">
+<a id="processor" class="anchor" href="#processor" aria-hidden="true"><span class="octicon octicon-link"></span></a>PROCESSOR</h3>
+<p><strong>Defines a processor class that executes code every time a packet is received</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Processor Name</td>
+      <td>The name of the processor</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Processor Class Filename</td>
+      <td>Name of the Ruby file which implements the processor. This file should be in the config/TARGET/lib directory so it can be found by COSMOS.</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Processor Specific Options</td>
+      <td>Variable length number of options that will be passed to the class constructor.</td>
+      <td>False</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">PROCESSOR TEMP1HIGH watermark_processor.rb TEMP1</code></pre></figure>
+
+<h3 id="allow_short">
+<a id="allow_short" class="anchor" href="#allow_short" aria-hidden="true"><span class="octicon octicon-link"></span></a>ALLOW_SHORT</h3>
+<p><strong>Process telemetry packets which are less than their defined length</strong></p>
+
+<p>Allows the telemetry packet to be received with a data portion that is smaller than the defined size without warnings. Any extra space in the packet will be filled in with zeros by COSMOS.</p>
+
+<h3 id="hidden">
+<a id="hidden" class="anchor" href="#hidden" aria-hidden="true"><span class="octicon octicon-link"></span></a>HIDDEN</h3>
+<p><strong>Hides this telemetry packet from all the COSMOS tools</strong></p>
+
+<p>This packet will not appear in Packet Viewer, Telemetry Grapher and Handbook Creator. It also hides this telemetry from appearing in the Script Runner popup helper when writing scripts. The telemetry still exists in the system and can received and checked by scripts.</p>
+
+<h4 id="item-modifiers">
+<a id="item-modifiers" class="anchor" href="#item-modifiers" aria-hidden="true"><span class="octicon octicon-link"></span></a>ITEM Modifiers</h4>
+<p>The following keywords must follow a ITEM keyword.</p>
+
+<h4 id="format_string">
+<a id="format_string" class="anchor" href="#format_string" aria-hidden="true"><span class="octicon octicon-link"></span></a>FORMAT_STRING</h4>
+<p><strong>Adds printf style formatting</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Format</td>
+      <td>How to format using printf syntax. For example, ‘0x%0X’ will display the value in hex.</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">FORMAT_STRING "0x%0X"</code></pre></figure>
+
+<h4 id="units">
+<a id="units" class="anchor" href="#units" aria-hidden="true"><span class="octicon octicon-link"></span></a>UNITS</h4>
+<p><strong>Add displayed units</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Full Name</td>
+      <td>Full name of the units type, e.g. Celcius</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Abbreviated</td>
+      <td>Abbreviation for the units, e.g. C</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">UNITS Celcius C
+UNITS Kilometers KM
+</code></pre></figure>
+
+<h4 id="description">
+<a id="description" class="anchor" href="#description" aria-hidden="true"><span class="octicon octicon-link"></span></a>DESCRIPTION</h4>
+<p><strong>Override the defined description</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Value</td>
+      <td>The new description</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+
+<h4 id="meta-1">
+<a id="meta-1" class="anchor" href="#meta-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>META</h4>
+<p><strong>Stores custom user metadata</strong></p>
+
+<p>Meta data is user specific data that can be used by custom tools for various purposes. One example is to store additional information needed to generate source code header files.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Meta Name</td>
+      <td>Name of the metadata to store</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Meta Values</td>
+      <td>One or more values to be stored for this Meta Name</td>
+      <td>False</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">META TEST "This parameter is for test purposes only"</code></pre></figure>
+
+<h4 id="state">
+<a id="state" class="anchor" href="#state" aria-hidden="true"><span class="octicon octicon-link"></span></a>STATE</h4>
+<p><strong>Defines a key/value pair for the current item</strong></p>
+
+<p>Key value pairs allow for user friendly strings. For example, you might define states for ON = 1 and OFF = 0. This allows the word ON to be used rather than the number 1 when sending the telemetry item and allows for much greater clarity and less chance for user error.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Key</td>
+      <td>The string state name</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Value</td>
+      <td>The numerical state value</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Color</td>
+      <td>The color the state should be displayed as<br><br>Valid Values: <span class="values">GREEN, YELLOW, RED</span>
+</td>
+      <td>False</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">APPEND_ITEM ENABLE 32 UINT "Enable setting"
+  STATE FALSE 0
+  STATE TRUE 1
+APPEND_ITEM STRING 1024 STRING "String"
+  STATE "NOOP" "NOOP" GREEN
+  STATE "ARM LASER" "ARM LASER" YELLOW
+  STATE "FIRE LASER" "FIRE LASER" RED
+</code></pre></figure>
+
+<h4 id="read_conversion">
+<a id="read_conversion" class="anchor" href="#read_conversion" aria-hidden="true"><span class="octicon octicon-link"></span></a>READ_CONVERSION</h4>
+<p><strong>Applies a conversion to the current telemetry item</strong></p>
+
+<p>Conversions are implemented in a custom Ruby file which should be located in the target’s lib folder and required by the target’s target.txt file (see REQUIRE). The class must require ‘cosmos/conversions/conversion’ and inherit from Conversion. It must implement the initialize method if it takes extra parameters and must always implement the call method. The conversion factor is applied to the raw value in the telemetry packet before it is displayed to the user. The user still has the ability to see the raw unconverted value in a details dialog.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Class File Name</td>
+      <td>The file name which contains the Ruby class. The file name must be named after the class such that the class is a CamelCase version of the underscored file name. For example, ‘the_great_conversion.rb’ should contain ‘class TheGreatConversion’.</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Parameter</td>
+      <td>Additional parameter values for the conversion which are passed to the class constructor.</td>
+      <td>False</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">READ_CONVERSION the_great_conversion.rb 1000
+
+Defined in the_great_conversion.rb:
+
+require 'cosmos/conversions/conversion'
+module Cosmos
+  class TheGreatConversion &lt; Conversion
+    def initialize(multiplier)
+      super()
+      @multiplier = multiplier
+    end
+    def call(value, packet, buffer)
+      return value * multiplier
+    end
+  end
+end
+</code></pre></figure>
+
+<h4 id="poly_read_conversion">
+<a id="poly_read_conversion" class="anchor" href="#poly_read_conversion" aria-hidden="true"><span class="octicon octicon-link"></span></a>POLY_READ_CONVERSION</h4>
+<p><strong>Adds a polynomial conversion factor to the current telemetry item</strong></p>
+
+<p>The conversion factor is applied to raw value in the telemetry packet before it is displayed to the user. The user still has the ability to see the raw unconverted value in a details dialog.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>C0</td>
+      <td>Coefficient</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Cx</td>
+      <td>Additional coefficient values for the conversion. Any order polynomial conversion may be used so the value of ‘x’ will vary with the order of the polynomial. Note that larger order polynomials take longer to process than shorter order polynomials, but are sometimes more accurate.</td>
+      <td>False</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">POLY_READ_CONVERSION 10 0.5 0.25</code></pre></figure>
+
+<h4 id="seg_poly_read_conversion">
+<a id="seg_poly_read_conversion" class="anchor" href="#seg_poly_read_conversion" aria-hidden="true"><span class="octicon octicon-link"></span></a>SEG_POLY_READ_CONVERSION</h4>
+<p><strong>Adds a segmented polynomial conversion factor to the current telemetry item</strong></p>
+
+<p>This conversion factor is applied to the raw value in the telemetry packet before it is displayed to the user. The user still has the ability to see the raw unconverted value in a details dialog.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Lower Bound</td>
+      <td>Defines the lower bound of the range of values that this segmented polynomial applies to. Is ignored for the segment with the smallest lower bound.</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>C0</td>
+      <td>Coefficient</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Cx</td>
+      <td>Additional coefficient values for the conversion. Any order polynomial conversion may be used so the value of ‘x’ will vary with the order of the polynomial. Note that larger order polynomials take longer to process than shorter order polynomials, but are sometimes more accurate.</td>
+      <td>False</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">SEG_POLY_READ_CONVERSION 0 10 0.5 0.25 # Apply the conversion to all values &lt; 50
+SEG_POLY_READ_CONVERSION 50 11 0.5 0.275 # Apply the conversion to all values &gt;= 50 and &lt; 100
+SEG_POLY_READ_CONVERSION 100 12 0.5 0.3 # Apply the conversion to all values &gt;= 100
+</code></pre></figure>
+
+<h4 id="generic_read_conversion_start">
+<a id="generic_read_conversion_start" class="anchor" href="#generic_read_conversion_start" aria-hidden="true"><span class="octicon octicon-link"></span></a>GENERIC_READ_CONVERSION_START</h4>
+<p><strong>Start a generic write conversion</strong></p>
+
+<p>Adds a generic conversion function to the current telemetry item. This conversion factor is applied to the raw value in the telemetry packet before it is displayed to the user. The user still has the ability to see the raw unconverted value in a details dialog. The conversion is specified as ruby code that receives two implied parameters. ‘value’ which is the raw value being written and ‘packet’ which is a reference to the telemetry packet class (Note, referencing the packet as ‘myself’ is still supported for backwards compatibility). The last line of ruby code given should return the converted value. The GENERIC_READ_CONVERSION_END keyword specifies that all lines of ruby code for the conversion have been given.</p>
+
+<div class="note warning"><p>Generic conversions are not a good long term solution. Consider creating a conversion class and using READ_CONVERSION instead. READ_CONVERSION is easier to debug and higher performance.</p></div>
+
+<p>Example Usage:</p>
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">APPEND_ITEM ITEM1 32 UINT
+  GENERIC_READ_CONVERSION_START
+    value * 1.5  # Convert the value by a scale factor
+  GENERIC_READ_CONVERSION_END
+</code></pre></figure>
+
+<h4 id="generic_read_conversion_end">
+<a id="generic_read_conversion_end" class="anchor" href="#generic_read_conversion_end" aria-hidden="true"><span class="octicon octicon-link"></span></a>GENERIC_READ_CONVERSION_END</h4>
+<p><strong>Complete a generic write conversion</strong></p>
+
+<h4 id="limits">
+<a id="limits" class="anchor" href="#limits" aria-hidden="true"><span class="octicon octicon-link"></span></a>LIMITS</h4>
+<p><strong>Defines a set of limits for a telemetry item</strong></p>
+
+<p>If limits are violated a message is printed in the Command and Telemetry Server to indicate an item went out of limits. Other tools also use this information to update displays with different colored telemetry items or other useful information. The concept of “limits sets” is defined to allow for different limits values in different environments. For example, you might want tighter or looser limits on telemetry if your environment changes such as during thermal vacuum testing.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Limits Set</td>
+      <td>Name of the limits set. If you have no unique limits sets use the keyword DEFAULT.</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Persistence</td>
+      <td>Number of consecutive times the telemetry item must be within a different limits range before changing limits state.</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Initial State</td>
+      <td>Whether limits monitoring for this telemetry item is initially enabled or disabled<br><br>Valid Values: <span class="values">ENABLED, DISABLED</span>
+</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Red Low Limit</td>
+      <td>If the telemetry value is less than or equal to this value a Red Low condition will be detected</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Yellow Low Limit</td>
+      <td>If the telemetry value is less than or equal to this value, but greater than the Red Low Limit, a Yellow Low condition will be detected</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Yellow High Limit</td>
+      <td>If the telemetry value is greater than or equal to this value, but less than the Red High Limit, a Yellow High condition will be detected</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Red High Limit</td>
+      <td>If the telemetry value is greater than or equal to this value a Red High condition will be detected</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Green Low Limit</td>
+      <td>Setting the Green Low and Green High limits defines an “operational limit” which is colored blue by COSMOS. This allows for a distinct desired operational range which is narrower than the green safety limit. If the telemetry value is greater than or equal to this value, but less than the Green High Limit, a Blue operational condition will be detected.</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>Green High Limit</td>
+      <td>Setting the Green Low and Green High limits defines an “operational limit” which is colored blue by COSMOS. This allows for a distinct desired operational range which is narrower than the green safety limit. If the telemetry value is less than or equal to this value, but greater than the Green Low Limit, a Blue operational condition will be detected.</td>
+      <td>False</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">LIMITS DEFAULT 3 ENABLED -80.0 -70.0 60.0 80.0 -20.0 20.0
+LIMITS TVAC 3 ENABLED -80.0 -30.0 30.0 80.0
+</code></pre></figure>
+
+<h4 id="limits_response">
+<a id="limits_response" class="anchor" href="#limits_response" aria-hidden="true"><span class="octicon octicon-link"></span></a>LIMITS_RESPONSE</h4>
+<p><strong>Defines a response class that is called when the limits state of the current item changes</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Response Class Filename</td>
+      <td>Name of the Ruby file which implements the limits response. This file should be in the config/TARGET/lib directory so it can be found by COSMOS.</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Response Specific Options</td>
+      <td>Variable length number of options that will be passed to the class constructor</td>
+      <td>False</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">LIMITS_RESPONSE example_limits_response.rb 10</code></pre></figure>
+
+<h2 id="example-file">
+<a id="example-file" class="anchor" href="#example-file" aria-hidden="true"><span class="octicon octicon-link"></span></a>Example File</h2>
+
+<p><strong>Example File: &lt;COSMOSPATH&gt;/config/TARGET/cmd_tlm/tlm.txt</strong></p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">TELEMETRY TARGET HS BIG_ENDIAN <span class="s2">"Health and Status for My Target"</span>
+  ITEM CCSDSVER 0 3 UINT <span class="s2">"CCSDS PACKET VERSION NUMBER (SEE CCSDS 133.0-B-1)"</span>
+  ITEM CCSDSTYPE 3 1 UINT <span class="s2">"CCSDS PACKET TYPE (COMMAND OR TELEMETRY)"</span>
+    STATE TLM 0
+    STATE CMD 1
+  ITEM CCSDSSHF 4 1 UINT <span class="s2">"CCSDS SECONDARY HEADER FLAG"</span>
+    STATE FALSE 0
+    STATE TRUE 1
+  ID_ITEM CCSDSAPID 5 11 UINT 102 <span class="s2">"CCSDS APPLICATION PROCESS ID"</span>
+  ITEM CCSDSSEQFLAGS 16 2 UINT <span class="s2">"CCSDS SEQUENCE FLAGS"</span>
+    STATE FIRST 0
+    STATE CONT 1
+    STATE LAST 2
+    STATE NOGROUP 3
+  ITEM CCSDSSEQCNT 18 14 UINT <span class="s2">"CCSDS PACKET SEQUENCE COUNT"</span>
+  ITEM CCSDSLENGTH 32 16 UINT <span class="s2">"CCSDS PACKET DATA LENGTH"</span>
+  ITEM CCSDSDAY 48 16 UINT <span class="s2">"DAYS SINCE EPOCH (JANUARY 1ST, 1958, MIDNIGHT)"</span>
+  ITEM CCSDSMSOD 64 32 UINT <span class="s2">"MILLISECONDS OF DAY (0 - 86399999)"</span>
+  ITEM CCSDSUSOMS 96 16 UINT <span class="s2">"MICROSECONDS OF MILLISECOND (0-999)"</span>
+  ITEM ANGLEDEG 112 16 INT <span class="s2">"Instrument Angle in Degrees"</span>
+    POLY_READ_CONVERSION 0 57.295
+  ITEM MODE 128 8 UINT <span class="s2">"Instrument Mode"</span>
+    STATE NORMAL 0 GREEN
+    STATE DIAG 1 YELLOW
+  MACRO_APPEND_START 1 5
+    APPEND_ITEM SETTING 16 UINT <span class="s2">"SETTING #x"</span>
+  MACRO_APPEND_END
+  ITEM TIMESECONDS 0 0 FLOAT <span class="s2">"DERIVED TIME SINCE EPOCH IN SECONDS"</span>
+    GENERIC_READ_CONVERSION_START
+      <span class="o">((</span>packet.read<span class="o">(</span><span class="s1">'ccsdsday'</span><span class="o">)</span> <span class="k">*</span> 86400.0<span class="o">)</span> + <span class="o">(</span>packet.read<span class="o">(</span><span class="s1">'ccsdsmsod'</span><span class="o">)</span> / 1000.0<span class="o">)</span> + <span class="o">(</span>packet.read<span class="o">(</span><span class="s1">'ccsdsusoms'</span><span class="o">)</span> / 1000000.0<span class="o">))</span>
+    GENERIC_READ_CONVERSION_END
+  ITEM TIMEFORMATTED 0 0 STRING <span class="s2">"DERIVED TIME SINCE EPOCH AS A FORMATTED STRING"</span>
+    GENERIC_READ_CONVERSION_START
+      <span class="nb">time</span> <span class="o">=</span> Time.ccsds2mdy<span class="o">(</span>packet.read<span class="o">(</span><span class="s1">'ccsdsday'</span><span class="o">)</span>, packet.read<span class="o">(</span><span class="s1">'ccsdsmsod'</span><span class="o">)</span>, packet.read<span class="o">(</span><span class="s1">'ccsdsusoms'</span><span class="o">))</span>
+      sprintf<span class="o">(</span><span class="s1">'%04u/%02u/%02u %02u:%02u:%02u.%06u'</span>, <span class="nb">time</span><span class="o">[</span>0], <span class="nb">time</span><span class="o">[</span>1], <span class="nb">time</span><span class="o">[</span>2], <span class="nb">time</span><span class="o">[</span>3], <span class="nb">time</span><span class="o">[</span>4], <span class="nb">time</span><span class="o">[</span>5], <span class="nb">time</span><span class="o">[</span>6]<span class="o">)</span>
+    GENERIC_READ_CONVERSION_END</code></pre></figure>
+
+
+          
+
+
+
+
+
+  
+  
+
+  
+  
+
+  
+  
+
+  
+  
+
+  
+  
+
+  
+  
+
+  
+  
+
+  
+  
+    <div class="top-section-nav">
+      <div class="left align-right">
+          
+            
+            
+            <a href="/docs/command/" class="prev">Back</a>
+          
+      </div>
+      <div class="right align-left">
+          
+            
+            
+            <a href="/docs/interfaces/" class="next">Next</a>
+          
+      </div>
+    </div>
+    <div class="clear"></div>
+    
+
+        </article>
+      </div>
+
+      <div class="unit one-fifth hide-on-mobiles">
+  <aside>
+    
+    <h4>Getting Started</h4>
+    
+
+<ul>
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/home/">Welcome</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/installation/">Installation</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/upgrading/">Upgrading and the Gemfile</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/structure/">Directory structure</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/gettingstarted/">Getting Started</a></li>
+      
+
+
+</ul>
+
+    
+    <h4>System Configuration</h4>
+    
+
+<ul>
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/system/">System Configuration</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+      <li class=""><a href="/docs/command/">Command Configuration</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class="current"><a href="/docs/telemetry/">Telemetry Configuration</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/interfaces/">Interface Configuration</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/environment/">Environment Variables</a></li>
+      
+
+
+</ul>
+
+    
+    <h4>Tool Configuration</h4>
+    
+
+<ul>
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/launcher/">Launcher</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/data_viewer/">Data Viewer</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/handbook_creator/">Handbook Creator</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/limits_monitor/">Limits Monitor</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/script_runner/">Script Runner</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/table_manager/">Table Manager</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/test_runner/">Test Runner</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/tlm_extractor/">Telemetry Extractor</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/tlm_viewer/">Telemetry Viewer</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/screens/">Telemetry Screens</a></li>
+      
+
+
+</ul>
+
+    
+    <h4>User's Guides</h4>
+    
+
+<ul>
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/scripting/">Scripting Guide</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/gemtargets/">Gem Based Targets and Tools</a></li>
+      
+
+
+</ul>
+
+    
+    <h4>Tips</h4>
+    
+
+<ul>
+
+  
+
+  
+
+  
+    
+      <li class=""><a href="/docs/chaining/">Chaining CmdTlmServers</a></li>
+      
+
+
+</ul>
+
+    
+    <h4>Development</h4>
+    
+
+<ul>
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/system_class/">System Class</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/packet_class/">Packet Class</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/json_api/">JSON API</a></li>
+      
+
+
+</ul>
+
+    
+    <h4>Meta</h4>
+    
+
+<ul>
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/requirements/">Requirements and Design</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/xtce/">XTCE Support</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/contributing/">Contributing</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/contact/">Contact Us</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/history/">Release History</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/papers/">Papers</a></li>
+      
+
+
+</ul>
+
+    
+  </aside>
+</div>
+
+
+      <div class="clear"></div>
+
+    </div>
+  </section>
+
+
+  <script>
+  (function() {
+    var cx = '001663949569052626382:-enhin1layy';
+    var gcse = document.createElement('script');
+    gcse.type = 'text/javascript';
+    gcse.async = true;
+    gcse.src = 'https://cse.google.com/cse.js?cx=' + cx;
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(gcse, s);
+  })();
+</script>
+<footer role="contentinfo">
+  <div class="grid wider">
+    <div class="unit one-third center-on-mobiles">
+      <p>The contents of this website are &copy;&nbsp;2017 <a href="http://www.ballaerospace.com/" target="_blank">Ball Aerospace</a> under the terms of the <a href="https://github.com/BallAerospace/COSMOS/blob/master/LICENSE.txt" target="_blank">GPLv3&nbsp;License</a>.</p>
+      <p>Site design derived from the <a href="http://jekyllrb.com/" target="_blank">Jekyll</a> project documentation which is licensed under the terms of the <a href="https://github.com/jekyll/jekyll/blob/master/LICENSE" target="_blank">MIT License</a>.</p>
+    </div>
+    <div class="unit two-thirds align-right center-on-mobiles">
+      <p>
+        <gcse:search></gcse:search>
+        Proudly hosted by
+        <a href="https://github.com" target="_blank">
+          <img src="/img/footer-logo.png" width="100" height="30" alt="GitHub Social coding">
+        </a>
+      </p>
+    </div>
+  </div>
+</footer>
+
+  <script>
+  var anchorForId = function (id) {
+    var anchor = document.createElement("a");
+    anchor.className = "header-link";
+    anchor.href      = "#" + id;
+    anchor.innerHTML = "<span class=\"sr-only\">Permalink</span><i class=\"fa fa-link\"></i>";
+    anchor.title = "Permalink";
+    return anchor;
+  };
+
+  var linkifyAnchors = function (level, containingElement) {
+    var headers = containingElement.getElementsByTagName("h" + level);
+    for (var h = 0; h < headers.length; h++) {
+      var header = headers[h];
+
+      if (typeof header.id !== "undefined" && header.id !== "") {
+        header.appendChild(anchorForId(header.id));
+      }
+    }
+  };
+
+  document.onreadystatechange = function () {
+    if (this.readyState === "complete") {
+      var contentBlock = document.getElementsByClassName("docs")[0] || document.getElementsByClassName("news")[0];
+      if (!contentBlock) {
+        return;
+      }
+      for (var level = 1; level <= 6; level++) {
+        linkifyAnchors(level, contentBlock);
+      }
+    }
+  };
+</script>
+
+  
+  <!-- Google Analytics (http://google.com/analytics) -->
+  <script>
+    !function(j,e,k,y,l,L){j.GoogleAnalyticsObject=y,j[y]||(j[y]=function(){
+    (j[y].q=j[y].q||[]).push(arguments)}),j[y].l=+new Date,l=e.createElement(k),
+    L=e.getElementsByTagName(k)[0],l.src='//www.google-analytics.com/analytics.js',
+    L.parentNode.insertBefore(l,L)}(window,document,'script','ga');
+
+    ga('create', 'UA-60103689-1', 'cosmosrb.com');
+    ga('send', 'pageview');
+
+  </script>
+
+
+
+</body>
+</html>

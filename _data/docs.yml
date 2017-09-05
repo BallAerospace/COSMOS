@@ -6,15 +6,26 @@
   - structure
   - gettingstarted
 
-- title: Configuration
+- title: System Configuration
   docs:
   - system
-  - cmdtlm
+  - command
+  - telemetry
   - interfaces
-  - tools
-  - screens
-  - grapher
   - environment
+
+- title: Tool Configuration
+  docs:
+  - launcher
+  - data_viewer
+  - handbook_creator
+  - limits_monitor
+  - script_runner
+  - table_manager
+  - test_runner
+  - tlm_extractor
+  - tlm_viewer
+  - screens
 
 - title: User's Guides
   docs:
