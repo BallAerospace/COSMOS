@@ -8,11 +8,13 @@ google_analytics_id: UA-60103689-1
 
 repository: https://github.com/BallAerospace/COSMOS
 
-gems:
+plugins:
   - jekyll-toc
 
 collections:
   docs:
     output: true
+
+cosmos_meta_path: C:/git/COSMOS/data/config
 
 exclude: [Gemfile, Rakefile]

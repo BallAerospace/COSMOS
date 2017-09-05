@@ -4,7 +4,7 @@ title: Contributing
 permalink: /docs/contributing/
 ---
 
-So you've got an awesome idea to throw into COSMOS. Great! Hers is the basic process:
+So you've got an awesome idea to throw into COSMOS. Great! This is the basic process:
 
 1. Fork the project on Github
 1. Create a feature branch
@@ -73,7 +73,7 @@ git push origin my_awesome_feature
   <h5>Let us know what could be better!</h5>
   <p>
     Both using and hacking on COSMOS should be fun, simple, and easy, so if for
-    some reason you find it’s a pain, please <a
+    some reason you find it's a pain, please <a
     href="{{ site.repository }}/issues/new">create an issue</a> on
     GitHub describing your experience so we can make it better.
   </p>
