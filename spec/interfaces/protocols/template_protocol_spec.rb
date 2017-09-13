@@ -12,6 +12,7 @@ require 'spec_helper'
 require 'cosmos/interfaces/protocols/template_protocol'
 require 'cosmos/interfaces/interface'
 require 'cosmos/streams/stream'
+require 'cosmos/utilities/logger'
 
 module Cosmos
   describe TemplateProtocol do
@@ -115,7 +116,12 @@ module Cosmos
         expect($write_buffer).to eql("SOUR:VOLT 1, (@2)\xAB\xCD")
       end
 
-      it "times out if it doesn't receive a response" do
+      it "raises if given a bad error_action" do
+        @interface.instance_variable_set(:@stream, TemplateStream.new)
+        expect { @interface.add_protocol(TemplateProtocol, ['0xA','0xA',0,nil,1,true,0,nil,false,1.5,0.02,'BLAH'], :READ_WRITE) }.to raise_error(/Unknown error action/)
+      end
+
+      it "logs an error if it doesn't receive a response" do
         @interface.instance_variable_set(:@stream, TemplateStream.new)
         @interface.add_protocol(TemplateProtocol, ['0xA','0xA',0,nil,1,true,0,nil,false,1.5], :READ_WRITE)
         @interface.target_names = ['TGT']
@@ -129,8 +135,47 @@ module Cosmos
         packet.restore_defaults
         @interface.connect
         start = Time.now
-        expect { @interface.write(packet) }.to raise_error(Timeout::Error)
+        logger = class_double("Cosmos::Logger").as_stubbed_const(:transfer_nested_constants => true)
+        expect(logger).to receive(:error).with("StreamInterface: Timeout waiting for response")
+        @interface.write(packet)
         expect(Time.now - start).to be_within(0.1).of(1.5)
+      end
+
+      it "disconnects if it doesn't receive a response" do
+        @interface.instance_variable_set(:@stream, TemplateStream.new)
+        @interface.add_protocol(TemplateProtocol, ['0xA','0xA',0,nil,1,true,0,nil,false,1.5,0.02,'DISCONNECT'], :READ_WRITE)
+        @interface.target_names = ['TGT']
+        packet = Packet.new('TGT', 'CMD')
+        packet.append_item("CMD_TEMPLATE", 1024, :STRING)
+        packet.get_item("CMD_TEMPLATE").default = "GO"
+        packet.append_item("RSP_TEMPLATE", 1024, :STRING)
+        packet.get_item("RSP_TEMPLATE").default = "<VOLTAGE>"
+        packet.append_item("RSP_PACKET", 1024, :STRING)
+        packet.get_item("RSP_PACKET").default = "DATA"
+        packet.restore_defaults
+        @interface.connect
+        start = Time.now
+        expect { @interface.write(packet) }.to raise_error(/Timeout waiting for response/)
+        expect(Time.now - start).to be_within(0.1).of(1.5)
+      end
+
+      it "doesn't expect responses for empty response fields" do
+        @interface.instance_variable_set(:@stream, TemplateStream.new)
+        @interface.add_protocol(TemplateProtocol, ['0xA','0xA',0,nil,1,true,0,nil,false,nil], :READ_WRITE)
+        @interface.target_names = ['TGT']
+        packet = Packet.new('TGT', 'CMD')
+        packet.append_item("CMD_TEMPLATE", 1024, :STRING)
+        packet.get_item("CMD_TEMPLATE").default = "GO"
+        packet.append_item("RSP_TEMPLATE", 1024, :STRING)
+        packet.get_item("RSP_TEMPLATE").default = ""
+        packet.append_item("RSP_PACKET", 1024, :STRING)
+        packet.get_item("RSP_PACKET").default = ""
+        packet.restore_defaults
+        @interface.connect
+        start = Time.now
+        logger = class_double("Cosmos::Logger").as_stubbed_const(:transfer_nested_constants => true)
+        expect(logger).to_not receive(:error)
+        @interface.write(packet)
       end
 
       it "processes responses" do
@@ -139,13 +184,12 @@ module Cosmos
         allow(System).to receive_message_chain(:telemetry, :packet).and_return(rsp_pkt)
         @interface.instance_variable_set(:@stream, TemplateStream.new)
         @interface.add_protocol(TemplateProtocol, ['0xABCD','0xABCD', 0, nil, 1, true, 0, nil, false, nil, nil], :READ_WRITE)
-      #@interface.add_protocol(TemplateProtocol, ['0xABCD','0xABCD'], :READ_WRITE)
         @interface.target_names = ['TGT']
         packet = Packet.new('TGT', 'CMD')
         packet.append_item("VOLTAGE", 16, :UINT)
         packet.get_item("VOLTAGE").default = 11
         packet.append_item("CHANNEL", 16, :UINT)
-        packet.get_item("CHANNEL").default = 20
+        packet.get_item("CHANNEL").default = 1
         packet.append_item("CMD_TEMPLATE", 1024, :STRING)
         packet.get_item("CMD_TEMPLATE").default = "SOUR:VOLT <VOLTAGE>, (@<CHANNEL>)"
         packet.append_item("RSP_TEMPLATE", 1024, :STRING)
@@ -158,8 +202,73 @@ module Cosmos
         $read_buffer = "\x31\x30\xAB\xCD" # ASCII 31, 30 is '10'
         Thread.new { sleep(0.5); read_result = @interface.read }
         @interface.write(packet)
-        expect($write_buffer).to eql("SOUR:VOLT 11, (@20)\xAB\xCD")
+        sleep 0.55
+        expect($write_buffer).to eql("SOUR:VOLT 11, (@1)\xAB\xCD")
         expect(read_result.read("VOLTAGE")).to eq 10
+      end
+
+      it "handles templates with more values than the response" do
+        rsp_pkt = Packet.new('TGT', 'READ_VOLTAGE')
+        rsp_pkt.append_item("VOLTAGE", 16, :UINT)
+        allow(System).to receive_message_chain(:telemetry, :packet).and_return(rsp_pkt)
+        @interface.instance_variable_set(:@stream, TemplateStream.new)
+        @interface.add_protocol(TemplateProtocol, ['0xABCD','0xABCD', 0, nil, 1, true, 0, nil, false, nil], :READ_WRITE)
+        @interface.target_names = ['TGT']
+        packet = Packet.new('TGT', 'CMD')
+        packet.append_item("VOLTAGE", 16, :UINT)
+        packet.get_item("VOLTAGE").default = 12
+        packet.append_item("CHANNEL", 16, :UINT)
+        packet.get_item("CHANNEL").default = 2
+        packet.append_item("CMD_TEMPLATE", 1024, :STRING)
+        packet.get_item("CMD_TEMPLATE").default = "SOUR:VOLT <VOLTAGE>, (@<CHANNEL>)"
+        packet.append_item("RSP_TEMPLATE", 1024, :STRING)
+        packet.get_item("RSP_TEMPLATE").default = "<VOLTAGE>;<CURRENT>"
+        packet.append_item("RSP_PACKET", 1024, :STRING)
+        packet.get_item("RSP_PACKET").default = "READ_VOLTAGE"
+        packet.restore_defaults
+        @interface.connect
+        read_result = nil
+        $read_buffer = "\x31\x30\xAB\xCD" # ASCII 31, 30 is '10'
+        Thread.new { sleep(0.5); read_result = @interface.read }
+        logger = class_double("Cosmos::Logger").as_stubbed_const(:transfer_nested_constants => true)
+        expect(logger).to receive(:error) do |arg|
+          expect(arg).to match(/Unexpected response: 10/)
+        end
+        @interface.write(packet)
+        sleep 0.55
+        expect($write_buffer).to eql("SOUR:VOLT 12, (@2)\xAB\xCD")
+      end
+
+      it "handles responses with more values than the template" do
+        rsp_pkt = Packet.new('TGT', 'READ_VOLTAGE')
+        rsp_pkt.append_item("VOLTAGE", 16, :UINT)
+        allow(System).to receive_message_chain(:telemetry, :packet).and_return(rsp_pkt)
+        @interface.instance_variable_set(:@stream, TemplateStream.new)
+        @interface.add_protocol(TemplateProtocol, ['0xABCD','0xABCD', 0, nil, 1, true, 0, nil, false, nil], :READ_WRITE)
+        @interface.target_names = ['TGT']
+        packet = Packet.new('TGT', 'CMD')
+        packet.append_item("VOLTAGE", 16, :UINT)
+        packet.get_item("VOLTAGE").default = 12
+        packet.append_item("CHANNEL", 16, :UINT)
+        packet.get_item("CHANNEL").default = 2
+        packet.append_item("CMD_TEMPLATE", 1024, :STRING)
+        packet.get_item("CMD_TEMPLATE").default = "SOUR:VOLT <VOLTAGE>, (@<CHANNEL>)"
+        packet.append_item("RSP_TEMPLATE", 1024, :STRING)
+        packet.get_item("RSP_TEMPLATE").default = "<VOLTAGE>"
+        packet.append_item("RSP_PACKET", 1024, :STRING)
+        packet.get_item("RSP_PACKET").default = "READ_VOLTAGE"
+        packet.restore_defaults
+        @interface.connect
+        read_result = nil
+        $read_buffer = "\x31\x30\x3B\x31\x31\xAB\xCD" # ASCII is '10;11'
+        Thread.new { sleep(0.5); read_result = @interface.read }
+        logger = class_double("Cosmos::Logger").as_stubbed_const(:transfer_nested_constants => true)
+        expect(logger).to receive(:error) do |arg|
+          expect(arg).to match(/Could not write value 10;11/)
+        end
+        @interface.write(packet)
+        sleep 0.55
+        expect($write_buffer).to eql("SOUR:VOLT 12, (@2)\xAB\xCD")
       end
 
       it "ignores response lines" do
