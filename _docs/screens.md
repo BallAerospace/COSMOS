@@ -32,10 +32,11 @@ The SCREEN keyword is the first keyword in any telemetry screen definition. It d
 | Width	| Width in pixels or AUTO to let Telemetry Viewer automatically layout the screen | Yes |
 | Height | Height in pixels or AUTO to let Telemetry Viewer automatically layout the screen | Yes |
 | Polling Period | Number of seconds between screen updates | Yes |
+| Fixed | Force the window to be fixed size and not user resizeable | No |
 
 Example Usage:
 {% highlight bash %}
-SCREEN AUTO AUTO 1.0
+SCREEN AUTO AUTO 1.0 FIXED
 {% endhighlight %}
 
 ### END
@@ -194,6 +195,10 @@ AUTO_TARGETS
 ### AUTO_TARGET
 The AUTO_TARGET keyword tells Telemetry Viewer to add all the screens defined in the screens directory of the specified target folder in the config/targets directory. Screens are grouped by target name in the display. For example: all the screens defined in config/targets/COSMOS/screens will be added to a single drop down selection labeled COSMOS. If AUTO_TARGETS is used this keyword does nothing.
 
+| Parameter | Description | Required |
+|-----------|-------------|----------|
+| Target Name | Name of the target directory to look for screens. | Yes |
+
 Example Usage:
 {% highlight bash %}
 AUTO_TARGET COSMOS
@@ -219,9 +224,9 @@ The SCREEN keyword adds the specified screen from the specified target. It must 
 
 | Parameter | Description | Required |
 |-----------|-------------|----------|
-| File name | Name of the file containing the telemetry screen definition. The filename will be upcased and used in the drop down selection. | Yes |
-| X position | Position in pixels to draw the left edge of the screen on the display. If not supplied the screen will be centered. If supplied, the Y position must also be supplied. | No |
-| Y position | Position in pixels to draw the top edge of the screen on the display. If not supplied the screen will be centered. If supplied, the X position must also be supplied. | No |
+| File Name | Name of the file containing the telemetry screen definition. The filename will be upcased and used in the drop down selection. | Yes |
+| X Position | Position in pixels to draw the left edge of the screen on the display. If not supplied the screen will be centered. If supplied, the Y position must also be supplied. | No |
+| Y Position | Position in pixels to draw the top edge of the screen on the display. If not supplied the screen will be centered. If supplied, the X position must also be supplied. | No |
 
 Example Usage:
 {% highlight bash %}
@@ -229,8 +234,36 @@ TARGET COSMOS
   SCREEN version.txt 50 50
 {% endhighlight %}
 
+### GROUP
+The GROUP keyword is used to create a new drop down group in the Tlm Viewer application.
+
+| Parameter | Description | Required |
+|-----------|-------------|----------|
+| Group Name | Label to display in front of the group drop down. | Yes |
+
+Example Usage:
+{% highlight bash %}
+GROUP "Special Ops"
+{% endhighlight %}
+
+### GROUP_SCREEN
+The GROUP_SCREEN keyword is used to add a screen to a previously defined group. It must follow the GROUP keyword.
+
+| Parameter | Description | Required |
+|-----------|-------------|----------|
+| Target Name | Name of the target where the screen is defined | Yes |
+| File Name | Name of the file containing the telemetry screen definition. The filename will be upcased and used in the drop down selection. | Yes |
+| X Position | Position in pixels to draw the left edge of the screen on the display. If not supplied the screen will be centered. If supplied, the Y position must also be supplied. | No |
+| Y Position | Position in pixels to draw the top edge of the screen on the display. If not supplied the screen will be centered. If supplied, the X position must also be supplied. | No |
+
+Example Usage:
+{% highlight bash %}
+GROUP "Special Ops"
+  GROUP_SCREEN SYSTEM status.txt
+{% endhighlight %}
+
 ### SHOW_ON_STARTUP
-The SHOW_ON_STARTUP keyword causes the previously defined SCREEN to be automatically displayed when Telemetry Viewer starts. It must be preceeded by the SCREEN keyword.
+The SHOW_ON_STARTUP keyword causes the previously defined SCREEN to be automatically displayed when Telemetry Viewer starts. It must be preceeded by the SCREEN or GROUP_SCREEN keyword.
 
 ### ADD_SHOW_ON_STARTUP
 The ADD_SHOW_ON_STARTUP keyword adds show on startup to any screen that has already been defined.  This is useful for adding show on startup to screens defined with AUTO_TARGETS.
@@ -239,8 +272,8 @@ The ADD_SHOW_ON_STARTUP keyword adds show on startup to any screen that has alre
 |-----------|-------------|----------|
 | Target Name | Target Name of the screen | Yes |
 | Screen Name | Base Name of the screen. This is equal to the screens filename with the .txt extension. | Yes |
-| X position | Position in pixels to draw the left edge of the screen on the display. If not supplied the screen will be centered. If supplied, the Y position must also be supplied. | No |
-| Y position | Position in pixels to draw the top edge of the screen on the display. If not supplied the screen will be centered. If supplied, the X position must also be supplied. | No |
+| X Position | Position in pixels to draw the left edge of the screen on the display. If not supplied the screen will be centered. If supplied, the Y position must also be supplied. | No |
+| Y Position | Position in pixels to draw the top edge of the screen on the display. If not supplied the screen will be centered. If supplied, the X position must also be supplied. | No |
 
 Example Usage:
 {% highlight bash %}
@@ -261,6 +294,10 @@ TARGET INST2
   SCREEN "hs.txt"
 TARGET COSMOS
   SCREEN "version.txt"
+GROUP "My group"
+  GROUP_SCREEN SYSTEM "status.txt"
+  GROUP_SCREEN INST "hs.txt"
+  GROUP_SCREEN INST2 "hs.txt"  
 {% endhighlight %}
 
 ---
@@ -276,8 +313,8 @@ The VERTICAL widget places the widgets it encapsulates vertically on the screen.
 
 | Parameter | Description | Required |
 |-----------|-------------|----------|
-| Vertical spacing | Vertical spacing between widgets in pixels (default = 1) | No |
-| Vertical packing | Pack all widgets vertically (default = true) | No |
+| Vertical Spacing | Vertical spacing between widgets in pixels (default = 3) | No |
+| Vertical Packing | Pack all widgets vertically (default = true) | No |
 
 Example Usage:
 {% highlight bash %}
@@ -293,8 +330,8 @@ The VERTICALBOX widget places the widgets it encapsulates vertically on the scre
 | Parameter | Description | Required |
 |-----------|-------------|----------|
 | Title | Text to place within the border to label the box | No |
-| Vertical spacing | Vertical spacing between widgets in pixels (default = 1) | No |
-| Vertical packing | Pack all widgets vertically (default = true) | No |
+| Vertical Spacing | Vertical spacing between widgets in pixels (default = 3) | No |
+| Vertical Packing | Pack all widgets vertically (default = true) | No |
 
 Example Usage:
 {% highlight bash %}
@@ -309,7 +346,7 @@ The HORIZONTAL widget places the widgets it encapsulates horizontally on the scr
 
 | Parameter | Description | Required |
 |-----------|-------------|----------|
-| Horizontal spacing | Horizontal spacing between widgets in pixels (default = 1) | No |
+| Horizontal Spacing | Horizontal spacing between widgets in pixels (default = 1) | No |
 
 Example Usage:
 {% highlight bash %}
@@ -325,7 +362,7 @@ The HORIZONTALBOX widget places the widgets it encapsulates horizontally on the 
 | Parameter | Description | Required |
 |-----------|-------------|----------|
 | Title | Text to place within the border to label the box | No |
-| Horizontal spacing | Horizontal spacing between widgets in pixels (default = 1) | No |
+| Horizontal Spacing | Horizontal spacing between widgets in pixels (default = 0) | No |
 
 Example Usage:
 {% highlight bash %}
@@ -341,6 +378,8 @@ The MATRIXBYCOLUMNS widget places the widgets into a table-like matrix. The MATR
 | Parameter | Description | Required |
 |-----------|-------------|----------|
 | Columns | The number of columns to create | Yes |
+| Horizontal Spacing | Spacing between horizontal items (default = 0) | No |
+| Vertical Spacing | Spacing between vertical items (default = 0) | No |
 
 Example Usage:
 {% highlight bash %}
@@ -383,7 +422,7 @@ The TABITEM widget creates a tab into which to place widgets. The tab automatica
 
 | Parameter | Description | Required |
 |-----------|-------------|----------|
-| Tab text | Text to diplay in the tab | Yes |
+| Tab Text | Text to diplay in the tab | Yes |
 
 Example Usage:
 {% highlight bash %}
@@ -445,7 +484,7 @@ LABEL "Label"
 {% endhighlight %}
 
 ### SPACER
-The SPACER widget inserts a spacer into a layout.  This can be used to separate or align other widgets.
+The SPACER widget inserts a spacer into a layout. This can be used to separate or align other widgets. For more information about how the widget size policy works please see the [QSizePolicy::Policy](http://doc.qt.io/qt-4.8/qsizepolicy.html#Policy-enum).
 
 | Parameter | Description | Required |
 |-----------|-------------|----------|
@@ -463,6 +502,22 @@ VERTICAL 3 FALSE
 END
 {% endhighlight %}
 
+### STRETCH
+The STRETCH widget inserts stretch into a layout. Stretch expands to the end of the layout to help align other widgets in the layout.
+
+| Parameter | Description | Required |
+|-----------|-------------|----------|
+| Stretch Factor | Multiple stretch items can expand at different rates. By default stretch is added with value 1 but stretch is allocated according to the stretch factor.  | Yes |
+
+Example Usage:
+{% highlight bash %}
+VERTICAL 3 FALSE
+  LABEL "Stretch below"
+  STRETCH
+  LABEL "Stretch above"
+END
+{% endhighlight %}
+
 ## Telemetry widgets
 Telemetry widgets are used to display telemetry values. The first parameters to each of these widgets is a telemetry mnemonic. Depending on the type and purpose of the telemetry item, the screen designer may select from a wide selection of widgets to display the value in the most useful format. They are listed here in alphabetical order.
 
@@ -471,14 +526,14 @@ The ARRAY widget is used to display data from an array telemetry item. Data is o
 
 | Parameter | Description | Required |
 |-----------|-------------|----------|
-| Target name | The target name portion of the telemetry mnemonic | Yes |
-| Packet name | The packet name portion of the telemetry mnemonic | Yes |
-| Item name | The item name portion of the telemetry mnemonic | Yes |
+| Target Name | The target name portion of the telemetry mnemonic | Yes |
+| Packet Name | The packet name portion of the telemetry mnemonic | Yes |
+| Item Name | The item name portion of the telemetry mnemonic | Yes |
 | Width | Width of the widget (default = 200) | No |
 | Height | Height of the widget (default = 100) | No |
-| Format string | Format string applied to each array item (default = nil) | No |
-| Items per row | Number of array items per row (default = 4) | No |
-| Value type | The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = CONVERTED) | No |
+| Format String | Format string applied to each array item (default = nil) | No |
+| Items per Row | Number of array items per row (default = 4) | No |
+| Value Type | The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = CONVERTED) | No |
 
 Example Usage:
 {% highlight bash %}
@@ -491,16 +546,16 @@ The BLOCK widget is used to display data from a block telemetry item. Data is or
 
 | Parameter | Description | Required |
 |-----------|-------------|----------|
-| Target name | The target name portion of the telemetry mnemonic | Yes |
-| Packet name | The packet name portion of the telemetry mnemonic | Yes |
-| Item name | The item name portion of the telemetry mnemonic | Yes |
+| Target Name | The target name portion of the telemetry mnemonic | Yes |
+| Packet Name | The packet name portion of the telemetry mnemonic | Yes |
+| Item Name | The item name portion of the telemetry mnemonic | Yes |
 | Width | Width of the widget (default = 200) | No |
 | Height | Height of the widget (default = 100) | No |
-| Format string | Format string applied to byte of the block (default = "%02X") | No |
-| Bytes per word | Number of bytes per word (default = 4) | No |
-| Words per row | Number of words per row (default = 4) | No |
-| Address format | Format for the address printed at the beginning of each line (default = nil which means do not print an address) | No |
-| Value type | The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = RAW) | No |
+| Format String | Format string applied to byte of the block (default = "%02X") | No |
+| Bytes per Word | Number of bytes per word (default = 4) | No |
+| Words per Row | Number of words per row (default = 4) | No |
+| Address Format | Format for the address printed at the beginning of each line (default = nil which means do not print an address) | No |
+| Value Type | The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = RAW) | No |
 
 Example Usage:
 {% highlight bash %}
@@ -512,18 +567,20 @@ The FORMATFONTVALUE widget displays a box with a value printed inside that is fo
 
 | Parameter | Description | Required |
 |-----------|-------------|----------|
-| Target name | The target name portion of the telemetry mnemonic | Yes |
-| Packet name | The packet name portion of the telemetry mnemonic | Yes |
-| Item name | The item name portion of the telemetry mnemonic | Yes |
-| Format string | Printf style format string to apply to the telemetry item | Yes |
-| Value type | The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = CONVERTED) | No |
-| Number of characters | The number of characters wide to make the value box (default = 12) | No |
-| Font name | The font to use. (default = arial) | No |
-| Font size | The font size. (default = 100) | No |
+| Target Name | The target name portion of the telemetry mnemonic | Yes |
+| Packet Name | The packet name portion of the telemetry mnemonic | Yes |
+| Item Name | The item name portion of the telemetry mnemonic | Yes |
+| Format String | Printf style format string to apply to the telemetry item | Yes |
+| Value Type | The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = CONVERTED) | No |
+| Number of Characters | The number of characters wide to make the value box (default = 12) | No |
+| Font Name | The font to use. (default = arial) | No |
+| Font Size | The font size. (default = 100) | No |
+| Font Weight | The font weight. See [QFont::Weight](http://doc.qt.io/qt-4.8/qfont.html#Weight-enum) for more information. (default = Qt::Font::Normal) | No |
+| Font Italics | Whether to display the font in italics. (default = false) | No |
 
 Example Usage:
 {% highlight bash %}
-FORMATFONTVALUE INST LATEST TIMESEC %012u CONVERTED 12 arial 15
+FORMATFONTVALUE INST LATEST TIMESEC %012u CONVERTED 12 arial 15 Qt::Font::Bold true
 {% endhighlight %}
 
 ### FORMATVALUE
@@ -531,16 +588,33 @@ The FORMATVALUE widget displays a box with a value printed inside that is format
 
 | Parameter | Description | Required |
 |-----------|-------------|----------|
-| Target name | The target name portion of the telemetry mnemonic | Yes |
-| Packet name | The packet name portion of the telemetry mnemonic | Yes |
-| Item name | The item name portion of the telemetry mnemonic | Yes |
-| Format string | Printf style format string to apply to the telemetry item | Yes |
-| Value type | The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = CONVERTED) | No |
-| Number of characters | The number of characters wide to make the value box (default = 12) | No |
+| Target Name | The target name portion of the telemetry mnemonic | Yes |
+| Packet Name | The packet name portion of the telemetry mnemonic | Yes |
+| Item Name | The item name portion of the telemetry mnemonic | Yes |
+| Format String | Printf style format string to apply to the telemetry item | Yes |
+| Value Type | The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = CONVERTED) | No |
+| Number of Characters | The number of characters wide to make the value box (default = 12) | No |
 
 Example Usage:
 {% highlight bash %}
 FORMATVALUE INST LATEST TIMESEC %012u CONVERTED 12
+{% endhighlight %}
+
+### LABELFORMATVALUE
+The LABELFORMATVALUE widget displays a label with a value box that is formatted by the specified string rather than by a format string given in the telemetry definition files. The white portion of the box darkens to gray while the value remains stagnant, then brightens to white each time the value changes. Additionally the value is colored based on the items limits state (Red for example if it is out of limits).
+
+| Parameter | Description | Required |
+|-----------|-------------|----------|
+| Target Name | The target name portion of the telemetry mnemonic | Yes |
+| Packet Name | The packet name portion of the telemetry mnemonic | Yes |
+| Item Name | The item name portion of the telemetry mnemonic | Yes |
+| Format String | Printf style format string to apply to the telemetry item | Yes |
+| Value Type | The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = CONVERTED) | No |
+| Number of Characters | The number of characters wide to make the value box (default = 12) | No |
+
+Example Usage:
+{% highlight bash %}
+LABELFORMATVALUE INST LATEST TIMESEC %012u CONVERTED 12
 {% endhighlight %}
 
 ### LABELPROGRESSBAR
@@ -548,12 +622,12 @@ The LABELPROGRESSBAR widget displays a LABEL widget showing the items name follo
 
 | Parameter | Description | Required |
 |-----------|-------------|----------|
-| Target name | The target name portion of the telemetry mnemonic | Yes |
-| Packet name | The packet name portion of the telemetry mnemonic | Yes |
-| Item name | The item name portion of the telemetry mnemonic | Yes |
-| Scale factor | Value to multiple the telemetry item by before displaying the in the progress bar. Final value should be in the range of 0 to 100. (default 1.0) | No |
+| Target Name | The target name portion of the telemetry mnemonic | Yes |
+| Packet Name | The packet name portion of the telemetry mnemonic | Yes |
+| Item Name | The item name portion of the telemetry mnemonic | Yes |
+| Scale Factor | Value to multiple the telemetry item by before displaying the in the progress bar. Final value should be in the range of 0 to 100. (default 1.0) | No |
 | Width | Width of the progress bar (default = 80 pixels) | No |
-| Value type | The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = CONVERTED) | No |
+| Value Type | The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = CONVERTED) | No |
 
 Example Usage:
 {% highlight bash %}
@@ -566,11 +640,11 @@ The LABELTRENDLIMITSBAR widget displays a LABEL widget to show the item's name, 
 
 | Parameter | Description | Required |
 |-----------|-------------|----------|
-| Target name | The target name portion of the telemetry mnemonic | Yes |
-| Packet name | The packet name portion of the telemetry mnemonic | Yes |
-| Item name | The item name portion of the telemetry mnemonic | Yes |
-| Value type | The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = CONVERTED) | No |
-| Trend seconds | The number of seconds in the past to display the trend value (default = 60) | No |
+| Target Name | The target name portion of the telemetry mnemonic | Yes |
+| Packet Name | The packet name portion of the telemetry mnemonic | Yes |
+| Item Name | The item name portion of the telemetry mnemonic | Yes |
+| Value Type | The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = CONVERTED) | No |
+| Trend Seconds | The number of seconds in the past to display the trend value (default = 60) | No |
 | Characters | The number of characters to display the telemetry value (default = 12) | No |
 | Width | Width of the limits bar (default = 160) | No |
 | Height | Height of the limits bar (default = 25) | No |
@@ -586,15 +660,16 @@ The LABELVALUE widget displays a LABEL widget to shows the telemetry items name 
 
 | Parameter | Description | Required |
 |-----------|-------------|----------|
-| Target name | The target name portion of the telemetry mnemonic | Yes |
-| Packet name | The packet name portion of the telemetry mnemonic | Yes |
-| Item name | The item name portion of the telemetry mnemonic | Yes |
-| Value type | The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = WITH_UNITS) | No |
-| Number of characters | The number of characters wide to make the value box (default = 12) | No |
+| Target Name | The target name portion of the telemetry mnemonic | Yes |
+| Packet Name | The packet name portion of the telemetry mnemonic | Yes |
+| Item Name | The item name portion of the telemetry mnemonic | Yes |
+| Value Type | The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = WITH_UNITS) | No |
+| Number of Characters | The number of characters wide to make the value box (default = 12) | No |
+| Alignment | How to align the label and value items. Options are 'split', 'right', 'left', 'center'. (default = split) | No |
 
 Example Usage:
 {% highlight bash %}
-LABELVALUE INST LATEST TIMESEC CONVERTED 18
+LABELVALUE INST LATEST TIMESEC CONVERTED 18 center
 LABELVALUE INST LATEST COLLECT_TYPE
 {% endhighlight %}
 
@@ -603,12 +678,12 @@ The LABELVALUEDESC widget displays a LABEL widget to shows the telemetry items d
 
 | Parameter | Description | Required |
 |-----------|-------------|----------|
-| Target name | The target name portion of the telemetry mnemonic | Yes |
-| Packet name | The packet name portion of the telemetry mnemonic | Yes |
-| Item name | The item name portion of the telemetry mnemonic | Yes |
+| Target Name | The target name portion of the telemetry mnemonic | Yes |
+| Packet Name | The packet name portion of the telemetry mnemonic | Yes |
+| Item Name | The item name portion of the telemetry mnemonic | Yes |
 | Description | The description to display in the label (default is to display the description text associated with the telemetry item) | No |
-| Value type | The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = WITH_UNITS) | No |
-| Number of characters | The number of characters wide to make the value box (default = 12) | No |
+| Value Type | The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = WITH_UNITS) | No |
+| Number of Characters | The number of characters wide to make the value box (default = 12) | No |
 
 Example Usage:
 {% highlight bash %}
@@ -621,11 +696,11 @@ The LABELVALUELIMITSBAR widget displays a LABEL widget to shows the telemetry it
 
 | Parameter | Description | Required |
 |-----------|-------------|----------|
-| Target name | The target name portion of the telemetry mnemonic | Yes |
-| Packet name | The packet name portion of the telemetry mnemonic | Yes |
-| Item name | The item name portion of the telemetry mnemonic | Yes |
-| Value type | The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = WITH_UNITS) | No |
-| Number of characters | The number of characters wide to make the value box (default = 12) | No |
+| Target Name | The target name portion of the telemetry mnemonic | Yes |
+| Packet Name | The packet name portion of the telemetry mnemonic | Yes |
+| Item Name | The item name portion of the telemetry mnemonic | Yes |
+| Value Type | The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = WITH_UNITS) | No |
+| Number of Characters | The number of characters wide to make the value box (default = 12) | No |
 
 Example Usage:
 {% highlight bash %}
@@ -638,11 +713,11 @@ The LABELVALUELIMITSCOLUMN widget displays a LABEL widget to shows the telemetry
 
 | Parameter | Description | Required |
 |-----------|-------------|----------|
-| Target name | The target name portion of the telemetry mnemonic | Yes |
-| Packet name | The packet name portion of the telemetry mnemonic | Yes |
-| Item name | The item name portion of the telemetry mnemonic | Yes |
-| Value type | The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = WITH_UNITS) | No |
-| Number of characters | The number of characters wide to make the value box (default = 12) | No |
+| Target Name | The target name portion of the telemetry mnemonic | Yes |
+| Packet Name | The packet name portion of the telemetry mnemonic | Yes |
+| Item Name | The item name portion of the telemetry mnemonic | Yes |
+| Value Type | The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = WITH_UNITS) | No |
+| Number of Characters | The number of characters wide to make the value box (default = 12) | No |
 
 Example Usage:
 {% highlight bash %}
@@ -655,13 +730,13 @@ The LABELVALUERANGEBAR widget displays a LABEL widget to shows the telemetry ite
 
 | Parameter | Description | Required |
 |-----------|-------------|----------|
-| Target name | The target name portion of the telemetry mnemonic | Yes |
-| Packet name | The packet name portion of the telemetry mnemonic | Yes |
-| Item name | The item name portion of the telemetry mnemonic | Yes |
+| Target Name | The target name portion of the telemetry mnemonic | Yes |
+| Packet Name | The packet name portion of the telemetry mnemonic | Yes |
+| Item Name | The item name portion of the telemetry mnemonic | Yes |
 | Low Value | Minimum value to display on the range bar. If the telemetry item goes below this value the bar is "pegged" on the low end. | Yes |
 | High Value | Maximum value to display on the range bar. If the telemetry item goes above this value the bar is "pegged" on the high end. | Yes |
-| Value type | The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = CONVERTED) | No |
-| Number of characters | The number of characters wide to make the value box (default = 12) | No |
+| Value Type | The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = WITH_UNITS) | No |
+| Number of Characters | The number of characters wide to make the value box (default = 12) | No |
 | Width | Width of the range bar (default = 160) | No |
 | Height | Height of the range bar (default = 25) | No |
 
@@ -676,13 +751,13 @@ The LABELVALUERANGECOLUMN widget displays a LABEL widget to shows the telemetry 
 
 | Parameter | Description | Required |
 |-----------|-------------|----------|
-| Target name | The target name portion of the telemetry mnemonic | Yes |
-| Packet name | The packet name portion of the telemetry mnemonic | Yes |
-| Item name | The item name portion of the telemetry mnemonic | Yes |
+| Target Name | The target name portion of the telemetry mnemonic | Yes |
+| Packet Name | The packet name portion of the telemetry mnemonic | Yes |
+| Item Name | The item name portion of the telemetry mnemonic | Yes |
 | Low Value | Minimum value to display on the range bar. If the telemetry item goes below this value the bar is "pegged" on the low end. | Yes |
 | High Value | Maximum value to display on the range bar. If the telemetry item goes above this value the bar is "pegged" on the high end. | Yes |
-| Value type | The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = WITH_UNITS) | No |
-| Number of characters | The number of characters wide to make the value box (default = 8) | No |
+| Value Type | The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = WITH_UNITS) | No |
+| Number of Characters | The number of characters wide to make the value box (default = 8) | No |
 | Width | Width of the range bar (default = 30) | No |
 | Height | Height of the range bar (default = 100) | No |
 
@@ -697,10 +772,10 @@ The LIMITSBAR widget displays a graphical representation of where an items value
 
 | Parameter | Description | Required |
 |-----------|-------------|----------|
-| Target name | The target name portion of the telemetry mnemonic | Yes |
-| Packet name | The packet name portion of the telemetry mnemonic | Yes |
-| Item name | The item name portion of the telemetry mnemonic | Yes |
-| Value type | The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = CONVERTED) | No |
+| Target Name | The target name portion of the telemetry mnemonic | Yes |
+| Packet Name | The packet name portion of the telemetry mnemonic | Yes |
+| Item Name | The item name portion of the telemetry mnemonic | Yes |
+| Value Type | The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = CONVERTED) | No |
 | Width | The width of the range bar (default = 160) | No |
 | Height | The height of the range bar (default = 25) | No |
 
@@ -715,10 +790,10 @@ The LIMITSCOLUMN widget displays a graphical representation of where an items va
 
 | Parameter | Description | Required |
 |-----------|-------------|----------|
-| Target name | The target name portion of the telemetry mnemonic | Yes |
-| Packet name | The packet name portion of the telemetry mnemonic | Yes |
-| Item name | The item name portion of the telemetry mnemonic | Yes |
-| Value type | The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = CONVERTED) | No |
+| Target Name | The target name portion of the telemetry mnemonic | Yes |
+| Packet Name | The packet name portion of the telemetry mnemonic | Yes |
+| Item Name | The item name portion of the telemetry mnemonic | Yes |
+| Value Type | The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = CONVERTED) | No |
 | Width | The width of the range bar (default = 30) | No |
 | Height | The height of the range bar (default = 100) | No |
 
@@ -733,10 +808,10 @@ The LIMITSCOLOR widget displays a stoplight-like circle depicting the limits col
 
 | Parameter | Description | Required |
 |-----------|-------------|----------|
-| Target name | The target name portion of the telemetry mnemonic | Yes |
-| Packet name | The packet name portion of the telemetry mnemonic | Yes |
-| Item name | The item name portion of the telemetry mnemonic | Yes |
-| Value type | The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = CONVERTED) | No |
+| Target Name | The target name portion of the telemetry mnemonic | Yes |
+| Packet Name | The packet name portion of the telemetry mnemonic | Yes |
+| Item Name | The item name portion of the telemetry mnemonic | Yes |
+| Value Type | The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = CONVERTED) | No |
 | Radius | Radius of the circle (default = 10 pixels) | No |
 | Full Item Name | Show the full item name (default = false) | No |
 
@@ -751,11 +826,11 @@ The VALUELIMITSBAR widget displays a graphical representation of where an items 
 
 | Parameter | Description | Required |
 |-----------|-------------|----------|
-| Target name | The target name portion of the telemetry mnemonic | Yes |
-| Packet name | The packet name portion of the telemetry mnemonic | Yes |
-| Item name | The item name portion of the telemetry mnemonic | Yes |
-| Value type | The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = WITH_UNITS) | No |
-| Number of characters | The number of characters wide to make the value box (default = 8) | No |
+| Target Name | The target name portion of the telemetry mnemonic | Yes |
+| Packet Name | The packet name portion of the telemetry mnemonic | Yes |
+| Item Name | The item name portion of the telemetry mnemonic | Yes |
+| Value Type | The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = WITH_UNITS) | No |
+| Number of Characters | The number of characters wide to make the value box (default = 12) | No |
 
 Example Usage:
 {% highlight bash %}
@@ -768,11 +843,11 @@ The VALUELIMITSCOLUMN widget displays a graphical representation of where an ite
 
 | Parameter | Description | Required |
 |-----------|-------------|----------|
-| Target name | The target name portion of the telemetry mnemonic | Yes |
-| Packet name | The packet name portion of the telemetry mnemonic | Yes |
-| Item name | The item name portion of the telemetry mnemonic | Yes |
-| Value type | The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = WITH_UNITS) | No |
-| Number of characters | The number of characters wide to make the value box (default = 8) | No |
+| Target Name | The target name portion of the telemetry mnemonic | Yes |
+| Packet Name | The packet name portion of the telemetry mnemonic | Yes |
+| Item Name | The item name portion of the telemetry mnemonic | Yes |
+| Value Type | The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = WITH_UNITS) | No |
+| Number of Characters | The number of characters wide to make the value box (default = 8) | No |
 
 Example Usage:
 {% highlight bash %}
@@ -785,13 +860,13 @@ The VALUERANGEBAR widget displays a graphical representation of where an items v
 
 | Parameter | Description | Required |
 |-----------|-------------|----------|
-| Target name | The target name portion of the telemetry mnemonic | Yes |
-| Packet name | The packet name portion of the telemetry mnemonic | Yes |
-| Item name | The item name portion of the telemetry mnemonic | Yes |
+| Target Name | The target name portion of the telemetry mnemonic | Yes |
+| Packet Name | The packet name portion of the telemetry mnemonic | Yes |
+| Item Name | The item name portion of the telemetry mnemonic | Yes |
 | Low Value | Minimum value to display on the range bar. If the telemetry item goes below this value the bar is "pegged" on the low end. | Yes |
 | High Value | Maximum value to display on the range bar. If the telemetry item goes above this value the bar is "pegged" on the high end. | Yes |
-| Value type | The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = WITH_UNITS) | No |
-| Number of characters | The number of characters wide to make the value box (default = 12) | No |
+| Value Type | The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = WITH_UNITS) | No |
+| Number of Characters | The number of characters wide to make the value box (default = 12) | No |
 | Width | Width of the range bar (default = 160) | No |
 | Height | Height of the range bar (default = 25) | No |
 
@@ -806,13 +881,13 @@ The VALUERANGECOLUMN widget displays a graphical representation of where an item
 
 | Parameter | Description | Required |
 |-----------|-------------|----------|
-| Target name | The target name portion of the telemetry mnemonic | Yes |
-| Packet name | The packet name portion of the telemetry mnemonic | Yes |
-| Item name | The item name portion of the telemetry mnemonic | Yes |
+| Target Name | The target name portion of the telemetry mnemonic | Yes |
+| Packet Name | The packet name portion of the telemetry mnemonic | Yes |
+| Item Name | The item name portion of the telemetry mnemonic | Yes |
 | Low Value | Minimum value to display on the range bar. If the telemetry item goes below this value the bar is "pegged" on the low end. | Yes |
 | High Value | Maximum value to display on the range bar. If the telemetry item goes above this value the bar is "pegged" on the high end. | Yes |
-| Value type | The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = WITH_UNITS) | No |
-| Number of characters | The number of characters wide to make the value box (default = 8) | No |
+| Value Type | The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = WITH_UNITS) | No |
+| Number of Characters | The number of characters wide to make the value box (default = 8) | No |
 | Width | Width of the range bar (default = 30) | No |
 | Height | Height of the range bar (default = 100) | No |
 
@@ -827,13 +902,13 @@ The LINEGRAPH widget displays a line graph of a telemetry items value verses sam
 
 | Parameter | Description | Required |
 |-----------|-------------|----------|
-| Target name | The target name portion of the telemetry mnemonic | Yes |
-| Packet name | The packet name portion of the telemetry mnemonic | Yes |
-| Item name | The item name portion of the telemetry mnemonic | Yes |
-| Num samples | The number of samples to display on the graph (default = 100) | No |
+| Target Name | The target name portion of the telemetry mnemonic | Yes |
+| Packet Name | The packet name portion of the telemetry mnemonic | Yes |
+| Item Name | The item name portion of the telemetry mnemonic | Yes |
+| Num Samples | The number of samples to display on the graph (default = 100) | No |
 | Width | The width of the graph (default = 300) | No |
 | Height | The height of the graph (default = 200) | No |
-| Value type | The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = CONVERTED) | No |
+| Value Type | The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = CONVERTED) | No |
 
 Example Usage:
 {% highlight bash %}
@@ -846,12 +921,12 @@ The PROGRESSBAR widget displays a progress bar that is useful for displaying per
 
 | Parameter | Description | Required |
 |-----------|-------------|----------|
-| Target name | The target name portion of the telemetry mnemonic | Yes |
-| Packet name | The packet name portion of the telemetry mnemonic | Yes |
-| Item name | The item name portion of the telemetry mnemonic | Yes |
-| Scale factor | Value to multiple the telemetry item by before displaying the in the progress bar. Final value should be in the range of 0 to 100. (default 1.0) | No |
+| Target Name | The target name portion of the telemetry mnemonic | Yes |
+| Packet Name | The packet name portion of the telemetry mnemonic | Yes |
+| Item Name | The item name portion of the telemetry mnemonic | Yes |
+| Scale Factor | Value to multiple the telemetry item by before displaying the in the progress bar. Final value should be in the range of 0 to 100. (default 1.0) | No |
 | Width | Width of the progress bar (default = 80 pixels) | No |
-| Value type | The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = CONVERTED) | No |
+| Value Type | The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = CONVERTED) | No |
 
 Example Usage:
 {% highlight bash %}
@@ -864,12 +939,12 @@ The RANGEBAR widget displays a graphical representation of where an items value 
 
 | Parameter | Description | Required |
 |-----------|-------------|----------|
-| Target name | The target name portion of the telemetry mnemonic | Yes |
-| Packet name | The packet name portion of the telemetry mnemonic | Yes |
-| Item name | The item name portion of the telemetry mnemonic | Yes |
+| Target Name | The target name portion of the telemetry mnemonic | Yes |
+| Packet Name | The packet name portion of the telemetry mnemonic | Yes |
+| Item Name | The item name portion of the telemetry mnemonic | Yes |
 | Low Value | Minimum value to display on the range bar. If the telemetry item goes below this value the bar is "pegged" on the low end. | Yes |
 | High Value | Maximum value to display on the range bar. If the telemetry item goes above this value the bar is "pegged" on the high end. | Yes |
-| Value type | The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = CONVERTED) | No |
+| Value Type | The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = CONVERTED) | No |
 | Width | Width of the range bar (default = 160) | No |
 | Height | Height of the range bar (default = 25) | No |
 
@@ -884,12 +959,12 @@ The RANGECOLUMN widget displays a graphical representation of where an items val
 
 | Parameter | Description | Required |
 |-----------|-------------|----------|
-| Target name | The target name portion of the telemetry mnemonic | Yes |
-| Packet name | The packet name portion of the telemetry mnemonic | Yes |
-| Item name | The item name portion of the telemetry mnemonic | Yes |
+| Target Name | The target name portion of the telemetry mnemonic | Yes |
+| Packet Name | The packet name portion of the telemetry mnemonic | Yes |
+| Item Name | The item name portion of the telemetry mnemonic | Yes |
 | Low Value | Minimum value to display on the range bar. If the telemetry item goes below this value the bar is "pegged" on the low end. | Yes |
 | High Value | Maximum value to display on the range bar. If the telemetry item goes above this value the bar is "pegged" on the high end. | Yes |
-| Value type | The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = CONVERTED) | No |
+| Value Type | The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = CONVERTED) | No |
 | Width | Width of the range bar (default = 30) | No |
 | Height | Height of the range bar (default = 100) | No |
 
@@ -904,11 +979,12 @@ The TEXTBOX widget provides a large box for multiline text.
 
 | Parameter | Description | Required |
 |-----------|-------------|----------|
-| Target name | The target name portion of the telemetry mnemonic | Yes |
-| Packet name | The packet name portion of the telemetry mnemonic | Yes |
-| Item name | The item name portion of the telemetry mnemonic | Yes |
+| Target Name | The target name portion of the telemetry mnemonic | Yes |
+| Packet Name | The packet name portion of the telemetry mnemonic | Yes |
+| Item Name | The item name portion of the telemetry mnemonic | Yes |
 | Width | Width of the text box (default = 200) | No |
 | Height | Height of the text box (default = 100) | No |
+| Value Type | The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = CONVERTED) | No |
 
 Example Usage:
 {% highlight bash %}
@@ -921,15 +997,15 @@ The TIMEGRAPH widget displays a line graph of a telemetry items value verses tim
 
 | Parameter | Description | Required |
 |-----------|-------------|----------|
-| Target name | The target name portion of the telemetry mnemonic | Yes |
-| Packet name | The packet name portion of the telemetry mnemonic | Yes |
-| Item name | The item name portion of the telemetry mnemonic | Yes |
-| Num samples | The number of samples to display on the graph (default = 100) | No |
+| Target Name | The target name portion of the telemetry mnemonic | Yes |
+| Packet Name | The packet name portion of the telemetry mnemonic | Yes |
+| Item Name | The item name portion of the telemetry mnemonic | Yes |
+| Num Samples | The number of samples to display on the graph (default = 100) | No |
 | Width | The width of the graph (default = 300) | No |
 | Height | The height of the graph (default = 200) | No |
-| Show points | Whether to show points or just draw lines between points (default = true) | No |
-| Time item name | The telemetry item to use as the time on the X axis (default = TIMESECONDS) | No |
-| Value type | The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = CONVERTED) | No |
+| Point Size | Size of the point in pixels (default = 5) | No |
+| Time Item Name | The telemetry item to use as the time on the X axis (default = RECEIVED_TIMESECONDS) | No |
+| Value Type | The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = CONVERTED) | No |
 
 Example Usage:
 {% highlight bash %}
@@ -942,11 +1018,11 @@ The TRENDBAR widget provides the same functionality as the LIMITSBAR widget exce
 
 | Parameter | Description | Required |
 |-----------|-------------|----------|
-| Target name | The target name portion of the telemetry mnemonic | Yes |
-| Packet name | The packet name portion of the telemetry mnemonic | Yes |
-| Item name | The item name portion of the telemetry mnemonic | Yes |
-| Value type | The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = CONVERTED) | No |
-| Trend seconds | The number of seconds in the past to display the trend value (default = 60) | No |
+| Target Name | The target name portion of the telemetry mnemonic | Yes |
+| Packet Name | The packet name portion of the telemetry mnemonic | Yes |
+| Item Name | The item name portion of the telemetry mnemonic | Yes |
+| Value Type | The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = CONVERTED) | No |
+| Trend Seconds | The number of seconds in the past to display the trend value (default = 60) | No |
 | Width | Width of the limits bar (default = 160) | No |
 | Height | Height of the limits bar (default = 25) | No |
 
@@ -961,11 +1037,11 @@ The TRENDLIMITSBAR widget displays a VALUE widget to show the telemetry items cu
 
 | Parameter | Description | Required |
 |-----------|-------------|----------|
-| Target name | Target name portion of the telemetry mnemonic | Yes |
-| Packet name | Packet name portion of the telemetry mnemonic | Yes |
-| Item name | Item name portion of the telemetry mnemonic | Yes |
-| Value type | Type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = WITH_UNITS) | No |
-| Trend seconds | Number of seconds in the past to display the trend value (default = 60) | No |
+| Target Name | Target name portion of the telemetry mnemonic | Yes |
+| Packet Name | Packet name portion of the telemetry mnemonic | Yes |
+| Item Name | Item name portion of the telemetry mnemonic | Yes |
+| Value Type | Type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = WITH_UNITS) | No |
+| Trend Seconds | Number of seconds in the past to display the trend value (default = 60) | No |
 | Characters | Number of characters to display the value (default = 12) | No |
 | Width | Width of the limits bar (default = 160) | No |
 | Height | Height of the limits bar (default = 25) | No |
@@ -981,10 +1057,10 @@ The VALUE widget displays a box with a value printed inside. The white portion o
 
 | Parameter | Description | Required |
 |-----------|-------------|----------|
-| Target name | Target name portion of the telemetry mnemonic | Yes |
-| Packet name | Packet name portion of the telemetry mnemonic | Yes |
-| Item name | Item name portion of the telemetry mnemonic | Yes |
-| Value type | Type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = WITH_UNITS) | No |
+| Target Name | Target name portion of the telemetry mnemonic | Yes |
+| Packet Name | Packet name portion of the telemetry mnemonic | Yes |
+| Item Name | Item name portion of the telemetry mnemonic | Yes |
+| Value Type | Type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = WITH_UNITS) | No |
 | Characters | Number of characters to display the value (default = 12) | No |
 
 Example Usage:
@@ -1003,8 +1079,8 @@ If you want your button to use values from other widgets, define them as named w
 
 | Parameter | Description | Required |
 |-----------|-------------|----------|
-| Button text | Text displayed on the button | Yes |
-| String to eval | Ruby code to execute when the button is pressed | Yes |
+| Button Text | Text displayed on the button | Yes |
+| String to Eval | Ruby code to execute when the button is pressed | Yes |
 
 Example Usage to execute a command:
 {% highlight bash %}
@@ -1020,7 +1096,8 @@ The CHECKBUTTON widget displays a check box. Note this is of limited use by itse
 
 | Parameter | Description | Required |
 |-----------|-------------|----------|
-| Checkbox text | Text displayed next to the checkbox | Yes |
+| Checkbox Text | Text displayed next to the checkbox | Yes |
+| Checked | Whether the checkbox should initially be checked. Valid values are 'CHECKED' or 'UNCHECKED'. (default = 'UNCHECKED') | No |
 
 Example Usage:
 {% highlight bash %}
@@ -1033,7 +1110,8 @@ The COMBOBOX widget displays a drop down list of text items that the user can ch
 
 | Parameter | Description | Required |
 |-----------|-------------|----------|
-| Option text | Text to display in the selection drop down | Yes |
+| Option Text 1 | Text to display in the selection drop down | Yes |
+| Option Text n | Text to display in the selection drop down | No |
 
 Example Usage:
 {% highlight bash %}
@@ -1047,6 +1125,7 @@ The RADIOBUTTON widget a radio button and text. Note this is of limited use by i
 | Parameter | Description | Required |
 |-----------|-------------|----------|
 | Text | Text to display next to the radio button | Yes |
+| Checked | Whether the radio button should initially be checked. Valid values are 'CHECKED' or 'UNCHECKED'. (default = 'UNCHECKED') | No |
 
 Example Usage:
 {% highlight bash %}
@@ -1067,6 +1146,19 @@ Example Usage:
 {% highlight bash %}
 NAMED_WIDGET DURATION TEXTFIELD 12 "10.0"
 BUTTON 'Start Collect' 'cmd("INST COLLECT with TYPE NORMAL, DURATION #{get_named_widget("DURATION").text.to_f}")'
+{% endhighlight %}
+
+### SCREENSHOTBUTTON
+The SCREENSHOTBUTTON widget displays a button that when clicked takes a screenshot.
+
+| Parameter | Description | Required |
+|-----------|-------------|----------|
+| Button Text | Text to display on the button. (default = "Screenshot") | No |
+| Directory | Directory to save the screenshot. (default = System.paths['LOGS']) | No |
+
+Example Usage:
+{% highlight bash %}
+SCREENSHOTBUTTON "Screenshot" "C:/images/screenshots"
 {% endhighlight %}
 
 ## Canvas Widgets
@@ -1090,7 +1182,7 @@ The CANVASLABEL widget draws text onto the canvas.
 | X | X position of the upper-left corner of the text on the canvas | Yes |
 | Y | Y position of the upper-left corner of the text on the canvas | Yes |
 | Text | Text to draw onto the canvas | Yes |
-| Font size | Font size of the text (default = 12) | No |
+| Font Size | Font size of the text (default = 12) | No |
 | Color | Color of the text (default = 'black') | No |
 
 Example Usage:
@@ -1106,16 +1198,16 @@ The CANVASLABELVALUE widget draws the text value of a telemetry item onto the ca
 
 | Parameter | Description | Required |
 |-----------|-------------|----------|
-| target name | The target name portion of the telemetry mnemonic | Yes |
-| packet name | The packet name portion of the telemetry mnemonic | Yes |
-| item name | The item name portion of the telemetry mnemonic | Yes |
+| Target Name | The target name portion of the telemetry mnemonic | Yes |
+| Packet Name | The packet name portion of the telemetry mnemonic | Yes |
+| Item Name | The item name portion of the telemetry mnemonic | Yes |
 | X | X position of the upper-left corner of the text on the canvas | Yes |
 | Y | Y position of the upper-left corner of the text on the canvas | Yes |
-| Font size | Font size of the text (default = 12) | No |
+| Font Size | Font size of the text (default = 12) | No |
 | Color | Color of the text (default = 'black')	| No |
-| Frame | Whether to draw a frame around the value in the same color as the font | No |
-| Frame width | Width in pixels of the frame | No |
-| Value type | Type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = CONVERTED) | No |
+| Frame | Whether to draw a frame around the value in the same color as the font (default = true) | No |
+| Frame Width | Width in pixels of the frame (default = 3) | No |
+| Value Type | Type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = CONVERTED) | No |
 
 Example Usage:
 {% highlight bash %}
@@ -1130,7 +1222,7 @@ The CANVASIMAGE widget displays a GIF image on the canvas.
 
 | Parameter | Description | Required |
 |-----------|-------------|----------|
-| Image name | Name of a image file. The file must be located in the <Cosmos::USERPATH>/data directory. | Yes |
+| Image Name | Name of a image file. The file must be located in the <Cosmos::USERPATH>/data directory. | Yes |
 | X | Left X position to draw the image | Yes |
 | Y | Top Y position to draw the image | Yes |
 
@@ -1146,13 +1238,13 @@ The CANVASIMAGEVALUE widget displays a GIF image on the canvas that changes with
 
 | Parameter | Description | Required |
 |-----------|-------------|----------|
-| Target name | Target name portion of the telemetry mnemonic | Yes |
-| Packet name | Packet name portion of the telemetry mnemonic | Yes |
-| Item name | Item name portion of the telemetry mnemonic | Yes |
-| Filename prefix | The prefix part of the filename of the gif images (expected to be in the user's data directory). The actual filenames will be this value plus the word "on" or the word "off" and ".gif" | Yes |
+| Target Name | Target name portion of the telemetry mnemonic | Yes |
+| Packet Name | Packet name portion of the telemetry mnemonic | Yes |
+| Item Name | Item name portion of the telemetry mnemonic | Yes |
+| Filename Prefix | The prefix part of the filename of the gif images (expected to be in the user's data directory). The actual filenames will be this value plus the word "on" or the word "off" and ".gif" | Yes |
 | X | X position of the upper-left corner of the image on the canvas | Yes |
 | Y | Y position of the upper-left corner of the image on the canvas | Yes |
-| Value type | Type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = RAW) | No |
+| Value Type | Type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = RAW) | No |
 
 Example Usage:
 {% highlight bash %}
@@ -1189,18 +1281,18 @@ The CANVASLINEVALUE widget draws a line onto the canvas in one of two colors bas
 
 | Parameter | Description | Required |
 |-----------|-------------|----------|
-| Target name | Target name portion of the telemetry mnemonic | Yes |
-| Packet name | Packet name portion of the telemetry mnemonic | Yes |
-| Item name | Item name portion of the telemetry mnemonic | Yes |
+| Target Name | Target name portion of the telemetry mnemonic | Yes |
+| Packet Name | Packet name portion of the telemetry mnemonic | Yes |
+| Item Name | Item name portion of the telemetry mnemonic | Yes |
 | X1 | X position of the first endpoint of the line on the canvas | Yes |
 | Y1 | Y position of the first endpoint of the line on the canvas | Yes |
 | X2 | X position of the second endpoint of the line on the canvas | Yes |
 | Y2 | Y position of the second endpoint of the line on the canvas | Yes |
-| Color on | Color of the line when the telemtry point is considered on (default = 'green') | No |
-| Color off | Color of the line when the telemtry point is considered off (default = 'blue') | No |
+| Color On | Color of the line when the telemtry point is considered on (default = 'green') | No |
+| Color Off | Color of the line when the telemtry point is considered off (default = 'blue') | No |
 | Width | Width of the line in pixels (default = 3) | No |
 | Connector | Indicates whether or not to draw a circle at the second endpoint of the line: NO_CONNECTOR or CONNECTOR (default = NO_CONNECTOR) | No |
-| Value type | Type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = RAW) | No |
+| Value Type | Type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = RAW) | No |
 
 Example Usage:
 {% highlight bash %}
@@ -1216,10 +1308,10 @@ The CANVASDOT widget draws a dot onto the canvas, and it can be programmed to ch
 
 | Parameter | Description | Required |
 |-----------|-------------|----------|
-| x __or__ str to eval | X position of the dot, or it can be a string of ruby code | Yes |
-| y __or__ str to eval | Y position of the dot, or it can be a string of ruby code | Yes |
-| color | Color of the dot (default = black) | No |
-| width | Width of the dot in pixels (default = 3) | No |
+| X __or__ Str to Eval | X position of the dot, or it can be a string of ruby code | Yes |
+| Y __or__ Str to Eval | Y position of the dot, or it can be a string of ruby code | Yes |
+| Color | Color of the dot (default = black) | No |
+| Width | Width of the dot in pixels (default = 3) | No |
 
 Example Usage:
 {% highlight bash %}
@@ -1247,15 +1339,15 @@ The BACKCOLOR setting sets the background color for a widget.
 
 | Parameter | Description | Required |
 |-----------|-------------|----------|
-| Color name | Common name for the color, e.g. 'black', 'red', etc | Yes |
+| Color Name | Common name for the color, e.g. 'black', 'red', etc | Yes |
 
 or
 
 | Parameter | Description | Required |
 |-----------|-------------|----------|
-| Red value | Red portion of an RGB value (0-255) | Yes |
-| Green value | Green portion of an RGB value (0-255) | Yes |
-| Blue value | Blue portion of an RGB value (0-255) | Yes |
+| Red Value | Red portion of an RGB value (0-255) | Yes |
+| Green Value | Green portion of an RGB value (0-255) | Yes |
+| Blue Value | Blue portion of an RGB value (0-255) | Yes |
 
 Example Usage:
 {% highlight bash %}
@@ -1268,13 +1360,13 @@ The TEXTCOLOR setting sets the text color for a widget.
 
 | Parameter | Description | Required |
 |-----------|-------------|----------|
-| Color name | Common name for the color, e.g. 'black', 'red', etc | Yes |
+| Color Name | Common name for the color, e.g. 'black', 'red', etc | Yes |
 
 | Parameter | Description | Required |
 |-----------|-------------|----------|
-| Red value | Red portion of an RGB value (0-255) | Yes |
-| Green value | Green portion of an RGB value (0-255) | Yes |
-| Blue value | Blue portion of an RGB value (0-255) | Yes |
+| Red Value | Red portion of an RGB value (0-255) | Yes |
+| Green Value | Green portion of an RGB value (0-255) | Yes |
+| Blue Value | Blue portion of an RGB value (0-255) | Yes |
 
 Example Usage:
 {% highlight bash %}
@@ -1314,15 +1406,15 @@ The BORDERCOLOR setting changes the color of a layout widgets border.
 
 | Parameter | Description | Required |
 |-----------|-------------|----------|
-| Color name | Common name for the color, e.g. 'black', 'red', etc | Yes |
+| Color Name | Common name for the color, e.g. 'black', 'red', etc | Yes |
 
 or
 
 | Parameter | Description | Required |
 |-----------|-------------|----------|
-| Red value | Red portion of an RGB value (0-255) | Yes |
-| Green value | Green portion of an RGB value (0-255) | Yes |
-| Blue value | Blue portion of an RGB value (0-255) | Yes |
+| Red Value | Red portion of an RGB value (0-255) | Yes |
+| Green Value | Green portion of an RGB value (0-255) | Yes |
+| Blue Value | Blue portion of an RGB value (0-255) | Yes |
 
 Example Usage:
 {% highlight bash %}
@@ -1364,7 +1456,7 @@ The GRAY_RATE and GREY_RATE settings change the rate at which graying occurs in 
 
 | Parameter | Description | Required |
 |-----------|-------------|----------|
-| Gray rate | The number of shades of gray that are subtracted at each polling period if the value hasn't changed	| Yes |
+| Gray Rate | The number of shades of gray that are subtracted at each polling period if the value hasn't changed	| Yes |
 
 Example Usage:
 {% highlight bash %}
@@ -1377,7 +1469,7 @@ The GRAY_TOLERANCE and GREY_TOLERANCE settings set the maximum change in value t
 
 | Parameter | Description | Required |
 |-----------|-------------|----------|
-| Tolerance value | The maximum change in value that will cause the widget to not recognize an items value as changing. | Yes |
+| Tolerance Value | The maximum change in value that will cause the widget to not recognize an items value as changing. | Yes |
 
 Example Usage:
 {% highlight bash %}
@@ -1390,7 +1482,7 @@ The MIN_GRAY and MIN_GREY settings set the minimum shade of a gray that a widget
 
 | Parameter | Description | Required |
 |-----------|-------------|----------|
-| Minimum gray | The minimum shade of a gray that a widget will decay to if its value doesn't change. Must be a value between 0 (black) and 255 (white). (default = 200) | Yes |
+| Minimum Gray | The minimum shade of a gray that a widget will decay to if its value doesn't change. Must be a value between 0 (black) and 255 (white). (default = 200) | Yes |
 
 Example Usage:
 {% highlight bash %}
@@ -1483,9 +1575,9 @@ The TLM_AND setting allows added another comparison that is anded with the origi
 
 | Parameter | Description | Required |
 |-----------|-------------|----------|
-| Target name | The target name portion of the telemetry mnemonic | Yes |
-| Packet name | The packet name portion of the telemetry mnemonic | Yes |
-| Item name | The item name portion of the telemetry mnemonic | Yes |
+| Target Name | The target name portion of the telemetry mnemonic | Yes |
+| Packet Name | The packet name portion of the telemetry mnemonic | Yes |
+| Item Name | The item name portion of the telemetry mnemonic | Yes |
 | Comparison Type | The comparison type: VALUE_EQ, VALUE_GT, VALUE_GTEQ, VALUE_LT, or VALUE_LTEQ | Yes |
 | Value | The value to compare against | Yes |
 
@@ -1501,9 +1593,9 @@ The TLM_OR setting allows added another comparison that is ored with the origina
 
 | Parameter | Description | Required |
 |-----------|-------------|----------|
-| Target name | The target name portion of the telemetry mnemonic | Yes |
-| Packet name | The packet name portion of the telemetry mnemonic | Yes |
-| Item name | The item name portion of the telemetry mnemonic | Yes |
+| Target Name | The target name portion of the telemetry mnemonic | Yes |
+| Packet Name | The packet name portion of the telemetry mnemonic | Yes |
+| Item Name | The item name portion of the telemetry mnemonic | Yes |
 | Comparison Type | The comparison type: VALUE_EQ, VALUE_GT, VALUE_GTEQ, VALUE_LT, or VALUE_LTEQ | Yes |
 | Value | The value to compare against | Yes |
 

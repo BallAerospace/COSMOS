@@ -2535,6 +2535,8 @@
 <li class="toc-entry toc-h3"><a href="#new_column">NEW_COLUMN</a></li>
 <li class="toc-entry toc-h3"><a href="#target">TARGET</a></li>
 <li class="toc-entry toc-h3"><a href="#screen-1">SCREEN</a></li>
+<li class="toc-entry toc-h3"><a href="#group">GROUP</a></li>
+<li class="toc-entry toc-h3"><a href="#group_screen">GROUP_SCREEN</a></li>
 <li class="toc-entry toc-h3"><a href="#show_on_startup">SHOW_ON_STARTUP</a></li>
 <li class="toc-entry toc-h3"><a href="#add_show_on_startup">ADD_SHOW_ON_STARTUP</a></li>
 </ul>
@@ -2560,6 +2562,7 @@
 <li class="toc-entry toc-h3"><a href="#sectionheader">SECTIONHEADER</a></li>
 <li class="toc-entry toc-h3"><a href="#title">TITLE</a></li>
 <li class="toc-entry toc-h3"><a href="#spacer">SPACER</a></li>
+<li class="toc-entry toc-h3"><a href="#stretch">STRETCH</a></li>
 </ul>
 </li>
 <li class="toc-entry toc-h2"><a href="#telemetry-widgets">Telemetry widgets</a>
@@ -2568,6 +2571,7 @@
 <li class="toc-entry toc-h3"><a href="#block">BLOCK</a></li>
 <li class="toc-entry toc-h3"><a href="#formatfontvalue">FORMATFONTVALUE</a></li>
 <li class="toc-entry toc-h3"><a href="#formatvalue">FORMATVALUE</a></li>
+<li class="toc-entry toc-h3"><a href="#labelformatvalue">LABELFORMATVALUE</a></li>
 <li class="toc-entry toc-h3"><a href="#labelprogressbar">LABELPROGRESSBAR</a></li>
 <li class="toc-entry toc-h3"><a href="#labeltrendlimitsbar">LABELTRENDLIMITSBAR</a></li>
 <li class="toc-entry toc-h3"><a href="#labelvalue">LABELVALUE</a></li>
@@ -2601,6 +2605,7 @@
 <li class="toc-entry toc-h3"><a href="#combobox">COMBOBOX</a></li>
 <li class="toc-entry toc-h3"><a href="#radiobutton">RADIOBUTTON</a></li>
 <li class="toc-entry toc-h3"><a href="#textfield">TEXTFIELD</a></li>
+<li class="toc-entry toc-h3"><a href="#screenshotbutton">SCREENSHOTBUTTON</a></li>
 </ul>
 </li>
 <li class="toc-entry toc-h2"><a href="#canvas-widgets">Canvas Widgets</a>
@@ -2715,12 +2720,17 @@
       <td>Number of seconds between screen updates</td>
       <td>Yes</td>
     </tr>
+    <tr>
+      <td>Fixed</td>
+      <td>Force the window to be fixed size and not user resizeable</td>
+      <td>No</td>
+    </tr>
   </tbody>
 </table>
 
 <p>Example Usage:</p>
 
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">SCREEN AUTO AUTO 1.0</code></pre></figure>
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">SCREEN AUTO AUTO 1.0 FIXED</code></pre></figure>
 
 <h3 id="end">
 <a id="end" class="anchor" href="#end" aria-hidden="true"><span class="octicon octicon-link"></span></a>END</h3>
@@ -3004,6 +3014,23 @@ SETTING BACKCOLOR 162 181 205</code></pre></figure>
 <a id="auto_target" class="anchor" href="#auto_target" aria-hidden="true"><span class="octicon octicon-link"></span></a>AUTO_TARGET</h3>
 <p>The AUTO_TARGET keyword tells Telemetry Viewer to add all the screens defined in the screens directory of the specified target folder in the config/targets directory. Screens are grouped by target name in the display. For example: all the screens defined in config/targets/COSMOS/screens will be added to a single drop down selection labeled COSMOS. If AUTO_TARGETS is used this keyword does nothing.</p>
 
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Target Name</td>
+      <td>Name of the target directory to look for screens.</td>
+      <td>Yes</td>
+    </tr>
+  </tbody>
+</table>
+
 <p>Example Usage:</p>
 
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">AUTO_TARGET COSMOS</code></pre></figure>
@@ -3051,17 +3078,17 @@ SETTING BACKCOLOR 162 181 205</code></pre></figure>
   </thead>
   <tbody>
     <tr>
-      <td>File name</td>
+      <td>File Name</td>
       <td>Name of the file containing the telemetry screen definition. The filename will be upcased and used in the drop down selection.</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>X position</td>
+      <td>X Position</td>
       <td>Position in pixels to draw the left edge of the screen on the display. If not supplied the screen will be centered. If supplied, the Y position must also be supplied.</td>
       <td>No</td>
     </tr>
     <tr>
-      <td>Y position</td>
+      <td>Y Position</td>
       <td>Position in pixels to draw the top edge of the screen on the display. If not supplied the screen will be centered. If supplied, the X position must also be supplied.</td>
       <td>No</td>
     </tr>
@@ -3073,9 +3100,75 @@ SETTING BACKCOLOR 162 181 205</code></pre></figure>
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">TARGET COSMOS
   SCREEN version.txt 50 50</code></pre></figure>
 
+<h3 id="group">
+<a id="group" class="anchor" href="#group" aria-hidden="true"><span class="octicon octicon-link"></span></a>GROUP</h3>
+<p>The GROUP keyword is used to create a new drop down group in the Tlm Viewer application.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Group Name</td>
+      <td>Label to display in front of the group drop down.</td>
+      <td>Yes</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">GROUP <span class="s2">"Special Ops"</span></code></pre></figure>
+
+<h3 id="group_screen">
+<a id="group_screen" class="anchor" href="#group_screen" aria-hidden="true"><span class="octicon octicon-link"></span></a>GROUP_SCREEN</h3>
+<p>The GROUP_SCREEN keyword is used to add a screen to a previously defined group. It must follow the GROUP keyword.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Target Name</td>
+      <td>Name of the target where the screen is defined</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>File Name</td>
+      <td>Name of the file containing the telemetry screen definition. The filename will be upcased and used in the drop down selection.</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>X Position</td>
+      <td>Position in pixels to draw the left edge of the screen on the display. If not supplied the screen will be centered. If supplied, the Y position must also be supplied.</td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>Y Position</td>
+      <td>Position in pixels to draw the top edge of the screen on the display. If not supplied the screen will be centered. If supplied, the X position must also be supplied.</td>
+      <td>No</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">GROUP <span class="s2">"Special Ops"</span>
+  GROUP_SCREEN SYSTEM status.txt</code></pre></figure>
+
 <h3 id="show_on_startup">
 <a id="show_on_startup" class="anchor" href="#show_on_startup" aria-hidden="true"><span class="octicon octicon-link"></span></a>SHOW_ON_STARTUP</h3>
-<p>The SHOW_ON_STARTUP keyword causes the previously defined SCREEN to be automatically displayed when Telemetry Viewer starts. It must be preceeded by the SCREEN keyword.</p>
+<p>The SHOW_ON_STARTUP keyword causes the previously defined SCREEN to be automatically displayed when Telemetry Viewer starts. It must be preceeded by the SCREEN or GROUP_SCREEN keyword.</p>
 
 <h3 id="add_show_on_startup">
 <a id="add_show_on_startup" class="anchor" href="#add_show_on_startup" aria-hidden="true"><span class="octicon octicon-link"></span></a>ADD_SHOW_ON_STARTUP</h3>
@@ -3101,12 +3194,12 @@ SETTING BACKCOLOR 162 181 205</code></pre></figure>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>X position</td>
+      <td>X Position</td>
       <td>Position in pixels to draw the left edge of the screen on the display. If not supplied the screen will be centered. If supplied, the Y position must also be supplied.</td>
       <td>No</td>
     </tr>
     <tr>
-      <td>Y position</td>
+      <td>Y Position</td>
       <td>Position in pixels to draw the top edge of the screen on the display. If not supplied the screen will be centered. If supplied, the X position must also be supplied.</td>
       <td>No</td>
     </tr>
@@ -3130,7 +3223,11 @@ TARGET INST2
     SHOW_ON_STARTUP
   SCREEN <span class="s2">"hs.txt"</span>
 TARGET COSMOS
-  SCREEN <span class="s2">"version.txt"</span></code></pre></figure>
+  SCREEN <span class="s2">"version.txt"</span>
+GROUP <span class="s2">"My group"</span>
+  GROUP_SCREEN SYSTEM <span class="s2">"status.txt"</span>
+  GROUP_SCREEN INST <span class="s2">"hs.txt"</span>
+  GROUP_SCREEN INST2 <span class="s2">"hs.txt"</span>  </code></pre></figure>
 
 <hr>
 
@@ -3156,12 +3253,12 @@ TARGET COSMOS
   </thead>
   <tbody>
     <tr>
-      <td>Vertical spacing</td>
-      <td>Vertical spacing between widgets in pixels (default = 1)</td>
+      <td>Vertical Spacing</td>
+      <td>Vertical spacing between widgets in pixels (default = 3)</td>
       <td>No</td>
     </tr>
     <tr>
-      <td>Vertical packing</td>
+      <td>Vertical Packing</td>
       <td>Pack all widgets vertically (default = true)</td>
       <td>No</td>
     </tr>
@@ -3194,12 +3291,12 @@ END</code></pre></figure>
       <td>No</td>
     </tr>
     <tr>
-      <td>Vertical spacing</td>
-      <td>Vertical spacing between widgets in pixels (default = 1)</td>
+      <td>Vertical Spacing</td>
+      <td>Vertical spacing between widgets in pixels (default = 3)</td>
       <td>No</td>
     </tr>
     <tr>
-      <td>Vertical packing</td>
+      <td>Vertical Packing</td>
       <td>Pack all widgets vertically (default = true)</td>
       <td>No</td>
     </tr>
@@ -3227,7 +3324,7 @@ END</code></pre></figure>
   </thead>
   <tbody>
     <tr>
-      <td>Horizontal spacing</td>
+      <td>Horizontal Spacing</td>
       <td>Horizontal spacing between widgets in pixels (default = 1)</td>
       <td>No</td>
     </tr>
@@ -3260,8 +3357,8 @@ END</code></pre></figure>
       <td>No</td>
     </tr>
     <tr>
-      <td>Horizontal spacing</td>
-      <td>Horizontal spacing between widgets in pixels (default = 1)</td>
+      <td>Horizontal Spacing</td>
+      <td>Horizontal spacing between widgets in pixels (default = 0)</td>
       <td>No</td>
     </tr>
   </tbody>
@@ -3291,6 +3388,16 @@ END</code></pre></figure>
       <td>Columns</td>
       <td>The number of columns to create</td>
       <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Horizontal Spacing</td>
+      <td>Spacing between horizontal items (default = 0)</td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>Vertical Spacing</td>
+      <td>Spacing between vertical items (default = 0)</td>
+      <td>No</td>
     </tr>
   </tbody>
 </table>
@@ -3345,7 +3452,7 @@ END</code></pre></figure>
   </thead>
   <tbody>
     <tr>
-      <td>Tab text</td>
+      <td>Tab Text</td>
       <td>Text to diplay in the tab</td>
       <td>Yes</td>
     </tr>
@@ -3453,7 +3560,7 @@ LABEL <span class="s2">"Label"</span></code></pre></figure>
 
 <h3 id="spacer">
 <a id="spacer" class="anchor" href="#spacer" aria-hidden="true"><span class="octicon octicon-link"></span></a>SPACER</h3>
-<p>The SPACER widget inserts a spacer into a layout.  This can be used to separate or align other widgets.</p>
+<p>The SPACER widget inserts a spacer into a layout. This can be used to separate or align other widgets. For more information about how the widget size policy works please see the <a href="http://doc.qt.io/qt-4.8/qsizepolicy.html#Policy-enum">QSizePolicy::Policy</a>.</p>
 
 <table>
   <thead>
@@ -3495,6 +3602,35 @@ LABEL <span class="s2">"Label"</span></code></pre></figure>
   LABEL <span class="s2">"Spacer above"</span>
 END</code></pre></figure>
 
+<h3 id="stretch">
+<a id="stretch" class="anchor" href="#stretch" aria-hidden="true"><span class="octicon octicon-link"></span></a>STRETCH</h3>
+<p>The STRETCH widget inserts stretch into a layout. Stretch expands to the end of the layout to help align other widgets in the layout.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Stretch Factor</td>
+      <td>Multiple stretch items can expand at different rates. By default stretch is added with value 1 but stretch is allocated according to the stretch factor.</td>
+      <td>Yes</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">VERTICAL 3 FALSE
+  LABEL <span class="s2">"Stretch below"</span>
+  STRETCH
+  LABEL <span class="s2">"Stretch above"</span>
+END</code></pre></figure>
+
 <h2 id="telemetry-widgets">
 <a id="telemetry-widgets" class="anchor" href="#telemetry-widgets" aria-hidden="true"><span class="octicon octicon-link"></span></a>Telemetry widgets</h2>
 <p>Telemetry widgets are used to display telemetry values. The first parameters to each of these widgets is a telemetry mnemonic. Depending on the type and purpose of the telemetry item, the screen designer may select from a wide selection of widgets to display the value in the most useful format. They are listed here in alphabetical order.</p>
@@ -3513,17 +3649,17 @@ END</code></pre></figure>
   </thead>
   <tbody>
     <tr>
-      <td>Target name</td>
+      <td>Target Name</td>
       <td>The target name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Packet name</td>
+      <td>Packet Name</td>
       <td>The packet name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Item name</td>
+      <td>Item Name</td>
       <td>The item name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
@@ -3538,17 +3674,17 @@ END</code></pre></figure>
       <td>No</td>
     </tr>
     <tr>
-      <td>Format string</td>
+      <td>Format String</td>
       <td>Format string applied to each array item (default = nil)</td>
       <td>No</td>
     </tr>
     <tr>
-      <td>Items per row</td>
+      <td>Items per Row</td>
       <td>Number of array items per row (default = 4)</td>
       <td>No</td>
     </tr>
     <tr>
-      <td>Value type</td>
+      <td>Value Type</td>
       <td>The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = CONVERTED)</td>
       <td>No</td>
     </tr>
@@ -3574,17 +3710,17 @@ ARRAY INST HEALTH_STATUS ARY2 200 60 nil 4 WITH_UNITS</code></pre></figure>
   </thead>
   <tbody>
     <tr>
-      <td>Target name</td>
+      <td>Target Name</td>
       <td>The target name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Packet name</td>
+      <td>Packet Name</td>
       <td>The packet name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Item name</td>
+      <td>Item Name</td>
       <td>The item name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
@@ -3599,27 +3735,27 @@ ARRAY INST HEALTH_STATUS ARY2 200 60 nil 4 WITH_UNITS</code></pre></figure>
       <td>No</td>
     </tr>
     <tr>
-      <td>Format string</td>
+      <td>Format String</td>
       <td>Format string applied to byte of the block (default = “%02X”)</td>
       <td>No</td>
     </tr>
     <tr>
-      <td>Bytes per word</td>
+      <td>Bytes per Word</td>
       <td>Number of bytes per word (default = 4)</td>
       <td>No</td>
     </tr>
     <tr>
-      <td>Words per row</td>
+      <td>Words per Row</td>
       <td>Number of words per row (default = 4)</td>
       <td>No</td>
     </tr>
     <tr>
-      <td>Address format</td>
+      <td>Address Format</td>
       <td>Format for the address printed at the beginning of each line (default = nil which means do not print an address)</td>
       <td>No</td>
     </tr>
     <tr>
-      <td>Value type</td>
+      <td>Value Type</td>
       <td>The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = RAW)</td>
       <td>No</td>
     </tr>
@@ -3644,43 +3780,53 @@ ARRAY INST HEALTH_STATUS ARY2 200 60 nil 4 WITH_UNITS</code></pre></figure>
   </thead>
   <tbody>
     <tr>
-      <td>Target name</td>
+      <td>Target Name</td>
       <td>The target name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Packet name</td>
+      <td>Packet Name</td>
       <td>The packet name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Item name</td>
+      <td>Item Name</td>
       <td>The item name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Format string</td>
+      <td>Format String</td>
       <td>Printf style format string to apply to the telemetry item</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Value type</td>
+      <td>Value Type</td>
       <td>The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = CONVERTED)</td>
       <td>No</td>
     </tr>
     <tr>
-      <td>Number of characters</td>
+      <td>Number of Characters</td>
       <td>The number of characters wide to make the value box (default = 12)</td>
       <td>No</td>
     </tr>
     <tr>
-      <td>Font name</td>
+      <td>Font Name</td>
       <td>The font to use. (default = arial)</td>
       <td>No</td>
     </tr>
     <tr>
-      <td>Font size</td>
+      <td>Font Size</td>
       <td>The font size. (default = 100)</td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>Font Weight</td>
+      <td>The font weight. See <a href="http://doc.qt.io/qt-4.8/qfont.html#Weight-enum">QFont::Weight</a> for more information. (default = Qt::Font::Normal)</td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>Font Italics</td>
+      <td>Whether to display the font in italics. (default = false)</td>
       <td>No</td>
     </tr>
   </tbody>
@@ -3688,7 +3834,7 @@ ARRAY INST HEALTH_STATUS ARY2 200 60 nil 4 WITH_UNITS</code></pre></figure>
 
 <p>Example Usage:</p>
 
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">FORMATFONTVALUE INST LATEST TIMESEC %012u CONVERTED 12 arial 15</code></pre></figure>
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">FORMATFONTVALUE INST LATEST TIMESEC %012u CONVERTED 12 arial 15 Qt::Font::Bold <span class="nb">true</span></code></pre></figure>
 
 <h3 id="formatvalue">
 <a id="formatvalue" class="anchor" href="#formatvalue" aria-hidden="true"><span class="octicon octicon-link"></span></a>FORMATVALUE</h3>
@@ -3704,32 +3850,32 @@ ARRAY INST HEALTH_STATUS ARY2 200 60 nil 4 WITH_UNITS</code></pre></figure>
   </thead>
   <tbody>
     <tr>
-      <td>Target name</td>
+      <td>Target Name</td>
       <td>The target name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Packet name</td>
+      <td>Packet Name</td>
       <td>The packet name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Item name</td>
+      <td>Item Name</td>
       <td>The item name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Format string</td>
+      <td>Format String</td>
       <td>Printf style format string to apply to the telemetry item</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Value type</td>
+      <td>Value Type</td>
       <td>The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = CONVERTED)</td>
       <td>No</td>
     </tr>
     <tr>
-      <td>Number of characters</td>
+      <td>Number of Characters</td>
       <td>The number of characters wide to make the value box (default = 12)</td>
       <td>No</td>
     </tr>
@@ -3739,6 +3885,56 @@ ARRAY INST HEALTH_STATUS ARY2 200 60 nil 4 WITH_UNITS</code></pre></figure>
 <p>Example Usage:</p>
 
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">FORMATVALUE INST LATEST TIMESEC %012u CONVERTED 12</code></pre></figure>
+
+<h3 id="labelformatvalue">
+<a id="labelformatvalue" class="anchor" href="#labelformatvalue" aria-hidden="true"><span class="octicon octicon-link"></span></a>LABELFORMATVALUE</h3>
+<p>The LABELFORMATVALUE widget displays a label with a value box that is formatted by the specified string rather than by a format string given in the telemetry definition files. The white portion of the box darkens to gray while the value remains stagnant, then brightens to white each time the value changes. Additionally the value is colored based on the items limits state (Red for example if it is out of limits).</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Target Name</td>
+      <td>The target name portion of the telemetry mnemonic</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Packet Name</td>
+      <td>The packet name portion of the telemetry mnemonic</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Item Name</td>
+      <td>The item name portion of the telemetry mnemonic</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Format String</td>
+      <td>Printf style format string to apply to the telemetry item</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Value Type</td>
+      <td>The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = CONVERTED)</td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>Number of Characters</td>
+      <td>The number of characters wide to make the value box (default = 12)</td>
+      <td>No</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">LABELFORMATVALUE INST LATEST TIMESEC %012u CONVERTED 12</code></pre></figure>
 
 <h3 id="labelprogressbar">
 <a id="labelprogressbar" class="anchor" href="#labelprogressbar" aria-hidden="true"><span class="octicon octicon-link"></span></a>LABELPROGRESSBAR</h3>
@@ -3754,22 +3950,22 @@ ARRAY INST HEALTH_STATUS ARY2 200 60 nil 4 WITH_UNITS</code></pre></figure>
   </thead>
   <tbody>
     <tr>
-      <td>Target name</td>
+      <td>Target Name</td>
       <td>The target name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Packet name</td>
+      <td>Packet Name</td>
       <td>The packet name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Item name</td>
+      <td>Item Name</td>
       <td>The item name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Scale factor</td>
+      <td>Scale Factor</td>
       <td>Value to multiple the telemetry item by before displaying the in the progress bar. Final value should be in the range of 0 to 100. (default 1.0)</td>
       <td>No</td>
     </tr>
@@ -3779,7 +3975,7 @@ ARRAY INST HEALTH_STATUS ARY2 200 60 nil 4 WITH_UNITS</code></pre></figure>
       <td>No</td>
     </tr>
     <tr>
-      <td>Value type</td>
+      <td>Value Type</td>
       <td>The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = CONVERTED)</td>
       <td>No</td>
     </tr>
@@ -3805,27 +4001,27 @@ LABELPROGRESSBAR INST ADCS POSPROGRESS</code></pre></figure>
   </thead>
   <tbody>
     <tr>
-      <td>Target name</td>
+      <td>Target Name</td>
       <td>The target name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Packet name</td>
+      <td>Packet Name</td>
       <td>The packet name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Item name</td>
+      <td>Item Name</td>
       <td>The item name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Value type</td>
+      <td>Value Type</td>
       <td>The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = CONVERTED)</td>
       <td>No</td>
     </tr>
     <tr>
-      <td>Trend seconds</td>
+      <td>Trend Seconds</td>
       <td>The number of seconds in the past to display the trend value (default = 60)</td>
       <td>No</td>
     </tr>
@@ -3866,28 +4062,33 @@ LABELTRENDLIMITSBAR INST HEALTH_STATUS TEMP1</code></pre></figure>
   </thead>
   <tbody>
     <tr>
-      <td>Target name</td>
+      <td>Target Name</td>
       <td>The target name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Packet name</td>
+      <td>Packet Name</td>
       <td>The packet name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Item name</td>
+      <td>Item Name</td>
       <td>The item name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Value type</td>
+      <td>Value Type</td>
       <td>The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = WITH_UNITS)</td>
       <td>No</td>
     </tr>
     <tr>
-      <td>Number of characters</td>
+      <td>Number of Characters</td>
       <td>The number of characters wide to make the value box (default = 12)</td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>Alignment</td>
+      <td>How to align the label and value items. Options are ‘split’, ‘right’, ‘left’, ‘center’. (default = split)</td>
       <td>No</td>
     </tr>
   </tbody>
@@ -3895,7 +4096,7 @@ LABELTRENDLIMITSBAR INST HEALTH_STATUS TEMP1</code></pre></figure>
 
 <p>Example Usage:</p>
 
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">LABELVALUE INST LATEST TIMESEC CONVERTED 18
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">LABELVALUE INST LATEST TIMESEC CONVERTED 18 center
 LABELVALUE INST LATEST COLLECT_TYPE</code></pre></figure>
 
 <h3 id="labelvaluedesc">
@@ -3912,17 +4113,17 @@ LABELVALUE INST LATEST COLLECT_TYPE</code></pre></figure>
   </thead>
   <tbody>
     <tr>
-      <td>Target name</td>
+      <td>Target Name</td>
       <td>The target name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Packet name</td>
+      <td>Packet Name</td>
       <td>The packet name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Item name</td>
+      <td>Item Name</td>
       <td>The item name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
@@ -3932,12 +4133,12 @@ LABELVALUE INST LATEST COLLECT_TYPE</code></pre></figure>
       <td>No</td>
     </tr>
     <tr>
-      <td>Value type</td>
+      <td>Value Type</td>
       <td>The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = WITH_UNITS)</td>
       <td>No</td>
     </tr>
     <tr>
-      <td>Number of characters</td>
+      <td>Number of Characters</td>
       <td>The number of characters wide to make the value box (default = 12)</td>
       <td>No</td>
     </tr>
@@ -3963,27 +4164,27 @@ LABELVALUEDESC INST LATEST COLLECT_TYPE</code></pre></figure>
   </thead>
   <tbody>
     <tr>
-      <td>Target name</td>
+      <td>Target Name</td>
       <td>The target name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Packet name</td>
+      <td>Packet Name</td>
       <td>The packet name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Item name</td>
+      <td>Item Name</td>
       <td>The item name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Value type</td>
+      <td>Value Type</td>
       <td>The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = WITH_UNITS)</td>
       <td>No</td>
     </tr>
     <tr>
-      <td>Number of characters</td>
+      <td>Number of Characters</td>
       <td>The number of characters wide to make the value box (default = 12)</td>
       <td>No</td>
     </tr>
@@ -4009,27 +4210,27 @@ LABELVALUELIMITSBAR INST HEALTH_STATUS TEMP1</code></pre></figure>
   </thead>
   <tbody>
     <tr>
-      <td>Target name</td>
+      <td>Target Name</td>
       <td>The target name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Packet name</td>
+      <td>Packet Name</td>
       <td>The packet name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Item name</td>
+      <td>Item Name</td>
       <td>The item name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Value type</td>
+      <td>Value Type</td>
       <td>The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = WITH_UNITS)</td>
       <td>No</td>
     </tr>
     <tr>
-      <td>Number of characters</td>
+      <td>Number of Characters</td>
       <td>The number of characters wide to make the value box (default = 12)</td>
       <td>No</td>
     </tr>
@@ -4055,17 +4256,17 @@ LABELVALUELIMITSCOLUMN INST HEALTH_STATUS TEMP1</code></pre></figure>
   </thead>
   <tbody>
     <tr>
-      <td>Target name</td>
+      <td>Target Name</td>
       <td>The target name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Packet name</td>
+      <td>Packet Name</td>
       <td>The packet name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Item name</td>
+      <td>Item Name</td>
       <td>The item name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
@@ -4080,12 +4281,12 @@ LABELVALUELIMITSCOLUMN INST HEALTH_STATUS TEMP1</code></pre></figure>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Value type</td>
-      <td>The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = CONVERTED)</td>
+      <td>Value Type</td>
+      <td>The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = WITH_UNITS)</td>
       <td>No</td>
     </tr>
     <tr>
-      <td>Number of characters</td>
+      <td>Number of Characters</td>
       <td>The number of characters wide to make the value box (default = 12)</td>
       <td>No</td>
     </tr>
@@ -4121,17 +4322,17 @@ LABELVALUERANGEBAR INST HEALTH_STATUS TEMP1 0 50</code></pre></figure>
   </thead>
   <tbody>
     <tr>
-      <td>Target name</td>
+      <td>Target Name</td>
       <td>The target name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Packet name</td>
+      <td>Packet Name</td>
       <td>The packet name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Item name</td>
+      <td>Item Name</td>
       <td>The item name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
@@ -4146,12 +4347,12 @@ LABELVALUERANGEBAR INST HEALTH_STATUS TEMP1 0 50</code></pre></figure>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Value type</td>
+      <td>Value Type</td>
       <td>The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = WITH_UNITS)</td>
       <td>No</td>
     </tr>
     <tr>
-      <td>Number of characters</td>
+      <td>Number of Characters</td>
       <td>The number of characters wide to make the value box (default = 8)</td>
       <td>No</td>
     </tr>
@@ -4187,22 +4388,22 @@ LABELVALUERANGECOLUMN INST HEALTH_STATUS TEMP1 0 50</code></pre></figure>
   </thead>
   <tbody>
     <tr>
-      <td>Target name</td>
+      <td>Target Name</td>
       <td>The target name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Packet name</td>
+      <td>Packet Name</td>
       <td>The packet name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Item name</td>
+      <td>Item Name</td>
       <td>The item name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Value type</td>
+      <td>Value Type</td>
       <td>The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = CONVERTED)</td>
       <td>No</td>
     </tr>
@@ -4238,22 +4439,22 @@ LIMITSBAR INST HEALTH_STATUS TEMP1</code></pre></figure>
   </thead>
   <tbody>
     <tr>
-      <td>Target name</td>
+      <td>Target Name</td>
       <td>The target name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Packet name</td>
+      <td>Packet Name</td>
       <td>The packet name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Item name</td>
+      <td>Item Name</td>
       <td>The item name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Value type</td>
+      <td>Value Type</td>
       <td>The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = CONVERTED)</td>
       <td>No</td>
     </tr>
@@ -4289,22 +4490,22 @@ LIMITSCOLUMN INST HEALTH_STATUS TEMP1</code></pre></figure>
   </thead>
   <tbody>
     <tr>
-      <td>Target name</td>
+      <td>Target Name</td>
       <td>The target name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Packet name</td>
+      <td>Packet Name</td>
       <td>The packet name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Item name</td>
+      <td>Item Name</td>
       <td>The item name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Value type</td>
+      <td>Value Type</td>
       <td>The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = CONVERTED)</td>
       <td>No</td>
     </tr>
@@ -4340,28 +4541,28 @@ LIMITSCOLOR INST HEALTH_STATUS TEMP1</code></pre></figure>
   </thead>
   <tbody>
     <tr>
-      <td>Target name</td>
+      <td>Target Name</td>
       <td>The target name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Packet name</td>
+      <td>Packet Name</td>
       <td>The packet name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Item name</td>
+      <td>Item Name</td>
       <td>The item name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Value type</td>
+      <td>Value Type</td>
       <td>The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = WITH_UNITS)</td>
       <td>No</td>
     </tr>
     <tr>
-      <td>Number of characters</td>
-      <td>The number of characters wide to make the value box (default = 8)</td>
+      <td>Number of Characters</td>
+      <td>The number of characters wide to make the value box (default = 12)</td>
       <td>No</td>
     </tr>
   </tbody>
@@ -4386,27 +4587,27 @@ VALUELIMITSBAR INST HEALTH_STATUS TEMP1</code></pre></figure>
   </thead>
   <tbody>
     <tr>
-      <td>Target name</td>
+      <td>Target Name</td>
       <td>The target name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Packet name</td>
+      <td>Packet Name</td>
       <td>The packet name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Item name</td>
+      <td>Item Name</td>
       <td>The item name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Value type</td>
+      <td>Value Type</td>
       <td>The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = WITH_UNITS)</td>
       <td>No</td>
     </tr>
     <tr>
-      <td>Number of characters</td>
+      <td>Number of Characters</td>
       <td>The number of characters wide to make the value box (default = 8)</td>
       <td>No</td>
     </tr>
@@ -4432,17 +4633,17 @@ VALUELIMITSCOLUMN INST HEALTH_STATUS TEMP1</code></pre></figure>
   </thead>
   <tbody>
     <tr>
-      <td>Target name</td>
+      <td>Target Name</td>
       <td>The target name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Packet name</td>
+      <td>Packet Name</td>
       <td>The packet name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Item name</td>
+      <td>Item Name</td>
       <td>The item name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
@@ -4457,12 +4658,12 @@ VALUELIMITSCOLUMN INST HEALTH_STATUS TEMP1</code></pre></figure>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Value type</td>
+      <td>Value Type</td>
       <td>The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = WITH_UNITS)</td>
       <td>No</td>
     </tr>
     <tr>
-      <td>Number of characters</td>
+      <td>Number of Characters</td>
       <td>The number of characters wide to make the value box (default = 12)</td>
       <td>No</td>
     </tr>
@@ -4498,17 +4699,17 @@ VALUERANGEBAR INST HEALTH_STATUS TEMP1 -1000 1000</code></pre></figure>
   </thead>
   <tbody>
     <tr>
-      <td>Target name</td>
+      <td>Target Name</td>
       <td>The target name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Packet name</td>
+      <td>Packet Name</td>
       <td>The packet name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Item name</td>
+      <td>Item Name</td>
       <td>The item name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
@@ -4523,12 +4724,12 @@ VALUERANGEBAR INST HEALTH_STATUS TEMP1 -1000 1000</code></pre></figure>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Value type</td>
+      <td>Value Type</td>
       <td>The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = WITH_UNITS)</td>
       <td>No</td>
     </tr>
     <tr>
-      <td>Number of characters</td>
+      <td>Number of Characters</td>
       <td>The number of characters wide to make the value box (default = 8)</td>
       <td>No</td>
     </tr>
@@ -4564,22 +4765,22 @@ VALUERANGECOLUMN INST HEALTH_STATUS TEMP1 -1000 1000</code></pre></figure>
   </thead>
   <tbody>
     <tr>
-      <td>Target name</td>
+      <td>Target Name</td>
       <td>The target name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Packet name</td>
+      <td>Packet Name</td>
       <td>The packet name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Item name</td>
+      <td>Item Name</td>
       <td>The item name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Num samples</td>
+      <td>Num Samples</td>
       <td>The number of samples to display on the graph (default = 100)</td>
       <td>No</td>
     </tr>
@@ -4594,7 +4795,7 @@ VALUERANGECOLUMN INST HEALTH_STATUS TEMP1 -1000 1000</code></pre></figure>
       <td>No</td>
     </tr>
     <tr>
-      <td>Value type</td>
+      <td>Value Type</td>
       <td>The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = CONVERTED)</td>
       <td>No</td>
     </tr>
@@ -4620,22 +4821,22 @@ LINEGRAPH INST HEALTH_STATUS TEMP1 10 400 100 RAW</code></pre></figure>
   </thead>
   <tbody>
     <tr>
-      <td>Target name</td>
+      <td>Target Name</td>
       <td>The target name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Packet name</td>
+      <td>Packet Name</td>
       <td>The packet name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Item name</td>
+      <td>Item Name</td>
       <td>The item name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Scale factor</td>
+      <td>Scale Factor</td>
       <td>Value to multiple the telemetry item by before displaying the in the progress bar. Final value should be in the range of 0 to 100. (default 1.0)</td>
       <td>No</td>
     </tr>
@@ -4645,7 +4846,7 @@ LINEGRAPH INST HEALTH_STATUS TEMP1 10 400 100 RAW</code></pre></figure>
       <td>No</td>
     </tr>
     <tr>
-      <td>Value type</td>
+      <td>Value Type</td>
       <td>The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = CONVERTED)</td>
       <td>No</td>
     </tr>
@@ -4671,17 +4872,17 @@ PROGRESSBAR INST ADCS POSPROGRESS</code></pre></figure>
   </thead>
   <tbody>
     <tr>
-      <td>Target name</td>
+      <td>Target Name</td>
       <td>The target name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Packet name</td>
+      <td>Packet Name</td>
       <td>The packet name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Item name</td>
+      <td>Item Name</td>
       <td>The item name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
@@ -4696,7 +4897,7 @@ PROGRESSBAR INST ADCS POSPROGRESS</code></pre></figure>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Value type</td>
+      <td>Value Type</td>
       <td>The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = CONVERTED)</td>
       <td>No</td>
     </tr>
@@ -4732,17 +4933,17 @@ RANGEBAR INST HEALTH_STATUS TEMP1 -1000 1000</code></pre></figure>
   </thead>
   <tbody>
     <tr>
-      <td>Target name</td>
+      <td>Target Name</td>
       <td>The target name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Packet name</td>
+      <td>Packet Name</td>
       <td>The packet name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Item name</td>
+      <td>Item Name</td>
       <td>The item name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
@@ -4757,7 +4958,7 @@ RANGEBAR INST HEALTH_STATUS TEMP1 -1000 1000</code></pre></figure>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Value type</td>
+      <td>Value Type</td>
       <td>The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = CONVERTED)</td>
       <td>No</td>
     </tr>
@@ -4793,17 +4994,17 @@ RANGECOLUMN INST HEALTH_STATUS TEMP1 -1000 1000</code></pre></figure>
   </thead>
   <tbody>
     <tr>
-      <td>Target name</td>
+      <td>Target Name</td>
       <td>The target name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Packet name</td>
+      <td>Packet Name</td>
       <td>The packet name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Item name</td>
+      <td>Item Name</td>
       <td>The item name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
@@ -4815,6 +5016,11 @@ RANGECOLUMN INST HEALTH_STATUS TEMP1 -1000 1000</code></pre></figure>
     <tr>
       <td>Height</td>
       <td>Height of the text box (default = 100)</td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>Value Type</td>
+      <td>The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = CONVERTED)</td>
       <td>No</td>
     </tr>
   </tbody>
@@ -4839,22 +5045,22 @@ TEXTBOX INST HEALTH_STATUS TIMEFORMATTED</code></pre></figure>
   </thead>
   <tbody>
     <tr>
-      <td>Target name</td>
+      <td>Target Name</td>
       <td>The target name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Packet name</td>
+      <td>Packet Name</td>
       <td>The packet name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Item name</td>
+      <td>Item Name</td>
       <td>The item name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Num samples</td>
+      <td>Num Samples</td>
       <td>The number of samples to display on the graph (default = 100)</td>
       <td>No</td>
     </tr>
@@ -4869,17 +5075,17 @@ TEXTBOX INST HEALTH_STATUS TIMEFORMATTED</code></pre></figure>
       <td>No</td>
     </tr>
     <tr>
-      <td>Show points</td>
-      <td>Whether to show points or just draw lines between points (default = true)</td>
+      <td>Point Size</td>
+      <td>Size of the point in pixels (default = 5)</td>
       <td>No</td>
     </tr>
     <tr>
-      <td>Time item name</td>
-      <td>The telemetry item to use as the time on the X axis (default = TIMESECONDS)</td>
+      <td>Time Item Name</td>
+      <td>The telemetry item to use as the time on the X axis (default = RECEIVED_TIMESECONDS)</td>
       <td>No</td>
     </tr>
     <tr>
-      <td>Value type</td>
+      <td>Value Type</td>
       <td>The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = CONVERTED)</td>
       <td>No</td>
     </tr>
@@ -4905,27 +5111,27 @@ TIMEGRAPH INST HEALTH_STATUS TEMP1 10 400 100 <span class="nb">false </span>TIME
   </thead>
   <tbody>
     <tr>
-      <td>Target name</td>
+      <td>Target Name</td>
       <td>The target name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Packet name</td>
+      <td>Packet Name</td>
       <td>The packet name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Item name</td>
+      <td>Item Name</td>
       <td>The item name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Value type</td>
+      <td>Value Type</td>
       <td>The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = CONVERTED)</td>
       <td>No</td>
     </tr>
     <tr>
-      <td>Trend seconds</td>
+      <td>Trend Seconds</td>
       <td>The number of seconds in the past to display the trend value (default = 60)</td>
       <td>No</td>
     </tr>
@@ -4961,27 +5167,27 @@ TRENDBAR INST HEALTH_STATUS TEMP1</code></pre></figure>
   </thead>
   <tbody>
     <tr>
-      <td>Target name</td>
+      <td>Target Name</td>
       <td>Target name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Packet name</td>
+      <td>Packet Name</td>
       <td>Packet name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Item name</td>
+      <td>Item Name</td>
       <td>Item name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Value type</td>
+      <td>Value Type</td>
       <td>Type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = WITH_UNITS)</td>
       <td>No</td>
     </tr>
     <tr>
-      <td>Trend seconds</td>
+      <td>Trend Seconds</td>
       <td>Number of seconds in the past to display the trend value (default = 60)</td>
       <td>No</td>
     </tr>
@@ -5022,22 +5228,22 @@ TRENDLIMITSBAR INST HEALTH_STATUS TEMP1</code></pre></figure>
   </thead>
   <tbody>
     <tr>
-      <td>Target name</td>
+      <td>Target Name</td>
       <td>Target name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Packet name</td>
+      <td>Packet Name</td>
       <td>Packet name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Item name</td>
+      <td>Item Name</td>
       <td>Item name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Value type</td>
+      <td>Value Type</td>
       <td>Type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = WITH_UNITS)</td>
       <td>No</td>
     </tr>
@@ -5074,12 +5280,12 @@ VALUE INST HEALTH_STATUS TEMP1</code></pre></figure>
   </thead>
   <tbody>
     <tr>
-      <td>Button text</td>
+      <td>Button Text</td>
       <td>Text displayed on the button</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>String to eval</td>
+      <td>String to Eval</td>
       <td>Ruby code to execute when the button is pressed</td>
       <td>Yes</td>
     </tr>
@@ -5108,9 +5314,14 @@ VALUE INST HEALTH_STATUS TEMP1</code></pre></figure>
   </thead>
   <tbody>
     <tr>
-      <td>Checkbox text</td>
+      <td>Checkbox Text</td>
       <td>Text displayed next to the checkbox</td>
       <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Checked</td>
+      <td>Whether the checkbox should initially be checked. Valid values are ‘CHECKED’ or ‘UNCHECKED’. (default = ‘UNCHECKED’)</td>
+      <td>No</td>
     </tr>
   </tbody>
 </table>
@@ -5134,9 +5345,14 @@ BUTTON <span class="s1">'Send'</span> <span class="s1">'if get_named_widget("CHE
   </thead>
   <tbody>
     <tr>
-      <td>Option text</td>
+      <td>Option Text 1</td>
       <td>Text to display in the selection drop down</td>
       <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Option Text n</td>
+      <td>Text to display in the selection drop down</td>
+      <td>No</td>
     </tr>
   </tbody>
 </table>
@@ -5163,6 +5379,11 @@ NAMED_WIDGET COLLECT_TYPE COMBOBOX NORMAL SPECIAL</code></pre></figure>
       <td>Text</td>
       <td>Text to display next to the radio button</td>
       <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Checked</td>
+      <td>Whether the radio button should initially be checked. Valid values are ‘CHECKED’ or ‘UNCHECKED’. (default = ‘UNCHECKED’)</td>
+      <td>No</td>
     </tr>
   </tbody>
 </table>
@@ -5203,6 +5424,36 @@ BUTTON <span class="s1">'Send'</span> <span class="s1">'if get_named_widget("ABO
 
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">NAMED_WIDGET DURATION TEXTFIELD 12 <span class="s2">"10.0"</span>
 BUTTON <span class="s1">'Start Collect'</span> <span class="s1">'cmd("INST COLLECT with TYPE NORMAL, DURATION #{get_named_widget("DURATION").text.to_f}")'</span></code></pre></figure>
+
+<h3 id="screenshotbutton">
+<a id="screenshotbutton" class="anchor" href="#screenshotbutton" aria-hidden="true"><span class="octicon octicon-link"></span></a>SCREENSHOTBUTTON</h3>
+<p>The SCREENSHOTBUTTON widget displays a button that when clicked takes a screenshot.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Button Text</td>
+      <td>Text to display on the button. (default = “Screenshot”)</td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>Directory</td>
+      <td>Directory to save the screenshot. (default = System.paths[‘LOGS’])</td>
+      <td>No</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">SCREENSHOTBUTTON <span class="s2">"Screenshot"</span> <span class="s2">"C:/images/screenshots"</span></code></pre></figure>
 
 <h2 id="canvas-widgets">
 <a id="canvas-widgets" class="anchor" href="#canvas-widgets" aria-hidden="true"><span class="octicon octicon-link"></span></a>Canvas Widgets</h2>
@@ -5265,7 +5516,7 @@ BUTTON <span class="s1">'Start Collect'</span> <span class="s1">'cmd("INST COLLE
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Font size</td>
+      <td>Font Size</td>
       <td>Font size of the text (default = 12)</td>
       <td>No</td>
     </tr>
@@ -5298,17 +5549,17 @@ END</code></pre></figure>
   </thead>
   <tbody>
     <tr>
-      <td>target name</td>
+      <td>Target Name</td>
       <td>The target name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>packet name</td>
+      <td>Packet Name</td>
       <td>The packet name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>item name</td>
+      <td>Item Name</td>
       <td>The item name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
@@ -5323,7 +5574,7 @@ END</code></pre></figure>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Font size</td>
+      <td>Font Size</td>
       <td>Font size of the text (default = 12)</td>
       <td>No</td>
     </tr>
@@ -5334,16 +5585,16 @@ END</code></pre></figure>
     </tr>
     <tr>
       <td>Frame</td>
-      <td>Whether to draw a frame around the value in the same color as the font</td>
+      <td>Whether to draw a frame around the value in the same color as the font (default = true)</td>
       <td>No</td>
     </tr>
     <tr>
-      <td>Frame width</td>
-      <td>Width in pixels of the frame</td>
+      <td>Frame Width</td>
+      <td>Width in pixels of the frame (default = 3)</td>
       <td>No</td>
     </tr>
     <tr>
-      <td>Value type</td>
+      <td>Value Type</td>
       <td>Type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = CONVERTED)</td>
       <td>No</td>
     </tr>
@@ -5371,7 +5622,7 @@ END</code></pre></figure>
   </thead>
   <tbody>
     <tr>
-      <td>Image name</td>
+      <td>Image Name</td>
       <td>Name of a image file. The file must be located in the <:userpath>/data directory.</:userpath>
 </td>
       <td>Yes</td>
@@ -5409,22 +5660,22 @@ END</code></pre></figure>
   </thead>
   <tbody>
     <tr>
-      <td>Target name</td>
+      <td>Target Name</td>
       <td>Target name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Packet name</td>
+      <td>Packet Name</td>
       <td>Packet name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Item name</td>
+      <td>Item Name</td>
       <td>Item name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Filename prefix</td>
+      <td>Filename Prefix</td>
       <td>The prefix part of the filename of the gif images (expected to be in the user’s data directory). The actual filenames will be this value plus the word “on” or the word “off” and “.gif”</td>
       <td>Yes</td>
     </tr>
@@ -5439,7 +5690,7 @@ END</code></pre></figure>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Value type</td>
+      <td>Value Type</td>
       <td>Type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = RAW)</td>
       <td>No</td>
     </tr>
@@ -5526,17 +5777,17 @@ END</code></pre></figure>
   </thead>
   <tbody>
     <tr>
-      <td>Target name</td>
+      <td>Target Name</td>
       <td>Target name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Packet name</td>
+      <td>Packet Name</td>
       <td>Packet name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Item name</td>
+      <td>Item Name</td>
       <td>Item name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
@@ -5561,12 +5812,12 @@ END</code></pre></figure>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Color on</td>
+      <td>Color On</td>
       <td>Color of the line when the telemtry point is considered on (default = ‘green’)</td>
       <td>No</td>
     </tr>
     <tr>
-      <td>Color off</td>
+      <td>Color Off</td>
       <td>Color of the line when the telemtry point is considered off (default = ‘blue’)</td>
       <td>No</td>
     </tr>
@@ -5581,7 +5832,7 @@ END</code></pre></figure>
       <td>No</td>
     </tr>
     <tr>
-      <td>Value type</td>
+      <td>Value Type</td>
       <td>Type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = RAW)</td>
       <td>No</td>
     </tr>
@@ -5610,22 +5861,22 @@ END</code></pre></figure>
   </thead>
   <tbody>
     <tr>
-      <td>x <strong>or</strong> str to eval</td>
+      <td>X <strong>or</strong> Str to Eval</td>
       <td>X position of the dot, or it can be a string of ruby code</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>y <strong>or</strong> str to eval</td>
+      <td>Y <strong>or</strong> Str to Eval</td>
       <td>Y position of the dot, or it can be a string of ruby code</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>color</td>
+      <td>Color</td>
       <td>Color of the dot (default = black)</td>
       <td>No</td>
     </tr>
     <tr>
-      <td>width</td>
+      <td>Width</td>
       <td>Width of the dot in pixels (default = 3)</td>
       <td>No</td>
     </tr>
@@ -5668,7 +5919,7 @@ END</code></pre></figure>
   </thead>
   <tbody>
     <tr>
-      <td>Color name</td>
+      <td>Color Name</td>
       <td>Common name for the color, e.g. ‘black’, ‘red’, etc</td>
       <td>Yes</td>
     </tr>
@@ -5687,17 +5938,17 @@ END</code></pre></figure>
   </thead>
   <tbody>
     <tr>
-      <td>Red value</td>
+      <td>Red Value</td>
       <td>Red portion of an RGB value (0-255)</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Green value</td>
+      <td>Green Value</td>
       <td>Green portion of an RGB value (0-255)</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Blue value</td>
+      <td>Blue Value</td>
       <td>Blue portion of an RGB value (0-255)</td>
       <td>Yes</td>
     </tr>
@@ -5723,7 +5974,7 @@ SETTING BACKCOLOR 162 181 205</code></pre></figure>
   </thead>
   <tbody>
     <tr>
-      <td>Color name</td>
+      <td>Color Name</td>
       <td>Common name for the color, e.g. ‘black’, ‘red’, etc</td>
       <td>Yes</td>
     </tr>
@@ -5740,17 +5991,17 @@ SETTING BACKCOLOR 162 181 205</code></pre></figure>
   </thead>
   <tbody>
     <tr>
-      <td>Red value</td>
+      <td>Red Value</td>
       <td>Red portion of an RGB value (0-255)</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Green value</td>
+      <td>Green Value</td>
       <td>Green portion of an RGB value (0-255)</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Blue value</td>
+      <td>Blue Value</td>
       <td>Blue portion of an RGB value (0-255)</td>
       <td>Yes</td>
     </tr>
@@ -5830,7 +6081,7 @@ SETTING TEXTCOLOR 162 181 205</code></pre></figure>
   </thead>
   <tbody>
     <tr>
-      <td>Color name</td>
+      <td>Color Name</td>
       <td>Common name for the color, e.g. ‘black’, ‘red’, etc</td>
       <td>Yes</td>
     </tr>
@@ -5849,17 +6100,17 @@ SETTING TEXTCOLOR 162 181 205</code></pre></figure>
   </thead>
   <tbody>
     <tr>
-      <td>Red value</td>
+      <td>Red Value</td>
       <td>Red portion of an RGB value (0-255)</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Green value</td>
+      <td>Green Value</td>
       <td>Green portion of an RGB value (0-255)</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Blue value</td>
+      <td>Blue Value</td>
       <td>Blue portion of an RGB value (0-255)</td>
       <td>Yes</td>
     </tr>
@@ -5940,7 +6191,7 @@ SETTING BORDERCOLOR red</code></pre></figure>
   </thead>
   <tbody>
     <tr>
-      <td>Gray rate</td>
+      <td>Gray Rate</td>
       <td>The number of shades of gray that are subtracted at each polling period if the value hasn’t changed</td>
       <td>Yes</td>
     </tr>
@@ -5966,7 +6217,7 @@ SETTING BORDERCOLOR red</code></pre></figure>
   </thead>
   <tbody>
     <tr>
-      <td>Tolerance value</td>
+      <td>Tolerance Value</td>
       <td>The maximum change in value that will cause the widget to not recognize an items value as changing.</td>
       <td>Yes</td>
     </tr>
@@ -5992,7 +6243,7 @@ SETTING BORDERCOLOR red</code></pre></figure>
   </thead>
   <tbody>
     <tr>
-      <td>Minimum gray</td>
+      <td>Minimum Gray</td>
       <td>The minimum shade of a gray that a widget will decay to if its value doesn’t change. Must be a value between 0 (black) and 255 (white). (default = 200)</td>
       <td>Yes</td>
     </tr>
@@ -6176,17 +6427,17 @@ SETTING VALUE_LTEQ 10.0</code></pre></figure>
   </thead>
   <tbody>
     <tr>
-      <td>Target name</td>
+      <td>Target Name</td>
       <td>The target name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Packet name</td>
+      <td>Packet Name</td>
       <td>The packet name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Item name</td>
+      <td>Item Name</td>
       <td>The item name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
@@ -6223,17 +6474,17 @@ SETTING VALUE_LTEQ 10.0</code></pre></figure>
   </thead>
   <tbody>
     <tr>
-      <td>Target name</td>
+      <td>Target Name</td>
       <td>The target name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Packet name</td>
+      <td>Packet Name</td>
       <td>The packet name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Item name</td>
+      <td>Item Name</td>
       <td>The item name portion of the telemetry mnemonic</td>
       <td>Yes</td>
     </tr>
