@@ -12,25 +12,20 @@ require 'cosmos'
 require 'cosmos/tools/tlm_viewer/widgets/formatvalue_widget'
 
 module Cosmos
-
-  # FormatfontvalueWidget class
-  #
   # This class implements a value with configurable font values.  The font
   # can also be updated after it is created.
   # It inherits from the FormatvalueWidget class.
   class FormatfontvalueWidget < FormatvalueWidget
-
-    def initialize (parent_layout, target_name, packet_name, item_name, format_string, value_type = :CONVERTED, characters = 12,
-      font_name = 'arial', font_size = 100, font_weight = Qt::Font::Normal, font_slant = false)
+    def initialize(parent_layout, target_name, packet_name, item_name, format_string,
+                   value_type = :CONVERTED, characters = 12, font_name = 'arial',
+                   font_size = 100, font_weight = Qt::Font::Normal, font_italics = false)
       super(parent_layout, target_name, packet_name, item_name, format_string, value_type, characters)
-      setFont(Cosmos.getFont(font_name, font_size.to_i, font_weight, font_slant))
+      setFont(Cosmos.getFont(font_name, font_size.to_i, font_weight, font_italics))
       setFixedWidth(self.fontMetrics.width('X') * characters.to_i + 10)
     end
 
     def font=(font)
       setFont(font)
     end
-
   end
-
-end # module Cosmos
+end

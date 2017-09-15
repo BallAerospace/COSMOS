@@ -17,11 +17,13 @@ module Cosmos
     include Widget
     include LayoutWidget
 
-    def initialize(parent_layout, num_columns, hSpacing = 0, vSpacing = 0)
+    def initialize(parent_layout, num_columns, horizontal_spacing = 0, vertical_spacing = 0)
       super()
       @num_columns = num_columns.to_i
       @row = 0
       @column = 0
+      setHorizontalSpacing(horizontal_spacing)
+      setVerticalSpacing(vertical_spacing)
       parent_layout.addLayout(self) if parent_layout
     end
 

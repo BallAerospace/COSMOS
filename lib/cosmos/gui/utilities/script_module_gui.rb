@@ -221,7 +221,7 @@ module Cosmos
 
     def prompt_vertical_message_box(string, buttons)
       loop do
-        result = nil
+        result = buttons[0]
         Qt.execute_in_main_thread(true, 0.05) do
           dialog = _build_dialog(string)
 
@@ -239,7 +239,7 @@ module Cosmos
           display_buttons.each do |button_text|
             button = Qt::PushButton.new(button_text)
             button.connect(SIGNAL('clicked()')) do
-              result = button_text
+              result.replace(button_text)
               dialog.accept()
             end
             button_layout.addWidget(button)
@@ -272,7 +272,8 @@ module Cosmos
           end
           chooser = ComboboxChooser.new(dialog, "Select:", display_options)
           chooser.setContentsMargins(11,11,11,11)
-          chooser.sel_command_callback = lambda { |value| result = value }
+          update = Proc.new { |value| result = value }
+          chooser.sel_command_callback = lambda { |value| result.replace(value) }
           dialog.layout.addWidget(chooser)
           dialog.layout.addWidget(_build_dialog_buttons(dialog, true, cancel))
           result = "Cancel" unless _exec_dialog(dialog, string, result)
