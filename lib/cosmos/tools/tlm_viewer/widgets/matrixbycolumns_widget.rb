@@ -22,8 +22,8 @@ module Cosmos
       @num_columns = num_columns.to_i
       @row = 0
       @column = 0
-      setHorizontalSpacing(horizontal_spacing)
-      setVerticalSpacing(vertical_spacing)
+      setHorizontalSpacing(horizontal_spacing.to_i)
+      setVerticalSpacing(vertical_spacing.to_i)
       parent_layout.addLayout(self) if parent_layout
     end
 
