@@ -11,6 +11,7 @@
 require 'spec_helper'
 require 'cosmos/io/json_drb'
 require 'cosmos/io/json_rpc'
+require 'httpclient'
 
 module Cosmos
 
@@ -70,11 +71,9 @@ module Cosmos
           expect(@json.thread).to be_nil
           system_exit_count = $system_exit_count
           @json.start_service('blah', 7777, self)
-          thread = @json.thread
+          sleep 5
           expect($system_exit_count).to eql(system_exit_count + 1)
-          sleep 0.1
-
-          expect(stdout.string).to match /listen thread/
+          expect(stdout.string).to match /No such host is known/
           @json.stop_service
           sleep(0.1)
         end
@@ -87,22 +86,25 @@ module Cosmos
       it "creates a single listen thread" do
         expect(@json.thread).to be_nil
         @json.start_service('127.0.0.1', 7777, self)
+        sleep(1)
         expect(@json.thread.alive?).to be true
-        expect { @json.start_service('127.0.0.1', 7777, self) }.to raise_error(/Error binding to port/)
+        num_threads = Thread.list.length
+        @json.start_service('127.0.0.1', 7777, self)
+        sleep(1)
+        expect(Thread.list.length).to eql num_threads
         @json.stop_service
         sleep(0.1)
       end
 
       it "rescues listen thread exceptions" do
         capture_io do |stdout|
-          allow_any_instance_of(TCPServer).to receive(:accept_nonblock) { raise "BLAH" }
+          allow(Rack::Handler::Puma).to receive(:run) { raise "BLAH" }
           @json.start_service('127.0.0.1', 7777, self)
-          socket = TCPSocket.open('127.0.0.1',7777)
-          sleep 0.1
+          sleep(0.1)
           @json.stop_service
           sleep(0.1)
 
-          expect(stdout.string).to match /JsonDRb listen thread unexpectedly died/
+          expect(stdout.string).to match /JsonDRb http server could not be started or unexpectedly died/
         end
 
         Dir[File.join(Cosmos::USERPATH,"*_exception.txt")].each do |file|
@@ -110,19 +112,19 @@ module Cosmos
         end
       end
 
-      it "ignores connections via the ACL" do
+      it "rejects posts via the ACL" do
         @json.acl = ACL.new(['deny','127.0.0.1'], ACL::ALLOW_DENY)
         @json.start_service('127.0.0.1', 7777, self)
-        socket = TCPSocket.open('127.0.0.1',7777)
-        sleep 0.1
-        expect(socket.eof?).to be true
-        socket.close
+        client = HTTPClient.new
+        res = client.post("http://127.0.0.1:7777", "")
+        expect(res.status).to eq 403
+        expect(res.body).to match /Forbidden/
         @json.stop_service
         sleep(0.1)
       end
     end
 
-    describe "receive_message" do
+    describe "process_request" do
       it "processes success requests" do
         class MyServer1
           def my_method(param)
@@ -130,15 +132,9 @@ module Cosmos
         end
 
         @json.start_service('127.0.0.1', 7777, MyServer1.new)
-        socket = TCPSocket.open('127.0.0.1',7777)
-        sleep 0.1
-        request = JsonRpcRequest.new('my_method', 'param', 1).to_json
-        JsonDRb.send_data(socket, request)
-        response_data = JsonDRb.receive_message(socket, '', @pipe_reader)
-        response = JsonRpcResponse.from_json(response_data)
-        expect(response).to be_a(JsonRpcSuccessResponse)
-        socket.close
-        sleep 0.1
+        request_data = JsonRpcRequest.new('my_method', 'param', 1).to_json
+        response_data, error_code = @json.process_request(request_data, Time.now)
+        expect(error_code).to eq nil
         @json.stop_service
         sleep(0.1)
       end
@@ -148,17 +144,10 @@ module Cosmos
         end
 
         @json.start_service('127.0.0.1', 7777, MyServer2.new)
-        socket = TCPSocket.open('127.0.0.1',7777)
-        sleep 0.1
-        request = JsonRpcRequest.new('my_method', 'param', 1).to_json
-        JsonDRb.send_data(socket, request)
-        response_data = JsonDRb.receive_message(socket, '', @pipe_reader)
-        response = JsonRpcResponse.from_json(response_data)
-        expect(response).to be_a(JsonRpcErrorResponse)
-        expect(response.error.code).to eql -32601
-        expect(response.error.message).to eql "Method not found"
-        socket.close
-        sleep 0.1
+        request_data = JsonRpcRequest.new('my_method', 'param', 1).to_json
+        response_data, error_code = @json.process_request(request_data, Time.now)
+        expect(error_code).to eql -32601
+        expect(response_data).to match /Method not found/
         @json.stop_service
         sleep(0.1)
       end
@@ -170,17 +159,10 @@ module Cosmos
         end
 
         @json.start_service('127.0.0.1', 7777, MyServer3.new)
-        socket = TCPSocket.open('127.0.0.1',7777)
-        sleep 0.1
-        request = JsonRpcRequest.new('my_method', 'param1', 1).to_json
-        JsonDRb.send_data(socket, request)
-        response_data = JsonDRb.receive_message(socket, '', @pipe_reader)
-        response = JsonRpcResponse.from_json(response_data)
-        expect(response).to be_a(JsonRpcErrorResponse)
-        expect(response.error.code).to eql -32602
-        expect(response.error.message).to eql "Invalid params"
-        socket.close
-        sleep 0.1
+        request_data = JsonRpcRequest.new('my_method', 'param1', 1).to_json
+        response_data, error_code = @json.process_request(request_data, Time.now)
+        expect(error_code).to eql -32602
+        expect(response_data).to match /Invalid params/
         @json.stop_service
         sleep(0.1)
       end
@@ -193,91 +175,32 @@ module Cosmos
         end
 
         @json.start_service('127.0.0.1', 7777, MyServer4.new)
-        socket = TCPSocket.open('127.0.0.1',7777)
-        sleep 0.1
-        request = JsonRpcRequest.new('my_method', 'param', 1).to_json
-        JsonDRb.send_data(socket, request)
-        response_data = JsonDRb.receive_message(socket, '', @pipe_reader)
-        response = JsonRpcResponse.from_json(response_data)
-        expect(response).to be_a(JsonRpcErrorResponse)
-        expect(response.error.code).to eql -1
-        expect(response.error.message).to eql "Method Error"
-        socket.close
-        sleep 0.1
+        request_data = JsonRpcRequest.new('my_method', 'param', 1).to_json
+        response_data, error_code = @json.process_request(request_data, Time.now)
+        expect(error_code).to eql -1
+        expect(response_data).to match /Method Error/
         @json.stop_service
         sleep(0.1)
       end
 
       it "does not allow dangerous methods" do
         @json.start_service('127.0.0.1', 7777, self)
-        socket = TCPSocket.open('127.0.0.1',7777)
-        sleep 0.1
-        request = JsonRpcRequest.new('send', 'param', 1).to_json
-        JsonDRb.send_data(socket, request)
-        response_data = JsonDRb.receive_message(socket, '', @pipe_reader)
-        response = JsonRpcResponse.from_json(response_data)
-        expect(response).to be_a(JsonRpcErrorResponse)
-        expect(response.error.code).to eql -1
-        expect(response.error.message).to eql "Cannot call unauthorized methods"
-        socket.close
-        sleep 0.1
+        request_data = JsonRpcRequest.new('send', 'param', 1).to_json
+        response_data, error_code = @json.process_request(request_data, Time.now)
+        expect(error_code).to eql -1
+        expect(response_data).to match /Cannot call unauthorized methods/
         @json.stop_service
         sleep(0.1)
       end
 
       it "handles an invalid JsonDRB request" do
         @json.start_service('127.0.0.1', 7777, self)
-        socket = TCPSocket.open('127.0.0.1',7777)
-        sleep 0.1
-        request = JsonRpcRequest.new('send', 'param', 1).to_json
-        request.gsub!("jsonrpc","version")
-        request.gsub!("2.0","1.1")
-        JsonDRb.send_data(socket, request)
-        response_data = JsonDRb.receive_message(socket, '', @pipe_reader)
-        response = JsonRpcResponse.from_json(response_data)
-        expect(response).to be_a(JsonRpcErrorResponse)
-        expect(response.error.code).to eql -32600
-        expect(response.error.message).to eql "Invalid Request"
-        socket.close
-        sleep 0.1
-        @json.stop_service
-        sleep(0.1)
-      end
-    end
-
-    describe "send_data" do
-      it "retries if the socket blocks" do
-        @json.start_service('127.0.0.1', 7777, self)
-        socket = TCPSocket.open('127.0.0.1',7777)
-        # Stub write_nonblock so it blocks
-        $index = 0
-        allow(socket).to receive(:write_nonblock) do
-          case $index
-          when 0
-            $index += 1
-            raise Errno::EWOULDBLOCK
-          when 1
-            $index += 1
-            5
-          end
-        end
-        JsonDRb.send_data(socket, "\x00")
-        socket.close
-        @json.stop_service
-        sleep(0.1)
-      end
-
-      it "eventuallies timeout if the socket blocks" do
-        @json.start_service('127.0.0.1', 7777, self)
-        socket = TCPSocket.open('127.0.0.1',7777)
-        # Stub write_nonblock so it blocks
-        $index = 0
-        allow(socket).to receive(:write_nonblock) do
-          raise Errno::EWOULDBLOCK
-        end
-        allow(IO).to receive(:select) { nil }
-        expect { JsonDRb.send_data(socket, "\x00", 2) }.to raise_error(Timeout::Error)
-        socket.close
+        request_data = JsonRpcRequest.new('send', 'param', 1).to_json
+        request_data.gsub!("jsonrpc","version")
+        request_data.gsub!("2.0","1.1")
+        response_data, error_code = @json.process_request(request_data, Time.now)
+        expect(error_code).to eql -32600
+        expect(response_data).to match /Invalid Request/
         @json.stop_service
         sleep(0.1)
       end

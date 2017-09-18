@@ -44,7 +44,7 @@ module Cosmos
 
       it "handles timeouts" do
         allow_any_instance_of(UDPSocket).to receive(:write_nonblock) { raise Errno::EWOULDBLOCK }
-        expect(IO).to receive(:select).at_least(:once).and_return([], nil)
+        expect(IO).to receive(:fast_select).at_least(:once).and_return([], nil)
         udp_write = UdpWriteSocket.new('127.0.0.1', 8888)
         expect { udp_write.write("\x01\x02",2.0) }.to raise_error(Timeout::Error)
         udp_write.close
@@ -88,7 +88,7 @@ module Cosmos
 
       it "handles timeouts" do
         allow_any_instance_of(UDPSocket).to receive(:recvfrom_nonblock) { raise Errno::EWOULDBLOCK }
-        expect(IO).to receive(:select).at_least(:once).and_return([], nil)
+        expect(IO).to receive(:fast_select).at_least(:once).and_return([], nil)
         udp_read = UdpReadSocket.new(8889)
         expect { udp_read.read(2.0) }.to raise_error(Timeout::Error)
       end

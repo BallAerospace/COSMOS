@@ -39,12 +39,9 @@ module Cosmos
 
       it "raises an exception if the remote connection can't be made" do
         json = JsonDRb.new
-        json.start_service('127.0.0.1', 7777, self)
-        allow_any_instance_of(Socket).to receive(:connect_nonblock) { raise "Error" }
         obj = JsonDRbObject.new("localhost", 7777)
         expect { obj.my_method(10) }.to raise_error(DRb::DRbConnError)
         obj.disconnect
-        json.stop_service
         sleep(0.1)
       end
 
@@ -57,7 +54,7 @@ module Cosmos
 
         json = JsonDRb.new
         json.start_service('127.0.0.1', 7777, JsonDRbObjectServer.new)
-        allow(JsonDRb).to receive(:send_data) { raise "Error" }
+        allow_any_instance_of(HTTPClient).to receive(:post) { raise "Error" }
         obj = JsonDRbObject.new("localhost", 7777)
         expect { obj.my_method(10) }.to raise_error(DRb::DRbConnError)
         obj.disconnect
@@ -86,7 +83,7 @@ module Cosmos
         json = JsonDRb.new
         json.start_service('127.0.0.1', 7777, JsonDRbObjectServer.new)
         obj = JsonDRbObject.new("localhost", 7777)
-        allow(JsonDRb).to receive(:receive_message) { nil }
+        allow_any_instance_of(JsonDrbRack).to receive(:call) { sleep(5.0); nil }
         expect { obj.my_method(10) }.to raise_error(DRb::DRbConnError)
         obj.disconnect
         json.stop_service

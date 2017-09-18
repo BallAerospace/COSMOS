@@ -15,6 +15,8 @@ require 'json'
 require 'drb/acl'
 require 'drb/drb'
 require 'cosmos/io/json_drb'
+require 'uri'
+require 'httpclient'
 
 module Cosmos
 
@@ -36,7 +38,7 @@ module Cosmos
     def initialize(hostname, port, connect_timeout = 1.0)
       hostname = '127.0.0.1' if (hostname.to_s.upcase == 'LOCALHOST')
       begin
-        @addr = Socket.pack_sockaddr_in(port, hostname)
+        addr = Socket.pack_sockaddr_in(port, hostname)
       rescue => error
         if error.message =~ /getaddrinfo/
           raise "Invalid hostname: #{hostname}"
@@ -46,9 +48,9 @@ module Cosmos
       end
       @hostname = hostname
       @port = port
+      @uri = URI("http://#{@hostname}:#{@port}")
+      @http = nil
       @mutex = Mutex.new
-      @socket = nil
-      @pipe_reader, @pipe_writer = IO.pipe
       @id = 0
       @request_in_progress = false
       @connect_timeout = connect_timeout
@@ -56,17 +58,12 @@ module Cosmos
       @shutdown = false
     end
 
-    # Disconnects from the JSON server
+    # Disconnects from http server
     def disconnect
-      Cosmos.close_socket(@socket)
-      @pipe_writer.write('.')
-      # Cannot set @socket to nil here because this method can be called by
-      # other threads and @socket being nil would cause unexpected errors in method_missing
-      # Also don't want to take the mutex so that we can interrupt method_missing if necessary
-      # Only method_missing can set @socket to nil
+      @http.reset_all if @http
     end
 
-    # Permanently disconnects from the JSON server
+    # Permanently disconnects from the http server
     def shutdown
       @shutdown = true
       disconnect()
@@ -81,19 +78,14 @@ module Cosmos
     #   protocol a DRb::DRbConnError exception is raised.
     def method_missing(method_name, *method_params)
       @mutex.synchronize do
-        # This flag and loop are used to automatically reconnect and retry if something goes
-        # wrong on the first attempt writing to the socket.   Sockets can become disconnected
-        # between function calls, but as long as the remote server is back up and running the
-        # call should succeed even when it discovers a broken socket on the first attempt.
         first_try = true
         loop do
           raise DRb::DRbConnError, "Shutdown" if @shutdown
-          connect() if !@socket or @socket.closed? or @request_in_progress
+          connect() if !@http or @request_in_progress
 
           response = make_request(method_name, method_params, first_try)
           unless response
             disconnect()
-            @socket = nil
             was_first_try = first_try
             first_try = false
             next if was_first_try
@@ -108,44 +100,13 @@ module Cosmos
     def connect
       if @request_in_progress
         disconnect()
-        @socket = nil
         @request_in_progress = false
       end
       begin
-        addr = Socket.pack_sockaddr_in(@port, @hostname)
-        @socket = Socket.new(Socket::AF_INET, Socket::SOCK_STREAM, 0)
-        @socket.setsockopt(Socket::IPPROTO_TCP, Socket::TCP_NODELAY, 1)
-        @pipe_reader, @pipe_writer = IO.pipe
-        begin
-          @socket.connect_nonblock(addr)
-        rescue IO::WaitWritable
-          begin
-            _, sockets, _ = IO.select(nil, [@socket], nil, @connect_timeout) # wait 3-way handshake completion
-          rescue IOError, Errno::ENOTSOCK
-            disconnect()
-            @socket = nil
-            raise "Connect canceled"
-          end
-          if sockets and !sockets.empty?
-            begin
-              @socket.connect_nonblock(addr) # check connection failure
-            rescue IOError, Errno::ENOTSOCK
-              disconnect()
-              @socket = nil
-              raise "Connect canceled"
-            rescue Errno::EINPROGRESS
-              retry
-            rescue Errno::EISCONN, Errno::EALREADY
-            end
-          else
-            disconnect()
-            @socket = nil
-            raise "Connect timeout"
-          end
-        rescue IOError, Errno::ENOTSOCK
-          disconnect()
-          @socket = nil
-          raise "Connect canceled"
+        if !@http
+          @http = HTTPClient.new
+          @http.connect_timeout = @connect_timeout
+          @http.receive_timeout = @connect_timeout
         end
       rescue => e
         raise DRb::DRbConnError, e.message
@@ -158,17 +119,19 @@ module Cosmos
 
       request_data = request.to_json(:allow_nan => true)
       begin
-        STDOUT.puts "Request:\n" if JsonDRb.debug?
+        STDOUT.puts "\nRequest:\n" if JsonDRb.debug?
         STDOUT.puts request_data if JsonDRb.debug?
         @request_in_progress = true
-        JsonDRb.send_data(@socket, request_data)
-        response_data = JsonDRb.receive_message(@socket, '', @pipe_reader)
+        headers = {'Content-Type' => 'application/json-rpc'}
+        res = @http.post(@uri, 
+                         :body   => request_data,
+                         :header => headers)
+        response_data = res.body
         @request_in_progress = false
-        STDOUT.puts "\nResponse:\n" if JsonDRb.debug?
+        STDOUT.puts "Response:\n" if JsonDRb.debug?
         STDOUT.puts response_data if JsonDRb.debug?
       rescue => e
         disconnect()
-        @socket = nil
         return false if first_try
         raise DRb::DRbConnError, e.message, e.backtrace
       end
@@ -189,10 +152,8 @@ module Cosmos
           return response.result
         end
       else
-        # Socket was closed by server
         disconnect()
-        @socket = nil
-        raise DRb::DRbConnError, "Socket closed by server"
+        raise DRb::DRbConnError, "No response from server"
       end
     end
 

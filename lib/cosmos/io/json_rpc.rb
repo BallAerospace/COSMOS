@@ -324,6 +324,16 @@ module Cosmos
   # Represents a JSON Remote Procedure Call Error
   class JsonRpcError < JsonRpc
 
+    # Enumeration of JSON RPC error codes
+    class ErrorCode
+      PARSE_ERROR      = -32700
+      INVALID_REQUEST  = -32600
+      METHOD_NOT_FOUND = -32601
+      INVALID_PARAMS   = -32602
+      INTERNAL_ERROR   = -32603
+      OTHER_ERROR      = -1
+    end
+
     # @param code [Integer] The error type that occurred
     # @param message [String] A short description of the error
     # @param data [Hash] Additional information about the error
