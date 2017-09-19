@@ -73,7 +73,7 @@ module Cosmos
           @json.start_service('blah', 7777, self)
           sleep 5
           expect($system_exit_count).to eql(system_exit_count + 1)
-          expect(stdout.string).to match /No such host is known/
+          expect(stdout.string).to match /http server could not be started/
           @json.stop_service
           sleep(0.1)
         end
