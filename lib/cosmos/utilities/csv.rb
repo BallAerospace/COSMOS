@@ -25,7 +25,7 @@ module Cosmos
       @archive = nil
       @archive_file = ""
       Object::CSV.read(input_file).each do |line|
-        @hash[line[0]] = line[1..-1].compact
+        @hash[line[0]] = line[1..-1]
       end
     end
 
