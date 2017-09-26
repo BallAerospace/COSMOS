@@ -96,7 +96,10 @@ module Cosmos
     # Gracefully kill the thread
     def graceful_kill
       @server_mutex.synchronize do
-        @server.stop if @server and @server.running
+        begin
+          @server.stop if @server and @server.running
+        rescue => error
+        end
       end
     end
 
