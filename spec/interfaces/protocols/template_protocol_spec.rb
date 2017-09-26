@@ -34,7 +34,7 @@ module Cosmos
 
     describe "initialize" do
       it "initializes attributes" do
-        @interface.add_protocol(TemplateProtocol, ['0xABCD','0xABCD'], :READ_WRITE)
+        @interface.add_protocol(TemplateProtocol, %w(0xABCD 0xABCD), :READ_WRITE)
         expect(@interface.read_protocols[0].instance_variable_get(:@data)).to eq ''
       end
     end
@@ -42,7 +42,7 @@ module Cosmos
     describe "connect" do
       it "supports an initial read delay" do
         @interface.instance_variable_set(:@stream, TemplateStream.new)
-        @interface.add_protocol(TemplateProtocol, ['0xABCD', '0xABCD', 0, 2], :READ_WRITE)
+        @interface.add_protocol(TemplateProtocol, %w(0xABCD 0xABCD 0 2), :READ_WRITE)
         time = Time.now
         @interface.connect
         expect(@interface.read_protocols[0].instance_variable_get(:@connect_complete_time)).to be >= time + 2.0
@@ -52,7 +52,7 @@ module Cosmos
     describe "disconnect" do
       it "unblocks writes waiting for responses" do
         @interface.instance_variable_set(:@stream, TemplateStream.new)
-        @interface.add_protocol(TemplateProtocol, ['0xABCD', '0xABCD'], :READ_WRITE)
+        @interface.add_protocol(TemplateProtocol, %w(0xABCD 0xABCD), :READ_WRITE)
         packet = Packet.new('TGT', 'CMD')
         packet.append_item("CMD_TEMPLATE", 1024, :STRING)
         packet.get_item("CMD_TEMPLATE").default = "SOUR:VOLT"
@@ -73,7 +73,7 @@ module Cosmos
     describe "read_data" do
       it "ignores all data during the connect period" do
         @interface.instance_variable_set(:@stream, TemplateStream.new)
-        @interface.add_protocol(TemplateProtocol, ['0xABCD', '0xABCD', 0, 1.5], :READ_WRITE)
+        @interface.add_protocol(TemplateProtocol, %w(0xABCD 0xABCD 0 1.5), :READ_WRITE)
         start = Time.now
         @interface.connect
         $read_buffer = "\x31\x30\xAB\xCD"
@@ -86,7 +86,7 @@ module Cosmos
     describe "write" do
       it "waits before writing during the initial delay period" do
         @interface.instance_variable_set(:@stream, TemplateStream.new)
-        @interface.add_protocol(TemplateProtocol, ['0xABCD','0xABCD',0,1.5], :READ_WRITE)
+        @interface.add_protocol(TemplateProtocol, %w(0xABCD 0xABCD 0 1.5), :READ_WRITE)
         packet = Packet.new('TGT', 'CMD')
         packet.append_item("VOLTAGE", 16, :UINT)
         packet.get_item("VOLTAGE").default = 1
@@ -103,7 +103,7 @@ module Cosmos
 
       it "works without a response" do
         @interface.instance_variable_set(:@stream, TemplateStream.new)
-        @interface.add_protocol(TemplateProtocol, ['0xABCD','0xABCD'], :READ_WRITE)
+        @interface.add_protocol(TemplateProtocol, %w(0xABCD 0xABCD), :READ_WRITE)
         packet = Packet.new('TGT', 'CMD')
         packet.append_item("VOLTAGE", 16, :UINT)
         packet.get_item("VOLTAGE").default = 1
@@ -116,14 +116,9 @@ module Cosmos
         expect($write_buffer).to eql("SOUR:VOLT 1, (@2)\xAB\xCD")
       end
 
-      it "raises if given a bad error_action" do
-        @interface.instance_variable_set(:@stream, TemplateStream.new)
-        expect { @interface.add_protocol(TemplateProtocol, ['0xA','0xA',0,nil,1,true,0,nil,false,1.5,0.02,'BLAH'], :READ_WRITE) }.to raise_error(/Unknown error action/)
-      end
-
       it "logs an error if it doesn't receive a response" do
         @interface.instance_variable_set(:@stream, TemplateStream.new)
-        @interface.add_protocol(TemplateProtocol, ['0xA','0xA',0,nil,1,true,0,nil,false,1.5], :READ_WRITE)
+        @interface.add_protocol(TemplateProtocol, %w(0xA 0xA 0 nil 1 true 0 nil false 1.5), :READ_WRITE)
         @interface.target_names = ['TGT']
         packet = Packet.new('TGT', 'CMD')
         packet.append_item("CMD_TEMPLATE", 1024, :STRING)
@@ -143,7 +138,7 @@ module Cosmos
 
       it "disconnects if it doesn't receive a response" do
         @interface.instance_variable_set(:@stream, TemplateStream.new)
-        @interface.add_protocol(TemplateProtocol, ['0xA','0xA',0,nil,1,true,0,nil,false,1.5,0.02,'DISCONNECT'], :READ_WRITE)
+        @interface.add_protocol(TemplateProtocol, %w(0xA 0xA 0 nil 1 true 0 nil false 1.5 0.02 true), :READ_WRITE)
         @interface.target_names = ['TGT']
         packet = Packet.new('TGT', 'CMD')
         packet.append_item("CMD_TEMPLATE", 1024, :STRING)
@@ -161,7 +156,7 @@ module Cosmos
 
       it "doesn't expect responses for empty response fields" do
         @interface.instance_variable_set(:@stream, TemplateStream.new)
-        @interface.add_protocol(TemplateProtocol, ['0xA','0xA',0,nil,1,true,0,nil,false,nil], :READ_WRITE)
+        @interface.add_protocol(TemplateProtocol, %w(0xA 0xA 0 nil 1 true 0 nil false nil), :READ_WRITE)
         @interface.target_names = ['TGT']
         packet = Packet.new('TGT', 'CMD')
         packet.append_item("CMD_TEMPLATE", 1024, :STRING)
@@ -183,7 +178,7 @@ module Cosmos
         rsp_pkt.append_item("VOLTAGE", 16, :UINT)
         allow(System).to receive_message_chain(:telemetry, :packet).and_return(rsp_pkt)
         @interface.instance_variable_set(:@stream, TemplateStream.new)
-        @interface.add_protocol(TemplateProtocol, ['0xABCD','0xABCD', 0, nil, 1, true, 0, nil, false, nil, nil], :READ_WRITE)
+        @interface.add_protocol(TemplateProtocol, %w(0xABCD 0xABCD 0 nil 1 true 0 nil false nil nil), :READ_WRITE)
         @interface.target_names = ['TGT']
         packet = Packet.new('TGT', 'CMD')
         packet.append_item("VOLTAGE", 16, :UINT)
@@ -212,7 +207,7 @@ module Cosmos
         rsp_pkt.append_item("VOLTAGE", 16, :UINT)
         allow(System).to receive_message_chain(:telemetry, :packet).and_return(rsp_pkt)
         @interface.instance_variable_set(:@stream, TemplateStream.new)
-        @interface.add_protocol(TemplateProtocol, ['0xABCD','0xABCD', 0, nil, 1, true, 0, nil, false, nil], :READ_WRITE)
+        @interface.add_protocol(TemplateProtocol, %w(0xABCD 0xABCD 0 nil 1 true 0 nil false nil), :READ_WRITE)
         @interface.target_names = ['TGT']
         packet = Packet.new('TGT', 'CMD')
         packet.append_item("VOLTAGE", 16, :UINT)
@@ -244,7 +239,7 @@ module Cosmos
         rsp_pkt.append_item("VOLTAGE", 16, :UINT)
         allow(System).to receive_message_chain(:telemetry, :packet).and_return(rsp_pkt)
         @interface.instance_variable_set(:@stream, TemplateStream.new)
-        @interface.add_protocol(TemplateProtocol, ['0xABCD','0xABCD', 0, nil, 1, true, 0, nil, false, nil], :READ_WRITE)
+        @interface.add_protocol(TemplateProtocol, %w(0xABCD 0xABCD 0 nil 1 true 0 nil false nil), :READ_WRITE)
         @interface.target_names = ['TGT']
         packet = Packet.new('TGT', 'CMD')
         packet.append_item("VOLTAGE", 16, :UINT)
@@ -276,7 +271,7 @@ module Cosmos
         rsp_pkt.append_item("VOLTAGE", 16, :UINT)
         allow(System).to receive_message_chain(:telemetry, :packet).and_return(rsp_pkt)
         @interface.instance_variable_set(:@stream, TemplateStream.new)
-        @interface.add_protocol(TemplateProtocol, ['0xAD','0xA', 1], :READ_WRITE)
+        @interface.add_protocol(TemplateProtocol, %w(0xAD 0xA 1), :READ_WRITE)
         @interface.target_names = ['TGT']
         packet = Packet.new('TGT', 'CMD')
         packet.append_item("VOLTAGE", 16, :UINT)
@@ -305,7 +300,7 @@ module Cosmos
       rsp_pkt.append_item("STRING", 512, :STRING)
       allow(System).to receive_message_chain(:telemetry, :packet).and_return(rsp_pkt)
       @interface.instance_variable_set(:@stream, TemplateStream.new)
-      @interface.add_protocol(TemplateProtocol, ['0xAD','0xA', 0, nil, 2], :READ_WRITE)
+      @interface.add_protocol(TemplateProtocol, %w(0xAD 0xA 0 nil 2), :READ_WRITE)
       @interface.target_names = ['TGT']
       packet = Packet.new('TGT', 'CMD')
       packet.append_item("CMD_TEMPLATE", 1024, :STRING)

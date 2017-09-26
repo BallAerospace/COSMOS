@@ -34,9 +34,8 @@ module Cosmos
     #   when waiting for a response
     # @param response_polling_period [Float] Number of seconds to wait between polling
     #   for a response
-    # @param error_action [String] How to handle errors in the protocol like unexpected
-    #   responses or response timeouts. 'DISCONNECT' to disconnect after errors.
-    #   'LOG' to log an error and continue.
+    # @param raise_exceptions [String] Whether to raise exceptions when errors
+    #   occur in the protocol like unexpected responses or response timeouts.
     def initialize(
       write_termination_characters,
       read_termination_characters,
@@ -49,7 +48,7 @@ module Cosmos
       fill_fields = false,
       response_timeout = 5.0,
       response_polling_period = 0.02,
-      error_action = 'LOG'
+      raise_exceptions = false
     )
       super(
         write_termination_characters,
@@ -70,16 +69,7 @@ module Cosmos
       @response_timeout = @response_timeout.to_f if @response_timeout
       @response_polling_period = response_polling_period.to_f
       @connect_complete_time = nil
-
-      case error_action.to_s.upcase
-      when 'LOG'
-        @error_action = :LOG
-      when 'DISCONNECT'
-        @error_action = :DISCONNECT
-      else
-        raise "Unknown error action #{error_action}. "\
-          "Valid values are 'LOG' and 'DISCONNECT'."
-      end
+      @raise_exceptions = ConfigParser.handle_true_false(raise_exceptions)
     end
 
     def reset
@@ -244,7 +234,7 @@ module Cosmos
 
     def handle_error(msg)
       Logger.error(msg)
-      raise msg if @error_action == :DISCONNECT
+      raise msg if @raise_exceptions
     end
   end
 end
