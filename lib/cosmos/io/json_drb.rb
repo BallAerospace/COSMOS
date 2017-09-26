@@ -116,6 +116,17 @@ module Cosmos
               end
             end
 
+            # Wait for all puma threads to stop before trying to close
+            # the sockets
+            start_time = Time.now
+            while true
+              puma_threads = false
+              Thread.list.each {|thread| puma_threads = true if thread.inspect.match(/puma/)}
+              break if !puma_threads
+              break if (Time.now - start_time) > 10.0
+              sleep 0.25
+            end
+
             # Puma doesn't clean up it's own sockets after shutting down,
             # so we'll do that here.
             @server_mutex.synchronize do
