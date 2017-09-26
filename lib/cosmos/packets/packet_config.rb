@@ -1283,6 +1283,7 @@ module Cosmos
 
       # Define the units of the current telemetry item
       when 'UNITS'
+        raise @parser.error("Items with STATES can not define UNITS") if @current_item.states
         usage = "UNITS <FULL UNITS NAME> <ABBREVIATED UNITS NAME>"
         parser.verify_num_parameters(2, 2, usage)
         @current_item.units_full = params[0]
