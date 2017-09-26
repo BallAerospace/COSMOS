@@ -272,7 +272,6 @@ module Cosmos
           end
           chooser = ComboboxChooser.new(dialog, "Select:", display_options)
           chooser.setContentsMargins(11,11,11,11)
-          update = Proc.new { |value| result = value }
           chooser.sel_command_callback = lambda { |value| result.replace(value) }
           dialog.layout.addWidget(chooser)
           dialog.layout.addWidget(_build_dialog_buttons(dialog, true, cancel))
