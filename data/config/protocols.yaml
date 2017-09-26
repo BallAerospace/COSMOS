@@ -224,8 +224,8 @@ TEMPLATE:
       required: false
       description: An initial delay after connecting after which the stream will
         be read till empty and data dropped. Useful for discarding connect headers
-        and initial prompts. Default is nil (no initial read)
-      values: \d+
+        and initial prompts. Default is nil (no initial read).
+      values: .+
     - name: Response Lines
       required: false
       description: The number of lines that make up expected responses.
@@ -241,17 +241,33 @@ TEMPLATE:
       description: The number of bytes to discard from the binary data after
         reading from the stream. Note that this applies to bytes including the
         sync pattern if the sync pattern is being used.
-        Default is 0 (do not discard bytes)
+        Default is 0 (do not discard bytes).
       values: \d+
     - name: Sync Pattern
       required: false
       description: Hex string representing a byte pattern that will be searched
         for in the raw stream. This pattern represents a packet delimiter and all
         data found including the sync pattern will be returned.
-        Default is nil (no sync pattern)
+        Default is nil (no sync pattern).
       values: .+
     - name: Fill Sync Pattern
       required: false
-      description: Whether or not to fill in the sync pattern on outgoing packets
-        Default is false
+      description: Whether or not to fill in the sync pattern on outgoing packets.
+        Default is false.
       values: ['false','true']
+    - name: Response Timeout
+      required: false
+      description: Number of seconds to wait before timing out when waiting for a response.
+        Default is 5 seconds.
+      values: .+
+    - name: Response Polling Period
+      required: false
+      description: Number of seconds to wait between polling for a response.
+        Default is 0.02 seconds.
+      values: .+
+    - name: Error Action
+      required: false
+      description: How to handle errors in the protocol like unexpected responses
+        or response timeouts. 'DISCONNECT' to disconnect after errors. The default
+        is 'LOG' to log an error and continue.
+      values: ['LOG','DISCONNECT']

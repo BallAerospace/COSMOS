@@ -30,6 +30,12 @@ module Cosmos
     # @param discard_leading_bytes (see TerminatedProtocol#initialize)
     # @param sync_pattern (see TerminatedProtocol#initialize)
     # @param fill_fields (see TerminatedProtocol#initialize)
+    # @param response_timeout [Float] Number of seconds to wait before timing out
+    #   when waiting for a response
+    # @param response_polling_period [Float] Number of seconds to wait between polling
+    #   for a response
+    # @param raise_exceptions [String] Whether to raise exceptions when errors
+    #   occur in the protocol like unexpected responses or response timeouts.
     def initialize(
       write_termination_characters,
       read_termination_characters,
@@ -41,7 +47,8 @@ module Cosmos
       sync_pattern = nil,
       fill_fields = false,
       response_timeout = 5.0,
-      response_polling_period = 0.02
+      response_polling_period = 0.02,
+      raise_exceptions = false
     )
       super(
         write_termination_characters,
@@ -62,6 +69,7 @@ module Cosmos
       @response_timeout = @response_timeout.to_f if @response_timeout
       @response_polling_period = response_polling_period.to_f
       @connect_complete_time = nil
+      @raise_exceptions = ConfigParser.handle_true_false(raise_exceptions)
     end
 
     def reset
@@ -128,9 +136,17 @@ module Cosmos
         # Scan the response for the variables in brackets <VARIABLE>
         # Write the packet value with each of the values received
         response_values = response_string.scan(response_regexp)[0]
-        raise "Unexpected response received: #{response_string}" if !response_values || (response_values.length != response_item_names.length)
-        response_values.each_with_index do |value, i|
-          result_packet.write(response_item_names[i], value)
+        if !response_values || (response_values.length != response_item_names.length)
+          handle_error("#{@interface.name}: Unexpected response: #{response_string}")
+        else
+          response_values.each_with_index do |value, i|
+            begin
+              result_packet.write(response_item_names[i], value)
+            rescue => error
+              handle_error("#{@interface.name}: Could not write value #{value} due to #{error.message}")
+              break
+            end
+          end
         end
 
         @response_packets.clear
@@ -157,6 +173,13 @@ module Cosmos
       begin
         @response_template = packet.read("RSP_TEMPLATE").strip
         @response_packet = packet.read("RSP_PACKET").strip
+        # If the template or packet are empty set them to nil. This allows for
+        # the user to remove the RSP_TEMPLATE and RSP_PACKET values and avoid
+        # any response timeouts
+        if @response_template.empty? || @response_packet.empty?
+          @response_template = nil
+          @response_packet = nil
+        end
       rescue
         # If there is no response template we set to nil
         @response_template = nil
@@ -174,8 +197,11 @@ module Cosmos
       data = raw_packet.buffer(false)
       # Scan the template for variables in brackets <VARIABLE>
       # Read these values from the packet and substitute them in the template
+      # and in the @response_packet name
       @template.scan(/<(.*?)>/).each do |variable|
-        data.gsub!("<#{variable[0]}>", packet.read(variable[0], :RAW).to_s)
+        value = packet.read(variable[0], :RAW).to_s
+        data.gsub!("<#{variable[0]}>", value)
+        @response_packet.gsub!("<#{variable[0]}>", value) if @response_packet
       end
 
       return raw_packet
@@ -196,7 +222,7 @@ module Cosmos
           sleep(@response_polling_period)
           retry if !response_timeout_time
           retry if response_timeout_time and Time.now < response_timeout_time
-          raise Timeout::Error, "Timeout waiting for response"
+          handle_error("#{@interface.name}: Timeout waiting for response")
         end
 
         @response_template = nil
@@ -204,6 +230,11 @@ module Cosmos
         @response_packets.clear
       end
       return super(packet, data)
+    end
+
+    def handle_error(msg)
+      Logger.error(msg)
+      raise msg if @raise_exceptions
     end
   end
 end
