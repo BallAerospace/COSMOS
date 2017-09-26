@@ -53,6 +53,18 @@ module Cosmos
     end
 
     describe "start_service" do
+
+      it "can be started again after stopping" do
+        @json.start_service('127.0.0.1', 7777, self)
+        @json.stop_service
+        @json.start_service('127.0.0.1', 7777, self)
+        @json.stop_service
+        @json.start_service('blah', 7777, self)
+        @json.stop_service
+        @json.start_service('127.0.0.1', 7777, self)
+        @json.stop_service
+      end
+
       it "does nothing when passed no parameters" do
         expect(@json.thread).to be_nil
         @json.start_service()

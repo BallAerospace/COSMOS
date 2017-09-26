@@ -18,6 +18,23 @@ require 'cosmos/io/json_rpc'
 require 'cosmos/io/json_drb_rack'
 require 'rack/handler/puma'
 
+# Add methods to the Puma::Launcher and Puma::Single class so we can tell
+# if the server has been started.
+module Puma
+  class Launcher
+    def running
+      @runner and @runner.running
+    end
+  end
+  class Runner
+  end
+  class Single < Runner
+    def running
+      @server and @server.running
+    end
+  end
+end
+
 module Cosmos
 
   # JsonDRb implements the JSON-RPC 2.0 Specification to provide an interface
@@ -79,7 +96,7 @@ module Cosmos
     # Gracefully kill the thread
     def graceful_kill
       @server_mutex.synchronize do
-        @server.stop if @server
+        @server.stop if @server and @server.running
       end
     end
 
@@ -155,7 +172,7 @@ module Cosmos
         while ((Time.now - start_time) < 5.0) and !server_started
           sleep(0.1)
           @server_mutex.synchronize do
-            server_started = true if @server
+            server_started = true if @server and @server.running
           end
         end
 
