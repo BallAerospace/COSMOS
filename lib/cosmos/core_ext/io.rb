@@ -108,4 +108,15 @@ class IO
       return fast_select(nil, write_sockets, nil, timeout)
     end
   end
+
+  # Alias the original close method
+  alias_method :__close__, :close
+
+  # Patch the close method so that it won't raise any exceptions
+  def close
+    begin
+      __close__
+    rescue
+    end
+  end
 end
