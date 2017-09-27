@@ -17,6 +17,9 @@ require 'set'
 require 'cosmos/io/json_rpc'
 require 'cosmos/io/json_drb_rack'
 require 'rack/handler/puma'
+if RUBY_ENGINE == 'ruby' and %w(2.2.7 2.3.4 2.4.1).include? RUBY_VERSION
+  require 'stopgap_13632'
+end
 
 # Add methods to the Puma::Launcher and Puma::Single class so we can tell
 # if the server has been started.
