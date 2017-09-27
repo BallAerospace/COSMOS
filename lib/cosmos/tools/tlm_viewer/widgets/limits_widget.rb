@@ -20,7 +20,7 @@ module Cosmos
 
     def initialize(parent_layout, target_name, packet_name, item_name, value_type, width, height)
       super(target_name, packet_name, item_name, value_type)
-      @value_type = :CONVERTED if @value_type == :WITH_UNITS
+      raise "Invalid value_type #{@value_type} for LimitsWidget" if @value_type == :RAW
       @width = width.to_i
       @height = height.to_i
       @value = 0

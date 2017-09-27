@@ -329,7 +329,7 @@ module Cosmos
       end
 
       unless @widgets.invalid.empty?
-        Qt::MessageBox.information(self, "Screen #{@full_name}", "The following telemetry items could not be created: \n" + @widgets.invalid.join("\n"))
+        Qt::MessageBox.information(self, "Screen #{@full_name}", "In #{filename}, the following telemetry items could not be created: \n" + @widgets.invalid.join("\n"))
       end
 
       # Process all settings before we show the screen
@@ -383,8 +383,8 @@ module Cosmos
             System.telemetry.packet_and_item(*parameters[0..2])
             widget = klass.new(layout_stack[-1], *parameters)
           end
-        rescue
-          @widgets.invalid << parameters.join(" ")
+        rescue => err
+          @widgets.invalid << "#{parser.line_number}: #{parameters.join(" ").strip} due to #{err.message}"
           return nil
         end
       else
