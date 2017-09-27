@@ -116,6 +116,9 @@ module Cosmos
       footer()
     ensure
       @file.close if @file and not @file.closed?
+      Cosmos.set_working_dir do
+        File.chmod(0444, @filename)
+      end
     end
 
     def header
@@ -166,6 +169,7 @@ module Cosmos
                 end
               end
             end
+            File.chmod(0444, @data_package_filename)
           end
           progress_dialog.close_done if progress_dialog
         rescue => error

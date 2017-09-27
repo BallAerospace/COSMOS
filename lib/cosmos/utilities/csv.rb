@@ -131,6 +131,7 @@ module Cosmos
     # Closes the archive file created by #{CSV#create_archive}.
     def close_archive
       @archive.close
+      File.chmod(0444, @archive_file)
       @archive = nil
     end
   end

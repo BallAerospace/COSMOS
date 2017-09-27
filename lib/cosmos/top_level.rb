@@ -428,6 +428,7 @@ module Cosmos
             yield file
           ensure
             file.close unless file.closed?
+            File.chmod(0444, log_file) # Make file read only
           end
         end
       rescue Exception

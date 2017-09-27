@@ -131,6 +131,7 @@ module Cosmos
                 file.puts "#{tlm},#{total}"
               end
             end
+            File.chmod(0444, output_filename)
           end
         rescue => error
           progress.append_text("Error processing:\n#{error.formatted}\n")
