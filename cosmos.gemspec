@@ -87,7 +87,7 @@ spec = Gem::Specification.new do |s|
   s.add_runtime_dependency 'nokogiri', '~> 1.6'
   s.add_runtime_dependency 'opengl', '>= 0.7', '< 0.10' if RUBY_ENGINE == 'ruby' # MRI Only
   s.add_runtime_dependency 'qtbindings', '~> 4.8.6', '>= 4.8.6.2' if RUBY_ENGINE == 'ruby' # MRI Only
-  s.add_runtime_dependency 'puma', '~> 3.9.1'
+  s.add_runtime_dependency 'puma', '~> 3.10.0'
   s.add_runtime_dependency 'rack', '~> 2.0.3'
   s.add_runtime_dependency 'httpclient', '~> 2.8.3'
   s.add_runtime_dependency 'stopgap_13632', '~> 1.0.1' if RUBY_ENGINE == 'ruby' and %w(2.2.7 2.3.4 2.4.1).include? RUBY_VERSION  # MRI Only
