@@ -18,6 +18,7 @@ module Cosmos
     # @param warnings [Array<String>] Array of string warnings which will be
     #   appended with any warnings found when parsing the limits
     def self.parse(parser, packet, cmd_or_tlm, item, warnings)
+      raise parser.error("Items with STATE can't define LIMITS") if item.states
       @parser = LimitsParser.new(parser)
       @parser.verify_parameters(cmd_or_tlm)
       @parser.create_limits(packet, item, warnings)

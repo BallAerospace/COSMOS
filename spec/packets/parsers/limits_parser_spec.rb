@@ -23,7 +23,7 @@ module Cosmos
         @pc = PacketConfig.new
       end
 
-      it "raises if a current item is not defined" do
+      it "complains if a current item is not defined" do
         tf = Tempfile.new('unittest')
         tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Packet"'
         tf.puts '  LIMITS mylimits 1 ENABLED 0 10 20 30 12 18'
@@ -32,7 +32,7 @@ module Cosmos
         tf.unlink
       end
 
-      it "raises if there are not enough parameters" do
+      it "complains if there are not enough parameters" do
         tf = Tempfile.new('unittest')
         tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Packet"'
         tf.puts '  ITEM myitem 0 8 UINT "Test Item"'
@@ -50,7 +50,7 @@ module Cosmos
         tf.unlink
       end
 
-      it "raises if there are too many parameters" do
+      it "complains if there are too many parameters" do
         tf = Tempfile.new('unittest')
         tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Packet"'
         tf.puts '  ITEM myitem 0 8 UINT "Test Item"'
@@ -60,7 +60,7 @@ module Cosmos
         tf.unlink
       end
 
-      it "raises if applied to a command PARAMETER" do
+      it "complains if applied to a command PARAMETER" do
         tf = Tempfile.new('unittest')
         tf.puts 'COMMAND tgt1 pkt1 LITTLE_ENDIAN "Packet"'
         tf.puts '  APPEND_PARAMETER item1 16 UINT 0 0 0 "Item"'
@@ -70,13 +70,24 @@ module Cosmos
         tf.unlink
       end
 
-      it "raises if a DEFAULT limits set isn't defined" do
+      it "complains if a DEFAULT limits set isn't defined" do
         tf = Tempfile.new('unittest')
         tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Packet"'
         tf.puts '  APPEND_ITEM item1 16 UINT "Item"'
         tf.puts '    LIMITS TVAC 3 ENABLED 1 2 6 7 3 5'
         tf.close
         expect { @pc.process_file(tf.path, "TGT1") }.to raise_error(ConfigParser::Error, /DEFAULT limits set must be defined/)
+        tf.unlink
+      end
+
+      it "complains if STATES are defined" do
+        tf = Tempfile.new('unittest')
+        tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Packet"'
+        tf.puts '  APPEND_ITEM item1 16 UINT "Item"'
+        tf.puts '    STATE ONE 1'
+        tf.puts '    LIMITS TVAC 3 ENABLED 1 2 6 7 3 5'
+        tf.close
+        expect { @pc.process_file(tf.path, "TGT1") }.to raise_error(ConfigParser::Error, /Items with STATE can't define LIMITS/)
         tf.unlink
       end
 
@@ -116,7 +127,7 @@ module Cosmos
         tf.unlink
       end
 
-      it "raises if the second parameter isn't a number" do
+      it "complains if the second parameter isn't a number" do
         tf = Tempfile.new('unittest')
         tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Packet"'
         tf.puts '  APPEND_ITEM item1 16 UINT "Item"'
@@ -126,7 +137,7 @@ module Cosmos
         tf.unlink
       end
 
-      it "raises if the third parameter isn't ENABLED or DISABLED" do
+      it "complains if the third parameter isn't ENABLED or DISABLED" do
         tf = Tempfile.new('unittest')
         tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Packet"'
         tf.puts '  APPEND_ITEM item1 16 UINT "Item"'
@@ -136,7 +147,7 @@ module Cosmos
         tf.unlink
       end
 
-      it "raises if the fourth through ninth parameter aren't numbers'" do
+      it "complains if the fourth through ninth parameter aren't numbers'" do
         msgs = ['','','','','red low','yellow low','yellow high','red high','green low','green high']
         (4..9).each do |index|
           tf = Tempfile.new('unittest')
@@ -151,7 +162,7 @@ module Cosmos
         end
       end
 
-      it "raises if the 4 limits are out of order" do
+      it "complains if the 4 limits are out of order" do
         tf = Tempfile.new('unittest')
         tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Packet"'
         tf.puts '  APPEND_ITEM item1 16 UINT "Item"'
@@ -185,7 +196,7 @@ module Cosmos
         tf.unlink
       end
 
-      it "raises if the 6 limits are out of order" do
+      it "complains if the 6 limits are out of order" do
         tf = Tempfile.new('unittest')
         tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Packet"'
         tf.puts '  APPEND_ITEM item1 16 UINT "Item"'

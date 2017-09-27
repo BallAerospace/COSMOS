@@ -607,8 +607,7 @@ module Cosmos
   #
   # @param class_name_or_class_filename [String] The name of the class or the file which contains the
   #   Ruby class to require
-  # @param log_error [Boolean] Whether to log an error if we can not require
-  #   the class
+  # @param log_error [Boolean] Whether to log an error if we can't require the class
   def self.require_class(class_name_or_class_filename, log_error = true)
     if class_name_or_class_filename.downcase[-3..-1] == '.rb' or (class_name_or_class_filename[0] == class_name_or_class_filename[0].downcase)
       class_filename = class_name_or_class_filename
@@ -627,8 +626,7 @@ module Cosmos
   # Requires a file with a standard error message if it fails
   #
   # @param filename [String] The name of the file to require
-  # @param log_error [Boolean] Whether to log an error if we can not require
-  #   the class
+  # @param log_error [Boolean] Whether to log an error if we can't require the class
   def self.require_file(filename, log_error = true)
     begin
       require filename

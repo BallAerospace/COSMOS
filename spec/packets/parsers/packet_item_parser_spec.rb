@@ -33,7 +33,7 @@ module Cosmos
           tf.unlink
         end
 
-        it "raises if given an incomplete definition" do
+        it "complains if given an incomplete definition" do
           tf = Tempfile.new('unittest')
           tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Description"'
           tf.puts '  ITEM ITEM1 8 0'
@@ -63,7 +63,7 @@ module Cosmos
           tf.unlink
         end
 
-        it "raises if given a bad bit offset" do
+        it "complains if given a bad bit offset" do
           tf = Tempfile.new('unittest')
           tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Description"'
           tf.puts '  ITEM ITEM1 EIGHT 0 DERIVED'
@@ -72,7 +72,7 @@ module Cosmos
           tf.unlink
         end
 
-        it "raises if given a bad bit size" do
+        it "complains if given a bad bit size" do
           tf = Tempfile.new('unittest')
           tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Description"'
           tf.puts '  ITEM ITEM1 8 ZERO DERIVED'
@@ -81,7 +81,7 @@ module Cosmos
           tf.unlink
         end
 
-        it "raises if given a bad array size" do
+        it "complains if given a bad array size" do
           tf = Tempfile.new('unittest')
           tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Description"'
           tf.puts '  ARRAY_ITEM ITEM3 0 32 FLOAT EIGHT'
@@ -178,7 +178,7 @@ module Cosmos
           tf.unlink
         end
 
-        it "raises if given an incomplete definition" do
+        it "complains if given an incomplete definition" do
           tf = Tempfile.new('unittest')
           tf.puts 'COMMAND tgt1 pkt1 LITTLE_ENDIAN "Description"'
           tf.puts '  PARAMETER ITEM1 8 0'

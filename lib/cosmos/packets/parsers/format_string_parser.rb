@@ -14,6 +14,7 @@ module Cosmos
     # @param parser [ConfigParser] Configuration parser
     # @param item [Packet] The current item
     def self.parse(parser, item)
+      raise parser.error("Items with STATE can't define FORMAT_STRING") if item.states
       @parser = FormatStringParser.new(parser)
       @parser.verify_parameters()
       @parser.create_format_string(item)
