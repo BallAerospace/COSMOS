@@ -43,6 +43,39 @@ module Cosmos
         tf.unlink
       end
 
+      it "complains if LIMITS defined" do
+        tf = Tempfile.new('unittest')
+        tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Packet"'
+        tf.puts '  ITEM myitem 0 8 UINT "Test Item"'
+        tf.puts '    LIMITS DEFAULT 3 ENABLED 1 2 6 7 3 5'
+        tf.puts '    STATE ONE 1'
+        tf.close
+        expect { @pc.process_file(tf.path, "TGT1") }.to raise_error(ConfigParser::Error, /Items with LIMITS can't define STATE/)
+        tf.unlink
+      end
+
+      it "complains if FORMAT_STRING defined" do
+        tf = Tempfile.new('unittest')
+        tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Packet"'
+        tf.puts '  ITEM myitem 0 8 UINT "Test Item"'
+        tf.puts '    FORMAT_STRING "0x%x"'
+        tf.puts '    STATE ONE 1'
+        tf.close
+        expect { @pc.process_file(tf.path, "TGT1") }.to raise_error(ConfigParser::Error, /Items with FORMAT_STRING can't define STATE/)
+        tf.unlink
+      end
+
+      it "complains if UNITS defined" do
+        tf = Tempfile.new('unittest')
+        tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Packet"'
+        tf.puts '  ITEM myitem 0 8 UINT "Test Item"'
+        tf.puts '    UNITS Kelvin K'
+        tf.puts '    STATE ONE 1'
+        tf.close
+        expect { @pc.process_file(tf.path, "TGT1") }.to raise_error(ConfigParser::Error, /Items with UNITS can't define STATE/)
+        tf.unlink
+      end
+
       it "complains if there are too many parameters" do
         tf = Tempfile.new('unittest')
         tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Packet"'

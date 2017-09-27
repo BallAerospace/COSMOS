@@ -53,6 +53,17 @@ module Cosmos
         tf.unlink
       end
 
+      it "complains if STATE is defined" do
+        tf = Tempfile.new('unittest')
+        tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Packet"'
+        tf.puts 'ITEM myitem 0 8 UINT "Test Item"'
+        tf.puts 'STATE ONE 1'
+        tf.puts "FORMAT_STRING '0x%x'"
+        tf.close
+        expect { @pc.process_file(tf.path, "TGT1") }.to raise_error(ConfigParser::Error, /Items with STATE can't define FORMAT_STRING/)
+        tf.unlink
+      end
+
       it "complains about invalid format strings" do
         tf = Tempfile.new('unittest')
         tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Packet"'

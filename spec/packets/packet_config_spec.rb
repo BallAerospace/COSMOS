@@ -814,6 +814,17 @@ module Cosmos
           expect(@pc.telemetry["TGT1"]["PKT1"].read("ITEM1",:WITH_UNITS)).to eql "0 V"
           tf.unlink
         end
+
+        it "complains if STATE defined" do
+          tf = Tempfile.new('unittest')
+          tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Packet"'
+          tf.puts '  ITEM item1 0 8 UINT'
+          tf.puts '    STATE ONE 1'
+          tf.puts '    UNITS Volts V'
+          tf.close
+          expect { @pc.process_file(tf.path, "TGT1") }.to raise_error(ConfigParser::Error, /Items with STATE can't define UNITS/)
+          tf.unlink
+        end
       end
 
       context "with META" do

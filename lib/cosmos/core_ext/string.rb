@@ -203,7 +203,7 @@ class String
   # @return Converts the String into either a Float, Integer, or Array
   # depending on what the String represents. It can successfully convert
   # floating point numbers in both fixed and scientific notation, integers
-  # in hexadecimal notation, and Arrays. If it can not be converted into
+  # in hexadecimal notation, and Arrays. If it can't be converted into
   # any of the above then the original String is returned.
   def convert_to_value
     return_value = self

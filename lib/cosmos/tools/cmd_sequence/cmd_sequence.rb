@@ -568,7 +568,7 @@ module Cosmos
     end
 
     # Finds the given filename by looking in the system sequences path as
-    # well as in each target's sequences directory. If the file can not be
+    # well as in each target's sequences directory. If the file can't be
     # found an Error dialog is created.
     # @param filename [String] Filename to locate
     def find_sequence(filename)
