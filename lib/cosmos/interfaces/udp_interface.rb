@@ -42,7 +42,7 @@ module Cosmos
       @hostname = ConfigParser.handle_nil(hostname)
       if @hostname
         @hostname = @hostname.to_s
-        @hostname = '127.0.0.1' if @hostname.casecmp('LOCALHOST')
+        @hostname = '127.0.0.1' if @hostname.casecmp('LOCALHOST').zero?
       end
       @write_dest_port = ConfigParser.handle_nil(write_dest_port)
       @write_dest_port = write_dest_port.to_i if @write_dest_port
@@ -51,7 +51,7 @@ module Cosmos
       @write_src_port = ConfigParser.handle_nil(write_src_port)
       @write_src_port = @write_src_port.to_i if @write_src_port
       @interface_address = ConfigParser.handle_nil(interface_address)
-      if @interface_address && @interface_address.casecmp('LOCALHOST')
+      if @interface_address && @interface_address.casecmp('LOCALHOST').zero?
         @interface_address = '127.0.0.1'
       end
       @ttl = ttl.to_i
@@ -61,7 +61,7 @@ module Cosmos
       @read_timeout = ConfigParser.handle_nil(read_timeout)
       @read_timeout = @read_timeout.to_f if @read_timeout
       @bind_address = ConfigParser.handle_nil(bind_address)
-      if @bind_address && @bind_address.casecmp('LOCALHOST')
+      if @bind_address && @bind_address.casecmp('LOCALHOST').zero?
         @bind_address = '127.0.0.1'
       end
       @write_socket = nil

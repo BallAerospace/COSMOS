@@ -166,7 +166,7 @@ module Cosmos
     # @param packet_name (see #packet) The packet name.  LATEST is supported.
     # @return [Array<PacketItem>] The telemetry item names for the given target and packet name
     def item_names(target_name, packet_name)
-      if LATEST_PACKET_NAME.casecmp(packet_name) == 0
+      if LATEST_PACKET_NAME.casecmp(packet_name).zero?
         target_upcase = target_name.to_s.upcase
         target_latest_data = @config.latest_data[target_upcase]
         raise "Telemetry Target '#{target_upcase}' does not exist" unless target_latest_data
