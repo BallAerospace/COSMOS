@@ -9,8 +9,8 @@
 "config/targets/SYSTEM/cmd_tlm/override.txt" 0x8FE016FF
 "config/targets/SYSTEM/cmd_tlm/system_tlm.txt" 0xC44F7A0C
 "config/targets/SYSTEM/cmd_tlm/meta_tlm.txt" 0x1637F68F
-"config/targets/SYSTEM/cmd_tlm/limits_groups.txt" 0x64426D51
-"config/targets/SYSTEM/lib/limits_groups.rb" 0xB2D5A8DA
+"config/targets/SYSTEM/cmd_tlm/limits_groups.txt" 0x51C71B96
+"config/targets/SYSTEM/lib/limits_groups.rb" 0x50F72919
 "config/targets/TEMPLATED/target.txt" 0x4A59ED64
 "config/targets/TEMPLATED/cmd_tlm_server.txt" 0xC53BB649
 "config/targets/TEMPLATED/cmd_tlm/templated_cmds.txt" 0x36D65799
@@ -18,7 +18,7 @@
 "config/targets/TEMPLATED/lib/templated_interface.rb" 0x471A587C
 "config/targets/INST/sequences/sequence.tsv" 0xB7E64406
 "config/targets/INST/target.txt" 0x0CA2BFF2
-"config/targets/INST/screens/hs.txt" 0x1D5F0FCE
+"config/targets/INST/screens/hs.txt" 0xA7BFE34A
 "config/targets/INST/screens/graphs.txt" 0x82EF35B4
 "config/targets/INST/screens/commanding.txt" 0x8BFA8984
 "config/targets/INST/screens/array.txt" 0x4E9CE715
