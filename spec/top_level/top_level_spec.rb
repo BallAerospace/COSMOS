@@ -100,6 +100,44 @@ module Cosmos
     end
   end
 
+  describe "data_path" do
+    it "looks first in USERPATH/config/data" do
+      filename = Cosmos.data_path('data.txt')
+      expect(filename).to eql File.join(Cosmos::USERPATH,'config','data','data.txt')
+    end
+
+    it "looks in core/data" do
+      filename = Cosmos.data_path('about.txt')
+      expect(filename).to eql File.join(Cosmos::PATH,'data','about.txt')
+    end
+
+    it "complains if the file is not found" do
+      expect { Cosmos.data_path('nope.txt') }.to raise_error(/Could not find path/)
+    end
+  end
+
+  describe "path" do
+    it "looks first in the USERPATH" do
+      filename = Cosmos.path(__FILE__, ['config','system','system.txt'])
+      expect(filename).to eql File.join(Cosmos::USERPATH,'config','system','system.txt')
+    end
+
+    it "looks relative to the absolute path calling_file" do
+      spec = File.expand_path(File.join(File.dirname(Cosmos::USERPATH),'spec_helper.rb'))
+      filename = Cosmos.path(spec, ['top_level', 'top_level_spec.rb'])
+      expect(filename).to eql __FILE__
+    end
+
+    it "looks relative to the relative path calling_file" do
+      filename = Cosmos.path('spec/spec_helper.rb', ['top_level', 'top_level_spec.rb'])
+      expect(filename).to eql __FILE__
+    end
+
+    it "complains if the path is not found" do
+      expect { Cosmos.path(__FILE__, ['nope', 'nowhere.rb']) }.to raise_error(/Could not find path/)
+    end
+  end
+
   describe "self.marshal_dump, self.marshal_load" do
     after(:each) do
       Cosmos.disable_warnings do
@@ -197,10 +235,23 @@ module Cosmos
   end
 
   describe "create_log_file" do
+    it "creates a log file in System LOGS" do
+      filename1 = Cosmos.create_log_file('test')
+      expect(File.exist?(filename1)).to be true
+      expect(File.dirname(filename1)).to eq System.paths['LOGS']
+      File.delete(filename1)
+    end
+
     it "creates a log file even if System LOGS doesn't exist" do
-      filename = Cosmos.create_log_file('test', 'X:/directory/which/does/not/exit')
-      expect(File.exist?(filename)).to be true
-      File.delete(filename)
+      filename1 = Cosmos.create_log_file('test', 'X:/directory/which/does/not/exit')
+      expect(File.exist?(filename1)).to be true
+      # Immediately create another log file to ensure we get unique names
+      filename2 = Cosmos.create_log_file('test', 'X:/directory/which/does/not/exit')
+      expect(File.exist?(filename2)).to be true
+      # Ensure the file names are unique
+      expect(filename1).to_not eql filename2
+      File.delete(filename1)
+      File.delete(filename2)
 
       Cosmos.set_working_dir do
         # Move the defaults output dir out of the way for this test
@@ -318,6 +369,24 @@ module Cosmos
       expect(klass).to eq MyTestClass
       File.delete(filename)
     end
+
+    it "requires the class represented by the classname" do
+      filename = File.join(Cosmos::USERPATH,"lib","my_other_test_class.rb")
+      File.delete(filename) if File.exist? filename
+
+      # Explicitly load cosmos.rb to ensure the Cosmos::USERPATH/lib
+      # directory is in the path
+      load 'cosmos.rb'
+      File.open(filename,'w') do |file|
+        file.puts "class MyOtherTestClass"
+        file.puts "end"
+      end
+
+      klass = Cosmos.require_class("MyOtherTestClass")
+      expect(klass).to be_a(Class)
+      expect(klass).to eq MyOtherTestClass
+      File.delete(filename)
+    end
   end
 
   describe "require_file" do
@@ -343,6 +412,79 @@ module Cosmos
       end
       Cosmos.require_file("my_test_file.rb")
       File.delete(filename)
+    end
+  end
+
+  describe "kill_thread" do
+    before(:each) do
+      @log_info = ''
+      @log_warn = ''
+      @log_error = ''
+      allow(Logger).to receive(:info) {|str| @log_info << str}
+      allow(Logger).to receive(:warn) {|str| @log_warn << str}
+      allow(Logger).to receive(:error) {|str| @log_error << str}
+    end
+
+    it "calls thread.kill if the thread is alive" do
+      thread = Thread.new { loop { sleep 1 } }
+      Cosmos.kill_thread(nil, thread) # No thread owner
+      expect(@log_info).to match("")
+      expect(@log_warn).to match("Failed to gracefully kill thread")
+      expect(@log_error).to eql("")
+      expect(thread.alive?).to be false
+    end
+
+    it "warns if the thread owner doesn't support graceful_kill" do
+      thread = Thread.new { loop { sleep 1 } }
+      Cosmos.kill_thread(thread, thread)
+      expect(@log_info).to match("Thread owner Thread does not support graceful_kill")
+      expect(@log_warn).to match("Failed to gracefully kill thread")
+      expect(@log_error).to eql("")
+      expect(thread.alive?).to be false
+    end
+
+    it "warns if the thread owner is the current thread" do
+      class MyThread < Thread
+        def graceful_kill; end
+      end
+      thread = MyThread.new do
+        Cosmos.kill_thread(thread, thread)
+      end
+      sleep 0.1 while thread.alive?
+      expect(@log_info).to match("")
+      expect(@log_warn).to match("Threads cannot graceful_kill themselves")
+      expect(@log_error).to eql("")
+      expect(thread.alive?).to be false
+    end
+
+    it "calls graceful_kill on the owner" do
+      class ThreadOwner
+        attr_accessor :thread
+        def initialize
+          @thread = Thread.new { loop { sleep 1 } }
+        end
+        def graceful_kill
+          @thread.kill
+        end
+      end
+      owner = ThreadOwner.new
+      Cosmos.kill_thread(owner, owner.thread)
+      expect(@log_info).to match("")
+      expect(@log_warn).to match("")
+      expect(@log_error).to match("")
+      expect(owner.thread.alive?).to be false
+    end
+
+    it "logs an error if the thread doesn't die" do
+      class MyAliveThread
+        def alive?; true; end
+        def kill; end
+        def backtrace; []; end
+      end
+      Cosmos.kill_thread(nil, MyAliveThread.new)
+      expect(@log_info).to match("")
+      expect(@log_warn).to match("Failed to gracefully kill thread")
+      expect(@log_error).to match("Failed to kill thread")
     end
   end
 
