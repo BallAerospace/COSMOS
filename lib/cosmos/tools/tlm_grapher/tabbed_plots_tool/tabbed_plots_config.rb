@@ -428,7 +428,7 @@ module Cosmos
               # Build the index into the hash of the form "TARGET_NAME PACKET_NAME"
               # Note that + is used to create a new object and then << is used to concatenate
               # to the new object.
-              if packet_name.casecmp(Telemetry::LATEST_PACKET_NAME) == 0
+              if packet_name.casecmp(Telemetry::LATEST_PACKET_NAME).zero?
                 packets = System.telemetry.latest_packets(target_name, data_object.item_name)
                 packets.each do |packet|
                   index = (packet.target_name + ' ') << packet.packet_name

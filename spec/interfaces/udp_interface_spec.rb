@@ -17,7 +17,14 @@ module Cosmos
   describe UdpInterface do
     describe "initialize" do
       it "initializes the instance variables" do
-        i = UdpInterface.new('localhost','8888','8889','8890','127.0.0.1','64','5','5','127.0.0.1')
+        i = UdpInterface.new('localhost','8888','8889','8890','localhost','64','5','5','localhost')
+        expect(i.instance_variable_get("@hostname")).to eql '127.0.0.1'
+        expect(i.instance_variable_get("@interface_address")).to eql '127.0.0.1'
+        expect(i.instance_variable_get("@bind_address")).to eql '127.0.0.1'
+        i = UdpInterface.new('10.10.10.1','8888','8889','8890','10.10.10.2','64','5','5','10.10.10.3')
+        expect(i.instance_variable_get("@hostname")).to eql '10.10.10.1'
+        expect(i.instance_variable_get("@interface_address")).to eql '10.10.10.2'
+        expect(i.instance_variable_get("@bind_address")).to eql '10.10.10.3'
       end
 
       it "is not writeable if no write port given" do
@@ -237,4 +244,3 @@ module Cosmos
     end
   end
 end
-
