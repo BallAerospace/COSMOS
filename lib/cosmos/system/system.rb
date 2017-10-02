@@ -17,6 +17,8 @@ require 'cosmos/system/target'
 require 'cosmos/packet_logs'
 require 'fileutils'
 require 'drb/acl'
+require 'zip'
+require 'zip/filesystem'
 require 'bundler'
 
 module Cosmos
@@ -507,12 +509,16 @@ module Cosmos
             update_config(@initial_config)
           else
             # Look for the requested configuration in the saved configurations
-            configuration_directory = find_configuration(name)
-            if configuration_directory
+            configuration = find_configuration(name)
+            if configuration
               # We found the configuration requested. Reprocess the system.txt
               # and reload the packets
               begin
-                process_file(File.join(configuration_directory, 'system.txt'), configuration_directory)
+                unless File.directory?(configuration)
+                  # Zip file configuration so unzip and reset configuration path
+                  configuration = unzip(configuration)
+                end
+                process_file(File.join(configuration, 'system.txt'), configuration)
                 load_packets(name)
               rescue Exception => error
                 # Failed to load - Restore initial
@@ -540,6 +546,43 @@ module Cosmos
     end
 
     protected
+
+    def unzip(zip_file)
+      Zip::File.open(zip_file) do |zip_file|
+        zip_file.each do |entry|
+          path = File.join(@paths['TMP'], entry.name)
+          FileUtils.mkdir_p(File.dirname(path))
+          zip_file.extract(entry, path) unless File.exist?(path)
+        end
+      end
+      File.join(@paths['TMP'], File.basename(zip_file, ".*"))
+    end
+
+    # A helper method to make the zip writing recursion work
+    def write_zip_entries(base_dir, entries, zip_path, io)
+      io.add(zip_path, base_dir) # Add the directory whether it has entries or not
+      entries.each do |e|
+        zip_file_path = File.join(zip_path, e)
+        disk_file_path = File.join(base_dir, e)
+        if File.directory? disk_file_path
+          recursively_deflate_directory(disk_file_path, io, zip_file_path)
+        else
+          put_into_archive(disk_file_path, io, zip_file_path)
+        end
+      end
+    end
+
+    def recursively_deflate_directory(disk_file_path, io, zip_file_path)
+      io.add(zip_file_path, disk_file_path)
+      entries = Dir.entries(disk_file_path) - %w(. ..)
+      write_zip_entries(disk_file_path, entries, zip_file_path, io)
+    end
+
+    def put_into_archive(disk_file_path, io, zip_file_path)
+      io.get_output_stream(zip_file_path) do |f|
+        f.write(File.open(disk_file_path, 'rb').read)
+      end
+    end
 
     def auto_detect_gem_based_targets
       Bundler.load.specs.each do |spec|
@@ -577,7 +620,7 @@ module Cosmos
       Cosmos.set_working_dir do
         Dir.foreach(@paths['SAVED_CONFIG']) do |filename|
           full_path = File.join(@paths['SAVED_CONFIG'], filename)
-          if Dir.exist?(full_path) && (filename[-32..-1] == name)
+          if File.exist?(full_path) && File.basename(filename, ".*")[-32..-1] == name
             return full_path
           end
         end
@@ -587,35 +630,45 @@ module Cosmos
 
     def save_configuration
       Cosmos.set_working_dir do
-        configuration_directory = find_configuration(@config.name)
-        configuration_directory = File.join(@paths['SAVED_CONFIG'], File.build_timestamped_filename([@config.name], '')) unless configuration_directory
-        unless Dir.exist?(configuration_directory)
+        configuration = find_configuration(@config.name)
+        configuration = File.join(@paths['SAVED_CONFIG'], File.build_timestamped_filename([@config.name], '.zip')) unless configuration
+        unless File.exist?(configuration)
           begin
-            # Create the directory
-            FileUtils.mkdir_p(configuration_directory)
+            Zip.continue_on_exists_proc = true
+            Zip::File.open(configuration, Zip::File::CREATE) do |zipfile|
+              zip_file_path = File.basename(configuration, ".zip")
+              zipfile.mkdir zip_file_path
 
-            # Copy target files into directory
-            @targets.each do |target_name, target|
-              destination_dir = File.join(configuration_directory, target.original_name)
-              unless Dir.exist?(destination_dir)
-                FileUtils.cp_r(target.dir, destination_dir)
-              end
-            end
-
-            # Create custom system.txt file
-            File.open(File.join(configuration_directory, 'system.txt'), 'w') do |file|
+              # Copy target files into archive
+              zip_targets = []
               @targets.each do |target_name, target|
-                target_filename = File.basename(target.filename)
-                target_filename = nil unless File.exist?(target.filename)
-                if target.substitute
-                  file.puts "DECLARE_TARGET #{target.original_name} #{target.name} #{target_filename}"
-                else
-                  file.puts "DECLARE_TARGET #{target.name} nil #{target_filename}"
+                entries = Dir.entries(target.dir) - %w(. ..)
+                zip_target = File.join(zip_file_path, target.original_name)
+                # Check the stored list of targets. We can't ask the zip file
+                # itself because it's in progress and hasn't been saved
+                unless zip_targets.include?(zip_target)
+                  write_zip_entries(target.dir, entries, zip_target, zipfile)
+                  zip_targets << zip_target
+                end
+              end
+
+              # Create custom system.txt file
+              zipfile.get_output_stream(File.join(zip_file_path, 'system.txt')) do |file|
+                @targets.each do |target_name, target|
+                  target_filename = File.basename(target.filename)
+                  target_filename = nil unless File.exist?(target.filename)
+                  # Create a newline character since Zip opens files in binary mode
+                  newline = Kernel.is_windows? ? "\r\n" : "\n"
+                  if target.substitute
+                    file.write "DECLARE_TARGET #{target.original_name} #{target.name} #{target_filename}#{newline}"
+                  else
+                    file.write "DECLARE_TARGET #{target.name} nil #{target_filename}#{newline}"
+                  end
                 end
               end
             end
           rescue Exception => error
-            Logger.error "Problem saving configuration to #{configuration_directory}: #{error.class}:#{error.message}"
+            Logger.error "Problem saving configuration to #{configuration}: #{error.class}:#{error.message}\n#{error.backtrace.join("\n")}\n"
           end
         end
       end
