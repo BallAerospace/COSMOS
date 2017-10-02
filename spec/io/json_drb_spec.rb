@@ -100,10 +100,10 @@ module Cosmos
         @json.start_service('127.0.0.1', 7777, self)
         sleep(1)
         expect(@json.thread.alive?).to be true
-        num_threads = Thread.list.length
+        num_threads = running_threads.length
         @json.start_service('127.0.0.1', 7777, self)
         sleep(1)
-        expect(Thread.list.length).to eql num_threads
+        expect(running_threads.length).to eql num_threads
         @json.stop_service
         sleep(0.1)
       end
