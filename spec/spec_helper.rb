@@ -110,14 +110,17 @@ RSpec.configure do |config|
     # Make sure we didn't leave any lingering threads
     running_threads = []
     Thread.list.each do |thread|
-      running_threads << thread.inspect
+      if RUBY_ENGINE == 'jruby'
+        thread_name = JRuby.reference(thread).native_thread.get_name
+        running_threads << thread.inspect unless thread_name == "Finalizer" or thread_name.include?("JRubyWorker")
+      else
+        running_threads << thread.inspect
+      end
     end
+    thread_count = running_threads.size()
     running_threads_str = running_threads.join("\n")
-    if RUBY_ENGINE == 'ruby'
-      expect(Thread.list.length).to eql(1), "At end of test expect 1 remaining thread but found #{Thread.list.length}.\nEnsure you kill all spawned threads before the test finishes.\nThreads:\n#{running_threads_str}"
-    else
-      expect(Thread.list.length).to be <= 2, "At end of test expect 2 remaining thread but found #{Thread.list.length}.\nEnsure you kill all spawned threads before the test finishes.\nThreads:\n#{running_threads_str}"
-    end
+
+    expect(thread_count).to eql(1), "At end of test expect 1 remaining thread but found #{thread_count}.\nEnsure you kill all spawned threads before the test finishes.\nThreads:\n#{running_threads_str}"
   end
 end
 
