@@ -59,7 +59,7 @@ module Cosmos
         @json.stop_service
         @json.start_service('127.0.0.1', 7777, self)
         @json.stop_service
-        @json.start_service('blah', 7777, self)
+        expect { @json.start_service('blah', 7777, self) }.to raise_error(/JsonDRb http server could not be started/)
         @json.stop_service
         @json.start_service('127.0.0.1', 7777, self)
         @json.stop_service
@@ -82,10 +82,10 @@ module Cosmos
         capture_io do |stdout|
           expect(@json.thread).to be_nil
           system_exit_count = $system_exit_count
-          @json.start_service('blah', 7777, self)
+          expect { @json.start_service('blah', 7777, self) }.to raise_error(/JsonDRb http server could not be started/)
           sleep 5
           expect($system_exit_count).to eql(system_exit_count + 1)
-          expect(stdout.string).to match /http server could not be started/
+          expect(stdout.string).to match /JsonDRb http server could not be started or unexpectedly died/
           @json.stop_service
           sleep(0.1)
         end
@@ -93,6 +93,11 @@ module Cosmos
         Dir[File.join(Cosmos::USERPATH,"*_exception.txt")].each do |file|
           File.delete file
         end
+      end
+
+      it "raises an error if the server doesn't start" do
+        allow(Rack::Handler::Puma).to receive(:run) {}
+        expect { @json.start_service('127.0.0.1', 7777, self) }.to raise_error(/JsonDRb http server could not be started/)
       end
 
       it "creates a single listen thread" do
@@ -111,7 +116,7 @@ module Cosmos
       it "rescues listen thread exceptions" do
         capture_io do |stdout|
           allow(Rack::Handler::Puma).to receive(:run) { raise "BLAH" }
-          @json.start_service('127.0.0.1', 7777, self)
+          expect { @json.start_service('127.0.0.1', 7777, self) }.to raise_error(/JsonDRb http server could not be started/)
           sleep(0.1)
           @json.stop_service
           sleep(0.1)

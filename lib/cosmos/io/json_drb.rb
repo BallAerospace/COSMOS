@@ -89,6 +89,8 @@ module Cosmos
 
     # Stops the DRb service by closing the socket and the processing thread
     def stop_service
+      # Kill the server thread; it can take a while, so use
+      # graceful_timeout = 5, timeout_interval = 0.1, hard_timeout = 5
       Cosmos.kill_thread(self, @thread, 5, 0.1, 5)
       @thread = nil
       @server_mutex.synchronize do
@@ -101,7 +103,7 @@ module Cosmos
       @server_mutex.synchronize do
         begin
           @server.stop if @server and @server.running
-        rescue => error
+        rescue
         end
       end
     end
@@ -153,7 +155,7 @@ module Cosmos
             # Puma doesn't clean up it's own sockets after shutting down,
             # so we'll do that here.
             @server_mutex.synchronize do
-              @server.binder.close()
+              @server.binder.close() if @server
             end
 
           # The address in use error is pretty typical if an existing
@@ -181,6 +183,7 @@ module Cosmos
             server_started = true if @server and @server.running
           end
         end
+        raise "JsonDRb http server could not be started." unless server_started
 
       elsif hostname or port or object
         raise "0 or 3 parameters must be given"
