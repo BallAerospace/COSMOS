@@ -17,7 +17,7 @@ require 'set'
 require 'cosmos/io/json_rpc'
 require 'cosmos/io/json_drb_rack'
 require 'rack/handler/puma'
-if RUBY_ENGINE == 'ruby' and %w(2.2.7 2.2.8 2.3.4 2.4.1).include? RUBY_VERSION
+if RUBY_ENGINE == 'ruby' and %w(2.2.7 2.3.4 2.4.1).include? RUBY_VERSION
   require 'stopgap_13632'
 end
 
