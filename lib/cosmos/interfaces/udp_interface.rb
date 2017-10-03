@@ -75,6 +75,11 @@ module Cosmos
     # the constructor and a new {UdpReadSocket} if the read_port was given in
     # the constructor.
     def connect
+      @read_socket = UdpReadSocket.new(
+        @read_port,
+        @hostname,
+        @interface_address,
+        @bind_address) if @read_port
       @write_socket = UdpWriteSocket.new(
         @hostname,
         @write_dest_port,
@@ -82,11 +87,6 @@ module Cosmos
         @interface_address,
         @ttl,
         @bind_address) if @write_dest_port
-      @read_socket = UdpReadSocket.new(
-        @read_port,
-        @hostname,
-        @interface_address,
-        @bind_address) if @read_port
       @thread_sleeper = nil
     end
 
