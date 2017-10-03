@@ -16,11 +16,14 @@ module Cosmos
     attr_reader :converted_type
     # @return [Integer] The size in bits of the converted value
     attr_reader :converted_bit_size
+    # @return [Integer] The size in bits of the converted array value
+    attr_reader :converted_array_size
 
     # Create a new conversion
     def initialize
       @converted_type = nil
       @converted_bit_size = nil
+      @converted_array_size = nil
     end
 
     # Perform the conversion on the value.
