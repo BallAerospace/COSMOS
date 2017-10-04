@@ -169,9 +169,8 @@ module Cosmos
     return filename if File.exist? filename
 
     # Check relative to executing file
-    filename = Cosmos.path($0, 'config/data/' + name)
+    filename = Cosmos.path($0, ['config', 'data', name])
     return filename if File.exist? filename
-
     nil
   end
 
@@ -192,7 +191,7 @@ module Cosmos
     else
       current_dir = File.join(BASE_PWD, calling_file)
     end
-    while true
+    loop do
       test_path = File.join(current_dir, partial_path)
       if File.exist?(test_path)
         return test_path
@@ -395,7 +394,7 @@ module Cosmos
   # @yieldparam file [File] The log file
   # @return [String|nil] The fully pathed log file name or nil if there was
   #   an error creating the log file.
-  def self.create_log_file(filename, log_dir)
+  def self.create_log_file(filename, log_dir = nil)
     log_file = nil
     Cosmos.set_working_dir do
       begin
@@ -403,31 +402,34 @@ module Cosmos
         # system.txt configuration file. If this has an error we won't be able
         # to determine the log path but we still want to write the log.
         log_dir = System.instance.paths['LOGS'] unless log_dir
-        log_file = File.join(log_dir,
-                             File.build_timestamped_filename([filename]))
         # Make sure the log directory exists
         raise unless File.exist?(log_dir)
-        log_file
       rescue Exception
-        # If not then we just build a file locally
-        if File.exist?('./outputs/logs')
-          log_file = File.join('./outputs/logs', File.build_timestamped_filename([filename]))
-        elsif File.exist?('./logs')
-          log_file = File.join('./logs', File.build_timestamped_filename([filename]))
-        else
-          log_file = File.build_timestamped_filename([filename])
-        end
+        log_dir = nil # Reset log dir since it failed above
+        # First check for ./logs
+        log_dir = './logs' if File.exist?('./logs')
+        # Prefer ./outputs/logs if it exists
+        log_dir = './outputs/logs' if File.exist?('./outputs/logs')
+        # If all else fails just use the local directory
+        log_dir = '.' unless log_dir
+      end
+      log_file = File.join(log_dir,
+                           File.build_timestamped_filename([filename]))
+      # Check for the log file existing. This could happen if this method gets
+      # called more than once in the same second.
+      if File.exist?(log_file)
+        sleep 1.01 # Sleep before rebuilding the timestamp to get something unique
+        log_file = File.join(log_dir,
+                             File.build_timestamped_filename([filename]))
       end
       begin
-        # Log exception to file, open the file in append mode in case we get
-        # multiple exceptions in the same second. That way we don't lose
-        # exceptions by overwritting the last exception file.
         COSMOS_MUTEX.synchronize do
           begin
-            file = File.open(log_file, 'a')
+            file = File.open(log_file, 'w')
             yield file
           ensure
             file.close unless file.closed?
+            File.chmod(0444, log_file) # Make file read only
           end
         end
       rescue Exception
