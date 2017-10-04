@@ -39,18 +39,10 @@ module Cosmos
         capture_io do |stdout|
           thread.start
           sleep 0.2
-          if RUBY_ENGINE == 'ruby'
-            expect(Thread.list.length).to eql(2)
-          else
-            expect(Thread.list.length).to eql(3)
-          end
+          expect(running_threads.length).to eql(2)
           thread.stop
           sleep 0.5
-          if RUBY_ENGINE == 'ruby'
-            expect(Thread.list.length).to eql(1)
-          else
-            expect(Thread.list.length).to eql(2)
-          end
+          expect(running_threads.length).to eql(1)
           expect(stdout.string).to match "disconnected interface"
         end
       end
@@ -65,18 +57,10 @@ module Cosmos
         capture_io do |stdout|
           thread.start
           sleep 0.2
-          if RUBY_ENGINE == 'ruby'
-            expect(Thread.list.length).to eql(2)
-          else
-            expect(Thread.list.length).to eql(3)
-          end
+          expect(running_threads.length).to eql(2)
           thread.stop
           sleep 0.5
-          if RUBY_ENGINE == 'ruby'
-            expect(Thread.list.length).to eql(1)
-          else
-            expect(Thread.list.length).to eql(2)
-          end
+          expect(running_threads.length).to eql(1)
           expect(stdout.string).to match "Error routing command"
         end
       end
@@ -97,18 +81,10 @@ module Cosmos
         capture_io do |stdout|
           thread.start
           sleep 0.2
-          if RUBY_ENGINE == 'ruby'
-            expect(Thread.list.length).to eql(2)
-          else
-            expect(Thread.list.length).to eql(3)
-          end
+          expect(running_threads.length).to eql(2)
           thread.stop
           sleep 0.5
-          if RUBY_ENGINE == 'ruby'
-            expect(Thread.list.length).to eql(1)
-          else
-            expect(Thread.list.length).to eql(2)
-          end
+          expect(running_threads.length).to eql(1)
           expect(stdout.string).to match "Received unknown identified command: BOB SMITH"
         end
       end
@@ -133,18 +109,10 @@ module Cosmos
         capture_io do |stdout|
           thread.start
           sleep 0.2
-          if RUBY_ENGINE == 'ruby'
-            expect(Thread.list.length).to eql(2)
-          else
-            expect(Thread.list.length).to eql(3)
-          end
+          expect(running_threads.length).to eql(2)
           thread.stop
           sleep 0.5
-          if RUBY_ENGINE == 'ruby'
-            expect(Thread.list.length).to eql(1)
-          else
-            expect(Thread.list.length).to eql(2)
-          end
+          expect(running_threads.length).to eql(1)
           expect(stdout.string).to match "Received unknown identified command: BOB SMITH"
         end
         expect(target).to have_received(:interface).at_least(2).times #and_return(@interface)
@@ -170,18 +138,10 @@ module Cosmos
         capture_io do |stdout|
           thread.start
           sleep 0.2
-          if RUBY_ENGINE == 'ruby'
-            expect(Thread.list.length).to eql(2)
-          else
-            expect(Thread.list.length).to eql(3)
-          end
+          expect(running_threads.length).to eql(2)
           thread.stop
           sleep 0.5
-          if RUBY_ENGINE == 'ruby'
-            expect(Thread.list.length).to eql(1)
-          else
-            expect(Thread.list.length).to eql(2)
-          end
+          expect(running_threads.length).to eql(1)
           expect(stdout.string).to match "target with no interface"
         end
       end

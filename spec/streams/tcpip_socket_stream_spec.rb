@@ -164,7 +164,7 @@ module Cosmos
             4
           end
         end
-        expect(IO).to receive(:select).at_least(:once).and_return([])
+        expect(IO).to receive(:fast_select).at_least(:once).and_return([])
         $index = 1
         ss = TcpipSocketStream.new(write,nil,nil,nil)
         ss.connect
@@ -174,7 +174,7 @@ module Cosmos
       it "handles socket timeouts" do
         write = double("write_socket")
         allow(write).to receive(:write_nonblock).and_raise(Errno::EWOULDBLOCK)
-        expect(IO).to receive(:select).at_least(:once).and_return(nil)
+        expect(IO).to receive(:fast_select).at_least(:once).and_return(nil)
         ss = TcpipSocketStream.new(write,nil,nil,nil)
         ss.connect
         expect { ss.write('test') }.to raise_error(Timeout::Error)

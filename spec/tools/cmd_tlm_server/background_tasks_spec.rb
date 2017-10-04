@@ -48,42 +48,26 @@ module Cosmos
         tf.close
         config = CmdTlmServerConfig.new(tf.path)
         bt = BackgroundTasks.new(config)
-        if RUBY_ENGINE == 'ruby'
-          expect(Thread.list.length).to eql(1) # RSpec main thread
-        else
-          expect(Thread.list.length).to eql(2) # RSpec main thread
-        end
+        expect(running_threads.length).to eql(1) # RSpec main thread
         expect(bt.instance_variable_get("@threads").length).to eq 0
 
         capture_io do |stdout|
           bt.start_all
           sleep 0.2
-          if RUBY_ENGINE == 'ruby'
-            expect(Thread.list.length).to eql(3)
-          else
-            expect(Thread.list.length).to eql(4)
-          end
+          expect(running_threads.length).to eql(3)
           expect(bt.instance_variable_get("@threads").compact.length).to eq 2
           expect(stdout.string).to match "BG0 START"
           expect(stdout.string).to match "BG2 START"
 
           bt.start(1)
           sleep 0.1
-          if RUBY_ENGINE == 'ruby'
-            expect(Thread.list.length).to eql(4)
-          else
-            expect(Thread.list.length).to eql(5)
-          end
+          expect(running_threads.length).to eql(4)
           expect(bt.instance_variable_get("@threads").compact.length).to eq 3
           expect(stdout.string).to match "BG1 START"
 
           bt.stop_all
           sleep 0.2
-          if RUBY_ENGINE == 'ruby'
-            expect(Thread.list.length).to eql(1)
-          else
-            expect(Thread.list.length).to eql(2)
-          end
+          expect(running_threads.length).to eql(1)
           expect(bt.instance_variable_get("@threads").compact.length).to eq 0
           expect(stdout.string).to match "BG0 STOP"
           expect(stdout.string).to match "BG1 STOP"
@@ -102,76 +86,48 @@ module Cosmos
         tf.close
         config = CmdTlmServerConfig.new(tf.path)
         bt = BackgroundTasks.new(config)
-        if RUBY_ENGINE == 'ruby'
-          expect(Thread.list.length).to eql(1) # RSpec main thread
-        else
-          expect(Thread.list.length).to eql(2) # RSpec main thread
-        end
+        expect(running_threads.length).to eql(1) # RSpec main thread
         expect(bt.instance_variable_get("@threads").length).to eq 0
 
         capture_io do |stdout|
           bt.start(2)
           sleep 0.1
-          if RUBY_ENGINE == 'ruby'
-            expect(Thread.list.length).to eql(2)
-          else
-            expect(Thread.list.length).to eql(3)
-          end
+          expect(running_threads.length).to eql(2)
           expect(bt.instance_variable_get("@threads")[2].alive?).to eq true
           expect(bt.instance_variable_get("@threads").compact.length).to eq 1
           expect(stdout.string).to match "BG2 START"
 
           bt.start(1)
           sleep 0.1
-          if RUBY_ENGINE == 'ruby'
-            expect(Thread.list.length).to eql(3)
-          else
-            expect(Thread.list.length).to eql(4)
-          end
+          expect(running_threads.length).to eql(3)
           expect(bt.instance_variable_get("@threads")[1].alive?).to eq true
           expect(bt.instance_variable_get("@threads").compact.length).to eq 2
           expect(stdout.string).to match "BG1 START"
 
           bt.start(0)
           sleep 0.1
-          if RUBY_ENGINE == 'ruby'
-            expect(Thread.list.length).to eql(4)
-          else
-            expect(Thread.list.length).to eql(5)
-          end
+          expect(running_threads.length).to eql(4)
           expect(bt.instance_variable_get("@threads")[0].alive?).to eq true
           expect(bt.instance_variable_get("@threads").compact.length).to eq 3
           expect(stdout.string).to match "BG0 START"
 
           bt.stop(1)
           sleep 0.2
-          if RUBY_ENGINE == 'ruby'
-            expect(Thread.list.length).to eql(3)
-          else
-            expect(Thread.list.length).to eql(4)
-          end
+          expect(running_threads.length).to eql(3)
           expect(bt.instance_variable_get("@threads")[1]).to be_nil
           expect(bt.instance_variable_get("@threads").compact.length).to eq 2
           expect(stdout.string).to match "BG1 STOP"
 
           bt.stop(0)
           sleep 0.2
-          if RUBY_ENGINE == 'ruby'
-            expect(Thread.list.length).to eql(2)
-          else
-            expect(Thread.list.length).to eql(3)
-          end
+          expect(running_threads.length).to eql(2)
           expect(bt.instance_variable_get("@threads")[0]).to be_nil
           expect(bt.instance_variable_get("@threads").compact.length).to eq 1
           expect(stdout.string).to match "BG0 STOP"
 
           bt.stop(2)
           sleep 0.2
-          if RUBY_ENGINE == 'ruby'
-            expect(Thread.list.length).to eql(1)
-          else
-            expect(Thread.list.length).to eql(2)
-          end
+          expect(running_threads.length).to eql(1)
           expect(bt.instance_variable_get("@threads")[2]).to be_nil
           expect(bt.instance_variable_get("@threads").compact.length).to eq 0
           expect(stdout.string).to match "BG2 STOP"
@@ -185,37 +141,21 @@ module Cosmos
         tf.close
         config = CmdTlmServerConfig.new(tf.path)
         bt = BackgroundTasks.new(config)
-        if RUBY_ENGINE == 'ruby'
-          expect(Thread.list.length).to eql(1) # RSpec main thread
-        else
-          expect(Thread.list.length).to eql(2) # RSpec main thread
-        end
+        expect(running_threads.length).to eql(1) # RSpec main thread
         expect(bt.instance_variable_get("@threads").length).to eq 0
 
         capture_io do |stdout|
           bt.start_all
           # 2 because the RSpec main thread plus the background task
-          if RUBY_ENGINE == 'ruby'
-            expect(Thread.list.length).to eql(2)
-          else
-            expect(Thread.list.length).to eql(3)
-          end
+          expect(running_threads.length).to eql(2)
           sleep 1.1 # Allow the thread to crash
-          if RUBY_ENGINE == 'ruby'
-            expect(Thread.list.length).to eql(1)
-          else
-            expect(Thread.list.length).to eql(2)
-          end
+          expect(running_threads.length).to eql(1)
           expect(bt.instance_variable_get("@threads").length).to eq 1
           expect(bt.instance_variable_get("@threads")[0].alive?).to eq false
 
           bt.stop_all
           sleep 0.2
-          if RUBY_ENGINE == 'ruby'
-            expect(Thread.list.length).to eql(1)
-          else
-            expect(Thread.list.length).to eql(2)
-          end
+          expect(running_threads.length).to eql(1)
           expect(bt.instance_variable_get("@threads").length).to eq 0
 
           expect(stdout.string).to match "unexpectedly died"

@@ -83,7 +83,6 @@ module Cosmos
           expect(CmdTlmServer.json_drb.method_whitelist).to include('stop_logging')
           expect(CmdTlmServer.json_drb.method_whitelist).to include('stop_cmd_log')
           expect(CmdTlmServer.json_drb.method_whitelist).to include('stop_tlm_log')
-          threads = Thread.list.length
           cts.start # Call start again ... it should do nothing
           expect(CmdTlmServer.json_drb.method_whitelist).to include('start_logging')
           expect(CmdTlmServer.json_drb.method_whitelist).to include('stop_logging')

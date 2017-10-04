@@ -71,7 +71,7 @@ spec = Gem::Specification.new do |s|
 
   s.has_rdoc = true
 
-  s.required_ruby_version = '~> 2'
+  s.required_ruby_version = '~> 2.2'
 
   # Runtime Dependencies
   s.add_runtime_dependency 'bundler', '~> 1.3'
@@ -87,6 +87,15 @@ spec = Gem::Specification.new do |s|
   s.add_runtime_dependency 'nokogiri', '~> 1.6'
   s.add_runtime_dependency 'opengl', '>= 0.7', '< 0.10' if RUBY_ENGINE == 'ruby' # MRI Only
   s.add_runtime_dependency 'qtbindings', '~> 4.8.6', '>= 4.8.6.2' if RUBY_ENGINE == 'ruby' # MRI Only
+  s.add_runtime_dependency 'puma', '~> 3.10.0'
+  s.add_runtime_dependency 'rack', '~> 2.0.3'
+  s.add_runtime_dependency 'httpclient', '~> 2.8.3'
+
+  # From http://www.rubydoc.info/gems/puma#Known_Bugs :
+  #   "For MRI versions 2.2.7, 2.2.8, 2.3.4 and 2.4.1, you may see stream closed in 
+  #    another thread (IOError). It may be caused by a Ruby bug. It can be 
+  #    fixed with the gem https://rubygems.org/gems/stopgap_13632"
+  s.add_runtime_dependency 'stopgap_13632', '~> 1.1.1' if RUBY_ENGINE == 'ruby' and %w(2.2.7 2.2.8 2.3.4 2.4.1).include? RUBY_VERSION  # MRI Only
 
   # Development Dependencies
   s.add_development_dependency 'rspec', '~> 3.5.0'

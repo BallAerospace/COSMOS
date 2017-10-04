@@ -87,32 +87,16 @@ RSpec.configure do |config|
     Cosmos.disable_warnings do
       Object.const_set(:STDOUT, $saved_stdout_const)
     end
-    if RUBY_ENGINE == 'ruby'
-      # Kill any leftover threads
-      if Thread.list.length > 1
-        Thread.list.each do |t|
-          t.kill if t != Thread.current
-        end
-        sleep(0.2)
-      end
-    else
-      # Kill any leftover threads
-      if Thread.list.length > 2
-        Thread.list[2..-1].each do |t|
-          t.kill if t != Thread.current
-        end
-        sleep(0.2)
-      end
-    end
+    kill_leftover_threads()
   end
 
   config.after(:each) do
     # Make sure we didn't leave any lingering threads
-    if RUBY_ENGINE == 'ruby'
-      expect(Thread.list.length).to eql(1), "At end of test expect 1 remaining thread but found #{Thread.list.length}.\nEnsure you kill all spawned threads before the test finishes."
-    else
-      expect(Thread.list.length).to be <= 2, "At end of test expect 2 remaining thread but found #{Thread.list.length}.\nEnsure you kill all spawned threads before the test finishes."
-    end
+    threads = running_threads()
+    thread_count = threads.size()
+    running_threads_str = threads.join("\n")
+
+    expect(thread_count).to eql(1), "At end of test expect 1 remaining thread but found #{thread_count}.\nEnsure you kill all spawned threads before the test finishes.\nThreads:\n#{running_threads_str}"
   end
 end
 
@@ -150,6 +134,40 @@ def capture_io
   end
   # Restore the $stdout global to be STDOUT
   $stdout = STDOUT
+end
+
+# Get a list of running threads, ignoring jruby system threads if necessary.
+def running_threads
+  threads = []
+  Thread.list.each do |t|
+    if RUBY_ENGINE == 'jruby'
+      thread_name = JRuby.reference(t).native_thread.get_name
+      threads << t.inspect unless thread_name == "Finalizer" or thread_name.include?("JRubyWorker")
+    else
+      threads << t.inspect
+    end
+  end
+  return threads
+end
+
+# Kill threads that are not "main", ignoring jruby system threads if necessary.
+def kill_leftover_threads
+  if RUBY_ENGINE == 'jruby'
+    if Thread.list.length > 2
+      Thread.list.each do |t|
+        thread_name = JRuby.reference(t).native_thread.get_name
+        t.kill if t != Thread.current and thread_name != "Finalizer" and !thread_name.include?("JRubyWorker")
+      end
+      sleep(0.2)
+    end
+  else
+    if Thread.list.length > 1
+      Thread.list.each do |t|
+        t.kill if t != Thread.current
+      end
+      sleep(0.2)
+    end
+  end
 end
 
 RSpec.configure do |c|
