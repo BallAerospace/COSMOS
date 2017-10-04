@@ -180,7 +180,10 @@ module Cosmos
 
         # Corrupt the second config
         second_config_path = System.instance.send(:find_configuration, second_config_name)
-        FileUtils.mv File.join(second_config_path, 'system.txt'), File.join(second_config_path, 'system2.txt')
+        md5 = File.basename(second_config_path, '.*')
+        Zip::File.open(second_config_path) do |zip|
+          zip.file.rename(File.join(md5, 'system.txt'), File.join(md5, 'system2.txt'))
+        end
 
         # Return to original config
         System.load_configuration
@@ -195,7 +198,7 @@ module Cosmos
         FileUtils.mv File.join(Cosmos::USERPATH, 'system.txt'),
           File.join(Cosmos::USERPATH,'config','system')
 
-        File.delete(File.join(@config_targets,'SYSTEM','cmd_tlm','test1_tlm.txt'))
+        FileUtils.rm_f(File.join(@config_targets,'SYSTEM','cmd_tlm','test1_tlm.txt'))
       end
     end
 
