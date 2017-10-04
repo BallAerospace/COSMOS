@@ -54,7 +54,7 @@ module Cosmos
     # @return [String] Stores the initial configuration file used when this
     #   System was initialized
     instance_attr_reader :initial_filename
-    # @return [PacketDefinition] Stores the initial packet list used when this
+    # @return [PacketConfig] Stores the initial packet list used when this
     #   System was initialized
     instance_attr_reader :initial_config
     # @return [ACL] Access control list showing which machines can have access
@@ -548,14 +548,20 @@ module Cosmos
     protected
 
     def unzip(zip_file)
-      Zip::File.open(zip_file) do |zip_file|
-        zip_file.each do |entry|
-          path = File.join(@paths['TMP'], entry.name)
-          FileUtils.mkdir_p(File.dirname(path))
-          zip_file.extract(entry, path) unless File.exist?(path)
+      zip_dir = File.join(@paths['TMP'], File.basename(zip_file, ".*"))
+      # Only unzip if we have to. We assume the unzipped directory structure is
+      # intact. If not they'll get a popop with the errors encountered when
+      # loading the configuration.
+      unless File.exist? zip_dir
+        Zip::File.open(zip_file) do |zip_file|
+          zip_file.each do |entry|
+            path = File.join(@paths['TMP'], entry.name)
+            FileUtils.mkdir_p(File.dirname(path))
+            zip_file.extract(entry, path) unless File.exist?(path)
+          end
         end
       end
-      File.join(@paths['TMP'], File.basename(zip_file, ".*"))
+      zip_dir
     end
 
     # A helper method to make the zip writing recursion work
