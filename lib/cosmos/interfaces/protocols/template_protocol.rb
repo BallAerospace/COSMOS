@@ -57,6 +57,7 @@ module Cosmos
         discard_leading_bytes,
         sync_pattern,
         fill_fields)
+      @response_ids = []
       @response_template = nil
       @response_packet = nil
       @response_packets = []
@@ -122,6 +123,14 @@ module Cosmos
         result_packet = System.telemetry.packet(@interface.target_names[0], @response_packet).clone
         result_packet.received_time = nil
 
+        unless @response_ids.empty?
+          result_packet.id_items.each_with_index do |item, index|
+            # Ensure we don't go past the number of response_ids we captured
+            break if @response_ids.length == index
+            result_packet.write(item.name, @response_ids[index])
+          end
+        end
+
         # Convert the response template into a Regexp
         response_item_names = []
         response_template = @response_template.clone
@@ -171,6 +180,11 @@ module Cosmos
 
       # First grab the response template and response packet (if there is one)
       begin
+        @response_ids = []
+        packet.id_items.each do |item|
+          @response_ids << packet.read(item.name)
+        end
+
         @response_template = packet.read("RSP_TEMPLATE").strip
         @response_packet = packet.read("RSP_PACKET").strip
         # If the template or packet are empty set them to nil. This allows for
