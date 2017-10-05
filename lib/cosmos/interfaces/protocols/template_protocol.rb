@@ -122,7 +122,7 @@ module Cosmos
         result_packet = System.telemetry.packet(@interface.target_names[0], @response_packet).clone
         result_packet.received_time = nil
         result_packet.id_items.each do |item|
-          result_packet.write(item.name, item.id_value)
+          result_packet.write_item(item, item.id_value, :RAW)
         end
 
         # Convert the response template into a Regexp
