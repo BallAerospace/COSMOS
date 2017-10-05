@@ -70,6 +70,8 @@ module Cosmos
     #   subscribe_packet_data is called. This ID must be used in the
     #   packet_data_queues hash to access the queue.
     attr_accessor :next_packet_data_queue_id
+    # @return [Boolean] Whether the server was created in disconnect mode
+    attr_reader :disconnect
 
     # The default configuration file name
     DEFAULT_CONFIG_FILE = File.join(Cosmos::USERPATH, 'config', 'tools', 'cmd_tlm_server', 'cmd_tlm_server.txt')
@@ -466,7 +468,11 @@ module Cosmos
         upcase_packets[index][0] = packets[index][0].upcase
         upcase_packets[index][1] = packets[index][1].upcase
         # Get the packet to ensure it exists
-        @@instance.get_tlm_packet(upcase_packets[index][0], upcase_packets[index][1])
+        if @@instance.disconnect
+          @last_subscribed_packet = System.telemetry.packet(upcase_packets[index][0], upcase_packets[index][1])
+        else
+          @@instance.get_tlm_packet(upcase_packets[index][0], upcase_packets[index][1])
+        end
       end
 
       @@instance.packet_data_queue_mutex.synchronize do
@@ -509,7 +515,17 @@ module Cosmos
         queue, _, _ = @@instance.packet_data_queues[id]
       end
       if queue
-        return queue.pop(non_block)
+        if @@instance.disconnect
+          begin
+            return queue.pop(true)
+          rescue ThreadError
+            received_time ||= Time.now.sys
+            return [@last_subscribed_packet.buffer, @last_subscribed_packet.target_name,
+              @last_subscribed_packet.packet_name, received_time.tv_sec, received_time.tv_usec, @last_subscribed_packet.received_count]
+          end
+        else
+          return queue.pop(non_block)
+        end
       else
         raise "Packet data queue with id #{id} not found"
       end
