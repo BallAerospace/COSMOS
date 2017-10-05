@@ -1,0 +1,23 @@
+install:
+  - SET PATH=C:\Ruby%ruby_version%\bin;%PATH%
+  - SET PATH=C:\MinGW\bin;%PATH%
+  - SET RAKEOPT=-rdevkit
+  - ruby --version
+  - gem --version
+  - bundle install
+  - bundle exec rake build
+
+build: off
+
+environment:
+  matrix:
+    - ruby_version: "22"
+    - ruby_version: "22-x64"
+    - ruby_version: "23"
+    - ruby_version: "23-x64"
+    - ruby_version: "24"
+    - ruby_version: "24-x64"
+
+branches:
+  only:
+    - master
