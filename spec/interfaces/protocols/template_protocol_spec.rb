@@ -201,7 +201,7 @@ module Cosmos
         expect($write_buffer).to eql("SOUR:VOLT 11, (@1)\xAB\xCD")
       end
 
-      it "sets the response ID to the command ID value" do
+      it "sets the response ID to the defined ID value" do
         rsp_pkt = Packet.new('TGT', 'READ_VOLTAGE')
         rsp_pkt.append_item("PKT_ID", 16, :UINT, nil, :BIG_ENDIAN, :ERROR, nil, nil, nil, 1) # ID == 1
         rsp_pkt.append_item("VOLTAGE", 16, :UINT)
@@ -230,10 +230,10 @@ module Cosmos
         @interface.write(packet)
         sleep 0.55
         expect($write_buffer).to eql("SOUR:VOLT 11, (@1)\xAB\xCD")
-        expect(read_result.read("PKT_ID")).to eql(1) # Result ID set to the command ID value
+        expect(read_result.read("PKT_ID")).to eql(1) # Result ID set to the defined value
       end
 
-      it "handles multiple response IDs and command IDs" do
+      it "handles multiple response IDs" do
         rsp_pkt = Packet.new('TGT', 'READ_VOLTAGE')
         rsp_pkt.append_item("APID", 16, :UINT, nil, :BIG_ENDIAN, :ERROR, nil, nil, nil, 10) # ID == 10
         rsp_pkt.append_item("PKTID", 16, :UINT, nil, :BIG_ENDIAN, :ERROR, nil, nil, nil, 20) # ID == 20
@@ -268,81 +268,8 @@ module Cosmos
         @interface.write(packet)
         sleep 0.55
         expect($write_buffer).to eql("SOUR:VOLT 11, (@1)\xAB\xCD")
-        expect(read_result.read("APID")).to eql(10) # First ID item set by first command ID item
-        expect(read_result.read("PKTID")).to eql(20) # Second ID item set by second command ID item
-      end
-
-      it "handles more response ID items than command ID items" do
-        rsp_pkt = Packet.new('TGT', 'READ_VOLTAGE')
-        # Create two ID items in the response
-        rsp_pkt.append_item("APID", 16, :UINT, nil, :BIG_ENDIAN, :ERROR, nil, nil, nil, 10) # ID == 10
-        rsp_pkt.append_item("PKTID", 16, :UINT, nil, :BIG_ENDIAN, :ERROR, nil, nil, nil, 20) # ID == 20
-        rsp_pkt.append_item("VOLTAGE", 16, :UINT)
-        allow(System).to receive_message_chain(:telemetry, :packet).and_return(rsp_pkt)
-        @interface.instance_variable_set(:@stream, TemplateStream.new)
-        @interface.add_protocol(TemplateProtocol, %w(0xABCD 0xABCD 0 nil 1 true 0 nil false nil nil), :READ_WRITE)
-        @interface.target_names = ['TGT']
-        packet = Packet.new('TGT', 'CMD')
-        # Create one ID item in the command
-        packet.append_item("APID", 16, :UINT, nil, :BIG_ENDIAN, :ERROR, nil, nil, nil, 1) # ID == 1
-        packet.get_item("APID").default = 1
-        packet.append_item("VOLTAGE", 16, :UINT)
-        packet.get_item("VOLTAGE").default = 11
-        packet.append_item("CHANNEL", 16, :UINT)
-        packet.get_item("CHANNEL").default = 1
-        packet.append_item("CMD_TEMPLATE", 1024, :STRING)
-        packet.get_item("CMD_TEMPLATE").default = "SOUR:VOLT <VOLTAGE>, (@<CHANNEL>)"
-        packet.append_item("RSP_TEMPLATE", 1024, :STRING)
-        packet.get_item("RSP_TEMPLATE").default = "<VOLTAGE>"
-        packet.append_item("RSP_PACKET", 1024, :STRING)
-        packet.get_item("RSP_PACKET").default = "READ_VOLTAGE"
-        packet.restore_defaults
-        packet.write("APID", 10)
-        @interface.connect
-        read_result = nil
-        $read_buffer = "\x31\x30\xAB\xCD" # ASCII 31, 30 is '10'
-        Thread.new { sleep(0.5); read_result = @interface.read }
-        @interface.write(packet)
-        sleep 0.55
-        expect($write_buffer).to eql("SOUR:VOLT 11, (@1)\xAB\xCD")
-        expect(read_result.read("APID")).to eql(10) # Gets set by the command ID item
-        expect(read_result.read("PKTID")).to eql(0) # This doesn't get set
-      end
-
-      it "handles less response ID items than command ID items" do
-        rsp_pkt = Packet.new('TGT', 'READ_VOLTAGE')
-        # Create one ID item in the response
-        rsp_pkt.append_item("APID", 16, :UINT, nil, :BIG_ENDIAN, :ERROR, nil, nil, nil, 10) # ID == 10
-        rsp_pkt.append_item("VOLTAGE", 16, :UINT)
-        allow(System).to receive_message_chain(:telemetry, :packet).and_return(rsp_pkt)
-        @interface.instance_variable_set(:@stream, TemplateStream.new)
-        @interface.add_protocol(TemplateProtocol, %w(0xABCD 0xABCD 0 nil 1 true 0 nil false nil nil), :READ_WRITE)
-        @interface.target_names = ['TGT']
-        packet = Packet.new('TGT', 'CMD')
-        # Create two ID items in the command
-        packet.append_item("APID", 16, :UINT, nil, :BIG_ENDIAN, :ERROR, nil, nil, nil, 1) # ID == 1
-        packet.get_item("APID").default = 1
-        packet.append_item("PKTID", 16, :UINT, nil, :BIG_ENDIAN, :ERROR, nil, nil, nil, 2) # ID == 2
-        packet.get_item("PKTID").default = 2
-        packet.append_item("VOLTAGE", 16, :UINT)
-        packet.get_item("VOLTAGE").default = 11
-        packet.append_item("CHANNEL", 16, :UINT)
-        packet.get_item("CHANNEL").default = 1
-        packet.append_item("CMD_TEMPLATE", 1024, :STRING)
-        packet.get_item("CMD_TEMPLATE").default = "SOUR:VOLT <VOLTAGE>, (@<CHANNEL>)"
-        packet.append_item("RSP_TEMPLATE", 1024, :STRING)
-        packet.get_item("RSP_TEMPLATE").default = "<VOLTAGE>"
-        packet.append_item("RSP_PACKET", 1024, :STRING)
-        packet.get_item("RSP_PACKET").default = "READ_VOLTAGE"
-        packet.restore_defaults
-        @interface.connect
-        read_result = nil
-        $read_buffer = "\x31\x30\xAB\xCD" # ASCII 31, 30 is '10'
-        Thread.new { sleep(0.5); read_result = @interface.read }
-        @interface.write(packet)
-        sleep 0.55
-        expect($write_buffer).to eql("SOUR:VOLT 11, (@1)\xAB\xCD")
-        expect(read_result.read("APID")).to eql(1) # ID item is set by first command ID item
+        expect(read_result.read("APID")).to eql(10) # ID item set to the defined value
+        expect(read_result.read("PKTID")).to eql(20) # ID item set to the defined value
       end
 
       it "handles templates with more values than the response" do
