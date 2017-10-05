@@ -740,8 +740,15 @@ module Cosmos
         Logger.info "Thread owner #{owner.class} does not support graceful_kill"
       end
       if thread.alive?
+        # If the thread dies after alive? but before backtrace, bt will be nil.
+        bt = thread.backtrace
+
         # Graceful failed
-        Logger.warn "Failed to gracefully kill thread:\n  Caller Backtrace:\n  #{caller().join("\n  ")}\n  \n  Thread Backtrace:\n  #{thread.backtrace.join("\n  ")}\n\n"
+        msg =  "Failed to gracefully kill thread:\n"
+        msg << "  Caller Backtrace:\n  #{caller().join("\n  ")}\n"
+        msg << "  \n  Thread Backtrace:\n  #{bt.join("\n  ")}\n" if bt
+        msg << "\n"
+        Logger.warn msg
         thread.kill
         end_time = Time.now.sys + hard_timeout
         while thread.alive? && ((end_time - Time.now.sys) > 0)
