@@ -121,6 +121,9 @@ module Cosmos
         # Grab the response packet specified in the command
         result_packet = System.telemetry.packet(@interface.target_names[0], @response_packet).clone
         result_packet.received_time = nil
+        result_packet.id_items.each do |item|
+          result_packet.write_item(item, item.id_value, :RAW)
+        end
 
         # Convert the response template into a Regexp
         response_item_names = []
