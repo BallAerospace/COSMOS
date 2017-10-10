@@ -1121,6 +1121,7 @@ module Cosmos
         @api.get_cmd_cnt("INST", "COLLECT")
         @api.get_tlm_cnt("INST", "HEALTH_STATUS")
         @api.get_router_info("ROUTE")
+        @api.get_packet_loggers
         @api.get_packet_logger_info('DEFAULT')
         @api.get_router_names
         @api.connect_router("ROUTE")

@@ -122,6 +122,13 @@ module Cosmos
       end
     end
 
+    describe "get_packet_loggers" do
+      it "returns all the packet logger names" do
+        loggers = get_packet_loggers()
+        expect(loggers).to include("DEFAULT")
+      end
+    end
+
     describe "get_packet_logger_info" do
       it "returns packet logger info" do
         interfaces, cmd_logging, cmd_q_size, cmd_filename, cmd_file_size,

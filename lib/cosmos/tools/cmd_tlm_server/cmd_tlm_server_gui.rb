@@ -389,6 +389,7 @@ module Cosmos
         @string_output.string = @string_output.string[string.length..-1]
         string.each_line {|out_line| lines_to_write << out_line }
         @message_log.write(lines_to_write)
+        CmdTlmServer.instance.post_server_message(lines_to_write)
         STDOUT.print lines_to_write if STDIN.isatty # Have a console
       end
     end

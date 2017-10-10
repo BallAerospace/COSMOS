@@ -73,6 +73,10 @@ module Cosmos
       return $cmd_tlm_server.get_tlm_cnt(target_name, packet_name)
     end
 
+    def get_packet_loggers
+      return $cmd_tlm_server.get_packet_loggers
+    end
+
     def get_packet_logger_info(packet_logger_name)
       return $cmd_tlm_server.get_packet_logger_info(packet_logger_name)
     end
