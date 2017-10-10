@@ -94,6 +94,8 @@ module Cosmos
         'get_tlm_cnt',
         'get_packet_loggers',
         'get_packet_logger_info',
+        'get_background_tasks',
+        'get_server_status',
         'get_cmd_log_filename',
         'get_tlm_log_filename',
         'start_logging',
@@ -1147,6 +1149,44 @@ module Cosmos
         end
       end
       return [interfaces] + logger_info
+    end
+
+    # Get background task information
+    #
+    # @return [Array<Array<String, String, String>>] Array of Arrays containing
+    #   the background task name, thread status, and task status
+    def get_background_tasks
+      result = []
+      CmdTlmServer.background_tasks.all.each do |task|
+        if task.thread
+          thread_status = task.thread.status
+          thread_status = 'complete' if thread_status == false
+        else
+          thread_status = 'no thread'
+        end
+        result << [task.name, thread_status, task.status]
+      end
+      result
+    end
+
+    # Get JSON DRB information
+    #
+    # @return [Integer, Integer, Float, Integer, Integer, Integer, Integer] Server
+    #   status including JSON DRB num clients, JSON DRB request count, JSON DRB
+    #   average request time, total number of Ruby threads in the server,
+    #   total objects created, objects freed, objects allocated.
+    def get_server_status
+      objs = ObjectSpace.count_objects
+      allocated = 0
+      objs.each do |key, val|
+        next if key == :TOTAL || key == :FREE
+        allocated += val
+      end
+      [CmdTlmServer.json_drb.num_clients, CmdTlmServer.json_drb.request_count,
+        CmdTlmServer.json_drb.average_request_time,
+        # Number of Threads, Total Objs, Free Objs, Allocated Objs
+        Thread.list.length, objs[:TOTAL], objs[:FREE], allocated
+      ]
     end
 
     # @param packet_log_writer_name [String] The name of the packet log writer which

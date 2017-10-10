@@ -81,6 +81,14 @@ module Cosmos
       return $cmd_tlm_server.get_packet_logger_info(packet_logger_name)
     end
 
+    def get_background_tasks
+      return $cmd_tlm_server.get_background_tasks
+    end
+
+    def get_server_status
+      return $cmd_tlm_server.get_server_status
+    end
+
     def get_cmd_log_filename(packet_log_writer_name = 'DEFAULT')
       return $cmd_tlm_server.get_cmd_log_filename(packet_log_writer_name)
     end
