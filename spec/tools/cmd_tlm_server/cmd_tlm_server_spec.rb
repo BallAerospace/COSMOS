@@ -200,6 +200,11 @@ module Cosmos
     end
 
     describe "self.subscribe_limits_events" do
+      it "rejects bad queue sizes" do
+        expect{ CmdTlmServer.subscribe_limits_events(0) }.to raise_error(ArgumentError)
+        expect{ CmdTlmServer.subscribe_limits_events(true) }.to raise_error(ArgumentError)
+      end
+
       it "subscribes to limits events" do
         allow(System).to receive_message_chain(:telemetry,:stale).and_return([])
         allow(System).to receive_message_chain(:telemetry,:limits_change_callback=)
@@ -305,7 +310,12 @@ module Cosmos
 
     describe "self.subscribe_packet_data" do
       it "rejects bad queue sizes" do
+        expect{ CmdTlmServer.subscribe_packet_data([["SYSTEM","LIMITS_CHANGE"]], 0) }.to raise_error(ArgumentError)
         expect{ CmdTlmServer.subscribe_packet_data([["SYSTEM","LIMITS_CHANGE"]], true) }.to raise_error(ArgumentError)
+      end
+
+      it "rejects bad packet lists" do
+        expect{ CmdTlmServer.subscribe_packet_data(["SYSTEM","LIMITS_CHANGE"]) }.to raise_error(ArgumentError, /packets must be nested array/)
       end
 
       it "subscribes to packets" do
@@ -394,6 +404,80 @@ module Cosmos
         CmdTlmServer.unsubscribe_packet_data(id)
         cts.post_packet(limits_change)
         expect { CmdTlmServer.get_packet_data(id) }.to raise_error("Packet data queue with id #{id} not found")
+        cts.stop
+        sleep 0.2
+      end
+    end
+
+    describe "self.get_packet_data" do
+      it "raises an error if the queue is empty and non_block" do
+        cts = CmdTlmServer.new
+        id = CmdTlmServer.subscribe_packet_data([["SYSTEM","LIMITS_CHANGE"]])
+
+        expect { CmdTlmServer.get_packet_data(id, true) }.to raise_error(ThreadError)
+        cts.stop
+        sleep 0.2
+      end
+
+      it "works in disconnect mode" do
+        cts = CmdTlmServer.new(CmdTlmServer::DEFAULT_CONFIG_FILE, false, true)
+        id = CmdTlmServer.subscribe_packet_data([["SYSTEM","LIMITS_CHANGE"]])
+        buffer,tgt,pkt,tv_sec,tv_usec,cnt = CmdTlmServer.get_packet_data(id, true)
+        expect(buffer).not_to be_nil
+        expect(tgt).to eql "SYSTEM"
+        expect(pkt).to eql "LIMITS_CHANGE"
+      end
+    end
+
+    describe "self.subscribe_server_messages" do
+      it "rejects bad queue sizes" do
+        expect{ CmdTlmServer.subscribe_server_messages(0) }.to raise_error(ArgumentError)
+        expect{ CmdTlmServer.subscribe_server_messages(true) }.to raise_error(ArgumentError)
+      end
+
+      it "subscribes to server messages" do
+        cts = CmdTlmServer.new
+        id = CmdTlmServer.subscribe_server_messages()
+        cts.post_server_message("This is a test")
+        cts.post_server_message("Another test")
+        message = CmdTlmServer.get_server_message(id, true)
+        expect(message).to eql "This is a test"
+        message = CmdTlmServer.get_server_message(id, true)
+        expect(message).to eql "Another test"
+
+        cts.stop
+        sleep 0.2
+      end
+
+      it "deletes queues after the max packets is reached" do
+        cts = CmdTlmServer.new
+        id = CmdTlmServer.subscribe_server_messages(2)
+        cts.post_server_message("One message")
+        message = CmdTlmServer.get_server_message(id, true)
+        expect(message).to eql "One message"
+
+        # Fill the queue
+        1001.times { cts.post_server_message("Message") }
+
+        # Try to get another message
+        expect { CmdTlmServer.get_server_message(id) }.to raise_error("Server message queue with id #{id} not found")
+
+        cts.stop
+        sleep 0.2
+      end
+    end
+
+    describe "self.subscribe_server_messages" do
+      it "unsubscribes to messages" do
+        cts = CmdTlmServer.new
+        id = CmdTlmServer.subscribe_server_messages(2)
+        cts.post_server_message("One message")
+        message = CmdTlmServer.get_server_message(id, true)
+        expect(message).to eql "One message"
+
+        CmdTlmServer.unsubscribe_server_messages(id)
+        cts.post_server_message("Two message")
+        expect { CmdTlmServer.get_server_message(id) }.to raise_error("Server message queue with id #{id} not found")
         cts.stop
         sleep 0.2
       end

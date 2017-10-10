@@ -359,6 +359,7 @@ module Cosmos
             @first_output += 1
           end
           @message_log.write(lines_to_write)
+          CmdTlmServer.instance.post_server_message(lines_to_write)
         end
       end
     end

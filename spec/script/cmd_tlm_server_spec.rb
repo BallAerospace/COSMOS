@@ -70,7 +70,7 @@ module Cosmos
       end
     end
 
-    describe "get_interface_info" do 
+    describe "get_interface_info" do
       it "returns interface info" do
         state, clients, tx_q_size, rx_q_size, bytes_tx, bytes_rx, cmd_cnt, tlm_cnt = get_interface_info("INST_INT")
         connect_interface("INST_INT")
@@ -86,7 +86,7 @@ module Cosmos
       end
     end
 
-    describe "get_router_info" do 
+    describe "get_router_info" do
       it "returns router info" do
         connect_router("PREIDENTIFIED_ROUTER")
         state, clients, tx_q_size, rx_q_size, bytes_tx, bytes_rx, pkts_rcvd, pkts_sent = get_router_info("PREIDENTIFIED_ROUTER")
@@ -124,7 +124,7 @@ module Cosmos
 
     describe "get_packet_logger_info" do
       it "returns packet logger info" do
-        interfaces, cmd_logging, cmd_q_size, cmd_filename, cmd_file_size, 
+        interfaces, cmd_logging, cmd_q_size, cmd_filename, cmd_file_size,
                     tlm_logging, tlm_q_size, tlm_filename, tlm_file_size, = get_packet_logger_info("DEFAULT")
         expect(interfaces).to include("INST_INT")
         expect(cmd_logging).to eql true
@@ -171,6 +171,20 @@ module Cosmos
       end
     end
 
+    describe "subscribe_server_messages, get_server_message, unsubscribe_server_messages" do
+      it "raises an error if non_block and the queue is empty" do
+        id = subscribe_server_messages
+        expect { get_server_message(id, true) }.to raise_error(ThreadError, "queue empty")
+        unsubscribe_server_messages(id)
+      end
+
+      it "subscribes and gets server messages" do
+        id = subscribe_server_messages
+        CmdTlmServer.instance.post_server_message("This is a test")
+        result = get_server_message(id, true)
+        expect(result).to eql "This is a test"
+        unsubscribe_server_messages(id)
+      end
+    end
   end
 end
-

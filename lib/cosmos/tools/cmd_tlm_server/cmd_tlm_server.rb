@@ -70,6 +70,16 @@ module Cosmos
     #   subscribe_packet_data is called. This ID must be used in the
     #   packet_data_queues hash to access the queue.
     attr_accessor :next_packet_data_queue_id
+    # @return [Mutex] Synchronization object around server messages
+    attr_reader :server_message_queue_mutex
+    # @return [Hash<Integer, Array<Queue, Integer>>] The server message queues
+    #   hashed by id. Returns an array containing the queue followed by the
+    #   queue size.
+    attr_reader :server_message_queues
+    # @return [Integer] The next server message queue id when
+    #   subscribe_server_messages is called. This ID must be used in the
+    #   server_message_queues hash to access the queue.
+    attr_accessor :next_server_message_queue_id
     # @return [Boolean] Whether the server was created in disconnect mode
     attr_reader :disconnect
 
@@ -81,6 +91,9 @@ module Cosmos
     # The maximum number of packets that are queued. Used when subscribing to
     # packet data.
     DEFAULT_PACKET_DATA_QUEUE_SIZE = 1000
+    # The maximum number of server messages that are queued. Used when subscribing to
+    # server messages.
+    DEFAULT_SERVER_MESSAGES_QUEUE_SIZE = 1000
 
     @@instance = nil
     @@meta_callback = nil
@@ -123,10 +136,12 @@ module Cosmos
       @limits_event_queue_mutex = Mutex.new
       @limits_event_queues = {}
       @next_limits_event_queue_id = 1
-
       @packet_data_queue_mutex = Mutex.new
       @packet_data_queues = {}
       @next_packet_data_queue_id = 1
+      @server_message_queue_mutex = Mutex.new
+      @server_message_queues = {}
+      @next_server_message_queue_id = 1
 
       # Process cmd_tlm_server.txt
       @config = CmdTlmServerConfig.new(config_file)
@@ -354,6 +369,10 @@ module Cosmos
     # @return [Integer] The queue ID returned from the CmdTlmServer. Use this
     #   ID when calling {#get_limits_event} and {#unsubscribe_limits_events}.
     def self.subscribe_limits_events(queue_size = DEFAULT_LIMITS_EVENT_QUEUE_SIZE)
+      unless queue_size.is_a? Integer and queue_size > 0
+        raise ArgumentError, "Invalid queue size for subscribe_limits_events: #{queue_size}"
+      end
+
       id = nil
       @@instance.limits_event_queue_mutex.synchronize do
         id = @@instance.next_limits_event_queue_id
@@ -528,6 +547,95 @@ module Cosmos
         end
       else
         raise "Packet data queue with id #{id} not found"
+      end
+    end
+
+    # Post a server message to all subscribed server message listeners.
+    #
+    # @param message [String] Server message
+    def post_server_message(message)
+      if @server_message_queues.length > 0
+        queues_to_drop = []
+
+        @server_message_queue_mutex.synchronize do
+          # Post event to active queues
+          @server_message_queues.each do |id, data|
+            queue = data[0]
+            queue_size = data[1]
+            queue << message
+            if queue.length > queue_size
+              # Drop queue
+              queues_to_drop << id
+            end
+          end
+
+          # Drop queues which are not being serviced
+          queues_to_drop.each do |id|
+            # Remove the queue to stop servicing it.  Nil is added to unblock any client threads
+            # that might otherwise be left blocking forever for something on the queue
+            queue, queue_size = @server_message_queues.delete(id)
+            queue << nil if queue
+          end
+        end
+      end
+    end
+
+    # Create a queue on the CmdTlmServer that gets populated with every message
+    # in the system.
+    #
+    # @param queue_size [Integer] The number of server messages to accumulate
+    #   before the queue will be dropped due to inactivity.
+    # @return [Integer] The queue ID returned from the CmdTlmServer. Use this
+    #   ID when calling {#get_server_message} and {#unsubscribe_server_messages}.
+    def self.subscribe_server_messages(queue_size = DEFAULT_SERVER_MESSAGES_QUEUE_SIZE)
+      unless queue_size.is_a? Integer and queue_size > 0
+        raise ArgumentError, "Invalid queue size for subscribe_server_messages: #{queue_size}"
+      end
+
+      id = nil
+      @@instance.server_message_queue_mutex.synchronize do
+        id = @@instance.next_server_message_queue_id
+        @@instance.server_message_queues[id] = [Queue.new, queue_size]
+        @@instance.next_server_message_queue_id += 1
+      end
+      return id
+    end
+
+    # Unsubscribe from being notified for every server message in the system.
+    # This deletes the queue and further calls to {#get_server_message} will
+    # raise an exception.
+    #
+    # @param id [Integer] The queue ID received from calling
+    #   {#subscribe_server_messages}
+    def self.unsubscribe_server_messages(id)
+      queue = nil
+      @@instance.server_message_queue_mutex.synchronize do
+        # Remove the queue to stop servicing it.  Nil is added to unblock any client threads
+        # that might otherwise be left blocking forever for something on the queue
+        queue, queue_size = @@instance.server_message_queues.delete(id)
+        queue << nil if queue
+      end
+    end
+
+    # Get a server message from the queue created by {#subscribe_server_messages}.
+    #
+    # Each server message consists of a String
+    #
+    # @param id [Integer] The queue ID received from calling
+    #   {#subscribe_server_messages}
+    # @param non_block [Boolean] Whether to wait on the queue for the next
+    #   server message before returning. Default is to block waiting for the next
+    #   message. NOTE: If you pass true and there is no data on the queue, a
+    #   ThreadError exception is raised.
+    def self.get_server_message(id, non_block = false)
+      queue = nil
+      @@instance.server_message_queue_mutex.synchronize do
+        queue, _ = @@instance.server_message_queues[id]
+      end
+      if queue
+        return queue.pop(non_block)
+      else
+        raise "Server message queue with id #{id} not found"
       end
     end
 

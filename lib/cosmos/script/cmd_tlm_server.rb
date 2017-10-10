@@ -133,6 +133,16 @@ module Cosmos
       return $cmd_tlm_server.start_new_server_message_log
     end
 
-  end # module Script
+    def subscribe_server_messages(queue_size = CmdTlmServer::DEFAULT_SERVER_MESSAGES_QUEUE_SIZE)
+      return $cmd_tlm_server.subscribe_server_messages(queue_size)
+    end
 
-end # module Cosmos
+    def unsubscribe_server_messages(id)
+      return $cmd_tlm_server.unsubscribe_server_messages(id)
+    end
+
+    def get_server_message(id, non_block = false)
+      return $cmd_tlm_server.get_server_message(id, non_block)
+    end
+  end
+end

@@ -74,6 +74,9 @@ module Cosmos
         'subscribe_packet_data',
         'unsubscribe_packet_data',
         'get_packet_data',
+        'subscribe_server_messages',
+        'unsubscribe_server_messages',
+        'get_server_message',
         'get_interface_targets',
         'get_interface_names',
         'connect_interface',
@@ -89,6 +92,7 @@ module Cosmos
         'get_router_info',
         'get_cmd_cnt',
         'get_tlm_cnt',
+        'get_packet_loggers',
         'get_packet_logger_info',
         'get_cmd_log_filename',
         'get_tlm_log_filename',
@@ -947,6 +951,21 @@ module Cosmos
       CmdTlmServer.get_packet_data(id, non_block)
     end
 
+    # @see CmdTlmServer.subscribe_server_messages
+    def subscribe_server_messages(queue_size = CmdTlmServer::DEFAULT_SERVER_MESSAGES_QUEUE_SIZE)
+      CmdTlmServer.subscribe_server_messages(queue_size)
+    end
+
+    # @see CmdTlmServer.unsubscribe_server_messages
+    def unsubscribe_server_messages(id)
+      CmdTlmServer.unsubscribe_server_messages(id)
+    end
+
+    # @see CmdTlmServer.get_server_message
+    def get_server_message(id, non_block = false)
+      CmdTlmServer.get_server_message(id, non_block)
+    end
+
     # Get a packet which was previously subscribed to by
     # subscribe_packet_data. This method can block waiting for new packets or
     # not based on the second parameter. It returns a single Cosmos::Packet instance
@@ -1100,6 +1119,14 @@ module Cosmos
     def get_tlm_cnt(target_name, packet_name)
       packet = System.telemetry.packet(target_name, packet_name)
       return packet.received_count
+    end
+
+    # Get the list of packet loggers.
+    #
+    # @param packet_logger_name [String] Name of the packet logger
+    # @return [<Array<String>] Array containing the names of all packet loggers
+    def get_packet_loggers
+      return CmdTlmServer.packet_logging.all.keys
     end
 
     # Get information about a packet logger.
