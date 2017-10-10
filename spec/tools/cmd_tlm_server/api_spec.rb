@@ -1084,6 +1084,28 @@ module Cosmos
       end
     end
 
+    describe "subscribe_server_messages" do
+      it "calls CmdTlmServer" do
+        stub_const("Cosmos::CmdTlmServer::DEFAULT_SERVER_MESSAGES_QUEUE_SIZE", 100)
+        expect(CmdTlmServer).to receive(:subscribe_server_messages)
+        @api.subscribe_server_messages
+      end
+    end
+
+    describe "unsubscribe_server_messages" do
+      it "calls CmdTlmServer" do
+        expect(CmdTlmServer).to receive(:unsubscribe_server_messages)
+        @api.unsubscribe_server_messages(0)
+      end
+    end
+
+    describe "get_server_message" do
+      it "gets a server message" do
+        expect(CmdTlmServer).to receive(:get_server_message)
+        @api.get_server_message(0)
+      end
+    end
+
     # All these methods simply pass through directly to CmdTlmServer without
     # adding any functionality. Thus we just test that they are are received
     # by the CmdTlmServer.
@@ -1099,6 +1121,7 @@ module Cosmos
         @api.get_cmd_cnt("INST", "COLLECT")
         @api.get_tlm_cnt("INST", "HEALTH_STATUS")
         @api.get_router_info("ROUTE")
+        @api.get_packet_loggers
         @api.get_packet_logger_info('DEFAULT')
         @api.get_router_names
         @api.connect_router("ROUTE")
@@ -1120,4 +1143,3 @@ module Cosmos
 
   end
 end
-

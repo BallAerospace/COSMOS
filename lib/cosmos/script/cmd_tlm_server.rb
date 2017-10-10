@@ -73,6 +73,10 @@ module Cosmos
       return $cmd_tlm_server.get_tlm_cnt(target_name, packet_name)
     end
 
+    def get_packet_loggers
+      return $cmd_tlm_server.get_packet_loggers
+    end
+
     def get_packet_logger_info(packet_logger_name)
       return $cmd_tlm_server.get_packet_logger_info(packet_logger_name)
     end
@@ -133,6 +137,16 @@ module Cosmos
       return $cmd_tlm_server.start_new_server_message_log
     end
 
-  end # module Script
+    def subscribe_server_messages(queue_size = CmdTlmServer::DEFAULT_SERVER_MESSAGES_QUEUE_SIZE)
+      return $cmd_tlm_server.subscribe_server_messages(queue_size)
+    end
 
-end # module Cosmos
+    def unsubscribe_server_messages(id)
+      return $cmd_tlm_server.unsubscribe_server_messages(id)
+    end
+
+    def get_server_message(id, non_block = false)
+      return $cmd_tlm_server.get_server_message(id, non_block)
+    end
+  end
+end
