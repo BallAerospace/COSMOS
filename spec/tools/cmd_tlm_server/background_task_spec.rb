@@ -17,12 +17,12 @@ module Cosmos
     describe "initialize" do
       it "initializes local variables" do
         b1 = BackgroundTask.new
-        expect(b1.name).to eq "Background Task 1"
+        expect(b1.name).to match(/Background Task \d+/)
         expect(b1.thread).to be_nil
         expect(b1.status).to eq ''
         expect(b1.stopped).to eq false
         b2 = BackgroundTask.new
-        expect(b2.name).to eq "Background Task 2"
+        expect(b2.name).to match(/Background Task \d+/)
         expect(b1.thread).to be_nil
         expect(b1.status).to eq ''
         expect(b2.stopped).to eq false
