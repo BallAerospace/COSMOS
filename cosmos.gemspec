@@ -27,6 +27,8 @@ spec = Gem::Specification.new do |s|
 
   if RUBY_ENGINE == 'ruby'
     s.platform = Gem::Platform::RUBY
+  elsif RUBY_ENGINE == 'jruby'
+    s.platform = "java"
   else
     s.platform = Gem::Platform::CURRENT
   end
@@ -92,8 +94,8 @@ spec = Gem::Specification.new do |s|
   s.add_runtime_dependency 'httpclient', '~> 2.8.3'
 
   # From http://www.rubydoc.info/gems/puma#Known_Bugs :
-  #   "For MRI versions 2.2.7, 2.2.8, 2.3.4 and 2.4.1, you may see stream closed in 
-  #    another thread (IOError). It may be caused by a Ruby bug. It can be 
+  #   "For MRI versions 2.2.7, 2.2.8, 2.3.4 and 2.4.1, you may see stream closed in
+  #    another thread (IOError). It may be caused by a Ruby bug. It can be
   #    fixed with the gem https://rubygems.org/gems/stopgap_13632"
   s.add_runtime_dependency 'stopgap_13632', '~> 1.1.1' if RUBY_ENGINE == 'ruby' and %w(2.2.7 2.2.8 2.3.4 2.4.1).include? RUBY_VERSION  # MRI Only
 
