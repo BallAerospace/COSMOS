@@ -57,12 +57,32 @@ module Cosmos
       return $cmd_tlm_server.get_target_info(target_name)
     end
 
+    def get_all_target_info
+      return $cmd_tlm_server.get_all_target_info
+    end
+
     def get_interface_info(interface_name)
       return $cmd_tlm_server.get_interface_info(interface_name)
     end
 
+    def get_all_router_info
+      return $cmd_tlm_server.get_all_router_info
+    end
+
+    def get_all_interface_info
+      return $cmd_tlm_server.get_all_interface_info
+    end
+
     def get_router_info(router_name)
       return $cmd_tlm_server.get_router_info(router_name)
+    end
+
+    def get_all_cmd_info
+      return $cmd_tlm_server.get_all_cmd_info
+    end
+
+    def get_all_tlm_info
+      return $cmd_tlm_server.get_all_tlm_info
     end
 
     def get_cmd_cnt(target_name, command_name)
@@ -79,6 +99,18 @@ module Cosmos
 
     def get_packet_logger_info(packet_logger_name)
       return $cmd_tlm_server.get_packet_logger_info(packet_logger_name)
+    end
+
+    def get_all_packet_logger_info
+      return $cmd_tlm_server.get_all_packet_logger_info
+    end
+
+    def get_background_tasks
+      return $cmd_tlm_server.get_background_tasks
+    end
+
+    def get_server_status
+      return $cmd_tlm_server.get_server_status
     end
 
     def get_cmd_log_filename(packet_log_writer_name = 'DEFAULT')

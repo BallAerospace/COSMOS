@@ -23,12 +23,53 @@ module Cosmos
       File.open(cts,'w') do |file|
         file.puts 'INTERFACE INT interface.rb'
         file.puts 'ROUTER ROUTE interface.rb'
+        file.puts 'BACKGROUND_TASK example_background_task1.rb'
+        file.puts 'BACKGROUND_TASK example_background_task2.rb'
+      end
+      @background1 = File.join(Cosmos::USERPATH,'lib','example_background_task1.rb')
+      File.open(@background1,'w') do |file|
+        file.write <<-DOC
+require 'cosmos/tools/cmd_tlm_server/background_task'
+module Cosmos
+  class ExampleBackgroundTask1 < BackgroundTask
+    def initialize
+      super()
+      @name = 'Example Background Task1'
+      @status = "This is example one"
+    end
+    def call
+    end
+  end
+end
+DOC
+      end
+      @background2 = File.join(Cosmos::USERPATH,'lib','example_background_task2.rb')
+      File.open(@background2,'w') do |file|
+        file.write <<-DOC
+require 'cosmos/tools/cmd_tlm_server/background_task'
+module Cosmos
+  class ExampleBackgroundTask2 < BackgroundTask
+    def initialize
+      super()
+      @name = 'Example Background Task2'
+      @status = "This is example two"
+    end
+    def call
+      loop do
+        sleep 1
+      end
+    end
+  end
+end
+DOC
       end
     end
 
     after(:all) do
       clean_config()
       FileUtils.rm_rf File.join(Cosmos::USERPATH,'config','tools')
+      FileUtils.rm_rf @background1
+      FileUtils.rm_rf @background2
     end
 
     before(:each) do
@@ -1103,6 +1144,46 @@ module Cosmos
       it "gets a server message" do
         expect(CmdTlmServer).to receive(:get_server_message)
         @api.get_server_message(0)
+      end
+    end
+
+    describe "get_background_tasks" do
+      it "gets background task details" do
+        tasks = @api.get_background_tasks
+        expect(tasks[0][0]).to eql("Example Background Task1")
+        if RUBY_ENGINE == 'jruby'
+          expect(tasks[0][1]).to eql("complete") # JRuby has already run it
+        else
+          expect(tasks[0][1]).to eql("no thread") # Initially hasn't started
+        end
+        expect(tasks[0][2]).to eql("This is example one")
+        expect(tasks[1][0]).to eql("Example Background Task2")
+        if RUBY_ENGINE == 'jruby'
+          expect(tasks[1][1]).to eql("sleep") # JRuby has already run it
+        else
+          expect(tasks[1][1]).to eql("no thread") # Initially hasn't started
+        end
+        expect(tasks[1][2]).to eql("This is example two")
+        sleep 0.1
+        tasks = @api.get_background_tasks
+        expect(tasks[0][0]).to eql("Example Background Task1")
+        expect(tasks[0][1]).to eql("complete") # Thread completes
+        expect(tasks[0][2]).to eql("This is example one")
+        expect(tasks[1][0]).to eql("Example Background Task2")
+        expect(tasks[1][1]).to eql("sleep")
+        expect(tasks[1][2]).to eql("This is example two")
+      end
+    end
+
+    describe "get_server_status" do
+      it "gets server details" do
+        status = @api.get_server_status
+        expect(status[0]).to eql 'DEFAULT'
+        expect(status[1]).to eql 7777
+        expect(status[2]).to eql 0
+        expect(status[3]).to eql 0
+        expect(status[4]).to eql 0.0
+        expect(status[5]).to be > 10
       end
     end
 
