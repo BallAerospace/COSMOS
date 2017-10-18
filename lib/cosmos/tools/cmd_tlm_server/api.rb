@@ -87,13 +87,19 @@ module Cosmos
         'connect_router',
         'disconnect_router',
         'router_state',
+        'get_all_target_info',
         'get_target_info',
         'get_interface_info',
+        'get_all_interface_info',
         'get_router_info',
+        'get_all_router_info',
+        'get_all_cmd_info',
+        'get_all_tlm_info',
         'get_cmd_cnt',
         'get_tlm_cnt',
         'get_packet_loggers',
         'get_packet_logger_info',
+        'get_all_packet_logger_info',
         'get_background_tasks',
         'get_server_status',
         'get_cmd_log_filename',
@@ -1081,6 +1087,17 @@ module Cosmos
       return [target.cmd_cnt, target.tlm_cnt]
     end
 
+    # Get information about all targets
+    #
+    # @return [Array<Array<String, Numeric, Numeric>] Array of Arrays \[name, cmd_cnt, tlm_cnt]
+    def get_all_target_info
+      info = []
+      System.targets.sort.each do |target_name, target|
+        info << [target_name, target.interface.name, target.cmd_cnt, target.tlm_cnt]
+      end
+      info
+    end
+
     # Get information about an interface
     #
     # @param interface_name [String] Interface name
@@ -1090,6 +1107,20 @@ module Cosmos
     #   Telemetry count] for the interface
     def get_interface_info(interface_name)
       CmdTlmServer.interfaces.get_info(interface_name)
+    end
+
+    # Get information about all interfaces
+    #
+    # @return [Array<Array<String, Numeric, Numeric, Numeric, Numeric, Numeric,
+    #   Numeric, Numeric>>] Array of Arrays containing \[name, state, num clients,
+    #   TX queue size, RX queue size, TX bytes, RX bytes, Command count,
+    #   Telemetry count] for all interfaces
+    def get_all_interface_info
+      info = []
+      CmdTlmServer.interfaces.names.sort.each do |interface_name|
+        info << [interface_name].concat(CmdTlmServer.interfaces.get_info(interface_name))
+      end
+      info
     end
 
     # Get information about a router
@@ -1103,6 +1134,20 @@ module Cosmos
       CmdTlmServer.routers.get_info(router_name)
     end
 
+    # Get information about all routers
+    #
+    # @return [Array<Array<String, Numeric, Numeric, Numeric, Numeric, Numeric,
+    #   Numeric, Numeric>>] Array of Arrays containing \[name, state, num clients,
+    #   TX queue size, RX queue size, TX bytes, RX bytes, Command count,
+    #   Telemetry count] for all routers
+    def get_all_router_info
+      info = []
+      CmdTlmServer.routers.names.sort.each do |router_name|
+        info << [router_name].concat(CmdTlmServer.routers.get_info(router_name))
+      end
+      info
+    end
+
     # Get the transmit count for a command packet
     #
     # @param target_name [String] Target name of the command
@@ -1110,7 +1155,7 @@ module Cosmos
     # @return [Numeric] Transmit count for the command
     def get_cmd_cnt(target_name, command_name)
       packet = System.commands.packet(target_name, command_name)
-      return packet.received_count
+      packet.received_count
     end
 
     # Get the receive count for a telemetry packet
@@ -1120,7 +1165,33 @@ module Cosmos
     # @return [Numeric] Receive count for the telemetry packet
     def get_tlm_cnt(target_name, packet_name)
       packet = System.telemetry.packet(target_name, packet_name)
-      return packet.received_count
+      packet.received_count
+    end
+
+    # Get information on all command packets
+    #
+    # @return [Numeric] Transmit count for the command
+    def get_all_cmd_info
+      info = []
+      System.commands.all.sort.each do |target_name, packets|
+        packets.sort.each do |packet_name, packet|
+          info << [target_name, packet_name, packet.received_count]
+        end
+      end
+      info
+    end
+
+    # Get information on all telemetry packets
+    #
+    # @return [Numeric] Receive count for the telemetry packet
+    def get_all_tlm_info
+      info = []
+      System.telemetry.all.sort.each do |target_name, packets|
+        packets.sort.each do |packet_name, packet|
+          info << [target_name, packet_name, packet.received_count]
+        end
+      end
+      info
     end
 
     # Get the list of packet loggers.
@@ -1151,6 +1222,21 @@ module Cosmos
       return [interfaces] + logger_info
     end
 
+    def get_all_packet_logger_info
+      info = []
+      CmdTlmServer.packet_logging.all.keys.sort.each do |packet_logger_name|
+        packet_log_writer_pair = CmdTlmServer.packet_logging.all[packet_logger_name.upcase]
+        interfaces = []
+        CmdTlmServer.interfaces.all.each do |interface_name, interface|
+          if interface.packet_log_writer_pairs.include?(packet_log_writer_pair)
+            interfaces << interface.name
+          end
+        end
+        info << [packet_logger_name, interfaces].concat(CmdTlmServer.packet_logging.get_info(packet_logger_name))
+      end
+      info
+    end
+
     # Get background task information
     #
     # @return [Array<Array<String, String, String>>] Array of Arrays containing
@@ -1171,21 +1257,17 @@ module Cosmos
 
     # Get JSON DRB information
     #
-    # @return [Integer, Integer, Float, Integer, Integer, Integer, Integer] Server
-    #   status including JSON DRB num clients, JSON DRB request count, JSON DRB
-    #   average request time, total number of Ruby threads in the server,
-    #   total objects created, objects freed, objects allocated.
+    # @return [String, Integer, Integer, Integer, Float, Integer] Server
+    #   status including Limits Set, API Port, JSON DRB num clients,
+    #   JSON DRB request count, JSON DRB average request time, and the total
+    #   number of Ruby threads in the server/
     def get_server_status
-      objs = ObjectSpace.count_objects
-      allocated = 0
-      objs.each do |key, val|
-        next if key == :TOTAL || key == :FREE
-        allocated += val
-      end
-      [CmdTlmServer.json_drb.num_clients, CmdTlmServer.json_drb.request_count,
+      [ System.limits_set.to_s,
+        System.ports['CTS_API'],
+        CmdTlmServer.json_drb.num_clients,
+        CmdTlmServer.json_drb.request_count,
         CmdTlmServer.json_drb.average_request_time,
-        # Number of Threads, Total Objs, Free Objs, Allocated Objs
-        Thread.list.length, objs[:TOTAL], objs[:FREE], allocated
+        Thread.list.length
       ]
     end
 

@@ -1170,13 +1170,12 @@ DOC
     describe "get_server_status" do
       it "gets server details" do
         status = @api.get_server_status
-        expect(status[0]).to eql 0
-        expect(status[1]).to eql 0
-        expect(status[2]).to eql 0.0
-        expect(status[3]).to be > 2
-        expect(status[4]).to be > 1000
-        expect(status[5]).to be > 0
-        expect(status[6]).to be > 100
+        expect(status[0]).to eql 'DEFAULT'
+        expect(status[1]).to eql 7777
+        expect(status[2]).to eql 0
+        expect(status[3]).to eql 0
+        expect(status[4]).to eql 0.0
+        expect(status[5]).to be > 10
       end
     end
 
