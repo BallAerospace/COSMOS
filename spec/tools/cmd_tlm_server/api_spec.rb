@@ -1151,10 +1151,18 @@ DOC
       it "gets background task details" do
         tasks = @api.get_background_tasks
         expect(tasks[0][0]).to eql("Example Background Task1")
-        expect(tasks[0][1]).to eql("no thread") # Initially hasn't started
+        if RUBY_ENGINE == 'jruby'
+          expect(tasks[0][1]).to eql("complete") # JRuby has already run it
+        else
+          expect(tasks[0][1]).to eql("no thread") # Initially hasn't started
+        end
         expect(tasks[0][2]).to eql("This is example one")
         expect(tasks[1][0]).to eql("Example Background Task2")
-        expect(tasks[1][1]).to eql("no thread") # Initially hasn't started
+        if RUBY_ENGINE == 'jruby'
+          expect(tasks[1][1]).to eql("sleep") # JRuby has already run it
+        else
+          expect(tasks[1][1]).to eql("no thread") # Initially hasn't started
+        end
         expect(tasks[1][2]).to eql("This is example two")
         sleep 0.1
         tasks = @api.get_background_tasks
