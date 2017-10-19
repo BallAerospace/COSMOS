@@ -103,7 +103,7 @@ module Cosmos
       protected
 
       def create_pdf_file(progress_dialog, target_name = nil)
-        tmp_html_file = Tempfile.new(['pdf', '.html'])
+        tmp_html_file = Tempfile.new(['pdf', '.html'], System.paths['HANDBOOKS'])
         if target_name
           filename = File.join(System.paths['HANDBOOKS'], target_name.downcase + @filename)
           create_file(tmp_html_file, [target_name], true, :PDF)
@@ -118,13 +118,15 @@ module Cosmos
         system_call = "wkhtmltopdf -L #{@pdf_side_margin} -R #{@pdf_side_margin} -T #{@pdf_top_margin} -B #{@pdf_bottom_margin} -s Letter #{header} #{footer} #{cover} #{@pdf_toc} \"#{tmp_html_file.path}\" \"#{File.dirname(filename)}/#{File.basename(filename, '.*')}.pdf\""
         status = nil
         begin
-          Open3.popen2e(system_call) do |stdin, stdout_and_stderr, wait_thr|
-            while wait_thr.alive?
-              stdout_and_stderr.each_line do |line|
-                progress_dialog.append_text(line.chomp) if progress_dialog
+          Cosmos.set_working_dir(System.paths['HANDBOOKS']) do
+            Open3.popen2e(system_call) do |stdin, stdout_and_stderr, wait_thr|
+              while wait_thr.alive?
+                stdout_and_stderr.each_line do |line|
+                  progress_dialog.append_text(line.chomp) if progress_dialog
+                end
               end
+              status = wait_thr.value
             end
-            status = wait_thr.value
           end
         rescue Errno::ENOENT
           status = nil
@@ -138,7 +140,7 @@ module Cosmos
 
       def make_pdf_detail(tag, filename, title, target_name = nil)
         if filename
-          file = Tempfile.new(['pdf', '.html'])
+          file = Tempfile.new(['pdf', '.html'], System.paths['HANDBOOKS'])
           if target_name
             title = target_name + ' ' + title
           else
