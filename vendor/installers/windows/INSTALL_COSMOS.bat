@@ -14,19 +14,16 @@ set PROTOCOL=https
 set ARCHITECTURE=%PROCESSOR_ARCHITECTURE%
 
 :: Update this version if making any changes to this script
-set INSTALLER_VERSION=1.5
+set INSTALLER_VERSION=1.6
 
 :: Paths and versions for COSMOS dependencies
-set RUBY_INSTALLER_32=rubyinstaller-2.2.6.exe
-set RUBY_INSTALLER_64=rubyinstaller-2.2.6-x64.exe
-set RUBY_INSTALLER_PATH=//dl.bintray.com/oneclick/rubyinstaller/
-set RUBY_ABI_VERSION=2.2.0
-set DEVKIT_32=DevKit-mingw64-32-4.7.2-20130224-1151-sfx.exe
-set DEVKIT_64=DevKit-mingw64-64-4.7.2-20130224-1432-sfx.exe
+set RUBY_INSTALLER_32=rubyinstaller-2.4.2-2.exe
+set RUBY_INSTALLER_64=rubyinstaller-2.4.2-2-x64.exe
+set RUBY_INSTALLER_PATH=//github.com/oneclick/rubyinstaller2/releases/download/rubyinstaller-2.4.2-2/
+set RUBY_ABI_VERSION=2.4.0
 set WKHTMLTOPDF=wkhtmltox-0.11.0_rc1-installer.exe
-set WKHTMLPATHWITHPROTOCOL=http://downloads.wkhtmltopdf.org/obsolete/windows/
-set QTBINDINGS_QT_VERSION=4.8.6.3
-set GEM_UPDATE_PATH=//rubygems.org/gems/rubygems-update-2.6.12.gem
+set WKHTMLPATHWITHPROTOCOL=https://downloads.wkhtmltopdf.org/obsolete/windows/
+set QTBINDINGS_QT_VERSION=4.8.6.4
 set WINDOWS_INSTALL_ZIP=//github.com/BallAerospace/COSMOS/blob/master/vendor/installers/windows/COSMOS_Windows_Install.zip
 
 :: Detect Ball
@@ -127,8 +124,6 @@ if errorlevel 1 (
 @echo RUBY_INSTALLER_64=!RUBY_INSTALLER_64! >> !COSMOS_INSTALL!\INSTALL.log
 @echo RUBY_INSTALLER_PATH=!RUBY_INSTALLER_PATH! >> !COSMOS_INSTALL!\INSTALL.log
 @echo RUBY_ABI_VERSION=!RUBY_ABI_VERSION! >> !COSMOS_INSTALL!\INSTALL.log
-@echo DEVKIT_32=!DEVKIT_32! >> !COSMOS_INSTALL!\INSTALL.log
-@echo DEVKIT_64=!DEVKIT_64! >> !COSMOS_INSTALL!\INSTALL.log
 @echo WKHTMLTOPDF=!WKHTMLTOPDF! >> !COSMOS_INSTALL!\INSTALL.log
 @echo WKHTMLPATHWITHPROTOCOL=!WKHTMLPATHWITHPROTOCOL! >> !COSMOS_INSTALL!\INSTALL.log
 @echo QTBINDINGS_QT_VERSION=!QTBINDINGS_QT_VERSION! >> !COSMOS_INSTALL!\INSTALL.log
@@ -156,7 +151,7 @@ if !ARCHITECTURE!==x86 (
     @echo Successfully downloaded 32-bit Ruby from: !PROTOCOL!:!RUBY_INSTALLER_PATH!!RUBY_INSTALLER_32! >> !COSMOS_INSTALL!\INSTALL.log
   )
   echo Installing 32-bit Ruby
-  !COSMOS_INSTALL!\tmp\!RUBY_INSTALLER_32! /silent /dir="!COSMOS_INSTALL!\Vendor\Ruby"
+  !COSMOS_INSTALL!\tmp\!RUBY_INSTALLER_32! /silent /nomodpath /noassocfiles /dir="!COSMOS_INSTALL!\Vendor\Ruby"
   if errorlevel 1 (
     echo ERROR: Problem installing 32-bit Ruby
     echo INSTALL FAILED
@@ -166,6 +161,8 @@ if !ARCHITECTURE!==x86 (
   ) else (
     @echo Successfully installed 32-bit Ruby >> !COSMOS_INSTALL!\INSTALL.log
   )
+  call !COSMOS_INSTALL!\Vendor\Ruby\bin\ridk install 1 2 3
+  call C:\msys64\usr\bin\pacman --noconfirm -S mingw-w64-i686-gettext
 ) else (
   echo Downloading 64-bit Ruby
   powershell -Command "(New-Object Net.WebClient).DownloadFile('!PROTOCOL!:!RUBY_INSTALLER_PATH!!RUBY_INSTALLER_64!', '!COSMOS_INSTALL!\tmp\!RUBY_INSTALLER_64!')"
@@ -179,7 +176,7 @@ if !ARCHITECTURE!==x86 (
     @echo Successfully downloaded 64-bit Ruby from: !PROTOCOL!:!RUBY_INSTALLER_PATH!!RUBY_INSTALLER_64! >> !COSMOS_INSTALL!\INSTALL.log
   )
   echo Installing 64-bit Ruby
-  !COSMOS_INSTALL!\tmp\!RUBY_INSTALLER_64! /silent /dir="!COSMOS_INSTALL!\Vendor\Ruby"
+  !COSMOS_INSTALL!\tmp\!RUBY_INSTALLER_64! /silent /nomodpath /noassocfiles /dir="!COSMOS_INSTALL!\Vendor\Ruby"
   if errorlevel 1 (
     echo ERROR: Problem installing 64-bit Ruby
     echo INSTALL FAILED
@@ -189,58 +186,8 @@ if !ARCHITECTURE!==x86 (
   ) else (
     @echo Successfully installed 64-bit Ruby >> !COSMOS_INSTALL!\INSTALL.log
   )
-)
-
-::::::::::::::::::::::::
-:: Install Devkit
-::::::::::::::::::::::::
-
-if !ARCHITECTURE!==x86 (
-  echo Downloading 32-bit DevKit
-  powershell -Command "(New-Object Net.WebClient).DownloadFile('!PROTOCOL!:!RUBY_INSTALLER_PATH!!DEVKIT_32!', '!COSMOS_INSTALL!\tmp\!DEVKIT_32!')"
-  if errorlevel 1 (
-    echo ERROR: Problem downloading 32-bit Devkit from: !PROTOCOL!:!RUBY_INSTALLER_PATH!!DEVKIT_32!
-    echo INSTALL FAILED
-    @echo ERROR: Problem downloading 32-bit Devkit from: !PROTOCOL!:!RUBY_INSTALLER_PATH!!DEVKIT_32! >> !COSMOS_INSTALL!\INSTALL.log
-    pause
-    exit /b 1
-  ) else (
-    @echo Successfully downloaded 32-bit Devkit from: !PROTOCOL!:!RUBY_INSTALLER_PATH!!DEVKIT_32! >> !COSMOS_INSTALL!\INSTALL.log
-  )
-  echo Installing 32-bit DevKit
-  !COSMOS_INSTALL!\tmp\!DEVKIT_32! -y -ai -gm2 -o"!COSMOS_INSTALL!\Vendor\Devkit"
-  if errorlevel 1 (
-    echo ERROR: Problem installing 32-bit Devkit
-    echo INSTALL FAILED
-    @echo ERROR: Problem installing 32-bit Devkit >> !COSMOS_INSTALL!\INSTALL.log
-    pause
-    exit /b 1
-  ) else (
-    @echo Successfully installed 32-bit Devkit >> !COSMOS_INSTALL!\INSTALL.log
-  )
-) else (
-  echo Downloading 64-bit DevKit
-  powershell -Command "(New-Object Net.WebClient).DownloadFile('!PROTOCOL!:!RUBY_INSTALLER_PATH!!DEVKIT_64!', '!COSMOS_INSTALL!\tmp\!DEVKIT_64!')"
-  if errorlevel 1 (
-    echo ERROR: Problem downloading 64-bit Devkit from: !PROTOCOL!:!RUBY_INSTALLER_PATH!!DEVKIT_64!
-    echo INSTALL FAILED
-    @echo ERROR: Problem downloading 64-bit Devkit from: !PROTOCOL!:!RUBY_INSTALLER_PATH!!DEVKIT_64! >> !COSMOS_INSTALL!\INSTALL.log
-    pause
-    exit /b 1
-  ) else (
-    @echo Successfully downloaded 64-bit Devkit from: !PROTOCOL!:!RUBY_INSTALLER_PATH!!DEVKIT_64! >> !COSMOS_INSTALL!\INSTALL.log
-  )
-  echo Installing 64-bit DevKit
-  !COSMOS_INSTALL!\tmp\!DEVKIT_64! -y -ai -gm2 -o"!COSMOS_INSTALL!\Vendor\Devkit"
-  if errorlevel 1 (
-    echo ERROR: Problem installing 64-bit Devkit
-    echo INSTALL FAILED
-    @echo ERROR: Problem installing 64-bit Devkit >> !COSMOS_INSTALL!\INSTALL.log
-    pause
-    exit /b 1
-  ) else (
-    @echo Successfully installed 64-bit Devkit >> !COSMOS_INSTALL!\INSTALL.log
-  )
+  call !COSMOS_INSTALL!\Vendor\Ruby\bin\ridk install 1 2 3
+  call C:\msys64\usr\bin\pacman --noconfirm -S mingw-w64-x86_64-gettext
 )
 
 ::::::::::::::::::::::::
@@ -353,39 +300,7 @@ SET "PATH=!COSMOS_INSTALL!\Vendor\Ruby\bin;%RI_DEVKIT%bin;%RI_DEVKIT%mingw\bin;%
 SET RUBYOPT=
 SET RUBYLIB=
 
-powershell -Command "(New-Object Net.WebClient).DownloadFile('!PROTOCOL!:!GEM_UPDATE_PATH!', '!COSMOS_INSTALL!\tmp\rubygem-update.gem')"
-
-:: update rubygems to latest (workaround issue installing pry)
-call gem install --local !COSMOS_INSTALL!\tmp\rubygem-update.gem
-if errorlevel 1 (
-  echo ERROR: Problem installing latest rubygem-update
-  echo INSTALL FAILED
-  @echo ERROR: Problem installing latest rubygem-update >> !COSMOS_INSTALL!\INSTALL.log
-  pause
-  exit /b 1
-) else (
-  @echo Successfully updated gem to latest >> !COSMOS_INSTALL!\INSTALL.log
-)
-call update_rubygems
-if errorlevel 1 (
-  echo ERROR: Problem updating gem to latest
-  echo INSTALL FAILED
-  @echo ERROR: Problem updating gem to latest >> !COSMOS_INSTALL!\INSTALL.log
-  pause
-  exit /b 1
-) else (
-  @echo Successfully updated gem to latest >> !COSMOS_INSTALL!\INSTALL.log
-)
-call gem install pry -v 0.10.1
-if errorlevel 1 (
-  echo ERROR: Problem installing pry gem
-  echo INSTALL FAILED
-  @echo ERROR: Problem installing pry gem >> !COSMOS_INSTALL!\INSTALL.log
-  pause
-  exit /b 1
-) else (
-  @echo Successfully installed pry gem >> !COSMOS_INSTALL!\INSTALL.log
-)
+call gem install --force rdoc
 
 :: install COSMOS gem and dependencies
 echo Installing COSMOS gem !COSMOS_VERSION!...
