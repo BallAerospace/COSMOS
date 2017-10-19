@@ -164,6 +164,9 @@ module Cosmos
           tf = Tempfile.new('unittest')
           tf.puts("REQUIRE system_file.rb")
           tf.close
+
+          # Initial require in target lib shouldn't be reported as error
+          expect(Logger).to_not receive(:error)
           Target.new("INST").process_file(tf.path)
           expect { SystemFile.new }.to_not raise_error
           File.delete filename
