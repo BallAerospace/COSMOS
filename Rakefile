@@ -90,12 +90,26 @@ end
 task :devkit do
   if RUBY_ENGINE == 'ruby'
     if RUBY_PLATFORM[0..2] == 'x64'
-      if File.exist?("C:/Devkit64/bin")
-        ENV['PATH'] = 'C:\\Devkit64\\bin;C:\\Devkit64\\mingw\\bin;' + ENV['PATH']
+      if File.exist?("C:/msys64/mingw64")
+        ENV['RI_DEVKIT'] = "C:\\msys64"
+        ENV['MSYSTEM']="MINGW64"
+        ENV['PKG_CONFIG_PATH']="/mingw64/lib/pkgconfig:/mingw64/share/pkgconfig"
+        ENV['ACLOCAL_PATH']="/mingw64/share/aclocal:/usr/share/aclocal"
+        ENV['MANPATH']="/mingw64/share/man"
+        ENV['MINGW_PACKAGE_PREFIX']="mingw-w64-x86_64"
+        ENV['LANG']="en_US.UTF-8"
+        ENV['PATH'] = 'C:\\msys64\\mingw64\\bin;C:\\msys64\\usr\\bin;' + ENV['PATH']
       end
     else
-      if File.exist?("C:/Devkit/bin")
-        ENV['PATH'] = 'C:\\Devkit\\bin;C:\\Devkit\\mingw\\bin;' + ENV['PATH']
+      if File.exist?("C:/msys64/mingw32")
+        ENV['RI_DEVKIT'] = "C:\\msys64"
+        ENV['MSYSTEM']="MINGW32"
+        ENV['PKG_CONFIG_PATH']="/mingw32/lib/pkgconfig:/mingw32/share/pkgconfig"
+        ENV['ACLOCAL_PATH']="/mingw32/share/aclocal:/usr/share/aclocal"
+        ENV['MANPATH']="/mingw32/share/man"
+        ENV['MINGW_PACKAGE_PREFIX']="mingw-w64-i686"
+        ENV['LANG']="en_US.UTF-8"
+        ENV['PATH'] = 'C:\\msys64\\mingw32\\bin;C:\\msys64\\usr\\bin;' + ENV['PATH']
       end
     end
   end
