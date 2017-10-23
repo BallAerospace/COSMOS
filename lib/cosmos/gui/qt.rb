@@ -458,17 +458,13 @@ class Qt::PlainTextEdit
       text << "\n"
     end
     if text =~ /<G>/ or color == Cosmos::GREEN
-      text.gsub!(/<G>/, BLANK)
-      addText(text, Cosmos::GREEN)
+      addText(text.gsub(/<G>/, BLANK), Cosmos::GREEN)
     elsif text =~ /<Y>/ or color == Cosmos::YELLOW
-      text.gsub!(/<Y>/, BLANK)
-      addText(text, Cosmos::YELLOW)
+      addText(text.gsub(/<Y>/, BLANK), Cosmos::YELLOW)
     elsif text =~ /<R>/ or color == Cosmos::RED
-      text.gsub!(/<R>/, BLANK)
-      addText(text, Cosmos::RED)
+      addText(text.gsub(/<R>/, BLANK), Cosmos::RED)
     elsif text =~ /<B>/ or color == Cosmos::BLUE
-      text.gsub!(/<B>/, BLANK)
-      addText(text, Cosmos::BLUE)
+      addText(text.gsub(/<B>/, BLANK), Cosmos::BLUE)
     else
       addText(text) # default is Cosmos::BLACK
     end
