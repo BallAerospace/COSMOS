@@ -51,13 +51,26 @@ module Cosmos
     # @return [Boolean] Single value converted to a boolean (true or false)
     def bool(item, index = 0)
       raise "#{item} not found" unless keys.include?(item)
-      case @hash[item][index].upcase
-      when 'TRUE'
-        true
-      when 'FALSE'
-        false
+      if Range === index
+        @hash[item][index].map do |x|
+          case x.upcase
+          when 'TRUE'
+            true
+          when 'FALSE'
+            false
+          else
+            raise "#{item} value of #{x} not boolean. Must be 'TRUE' 'or 'FALSE'."
+          end
+        end
       else
-        raise "#{item} value of #{@hash[item][index]} not boolean. Must be 'TRUE' 'or 'FALSE'."
+        case @hash[item][index].upcase
+        when 'TRUE'
+          true
+        when 'FALSE'
+          false
+        else
+          raise "#{item} value of #{@hash[item][index]} not boolean. Must be 'TRUE' 'or 'FALSE'."
+        end
       end
     end
     alias boolean bool
@@ -69,7 +82,11 @@ module Cosmos
     # @return [Integer] Single value converted to an integer
     def int(item, index = 0)
       raise "#{item} not found" unless keys.include?(item)
-      @hash[item][index].to_i
+      if Range === index
+        @hash[item][index].map {|x| x.to_i }
+      else
+        @hash[item][index].to_i
+      end
     end
     alias integer int
 
@@ -80,8 +97,42 @@ module Cosmos
     # @return [Float] Single value converted to a float
     def float(item, index = 0)
       raise "#{item} not found" unless keys.include?(item)
-      @hash[item][index].to_f
+      if Range === index
+        @hash[item][index].map {|x| x.to_f }
+      else
+        @hash[item][index].to_f
+      end
     end
+
+    # Convenience method to access a value by key and convert it to a string
+    #
+    # @param item [String] Key to access the value
+    # @param index [Integer] Which value to return
+    # @return [String] Single value converted to a string
+    def string(item, index = 0)
+      raise "#{item} not found" unless keys.include?(item)
+      if Range === index
+        @hash[item][index].map {|x| x.to_s }
+      else
+        @hash[item][index].to_s
+      end
+    end
+    alias str string
+
+    # Convenience method to access a value by key and convert it to a symbol
+    #
+    # @param item [String] Key to access the value
+    # @param index [Integer] Which value to return
+    # @return [Symbol] Single value converted to a symbol
+    def symbol(item, index = 0)
+      raise "#{item} not found" unless keys.include?(item)
+      if Range === index
+        @hash[item][index].map {|x| x.intern }
+      else
+        @hash[item][index].intern
+      end
+    end
+    alias sym symbol
 
     # Creates a copy of the CSV file passed into the constructor. The file will
     # be prefixed by the current date and time to create a unique filename.
