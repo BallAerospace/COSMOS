@@ -2,7 +2,7 @@
 <html lang="en-US">
 <head>
   <meta charset="UTF-8">
-  <title>Ball Aerospace COSMOS 3.6.2 Released</title>
+  <title>Ball Aerospace COSMOS 4.0.3 Released</title>
   <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="generator" content="Jekyll v3.5.2">
@@ -188,8 +188,8 @@
       <div class="unit four-fifths">
         <article>
   <h2>
-    Ball Aerospace COSMOS 3.6.2 Released
-    <a href="/news/2015/08/10/cosmos-3-6-2-released/" class="permalink" title="Permalink">∞</a>
+    Ball Aerospace COSMOS 4.0.3 Released
+    <a href="/news/2017/10/24/cosmos-4-0-3-released/" class="permalink" title="Permalink">∞</a>
   </h2>
   <span class="post-category">
     <span class="label">
@@ -198,25 +198,43 @@
   </span>
   <div class="post-meta">
     <span class="post-date">
-      10 Aug 2015
+      24 Oct 2017
     </span>
-    <a href="https://github.com/ryanmelt" class="post-author">
-      <img src="https://github.com/ryanmelt.png" class="avatar" alt="ryanmelt avatar" width="24" height="24">
-      ryanmelt
+    <a href="https://github.com/jmthomas" class="post-author">
+      <img src="https://github.com/jmthomas.png" class="avatar" alt="jmthomas avatar" width="24" height="24">
+      jmthomas
     </a>
   </div>
   <div class="post-content">
-    <p>Huge new feature in this release: All COSMOS configuration files are now interpreted with the ERB preprocessor!  This allows you to use Ruby code within the configuration files to help build them.  You can also render partials of common information such as packet headers so you only have to define them once.  See the INST target in the updated Demo project for examples.</p>
+    <p><strong>Important Bug Fix:</strong> UdpInterface was only working for locahost on earlier versions of COSMOS 4.0.x. Please upgrade to COSMOS 4.0.3 if you need support for UDP.</p>
+
+<h3 id="new-features">New Features:</h3>
+
+<ul>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/585">#585</a> Add packet level config_name</li>
+</ul>
+
+<h3 id="maintenance">Maintenance:</h3>
+
+<p>None</p>
 
 <h3 id="bug-fixes">Bug Fixes:</h3>
 
 <ul>
-  <li><a href="https://github.com/BallAerospace/COSMOS/issues/187">#187</a> Must require tempfile in config_parser.rb on non-windows systems</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/590">#590</a> UdpReadSocket must be created before UdpWriteSocket if read_port == write_src_port</li>
 </ul>
 
-<h3 id="migration-notes-from-cosmos-35x">Migration Notes from COSMOS 3.5.x:</h3>
+<h3 id="migration-notes-from-cosmos-3x">Migration Notes from COSMOS 3.x:</h3>
 
-<p>None</p>
+<p>COSMOS 4 includes several breaking changes from the COSMOS 3.x series.</p>
+
+<p>The first and simplest is that the Command and Telemetry Server now opens an additional port at 7780 by default, that provides a router that will send out each command that the system has sent.  This can allow external systems to also log all commands sent by COSMOS.  For most people this change will be transparent and no updates to your COSMOS configuration will be required.</p>
+
+<p>The second is that the Command and Telemetry Server now always supports a meta data packet called SYSTEM META.  This packet will always contain the MD5 sum for the current running COSMOS configuration, the version of COSMOS running, the version of your COSMOS Project, and the version of Ruby being used.  You can also add your own requirements for meta data with things like the name of the operator currently running the system, or the name of a specific test you are currently running.  In general you shouldn’t need to do anything for this change unless you were using the previous metadata functionality in COSMOS.  If you were, then you will need to migrate your meta data to the new SYSTEM META packet, and change the parameters in your CmdTlmServer or TestRunner configurations regarding meta data.  If you weren’t using metadata before, then you will probably just notice this new packet in your log files, and in your telemetry stream.</p>
+
+<p>Finally the most exciting breaking change is in how COSMOS interfaces handle protocols.  Before, the COSMOS TCP/IP and Serial interface classes each took a protocol like LENGTH, TERMINATED, etc that defined how packets were delineated by the interface.  Now each interface can take a set of one or more protocols.  This allows COSMOS to much more easily support nested protocols, such as the frame focused protocols of CCSDS.  It also allows for creating helpful reusable protocols such as the new CRC protocol for automatically adding CRCs to outgoing commands and verifying incoming CRCs on telemetry packets.  It’s a great change, but if you have any custom interface classes you have written, they will probably require some modification.  See the Interfaces section at cosmosrb.com to see how the new interface classes work. We will also be writing up a blog post to help document the process of upgrading.  Look for this in a week or two.</p>
+
+<p>To upgrade to the latest version of COSMOS, run “bundle update cosmos” in your COSMOS project folder.</p>
 
   </div>
 </article>
@@ -236,7 +254,7 @@
     <h4>Recent Releases</h4>
     <ul>
       
-      <li class="">
+      <li class="current">
         <a href="/news/2017/10/24/cosmos-4-0-3-released/">Version 4.0.3</a>
       </li>
       
