@@ -21,7 +21,8 @@ module Cosmos
       @lines << "bool1,true,false\n"
       @lines << "bool2,false,true\n"
       @lines << "int,10,11\n"
-      @lines << "float,1.1,2.2\n"
+      @lines << "float,1.1,2.2,3.3\n"
+      @lines << "string,test,text with space\n"
 
       @test_file = File.open('cosmos_csv_spec.csv','w')
       @test_file.write(@lines.join(''))
@@ -68,7 +69,7 @@ module Cosmos
       end
 
       it "returns all keys" do
-        expect(@csv.keys).to eq(%w(test bool1 bool2 int float))
+        expect(@csv.keys).to eq(%w(test bool1 bool2 int float string))
       end
 
       it "returns boolean values" do
@@ -77,19 +78,37 @@ module Cosmos
 
         expect(@csv.boolean("bool1", 1)).to be false
         expect(@csv.bool("bool2", 1)).to be true
+
+        expect(@csv.bool("bool1", (0..-1))).to eql([true, false])
+        expect(@csv.bool("bool2", (0..-1))).to eql([false, true])
       end
 
       it "returns integer values" do
         expect(@csv.integer("int")).to be(10)
-        expect(@csv.int("int")).to be(10)
-
-        expect(@csv.integer("int", 1)).to be(11)
         expect(@csv.int("int", 1)).to be(11)
+        expect(@csv.integer("int", (0..1))).to eql([10, 11])
       end
 
       it "returns float values" do
         expect(@csv.float("float")).to eq(1.1)
         expect(@csv.float("float", 1)).to eq(2.2)
+        expect(@csv.float("float", 2)).to eq(3.3)
+        expect(@csv.float("float", (0..1))).to eql([1.1, 2.2])
+        expect(@csv.float("float", (1..2))).to eql([2.2, 3.3])
+        expect(@csv.float("float", (0..-1))).to eql([1.1, 2.2, 3.3])
+      end
+
+      it "returns string values" do
+        expect(@csv.string("string")).to eq("test")
+        expect(@csv.str("string", 1)).to eq("text with space")
+        expect(@csv.str("string", (0..-1))).to eq(["test", "text with space"])
+      end
+
+      it "returns symbol values" do
+        expect(@csv.symbol("string")).to eq(:test)
+        # This works but please don't do this! Symbols with spaces is ugly!
+        expect(@csv.sym("string", 1)).to eq(:"text with space")
+        expect(@csv.sym("string", (0..-1))).to eq([:test, :"text with space"])
       end
     end
 
