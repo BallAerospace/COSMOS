@@ -85,7 +85,8 @@ module Cosmos
     RUNNING = 1
     ERROR = 2
 
-    TOOL_NAME = "Command and Telemetry Server"
+    TOOL_NAME = "Command and Telemetry Server".freeze
+    BLANK = ''.freeze
 
     attr_writer :no_prompt
 
@@ -347,10 +348,10 @@ module Cosmos
     def handle_string_output
       if @string_output.string[-1..-1] == "\n"
         Qt.execute_in_main_thread(true) do
-          lines_to_write = ''
+          lines_to_write = []
           string = @string_output.string.clone
           @string_output.string = @string_output.string[string.length..-1]
-          string.each_line {|out_line| @output.add_formatted_text(out_line); lines_to_write << out_line }
+          string.each_line {|out_line| lines_to_write << out_line; @output.add_formatted_text(out_line) }
           @output.flush
           if @first_output < 2
             # Scroll to the bottom on the first two outputs for Linux
@@ -358,8 +359,9 @@ module Cosmos
             @output.verticalScrollBar.value = @output.verticalScrollBar.maximum
             @first_output += 1
           end
-          @message_log.write(lines_to_write)
-          CmdTlmServer.instance.post_server_message(lines_to_write)
+          clean_lines, messages = CmdTlmServerGui.process_output_colors(lines_to_write)
+          @message_log.write(clean_lines)
+          messages.each {|msg| CmdTlmServer.instance.post_server_message(msg) }
         end
       end
     end
@@ -384,13 +386,14 @@ module Cosmos
 
     def self.no_gui_handle_string_output
       if @string_output.string[-1..-1] == "\n"
-        lines_to_write = ''
+        lines_to_write = []
         string = @string_output.string.clone
         @string_output.string = @string_output.string[string.length..-1]
         string.each_line {|out_line| lines_to_write << out_line }
-        @message_log.write(lines_to_write)
-        CmdTlmServer.instance.post_server_message(lines_to_write)
-        STDOUT.print lines_to_write if STDIN.isatty # Have a console
+        clean_lines, messages = CmdTlmServerGui.process_output_colors(lines_to_write)
+        @message_log.write(clean_lines)
+        messages.each {|msg| CmdTlmServer.instance.post_server_message(msg) }
+        STDOUT.print clean_lines if STDIN.isatty # Have a console
       end
     end
 
@@ -399,6 +402,30 @@ module Cosmos
       @output_sleeper.cancel
       Cosmos.kill_thread(self, @output_thread)
       no_gui_handle_string_output()
+    end
+
+    def self.process_output_colors(lines)
+      clean_lines = ''
+      messages = []
+      lines.each do |line|
+        if line =~ /<G>/
+          line.gsub!(/<G>/, BLANK)
+          messages << [line.strip, 'GREEN']
+        elsif line =~ /<Y>/
+          line.gsub!(/<Y>/, BLANK)
+          messages << [line.strip, 'YELLOW']
+        elsif line =~ /<R>/
+          line.gsub!(/<R>/, BLANK)
+          messages << [line.strip, 'RED']
+        elsif line =~ /<B>/
+          line.gsub!(/<B>/, BLANK)
+          messages << [line.strip, 'BLUE']
+        else
+          messages << [line.strip, 'BLACK']
+        end
+        clean_lines << line
+      end
+      return [clean_lines, messages]
     end
 
     def self.post_options_parsed_hook(options)
