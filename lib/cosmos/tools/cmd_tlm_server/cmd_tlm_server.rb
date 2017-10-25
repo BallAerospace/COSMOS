@@ -589,8 +589,9 @@ module Cosmos
     end
 
     # Post a server message to all subscribed server message listeners.
+    # Messages are formatted as [Text, Color], e.g. ["Msg1","RED"]
     #
-    # @param message [String] Server message
+    # @param message [Array<String, String>] Server message
     def post_server_message(message)
       if @server_message_queues.length > 0
         queues_to_drop = []

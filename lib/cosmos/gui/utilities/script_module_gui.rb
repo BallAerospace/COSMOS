@@ -134,7 +134,7 @@ module Cosmos
       result = nil
       _get_main_thread_gui do |window|
         msg = Qt::MessageBox.new(window)
-        msg.setIcon(Qt::MessageBox::Warning)
+        msg.setIcon(Qt::MessageBox::Question)
         msg.setText(message)
         msg.setWindowTitle(title)
         msg.setStandardButtons(Qt::MessageBox::Yes | Qt::MessageBox::No)
