@@ -140,6 +140,7 @@ module Cosmos
       # Add Realtime Button Bar
       @realtime_button_bar = RealtimeButtonBar.new(self)
       @realtime_button_bar.state = 'Stopped'
+      @realtime_button_bar.step_callback = method(:handle_step_button)
       @realtime_button_bar.start_callback = method(:handle_start_go_button)
       @realtime_button_bar.pause_callback = method(:handle_pause_retry_button)
       @realtime_button_bar.stop_callback  = method(:handle_stop_button)
@@ -555,7 +556,10 @@ module Cosmos
           end
 
           # Add preline instrumentation
-          instrumented_line << "ScriptRunnerFrame.instance.script_binding = binding(); if ScriptRunnerFrame.instance.inline_return then ScriptRunnerFrame.instance.inline_return = nil; return ScriptRunnerFrame.instance.inline_return_params; end; ScriptRunnerFrame.instance.pre_line_instrumentation('#{filename}', #{line_no}); "
+          instrumented_line << "ScriptRunnerFrame.instance.script_binding = binding(); "\
+            "if ScriptRunnerFrame.instance.inline_return then ScriptRunnerFrame.instance.inline_return = nil; "\
+            "return ScriptRunnerFrame.instance.inline_return_params; end; "\
+            "ScriptRunnerFrame.instance.pre_line_instrumentation('#{filename}', #{line_no}); "
 
           # Add the actual line
           instrumented_line << segment
@@ -566,7 +570,8 @@ module Cosmos
 
           # Complete begin block to catch exceptions
           unless inside_begin
-            instrumented_line << "; rescue Exception => eval_error; retry if ScriptRunnerFrame.instance.exception_instrumentation(eval_error, '#{filename}', #{line_no}); end"
+            instrumented_line << "; rescue Exception => eval_error; "\
+            "retry if ScriptRunnerFrame.instance.exception_instrumentation(eval_error, '#{filename}', #{line_no}); end"
           end
 
           instrumented_line << "\n"
@@ -874,6 +879,7 @@ module Cosmos
 
     def show_debug
       unless @debug_frame
+        @realtime_button_bar.step_button.setHidden(false)
         @script.enable_breakpoints = true
         if @tab_book_shown
           if @tab_book.count > 0
@@ -946,20 +952,6 @@ module Cosmos
 
         @debug_frame.addWidget(@debug_text)
 
-        @toggle_button = Qt::PushButton.new('Toggle Run/Step')
-        @debug_frame.addWidget(@toggle_button)
-        @toggle_button.connect(SIGNAL('clicked(bool)')) do
-          if @@step_mode
-            scriptrunner_puts "Debug: run_mode"
-            handle_output_io()
-            self.class.step_mode = false
-          else
-            scriptrunner_puts "Debug: step_mode"
-            handle_output_io()
-            self.class.step_mode = true
-          end
-        end
-
         @return_button = Qt::PushButton.new('Insert Return')
         @debug_frame.addWidget(@return_button)
         @return_button.connect(SIGNAL('clicked(bool)')) do
@@ -985,6 +977,7 @@ module Cosmos
           end
         end
       end
+      @realtime_button_bar.step_button.setHidden(true)
       # Remove the debug frame
       @bottom_frame.layout.takeAt(@bottom_frame.layout.count - 1) if @debug_frame
       @debug_frame.removeAll
@@ -1442,8 +1435,17 @@ module Cosmos
       true
     end
 
-    def handle_start_go_button
-      scriptrunner_puts "User pressed #{@realtime_button_bar.start_button.text.strip}"
+    def handle_step_button
+      scriptrunner_puts "User pressed #{@realtime_button_bar.step_button.text.strip}"
+      self.class.step_mode = true
+      handle_start_go_button(step = true)
+    end
+
+    def handle_start_go_button(step = false)
+      unless step
+        scriptrunner_puts "User pressed #{@realtime_button_bar.start_button.text.strip}"
+        self.class.step_mode = false
+      end
       handle_output_io()
       @realtime_button_bar.start_button.clear_focus()
 
@@ -1832,7 +1834,5 @@ module Cosmos
         # Oh Well
       end
     end
-
-  end # class ScriptRunnerFrame
-
-end # module Cosmos
+  end
+end

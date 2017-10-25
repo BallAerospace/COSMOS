@@ -15,25 +15,20 @@ require 'cosmos'
 require 'cosmos/gui/qt'
 
 module Cosmos
-
-  # RealtimeButtonBar class
-  #
-  # This class implements the RealtimeButtonBar
-  #
+  # Create a horizontal or vertical widget which contains buttons to control
+  # scripting. The Step button is hidden by default, and Start, Pause, and
+  # Stop are visible.
   class RealtimeButtonBar < Qt::Widget
-
-    # Accessors for callbacks
+    attr_accessor :step_callback
     attr_accessor :start_callback
     attr_accessor :pause_callback
     attr_accessor :stop_callback
-
-    # Readers for buttons
+    attr_reader :step_button
     attr_reader :start_button
     attr_reader :pause_button
     attr_reader :stop_button
 
-    # Constructor
-    def initialize (parent, orientation = Qt::Horizontal)
+    def initialize(parent, orientation = Qt::Horizontal)
       super(parent)
       if orientation == Qt::Horizontal
         # Horizontal Frame for overall widget
@@ -56,15 +51,21 @@ module Cosmos
         @stop_button  = Qt::PushButton.new('Stop')
         @pause_button = Qt::PushButton.new('Pause')
         @start_button = Qt::PushButton.new('Start')
+        @step_button  = Qt::PushButton.new('Step')
+        @step_button.setHidden(true)
+        @overall_frame.addWidget(@step_button)
         @overall_frame.addWidget(@start_button)
         @overall_frame.addWidget(@pause_button)
         @overall_frame.addWidget(@stop_button)
       else
         # Buttons
         @button_frame = Qt::HBoxLayout.new
+        @step_button = Qt::PushButton.new('Step')
+        @step_button.setHidden(true)
         @start_button = Qt::PushButton.new('Start')
         @pause_button = Qt::PushButton.new('Pause')
         @stop_button  = Qt::PushButton.new('Stop')
+        @button_frame.addWidget(@step_button)
         @button_frame.addWidget(@start_button)
         @button_frame.addWidget(@pause_button)
         @button_frame.addWidget(@stop_button)
@@ -75,9 +76,11 @@ module Cosmos
 
       # Connect handlers
       @stop_button.connect(SIGNAL('clicked()')) { @stop_callback.call if @stop_callback }
-      @pause_button.connect(SIGNAL('clicked()'))  { @pause_callback.call if @pause_callback }
-      @start_button.connect(SIGNAL('clicked()'))  { @start_callback.call if @start_callback }
+      @pause_button.connect(SIGNAL('clicked()')) { @pause_callback.call if @pause_callback }
+      @start_button.connect(SIGNAL('clicked()')) { @start_callback.call if @start_callback }
+      @step_button.connect(SIGNAL('clicked()')) { @step_callback.call if @step_callback }
 
+      @step_callback = nil
       @start_callback = nil
       @pause_callback = nil
       @stop_callback  = nil
@@ -92,7 +95,5 @@ module Cosmos
     def state= (new_state)
       @state.setText(new_state.to_s)
     end
-
-  end # class RealtimeButtonBar
-
-end # module Cosmos
+  end
+end
