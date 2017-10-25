@@ -1379,12 +1379,16 @@ module Cosmos
 
     # @return [String] The server message log filename
     def get_server_message_log_filename
-      CmdTlmServer.message_log.filename
+      if CmdTlmServer.message_log
+        CmdTlmServer.message_log.filename
+      else
+        nil
+      end
     end
 
     # Starts a new server message log
     def start_new_server_message_log
-      CmdTlmServer.message_log.start
+      CmdTlmServer.message_log.start if CmdTlmServer.message_log
       nil
     end
 

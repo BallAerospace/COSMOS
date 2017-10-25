@@ -16,6 +16,7 @@ if RUBY_ENGINE == 'ruby'
   require 'cosmos/tools/cmd_tlm_server/gui/packets_tab'
   require 'cosmos/tools/cmd_tlm_server/gui/logging_tab'
   require 'cosmos/tools/cmd_tlm_server/gui/status_tab'
+  require 'cosmos/tools/cmd_tlm_server/gui/replay_tab'
   require 'cosmos/gui/qt_tool'
   require 'cosmos/gui/dialogs/splash'
   require 'cosmos/gui/dialogs/exception_dialog'
@@ -111,6 +112,8 @@ module Cosmos
       super(options) # MUST BE FIRST - All code before super is executed twice in RubyQt Based classes
       Cosmos.load_cosmos_icon("cts.png")
 
+      @ready = false
+      @mode = :CMD_TLM_SERVER
       @production = options.production
       @no_prompt = options.no_prompt
       @message_log = nil
@@ -121,6 +124,7 @@ module Cosmos
       @packets_tab = PacketsTab.new(self)
       @logging_tab = LoggingTab.new(@production)
       @status_tab = StatusTab.new
+      @replay_tab = ReplayTab.new
 
       statusBar.showMessage(tr("")) # Show blank message to initialize status bar
 
@@ -140,9 +144,10 @@ module Cosmos
         process_server_messages(options)
 
         CmdTlmServer.meta_callback = method(:meta_callback)
-        cts = CmdTlmServer.new(options.config_file, @production)
+        cts = CmdTlmServer.new(options.config_file, @production, false, @mode)
         cts.stop_callback = method(:stop_callback)
         @message_log = CmdTlmServer.message_log
+        @ready = true
 
         # Now that we've started the server (CmdTlmServer.new) we can populate all the tabs
         splash.message = "Populating Tabs"
@@ -151,19 +156,22 @@ module Cosmos
           self.window_title = CmdTlmServer.title if CmdTlmServer.title
           splash.progress = 0
           @interfaces_tab.populate_interfaces(@tab_widget)
-          splash.progress = 100/7 * 1
+          splash.progress = 100/8 * 1
           @targets_tab.populate(@tab_widget)
-          splash.progress = 100/7 * 2
+          splash.progress = 100/8 * 2
           @packets_tab.populate_commands(@tab_widget)
-          splash.progress = 100/7 * 3
+          splash.progress = 100/8 * 3
           @packets_tab.populate_telemetry(@tab_widget)
-          splash.progress = 100/7 * 4
+          splash.progress = 100/8 * 4
           @interfaces_tab.populate_routers(@tab_widget)
-          splash.progress = 100/7 * 5
+          splash.progress = 100/8 * 5
           @logging_tab.populate(@tab_widget)
-          splash.progress = 100/7 * 6
+          splash.progress = 100/8 * 6
           @status_tab.populate(@tab_widget)
+          splash.progress = 100/8 * 7
+          @replay_tab.populate(@tab_widget)
           splash.progress = 100
+          @replay_tab.widget.enabled = false
         end
         ConfigParser.splash = nil
       end
@@ -244,7 +252,9 @@ module Cosmos
       when 5
         handle_tab('Logging') { @logging_tab.update }
       when 6
-        handle_status_tab()
+        handle_tab('Status') { @status_tab.update }
+      when 7
+        handle_tab('Replay') { @replay_tab.update }
       end
     end
 
@@ -266,29 +276,15 @@ module Cosmos
       @tab_thread = Thread.new do
         begin
           while true
-            Qt.execute_in_main_thread(true) { yield }
-            break if @tab_sleeper.sleep(1)
-          end
-        rescue Exception => error
-          Qt.execute_in_main_thread(true) {|| ExceptionDialog.new(self, error, "COSMOS CTS : #{name} Tab Thread")}
-        end
-      end
-    end
-
-    # Update the status tab of the server
-    def handle_status_tab
-      @tab_thread = Thread.new do
-        begin
-          while true
             start_time = Time.now.sys
-            Qt.execute_in_main_thread(true) { @status_tab.update }
+            Qt.execute_in_main_thread(true) { yield }
             total_time = Time.now.sys - start_time
             if total_time > 0.0 and total_time < 1.0
               break if @tab_sleeper.sleep(1.0 - total_time)
             end
           end
         rescue Exception => error
-          Qt.execute_in_main_thread(true) {|| ExceptionDialog.new(self, error, "COSMOS CTS : Status Tab Thread")}
+          Qt.execute_in_main_thread(true) {|| ExceptionDialog.new(self, error, "COSMOS CTS : #{name} Tab Thread")}
         end
       end
     end
@@ -313,6 +309,7 @@ module Cosmos
 
       if continue
         kill_tab_thread()
+        @replay_tab.shutdown if @replay_tab
         CmdTlmServer.instance.stop_logging('ALL')
         CmdTlmServer.instance.stop
         super(event)
@@ -327,7 +324,7 @@ module Cosmos
       # Start thread to read server messages
       @output_thread = Thread.new do
         begin
-          while !@message_log
+          while !@ready
             sleep(1)
           end
           while true
@@ -358,7 +355,7 @@ module Cosmos
             @output.verticalScrollBar.value = @output.verticalScrollBar.maximum
             @first_output += 1
           end
-          @message_log.write(lines_to_write)
+          @message_log.write(lines_to_write) if @message_log
           CmdTlmServer.instance.post_server_message(lines_to_write)
         end
       end
@@ -388,7 +385,7 @@ module Cosmos
         string = @string_output.string.clone
         @string_output.string = @string_output.string[string.length..-1]
         string.each_line {|out_line| lines_to_write << out_line }
-        @message_log.write(lines_to_write)
+        @message_log.write(lines_to_write) if @message_log
         CmdTlmServer.instance.post_server_message(lines_to_write)
         STDOUT.print lines_to_write if STDIN.isatty # Have a console
       end
@@ -412,6 +409,7 @@ module Cosmos
           Logger.level = Logger::INFO
           cts = CmdTlmServer.new(options.config_file, options.production)
           @message_log = CmdTlmServer.message_log
+          @ready = true
           @output_thread = Thread.new do
             while true
               no_gui_handle_string_output()

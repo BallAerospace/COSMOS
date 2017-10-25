@@ -9,45 +9,22 @@
 # attribution addendums as found in the LICENSE.txt
 
 require 'cosmos'
-Cosmos.catch_fatal_exception do
-  require 'cosmos/gui/qt_tool'
-  require 'cosmos/gui/dialogs/splash'
-  require 'cosmos/gui/dialogs/progress_dialog'
-  require 'cosmos/gui/dialogs/packet_log_dialog'
-  require 'cosmos/tools/replay/replay_server'
-  require 'cosmos/gui/choosers/string_chooser'
-end
+require 'cosmos/gui/qt'
+require 'cosmos/gui/choosers/string_chooser'
+require 'cosmos/gui/dialogs/packet_log_dialog'
+require 'cosmos/gui/dialogs/progress_dialog'
 
 module Cosmos
 
-  class Replay < QtTool
+  # Implements the replay tab in the Command and Telemetry Server GUI
+  class ReplayTab
+
+    attr_accessor :widget
+
     # The number of bytes to print when an UNKNOWN packet is received
     UNKNOWN_BYTES_TO_PRINT = 36
 
-    def initialize(options)
-      # MUST BE FIRST - All code before super is executed twice in RubyQt Based classes
-      super(options)
-      Cosmos.load_cosmos_icon("replay.png")
-
-      initialize_actions()
-      initialize_menus()
-      initialize_central_widget()
-      complete_initialize()
-
-      @ready = false
-      Splash.execute(self) do |splash|
-        ConfigParser.splash = splash
-        splash.message = "Initializing Replay Server"
-
-        # Start the thread that will process server messages and add them to the output text
-        process_server_messages(options)
-
-        ReplayServer.new(options.config_file, false, false, false)
-        @ready = true
-
-        ConfigParser.splash = nil
-      end
-
+    def initialize
       # Initialize variables
       @packet_log_reader = System.default_packet_log_reader.new(*System.default_packet_log_reader_params)
       @log_directory = System.paths['LOGS']
@@ -59,24 +36,16 @@ module Cosmos
       @packet_offsets = []
     end
 
-    def initialize_menus
-      # File Menu
-      @file_menu = menuBar.addMenu(tr('&File'))
-      @file_menu.addAction(@exit_action)
+    # Create the targets tab and add it to the tab_widget
+    #
+    # @param tab_widget [Qt::TabWidget] The tab widget to add the tab to
+    def populate(tab_widget)
+      scroll = Qt::ScrollArea.new
+      @widget = Qt::Widget.new
 
-      # Help Menu
-      @about_string = "Telemetry Viewer provides a view of every telemetry packet in the system."
-      @about_string << " Packets can be viewed in numerous represenations ranging from the raw data to formatted with units."
-
-      initialize_help_menu()
-    end
-
-    def initialize_central_widget
-      # Create the central widget
-      @central_widget = Qt::Widget.new
-      setCentralWidget(@central_widget)
-
-      @top_layout = Qt::VBoxLayout.new
+      layout = Qt::VBoxLayout.new(@widget)
+      # Since the layout will be inside a scroll area make sure it respects the sizes we set
+      layout.setSizeConstraint(Qt::Layout::SetMinAndMaxSize)
 
       @log_widget = Qt::Widget.new
       @log_widget.setSizePolicy(Qt::SizePolicy::MinimumExpanding, Qt::SizePolicy::MinimumExpanding)
@@ -99,7 +68,7 @@ module Cosmos
       @log_open.connect(SIGNAL('clicked()')) { select_log_file() }
 
       # Create the operation buttons GUI
-      @op = Qt::GroupBox.new(tr("Playback Control"))
+      @op = Qt::GroupBox.new("Playback Control")
       @op_layout = Qt::VBoxLayout.new(@op)
       @op_button_layout = Qt::HBoxLayout.new
       @move_start = Qt::PushButton.new(Cosmos.get_icon('skip_to_start-26.png'), '')
@@ -172,7 +141,7 @@ module Cosmos
       @op_layout.addLayout(@speed_layout)
       @log_layout.addWidget(@op)
 
-      @file_pos = Qt::GroupBox.new(tr("File Position"))
+      @file_pos = Qt::GroupBox.new("File Position")
       @file_pos_layout = Qt::VBoxLayout.new(@file_pos)
       @slider = Qt::Slider.new(Qt::Horizontal)
       @slider.setRange(0, 10000)
@@ -181,79 +150,23 @@ module Cosmos
       @slider.setTracking(false)
       @slider.connect(SIGNAL('sliderReleased()')) { slider_released() }
       @time_layout = Qt::HBoxLayout.new()
-      @start_time = StringChooser.new(self, 'Start:', '', 200, true, true, Qt::AlignCenter | Qt::AlignVCenter)
-      @end_time = StringChooser.new(self, 'End:', '', 200, true, true, Qt::AlignCenter | Qt::AlignVCenter)
-      @current_time = StringChooser.new(self, 'Current:', '', 200, true, true, Qt::AlignCenter | Qt::AlignVCenter)
+      @start_time = StringChooser.new(@widget, 'Start:', '', 200, true, true, Qt::AlignCenter | Qt::AlignVCenter)
+      @end_time = StringChooser.new(@widget, 'End:', '', 200, true, true, Qt::AlignCenter | Qt::AlignVCenter)
+      @current_time = StringChooser.new(@widget, 'Current:', '', 200, true, true, Qt::AlignCenter | Qt::AlignVCenter)
       @time_layout.addWidget(@start_time)
       @time_layout.addWidget(@current_time)
       @time_layout.addWidget(@end_time)
       @file_pos_layout.addLayout(@time_layout)
       @file_pos_layout.addWidget(@slider)
       @log_layout.addWidget(@file_pos)
-      @top_layout.addWidget(@log_widget)
+      layout.addWidget(@log_widget)
 
-      # Add the message output
-      @output = Qt::PlainTextEdit.new
-      @output.setReadOnly(true)
-      @output.setMaximumBlockCount(100)
-
-      @top_layout.addWidget(@output, 500)
-
-      # Override stdout to the message window
-      # All code attempting to print into the GUI must use $stdout rather than STDOUT
-      @string_output = StringIO.new("", "r+")
-      $stdout = @string_output
-      Logger.level = Logger::INFO
-
-      @central_widget.setLayout(@top_layout)
+      scroll.setWidget(@widget)
+      tab_widget.addTab(scroll, "Replay")
     end
 
-    def select_log_file
-      unless @playback_thread
-        packet_log_dialog = PacketLogDialog.new(
-          self, 'Select Log File', @log_directory, @packet_log_reader,
-          [], nil, false, false, true, Cosmos::TLM_FILE_PATTERN,
-          Cosmos::BIN_FILE_PATTERN, false
-        )
-        case packet_log_dialog.exec
-        when Qt::Dialog::Accepted
-          stop()
-          @packet_log_reader = packet_log_dialog.packet_log_reader
-          @log_filename = packet_log_dialog.filenames[0]
-          @log_directory = File.dirname(@log_filename)
-          @log_directory << '/' unless @log_directory[-1..-1] == '\\'
-          @log_name.text = @log_filename
-
-          System.telemetry.reset
-          @cancel = false
-          ProgressDialog.execute(self, 'Analyzing Log File', 500, 10, true, false, true, false, true) do |progress_dialog|
-            progress_dialog.append_text("Processing File: #{@log_filename}\n")
-            progress_dialog.set_overall_progress(0.0)
-            progress_dialog.cancel_callback = method(:cancel_callback)
-            progress_dialog.enable_cancel_button
-            Cosmos.check_log_configuration(@packet_log_reader, @log_filename)
-            @packet_offsets = @packet_log_reader.packet_offsets(@log_filename, lambda {|percentage| progress_dialog.set_overall_progress(percentage); @cancel})
-            @playback_index = 0
-            update_slider_and_current_time(nil)
-            @packet_log_reader.open(@log_filename)
-            progress_dialog.close_done
-          end
-
-          if ProgressDialog.canceled?
-            @packet_log_reader.close
-            @log_name.text = ''
-            @log_filename = nil
-            @packet_offsets = []
-            @playback_index = 0
-            @start_time.value = ''
-            @current_time.value = ''
-            @end_time.value = ''
-          else
-            move_end()
-            move_start()
-          end
-        end
-      end
+    # Update the replay tab gui
+    def update
     end
 
     def cancel_callback(progress_dialog = nil)
@@ -357,7 +270,7 @@ module Cosmos
             end
           end
         rescue Exception => error
-          Qt.execute_in_main_thread(true) {|| ExceptionDialog.new(self, error, "Playback Thread")}
+          Qt.execute_in_main_thread(true) {|| ExceptionDialog.new(@widget, error, "Playback Thread")}
         ensure
           Qt.execute_in_main_thread(true) do
             @status.setText('Stopped')
@@ -398,6 +311,17 @@ module Cosmos
         @current_time.value = packet.received_time.formatted(true, 3, true) if packet and packet.received_time
       end
     end
+
+    def shutdown
+      Cosmos.kill_thread(self, @playback_thread)
+    end
+
+    # Gracefully kill threads
+    def graceful_kill
+      stop()
+    end
+
+    private
 
     def handle_packet(packet)
       # For replay we will try our best here but not crash on errors
@@ -440,7 +364,7 @@ module Cosmos
         target.tlm_cnt += 1 if target
         packet.received_count += 1
         packet.check_limits(System.limits_set)
-        ReplayServer.instance.post_packet(packet)
+        CmdTlmServer.instance.post_packet(packet)
 
         # Write to routers
         if interface
@@ -457,61 +381,53 @@ module Cosmos
       end
     end
 
-    def process_server_messages(options)
-      # Start thread to read server messages
-      @output_thread = Thread.new do
-        begin
-          while !@ready
-            sleep(1)
+    def select_log_file
+      unless @playback_thread
+        packet_log_dialog = PacketLogDialog.new(
+          @widget, 'Select Log File', @log_directory, @packet_log_reader,
+          [], nil, false, false, true, Cosmos::TLM_FILE_PATTERN,
+          Cosmos::BIN_FILE_PATTERN, false
+        )
+        case packet_log_dialog.exec
+        when Qt::Dialog::Accepted
+          stop()
+          @packet_log_reader = packet_log_dialog.packet_log_reader
+          @log_filename = packet_log_dialog.filenames[0]
+          @log_directory = File.dirname(@log_filename)
+          @log_directory << '/' unless @log_directory[-1..-1] == '\\'
+          @log_name.text = @log_filename
+
+          System.telemetry.reset
+          @cancel = false
+          ProgressDialog.execute(@widget, 'Analyzing Log File', 500, 10, true, false, true, false, true) do |progress_dialog|
+            progress_dialog.append_text("Processing File: #{@log_filename}\n")
+            progress_dialog.set_overall_progress(0.0)
+            progress_dialog.cancel_callback = method(:cancel_callback)
+            progress_dialog.enable_cancel_button
+            Cosmos.check_log_configuration(@packet_log_reader, @log_filename)
+            @packet_offsets = @packet_log_reader.packet_offsets(@log_filename, lambda {|percentage| progress_dialog.set_overall_progress(percentage); @cancel})
+            @playback_index = 0
+            update_slider_and_current_time(nil)
+            @packet_log_reader.open(@log_filename)
+            progress_dialog.close_done
           end
-          while true
-            if @string_output.string[-1..-1] == "\n"
-              Qt.execute_in_main_thread(true) do
-                string = @string_output.string.clone
-                @string_output.string = @string_output.string[string.length..-1]
-                string.each_line {|out_line| @output.add_formatted_text(out_line) }
-                @output.flush
-              end
-            end
-            sleep(1)
-          end
-        rescue Exception => error
-          Qt.execute_in_main_thread(true) do
-            ExceptionDialog.new(self, error, "#{options.title}: Messages Thread")
+
+          if ProgressDialog.canceled?
+            @packet_log_reader.close
+            @log_name.text = ''
+            @log_filename = nil
+            @packet_offsets = []
+            @playback_index = 0
+            @start_time.value = ''
+            @current_time.value = ''
+            @end_time.value = ''
+          else
+            move_end()
+            move_start()
           end
         end
       end
     end
 
-    def closeEvent(event)
-      Cosmos.kill_thread(self, @playback_thread)
-      super(event)
-    end
-
-    # Gracefully kill threads
-    def graceful_kill
-      stop()
-    end
-
-    def self.run(option_parser = nil, options = nil)
-      Cosmos.catch_fatal_exception do
-        unless option_parser and options
-          option_parser, options = create_default_options()
-          options.title = 'Replay'
-          options.width = 800
-          options.height = 500
-          options.auto_size = false
-          options.config_file = CmdTlmServer::DEFAULT_CONFIG_FILE
-          option_parser.separator "Replay Specific Options:"
-          option_parser.on("-c", "--config FILE", "Use the specified configuration file") do |arg|
-            options.config_file = arg
-          end
-        end
-
-        super(option_parser, options)
-      end
-    end
-
-  end # class Replay
-
+  end
 end # module Cosmos
