@@ -79,20 +79,36 @@ module Cosmos
       it "gets file listings" do
         capture_io do |stdout|
           expect(self).to receive(:gets) { 'file' }
-          expect(save_file_dialog(Dir.pwd, "Save Something!!!")).to eql 'file'
+          expect(save_file_dialog()).to eql 'file'
+          expect(stdout.string).to include "Save File"
+          stdout.rewind
+          expect(self).to receive(:gets) { 'file' }
+          expect(save_file_dialog(Dir.pwd, "Save Something!!!", "*.txt")).to eql 'file'
           expect(stdout.string).to include "Save Something!!!"
           stdout.rewind
           expect(self).to receive(:gets) { 'file' }
-          expect(open_file_dialog("C:/")).to eql 'file'
+          expect(open_file_dialog()).to eql 'file'
           expect(stdout.string).to include "Open File"
+          stdout.rewind
+          expect(self).to receive(:gets) { 'file' }
+          expect(open_file_dialog(Dir.pwd, "Test Open", "*.txt")).to eql 'file'
+          expect(stdout.string).to include "Test Open"
           stdout.rewind
           expect(self).to receive(:gets) { 'file' }
           expect(open_files_dialog()).to eql 'file'
           expect(stdout.string).to include "Open File(s)"
           stdout.rewind
+          expect(self).to receive(:gets) { 'file' }
+          expect(open_files_dialog(Dir.pwd, "Test Open Files")).to eql 'file'
+          expect(stdout.string).to include "Test Open Files"
+          stdout.rewind
           expect(self).to receive(:gets) { 'dir' }
           expect(open_directory_dialog()).to eql 'dir'
           expect(stdout.string).to include "Open Directory"
+          stdout.rewind
+          expect(self).to receive(:gets) { 'dir' }
+          expect(open_directory_dialog(Dir.pwd, "Test Dir")).to eql 'dir'
+          expect(stdout.string).to include "Test Dir"
           stdout.rewind
         end
       end
@@ -742,4 +758,3 @@ module Cosmos
 
   end
 end
-
