@@ -403,37 +403,37 @@ module Cosmos
     end
 
     def create_add_breakpoint_action(point)
-      add_breakpoint = Qt::Action.new(tr("Add Breakpoint"), self)
-      add_breakpoint.statusTip = tr("Add a breakpoint at this line")
-      add_breakpoint.connect(SIGNAL('triggered()')) do
+      action = Qt::Action.new(tr("Add Breakpoint"), self)
+      action.statusTip = tr("Add a breakpoint at this line")
+      action.connect(SIGNAL('triggered()')) do
         line_at_point(point) do |line|
           add_breakpoint(line)
           emit breakpoint_set(line)
         end
       end
-      add_breakpoint
+      action
     end
 
     def create_clear_breakpoint_action(point)
-      clear_breakpoint = Qt::Action.new(tr("Clear Breakpoint"), self)
-      clear_breakpoint.statusTip = tr("Clear an existing breakpoint at this line")
-      clear_breakpoint.connect(SIGNAL('triggered()')) do
+      action = Qt::Action.new(tr("Clear Breakpoint"), self)
+      action.statusTip = tr("Clear an existing breakpoint at this line")
+      action.connect(SIGNAL('triggered()')) do
         line_at_point(point) do |line|
           clear_breakpoint(line)
           emit breakpoint_cleared(line)
         end
       end
-      clear_breakpoint
+      action
     end
 
     def create_clear_all_breakpoints_action
-      clear_all_breakpoints = Qt::Action.new(tr("Clear All Breakpoints"), self)
-      clear_all_breakpoints.statusTip = tr("Clear all existing breakpoints")
-      clear_all_breakpoints.connect(SIGNAL('triggered()')) do
+      action = Qt::Action.new(tr("Clear All Breakpoints"), self)
+      action.statusTip = tr("Clear all existing breakpoints")
+      action.connect(SIGNAL('triggered()')) do
         clear_breakpoints
         emit breakpoints_cleared
       end
-      clear_all_breakpoints
+      action
     end
 
     # Get the top and bottom coordinates of the block in viewport coordinates
