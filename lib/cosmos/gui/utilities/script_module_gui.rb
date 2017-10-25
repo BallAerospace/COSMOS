@@ -76,16 +76,16 @@ module Cosmos
       return result
     end
 
-    def save_file_dialog(directory = Cosmos::USERPATH, message = "Save File")
-      _get_main_thread_gui {|window| Qt::FileDialog.getSaveFileName(window, message, directory) }
+    def save_file_dialog(directory = Cosmos::USERPATH, message = "Save File", filter = "All Files (*.*)")
+      _get_main_thread_gui {|window| Qt::FileDialog.getSaveFileName(window, message, directory, filter) }
     end
 
-    def open_file_dialog(directory = Cosmos::USERPATH, message = "Open File")
-      _get_main_thread_gui {|window| Qt::FileDialog.getOpenFileName(window, message, directory) }
+    def open_file_dialog(directory = Cosmos::USERPATH, message = "Open File", filter = "All Files (*.*)")
+      _get_main_thread_gui {|window| Qt::FileDialog.getOpenFileName(window, message, directory, filter) }
     end
 
-    def open_files_dialog(directory = Cosmos::USERPATH, message = "Open File(s)")
-      _get_main_thread_gui {|window| Qt::FileDialog.getOpenFileNames(window, message, directory) }
+    def open_files_dialog(directory = Cosmos::USERPATH, message = "Open File(s)", filter = "All Files (*.*)")
+      _get_main_thread_gui {|window| Qt::FileDialog.getOpenFileNames(window, message, directory, filter) }
     end
 
     def open_directory_dialog(directory = Cosmos::USERPATH, message = "Open Directory")
