@@ -46,7 +46,7 @@ module Cosmos
       end
 
       @keywords = %w(TITLE PACKET_LOG_WRITER AUTO_INTERFACE_TARGETS INTERFACE_TARGET INTERFACE ROUTER)
-      @interface_keywords = %w(DONT_CONNECT DONT_RECONNECT RECONNECT_DELAY DISABLE_DISCONNECT LOG DONT_LOG TARGET PROTOCOL)
+      @interface_keywords = %w(DONT_CONNECT DONT_RECONNECT RECONNECT_DELAY DISABLE_DISCONNECT LOG_RAW  OPTION LOG DONT_LOG TARGET PROTOCOL)
     end
 
     after(:all) do
@@ -75,7 +75,7 @@ module Cosmos
         end
 
         @interface_keywords.each do |keyword|
-          next if %w(DONT_CONNECT DONT_RECONNECT DISABLE_DISCONNECT DONT_LOG).include? keyword
+          next if %w(DONT_CONNECT DONT_RECONNECT DISABLE_DISCONNECT DONT_LOG LOG_RAW).include? keyword
           tf = Tempfile.new('unittest')
           tf.puts "INTERFACE CTSSPEC_INT cts_config_test_interface.rb"
           tf.puts keyword
@@ -120,8 +120,8 @@ module Cosmos
           tf.close
           config = CmdTlmServerConfig.new(tf.path)
           expect(config.packet_log_writer_pairs.keys).to eql ["DEFAULT","MY_WRITER"]
-          expect(config.packet_log_writer_pairs["DEFAULT"].cmd_log_writer.logging_enabled).to be true
-          expect(config.packet_log_writer_pairs["MY_WRITER"].cmd_log_writer.logging_enabled).to be false
+          expect(config.packet_log_writer_pairs["DEFAULT"].cmd_log_writer.logging_enabled).to eq true
+          expect(config.packet_log_writer_pairs["MY_WRITER"].cmd_log_writer.logging_enabled).to eq false
           tf.unlink
           config.packet_log_writer_pairs.each do |name, plwp|
             plwp.cmd_log_writer.shutdown
@@ -274,7 +274,7 @@ module Cosmos
           tf.puts 'DONT_CONNECT'
           tf.close
           config = CmdTlmServerConfig.new(tf.path)
-          expect(config.interfaces['CTSSPEC_INT'].connect_on_startup).to be false
+          expect(config.interfaces['CTSSPEC_INT'].connect_on_startup).to eq false
           tf.unlink
         end
       end
@@ -295,7 +295,7 @@ module Cosmos
           tf.puts 'DONT_RECONNECT'
           tf.close
           config = CmdTlmServerConfig.new(tf.path)
-          expect(config.interfaces['CTSSPEC_INT'].auto_reconnect).to be false
+          expect(config.interfaces['CTSSPEC_INT'].auto_reconnect).to eq false
           tf.unlink
         end
       end
@@ -337,7 +337,40 @@ module Cosmos
           tf.puts 'DISABLE_DISCONNECT'
           tf.close
           config = CmdTlmServerConfig.new(tf.path)
-          expect(config.interfaces['CTSSPEC_INT'].disable_disconnect).to be true
+          expect(config.interfaces['CTSSPEC_INT'].disable_disconnect).to eq true
+          tf.unlink
+        end
+      end
+
+      context "with LOG_RAW" do
+        it "create a raw logger on the interface" do
+          tf = Tempfile.new('unittest')
+          tf.puts "INTERFACE CTSSPEC_INT cts_config_test_interface.rb"
+          tf.puts 'LOG_RAW'
+          tf.close
+          config = CmdTlmServerConfig.new(tf.path)
+          expect(config.interfaces['CTSSPEC_INT'].raw_logger_pair).to be_a RawLoggerPair
+          expect(config.interfaces['CTSSPEC_INT'].raw_logger_pair.read_logger).to be_a RawLogger
+          expect(config.interfaces['CTSSPEC_INT'].raw_logger_pair.write_logger).to be_a RawLogger
+          tf.unlink
+        end
+
+        it "creates a customized raw logger on the interface" do
+          tf = Tempfile.new('unittest')
+          tf.puts "INTERFACE CTSSPEC_INT cts_config_test_interface.rb"
+          tf.puts "LOG_RAW raw_logger true 1000 'C:/logs'"
+          tf.close
+          config = CmdTlmServerConfig.new(tf.path)
+          read_logger = config.interfaces['CTSSPEC_INT'].raw_logger_pair.read_logger
+          expect(read_logger.orig_name).to eq "CTSSPEC_INT"
+          expect(read_logger.instance_variable_get("@logging_enabled")).to eq true
+          expect(read_logger.instance_variable_get("@cycle_size")).to eq 1000
+          expect(read_logger.instance_variable_get("@log_directory")).to eq "C:/logs"
+          write_logger = config.interfaces['CTSSPEC_INT'].raw_logger_pair.write_logger
+          expect(write_logger.orig_name).to eq "CTSSPEC_INT"
+          expect(write_logger.instance_variable_get("@logging_enabled")).to eq true
+          expect(write_logger.instance_variable_get("@cycle_size")).to eq 1000
+          expect(write_logger.instance_variable_get("@log_directory")).to eq "C:/logs"
           tf.unlink
         end
       end
@@ -482,13 +515,22 @@ module Cosmos
           tf.unlink
         end
 
+        it "complains about filenames or classes which aren't found" do
+          tf = Tempfile.new('unittest')
+          tf.puts "INTERFACE CTSSPEC_INT cts_config_test_interface.rb"
+          tf.puts 'PROTOCOL READ this_is_not_a_file.rb'
+          tf.close
+          expect { CmdTlmServerConfig.new(tf.path) }.to raise_error(ConfigParser::Error, /Unable to require this_is_not_a_file.rb/)
+          tf.unlink
+        end
+
         it "instantiates via the file name" do
           tf = Tempfile.new('unittest')
           tf.puts "INTERFACE CTSSPEC_INT cts_config_test_interface.rb"
           tf.puts 'PROTOCOL READ cts_config_test_protocol.rb'
           tf.close
           config = CmdTlmServerConfig.new(tf.path)
-          expect(config.interfaces['CTSSPEC_INT'].read_protocols[0].class).to be CtsConfigTestProtocol
+          expect(config.interfaces['CTSSPEC_INT'].read_protocols[0].class).to eq CtsConfigTestProtocol
           tf.unlink
         end
 
@@ -498,7 +540,7 @@ module Cosmos
           tf.puts 'PROTOCOL READ CtsConfigTestProtocol'
           tf.close
           config = CmdTlmServerConfig.new(tf.path)
-          expect(config.interfaces['CTSSPEC_INT'].read_protocols[0].class).to be CtsConfigTestProtocol
+          expect(config.interfaces['CTSSPEC_INT'].read_protocols[0].class).to eq CtsConfigTestProtocol
           tf.unlink
         end
 
@@ -510,8 +552,8 @@ module Cosmos
           tf.close
           config = CmdTlmServerConfig.new(tf.path)
           read_protocols = config.interfaces['CTSSPEC_INT'].read_protocols
-          expect(read_protocols[0].class).to be OverrideProtocol
-          expect(read_protocols[1].class).to be CtsConfigTestProtocol
+          expect(read_protocols[0].class).to eq OverrideProtocol
+          expect(read_protocols[1].class).to eq CtsConfigTestProtocol
           expect(config.interfaces['CTSSPEC_INT'].write_protocols).to be_empty
           tf.unlink
         end
@@ -524,8 +566,8 @@ module Cosmos
           tf.close
           config = CmdTlmServerConfig.new(tf.path)
           write_protocols = config.interfaces['CTSSPEC_INT'].write_protocols
-          expect(write_protocols[0].class).to be CtsConfigTestProtocol
-          expect(write_protocols[1].class).to be OverrideProtocol
+          expect(write_protocols[0].class).to eq CtsConfigTestProtocol
+          expect(write_protocols[1].class).to eq OverrideProtocol
           expect(config.interfaces['CTSSPEC_INT'].read_protocols).to be_empty
           tf.unlink
         end
@@ -539,10 +581,10 @@ module Cosmos
           config = CmdTlmServerConfig.new(tf.path)
           read_protocols = config.interfaces['CTSSPEC_INT'].read_protocols
           write_protocols = config.interfaces['CTSSPEC_INT'].write_protocols
-          expect(read_protocols[0].class).to be OverrideProtocol
-          expect(read_protocols[1].class).to be CtsConfigTestProtocol
-          expect(write_protocols[0].class).to be CtsConfigTestProtocol
-          expect(write_protocols[1].class).to be OverrideProtocol
+          expect(read_protocols[0].class).to eq OverrideProtocol
+          expect(read_protocols[1].class).to eq CtsConfigTestProtocol
+          expect(write_protocols[0].class).to eq CtsConfigTestProtocol
+          expect(write_protocols[1].class).to eq OverrideProtocol
           tf.unlink
         end
 
@@ -553,7 +595,7 @@ module Cosmos
           tf.close
           config = CmdTlmServerConfig.new(tf.path)
           pinfo = config.interfaces['CTSSPEC_INT'].protocol_info[0]
-          expect(pinfo[0]).to be CtsConfigTestProtocol
+          expect(pinfo[0]).to eq CtsConfigTestProtocol
           expect(pinfo[1]).to eq ['PARAM1', '20']
           expect(pinfo[2]).to eq :READ
           tf.unlink
@@ -664,15 +706,35 @@ module Cosmos
           tf = Tempfile.new('unittest')
           tf.puts 'BACKGROUND_TASK cts_config_test_background_task_no_args.rb'
           tf.puts 'BACKGROUND_TASK cts_config_test_background_task_args.rb 1 2 3'
+          tf.puts '  STOPPED'
           tf.close
           config = CmdTlmServerConfig.new(tf.path)
           expect(config.background_tasks.length).to eql 2
           expect(config.background_tasks[0]).to be_a CtsConfigTestBackgroundTaskNoArgs
+          expect(config.background_tasks[0].stopped).to be false
           expect(config.background_tasks[1]).to be_a CtsConfigTestBackgroundTaskArgs
+          expect(config.background_tasks[1].stopped).to be true
           tf.unlink
 
           File.delete background_task_no_args_file
           File.delete background_task_args_file
+        end
+      end
+
+      context "with COLLECT_METADATA" do
+        it "indicates metadata should be collected" do
+          tf = Tempfile.new('unittest')
+          tf.close
+          config = CmdTlmServerConfig.new(tf.path)
+          expect(config.metadata).to be false
+          tf.unlink
+
+          tf = Tempfile.new('unittest')
+          tf.puts 'COLLECT_METADATA'
+          tf.close
+          config = CmdTlmServerConfig.new(tf.path)
+          expect(config.metadata).to be true
+          tf.unlink
         end
       end
 
