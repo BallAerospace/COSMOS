@@ -90,6 +90,8 @@ module Cosmos
         expect(bt.instance_variable_get("@threads").length).to eq 0
 
         capture_io do |stdout|
+          expect { bt.start(3) }.to raise_error(/No task at index 3/)
+
           bt.start(2)
           sleep 0.1
           expect(running_threads.length).to eql(2)
@@ -111,6 +113,12 @@ module Cosmos
           expect(bt.instance_variable_get("@threads").compact.length).to eq 3
           expect(stdout.string).to match "BG0 START"
 
+          bt.start(2) # Should do nothing since the task is already started
+          sleep 0.1
+          expect(running_threads.length).to eql(4)
+          expect(bt.instance_variable_get("@threads").compact.length).to eq 3
+          expect(stdout.string).to match "BG0 START" # No change
+
           bt.stop(1)
           sleep 0.2
           expect(running_threads.length).to eql(3)
@@ -131,6 +139,14 @@ module Cosmos
           expect(bt.instance_variable_get("@threads")[2]).to be_nil
           expect(bt.instance_variable_get("@threads").compact.length).to eq 0
           expect(stdout.string).to match "BG2 STOP"
+
+          bt.stop(0) # Should be safe to stop something already stopped
+          sleep 0.2
+          expect(running_threads.length).to eql(1)
+          expect(bt.instance_variable_get("@threads").compact.length).to eq 0
+          expect(stdout.string).to match "BG2 STOP" # No change
+
+          expect { bt.stop(3) }.to raise_error(/No task at index 3/)
         end
         tf.unlink
       end

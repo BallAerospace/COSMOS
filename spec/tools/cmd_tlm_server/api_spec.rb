@@ -21,7 +21,9 @@ module Cosmos
       cts = File.join(Cosmos::USERPATH,'config','tools','cmd_tlm_server','cmd_tlm_server.txt')
       FileUtils.mkdir_p(File.dirname(cts))
       File.open(cts,'w') do |file|
-        file.puts 'INTERFACE INT interface.rb'
+        file.puts 'INTERFACE INST_INT interface.rb'
+        file.puts '  TARGET INST'
+        file.puts '  PROTOCOL READ_WRITE OverrideProtocol'
         file.puts 'ROUTER ROUTE interface.rb'
         file.puts 'BACKGROUND_TASK example_background_task1.rb'
         file.puts 'BACKGROUND_TASK example_background_task2.rb'
@@ -78,8 +80,8 @@ DOC
       allow_any_instance_of(Interface).to receive(:disconnect)
       allow_any_instance_of(Interface).to receive(:write_raw)
       allow_any_instance_of(Interface).to receive(:read)
+      allow_any_instance_of(Interface).to receive(:write)
       @api = CmdTlmServer.new
-      allow(@api.commanding).to receive(:send_command_to_target)
     end
 
     after(:each) do
@@ -436,6 +438,15 @@ DOC
       end
     end
 
+    describe "get_cmd_buffer" do
+      it "returns a command packet buffer" do
+        @api.cmd("INST ABORT")
+        expect(@api.get_cmd_buffer("INST", "ABORT")[6..7].unpack("n")[0]).to eq 2
+        @api.cmd("INST COLLECT with TYPE NORMAL, DURATION 5")
+        expect(@api.get_cmd_buffer("INST", "COLLECT")[6..7].unpack("n")[0]).to eq 1
+      end
+    end
+
     describe "get_cmd_list" do
       it "returns command names sorted" do
         result = @api.get_cmd_list("INST")
@@ -481,6 +492,8 @@ DOC
         # Each element in the results array contains:
         #   name, default, states, description, full units, units, required
         expect(result).to include ['ARRAY',[],nil,'Array parameter',nil,nil,false]
+        # Since ARRAY2 has a format string the default is in quotes
+        expect(result).to include ['ARRAY2',"[]",nil,'Array parameter',nil,nil,false]
       end
     end
 
@@ -507,21 +520,41 @@ DOC
         expect(@api.get_cmd_value("INST", "COLLECT", "RECEIVED_TIMESECONDS")).to eql time.to_f
         expect(@api.get_cmd_value("INST", "COLLECT", "RECEIVED_COUNT")).to eql 5
       end
+
+      it "returns special values for time if time isn't set" do
+        time = Time.now
+        packet = System.commands.packet("INST", "COLLECT")
+        packet.received_time = nil
+        packet.restore_defaults
+        packet.received_count = 5
+        expect(@api.get_cmd_value("INST", "COLLECT", "TYPE")).to eql 'NORMAL'
+        expect(@api.get_cmd_value("INST", "COLLECT", "RECEIVED_TIMEFORMATTED")).to eql "No Packet Received Time"
+        expect(@api.get_cmd_value("INST", "COLLECT", "RECEIVED_TIMESECONDS")).to eql 0.0
+        expect(@api.get_cmd_value("INST", "COLLECT", "RECEIVED_COUNT")).to eql 5
+      end
     end
 
     describe "get_cmd_time" do
       it "returns command times" do
         time = Time.now
         time2 = Time.now + 2
-        packet = System.commands.packet("INST", "COLLECT")
-        packet.received_time = time
+        collect_cmd = System.commands.packet("INST", "COLLECT")
+        collect_cmd.received_time = time
+        abort_cmd = System.commands.packet("INST", "ABORT")
+        abort_cmd.received_time = time + 1
         packet2 = System.commands.packet("SYSTEM", "STARTLOGGING")
         packet2.received_time = time2
         expect(@api.get_cmd_time()).to eql ['SYSTEM', 'STARTLOGGING', time2.tv_sec, time2.tv_usec]
-        expect(@api.get_cmd_time('INST')).to eql ['INST', 'COLLECT', time.tv_sec, time.tv_usec]
+        expect(@api.get_cmd_time('INST')).to eql ['INST', 'ABORT', time.tv_sec + 1, time.tv_usec]
         expect(@api.get_cmd_time('SYSTEM')).to eql ['SYSTEM', 'STARTLOGGING', time2.tv_sec, time2.tv_usec]
         expect(@api.get_cmd_time('INST', 'COLLECT')).to eql ['INST', 'COLLECT', time.tv_sec, time.tv_usec]
         expect(@api.get_cmd_time('SYSTEM', 'STARTLOGGING')).to eql ['SYSTEM', 'STARTLOGGING', time2.tv_sec, time2.tv_usec]
+      end
+
+      it "returns nil if no times are set" do
+        System.commands.packets("INST").each { |name, pkt| pkt.received_time = nil }
+        expect(@api.get_cmd_time("INST")).to eql [nil, nil, nil, nil]
+        expect(@api.get_cmd_time("INST", "ABORT")).to eql ["INST", "ABORT", nil, nil]
       end
     end
 
@@ -540,12 +573,11 @@ DOC
       end
 
       it "processes a string" do
-        value = @api.tlm("INST HEALTH_STATUS TEMP1")
-        expect(value).to eql -100.0
+        expect(@api.tlm("INST HEALTH_STATUS TEMP1")).to eql -100.0
       end
 
       it "processes parameters" do
-        value = @api.tlm("INST","HEALTH_STATUS","TEMP1")
+        expect(@api.tlm("INST","HEALTH_STATUS","TEMP1")).to eql -100.0
       end
 
       it "complains if too many parameters" do
@@ -644,13 +676,26 @@ DOC
     end
 
     describe "set_tlm" do
-      it "complains about unknown targets, commands, and parameters" do
+      it "complains about unknown targets, packets, and parameters" do
         expect { @api.set_tlm("BLAH HEALTH_STATUS COLLECTS = 1") }.to raise_error(/does not exist/)
         expect { @api.set_tlm("INST UNKNOWN COLLECTS = 1") }.to raise_error(/does not exist/)
         expect { @api.set_tlm("INST HEALTH_STATUS BLAH = 1") }.to raise_error(/does not exist/)
         expect { @api.set_tlm("BLAH","HEALTH_STATUS","COLLECTS",1) }.to raise_error(/does not exist/)
         expect { @api.set_tlm("INST","UNKNOWN","COLLECTS",1) }.to raise_error(/does not exist/)
         expect { @api.set_tlm("INST","HEALTH_STATUS","BLAH",1) }.to raise_error(/does not exist/)
+      end
+
+      it "doesn't allow SYSTEM META PKTID or CONFIG" do
+        expect { @api.set_tlm("SYSTEM META PKTID = 1") }.to raise_error(/set_tlm not allowed/)
+        expect { @api.set_tlm("SYSTEM META CONFIG = 1") }.to raise_error(/set_tlm not allowed/)
+      end
+
+      it "sets SYSTEM META command as well as tlm" do
+        cmd = System.commands.packet("SYSTEM", "META")
+        tlm = System.telemetry.packet("SYSTEM", "META")
+        @api.set_tlm("SYSTEM META RUBY_VERSION = 1.8.0")
+        expect(cmd.read("RUBY_VERSION")).to eq("1.8.0")
+        expect(tlm.read("RUBY_VERSION")).to eq("1.8.0")
       end
 
       it "processes a string" do
@@ -669,7 +714,7 @@ DOC
     end
 
     describe "set_tlm_raw" do
-      it "complains about unknown targets, commands, and parameters" do
+      it "complains about unknown targets, packets, and parameters" do
         expect { @api.set_tlm_raw("BLAH HEALTH_STATUS COLLECTS = 1") }.to raise_error(/does not exist/)
         expect { @api.set_tlm_raw("INST UNKNOWN COLLECTS = 1") }.to raise_error(/does not exist/)
         expect { @api.set_tlm_raw("INST HEALTH_STATUS BLAH = 1") }.to raise_error(/does not exist/)
@@ -686,6 +731,147 @@ DOC
       it "processes parameters" do
         @api.set_tlm_raw("INST","HEALTH_STATUS","TEMP1", 0.0)
         expect(@api.tlm("INST HEALTH_STATUS TEMP1")).to eql -100.0
+      end
+    end
+
+    describe "inject_tlm" do
+      it "complains about non-existant targets" do
+        expect { @api.inject_tlm("BLAH","HEALTH_STATUS") }.to raise_error(RuntimeError, "Unknown target: BLAH")
+      end
+
+      it "complains about non-existant packets" do
+        expect { @api.inject_tlm("INST","BLAH") }.to raise_error(RuntimeError, "Telemetry packet 'INST BLAH' does not exist")
+      end
+
+      it "complains about non-existant items" do
+        expect { @api.inject_tlm("INST","HEALTH_STATUS",{BLAH: 0}) }.to raise_error(RuntimeError, "Packet item 'INST HEALTH_STATUS BLAH' does not exist")
+      end
+
+      it "logs errors writing routers" do
+        @api.inject_tlm("INST","HEALTH_STATUS",{TEMP1: 50, TEMP2: 50, TEMP3: 50, TEMP4: 50}, :CONVERTED)
+        allow_any_instance_of(Interface).to receive(:write_allowed?).and_raise("PROBLEM!")
+        expect(Logger).to receive(:error) do |msg|
+          expect(msg).to match /Problem writing to router/
+        end
+        @api.inject_tlm("INST","HEALTH_STATUS")
+      end
+
+      it "injects a packet into the system" do
+        @api.inject_tlm("INST","HEALTH_STATUS",{TEMP1: 10, TEMP2: 20}, :CONVERTED, true, true, false)
+        expect(@api.tlm("INST HEALTH_STATUS TEMP1")).to be_within(0.1).of(10.0)
+        expect(@api.tlm("INST HEALTH_STATUS TEMP2")).to be_within(0.1).of(20.0)
+        @api.inject_tlm("INST","HEALTH_STATUS",{TEMP1: 0, TEMP2: 0}, :RAW, true, true, false)
+        expect(@api.tlm("INST HEALTH_STATUS TEMP1")).to eql -100.0
+        expect(@api.tlm("INST HEALTH_STATUS TEMP2")).to eql -100.0
+      end
+
+      it "writes to routers and logs even if the packet has no interface" do
+        sys = System.targets["SYSTEM"]
+        interface = sys.interface
+        sys.interface = nil
+
+        allow_any_instance_of(Interface).to receive(:write_allowed?).and_raise("PROBLEM!")
+        expect(Logger).to receive(:error) do |msg|
+          expect(msg).to match /Problem writing to router/
+        end
+
+        @api.inject_tlm("SYSTEM","LIMITS_CHANGE")
+        sys.interface = interface
+      end
+    end
+
+    describe "override_tlm" do
+      it "complains about unknown targets, packets, and parameters" do
+        expect { @api.override_tlm("BLAH HEALTH_STATUS COLLECTS = 1") }.to raise_error(/does not exist/)
+        expect { @api.override_tlm("INST UNKNOWN COLLECTS = 1") }.to raise_error(/does not exist/)
+        expect { @api.override_tlm("INST HEALTH_STATUS BLAH = 1") }.to raise_error(/does not exist/)
+        expect { @api.override_tlm("BLAH","HEALTH_STATUS","COLLECTS",1) }.to raise_error(/does not exist/)
+        expect { @api.override_tlm("INST","UNKNOWN","COLLECTS",1) }.to raise_error(/does not exist/)
+        expect { @api.override_tlm("INST","HEALTH_STATUS","BLAH",1) }.to raise_error(/does not exist/)
+      end
+
+      it "complains if the target has no interface" do
+        expect { @api.override_tlm("SYSTEM META PKTID = 1") }.to raise_error(/Target 'SYSTEM' has no interface/)
+      end
+
+      it "complains if the target doesn't have OVERRIDE protocol" do
+        interface = OpenStruct.new
+        interface.name = "SYSTEM_INT"
+        System.targets["SYSTEM"].interface = interface # Set a dummy interface
+        expect { @api.override_tlm("SYSTEM META PKTID = 1") }.to raise_error(/Interface SYSTEM_INT does not have override/)
+      end
+
+      it "complains with too many parameters" do
+        expect { @api.override_tlm("INST","HEALTH_STATUS","TEMP1","TEMP2",0.0) }.to raise_error(/Invalid number of arguments/)
+      end
+
+      it "calls _override_tlm in the interface" do
+        int = System.targets["INST"].interface
+        expect(int).to receive("_override_tlm").with("INST","HEALTH_STATUS","TEMP1",100.0)
+        @api.override_tlm("INST HEALTH_STATUS TEMP1 = 100.0")
+        expect(int).to receive("_override_tlm").with("INST","HEALTH_STATUS","TEMP2",50.0)
+        @api.override_tlm("INST","HEALTH_STATUS","TEMP2", 50.0)
+      end
+    end
+
+    describe "override_tlm_raw" do
+      it "complains about unknown targets, commands, and parameters" do
+        expect { @api.override_tlm_raw("BLAH HEALTH_STATUS COLLECTS = 1") }.to raise_error(/does not exist/)
+        expect { @api.override_tlm_raw("INST UNKNOWN COLLECTS = 1") }.to raise_error(/does not exist/)
+        expect { @api.override_tlm_raw("INST HEALTH_STATUS BLAH = 1") }.to raise_error(/does not exist/)
+        expect { @api.override_tlm_raw("BLAH","HEALTH_STATUS","COLLECTS",1) }.to raise_error(/does not exist/)
+        expect { @api.override_tlm_raw("INST","UNKNOWN","COLLECTS",1) }.to raise_error(/does not exist/)
+        expect { @api.override_tlm_raw("INST","HEALTH_STATUS","BLAH",1) }.to raise_error(/does not exist/)
+      end
+
+      it "complains if the target has no interface" do
+        expect { @api.override_tlm_raw("SYSTEM META PKTID = 1") }.to raise_error(/Target 'SYSTEM' has no interface/)
+      end
+
+      it "complains with too many parameters" do
+        expect { @api.override_tlm_raw("INST","HEALTH_STATUS","TEMP1","TEMP2",0.0) }.to raise_error(/Invalid number of arguments/)
+      end
+
+      it "calls _override_tlm_raw in the interface" do
+        int = System.targets["INST"].interface
+        expect(int).to receive("_override_tlm_raw").with("INST","HEALTH_STATUS","TEMP1",100.0)
+        @api.override_tlm_raw("INST HEALTH_STATUS TEMP1 = 100.0")
+        expect(int).to receive("_override_tlm_raw").with("INST","HEALTH_STATUS","TEMP2",50.0)
+        @api.override_tlm_raw("INST","HEALTH_STATUS","TEMP2", 50.0)
+      end
+    end
+
+    describe "normalize_tlm" do
+      it "complains about unknown targets, commands, and parameters" do
+        expect { @api.normalize_tlm("BLAH HEALTH_STATUS COLLECTS") }.to raise_error(/does not exist/)
+        expect { @api.normalize_tlm("INST UNKNOWN COLLECTS") }.to raise_error(/does not exist/)
+        expect { @api.normalize_tlm("INST HEALTH_STATUS BLAH") }.to raise_error(/does not exist/)
+        expect { @api.normalize_tlm("BLAH","HEALTH_STATUS","COLLECTS") }.to raise_error(/does not exist/)
+        expect { @api.normalize_tlm("INST","UNKNOWN","COLLECTS") }.to raise_error(/does not exist/)
+        expect { @api.normalize_tlm("INST","HEALTH_STATUS","BLAH") }.to raise_error(/does not exist/)
+      end
+
+      it "complains if the target has no interface" do
+        expect { @api.normalize_tlm("SYSTEM META PKTID") }.to raise_error(/Target 'SYSTEM' has no interface/)
+      end
+
+      it "complains with too many parameters" do
+        expect { @api.normalize_tlm("INST","HEALTH_STATUS","TEMP1",0.0) }.to raise_error(/Invalid number of arguments/)
+      end
+
+      it "calls _normalize_tlm in the interface" do
+        int = System.targets["INST"].interface
+        expect(int).to receive("_normalize_tlm").with("INST","HEALTH_STATUS","TEMP1")
+        @api.normalize_tlm("INST HEALTH_STATUS TEMP1")
+        expect(int).to receive("_normalize_tlm").with("INST","HEALTH_STATUS","TEMP2")
+        @api.normalize_tlm("INST","HEALTH_STATUS","TEMP2")
+      end
+    end
+
+    describe "get_tlm_buffer" do
+      it "returns a telemetry packet buffer" do
+        @api.inject_tlm("INST","HEALTH_STATUS",{TIMESEC: 0xDEADBEEF})
+        expect(@api.get_tlm_buffer("INST", "HEALTH_STATUS")[6..10].unpack("N")[0]).to eq 0xDEADBEEF
       end
     end
 
@@ -707,15 +893,18 @@ DOC
       end
 
       it "reads all telemetry items with their limits states" do
+        # Call inject_tlm to ensure the limits are set
+        @api.inject_tlm("INST","HEALTH_STATUS",{TEMP1: 0, TEMP2: 0, TEMP3: 0, TEMP4: 0}, :RAW)
+
         vals = @api.get_tlm_packet("INST","HEALTH_STATUS")
         expect(vals[0][0]).to eql "RECEIVED_TIMESECONDS"
-        expect(vals[0][1]).to eql 0.0
+        expect(vals[0][1]).to be > 0
         expect(vals[0][2]).to be_nil
         expect(vals[1][0]).to eql "RECEIVED_TIMEFORMATTED"
-        expect(vals[1][1]).to eql "No Packet Received Time"
+        expect(vals[1][1].split(' ')[0]).to eql Time.now.formatted.split(' ')[0]
         expect(vals[1][2]).to be_nil
         expect(vals[2][0]).to eql "RECEIVED_COUNT"
-        expect(vals[2][1]).to eql 0
+        expect(vals[2][1]).to be > 0
         expect(vals[2][2]).to be_nil
         # Spot check a few more
         expect(vals[22][0]).to eql "TEMP1"
@@ -913,6 +1102,7 @@ DOC
 
     describe "get_out_of_limits" do
       it "returns all out of limits items" do
+        @api.inject_tlm("INST","HEALTH_STATUS",{TEMP1: 0, TEMP2: 0, TEMP3: 0, TEMP4: 0}, :RAW)
         items = @api.get_out_of_limits
         (0..3).each do |i|
           expect(items[i][0]).to eql "INST"
@@ -920,6 +1110,13 @@ DOC
           expect(items[i][2]).to eql "TEMP#{i+1}"
           expect(items[i][3]).to eql :RED_LOW
         end
+      end
+    end
+
+    describe "get_overall_limits_state" do
+      it "returns the overall system limits state" do
+        @api.inject_tlm("INST","HEALTH_STATUS",{TEMP1: 0, TEMP2: 0, TEMP3: 0, TEMP4: 0}, :RAW)
+        expect(@api.get_overall_limits_state).to eq :RED
       end
     end
 
@@ -981,6 +1178,28 @@ DOC
         @api.disable_limits("INST","HEALTH_STATUS","TEMP1")
         expect(@api.limits_enabled?("INST","HEALTH_STATUS","TEMP1")).to be false
         @api.enable_limits("INST","HEALTH_STATUS","TEMP1")
+      end
+    end
+
+    describe "get_stale" do
+      it "complains about non-existant targets" do
+        expect { @api.get_stale(false,"BLAH") }.to raise_error(RuntimeError, "Telemetry target 'BLAH' does not exist")
+      end
+
+      it "gets stale packets for the specified target" do
+        # By calling check_limits we make HEALTH_STATUS not stale
+        System.telemetry.packet("INST","HEALTH_STATUS").check_limits
+        stale = @api.get_stale(false,"INST").sort
+        inst_pkts = []
+        System.telemetry.packets("INST").each do |name, pkt|
+          next if name == "HEALTH_STATUS" # not stale
+          inst_pkts << ["INST", name]
+        end
+        expect(stale).to eq inst_pkts.sort
+
+        # Passing true only gets packets with limits items
+        stale = @api.get_stale(true,"INST").sort
+        expect(stale).to eq [["INST","PARAMS"]]
       end
     end
 
@@ -1125,6 +1344,19 @@ DOC
       end
     end
 
+    describe "get_packet" do
+      it "creates a packet out of the get_packet_data" do
+        time = Time.now
+        expect(CmdTlmServer).to receive(:get_packet_data).and_return(["\xAB","INST","HEALTH_STATUS",time.to_f,0,10])
+        pkt = @api.get_packet(10)
+        expect(pkt.buffer[0]).to eq "\xAB"
+        expect(pkt.target_name).to eq "INST"
+        expect(pkt.packet_name).to eq "HEALTH_STATUS"
+        expect(pkt.received_time.formatted).to eq time.formatted
+        expect(pkt.received_count).to eq 10
+      end
+    end
+
     describe "subscribe_server_messages" do
       it "calls CmdTlmServer" do
         stub_const("Cosmos::CmdTlmServer::DEFAULT_SERVER_MESSAGES_QUEUE_SIZE", 100)
@@ -1147,20 +1379,22 @@ DOC
       end
     end
 
+    describe "get_interface_targets" do
+      it "returns the targets associated with an interface" do
+        expect(@api.get_interface_targets("INST_INT")).to eql ["INST"]
+      end
+    end
+
     describe "get_background_tasks" do
       it "gets background task details" do
         tasks = @api.get_background_tasks
         expect(tasks[0][0]).to eql("Example Background Task1")
-        if RUBY_ENGINE == 'jruby'
-          expect(tasks[0][1]).to eql("complete") # JRuby has already run it
-        else
+        if RUBY_ENGINE != 'jruby'
           expect(tasks[0][1]).to eql("no thread") # Initially hasn't started
         end
         expect(tasks[0][2]).to eql("This is example one")
         expect(tasks[1][0]).to eql("Example Background Task2")
-        if RUBY_ENGINE == 'jruby'
-          expect(tasks[1][1]).to eql("sleep") # JRuby has already run it
-        else
+        if RUBY_ENGINE != 'jruby'
           expect(tasks[1][1]).to eql("no thread") # Initially hasn't started
         end
         expect(tasks[1][2]).to eql("This is example two")
@@ -1187,28 +1421,201 @@ DOC
       end
     end
 
+    describe "get_target_info" do
+      it "complains about non-existant targets" do
+        expect { @api.get_target_info("BLAH") }.to raise_error(RuntimeError, "Unknown target: BLAH")
+      end
+
+      it "gets target cmd tlm count" do
+        cmd1, tlm1 = @api.get_target_info("INST")
+        @api.cmd("INST ABORT")
+        @api.inject_tlm("INST","HEALTH_STATUS")
+        cmd2, tlm2 = @api.get_target_info("INST")
+        expect(cmd2 - cmd1).to eq 1
+        expect(tlm2 - tlm1).to eq 1
+      end
+    end
+
+    describe "get_all_target_info" do
+      it "gets target name, interface name, cmd & tlm count" do
+        @api.cmd("INST ABORT")
+        @api.inject_tlm("INST","HEALTH_STATUS")
+        info = @api.get_all_target_info().sort
+        expect(info[0][0]).to eq "INST"
+        expect(info[0][1]).to eq "INST_INT"
+        expect(info[0][2]).to be > 0
+        expect(info[0][3]).to be > 0
+        expect(info[1][0]).to eq "SYSTEM"
+        expect(info[1][1]).to eq "" # No interface
+      end
+    end
+
+    describe "get_interface_info" do
+      it "complains about non-existant interfaces" do
+        expect { @api.get_interface_info("BLAH") }.to raise_error(RuntimeError, "Unknown interface: BLAH")
+      end
+
+      it "gets interface info" do
+        info = @api.get_interface_info("INST_INT")
+        expect(info[0]).to eq "ATTEMPTING"
+        expect(info[1..-1]).to eq [0,0,0,0,0,0,0]
+      end
+    end
+
+    describe "get_all_interface_info" do
+      it "gets interface name and all info" do
+        info = @api.get_all_interface_info.sort
+        expect(info[0][0]).to eq "INST_INT"
+      end
+    end
+
+    describe "get_router_names" do
+      it "returns all router names" do
+        expect(@api.get_router_names.sort).to eq %w(PREIDENTIFIED_CMD_ROUTER PREIDENTIFIED_ROUTER ROUTE)
+      end
+    end
+
+    describe "get_router_info" do
+      it "complains about non-existant routers" do
+        expect { @api.get_router_info("BLAH") }.to raise_error(RuntimeError, "Unknown router: BLAH")
+      end
+
+      it "gets router info" do
+        info = @api.get_router_info("ROUTE")
+        expect(info[0]).to eq "ATTEMPTING"
+        expect(info[1..-1]).to eq [0,0,0,0,0,0,0]
+      end
+    end
+
+    describe "get_all_router_info" do
+      it "gets router name and all info" do
+        info = @api.get_all_router_info.sort
+        expect(info[0][0]).to eq "PREIDENTIFIED_CMD_ROUTER"
+        expect(info[1][0]).to eq "PREIDENTIFIED_ROUTER"
+        expect(info[2][0]).to eq "ROUTE"
+      end
+    end
+
+    describe "get_cmd_cnt" do
+      it "complains about non-existant targets" do
+        expect { @api.get_cmd_cnt("BLAH", "ABORT") }.to raise_error(RuntimeError, /does not exist/)
+      end
+
+      it "complains about non-existant packets" do
+        expect { @api.get_cmd_cnt("INST", "BLAH") }.to raise_error(RuntimeError, /does not exist/)
+      end
+
+      it "gets the command packet count" do
+        cnt1 = @api.get_cmd_cnt("INST", "ABORT")
+        @api.cmd("INST", "ABORT")
+        cnt2 = @api.get_cmd_cnt("INST", "ABORT")
+        expect(cnt2 - cnt1).to eq 1
+      end
+    end
+
+    describe "get_tlm_cnt" do
+      it "complains about non-existant targets" do
+        expect { @api.get_tlm_cnt("BLAH", "ABORT") }.to raise_error(RuntimeError, /does not exist/)
+      end
+
+      it "complains about non-existant packets" do
+        expect { @api.get_tlm_cnt("INST", "BLAH") }.to raise_error(RuntimeError, /does not exist/)
+      end
+
+      it "gets the telemetry packet count" do
+        cnt1 = @api.get_tlm_cnt("INST", "ADCS")
+        @api.inject_tlm("INST","ADCS")
+        cnt2 = @api.get_tlm_cnt("INST", "ADCS")
+        expect(cnt2 - cnt1).to eq 1
+      end
+    end
+
+    describe "get_all_cmd_info" do
+      it "gets tgt, pkt, rx cnt for all commands" do
+        total = 1 # Unknown is 1
+        System.commands.target_names.each do |tgt|
+          total += System.commands.packets(tgt).keys.length
+        end
+        info = @api.get_all_cmd_info.sort
+        expect(info.length).to eq total
+        expect(info[0][0]).to eq "INST"
+        expect(info[0][1]).to eq "ABORT"
+        expect(info[0][2]).to be >= 0
+        expect(info[-1][0]).to eq "UNKNOWN"
+        expect(info[-1][1]).to eq "UNKNOWN"
+        expect(info[-1][2]).to eq 0
+      end
+    end
+
+    describe "get_all_tlm_info" do
+      it "gets tgt, pkt, rx cnt for all telemetry" do
+        total = 1 # Unknown is 1
+        System.telemetry.target_names.each do |tgt|
+          total += System.telemetry.packets(tgt).keys.length
+        end
+        info = @api.get_all_tlm_info.sort
+        expect(info.length).to eq total
+        expect(info[0][0]).to eq "INST"
+        expect(info[0][1]).to eq "ADCS"
+        expect(info[0][2]).to be >= 0
+        expect(info[-1][0]).to eq "UNKNOWN"
+        expect(info[-1][1]).to eq "UNKNOWN"
+        expect(info[-1][2]).to eq 0
+      end
+    end
+
+    describe "get_packet_logger_info" do
+      it "complains about non-existant loggers" do
+        expect { @api.get_packet_logger_info("BLAH") }.to raise_error(RuntimeError, "Unknown packet log writer: BLAH")
+      end
+
+      it "gets packet logger info" do
+        info = @api.get_packet_logger_info("DEFAULT")
+        expect(info[0]).to eq ["INST_INT"]
+      end
+    end
+
+    describe "get_all_packet_logger_info" do
+      it "gets all packet loggers info" do
+        info = @api.get_all_packet_logger_info.sort
+        expect(info[0][0]).to eq "DEFAULT"
+        expect(info[0][1]).to eq ["INST_INT"]
+      end
+    end
+
+    describe "background_task apis" do
+      it "starts, gets into, and stops background tasks" do
+        @api.start_background_task("Example Background Task2")
+        sleep 0.1
+        info = @api.get_background_tasks.sort
+        expect(info[1][0]).to eq "Example Background Task2"
+        expect(info[1][1]).to eq "sleep"
+        expect(info[1][2]).to eq "This is example two"
+        @api.stop_background_task("Example Background Task2")
+        sleep 0.1
+        info = @api.get_background_tasks.sort
+        expect(info[1][0]).to eq "Example Background Task2"
+        expect(info[1][1]).to eq "complete"
+        expect(info[1][2]).to eq "This is example two"
+      end
+    end
+
     # All these methods simply pass through directly to CmdTlmServer without
     # adding any functionality. Thus we just test that they are are received
     # by the CmdTlmServer.
     describe "CmdTlmServer pass-throughs" do
       it "calls through to the CmdTlmServer" do
         @api.get_interface_names
-        @api.connect_interface("INT")
-        @api.disconnect_interface("INT")
-        @api.interface_state("INT")
-        @api.map_target_to_interface("INST", "INT")
-        @api.get_interface_info("INT")
-        @api.get_target_info("INST")
-        @api.get_cmd_cnt("INST", "COLLECT")
-        @api.get_tlm_cnt("INST", "HEALTH_STATUS")
-        @api.get_router_info("ROUTE")
+        @api.connect_interface("INST_INT")
+        @api.disconnect_interface("INST_INT")
+        @api.interface_state("INST_INT")
+        @api.map_target_to_interface("INST", "INST_INT")
         @api.get_packet_loggers
         @api.get_packet_logger_info('DEFAULT')
-        @api.get_router_names
         @api.connect_router("ROUTE")
         @api.disconnect_router("ROUTE")
         @api.router_state("ROUTE")
-        @api.send_raw("INT","\x00\x01")
+        @api.send_raw("INST_INT","\x00\x01")
         @api.get_cmd_log_filename('DEFAULT')
         @api.get_tlm_log_filename('DEFAULT')
         @api.start_logging('ALL')
@@ -1219,6 +1626,10 @@ DOC
         @api.stop_tlm_log('ALL')
         @api.get_server_message_log_filename
         @api.start_new_server_message_log
+        @api.start_raw_logging_interface
+        @api.stop_raw_logging_interface
+        @api.start_raw_logging_router
+        @api.stop_raw_logging_router
       end
     end
 

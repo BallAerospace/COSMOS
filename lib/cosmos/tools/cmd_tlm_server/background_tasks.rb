@@ -34,6 +34,8 @@ module Cosmos
     # calling the 'call' method once.
     # @param index [Integer] Which background task to start
     def start(index)
+      raise "No task at index #{index}. There are #{@config.background_tasks.length} total tasks." unless index < @config.background_tasks.length
+      return if @threads[index] # Don't re-create a running thread. They must call stop first.
       @threads[index] = Thread.new do
         @config.background_tasks[index].thread = Thread.current
         begin
@@ -56,6 +58,7 @@ module Cosmos
     # Ruby thread.
     # @param index [Integer] Which background task to stop
     def stop(index)
+      raise "No task at index #{index}. There are #{@config.background_tasks.length} total tasks." unless index < @config.background_tasks.length
       begin
         @config.background_tasks[index].stop
       rescue

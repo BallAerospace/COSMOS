@@ -109,6 +109,14 @@ module Cosmos
       return $cmd_tlm_server.get_background_tasks
     end
 
+    def start_background_task
+      return $cmd_tlm_server.start_background_task
+    end
+
+    def stop_background_task
+      return $cmd_tlm_server.stop_background_task
+    end
+
     def get_server_status
       return $cmd_tlm_server.get_server_status
     end
