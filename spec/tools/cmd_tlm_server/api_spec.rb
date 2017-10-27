@@ -1610,8 +1610,9 @@ DOC
         @api.disconnect_interface("INST_INT")
         @api.interface_state("INST_INT")
         @api.map_target_to_interface("INST", "INST_INT")
+        @api.get_target_ignored_parameters("INST")
+        @api.get_target_ignored_items("INST")
         @api.get_packet_loggers
-        @api.get_packet_logger_info('DEFAULT')
         @api.connect_router("ROUTE")
         @api.disconnect_router("ROUTE")
         @api.router_state("ROUTE")

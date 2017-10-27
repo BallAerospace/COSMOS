@@ -89,6 +89,8 @@ module Cosmos
         'router_state',
         'get_all_target_info',
         'get_target_info',
+        'get_target_ignored_parameters',
+        'get_target_ignored_items',
         'get_interface_info',
         'get_all_interface_info',
         'get_router_info',
@@ -1104,6 +1106,26 @@ module Cosmos
         info << [target_name, interface_name, target.cmd_cnt, target.tlm_cnt]
       end
       info
+    end
+
+    # Get the list of ignored command parameters for a target
+    #
+    # @param target_name [String] Target name
+    # @return [Array<String>] All of the ignored command parameters for a target.
+    def get_target_ignored_parameters(target_name)
+      target = System.targets[target_name.upcase]
+      raise "Unknown target: #{target_name}" unless target
+      return target.ignored_parameters
+    end
+
+    # Get the list of ignored telemetry items for a target
+    #
+    # @param target_name [String] Target name
+    # @return [Array<String>] All of the ignored telemetry items for a target.
+    def get_target_ignored_items(target_name)
+      target = System.targets[target_name.upcase]
+      raise "Unknown target: #{target_name}" unless target
+      return target.ignored_items
     end
 
     # Get information about an interface
