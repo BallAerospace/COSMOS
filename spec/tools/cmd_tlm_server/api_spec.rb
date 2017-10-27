@@ -1199,6 +1199,8 @@ DOC
         @api.map_target_to_interface("INST", "INT")
         @api.get_interface_info("INT")
         @api.get_target_info("INST")
+        @api.get_target_ignored_parameters("INST")
+        @api.get_target_ignored_items("INST")
         @api.get_cmd_cnt("INST", "COLLECT")
         @api.get_tlm_cnt("INST", "HEALTH_STATUS")
         @api.get_router_info("ROUTE")
