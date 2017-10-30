@@ -799,6 +799,7 @@ DOC
         interface.name = "SYSTEM_INT"
         System.targets["SYSTEM"].interface = interface # Set a dummy interface
         expect { @api.override_tlm("SYSTEM META PKTID = 1") }.to raise_error(/Interface SYSTEM_INT does not have override/)
+        System.targets["SYSTEM"].interface = nil
       end
 
       it "complains with too many parameters" do
