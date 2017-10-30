@@ -11,8 +11,8 @@
     <title xml:lang="en">Ball Aerospace COSMOS News</title>
     <atom:link type="application/atom+xml" href="http://cosmosrb/feed.xml" rel="self"/>
     <link>http://cosmosrb.com/</link>
-    <pubDate>Tue, 24 Oct 2017 16:12:03 -0600</pubDate>
-    <lastBuildDate>Tue, 24 Oct 2017 16:12:03 -0600</lastBuildDate>
+    <pubDate>Mon, 30 Oct 2017 11:33:08 -0600</pubDate>
+    <lastBuildDate>Mon, 30 Oct 2017 11:33:08 -0600</lastBuildDate>
     <language>en-US</language>
     <generator>Jekyll v3.5.2</generator>
     <description>The User Interface for Embedded Systems</description>
@@ -24,6 +24,66 @@
       <width>144</width>
       <height>73</height>
     </image>
+    
+    <item>
+      <title>Config Editor</title>
+      <link>http://cosmosrb.com/news/2017/10/30/config-editor/</link>
+      <pubDate>Mon, 30 Oct 2017 10:00:00 -0600</pubDate>
+      <dc:creator>jmthomas</dc:creator>
+      
+      
+      <category>post</category>
+      
+      <guid isPermaLink="true">http://cosmosrb.com/news/2017/10/30/config-editor/</guid>
+      <description>&lt;p&gt;COSMOS gained a new tool in the &lt;a href=&quot;/news/2017/08/04/cosmos-4-0-0-released/&quot;&gt;4.0.0 release&lt;/a&gt; called Configuration Editor. This tool provides contextual help when editing COSMOS configuration files and thus should make configuring COSMOS much easier than in the past.&lt;/p&gt;
+
+&lt;h3 id=&quot;configuration-editor-basics&quot;&gt;Configuration Editor Basics&lt;/h3&gt;
+
+&lt;p&gt;When creating a new project from from the Demo you’ll notice a new icon in the Launcher under the Utilities label:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/2017_10_30_demo_launcher.png&quot; alt=&quot;Demo Launcher&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Note that as of this post the Install Launcher does not have the new Configuration Editor or Command Sequence buttons but this will be addressed in the next release.&lt;/p&gt;
+
+&lt;p&gt;Clicking the Config Editor button brings up the Configuration Editor tool:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/2017_10_30_config_editor.png&quot; alt=&quot;Config Editor&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Configuration Editor has three vertical panes. The far left is a Windows Explorer type tree view which opens at the base of your COSMOS configuration. This makes it easy to see and navigate through all the COSMOS configuration files.&lt;/p&gt;
+
+&lt;p&gt;The middle pane is a file editor which opens files when they are clicked on in the left pane tree view.&lt;/p&gt;
+
+&lt;p&gt;The right pane is what Configuration Editor was created for. It provides contextual help for all the COSMOS keywords. As the editor cursor in the middle pane changes the contextual help changes to reflect current editor line. Here’s an example of the right pane when the Demo’s INST target’s command definition is edited:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/2017_10_30_inst_cmds.png&quot; alt=&quot;Config Editor&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;The user can either edit the configuration file directly in the middle pane or use the configuration help in the right pane. Edits in the middle pane are immediately reflected in the right pane. Edits in the right pane are not reflected back in the configuration pane until the user tabs or clicks to another field. Note that tabbing through the fields is a quick way to transition from one parameter to another.&lt;/p&gt;
+
+&lt;p&gt;Configuration Editor contains the same Edit and Search menu options that Script Runner supports. Searching for keywords and transitioning from one to another also updates the configuration help pane which is another way to quickly check particular keywords.&lt;/p&gt;
+
+&lt;h3 id=&quot;configuration-editor-links&quot;&gt;Configuration Editor Links&lt;/h3&gt;
+
+&lt;p&gt;If you have an older (pre-4.0) COSMOS configuration or generated a basic configuration from the install (4.0.0-4.0.3) you will not have a link to the new Configuration Editor tool in your Launcher. Follow the following steps to add this tool.&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Edit config/tools/launcher/launcher.txt&lt;/li&gt;
+  &lt;li&gt;Add the following line (typically after Utilities LABEL)
+    &lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;TOOL &quot;Config Editor&quot; &quot;LAUNCH ConfigEditor&quot; &quot;config_editor.png&quot;
+&lt;/code&gt;&lt;/pre&gt;
+    &lt;/div&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;Restart your Launcher and you should see this new tool to help you configure COSMOS. Note that if you don’t have the Configuration Editor button then you probably also don’t have a button for the new Command Sequence tool. Add the following line after the Command Sender line to access this tool:&lt;/p&gt;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;TOOL &quot;Command Sequence&quot; &quot;LAUNCH CmdSequence&quot; &quot;cmd_sequence.png&quot;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Enjoy these new COSMOS 4.0 tools!&lt;/p&gt;
+
+&lt;p&gt;If you need additional support please contact us at &lt;a href=&quot;mailto:cosmos@ball.com&quot;&gt;cosmos@ball.com&lt;/a&gt;.&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>Ball Aerospace COSMOS 4.0.3 Released</title>
