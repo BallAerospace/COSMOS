@@ -672,22 +672,26 @@ module Cosmos
     private
 
     def _override(method, tgt_pkt_item)
-      target = System.targets[tgt_pkt_item[0]]
-      raise "Target '#{tgt_pkt_item[0]}' does not exist" unless target
-      interface = System.targets[tgt_pkt_item[0]].interface
-      raise "Target '#{tgt_pkt_item[0]}' has no interface" unless interface
-      found = false
-      if interface.read_protocols
-        interface.read_protocols.each do |protocol|
-          found = true if protocol.kind_of? OverrideProtocol
+      # synchronize this method due to the interface.public_send which can cause
+      # ConcurrencyError exceptions in JRuby
+      synchronize do
+        target = System.targets[tgt_pkt_item[0]]
+        raise "Target '#{tgt_pkt_item[0]}' does not exist" unless target
+        interface = System.targets[tgt_pkt_item[0]].interface
+        raise "Target '#{tgt_pkt_item[0]}' has no interface" unless interface
+        found = false
+        if interface.read_protocols
+          interface.read_protocols.each do |protocol|
+            found = true if protocol.kind_of? OverrideProtocol
+          end
         end
-      end
-      if found
-        # Test to see if this telemetry item exists
-        System.telemetry.value(tgt_pkt_item[0], tgt_pkt_item[1], tgt_pkt_item[2], :RAW)
-        interface.public_send("_#{method}", *tgt_pkt_item)
-      else
-        raise "Interface #{interface.name} does not have override ability. Is 'PROTOCOL READ_WRITE OverrideProtocol' under the interface definition?"
+        if found
+          # Test to see if this telemetry item exists
+          System.telemetry.value(tgt_pkt_item[0], tgt_pkt_item[1], tgt_pkt_item[2], :RAW)
+          interface.public_send("_#{method}", *tgt_pkt_item)
+        else
+          raise "Interface #{interface.name} does not have override ability. Is 'PROTOCOL READ_WRITE OverrideProtocol' under the interface definition?"
+        end
       end
       nil
     end
