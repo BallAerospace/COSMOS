@@ -120,6 +120,7 @@ module Cosmos
         'stop_raw_logging_router',
         'get_server_message_log_filename',
         'start_new_server_message_log']
+      @mutex = Mutex.new
     end
 
     ############################################################################
@@ -674,7 +675,7 @@ module Cosmos
     def _override(method, tgt_pkt_item)
       # synchronize this method due to the interface.public_send which can cause
       # ConcurrencyError exceptions in JRuby
-      synchronize do
+      @mutex.synchronize do
         target = System.targets[tgt_pkt_item[0]]
         raise "Target '#{tgt_pkt_item[0]}' does not exist" unless target
         interface = System.targets[tgt_pkt_item[0]].interface
