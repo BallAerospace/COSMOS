@@ -1263,7 +1263,7 @@ module Cosmos
     #   number of Ruby threads in the server/
     def get_server_status
       [ System.limits_set.to_s,
-        System.ports['CTS_API'],
+        CmdTlmServer.mode == :CMD_TLM_SERVER ? System.ports['CTS_API'] : System.ports['REPLAY_API'],
         CmdTlmServer.json_drb.num_clients,
         CmdTlmServer.json_drb.request_count,
         CmdTlmServer.json_drb.average_request_time,

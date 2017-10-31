@@ -20,12 +20,20 @@ module Cosmos
   class ReplayTab
 
     attr_accessor :widget
+    attr_accessor :config_change_callback
 
     # The number of bytes to print when an UNKNOWN packet is received
     UNKNOWN_BYTES_TO_PRINT = 36
 
-    def initialize
-      # Initialize variables
+    def initialize(tab_widget)
+      @widget = nil
+      @config_change_callback = nil
+      reset()
+      @scroll = Qt::ScrollArea.new
+      tab_widget.addTab(@scroll, "Replay")
+    end
+
+    def reset
       @packet_log_reader = System.default_packet_log_reader.new(*System.default_packet_log_reader_params)
       @log_directory = System.paths['LOGS']
       @log_directory << '/' unless @log_directory[-1..-1] == '\\' or @log_directory[-1..-1] == '/'
@@ -34,13 +42,18 @@ module Cosmos
       @playback_thread = nil
       @playback_index = 0
       @packet_offsets = []
+      Qt.execute_in_main_thread(true) do
+        @widget.destroy if @widget
+        @widget = nil
+      end
     end
 
     # Create the targets tab and add it to the tab_widget
     #
     # @param tab_widget [Qt::TabWidget] The tab widget to add the tab to
-    def populate(tab_widget)
-      scroll = Qt::ScrollArea.new
+    def populate
+      return if @widget
+
       @widget = Qt::Widget.new
 
       layout = Qt::VBoxLayout.new(@widget)
@@ -161,8 +174,7 @@ module Cosmos
       @log_layout.addWidget(@file_pos)
       layout.addWidget(@log_widget)
 
-      scroll.setWidget(@widget)
-      tab_widget.addTab(scroll, "Replay")
+      @scroll.setWidget(@widget)
     end
 
     # Update the replay tab gui
@@ -404,7 +416,11 @@ module Cosmos
             progress_dialog.set_overall_progress(0.0)
             progress_dialog.cancel_callback = method(:cancel_callback)
             progress_dialog.enable_cancel_button
-            Cosmos.check_log_configuration(@packet_log_reader, @log_filename)
+            start_config_name = System.configuration_name
+            config_change_success, config_error = Cosmos.check_log_configuration(@packet_log_reader, @log_filename)
+            if System.configuration_name != start_config_name
+              @config_change_callback.call() if @config_change_callback
+            end
             @packet_offsets = @packet_log_reader.packet_offsets(@log_filename, lambda {|percentage| progress_dialog.set_overall_progress(percentage); @cancel})
             @playback_index = 0
             update_slider_and_current_time(nil)

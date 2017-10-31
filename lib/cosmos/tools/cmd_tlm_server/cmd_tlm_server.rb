@@ -46,6 +46,8 @@ module Cosmos
     instance_attr_accessor :json_drb
     # @return [String] CmdTlmServer title as set in the config file
     instance_attr_accessor :title
+    # @return [Symbol] mode :CMD_TLM_SERVER or :REPLAY
+    instance_attr_accessor :mode
 
     # attr_reader attributes are only used by CmdTlmServer internally and are
     # thus only available as attributes on the singleton
@@ -155,6 +157,9 @@ module Cosmos
       @packet_logging_orig = @packet_logging
       @routers = Routers.new(@config)
       @title = @config.title
+      if @mode != :CMD_TLM_SERVER
+        @title.gsub!("Command and Telemetry Server", "Replay")
+      end
       @stop_callback = nil
 
       # Set Threads to kill CTS if they throw an exception
@@ -187,42 +192,36 @@ module Cosmos
         end
         @json_drb.method_whitelist = @api_whitelist
         begin
-          @json_drb.start_service(System.listen_hosts['CTS_API'], System.ports['CTS_API'], self)
+          if @mode == :CMD_TLM_SERVER
+            @json_drb.start_service(System.listen_hosts['CTS_API'], System.ports['CTS_API'], self)
+          else
+            @json_drb.start_service(System.listen_hosts['REPLAY_API'], System.ports['REPLAY_API'], self)
+          end
         rescue Exception
           # Call packet_logging shutdown here to explicitly kill the logging
           # threads since this CTS is not going to launch
           @packet_logging.shutdown
-          raise FatalError.new("Error starting JsonDRb on port #{System.ports['CTS_API']}.\nPerhaps a Command and Telemetry Server is already running?")
+          if @mode == :CMD_TLM_SERVER
+            raise FatalError.new("Error starting JsonDRb on port #{System.ports['CTS_API']}.\nPerhaps a Command and Telemetry Server is already running?")
+          else
+            raise FatalError.new("Error starting JsonDRb on port #{System.ports['REPLAY_API']}.\nPerhaps another Replay is already running?")
+          end
         end
 
-        @routers.add_preidentified('PREIDENTIFIED_ROUTER', System.instance.ports['CTS_PREIDENTIFIED'])
-        @routers.add_cmd_preidentified('PREIDENTIFIED_CMD_ROUTER', System.instance.ports['CTS_CMD_ROUTER'])
+        if @mode == :CMD_TLM_SERVER
+          @routers.add_preidentified('PREIDENTIFIED_ROUTER', System.ports['CTS_PREIDENTIFIED'])
+          @routers.add_cmd_preidentified('PREIDENTIFIED_CMD_ROUTER', System.ports['CTS_CMD_ROUTER'])
+        else
+          @routers.all.clear 
+          @routers.add_preidentified('PREIDENTIFIED_ROUTER', System.ports['REPLAY_PREIDENTIFIED'])
+          @routers.add_cmd_preidentified('PREIDENTIFIED_CMD_ROUTER', System.ports['REPLAY_CMD_ROUTER'])
+        end
         System.telemetry.limits_change_callback = method(:limits_change_callback)
         @routers.start
 
         start(production)
       end
     end # end def initialize
-
-    # Change between CMD_TLM_SERVER and REPLAY modes
-    #
-    # @param new_mode [String] Mode to change to CMD_TLM_SERVER or REPLAY
-    def change_mode(new_mode)
-      new_mode = new_mode.to_s.upcase.intern
-      raise "Unknown mode: #{new_mode}" if new_mode != :REPLAY and new_mode != :CMD_TLM_SERVER
-      if new_mode != @mode
-        @mode = new_mode
-        if new_mode == :REPLAY
-          # Shutdown staleness monitor thread
-          Cosmos.kill_thread(self, @staleness_monitor_thread)
-
-          @background_tasks.stop_all
-          @interfaces.stop
-          @packet_logging.shutdown
-        end
-        start(true)
-      end
-    end
 
     # Start up the system by starting the JSON-RPC server, interfaces, routers,
     # and background tasks. Starts a thread to monitor all packets for

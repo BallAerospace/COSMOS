@@ -20,38 +20,51 @@ module Cosmos
     ROUTERS = 'Routers'
     ALIGN_CENTER = Qt::AlignCenter
 
-    def initialize(server_gui)
+    def initialize(server_gui, name, tab_widget)
       @server_gui = server_gui
-      @interfaces_table = {}
+      @name = name
+      @widget = nil
+      reset()
+      @scroll = Qt::ScrollArea.new
+      @scroll.setMinimumSize(800, 150)
+      tab_widget.addTab(@scroll, @name)
+    end
+
+    def reset
+      Qt.execute_in_main_thread(true) do
+        @widget.destroy if @widget
+        @widget = nil
+        @interfaces_table = nil
+      end
     end
 
     # Create the interfaces tab and add it to the tab_widget
     #
     # @param tab_widget [Qt::TabWidget] The tab widget to add the tab to
-    def populate_interfaces(tab_widget)
-      populate(INTERFACES, CmdTlmServer.interfaces, tab_widget)
+    def populate_interfaces
+      populate(CmdTlmServer.interfaces)
     end
 
     # Create the routers tab and add it to the tab_widget
     #
     # @param tab_widget [Qt::TabWidget] The tab widget to add the tab to
-    def populate_routers(tab_widget)
-      populate(ROUTERS, CmdTlmServer.routers, tab_widget)
+    def populate_routers
+      populate(CmdTlmServer.routers)
     end
 
     # Update the interfaces or routers tab
     #
     # @param name [String] Must be Interfaces or Routers
-    def update(name)
-      if name == ROUTERS
+    def update
+      if @name == ROUTERS
         interfaces = CmdTlmServer.routers
       else
         interfaces = CmdTlmServer.interfaces
       end
       row = 0
       interfaces.all.each do |interface_name, interface|
-        button = @interfaces_table[name].cellWidget(row,1)
-        state = @interfaces_table[name].item(row,2)
+        button = @interfaces_table.cellWidget(row,1)
+        state = @interfaces_table.item(row,2)
         if interface.connected? and interface.thread
           button.setText('Disconnect')
           button.setDisabled(true) if interface.disable_disconnect
@@ -73,17 +86,17 @@ module Cosmos
           state.setText('false')
           state.textColor = Cosmos::BLACK
         end
-        @interfaces_table[name].item(row,3).setText(interface.num_clients.to_s)
-        @interfaces_table[name].item(row,4).setText(interface.write_queue_size.to_s)
-        @interfaces_table[name].item(row,5).setText(interface.read_queue_size.to_s)
-        @interfaces_table[name].item(row,6).setText(interface.bytes_written.to_s)
-        @interfaces_table[name].item(row,7).setText(interface.bytes_read.to_s)
-        if name == ROUTERS
-          @interfaces_table[name].item(row,8).setText(interface.read_count.to_s)
-          @interfaces_table[name].item(row,9).setText(interface.write_count.to_s)
+        @interfaces_table.item(row,3).setText(interface.num_clients.to_s)
+        @interfaces_table.item(row,4).setText(interface.write_queue_size.to_s)
+        @interfaces_table.item(row,5).setText(interface.read_queue_size.to_s)
+        @interfaces_table.item(row,6).setText(interface.bytes_written.to_s)
+        @interfaces_table.item(row,7).setText(interface.bytes_read.to_s)
+        if @name == ROUTERS
+          @interfaces_table.item(row,8).setText(interface.read_count.to_s)
+          @interfaces_table.item(row,9).setText(interface.write_count.to_s)
         else
-          @interfaces_table[name].item(row,8).setText(interface.write_count.to_s)
-          @interfaces_table[name].item(row,9).setText(interface.read_count.to_s)
+          @interfaces_table.item(row,8).setText(interface.write_count.to_s)
+          @interfaces_table.item(row,9).setText(interface.read_count.to_s)
         end
         row += 1
       end
@@ -91,13 +104,12 @@ module Cosmos
 
     private
 
-    def populate(name, interfaces, tab_widget)
+    def populate(interfaces)
+      reset()
       return if interfaces.all.empty?
 
-      scroll = Qt::ScrollArea.new
-      scroll.setMinimumSize(800, 150)
-      widget = Qt::Widget.new
-      layout = Qt::VBoxLayout.new(widget)
+      @widget = Qt::Widget.new
+      layout = Qt::VBoxLayout.new(@widget)
       # Since the layout will be inside a scroll area make sure it respects the sizes we set
       layout.setSizeConstraint(Qt::Layout::SetMinAndMaxSize)
 
@@ -105,28 +117,27 @@ module Cosmos
       interfaces_table.verticalHeader.hide()
       interfaces_table.setRowCount(interfaces.all.length)
       interfaces_table.setColumnCount(11)
-      if name == ROUTERS
+      if @name == ROUTERS
         interfaces_table.setHorizontalHeaderLabels(["Router", "Connect/Disconnect", "Connected?", "Clients", "Tx Q Size", "Rx Q Size", "   Bytes Tx   ", "   Bytes Rx   ", "  Pkts Rcvd  ", "  Pkts Sent  ", "View Raw"])
       else
         interfaces_table.setHorizontalHeaderLabels(["Interface", "Connect/Disconnect", "Connected?", "Clients", "Tx Q Size", "Rx Q Size", "   Bytes Tx   ", "   Bytes Rx   ", "  Cmd Pkts  ", "  Tlm Pkts ", "View Raw"])
       end
 
-      populate_interface_table(name, interfaces, interfaces_table)
+      populate_interface_table(interfaces, interfaces_table)
       interfaces_table.displayFullSize
 
       layout.addWidget(interfaces_table)
-      scroll.setWidget(widget)
-      @interfaces_table[name] = interfaces_table
-      tab_widget.addTab(scroll, name)
+      @scroll.setWidget(@widget)
+      @interfaces_table = interfaces_table
     end
 
-    def populate_interface_table(name, interfaces, interfaces_table)
+    def populate_interface_table(interfaces, interfaces_table)
       row = 0
       interfaces.all.each do |interface_name, interface|
         item = Qt::TableWidgetItem.new(Qt::Object.tr(interface_name))
         item.setTextAlignment(ALIGN_CENTER)
         interfaces_table.setItem(row, 0, item)
-        interfaces_table.setCellWidget(row, 1, create_button(name, interface, interface_name))
+        interfaces_table.setCellWidget(row, 1, create_button(interface, interface_name))
         interfaces_table.setItem(row, 2, create_state(interface))
 
         index = 3
@@ -142,7 +153,7 @@ module Cosmos
         view_raw = Qt::PushButton.new("View Raw")
         view_raw.connect(SIGNAL('clicked()')) do
           @raw_dialogs ||= []
-          if name == ROUTERS
+          if @name == ROUTERS
             current_interface = CmdTlmServer.routers.all[interface_name]
           else
             current_interface = CmdTlmServer.interfaces.all[interface_name]
@@ -154,7 +165,7 @@ module Cosmos
       end
     end
 
-    def create_button(name, interface, interface_name)
+    def create_button(interface, interface_name)
       if interface.connected? and interface.thread
         button_text = 'Disconnect'
       elsif interface.thread
@@ -165,7 +176,7 @@ module Cosmos
         button_text = 'Connect'
       end
       button = Qt::PushButton.new(button_text)
-      if name == ROUTERS
+      if @name == ROUTERS
         button.connect(SIGNAL('clicked()')) do
           if CmdTlmServer.routers.all[interface_name].thread
             Logger.info "User disconnecting router #{interface_name}"

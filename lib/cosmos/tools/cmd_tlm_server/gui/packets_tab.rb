@@ -19,23 +19,37 @@ module Cosmos
     COMMANDS = "Commands"
     TELEMETRY = "Telemetry"
 
-    def initialize(server_gui)
+    def initialize(server_gui, name, tab_widget)
       @server_gui = server_gui
-      @packets_table = {}
+      @name = name
+      @widget = nil
+      reset()
+      @scroll = Qt::ScrollArea.new
+      tab_name = "Cmd Packets" if name == COMMANDS
+      tab_name = "Tlm Packets" if name == TELEMETRY
+      tab_widget.addTab(@scroll, tab_name)
     end
 
-    def populate_commands(tab_widget)
-      populate(COMMANDS, System.commands, tab_widget)
+    def reset
+      Qt.execute_in_main_thread(true) do
+        @widget.destroy if @widget
+        @widget = nil
+        @packets_table = nil
+      end
     end
 
-    def populate_telemetry(tab_widget)
-      populate(TELEMETRY, System.telemetry, tab_widget)
+    def populate_commands
+      populate(System.commands)
     end
 
-    def update(name)
+    def populate_telemetry
+      populate(System.telemetry)
+    end
+
+    def update
       cmd_tlm = nil
-      cmd_tlm = System.commands if name == COMMANDS
-      cmd_tlm = System.telemetry if name == TELEMETRY
+      cmd_tlm = System.commands if @name == COMMANDS
+      cmd_tlm = System.telemetry if @name == TELEMETRY
       return if cmd_tlm.nil? || cmd_tlm.target_names.empty?
 
       row = 0
@@ -43,18 +57,19 @@ module Cosmos
         packets = cmd_tlm.packets(target_name)
         packets.sort.each do |packet_name, packet|
           next if packet.hidden
-          @packets_table[name].item(row, 2).setText(packet.received_count.to_s)
+          @packets_table.item(row, 2).setText(packet.received_count.to_s)
           row += 1
         end
       end
       packet = cmd_tlm.packet('UNKNOWN', 'UNKNOWN')
-      @packets_table[name].item(row, 2).setText(packet.received_count.to_s)
+      @packets_table.item(row, 2).setText(packet.received_count.to_s)
       row += 1
     end
 
     private
 
-    def populate(name, cmd_tlm, tab_widget)
+    def populate(cmd_tlm)
+      reset()
       return if cmd_tlm.target_names.empty?
 
       count = 0
@@ -66,9 +81,8 @@ module Cosmos
       end
       count += 1 # For UNKNOWN UNKNOWN
 
-      scroll = Qt::ScrollArea.new
-      widget = Qt::Widget.new
-      layout = Qt::VBoxLayout.new(widget)
+      @widget = Qt::Widget.new
+      layout = Qt::VBoxLayout.new(@widget)
       # Since the layout will be inside a scroll area
       # make sure it respects the sizes we set
       layout.setSizeConstraint(Qt::Layout::SetMinAndMaxSize)
@@ -81,23 +95,20 @@ module Cosmos
       # Force the last section to fill all available space in the frame
       #~ table.horizontalHeader.setStretchLastSection(true)
       headers = ["Target Name", "Packet Name", "Packet Count", "View Raw"]
-      headers << "View in Command Sender" if name == COMMANDS
-      headers << "View in Packet Viewer" if name == TELEMETRY
+      headers << "View in Command Sender" if @name == COMMANDS
+      headers << "View in Packet Viewer" if @name == TELEMETRY
       table.setHorizontalHeaderLabels(headers)
 
-      populate_packets_table(name, cmd_tlm, table)
+      populate_packets_table(cmd_tlm, table)
       table.displayFullSize
 
       layout.addWidget(table)
-      scroll.setWidget(widget)
-      tab_name = "Cmd Packets" if name == COMMANDS
-      tab_name = "Tlm Packets" if name == TELEMETRY
-      tab_widget.addTab(scroll, tab_name)
+      @scroll.setWidget(@widget)
 
-      @packets_table[name] = table
+      @packets_table = table
     end
 
-    def populate_packets_table(name, cmd_tlm, table)
+    def populate_packets_table(cmd_tlm, table)
       row = 0
       target_names = cmd_tlm.target_names
       target_names << 'UNKNOWN'.freeze
@@ -116,14 +127,14 @@ module Cosmos
           view_raw = Qt::PushButton.new("View Raw")
           view_raw.connect(SIGNAL('clicked()')) do
             @raw_dialogs ||= []
-            @raw_dialogs << CmdRawDialog.new(@server_gui, target_name, packet_name) if name == COMMANDS
-            @raw_dialogs << TlmRawDialog.new(@server_gui, target_name, packet_name) if name == TELEMETRY
+            @raw_dialogs << CmdRawDialog.new(@server_gui, target_name, packet_name) if @name == COMMANDS
+            @raw_dialogs << TlmRawDialog.new(@server_gui, target_name, packet_name) if @name == TELEMETRY
           end
           table.setCellWidget(row, 3, view_raw)
 
-          if name == COMMANDS
+          if @name == COMMANDS
             add_tool_button(table, row, target_name, packet_name, "Command Sender")
-          elsif name == TELEMETRY
+          elsif @name == TELEMETRY
             add_tool_button(table, row, target_name, packet_name, "Packet Viewer")
           end
 

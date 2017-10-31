@@ -15,16 +15,29 @@ module Cosmos
 
   # Implements the targets tab in the Command and Telemetry Server GUI
   class TargetsTab
+    def initialize(tab_widget)
+      @widget = nil
+      reset()
+      @scroll = Qt::ScrollArea.new
+      tab_widget.addTab(@scroll, "Targets")
+    end
+
+    def reset
+      Qt.execute_in_main_thread(true) do
+        @widget.destroy if @widget
+        @widget = nil
+      end
+    end
 
     # Create the targets tab and add it to the tab_widget
     #
     # @param tab_widget [Qt::TabWidget] The tab widget to add the tab to
-    def populate(tab_widget)
+    def populate
+      reset()
       num_targets = System.targets.length
       if num_targets > 0
-        scroll = Qt::ScrollArea.new
-        widget = Qt::Widget.new
-        layout = Qt::VBoxLayout.new(widget)
+        @widget = Qt::Widget.new
+        layout = Qt::VBoxLayout.new(@widget)
         # Since the layout will be inside a scroll area make sure it respects the sizes we set
         layout.setSizeConstraint(Qt::Layout::SetMinAndMaxSize)
 
@@ -39,8 +52,7 @@ module Cosmos
         @targets_table.displayFullSize
 
         layout.addWidget(@targets_table)
-        scroll.setWidget(widget)
-        tab_widget.addTab(scroll, "Targets")
+        @scroll.setWidget(@widget)
       end
     end
 
