@@ -983,6 +983,13 @@ module Cosmos
       @debug_frame.removeAll
       @debug_frame.dispose
       @debug_frame = nil
+
+      # If step mode was previously active then pause the script so it doesn't
+      # just take off when we end the debugging session
+      if @@step_mode
+        pause()
+        @@step_mode = false
+      end
     end
 
     def self.set_breakpoint(filename, line_number)
@@ -1437,14 +1444,15 @@ module Cosmos
 
     def handle_step_button
       scriptrunner_puts "User pressed #{@realtime_button_bar.step_button.text.strip}"
-      self.class.step_mode = true
+      pause()
+      @@step_mode = true
       handle_start_go_button(step = true)
     end
 
     def handle_start_go_button(step = false)
       unless step
         scriptrunner_puts "User pressed #{@realtime_button_bar.start_button.text.strip}"
-        self.class.step_mode = false
+        @@step_mode = false
       end
       handle_output_io()
       @realtime_button_bar.start_button.clear_focus()
