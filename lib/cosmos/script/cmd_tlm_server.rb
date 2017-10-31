@@ -117,12 +117,12 @@ module Cosmos
       return $cmd_tlm_server.get_background_tasks
     end
 
-    def start_background_task
-      return $cmd_tlm_server.start_background_task
+    def start_background_task(task_name)
+      return $cmd_tlm_server.start_background_task(task_name)
     end
 
-    def stop_background_task
-      return $cmd_tlm_server.stop_background_task
+    def stop_background_task(task_name)
+      return $cmd_tlm_server.stop_background_task(task_name)
     end
 
     def get_server_status
