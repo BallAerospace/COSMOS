@@ -20,6 +20,11 @@ Cosmos.catch_fatal_exception do
   require 'cosmos/gui/choosers/file_chooser'
   require 'cosmos/tools/cmd_sequence/sequence_list'
 end
+begin
+  require 'cmd_sequence_export'
+rescue LoadError => error
+  # Oh well, no custom export code ...
+end
 
 module Cosmos
   # Creates and executes command sequences. Commands are choosen through a GUI
@@ -104,10 +109,10 @@ module Cosmos
       @file_save_as.statusTip = tr('Save the sequence')
       @file_save_as.connect(SIGNAL('triggered()')) { file_save(true) }
 
-      @export_action = Qt::Action.new(tr('&Export Sequence'), self)
-      @export_action.shortcut = Qt::KeySequence.new(tr('Ctrl+E'))
-      @export_action.statusTip = tr('Export the current sequence to a custom binary format')
-      @export_action.connect(SIGNAL('triggered()')) { export() }
+      @file_export = Qt::Action.new(tr('&Export Sequence'), self)
+      @file_export.shortcut = Qt::KeySequence.new(tr('Ctrl+E'))
+      @file_export.statusTip = tr('Export the current sequence to a custom binary format')
+      @file_export.connect(SIGNAL('triggered()')) { file_export() }
 
       @show_ignored = Qt::Action.new(tr('&Show Ignored Parameters'), self)
       @show_ignored.statusTip = tr('Show ignored parameters which are normally hidden')
@@ -163,6 +168,8 @@ module Cosmos
 
       file_menu.addAction(@file_save)
       file_menu.addAction(@file_save_as)
+      file_menu.addSeparator()
+      file_menu.addAction(@file_export)
       file_menu.addSeparator()
       file_menu.addAction(@exit_action)
 
@@ -250,6 +257,22 @@ module Cosmos
       splitter.addWidget(bottom_frame)
       splitter.setStretchFactor(0,1)
       splitter.setStretchFactor(1,0)
+    end
+
+    # Export the sequence list into a custom binary format
+    # Must be implemented by cmd_sequence_export.rb
+    def file_export
+      if respond_to? :export
+        export()
+      else
+        Qt::MessageBox.warning(
+          self,      # parent
+          'Not Implemented', # title
+          "Export must be implemented by cmd_sequence_export.rb. "\
+          "This file must be in the path and consist of a CmdSequence class "\
+          "which implements the 'export' method. See demo/lib/cmd_sequence_export.rb "\
+          "for an example of usage.")
+      end
     end
 
     # Clears the sequence list
