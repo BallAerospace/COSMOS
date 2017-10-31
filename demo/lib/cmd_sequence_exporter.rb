@@ -8,20 +8,25 @@
 # as published by the Free Software Foundation; version 3 with
 # attribution addendums as found in the LICENSE.txt
 
+require 'cosmos'
 require 'cosmos/ccsds/ccsds_packet'
 
 module Cosmos
-  class CmdSequence < QtTool
-    def export
-      basename = File.basename(@filename, ".*")
-      filename = Qt::FileDialog::getSaveFileName(self,         # parent
+  class CmdSequenceExporter
+    def initialize(parent)
+      @parent = parent
+    end
+
+    def export(filename, sequence_dir, sequence_list)
+      basename = File.basename(filename, ".*")
+      filename = Qt::FileDialog::getSaveFileName(@parent,   # parent
                                                  'Export', # caption
-                                                 @sequence_dir + "/#{basename}.bin", # dir
+                                                 sequence_dir + "/#{basename}.bin", # dir
                                                  'Sequence Binary (*.bin)') # filter
       return if filename.nil? || filename.empty?
 
       data = ''
-      @sequence_list.each do |item|
+      sequence_list.each do |item|
         begin
           time = Time.parse(item.time)
           day, ms, us = Time.mdy2ccsds(time.year, time.month, time.day, time.hour, time.min, time.sec, time.usec)

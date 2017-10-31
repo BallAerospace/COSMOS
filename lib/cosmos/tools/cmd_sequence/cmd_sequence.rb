@@ -20,11 +20,6 @@ Cosmos.catch_fatal_exception do
   require 'cosmos/gui/choosers/file_chooser'
   require 'cosmos/tools/cmd_sequence/sequence_list'
 end
-begin
-  require 'cmd_sequence_export'
-rescue LoadError => error
-  # Oh well, no custom export code ...
-end
 
 module Cosmos
   # Creates and executes command sequences. Commands are choosen through a GUI
@@ -39,6 +34,11 @@ module Cosmos
           option_parser, options = create_default_options()
           options.width = 600
           options.height = 425
+          options.config_file = 'cmd_sequence.txt'
+          option_parser.separator "Command Sequence Specific Options:"
+          option_parser.on("-c", "--config FILE", "Use the specified configuration file") do |arg|
+            options.config_file = arg
+          end
           option_parser.on("-o", "--output DIRECTORY", "Save files in the specified directory") do |arg|
             options.output_dir = File.expand_path(arg)
           end
@@ -64,6 +64,13 @@ module Cosmos
       end
       @filename = "Untitled"
       @run_thread = nil
+      @exporter = nil
+
+      begin
+        process_config(options.config_file)
+      rescue => error
+        ExceptionDialog.new(self, error, "Error parsing #{options.config_file}")
+      end
 
       initialize_actions()
       initialize_menus()
@@ -168,8 +175,10 @@ module Cosmos
 
       file_menu.addAction(@file_save)
       file_menu.addAction(@file_save_as)
-      file_menu.addSeparator()
-      file_menu.addAction(@file_export)
+      if @exporter
+        file_menu.addSeparator()
+        file_menu.addAction(@file_export)
+      end
       file_menu.addSeparator()
       file_menu.addAction(@exit_action)
 
@@ -260,19 +269,9 @@ module Cosmos
     end
 
     # Export the sequence list into a custom binary format
-    # Must be implemented by cmd_sequence_export.rb
     def file_export
-      if respond_to? :export
-        export()
-      else
-        Qt::MessageBox.warning(
-          self,      # parent
-          'Not Implemented', # title
-          "Export must be implemented by cmd_sequence_export.rb. "\
-          "This file must be in the path and consist of a CmdSequence class "\
-          "which implements the 'export' method. See demo/lib/cmd_sequence_export.rb "\
-          "for an example of usage.")
-      end
+      return if @sequence_list.empty? || @exporter.nil?
+      @exporter.export(@filename, @sequence_dir, @sequence_list)
     end
 
     # Clears the sequence list
@@ -669,6 +668,31 @@ module Cosmos
         end
         @output.moveCursor(Qt::TextCursor::End)
         @output.ensureCursorVisible()
+      end
+    end
+
+    def process_config(filename)
+      # ensure the file exists
+      return unless test ?f, filename
+
+      parser = ConfigParser.new
+      parser.parse_file(filename) do |keyword, params|
+        case keyword
+
+        when 'EXPORTER'
+          usage = "#{keyword} <exporter class filename> <exporter specific options...>"
+          parser.verify_num_parameters(1, nil, usage)
+          exporter_class = Cosmos.require_class(params[0])
+          if params.length >= 2
+            @exporter = exporter_class.new(self, *params[1..-1])
+          else
+            @exporter = exporter_class.new(self)
+          end
+
+        # Unknown keyword
+        else
+          raise "Unhandled keyword: #{keyword}" if keyword
+        end
       end
     end
   end

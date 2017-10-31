@@ -95,6 +95,13 @@ module Cosmos
       @modified
     end
 
+    def empty?
+      empty = true
+      # The layout always has the header so count must be > 1
+      Qt.execute_in_main_thread { empty = false if layout.count > 1 }
+      empty
+    end
+
     # Yield each SequenceItem to enable the included Enumerable module
     def each
       total_items = 1
