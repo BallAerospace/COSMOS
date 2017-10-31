@@ -34,6 +34,8 @@ module Cosmos
           option_parser, options = create_default_options()
           options.width = 600
           options.height = 425
+          options.config_file = 'cmd_sequence.txt'
+          option_parser.separator "Command Sequence Specific Options:"
           option_parser.on("-o", "--output DIRECTORY", "Save files in the specified directory") do |arg|
             options.output_dir = File.expand_path(arg)
           end
@@ -59,6 +61,13 @@ module Cosmos
       end
       @filename = "Untitled"
       @run_thread = nil
+      @exporter = nil
+
+      begin
+        process_config(options.config_file)
+      rescue => error
+        ExceptionDialog.new(self, error, "Error parsing #{options.config_file}")
+      end
 
       initialize_actions()
       initialize_menus()
@@ -104,10 +113,10 @@ module Cosmos
       @file_save_as.statusTip = tr('Save the sequence')
       @file_save_as.connect(SIGNAL('triggered()')) { file_save(true) }
 
-      @export_action = Qt::Action.new(tr('&Export Sequence'), self)
-      @export_action.shortcut = Qt::KeySequence.new(tr('Ctrl+E'))
-      @export_action.statusTip = tr('Export the current sequence to a custom binary format')
-      @export_action.connect(SIGNAL('triggered()')) { export() }
+      @file_export = Qt::Action.new(tr('&Export Sequence'), self)
+      @file_export.shortcut = Qt::KeySequence.new(tr('Ctrl+E'))
+      @file_export.statusTip = tr('Export the current sequence to a custom binary format')
+      @file_export.connect(SIGNAL('triggered()')) { file_export() }
 
       @show_ignored = Qt::Action.new(tr('&Show Ignored Parameters'), self)
       @show_ignored.statusTip = tr('Show ignored parameters which are normally hidden')
@@ -163,6 +172,10 @@ module Cosmos
 
       file_menu.addAction(@file_save)
       file_menu.addAction(@file_save_as)
+      if @exporter
+        file_menu.addSeparator()
+        file_menu.addAction(@file_export)
+      end
       file_menu.addSeparator()
       file_menu.addAction(@exit_action)
 
@@ -250,6 +263,12 @@ module Cosmos
       splitter.addWidget(bottom_frame)
       splitter.setStretchFactor(0,1)
       splitter.setStretchFactor(1,0)
+    end
+
+    # Export the sequence list into a custom binary format
+    def file_export
+      return if @sequence_list.empty? || @exporter.nil?
+      @exporter.export(@filename, @sequence_dir, @sequence_list)
     end
 
     # Clears the sequence list
@@ -646,6 +665,31 @@ module Cosmos
         end
         @output.moveCursor(Qt::TextCursor::End)
         @output.ensureCursorVisible()
+      end
+    end
+
+    def process_config(filename)
+      # ensure the file exists
+      return unless filename
+
+      parser = ConfigParser.new
+      parser.parse_file(filename) do |keyword, params|
+        case keyword
+
+        when 'EXPORTER'
+          usage = "#{keyword} <exporter class filename> <exporter specific options...>"
+          parser.verify_num_parameters(1, nil, usage)
+          exporter_class = Cosmos.require_class(params[0])
+          if params.length >= 2
+            @exporter = exporter_class.new(self, *params[1..-1])
+          else
+            @exporter = exporter_class.new(self)
+          end
+
+        # Unknown keyword
+        else
+          raise "Unhandled keyword: #{keyword}" if keyword
+        end
       end
     end
   end
