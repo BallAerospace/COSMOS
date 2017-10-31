@@ -36,9 +36,6 @@ module Cosmos
           options.height = 425
           options.config_file = 'cmd_sequence.txt'
           option_parser.separator "Command Sequence Specific Options:"
-          option_parser.on("-c", "--config FILE", "Use the specified configuration file") do |arg|
-            options.config_file = arg
-          end
           option_parser.on("-o", "--output DIRECTORY", "Save files in the specified directory") do |arg|
             options.output_dir = File.expand_path(arg)
           end
@@ -673,7 +670,7 @@ module Cosmos
 
     def process_config(filename)
       # ensure the file exists
-      return unless test ?f, filename
+      return unless filename
 
       parser = ConfigParser.new
       parser.parse_file(filename) do |keyword, params|
