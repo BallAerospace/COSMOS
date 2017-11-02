@@ -254,7 +254,7 @@ module Cosmos
     describe "get_cmd_param_list" do
       it "returns all the parameters for a command" do
         list = get_cmd_param_list("INST", "COLLECT")
-        expect(list).to include(["TYPE", 0, {"NORMAL"=>0, "SPECIAL"=>1}, "Collect type", nil, nil, true])
+        expect(list).to include(["TYPE", 0, {"NORMAL"=>0, "SPECIAL"=>1}, "Collect type", nil, nil, true, "UINT"])
       end
     end
 
