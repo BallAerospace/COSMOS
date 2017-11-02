@@ -212,7 +212,7 @@ module Cosmos
           @routers.add_preidentified('PREIDENTIFIED_ROUTER', System.ports['CTS_PREIDENTIFIED'])
           @routers.add_cmd_preidentified('PREIDENTIFIED_CMD_ROUTER', System.ports['CTS_CMD_ROUTER'])
         else
-          @routers.all.clear 
+          @routers.all.clear
           @routers.add_preidentified('PREIDENTIFIED_ROUTER', System.ports['REPLAY_PREIDENTIFIED'])
           @routers.add_cmd_preidentified('PREIDENTIFIED_CMD_ROUTER', System.ports['REPLAY_CMD_ROUTER'])
         end
@@ -519,15 +519,21 @@ module Cosmos
       upcase_packets = []
 
       # Upper case packet names
+      need_meta = false
       packets.length.times do |index|
         upcase_packets << []
         upcase_packets[index][0] = packets[index][0].upcase
         upcase_packets[index][1] = packets[index][1].upcase
+
         # Get the packet to ensure it exists
         if @@instance.disconnect
           @last_subscribed_packet = System.telemetry.packet(upcase_packets[index][0], upcase_packets[index][1])
         else
           @@instance.get_tlm_packet(upcase_packets[index][0], upcase_packets[index][1])
+        end
+
+        if upcase_packets[index][0] == 'SYSTEM' and upcase_packets[index][1] == 'META'
+          need_meta = true
         end
       end
 
@@ -536,6 +542,15 @@ module Cosmos
         @@instance.packet_data_queues[id] =
           [Queue.new, upcase_packets, queue_size]
         @@instance.next_packet_data_queue_id += 1
+
+        # Send the current meta packet first if requested
+        if need_meta
+          packet = System.telemetry.packet('SYSTEM', 'META')
+          received_time = packet.received_time
+          received_time ||= Time.now.sys
+          @@instance.packet_data_queues[id][0] << [packet.buffer, 'SYSTEM', 'META',
+            received_time.tv_sec, received_time.tv_usec, packet.received_count]
+        end
       end
       return id
     end

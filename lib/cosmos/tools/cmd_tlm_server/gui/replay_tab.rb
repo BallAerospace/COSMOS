@@ -39,6 +39,7 @@ module Cosmos
       @log_directory << '/' unless @log_directory[-1..-1] == '\\' or @log_directory[-1..-1] == '/'
       @log_filename = nil
       @playing = false
+      @playback_sleeper = nil
       @playback_thread = nil
       @playback_index = 0
       @packet_offsets = []
@@ -215,6 +216,7 @@ module Cosmos
 
     def stop
       @playing = false
+      @playback_sleeper.cancel if @playback_sleeper
     end
 
     def play
@@ -252,6 +254,7 @@ module Cosmos
 
     def start_playback(direction)
       @playback_thread = Thread.new do
+        @playback_sleeper = Sleeper.new
         error = nil
         begin
           @playing = true
@@ -274,11 +277,14 @@ module Cosmos
                   delay_time = previous_packet.received_time - packet.received_time - (Time.now.sys - packet_start)
                 end
               end
-              sleep(delay_time) if delay_time > 0.0
+              if delay_time > 0.0
+                break if @playback_sleeper.sleep(delay_time)
+              end
               previous_packet = packet
             else
               packet = read_at_index(@playback_index, direction)
               break unless packet
+              previous_packet = packet
             end
           end
         rescue Exception => error
@@ -288,6 +294,7 @@ module Cosmos
             @status.setText('Stopped')
           end
           @playing = false
+          @playback_sleeper = nil
           @playback_thread = nil
         end
       end

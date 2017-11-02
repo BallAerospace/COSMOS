@@ -102,7 +102,8 @@ module Cosmos
     end
 
     # Request that the limits items be refreshed from the server
-    def request_reset
+    def request_reset(toggle_mode = false)
+      @toggle_mode = toggle_mode
       @initialized = false
     end
 
@@ -356,6 +357,8 @@ module Cosmos
       @stale = []
       @limits_set = get_limits_set()
       unsubscribe_limits_events(@queue_id) if @queue_id
+      set_replay_mode(!get_replay_mode()) if @toggle_mode
+      @toggle_mode = false
       @queue_id = subscribe_limits_events(100000)
       @clear_items_callback.call
       get_out_of_limits().each do |target, packet, item, state|
@@ -549,6 +552,10 @@ module Cosmos
       @reset_action.statusTip = tr('Reset connection and clear all items. This does not modify the ignored items.')
       @reset_action.connect(SIGNAL('triggered()')) { @limits_items.request_reset() }
 
+      @replay_action = Qt::Action.new(tr('Toggle Replay Mode'), self)
+      @replay_action.statusTip = tr('Toggle Replay Mode')
+      @replay_action.connect(SIGNAL('triggered()')) { toggle_replay_mode() }
+
       @open_ignored_action = Qt::Action.new(Cosmos.get_icon('open.png'),
                                             tr('&Open Config'), self)
       @open_ignored_action_keyseq = Qt::KeySequence.new(tr('Ctrl+O'))
@@ -579,6 +586,7 @@ module Cosmos
       @file_menu.addSeparator()
       @file_menu.addAction(@reset_action)
       @file_menu.addAction(@options_action)
+      @file_menu.addAction(@replay_action)
       @file_menu.addSeparator()
       @file_menu.addAction(@exit_action)
 
@@ -591,8 +599,18 @@ module Cosmos
     # Layout the main GUI tab widget with a view of all the out of limits items
     # in one tab and a log tab showing all limits events.
     def initialize_central_widget
+
+      widget = Qt::Widget.new
+      layout = Qt::VBoxLayout.new(widget)
+      setCentralWidget(widget)
+      
+      @replay_flag = Qt::Label.new("Replay Mode")
+      @replay_flag.setStyleSheet("background:green;color:white;padding:5px;font-weight:bold;")
+      layout.addWidget(@replay_flag)
+      @replay_flag.hide
+
       @tabbook = Qt::TabWidget.new(self)
-      setCentralWidget(@tabbook)
+      layout.addWidget(@tabbook)
       @widget = Qt::Widget.new
       @layout = Qt::VBoxLayout.new(@widget)
 
@@ -675,6 +693,10 @@ module Cosmos
         end
         dialog.dispose
       end
+    end
+
+    def toggle_replay_mode
+      @limits_items.request_reset(true)
     end
 
     # @return [String] Fully qualified path to the configuration file
@@ -834,7 +856,14 @@ module Cosmos
 
     # Reset the GUI by clearing all items
     def clear_gui_items
-      Qt.execute_in_main_thread(true) { @scroll_layout.removeAll }
+      Qt.execute_in_main_thread(true) do
+        if get_replay_mode()
+          @replay_flag.show
+        else
+          @replay_flag.hide
+        end
+        @scroll_layout.removeAll 
+      end
     end
 
     # Update front panel to ignore an item when the corresponding button is pressed.
