@@ -221,7 +221,7 @@ module Cosmos
 
     def prompt_vertical_message_box(string, buttons)
       loop do
-        result = buttons[0]
+        result = buttons[0].clone
         Qt.execute_in_main_thread(true, 0.05) do
           dialog = _build_dialog(string)
 
@@ -258,7 +258,7 @@ module Cosmos
 
     def prompt_combo_box(string, options)
       loop do
-        result = options[0]
+        result = options[0].clone
         Qt.execute_in_main_thread(true, 0.05) do
           dialog = _build_dialog(string)
           # Check if the last parameter is false which means they don't want
