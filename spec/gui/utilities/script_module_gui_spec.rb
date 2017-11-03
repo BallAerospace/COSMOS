@@ -16,6 +16,11 @@ if RUBY_ENGINE == 'ruby'
 
   module Cosmos
     describe Script do
+      after(:all) do
+        # Load the original scripting file over the script_module_gui
+        load 'cosmos/script/scripting.rb'
+      end
+
       def stub_null_object(constant)
         class_double(constant).tap do |double|
           stub_const(constant, double)
