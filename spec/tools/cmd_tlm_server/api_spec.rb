@@ -484,17 +484,17 @@ DOC
         result = @api.get_cmd_param_list("INST","COLLECT")
         # Each element in the results array contains:
         #   name, default, states, description, full units, units, required
-        expect(result).to include ['TYPE',0,{"NORMAL"=>0,"SPECIAL"=>1},'Collect type',nil,nil,true]
-        expect(result).to include ['TEMP',0.0,nil,'Collect temperature','Celcius','C',false]
+        expect(result).to include ['TYPE',0,{"NORMAL"=>0,"SPECIAL"=>1},'Collect type',nil,nil,true,"UINT"]
+        expect(result).to include ['TEMP',0.0,nil,'Collect temperature','Celcius','C',false,"FLOAT"]
       end
 
       it "returns array parameters for the command" do
         result = @api.get_cmd_param_list("INST","ARYCMD")
         # Each element in the results array contains:
         #   name, default, states, description, full units, units, required
-        expect(result).to include ['ARRAY',[],nil,'Array parameter',nil,nil,false]
+        expect(result).to include ['ARRAY',[],nil,'Array parameter',nil,nil,false,"FLOAT"]
         # Since ARRAY2 has a format string the default is in quotes
-        expect(result).to include ['ARRAY2',"[]",nil,'Array parameter',nil,nil,false]
+        expect(result).to include ['ARRAY2',"[]",nil,'Array parameter',nil,nil,false,"UINT"]
       end
     end
 

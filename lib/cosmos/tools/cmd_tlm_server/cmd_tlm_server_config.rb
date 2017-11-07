@@ -51,6 +51,13 @@ module Cosmos
 
     protected
 
+    def get_target_interface_name(target_name)
+      @interfaces.each do |interface_name, interface|
+        return interface_name if interface.target_names.include?(target_name)
+      end
+      nil
+    end
+
     # Processes a file and adds in the configuration defined in the file
     #
     # @param filename [String] The name of the configuration file to parse
@@ -105,6 +112,8 @@ module Cosmos
             System.targets.each do |target_name, target|
               target_filename = File.join(target.dir, 'cmd_tlm_server.txt')
               if File.exist?(target_filename)
+                # Skip this target if it's already been assigned an interface
+                next if get_target_interface_name(target.name)
                 raise parser.error("Cannot use #{keyword} with target name substitutions: #{target.name} != #{target.original_name}") if target.name != target.original_name
                 process_file(target_filename, true)
               end
@@ -116,6 +125,8 @@ module Cosmos
             parser.verify_num_parameters(1, 2, usage)
             target = System.targets[params[0].upcase]
             raise parser.error("Unknown target: #{params[0].upcase}") unless target
+            interface_name = get_target_interface_name(target.name)
+            raise parser.error("Target #{target.name} already mapped to interface #{interface_name}") if interface_name
             target_filename = params[1]
             target_filename = 'cmd_tlm_server.txt' unless target_filename
             target_filename = File.join(target.dir, target_filename)
@@ -164,6 +175,8 @@ module Cosmos
               target_name = params[0].upcase
               target = System.targets[target_name]
               if target
+                interface_name = get_target_interface_name(target.name)
+                raise parser.error("Target #{target.name} already mapped to interface #{interface_name}") if interface_name
                 target.interface = current_interface_or_router
                 current_interface_or_router.target_names << target_name
               else

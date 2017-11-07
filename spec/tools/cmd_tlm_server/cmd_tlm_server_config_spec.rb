@@ -46,7 +46,7 @@ module Cosmos
       end
 
       @keywords = %w(TITLE PACKET_LOG_WRITER AUTO_INTERFACE_TARGETS INTERFACE_TARGET INTERFACE ROUTER)
-      @interface_keywords = %w(DONT_CONNECT DONT_RECONNECT RECONNECT_DELAY DISABLE_DISCONNECT LOG DONT_LOG TARGET PROTOCOL)
+      @interface_keywords = %w(DONT_CONNECT DONT_RECONNECT RECONNECT_DELAY DISABLE_DISCONNECT LOG_RAW  OPTION LOG DONT_LOG TARGET PROTOCOL)
     end
 
     after(:all) do
@@ -75,9 +75,9 @@ module Cosmos
         end
 
         @interface_keywords.each do |keyword|
-          next if %w(DONT_CONNECT DONT_RECONNECT DISABLE_DISCONNECT DONT_LOG).include? keyword
+          next if %w(DONT_CONNECT DONT_RECONNECT DISABLE_DISCONNECT DONT_LOG LOG_RAW).include? keyword
           tf = Tempfile.new('unittest')
-          tf.puts "INTERFACE CtsConfigTestInterface cts_config_test_interface.rb"
+          tf.puts "INTERFACE CTSSPEC_INT cts_config_test_interface.rb"
           tf.puts keyword
           tf.close
           expect { CmdTlmServerConfig.new(tf.path) }.to raise_error(ConfigParser::Error, /Not enough parameters for #{keyword}./)
@@ -120,8 +120,8 @@ module Cosmos
           tf.close
           config = CmdTlmServerConfig.new(tf.path)
           expect(config.packet_log_writer_pairs.keys).to eql ["DEFAULT","MY_WRITER"]
-          expect(config.packet_log_writer_pairs["DEFAULT"].cmd_log_writer.logging_enabled).to be true
-          expect(config.packet_log_writer_pairs["MY_WRITER"].cmd_log_writer.logging_enabled).to be false
+          expect(config.packet_log_writer_pairs["DEFAULT"].cmd_log_writer.logging_enabled).to eq true
+          expect(config.packet_log_writer_pairs["MY_WRITER"].cmd_log_writer.logging_enabled).to eq false
           tf.unlink
           config.packet_log_writer_pairs.each do |name, plwp|
             plwp.cmd_log_writer.shutdown
@@ -159,6 +159,57 @@ module Cosmos
           expect(config.interfaces.keys).to eql %w(INST_INT SYSTEM_INT)
           tf.unlink
         end
+
+        it "allows interfaces to be previously defined by INTERFACE_TARGET" do
+          # Stub out the CmdTlmServer
+          allow(CmdTlmServer).to receive_message_chain(:instance, :subscribe_limits_events)
+
+          tf = Tempfile.new('unittest')
+          tf.puts 'INTERFACE_TARGET INST'
+          tf.puts 'AUTO_INTERFACE_TARGETS'
+          tf.close
+          config = CmdTlmServerConfig.new(tf.path)
+          expect(config.interfaces.keys).to eql %w(INST_INT SYSTEM_INT)
+          tf.unlink
+        end
+
+        it "allows interfaces to be previously defined by INTERFACE" do
+          # Stub out the CmdTlmServer
+          allow(CmdTlmServer).to receive_message_chain(:instance, :subscribe_limits_events)
+
+          tf = Tempfile.new('unittest')
+          tf.puts 'INTERFACE INST_INT simulated_target_interface.rb sim_inst.rb'
+          tf.puts '  TARGET INST'
+          tf.puts 'AUTO_INTERFACE_TARGETS'
+          tf.close
+          config = CmdTlmServerConfig.new(tf.path)
+          expect(config.interfaces.keys).to eql %w(INST_INT SYSTEM_INT)
+          tf.unlink
+        end
+
+        it "complains about target name substitution" do
+          System.class_eval('@@instance = nil')
+          # Save system.txt
+          system_file = File.join(Cosmos::USERPATH,'config','system','system.txt')
+          FileUtils.mv system_file, Cosmos::USERPATH
+
+          # Create another system.txt with target name substitution
+          File.open(system_file,'w') do |file|
+            file.puts 'DECLARE_TARGET INST'
+            file.puts 'DECLARE_TARGET INST INST2'
+          end
+
+          tf = Tempfile.new('unittest')
+          tf.puts 'AUTO_INTERFACE_TARGETS'
+          tf.close
+          expect { CmdTlmServerConfig.new(tf.path) }.to raise_error(ConfigParser::Error, /Cannot use AUTO_INTERFACE_TARGETS with target name substitutions/)
+          tf.unlink
+
+          # Restore system.txt
+          FileUtils.mv File.join(Cosmos::USERPATH, 'system.txt'),
+            File.join(Cosmos::USERPATH,'config','system')
+          System.class_eval('@@instance = nil')
+        end
       end
 
       context "with INTERFACE_TARGET" do
@@ -187,6 +238,16 @@ module Cosmos
           tf.unlink
         end
 
+        it "complains if the target is already mapped to an interface" do
+          tf = Tempfile.new('unittest')
+          tf.puts 'INTERFACE INST_INT simulated_target_interface.rb sim_inst.rb'
+          tf.puts '  TARGET INST'
+          tf.puts 'INTERFACE_TARGET INST'
+          tf.close
+          expect { CmdTlmServerConfig.new(tf.path) }.to raise_error(ConfigParser::Error, /Target INST already mapped to interface INST_INT/)
+          tf.unlink
+        end
+
         it "processes an interface" do
           tf = Tempfile.new('unittest')
           tf.puts 'INTERFACE_TARGET INST'
@@ -200,7 +261,7 @@ module Cosmos
       context "with DONT_CONNECT" do
         it "complains about too many parameters" do
           tf = Tempfile.new('unittest')
-          tf.puts "INTERFACE CtsConfigTestInterface cts_config_test_interface.rb"
+          tf.puts "INTERFACE CTSSPEC_INT cts_config_test_interface.rb"
           tf.puts 'DONT_CONNECT TRUE'
           tf.close
           expect { CmdTlmServerConfig.new(tf.path) }.to raise_error(ConfigParser::Error, /Too many parameters for DONT_CONNECT./)
@@ -209,11 +270,11 @@ module Cosmos
 
         it "sets the interface to not connect on startup" do
           tf = Tempfile.new('unittest')
-          tf.puts "INTERFACE CtsConfigTestInterface cts_config_test_interface.rb"
+          tf.puts "INTERFACE CTSSPEC_INT cts_config_test_interface.rb"
           tf.puts 'DONT_CONNECT'
           tf.close
           config = CmdTlmServerConfig.new(tf.path)
-          expect(config.interfaces['CTSCONFIGTESTINTERFACE'].connect_on_startup).to be false
+          expect(config.interfaces['CTSSPEC_INT'].connect_on_startup).to eq false
           tf.unlink
         end
       end
@@ -221,7 +282,7 @@ module Cosmos
       context "with DONT_RECONNECT" do
         it "complains about too many parameters" do
           tf = Tempfile.new('unittest')
-          tf.puts "INTERFACE CtsConfigTestInterface cts_config_test_interface.rb"
+          tf.puts "INTERFACE CTSSPEC_INT cts_config_test_interface.rb"
           tf.puts 'DONT_RECONNECT TRUE'
           tf.close
           expect { CmdTlmServerConfig.new(tf.path) }.to raise_error(ConfigParser::Error, /Too many parameters for DONT_RECONNECT./)
@@ -230,11 +291,11 @@ module Cosmos
 
         it "sets the interface to not auto reconnect" do
           tf = Tempfile.new('unittest')
-          tf.puts "INTERFACE CtsConfigTestInterface cts_config_test_interface.rb"
+          tf.puts "INTERFACE CTSSPEC_INT cts_config_test_interface.rb"
           tf.puts 'DONT_RECONNECT'
           tf.close
           config = CmdTlmServerConfig.new(tf.path)
-          expect(config.interfaces['CTSCONFIGTESTINTERFACE'].auto_reconnect).to be false
+          expect(config.interfaces['CTSSPEC_INT'].auto_reconnect).to eq false
           tf.unlink
         end
       end
@@ -242,7 +303,7 @@ module Cosmos
       context "with RECONNECT_DELAY" do
         it "complains about too many parameters" do
           tf = Tempfile.new('unittest')
-          tf.puts "INTERFACE CtsConfigTestInterface cts_config_test_interface.rb"
+          tf.puts "INTERFACE CTSSPEC_INT cts_config_test_interface.rb"
           tf.puts 'RECONNECT_DELAY 5.0 TRUE'
           tf.close
           expect { CmdTlmServerConfig.new(tf.path) }.to raise_error(ConfigParser::Error, /Too many parameters for RECONNECT_DELAY./)
@@ -251,11 +312,11 @@ module Cosmos
 
         it "sets the delay between reconnect tries" do
           tf = Tempfile.new('unittest')
-          tf.puts "INTERFACE CtsConfigTestInterface cts_config_test_interface.rb"
+          tf.puts "INTERFACE CTSSPEC_INT cts_config_test_interface.rb"
           tf.puts 'RECONNECT_DELAY 5.0'
           tf.close
           config = CmdTlmServerConfig.new(tf.path)
-          expect(config.interfaces['CTSCONFIGTESTINTERFACE'].reconnect_delay).to eql 5.0
+          expect(config.interfaces['CTSSPEC_INT'].reconnect_delay).to eql 5.0
           tf.unlink
         end
       end
@@ -263,7 +324,7 @@ module Cosmos
       context "with DISABLE_DISCONNECT" do
         it "complains about too many parameters" do
           tf = Tempfile.new('unittest')
-          tf.puts "INTERFACE CtsConfigTestInterface cts_config_test_interface.rb"
+          tf.puts "INTERFACE CTSSPEC_INT cts_config_test_interface.rb"
           tf.puts 'DISABLE_DISCONNECT TRUE'
           tf.close
           expect { CmdTlmServerConfig.new(tf.path) }.to raise_error(ConfigParser::Error, /Too many parameters for DISABLE_DISCONNECT./)
@@ -272,11 +333,44 @@ module Cosmos
 
         it "sets the interface to not allow disconnects" do
           tf = Tempfile.new('unittest')
-          tf.puts "INTERFACE CtsConfigTestInterface cts_config_test_interface.rb"
+          tf.puts "INTERFACE CTSSPEC_INT cts_config_test_interface.rb"
           tf.puts 'DISABLE_DISCONNECT'
           tf.close
           config = CmdTlmServerConfig.new(tf.path)
-          expect(config.interfaces['CTSCONFIGTESTINTERFACE'].disable_disconnect).to be true
+          expect(config.interfaces['CTSSPEC_INT'].disable_disconnect).to eq true
+          tf.unlink
+        end
+      end
+
+      context "with LOG_RAW" do
+        it "create a raw logger on the interface" do
+          tf = Tempfile.new('unittest')
+          tf.puts "INTERFACE CTSSPEC_INT cts_config_test_interface.rb"
+          tf.puts 'LOG_RAW'
+          tf.close
+          config = CmdTlmServerConfig.new(tf.path)
+          expect(config.interfaces['CTSSPEC_INT'].raw_logger_pair).to be_a RawLoggerPair
+          expect(config.interfaces['CTSSPEC_INT'].raw_logger_pair.read_logger).to be_a RawLogger
+          expect(config.interfaces['CTSSPEC_INT'].raw_logger_pair.write_logger).to be_a RawLogger
+          tf.unlink
+        end
+
+        it "creates a customized raw logger on the interface" do
+          tf = Tempfile.new('unittest')
+          tf.puts "INTERFACE CTSSPEC_INT cts_config_test_interface.rb"
+          tf.puts "LOG_RAW raw_logger true 1000 'C:/logs'"
+          tf.close
+          config = CmdTlmServerConfig.new(tf.path)
+          read_logger = config.interfaces['CTSSPEC_INT'].raw_logger_pair.read_logger
+          expect(read_logger.orig_name).to eq "CTSSPEC_INT"
+          expect(read_logger.instance_variable_get("@logging_enabled")).to eq true
+          expect(read_logger.instance_variable_get("@cycle_size")).to eq 1000
+          expect(read_logger.instance_variable_get("@log_directory")).to eq "C:/logs"
+          write_logger = config.interfaces['CTSSPEC_INT'].raw_logger_pair.write_logger
+          expect(write_logger.orig_name).to eq "CTSSPEC_INT"
+          expect(write_logger.instance_variable_get("@logging_enabled")).to eq true
+          expect(write_logger.instance_variable_get("@cycle_size")).to eq 1000
+          expect(write_logger.instance_variable_get("@log_directory")).to eq "C:/logs"
           tf.unlink
         end
       end
@@ -284,7 +378,7 @@ module Cosmos
       context "with OPTION" do
         it "complains about too few parameters" do
           tf = Tempfile.new('unittest')
-          tf.puts "INTERFACE CtsConfigTestInterface cts_config_test_interface.rb"
+          tf.puts "INTERFACE CTSSPEC_INT cts_config_test_interface.rb"
           tf.puts 'OPTION TRUE'
           tf.close
           expect { CmdTlmServerConfig.new(tf.path) }.to raise_error(ConfigParser::Error, /Not enough parameters for OPTION./)
@@ -293,11 +387,11 @@ module Cosmos
 
         it "sets the interface to listen on a specific address" do
           tf = Tempfile.new('unittest')
-          tf.puts "INTERFACE CtsConfigTestInterface cts_config_test_interface.rb"
+          tf.puts "INTERFACE CTSSPEC_INT cts_config_test_interface.rb"
           tf.puts 'OPTION LISTEN_ADDRESS 127.0.0.1'
           tf.close
           config = CmdTlmServerConfig.new(tf.path)
-          expect(config.interfaces['CTSCONFIGTESTINTERFACE'].options['LISTEN_ADDRESS']).to eql(['127.0.0.1'])
+          expect(config.interfaces['CTSSPEC_INT'].options['LISTEN_ADDRESS']).to eql(['127.0.0.1'])
           tf.unlink
         end
       end
@@ -305,7 +399,7 @@ module Cosmos
       context "with LOG" do
         it "complains about too many parameters" do
           tf = Tempfile.new('unittest')
-          tf.puts "INTERFACE CtsConfigTestInterface cts_config_test_interface.rb"
+          tf.puts "INTERFACE CTSSPEC_INT cts_config_test_interface.rb"
           tf.puts 'LOG PacketLogWriter TRUE'
           tf.close
           expect { CmdTlmServerConfig.new(tf.path) }.to raise_error(ConfigParser::Error, /Too many parameters for LOG./)
@@ -314,7 +408,7 @@ module Cosmos
 
         it "complains about unknown log writers" do
           tf = Tempfile.new('unittest')
-          tf.puts "INTERFACE CtsConfigTestInterface cts_config_test_interface.rb"
+          tf.puts "INTERFACE CTSSPEC_INT cts_config_test_interface.rb"
           tf.puts 'LOG MyLogWriter'
           tf.close
           expect { CmdTlmServerConfig.new(tf.path) }.to raise_error(ConfigParser::Error, /Unknown packet log writer: MYLOGWRITER/)
@@ -323,21 +417,21 @@ module Cosmos
 
         it "adds a packet log writer to the interface" do
           tf = Tempfile.new('unittest')
-          tf.puts "INTERFACE CtsConfigTestInterface cts_config_test_interface.rb"
+          tf.puts "INTERFACE CTSSPEC_INT cts_config_test_interface.rb"
           tf.puts 'LOG DEFAULT'
           tf.close
           config = CmdTlmServerConfig.new(tf.path)
-          expect(config.interfaces['CTSCONFIGTESTINTERFACE'].packet_log_writer_pairs.length).to eql 1
+          expect(config.interfaces['CTSSPEC_INT'].packet_log_writer_pairs.length).to eql 1
           tf.unlink
 
           tf = Tempfile.new('unittest')
           tf.puts 'PACKET_LOG_WRITER MY_WRITER packet_log_writer.rb'
-          tf.puts "INTERFACE CtsConfigTestInterface cts_config_test_interface.rb"
+          tf.puts "INTERFACE CTSSPEC_INT cts_config_test_interface.rb"
           tf.puts 'LOG DEFAULT'
           tf.puts 'LOG MY_WRITER'
           tf.close
           config = CmdTlmServerConfig.new(tf.path)
-          expect(config.interfaces['CTSCONFIGTESTINTERFACE'].packet_log_writer_pairs.length).to eql 2
+          expect(config.interfaces['CTSSPEC_INT'].packet_log_writer_pairs.length).to eql 2
           tf.unlink
         end
       end
@@ -345,7 +439,7 @@ module Cosmos
       context "with DONT_LOG" do
         it "complains about too many parameters" do
           tf = Tempfile.new('unittest')
-          tf.puts "INTERFACE CtsConfigTestInterface cts_config_test_interface.rb"
+          tf.puts "INTERFACE CTSSPEC_INT cts_config_test_interface.rb"
           tf.puts 'DONT_LOG TRUE'
           tf.close
           expect { CmdTlmServerConfig.new(tf.path) }.to raise_error(ConfigParser::Error, /Too many parameters for DONT_LOG./)
@@ -354,11 +448,11 @@ module Cosmos
 
         it "removes loggers from the interface" do
           tf = Tempfile.new('unittest')
-          tf.puts "INTERFACE CtsConfigTestInterface cts_config_test_interface.rb"
+          tf.puts "INTERFACE CTSSPEC_INT cts_config_test_interface.rb"
           tf.puts 'DONT_LOG'
           tf.close
           config = CmdTlmServerConfig.new(tf.path)
-          expect(config.interfaces['CTSCONFIGTESTINTERFACE'].packet_log_writer_pairs.length).to eql 0
+          expect(config.interfaces['CTSSPEC_INT'].packet_log_writer_pairs.length).to eql 0
           tf.unlink
         end
       end
@@ -366,7 +460,7 @@ module Cosmos
       context "with TARGET" do
         it "complains about too many parameters" do
           tf = Tempfile.new('unittest')
-          tf.puts "INTERFACE CtsConfigTestInterface cts_config_test_interface.rb"
+          tf.puts "INTERFACE CTSSPEC_INT cts_config_test_interface.rb"
           tf.puts 'TARGET TEST TRUE'
           tf.close
           expect { CmdTlmServerConfig.new(tf.path) }.to raise_error(ConfigParser::Error, /Too many parameters for TARGET./)
@@ -375,10 +469,20 @@ module Cosmos
 
         it "complains about unknown targets" do
           tf = Tempfile.new('unittest')
-          tf.puts "INTERFACE CtsConfigTestInterface cts_config_test_interface.rb"
+          tf.puts "INTERFACE TEST_INT cts_config_test_interface.rb"
           tf.puts 'TARGET BLAH'
           tf.close
-          expect { CmdTlmServerConfig.new(tf.path) }.to raise_error(ConfigParser::Error, /Unknown target BLAH mapped to interface CTSCONFIGTESTINTERFACE/)
+          expect { CmdTlmServerConfig.new(tf.path) }.to raise_error(ConfigParser::Error, /Unknown target BLAH mapped to interface TEST_INT/)
+          tf.unlink
+        end
+
+        it "complains if the target is already mapped" do
+          tf = Tempfile.new('unittest')
+          tf.puts "INTERFACE TEST_INT cts_config_test_interface.rb"
+          tf.puts 'TARGET TEST'
+          tf.puts 'TARGET TEST'
+          tf.close
+          expect { CmdTlmServerConfig.new(tf.path) }.to raise_error(ConfigParser::Error, /Target TEST already mapped to interface TEST_INT/)
           tf.unlink
         end
       end
@@ -386,7 +490,7 @@ module Cosmos
       context "with PROTOCOL" do
         it "requires two parameters" do
           tf = Tempfile.new('unittest')
-          tf.puts "INTERFACE CtsConfigTestInterface cts_config_test_interface.rb"
+          tf.puts "INTERFACE CTSSPEC_INT cts_config_test_interface.rb"
           tf.puts 'PROTOCOL'
           tf.close
           expect { CmdTlmServerConfig.new(tf.path) }.to raise_error(ConfigParser::Error, /Not enough parameters for PROTOCOL/)
@@ -395,7 +499,7 @@ module Cosmos
 
         it "requires a READ, WRITE, or READ_WRITE descriptor" do
           tf = Tempfile.new('unittest')
-          tf.puts "INTERFACE CtsConfigTestInterface cts_config_test_interface.rb"
+          tf.puts "INTERFACE CTSSPEC_INT cts_config_test_interface.rb"
           tf.puts 'PROTOCOL BLAH cts_config_test_protocol.rb'
           tf.close
           expect { CmdTlmServerConfig.new(tf.path) }.to raise_error(ConfigParser::Error, /Invalid protocol type: BLAH/)
@@ -404,85 +508,94 @@ module Cosmos
 
         it "requires a protocol filename or class" do
           tf = Tempfile.new('unittest')
-          tf.puts "INTERFACE CtsConfigTestInterface cts_config_test_interface.rb"
+          tf.puts "INTERFACE CTSSPEC_INT cts_config_test_interface.rb"
           tf.puts 'PROTOCOL READ'
           tf.close
           expect { CmdTlmServerConfig.new(tf.path) }.to raise_error(ConfigParser::Error, /Not enough parameters for PROTOCOL/)
           tf.unlink
         end
 
+        it "complains about filenames or classes which aren't found" do
+          tf = Tempfile.new('unittest')
+          tf.puts "INTERFACE CTSSPEC_INT cts_config_test_interface.rb"
+          tf.puts 'PROTOCOL READ this_is_not_a_file.rb'
+          tf.close
+          expect { CmdTlmServerConfig.new(tf.path) }.to raise_error(ConfigParser::Error, /Unable to require this_is_not_a_file.rb/)
+          tf.unlink
+        end
+
         it "instantiates via the file name" do
           tf = Tempfile.new('unittest')
-          tf.puts "INTERFACE CtsConfigTestInterface cts_config_test_interface.rb"
+          tf.puts "INTERFACE CTSSPEC_INT cts_config_test_interface.rb"
           tf.puts 'PROTOCOL READ cts_config_test_protocol.rb'
           tf.close
           config = CmdTlmServerConfig.new(tf.path)
-          expect(config.interfaces['CTSCONFIGTESTINTERFACE'].read_protocols[0].class).to be CtsConfigTestProtocol
+          expect(config.interfaces['CTSSPEC_INT'].read_protocols[0].class).to eq CtsConfigTestProtocol
           tf.unlink
         end
 
         it "instantiates via the class name" do
           tf = Tempfile.new('unittest')
-          tf.puts "INTERFACE CtsConfigTestInterface cts_config_test_interface.rb"
+          tf.puts "INTERFACE CTSSPEC_INT cts_config_test_interface.rb"
           tf.puts 'PROTOCOL READ CtsConfigTestProtocol'
           tf.close
           config = CmdTlmServerConfig.new(tf.path)
-          expect(config.interfaces['CTSCONFIGTESTINTERFACE'].read_protocols[0].class).to be CtsConfigTestProtocol
+          expect(config.interfaces['CTSSPEC_INT'].read_protocols[0].class).to eq CtsConfigTestProtocol
           tf.unlink
         end
 
         it "appends to the list of READ protocols" do
           tf = Tempfile.new('unittest')
-          tf.puts "INTERFACE CtsConfigTestInterface cts_config_test_interface.rb"
+          tf.puts "INTERFACE CTSSPEC_INT cts_config_test_interface.rb"
           tf.puts 'PROTOCOL READ OverrideProtocol'
           tf.puts 'PROTOCOL READ CtsConfigTestProtocol'
           tf.close
           config = CmdTlmServerConfig.new(tf.path)
-          read_protocols = config.interfaces['CTSCONFIGTESTINTERFACE'].read_protocols
-          expect(read_protocols[0].class).to be OverrideProtocol
-          expect(read_protocols[1].class).to be CtsConfigTestProtocol
-          expect(config.interfaces['CTSCONFIGTESTINTERFACE'].write_protocols).to be_empty
+          read_protocols = config.interfaces['CTSSPEC_INT'].read_protocols
+          expect(read_protocols[0].class).to eq OverrideProtocol
+          expect(read_protocols[1].class).to eq CtsConfigTestProtocol
+          expect(config.interfaces['CTSSPEC_INT'].write_protocols).to be_empty
           tf.unlink
         end
 
         it "prepends to the list of WRITE protocols" do
           tf = Tempfile.new('unittest')
-          tf.puts "INTERFACE CtsConfigTestInterface cts_config_test_interface.rb"
+          tf.puts "INTERFACE CTSSPEC_INT cts_config_test_interface.rb"
           tf.puts 'PROTOCOL WRITE OverrideProtocol'
           tf.puts 'PROTOCOL WRITE CtsConfigTestProtocol'
           tf.close
           config = CmdTlmServerConfig.new(tf.path)
-          write_protocols = config.interfaces['CTSCONFIGTESTINTERFACE'].write_protocols
-          expect(write_protocols[0].class).to be CtsConfigTestProtocol
-          expect(write_protocols[1].class).to be OverrideProtocol
-          expect(config.interfaces['CTSCONFIGTESTINTERFACE'].read_protocols).to be_empty
+          write_protocols = config.interfaces['CTSSPEC_INT'].write_protocols
+          expect(write_protocols[0].class).to eq CtsConfigTestProtocol
+          expect(write_protocols[1].class).to eq OverrideProtocol
+          expect(config.interfaces['CTSSPEC_INT'].read_protocols).to be_empty
           tf.unlink
         end
 
         it "adds to both with READ_WRITE" do
           tf = Tempfile.new('unittest')
-          tf.puts "INTERFACE CtsConfigTestInterface cts_config_test_interface.rb"
+          tf.puts "INTERFACE CTSSPEC_INT cts_config_test_interface.rb"
           tf.puts 'PROTOCOL READ_WRITE OverrideProtocol'
           tf.puts 'PROTOCOL READ_WRITE CtsConfigTestProtocol'
           tf.close
           config = CmdTlmServerConfig.new(tf.path)
-          read_protocols = config.interfaces['CTSCONFIGTESTINTERFACE'].read_protocols
-          write_protocols = config.interfaces['CTSCONFIGTESTINTERFACE'].write_protocols
-          expect(read_protocols[0].class).to be OverrideProtocol
-          expect(read_protocols[1].class).to be CtsConfigTestProtocol
-          expect(write_protocols[0].class).to be CtsConfigTestProtocol
-          expect(write_protocols[1].class).to be OverrideProtocol
+          read_protocols = config.interfaces['CTSSPEC_INT'].read_protocols
+          write_protocols = config.interfaces['CTSSPEC_INT'].write_protocols
+          expect(read_protocols[0].class).to eq OverrideProtocol
+          expect(read_protocols[1].class).to eq CtsConfigTestProtocol
+          expect(write_protocols[0].class).to eq CtsConfigTestProtocol
+          expect(write_protocols[1].class).to eq OverrideProtocol
           tf.unlink
         end
 
         it "stores initialization parameters" do
           tf = Tempfile.new('unittest')
-          tf.puts "INTERFACE CtsConfigTestInterface cts_config_test_interface.rb"
+          tf.puts "INTERFACE CTSSPEC_INT cts_config_test_interface.rb"
           tf.puts 'PROTOCOL READ cts_config_test_protocol.rb PARAM1 20'
           tf.close
           config = CmdTlmServerConfig.new(tf.path)
-          pinfo = config.interfaces['CTSCONFIGTESTINTERFACE'].protocol_info[0]
-          expect(pinfo[0]).to be CtsConfigTestProtocol
+          pinfo = config.interfaces['CTSSPEC_INT'].protocol_info[0]
+          expect(pinfo[0]).to eq CtsConfigTestProtocol
           expect(pinfo[1]).to eq ['PARAM1', '20']
           expect(pinfo[2]).to eq :READ
           tf.unlink
@@ -492,10 +605,10 @@ module Cosmos
       context "with two interfaces with the same name" do
         it "complains about duplicate interface names" do
           tf = Tempfile.new('unittest')
-          tf.puts "INTERFACE CtsConfigTestInterface cts_config_test_interface.rb"
-          tf.puts "INTERFACE CtsConfigTestInterface cts_config_test_interface.rb"
+          tf.puts "INTERFACE CTSSPEC_INT cts_config_test_interface.rb"
+          tf.puts "INTERFACE CTSSPEC_INT cts_config_test_interface.rb"
           tf.close
-          expect { CmdTlmServerConfig.new(tf.path) }.to raise_error(ConfigParser::Error, /Interface 'CTSCONFIGTESTINTERFACE' defined twice/)
+          expect { CmdTlmServerConfig.new(tf.path) }.to raise_error(ConfigParser::Error, /Interface 'CTSSPEC_INT' defined twice/)
           tf.unlink
         end
       end
@@ -544,17 +657,17 @@ module Cosmos
         it "complains if the interface is undefined" do
           tf = Tempfile.new('unittest')
           tf.puts 'ROUTER ROUTER cts_config_test_interface.rb'
-          tf.puts 'ROUTE CTSCONFIGTESTINTERFACE'
+          tf.puts 'ROUTE CTSSPEC_INT'
           tf.close
-          expect { CmdTlmServerConfig.new(tf.path) }.to raise_error(ConfigParser::Error, /Unknown interface CTSCONFIGTESTINTERFACE mapped to router ROUTER/)
+          expect { CmdTlmServerConfig.new(tf.path) }.to raise_error(ConfigParser::Error, /Unknown interface CTSSPEC_INT mapped to router ROUTER/)
           tf.unlink
         end
 
         it "creates the route" do
           tf = Tempfile.new('unittest')
-          tf.puts "INTERFACE CtsConfigTestInterface cts_config_test_interface.rb"
+          tf.puts "INTERFACE CTSSPEC_INT cts_config_test_interface.rb"
           tf.puts 'ROUTER ROUTER cts_config_test_interface.rb'
-          tf.puts 'ROUTE CTSCONFIGTESTINTERFACE'
+          tf.puts 'ROUTE CTSSPEC_INT'
           tf.close
           config = CmdTlmServerConfig.new(tf.path)
           expect(config.routers['ROUTER'].interfaces[0]).to be_a CtsConfigTestInterface
@@ -593,15 +706,35 @@ module Cosmos
           tf = Tempfile.new('unittest')
           tf.puts 'BACKGROUND_TASK cts_config_test_background_task_no_args.rb'
           tf.puts 'BACKGROUND_TASK cts_config_test_background_task_args.rb 1 2 3'
+          tf.puts '  STOPPED'
           tf.close
           config = CmdTlmServerConfig.new(tf.path)
           expect(config.background_tasks.length).to eql 2
           expect(config.background_tasks[0]).to be_a CtsConfigTestBackgroundTaskNoArgs
+          expect(config.background_tasks[0].stopped).to be false
           expect(config.background_tasks[1]).to be_a CtsConfigTestBackgroundTaskArgs
+          expect(config.background_tasks[1].stopped).to be true
           tf.unlink
 
           File.delete background_task_no_args_file
           File.delete background_task_args_file
+        end
+      end
+
+      context "with COLLECT_METADATA" do
+        it "indicates metadata should be collected" do
+          tf = Tempfile.new('unittest')
+          tf.close
+          config = CmdTlmServerConfig.new(tf.path)
+          expect(config.metadata).to be false
+          tf.unlink
+
+          tf = Tempfile.new('unittest')
+          tf.puts 'COLLECT_METADATA'
+          tf.close
+          config = CmdTlmServerConfig.new(tf.path)
+          expect(config.metadata).to be true
+          tf.unlink
         end
       end
 

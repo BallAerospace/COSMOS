@@ -295,12 +295,12 @@ module Cosmos
       System.commands.params(target_name, command_name).each do |parameter|
         if parameter.format_string
           unless parameter.default.kind_of?(Array)
-            list << [parameter.name, sprintf(parameter.format_string, parameter.default), parameter.states, parameter.description, parameter.units_full, parameter.units, parameter.required]
+            list << [parameter.name, sprintf(parameter.format_string, parameter.default), parameter.states, parameter.description, parameter.units_full, parameter.units, parameter.required, parameter.data_type.to_s]
           else
-            list << [parameter.name, "[]", parameter.states, parameter.description, parameter.units_full, parameter.units, parameter.required]
+            list << [parameter.name, "[]", parameter.states, parameter.description, parameter.units_full, parameter.units, parameter.required, parameter.data_type.to_s]
           end
         else
-          list << [parameter.name, parameter.default, parameter.states, parameter.description, parameter.units_full, parameter.units, parameter.required]
+          list << [parameter.name, parameter.default, parameter.states, parameter.description, parameter.units_full, parameter.units, parameter.required, parameter.data_type.to_s]
         end
       end
       return list

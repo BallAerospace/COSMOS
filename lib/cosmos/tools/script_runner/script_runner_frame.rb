@@ -549,6 +549,10 @@ module Cosmos
         return nil if @cancel_instrumentation
         instrumented_line = ''
         if instrumentable
+          # Skip the segment if it's empty. Note that the segment could have
+          # originally had comments but they were stripped in
+          # ruby_lex_utils.remove_comments
+          next if segment.strip.empty?
           # If not inside a begin block then create one to catch exceptions
           unless inside_begin
             instrumented_line << 'begin; '
@@ -682,7 +686,16 @@ module Cosmos
     # Implement the breakpoint callbacks from the RubyEditor
     ######################################
     def breakpoint_set(line)
-      ScriptRunnerFrame.set_breakpoint(current_tab_filename(), line)
+      # Check for blank and comment lines which can't have a breakpoint.
+      # There are other un-instrumentable lines which don't support breakpoints
+      # but this is the most common and is an easy check.
+      # Note: line is 1 based but @script.get_line is zero based so subtract 1
+      text = @script.get_line(line - 1)
+      if text.strip.empty? || text.strip[0] == '#'
+        @script.clear_breakpoint(line) # Immediately clear it
+      else
+        ScriptRunnerFrame.set_breakpoint(current_tab_filename(), line)
+      end
     end
 
     def breakpoint_cleared(line)
