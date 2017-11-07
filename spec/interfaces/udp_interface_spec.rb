@@ -83,6 +83,20 @@ module Cosmos
         expect(i.instance_variable_get(:@write_socket)).to be_nil
         expect(i.instance_variable_get(:@read_socket)).to be_nil
       end
+
+      it "creates one socket if read_port == write_src_port" do
+        i = UdpInterface.new('localhost','8888','8889', '8889')
+        expect(i.connected?).to be false
+        i.connect
+        expect(i.connected?).to be true
+        expect(i.instance_variable_get(:@write_socket)).to_not be_nil
+        expect(i.instance_variable_get(:@read_socket)).to_not be_nil
+        expect(i.instance_variable_get(:@read_socket)).to eql i.instance_variable_get(:@write_socket)
+        i.disconnect
+        expect(i.connected?).to be false
+        expect(i.instance_variable_get(:@write_socket)).to be_nil
+        expect(i.instance_variable_get(:@read_socket)).to be_nil
+      end
     end
 
     describe "read" do

@@ -75,18 +75,29 @@ module Cosmos
     # the constructor and a new {UdpReadSocket} if the read_port was given in
     # the constructor.
     def connect
-      @read_socket = UdpReadSocket.new(
-        @read_port,
-        @hostname,
-        @interface_address,
-        @bind_address) if @read_port
-      @write_socket = UdpWriteSocket.new(
-        @hostname,
-        @write_dest_port,
-        @write_src_port,
-        @interface_address,
-        @ttl,
-        @bind_address) if @write_dest_port
+      if @read_port and @write_dest_port and @write_src_port and (@read_port == @write_src_port)
+        @read_socket = UdpReadWriteSocket.new(
+          @read_port,
+          @bind_address,
+          @write_dest_port,
+          @hostname,
+          @interface_address,
+          @ttl)
+        @write_socket = @read_socket
+      else
+        @read_socket = UdpReadSocket.new(
+          @read_port,
+          @hostname,
+          @interface_address,
+          @bind_address) if @read_port
+        @write_socket = UdpWriteSocket.new(
+          @hostname,
+          @write_dest_port,
+          @write_src_port,
+          @interface_address,
+          @ttl,
+          @bind_address) if @write_dest_port
+      end
       @thread_sleeper = nil
     end
 
@@ -105,9 +116,11 @@ module Cosmos
 
     # Close the active ports (read and/or write) and set the sockets to nil.
     def disconnect
-      Cosmos.close_socket(@write_socket)
-      @write_socket = nil
+      if @write_socket != @read_socket
+        Cosmos.close_socket(@write_socket)
+      end
       Cosmos.close_socket(@read_socket)
+      @write_socket = nil
       @read_socket = nil
       @thread_sleeper.cancel if @thread_sleeper
       @thread_sleeper = nil
