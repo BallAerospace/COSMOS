@@ -149,6 +149,7 @@ module Cosmos
         CmdTlmServer.meta_callback = method(:meta_callback)
         cts = CmdTlmServer.new(@options.config_file, @production, false, @mode)
         cts.stop_callback = method(:stop_callback)
+        cts.reload_callback = method(:reload)
         @message_log = CmdTlmServer.message_log
         @ready = true
       end
@@ -271,15 +272,19 @@ module Cosmos
       start(nil)
     end
 
-    def reload
-      msg = Qt::MessageBox.new(self)
-      msg.setIcon(Qt::MessageBox::Question)
-      msg.setText("Are you sure? All connections will temporarily disconnect as the server restarts")
-      msg.setWindowTitle('Confirm Reload')
-      msg.setStandardButtons(Qt::MessageBox::Yes | Qt::MessageBox::No)
-      continue = false
-      continue = true if msg.exec() == Qt::MessageBox::Yes
-      msg.dispose
+    def reload(confirm = true)
+      if confirm
+        msg = Qt::MessageBox.new(self)
+        msg.setIcon(Qt::MessageBox::Question)
+        msg.setText("Are you sure? All connections will temporarily disconnect as the server restarts")
+        msg.setWindowTitle('Confirm Reload')
+        msg.setStandardButtons(Qt::MessageBox::Yes | Qt::MessageBox::No)
+        continue = false
+        continue = true if msg.exec() == Qt::MessageBox::Yes
+        msg.dispose
+      else
+        continue = true
+      end
 
       if continue
         Splash.execute(self) do |splash|
@@ -490,6 +495,16 @@ module Cosmos
       no_gui_handle_string_output()
     end
 
+    def self.no_gui_reload_callback(confirm = false)
+      CmdTlmServer.instance.stop_logging('ALL') if @mode == :CMD_TLM_SERVER      
+      CmdTlmServer.instance.stop
+      System.reset
+      cts = CmdTlmServer.new(options.config_file, options.production)
+      @message_log = CmdTlmServer.message_log
+      cts.stop_callback = method(:no_gui_stop_callback)
+      cts.reload_callback = method(:no_gui_reload_callback)
+    end
+
     def self.process_output_colors(lines)
       clean_lines = ''
       messages = []
@@ -533,6 +548,7 @@ module Cosmos
             end
           end
           cts.stop_callback = method(:no_gui_stop_callback)
+          cts.reload_callback = method(:no_gui_reload_callback)
           sleep # Sleep until waked by signal
         ensure
           if defined? cts and cts

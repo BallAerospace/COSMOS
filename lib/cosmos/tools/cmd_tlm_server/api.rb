@@ -1392,6 +1392,85 @@ module Cosmos
       nil
     end
 
+    # Reload the default configuration
+    def cmd_tlm_reload
+      CmdTlmServer.instance.reload
+    end
+
+    # Clear server counters
+    def cmd_tlm_clear_counters
+      CmdTlmServer.clear_counters
+    end
+
+    # Get the list of filenames in the outputs logs folder
+    def get_output_logs_filenames(filter = '*tlm.bin')
+      raise "Filter must not contain slashes" if filter.index('/') or filter.index('\\')
+      Dir.glob(File.join(System.paths['LOGS'], '**', filter))
+    end
+
+    # Select and start analyzing a file for replay
+    #
+    # filename [String] filename relative to output logs folder or absolute filename
+    def replay_select_file(filename)
+      
+    end
+
+    # Get current replay status
+    #
+    # status, delay, filename, file_start, file_current, file_end, file_index, file_max_index
+    def replay_status
+
+    end
+
+    # Set the replay delay
+    #
+    # @param delay [Interger] delay in ms 0 to 1000, nil = REALTIME
+    def replay_set_delay_ms(delay)
+
+    end
+
+    # Replay start playing forward
+    def replay_play_forward
+
+    end
+
+    # Replay start playing backward
+    def replay_play_backward
+
+    end
+
+    # Replay stop
+    def replay_stop
+
+    end
+
+    # Replay step forward one packet
+    def replay_step_forward
+
+    end
+
+    # Replay step backward one packet
+    def replay_step_backward
+
+    end
+
+    # Replay move to start of file
+    def replay_move_start
+
+    end
+
+    # Replay move to end of file
+    def replay_move_end
+
+    end
+
+    # Replay move to index
+    #
+    # @param index [Integer] packet index into file
+    def replay_move_index(index)
+
+    end
+
     private
 
     def cmd_implementation(range_check, hazardous_check, raw, method_name, *args)

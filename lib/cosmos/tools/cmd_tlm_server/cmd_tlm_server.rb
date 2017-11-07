@@ -161,6 +161,7 @@ module Cosmos
         @title.gsub!("Command and Telemetry Server", "Replay")
       end
       @stop_callback = nil
+      @reload_callback = nil
 
       # Set Threads to kill CTS if they throw an exception
       Thread.abort_on_exception = true
@@ -306,6 +307,20 @@ module Cosmos
     # Set a stop callback
     def stop_callback= (stop_callback)
       @stop_callback = stop_callback
+    end
+
+    # Reload the default configuration
+    def reload
+      if @reload_callback
+        @reload_callback.call(false) 
+      else
+        System.reset
+      end
+    end
+
+    # Set a reload callback
+    def reload_callback= (reload_callback)
+      @reload_callback = reload_callback
     end
 
     # Gracefully kill the staleness monitor thread
