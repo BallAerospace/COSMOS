@@ -18,38 +18,55 @@ Socket::IP_MULTICAST_TTL = 10 unless Socket.const_defined?('IP_MULTICAST_TTL')
 
 module Cosmos
 
-  # Creates a UDPSocket and implements a non-blocking write.
-  class UdpWriteSocket
+  class UdpReadWriteSocket
+    # @param bind_port [Integer[ Port to write data out from and receive data on (0 = randomly assigned)
+    # @param bind_address [String] Local address to bind to (0.0.0.0 = All local addresses)
+    # @param external_port [Integer] External port to write to
+    # @param external_address [String] External host to send data to
+    # @param multicast_interface_address [String] Local outgoing interface to send multicast packets from
+    # @param ttl [Integer] Time To Live for outgoing multicast packets
+    # @param read_multicast [Boolean] Whether or not to try to read from the external address as multicast
+    # @param write_multicast [Boolean] Whether or not to write to the external address as multicast
+    def initialize(
+      bind_port = 0,
+      bind_address = "0.0.0.0",
+      external_port = nil,
+      external_address = nil,
+      multicast_interface_address = nil,
+      ttl = 1,
+      read_multicast = true,
+      write_multicast = true)
 
-    # @param dest_address [String] Host to send data to
-    # @param dest_port [Integer] Port to send data to
-    # @param src_port [Integer[ Port to send data out from
-    # @param interface_address [String] Local outgoing interface to send from
-    # @param ttl [Integer] Time To Live for outgoing packets
-    def initialize(dest_address,
-                   dest_port,
-                   src_port = nil,
-                   interface_address = nil,
-                   ttl = 1,
-                   bind_address = "0.0.0.0")
       @socket = UDPSocket.new
 
       # Basic setup to reuse address
       @socket.setsockopt(Socket::SOL_SOCKET, Socket::SO_REUSEADDR, 1)
 
-      # Set source port if given
-      @socket.bind(bind_address, src_port) if src_port
+      # Bind to local address and port - This sets recv port, write_src port, recv_address, and write_src_address
+      @socket.bind(bind_address, bind_port) if (bind_address and bind_port)
 
       # Default send to the specified address and port
-      @socket.connect(dest_address, dest_port)
+      @socket.connect(external_address, external_port) if (external_address and external_port)
 
       # Handle multicast
-      if UdpWriteSocket.multicast?(dest_address)
-        # Basic setup set time to live
-        @socket.setsockopt(Socket::IPPROTO_IP, Socket::IP_MULTICAST_TTL, ttl.to_i)
+      if UdpReadWriteSocket.multicast?(external_address)
+        if write_multicast
+          # Basic setup set time to live
+          @socket.setsockopt(Socket::IPPROTO_IP, Socket::IP_MULTICAST_TTL, ttl.to_i)
 
-        # Set outgoing interface
-        @socket.setsockopt(Socket::IPPROTO_IP, Socket::IP_MULTICAST_IF, IPAddr.new(interface_address).hton) if interface_address
+          # Set outgoing interface
+          @socket.setsockopt(
+            Socket::IPPROTO_IP,
+            Socket::IP_MULTICAST_IF,
+            IPAddr.new(multicast_interface_address).hton) if multicast_interface_address
+        end
+
+        # Receive messages sent to the multicast address
+        if read_multicast
+          multicast_interface_address = "0.0.0.0" unless multicast_interface_address
+          membership = IPAddr.new(external_address).hton + IPAddr.new(multicast_interface_address).hton
+          @socket.setsockopt(Socket::IPPROTO_IP, Socket::IP_ADD_MEMBERSHIP, membership)
+        end
       end
     end
 
@@ -76,6 +93,23 @@ module Cosmos
         break if total_bytes_sent >= num_bytes_to_send
         data_to_send = data[total_bytes_sent..-1]
       end
+    end
+
+    # @param read_timeout [Float] Time in seconds to wait for the read to
+    #   complete
+    def read(read_timeout = nil)
+      data = nil
+      begin
+        data, _ = @socket.recvfrom_nonblock(65536)
+      rescue Errno::EAGAIN, Errno::EWOULDBLOCK
+        result = IO.fast_select([@socket], nil, nil, read_timeout)
+        if result
+          retry
+        else
+          raise Timeout::Error, "Read Timeout"
+        end
+      end
+      data
     end
 
     # Defer all methods to the UDPSocket
@@ -105,47 +139,57 @@ module Cosmos
     end
   end
 
+  # Creates a UDPSocket and implements a non-blocking write.
+  class UdpWriteSocket < UdpReadWriteSocket
+
+    # @param dest_address [String] Host to send data to
+    # @param dest_port [Integer] Port to send data to
+    # @param src_port [Integer[ Port to send data out from
+    # @param multicast_interface_address [String] Local outgoing interface to send multicast packets from
+    # @param ttl [Integer] Time To Live for outgoing packets
+    # @param bind_address [String] Local address to bind to (0.0.0.0 = All local addresses)
+    def initialize(
+      dest_address,
+      dest_port,
+      src_port = nil,
+      multicast_interface_address = nil,
+      ttl = 1,
+      bind_address = "0.0.0.0")
+
+      super(
+        src_port,
+        bind_address,
+        dest_port,
+        dest_address,
+        multicast_interface_address,
+        ttl,
+        false,
+        true)
+    end
+  end
+
   # Creates a UDPSocket and implements a non-blocking read.
-  class UdpReadSocket
+  class UdpReadSocket < UdpReadWriteSocket
 
     # @param recv_port [Integer] Port to receive data on
     # @param multicast_address [String] Address to add multicast
-    def initialize(recv_port = 0, multicast_address = nil, interface_address = nil, bind_address = "0.0.0.0")
-      @socket = UDPSocket.new
+    # @param multicast_interface_address [String] Local incoming interface to receive multicast packets on
+    # @param bind_address [String] Local address to bind to (0.0.0.0 = All local addresses)
+    def initialize(
+      recv_port = 0,
+      multicast_address = nil,
+      multicast_interface_address = nil,
+      bind_address = "0.0.0.0")
 
-      # Basic setup to reuse address
-      @socket.setsockopt(Socket::SOL_SOCKET, Socket::SO_REUSEADDR, 1)
-
-      # bind to port
-      @socket.bind(bind_address, recv_port)
-
-      if UdpWriteSocket.multicast?(multicast_address)
-        interface_address = "0.0.0.0" unless interface_address
-        membership = IPAddr.new(multicast_address).hton + IPAddr.new(interface_address).hton
-        @socket.setsockopt(Socket::IPPROTO_IP, Socket::IP_ADD_MEMBERSHIP, membership)
-      end
-    end
-
-    # @param read_timeout [Float] Time in seconds to wait for the read to
-    #   complete
-    def read(read_timeout = nil)
-      data = nil
-      begin
-        data, _ = @socket.recvfrom_nonblock(65536)
-      rescue Errno::EAGAIN, Errno::EWOULDBLOCK
-        result = IO.fast_select([@socket], nil, nil, read_timeout)
-        if result
-          retry
-        else
-          raise Timeout::Error, "Read Timeout"
-        end
-      end
-      data
-    end
-
-    # Defer all methods to the UDPSocket
-    def method_missing(method, *args, &block)
-      @socket.__send__(method, *args, &block)
+      super(
+        recv_port,
+        bind_address,
+        nil,
+        multicast_address,
+        multicast_interface_address,
+        1,
+        true,
+        false)
     end
   end
 
