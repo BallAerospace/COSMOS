@@ -89,6 +89,8 @@ COMMAND INST ARYCMD BIG_ENDIAN "Command with array parameter"
   PARAMETER    CCSDSLENGTH    32  16  UINT  0 65535   0 "CCSDS primary header packet length"
   ID_PARAMETER PKTID          48  16  UINT  0 65535   6 "Packet id"
   ARRAY_PARAMETER ARRAY       64  64  FLOAT 640 "Array parameter"
+  APPEND_ARRAY_PARAMETER ARRAY2 32 UINT 320 "Array parameter"
+    FORMAT_STRING "0x%0X"
 
 COMMAND INST SLRPNLDEPLOY BIG_ENDIAN "Deploy solar array panels"
   PARAMETER    CCSDSVER        0   3  UINT  0     0   0 "CCSDS primary header version number"
