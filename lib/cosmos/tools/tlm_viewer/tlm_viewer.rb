@@ -447,6 +447,9 @@ module Cosmos
 
     def display(screen_full_name, x_pos = nil, y_pos = nil)
       return unless screen_full_name
+      x_pos = x_pos.to_i if x_pos
+      y_pos = y_pos.to_i if y_pos
+
       # Find the specified screen
       screen_info = find_screen_info(screen_full_name)
 
