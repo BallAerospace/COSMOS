@@ -103,6 +103,8 @@ module Cosmos
         'get_packet_logger_info',
         'get_all_packet_logger_info',
         'get_background_tasks',
+        'start_background_task',
+        'stop_background_task',
         'get_server_status',
         'get_cmd_log_filename',
         'get_tlm_log_filename',
@@ -118,6 +120,7 @@ module Cosmos
         'stop_raw_logging_router',
         'get_server_message_log_filename',
         'start_new_server_message_log']
+      @mutex = Mutex.new
     end
 
     ############################################################################
@@ -550,7 +553,7 @@ module Cosmos
         # Update the packet with item_hash
         value_type = value_type.to_s.intern
         item_hash.each do |item_name, item_value|
-          packet.write(item_name, item_value, value_type)
+          packet.write(item_name.to_s, item_value, value_type)
         end
       end
 
@@ -670,17 +673,26 @@ module Cosmos
     private
 
     def _override(method, tgt_pkt_item)
-      interface = System.targets[tgt_pkt_item[0]].interface
-      found = false
-      interface.read_protocols.each do |protocol|
-        found = true if protocol.kind_of? OverrideProtocol
-      end
-      if found
-        # Test to see if this telemetry item exists
-        System.telemetry.value(tgt_pkt_item[0], tgt_pkt_item[1], tgt_pkt_item[2], :RAW)
-        interface.public_send("_#{method}", *tgt_pkt_item)
-      else
-        raise "Interface #{interface.name} does not have override ability. Is 'PROTOCOL OverrideProtocol' under the interface definition?"
+      # synchronize this method due to the interface.public_send which can cause
+      # ConcurrencyError exceptions in JRuby
+      @mutex.synchronize do
+        target = System.targets[tgt_pkt_item[0]]
+        raise "Target '#{tgt_pkt_item[0]}' does not exist" unless target
+        interface = System.targets[tgt_pkt_item[0]].interface
+        raise "Target '#{tgt_pkt_item[0]}' has no interface" unless interface
+        found = false
+        if interface.read_protocols
+          interface.read_protocols.each do |protocol|
+            found = true if protocol.kind_of? OverrideProtocol
+          end
+        end
+        if found
+          # Test to see if this telemetry item exists
+          System.telemetry.value(tgt_pkt_item[0], tgt_pkt_item[1], tgt_pkt_item[2], :RAW)
+          interface.public_send("_#{method}", *tgt_pkt_item)
+        else
+          raise "Interface #{interface.name} does not have override ability. Is 'PROTOCOL READ_WRITE OverrideProtocol' under the interface definition?"
+        end
       end
       nil
     end
@@ -1095,7 +1107,8 @@ module Cosmos
     def get_all_target_info
       info = []
       System.targets.sort.each do |target_name, target|
-        info << [target_name, target.interface.name, target.cmd_cnt, target.tlm_cnt]
+        interface_name = target.interface ? target.interface.name : ''
+        info << [target_name, interface_name, target.cmd_cnt, target.tlm_cnt]
       end
       info
     end
@@ -1275,6 +1288,26 @@ module Cosmos
         result << [task.name, thread_status, task.status]
       end
       result
+    end
+
+    # Start a background task
+    def start_background_task(task_name)
+      CmdTlmServer.background_tasks.all.each_with_index do |task, index|
+        if task.name == task_name
+          CmdTlmServer.background_tasks.start(index)
+          break
+        end
+      end
+    end
+
+    # Stop a background task
+    def stop_background_task(task_name)
+      CmdTlmServer.background_tasks.all.each_with_index do |task, index|
+        if task.name == task_name
+          CmdTlmServer.background_tasks.stop(index)
+          break
+        end
+      end
     end
 
     # Get JSON DRB information
