@@ -95,5 +95,45 @@ module Cosmos
     end
 
   end
+
+  describe UdpReadWriteSocket do
+
+    describe "initialize" do
+      it "creates a socket" do
+        udp = UdpReadWriteSocket.new(8888)
+        expect(udp.local_address.ip_address).to eql '0.0.0.0'
+        expect(udp.local_address.ip_port).to eql 8888
+        udp.close
+        if RUBY_ENGINE == 'ruby' # UDP multicast does not work in Jruby
+          udp = UdpReadWriteSocket.new(8888, '0.0.0.0', 0, '224.0.1.1')
+          expect(IPAddr.new_ntoh(udp.getsockopt(Socket::IPPROTO_IP, Socket::IP_MULTICAST_IF).data).to_s).to eql "0.0.0.0"
+          udp.close
+        end
+      end
+    end
+
+    describe "read" do
+      it "reads data" do
+        udp_read  = UdpReadWriteSocket.new(8888)
+        udp_write = UdpWriteSocket.new('127.0.0.1', 8888)
+        udp_write.write("\x01\x02",2.0)
+        expect(udp_read.read).to eql "\x01\x02"
+        udp_read.close
+        udp_write.close
+      end
+    end
+
+    describe "write" do
+      it "writes data" do
+        udp_read  = UdpReadSocket.new(8888)
+        udp_write = UdpReadWriteSocket.new(0, "0.0.0.0", 8888, '127.0.0.1')
+        udp_write.write("\x01\x02",2.0)
+        expect(udp_read.read).to eql "\x01\x02"
+        udp_read.close
+        udp_write.close
+      end
+    end
+
+  end
 end
 

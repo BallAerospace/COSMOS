@@ -11,16 +11,11 @@ TITLE 'COSMOS Command and Telemetry Server - Demo Configuration 2'
 PACKET_LOG_WRITER DEFAULT packet_log_writer.rb nil true nil 2000000000 nil false
 # PACKET_LOG_WRITER SYSTEMLOG packet_log_writer.rb system
 
-# AUTO_INTERFACE_TARGETS # Use cmd_tlm_server.txt from all targets declared in system.txt
+# Explicitly declare these interfaces since we're using name substitution
+INTERFACE_TARGET INST cmd_tlm_server.txt # Use cmd_tlm_server.txt in targets/INST
+INTERFACE_TARGET INST2 cmd_tlm_server2.txt # Use cmd_tlm_server2.txt in targets/INST
 
-INTERFACE_TARGET INST cmd_tlm_server.txt # Use cmd_tlm_server.txt in target package
-
-INTERFACE INST2_INT simulated_target_interface.rb sim_inst.rb
-  TARGET INST2
-  DONT_LOG
-
-INTERFACE_TARGET EXAMPLE cmd_tlm_server.txt # Use cmd_tlm_server.txt in target package
-
+# Here is an example of declaring the interface directly
 INTERFACE SYSTEM_INT cmd_tlm_server_interface.rb
   TARGET SYSTEM
   DISABLE_DISCONNECT
@@ -30,6 +25,9 @@ INTERFACE SYSTEM_INT cmd_tlm_server_interface.rb
   # DONT_RECONNECT
   # RECONNECT_DELAY 15.0
   # LOG_RAW
+
+# Auto interface the rest of the targets by using their cmd_tlm_server.txt file
+AUTO_INTERFACE_TARGETS
 
 ROUTER INST_ROUTER tcpip_server_interface.rb 3055 3055 10.0 nil LENGTH 32 16 7
   ROUTE INST_INT

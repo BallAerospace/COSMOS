@@ -72,9 +72,9 @@ module Cosmos
       prompt_combo_box(string, options)
     end
 
-    def _file_dialog(message, directory, select_files = true)
+    def _file_dialog(message, directory, filter, select_files = true)
       answer = ''
-      files = Dir["#{directory}/*"]
+      files = Dir["#{directory}/#{filter}"]
       if select_files
         files.select! {|f| !File.directory? f }
       else
@@ -87,17 +87,17 @@ module Cosmos
       end
       return answer
     end
-    def save_file_dialog(directory = Cosmos::USERPATH, message = "Save File")
-      _file_dialog(message, directory)
+    def save_file_dialog(directory = Cosmos::USERPATH, message = "Save File", filter = "*")
+      _file_dialog(message, directory, filter)
     end
-    def open_file_dialog(directory = Cosmos::USERPATH, message = "Open File")
-      _file_dialog(message, directory)
+    def open_file_dialog(directory = Cosmos::USERPATH, message = "Open File", filter = "*")
+      _file_dialog(message, directory, filter)
     end
-    def open_files_dialog(directory = Cosmos::USERPATH, message = "Open File(s)")
-      _file_dialog(message, directory)
+    def open_files_dialog(directory = Cosmos::USERPATH, message = "Open File(s)", filter = "*")
+      _file_dialog(message, directory, filter)
     end
     def open_directory_dialog(directory = Cosmos::USERPATH, message = "Open Directory")
-      _file_dialog(message, directory, false)
+      _file_dialog(message, directory, "*", false)
     end
 
     def prompt_for_hazardous(target_name, cmd_name, hazardous_description)

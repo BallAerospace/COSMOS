@@ -105,6 +105,9 @@ ROUTER:
 COLLECT_METADATA:
   summary: Prompts the user for meta data when starting the Command and Telemetry Server
 BACKGROUND_TASK:
+  modifiers:
+    STOPPED:
+      summary: Indicate the background task should not be automatically started
   summary: Create a background task in the Command and Telemetry Server
   description: The Server instantiates the class which must inherit from BackgroundTask
     and then calls the call() method which the class must implement. The call() method
