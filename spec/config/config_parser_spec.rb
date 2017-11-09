@@ -67,8 +67,17 @@ module Cosmos
         tf.unlink
       end
 
+      it "requires ERB partials begin with an underscore" do
+        tf = Tempfile.new('unittest')
+        tf.puts "<%= render 'partial.txt' %>"
+        tf.close
+
+        expect { @cp.parse_file(tf.path) }.to raise_error(ConfigParser::Error, /Partials must begin with an underscore/)
+        tf.unlink
+      end
+
       it "supports ERB partials via render" do
-        tf2 = Tempfile.new('partial.txt')
+        tf2 = Tempfile.new('_partial.txt')
         tf2.puts '<% if output %>'
         tf2.puts 'KEYWORD <%= id %> <%= desc %>'
         tf2.puts '<% end %>'

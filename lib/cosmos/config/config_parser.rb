@@ -146,6 +146,7 @@ module Cosmos
 
     # Called by the ERB template to render a partial
     def render(template_name, options = {})
+      raise Error.new(self, "Partials must begin with an underscore. Template name #{template_name}") if template_name[0] != '_'
       b = binding
       if options[:locals]
         if RUBY_VERSION.split('.')[0..1].join.to_i >= 21
