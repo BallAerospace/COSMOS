@@ -72,7 +72,7 @@ module Cosmos
         tf.puts "<%= render 'partial.txt' %>"
         tf.close
 
-        expect { @cp.parse_file(tf.path) }.to raise_error(ConfigParser::Error, /Partials must begin with an underscore/)
+        expect { @cp.parse_file(tf.path) }.to raise_error(ConfigParser::Error, /must begin with an underscore/)
         tf.unlink
       end
 
