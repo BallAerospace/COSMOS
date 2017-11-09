@@ -60,6 +60,23 @@ class Numeric
   def as_json(options = nil) self end #:nodoc:
 end
 
+class Float
+  def self.json_create(object)
+    case object['raw']
+      when "Infinity"  then  Float::INFINITY
+      when "-Infinity" then -Float::INFINITY
+      when "NaN"       then  Float::NAN
+    end
+  end
+
+  def as_json(options = nil)
+    return {"json_class"=>Float, "raw"=>"Infinity"}  if self.infinite? ==  1
+    return {"json_class"=>Float, "raw"=>"-Infinity"} if self.infinite? == -1
+    return {"json_class"=>Float, "raw"=>"NaN"}       if self.nan?
+    return self
+  end
+end
+
 class Regexp
   def as_json(options = nil) to_s end #:nodoc:
 end
