@@ -17,6 +17,7 @@ require 'cosmos/tools/cmd_tlm_server/commanding'
 require 'cosmos/tools/cmd_tlm_server/interfaces'
 require 'cosmos/tools/cmd_tlm_server/packet_logging'
 require 'cosmos/tools/cmd_tlm_server/routers'
+require 'cosmos/tools/cmd_tlm_server/replay_backend'
 
 module Cosmos
 
@@ -39,6 +40,8 @@ module Cosmos
     instance_attr_reader :packet_logging
     # @return [Routers] Access to the routers
     instance_attr_reader :routers
+    # @return [ReplayBackend] Access to replay logic
+    instance_attr_reader :replay_backend
     # @return [MessageLog] Message log for the CmdTlmServer
     instance_attr_reader :message_log
     # @return [JsonDRb] Provides access to the server for all tools both
@@ -153,9 +156,8 @@ module Cosmos
       @commanding = Commanding.new(@config)
       @interfaces = Interfaces.new(@config, method(:identified_packet_callback))
       @packet_logging = PacketLogging.new(@config)
-      @interfaces_orig = @interfaces
-      @packet_logging_orig = @packet_logging
       @routers = Routers.new(@config)
+      @replay_backend = ReplayBackend.new(@config)
       @title = @config.title
       if @mode != :CMD_TLM_SERVER
         @title.gsub!("Command and Telemetry Server", "Replay")
@@ -232,9 +234,8 @@ module Cosmos
     # @param production (see #initialize)
     def start(start_packet_logging = false)
       if @mode == :CMD_TLM_SERVER
+        @replay_backend = nil # Remove access to Replay
         @message_log = MessageLog.new('server')
-        @interfaces = @interfaces_orig
-        @packet_logging = @packet_logging_orig
         @packet_logging.start if start_packet_logging
         @interfaces.start
         @background_tasks.start_all
@@ -299,6 +300,8 @@ module Cosmos
         @background_tasks.stop_all
         @interfaces.stop
         @packet_logging.shutdown
+      else
+        @replay_backend.shutdown
       end
       @stop_callback.call if @stop_callback
       @message_log.stop if @message_log
@@ -311,6 +314,7 @@ module Cosmos
 
     # Reload the default configuration
     def reload
+      @replay_backend.shutdown if @mode != :CMD_TLM_SERVER
       if @reload_callback
         @reload_callback.call(false) 
       else
@@ -711,7 +715,7 @@ module Cosmos
     # request_count on json_drb to 0.
     def self.clear_counters
       System.clear_counters
-      self.instance.interfaces.clear_counters
+      self.instance.interfaces.clear_counters if self.instance.interfaces
       self.instance.routers.clear_counters
       self.instance.json_drb.request_count = 0
     end

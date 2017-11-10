@@ -119,7 +119,22 @@ module Cosmos
         'start_raw_logging_router',
         'stop_raw_logging_router',
         'get_server_message_log_filename',
-        'start_new_server_message_log']
+        'start_new_server_message_log',
+        'cmd_tlm_reload',
+        'cmd_tlm_clear_counters',
+        'get_output_logs_filenames',
+        'replay_select_file',
+        'replay_status',
+        'replay_set_playback_delay',
+        'replay_play',
+        'replay_reverse_play',
+        'replay_stop',
+        'replay_step_forward',
+        'replay_step_back',
+        'replay_move_start',
+        'replay_move_end',
+        'replay_move_index',
+      ]
       @mutex = Mutex.new
     end
 
@@ -1466,64 +1481,64 @@ module Cosmos
     # Select and start analyzing a file for replay
     #
     # filename [String] filename relative to output logs folder or absolute filename
-    def replay_select_file(filename)
-      
+    def replay_select_file(filename, packet_log_reader = "DEFAULT")
+      CmdTlmServer.replay_backend.select_file(filename, packet_log_reader)
     end
 
     # Get current replay status
     #
     # status, delay, filename, file_start, file_current, file_end, file_index, file_max_index
     def replay_status
-
+      CmdTlmServer.replay_backend.status
     end
 
     # Set the replay delay
     #
-    # @param delay [Interger] delay in ms 0 to 1000, nil = REALTIME
-    def replay_set_delay_ms(delay)
-
+    # @param delay [Float] delay between packets in seconds 0.0 to 1.0, nil = No Delay, -1.0 = REALTIME
+    def replay_set_playback_delay(delay)
+      CmdTlmServer.replay_backend.set_playback_delay(delay)
     end
 
     # Replay start playing forward
-    def replay_play_forward
-
+    def replay_play
+      CmdTlmServer.replay_backend.play
     end
 
     # Replay start playing backward
-    def replay_play_backward
-
+    def replay_reverse_play
+      CmdTlmServer.replay_backend.reverse_play
     end
 
     # Replay stop
     def replay_stop
-
+      CmdTlmServer.replay_backend.stop
     end
 
     # Replay step forward one packet
     def replay_step_forward
-
+      CmdTlmServer.replay_backend.step_forward
     end
 
     # Replay step backward one packet
-    def replay_step_backward
-
+    def replay_step_back
+      CmdTlmServer.replay_backend.step_back
     end
 
     # Replay move to start of file
     def replay_move_start
-
+      CmdTlmServer.replay_backend.move_start
     end
 
     # Replay move to end of file
     def replay_move_end
-
+      CmdTlmServer.replay_backend.move_end
     end
 
     # Replay move to index
     #
     # @param index [Integer] packet index into file
     def replay_move_index(index)
-
+      CmdTlmServer.replay_backend.move_index(index)
     end
 
     private

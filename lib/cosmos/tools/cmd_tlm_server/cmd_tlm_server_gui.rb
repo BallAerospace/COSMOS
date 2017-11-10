@@ -1,6 +1,6 @@
 # encoding: ascii-8bit
 
-# Copyright 2014 Ball Aerospace & Technologies Corp.
+# Copyright 2017 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
 # This program is free software; you can modify and/or redistribute it
@@ -150,6 +150,7 @@ module Cosmos
         cts = CmdTlmServer.new(@options.config_file, @production, false, @mode)
         cts.stop_callback = method(:stop_callback)
         cts.reload_callback = method(:reload)
+        CmdTlmServer.replay_backend.config_change_callback = method(:config_change_callback) if @mode != :CMD_TLM_SERVER
         @message_log = CmdTlmServer.message_log
         @ready = true
       end
@@ -194,7 +195,7 @@ module Cosmos
       @file_reload = Qt::Action.new(tr('&Reload Configuration'), self)
       @file_reload.statusTip = tr('Reload configuraton and reset')
       @file_reload.connect(SIGNAL('triggered()')) do
-        reload()
+        CmdTlmServer.instance.reload()
       end
 
       # Edit actions
@@ -256,7 +257,6 @@ module Cosmos
         @interfaces_tab = InterfacesTab.new(self, InterfacesTab::INTERFACES, @tab_widget)
       else
         @replay_tab = ReplayTab.new(@tab_widget)
-        @replay_tab.config_change_callback = method(:config_change_callback)
       end
       @targets_tab = TargetsTab.new(@tab_widget)
       @commands_tab = PacketsTab.new(self, PacketsTab::COMMANDS, @tab_widget)
@@ -273,38 +273,40 @@ module Cosmos
     end
 
     def reload(confirm = true)
-      if confirm
-        msg = Qt::MessageBox.new(self)
-        msg.setIcon(Qt::MessageBox::Question)
-        msg.setText("Are you sure? All connections will temporarily disconnect as the server restarts")
-        msg.setWindowTitle('Confirm Reload')
-        msg.setStandardButtons(Qt::MessageBox::Yes | Qt::MessageBox::No)
-        continue = false
-        continue = true if msg.exec() == Qt::MessageBox::Yes
-        msg.dispose
-      else
-        continue = true
-      end
+      Qt.execute_in_main_thread(true) do 
+        if confirm
+          msg = Qt::MessageBox.new(self)
+          msg.setIcon(Qt::MessageBox::Question)
+          msg.setText("Are you sure? All connections will temporarily disconnect as the server restarts")
+          msg.setWindowTitle('Confirm Reload')
+          msg.setStandardButtons(Qt::MessageBox::Yes | Qt::MessageBox::No)
+          continue = false
+          continue = true if msg.exec() == Qt::MessageBox::Yes
+          msg.dispose
+        else
+          continue = true
+        end
 
-      if continue
-        Splash.execute(self) do |splash|
-          ConfigParser.splash = splash
-          Qt.execute_in_main_thread(true) do
-            @tab_widget.setCurrentIndex(0)
-          end          
-          if @mode == :CMD_TLM_SERVER
+        if continue
+          Splash.execute(self) do |splash|
+            ConfigParser.splash = splash
             Qt.execute_in_main_thread(true) do
-              splash.message = "Stopping Threads"
-              stop_threads()
+              @tab_widget.setCurrentIndex(0)
+            end          
+            if @mode == :CMD_TLM_SERVER
+              Qt.execute_in_main_thread(true) do
+                splash.message = "Stopping Threads"
+                stop_threads()
+              end
             end
+            System.reset
+            start(splash)
+            Qt.execute_in_main_thread(true) do
+              @tab_widget.setCurrentIndex(0)
+              handle_tab_change(0)
+            end
+            ConfigParser.splash = nil
           end
-          System.reset
-          start(splash)
-          Qt.execute_in_main_thread(true) do
-            @tab_widget.setCurrentIndex(0)
-            handle_tab_change(0)
-          end
-          ConfigParser.splash = nil
         end
       end
     end
@@ -322,7 +324,7 @@ module Cosmos
         if @mode == :CMD_TLM_SERVER
           handle_tab('Interfaces') { @interfaces_tab.update }
         else
-          handle_tab('Replay') { @replay_tab.update }
+          handle_tab('Replay', 0.5) { @replay_tab.update }
         end
       when 1
         handle_tab('Targets') { @targets_tab.update }
@@ -359,7 +361,7 @@ module Cosmos
     # Finally it sleeps using a sleeper so it can be interrupted.
     #
     # @param name [String] Name of the tab
-    def handle_tab(name)
+    def handle_tab(name, period = 1.0)
       @tab_thread_shutdown = false
       @tab_thread = Thread.new do
         begin
@@ -368,8 +370,8 @@ module Cosmos
             break if @tab_thread_shutdown
             Qt.execute_in_main_thread(true) { yield }
             total_time = Time.now.sys - start_time
-            if total_time > 0.0 and total_time < 1.0
-              break if @tab_sleeper.sleep(1.0 - total_time)
+            if total_time > 0.0 and total_time < period
+              break if @tab_sleeper.sleep(period - total_time)
             end
           end
         rescue Exception => error
@@ -395,7 +397,11 @@ module Cosmos
       else
         msg = Qt::MessageBox.new(self)
         msg.setIcon(Qt::MessageBox::Question)
-        msg.setText("Are you sure? All tools connected to this CmdTlmServer will lose connections and cease to function if the CmdTlmServer is closed.")
+        if @mode == :CMD_TLM_SERVER
+          msg.setText("Are you sure? All tools connected to this CmdTlmServer will lose connections and cease to function if the CmdTlmServer is closed.")
+        else
+          msg.setText("Are you sure? All tools connected to this Replay will lose connections and cease to function if the Replay is closed.")
+        end
         msg.setWindowTitle('Confirm Close')
         msg.setStandardButtons(Qt::MessageBox::Yes | Qt::MessageBox::No)
         continue = false
