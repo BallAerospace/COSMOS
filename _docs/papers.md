@@ -4,6 +4,14 @@ title: Papers
 permalink: /docs/papers/
 ---
 
+## AMOS 2017
+
+* [A Cloud-based, Open-Source, Command-and-Control Software Paradigm for Space Situational Awareness (SSA)](https://amostech.com/TechnicalPapers/2017/SSA/Thomas_J.pdf)
+
+## Small Sat 2016
+
+* [Ball Aerospace COSMOS Open Source Command and Control System](https://digitalcommons.usu.edu/smallsat/2016/TS9GroundSystems/3/)
+
 ## Aerospace Testing Seminar 2015
 
 * <a href="/assets/Ball_Aerospaces_COSMOS_Open_Source_Test_System.pdf">Ball Aerospace's COSMOS Open Source Test System</a>
