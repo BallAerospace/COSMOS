@@ -2562,6 +2562,8 @@
 <li class="toc-entry toc-h3"><a href="#log">LOG</a></li>
 <li class="toc-entry toc-h3"><a href="#dont_log">DONT_LOG</a></li>
 <li class="toc-entry toc-h3"><a href="#log_raw">LOG_RAW</a></li>
+<li class="toc-entry toc-h3"><a href="#background_task-modifiers">BACKGROUND_TASK Modifiers</a></li>
+<li class="toc-entry toc-h3"><a href="#stopped">STOPPED</a></li>
 </ul>
 </li>
 </ul>
@@ -3436,6 +3438,14 @@ INTERFACE_TARGET COSMOS config.txt # Look in the COSMOS target directory for con
 <p><strong>Log all data on the interface exactly as it is sent and received</strong></p>
 
 <p>LOG_RAW does not add any COSMOS headers and thus can not be read by COSMOS tools. It is primarily useful for low level debugging of an interface. You will have to manually parse these logs yourself using a hex editor or other application.</p>
+
+<h3 id="background_task-modifiers">
+<a id="background_task-modifiers" class="anchor" href="#background_task-modifiers" aria-hidden="true"><span class="octicon octicon-link"></span></a>BACKGROUND_TASK Modifiers</h3>
+<p>The following keywords must follow a BACKGROUND_TASK keyword.</p>
+
+<h3 id="stopped">
+<a id="stopped" class="anchor" href="#stopped" aria-hidden="true"><span class="octicon octicon-link"></span></a>STOPPED</h3>
+<p><strong>Indicate the background task should not be automatically started</strong></p>
 
 <h1 id="project-crc-checking">
 <a id="project-crc-checking" class="anchor" href="#project-crc-checking" aria-hidden="true"><span class="octicon octicon-link"></span></a>Project CRC Checking</h1>

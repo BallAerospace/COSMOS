@@ -2784,7 +2784,7 @@
 <span class="c1">######################################</span>
 
 <span class="nb">load</span> <span class="s1">'upload_utility.rb'</span> <span class="c1"># library we don't want to show executing</span>
-<span class="n">require_utility</span> <span class="s1">'helper_utility'</span> <span class="c1"># library we do want to show executing</span>
+<span class="n">load_utility</span> <span class="s1">'helper_utility'</span> <span class="c1"># library we do want to show executing</span>
 
 <span class="c1"># Declare constants</span>
 <span class="no">OUR_TARGETS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'INST'</span><span class="p">,</span><span class="s1">'INST2'</span><span class="p">]</span>
@@ -2813,13 +2813,13 @@
 </code></pre>
 </div>
 
-<p>This example shows several features of COSMOS scripting in action. Notice the difference between ‘load’ and ‘require_utility’. The first is to load additional scripts which will NOT be shown in Script Runner when executing. This is a good place to put code which takes a long time to run such as image analysis or other looping code where you just want the output. ‘require_utility’ will visually execute the code line by line to show the user what is happening.</p>
+<p>This example shows several features of COSMOS scripting in action. Notice the difference between ‘load’ and ‘load_utility’. The first is to load additional scripts which will NOT be shown in Script Runner when executing. This is a good place to put code which takes a long time to run such as image analysis or other looping code where you just want the output. ‘load_utility’ will visually execute the code line by line to show the user what is happening.</p>
 
 <p>Next we declare our constants and create an array of strings which we store in OUR_TARGETS. Notice the constant is all uppercase with underscores.</p>
 
 <p>Then we declare our local methods of which we have one called clear_collects. Please provide a comment at the beginning of each method describing what it does and the parameters that it takes.</p>
 
-<p>The ‘helper_utility’ is then created by HelperUtility.new. Note the similarity in the class name and the file name we required.</p>
+<p>The ‘helper_utility’ is then created by HelperUtility.new. Note the similarity in the class name and the file name we loaded.</p>
 
 <p>The collect example shows how you can iterate over the array of strings we previously created and use variables when commanding and checking telemetry. The pound bracket #{} notation puts whatever the variable holds inside the #{} into the string. You can even execute additional code inside the #{} like we do when checking for the collect count to increment.</p>
 
@@ -2919,7 +2919,7 @@
 <pre class="highlight"><code><span class="c1"># My Test Procedure: run_instrument.rb</span>
 <span class="c1"># Author: Larry</span>
 
-<span class="n">require_utility</span><span class="p">(</span><span class="s2">"program_utilities.rb"</span><span class="p">)</span>
+<span class="n">load_utility</span><span class="p">(</span><span class="s2">"program_utilities.rb"</span><span class="p">)</span>
 
 <span class="n">turn_on_power</span><span class="p">()</span>
 <span class="n">goto_run_mode</span><span class="p">()</span>
@@ -5872,7 +5872,7 @@
 | Item Name | Name of the telemetry item. |
 | Limits Set | Get the limits for a specific limits set. If not given then it defaults to returning the settings for the current limits set. |
 
-Example:  
+Example:
 ```</span><span class="n">ruby</span>
 <span class="n">limits_set</span><span class="p">,</span> <span class="n">persistence_setting</span><span class="p">,</span> <span class="n">enabled</span><span class="p">,</span> <span class="n">red_low</span><span class="p">,</span> <span class="n">yellow_low</span><span class="p">,</span> <span class="n">yellow_high</span><span class="p">,</span> <span class="n">red_high</span><span class="p">,</span> <span class="n">green_low</span><span class="p">,</span> <span class="n">green_high</span> <span class="o">=</span> <span class="n">get_limits</span><span class="p">(</span><span class="s1">'INST'</span><span class="p">,</span> <span class="s1">'HEALTH_STATUS'</span><span class="p">,</span> <span class="s1">'TEMP1'</span><span class="p">)</span>
 </code></pre>
