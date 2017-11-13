@@ -50,6 +50,17 @@ module Cosmos
         end
       end
 
+      it "handles trying to read past the end" do
+        file = BufferedFile.open(@filename, "rb") do |file|
+          file.seek(-16, IO::SEEK_END)
+          expect(file.pos).to eql ((2 * BufferedFile::BUFFER_SIZE) - 16)
+          expect(file.read(DATA.length * 10)).to eql(DATA)
+          expect(file.pos).to eql BufferedFile::BUFFER_SIZE * 2
+          expect(file.read(DATA.length)).to be_nil
+          expect(file.pos).to eql BufferedFile::BUFFER_SIZE * 2
+        end
+      end
+
       it "reads equal to the buffer size" do
         file = BufferedFile.open(@filename, "rb") do |file|
           expect(file.read(BufferedFile::BUFFER_SIZE)).to eql(DATA * (BufferedFile::BUFFER_SIZE / DATA.length))
@@ -69,9 +80,35 @@ module Cosmos
           expect(file.read(BufferedFile::BUFFER_SIZE + 1)).to be_nil
         end
       end
+
+      it "reads greater than the buffer size after a previous read" do
+        file = BufferedFile.open(@filename, "rb") do |file|
+          expect(file.read(DATA.length * 10)).to eql(DATA * 10)
+          expect(file.pos).to eql DATA.length * 10
+          expect(file.read(BufferedFile::BUFFER_SIZE + 1)).to eql(DATA * ((BufferedFile::BUFFER_SIZE + 10) / DATA.length) << DATA[0])
+          expect(file.pos).to eql(DATA.length * 10 + BufferedFile::BUFFER_SIZE + 1)
+        end
+      end
     end
 
     describe "seek" do
+      it "raises if given more than 2 arguments" do
+        file = BufferedFile.open(@filename, "rb") do |file|
+          expect { file.seek(0, 4, IO::SEEK_CUR) }.to raise_error(ArgumentError)
+        end
+      end
+
+      it "implies SEEK_SET with 1 argument" do
+        file = BufferedFile.open(@filename, "rb") do |file|
+          expect(file.read(8)).to eql DATA[0..7]
+          expect(file.pos).to eql 8
+          file.seek(4, IO::SEEK_CUR)
+          expect(file.pos).to eql 12
+          file.seek(0)
+          expect(file.pos).to eql 0
+        end
+      end
+
       it "has reads still work afterwards" do
         file = BufferedFile.open(@filename, "rb") do |file|
           expect(file.read(8)).to eql DATA[0..7]

@@ -51,7 +51,6 @@ else
           if @buffer.length <= 0
             return nil
           end
-
           if read_length <= @buffer.length
             result = @buffer[@buffer_index, read_length]
             @buffer_index += read_length
