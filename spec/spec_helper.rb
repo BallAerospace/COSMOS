@@ -23,6 +23,7 @@ end
 if RUBY_ENGINE == 'ruby' and !ENV['COSMOS_NO_SIMPLECOV']
   require 'simplecov'
   require 'coveralls'
+  require 'codecov'
   Coveralls.wear!
   SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter.new([
     SimpleCov::Formatter::HTMLFormatter,

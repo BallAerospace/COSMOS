@@ -1,7 +1,6 @@
 language: ruby
 sudo: false
 cache: bundler
-env: JRUBY_OPTS=--debug
 rvm:
   - 2.2.8
   - 2.3.5
