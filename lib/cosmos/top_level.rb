@@ -296,7 +296,8 @@ module Cosmos
     Cosmos.set_working_dir do
       thread = Thread.new do
         output, _ = Open3.capture2e(command)
-        if !output.empty?
+        # TODO: Remove check for "Untested Windows.." when Qtbindings updated
+        if !output.empty? && !output.include?("Untested Windows version 10.0")
           # Work around modalSession messages on Mac Mavericks
           real_lines = 0
           output.each_line do |line|
