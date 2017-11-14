@@ -92,6 +92,20 @@ module Cosmos
       end
     end
 
+    ###########################
+    # Telemetry Screen methods
+    ###########################
+
+    # Get the organized list of available telemetry screens
+    def get_screen_list(config_filename = nil, force_refresh = false)
+      $cmd_tlm_server.get_screen_list(config_filename, force_refresh)
+    end
+
+    # Get a specific screen definition
+    def get_screen_definition(screen_full_name, config_filename = nil, force_refresh = false)
+      $cmd_tlm_server.get_screen_definition(screen_full_name, config_filename, force_refresh)
+    end  
+
   end # module Script
 
 end # module Cosmos
