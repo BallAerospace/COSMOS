@@ -35,7 +35,7 @@ module Cosmos
     describe "clone" do
       it "duplicates the entire TableItem" do
         pi2 = @ti.clone
-        expect(@ti == pi2).to be true
+        expect(@ti < pi2).to be true
       end
     end
 
