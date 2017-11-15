@@ -93,6 +93,7 @@ module Cosmos
           sleep 0.2
         end
 
+        cts = CmdTlmServer.new(CmdTlmServer::DEFAULT_CONFIG_FILE, true)
         expect_any_instance_of(PacketLogging).to receive(:start)
         # Now start the server in production mode
         cts.start(true)

@@ -291,7 +291,6 @@ module Cosmos
       # Shutdown DRb
       @json_drb.stop_service if @json_drb
       @routers.stop
-      @json_drb = nil
 
       if @mode == :CMD_TLM_SERVER
         # Shutdown staleness monitor thread
