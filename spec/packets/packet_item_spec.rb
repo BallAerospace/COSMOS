@@ -324,7 +324,7 @@ module Cosmos
     describe "clone" do
       it "duplicates the entire PacketItem" do
         pi2 = @pi.clone
-        expect(@pi == pi2).to be true
+        expect(@pi < pi2).to be true
       end
     end
 

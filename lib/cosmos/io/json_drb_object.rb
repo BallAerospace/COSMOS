@@ -106,7 +106,7 @@ module Cosmos
         if !@http
           @http = HTTPClient.new
           @http.connect_timeout = @connect_timeout
-          @http.receive_timeout = @connect_timeout
+          @http.receive_timeout = nil # Allow long polling
         end
       rescue => e
         raise DRb::DRbConnError, e.message
@@ -123,7 +123,7 @@ module Cosmos
         STDOUT.puts request_data if JsonDRb.debug?
         @request_in_progress = true
         headers = {'Content-Type' => 'application/json-rpc'}
-        res = @http.post(@uri, 
+        res = @http.post(@uri,
                          :body   => request_data,
                          :header => headers)
         response_data = res.body
@@ -140,7 +140,7 @@ module Cosmos
 
     def handle_response(response_data)
       # The code below will always either raise or return breaking out of the loop
-      if response_data
+      if response_data and response_data.to_s.length > 0
         response = JsonRpcResponse.from_json(response_data)
         if JsonRpcErrorResponse === response
           if response.error.data

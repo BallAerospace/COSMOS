@@ -17,6 +17,8 @@ module Cosmos
   class StructureItem
     include Comparable
 
+    @@create_index = 0
+
     # Valid data types adds :DERIVED to those defined by BinaryAccessor
     DATA_TYPES = BinaryAccessor::DATA_TYPES << :DERIVED
 
@@ -81,6 +83,8 @@ module Cosmos
       self.bit_size = bit_size
       self.array_size = array_size
       self.overflow = overflow
+      @create_index = @@create_index
+      @@create_index += 1
       @structure_item_constructed = true
       verify_overall()
     end
@@ -190,6 +194,10 @@ module Cosmos
       verify_overall() if @structure_item_constructed
     end
 
+    def create_index
+      @create_index.to_i
+    end
+
     if RUBY_ENGINE != 'ruby' or ENV['COSMOS_NO_EXT']
       # Comparison Operator based on bit_offset. This means that StructureItems
       # with different names or bit sizes are equal if they have the same bit
@@ -202,9 +210,17 @@ module Cosmos
         if (@bit_offset == 0) && (other_bit_offset == 0)
           # Both bit_offsets are 0 so sort by bit_size
           # This allows derived items with bit_size of 0 to be listed first
-          # Compare based on bit size
+          # Compare based on bit size then create index
           if @bit_size == other_bit_size
-            return 0
+            if @create_index
+              if @create_index <= other_item.create_index
+                return -1
+              else
+                return 1
+              end
+            else
+              return 0
+            end
           elsif @bit_size < other_bit_size
             return -1
           else
@@ -216,8 +232,16 @@ module Cosmos
         if ((@bit_offset >= 0) && (other_bit_offset >= 0)) || ((@bit_offset < 0) && (other_bit_offset < 0))
           # Both Have Same Sign
           if @bit_offset == other_bit_offset
-            return 0
-          elsif @bit_offset < other_bit_offset
+            if @create_index
+              if @create_index <= other_item.create_index
+                return -1
+              else
+                return 1
+              end
+            else
+              return 0
+            end
+          elsif @bit_offset <= other_bit_offset
             return -1
           else
             return 1
@@ -225,7 +249,15 @@ module Cosmos
         else
           # Different Signs
           if @bit_offset == other_bit_offset
-            return 0
+            if @create_index
+              if @create_index < other_item.create_index
+                return -1
+              else
+                return 1
+              end
+            else
+              return 0
+            end
           elsif @bit_offset < other_bit_offset
             return 1
           else
