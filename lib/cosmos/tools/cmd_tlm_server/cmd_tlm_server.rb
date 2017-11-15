@@ -289,7 +289,7 @@ module Cosmos
     # the packet staleness monitor thread.
     def stop
       # Shutdown DRb
-      @json_drb.stop_service
+      @json_drb.stop_service if @json_drb
       @routers.stop
       @json_drb = nil
 
@@ -316,7 +316,7 @@ module Cosmos
     def reload
       @replay_backend.shutdown if @mode != :CMD_TLM_SERVER
       if @reload_callback
-        @reload_callback.call(false) 
+        @reload_callback.call(false)
       else
         System.reset
       end
