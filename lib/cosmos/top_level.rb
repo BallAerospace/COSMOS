@@ -297,13 +297,14 @@ module Cosmos
       thread = Thread.new do
         output, _ = Open3.capture2e(command)
         if !output.empty?
-          # Work around modalSession messages on Mac Mavericks
-          real_lines = 0
+          # Ignore modalSession messages on Mac Mavericks and Qt Untested Windows 10
+          new_output = ''
           output.each_line do |line|
-            real_lines += 1 if line !~ /modalSession/
+            new_output << line if line !~ /modalSession/ && line !~ /Untested Windows version 10.0/
           end
+          output = new_output
 
-          if real_lines > 0
+          if !output.empty?
             Logger.error output
             self.write_unexpected_file(output)
             if defined? ::Qt and $qApp
