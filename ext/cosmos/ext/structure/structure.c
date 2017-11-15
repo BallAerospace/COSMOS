@@ -64,6 +64,7 @@ static ID id_ivar_neg_bit_size = 0;
 static ID id_ivar_fixed_size = 0;
 static ID id_ivar_short_buffer_allowed = 0;
 static ID id_ivar_mutex = 0;
+static ID id_ivar_create_index = 0;
 
 static ID id_const_ASCII_8BIT_STRING = 0;
 static ID id_const_ZERO_STRING = 0;
@@ -1189,6 +1190,16 @@ static VALUE structure_item_spaceship(VALUE self, VALUE other_item) {
   int other_bit_offset = FIX2INT(rb_ivar_get(other_item, id_ivar_bit_offset));
   int bit_size = 0;
   int other_bit_size = 0;
+  int create_index = 0;
+  int other_create_index = 0;
+  int have_create_index = 0;
+  volatile VALUE v_create_index = rb_ivar_get(self, id_ivar_create_index);
+  volatile VALUE v_other_create_index = rb_ivar_get(other_item, id_ivar_create_index);
+  if (RTEST(v_create_index) && RTEST(v_other_create_index)) {
+    create_index = FIX2INT(v_create_index);
+    other_create_index = FIX2INT(v_other_create_index);
+    have_create_index = 1;
+  }
 
   /* Handle same bit offset case */
   if ((bit_offset == 0) && (other_bit_offset == 0)) {
@@ -1198,7 +1209,15 @@ static VALUE structure_item_spaceship(VALUE self, VALUE other_item) {
     bit_size = FIX2INT(rb_ivar_get(self, id_ivar_bit_size));
     other_bit_size = FIX2INT(rb_ivar_get(other_item, id_ivar_bit_size));
     if (bit_size == other_bit_size) {
-      return INT2FIX(0);
+      if (have_create_index) {
+        if (create_index <= other_create_index) {
+          return INT2FIX(-1);
+        } else {
+          return INT2FIX(1);
+        }
+      } else {
+        return INT2FIX(0);
+      }
     } if (bit_size < other_bit_size) {
       return INT2FIX(-1);
     } else {
@@ -1210,7 +1229,15 @@ static VALUE structure_item_spaceship(VALUE self, VALUE other_item) {
   if (((bit_offset >= 0) && (other_bit_offset >= 0)) || ((bit_offset < 0) && (other_bit_offset < 0))) {
     /* Both Have Same Sign */
     if (bit_offset == other_bit_offset) {
-      return INT2FIX(0);
+      if (have_create_index) {
+        if (create_index <= other_create_index) {
+          return INT2FIX(-1);
+        } else {
+          return INT2FIX(1);
+        }
+      } else {
+        return INT2FIX(0);
+      }
     } else if (bit_offset < other_bit_offset) {
       return INT2FIX(-1);
     } else {
@@ -1219,7 +1246,15 @@ static VALUE structure_item_spaceship(VALUE self, VALUE other_item) {
   } else {
     /* Different Signs */
     if (bit_offset == other_bit_offset) {
-      return INT2FIX(0);
+      if (have_create_index) {
+        if (create_index <= other_create_index) {
+          return INT2FIX(-1);
+        } else {
+          return INT2FIX(1);
+        }
+      } else {
+        return INT2FIX(0);
+      }
     } else if (bit_offset < other_bit_offset) {
       return INT2FIX(1);
     } else {
@@ -1387,6 +1422,7 @@ void Init_structure (void)
   id_ivar_fixed_size = rb_intern("@fixed_size");
   id_ivar_short_buffer_allowed = rb_intern("@short_buffer_allowed");
   id_ivar_mutex = rb_intern("@mutex");
+  id_ivar_create_index = rb_intern("@create_index");
 
   symbol_LITTLE_ENDIAN = ID2SYM(rb_intern("LITTLE_ENDIAN"));
   symbol_BIG_ENDIAN = ID2SYM(rb_intern("BIG_ENDIAN"));

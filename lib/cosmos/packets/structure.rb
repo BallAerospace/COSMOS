@@ -198,7 +198,7 @@ module Cosmos
         # to re-sort. We also re-sort if the current item is less than the less
         # item because we are inserting.
         if last_item.bit_offset <= 0 or item.bit_offset <= 0 or item.bit_offset < last_item.bit_offset
-          @sorted_items = @sorted_items.sort {|item1, item2| item1 <=> item2}
+          @sorted_items = @sorted_items.sort
         end
       else
         @sorted_items << item

@@ -586,7 +586,11 @@ module Cosmos
 
     def put_into_archive(disk_file_path, io, zip_file_path)
       io.get_output_stream(zip_file_path) do |f|
-        f.write(File.open(disk_file_path, 'rb').read)
+        data = nil
+        File.open(disk_file_path, 'rb') do |file|
+          data = file.read
+        end
+        f.write(data)
       end
     end
 
