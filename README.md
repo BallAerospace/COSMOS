@@ -105,7 +105,7 @@ This protects both you and us and you retain full rights to any code you write.
 * [![Travis Build Status](https://travis-ci.org/BallAerospace/COSMOS.svg?branch=master)](https://travis-ci.org/BallAerospace/COSMOS)
 * [![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/gw61r3dvakjamx6o?svg=true)](https://ci.appveyor.com/project/jasonatball/cosmos)
 * [![Code Climate](https://codeclimate.com/github/BallAerospace/COSMOS/badges/gpa.svg)](https://codeclimate.com/github/BallAerospace/COSMOS)
-* [![Coverage Status](https://coveralls.io/repos/BallAerospace/COSMOS/badge.svg?branch=master)](https://coveralls.io/r/BallAerospace/COSMOS?branch=master)
+* [![Codecov](https://img.shields.io/codecov/c/github/codecov/example-python.svg)](https://codecov.io/gh/BallAerospace/COSMOS)
 
 ## License
 
