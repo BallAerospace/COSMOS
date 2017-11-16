@@ -85,7 +85,7 @@ spec = Gem::Specification.new do |s|
   s.add_runtime_dependency 'yard', '>= 0.8', '< 0.10'
   s.add_runtime_dependency 'uuidtools', '~> 2.1.0'
   s.add_runtime_dependency 'snmp', '~> 1.0'
-  s.add_runtime_dependency 'rubyzip', '~> 1.1.0'
+  s.add_runtime_dependency 'rubyzip', '~> 1.2.1'
   s.add_runtime_dependency 'nokogiri', '~> 1.6'
   s.add_runtime_dependency 'opengl', '>= 0.7', '< 0.10' if RUBY_ENGINE == 'ruby' # MRI Only
   s.add_runtime_dependency 'qtbindings', '~> 4.8.6', '>= 4.8.6.2' if RUBY_ENGINE == 'ruby' # MRI Only
