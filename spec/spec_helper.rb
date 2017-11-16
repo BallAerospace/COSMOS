@@ -26,7 +26,6 @@ if !ENV['COSMOS_NO_SIMPLECOV']
   SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter.new([
     SimpleCov::Formatter::HTMLFormatter,
     SimpleCov::Formatter::Codecov,
-    Coveralls::SimpleCov::Formatter
   ])
   SimpleCov.start do
     merge_timeout 12 * 60 * 60 # merge the last 12 hours of results
