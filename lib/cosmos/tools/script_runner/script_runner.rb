@@ -49,10 +49,10 @@ module Cosmos
       @running_icon = Cosmos.get_icon('running.png')
       @no_icon = Qt::Icon.new
 
-      if File.exist?(options.config_file)
+      begin
         ScriptRunnerConfig.new(options.config_file)
-      else
-        raise "Could not find config file #{options.config_file}"
+      rescue => error
+        ExceptionDialog.new(self, error, "Error parsing #{options.config_file}")
       end
 
       @procedure_dir = System.paths['PROCEDURES'][0]

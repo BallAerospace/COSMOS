@@ -75,21 +75,21 @@ module Cosmos
     # @param filename [String] Path to a configuration file
     # @param type [String] File extension, e.g. '.txt'
     # @param tool_name [String] Name of the tool calling this method
-    # @return [String|nil] Path to a configuration file or nil if none found
+    # @return [String|nil] Path to a configuration file. If a filename was
+    #   passed and the configuration file is not found, the original filename
+    #   is returned. If no filename was passed nil is returned.
     def config_path(filename, type, tool_name)
       return filename if filename && File.exist?(filename)
       if filename
         # Add the configuration dir onto the filename
-        filename = File.join(@options.config_dir, filename)
+        new_filename = File.join(@options.config_dir, filename)
+        return new_filename if File.exist?(new_filename)
       else
         # No file passed so default to a file named after the class
-        filename = File.join(@options.config_dir, "#{tool_name}#{type}")
+        new_filename = File.join(@options.config_dir, "#{tool_name}#{type}")
+        return new_filename if File.exist?(new_filename)
       end
-      if File.exist? filename
-        filename
-      else
-        nil
-      end
+      filename
     end
 
     # Create the exit_action and the about_action. The exit_action is not

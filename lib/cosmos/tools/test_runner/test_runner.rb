@@ -971,12 +971,9 @@ module Cosmos
 
     def process_config(filename)
       ScriptRunnerFrame.instance = @script_runner_frame
-
       # Remember all the requires that fail and warn the user
       require_errors = []
 
-      # Ensure the file exists
-      raise "Configuration File: #{filename} does not exist" unless test(?f, filename)
       parser = ConfigParser.new("http://cosmosrb.com/docs/tools/#test-runner-configuration")
       parser.parse_file(filename) do |keyword, params|
         case keyword

@@ -11,7 +11,6 @@
 require 'cosmos'
 
 module Cosmos
-
   # This class reads the Script Runner configuration file
   class ScriptRunnerConfig
     # Processes the config file
@@ -35,6 +34,5 @@ module Cosmos
         end
       end
     end
-  end # class ScriptRunnerConfig
-
-end # module Cosmos
+  end
+end

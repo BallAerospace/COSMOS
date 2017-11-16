@@ -14,13 +14,13 @@ require 'tempfile'
 require 'open3'
 
 module Cosmos
-
   # Reads an ascii file that defines the configuration settings used to
   # configure the Handbook Creator
   class HandbookCreatorConfig
-
     attr_reader :pages
 
+    # Builds a page for the handbook. Pages can be either :NORMAL or :TARGETS.
+    # :TARGETS page builds pages for each of the targets in the system.
     class Page
       attr_reader :filename
       attr_reader :type
@@ -230,9 +230,9 @@ module Cosmos
         end
         packets
       end
+    end
 
-    end # class Page
-
+    # Encapsulates a section of the PDF or webpage which can be :CMD, :TLM, or :NONE.
     class Section
       attr_reader :filename
       attr_reader :type
@@ -250,8 +250,7 @@ module Cosmos
       def create(file, title, packets = [], ignored = {})
         file.puts ERB.new(File.read(@filename)).result(binding)
       end
-
-    end # class Section
+    end
 
     # Parses the configuration file.
     #
@@ -374,11 +373,8 @@ module Cosmos
         else
           # blank lines will have a nil keyword and should not raise an exception
           raise parser.error("Unknown keyword: #{keyword}") unless keyword.nil?
-        end  # case
-      end  # loop
-
+        end
+      end # loop
     end
-
-  end # class HandbookCreatorConfig
-
-end # module Cosmos
+  end
+end

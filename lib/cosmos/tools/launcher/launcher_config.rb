@@ -14,10 +14,8 @@ require 'ostruct'
 require 'bundler'
 
 module Cosmos
-
   # Reads and interprets the Launcher configuration file
   class LauncherConfig
-
     # Launcher title
     attr_reader :title
 
@@ -43,13 +41,8 @@ module Cosmos
       @label_font_settings = ['Arial', 16]
       @num_columns = 4
       @items = []
-
-      if File.exist?(filename.to_s)
-        parse_file(filename)
-      else
-        raise "Launcher configuration file does not exist: #{filename}"
-      end
-    end # def initialize
+      parse_file(filename)
+    end
 
     # Create a ConfigParser and parse all the lines in the configuration file
     #
@@ -57,10 +50,8 @@ module Cosmos
     def parse_file(filename)
       multitool = nil
 
-      # Loop over each line of the configuration file
       parser = ConfigParser.new("http://cosmosrb.com/docs/tools/#launcher-configuration")
       parser.parse_file(filename) do |keyword, params|
-        # Handle each keyword
         case keyword
 
         when 'AUTO_GEM_TOOLS'
@@ -138,7 +129,7 @@ module Cosmos
 
         else # UNKNOWN
           raise parser.error("Unknown keyword '#{keyword}'.") if keyword
-        end # case keyword
+        end
       end # parser.parse_file
     end
 
@@ -250,7 +241,5 @@ module Cosmos
 
       raise "Could not find gem containing tool: #{split[1]} - Make sure the appropriate gem is in your Gemfile"
     end
-
-  end # class LauncherConfig
-
-end # module Cosmos
+  end
+end

@@ -669,9 +669,6 @@ module Cosmos
     end
 
     def process_config(filename)
-      # ensure the file exists
-      return unless filename
-
       parser = ConfigParser.new
       parser.parse_file(filename) do |keyword, params|
         case keyword

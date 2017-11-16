@@ -179,6 +179,7 @@ module Cosmos
                    yield_non_keyword_lines = false,
                    remove_quotes = true,
                    &block)
+      raise "Configuration file #{filename} does not exist." unless filename && File.exist?(filename)
       @filename = filename
 
       # Create a temp file where we write the ERB parsed output
