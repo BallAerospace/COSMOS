@@ -75,7 +75,7 @@ module Cosmos
           # Make the reconnect_delay be slightly longer than half of 0.1 which is
           # how long the test is waiting after calling start. This allows us to
           # see the error twice.
-          @interface.reconnect_delay = 0.15
+          @interface.reconnect_delay = 0.1
           thread = InterfaceThread.new(@interface)
           error_count = 0
           thread.connection_failed_callback = Proc.new do |error|
@@ -83,10 +83,10 @@ module Cosmos
             error_count += 1
           end
           thread.start
-          sleep 0.2
+          sleep 0.3
           expect(running_threads.length).to eql(2)
           thread.stop
-          sleep 0.2
+          sleep 0.1
           expect(running_threads.length).to eql(1)
           expect(error_count).to eql 2
 
