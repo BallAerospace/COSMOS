@@ -46,6 +46,21 @@ module Cosmos
         @invalid_items = []
       end
 
+      def as_json(options = nil) #:nodoc:
+        {group: @group, 
+         target_name: @target_name, 
+         original_target_name: 
+         @original_target_name, 
+         name: @name, 
+         filename: @filename, 
+         x_pos: @x_pos,
+         y_pos: @y_pos,
+         substitute: @substitute,
+         force_substitute: @force_substitute,
+         show_on_startup: @show_on_startup
+        }
+      end
+
       def full_name
         @group ? @name : "#{@target_name} #{@name}"
       end
@@ -96,7 +111,7 @@ module Cosmos
     attr_accessor :completion_list
     attr_accessor :tlm_to_screen_mapping
 
-    def initialize(filename = nil)
+    def initialize(filename = nil, skip_read_items = false)
       # Handle nil filename
       filename = File.join(Cosmos::USERPATH, 'config', 'tools', 'tlm_viewer', 'tlm_viewer.txt') unless filename
       @filename = filename
@@ -129,7 +144,7 @@ module Cosmos
             screen_dir = File.join(target.dir, 'screens')
             if File.exist?(screen_dir) and num_screens(screen_dir) > 0
               start_target(target.name, parser)
-              auto_screens()
+              auto_screens(skip_read_items)
             end
           end
 
@@ -141,7 +156,7 @@ module Cosmos
           screen_dir = File.join(target.dir, 'screens')
           if File.exist?(screen_dir) and num_screens(screen_dir) > 0
             start_target(target.name, parser)
-            auto_screens()
+            auto_screens(skip_read_items)
           end
 
         when 'TARGET'
@@ -153,7 +168,7 @@ module Cosmos
           raise parser.error("No target defined. SCREEN must follow TARGET.") unless @current_target
           parser.verify_num_parameters(1, 3, 'SCREEN <Filename> <X Position (optional)> <Y Position (optional)>')
           screen_filename = File.join(@current_target.dir, 'screens', parameters[0])
-          start_screen(screen_filename, parameters[1], parameters[2])
+          start_screen(screen_filename, parameters[1], parameters[2], skip_read_items)
 
         when 'SHOW_ON_STARTUP'
           raise parser.error("No screen defined. SHOW_ON_STARTUP must follow SCREEN or GROUP_SCREEN.") unless @current_screen_info
@@ -179,7 +194,7 @@ module Cosmos
           parser.verify_num_parameters(2, 4, 'GROUP_SCREEN <Target Name> <Screen Filename> <X Position (optional)> <Y Position (Optional)>')
           start_target(parameters[0].upcase, parser, @current_group)
           screen_filename = File.join(@current_target.dir, 'screens', parameters[1])
-          start_screen(screen_filename, parameters[2], parameters[3])
+          start_screen(screen_filename, parameters[2], parameters[3], skip_read_items)
 
         else
           # blank config.lines will have a nil keyword and should not raise an exception
@@ -233,7 +248,7 @@ module Cosmos
       end
     end
 
-    def start_screen(screen_filename, x_pos = nil, y_pos = nil)
+    def start_screen(screen_filename, x_pos = nil, y_pos = nil, skip_read_items = false)
       screen_name = File.basename(screen_filename, '.txt').upcase
       x_pos = x_pos.to_i if x_pos
       y_pos = y_pos.to_i if y_pos
@@ -244,15 +259,15 @@ module Cosmos
       @current_screen_info.force_substitute = true if @current_target.auto_screen_substitute
       @current_screen_info.original_target_name = @current_target.original_name
       @current_screen_info.substitute = @current_target.name if @current_target.substitute or @current_target.auto_screen_substitute
-      @current_screen_info.read_items
+      @current_screen_info.read_items unless skip_read_items
     end
 
-    def auto_screens
+    def auto_screens(skip_read_items = false)
       @current_group = nil
       screen_dir = File.join(@current_target.dir, 'screens')
       if File.exist?(screen_dir)
         Dir.new(screen_dir).each do |filename|
-          start_screen(File.join(screen_dir, filename)) if valid_screen_name(filename)
+          start_screen(File.join(screen_dir, filename), nil, nil, skip_read_items) if valid_screen_name(filename)
         end
       end
     end

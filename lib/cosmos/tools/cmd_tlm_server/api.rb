@@ -10,6 +10,7 @@
 
 require 'cosmos/script/extract'
 require 'cosmos/script/api_shared'
+require 'cosmos/tools/tlm_viewer/tlm_viewer_config'
 
 module Cosmos
 
@@ -134,7 +135,11 @@ module Cosmos
         'replay_move_start',
         'replay_move_end',
         'replay_move_index',
+        'get_screen_list',
+        'get_screen_definition',
       ]
+      @tlm_viewer_config_filename = nil
+      @tlm_viewer_config = nil
     end
 
     ############################################################################
@@ -1534,6 +1539,24 @@ module Cosmos
     # @param index [Integer] packet index into file
     def replay_move_index(index)
       CmdTlmServer.replay_backend.move_index(index)
+    end
+
+    # Get the organized list of available telemetry screens
+    def get_screen_list(config_filename = nil, force_refresh = false)
+      if force_refresh or !@tlm_viewer_config or @tlm_viewer_config_filename != config_filename
+        @tlm_viewer_config = TlmViewerConfig.new(config_filename, true)
+        @tlm_viewer_config_filename = config_filename
+      end
+      return @tlm_viewer_config.columns
+    end
+
+    # Get a specific screen definition
+    def get_screen_definition(screen_full_name, config_filename = nil, force_refresh = false)
+      get_screen_list(config_filename, force_refresh) if force_refresh or !@tlm_viewer_config
+      screen_info = @tlm_viewer_config.screen_infos[screen_full_name.upcase]
+      raise "Unknown screen: #{screen_full_name.upcase}" unless screen_info
+      screen_definition = File.read(screen_info.filename)
+      return screen_definition
     end
 
     private
