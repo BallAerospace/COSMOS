@@ -83,19 +83,12 @@ module Cosmos
           expect(CmdTlmServer.json_drb.method_whitelist).to include('stop_logging')
           expect(CmdTlmServer.json_drb.method_whitelist).to include('stop_cmd_log')
           expect(CmdTlmServer.json_drb.method_whitelist).to include('stop_tlm_log')
-          cts.start # Call start again ... it should do nothing
-          expect(CmdTlmServer.json_drb.method_whitelist).to include('start_logging')
-          expect(CmdTlmServer.json_drb.method_whitelist).to include('stop_logging')
-          expect(CmdTlmServer.json_drb.method_whitelist).to include('stop_cmd_log')
-          expect(CmdTlmServer.json_drb.method_whitelist).to include('stop_tlm_log')
         ensure
           cts.stop
           sleep 0.2
         end
 
-        expect_any_instance_of(PacketLogging).to receive(:start)
-        # Now start the server in production mode
-        cts.start(true)
+        cts = CmdTlmServer.new(CmdTlmServer::DEFAULT_CONFIG_FILE, true)
         begin
           # Verify we disabled the ability to stop logging
           expect(CmdTlmServer.json_drb.method_whitelist).to include('start_logging')
