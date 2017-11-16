@@ -57,6 +57,8 @@ module Cosmos
     end
 
     def self.load_config(filename)
+      raise "Configuration file #{filename} does not exist." unless filename && File.exist?(filename)
+
       # Find all screen files so we can calculate MD5
       tlmviewer_files = [filename, System.initial_filename]
       additional_data = ''

@@ -19,7 +19,7 @@ module Cosmos
 
     describe "process_definition" do
       it "complains if the definition filename does not exist" do
-        expect { core.process_definition('path') }.to raise_error(/No such file/)
+        expect { core.process_definition('path') }.to raise_error("Configuration file path does not exist.")
       end
 
       it "processes the table definition" do
@@ -47,7 +47,7 @@ module Cosmos
 
     describe "file_new" do
       it "complains if the definition filename does not exist" do
-        expect { core.file_new('path', Dir.pwd) }.to raise_error(/No such file/)
+        expect { core.file_new('path', Dir.pwd) }.to raise_error(/Configuration file path does not exist./)
       end
 
       it "creates a new file in the given output dir" do
@@ -74,7 +74,7 @@ module Cosmos
         FileUtils.rm def_filename if File.exist? def_filename
         bin_filename = File.join(Dir.pwd, 'dat.bin')
         File.open(bin_filename,'w') {|file| file.puts "\x00\x01" }
-        expect { core.file_open(bin_filename, def_filename) }.to raise_error(/No such file/)
+        expect { core.file_open(bin_filename, def_filename) }.to raise_error(/does not exist/)
         FileUtils.rm bin_filename
       end
 
@@ -83,7 +83,7 @@ module Cosmos
         FileUtils.rm bin_filename if File.exist? bin_filename
         def_filename = File.join(Dir.pwd, 'def.txt')
         File.open(def_filename,'w') {|file| file.puts "TABLE table1 BIG_ENDIAN ONE_DIMENSIONAL" }
-        expect { core.file_open(bin_filename, def_filename) }.to raise_error(/No such file/)
+        expect { core.file_open(bin_filename, def_filename) }.to raise_error(/Unable to open and load/)
         FileUtils.rm def_filename
       end
 

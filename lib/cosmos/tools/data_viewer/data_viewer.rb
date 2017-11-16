@@ -531,11 +531,6 @@ module Cosmos
     end
 
     def process_config(filename)
-      # ensure the file exists
-      unless test ?f, filename
-        raise "Configuration File Does not Exist: #{filename}"
-      end
-
       parser = ConfigParser.new
       parser.parse_file(filename) do |keyword, params|
         case keyword

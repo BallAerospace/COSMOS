@@ -63,7 +63,7 @@ class Array
 end
 
 module Cosmos
-
+  # Handles the low level processing of limits event for LimitsMonitor.
   class LimitsItems
     # @return [Array<String,String,String>] Target name, packet name, item name
     attr_reader :ignored
@@ -129,7 +129,7 @@ module Cosmos
       end
     end
 
-    # Ignore a stale packet. Don't display it in the GUI and don't have it 
+    # Ignore a stale packet. Don't display it in the GUI and don't have it
     # count towards the overall limit state.
     #
     # @param item [Array<String,String>] Target name, packet name
@@ -162,7 +162,7 @@ module Cosmos
     # Remove an item from the ignored_stale list to have it be displayed and
     # count towards the overall limits state.
     #
-    # @param item [Array<String,String>] Target name, packet name to remove 
+    # @param item [Array<String,String>] Target name, packet name to remove
     #   from ignored list
     def remove_ignored_stale(item)
       index = @ignored_stale.delete_item(item)
@@ -250,7 +250,6 @@ module Cosmos
 
     # Update the values for all the out of limits items being tracked.
     def update_values
-
       values, limits_states, limits_settings, limits_set = get_tlm_values(@out_of_limits, :WITH_UNITS)
       index = 0
       @out_of_limits.each do |target_name, packet_name, item_name|
@@ -280,34 +279,27 @@ module Cosmos
     #   expanded to find a file in the config/tools/limits_monitor dir.
     # @return [String] Message indicating success or fail
     def open_config(filename)
-      return "" unless filename
-      return "Configuration file #{filename} not found!" unless File.exist?(filename)
-
       @ignored = []
       @ignored_stale = []
-      begin
-        parser = ConfigParser.new("http://cosmosrb.com/docs/tools/#limits-monitor-configuration")
-        parser.parse_file(filename) do |keyword, params|
-          case keyword
-          # TODO: Eventually we can deprecate 'IGNORE' in favor
-          # of 'IGNORE_ITEM' now that we also have 'IGNORE_PACKET'
-          when 'IGNORE', 'IGNORE_ITEM'
-            @ignored << ([params[0], params[1], params[2]])
-          when 'IGNORE_PACKET'
-            @ignored << ([params[0], params[1], nil])
-          when 'IGNORE_STALE'
-            @ignored_stale << ([params[0], params[1], nil])
-          when 'COLOR_BLIND'
-            @colorblind = true
-          when 'IGNORE_OPERATIONAL_LIMITS'
-            @monitor_operational = false
-          end
+      parser = ConfigParser.new("http://cosmosrb.com/docs/tools/#limits-monitor-configuration")
+      parser.parse_file(filename) do |keyword, params|
+        case keyword
+        # TODO: Eventually we can deprecate 'IGNORE' in favor
+        # of 'IGNORE_ITEM' now that we also have 'IGNORE_PACKET'
+        when 'IGNORE', 'IGNORE_ITEM'
+          @ignored << ([params[0], params[1], params[2]])
+        when 'IGNORE_PACKET'
+          @ignored << ([params[0], params[1], nil])
+        when 'IGNORE_STALE'
+          @ignored_stale << ([params[0], params[1], nil])
+        when 'COLOR_BLIND'
+          @colorblind = true
+        when 'IGNORE_OPERATIONAL_LIMITS'
+          @monitor_operational = false
         end
-        result = "#{filename} loaded. "
-        result << "Warning: Some items ignored" if ignored_items?
-      rescue => e
-        result = "Error loading configuration : #{e.message}"
       end
+      result = "#{filename} loaded. "
+      result << "Warning: Some items ignored" if ignored_items?
       # Since we may have loaded new ignored items we need to reset
       request_reset()
       result
@@ -408,7 +400,7 @@ module Cosmos
       item = [target_name, packet_name, nil]
       unless (@stale.includes_item?(item) || @ignored_stale.includes_item?(item) || UNKNOWN_ARRAY.includes_item?(item))
         @stale << item
-        @items["#{item[0]} #{item[1]}"] = @new_item_callback.call(*item) 
+        @items["#{item[0]} #{item[1]}"] = @new_item_callback.call(*item)
       end
       return ["INFO: Packet #{target_name} #{packet_name} is STALE\n", :BLACK]
     end
@@ -469,7 +461,7 @@ module Cosmos
           @ignore_button = Qt::PushButton.new('Ignore Item')
           @ignore_button.connect(SIGNAL('clicked()')) { parent.ignore(self, item) }
           @layout.addWidget(@ignore_button)
-          
+
           @ignore_packet_button = Qt::PushButton.new('Ignore Packet')
           @ignore_packet_button.connect(SIGNAL('clicked()')) { parent.ignore(self, packet) }
           @layout.addWidget(@ignore_packet_button)
@@ -479,7 +471,7 @@ module Cosmos
           @layout.addStretch(1)
           @ignore_button = Qt::PushButton.new('Ignore Stale Packet')
           @ignore_button.connect(SIGNAL('clicked()')) { parent.ignore(self, packet) }
-          @layout.addWidget(@ignore_button)         
+          @layout.addWidget(@ignore_button)
         end
       end
 
@@ -531,8 +523,14 @@ module Cosmos
 
       @limits_items = LimitsItems.new(
         method(:new_gui_item), method(:update_gui_item), method(:clear_gui_items), method(:remove_gui_item))
-      result = @limits_items.open_config(options.config_file)
-      statusBar.showMessage(tr(result))
+      if options.config_file
+        begin
+          result = @limits_items.open_config(options.config_file)
+          statusBar.showMessage(tr(result))
+        rescue => error
+          ExceptionDialog.new(self, error, "Error parsing #{@options.config_file}")
+        end
+      end
 
       limits_thread()
       value_thread()
@@ -996,6 +994,5 @@ module Cosmos
         super(option_parser, options)
       end
     end
-
-  end # class LimitsMonitor
-end # module Cosmos
+  end
+end

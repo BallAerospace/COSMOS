@@ -115,11 +115,6 @@ module Cosmos
       # Handle nil filename
       filename = File.join(Cosmos::USERPATH, 'config', 'tools', 'tlm_viewer', 'tlm_viewer.txt') unless filename
       @filename = filename
-
-      # Ensure the file exists
-      raise "Telemetry Viewer configuration file #{filename} does not exist" unless test ?f, filename
-
-      # Initialize instance variables
       @columns = []
       @columns << {}
       @screen_infos = {}
