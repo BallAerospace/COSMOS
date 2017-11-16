@@ -32,7 +32,6 @@ module Cosmos
       allow_any_instance_of(Interface).to receive(:connected?).and_return(true)
       allow_any_instance_of(Interface).to receive(:disconnect)
       @cts = CmdTlmServer.new
-      @cts.start
       sleep 1
       @ctsi = CmdTlmServerInterface.new
     end
