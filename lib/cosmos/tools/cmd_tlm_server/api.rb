@@ -597,10 +597,12 @@ module Cosmos
         # Write to routers
         if send_routers
           router = CmdTlmServer.instance.routers.all['PREIDENTIFIED_ROUTER']
-          begin
-            router.write(packet) if router.write_allowed? and router.connected?
-          rescue => err
-            Logger.error "Problem writing to router #{router.name} - #{err.class}:#{err.message}"
+          if router
+            begin
+              router.write(packet) if router.write_allowed? and router.connected?
+            rescue => err
+              Logger.error "Problem writing to router #{router.name} - #{err.class}:#{err.message}"
+            end
           end
         end
 
@@ -608,11 +610,13 @@ module Cosmos
           # Handle packet logging
           packet_log_writer_pair = CmdTlmServer.instance.packet_logging.all['DEFAULT']
 
-          # Optionally create new logs
-          packet_log_writer_pair.tlm_log_writer.start if create_new_logs
+          if packet_log_writer_pair
+            # Optionally create new logs
+            packet_log_writer_pair.tlm_log_writer.start if create_new_logs
 
-          # Optionally write to packet logs - Write errors are handled by the log writer
-          packet_log_writer_pair.tlm_log_writer.write(packet) if send_packet_log_writers
+            # Optionally write to packet logs - Write errors are handled by the log writer
+            packet_log_writer_pair.tlm_log_writer.write(packet) if send_packet_log_writers
+          end
         end
       end
 
