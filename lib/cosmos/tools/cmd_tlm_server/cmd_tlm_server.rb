@@ -113,7 +113,8 @@ module Cosmos
       @@meta_callback = meta_callback
     end
 
-    # Constructor for a CmdTlmServer
+    # Constructor for a CmdTlmServer.  Initializes all internal state and
+    # starts up the sever
     #
     # @param config_file [String] The name of the server configuration file
     #   which must be in the config/tools/cmd_tlm_server directory.
@@ -124,6 +125,7 @@ module Cosmos
     #   stand-alone mode which does not actually use the interfaces to send and
     #   receive data. This is useful for testing scripts when actual hardware
     #   is not available.
+    # @param mode [Symbol] :CMD_TLM_SERVER or :REPLAY - Defines overall mode
     def initialize(
       config_file = DEFAULT_CONFIG_FILE,
       production = false,
@@ -681,7 +683,7 @@ module Cosmos
     #
     # This method is shoudl only called by initialize which is why it is private
     #
-    # @param production (see #initialize)
+    # @param start_packet_logging [Boolean] Whether to start logging data or not
     def start(start_packet_logging = false)
       if @mode == :CMD_TLM_SERVER
         @replay_backend = nil # Remove access to Replay
