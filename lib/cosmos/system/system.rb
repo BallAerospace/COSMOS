@@ -73,9 +73,9 @@ module Cosmos
     instance_attr_reader :additional_md5_files
 
     # Known COSMOS ports
-    KNOWN_PORTS = ['CTS_API', 'TLMVIEWER_API', 'CTS_PREIDENTIFIED', 'CTS_CMD_ROUTER']
+    KNOWN_PORTS = ['CTS_API', 'TLMVIEWER_API', 'CTS_PREIDENTIFIED', 'CTS_CMD_ROUTER', 'REPLAY_API', 'REPLAY_PREIDENTIFIED', 'REPLAY_CMD_ROUTER']
     # Known COSMOS hosts
-    KNOWN_HOSTS = ['CTS_API', 'TLMVIEWER_API', 'CTS_PREIDENTIFIED', 'CTS_CMD_ROUTER']
+    KNOWN_HOSTS = ['CTS_API', 'TLMVIEWER_API', 'CTS_PREIDENTIFIED', 'CTS_CMD_ROUTER', 'REPLAY_API', 'REPLAY_PREIDENTIFIED', 'REPLAY_CMD_ROUTER']
     # Known COSMOS paths
     KNOWN_PATHS = ['LOGS', 'TMP', 'SAVED_CONFIG', 'TABLES', 'HANDBOOKS', 'PROCEDURES', 'SEQUENCES']
 
@@ -90,69 +90,7 @@ module Cosmos
     #   read. Be default this is <Cosmos::USERPATH>/config/system/system.txt
     def initialize(filename = nil)
       raise "Cosmos::System created twice" unless @@instance.nil?
-      @targets = {}
-      @targets['UNKNOWN'] = Target.new('UNKNOWN')
-      @config = nil
-      @commands = nil
-      @telemetry = nil
-      @limits = nil
-      @default_packet_log_writer = PacketLogWriter
-      @default_packet_log_writer_params = []
-      @default_packet_log_reader = PacketLogReader
-      @default_packet_log_reader_params = []
-      @sound = false
-      @use_dns = false
-      @acl = nil
-      @staleness_seconds = 30
-      @limits_set = :DEFAULT
-      @use_utc = false
-      @additional_md5_files = []
-      @meta_init_filename = nil
-
-      @ports = {}
-      @ports['CTS_API'] = 7777
-      @ports['TLMVIEWER_API'] = 7778
-      @ports['CTS_PREIDENTIFIED'] = 7779
-      @ports['CTS_CMD_ROUTER'] = 7780
-
-      @listen_hosts = {}
-      @listen_hosts['CTS_API'] = '127.0.0.1'
-      @listen_hosts['TLMVIEWER_API'] = '127.0.0.1'
-      # Localhost would be more secure but historically these are open to allow for chaining servers by default
-      @listen_hosts['CTS_PREIDENTIFIED'] = '0.0.0.0'
-      @listen_hosts['CTS_CMD_ROUTER'] = '0.0.0.0'
-
-      @connect_hosts = {}
-      @connect_hosts['CTS_API'] = '127.0.0.1'
-      @connect_hosts['TLMVIEWER_API'] = '127.0.0.1'
-      @connect_hosts['CTS_PREIDENTIFIED'] = '127.0.0.1'
-      @connect_hosts['CTS_CMD_ROUTER'] = '127.0.0.1'
-
-      @paths = {}
-      @paths['LOGS'] = File.join(USERPATH, 'outputs', 'logs')
-      @paths['TMP'] = File.join(USERPATH, 'outputs', 'tmp')
-      @paths['SAVED_CONFIG'] = File.join(USERPATH, 'outputs', 'saved_config')
-      @paths['TABLES'] = File.join(USERPATH, 'outputs', 'tables')
-      @paths['HANDBOOKS'] = File.join(USERPATH, 'outputs', 'handbooks')
-      @paths['PROCEDURES'] = [File.join(USERPATH, 'procedures')]
-      @paths['SEQUENCES'] = File.join(USERPATH, 'outputs', 'sequences')
-
-      unless filename
-        system_arg = false
-        ARGV.each do |arg|
-          if system_arg
-            filename = File.join(USERPATH, 'config', 'system', arg)
-            break
-          end
-          system_arg = true if arg == '--system'
-        end
-        filename = File.join(USERPATH, 'config', 'system', 'system.txt') unless filename
-      end
-      process_file(filename)
-      ENV['COSMOS_LOGS_DIR'] = @paths['LOGS']
-
-      @initial_filename = filename
-      @initial_config = nil
+      reset_variables(filename)
       @@instance = self
     end
 
@@ -491,6 +429,8 @@ module Cosmos
       end # parser.parse_file
     end
 
+
+
     # Load the specified configuration by iterating through the SAVED_CONFIG
     # directory looking for a matching MD5 sum. Updates the internal state so
     # subsequent commands and telemetry methods return the new configuration.
@@ -543,6 +483,96 @@ module Cosmos
     # (see #load_configuration)
     def self.load_configuration(name = nil)
       return self.instance.load_configuration(name)
+    end
+
+    # Resets the System's internal state to defaults.
+    #
+    # @params [String] Path to system.txt config file to process. Defaults to config/system/system.txt
+    def reset_variables(filename = nil)
+      @targets = {}
+      @targets['UNKNOWN'] = Target.new('UNKNOWN')
+      @config = nil
+      @commands = nil
+      @telemetry = nil
+      @limits = nil
+      @default_packet_log_writer = PacketLogWriter
+      @default_packet_log_writer_params = []
+      @default_packet_log_reader = PacketLogReader
+      @default_packet_log_reader_params = []
+      @sound = false
+      @use_dns = false
+      @acl = nil
+      @staleness_seconds = 30
+      @limits_set = :DEFAULT
+      @use_utc = false
+      @additional_md5_files = []
+      @meta_init_filename = nil
+
+      @ports = {}
+      @ports['CTS_API'] = 7777
+      @ports['TLMVIEWER_API'] = 7778
+      @ports['CTS_PREIDENTIFIED'] = 7779
+      @ports['CTS_CMD_ROUTER'] = 7780
+      @ports['REPLAY_API'] = 7877
+      @ports['REPLAY_PREIDENTIFIED'] = 7879
+      @ports['REPLAY_CMD_ROUTER'] = 7880
+
+      @listen_hosts = {}
+      @listen_hosts['CTS_API'] = '127.0.0.1'
+      @listen_hosts['TLMVIEWER_API'] = '127.0.0.1'
+      # Localhost would be more secure but historically these are open to allow for chaining servers by default
+      @listen_hosts['CTS_PREIDENTIFIED'] = '0.0.0.0'
+      @listen_hosts['CTS_CMD_ROUTER'] = '0.0.0.0'
+      @listen_hosts['REPLAY_API'] = '127.0.0.1'
+      # Localhost would be more secure but historically these are open to allow for chaining servers by default
+      @listen_hosts['REPLAY_PREIDENTIFIED'] = '0.0.0.0'
+      @listen_hosts['REPLAY_CMD_ROUTER'] = '0.0.0.0'
+
+      @connect_hosts = {}
+      @connect_hosts['CTS_API'] = '127.0.0.1'
+      @connect_hosts['TLMVIEWER_API'] = '127.0.0.1'
+      @connect_hosts['CTS_PREIDENTIFIED'] = '127.0.0.1'
+      @connect_hosts['CTS_CMD_ROUTER'] = '127.0.0.1'
+      @connect_hosts['REPLAY_API'] = '127.0.0.1'
+      @connect_hosts['REPLAY_PREIDENTIFIED'] = '127.0.0.1'
+      @connect_hosts['REPLAY_CMD_ROUTER'] = '127.0.0.1'
+
+      @paths = {}
+      @paths['LOGS'] = File.join(USERPATH, 'outputs', 'logs')
+      @paths['TMP'] = File.join(USERPATH, 'outputs', 'tmp')
+      @paths['SAVED_CONFIG'] = File.join(USERPATH, 'outputs', 'saved_config')
+      @paths['TABLES'] = File.join(USERPATH, 'outputs', 'tables')
+      @paths['HANDBOOKS'] = File.join(USERPATH, 'outputs', 'handbooks')
+      @paths['PROCEDURES'] = [File.join(USERPATH, 'procedures')]
+      @paths['SEQUENCES'] = File.join(USERPATH, 'outputs', 'sequences')
+
+      unless filename
+        system_arg = false
+        ARGV.each do |arg|
+          if system_arg
+            filename = File.join(USERPATH, 'config', 'system', arg)
+            break
+          end
+          system_arg = true if arg == '--system'
+        end
+        filename = File.join(USERPATH, 'config', 'system', 'system.txt') unless filename
+      end
+      process_file(filename)
+      ENV['COSMOS_LOGS_DIR'] = @paths['LOGS']
+
+      @initial_filename = filename
+      @initial_config = nil
+    end
+
+    # Reset variables and load packets
+    def reset(filename = nil)
+      reset_variables(filename)
+      load_packets()
+    end
+
+    # Class level convenience reset method
+    def self.reset
+      self.instance.reset
     end
 
     protected

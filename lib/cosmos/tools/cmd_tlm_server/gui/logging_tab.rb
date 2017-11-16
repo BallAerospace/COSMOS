@@ -16,18 +16,29 @@ module Cosmos
   # Implements the logging tab in the Command and Telemetry Server GUI
   class LoggingTab
 
-    def initialize(production)
+    def initialize(production, tab_widget)
       @production = production
-      @logging_layouts = {}
+      @widget = nil
+      reset()
+      @scroll = Qt::ScrollArea.new
+      tab_widget.addTab(@scroll, "Logging")
+    end
+
+    def reset
+      Qt.execute_in_main_thread(true) do
+        @widget.destroy if @widget
+        @widget = nil
+        @logging_layouts = {}
+      end
     end
 
     # Create the logging tab and add it to the tab_widget
     #
     # @param tab_widget [Qt::TabWidget] The tab widget to add the tab to
-    def populate(tab_widget)
-      scroll = Qt::ScrollArea.new
-      widget = Qt::Widget.new
-      layout = Qt::VBoxLayout.new(widget)
+    def populate
+      reset()
+      @widget = Qt::Widget.new
+      layout = Qt::VBoxLayout.new(@widget)
       # Since the layout will be inside a scroll area
       # make sure it respects the sizes we set
       layout.setSizeConstraint(Qt::Layout::SetMinAndMaxSize)
@@ -38,8 +49,7 @@ module Cosmos
       populate_log_file_info(layout)
 
       # Set the scroll area widget last now that all the items have been layed out
-      scroll.setWidget(widget)
-      tab_widget.addTab(scroll, "Logging")
+      @scroll.setWidget(@widget)
     end
 
     def update

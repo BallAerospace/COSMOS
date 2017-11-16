@@ -179,6 +179,10 @@ module Cosmos
       @file_audit.shortcut = @file_audit_keyseq
       @file_audit.statusTip = tr('Create a report listing which telemetry points are not on screens')
       @file_audit.connect(SIGNAL('triggered()')) { file_audit() }
+
+      @replay_action = Qt::Action.new(tr('Toggle Replay Mode'), self)
+      @replay_action.statusTip = tr('Toggle Replay Mode')
+      @replay_action.connect(SIGNAL('triggered()')) { toggle_replay_mode() }      
     end
 
     def initialize_menus(options)
@@ -187,6 +191,7 @@ module Cosmos
       @file_menu.addAction(@file_save)
       @file_menu.addAction(@file_generate)
       @file_menu.addAction(@file_audit)
+      @file_menu.addAction(@replay_action)      
       @file_menu.addSeparator()
       @file_menu.addAction(@exit_action)
 
@@ -201,6 +206,11 @@ module Cosmos
       central_widget = Qt::Widget.new
       setCentralWidget(central_widget)
       top_layout = Qt::VBoxLayout.new
+
+      @replay_flag = Qt::Label.new("Replay Mode")
+      @replay_flag.setStyleSheet("background:green;color:white;padding:5px;font-weight:bold;")
+      top_layout.addWidget(@replay_flag)
+      @replay_flag.hide
 
       @search_box = FullTextSearchLineEdit.new(self)
       top_layout.addWidget(@search_box)
@@ -404,6 +414,16 @@ module Cosmos
       end
       # Open the file as a convenience
       Cosmos.open_in_text_editor(output_filename) if output_filename
+    end
+
+    def toggle_replay_mode
+      set_replay_mode(!get_replay_mode())
+      if get_replay_mode()
+        @replay_flag.show
+      else
+        @replay_flag.hide
+      end
+      Screen.update_replay_mode
     end
 
     # Method called by screens to notify that they have been closed

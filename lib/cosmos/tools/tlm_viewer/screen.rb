@@ -21,7 +21,7 @@ module Cosmos
     # close_all_screens is called
     @@open_screens = []
 
-    attr_accessor :full_name, :width, :height, :window
+    attr_accessor :full_name, :width, :height, :window, :replay_flag
 
     class Widgets
       # Flag to indicate all screens should close
@@ -229,6 +229,7 @@ module Cosmos
       app_style = File.join(Cosmos::USERPATH, 'config', 'tools', 'application.css')
       setStyleSheet(File.read(app_style)) if File.exist? app_style
 
+      @replay_flag = nil
       @widgets = Widgets.new(self, mode)
       @window = process(filename)
       @@open_screens << self if @window
@@ -277,6 +278,12 @@ module Cosmos
               setCentralWidget(top_widget)
               frame = Qt::VBoxLayout.new()
               top_widget.setLayout(frame)
+
+              @replay_flag = Qt::Label.new("Replay Mode")
+              @replay_flag.setStyleSheet("background:green;color:white;padding:5px;font-weight:bold;")
+              frame.addWidget(@replay_flag)
+              @replay_flag.hide unless get_replay_mode()
+
               layout_stack[0] = frame
               Cosmos.load_cosmos_icon if @single_screen
             when 'END'
@@ -496,6 +503,22 @@ module Cosmos
         end
       end
       Widgets.closing_all = false
+    end
+
+    def self.update_replay_mode
+      screens = @@open_screens.clone
+      replay_mode = get_replay_mode()
+      screens.each do |screen|
+        begin
+          if replay_mode
+            screen.replay_flag.show if screen.replay_flag
+          else
+            screen.replay_flag.hide if screen.replay_flag
+          end
+        rescue
+          # Oh well
+        end
+      end
     end
 
   end

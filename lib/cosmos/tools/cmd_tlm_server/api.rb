@@ -119,7 +119,22 @@ module Cosmos
         'start_raw_logging_router',
         'stop_raw_logging_router',
         'get_server_message_log_filename',
-        'start_new_server_message_log']
+        'start_new_server_message_log',
+        'cmd_tlm_reload',
+        'cmd_tlm_clear_counters',
+        'get_output_logs_filenames',
+        'replay_select_file',
+        'replay_status',
+        'replay_set_playback_delay',
+        'replay_play',
+        'replay_reverse_play',
+        'replay_stop',
+        'replay_step_forward',
+        'replay_step_back',
+        'replay_move_start',
+        'replay_move_end',
+        'replay_move_index',
+      ]
     end
 
     ############################################################################
@@ -1313,7 +1328,7 @@ module Cosmos
     #   number of Ruby threads in the server/
     def get_server_status
       [ System.limits_set.to_s,
-        System.ports['CTS_API'],
+        CmdTlmServer.mode == :CMD_TLM_SERVER ? System.ports['CTS_API'] : System.ports['REPLAY_API'],
         CmdTlmServer.json_drb.num_clients,
         CmdTlmServer.json_drb.request_count,
         CmdTlmServer.json_drb.average_request_time,
@@ -1429,13 +1444,96 @@ module Cosmos
 
     # @return [String] The server message log filename
     def get_server_message_log_filename
-      CmdTlmServer.message_log.filename
+      if CmdTlmServer.message_log
+        CmdTlmServer.message_log.filename
+      else
+        nil
+      end
     end
 
     # Starts a new server message log
     def start_new_server_message_log
-      CmdTlmServer.message_log.start
+      CmdTlmServer.message_log.start if CmdTlmServer.message_log
       nil
+    end
+
+    # Reload the default configuration
+    def cmd_tlm_reload
+      CmdTlmServer.instance.reload
+    end
+
+    # Clear server counters
+    def cmd_tlm_clear_counters
+      CmdTlmServer.clear_counters
+    end
+
+    # Get the list of filenames in the outputs logs folder
+    def get_output_logs_filenames(filter = '*tlm.bin')
+      raise "Filter must not contain slashes" if filter.index('/') or filter.index('\\')
+      Dir.glob(File.join(System.paths['LOGS'], '**', filter))
+    end
+
+    # Select and start analyzing a file for replay
+    #
+    # filename [String] filename relative to output logs folder or absolute filename
+    def replay_select_file(filename, packet_log_reader = "DEFAULT")
+      CmdTlmServer.replay_backend.select_file(filename, packet_log_reader)
+    end
+
+    # Get current replay status
+    #
+    # status, delay, filename, file_start, file_current, file_end, file_index, file_max_index
+    def replay_status
+      CmdTlmServer.replay_backend.status
+    end
+
+    # Set the replay delay
+    #
+    # @param delay [Float] delay between packets in seconds 0.0 to 1.0, nil = REALTIME
+    def replay_set_playback_delay(delay)
+      CmdTlmServer.replay_backend.set_playback_delay(delay)
+    end
+
+    # Replay start playing forward
+    def replay_play
+      CmdTlmServer.replay_backend.play
+    end
+
+    # Replay start playing backward
+    def replay_reverse_play
+      CmdTlmServer.replay_backend.reverse_play
+    end
+
+    # Replay stop
+    def replay_stop
+      CmdTlmServer.replay_backend.stop
+    end
+
+    # Replay step forward one packet
+    def replay_step_forward
+      CmdTlmServer.replay_backend.step_forward
+    end
+
+    # Replay step backward one packet
+    def replay_step_back
+      CmdTlmServer.replay_backend.step_back
+    end
+
+    # Replay move to start of file
+    def replay_move_start
+      CmdTlmServer.replay_backend.move_start
+    end
+
+    # Replay move to end of file
+    def replay_move_end
+      CmdTlmServer.replay_backend.move_end
+    end
+
+    # Replay move to index
+    #
+    # @param index [Integer] packet index into file
+    def replay_move_index(index)
+      CmdTlmServer.replay_backend.move_index(index)
     end
 
     private

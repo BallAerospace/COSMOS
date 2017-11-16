@@ -196,5 +196,17 @@ module Cosmos
     def get_server_message(id, non_block = false)
       return $cmd_tlm_server.get_server_message(id, non_block)
     end
+
+    def cmd_tlm_reload
+      return $cmd_tlm_server.cmd_tlm_reload
+    end
+
+    def cmd_tlm_clear_counters
+      return $cmd_tlm_server.cmd_tlm_clear_counters
+    end
+
+    def get_output_logs_filenames(filter = '*tlm.bin')
+      return $cmd_tlm_server.get_output_logs_filenames(filter)
+    end    
   end
 end

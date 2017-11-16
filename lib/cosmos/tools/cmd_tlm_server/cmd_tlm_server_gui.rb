@@ -1,6 +1,6 @@
 # encoding: ascii-8bit
 
-# Copyright 2014 Ball Aerospace & Technologies Corp.
+# Copyright 2017 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
 # This program is free software; you can modify and/or redistribute it
@@ -16,6 +16,7 @@ if RUBY_ENGINE == 'ruby'
   require 'cosmos/tools/cmd_tlm_server/gui/packets_tab'
   require 'cosmos/tools/cmd_tlm_server/gui/logging_tab'
   require 'cosmos/tools/cmd_tlm_server/gui/status_tab'
+  require 'cosmos/tools/cmd_tlm_server/gui/replay_tab'
   require 'cosmos/gui/qt_tool'
   require 'cosmos/gui/dialogs/splash'
   require 'cosmos/gui/dialogs/exception_dialog'
@@ -110,68 +111,92 @@ module Cosmos
 
     def initialize(options)
       super(options) # MUST BE FIRST - All code before super is executed twice in RubyQt Based classes
-      Cosmos.load_cosmos_icon("cts.png")
 
+      @ready = false
+      @tabs_ready = false
+      if options.replay
+        @mode = :REPLAY
+        Cosmos.load_cosmos_icon("replay.png")
+      else
+        @mode = :CMD_TLM_SERVER
+        Cosmos.load_cosmos_icon("cts.png")
+      end
       @production = options.production
       @no_prompt = options.no_prompt
       @message_log = nil
       @output_sleeper = Sleeper.new
       @first_output = 0
-      @interfaces_tab = InterfacesTab.new(self)
-      @targets_tab = TargetsTab.new
-      @packets_tab = PacketsTab.new(self)
-      @logging_tab = LoggingTab.new(@production)
-      @status_tab = StatusTab.new
+      @options = options
 
       statusBar.showMessage(tr("")) # Show blank message to initialize status bar
 
       initialize_actions()
       initialize_menus()
       initialize_central_widget()
-      configure_tabs(options)
+      Splash.execute(self) do |splash|
+        ConfigParser.splash = splash
+        process_server_messages(@options)
+        start(splash)
+        ConfigParser.splash = nil
+      end
       complete_initialize()
     end
 
-    def configure_tabs(options)
-      Splash.execute(self) do |splash|
-        ConfigParser.splash = splash
-        splash.message = "Initializing #{TOOL_NAME}"
+    def start(splash)
+      splash.message = "Initializing #{@options.title}" if splash
 
-        # Start the thread that will process server messages and add them to the output text
-        process_server_messages(options)
-
+      if !CmdTlmServer.instance or @mode == :CMD_TLM_SERVER
         CmdTlmServer.meta_callback = method(:meta_callback)
-        cts = CmdTlmServer.new(options.config_file, @production)
+        cts = CmdTlmServer.new(@options.config_file, @production, false, @mode)
         cts.stop_callback = method(:stop_callback)
+        cts.reload_callback = method(:reload)
+        CmdTlmServer.replay_backend.config_change_callback = method(:config_change_callback) if @mode != :CMD_TLM_SERVER
         @message_log = CmdTlmServer.message_log
+        @ready = true
+      end
 
-        # Now that we've started the server (CmdTlmServer.new) we can populate all the tabs
-        splash.message = "Populating Tabs"
-        Qt.execute_in_main_thread(true) do
-          # Override the default title if one was given in the config file
-          self.window_title = CmdTlmServer.title if CmdTlmServer.title
-          splash.progress = 0
-          @interfaces_tab.populate_interfaces(@tab_widget)
-          splash.progress = 100/7 * 1
-          @targets_tab.populate(@tab_widget)
-          splash.progress = 100/7 * 2
-          @packets_tab.populate_commands(@tab_widget)
-          splash.progress = 100/7 * 3
-          @packets_tab.populate_telemetry(@tab_widget)
-          splash.progress = 100/7 * 4
-          @interfaces_tab.populate_routers(@tab_widget)
-          splash.progress = 100/7 * 5
-          @logging_tab.populate(@tab_widget)
-          splash.progress = 100/7 * 6
-          @status_tab.populate(@tab_widget)
-          splash.progress = 100
+      # Now that we've started the server (CmdTlmServer.new) we can populate all the tabs
+      splash.message = "Populating Tabs" if splash
+      Qt.execute_in_main_thread(true) do
+        # Override the default title if one was given in the config file
+        self.window_title = CmdTlmServer.title if CmdTlmServer.title
+        splash.progress = 0 if splash
+        @tabs_ready = false
+        if @mode == :CMD_TLM_SERVER
+          @interfaces_tab.populate_interfaces
+        else
+          @replay_tab.populate
         end
-        ConfigParser.splash = nil
+        splash.progress = 100/7 * 1 if splash
+        @targets_tab.populate
+        splash.progress = 100/7 * 2 if splash
+        @commands_tab.populate_commands
+        splash.progress = 100/7 * 3 if splash
+        @telemetry_tab.populate_telemetry
+        splash.progress = 100/7 * 4 if splash
+        @routers_tab.populate_routers
+        if @mode == :CMD_TLM_SERVER
+          splash.progress = 100/7 * 5 if splash
+          @logging_tab.populate
+        end
+        splash.progress = 100/7 * 6 if splash
+        @status_tab.populate
+        splash.progress = 100 if splash
+        @tabs_ready = true
+        @tab_widget.setCurrentIndex(0)
+        handle_tab_change(0)
       end
     end
 
     def initialize_actions
       super()
+
+      # File actions
+      @file_reload = Qt::Action.new(tr('&Reload Configuration'), self)
+      @file_reload.statusTip = tr('Reload configuraton and reset')
+      @file_reload.connect(SIGNAL('triggered()')) do
+        CmdTlmServer.instance.reload()
+      end
 
       # Edit actions
       @edit_clear_counters = Qt::Action.new(tr('&Clear Counters'), self)
@@ -181,6 +206,7 @@ module Cosmos
 
     def initialize_menus
       @file_menu = menuBar.addMenu(tr('&File'))
+      @file_menu.addAction(@file_reload)
       @file_menu.addAction(@exit_action)
 
       # Do not allow clear counters in production mode
@@ -189,8 +215,12 @@ module Cosmos
         @edit_menu.addAction(@edit_clear_counters)
       end
 
-      @about_string = "#{TOOL_NAME} is the heart of the COSMOS system. "
-      @about_string << "It connects to the target and processes command and telemetry requests from other tools."
+      if @mode == :CMD_TLM_SERVER
+        @about_string = "#{TOOL_NAME} is the heart of the COSMOS system. "
+        @about_string << "It connects to the target and processes command and telemetry requests from other tools."
+      else
+        @about_string = "Replay allows playing back data into the COSMOS realtime tools. "
+      end
 
       initialize_help_menu()
     end
@@ -222,30 +252,96 @@ module Cosmos
       Logger.level = Logger::INFO
 
       @tab_thread = nil
+
+      if @mode == :CMD_TLM_SERVER
+        @interfaces_tab = InterfacesTab.new(self, InterfacesTab::INTERFACES, @tab_widget)
+      else
+        @replay_tab = ReplayTab.new(@tab_widget)
+      end
+      @targets_tab = TargetsTab.new(@tab_widget)
+      @commands_tab = PacketsTab.new(self, PacketsTab::COMMANDS, @tab_widget)
+      @telemetry_tab = PacketsTab.new(self, PacketsTab::TELEMETRY, @tab_widget)
+      @routers_tab = InterfacesTab.new(self, InterfacesTab::ROUTERS, @tab_widget)
+      if @mode == :CMD_TLM_SERVER
+        @logging_tab = LoggingTab.new(@production, @tab_widget)
+      end
+      @status_tab = StatusTab.new(@tab_widget)
+    end
+
+    def config_change_callback
+      start(nil)
+    end
+
+    def reload(confirm = true)
+      Qt.execute_in_main_thread(true) do 
+        if confirm
+          msg = Qt::MessageBox.new(self)
+          msg.setIcon(Qt::MessageBox::Question)
+          msg.setText("Are you sure? All connections will temporarily disconnect as the server restarts")
+          msg.setWindowTitle('Confirm Reload')
+          msg.setStandardButtons(Qt::MessageBox::Yes | Qt::MessageBox::No)
+          continue = false
+          continue = true if msg.exec() == Qt::MessageBox::Yes
+          msg.dispose
+        else
+          continue = true
+        end
+
+        if continue
+          Splash.execute(self) do |splash|
+            ConfigParser.splash = splash
+            Qt.execute_in_main_thread(true) do
+              @tab_widget.setCurrentIndex(0)
+            end          
+            if @mode == :CMD_TLM_SERVER
+              Qt.execute_in_main_thread(true) do
+                splash.message = "Stopping Threads"
+                stop_threads()
+              end
+            end
+            System.reset
+            start(splash)
+            Qt.execute_in_main_thread(true) do
+              @tab_widget.setCurrentIndex(0)
+              handle_tab_change(0)
+            end
+            ConfigParser.splash = nil
+          end
+        end
+      end
     end
 
     # Called when the user changes tabs in the Server application. It kills the
     # currently executing tab and then creates a new thread to update the GUI
     # for the selected tab.
     def handle_tab_change(index)
+      return unless @tabs_ready
       kill_tab_thread()
       @tab_sleeper = Sleeper.new
 
       case index
       when 0
-        handle_tab('Interfaces') { @interfaces_tab.update(InterfacesTab::INTERFACES) }
+        if @mode == :CMD_TLM_SERVER
+          handle_tab('Interfaces') { @interfaces_tab.update }
+        else
+          handle_tab('Replay', 0.5) { @replay_tab.update }
+        end
       when 1
         handle_tab('Targets') { @targets_tab.update }
       when 2
-        handle_tab('Commands') { @packets_tab.update(PacketsTab::COMMANDS) }
+        handle_tab('Commands') { @commands_tab.update }
       when 3
-        handle_tab('Telemetry') { @packets_tab.update(PacketsTab::TELEMETRY) }
+        handle_tab('Telemetry') { @telemetry_tab.update }
       when 4
-        handle_tab('Routers') { @interfaces_tab.update(InterfacesTab::ROUTERS) }
+        handle_tab('Routers') { @routers_tab.update }
       when 5
-        handle_tab('Logging') { @logging_tab.update }
+        if @mode == :CMD_TLM_SERVER
+          handle_tab('Logging') { @logging_tab.update }
+        else
+          handle_tab('Status') { @status_tab.update }
+        end
       when 6
-        handle_status_tab()
+        handle_tab('Status') { @status_tab.update }
       end
     end
 
@@ -253,7 +349,9 @@ module Cosmos
     def kill_tab_thread
       @tab_sleeper ||= nil
       @tab_sleeper.cancel if @tab_sleeper
+      @tab_thread_shutdown = true
       Qt::CoreApplication.instance.processEvents
+      Qt::RubyThreadFix.queue.pop.call until Qt::RubyThreadFix.queue.empty?
       Cosmos.kill_thread(self, @tab_thread)
       @tab_thread = nil
     end
@@ -263,12 +361,18 @@ module Cosmos
     # Finally it sleeps using a sleeper so it can be interrupted.
     #
     # @param name [String] Name of the tab
-    def handle_tab(name)
+    def handle_tab(name, period = 1.0)
+      @tab_thread_shutdown = false
       @tab_thread = Thread.new do
         begin
           while true
+            start_time = Time.now.sys
+            break if @tab_thread_shutdown
             Qt.execute_in_main_thread(true) { yield }
-            break if @tab_sleeper.sleep(1)
+            total_time = Time.now.sys - start_time
+            if total_time > 0.0 and total_time < period
+              break if @tab_sleeper.sleep(period - total_time)
+            end
           end
         rescue Exception => error
           Qt.execute_in_main_thread(true) {|| ExceptionDialog.new(self, error, "COSMOS CTS : #{name} Tab Thread")}
@@ -276,22 +380,11 @@ module Cosmos
       end
     end
 
-    # Update the status tab of the server
-    def handle_status_tab
-      @tab_thread = Thread.new do
-        begin
-          while true
-            start_time = Time.now.sys
-            Qt.execute_in_main_thread(true) { @status_tab.update }
-            total_time = Time.now.sys - start_time
-            if total_time > 0.0 and total_time < 1.0
-              break if @tab_sleeper.sleep(1.0 - total_time)
-            end
-          end
-        rescue Exception => error
-          Qt.execute_in_main_thread(true) {|| ExceptionDialog.new(self, error, "COSMOS CTS : Status Tab Thread")}
-        end
-      end
+    def stop_threads
+      kill_tab_thread()
+      @replay_tab.shutdown if @replay_tab
+      CmdTlmServer.instance.stop_logging('ALL') if @mode == :CMD_TLM_SERVER
+      CmdTlmServer.instance.stop
     end
 
     # Called when the user tries to close the server application. Popup a
@@ -304,7 +397,11 @@ module Cosmos
       else
         msg = Qt::MessageBox.new(self)
         msg.setIcon(Qt::MessageBox::Question)
-        msg.setText("Are you sure? All tools connected to this CmdTlmServer will lose connections and cease to function if the CmdTlmServer is closed.")
+        if @mode == :CMD_TLM_SERVER
+          msg.setText("Are you sure? All tools connected to this CmdTlmServer will lose connections and cease to function if the CmdTlmServer is closed.")
+        else
+          msg.setText("Are you sure? All tools connected to this Replay will lose connections and cease to function if the Replay is closed.")
+        end
         msg.setWindowTitle('Confirm Close')
         msg.setStandardButtons(Qt::MessageBox::Yes | Qt::MessageBox::No)
         continue = false
@@ -313,9 +410,7 @@ module Cosmos
       end
 
       if continue
-        kill_tab_thread()
-        CmdTlmServer.instance.stop_logging('ALL')
-        CmdTlmServer.instance.stop
+        stop_threads()
         super(event)
       else
         event.ignore()
@@ -328,7 +423,7 @@ module Cosmos
       # Start thread to read server messages
       @output_thread = Thread.new do
         begin
-          while !@message_log
+          while !@ready
             sleep(1)
           end
           while true
@@ -360,7 +455,7 @@ module Cosmos
             @first_output += 1
           end
           clean_lines, messages = CmdTlmServerGui.process_output_colors(lines_to_write)
-          @message_log.write(clean_lines)
+          @message_log.write(clean_lines) if @message_log
           messages.each {|msg| CmdTlmServer.instance.post_server_message(msg) }
         end
       end
@@ -369,11 +464,13 @@ module Cosmos
     # CmdTlmServer stop callback called by CmdTlmServer.stop. Ensures all the
     # output is written to the message logs.
     def stop_callback
-      handle_string_output()
-      @output_sleeper.cancel
-      Qt::CoreApplication.processEvents()
-      Cosmos.kill_thread(self, @output_thread)
-      handle_string_output()
+      Qt.execute_in_main_thread(true) do
+        handle_string_output()
+        @output_sleeper.cancel
+        Qt::CoreApplication.processEvents()
+        Cosmos.kill_thread(self, @output_thread)
+        handle_string_output()
+      end
     end
 
     def graceful_kill
@@ -402,6 +499,16 @@ module Cosmos
       @output_sleeper.cancel
       Cosmos.kill_thread(self, @output_thread)
       no_gui_handle_string_output()
+    end
+
+    def self.no_gui_reload_callback(confirm = false)
+      CmdTlmServer.instance.stop_logging('ALL') if @mode == :CMD_TLM_SERVER      
+      CmdTlmServer.instance.stop
+      System.reset
+      cts = CmdTlmServer.new(options.config_file, options.production)
+      @message_log = CmdTlmServer.message_log
+      cts.stop_callback = method(:no_gui_stop_callback)
+      cts.reload_callback = method(:no_gui_reload_callback)
     end
 
     def self.process_output_colors(lines)
@@ -439,6 +546,7 @@ module Cosmos
           Logger.level = Logger::INFO
           cts = CmdTlmServer.new(options.config_file, options.production)
           @message_log = CmdTlmServer.message_log
+          @ready = true
           @output_thread = Thread.new do
             while true
               no_gui_handle_string_output()
@@ -446,6 +554,7 @@ module Cosmos
             end
           end
           cts.stop_callback = method(:no_gui_stop_callback)
+          cts.reload_callback = method(:no_gui_reload_callback)
           sleep # Sleep until waked by signal
         ensure
           if defined? cts and cts
@@ -486,6 +595,13 @@ module Cosmos
           options.production = false
           options.no_prompt = false
           options.no_gui = false
+          if self.name == "Cosmos::Replay"
+            options.replay = true
+            options.title = "Replay"
+          else
+            options.replay = false
+          end
+
           option_parser.separator "CTS Specific Options:"
           option_parser.on("-c", "--config FILE", "Use the specified configuration file") do |arg|
             options.config_file = arg

@@ -14,21 +14,33 @@ require 'cosmos/gui/qt'
 module Cosmos
   # Implements the status tab in the Command and Telemetry Server GUI
   class StatusTab
+    def initialize(tab_widget)
+      @widget = nil
+      reset()
+      @scroll = Qt::ScrollArea.new
+      tab_widget.addTab(@scroll, "Status")
+    end
+
+    def reset
+      Qt.execute_in_main_thread(true) do
+        @widget.destroy if @widget
+        @widget = nil
+      end
+    end
+
     # Create the status tab and add it to the tab_widget
     # @param tab_widget [Qt::TabWidget] The tab widget to add the tab to
-    def populate(tab_widget)
-      scroll = Qt::ScrollArea.new
-      widget = Qt::Widget.new
-      layout = Qt::VBoxLayout.new(widget)
+    def populate
+      reset()
+      @widget = Qt::Widget.new
+      layout = Qt::VBoxLayout.new(@widget)
 
       populate_limits_status(layout)
       populate_api_status(layout)
       populate_system_status(layout)
       populate_background_status(layout)
 
-      # Set the scroll area widget last now that all the items have been layed out
-      scroll.setWidget(widget)
-      tab_widget.addTab(scroll, "Status")
+      @scroll.setWidget(@widget)
     end
 
     # Update the status tab in the GUI
@@ -85,7 +97,11 @@ module Cosmos
       @api_table.setColumnCount(6)
       @api_table.setHorizontalHeaderLabels(["Port", "Num Clients", "Requests", "Requests/Sec", "Avg Request Time", "Estimated Utilization"])
 
-      @api_table.setItem(0, 0, Qt::TableWidgetItem.new(Qt::Object.tr(System.ports['CTS_API'].to_s)))
+      if CmdTlmServer.mode == :CMD_TLM_SERVER
+        @api_table.setItem(0, 0, Qt::TableWidgetItem.new(Qt::Object.tr(System.ports['CTS_API'].to_s)))
+      else
+        @api_table.setItem(0, 0, Qt::TableWidgetItem.new(Qt::Object.tr(System.ports['REPLAY_API'].to_s)))
+      end
       item0 = Qt::TableWidgetItem.new(Qt::Object.tr(CmdTlmServer.json_drb.num_clients.to_s))
       item0.setTextAlignment(Qt::AlignCenter)
       @api_table.setItem(0, 1, item0)

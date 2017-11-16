@@ -103,6 +103,10 @@ module Cosmos
       @handle_reset.statusTip = tr('Reset Components')
       @handle_reset.connect(SIGNAL('triggered()')) { handle_reset() }
 
+      @replay_action = Qt::Action.new(tr('Toggle Replay Mode'), self)
+      @replay_action.statusTip = tr('Toggle Replay Mode')
+      @replay_action.connect(SIGNAL('triggered()')) { toggle_replay_mode() }
+
       # Search Actions
       @search_find = Qt::Action.new(Cosmos.get_icon('search.png'), tr('&Find'), self)
       @search_find_keyseq = Qt::KeySequence.new(tr('Ctrl+F'))
@@ -139,6 +143,7 @@ module Cosmos
       file_menu = menuBar.addMenu(tr('&File'))
       file_menu.addAction(@open_log)
       file_menu.addAction(@handle_reset)
+      file_menu.addAction(@replay_action)
       file_menu.addSeparator()
       file_menu.addAction(@exit_action)
 
@@ -167,6 +172,11 @@ module Cosmos
       # Create the top level vertical layout
       @top_layout = Qt::VBoxLayout.new(@central_widget)
 
+      @replay_flag = Qt::Label.new("Replay Mode")
+      @replay_flag.setStyleSheet("background:green;color:white;padding:5px;font-weight:bold;")
+      @top_layout.addWidget(@replay_flag)
+      @replay_flag.hide
+
       # Realtime Button Bar
       @realtime_button_bar = RealtimeButtonBar.new(self)
       @realtime_button_bar.start_callback = method(:handle_start)
@@ -194,6 +204,19 @@ module Cosmos
       current_component do |component|
         component.text
       end
+    end
+
+    def toggle_replay_mode
+      running = (@realtime_button_bar.state == 'Running')
+      handle_stop()
+      handle_reset()
+      set_replay_mode(!get_replay_mode())
+      if get_replay_mode()
+        @replay_flag.show
+      else
+        @replay_flag.hide
+      end
+      handle_start if running
     end
 
     def handle_tab_change(index)
@@ -246,6 +269,15 @@ module Cosmos
           @cancel_thread = false
           @sleeper = Sleeper.new
           if !@packets.empty?
+            need_meta = true
+            @packets.each do |target_name, packet_name|
+              if target_name == 'SYSTEM' and packet_name == 'META'
+                need_meta = false
+                break
+              end
+            end
+            @packets << ['SYSTEM', 'META'] if need_meta
+
             begin
               while true
                 break if @cancel_thread
@@ -280,6 +312,11 @@ module Cosmos
                     packet.buffer = packet_data
                     packet.received_time = received_time
                     packet.received_count = received_count
+
+                    # Make sure we are on the right configuration
+                    if target_name == 'SYSTEM' and packet_name == 'META'
+                      System.load_configuration(packet.read('CONFIG'))  
+                    end
 
                     # Route packet to its component(s)
                     index = packet.target_name + ' ' + packet.packet_name
@@ -337,6 +374,8 @@ module Cosmos
 
     def handle_start
       if windowTitle() != 'Data Viewer'
+        # Switch from log back to realtime/replay
+
         # Clear Title
         setWindowTitle('Data Viewer')
 

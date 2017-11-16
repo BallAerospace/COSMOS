@@ -18,8 +18,12 @@ module Cosmos
   class TabbedPlotsRealtimeThread < InterfaceThread
 
     # Create a new TabbedPlotsRealtimeThread
-    def initialize(tabbed_plots_config, connection_success_callback = nil, connection_failed_callback = nil, connection_lost_callback = nil, fatal_exception_callback = nil)
-      interface = TcpipClientInterface.new(System.connect_hosts['CTS_PREIDENTIFIED'], nil, System.ports['CTS_PREIDENTIFIED'], nil, tabbed_plots_config.cts_timeout, 'PREIDENTIFIED')
+    def initialize(tabbed_plots_config, connection_success_callback = nil, connection_failed_callback = nil, connection_lost_callback = nil, fatal_exception_callback = nil, replay_mode = false)
+      if replay_mode
+        interface = TcpipClientInterface.new(System.connect_hosts['REPLAY_PREIDENTIFIED'], nil, System.ports['REPLAY_PREIDENTIFIED'], nil, tabbed_plots_config.cts_timeout, 'PREIDENTIFIED')
+      else
+        interface = TcpipClientInterface.new(System.connect_hosts['CTS_PREIDENTIFIED'], nil, System.ports['CTS_PREIDENTIFIED'], nil, tabbed_plots_config.cts_timeout, 'PREIDENTIFIED')
+      end
       super(interface)
 
       @queue = Queue.new

@@ -238,7 +238,13 @@ module Cosmos
     it "creates a log file in System LOGS" do
       filename1 = Cosmos.create_log_file('test')
       expect(File.exist?(filename1)).to be true
-      expect(File.dirname(filename1)).to eq System.paths['LOGS']
+      if File.dirname(filename1)[-1] == '/' and System.paths['LOGS'][-1] != '/'
+        expect(File.dirname(filename1)).to eq (System.paths['LOGS'] + '/')
+      elsif File.dirname(filename1)[-1] != '/' and System.paths['LOGS'][-1] == '/'
+        expect(File.dirname(filename1) + '/').to eq System.paths['LOGS']
+      else
+        expect(File.dirname(filename1)).to eq System.paths['LOGS']
+      end
       File.delete(filename1)
     end
 

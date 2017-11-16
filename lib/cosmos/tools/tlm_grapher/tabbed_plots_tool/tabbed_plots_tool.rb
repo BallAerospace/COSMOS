@@ -63,6 +63,7 @@ module Cosmos
       @tabbed_plots = nil
       @realtime_thread = nil
       @config_modified = false
+      @replay_mode = false
 
       # Bring up slash screen for long duration tasks after creation
       Splash.execute(self) do |splash|
@@ -106,6 +107,10 @@ module Cosmos
       @file_screenshot = Qt::Action.new(Cosmos.get_icon('screenshot.png'), tr('Screensho&t'), self)
       @file_screenshot.statusTip = tr('Screenshot of Application')
       @file_screenshot.connect(SIGNAL('triggered()')) { on_file_screenshot() }
+
+      @replay_action = Qt::Action.new(tr('Toggle Replay Mode'), self)
+      @replay_action.statusTip = tr('Toggle Replay Mode')
+      @replay_action.connect(SIGNAL('triggered()')) { toggle_replay_mode() }
 
       # Tab Menu Actions
       @tab_add = Qt::Action.new(Cosmos.get_icon('add_tab.png'), tr('&Add Tab'), self)
@@ -209,6 +214,8 @@ module Cosmos
       @file_menu.addSeparator()
       @file_menu.addAction(@file_screenshot)
       @file_menu.addSeparator()
+      @file_menu.addAction(@replay_action)
+      @file_menu.addSeparator()
       @file_menu.addAction(@exit_action)
 
       @tab_menu = menuBar.addMenu(tr('&Tab'))
@@ -265,6 +272,10 @@ module Cosmos
       # Create a Vertical Frame for the right contents
       @right_widget = Qt::Widget.new(self)
       @right_frame = Qt::VBoxLayout.new
+      @replay_flag = Qt::Label.new("Replay Mode")
+      @replay_flag.setStyleSheet("background:green;color:white;padding:5px;font-weight:bold;height:30px;")
+      @right_frame.addWidget(@replay_flag)
+      @replay_flag.hide      
       @right_widget.setLayout(@right_frame)
       @splitter.addWidget(@right_widget)
       @splitter.setStretchFactor(0,0) # Set the left side stretch factor to 0
@@ -580,6 +591,20 @@ module Cosmos
       end
       @tabbed_plots.resume unless paused
     end # def on_file_screenshot
+
+    def toggle_replay_mode
+      running = @realtime_thread ? true : false
+      handle_stop()
+      System.telemetry.reset
+      @tabbed_plots.reset_all_data_objects      
+      @replay_mode = !@replay_mode
+      if @replay_mode
+        @replay_flag.show
+      else
+        @replay_flag.hide
+      end
+      handle_start() if running
+    end
 
     ###############################################################################
     # Tab Menu Handlers
@@ -921,7 +946,7 @@ module Cosmos
         # Startup realtime thread
         @realtime_button_bar.state = 'Connecting'
         statusBar.showMessage(tr("Connecting to COSMOS Server"))
-        @realtime_thread = TabbedPlotsRealtimeThread.new(@tabbed_plots_config, method(:realtime_thread_connection_success_callback), method(:realtime_thread_connection_failed_callback), method(:realtime_thread_connection_lost_callback), method(:realtime_thread_fatal_exception_callback))
+        @realtime_thread = TabbedPlotsRealtimeThread.new(@tabbed_plots_config, method(:realtime_thread_connection_success_callback), method(:realtime_thread_connection_failed_callback), method(:realtime_thread_connection_lost_callback), method(:realtime_thread_fatal_exception_callback), @replay_mode)
       end
     end # def handle_start
 

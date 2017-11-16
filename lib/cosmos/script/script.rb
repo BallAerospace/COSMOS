@@ -12,6 +12,7 @@ require 'cosmos'
 require 'cosmos/io/json_drb_object'
 require 'cosmos/tools/cmd_tlm_server/cmd_tlm_server'
 require 'cosmos/script/cmd_tlm_server'
+require 'cosmos/script/replay'
 require 'cosmos/script/commands'
 require 'cosmos/script/telemetry'
 require 'cosmos/script/limits'
@@ -20,6 +21,7 @@ require 'cosmos/script/tools'
 
 $cmd_tlm_server = nil
 $cmd_tlm_disconnect = false
+$cmd_tlm_replay_mode = false
 
 module Cosmos
   class CheckError < RuntimeError; end
@@ -39,6 +41,7 @@ module Cosmos
     # Called when this module is mixed in using "include Cosmos::Script"
     def self.included(base)
       $cmd_tlm_disconnect = false
+      $cmd_tlm_replay_mode = false
       $cmd_tlm_server = nil
       initialize_script_module()
     end
@@ -48,8 +51,12 @@ module Cosmos
         # Start up a standalone CTS in disconnected mode
         $cmd_tlm_server = CmdTlmServer.new(config_file, false, true)
       else
-        # Start a Json connect to the real CTS server
-        $cmd_tlm_server = JsonDRbObject.new(System.connect_hosts['CTS_API'], System.ports['CTS_API'])
+        # Start a Json connect to the real server
+        if $cmd_tlm_replay_mode
+          $cmd_tlm_server = JsonDRbObject.new(System.connect_hosts['REPLAY_API'], System.ports['REPLAY_API'])
+        else
+          $cmd_tlm_server = JsonDRbObject.new(System.connect_hosts['CTS_API'], System.ports['CTS_API'])
+        end
       end
     end
 
@@ -70,6 +77,17 @@ module Cosmos
 
     def script_disconnect
       $cmd_tlm_server.disconnect if $cmd_tlm_server && !$cmd_tlm_disconnect
+    end
+
+    def set_replay_mode(replay_mode)
+      if replay_mode != $cmd_tlm_replay_mode
+        $cmd_tlm_replay_mode = replay_mode
+        initialize_script_module()
+      end
+    end
+
+    def get_replay_mode
+      $cmd_tlm_replay_mode
     end
 
   end

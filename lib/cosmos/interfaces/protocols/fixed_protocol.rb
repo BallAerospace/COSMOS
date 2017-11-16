@@ -53,7 +53,7 @@ module Cosmos
 
     # Identifies an unknown buffer of data as a Packet. The raw data is
     # returned but the packet that matched is recorded so it can be set in the
-    # post_read_packet callback.
+    # read_packet callback.
     #
     # @return [String|Symbol] The identified packet data or :STOP if more data
     #   is required to build a packet
@@ -82,7 +82,7 @@ module Cosmos
               return :STOP if @data.length < identified_packet.defined_length
             end
             # Set some variables so we can update the packet in
-            # post_read_packet
+            # read_packet
             @received_time = Time.now.sys
             @target_name = identified_packet.target_name
             @packet_name = identified_packet.packet_name

@@ -102,6 +102,10 @@ module Cosmos
       @option_action.statusTip = tr('Application Options')
       connect(@option_action, SIGNAL('triggered()'), self, SLOT('file_options()'))
 
+      @replay_action = Qt::Action.new(tr('Toggle Replay Mode'), self)
+      @replay_action.statusTip = tr('Toggle Replay Mode')
+      @replay_action.connect(SIGNAL('triggered()')) { toggle_replay_mode() }
+
       @color_blind_action = Qt::Action.new(tr('Color&blind Mode'), self)
       @color_blind_keyseq = Qt::KeySequence.new(tr('Ctrl+B'))
       @color_blind_action.shortcut  = @color_blind_keyseq
@@ -180,6 +184,7 @@ module Cosmos
       file_menu.addAction(@edit_action)
       file_menu.addAction(@reset_action)
       file_menu.addAction(@option_action)
+      file_menu.addAction(@replay_action)
       file_menu.addSeparator()
       file_menu.addAction(@exit_action)
 
@@ -206,6 +211,11 @@ module Cosmos
 
       # Create the top level vertical layout
       top_layout = Qt::VBoxLayout.new(central_widget)
+
+      @replay_flag = Qt::Label.new("Replay Mode")
+      @replay_flag.setStyleSheet("background:green;color:white;padding:5px;font-weight:bold;")
+      top_layout.addWidget(@replay_flag)
+      @replay_flag.hide
 
       # Set the target combobox selection
       @target_select = Qt::ComboBox.new
@@ -263,6 +273,15 @@ module Cosmos
     def file_options
       @polling_rate = Qt::InputDialog.getDouble(self, tr("Options"), tr("Polling Rate (sec):"),
                                                 @polling_rate, 0, 1000, 1, nil)
+    end
+
+    def toggle_replay_mode
+      set_replay_mode(!get_replay_mode())
+      if get_replay_mode()
+        @replay_flag.show
+      else
+        @replay_flag.hide
+      end
     end
 
     def edit_definition
