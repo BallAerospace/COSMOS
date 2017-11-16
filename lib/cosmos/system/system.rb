@@ -485,6 +485,9 @@ module Cosmos
       return self.instance.load_configuration(name)
     end
 
+    # Resets the System's internal state to defaults.
+    #
+    # @params [String] Path to system.txt config file to process. Defaults to config/system/system.txt
     def reset_variables(filename = nil)
       @targets = {}
       @targets['UNKNOWN'] = Target.new('UNKNOWN')
@@ -561,11 +564,13 @@ module Cosmos
       @initial_config = nil
     end
 
+    # Reset variables and load packets
     def reset(filename = nil)
       reset_variables(filename)
       load_packets()
     end
 
+    # Class level convenience reset method
     def self.reset
       self.instance.reset
     end

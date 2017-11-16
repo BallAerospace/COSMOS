@@ -1489,7 +1489,7 @@ module Cosmos
 
     # Set the replay delay
     #
-    # @param delay [Float] delay between packets in seconds 0.0 to 1.0, nil = No Delay, -1.0 = REALTIME
+    # @param delay [Float] delay between packets in seconds 0.0 to 1.0, nil = REALTIME
     def replay_set_playback_delay(delay)
       CmdTlmServer.replay_backend.set_playback_delay(delay)
     end

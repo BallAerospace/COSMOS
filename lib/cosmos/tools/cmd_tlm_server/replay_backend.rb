@@ -27,11 +27,11 @@ module Cosmos
       reset()
       @config_change_callback = nil
     end
-  
+
     # Reset internal state
     def reset
       @cancel = false
-      @playback_delay = nil
+      @playback_delay = 0.0
       @default_packet_log_reader = System.default_packet_log_reader.new(*System.default_packet_log_reader_params)
       @packet_log_reader = @default_packet_log_reader
       @log_directory = System.paths['LOGS']
@@ -41,13 +41,13 @@ module Cosmos
       @playback_sleeper = nil
       @thread = nil
       @playback_index = 0
-      @playback_max_index = 0     
+      @playback_max_index = 0
       @packet_offsets = []
       @progress = 0
-      @status = ''      
+      @status = ''
       @start_time = ''
       @current_time = ''
-      @end_time = ''   
+      @end_time = ''
     end
 
     # Select and start analyzing a file for replay
@@ -84,12 +84,12 @@ module Cosmos
           if System.configuration_name != start_config_name
             @config_change_callback.call() if @config_change_callback
           end
-          @packet_offsets = @packet_log_reader.packet_offsets(@log_filename, lambda {|percentage| 
+          @packet_offsets = @packet_log_reader.packet_offsets(@log_filename, lambda {|percentage|
             progress_int = (percentage * 100).to_i
             if @progress != progress_int
               @progress = progress_int
               @status = "Analyzing: #{@progress}%"
-            end          
+            end
             @cancel
           })
           @playback_index = 0
@@ -108,7 +108,7 @@ module Cosmos
             packet = read_at_index(@packet_offsets.length - 1, :FORWARD)
             @end_time = packet.received_time.formatted(true, 3, true) if packet and packet.received_time
             packet = read_at_index(0, :FORWARD)
-            @start_time = packet.received_time.formatted(true, 3, true) if packet and packet.received_time            
+            @start_time = packet.received_time.formatted(true, 3, true) if packet and packet.received_time
           end
         rescue Exception => error
           Logger.error "Error in Analysis Thread\n#{error.formatted}"
@@ -117,21 +117,21 @@ module Cosmos
           @playing = false
           @playback_sleeper = nil
           @thread = nil
-        end          
-      end 
+        end
+      end
     end
 
     # Get current replay status
     #
-    # status, playback_delay, filename, file_start, file_current, file_end, file_index, file_max_index
+    # @return [status, playback_delay, filename, file_start, file_current, file_end, file_index, file_max_index]
     def status
-      [@status, 
-        @playback_delay, 
-        @log_filename.to_s, 
-        @start_time, 
-        @current_time, 
-        @end_time, 
-        @playback_index, 
+      [@status,
+        @playback_delay,
+        @log_filename.to_s,
+        @start_time,
+        @current_time,
+        @end_time,
+        @playback_index,
         @playback_max_index]
     end
 
@@ -141,8 +141,8 @@ module Cosmos
     def set_playback_delay(delay)
       if delay
         delay = delay.to_f
-        if delay < 0.0
-          @playback_delay = -1.0
+        if delay <= 0.0
+          @playback_delay = 0.0
         elsif delay > 1.0
           @playback_delay = 1.0
         else
@@ -238,7 +238,7 @@ module Cosmos
     # Gracefully kill threads
     def graceful_kill
       stop()
-    end    
+    end
 
     private
 
@@ -252,14 +252,16 @@ module Cosmos
 
           previous_packet = nil
           while (@playing)
-            if @playback_delay
+            if @playback_delay != 0.0
               packet_start = Time.now.sys
               packet = read_at_index(@playback_index, direction)
               break unless packet
               delay_time = 0.0
-              if @playback_delay > 0.0
+              if @playback_delay
+                # Fixed Time Delay
                 delay_time = @playback_delay - (Time.now.sys - packet_start)
               elsif previous_packet and packet.received_time and previous_packet.received_time
+                # Realtime
                 if direction == :FORWARD
                   delay_time = packet.received_time - previous_packet.received_time - (Time.now.sys - packet_start)
                 else
@@ -271,6 +273,7 @@ module Cosmos
               end
               previous_packet = packet
             else
+              # No Delay
               packet = read_at_index(@playback_index, direction)
               break unless packet
               previous_packet = packet

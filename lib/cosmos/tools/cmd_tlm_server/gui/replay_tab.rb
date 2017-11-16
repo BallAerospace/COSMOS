@@ -109,7 +109,7 @@ module Cosmos
       @playback_delay = nil
       @speed_select = Qt::ComboBox.new
       @variants = []
-      @variants << [Qt::Variant.new(nil), nil]
+      @variants << [Qt::Variant.new(0.0), 0.0]
       @speed_select.addItem("No Delay", @variants[-1][0])
       @variants << [Qt::Variant.new(0.001), 0.001]
       @speed_select.addItem("1ms Delay", @variants[-1][0])
@@ -129,7 +129,7 @@ module Cosmos
       @speed_select.addItem("500ms Delay", @variants[-1][0])
       @variants << [Qt::Variant.new(1.0), 1.0]
       @speed_select.addItem("1s Delay", @variants[-1][0])
-      @variants << [Qt::Variant.new(-1.0), -1.0]
+      @variants << [Qt::Variant.new(nil), nil]
       @speed_select.addItem("Realtime", @variants[-1][0])
       @speed_select.setMaxVisibleItems(11)
       @speed_select.connect(SIGNAL('currentIndexChanged(int)')) do
@@ -192,7 +192,7 @@ module Cosmos
       end
       unless found
         @variants << [Qt::Variant.new(playback_delay.to_f), playback_delay.to_f]
-        @speed_select.addItem("#{(playback_delay.to_f * 1000.0).to_i}ms Delay", @variants[-1][0])    
+        @speed_select.addItem("#{(playback_delay.to_f * 1000.0).to_i}ms Delay", @variants[-1][0])
         @speed_select.currentIndex = @variants.length - 1
       end
       @start_time.value = file_start
