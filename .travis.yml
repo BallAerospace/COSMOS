@@ -1,11 +1,13 @@
 language: ruby
 sudo: false
 cache: bundler
-env:
-  - JAVA_OPTS="--debug"
+before_install:
+  - gem update --system
+  - gem install bundler
+bundler_args: --without development --jobs=3 --retry=3
 rvm:
-  - 2.2.8
-  - 2.3.5
+  - jruby-9.1.13.0
   - 2.4.2
-  - jruby-9.1.12.0
+  - 2.3.5
+  - 2.2.8
 script: bundle exec rake build spec
