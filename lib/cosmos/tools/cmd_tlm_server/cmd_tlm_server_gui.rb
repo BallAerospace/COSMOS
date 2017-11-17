@@ -148,6 +148,7 @@ module Cosmos
       if !CmdTlmServer.instance or @mode == :CMD_TLM_SERVER
         CmdTlmServer.meta_callback = method(:meta_callback)
         cts = CmdTlmServer.new(@options.config_file, @production, false, @mode)
+        CmdTlmServerGui.configure_signal_handlers()
         cts.stop_callback = method(:stop_callback)
         cts.reload_callback = method(:reload)
         CmdTlmServer.replay_backend.config_change_callback = method(:config_change_callback) if @mode != :CMD_TLM_SERVER
@@ -273,7 +274,7 @@ module Cosmos
     end
 
     def reload(confirm = true)
-      Qt.execute_in_main_thread(true) do 
+      Qt.execute_in_main_thread(true) do
         if confirm
           msg = Qt::MessageBox.new(self)
           msg.setIcon(Qt::MessageBox::Question)
@@ -292,10 +293,11 @@ module Cosmos
             ConfigParser.splash = splash
             Qt.execute_in_main_thread(true) do
               @tab_widget.setCurrentIndex(0)
-            end          
+            end
             if @mode == :CMD_TLM_SERVER
               Qt.execute_in_main_thread(true) do
                 splash.message = "Stopping Threads"
+                CmdTlmServer.instance.stop_callback = nil
                 stop_threads()
               end
             end
@@ -488,7 +490,7 @@ module Cosmos
         @string_output.string = @string_output.string[string.length..-1]
         string.each_line {|out_line| lines_to_write << out_line }
         clean_lines, messages = CmdTlmServerGui.process_output_colors(lines_to_write)
-        @message_log.write(clean_lines)
+        @message_log.write(clean_lines) if @mode == :CMD_TLM_SERVER
         messages.each {|msg| CmdTlmServer.instance.post_server_message(msg) }
         STDOUT.print clean_lines if STDIN.isatty # Have a console
       end
@@ -502,10 +504,15 @@ module Cosmos
     end
 
     def self.no_gui_reload_callback(confirm = false)
-      CmdTlmServer.instance.stop_logging('ALL') if @mode == :CMD_TLM_SERVER      
+      CmdTlmServer.instance.stop_logging('ALL') if @mode == :CMD_TLM_SERVER
+      CmdTlmServer.instance.stop_callback = nil
       CmdTlmServer.instance.stop
       System.reset
-      cts = CmdTlmServer.new(options.config_file, options.production)
+      cts = CmdTlmServer.new(@options.config_file, @options.production, false, @mode)
+
+      # Signal catching needs to be repeated here because Puma interferes
+      ["TERM", "INT"].each {|sig| Signal.trap(sig) {exit}}
+
       @message_log = CmdTlmServer.message_log
       cts.stop_callback = method(:no_gui_stop_callback)
       cts.reload_callback = method(:no_gui_reload_callback)
@@ -536,6 +543,7 @@ module Cosmos
     end
 
     def self.post_options_parsed_hook(options)
+      @options = options
       if options.no_gui
         ["TERM", "INT"].each {|sig| Signal.trap(sig) {exit}}
 
@@ -544,7 +552,16 @@ module Cosmos
           @string_output = StringIO.new("", "r+")
           $stdout = @string_output
           Logger.level = Logger::INFO
-          cts = CmdTlmServer.new(options.config_file, options.production)
+          if options.replay
+            @mode = :REPLAY
+          else
+            @mode = :CMD_TLM_SERVER
+          end
+          cts = CmdTlmServer.new(options.config_file, options.production, false, @mode)
+
+          # Signal catching needs to be repeated here because Puma interferes
+          ["TERM", "INT"].each {|sig| Signal.trap(sig) {exit}}
+
           @message_log = CmdTlmServer.message_log
           @ready = true
           @output_thread = Thread.new do
@@ -557,27 +574,31 @@ module Cosmos
           cts.reload_callback = method(:no_gui_reload_callback)
           sleep # Sleep until waked by signal
         ensure
-          if defined? cts and cts
-            cts.stop_logging('ALL')
-            cts.stop
+          if CmdTlmServer.instance
+            CmdTlmServer.instance.stop_logging('ALL') if @mode == :CMD_TLM_SERVER
+            CmdTlmServer.instance.stop
           end
         end
         return false
       else
-        ["TERM", "INT"].each do |sig|
-          Signal.trap(sig) do
-            # No synchronization is allowed in trap context, so we have
-            # to spawn a thread here to send the close event.
-            Thread.new do
-              Qt.execute_in_main_thread(true) do
-                @@window.no_prompt = true
-                @@window.closeEvent(Qt::CloseEvent.new())
-                exit
-              end
+        CmdTlmServerGui.configure_signal_handlers()
+        return true
+      end
+    end
+
+    def self.configure_signal_handlers
+      ["TERM", "INT"].each do |sig|
+        Signal.trap(sig) do
+          # No synchronization is allowed in trap context, so we have
+          # to spawn a thread here to send the close event.
+          Thread.new do
+            Qt.execute_in_main_thread(true) do
+              @@window.no_prompt = true
+              @@window.closeEvent(Qt::CloseEvent.new())
+              exit
             end
           end
         end
-        return true
       end
     end
 

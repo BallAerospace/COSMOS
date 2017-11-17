@@ -24,6 +24,7 @@ module Cosmos
       @task_delay = Float(task_delay)
       @name = "Limits Groups"
       @groups = get_limits_groups()
+      @sleeper = Sleeper.new
       # Initialize all the group names as instance variables
       @groups.each {|group| self.instance_variable_set("@#{group.downcase}", nil) }
     end
@@ -80,9 +81,9 @@ module Cosmos
 
     def call
       @status = "Starting the LimitsGroupsBackgroundTask"
-      check_methods = find_check_methods()
-      sleep @initial_delay
       @sleeper = Sleeper.new
+      check_methods = find_check_methods()
+      return if @sleeper.sleep(@initial_delay)
       loop do
         start = Time.now
         check_methods.each {|method| self.send(method.intern) }
@@ -90,13 +91,13 @@ module Cosmos
         @status = "#{now.formatted}: Checking groups took #{now - start}s"
         sleep_time = @task_delay - (now - start)
         sleep_time = 0 if sleep_time < 0
-        broken = @sleeper.sleep(sleep_time)
-        break if broken
+        return if @sleeper.sleep(sleep_time)
       end
     end
 
     def stop
       @sleeper.cancel
+      @status = "Stopped at #{Time.now.sys.formatted}"
     end
 
     protected

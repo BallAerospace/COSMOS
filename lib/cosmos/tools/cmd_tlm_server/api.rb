@@ -1468,7 +1468,10 @@ module Cosmos
 
     # Reload the default configuration
     def cmd_tlm_reload
-      CmdTlmServer.instance.reload
+      Thread.new do
+        CmdTlmServer.instance.reload
+      end
+      nil
     end
 
     # Clear server counters

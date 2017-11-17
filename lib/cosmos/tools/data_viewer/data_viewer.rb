@@ -306,6 +306,7 @@ module Cosmos
                   begin
                     # Get a subscribed to packet
                     packet_data, target_name, packet_name, received_time, received_count = get_packet_data(@subscription_id)
+                    break unless packet_data
 
                     # Put packet data into its packet
                     packet = System.telemetry.packet(target_name, packet_name)
@@ -315,7 +316,7 @@ module Cosmos
 
                     # Make sure we are on the right configuration
                     if target_name == 'SYSTEM' and packet_name == 'META'
-                      System.load_configuration(packet.read('CONFIG'))  
+                      System.load_configuration(packet.read('CONFIG'))
                     end
 
                     # Route packet to its component(s)

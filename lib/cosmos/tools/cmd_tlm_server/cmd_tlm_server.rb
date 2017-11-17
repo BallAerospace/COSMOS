@@ -233,6 +233,22 @@ module Cosmos
     # the packet staleness monitor thread.  This is final and the server cannot be
     # restarted, it must be recreated
     def stop
+      # Break long pollers
+      @limits_event_queues.dup.each do |id, data|
+        queue, queue_size = @limits_event_queues.delete(id)
+        queue << nil if queue
+      end
+
+      @server_message_queues.dup.each do |id, data|
+        queue, queue_size = @server_message_queues.delete(id)
+        queue << nil if queue
+      end
+
+      @packet_data_queues.dup.each do |id, data|
+        queue, packets, queue_size = @packet_data_queues.delete(id)
+        queue << nil if queue
+      end
+
       # Shutdown DRb
       @json_drb.stop_service if @json_drb
       @routers.stop
