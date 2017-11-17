@@ -72,8 +72,8 @@ module Cosmos
         capture_io do |stdout|
           allow(@interface).to receive(:connected?).and_return(false)
           allow(@interface).to receive(:connect) { raise "ConnectError" }
-          # Make the reconnect_delay be 0.2 so we see the error twice during
-          # the 0.5 sleep after starting the thread
+          # Make the reconnect_delay be 0.2 so we see the initial error and a
+          # reconnect error during the 0.3 sleep after starting the thread
           @interface.reconnect_delay = 0.2
           thread = InterfaceThread.new(@interface)
           error_count = 0
