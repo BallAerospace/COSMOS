@@ -82,7 +82,7 @@ module Cosmos
             error_count += 1
           end
           thread.start
-          sleep 0.5
+          sleep 0.3
           expect(running_threads.length).to eql(2)
           thread.stop
           sleep 0.1
