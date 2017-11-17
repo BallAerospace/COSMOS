@@ -975,7 +975,7 @@ module Cosmos
       it "complains about writing a frozen buffer" do
         buffer = "BLANK WORLD".freeze
         string = "HELLO"
-        expect {BinaryAccessor.write(string, 0, string.length*8, :STRING, buffer, :BIG_ENDIAN, :ERROR) }.to raise_error(RuntimeError, "can't modify frozen String")
+        expect {BinaryAccessor.write(string, 0, string.length*8, :STRING, buffer, :BIG_ENDIAN, :ERROR) }.to raise_error(RuntimeError, /can't modify frozen String/)
       end
 
       it "writes aligned 8-bit unsigned integers" do

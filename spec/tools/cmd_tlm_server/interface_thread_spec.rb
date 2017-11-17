@@ -72,10 +72,9 @@ module Cosmos
         capture_io do |stdout|
           allow(@interface).to receive(:connected?).and_return(false)
           allow(@interface).to receive(:connect) { raise "ConnectError" }
-          # Make the reconnect_delay be slightly longer than half of 0.1 which is
-          # how long the test is waiting after calling start. This allows us to
-          # see the error twice.
-          @interface.reconnect_delay = 0.1
+          # Make the reconnect_delay be 0.2 so we see the error twice during
+          # the 0.5 sleep after starting the thread
+          @interface.reconnect_delay = 0.2
           thread = InterfaceThread.new(@interface)
           error_count = 0
           thread.connection_failed_callback = Proc.new do |error|
@@ -83,7 +82,7 @@ module Cosmos
             error_count += 1
           end
           thread.start
-          sleep 0.3
+          sleep 0.5
           expect(running_threads.length).to eql(2)
           thread.stop
           sleep 0.1
