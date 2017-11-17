@@ -955,7 +955,6 @@ module Cosmos
           options.height = 600
           options.title = "Script Runner : Untitled"
           options.auto_size = false
-          options.config_file = "script_runner.txt"
           options.server_config_file = CmdTlmServer::DEFAULT_CONFIG_FILE
           options.run_procedure = nil
 

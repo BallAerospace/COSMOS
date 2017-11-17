@@ -34,7 +34,6 @@ module Cosmos
           option_parser, options = create_default_options()
           options.width = 600
           options.height = 425
-          options.config_file = 'cmd_sequence.txt'
           option_parser.separator "Command Sequence Specific Options:"
           option_parser.on("-o", "--output DIRECTORY", "Save files in the specified directory") do |arg|
             options.output_dir = File.expand_path(arg)
@@ -64,7 +63,7 @@ module Cosmos
       @exporter = nil
 
       begin
-        process_config(options.config_file)
+        process_config(options.config_file) if options.config_file
       rescue => error
         ExceptionDialog.new(self, error, "Error parsing #{options.config_file}")
       end
