@@ -1,8 +1,9 @@
+env: JRUBY_OPTS=--debug
 language: ruby
 sudo: false
 cache: bundler
 rvm:
-  - jruby
+  - jruby-9.1.14.0
   - 2.4.2
   - 2.3.5
   - 2.2.8
