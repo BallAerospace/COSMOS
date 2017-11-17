@@ -11,6 +11,7 @@ LICENSE.txt
 Manifest.txt
 README.md
 Rakefile
+appveyor.yml
 autohotkey/config/data/attitude.bin
 autohotkey/config/data/diamond.STL
 autohotkey/config/data/groundoff.gif
@@ -372,6 +373,7 @@ demo/config/targets/INST/cmd_tlm/_ccsds_tlm.txt
 demo/config/targets/INST/cmd_tlm/inst_cmds.txt
 demo/config/targets/INST/cmd_tlm/inst_tlm.txt
 demo/config/targets/INST/cmd_tlm_server.txt
+demo/config/targets/INST/cmd_tlm_server2.txt
 demo/config/targets/INST/doc/README.txt
 demo/config/targets/INST/lib/example_limits_response.rb
 demo/config/targets/INST/lib/inst_dump_component.rb
@@ -419,6 +421,7 @@ demo/config/targets/TEMPLATED/cmd_tlm/templated_tlm.txt
 demo/config/targets/TEMPLATED/cmd_tlm_server.txt
 demo/config/targets/TEMPLATED/lib/templated_interface.rb
 demo/config/targets/TEMPLATED/target.txt
+demo/config/tools/cmd_sequence/cmd_sequence.txt
 demo/config/tools/cmd_tlm_server/cmd_tlm_server.txt
 demo/config/tools/cmd_tlm_server/cmd_tlm_server2.txt
 demo/config/tools/data_viewer/data_viewer.txt
@@ -461,6 +464,7 @@ demo/config/tools/tlm_extractor/tlm_extractor3.txt
 demo/config/tools/tlm_extractor/tlm_extractor4.txt
 demo/config/tools/tlm_grapher/README.txt
 demo/config/tools/tlm_viewer/tlm_viewer.txt
+demo/lib/cmd_sequence_exporter.rb
 demo/lib/example_background_task.rb
 demo/lib/example_target.rb
 demo/lib/scpi_target.rb
@@ -489,6 +493,7 @@ demo/outputs/tmp/README.txt
 demo/procedures/cosmos_api_test.rb
 demo/procedures/example_test.rb
 demo/procedures/plot_test.rb
+demo/procedures/replay_test.rb
 demo/procedures/run_example_test.rb
 demo/procedures/test.rb
 demo/tools/CmdExtractor
@@ -956,6 +961,7 @@ lib/cosmos/io/cosmos_snmp.rb
 lib/cosmos/io/io_multiplexer.rb
 lib/cosmos/io/json_drb.rb
 lib/cosmos/io/json_drb_object.rb
+lib/cosmos/io/json_drb_rack.rb
 lib/cosmos/io/json_rpc.rb
 lib/cosmos/io/posix_serial_driver.rb
 lib/cosmos/io/raw_logger.rb
@@ -1000,6 +1006,7 @@ lib/cosmos/script/cmd_tlm_server.rb
 lib/cosmos/script/commands.rb
 lib/cosmos/script/extract.rb
 lib/cosmos/script/limits.rb
+lib/cosmos/script/replay.rb
 lib/cosmos/script/script.rb
 lib/cosmos/script/scripting.rb
 lib/cosmos/script/telemetry.rb
@@ -1029,12 +1036,14 @@ lib/cosmos/tools/cmd_tlm_server/connections.rb
 lib/cosmos/tools/cmd_tlm_server/gui/interfaces_tab.rb
 lib/cosmos/tools/cmd_tlm_server/gui/logging_tab.rb
 lib/cosmos/tools/cmd_tlm_server/gui/packets_tab.rb
+lib/cosmos/tools/cmd_tlm_server/gui/replay_tab.rb
 lib/cosmos/tools/cmd_tlm_server/gui/status_tab.rb
 lib/cosmos/tools/cmd_tlm_server/gui/targets_tab.rb
 lib/cosmos/tools/cmd_tlm_server/interface_thread.rb
 lib/cosmos/tools/cmd_tlm_server/interfaces.rb
 lib/cosmos/tools/cmd_tlm_server/limits_groups_background_task.rb
 lib/cosmos/tools/cmd_tlm_server/packet_logging.rb
+lib/cosmos/tools/cmd_tlm_server/replay_backend.rb
 lib/cosmos/tools/cmd_tlm_server/router_thread.rb
 lib/cosmos/tools/cmd_tlm_server/routers.rb
 lib/cosmos/tools/config_editor/config_editor.rb
@@ -1053,7 +1062,6 @@ lib/cosmos/tools/opengl_builder/opengl_builder.rb
 lib/cosmos/tools/opengl_builder/scene_config.rb
 lib/cosmos/tools/packet_viewer/packet_viewer.rb
 lib/cosmos/tools/replay/replay.rb
-lib/cosmos/tools/replay/replay_server.rb
 lib/cosmos/tools/script_runner/script_audit.rb
 lib/cosmos/tools/script_runner/script_runner.rb
 lib/cosmos/tools/script_runner/script_runner_config.rb
@@ -1222,6 +1230,8 @@ spec/core_ext/stringio_spec.rb
 spec/core_ext/time_spec.rb
 spec/gui/line_graph/line_clip_spec.rb
 spec/gui/qt_spec.rb
+spec/gui/utilities/script_module_gui_spec.rb
+spec/install/config/data/data.txt
 spec/install/config/system/system.txt
 spec/install/config/targets/INST/cmd_tlm/inst_cmd_linc.txt
 spec/install/config/targets/INST/cmd_tlm/inst_cmds.txt
