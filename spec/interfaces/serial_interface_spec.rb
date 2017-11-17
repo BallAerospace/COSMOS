@@ -41,7 +41,7 @@ if RUBY_ENGINE == 'ruby' or Gem.win_platform?
       describe "connect" do
         it "passes a new SerialStream to the stream protocol" do
           # Ensure the 'NONE' parity is coverted to a symbol
-          if Kernel.is_windows?
+          if Kernel.is_windows? && !ENV['APPVEYOR']
             i = SerialInterface.new('COM1','COM1','9600','NONE','1','0','0','burst')
             expect(i.connected?).to be false
             i.connect

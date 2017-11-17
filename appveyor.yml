@@ -5,7 +5,7 @@ install:
   - ruby --version
   - gem --version
   - bundle install
-  - bundle exec rake build
+  - bundle exec rake build spec
 
 build: off
 

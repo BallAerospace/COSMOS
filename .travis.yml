@@ -1,9 +1,10 @@
+env: JRUBY_OPTS=--debug
 language: ruby
 sudo: false
 cache: bundler
 rvm:
-  - 2.2.8
-  - 2.3.5
+  - jruby-9.1.14.0
   - 2.4.2
-  - jruby-9.1.12.0
+  - 2.3.5
+  - 2.2.8
 script: bundle exec rake build spec
