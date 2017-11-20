@@ -146,7 +146,7 @@ module Cosmos
 
     # Called by the ERB template to render a partial
     def render(template_name, options = {})
-      raise Error.new(self, "Partial name '#{template_name}' must begin with an underscore.") if template_name[0] != '_'
+      raise Error.new(self, "Partial name '#{template_name}' must begin with an underscore.") if File.basename(template_name)[0] != '_'
       b = binding
       if options[:locals]
         if RUBY_VERSION.split('.')[0..1].join.to_i >= 21
@@ -162,7 +162,12 @@ module Cosmos
         end
       end
       # Assume the file is there. If not we raise a pretty obvious error
-      ERB.new(File.read(File.join(File.dirname(@filename), template_name))).result(b)
+      if File.expand_path(template_name) == template_name # absolute path
+        path = template_name
+      else # relative to the current @filename
+        path = File.join(File.dirname(@filename), template_name)
+      end
+      ERB.new(File.read(path)).result(b)
     end
 
     # Processes a file and yields |config| to the given block
@@ -179,7 +184,7 @@ module Cosmos
                    yield_non_keyword_lines = false,
                    remove_quotes = true,
                    &block)
-      raise "Configuration file #{filename} does not exist." unless filename && File.exist?(filename)
+      raise Error.new(self, "Configuration file #{filename} does not exist.") unless filename && File.exist?(filename)
       @filename = filename
 
       # Create a temp file where we write the ERB parsed output

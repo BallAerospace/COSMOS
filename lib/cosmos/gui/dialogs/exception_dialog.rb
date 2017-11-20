@@ -50,11 +50,26 @@ module Cosmos
           # by the ConfigParser
           when ConfigParser::Error
             # Substitute the html tags '<' and '>' and then replace newlines with html breaks
-            usage = exception.usage.gsub("<", "&#060;").gsub(">", "&#062;").gsub("\n", "<br/>")
-            message = exception.message.gsub("<", "&#060;").gsub(">", "&#062;").gsub("\n", "<br/>")
-            line = exception.keyword + ' ' + exception.parameters.join(' ').gsub("<", "&#060;").gsub(">", "&#062;").gsub("\n", "<br/>")
-            text = "Error at #{exception.filename}:#{exception.line_number}<br/><br/>#{line}<br/><br/>Usage: #{usage}<br/><br/>#{message}"
-            unless exception.url.nil?
+            if exception.usage && !exception.usage.empty?
+              usage = "Usage: #{exception.usage.gsub("<", "&#060;").gsub(">", "&#062;").gsub("\n", "<br/>")}<br/><br/>"
+            else
+              usage = ''
+            end
+            if exception.message && !exception.message.empty?
+              message = exception.message.gsub("<", "&#060;").gsub(">", "&#062;").gsub("\n", "<br/>")
+            else
+              message = ''
+            end
+            if exception.keyword && exception.parameters
+              line = exception.keyword + ' ' + exception.parameters.join(' ').gsub("<", "&#060;").gsub(">", "&#062;").gsub("\n", "<br/>") + "<br/><br/>"
+            else
+              line = ''
+            end
+            text = "#{line}#{usage}#{message}"
+            if exception.filename && exception.line_number
+              text = "Error at #{exception.filename}:#{exception.line_number}<br/><br/>#{text}"
+            end
+            if exception.url && !exception.url.empty?
               text << "<br/><br/>For more information see <a href='#{exception.url}'>#{exception.url}</a>."
             end
           # FatalErrors are errors explicitly raised when a known fatal issue
