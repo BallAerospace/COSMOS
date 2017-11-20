@@ -15,6 +15,6 @@ collections:
   docs:
     output: true
 
-cosmos_meta_path: C:/git/COSMOS/data/config
+cosmos_meta_path: ../COSMOS/data/config
 
 exclude: [Gemfile, Rakefile]

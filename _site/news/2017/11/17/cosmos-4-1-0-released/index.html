@@ -2,7 +2,7 @@
 <html lang="en-US">
 <head>
   <meta charset="UTF-8">
-  <title>Routers</title>
+  <title>Ball Aerospace COSMOS 4.1.0 Released</title>
   <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="generator" content="Jekyll v3.5.2">
@@ -194,95 +194,82 @@
       <div class="unit four-fifths">
         <article>
   <h2>
-    Routers
-    <a href="/news/2017/02/22/routers/" class="permalink" title="Permalink">∞</a>
+    Ball Aerospace COSMOS 4.1.0 Released
+    <a href="/news/2017/11/17/cosmos-4-1-0-released/" class="permalink" title="Permalink">∞</a>
   </h2>
   <span class="post-category">
     <span class="label">
-      post
+      release
     </span>
   </span>
   <div class="post-meta">
     <span class="post-date">
-      22 Feb 2017
+      17 Nov 2017
     </span>
-    <a href="https://github.com/jmthomas" class="post-author">
-      <img src="https://github.com/jmthomas.png" class="avatar" alt="jmthomas avatar" width="24" height="24">
-      jmthomas
+    <a href="https://github.com/ryanmelt" class="post-author">
+      <img src="https://github.com/ryanmelt.png" class="avatar" alt="ryanmelt avatar" width="24" height="24">
+      ryanmelt
     </a>
   </div>
   <div class="post-content">
-    <p>COSMOS Routers can be a confusing topic for people new and old alike to the COSMOS system. Let’s break them down and explore how COSMOS uses them internally and how you might use them in your configuration.</p>
+    <p>Welcome to COSMOS 4.1!  The COSMOS API has transitioned from a custom TCP protocol to HTTP.  This will make interfacing to COSMOS from programming languages other than Ruby much easier.  There are also many new APIs that allows the full functionality of the CmdTlmServer and Replay to be controlled remotely.  See below for the full list of changes!</p>
 
-<p>A COSMOS Router is first and foremost an interface like any other COSMOS interface. In fact if you look through the source code you won’t even see a Router class because they are instances of the Interface class. As a reminder, an Interface provides the lowest level connection between COSMOS and a target (something you’re trying to get COSMOS to talk to). Thus a Router is also providing a low level connection between COSMOS and something. So what’s the difference? Normal Interfaces read the target and send data (telemetry) to COSMOS and send commands to the target. Routers do the exact opposite: they route telemetry out to clients connected to them and route commands sent to them back to a target. Thus they provide a conduit for other clients to communicate with a target.</p>
+<h3 id="new-features">New Features:</h3>
 
-<p>The COSMOS Command and Telemetry Server always starts a Router called the PREIDENTIFIED_ROUTER which appears in the Routers tab of the GUI:
-<img src="/img/2017_02_22_router_tab.png" alt="Server Routers" /></p>
+<ul>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/531">#531</a> Command sequence export option</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/558">#558</a> subscription APIs should work in disconnect mode</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/559">#559</a> Build Replay Functionality into CmdTlmServer</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/578">#578</a> Add ability to query available screens from Telemetry Viewer</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/579">#579</a> Create zip of configuration in saved config</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/581">#581</a> Make various log files readonly</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/587">#587</a> AUTO_INTERFACE_TARGETS ignore existing interfaces</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/591">#591</a> Investigate creating single COSMOS UDP socket for case where read_port == write_src_port</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/599">#599</a> Create subscription API for CTS messages</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/601">#601</a> Add background task and other status APIs</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/606">#606</a> Enhancement to Open File Script Interface - File Filter</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/612">#612</a> CSV support for strings and symbols</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/620">#620</a> Move Script Runner step button next to start/go</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/625">#625</a> Add APIs to start/stop background tasks</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/626">#626</a> Add API functions to get ignored parameters/items</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/635">#635</a> get_cmd_param_list should return the type for each command parameter</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/642">#642</a> Handle Infinity/NaN without invalid JSON</li>
+</ul>
 
-<p>The Preidentified Router is controlled by the system.txt configuration file:</p>
+<h3 id="maintenance">Maintenance:</h3>
 
-<div class="highlighter-rouge"><pre class="highlight"><code># Ethernet Ports
-PORT CTS_API 7777
-PORT TLMVIEWER_API 7778
-PORT CTS_PREIDENTIFIED 7779
-</code></pre>
-</div>
+<ul>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/510">#510</a> Investigate changing JsonDrb to running over HTTP</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/603">#603</a> CmdTlmServer invalid constructor argument</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/614">#614</a> Pass server message color to message subscriptions</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/619">#619</a> Script Runner instrumenting comments and whitespace</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/630">#630</a> Add ConfigEditor and CmdSequence to install launcher</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/647">#647</a> Make packet item sort consistent</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/649">#649</a> Add codecov support</li>
+</ul>
 
-<p>This Router is called the PREIDENTIFIED router because it uses a special stream protocol which adds the packet received time, the target name, and the packet name before sending the packet. This stream is used by the Telemetry Grapher so it doesn’t have to spend additional cycles identifying packets and can directly graph the packets it is interested in. The Replay tool also creates this router for the exact same purpose.</p>
+<h3 id="bug-fixes">Bug Fixes:</h3>
 
-<p>If you look back at the picture you’ll see in our demo configuration that we also create another Router called the INST_ROUTER. This is how that Router is configured:</p>
+<ul>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/562">#562</a> #562 Template protocol should fill Id fields</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/577">#577</a> #577 Telemetry Viewer has fatal exception when called with JSON-RPC method display</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/593">#593</a> #593 Race condition in Cosmos.kill_thread</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/607">#607</a> #607 Support latest version of wkhtmltopdf for pdf creation and properly set working dir</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/610">#610</a> #610 target shouldn’t report error requiring file in target lib</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/616">#616</a> #616 Ignore untested Windows version message in Windows 10</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/617">#617</a> #617 Ruby 2.4’s inherent Warning class shadows Qt::MessageBox::Warning</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/633">#633</a> #633 combo_box is mutating input</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/639">#639</a> #639 Partial rendering in config parser should enforce that rendered partials start with underscore</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/654">#654</a> #654 Test Runner crashes with no config file</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/655">#655</a> #655 Metadata system triggers a nil router error in api.rb with basic setup</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/659">#659</a> #659 Hazardous commands throwing errors</li>
+</ul>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>ROUTER INST_ROUTER tcpip_server_interface.rb 2055 2055 10.0 nil LENGTH 32 16 7
-  OPTION LISTEN_ADDRESS 127.0.0.1
-  ROUTE INST_INT
-</code></pre>
-</div>
+<h3 id="migration-notes-from-cosmos-40x">Migration Notes from COSMOS 4.0.x:</h3>
 
-<p>Basically we’re creating a Router that routes only the INST interface data. We create this Router using a TCPIP Server interface with a LENGTH protocol of bit offset 32, length field size of 16, and length value offset of 7. These values were chosen to match the INST command and telemetry which use CCSDS headers. The CCSDS standard specifies a 16 bit length field at offset 32. The CCSDS standard also specifies that the length field is the length of the packet past the length field minus 1. Thus we add 7 for the 4 bytes of offset, 2 bytes of length field, and the minus 1.</p>
+<p>Any custom tools in other languages that use the COSMOS API will need to be updated.</p>
 
-<p>For more information about the options you can pass to a Router (and Interface) see the <a href="http://cosmosrb.com/docs/system/#interface-and-router-modifiers">Interface and Router Modifers</a> part of the documentation.</p>
-
-<p>To connect to the INST_ROUTER that we created we can write a little Ruby code using existing COSMOS interface classes and streams.</p>
-
-<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="nb">require</span> <span class="s1">'cosmos'</span>
-<span class="nb">require</span> <span class="s1">'cosmos/interfaces/tcpip_client_interface'</span>
-<span class="n">i</span> <span class="o">=</span> <span class="no">Cosmos</span><span class="o">::</span><span class="no">TcpipClientInterface</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="s1">'localhost'</span><span class="p">,</span><span class="mi">2055</span><span class="p">,</span><span class="mi">2055</span><span class="p">,</span><span class="kp">nil</span><span class="p">,</span><span class="kp">nil</span><span class="p">,</span><span class="s1">'LENGTH'</span><span class="p">,</span><span class="mi">32</span><span class="p">,</span><span class="mi">16</span><span class="p">,</span><span class="mi">7</span><span class="p">)</span>
-<span class="n">i</span><span class="p">.</span><span class="nf">connect</span>
-<span class="kp">loop</span> <span class="k">do</span>
-  <span class="n">pkt</span> <span class="o">=</span> <span class="no">Cosmos</span><span class="o">::</span><span class="no">System</span><span class="p">.</span><span class="nf">telemetry</span><span class="p">.</span><span class="nf">identify!</span><span class="p">(</span><span class="n">i</span><span class="p">.</span><span class="nf">read</span><span class="p">.</span><span class="nf">buffer</span><span class="p">,</span> <span class="p">[</span><span class="s1">'INST'</span><span class="p">])</span>
-  <span class="nb">puts</span> <span class="n">pkt</span><span class="p">.</span><span class="nf">packet_name</span>
-<span class="k">end</span></code></pre></figure>
-
-<p>Obviously we need the TCPIP Client Interface to match the port number of the TCPIP Server and we also need to match the LENGTH protocol options. Notice how we have to call the System.telemetry.identify! method to identify the raw packet stream. When I run this from a command prompt after starting the Server I see a stream of packet names similar to this:</p>
-
-<div class="highlighter-rouge"><pre class="highlight"><code>MECH
-ADCS
-MECH
-IMAGE
-PARAMS
-ADCS
-HEALTH_STATUS
-MECH
-ADCS
-...
-</code></pre>
-</div>
-<p>You should see MECH and ADCS come out at 10Hz and the IMAGE, PARAMS, and HEALTH_STATUS come out at 1Hz. This matches the Packet Count ratio on the Tlm Packets tab of the Server.</p>
-
-<p>We can also write some code to connect to the PREIDENTIFIED router. It looks very similar to the previous code except we do not need to identify the packets as they are pre-identified!</p>
-
-<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="nb">require</span> <span class="s1">'cosmos'</span>
-<span class="nb">require</span> <span class="s1">'cosmos/interfaces/tcpip_client_interface'</span>
-<span class="n">i</span> <span class="o">=</span> <span class="no">Cosmos</span><span class="o">::</span><span class="no">TcpipClientInterface</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="s1">'localhost'</span><span class="p">,</span><span class="mi">7779</span><span class="p">,</span><span class="mi">7779</span><span class="p">,</span><span class="kp">nil</span><span class="p">,</span><span class="kp">nil</span><span class="p">,</span><span class="s1">'PREIDENTIFIED'</span><span class="p">)</span>
-<span class="n">i</span><span class="p">.</span><span class="nf">connect</span>
-<span class="kp">loop</span> <span class="k">do</span>
-  <span class="n">pkt</span> <span class="o">=</span> <span class="n">i</span><span class="p">.</span><span class="nf">read</span>
-  <span class="nb">puts</span> <span class="n">pkt</span><span class="p">.</span><span class="nf">packet_name</span>
-<span class="k">end</span></code></pre></figure>
-
-<p>This time you should see some LIMITS_CHANGE packet names sprinkled in with the output from before. That’s because we’re accessing the ENTIRE COSMOS telemetry stream and not just the stream from the INST interface. Keep this in mind if you have performance issues when trying to process the entire telemetry stream.</p>
-
-<p>Happy routing and if you need additional support please contact us at <a href="mailto:cosmos@ball.com">cosmos@ball.com</a>.</p>
+<p>To upgrade to the latest version of COSMOS, run “bundle update cosmos” in your COSMOS project folder.</p>
 
   </div>
 </article>
@@ -302,7 +289,7 @@ ADCS
     <h4>Recent Releases</h4>
     <ul>
       
-      <li class="">
+      <li class="current">
         <a href="/news/2017/11/17/cosmos-4-1-0-released/">Version 4.1.0</a>
       </li>
       
@@ -386,7 +373,7 @@ ADCS
         
         
         
-        <li class="current">
+        <li class="">
           <a href="/news/2017/02/22/routers/">Routers</a>
         </li>
         

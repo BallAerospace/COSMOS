@@ -11,8 +11,8 @@
     <title xml:lang="en">Ball Aerospace COSMOS News</title>
     <atom:link type="application/atom+xml" href="http://cosmosrb/feed.xml" rel="self"/>
     <link>http://cosmosrb.com/</link>
-    <pubDate>Mon, 13 Nov 2017 13:14:43 -0700</pubDate>
-    <lastBuildDate>Mon, 13 Nov 2017 13:14:43 -0700</lastBuildDate>
+    <pubDate>Mon, 20 Nov 2017 16:26:55 -0700</pubDate>
+    <lastBuildDate>Mon, 20 Nov 2017 16:26:55 -0700</lastBuildDate>
     <language>en-US</language>
     <generator>Jekyll v3.5.2</generator>
     <description>The User Interface for Embedded Systems</description>
@@ -24,6 +24,77 @@
       <width>144</width>
       <height>73</height>
     </image>
+    
+    <item>
+      <title>Ball Aerospace COSMOS 4.1.0 Released</title>
+      <link>http://cosmosrb.com/news/2017/11/17/cosmos-4-1-0-released/</link>
+      <pubDate>Fri, 17 Nov 2017 12:00:00 -0700</pubDate>
+      <dc:creator>ryanmelt</dc:creator>
+      
+      
+      <category>release</category>
+      
+      <guid isPermaLink="true">http://cosmosrb.com/news/2017/11/17/cosmos-4-1-0-released/</guid>
+      <description>&lt;p&gt;Welcome to COSMOS 4.1!  The COSMOS API has transitioned from a custom TCP protocol to HTTP.  This will make interfacing to COSMOS from programming languages other than Ruby much easier.  There are also many new APIs that allows the full functionality of the CmdTlmServer and Replay to be controlled remotely.  See below for the full list of changes!&lt;/p&gt;
+
+&lt;h3 id=&quot;new-features&quot;&gt;New Features:&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/531&quot;&gt;#531&lt;/a&gt; Command sequence export option&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/558&quot;&gt;#558&lt;/a&gt; subscription APIs should work in disconnect mode&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/559&quot;&gt;#559&lt;/a&gt; Build Replay Functionality into CmdTlmServer&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/578&quot;&gt;#578&lt;/a&gt; Add ability to query available screens from Telemetry Viewer&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/579&quot;&gt;#579&lt;/a&gt; Create zip of configuration in saved config&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/581&quot;&gt;#581&lt;/a&gt; Make various log files readonly&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/587&quot;&gt;#587&lt;/a&gt; AUTO_INTERFACE_TARGETS ignore existing interfaces&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/591&quot;&gt;#591&lt;/a&gt; Investigate creating single COSMOS UDP socket for case where read_port == write_src_port&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/599&quot;&gt;#599&lt;/a&gt; Create subscription API for CTS messages&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/601&quot;&gt;#601&lt;/a&gt; Add background task and other status APIs&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/606&quot;&gt;#606&lt;/a&gt; Enhancement to Open File Script Interface - File Filter&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/612&quot;&gt;#612&lt;/a&gt; CSV support for strings and symbols&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/620&quot;&gt;#620&lt;/a&gt; Move Script Runner step button next to start/go&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/625&quot;&gt;#625&lt;/a&gt; Add APIs to start/stop background tasks&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/626&quot;&gt;#626&lt;/a&gt; Add API functions to get ignored parameters/items&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/635&quot;&gt;#635&lt;/a&gt; get_cmd_param_list should return the type for each command parameter&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/642&quot;&gt;#642&lt;/a&gt; Handle Infinity/NaN without invalid JSON&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;maintenance&quot;&gt;Maintenance:&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/510&quot;&gt;#510&lt;/a&gt; Investigate changing JsonDrb to running over HTTP&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/603&quot;&gt;#603&lt;/a&gt; CmdTlmServer invalid constructor argument&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/614&quot;&gt;#614&lt;/a&gt; Pass server message color to message subscriptions&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/619&quot;&gt;#619&lt;/a&gt; Script Runner instrumenting comments and whitespace&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/630&quot;&gt;#630&lt;/a&gt; Add ConfigEditor and CmdSequence to install launcher&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/647&quot;&gt;#647&lt;/a&gt; Make packet item sort consistent&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/649&quot;&gt;#649&lt;/a&gt; Add codecov support&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;bug-fixes&quot;&gt;Bug Fixes:&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/562&quot;&gt;#562&lt;/a&gt; #562 Template protocol should fill Id fields&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/577&quot;&gt;#577&lt;/a&gt; #577 Telemetry Viewer has fatal exception when called with JSON-RPC method display&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/593&quot;&gt;#593&lt;/a&gt; #593 Race condition in Cosmos.kill_thread&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/607&quot;&gt;#607&lt;/a&gt; #607 Support latest version of wkhtmltopdf for pdf creation and properly set working dir&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/610&quot;&gt;#610&lt;/a&gt; #610 target shouldn’t report error requiring file in target lib&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/616&quot;&gt;#616&lt;/a&gt; #616 Ignore untested Windows version message in Windows 10&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/617&quot;&gt;#617&lt;/a&gt; #617 Ruby 2.4’s inherent Warning class shadows Qt::MessageBox::Warning&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/633&quot;&gt;#633&lt;/a&gt; #633 combo_box is mutating input&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/639&quot;&gt;#639&lt;/a&gt; #639 Partial rendering in config parser should enforce that rendered partials start with underscore&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/654&quot;&gt;#654&lt;/a&gt; #654 Test Runner crashes with no config file&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/655&quot;&gt;#655&lt;/a&gt; #655 Metadata system triggers a nil router error in api.rb with basic setup&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/659&quot;&gt;#659&lt;/a&gt; #659 Hazardous commands throwing errors&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;migration-notes-from-cosmos-40x&quot;&gt;Migration Notes from COSMOS 4.0.x:&lt;/h3&gt;
+
+&lt;p&gt;Any custom tools in other languages that use the COSMOS API will need to be updated.&lt;/p&gt;
+
+&lt;p&gt;To upgrade to the latest version of COSMOS, run “bundle update cosmos” in your COSMOS project folder.&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>Require vs Load</title>

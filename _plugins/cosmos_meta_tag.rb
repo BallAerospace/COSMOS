@@ -1,4 +1,5 @@
 require 'erb'
+
 require 'psych'
 require 'tempfile'
 
@@ -25,6 +26,7 @@ module Jekyll
     def self.load(filename)
       data = nil
       tf = Tempfile.new("temp.yaml")
+      cwd = Dir.pwd
       Dir.chdir(File.dirname(filename))
       data = File.read(filename)
       output = ERB.new(data).result(binding)
@@ -38,6 +40,7 @@ module Jekyll
         raise error.exception("#{error.message}\n\nParsed output written to #{File.expand_path(error_file)}\n")
       end
       tf.unlink
+      Dir.chdir(cwd)
       data
     end
 
@@ -57,9 +60,9 @@ module Jekyll
     end
 
     def render(context)
-      path = context.registers[:site].config['cosmos_meta_path']
+      path = File.expand_path(context.registers[:site].config['cosmos_meta_path'].to_s.clone).strip
       page = ''
-      meta = MetaConfigParser.load(File.join(path, @yaml_file))
+      meta = MetaConfigParser.load(File.join(path, @yaml_file.to_s.strip))
       build_page(meta, page)
       page
     end
