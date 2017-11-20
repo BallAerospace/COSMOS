@@ -83,8 +83,9 @@ module Cosmos
           tf2.puts "SUBDIR"
           tf2.close
           tf = Tempfile.new('unittest')
-          tf.puts "<%= render '#{tf2.path.gsub(Dir.tmpdir, '')}' %>"
-          tf.puts "<%= render '#{tf2.path}' %>"
+          # Grab the sub directory name plus filename
+          subdir_path = tf2.path().split('/')[-2..-1].join('/')
+          tf.puts "<%= render '#{subdir_path}' %>"
           tf.close
 
           @cp.parse_file(tf.path) do |keyword, params|
