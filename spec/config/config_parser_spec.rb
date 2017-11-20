@@ -12,6 +12,7 @@ require 'spec_helper'
 require 'cosmos'
 require 'cosmos/config/config_parser'
 require 'tempfile'
+require 'tmpdir'
 
 module Cosmos
 
@@ -76,10 +77,46 @@ module Cosmos
         tf.unlink
       end
 
+      it "allows ERB partials in subdirectories" do
+        Dir.mktmpdir("partial_dir") do |dir|
+          tf2 = Tempfile.new('_partial.txt', dir)
+          tf2.puts "SUBDIR"
+          tf2.close
+          tf = Tempfile.new('unittest')
+          # Grab the sub directory name plus filename
+          subdir_path = tf2.path().split('/')[-2..-1].join('/')
+          tf.puts "<%= render '#{subdir_path}' %>"
+          tf.close
+
+          @cp.parse_file(tf.path) do |keyword, params|
+            expect(keyword).to eql "SUBDIR"
+          end
+          tf.unlink
+          tf2.unlink
+        end
+      end
+
+      it "allows absolute paths to ERB partials" do
+        Dir.mktmpdir("partial_dir") do |dir|
+          tf2 = Tempfile.new('_partial.txt', dir)
+          tf2.puts "ABSOLUTE"
+          tf2.close
+          tf = Tempfile.new('unittest')
+          tf.puts "<%= render '#{tf2.path}' %>"
+          tf.close
+
+          @cp.parse_file(tf.path) do |keyword, params|
+            expect(keyword).to eql "ABSOLUTE"
+          end
+          tf.unlink
+          tf2.unlink
+        end
+      end
+
       it "supports ERB partials via render" do
         tf2 = Tempfile.new('_partial.txt')
         tf2.puts '<% if output %>'
-        tf2.puts 'KEYWORD <%= id %> <%= desc %>'
+        tf2.puts 'RENDER <%= id %> <%= desc %>'
         tf2.puts '<% end %>'
         tf2.close
 
@@ -92,7 +129,7 @@ module Cosmos
           yielded = false
           @cp.parse_file(tf.path) do |keyword, params|
             yielded = true
-            expect(keyword).to eql "KEYWORD"
+            expect(keyword).to eql "RENDER"
             expect(params[0]).to eql "1"
             expect(params[1]).to eql "Description"
           end
