@@ -4,6 +4,128 @@ title: Release History
 permalink: "/docs/history/"
 ---
 
+## 4.1.0 / 2017-11-17
+{: #v4-1-0}
+
+Welcome to COSMOS 4.1!  The COSMOS API has transitioned from a custom TCP protocol to HTTP.  This will make interfacing to COSMOS from programming languages other than Ruby much easier.  There are also many new APIs that allows the full functionality of the CmdTlmServer and Replay to be controlled remotely.  See below for the full list of changes!
+
+### New Features:
+
+* [#531](https://github.com/BallAerospace/COSMOS/issues/531) Command sequence export option
+* [#558](https://github.com/BallAerospace/COSMOS/issues/558) subscription APIs should work in disconnect mode
+* [#559](https://github.com/BallAerospace/COSMOS/issues/559) Build Replay Functionality into CmdTlmServer
+* [#578](https://github.com/BallAerospace/COSMOS/issues/578) Add ability to query available screens from Telemetry Viewer
+* [#579](https://github.com/BallAerospace/COSMOS/issues/579) Create zip of configuration in saved config
+* [#581](https://github.com/BallAerospace/COSMOS/issues/581) Make various log files readonly
+* [#587](https://github.com/BallAerospace/COSMOS/issues/587) AUTO_INTERFACE_TARGETS ignore existing interfaces
+* [#591](https://github.com/BallAerospace/COSMOS/issues/591) Investigate creating single COSMOS UDP socket for case where read_port == write_src_port
+* [#599](https://github.com/BallAerospace/COSMOS/issues/599) Create subscription API for CTS messages
+* [#601](https://github.com/BallAerospace/COSMOS/issues/601) Add background task and other status APIs
+* [#606](https://github.com/BallAerospace/COSMOS/issues/606) Enhancement to Open File Script Interface - File Filter
+* [#612](https://github.com/BallAerospace/COSMOS/issues/612) CSV support for strings and symbols
+* [#620](https://github.com/BallAerospace/COSMOS/issues/620) Move Script Runner step button next to start/go
+* [#625](https://github.com/BallAerospace/COSMOS/issues/625) Add APIs to start/stop background tasks
+* [#626](https://github.com/BallAerospace/COSMOS/issues/626) Add API functions to get ignored parameters/items
+* [#635](https://github.com/BallAerospace/COSMOS/issues/635) get_cmd_param_list should return the type for each command parameter
+* [#642](https://github.com/BallAerospace/COSMOS/issues/642) Handle Infinity/NaN without invalid JSON
+
+### Maintenance:
+
+* [#510](https://github.com/BallAerospace/COSMOS/issues/510) Investigate changing JsonDrb to running over HTTP
+* [#603](https://github.com/BallAerospace/COSMOS/issues/603) CmdTlmServer invalid constructor argument
+* [#614](https://github.com/BallAerospace/COSMOS/issues/614) Pass server message color to message subscriptions
+* [#619](https://github.com/BallAerospace/COSMOS/issues/619) Script Runner instrumenting comments and whitespace
+* [#630](https://github.com/BallAerospace/COSMOS/issues/630) Add ConfigEditor and CmdSequence to install launcher
+* [#647](https://github.com/BallAerospace/COSMOS/issues/647) Make packet item sort consistent
+* [#649](https://github.com/BallAerospace/COSMOS/issues/649) Add codecov support
+
+### Bug Fixes:
+
+* [#562](https://github.com/BallAerospace/COSMOS/issues/562) #562 Template protocol should fill Id fields
+* [#577](https://github.com/BallAerospace/COSMOS/issues/577) #577 Telemetry Viewer has fatal exception when called with JSON-RPC method display
+* [#593](https://github.com/BallAerospace/COSMOS/issues/593) #593 Race condition in Cosmos.kill_thread
+* [#607](https://github.com/BallAerospace/COSMOS/issues/607) #607 Support latest version of wkhtmltopdf for pdf creation and properly set working dir
+* [#610](https://github.com/BallAerospace/COSMOS/issues/610) #610 target shouldn't report error requiring file in target lib
+* [#616](https://github.com/BallAerospace/COSMOS/issues/616) #616 Ignore untested Windows version message in Windows 10
+* [#617](https://github.com/BallAerospace/COSMOS/issues/617) #617 Ruby 2.4's inherent Warning class shadows Qt::MessageBox::Warning
+* [#633](https://github.com/BallAerospace/COSMOS/issues/633) #633 combo_box is mutating input
+* [#639](https://github.com/BallAerospace/COSMOS/issues/639) #639 Partial rendering in config parser should enforce that rendered partials start with underscore
+* [#654](https://github.com/BallAerospace/COSMOS/issues/654) #654 Test Runner crashes with no config file
+* [#655](https://github.com/BallAerospace/COSMOS/issues/655) #655 Metadata system triggers a nil router error in api.rb with basic setup
+* [#659](https://github.com/BallAerospace/COSMOS/issues/659) #659 Hazardous commands throwing errors
+
+### Migration Notes from COSMOS 4.0.x:
+
+Any custom tools in other languages that use the COSMOS API will need to be updated. 
+
+To upgrade to the latest version of COSMOS, run "bundle update cosmos" in your COSMOS project folder.
+
+## 4.0.3 / 2017-10-24
+{: #v4-0-3}
+
+**Important Bug Fix:** UdpInterface was only working for locahost on earlier versions of COSMOS 4.0.x. Please upgrade to COSMOS 4.0.3 if you need support for UDP.
+
+### New Features:
+
+* [#585](https://github.com/BallAerospace/COSMOS/issues/585) Add packet level config_name
+
+### Maintenance:
+
+None
+
+### Bug Fixes:
+
+* [#590](https://github.com/BallAerospace/COSMOS/issues/590) UdpReadSocket must be created before UdpWriteSocket if read_port == write_src_port
+
+### Migration Notes from COSMOS 3.x:
+
+COSMOS 4 includes several breaking changes from the COSMOS 3.x series.
+
+The first and simplest is that the Command and Telemetry Server now opens an additional port at 7780 by default, that provides a router that will send out each command that the system has sent.  This can allow external systems to also log all commands sent by COSMOS.  For most people this change will be transparent and no updates to your COSMOS configuration will be required.
+
+The second is that the Command and Telemetry Server now always supports a meta data packet called SYSTEM META.  This packet will always contain the MD5 sum for the current running COSMOS configuration, the version of COSMOS running, the version of your COSMOS Project, and the version of Ruby being used.  You can also add your own requirements for meta data with things like the name of the operator currently running the system, or the name of a specific test you are currently running.  In general you shouldn't need to do anything for this change unless you were using the previous metadata functionality in COSMOS.  If you were, then you will need to migrate your meta data to the new SYSTEM META packet, and change the parameters in your CmdTlmServer or TestRunner configurations regarding meta data.  If you weren't using metadata before, then you will probably just notice this new packet in your log files, and in your telemetry stream.
+
+Finally the most exciting breaking change is in how COSMOS interfaces handle protocols.  Before, the COSMOS TCP/IP and Serial interface classes each took a protocol like LENGTH, TERMINATED, etc that defined how packets were delineated by the interface.  Now each interface can take a set of one or more protocols.  This allows COSMOS to much more easily support nested protocols, such as the frame focused protocols of CCSDS.  It also allows for creating helpful reusable protocols such as the new CRC protocol for automatically adding CRCs to outgoing commands and verifying incoming CRCs on telemetry packets.  It's a great change, but if you have any custom interface classes you have written, they will probably require some modification.  See the Interfaces section at cosmosrb.com to see how the new interface classes work. We will also be writing up a blog post to help document the process of upgrading.  Look for this in a week or two.
+
+To upgrade to the latest version of COSMOS, run "bundle update cosmos" in your COSMOS project folder.
+
+
+## 4.0.2 / 2017-09-29
+{: #v4-0-2}
+
+**Important Bug Fix:** UdpInterface was only working for locahost on earlier versions of COSMOS 4.0.x. Please upgrade to COSMOS 4.0.2 if you need support for UDP.
+
+### New Features:
+
+* [#577](https://github.com/BallAerospace/COSMOS/issues/577) LIMITSBAR widget shouldn't allow RAW
+* [#565](https://github.com/BallAerospace/COSMOS/issues/565) Template Protocol support for logging rather than disconnect on timeout
+
+### Maintenance:
+
+* [#551](https://github.com/BallAerospace/COSMOS/issues/551) TlmViewer meta AUTO_TARGET needs parameter
+* [#553](https://github.com/BallAerospace/COSMOS/issues/553) Create cosmosrb documentation based on metadata
+* [#554](https://github.com/BallAerospace/COSMOS/issues/554) TEMP1 limits getting disabled in demo is confusing
+
+### Bug Fixes:
+
+* [#564](https://github.com/BallAerospace/COSMOS/issues/564) Items with STATES don't respect LIMITS
+* [#568](https://github.com/BallAerospace/COSMOS/issues/568) CSV shouldn't call compact
+* [#569](https://github.com/BallAerospace/COSMOS/issues/569) combo_box and vertical_message_box don't report correct user selection
+* [#580](https://github.com/BallAerospace/COSMOS/issues/580) Udp interface does not work for non-localhost
+
+### Migration Notes from COSMOS 3.8.x:
+
+COSMOS 4 includes several breaking changes from the COSMOS 3.x series.
+
+The first and simplest is that the Command and Telemetry Server now opens an additional port at 7780 by default, that provides a router that will send out each command that the system has sent.  This can allow external systems to also log all commands sent by COSMOS.  For most people this change will be transparent and no updates to your COSMOS configuration will be required.
+
+The second is that the Command and Telemetry Server now always supports a meta data packet called SYSTEM META.  This packet will always contain the MD5 sum for the current running COSMOS configuration, the version of COSMOS running, the version of your COSMOS Project, and the version of Ruby being used.  You can also add your own requirements for meta data with things like the name of the operator currently running the system, or the name of a specific test you are currently running.  In general you shouldn't need to do anything for this change unless you were using the previous metadata functionality in COSMOS.  If you were, then you will need to migrate your meta data to the new SYSTEM META packet, and change the parameters in your CmdTlmServer or TestRunner configurations regarding meta data.  If you weren't using metadata before, then you will probably just notice this new packet in your log files, and in your telemetry stream.
+
+Finally the most exciting breaking change is in how COSMOS interfaces handle protocols.  Before, the COSMOS TCP/IP and Serial interface classes each took a protocol like LENGTH, TERMINATED, etc that defined how packets were delineated by the interface.  Now each interface can take a set of one or more protocols.  This allows COSMOS to much more easily support nested protocols, such as the frame focused protocols of CCSDS.  It also allows for creating helpful reusable protocols such as the new CRC protocol for automatically adding CRCs to outgoing commands and verifying incoming CRCs on telemetry packets.  It's a great change, but if you have any custom interface classes you have written, they will probably require some modification.  See the Interfaces section at cosmosrb.com to see how the new interface classes work. We will also be writing up a blog post to help document the process of upgrading.  Look for this in a week or two.
+
+To upgrade to the latest version of COSMOS, run "bundle update cosmos" in your COSMOS project folder.
+
+
 ## 4.0.1 / 2017-08-23
 {: #v4-0-1}
 
