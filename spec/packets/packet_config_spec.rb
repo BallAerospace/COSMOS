@@ -13,36 +13,6 @@ require 'cosmos'
 require 'cosmos/packets/packet_config'
 require 'tempfile'
 
-XTCE_START =<<END
-<?xml version="1.0" encoding="UTF-8"?>
-<xtce:SpaceSystem xmlns:xtce="http://www.omg.org/space/xtce" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="INST" xsi:schemaLocation="http://www.omg.org/space/xtce http://www.omg.org/spec/XTCE/20061101/06-11-06.xsd">
-  <xtce:TelemetryMetaData>
-    <xtce:ParameterTypeSet>
-      <xtce:IntegerParameterType name="A_Type" shortDescription="A" signed="false">
-        <xtce:UnitSet/>
-END
-XTCE_END =<<END
-      </xtce:IntegerParameterType>
-    </xtce:ParameterTypeSet>
-    <xtce:ParameterSet>
-      <xtce:Parameter name="A" parameterTypeRef="A_Type"/>
-    </xtce:ParameterSet>
-    <xtce:ContainerSet>
-      <xtce:SequenceContainer name="B_Base" abstract="true">
-        <xtce:EntryList>
-          <xtce:ParameterRefEntry parameterRef="A"/>
-        </xtce:EntryList>
-      </xtce:SequenceContainer>
-      <xtce:SequenceContainer name="B" shortDescription="B">
-        <xtce:EntryList/>
-        <xtce:BaseContainer containerRef="B_Base">
-        </xtce:BaseContainer>
-      </xtce:SequenceContainer>
-    </xtce:ContainerSet>
-  </xtce:TelemetryMetaData>
-</xtce:SpaceSystem>
-END
-
 module Cosmos
 
   describe PacketConfig do
@@ -52,125 +22,32 @@ module Cosmos
         @pc = PacketConfig.new
       end
 
-      describe "xtce support" do
-        it "processes xtce telemetry" do
-          tf = Tempfile.new(['unittest', '.xtce'])
-          tf.puts XTCE_START
-          tf.puts '<xtce:IntegerDataEncoding sizeInBits="32" encoding="unsigned"/>'
-          tf.puts XTCE_END
-          tf.close
-
-          @pc.process_file(tf.path, 'TEST')
-
-          packet = @pc.telemetry['TEST']['B']
-          expect(packet).to_not be_nil
-          expect(packet.get_item('A').endianness).to eql :BIG_ENDIAN
-
-          tf.unlink
-        end
-
-        it "processes explicit big endian xtce telemetry" do
-          tf = Tempfile.new(['unittest', '.xtce'])
-          tf.puts XTCE_START
-          tf.puts '<xtce:IntegerDataEncoding sizeInBits="32" encoding="unsigned">' + "\n"
-          tf.puts '  <xtce:ByteOrderList>' + "\n"
-          tf.puts '    <xtce:Byte byteSignificance="3"/>' + "\n"
-          tf.puts '    <xtce:Byte byteSignificance="2"/>' + "\n"
-          tf.puts '    <xtce:Byte byteSignificance="1"/>' + "\n"
-          tf.puts '    <xtce:Byte byteSignificance="0"/>' + "\n"
-          tf.puts '  </xtce:ByteOrderList>' + "\n"
-          tf.puts '</xtce:IntegerDataEncoding>' + "\n"
-          tf.puts XTCE_END
-          tf.close
-
-          @pc.process_file(tf.path, 'TEST')
-
-          packet = @pc.telemetry['TEST']['B']
-          expect(packet).to_not be_nil
-          expect(packet.get_item('A').endianness).to eql :BIG_ENDIAN
-          expect(@pc.warnings).to be_empty
-
-          tf.unlink
-        end
-
-        it "processes explicit little endian xtce telemetry" do
-          tf = Tempfile.new(['unittest', '.xtce'])
-          tf.puts XTCE_START
-          tf.puts '<xtce:IntegerDataEncoding sizeInBits="32" encoding="unsigned">' + "\n"
-          tf.puts '  <xtce:ByteOrderList>' + "\n"
-          tf.puts '    <xtce:Byte byteSignificance="0"/>' + "\n"
-          tf.puts '    <xtce:Byte byteSignificance="1"/>' + "\n"
-          tf.puts '    <xtce:Byte byteSignificance="2"/>' + "\n"
-          tf.puts '    <xtce:Byte byteSignificance="3"/>' + "\n"
-          tf.puts '  </xtce:ByteOrderList>' + "\n"
-          tf.puts '</xtce:IntegerDataEncoding>' + "\n"
-          tf.puts XTCE_END
-          tf.close
-
-          @pc.process_file(tf.path, 'TEST')
-
-          packet = @pc.telemetry['TEST']['B']
-          expect(packet).to_not be_nil
-          expect(packet.get_item('A').endianness).to eql :LITTLE_ENDIAN
-          expect(@pc.warnings).to be_empty
-
-          tf.unlink
-        end
-
-        it "warn of bad byteorderlist no zero xtce telemetry" do
-          tf = Tempfile.new(['unittest', '.xtce'])
-          tf.puts XTCE_START
-          tf.puts '<xtce:IntegerDataEncoding sizeInBits="32" encoding="unsigned">' + "\n"
-          tf.puts '  <xtce:ByteOrderList>' + "\n"
-          tf.puts '    <xtce:Byte byteSignificance="1"/>' + "\n"
-          tf.puts '    <xtce:Byte byteSignificance="2"/>' + "\n"
-          tf.puts '    <xtce:Byte byteSignificance="3"/>' + "\n"
-          tf.puts '    <xtce:Byte byteSignificance="4"/>' + "\n"
-          tf.puts '  </xtce:ByteOrderList>' + "\n"
-          tf.puts '</xtce:IntegerDataEncoding>' + "\n"
-          tf.puts XTCE_END
-          tf.close
-
-          @pc.process_file(tf.path, 'TEST')
-
-          packet = @pc.telemetry['TEST']['B']
-          expect(packet).to_not be_nil
-          expect(packet.get_item('A').endianness).to eql :BIG_ENDIAN
-          expect(@pc.warnings).to_not be_empty
-
-          tf.unlink
-        end
-
-        it "warn of bad byteorderlist scrambled xtce telemetry" do
-          tf = Tempfile.new(['unittest', '.xtce'])
-          tf.puts XTCE_START
-          tf.puts '<xtce:IntegerDataEncoding sizeInBits="32" encoding="unsigned">' + "\n"
-          tf.puts '  <xtce:ByteOrderList>' + "\n"
-          tf.puts '    <xtce:Byte byteSignificance="0"/>' + "\n"
-          tf.puts '    <xtce:Byte byteSignificance="2"/>' + "\n"
-          tf.puts '    <xtce:Byte byteSignificance="1"/>' + "\n"
-          tf.puts '    <xtce:Byte byteSignificance="3"/>' + "\n"
-          tf.puts '  </xtce:ByteOrderList>' + "\n"
-          tf.puts '</xtce:IntegerDataEncoding>' + "\n"
-          tf.puts XTCE_END
-          tf.close
-
-          @pc.process_file(tf.path, 'TEST')
-
-          packet = @pc.telemetry['TEST']['B']
-          expect(packet).to_not be_nil
-          expect(packet.get_item('A').endianness).to eql :LITTLE_ENDIAN
-          expect(@pc.warnings).to_not be_empty
-
-          tf.unlink
-        end
-      end
-
       it "complains about unknown keywords" do
         tf = Tempfile.new('unittest')
         tf.puts("BLAH")
         tf.close
         expect { @pc.process_file(tf.path, 'SYSTEM') }.to raise_error(ConfigParser::Error, /Unknown keyword 'BLAH'/)
+        tf.unlink
+      end
+
+      it "outputs parsed definitions back to a file" do
+        tf = Tempfile.new('unittest')
+        tlm = "TELEMETRY TGT1 PKT1 LITTLE_ENDIAN \"Telemetry\"\n"\
+              "  ITEM BYTE 0 8 UINT \"Item\"\n"
+        tf.write tlm
+        cmd = "COMMAND TGT1 PKT1 LITTLE_ENDIAN \"Command\"\n"\
+              "  PARAMETER PARAM 0 16 UINT 0 0 0 \"Param\"\n"
+        tf.write cmd
+        limits = "LIMITS_GROUP TVAC\n"\
+                 "  LIMITS_GROUP_ITEM TGT1 PKT1 ITEM1\n"
+        tf.write limits
+        tf.close
+        @pc.process_file(tf.path, "TGT1")
+        @pc.to_config(System.paths["LOGS"])
+        @pc.to_xtce(System.paths["LOGS"])
+        expect(cmd.strip).to eql File.read(File.join(System.paths["LOGS"], 'TGT1', 'cmd_tlm', 'tgt1_cmd.txt')).strip
+        expect(tlm.strip).to eql File.read(File.join(System.paths["LOGS"], 'TGT1', 'cmd_tlm', 'tgt1_tlm.txt')).strip
+        expect(limits.strip).to eql File.read(File.join(System.paths["LOGS"], 'SYSTEM', 'cmd_tlm', 'limits_groups.txt')).strip
         tf.unlink
       end
 
