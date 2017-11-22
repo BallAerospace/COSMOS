@@ -320,9 +320,9 @@ module Cosmos
           config << "  ARRAY_PARAMETER #{self.name.to_s.quote_if_necessary} #{self.bit_offset} #{self.bit_size} #{self.data_type} #{self.array_size} \"#{self.description.to_s.gsub("\"", "'")}\""
         elsif self.id_value
           if self.data_type == :BLOCK or self.data_type == :STRING
-            config << "  ID_PARAMETER #{self.name.to_s.quote_if_necessary} #{self.bit_offset} #{self.bit_size} #{self.data_type} \"#{self.default}\" \"#{self.description.to_s.gsub("\"", "'")}\""
+            config << "  ID_PARAMETER #{self.name.to_s.quote_if_necessary} #{self.bit_offset} #{self.bit_size} #{self.data_type} \"#{self.id_value}\" \"#{self.description.to_s.gsub("\"", "'")}\""
           else
-            config << "  ID_PARAMETER #{self.name.to_s.quote_if_necessary} #{self.bit_offset} #{self.bit_size} #{self.data_type} #{self.range.first} #{self.range.last} #{self.default} \"#{self.description.to_s.gsub("\"", "'")}\""
+            config << "  ID_PARAMETER #{self.name.to_s.quote_if_necessary} #{self.bit_offset} #{self.bit_size} #{self.data_type} #{self.range.first} #{self.range.last} #{self.id_value} \"#{self.description.to_s.gsub("\"", "'")}\""
           end
         else
           if self.data_type == :BLOCK or self.data_type == :STRING

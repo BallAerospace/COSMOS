@@ -17,3 +17,6 @@ environment:
 branches:
   only:
     - master
+
+except:
+  - website
