@@ -11,8 +11,8 @@
     <title xml:lang="en">Ball Aerospace COSMOS News</title>
     <atom:link type="application/atom+xml" href="http://cosmosrb/feed.xml" rel="self"/>
     <link>http://cosmosrb.com/</link>
-    <pubDate>Mon, 20 Nov 2017 16:26:55 -0700</pubDate>
-    <lastBuildDate>Mon, 20 Nov 2017 16:26:55 -0700</lastBuildDate>
+    <pubDate>Wed, 29 Nov 2017 11:01:30 -0700</pubDate>
+    <lastBuildDate>Wed, 29 Nov 2017 11:01:30 -0700</lastBuildDate>
     <language>en-US</language>
     <generator>Jekyll v3.5.2</generator>
     <description>The User Interface for Embedded Systems</description>
@@ -24,6 +24,66 @@
       <width>144</width>
       <height>73</height>
     </image>
+    
+    <item>
+      <title>COSMOS 4.1.0 Release Notes</title>
+      <link>http://cosmosrb.com/news/2017/11/28/cosmos-4-1-0-release-notes/</link>
+      <pubDate>Tue, 28 Nov 2017 12:00:00 -0700</pubDate>
+      <dc:creator>jmthomas</dc:creator>
+      
+      
+      <category>post</category>
+      
+      <guid isPermaLink="true">http://cosmosrb.com/news/2017/11/28/cosmos-4-1-0-release-notes/</guid>
+      <description>&lt;p&gt;COSMOS 4.1 has been released and several new noteworthy features were released which weren’t fully captured by the recent &lt;a href=&quot;/news/2017/11/17/cosmos-4-1-0-released/&quot;&gt;release description&lt;/a&gt;. This post will break down the highlights from the new features, maintence items, and bug fixes from the 4.1.0 release.&lt;/p&gt;
+
+&lt;h2 id=&quot;replay-tool-enhancements&quot;&gt;Replay Tool Enhancements&lt;/h2&gt;
+
+&lt;p&gt;I think the best new feature in COSMOS 4.1.0 is the ability of the Reply tool to work side by side with the Command and Telemetry Server (&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/559&quot;&gt;#559&lt;/a&gt;). This change actually affects far more than just the Replay tool and the Server because a new “Replay Mode” was built into Data Viewer, Limits Monitor, Packet Viewer, Telemetry Grapher, and Telemetry Viewer.&lt;/p&gt;
+
+&lt;p&gt;Replay also got a cosmetic upgrade to look more like the Command and Telemetry Server. Here’s the new Replay in action:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/2017_11_28_replay.png&quot; alt=&quot;Replay&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Replay now has tabs for Targets, Cmd Packets, Tlm Packets, Routers, and Status which correspond to the same tabs in the Server. These tabs count the number of packets being processed by Replay. Thus if you rewind the file and play it back, the counts simply keep incrementing.&lt;/p&gt;
+
+&lt;p&gt;Here’s a screenshot of Packet Viewer displaying data in this new Replay mode:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/2017_11_28_packet_viewer_replay.png&quot; alt=&quot;Packet Viewer Replay&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Here’s another screenshot of Telemetry Grapher displaying data in this new Replay mode:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/2017_11_28_tlm_grapher_replay.png&quot; alt=&quot;Packet Viewer Replay&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;You’ll notice the tools have a new File menu option to toggle the Replay mode which displays a green “Replay Mode” bar to visually indicate the tool is no longer processing real-time data.&lt;/p&gt;
+
+&lt;h2 id=&quot;zip-saved-configuration-data&quot;&gt;Zip Saved Configuration Data&lt;/h2&gt;
+
+&lt;p&gt;Issue &lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/579&quot;&gt;#579&lt;/a&gt; was implemented to zip up the COSMOS saved configuration files. This makes configuration managing these saved configurations much easier since you only have to check in a single zip file instead of a folder containing dozens of files and folders.&lt;/p&gt;
+
+&lt;p&gt;If you’re not familiar with saved configurations, let me explain why this is important. When COSMOS starts, it parses the configuration files, calculates the MD5 sum, and puts a copy of the configuration in outputs/saved_config (by default). You should always configuration manage these files in the saved_config directory to allow COSMOS to parse old binary files created by that configuration. The only exception is during COSMOS configuration development when you’re certain you no longer need to parse old telemetry bin files.&lt;/p&gt;
+
+&lt;p&gt;As an example of how these saved configurations work, consider that you collect data during a test. Next you modify the configuration by adding some telemetry items to a packet which increases the packet length. If you try to parse the old binary file, COSMOS would complain that the binary packet is not long enough to match the new definition. However, if you save the old configuration, COSMOS would match the MD5 sum in the packet with the saved configuration and load the configuration to parse the packet. Note that if COSMOS can’t find the saved configuration it uses the current configuration.&lt;/p&gt;
+
+&lt;h2 id=&quot;better-step-debugging&quot;&gt;Better Step Debugging&lt;/h2&gt;
+
+&lt;p&gt;Issue &lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/620&quot;&gt;#620&lt;/a&gt; was to move the Script Runner Step button next to the Start, Pause, Stop buttons rather than down in the debugging pane. This should make it a lot easier to use the Step feature when debugging scripts. Here’s a screenshot of a simple script I started using the Step button (available when you enable Debugging via the Script / Toggle Debug menu).&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/2017_11_28_script_runner_debug.png&quot; alt=&quot;Script Runner Debug&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Issue &lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/619&quot;&gt;#619&lt;/a&gt; was implemented to prevent Script Runner from instrumenting comments and whitespace when running scripts. This should also make debugging scripts easier as you don’t have to step over a bunch of comments or whitespace.&lt;/p&gt;
+
+&lt;h2 id=&quot;api-over-http&quot;&gt;API over HTTP&lt;/h2&gt;
+
+&lt;p&gt;As Ryan mentioned in the &lt;a href=&quot;/news/2017/11/17/cosmos-4-1-0-released/&quot;&gt;4.1 Release Notes&lt;/a&gt;, issue &lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/510&quot;&gt;#510&lt;/a&gt; was created to move the COSMOS API from our custom protocol to HTTP. While this change is transparent to the user, it should make it easier for other languages and tools to interface with the COSMOS system in the future.&lt;/p&gt;
+
+&lt;h2 id=&quot;bug-fixes&quot;&gt;Bug Fixes&lt;/h2&gt;
+
+&lt;p&gt;There were a number of bug fixes as noted in the &lt;a href=&quot;/news/2017/11/17/cosmos-4-1-0-released/&quot;&gt;4.1 Release Notes&lt;/a&gt;. &lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/617&quot;&gt;#617&lt;/a&gt; and &lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/659&quot;&gt;#659&lt;/a&gt; were both related to Ruby 2.4.2 which is the new Ruby version in COSMOS 4.0. Ruby 2.4 is the latest version of Ruby which provides performance improvements you can read about on &lt;a href=&quot;https://www.ruby-lang.org/en/news/2016/12/25/ruby-2-4-0-released/&quot;&gt;ruby-lang.org&lt;/a&gt;. &lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/616&quot;&gt;#616&lt;/a&gt; addresses an annoying message generating by QT on Windows 10. &lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/655&quot;&gt;#655&lt;/a&gt; addresses an issue with using COLLECT_METADATA in the basic “install” version of COSMOS. &lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/633&quot;&gt;#633&lt;/a&gt; fix a bug where the prompt_vertical_message_box and prompt_combo_box scripting methods were mutating the input parameters. If you’re using those scripting methods, you should upgrade to COSMOS 4.1.&lt;/p&gt;
+
+&lt;p&gt;There were a number of other enhancements and bug fixes but the previous list is a compelling reason to upgrade to COSMOS 4.1 today!&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>Ball Aerospace COSMOS 4.1.0 Released</title>
