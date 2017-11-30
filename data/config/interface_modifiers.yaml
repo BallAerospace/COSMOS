@@ -42,3 +42,26 @@ LOG_RAW:
   description: LOG_RAW does not add any COSMOS headers and thus can not be read by COSMOS tools.
     It is primarily useful for low level debugging of an interface. You will have to
     manually parse these logs yourself using a hex editor or other application.
+PROTOCOL:
+  summary: Protocols modify the interface by processing the data
+  description: Protocols can be either READ, WRITE, or READ_WRITE. READ protocols act on the data
+    received by the interface while write acts on the data before it is sent out. READ_WRITE applies
+    the protocol to both reading and writing.<br/><br/>
+    There is only one built in protocol implemented by override_protocol.rb.
+    This protocol allows for Scripts to use the override_tlm() and normalize_tlm() methods to permanently
+    change a telemetry value. Note, this differs from set_tlm() as set_tlm() is over-written by new
+    incoming telemetry.<br/><br/>
+    For information on creating your own custom protocol please see <a href="http://cosmosrb.com/docs/protocols">cosmosrb.com/docs/protocols</a>
+  since: 4.0.0
+  parameters:
+    - name: Type
+      required: true
+      description: Whether to apply the protocol on incoming data, outgoing data, or both
+      values: ['READ', 'WRITE', 'READ_WRITE']
+    - name: Protocol Filename or Classname
+      required: true
+      description: Ruby file name or class name which implements the protocol
+      values: .*
+    - name: Protocol specific parameters
+      required: false
+      description: Additional parameters used by the protocol
