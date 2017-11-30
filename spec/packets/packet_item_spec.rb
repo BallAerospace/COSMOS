@@ -24,6 +24,7 @@ module Cosmos
       it "sets the format_string" do
         @pi.format_string = "%5.1f"
         expect(@pi.format_string).to eql "%5.1f"
+        expect(@pi.to_config(:TELEMETRY, :BIG_ENDIAN)).to match /FORMAT_STRING %5.1f/
       end
 
       it "sets the format_string to nil" do
@@ -47,6 +48,10 @@ module Cosmos
         c = GenericConversion.new("value / 2")
         @pi.read_conversion = c
         expect(@pi.read_conversion.to_s == c.to_s).to be true
+        config = @pi.to_config(:TELEMETRY, :BIG_ENDIAN)
+        expect(config).to match /GENERIC_READ_CONVERSION_START/
+        expect(config).to match /value \/ 2/
+        expect(config).to match /GENERIC_READ_CONVERSION_END/
       end
 
       it "sets the read_conversion to nil" do
@@ -64,6 +69,10 @@ module Cosmos
         c = GenericConversion.new("value / 2")
         @pi.write_conversion = c
         expect(@pi.write_conversion.to_s == c.to_s).to be true
+        config = @pi.to_config(:TELEMETRY, :BIG_ENDIAN)
+        expect(config).to match /GENERIC_WRITE_CONVERSION_START/
+        expect(config).to match /value \/ 2/
+        expect(config).to match /GENERIC_WRITE_CONVERSION_END/
       end
 
       it "sets the write_conversion to nil" do
@@ -78,14 +87,19 @@ module Cosmos
 
     describe "id_value=" do
       it "accepts id values according to data_type" do
+        @pi.range = (0..10)
         @pi.id_value = 10
         expect(@pi.id_value).to eql 10
         @pi.data_type = :FLOAT
         @pi.id_value = 10.0
         expect(@pi.id_value).to eql 10.0
+        expect(@pi.to_config(:COMMAND, :BIG_ENDIAN)).to match(/ID_PARAMETER TEST 0 32 FLOAT 0 10 10.0/)
+        expect(@pi.to_config(:TELEMETRY, :BIG_ENDIAN)).to match(/ID_ITEM TEST 0 32 FLOAT 10.0/)
         @pi.data_type = :STRING
         @pi.id_value = "HI"
         expect(@pi.id_value).to eql "HI"
+        expect(@pi.to_config(:COMMAND, :BIG_ENDIAN)).to match(/ID_PARAMETER TEST 0 32 STRING "HI"/)
+        expect(@pi.to_config(:TELEMETRY, :BIG_ENDIAN)).to match(/ID_ITEM TEST 0 32 STRING HI/)
       end
 
       it "sets the id_value to nil" do
@@ -105,6 +119,9 @@ module Cosmos
         states = {"TRUE"=>1, "FALSE"=>0}
         @pi.states = states
         expect(@pi.states).to eql states
+        config = @pi.to_config(:TELEMETRY, :BIG_ENDIAN)
+        expect(config).to match(/STATE TRUE 1/)
+        expect(config).to match(/STATE FALSE 0/)
       end
 
       it "sets the states to nil" do
@@ -122,6 +139,7 @@ module Cosmos
         description = "this is it"
         @pi.description = description
         expect(@pi.description).to eql description
+        expect(@pi.to_config(:TELEMETRY, :BIG_ENDIAN)).to match(/ITEM TEST 0 32 UINT "this is it"/)
       end
 
       it "sets the description to nil" do
@@ -156,6 +174,8 @@ module Cosmos
         units = "V"
         @pi.units = units
         expect(@pi.units).to eql units
+        @pi.units_full = "Volts"
+        expect(@pi.to_config(:TELEMETRY, :BIG_ENDIAN)).to match(/UNITS Volts V/)
       end
 
       it "sets the units to nil" do
@@ -173,15 +193,22 @@ module Cosmos
         pi = PacketItem.new("test", 0, 8, :INT, :BIG_ENDIAN, 16)
         pi.default = [1, -1]
         expect(pi.default).to eql [1, -1]
+        expect(pi.to_config(:COMMAND, :BIG_ENDIAN)).to match(/ARRAY_PARAMETER TEST 0 8 INT 16/)
+        expect(pi.to_config(:TELEMETRY, :BIG_ENDIAN)).to match(/ARRAY_ITEM TEST 0 8 INT 16/)
         pi = PacketItem.new("test", 0, 32, :UINT, :BIG_ENDIAN, nil)
+        pi.range = (0..10)
         pi.default = 0x01020304
         expect(pi.default).to eql 0x01020304
+        expect(pi.to_config(:COMMAND, :BIG_ENDIAN)).to match(/PARAMETER TEST 0 32 UINT 0 10 16909060/)
         pi = PacketItem.new("test", 0, 32, :FLOAT, :BIG_ENDIAN, nil)
+        pi.range = (-10..10)
         pi.default = 5.5
         expect(pi.default).to eql 5.5
+        expect(pi.to_config(:COMMAND, :BIG_ENDIAN)).to match(/PARAMETER TEST 0 32 FLOAT -10 10 5.5/)
         pi = PacketItem.new("test", 0, 32, :STRING, :BIG_ENDIAN, nil)
         pi.default = "HI"
         expect(pi.default).to eql "HI"
+        expect(pi.to_config(:COMMAND, :BIG_ENDIAN)).to match(/PARAMETER TEST 0 32 STRING "HI"/)
       end
 
       it "sets the default to nil" do
@@ -269,6 +296,12 @@ module Cosmos
         expect(@pi.hazardous).to eql hazardous
         expect(@pi.hazardous["TRUE"]).to eql hazardous["TRUE"]
         expect(@pi.hazardous["FALSE"]).to eql hazardous["FALSE"]
+
+        @pi.range = (0..1)
+        @pi.states = {"TRUE"=>1, "FALSE"=>0}
+        config = @pi.to_config(:COMMAND, :BIG_ENDIAN)
+        expect(config).to match(/STATE TRUE 1/)
+        expect(config).to match(/STATE FALSE 0 HAZARDOUS "NO FALSE ALLOWED"/)
       end
 
       it "sets hazardous to nil" do
@@ -286,6 +319,12 @@ module Cosmos
         state_colors = {"TRUE"=>:GREEN, "FALSE"=>:RED}
         @pi.state_colors = state_colors
         expect(@pi.state_colors).to eql state_colors
+
+        @pi.range = (0..1)
+        @pi.states = {"TRUE"=>1, "FALSE"=>0}
+        config = @pi.to_config(:TELEMETRY, :BIG_ENDIAN)
+        expect(config).to match(/STATE TRUE 1 GREEN/)
+        expect(config).to match(/STATE FALSE 0 RED/)
       end
 
       it "sets the state_colors to nil" do
@@ -301,7 +340,16 @@ module Cosmos
     describe "limits=" do
       it "accepts limits as a PacketItemLimits" do
         limits = PacketItemLimits.new
+        limits.values = {DEFAULT: [10, 20, 80, 90, 40, 50], TVAC: [100, 200, 800, 900]}
         @pi.limits = limits
+        config = @pi.to_config(:TELEMETRY, :BIG_ENDIAN)
+        expect(config).to match(/LIMITS DEFAULT 1 DISABLED 10 20 80 90 40 50/)
+        expect(config).to match(/LIMITS TVAC 1 DISABLED 100 200 800 900/)
+        @pi.limits.enabled = true
+        @pi.limits.persistence_setting = 3
+        config = @pi.to_config(:TELEMETRY, :BIG_ENDIAN)
+        expect(config).to match(/LIMITS DEFAULT 3 ENABLED 10 20 80 90 40 50/)
+        expect(config).to match(/LIMITS TVAC 3 ENABLED 100 200 800 900/)
       end
 
       it "sets the limits to nil" do
@@ -314,10 +362,20 @@ module Cosmos
       end
     end
 
-    describe "meta" do
-      it "allows adding items to the meta hash" do
-        @pi.meta['TYPE'] = 'float32'
-        expect(@pi.meta['TYPE']).to eql 'float32'
+    describe "meta=" do
+      it "only allows a hash" do
+        expect { @pi.meta = 1 }.to raise_error(ArgumentError, /must be a Hash/)
+      end
+
+      it "sets the meta hash" do
+        @pi.meta = { 'TYPE' => ['float32', 'uint8'], 'TEST' => ["test string"] }
+        expect(@pi.meta['TYPE']).to eql ['float32', 'uint8']
+        expect(@pi.meta['TEST']).to eql ["test string"]
+        config = @pi.to_config(:TELEMETRY, :BIG_ENDIAN)
+        expect(config).to match(/META TYPE float32 uint8/)
+        expect(config).to match(/META TEST "test string"/)
+        @pi.meta = nil # Clear the meta hash
+        expect(@pi.meta.empty?).to be true # Clearing it results in empty hash
       end
     end
 
