@@ -12,6 +12,7 @@
   - command
   - telemetry
   - interfaces
+  - protocols
   - environment
 
 - title: Tool Configuration

@@ -11,8 +11,8 @@
     <title xml:lang="en">Ball Aerospace COSMOS News</title>
     <atom:link type="application/atom+xml" href="http://cosmosrb/feed.xml" rel="self"/>
     <link>http://cosmosrb.com/</link>
-    <pubDate>Wed, 29 Nov 2017 14:02:45 -0700</pubDate>
-    <lastBuildDate>Wed, 29 Nov 2017 14:02:45 -0700</lastBuildDate>
+    <pubDate>Thu, 30 Nov 2017 14:55:26 -0700</pubDate>
+    <lastBuildDate>Thu, 30 Nov 2017 14:55:26 -0700</lastBuildDate>
     <language>en-US</language>
     <generator>Jekyll v3.5.2</generator>
     <description>The User Interface for Embedded Systems</description>
@@ -24,16 +24,16 @@
       <width>144</width>
       <height>73</height>
     </image>
-    
+
     <item>
       <title>COSMOS 4.1.0 Release Notes</title>
       <link>http://cosmosrb.com/news/2017/11/28/cosmos-4-1-0-release-notes/</link>
       <pubDate>Tue, 28 Nov 2017 12:00:00 -0700</pubDate>
       <dc:creator>jmthomas</dc:creator>
-      
-      
+
+
       <category>post</category>
-      
+
       <guid isPermaLink="true">http://cosmosrb.com/news/2017/11/28/cosmos-4-1-0-release-notes/</guid>
       <description>&lt;p&gt;COSMOS 4.1 has been released and several new noteworthy features were released which weren’t fully captured by the recent &lt;a href=&quot;/news/2017/11/17/cosmos-4-1-0-released/&quot;&gt;release description&lt;/a&gt;. This post will break down the highlights from the new features, maintence items, and bug fixes from the 4.1.0 release.&lt;/p&gt;
 
@@ -84,16 +84,16 @@
 &lt;p&gt;There were a number of other enhancements and bug fixes but the previous list is a compelling reason to upgrade to COSMOS 4.1 today!&lt;/p&gt;
 </description>
     </item>
-    
+
     <item>
       <title>Ball Aerospace COSMOS 4.1.0 Released</title>
       <link>http://cosmosrb.com/news/2017/11/17/cosmos-4-1-0-released/</link>
       <pubDate>Fri, 17 Nov 2017 12:00:00 -0700</pubDate>
       <dc:creator>ryanmelt</dc:creator>
-      
-      
+
+
       <category>release</category>
-      
+
       <guid isPermaLink="true">http://cosmosrb.com/news/2017/11/17/cosmos-4-1-0-released/</guid>
       <description>&lt;p&gt;Welcome to COSMOS 4.1!  The COSMOS API has transitioned from a custom TCP protocol to HTTP.  This will make interfacing to COSMOS from programming languages other than Ruby much easier.  There are also many new APIs that allows the full functionality of the CmdTlmServer and Replay to be controlled remotely.  See below for the full list of changes!&lt;/p&gt;
 
@@ -155,16 +155,16 @@
 &lt;p&gt;To upgrade to the latest version of COSMOS, run “bundle update cosmos” in your COSMOS project folder.&lt;/p&gt;
 </description>
     </item>
-    
+
     <item>
       <title>Require vs Load</title>
       <link>http://cosmosrb.com/news/2017/11/13/require_vs_load/</link>
       <pubDate>Mon, 13 Nov 2017 09:00:00 -0700</pubDate>
       <dc:creator>jmthomas</dc:creator>
-      
-      
+
+
       <category>post</category>
-      
+
       <guid isPermaLink="true">http://cosmosrb.com/news/2017/11/13/require_vs_load/</guid>
       <description>&lt;p&gt;As a COSMOS developer I often get asked about require vs load vs require_utility vs load_utility and what do they all mean. Let me explain these keywords and how they are used within Ruby and COSMOS.&lt;/p&gt;
 
@@ -391,16 +391,16 @@ C:/git/COSMOS/demo/config/targets/SYSTEM/lib
 &lt;p&gt;If you need additional support please contact us at &lt;a href=&quot;mailto:cosmos@ball.com&quot;&gt;cosmos@ball.com&lt;/a&gt;.&lt;/p&gt;
 </description>
     </item>
-    
+
     <item>
       <title>Config Editor</title>
       <link>http://cosmosrb.com/news/2017/10/30/config-editor/</link>
       <pubDate>Mon, 30 Oct 2017 10:00:00 -0600</pubDate>
       <dc:creator>jmthomas</dc:creator>
-      
-      
+
+
       <category>post</category>
-      
+
       <guid isPermaLink="true">http://cosmosrb.com/news/2017/10/30/config-editor/</guid>
       <description>&lt;p&gt;COSMOS gained a new tool in the &lt;a href=&quot;/news/2017/08/04/cosmos-4-0-0-released/&quot;&gt;4.0.0 release&lt;/a&gt; called Configuration Editor. This tool provides contextual help when editing COSMOS configuration files and thus should make configuring COSMOS much easier than in the past.&lt;/p&gt;
 
@@ -451,16 +451,16 @@ C:/git/COSMOS/demo/config/targets/SYSTEM/lib
 &lt;p&gt;If you need additional support please contact us at &lt;a href=&quot;mailto:cosmos@ball.com&quot;&gt;cosmos@ball.com&lt;/a&gt;.&lt;/p&gt;
 </description>
     </item>
-    
+
     <item>
       <title>Ball Aerospace COSMOS 4.0.3 Released</title>
       <link>http://cosmosrb.com/news/2017/10/24/cosmos-4-0-3-released/</link>
       <pubDate>Tue, 24 Oct 2017 13:00:00 -0600</pubDate>
       <dc:creator>jmthomas</dc:creator>
-      
-      
+
+
       <category>release</category>
-      
+
       <guid isPermaLink="true">http://cosmosrb.com/news/2017/10/24/cosmos-4-0-3-released/</guid>
       <description>&lt;p&gt;&lt;strong&gt;Important Bug Fix:&lt;/strong&gt; UdpInterface was only working for locahost on earlier versions of COSMOS 4.0.x. Please upgrade to COSMOS 4.0.3 if you need support for UDP.&lt;/p&gt;
 
@@ -493,16 +493,16 @@ C:/git/COSMOS/demo/config/targets/SYSTEM/lib
 &lt;p&gt;To upgrade to the latest version of COSMOS, run “bundle update cosmos” in your COSMOS project folder.&lt;/p&gt;
 </description>
     </item>
-    
+
     <item>
       <title>Ball Aerospace COSMOS 4.0.2 Released</title>
       <link>http://cosmosrb.com/news/2017/09/29/cosmos-4-0-2-released/</link>
       <pubDate>Fri, 29 Sep 2017 13:00:00 -0600</pubDate>
       <dc:creator>jmthomas</dc:creator>
-      
-      
+
+
       <category>release</category>
-      
+
       <guid isPermaLink="true">http://cosmosrb.com/news/2017/09/29/cosmos-4-0-2-released/</guid>
       <description>&lt;p&gt;&lt;strong&gt;Important Bug Fix:&lt;/strong&gt; UdpInterface was only working for locahost on earlier versions of COSMOS 4.0.x. Please upgrade to COSMOS 4.0.2 if you need support for UDP.&lt;/p&gt;
 
@@ -543,16 +543,16 @@ C:/git/COSMOS/demo/config/targets/SYSTEM/lib
 &lt;p&gt;To upgrade to the latest version of COSMOS, run “bundle update cosmos” in your COSMOS project folder.&lt;/p&gt;
 </description>
     </item>
-    
+
     <item>
       <title>Deploying COSMOS to the Cloud</title>
       <link>http://cosmosrb.com/news/2017/08/23/cloud-deploy/</link>
       <pubDate>Wed, 23 Aug 2017 14:00:00 -0600</pubDate>
       <dc:creator>jmthomas</dc:creator>
-      
-      
+
+
       <category>post</category>
-      
+
       <guid isPermaLink="true">http://cosmosrb.com/news/2017/08/23/cloud-deploy/</guid>
       <description>&lt;p&gt;COSMOS is a GUI application which runs equally well on Windows, Linux, and Mac OS X due to the QT GUI framework and Ruby language it is written in. Traditionally this means you install it locally on your own workstation and you’re off and running. But can COSMOS also be deployed to the cloud? Yes! This post describes how I deployed COSMOS to Amazon Web Services (AWS) using several different technologies.&lt;/p&gt;
 
@@ -671,16 +671,16 @@ vncconfig -iconic &amp;amp;
 &lt;p&gt;If you need additional support please contact us at &lt;a href=&quot;mailto:cosmos@ball.com&quot;&gt;cosmos@ball.com&lt;/a&gt;.&lt;/p&gt;
 </description>
     </item>
-    
+
     <item>
       <title>Ball Aerospace COSMOS 4.0.1 Released</title>
       <link>http://cosmosrb.com/news/2017/08/23/cosmos-4-0-1-released/</link>
       <pubDate>Wed, 23 Aug 2017 13:00:00 -0600</pubDate>
       <dc:creator>ryanmelt</dc:creator>
-      
-      
+
+
       <category>release</category>
-      
+
       <guid isPermaLink="true">http://cosmosrb.com/news/2017/08/23/cosmos-4-0-1-released/</guid>
       <description>&lt;h3 id=&quot;new-features&quot;&gt;New Features:&lt;/h3&gt;
 
@@ -721,16 +721,16 @@ vncconfig -iconic &amp;amp;
 &lt;p&gt;To upgrade to the latest version of COSMOS, run “bundle update cosmos” in your COSMOS project folder.&lt;/p&gt;
 </description>
     </item>
-    
+
     <item>
       <title>Ball Aerospace COSMOS 4.0.0 Released</title>
       <link>http://cosmosrb.com/news/2017/08/04/cosmos-4-0-0-released/</link>
       <pubDate>Fri, 04 Aug 2017 13:00:00 -0600</pubDate>
       <dc:creator>ryanmelt</dc:creator>
-      
-      
+
+
       <category>release</category>
-      
+
       <guid isPermaLink="true">http://cosmosrb.com/news/2017/08/04/cosmos-4-0-0-released/</guid>
       <description>&lt;p&gt;COSMOS 4 is here!&lt;/p&gt;
 
@@ -831,30 +831,30 @@ vncconfig -iconic &amp;amp;
 &lt;p&gt;To upgrade to the latest version of COSMOS, run “bundle update cosmos” in your COSMOS project folder.&lt;/p&gt;
 </description>
     </item>
-    
+
     <item>
       <title>Arduinos &amp; Battle Bots</title>
       <link>http://cosmosrb.com/news/2017/07/05/arduino-battle-bots/</link>
       <pubDate>Wed, 05 Jul 2017 01:00:00 -0600</pubDate>
       <dc:creator>jmthomas</dc:creator>
-      
-      
+
+
       <category>post</category>
-      
+
       <guid isPermaLink="true">http://cosmosrb.com/news/2017/07/05/arduino-battle-bots/</guid>
       <description>&lt;p&gt;Ball Aerospace COSMOS has been featured in a &lt;a href=&quot;http://www.williamosman.com/2016/08/cosmos-and-arduino-20-telemetry-system.html&quot;&gt;blog post&lt;/a&gt; by &lt;a href=&quot;http://www.williamosman.com/&quot;&gt;William Osman&lt;/a&gt; about creating a telemetry system for a race car. William mentions first seeing COSMOS in action on the set of Battle Bots &lt;a href=&quot;http://www.battlebots.com/bracket-s2/&quot;&gt;Season 2&lt;/a&gt; where &lt;a href=&quot;http://battlebots.com/robot/chomp-2/&quot;&gt;Team Chomp&lt;/a&gt; was using it enroute to their quarterfinal finish. What an awesome example of COSMOS in action!&lt;/p&gt;
 </description>
     </item>
-    
+
     <item>
       <title>Template Protocol</title>
       <link>http://cosmosrb.com/news/2017/06/19/template_protocol/</link>
       <pubDate>Mon, 19 Jun 2017 01:00:00 -0600</pubDate>
       <dc:creator>jmthomas</dc:creator>
-      
-      
+
+
       <category>post</category>
-      
+
       <guid isPermaLink="true">http://cosmosrb.com/news/2017/06/19/template_protocol/</guid>
       <description>&lt;p&gt;The &lt;a href=&quot;http://cosmosrb.com/docs/interfaces/#template-stream-protocol&quot;&gt;Template Stream Protocol&lt;/a&gt; is probably one of the more confusing protocols in the COSMOS stream protocol library but it is extremely helpful when implementing string based protocols such as Standard Commands for Programmable Instruments (SCPI; often pronounced “skippy”).&lt;/p&gt;
 
@@ -919,16 +919,16 @@ COMMAND POWER SET_VOLTAGE BIG_ENDIAN &quot;Set voltage&quot;
 &lt;p&gt;Using the TEMPLATE processor can be complex but makes working with with string based command / response protocols like SCPI much easier. If you need additional support please contact us at &lt;a href=&quot;mailto:cosmos@ball.com&quot;&gt;cosmos@ball.com&lt;/a&gt;.&lt;/p&gt;
 </description>
     </item>
-    
+
     <item>
       <title>Ball Aerospace COSMOS 3.9.2 Released</title>
       <link>http://cosmosrb.com/news/2017/05/18/cosmos-3-9-2-released/</link>
       <pubDate>Thu, 18 May 2017 13:00:00 -0600</pubDate>
       <dc:creator>ryanmelt</dc:creator>
-      
-      
+
+
       <category>release</category>
-      
+
       <guid isPermaLink="true">http://cosmosrb.com/news/2017/05/18/cosmos-3-9-2-released/</guid>
       <description>&lt;h3 id=&quot;new-features&quot;&gt;New Features:&lt;/h3&gt;
 
@@ -972,16 +972,16 @@ Documentation will updated the first week of April.&lt;/p&gt;
 &lt;p&gt;To upgrade to the latest version of COSMOS, run “bundle update cosmos” in your COSMOS project folder.&lt;/p&gt;
 </description>
     </item>
-    
+
     <item>
       <title>Packet Processors</title>
       <link>http://cosmosrb.com/news/2017/05/08/packet_processors/</link>
       <pubDate>Mon, 08 May 2017 01:00:00 -0600</pubDate>
       <dc:creator>jmthomas</dc:creator>
-      
-      
+
+
       <category>post</category>
-      
+
       <guid isPermaLink="true">http://cosmosrb.com/news/2017/05/08/packet_processors/</guid>
       <description>&lt;p&gt;COSMOS Packet Processors are a powerful concept that allow you to run code each time a specified packet is received. COSMOS provides a few generic Packet Processors which allows you to include statistics about individual telemetry points in your defined packets. Let’s break down how the COSMOS included processors are used and how you can implement your own Packet Processor.&lt;/p&gt;
 
@@ -1168,30 +1168,30 @@ Then delcare the processing in your configuration definition as follows:
 &lt;p&gt;Creating a custom processor definitely requires you to dive into the COSMOS API and play with the underlying Ruby code. Hopefully the existing processor code and this blog post helps you to derive whatever telemetry points you need. Happy processing and if you need additional support please contact us at &lt;a href=&quot;mailto:cosmos@ball.com&quot;&gt;cosmos@ball.com&lt;/a&gt;.&lt;/p&gt;
 </description>
     </item>
-    
+
     <item>
       <title>WIRED Article</title>
       <link>http://cosmosrb.com/news/2017/04/24/wired/</link>
       <pubDate>Mon, 24 Apr 2017 01:00:00 -0600</pubDate>
       <dc:creator>jmthomas</dc:creator>
-      
-      
+
+
       <category>post</category>
-      
+
       <guid isPermaLink="true">http://cosmosrb.com/news/2017/04/24/wired/</guid>
       <description>&lt;p&gt;Ball Aerospace COSMOS has been featured in an article on &lt;a href=&quot;https://www.wired.com/2017/04/aerospace-coder-drags-stodgy-industry-toward-open-source/&quot;&gt;WIRED.com&lt;/a&gt;. The article focues on the fact that COSMOS is open source and what that means for the industry. The author includes quotes from GitHub’s VP of Product Engineering, Aerospace Corporation’s Principle Director of IT, and of course Ryan Melton and Jason Thomas of Ball Aerospace.&lt;/p&gt;
 </description>
     </item>
-    
+
     <item>
       <title>Ball Aerospace COSMOS 3.9.1 Released</title>
       <link>http://cosmosrb.com/news/2017/03/29/cosmos-3-9-1-released/</link>
       <pubDate>Wed, 29 Mar 2017 13:00:00 -0600</pubDate>
       <dc:creator>ryanmelt</dc:creator>
-      
-      
+
+
       <category>release</category>
-      
+
       <guid isPermaLink="true">http://cosmosrb.com/news/2017/03/29/cosmos-3-9-1-released/</guid>
       <description>&lt;h3 id=&quot;new-features&quot;&gt;New Features:&lt;/h3&gt;
 
@@ -1233,16 +1233,16 @@ Documentation will updated the first week of April.&lt;/p&gt;
 &lt;p&gt;To upgrade to the latest version of COSMOS, run “bundle update cosmos” in your COSMOS project folder.&lt;/p&gt;
 </description>
     </item>
-    
+
     <item>
       <title>Routers</title>
       <link>http://cosmosrb.com/news/2017/02/22/routers/</link>
       <pubDate>Wed, 22 Feb 2017 00:00:00 -0700</pubDate>
       <dc:creator>jmthomas</dc:creator>
-      
-      
+
+
       <category>post</category>
-      
+
       <guid isPermaLink="true">http://cosmosrb.com/news/2017/02/22/routers/</guid>
       <description>&lt;p&gt;COSMOS Routers can be a confusing topic for people new and old alike to the COSMOS system. Let’s break them down and explore how COSMOS uses them internally and how you might use them in your configuration.&lt;/p&gt;
 
@@ -1317,16 +1317,16 @@ ADCS
 &lt;p&gt;Happy routing and if you need additional support please contact us at &lt;a href=&quot;mailto:cosmos@ball.com&quot;&gt;cosmos@ball.com&lt;/a&gt;.&lt;/p&gt;
 </description>
     </item>
-    
+
     <item>
       <title>Ball Aerospace COSMOS 3.8.3 Released</title>
       <link>http://cosmosrb.com/news/2016/12/06/cosmos-3-8-3-released/</link>
       <pubDate>Tue, 06 Dec 2016 12:00:00 -0700</pubDate>
       <dc:creator>ryanmelt</dc:creator>
-      
-      
+
+
       <category>release</category>
-      
+
       <guid isPermaLink="true">http://cosmosrb.com/news/2016/12/06/cosmos-3-8-3-released/</guid>
       <description>&lt;h3 id=&quot;new-features&quot;&gt;New Features:&lt;/h3&gt;
 
@@ -1371,16 +1371,16 @@ ADCS
 &lt;p&gt;To upgrade to the latest version of COSMOS, run “bundle update cosmos” in your COSMOS project folder.&lt;/p&gt;
 </description>
     </item>
-    
+
     <item>
       <title>SmallSat Ops</title>
       <link>http://cosmosrb.com/news/2016/10/13/cosmos-cubesat-ops/</link>
       <pubDate>Thu, 13 Oct 2016 01:00:00 -0600</pubDate>
       <dc:creator>jmthomas</dc:creator>
-      
-      
+
+
       <category>post</category>
-      
+
       <guid isPermaLink="true">http://cosmosrb.com/news/2016/10/13/cosmos-cubesat-ops/</guid>
       <description>&lt;p&gt;The fact that COSMOS is the only open source C2 system has made it an ideal small satellite operations platform. This is one of the reasons Ryan attended the Small Satellite Conference back in August. He gave a very well received COSMOS presentation and was able to meet with many players in the industry.&lt;/p&gt;
 
@@ -1396,16 +1396,16 @@ ADCS
 
 </description>
     </item>
-    
+
     <item>
       <title>ERB Config Files</title>
       <link>http://cosmosrb.com/news/2016/09/12/erb-config/</link>
       <pubDate>Mon, 12 Sep 2016 01:00:00 -0600</pubDate>
       <dc:creator>jmthomas</dc:creator>
-      
-      
+
+
       <category>post</category>
-      
+
       <guid isPermaLink="true">http://cosmosrb.com/news/2016/09/12/erb-config/</guid>
       <description>&lt;p&gt;COSMOS configuration files support ERB (Embedded RuBy) which is used heavily by &lt;a href=&quot;http://rubyonrails.org/&quot;&gt;Ruby on Rails&lt;/a&gt;. I found a pretty good description of ERB &lt;a href=&quot;http://www.stuartellis.eu/articles/erb/&quot;&gt;here&lt;/a&gt;. ERB allows you to put executable Ruby code in your configuration files. The trick is to surround the Ruby code with the special markers: &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;% &amp;lt;code&amp;gt; %&amp;gt;&lt;/code&gt;. If you want the result of your Ruby code to be placed in the configuration file you need to add the equal sign to the first marker: &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;%= &amp;lt;code&amp;gt; %&amp;gt;&lt;/code&gt;&lt;/p&gt;
 
@@ -1477,16 +1477,16 @@ COMMAND INST ABORT BIG_ENDIAN &quot;Aborts a collect on the instrument&quot;
 &lt;p&gt;ERB is incredibly powerful and a great way to avoid WET (Write Each Time) command and telemetry definitions. Now go DRY (Don’t Repeat Yourself) up your COSMOS configuration and as always if you need additional support please contact us at &lt;a href=&quot;mailto:cosmos@ball.com&quot;&gt;cosmos@ball.com&lt;/a&gt;.&lt;/p&gt;
 </description>
     </item>
-    
+
     <item>
       <title>Custom Widgets</title>
       <link>http://cosmosrb.com/news/2016/08/22/custom-widgets/</link>
       <pubDate>Mon, 22 Aug 2016 01:00:00 -0600</pubDate>
       <dc:creator>jmthomas</dc:creator>
-      
-      
+
+
       <category>post</category>
-      
+
       <guid isPermaLink="true">http://cosmosrb.com/news/2016/08/22/custom-widgets/</guid>
       <description>&lt;p&gt;Sometimes we receive requests to make custom COSMOS widgets or to modify existing COSMOS widgets to add certain looks or functionality. While this is a project we’re happy to perform for our customers, it’s also something that can be done by end users willing to dig into some of the Qt and COSMOS documentation. In this post, I’m going to describe how to create a custom COSMOS widget.&lt;/p&gt;
 
@@ -1610,16 +1610,16 @@ ARRAY INST HEALTH_STATUS ARY 300 50 nil 8 FORMATTED
 &lt;p&gt;Good luck creating your own widgets and if you need additional support please contact us at &lt;a href=&quot;mailto:cosmos@ball.com&quot;&gt;cosmos@ball.com&lt;/a&gt;.&lt;/p&gt;
 </description>
     </item>
-    
+
     <item>
       <title>Custom COSMOS Interface</title>
       <link>http://cosmosrb.com/news/2016/08/04/custom-cosmos_interface/</link>
       <pubDate>Thu, 04 Aug 2016 01:00:00 -0600</pubDate>
       <dc:creator>jmthomas</dc:creator>
-      
-      
+
+
       <category>post</category>
-      
+
       <guid isPermaLink="true">http://cosmosrb.com/news/2016/08/04/custom-cosmos_interface/</guid>
       <description>&lt;p&gt;One of our Ball Aerospace engineers asked how they could add a checksum to an existing COSMOS interface when talking to their target. COSMOS does not support this directly so it requires creating a custom interface. While this might sound daunting, the COSMOS interfaces were designed just for this type of extension and provide hooks for customization.&lt;/p&gt;
 
@@ -1669,16 +1669,16 @@ INTERFACE UART_INTERFACE  checksum_serial_interface.rb COM1  COM1 115200 NONE   
 &lt;p&gt;This same technique can obviously be used to extend the the other TCPIP interfaces and can be used with all the various &lt;a href=&quot;http://cosmosrb.com/docs/interfaces/#streams-and-stream-protocols&quot;&gt;Stream Protocol&lt;/a&gt; classes COSMOS defines.&lt;/p&gt;
 </description>
     </item>
-    
+
     <item>
       <title>COSMOS Cmd/Tlm Naming</title>
       <link>http://cosmosrb.com/news/2016/07/06/cosmos-cmd-tlm-names/</link>
       <pubDate>Wed, 06 Jul 2016 18:00:00 -0600</pubDate>
       <dc:creator>jmthomas</dc:creator>
-      
-      
+
+
       <category>post</category>
-      
+
       <guid isPermaLink="true">http://cosmosrb.com/news/2016/07/06/cosmos-cmd-tlm-names/</guid>
       <description>&lt;p&gt;Recently a user asked if they could add exclamation points and question marks to their command and telemetry items. Absolutely!  COSMOS provides great flexibility in command and telemetry naming conventions. (See &lt;a href=&quot;http://cosmosrb.com/docs/cmdtlm&quot;&gt;cmdtlm&lt;/a&gt;). For example, adding an exclamation point to a command to denote a more severe version of the same command:&lt;/p&gt;
 
@@ -1705,16 +1705,16 @@ ITEM DEPLOYED? 0 0 DERIVED &quot;Deployed status&quot;
 
 </description>
     </item>
-    
+
     <item>
       <title>Ball Aerospace COSMOS 3.8.2 Released</title>
       <link>http://cosmosrb.com/news/2016/07/05/cosmos-3-8-2-released/</link>
       <pubDate>Tue, 05 Jul 2016 13:00:00 -0600</pubDate>
       <dc:creator>jmthomas</dc:creator>
-      
-      
+
+
       <category>release</category>
-      
+
       <guid isPermaLink="true">http://cosmosrb.com/news/2016/07/05/cosmos-3-8-2-released/</guid>
       <description>&lt;h3 id=&quot;new-features&quot;&gt;New Features:&lt;/h3&gt;
 
@@ -1736,16 +1736,16 @@ ITEM DEPLOYED? 0 0 DERIVED &quot;Deployed status&quot;
 &lt;p&gt;None&lt;/p&gt;
 </description>
     </item>
-    
+
     <item>
       <title>Ball Aerospace COSMOS 3.8.1 Released</title>
       <link>http://cosmosrb.com/news/2016/05/12/cosmos-3-8-1-released/</link>
       <pubDate>Thu, 12 May 2016 13:00:00 -0600</pubDate>
       <dc:creator>ryanmelt</dc:creator>
-      
-      
+
+
       <category>release</category>
-      
+
       <guid isPermaLink="true">http://cosmosrb.com/news/2016/05/12/cosmos-3-8-1-released/</guid>
       <description>&lt;h3 id=&quot;new-features&quot;&gt;New Features:&lt;/h3&gt;
 
@@ -1783,30 +1783,30 @@ ITEM DEPLOYED? 0 0 DERIVED &quot;Deployed status&quot;
 &lt;p&gt;None&lt;/p&gt;
 </description>
     </item>
-    
+
     <item>
       <title>Sparkfun Blog Post</title>
       <link>http://cosmosrb.com/news/2016/03/03/sparkfun/</link>
       <pubDate>Thu, 03 Mar 2016 00:00:00 -0700</pubDate>
       <dc:creator>jmthomas</dc:creator>
-      
-      
+
+
       <category>post</category>
-      
+
       <guid isPermaLink="true">http://cosmosrb.com/news/2016/03/03/sparkfun/</guid>
       <description>&lt;p&gt;Ball Aerospace COSMOS has been featured in a blog post on &lt;a href=&quot;https://www.sparkfun.com/news/2022&quot;&gt;SparkFun&lt;/a&gt;. SparkFun is an online retail store that sells electronics primarily for hobbyists. Ball recently purchased a Raspberry Pi, Arduino, and various other parts to interface to COSMOS. We think hobbyists will find COSMOS a great way to interface to their embedded projects and SparkFun agrees! &lt;a href=&quot;http://cosmosrb.com/docs/installation&quot;&gt;Get started&lt;/a&gt; with COSMOS now!&lt;/p&gt;
 </description>
     </item>
-    
+
     <item>
       <title>XTCE Support</title>
       <link>http://cosmosrb.com/news/2016/02/27/xtce-support/</link>
       <pubDate>Sat, 27 Feb 2016 12:00:00 -0700</pubDate>
       <dc:creator>ryanmelt</dc:creator>
-      
-      
+
+
       <category>post</category>
-      
+
       <guid isPermaLink="true">http://cosmosrb.com/news/2016/02/27/xtce-support/</guid>
       <description>&lt;p&gt;Ball Aerospace COSMOS now has support for the &lt;a href=&quot;http://www.omg.org/space/xtce/&quot; target=&quot;_blank&quot;&gt;XTCE Command and Telemetry Definition Standard&lt;/a&gt;. This is an open standard designed to allow command and telemetry definitions to be transferred between different ground systems. COSMOS can run directly using the .xtce files, or can convert them into the COSMOS configuration file format.&lt;/p&gt;
 
@@ -1814,31 +1814,31 @@ ITEM DEPLOYED? 0 0 DERIVED &quot;Deployed status&quot;
 
 </description>
     </item>
-    
+
     <item>
       <title>Fukuoka Special Award Winner</title>
       <link>http://cosmosrb.com/news/2016/02/27/fukuoka-award/</link>
       <pubDate>Sat, 27 Feb 2016 00:00:00 -0700</pubDate>
       <dc:creator>ryanmelt</dc:creator>
-      
-      
+
+
       <category>post</category>
-      
+
       <guid isPermaLink="true">http://cosmosrb.com/news/2016/02/27/fukuoka-award/</guid>
       <description>&lt;p&gt;Ball Aerospace COSMOS has been honored by the Ruby community by receiving one of the three Fukuoka Special Awards handed out this year! This is a great honor with the contest judging being led by Matz himself (the creator of the Ruby programming language).  Read more on the MyFukuoka website here: &lt;a href=&quot;http://myfukuoka.com/events/2016-fukuoka-ruby-award-winners/&quot; target=&quot;_blank&quot;&gt;MyFukuoka 2016 Ruby Award Winners&lt;/a&gt;&lt;/p&gt;
 
 </description>
     </item>
-    
+
     <item>
       <title>Ball Aerospace COSMOS 3.8.0 Released</title>
       <link>http://cosmosrb.com/news/2016/02/26/cosmos-3-8-0-released/</link>
       <pubDate>Fri, 26 Feb 2016 12:00:00 -0700</pubDate>
       <dc:creator>ryanmelt</dc:creator>
-      
-      
+
+
       <category>release</category>
-      
+
       <guid isPermaLink="true">http://cosmosrb.com/news/2016/02/26/cosmos-3-8-0-released/</guid>
       <description>&lt;p&gt;With this release COSMOS now has initial support for the XTCE Command and Telemetry Definition standard.&lt;/p&gt;
 
@@ -1861,16 +1861,16 @@ ITEM DEPLOYED? 0 0 DERIVED &quot;Deployed status&quot;
 
 </description>
     </item>
-    
+
     <item>
       <title>COSMOS Simulated Target</title>
       <link>http://cosmosrb.com/news/2016/02/11/simulated-target/</link>
       <pubDate>Thu, 11 Feb 2016 00:00:00 -0700</pubDate>
       <dc:creator>jmthomas</dc:creator>
-      
-      
+
+
       <category>post</category>
-      
+
       <guid isPermaLink="true">http://cosmosrb.com/news/2016/02/11/simulated-target/</guid>
       <description>&lt;h2 id=&quot;creating-a-cosmos-simulated-target&quot;&gt;Creating a COSMOS Simulated Target&lt;/h2&gt;
 
@@ -2048,16 +2048,16 @@ TELEMETRY INST DATA BIG_ENDIAN &quot;Data from the instrument&quot;
 
 </description>
     </item>
-    
+
     <item>
       <title>Ball Aerospace COSMOS 3.7.1 Released</title>
       <link>http://cosmosrb.com/news/2015/12/29/cosmos-3-7-1-released/</link>
       <pubDate>Tue, 29 Dec 2015 12:00:00 -0700</pubDate>
       <dc:creator>ryanmelt</dc:creator>
-      
-      
+
+
       <category>release</category>
-      
+
       <guid isPermaLink="true">http://cosmosrb.com/news/2015/12/29/cosmos-3-7-1-released/</guid>
       <description>&lt;h3 id=&quot;bug-fixes&quot;&gt;Bug Fixes:&lt;/h3&gt;
 
@@ -2079,16 +2079,16 @@ TELEMETRY INST DATA BIG_ENDIAN &quot;Data from the instrument&quot;
 &lt;/ol&gt;
 </description>
     </item>
-    
+
     <item>
       <title>Ball Aerospace COSMOS 3.7.0 Released</title>
       <link>http://cosmosrb.com/news/2015/11/25/cosmos-3-7-0-released/</link>
       <pubDate>Wed, 25 Nov 2015 12:00:00 -0700</pubDate>
       <dc:creator>ryanmelt</dc:creator>
-      
-      
+
+
       <category>release</category>
-      
+
       <guid isPermaLink="true">http://cosmosrb.com/news/2015/11/25/cosmos-3-7-0-released/</guid>
       <description>&lt;h3 id=&quot;new-features&quot;&gt;New Features:&lt;/h3&gt;
 
@@ -2122,16 +2122,16 @@ TELEMETRY INST DATA BIG_ENDIAN &quot;Data from the instrument&quot;
 &lt;/ol&gt;
 </description>
     </item>
-    
+
     <item>
       <title>Ball Aerospace COSMOS 3.6.3 Released</title>
       <link>http://cosmosrb.com/news/2015/10/30/cosmos-3-6-3-released/</link>
       <pubDate>Fri, 30 Oct 2015 13:00:00 -0600</pubDate>
       <dc:creator>ryanmelt</dc:creator>
-      
-      
+
+
       <category>release</category>
-      
+
       <guid isPermaLink="true">http://cosmosrb.com/news/2015/10/30/cosmos-3-6-3-released/</guid>
       <description>&lt;h3 id=&quot;new-features&quot;&gt;New Features:&lt;/h3&gt;
 
@@ -2162,16 +2162,16 @@ TELEMETRY INST DATA BIG_ENDIAN &quot;Data from the instrument&quot;
 &lt;p&gt;None&lt;/p&gt;
 </description>
     </item>
-    
+
     <item>
       <title>COSMOS at the ATS Conference</title>
       <link>http://cosmosrb.com/news/2015/10/28/cosmos-at-ats-conference/</link>
       <pubDate>Wed, 28 Oct 2015 13:00:00 -0600</pubDate>
       <dc:creator>ryanmelt</dc:creator>
-      
-      
+
+
       <category>conference</category>
-      
+
       <guid isPermaLink="true">http://cosmosrb.com/news/2015/10/28/cosmos-at-ats-conference/</guid>
       <description>&lt;p&gt;Ball Aerospace COSMOS is being featured in three papers and presentations at this years &lt;a href=&quot;http://www.cvent.com/events/2015-aerospace-testing-seminar-ats-/custom-118-518ccae66e804adb9dac56355e03868b.aspx&quot;&gt;Aerospace Testing Seminar (ATS)&lt;/a&gt; taking place at the Renaissance Los Angeles Airport Hotel October 27-29, 2015.&lt;/p&gt;
 
@@ -2184,16 +2184,16 @@ TELEMETRY INST DATA BIG_ENDIAN &quot;Data from the instrument&quot;
 &lt;/ul&gt;
 </description>
     </item>
-    
+
     <item>
       <title>Ball Aerospace COSMOS 3.6.2 Released</title>
       <link>http://cosmosrb.com/news/2015/08/10/cosmos-3-6-2-released/</link>
       <pubDate>Mon, 10 Aug 2015 17:00:00 -0600</pubDate>
       <dc:creator>ryanmelt</dc:creator>
-      
-      
+
+
       <category>release</category>
-      
+
       <guid isPermaLink="true">http://cosmosrb.com/news/2015/08/10/cosmos-3-6-2-released/</guid>
       <description>&lt;p&gt;Huge new feature in this release: All COSMOS configuration files are now interpreted with the ERB preprocessor!  This allows you to use Ruby code within the configuration files to help build them.  You can also render partials of common information such as packet headers so you only have to define them once.  See the INST target in the updated Demo project for examples.&lt;/p&gt;
 
@@ -2208,16 +2208,16 @@ TELEMETRY INST DATA BIG_ENDIAN &quot;Data from the instrument&quot;
 &lt;p&gt;None&lt;/p&gt;
 </description>
     </item>
-    
+
     <item>
       <title>Ball Aerospace COSMOS 3.6.1 Released</title>
       <link>http://cosmosrb.com/news/2015/08/10/cosmos-3-6-1-released/</link>
       <pubDate>Mon, 10 Aug 2015 13:00:00 -0600</pubDate>
       <dc:creator>ryanmelt</dc:creator>
-      
-      
+
+
       <category>release</category>
-      
+
       <guid isPermaLink="true">http://cosmosrb.com/news/2015/08/10/cosmos-3-6-1-released/</guid>
       <description>&lt;h3 id=&quot;bug-fixes&quot;&gt;Bug Fixes:&lt;/h3&gt;
 
@@ -2230,16 +2230,16 @@ TELEMETRY INST DATA BIG_ENDIAN &quot;Data from the instrument&quot;
 &lt;p&gt;None&lt;/p&gt;
 </description>
     </item>
-    
+
     <item>
       <title>Ball Aerospace COSMOS 3.6.0 Released</title>
       <link>http://cosmosrb.com/news/2015/08/07/cosmos-3-6-0-released/</link>
       <pubDate>Fri, 07 Aug 2015 13:00:00 -0600</pubDate>
       <dc:creator>ryanmelt</dc:creator>
-      
-      
+
+
       <category>release</category>
-      
+
       <guid isPermaLink="true">http://cosmosrb.com/news/2015/08/07/cosmos-3-6-0-released/</guid>
       <description>&lt;p&gt;Huge new feature in this release: All COSMOS configuration files are now interpreted with the ERB preprocessor!  This allows you to use Ruby code within the configuration files to help build them.  You can also render partials of common information such as packet headers so you only have to define them once.  See the INST target in the updated Demo project for examples.&lt;/p&gt;
 
@@ -2271,16 +2271,16 @@ TELEMETRY INST DATA BIG_ENDIAN &quot;Data from the instrument&quot;
 &lt;p&gt;None&lt;/p&gt;
 </description>
     </item>
-    
+
     <item>
       <title>Ball Aerospace COSMOS 3.5.3 Released</title>
       <link>http://cosmosrb.com/news/2015/07/14/cosmos-3-5-3-released/</link>
       <pubDate>Tue, 14 Jul 2015 13:00:00 -0600</pubDate>
       <dc:creator>ryanmelt</dc:creator>
-      
-      
+
+
       <category>release</category>
-      
+
       <guid isPermaLink="true">http://cosmosrb.com/news/2015/07/14/cosmos-3-5-3-released/</guid>
       <description>&lt;h3 id=&quot;bug-fixes&quot;&gt;Bug Fixes:&lt;/h3&gt;
 
@@ -2307,16 +2307,16 @@ TELEMETRY INST DATA BIG_ENDIAN &quot;Data from the instrument&quot;
 &lt;p&gt;COSMOS now disables reverse DNS lookups by default because they can take a long time in some environments. If you still want to see hostnames when someone connects to a TCP/IP server interface/router then you will need to add ENABLE_DNS to your system.txt file.&lt;/p&gt;
 </description>
     </item>
-    
+
     <item>
       <title>Ball Aerospace COSMOS 3.5.2 Released</title>
       <link>http://cosmosrb.com/news/2015/07/14/cosmos-3-5-2-released/</link>
       <pubDate>Tue, 14 Jul 2015 13:00:00 -0600</pubDate>
       <dc:creator>ryanmelt</dc:creator>
-      
-      
+
+
       <category>release</category>
-      
+
       <guid isPermaLink="true">http://cosmosrb.com/news/2015/07/14/cosmos-3-5-2-released/</guid>
       <description>&lt;h3 id=&quot;bug-fixes&quot;&gt;Bug Fixes:&lt;/h3&gt;
 
@@ -2343,16 +2343,16 @@ TELEMETRY INST DATA BIG_ENDIAN &quot;Data from the instrument&quot;
 &lt;p&gt;COSMOS now disables reverse DNS lookups by default because they can take a long time in some environments. If you still want to see hostnames when someone connects to a TCP/IP server interface/router then you will need to add ENABLE_DNS to your system.txt file.&lt;/p&gt;
 </description>
     </item>
-    
+
     <item>
       <title>Ball Aerospace COSMOS 3.5.1 Released</title>
       <link>http://cosmosrb.com/news/2015/07/08/cosmos-3-5-1-released/</link>
       <pubDate>Wed, 08 Jul 2015 13:00:00 -0600</pubDate>
       <dc:creator>jmthomas</dc:creator>
-      
-      
+
+
       <category>release</category>
-      
+
       <guid isPermaLink="true">http://cosmosrb.com/news/2015/07/08/cosmos-3-5-1-released/</guid>
       <description>&lt;p&gt;This release fixes a bug and completes the installation scripts for linux/mac.&lt;/p&gt;
 
@@ -2381,16 +2381,16 @@ TELEMETRY INST DATA BIG_ENDIAN &quot;Data from the instrument&quot;
 &lt;p&gt;COSMOS now disables reverse DNS lookups by default because they can take a long time in some environments. If you still want to see hostnames when someone connects to a TCP/IP server interface/router then you will need to add ENABLE_DNS to your system.txt file.&lt;/p&gt;
 </description>
     </item>
-    
+
     <item>
       <title>Ball Aerospace COSMOS 3.5.0 Released</title>
       <link>http://cosmosrb.com/news/2015/06/22/cosmos-3-5-0-released/</link>
       <pubDate>Mon, 22 Jun 2015 13:00:00 -0600</pubDate>
       <dc:creator>ryanmelt</dc:creator>
-      
-      
+
+
       <category>release</category>
-      
+
       <guid isPermaLink="true">http://cosmosrb.com/news/2015/06/22/cosmos-3-5-0-released/</guid>
       <description>&lt;p&gt;This release contains a lot of new functionality and a key new feature:  The ability to create new COSMOS targets and tools as reusable gems!  This will hopefully allow the open source community to create sharable configuration for a large amount of hardware and allow for community generated tools to be easily integrated.&lt;/p&gt;
 
@@ -2434,16 +2434,16 @@ TELEMETRY INST DATA BIG_ENDIAN &quot;Data from the instrument&quot;
 &lt;p&gt;COSMOS now disables reverse DNS lookups by default because they can take a long time in some environments.  If you still want to see hostnames when someone connects to a TCP/IP server interface/router then you will need to add ENABLE_DNS to your system.txt file.&lt;/p&gt;
 </description>
     </item>
-    
+
     <item>
       <title>Ball Aerospace COSMOS 3.4.2 Released</title>
       <link>http://cosmosrb.com/news/2015/05/08/cosmos-3-4-2-released/</link>
       <pubDate>Fri, 08 May 2015 13:00:00 -0600</pubDate>
       <dc:creator>ryanmelt</dc:creator>
-      
-      
+
+
       <category>release</category>
-      
+
       <guid isPermaLink="true">http://cosmosrb.com/news/2015/05/08/cosmos-3-4-2-released/</guid>
       <description>&lt;h3 id=&quot;issues&quot;&gt;Issues:&lt;/h3&gt;
 
@@ -2458,16 +2458,16 @@ TELEMETRY INST DATA BIG_ENDIAN &quot;Data from the instrument&quot;
 &lt;p&gt;COSMOS 3.4.2 requires qtbindings 4.8.6.2. You must also update qtbindings when installing this release. Also note that earlier versions of COSMOS will not work with qtbindings 4.8.6.2. All users are strongly recommended to update both gems.&lt;/p&gt;
 </description>
     </item>
-    
+
     <item>
       <title>Ball Aerospace COSMOS 3.4.1 Released</title>
       <link>http://cosmosrb.com/news/2015/05/01/cosmos-3-4-1-released/</link>
       <pubDate>Fri, 01 May 2015 13:00:00 -0600</pubDate>
       <dc:creator>ryanmelt</dc:creator>
-      
-      
+
+
       <category>release</category>
-      
+
       <guid isPermaLink="true">http://cosmosrb.com/news/2015/05/01/cosmos-3-4-1-released/</guid>
       <description>&lt;h3 id=&quot;issues&quot;&gt;Issues:&lt;/h3&gt;
 
@@ -2482,16 +2482,16 @@ TELEMETRY INST DATA BIG_ENDIAN &quot;Data from the instrument&quot;
 &lt;p&gt;Note: COSMOS 3.4.0 has a serious regression when writing to variably sized packets. Please upgrade to 3.4.1 immediately if you are using 3.4.0.&lt;/p&gt;
 </description>
     </item>
-    
+
     <item>
       <title>Ball Aerospace COSMOS 3.4.0 Released</title>
       <link>http://cosmosrb.com/news/2015/04/27/cosmos-3-4-0-released/</link>
       <pubDate>Mon, 27 Apr 2015 13:00:00 -0600</pubDate>
       <dc:creator>ryanmelt</dc:creator>
-      
-      
+
+
       <category>release</category>
-      
+
       <guid isPermaLink="true">http://cosmosrb.com/news/2015/04/27/cosmos-3-4-0-released/</guid>
       <description>&lt;h3 id=&quot;issues&quot;&gt;Issues:&lt;/h3&gt;
 
@@ -2512,16 +2512,16 @@ TELEMETRY INST DATA BIG_ENDIAN &quot;Data from the instrument&quot;
 &lt;p&gt;None&lt;/p&gt;
 </description>
     </item>
-    
+
     <item>
       <title>COSMOS BinaryAccessor#write C Extension</title>
       <link>http://cosmosrb.com/news/2015/04/06/cosmos-c-extension/</link>
       <pubDate>Mon, 06 Apr 2015 13:00:00 -0600</pubDate>
       <dc:creator>jmthomas</dc:creator>
-      
-      
+
+
       <category>post</category>
-      
+
       <guid isPermaLink="true">http://cosmosrb.com/news/2015/04/06/cosmos-c-extension/</guid>
       <description>&lt;h2 id=&quot;how-i-created-a-cosmos-c-extension&quot;&gt;How I created a COSMOS C Extension&lt;/h2&gt;
 
@@ -2569,16 +2569,16 @@ TELEMETRY INST DATA BIG_ENDIAN &quot;Data from the instrument&quot;
 
 </description>
     </item>
-    
+
     <item>
       <title>Ball Aerospace COSMOS 3.3.3 Released</title>
       <link>http://cosmosrb.com/news/2015/03/23/cosmos-3-3-3-released/</link>
       <pubDate>Mon, 23 Mar 2015 13:00:00 -0600</pubDate>
       <dc:creator>ryanmelt</dc:creator>
-      
-      
+
+
       <category>release</category>
-      
+
       <guid isPermaLink="true">http://cosmosrb.com/news/2015/03/23/cosmos-3-3-3-released/</guid>
       <description>&lt;h3 id=&quot;issues&quot;&gt;Issues:&lt;/h3&gt;
 
@@ -2594,16 +2594,16 @@ TELEMETRY INST DATA BIG_ENDIAN &quot;Data from the instrument&quot;
 &lt;p&gt;System.telemetry.target_names and System.commands.target_names no longer contain the ‘UNKNOWN’ target.&lt;/p&gt;
 </description>
     </item>
-    
+
     <item>
       <title>Ball Aerospace COSMOS 3.3.1 - Startup Cheetah</title>
       <link>http://cosmosrb.com/news/2015/03/19/cosmos-3-3-1-released/</link>
       <pubDate>Thu, 19 Mar 2015 13:00:00 -0600</pubDate>
       <dc:creator>ryanmelt</dc:creator>
-      
-      
+
+
       <category>release</category>
-      
+
       <guid isPermaLink="true">http://cosmosrb.com/news/2015/03/19/cosmos-3-3-1-released/</guid>
       <description>&lt;p&gt;COSMOS first-time startup speed is now 16 times faster - hence this release is codenamed “Startup Cheetah”. Enjoy!&lt;/p&gt;
 
@@ -2626,32 +2626,32 @@ TELEMETRY INST DATA BIG_ENDIAN &quot;Data from the instrument&quot;
 &lt;p&gt;System.telemetry.target_names and System.commands.target_names no longer contain the ‘UNKNOWN’ target.&lt;/p&gt;
 </description>
     </item>
-    
+
     <item>
       <title>COSMOS at the GSAW Conference</title>
       <link>http://cosmosrb.com/news/2015/02/27/cosmos-at-gsaw-conference/</link>
       <pubDate>Fri, 27 Feb 2015 12:00:00 -0700</pubDate>
       <dc:creator>ryanmelt</dc:creator>
-      
-      
+
+
       <category>conference</category>
-      
+
       <guid isPermaLink="true">http://cosmosrb.com/news/2015/02/27/cosmos-at-gsaw-conference/</guid>
       <description>&lt;p&gt;Ball Aerospace COSMOS is participating in the poster session of this years &lt;a href=&quot;http://gsaw.org&quot;&gt;Ground System Architectures Workshop (GSAW)&lt;/a&gt; taking place at the Renaissance Los Angeles Airport Hotel March 2-5, 2015.&lt;/p&gt;
 
 &lt;p&gt;If you’re attending the conference, stop by our poster in the exhibit hall and say hi!&lt;/p&gt;
 </description>
     </item>
-    
+
     <item>
       <title>Ball Aerospace COSMOS 3.2.1 Released</title>
       <link>http://cosmosrb.com/news/2015/02/23/cosmos-3-2-1-released/</link>
       <pubDate>Mon, 23 Feb 2015 12:00:00 -0700</pubDate>
       <dc:creator>ryanmelt</dc:creator>
-      
-      
+
+
       <category>release</category>
-      
+
       <guid isPermaLink="true">http://cosmosrb.com/news/2015/02/23/cosmos-3-2-1-released/</guid>
       <description>&lt;h3 id=&quot;issues&quot;&gt;Issues:&lt;/h3&gt;
 
@@ -2669,16 +2669,16 @@ TELEMETRY INST DATA BIG_ENDIAN &quot;Data from the instrument&quot;
 &lt;p&gt;No significant updates to existing code should be needed. The primary reason for update to 3.2.x is fixing the slow shutdown present in all of 3.1.x.&lt;/p&gt;
 </description>
     </item>
-    
+
     <item>
       <title>Ball Aerospace COSMOS 3.2.0 Released</title>
       <link>http://cosmosrb.com/news/2015/02/17/cosmos-3-2-0-released/</link>
       <pubDate>Tue, 17 Feb 2015 12:00:00 -0700</pubDate>
       <dc:creator>ryanmelt</dc:creator>
-      
-      
+
+
       <category>release</category>
-      
+
       <guid isPermaLink="true">http://cosmosrb.com/news/2015/02/17/cosmos-3-2-0-released/</guid>
       <description>&lt;h3 id=&quot;issues&quot;&gt;Issues:&lt;/h3&gt;
 
@@ -2699,16 +2699,16 @@ TELEMETRY INST DATA BIG_ENDIAN &quot;Data from the instrument&quot;
 &lt;p&gt;No significant updates to existing code should be needed. The primary reason for update to 3.2.x is fixing the slow shutdown present in all of 3.1.x.&lt;/p&gt;
 </description>
     </item>
-    
+
     <item>
       <title>Ball Aerospace COSMOS 3.1.2 Released</title>
       <link>http://cosmosrb.com/news/2015/02/03/cosmos-3-1-2-released/</link>
       <pubDate>Tue, 03 Feb 2015 12:00:00 -0700</pubDate>
       <dc:creator>ryanmelt</dc:creator>
-      
-      
+
+
       <category>release</category>
-      
+
       <guid isPermaLink="true">http://cosmosrb.com/news/2015/02/03/cosmos-3-1-2-released/</guid>
       <description>&lt;h3 id=&quot;issues&quot;&gt;Issues:&lt;/h3&gt;
 
@@ -2729,16 +2729,16 @@ TELEMETRY INST DATA BIG_ENDIAN &quot;Data from the instrument&quot;
 &lt;p&gt;The definition of limits persistence has changed. Before it only applied when changing to a bad state (yellow or red). Now persistence applies for all changes including from stale to a valid state and from bad states back to green.&lt;/p&gt;
 </description>
     </item>
-    
+
     <item>
       <title>Ball Aerospace COSMOS 3.1.1 Released</title>
       <link>http://cosmosrb.com/news/2015/01/28/cosmos-3-1-1-released/</link>
       <pubDate>Wed, 28 Jan 2015 12:00:00 -0700</pubDate>
       <dc:creator>ryanmelt</dc:creator>
-      
-      
+
+
       <category>release</category>
-      
+
       <guid isPermaLink="true">http://cosmosrb.com/news/2015/01/28/cosmos-3-1-1-released/</guid>
       <description>&lt;h3 id=&quot;issues&quot;&gt;Issues:&lt;/h3&gt;
 
@@ -2756,16 +2756,16 @@ TELEMETRY INST DATA BIG_ENDIAN &quot;Data from the instrument&quot;
 &lt;p&gt;The definition of limits persistence has changed. Before it only applied when changing to a bad state (yellow or red). Now persistence applies for all changes including from stale to a valid state and from bad states back to green.&lt;/p&gt;
 </description>
     </item>
-    
+
     <item>
       <title>Ball Aerospace COSMOS Open Sourced</title>
       <link>http://cosmosrb.com/news/2015/01/06/ball-aerospace-cosmos-open-sourced/</link>
       <pubDate>Tue, 06 Jan 2015 12:00:00 -0700</pubDate>
       <dc:creator>ryanmelt</dc:creator>
-      
-      
+
+
       <category>release</category>
-      
+
       <guid isPermaLink="true">http://cosmosrb.com/news/2015/01/06/ball-aerospace-cosmos-open-sourced/</guid>
       <description>&lt;h2 id=&quot;ball-aerospace--technologies-corp-has-launched-ball-aerospace-cosmos-the-companys-second-open-source-software-project&quot;&gt;Ball Aerospace &amp;amp; Technologies Corp. has launched Ball Aerospace COSMOS, the company’s second open source software project.&lt;/h2&gt;
 
@@ -2789,6 +2789,6 @@ contains embedded software”, said Ryan Melton, COSMOS’s creator and open sou
 change the whole playing field of Operations, Integration, and Test”.&lt;/p&gt;
 </description>
     </item>
-    
+
   </channel>
 </rss>
