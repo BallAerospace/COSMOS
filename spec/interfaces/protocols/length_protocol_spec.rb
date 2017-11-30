@@ -46,6 +46,50 @@ module Cosmos
     end
 
     describe "read" do
+      it "caches data for reads correctly" do
+        @interface.instance_variable_set(:@stream, LengthStream.new)
+        @interface.add_protocol(LengthProtocol, [
+          0, # bit offset
+          8, # bit size
+          0,  # length offset
+          1,  # bytes per count
+          'BIG_ENDIAN'], :READ_WRITE)
+        $buffer = "\x02\x03\x02\x05"
+        packet = @interface.read
+        expect(packet.buffer.length).to eql 2
+        expect(packet.buffer).to eql "\x02\x03"
+        packet = @interface.read
+        expect(packet.buffer.length).to eql 2
+        expect(packet.buffer).to eql "\x02\x05"
+        expect(@interface.read_protocols[0].read_data("\x03\x01\x02\x03\x04\x05")).to eql "\x03\x01\x02"
+        expect(@interface.read_protocols[0].read_data("")).to eql "\x03\x04\x05"
+        expect(@interface.read_protocols[0].read_data("")).to eql :STOP
+      end
+
+      it "caches data for reads correctly with multiple protocols" do
+        @interface.instance_variable_set(:@stream, LengthStream.new)
+        @interface.add_protocol(LengthProtocol, [
+          0, # bit offset
+          8, # bit size
+          0,  # length offset
+          1,  # bytes per count
+          'BIG_ENDIAN'], :READ_WRITE)
+        @interface.add_protocol(LengthProtocol, [
+          0, # bit offset
+          8, # bit size
+          0,  # length offset
+          1,  # bytes per count
+          'BIG_ENDIAN',
+          1], :READ_WRITE)
+        $buffer = "\x02\x03\x02\x05"
+        packet = @interface.read
+        expect(packet.buffer.length).to eql 1
+        expect(packet.buffer).to eql "\x03"
+        packet = @interface.read
+        expect(packet.buffer.length).to eql 1
+        expect(packet.buffer).to eql "\x05"
+      end
+
       it "reads LITTLE_ENDIAN length fields from the stream" do
         @interface.instance_variable_set(:@stream, LengthStream.new)
         @interface.add_protocol(LengthProtocol, [

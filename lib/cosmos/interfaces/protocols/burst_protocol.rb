@@ -45,16 +45,23 @@ module Cosmos
     #
     # @return [String|nil] Data for a packet consisting of the bytes read
     def read_data(data)
-      return super(data) if (data.length <= 0)
-
       @data << data
 
       control = handle_sync_pattern()
-      return control if control
+      return control if control and data.length > 0
 
       # Reduce the data to a single packet
       packet_data = reduce_to_single_packet()
-      return packet_data if Symbol === packet_data
+
+      # Potentially allow blank string to be sent to other protocols if no packet is ready in this one
+      if Symbol === packet_data
+        if (data.length <= 0) and packet_data == :STOP
+          return super(data)
+        else
+          return packet_data
+        end
+      end
+
       @sync_state = :SEARCHING
 
       # Discard leading bytes if necessary
