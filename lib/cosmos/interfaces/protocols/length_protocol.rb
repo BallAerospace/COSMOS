@@ -33,6 +33,7 @@ module Cosmos
     # @param max_length [Integer] The maximum allowed value of the length field
     # @param fill_length_and_sync_pattern [Boolean] Fill the length field and sync
     #    pattern when writing packets
+    # @param allow_empty_data [true/false/nil] See Protocol#initialize
     def initialize(
       length_bit_offset = 0,
       length_bit_size = 16,
@@ -42,9 +43,10 @@ module Cosmos
       discard_leading_bytes = 0,
       sync_pattern = nil,
       max_length = nil,
-      fill_length_and_sync_pattern = false
+      fill_length_and_sync_pattern = false,
+      allow_empty_data = nil
     )
-      super(discard_leading_bytes, sync_pattern, fill_length_and_sync_pattern)
+      super(discard_leading_bytes, sync_pattern, fill_length_and_sync_pattern, allow_empty_data)
 
       # Save length field attributes
       @length_bit_offset = Integer(length_bit_offset)

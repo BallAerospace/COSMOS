@@ -17,8 +17,8 @@ module Cosmos
   # methods. Clearing the override requires calling normalize_tlm.
   class OverrideProtocol < Protocol
 
-    # @param allow_empty_data [true/false] Whether STOP should be returned on empty data
-    def initialize(allow_empty_data = false)
+    # @param allow_empty_data [true/false/nil] See Protocol#initialize
+    def initialize(allow_empty_data = nil)
       super(allow_empty_data)
     end
 

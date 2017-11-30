@@ -21,7 +21,8 @@ module Cosmos
 
     def initialize(write_item_name, strip_crc, bad_strategy, bit_offset,
                    bit_size = 32, endianness = 'BIG_ENDIAN',
-                   poly = nil, seed = nil, xor = nil, reflect = nil)
+                   poly = nil, seed = nil, xor = nil, reflect = nil, allow_empty_data = nil)
+      super(allow_empty_data)
       @write_item_name = ConfigParser.handle_nil(write_item_name)
       @strip_crc = ConfigParser.handle_true_false(strip_crc)
       raise "Invalid strip CRC of '#{strip_crc}'. Must be TRUE or FALSE." unless !!@strip_crc == @strip_crc
@@ -95,6 +96,8 @@ module Cosmos
     end
 
     def read_data(data)
+      return super(data) if (data.length <= 0)
+
       crc = BinaryAccessor.read(@bit_offset, @bit_size, :UINT, data, @endianness)
       calculated_crc = @crc.calc(data[0...(@bit_offset / 8)])
       if calculated_crc != crc
