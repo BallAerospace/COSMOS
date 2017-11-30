@@ -19,9 +19,30 @@ module Cosmos
     ERROR = "ERROR" # on CRC mismatch
     DISCONNECT = "DISCONNECT" # on CRC mismatch
 
-    def initialize(write_item_name, strip_crc, bad_strategy, bit_offset,
-                   bit_size = 32, endianness = 'BIG_ENDIAN',
-                   poly = nil, seed = nil, xor = nil, reflect = nil, allow_empty_data = nil)
+    # @param write_item_name [String/nil] Item to fill with calculated CRC value for outgoing packets (nil = don't fill)
+    # @param strip_crc [Boolean] Whether or not to remove the CRC from incoming packets
+    # @param bad_strategy [ERROR/DISCONNECT] How to handle CRC errors on incoming packets.  ERROR = Just log the error, DISCONNECT = Disconnect interface
+    # @param bit_offset [Integer] Bit offset of the CRC in the data.  Can be negative to indicate distance from end of packet
+    # @param bit_size [Integer] Bit size of the CRC - Must be 16, 32, or 64
+    # @param endianness [BIG_ENDIAN/LITTLE_ENDIAN] Endianness of the CRC
+    # @param poly [Integer] Polynomial to use when calculating the CRC
+    # @param seed [Integer] Seed value to start the calculation
+    # @param xor [Boolean] Whether to XOR the CRC result with 0xFFFF
+    # @param reflect [Boolean] Whether to bit reverse each byte of data before calculating the CRC
+    # @param allow_empty_data [true/false/nil] See Protocol#initialize
+    def initialize(
+      write_item_name = nil,
+      strip_crc = false,
+      bad_strategy = "ERROR",
+      bit_offset = -32,
+      bit_size = 32,
+      endianness = 'BIG_ENDIAN',
+      poly = nil,
+      seed = nil,
+      xor = nil,
+      reflect = nil,
+      allow_empty_data = nil
+    )
       super(allow_empty_data)
       @write_item_name = ConfigParser.handle_nil(write_item_name)
       @strip_crc = ConfigParser.handle_true_false(strip_crc)
