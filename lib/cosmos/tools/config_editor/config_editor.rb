@@ -17,10 +17,18 @@ Cosmos.catch_fatal_exception do
 end
 
 module Cosmos
-
   class ConfigEditor < QtTool
+    # Class to intercept keyPressEvents
+    class MyTreeView < Qt::TreeView
+      attr_accessor :keyPressCallback
+      def keyPressEvent(event)
+        call_super = @keyPressCallback.call(event)
+        super(event) if call_super
+      end
+    end
+
     slots 'handle_tab_change(int)'
-    slots 'context_menu(const QPoint&)'
+    slots 'tab_context_menu(const QPoint&)'
     slots 'undo_available(bool)'
 
     UNTITLED = 'Untitled'
@@ -211,6 +219,10 @@ module Cosmos
         active_config_editor_frame.set_file_type(action.text)
         update_cursor()
       end
+
+      @create_target = Qt::Action.new(tr('&Create Target'), self)
+      @create_target.statusTip = tr('Create a new COSMOS target')
+      @create_target.connect(SIGNAL('triggered()')) { create_target() }
     end
 
     def initialize_menus
@@ -259,6 +271,10 @@ module Cosmos
       type_menu = menuBar.addMenu(tr('File &Type'))
       type_menu.addActions(@type_group.actions)
 
+      # Actions Menu
+      actions_menu = menuBar.addMenu(tr('&Actions'))
+      actions_menu.addAction(@create_target)
+
       # Help Menu
       @about_string = "Config Editor allows the user to edit COSMOS configuration "\
         "files with contextual help. "\
@@ -272,7 +288,7 @@ module Cosmos
 
       @fs_model = Qt::FileSystemModel.new
       @fs_model.setRootPath(Cosmos::USERPATH)
-      @tree_view = Qt::TreeView.new(@splitter)
+      @tree_view = MyTreeView.new(@splitter)
       @tree_view.setModel(@fs_model)
       @tree_view.setRootIndex(@fs_model.index(Cosmos::USERPATH))
       @tree_view.setColumnHidden(1, true) # Size
@@ -284,6 +300,17 @@ module Cosmos
       @tree_view.connect(SIGNAL('clicked(const QModelIndex&)')) do |index|
         select_or_load_file(@fs_model.filePath(index))
       end
+      @tree_view.setContextMenuPolicy(Qt::CustomContextMenu)
+      @tree_view.connect(SIGNAL('customContextMenuRequested(const QPoint&)')) do |point|
+        tree_context_menu(point)
+      end
+      @tree_view.keyPressCallback = lambda do |event|
+        case event.key
+        when Qt::Key_Delete
+          delete_path(@fs_model.filePath(@tree_view.currentIndex()))
+        end
+        true # call super
+      end
 
       @tab_book = Qt::TabWidget.new(@splitter)
       @tab_book.setMovable(true)
@@ -291,7 +318,7 @@ module Cosmos
       connect(@tab_book,
               SIGNAL('customContextMenuRequested(const QPoint&)'),
               self,
-              SLOT('context_menu(const QPoint&)'))
+              SLOT('tab_context_menu(const QPoint&)'))
       connect(@tab_book,
               SIGNAL('currentChanged(int)'),
               self,
@@ -340,6 +367,29 @@ module Cosmos
       end
     end
 
+    def tree_context_menu(point)
+      menu = Qt::Menu.new()
+
+      delete_action = Qt::Action.new(tr("Delete"), self)
+      delete_action.statusTip = tr("Delete file")
+      delete_action.connect(SIGNAL('triggered()')) do
+        delete_path(@fs_model.filePath(@tree_view.indexAt(point)))
+      end
+      menu.addAction(delete_action)
+
+      menu.exec(@tree_view.mapToGlobal(point))
+      menu.dispose
+    end
+
+    def delete_path(path)
+      case Qt::MessageBox.warning(self, "Delete!", "Are you sure you want to delete #{path}?",
+      Qt::MessageBox::Yes | Qt::MessageBox::No, # buttons
+      Qt::MessageBox::Yes) # default button
+      when Qt::MessageBox::Yes
+        FileUtils.rm_rf path
+      end
+    end
+
     ###########################################
     # File Menu Options
     ###########################################
@@ -381,6 +431,7 @@ module Cosmos
         @procedure_dir = File.dirname(filename)
         @procedure_dir << '/' if @procedure_dir[-1..-1] != '/' and @procedure_dir[-1..-1] != '\\'
       end
+      update_tree()
     end
 
     # File->Reload
@@ -432,6 +483,7 @@ module Cosmos
           File.open(filename, "w") {|file| file.write(active_config_editor_frame().text)}
           saved = true
           update_title()
+          update_tree()
           statusBar.showMessage(tr("#{filename} saved"))
           @procedure_dir = File.dirname(filename)
           @procedure_dir << '/' if @procedure_dir[-1..-1] != '/' and @procedure_dir[-1..-1] != '\\'
@@ -454,6 +506,92 @@ module Cosmos
         end
         update_title()
       end
+    end
+
+    ###########################################
+    # Actions
+    ###########################################
+
+    def create_target()
+      qt_boolean = Qt::Boolean.new
+      target = Qt::InputDialog::getText(self, "Target Name",
+        "Enter the name of the target.\nUse underscores to separate words.\n"\
+        "Try to keep target names relatively short.\n\nFor example: PWR_SUPPLY\n",
+        Qt::LineEdit::Normal, '', qt_boolean)
+      return if qt_boolean.nil? # Cancelled
+      target.upcase!
+      target_folder = File.join(Cosmos::USERPATH, 'config', 'targets', target)
+      if File.exist?(target_folder)
+        Qt::MessageBox.warning(self, "Existing Target", "The specified target already exists!")
+        return
+      end
+      Dir.mkdir(target_folder)
+      %w(cmd_tlm lib procedures screens sequences tables tools).each do |folder|
+        Dir.mkdir File.join(target_folder, folder)
+      end
+      File.open(File.join(target_folder, 'cmd_tlm', 'cmd.txt'), 'w') do |file|
+        file.puts "COMMAND #{target} NOOP BIG_ENDIAN \"No operation\""
+        file.puts "  APPEND_ID_PARAMETER OPCODE 16 UINT 0x0 0xFFFF 0x1 \"Noop opcode\""
+      end
+      File.open(File.join(target_folder, 'cmd_tlm', 'tlm.txt'), 'w') do |file|
+        file.puts "TELEMETRY #{target} STATUS BIG_ENDIAN \"Status telemetry\""
+        file.puts "  APPEND_ID_ITEM OPCODE 16 UINT 0x1 \"Opcode which identifies this packet\""
+        file.puts "  APPEND_ITEM COUNT 16 UINT \"Packet counter\""
+        file.puts "  APPEND_ITEM VALUE 0 STRING \"String which consumes the rest of the packet\""
+      end
+      lib_filename = File.join(target_folder, 'lib', "#{target.downcase}.rb")
+      File.open(lib_filename, 'w') do |file|
+        file.puts "require 'cosmos'"
+        file.puts "\n"
+        file.puts "class #{lib_filename.filename_to_class_name}"
+        file.puts "  attr_reader :tgt_name"
+        file.puts "\n"
+        file.puts "  # It is good practice to pass in the name of the target when instantiating"
+        file.puts "  # the library. This way if the target name changes by COSMOS target name"
+        file.puts "  # substitution or by simply renaming in the filesystem, the library continues"
+        file.puts "  # to work simply by passing in the new name."
+        file.puts "  def initialize(tgt_name = '#{target}')"
+        file.puts "    @tgt_name = tgt_name"
+        file.puts "  end"
+        file.puts "\n"
+        file.puts "  def noop"
+        file.puts "    count = tlm(\"\#{@tgt_name} STATUS COUNT\")"
+        file.puts "    cmd(\"\#{@tgt_name} NOOP\")"
+        file.puts "    # Wait 5s for the counter to increment. Note the double equals!"
+        file.puts "    wait_check(\"\#{@tgt_name} STATUS COUNT == \#{count + 1}\", 5)"
+        file.puts "  end"
+        file.puts "end"
+      end
+      File.open(File.join(target_folder, 'procedures', "#{target.downcase}_noop.rb"), 'w') do |file|
+        file.puts "require 'cosmos'"
+        file.puts "require '#{File.basename(lib_filename)}'"
+        file.puts "\n"
+        file.puts "#{target.downcase} = #{lib_filename.filename_to_class_name}.new"
+        file.puts "#{target.downcase}.noop"
+      end
+      File.open(File.join(target_folder, 'target.txt'), 'w') do |file|
+        file.puts "# Ignored Parameters"
+        file.puts "IGNORE_PARAMETER OPCODE"
+        file.puts "\n"
+        file.puts "# Ignored Items"
+        file.puts "IGNORE_ITEM OPCODE"
+        file.puts "\n"
+        file.puts "# Automatically substitute the target name in screen definitions"
+        file.puts "AUTO_SCREEN_SUBSTITUTE"
+      end
+      cmd_tlm = File.join(target_folder, 'cmd_tlm_server.txt')
+      File.open(cmd_tlm, 'w') do |file|
+        file.puts "# This is a segment of the main cmd_tlm_server.txt that will be used with"
+        file.puts "# AUTO_INTERFACE_TARGETS or INTERFACE_TARGET"
+        file.puts "\n"
+        file.puts "# NOTE: This line must be modified to match how your actual target connects."
+        file.puts "# See http://cosmosrb.com/docs/interfaces/ for more information."
+        file.puts "INTERFACE #{target}_INT tcpip_client_interface.rb localhost 8080 8080 10.0 nil BURST 4 0xDEADBEEF"
+        file.puts "  TARGET #{target}"
+        file.puts "  # Add in the OverrideProtocol to allow override_tlm(\"#{target} STATUS STRING = 'HI'\")"
+        file.puts "  PROTOCOL READ_WRITE OverrideProtocol"
+      end
+      file_open(cmd_tlm)
     end
 
     ###########################################
@@ -537,7 +675,7 @@ module Cosmos
       end
     end
 
-    def context_menu(point)
+    def tab_context_menu(point)
       index = 0
       @tab_book.tabBar.count.times do
         break if @tab_book.tabBar.tabRect(index).contains(point)
