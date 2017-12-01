@@ -2657,8 +2657,8 @@
 <li class="toc-entry toc-h3"><a href="#fixed-protocol">Fixed Protocol</a></li>
 <li class="toc-entry toc-h3"><a href="#length-protocol">Length Protocol</a></li>
 <li class="toc-entry toc-h3"><a href="#terminated-protocol">Terminated Protocol</a></li>
-<li class="toc-entry toc-h3"><a href="#preidentified-protocol">Preidentified Protocol</a></li>
 <li class="toc-entry toc-h3"><a href="#template-protocol">Template Protocol</a></li>
+<li class="toc-entry toc-h3"><a href="#preidentified-protocol">Preidentified Protocol</a></li>
 </ul>
 </li>
 <li class="toc-entry toc-h2"><a href="#helper-protocols">Helper Protocols</a>
@@ -2686,25 +2686,25 @@
           </div>
           
           <h1>Protocol Configuration</h1>
-          <p>Protocols process data on behalf of an Interface. They can modify the data being written, data being read, or both. Protocols can be layered and will be processed in order. For example, if you have a low level encryption layer that must be first removed before processing a higher level buffer length protocol.</p>
+          <p>Protocols process data on behalf of an Interface. They can modify the data being written, data being read, or both. Protocols can be layered and will be processed in order. For example, if you have a low-level encryption layer that must be first removed before processing a higher level buffer length protocol.</p>
 
-<p>Protocols are typically used to define the logic to deliniate packets and manipulate data as it written to and read from Interfaces. COSMOS includes Interfaces for TCP/IP Client, TCP/IP Server, Udp Client / Server, and Serial connections. For 99% of use cases these Interfaces should not require any changes as they universally handle the low level details of reading and writing from these types of connections.  All unique behaviour should now be defined in Protocols as of COSMOS 4.0.0. (Note in versions of COSMOS before COSMOS 4, Interfaces supported an more limited system called Stream Protocols that only allowed one Protocol per Interface and were more coupled to the Interface. This document refers to protocols in COSMOS 4+)</p>
+<p>Protocols are typically used to define the logic to delineate packets and manipulate data as it written to and read from Interfaces. COSMOS includes Interfaces for TCP/IP Client, TCP/IP Server, Udp Client / Server, and Serial connections. For 99% of use cases these Interfaces should not require any changes as they universally handle the low-level details of reading and writing from these types of connections. All unique behavior should now be defined in Protocols as of COSMOS 4.0.0. (Note in versions of COSMOS before COSMOS 4, Interfaces supported a more limited system called Stream Protocols. Interfaces only allowed one Stream Protocol and were highly coupled. This document refers to protocols in COSMOS 4+.)</p>
 
-<p>At a minimum, any byte stream based Interface will require a Protocol to deliniate packets.  TCP/IP and Serial are examples of byte stream based Interfaces.  A byte stream is just that, a stream of bytes, you have to have some way to know where packets begin and end within the stream.</p>
+<p>At a minimum, any byte stream based Interface will require a Protocol to delineate packets. TCP/IP and Serial are examples of byte stream based Interfaces. A byte stream is just a simple stream of bytes and thus you need some way to know where packets begin and end within the stream.</p>
 
-<p>TCP/IP is a friendly byte stream.  Unless you are dealing with a very poorly written system, the first byte received on a TCP/IP connection will always be the start of a packet.  Also, TCP/IP is a reliable connection in that it ensures that all data is received in the correct order, that no data is lost, and that the data is not corrupted (TCP/IP is protected by a CRC32 - Not perfect, but pretty good for avoiding unrecognized data corruption).</p>
+<p>TCP/IP is a friendly byte stream. Unless you are dealing with a very poorly written system, the first byte received on a TCP/IP connection will always be the start of a packet. Also, TCP/IP is a reliable connection in that it ensures that all data is received in the correct order, that no data is lost, and that the data is not corrupted (TCP/IP is protected by a CRC32 which is pretty good for avoiding unrecognized data corruption).</p>
 
-<p>Serial is not nearly as friendly of a byte stream. With serial connections it is very likely that when you open a serial port and start receiving data, that you will receive the middle of a message.  (This is only not the case if interfacing with a system that only writes to the serial port in response to a command). For this reason, sync patterns are highly beneficial for serial interfaces. Additionally, serial interfaces may or may not use some method to protect against unrecognized data corruption (Checksums, CRCs, etc.)</p>
+<p>Serial is a much less friendly byte stream. With serial connections, it is very likely that when you open a serial port and start receiving data you will receive the middle of a message. (This problem is only avoided when interfacing with a system that only writes to the serial port in response to a command). For this reason, sync patterns are highly beneficial for serial interfaces. Additionally, serial interfaces may use some method to protect against unrecognized data corruption (Checksums, CRCs, etc.)</p>
 
-<p>UDP is an inherently packet based connection.  If you read from a UDP socket, you will always receive back an entire packet.  The best UDP based Protocols take advantage of this fact.  Some try to make UDP act like a byte stream, but in my opinion this is a misuse of the protocol because it is highly likely that you will lose data and have no way to recover.</p>
+<p>UDP is an inherently packet based connection. If you read from a UDP socket, you will always receive back an entire packet. The best UDP based Protocols take advantage of this fact. Some implementations try to make UDP act like a byte stream, but this is a misuse of the protocol because it is highly likely that you will lose data and have no way to recover.</p>
 
 <h2 id="packet-deliniation-protocols">
 <a id="packet-deliniation-protocols" class="anchor" href="#packet-deliniation-protocols" aria-hidden="true"><span class="octicon octicon-link"></span></a>Packet Deliniation Protocols</h2>
-<p>COSMOS provides the following packet deliniation protocols: Burst, Fixed, Length, Preidentified, Template, and Terminated.  Each of these protocols has the primary purpose of seperating out packets from a byte stream.</p>
+<p>COSMOS provides the following packet deliniation protocols: Burst, Fixed, Length, Preidentified, Template, and Terminated. Each of these protocols has the primary purpose of separating out packets from a byte stream.</p>
 
 <h3 id="burst-protocol">
 <a id="burst-protocol" class="anchor" href="#burst-protocol" aria-hidden="true"><span class="octicon octicon-link"></span></a>Burst Protocol</h3>
-<p>The Burst Protocol simply reads as much data as it can from the interface before returning the data as a COSMOS Packet (It returns a packet for each set of data read). This Protocol relies on regular bursts of data delimited by time and thus is not very robust. However it can utilize a sync pattern which does allow it to re-sync if necessary. It can also discard bytes from the incoming data to remove the sync pattern. Finally it can add sync patterns to data being written out of the Interface.</p>
+<p>The Burst Protocol simply reads as much data as it can from the interface before returning the data as a COSMOS Packet (It returns a packet for each burst of data read). This Protocol relies on regular bursts of data delimited by time and thus is not very robust. However, it can utilize a sync pattern which does allow it to re-sync if necessary. It can also discard bytes from the incoming data to remove the sync pattern. Finally, it can add sync patterns to data being written out of the Interface.</p>
 
 <table>
   <thead>
@@ -2730,13 +2730,13 @@
     </tr>
     <tr>
       <td>Fill Fields</td>
-      <td>Whether or not to fill in the sync pattern on outgoing packets</td>
+      <td>Whether to fill in the sync pattern on outgoing packets</td>
       <td>No</td>
       <td>false</td>
     </tr>
     <tr>
       <td>Allow Empty Data</td>
-      <td>Whether or not this protocol will allow an empty string to be passed down to later Protocols (instead of returning :STOP). Can be true, false, or nil, where nil is interpreted as true unless the Protocol is the last Protocol of the chain. (As of COSMOS 4.1.1)</td>
+      <td>Whether this protocol will allow an empty string to be passed down to later Protocols (instead of returning :STOP). Can be true, false, or nil, where nil is interpreted as true unless the Protocol is the last Protocol of the chain. (As of COSMOS 4.1.1)</td>
       <td>No</td>
       <td>nil</td>
     </tr>
@@ -2745,7 +2745,7 @@
 
 <h3 id="fixed-protocol">
 <a id="fixed-protocol" class="anchor" href="#fixed-protocol" aria-hidden="true"><span class="octicon octicon-link"></span></a>Fixed Protocol</h3>
-<p>The Fixed Protocol reads a preset minimum amount of data which is necessary to properly identify all the defined packets using the interface. It then identifies the packet and proceeds to read as much data from the interface as necessary to create the packet which it then returns. This protocol relies on all the packets on the interface being fixed in length. For example, all the packets using the interface are a fixed size and contain a simple header with a 32 bit sync pattern followed by a 16 bit ID. The Fixed Protocol would elegantly handle this case with a minimum read size of 6 bytes. The Fixed Protocol also supports a sync pattern, discarding leading bytes, and filling the sync pattern similar to the Burst Protocol.</p>
+<p>The Fixed Protocol reads a preset minimum amount of data which is necessary to properly identify all the defined packets using the interface. It then identifies the packet and proceeds to read as much data from the interface as necessary to create the packet which it then returns. This protocol relies on all the packets on the interface being fixed in length. For example, all the packets using the interface are a fixed size and contain a simple header with a 32-bit sync pattern followed by a 16 bit ID. The Fixed Protocol would elegantly handle this case with a minimum read size of 6 bytes. The Fixed Protocol also supports a sync pattern, discarding leading bytes, and filling the sync pattern similar to the Burst Protocol.</p>
 
 <table>
   <thead>
@@ -2759,7 +2759,7 @@
   <tbody>
     <tr>
       <td>Minimum ID Size</td>
-      <td>The minimum amount of bytes needed to identify a packet. All the packet definitions must declare their ID_ITEM(s) within this given amount of bytes.</td>
+      <td>The minimum number of bytes needed to identify a packet. All the packet definitions must declare their ID_ITEM(s) within this given number of bytes.</td>
       <td>Yes</td>
       <td> </td>
     </tr>
@@ -2783,19 +2783,19 @@
     </tr>
     <tr>
       <td>Fill Fields</td>
-      <td>Whether or not to fill in the sync pattern on outgoing packets</td>
+      <td>Whether to fill in the sync pattern on outgoing packets</td>
       <td>No</td>
       <td>false</td>
     </tr>
     <tr>
       <td>Unknown Raise</td>
-      <td>Whether or not to raise an exception for an unknown packet</td>
+      <td>Whether to raise an exception for an unknown packet</td>
       <td>No</td>
       <td>false</td>
     </tr>
     <tr>
       <td>Allow Empty Data</td>
-      <td>Whether or not this protocol will allow an empty string to be passed down to later Protocols (instead of returning :STOP). Can be true, false, or nil, where nil is interpreted as true unless the Protocol is the last Protocol of the chain. (As of COSMOS 4.1.1)</td>
+      <td>Whether this protocol will allow an empty string to be passed down to later Protocols (instead of returning :STOP). Can be true, false, or nil, where nil is interpreted as true unless the Protocol is the last Protocol of the chain. (As of COSMOS 4.1.1)</td>
       <td>No</td>
       <td>nil</td>
     </tr>
@@ -2804,7 +2804,7 @@
 
 <h3 id="length-protocol">
 <a id="length-protocol" class="anchor" href="#length-protocol" aria-hidden="true"><span class="octicon octicon-link"></span></a>Length Protocol</h3>
-<p>The Length Protocol depends on a length field at a fixed location in the defined packets using the interface. It then reads enough data to grab the length field, decodes it, and reads the remaining length of the packet. For example, all the packets using the interface contain a CCSDS header with a length field. The Length Protocol can be set up to handle the length field and even the correct offset the CCSDS header uses. The Length Protocol also supports a sync pattern, discarding leading bytes, and filling the length and sync pattern similar to the Burst Protocol.</p>
+<p>The Length Protocol depends on a length field at a fixed location in the defined packets using the interface. It then reads enough data to grab the length field, decodes it, and reads the remaining length of the packet. For example, all the packets using the interface contain a CCSDS header with a length field. The Length Protocol can be set up to handle the length field and even the length offset CCSDS uses. The Length Protocol also supports a sync pattern, discarding leading bytes, and filling the length and sync pattern similar to the Burst Protocol.</p>
 
 <table>
   <thead>
@@ -2830,13 +2830,13 @@
     </tr>
     <tr>
       <td>Length Value Offset</td>
-      <td>The offset to apply to the length field value. The actual value of the length field plus this offset should equal the exact number of bytes required to read all data for the packet (including the length field itself, sync pattern, etc).  For example if the length field indicates packet length minus one, this value should be one. Be sure to account for the length of the Sync Pattern in this value (if present).</td>
+      <td>The offset to apply to the length field value. The actual value of the length field plus this offset should equal the exact number of bytes required to read all data for the packet (including the length field itself, sync pattern, etc). For example, if the length field indicates packet length minus one, this value should be one. Be sure to account for the length of the Sync Pattern in this value (if present).</td>
       <td>No</td>
       <td>0</td>
     </tr>
     <tr>
       <td>Bytes per Count</td>
-      <td>The number of bytes per each length field ‘count’. This is used if the units of the length field is something other than bytes, for example if the length field count is in words.</td>
+      <td>The number of bytes per each length field ‘count’. This is used if the units of the length field is something other than bytes, e.g. if the length field count is in words.</td>
       <td>No</td>
       <td>1 byte</td>
     </tr>
@@ -2872,7 +2872,7 @@
     </tr>
     <tr>
       <td>Allow Empty Data</td>
-      <td>Whether or not this protocol will allow an empty string to be passed down to later Protocols (instead of returning :STOP). Can be true, false, or nil, where nil is interpreted as true unless the Protocol is the last Protocol of the chain. (As of COSMOS 4.1.1)</td>
+      <td>Whether this protocol will allow an empty string to be passed down to later Protocols (instead of returning :STOP). Can be true, false, or nil, where nil is interpreted as true unless the Protocol is the last Protocol of the chain. (As of COSMOS 4.1.1)</td>
       <td>No</td>
       <td>nil</td>
     </tr>
@@ -2925,48 +2925,13 @@
     </tr>
     <tr>
       <td>Fill Fields</td>
-      <td>Whether or not to fill in the sync pattern on outgoing packets</td>
+      <td>Whether to fill in the sync pattern on outgoing packets</td>
       <td>No</td>
       <td>false</td>
     </tr>
     <tr>
       <td>Allow Empty Data</td>
-      <td>Whether or not this protocol will allow an empty string to be passed down to later Protocols (instead of returning :STOP). Can be true, false, or nil, where nil is interpreted as true unless the Protocol is the last Protocol of the chain. (As of COSMOS 4.1.1)</td>
-      <td>No</td>
-      <td>nil</td>
-    </tr>
-  </tbody>
-</table>
-
-<h3 id="preidentified-protocol">
-<a id="preidentified-protocol" class="anchor" href="#preidentified-protocol" aria-hidden="true"><span class="octicon octicon-link"></span></a>Preidentified Protocol</h3>
-<p>The Preidentified Protocol is used internally by the COSMOS Command and Telemetry Server only and delineates packets using a custom COSMOS header. This Protocol is configured by default on port 7779 and is created by the Command and Telemetry Server to allow tools to connect and receive the entire packet stream. The Telemetry Grapher uses this port to receive all the packets following through the Command and Telemetry Server in case any need to be graphed.</p>
-
-<table>
-  <thead>
-    <tr>
-      <th>Parameter</th>
-      <th>Description</th>
-      <th>Required</th>
-      <th>Default</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>Sync Pattern</td>
-      <td>Hex string representing a byte pattern that will be searched for in the raw data. This pattern represents a packet delimiter and all data found AFTER the sync pattern will be returned. The sync pattern itself is discarded.</td>
-      <td>No</td>
-      <td>nil (no sync pattern)</td>
-    </tr>
-    <tr>
-      <td>Max Length</td>
-      <td>The maximum allowed value in the length field</td>
-      <td>No</td>
-      <td>nil (no maximum length)</td>
-    </tr>
-    <tr>
-      <td>Allow Empty Data</td>
-      <td>Whether or not this protocol will allow an empty string to be passed down to later Protocols (instead of returning :STOP). Can be true, false, or nil, where nil is interpreted as true unless the Protocol is the last Protocol of the chain. (As of COSMOS 4.1.1)</td>
+      <td>Whether this protocol will allow an empty string to be passed down to later Protocols (instead of returning :STOP). Can be true, false, or nil, where nil is interpreted as true unless the Protocol is the last Protocol of the chain. (As of COSMOS 4.1.1)</td>
       <td>No</td>
       <td>nil</td>
     </tr>
@@ -2976,7 +2941,7 @@
 <h3 id="template-protocol">
 <a id="template-protocol" class="anchor" href="#template-protocol" aria-hidden="true"><span class="octicon octicon-link"></span></a>Template Protocol</h3>
 
-<p>The Template Protocol works much like the Terminated Protocol except it designed for text-based command and response type interfaces such as SCPI (Standard Commands for Programmable Instruments).  It delineates packets in the same way as the Terminated Protocol except each packet is referred to as a line (because each usually contains a line of text). For outgoing packets a CMD_TEMPLATE field is expected to exist in the packet. This field contains a template string with items to be filled in deliniated within HTML tag style brackets “<example>". The Template Protocol will read the named items from within the packet fill in the CMD_TEMPLATE. This filled in string is then sent out rather than the originally passed in packet.   Correspondingly, if a response is expected the outgoing packet should include a RSP_TEMPLATE and RSP_PACKET field. The RSP_TEMPLATE is used to extract data from the response string and build a corresponding RSP_PACKET. See the TEMPLATE target within the COSMOS Demo configuration for an example of usage.</example></p>
+<p>The Template Protocol works much like the Terminated Protocol except it is designed for text-based command and response type interfaces such as SCPI (Standard Commands for Programmable Instruments). It delineates packets in the same way as the Terminated Protocol except each packet is referred to as a line (because each usually contains a line of text). For outgoing packets, a CMD_TEMPLATE field is expected to exist in the packet. This field contains a template string with items to be filled in delineated within HTML tag style brackets <code class="highlighter-rouge">"&lt;EXAMPLE&gt;"</code>. The Template Protocol will read the named items from within the packet and fill in the CMD_TEMPLATE. This filled in string is then sent out rather than the originally passed in packet. Correspondingly, if a response is expected the outgoing packet should include a RSP_TEMPLATE and RSP_PACKET field. The RSP_TEMPLATE is used to extract data from the response string and build a corresponding RSP_PACKET. See the TEMPLATE target within the COSMOS Demo configuration for an example of usage.</p>
 
 <p>Check out this <a href="/news/2017/06/19/template_protocol">Template Protocol</a> blog post for additional tips.</p>
 
@@ -3040,7 +3005,7 @@
     </tr>
     <tr>
       <td>Fill Fields</td>
-      <td>Whether or not to fill in the sync pattern on outgoing packets</td>
+      <td>Whether to fill in the sync pattern on outgoing packets</td>
       <td>No</td>
       <td>false</td>
     </tr>
@@ -3064,7 +3029,42 @@
     </tr>
     <tr>
       <td>Allow Empty Data</td>
-      <td>Whether or not this protocol will allow an empty string to be passed down to later Protocols (instead of returning :STOP). Can be true, false, or nil, where nil is interpreted as true unless the Protocol is the last Protocol of the chain. (As of COSMOS 4.1.1)</td>
+      <td>Whether this protocol will allow an empty string to be passed down to later Protocols (instead of returning :STOP). Can be true, false, or nil, where nil is interpreted as true unless the Protocol is the last Protocol of the chain. (As of COSMOS 4.1.1)</td>
+      <td>No</td>
+      <td>nil</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="preidentified-protocol">
+<a id="preidentified-protocol" class="anchor" href="#preidentified-protocol" aria-hidden="true"><span class="octicon octicon-link"></span></a>Preidentified Protocol</h3>
+<p>The Preidentified Protocol is used internally by the COSMOS Command and Telemetry Server only and delineates packets using a custom COSMOS header. This Protocol is configured by default on port 7779 and is created by the Command and Telemetry Server to allow tools to connect and receive the entire packet stream. The Telemetry Grapher uses this port to receive all the packets following through the Command and Telemetry Server in case any need to be graphed.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Sync Pattern</td>
+      <td>Hex string representing a byte pattern that will be searched for in the raw data. This pattern represents a packet delimiter and all data found AFTER the sync pattern will be returned. The sync pattern itself is discarded.</td>
+      <td>No</td>
+      <td>nil (no sync pattern)</td>
+    </tr>
+    <tr>
+      <td>Max Length</td>
+      <td>The maximum allowed value in the length field</td>
+      <td>No</td>
+      <td>nil (no maximum length)</td>
+    </tr>
+    <tr>
+      <td>Allow Empty Data</td>
+      <td>Whether this protocol will allow an empty string to be passed down to later Protocols (instead of returning :STOP). Can be true, false, or nil, where nil is interpreted as true unless the Protocol is the last Protocol of the chain. (As of COSMOS 4.1.1)</td>
       <td>No</td>
       <td>nil</td>
     </tr>
@@ -3073,17 +3073,17 @@
 
 <h2 id="helper-protocols">
 <a id="helper-protocols" class="anchor" href="#helper-protocols" aria-hidden="true"><span class="octicon octicon-link"></span></a>Helper Protocols</h2>
-<p>COSMOS provides the following helper protocols: Override, and Crc. This protocols provide helper functionality to Interfaces.</p>
+<p>COSMOS provides the following helper protocols: Override, and Crc. These protocols provide helper functionality to Interfaces.</p>
 
 <h3 id="override-protocol">
 <a id="override-protocol" class="anchor" href="#override-protocol" aria-hidden="true"><span class="octicon octicon-link"></span></a>Override Protocol</h3>
 <p>The Override Protocol allows telemetry items to be overridden when read. This action is permanent and any incoming data is overwritten with the new value. This is in contrast to using the set_tlm() API method which temporarily sets a telemetry value until new data arrives over the interface.</p>
 
-<p>To use this protocol you must add it to your interface wherever that is defined. Typically this is in the target’s cmd_tlm_server.txt file but it could also be in the global cmd_tlm_server.txt. For example:</p>
+<p>To use this protocol, you must add it to your interface wherever that is defined. Typically, this is in the target’s cmd_tlm_server.txt file but it could also be in the global cmd_tlm_server.txt. For example:</p>
 
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">INTERFACE INST_INT simulated_target_interface.rb sim_inst.rb
-  TARGET INST
-  PROTOCOL READ OverrideProtocol</code></pre></figure>
+ TARGET INST
+ PROTOCOL READ OverrideProtocol</code></pre></figure>
 
 <p>By adding this to your interface you now have access to the following APIs:</p>
 
@@ -3114,7 +3114,7 @@
   <tbody>
     <tr>
       <td>Allow Empty Data</td>
-      <td>Whether or not this protocol will allow an empty string to be passed down to later Protocols (instead of returning :STOP). Can be true, false, or nil, where nil is interpreted as true unless the Protocol is the last Protocol of the chain. (As of COSMOS 4.1.1)</td>
+      <td>Whether this protocol will allow an empty string to be passed down to later Protocols (instead of returning :STOP). Can be true, false, or nil, where nil is interpreted as true unless the Protocol is the last Protocol of the chain. (As of COSMOS 4.1.1)</td>
       <td>No</td>
       <td>nil</td>
     </tr>
@@ -3143,13 +3143,13 @@
     </tr>
     <tr>
       <td>Strip CRC</td>
-      <td>Whether or not to remove the CRC from incoming packets</td>
+      <td>Whether to remove the CRC from incoming packets</td>
       <td>No</td>
       <td>false</td>
     </tr>
     <tr>
       <td>Bad Strategy</td>
-      <td>How to handle CRC errors on incoming packets.  ERROR = Just log the error, DISCONNECT = Disconnect interface</td>
+      <td>How to handle CRC errors on incoming packets. ERROR = Just log the error, DISCONNECT = Disconnect interface</td>
       <td>No</td>
       <td>“ERROR”</td>
     </tr>
@@ -3197,7 +3197,7 @@
     </tr>
     <tr>
       <td>Allow Empty Data</td>
-      <td>Whether or not this protocol will allow an empty string to be passed down to later Protocols (instead of returning :STOP). Can be true, false, or nil, where nil is interpreted as true unless the Protocol is the last Protocol of the chain. (As of COSMOS 4.1.1)</td>
+      <td>Whether this protocol will allow an empty string to be passed down to later Protocols (instead of returning :STOP). Can be true, false, or nil, where nil is interpreted as true unless the Protocol is the last Protocol of the chain. (As of COSMOS 4.1.1)</td>
       <td>No</td>
       <td>nil</td>
     </tr>
@@ -3206,23 +3206,23 @@
 
 <h2 id="custom-protocols">
 <a id="custom-protocols" class="anchor" href="#custom-protocols" aria-hidden="true"><span class="octicon octicon-link"></span></a>Custom Protocols</h2>
-<p>Creating a custom protocol is easy and should be the default solution for customizing COSMOS Interfaces (rather than creating a new Interface class).  However, creating custom Interfaces is still useful for defaulting parameters to values that always are fixed for your target, and for including the necessary Protocols. The base COSMOS Interfaces take a lot of parameters that can be confusing to your future users and you may want to create a custom Interface just to set these to hard coded values and cut the available parameters down to something like the hostname and port to connect to.</p>
+<p>Creating a custom protocol is easy and should be the default solution for customizing COSMOS Interfaces (rather than creating a new Interface class). However, creating custom Interfaces is still useful for defaulting parameters to values that always are fixed for your target and for including the necessary Protocols. The base COSMOS Interfaces take a lot of parameters that can be confusing to your end users. Thus you may want to create a custom Interface just to hard coded these values and cut the available parameters down to something like the hostname and port to connect to.</p>
 
-<p>All custom Protocols should derive from the Protocol class found in the COSMOS gem at <a href="https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/interfaces/protocols/protocol.rb">lib/cosmos/interfaces/protocols/protocol.rb</a>.  This class defines the 9 methods that are relevant to writing your own protocol. The base class implementation for each method is included below as well as a discussion as to how the methods should be overridden and used in your own Protocols.</p>
+<p>All custom Protocols should derive from the Protocol class found in the COSMOS gem at <a href="https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/interfaces/protocols/protocol.rb">lib/cosmos/interfaces/protocols/protocol.rb</a>. This class defines the 9 methods that are relevant to writing your own protocol. The base class implementation for each method is included below as well as a discussion as to how the methods should be overridden and used in your own Protocols.</p>
 
-<p>To really understand how Protocols work, you first have to understand the logic within the base Interface class read and write methods.</p>
+<p>To really understand how Protocols work, you first must understand the logic within the base Interface class read and write methods.</p>
 
 <p>Let’s first discuss the read method.</p>
 
 <p><img src="/img/interface_read_logic.png" alt="Interface Read Logic"></p>
 
-<p>On EVERY call to read, an empty Ruby string “” is first passed down to each of the read Protocol read_data() method BEFORE new raw data is attempted to be read using the Interface’s read_interface() method.  This is a signal to Protocols that have cached up more than one packet worth of data to output those cached packets before any new data is read from the Interface.  Typically no data will be cached up and one of the protocols read_data() methods will return :STOP in response to the empty string, indicating that more data is required to generate a packet. Each Protocol’s read_data() method can return one of three things: data that will be passed down to any addition Protocols or turned into a Packet, :STOP which means more data is required from the Interface for the Protocol to continue, or :DISCONNECT which means that something has happened that requires disconnecting the Interface (and by default trying to reconnect).  Each protocol’s read_data method takes as a single parameter holding the current state of data that will be turned into a packet, and returns a possibly modified set of data.  If the data passes through all Protocol read_data() methods it is then converted into a COSMOS packet using the Interface’s convert_data_to_packet() method.  This packet is then run in a similar fashion through each Read Protocol’s read_packet() method.  This method has essentially the same return possiblities except it returns a Packet instead of data, or :STOP, or :DISCONNECT.  If the Packet makes it through all read_packet() methods then the Interface packet read counter is incremented ans the Packet is returned to the Interface.</p>
+<p>On EVERY call to read, an empty Ruby string “” is first passed down to each of the read Protocol’s read_data() method BEFORE new raw data is attempted to be read using the Interface’s read_interface() method. This is a signal to Protocols that have cached up more than one packet worth of data to output those cached packets before any new data is read from the Interface. Typically no data will be cached up and one of the Protocols read_data() methods will return :STOP in response to the empty string, indicating that more data is required to generate a packet. Each Protocol’s read_data() method can return one of three things: data that will be passed down to any additional Protocols or turned into a Packet, :STOP which means more data is required from the Interface for the Protocol to continue, or :DISCONNECT which means that something has happened that requires disconnecting the Interface (and by default trying to reconnect). Each Protocol’s read_data method is passed the data that will eventually be turned into a packet and returns a possibly modified set of data. If the data passes through all Protocol’s read_data() methods it is then converted into a COSMOS packet using the Interface’s convert_data_to_packet() method. This packet is then run in a similar fashion through each Read Protocol’s read_packet() method. This method has essentially the same return possibilities: a Packet (instead of data as in read_data()), :STOP, or :DISCONNECT. If the Packet makes it through all read_packet() methods then the Interface packet read counter is incremented and the Packet is returned to the Interface.</p>
 
 <p><img src="/img/interface_write_logic.png" alt="Interface Write Logic"></p>
 
-<p>The Interface write() method works very similarily to read.  (It should be mentioned that by default write protocols run in the reverse order of read protocols.  This makes sense if you think about it because when reading you would be stripping of layers of data and when writing you are typically adding on layers in reverse order.)</p>
+<p>The Interface write() method works very similarly to read. (It should be mentioned that by default write protocols run in the reverse order of read protocols. This makes sense because when reading you’re typically stripping layers of data and when writing you’re typically adding on layers in reverse order.)</p>
 
-<p>First, the packet write counter is incremented.  Then each write Protocol is given a chance to modify the packet by it’s write_packet() method being called.  This method can either return a potentially modified packet, :STOP, or :DISCONNECT.  If a write Protocol returns :STOP no data will be written out the Interface and it is assumed that more packets are necessary before a final packet can be output.  :DISCONNECT will disconnect the Interface.  If the packet makes it through all the write Protocols write_packet() methods, then it is converted to binary data using the Interface’s convert_packet_to_data() method.  Next the write_data() method is called for each write Protocol giving it a chance to modify the lower level data.  The same return options are available except a Ruby string of data is returned instead of a COSMOS packet.  If the data, makes it through all write_data() methods then it is written out on the Interface using the write_interface() method.  Afterwards, each Protocol’s post_write_interface() method is called with both the final modified Packet, and the actual data written out to the Interface.  This method allows followup such as waiting for a response after writing out a message.</p>
+<p>First, the packet write counter is incremented. Then each write Protocol is given a chance to modify the packet by its write_packet() method being called. This method can either return a potentially modified packet, :STOP, or :DISCONNECT. If a write Protocol returns :STOP no data will be written out the Interface and it is assumed that more packets are necessary before a final packet can be output. :DISCONNECT will disconnect the Interface. If the packet makes it through all the write Protocol’s write_packet() methods, then it is converted to binary data using the Interface’s convert_packet_to_data() method. Next the write_data() method is called for each write Protocol giving it a chance to modify the lower level data. The same return options are available except a Ruby string of data is returned instead of a COSMOS packet. If the data makes it through all write_data() methods, then it is written out on the Interface using the write_interface() method. Afterwards, each Protocol’s post_write_interface() method is called with both the final modified Packet, and the actual data written out to the Interface. This method allows follow-up such as waiting for a response after writing out a message.</p>
 
 <h2 id="method-discussions">
 <a id="method-discussions" class="anchor" href="#method-discussions" aria-hidden="true"><span class="octicon octicon-link"></span></a>Method discussions</h2>
@@ -3230,30 +3230,30 @@
 <h3 id="initialize">
 <a id="initialize" class="anchor" href="#initialize" aria-hidden="true"><span class="octicon octicon-link"></span></a>initialize</h3>
 
-<p>This is the constructor for your custom Protocol.  It should always call super(allow_empty_data) to initialize the base Protocol class.</p>
+<p>This is the constructor for your custom Protocol. It should always call super(allow_empty_data) to initialize the base Protocol class.</p>
 
 <p>Base class implementation:</p>
 
-<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby">    <span class="c1"># @param allow_empty_data [true/false] Whether STOP should be returned on empty data</span>
-    <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">allow_empty_data</span> <span class="o">=</span> <span class="kp">false</span><span class="p">)</span>
-      <span class="vi">@interface</span> <span class="o">=</span> <span class="kp">nil</span>
-      <span class="vi">@allow_empty_data</span> <span class="o">=</span> <span class="no">ConfigParser</span><span class="p">.</span><span class="nf">handle_true_false</span><span class="p">(</span><span class="n">allow_empty_data</span><span class="p">)</span>
-      <span class="n">reset</span><span class="p">()</span>
-    <span class="k">end</span></code></pre></figure>
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="c1"># @param allow_empty_data [true/false] Whether STOP should be returned on empty data</span>
+<span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">allow_empty_data</span> <span class="o">=</span> <span class="kp">false</span><span class="p">)</span>
+  <span class="vi">@interface</span> <span class="o">=</span> <span class="kp">nil</span>
+  <span class="vi">@allow_empty_data</span> <span class="o">=</span> <span class="no">ConfigParser</span><span class="p">.</span><span class="nf">handle_true_false</span><span class="p">(</span><span class="n">allow_empty_data</span><span class="p">)</span>
+  <span class="n">reset</span><span class="p">()</span>
+<span class="k">end</span></code></pre></figure>
 
-<p>As you can see, every Protocol maintains state on at least two items.  @interface holds the Interface class instance that the protocol is associated with.  This is sometimes necessary to introspect details that only the Interface knows.   @allow_empty_data is a flag used by the read_data(data) method that is discussed later in this document.</p>
+<p>As you can see, every Protocol maintains state on at least two items. @interface holds the Interface class instance that the protocol is associated with. This is sometimes necessary to introspect details that only the Interface knows. @allow_empty_data is a flag used by the read_data(data) method that is discussed later in this document.</p>
 
 <h3 id="reset">
 <a id="reset" class="anchor" href="#reset" aria-hidden="true"><span class="octicon octicon-link"></span></a>reset</h3>
 
-<p>The reset method is used to reset internal protocol state when the Interface is connected and/or disconnected.  This method should be used for common reseting logic. Connect and Disconnect specific logic are handled in the next two methods.</p>
+<p>The reset method is used to reset internal protocol state when the Interface is connected and/or disconnected. This method should be used for common resetting logic. Connect and Disconnect specific logic are handled in the next two methods.</p>
 
 <p>Base class implementation:</p>
 
-<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby">    <span class="k">def</span> <span class="nf">reset</span>
-    <span class="k">end</span></code></pre></figure>
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="k">def</span> <span class="nf">reset</span>
+<span class="k">end</span></code></pre></figure>
 
-<p>As you can see, the base class reset implementation doesn’t currently do anything.</p>
+<p>As you can see, the base class reset implementation doesn’t do anything.</p>
 
 <h3 id="connect_reset">
 <a id="connect_reset" class="anchor" href="#connect_reset" aria-hidden="true"><span class="octicon octicon-link"></span></a>connect_reset</h3>
@@ -3262,9 +3262,9 @@
 
 <p>Base class implementation:</p>
 
-<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby">    <span class="k">def</span> <span class="nf">connect_reset</span>
-      <span class="n">reset</span><span class="p">()</span>
-    <span class="k">end</span></code></pre></figure>
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="k">def</span> <span class="nf">connect_reset</span>
+  <span class="n">reset</span><span class="p">()</span>
+<span class="k">end</span></code></pre></figure>
 
 <p>The base class connect_reset implementation just calls the reset method to ensure common reset logic is run.</p>
 
@@ -3275,85 +3275,85 @@
 
 <p>Base class implementation:</p>
 
-<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby">    <span class="k">def</span> <span class="nf">disconnect_reset</span>
-      <span class="n">reset</span><span class="p">()</span>
-    <span class="k">end</span></code></pre></figure>
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="k">def</span> <span class="nf">disconnect_reset</span>
+  <span class="n">reset</span><span class="p">()</span>
+<span class="k">end</span></code></pre></figure>
 
 <p>The base class disconnect_reset implementation just calls the reset method to ensure common reset logic is run.</p>
 
 <h3 id="read_data">
 <a id="read_data" class="anchor" href="#read_data" aria-hidden="true"><span class="octicon octicon-link"></span></a>read_data</h3>
 
-<p>The read_data method is used to analyze and potentially modify any raw data read by an Interface. It takes one parameter as the current state of the data to be analyzed. It can return either a Ruby string of data, :STOP, or :DISCONNECT.  If it returns a Ruby string, then it believes that data may be ready to be a full packet, and is ready for processing by any following Protocols. If :STOP is returned then the Protocol believes it needs more data to complete a full packet. If :DISCONNECT is returned then the Protocol believes the Interface should be disconnected (and typically automatically reconnected).</p>
+<p>The read_data method is used to analyze and potentially modify any raw data read by an Interface. It takes one parameter as the current state of the data to be analyzed. It can return either a Ruby string of data, :STOP, or :DISCONNECT. If it returns a Ruby string, then it believes that data may be ready to be a full packet, and is ready for processing by any following Protocols. If :STOP is returned then the Protocol believes it needs more data to complete a full packet. If :DISCONNECT is returned then the Protocol believes the Interface should be disconnected (and typically automatically reconnected).</p>
 
 <p>Base Class Implemenation:</p>
 
-<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby">    <span class="k">def</span> <span class="nf">read_data</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-      <span class="k">if</span> <span class="p">(</span><span class="n">data</span><span class="p">.</span><span class="nf">length</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">)</span>
-        <span class="k">if</span> <span class="vi">@allow_empty_data</span><span class="p">.</span><span class="nf">nil?</span>
-          <span class="k">if</span> <span class="vi">@interface</span> <span class="n">and</span> <span class="vi">@interface</span><span class="p">.</span><span class="nf">read_protocols</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="nb">self</span>
-            <span class="c1"># Last read interface in chain with auto @allow_empty_data</span>
-            <span class="k">return</span> <span class="ss">:STOP</span>
-          <span class="k">end</span>
-        <span class="k">elsif</span> <span class="o">!</span><span class="vi">@allow_empty_data</span>
-          <span class="c1"># Don't @allow_empty_data means STOP</span>
-          <span class="k">return</span> <span class="ss">:STOP</span>
-        <span class="k">end</span>
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="k">def</span> <span class="nf">read_data</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">data</span><span class="p">.</span><span class="nf">length</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="k">if</span> <span class="vi">@allow_empty_data</span><span class="p">.</span><span class="nf">nil?</span>
+      <span class="k">if</span> <span class="vi">@interface</span> <span class="n">and</span> <span class="vi">@interface</span><span class="p">.</span><span class="nf">read_protocols</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="nb">self</span>
+        <span class="c1"># Last read interface in chain with auto @allow_empty_data</span>
+        <span class="k">return</span> <span class="ss">:STOP</span>
       <span class="k">end</span>
-      <span class="n">data</span>
-    <span class="k">end</span></code></pre></figure>
+    <span class="k">elsif</span> <span class="o">!</span><span class="vi">@allow_empty_data</span>
+      <span class="c1"># Don't @allow_empty_data means STOP</span>
+      <span class="k">return</span> <span class="ss">:STOP</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+  <span class="n">data</span>
+<span class="k">end</span></code></pre></figure>
 
-<p>The base class implementation does nothing except return the data it was given.  The only exception to this is when handling an empty string. If the allow_empty_data flag is false or if it nil and the Protocol is the last in the chain, then the base implementation will return :STOP data to indicate that it is time to call the Interface read_interface() method to get more data. Blank strings are used to signal Protocols that they have an opportunity to return a cached packet.</p>
+<p>The base class implementation does nothing except return the data it was given. The only exception to this is when handling an empty string. If the allow_empty_data flag is false or if it nil and the Protocol is the last in the chain, then the base implementation will return :STOP data to indicate that it is time to call the Interface read_interface() method to get more data. Blank strings are used to signal Protocols that they have an opportunity to return a cached packet.</p>
 
 <h3 id="read_packet">
 <a id="read_packet" class="anchor" href="#read_packet" aria-hidden="true"><span class="octicon octicon-link"></span></a>read_packet</h3>
 
-<p>The read_packet method is used to analyze and potentially modify a COSMOS packet before it is returned by the Interface. It takes one parameter as the current state of the packet to be analyzed. It can return either a COSMOS packet, :STOP, or :DISCONNECT.  If it returns a COSMOS packet, then it believes that the packet is valid, should be returned, and is ready for processing by any following Protocols. If :STOP is returned then the Protocol believes the packet should be silently dropped. If :DISCONNECT is returned then the Protocol believes the Interface should be disconnected (and typically automatically reconnected).</p>
+<p>The read_packet method is used to analyze and potentially modify a COSMOS packet before it is returned by the Interface. It takes one parameter as the current state of the packet to be analyzed. It can return either a COSMOS packet, :STOP, or :DISCONNECT. If it returns a COSMOS packet, then it believes that the packet is valid, should be returned, and is ready for processing by any following Protocols. If :STOP is returned then the Protocol believes the packet should be silently dropped. If :DISCONNECT is returned then the Protocol believes the Interface should be disconnected (and typically automatically reconnected).</p>
 
 <p>Base Class Implementation:</p>
 
-<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby">    <span class="k">def</span> <span class="nf">read_packet</span><span class="p">(</span><span class="n">packet</span><span class="p">)</span>
-      <span class="k">return</span> <span class="n">packet</span>
-    <span class="k">end</span></code></pre></figure>
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="k">def</span> <span class="nf">read_packet</span><span class="p">(</span><span class="n">packet</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">packet</span>
+<span class="k">end</span></code></pre></figure>
 
 <p>The base class always just returns the packet given.</p>
 
 <h3 id="write_packet">
 <a id="write_packet" class="anchor" href="#write_packet" aria-hidden="true"><span class="octicon octicon-link"></span></a>write_packet</h3>
 
-<p>The write_packet method is used to analyze and potentially modify a COSMOS packet before it is output by the Interface. It takes one parameter as the current state of the packet to be analyzed. It can return either a COSMOS packet, :STOP, or :DISCONNECT.  If it returns a COSMOS packet, then it believes that the packet is valid, should be written out the Interface, and is ready for processing by any following Protocols. If :STOP is returned then the Protocol believes the packet should be silently dropped. If :DISCONNECT is returned then the Protocol believes the Interface should be disconnected (and typically automatically reconnected).</p>
+<p>The write_packet method is used to analyze and potentially modify a COSMOS packet before it is output by the Interface. It takes one parameter as the current state of the packet to be analyzed. It can return either a COSMOS packet, :STOP, or :DISCONNECT. If it returns a COSMOS packet, then it believes that the packet is valid, should be written out the Interface, and is ready for processing by any following Protocols. If :STOP is returned then the Protocol believes the packet should be silently dropped. If :DISCONNECT is returned then the Protocol believes the Interface should be disconnected (and typically automatically reconnected).</p>
 
 <p>Base Class Implementation:</p>
 
-<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby">    <span class="k">def</span> <span class="nf">write_packet</span><span class="p">(</span><span class="n">packet</span><span class="p">)</span>
-      <span class="k">return</span> <span class="n">packet</span>
-    <span class="k">end</span></code></pre></figure>
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="k">def</span> <span class="nf">write_packet</span><span class="p">(</span><span class="n">packet</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">packet</span>
+<span class="k">end</span></code></pre></figure>
 
 <p>The base class always just returns the packet given.</p>
 
 <h3 id="write_data">
 <a id="write_data" class="anchor" href="#write_data" aria-hidden="true"><span class="octicon octicon-link"></span></a>write_data</h3>
 
-<p>The write_data method is used to analyze and potentially modify data before it is written out by the Interface. It takes one parameter as the current state of the data to be analyzed and sent. It can return either a Ruby String of data, :STOP, or :DISCONNECT.  If it returns a Ruby string of data, then it believes that the data is valid, should be written out the Interface, and is ready for processing by any following Protocols. If :STOP is returned then the Protocol believes the data should be silently dropped. If :DISCONNECT is returned then the Protocol believes the Interface should be disconnected (and typically automatically reconnected).</p>
+<p>The write_data method is used to analyze and potentially modify data before it is written out by the Interface. It takes one parameter as the current state of the data to be analyzed and sent. It can return either a Ruby String of data, :STOP, or :DISCONNECT. If it returns a Ruby string of data, then it believes that the data is valid, should be written out the Interface, and is ready for processing by any following Protocols. If :STOP is returned then the Protocol believes the data should be silently dropped. If :DISCONNECT is returned then the Protocol believes the Interface should be disconnected (and typically automatically reconnected).</p>
 
 <p>Base Class Implementation:</p>
 
-<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby">    <span class="k">def</span> <span class="nf">write_data</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-      <span class="k">return</span> <span class="n">data</span>
-    <span class="k">end</span></code></pre></figure>
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="k">def</span> <span class="nf">write_data</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">data</span>
+<span class="k">end</span></code></pre></figure>
 
 <p>The base class always just returns the data given.</p>
 
 <h3 id="post_write_interface">
 <a id="post_write_interface" class="anchor" href="#post_write_interface" aria-hidden="true"><span class="octicon octicon-link"></span></a>post_write_interface</h3>
 
-<p>The post_write_interface method is called after data has been written out the Interface.  The typical use of this method is to provide a hook to implement command/response type interfaces where a response is always immediately expected in response to a command. It takes two parameters, the packet after all modifications by write_packet() and the data that was actually written out the Interface. It can return either the same pair of packet/data, :STOP, or :DISCONNECT.  If it returns a packet/data pair then they are passed on to any other Protocols. If :STOP is returned then the Interface write() call completes and no further Protocols post_write_interface() methods are called. If :DISCONNECT is returned then the Protocol believes the Interface should be disconnected (and typically automatically reconnected).  Note that only the first parameter “packet”, is checked to be :STOP, or :DISCONNECT on the return.</p>
+<p>The post_write_interface method is called after data has been written out the Interface. The typical use of this method is to provide a hook to implement command/response type interfaces where a response is always immediately expected in response to a command. It takes two parameters, the packet after all modifications by write_packet() and the data that was actually written out the Interface. It can return either the same pair of packet/data, :STOP, or :DISCONNECT. If it returns a packet/data pair then they are passed on to any other Protocols. If :STOP is returned then the Interface write() call completes and no further Protocols post_write_interface() methods are called. If :DISCONNECT is returned then the Protocol believes the Interface should be disconnected (and typically automatically reconnected). Note that only the first parameter “packet”, is checked to be :STOP, or :DISCONNECT on the return.</p>
 
 <p>Base Class Implementation:</p>
 
-<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby">    <span class="k">def</span> <span class="nf">post_write_interface</span><span class="p">(</span><span class="n">packet</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
-      <span class="k">return</span> <span class="n">packet</span><span class="p">,</span> <span class="n">data</span>
-    <span class="k">end</span></code></pre></figure>
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="k">def</span> <span class="nf">post_write_interface</span><span class="p">(</span><span class="n">packet</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">packet</span><span class="p">,</span> <span class="n">data</span>
+<span class="k">end</span></code></pre></figure>
 
 <p>The base class always just returns the packet/data given.</p>
 
