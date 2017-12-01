@@ -16,8 +16,8 @@ Serial is a much less friendly byte stream. With serial connections, it is very 
 
 UDP is an inherently packet based connection. If you read from a UDP socket, you will always receive back an entire packet. The best UDP based Protocols take advantage of this fact. Some implementations try to make UDP act like a byte stream, but this is a misuse of the protocol because it is highly likely that you will lose data and have no way to recover.
 
-## Packet Deliniation Protocols
-COSMOS provides the following packet deliniation protocols: Burst, Fixed, Length, Preidentified, Template, and Terminated. Each of these protocols has the primary purpose of separating out packets from a byte stream.
+## Packet Delineation Protocols
+COSMOS provides the following packet delineation protocols: Burst, Fixed, Length, Preidentified, Template, and Terminated. Each of these protocols has the primary purpose of separating out packets from a byte stream.
 
 ### Burst Protocol
 The Burst Protocol simply reads as much data as it can from the interface before returning the data as a COSMOS Packet (It returns a packet for each burst of data read). This Protocol relies on regular bursts of data delimited by time and thus is not very robust. However, it can utilize a sync pattern which does allow it to re-sync if necessary. It can also discard bytes from the incoming data to remove the sync pattern. Finally, it can add sync patterns to data being written out of the Interface.
