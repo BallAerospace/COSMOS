@@ -11,9 +11,11 @@
 require 'cosmos'
 
 module Cosmos
-
+  # Parses the Telemetry Viewer configuration file and builds up the list
+  # of available screens to display.
   class TlmViewerConfig
-
+    # Aggregates information about a single Telemetry Viewer screen. It loads
+    # the widgets called out by the screen and manages NAMED_WIDGETs.
     class ScreenInfo
       attr_accessor :group
       attr_accessor :target_name
@@ -47,12 +49,12 @@ module Cosmos
       end
 
       def as_json(options = nil) #:nodoc:
-        {group: @group, 
-         target_name: @target_name, 
-         original_target_name: 
-         @original_target_name, 
-         name: @name, 
-         filename: @filename, 
+        {group: @group,
+         target_name: @target_name,
+         original_target_name:
+         @original_target_name,
+         name: @name,
+         filename: @filename,
          x_pos: @x_pos,
          y_pos: @y_pos,
          substitute: @substitute,
@@ -105,10 +107,15 @@ module Cosmos
       end
     end
 
+    # @return [Array<Hash]>] Columns of screen names
     attr_accessor :columns
+    # @return [Hash] ScreenInfo instances indexed by screen name
     attr_accessor :screen_infos
+    # @return [String] Name of the telemetry viewer configuration file
     attr_accessor :filename
+    # @return [Array] List of all the items on all the defined telemety screens
     attr_accessor :completion_list
+    # @return [Hash] Telemetry item to screen name lookup
     attr_accessor :tlm_to_screen_mapping
 
     def initialize(filename = nil, skip_read_items = false)
@@ -130,6 +137,7 @@ module Cosmos
         case keyword
 
         when 'NEW_COLUMN'
+          parser.verify_num_parameters(0, 0, 'NEW_COLUMN')
           @columns << {}
           @current_column = @columns[-1]
 
@@ -205,24 +213,31 @@ module Cosmos
 
       File.open(filename, 'w') do |file|
         @columns.each_with_index do |target_screen_infos, column_index|
-          if column_index != 0
-            file.puts ''
-            file.puts "NEW_COLUMN"
-            file.puts ''
-          end
+          file.puts "NEW_COLUMN\n\n" if column_index != 0
           target_screen_infos.each do |target_name, screen_infos|
-            file.puts "TARGET \"#{target_name}\""
+            if screen_infos.values[0].group
+              file.puts "GROUP \"#{target_name}\""
+            else
+              file.puts "TARGET \"#{target_name}\""
+            end
             screen_infos.each do |screen_name, screen_info|
-              # Grab the filename by indexing the full path for 'screens' and going past
-              # to capture the filename such as 'status.txt' below
-              #   C:/COSMOS/config/targets/TGT/screens/status.txt
-              screen_filename = screen_info.filename[(screen_info.filename.index("screens").to_i + 8)..-1]
-              string = "  SCREEN"
-              string << " \"#{screen_filename}\""
-              string << " #{screen_info.x_pos}" if screen_info.x_pos
-              string << " #{screen_info.y_pos}" if screen_info.y_pos
-              file.puts string
-              if screen_info.screen
+              if screen_info.group
+                string = "  GROUP_SCREEN #{screen_info.name}"
+                string << " #{screen_info.x_pos}" if screen_info.x_pos
+                string << " #{screen_info.y_pos}" if screen_info.y_pos
+                file.puts string
+              else
+                # Grab the filename by indexing the full path for 'screens' and going past
+                # to capture the filename such as 'status.txt' below
+                #   C:/COSMOS/config/targets/TGT/screens/status.txt
+                screen_filename = screen_info.filename[(screen_info.filename.index("screens").to_i + 8)..-1]
+                string = "  SCREEN"
+                string << " \"#{screen_filename}\""
+                string << " #{screen_info.x_pos}" if screen_info.x_pos
+                string << " #{screen_info.y_pos}" if screen_info.y_pos
+                file.puts string
+              end
+              if screen_info.show_on_startup
                 file.puts "    SHOW_ON_STARTUP"
               end
             end
@@ -297,7 +312,5 @@ module Cosmos
       end
       @completion_list.uniq!
     end
-
   end
-
-end # module Cosmos
+end
