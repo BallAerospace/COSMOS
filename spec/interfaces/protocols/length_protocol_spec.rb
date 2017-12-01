@@ -66,6 +66,9 @@ module Cosmos
         expect(@interface.read_protocols[0].read_data("")).to eql :STOP
       end
 
+      # This test case uses two length protocols to verify that data flows correctly between the two protocols and that earlier data
+      # is removed correctly using discard leading bytes.  In general it is not typical to use two different length protocols, but it could
+      # be useful to pull out a packet inside of a packet.
       it "caches data for reads correctly with multiple protocols" do
         @interface.instance_variable_set(:@stream, LengthStream.new)
         @interface.add_protocol(LengthProtocol, [
@@ -80,7 +83,9 @@ module Cosmos
           0,  # length offset
           1,  # bytes per count
           'BIG_ENDIAN',
-          1], :READ_WRITE)
+          1], :READ_WRITE) # Discard leading bytes set to 1
+        # The second protocol above will receive the two byte packets from the first protocol and
+        # then drop the length field.
         $buffer = "\x02\x03\x02\x05"
         packet = @interface.read
         expect(packet.buffer.length).to eql 1
