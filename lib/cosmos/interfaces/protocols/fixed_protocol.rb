@@ -25,15 +25,17 @@ module Cosmos
     #   telemetry (true) or commands (false)
     # @param fill_fields (see BurstProtocol#initialize)
     # @param unknown_raise Whether to raise an exception on an unknown packet
+    # @param allow_empty_data [true/false/nil] See Protocol#initialize
     def initialize(
       min_id_size,
       discard_leading_bytes = 0,
       sync_pattern = nil,
       telemetry = true,
       fill_fields = false,
-      unknown_raise = false
+      unknown_raise = false,
+      allow_empty_data = nil
     )
-      super(discard_leading_bytes, sync_pattern, fill_fields)
+      super(discard_leading_bytes, sync_pattern, fill_fields, allow_empty_data)
       @min_id_size = Integer(min_id_size)
       @telemetry = telemetry
       @unknown_raise = ConfigParser::handle_true_false(unknown_raise)

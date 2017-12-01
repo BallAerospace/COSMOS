@@ -16,8 +16,9 @@ module Cosmos
 
     # @param sync_pattern (see BurstProtocol#initialize)
     # @param max_length [Integer] The maximum allowed value of the length field
-    def initialize(sync_pattern = nil, max_length = nil)
-      super(0, sync_pattern)
+    # @param allow_empty_data [true/false/nil] See Protocol#initialize
+    def initialize(sync_pattern = nil, max_length = nil, allow_empty_data = nil)
+      super(0, sync_pattern, false, allow_empty_data)
       @max_length = ConfigParser.handle_nil(max_length)
       @max_length = Integer(@max_length) if @max_length
     end

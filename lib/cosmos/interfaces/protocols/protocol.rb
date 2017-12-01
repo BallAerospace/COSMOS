@@ -17,10 +17,12 @@ module Cosmos
     attr_accessor :interface
     attr_accessor :allow_empty_data
 
-    # @param allow_empty_data [true/false] Whether STOP should be returned on empty data
-    def initialize(allow_empty_data = false)
+    # @param allow_empty_data [true/false/nil] Whether or not this protocol will allow an empty string
+    # to be passed down to later Protocols (instead of returning :STOP). Can be true, false, or nil, where
+    # nil is interpreted as true unless the Protocol is the last Protocol of the chain.
+    def initialize(allow_empty_data = nil)
       @interface = nil
-      @allow_empty_data = ConfigParser.handle_true_false(allow_empty_data)
+      @allow_empty_data = ConfigParser.handle_true_false_nil(allow_empty_data)
       reset()
     end
 
@@ -37,7 +39,17 @@ module Cosmos
 
     # Ensure we have some data in case this is the only protocol
     def read_data(data)
-      return :STOP if (data.length <= 0) && !@allow_empty_data
+      if (data.length <= 0)
+        if @allow_empty_data.nil?
+          if @interface and @interface.read_protocols[-1] == self
+            # Last read interface in chain with auto @allow_empty_data
+            return :STOP
+          end
+        elsif !@allow_empty_data
+          # Don't @allow_empty_data means STOP
+          return :STOP
+        end
+      end
       data
     end
 

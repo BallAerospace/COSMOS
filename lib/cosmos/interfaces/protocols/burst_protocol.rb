@@ -23,7 +23,8 @@ module Cosmos
     #   that will be searched for in the raw data. Bytes encountered before
     #   this pattern is found are discarded.
     # @param fill_fields [Boolean] Fill any required fields when writing packets
-    def initialize(discard_leading_bytes = 0, sync_pattern = nil, fill_fields = false, allow_empty_data = false)
+    # @param allow_empty_data [true/false/nil] See Protocol#initialize
+    def initialize(discard_leading_bytes = 0, sync_pattern = nil, fill_fields = false, allow_empty_data = nil)
       super(allow_empty_data)
       @discard_leading_bytes = discard_leading_bytes.to_i
       @sync_pattern = ConfigParser.handle_nil(sync_pattern)
@@ -47,11 +48,20 @@ module Cosmos
       @data << data
 
       control = handle_sync_pattern()
-      return control if control
+      return control if control and data.length > 0
 
       # Reduce the data to a single packet
       packet_data = reduce_to_single_packet()
-      return packet_data if Symbol === packet_data
+
+      # Potentially allow blank string to be sent to other protocols if no packet is ready in this one
+      if Symbol === packet_data
+        if (data.length <= 0) and packet_data == :STOP
+          return super(data)
+        else
+          return packet_data
+        end
+      end
+
       @sync_state = :SEARCHING
 
       # Discard leading bytes if necessary

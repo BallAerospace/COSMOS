@@ -27,19 +27,21 @@ module Cosmos
     # @param discard_leading_bytes (see BurstProtocol#initialize)
     # @param sync_pattern (see BurstProtocol#initialize)
     # @param fill_fields (see BurstProtocol#initialize)
+    # @param allow_empty_data [true/false/nil] See Protocol#initialize
     def initialize(
       write_termination_characters,
       read_termination_characters,
       strip_read_termination = true,
       discard_leading_bytes = 0,
       sync_pattern = nil,
-      fill_fields = false
+      fill_fields = false,
+      allow_empty_data = nil
     )
       @write_termination_characters = write_termination_characters.hex_to_byte_string
       @read_termination_characters = read_termination_characters.hex_to_byte_string
       @strip_read_termination = ConfigParser.handle_true_false(strip_read_termination)
 
-      super(discard_leading_bytes, sync_pattern, fill_fields)
+      super(discard_leading_bytes, sync_pattern, fill_fields, allow_empty_data)
     end
 
     def write_data(data)

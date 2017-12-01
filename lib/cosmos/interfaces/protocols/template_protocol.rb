@@ -36,6 +36,7 @@ module Cosmos
     #   for a response
     # @param raise_exceptions [String] Whether to raise exceptions when errors
     #   occur in the protocol like unexpected responses or response timeouts.
+    # @param allow_empty_data [true/false/nil] See Protocol#initialize
     def initialize(
       write_termination_characters,
       read_termination_characters,
@@ -48,7 +49,8 @@ module Cosmos
       fill_fields = false,
       response_timeout = 5.0,
       response_polling_period = 0.02,
-      raise_exceptions = false
+      raise_exceptions = false,
+      allow_empty_data = nil
     )
       super(
         write_termination_characters,
@@ -56,7 +58,8 @@ module Cosmos
         strip_read_termination,
         discard_leading_bytes,
         sync_pattern,
-        fill_fields)
+        fill_fields,
+        allow_empty_data)
       @response_template = nil
       @response_packet = nil
       @response_packets = []
@@ -93,6 +96,8 @@ module Cosmos
     end
 
     def read_data(data)
+      return super(data) if (data.length <= 0)
+
       # Drop all data until the initial_read_delay is complete.
       # This gets rid of unused welcome messages,
       # prompts, and other junk on initial connections
