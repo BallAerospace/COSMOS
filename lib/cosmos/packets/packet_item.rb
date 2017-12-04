@@ -305,6 +305,29 @@ module Cosmos
       hash
     end
 
+    def calculate_range
+      first = range.first
+      last = range.last
+      if data_type == :FLOAT
+        if bit_size == 32
+          if range.first == -3.402823e38
+            first = 'MIN'
+          end
+          if range.last == 3.402823e38
+            last = 'MAX'
+          end
+        else
+          if range.first == -Float::MAX
+            first = 'MIN'
+          end
+          if range.last == Float::MAX
+            last = 'MAX'
+          end
+        end
+      end
+      return [first, last]
+    end
+
     def to_config(cmd_or_tlm, default_endianness)
       config = ''
       if cmd_or_tlm == :TELEMETRY
@@ -320,15 +343,27 @@ module Cosmos
           config << "  ARRAY_PARAMETER #{self.name.to_s.quote_if_necessary} #{self.bit_offset} #{self.bit_size} #{self.data_type} #{self.array_size} \"#{self.description.to_s.gsub("\"", "'")}\""
         elsif self.id_value
           if self.data_type == :BLOCK or self.data_type == :STRING
-            config << "  ID_PARAMETER #{self.name.to_s.quote_if_necessary} #{self.bit_offset} #{self.bit_size} #{self.data_type} \"#{self.id_value}\" \"#{self.description.to_s.gsub("\"", "'")}\""
+            unless self.id_value.is_printable?
+              id_value = "0x" + self.id_value.simple_formatted
+            else
+              id_value = "\"#{self.id_value}\""
+            end
+            config << "  ID_PARAMETER #{self.name.to_s.quote_if_necessary} #{self.bit_offset} #{self.bit_size} #{self.data_type} #{id_value} \"#{self.description.to_s.gsub("\"", "'")}\""
           else
-            config << "  ID_PARAMETER #{self.name.to_s.quote_if_necessary} #{self.bit_offset} #{self.bit_size} #{self.data_type} #{self.range.first} #{self.range.last} #{self.id_value} \"#{self.description.to_s.gsub("\"", "'")}\""
+            first, last = calculate_range()
+            config << "  ID_PARAMETER #{self.name.to_s.quote_if_necessary} #{self.bit_offset} #{self.bit_size} #{self.data_type} #{first} #{last} #{self.id_value} \"#{self.description.to_s.gsub("\"", "'")}\""
           end
         else
           if self.data_type == :BLOCK or self.data_type == :STRING
-            config << "  PARAMETER #{self.name.to_s.quote_if_necessary} #{self.bit_offset} #{self.bit_size} #{self.data_type} \"#{self.default}\" \"#{self.description.to_s.gsub("\"", "'")}\""
+            unless self.default.is_printable?
+              default = "0x" + self.default.simple_formatted
+            else
+              default = "\"#{self.default}\""
+            end
+            config << "  PARAMETER #{self.name.to_s.quote_if_necessary} #{self.bit_offset} #{self.bit_size} #{self.data_type} #{default} \"#{self.description.to_s.gsub("\"", "'")}\""
           else
-            config << "  PARAMETER #{self.name.to_s.quote_if_necessary} #{self.bit_offset} #{self.bit_size} #{self.data_type} #{self.range.first} #{self.range.last} #{self.default} \"#{self.description.to_s.gsub("\"", "'")}\""
+            first, last = calculate_range()
+            config << "  PARAMETER #{self.name.to_s.quote_if_necessary} #{self.bit_offset} #{self.bit_size} #{self.data_type} #{first} #{last} #{self.default} \"#{self.description.to_s.gsub("\"", "'")}\""
           end
         end
       end
@@ -359,7 +394,12 @@ module Cosmos
       if self.limits
         if self.limits.values
           self.limits.values.each do |limits_set, limits_values|
-            config << "    LIMITS #{limits_set} #{self.limits.persistence_setting} #{self.limits.enabled ? 'ENABLED' : 'DISABLED'} #{limits_values[0]} #{limits_values[1]} #{limits_values[2]} #{limits_values[3]} #{limits_values[4]} #{limits_values[5]}\n"
+            config << "    LIMITS #{limits_set} #{self.limits.persistence_setting} #{self.limits.enabled ? 'ENABLED' : 'DISABLED'} #{limits_values[0]} #{limits_values[1]} #{limits_values[2]} #{limits_values[3]}"
+            if limits_values[4] && limits_values[5]
+              config << " #{limits_values[4]} #{limits_values[5]}\n"
+            else
+              config << "\n"
+            end
           end
         end
         config << self.limits.response.to_config if self.limits.response
@@ -476,7 +516,13 @@ module Cosmos
       when :STRING
         # TODO: COSMOS Variably sized strings are not supported in XTCE
         attrs = { :name => (self.name + '_Type'), :characterWidth => 8 }
-        attrs[:initialValue] = self.default if self.default and !self.array_size
+        if self.default && !self.array_size
+          unless self.default.is_printable?
+            attrs[:initialValue] = '0x' + self.default.simple_formatted
+          else
+            attrs[:initialValue] = self.default.inspect
+          end
+        end
         attrs[:shortDescription] = self.description if self.description
         xml['xtce'].send('String' + param_or_arg + 'Type', attrs) do
           to_xtce_endianness(xml)
@@ -491,10 +537,15 @@ module Cosmos
         end
       when :BLOCK
         # TODO: COSMOS Variably sized blocks are not supported in XTCE
-        # TODO: Write string to hex method to support initial value
         attrs = { :name => (self.name + '_Type') }
+        if self.default && !self.array_size
+          unless self.default.is_printable?
+            attrs[:initialValue] = '0x' + self.default.simple_formatted
+          else
+            attrs[:initialValue] = self.default.inspect
+          end
+        end
         attrs[:shortDescription] = self.description if self.description
-        #attrs[:initialValue] = self.default if self.default and !self.array_size
         xml['xtce'].send('Binary' + param_or_arg + 'Type', attrs) do
           to_xtce_endianness(xml)
           to_xtce_units(xml)
