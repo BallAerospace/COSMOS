@@ -100,15 +100,6 @@ module Cosmos
     end
 
     describe "read" do
-      it "stops the read thread if no read port given" do
-        i = UdpInterface.new('localhost','8888','nil')
-        i.connect
-        thread = Thread.new { i.read }
-        sleep 0.1
-        expect(thread.stop?).to be true
-        Cosmos.kill_thread(nil, thread)
-      end
-
       it "stops the read thread if there is an IOError" do
         read = double("read")
         allow(read).to receive(:read).and_raise(IOError)
