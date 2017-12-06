@@ -327,21 +327,15 @@ Sleep 500
 Send puts "blank"
 Sleep 500
 
-Click 470 790 ; Toggle Run/Step SR-22
+Click 320 90 ; Step SR-22
 Sleep 500
-
-Click 400 90 ; Start SR-4, SR-5
+Click 320 90 ; Step
 Sleep 500
-Click 400 90 ; Go
-Sleep 500
-Click 400 90 ; Go
+Click 320 90 ; Step
 Sleep 500
 Click 480 90 ; Pause SR-6
 Sleep 500
 Click 550 90 ; Stop SR-7
-Sleep 500
-
-Click 470 790 ; Toggle Run/Step
 Sleep 500
 
 Send ^t ; Toggle Disconnect SR-20

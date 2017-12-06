@@ -328,7 +328,7 @@ module Cosmos
       rescue Exception => err
         begin
           raise $!, "In file #{filename} at line #{parser.line_number}:\n\n#{$!}", $!.backtrace
-        rescue => err
+        rescue Exception => err
           ExceptionDialog.new(self, err, "Screen #{File.basename(filename)}", false)
         end
         shutdown()
