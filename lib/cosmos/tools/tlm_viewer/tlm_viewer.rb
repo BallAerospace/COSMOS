@@ -184,7 +184,7 @@ module Cosmos
 
       @replay_action = Qt::Action.new(tr('Toggle Replay Mode'), self)
       @replay_action.statusTip = tr('Toggle Replay Mode')
-      @replay_action.connect(SIGNAL('triggered()')) { toggle_replay_mode() }      
+      @replay_action.connect(SIGNAL('triggered()')) { toggle_replay_mode() }
     end
 
     def initialize_menus(options)
@@ -193,7 +193,7 @@ module Cosmos
       @file_menu.addAction(@file_save)
       @file_menu.addAction(@file_generate)
       @file_menu.addAction(@file_audit)
-      @file_menu.addAction(@replay_action)      
+      @file_menu.addAction(@replay_action)
       @file_menu.addSeparator()
       @file_menu.addAction(@exit_action)
 
@@ -382,7 +382,9 @@ module Cosmos
             found = []
             all_telemetry.each do |tlm|
               break if @cancel_audit
-              found << tlm if screen_text.include? tlm
+              if screen_text.include?(tlm) || Packet::RESERVED_ITEM_NAMES.include?(tlm.split[-1].strip)
+                found << tlm
+              end
             end
             all_telemetry -= found
 
