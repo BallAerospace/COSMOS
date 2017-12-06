@@ -31,270 +31,6 @@ module Cosmos
       XtceParser.new(commands, telemetry, warnings, filename, target_name)
     end
 
-    # Output a previously parsed definition file into the XTCE format
-    #
-    # @param commands [Hash<String=>Packet>] Hash of all the command packets
-    #   keyed by the packet name.
-    # @param telemetry [Hash<String=>Packet>] Hash of all the telemetry packets
-    #   keyed by the packet name.
-    #   that were created while parsing the configuration
-    # @param output_dir [String] The name of the output directory to generate
-    #   the XTCE files. A file is generated for each target.
-    def self.to_xtce(commands, telemetry, output_dir)
-      FileUtils.mkdir_p(output_dir)
-
-      # Build target list
-      targets = []
-      telemetry.each { |target_name, packets| targets << target_name }
-      commands.each { |target_name, packets| targets << target_name }
-      targets.uniq!
-
-      targets.each do |target_name|
-        next if target_name == 'UNKNOWN'
-
-        # Reverse order of packets for the target so things are expected (reverse) order for xtce
-        reverse_packet_order(target_name, commands)
-        reverse_packet_order(target_name, telemetry)
-
-        FileUtils.mkdir_p(File.join(output_dir, target_name, 'cmd_tlm'))
-        filename = File.join(output_dir, target_name, 'cmd_tlm', target_name.downcase + '.xtce')
-        begin
-          File.delete(filename)
-        rescue
-          # Doesn't exist
-        end
-
-        # Gather and make unique all the packet items
-        unique_items = {}
-        if telemetry[target_name]
-          telemetry[target_name].each do |packet_name, packet|
-            packet.sorted_items.each do |item|
-              next if item.data_type == :DERIVED
-              unique_items[item.name] ||= []
-              unique_items[item.name] << item
-            end
-          end
-          unique_items.each do |item_name, items|
-            if items.length <= 1
-              unique_items[item_name] = items[0]
-              next
-            end
-            # TODO: need to make sure all the items in the array are exactly the same
-            unique_items[item_name] = items[0]
-          end
-        end
-
-        # Gather and make unique all the command parameters
-        unique_arguments = {}
-        if commands[target_name]
-          commands[target_name].each do |packet_name, packet|
-            packet.sorted_items.each do |item|
-              next if item.data_type == :DERIVED
-              unique_arguments[item.name] ||= []
-              unique_arguments[item.name] << item
-            end
-          end
-          unique_arguments.each do |item_name, items|
-            if items.length <= 1
-              unique_arguments[item_name] = items[0]
-              next
-            end
-            # TODO: need to make sure all the items in the array are exactly the same
-            unique_arguments[item_name] = items[0]
-          end
-        end
-
-        # Create the xtce file for this target
-        builder = Nokogiri::XML::Builder.new(:encoding => 'UTF-8') do |xml|
-          xml['xtce'].SpaceSystem("xmlns:xtce" => "http://www.omg.org/space/xtce",
-            "xmlns:xsi" => "http://www.w3.org/2001/XMLSchema-instance",
-            "name" => target_name,
-            "xsi:schemaLocation" => "http://www.omg.org/space/xtce http://www.omg.org/spec/XTCE/20061101/06-11-06.xsd") do
-            xml['xtce'].TelemetryMetaData do
-              xml['xtce'].ParameterTypeSet do
-                unique_items.each do |item_name, item|
-                  item.to_xtce_type('Parameter', xml)
-                end
-              end
-
-              xml['xtce'].ParameterSet do
-                unique_items.each do |item_name, item|
-                  item.to_xtce_item('Parameter', xml)
-                end
-              end
-
-              if telemetry[target_name]
-                xml['xtce'].ContainerSet do
-                  telemetry[target_name].each do |packet_name, packet|
-                    attrs = { :name => (packet_name + '_Base'), :abstract => "true" }
-                    xml['xtce'].SequenceContainer(attrs) do
-                      xml['xtce'].EntryList do
-                        packed = packet.packed?
-                        packet.sorted_items.each do |item|
-                          next if item.data_type == :DERIVED
-                          # TODO: Handle nonunique item names
-                          if item.array_size
-                            xml['xtce'].ArrayParameterRefEntry(:parameterRef => item.name) do
-                              if !packed
-                                if item.bit_offset >= 0
-                                  xml['xtce'].LocationInContainerInBits(:referenceLocation => 'containerStart') do
-                                    xml['xtce'].FixedValue(item.bit_offset)
-                                  end
-                                else
-                                  xml['xtce'].LocationInContainerInBits(:referenceLocation => 'containerEnd') do
-                                    xml['xtce'].FixedValue(-item.bit_offset)
-                                  end
-                                end
-                              end
-                              xml['xtce'].DimensionList do
-                                xml['xtce'].Dimension do
-                                  xml['xtce'].StartingIndex do
-                                    xml['xtce'].FixedValue(0)
-                                  end
-                                  xml['xtce'].EndingIndex do
-                                    xml['xtce'].FixedValue((item.array_size / item.bit_size) - 1)
-                                  end
-                                end
-                              end
-                            end
-                          else
-                            if packed
-                              xml['xtce'].ParameterRefEntry(:parameterRef => item.name)
-                            else
-                              xml['xtce'].ParameterRefEntry(:parameterRef => item.name) do
-                                if item.bit_offset >= 0
-                                  xml['xtce'].LocationInContainerInBits(:referenceLocation => 'containerStart') do
-                                    xml['xtce'].FixedValue(item.bit_offset)
-                                  end
-                                else
-                                  xml['xtce'].LocationInContainerInBits(:referenceLocation => 'containerEnd') do
-                                    xml['xtce'].FixedValue(-item.bit_offset)
-                                  end
-                                end
-                              end
-                            end
-                          end
-                        end
-                      end
-                    end # Abstract SequenceContainer
-
-                    attrs = { :name => packet_name }
-                    attrs['shortDescription'] = packet.description if packet.description
-                    xml['xtce'].SequenceContainer(attrs) do
-                      xml['xtce'].EntryList
-                      xml['xtce'].BaseContainer(:containerRef => (packet_name + '_Base')) do
-                        if packet.id_items and packet.id_items.length > 0
-                          xml['xtce'].RestrictionCriteria do
-                            xml['xtce'].ComparisonList do
-                              packet.id_items.each do |item|
-                                xml['xtce'].Comparison(:parameterRef => item.name, :value => item.id_value)
-                              end
-                            end
-                          end
-                        end
-                      end
-                    end # Actual SequenceContainer
-
-                  end # telemetry.each
-                end # ContainerSet
-              end # TelemetryMetaData
-            end # if telemetry[target_name]
-
-            if commands[target_name]
-              xml['xtce'].CommandMetaData do
-                xml['xtce'].ArgumentTypeSet do
-                  unique_arguments.each do |arg_name, arg|
-                    arg.to_xtce_type('Argument', xml)
-                  end
-                end
-                xml['xtce'].MetaCommandSet do
-                  commands[target_name].each do |packet_name, packet|
-                    attrs = { :name => packet_name + "_Base", :abstract => "true" }
-                    xml['xtce'].MetaCommand(attrs) do
-                      xml['xtce'].ArgumentList do
-                        packet.sorted_items.each do |item|
-                          next if item.data_type == :DERIVED
-                          item.to_xtce_item('Argument', xml)
-                        end
-                      end # ArgumentList
-                      xml['xtce'].CommandContainer(:name => "#{target_name}_#{packet_name}_CommandContainer") do
-                        xml['xtce'].EntryList do
-                          packed = packet.packed?
-                          packet.sorted_items.each do |item|
-                            next if item.data_type == :DERIVED
-                            if item.array_size
-                              xml['xtce'].ArrayArgumentRefEntry(:parameterRef => item.name) do
-                                if !packed
-                                  if item.bit_offset >= 0
-                                    xml['xtce'].LocationInContainerInBits(:referenceLocation => 'containerStart') do
-                                      xml['xtce'].FixedValue(item.bit_offset)
-                                    end
-                                  else
-                                    xml['xtce'].LocationInContainerInBits(:referenceLocation => 'containerEnd') do
-                                      xml['xtce'].FixedValue(-item.bit_offset)
-                                    end
-                                  end
-                                end
-                                xml['xtce'].DimensionList do
-                                  xml['xtce'].Dimension do
-                                    xml['xtce'].StartingIndex do
-                                      xml['xtce'].FixedValue(0)
-                                    end
-                                    xml['xtce'].EndingIndex do
-                                      xml['xtce'].FixedValue((item.array_size / item.bit_size) - 1)
-                                    end
-                                  end
-                                end
-                              end
-                            else
-                              if packed
-                                xml['xtce'].ArgumentRefEntry(:argumentRef => item.name)
-                              else
-                                xml['xtce'].ArgumentRefEntry(:argumentRef => item.name) do
-                                  if item.bit_offset >= 0
-                                    xml['xtce'].LocationInContainerInBits(:referenceLocation => 'containerStart') do
-                                      xml['xtce'].FixedValue(item.bit_offset)
-                                    end
-                                  else
-                                    xml['xtce'].LocationInContainerInBits(:referenceLocation => 'containerEnd') do
-                                      xml['xtce'].FixedValue(-item.bit_offset)
-                                    end
-                                  end
-                                end
-                              end
-                            end
-                          end
-                        end
-                      end
-                    end # Abstract MetaCommand
-
-                    attrs = { :name => packet_name }
-                    attrs['shortDescription'] = packet.description if packet.description
-                    xml['xtce'].MetaCommand(attrs) do
-                      xml['xtce'].BaseMetaCommand(:metaCommandRef => packet_name + "_Base") do
-                        if packet.id_items and packet.id_items.length > 0
-                          xml['xtce'].ArgumentAssignmentList do
-                            packet.id_items.each do |item|
-                              xml['xtce'].ArgumentAssignment(:argumentName => item.name, :argumentValue => item.id_value)
-                            end
-                          end # ArgumentAssignmentList
-                        end
-                      end # BaseMetaCommand
-                    end # Actual MetaCommand
-                  end # commands.each
-                end # MetaCommandSet
-              end # CommandMetaData
-            end # if commands[target_name]
-          end # SpaceSystem
-        end # builder
-        File.open(filename, 'w') do |file|
-          file.puts builder.to_xml
-        end
-      end
-    end
-
-    private
-
     def self.reverse_packet_order(target_name, cmd_or_tlm_hash)
       if cmd_or_tlm_hash[target_name]
         packets = []
@@ -312,16 +48,8 @@ module Cosmos
       end
     end
 
-    # Create a new XtceParser
-    #
-    # @param commands [Hash<String=>Packet>] Hash of all the command packets
-    #   keyed by the packet name.
-    # @param telemetry [Hash<String=>Packet>] Hash of all the telemetry packets
-    #   keyed by the packet name.
-    # @param warnings [Array<String>] Array of strings listing all the warnings
-    #   that were created while parsing the configuration
-    # @param filename [String] The name of the configuration file
-    # @param target_name [String] The target name
+    private
+
     def initialize(commands, telemetry, warnings, filename, target_name)
       reset_processing_variables()
       @commands = commands
@@ -360,6 +88,7 @@ module Cosmos
     def finish_packet()
       if @current_packet
         @warnings += @current_packet.check_bit_offsets
+        set_packet_endianness()
         if @current_cmd_or_tlm == PacketConfig::COMMAND
           PacketParser.check_item_data_types(@current_packet)
           @commands[@current_packet.target_name][@current_packet.packet_name] = @current_packet
@@ -367,6 +96,15 @@ module Cosmos
           @telemetry[@current_packet.target_name][@current_packet.packet_name] = @current_packet
         end
         @current_packet = nil
+      end
+    end
+
+    def set_packet_endianness
+      item_endianness = @current_packet.sorted_items.collect { |item| item.endianness }.uniq
+      if item_endianness.length == 1 # All items have the same endianness
+        # default_endianness is read_only since it affects how items are added
+        # thus we have to use instance_variable_set here to override it
+        @current_packet.instance_variable_set(:@default_endianness, item_endianness[0])
       end
     end
 
@@ -382,6 +120,19 @@ module Cosmos
       @parameters = {}
       @arguments = {}
       @containers = {}
+    end
+
+    def create_new_type(element)
+      current_type = OpenStruct.new
+      element.attributes.each do |att_name, att|
+        current_type[att.name] = att.value
+      end
+      if element.name =~ /Argument/
+        @argument_types[element["name"]] = current_type
+      else
+        @parameter_types[element["name"]] = current_type
+      end
+      current_type
     end
 
     XTCE_IGNORED_ELEMENTS = ['text', 'AliasSet', 'Alias', 'Header']
@@ -411,17 +162,8 @@ module Cosmos
 
       when 'EnumeratedParameterType', 'EnumeratedArgumentType', 'IntegerParameterType', 'IntegerArgumentType', 'FloatParameterType', 'FloatArgumentType',
         'StringParameterType', 'StringArgumentType', 'BinaryParameterType', 'BinaryArgumentType'
-
-        @current_type = OpenStruct.new
+        @current_type = create_new_type(element)
         @current_type.endianness = :BIG_ENDIAN
-        element.attributes.each do |att_name, att|
-          @current_type[att.name] = att.value
-        end
-        if element.name =~ /Argument/
-          @argument_types[element["name"]] = @current_type
-        else
-          @parameter_types[element["name"]] = @current_type
-        end
 
         case element.name
         when 'EnumeratedParameterType', 'EnumeratedArgumentType'
@@ -441,15 +183,7 @@ module Cosmos
         end
 
       when 'ArrayParameterType', 'ArrayArgumentType'
-        @current_type = OpenStruct.new
-        element.attributes.each do |att_name, att|
-          @current_type[att.name] = att.value
-        end
-        if element.name =~ /Argument/
-          @argument_types[element["name"]] = @current_type
-        else
-          @parameter_types[element["name"]] = @current_type
-        end
+        @current_type = create_new_type(element)
 
       when 'ByteOrderList'
         byte_list = []
@@ -606,205 +340,12 @@ module Cosmos
         xtce_handle_base_container('BaseContainer', element)
 
       when 'LongDescription'
-        if @current_packet and !@current_packet.description
+        if @current_packet && !@current_packet.description
           @current_packet.description = element.text
         end
 
       when 'ParameterRefEntry', 'ArgumentRefEntry', 'ArrayParameterRefEntry', 'ArrayArgumentRefEntry'
-        reference_location, bit_offset = xtce_handle_location_in_container_in_bits(element)
-
-        array_type = nil
-        array_bit_size = nil
-        if element.name =~ /Parameter/
-          # Look up the parameter and parameter type
-          parameter = @parameters[element['parameterRef']]
-          raise "parameterRef #{element['parameterRef']} not found" unless parameter
-          parameter_type = @parameter_types[parameter.parameterTypeRef]
-          raise "parameterTypeRef #{parameter.parameterTypeRef} not found" unless parameter_type
-          if element.name == 'ArrayParameterRefEntry'
-            array_type = parameter_type
-            parameter_type = @parameter_types[array_type.arrayTypeRef]
-            raise "arrayTypeRef #{parameter.arrayTypeRef} not found" unless parameter_type
-          end
-          refName = 'parameterRef'
-          object = parameter
-          type = parameter_type
-        else
-          # Look up the argument and argument type
-          if element.name == 'ArrayArgumentRefEntry'
-            # Requiring parameterRef for argument arrays appears to be a defect in the schema
-            argument = @arguments[element['parameterRef']]
-            raise "parameterRef #{element['parameterRef']} not found" unless argument
-            argument_type = @argument_types[argument.argumentTypeRef]
-            raise "argumentTypeRef #{argument.argumentTypeRef} not found" unless argument_type
-            array_type = argument_type
-            argument_type = @argument_types[array_type.arrayTypeRef]
-            raise "arrayTypeRef #{array_type.arrayTypeRef} not found" unless argument_type
-            refName = 'parameterRef'
-          else
-            argument = @arguments[element['argumentRef']]
-            raise "argumentRef #{element['argumentRef']} not found" unless argument
-            argument_type = @argument_types[argument.argumentTypeRef]
-            raise "argumentTypeRef #{argument.argumentTypeRef} not found" unless argument_type
-            refName = 'argumentRef'
-          end
-          object = argument
-          type = argument_type
-        end
-
-        bit_size = Integer(type.sizeInBits)
-
-        if array_type
-          array_num_items = 1
-          # Need to determine dimensions
-          xtce_recurse_element(element, depth + 1) do |element, depth|
-            if element.name == 'Dimension'
-              starting_index = 0
-              ending_index = 0
-              element.children.each do |child_element|
-                if child_element.name == 'StartingIndex'
-                  child_element.children.each do |child_element2|
-                    if child_element2.name == 'FixedValue'
-                      starting_index = child_element2.text.to_i
-                    end
-                  end
-                elsif child_element.name == 'EndingIndex'
-                  child_element.children.each do |child_element2|
-                    if child_element2.name == 'FixedValue'
-                      ending_index = child_element2.text.to_i
-                    end
-                  end
-                  array_num_items *= ((ending_index - starting_index).abs + 1)
-                end
-                false # Don't recurse again
-              end
-              false # Don't recurse again
-            else
-              true # Keep recursing
-            end
-          end
-          array_bit_size = array_num_items * bit_size
-        end
-
-        # Add item to packet
-        data_type = nil
-        case type.xtce_encoding
-        when 'IntegerDataEncoding'
-          if type.signed == 'false' or type.encoding == 'unsigned'
-            data_type = :UINT
-          else
-            data_type = :INT
-          end
-        when 'FloatDataEncoding'
-          data_type = :FLOAT
-        when 'StringDataEncoding'
-          data_type = :STRING
-        when 'BinaryDataEncoding'
-          data_type = :BLOCK
-        else
-          raise "Referenced Parameter/Argument has no xtce_encoding: #{element[refName]}"
-        end
-
-        if bit_offset
-          case reference_location
-          when 'containerStart'
-            item = @current_packet.define_item(object.name, bit_offset, bit_size, data_type, array_bit_size, type.endianness) # overflow = :ERROR, format_string = nil, read_conversion = nil, write_conversion = nil, id_value = nil)
-          when 'containerEnd'
-            item = @current_packet.define_item(object.name, -bit_offset, bit_size, data_type, array_bit_size, type.endianness) # overflow = :ERROR, format_string = nil, read_conversion = nil, write_conversion = nil, id_value = nil)
-          when 'previousEntry', nil
-            item = @current_packet.define_item(object.name, @current_packet.length + bit_offset, bit_size, data_type, array_bit_size, type.endianness) # overflow = :ERROR, format_string = nil, read_conversion = nil, write_conversion = nil, id_value = nil)
-          when 'nextEntry'
-            raise 'nextEntry is not supported'
-          end
-        else
-          item = @current_packet.append_item(object.name, bit_size, data_type, array_bit_size, type.endianness) # overflow = :ERROR, format_string = nil, read_conversion = nil, write_conversion = nil, id_value = nil)
-        end
-
-        item.description = type.shortDescription if type.shortDescription
-        if type.states
-          item.states = type.states
-        end
-        if type.units and type.units_full
-          item.units = type.units
-          item.units_full = type.units_full
-        end
-        if @current_cmd_or_tlm == PacketConfig::COMMAND
-          # Possibly add write conversion
-          if type.conversion and type.conversion.class == PolynomialConversion
-            item.write_conversion = type.conversion
-          end
-
-          # Need to set min, max, and default
-          if data_type == :INT or data_type == :UINT
-            if data_type == :INT
-              item.range = (-(2 ** (Integer(type.sizeInBits) - 1)))..((2 ** (Integer(type.sizeInBits) - 1)) - 1)
-            else
-              item.range = 0..((2 ** Integer(type.sizeInBits)) - 1)
-            end
-            if type.minInclusive and type.maxInclusive
-              item.range = Integer(type.minInclusive)..Integer(type.maxInclusive)
-            end
-            if item.array_size
-              item.default = []
-            else
-              item.default = 0
-              if item.states and item.states[type.initialValue.to_s.upcase]
-                item.default = Integer(item.states[type.initialValue.to_s.upcase])
-              else
-                item.default = Integer(type.initialValue) if type.initialValue
-              end
-            end
-          elsif data_type == :FLOAT
-            if Integer(type.sizeInBits) == 32
-              item.range = -3.402823e38..3.402823e38
-            else
-              item.range = -Float::MAX..Float::MAX
-            end
-            if type.minInclusive and type.maxInclusive
-              item.range = Float(type.minInclusive)..Float(type.maxInclusive)
-            end
-            if item.array_size
-              item.default = []
-            else
-              item.default = 0.0
-              item.default = Float(type.initialValue) if type.initialValue
-            end
-          elsif data_type == :STRING
-            if item.array_size
-              item.default = []
-            else
-              if type.initialValue
-                item.default = type.initialValue
-              else
-                item.default = ''
-              end
-            end
-          elsif data_type == :BLOCK
-            if item.array_size
-              item.default = []
-            else
-              if type.initialValue
-                item.default = type.initialValue
-              else
-                item.default = ''
-              end
-            end
-          end
-        else
-          # Possibly add read conversion
-          if type.conversion and type.conversion.class == PolynomialConversion
-            item.read_conversion = type.conversion
-          end
-
-          # Possibly add default limits
-          if type.limits
-            item.limits.enabled = true
-            values = {}
-            values[:DEFAULT] = type.limits
-            item.limits.values = values
-          end
-        end
-
+        process_ref_entry(element, depth)
         return false # Already recursed
 
       when 'BaseContainer'
@@ -841,7 +382,7 @@ module Cosmos
         # Need to set ID value for item
         item = @current_packet.get_item(element['argumentName'])
         value = element['argumentValue']
-        if item.states and item.states[value.to_s.upcase]
+        if item.states && item.states[value.to_s.upcase]
           item.id_value = item.states[value.to_s.upcase]
           item.default = item.id_value
         else
@@ -856,6 +397,219 @@ module Cosmos
       end # case element.name
 
       return true # Recurse further
+    end
+
+    def process_ref_entry(element, depth)
+      reference_location, bit_offset = xtce_handle_location_in_container_in_bits(element)
+      object, type, data_type, array_type = get_object_types(element)
+      bit_size = Integer(type.sizeInBits)
+      if array_type
+        array_bit_size = process_array_type(element, depth, bit_size)
+      else
+        array_bit_size = nil # in define_item, nil indicates the item is not an array
+      end
+
+      if bit_offset
+        case reference_location
+        when 'containerStart'
+          item = @current_packet.define_item(object.name, bit_offset, bit_size, data_type, array_bit_size, type.endianness) # overflow = :ERROR, format_string = nil, read_conversion = nil, write_conversion = nil, id_value = nil)
+        when 'containerEnd'
+          item = @current_packet.define_item(object.name, -bit_offset, bit_size, data_type, array_bit_size, type.endianness) # overflow = :ERROR, format_string = nil, read_conversion = nil, write_conversion = nil, id_value = nil)
+        when 'previousEntry', nil
+          item = @current_packet.define_item(object.name, @current_packet.length + bit_offset, bit_size, data_type, array_bit_size, type.endianness) # overflow = :ERROR, format_string = nil, read_conversion = nil, write_conversion = nil, id_value = nil)
+        when 'nextEntry'
+          raise 'nextEntry is not supported'
+        end
+      else
+        item = @current_packet.append_item(object.name, bit_size, data_type, array_bit_size, type.endianness) # overflow = :ERROR, format_string = nil, read_conversion = nil, write_conversion = nil, id_value = nil)
+      end
+
+      item.description = type.shortDescription if type.shortDescription
+      item.states = type.states if type.states
+      set_units(item, type)
+      set_conversion(item, type, data_type)
+      set_min_max_default(item, type, data_type)
+      set_limits(item, type)
+    end
+
+    def get_object_types(element)
+      array_type = nil
+      if element.name =~ /Parameter/
+        # Look up the parameter and parameter type
+        parameter = @parameters[element['parameterRef']]
+        raise "parameterRef #{element['parameterRef']} not found" unless parameter
+        parameter_type = @parameter_types[parameter.parameterTypeRef]
+        raise "parameterTypeRef #{parameter.parameterTypeRef} not found" unless parameter_type
+        if element.name == 'ArrayParameterRefEntry'
+          array_type = parameter_type
+          parameter_type = @parameter_types[array_type.arrayTypeRef]
+          raise "arrayTypeRef #{parameter.arrayTypeRef} not found" unless parameter_type
+        end
+        refName = 'parameterRef'
+        object = parameter
+        type = parameter_type
+      else
+        # Look up the argument and argument type
+        if element.name == 'ArrayArgumentRefEntry'
+          # Requiring parameterRef for argument arrays appears to be a defect in the schema
+          argument = @arguments[element['parameterRef']]
+          raise "parameterRef #{element['parameterRef']} not found" unless argument
+          argument_type = @argument_types[argument.argumentTypeRef]
+          raise "argumentTypeRef #{argument.argumentTypeRef} not found" unless argument_type
+          array_type = argument_type
+          argument_type = @argument_types[array_type.arrayTypeRef]
+          raise "arrayTypeRef #{array_type.arrayTypeRef} not found" unless argument_type
+          refName = 'parameterRef'
+        else
+          argument = @arguments[element['argumentRef']]
+          raise "argumentRef #{element['argumentRef']} not found" unless argument
+          argument_type = @argument_types[argument.argumentTypeRef]
+          raise "argumentTypeRef #{argument.argumentTypeRef} not found" unless argument_type
+          refName = 'argumentRef'
+        end
+        object = argument
+        type = argument_type
+      end
+
+      data_type = get_data_type(type)
+      raise "Referenced Parameter/Argument has no xtce_encoding: #{element[refName]}" unless data_type
+
+      return [object, type, data_type, array_type]
+    end
+
+    def process_array_type(element, depth, bit_size)
+      array_num_items = 1
+      # Need to determine dimensions
+      xtce_recurse_element(element, depth + 1) do |element, depth|
+        if element.name == 'Dimension'
+          starting_index = 0
+          ending_index = 0
+          element.children.each do |child_element|
+            if child_element.name == 'StartingIndex'
+              child_element.children.each do |child_element2|
+                if child_element2.name == 'FixedValue'
+                  starting_index = child_element2.text.to_i
+                end
+              end
+            elsif child_element.name == 'EndingIndex'
+              child_element.children.each do |child_element2|
+                if child_element2.name == 'FixedValue'
+                  ending_index = child_element2.text.to_i
+                end
+              end
+              array_num_items *= ((ending_index - starting_index).abs + 1)
+            end
+            false # Don't recurse again
+          end
+          false # Don't recurse again
+        else
+          true # Keep recursing
+        end
+      end
+      array_num_items * bit_size
+    end
+
+    def get_data_type(type)
+      data_type = nil
+      case type.xtce_encoding
+      when 'IntegerDataEncoding'
+        if type.signed == 'false' || type.encoding == 'unsigned'
+          data_type = :UINT
+        else
+          data_type = :INT
+        end
+      when 'FloatDataEncoding'
+        data_type = :FLOAT
+      when 'StringDataEncoding'
+        data_type = :STRING
+      when 'BinaryDataEncoding'
+        data_type = :BLOCK
+      end
+      data_type
+    end
+
+    def set_units(item, type)
+      if type.units && type.units_full
+        item.units = type.units
+        item.units_full = type.units_full
+      end
+    end
+
+    def set_conversion(item, type, data_type)
+      if type.conversion && type.conversion.class == PolynomialConversion
+        if @current_cmd_or_tlm == PacketConfig::COMMAND
+          item.write_conversion = type.conversion
+        else
+          item.read_conversion = type.conversion
+        end
+      end
+    end
+
+    def set_min_max_default(item, type, data_type)
+      return unless @current_cmd_or_tlm == PacketConfig::COMMAND
+        # Need to set min, max, and default
+      if data_type == :INT || data_type == :UINT
+        if data_type == :INT
+          item.range = (-(2 ** (Integer(type.sizeInBits) - 1)))..((2 ** (Integer(type.sizeInBits) - 1)) - 1)
+        else
+          item.range = 0..((2 ** Integer(type.sizeInBits)) - 1)
+        end
+        if type.minInclusive && type.maxInclusive
+          item.range = Integer(type.minInclusive)..Integer(type.maxInclusive)
+        end
+        if item.array_size
+          item.default = []
+        else
+          item.default = 0
+          if item.states && item.states[type.initialValue.to_s.upcase]
+            item.default = Integer(item.states[type.initialValue.to_s.upcase])
+          else
+            item.default = Integer(type.initialValue) if type.initialValue
+          end
+        end
+      elsif data_type == :FLOAT
+        if Integer(type.sizeInBits) == 32
+          item.range = -3.402823e38..3.402823e38
+        else
+          item.range = -Float::MAX..Float::MAX
+        end
+        if type.minInclusive && type.maxInclusive
+          item.range = Float(type.minInclusive)..Float(type.maxInclusive)
+        end
+        if item.array_size
+          item.default = []
+        else
+          item.default = 0.0
+          item.default = Float(type.initialValue) if type.initialValue
+        end
+      elsif data_type == :STRING || data_type == :BLOCK
+        if item.array_size
+          item.default = []
+        else
+          if type.initialValue
+            if type.initialValue.upcase.start_with?("0X")
+              item.default = type.initialValue.hex_to_byte_string
+            else
+              # Strip quotes from strings
+              if type.initialValue[0] == '"' && type.initialValue[-1] == '"'
+                item.default = type.initialValue[1..-2]
+              end
+            end
+          else
+            item.default = ''
+          end
+        end
+      end
+    end
+
+    def set_limits(item, type)
+      return unless @current_cmd_or_tlm == PacketConfig::TELEMETRY
+      if type.limits
+        item.limits.enabled = true
+        values = {}
+        values[:DEFAULT] = type.limits
+        item.limits.values = values
+      end
     end
 
     def xtce_format_attributes(element)

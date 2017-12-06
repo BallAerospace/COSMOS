@@ -99,7 +99,10 @@ module Cosmos
         @pi.id_value = "HI"
         expect(@pi.id_value).to eql "HI"
         expect(@pi.to_config(:COMMAND, :BIG_ENDIAN)).to match(/ID_PARAMETER TEST 0 32 STRING "HI"/)
-        expect(@pi.to_config(:TELEMETRY, :BIG_ENDIAN)).to match(/ID_ITEM TEST 0 32 STRING HI/)
+        expect(@pi.to_config(:TELEMETRY, :BIG_ENDIAN)).to match(/ID_ITEM TEST 0 32 STRING "HI"/)
+        @pi.id_value = "\xDE\xAD\xBE\xEF" # binary
+        expect(@pi.to_config(:COMMAND, :BIG_ENDIAN)).to match(/ID_PARAMETER TEST 0 32 STRING 0xDEADBEEF/)
+        expect(@pi.to_config(:TELEMETRY, :BIG_ENDIAN)).to match(/ID_ITEM TEST 0 32 STRING 0xDEADBEEF/)
       end
 
       it "sets the id_value to nil" do
@@ -209,6 +212,9 @@ module Cosmos
         pi.default = "HI"
         expect(pi.default).to eql "HI"
         expect(pi.to_config(:COMMAND, :BIG_ENDIAN)).to match(/PARAMETER TEST 0 32 STRING "HI"/)
+        pi = PacketItem.new("test", 0, 32, :STRING, :BIG_ENDIAN, nil)
+        pi.default = "\xDE\xAD\xBE\xEF"
+        expect(pi.to_config(:COMMAND, :BIG_ENDIAN)).to match(/PARAMETER TEST 0 32 STRING 0xDEADBEEF/)
       end
 
       it "sets the default to nil" do

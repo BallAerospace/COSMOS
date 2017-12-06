@@ -19,6 +19,7 @@ require 'cosmos/packets/parsers/state_parser'
 require 'cosmos/packets/parsers/format_string_parser'
 require 'cosmos/packets/parsers/processor_parser'
 require 'cosmos/packets/parsers/xtce_parser'
+require 'cosmos/packets/parsers/xtce_converter'
 require 'cosmos/conversions'
 require 'cosmos/processors'
 require 'nokogiri'
@@ -261,7 +262,7 @@ module Cosmos
     end # def to_config
 
     def to_xtce(output_dir)
-      XtceParser.to_xtce(@commands, @telemetry, output_dir)
+      XtceConverter.convert(@commands, @telemetry, output_dir)
     end
 
     # Add current packet into hash if it exists
