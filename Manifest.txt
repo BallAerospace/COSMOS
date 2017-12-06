@@ -992,6 +992,8 @@ lib/cosmos/packets/parsers/packet_item_parser.rb
 lib/cosmos/packets/parsers/packet_parser.rb
 lib/cosmos/packets/parsers/processor_parser.rb
 lib/cosmos/packets/parsers/state_parser.rb
+lib/cosmos/packets/parsers/xtce_converter.rb
+lib/cosmos/packets/parsers/xtce_parser.rb
 lib/cosmos/packets/structure.rb
 lib/cosmos/packets/structure_item.rb
 lib/cosmos/packets/telemetry.rb
@@ -1239,6 +1241,7 @@ spec/install/config/targets/INST/cmd_tlm/inst_tlm.txt
 spec/install/config/targets/INST/cmd_tlm/inst_tlm_linc.txt
 spec/install/config/targets/INST/cmd_tlm_server.txt
 spec/install/config/targets/INST/lib/sim_inst.rb
+spec/install/config/targets/INST/screens/hs.txt
 spec/install/config/targets/INST/target.txt
 spec/install/config/targets/SYSTEM/cmd_tlm/limits_groups.txt
 spec/install/config/targets/SYSTEM/cmd_tlm/meta_tlm.txt
@@ -1295,6 +1298,7 @@ spec/packets/parsers/packet_item_parser_spec.rb
 spec/packets/parsers/packet_parser_spec.rb
 spec/packets/parsers/processor_parser_spec.rb
 spec/packets/parsers/state_parser_spec.rb
+spec/packets/parsers/xtce_parser_spec.rb
 spec/packets/structure_item_spec.rb
 spec/packets/structure_spec.rb
 spec/packets/telemetry_spec.rb
@@ -1338,6 +1342,7 @@ spec/tools/table_manager/table_item_spec.rb
 spec/tools/table_manager/table_parser_spec.rb
 spec/tools/table_manager/table_spec.rb
 spec/tools/table_manager/tablemanager_core_spec.rb
+spec/tools/tlm_viewer/tlm_viewer_config_spec.rb
 spec/top_level/top_level_spec.rb
 spec/utilities/crc_spec.rb
 spec/utilities/csv_spec.rb
