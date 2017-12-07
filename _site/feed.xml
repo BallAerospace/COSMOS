@@ -11,8 +11,8 @@
     <title xml:lang="en">Ball Aerospace COSMOS News</title>
     <atom:link type="application/atom+xml" href="http://cosmosrb/feed.xml" rel="self"/>
     <link>http://cosmosrb.com/</link>
-    <pubDate>Thu, 07 Dec 2017 10:45:11 -0700</pubDate>
-    <lastBuildDate>Thu, 07 Dec 2017 10:45:11 -0700</lastBuildDate>
+    <pubDate>Thu, 07 Dec 2017 10:49:00 -0700</pubDate>
+    <lastBuildDate>Thu, 07 Dec 2017 10:49:00 -0700</lastBuildDate>
     <language>en-US</language>
     <generator>Jekyll v3.5.2</generator>
     <description>The User Interface for Embedded Systems</description>
@@ -24,6 +24,48 @@
       <width>144</width>
       <height>73</height>
     </image>
+    
+    <item>
+      <title>Ball Aerospace COSMOS 4.1.1 Released</title>
+      <link>http://cosmosrb.com/news/2017/12/07/cosmos-4-1-1-released/</link>
+      <pubDate>Thu, 07 Dec 2017 06:00:00 -0700</pubDate>
+      <dc:creator>ryanmelt</dc:creator>
+      
+      
+      <category>release</category>
+      
+      <guid isPermaLink="true">http://cosmosrb.com/news/2017/12/07/cosmos-4-1-1-released/</guid>
+      <description>&lt;h3 id=&quot;new-features&quot;&gt;New Features:&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/663&quot;&gt;#663&lt;/a&gt; Built-in protocols to support allow_empty_data&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/666&quot;&gt;#666&lt;/a&gt; Add ability to create target in ConfigEditor&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/679&quot;&gt;#679&lt;/a&gt; TlmViewer screen audit shouldn’t count reserved item names&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;maintenance&quot;&gt;Maintenance:&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/660&quot;&gt;#660&lt;/a&gt; Update Opengl gem requirement version&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/665&quot;&gt;#665&lt;/a&gt; Refactor xtce parser&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;bug-fixes&quot;&gt;Bug Fixes:&lt;/h3&gt;
+
+&lt;p&gt;#661&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/661&quot;&gt;#661&lt;/a&gt; Render function bug?&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/674&quot;&gt;#674&lt;/a&gt; Add TlmViewerConfig spec and fix to_save&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;migration-notes-from-cosmos-40x&quot;&gt;Migration Notes from COSMOS 4.0.x:&lt;/h3&gt;
+
+&lt;p&gt;Any custom tools in other languages that use the COSMOS API will need to be updated.&lt;/p&gt;
+
+&lt;p&gt;To upgrade to the latest version of COSMOS, run “bundle update cosmos” in your COSMOS project folder.&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>COSMOS 4.1.0 Release Notes</title>

@@ -2,7 +2,7 @@
 <html lang="en-US">
 <head>
   <meta charset="UTF-8">
-  <title>Config Editor</title>
+  <title>Ball Aerospace COSMOS 4.1.1 Released</title>
   <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="generator" content="Jekyll v3.5.2">
@@ -198,71 +198,53 @@
       <div class="unit four-fifths">
         <article>
   <h2>
-    Config Editor
-    <a href="/news/2017/10/30/config-editor/" class="permalink" title="Permalink">∞</a>
+    Ball Aerospace COSMOS 4.1.1 Released
+    <a href="/news/2017/12/07/cosmos-4-1-1-released/" class="permalink" title="Permalink">∞</a>
   </h2>
   <span class="post-category">
     <span class="label">
-      post
+      release
     </span>
   </span>
   <div class="post-meta">
     <span class="post-date">
-      30 Oct 2017
+      07 Dec 2017
     </span>
-    <a href="https://github.com/jmthomas" class="post-author">
-      <img src="https://github.com/jmthomas.png" class="avatar" alt="jmthomas avatar" width="24" height="24">
-      jmthomas
+    <a href="https://github.com/ryanmelt" class="post-author">
+      <img src="https://github.com/ryanmelt.png" class="avatar" alt="ryanmelt avatar" width="24" height="24">
+      ryanmelt
     </a>
   </div>
   <div class="post-content">
-    <p>COSMOS gained a new tool in the <a href="/news/2017/08/04/cosmos-4-0-0-released/">4.0.0 release</a> called Configuration Editor. This tool provides contextual help when editing COSMOS configuration files and thus should make configuring COSMOS much easier than in the past.</p>
+    <h3 id="new-features">New Features:</h3>
 
-<h3 id="configuration-editor-basics">Configuration Editor Basics</h3>
+<ul>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/663">#663</a> Built-in protocols to support allow_empty_data</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/666">#666</a> Add ability to create target in ConfigEditor</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/679">#679</a> TlmViewer screen audit shouldn’t count reserved item names</li>
+</ul>
 
-<p>When creating a new project from from the Demo you’ll notice a new icon in the Launcher under the Utilities label:</p>
+<h3 id="maintenance">Maintenance:</h3>
 
-<p><img src="/img/2017_10_30_demo_launcher.png" alt="Demo Launcher" /></p>
+<ul>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/660">#660</a> Update Opengl gem requirement version</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/665">#665</a> Refactor xtce parser</li>
+</ul>
 
-<p>Note that as of this post the Install Launcher does not have the new Configuration Editor or Command Sequence buttons but this will be addressed in the next release.</p>
+<h3 id="bug-fixes">Bug Fixes:</h3>
 
-<p>Clicking the Config Editor button brings up the Configuration Editor tool:</p>
+<p>#661</p>
 
-<p><img src="/img/2017_10_30_config_editor.png" alt="Config Editor" /></p>
+<ul>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/661">#661</a> Render function bug?</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/674">#674</a> Add TlmViewerConfig spec and fix to_save</li>
+</ul>
 
-<p>Configuration Editor has three vertical panes. The far left is a Windows Explorer type tree view which opens at the base of your COSMOS configuration. This makes it easy to see and navigate through all the COSMOS configuration files.</p>
+<h3 id="migration-notes-from-cosmos-40x">Migration Notes from COSMOS 4.0.x:</h3>
 
-<p>The middle pane is a file editor which opens files when they are clicked on in the left pane tree view.</p>
+<p>Any custom tools in other languages that use the COSMOS API will need to be updated.</p>
 
-<p>The right pane is what Configuration Editor was created for. It provides contextual help for all the COSMOS keywords. As the editor cursor in the middle pane changes the contextual help changes to reflect current editor line. Here’s an example of the right pane when the Demo’s INST target’s command definition is edited:</p>
-
-<p><img src="/img/2017_10_30_inst_cmds.png" alt="Config Editor" /></p>
-
-<p>The user can either edit the configuration file directly in the middle pane or use the configuration help in the right pane. Edits in the middle pane are immediately reflected in the right pane. Edits in the right pane are not reflected back in the configuration pane until the user tabs or clicks to another field. Note that tabbing through the fields is a quick way to transition from one parameter to another.</p>
-
-<p>Configuration Editor contains the same Edit and Search menu options that Script Runner supports. Searching for keywords and transitioning from one to another also updates the configuration help pane which is another way to quickly check particular keywords.</p>
-
-<h3 id="configuration-editor-links">Configuration Editor Links</h3>
-
-<p>If you have an older (pre-4.0) COSMOS configuration or generated a basic configuration from the install (4.0.0-4.0.3) you will not have a link to the new Configuration Editor tool in your Launcher. Follow the following steps to add this tool.</p>
-
-<ol>
-  <li>Edit config/tools/launcher/launcher.txt</li>
-  <li>Add the following line (typically after Utilities LABEL)
-    <div class="highlighter-rouge"><pre class="highlight"><code>TOOL "Config Editor" "LAUNCH ConfigEditor" "config_editor.png"
-</code></pre>
-    </div>
-  </li>
-</ol>
-
-<p>Restart your Launcher and you should see this new tool to help you configure COSMOS. Note that if you don’t have the Configuration Editor button then you probably also don’t have a button for the new Command Sequence tool. Add the following line after the Command Sender line to access this tool:</p>
-<div class="highlighter-rouge"><pre class="highlight"><code>TOOL "Command Sequence" "LAUNCH CmdSequence" "cmd_sequence.png"
-</code></pre>
-</div>
-
-<p>Enjoy these new COSMOS 4.0 tools!</p>
-
-<p>If you need additional support please contact us at <a href="mailto:cosmos@ball.com">cosmos@ball.com</a>.</p>
+<p>To upgrade to the latest version of COSMOS, run “bundle update cosmos” in your COSMOS project folder.</p>
 
   </div>
 </article>
@@ -282,7 +264,7 @@
     <h4>Recent Releases</h4>
     <ul>
       
-      <li class="">
+      <li class="current">
         <a href="/news/2017/12/07/cosmos-4-1-1-released/">Version 4.1.1</a>
       </li>
       
@@ -326,7 +308,7 @@
         
         
         
-        <li class="current">
+        <li class="">
           <a href="/news/2017/10/30/config-editor/">Config Editor</a>
         </li>
         
