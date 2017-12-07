@@ -23,6 +23,7 @@ permalink: "/docs/history/"
 #661 
 
 * [#661](https://github.com/BallAerospace/COSMOS/issues/661) Render function bug?
+* [#674](https://github.com/BallAerospace/COSMOS/issues/674) Add TlmViewerConfig spec and fix to_save
 
 ### Migration Notes from COSMOS 4.0.x:
 

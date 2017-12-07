@@ -1,7 +1,7 @@
 ---
 layout: news_item
 title: 'Ball Aerospace COSMOS 4.1.1 Released'
-date: 2017-12-07 12:00:00 -0700
+date: 2017-12-07 6:00:00 -0700
 author: ryanmelt
 version: 4.1.1
 categories: [release]
@@ -23,6 +23,7 @@ categories: [release]
 #661 
 
 * [#661](https://github.com/BallAerospace/COSMOS/issues/661) Render function bug?
+* [#674](https://github.com/BallAerospace/COSMOS/issues/674) Add TlmViewerConfig spec and fix to_save
 
 ### Migration Notes from COSMOS 4.0.x:
 
