@@ -2702,6 +2702,7 @@
 <li class="toc-entry toc-h3"><a href="#log">LOG</a></li>
 <li class="toc-entry toc-h3"><a href="#dont_log">DONT_LOG</a></li>
 <li class="toc-entry toc-h3"><a href="#log_raw">LOG_RAW</a></li>
+<li class="toc-entry toc-h3"><a href="#protocol">PROTOCOL</a></li>
 <li class="toc-entry toc-h3"><a href="#background_task-modifiers">BACKGROUND_TASK Modifiers</a></li>
 <li class="toc-entry toc-h3"><a href="#stopped">STOPPED</a></li>
 </ul>
@@ -3578,6 +3579,41 @@ INTERFACE_TARGET COSMOS config.txt # Look in the COSMOS target directory for con
 <p><strong>Log all data on the interface exactly as it is sent and received</strong></p>
 
 <p>LOG_RAW does not add any COSMOS headers and thus can not be read by COSMOS tools. It is primarily useful for low level debugging of an interface. You will have to manually parse these logs yourself using a hex editor or other application.</p>
+
+<h3 id="protocol">
+<a id="protocol" class="anchor" href="#protocol" aria-hidden="true"><span class="octicon octicon-link"></span></a>PROTOCOL</h3>
+<div class="right">(Since 4.0.0)</div>
+<p><strong>Protocols modify the interface by processing the data</strong></p>
+
+<p>Protocols can be either READ, WRITE, or READ_WRITE. READ protocols act on the data received by the interface while write acts on the data before it is sent out. READ_WRITE applies the protocol to both reading and writing.<br><br> There is only one built in protocol implemented by override_protocol.rb. This protocol allows for Scripts to use the override_tlm() and normalize_tlm() methods to permanently change a telemetry value. Note, this differs from set_tlm() as set_tlm() is over-written by new incoming telemetry.<br><br> For information on creating your own custom protocol please see <a href="http://cosmosrb.com/docs/protocols">cosmosrb.com/docs/protocols</a></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Type</td>
+      <td>Whether to apply the protocol on incoming data, outgoing data, or both<br><br>Valid Values: <span class="values">READ, WRITE, READ_WRITE</span>
+</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Protocol Filename or Classname</td>
+      <td>Ruby file name or class name which implements the protocol</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Protocol specific parameters</td>
+      <td>Additional parameters used by the protocol</td>
+      <td>False</td>
+    </tr>
+  </tbody>
+</table>
 
 <h3 id="background_task-modifiers">
 <a id="background_task-modifiers" class="anchor" href="#background_task-modifiers" aria-hidden="true"><span class="octicon octicon-link"></span></a>BACKGROUND_TASK Modifiers</h3>
