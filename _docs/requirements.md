@@ -110,7 +110,7 @@ Replay allows the playing back of telemetry log files as if the data was being r
 |---------|------------|-----------------|------------|
 | RPY-1 | Replay shall playback telemetry packet logs | Start playback of a telemetry log file. | replay.ahk |
 | RPY-2 | Replay shall support sequential and reverse playback. | Playback in both forwards and reverse. | replay.ahk |
-| RPY-3 | Replay shall listen on the same port as the Command and Telemetry Server for API requests. | Verify both the Command and Telemetry Server and Replay cannot be running at the same time (with default settings). | replay.ahk |
+| RPY-3 | Deleted | Deleted | Deleted |
 | RPY-4 | Replay shall support a variable playback delay. | Playback with differing delay settings. | replay.ahk |
 | RPY-5 | Replay shall support single-stepping packets. | Single step packets in forward and reverse. | replay.ahk |
 | RPY-6 | Replay shall show the first, current, and final timestamps within the log file. | View displayed timestamps. | replay.ahk |
@@ -163,7 +163,7 @@ Script Runner provides a visual interface for editing and executing test scripts
 | SR-19 | Script Runner shall support viewing the script instrumentation. | Select Script->View Instrumented Script. | script_runner.ahk |
 | SR-20 | Script Runner shall support an disconnected mode to allow for executing scripts without a connection to the Command and Telemetry Server. | Make sure the Command and Telemetry Server is not running.   Select Script->Toggle Disconnect.  Execute a script with commands and check statements and verify that it runs to completion. | script_runner.ahk |
 | SR-21 | Script Runner shall support a Debug terminal to aid in debugging scripts. | Select Script->Toggle Debug. | script_runner.ahk |
-| SR-22 | Script Runner shall support a step mode where the script will stop and wait for use interaction after each line. | From the Debug terminal, press the Toggle Run/Step button, then execute a script.  Press Go to progress through the script. | script_runner.ahk |
+| SR-22 | Script Runner shall support a step mode where the script will stop and wait for use interaction after each line. | Press Step to progress through the script. | script_runner.ahk |
 | SR-23 | Script Runner shall support inserting a return statement into a running script. | In a script that calls a subfunction with an infinite loop, then press the insert return button in the debug terminal and ensure the subfunction returns. | script_runner.ahk |
 | SR-24 | Script Runner shall support breakpoint functionality. | Create a breakpoint then execute the script and verify it stops at the specified line. | script_runner.ahk |
 | SR-25 | Script Runner shall support configuring a delay between executing each line. | From File->Options set the line delay and then execute a script to observe the updated line delay. | script_runner.ahk |
