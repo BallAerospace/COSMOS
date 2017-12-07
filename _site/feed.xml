@@ -11,8 +11,8 @@
     <title xml:lang="en">Ball Aerospace COSMOS News</title>
     <atom:link type="application/atom+xml" href="http://cosmosrb/feed.xml" rel="self"/>
     <link>http://cosmosrb.com/</link>
-    <pubDate>Thu, 07 Dec 2017 10:49:00 -0700</pubDate>
-    <lastBuildDate>Thu, 07 Dec 2017 10:49:00 -0700</lastBuildDate>
+    <pubDate>Thu, 07 Dec 2017 10:50:55 -0700</pubDate>
+    <lastBuildDate>Thu, 07 Dec 2017 10:50:55 -0700</lastBuildDate>
     <language>en-US</language>
     <generator>Jekyll v3.5.2</generator>
     <description>The User Interface for Embedded Systems</description>
@@ -51,8 +51,6 @@
 &lt;/ul&gt;
 
 &lt;h3 id=&quot;bug-fixes&quot;&gt;Bug Fixes:&lt;/h3&gt;
-
-&lt;p&gt;#661&lt;/p&gt;
 
 &lt;ul&gt;
   &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/661&quot;&gt;#661&lt;/a&gt; Render function bug?&lt;/li&gt;
