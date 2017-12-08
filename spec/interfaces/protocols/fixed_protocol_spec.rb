@@ -38,25 +38,46 @@ module Cosmos
     end
 
     describe "read_data" do
+      $index = 0
       class FixedStream < Stream
         def connect; end
         def connected?; true; end
-        def read; "\x01\x02"; end
+        def read
+          case $index
+          when 0
+            "\x00" # UNKNOWN
+          when 1
+            "\x01" # SYSTEM META
+          when 2
+            "\x02" # SYSTEM LIMITS
+          end
+        end
       end
 
       it "returns unknown packets" do
         @interface.add_protocol(FixedProtocol, [1], :READ)
         @interface.instance_variable_set(:@stream, FixedStream.new)
+        @interface.target_names = ['SYSTEM']
+        # Initialize the read with a packet identified as SYSTEM META
+        $index = 1
+        packet = @interface.read
+        expect(packet.received_time.to_f).to_not eql 0.0
+        expect(packet.target_name).to eql "SYSTEM"
+        expect(packet.packet_name).to eql "META"
+        expect(packet.buffer[0]).to eql "\x01"
+        # Return zeros which will not be identified
+        $index = 0
         packet = @interface.read
         expect(packet.received_time.to_f).to eql 0.0
         expect(packet.target_name).to eql nil
         expect(packet.packet_name).to eql nil
-        expect(packet.buffer).to eql "\x01\x02"
+        expect(packet.buffer).to eql "\x00"
       end
 
       it "raises an exception if unknown packet" do
         @interface.add_protocol(FixedProtocol, [1, 0, nil, true, false, true], :READ)
         @interface.instance_variable_set(:@stream, FixedStream.new)
+        @interface.target_names = ['SYSTEM']
         expect { @interface.read }.to raise_error(/Unknown data/)
       end
 
@@ -64,29 +85,34 @@ module Cosmos
         @interface.add_protocol(FixedProtocol, [1], :READ)
         @interface.instance_variable_set(:@stream, FixedStream.new)
         @interface.target_names = ['BLAH']
+        $index = 1
         packet = @interface.read
         expect(packet.received_time.to_f).to eql 0.0
         expect(packet.target_name).to eql nil
         expect(packet.packet_name).to eql nil
-        expect(packet.buffer).to eql "\x01\x02"
+        expect(packet.buffer).to eql "\x01"
       end
 
       it "reads telemetry data from the stream" do
         @interface.add_protocol(FixedProtocol, [1], :READ_WRITE)
         @interface.instance_variable_set(:@stream, FixedStream.new)
         @interface.target_names = ['SYSTEM']
+        $index = 1
         packet = @interface.read
         expect(packet.received_time.to_f).to be_within(0.1).of(Time.now.to_f)
         expect(packet.target_name).to eql 'SYSTEM'
         expect(packet.packet_name).to eql 'META'
+        $index = 2
         packet = @interface.read
         expect(packet.received_time.to_f).to be_within(0.1).of(Time.now.to_f)
         expect(packet.target_name).to eql 'SYSTEM'
         expect(packet.packet_name).to eql 'LIMITS_CHANGE'
+        $index = 1
         packet = @interface.read
         expect(packet.received_time.to_f).to be_within(0.1).of(Time.now.to_f)
         expect(packet.target_name).to eql 'SYSTEM'
         expect(packet.packet_name).to eql 'META'
+        $index = 2
         packet = @interface.read
         expect(packet.received_time.to_f).to be_within(0.1).of(Time.now.to_f)
         expect(packet.target_name).to eql 'SYSTEM'
@@ -95,7 +121,9 @@ module Cosmos
 
       it "reads command data from the stream" do
         $index = 0
-        class FixedStream < Stream
+        class FixedStream2 < Stream
+          def connect; end
+          def connected?; true; end
           def read
             case $index
             when 0
@@ -107,7 +135,7 @@ module Cosmos
           end
         end
         @interface.add_protocol(FixedProtocol, [8, 0, '0x1ACFFC1D', false], :READ_WRITE)
-        @interface.instance_variable_set(:@stream, FixedStream.new)
+        @interface.instance_variable_set(:@stream, FixedStream2.new)
         @interface.target_names = ['SYSTEM']
         packet = @interface.read
         expect(packet.received_time.to_f).to be_within(0.01).of(Time.now.to_f)

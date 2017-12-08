@@ -40,8 +40,8 @@ module Cosmos
       @telemetry = telemetry
       @unknown_raise = ConfigParser::handle_true_false(unknown_raise)
       @received_time = nil
-      @target_name = 'UNKNOWN'
-      @packet_name = 'UNKNOWN'
+      @target_name = nil
+      @packet_name = nil
     end
 
     # Set the received_time, target_name and packet_name which we recorded when
@@ -80,7 +80,7 @@ module Cosmos
         end
 
         target_packets.each do |packet_name, packet|
-          if (packet.identify?(@data))
+          if packet.identify?(@data)
             identified_packet = packet
             if identified_packet.defined_length > @data.length
               # Check if need more data to finish packet
@@ -103,7 +103,10 @@ module Cosmos
 
       unless identified_packet
         raise "Unknown data received by FixedProtocol" if @unknown_raise
-        # Unknown packet?  Just return all the current data
+        # Unknown packet? Just return all the current data
+        @received_time = nil
+        @target_name = nil
+        @packet_name = nil
         packet_data = @data.clone
         @data.replace('')
       end
