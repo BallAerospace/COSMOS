@@ -150,11 +150,11 @@ module Cosmos
         expect(interfaces).to include("INST_INT")
         expect(cmd_logging).to eql true
         expect(cmd_q_size).to be >= 0
-        expect(cmd_filename).to be_a(String)
+        expect(cmd_filename).to be nil # No commands yet so nil
         expect(cmd_file_size).to be >= 0
         expect(tlm_logging).to eql true
         expect(tlm_q_size).to be >= 0
-        expect(tlm_filename).to be_a(String)
+        expect(tlm_filename).to be nil # No telemetry yet so nil
         expect(tlm_file_size).to be >= 0
       end
     end

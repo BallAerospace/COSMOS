@@ -63,11 +63,12 @@ module Cosmos
     end
 
     def telemetry_file(target)
-      xml_file(target) do |tf|
+      file = xml_file(target) do |tf|
         tf.puts '  <xtce:TelemetryMetaData>'
         yield tf
         tf.puts '  </xtce:TelemetryMetaData>'
       end
+      file
     end
 
     def add_tlm_packet_item(tf, packet, item)
@@ -94,11 +95,12 @@ module Cosmos
     end
 
     def command_file(target)
-      xml_file(target) do |tf|
+      file = xml_file(target) do |tf|
         tf.puts '  <xtce:CommandMetaData>'
         yield tf
         tf.puts '  </xtce:CommandMetaData>'
       end
+      file
     end
 
     def add_cmd_packet_item(tf, packet, item)
@@ -150,8 +152,7 @@ module Cosmos
       end
 
       it "processes xtce commands" do
-        tf = Tempfile.new(['unittest', '.xtce'])
-        command_file("TGT") do |file|
+        tf = command_file("TGT") do |file|
           add_cmd_packet_item(file, "PKT", "PARAM1")
         end
 
@@ -203,7 +204,7 @@ module Cosmos
         it "processes value only" do
           tf = telemetry_file("TGT") do |file|
             add_tlm_packet_item(file, "PKT", "TEMP1") do |file2|
-              file2tf.puts '<xtce:UnitSet>'
+              file2.puts '<xtce:UnitSet>'
               file2.puts '<xtce:Unit>V</xtce:Unit>'
               file2.puts '</xtce:UnitSet>'
             end

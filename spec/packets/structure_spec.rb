@@ -249,6 +249,7 @@ module Cosmos
 
       it "complains if appending after a variably sized item" do
         @s.define_item("test1", 0, 0, :BLOCK)
+        item = StructureItem.new("test2", 0, 16, :UINT, :BIG_ENDIAN)
         expect { @s.append(item) }.to raise_error(ArgumentError, "Can't append an item after a variably sized item")
       end
     end
