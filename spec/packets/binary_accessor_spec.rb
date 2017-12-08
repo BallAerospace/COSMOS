@@ -503,7 +503,7 @@ module Cosmos
           end
 
           it "complains with an array_size not a multiple of bit_size" do
-            data = @data.unpack('C*')
+            @data.unpack('C*')
             expect { BinaryAccessor.read_array(0, 8, :UINT, 10, @data, :LITTLE_ENDIAN) }.to raise_error(ArgumentError, "array_size 10 not a multiple of bit_size 8")
           end
 
@@ -518,12 +518,12 @@ module Cosmos
           end
 
           it "returns an empty array if the offset equals the negative array size" do
-            data = @data.unpack('C*')
+            @data.unpack('C*')
             expect(BinaryAccessor.read_array(@data.length*8-32, 8, :UINT, -32, @data, :LITTLE_ENDIAN)).to eql([])
           end
 
           it "complains if the offset is greater than the negative array size" do
-            data = @data.unpack('C*')
+            @data.unpack('C*')
             offset = @data.length * 8 - 16
             expect { BinaryAccessor.read_array(offset, 8, :UINT, -32, @data, :LITTLE_ENDIAN) }.to raise_error(ArgumentError, "16 byte buffer insufficient to read UINT at bit_offset #{offset} with bit_size 8")
           end
@@ -1777,12 +1777,12 @@ module Cosmos
       end
 
       it "complains with an array_size not a multiple of bit_size" do
-        data = @data.unpack('C*')
+        @data.unpack('C*')
         expect { BinaryAccessor.write_array([1,2], 0, 8, :UINT, 10, @data, :BIG_ENDIAN, :ERROR) }.to raise_error(ArgumentError, "array_size 10 not a multiple of bit_size 8")
       end
 
       it "complains with an array_size not a multiple of bit_size" do
-        data = @data.unpack('C*')
+        @data.unpack('C*')
         expect { BinaryAccessor.write_array([1,2], 0, 8, :UINT, -10, @data, :BIG_ENDIAN, :ERROR) }.to raise_error(ArgumentError, "array_size -10 not a multiple of bit_size 8")
       end
 
@@ -1861,13 +1861,11 @@ module Cosmos
       end
 
       it "writes aligned 8-bit unsigned integers" do
-        data = @data.clone
         BinaryAccessor.write_array([0,1,2,3,4,5,255,255], 0, 8, :UINT, 0, @data, :BIG_ENDIAN, :ERROR)
         expect(@data).to eql("\x00\x01\x02\x03\x04\x05\xFF\xFF")
       end
 
       it "writes aligned 8-bit signed integers" do
-        data = @data.clone
         BinaryAccessor.write_array([0,1,2,3,4,5,-1,127], 0, 8, :INT, 0, @data, :BIG_ENDIAN, :ERROR)
         expect(@data).to eql("\x00\x01\x02\x03\x04\x05\xFF\x7F")
       end
@@ -1877,7 +1875,6 @@ module Cosmos
       end
 
       it "writes STRING items" do
-        data = @baseline_data.clone
         BinaryAccessor.write_array(['a'], 0, 64, :STRING, 0, @baseline_data, :BIG_ENDIAN, :ERROR)
         expect(@baseline_data).to eql("a\x00\x00\x00\x00\x00\x00\x00")
       end

@@ -79,7 +79,7 @@ end
 describe Time do
   it "implements as_json" do
     time = Time.new(2020,01,31,12,20,10)
-    expect(time.as_json).to match "2020-01-31 12:20:10"
+    expect(time.as_json).to match("2020-01-31 12:20:10")
   end
 end
 
@@ -93,7 +93,7 @@ end
 describe DateTime do
   it "implements as_json" do
     dt = DateTime.new(2020,01,31,12,20,10)
-    expect(dt.as_json).to match "2020-01-31T12:20:10"
+    expect(dt.as_json).to match("2020-01-31T12:20:10")
   end
 end
 
@@ -168,7 +168,7 @@ module Cosmos
 
     describe "to_json" do
       it "returns the json string" do
-        json = expect(JsonRpcRequest.new("puts","test",10).to_json).to be_a String
+        expect(JsonRpcRequest.new("puts","test",10).to_json).to be_a String
       end
     end
 
@@ -206,7 +206,7 @@ module Cosmos
 
     describe "to_json" do
       it "returns the json string" do
-        json = expect(JsonRpcResponse.new(10).to_json).to be_a String
+        expect(JsonRpcResponse.new(10).to_json).to be_a String
       end
     end
 

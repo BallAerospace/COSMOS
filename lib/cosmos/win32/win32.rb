@@ -12,11 +12,7 @@ require 'cosmos/win32/win32_main'
 require 'cosmos/packets/structure'
 
 module Cosmos
-
-  # Win32 class
-  #
-  # This class implements the Win32
-  #
+  # Uses the Win32API to implement methods useful on Windows.
   class Win32
     # Create a file
     def self.create_file(filename, desired_access, share_mode, security_attributes, creation_disposition, flags_and_attributes, template_file = NULL)
@@ -132,10 +128,8 @@ module Cosmos
       comm_timeouts.write('WriteTotalTimeoutConstant', write_total_timeout_constant)
       comm_timeouts
     end
-
-  end # class Win32
-
-end # module Cosmos
+  end
+end
 
 module QDA
   module Filters
@@ -313,7 +307,7 @@ module QDA
       end
 
       class Win32popenIO
-        def initialize (hRead, hWrite, hError)
+        def initialize(hRead, hWrite, hError)
           @hRead  = hRead
           @hWrite = hWrite
           @hError = hError

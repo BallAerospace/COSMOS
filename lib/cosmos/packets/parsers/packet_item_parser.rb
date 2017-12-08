@@ -8,11 +8,10 @@
 # as published by the Free Software Foundation; version 3 with
 # attribution addendums as found in the LICENSE.txt
 
-require 'cosmos/packets/packet_config'
 require 'cosmos/packets/packet_item'
 
 module Cosmos
-
+  # Parses a packet item definition and creates a new PacketItem
   class PacketItemParser
     # @param parser [ConfigParser] Configuration parser
     # @param packet [Packet] The packet the item should be added to
@@ -131,7 +130,7 @@ module Cosmos
 
       index = append? ? 3 : 4
       data_type = get_data_type()
-      if data_type == :STRING or data_type == :BLOCK        
+      if data_type == :STRING or data_type == :BLOCK
         # If the default value is 0x<data> (no quotes), it is treated as
         # binary data.  Otherwise, the default value is considered to be a string.
         if (@parser.parameters[index].upcase.start_with?("0X")         and
@@ -171,13 +170,11 @@ module Cosmos
     # There are many different usages of the ITEM and PARAMETER keywords so
     # parse the keyword and parameters to generate the correct usage information.
     def get_usage
-      keyword = @parser.keyword
-      params = @parser.parameters
-      usage = "#{keyword} <ITEM NAME> "
-      usage << "<BIT OFFSET> " unless keyword.include?("APPEND")
+      usage = "#{@parser.keyword} <ITEM NAME> "
+      usage << "<BIT OFFSET> " unless @parser.keyword.include?("APPEND")
       usage << bit_size_usage()
       usage << type_usage()
-      usage << "<TOTAL ARRAY BIT SIZE> " if keyword.include?("ARRAY")
+      usage << "<TOTAL ARRAY BIT SIZE> " if @parser.keyword.include?("ARRAY")
       usage << id_usage()
       usage << "<DESCRIPTION (Optional)> <ENDIANNESS (Optional)>"
       usage
@@ -198,7 +195,6 @@ module Cosmos
 
       # Build up the parameter type usage based on the keyword
       usage = "<TYPE: "
-      params = @parser.parameters
       # ARRAY types don't have min or max or default values
       if keyword.include?("ARRAY")
         usage << "INT/UINT/FLOAT/STRING/BLOCK> "
@@ -229,6 +225,5 @@ module Cosmos
         "<ID VALUE> "
       end
     end
-
   end
-end # module Cosmos
+end

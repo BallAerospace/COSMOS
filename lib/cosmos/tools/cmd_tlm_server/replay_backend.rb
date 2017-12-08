@@ -80,7 +80,7 @@ module Cosmos
           @progress = 0
           @status = "Analyzing: #{@progress}%"
           start_config_name = System.configuration_name
-          config_change_success, config_error = Cosmos.check_log_configuration(@packet_log_reader, @log_filename)
+          Cosmos.check_log_configuration(@packet_log_reader, @log_filename)
           if System.configuration_name != start_config_name
             @config_change_callback.call() if @config_change_callback
           end

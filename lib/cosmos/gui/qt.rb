@@ -252,7 +252,6 @@ module Cosmos
         end
       end
     end
-    return config_change_success, change_error
   end
 end
 

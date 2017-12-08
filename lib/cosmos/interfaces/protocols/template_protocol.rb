@@ -225,7 +225,7 @@ module Cosmos
 
         # Block the write until the response is received
         begin
-          result = @write_block_queue.pop(true)
+          @write_block_queue.pop(true)
         rescue
           sleep(@response_polling_period)
           retry if !response_timeout_time

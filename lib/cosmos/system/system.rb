@@ -577,13 +577,13 @@ module Cosmos
 
     protected
 
-    def unzip(zip_file)
-      zip_dir = File.join(@paths['TMP'], File.basename(zip_file, ".*"))
+    def unzip(zip_file_name)
+      zip_dir = File.join(@paths['TMP'], File.basename(zip_file_name, ".*"))
       # Only unzip if we have to. We assume the unzipped directory structure is
       # intact. If not they'll get a popop with the errors encountered when
       # loading the configuration.
       unless File.exist? zip_dir
-        Zip::File.open(zip_file) do |zip_file|
+        Zip::File.open(zip_file_name) do |zip_file|
           zip_file.each do |entry|
             path = File.join(@paths['TMP'], entry.name)
             FileUtils.mkdir_p(File.dirname(path))

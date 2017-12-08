@@ -43,7 +43,7 @@ module Cosmos
           thread.stop
           sleep 0.5
           expect(running_threads.length).to eql(1)
-          expect(stdout.string).to match "disconnected interface"
+          expect(stdout.string).to match("disconnected interface")
         end
       end
 
@@ -61,7 +61,7 @@ module Cosmos
           thread.stop
           sleep 0.5
           expect(running_threads.length).to eql(1)
-          expect(stdout.string).to match "Error routing command"
+          expect(stdout.string).to match("Error routing command")
         end
       end
 
@@ -85,7 +85,7 @@ module Cosmos
           thread.stop
           sleep 0.5
           expect(running_threads.length).to eql(1)
-          expect(stdout.string).to match "Received unknown identified command: BOB SMITH"
+          expect(stdout.string).to match("Received unknown identified command: BOB SMITH")
         end
       end
 
@@ -113,7 +113,7 @@ module Cosmos
           thread.stop
           sleep 0.5
           expect(running_threads.length).to eql(1)
-          expect(stdout.string).to match "Received unknown identified command: BOB SMITH"
+          expect(stdout.string).to match("Received unknown identified command: BOB SMITH")
         end
         expect(target).to have_received(:interface).at_least(2).times #and_return(@interface)
       end
@@ -142,7 +142,7 @@ module Cosmos
           thread.stop
           sleep 0.5
           expect(running_threads.length).to eql(1)
-          expect(stdout.string).to match "target with no interface"
+          expect(stdout.string).to match("target with no interface")
         end
       end
     end

@@ -9,10 +9,11 @@
 # attribution addendums as found in the LICENSE.txt
 
 require 'cosmos/config/config_parser'
-require 'cosmos/interfaces/protocols/protocol'
 require 'thread'
 
 module Cosmos
+  # Base class for all COSMOS protocols which defines a framework which must be
+  # implemented by a subclass.
   class Protocol
     attr_accessor :interface
     attr_accessor :allow_empty_data

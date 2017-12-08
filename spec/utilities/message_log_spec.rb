@@ -28,8 +28,8 @@ module Cosmos
         log.stop
         Cosmos.set_working_dir do
           expect(File.exist?(log.filename)).to be true
-          expect(log.filename).to match 'TEST'
-          expect(log.filename).to match 'logs'
+          expect(log.filename).to match('TEST')
+          expect(log.filename).to match('logs')
           File.delete log.filename
         end
       end
@@ -39,7 +39,7 @@ module Cosmos
         log.start
         log.stop
         expect(File.exist?(log.filename)).to be true
-        expect(log.filename).to match File.expand_path(File.dirname(__FILE__))
+        expect(log.filename).to match(File.expand_path(File.dirname(__FILE__)))
         File.delete log.filename
       end
     end

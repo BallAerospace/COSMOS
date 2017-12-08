@@ -218,7 +218,7 @@ module Cosmos
       end
 
       it "complains about non-existant items" do
-        expect { cmd = @cmd.build_cmd("tgt1","pkt1",{"itemX"=>1}) }.to raise_error(RuntimeError, "Packet item 'TGT1 PKT1 ITEMX' does not exist")
+        expect { @cmd.build_cmd("tgt1","pkt1",{"itemX"=>1}) }.to raise_error(RuntimeError, "Packet item 'TGT1 PKT1 ITEMX' does not exist")
       end
 
       it "creates a populated command packet with default values" do
@@ -329,7 +329,7 @@ module Cosmos
       end
 
       it "complains about non-existant items" do
-        expect { cmd = @cmd.cmd_hazardous?("tgt1","pkt1",{"itemX"=>1}) }.to raise_error(RuntimeError, "Packet item 'TGT1 PKT1 ITEMX' does not exist")
+        expect { @cmd.cmd_hazardous?("tgt1","pkt1",{"itemX"=>1}) }.to raise_error(RuntimeError, "Packet item 'TGT1 PKT1 ITEMX' does not exist")
       end
 
       it "returns true if the command overall is hazardous" do

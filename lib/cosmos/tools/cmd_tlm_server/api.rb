@@ -390,7 +390,7 @@ module Cosmos
         end
       else
         commands = System.commands.all
-        commands.each do |target_name, target_commands|
+        commands.each do |_, target_commands|
           target_commands.each do |packet_name, command|
             last_command = command if !last_command and command.received_time
             if command.received_time and command.received_time > last_command.received_time
@@ -825,7 +825,7 @@ module Cosmos
     end
 
     # (see Cosmos::Limits#overall_limits_state)
-    def get_overall_limits_state (ignored_items = nil)
+    def get_overall_limits_state(ignored_items = nil)
       return System.limits.overall_limits_state(ignored_items)
     end
 

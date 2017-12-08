@@ -118,9 +118,7 @@ module Cosmos
         get_line_delay
         get_scriptrunner_message_log_filename
         start_new_scriptrunner_message_log
-        disable_instrumentation do
-          value = 1
-        end
+        disable_instrumentation { }
         set_stdout_max_lines(1000)
         insert_return
         step_mode

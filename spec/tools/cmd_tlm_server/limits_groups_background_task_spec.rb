@@ -137,7 +137,7 @@ module Cosmos
           my.call
         end
         sleep 0.3
-        expect(my.status).to match /Checking groups took 0.\d+/
+        expect(my.status).to match(/Checking groups took 0.\d+/)
         Cosmos.kill_thread(self, thread)
       end
     end

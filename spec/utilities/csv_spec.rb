@@ -29,16 +29,11 @@ module Cosmos
       @test_file.close
 
       @csv = CSV.new(@test_file.path)
-      @dir_name = System.paths['LOGS']
     end
 
     after(:each) do
       Dir["*cosmos_csv_spec*"].each do |filename|
         File.delete(filename)
-      end
-      if @dir_created
-        sleep(1)
-        FileUtils.remove_dir(@dir_name, false)
       end
     end
 
@@ -48,8 +43,6 @@ module Cosmos
 
     describe "initialize" do
       it "loads the CSV data and overwrites existing key/values" do
-        lines = []
-
         tf = Tempfile.new("test.csv")
         tf.puts "test,1,2,3\n"
         tf.puts "other,10\n"

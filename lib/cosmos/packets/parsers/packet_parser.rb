@@ -50,7 +50,7 @@ module Cosmos
       packet.sorted_items.each do |item|
         item.check_default_and_range_data_types()
       end
-    rescue => err
+    rescue
       # Add the target name and packet name to the error message so the user
       # can debug where the error occurred
       raise $!, "#{packet.target_name} #{packet.packet_name} #{$!}", $!.backtrace

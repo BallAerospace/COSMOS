@@ -170,7 +170,7 @@ module Cosmos
           plw.write(pkt)
           sleep 0.1
           plw.stop
-          expect(stdout.string).to match "Error opening"
+          expect(stdout.string).to match("Error opening")
           plw.shutdown
           sleep(0.1)
         end
@@ -185,7 +185,7 @@ module Cosmos
           plw.write(pkt)
           sleep 0.1
           plw.stop
-          expect(stdout.string).to match "Error closing"
+          expect(stdout.string).to match("Error closing")
           plw.shutdown
           sleep(0.1)
         end

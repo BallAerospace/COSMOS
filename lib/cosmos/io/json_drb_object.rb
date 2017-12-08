@@ -38,7 +38,7 @@ module Cosmos
     def initialize(hostname, port, connect_timeout = 1.0)
       hostname = '127.0.0.1' if (hostname.to_s.upcase == 'LOCALHOST')
       begin
-        addr = Socket.pack_sockaddr_in(port, hostname)
+        Socket.pack_sockaddr_in(port, hostname)
       rescue => error
         if error.message =~ /getaddrinfo/
           raise "Invalid hostname: #{hostname}"

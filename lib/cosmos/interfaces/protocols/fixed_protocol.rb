@@ -39,6 +39,9 @@ module Cosmos
       @min_id_size = Integer(min_id_size)
       @telemetry = telemetry
       @unknown_raise = ConfigParser::handle_true_false(unknown_raise)
+      @received_time = nil
+      @target_name = 'UNKNOWN'
+      @packet_name = 'UNKNOWN'
     end
 
     # Set the received_time, target_name and packet_name which we recorded when

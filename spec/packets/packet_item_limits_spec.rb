@@ -162,7 +162,7 @@ module Cosmos
         expect(hash["enabled"]).to be true
         expect(hash["values"]).to include(:DEFAULT => [0,1,2,3,4,5])
         expect(hash["state"]).to eql :RED_LOW
-        expect(hash["response"]).to match "LimitsResponse"
+        expect(hash["response"]).to match("LimitsResponse")
         expect(hash["persistence_setting"]).to eql 1
         expect(hash["persistence_count"]).to eql 2
       end

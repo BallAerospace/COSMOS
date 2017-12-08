@@ -38,10 +38,13 @@ if !ENV['COSMOS_NO_SIMPLECOV']
     add_group 'GUI', 'gui'
     add_group 'Tools', 'tools'
     root = File.dirname(__FILE__)
+    root.to_s
   end
   SimpleCov.at_exit do
-    Encoding.default_external = Encoding::UTF_8
-    Encoding.default_internal = nil
+    Cosmos.disable_warnings do
+      Encoding.default_external = Encoding::UTF_8
+      Encoding.default_internal = nil
+    end
     SimpleCov.result.format!
   end
 end
@@ -73,8 +76,10 @@ RSpec.configure do |config|
   end
 
   config.after(:all) {
-    def Object.exit(*args)
-      old_exit(*args)
+    Cosmos.disable_warnings do
+      def Object.exit(*args)
+        old_exit(*args)
+      end
     end
   }
 

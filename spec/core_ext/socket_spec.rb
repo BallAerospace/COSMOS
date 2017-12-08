@@ -16,7 +16,7 @@ describe Socket do
     it "returns the ip address of the current machine" do
       begin
         Socket.get_own_ip_address
-        expect(Socket.get_own_ip_address).to match /\b(?:\d{1,3}\.){3}\d{1,3}\b/
+        expect(Socket.get_own_ip_address).to match(/\b(?:\d{1,3}\.){3}\d{1,3}\b/)
       rescue Resolv::ResolvError
         # Oh well
       end
@@ -27,7 +27,7 @@ describe Socket do
     it "returns the hostname for the ip address" do
       if !ENV['APPVEYOR']
         ipaddr = Resolv.getaddress "localhost"
-        expect(Socket.lookup_hostname_from_ip(ipaddr)).to match "localhost"
+        expect(Socket.lookup_hostname_from_ip(ipaddr)).to match("localhost")
       end
     end
   end

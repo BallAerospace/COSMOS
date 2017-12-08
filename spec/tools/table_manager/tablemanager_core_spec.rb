@@ -61,7 +61,7 @@ module Cosmos
         end
         bin_filename = core.file_new(def_filename, Dir.pwd)
         expect(bin_filename).to eq File.join(Dir.pwd, "table.dat")
-        expect(File.read(bin_filename).formatted).to match /DE AD BE EF 00 00/
+        expect(File.read(bin_filename).formatted).to match(/-DE AD BE EF 00 00/)
         FileUtils.rm def_filename
         FileUtils.rm bin_filename
         FileUtils.rm 'table.csv'
@@ -96,7 +96,7 @@ module Cosmos
           file.puts '  APPEND_PARAMETER item1 32 UINT 0 0 0 "Item"'
         end
         expect { core.file_open(bin_filename, def_filename) }.to raise_error(/Binary size of 2 not large enough/)
-        expect(core.config.tables['TABLE1'].buffer.formatted).to match /AB CD 00 00/
+        expect(core.config.tables['TABLE1'].buffer.formatted).to match(/-AB CD 00 00/)
         FileUtils.rm bin_filename
         FileUtils.rm def_filename
       end
@@ -110,7 +110,7 @@ module Cosmos
           file.puts '  APPEND_PARAMETER item1 16 UINT 0 0 0 "Item"'
         end
         expect { core.file_open(bin_filename, def_filename) }.to raise_error(/Binary size of 3 larger/)
-        expect(core.config.tables['TABLE1'].buffer.formatted).to match /AB CD/
+        expect(core.config.tables['TABLE1'].buffer.formatted).to match(/-AB CD/)
         FileUtils.rm bin_filename
         FileUtils.rm def_filename
       end
@@ -146,7 +146,7 @@ module Cosmos
         core.file_open(bin_filename, def_filename)
         core.config.tables['TABLE1'].buffer = "\xAB\xCD"
         core.file_save('save.bin')
-        expect(File.read('save.bin').formatted).to match /AB CD/
+        expect(File.read('save.bin').formatted).to match(/-AB CD/)
         FileUtils.rm bin_filename
         FileUtils.rm def_filename
         FileUtils.rm 'save.bin'
@@ -205,8 +205,8 @@ module Cosmos
         report_filename = core.file_report(bin_filename, def_filename)
         expect(File.basename(report_filename)).to eql "testfile.csv"
         report = File.read(report_filename)
-        expect(report).to match /#{bin_filename}/
-        expect(report).to match /#{def_filename}/
+        expect(report).to match(/-#{bin_filename}/)
+        expect(report).to match(/-#{def_filename}/)
         FileUtils.rm report_filename
         FileUtils.rm bin_filename
         FileUtils.rm def_filename
@@ -225,8 +225,8 @@ module Cosmos
         report_filename = core.file_report(bin_filename, def_filename)
         expect(File.basename(report_filename)).to eql "testfile.csv"
         report = File.read(report_filename)
-        expect(report).to match /#{bin_filename}/
-        expect(report).to match /#{def_filename}/
+        expect(report).to match(/-#{bin_filename}/)
+        expect(report).to match(/-#{def_filename}/)
         FileUtils.rm report_filename
         FileUtils.rm bin_filename
         FileUtils.rm def_filename
@@ -248,8 +248,8 @@ module Cosmos
           file.puts '  APPEND_PARAMETER item2 16 UINT MIN MAX 0 "Item"'
         end
         core.file_open(bin_filename, def_filename)
-        expect(core.file_hex).to match /Total Bytes Read: 4/
-        expect(core.file_hex).to match /DE AD BE EF/
+        expect(core.file_hex).to match(/-Total Bytes Read: 4/)
+        expect(core.file_hex).to match(/-DE AD BE EF/)
         FileUtils.rm bin_filename
         FileUtils.rm def_filename
       end
@@ -294,9 +294,9 @@ module Cosmos
         end
         core.file_open(bin_filename, def_filename)
         result = core.table_check('table1')
-        expect(result).to match "ITEM1: 3 outside valid range of 0..2"
-        expect(result).to match "ITEM2: -3 outside valid range of -2..2"
-        expect(result).to match "ITEM4: 0x6 outside valid range of 0x0..0x4"
+        expect(result).to match("ITEM1: 3 outside valid range of 0..2")
+        expect(result).to match("ITEM2: -3 outside valid range of -2..2")
+        expect(result).to match("ITEM4: 0x6 outside valid range of 0x0..0x4")
         FileUtils.rm bin_filename
         FileUtils.rm def_filename
       end
@@ -377,10 +377,10 @@ module Cosmos
           file.puts '  APPEND_PARAMETER item2 16 UINT MIN MAX 0 "Item"'
         end
         core.file_open(bin_filename, def_filename)
-        expect(core.table_hex('table1')).to match /Total Bytes Read: 4/
-        expect(core.table_hex('table1')).to match /DE AD BE EF/
-        expect(core.table_hex('table2')).to match /Total Bytes Read: 4/
-        expect(core.table_hex('table2')).to match /CA FE BA BE/
+        expect(core.table_hex('table1')).to match(/-Total Bytes Read: 4/)
+        expect(core.table_hex('table1')).to match(/-DE AD BE EF/)
+        expect(core.table_hex('table2')).to match(/-Total Bytes Read: 4/)
+        expect(core.table_hex('table2')).to match(/-CA FE BA BE/)
         FileUtils.rm bin_filename
         FileUtils.rm def_filename
       end
@@ -435,9 +435,9 @@ module Cosmos
         end
         core.file_open(bin_filename, def_filename)
         core.table_save('table1', 'table1.dat')
-        expect(File.read('table1.dat').formatted).to match /DE AD BE EF/
+        expect(File.read('table1.dat').formatted).to match(/-DE AD BE EF/)
         core.table_save('table2', 'table2.dat')
-        expect(File.read('table2.dat').formatted).to match /CA FE BA BE/
+        expect(File.read('table2.dat').formatted).to match(/-CA FE BA BE/)
         FileUtils.rm bin_filename
         FileUtils.rm def_filename
         FileUtils.rm 'table1.dat'
@@ -540,11 +540,11 @@ module Cosmos
         File.open(new_bin_filename,'w') {|file| file.write "\x00"*8 }
 
         core.file_open(bin_filename, def_filename)
-        expect(File.read('newtestfile.dat').formatted).to match /00 00 00 00 00 00 00 00/
+        expect(File.read('newtestfile.dat').formatted).to match(/-00 00 00 00 00 00 00 00/)
         core.table_commit('table1', 'newtestfile.dat', 'testfile_def.txt')
-        expect(File.read('newtestfile.dat').formatted).to match /DE AD BE EF 00 00 00 00/
+        expect(File.read('newtestfile.dat').formatted).to match(/-DE AD BE EF 00 00 00 00/)
         core.table_commit('table2', 'newtestfile.dat', 'testfile_def.txt')
-        expect(File.read('newtestfile.dat').formatted).to match /DE AD BE EF CA FE BA BE/
+        expect(File.read('newtestfile.dat').formatted).to match(/-DE AD BE EF CA FE BA BE/)
         FileUtils.rm bin_filename
         FileUtils.rm def_filename
         FileUtils.rm new_bin_filename

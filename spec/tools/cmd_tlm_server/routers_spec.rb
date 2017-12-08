@@ -37,7 +37,7 @@ module Cosmos
           routers.all['MY_ROUTER'].connect_on_startup = true
           routers.start
 
-          expect(stdout.string).to match "Creating thread for router MY_ROUTER"
+          expect(stdout.string).to match("Creating thread for router MY_ROUTER")
           routers.stop
         end
         tf.unlink
@@ -67,7 +67,7 @@ module Cosmos
           sleep 0.1
           expect(routers.state("MY_ROUTER")).to eql "DISCONNECTED"
 
-          expect(stdout.string).to match "Disconnected from router MY_ROUTER"
+          expect(stdout.string).to match("Disconnected from router MY_ROUTER")
         end
         tf.unlink
         sleep(0.2)
@@ -156,12 +156,12 @@ module Cosmos
           expect(config.interfaces['DEST2'].routers[0].name).to eql "MY_ROUTER"
           routers.connect("MY_ROUTER")
           sleep 0.1
-          expect(stdout.string).to match "Connecting to MY_ROUTER"
+          expect(stdout.string).to match("Connecting to MY_ROUTER")
           routers.disconnect("MY_ROUTER")
           routers.connect("MY_ROUTER",'localhost',8888,8888,6,6,'length')
           sleep 0.1
-          expect(stdout.string).to match "Disconnected from router MY_ROUTER"
-          expect(stdout.string).to match "Connecting to MY_ROUTER"
+          expect(stdout.string).to match("Disconnected from router MY_ROUTER")
+          expect(stdout.string).to match("Connecting to MY_ROUTER")
           expect(routers.all["MY_ROUTER"].interfaces[0].name).to eql "DEST1"
           expect(routers.all["MY_ROUTER"].interfaces[1].name).to eql "DEST2"
           expect(config.interfaces['DEST1'].routers[0].name).to eql "MY_ROUTER"

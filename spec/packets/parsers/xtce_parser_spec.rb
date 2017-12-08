@@ -151,8 +151,8 @@ module Cosmos
 
       it "processes xtce commands" do
         tf = Tempfile.new(['unittest', '.xtce'])
-        tf = command_file("TGT") do |tf|
-          add_cmd_packet_item(tf, "PKT", "PARAM1")
+        command_file("TGT") do |file|
+          add_cmd_packet_item(file, "PKT", "PARAM1")
         end
 
         @pc.process_file(tf.path, 'TGT')
@@ -167,11 +167,11 @@ module Cosmos
 
       context "with units" do
         it "processes description and value" do
-          tf = telemetry_file("TGT") do |tf|
-            add_tlm_packet_item(tf, "PKT", "TEMP1") do |tf|
-              tf.puts '<xtce:UnitSet>'
-              tf.puts '<xtce:Unit description="Volts">V</xtce:Unit>'
-              tf.puts '</xtce:UnitSet>'
+          tf = telemetry_file("TGT") do |file|
+            add_tlm_packet_item(file, "PKT", "TEMP1") do |file2|
+              file2.puts '<xtce:UnitSet>'
+              file2.puts '<xtce:Unit description="Volts">V</xtce:Unit>'
+              file2.puts '</xtce:UnitSet>'
             end
           end
 
@@ -184,11 +184,11 @@ module Cosmos
         end
 
         it "processes description only" do
-          tf = telemetry_file("TGT") do |tf|
-            add_tlm_packet_item(tf, "PKT", "TEMP1") do |tf|
-              tf.puts '<xtce:UnitSet>'
-              tf.puts '<xtce:Unit description="Volts"/>'
-              tf.puts '</xtce:UnitSet>'
+          tf = telemetry_file("TGT") do |file|
+            add_tlm_packet_item(file, "PKT", "TEMP1") do |file2|
+              file2.puts '<xtce:UnitSet>'
+              file2.puts '<xtce:Unit description="Volts"/>'
+              file2.puts '</xtce:UnitSet>'
             end
           end
 
@@ -201,11 +201,11 @@ module Cosmos
         end
 
         it "processes value only" do
-          tf = telemetry_file("TGT") do |tf|
-            add_tlm_packet_item(tf, "PKT", "TEMP1") do |tf|
-              tf.puts '<xtce:UnitSet>'
-              tf.puts '<xtce:Unit>V</xtce:Unit>'
-              tf.puts '</xtce:UnitSet>'
+          tf = telemetry_file("TGT") do |file|
+            add_tlm_packet_item(file, "PKT", "TEMP1") do |file2|
+              file2tf.puts '<xtce:UnitSet>'
+              file2.puts '<xtce:Unit>V</xtce:Unit>'
+              file2.puts '</xtce:UnitSet>'
             end
           end
 
@@ -218,12 +218,12 @@ module Cosmos
         end
 
         it "processes multiple units" do
-          tf = telemetry_file("TGT") do |tf|
-            add_tlm_packet_item(tf, "PKT", "TEMP1") do |tf|
-              tf.puts '<xtce:UnitSet>'
-              tf.puts '<xtce:Unit description="Volts">V</xtce:Unit>'
-              tf.puts '<xtce:Unit description="Mega">M</xtce:Unit>'
-              tf.puts '</xtce:UnitSet>'
+          tf = telemetry_file("TGT") do |file|
+            add_tlm_packet_item(file, "PKT", "TEMP1") do |file2|
+              file2.puts '<xtce:UnitSet>'
+              file2.puts '<xtce:Unit description="Volts">V</xtce:Unit>'
+              file2.puts '<xtce:Unit description="Mega">M</xtce:Unit>'
+              file2.puts '</xtce:UnitSet>'
             end
           end
 

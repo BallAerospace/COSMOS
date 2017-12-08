@@ -40,7 +40,7 @@ module Cosmos
       time = Time.new(2020,1,31,12,15,30.5)
       pkt.received_time = time
       @interface.write(pkt)
-      expect { packet = @interface.read }.to raise_error(RuntimeError)
+      expect { @interface.read }.to raise_error(RuntimeError)
     end
 
     describe "initialize" do

@@ -167,7 +167,6 @@ module Cosmos
         packet.get_item("RSP_PACKET").default = ""
         packet.restore_defaults
         @interface.connect
-        start = Time.now
         logger = class_double("Cosmos::Logger").as_stubbed_const(:transfer_nested_constants => true)
         expect(logger).to_not receive(:error)
         @interface.write(packet)

@@ -67,8 +67,8 @@ task :gemfile_stats do
   end
 
   # Reduce the number of labels due to overlap
-  labels.each do |index, label|
-    labels[index] = '' if index % 2 == 0
+  labels.each do |i, label|
+    labels[i] = '' if i % 2 == 0
   end
   g.labels = labels
   g.marker_font_size = 12

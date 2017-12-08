@@ -63,7 +63,7 @@ if RUBY_ENGINE == 'ruby'
           end
 
           buttons = %w(THIS IS A TEST)
-          answer = combo_box("HI", *buttons)
+          combo_box("HI", *buttons)
           expect(buttons).to eq %w(THIS IS A TEST)
         end
       end
@@ -79,7 +79,7 @@ if RUBY_ENGINE == 'ruby'
           end
 
           buttons = %w(THIS IS A TEST)
-          answer = message_box("HI", *buttons)
+          message_box("HI", *buttons)
           expect(buttons).to eq %w(THIS IS A TEST)
         end
       end
@@ -93,7 +93,7 @@ if RUBY_ENGINE == 'ruby'
           end
 
           buttons = %w(THIS IS A TEST)
-          answer = vertical_message_box("HI", *buttons)
+          vertical_message_box("HI", *buttons)
           expect(buttons).to eq %w(THIS IS A TEST)
         end
       end

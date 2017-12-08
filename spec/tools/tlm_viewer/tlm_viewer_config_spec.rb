@@ -352,10 +352,10 @@ module Cosmos
           tf.unlink
 
           config = File.read(config_file)
-          expect(config).to match /TARGET "INST"/
-          expect(config).to match /SCREEN "hs.txt"/
-          expect(config).to match /TARGET "SYSTEM"/
-          expect(config).to match /SCREEN "status.txt"/
+          expect(config).to match(/TARGET "INST"/)
+          expect(config).to match(/SCREEN "hs.txt"/)
+          expect(config).to match(/TARGET "SYSTEM"/)
+          expect(config).to match(/SCREEN "status.txt"/)
         end
 
         it "saves the configuration" do

@@ -168,13 +168,13 @@ module Cosmos
           unique[item.name] << item
         end
       end
-      unique.each do |item_name, items|
-        if items.length <= 1
-          unique[item_name] = items[0]
+      unique.each do |item_name, unique_items|
+        if unique_items.length <= 1
+          unique[item_name] = unique_items[0]
           next
         end
         # TODO: need to make sure all the items in the array are exactly the same
-        unique[item_name] = items[0]
+        unique[item_name] = unique_items[0]
       end
       unique
     end

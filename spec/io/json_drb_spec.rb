@@ -85,7 +85,7 @@ module Cosmos
           expect { @json.start_service('blah', 7777, self) }.to raise_error(/JsonDRb http server could not be started/)
           sleep 5
           expect($system_exit_count).to eql(system_exit_count + 1)
-          expect(stdout.string).to match /JsonDRb http server could not be started or unexpectedly died/
+          expect(stdout.string).to match(/JsonDRb http server could not be started or unexpectedly died/)
           @json.stop_service
           sleep(0.1)
         end
@@ -121,7 +121,7 @@ module Cosmos
           @json.stop_service
           sleep(0.1)
 
-          expect(stdout.string).to match /JsonDRb http server could not be started or unexpectedly died/
+          expect(stdout.string).to match(/JsonDRb http server could not be started or unexpectedly died/)
         end
 
         Dir[File.join(Cosmos::USERPATH,"*_exception.txt")].each do |file|
@@ -135,7 +135,7 @@ module Cosmos
         client = HTTPClient.new
         res = client.post("http://127.0.0.1:7777", "")
         expect(res.status).to eq 403
-        expect(res.body).to match /Forbidden/
+        expect(res.body).to match(/Forbidden/)
         @json.stop_service
         sleep(0.1)
       end
@@ -150,7 +150,7 @@ module Cosmos
 
         @json.start_service('127.0.0.1', 7777, MyServer1.new)
         request_data = JsonRpcRequest.new('my_method', 'param', 1).to_json
-        response_data, error_code = @json.process_request(request_data, Time.now)
+        _, error_code = @json.process_request(request_data, Time.now)
         expect(error_code).to eq nil
         @json.stop_service
         sleep(0.1)
@@ -164,7 +164,7 @@ module Cosmos
         request_data = JsonRpcRequest.new('my_method', 'param', 1).to_json
         response_data, error_code = @json.process_request(request_data, Time.now)
         expect(error_code).to eql -32601
-        expect(response_data).to match /Method not found/
+        expect(response_data).to match(/Method not found/)
         @json.stop_service
         sleep(0.1)
       end
@@ -179,7 +179,7 @@ module Cosmos
         request_data = JsonRpcRequest.new('my_method', 'param1', 1).to_json
         response_data, error_code = @json.process_request(request_data, Time.now)
         expect(error_code).to eql -32602
-        expect(response_data).to match /Invalid params/
+        expect(response_data).to match(/Invalid params/)
         @json.stop_service
         sleep(0.1)
       end
@@ -195,7 +195,7 @@ module Cosmos
         request_data = JsonRpcRequest.new('my_method', 'param', 1).to_json
         response_data, error_code = @json.process_request(request_data, Time.now)
         expect(error_code).to eql -1
-        expect(response_data).to match /Method Error/
+        expect(response_data).to match(/Method Error/)
         @json.stop_service
         sleep(0.1)
       end
@@ -205,7 +205,7 @@ module Cosmos
         request_data = JsonRpcRequest.new('send', 'param', 1).to_json
         response_data, error_code = @json.process_request(request_data, Time.now)
         expect(error_code).to eql -1
-        expect(response_data).to match /Cannot call unauthorized methods/
+        expect(response_data).to match(/Cannot call unauthorized methods/)
         @json.stop_service
         sleep(0.1)
       end
@@ -217,7 +217,7 @@ module Cosmos
         request_data.gsub!("2.0","1.1")
         response_data, error_code = @json.process_request(request_data, Time.now)
         expect(error_code).to eql -32600
-        expect(response_data).to match /Invalid Request/
+        expect(response_data).to match(/Invalid Request/)
         @json.stop_service
         sleep(0.1)
       end

@@ -109,7 +109,7 @@ module Cosmos
     end
 
     # Set the meta callback
-    def self.meta_callback= (meta_callback)
+    def self.meta_callback=(meta_callback)
       @@meta_callback = meta_callback
     end
 
@@ -235,17 +235,17 @@ module Cosmos
     def stop
       # Break long pollers
       @limits_event_queues.dup.each do |id, data|
-        queue, queue_size = @limits_event_queues.delete(id)
+        queue, _ = @limits_event_queues.delete(id)
         queue << nil if queue
       end
 
       @server_message_queues.dup.each do |id, data|
-        queue, queue_size = @server_message_queues.delete(id)
+        queue, _ = @server_message_queues.delete(id)
         queue << nil if queue
       end
 
       @packet_data_queues.dup.each do |id, data|
-        queue, packets, queue_size = @packet_data_queues.delete(id)
+        queue, _, _ = @packet_data_queues.delete(id)
         queue << nil if queue
       end
 
@@ -268,7 +268,7 @@ module Cosmos
     end
 
     # Set a stop callback
-    def stop_callback= (stop_callback)
+    def stop_callback=(stop_callback)
       @stop_callback = stop_callback
     end
 
@@ -283,7 +283,7 @@ module Cosmos
     end
 
     # Set a reload callback
-    def reload_callback= (reload_callback)
+    def reload_callback=(reload_callback)
       @reload_callback = reload_callback
     end
 
@@ -367,7 +367,7 @@ module Cosmos
           queues_to_drop.each do |id|
             # Remove the queue to stop servicing it.  Nil is added to unblock any client threads
             # that might otherwise be left blocking forever for something on the queue
-            queue, queue_size = @limits_event_queues.delete(id)
+            queue, _ = @limits_event_queues.delete(id)
             queue << nil if queue
           end
         end
@@ -409,7 +409,7 @@ module Cosmos
       @@instance.limits_event_queue_mutex.synchronize do
         # Remove the queue to stop servicing it.  Nil is added to unblock any client threads
         # that might otherwise be left blocking forever for something on the queue
-        queue, queue_size = @@instance.limits_event_queues.delete(id)
+        queue, _ = @@instance.limits_event_queues.delete(id)
         queue << nil if queue
       end
     end
@@ -470,7 +470,7 @@ module Cosmos
           queues_to_drop.each do |id|
             # Remove the queue to stop servicing it.  Nil is added to unblock any client threads
             # that might otherwise be left blocking forever for something on the queue
-            queue, packets, queue_size = @packet_data_queues.delete(id)
+            queue, _, _ = @packet_data_queues.delete(id)
             queue << nil if queue
           end
         end
@@ -542,7 +542,7 @@ module Cosmos
       @@instance.packet_data_queue_mutex.synchronize do
         # Remove the queue to stop servicing it.  Nil is added to unblock any client threads
         # that might otherwise be left blocking forever for something on the queue
-        queue, packets, queue_size = @@instance.packet_data_queues.delete(id)
+        queue, _, _ = @@instance.packet_data_queues.delete(id)
         queue << nil if queue
       end
       return nil
@@ -605,7 +605,7 @@ module Cosmos
           queues_to_drop.each do |id|
             # Remove the queue to stop servicing it.  Nil is added to unblock any client threads
             # that might otherwise be left blocking forever for something on the queue
-            queue, queue_size = @server_message_queues.delete(id)
+            queue, _ = @server_message_queues.delete(id)
             queue << nil if queue
           end
         end
@@ -644,7 +644,7 @@ module Cosmos
       @@instance.server_message_queue_mutex.synchronize do
         # Remove the queue to stop servicing it.  Nil is added to unblock any client threads
         # that might otherwise be left blocking forever for something on the queue
-        queue, queue_size = @@instance.server_message_queues.delete(id)
+        queue, _ = @@instance.server_message_queues.delete(id)
         queue << nil if queue
       end
     end

@@ -64,7 +64,7 @@ module Cosmos
           sleep 0.2
           expect(running_threads.length).to eql(1)
 
-          expect(stdout.string).to match "Connection Failed: RuntimeError : ConnectError"
+          expect(stdout.string).to match("Connection Failed: RuntimeError : ConnectError")
         end
       end
 
@@ -89,7 +89,7 @@ module Cosmos
           expect(running_threads.length).to eql(1)
           expect(error_count).to eql 2
 
-          expect(stdout.string).not_to match "Connection Failed: ConnectError"
+          expect(stdout.string).not_to match("Connection Failed: ConnectError")
         end
       end
 
@@ -103,7 +103,7 @@ module Cosmos
           sleep 0.2
           expect(running_threads.length).to eql(1)
 
-          expect(stdout.string).to match "Connection Success"
+          expect(stdout.string).to match("Connection Success")
         end
       end
 
@@ -122,7 +122,7 @@ module Cosmos
           expect(running_threads.length).to eql(1)
           expect(callback_called).to be true
 
-          expect(stdout.string).not_to match "Connection Success"
+          expect(stdout.string).not_to match("Connection Success")
         end
       end
 
@@ -141,7 +141,7 @@ module Cosmos
           sleep 0.2
           expect(running_threads.length).to eql(1)
 
-          expect(stdout.string).to match "Connection Lost"
+          expect(stdout.string).to match("Connection Lost")
         end
       end
 
@@ -164,7 +164,7 @@ module Cosmos
           expect(running_threads.length).to eql(1)
           expect(callback_called).to be true
 
-          expect(stdout.string).not_to match "Connection Lost"
+          expect(stdout.string).not_to match("Connection Lost")
         end
       end
 
@@ -178,7 +178,7 @@ module Cosmos
           thread.stop
           sleep 0.2
           expect(running_threads.length).to eql(1)
-          expect(stdout.string).to match "ReadError"
+          expect(stdout.string).to match("ReadError")
         end
       end
 
@@ -197,7 +197,7 @@ module Cosmos
           sleep 0.2
           expect(running_threads.length).to eql(1)
 
-          expect(stdout.string).to match "ECONNRESET"
+          expect(stdout.string).to match("ECONNRESET")
         end
       end
 
@@ -210,7 +210,7 @@ module Cosmos
           thread.stop
           sleep 0.2
 
-          expect(stdout.string).to match "Packet reading thread unexpectedly died"
+          expect(stdout.string).to match("Packet reading thread unexpectedly died")
         end
       end
 
@@ -229,7 +229,7 @@ module Cosmos
           sleep 0.2
           expect(callback_called).to be true
 
-          expect(stdout.string).not_to match "Packet reading thread unexpectedly died"
+          expect(stdout.string).not_to match("Packet reading thread unexpectedly died")
         end
       end
 
@@ -244,7 +244,7 @@ module Cosmos
           sleep 0.2
           expect(running_threads.length).to eql(1)
 
-          expect(stdout.string).to match "Unknown 2 byte packet"
+          expect(stdout.string).to match("Unknown 2 byte packet")
         end
       end
 
@@ -261,7 +261,7 @@ module Cosmos
           thread.stop
           sleep 0.2
           expect(running_threads.length).to eql(1)
-          expect(stdout.string).to match "Received unknown identified telemetry: BOB SMITH"
+          expect(stdout.string).to match("Received unknown identified telemetry: BOB SMITH")
         end
       end
 
@@ -281,7 +281,7 @@ module Cosmos
           sleep 0.2
           expect(running_threads.length).to eql(1)
 
-          expect(stdout.string).to match "Problem writing to router"
+          expect(stdout.string).to match("Problem writing to router")
         end
       end
 

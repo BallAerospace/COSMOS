@@ -8,15 +8,12 @@
 # as published by the Free Software Foundation; version 3 with
 # attribution addendums as found in the LICENSE.txt
 
-require 'cosmos/io/serial_driver'
 require 'cosmos/win32/win32'
 require 'timeout' # For Timeout::Error
 
 module Cosmos
-
   # Serial driver for use on Windows serial ports
   class Win32SerialDriver
-
     # (see SerialDriver#initialize)
     def initialize(port_name = 'COM1',
                    baud_rate = 9600,
@@ -150,16 +147,12 @@ module Cosmos
     # (see SerialDriver#read_nonblock)
     def read_nonblock
       data = ''
-
       loop do
         buffer = Win32.read_file(@handle, @read_max_length - data.length)
         data << buffer
         break if buffer.length <= 0 or data.length >= @read_max_length
       end
-
       data
     end
-
-  end # class Win32SerialDriver
-
-end # module Cosmos
+  end
+end
