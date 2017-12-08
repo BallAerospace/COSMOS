@@ -109,7 +109,7 @@ module Cosmos
         expect(System.commands.packet("UNKNOWN","UNKNOWN").buffer).to eql pkt.buffer
         tf.unlink
 
-        expect(stdout.string).to match "Unidentified packet"
+        expect(stdout.string).to match("Unidentified packet")
         Logger.level = Logger::FATAL
         $stdout = STDOUT
       end
@@ -140,7 +140,7 @@ module Cosmos
         cmd.send_raw('MY_INT', "\x00\x01")
         tf.unlink
 
-        expect(stdout.string).to match "Unlogged raw data of 2 bytes being sent to interface MY_INT"
+        expect(stdout.string).to match("Unlogged raw data of 2 bytes being sent to interface MY_INT")
         Logger.level = Logger::FATAL
         $stdout = STDOUT
       end

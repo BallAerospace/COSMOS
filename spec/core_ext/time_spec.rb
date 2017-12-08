@@ -164,7 +164,6 @@ describe Time do
   describe "Time.ccsds2julian and Time.julian2ccsds" do
     it "converts CCSDS to and from Julian" do
       expect(Time.ccsds2julian(0, 1000, 2)).to be_within(0.00001).of(2436204.500012)
-      time = Time.now
       ccsds_day, ccsds_ms, ccsds_us = Time.mdy2ccsds(2015,1,2,3,4,5,100)
       julian = Time.ccsds2julian(ccsds_day, ccsds_ms, ccsds_us)
       parts = Time.julian2ccsds(julian)
@@ -177,7 +176,6 @@ describe Time do
   describe "Time.ccsds2sec and Time.sec2ccsds" do
     it "converts seconds to and from CCSDS" do
       expect(Time.ccsds2sec(0, 1000, 2)).to be_within(0.00001).of(1)
-      time = Time.now
       ccsds_day, ccsds_ms, ccsds_us = Time.mdy2ccsds(2015,1,2,3,4,5,100)
       seconds = Time.ccsds2sec(ccsds_day, ccsds_ms, ccsds_us)
       parts = Time.sec2ccsds(seconds)

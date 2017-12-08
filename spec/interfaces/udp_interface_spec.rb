@@ -173,7 +173,6 @@ module Cosmos
         expect(i.write_count).to eql 0
         pkt = Packet.new('tgt','pkt')
         pkt.buffer = "\x00\x01\x02\x03"
-        packet = nil
         i.write(pkt)
         data = read.read
         expect(i.write_count).to eql 1
@@ -192,9 +191,8 @@ module Cosmos
         expect(i.raw_logger_pair.write_logger.logging_enabled).to be true
         pkt = Packet.new('tgt','pkt')
         pkt.buffer = "\x00\x01\x02\x03"
-        packet = nil
         i.write(pkt)
-        data = read.read
+        _ = read.read
         filename = i.raw_logger_pair.write_logger.filename
         i.stop_raw_logging
         expect(i.raw_logger_pair.write_logger.logging_enabled).to be false
@@ -238,7 +236,7 @@ module Cosmos
         i.start_raw_logging
         expect(i.raw_logger_pair.write_logger.logging_enabled).to be true
         i.write_raw("\x00\x01\x02\x03")
-        data = read.read
+        _ = read.read
         filename = i.raw_logger_pair.write_logger.filename
         i.stop_raw_logging
         expect(i.raw_logger_pair.write_logger.logging_enabled).to be false

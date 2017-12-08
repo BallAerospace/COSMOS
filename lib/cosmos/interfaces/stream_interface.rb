@@ -17,6 +17,7 @@ module Cosmos
 
     def initialize(protocol_type = nil, protocol_args = [])
       super()
+      @stream = nil
       @protocol_type = ConfigParser::handle_nil(protocol_type)
       @protocol_args = protocol_args
       if @protocol_type

@@ -100,7 +100,7 @@ module Cosmos
           interfaces.all['MY_INT'].connect_on_startup = true
           interfaces.start
 
-          expect(stdout.string).to match "Creating thread for interface MY_INT"
+          expect(stdout.string).to match("Creating thread for interface MY_INT")
 
           interfaces.stop
           sleep 0.1
@@ -133,7 +133,7 @@ module Cosmos
           sleep 0.5
           expect(interfaces.state("MY_INT")).to eql "DISCONNECTED"
 
-          expect(stdout.string).to match "Disconnected from interface MY_INT"
+          expect(stdout.string).to match("Disconnected from interface MY_INT")
 
           sleep 0.1
         end
@@ -187,14 +187,14 @@ module Cosmos
           expect(config.interfaces['DEST2'].routers[0].name).to eql "MY_ROUTER"
           interfaces.connect("DEST1")
           sleep 0.2
-          expect(stdout.string).to match "Connecting to DEST1"
+          expect(stdout.string).to match("Connecting to DEST1")
           interfaces.disconnect("DEST1")
           interfaces.connect("DEST1",'localhost',8888,8888,6,6,'length')
           sleep 0.2
           expect(config.interfaces['DEST1'].routers[0].name).to eql "MY_ROUTER"
           expect(config.interfaces['DEST2'].routers[0].name).to eql "MY_ROUTER"
-          expect(stdout.string).to match "Disconnected from interface DEST1"
-          expect(stdout.string).to match "Connecting to DEST1"
+          expect(stdout.string).to match("Disconnected from interface DEST1")
+          expect(stdout.string).to match("Connecting to DEST1")
           interfaces.disconnect("DEST1")
           interfaces.stop
 

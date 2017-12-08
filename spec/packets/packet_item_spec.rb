@@ -24,7 +24,7 @@ module Cosmos
       it "sets the format_string" do
         @pi.format_string = "%5.1f"
         expect(@pi.format_string).to eql "%5.1f"
-        expect(@pi.to_config(:TELEMETRY, :BIG_ENDIAN)).to match /FORMAT_STRING %5.1f/
+        expect(@pi.to_config(:TELEMETRY, :BIG_ENDIAN)).to match(/FORMAT_STRING %5.1f/)
       end
 
       it "sets the format_string to nil" do
@@ -49,9 +49,9 @@ module Cosmos
         @pi.read_conversion = c
         expect(@pi.read_conversion.to_s == c.to_s).to be true
         config = @pi.to_config(:TELEMETRY, :BIG_ENDIAN)
-        expect(config).to match /GENERIC_READ_CONVERSION_START/
-        expect(config).to match /value \/ 2/
-        expect(config).to match /GENERIC_READ_CONVERSION_END/
+        expect(config).to match(/GENERIC_READ_CONVERSION_START/)
+        expect(config).to match(/value \/ 2/)
+        expect(config).to match(/GENERIC_READ_CONVERSION_END/)
       end
 
       it "sets the read_conversion to nil" do
@@ -70,9 +70,9 @@ module Cosmos
         @pi.write_conversion = c
         expect(@pi.write_conversion.to_s == c.to_s).to be true
         config = @pi.to_config(:TELEMETRY, :BIG_ENDIAN)
-        expect(config).to match /GENERIC_WRITE_CONVERSION_START/
-        expect(config).to match /value \/ 2/
-        expect(config).to match /GENERIC_WRITE_CONVERSION_END/
+        expect(config).to match(/GENERIC_WRITE_CONVERSION_START/)
+        expect(config).to match(/value \/ 2/)
+        expect(config).to match(/GENERIC_WRITE_CONVERSION_END/)
       end
 
       it "sets the write_conversion to nil" do
@@ -423,8 +423,8 @@ module Cosmos
         # Check the unique PacketItem values
         expect(hash.keys).to include('format_string','read_conversion','write_conversion','id_value','states','description','units_full','units','default','range','required','hazardous','state_colors','limits')
         expect(hash["format_string"]).to eql "%5.1f"
-        expect(hash["read_conversion"]).to match "value / 2"
-        expect(hash["write_conversion"]).to match /value \* 2/
+        expect(hash["read_conversion"]).to match("value / 2")
+        expect(hash["write_conversion"]).to match(/value \* 2/)
         expect(hash["id_value"]).to eql 10
         expect(hash["states"]).to include("TRUE"=>1,"FALSE"=>0)
         expect(hash["description"]).to eql "description"

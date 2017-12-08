@@ -112,7 +112,7 @@ module Cosmos
           cts.stop
           sleep 0.2
 
-          expect(stdout.string).to match "Staleness Monitor thread unexpectedly died"
+          expect(stdout.string).to match("Staleness Monitor thread unexpectedly died")
         end
       end
     end
@@ -125,23 +125,23 @@ module Cosmos
             pkt = Packet.new("TGT","PKT")
             pi = PacketItem.new("TEST", 0, 32, :UINT, :BIG_ENDIAN, nil)
             cts.limits_change_callback(pkt, pi, :STALE, 100, true)
-            expect(stdout.string).to match "TGT PKT TEST = 100 is UNKNOWN"
+            expect(stdout.string).to match("TGT PKT TEST = 100 is UNKNOWN")
 
             pi.limits.state = :BLUE
             cts.limits_change_callback(pkt, pi, :STALE, 100, true)
-            expect(stdout.string).to match "<B>TGT PKT TEST = 100 is BLUE"
+            expect(stdout.string).to match("<B>TGT PKT TEST = 100 is BLUE")
 
             pi.limits.state = :GREEN
             cts.limits_change_callback(pkt, pi, :STALE, 100, true)
-            expect(stdout.string).to match "<G>TGT PKT TEST = 100 is GREEN"
+            expect(stdout.string).to match("<G>TGT PKT TEST = 100 is GREEN")
 
             pi.limits.state = :YELLOW
             cts.limits_change_callback(pkt, pi, :STALE, 100, true)
-            expect(stdout.string).to match "<Y>TGT PKT TEST = 100 is YELLOW"
+            expect(stdout.string).to match("<Y>TGT PKT TEST = 100 is YELLOW")
 
             pi.limits.state = :RED
             cts.limits_change_callback(pkt, pi, :STALE, 100, true)
-            expect(stdout.string).to match "<R>TGT PKT TEST = 100 is RED"
+            expect(stdout.string).to match("<R>TGT PKT TEST = 100 is RED")
           ensure
             cts.stop
             sleep 0.2
@@ -152,7 +152,7 @@ module Cosmos
       it "calls the limits response" do
         cts = CmdTlmServer.new
         begin
-          pkt = Packet.new("TGT","PKT")
+          packet = Packet.new("TGT","PKT")
           pi = PacketItem.new("TEST", 0, 32, :UINT, :BIG_ENDIAN, nil)
           lr = LimitsResponse.new
           pi.limits.response = lr
@@ -164,7 +164,7 @@ module Cosmos
             expect(state).to eql :GREEN
           end
           pi.limits.state = :GREEN
-          cts.limits_change_callback(pkt, pi, :YELLOW, 100, true)
+          cts.limits_change_callback(packet, pi, :YELLOW, 100, true)
         ensure
           cts.stop
           sleep 0.2
@@ -183,7 +183,7 @@ module Cosmos
             pi.limits.state = :GREEN
             cts.limits_change_callback(pkt, pi, :YELLOW, 100, true)
             sleep 0.1
-            expect(stdout.string).to match "TGT PKT TEST Limits Response Exception!"
+            expect(stdout.string).to match("TGT PKT TEST Limits Response Exception!")
           ensure
             cts.stop
             sleep 0.2
@@ -256,7 +256,7 @@ module Cosmos
           cts.limits_change_callback(pkt, pi, :GREEN, 100, true)
 
           # Pull off one
-          type,data = CmdTlmServer.get_limits_event(id)
+          CmdTlmServer.get_limits_event(id)
 
           # Add two more to put us over the limit
           cts.limits_change_callback(pkt, pi, :GREEN, 100, true)
@@ -289,7 +289,7 @@ module Cosmos
           cts.limits_change_callback(pkt, pi, :GREEN, 100, true)
 
           # Get one
-          type,data = CmdTlmServer.get_limits_event(id)
+          CmdTlmServer.get_limits_event(id)
 
           # Unsubscribe and try to get the other one
           CmdTlmServer.unsubscribe_limits_events(id)
@@ -413,12 +413,15 @@ module Cosmos
       end
 
       it "works in disconnect mode" do
-        cts = CmdTlmServer.new(CmdTlmServer::DEFAULT_CONFIG_FILE, false, true)
+        CmdTlmServer.new(CmdTlmServer::DEFAULT_CONFIG_FILE, false, true)
         id = CmdTlmServer.subscribe_packet_data([["SYSTEM","LIMITS_CHANGE"]])
-        buffer,tgt,pkt,tv_sec,tv_usec,cnt = CmdTlmServer.get_packet_data(id, true)
+        buffer, tgt, pkt, tv_sec, tv_usec, cnt = CmdTlmServer.get_packet_data(id, true)
         expect(buffer).not_to be_nil
         expect(tgt).to eql "SYSTEM"
         expect(pkt).to eql "LIMITS_CHANGE"
+        expect(tv_sec).to be > 0
+        expect(tv_usec).to be > 0
+        expect(cnt).to eql 1
       end
     end
 

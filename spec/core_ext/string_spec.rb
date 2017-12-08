@@ -26,39 +26,39 @@ describe String do
     end
 
     it "uses 2 byte words" do
-      expect(@data.formatted(2, 8)).to match "00000000: 1A1B 1C1D 1E1F" # ...
-      expect(@data.formatted(2, 8)).to match "00000010: 2A2B 2C2D 2E2F"
+      expect(@data.formatted(2, 8)).to match("00000000: 1A1B 1C1D 1E1F") # ...
+      expect(@data.formatted(2, 8)).to match("00000010: 2A2B 2C2D 2E2F")
     end
 
     it "changes the word separator" do
-      expect(@data.formatted(2, 4, '_')).to match "00000000: 1A1B_1C1D_1E1F_2021"
-      expect(@data.formatted(2, 4, '_')).to match "00000008: 2223_2425_2627_2829"
-      expect(@data.formatted(2, 4, '_')).to match "00000010: 2A2B_2C2D_2E2F"
+      expect(@data.formatted(2, 4, '_')).to match("00000000: 1A1B_1C1D_1E1F_2021")
+      expect(@data.formatted(2, 4, '_')).to match("00000008: 2223_2425_2627_2829")
+      expect(@data.formatted(2, 4, '_')).to match("00000010: 2A2B_2C2D_2E2F")
     end
 
     it "indents the lines" do
-      expect(@data.formatted(1, 16, ' ', 4)).to match "    00000000: 1A 1B 1C 1D"
+      expect(@data.formatted(1, 16, ' ', 4)).to match("    00000000: 1A 1B 1C 1D")
     end
 
     it "does not show the address" do
-      expect(@data.formatted(1, 16, ' ', 0, false)).to match "1A 1B 1C 1D"
+      expect(@data.formatted(1, 16, ' ', 0, false)).to match("1A 1B 1C 1D")
     end
 
     it "changes the address separator" do
-      expect(@data.formatted(1, 16, ' ', 0, true, '= ')).to match "00000000= 1A 1B 1C 1D"
+      expect(@data.formatted(1, 16, ' ', 0, true, '= ')).to match("00000000= 1A 1B 1C 1D")
     end
 
     it "does not show the ASCII" do
-      expect(@data.formatted(1,16,'',0,true,'',true)).to match '29         !"#\$%&\'()'
-      expect(@data.formatted(1,16,'',0,true,'',false)).not_to match '29         !"#\$%&\'()'
+      expect(@data.formatted(1,16,'',0,true,'',true)).to match('29         !"#\$%&\'()')
+      expect(@data.formatted(1,16,'',0,true,'',false)).not_to match('29         !"#\$%&\'()')
     end
 
     it "changes the ASCII separator" do
-      expect(@data.formatted(1,16,'',0,true,'',true,'__')).to match '29__       !"#\$%&\'()'
+      expect(@data.formatted(1,16,'',0,true,'',true,'__')).to match('29__       !"#\$%&\'()')
     end
 
     it "changes the ASCII unprintable character" do
-      expect(@data.formatted(1,16,'',0,true,'',true,'__','x')).to match '29__xxxxxx !"#\$%&\'()'
+      expect(@data.formatted(1,16,'',0,true,'',true,'__','x')).to match('29__xxxxxx !"#\$%&\'()')
     end
 
     it "changes the line separator" do
@@ -199,7 +199,7 @@ describe String do
       expect("[.a,2,3]".convert_to_value).to eql "[.a,2,3]"
     end
 
-    it "doesn't match multiline strings" do
+    it "doesn't match(multiline strings" do
       expect("12345\n12345".convert_to_value).to eql "12345\n12345"
       expect("5.123\n5.123".convert_to_value).to eql "5.123\n5.123"
       expect("[0,1,2,3]\n[0,1,2,3]".convert_to_value).to eql "[0,1,2,3]\n[0,1,2,3]"

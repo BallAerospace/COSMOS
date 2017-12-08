@@ -13,26 +13,27 @@ require 'cosmos/packets/structure'
 require 'cosmos/system/system'
 
 module Cosmos
-
-  # Update Packet for Simulated Targets
   class Packet < Structure
     attr_accessor :packet_rate
   end
 
+  # Base class for all virtual COSMOS targets which must be implemented by
+  # a subclass. Provides a framework and helper methods to implement a
+  # virtual target which can cycle telemetry values and emit telemetry
+  # packets.
   class SimulatedTarget
-
     attr_accessor :tlm_packets
 
-    def initialize (target_name)
+    def initialize(target_name)
       @tlm_packets = {}
 
-      #Generate copy of telemetry packets for this target
+      # Generate copy of telemetry packets for this target
       System.telemetry.packets(target_name).each do |name, packet|
         @tlm_packets[name] = packet.clone
         @tlm_packets[name].enable_method_missing
       end
 
-      #Set id values
+      # Set id values
       @tlm_packets.each do |name, packet|
         ids = packet.id_items
         ids.each do |id|
@@ -65,7 +66,7 @@ module Cosmos
     def get_pending_packets(count_100hz)
       pending_packets = []
 
-      #determine if packets are due to be sent and add to pending
+      # Determine if packets are due to be sent and add to pending
       @tlm_packets.each do |name, packet|
         if packet.packet_rate
           if ((count_100hz % packet.packet_rate) == 0)
@@ -96,5 +97,4 @@ module Cosmos
       updated_value
     end
   end
-
 end

@@ -38,8 +38,8 @@ module Cosmos
       @read_port  = ConfigParser.handle_nil(read_port)
       @read_port  = Integer(read_port) if @read_port
 
-      write_addr = nil
-      read_addr = nil
+      @write_addr = nil
+      @read_addr = nil
       begin
         @write_addr = Socket.pack_sockaddr_in(@write_port, @hostname) if @write_port
         @read_addr = Socket.pack_sockaddr_in(@read_port, @hostname) if @read_port

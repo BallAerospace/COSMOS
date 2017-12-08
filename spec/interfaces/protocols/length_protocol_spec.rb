@@ -172,7 +172,7 @@ module Cosmos
           nil, # sync
           50], :READ_WRITE) # max_length
         $buffer = "\x00\x01\xFF\xFF\x03\x04"
-        expect { packet = @interface.read }.to raise_error(RuntimeError, "Length value received larger than max_length: 65535 > 50")
+        expect { @interface.read }.to raise_error(RuntimeError, "Length value received larger than max_length: 65535 > 50")
       end
 
       it "handles a sync value in the packet" do

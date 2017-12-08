@@ -92,7 +92,7 @@ module Cosmos
           raw_logger = RawLogger.new('MYINT', :WRITE, true, 200, nil)
           raw_logger.write("\x00\x01\x02\x03")
           raw_logger.stop
-          expect(stdout.string).to match "Error opening"
+          expect(stdout.string).to match("Error opening")
         end
       end
 
@@ -102,7 +102,7 @@ module Cosmos
           raw_logger = RawLogger.new('MYINT', :WRITE, true, 200, nil)
           raw_logger.write("\x00\x01\x02\x03")
           raw_logger.stop
-          expect(stdout.string).to match "Error closing"
+          expect(stdout.string).to match("Error closing")
         end
       end
 
@@ -113,7 +113,7 @@ module Cosmos
           allow(raw_logger.instance_variable_get(:@file)).to receive(:write) { raise "Error" }
           raw_logger.write("\x00\x01\x02\x03")
           raw_logger.stop
-          expect(stdout.string).to match "Error writing"
+          expect(stdout.string).to match("Error writing")
         end
       end
     end

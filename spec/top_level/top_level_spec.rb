@@ -45,7 +45,7 @@ module Cosmos
       $stderr = stderr
       save = Cosmos::PATH
       Cosmos::PATH = "HI"
-      expect(stderr.string).to match /warning\: already initialized constant/
+      expect(stderr.string).to match(/warning\: already initialized constant/)
       Cosmos::PATH = save
 
       save_mutex = Cosmos::COSMOS_MUTEX
@@ -53,7 +53,7 @@ module Cosmos
         Cosmos::COSMOS_MUTEX = "HI"
         Cosmos::COSMOS_MUTEX = save_mutex
       end
-      expect(stderr.string).not_to match "warning: already initialized constant COSMOS_MUTEX"
+      expect(stderr.string).not_to match("warning: already initialized constant COSMOS_MUTEX")
       $stderr = STDERR
     end
   end
@@ -166,7 +166,7 @@ module Cosmos
         system_exit_count = $system_exit_count
         Cosmos.marshal_dump('marshal_test', Proc.new { '' })
         expect($system_exit_count).to be > system_exit_count
-        expect(stdout.string).to match "is defined for class Proc"
+        expect(stdout.string).to match("is defined for class Proc")
       end
       Cosmos.cleanup_exceptions()
     end
@@ -187,7 +187,7 @@ module Cosmos
 
       capture_io do |stdout|
         Cosmos.marshal_load('marshal_test')
-        expect(stdout.string).to match "Marshal load failed with exception"
+        expect(stdout.string).to match("Marshal load failed with exception")
       end
       Cosmos.cleanup_exceptions()
     end
@@ -217,7 +217,7 @@ module Cosmos
         allow(Logger).to receive(:error) {|str| output = str}
         thread = Cosmos.run_process_check_output("ping 192.0.0.234 -n 1 -w 1000")
         sleep 0.1 while thread.alive?
-        expect(output).to match "Pinging 192.0.0.234"
+        expect(output).to match("Pinging 192.0.0.234")
       end
     end
   end
@@ -311,7 +311,7 @@ module Cosmos
           raise "AHHH!!!"
         end
         expect($system_exit_count).to eql(system_exit_count + 1)
-        expect(stdout.string).to match "Fatal Exception! Exiting..."
+        expect(stdout.string).to match("Fatal Exception! Exiting...")
       end
       Cosmos.cleanup_exceptions()
     end
@@ -323,7 +323,7 @@ module Cosmos
         system_exit_count = $system_exit_count
         Cosmos.handle_fatal_exception(RuntimeError.new)
         expect($system_exit_count).to eql(system_exit_count + 1)
-        expect(stdout.string).to match "Fatal Exception! Exiting..."
+        expect(stdout.string).to match("Fatal Exception! Exiting...")
       end
       Cosmos.cleanup_exceptions()
     end
@@ -335,7 +335,7 @@ module Cosmos
         system_exit_count = $system_exit_count
         Cosmos.handle_critical_exception(RuntimeError.new)
         expect($system_exit_count).to eql(system_exit_count)
-        expect(stdout.string).to match "Critical Exception!"
+        expect(stdout.string).to match("Critical Exception!")
       end
       Cosmos.cleanup_exceptions()
     end
@@ -350,7 +350,7 @@ module Cosmos
         def thread.graceful_kill
         end
         sleep 1
-        expect(stdout.string).to match "Test thread unexpectedly died."
+        expect(stdout.string).to match("Test thread unexpectedly died.")
         Cosmos.kill_thread(thread, thread)
       end
       Cosmos.cleanup_exceptions()

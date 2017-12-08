@@ -149,7 +149,7 @@ module Cosmos
       end
 
       it "returns the packet and item" do
-        pkt,item = @tlm.packet_and_item("TGT1","PKT1","ITEM1")
+        _, item = @tlm.packet_and_item("TGT1","PKT1","ITEM1")
         expect(item.name).to eql "ITEM1"
       end
 
@@ -386,10 +386,8 @@ module Cosmos
       end
 
       it "returns the list of stale packets for a given target" do
-        p1 = @tlm.packet("TGT1","PKT1")
-        p2 = @tlm.packet("TGT1","PKT2")
-        p3 = @tlm.packet("TGT2","PKT1")
-        expect(@tlm.stale(false, "TGT2")).to include(p3)
+        pkt = @tlm.packet("TGT2","PKT1")
+        expect(@tlm.stale(false, "TGT2")).to include(pkt)
         @tlm.packet("TGT2","PKT1").check_limits
         expect(@tlm.stale(false, "TGT2").size).to eql 0
         expect(@tlm.stale(false, "TGT1").size).to eql 2

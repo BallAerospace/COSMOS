@@ -8,8 +8,6 @@
 # as published by the Free Software Foundation; version 3 with
 # attribution addendums as found in the LICENSE.txt
 
-require 'cosmos'
-
 module Cosmos
   # Parses the Telemetry Viewer configuration file and builds up the list
   # of available screens to display.

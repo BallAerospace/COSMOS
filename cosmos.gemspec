@@ -100,6 +100,7 @@ spec = Gem::Specification.new do |s|
   s.add_runtime_dependency 'stopgap_13632', '~> 1.1.1' if RUBY_ENGINE == 'ruby' and %w(2.2.7 2.2.8 2.3.4 2.4.1).include? RUBY_VERSION  # MRI Only
 
   # Development Dependencies
+  s.add_development_dependency 'diff-lcs', '~> 1.3' if RUBY_ENGINE == 'ruby' # Get latest for MRI
   s.add_development_dependency 'rspec', '~> 3.5.0'
   s.add_development_dependency 'flog', '~> 4.0'
   s.add_development_dependency 'flay', '~> 2.0'

@@ -71,15 +71,15 @@ class Time
   # Class variable that allows us to globally select whether to use
   # UTC or local time.
   @@use_utc = false
-  
-  # Set up the Time class so that a call to the sys method will set the 
-  # Time object being operated upon to be a UTC time. 
+
+  # Set up the Time class so that a call to the sys method will set the
+  # Time object being operated upon to be a UTC time.
   def self.use_utc
     @@use_utc = true
   end
-  
-  # Set up the Time class so that a call to the sys method will set the 
-  # Time object being operated upon to be a local time. 
+
+  # Set up the Time class so that a call to the sys method will set the
+  # Time object being operated upon to be a local time.
   def self.use_local
     @@use_utc = false
   end
@@ -197,7 +197,7 @@ class Time
 
   # @param year [Integer]
   # @return [Boolean] Whether the year is a leap year
-  def self.leap_year? (year)
+  def self.leap_year?(year)
     return_value = false
 
     if (year % 4) == 0
@@ -453,7 +453,7 @@ class Time
   # so a ruby time object can be used to parse the time.
   # @param epoch [String] epoch is a string in the following format: "yyyy/mm/dd hh:mm:ss"
   # @return [Float] unix_epohc_delta
-  def self.init_epoch_delta (epoch)
+  def self.init_epoch_delta(epoch)
     # UnixEpoch - Jan 1, 1970 00:00:00
     unix_epoch = DateTime.new(1970, 1, 1, 0, 0, 0)
 

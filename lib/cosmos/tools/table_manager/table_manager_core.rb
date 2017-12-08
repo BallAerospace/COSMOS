@@ -56,7 +56,6 @@ module Cosmos
     # @param output_dir [String] Output directory to create the new file
     # @return [String] Binary file path
     def file_new(def_path, output_dir)
-      progress = 0.0
       process_definition(def_path)
       yield 0.3 if block_given?
 

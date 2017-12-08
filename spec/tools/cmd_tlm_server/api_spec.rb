@@ -523,7 +523,6 @@ DOC
       end
 
       it "returns special values for time if time isn't set" do
-        time = Time.now
         packet = System.commands.packet("INST", "COLLECT")
         packet.received_time = nil
         packet.restore_defaults
@@ -752,7 +751,7 @@ DOC
         @api.inject_tlm("INST","HEALTH_STATUS",{TEMP1: 50, TEMP2: 50, TEMP3: 50, TEMP4: 50}, :CONVERTED)
         allow_any_instance_of(Interface).to receive(:write_allowed?).and_raise("PROBLEM!")
         expect(Logger).to receive(:error) do |msg|
-          expect(msg).to match /Problem writing to router/
+          expect(msg).to match(/Problem writing to router/)
         end
         @api.inject_tlm("INST","HEALTH_STATUS")
       end
@@ -773,7 +772,7 @@ DOC
 
         allow_any_instance_of(Interface).to receive(:write_allowed?).and_raise("PROBLEM!")
         expect(Logger).to receive(:error) do |msg|
-          expect(msg).to match /Problem writing to router/
+          expect(msg).to match(/Problem writing to router/)
         end
 
         @api.inject_tlm("SYSTEM","LIMITS_CHANGE")

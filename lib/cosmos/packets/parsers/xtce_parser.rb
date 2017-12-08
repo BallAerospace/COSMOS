@@ -10,7 +10,6 @@
 
 require 'nokogiri'
 require 'ostruct'
-require 'cosmos/packets/packet_config'
 
 module Cosmos
 
@@ -55,16 +54,17 @@ module Cosmos
       @commands = commands
       @telemetry = telemetry
       @warnings = warnings
+      @current_packet = nil
       parse(filename, target_name)
     end
 
     def parse(filename, target_name)
       doc = File.open(filename) { |f| Nokogiri::XML(f, nil, nil, Nokogiri::XML::ParseOptions::STRICT | Nokogiri::XML::ParseOptions::NOBLANKS) }
-      xtce_process_element(doc.root, 0)
+      xtce_process_element(doc.root)
       @current_target_name = target_name if target_name
       doc.root.children.each do |child|
-        xtce_recurse_element(child, 1) do |element, depth|
-          xtce_process_element(element, depth)
+        xtce_recurse_element(child) do |element|
+          xtce_process_element(element)
         end
       end
       finish_packet()
@@ -137,7 +137,7 @@ module Cosmos
 
     XTCE_IGNORED_ELEMENTS = ['text', 'AliasSet', 'Alias', 'Header']
 
-    def xtce_process_element(element, depth)
+    def xtce_process_element(element)
       if XTCE_IGNORED_ELEMENTS.include?(element.name)
         return false
       end
@@ -154,14 +154,17 @@ module Cosmos
         finish_packet()
         @current_cmd_or_tlm = PacketConfig::COMMAND
 
-      when 'ParameterTypeSet', 'EnumerationList', 'ParameterSet', 'ContainerSet', 'EntryList', 'DefaultCalibrator', 'DefaultAlarm',
-        'RestrictionCriteria', 'ComparisonList', 'MetaCommandSet', 'DefaultCalibrator', 'ArgumentTypeSet', 'ArgumentList', 'ArgumentAssignmentList',
-        'LocationInContainerInBits'
-
+      when 'ParameterTypeSet', 'EnumerationList', 'ParameterSet', 'ContainerSet',
+        'EntryList', 'DefaultCalibrator', 'DefaultAlarm', 'RestrictionCriteria',
+        'ComparisonList', 'MetaCommandSet', 'ArgumentTypeSet', 'ArgumentList',
+        'ArgumentAssignmentList', 'LocationInContainerInBits'
         # Do Nothing
 
-      when 'EnumeratedParameterType', 'EnumeratedArgumentType', 'IntegerParameterType', 'IntegerArgumentType', 'FloatParameterType', 'FloatArgumentType',
-        'StringParameterType', 'StringArgumentType', 'BinaryParameterType', 'BinaryArgumentType'
+      when 'EnumeratedParameterType', 'EnumeratedArgumentType',
+        'IntegerParameterType', 'IntegerArgumentType',
+        'FloatParameterType', 'FloatArgumentType',
+        'StringParameterType', 'StringArgumentType',
+        'BinaryParameterType', 'BinaryArgumentType'
         @current_type = create_new_type(element)
         @current_type.endianness = :BIG_ENDIAN
 
@@ -187,10 +190,10 @@ module Cosmos
 
       when 'ByteOrderList'
         byte_list = []
-        xtce_recurse_element(element, depth + 1) do |element, depth|
-          if element.name == 'Byte'
-            if element['byteSignificance']
-              byte_list << element['byteSignificance'].to_i
+        xtce_recurse_element(element) do |block_element|
+          if block_element.name == 'Byte'
+            if block_element['byteSignificance']
+              byte_list << block_element['byteSignificance'].to_i
             end
           end
           true
@@ -228,9 +231,9 @@ module Cosmos
         return false # Already recursed
 
       when "SizeInBits"
-        xtce_recurse_element(element, depth + 1) do |element, depth|
-          if element.name == 'FixedValue'
-            @current_type.sizeInBits = Integer(element.text)
+        xtce_recurse_element(element) do |block_element|
+          if block_element.name == 'FixedValue'
+            @current_type.sizeInBits = Integer(block_element.text)
             false
           else
             true
@@ -239,10 +242,10 @@ module Cosmos
         return false # Already recursed
 
       when 'UnitSet'
-        xtce_recurse_element(element, depth + 1) do |element, depth|
-          if element.name == 'Unit'
-            units = element.text.to_s
-            description = element['description'].to_s
+        xtce_recurse_element(element) do |block_element|
+          if block_element.name == 'Unit'
+            units = block_element.text.to_s
+            description = block_element['description'].to_s
             description = units if description.empty?
             units = description if units.empty?
 
@@ -252,7 +255,7 @@ module Cosmos
             else
               @current_type.units << ('/' + units)
             end
-            @current_type.units << "^#{element['power']}" if element['power']
+            @current_type.units << "^#{block_element['power']}" if block_element['power']
 
             @current_type.units_full ||= ''
             if @current_type.units_full.empty?
@@ -266,12 +269,11 @@ module Cosmos
         return false # Already recursed
 
       when 'PolynomialCalibrator'
-        xtce_recurse_element(element, depth + 1) do |element, depth|
-          if element.name == 'Term'
-            index = Float(element['exponent']).to_i
-            coeff = Float(element['coefficient'])
+        xtce_recurse_element(element) do |block_element|
+          if block_element.name == 'Term'
+            exponent = Float(block_element['exponent']).to_i
             @current_type.conversion ||= PolynomialConversion.new([])
-            @current_type.conversion.coeffs[index] = coeff
+            @current_type.conversion.coeffs[exponent] = Float(block_element['coefficient'])
             @current_type.conversion.coeffs.each_with_index do |value, index|
               @current_type.conversion.coeffs[index] = 0.0 if value.nil?
             end
@@ -281,15 +283,15 @@ module Cosmos
         return false # Already recursed
 
       when 'StaticAlarmRanges'
-        xtce_recurse_element(element, depth + 1) do |element, depth|
-          if element.name == 'WarningRange'
+        xtce_recurse_element(element) do |block_element|
+          if block_element.name == 'WarningRange'
             @current_type.limits ||= [0.0, 0.0, 0.0, 0.0]
-            @current_type.limits[1] = Float(element['minInclusive']) if element['minInclusive']
-            @current_type.limits[2] = Float(element['maxInclusive']) if element['maxInclusive']
-          elsif element.name == 'CriticalRange'
+            @current_type.limits[1] = Float(block_element['minInclusive']) if block_element['minInclusive']
+            @current_type.limits[2] = Float(block_element['maxInclusive']) if block_element['maxInclusive']
+          elsif block_element.name == 'CriticalRange'
             @current_type.limits ||= [0.0, 0.0, 0.0, 0.0]
-            @current_type.limits[0] = Float(element['minInclusive']) if element['minInclusive']
-            @current_type.limits[3] = Float(element['maxInclusive']) if element['maxInclusive']
+            @current_type.limits[0] = Float(block_element['minInclusive']) if block_element['minInclusive']
+            @current_type.limits[3] = Float(block_element['maxInclusive']) if block_element['maxInclusive']
           end
           true
         end
@@ -345,7 +347,7 @@ module Cosmos
         end
 
       when 'ParameterRefEntry', 'ArgumentRefEntry', 'ArrayParameterRefEntry', 'ArrayArgumentRefEntry'
-        process_ref_entry(element, depth)
+        process_ref_entry(element)
         return false # Already recursed
 
       when 'BaseContainer'
@@ -399,12 +401,12 @@ module Cosmos
       return true # Recurse further
     end
 
-    def process_ref_entry(element, depth)
+    def process_ref_entry(element)
       reference_location, bit_offset = xtce_handle_location_in_container_in_bits(element)
       object, type, data_type, array_type = get_object_types(element)
       bit_size = Integer(type.sizeInBits)
       if array_type
-        array_bit_size = process_array_type(element, depth, bit_size)
+        array_bit_size = process_array_type(element, bit_size)
       else
         array_bit_size = nil # in define_item, nil indicates the item is not an array
       end
@@ -477,14 +479,14 @@ module Cosmos
       return [object, type, data_type, array_type]
     end
 
-    def process_array_type(element, depth, bit_size)
+    def process_array_type(element, bit_size)
       array_num_items = 1
       # Need to determine dimensions
-      xtce_recurse_element(element, depth + 1) do |element, depth|
-        if element.name == 'Dimension'
+      xtce_recurse_element(element) do |block_element|
+        if block_element.name == 'Dimension'
           starting_index = 0
           ending_index = 0
-          element.children.each do |child_element|
+          block_element.children.each do |child_element|
             if child_element.name == 'StartingIndex'
               child_element.children.each do |child_element2|
                 if child_element2.name == 'FixedValue'
@@ -623,10 +625,10 @@ module Cosmos
       return string
     end
 
-    def xtce_recurse_element(element, depth, &block)
-      return unless yield(element, depth)
+    def xtce_recurse_element(element, &block)
+      return unless yield(element)
       element.children.each do |child_element|
-        xtce_recurse_element(child_element, depth + 1, &block)
+        xtce_recurse_element(child_element, &block)
       end
     end
 

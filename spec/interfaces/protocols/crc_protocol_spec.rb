@@ -378,7 +378,7 @@ module Cosmos
         $buffer[0] = "\x01"
 
         expect(Logger).to receive(:error) do |msg|
-          expect(msg).to match "Invalid CRC detected!"
+          expect(msg).to match("Invalid CRC detected!")
         end
         packet = @interface.read
         expect(packet.buffer.length).to eql 8
@@ -406,7 +406,7 @@ module Cosmos
         $buffer[0] = "\x01"
 
         expect(Logger).to receive(:error) do |msg|
-          expect(msg).to match "Invalid CRC detected!"
+          expect(msg).to match("Invalid CRC detected!")
         end
         packet = @interface.read
         expect(packet).to be_nil # thread disconnects when packet is nil

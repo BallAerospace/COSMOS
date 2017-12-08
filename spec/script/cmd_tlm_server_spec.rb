@@ -150,9 +150,11 @@ module Cosmos
         expect(interfaces).to include("INST_INT")
         expect(cmd_logging).to eql true
         expect(cmd_q_size).to be >= 0
+        expect(cmd_filename).to be nil # No commands yet so nil
         expect(cmd_file_size).to be >= 0
         expect(tlm_logging).to eql true
         expect(tlm_q_size).to be >= 0
+        expect(tlm_filename).to be nil # No telemetry yet so nil
         expect(tlm_file_size).to be >= 0
       end
     end
@@ -188,7 +190,7 @@ module Cosmos
         start_new_server_message_log
         sleep 0.1
         filename = get_server_message_log_filename
-        expect(filename).to match /server_messages.txt/
+        expect(filename).to match(/server_messages.txt/)
       end
     end
 

@@ -29,7 +29,7 @@ module Cosmos
 
     describe "read" do
       it "reads less than the buffer size" do
-        file = BufferedFile.open(@filename, "rb") do |file|
+        BufferedFile.open(@filename, "rb") do |file|
           expect(file.read(8)).to eql DATA[0..7]
           expect(file.pos).to eql 8
           expect(file.read(4)).to eql DATA[8..11]
@@ -51,7 +51,7 @@ module Cosmos
       end
 
       it "handles trying to read past the end" do
-        file = BufferedFile.open(@filename, "rb") do |file|
+        BufferedFile.open(@filename, "rb") do |file|
           file.seek(-16, IO::SEEK_END)
           expect(file.pos).to eql ((2 * BufferedFile::BUFFER_SIZE) - 16)
           expect(file.read(DATA.length * 10)).to eql(DATA)
@@ -62,7 +62,7 @@ module Cosmos
       end
 
       it "reads equal to the buffer size" do
-        file = BufferedFile.open(@filename, "rb") do |file|
+        BufferedFile.open(@filename, "rb") do |file|
           expect(file.read(BufferedFile::BUFFER_SIZE)).to eql(DATA * (BufferedFile::BUFFER_SIZE / DATA.length))
           expect(file.pos).to eql BufferedFile::BUFFER_SIZE
           expect(file.read(BufferedFile::BUFFER_SIZE)).to eql(DATA * (BufferedFile::BUFFER_SIZE / DATA.length))
@@ -72,7 +72,7 @@ module Cosmos
       end
 
       it "reads greater than the buffer size" do
-        file = BufferedFile.open(@filename, "rb") do |file|
+        BufferedFile.open(@filename, "rb") do |file|
           expect(file.read(BufferedFile::BUFFER_SIZE + 1)).to eql(DATA * (BufferedFile::BUFFER_SIZE / DATA.length) << DATA[0..0])
           expect(file.pos).to eql BufferedFile::BUFFER_SIZE + 1
           expect(file.read(BufferedFile::BUFFER_SIZE + 1)).to eql((DATA * (BufferedFile::BUFFER_SIZE / DATA.length))[1..-1])
@@ -82,7 +82,7 @@ module Cosmos
       end
 
       it "reads greater than the buffer size after a previous read" do
-        file = BufferedFile.open(@filename, "rb") do |file|
+        BufferedFile.open(@filename, "rb") do |file|
           expect(file.read(DATA.length * 10)).to eql(DATA * 10)
           expect(file.pos).to eql DATA.length * 10
           expect(file.read(BufferedFile::BUFFER_SIZE + 1)).to eql(DATA * ((BufferedFile::BUFFER_SIZE + 10) / DATA.length) << DATA[0])
@@ -93,13 +93,13 @@ module Cosmos
 
     describe "seek" do
       it "raises if given more than 2 arguments" do
-        file = BufferedFile.open(@filename, "rb") do |file|
+        BufferedFile.open(@filename, "rb") do |file|
           expect { file.seek(0, 4, IO::SEEK_CUR) }.to raise_error(ArgumentError)
         end
       end
 
       it "implies SEEK_SET with 1 argument" do
-        file = BufferedFile.open(@filename, "rb") do |file|
+        BufferedFile.open(@filename, "rb") do |file|
           expect(file.read(8)).to eql DATA[0..7]
           expect(file.pos).to eql 8
           file.seek(4, IO::SEEK_CUR)
@@ -110,7 +110,7 @@ module Cosmos
       end
 
       it "has reads still work afterwards" do
-        file = BufferedFile.open(@filename, "rb") do |file|
+        BufferedFile.open(@filename, "rb") do |file|
           expect(file.read(8)).to eql DATA[0..7]
           expect(file.pos).to eql 8
           file.seek(4, IO::SEEK_CUR)

@@ -16,7 +16,7 @@ describe Array do
   describe "inspect" do
     it "limits the number of items to 10" do
       expect(Array.new([1,2,3,4,5,6,7,8,9,10]).inspect).to eql "[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]"
-      expect(Array.new([1,2,3,4,5,6,7,8,9,10,11]).inspect).to match /#<Array:\d+>/
+      expect(Array.new([1,2,3,4,5,6,7,8,9,10,11]).inspect).to match(/#<Array:\d+>/)
     end
   end
 

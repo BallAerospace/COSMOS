@@ -505,7 +505,8 @@ module Cosmos
         begin
           file_text = File.read(path)
         rescue Exception => error
-          raise "Error reading procedure file : #{path}"
+          msg = "Error reading procedure file '#{path}' due to #{error.message}."
+          raise $!, msg, $!.backtrace
         end
 
         if use_file_cache and File.exist?(cache_filename)

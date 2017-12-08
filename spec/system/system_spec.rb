@@ -203,7 +203,7 @@ module Cosmos
        capture_io do |stdout|
          allow(Zip::File).to receive(:open) { raise "Error" }
          System.commands
-         expect(stdout.string).to match "Problem saving configuration"
+         expect(stdout.string).to match("Problem saving configuration")
        end
        File.open(@config_file, 'w') { |file| file.puts "# Comment" }
       end
@@ -263,7 +263,7 @@ module Cosmos
             expect(System.telemetry.target_names).to eql ['INST', 'SYSTEM']
             expect(System.commands.target_names).to eql ['INST', 'SYSTEM']
 
-            expect(stdout.string).to match "Marshal file does not exist"
+            expect(stdout.string).to match("Marshal file does not exist")
 
             # Reset stdout for another go at the processing
             stdout.rewind
@@ -273,7 +273,7 @@ module Cosmos
             expect(System.telemetry.target_names).to eql ['INST', 'SYSTEM']
             expect(System.commands.target_names).to eql ['INST', 'SYSTEM']
 
-            expect(stdout.string).to match "Marshal load success"
+            expect(stdout.string).to match("Marshal load success")
           end
         end
 
@@ -283,7 +283,7 @@ module Cosmos
             # This line actually does the work of reading the configuration
             expect { System.telemetry.target_names }.to raise_error("ProcessError")
 
-            expect(stdout.string).to match "Problem processing"
+            expect(stdout.string).to match("Problem processing")
           end
         end
       end
@@ -312,7 +312,7 @@ module Cosmos
           original_config_name, err = System.load_configuration
           expect(err).to eql nil
           expect(System.telemetry.target_names).to eql %w(OVERRIDE SYSTEM)
-          original_pkts = System.telemetry.packets('SYSTEM').keys
+          System.telemetry.packets('SYSTEM').keys
 
           # Create a new configuration by writing another telemetry file
           File.open(File.join(@config_targets,'SYSTEM','cmd_tlm','test1_tlm.txt'),'w') do |file|
@@ -336,10 +336,9 @@ module Cosmos
             file.puts "  APPEND_ITEM DATA 240 STRING"
           end
           System.instance.process_file(@config_file)
-          names = []
           # Verify the new telemetry packet is there as well as the second one
           expect(System.telemetry.packets('SYSTEM').keys).to include("TEST1", "TEST2")
-          third_config_name = System.configuration_name
+          #third_config_name = System.configuration_name
 
           # Try loading something that doesn't exist
           # It should fail and reload the original configuration
@@ -529,7 +528,7 @@ module Cosmos
           tf.close
           capture_io do |stdout|
             System.instance.process_file(tf.path)
-            expect(stdout.string).to match /WARN: Unknown port name given: MYPORT/
+            expect(stdout.string).to match(/WARN: Unknown port name given: MYPORT/)
           end
           tf.unlink
         end
@@ -566,7 +565,7 @@ module Cosmos
           tf.close
           capture_io do |stdout|
             System.instance.process_file(tf.path)
-            expect(stdout.string).to match /WARN: Unknown path name given: MYPATH/
+            expect(stdout.string).to match(/WARN: Unknown path name given: MYPATH/)
           end
           tf.unlink
         end
@@ -576,7 +575,7 @@ module Cosmos
             tf = Tempfile.new('unittest')
             tf.puts("PATH LOGS C:/mylogs")
             tf.close
-            expect(System.paths['LOGS']).to match 'outputs/logs'
+            expect(System.paths['LOGS']).to match('outputs/logs')
             System.instance.process_file(tf.path)
             expect(System.paths['LOGS']).to eql 'C:/mylogs'
             tf.unlink

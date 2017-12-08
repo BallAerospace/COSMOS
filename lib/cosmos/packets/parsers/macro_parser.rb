@@ -11,7 +11,11 @@
 require 'ostruct'
 
 module Cosmos
+  # Parses a macro definition in a command or telemetry configuration file.
+  # Note: Using ERB to define multiple items is now the preferred solution.
   class MacroParser
+    @macro = nil
+
     # Adds a new item to the Macro
     def self.new_item
       return unless @macro
@@ -113,6 +117,5 @@ module Cosmos
         @macro.format_order = 'ds'
       end
     end
-
   end
-end # module Cosmos
+end

@@ -364,7 +364,7 @@ module Cosmos
           expect(ConfigParser.handle_defined_constants("MIN", :UINT, val)).to eql 0
           expect(ConfigParser.handle_defined_constants("MAX", :UINT, val)).to eql (2**val - 1)
           # Signed
-          expect(ConfigParser.handle_defined_constants("MIN", :INT, val)).to eql -((2**val) / 2)
+          expect(ConfigParser.handle_defined_constants("MIN", :INT, val)).to eql (-(2**val) / 2)
           expect(ConfigParser.handle_defined_constants("MAX", :INT, val)).to eql ((2**val) / 2 - 1)
         end
         [8,16,32,64].each do |val|
@@ -372,16 +372,16 @@ module Cosmos
           expect(ConfigParser.handle_defined_constants("MIN_UINT#{val}")).to eql 0
           expect(ConfigParser.handle_defined_constants("MAX_UINT#{val}")).to eql (2**val - 1)
           # Signed
-          expect(ConfigParser.handle_defined_constants("MIN_INT#{val}")).to eql -((2**val) / 2)
+          expect(ConfigParser.handle_defined_constants("MIN_INT#{val}")).to eql (-(2**val) / 2)
           expect(ConfigParser.handle_defined_constants("MAX_INT#{val}")).to eql ((2**val) / 2 - 1)
         end
         # Float
         expect(ConfigParser.handle_defined_constants("MIN_FLOAT32")).to be <= -3.4 * 10**38
         expect(ConfigParser.handle_defined_constants("MAX_FLOAT32")).to be >= 3.4 * 10**38
-        expect(ConfigParser.handle_defined_constants("MIN_FLOAT64")).to eql -Float::MAX
+        expect(ConfigParser.handle_defined_constants("MIN_FLOAT64")).to eql (-Float::MAX)
         expect(ConfigParser.handle_defined_constants("MAX_FLOAT64")).to eql Float::MAX
         expect(ConfigParser.handle_defined_constants("POS_INFINITY")).to eql Float::INFINITY
-        expect(ConfigParser.handle_defined_constants("NEG_INFINITY")).to eql -Float::INFINITY
+        expect(ConfigParser.handle_defined_constants("NEG_INFINITY")).to eql (-Float::INFINITY)
       end
 
       it "complains about undefined strings" do

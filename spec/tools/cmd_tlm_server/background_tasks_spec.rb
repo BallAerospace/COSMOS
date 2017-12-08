@@ -56,22 +56,22 @@ module Cosmos
           sleep 0.2
           expect(running_threads.length).to eql(3)
           expect(bt.instance_variable_get("@threads").compact.length).to eq 2
-          expect(stdout.string).to match "BG0 START"
-          expect(stdout.string).to match "BG2 START"
+          expect(stdout.string).to match("BG0 START")
+          expect(stdout.string).to match("BG2 START")
 
           bt.start(1)
           sleep 0.1
           expect(running_threads.length).to eql(4)
           expect(bt.instance_variable_get("@threads").compact.length).to eq 3
-          expect(stdout.string).to match "BG1 START"
+          expect(stdout.string).to match("BG1 START")
 
           bt.stop_all
           sleep 0.2
           expect(running_threads.length).to eql(1)
           expect(bt.instance_variable_get("@threads").compact.length).to eq 0
-          expect(stdout.string).to match "BG0 STOP"
-          expect(stdout.string).to match "BG1 STOP"
-          expect(stdout.string).to match "BG2 STOP"
+          expect(stdout.string).to match("BG0 STOP")
+          expect(stdout.string).to match("BG1 STOP")
+          expect(stdout.string).to match("BG2 STOP")
         end
         tf.unlink
       end
@@ -97,54 +97,54 @@ module Cosmos
           expect(running_threads.length).to eql(2)
           expect(bt.instance_variable_get("@threads")[2].alive?).to eq true
           expect(bt.instance_variable_get("@threads").compact.length).to eq 1
-          expect(stdout.string).to match "BG2 START"
+          expect(stdout.string).to match("BG2 START")
 
           bt.start(1)
           sleep 0.1
           expect(running_threads.length).to eql(3)
           expect(bt.instance_variable_get("@threads")[1].alive?).to eq true
           expect(bt.instance_variable_get("@threads").compact.length).to eq 2
-          expect(stdout.string).to match "BG1 START"
+          expect(stdout.string).to match("BG1 START")
 
           bt.start(0)
           sleep 0.1
           expect(running_threads.length).to eql(4)
           expect(bt.instance_variable_get("@threads")[0].alive?).to eq true
           expect(bt.instance_variable_get("@threads").compact.length).to eq 3
-          expect(stdout.string).to match "BG0 START"
+          expect(stdout.string).to match("BG0 START")
 
           bt.start(2) # Should do nothing since the task is already started
           sleep 0.1
           expect(running_threads.length).to eql(4)
           expect(bt.instance_variable_get("@threads").compact.length).to eq 3
-          expect(stdout.string).to match "BG0 START" # No change
+          expect(stdout.string).to match("BG0 START") # No change
 
           bt.stop(1)
           sleep 0.2
           expect(running_threads.length).to eql(3)
           expect(bt.instance_variable_get("@threads")[1]).to be_nil
           expect(bt.instance_variable_get("@threads").compact.length).to eq 2
-          expect(stdout.string).to match "BG1 STOP"
+          expect(stdout.string).to match("BG1 STOP")
 
           bt.stop(0)
           sleep 0.2
           expect(running_threads.length).to eql(2)
           expect(bt.instance_variable_get("@threads")[0]).to be_nil
           expect(bt.instance_variable_get("@threads").compact.length).to eq 1
-          expect(stdout.string).to match "BG0 STOP"
+          expect(stdout.string).to match("BG0 STOP")
 
           bt.stop(2)
           sleep 0.2
           expect(running_threads.length).to eql(1)
           expect(bt.instance_variable_get("@threads")[2]).to be_nil
           expect(bt.instance_variable_get("@threads").compact.length).to eq 0
-          expect(stdout.string).to match "BG2 STOP"
+          expect(stdout.string).to match("BG2 STOP")
 
           bt.stop(0) # Should be safe to stop something already stopped
           sleep 0.2
           expect(running_threads.length).to eql(1)
           expect(bt.instance_variable_get("@threads").compact.length).to eq 0
-          expect(stdout.string).to match "BG2 STOP" # No change
+          expect(stdout.string).to match("BG2 STOP") # No change
 
           expect { bt.stop(3) }.to raise_error(/No task at index 3/)
         end
@@ -174,7 +174,7 @@ module Cosmos
           expect(running_threads.length).to eql(1)
           expect(bt.instance_variable_get("@threads").length).to eq 0
 
-          expect(stdout.string).to match "unexpectedly died"
+          expect(stdout.string).to match("unexpectedly died")
         end
         tf.unlink
       end

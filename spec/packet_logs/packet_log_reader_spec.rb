@@ -157,10 +157,10 @@ module Cosmos
         end
 
         # Load the original configuration
-        original_config_name, err = System.load_configuration
+        _, err = System.load_configuration
         expect(err).to eql nil
         expect(System.telemetry.target_names).to eql %w(OVERRIDE SYSTEM)
-        original_pkts = System.telemetry.packets('SYSTEM').keys
+        System.telemetry.packets('SYSTEM').keys
 
         # Create a new configuration by writing another telemetry file
         File.open(File.join(@config_targets,'SYSTEM','cmd_tlm','test1_tlm.txt'),'w') do |file|

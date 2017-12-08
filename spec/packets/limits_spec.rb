@@ -272,7 +272,7 @@ module Cosmos
       end
 
       it "enables limits for an item" do
-        pkt = @tlm.packet("TGT1","PKT1")
+        @tlm.packet("TGT1","PKT1")
         expect(@limits.enabled?("TGT1","PKT1","ITEM5")).to be false
         @limits.enable("TGT1","PKT1","ITEM5")
         expect(@limits.enabled?("TGT1","PKT1","ITEM5")).to be true
@@ -293,7 +293,7 @@ module Cosmos
       end
 
       it "disables limits for an item" do
-        pkt = @tlm.packet("TGT1","PKT1")
+        @tlm.packet("TGT1","PKT1")
         @limits.enable("TGT1","PKT1","ITEM1")
         expect(@limits.enabled?("TGT1","PKT1","ITEM1")).to be true
         @limits.disable("TGT1","PKT1","ITEM1")
