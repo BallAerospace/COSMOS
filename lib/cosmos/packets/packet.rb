@@ -14,13 +14,11 @@ require 'cosmos/packets/packet_item'
 require 'cosmos/ext/packet' if RUBY_ENGINE == 'ruby' and !ENV['COSMOS_NO_EXT']
 
 module Cosmos
-
   # Adds features common to all COSMOS packets of data to the Structure class.
   # This includes the additional attributes listed below. The primary behavior
   # Packet adds is the ability to apply formatting to PacketItem values as well
   # as managing PacketItem's limit states.
   class Packet < Structure
-
     RESERVED_ITEM_NAMES = ['RECEIVED_TIMESECONDS'.freeze, 'RECEIVED_TIMEFORMATTED'.freeze, 'RECEIVED_COUNT'.freeze]
 
     # @return [String] Name of the target this packet is associated with
@@ -339,9 +337,7 @@ module Cosmos
       else
         next_offset = nil
         if item.bit_offset > 0
-          # Handle little-endian bit fields
-          byte_aligned = ((item.bit_offset % 8) == 0)
-          if item.endianness == :LITTLE_ENDIAN and (item.data_type == :INT or item.data_type == :UINT) and !(byte_aligned and (item.bit_size == 8 or item.bit_size == 16 or item.bit_size == 32 or item.bit_size == 64))
+          if item.little_endian_bit_field?
             # Bit offset always refers to the most significant bit of a bitfield
             bits_remaining_in_last_byte = 8 - (item.bit_offset % 8)
             if item.bit_size > bits_remaining_in_last_byte
@@ -988,7 +984,5 @@ module Cosmos
       end
       item
     end
-
-  end # class Packet
-
-end # module Cosmos
+  end
+end

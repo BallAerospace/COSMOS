@@ -12,7 +12,6 @@ require 'cosmos'
 require 'cosmos/tools/tlm_grapher/data_objects/data_object'
 
 module Cosmos
-
   # Represents a data object on a line graph
   # Designed for use as a base class for custom data objects
   class LinegraphDataObject < DataObject
@@ -170,7 +169,5 @@ module Cosmos
       end
       prune_index
     end
-
-  end # class LinegraphDataObject
-
-end # module Cosmos
+  end
+end

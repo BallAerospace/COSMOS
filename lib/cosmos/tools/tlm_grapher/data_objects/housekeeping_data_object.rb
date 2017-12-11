@@ -12,7 +12,6 @@ require 'cosmos'
 require 'cosmos/tools/tlm_grapher/data_objects/linegraph_data_object'
 
 module Cosmos
-
   # Represents a data object on a line graph for a housekeeping telemetry item
   class HousekeepingDataObject < LinegraphDataObject
 
@@ -174,11 +173,8 @@ module Cosmos
           y_value = y_value[@item_array_index]
         end
         # Bail on the values if they are NaN or nil as we can't graph them
-        return if x_value.nil? || y_value.nil? ||
-          (x_value.respond_to?(:nan?) && x_value.nan?) ||
-          (y_value.respond_to?(:nan?) && y_value.nan?) ||
-          (x_value.respond_to?(:infinite?) && x_value.infinite?) ||
-          (y_value.respond_to?(:infinite?) && y_value.infinite?)
+        return if invalid_value?(x_value) || invalid_value?(y_value)
+
         @formatted_x_values << packet.read(@formatted_time_item_name) if @formatted_time_item_name
 
         upper_index  = nil
@@ -416,7 +412,5 @@ module Cosmos
       end
       prune_index
     end
-
-  end # class HousekeepingDataObject
-
-end # module Cosmos
+  end
+end
