@@ -161,8 +161,7 @@ module Cosmos
     end
 
     # Shutdowns the listener threads for both the read and write ports as well
-    # as any client connections. As a part of shutting down client connections,
-    # the {Protocol#disconnect} method is called.
+    # as any client connections.
     def disconnect
       @cancel_threads = true
       @read_queue << nil if @read_queue

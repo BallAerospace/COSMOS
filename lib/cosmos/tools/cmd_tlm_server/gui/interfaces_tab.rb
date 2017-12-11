@@ -13,7 +13,6 @@ require 'cosmos/gui/qt'
 require 'cosmos/gui/dialogs/interface_raw_dialog'
 
 module Cosmos
-
   # Implements the interfaces and routers tabs in the Command and Telemetry Server GUI
   class InterfacesTab
     INTERFACES = 'Interfaces'
@@ -39,22 +38,16 @@ module Cosmos
     end
 
     # Create the interfaces tab and add it to the tab_widget
-    #
-    # @param tab_widget [Qt::TabWidget] The tab widget to add the tab to
     def populate_interfaces
       populate(CmdTlmServer.interfaces)
     end
 
     # Create the routers tab and add it to the tab_widget
-    #
-    # @param tab_widget [Qt::TabWidget] The tab widget to add the tab to
     def populate_routers
       populate(CmdTlmServer.routers)
     end
 
     # Update the interfaces or routers tab
-    #
-    # @param name [String] Must be Interfaces or Routers
     def update
       if @name == ROUTERS
         interfaces = CmdTlmServer.routers
@@ -219,6 +212,5 @@ module Cosmos
       state.setTextAlignment(Qt::AlignCenter)
       state
     end
-
   end
-end # module Cosmos
+end

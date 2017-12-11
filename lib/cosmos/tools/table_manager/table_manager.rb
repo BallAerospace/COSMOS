@@ -357,10 +357,6 @@ module Cosmos
         @table_commit = Qt::Action.new(tr('Commit to Existing &File'), self)
         @table_commit.statusTip = tr('Incorporate the current table data into a binary file which already contains the table')
         @table_commit.connect(SIGNAL('triggered()')) { table_commit() }
-
-        #@table_update = Qt::Action.new(tr('&Update Definition'), self)
-        #@table_update.statusTip = tr('Change the defaults in the definition file to the displayed table data')
-        #@table_update.connect(SIGNAL('triggered()')) { table_update() }
       end
     end
 
@@ -392,7 +388,6 @@ module Cosmos
         table_menu.addSeparator()
         table_menu.addAction(@table_save)
         table_menu.addAction(@table_commit)
-        #table_menu.addAction(@table_update)
       end
 
       # Help Menu

@@ -487,7 +487,7 @@ module Cosmos
 
     # Resets the System's internal state to defaults.
     #
-    # @params [String] Path to system.txt config file to process. Defaults to config/system/system.txt
+    # @param filename [String] Path to system.txt config file to process. Defaults to config/system/system.txt
     def reset_variables(filename = nil)
       @targets = {}
       @targets['UNKNOWN'] = Target.new('UNKNOWN')

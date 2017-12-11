@@ -29,7 +29,6 @@ module Cosmos
     end
 
     # Create the status tab and add it to the tab_widget
-    # @param tab_widget [Qt::TabWidget] The tab widget to add the tab to
     def populate
       reset()
       @widget = Qt::Widget.new
