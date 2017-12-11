@@ -300,14 +300,14 @@ SET "PATH=!COSMOS_INSTALL!\Vendor\Ruby\bin;%RI_DEVKIT%bin;%RI_DEVKIT%mingw\bin;%
 SET RUBYOPT=
 SET RUBYLIB=
 
-call gem install --force rdoc
+call gem install --force rdoc -v 5.1.0
 
 :: install COSMOS gem and dependencies
 echo Installing COSMOS gem !COSMOS_VERSION!...
 if !COSMOS_VERSION!=="LATEST" (
-  call gem install cosmos
+  call gem install cosmos --no-rdoc --no-ri
 ) else (
-  call gem install cosmos -v !COSMOS_VERSION!
+  call gem install cosmos -v !COSMOS_VERSION! --no-rdoc --no-ri
 )
 if errorlevel 1 (
   echo ERROR: Problem installing cosmos gem
