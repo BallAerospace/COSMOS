@@ -13,6 +13,10 @@ require 'cosmos/packets/packet_item'
 module Cosmos
   # Parses a packet item definition and creates a new PacketItem
   class PacketItemParser
+    # This number is a little arbitrary but there are definitely issues at
+    # 1 million and you really shouldn't be doing anything this big anyway
+    BIG_ARRAY_SIZE = 100_000
+
     # @param parser [ConfigParser] Configuration parser
     # @param packet [Packet] The packet the item should be added to
     # @param cmd_or_tlm [String] Whether this is :bn
@@ -93,7 +97,15 @@ module Cosmos
     def get_array_size
       return nil unless (@parser.keyword.include?('ARRAY'))
       index = append? ? 3 : 4
-      Integer(@parser.parameters[index])
+      array_bit_size = Integer(@parser.parameters[index])
+      items = array_bit_size / get_bit_size()
+      if items >= BIG_ARRAY_SIZE
+        Logger.warn("In #{@parser.filename}:#{@parser.line_number} your definition of:")
+        Logger.warn(@parser.line)
+        Logger.warn("creates an array with #{items} elements. This may impact performance! "\
+          "Consider creating a BLOCK if this is binary data.")
+      end
+      array_bit_size
     rescue => err
       raise @parser.error(err, @usage)
     end
