@@ -77,7 +77,7 @@ spec = Gem::Specification.new do |s|
 
   # Runtime Dependencies
   s.add_runtime_dependency 'bundler', '~> 1.16'
-  s.add_runtime_dependency 'rdoc', '>= 5'
+  s.add_runtime_dependency 'rdoc', '>= 4', '< 6'
   s.add_runtime_dependency 'rake', '~> 12.0'
   s.add_runtime_dependency 'json', '~> 2.0'
   s.add_runtime_dependency 'pry', '~> 0.11'
