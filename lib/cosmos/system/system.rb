@@ -848,6 +848,7 @@ module Cosmos
 
     def build_tlm_system_meta
       tlm_meta = Packet.new('SYSTEM', 'META', :BIG_ENDIAN)
+      tlm_meta.define_reserved_items()
       item = tlm_meta.append_item('PKTID', 8, :UINT, nil, :BIG_ENDIAN, :ERROR, nil, nil, nil, 1)
       item.description = 'Packet Id'
       item.meta["READ_ONLY"] = []
