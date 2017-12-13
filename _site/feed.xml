@@ -11,8 +11,8 @@
     <title xml:lang="en">Ball Aerospace COSMOS News</title>
     <atom:link type="application/atom+xml" href="http://cosmosrb/feed.xml" rel="self"/>
     <link>http://cosmosrb.com/</link>
-    <pubDate>Thu, 07 Dec 2017 11:34:10 -0700</pubDate>
-    <lastBuildDate>Thu, 07 Dec 2017 11:34:10 -0700</lastBuildDate>
+    <pubDate>Wed, 13 Dec 2017 10:49:53 -0700</pubDate>
+    <lastBuildDate>Wed, 13 Dec 2017 10:49:53 -0700</lastBuildDate>
     <language>en-US</language>
     <generator>Jekyll v3.5.2</generator>
     <description>The User Interface for Embedded Systems</description>
@@ -24,6 +24,96 @@
       <width>144</width>
       <height>73</height>
     </image>
+    
+    <item>
+      <title>Metadata</title>
+      <link>http://cosmosrb.com/news/2017/12/13/metadata/</link>
+      <pubDate>Wed, 13 Dec 2017 08:00:00 -0700</pubDate>
+      <dc:creator>jmthomas</dc:creator>
+      
+      
+      <category>post</category>
+      
+      <guid isPermaLink="true">http://cosmosrb.com/news/2017/12/13/metadata/</guid>
+      <description>&lt;p&gt;Metadata is data about data, i.e. information describing the data like when it was taken, version information, etc. COSMOS has explicit support for metadata, especially since the &lt;a href=&quot;/news/2017/08/04/cosmos-4-0-0-released/&quot;&gt;4.0.0&lt;/a&gt; release.&lt;/p&gt;
+
+&lt;h3 id=&quot;metadata-overview&quot;&gt;Metadata Overview&lt;/h3&gt;
+
+&lt;p&gt;In versions of COSMOS prior to 4.0.0, metadata could be defined in any target / packet combination. In the COSMOS demo we defined metadata in the META target and DATA packet. You would then explicitly tell COSMOS where this metadata was defined by passing the target and packet name to the tools. Here is a example of an old (pre 4.0.0) cmd_tlm_server.txt configuration file:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;PACKET_LOG_WRITER DEFAULT meta_packet_log_writer.rb META DATA config/data/meta_init.txt
+COLLECT_METADATA META DATA
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Here is an example of a current (post 4.0.0) cmd_tlm_server.txt configuration file:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;PACKET_LOG_WRITER DEFAULT packet_log_writer.rb nil true nil 2000000000 nil false
+COLLECT_METADATA
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;The PACKET_LOG_WRITER and COLLECT_METADATA keywords no longer have to specify where the metadata is stored because COSMOS 4.0.0 standardized the metadata definition in the SYSTEM target and META packet. You’ll notice the old cmd_tlm_server.txt file specified the location of a meta_init.txt file. This file contains the default values to use when initializing the metadata dialog. In post COSMOS 4.0.0 this file is defined in system.txt using the META_INIT keyword like so:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;META_INIT config/data/meta_init.txt
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Note that you do not have to define all the items in your metadata in your meta_init file. Any items not found in meta_init will simply be blank in the dialog. If you try to set any of the COSMOS reserved items (defined below) they will simply be overriden with the COSMOS defined values.&lt;/p&gt;
+
+&lt;p&gt;If you do not define any metadata in your system (you don’t declare the SYSTEM META packet), COSMOS will automatically define the following items:&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;SYSTEM META PKTID&lt;/code&gt; - Always 1 and used to identify the packet&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;SYSTEM META CONFIG&lt;/code&gt; - Configuration name (MD5 checksum)&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;SYSTEM META COSMOS_VERSION&lt;/code&gt; - COSMOS Version (e.g. 4.1.1)&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;SYSTEM META USER_VERSION&lt;/code&gt; - Defined by the USER_VERSION constant. Typically set in &lt;a href=&quot;https://github.com/BallAerospace/COSMOS/blob/master/demo/lib/user_version.rb&quot;&gt;lib/user_version.rb&lt;/a&gt; in your configuration.&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;SYSTEM META RUBY_VERSION&lt;/code&gt; - Ruby Version (e.g. 2.4.2p198)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;These items help identify the telemetry being collected by the currently running instance of the COSMOS Server. In fact, every time COSMOS starts a new log file it adds the SYSTEM META packet to the beginning. This behavior was possible prior to COSMOS 4.0.0 but required using the special meta_packet_log_writer in the cmd_tlm_server.txt definition as shown in the first cmd_tlm_server.txt example.&lt;/p&gt;
+
+&lt;h3 id=&quot;defining-metadata&quot;&gt;Defining Metadata&lt;/h3&gt;
+
+&lt;p&gt;If you want to add your own fields to the COSMOS metadata you must define the standard COSMOS metadata items and then append your new values. For example, the COSMOS demo defines the following in &lt;a href=&quot;https://github.com/BallAerospace/COSMOS/blob/master/demo/config/targets/SYSTEM/cmd_tlm/meta_tlm.txt&quot;&gt;targets/SYSTEM/cmd_tlm/meta_tlm.txt&lt;/a&gt;:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;TELEMETRY SYSTEM META BIG_ENDIAN &quot;System Meta Data Telemetry Packet&quot;
+  APPEND_ID_ITEM PKTID 8 UINT 1 &quot;Packet Id&quot;
+  APPEND_ITEM CONFIG 256 STRING &quot;Configuration Name&quot;
+  APPEND_ITEM COSMOS_VERSION 240 STRING &quot;COSMOS Version&quot;
+    META READ_ONLY
+  APPEND_ITEM USER_VERSION 240 STRING &quot;User Project Version&quot;
+    META READ_ONLY
+  APPEND_ITEM RUBY_VERSION 240 STRING &quot;Ruby Version&quot;
+    META READ_ONLY
+  APPEND_ITEM OPERATOR_NAME 512 STRING &quot;Operator Name&quot;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Here we see the demo defining their own new metadata item called OPERATOR_NAME after the standard COSMOS items. Note that the definition of the standard COSMOS items is important! If you misspell an item, declare the wrong data type, or have the size wrong, COSMOS will warn you that the definition is incorrect and then define the standard set of items as described above. Thus if you’re trying to create additional items and do not see them, make sure you haven’t defined the COSMOS standard items incorrectly. (NOTE: COSMOS 4.1.2 fixed a &lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/690&quot;&gt;bug&lt;/a&gt; in this automatic generation of metadata items)&lt;/p&gt;
+
+&lt;p&gt;You can also see the use of the META READ_ONLY keyword being used in the demo configuration. This means that the metadata dialog which is opened when the COLLECT_METADATA keyword is used will display these items as read only as shown below:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/2017_12_13_metadata.png&quot; alt=&quot;Demo MetaData&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Also note that you can declare metadata items with STATES and they will be displayed as dropdowns in the metadata dialog. For example if you add the following to the SYSTEM META packet:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;APPEND_ITEM UUT 32 UINT &quot;Unit under test&quot;
+  STATE ARTICLE_0 0
+  STATE ARTICLE_1 1
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;You would see this:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/2017_12_13_metadata2.png&quot; alt=&quot;MetaData Dropdown&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Test Runner also has the ability to require the user to acknowledge the metadata dialog. If you add COLLECT_METADATA to the Test Runner &lt;a href=&quot;https://github.com/BallAerospace/COSMOS/blob/master/demo/config/tools/test_runner/test_runner.txt&quot;&gt;configuration file&lt;/a&gt; you will see the metadata dialog upon starting any test. This is useful to force the test operator to think about anything in the metadata that might have changed prior to running the test. In addition, this forces a new telemetry file to be created with this new metadata information (remember each new binary file contains a SYSTEM META packet at the beginning).&lt;/p&gt;
+
+&lt;p&gt;Metadata is a useful way to add information which can’t be determined by the available hardware targets. The OPERATOR_NAME in the demo is an obvious example. Start using metadata to your advantage to help you distinguish your telemetry.&lt;/p&gt;
+
+&lt;p&gt;If you need additional support please contact us at &lt;a href=&quot;mailto:cosmos@ball.com&quot;&gt;cosmos@ball.com&lt;/a&gt;.&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>Ball Aerospace COSMOS 4.1.1 Released</title>
