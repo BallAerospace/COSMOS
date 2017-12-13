@@ -36,4 +36,7 @@ PATH PROCEDURES ./procedures
 
 # DISABLE_DNS
 
+# Initialize the metadata dialog using values from the following file:
+# META_INIT config/data/meta_init.txt
+
 ALLOW_ACCESS ALL

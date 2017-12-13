@@ -7,7 +7,6 @@ TITLE 'COSMOS Command and Telemetry Server - Demo Configuration 2'
 # 2000000000: Create new log after 2 Billion bytes
 # nil: Use the default log directory
 # false: Log synchronously - more efficient
-# config/data/meta_init.txt: Initialize SYSTEM META data from this file
 PACKET_LOG_WRITER DEFAULT packet_log_writer.rb nil true nil 2000000000 nil false
 # PACKET_LOG_WRITER SYSTEMLOG packet_log_writer.rb system
 
@@ -38,3 +37,6 @@ ROUTER INST_ROUTER tcpip_server_interface.rb 3055 3055 10.0 nil LENGTH 32 16 7
   # LOG_RAW
 
 BACKGROUND_TASK example_background_task.rb
+
+# Open the metadata dialog when the server starts
+# COLLECT_METADATA
