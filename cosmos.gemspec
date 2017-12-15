@@ -76,16 +76,16 @@ spec = Gem::Specification.new do |s|
   s.required_ruby_version = '~> 2.2'
 
   # Runtime Dependencies
-  s.add_runtime_dependency 'bundler', '~> 1.16'
-  s.add_runtime_dependency 'rdoc', '>= 4', '< 6'
-  s.add_runtime_dependency 'rake', '~> 12.0'
-  s.add_runtime_dependency 'json', '~> 2.0'
-  s.add_runtime_dependency 'pry', '~> 0.11'
-  s.add_runtime_dependency 'pry-doc', '~> 0.11'
-  s.add_runtime_dependency 'yard', '~> 0.9'
-  s.add_runtime_dependency 'uuidtools', '~> 2.1.0'
+  s.add_runtime_dependency 'bundler', '~> 1.3'
+  s.add_runtime_dependency 'rdoc', '>= 4', '< 6' # qtbindings doesn't parse in 6.0.0
+  s.add_runtime_dependency 'rake', '>= 10.0' # 10.0 released Nov 12, 2012
+  s.add_runtime_dependency 'json', '>= 1.5', '< 3' # 2.0+ works with COSMOS
+  s.add_runtime_dependency 'pry', '~> 0.9'
+  s.add_runtime_dependency 'pry-doc', '~> 0.5'
+  s.add_runtime_dependency 'yard', '~> 0.8'
+  s.add_runtime_dependency 'uuidtools', '~> 2.1'
   s.add_runtime_dependency 'snmp', '~> 1.0'
-  s.add_runtime_dependency 'rubyzip', '~> 1.2.1'
+  s.add_runtime_dependency 'rubyzip', '~> 1.2'
   s.add_runtime_dependency 'nokogiri', '~> 1.6'
   s.add_runtime_dependency 'opengl', '~> 0.10' if RUBY_ENGINE == 'ruby' # MRI Only
   s.add_runtime_dependency 'qtbindings', '~> 4.8.6', '>= 4.8.6.2' if RUBY_ENGINE == 'ruby' # MRI Only
@@ -100,20 +100,20 @@ spec = Gem::Specification.new do |s|
   s.add_runtime_dependency 'stopgap_13632', '~> 1.1.1' if RUBY_ENGINE == 'ruby' and %w(2.2.7 2.2.8 2.3.4 2.4.1).include? RUBY_VERSION  # MRI Only
 
   # Development Dependencies
-  s.add_development_dependency 'diff-lcs', '>= 1.3' if RUBY_ENGINE == 'ruby' # Get latest for MRI
-  s.add_development_dependency 'rspec', '>= 3.5'
-  s.add_development_dependency 'flog', '>= 4.0'
-  s.add_development_dependency 'flay', '>= 2.0'
-  s.add_development_dependency 'reek', '>= 4.0'
-  s.add_development_dependency 'roodi', '>= 4.0'
-  s.add_development_dependency 'guard', '>= 2.0'
-  s.add_development_dependency 'listen', '>= 3.0'
-  s.add_development_dependency 'guard-bundler', '>= 2.0'
-  s.add_development_dependency 'guard-rspec', '>= 4.0'
-  s.add_development_dependency 'simplecov', '>= 0.15'
-  s.add_development_dependency 'codecov', '>= 0.1'
-  s.add_development_dependency 'benchmark-ips', '>= 2.0'
-  s.add_development_dependency 'ruby-prof', '>= 0.16.0' if RUBY_ENGINE == 'ruby' # MRI Only
+  s.add_development_dependency 'diff-lcs', '~> 1.3' if RUBY_ENGINE == 'ruby' # Get latest for MRI
+  s.add_development_dependency 'rspec', '~> 3.5'
+  s.add_development_dependency 'flog', '~> 4.0'
+  s.add_development_dependency 'flay', '~> 2.0'
+  s.add_development_dependency 'reek', '~> 4.0'
+  s.add_development_dependency 'roodi', '~> 4.0'
+  s.add_development_dependency 'guard', '~> 2.0'
+  s.add_development_dependency 'listen', '~> 3.0'
+  s.add_development_dependency 'guard-bundler', '~> 2.0'
+  s.add_development_dependency 'guard-rspec', '~> 4.0'
+  s.add_development_dependency 'simplecov', '~> 0.15'
+  s.add_development_dependency 'codecov', '~> 0.1'
+  s.add_development_dependency 'benchmark-ips', '~> 2.0'
+  s.add_development_dependency 'ruby-prof', '~> 0.16' if RUBY_ENGINE == 'ruby' # MRI Only
 
   s.post_install_message = "Thanks for installing Ball Aerospace COSMOS!\nStart your first project with: cosmos demo demo\n"
 end
