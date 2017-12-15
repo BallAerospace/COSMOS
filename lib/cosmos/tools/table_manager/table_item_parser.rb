@@ -12,11 +12,13 @@ require 'cosmos/packets/packet_config'
 require 'cosmos/packets/packet_item'
 
 module Cosmos
+  # Extends the PacketItemParser to create TableItems for TableManager
   class TableItemParser < PacketItemParser
     # @param parser [ConfigParser] Configuration parser
     # @param table [Table] Table all parsed items should be added to
-    def self.parse(parser, table)
-      parser = TableItemParser.new(parser)
+    # # @param warnings [Array<String>] Array of warning strings from PacketConfig
+    def self.parse(parser, table, warnings)
+      parser = TableItemParser.new(parser, warnings)
       parser.verify_parameters(PacketConfig::COMMAND)
       parser.create_table_item(table)
     end

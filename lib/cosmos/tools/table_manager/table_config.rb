@@ -165,7 +165,7 @@ module Cosmos
     # (see PacketConfig#start_item)
     def start_item(parser)
       finish_item()
-      @current_item = TableItemParser.parse(parser, @current_packet)
+      @current_item = TableItemParser.parse(parser, @current_packet, @warnings)
     end
 
     # If the table is TWO_DIMENSIONAL all currently defined items are
