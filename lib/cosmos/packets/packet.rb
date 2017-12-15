@@ -14,13 +14,11 @@ require 'cosmos/packets/packet_item'
 require 'cosmos/ext/packet' if RUBY_ENGINE == 'ruby' and !ENV['COSMOS_NO_EXT']
 
 module Cosmos
-
   # Adds features common to all COSMOS packets of data to the Structure class.
   # This includes the additional attributes listed below. The primary behavior
   # Packet adds is the ability to apply formatting to PacketItem values as well
   # as managing PacketItem's limit states.
   class Packet < Structure
-
     RESERVED_ITEM_NAMES = ['RECEIVED_TIMESECONDS'.freeze, 'RECEIVED_TIMEFORMATTED'.freeze, 'RECEIVED_COUNT'.freeze]
 
     # @return [String] Name of the target this packet is associated with
@@ -207,8 +205,7 @@ module Cosmos
 
         true
       end
-
-    end
+    end # if RUBY_ENGINE != 'ruby' or ENV['COSMOS_NO_EXT']
 
     # Calculates a unique MD5Sum that changes if the parts of the packet configuration change that could affect
     # the "shape" of the packet.  This value is cached and that packet should not be changed if this method is being used
@@ -673,6 +670,19 @@ module Cosmos
       end
     end
 
+    # Define the reserved items on the current telemetry packet
+    def define_reserved_items
+      item = define_item('RECEIVED_TIMESECONDS', 0, 0, :DERIVED, nil, @default_endianness,
+                         :ERROR, '%0.6f', ReceivedTimeSecondsConversion.new)
+      item.description = 'COSMOS Received Time (UTC, Floating point, Unix epoch)'
+      item = define_item('RECEIVED_TIMEFORMATTED', 0, 0, :DERIVED, nil, @default_endianness,
+                         :ERROR, nil, ReceivedTimeFormattedConversion.new)
+      item.description = 'COSMOS Received Time (Local time zone, Formatted string)'
+      item = define_item('RECEIVED_COUNT', 0, 0, :DERIVED, nil, @default_endianness,
+                         :ERROR, nil, ReceivedCountConversion.new)
+      item.description = 'COSMOS packet received count'
+    end
+
     # Enable limits on an item by name
     #
     # @param name [String] Name of the item to enable limits
@@ -860,7 +870,8 @@ module Cosmos
 
     protected
 
-    # Performs packet specific processing on the packet.  Intended to only be run once for each packet received
+    # Performs packet specific processing on the packet.
+    # Intended to only be run once for each packet received
     def process(buffer = @buffer)
       return unless @processors
       @processors.each do |processor_name, processor|
@@ -988,7 +999,5 @@ module Cosmos
       end
       item
     end
-
-  end # class Packet
-
-end # module Cosmos
+  end
+end

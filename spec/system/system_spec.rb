@@ -94,6 +94,9 @@ module Cosmos
           System.class_variable_set(:@@instance, nil)
           System.new(tf.path)
           tlm = System.telemetry.packet("SYSTEM", "META")
+          expect(tlm.read("RECEIVED_TIMESECONDS")).to_not be_nil
+          expect(tlm.read("RECEIVED_TIMEFORMATTED")).to_not be_nil
+          expect(tlm.read("RECEIVED_COUNT")).to_not be_nil
           expect(tlm.read("PKTID")).to_not be_nil
           expect(tlm.read("CONFIG")).to_not be_nil
           expect(tlm.read("COSMOS_VERSION")).to_not be_nil

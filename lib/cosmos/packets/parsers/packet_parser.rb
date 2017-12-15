@@ -111,14 +111,7 @@ module Cosmos
     def self.finish_create_telemetry(packet, telemetry, latest_data, warnings)
       warning = PacketParser.check_for_duplicate('Telemetry', telemetry, packet)
       warnings << warning if warning
-
-      # Add received time packet items
-      item = packet.define_item('RECEIVED_TIMESECONDS', 0, 0, :DERIVED, nil, packet.default_endianness, :ERROR, '%0.6f', ReceivedTimeSecondsConversion.new)
-      item.description = 'COSMOS Received Time (UTC, Floating point, Unix epoch)'
-      item = packet.define_item('RECEIVED_TIMEFORMATTED', 0, 0, :DERIVED, nil, packet.default_endianness, :ERROR, nil, ReceivedTimeFormattedConversion.new)
-      item.description = 'COSMOS Received Time (Local time zone, Formatted string)'
-      item = packet.define_item('RECEIVED_COUNT', 0, 0, :DERIVED, nil, packet.default_endianness, :ERROR, nil, ReceivedCountConversion.new)
-      item.description = 'COSMOS packet received count'
+      packet.define_reserved_items()
 
       unless telemetry[packet.target_name]
         telemetry[packet.target_name] = {}
@@ -128,4 +121,4 @@ module Cosmos
     end
 
   end
-end # module Cosmos
+end
