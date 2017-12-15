@@ -41,3 +41,6 @@ ALLOW_ACCESS ALL
 
 # DISABLE_DNS
 # STALENESS_SECONDS 30
+
+# Initialize the metadata dialog using values from the following file:
+# META_INIT config/data/meta_init.txt
