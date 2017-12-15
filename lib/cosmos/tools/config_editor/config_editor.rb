@@ -615,46 +615,6 @@ module Cosmos
       end
     end
 
-    def enable_menu_items
-      # Enable File Menu Items
-      @file_new.setEnabled(true)
-      @file_open.setEnabled(true)
-      @file_close.setEnabled(true)
-      @file_reload.setEnabled(true)
-      @file_save.setEnabled(true)
-      @file_save_as.setEnabled(true)
-      @file_options.setEnabled(true)
-
-      # Enable Edit Menu Items
-      @edit_undo.setEnabled(true)
-      @edit_redo.setEnabled(true)
-      @edit_cut.setEnabled(true)
-      @edit_copy.setEnabled(true)
-      @edit_paste.setEnabled(true)
-      @edit_select_all.setEnabled(true)
-      @edit_comment.setEnabled(true)
-    end
-
-    def disable_menu_items
-      # Disable File Menu Items
-      @file_new.setEnabled(false)
-      @file_open.setEnabled(false)
-      @file_close.setEnabled(false)
-      @file_reload.setEnabled(false)
-      @file_save.setEnabled(false)
-      @file_save_as.setEnabled(false)
-      @file_options.setEnabled(false)
-
-      # Disable Edit Menu Items
-      @edit_undo.setEnabled(false)
-      @edit_redo.setEnabled(false)
-      @edit_cut.setEnabled(false)
-      @edit_copy.setEnabled(false)
-      @edit_paste.setEnabled(false)
-      @edit_select_all.setEnabled(false)
-      @edit_comment.setEnabled(false)
-    end
-
     # Handle the user changing tabs
     def handle_tab_change(index)
       update_title()
