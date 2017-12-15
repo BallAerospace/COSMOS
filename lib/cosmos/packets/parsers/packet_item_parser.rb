@@ -19,16 +19,19 @@ module Cosmos
 
     # @param parser [ConfigParser] Configuration parser
     # @param packet [Packet] The packet the item should be added to
-    # @param cmd_or_tlm [String] Whether this is :bn
-    def self.parse(parser, packet, cmd_or_tlm)
-      parser = PacketItemParser.new(parser)
+    # @param cmd_or_tlm [String] Whether this is a command or telemetry packet
+    # @param warnings [Array<String>] Array of warning strings from PacketConfig
+    def self.parse(parser, packet, cmd_or_tlm, warnings)
+      parser = PacketItemParser.new(parser, warnings)
       parser.verify_parameters(cmd_or_tlm)
       parser.create_packet_item(packet, cmd_or_tlm)
     end
 
     # @param parser [ConfigParser] Configuration parser
-    def initialize(parser)
+    # @param warnings [Array<String>] Array of warning strings from PacketConfig
+    def initialize(parser, warnings)
       @parser = parser
+      @warnings = warnings
       @usage = get_usage()
     end
 
@@ -100,10 +103,12 @@ module Cosmos
       array_bit_size = Integer(@parser.parameters[index])
       items = array_bit_size / get_bit_size()
       if items >= BIG_ARRAY_SIZE
-        Logger.warn("In #{@parser.filename}:#{@parser.line_number} your definition of:")
-        Logger.warn(@parser.line)
-        Logger.warn("creates an array with #{items} elements. This may impact performance! "\
-          "Consider creating a BLOCK if this is binary data.")
+        warning = "Performance Issue!\n"\
+          "In #{@parser.filename}:#{@parser.line_number} your definition of:\n"\
+          "#{@parser.line}\n"\
+          "creates an array with #{items} elements. Consider creating a BLOCK if this is binary data."
+        Logger.warn(warning)
+        @warnings << warning
       end
       array_bit_size
     rescue => err
