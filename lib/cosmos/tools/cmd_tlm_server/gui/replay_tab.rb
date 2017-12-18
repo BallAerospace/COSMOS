@@ -15,10 +15,8 @@ require 'cosmos/gui/dialogs/packet_log_dialog'
 require 'cosmos/gui/dialogs/progress_dialog'
 
 module Cosmos
-
   # Implements the replay tab in the Command and Telemetry Server GUI
   class ReplayTab
-
     attr_accessor :widget
 
     def initialize(tab_widget)
@@ -39,8 +37,6 @@ module Cosmos
     end
 
     # Create the targets tab and add it to the tab_widget
-    #
-    # @param tab_widget [Qt::TabWidget] The tab widget to add the tab to
     def populate
       return if @widget
 
@@ -237,6 +233,5 @@ module Cosmos
         CmdTlmServer.replay_backend.select_file(packet_log_dialog.filenames[0], packet_log_dialog.packet_log_reader)
       end
     end
-
   end
-end # module Cosmos
+end

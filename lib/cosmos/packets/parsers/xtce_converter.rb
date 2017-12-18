@@ -260,6 +260,20 @@ module Cosmos
       end
     end
 
+    def to_xtce_limits(item, xml)
+      return unless item.limits && item.limits.values
+      item.limits.values.each do |limits_set, limits_values|
+        if limits_set == :DEFAULT
+          xml['xtce'].DefaultAlarm do
+            xml['xtce'].StaticAlarmRanges do
+              xml['xtce'].WarningRange(:minInclusive => limits_values[1], :maxInclusive => limits_values[2])
+              xml['xtce'].CriticalRange(:minInclusive => limits_values[0], :maxInclusive => limits_values[3])
+            end
+          end
+        end
+      end
+    end
+
     def to_xtce_int(item, param_or_arg, xml)
       attrs = { :name => (item.name + '_Type') }
       attrs[:initialValue] = item.default if item.default and !item.array_size
@@ -302,20 +316,7 @@ module Cosmos
           else
             xml['xtce'].IntegerDataEncoding(:sizeInBits => item.bit_size, :encoding => encoding)
           end
-          if item.limits
-            if item.limits.values
-              item.limits.values.each do |limits_set, limits_values|
-                if limits_set == :DEFAULT
-                  xml['xtce'].DefaultAlarm do
-                    xml['xtce'].StaticAlarmRanges do
-                      xml['xtce'].WarningRange(:minInclusive => limits_values[1], :maxInclusive => limits_values[2])
-                      xml['xtce'].CriticalRange(:minInclusive => limits_values[0], :maxInclusive => limits_values[3])
-                    end
-                  end
-                end
-              end
-            end
-          end
+          to_xtce_limits(item, xml)
           if item.range
             xml['xtce'].ValidRange(:minInclusive => item.range.first, :maxInclusive => item.range.last)
           end
@@ -337,22 +338,7 @@ module Cosmos
         else
           xml['xtce'].FloatDataEncoding(:sizeInBits => item.bit_size, :encoding => 'IEEE754_1985')
         end
-
-        if item.limits
-          if item.limits.values
-            item.limits.values.each do |limits_set, limits_values|
-              if limits_set == :DEFAULT
-                xml['xtce'].DefaultAlarm do
-                  xml['xtce'].StaticAlarmRanges do
-                    xml['xtce'].WarningRange(:minInclusive => limits_values[1], :maxInclusive => limits_values[2])
-                    xml['xtce'].CriticalRange(:minInclusive => limits_values[0], :maxInclusive => limits_values[3])
-                  end
-                end
-              end
-            end
-          end
-        end
-
+        to_xtce_limits(item, xml)
         if item.range
           xml['xtce'].ValidRange(:minInclusive => item.range.first, :maxInclusive => item.range.last)
         end

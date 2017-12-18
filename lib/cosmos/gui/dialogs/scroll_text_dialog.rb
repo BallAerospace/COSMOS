@@ -20,9 +20,6 @@ module Cosmos
     # @param parent [Qt::Widget] Parent of this dialog
     # @param title [String] Dialog title
     # @param text [String] Text to display
-    # @param parent [Qt::Widget] Parent of this dialog
-    # @param title [String] Dialog title
-    # @param text [String] Text to display
     def initialize(parent, title, text)
       super(parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint)
       setWindowTitle(title)

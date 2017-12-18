@@ -13,7 +13,6 @@ require 'cosmos/gui/qt'
 require 'cosmos/gui/dialogs/cmd_tlm_raw_dialog'
 
 module Cosmos
-
   # Implements the packets tab in the Command and Telemetry Server GUI
   class PacketsTab
     COMMANDS = "Commands"
@@ -157,6 +156,5 @@ module Cosmos
         table.setItem(row, 4, table_widget)
       end
     end
-
   end
-end # module Cosmos
+end

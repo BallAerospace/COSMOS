@@ -12,7 +12,6 @@ require 'cosmos'
 require 'cosmos/tools/tlm_grapher/data_objects/data_object'
 
 module Cosmos
-
   # Represents a data object on an XyGraph for two telemetry items
   class XyDataObject < DataObject
 
@@ -193,11 +192,7 @@ module Cosmos
         end
 
         # Bail on the values if they are NaN or nil as we can't graph them
-        return if x_value.nil? || y_value.nil? ||
-          (x_value.respond_to?(:nan?) && x_value.nan?) ||
-          (y_value.respond_to?(:nan?) && y_value.nan?) ||
-          (x_value.respond_to?(:infinite?) && x_value.infinite?) ||
-          (y_value.respond_to?(:infinite?) && y_value.infinite?)
+        return if invalid_value?(x_value) || invalid_value?(y_value)
 
         time_value = packet.read(@time_item_name) if @time_item_name
 
@@ -319,7 +314,5 @@ module Cosmos
       end
       prune_index
     end
-
-  end # class XyDataObject
-
-end # module Cosmos
+  end
+end

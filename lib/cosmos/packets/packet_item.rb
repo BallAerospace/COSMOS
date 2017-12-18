@@ -348,30 +348,8 @@ module Cosmos
       else # :COMMAND
         if self.array_size
           config << "  ARRAY_PARAMETER #{self.name.to_s.quote_if_necessary} #{self.bit_offset} #{self.bit_size} #{self.data_type} #{self.array_size} \"#{self.description.to_s.gsub("\"", "'")}\""
-        elsif self.id_value
-          if self.data_type == :BLOCK or self.data_type == :STRING
-            unless self.id_value.is_printable?
-              id_value = "0x" + self.id_value.simple_formatted
-            else
-              id_value = "\"#{self.id_value}\""
-            end
-            config << "  ID_PARAMETER #{self.name.to_s.quote_if_necessary} #{self.bit_offset} #{self.bit_size} #{self.data_type} #{id_value} \"#{self.description.to_s.gsub("\"", "'")}\""
-          else
-            first, last = calculate_range()
-            config << "  ID_PARAMETER #{self.name.to_s.quote_if_necessary} #{self.bit_offset} #{self.bit_size} #{self.data_type} #{first} #{last} #{self.id_value} \"#{self.description.to_s.gsub("\"", "'")}\""
-          end
         else
-          if self.data_type == :BLOCK or self.data_type == :STRING
-            unless self.default.is_printable?
-              default = "0x" + self.default.simple_formatted
-            else
-              default = "\"#{self.default}\""
-            end
-            config << "  PARAMETER #{self.name.to_s.quote_if_necessary} #{self.bit_offset} #{self.bit_size} #{self.data_type} #{default} \"#{self.description.to_s.gsub("\"", "'")}\""
-          else
-            first, last = calculate_range()
-            config << "  PARAMETER #{self.name.to_s.quote_if_necessary} #{self.bit_offset} #{self.bit_size} #{self.data_type} #{first} #{last} #{self.default} \"#{self.description.to_s.gsub("\"", "'")}\""
-          end
+          config << parameter_config()
         end
       end
       config << " #{self.endianness}" if self.endianness != default_endianness
@@ -422,6 +400,30 @@ module Cosmos
     end
 
     protected
+
+    def parameter_config
+      if @id_value
+        value = @id_value
+        config = "  ID_PARAMETER "
+      else
+        value = @default
+        config = "  PARAMETER "
+      end
+      config << "#{@name.to_s.quote_if_necessary} #{@bit_offset} #{@bit_size} #{@data_type} "
+
+      if @data_type == :BLOCK || @data_type == :STRING
+        unless value.is_printable?
+          val_string = "0x" + value.simple_formatted
+        else
+          val_string = "\"#{value}\""
+        end
+      else
+        first, last = calculate_range()
+        config << "#{first} #{last} "
+        val_string = value.to_s
+      end
+      config << "#{val_string} \"#{@description.to_s.gsub("\"", "'")}\""
+    end
 
     # Convert a value into the given data type
     def convert(value, data_type)

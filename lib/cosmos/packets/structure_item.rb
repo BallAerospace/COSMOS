@@ -287,6 +287,16 @@ module Cosmos
       hash
     end
 
+    def little_endian_bit_field?
+      return false unless @endianness == :LITTLE_ENDIAN
+      return false unless (@data_type == :INT || @data_type == :UINT)
+      # If we're not byte aligned we're a bit field
+      return true unless (@bit_offset % 8) == 0
+      # If we don't have an even number of bytes we're a bit field
+      return true unless even_byte_multiple()
+      false
+    end
+
     protected
 
     # Verifies overall integrity of the StructureItem by checking for correct
@@ -302,11 +312,8 @@ module Cosmos
           raise ArgumentError, "#{@name}: Can't define an item with bit_size #{@bit_size} greater than negative bit_offset #{@bit_offset}"
         end
       else
-        # Check for byte alignment and byte multiple
-        byte_aligned = ((@bit_offset % 8) == 0)
-
-        # Verify little-endian bit fields
-        if @endianness == :LITTLE_ENDIAN and (@data_type == :INT or @data_type == :UINT) and !(byte_aligned and (@bit_size == 8 or @bit_size == 16 or @bit_size == 32 or @bit_size == 64))
+        # Verify bounds on little-endian bit fields
+        if little_endian_bit_field?()
           # Bitoffset always refers to the most significant bit of a bitfield
           num_bytes = (((@bit_offset % 8) + @bit_size - 1) / 8) + 1
           upper_bound = @bit_offset / 8
@@ -319,6 +326,13 @@ module Cosmos
       end
     end
 
-  end # class StructureItem
-
-end # module Cosmos
+    def even_byte_multiple
+      case @bit_size
+      when 8, 16, 32, 64
+        true
+      else
+        false
+      end
+    end
+  end
+end

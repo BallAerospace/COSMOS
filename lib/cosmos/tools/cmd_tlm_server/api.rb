@@ -1250,7 +1250,6 @@ module Cosmos
 
     # Get the list of packet loggers.
     #
-    # @param packet_logger_name [String] Name of the packet logger
     # @return [<Array<String>] Array containing the names of all packet loggers
     def get_packet_loggers
       return CmdTlmServer.packet_logging.all.keys

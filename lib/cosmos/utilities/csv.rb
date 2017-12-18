@@ -25,6 +25,7 @@ module Cosmos
       @archive = nil
       @archive_file = ""
       Object::CSV.read(input_file).each do |line|
+        next if line[0].strip()[0] == '#' # Ignore Ruby comment lines
         @hash[line[0]] = line[1..-1]
       end
     end

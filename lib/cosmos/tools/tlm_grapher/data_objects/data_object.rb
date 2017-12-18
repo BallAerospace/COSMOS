@@ -188,6 +188,14 @@ module Cosmos
       return nil
     end
 
-  end # class DataObject
-
-end # module Cosmos
+    # @return [Boolean] Whether the value is invalid: nil, NaN, or Infinite
+    #   and thus can not be graphed
+    def invalid_value?(value)
+      invalid = false
+      invalid ||= value.nil?
+      invalid ||= (value.respond_to?(:nan?) && value.nan?)
+      invalid ||= (value.respond_to?(:infinite?) && value.infinite?)
+      invalid
+    end
+  end
+end

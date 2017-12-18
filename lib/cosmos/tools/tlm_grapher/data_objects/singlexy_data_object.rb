@@ -12,14 +12,10 @@ require 'cosmos'
 require 'cosmos/tools/tlm_grapher/data_objects/xy_data_object'
 
 module Cosmos
-
   # Represents a data object on an SinglxyGraph for two telemetry items
   class SinglexyDataObject < XyDataObject
-
     def initialize
       super()
     end
-
-  end # class SinglexyDataObject
-
-end # module Cosmos
+  end
+end

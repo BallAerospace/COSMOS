@@ -17,6 +17,7 @@ module Cosmos
     before(:each) do
       @lines = []
       # CSV data can't have extra spaces in array values
+      @lines << "# This is a comment\n"
       @lines << "test,1,2,3\n"
       @lines << "bool1,true,false\n"
       @lines << "bool2,false,true\n"
@@ -61,7 +62,7 @@ module Cosmos
         expect(@csv["test"]).to eq(%w(1 2 3))
       end
 
-      it "returns all keys" do
+      it "returns all keys and ignores comments" do
         expect(@csv.keys).to eq(%w(test bool1 bool2 int float string))
       end
 

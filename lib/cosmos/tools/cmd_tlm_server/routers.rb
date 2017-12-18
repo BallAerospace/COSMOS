@@ -55,7 +55,7 @@ module Cosmos
     # All interfaces defined by the Command/Telemetry configuration are
     # directed to this router to output commands
     #
-    # @param router_name [String] Name of the command router
+    # @param cmd_router_name [String] Name of the command router
     # @param port [Integer] Port to pass to the {TcpipServerInterface}
     def add_cmd_preidentified(cmd_router_name, port)
       cmd_router_name = cmd_router_name.upcase

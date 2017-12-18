@@ -12,7 +12,6 @@ require 'cosmos'
 require 'cosmos/gui/qt'
 
 module Cosmos
-
   # Implements the targets tab in the Command and Telemetry Server GUI
   class TargetsTab
     def initialize(tab_widget)
@@ -30,8 +29,6 @@ module Cosmos
     end
 
     # Create the targets tab and add it to the tab_widget
-    #
-    # @param tab_widget [Qt::TabWidget] The tab widget to add the tab to
     def populate
       reset()
       num_targets = System.targets.length
@@ -92,6 +89,5 @@ module Cosmos
         row += 1
       end
     end
-
   end
-end # module Cosmos
+end

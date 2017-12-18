@@ -96,6 +96,9 @@ module Cosmos
     #     to use the default seed set in the constructor.
     #   @return [Integer] The CRC value
 
+    # Bit reverse the 8 bit value
+    # @param value [Integer]
+    # @return [Integer] Bit reversed value
     def bit_reverse_8(value)
       BIT_REVERSE_TABLE[value & 0xFF]
     end

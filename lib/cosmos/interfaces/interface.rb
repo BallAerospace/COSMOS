@@ -394,9 +394,8 @@ module Cosmos
     # implement this method and call super to count the raw bytes and allow raw
     # logging.
     #
-    #
     # @param data [String] Raw packet data
-    # @return data [String] The exact data written
+    # @return [String] The exact data written
     def write_interface_base(data)
       @written_raw_data_time = Time.now
       @written_raw_data = data.clone

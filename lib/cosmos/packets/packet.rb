@@ -336,9 +336,7 @@ module Cosmos
       else
         next_offset = nil
         if item.bit_offset > 0
-          # Handle little-endian bit fields
-          byte_aligned = ((item.bit_offset % 8) == 0)
-          if item.endianness == :LITTLE_ENDIAN and (item.data_type == :INT or item.data_type == :UINT) and !(byte_aligned and (item.bit_size == 8 or item.bit_size == 16 or item.bit_size == 32 or item.bit_size == 64))
+          if item.little_endian_bit_field?
             # Bit offset always refers to the most significant bit of a bitfield
             bits_remaining_in_last_byte = 8 - (item.bit_offset % 8)
             if item.bit_size > bits_remaining_in_last_byte
