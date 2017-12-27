@@ -9,6 +9,7 @@
 # attribution addendums as found in the LICENSE.txt
 
 require 'json'
+require 'date'
 
 class Object
   def as_json(options = nil) #:nodoc:
@@ -271,7 +272,7 @@ module Cosmos
       begin
         hash = JSON.parse(response_data, :allow_nan => true, :create_additions => true)
       rescue
-        raise msg
+        raise $!, msg, $!.backtrace
       end
 
       # Verify the jsonrpc version is correct and there is an ID
@@ -286,7 +287,7 @@ module Cosmos
         JsonRpcErrorResponse.from_hash(hash)
       else
         # Neither a result or error key so raise exception
-        raise msg
+        raise $!, msg, $!.backtrace
       end
     end
   end
