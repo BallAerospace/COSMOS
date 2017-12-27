@@ -287,7 +287,7 @@ module Cosmos
         JsonRpcErrorResponse.from_hash(hash)
       else
         # Neither a result or error key so raise exception
-        raise $!, msg, $!.backtrace
+        raise msg
       end
     end
   end
