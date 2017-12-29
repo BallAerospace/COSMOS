@@ -73,11 +73,11 @@ module Cosmos
     instance_attr_reader :additional_md5_files
 
     # Known COSMOS ports
-    KNOWN_PORTS = ['CTS_API', 'TLMVIEWER_API', 'CTS_PREIDENTIFIED', 'CTS_CMD_ROUTER', 'REPLAY_API', 'REPLAY_PREIDENTIFIED', 'REPLAY_CMD_ROUTER']
+    KNOWN_PORTS = ['CTS_API', 'TLMVIEWER_API', 'CTS_PREIDENTIFIED', 'CTS_CMD_ROUTER', 'REPLAY_API', 'REPLAY_PREIDENTIFIED', 'REPLAY_CMD_ROUTER', 'DART_STREAM', 'DART_DECOM']
     # Known COSMOS hosts
-    KNOWN_HOSTS = ['CTS_API', 'TLMVIEWER_API', 'CTS_PREIDENTIFIED', 'CTS_CMD_ROUTER', 'REPLAY_API', 'REPLAY_PREIDENTIFIED', 'REPLAY_CMD_ROUTER']
+    KNOWN_HOSTS = ['CTS_API', 'TLMVIEWER_API', 'CTS_PREIDENTIFIED', 'CTS_CMD_ROUTER', 'REPLAY_API', 'REPLAY_PREIDENTIFIED', 'REPLAY_CMD_ROUTER', 'DART_STREAM', 'DART_DECOM']
     # Known COSMOS paths
-    KNOWN_PATHS = ['LOGS', 'TMP', 'SAVED_CONFIG', 'TABLES', 'HANDBOOKS', 'PROCEDURES', 'SEQUENCES']
+    KNOWN_PATHS = ['LOGS', 'TMP', 'SAVED_CONFIG', 'TABLES', 'HANDBOOKS', 'PROCEDURES', 'SEQUENCES', 'DART_DATA', 'DART_LOGS']
 
     @@instance = nil
     @@instance_mutex = Mutex.new
@@ -429,8 +429,6 @@ module Cosmos
       end # parser.parse_file
     end
 
-
-
     # Load the specified configuration by iterating through the SAVED_CONFIG
     # directory looking for a matching MD5 sum. Updates the internal state so
     # subsequent commands and telemetry methods return the new configuration.
@@ -439,6 +437,11 @@ module Cosmos
     #   configuration. Pass nil to load the default configuration.
     # @return [String, Exception/nil] The actual configuration loaded
     def load_configuration(name = nil)
+      unless @config
+        # Ensure packets have been lazy loaded
+        System.commands
+      end        
+
       if name && @config
         # Make sure they're requesting something other than the current
         # configuration.
@@ -473,8 +476,6 @@ module Cosmos
           end
         end
       else
-        # Ensure packets have been lazy loaded
-        System.commands
         update_config(@initial_config)
       end
       return @config.name, nil
@@ -516,6 +517,8 @@ module Cosmos
       @ports['REPLAY_API'] = 7877
       @ports['REPLAY_PREIDENTIFIED'] = 7879
       @ports['REPLAY_CMD_ROUTER'] = 7880
+      @ports['DART_DECOM'] = 8777
+      @ports['DART_STREAM'] = 8779
 
       @listen_hosts = {}
       @listen_hosts['CTS_API'] = '127.0.0.1'
@@ -527,6 +530,8 @@ module Cosmos
       # Localhost would be more secure but historically these are open to allow for chaining servers by default
       @listen_hosts['REPLAY_PREIDENTIFIED'] = '0.0.0.0'
       @listen_hosts['REPLAY_CMD_ROUTER'] = '0.0.0.0'
+      @listen_hosts['DART_STREAM'] = '0.0.0.0'
+      @listen_hosts['DART_DECOM'] = '0.0.0.0'
 
       @connect_hosts = {}
       @connect_hosts['CTS_API'] = '127.0.0.1'
@@ -536,6 +541,8 @@ module Cosmos
       @connect_hosts['REPLAY_API'] = '127.0.0.1'
       @connect_hosts['REPLAY_PREIDENTIFIED'] = '127.0.0.1'
       @connect_hosts['REPLAY_CMD_ROUTER'] = '127.0.0.1'
+      @connect_hosts['DART_STREAM'] = '127.0.0.1'
+      @connect_hosts['DART_DECOM'] = '127.0.0.1'
 
       @paths = {}
       @paths['LOGS'] = File.join(USERPATH, 'outputs', 'logs')
@@ -545,6 +552,8 @@ module Cosmos
       @paths['HANDBOOKS'] = File.join(USERPATH, 'outputs', 'handbooks')
       @paths['PROCEDURES'] = [File.join(USERPATH, 'procedures')]
       @paths['SEQUENCES'] = File.join(USERPATH, 'outputs', 'sequences')
+      @paths['DART_DATA'] = File.join(USERPATH, 'outputs', 'dart', 'data')
+      @paths['DART_LOGS'] = File.join(USERPATH, 'outputs', 'dart', 'logs')
 
       unless filename
         system_arg = false
@@ -573,6 +582,18 @@ module Cosmos
     # Class level convenience reset method
     def self.reset
       self.instance.reset
+    end
+
+    def find_configuration(name)
+      Cosmos.set_working_dir do
+        Dir.foreach(@paths['SAVED_CONFIG']) do |filename|
+          full_path = File.join(@paths['SAVED_CONFIG'], filename)
+          if File.exist?(full_path) && File.basename(filename, ".*")[-32..-1] == name
+            return full_path
+          end
+        end
+      end
+      nil
     end
 
     protected
@@ -656,18 +677,6 @@ module Cosmos
       @telemetry.reset if current_config != config
     end
 
-    def find_configuration(name)
-      Cosmos.set_working_dir do
-        Dir.foreach(@paths['SAVED_CONFIG']) do |filename|
-          full_path = File.join(@paths['SAVED_CONFIG'], filename)
-          if File.exist?(full_path) && File.basename(filename, ".*")[-32..-1] == name
-            return full_path
-          end
-        end
-      end
-      nil
-    end
-
     def save_configuration
       Cosmos.set_working_dir do
         configuration = find_configuration(@config.name)
@@ -707,6 +716,7 @@ module Cosmos
                 end
               end
             end
+            File.chmod(0444, configuration) # Mark readonly
           rescue Exception => error
             Logger.error "Problem saving configuration to #{configuration}: #{error.class}:#{error.message}\n#{error.backtrace.join("\n")}\n"
           end

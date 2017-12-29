@@ -1,0 +1,2 @@
+class PacketLog < ApplicationRecord
+end

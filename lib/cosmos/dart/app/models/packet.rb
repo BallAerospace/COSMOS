@@ -1,0 +1,2 @@
+class Packet < ApplicationRecord
+end

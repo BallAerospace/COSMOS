@@ -8,3 +8,4 @@ if ENV['COSMOS_DEVEL']
 else
   gem 'cosmos'
 end
+instance_eval File.read(File.join(__dir__, 'config/dart/Gemfile'))

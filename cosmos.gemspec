@@ -44,6 +44,7 @@ spec = Gem::Specification.new do |s|
   s.executables << 'rubysloc'
   s.executables << 'cstol_converter'
   s.executables << 'xtce_converter'
+  s.executables << 'dart_import'
 
   if RUBY_ENGINE == 'ruby'
     # Ruby C Extensions - MRI Only

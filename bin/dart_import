@@ -1,0 +1,2 @@
+require 'cosmos'
+require 'cosmos/dart/script/dart_import'

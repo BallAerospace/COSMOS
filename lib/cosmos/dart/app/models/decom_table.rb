@@ -1,0 +1,2 @@
+class DecomTable < ApplicationRecord
+end

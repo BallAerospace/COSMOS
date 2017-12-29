@@ -208,5 +208,9 @@ module Cosmos
     def get_output_logs_filenames(filter = '*tlm.bin')
       return $cmd_tlm_server.get_output_logs_filenames(filter)
     end    
+
+    def get_saved_config(configuration_name = nil)
+      return $cmd_tlm_server.get_saved_config(configuration_name)
+    end
   end
 end

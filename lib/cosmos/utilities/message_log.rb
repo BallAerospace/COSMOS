@@ -39,13 +39,14 @@ module Cosmos
     # message to the log and flushes it to force the write.
     #
     # @param message [String] Message to write to the log
-    def write(message)
+    def write(message, flush = false)
       @mutex.synchronize do
         if @file.nil? or @file.closed? or (not File.exist?(@filename))
           start(false)
         end
 
         @file.write(message)
+        @file.flush if flush
       end
     end
 

@@ -1,0 +1,2 @@
+class PacketConfig < ApplicationRecord
+end

@@ -38,9 +38,13 @@ module Cosmos
       super()
       @name = 'Example Background Task1'
       @status = "This is example one"
+      @sleeper = Sleeper.new
     end
     def call
-      sleep 0.3
+      return if @sleeper.sleep(0.3)
+    end
+    def stop
+      @sleeper.cancel
     end
   end
 end
@@ -56,11 +60,15 @@ module Cosmos
       super()
       @name = 'Example Background Task2'
       @status = "This is example two"
+      @sleeper = Sleeper.new
     end
     def call
       loop do
-        sleep 1
+        return if @sleeper.sleep(1)
       end
+    end
+    def stop
+      @sleeper.cancel
     end
   end
 end
