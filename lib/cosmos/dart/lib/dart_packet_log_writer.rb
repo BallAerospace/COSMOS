@@ -1,11 +1,18 @@
 require File.expand_path('../../config/environment', __FILE__)
 require 'dart_common'
 
+# Writes all packets to a log file for use by the DART database.
+# The PacketLog table hold the binary file name.
+# As each packet is written to disk the location of the packet
+# is recorded in the PacketLogEntry table for quick access.
 class DartPacketLogWriter < Cosmos::PacketLogWriter
   include DartCommon
 
   DEFAULT_SYNC_COUNT_LIMIT = 100
 
+  # Initialize the database by synchronizing all known targets and
+  # packet names to the Target and Packet tables. Start the thread
+  # which updates the PacketLogEntry table when new packets arrive.
   def initialize(*args)
     super(*args)
     @packet_log_id = nil
@@ -22,11 +29,13 @@ class DartPacketLogWriter < Cosmos::PacketLogWriter
     end
   end
 
+  # Kill the database update thread
   def shutdown
     super()
     Cosmos.kill_thread(self, @db_thread)
   end
 
+  # Kick the database update thread to allow it to quit
   def graceful_kill
     super()
     @db_queue << nil
@@ -34,6 +43,7 @@ class DartPacketLogWriter < Cosmos::PacketLogWriter
 
   protected
 
+  # Override the default new file hook to create a PacketLog entry in the database
   def start_new_file_hook(packet)
     packet_log = PacketLog.new
     packet_log.filename = @filename.clone
@@ -47,6 +57,9 @@ class DartPacketLogWriter < Cosmos::PacketLogWriter
     super(packet)
   end
 
+  # Override the default pre write hook to pop a message on the queue which
+  # will be processed by the database thread. This also writes out the log
+  # files to disk periodically for use by other DART processes.
   def pre_write_entry_hook(packet)
     @sync_count += 1
     if @sync_count > @sync_count_limit
@@ -56,6 +69,10 @@ class DartPacketLogWriter < Cosmos::PacketLogWriter
     @db_queue << [packet.target_name, packet.packet_name, packet.received_time, @file_size, @packet_log_id, @sync_count]
   end
 
+  # Build the target / packet table lookup table and then wait on the queue
+  # being populated by the pre_write_entry_hook thread to add rows to the
+  # PacketLogEntry table. Each entry identifies a packet in the log file by
+  # its target, packet, time, and data offset (among other things).
   def db_thread_body
     if @log_type == :TLM
       is_tlm = true

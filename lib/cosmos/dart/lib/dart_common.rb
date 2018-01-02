@@ -8,31 +8,38 @@ Packet
 PacketLog
 PacketLogEntry
 
+# Implement methods common to the Data Archival and ReTrieval system.
+# Most of these methods handle accessing the DART database.
 module DartCommon
-
+  # @return [Integer] Maximimum byte size of strings in the database
   MAX_STRING_BYTE_SIZE = 191 # Works well with mysql utf8mb4 if we want to support mysql in the future
+  # @return [Integer] Maximimum bit size of strings in the database
   MAX_STRING_BIT_SIZE = MAX_STRING_BYTE_SIZE * 8
+  # @return [Integer] Maximum number of columns in a database table
   MAX_COLUMNS_PER_TABLE = 200
+  # @return [<Symbol>] Data types which can be reduced over a time period.
+  #   These data types will result in minute, hour, and daily database tables.
   REDUCED_TYPES = [:integer, :bigint, :decimal, :float]
 
+  # Argument parser for the DART command line tools
   def self.handle_argv
     parser = OptionParser.new do |option_parser|
       option_parser.banner = "Usage: ruby #{option_parser.program_name} [options]"
       option_parser.separator("")
-    
+
       # Create the help option
       option_parser.on("-h", "--help", "Show this message") do
         puts option_parser
         exit
       end
-    
+
       # Create the version option
       option_parser.on("-v", "--version", "Show version") do
         puts "COSMOS Version: #{COSMOS_VERSION}"
         puts "User Version: #{USER_VERSION}" if defined? USER_VERSION
         exit
       end
-    
+
       # Create the system option
       option_parser.on("--system FILE", "Use an alternative system.txt file") do |arg|
         System.instance(File.join(USERPATH, 'config', 'system', arg))
@@ -40,6 +47,15 @@ module DartCommon
     end.parse!
   end
 
+  # Get the ActiveRecord database handle to the decommutation table
+  #
+  # @param packet_config_id [Integer] PacketConfig table ID
+  # @param table_index [Integer] Index into one of multiple decommutation tables.
+  #   Since the number of columns is limited to MAX_COLUMNS_PER_TABLE there will
+  #   be multiple tables for large packets.
+  # @param reduction_modifier [String] Blank or one of '_m' for minutes, '_h' for hours,
+  #   '_d' for days. These are the reduction tables.
+  # @return [ActiveRecord::Base] The decommutation table model
   def get_decom_table_model(packet_config_id, table_index, reduction_modifier = "")
     model_name = "T#{packet_config_id}_#{table_index}#{reduction_modifier}"
     begin
@@ -54,6 +70,13 @@ module DartCommon
     return model
   end
 
+  # Convert the COSMOS data type, bit size, and array into a type used
+  # by the SQL database.
+  #
+  # @param data_type [Symbol] One of :INT, :UINT, :FLOAT, :STRING, :BLOCK
+  # @param big_size [Integer] Size of the COSMOS data type
+  # @param array_size [Integer, nil] Size of the array or nil if no array
+  # @return [Symbol] Database type such as :integer, :bigint, :string, etc.
   def cosmos_data_type_to_db_type(data_type, bit_size, array_size)
     db_type = nil
     case data_type
@@ -90,7 +113,9 @@ module DartCommon
     return db_type
   end
 
-  # Will always have raw type, may or may not have converted type
+  # @param item [Cosmos::PacketItem] Item to convert to a SQL database type
+  # @return [<Symbol, Symbol | nil>] SQL database type for the raw item
+  #   followed by the converted item or nil if there is no conversion
   def get_db_types(item)
     raw_data_type = nil
     converted_data_type = nil
@@ -113,11 +138,27 @@ module DartCommon
     return raw_data_type, converted_data_type
   end
 
+  # Determine if the item must have separate raw and converted value tables
+  #
+  # @param item [Cosmos::PacketItem] Packet item
+  # @return [Boolean] Whether the item must have separate raw and converted value tables
   def separate_raw_con?(item)
-    (item.data_type != :DERIVED and ((item.read_conversion and item.read_conversion.converted_type and item.read_conversion.converted_bit_size) or item.states)) or
-      (item.data_type == :DERIVED and (item.read_conversion and item.read_conversion.converted_type and item.read_conversion.converted_bit_size) and item.states)
+    # All items with states must have separate raw and converted values
+    return true if item.states
+    if item.data_type != :DERIVED
+      # Non-derived items with a well defined read conversion have separate raw and converted
+      return true if well_defined_read_conversion(item)
+    end
+    return false
   end
 
+  # Create the item to decommutation table mapping
+  #
+  # @param packet [Cosmos::Packet] Packet to create item mappings for
+  # @param packet_id [Integer] Id in the Packet table
+  # @param packet_config [PacketConfig] ActiveRecord access to the PacketConfig table
+  # @return [<Symbol>] SQL database types for each item in the packet. Note there
+  #   can be multiple values per item if an item has a raw and converted type.
   def setup_item_to_decom_table_mapping(packet, packet_id, packet_config)
     item_index = 0
     data_types = []
@@ -128,7 +169,7 @@ module DartCommon
     packet.sorted_items.each do |item|
       # We don't handle DERIVED items without explicit types and sizes
       if item.data_type == :DERIVED
-        next unless item.read_conversion and item.read_conversion.converted_type and item.read_conversion.converted_bit_size
+        next unless well_defined_read_conversion(item)
       end
 
       raw_data_type, converted_data_type = get_db_types(item)
@@ -173,11 +214,20 @@ module DartCommon
     return data_types
   end
 
+  # Create the packet configuration in the database. This includes the
+  # ItemToDecomTableMapping which maps a telemetry item to its location in the
+  # decommutation table as well as the actual decommutation tables which hold
+  # the decommutated data. These tables are all named tXXX_YYY where XXX is the
+  # PacketConfig ID and YYY is a table index when the packet has more than
+  # MAX_COLUMNS_PER_TABLE and must span multiple tables. In addition the
+  # reduction tables are setup with the '_m' (minute), '_h' (hour), '_d' (day)
+  # extensions added to the tXXX_YYY tables (assuming the packets contain
+  # data which can be reduced.)
+  #
+  # @param packet [Cosmos::Packet] Packet to create database tables for
+  # @param packet_id [Integer] Id in the Packet table
+  # @param packet_config [PacketConfig] ActiveRecord access to the PacketConfig table
   def setup_packet_config(packet, packet_id, packet_config)
-    #
-    # If we created the packet_config then we need to setup the other tables
-    #
-
     data_types = setup_item_to_decom_table_mapping(packet, packet_id, packet_config)
 
     # Create the actual decom table(s)
@@ -286,7 +336,7 @@ module DartCommon
   def switch_and_get_system_config(system_config_name)
     # Switch to this system_config
     current_config, error = Cosmos::System.load_configuration(system_config_name)
-    
+
     if current_config != system_config_name
       Cosmos::Logger.warn("Failed to load system_config: #{system_config_name}")
       Cosmos::Logger.warn("  Current config: #{current_config}")
@@ -467,5 +517,11 @@ module DartCommon
       Cosmos::Logger.error("Error Reading Packet Log Entry:\n#{error.formatted}")
       return nil
     end
+  end
+
+  private
+
+  def well_defined_read_conversion(item)
+    item.read_conversion && item.read_conversion.converted_type && item.read_conversion.converted_bit_size
   end
 end

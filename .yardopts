@@ -1,3 +1,4 @@
 --exclude ext/cosmos/ext
+--exclude db/migrate
 --tag comment
 --hide-tag comment

@@ -2,6 +2,7 @@ require File.expand_path('../../config/environment', __FILE__)
 require 'cosmos'
 require 'stringio'
 
+# Creates a MessageLog in the DART_LOGS System path for DART logging
 class DartLogging
   def initialize(message_log_name)
     @output_sleeper = Cosmos::Sleeper.new
