@@ -2685,6 +2685,10 @@
 <li class="toc-entry toc-h3"><a href="#message_box">message_box</a></li>
 <li class="toc-entry toc-h3"><a href="#vertical_message_box">vertical_message_box</a></li>
 <li class="toc-entry toc-h3"><a href="#combo_box">combo_box</a></li>
+<li class="toc-entry toc-h3"><a href="#save_file_dialog">save_file_dialog</a></li>
+<li class="toc-entry toc-h3"><a href="#open_file_dialog">open_file_dialog</a></li>
+<li class="toc-entry toc-h3"><a href="#open_files_dialog">open_files_dialog</a></li>
+<li class="toc-entry toc-h3"><a href="#open_directory_dialog">open_directory_dialog</a></li>
 </ul>
 </li>
 <li class="toc-entry toc-h2"><a href="#providing-information-to-the-user">Providing information to the user</a>
@@ -2712,6 +2716,7 @@
 <li class="toc-entry toc-h3"><a href="#get_cmd_value">get_cmd_value</a></li>
 <li class="toc-entry toc-h3"><a href="#get_cmd_time">get_cmd_time</a></li>
 <li class="toc-entry toc-h3"><a href="#get_cmd_cnt-since-392">get_cmd_cnt (since 3.9.2)</a></li>
+<li class="toc-entry toc-h3"><a href="#get_all_cmd_info-since-410">get_all_cmd_info (since 4.1.0)</a></li>
 </ul>
 </li>
 <li class="toc-entry toc-h2"><a href="#handling-telemetry">Handling Telemetry</a>
@@ -2723,6 +2728,7 @@
 <li class="toc-entry toc-h3"><a href="#check_tolerance">check_tolerance</a></li>
 <li class="toc-entry toc-h3"><a href="#check_tolerance_raw">check_tolerance_raw</a></li>
 <li class="toc-entry toc-h3"><a href="#check_expression">check_expression</a></li>
+<li class="toc-entry toc-h3"><a href="#check_exception-since-410">check_exception (since 4.1.0)</a></li>
 <li class="toc-entry toc-h3"><a href="#tlm">tlm</a></li>
 <li class="toc-entry toc-h3"><a href="#tlm_raw">tlm_raw</a></li>
 <li class="toc-entry toc-h3"><a href="#tlm_formatted">tlm_formatted</a></li>
@@ -2734,8 +2740,13 @@
 <li class="toc-entry toc-h3"><a href="#get_tlm_item_list">get_tlm_item_list</a></li>
 <li class="toc-entry toc-h3"><a href="#get_tlm_details">get_tlm_details</a></li>
 <li class="toc-entry toc-h3"><a href="#get_tlm_cnt-since-392">get_tlm_cnt (since 3.9.2)</a></li>
+<li class="toc-entry toc-h3"><a href="#get_all_tlm_info-since-410">get_all_tlm_info (since 4.1.0)</a></li>
 <li class="toc-entry toc-h3"><a href="#set_tlm">set_tlm</a></li>
 <li class="toc-entry toc-h3"><a href="#set_tlm_raw">set_tlm_raw</a></li>
+<li class="toc-entry toc-h3"><a href="#inject_tlm">inject_tlm</a></li>
+<li class="toc-entry toc-h3"><a href="#override_tlm">override_tlm</a></li>
+<li class="toc-entry toc-h3"><a href="#override_tlm_raw">override_tlm_raw</a></li>
+<li class="toc-entry toc-h3"><a href="#normalize_tlm">normalize_tlm</a></li>
 </ul>
 </li>
 <li class="toc-entry toc-h2"><a href="#packet-data-subscriptions">Packet Data Subscriptions</a>
@@ -2777,6 +2788,7 @@
 <li class="toc-entry toc-h3"><a href="#set_limits">set_limits</a></li>
 <li class="toc-entry toc-h3"><a href="#get_out_of_limits">get_out_of_limits</a></li>
 <li class="toc-entry toc-h3"><a href="#get_overall_limits_state">get_overall_limits_state</a></li>
+<li class="toc-entry toc-h3"><a href="#get_stale">get_stale</a></li>
 </ul>
 </li>
 <li class="toc-entry toc-h2"><a href="#limits-events">Limits Events</a>
@@ -2790,6 +2802,9 @@
 <ul>
 <li class="toc-entry toc-h3"><a href="#get_target_list">get_target_list</a></li>
 <li class="toc-entry toc-h3"><a href="#get_target_info-since-392">get_target_info (since 3.9.2)</a></li>
+<li class="toc-entry toc-h3"><a href="#get_all_target_info-since-410">get_all_target_info (since 4.1.0)</a></li>
+<li class="toc-entry toc-h3"><a href="#get_target_ignored_parameters-since-410">get_target_ignored_parameters (since 4.1.0)</a></li>
+<li class="toc-entry toc-h3"><a href="#get_target_ignored_items-since-410">get_target_ignored_items (since 4.1.0)</a></li>
 </ul>
 </li>
 <li class="toc-entry toc-h2"><a href="#interfaces">Interfaces</a>
@@ -2801,6 +2816,7 @@
 <li class="toc-entry toc-h3"><a href="#get_interface_names">get_interface_names</a></li>
 <li class="toc-entry toc-h3"><a href="#get_interface_targets-since-392">get_interface_targets (since 3.9.2)</a></li>
 <li class="toc-entry toc-h3"><a href="#get_interface_info-since-392">get_interface_info (since 3.9.2)</a></li>
+<li class="toc-entry toc-h3"><a href="#get_all_interface_info-since-410">get_all_interface_info (since 4.1.0)</a></li>
 </ul>
 </li>
 <li class="toc-entry toc-h2"><a href="#routers">Routers</a>
@@ -2810,6 +2826,7 @@
 <li class="toc-entry toc-h3"><a href="#router_state">router_state</a></li>
 <li class="toc-entry toc-h3"><a href="#get_router_names">get_router_names</a></li>
 <li class="toc-entry toc-h3"><a href="#get_router_info-since-392">get_router_info (since 3.9.2)</a></li>
+<li class="toc-entry toc-h3"><a href="#get_all_router_info-since-410">get_all_router_info (since 4.1.0)</a></li>
 </ul>
 </li>
 <li class="toc-entry toc-h2"><a href="#logging">Logging</a>
@@ -2828,7 +2845,40 @@
 <li class="toc-entry toc-h3"><a href="#stop_raw_logging_interface">stop_raw_logging_interface</a></li>
 <li class="toc-entry toc-h3"><a href="#start_raw_logging_router">start_raw_logging_router</a></li>
 <li class="toc-entry toc-h3"><a href="#stop_raw_logging_router">stop_raw_logging_router</a></li>
+<li class="toc-entry toc-h3"><a href="#get_packet_loggers-since-410">get_packet_loggers (since 4.1.0)</a></li>
 <li class="toc-entry toc-h3"><a href="#get_packet_logger_info-since-392">get_packet_logger_info (since 3.9.2)</a></li>
+<li class="toc-entry toc-h3"><a href="#get_all_packet_logger_info-since-410">get_all_packet_logger_info (since 4.1.0)</a></li>
+<li class="toc-entry toc-h3"><a href="#get_output_logs_filenames-since-410">get_output_logs_filenames (since 4.1.0)</a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h2"><a href="#command-and-telemetry-server">Command and Telemetry Server</a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#get_server_status-since-410">get_server_status (since 4.1.0)</a></li>
+<li class="toc-entry toc-h3"><a href="#cmd_tlm_reload-since-410">cmd_tlm_reload (since 4.1.0)</a></li>
+<li class="toc-entry toc-h3"><a href="#cmd_tlm_clear_counters-since-410">cmd_tlm_clear_counters (since 4.1.0)</a></li>
+<li class="toc-entry toc-h3"><a href="#subscribe_server_messages-since-410">subscribe_server_messages (since 4.1.0)</a></li>
+<li class="toc-entry toc-h3"><a href="#unsubscribe_server_messages-since-410">unsubscribe_server_messages (since 4.1.0)</a></li>
+<li class="toc-entry toc-h3"><a href="#get_server_message-since-410">get_server_message (since 4.1.0)</a></li>
+<li class="toc-entry toc-h3"><a href="#get_background_tasks-since-410">get_background_tasks (since 4.1.0)</a></li>
+<li class="toc-entry toc-h3"><a href="#start_background_task-since-410">start_background_task (since 4.1.0)</a></li>
+<li class="toc-entry toc-h3"><a href="#stop_background_task-since-410">stop_background_task (since 4.1.0)</a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h2"><a href="#replay">Replay</a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#set_replay_mode-since-410">set_replay_mode (since 4.1.0)</a></li>
+<li class="toc-entry toc-h3"><a href="#get_replay_mode-since-410">get_replay_mode (since 4.1.0)</a></li>
+<li class="toc-entry toc-h3"><a href="#replay_select_file-since-410">replay_select_file (since 4.1.0)</a></li>
+<li class="toc-entry toc-h3"><a href="#replay_status-since-410">replay_status (since 4.1.0)</a></li>
+<li class="toc-entry toc-h3"><a href="#replay_set_playback_delay-since-410">replay_set_playback_delay (since 4.1.0)</a></li>
+<li class="toc-entry toc-h3"><a href="#replay_play-since-410">replay_play (since 4.1.0)</a></li>
+<li class="toc-entry toc-h3"><a href="#replay_reverse_play-since-410">replay_reverse_play (since 4.1.0)</a></li>
+<li class="toc-entry toc-h3"><a href="#replay_stop-since-410">replay_stop (since 4.1.0)</a></li>
+<li class="toc-entry toc-h3"><a href="#replay_step_forward-since-410">replay_step_forward (since 4.1.0)</a></li>
+<li class="toc-entry toc-h3"><a href="#replay_step_back-since-410">replay_step_back (since 4.1.0)</a></li>
+<li class="toc-entry toc-h3"><a href="#replay_move_start-since-410">replay_move_start (since 4.1.0)</a></li>
+<li class="toc-entry toc-h3"><a href="#replay_move_end-since-410">replay_move_end (since 4.1.0)</a></li>
+<li class="toc-entry toc-h3"><a href="#replay_move_index-since-410">replay_move_index (since 4.1.0)</a></li>
 </ul>
 </li>
 <li class="toc-entry toc-h2"><a href="#executing-other-procedures">Executing Other Procedures</a>
@@ -2842,6 +2892,8 @@
 <li class="toc-entry toc-h3"><a href="#display">display</a></li>
 <li class="toc-entry toc-h3"><a href="#clear">clear</a></li>
 <li class="toc-entry toc-h3"><a href="#clear_all-since-392">clear_all (since 3.9.2)</a></li>
+<li class="toc-entry toc-h3"><a href="#get_screen_list-since-410">get_screen_list (since 4.1.0)</a></li>
+<li class="toc-entry toc-h3"><a href="#get_screen_definition-since-410">get_screen_definition (since 4.1.0)</a></li>
 </ul>
 </li>
 <li class="toc-entry toc-h2"><a href="#script-runner-specific-functionality">Script Runner Specific Functionality</a>
@@ -3316,6 +3368,60 @@
 <span class="k">when</span> <span class="s1">'Two'</span>
   <span class="nb">puts</span> <span class="s1">'Sensor Two'</span>
 <span class="k">end</span>
+</code></pre>
+</div>
+
+<h3 id="save_file_dialog">
+<a id="save_file_dialog" class="anchor" href="#save_file_dialog" aria-hidden="true"><span class="octicon octicon-link"></span></a>save_file_dialog</h3>
+
+<h3 id="open_file_dialog">
+<a id="open_file_dialog" class="anchor" href="#open_file_dialog" aria-hidden="true"><span class="octicon octicon-link"></span></a>open_file_dialog</h3>
+
+<h3 id="open_files_dialog">
+<a id="open_files_dialog" class="anchor" href="#open_files_dialog" aria-hidden="true"><span class="octicon octicon-link"></span></a>open_files_dialog</h3>
+
+<h3 id="open_directory_dialog">
+<a id="open_directory_dialog" class="anchor" href="#open_directory_dialog" aria-hidden="true"><span class="octicon octicon-link"></span></a>open_directory_dialog</h3>
+
+<p>The save_file_dialog, open_file_dialog, open_files_dialog, and open_directory_dialog methods create a file dialog box so the user can select a file/directory.  The selected file/directory is returned.</p>
+
+<p>Syntax:</p>
+<div class="language-ruby highlighter-rouge">
+<pre class="highlight"><code><span class="n">save_file_dialog</span><span class="p">(</span><span class="s2">"&lt;directory&gt;"</span><span class="p">,</span> <span class="s2">"&lt;message&gt;"</span><span class="p">,</span> <span class="s2">"&lt;filter&gt;"</span><span class="p">)</span>
+<span class="n">open_file_dialog</span><span class="p">(</span><span class="s2">"&lt;directory&gt;"</span><span class="p">,</span> <span class="s2">"&lt;message&gt;"</span><span class="p">,</span> <span class="s2">"&lt;filter&gt;"</span><span class="p">)</span>
+<span class="n">open_files_dialog</span><span class="p">(</span><span class="s2">"&lt;directory&gt;"</span><span class="p">,</span> <span class="s2">"&lt;message&gt;"</span><span class="p">,</span> <span class="s2">"&lt;filter&gt;"</span><span class="p">)</span>
+<span class="n">open_directory_dialog</span><span class="p">(</span><span class="s2">"&lt;directory&gt;"</span><span class="p">,</span> <span class="s2">"&lt;message&gt;"</span><span class="p">)</span>
+</code></pre>
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Directory</td>
+      <td>The directory to start browsing in. Optional parameter, defaults to Cosmos::USERPATH.</td>
+    </tr>
+    <tr>
+      <td>Message</td>
+      <td>The message to display in the dialog box. Optional parameter, defaults to “Save File”, “Open File”, “Open File(s)”, or “Open Directory”.</td>
+    </tr>
+    <tr>
+      <td>Filter</td>
+      <td>Filter to select allowed file type.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example:</p>
+<div class="language-ruby highlighter-rouge">
+<pre class="highlight"><code><span class="n">selected_file</span><span class="o">=</span> <span class="n">open_file_dialog</span><span class="p">()</span>
+<span class="n">file_data</span> <span class="o">=</span> <span class="s2">""</span>
+<span class="no">File</span><span class="p">.</span><span class="nf">open</span><span class="p">(</span><span class="n">selected_file</span><span class="p">,</span> <span class="s1">'rb'</span><span class="p">)</span> <span class="p">{</span><span class="o">|</span><span class="n">file</span><span class="o">|</span> <span class="n">file_data</span> <span class="o">=</span> <span class="n">file</span><span class="p">.</span><span class="nf">read</span><span class="p">()}</span>
 </code></pre>
 </div>
 
@@ -4089,6 +4195,22 @@
 
 <figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">cmd_cnt</span> <span class="o">=</span> <span class="n">get_cmd_cnt</span><span class="p">(</span><span class="s2">"INST"</span><span class="p">,</span> <span class="s2">"COLLECT"</span><span class="p">)</span> <span class="c1"># Number of times the INST COLLECT command has been sent</span></code></pre></figure>
 
+<h3 id="get_all_cmd_info-since-410">
+<a id="get_all_cmd_info-since-410" class="anchor" href="#get_all_cmd_info-since-410" aria-hidden="true"><span class="octicon octicon-link"></span></a>get_all_cmd_info (since 4.1.0)</h3>
+
+<p>The get_all_cmd_info method returns the number of times each command has been sent.  The return value is an array of arrays where each subarray contains the target name, command name, and packet count for a command.</p>
+
+<p>Syntax:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">get_all_cmd_info</span><span class="p">()</span></code></pre></figure>
+
+<p>Example:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">cmd_info</span> <span class="o">=</span> <span class="n">get_all_cmd_info</span><span class="p">()</span>
+<span class="n">cmd_info</span><span class="p">.</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">target_name</span><span class="p">,</span> <span class="n">cmd_name</span><span class="p">,</span> <span class="n">pkt_count</span><span class="o">|</span>
+  <span class="nb">puts</span> <span class="s2">"Target: </span><span class="si">#{</span><span class="n">target_name</span><span class="si">}</span><span class="s2">, Command: </span><span class="si">#{</span><span class="n">cmd_name</span><span class="si">}</span><span class="s2">, Packet count: </span><span class="si">#{</span><span class="n">pkt_count</span><span class="si">}</span><span class="s2">"</span>
+<span class="k">end</span></code></pre></figure>
+
 <h2 id="handling-telemetry">
 <a id="handling-telemetry" class="anchor" href="#handling-telemetry" aria-hidden="true"><span class="octicon octicon-link"></span></a>Handling Telemetry</h2>
 
@@ -4404,6 +4526,42 @@
 <p>Example:</p>
 <div class="language-ruby highlighter-rouge">
 <pre class="highlight"><code><span class="n">check_expression</span><span class="p">(</span><span class="s2">"tlm('INST HEALTH_STATUS COLLECTS') &gt; 5 and tlm('INST HEALTH_STATUS TEMP1') &gt; 25.0"</span><span class="p">)</span>
+</code></pre>
+</div>
+
+<h3 id="check_exception-since-410">
+<a id="check_exception-since-410" class="anchor" href="#check_exception-since-410" aria-hidden="true"><span class="octicon octicon-link"></span></a>check_exception (since 4.1.0)</h3>
+
+<p>The check_exception method executes a method and expects an exception to be raised. If the method does not raise an exception, a CheckError is raised.</p>
+
+<p>Syntax:</p>
+<div class="language-ruby highlighter-rouge">
+<pre class="highlight"><code><span class="n">check_exception</span><span class="p">(</span><span class="s2">"&lt;Method Name&gt;"</span><span class="p">,</span> <span class="s2">"&lt;Method Params - optional&gt;"</span><span class="p">)</span>
+</code></pre>
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Method Name</td>
+      <td>The method to execute.</td>
+    </tr>
+    <tr>
+      <td>Method Params</td>
+      <td>Parameters for the method</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example:</p>
+<div class="language-ruby highlighter-rouge">
+<pre class="highlight"><code><span class="n">check_exception</span><span class="p">(</span><span class="s2">"cmd"</span><span class="p">,</span> <span class="s2">"INST"</span><span class="p">,</span> <span class="s2">"COLLECT"</span><span class="p">,</span> <span class="s2">"TYPE"</span><span class="o">=&gt;</span><span class="s2">"NORMAL"</span><span class="p">)</span>
 </code></pre>
 </div>
 
@@ -4819,6 +4977,22 @@
 
 <figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">tlm_cnt</span> <span class="o">=</span> <span class="n">get_tlm_cnt</span><span class="p">(</span><span class="s2">"INST"</span><span class="p">,</span> <span class="s2">"HEALTH_STATUS"</span><span class="p">)</span> <span class="c1"># Number of times the INST HEALTH_STATUS telemetry packet has been received.</span></code></pre></figure>
 
+<h3 id="get_all_tlm_info-since-410">
+<a id="get_all_tlm_info-since-410" class="anchor" href="#get_all_tlm_info-since-410" aria-hidden="true"><span class="octicon octicon-link"></span></a>get_all_tlm_info (since 4.1.0)</h3>
+
+<p>The get_all_tlm_info method returns the number of times each telemetry packet has been received.  The return value is an array of arrays where each subarray contains the target name, telemetry packet name, and packet count for a telemetry packet.</p>
+
+<p>Syntax:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">get_all_tlm_info</span><span class="p">()</span></code></pre></figure>
+
+<p>Example:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">tlm_info</span> <span class="o">=</span> <span class="n">get_all_tlm_info</span><span class="p">()</span>
+<span class="n">tlm_info</span><span class="p">.</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">target_name</span><span class="p">,</span> <span class="n">pkt_name</span><span class="p">,</span> <span class="n">pkt_count</span><span class="o">|</span>
+  <span class="nb">puts</span> <span class="s2">"Target: </span><span class="si">#{</span><span class="n">target_name</span><span class="si">}</span><span class="s2">, Packet: </span><span class="si">#{</span><span class="n">pkt_name</span><span class="si">}</span><span class="s2">, Packet count: </span><span class="si">#{</span><span class="n">pkt_count</span><span class="si">}</span><span class="s2">"</span>
+<span class="k">end</span></code></pre></figure>
+
 <h3 id="set_tlm">
 <a id="set_tlm" class="anchor" href="#set_tlm" aria-hidden="true"><span class="octicon octicon-link"></span></a>set_tlm</h3>
 
@@ -4909,6 +5083,190 @@
 <span class="n">check_tolerance</span><span class="p">(</span><span class="s2">"INST HEALTH_STATUS TEMP1"</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">0</span><span class="o">.</span><span class="mi">5</span><span class="p">)</span> <span class="c1"># Pass</span>
 <span class="n">set_tlm_raw</span><span class="p">(</span><span class="s2">"INST HEALTH_STATUS TEMP1 = 5"</span><span class="p">)</span>
 <span class="n">check_tolerance</span><span class="p">(</span><span class="s2">"INST HEALTH_STATUS TEMP1"</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">0</span><span class="o">.</span><span class="mi">5</span><span class="p">)</span> <span class="c1"># Fail because we set the raw value not the converted value</span>
+</code></pre>
+</div>
+
+<h3 id="inject_tlm">
+<a id="inject_tlm" class="anchor" href="#inject_tlm" aria-hidden="true"><span class="octicon octicon-link"></span></a>inject_tlm</h3>
+
+<p>The inject_tlm method injects a packet into the system as if it was received from an interface.</p>
+
+<p>Syntax:</p>
+<div class="language-ruby highlighter-rouge">
+<pre class="highlight"><code><span class="n">inject_tlm</span><span class="p">(</span><span class="s2">"&lt;target_name&gt;"</span><span class="p">,</span> <span class="s2">"&lt;packet_name&gt;"</span><span class="p">,</span> <span class="o">&lt;</span><span class="n">item_hash</span><span class="o">&gt;</span><span class="p">,</span> <span class="o">&lt;</span><span class="n">value_type</span><span class="o">&gt;</span><span class="p">,</span> <span class="o">&lt;</span><span class="n">send_routers</span><span class="o">&gt;</span><span class="p">,</span> <span class="o">&lt;</span><span class="n">send_packet_log_writers</span><span class="o">&gt;</span><span class="p">,</span> <span class="o">&lt;</span><span class="n">create_new_logs</span><span class="o">&gt;</span><span class="p">)</span>
+</code></pre>
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Target</td>
+      <td>Target name</td>
+    </tr>
+    <tr>
+      <td>Packet</td>
+      <td>Packet name</td>
+    </tr>
+    <tr>
+      <td>Item Hash</td>
+      <td>Hash of item name/value for each item.  If an item is not specified in the hash, the current value table value will be used.  Optional parameter, defaults to nil.</td>
+    </tr>
+    <tr>
+      <td>Value Type</td>
+      <td>Type of values in the item hash (:RAW or :CONVERTED).  Optional parameter, defaults to :CONVERTED.</td>
+    </tr>
+    <tr>
+      <td>Send Routers</td>
+      <td>Whether or not to send to routers for the target’s interface.  Optional parameter, defaults to true.</td>
+    </tr>
+    <tr>
+      <td>Send Packet Log Writers</td>
+      <td>Whether or not to send to the packet log writers for the target’s interface. Optional parameter, defaults to true.</td>
+    </tr>
+    <tr>
+      <td>Create New Logs</td>
+      <td>Whether or not to create new log files before writing this packet to logs.  Optional parameter, defaults to false.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example:</p>
+<div class="language-ruby highlighter-rouge">
+<pre class="highlight"><code><span class="n">inject_tlm</span><span class="p">(</span><span class="s2">"INST"</span><span class="p">,</span> <span class="s2">"PARAMS"</span><span class="p">,</span> <span class="p">{</span><span class="s1">'VALUE1'</span><span class="o">=&gt;</span><span class="mi">5</span><span class="o">.</span><span class="mi">0</span><span class="p">,</span> <span class="s1">'VALUE2'</span><span class="o">=&gt;</span><span class="mi">7</span><span class="o">.</span><span class="mi">0</span><span class="p">})</span>
+</code></pre>
+</div>
+
+<h3 id="override_tlm">
+<a id="override_tlm" class="anchor" href="#override_tlm" aria-hidden="true"><span class="octicon octicon-link"></span></a>override_tlm</h3>
+
+<p>The override_tlm method sets the converted value for a telmetry point in the Command and Telemetry Server. This value will be maintained even if a new packet is received on the interface unless the override is canceled with the normalize_tlm method.</p>
+
+<p>Syntax:</p>
+<div class="language-ruby highlighter-rouge">
+<pre class="highlight"><code><span class="n">override_tlm</span><span class="p">(</span><span class="s2">"&lt;Target&gt; &lt;Packet&gt; &lt;Item&gt; = &lt;Value&gt;"</span><span class="p">)</span>
+</code></pre>
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Target</td>
+      <td>Target name</td>
+    </tr>
+    <tr>
+      <td>Packet</td>
+      <td>Packet name</td>
+    </tr>
+    <tr>
+      <td>Item</td>
+      <td>Item name</td>
+    </tr>
+    <tr>
+      <td>Value</td>
+      <td>Value to set</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example:</p>
+<div class="language-ruby highlighter-rouge">
+<pre class="highlight"><code><span class="n">override_tlm</span><span class="p">(</span><span class="s2">"INST HEALTH_STATUS TEMP1 = 5"</span><span class="p">)</span>
+</code></pre>
+</div>
+
+<h3 id="override_tlm_raw">
+<a id="override_tlm_raw" class="anchor" href="#override_tlm_raw" aria-hidden="true"><span class="octicon octicon-link"></span></a>override_tlm_raw</h3>
+
+<p>The override_tlm_raw method sets the raw value for a telmetry point in the Command and Telemetry Server. This value will be maintained even if a new packet is received on the interface unless the override is canceled with the normalize_tlm method.</p>
+
+<p>Syntax:</p>
+<div class="language-ruby highlighter-rouge">
+<pre class="highlight"><code><span class="n">override_tlm_raw</span><span class="p">(</span><span class="s2">"&lt;Target&gt; &lt;Packet&gt; &lt;Item&gt; = &lt;Value&gt;"</span><span class="p">)</span>
+</code></pre>
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Target</td>
+      <td>Target name</td>
+    </tr>
+    <tr>
+      <td>Packet</td>
+      <td>Packet name</td>
+    </tr>
+    <tr>
+      <td>Item</td>
+      <td>Item name</td>
+    </tr>
+    <tr>
+      <td>Value</td>
+      <td>Value to set</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example:</p>
+<div class="language-ruby highlighter-rouge">
+<pre class="highlight"><code><span class="n">override_tlm_raw</span><span class="p">(</span><span class="s2">"INST HEALTH_STATUS TEMP1 = 5"</span><span class="p">)</span>
+</code></pre>
+</div>
+
+<h3 id="normalize_tlm">
+<a id="normalize_tlm" class="anchor" href="#normalize_tlm" aria-hidden="true"><span class="octicon octicon-link"></span></a>normalize_tlm</h3>
+
+<p>The normalize_tlm method clears the override of a telmetry point in the Command and Telemetry Server.</p>
+
+<p>Syntax:</p>
+<div class="language-ruby highlighter-rouge">
+<pre class="highlight"><code><span class="n">normalize_tlm</span><span class="p">(</span><span class="s2">"&lt;Target&gt; &lt;Packet&gt; &lt;Item&gt;"</span><span class="p">)</span>
+</code></pre>
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Target</td>
+      <td>Target name</td>
+    </tr>
+    <tr>
+      <td>Packet</td>
+      <td>Packet name</td>
+    </tr>
+    <tr>
+      <td>Item</td>
+      <td>Item name</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example:</p>
+<div class="language-ruby highlighter-rouge">
+<pre class="highlight"><code><span class="n">normalize_tlm</span><span class="p">(</span><span class="s2">"INST HEALTH_STATUS TEMP1"</span><span class="p">)</span>
 </code></pre>
 </div>
 
@@ -6143,6 +6501,45 @@ Example:
 </code></pre>
 </div>
 
+<h3 id="get_stale">
+<a id="get_stale" class="anchor" href="#get_stale" aria-hidden="true"><span class="octicon octicon-link"></span></a>get_stale</h3>
+
+<p>The get_stale method returns a list of stale packets.  The return value is an array of arrays where each subarray contains the target name and packet name for a stale packet.</p>
+
+<p>Syntax:</p>
+<div class="language-ruby highlighter-rouge">
+<pre class="highlight"><code><span class="n">get_stale</span><span class="p">(</span><span class="o">&lt;</span><span class="n">with_limits_only</span><span class="o">&gt;</span> <span class="p">(</span><span class="n">optional</span><span class="p">),</span> <span class="o">&lt;</span><span class="n">target</span><span class="o">&gt;</span> <span class="p">(</span><span class="n">optional</span><span class="p">))</span>
+</code></pre>
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>With Limits Only</td>
+      <td>If true, return only the packets that have limits items and thus affect the overall limits state of the system.  Optional parameter, defaults to false.</td>
+    </tr>
+    <tr>
+      <td>Target</td>
+      <td>If specified, return only the packets associated with the given target.  Optional parameter, defaults to nil.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example:</p>
+<div class="language-ruby highlighter-rouge">
+<pre class="highlight"><code><span class="n">stale_packets</span> <span class="o">=</span> <span class="n">get_stale</span><span class="p">()</span>
+<span class="n">stale_packets</span><span class="p">.</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">target</span><span class="p">,</span> <span class="n">packet</span><span class="o">|</span>
+  <span class="nb">puts</span> <span class="s2">"Stale packet: </span><span class="si">#{</span><span class="n">target</span><span class="si">}</span><span class="s2"> </span><span class="si">#{</span><span class="n">packet</span><span class="si">}</span><span class="s2">"</span>
+<span class="k">end</span>
+</code></pre>
+</div>
+
 <h2 id="limits-events">
 <a id="limits-events" class="anchor" href="#limits-events" aria-hidden="true"><span class="octicon octicon-link"></span></a>Limits Events</h2>
 
@@ -6299,6 +6696,75 @@ Example:
 <p>Example:</p>
 
 <figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">cmd_cnt</span><span class="p">,</span> <span class="n">tlm_cnt</span> <span class="o">=</span> <span class="n">get_target_info</span><span class="p">(</span><span class="s2">"INST"</span><span class="p">)</span></code></pre></figure>
+
+<h3 id="get_all_target_info-since-410">
+<a id="get_all_target_info-since-410" class="anchor" href="#get_all_target_info-since-410" aria-hidden="true"><span class="octicon octicon-link"></span></a>get_all_target_info (since 4.1.0)</h3>
+
+<p>The get_all_target_info method returns information about all targets.  The return value is an array of arrays where each subarray contains the target name, interface name, command count, and telemetry count for a target.</p>
+
+<p>Syntax:
+<code class="highlighter-rouge">get_all_target_info()</code></p>
+
+<p>Example:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">target_info</span> <span class="o">=</span> <span class="n">get_all_target_info</span><span class="p">()</span>
+<span class="n">target_info</span><span class="p">.</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">target_name</span><span class="p">,</span> <span class="n">interface_name</span><span class="p">,</span> <span class="n">cmd_count</span><span class="p">,</span> <span class="n">tlm_count</span><span class="o">|</span>
+  <span class="nb">puts</span> <span class="s2">"Target: </span><span class="si">#{</span><span class="n">target_name</span><span class="si">}</span><span class="s2">, Interface: </span><span class="si">#{</span><span class="n">interface_name</span><span class="si">}</span><span class="s2">, Cmd count: </span><span class="si">#{</span><span class="n">cmd_count</span><span class="si">}</span><span class="s2">, Tlm count: </span><span class="si">#{</span><span class="n">tlm_count</span><span class="si">}</span><span class="s2">"</span>
+<span class="k">end</span></code></pre></figure>
+
+<h3 id="get_target_ignored_parameters-since-410">
+<a id="get_target_ignored_parameters-since-410" class="anchor" href="#get_target_ignored_parameters-since-410" aria-hidden="true"><span class="octicon octicon-link"></span></a>get_target_ignored_parameters (since 4.1.0)</h3>
+
+<p>The get_target_ignored_parameters method returns a list of ignored command parameters for the specified target.  Ignored command parameters are those specified by the IGNORE_PARAMETER keyword in the target configuration.</p>
+
+<p>Syntax:
+<code class="highlighter-rouge">get_target_ignored_parameters("&lt;Target Name&gt;")</code></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Target Name</td>
+      <td>Name of the target.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">ignored_params</span> <span class="o">=</span> <span class="n">get_target_ignored_parameters</span><span class="p">(</span><span class="s2">"INST"</span><span class="p">)</span></code></pre></figure>
+
+<h3 id="get_target_ignored_items-since-410">
+<a id="get_target_ignored_items-since-410" class="anchor" href="#get_target_ignored_items-since-410" aria-hidden="true"><span class="octicon octicon-link"></span></a>get_target_ignored_items (since 4.1.0)</h3>
+
+<p>The get_target_ignored_items method returns a list of ignored telemetry items for the specified target.  Ignored telemetry items are those specified by the IGNORE_ITEM keyword in the target configuration.</p>
+
+<p>Syntax:
+<code class="highlighter-rouge">get_target_ignored_items("&lt;Target Name&gt;")</code></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Target Name</td>
+      <td>Name of the target.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">ignored_items</span> <span class="o">=</span> <span class="n">get_target_ignored_items</span><span class="p">(</span><span class="s2">"INST"</span><span class="p">)</span></code></pre></figure>
 
 <h2 id="interfaces">
 <a id="interfaces" class="anchor" href="#interfaces" aria-hidden="true"><span class="octicon octicon-link"></span></a>Interfaces</h2>
@@ -6517,6 +6983,23 @@ Example:
 
 <figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">state</span><span class="p">,</span> <span class="n">clients</span><span class="p">,</span> <span class="n">tx_q_size</span><span class="p">,</span> <span class="n">rx_q_size</span><span class="p">,</span> <span class="n">bytes_tx</span><span class="p">,</span> <span class="n">bytes_rx</span><span class="p">,</span> <span class="n">cmd_cnt</span><span class="p">,</span> <span class="n">tlm_cnt</span> <span class="o">=</span> <span class="n">get_interface_info</span><span class="p">(</span><span class="s2">"INST_INT"</span><span class="p">)</span></code></pre></figure>
 
+<h3 id="get_all_interface_info-since-410">
+<a id="get_all_interface_info-since-410" class="anchor" href="#get_all_interface_info-since-410" aria-hidden="true"><span class="octicon octicon-link"></span></a>get_all_interface_info (since 4.1.0)</h3>
+
+<p>The get_all_interface_info method returns information about all interfaces.  The return value is an array of arrays where each subarray contains the interface name, connection state, number of connected clients, transmit queue size, receive queue size, bytes transmitted, bytes received, command count, and telemetry count.</p>
+
+<p>Syntax:
+<code class="highlighter-rouge">get_all_interface_info()</code></p>
+
+<p>Example:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">interface_info</span> <span class="o">=</span> <span class="n">get_all_interface_info</span><span class="p">()</span>
+<span class="n">interface_info</span><span class="p">.</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">interface_name</span><span class="p">,</span> <span class="n">connection_state</span><span class="p">,</span> <span class="n">num_clients</span><span class="p">,</span> <span class="n">tx_q_size</span><span class="p">,</span> <span class="n">rx_q_size</span><span class="p">,</span> <span class="n">tx_bytes</span><span class="p">,</span> <span class="n">rx_bytes</span><span class="p">,</span> <span class="n">cmd_count</span><span class="p">,</span> <span class="n">tlm_count</span><span class="o">|</span>
+  <span class="nb">puts</span> <span class="s2">"Interface: </span><span class="si">#{</span><span class="n">interface_name</span><span class="si">}</span><span class="s2">, Connection state: </span><span class="si">#{</span><span class="n">connection_state</span><span class="si">}</span><span class="s2">, Num connected clients: </span><span class="si">#{</span><span class="n">num_clients</span><span class="si">}</span><span class="s2">"</span>
+  <span class="nb">puts</span> <span class="s2">"Transmit queue size: </span><span class="si">#{</span><span class="n">tx_q_size</span><span class="si">}</span><span class="s2">, Receive queue size: </span><span class="si">#{</span><span class="n">rx_q_size</span><span class="si">}</span><span class="s2">, Bytes transmitted: </span><span class="si">#{</span><span class="n">tx_bytes</span><span class="si">}</span><span class="s2">, Bytes received: </span><span class="si">#{</span><span class="n">rx_bytes</span><span class="si">}</span><span class="s2">"</span>
+  <span class="nb">puts</span> <span class="s2">"Cmd count: </span><span class="si">#{</span><span class="n">cmd_count</span><span class="si">}</span><span class="s2">, Tlm count: </span><span class="si">#{</span><span class="n">tlm_count</span><span class="si">}</span><span class="s2">"</span>
+<span class="k">end</span></code></pre></figure>
+
 <h2 id="routers">
 <a id="routers" class="anchor" href="#routers" aria-hidden="true"><span class="octicon octicon-link"></span></a>Routers</h2>
 
@@ -6665,6 +7148,23 @@ Example:
 <p>Example:</p>
 
 <figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">state</span><span class="p">,</span> <span class="n">clients</span><span class="p">,</span> <span class="n">tx_q_size</span><span class="p">,</span> <span class="n">rx_q_size</span><span class="p">,</span> <span class="n">bytes_tx</span><span class="p">,</span> <span class="n">bytes_rx</span><span class="p">,</span> <span class="n">pkts_rcvd</span><span class="p">,</span> <span class="n">pkts_sent</span> <span class="o">=</span> <span class="n">get_router_info</span><span class="p">(</span><span class="s2">"INST_ROUTER"</span><span class="p">)</span></code></pre></figure>
+
+<h3 id="get_all_router_info-since-410">
+<a id="get_all_router_info-since-410" class="anchor" href="#get_all_router_info-since-410" aria-hidden="true"><span class="octicon octicon-link"></span></a>get_all_router_info (since 4.1.0)</h3>
+
+<p>The get_all_router_info method returns information about all routers.  The return value is an array of arrays where each subarray contains the router name, connection state, number of connected clients, transmit queue size, receive queue size, bytes transmitted, bytes received, packets received, and packets sent.</p>
+
+<p>Syntax:
+<code class="highlighter-rouge">get_all_router_info()</code></p>
+
+<p>Example:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">router_info</span> <span class="o">=</span> <span class="n">get_all_router_info</span><span class="p">()</span>
+<span class="n">router_info</span><span class="p">.</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">router_name</span><span class="p">,</span> <span class="n">connection_state</span><span class="p">,</span> <span class="n">num_clients</span><span class="p">,</span> <span class="n">tx_q_size</span><span class="p">,</span> <span class="n">rx_q_size</span><span class="p">,</span> <span class="n">tx_bytes</span><span class="p">,</span> <span class="n">rx_bytes</span><span class="p">,</span> <span class="n">pkts_rcvd</span><span class="p">,</span> <span class="n">pkts_sent</span><span class="o">|</span>
+  <span class="nb">puts</span> <span class="s2">"Router: </span><span class="si">#{</span><span class="n">router_name</span><span class="si">}</span><span class="s2">, Connection state: </span><span class="si">#{</span><span class="n">connection_state</span><span class="si">}</span><span class="s2">, Num connected clients: </span><span class="si">#{</span><span class="n">num_clients</span><span class="si">}</span><span class="s2">"</span>
+  <span class="nb">puts</span> <span class="s2">"Transmit queue size: </span><span class="si">#{</span><span class="n">tx_q_size</span><span class="si">}</span><span class="s2">, Receive queue size: </span><span class="si">#{</span><span class="n">rx_q_size</span><span class="si">}</span><span class="s2">, Bytes transmitted: </span><span class="si">#{</span><span class="n">tx_bytes</span><span class="si">}</span><span class="s2">, Bytes received: </span><span class="si">#{</span><span class="n">rx_bytes</span><span class="si">}</span><span class="s2">"</span>
+  <span class="nb">puts</span> <span class="s2">"Packets received: </span><span class="si">#{</span><span class="n">pkts_rcvd</span><span class="si">}</span><span class="s2">, Packets sent: </span><span class="si">#{</span><span class="n">pkts_sent</span><span class="si">}</span><span class="s2">"</span>
+<span class="k">end</span></code></pre></figure>
 
 <h2 id="logging">
 <a id="logging" class="anchor" href="#logging" aria-hidden="true"><span class="octicon octicon-link"></span></a>Logging</h2>
@@ -7101,6 +7601,19 @@ Example:
 </code></pre>
 </div>
 
+<h3 id="get_packet_loggers-since-410">
+<a id="get_packet_loggers-since-410" class="anchor" href="#get_packet_loggers-since-410" aria-hidden="true"><span class="octicon octicon-link"></span></a>get_packet_loggers (since 4.1.0)</h3>
+
+<p>The get_packet_loggers method returns a list of the packet loggers in the system.</p>
+
+<p>Syntax:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">get_packet_loggers</span><span class="p">()</span></code></pre></figure>
+
+<p>Example:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">packet_loggers</span> <span class="o">=</span> <span class="n">get_packet_loggers</span><span class="p">()</span></code></pre></figure>
+
 <h3 id="get_packet_logger_info-since-392">
 <a id="get_packet_logger_info-since-392" class="anchor" href="#get_packet_logger_info-since-392" aria-hidden="true"><span class="octicon octicon-link"></span></a>get_packet_logger_info (since 3.9.2)</h3>
 
@@ -7127,6 +7640,498 @@ Example:
 <p>Example:</p>
 
 <figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">interfaces</span><span class="p">,</span> <span class="n">cmd_logging</span><span class="p">,</span> <span class="n">cmd_q_size</span><span class="p">,</span> <span class="n">cmd_filename</span><span class="p">,</span> <span class="n">cmd_file_size</span><span class="p">,</span> <span class="n">tlm_logging</span><span class="p">,</span> <span class="n">tlm_q_size</span><span class="p">,</span> <span class="n">tlm_filename</span><span class="p">,</span> <span class="n">tlm_file_size</span> <span class="o">=</span> <span class="n">get_packet_logger_info</span><span class="p">(</span><span class="s2">"DEFAULT"</span><span class="p">)</span></code></pre></figure>
+
+<h3 id="get_all_packet_logger_info-since-410">
+<a id="get_all_packet_logger_info-since-410" class="anchor" href="#get_all_packet_logger_info-since-410" aria-hidden="true"><span class="octicon octicon-link"></span></a>get_all_packet_logger_info (since 4.1.0)</h3>
+
+<p>The get_all_packet_logger_info method returns information about all packet loggers. The return value is an array of arrays where each subarray contains the name, associated interfaces, command log enable flag, command queue size, command filename, command file size, telemetry log enable flag, telemetry queue size, telemetry filename, and telemetry file size for a packet logger.</p>
+
+<p>Syntax:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">get_all_packet_logger_info</span><span class="p">()</span></code></pre></figure>
+
+<p>Example:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">packet_logger_info</span> <span class="o">=</span> <span class="n">get_all_packet_logger_info</span><span class="p">()</span>
+<span class="n">packet_logger_info</span><span class="p">.</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">packet_logger_name</span><span class="p">,</span> <span class="n">interfaces</span><span class="p">,</span> <span class="n">cmd_logging</span><span class="p">,</span> <span class="n">cmd_q_size</span><span class="p">,</span> <span class="n">cmd_filename</span><span class="p">,</span> <span class="n">cmd_file_size</span><span class="p">,</span> <span class="n">tlm_logging</span><span class="p">,</span> <span class="n">tlm_q_size</span><span class="p">,</span> <span class="n">tlm_filename</span><span class="p">,</span> <span class="n">tlm_file_size</span><span class="o">|</span>
+  <span class="nb">puts</span> <span class="s2">"Packet logger: </span><span class="si">#{</span><span class="n">packet_logger_name</span><span class="si">}</span><span class="s2">"</span>
+  <span class="nb">puts</span> <span class="s2">"Associated interfaces: </span><span class="si">#{</span><span class="n">interfaces</span><span class="si">}</span><span class="s2">"</span>
+  <span class="nb">puts</span> <span class="s2">"Cmd logging - enable: </span><span class="si">#{</span><span class="n">cmd_logging</span><span class="si">}</span><span class="s2">, queue size: </span><span class="si">#{</span><span class="n">cmd_q_size</span><span class="si">}</span><span class="s2">, filename: </span><span class="si">#{</span><span class="n">cmd_filename</span><span class="si">}</span><span class="s2">, file size: </span><span class="si">#{</span><span class="n">cmd_file_size</span><span class="si">}</span><span class="s2">"</span>
+  <span class="nb">puts</span> <span class="s2">"Tlm logging - enable: </span><span class="si">#{</span><span class="n">tlm_logging</span><span class="si">}</span><span class="s2">, queue size: </span><span class="si">#{</span><span class="n">tlm_q_size</span><span class="si">}</span><span class="s2">, filename: </span><span class="si">#{</span><span class="n">tlm_filename</span><span class="si">}</span><span class="s2">, file size: </span><span class="si">#{</span><span class="n">tlm_file_size</span><span class="si">}</span><span class="s2">"</span>
+<span class="k">end</span></code></pre></figure>
+
+<h3 id="get_output_logs_filenames-since-410">
+<a id="get_output_logs_filenames-since-410" class="anchor" href="#get_output_logs_filenames-since-410" aria-hidden="true"><span class="octicon octicon-link"></span></a>get_output_logs_filenames (since 4.1.0)</h3>
+
+<p>The get_output_logs_filenames method returns a list of files in the output logs directory.</p>
+
+<p>Syntax:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">get_output_logs_filenames</span><span class="p">(</span><span class="s2">"&lt;filter&gt;"</span><span class="p">)</span></code></pre></figure>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Filter</td>
+      <td>String that can be used to filter the files returned.  Defaults to ‘*tlm.bin’, which will return only binary telemetry log files.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">tlm_logs</span> <span class="o">=</span> <span class="n">get_output_logs_filenames</span><span class="p">()</span>
+<span class="n">cmd_logs</span> <span class="o">=</span> <span class="n">get_output_logs_filenames</span><span class="p">(</span><span class="s1">'*_cmd.bin'</span><span class="p">)</span>
+<span class="n">server_msg_logs</span> <span class="o">=</span> <span class="n">get_output_logs_filenames</span><span class="p">(</span><span class="s1">'*_server_messages.txt'</span><span class="p">)</span></code></pre></figure>
+
+<h2 id="command-and-telemetry-server">
+<a id="command-and-telemetry-server" class="anchor" href="#command-and-telemetry-server" aria-hidden="true"><span class="octicon octicon-link"></span></a>Command and Telemetry Server</h2>
+
+<p>These methods allow the user to interact with Command and Telemetry Server.</p>
+
+<h3 id="get_server_status-since-410">
+<a id="get_server_status-since-410" class="anchor" href="#get_server_status-since-410" aria-hidden="true"><span class="octicon octicon-link"></span></a>get_server_status (since 4.1.0)</h3>
+
+<p>The get_server_status method returns status information for the Command and Telemetry Server.  The information includes the active limits set, API port number, JSON DRB number of clients, JSON DRB average request count, JSON DRB average request time, and number of server threads.</p>
+
+<p>Syntax:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">get_server_status</span><span class="p">()</span></code></pre></figure>
+
+<p>Example:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">limits_set</span><span class="p">,</span> <span class="n">api_port</span><span class="p">,</span> <span class="n">json_drb_num_clients</span><span class="p">,</span> <span class="n">json_drb_req_count</span><span class="p">,</span> <span class="n">json_drb_avg_req_time</span><span class="p">,</span> <span class="n">num_threads</span> <span class="o">=</span> <span class="n">get_server_status</span><span class="p">()</span></code></pre></figure>
+
+<h3 id="cmd_tlm_reload-since-410">
+<a id="cmd_tlm_reload-since-410" class="anchor" href="#cmd_tlm_reload-since-410" aria-hidden="true"><span class="octicon octicon-link"></span></a>cmd_tlm_reload (since 4.1.0)</h3>
+
+<p>The cmd_tlm_reload method reloads the default configuration in the Command and Telemetry Server.</p>
+
+<p>Syntax:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">cmd_tlm_reload</span><span class="p">()</span></code></pre></figure>
+
+<p>Example:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">cmd_tlm_reload</span><span class="p">()</span></code></pre></figure>
+
+<h3 id="cmd_tlm_clear_counters-since-410">
+<a id="cmd_tlm_clear_counters-since-410" class="anchor" href="#cmd_tlm_clear_counters-since-410" aria-hidden="true"><span class="octicon octicon-link"></span></a>cmd_tlm_clear_counters (since 4.1.0)</h3>
+
+<p>The cmd_tlm_clear_counters method resets the counters in the Command and Telemetry Server back to zero.</p>
+
+<p>Syntax:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">cmd_tlm_clear_counters</span><span class="p">()</span></code></pre></figure>
+
+<p>Example:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">cmd_tlm_clear_counters</span><span class="p">()</span></code></pre></figure>
+
+<h3 id="subscribe_server_messages-since-410">
+<a id="subscribe_server_messages-since-410" class="anchor" href="#subscribe_server_messages-since-410" aria-hidden="true"><span class="octicon octicon-link"></span></a>subscribe_server_messages (since 4.1.0)</h3>
+
+<p>The subscribe_server_messages method allows the user to listen for server messages. A unique id is returned to the tool which is used to retrieve the messages. The messages are placed into a queue where they can then be processed one at a time.</p>
+
+<p>Syntax:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">subscribe_server_messages</span><span class="p">(</span><span class="n">queue_size</span><span class="p">)</span></code></pre></figure>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>queue_size</td>
+      <td>Number of messages to let queue up before dropping the connection. Defaults to 1000.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="nb">id</span> <span class="o">=</span> <span class="n">subscribe_server_messages</span><span class="p">(</span><span class="mi">2000</span><span class="p">)</span></code></pre></figure>
+
+<h3 id="unsubscribe_server_messages-since-410">
+<a id="unsubscribe_server_messages-since-410" class="anchor" href="#unsubscribe_server_messages-since-410" aria-hidden="true"><span class="octicon octicon-link"></span></a>unsubscribe_server_messages (since 4.1.0)</h3>
+
+<p>The unsubscribe_server_messages method allows the user to stop listening for server messages. This should be called to reduce the server’s load if the subscription is no longer needed.</p>
+
+<p>Syntax:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">unsubscribe_server_messages</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span></code></pre></figure>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>id</td>
+      <td>Unique id given to the tool by subscribe_server_messages.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">unsubscribe_server_messages</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span></code></pre></figure>
+
+<h3 id="get_server_message-since-410">
+<a id="get_server_message-since-410" class="anchor" href="#get_server_message-since-410" aria-hidden="true"><span class="octicon octicon-link"></span></a>get_server_message (since 4.1.0)</h3>
+
+<p>Receives a subscribed server message. If this method is called non-blocking <non_block> = true, this method will raise an error if the queue is empty.  The return value is an array where the first element is the message and the second element is the color associated with the message (BLACK, RED, YELLOW, GREEN).</non_block></p>
+
+<p>Syntax:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">get_server_message</span><span class="p">(</span><span class="nb">id</span><span class="p">,</span> <span class="n">non_block</span> <span class="p">(</span><span class="n">optional</span><span class="p">))</span></code></pre></figure>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>id</td>
+      <td>Unique id given to the tool by subscribe_server_messages.</td>
+    </tr>
+    <tr>
+      <td>non_block</td>
+      <td>Boolean to indicate if the method should block until a message is received or not. Defaults to false, blocks reading data from queue.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">msg</span><span class="p">,</span> <span class="n">color</span> <span class="o">=</span> <span class="n">get_server_message</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span></code></pre></figure>
+
+<h3 id="get_background_tasks-since-410">
+<a id="get_background_tasks-since-410" class="anchor" href="#get_background_tasks-since-410" aria-hidden="true"><span class="octicon octicon-link"></span></a>get_background_tasks (since 4.1.0)</h3>
+
+<p>The get_background_tasks method returns information about all background tasks.  The return value is an array of arrays where each subarray contains the name, state, and status string for a background task.</p>
+
+<p>Syntax:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">get_background_tasks</span><span class="p">()</span></code></pre></figure>
+
+<p>Example:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">background_tasks</span> <span class="o">=</span> <span class="n">get_background_tasks</span><span class="p">()</span>
+<span class="n">background_tasks</span><span class="p">.</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">background_task_name</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">status_string</span><span class="o">|</span>
+  <span class="nb">puts</span> <span class="s2">"Background task: </span><span class="si">#{</span><span class="n">background_task_name</span><span class="si">}</span><span class="s2">, state: </span><span class="si">#{</span><span class="n">state</span><span class="si">}</span><span class="s2">, status: </span><span class="si">#{</span><span class="n">status_string</span><span class="si">}</span><span class="s2">"</span>
+<span class="k">end</span></code></pre></figure>
+
+<h3 id="start_background_task-since-410">
+<a id="start_background_task-since-410" class="anchor" href="#start_background_task-since-410" aria-hidden="true"><span class="octicon octicon-link"></span></a>start_background_task (since 4.1.0)</h3>
+
+<p>The start_background_task method starts a background task.</p>
+
+<p>Syntax:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">start_background_task</span><span class="p">(</span><span class="s2">"&lt;Background Task Name&gt;"</span><span class="p">)</span></code></pre></figure>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Background Task Name</td>
+      <td>Name of the background task.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">start_background_task</span><span class="p">(</span><span class="s2">"Example Background Task"</span><span class="p">)</span></code></pre></figure>
+
+<h3 id="stop_background_task-since-410">
+<a id="stop_background_task-since-410" class="anchor" href="#stop_background_task-since-410" aria-hidden="true"><span class="octicon octicon-link"></span></a>stop_background_task (since 4.1.0)</h3>
+
+<p>The stop_background_task method stops a background task.</p>
+
+<p>Syntax:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">stop_background_task</span><span class="p">(</span><span class="s2">"&lt;Background Task Name&gt;"</span><span class="p">)</span></code></pre></figure>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Background Task Name</td>
+      <td>Name of the background task.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">stop_background_task</span><span class="p">(</span><span class="s2">"Example Background Task"</span><span class="p">)</span></code></pre></figure>
+
+<h2 id="replay">
+<a id="replay" class="anchor" href="#replay" aria-hidden="true"><span class="octicon octicon-link"></span></a>Replay</h2>
+
+<p>These methods allow the user to control the COSMOS Replay tool.</p>
+
+<h3 id="set_replay_mode-since-410">
+<a id="set_replay_mode-since-410" class="anchor" href="#set_replay_mode-since-410" aria-hidden="true"><span class="octicon octicon-link"></span></a>set_replay_mode (since 4.1.0)</h3>
+
+<p>The set_replay_mode method configures the JSON DRB connection to connect to either the CTS or the Replay tool.  The JSON DRB connection must be configured to connect to the Replay tool with this method before any of the other methods in the Replay API can be used.</p>
+
+<p>Syntax:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">set_replay_mode</span><span class="p">(</span><span class="o">&lt;</span><span class="n">replay_mode</span><span class="o">&gt;</span><span class="p">)</span></code></pre></figure>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Replay Mode</td>
+      <td>Set to true to connect to the Replay tool; set to false to connect to the CTS.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">set_replay_mode</span><span class="p">(</span><span class="kp">true</span><span class="p">)</span></code></pre></figure>
+
+<h3 id="get_replay_mode-since-410">
+<a id="get_replay_mode-since-410" class="anchor" href="#get_replay_mode-since-410" aria-hidden="true"><span class="octicon octicon-link"></span></a>get_replay_mode (since 4.1.0)</h3>
+
+<p>The get_replay_mode method returns true if the JSON DRB connection is configured to connect to the Replay tool or false if the JSON DRB connection is configured to connect to the CTS.</p>
+
+<p>Syntax:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">get_replay_mode</span><span class="p">()</span></code></pre></figure>
+
+<p>Example:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">replay_mode</span> <span class="o">=</span> <span class="n">get_replay_mode</span><span class="p">()</span></code></pre></figure>
+
+<h3 id="replay_select_file-since-410">
+<a id="replay_select_file-since-410" class="anchor" href="#replay_select_file-since-410" aria-hidden="true"><span class="octicon octicon-link"></span></a>replay_select_file (since 4.1.0)</h3>
+
+<p>The replay_select_file method selects a file to play back in the COSMOS Replay tool.</p>
+
+<p>Syntax:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">replay_select_file</span><span class="p">(</span><span class="s2">"&lt;filename&gt;"</span><span class="p">,</span> <span class="o">&lt;</span><span class="n">packet_log_reader</span><span class="o">&gt;</span> <span class="p">(</span><span class="n">optional</span><span class="p">))</span></code></pre></figure>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Filename</td>
+      <td>A log file to load into the Replay tool.</td>
+    </tr>
+    <tr>
+      <td>Packet Log Reader</td>
+      <td>The log reader to use to parse the log file.  Optional parameter, defaults to “DEFAULT”.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">replay_select_file</span><span class="p">(</span><span class="s2">"2018_01_04_13_19_49_tlm.bin"</span><span class="p">)</span></code></pre></figure>
+
+<h3 id="replay_status-since-410">
+<a id="replay_status-since-410" class="anchor" href="#replay_status-since-410" aria-hidden="true"><span class="octicon octicon-link"></span></a>replay_status (since 4.1.0)</h3>
+
+<p>The replay_status method returns status for the Replay tool.  The returned status includes the PLAYING/STOPPED status, playback delay, playback filename, file start time, file current (playback) time, file end time, file index, and file max index.</p>
+
+<p>Syntax:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">replay_status</span><span class="p">()</span></code></pre></figure>
+
+<p>Example:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">status</span><span class="p">,</span> <span class="n">delay</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">file_start</span><span class="p">,</span> <span class="n">file_current</span><span class="p">,</span> <span class="n">file_end</span><span class="p">,</span> <span class="n">file_index</span><span class="p">,</span> <span class="n">file_max_index</span> <span class="o">=</span> <span class="n">replay_status</span><span class="p">()</span></code></pre></figure>
+
+<h3 id="replay_set_playback_delay-since-410">
+<a id="replay_set_playback_delay-since-410" class="anchor" href="#replay_set_playback_delay-since-410" aria-hidden="true"><span class="octicon octicon-link"></span></a>replay_set_playback_delay (since 4.1.0)</h3>
+
+<p>The replay_set_playback_delay method sets the playback delay for the Replay tool.</p>
+
+<p>Syntax:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">replay_set_playback_delay</span><span class="p">(</span><span class="o">&lt;</span><span class="n">delay</span><span class="o">&gt;</span><span class="p">)</span></code></pre></figure>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Delay</td>
+      <td>The delay between packets when the Replay tool is playing back.  Set to nil for REALTIME, or specify a floating point value in seconds from 0.0 (no delay) to 1.0 (1 second between packets).</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">replay_set_playback_delay</span><span class="p">(</span><span class="kp">nil</span><span class="p">)</span></code></pre></figure>
+
+<h3 id="replay_play-since-410">
+<a id="replay_play-since-410" class="anchor" href="#replay_play-since-410" aria-hidden="true"><span class="octicon octicon-link"></span></a>replay_play (since 4.1.0)</h3>
+
+<p>The replay_play method starts playback in the Replay tool.</p>
+
+<p>Syntax:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">replay_play</span><span class="p">()</span></code></pre></figure>
+
+<p>Example:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">replay_play</span><span class="p">()</span></code></pre></figure>
+
+<h3 id="replay_reverse_play-since-410">
+<a id="replay_reverse_play-since-410" class="anchor" href="#replay_reverse_play-since-410" aria-hidden="true"><span class="octicon octicon-link"></span></a>replay_reverse_play (since 4.1.0)</h3>
+
+<p>The replay_reverse_play method starts reverse playback in the Replay tool.</p>
+
+<p>Syntax:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">replay_reverse_play</span><span class="p">()</span></code></pre></figure>
+
+<p>Example:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">replay_move_end</span><span class="p">()</span>
+<span class="n">replay_reverse_play</span><span class="p">()</span></code></pre></figure>
+
+<h3 id="replay_stop-since-410">
+<a id="replay_stop-since-410" class="anchor" href="#replay_stop-since-410" aria-hidden="true"><span class="octicon octicon-link"></span></a>replay_stop (since 4.1.0)</h3>
+
+<p>The replay_stop method stops playback in the Replay tool.</p>
+
+<p>Syntax:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">replay_stop</span><span class="p">()</span></code></pre></figure>
+
+<p>Example:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">replay_stop</span><span class="p">()</span></code></pre></figure>
+
+<h3 id="replay_step_forward-since-410">
+<a id="replay_step_forward-since-410" class="anchor" href="#replay_step_forward-since-410" aria-hidden="true"><span class="octicon octicon-link"></span></a>replay_step_forward (since 4.1.0)</h3>
+
+<p>The replay_step_forward method steps the Replay tool forward by one packet.</p>
+
+<p>Syntax:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">replay_step_forward</span><span class="p">()</span></code></pre></figure>
+
+<p>Example:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">replay_step_forward</span><span class="p">()</span></code></pre></figure>
+
+<h3 id="replay_step_back-since-410">
+<a id="replay_step_back-since-410" class="anchor" href="#replay_step_back-since-410" aria-hidden="true"><span class="octicon octicon-link"></span></a>replay_step_back (since 4.1.0)</h3>
+
+<p>The replay_step_back method steps the Replay tool backwards by one packet.</p>
+
+<p>Syntax:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">replay_step_back</span><span class="p">()</span></code></pre></figure>
+
+<p>Example:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">replay_step_back</span><span class="p">()</span></code></pre></figure>
+
+<h3 id="replay_move_start-since-410">
+<a id="replay_move_start-since-410" class="anchor" href="#replay_move_start-since-410" aria-hidden="true"><span class="octicon octicon-link"></span></a>replay_move_start (since 4.1.0)</h3>
+
+<p>The replay_move_start method sets the Replay tool playback pointer to the start of the file.</p>
+
+<p>Syntax:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">replay_move_start</span><span class="p">()</span></code></pre></figure>
+
+<p>Example:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">replay_move_start</span><span class="p">()</span></code></pre></figure>
+
+<h3 id="replay_move_end-since-410">
+<a id="replay_move_end-since-410" class="anchor" href="#replay_move_end-since-410" aria-hidden="true"><span class="octicon octicon-link"></span></a>replay_move_end (since 4.1.0)</h3>
+
+<p>The replay_move_end method sets the Replay tool playback pointer to the end of the file.</p>
+
+<p>Syntax:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">replay_move_end</span><span class="p">()</span></code></pre></figure>
+
+<p>Example:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">replay_move_end</span><span class="p">()</span></code></pre></figure>
+
+<h3 id="replay_move_index-since-410">
+<a id="replay_move_index-since-410" class="anchor" href="#replay_move_index-since-410" aria-hidden="true"><span class="octicon octicon-link"></span></a>replay_move_index (since 4.1.0)</h3>
+
+<p>The replay_move_index method sets the Replay tool playback pointer to a specified index.  The maximum index can be found with the replay_status method.</p>
+
+<p>Syntax:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">replay_move_index</span><span class="p">(</span><span class="o">&lt;</span><span class="n">index</span><span class="o">&gt;</span><span class="p">)</span></code></pre></figure>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Index</td>
+      <td>The packet index within the file to move the playback pointer.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">replay_move_index</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span></code></pre></figure>
 
 <h2 id="executing-other-procedures">
 <a id="executing-other-procedures" class="anchor" href="#executing-other-procedures" aria-hidden="true"><span class="octicon octicon-link"></span></a>Executing Other Procedures</h2>
@@ -7304,6 +8309,82 @@ Example:
 <div class="language-ruby highlighter-rouge">
 <pre class="highlight"><code><span class="n">clear_all</span><span class="p">(</span><span class="s2">"INST"</span><span class="p">)</span> <span class="c1"># Clear all INST screens</span>
 <span class="n">clear_all</span><span class="p">()</span> <span class="c1"># Clear all screens</span>
+</code></pre>
+</div>
+
+<h3 id="get_screen_list-since-410">
+<a id="get_screen_list-since-410" class="anchor" href="#get_screen_list-since-410" aria-hidden="true"><span class="octicon octicon-link"></span></a>get_screen_list (since 4.1.0)</h3>
+
+<p>The get_screen_list returns a list of available telemetry screens.</p>
+
+<p>Syntax:</p>
+<div class="language-ruby highlighter-rouge">
+<pre class="highlight"><code><span class="n">get_screen_list</span><span class="p">(</span><span class="s2">"&lt;config_filename&gt;"</span><span class="p">,</span> <span class="o">&lt;</span><span class="n">force_refresh</span><span class="o">&gt;</span><span class="p">)</span>
+</code></pre>
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Config filename</td>
+      <td>A telemetry viewer config file to parse.  If nil, the default config file will be used.  Optional parameter, defaults to nil.</td>
+    </tr>
+    <tr>
+      <td>Force refresh</td>
+      <td>If true the config file will be re-parsed.  Optional parameter, defaults to false.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example:</p>
+<div class="language-ruby highlighter-rouge">
+<pre class="highlight"><code><span class="n">screen_list</span> <span class="o">=</span> <span class="n">get_screen_list</span><span class="p">()</span>
+</code></pre>
+</div>
+
+<h3 id="get_screen_definition-since-410">
+<a id="get_screen_definition-since-410" class="anchor" href="#get_screen_definition-since-410" aria-hidden="true"><span class="octicon octicon-link"></span></a>get_screen_definition (since 4.1.0)</h3>
+
+<p>The get_screen_definition returns the screen definition for a telemetry screen.</p>
+
+<p>Syntax:</p>
+<div class="language-ruby highlighter-rouge">
+<pre class="highlight"><code><span class="n">get_screen_definition</span><span class="p">(</span><span class="s2">"&lt;screen_full_name&gt;"</span><span class="p">,</span> <span class="s2">"&lt;config_filename&gt;"</span><span class="p">,</span> <span class="o">&lt;</span><span class="n">force_refresh</span><span class="o">&gt;</span><span class="p">)</span>
+</code></pre>
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Screen full name</td>
+      <td>Telemetry screen name.</td>
+    </tr>
+    <tr>
+      <td>Config filename</td>
+      <td>A telemetry viewer config file to parse.  If nil, the default config file will be used.  Optional parameter, defaults to nil.</td>
+    </tr>
+    <tr>
+      <td>Force refresh</td>
+      <td>If true the config file will be re-parsed.  Optional parameter, defaults to false.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example:</p>
+<div class="language-ruby highlighter-rouge">
+<pre class="highlight"><code><span class="n">screen_definition</span> <span class="o">=</span> <span class="n">get_screen_definition</span><span class="p">(</span><span class="s2">"INST HS"</span><span class="p">)</span>
 </code></pre>
 </div>
 
@@ -9228,7 +10309,7 @@ Consider breaking code like this into a seperate file and using either require/l
 <footer role="contentinfo">
   <div class="grid wider">
     <div class="unit one-third center-on-mobiles">
-      <p>The contents of this website are &copy;&nbsp;2017 <a href="http://www.ballaerospace.com/" target="_blank">Ball Aerospace</a> under the terms of the <a href="https://github.com/BallAerospace/COSMOS/blob/master/LICENSE.txt" target="_blank">GPLv3&nbsp;License</a>.</p>
+      <p>The contents of this website are &copy;&nbsp;2018 <a href="http://www.ballaerospace.com/" target="_blank">Ball Aerospace</a> under the terms of the <a href="https://github.com/BallAerospace/COSMOS/blob/master/LICENSE.txt" target="_blank">GPLv3&nbsp;License</a>.</p>
       <p>Site design derived from the <a href="http://jekyllrb.com/" target="_blank">Jekyll</a> project documentation which is licensed under the terms of the <a href="https://github.com/jekyll/jekyll/blob/master/LICENSE" target="_blank">MIT License</a>.</p>
     </div>
     <div class="unit two-thirds align-right center-on-mobiles">

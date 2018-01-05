@@ -336,6 +336,37 @@ when 'Two'
 end
 ```
 
+### save_file_dialog
+
+### open_file_dialog
+
+### open_files_dialog
+
+### open_directory_dialog
+
+The save_file_dialog, open_file_dialog, open_files_dialog, and open_directory_dialog methods create a file dialog box so the user can select a file/directory.  The selected file/directory is returned.
+
+Syntax:
+```ruby
+save_file_dialog("<directory>", "<message>", "<filter>")
+open_file_dialog("<directory>", "<message>", "<filter>")
+open_files_dialog("<directory>", "<message>", "<filter>")
+open_directory_dialog("<directory>", "<message>")
+```
+
+| Parameter | Description |
+| -------- | --------------------------------- |
+| Directory | The directory to start browsing in. Optional parameter, defaults to Cosmos::USERPATH. |
+| Message | The message to display in the dialog box. Optional parameter, defaults to "Save File", "Open File", "Open File(s)", or "Open Directory". |
+| Filter | Filter to select allowed file type. |
+
+Example:
+```ruby
+selected_file= open_file_dialog()
+file_data = ""
+File.open(selected_file, 'rb') {|file| file_data = file.read()}
+```
+
 ## Providing information to the user
 
 These methods notify the user that something has occurred.
@@ -741,6 +772,23 @@ Example:
 cmd_cnt = get_cmd_cnt("INST", "COLLECT") # Number of times the INST COLLECT command has been sent
 {% endhighlight %}
 
+### get_all_cmd_info (since 4.1.0)
+
+The get_all_cmd_info method returns the number of times each command has been sent.  The return value is an array of arrays where each subarray contains the target name, command name, and packet count for a command.
+
+Syntax:
+{% highlight ruby %}
+get_all_cmd_info()
+{% endhighlight %}
+
+Example:
+{% highlight ruby %}
+cmd_info = get_all_cmd_info()
+cmd_info.each do |target_name, cmd_name, pkt_count|
+  puts "Target: #{target_name}, Command: #{cmd_name}, Packet count: #{pkt_count}"
+end
+{% endhighlight %}
+
 ## Handling Telemetry
 
 These methods allow the user to interact with telemetry items.
@@ -898,6 +946,25 @@ check_expression("<Expression>")
 Example:
 ```ruby
 check_expression("tlm('INST HEALTH_STATUS COLLECTS') > 5 and tlm('INST HEALTH_STATUS TEMP1') > 25.0")
+```
+
+### check_exception (since 4.1.0)
+
+The check_exception method executes a method and expects an exception to be raised. If the method does not raise an exception, a CheckError is raised.
+
+Syntax:
+```ruby
+check_exception("<Method Name>", "<Method Params - optional>")
+```
+
+| Parameter | Description |
+| -------- | --------------------------------- |
+| Method Name | The method to execute. |
+| Method Params | Parameters for the method |
+
+Example:
+```ruby
+check_exception("cmd", "INST", "COLLECT", "TYPE"=>"NORMAL")
 ```
 
 ### tlm
@@ -1114,6 +1181,23 @@ Example:
 tlm_cnt = get_tlm_cnt("INST", "HEALTH_STATUS") # Number of times the INST HEALTH_STATUS telemetry packet has been received.
 {% endhighlight %}
 
+### get_all_tlm_info (since 4.1.0)
+
+The get_all_tlm_info method returns the number of times each telemetry packet has been received.  The return value is an array of arrays where each subarray contains the target name, telemetry packet name, and packet count for a telemetry packet.
+
+Syntax:
+{% highlight ruby %}
+get_all_tlm_info()
+{% endhighlight %}
+
+Example:
+{% highlight ruby %}
+tlm_info = get_all_tlm_info()
+tlm_info.each do |target_name, pkt_name, pkt_count|
+  puts "Target: #{target_name}, Packet: #{pkt_name}, Packet count: #{pkt_count}"
+end
+{% endhighlight %}
+
 ### set_tlm
 
 The set_tlm method sets a telemetry item value in the Command and Telemetry Server. This value will be overwritten if a new packet is received from an interface.  For that reason this method is most useful if interfaces are disconnected or for testing via the Script Runner disconnect mode. (Note that in disconnect mode it will only set telemetry within ScriptRunner. Other tools like TlmViewer will not reflect any changes) Manually setting telemetry values allows for the execution of many logical paths in scripts.
@@ -1159,6 +1243,92 @@ set_tlm("INST HEALTH_STATUS TEMP1 = 5")
 check_tolerance("INST HEALTH_STATUS TEMP1", 5, 0.5) # Pass
 set_tlm_raw("INST HEALTH_STATUS TEMP1 = 5")
 check_tolerance("INST HEALTH_STATUS TEMP1", 5, 0.5) # Fail because we set the raw value not the converted value
+```
+
+### inject_tlm
+
+The inject_tlm method injects a packet into the system as if it was received from an interface.
+
+Syntax:
+```ruby
+inject_tlm("<target_name>", "<packet_name>", <item_hash>, <value_type>, <send_routers>, <send_packet_log_writers>, <create_new_logs>)
+```
+
+| Parameter | Description |
+| -------- | --------------------------------- |
+| Target | Target name |
+| Packet | Packet name |
+| Item Hash | Hash of item name/value for each item.  If an item is not specified in the hash, the current value table value will be used.  Optional parameter, defaults to nil. |
+| Value Type | Type of values in the item hash (:RAW or :CONVERTED).  Optional parameter, defaults to :CONVERTED. |
+| Send Routers | Whether or not to send to routers for the target's interface.  Optional parameter, defaults to true. |
+| Send Packet Log Writers | Whether or not to send to the packet log writers for the target's interface. Optional parameter, defaults to true. |
+| Create New Logs | Whether or not to create new log files before writing this packet to logs.  Optional parameter, defaults to false. |
+
+Example:
+```ruby
+inject_tlm("INST", "PARAMS", {'VALUE1'=>5.0, 'VALUE2'=>7.0})
+```
+
+### override_tlm
+
+The override_tlm method sets the converted value for a telmetry point in the Command and Telemetry Server. This value will be maintained even if a new packet is received on the interface unless the override is canceled with the normalize_tlm method.
+
+Syntax:
+```ruby
+override_tlm("<Target> <Packet> <Item> = <Value>")
+```
+
+| Parameter | Description |
+| -------- | --------------------------------- |
+| Target | Target name |
+| Packet | Packet name |
+| Item | Item name |
+| Value | Value to set |
+
+Example:
+```ruby
+override_tlm("INST HEALTH_STATUS TEMP1 = 5")
+```
+
+### override_tlm_raw
+
+The override_tlm_raw method sets the raw value for a telmetry point in the Command and Telemetry Server. This value will be maintained even if a new packet is received on the interface unless the override is canceled with the normalize_tlm method.
+
+Syntax:
+```ruby
+override_tlm_raw("<Target> <Packet> <Item> = <Value>")
+```
+
+| Parameter | Description |
+| -------- | --------------------------------- |
+| Target | Target name |
+| Packet | Packet name |
+| Item | Item name |
+| Value | Value to set |
+
+Example:
+```ruby
+override_tlm_raw("INST HEALTH_STATUS TEMP1 = 5")
+```
+
+### normalize_tlm
+
+The normalize_tlm method clears the override of a telmetry point in the Command and Telemetry Server.
+
+Syntax:
+```ruby
+normalize_tlm("<Target> <Packet> <Item>")
+```
+
+| Parameter | Description |
+| -------- | --------------------------------- |
+| Target | Target name |
+| Packet | Packet name |
+| Item | Item name |
+
+Example:
+```ruby
+normalize_tlm("INST HEALTH_STATUS TEMP1")
 ```
 
 ## Packet Data Subscriptions
@@ -1787,6 +1957,29 @@ overall_limits_state = get_overall_limits_state()
 overall_limits_state = get_overall_limits_state([['INST', 'HEALTH_STATUS', 'TEMP1']])
 ```
 
+### get_stale
+
+The get_stale method returns a list of stale packets.  The return value is an array of arrays where each subarray contains the target name and packet name for a stale packet.
+
+Syntax:
+```ruby
+get_stale(<with_limits_only> (optional), <target> (optional))
+```
+
+| Parameter | Description |
+| -------- | --------------------------------- |
+| With Limits Only | If true, return only the packets that have limits items and thus affect the overall limits state of the system.  Optional parameter, defaults to false. |
+| Target | If specified, return only the packets associated with the given target.  Optional parameter, defaults to nil. |
+
+Example:
+```ruby
+stale_packets = get_stale()
+stale_packets.each do |target, packet|
+  puts "Stale packet: #{target} #{packet}"
+end
+```
+
+
 ## Limits Events
 
 Methods for handling limits events.
@@ -1881,6 +2074,53 @@ Syntax:
 Example:
 {% highlight ruby %}
 cmd_cnt, tlm_cnt = get_target_info("INST")
+{% endhighlight %}
+
+### get_all_target_info (since 4.1.0)
+
+The get_all_target_info method returns information about all targets.  The return value is an array of arrays where each subarray contains the target name, interface name, command count, and telemetry count for a target.
+
+Syntax:
+``` get_all_target_info() ```
+
+Example:
+{% highlight ruby %}
+target_info = get_all_target_info()
+target_info.each do |target_name, interface_name, cmd_count, tlm_count|
+  puts "Target: #{target_name}, Interface: #{interface_name}, Cmd count: #{cmd_count}, Tlm count: #{tlm_count}"
+end
+{% endhighlight %}
+
+### get_target_ignored_parameters (since 4.1.0)
+
+The get_target_ignored_parameters method returns a list of ignored command parameters for the specified target.  Ignored command parameters are those specified by the IGNORE_PARAMETER keyword in the target configuration.
+
+Syntax:
+``` get_target_ignored_parameters("<Target Name>") ```
+
+| Parameter | Description |
+| -------- | --------------------------------- |
+| Target Name | Name of the target. |
+
+Example:
+{% highlight ruby %}
+ignored_params = get_target_ignored_parameters("INST")
+{% endhighlight %}
+
+### get_target_ignored_items (since 4.1.0)
+
+The get_target_ignored_items method returns a list of ignored telemetry items for the specified target.  Ignored telemetry items are those specified by the IGNORE_ITEM keyword in the target configuration.
+
+Syntax:
+``` get_target_ignored_items("<Target Name>") ```
+
+| Parameter | Description |
+| -------- | --------------------------------- |
+| Target Name | Name of the target. |
+
+Example:
+{% highlight ruby %}
+ignored_items = get_target_ignored_items("INST")
 {% endhighlight %}
 
 ## Interfaces
@@ -2009,6 +2249,23 @@ Example:
 state, clients, tx_q_size, rx_q_size, bytes_tx, bytes_rx, cmd_cnt, tlm_cnt = get_interface_info("INST_INT")
 {% endhighlight %}
 
+### get_all_interface_info (since 4.1.0)
+
+The get_all_interface_info method returns information about all interfaces.  The return value is an array of arrays where each subarray contains the interface name, connection state, number of connected clients, transmit queue size, receive queue size, bytes transmitted, bytes received, command count, and telemetry count.
+
+Syntax:
+``` get_all_interface_info() ```
+
+Example:
+{% highlight ruby %}
+interface_info = get_all_interface_info()
+interface_info.each do |interface_name, connection_state, num_clients, tx_q_size, rx_q_size, tx_bytes, rx_bytes, cmd_count, tlm_count|
+  puts "Interface: #{interface_name}, Connection state: #{connection_state}, Num connected clients: #{num_clients}"
+  puts "Transmit queue size: #{tx_q_size}, Receive queue size: #{rx_q_size}, Bytes transmitted: #{tx_bytes}, Bytes received: #{rx_bytes}"
+  puts "Cmd count: #{cmd_count}, Tlm count: #{tlm_count}"
+end
+{% endhighlight %}
+
 ## Routers
 
 These methods allow the user to manipulate COSMOS routers.
@@ -2096,6 +2353,23 @@ Syntax:
 Example:
 {% highlight ruby %}
 state, clients, tx_q_size, rx_q_size, bytes_tx, bytes_rx, pkts_rcvd, pkts_sent = get_router_info("INST_ROUTER")
+{% endhighlight %}
+
+### get_all_router_info (since 4.1.0)
+
+The get_all_router_info method returns information about all routers.  The return value is an array of arrays where each subarray contains the router name, connection state, number of connected clients, transmit queue size, receive queue size, bytes transmitted, bytes received, packets received, and packets sent.
+
+Syntax:
+``` get_all_router_info() ```
+
+Example:
+{% highlight ruby %}
+router_info = get_all_router_info()
+router_info.each do |router_name, connection_state, num_clients, tx_q_size, rx_q_size, tx_bytes, rx_bytes, pkts_rcvd, pkts_sent|
+  puts "Router: #{router_name}, Connection state: #{connection_state}, Num connected clients: #{num_clients}"
+  puts "Transmit queue size: #{tx_q_size}, Receive queue size: #{rx_q_size}, Bytes transmitted: #{tx_bytes}, Bytes received: #{rx_bytes}"
+  puts "Packets received: #{pkts_rcvd}, Packets sent: #{pkts_sent}"
+end
 {% endhighlight %}
 
 ## Logging
@@ -2349,6 +2623,20 @@ Example:
 stop_raw_logging_router("router1")
 ```
 
+### get_packet_loggers (since 4.1.0)
+
+The get_packet_loggers method returns a list of the packet loggers in the system.
+
+Syntax:
+{% highlight ruby %}
+get_packet_loggers()
+{% endhighlight %}
+
+Example:
+{% highlight ruby %}
+packet_loggers = get_packet_loggers()
+{% endhighlight %}
+
 ### get_packet_logger_info (since 3.9.2)
 
 The get_packet_logger_info method returns information about a packet logger.   The information includes the interfaces associated with the logger, command log enable flag, command queue size, command filename, command file size, telemetry log enable flag, telemetry queue size, telemetry filename, and telemetry file size.
@@ -2364,6 +2652,407 @@ Example:
 {% highlight ruby %}
 interfaces, cmd_logging, cmd_q_size, cmd_filename, cmd_file_size, tlm_logging, tlm_q_size, tlm_filename, tlm_file_size = get_packet_logger_info("DEFAULT")
 {% endhighlight %}
+
+### get_all_packet_logger_info (since 4.1.0)
+
+The get_all_packet_logger_info method returns information about all packet loggers. The return value is an array of arrays where each subarray contains the name, associated interfaces, command log enable flag, command queue size, command filename, command file size, telemetry log enable flag, telemetry queue size, telemetry filename, and telemetry file size for a packet logger.
+
+Syntax:
+{% highlight ruby %}
+get_all_packet_logger_info()
+{% endhighlight %}
+
+Example:
+{% highlight ruby %}
+packet_logger_info = get_all_packet_logger_info()
+packet_logger_info.each do |packet_logger_name, interfaces, cmd_logging, cmd_q_size, cmd_filename, cmd_file_size, tlm_logging, tlm_q_size, tlm_filename, tlm_file_size|
+  puts "Packet logger: #{packet_logger_name}"
+  puts "Associated interfaces: #{interfaces}"
+  puts "Cmd logging - enable: #{cmd_logging}, queue size: #{cmd_q_size}, filename: #{cmd_filename}, file size: #{cmd_file_size}"
+  puts "Tlm logging - enable: #{tlm_logging}, queue size: #{tlm_q_size}, filename: #{tlm_filename}, file size: #{tlm_file_size}"
+end
+{% endhighlight %}
+
+### get_output_logs_filenames (since 4.1.0)
+
+The get_output_logs_filenames method returns a list of files in the output logs directory.
+
+Syntax:
+{% highlight ruby %}
+get_output_logs_filenames("<filter>")
+{% endhighlight %}
+
+| Parameter | Description |
+| -------- | --------------------------------- |
+| Filter | String that can be used to filter the files returned.  Defaults to '*tlm.bin', which will return only binary telemetry log files. |
+
+Example:
+{% highlight ruby %}
+tlm_logs = get_output_logs_filenames()
+cmd_logs = get_output_logs_filenames('*_cmd.bin')
+server_msg_logs = get_output_logs_filenames('*_server_messages.txt')
+{% endhighlight %}
+
+## Command and Telemetry Server
+
+These methods allow the user to interact with Command and Telemetry Server.
+
+### get_server_status (since 4.1.0)
+
+The get_server_status method returns status information for the Command and Telemetry Server.  The information includes the active limits set, API port number, JSON DRB number of clients, JSON DRB average request count, JSON DRB average request time, and number of server threads.
+
+Syntax:
+{% highlight ruby %}
+get_server_status()
+{% endhighlight %}
+
+Example:
+{% highlight ruby %}
+limits_set, api_port, json_drb_num_clients, json_drb_req_count, json_drb_avg_req_time, num_threads = get_server_status()
+{% endhighlight %}
+
+### cmd_tlm_reload (since 4.1.0)
+
+The cmd_tlm_reload method reloads the default configuration in the Command and Telemetry Server.
+
+Syntax:
+{% highlight ruby %}
+cmd_tlm_reload()
+{% endhighlight %}
+
+Example:
+{% highlight ruby %}
+cmd_tlm_reload()
+{% endhighlight %}
+
+### cmd_tlm_clear_counters (since 4.1.0)
+
+The cmd_tlm_clear_counters method resets the counters in the Command and Telemetry Server back to zero.
+
+Syntax:
+{% highlight ruby %}
+cmd_tlm_clear_counters()
+{% endhighlight %}
+
+Example:
+{% highlight ruby %}
+cmd_tlm_clear_counters()
+{% endhighlight %}
+
+### subscribe_server_messages (since 4.1.0)
+
+The subscribe_server_messages method allows the user to listen for server messages. A unique id is returned to the tool which is used to retrieve the messages. The messages are placed into a queue where they can then be processed one at a time.
+
+Syntax:
+{% highlight ruby %}
+subscribe_server_messages(queue_size)
+{% endhighlight %}
+
+| Parameter | Description |
+| -------- | --------------------------------- |
+| queue_size | Number of messages to let queue up before dropping the connection. Defaults to 1000. |
+
+Example:
+{% highlight ruby %}
+id = subscribe_server_messages(2000)
+{% endhighlight %}
+
+### unsubscribe_server_messages (since 4.1.0)
+
+The unsubscribe_server_messages method allows the user to stop listening for server messages. This should be called to reduce the server's load if the subscription is no longer needed.
+
+Syntax:
+{% highlight ruby %}
+unsubscribe_server_messages(id)
+{% endhighlight %}
+
+| Parameter | Description |
+| -------- | --------------------------------- |
+| id | Unique id given to the tool by subscribe_server_messages. |
+
+Example:
+{% highlight ruby %}
+unsubscribe_server_messages(id)
+{% endhighlight %}
+
+### get_server_message (since 4.1.0)
+
+Receives a subscribed server message. If this method is called non-blocking <non_block> = true, this method will raise an error if the queue is empty.  The return value is an array where the first element is the message and the second element is the color associated with the message (BLACK, RED, YELLOW, GREEN).
+
+Syntax:
+{% highlight ruby %}
+get_server_message(id, non_block (optional))
+{% endhighlight %}
+
+| Parameter | Description |
+| -------- | --------------------------------- |
+| id | Unique id given to the tool by subscribe_server_messages. |
+| non_block | Boolean to indicate if the method should block until a message is received or not. Defaults to false, blocks reading data from queue. |
+
+Example:
+{% highlight ruby %}
+msg, color = get_server_message(id)
+{% endhighlight %}
+
+### get_background_tasks (since 4.1.0)
+
+The get_background_tasks method returns information about all background tasks.  The return value is an array of arrays where each subarray contains the name, state, and status string for a background task.
+
+Syntax:
+{% highlight ruby %}
+get_background_tasks()
+{% endhighlight %}
+
+Example:
+{% highlight ruby %}
+background_tasks = get_background_tasks()
+background_tasks.each do |background_task_name, state, status_string|
+  puts "Background task: #{background_task_name}, state: #{state}, status: #{status_string}"
+end
+{% endhighlight %}
+
+### start_background_task (since 4.1.0)
+
+The start_background_task method starts a background task.
+
+Syntax:
+{% highlight ruby %}
+start_background_task("<Background Task Name>")
+{% endhighlight %}
+
+| Parameter | Description |
+| --------- | --------------------------------- |
+| Background Task Name | Name of the background task. |
+
+Example:
+{% highlight ruby %}
+start_background_task("Example Background Task")
+{% endhighlight %}
+
+### stop_background_task (since 4.1.0)
+
+The stop_background_task method stops a background task.
+
+Syntax:
+{% highlight ruby %}
+stop_background_task("<Background Task Name>")
+{% endhighlight %}
+
+| Parameter | Description |
+| --------- | --------------------------------- |
+| Background Task Name | Name of the background task. |
+
+Example:
+{% highlight ruby %}
+stop_background_task("Example Background Task")
+{% endhighlight %}
+
+
+## Replay
+
+These methods allow the user to control the COSMOS Replay tool.
+
+### set_replay_mode (since 4.1.0)
+
+The set_replay_mode method configures the JSON DRB connection to connect to either the CTS or the Replay tool.  The JSON DRB connection must be configured to connect to the Replay tool with this method before any of the other methods in the Replay API can be used.
+
+Syntax:
+{% highlight ruby %}
+set_replay_mode(<replay_mode>)
+{% endhighlight %}
+
+| Parameter | Description |
+| --------- | --------------------------------- |
+| Replay Mode | Set to true to connect to the Replay tool; set to false to connect to the CTS. |
+
+Example:
+{% highlight ruby %}
+set_replay_mode(true)
+{% endhighlight %}
+
+### get_replay_mode (since 4.1.0)
+
+The get_replay_mode method returns true if the JSON DRB connection is configured to connect to the Replay tool or false if the JSON DRB connection is configured to connect to the CTS.
+
+Syntax:
+{% highlight ruby %}
+get_replay_mode()
+{% endhighlight %}
+
+Example:
+{% highlight ruby %}
+replay_mode = get_replay_mode()
+{% endhighlight %}
+
+### replay_select_file (since 4.1.0)
+
+The replay_select_file method selects a file to play back in the COSMOS Replay tool.
+
+Syntax:
+{% highlight ruby %}
+replay_select_file("<filename>", <packet_log_reader> (optional))
+{% endhighlight %}
+
+| Parameter | Description |
+| --------- | --------------------------------- |
+| Filename | A log file to load into the Replay tool. |
+| Packet Log Reader | The log reader to use to parse the log file.  Optional parameter, defaults to "DEFAULT". |
+
+Example:
+{% highlight ruby %}
+replay_select_file("2018_01_04_13_19_49_tlm.bin")
+{% endhighlight %}
+
+### replay_status (since 4.1.0)
+
+The replay_status method returns status for the Replay tool.  The returned status includes the PLAYING/STOPPED status, playback delay, playback filename, file start time, file current (playback) time, file end time, file index, and file max index.
+
+Syntax:
+{% highlight ruby %}
+replay_status()
+{% endhighlight %}
+
+Example:
+{% highlight ruby %}
+status, delay, filename, file_start, file_current, file_end, file_index, file_max_index = replay_status()
+{% endhighlight %}
+
+### replay_set_playback_delay (since 4.1.0)
+
+The replay_set_playback_delay method sets the playback delay for the Replay tool.
+
+Syntax:
+{% highlight ruby %}
+replay_set_playback_delay(<delay>)
+{% endhighlight %}
+
+| Parameter | Description |
+| --------- | --------------------------------- |
+| Delay | The delay between packets when the Replay tool is playing back.  Set to nil for REALTIME, or specify a floating point value in seconds from 0.0 (no delay) to 1.0 (1 second between packets). |
+
+Example:
+{% highlight ruby %}
+replay_set_playback_delay(nil)
+{% endhighlight %}
+
+### replay_play (since 4.1.0)
+
+The replay_play method starts playback in the Replay tool.
+
+Syntax:
+{% highlight ruby %}
+replay_play()
+{% endhighlight %}
+
+Example:
+{% highlight ruby %}
+replay_play()
+{% endhighlight %}
+
+### replay_reverse_play (since 4.1.0)
+
+The replay_reverse_play method starts reverse playback in the Replay tool.
+
+Syntax:
+{% highlight ruby %}
+replay_reverse_play()
+{% endhighlight %}
+
+Example:
+{% highlight ruby %}
+replay_move_end()
+replay_reverse_play()
+{% endhighlight %}
+
+### replay_stop (since 4.1.0)
+
+The replay_stop method stops playback in the Replay tool.
+
+Syntax:
+{% highlight ruby %}
+replay_stop()
+{% endhighlight %}
+
+Example:
+{% highlight ruby %}
+replay_stop()
+{% endhighlight %}
+
+### replay_step_forward (since 4.1.0)
+
+The replay_step_forward method steps the Replay tool forward by one packet.
+
+Syntax:
+{% highlight ruby %}
+replay_step_forward()
+{% endhighlight %}
+
+Example:
+{% highlight ruby %}
+replay_step_forward()
+{% endhighlight %}
+
+### replay_step_back (since 4.1.0)
+
+The replay_step_back method steps the Replay tool backwards by one packet.
+
+Syntax:
+{% highlight ruby %}
+replay_step_back()
+{% endhighlight %}
+
+Example:
+{% highlight ruby %}
+replay_step_back()
+{% endhighlight %}
+
+### replay_move_start (since 4.1.0)
+
+The replay_move_start method sets the Replay tool playback pointer to the start of the file.
+
+Syntax:
+{% highlight ruby %}
+replay_move_start()
+{% endhighlight %}
+
+Example:
+{% highlight ruby %}
+replay_move_start()
+{% endhighlight %}
+
+### replay_move_end (since 4.1.0)
+
+The replay_move_end method sets the Replay tool playback pointer to the end of the file.
+
+Syntax:
+{% highlight ruby %}
+replay_move_end()
+{% endhighlight %}
+
+Example:
+{% highlight ruby %}
+replay_move_end()
+{% endhighlight %}
+
+### replay_move_index (since 4.1.0)
+
+The replay_move_index method sets the Replay tool playback pointer to a specified index.  The maximum index can be found with the replay_status method.
+
+Syntax:
+{% highlight ruby %}
+replay_move_index(<index>)
+{% endhighlight %}
+
+
+| Parameter | Description |
+| --------- | --------------------------------- |
+| Index | The packet index within the file to move the playback pointer. |
+
+Example:
+{% highlight ruby %}
+replay_move_index(10)
+{% endhighlight %}
+
 
 ## Executing Other Procedures
 
@@ -2464,6 +3153,45 @@ Example:
 ```ruby
 clear_all("INST") # Clear all INST screens
 clear_all() # Clear all screens
+```
+
+### get_screen_list (since 4.1.0)
+
+The get_screen_list returns a list of available telemetry screens.
+
+Syntax:
+```ruby
+get_screen_list("<config_filename>", <force_refresh>)
+```
+
+| Parameter | Description |
+| -------- | --------------------------------- |
+| Config filename | A telemetry viewer config file to parse.  If nil, the default config file will be used.  Optional parameter, defaults to nil. |
+| Force refresh | If true the config file will be re-parsed.  Optional parameter, defaults to false. |
+
+Example:
+```ruby
+screen_list = get_screen_list()
+```
+
+### get_screen_definition (since 4.1.0)
+
+The get_screen_definition returns the screen definition for a telemetry screen.
+
+Syntax:
+```ruby
+get_screen_definition("<screen_full_name>", "<config_filename>", <force_refresh>)
+```
+
+| Parameter | Description |
+| -------- | --------------------------------- |
+| Screen full name | Telemetry screen name. |
+| Config filename | A telemetry viewer config file to parse.  If nil, the default config file will be used.  Optional parameter, defaults to nil. |
+| Force refresh | If true the config file will be re-parsed.  Optional parameter, defaults to false. |
+
+Example:
+```ruby
+screen_definition = get_screen_definition("INST HS")
 ```
 
 ## Script Runner Specific Functionality
