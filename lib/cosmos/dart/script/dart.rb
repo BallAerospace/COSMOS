@@ -12,17 +12,19 @@ class Dart
     # Make sure we have all the System Configs
     Cosmos::Logger::info("Cleaning up SystemConfigs...")
     system_config = SystemConfig.all.each do |sc|
-      # Switch to this system_config
-      begin
+       begin
+        # This attempts to load the system config and if it can't be found
+        # it is copied from the server to the local DART machine
         switch_and_get_system_config(sc.name)
       rescue => err
         Cosmos::Logger.error("Could not load system_config: #{sc.name}: #{err.message}")
         next
-      end 
+      end
     end
     Cosmos::System.load_configuration
 
-    # Make sure all packet logs exist
+    # Make sure all packet logs exist and if not drop the associated PacketLogEntry
+    # NOTE: This means you can't move packet logs!
     Cosmos::Logger::info("Cleaning up PacketLogs...")
     PacketLog.find_each do |pl|
       unless File.exist?(pl.filename)
@@ -31,7 +33,9 @@ class Dart
       end
     end
 
-    # Check for bad packet configs and cleanup
+    # Check for bad packet configs and cleanup. This typically doesn't happen because
+    # PacketConfig entries are created quickly but if something happens during the setup
+    # we attempt to fix it here.
     packet_configs = PacketConfig.where("ready != true")
     Cosmos::Logger::info("Num PacketConfigs requiring cleanup: #{packet_configs.length}")
     packet_configs.each do |packet_config|
@@ -57,12 +61,20 @@ class Dart
       end
     end
 
-    # Remove not ready packet log entries     
+    # Remove not ready packet log entries. Packet log entries remain not ready until the
+    # log file containing the packet has been flushed to disk. Thus there are always
+    # outstanding entries which are not ready while packets are being received.
+    # Note the normal shutdown process attempts to flush the log file and mark
+    # all outstanding entries as ready so this would only happen during a crash.
     ples = PacketLogEntry.where("ready != true")
     Cosmos::Logger::info("Removing unready packet log entries: #{ples.length}")
     ples.destroy_all
 
-    # Check for partially decom data and remove
+    # Check for partially decom data and remove. The DartWorker periodically checks the
+    # database for a PacketLogEntry which is ready to be decommutated and starts the
+    # process of writing into the decommutation table. If this process is interrupted
+    # the state could be IN_PROGRESS instead of COMPLETE. Thus delete all the decommutation
+    # table rows which were created and allow this process to start from scratch.
     ples = PacketLogEntry.where("decom_state = #{PacketLogEntry::IN_PROGRESS}")
     Cosmos::Logger::info("Num PacketLogEntries requiring cleanup: #{ples.length}")
     ples.each do |ple|
@@ -84,6 +96,14 @@ class Dart
     Cosmos::Logger::info("Database cleanup complete!")
   end
 
+  # Start all the DART processes:
+  # 1. Ingester - writes all packets to the DART log file
+  # 2. Reducer - reduces decommutated data by minute, hour, and day
+  # 3. Stream Server - TCPIP server which handles requests for raw data
+  #      streamed from the packet log binary file
+  # 4. Decom Server - JSON DRB server which handles requests for decommutated
+  #      or reduced data from the database
+  # 5..n Worker - Decommutates data from the packet log binary file into the DB
   def run
     Cosmos::Logger.level = Cosmos::Logger::INFO
     dart_logging = DartLogging.new('dart')

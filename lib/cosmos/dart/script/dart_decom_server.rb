@@ -12,9 +12,36 @@ module ActiveSupport
   end
 end
 
+# JsonDRb server which responds to queries for decommutated and reduced data
+# from the database.
 class DartDecomServer
   include DartCommon
 
+  # Returns data from the decommutated database tables including the reduced data tables.
+  #
+  # @param request [Hash] Request for data.
+  #   The hash must contain the following items:
+  #     start_time_sec => Start time in UTC seconds
+  #     start_time_usec => Microseconds to add to start time
+  #     end_time_sec => End time in UTC seconds
+  #     end_time_usec => Microseconds to add to end time
+  #     item => [target name, packet name, item name] Names are all strings
+  #     reduction => "NONE", "MINUTE", "HOUR", "DAY" for how to reduce the data
+  #     value_type => "RAW", "RAW_MAX", "RAW_MIN", "RAW_AVG",
+  #       "CONVERTED", "CONVERTED_MAX", "CONVERTED_MIN", "CONVERTED_AVG"
+  #
+  #   The request can also contain the following optional items:
+  #     meta_ids => Optional IDs related to the meta data you want to filter by. This requires
+  #       making a separate request for the particular meta data in question and recording
+  #       the returned meta_ids for use in a subsequent request.
+  #     limit => Maximum number of data items to return, must be less than 10000
+  #     offset => Offset into the data stream. Since the maximum number of values allowed
+  #       is 10000, you can set the offset to 10000, then 20000, etc to get additional values.
+  #       By default the offset is 0.
+  #     cmd_tlm => Whether the item is a command or telemetry. Default is telemetry.
+  # @return [Array<Array<String, Integer, Integer, Integer, Integer>>] Array of arrays containing
+  #   the item name, item seconds, item microseconds, samples (always 1 for NONE reduction, varies
+  #   for other reduction values), and meta_id.
   def query(request)
     request_start_time = Time.now
     Cosmos::Logger.info("#{request_start_time.formatted}: QUERY: #{request}")
@@ -51,42 +78,26 @@ class DartDecomServer
         raise "Unknown reduction: #{reduction}"
       end
 
-      value_type = request['value_type'].to_s.upcase
-      case value_type.upcase
+      requested_value_type = request['value_type'].to_s.upcase
+      case requested_value_type
       when 'RAW'
-        not_value_type = ItemToDecomTableMapping::CONVERTED
+        value_type = ItemToDecomTableMapping::CONVERTED
         item_name_modifier = ""
         raise "RAW value_type is only valid with NONE reduction" if reduction != :NONE
-      when 'RAW_MAX'
-        not_value_type = ItemToDecomTableMapping::CONVERTED
-        item_name_modifier = "max"
-        raise "RAW_MAX value_type is not valid with NONE reduction" if reduction == :NONE
-      when 'RAW_MIN'
-        not_value_type = ItemToDecomTableMapping::CONVERTED
-        item_name_modifier = "min"
-        raise "RAW_MIN value_type is not valid with NONE reduction" if reduction == :NONE
-      when 'RAW_AVG'
-        not_value_type = ItemToDecomTableMapping::CONVERTED
-        item_name_modifier = "avg"
-        raise "RAW_AVG value_type is not valid with NONE reduction" if reduction == :NONE
+      when 'RAW_MAX', 'RAW_MIN', 'RAW_AVG'
+        value_type = ItemToDecomTableMapping::CONVERTED
+        item_name_modifier = requested_value_type.split('_')[1].downcase
+        raise "#{requested_value_type} value_type is not valid with NONE reduction" if reduction == :NONE
       when 'CONVERTED'
-        not_value_type = ItemToDecomTableMapping::RAW
+        value_type = ItemToDecomTableMapping::RAW
         item_name_modifier = ""
         raise "CONVERTED value_type is only valid with NONE reduction" if reduction != :NONE
-      when 'CONVERTED_MAX'
-        not_value_type = ItemToDecomTableMapping::RAW
-        item_name_modifier = "max"
-        raise "CONVERTED_MAX value_type is not valid with NONE reduction" if reduction == :NONE
-      when 'CONVERTED_MIN'
-        not_value_type = ItemToDecomTableMapping::RAW
-        item_name_modifier = "min"
-        raise "CONVERTED_MIN value_type is not valid with NONE reduction" if reduction == :NONE
-      when 'CONVERTED_AVG'
-        not_value_type = ItemToDecomTableMapping::RAW
-        item_name_modifier = "avg"
-        raise "CONVERTED_AVG value_type is not valid with NONE reduction" if reduction == :NONE
+      when 'CONVERTED_MAX', 'CONVERTED_MIN', 'CONVERTED_AVG'
+        value_type = ItemToDecomTableMapping::RAW
+        item_name_modifier = requested_value_type.split('_')[1].downcase
+        raise "#{requested_value_type} value_type is not valid with NONE reduction" if reduction == :NONE
       else
-        raise "Unknown value_type: #{value_type}"
+        raise "Unknown value_type: #{requested_value_type}"
       end
 
       meta_ids = request['meta_ids']
@@ -111,7 +122,8 @@ class DartDecomServer
         is_tlm = true
       end
 
-      # Upon receiving the above request, the corresponding Target, Packet, and Item objects are requested from the database
+      # Upon receiving the above request, the corresponding Target, Packet, and Item
+      # objects are requested from the database
       target_model = Target.where("name = ?", item[0]).first
       raise "Target: #{item[0]} not found" unless target_model
       packet_model = Packet.where("target_id = ? and name = ? and is_tlm = ?", target_model.id, item[1], is_tlm).first
@@ -119,9 +131,9 @@ class DartDecomServer
       item_model = Item.where("packet_id = ? and name = ?", packet_model.id, item[2]).first
       raise "Item: #{item[2]} not found" unless item_model
 
-      # Then, the ItemToDecomTableMapping table is queried to find all entries that match the requested item, value_type, and reduction.
-      # These entries are then filtered by requesting their correlated DecomTableMeta entries and eliminating tables that do not
-      # contain data in the requested time range.
+      # Next the corresponding PacketConfigs are loaded within the requested times.
+      # Note the PacketConfig time range covers when that particular packet configuration
+      # was valid. Thus it can cover a much larger time period than the data requested.
       packet_configs = PacketConfig.where("packet_id = ?", packet_model.id)
       packet_configs.where("start_time >= ?", start_time) if start_time
       packet_configs.where("end_time <= ?", end_time) if end_time
@@ -131,15 +143,22 @@ class DartDecomServer
         packet_config_ids << pc.id
       end
 
+      # Then, the ItemToDecomTableMapping table is queried to find all entries that match
+      # the requested item, value_type, and packet configuration. These entries represent
+      # all the entries in the decommutation and reduction tables for the requested item
+      # when that PacketConfig was valid.
+      mappings = ItemToDecomTableMapping.where("item_id = ? and value_type != ?", item_model.id, value_type).where("packet_config_id" => packet_config_ids)
       data = []
-      mappings = ItemToDecomTableMapping.where("item_id = ? and value_type != ?", item_model.id, not_value_type).where("packet_config_id" => packet_config_ids)
       current_offset = 0
       current_count = 0
       mappings.each do |mapping|
-        # Then, the actual values are queried from the correct T<X> tables with continued filtering by time range, and optional filtering
-        # by meta_id.
+        # The item to decommutation table entries are then used to access the actual
+        # decommutation table model (ActiveRecord object).
         rows = get_decom_table_model(mapping.packet_config_id, mapping.table_index, reduction_modifier)
 
+        # The decommutation table itself is then quered for the values with final filters on the requested
+        # time range and optional filtering by meta_id. The correct decommutation table is selected by
+        # using the passed in reduction value in the request.
         if reduction == :NONE
           # For reduced data the time field is called start_time, for non-reduced it is just time
           rows = rows.where("time >= ?", start_time) if start_time

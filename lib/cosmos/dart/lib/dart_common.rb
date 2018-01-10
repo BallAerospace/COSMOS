@@ -17,7 +17,7 @@ module DartCommon
   MAX_STRING_BIT_SIZE = MAX_STRING_BYTE_SIZE * 8
   # @return [Integer] Maximum number of columns in a database table
   MAX_COLUMNS_PER_TABLE = 200
-  # @return [<Symbol>] Data types which can be reduced over a time period.
+  # @return [Array<Symbol>] Data types which can be reduced over a time period.
   #   These data types will result in minute, hour, and daily database tables.
   REDUCED_TYPES = [:integer, :bigint, :decimal, :float]
 
@@ -294,7 +294,7 @@ module DartCommon
   # by the SQL database.
   #
   # @param data_type [Symbol] One of :INT, :UINT, :FLOAT, :STRING, :BLOCK
-  # @param big_size [Integer] Size of the COSMOS data type
+  # @param bit_size [Integer] Size of the COSMOS data type
   # @param array_size [Integer, nil] Size of the array or nil if no array
   # @return [Symbol] Database type such as :integer, :bigint, :string, etc.
   def cosmos_data_type_to_db_type(data_type, bit_size, array_size)
@@ -334,7 +334,7 @@ module DartCommon
   end
 
   # @param item [Cosmos::PacketItem] Item to convert to a SQL database type
-  # @return [<Symbol, Symbol | nil>] SQL database type for the raw item
+  # @return [Array<Symbol, Symbol | nil>] SQL database type for the raw item
   #   followed by the converted item or nil if there is no conversion
   def get_db_types(item)
     raw_data_type = nil
@@ -363,7 +363,7 @@ module DartCommon
   # @param packet [Cosmos::Packet] Packet to create item mappings for
   # @param packet_id [Integer] Id in the Packet table
   # @param packet_config [PacketConfig] ActiveRecord access to the PacketConfig table
-  # @return [<Symbol>] SQL database types for each item in the packet. Note there
+  # @return [Array<Symbol>] SQL database types for each item in the packet. Note there
   #   can be multiple values per item if an item has a raw and converted type.
   def setup_item_to_decom_table_mapping(packet, packet_id, packet_config)
     item_index = 0

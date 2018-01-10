@@ -74,11 +74,11 @@ class DartReducerWorkerThread
                       if value.nil?
                         Cosmos::Logger.error("#{item_name} is nil in #{row_to_reduce.class}:#{row_to_reduce.id}")
                         next
-                      end                    
+                      end
                     else
                       max_sample = row_to_reduce.read_attribute(max_item_name)
                       min_sample = row_to_reduce.read_attribute(min_item_name)
-                      avg_sample = row_to_reduce.read_attribute(avg_item_name)                  
+                      avg_sample = row_to_reduce.read_attribute(avg_item_name)
                       if max_sample.nil?
                         Cosmos::Logger.error("#{max_item_name} is nil in #{row_to_reduce.class}:#{row_to_reduce.id}")
                         next
@@ -92,22 +92,22 @@ class DartReducerWorkerThread
                         next
                       end
                     end
-                    
+
                     unless (max_sample.is_a?(Float) and (avg_sample.nan? or !avg_sample.finite?))
-                      if !max_value or max_sample > max_value 
-                        max_value = max_sample 
+                      if !max_value or max_sample > max_value
+                        max_value = max_sample
                       end
                     else
                       max_nan_found = true
-                    end 
-                      
+                    end
+
                     unless (min_sample.is_a?(Float) and (avg_sample.nan? or !avg_sample.finite?))
-                      if !min_value or min_sample < min_value 
-                        min_value = min_sample 
+                      if !min_value or min_sample < min_value
+                        min_value = min_sample
                       end
                     else
                       min_nan_found = true
-                    end 
+                    end
 
                     unless (avg_sample.is_a?(Float) and (avg_sample.nan? or !avg_sample.finite?))
                       if job_type == :MINUTE
@@ -138,7 +138,7 @@ class DartReducerWorkerThread
             end
           else
             Cosmos::Logger.debug("No Mappings for JobType #{job_type}: #{packet_config_id}: #{table_index}")
-          end   
+          end
         rescue Exception => error
           Cosmos::Logger.error("Reducer Thread Exception: #{error.formatted}")
         end
