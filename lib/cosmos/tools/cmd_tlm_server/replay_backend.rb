@@ -15,6 +15,7 @@ module Cosmos
 
     # The number of bytes to print when an UNKNOWN packet is received
     UNKNOWN_BYTES_TO_PRINT = 36
+    SLIDER_GRANULARITY = 10000
 
     attr_accessor :log_directory
     attr_accessor :log_filename
@@ -30,6 +31,7 @@ module Cosmos
 
     # Reset internal state
     def reset
+      @first = true
       @cancel = false
       @playback_delay = 0.0
       @default_packet_log_reader = System.default_packet_log_reader.new(*System.default_packet_log_reader_params)
@@ -46,8 +48,17 @@ module Cosmos
       @progress = 0
       @status = ''
       @start_time = ''
+      @start_time_object = nil
       @current_time = ''
+      @current_time_object = nil
       @end_time = ''
+      @end_time_object = nil
+      @mode = :stream
+      @interface = Cosmos::TcpipClientInterface.new(
+        Cosmos::System.connect_hosts['DART_STREAM'],
+        Cosmos::System.ports['DART_STREAM'],
+        Cosmos::System.ports['DART_STREAM'],
+        10, 30, 'PREIDENTIFIED')
     end
 
     # Select and start analyzing a file for replay
@@ -56,6 +67,7 @@ module Cosmos
     def select_file(filename, packet_log_reader = 'DEFAULT')
       stop()
       Cosmos.kill_thread(self, @thread)
+      @mode = :file
       @thread = Thread.new do
         begin
           stop()
@@ -98,7 +110,7 @@ module Cosmos
 
           if @cancel
             @packet_log_reader.close
-            @log_filename = ''
+            @log_filename = nil
             @packet_offsets = []
             @playback_index = 0
             @start_time = ''
@@ -119,6 +131,45 @@ module Cosmos
           @thread = nil
         end
       end
+    end
+
+    # Setup streaming with the given arguments
+    #
+    # start_time [Time] Time at which stream should begin at
+    # end_time [Time] Time at which stream should stop
+    def select_stream(start_time, end_time)
+      stop()
+      Cosmos.kill_thread(self, @thread)
+      @thread = nil
+      @mode = :stream
+      @log_filename = nil
+      @log_directory = System.paths['LOGS']
+      @log_directory << '/' unless @log_directory[-1..-1] == '\\' or @log_directory[-1..-1] == '/'
+      @packet_offsets = []
+
+      System.telemetry.reset
+      @cancel = false
+      @progress = 0
+      @status = "Stream Ready"
+      # start_config_name = System.configuration_name
+      # Cosmos.check_log_configuration(@packet_log_reader, @log_filename)
+      # if System.configuration_name != start_config_name
+      #   @config_change_callback.call() if @config_change_callback
+      # end
+      @playback_index = 0
+      @playback_max_index = SLIDER_GRANULARITY
+      start_time = Time.utc(1970, 1, 1).sys unless start_time
+      @start_time = start_time.formatted(true, 3, true)
+      end_time = Time.now.sys unless end_time
+      @end_time = end_time.formatted(true, 3, true)
+      @start_time_object = start_time.dup
+      @end_time_object = end_time.dup
+      @current_time = @start_time.dup
+      @current_time_object = start_time.dup
+      @status = 'Stopped'
+      @playing = false
+      @playback_sleeper = nil
+      @first = true
     end
 
     # Get current replay status
@@ -155,8 +206,8 @@ module Cosmos
 
     # Replay start playing forward
     def play
-      if @log_filename and !@thread
-        @playback_index = 1 if @playback_index < 0
+      if (@mode == :stream or @log_filename) and !@thread
+        @playback_index = 0 if @playback_index < 0
         start_playback(:FORWARD)
       else
         stop()
@@ -165,8 +216,8 @@ module Cosmos
 
     # Replay start playing backward
     def reverse_play
-      if @log_filename and !@thread
-        @playback_index = @packet_offsets.length - 2 if @playback_index >= @packet_offsets.length
+      if (@mode == :stream or @log_filename) and !@thread
+        @playback_index = @packet_offsets.length - 2 if @mode != :stream and @playback_index >= @packet_offsets.length
         start_playback(:BACKWARD)
       else
         stop()
@@ -202,9 +253,15 @@ module Cosmos
 
     # Replay move to start of file
     def move_start
-      if @log_filename and !@thread
-        packet = read_at_index(0, :FORWARD)
-        @start_time = packet.received_time.formatted(true, 3, true) if packet and packet.received_time
+      if (@mode == :stream or @log_filename) and !@thread
+        if @mode == :stream
+          @playback_index = 0
+          @current_time = @start_time.dup
+          @current_time_object = @start_time_object.dup
+        else
+          packet = read_at_index(0, :FORWARD)
+          @start_time = packet.received_time.formatted(true, 3, true) if packet and packet.received_time
+        end
       else
         stop()
       end
@@ -212,9 +269,15 @@ module Cosmos
 
     # Replay move to end of file
     def move_end
-      if @log_filename and !@thread
-        packet = read_at_index(@packet_offsets.length - 1, :FORWARD)
-        @end_time = packet.received_time.formatted(true, 3, true) if packet and packet.received_time
+      if (@mode == :stream or @log_filename) and !@thread
+        if @mode == :stream
+          @playback_index = SLIDER_GRANULARITY
+          @current_time = @end_time.dup
+          @current_time_object = @end_time_object.dup
+        else
+          packet = read_at_index(@packet_offsets.length - 1, :FORWARD)
+          @end_time = packet.received_time.formatted(true, 3, true) if packet and packet.received_time
+        end
       else
         stop()
       end
@@ -224,8 +287,18 @@ module Cosmos
     #
     # @param index [Integer] packet index into file
     def move_index(index)
-      if @log_filename and !@thread
-        read_at_index(index, :FORWARD)
+      if (@mode == :stream or @log_filename) and !@thread
+        if @mode == :stream
+          @playback_index = index
+          total_seconds = @end_time_object - @start_time_object
+          delta = (total_seconds / SLIDER_GRANULARITY.to_f) * index
+          @current_time_object = @start_time_object + delta
+          @current_time = @current_time_object.formatted(true, 3, true)
+        else
+          read_at_index(index, :FORWARD)
+        end
+      else
+        stop()
       end
     end
 
@@ -256,6 +329,7 @@ module Cosmos
               packet_start = Time.now.sys
               packet = read_at_index(@playback_index, direction)
               break unless packet
+
               delay_time = 0.0
               if @playback_delay
                 # Fixed Time Delay
@@ -286,29 +360,80 @@ module Cosmos
           @playing = false
           @playback_sleeper = nil
           @thread = nil
+          @interface.disconnect
         end
       end
     end
 
     def read_at_index(index, direction)
-      packet_offset = nil
-      packet_offset = @packet_offsets[index] if index >= 0
-      if packet_offset
-        # Read the packet
-        packet = @packet_log_reader.read_at_offset(packet_offset, false)
+      if @mode == :file
+        packet_offset = nil
+        packet_offset = @packet_offsets[index] if index >= 0
+        if packet_offset
+          # Read the packet
+          packet = @packet_log_reader.read_at_offset(packet_offset, false)
+          handle_packet(packet)
+
+          # Adjust index for next read
+          if direction == :FORWARD
+            @playback_index = index + 1
+          else
+            @playback_index = index - 1
+          end
+          @current_time_object = packet.received_time
+          @current_time = packet.received_time.formatted(true, 3, true) if packet and packet.received_time
+
+          return packet
+        else
+          return nil
+        end
+      else
+        unless @interface.connected?
+          request_packet = Cosmos::Packet.new('DART', 'DART')
+          request_packet.define_item('REQUEST', 0, 0, :BLOCK)
+          
+          request = {}
+          if direction == :FORWARD
+            request['start_time_sec'] = @current_time_object.tv_sec
+            request['start_time_usec'] = @current_time_object.tv_usec
+            request['end_time_sec'] = @end_time_object.tv_sec
+            request['end_time_usec'] = @end_time_object.tv_usec
+          else
+            request['start_time_sec'] = @current_time_object.tv_sec
+            request['start_time_usec'] = @current_time_object.tv_usec
+            request['end_time_sec'] = @start_time_object.tv_sec
+            request['end_time_usec'] = @start_time_object.tv_usec
+          end
+          request['cmd_tlm'] = 'TLM'
+          request_packet.write('REQUEST', JSON.dump(request))
+        
+          @interface.connect
+          @interface.write(request_packet)
+        end
+
+        packet = @interface.read
+        unless packet
+          @interface.disconnect
+          return nil
+        end
+
+        # Switch to correct configuration from SYSTEM META when needed
+        if packet.target_name == 'SYSTEM'.freeze and packet.packet_name == 'META'.freeze
+          meta_packet = System.telemetry.update!('SYSTEM', 'META', packet.buffer)
+          Cosmos::System.load_configuration(meta_packet.read('CONFIG'))
+        end
         handle_packet(packet)
 
-        # Adjust index for next read
-        if direction == :FORWARD
-          @playback_index = index + 1
-        else
-          @playback_index = index - 1
+        @current_time_object = packet.received_time
+        @current_time = packet.received_time.formatted(true, 3, true)
+        if @first
+          @first = false
+          @start_time_object = @current_time_object.dup
+          @start_time = @current_time.dup
         end
-        @current_time = packet.received_time.formatted(true, 3, true) if packet and packet.received_time
+        @playback_index = ((((@end_time_object - @start_time_object) - (@end_time_object - @current_time_object)).to_f / (@end_time_object - @start_time_object).to_f) * SLIDER_GRANULARITY).to_i
 
         return packet
-      else
-        return nil
       end
     end
 

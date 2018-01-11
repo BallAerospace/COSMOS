@@ -119,14 +119,14 @@ class Dart
     num_workers = num_workers.to_i
 
     process_definitions = [
-      [ruby_process_name, File.join(__dir__, 'dart_ingester.rb')],
-      [ruby_process_name, File.join(__dir__, 'dart_reducer.rb')],
+      #[ruby_process_name, File.join(__dir__, 'dart_ingester.rb')],
+      #[ruby_process_name, File.join(__dir__, 'dart_reducer.rb')],
       [ruby_process_name, File.join(__dir__, 'dart_stream_server.rb')],
       [ruby_process_name, File.join(__dir__, 'dart_decom_server.rb')]
     ]
 
     num_workers.times do |index|
-      process_definitions << [ruby_process_name, File.join(__dir__, 'dart_worker.rb'), index.to_s, num_workers.to_s]
+      #process_definitions << [ruby_process_name, File.join(__dir__, 'dart_worker.rb'), index.to_s, num_workers.to_s]
     end
 
     processes = []
