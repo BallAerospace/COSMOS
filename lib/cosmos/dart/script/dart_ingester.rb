@@ -2,6 +2,8 @@ require File.expand_path('../../config/environment', __FILE__)
 require 'dart_packet_log_writer'
 require 'dart_logging'
 
+# Handles packets by writing them to the dart log file. New SYSTEM META packets
+# cause a new log file to be started.
 class DartInterfaceThread < Cosmos::InterfaceThread
   attr_writer :packet_log_writer
   attr_writer :log_type
@@ -26,14 +28,42 @@ Cosmos.catch_fatal_exception do
   Cosmos::Logger.level = Cosmos::Logger::INFO
   dart_logging = DartLogging.new('dart_ingester')
 
-  tlm_log_writer = DartPacketLogWriter.new(:TLM, 'dart_', true, nil, 2000000000, Cosmos::System.paths['DART_DATA'])
-  tlm_interface = Cosmos::TcpipClientInterface.new(Cosmos::System.connect_hosts['CTS_PREIDENTIFIED'], nil, Cosmos::System.ports['CTS_PREIDENTIFIED'], nil, nil, 'PREIDENTIFIED')
+  tlm_log_writer = DartPacketLogWriter.new(
+    :TLM,    # Log telemetry
+    'dart_', # Put dart_ in the log file name
+    true,    # Enable logging
+    nil,     # Don't cycle on time
+    2_000_000_000, # Cycle the log at 2GB
+    Cosmos::System.paths['DART_DATA']) # Log into the DART_DATA dir
+
+  tlm_interface = Cosmos::TcpipClientInterface.new(
+    Cosmos::System.connect_hosts['CTS_PREIDENTIFIED'], # Connect to the CTS machine
+    nil, # Don't write commands
+    Cosmos::System.ports['CTS_PREIDENTIFIED'], # Read telemetry from the CTS port
+    nil, # No write timeout
+    nil, # No read timeout
+    'PREIDENTIFIED') # PREIDENTIFIED protocol
+
   tlm_thread = DartInterfaceThread.new(tlm_interface)
   tlm_thread.packet_log_writer = tlm_log_writer
   tlm_thread.log_type = :TLM
 
-  cmd_log_writer = DartPacketLogWriter.new(:CMD, 'dart_', true, nil, 2000000000, Cosmos::System.paths['DART_DATA'])
-  cmd_interface = Cosmos::TcpipClientInterface.new(Cosmos::System.connect_hosts['CTS_CMD_ROUTER'], nil, Cosmos::System.ports['CTS_CMD_ROUTER'], nil, nil, 'PREIDENTIFIED')
+  cmd_log_writer = DartPacketLogWriter.new(
+    :CMD,    # Log commands
+    'dart_', # Put dart_ in the log file name
+    true,    # Enable logging
+    nil,     # Don't cycle on time
+    2_000_000_000, # Cycle the log at 2GB
+    Cosmos::System.paths['DART_DATA']) # Log into the DART_DATA dir
+
+  cmd_interface = Cosmos::TcpipClientInterface.new(
+    Cosmos::System.connect_hosts['CTS_CMD_ROUTER'], # Connect to the CTS machine
+    nil, # Don't write commands
+    Cosmos::System.ports['CTS_CMD_ROUTER'], # Read commands from the CMD port
+    nil, # No write timeout
+    nil, # No read timeout
+    'PREIDENTIFIED') # PREIDENTIFIED protocol
+
   cmd_thread = DartInterfaceThread.new(cmd_interface)
   cmd_thread.packet_log_writer = cmd_log_writer
   cmd_thread.log_type = :CMD

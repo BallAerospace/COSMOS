@@ -171,7 +171,7 @@ module DartCommon
   # entries for all targets (Target table) and packets (Packet table).
   def sync_targets_and_packets
     sync_targets_packets(Cosmos::System.telemetry.all, is_tlm: true)
-    sync_targets_packets(Cosmos::System.comands.all, is_tlm: false)
+    sync_targets_packets(Cosmos::System.commands.all, is_tlm: false)
   end
 
   # Build the internal lookup tables to convert names to database ids
@@ -469,7 +469,7 @@ module DartCommon
     target
   end
 
-  def sync_packet(target_id, packet_name, is_tlm:)
+  def sync_packet(target_id, packet_name, is_tlm)
     packet = Packet.where("target_id = ? and name = ? and is_tlm = #{is_tlm}", target_id, packet_name).first
     begin
       unless packet

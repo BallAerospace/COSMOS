@@ -84,6 +84,9 @@ class DartPacketLogWriter < Cosmos::PacketLogWriter
     while true
       begin
         target_name, packet_name, time, data_offset, packet_log_id, sync_count = @db_queue.pop
+        # Every time the sync_count resets by the pre_write_entry_hook the file
+        # is written out to disk. Thus we mark all the PacketLogEntrys to ready
+        # since we know the packets have been written to disk.
         if sync_count == 0 or sync_count.nil?
           PacketLogEntry.where("id" => @not_ready_ple_ids).update_all(ready: true)
           @not_ready_ple_ids.clear
@@ -107,13 +110,16 @@ class DartPacketLogWriter < Cosmos::PacketLogWriter
       ple.ready = false
       ple.save!
 
+      # SYSTEM META packets are special in that their meta_id is their own
+      # PacketLogEntry ID from the database. All other packets have meta_id
+      # values which point back to the last SYSTEM META PacketLogEntry ID.
       if target_name == 'SYSTEM'.freeze and packet_name == 'META'.freeze
-        # Need to update meta_id
+        # Need to update meta_id for this and all subsequent packets
         @meta_id = ple.id
         ple.meta_id = @meta_id
         ple.save!
       end
-
+      # Remember this new PacketLogEntry so we can mark it ready later
       @not_ready_ple_ids << ple.id
     end
   end

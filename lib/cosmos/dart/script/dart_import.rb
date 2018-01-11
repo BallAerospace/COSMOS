@@ -1,7 +1,7 @@
 # This code must be run on the database server
-# The file to be imported should be placed in its final storage location - Note that it is
-# imported in place with algorithms that attempt to prevent duplicate creation of
-# Database entries
+# The file to be imported should be placed in its final storage location
+# Note that it is imported in place with algorithms that attempt to prevent
+# duplicate creation of Database entries
 
 require 'ostruct'
 require 'optparse'
@@ -46,7 +46,7 @@ include DartCommon
 Cosmos::Logger.level = Cosmos::Logger::INFO
 
 Cosmos.catch_fatal_exception do
-
+  # Ensure all defined target and packets are in the database
   sync_targets_and_packets()
 
   unless ARGV[0]
@@ -78,7 +78,7 @@ Cosmos.catch_fatal_exception do
     is_tlm = false
   end
 
-  build_lookups()
+  build_lookups() # Build names to database IDs lookups
 
   # Check if first and last packet in the log are already in the database
   last_packet = plr.last
@@ -109,7 +109,6 @@ Cosmos.catch_fatal_exception do
   end
 
   unless packet_log
-    # Create PacketLog
     Cosmos::Logger.info("Creating PacketLog entry for file: #{filename}")
     packet_log = PacketLog.create(:filename => filename, :is_tlm => is_tlm)
   end
@@ -127,12 +126,15 @@ Cosmos.catch_fatal_exception do
 
     target_id, packet_id = lookup_target_and_packet_id(target_name, packet_name, is_tlm)
 
+    # If packets aren't found in the database we don't have to bother looking
+    # for PacketLogEntrys in the database and can simply create new entries
     if fast
       ple = nil
-    else
+    else # File is partially in the DB so see if the packet already exists
       ple = find_packet_log_entry(packet, is_tlm)
     end
 
+    # No PacketLogEntry was found so create one from scratch
     unless ple
       ple = PacketLogEntry.new
       ple.target_id = target_id
@@ -146,19 +148,23 @@ Cosmos.catch_fatal_exception do
       ple.save!
       count += 1
 
+      # SYSTEM META packets are special in that their meta_id is their own
+      # PacketLogEntry ID from the database. All other packets have meta_id
+      # values which point back to the last SYSTEM META PacketLogEntry ID.
       if target_name == 'SYSTEM'.freeze and packet_name == 'META'.freeze
-        # Need to update meta_id
+        # Need to update meta_id for this and all subsequent packets
         meta_id = ple.id
         ple.meta_id = meta_id
         ple.save!
       end
-    else
+    else # A PacketLogEntry was found so this packet is skipped
+      # If the packet is a SYSTEM META packet we keep track of the meta_id
+      # for use in subsequent packets that aren't already in the database.
       if target_name == 'SYSTEM'.freeze and packet_name == 'META'.freeze
-        # Need to update meta_id
+        # Need to update meta_id for subsequent packets
         meta_id = ple.id
       end
     end
-
     data_offset = plr.bytes_read
   end
 
