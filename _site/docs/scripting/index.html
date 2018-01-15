@@ -3412,16 +3412,19 @@
     </tr>
     <tr>
       <td>Filter</td>
-      <td>Filter to select allowed file type.</td>
+      <td>Filter to select allowed file type.  Optional parameter, defaults to “*”</td>
     </tr>
   </tbody>
 </table>
 
 <p>Example:</p>
 <div class="language-ruby highlighter-rouge">
-<pre class="highlight"><code><span class="n">selected_file</span><span class="o">=</span> <span class="n">open_file_dialog</span><span class="p">()</span>
+<pre class="highlight"><code><span class="n">selected_file</span> <span class="o">=</span> <span class="n">open_file_dialog</span><span class="p">()</span>
 <span class="n">file_data</span> <span class="o">=</span> <span class="s2">""</span>
 <span class="no">File</span><span class="p">.</span><span class="nf">open</span><span class="p">(</span><span class="n">selected_file</span><span class="p">,</span> <span class="s1">'rb'</span><span class="p">)</span> <span class="p">{</span><span class="o">|</span><span class="n">file</span><span class="o">|</span> <span class="n">file_data</span> <span class="o">=</span> <span class="n">file</span><span class="p">.</span><span class="nf">read</span><span class="p">()}</span>
+
+<span class="c1"># Filter will initially show only .txt files, but can be changed to show all files...</span>
+<span class="n">selected_file</span> <span class="o">=</span> <span class="n">open_file_dialog</span><span class="p">(</span><span class="no">Cosmos</span><span class="o">::</span><span class="no">USERPATH</span><span class="p">,</span> <span class="s2">"Open File"</span><span class="p">,</span> <span class="s2">"Text (*.txt);;All (*.*)"</span><span class="p">)</span>
 </code></pre>
 </div>
 
@@ -4550,7 +4553,7 @@
   <tbody>
     <tr>
       <td>Method Name</td>
-      <td>The method to execute.</td>
+      <td>The COSMOS scripting method to execute, e.g. ‘cmd’, ‘cmd_raw’, etc.</td>
     </tr>
     <tr>
       <td>Method Params</td>
@@ -5145,7 +5148,7 @@
 <h3 id="override_tlm">
 <a id="override_tlm" class="anchor" href="#override_tlm" aria-hidden="true"><span class="octicon octicon-link"></span></a>override_tlm</h3>
 
-<p>The override_tlm method sets the converted value for a telmetry point in the Command and Telemetry Server. This value will be maintained even if a new packet is received on the interface unless the override is canceled with the normalize_tlm method.</p>
+<p>The override_tlm method sets the converted value for a telmetry point in the Command and Telemetry Server. This value will be maintained even if a new packet is received on the interface unless the override is canceled with the normalize_tlm method.  Note that the interface definition must explicitly add this capability by declaring PROTOCOL READ OverrideProtocol (refer to the documentation for the <a href="http://cosmosrb.com/docs/protocols/#override-protocol">override protocol</a>).</p>
 
 <p>Syntax:</p>
 <div class="language-ruby highlighter-rouge">
@@ -5189,7 +5192,7 @@
 <h3 id="override_tlm_raw">
 <a id="override_tlm_raw" class="anchor" href="#override_tlm_raw" aria-hidden="true"><span class="octicon octicon-link"></span></a>override_tlm_raw</h3>
 
-<p>The override_tlm_raw method sets the raw value for a telmetry point in the Command and Telemetry Server. This value will be maintained even if a new packet is received on the interface unless the override is canceled with the normalize_tlm method.</p>
+<p>The override_tlm_raw method sets the raw value for a telmetry point in the Command and Telemetry Server. This value will be maintained even if a new packet is received on the interface unless the override is canceled with the normalize_tlm method.  Note that the interface definition must explicitly add this capability by declaring PROTOCOL READ OverrideProtocol (refer to the documentation for the <a href="http://cosmosrb.com/docs/protocols/#override-protocol">override protocol</a>).</p>
 
 <p>Syntax:</p>
 <div class="language-ruby highlighter-rouge">
@@ -5233,7 +5236,7 @@
 <h3 id="normalize_tlm">
 <a id="normalize_tlm" class="anchor" href="#normalize_tlm" aria-hidden="true"><span class="octicon octicon-link"></span></a>normalize_tlm</h3>
 
-<p>The normalize_tlm method clears the override of a telmetry point in the Command and Telemetry Server.</p>
+<p>The normalize_tlm method clears the override of a telmetry point in the Command and Telemetry Server.  Note that the interface definition must explicitly add this capability by declaring PROTOCOL READ OverrideProtocol (refer to the documentation for the <a href="http://cosmosrb.com/docs/protocols/#override-protocol">override protocol</a>).</p>
 
 <p>Syntax:</p>
 <div class="language-ruby highlighter-rouge">
@@ -8351,7 +8354,7 @@ Example:
 <h3 id="get_screen_definition-since-410">
 <a id="get_screen_definition-since-410" class="anchor" href="#get_screen_definition-since-410" aria-hidden="true"><span class="octicon octicon-link"></span></a>get_screen_definition (since 4.1.0)</h3>
 
-<p>The get_screen_definition returns the screen definition for a telemetry screen.</p>
+<p>The get_screen_definition returns the text file contents of a telemetry screen definition.</p>
 
 <p>Syntax:</p>
 <div class="language-ruby highlighter-rouge">

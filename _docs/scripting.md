@@ -358,13 +358,16 @@ open_directory_dialog("<directory>", "<message>")
 | -------- | --------------------------------- |
 | Directory | The directory to start browsing in. Optional parameter, defaults to Cosmos::USERPATH. |
 | Message | The message to display in the dialog box. Optional parameter, defaults to "Save File", "Open File", "Open File(s)", or "Open Directory". |
-| Filter | Filter to select allowed file type. |
+| Filter | Filter to select allowed file type.  Optional parameter, defaults to "*" |
 
 Example:
 ```ruby
-selected_file= open_file_dialog()
+selected_file = open_file_dialog()
 file_data = ""
 File.open(selected_file, 'rb') {|file| file_data = file.read()}
+
+# Filter will initially show only .txt files, but can be changed to show all files...
+selected_file = open_file_dialog(Cosmos::USERPATH, "Open File", "Text (*.txt);;All (*.*)")
 ```
 
 ## Providing information to the user
@@ -959,7 +962,7 @@ check_exception("<Method Name>", "<Method Params - optional>")
 
 | Parameter | Description |
 | -------- | --------------------------------- |
-| Method Name | The method to execute. |
+| Method Name | The COSMOS scripting method to execute, e.g. 'cmd', 'cmd_raw', etc. |
 | Method Params | Parameters for the method |
 
 Example:
@@ -1271,7 +1274,7 @@ inject_tlm("INST", "PARAMS", {'VALUE1'=>5.0, 'VALUE2'=>7.0})
 
 ### override_tlm
 
-The override_tlm method sets the converted value for a telmetry point in the Command and Telemetry Server. This value will be maintained even if a new packet is received on the interface unless the override is canceled with the normalize_tlm method.
+The override_tlm method sets the converted value for a telmetry point in the Command and Telemetry Server. This value will be maintained even if a new packet is received on the interface unless the override is canceled with the normalize_tlm method.  Note that the interface definition must explicitly add this capability by declaring PROTOCOL READ OverrideProtocol (refer to the documentation for the [override protocol](http://cosmosrb.com/docs/protocols/#override-protocol)).
 
 Syntax:
 ```ruby
@@ -1292,7 +1295,7 @@ override_tlm("INST HEALTH_STATUS TEMP1 = 5")
 
 ### override_tlm_raw
 
-The override_tlm_raw method sets the raw value for a telmetry point in the Command and Telemetry Server. This value will be maintained even if a new packet is received on the interface unless the override is canceled with the normalize_tlm method.
+The override_tlm_raw method sets the raw value for a telmetry point in the Command and Telemetry Server. This value will be maintained even if a new packet is received on the interface unless the override is canceled with the normalize_tlm method.  Note that the interface definition must explicitly add this capability by declaring PROTOCOL READ OverrideProtocol (refer to the documentation for the [override protocol](http://cosmosrb.com/docs/protocols/#override-protocol)).
 
 Syntax:
 ```ruby
@@ -1313,7 +1316,7 @@ override_tlm_raw("INST HEALTH_STATUS TEMP1 = 5")
 
 ### normalize_tlm
 
-The normalize_tlm method clears the override of a telmetry point in the Command and Telemetry Server.
+The normalize_tlm method clears the override of a telmetry point in the Command and Telemetry Server.  Note that the interface definition must explicitly add this capability by declaring PROTOCOL READ OverrideProtocol (refer to the documentation for the [override protocol](http://cosmosrb.com/docs/protocols/#override-protocol)).
 
 Syntax:
 ```ruby
@@ -3176,7 +3179,7 @@ screen_list = get_screen_list()
 
 ### get_screen_definition (since 4.1.0)
 
-The get_screen_definition returns the screen definition for a telemetry screen.
+The get_screen_definition returns the text file contents of a telemetry screen definition.
 
 Syntax:
 ```ruby
