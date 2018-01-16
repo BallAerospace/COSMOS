@@ -358,7 +358,7 @@ module Cosmos
       end
       attrs[:shortDescription] = item.description if item.description
       xml['xtce'].send(string_or_binary + param_or_arg + 'Type', attrs) do
-        to_xtce_endianness(item, xml)
+        # Don't call to_xtce_endianness for Strings or Blocks
         to_xtce_units(item, xml)
         if string_or_binary == 'String'
           xml['xtce'].StringDataEncoding(:encoding => 'UTF-8') do
