@@ -100,7 +100,6 @@ module Cosmos
     end
 
     def set_packet_endianness
-      @current_packet.sorted_items.collect { |item| puts "item:#{item.name} endian:#{item.endianness}" }
       item_endianness = @current_packet.sorted_items.collect do |item|
         # Strings and Blocks endianness don't matter so ignore them
         item.endianness if (item.data_type != :STRING && item.data_type != :BLOCK)
