@@ -103,10 +103,6 @@ module Cosmos
           test_cases << method_name.to_s
         end
       end
-
-      # Sort by name
-      test_cases.sort!
-
       test_cases
     end
 
