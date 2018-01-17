@@ -11,6 +11,6 @@
 
 require_relative 'tool_launch'
 tool_launch do
-  require 'cosmos/dart/script/dart'
+  require 'cosmos/dart/processes/dart'
   Dart.run
 end

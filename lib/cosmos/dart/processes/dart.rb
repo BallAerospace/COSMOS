@@ -1,3 +1,13 @@
+# encoding: ascii-8bit
+
+# Copyright 2018 Ball Aerospace & Technologies Corp.
+# All Rights Reserved.
+#
+# This program is free software; you can modify and/or redistribute it
+# under the terms of the GNU General Public License
+# as published by the Free Software Foundation; version 3 with
+# attribution addendums as found in the LICENSE.txt
+
 require File.expand_path('../../config/environment', __FILE__)
 require 'dart_common'
 require 'dart_logging'
@@ -5,6 +15,11 @@ require 'childprocess'
 
 class Dart
   include DartCommon
+
+  @@force_cleanup = false
+  def self.force_cleanup=(value)
+    @@force_cleanup = value
+  end
 
   def cleanup
     Cosmos::Logger::info("Starting database cleanup...")
@@ -23,13 +38,25 @@ class Dart
     end
     Cosmos::System.load_configuration
 
-    # Make sure all packet logs exist and if not drop the associated PacketLogEntry
-    # NOTE: This means you can't move packet logs!
+    # Make sure all packet log files still exist
     Cosmos::Logger::info("Cleaning up PacketLogs...")
     PacketLog.find_each do |pl|
       unless File.exist?(pl.filename)
-        Cosmos::Logger.error("Packet Log File Missing: #{pl.filename}")
-        PacketLogEntry.where("packet_log_id = ?", pl.id).destroy_all
+        # Try to see if it is in the current DART_DATA folder
+        moved_filename = File.join(Cosmos::System.paths['DART_DATA'], File.basename(pl.filename))
+        if File.exist?(moved_filename)
+          pl.filename = moved_filename
+          pl.save!
+        else
+          if @@force_cleanup
+            Cosmos::Logger.error("Packet Log File Missing: #{pl.filename}")
+            PacketLogEntry.where("packet_log_id = ?", pl.id).destroy_all
+            pl.destroy
+          else
+            Cosmos::Logger.fatal("Packet Log File Missing (Cleanup with --force-cleanup): #{pl.filename}")
+            exit(1)
+          end
+        end
       end
     end
 
@@ -193,7 +220,8 @@ class Dart
       sleep(1)
     end
 
-    Cosmos::Logger.info("Dart successful shutdown complete")
+  ensure
+    Cosmos::Logger.info("Dart shutdown complete")
     shutdown_cmd_tlm()
     dart_logging.stop
   end
@@ -206,4 +234,8 @@ class Dart
   end
 end
 
-DartCommon.handle_argv
+parser = DartCommon.handle_argv(false)
+parser.on("--force-cleanup", "Force database cleanup") do |arg|
+  Dart.force_cleanup = true
+end
+parser.parse!
