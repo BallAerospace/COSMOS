@@ -51,7 +51,7 @@ gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 
 # Ryan added
 gem 'rest-client' # For examples
-gem 'pg'
+gem 'pg', '0.21'
 gem 'childprocess'
 
 if ENV['COSMOS_DEVEL']

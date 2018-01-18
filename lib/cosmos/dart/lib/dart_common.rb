@@ -370,7 +370,7 @@ module DartCommon
     return raw_data_type, converted_data_type
   end
 
-    # Create the item to decommutation table mapping
+  # Create the item to decommutation table mapping
   #
   # @param packet [Cosmos::Packet] Packet to create item mappings for
   # @param packet_id [Integer] Id in the Packet table
