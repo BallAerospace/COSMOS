@@ -13,6 +13,35 @@
 # it.
 #
 # See http://rubydoc.info/gems/rspec-core/RSpec/Core/Configuration
+
+# NOTE: You MUST require simplecov before anything else!
+if !ENV['COSMOS_NO_SIMPLECOV']
+  require 'simplecov'
+  require 'codecov'
+  SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter.new([
+    SimpleCov::Formatter::HTMLFormatter,
+    SimpleCov::Formatter::Codecov,
+  ])
+  SimpleCov.start do
+    merge_timeout 12 * 60 * 60 # merge the last 12 hours of results
+    add_filter '/spec/'
+    add_group 'Lib', 'lib'
+    add_group 'Processes', 'processes'
+    add_group 'Rails' do |src|
+      src.filename.include?('app') || src.filename.include?('config')
+    end
+    root = File.dirname(__FILE__)
+    root.to_s
+  end
+  SimpleCov.at_exit do
+    Cosmos.disable_warnings do
+      Encoding.default_external = Encoding::UTF_8
+      Encoding.default_internal = nil
+    end
+    SimpleCov.result.format!
+  end
+end
+
 RSpec.configure do |config|
   # rspec-expectations config goes here. You can use an alternate
   # assertion/expectation library such as wrong or the stdlib/minitest
