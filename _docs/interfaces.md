@@ -6,6 +6,10 @@ toc: true
 ---
 Interface classes provide the code that COSMOS uses to receive real-time telemetry from targets and to send commands to targets. The interface that a target uses could be anything (TCP/IP, serial, GPIB, Firewire, etc.), therefore it is important that this is a customizable portion of any reusable Command and Telemetry System. Fortunately the most common form of interfaces are over TCP/IP sockets, and COSMOS provides interface solutions for these. This guide will discuss how to use these interface classes, and how to create your own.
 
+<div class="note info">
+  Note that Interfaces and Routers are very similar and share the same configuration parameters. Routers are simply Interfaces which route an existing Interface's telemetry data out to the connected target and routes the connected target's commands back to the original Interface's target.
+</div>
+
 Interfaces have the following methods that must be implemented:
 
 1. **connect** - Open the socket or port or somehow establish the connection to the target. Note: This method may not block indefinitely. Be sure to call super() in your implementation.
@@ -28,7 +32,7 @@ Interfaces also have the following methods that exist and have default implement
 
 
 ## Provided Interfaces
-Cosmos provides the following interfaces for use: TCPIP Client, TCPIP Server, UDP, Serial, Command Telemetry Server, and LINC.
+Cosmos provides the following interfaces for use: TCPIP Client, TCPIP Server, UDP, Serial, Command Telemetry Server, and LINC. The interface to use is defined by the [INTERFACE](/docs/system/#interface) and [ROUTER](/docs/system/#router) keywords.
 
 ### TCPIP Client Interface
 The TCPIP client interface connects to a TCPIP socket to send commands and receive telemetry. This interface is used for targets which open a socket and wait for a connection. This is the most common type of interface.
@@ -53,6 +57,8 @@ INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 10.0
 INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 10.0 TEMPLATE 0xA 0xA
 {% endhighlight %}
 
+See [INTERFACE](/docs/system/#interface) for a description of the INTERFACE keyword. See [Interface Modifiers](/docs/system/#interface-modifiers) for a description of the keywords which can follow the INTERFACE keyword.
+
 ### TCPIP Server Interface
 The TCPIP server interface creates a TCPIP server which listens for incoming connections and dynamically creates sockets which communicate with the target. This interface is used for targets which open a socket and try to connect to a server.
 
@@ -75,6 +81,8 @@ INTERFACE INTERFACE_NAME tcpip_server_interface.rb 8080 8080 10.0 10.0 TERMINATE
 INTERFACE INTERFACE_NAME tcpip_client_interface.rb 8080 8080 10.0 10.0 TEMPLATE 0xA 0xA
 {% endhighlight %}
 
+See [INTERFACE](/docs/system/#interface) for a description of the INTERFACE keyword. See [Interface Modifiers](/docs/system/#interface-modifiers) for a description of the keywords which can follow the INTERFACE keyword. Note, TcpipServerInterface processes the [OPTION](/docs/system/#option) modifier.
+
 ### UDP Interface
 The UDP interface uses UDP packets to send and receive telemetry from the target.
 
@@ -93,6 +101,8 @@ cmd_tlm_server.txt Example:
 {% highlight bash %}
 INTERFACE INTERFACE_NAME udp_interface.rb localhost 8080 8081 8082 nil 128 10.0 nil
 {% endhighlight %}
+
+See [INTERFACE](/docs/system/#interface) for a description of the INTERFACE keyword. See [Interface Modifiers](/docs/system/#interface-modifiers) for a description of the keywords which can follow the INTERFACE keyword.
 
 ### Serial Interface
 The serial interface connects to a target over a serial port. COSMOS provides drivers for both Windows and POSIX drivers for UNIX based systems.
@@ -119,6 +129,8 @@ INTERFACE INTERFACE_NAME serial_interface.rb COM4 COM4 115200 NONE 1 10.0 10.0 T
 INTERFACE INTERFACE_NAME serial_interface.rb COM4 COM4 115200 NONE 1 10.0 10.0 TEMPLATE 0xA 0xA
 {% endhighlight %}
 
+See [INTERFACE](/docs/system/#interface) for a description of the INTERFACE keyword. See [Interface Modifiers](/docs/system/#interface-modifiers) for a description of the keywords which can follow the INTERFACE keyword. Note, SerialInterface processes the [OPTION](/docs/system/#option) modifier.
+
 ### CmdTlmServer Interface
 The CmdTlmServer interface provides a connection to the COSMOS Command and Telemetry Server. This allows scripts and other COSMOS tools to send commands to the CmdTlmServer to enable and disable logging. It also allows scripts and other tools to receive a COSMOS version information packet and a limits change packet which is sent when any telemetry items change limits states. The CmdTlmServer interface can be used by any COSMOS configuration.
 
@@ -126,6 +138,8 @@ cmd_tlm_server.txt Example:
 {% highlight bash %}
 INTERFACE COSMOSINT cmd_tlm_server_interface.rb
 {% endhighlight %}
+
+See [INTERFACE](/docs/system/#interface) for a description of the INTERFACE keyword. See [Interface Modifiers](/docs/system/#interface-modifiers) for a description of the keywords which can follow the INTERFACE keyword.
 
 ### LINC Interface
 The LINC interface uses a single TCPIP socket to talk to a Ball Aerospace LINC Labview target.
@@ -150,6 +164,8 @@ cmd_tlm_server.txt Examples:
 INTERFACE INTERFACE_NAME linc_interface.rb localhost 8080
 INTERFACE INTERFACE_NAME linc_interface.rb localhost 8080 true 5 nil 5 0 16 4 HDR_GUID BIG_ENDIAN HDR_LENGTH
 {% endhighlight %}
+
+See [INTERFACE](/docs/system/#interface) for a description of the INTERFACE keyword. See [Interface Modifiers](/docs/system/#interface-modifiers) for a description of the keywords which can follow the INTERFACE keyword.
 
 ## Streams
 Streams are low level classes that implement read, read_nonblock, write, connect, connected? and disconnect methods. The build-in Stream classes are SerialStream, TcpipSocketStream and TcpipClientStream and they are automatically used when creating a Serial Interface, TCP/IP Server Interface, or TCP/IP Client Interface.
