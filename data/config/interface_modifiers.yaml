@@ -65,3 +65,20 @@ PROTOCOL:
     - name: Protocol specific parameters
       required: false
       description: Additional parameters used by the protocol
+OPTION:
+  summary: Set a parameter on an interface
+  description: When an option is set the interface class calls the set_option method.
+    Custom interfaces can override set_option to handle any additional options they want.
+  parameters:
+    - name: Name
+      required: true
+      description: The option to set. COSMOS defines several options on the core provided
+        interfaces. The SerialInterface defines FLOW_CONTROL which can be NONE (default) or RTSCTS.
+        The TcpipServerInterface defines LISTEN_ADDRESS which is the IP address to accept
+        connections on (default 0.0.0.0) and AUTO_SYSTEM_META which will automatically send
+        SYSTEM META when the interface connects (default false).
+      values: .*
+    - name: Parameters
+      required: false
+      description: Parameters to pass to the option
+      values: .*
