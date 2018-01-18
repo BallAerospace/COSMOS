@@ -1,7 +1,7 @@
 ---
 layout: news_item
 title: 'Metadata'
-date: 2017-12-13 08:00:00 -0700
+date: 2018-01-18 08:00:00 -0700
 author: jmthomas
 categories: [post]
 ---
