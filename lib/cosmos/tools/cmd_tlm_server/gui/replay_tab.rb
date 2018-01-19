@@ -12,7 +12,7 @@ require 'cosmos'
 require 'cosmos/gui/qt'
 require 'cosmos/gui/choosers/string_chooser'
 require 'cosmos/gui/dialogs/packet_log_dialog'
-require 'cosmos/gui/dialogs/stream_packets_dialog'
+require 'cosmos/gui/dialogs/dart_dialog'
 require 'cosmos/gui/dialogs/progress_dialog'
 
 module Cosmos
@@ -260,10 +260,10 @@ module Cosmos
     end
 
     def select_stream
-      stream_packets_dialog = StreamPacketsDialog.new(@widget, 'Select Stream', true)
-      case stream_packets_dialog.exec
+      dart_dialog = DartDialog.new(@widget, 'Select Stream', true)
+      case dart_dialog.exec
       when Qt::Dialog::Accepted
-        CmdTlmServer.replay_backend.select_stream(stream_packets_dialog.time_start, stream_packets_dialog.time_end)
+        CmdTlmServer.replay_backend.select_stream(dart_dialog.time_start, dart_dialog.time_end)
         @op.setTitle("Playback Control: Stream")
         @log_name.text = ""
         @move_start.setEnabled(true)

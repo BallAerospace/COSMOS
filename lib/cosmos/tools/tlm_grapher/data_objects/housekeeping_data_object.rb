@@ -159,6 +159,19 @@ module Cosmos
       end
     end
 
+    # Returns an array of items used by this data object
+    def processed_items
+      items = []
+      if @target_name and @packet_name
+        if @item_name
+          items << [@target_name, @packet_name, @time_item_name, :CONVERTED, nil]
+          items << [@target_name, @packet_name, @item_name, @value_type, @item_array_index]
+          items << [@target_name, @packet_name, @formatted_time_item_name, :CONVERTED, nil] if @formatted_time_item_name
+        end
+      end
+      items
+    end
+
     # (see DataObject#process_packet)
     def process_packet(packet, count)
       begin
@@ -172,10 +185,23 @@ module Cosmos
         if y_value.is_a?(Array) and @item_array_index and @item_array_index < y_value.size
           y_value = y_value[@item_array_index]
         end
+
+        formatted_x_value = nil
+        formatted_x_value = packet.read(@formatted_time_item_name) if @formatted_time_item_name
+
+        process_values(x_value, y_value, formatted_x_value)
+      rescue Exception => error
+        handle_process_exception(error, "#{packet.target_name} #{packet.packet_name} #{@item_name}")
+      end
+    end # def process_packet
+
+    # Process Analysis Steps
+    def process_values(x_value, y_value, formatted_x_value = nil)
+      begin
+        @formatted_x_values < formatted_x_value if formatted_x_value
+
         # Bail on the values if they are NaN or nil as we can't graph them
         return if invalid_value?(x_value) || invalid_value?(y_value)
-
-        @formatted_x_values << packet.read(@formatted_time_item_name) if @formatted_time_item_name
 
         upper_index  = nil
         sample_index = nil
@@ -265,8 +291,8 @@ module Cosmos
         prune_to_max_points_saved()
       rescue Exception => error
         handle_process_exception(error, "#{packet.target_name} #{packet.packet_name} #{@item_name}")
-      end
-    end # def process_packet
+      end      
+    end
 
     # Returns the name of this data object
     def name

@@ -13,12 +13,12 @@
 
 require 'cosmos'
 require 'cosmos/gui/qt'
-require 'cosmos/gui/widgets/stream_packets_frame'
+require 'cosmos/gui/widgets/dart_frame'
 
 module Cosmos
   # Creates a dialog to allow a user to select the
   # time period to process.
-  class StreamPacketsDialog < Qt::Dialog
+  class DartDialog < Qt::Dialog
     extend Forwardable
     def_delegators :@stream_packets_frame, :time_start, :time_start=, :time_end, :time_end=
 
@@ -30,7 +30,7 @@ module Cosmos
       setWindowTitle(title)
 
       @layout = Qt::VBoxLayout.new
-      @stream_packets_frame = StreamPacketsFrame.new(self, show_time)
+      @stream_packets_frame = DartFrame.new(self, show_time)
       @stream_packets_frame.change_callback = method(:change_callback)
       @layout.addWidget(@stream_packets_frame)
 

@@ -15,7 +15,7 @@ require 'cosmos/gui/dialogs/calendar_dialog'
 module Cosmos
   # Widget which displays a button to configure packet stream from DART.
   # Buttons exist to display start and stop time choosers
-  class StreamPacketsFrame < Qt::Widget
+  class DartFrame < Qt::Widget
     # @return [Time] Start time of packets to process
     attr_reader :time_start
     # @return [Time] End time of packets to process

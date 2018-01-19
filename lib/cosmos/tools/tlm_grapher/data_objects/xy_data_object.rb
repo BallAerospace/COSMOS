@@ -176,6 +176,17 @@ module Cosmos
       end
     end
 
+    # Returns an array of items used by this data object
+    def processed_items
+      items = []
+      if @target_name and @packet_name
+        items << [@target_name, @packet_name, @x_item_name, @x_value_type, nil]
+        items << [@target_name, @packet_name, @y_item_name, @y_value_type, nil]
+        items << [@target_name, @packet_name, @time_item_name, :CONVERTED, nil] if @time_item_name
+      end
+      items
+    end
+
     # (see DataObject#process_packet)
     def process_packet(packet, count)
       begin
@@ -191,14 +202,24 @@ module Cosmos
           y_value = packet.read(@y_item_name)
         end
 
+        time_value = nil
+        time_value = packet.read(@time_item_name) if @time_item_name
+
+        process_values(x_value, y_value, time_value)
+      rescue Exception => error
+        handle_process_exception(error, "#{packet.target_name} #{packet.packet_name} #{@x_item_name} or #{@y_item_name}")
+      end
+    end # def process_packet
+
+    # Add a set of values to the data object
+    def process_values(x_value, y_value, time_value = nil)
+      begin
         # Bail on the values if they are NaN or nil as we can't graph them
         return if invalid_value?(x_value) || invalid_value?(y_value)
 
-        time_value = packet.read(@time_item_name) if @time_item_name
-
         @x_values << x_value
         @y_values << y_value
-        @time_values << time_value if @time_item_name
+        @time_values << time_value if time_value
 
         @plot.redraw_needed = true
 
@@ -206,8 +227,8 @@ module Cosmos
         prune_to_max_points_saved()
       rescue Exception => error
         handle_process_exception(error, "#{packet.target_name} #{packet.packet_name} #{@x_item_name} or #{@y_item_name}")
-      end
-    end # def process_packet
+      end      
+    end
 
     # Returns the name of this data object
     def name
