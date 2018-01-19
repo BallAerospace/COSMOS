@@ -3081,7 +3081,7 @@ start("test1.rb")
 
 ### load_utility
 
-The load_utility method reads in a script file that contains useful subroutines for use in your test procedure.   When these subroutines run in ScriptRunner or TestRunner, their lines will not be highlighted.  This is very useful for methods containing loops which can be slow to execute when highlighting lines.
+The load_utility method reads in a script file that contains useful subroutines for use in your test procedure.   When these subroutines run in ScriptRunner or TestRunner, their lines will be highlighted.  If you want to import subroutines but do not want their lines to be highlighted in ScriptRunner or TestRunner, use the standard Ruby 'load' or 'require' statement.
 
 Syntax:
 ```ruby
