@@ -42,6 +42,7 @@
   - system_class
   - packet_class
   - json_api
+  - logging
 
 - title: Meta
   docs:
