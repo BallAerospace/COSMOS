@@ -1048,48 +1048,58 @@ module Cosmos
       end
     end
 
-    def toggle_disconnect(config_file)
+    def toggle_disconnect(config_file, ask_for_config_file = true)
       if get_cmd_tlm_disconnect
         set_cmd_tlm_disconnect(false)
         self.parent.setPalette(Cosmos::DEFAULT_PALETTE)
       else
-        dialog = Qt::Dialog.new(self, Qt::WindowTitleHint | Qt::WindowSystemMenuHint)
-        dialog.setWindowTitle(tr("Server Config File"))
-        dialog_layout = Qt::VBoxLayout.new
-
-        chooser = FileChooser.new(self, "Config File", config_file, 'Select',
-                                  File.dirname(config_file))
-        chooser.callback = lambda do |filename|
-          chooser.filename = filename
-        end
-        dialog_layout.addWidget(chooser)
-
-        button_layout = Qt::HBoxLayout.new
-        ok = Qt::PushButton.new("Ok")
-        ok.setDefault(true)
-        ok.connect(SIGNAL('clicked()')) do
-          dialog.accept()
-        end
-        button_layout.addWidget(ok)
-        cancel = Qt::PushButton.new("Cancel")
-        cancel.connect(SIGNAL('clicked()')) do
-          dialog.reject()
-        end
-        button_layout.addWidget(cancel)
-        dialog_layout.addLayout(button_layout)
-
-        dialog.setLayout(dialog_layout)
-        if dialog.exec == Qt::Dialog::Accepted
-          config_file = chooser.filename
+        if ask_for_config_file
+          dialog = Qt::Dialog.new(self, Qt::WindowTitleHint | Qt::WindowSystemMenuHint)
+          dialog.setWindowTitle(tr("Server Config File"))
+          dialog_layout = Qt::VBoxLayout.new
+          
+          chooser = FileChooser.new(self, "Config File", config_file, 'Select',
+                                    File.dirname(config_file))
+          chooser.callback = lambda do |filename|
+            chooser.filename = filename
+          end
+          dialog_layout.addWidget(chooser)
+          
+          button_layout = Qt::HBoxLayout.new
+          ok = Qt::PushButton.new("Ok")
+          ok.setDefault(true)
+          ok.connect(SIGNAL('clicked()')) do
+            dialog.accept()
+          end
+          button_layout.addWidget(ok)
+          cancel = Qt::PushButton.new("Cancel")
+          cancel.connect(SIGNAL('clicked()')) do
+            dialog.reject()
+          end
+          button_layout.addWidget(cancel)
+          dialog_layout.addLayout(button_layout)
+          
+          dialog.setLayout(dialog_layout)
+          if dialog.exec == Qt::Dialog::Accepted
+            config_file = chooser.filename
+            self.parent.setPalette(Cosmos::RED_PALETTE)
+            Splash.execute(self) do |splash|
+              ConfigParser.splash = splash
+              splash.message = "Initializing Command and Telemetry Server"
+              set_cmd_tlm_disconnect(true, config_file)
+              ConfigParser.splash = nil
+            end
+          end
+          dialog.dispose
+        else
           self.parent.setPalette(Cosmos::RED_PALETTE)
-          Splash.execute(self) do |splash|
+          Splash.execute(self, true) do |splash|
             ConfigParser.splash = splash
             splash.message = "Initializing Command and Telemetry Server"
             set_cmd_tlm_disconnect(true, config_file)
             ConfigParser.splash = nil
           end
         end
-        dialog.dispose
       end
       config_file
     end

@@ -76,6 +76,10 @@ module Cosmos
         initial_tabs.each {|filename| create_tab(filename)}
       end
 
+      if options.disconnect_mode
+        script_toggle_disconnect(false)
+      end
+
       if options.run_procedure
         run_procedure(options.run_procedure)
       end
@@ -622,8 +626,8 @@ module Cosmos
     end
 
     # Script->Toggle Disconnect
-    def script_toggle_disconnect
-      @server_config_file = active_script_runner_frame().toggle_disconnect(@server_config_file)
+    def script_toggle_disconnect(ask_for_config_file = true)
+      @server_config_file = active_script_runner_frame().toggle_disconnect(@server_config_file, ask_for_config_file)
     end
 
     ###########################################
@@ -957,6 +961,7 @@ module Cosmos
           options.auto_size = false
           options.server_config_file = CmdTlmServer::DEFAULT_CONFIG_FILE
           options.run_procedure = nil
+          options.disconnect_mode = false
 
           option_parser.separator "Script Runner Specific Options:"
           option_parser.on("-c", "--config FILE", "Use the specified configuration file") do |arg|
@@ -967,6 +972,9 @@ module Cosmos
           end
           option_parser.on("-r", "--run FILE", "Open and run the specified procedure") do |arg|
             options.run_procedure = arg
+          end
+          option_parser.on("-d", "--disconnect", "Start in disconnect mode") do |arg|
+            options.disconnect_mode = true
           end
         end
 
