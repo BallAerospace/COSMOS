@@ -139,6 +139,9 @@ module DartCommon
             raise "Unhandled db type: #{data_type}"
           end
         end
+        t.index :time
+        t.index :meta_id
+        t.index :reduced_state
       end
       create_reduction_table("t#{packet_config.id}_#{table_index}_h", table_data_types, table_index) # hour
       create_reduction_table("t#{packet_config.id}_#{table_index}_m", table_data_types, table_index) # month
@@ -465,6 +468,9 @@ module DartCommon
           t.column "i#{item_index}avg", data_type
         end
       end
+      t.index :start_time
+      t.index :meta_id
+      t.index :reduced_state
     end
   end
 
