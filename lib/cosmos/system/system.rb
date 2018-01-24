@@ -841,6 +841,8 @@ module Cosmos
       tlm_meta.write('RUBY_VERSION', "#{RUBY_VERSION}p#{RUBY_PATCHLEVEL}")
 
       cmd_meta.buffer = tlm_meta.buffer
+      cmd_meta.received_time = Time.now.sys
+      tlm_meta.received_time = Time.now.sys
     end
 
     def build_cmd_system_meta

@@ -67,12 +67,14 @@ module Cosmos
           expect(tlm.read("COSMOS_VERSION")).to_not be_nil
           expect(tlm.read("RUBY_VERSION")).to_not be_nil
           expect(tlm.read("USER_VERSION")).to_not be_nil
+          expect(tlm.received_time.to_f).to be_within(1).of(Time.now.to_f)
           cmd = System.commands.packet("SYSTEM", "META")
           expect(cmd.read("PKTID")).to eql tlm.read("PKTID")
           expect(cmd.read("CONFIG")).to eql tlm.read("CONFIG")
           expect(cmd.read("COSMOS_VERSION")).to eql tlm.read("COSMOS_VERSION")
           expect(cmd.read("RUBY_VERSION")).to eql tlm.read("RUBY_VERSION")
           expect(cmd.read("USER_VERSION")).to eql tlm.read("USER_VERSION")
+          expect(cmd.received_time.to_f).to be_within(1).of(Time.now.to_f)
         end
 
         it "defaults badly defined TELEMETRY SYSTEM META" do

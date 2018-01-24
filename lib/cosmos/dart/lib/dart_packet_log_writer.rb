@@ -81,8 +81,7 @@ class DartPacketLogWriter < Cosmos::PacketLogWriter
       @file.fsync
       @sync_count = 0
     end
-    time = packet.received_time ? packet.received_time : Time.now.sys
-    @db_queue << [packet.target_name, packet.packet_name, time, @file_size, @packet_log_id, @sync_count]
+    @db_queue << [packet.target_name, packet.packet_name, packet.received_time, @file_size, @packet_log_id, @sync_count]
   end
 
   # Build the target / packet table lookup table and then wait on the queue
