@@ -440,7 +440,7 @@ module Cosmos
       unless @config
         # Ensure packets have been lazy loaded
         System.commands
-      end        
+      end
 
       if name && @config
         # Make sure they're requesting something other than the current

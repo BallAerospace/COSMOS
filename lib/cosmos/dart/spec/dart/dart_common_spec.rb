@@ -10,6 +10,9 @@
 
 require 'rails_helper'
 require 'dart_common'
+require 'database_cleaner'
+require 'cosmos/tools/cmd_tlm_server/cmd_tlm_server'
+require 'cosmos/tools/cmd_tlm_server/api'
 
 describe DartCommon do
   let(:common) { Object.new.extend(DartCommon) }
@@ -87,12 +90,20 @@ describe DartCommon do
       packet_config = PacketConfig.create(:packet_id => packet_id, :name => packet.config_name, :first_system_config_id => 0)
       common.setup_packet_config(packet, packet_id, packet_config)
 
-      # Verify the decommutation and reduction tables were created
-      tables = ActiveRecord::Base.connection.tables
-      expect(tables).to include("t#{packet_config.id}_0")
-      expect(tables).to include("t#{packet_config.id}_0_m")
-      expect(tables).to include("t#{packet_config.id}_0_h")
-      expect(tables).to include("t#{packet_config.id}_0_d")
+      model = common.get_decom_table_model(packet_config.id, 0)
+      expect(model.column_names).to include("i0")
+      model = common.get_decom_table_model(packet_config.id, 0, '_m')
+      expect(model.column_names).to include("i0min")
+      expect(model.column_names).to include("i0max")
+      expect(model.column_names).to include("i0avg")
+      model = common.get_decom_table_model(packet_config.id, 0, '_h')
+      expect(model.column_names).to include("i0min")
+      expect(model.column_names).to include("i0max")
+      expect(model.column_names).to include("i0avg")
+      model = common.get_decom_table_model(packet_config.id, 0, '_d')
+      expect(model.column_names).to include("i0min")
+      expect(model.column_names).to include("i0max")
+      expect(model.column_names).to include("i0avg")
 
       # Useful debugging to pring out all the mapping items
       # ItemToDecomTableMapping.all.each do |map|
@@ -197,13 +208,8 @@ describe DartCommon do
       common.setup_packet_config(packet, packet_id, packet_config)
 
       # Verify the decommutation and reduction tables were created
-      tables = ActiveRecord::Base.connection.tables
       (0..1).each do |table_index|
-        expect(tables).to include("t#{packet_config.id}_#{table_index}")
-        # Create model for this dynamically created table
-        model = Class.new(ActiveRecord::Base) do
-          self.table_name = "t#{packet_config.id}_#{table_index}"
-        end
+        model = common.get_decom_table_model(packet_config.id, table_index)
         if table_index == 0
           expect(model.column_names).to include("i0")
           expect(model.column_names).to include("i#{DartCommon::MAX_COLUMNS_PER_TABLE - 1}")
@@ -215,11 +221,7 @@ describe DartCommon do
         end
 
         %w(m h d).each do |suffix|
-          expect(tables).to include("t#{packet_config.id}_#{table_index}_#{suffix}")
-          # Create models for these dynamically created tables
-          model = Class.new(ActiveRecord::Base) do
-            self.table_name = "t#{packet_config.id}_#{table_index}_#{suffix}"
-          end
+          model = common.get_decom_table_model(packet_config.id, table_index, "_#{suffix}")
           if table_index == 0
             # The decommutation tables have min max avg only
             expect(model.column_names).to_not include("i0")
@@ -246,6 +248,91 @@ describe DartCommon do
           expect(map.table_index).to eq 1 # Mapping spans another table
         end
       end
+    end
+  end
+
+  describe "switch_and_get_system_config" do
+    before(:each) do
+      allow_any_instance_of(Cosmos::Interface).to receive(:connected?)
+      allow_any_instance_of(Cosmos::Interface).to receive(:connect)
+      allow_any_instance_of(Cosmos::Interface).to receive(:disconnect)
+      allow_any_instance_of(Cosmos::Interface).to receive(:write_raw)
+      allow_any_instance_of(Cosmos::Interface).to receive(:read)
+      allow_any_instance_of(Cosmos::Interface).to receive(:write)
+      @tlm_file = File.join(Cosmos::USERPATH,'config','targets','SYSTEM','cmd_tlm','test1_tlm.txt')
+      FileUtils.rm @tlm_file if File.exist? @tlm_file
+    end
+
+    it "raises an error if the configuration can't be found" do
+      api = Cosmos::CmdTlmServer.new
+      expect { common.switch_and_get_system_config("abcd") }.to raise_error(/No saved config/)
+      api.stop
+    end
+
+    it "does nothing if loading the current config" do
+      api = Cosmos::CmdTlmServer.new
+      current = Cosmos::System.configuration_name
+      common.switch_and_get_system_config(current)
+      expect(Cosmos::System.configuration_name).to eq current
+      api.stop
+    end
+
+    it "loads new configuration" do
+      api = Cosmos::CmdTlmServer.new
+      initial_config = Cosmos::System.configuration_name
+
+      # Create a new configuration by writing another telemetry file
+      File.open(@tlm_file, 'w') do |file|
+        file.puts "TELEMETRY SYSTEM TEST1 BIG_ENDIAN"
+        file.puts "  APPEND_ITEM DATA 240 STRING"
+      end
+      # Reset the instance variable so it will create the new configuration
+      Cosmos::System.class_eval('@@instance = nil')
+      Cosmos::System.telemetry # Create the new config
+      new_config = Cosmos::System.configuration_name
+      expect(new_config).to_not eq initial_config
+
+      # Stub find_configuration to first return nil (not found) and then work
+      # This allows the switch_and_get_system_config to act like the local copy
+      # could not be found and then properly finds it
+      allow(Cosmos::System.instance).to receive(:find_configuration).and_return(nil, Cosmos::System.instance.find_configuration(initial_config))
+      messages = []
+      allow(Cosmos::Logger).to receive(:info) { |msg| messages << msg }
+
+      common.switch_and_get_system_config(initial_config)
+      expect(Cosmos::System.configuration_name).to eq initial_config
+      messages.each do |msg|
+        if msg =~ /Configuration retrieved/
+          expect(msg).to match(/#{initial_config}/)
+        end
+      end
+
+      api.stop
+      FileUtils.rm @tlm_file
+    end
+  end
+
+  describe "read_packet_from_ple" do
+    # NOTE: most of read_packet_from_ple is tested in the dart_packet_log_writer_spec
+    it "raises an error if the packet can't be found" do
+      common.sync_targets_and_packets
+      target_id, packet_id = common.lookup_target_and_packet_id("INST", "HEALTH_STATUS", true)
+      ple = PacketLogEntry.new
+      ple.target_id = target_id
+      ple.packet_id = packet_id
+      ple.time = Time.now
+      ple.packet_log_id = 999
+      ple.data_offset = 999
+      ple.meta_id = 999
+      ple.is_tlm = true
+      ple.ready = true
+      ple.save!
+
+      expect(Cosmos::Logger).to receive(:error) do |msg|
+        expect(msg).to match(/Error Reading Packet/)
+      end
+      packet = common.read_packet_from_ple(ple)
+      expect(packet).to be_nil
     end
   end
 end

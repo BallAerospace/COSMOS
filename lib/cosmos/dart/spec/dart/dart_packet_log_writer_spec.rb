@@ -22,6 +22,11 @@ describe DartPacketLogWriter do
     end
   end
 
+  before(:each) do
+    DatabaseCleaner.strategy = :truncation
+    DatabaseCleaner.clean
+  end
+
   after(:all) do
     FileUtils.rm_rf Cosmos::System.paths['DART_DATA']
   end
@@ -40,8 +45,9 @@ describe DartPacketLogWriter do
       (DartPacketLogWriter::DEFAULT_SYNC_COUNT_LIMIT - 1).times do
         hs_packet.received_time = Time.now
         writer.write(hs_packet)
+        sleep 0.01
       end
-      sleep 1
+      sleep 0.1
 
       # The first Log Entry is always SYSTEM META
       ple = PacketLogEntry.find(1)
@@ -49,13 +55,25 @@ describe DartPacketLogWriter do
       expect(ple.packet.name).to eq "META"
       expect(ple.ready).to eq false # Hasn't been flushed yet
 
+      packet = writer.read_packet_from_ple(ple)
+      expect(packet.class).to eq Cosmos::Packet
+      expect(packet.target_name).to eq "SYSTEM"
+      expect(packet.packet_name).to eq "META"
+
       target = Target.find_by_name("INST")
       packet = Packet.find_by_name("HEALTH_STATUS")
       count = 0
+      previous_time = Time.now
       PacketLogEntry.where("target_id = ? and packet_id = ?", target.id, packet.id).each do |ple|
         expect(ple.target.name).to eq "INST"
         expect(ple.packet.name).to eq "HEALTH_STATUS"
         expect(ple.ready).to eq false # Hasn't been flushed yet
+
+        packet = writer.read_packet_from_ple(ple)
+        expect(packet.target_name).to eq "INST"
+        expect(packet.packet_name).to eq "HEALTH_STATUS"
+        expect(packet.received_time).to_not eq previous_time
+        previous_time = packet.received_time
         count += 1
       end
       expect(count).to eq (DartPacketLogWriter::DEFAULT_SYNC_COUNT_LIMIT - 1)
