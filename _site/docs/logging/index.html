@@ -2,7 +2,7 @@
 <html lang="en-US">
 <head>
   <meta charset="UTF-8">
-  <title>Script Runner</title>
+  <title>Logging</title>
   <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="generator" content="Jekyll v3.5.2">
@@ -2790,57 +2790,217 @@
       <div class="unit four-fifths">
         <article>
           <div class="improve right">
-            <a href="https://github.com/BallAerospace/COSMOS/edit/website/_docs/script_runner.md" target="_blank"><i class="fa fa-pencil"></i> &nbsp;Improve this page</a>
+            <a href="https://github.com/BallAerospace/COSMOS/edit/website/_docs/logging.md" target="_blank"><i class="fa fa-pencil"></i> &nbsp;Improve this page</a>
           </div>
           
           <div class="toc">
             <ul class="section-nav">
-<li class="toc-entry toc-h2"><a href="#line_delay">LINE_DELAY</a></li>
-<li class="toc-entry toc-h2"><a href="#monitor_limits">MONITOR_LIMITS</a></li>
-<li class="toc-entry toc-h2"><a href="#pause_on_red">PAUSE_ON_RED</a></li>
+<li class="toc-entry toc-h1"><a href="#binary-file-structure">Binary File Structure</a></li>
 </ul>
           </div>
           
-          <h1>Script Runner</h1>
-          <p>This document describes Script Runner configuration file parameters.</p>
+          <h1>Logging</h1>
+          <p>This document describes the COSMOS logging framework and structure.</p>
 
-<h2 id="line_delay">
-<a id="line_delay" class="anchor" href="#line_delay" aria-hidden="true"><span class="octicon octicon-link"></span></a>LINE_DELAY</h2>
-<p><strong>Sets the amount of time in seconds before the next line of a script will be executed</strong></p>
+<p>The COSMOS system creates a number of different logs both for data and for application events. The log file location is defined in the system.txt file by the <a href="/docs/system/#path">‘PATH LOGS’</a> setting. The log files which get created in this directory follow a common naming convention. The first part is a date and time: YYYY_MM_DD_HH_MM_SS_. This is followed by words specific to the COSMOS application. COSMOS applications produce the following logs:</p>
 
 <table>
   <thead>
     <tr>
-      <th>Parameter</th>
+      <th>Application</th>
+      <th>Log File Name</th>
       <th>Description</th>
-      <th>Required</th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <td>Delay</td>
-      <td>Delay in seconds before the next line is executed. A value of 0 means to execute the scripts as fast as possible.</td>
-      <td>True</td>
+      <td>Any</td>
+      <td>&lt;date&gt;_exception.txt</td>
+      <td>Exception file which is generated if a COSMOS application crashes. Any user provided interface code, background tasks, conversions, etc can result in an exception file if not properly written.</td>
+    </tr>
+    <tr>
+      <td>Any</td>
+      <td>&lt;date&gt;_unexpected.txt</td>
+      <td>Unexpected text output. If user code tries to print to the standard output using ‘puts’, this output is captured and an unexpected log file is created when the application exits.</td>
+    </tr>
+    <tr>
+      <td>Cmd/Tlm Server</td>
+      <td>&lt;date&gt;_cmd.bin</td>
+      <td>All outgoing command packets</td>
+    </tr>
+    <tr>
+      <td>Cmd/Tlm Server</td>
+      <td>&lt;date&gt;_tlm.bin</td>
+      <td>All incoming telemetry packets</td>
+    </tr>
+    <tr>
+      <td>Cmd/Tlm Server</td>
+      <td>&lt;date&gt;_server_messages.txt</td>
+      <td>All the server messages which are found in the bottom half of the Command and Telemetry Server application. Server messages are time stamped and categorized as INFO, WARN, or ERROR. Messages include red, yellow, limit violations, limit groups enable/disable, commands, and log file open/close.</td>
+    </tr>
+    <tr>
+      <td>Command Sender</td>
+      <td>&lt;date&gt;_cmdsender_messages.txt</td>
+      <td>Commands sent through Command Sender are logged and timestamped.</td>
+    </tr>
+    <tr>
+      <td>Script Runner</td>
+      <td>&lt;date&gt;_sr_&lt;filename&gt;_messages.txt</td>
+      <td>Each time a script is run, a new messages log file is created. This log captures any ‘puts’ output in the script as well as any user input. It also captures user interaction with Script Runner such as clicking the Pause and Stop buttons (as well as Step when debugging).</td>
+    </tr>
+    <tr>
+      <td>Test Runner</td>
+      <td>&lt;date&gt;_sr_&lt;test&gt;_messages.txt</td>
+      <td>Each time a test is run, a new messages log file is created. The &lt;test&gt; part of the filename is either the Suite name if a Suite is run, Suite_TestGroup if a Test Group is run, or Suite_TestGroup_TestCase if a test case is run. This log captures any ‘puts’ output in the script as well as any user input. It also captures user interaction with Script Runner such as clicking the Pause and Stop buttons (as well as Step when debugging).</td>
+    </tr>
+    <tr>
+      <td>Test Runner</td>
+      <td>&lt;date&gt;_testrunner_results.txt</td>
+      <td>Test Runner test report which indicates the file run, metadata, Test Runner settings (checkboxes), Test Case Results and a summary of the tests run.</td>
+    </tr>
+    <tr>
+      <td>Test Runner</td>
+      <td>&lt;date&gt;_testrunner_results.zip</td>
+      <td>If the Test Runner <a href="/docs/test_runner/#create_data_package">CREATE_DATA_PACKAGE</a> configuration option is set, a zip file is created containing the the test report, the server messages and the command and telemetry bin files.</td>
     </tr>
   </tbody>
 </table>
 
-<h2 id="monitor_limits">
-<a id="monitor_limits" class="anchor" href="#monitor_limits" aria-hidden="true"><span class="octicon octicon-link"></span></a>MONITOR_LIMITS</h2>
-<p><strong>Log limits events to the Script Runner log file while a script is running</strong></p>
+<h1 id="binary-file-structure">
+<a id="binary-file-structure" class="anchor" href="#binary-file-structure" aria-hidden="true"><span class="octicon octicon-link"></span></a>Binary File Structure</h1>
 
-<p>Limits events are always logged by the Command and Telemetry Server but are not put in the Script Runner log without this keyword.</p>
+<p>The Command and Telemetry Server binary log files contain command and telemetry packets. Each log file starts with a 128 byte header that is used internally by COSMOS to denote the version of definition files that were used when the file was created.</p>
 
-<h2 id="pause_on_red">
-<a id="pause_on_red" class="anchor" href="#pause_on_red" aria-hidden="true"><span class="octicon octicon-link"></span></a>PAUSE_ON_RED</h2>
-<p><strong>Pause a running script if a red limit occurs</strong></p>
+<table>
+  <tbody>
+    <tr>
+      <td>Item</td>
+      <td>Data Type</td>
+      <td>Description</td>
+    </tr>
+    <tr>
+      <td>Marker</td>
+      <td>8 byte ASCII String</td>
+      <td>The ASCII string ‘COSMOS2_’</td>
+    </tr>
+    <tr>
+      <td>Type</td>
+      <td>4 byte ASCII String</td>
+      <td>Either ‘CMD_’ for command logs or ‘TLM_’ for Telemetry logs</td>
+    </tr>
+    <tr>
+      <td>MD5</td>
+      <td>32 byte ASCII String</td>
+      <td>32 byte MD5 Sum calculated over the configuration files being used</td>
+    </tr>
+    <tr>
+      <td>Underscore</td>
+      <td>1 byte ASCII String</td>
+      <td>An Underscore character</td>
+    </tr>
+    <tr>
+      <td>Hostname</td>
+      <td>83 byte ASCII String</td>
+      <td>Left justified hostname of the computer that created the file</td>
+    </tr>
+  </tbody>
+</table>
 
+<p>The file header is followed by command or telemetry packets (depending on the log type), each with a Big Endian header as follows:</p>
+
+<table>
+  <tbody>
+    <tr>
+      <td>Item</td>
+      <td>Data Type</td>
+      <td>Description</td>
+    </tr>
+    <tr>
+      <td>Time Seconds</td>
+      <td>32-bit integer</td>
+      <td>Seconds since Unix epoch (Jan 1st, 1970 – Midnight)</td>
+    </tr>
+    <tr>
+      <td>Time Microseconds</td>
+      <td>32-bit integer</td>
+      <td>Microseconds of Second since Unix epoch (Jan 1st, 1970 – Midnight)</td>
+    </tr>
+    <tr>
+      <td>Target Name Length</td>
+      <td>8-bit unsigned integer</td>
+      <td>Length in bytes of the target name</td>
+    </tr>
+    <tr>
+      <td>Target Name</td>
+      <td>Variable length ASCII String</td>
+      <td>String that indicates the name of the target that the data was sourced from.</td>
+    </tr>
+    <tr>
+      <td>Packet Name Length</td>
+      <td>8-bit unsigned integer</td>
+      <td>Length in bytes of the packet name</td>
+    </tr>
+    <tr>
+      <td>Packet Name</td>
+      <td>Variable length ASCII String</td>
+      <td>String that indicates the name of the packet of data.</td>
+    </tr>
+    <tr>
+      <td>Packet Length</td>
+      <td>32-bit unsigned integer</td>
+      <td>Length in bytes of the packet</td>
+    </tr>
+    <tr>
+      <td>Packet</td>
+      <td>Variable length block of data</td>
+      <td>The binary data packet (endianness defined by packet definition)</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>The variable length nature of command and telemetry packets requires a log parser to start from the beginning of each log file when processing packets.</p>
 
           
 
 
 
 
+
+  
+  
+
+  
+  
+
+  
+  
+
+  
+  
+
+  
+  
+
+  
+  
+
+  
+  
+
+  
+  
+
+  
+  
+
+  
+  
+
+  
+  
+
+  
+  
 
   
   
@@ -2894,14 +3054,14 @@
           
             
             
-            <a href="/docs/limits_monitor/" class="prev">Back</a>
+            <a href="/docs/json_api/" class="prev">Back</a>
           
       </div>
       <div class="right align-left">
           
             
             
-            <a href="/docs/table_manager/" class="next">Next</a>
+            <a href="/docs/requirements/" class="next">Next</a>
           
       </div>
     </div>
@@ -3591,7 +3751,7 @@
     
   
     
-      <li class="current"><a href="/docs/script_runner/">Script Runner</a></li>
+      <li class=""><a href="/docs/script_runner/">Script Runner</a></li>
       
 
 
@@ -4233,7 +4393,7 @@
     
   
     
-      <li class=""><a href="/docs/logging/">Logging</a></li>
+      <li class="current"><a href="/docs/logging/">Logging</a></li>
       
 
 
