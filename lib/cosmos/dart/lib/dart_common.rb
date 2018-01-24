@@ -184,39 +184,7 @@ module DartCommon
   def sync_targets_and_packets
     sync_targets_packets(Cosmos::System.telemetry.all, is_tlm: true)
     sync_targets_packets(Cosmos::System.commands.all, is_tlm: false)
-  end
-
-  # Build the internal lookup tables to convert names to database ids
-  def build_lookups
-    # Get full target name and packet name lists from database
-    targets = Target.all
-    @target_name_to_id = {}
-    @target_id_tlm_packet_name_to_id = {}
-    @target_id_cmd_packet_name_to_id = {}
-    @packet_id_item_name_to_id = {}
-    targets.each do |target|
-      @target_name_to_id[target.name] = target.id
-      @target_id_tlm_packet_name_to_id[target.id] = {}
-      @target_id_cmd_packet_name_to_id[target.id] = {}
-      packets = Packet.where("target_id = #{target.id} and is_tlm = true").all
-      packets.each do |packet|
-        @target_id_tlm_packet_name_to_id[target.id][packet.name] = packet.id
-        @packet_id_item_name_to_id[packet.id] = {}
-        items = Item.where("packet_id = #{packet.id}").all
-        items.each do |item|
-          @packet_id_item_name_to_id[packet.id][item.name] = item.id
-        end
-      end
-      packets = Packet.where("target_id = #{target.id} and is_tlm = false").all
-      packets.each do |packet|
-        @target_id_cmd_packet_name_to_id[target.id][packet.name] = packet.id
-        @packet_id_item_name_to_id[packet.id] = {}
-        items = Item.where("packet_id = #{packet.id}").all
-        items.each do |item|
-          @packet_id_item_name_to_id[packet.id][item.name] = item.id
-        end
-      end
-    end
+    build_lookups()
   end
 
   # Look up the database IDs of the given target and packet names
@@ -282,6 +250,39 @@ module DartCommon
   end
 
   protected
+
+  # Build the internal lookup tables to convert names to database ids
+  def build_lookups
+    # Get full target name and packet name lists from database
+    targets = Target.all
+    @target_name_to_id = {}
+    @target_id_tlm_packet_name_to_id = {}
+    @target_id_cmd_packet_name_to_id = {}
+    @packet_id_item_name_to_id = {}
+    targets.each do |target|
+      @target_name_to_id[target.name] = target.id
+      @target_id_tlm_packet_name_to_id[target.id] = {}
+      @target_id_cmd_packet_name_to_id[target.id] = {}
+      packets = Packet.where("target_id = #{target.id} and is_tlm = true").all
+      packets.each do |packet|
+        @target_id_tlm_packet_name_to_id[target.id][packet.name] = packet.id
+        @packet_id_item_name_to_id[packet.id] = {}
+        items = Item.where("packet_id = #{packet.id}").all
+        items.each do |item|
+          @packet_id_item_name_to_id[packet.id][item.name] = item.id
+        end
+      end
+      packets = Packet.where("target_id = #{target.id} and is_tlm = false").all
+      packets.each do |packet|
+        @target_id_cmd_packet_name_to_id[target.id][packet.name] = packet.id
+        @packet_id_item_name_to_id[packet.id] = {}
+        items = Item.where("packet_id = #{packet.id}").all
+        items.each do |item|
+          @packet_id_item_name_to_id[packet.id][item.name] = item.id
+        end
+      end
+    end
+  end
 
   # Look up the item id in the Item table based on the previously acquired packet id
   # Note: This method is only safe if lookup_target_and_packet_id was called

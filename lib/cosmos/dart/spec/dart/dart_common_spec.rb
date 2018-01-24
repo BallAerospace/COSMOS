@@ -53,14 +53,199 @@ describe DartCommon do
       tgt_created_at = Target.first.created_at
       num_pkts = Packet.all.length
       pkt_created_at = Packet.first.created_at
+      #num_items = Item.all.length
+      #item_created_at = Item.first.created_at
 
       # Try to add the known targets and packets into the DB again
       common.sync_targets_and_packets
       # Verify nothing was added
       expect(Target.all.length).to eq num_tgts
       expect(Packet.all.length).to eq num_pkts
+      #expect(Item.all.length).to eq num_items
       expect(Target.first.created_at).to eq tgt_created_at
       expect(Packet.first.created_at).to eq pkt_created_at
+      #expect(Item.first.created_at).to eq item_created_at
+    end
+  end
+
+  describe "setup_packet_config" do
+    it "builds the packet configuration in the DB" do
+      common.sync_targets_and_packets
+      target_id, packet_id = common.lookup_target_and_packet_id("INST", "HEALTH_STATUS", true)
+      ple = PacketLogEntry.new
+      ple.target_id = target_id
+      ple.packet_id = packet_id
+      ple.time = Time.now
+      ple.packet_log_id = 0
+      ple.data_offset = 0
+      ple.meta_id = 0
+      ple.is_tlm = true
+      ple.ready = true
+      ple.save!
+
+      packet = Cosmos::System.telemetry.packet("INST", "HEALTH_STATUS")
+      packet_config = PacketConfig.create(:packet_id => packet_id, :name => packet.config_name, :first_system_config_id => 0)
+      common.setup_packet_config(packet, packet_id, packet_config)
+
+      # Verify the decommutation and reduction tables were created
+      tables = ActiveRecord::Base.connection.tables
+      expect(tables).to include("t#{packet_config.id}_0")
+      expect(tables).to include("t#{packet_config.id}_0_m")
+      expect(tables).to include("t#{packet_config.id}_0_h")
+      expect(tables).to include("t#{packet_config.id}_0_d")
+
+      # Useful debugging to pring out all the mapping items
+      # ItemToDecomTableMapping.all.each do |map|
+      #   item = Item.find(map.item_id)
+      #   puts "item name:#{item.name} id:#{item.id} val:#{map.value_type} reduced:#{map.reduced} config:#{map.packet_config_id} table_i:#{map.table_index} item_i:#{map.item_index}"
+      # end
+
+      ###################################
+      # Spot check some interesting items
+      ###################################
+
+      item = Item.find_by_name("RECEIVED_TIMESECONDS")
+      mapping = ItemToDecomTableMapping.where("item_id = ?", item.id)
+      # RECEIVED_TIMESECONDS is derived so it has a single mapping
+      expect(mapping.length).to eq 1
+      map = mapping.first
+      expect(map.value_type).to eq ItemToDecomTableMapping::RAW_CON
+      expect(map.reduced).to eq true # Seconds is an integer so it can be reduced
+      expect(map.packet_config_id).to eq packet_config.id
+      expect(map.table_index).to eq 0 # Not enough values to span multiple tables
+
+      item = Item.find_by_name("RECEIVED_TIMEFORMATTED")
+      mapping = ItemToDecomTableMapping.where("item_id = ?", item.id)
+      # RECEIVED_TIMEFORMATTED is derived so it has a single mapping
+      expect(mapping.length).to eq 1
+      map = mapping.first
+      expect(map.value_type).to eq ItemToDecomTableMapping::RAW_CON
+      expect(map.reduced).to eq false # Formatted is a string so it can't be reduced
+      expect(map.packet_config_id).to eq packet_config.id
+      expect(map.table_index).to eq 0 # Not enough values to span multiple tables
+
+      item = Item.find_by_name("TEMP1")
+      mapping = ItemToDecomTableMapping.where("item_id = ?", item.id)
+      # TEMP1 creates a separate RAW and CONVERTED table since it has a conversion
+      expect(mapping.length).to eq 2
+      map = mapping.where("value_type = ?", ItemToDecomTableMapping::RAW).first
+      expect(map.value_type).to eq ItemToDecomTableMapping::RAW
+      expect(map.reduced).to eq true # UINT32 can be reduced
+      expect(map.packet_config_id).to eq packet_config.id
+      expect(map.table_index).to eq 0 # Not enough values to span multiple tables
+      map = mapping.where("value_type = ?", ItemToDecomTableMapping::CONVERTED).first
+      expect(map.value_type).to eq ItemToDecomTableMapping::CONVERTED
+      expect(map.reduced).to eq true # UINT32 can be reduced
+      expect(map.packet_config_id).to eq packet_config.id
+      expect(map.table_index).to eq 0 # Not enough values to span multiple tables
+
+      item = Item.find_by_name("TEMP1STDDEV")
+      mapping = ItemToDecomTableMapping.where("item_id = ?", item.id)
+      # TEMP1STDDEV is derived so it has a single mapping
+      expect(mapping.length).to eq 1
+      map = mapping.first
+      expect(map.value_type).to eq ItemToDecomTableMapping::RAW_CON
+      expect(map.reduced).to eq true # FLOAT64 can be reduced
+      expect(map.packet_config_id).to eq packet_config.id
+      expect(map.table_index).to eq 0 # Not enough values to span multiple tables
+
+      # TEMP1HIGH doesn't have a well defined conversion (no type or bit size)
+      # so it doesn't show up in the Item list at all
+      item = Item.find_by_name("TEMP1HIGH")
+      expect(item).to be nil
+
+      item = Item.find_by_name("GROUND1STATUS")
+      mapping = ItemToDecomTableMapping.where("item_id = ?", item.id)
+      # GROUND1STATUS creates a separate RAW and CONVERTED table since it has states
+      expect(mapping.length).to eq 2
+      map = mapping.where("value_type = ?", ItemToDecomTableMapping::RAW).first
+      expect(map.value_type).to eq ItemToDecomTableMapping::RAW
+      expect(map.reduced).to eq true # Raw value can be reduced
+      expect(map.packet_config_id).to eq packet_config.id
+      expect(map.table_index).to eq 0 # Not enough values to span multiple tables
+      map = mapping.where("value_type = ?", ItemToDecomTableMapping::CONVERTED).first
+      expect(map.value_type).to eq ItemToDecomTableMapping::CONVERTED
+      expect(map.reduced).to eq false # Converted is a string and can't be reduced
+      expect(map.packet_config_id).to eq packet_config.id
+      expect(map.table_index).to eq 0 # Not enough values to span multiple tables
+    end
+
+    it "spans multiple DB tables with big packets" do
+      # Create a new packet with a bunch of items
+      packet = Cosmos::Packet.new('INST', 'BIGGIE', :BIG_ENDIAN)
+      num_items = DartCommon::MAX_COLUMNS_PER_TABLE + 1
+      num_items.times do |index|
+        packet.append_item("ITEM#{index}", 8, :INT)
+      end
+      # Push the new packet into the PacketConfig telemetry hash
+      Cosmos::System.telemetry.config.telemetry['INST']['BIGGIE'] = packet
+      common.sync_targets_and_packets
+      target_id, packet_id = common.lookup_target_and_packet_id("INST", "BIGGIE", true)
+      ple = PacketLogEntry.new
+      ple.target_id = target_id
+      ple.packet_id = packet_id
+      ple.time = Time.now
+      ple.packet_log_id = 0
+      ple.data_offset = 0
+      ple.meta_id = 0
+      ple.is_tlm = true
+      ple.ready = true
+      ple.save!
+
+      packet = Cosmos::System.telemetry.packet("INST", "BIGGIE")
+      packet_config = PacketConfig.create(:packet_id => packet_id, :name => packet.config_name, :first_system_config_id => 0)
+      common.setup_packet_config(packet, packet_id, packet_config)
+
+      # Verify the decommutation and reduction tables were created
+      tables = ActiveRecord::Base.connection.tables
+      (0..1).each do |table_index|
+        expect(tables).to include("t#{packet_config.id}_#{table_index}")
+        # Create model for this dynamically created table
+        model = Class.new(ActiveRecord::Base) do
+          self.table_name = "t#{packet_config.id}_#{table_index}"
+        end
+        if table_index == 0
+          expect(model.column_names).to include("i0")
+          expect(model.column_names).to include("i#{DartCommon::MAX_COLUMNS_PER_TABLE - 1}")
+          # The base decommutation table doesn't average
+          expect(model.column_names).to_not include("i0avg")
+        else
+          expect(model.column_names).to include("i#{DartCommon::MAX_COLUMNS_PER_TABLE}")
+          expect(model.column_names).to_not include("i#{DartCommon::MAX_COLUMNS_PER_TABLE + 1}")
+        end
+
+        %w(m h d).each do |suffix|
+          expect(tables).to include("t#{packet_config.id}_#{table_index}_#{suffix}")
+          # Create models for these dynamically created tables
+          model = Class.new(ActiveRecord::Base) do
+            self.table_name = "t#{packet_config.id}_#{table_index}_#{suffix}"
+          end
+          if table_index == 0
+            # The decommutation tables have min max avg only
+            expect(model.column_names).to_not include("i0")
+            expect(model.column_names).to include("i0min")
+            expect(model.column_names).to include("i0max")
+            expect(model.column_names).to include("i0avg")
+            expect(model.column_names).to include("i#{DartCommon::MAX_COLUMNS_PER_TABLE - 1}min")
+            expect(model.column_names).to include("i#{DartCommon::MAX_COLUMNS_PER_TABLE - 1}max")
+            expect(model.column_names).to include("i#{DartCommon::MAX_COLUMNS_PER_TABLE - 1}avg")
+          else
+            expect(model.column_names).to include("i#{DartCommon::MAX_COLUMNS_PER_TABLE}min")
+            expect(model.column_names).to include("i#{DartCommon::MAX_COLUMNS_PER_TABLE}max")
+            expect(model.column_names).to include("i#{DartCommon::MAX_COLUMNS_PER_TABLE}avg")
+          end
+        end
+      end
+
+      num_items.times do |index|
+        item = Item.where("name = ? AND packet_id = ?", "ITEM#{index}", packet_id).first
+        map = ItemToDecomTableMapping.where("item_id = ?", item.id).first
+        if index < DartCommon::MAX_COLUMNS_PER_TABLE
+          expect(map.table_index).to eq 0
+        else
+          expect(map.table_index).to eq 1 # Mapping spans another table
+        end
+      end
     end
   end
 end

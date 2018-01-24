@@ -17,7 +17,6 @@ class DartWorker
 
   def initialize(mod_index = 0, modulus = 1)
     sync_targets_and_packets()
-    build_lookups()
     @mod_index = mod_index
     @modulus = modulus
   end

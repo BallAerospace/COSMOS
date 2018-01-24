@@ -89,7 +89,6 @@ class DartPacketLogWriter < Cosmos::PacketLogWriter
     else
       is_tlm = false
     end
-    build_lookups()
 
     while true
       begin

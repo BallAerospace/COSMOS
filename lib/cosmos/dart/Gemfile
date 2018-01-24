@@ -41,6 +41,7 @@ group :development, :test do
   gem 'rspec-rails', '~> 3.7'
   gem 'simplecov', '~> 0.15'
   gem 'codecov', '~> 0.1'
+  gem 'database_cleaner', '1.6.1'
 end
 
 group :development do

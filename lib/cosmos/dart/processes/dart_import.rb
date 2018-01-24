@@ -88,8 +88,6 @@ Cosmos.catch_fatal_exception do
     is_tlm = false
   end
 
-  build_lookups() # Build names to database IDs lookups
-
   # Check if first and last packet in the log are already in the database
   last_packet = plr.last
   first_packet = plr.first
