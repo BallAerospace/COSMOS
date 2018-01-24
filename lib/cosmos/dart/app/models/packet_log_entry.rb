@@ -1,4 +1,7 @@
 class PacketLogEntry < ApplicationRecord
+  belongs_to :target
+  belongs_to :packet
+
   NOT_STARTED = 0
   IN_PROGRESS = 1
   COMPLETE = 2

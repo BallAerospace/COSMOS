@@ -27,41 +27,119 @@ describe DartPacketLogWriter do
   end
 
   describe "write" do
-    it "starts packet log and updates the database" do
+    it "creates PacketLogEntries and flushes the file" do
       writer = DartPacketLogWriter.new(
         :TLM,    # Log telemetry
-        'test_dart_', # Put dart_ in the log file name
+        'test_dart_tlm_', # Put dart_ in the log file name
         true,    # Enable logging
         nil,     # Don't cycle on time
-        2_000, # Cycle the log at 2KB
+        2_000_000_000, # Cycle the log at 2GB
         Cosmos::System.paths['DART_DATA']) # Log into the DART_DATA dir
-      writer.write(Cosmos::System.telemetry.packet("INST", "HEALTH_STATUS"))
-      wait 0.1
-      writer.shutdown
+
+      hs_packet = Cosmos::System.telemetry.packet("INST", "HEALTH_STATUS")
+      (DartPacketLogWriter::DEFAULT_SYNC_COUNT_LIMIT - 1).times do
+        hs_packet.received_time = Time.now
+        writer.write(hs_packet)
+      end
+      sleep 1
+
+      # The first Log Entry is always SYSTEM META
+      ple = PacketLogEntry.find(1)
+      expect(ple.target.name).to eq "SYSTEM"
+      expect(ple.packet.name).to eq "META"
+      expect(ple.ready).to eq false # Hasn't been flushed yet
 
       target = Target.find_by_name("INST")
-      packet = Packet.where({target: target, name: "HEALTH_STATUS", is_tlm: true}).first
-      ple = PacketLogEntry.where({target: target, packet: packet})
-      puts ple
-      expect(ple.target.name).to eq "INST"
-      expect(ple.packet.name).to eq "HEALTH_STATUS"
-
-      # ple = PacketLogEntry.new
-      # ple.target_id = target_id
-      # ple.packet_id = packet_id
-      # ple.time = time
-      # ple.packet_log_id = packet_log_id
-      # ple.data_offset = data_offset
-      # ple.meta_id = @meta_id
-      # ple.is_tlm = is_tlm
-      # ple.ready = false
-
-
-      Dir["#{Cosmos::System.paths['DART_DATA']}/*"].each do |file|
-        expect(file).to match(/test_dart_/)
-      #   data = File.read(file)
-      #   expect(File.read(file)).to include(test_string)
+      packet = Packet.find_by_name("HEALTH_STATUS")
+      count = 0
+      PacketLogEntry.where("target_id = ? and packet_id = ?", target.id, packet.id).each do |ple|
+        expect(ple.target.name).to eq "INST"
+        expect(ple.packet.name).to eq "HEALTH_STATUS"
+        expect(ple.ready).to eq false # Hasn't been flushed yet
+        count += 1
       end
+      expect(count).to eq (DartPacketLogWriter::DEFAULT_SYNC_COUNT_LIMIT - 1)
+
+      hs_packet.received_time = Time.now
+      writer.write(hs_packet) # Write the packet that causes the flush
+      sleep 0.1
+      count = 0
+      PacketLogEntry.all.each do |ple|
+        if count < DartPacketLogWriter::DEFAULT_SYNC_COUNT_LIMIT
+          expect(ple.ready).to eq true # Flushed!
+        else
+          # The last write isn't flushed
+          expect(ple.ready).to eq false
+        end
+        count += 1
+      end
+      # We wrote one SYSTEM META plus (DartPacketLogWriter::DEFAULT_SYNC_COUNT_LIMIT - 1)
+      # plus one more to cause the flush
+      expect(count).to eq DartPacketLogWriter::DEFAULT_SYNC_COUNT_LIMIT + 1
+      writer.shutdown
+      sleep 0.1
+
+      files = Dir["#{Cosmos::System.paths['DART_DATA']}/*_test_dart_tlm_*"]
+      expect(files.length).to eq 1
+    end
+
+    it "creates command logs" do
+      DatabaseCleaner.clean
+      meta = Cosmos::System.commands.packet("SYSTEM", "META")
+      clr_cmd = Cosmos::System.commands.packet("INST", "CLEAR")
+      # 128 byte file header, SYSTEM META has 24 byte header,
+      # INST CLEAR has 23 byte header
+      length = 128 + 24 + meta.length + 23 + clr_cmd.length
+
+      writer = DartPacketLogWriter.new(
+        :CMD,    # Log commands
+        'test_dart_cmd_', # Put dart_ in the log file name
+        true,    # Enable logging
+        nil,     # Don't cycle on time
+        length, # Cycle the log at 1 Meta plus 1 Cmd
+        Cosmos::System.paths['DART_DATA']) # Log into the DART_DATA dir
+
+      clr_cmd.received_time = Time.now
+      writer.write(clr_cmd)
+      sleep 0.1
+
+      # The first Log Entry is always SYSTEM META
+      ple = PacketLogEntry.find(1)
+      expect(ple.target.name).to eq "SYSTEM"
+      expect(ple.packet.name).to eq "META"
+      expect(ple.ready).to eq false # Hasn't been flushed yet
+
+      # The second Log Entry is the command
+      ple = PacketLogEntry.find(2)
+      expect(ple.target.name).to eq "INST"
+      expect(ple.packet.name).to eq "CLEAR"
+      expect(ple.ready).to eq false # Hasn't been flushed yet
+
+      clr_cmd.received_time = Time.now
+      writer.write(clr_cmd) # The second command should create a new log
+      sleep 0.1
+
+      # Check the the first two have been flushed
+      ple = PacketLogEntry.find(1)
+      expect(ple.ready).to eq true # Flushed
+      ple = PacketLogEntry.find(2)
+      expect(ple.ready).to eq true # Flushed
+
+      # The third and fourth are SYSTEM META and the command
+      ple = PacketLogEntry.find(3)
+      expect(ple.target.name).to eq "SYSTEM"
+      expect(ple.packet.name).to eq "META"
+      expect(ple.ready).to eq false # Hasn't been flushed yet
+      ple = PacketLogEntry.find(4)
+      expect(ple.target.name).to eq "INST"
+      expect(ple.packet.name).to eq "CLEAR"
+      expect(ple.ready).to eq false # Hasn't been flushed yet
+
+      writer.shutdown
+      sleep 0.1
+
+      files = Dir["#{Cosmos::System.paths['DART_DATA']}/*_test_dart_cmd_*"]
+      expect(files.length).to eq 2
     end
   end
 end

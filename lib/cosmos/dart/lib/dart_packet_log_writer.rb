@@ -55,6 +55,11 @@ class DartPacketLogWriter < Cosmos::PacketLogWriter
 
   # Override the default new file hook to create a PacketLog entry in the database
   def start_new_file_hook(packet)
+    # When we create a new file we mark any existing PLEs ready
+    PacketLogEntry.where("id" => @not_ready_ple_ids).update_all(ready: true)
+    @not_ready_ple_ids.clear
+    @sync_count = 0
+
     packet_log = PacketLog.new
     packet_log.filename = @filename.clone
     if @log_type == :TLM
@@ -76,7 +81,8 @@ class DartPacketLogWriter < Cosmos::PacketLogWriter
       @file.fsync
       @sync_count = 0
     end
-    @db_queue << [packet.target_name, packet.packet_name, packet.received_time, @file_size, @packet_log_id, @sync_count]
+    time = packet.received_time ? packet.received_time : Time.now.sys
+    @db_queue << [packet.target_name, packet.packet_name, time, @file_size, @packet_log_id, @sync_count]
   end
 
   # Build the target / packet table lookup table and then wait on the queue
