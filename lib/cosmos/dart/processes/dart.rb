@@ -139,7 +139,11 @@ class Dart
     cleanup()
 
     ruby_process_name = ENV['DART_RUBY']
-    ruby_process_name ||= 'ruby'
+    if RUBY_ENGINE != 'ruby'
+      ruby_process_name ||= 'jruby'
+    else
+      ruby_process_name ||= 'ruby'
+    end
 
     num_workers = ENV['DART_NUM_WORKERS']
     num_workers ||= 1
@@ -165,7 +169,6 @@ class Dart
     process_definitions.each do |p|
       Cosmos::Logger.info("Starting: #{p.join(' ')}")
       processes << ChildProcess.build(*p)
-      processes[-1].leader = true
       processes[-1].start
     end
 
@@ -177,8 +180,10 @@ class Dart
           p_mutex.synchronize do
             Cosmos::Logger.info("Shutting down processes...")
             processes.each_with_index do |p, index|
-              Cosmos::Logger.info("Soft Shutting down process: #{process_definitions[index].join(' ')}")
-              Process.kill("SIGINT", p.pid)
+              Thread.new do
+                Cosmos::Logger.info("Soft Shutting down process: #{process_definitions[index].join(' ')}")
+                Process.kill("SIGINT", p.pid)
+              end
             end
             sleep(2)
             processes.each_with_index do |p, index|

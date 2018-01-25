@@ -45,5 +45,12 @@ gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 
 # Ryan added
 gem 'rest-client' # For examples
-gem 'pg', '~> 0.21'
 gem 'childprocess'
+
+platforms :ruby do
+  gem 'pg', '~> 0.21'
+end
+
+platforms :jruby do
+ gem 'activerecord-jdbcpostgresql-adapter', :github => 'jruby/activerecord-jdbc-adapter'
+end
