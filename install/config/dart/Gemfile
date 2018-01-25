@@ -47,10 +47,8 @@ gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 gem 'rest-client' # For examples
 gem 'childprocess'
 
-platforms :ruby do
+if RUBY_ENGINE == 'ruby'
   gem 'pg', '~> 0.21'
-end
-
-platforms :jruby do
+else
  gem 'activerecord-jdbcpostgresql-adapter', :github => 'jruby/activerecord-jdbc-adapter'
 end
