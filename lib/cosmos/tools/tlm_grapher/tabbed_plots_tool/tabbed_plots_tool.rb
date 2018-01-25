@@ -44,6 +44,7 @@ module Cosmos
       complete_initialize()
 
       # Define instance variables
+      @need_reset = false
       @log_filenames = []
       @log_dir = System.paths['LOGS']
       @log_dir += '/' unless @log_dir[-1..-1] == '\\' or @log_dir[-1..-1] == '/'
@@ -96,10 +97,10 @@ module Cosmos
       @file_process.statusTip = tr('Open Log File')
       @file_process.connect(SIGNAL('triggered()')) { on_file_process_log() }
 
-      @file_dart = Qt::Action.new(tr('Open DART'), self)
+      @file_dart = Qt::Action.new(tr('&Query DART Database'), self)
       @file_dart_keyseq = Qt::KeySequence.new(tr('Ctrl+D'))
       @file_dart.shortcut = @file_dart_keyseq
-      @file_dart.statusTip = tr('Open DART Database')
+      @file_dart.statusTip = tr('Query DART Database')
       @file_dart.connect(SIGNAL('triggered()')) { on_file_dart() }
 
       @file_load = Qt::Action.new(Cosmos.get_icon('open.png'), tr('&Load Config'), self)
@@ -521,9 +522,9 @@ module Cosmos
         @time_start = dialog.time_start
         @time_end = dialog.time_end
         handle_stop()
+        @need_reset = true
         System.telemetry.reset
         @tabbed_plots.reset_all_data_objects
-        @realtime_button_bar.state = 'Log File'
         @packet_log_reader = dialog.packet_log_reader
         @log_filenames = dialog.filenames.clone
         filenames = dialog.filenames.sort
@@ -552,7 +553,7 @@ module Cosmos
       paused = @tabbed_plots.paused?
       @tabbed_plots.pause
       dialog = DartDialog.new(self,
-                              'Query DART:')
+                              'Query DART Database:')
       dialog.time_start = @time_start
       dialog.time_end = @time_end
       result = dialog.exec
@@ -560,9 +561,9 @@ module Cosmos
         @time_start = dialog.time_start
         @time_end = dialog.time_end
         handle_stop()
+        @need_reset = true
         System.telemetry.reset
         @tabbed_plots.reset_all_data_objects
-        @realtime_button_bar.state = 'DART Query'
 
         ProgressDialog.execute(self, 'DART Query Progress', 500, 300) do |progress_dialog|
           dart_thread = TabbedPlotsDartThread.new(@tabbed_plots_config,
@@ -980,7 +981,8 @@ module Cosmos
         @realtime_button_bar.state = 'Running'
       else
         System.load_configuration
-        if @realtime_button_bar.state == 'Log File'
+        if @need_reset
+          @need_reset = false
           System.telemetry.reset
           @tabbed_plots.reset_all_data_objects
         end
