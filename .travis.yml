@@ -2,6 +2,8 @@ env: JRUBY_OPTS=--debug
 language: ruby
 sudo: false
 cache: bundler
+services:
+  - postgresql
 rvm:
   - jruby-9.1.14.0
   - 2.4.2
