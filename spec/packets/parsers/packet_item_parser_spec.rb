@@ -166,6 +166,20 @@ module Cosmos
           expect(packet.read("ITEM60")).to eql [0x00000001, 0x00000001]
           tf.unlink
         end
+
+        it "complains if an ITEM is redefined" do
+          tf = Tempfile.new('unittest')
+          tf.puts 'TELEMETRY TGT1 PKT1 BIG_ENDIAN "Description"'
+          tf.puts '  APPEND_ITEM ITEM1 16 UINT "Item 1"'
+          tf.puts '  APPEND_ITEM ITEM1 16 UINT "Another item"'
+          tf.close
+          @pc.process_file(tf.path, "TGT1")
+          packet = @pc.telemetry["TGT1"]["PKT1"]
+          packet.buffer = "\xDE\xAD\xBE\xEF"
+          expect(packet.read("ITEM1")).to eql 0xBEEF
+          expect(@pc.warnings).to include("TGT1 PKT1 ITEM1 redefined.")
+          tf.unlink
+        end
       end
 
       context "with keywords including PARAMETER" do
@@ -371,6 +385,19 @@ module Cosmos
           end
         end
 
+        it "complains if a PARAMETER is redefined" do
+          tf = Tempfile.new('unittest')
+          tf.puts 'COMMAND TGT1 PKT1 BIG_ENDIAN "Description"'
+          tf.puts '  APPEND_PARAMETER PARAM1 16 UINT MIN MAX 1 "Param 1"'
+          tf.puts '  APPEND_PARAMETER PARAM1 16 UINT MIN MAX 2 "Another param"'
+          tf.close
+          @pc.process_file(tf.path, "TGT1")
+          packet = @pc.commands["TGT1"]["PKT1"]
+          packet.buffer = "\xDE\xAD\xBE\xEF"
+          expect(packet.read("PARAM1")).to eql 0xBEEF
+          expect(@pc.warnings).to include("TGT1 PKT1 PARAM1 redefined.")
+          tf.unlink
+        end
       end
 
     end # describe "process_file"
