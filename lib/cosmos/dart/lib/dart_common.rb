@@ -150,7 +150,7 @@ module DartCommon
     end
 
     # Mark packet config ready
-    packet_config.max_table_index = table_index - 1
+    packet_config.max_table_index = table_index
     packet_config.ready = true
     packet_config.save
   end
@@ -444,6 +444,10 @@ module DartCommon
     # configuration we drop anything that may be existing.
     if ActiveRecord::Base.connection.table_exists?(table_name)
       ActiveRecord::Base.connection.drop_table(table_name)
+      # Once we drop an existing table we have to reset_column_information
+      # or we'll just get back the column names from the original table
+      model = Cosmos.const_get(table_name.capitalize.intern)
+      model.reset_column_information
     end
     ActiveRecord::Base.connection.create_table(table_name) do |table|
       yield table
