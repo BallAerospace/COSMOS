@@ -163,11 +163,10 @@ module Cosmos
 
       it "subscribes and gets packets" do
         id = subscribe_packet_data([["SYSTEM","META"]])
-        inject_tlm("SYSTEM", "META")
         packet = get_packet(id)
+        inject_tlm("SYSTEM", "META")
         expect(packet.target_name).to eql "SYSTEM"
         expect(packet.packet_name).to eql "META"
-        expect(packet.received_time).to be_within(1).of Time.now
         expect(packet.received_count).to eql 0
         packet = get_packet(id)
         expect(packet.target_name).to eql "SYSTEM"
