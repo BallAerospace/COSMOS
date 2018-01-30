@@ -75,11 +75,12 @@ describe DartCommon do
     it "builds the packet configuration in the DB" do
       common.sync_targets_and_packets
       target_id, packet_id = common.lookup_target_and_packet_id("INST", "HEALTH_STATUS", true)
+      packet_log = PacketLog.create(:filename => "filename", :is_tlm => true)
       ple = PacketLogEntry.new
       ple.target_id = target_id
       ple.packet_id = packet_id
       ple.time = Time.now
-      ple.packet_log_id = 0
+      ple.packet_log_id = packet_log.id
       ple.data_offset = 0
       ple.meta_id = 0
       ple.is_tlm = true
@@ -192,11 +193,12 @@ describe DartCommon do
       Cosmos::System.telemetry.config.telemetry['INST']['BIGGIE'] = packet
       common.sync_targets_and_packets
       target_id, packet_id = common.lookup_target_and_packet_id("INST", "BIGGIE", true)
+      packet_log = PacketLog.create(:filename => "filename", :is_tlm => true)
       ple = PacketLogEntry.new
       ple.target_id = target_id
       ple.packet_id = packet_id
       ple.time = Time.now
-      ple.packet_log_id = 0
+      ple.packet_log_id = packet_log.id
       ple.data_offset = 0
       ple.meta_id = 0
       ple.is_tlm = true
@@ -317,11 +319,12 @@ describe DartCommon do
     it "raises an error if the packet can't be found" do
       common.sync_targets_and_packets
       target_id, packet_id = common.lookup_target_and_packet_id("INST", "HEALTH_STATUS", true)
+      packet_log = PacketLog.create(:filename => "filename", :is_tlm => true)
       ple = PacketLogEntry.new
       ple.target_id = target_id
       ple.packet_id = packet_id
       ple.time = Time.now
-      ple.packet_log_id = 999
+      ple.packet_log_id = packet_log.id
       ple.data_offset = 999
       ple.meta_id = 999
       ple.is_tlm = true

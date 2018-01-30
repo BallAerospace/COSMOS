@@ -11,18 +11,28 @@
 require 'rails_helper'
 require 'dart_database_cleaner'
 require 'dart_packet_log_writer'
+require 'dart_decommutator'
 
 describe DartDatabaseCleaner do
-  # describe "clean" do
-  #   it "calls the cleaning methods" do
-  #     DartDatabaseCleaner.clean
-  #   end
-  # end
-
   before(:each) do
     DatabaseCleaner.strategy = :truncation
     DatabaseCleaner.clean
     @cleaner = DartDatabaseCleaner.new
+    # Cosmos::System.commands()
+  end
+
+  describe "clean" do
+    it "calls the cleaning methods" do
+      messages = []
+      allow(Cosmos::Logger).to receive(:info) { |msg| messages << msg }
+      DartDatabaseCleaner.clean(false)
+      expect(messages.select{|m| m =~ /Cleaning up SystemConfig/}.length).to eq 1
+      expect(messages.select{|m| m =~ /Cleaning up PacketLog\./}.length).to eq 1
+      expect(messages.select{|m| m =~ /Cleaning up PacketConfig/}.length).to eq 1
+      expect(messages.select{|m| m =~ /Cleaning up PacketLogEntry/}.length).to eq 1
+      expect(messages.select{|m| m =~ /Cleaning up Decommutation/}.length).to eq 1
+      expect(messages.select{|m| m =~ /Database cleanup complete/}.length).to eq 1
+    end
   end
 
   describe "clean_system_configs" do
@@ -240,7 +250,7 @@ describe DartDatabaseCleaner do
     it "removes decommutation rows which are in progress" do
       writer = DartPacketLogWriter.new(
         :TLM,    # Log telemetry
-        'test_dart_tlm_', # Put dart_ in the log file name
+        'clean_decom_', # File name suffix
         true,    # Enable logging
         nil,     # Don't cycle on time
         2_000_000_000, # Cycle the log at 2GB
@@ -254,6 +264,7 @@ describe DartDatabaseCleaner do
         sleep 0.01
       end
       writer.shutdown
+      sleep 0.1
 
       # Create a valid SystemConfig in order to create a valid PacketConfig
       meta = Cosmos::System.telemetry.packet("SYSTEM", "META")
@@ -273,7 +284,7 @@ describe DartDatabaseCleaner do
           ple.decom_state = PacketLogEntry::IN_PROGRESS
           row = decom.new
           row.time = Time.now
-          row.reduced_state = 0
+          row.reduced_state = DartDecommutator::INITIALIZING
           row.ple_id = ple.id
           row.save
         end

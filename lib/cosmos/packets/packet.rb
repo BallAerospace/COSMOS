@@ -781,6 +781,9 @@ module Cosmos
     # Reset temporary packet data
     # This includes packet received time, received count, and processor state
     def reset
+      # The SYSTEM META packet is a special case that does not get reset
+      return if @target_name == 'SYSTEM' && @packet_name == 'META'
+
       @received_time = nil
       @received_count = 0
       if @read_conversion_cache

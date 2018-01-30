@@ -61,9 +61,8 @@ class DartReducerWorkerThread
 
       time_delta, base_model_time_column, time_method = job_attributes(job_type)
       rows = []
-      # Find all the rows in the decommutation table where the data reduction hasn't been started
-      # (reduced_state = 0).
-      base_model.where("reduced_state = 0").order("meta_id ASC, #{base_model_time_column} ASC").find_each do |row|
+      # Find all the rows in the decommutation table which are ready to reduce
+      base_model.where("reduced_state = #{DartDecommutator::READY_TO_REDUCE}").order("meta_id ASC, #{base_model_time_column} ASC").find_each do |row|
         rows << row
         first_row_time = rows[0].send(base_model_time_column)
         last_row_time = rows[-1].send(base_model_time_column)
@@ -168,7 +167,7 @@ class DartReducerWorkerThread
         # Need to transaction the new_row.save! and base_model.update_all to ensure DB integrity
         new_row.save! # Create the reduced data row in the database
         # Mark the original rows as reduced!
-        base_model.where(id: sample_rows.map(&:id)).update_all(:reduced_state => 2)
+        base_model.where(id: sample_rows.map(&:id)).update_all(:reduced_state => DartDecommutator::REDUCED)
         rows = rows[-1..-1] # Start a new sample with the last item in the previous sample
         Cosmos::Logger.info("Created #{new_row.class}:#{new_row.id} with #{mappings.length} items from #{new_row.num_samples} samples")
       end

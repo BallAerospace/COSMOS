@@ -12,19 +12,13 @@ require 'rails_helper'
 require 'dart_packet_log_writer'
 
 describe DartPacketLogWriter do
-  before(:all) do
-    if File.exist?(Cosmos::System.paths['DART_DATA'])
-      Dir["#{Cosmos::System.paths['DART_DATA']}/*"].each do |file|
-        FileUtils.rm_f file
-      end
-    else
-      FileUtils.mkdir_p Cosmos::System.paths['DART_DATA']
-    end
-  end
-
   before(:each) do
     DatabaseCleaner.strategy = :truncation
     DatabaseCleaner.clean
+    if File.exist?(Cosmos::System.paths['DART_DATA'])
+      FileUtils.rm_rf Cosmos::System.paths['DART_DATA']
+    end
+    FileUtils.mkdir_p Cosmos::System.paths['DART_DATA']
   end
 
   after(:all) do

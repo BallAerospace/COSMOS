@@ -18,7 +18,7 @@ class DartDatabaseCleaner
   # if the DART packet logs were moved and force is false (default). This is
   # deliberate because force causes all the lost (or moved) files to be deleted
   # which forces them to be re-imported at their new location.
-  def self.clean(force = false)
+  def self.clean(force)
     Cosmos::Logger::info("Starting database cleanup...")
     cleaner = DartDatabaseCleaner.new
     cleaner.clean_system_configs()
@@ -115,7 +115,7 @@ class DartDatabaseCleaner
   end
 
   def clean_decommutation_tables
-    Cosmos::Logger::info("Cleaning up decommutation tables (tX_Y)...")
+    Cosmos::Logger::info("Cleaning up Decommutation tables (tX_Y)...")
     # Check for partially decom data and remove. The DartWorker periodically checks the
     # database for a PacketLogEntry which is ready to be decommutated and starts the
     # process of writing into the decommutation table. If this process is interrupted

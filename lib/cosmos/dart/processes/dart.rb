@@ -35,7 +35,7 @@ class Dart
     dart_logging = DartLogging.new('dart')
 
     # Cleanup the database before starting processes
-    DartDatabaseCleaner.clean()
+    DartDatabaseCleaner.clean(@@force_cleanup)
 
     ruby_process_name = ENV['DART_RUBY']
     if RUBY_ENGINE != 'ruby'
