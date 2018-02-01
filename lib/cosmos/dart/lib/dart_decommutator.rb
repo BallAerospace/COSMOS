@@ -174,7 +174,7 @@ class DartDecommutator
 
       if (Time.now - ready_wait_start) > PACKET_CONFIG_READY_TIMEOUT
         Cosmos::Logger.fatal("Timeout waiting for ready on PacketConfig:#{packet_config.id}")
-        exit(0)
+        exit(1)
       end
     end
   end
