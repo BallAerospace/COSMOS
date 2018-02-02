@@ -3,7 +3,7 @@ SCREEN AUTO AUTO 1.0
 VERTICAL
 SETTING BACKCOLOR white
 
-  TITLE "Instrument Ground Station Status"
+  TITLE "<%= @target_name %> Instrument Ground Station Status"
   SETTING BACKCOLOR white
 
   CANVAS 650 594

@@ -258,6 +258,8 @@ module Cosmos
 
       begin
         parser = ConfigParser.new("http://cosmosrb.com/docs/screens/")
+        parser.instance_variable_set(:@original_target_name, @original_target_name)
+        parser.instance_variable_set(:@target_name, @substitute)
         parser.parse_file(filename) do |keyword, parameters|
 
           if keyword
