@@ -2812,6 +2812,7 @@
 <li class="toc-entry toc-h3"><a href="#ruby-control-structures">Ruby Control Structures</a></li>
 <li class="toc-entry toc-h3"><a href="#iterating-over-similarly-named-telemetry-points">Iterating over similarly named telemetry points</a></li>
 <li class="toc-entry toc-h3"><a href="#prompting-for-user-input">Prompting for User Input</a></li>
+<li class="toc-entry toc-h3"><a href="#skipping-a-test-case-in-testrunner">Skipping a test case in TestRunner</a></li>
 </ul>
 </li>
 <li class="toc-entry toc-h2"><a href="#running-test-procedures">Running Test Procedures</a></li>
@@ -3326,6 +3327,22 @@
 
 <span class="n">numloops</span><span class="p">.</span><span class="nf">times</span> <span class="k">do</span>
   <span class="nb">puts</span> <span class="s2">"Looping"</span>
+<span class="k">end</span>
+</code></pre>
+</div>
+
+<h3 id="skipping-a-test-case-in-testrunner">
+<a id="skipping-a-test-case-in-testrunner" class="anchor" href="#skipping-a-test-case-in-testrunner" aria-hidden="true"><span class="octicon octicon-link"></span></a>Skipping a test case in TestRunner</h3>
+
+<div class="language-ruby highlighter-rouge">
+<pre class="highlight"><code><span class="k">def</span> <span class="nf">test_feature_x</span>
+  <span class="n">continue</span> <span class="o">=</span> <span class="n">ask</span><span class="p">(</span><span class="s2">"Test feature x?"</span><span class="p">)</span>
+
+  <span class="k">if</span> <span class="n">continue</span> <span class="o">==</span> <span class="s1">'y'</span>
+    <span class="c1"># Test goes here</span>
+  <span class="k">else</span>
+    <span class="k">raise</span> <span class="no">SkipTestCase</span><span class="p">,</span> <span class="s2">"Skipping feature x test"</span>
+  <span class="k">end</span>
 <span class="k">end</span>
 </code></pre>
 </div>

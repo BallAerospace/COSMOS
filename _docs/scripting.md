@@ -220,6 +220,20 @@ numloops.times do
 end
 ```
 
+### Skipping a test case in TestRunner
+
+```ruby
+def test_feature_x
+  continue = ask("Test feature x?")
+
+  if continue == 'y'
+    # Test goes here
+  else
+    raise SkipTestCase, "Skipping feature x test"
+  end
+end
+```
+
 ## Running Test Procedures
 
 ## Execution Environment
