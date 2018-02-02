@@ -109,6 +109,7 @@ module Cosmos
 
       process_target_name = process_target_name.upcase
       parser = ConfigParser.new("http://cosmosrb.com/docs/cmdtlm")
+      parser.instance_variable_set(:@target_name, process_target_name)
       parser.parse_file(filename) do |keyword, params|
 
         if @building_generic_conversion
