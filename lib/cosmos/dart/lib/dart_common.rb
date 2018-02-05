@@ -252,6 +252,19 @@ module DartCommon
     end
   end
 
+  def decommutate_item?(item)
+    # RECEIVED_COUNT is a relative count and should not be decommutated
+    return false if item.name == 'RECEIVED_COUNT'
+    # ProcessorConversion items are calculated on the fly thus can't
+    # be decommutated as they change based on when they're read
+    return false if item.read_conversion.class == Cosmos::ProcessorConversion
+    # We don't handle DERIVED items without explicit types and sizes
+    if item.data_type == :DERIVED
+      return false unless well_defined_read_conversion(item)
+    end
+    true
+  end
+
   protected
 
   # Build the internal lookup tables to convert names to database ids
@@ -389,10 +402,7 @@ module DartCommon
     ItemToDecomTableMapping.where("packet_config_id = ?", packet_config.id).destroy_all
 
     packet.sorted_items.each do |item|
-      # We don't handle DERIVED items without explicit types and sizes
-      if item.data_type == :DERIVED
-        next unless well_defined_read_conversion(item)
-      end
+      next unless decommutate_item?(item)
 
       raw_data_type, converted_data_type = get_db_types(item)
       item_id = lookup_item_id(packet_id, item.name)

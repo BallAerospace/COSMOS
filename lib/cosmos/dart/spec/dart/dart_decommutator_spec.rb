@@ -90,15 +90,12 @@ describe DartDecommutator do
       model = writer.get_decom_table_model(packet_config.id, 0)
 
       meta_packet = Cosmos::System.telemetry.packet("SYSTEM","META")
-      meta_item_names = meta_packet.sorted_items.collect {|item| item.name }
+      meta_item_names = meta_packet.sorted_items.collect {|item| item.name unless item.name == 'RECEIVED_COUNT'}.compact
       expect(model.count).to eq 1 # One SYSTEM META packet
       meta_row = model.first
       expect(meta_row.reduced_state).to eq DartDecommutator::READY_TO_REDUCE
       # Grab all the iXX column names which hold the actual data values
       model.column_names.select {|name| name =~ /^i\d+/}.each_with_index do |item, index|
-        # RECEIVED_COUNT doesn't match because we receive additional SYSTEM META packets
-        # during decommutation that don't match those when writing the packet log entries
-        next if meta_item_names[index] == 'RECEIVED_COUNT'
         db_value = meta_row.send(item.intern)
         check_float(db_value, meta_packet.read(meta_item_names[index]))
       end
@@ -115,27 +112,21 @@ describe DartDecommutator do
         expect(row.reduced_state).to eq DartDecommutator::READY_TO_REDUCE
         db_index = 0
         packet.sorted_items.each do |item|
-          # RECEIVED_COUNT doesn't match because DB counts while packet says 0
-          # TEMP1MIN, TEMP1MAX, TEMP1MEAN don't match because db says -100 while packet says 0
-          # Calling packet.process in clone seems to make them match because the packet
-          # Processor gets set instead of being uninitialized
-          if item.name == 'RECEIVED_COUNT' || item.name == 'TEMP1MAX' || item.name == 'TEMP1MIN' || item.name == 'TEMP1MEAN'
-            db_index += 1
-            next
-          end
+          next if item.name == 'RECEIVED_COUNT'
+          next if item.read_conversion.class == Cosmos::ProcessorConversion
           # Database skips DERIVED items that aren't well defined
           if item.data_type == :DERIVED
             next unless item.read_conversion && item.read_conversion.converted_type && item.read_conversion.converted_bit_size
           end
           name = decom_column_names[db_index].intern
           db_value = row.send(name)
-          #puts "#{db_index} item:#{item.name} db:#{db_value} raw pkt:#{packet.read_item(item, :RAW)}"
+          # puts "#{db_index} item:#{item.name} db:#{db_value} raw pkt:#{packet.read_item(item, :RAW)}"
           check_float(db_value, packet.read_item(item, :RAW))
           if writer.separate_raw_con?(item)
             db_index += 1
             name = decom_column_names[db_index].intern
             db_value = row.send(name)
-            #puts "#{db_index} citem:#{item.name} db:#{db_value} conv pkt:#{packet.read_item(item)}"
+            # puts "#{db_index} citem:#{item.name} db:#{db_value} conv pkt:#{packet.read_item(item)}"
             check_float(db_value, packet.read_item(item))
           end
           db_index += 1

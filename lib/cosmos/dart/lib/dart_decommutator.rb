@@ -182,10 +182,7 @@ class DartDecommutator
   def get_values(packet)
     values = []
     packet.sorted_items.each do |item|
-      # We don't handle DERIVED items without explicit types and sizes
-      if item.data_type == :DERIVED
-        next unless well_defined_read_conversion(item)
-      end
+      next unless decommutate_item?(item)
       if separate_raw_con?(item)
         values << packet.read_item(item, :RAW)
         values << packet.read_item(item, :CONVERTED)
