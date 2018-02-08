@@ -1129,7 +1129,10 @@ module Cosmos
           if (object.ancestors.include?(TestSuite) &&
               object != TestSuite &&
               !ignored_test_suite_classes.include?(object))
-            @@test_suites << object.new
+            # ObjectSpace.each_object appears to yield objects in the reverse
+            # order that they were parsed by the interpreter so push each
+            # TestSuite object to the front of the array to order as encountered
+            @@test_suites.unshift(object.new)
           end
           if (object.ancestors.include?(Test) &&
               object != Test &&
@@ -1157,7 +1160,6 @@ module Cosmos
       end
 
       # Create TestSuite for unassigned Tests
-      @@test_suites.sort!
       @@test_suites.each do |test_suite|
         tests_to_delete = []
         tests.each { |test| tests_to_delete << test if test_suite.tests[test] }
@@ -1183,7 +1185,6 @@ module Cosmos
               OpenStruct.new(:setup=>false, :teardown=>false, :cases=>[])
             cur_suite.tests[test_class.name].cases.concat(test_class.test_cases)
             cur_suite.tests[test_class.name].cases.uniq!
-            cur_suite.tests[test_class.name].cases.sort!
             cur_suite.tests[test_class.name].setup = true if test_class.method_defined?(:setup)
             cur_suite.tests[test_class.name].teardown = true if test_class.method_defined?(:teardown)
           when :TEST_CASE
@@ -1193,7 +1194,6 @@ module Cosmos
             if test_class.method_defined?(test_case.intern)
               cur_suite.tests[test_class.name].cases << test_case
               cur_suite.tests[test_class.name].cases.uniq!
-              cur_suite.tests[test_class.name].cases.sort!
             else
               raise "#{test_class} does not have a #{test_case} method defined."
             end

@@ -100,7 +100,13 @@ module Cosmos
     end
 
     def set_packet_endianness
-      item_endianness = @current_packet.sorted_items.collect { |item| item.endianness }.uniq
+      item_endianness = @current_packet.sorted_items.collect do |item|
+        # Strings and Blocks endianness don't matter so ignore them
+        item.endianness if (item.data_type != :STRING && item.data_type != :BLOCK)
+      end
+      # Compact to get rid of nils from skipping Strings and Blocks
+      # Uniq to get rid of duplicates which results in an array of 1 or 2 items
+      item_endianness = item_endianness.compact.uniq
       if item_endianness.length == 1 # All items have the same endianness
         # default_endianness is read_only since it affects how items are added
         # thus we have to use instance_variable_set here to override it

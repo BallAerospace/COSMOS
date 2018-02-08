@@ -352,7 +352,7 @@ module Cosmos
           config << parameter_config()
         end
       end
-      config << " #{self.endianness}" if self.endianness != default_endianness
+      config << " #{self.endianness}" if (self.endianness != default_endianness && self.data_type != :STRING && self.data_type != :BLOCK)
       config << "\n"
 
       config << "    REQUIRED\n" if self.required
