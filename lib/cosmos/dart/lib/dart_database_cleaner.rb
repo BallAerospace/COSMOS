@@ -134,7 +134,7 @@ class DartDatabaseCleaner
           model.where("ple_id = ?", ple.id).destroy_all
         end
         ple.decom_state = PacketLogEntry::NOT_STARTED
-        ple.save
+        ple.save!
       rescue => err
         Cosmos::Logger::error("Error cleaning up packet log entry: #{ple.id}: #{err.formatted}")
       end

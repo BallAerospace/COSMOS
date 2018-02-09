@@ -180,17 +180,35 @@ describe DartDatabaseCleaner do
         :item_index => 999999) # Bogus value we can check
       expect(ItemToDecomTableMapping.find_by_item_index(999999)).to_not be_nil
       # Create a decommutation table to ensure it gets cleaned up
-      table = ActiveRecord::Base.connection.create_table("t#{packet_config.id}_0") do |table|
+      table_name = "t#{packet_config.id}_0"
+      table = ActiveRecord::Base.connection.create_table(table_name) do |table|
         table.integer :delete_me # Bogus column
       end
-      model = @cleaner.get_decom_table_model(packet_config.id, 0)
+      # Need to create model
+      model = Class.new(ActiveRecord::Base) do
+        self.table_name = table_name.dup
+      end
+      model.reset_column_information
+      model_name = table_name.upcase
+      Cosmos.send(:remove_const, model_name) if Cosmos.const_defined?(model_name)
+      Cosmos.const_set(model_name, model)
+
       expect(model.column_names).to include("delete_me")
       # Create reduction tables to ensure they are cleaned up
       %w(_h _m _d).each do |id|
-        table = ActiveRecord::Base.connection.create_table("t#{packet_config.id}_0#{id}") do |table|
+        table_name = "t#{packet_config.id}_0#{id}"
+        table = ActiveRecord::Base.connection.create_table(table_name) do |table|
           table.integer :delete_me # Bogus column
         end
-        model = @cleaner.get_decom_table_model(packet_config.id, 0, id)
+        # Need to create model
+        model = Class.new(ActiveRecord::Base) do
+          self.table_name = table_name.dup
+        end
+        model.reset_column_information
+        model_name = table_name.upcase
+        Cosmos.send(:remove_const, model_name) if Cosmos.const_defined?(model_name)
+        Cosmos.const_set(model_name, model)
+
         expect(model.column_names).to include("delete_me")
       end
       messages = [] # Store all Logger.info messages
@@ -286,7 +304,7 @@ describe DartDatabaseCleaner do
           row.time = Time.now
           row.reduced_state = DartDecommutator::INITIALIZING
           row.ple_id = ple.id
-          row.save
+          row.save!
         end
         ple.save!
       end

@@ -152,7 +152,7 @@ module DartCommon
     # Mark packet config ready
     packet_config.max_table_index = table_index
     packet_config.ready = true
-    packet_config.save
+    packet_config.save!
   end
 
   # Attempts to load a name system configuration. If the system configuration
@@ -454,14 +454,18 @@ module DartCommon
     # configuration we drop anything that may be existing.
     if ActiveRecord::Base.connection.table_exists?(table_name)
       ActiveRecord::Base.connection.drop_table(table_name)
-      # Once we drop an existing table we have to reset_column_information
-      # or we'll just get back the column names from the original table
-      model = Cosmos.const_get(table_name.capitalize.intern)
-      model.reset_column_information
     end
     ActiveRecord::Base.connection.create_table(table_name) do |table|
       yield table
     end
+    # Need to create model
+    model = Class.new(ActiveRecord::Base) do
+      self.table_name = table_name.dup
+    end
+    model.reset_column_information
+    model_name = table_name.upcase
+    Cosmos.send(:remove_const, model_name) if Cosmos.const_defined?(model_name)
+    Cosmos.const_set(model_name, model)    
   end
 
   # Create a data reduction table. These tables hold min, max, and average

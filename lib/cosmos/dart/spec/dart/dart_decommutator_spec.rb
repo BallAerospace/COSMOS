@@ -70,7 +70,7 @@ describe DartDecommutator do
         decom = DartDecommutator.new
         decom.run
       end
-      sleep 1 # Allow the decommutator to work
+      sleep 5 # Allow the decommutator to work
       thread.exit
 
       PacketLogEntry.all.each do |ple|
@@ -275,7 +275,7 @@ describe DartDecommutator do
       # Break the ability to read the HEALTH_STATUS packet
       ple = PacketLogEntry.find(2)
       ple.packet_log_id = packet_log.id
-      ple.save
+      ple.save!
 
       thread = Thread.new do
         decom = DartDecommutator.new

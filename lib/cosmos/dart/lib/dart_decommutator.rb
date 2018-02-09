@@ -78,7 +78,7 @@ class DartDecommutator
     end
   rescue => err
     ple.decom_state = PacketLogEntry::NO_META_PLE
-    ple.save
+    ple.save!
     Cosmos::Logger.error("PLE:#{ple.id}:#{ple.decom_state_string}")
     nil
   end
@@ -88,7 +88,7 @@ class DartDecommutator
     return system_meta if system_meta
 
     ple.decom_state = PacketLogEntry::NO_META_PACKET
-    ple.save
+    ple.save!
     Cosmos::Logger.error("PLE:#{ple.id}:#{ple.decom_state_string}")
     nil
   end
@@ -107,7 +107,7 @@ class DartDecommutator
     end
     unless system_config
       ple.decom_state = PacketLogEntry::NO_SYSTEM_CONFIG
-      ple.save
+      ple.save!
       Cosmos::Logger.error("PLE:#{ple.id}:#{ple.decom_state_string}")
       return nil
     end
@@ -118,7 +118,7 @@ class DartDecommutator
     rescue
       Cosmos::Logger.error("Could not load system_config: #{system_config_name}")
       ple.decom_state = PacketLogEntry::NO_CONFIG
-      ple.save
+      ple.save!
       Cosmos::Logger.error("PLE:#{ple.id}:#{ple.decom_state_string}")
       return nil
     end
@@ -130,7 +130,7 @@ class DartDecommutator
     return packet if packet
 
     ple.decom_state = PacketLogEntry::NO_PACKET
-    ple.save
+    ple.save!
     Cosmos::Logger.error("PLE:#{ple.id}:#{ple.decom_state_string}")
     nil
   end
@@ -153,7 +153,7 @@ class DartDecommutator
     end
     unless packet_config
       ple.decom_state = PacketLogEntry::NO_PACKET_CONFIG
-      ple.save
+      ple.save!
       Cosmos::Logger.error("PLE:#{ple.id}:#{ple.decom_state_string}")
       return nil
     end
@@ -196,7 +196,7 @@ class DartDecommutator
   def decom_packet(ple, packet, packet_config_id)
     # Mark the log entry IN_PROGRESS as we decommutate the data
     ple.decom_state = PacketLogEntry::IN_PROGRESS
-    ple.save
+    ple.save!
     values = get_values(packet)
 
     table_index = 0
@@ -213,19 +213,19 @@ class DartDecommutator
         item_index = (table_index * MAX_COLUMNS_PER_TABLE) + index
         row.write_attribute("i#{item_index}", value)
       end
-      row.save
+      row.save!
       rows << row
       table_index += 1
     end
     # Mark ready to reduce
     rows.each do |row|
       row.reduced_state = READY_TO_REDUCE
-      row.save
+      row.save!
     end
 
     # The log entry has been decommutated, mark COMPLETE
     ple.decom_state = PacketLogEntry::COMPLETE
-    ple.save
+    ple.save!
     Cosmos::Logger.debug("PLE:#{ple.id}:#{ple.decom_state_string}")
   end
 end
