@@ -50,7 +50,6 @@ module Cosmos
     end
 
     after(:all) do
-      clean_config()
       File.delete @interface_filename
       File.delete @protocol_filename
     end

@@ -24,10 +24,6 @@ module Cosmos
       end
     end
 
-    after(:all) do
-      clean_config()
-    end
-
     before(:each) do
       allow_any_instance_of(Interface).to receive(:connect).and_return(true)
       allow_any_instance_of(Interface).to receive(:connected?).and_return(true)

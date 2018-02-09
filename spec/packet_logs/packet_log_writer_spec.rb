@@ -15,12 +15,12 @@ module Cosmos
 
   describe PacketLogWriter do
     before(:each) do
-      System.class_eval('@@instance = nil')
       System.load_configuration
       @log_path = System.paths['LOGS']
     end
 
     after(:each) do
+      # Clean config after each so we can check for individual log files
       clean_config()
     end
 

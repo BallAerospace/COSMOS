@@ -132,7 +132,9 @@ module Cosmos
     end
 
     it "warns the user if the protocol is not required" do
+      # Save cmd_tlm_server.txt
       cts = File.join(Cosmos::USERPATH,'config','tools','cmd_tlm_server','cmd_tlm_server.txt')
+      FileUtils.mv cts, Cosmos::USERPATH
       FileUtils.mkdir_p(File.dirname(cts))
       File.open(cts,'w') do |file|
         file.puts 'INTERFACE INST_INT interface.rb'
@@ -151,8 +153,9 @@ module Cosmos
       @server.stop
       shutdown_cmd_tlm()
       sleep(0.1)
-      clean_config()
-      FileUtils.rm_rf File.join(Cosmos::USERPATH,'config','tools')
+      # Restore cmd_tlm_server.txt
+      FileUtils.mv File.join(Cosmos::USERPATH, 'cmd_tlm_server.txt'),
+      File.join(Cosmos::USERPATH,'config','tools','cmd_tlm_server')
     end
   end
 end

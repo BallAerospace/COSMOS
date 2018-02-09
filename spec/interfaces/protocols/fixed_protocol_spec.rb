@@ -21,10 +21,6 @@ module Cosmos
       allow(@interface).to receive(:disconnect) { nil }
     end
 
-    after(:each) do
-      clean_config()
-    end
-
     describe "initialize" do
       it "initializes attributes" do
         @interface.add_protocol(FixedProtocol, [2, 1, '0xDEADBEEF', false, true], :READ_WRITE)

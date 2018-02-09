@@ -19,11 +19,6 @@ module Cosmos
       def write(data); end
     end
 
-    before(:all) do
-      clean_config()
-      System.class_eval('@@instance = nil')
-    end
-
     describe "connect" do
       it "passes a new TcpipClientStream to the stream protocol" do
         i = LincInterface.new('localhost','8888')

@@ -17,10 +17,6 @@ require 'tempfile'
 module Cosmos
 
   describe PacketLogging do
-    after(:all) do
-      clean_config()
-    end
-
     describe "start" do
       it "starts each log writer" do
         tf = Tempfile.new('unittest')

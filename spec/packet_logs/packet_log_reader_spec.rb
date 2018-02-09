@@ -61,10 +61,6 @@ module Cosmos
       plw.stop
     end
 
-    after(:all) do
-      clean_config()
-    end
-
     before(:each) do
       @plr = PacketLogReader.new
     end

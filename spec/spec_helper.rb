@@ -76,6 +76,7 @@ RSpec.configure do |config|
   end
 
   config.after(:all) {
+    clean_config()
     Cosmos.disable_warnings do
       def Object.exit(*args)
         old_exit(*args)
@@ -106,7 +107,7 @@ end
 
 # Clean up the spec configuration directory
 def clean_config
-  %w(outputs/logs outputs/saved_config outputs/tmp outputs/tables outputs/handbooks).each do |dir|
+  %w(outputs/logs outputs/saved_config outputs/tmp outputs/tables outputs/handbooks procedures).each do |dir|
     FileUtils.rm_rf(Dir.glob(File.join(Cosmos::USERPATH, dir, '*')))
   end
 end

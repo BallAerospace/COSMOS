@@ -19,6 +19,7 @@ module Cosmos
     end
 
     after(:each) do
+      # Clean after each so we can check for single log files
       clean_config()
     end
 

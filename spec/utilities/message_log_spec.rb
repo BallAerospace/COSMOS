@@ -13,14 +13,6 @@ require "cosmos/utilities/message_log"
 
 module Cosmos
   describe MessageLog do
-    before(:all) do
-      System.class_eval('@@instance = nil')
-    end
-
-    after(:all) do
-      clean_config()
-    end
-
     describe "initialize" do
       it "accepts a tool name and use the default LOG path" do
         log = MessageLog.new('TEST')

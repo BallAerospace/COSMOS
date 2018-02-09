@@ -14,24 +14,13 @@ require 'cosmos/script/script'
 require 'tempfile'
 
 module Cosmos
-
   describe Script do
-
     before(:all) do
-      cts = File.join(Cosmos::USERPATH,'config','tools','cmd_tlm_server','cmd_tlm_server.txt')
-      FileUtils.mkdir_p(File.dirname(cts))
-      File.open(cts,'w') do |file|
-        file.puts 'INTERFACE INST_INT interface.rb'
-        file.puts 'TARGET INST'
-      end
-      System.class_eval('@@instance = nil')
-      require 'cosmos/script'
       set_cmd_tlm_disconnect(true)
     end
 
     after(:all) do
-      clean_config()
-      FileUtils.rm_rf File.join(Cosmos::USERPATH,'config','tools')
+      set_cmd_tlm_disconnect(false)
     end
 
     describe "require cosmos/script.rb" do
@@ -267,4 +256,3 @@ module Cosmos
 
   end
 end
-

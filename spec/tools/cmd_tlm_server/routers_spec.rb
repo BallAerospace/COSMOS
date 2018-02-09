@@ -16,10 +16,6 @@ require 'tempfile'
 module Cosmos
 
   describe Routers do
-    after(:all) do
-      clean_config()
-    end
-
     describe "start" do
       it "connects each router" do
         tf = Tempfile.new('unittest')

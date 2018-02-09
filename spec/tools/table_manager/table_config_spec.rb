@@ -14,7 +14,6 @@ require 'cosmos/tools/table_manager/table_config'
 require 'tempfile'
 
 module Cosmos
-
   describe TableConfig do
     let(:tc) { TableConfig.new }
 

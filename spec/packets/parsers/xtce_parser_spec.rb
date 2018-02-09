@@ -48,10 +48,6 @@ END
 module Cosmos
 
   describe XtceParser do
-    after(:all) do
-      #clean_config()
-    end
-
     def xml_file(target)
       tf = Tempfile.new(['unittest', '.xtce'])
       tf.puts '<?xml version="1.0" encoding="UTF-8"?>'

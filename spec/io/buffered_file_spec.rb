@@ -23,10 +23,6 @@ module Cosmos
       end
     end
 
-    after(:all) do
-      clean_config()
-    end
-
     describe "read" do
       it "reads less than the buffer size" do
         BufferedFile.open(@filename, "rb") do |file|
