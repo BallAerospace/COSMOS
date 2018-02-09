@@ -2,7 +2,7 @@ SCREEN AUTO AUTO 1.0
 
 TABBOOK
   TABITEM ADCS
-    TITLE "Instrument ADCS Information"
+    TITLE "<%= @target_name %> Instrument ADCS Information"
 
     HORIZONTAL
       VERTICALBOX

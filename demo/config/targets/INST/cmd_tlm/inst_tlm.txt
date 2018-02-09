@@ -1,4 +1,4 @@
-TELEMETRY INST HEALTH_STATUS BIG_ENDIAN "Health and status from the instrument"
+TELEMETRY INST HEALTH_STATUS BIG_ENDIAN "Health and status from the <%= @target_name %> target"
   <%= render "_ccsds_tlm.txt", locals: {apid: 1} %>
   APPEND_ITEM COLLECTS         16 UINT     "Number of collects"
   APPEND_ITEM TEMP1            16 UINT     "Temperature #1"

@@ -1,6 +1,6 @@
 SCREEN AUTO AUTO 1.0
 
-TITLE "Instrument Limits"
+TITLE "<%= @target_name %> Instrument Limits"
 
 VERTICALBOX
   SECTIONHEADER "Range Bars 0-100"

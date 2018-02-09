@@ -2,7 +2,7 @@ SCREEN AUTO AUTO 1.0
 
 VERTICAL
 
-  TITLE "Instrument Latest Header"
+  TITLE "<%= @target_name %> Instrument Latest Header"
 
   VERTICALBOX
     SECTIONHEADER "Header"
