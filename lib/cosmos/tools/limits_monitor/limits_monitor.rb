@@ -107,13 +107,14 @@ module Cosmos
       @initialized = false
     end
 
-    # Ignore an item. Don't display it in the GUI if it goes out of limits
-    # and don't have it count towards the overall limit state. Still display
-    # its limits transitions in the log.
+    # Remove an item and optionally ignore it which means don't display it
+    # again if it goes out of limits and don't have it count towards the
+    # overall limit state. Still display its limits transitions in the log.
     #
     # @param item [Array<String,String,String>] Target name, packet name,
     #   item name to ignore
-    def ignore(item)
+    # @param ignore [Boolean] Whether to ignore future limits events
+    def remove(item, ignore)
       if item[2]
         items_to_delete = [item]
       else
@@ -124,8 +125,10 @@ module Cosmos
         widget = @items.delete("#{item_to_delete[0]} #{item_to_delete[1]} #{item_to_delete[2]}") if index
         @remove_item_callback.call(widget) if widget
       end
-      unless @ignored.includes_item?(item)
-        @ignored << item
+      if ignore
+        unless @ignored.includes_item?(item)
+          @ignored << item
+        end
       end
     end
 
@@ -133,7 +136,7 @@ module Cosmos
     # count towards the overall limit state.
     #
     # @param item [Array<String,String>] Target name, packet name
-    def ignore_stale(item)
+    def remove_stale(item)
       index = @stale.delete_item(item)
       widget = @items.delete("#{item[0]} #{item[1]}") if index
       @remove_item_callback.call(widget) if widget
@@ -459,18 +462,24 @@ module Cosmos
           @value.set_setting('COLORBLIND', [parent.limits_items.colorblind])
           @value.process_settings
           @ignore_button = Qt::PushButton.new('Ignore Item')
-          @ignore_button.connect(SIGNAL('clicked()')) { parent.ignore(self, item) }
+          @ignore_button.connect(SIGNAL('clicked()')) { parent.remove(self, item) }
           @layout.addWidget(@ignore_button)
 
           @ignore_packet_button = Qt::PushButton.new('Ignore Packet')
-          @ignore_packet_button.connect(SIGNAL('clicked()')) { parent.ignore(self, packet) }
+          @ignore_packet_button.connect(SIGNAL('clicked()')) { parent.remove(self, packet) }
           @layout.addWidget(@ignore_packet_button)
+
+          @delete_button = Qt::PushButton.new()
+          @delete_button.setFixedSize(25, 25)
+          @delete_button.setIcon(Cosmos.get_icon('delete.png'))
+          @delete_button.connect(SIGNAL('clicked()')) { parent.remove(self, item, ignore: false) }
+          @layout.addWidget(@delete_button)
         else
           @type = :STALE
           @value = LabelWidget.new(@layout, "#{target_name} #{packet_name} is STALE")
           @layout.addStretch(1)
           @ignore_button = Qt::PushButton.new('Ignore Stale Packet')
-          @ignore_button.connect(SIGNAL('clicked()')) { parent.ignore(self, packet) }
+          @ignore_button.connect(SIGNAL('clicked()')) { parent.remove(self, packet) }
           @layout.addWidget(@ignore_button)
         end
       end
@@ -601,7 +610,7 @@ module Cosmos
       widget = Qt::Widget.new
       layout = Qt::VBoxLayout.new(widget)
       setCentralWidget(widget)
-      
+
       @replay_flag = Qt::Label.new("Replay Mode")
       @replay_flag.setStyleSheet("background:green;color:white;padding:5px;font-weight:bold;")
       layout.addWidget(@replay_flag)
@@ -860,22 +869,26 @@ module Cosmos
         else
           @replay_flag.hide
         end
-        @scroll_layout.removeAll 
+        @scroll_layout.removeAll
       end
     end
 
-    # Update front panel to ignore an item when the corresponding button is pressed.
+    # Remove a limits item from the list and optionally ignore
     #
+    # @param widget [Qt::Widget] Widget to remove
     # @param item [Array<String,String,String] Array containing the target name,
     #   packet name, and item name of the item to ignore.
-    def ignore(widget, item)
+    # @param ignore [Boolean] Whether to ignore the item
+    def remove(widget, item, ignore: true)
       if widget.type == :ITEM
-        @limits_items.ignore(item)
+        @limits_items.remove(item, ignore)
       else
-        @limits_items.ignore_stale(item)
+        @limits_items.remove_stale(item)
       end
-      Qt.execute_in_main_thread(true) do
-        statusBar.showMessage('Warning: Some Telemetry Items are Ignored')
+      if ignore
+        Qt.execute_in_main_thread(true) do
+          statusBar.showMessage('Warning: Some Telemetry Items are Ignored')
+        end
       end
     end
 
