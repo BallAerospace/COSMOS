@@ -174,6 +174,7 @@ class DartDecomServer
           rows = rows.where("time >= ?", start_time) if start_time
           rows = rows.where("time <= ?", end_time) if end_time
           rows = rows.where("meta_id" => meta_ids) if meta_ids.length > 0
+          # TODO - Add select call to filter down to just the columns needed
           rows.count
           rows.find_each do |row|
             data << [row.read_attribute("i#{mapping.item_index}"), row.time.tv_sec, row.time.tv_usec, 1, row.meta_id] unless current_offset < offset
@@ -187,6 +188,7 @@ class DartDecomServer
           rows = rows.where("start_time >= ?", start_time) if start_time
           rows = rows.where("start_time <= ?", end_time) if end_time
           rows = rows.where("meta_id" => meta_ids) if meta_ids.length > 0
+          # TODO - Add select call to filter down to just the columns needed
           rows.find_each do |row|
             data << [row.read_attribute(item_name), row.start_time.tv_sec, row.start_time.tv_usec, row.num_samples, row.meta_id] unless current_offset < offset
             current_offset += 1

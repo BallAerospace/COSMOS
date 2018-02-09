@@ -9,6 +9,7 @@
 # attribution addendums as found in the LICENSE.txt
 
 require 'cosmos'
+require 'cosmos/io/json_drb_object'
 
 module Cosmos
 
@@ -28,7 +29,9 @@ module Cosmos
     attr_accessor :delimiter
     attr_accessor :downsample_seconds
     attr_accessor :print_filenames_to_output
+    attr_accessor :mode
     attr_reader :items
+    attr_reader :normal_items
     attr_reader :shared_indiv_columns
 
     attr_accessor :output_filename
@@ -38,6 +41,7 @@ module Cosmos
       @output_filename = nil
       @input_filenames = []
       @output_file = nil
+      @mode = :log_file
       reset_settings()
       clear_items()
       clear_shared_columns()
@@ -61,6 +65,7 @@ module Cosmos
       @columns_hash = {}
       @previous_row = nil
       @items = []
+      @normal_items = []
       @text_items = []
     end
 
@@ -86,6 +91,7 @@ module Cosmos
       @packet_to_column_mapping[target_name][packet_name] ||= []
       @packet_to_column_mapping[target_name][packet_name] << column_index
       @items << [ITEM, target_name, packet_name, item_name, value_type]
+      @normal_items << @items[-1]
     end
 
     def add_text(column_name, text)
@@ -116,14 +122,14 @@ module Cosmos
     end
 
     def column_names
-      if @column_mode == :FULL_COLUMN_NAMES
+      if @column_mode == :FULL_COLUMN_NAMES or @mode == :dart
         col_offset = 0
-        row = Array.new(@columns.length)
+        cnames = Array.new(@columns.length)
       else
         col_offset = 2
-        row = Array.new(@columns.length + 2)
-        row[0] = 'TARGET'
-        row[1] = 'PACKET'
+        cnames = Array.new(@columns.length + 2)
+        cnames[0] = 'TARGET'
+        cnames[1] = 'PACKET'
       end
       index = 0
       @columns.each do |column_name, column_value_type, item_data_type, target_name, packet_name|
@@ -132,14 +138,18 @@ module Cosmos
         end
         case column_value_type
         when :CONVERTED, nil
-          row[index + col_offset] = column_name
+          cname = column_name
         else
-          row[index + col_offset] = (column_name + '(' + column_value_type.to_s + ')')
+          cname = (column_name + '(' + column_value_type.to_s + ')')
         end
+        if @mode == :dart and target_name and packet_name
+          cnames[index + col_offset] = cname + " TIMESTAMP"
+          index += 1
+        end
+        cnames[index + col_offset] = cname
         index += 1
       end
-
-      row
+      cnames
     end
 
     def restore(filename)
@@ -312,7 +322,7 @@ module Cosmos
       # Open the output file
       @output_file = File.open(@output_filename, 'w')
 
-      if @print_filenames_to_output
+      if @print_filenames_to_output and @mode != :dart
         # Print input filenames to output file
         @input_filenames.each do |input_filename|
           if @matlab_header
@@ -434,6 +444,52 @@ module Cosmos
           @previous_row = row
         end # if packet_mapping
       end # if target_mapping
+    end
+
+    def process_dart(dart_results)
+      row_index = 0
+      while (true)
+        row = Array.new(@normal_items.length * 2 + @text_items.length)
+        column_index = 0
+        found_data = false
+        @items.each do |item_type, target_name_or_column_name, packet_name_or_text, item_name, value_type|
+          if item_type == TEXT
+            row[column_index] = packet_name_or_text.gsub('%', (row_index + 2).to_s)
+            column_index += 1
+          else
+            value_type = :CONVERTED if !value_type or value_type != :RAW
+            query_string = "#{target_name_or_column_name} #{packet_name_or_text} #{item_name} #{value_type}"
+            results = dart_results[query_string]
+            results_row = results[row_index]
+            if results_row
+              found_data = true
+              row[column_index] = Time.at(results_row[1], 0).strftime("%Y-%m-%d %H:%M:%S") << ".#{results_row[2]}"
+              column_index += 1
+              row[column_index] = results_row[0]
+              column_index += 1
+            else
+              column_index += 2
+            end
+          end
+        end
+
+        break unless found_data
+
+        # Output the row
+        if @column_mode != :FULL_COLUMN_NAMES and @mode != :dart
+          @output_file.print packet.target_name
+          @output_file.print @delimiter
+          @output_file.print packet.packet_name
+        end
+        row.each_with_index do |value, index|
+          if (@column_mode != :FULL_COLUMN_NAMES and @mode != :dart) or index != 0
+            @output_file.print @delimiter
+          end
+          @output_file.print value if value
+        end
+        @output_file.puts ""
+        row_index += 1
+      end
     end
 
   end # class TlmExtractorConfig

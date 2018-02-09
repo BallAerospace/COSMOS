@@ -34,6 +34,8 @@ module Cosmos
     end
   end
 
+  # Create a dialog with an embedded ScriptRunnerFrame used to execute
+  # a snippet of code while the main script is paused.
   class ScriptRunnerDialog < Qt::Dialog
     attr_reader :script_runner_frame
 
@@ -65,8 +67,11 @@ module Cosmos
       return if @script_runner_frame.running?
       super
     end
-  end # class ScriptRunnerDialog
+  end
 
+  # Frame within ScriptRunner and TestRunner that handles instrumenting the
+  # script and running it. This includes handling all the user interation and
+  # how to run, step, pause, and stop a script.
   class ScriptRunnerFrame < Qt::Widget
     slots 'context_menu(const QPoint&)'
     slots 'undo_available(bool)'
@@ -695,9 +700,9 @@ module Cosmos
       # There are other un-instrumentable lines which don't support breakpoints
       # but this is the most common and is an easy check.
       # Note: line is 1 based but @script.get_line is zero based so subtract 1
-      text = @script.get_line(line - 1)
-      if text.strip.empty? || text.strip[0] == '#'
-        @script.clear_breakpoint(line) # Immediately clear it
+      text = @active_script.get_line(line - 1)
+      if text && (text.strip.empty? || text.strip[0] == '#')
+        @active_script.clear_breakpoint(line) # Immediately clear it
       else
         ScriptRunnerFrame.set_breakpoint(current_tab_filename(), line)
       end
@@ -1048,48 +1053,58 @@ module Cosmos
       end
     end
 
-    def toggle_disconnect(config_file)
+    def toggle_disconnect(config_file, ask_for_config_file = true)
       if get_cmd_tlm_disconnect
         set_cmd_tlm_disconnect(false)
         self.parent.setPalette(Cosmos::DEFAULT_PALETTE)
       else
-        dialog = Qt::Dialog.new(self, Qt::WindowTitleHint | Qt::WindowSystemMenuHint)
-        dialog.setWindowTitle(tr("Server Config File"))
-        dialog_layout = Qt::VBoxLayout.new
+        if ask_for_config_file
+          dialog = Qt::Dialog.new(self, Qt::WindowTitleHint | Qt::WindowSystemMenuHint)
+          dialog.setWindowTitle(tr("Server Config File"))
+          dialog_layout = Qt::VBoxLayout.new
 
-        chooser = FileChooser.new(self, "Config File", config_file, 'Select',
-                                  File.dirname(config_file))
-        chooser.callback = lambda do |filename|
-          chooser.filename = filename
-        end
-        dialog_layout.addWidget(chooser)
+          chooser = FileChooser.new(self, "Config File", config_file, 'Select',
+                                    File.dirname(config_file))
+          chooser.callback = lambda do |filename|
+            chooser.filename = filename
+          end
+          dialog_layout.addWidget(chooser)
 
-        button_layout = Qt::HBoxLayout.new
-        ok = Qt::PushButton.new("Ok")
-        ok.setDefault(true)
-        ok.connect(SIGNAL('clicked()')) do
-          dialog.accept()
-        end
-        button_layout.addWidget(ok)
-        cancel = Qt::PushButton.new("Cancel")
-        cancel.connect(SIGNAL('clicked()')) do
-          dialog.reject()
-        end
-        button_layout.addWidget(cancel)
-        dialog_layout.addLayout(button_layout)
+          button_layout = Qt::HBoxLayout.new
+          ok = Qt::PushButton.new("Ok")
+          ok.setDefault(true)
+          ok.connect(SIGNAL('clicked()')) do
+            dialog.accept()
+          end
+          button_layout.addWidget(ok)
+          cancel = Qt::PushButton.new("Cancel")
+          cancel.connect(SIGNAL('clicked()')) do
+            dialog.reject()
+          end
+          button_layout.addWidget(cancel)
+          dialog_layout.addLayout(button_layout)
 
-        dialog.setLayout(dialog_layout)
-        if dialog.exec == Qt::Dialog::Accepted
-          config_file = chooser.filename
+          dialog.setLayout(dialog_layout)
+          if dialog.exec == Qt::Dialog::Accepted
+            config_file = chooser.filename
+            self.parent.setPalette(Cosmos::RED_PALETTE)
+            Splash.execute(self) do |splash|
+              ConfigParser.splash = splash
+              splash.message = "Initializing Command and Telemetry Server"
+              set_cmd_tlm_disconnect(true, config_file)
+              ConfigParser.splash = nil
+            end
+          end
+          dialog.dispose
+        else
           self.parent.setPalette(Cosmos::RED_PALETTE)
-          Splash.execute(self) do |splash|
+          Splash.execute(self, true) do |splash|
             ConfigParser.splash = splash
             splash.message = "Initializing Command and Telemetry Server"
             set_cmd_tlm_disconnect(true, config_file)
             ConfigParser.splash = nil
           end
         end
-        dialog.dispose
       end
       config_file
     end

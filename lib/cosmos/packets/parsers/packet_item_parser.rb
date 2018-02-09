@@ -49,7 +49,13 @@ module Cosmos
     end
 
     def create_packet_item(packet, cmd_or_tlm)
-      item = PacketItem.new(@parser.parameters[0],
+      item_name = @parser.parameters[0].upcase
+      if packet.items[item_name]
+        msg = "#{packet.target_name} #{packet.packet_name} #{item_name} redefined."
+        Logger.instance.warn msg
+        @warnings << msg
+      end
+      item = PacketItem.new(item_name,
                             get_bit_offset(),
                             get_bit_size(),
                             get_data_type(),
