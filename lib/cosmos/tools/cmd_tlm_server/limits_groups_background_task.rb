@@ -111,9 +111,10 @@ module Cosmos
           if @groups.include?(method_name.to_s[6..-1].upcase)
             check_methods << method_name.to_s
           else
-            raise "Method #{method_name} doesn't match a group name.\n"\
+            Logger.warn "Inside class #{self.class}, method #{method_name} doesn't match a group name.\n"\
               "Methods must begin with 'check_' and end with a valid group name.\n"\
-              "Groups are #{@groups.join(', ')}."
+              "You need to declare 'LIMITS_GROUP #{method_name.to_s[6..-1].upcase}' for #{method_name} to work.\n"\
+              "Currently defined groups: #{@groups.join(', ')}\n"\
           end
         end
       end
