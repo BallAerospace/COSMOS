@@ -151,21 +151,6 @@ describe DartCommon do
       expect(map.packet_config_id).to eq packet_config.id
       expect(map.table_index).to eq 0 # Not enough values to span multiple tables
 
-      # item = Item.find_by_name("TEMP1STDDEV")
-      # mapping = ItemToDecomTableMapping.where("item_id = ?", item.id)
-      # # TEMP1STDDEV is derived so it has a single mapping
-      # expect(mapping.length).to eq 1
-      # map = mapping.first
-      # expect(map.value_type).to eq ItemToDecomTableMapping::RAW_CON
-      # expect(map.reduced).to eq true # FLOAT64 can be reduced
-      # expect(map.packet_config_id).to eq packet_config.id
-      # expect(map.table_index).to eq 0 # Not enough values to span multiple tables
-
-      # # TEMP1HIGH doesn't have a well defined conversion (no type or bit size)
-      # # so it doesn't show up in the Item list at all
-      # item = Item.find_by_name("TEMP1HIGH")
-      # expect(item).to be nil
-
       item = Item.find_by_name("GROUND1STATUS")
       mapping = ItemToDecomTableMapping.where("item_id = ?", item.id)
       # GROUND1STATUS creates a separate RAW and CONVERTED table since it has states

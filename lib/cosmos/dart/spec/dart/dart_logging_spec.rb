@@ -12,20 +12,6 @@ require 'rails_helper'
 require 'dart_logging'
 
 describe DartLogging do
-  before(:all) do
-    if File.exist?(Cosmos::System.paths['DART_LOGS'])
-      Dir["#{Cosmos::System.paths['DART_LOGS']}/*"].each do |file|
-        FileUtils.rm_f file
-      end
-    else
-      FileUtils.mkdir_p Cosmos::System.paths['DART_LOGS']
-    end
-  end
-
-  after(:all) do
-    FileUtils.rm_rf Cosmos::System.paths['DART_LOGS']
-  end
-
   describe "logging" do
     it "starts a log and captures stdout" do
       logger = DartLogging.new('dart_test')

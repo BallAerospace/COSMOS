@@ -18,7 +18,6 @@ describe DartDatabaseCleaner do
     DatabaseCleaner.strategy = :truncation
     DatabaseCleaner.clean
     @cleaner = DartDatabaseCleaner.new
-    # Cosmos::System.commands()
   end
 
   describe "clean" do

@@ -15,14 +15,6 @@ describe DartPacketLogWriter do
   before(:each) do
     DatabaseCleaner.strategy = :truncation
     DatabaseCleaner.clean
-    if File.exist?(Cosmos::System.paths['DART_DATA'])
-      FileUtils.rm_rf Cosmos::System.paths['DART_DATA']
-    end
-    FileUtils.mkdir_p Cosmos::System.paths['DART_DATA']
-  end
-
-  after(:all) do
-    FileUtils.rm_rf Cosmos::System.paths['DART_DATA']
   end
 
   describe "write" do

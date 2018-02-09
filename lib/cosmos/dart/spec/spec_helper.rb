@@ -43,6 +43,21 @@ if !ENV['COSMOS_NO_SIMPLECOV']
 end
 
 RSpec.configure do |config|
+  config.before(:all) do
+    %w(DART_DATA DART_LOGS).each do |dir|
+      if File.exist?(Cosmos::System.paths[dir])
+        FileUtils.rm_rf Cosmos::System.paths[dir]
+      end
+      FileUtils.mkdir_p Cosmos::System.paths[dir]
+    end
+  end
+
+  config.after(:all) do
+    %w(DART_DATA DART_LOGS).each do |dir|
+      FileUtils.rm_rf Cosmos::System.paths[dir]
+    end
+  end
+
   # rspec-expectations config goes here. You can use an alternate
   # assertion/expectation library such as wrong or the stdlib/minitest
   # assertions if you prefer.
