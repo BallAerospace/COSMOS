@@ -15,7 +15,7 @@ require 'dart_decommutator'
 
 module Dart
   Cosmos.catch_fatal_exception do
-    Common.handle_argv
+    DartCommon.handle_argv
 
     # 0-based worker ID
     worker_id = ARGV[0]

@@ -10,6 +10,7 @@
 
 require File.expand_path('../../config/environment', __FILE__)
 require 'dart_common'
+require 'dart_decommutator'
 require 'dart_logging'
 
 ItemToDecomTableMapping
