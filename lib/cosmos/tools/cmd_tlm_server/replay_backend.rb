@@ -317,6 +317,7 @@ module Cosmos
 
     def start_playback(direction)
       @thread = Thread.new do
+        packet_count = 0
         @playback_sleeper = Sleeper.new
         error = nil
         begin
@@ -329,6 +330,7 @@ module Cosmos
               packet_start = Time.now.sys
               packet = read_at_index(@playback_index, direction)
               break unless packet
+              packet_count += 1
 
               delay_time = 0.0
               if @playback_delay
@@ -350,12 +352,14 @@ module Cosmos
               # No Delay
               packet = read_at_index(@playback_index, direction)
               break unless packet
+              packet_count += 1
               previous_packet = packet
             end
           end
         rescue Exception => error
           Logger.error "Error in Playback Thread\n#{error.formatted}"
         ensure
+          Logger.info "Replayed Packet Count = #{packet_count}"
           @status = 'Stopped'
           @playing = false
           @playback_sleeper = nil
@@ -391,7 +395,7 @@ module Cosmos
         unless @interface.connected?
           request_packet = Cosmos::Packet.new('DART', 'DART')
           request_packet.define_item('REQUEST', 0, 0, :BLOCK)
-          
+
           request = {}
           if direction == :FORWARD
             request['start_time_sec'] = @current_time_object.tv_sec
@@ -406,7 +410,7 @@ module Cosmos
           end
           request['cmd_tlm'] = 'TLM'
           request_packet.write('REQUEST', JSON.dump(request))
-        
+
           @interface.connect
           @interface.write(request_packet)
         end
