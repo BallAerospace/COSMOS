@@ -35,6 +35,7 @@ module Cosmos
       # Restore cmd_tlm_server.txt
       FileUtils.mv File.join(Cosmos::USERPATH, 'cmd_tlm_server.txt'),
       File.join(Cosmos::USERPATH,'config','tools','cmd_tlm_server')
+      System.class_eval('@@instance = nil')
     end
 
     before(:each) do

@@ -34,6 +34,7 @@ module Cosmos
       # Restore system.txt
       FileUtils.mv File.join(Cosmos::USERPATH, 'system.txt'),
         File.join(Cosmos::USERPATH,'config','system')
+      System.class_eval('@@instance = nil')
     end
 
     after(:each) do
