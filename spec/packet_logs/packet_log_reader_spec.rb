@@ -195,6 +195,7 @@ module Cosmos
           File.join(Cosmos::USERPATH,'config','system')
 
         FileUtils.rm_f(File.join(@config_targets,'SYSTEM','cmd_tlm','test1_tlm.txt'))
+        System.class_eval('@@instance = nil')
       end
     end
 
