@@ -14,7 +14,7 @@ set PROTOCOL=https
 set ARCHITECTURE=%PROCESSOR_ARCHITECTURE%
 
 :: Update this version if making any changes to this script
-set INSTALLER_VERSION=1.6
+set INSTALLER_VERSION=1.7
 
 :: Paths and versions for COSMOS dependencies
 set RUBY_INSTALLER_32=rubyinstaller-2.4.2-2.exe
@@ -161,7 +161,10 @@ if !ARCHITECTURE!==x86 (
   ) else (
     @echo Successfully installed 32-bit Ruby >> !COSMOS_INSTALL!\INSTALL.log
   )
-  call !COSMOS_INSTALL!\Vendor\Ruby\bin\ridk install 1 2 3
+  call !COSMOS_INSTALL!\Vendor\Ruby\bin\ridk install 1
+  call C:\msys64\usr\bin\pacman --noconfirm -R catgets
+  call C:\msys64\usr\bin\pacman --noconfirm -R libcatgets
+  call !COSMOS_INSTALL!\Vendor\Ruby\bin\ridk install 2 3
   call C:\msys64\usr\bin\pacman --noconfirm -S mingw-w64-i686-gettext
 ) else (
   echo Downloading 64-bit Ruby
@@ -186,7 +189,10 @@ if !ARCHITECTURE!==x86 (
   ) else (
     @echo Successfully installed 64-bit Ruby >> !COSMOS_INSTALL!\INSTALL.log
   )
-  call !COSMOS_INSTALL!\Vendor\Ruby\bin\ridk install 1 2 3
+  call !COSMOS_INSTALL!\Vendor\Ruby\bin\ridk install 1
+  call C:\msys64\usr\bin\pacman --noconfirm -R catgets
+  call C:\msys64\usr\bin\pacman --noconfirm -R libcatgets
+  call !COSMOS_INSTALL!\Vendor\Ruby\bin\ridk install 2 3
   call C:\msys64\usr\bin\pacman --noconfirm -S mingw-w64-x86_64-gettext
 )
 
