@@ -1,0 +1,721 @@
+<!DOCTYPE HTML>
+<html lang="en-US">
+<head>
+  <meta charset="UTF-8">
+  <title>Limits</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="generator" content="Jekyll v3.5.2">
+  <link rel="alternate" type="application/rss+xml" title="Ball Aerospace COSMOS News" href="/feed.xml">
+  <link rel="alternate" type="application/atom+xml" title="Recent commits to COSMOS's master branch" href="https://github.com/BallAerospace/COSMOS/commits/master.atom">
+  <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic,900">
+  <link rel="stylesheet" href="/css/screen.css">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <!--[if lt IE 9]>
+  <script src="/js/html5shiv.min.js"></script>
+  <script src="/js/respond.min.js"></script>
+  <![endif]-->
+</head>
+
+
+<body class="wrap">
+  <header role="banner">
+  <nav class="mobile-nav show-on-mobiles">
+    <ul>
+  <li class="">
+    <a href="/">Home</a>
+  </li>
+  <li class="">
+    <span class="hide-on-mobiles"><a href="/docs/home/">Documentation</a></span>
+    <span class="show-on-mobiles"><a href="/docs/home/">Docs</a></span>
+  </li>
+  <li class="current">
+    <a href="/news/">News</a>
+  </li>
+  <li>
+    <a href="/help/">Help</a>
+  </li>
+  <li>
+    <a href="https://github.com/BallAerospace/COSMOS" target="_blank"><span class="hide-on-mobiles">View on </span>GitHub</a>
+  </li>
+</ul>
+
+  </nav>
+  <div class="grid wider">
+    <div class="unit one-third center-on-mobiles" style="margin-top:27px;">
+      <h1>
+        <a href="/">
+          <span class="sr-only">COSMOS</span>
+          <img src="/img/COSMOS.png" width="312" height="70" alt="COSMOS Logo">
+        </a>
+      </h1>
+    </div>
+    <nav class="main-nav unit two-thirds hide-on-mobiles">
+      <ul>
+  <li class="">
+    <a href="/">Home</a>
+  </li>
+  <li class="">
+    <span class="hide-on-mobiles"><a href="/docs/home/">Documentation</a></span>
+    <span class="show-on-mobiles"><a href="/docs/home/">Docs</a></span>
+  </li>
+  <li class="current">
+    <a href="/news/">News</a>
+  </li>
+  <li>
+    <a href="/help/">Help</a>
+  </li>
+  <li>
+    <a href="https://github.com/BallAerospace/COSMOS" target="_blank"><span class="hide-on-mobiles">View on </span>GitHub</a>
+  </li>
+</ul>
+
+    </nav>
+  </div>
+</header>
+
+
+    <section class="news">
+    <div class="grid wider">
+
+      <div class="docs-nav-mobile unit whole show-on-mobiles">
+  <select onchange="if (this.value) window.location.href=this.value">
+    <option value="">Navigate the blog...</option>
+    <option value="/news/">Home</option>
+    <optgroup label="v1.x">
+      
+      <option value="/news/2018/02/12/limits/">Limits</option>
+      
+      <option value="/news/2018/01/18/metadata/">Metadata</option>
+      
+      <option value="/news/2017/12/07/cosmos-4-1-1-released/">Ball Aerospace COSMOS 4.1.1 Released</option>
+      
+      <option value="/news/2017/11/28/cosmos-4-1-0-release-notes/">COSMOS 4.1.0 Release Notes</option>
+      
+      <option value="/news/2017/11/17/cosmos-4-1-0-released/">Ball Aerospace COSMOS 4.1.0 Released</option>
+      
+      <option value="/news/2017/11/13/require_vs_load/">Require vs Load</option>
+      
+      <option value="/news/2017/10/30/config-editor/">Config Editor</option>
+      
+      <option value="/news/2017/10/24/cosmos-4-0-3-released/">Ball Aerospace COSMOS 4.0.3 Released</option>
+      
+      <option value="/news/2017/09/29/cosmos-4-0-2-released/">Ball Aerospace COSMOS 4.0.2 Released</option>
+      
+      <option value="/news/2017/08/23/cloud-deploy/">Deploying COSMOS to the Cloud</option>
+      
+      <option value="/news/2017/08/23/cosmos-4-0-1-released/">Ball Aerospace COSMOS 4.0.1 Released</option>
+      
+      <option value="/news/2017/08/04/cosmos-4-0-0-released/">Ball Aerospace COSMOS 4.0.0 Released</option>
+      
+      <option value="/news/2017/07/05/arduino-battle-bots/">Arduinos & Battle Bots</option>
+      
+      <option value="/news/2017/06/19/template_protocol/">Template Protocol</option>
+      
+      <option value="/news/2017/05/18/cosmos-3-9-2-released/">Ball Aerospace COSMOS 3.9.2 Released</option>
+      
+      <option value="/news/2017/05/08/packet_processors/">Packet Processors</option>
+      
+      <option value="/news/2017/04/24/wired/">WIRED Article</option>
+      
+      <option value="/news/2017/03/29/cosmos-3-9-1-released/">Ball Aerospace COSMOS 3.9.1 Released</option>
+      
+      <option value="/news/2017/02/22/routers/">Routers</option>
+      
+      <option value="/news/2016/12/06/cosmos-3-8-3-released/">Ball Aerospace COSMOS 3.8.3 Released</option>
+      
+      <option value="/news/2016/10/13/cosmos-cubesat-ops/">SmallSat Ops</option>
+      
+      <option value="/news/2016/09/12/erb-config/">ERB Config Files</option>
+      
+      <option value="/news/2016/08/22/custom-widgets/">Custom Widgets</option>
+      
+      <option value="/news/2016/08/04/custom-cosmos_interface/">Custom COSMOS Interface</option>
+      
+      <option value="/news/2016/07/06/cosmos-cmd-tlm-names/">COSMOS Cmd/Tlm Naming</option>
+      
+      <option value="/news/2016/07/05/cosmos-3-8-2-released/">Ball Aerospace COSMOS 3.8.2 Released</option>
+      
+      <option value="/news/2016/05/12/cosmos-3-8-1-released/">Ball Aerospace COSMOS 3.8.1 Released</option>
+      
+      <option value="/news/2016/03/03/sparkfun/">Sparkfun Blog Post</option>
+      
+      <option value="/news/2016/02/27/xtce-support/">XTCE Support</option>
+      
+      <option value="/news/2016/02/27/fukuoka-award/">Fukuoka Special Award Winner</option>
+      
+      <option value="/news/2016/02/26/cosmos-3-8-0-released/">Ball Aerospace COSMOS 3.8.0 Released</option>
+      
+      <option value="/news/2016/02/11/simulated-target/">COSMOS Simulated Target</option>
+      
+      <option value="/news/2015/12/29/cosmos-3-7-1-released/">Ball Aerospace COSMOS 3.7.1 Released</option>
+      
+      <option value="/news/2015/11/25/cosmos-3-7-0-released/">Ball Aerospace COSMOS 3.7.0 Released</option>
+      
+      <option value="/news/2015/10/30/cosmos-3-6-3-released/">Ball Aerospace COSMOS 3.6.3 Released</option>
+      
+      <option value="/news/2015/10/28/cosmos-at-ats-conference/">COSMOS at the ATS Conference</option>
+      
+      <option value="/news/2015/08/10/cosmos-3-6-2-released/">Ball Aerospace COSMOS 3.6.2 Released</option>
+      
+      <option value="/news/2015/08/10/cosmos-3-6-1-released/">Ball Aerospace COSMOS 3.6.1 Released</option>
+      
+      <option value="/news/2015/08/07/cosmos-3-6-0-released/">Ball Aerospace COSMOS 3.6.0 Released</option>
+      
+      <option value="/news/2015/07/14/cosmos-3-5-3-released/">Ball Aerospace COSMOS 3.5.3 Released</option>
+      
+      <option value="/news/2015/07/14/cosmos-3-5-2-released/">Ball Aerospace COSMOS 3.5.2 Released</option>
+      
+      <option value="/news/2015/07/08/cosmos-3-5-1-released/">Ball Aerospace COSMOS 3.5.1 Released</option>
+      
+      <option value="/news/2015/06/22/cosmos-3-5-0-released/">Ball Aerospace COSMOS 3.5.0 Released</option>
+      
+      <option value="/news/2015/05/08/cosmos-3-4-2-released/">Ball Aerospace COSMOS 3.4.2 Released</option>
+      
+      <option value="/news/2015/05/01/cosmos-3-4-1-released/">Ball Aerospace COSMOS 3.4.1 Released</option>
+      
+      <option value="/news/2015/04/27/cosmos-3-4-0-released/">Ball Aerospace COSMOS 3.4.0 Released</option>
+      
+      <option value="/news/2015/04/06/cosmos-c-extension/">COSMOS BinaryAccessor#write C Extension</option>
+      
+      <option value="/news/2015/03/23/cosmos-3-3-3-released/">Ball Aerospace COSMOS 3.3.3 Released</option>
+      
+      <option value="/news/2015/03/19/cosmos-3-3-1-released/">Ball Aerospace COSMOS 3.3.1 - Startup Cheetah</option>
+      
+      <option value="/news/2015/02/27/cosmos-at-gsaw-conference/">COSMOS at the GSAW Conference</option>
+      
+      <option value="/news/2015/02/23/cosmos-3-2-1-released/">Ball Aerospace COSMOS 3.2.1 Released</option>
+      
+      <option value="/news/2015/02/17/cosmos-3-2-0-released/">Ball Aerospace COSMOS 3.2.0 Released</option>
+      
+      <option value="/news/2015/02/03/cosmos-3-1-2-released/">Ball Aerospace COSMOS 3.1.2 Released</option>
+      
+      <option value="/news/2015/01/28/cosmos-3-1-1-released/">Ball Aerospace COSMOS 3.1.1 Released</option>
+      
+      <option value="/news/2015/01/06/ball-aerospace-cosmos-open-sourced/">Ball Aerospace COSMOS Open Sourced</option>
+      
+    </optgroup>
+  </select>
+</div>
+
+
+      <div class="unit four-fifths">
+        <article>
+  <h2>
+    Limits
+    <a href="/news/2018/02/12/limits/" class="permalink" title="Permalink">∞</a>
+  </h2>
+  <span class="post-category">
+    <span class="label">
+      post
+    </span>
+  </span>
+  <div class="post-meta">
+    <span class="post-date">
+      12 Feb 2018
+    </span>
+    <a href="https://github.com/jmthomas" class="post-author">
+      <img src="https://github.com/jmthomas.png" class="avatar" alt="jmthomas avatar" width="24" height="24">
+      jmthomas
+    </a>
+  </div>
+  <div class="post-content">
+    <h2 id="cosmos-limits">COSMOS Limits</h2>
+<p>COSMOS allows you to <a href="/docs/cmdtlm/#limits">define limits</a> for your telemetry items to provide feedback to users about how your telemetry is performing. If you define limits, COSMOS requires you to specify both red and yellow limits. Red limits are traditionally where damage may occur while yellow limits are set a certain percentage away from red to give the operator a chance to respond before the red limits are hit. COSMOS also allows the user to set “Operational” limits (blue limits) which specify a desired operational range inside the green limits. This is best illustrated in the COSMOS demo. Here is a partial screenshot of the INST HS screen in Telemetry Viewer.</p>
+
+<p><img src="/img/2018_02_12_temps.png" alt="Demo MetaData" /></p>
+
+<p>The TEMP1 telemetry point is using the LABELTRENDLIMITSBAR widget in the INST HS screen definition to display both the value (the temperature), the trend (how the data has been moving over the past 60s), as well as the limits bar. The TEMP2 telemetry point is simply using the LABELVALUELIMITSBAR widget so it shows just the value and the limits bar. Notice how the scale of the yellow regions are different for TEMP1 and TEMP2. The regions are scaled according to their defined value ranges.</p>
+
+<p>This type of limits bar is also used by the Limits Monitor tool to display out of limits items system wide.</p>
+
+<p><img src="/img/2018_02_12_limits_monitor.png" alt="Demo MetaData" /></p>
+
+<p>Here I’ve ignored various other items to focus on the INST HEALTH_STATUS packet containing TEMP1 and TEMP2. Notice that the overall limit is yellow since TEMP1 is yellow even though TEMP2 is green. The worst case limts item is reflected in the Monitored Limits State. Also note that TEMP2 appears above TEMP1 because it happened to go out of limits first while I was running the demo. Items appear in Limits Monitor as they go out of limits. Also note that even though TEMP2 is green it still shows up in Limits Monitor because it <em>previously</em> went out of limits. If you switch to the Log tab you can see exactly when an item went out of limits and when it went back to green.</p>
+
+<h3 id="scripting-limits">Scripting Limits</h3>
+<p>You can get this same information from a script by executing the following script in Script Runner.</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="nb">puts</span> <span class="s2">"Overall limits state: </span><span class="si">#{</span><span class="n">get_overall_limits_state</span><span class="si">}</span><span class="s2">"</span>
+<span class="n">get_out_of_limits</span><span class="p">.</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">item</span><span class="o">|</span>
+  <span class="n">tgt</span><span class="p">,</span> <span class="n">pkt</span><span class="p">,</span> <span class="n">item</span><span class="p">,</span> <span class="n">state</span> <span class="o">=</span> <span class="n">item</span>
+  <span class="nb">puts</span> <span class="s2">"tgt:</span><span class="si">#{</span><span class="n">tgt</span><span class="si">}</span><span class="s2"> pkt:</span><span class="si">#{</span><span class="n">pkt</span><span class="si">}</span><span class="s2"> item:</span><span class="si">#{</span><span class="n">item</span><span class="si">}</span><span class="s2"> state:</span><span class="si">#{</span><span class="n">state</span><span class="si">}</span><span class="s2">"</span>
+<span class="k">end</span></code></pre></figure>
+
+<p>Note that the get_out_of_limits call returns the items which are out of limits at the exact instant of the API call. Thus it doesn’t provide history like the Limits Monitor tool.</p>
+
+<p>You can also disable and enable limits on individual telemetry items using the API. The following script will disable limits on TEMP1 and then after 5 seconds it re-enables limits. Run this with the Limits Monitor open and you’ll notice the text for the INST HEALTH_STATUS TEMP1 telemetry point turns black when limits are disabled. Note that this disables limits events logging in the Command and Telemetry Server for this telemetry point.</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="nb">puts</span> <span class="s2">"TEMP1 limits enable:</span><span class="si">#{</span><span class="n">limits_enabled?</span><span class="p">(</span><span class="s2">"INST"</span><span class="p">,</span> <span class="s2">"HEALTH_STATUS"</span><span class="p">,</span> <span class="s2">"TEMP1"</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
+<span class="n">disable_limits</span><span class="p">(</span><span class="s2">"INST"</span><span class="p">,</span> <span class="s2">"HEALTH_STATUS"</span><span class="p">,</span> <span class="s2">"TEMP1"</span><span class="p">)</span>
+<span class="nb">puts</span> <span class="s2">"TEMP1 limits enable:</span><span class="si">#{</span><span class="n">limits_enabled?</span><span class="p">(</span><span class="s2">"INST"</span><span class="p">,</span> <span class="s2">"HEALTH_STATUS"</span><span class="p">,</span> <span class="s2">"TEMP1"</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
+<span class="n">wait</span> <span class="mi">5</span>
+<span class="n">enable_limits</span><span class="p">(</span><span class="s2">"INST"</span><span class="p">,</span> <span class="s2">"HEALTH_STATUS"</span><span class="p">,</span> <span class="s2">"TEMP1"</span><span class="p">)</span>
+<span class="nb">puts</span> <span class="s2">"TEMP1 limits enable:</span><span class="si">#{</span><span class="n">limits_enabled?</span><span class="p">(</span><span class="s2">"INST"</span><span class="p">,</span> <span class="s2">"HEALTH_STATUS"</span><span class="p">,</span> <span class="s2">"TEMP1"</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span></code></pre></figure>
+
+<h2 id="limits-sets">Limits Sets</h2>
+<p>COSMOS requires the first item after the <a href="/docs/cmdtlm/#limits">LIMITS</a> keyword to be the name of the limits set. Limits sets are system wide sets of limits which can be applied depending on the environment you’re testing in. Perhaps you have a “Test” set of limits which are different from your “Operational” limits. At Ball Aerospace, we frequently define cyrogentic limits when testing spacecraft in a vacuum chamber at cyrogenic temperatures. COSMOS requires at least one limits definition to belong to “DEFAULT” which is used when COSMOS starts. If you forget to define a DEFAULT limits set, you’ll get this error when you start the COSMOS Command and Telemetry Server.</p>
+
+<p><img src="/img/2018_02_12_limits_error.png" alt="Demo MetaData" /></p>
+
+<p>Once you’ve defined your limits sets how do you use them? The COSMOS Command and Telemetry Server has a Status tab which allows you to manually change the limits set using a drop down.</p>
+
+<p><img src="/img/2018_02_12_server_limits_set.png" alt="Demo MetaData" /></p>
+
+<p>Notice the log contains “INFO: Limits Set Changed to: TVAC”. This happened immediately after I manually changed the Limits Set drop down from DEFAULT to TVAC. This message is automatically generated whenever the limits set is changed either manually or from the API.</p>
+
+<h3 id="scripting-limits-sets">Scripting Limits Sets</h3>
+<p>You can also manipulate the limits sets programatically from a script.</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">get_limits_sets</span><span class="p">.</span><span class="nf">each</span> <span class="p">{</span> <span class="o">|</span><span class="n">set</span><span class="o">|</span> <span class="nb">puts</span> <span class="s2">"Limits Set:</span><span class="si">#{</span><span class="n">set</span><span class="si">}</span><span class="s2">"</span> <span class="p">}</span>
+<span class="nb">puts</span> <span class="s2">"Current Set:</span><span class="si">#{</span><span class="n">get_limits_set</span><span class="p">()</span><span class="si">}</span><span class="s2">"</span> <span class="c1"># Currently selected limits set</span>
+<span class="n">set_limits_set</span><span class="p">(</span><span class="s2">"DEFAULT"</span><span class="p">)</span> <span class="c1"># Change to DEFAULT</span>
+<span class="n">set_limits_set</span><span class="p">(</span><span class="s2">"TVAC"</span><span class="p">)</span> <span class="c1"># Change to TVAC</span></code></pre></figure>
+
+<h2 id="limits-groups">Limits Groups</h2>
+<p>COSMOS also has the concept of limits groups. Limits groups are used to group together telemetry items so they can be enabled and disabled together. For example, if you have several physical devices in your system, you can group together items from each device and enable their limits when they power on and disable them when they power off. This is useful to avoid limits violations on items which are currently off and returning zeros.</p>
+
+<p>Limits groups are defined by the <a href="/docs/cmdtlm/#limits_group">LIMITS_GROUP</a> keyword. Typically this is a separate file in your target’s cmd_tlm folder. If you’re creating a group which combines items from multiple targets we recommend to define this in the SYSTEM target’s cmd_tlm folder. This is how the COSMOS demo is configured with a limits_groups.txt file in SYSTEM/cmd_tlm.</p>
+
+<p>Items are assigned to a group using the <a href="/docs/cmdtlm/#limits_group_item">LIMITS_GROUP_ITEM</a> keyword. Here is the definition in the COSMOS demo.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>LIMITS_GROUP INST2_TEMP2
+  LIMITS_GROUP_ITEM INST2 HEALTH_STATUS TEMP2
+
+LIMITS_GROUP INST2_GROUND
+  LIMITS_GROUP_ITEM INST2 HEALTH_STATUS GROUND1STATUS
+  LIMITS_GROUP_ITEM INST2 HEALTH_STATUS GROUND2STATUS
+</code></pre>
+</div>
+
+<h3 id="scripting-limits-groups">Scripting Limits Groups</h3>
+<p>You can also manipulate the limits groups programatically from a script.</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">get_limits_groups</span><span class="p">.</span><span class="nf">each</span> <span class="p">{</span> <span class="o">|</span><span class="n">group</span><span class="o">|</span> <span class="nb">puts</span> <span class="s2">"Limits Group:</span><span class="si">#{</span><span class="n">group</span><span class="si">}</span><span class="s2">"</span> <span class="p">}</span>
+<span class="n">enable_limits_group</span><span class="p">(</span><span class="s2">"INST2_TEMP2"</span><span class="p">)</span>
+<span class="n">disable_limits_group</span><span class="p">(</span><span class="s2">"INST2_GROUND"</span><span class="p">)</span></code></pre></figure>
+
+<h3 id="automating-limits-groups">Automating Limits Groups</h3>
+<p>COSMOS also has the ability to automatically enable and disable limits groups based on user configurable conditions. For example, you can automatically enable the group for a particular device when the power supply voltage for that device goes high (the device is powered on). The COSMOS demo has an example of this in the SYSTEM/lib/limits_groups.rb file.</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="nb">require</span> <span class="s1">'cosmos/tools/cmd_tlm_server/limits_groups_background_task'</span>
+
+<span class="k">module</span> <span class="nn">Cosmos</span>
+  <span class="c1"># Inheriting from the LimitsGroupsBackgroundTask provides a framework for</span>
+  <span class="c1"># automatically enabling and disabling limits groups based on telemetry.</span>
+  <span class="k">class</span> <span class="nc">LimitsGroups</span> <span class="o">&lt;</span> <span class="no">LimitsGroupsBackgroundTask</span>
+    <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">initial_delay</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">task_delay</span> <span class="o">=</span> <span class="mi">0</span><span class="o">.</span><span class="mi">5</span><span class="p">)</span>
+      <span class="c1"># Initial delay upon starting the server before staring the group checks</span>
+      <span class="c1"># followed by the background task delay between check iterations</span>
+      <span class="k">super</span><span class="p">(</span><span class="n">initial_delay</span><span class="p">,</span> <span class="n">task_delay</span><span class="p">)</span>
+      <span class="c1"># Creating a Proc allows for arbitrary code to be executed when a group</span>
+      <span class="c1"># is enabled or disabled.</span>
+      <span class="vi">@temp2_enable_code</span> <span class="o">=</span> <span class="no">Proc</span><span class="p">.</span><span class="nf">new</span> <span class="k">do</span>
+        <span class="n">enable_limits_group</span><span class="p">(</span><span class="s1">'INST2_GROUND'</span><span class="p">)</span> <span class="c1"># Enable the INST2_GROUND group</span>
+      <span class="k">end</span>
+      <span class="vi">@temp2_disable_code</span> <span class="o">=</span> <span class="no">Proc</span><span class="p">.</span><span class="nf">new</span> <span class="k">do</span>
+        <span class="n">disable_limits_group</span><span class="p">(</span><span class="s1">'INST2_GROUND'</span><span class="p">)</span> <span class="c1"># Disable the INST2_GROUND group</span>
+      <span class="k">end</span>
+    <span class="k">end</span></code></pre></figure>
+
+<p>You first must require the COSMOS base class and inherit from LimitsGroupsBackgroundTask. The constructor (initialize) takes two delay parameters. The first is the initial delay after starting the Command and Telemetry Server before the task starts checking your logical conditions. The second is the delay between doing the checks (it controls the rate of the task). After calling super (important!) a Proc is created to run arbitrary code when a particular group is enabled or disabled. Note this is entirely optional but in this case we wanted to enable the INST2_GROUND group when the INST2_TEMP2 group got enabled. The @temp2_enable_code and @temp2_disable_code names don’t really matter but they must be unique and have the ‘@’ symbol to make them Ruby instance variables (rather than locals).</p>
+
+<p>After the constructor is configured the method to perform the check is implemented.</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="k">def</span> <span class="nf">check_inst2_temp2</span>
+  <span class="n">process_group</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="vi">@temp2_enable_code</span><span class="p">,</span> <span class="vi">@temp2_disable_code</span><span class="p">)</span> <span class="k">do</span>
+    <span class="n">val</span> <span class="o">=</span> <span class="n">tlm</span><span class="p">(</span><span class="s2">"INST2 HEALTH_STATUS TEMP2"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="o">!</span><span class="n">val</span><span class="p">.</span><span class="nf">nan?</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">val</span><span class="p">.</span><span class="nf">infinite?</span><span class="p">)</span>
+  <span class="k">end</span>
+<span class="k">end</span></code></pre></figure>
+
+<p>The method name is very important. It must begin with ‘check_’ and end with the name of a Limits Group defined by the LIMITS_GROUP keyword. In the demo, LIMITS_GROUP(s) are defined in config/targets/SYSTEM/cmd_tlm/limits_groups.txt. Since there is a LIMITS_GROUP INST2_TEMP2 we have a match (the method name should be lower case while the LIMITS_GROUP is typically defined to be uppercase).</p>
+
+<p>Inside the method you must call process_group. The first parameter is the number of seconds to delay before enabling the group when the telemetry check is true. So in this example we are waiting zero seconds to enable the group. Note that when the telemetry check is false the group is instantly disabled. The next two parameters are Proc objects which are called when the group is enabled and disabled respectively. Remember that we defined our Proc objects in the constructor to enable and disable the INST2_GROUND group. These parameters are entirely optional so you can also simply call <code class="highlighter-rouge">process_group(0)</code> with just the delay.</p>
+
+<p>The code inside the process_group block (the lines after ‘do’ and before ‘end’) must return a boolean. True will enable the group and false will disable the group. In this example, the group is enabled when the value is not NaN (Not a Number) and not Infinite. If the value is NaN or Infinite the group is disabled. You can watch this happening in the demo by watching the bottom log portion of the Command and Telemetry Server.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>2018/02/12 09:12:58.118  ERROR: INST HEALTH_STATUS TEMP2 = NaN is RED_LOW
+2018/02/12 09:12:58.121  ERROR: INST2 HEALTH_STATUS TEMP2 = NaN is RED_LOW
+2018/02/12 09:12:58.220  INFO: Disabling Limits Group: INST2_TEMP2
+2018/02/12 09:12:58.220  INFO: Disabling Limits Group: INST2_GROUND
+</code></pre>
+</div>
+
+<p>First TEMP2 transitions to NaN (this is done on purpose for the demo) which is a RED_LOW limits violation. 100ms later (due to processing time) the INST2_TEMP2 group is disabled followed by the INST2_GROUND group due to the Proc code we created.</p>
+
+<h2 id="other-limits-apis">Other Limits APIs</h2>
+<p>There are a few other APIs which are provided to work with COSMOS limits.</p>
+
+<p><code class="highlighter-rouge">get_stale</code> returns all the stale packets in the system. Stale packets are those which have not been received by the Command and Telemetry Server for the <a href="/docs/system/#staleness_seconds">STALENESS_SECONDS</a> setting (by default 30s).</p>
+
+<p><code class="highlighter-rouge">get_limits(tgt, pkt, item)</code> returns the limits settings for a particular telemetry item. It returns an array of the group name, persistence setting, enable setting, red low, yellow low, yellow high, red high, blue low, and blue high limits values. If no blue operational limits were set those values are nil.</p>
+
+<p><code class="highlighter-rouge">set_limits(tgt, pkt, item, red_low, yellow_low, yellow_high, red_high,</code>
+<code class="highlighter-rouge">blue_low = nil, blue_high = nil, limits_set = :CUSTOM, persistence = nil, enabled = true)</code> allows the user to set new values for the limits settings. Some values have defaults and some do not. Thus you must provide at least the first 7 parameters for this call to be successful. Note the order of parameters: red low, yellow low, yellow high, red high, and then blue low, blue high. By default the limits_set is :CUSTOM which is probably not a limits set you already have defined. Thus is you don’t set the limits_set parameter it may appear as if nothing has happened. To enable the new limits you have to manually change to the CUSTOM limits set: <code class="highlighter-rouge">set_limits_set("CUSTOM")</code>. Alternatively, you can specify :DEFAULT for the limits_set parameter and you will typically immediately see the change (assuming DEFAULT is the active set). If you only want to change one particular value you can call <code class="highlighter-rouge">get_limits</code> first to get the current settings and only change the value you want.</p>
+
+<p>You can also use API methods to subscribe to limits events. This allows you to process all limits events in the same way the Limits Monitor application does. To start you must subscribe to limits events using <code class="highlighter-rouge">subscribe_limits_events</code> which returns an ID. You can then call <code class="highlighter-rouge">get_limits_event(id)</code> and pass in the ID to get limits event type and data from the server. There are three different limits event types: LIMITS_CHANGE, LIMITS_SET, and LIMITS_SETTING. LIMITS_CHANGE is when a particular item goes out of limits. This is by far the most common and probably the one you’re most interested in. LIMITS_SET events happen when the overall limits set changes. LIMITS_SETTING events are generated when the set_limits method is called to change the limits on an individual item. The <code class="highlighter-rouge">get_limits_event</code> method takes a boolean second parameter to determine whether or not to block when waiting for an event. The default is false which means it blocks waiting for an event. You can also pass true which means to not block waiting for events. However if no event is present <code class="highlighter-rouge">get_limits_event</code> will raise a ThreadError. Thus you must catch the error to allow your code to continue. Finally you call <code class="highlighter-rouge">unsubscribe_limits_events(id)</code> when shutting down. Here’s a example of using the subscription APIs.</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="nb">id</span> <span class="o">=</span> <span class="n">subscribe_limits_events</span><span class="p">()</span>
+<span class="k">while</span> <span class="kp">true</span>
+  <span class="n">type</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">get_limits_event</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span> <span class="c1"># block waiting</span>
+  <span class="nb">puts</span> <span class="s2">"type:</span><span class="si">#{</span><span class="n">type</span><span class="si">}</span><span class="s2"> data:</span><span class="si">#{</span><span class="n">data</span><span class="si">}</span><span class="s2">"</span>
+  <span class="c1"># break if XXX # Break the loop when ...</span>
+<span class="k">end</span>
+<span class="n">unsubscribe_limits_events</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
+
+<span class="nb">id</span> <span class="o">=</span> <span class="n">subscribe_limits_events</span><span class="p">()</span>
+<span class="k">while</span> <span class="kp">true</span>
+  <span class="k">begin</span>
+    <span class="n">type</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">get_limits_event</span><span class="p">(</span><span class="nb">id</span><span class="p">,</span> <span class="kp">true</span><span class="p">)</span> <span class="c1"># don't block</span>
+    <span class="nb">puts</span> <span class="s2">"type:</span><span class="si">#{</span><span class="n">type</span><span class="si">}</span><span class="s2"> data:</span><span class="si">#{</span><span class="n">data</span><span class="si">}</span><span class="s2">"</span>
+    <span class="c1"># break if XXX # Break the loop when ...</span>
+  <span class="k">rescue</span> <span class="no">ThreadError</span> <span class="c1"># raised if no event present</span>
+    <span class="n">wait</span> <span class="mi">1</span> <span class="c1"># Wait before checking again</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+<span class="n">unsubscribe_limits_events</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span></code></pre></figure>
+
+<h2 id="conclusion">Conclusion</h2>
+<p>Limits are a powerful concept in COSMOS. Sets provide for a system wide setting that affects all limits items. Groups allow limits items to be grouped to typically enable and disable them together. APIs allow the user to query and set limits across the system while subscriptions provide notifications for every limits event action.</p>
+
+<p>Hopefully you have a better understanding of how limits operate in COSMOS. If you have a question which would benefit the community or find a possible bug please use our <a href="https://github.com/BallAerospace/COSMOS/issues">Github Issues</a>. If you would like more information about a COSMOS training or support contract please contact us at <a href="mailto:cosmos@ball.com">cosmos@ball.com</a>.</p>
+
+  </div>
+</article>
+
+      </div>
+
+      <div class="unit one-fifth hide-on-mobiles">
+  <aside>
+    <ul>
+      <li class="">
+        <a href="/news/">All News</a>
+      </li>
+      <li class="">
+        <a href="/news/releases/">COSMOS Releases</a>
+      </li>
+    </ul>
+    <h4>Recent Releases</h4>
+    <ul>
+      
+      <li class="">
+        <a href="/news/2017/12/07/cosmos-4-1-1-released/">Version 4.1.1</a>
+      </li>
+      
+      <li class="">
+        <a href="/news/2017/11/17/cosmos-4-1-0-released/">Version 4.1.0</a>
+      </li>
+      
+      <li class="">
+        <a href="/news/2017/10/24/cosmos-4-0-3-released/">Version 4.0.3</a>
+      </li>
+      
+      <li class="">
+        <a href="/news/2017/09/29/cosmos-4-0-2-released/">Version 4.0.2</a>
+      </li>
+      
+      <li class="">
+        <a href="/news/2017/08/23/cosmos-4-0-1-released/">Version 4.0.1</a>
+      </li>
+      
+      <li>
+        <a href="/docs/history/">History »</a>
+      </li>
+    </ul>
+    <h4>Other News</h4>
+    <ul>
+        
+        
+        <li class="current">
+          <a href="/news/2018/02/12/limits/">Limits</a>
+        </li>
+        
+        
+        
+        <li class="">
+          <a href="/news/2018/01/18/metadata/">Metadata</a>
+        </li>
+        
+        
+        
+        
+        
+        <li class="">
+          <a href="/news/2017/11/28/cosmos-4-1-0-release-notes/">COSMOS 4.1.0 Release Notes</a>
+        </li>
+        
+        
+        
+        
+        
+        <li class="">
+          <a href="/news/2017/11/13/require_vs_load/">Require vs Load</a>
+        </li>
+        
+        
+        
+        <li class="">
+          <a href="/news/2017/10/30/config-editor/">Config Editor</a>
+        </li>
+        
+        
+        
+        
+        
+        
+        
+        <li class="">
+          <a href="/news/2017/08/23/cloud-deploy/">Deploying COSMOS to the Cloud</a>
+        </li>
+        
+        
+        
+        
+        
+        
+        
+        <li class="">
+          <a href="/news/2017/07/05/arduino-battle-bots/">Arduinos & Battle Bots</a>
+        </li>
+        
+        
+        
+        <li class="">
+          <a href="/news/2017/06/19/template_protocol/">Template Protocol</a>
+        </li>
+        
+        
+        
+        
+        
+        <li class="">
+          <a href="/news/2017/05/08/packet_processors/">Packet Processors</a>
+        </li>
+        
+        
+        
+        <li class="">
+          <a href="/news/2017/04/24/wired/">WIRED Article</a>
+        </li>
+        
+        
+        
+        
+        
+        <li class="">
+          <a href="/news/2017/02/22/routers/">Routers</a>
+        </li>
+        
+        
+        
+        
+        
+        <li class="">
+          <a href="/news/2016/10/13/cosmos-cubesat-ops/">SmallSat Ops</a>
+        </li>
+        
+        
+        
+        <li class="">
+          <a href="/news/2016/09/12/erb-config/">ERB Config Files</a>
+        </li>
+        
+        
+        
+        <li class="">
+          <a href="/news/2016/08/22/custom-widgets/">Custom Widgets</a>
+        </li>
+        
+        
+        
+        <li class="">
+          <a href="/news/2016/08/04/custom-cosmos_interface/">Custom COSMOS Interface</a>
+        </li>
+        
+        
+        
+        <li class="">
+          <a href="/news/2016/07/06/cosmos-cmd-tlm-names/">COSMOS Cmd/Tlm Naming</a>
+        </li>
+        
+        
+        
+        
+        
+        
+        
+        <li class="">
+          <a href="/news/2016/03/03/sparkfun/">Sparkfun Blog Post</a>
+        </li>
+        
+        
+        
+        <li class="">
+          <a href="/news/2016/02/27/xtce-support/">XTCE Support</a>
+        </li>
+        
+        
+        
+        <li class="">
+          <a href="/news/2016/02/27/fukuoka-award/">Fukuoka Special Award Winner</a>
+        </li>
+        
+        
+        
+        
+        
+        <li class="">
+          <a href="/news/2016/02/11/simulated-target/">COSMOS Simulated Target</a>
+        </li>
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        <li class="">
+          <a href="/news/2015/10/28/cosmos-at-ats-conference/">COSMOS at the ATS Conference</a>
+        </li>
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        <li class="">
+          <a href="/news/2015/04/06/cosmos-c-extension/">COSMOS BinaryAccessor#write C Extension</a>
+        </li>
+        
+        
+        
+        
+        
+        
+        
+        <li class="">
+          <a href="/news/2015/02/27/cosmos-at-gsaw-conference/">COSMOS at the GSAW Conference</a>
+        </li>
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+    </ul>
+  </aside>
+</div>
+
+
+      <div class="clear"></div>
+
+    </div>
+  </section>
+
+
+  <script>
+  (function() {
+    var cx = '001663949569052626382:-enhin1layy';
+    var gcse = document.createElement('script');
+    gcse.type = 'text/javascript';
+    gcse.async = true;
+    gcse.src = 'https://cse.google.com/cse.js?cx=' + cx;
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(gcse, s);
+  })();
+</script>
+<footer role="contentinfo">
+  <div class="grid wider">
+    <div class="unit one-third center-on-mobiles">
+      <p>The contents of this website are &copy;&nbsp;2018 <a href="http://www.ballaerospace.com/" target="_blank">Ball Aerospace</a> under the terms of the <a href="https://github.com/BallAerospace/COSMOS/blob/master/LICENSE.txt" target="_blank">GPLv3&nbsp;License</a>.</p>
+      <p>Site design derived from the <a href="http://jekyllrb.com/" target="_blank">Jekyll</a> project documentation which is licensed under the terms of the <a href="https://github.com/jekyll/jekyll/blob/master/LICENSE" target="_blank">MIT License</a>.</p>
+    </div>
+    <div class="unit two-thirds align-right center-on-mobiles">
+      <p>
+        <gcse:search></gcse:search>
+        Proudly hosted by
+        <a href="https://github.com" target="_blank">
+          <img src="/img/footer-logo.png" width="100" height="30" alt="GitHub Social coding">
+        </a>
+      </p>
+    </div>
+  </div>
+</footer>
+
+  <script>
+  var anchorForId = function (id) {
+    var anchor = document.createElement("a");
+    anchor.className = "header-link";
+    anchor.href      = "#" + id;
+    anchor.innerHTML = "<span class=\"sr-only\">Permalink</span><i class=\"fa fa-link\"></i>";
+    anchor.title = "Permalink";
+    return anchor;
+  };
+
+  var linkifyAnchors = function (level, containingElement) {
+    var headers = containingElement.getElementsByTagName("h" + level);
+    for (var h = 0; h < headers.length; h++) {
+      var header = headers[h];
+
+      if (typeof header.id !== "undefined" && header.id !== "") {
+        header.appendChild(anchorForId(header.id));
+      }
+    }
+  };
+
+  document.onreadystatechange = function () {
+    if (this.readyState === "complete") {
+      var contentBlock = document.getElementsByClassName("docs")[0] || document.getElementsByClassName("news")[0];
+      if (!contentBlock) {
+        return;
+      }
+      for (var level = 1; level <= 6; level++) {
+        linkifyAnchors(level, contentBlock);
+      }
+    }
+  };
+</script>
+
+  
+  <!-- Google Analytics (http://google.com/analytics) -->
+  <script>
+    !function(j,e,k,y,l,L){j.GoogleAnalyticsObject=y,j[y]||(j[y]=function(){
+    (j[y].q=j[y].q||[]).push(arguments)}),j[y].l=+new Date,l=e.createElement(k),
+    L=e.getElementsByTagName(k)[0],l.src='//www.google-analytics.com/analytics.js',
+    L.parentNode.insertBefore(l,L)}(window,document,'script','ga');
+
+    ga('create', 'UA-60103689-1', 'cosmosrb.com');
+    ga('send', 'pageview');
+
+  </script>
+
+
+
+</body>
+</html>
