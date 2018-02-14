@@ -22,9 +22,12 @@ describe DartDecommutator do
   describe "run" do
     let(:common) { Object.new.extend(DartCommon) }
 
-    def check_float(val, expected)
-      if val.is_a? Float
+    def check_val(val, expected)
+      case val
+      when Float
         expect(val).to be_within(0.001).of expected
+      when String
+        expect(val).to eq expected.to_s
       else
         expect(val).to eq expected
       end
@@ -89,7 +92,7 @@ describe DartDecommutator do
       # Grab all the iXX column names which hold the actual data values
       model.column_names.select {|name| name =~ /^i\d+/}.each_with_index do |item, index|
         db_value = meta_row.send(item.intern)
-        check_float(db_value, meta_packet.read(meta_item_names[index]))
+        check_val(db_value, meta_packet.read(meta_item_names[index]))
       end
 
       system_target = Target.where("name = 'INST'").first
@@ -113,13 +116,13 @@ describe DartDecommutator do
           name = decom_column_names[db_index].intern
           db_value = row.send(name)
           # puts "#{db_index} item:#{item.name} db:#{db_value} raw pkt:#{packet.read_item(item, :RAW)}"
-          check_float(db_value, packet.read_item(item, :RAW))
+          check_val(db_value, packet.read_item(item, :RAW))
           if writer.separate_raw_con?(item)
             db_index += 1
             name = decom_column_names[db_index].intern
             db_value = row.send(name)
-            # puts "#{db_index} citem:#{item.name} db:#{db_value} conv pkt:#{packet.read_item(item)}"
-            check_float(db_value, packet.read_item(item))
+            puts "#{db_index} citem:#{item.name} db:#{db_value} type:#{db_value.class} conv pkt:#{packet.read_item(item)}"
+            check_val(db_value, packet.read_item(item))
           end
           db_index += 1
         end

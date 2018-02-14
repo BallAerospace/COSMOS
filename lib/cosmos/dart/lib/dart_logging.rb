@@ -8,7 +8,6 @@
 # as published by the Free Software Foundation; version 3 with
 # attribution addendums as found in the LICENSE.txt
 
-#require File.expand_path('../../config/environment', __FILE__)
 require 'cosmos'
 require 'stringio'
 

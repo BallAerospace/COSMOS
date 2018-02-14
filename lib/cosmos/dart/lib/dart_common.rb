@@ -8,7 +8,6 @@
 # as published by the Free Software Foundation; version 3 with
 # attribution addendums as found in the LICENSE.txt
 
-#require File.expand_path('../../config/environment', __FILE__)
 require 'cosmos/script'
 require 'optparse'
 
@@ -465,7 +464,7 @@ module DartCommon
     model.reset_column_information
     model_name = table_name.upcase
     Cosmos.send(:remove_const, model_name) if Cosmos.const_defined?(model_name)
-    Cosmos.const_set(model_name, model)    
+    Cosmos.const_set(model_name, model)
   end
 
   # Create a data reduction table. These tables hold min, max, and average

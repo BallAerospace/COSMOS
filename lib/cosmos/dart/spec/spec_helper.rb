@@ -44,6 +44,7 @@ end
 
 RSpec.configure do |config|
   config.before(:all) do
+    Thread.abort_on_exception = true
     %w(DART_DATA DART_LOGS).each do |dir|
       if File.exist?(Cosmos::System.paths[dir])
         FileUtils.rm_rf Cosmos::System.paths[dir]
