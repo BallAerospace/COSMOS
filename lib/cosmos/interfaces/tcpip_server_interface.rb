@@ -226,7 +226,7 @@ module Cosmos
     def write(packet)
       raise "Interface not connected for write: #{@name}" unless connected? && write_allowed?
       @write_count += 1
-      @write_queue << packet
+      @write_queue << packet.clone
       @write_condition_variable.broadcast
     end
 

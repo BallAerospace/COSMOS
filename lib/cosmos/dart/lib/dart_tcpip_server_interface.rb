@@ -14,7 +14,7 @@ require 'dart_logging'
 class DartTcpipServerInterface < Cosmos::TcpipServerInterface
   include DartCommon
 
-  def initialize(write_timeout = 5, read_timeout = 5)
+  def initialize(write_timeout = 60, read_timeout = 5)
     Cosmos::Logger.level = Cosmos::Logger::INFO
     @dart_logging = DartLogging.new('dart_stream_server')
 
