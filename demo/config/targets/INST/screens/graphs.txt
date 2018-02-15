@@ -1,7 +1,7 @@
 SCREEN AUTO AUTO 1.0
 
 VERTICAL
-  TITLE "Instrument Graphs"
+  TITLE "<%= @target_name %> Instrument Graphs"
 
   MATRIXBYCOLUMNS 2
     LINEGRAPH INST HEALTH_STATUS TEMP1

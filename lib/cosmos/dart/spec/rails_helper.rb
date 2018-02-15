@@ -1,7 +1,6 @@
 # This file is copied to spec/ when you run 'rails generate rspec:install'
 # Set the user path to our COSMOS configuration in the spec directory
 ENV['COSMOS_USERPATH'] = File.join(File.dirname(File.expand_path(__FILE__)), '../../../../spec/install')
-puts "COSMOS_USERPATH:#{ENV['COSMOS_USERPATH']}"
 
 require 'spec_helper'
 ENV['RAILS_ENV'] ||= 'test'

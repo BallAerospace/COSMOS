@@ -66,7 +66,7 @@ describe DartDecommutator do
         decom.run
       end
       sleep 5 # Allow the decommutator to work
-      thread.exit
+      thread.kill
 
       PacketLogEntry.all.each do |ple|
         expect(ple.decom_state).to eq PacketLogEntry::COMPLETE
@@ -149,7 +149,7 @@ describe DartDecommutator do
         decom.run
       end
       sleep 1 # Allow the decommutator to work
-      thread.exit
+      thread.kill
 
       PacketLogEntry.all.each do |ple|
         expect(ple.decom_state).to eq PacketLogEntry::NO_META_PLE
@@ -183,7 +183,7 @@ describe DartDecommutator do
         decom.run
       end
       sleep 1 # Allow the decommutator to work
-      thread.exit
+      thread.kill
 
       PacketLogEntry.all.each do |ple|
         expect(ple.decom_state).to eq PacketLogEntry::NO_META_PACKET
@@ -233,7 +233,7 @@ describe DartDecommutator do
         decom.run
       end
       sleep 1 # Allow the decommutator to work
-      thread.exit
+      thread.kill
 
       (1..2).each do |id|
         expect(PacketLogEntry.find(id).decom_state).to eq PacketLogEntry::NO_SYSTEM_CONFIG
@@ -253,7 +253,7 @@ describe DartDecommutator do
         decom.run
       end
       sleep 1 # Allow the decommutator to work
-      thread.exit
+      thread.kill
 
       (1..2).each do |id|
         expect(PacketLogEntry.find(id).decom_state).to eq PacketLogEntry::NO_CONFIG
@@ -277,7 +277,7 @@ describe DartDecommutator do
         decom.run
       end
       sleep 1 # Allow the decommutator to work
-      thread.exit
+      thread.kill
 
       expect(PacketLogEntry.find(2).decom_state).to eq PacketLogEntry::NO_PACKET
       decom_tables = ActiveRecord::Base.connection.tables.select do |table_name|
@@ -296,7 +296,7 @@ describe DartDecommutator do
         decom.run
       end
       sleep 1 # Allow the decommutator to work
-      thread.exit
+      thread.kill
 
       (1..2).each do |id|
         expect(PacketLogEntry.find(id).decom_state).to eq PacketLogEntry::NO_PACKET_CONFIG

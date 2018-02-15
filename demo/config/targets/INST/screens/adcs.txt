@@ -2,7 +2,8 @@ SCREEN AUTO AUTO 1.0 FIXED
 
 VERTICAL
 
-  TITLE "Instrument ADCS Information"
+  TITLE "<%= @target_name %> Instrument ADCS Information"
+  # Note @original_target_name is also available
 
   HORIZONTAL
     VERTICALBOX

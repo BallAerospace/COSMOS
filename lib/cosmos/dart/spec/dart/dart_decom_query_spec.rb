@@ -54,7 +54,7 @@ describe DartDecomQuery do
       break if 0 == PacketLogEntry.where("decom_state = #{PacketLogEntry::NOT_STARTED}").count
       sleep 0.1
     end
-    thread.exit
+    thread.kill
   end
 
   describe "query" do

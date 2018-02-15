@@ -2,7 +2,7 @@ SCREEN AUTO AUTO 1.0
 
 SCROLLWINDOW
 
-  TITLE "Other Widget Examples"
+  TITLE "<%= @target_name %> Other Widget Examples"
 
   VERTICALBOX
     HORIZONTAL
