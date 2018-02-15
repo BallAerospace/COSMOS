@@ -3,7 +3,8 @@ GLOBAL_SETTING LABELVALUELIMITSBAR COLORBLIND TRUE
 
 VERTICAL
 
-  TITLE "Instrument Health and Status"
+  TITLE "<%= @target_name %> Instrument Health and Status"
+  # Note @original_target_name is also available
   SETTING BACKCOLOR 162 181 205
   SETTING TEXTCOLOR black
 

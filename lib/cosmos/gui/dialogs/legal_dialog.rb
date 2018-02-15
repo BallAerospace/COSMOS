@@ -153,6 +153,7 @@ module Cosmos
       File.open(filename, 'r') do |file|
         file.each_line do |line|
           split_line = line.strip.scan(ConfigParser::PARSING_REGEX)
+          next unless split_line[0]
           if split_line[0] == 'USER_MODIFIED'
             official = false
             next
