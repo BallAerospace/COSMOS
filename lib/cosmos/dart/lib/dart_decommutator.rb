@@ -15,11 +15,6 @@ require 'packet_log_entry'
 class DartDecommutator
   include DartCommon
 
-  # States for the Decommutation table reduced_state field
-  INITIALIZING = 0 # New rows being created
-  READY_TO_REDUCE = 1 # Once all new rows have been created
-  REDUCED = 2 # After the data has been reduced
-
   # Wait 60s before giving up on the PacketConfig becoming ready
   PACKET_CONFIG_READY_TIMEOUT = 60
 

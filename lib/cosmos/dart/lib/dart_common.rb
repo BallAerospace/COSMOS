@@ -30,6 +30,11 @@ module DartCommon
   #   These data types will result in minute, hour, and daily database tables.
   REDUCED_TYPES = [:integer, :bigint, :decimal, :float]
 
+  # States for the Decommutation table reduced_state field
+  INITIALIZING = 0 # New rows being created
+  READY_TO_REDUCE = 1 # Once all new rows have been created
+  REDUCED = 2 # After the data has been reduced
+
   # Argument parser for the DART command line tools
   def self.handle_argv(parse = true)
     parser = OptionParser.new do |option_parser|
@@ -68,17 +73,51 @@ module DartCommon
   #   '_d' for days. These are the reduction tables.
   # @return [ActiveRecord::Base] The decommutation table model
   def get_decom_table_model(packet_config_id, table_index, reduction_modifier = "")
-    model_name = "T#{packet_config_id}_#{table_index}#{reduction_modifier}"
+    return get_table_model("t#{packet_config_id}_#{table_index}", reduction_modifier)
+  end
+
+  # Get the ActiveRecord model for a database table
+  #
+  # @param table [String] Database table name
+  # @param reduction_modifier [String] One of "_m", "_h", "_d"
+  # @return [ActiveRecord] Database model for a commutation or reduction table
+  #   Commutatiohn tables are named tXXX_YYY where XXX is the PacketConfig ID,
+  #   and YYY is the table index. Reduction tables have a _m, _h, _d extension
+  #   on the table name.
+  def get_table_model(table, reduction_modifier = "")
+    model_name = "T" + table[1..-1] + reduction_modifier
     begin
       model = Cosmos.const_get(model_name)
     rescue
       # Need to create model
       model = Class.new(ActiveRecord::Base) do
-        self.table_name = "t#{packet_config_id}_#{table_index}#{reduction_modifier}"
+        self.table_name = table + reduction_modifier
       end
       Cosmos.const_set(model_name, model)
     end
     return model
+  end
+
+  # Iterate through each decom and reduced table currently in DART
+  #
+  def each_decom_and_reduced_table
+    ActiveRecord::Base.connection.tables.each do |table|
+      # Since the decommutation tables are created dynamically we search
+      # through all the tables looking for tables named something like
+      # tXXX_YYY where XXX is the PacketConfig ID and YYY is the table index
+      if table.to_s =~ /^t(\d+)_(\d+)$/ # ASCII art? No! Regex!
+        packet_config_id = $1.to_i
+        table_index = $2.to_i
+        # Get the base decommutation table model
+        decom_model = get_table_model(table)
+        # Find the reduction table models
+        minute_model = get_table_model(table, "_m")
+        hour_model = get_table_model(table, "_h")
+        day_model = get_table_model(table, "_d")
+
+        yield packet_config_id, table_index, decom_model, minute_model, hour_model, day_model
+      end
+    end
   end
 
   # Determine if the item must have separate raw and converted value tables
@@ -121,6 +160,7 @@ module DartCommon
         t.datetime :time
         t.bigint :ple_id
         t.bigint :meta_id
+        t.bigint :reduced_id
         t.integer :reduced_state, :default => 0
         table_data_types.each_with_index do |data_type, index|
           item_index = (table_index * MAX_COLUMNS_PER_TABLE) + index
@@ -141,6 +181,7 @@ module DartCommon
         t.index :time
         t.index :meta_id
         t.index :reduced_state
+        t.index :reduced_id
       end
       create_reduction_table("t#{packet_config.id}_#{table_index}_h", table_data_types, table_index) # hour
       create_reduction_table("t#{packet_config.id}_#{table_index}_m", table_data_types, table_index) # month
@@ -475,6 +516,7 @@ module DartCommon
       t.datetime :start_time
       t.integer :num_samples
       t.bigint :meta_id
+      t.bigint :reduced_id
       t.integer :reduced_state, :default => 0
       table_data_types.each_with_index do |data_type, index|
         item_index = (table_index * MAX_COLUMNS_PER_TABLE) + index
@@ -488,6 +530,7 @@ module DartCommon
       t.index :start_time
       t.index :meta_id
       t.index :reduced_state
+      t.index :reduced_id
     end
   end
 

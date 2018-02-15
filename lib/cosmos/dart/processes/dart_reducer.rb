@@ -63,7 +63,7 @@ class DartReducerWorkerThread
       time_delta, base_model_time_column, time_method = job_attributes(job_type)
       rows = []
       # Find all the rows in the decommutation table which are ready to reduce
-      base_model.where("reduced_state = #{DartDecommutator::READY_TO_REDUCE}").order("meta_id ASC, #{base_model_time_column} ASC").find_each do |row|
+      base_model.where("reduced_state = #{DartCommon::READY_TO_REDUCE}").order("meta_id ASC, #{base_model_time_column} ASC").find_each do |row|
         rows << row
         first_row_time = rows[0].send(base_model_time_column)
         last_row_time = rows[-1].send(base_model_time_column)
@@ -165,10 +165,12 @@ class DartReducerWorkerThread
           new_row.write_attribute(max_item_name, max_value)
           new_row.write_attribute(avg_item_name, avg_value)
         end
-        # Need to transaction the new_row.save! and base_model.update_all to ensure DB integrity
+        base_model.where(id: sample_rows.map(&:id)).update_all(:reduced_state => DartCommon::REDUCED)
         new_row.save! # Create the reduced data row in the database
-        # Mark the original rows as reduced!
-        base_model.where(id: sample_rows.map(&:id)).update_all(:reduced_state => DartDecommutator::REDUCED)
+        base_model.where(id: sample_rows.map(&:id)).update_all(:reduced_id => new_row.id)
+        new_row.reduced_state = DartCommon::READY_TO_REDUCE
+        new_row.save!
+
         rows = rows[-1..-1] # Start a new sample with the last item in the previous sample
         Cosmos::Logger.info("Created #{new_row.class}:#{new_row.id} with #{mappings.length} items from #{new_row.num_samples} samples")
       end
@@ -273,24 +275,10 @@ class DartReducer
         time_start = Time.now
         # Find base tables that need to be reduced
         base_tables = []
-        ActiveRecord::Base.connection.tables.each do |table|
-          # Since the decommutation tables are created dynamically we search
-          # through all the tables looking for tables named something like
-          # tXXX_YYY where XXX is the PacketConfig ID and YYY is the table index
-          if table.to_s =~ /^t(\d+)_(\d+)$/ # ASCII art? No! Regex!
-            packet_config_id = $1.to_i
-            table_index = $2.to_i
-            # Get the base decommutation table model
-            decom_model = get_table_model(table)
-            # Find the reduction table models
-            minute_model = get_table_model(table, "_m")
-            hour_model = get_table_model(table, "_h")
-            day_model = get_table_model(table, "_d")
-            # Queue up the worker threads with the reduction jobs
-            queue_worker(:MINUTE, packet_config_id, table_index, decom_model, minute_model)
-            queue_worker(:HOUR, packet_config_id, table_index, minute_model, hour_model)
-            queue_worker(:DAY, packet_config_id, table_index, hour_model, day_model)
-          end
+        each_decom_and_reduced_table() do |packet_config_id, table_index, decom_model, minute_model, hour_model, day_model|
+          queue_worker(:MINUTE, packet_config_id, table_index, decom_model, minute_model)
+          queue_worker(:HOUR, packet_config_id, table_index, minute_model, hour_model)
+          queue_worker(:DAY, packet_config_id, table_index, hour_model, day_model)
         end
         # Throttle to no faster than once every 60 seconds
         delta = Time.now - time_start
@@ -306,28 +294,6 @@ class DartReducer
   end
 
   protected
-
-  # Get the ActiveRecord model for a database table
-  #
-  # @param table [String] Database table name
-  # @param reduction_modifier [String] One of "_m", "_h", "_d"
-  # @return [ActiveRecord] Database model for a commutation or reduction table
-  #   Commutatiohn tables are named tXXX_YYY where XXX is the PacketConfig ID,
-  #   and YYY is the table index. Reduction tables have a _m, _h, _d extension
-  #   on the table name.
-  def get_table_model(table, reduction_modifier = "")
-    model_name = "T" + table[1..-1] + reduction_modifier
-    begin
-      model = Cosmos.const_get(model_name)
-    rescue
-      # Need to create model
-      model = Class.new(ActiveRecord::Base) do
-        self.table_name = table + reduction_modifier
-      end
-      Cosmos.const_set(model_name, model)
-    end
-    return model
-  end
 
   # Add a task to a worker thread queue
   #

@@ -25,6 +25,7 @@ class DartDatabaseCleaner
     cleaner.clean_packet_configs()
     cleaner.clean_packet_log_entries()
     cleaner.clean_decommutation_tables()
+    cleaner.clean_reductions()
     Cosmos::Logger::info("Database cleanup complete!")
   end
 
@@ -130,13 +131,42 @@ class DartDatabaseCleaner
         # Need to delete any rows for these ples in the table for this packet_config
         packet_config.max_table_index.times do |table_index|
           model = get_decom_table_model(packet_config.id, table_index)
-          model.where("ple_id = ?", ple.id).destroy_all
+          model.where("ple_id = ?", ple.id).destroy_all          
         end
         ple.decom_state = PacketLogEntry::NOT_STARTED
         ple.save!
       rescue => err
         Cosmos::Logger::error("Error cleaning up packet log entry: #{ple.id}: #{err.formatted}")
       end
+    end
+  end
+
+  def clean_reductions
+    Cosmos::Logger::info("Cleaning up Reductions...")
+    # TBR: This cleanup may be too slow to be worth it for a large data set...
+    each_decom_and_reduced_table() do |packet_config_id, table_index, decom_model, minute_model, hour_model, day_model|
+      decom_model.where("reduced_state = #{REDUCED} and reduced_id IS NULL").update_all(:reduced_state => READY_TO_REDUCE)
+      minute_model.where("reduced_state = #{REDUCED} and reduced_id IS NULL").update_all(:reduced_state => READY_TO_REDUCE)
+      hour_model.where("reduced_state = #{REDUCED} and reduced_id IS NULL").update_all(:reduced_state => READY_TO_REDUCE)
+      # Note: These should be destroyed when cleaning up decom tables
+      rows = decom_model.where("reduced_state = #{INITIALIZING}")
+      rows.destroy_all
+      # This cleanup is only here
+      rows = minute_model.where("reduced_state = #{INITIALIZING}")
+      rows.each do |row|
+        decom_model.where("reduced_id = ?", row.id).update_all(:reduced_state => READY_TO_REDUCE, :reduced_id => nil)
+      end
+      rows.destroy_all
+      rows = hour_model.where("reduced_state = #{INITIALIZING}")
+      rows.each do |row|
+        minute_model.where("reduced_id = ?", row.id).update_all(:reduced_state => READY_TO_REDUCE, :reduced_id => nil)
+      end
+      rows.destroy_all      
+      rows = day_model.where("reduced_state = #{INITIALIZING}")
+      rows.each do |row|
+        hour_model.where("reduced_id = ?", row.id).update_all(:reduced_state => READY_TO_REDUCE, :reduced_id => nil)
+      end
+      rows.destroy_all      
     end
   end
 end
