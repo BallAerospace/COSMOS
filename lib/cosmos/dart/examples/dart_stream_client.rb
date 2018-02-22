@@ -16,7 +16,7 @@ request_packet = Cosmos::Packet.new('DART', 'DART')
 request_packet.define_item('REQUEST', 0, 0, :BLOCK)
 
 start_time = Time.utc(1970, 1, 1, 0, 0, 0)
-end_time = Time.utc(2010, 1, 1, 0, 0, 0)
+end_time = Time.utc(2020, 1, 1, 0, 0, 0)
 
 request = {}
 request['start_time_sec'] = start_time.tv_sec
@@ -26,6 +26,7 @@ request['end_time_usec'] = end_time.tv_usec
 #~ request['cmd_tlm'] = 'CMD'
 #~ request['packets'] = [['INST', 'HEALTH_STATUS'], ['INST', 'ADCS']]
 #~ request['meta_ids'] = [4962]
+request['meta_queries'] = ["OPERATOR_NAME == 'Unspecified'"]
 request_packet.write('REQUEST', JSON.dump(request))
 
 interface = Cosmos::TcpipClientInterface.new(

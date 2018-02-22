@@ -35,6 +35,10 @@ module DartCommon
   READY_TO_REDUCE = 1 # Once all new rows have been created
   REDUCED = 2 # After the data has been reduced
 
+  # Regular expression used to break up an individual line into a keyword and
+  # comma delimited parameters. Handles parameters in single or double quotes.
+  PARSING_REGEX = %r{ (?:"(?:[^\\"]|\\.)*") | (?:'(?:[^\\']|\\.)*') | \S+ }x #"
+
   # Argument parser for the DART command line tools
   def self.handle_argv(parse = true)
     parser = OptionParser.new do |option_parser|
@@ -303,6 +307,160 @@ module DartCommon
       return false unless well_defined_read_conversion(item)
     end
     true
+  end
+
+
+  def query_decom_reduced(
+    target_name, 
+    packet_name, 
+    item_name, 
+    value_type, 
+    is_tlm, 
+    start_time, 
+    end_time, 
+    reduction,
+    reduction_modifier,
+    item_name_modifier,
+    limit = 10000, 
+    offset = 0, 
+    meta_ids = [])
+
+    # Upon receiving the above request, the corresponding Target, Packet, and Item
+    # objects are requested from the database
+    target_model = Target.where("name = ?", target_name).first
+    raise "Target: #{target_name} not found" unless target_model
+    packet_model = Packet.where("target_id = ? and name = ? and is_tlm = ?", target_model.id, packet_name, is_tlm).first
+    raise "Packet: #{packet_name} not found" unless packet_model
+    item_model = Item.where("packet_id = ? and name = ?", packet_model.id, item_name).first
+    raise "Item: #{item_name} not found" unless item_model
+
+    # Next the corresponding PacketConfigs are loaded within the requested times.
+    # Note the PacketConfig time range covers when that particular packet configuration
+    # was valid. Thus it can cover a much larger time period than the data requested.
+    packet_configs = PacketConfig.where("packet_id = ?", packet_model.id)
+    packet_configs.where("start_time >= ?", start_time) if start_time
+    packet_configs.where("end_time <= ?", end_time) if end_time
+    packet_configs = packet_configs.order("start_time ASC")
+    packet_config_ids = []
+    packet_configs.each do |pc|
+      packet_config_ids << pc.id
+    end
+
+    # Then, the ItemToDecomTableMapping table is queried to find all entries that match
+    # the requested item, value_type, and packet configuration. These entries represent
+    # all the entries in the decommutation and reduction tables for the requested item
+    # when that PacketConfig was valid.
+    mappings = ItemToDecomTableMapping.where("item_id = ? and value_type != ?", item_model.id, value_type).where("packet_config_id" => packet_config_ids)
+    # Sort mappings into packet config id order
+    mappings.to_a.sort do |a, b|
+      packet_config_ids.index(a.packet_config_id) <=> packet_config_ids.index(b.packet_config_id)
+    end
+    data = []
+    current_count = 0
+    batch_size = 1000
+    mappings.each do |mapping|
+      # The item to decommutation table entries are then used to access the actual
+      # decommutation table model (ActiveRecord object).
+      row_model = get_decom_table_model(mapping.packet_config_id, mapping.table_index, reduction_modifier)
+
+      batch_count = 0
+      loop do
+        # The decommutation table itself is then quered for the values with final filters on the requested
+        # time range and optional filtering by meta_id. The correct decommutation table is selected by
+        # using the passed in reduction value in the request.
+        remaining = limit - current_count
+        if remaining > batch_size
+          limit_value = batch_size
+        else
+          limit_value = remaining
+        end
+        if reduction == :NONE
+          # For reduced data the time field is called start_time, for non-reduced it is just time
+          model_item_name = "i#{mapping.item_index}#{item_name_modifier}"
+          rows = row_model.order(time: :asc)
+          rows = rows.where("time >= ?", start_time) if start_time
+          rows = rows.where("time <= ?", end_time) if end_time
+          rows = rows.where("meta_id" => meta_ids) if meta_ids.length > 0
+          rows = rows.limit(limit_value).offset(offset + (batch_count * batch_size))
+          rows.select(model_item_name, "time", "meta_id")
+          break if rows.length <= 0
+          rows.each do |row|
+            data << [row.read_attribute(model_item_name), row.time.tv_sec, row.time.tv_usec, 1, row.meta_id]
+            current_count += 1
+            break if current_count >= limit
+          end
+        elsif mapping.reduced
+          # For reduced data the time field is called start_time, for non-reduced it is just time
+          model_item_name = "i#{mapping.item_index}#{item_name_modifier}"
+          rows = row_model.order(start_time: :asc)
+          rows = rows.where("start_time >= ?", start_time) if start_time
+          rows = rows.where("start_time <= ?", end_time) if end_time
+          rows = rows.where("meta_id" => meta_ids) if meta_ids.length > 0
+          rows = rows.limit(limit_value).offset(offset + (batch_count * batch_size))
+          rows.select(model_item_name, "start_time", "num_samples", "meta_id")
+          break if rows.length <= 0
+          rows.each do |row|
+            data << [row.read_attribute(model_item_name), row.start_time.tv_sec, row.start_time.tv_usec, row.num_samples, row.meta_id]
+            current_count += 1
+            break if current_count >= limit
+          end
+        end
+        break if limit_value != batch_size
+        batch_count += 1
+      end
+    end
+
+    return data
+  end
+
+  def comparison_cast(value1, value2)
+    case value1
+    when Integer
+      return Integer(value2)
+    when Float
+      return Float(value2)
+    when String
+      return value2.to_s
+    end
+    return value2
+  end
+
+  def process_meta_queries(meta_queries, is_tlm, end_time)
+    found = []
+    meta_queries.each_with_index do |query_string, index|
+      found[index] = []
+      this_found = found[index]
+      item_name, comparison, comparison_value = query_string.scan(PARSING_REGEX)
+      item_name = item_name.remove_quotes
+      comparison_value = comparison_value.remove_quotes
+      comparison_value = nil if comparison_value.to_s.upcase == "NULL"
+
+      meta_data = query_decom_reduced(
+        "SYSTEM", "META", item_name, 
+        ItemToDecomTableMapping::CONVERTED, is_tlm,
+        nil, end_time, 
+        :NONE, "", 
+        "", 100000, 0, [])
+
+      case comparison
+      when "=", "=="
+        meta_data.each { |value, tv_sec, tv_usec, num_samples, meta_id| this_found << meta_id if value == comparison_cast(value, comparison_value) }
+      when "!="
+        meta_data.each { |value, tv_sec, tv_usec, num_samples, meta_id| this_found << meta_id if value != comparison_cast(value, comparison_value) }
+      when ">"
+        meta_data.each { |value, tv_sec, tv_usec, num_samples, meta_id| this_found << meta_id if value > comparison_cast(value, comparison_value) }
+      when "<"
+        meta_data.each { |value, tv_sec, tv_usec, num_samples, meta_id| this_found << meta_id if value < comparison_cast(value, comparison_value) }
+      when ">="
+        meta_data.each { |value, tv_sec, tv_usec, num_samples, meta_id| this_found << meta_id if value >= comparison_cast(value, comparison_value) }
+      when "<="
+        meta_data.each { |value, tv_sec, tv_usec, num_samples, meta_id| this_found << meta_id if value <= comparison_cast(value, comparison_value) }
+      end
+    end
+    meta_ids = found.inject(:&) # Reduce to only common meta_ids to all meta_queries
+    meta_ids = [0] if !meta_ids or meta_ids.length == 0
+
+    return meta_ids
   end
 
   protected

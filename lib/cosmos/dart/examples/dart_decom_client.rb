@@ -28,9 +28,13 @@ request['offset'] = 0
 request['limit'] = 100000
 request['value_type'] = 'RAW_AVG'
 # request['meta_ids'] = [1, 1062642]
+request['meta_queries'] = ["OPERATOR_NAME == 'Unspecified'"]
 
 puts "Connecting to Dart Decom Server..."
 server = Cosmos::JsonDRbObject.new(Cosmos::System.connect_hosts['DART_DECOM'], Cosmos::System.ports['DART_DECOM'])
+puts "Getting SYSTEM META fields"
+result = server.item_names("SYSTEM", "META")
+puts result.inspect(10000)
 puts "Making request"
 begin_time = Time.now
 result = server.query(request)

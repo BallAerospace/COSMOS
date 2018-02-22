@@ -21,7 +21,7 @@ Cosmos.catch_fatal_exception do
   json_drb = Cosmos::JsonDRb.new
   json_drb.acl = Cosmos::System.acl if Cosmos::System.acl
   begin
-    json_drb.method_whitelist = ['query']
+    json_drb.method_whitelist = ['query', 'item_names']
     begin
       json_drb.start_service(Cosmos::System.listen_hosts['DART_DECOM'],
         Cosmos::System.ports['DART_DECOM'], DartDecomQuery.new)

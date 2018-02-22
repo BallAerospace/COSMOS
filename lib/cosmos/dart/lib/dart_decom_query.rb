@@ -117,15 +117,6 @@ class DartDecomQuery
         raise "Unknown value_type: #{requested_value_type}"
       end
 
-      meta_ids = request['meta_ids']
-      meta_ids ||= []
-
-      limit = request['limit'].to_i
-      limit = 10000 if limit <= 0 or limit > 10000
-
-      offset = request['offset'].to_i
-      offset = 0 if offset < 0
-
       cmd_tlm = request['cmd_tlm']
       if cmd_tlm
         if cmd_tlm.to_s.upcase == 'CMD'
@@ -139,76 +130,55 @@ class DartDecomQuery
         is_tlm = true
       end
 
-      # Upon receiving the above request, the corresponding Target, Packet, and Item
-      # objects are requested from the database
-      target_model = Target.where("name = ?", item[0]).first
-      raise "Target: #{item[0]} not found" unless target_model
-      packet_model = Packet.where("target_id = ? and name = ? and is_tlm = ?", target_model.id, item[1], is_tlm).first
-      raise "Packet: #{item[1]} not found" unless packet_model
-      item_model = Item.where("packet_id = ? and name = ?", packet_model.id, item[2]).first
-      raise "Item: #{item[2]} not found" unless item_model
+      meta_ids = request['meta_ids']
+      meta_ids ||= []
 
-      # Next the corresponding PacketConfigs are loaded within the requested times.
-      # Note the PacketConfig time range covers when that particular packet configuration
-      # was valid. Thus it can cover a much larger time period than the data requested.
-      packet_configs = PacketConfig.where("packet_id = ?", packet_model.id)
-      packet_configs.where("start_time >= ?", start_time) if start_time
-      packet_configs.where("end_time <= ?", end_time) if end_time
-      packet_configs = packet_configs.order("start_time ASC")
-      packet_config_ids = []
-      packet_configs.each do |pc|
-        packet_config_ids << pc.id
+      unless meta_ids.length > 0
+        meta_queries = request['meta_queries']
+        meta_queries ||= []
+        
+        if meta_queries.length > 0
+          meta_ids = process_meta_queries(meta_queries, is_tlm, end_time)
+        end
       end
 
-      # Then, the ItemToDecomTableMapping table is queried to find all entries that match
-      # the requested item, value_type, and packet configuration. These entries represent
-      # all the entries in the decommutation and reduction tables for the requested item
-      # when that PacketConfig was valid.
-      mappings = ItemToDecomTableMapping.where("item_id = ? and value_type != ?", item_model.id, value_type).where("packet_config_id" => packet_config_ids)
-      data = []
-      current_offset = 0
-      current_count = 0
-      mappings.each do |mapping|
-        # The item to decommutation table entries are then used to access the actual
-        # decommutation table model (ActiveRecord object).
-        rows = get_decom_table_model(mapping.packet_config_id, mapping.table_index, reduction_modifier)
+      limit = request['limit'].to_i
+      limit = 10000 if limit <= 0 or limit > 10000
 
-        # The decommutation table itself is then quered for the values with final filters on the requested
-        # time range and optional filtering by meta_id. The correct decommutation table is selected by
-        # using the passed in reduction value in the request.
-        if reduction == :NONE
-          # For reduced data the time field is called start_time, for non-reduced it is just time
-          rows = rows.where("time >= ?", start_time) if start_time
-          rows = rows.where("time <= ?", end_time) if end_time
-          rows = rows.where("meta_id" => meta_ids) if meta_ids.length > 0
-          # TODO - Add select call to filter down to just the columns needed
-          rows.count
-          rows.find_each do |row|
-            data << [row.read_attribute("i#{mapping.item_index}"), row.time.tv_sec, row.time.tv_usec, 1, row.meta_id] unless current_offset < offset
-            current_offset += 1
-            current_count += 1
-            break if current_count >= limit
-          end
-        elsif mapping.reduced
-          # For reduced data the time field is called start_time, for non-reduced it is just time
-          item_name = "i#{mapping.item_index}#{item_name_modifier}"
-          rows = rows.where("start_time >= ?", start_time) if start_time
-          rows = rows.where("start_time <= ?", end_time) if end_time
-          rows = rows.where("meta_id" => meta_ids) if meta_ids.length > 0
-          # TODO - Add select call to filter down to just the columns needed
-          rows.find_each do |row|
-            data << [row.read_attribute(item_name), row.start_time.tv_sec, row.start_time.tv_usec, row.num_samples, row.meta_id] unless current_offset < offset
-            current_offset += 1
-            current_count += 1
-            break if current_count >= limit
-          end
-        end # else no data
-      end
+      offset = request['offset'].to_i
+      offset = 0 if offset < 0
 
-      return data
+      return query_decom_reduced(
+        item[0], item[1], item[2], 
+        value_type, is_tlm, 
+        start_time, end_time, 
+        reduction, reduction_modifier, 
+        item_name_modifier, limit, offset, meta_ids)
+
     rescue Exception => error
       msg = "Query Error: #{error.message}"
       raise $!, msg, $!.backtrace
     end
   end
+
+  # Gets the list of item names for a given packet
+  #
+  # @param target_name Target name
+  # @param packet_name Packet name
+  # @param is_tlm true or false
+  # @return [Array<String>] Array of item names
+  def item_names(target_name, packet_name, is_tlm = true)
+    target = Target.where("name = ?", target_name).first
+    return "Target #{target_name} not found" unless target
+
+    packet = Packet.where("target_id = ? and name = ? and is_tlm = ?", target.id, packet_name, is_tlm).first
+    return "Packet #{target_name} #{packet_name} not found" unless packet
+
+    items = Item.where("packet_id = ?", packet.id).select("name")
+    item_names = []
+    items.each { |item| item_names << item.name }
+
+    return item_names
+  end
+
 end
