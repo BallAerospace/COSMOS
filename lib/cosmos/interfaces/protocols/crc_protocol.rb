@@ -64,11 +64,18 @@ module Cosmos
         raise "Invalid endianness '#{endianness}'. Must be BIG_ENDIAN or LITTLE_ENDIAN."
       end
 
-      @bit_offset = Integer(bit_offset)
-      raise "Invalid bit offset of #{bit_offset}. Must be divisible by 8." if bit_offset % 8 != 0
-      @bit_size = Integer(bit_size)
-      poly = Integer(poly) if poly
-      seed = Integer(seed) if seed
+      @bit_offset = bit_offset.to_i
+      raise "Invalid bit offset of #{bit_offset}. Must be divisible by 8." if @bit_offset % 8 != 0
+      begin
+        poly = Integer(poly) if poly
+      rescue
+        raise "Invalid polynomial of #{poly}. Must be a number."
+      end
+      begin
+        seed = Integer(seed) if seed
+      rescue
+        raise "Invalid seed of #{seed}. Must be a number."
+      end
       xor = ConfigParser.handle_true_false(xor) if xor
       raise "Invalid XOR value of '#{xor}'. Must be TRUE or FALSE." if xor && !!xor != xor
       reflect = ConfigParser.handle_true_false(reflect) if reflect
@@ -89,7 +96,8 @@ module Cosmos
         end
       end
 
-      case bit_size
+      @bit_size = bit_size.to_i
+      case @bit_size
       when 16
         @pack = (@endianness == :BIG_ENDIAN) ? 'n' : 'v'
         if args.empty?
