@@ -9,15 +9,11 @@
 # attribution addendums as found in the LICENSE.txt
 
 require 'dart_common'
-require 'dart_logging'
 
 class DartTcpipServerInterface < Cosmos::TcpipServerInterface
   include DartCommon
 
   def initialize(write_timeout = 60, read_timeout = 5)
-    Cosmos::Logger.level = Cosmos::Logger::INFO
-    @dart_logging = DartLogging.new('dart_stream_server')
-
     port = Cosmos::System.ports['DART_STREAM']
     super(port, port, write_timeout, read_timeout, 'PREIDENTIFIED')
     @listen_address = Cosmos::System.listen_hosts['DART_STREAM']
@@ -30,11 +26,6 @@ class DartTcpipServerInterface < Cosmos::TcpipServerInterface
     start_listen_thread(@read_port, true, true)
     @write_thread = nil
     @connected = true
-  end
-
-  def disconnect
-    super
-    @dart_logging.stop
   end
 
   def read_thread_body(interface)

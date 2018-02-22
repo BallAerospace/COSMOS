@@ -682,7 +682,7 @@ module DartCommon
         when :integer, :bigint, :float, :decimal
           t.column "i#{item_index}max", data_type
           t.column "i#{item_index}min", data_type
-          t.column "i#{item_index}avg", data_type
+          t.column "i#{item_index}avg", :float # Average is always floating point
         end
       end
       t.index :start_time

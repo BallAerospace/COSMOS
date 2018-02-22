@@ -121,7 +121,7 @@ describe DartDecommutator do
             db_index += 1
             name = decom_column_names[db_index].intern
             db_value = row.send(name)
-            puts "#{db_index} citem:#{item.name} db:#{db_value} type:#{db_value.class} conv pkt:#{packet.read_item(item)}"
+            # puts "#{db_index} citem:#{item.name} db:#{db_value} type:#{db_value.class} conv pkt:#{packet.read_item(item)}"
             check_val(db_value, packet.read_item(item))
           end
           db_index += 1
