@@ -14,6 +14,10 @@ require 'dart_logging'
 
 Cosmos.catch_fatal_exception do
   DartCommon.handle_argv
+
+  Cosmos::Logger.level = Cosmos::Logger::INFO
+  dart_logging = DartLogging.new('dart_stream_server')
+
   dts = DartTcpipServerInterface.new
   dts.connect
   Cosmos::Logger.info("Dart Stream Server Started...")
@@ -21,6 +25,7 @@ Cosmos.catch_fatal_exception do
     sleep(1) while true
   rescue Interrupt
     Cosmos::Logger.info("Dart Stream Server Closing...")
+    dart_logging.stop
     exit(0)
   end
 end
