@@ -26,7 +26,7 @@ request['end_time_usec'] = end_time.tv_usec
 #~ request['cmd_tlm'] = 'CMD'
 #~ request['packets'] = [['INST', 'HEALTH_STATUS'], ['INST', 'ADCS']]
 #~ request['meta_ids'] = [4962]
-request['meta_queries'] = ["OPERATOR_NAME == 'Unspecified'"]
+request['meta_filters'] = ["OPERATOR_NAME == 'Unspecified'"]
 request_packet.write('REQUEST', JSON.dump(request))
 
 interface = Cosmos::TcpipClientInterface.new(

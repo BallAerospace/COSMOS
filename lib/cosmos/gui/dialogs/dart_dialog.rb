@@ -20,7 +20,7 @@ module Cosmos
   # time period to process.
   class DartDialog < Qt::Dialog
     extend Forwardable
-    def_delegators :@stream_packets_frame, :time_start, :time_start=, :time_end, :time_end=
+    def_delegators :@stream_packets_frame, :time_start, :time_start=, :time_end, :time_end=, :meta_filters
 
     # @param parent (see PacketLogFrame#initialize)
     # @param title [String] Dialog title

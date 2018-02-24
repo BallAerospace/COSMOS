@@ -560,6 +560,7 @@ module Cosmos
       if result != 0
         @time_start = dialog.time_start
         @time_end = dialog.time_end
+        @meta_filters = dialog.meta_filters
         handle_stop()
         @need_reset = true
         System.telemetry.reset
@@ -569,7 +570,8 @@ module Cosmos
           dart_thread = TabbedPlotsDartThread.new(@tabbed_plots_config,
                                                   progress_dialog,
                                                   @time_start,
-                                                  @time_end)
+                                                  @time_end,
+                                                  @meta_filters)
           sleep(0.1) until dart_thread.done?
           progress_dialog.close_done
         end

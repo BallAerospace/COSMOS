@@ -134,11 +134,11 @@ class DartDecomQuery
       meta_ids ||= []
 
       unless meta_ids.length > 0
-        meta_queries = request['meta_queries']
-        meta_queries ||= []
+        meta_filters = request['meta_filters']
+        meta_filters ||= []
         
-        if meta_queries.length > 0
-          meta_ids = process_meta_queries(meta_queries, is_tlm, end_time)
+        if meta_filters.length > 0
+          meta_ids = process_meta_filters(meta_filters, is_tlm, end_time)
         end
       end
 

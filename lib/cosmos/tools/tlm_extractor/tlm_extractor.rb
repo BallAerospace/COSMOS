@@ -17,6 +17,7 @@ Cosmos.catch_fatal_exception do
   require 'cosmos/gui/choosers/float_chooser'
   require 'cosmos/gui/dialogs/splash'
   require 'cosmos/gui/widgets/packet_log_frame'
+  require 'cosmos/gui/widgets/dart_meta_frame'
   require 'cosmos/gui/dialogs/progress_dialog'
   require 'cosmos/gui/widgets/full_text_search_line_edit'
   require 'cosmos/gui/utilities/analyze_log'
@@ -401,12 +402,16 @@ module Cosmos
       @log_file_radio.setChecked(true)
       @log_file_radio.connect(SIGNAL('clicked()')) do 
         @packet_log_frame.show_log_fields(true)
+        @packet_log_frame.output_filename = ""
+        @dart_meta_frame.hide
         @resize_timer.start(100)
       end
       @data_source_layout.addWidget(@log_file_radio)
       @dart_radio = Qt::RadioButton.new("DART Database", self)
       @dart_radio.connect(SIGNAL('clicked()')) do 
         @packet_log_frame.show_log_fields(false)
+        @packet_log_frame.output_filename = ""
+        @dart_meta_frame.show
         @resize_timer.start(100)
       end      
       @data_source_layout.addWidget(@dart_radio)
@@ -417,6 +422,10 @@ module Cosmos
       @packet_log_frame = PacketLogFrame.new(self, @log_dir, System.default_packet_log_reader.new(*System.default_packet_log_reader_params), @input_filenames, nil, true, true, true, Cosmos::TLM_FILE_PATTERN, Cosmos::TXT_FILE_PATTERN)
       @packet_log_frame.change_callback = method(:change_callback)
       @top_layout.addWidget(@packet_log_frame)
+
+      @dart_meta_frame = DartMetaFrame.new(self)
+      @dart_meta_frame.hide
+      @top_layout.addWidget(@dart_meta_frame)
 
       # Process and Open Buttons
       @button_layout = Qt::HBoxLayout.new
@@ -727,10 +736,10 @@ module Cosmos
             begin
               if @batch_filenames.empty?
                 process_method = :process_dart
-                process_args = [[@tlm_extractor_config], @packet_log_frame.time_start, @packet_log_frame.time_end]
+                process_args = [[@tlm_extractor_config], @packet_log_frame.time_start, @packet_log_frame.time_end, @dart_meta_frame.meta_filters]
               else
                 process_method = :process_dart_batch
-                process_args = [batch_name, @log_dir, output_extension, @batch_filenames, @packet_log_frame.time_start, @packet_log_frame.time_end]
+                process_args = [batch_name, @log_dir, output_extension, @batch_filenames, @packet_log_frame.time_start, @packet_log_frame.time_end, @dart_meta_frame.meta_filters]
               end
 
               @tlm_extractor_processor.send(process_method, *process_args) do |percentage, message|
@@ -1137,9 +1146,13 @@ module Cosmos
           return false
         end
 
-        unless @packet_log_frame.output_filename
-          Qt::MessageBox.critical(self, 'Error', 'No Output File Selected')
-          return false
+        if @packet_log_frame.output_filename.to_s.empty?
+          if @log_file_radio.isChecked
+            Qt::MessageBox.critical(self, 'Error', 'No Output File Selected')
+            return false
+          else
+            @packet_log_frame.output_filename = File.join(System.paths['LOGS'], File.build_timestamped_filename(['tlm_extractor', 'dart']))
+          end
         end
 
         if File.exist?(@packet_log_frame.output_filename)

@@ -45,15 +45,15 @@ class DartTcpipServerInterface < Cosmos::TcpipServerInterface
     cmd_tlm = json_object['cmd_tlm']
     packets = json_object['packets']
     meta_ids = json_object['meta_ids']
-    meta_queries = json_object['meta_queries']
+    meta_filters = json_object['meta_filters']
     if cmd_tlm and cmd_tlm.to_s.upcase == 'CMD'
       is_tlm = false
     else
       is_tlm = true
     end
 
-    if meta_queries and (!meta_ids or meta_ids.length <= 0)
-      meta_ids = process_meta_queries(meta_queries, is_tlm, end_time)
+    if meta_filters and (!meta_ids or meta_ids.length <= 0)
+      meta_ids = process_meta_filters(meta_filters, is_tlm, end_time)
     end
 
     # Retrieve and stream out requested packets here

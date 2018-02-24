@@ -11,6 +11,7 @@
 require 'cosmos'
 require 'cosmos/gui/qt'
 require 'cosmos/gui/dialogs/calendar_dialog'
+require 'cosmos/gui/widgets/dart_meta_frame'
 
 module Cosmos
   # Widget which displays a button to configure packet stream from DART.
@@ -36,9 +37,10 @@ module Cosmos
       @time_end = nil
       @change_callback = nil
 
-      @layout = Qt::GridLayout.new
-      @layout.setContentsMargins(0,0,0,0)
+      @vbox = Qt::VBoxLayout.new
+      @vbox.setContentsMargins(0,0,0,0)
 
+      @layout = Qt::GridLayout.new
       row = 0
 
       # Declare these regardless of if show_time is set so getters and setters work
@@ -66,7 +68,12 @@ module Cosmos
         end
       end
 
-      setLayout(@layout)
+      @vbox.addLayout(@layout)
+
+      @dart_meta_frame = DartMetaFrame.new(self)
+      @vbox.addWidget(@dart_meta_frame)
+
+      setLayout(@vbox)
     end
 
     # @param time_start [Time] Start time
@@ -87,6 +94,10 @@ module Cosmos
       else
         @time_end_field.setText('N/A')
       end
+    end
+
+    def meta_filters
+      @dart_meta_frame.meta_filters
     end
 
     protected

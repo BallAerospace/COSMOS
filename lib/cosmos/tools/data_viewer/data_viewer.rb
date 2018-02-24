@@ -519,6 +519,7 @@ module Cosmos
       when Qt::Dialog::Accepted
         @time_start = dart_dialog.time_start
         @time_end = dart_dialog.time_end
+        @meta_filters = dart_dialog.meta_filters
 
         self.setWindowTitle("Data Viewer : DART Database Query")
 
@@ -547,6 +548,7 @@ module Cosmos
               request['end_time_usec'] = @time_end.tv_usec
               request['cmd_tlm'] = 'TLM'
               request['packets'] = @packets
+              request['meta_filters'] = @meta_filters unless @meta_filters.empty?
               request_packet.write('REQUEST', JSON.dump(request))
             
               progress_dialog.append_text("Connecting to DART Database...")

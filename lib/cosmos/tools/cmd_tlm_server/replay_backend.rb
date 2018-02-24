@@ -137,7 +137,7 @@ module Cosmos
     #
     # start_time [Time] Time at which stream should begin at
     # end_time [Time] Time at which stream should stop
-    def select_stream(start_time, end_time)
+    def select_stream(start_time, end_time, meta_filters = [])
       stop()
       Cosmos.kill_thread(self, @thread)
       @thread = nil
@@ -166,6 +166,7 @@ module Cosmos
       @end_time_object = end_time.dup
       @current_time = @start_time.dup
       @current_time_object = start_time.dup
+      @meta_filters = meta_filters
       @status = 'Stopped'
       @playing = false
       @playback_sleeper = nil
@@ -409,6 +410,7 @@ module Cosmos
             request['end_time_usec'] = @start_time_object.tv_usec
           end
           request['cmd_tlm'] = 'TLM'
+          request['meta_filters'] = @meta_filters unless @meta_filters.empty?
           request_packet.write('REQUEST', JSON.dump(request))
 
           @interface.connect

@@ -14,6 +14,7 @@ Cosmos.catch_fatal_exception do
   require 'cosmos/gui/dialogs/packet_log_dialog'
   require 'cosmos/gui/dialogs/splash'
   require 'cosmos/gui/dialogs/progress_dialog'
+  require 'cosmos/gui/widgets/dart_meta_frame'
   require 'cosmos/gui/utilities/analyze_log'
 end
 
@@ -103,12 +104,16 @@ module Cosmos
       @log_file_radio.setChecked(true)
       @log_file_radio.connect(SIGNAL('clicked()')) do 
         @packet_log_frame.show_log_fields(true)
+        @packet_log_frame.output_filename = ""
+        @dart_meta_frame.hide        
         @resize_timer.start(100)
       end
       @data_source_layout.addWidget(@log_file_radio)
       @dart_radio = Qt::RadioButton.new("DART Database", self)
       @dart_radio.connect(SIGNAL('clicked()')) do 
         @packet_log_frame.show_log_fields(false)
+        @packet_log_frame.output_filename = ""
+        @dart_meta_frame.show
         @resize_timer.start(100)
       end      
       @data_source_layout.addWidget(@dart_radio)
@@ -119,6 +124,10 @@ module Cosmos
       @packet_log_frame = PacketLogFrame.new(self, @log_dir, System.default_packet_log_reader.new(*System.default_packet_log_reader_params), @input_filenames, @output_filename, true, true, true, Cosmos::CMD_FILE_PATTERN, Cosmos::TXT_FILE_PATTERN)
       @packet_log_frame.change_callback = method(:change_callback)
       @top_layout.addWidget(@packet_log_frame)
+
+      @dart_meta_frame = DartMetaFrame.new(self)
+      @dart_meta_frame.hide
+      @top_layout.addWidget(@dart_meta_frame)
 
       # Separator before buttons
       @sep2 = Qt::Frame.new(@central_widget)
@@ -170,6 +179,8 @@ module Cosmos
       @input_filenames = @packet_log_frame.filenames.sort      
       @output_filename = @packet_log_frame.output_filename
       @output_filename = nil if @output_filename.strip.empty?
+      @meta_filters = @dart_meta_frame.meta_filters
+
       return unless pre_process_tests()
 
       include_raw = @include_raw.isChecked      
@@ -226,6 +237,7 @@ module Cosmos
                   request['end_time_sec'] = @time_end.tv_sec
                   request['end_time_usec'] = @time_end.tv_usec
                   request['cmd_tlm'] = 'CMD'
+                  request['meta_filters'] = @meta_filters unless @meta_filters.empty?
                   request_packet.write('REQUEST', JSON.dump(request))
                 
                   progress_dialog.append_text("Connecting to DART Database...")
@@ -354,8 +366,13 @@ module Cosmos
       end
 
       unless @output_filename
-        Qt::MessageBox.critical(self, 'Error', 'No Output File Selected')
-        return false
+        if @log_file_radio.isChecked
+          Qt::MessageBox.critical(self, 'Error', 'No Output File Selected')
+          return false
+        else
+          @packet_log_frame.output_filename = File.join(System.paths['LOGS'], File.build_timestamped_filename(['cmd_extractor', 'dart']))
+          @output_filename = @packet_log_frame.output_filename
+        end
       end
 
       if File.exist?(@output_filename)

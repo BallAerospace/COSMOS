@@ -263,7 +263,7 @@ module Cosmos
       dart_dialog = DartDialog.new(@widget, 'Select Stream', true)
       case dart_dialog.exec
       when Qt::Dialog::Accepted
-        CmdTlmServer.replay_backend.select_stream(dart_dialog.time_start, dart_dialog.time_end)
+        CmdTlmServer.replay_backend.select_stream(dart_dialog.time_start, dart_dialog.time_end, dart_dialog.meta_filters)
         @op.setTitle("Playback Control: Stream")
         @log_name.text = ""
         @move_start.setEnabled(true)

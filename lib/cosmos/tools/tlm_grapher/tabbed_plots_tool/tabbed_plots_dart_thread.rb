@@ -20,7 +20,7 @@ module Cosmos
     attr_reader :errors
 
     # Create a new TabbedPlotsLogfileThread
-    def initialize(tabbed_plots_config, progress_dialog = nil, time_start = nil, time_end = nil)
+    def initialize(tabbed_plots_config, progress_dialog = nil, time_start = nil, time_end = nil, meta_filters = [])
       super()
       @tabbed_plots_config = tabbed_plots_config
       @errors = []
@@ -66,7 +66,7 @@ module Cosmos
               request['offset'] = 0
               request['limit'] = 10000
               request['value_type'] = value_type.to_s
-              # request['meta_ids'] = [1, 1062642]
+              request['meta_filters'] = meta_filters unless meta_filters.empty?
               query_result = server.query(request)
               result = query_result
               if array_index

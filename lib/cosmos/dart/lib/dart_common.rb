@@ -309,7 +309,6 @@ module DartCommon
     true
   end
 
-
   def query_decom_reduced(
     target_name, 
     packet_name, 
@@ -425,9 +424,9 @@ module DartCommon
     return value2
   end
 
-  def process_meta_queries(meta_queries, is_tlm, end_time)
+  def process_meta_filters(meta_filters, is_tlm, end_time)
     found = []
-    meta_queries.each_with_index do |query_string, index|
+    meta_filters.each_with_index do |query_string, index|
       found[index] = []
       this_found = found[index]
       item_name, comparison, comparison_value = query_string.scan(PARSING_REGEX)
@@ -457,7 +456,7 @@ module DartCommon
         meta_data.each { |value, tv_sec, tv_usec, num_samples, meta_id| this_found << meta_id if value <= comparison_cast(value, comparison_value) }
       end
     end
-    meta_ids = found.inject(:&) # Reduce to only common meta_ids to all meta_queries
+    meta_ids = found.inject(:&) # Reduce to only common meta_ids to all meta_filters
     meta_ids = [0] if !meta_ids or meta_ids.length == 0
 
     return meta_ids
