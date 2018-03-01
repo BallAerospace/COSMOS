@@ -140,7 +140,7 @@ if errorlevel 1 (
 
 if !ARCHITECTURE!==x86 (
   echo Downloading 32-bit Ruby
-  powershell -Command "(New-Object Net.WebClient).DownloadFile('!PROTOCOL!:!RUBY_INSTALLER_PATH!!RUBY_INSTALLER_32!', '!COSMOS_INSTALL!\tmp\!RUBY_INSTALLER_32!')"
+  powershell -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; (New-Object Net.WebClient).DownloadFile('!PROTOCOL!:!RUBY_INSTALLER_PATH!!RUBY_INSTALLER_32!', '!COSMOS_INSTALL!\tmp\!RUBY_INSTALLER_32!')"
   if errorlevel 1 (
     echo ERROR: Problem downloading 32-bit Ruby from: !PROTOCOL!:!RUBY_INSTALLER_PATH!!RUBY_INSTALLER_32!
     echo INSTALL FAILED
@@ -168,7 +168,7 @@ if !ARCHITECTURE!==x86 (
   call C:\msys64\usr\bin\pacman --noconfirm -S mingw-w64-i686-gettext
 ) else (
   echo Downloading 64-bit Ruby
-  powershell -Command "(New-Object Net.WebClient).DownloadFile('!PROTOCOL!:!RUBY_INSTALLER_PATH!!RUBY_INSTALLER_64!', '!COSMOS_INSTALL!\tmp\!RUBY_INSTALLER_64!')"
+  powershell -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; (New-Object Net.WebClient).DownloadFile('!PROTOCOL!:!RUBY_INSTALLER_PATH!!RUBY_INSTALLER_64!', '!COSMOS_INSTALL!\tmp\!RUBY_INSTALLER_64!')"
   if errorlevel 1 (
     echo ERROR: Problem downloading 64-bit Ruby from: !PROTOCOL!:!RUBY_INSTALLER_PATH!!RUBY_INSTALLER_64!
     echo INSTALL FAILED
@@ -237,7 +237,7 @@ if !ADMIN!==1 (
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 echo Downloading COSMOS_Windows_Install.zip
-powershell -Command "(New-Object Net.WebClient).DownloadFile('!PROTOCOL!:!WINDOWS_INSTALL_ZIP!?raw=true', '!COSMOS_INSTALL!\tmp\COSMOS_Windows_Install.zip')"
+powershell -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; (New-Object Net.WebClient).DownloadFile('!PROTOCOL!:!WINDOWS_INSTALL_ZIP!?raw=true', '!COSMOS_INSTALL!\tmp\COSMOS_Windows_Install.zip')"
 if errorlevel 1 (
   echo ERROR: Problem downloading COSMOS Windows files from: !PROTOCOL!:!WINDOWS_INSTALL_ZIP!?raw=true
   echo INSTALL FAILED
