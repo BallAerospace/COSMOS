@@ -202,7 +202,7 @@ if !ARCHITECTURE!==x86 (
 
 if !ADMIN!==1 (
   echo Downloading WkHtmlToPdf
-  powershell -Command "(New-Object Net.WebClient).DownloadFile('!WKHTMLPATHWITHPROTOCOL!!WKHTMLTOPDF!', '!COSMOS_INSTALL!\tmp\!WKHTMLTOPDF!')"
+  powershell -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; (New-Object Net.WebClient).DownloadFile('!WKHTMLPATHWITHPROTOCOL!!WKHTMLTOPDF!', '!COSMOS_INSTALL!\tmp\!WKHTMLTOPDF!')"
   if errorlevel 1 (
     echo WARNING: Problem downloading WkHtmlToPdf from: !WKHTMLPATHWITHPROTOCOL!!WKHTMLTOPDF!
     echo Please download and install this version to enable making PDF files.
