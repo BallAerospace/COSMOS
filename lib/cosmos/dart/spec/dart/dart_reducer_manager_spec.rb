@@ -24,11 +24,9 @@ describe DartReducerManager do
   end
 
   def setup_ples(entries, delta_time)
-    # Remove the const to avoid a warning when we redefine it
-    # DartPacketLogWriter.send(:remove_const, "DEFAULT_SYNC_COUNT_LIMIT")
-    # DartPacketLogWriter.const_set("DEFAULT_SYNC_COUNT_LIMIT", entries)
-
-    meta = Cosmos::System.commands.packet("SYSTEM", "META")
+    time = Time.utc(2018, 1, 1, 0, 0, 0)
+    meta = Cosmos::System.telemetry.packet("SYSTEM", "META")
+    meta.received_time = time
     hs_packet = Cosmos::System.telemetry.packet("INST", "HEALTH_STATUS")
     # 128 byte file header, SYSTEM META has 14 byte header + length of SYSTEM & META
     # INST HEALTH_STATUS has 14 byte header + length of INST & HEALTH_STATUS
@@ -42,7 +40,6 @@ describe DartReducerManager do
       length, # Cycle the log after a single INST HEALTH_STATUS packet
       Cosmos::System.paths['DART_DATA']) # Log into the DART_DATA dir
 
-    time = Time.new(2018, 1, 1, 0, 0, 0)
     entries.times do |x|
       hs_packet.received_time = time
       hs_packet.write("COLLECTS", x)
@@ -59,6 +56,7 @@ describe DartReducerManager do
     end
     writer.shutdown
     sleep 0.1
+    expect(count).to be < 100
 
     thread = Thread.new do
       decom = DartDecommutator.new
@@ -72,6 +70,7 @@ describe DartReducerManager do
       count += 1
       break if count == 200 # 20s
     end
+    expect(count).to be < 200
     thread.kill
   end
 
@@ -146,7 +145,9 @@ describe DartReducerManager do
     end
 
     it "reduces per hour" do
-      # 367 entries creates 61 minutes of entries which triggers the hour to run
+      # 367 entries at 10s apart creates 3670.367s which is 1hr, 1min and 10s of time
+      # The extra 10s is due to the last one not getting reduced. The extra minute is due
+      # to the last minute reduction table not getting reduced.
       setup_ples(367, 10.001)
       drm = DartReducerManager.new(1)
       thread = Thread.new { drm.run }
@@ -193,6 +194,89 @@ describe DartReducerManager do
         expect(row.read_attribute("i#{mapping.item_index}min")).to eq 0
         expect(row.read_attribute("i#{mapping.item_index}max")).to eq 359
         expect(row.read_attribute("i#{mapping.item_index}avg")).to eq ((0..359).to_a.sum / 360.0)
+      end
+    end
+
+    it "reduces per day" do
+      # 72 is three days plus the extra reduction, minute, and hour
+      setup_ples(75, 3600.001)
+      drm = DartReducerManager.new(1)
+      thread = Thread.new { drm.run }
+      sleep 1
+      drm.shutdown
+      thread.kill
+
+      drm = DartReducerManager.new(1)
+      thread = Thread.new { drm.run }
+      sleep 1
+      drm.shutdown
+      thread.kill
+
+      get_mappings("INST", "HEALTH_STATUS", "COLLECTS").each do |mapping|
+        # Grab the base reduction table
+        rows = common.get_decom_table_model(mapping.packet_config_id, mapping.table_index)
+        expect(rows.where("reduced_state" => DartCommon::INITIALIZING).count).to eq 0
+        # The last one doesn't get reduced
+        expect(rows.where("reduced_state" => DartCommon::READY_TO_REDUCE).count).to eq 1
+        # Everything else should be reduced
+        expect(rows.where("reduced_state" => DartCommon::REDUCED).count).to eq 74
+        val = 0
+        rows.find_each do |row|
+          expect(row.read_attribute("i#{mapping.item_index}")).to eq val
+          val += 1
+        end
+
+        # Grab the minute reduction table
+        rows = common.get_decom_table_model(mapping.packet_config_id, mapping.table_index, "_m")
+        expect(rows.where("reduced_state" => DartCommon::INITIALIZING).count).to eq 0
+        # The last one doesn't get reduced
+        expect(rows.where("reduced_state" => DartCommon::READY_TO_REDUCE).count).to eq 1
+        # The rest is reduced
+        expect(rows.where("reduced_state" => DartCommon::REDUCED).count).to eq 73
+        val = 0
+        rows.find_each do |row|
+          # Since our samples were more than 1 min apart there is only 1 sample per row
+          expect(row.num_samples).to eq 1
+          # Min, max, and avg are all the same since we only have 1 sample
+          expect(row.read_attribute("i#{mapping.item_index}min")).to eq val
+          expect(row.read_attribute("i#{mapping.item_index}max")).to eq val
+          expect(row.read_attribute("i#{mapping.item_index}avg")).to eq val
+          val += 1
+        end
+
+        # Grab the hour reduction table
+        rows = common.get_decom_table_model(mapping.packet_config_id, mapping.table_index, "_h")
+        expect(rows.where("reduced_state" => DartCommon::INITIALIZING).count).to eq 0
+        # The last one doesn't get reduced
+        expect(rows.where("reduced_state" => DartCommon::READY_TO_REDUCE).count).to eq 1
+        # The rest is reduced
+        expect(rows.where("reduced_state" => DartCommon::REDUCED).count).to eq 72
+        val = 0
+        rows.find_each do |row|
+          # Since our samples were more than 1 hour apart there is only 1 sample per row
+          expect(row.num_samples).to eq 1
+          # Min, max, and avg are all the same since we only have 1 sample
+          expect(row.read_attribute("i#{mapping.item_index}min")).to eq val
+          expect(row.read_attribute("i#{mapping.item_index}max")).to eq val
+          expect(row.read_attribute("i#{mapping.item_index}avg")).to eq val
+          val += 1
+        end
+
+        # Grab the day reduction table
+        rows = common.get_decom_table_model(mapping.packet_config_id, mapping.table_index, "_d")
+        expect(rows.where("reduced_state" => DartCommon::INITIALIZING).count).to eq 0
+        # Day values are always "READY" since they don't get further reduced
+        expect(rows.where("reduced_state" => DartCommon::READY_TO_REDUCE).count).to eq 3
+        # Reduced is always 0
+        expect(rows.where("reduced_state" => DartCommon::REDUCED).count).to eq 0
+        val = 0
+        rows.find_each do |row|
+          expect(row.num_samples).to eq 24
+          expect(row.read_attribute("i#{mapping.item_index}min")).to eq val
+          expect(row.read_attribute("i#{mapping.item_index}max")).to eq val + 23
+          expect(row.read_attribute("i#{mapping.item_index}avg")).to eq ((val..(val+23)).to_a.sum / 24.0)
+          val += 24
+        end
       end
     end
   end

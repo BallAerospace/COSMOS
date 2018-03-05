@@ -324,5 +324,130 @@ describe DartDatabaseCleaner do
       decom = writer.get_decom_table_model(packet_config.id, 0)
       expect(decom.all.count).to eq 0
     end
+
+  describe "clean_decommutation_tables" do
+    it "removes decommutation rows which are in progress" do
+      writer = DartPacketLogWriter.new(
+        :TLM,    # Log telemetry
+        'clean_decom_', # File name suffix
+        true,    # Enable logging
+        nil,     # Don't cycle on time
+        2_000_000_000, # Cycle the log at 2GB
+        Cosmos::System.paths['DART_DATA']) # Log into the DART_DATA dir
+
+      hs_packet = Cosmos::System.telemetry.packet("INST", "HEALTH_STATUS")
+      # Write three packets. The first packet is always SYSTEM META.
+      3.times do
+        hs_packet.received_time = Time.now
+        writer.write(hs_packet)
+        sleep 0.01
+      end
+      writer.shutdown
+      sleep 0.1
+
+      # Create a valid SystemConfig in order to create a valid PacketConfig
+      meta = Cosmos::System.telemetry.packet("SYSTEM", "META")
+      system_config = SystemConfig.create(:name => meta.read("CONFIG"))
+      target_id, packet_id = writer.lookup_target_and_packet_id("INST", "HEALTH_STATUS", true)
+      packet_config = PacketConfig.create(:packet_id => packet_id, :name => hs_packet.config_name, :first_system_config_id => system_config.id)
+      writer.setup_packet_config(hs_packet, packet_id, packet_config)
+
+      decom = writer.get_decom_table_model(packet_config.id, 0)
+      PacketLogEntry.all.each do |ple|
+        # By default all PacketLogEntries should be marked NOT_STARTED
+        expect(ple.decom_state).to eq PacketLogEntry::NOT_STARTED
+        case ple.target.name
+        when 'SYSTEM'
+          ple.decom_state = PacketLogEntry::COMPLETE
+        when 'INST'
+          ple.decom_state = PacketLogEntry::IN_PROGRESS
+          row = decom.new
+          row.time = Time.now
+          row.reduced_state = DartDecommutator::INITIALIZING
+          row.ple_id = ple.id
+          row.save!
+        end
+        ple.save!
+      end
+      expect(decom.all.count).to eq 3
+
+      @cleaner.clean_decommutation_tables # <--- PERFORM THE TEST
+
+      PacketLogEntry.all.each do |ple|
+        case ple.target.name
+        when 'SYSTEM'
+          expect(ple.decom_state).to eq PacketLogEntry::COMPLETE
+        when 'INST'
+          # All INST should be now marked NOT_STARTED
+          expect(ple.decom_state).to eq PacketLogEntry::NOT_STARTED
+        end
+      end
+      # The decommutation table has been cleaned
+      decom = writer.get_decom_table_model(packet_config.id, 0)
+      expect(decom.all.count).to eq 0
+    end
+  end
+
+  describe "clean_reductions" do
+    it "removes decommutation rows which are in progress" do
+      writer = DartPacketLogWriter.new(
+        :TLM,    # Log telemetry
+        'clean_reduction_', # File name suffix
+        true,    # Enable logging
+        nil,     # Don't cycle on time
+        2_000_000_000, # Cycle the log at 2GB
+        Cosmos::System.paths['DART_DATA']) # Log into the DART_DATA dir
+
+      hs_packet = Cosmos::System.telemetry.packet("INST", "HEALTH_STATUS")
+      # Write three packets. The first packet is always SYSTEM META.
+      3.times do
+        hs_packet.received_time = Time.now
+        writer.write(hs_packet)
+        sleep 0.01
+      end
+      writer.shutdown
+      sleep 0.1
+
+      # Create a valid SystemConfig in order to create a valid PacketConfig
+      meta = Cosmos::System.telemetry.packet("SYSTEM", "META")
+      system_config = SystemConfig.create(:name => meta.read("CONFIG"))
+      target_id, packet_id = writer.lookup_target_and_packet_id("INST", "HEALTH_STATUS", true)
+      packet_config = PacketConfig.create(:packet_id => packet_id, :name => hs_packet.config_name, :first_system_config_id => system_config.id)
+      writer.setup_packet_config(hs_packet, packet_id, packet_config)
+
+      decom = writer.get_decom_table_model(packet_config.id, 0)
+      PacketLogEntry.all.each do |ple|
+        # By default all PacketLogEntries should be marked NOT_STARTED
+        expect(ple.decom_state).to eq PacketLogEntry::NOT_STARTED
+        case ple.target.name
+        when 'SYSTEM'
+          ple.decom_state = PacketLogEntry::COMPLETE
+        when 'INST'
+          ple.decom_state = PacketLogEntry::IN_PROGRESS
+          row = decom.new
+          row.time = Time.now
+          row.reduced_state = DartDecommutator::INITIALIZING
+          row.ple_id = ple.id
+          row.save!
+        end
+        ple.save!
+      end
+      expect(decom.all.count).to eq 3
+
+      @cleaner.clean_decommutation_tables # <--- PERFORM THE TEST
+
+      PacketLogEntry.all.each do |ple|
+        case ple.target.name
+        when 'SYSTEM'
+          expect(ple.decom_state).to eq PacketLogEntry::COMPLETE
+        when 'INST'
+          # All INST should be now marked NOT_STARTED
+          expect(ple.decom_state).to eq PacketLogEntry::NOT_STARTED
+        end
+      end
+      # The decommutation table has been cleaned
+      decom = writer.get_decom_table_model(packet_config.id, 0)
+      expect(decom.all.count).to eq 0
+    end
   end
 end

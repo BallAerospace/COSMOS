@@ -131,7 +131,7 @@ class DartDatabaseCleaner
         # Need to delete any rows for these ples in the table for this packet_config
         packet_config.max_table_index.times do |table_index|
           model = get_decom_table_model(packet_config.id, table_index)
-          model.where("ple_id = ?", ple.id).destroy_all          
+          model.where("ple_id = ?", ple.id).destroy_all
         end
         ple.decom_state = PacketLogEntry::NOT_STARTED
         ple.save!
@@ -161,12 +161,12 @@ class DartDatabaseCleaner
       rows.each do |row|
         minute_model.where("reduced_id = ?", row.id).update_all(:reduced_state => READY_TO_REDUCE, :reduced_id => nil)
       end
-      rows.destroy_all      
+      rows.destroy_all
       rows = day_model.where("reduced_state = #{INITIALIZING}")
       rows.each do |row|
         hour_model.where("reduced_id = ?", row.id).update_all(:reduced_state => READY_TO_REDUCE, :reduced_id => nil)
       end
-      rows.destroy_all      
+      rows.destroy_all
     end
   end
 end
