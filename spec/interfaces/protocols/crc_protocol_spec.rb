@@ -84,8 +84,7 @@ module Cosmos
       end
 
       it "complains if bit offset is not byte divisible" do
-        # Don't test nil here because it get's converted to 0 which is valid
-        [100, '100'].each do |offset|
+        [nil, 100, '100'].each do |offset|
           expect { @interface.add_protocol(CrcProtocol, [
             nil, # item name
             'TRUE', # strip crc
@@ -94,17 +93,6 @@ module Cosmos
             16], # bit size
             :READ_WRITE) }.to raise_error(/Invalid bit offset/)
         end
-      end
-
-      it "accepts a nil for bit offset" do
-        @interface.add_protocol(CrcProtocol, [
-          nil, # item name
-          'TRUE', # strip crc
-          'ERROR', # bad strategy
-          nil, # bit offset
-          16], # bit size
-          :READ_WRITE)
-        expect(@interface.read_protocols[-1].instance_variable_get(:@bit_offset)).to eq 0
       end
 
       it "accepts a string for bit offset" do
@@ -139,7 +127,7 @@ module Cosmos
       end
 
       it "complains if the poly is not a number" do
-        ['TRUE', '', '123abc'].each do |poly|
+        ['TRUE', '123abc'].each do |poly|
           expect { @interface.add_protocol(CrcProtocol, [
             nil, # item name
             'FALSE', # strip crc
@@ -157,7 +145,7 @@ module Cosmos
       end
 
       it "accepts nil and numeric polynomials" do
-        ['0xABCD', 0xABCD, nil].each do |poly|
+        ['0xABCD', 0xABCD, nil, '', 'NIL', 'NULL'].each do |poly|
           expect { @interface.add_protocol(CrcProtocol, [
             nil, # item name
             'FALSE', # strip crc
@@ -175,7 +163,7 @@ module Cosmos
       end
 
       it "complains if the seed is not a number" do
-        ['TRUE', '', '123abc'].each do |seed|
+        ['TRUE', '123abc'].each do |seed|
           expect { @interface.add_protocol(CrcProtocol, [
             nil, # item name
             'FALSE', # strip crc
@@ -193,7 +181,7 @@ module Cosmos
       end
 
       it "accepts nil and numeric seeds" do
-        ['0xABCD', 0xABCD, nil].each do |seed|
+        ['0xABCD', 0xABCD, nil, '', 'NIL', 'NULL'].each do |seed|
           expect { @interface.add_protocol(CrcProtocol, [
             nil, # item name
             'FALSE', # strip crc
@@ -211,7 +199,7 @@ module Cosmos
       end
 
       it "accepts nil TRUE FALSE for xor" do
-        [nil, 'TRUE', 'FALSE'].each do |xor|
+        [nil, '', 'NIL', 'NULL', 'TRUE', 'FALSE'].each do |xor|
           expect { @interface.add_protocol(CrcProtocol, [
             nil, # item name
             'FALSE', # strip crc
@@ -247,7 +235,7 @@ module Cosmos
       end
 
       it "accepts nil TRUE FALSE for reflect" do
-        [nil, 'TRUE', 'FALSE'].each do |reflect|
+        [nil, '', 'NIL', 'NULL', 'TRUE', 'FALSE'].each do |reflect|
           expect { @interface.add_protocol(CrcProtocol, [
             nil, # item name
             'FALSE', # strip crc
