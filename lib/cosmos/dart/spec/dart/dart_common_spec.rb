@@ -97,14 +97,17 @@ describe DartCommon do
       expect(model.column_names).to include("i0min")
       expect(model.column_names).to include("i0max")
       expect(model.column_names).to include("i0avg")
+      expect(model.column_names).to include("i0stddev")
       model = common.get_decom_table_model(packet_config.id, 0, '_h')
       expect(model.column_names).to include("i0min")
       expect(model.column_names).to include("i0max")
       expect(model.column_names).to include("i0avg")
+      expect(model.column_names).to include("i0stddev")
       model = common.get_decom_table_model(packet_config.id, 0, '_d')
       expect(model.column_names).to include("i0min")
       expect(model.column_names).to include("i0max")
       expect(model.column_names).to include("i0avg")
+      expect(model.column_names).to include("i0stddev")
 
       # Useful debugging to pring out all the mapping items
       # ItemToDecomTableMapping.all.each do |map|
@@ -202,6 +205,7 @@ describe DartCommon do
           expect(model.column_names).to include("i#{DartCommon::MAX_COLUMNS_PER_TABLE - 1}")
           # The base decommutation table doesn't average
           expect(model.column_names).to_not include("i0avg")
+          expect(model.column_names).to_not include("i0stddev")
         else
           expect(model.column_names).to include("i#{DartCommon::MAX_COLUMNS_PER_TABLE}")
           expect(model.column_names).to_not include("i#{DartCommon::MAX_COLUMNS_PER_TABLE + 1}")
@@ -215,13 +219,16 @@ describe DartCommon do
             expect(model.column_names).to include("i0min")
             expect(model.column_names).to include("i0max")
             expect(model.column_names).to include("i0avg")
+            expect(model.column_names).to include("i0stddev")
             expect(model.column_names).to include("i#{DartCommon::MAX_COLUMNS_PER_TABLE - 1}min")
             expect(model.column_names).to include("i#{DartCommon::MAX_COLUMNS_PER_TABLE - 1}max")
             expect(model.column_names).to include("i#{DartCommon::MAX_COLUMNS_PER_TABLE - 1}avg")
+            expect(model.column_names).to include("i#{DartCommon::MAX_COLUMNS_PER_TABLE - 1}stddev")
           else
             expect(model.column_names).to include("i#{DartCommon::MAX_COLUMNS_PER_TABLE}min")
             expect(model.column_names).to include("i#{DartCommon::MAX_COLUMNS_PER_TABLE}max")
             expect(model.column_names).to include("i#{DartCommon::MAX_COLUMNS_PER_TABLE}avg")
+            expect(model.column_names).to include("i#{DartCommon::MAX_COLUMNS_PER_TABLE}stddev")
           end
         end
       end

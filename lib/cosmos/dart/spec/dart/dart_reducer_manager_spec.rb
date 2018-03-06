@@ -110,7 +110,7 @@ describe DartReducerManager do
       setup_ples(11, 6) # 11 entries with a 6s gap
       drm = DartReducerManager.new(1)
       thread = Thread.new { drm.run }
-      sleep 0.1
+      sleep 0.5
       drm.shutdown
       thread.kill
 
@@ -140,6 +140,7 @@ describe DartReducerManager do
           expect(row.read_attribute("i#{mapping.item_index}min")).to eq 0
           expect(row.read_attribute("i#{mapping.item_index}max")).to eq 9
           expect(row.read_attribute("i#{mapping.item_index}avg")).to eq ((0..9).to_a.sum / 10.0)
+          expect(row.read_attribute("i#{mapping.item_index}stddev")).to be_within(0.0000001).of(Math.stddev_population((0..9).to_a)[1])
         end
       end
     end
@@ -151,7 +152,7 @@ describe DartReducerManager do
       setup_ples(367, 10.001)
       drm = DartReducerManager.new(1)
       thread = Thread.new { drm.run }
-      sleep 1
+      sleep 2
       drm.shutdown
       thread.kill
 
@@ -181,6 +182,7 @@ describe DartReducerManager do
         expect(row.read_attribute("i#{mapping.item_index}min")).to eq 0
         expect(row.read_attribute("i#{mapping.item_index}max")).to eq 5
         expect(row.read_attribute("i#{mapping.item_index}avg")).to eq ((0..5).to_a.sum / 6.0)
+        expect(row.read_attribute("i#{mapping.item_index}stddev")).to be_within(0.0000001).of(Math.stddev_population((0..5).to_a)[1])
 
         # Grab the hour reduction table
         rows = common.get_decom_table_model(mapping.packet_config_id, mapping.table_index, "_h")
@@ -194,6 +196,7 @@ describe DartReducerManager do
         expect(row.read_attribute("i#{mapping.item_index}min")).to eq 0
         expect(row.read_attribute("i#{mapping.item_index}max")).to eq 359
         expect(row.read_attribute("i#{mapping.item_index}avg")).to eq ((0..359).to_a.sum / 360.0)
+        expect(row.read_attribute("i#{mapping.item_index}stddev")).to be_within(0.05).of(Math.stddev_population((0..359).to_a)[1])
       end
     end
 
@@ -202,13 +205,13 @@ describe DartReducerManager do
       setup_ples(75, 3600.001)
       drm = DartReducerManager.new(1)
       thread = Thread.new { drm.run }
-      sleep 1
+      sleep 2
       drm.shutdown
       thread.kill
 
       drm = DartReducerManager.new(1)
       thread = Thread.new { drm.run }
-      sleep 1
+      sleep 2
       drm.shutdown
       thread.kill
 
@@ -241,6 +244,7 @@ describe DartReducerManager do
           expect(row.read_attribute("i#{mapping.item_index}min")).to eq val
           expect(row.read_attribute("i#{mapping.item_index}max")).to eq val
           expect(row.read_attribute("i#{mapping.item_index}avg")).to eq val
+          expect(row.read_attribute("i#{mapping.item_index}stddev")).to eq 0
           val += 1
         end
 
@@ -259,6 +263,7 @@ describe DartReducerManager do
           expect(row.read_attribute("i#{mapping.item_index}min")).to eq val
           expect(row.read_attribute("i#{mapping.item_index}max")).to eq val
           expect(row.read_attribute("i#{mapping.item_index}avg")).to eq val
+          expect(row.read_attribute("i#{mapping.item_index}stddev")).to eq 0
           val += 1
         end
 
@@ -275,6 +280,7 @@ describe DartReducerManager do
           expect(row.read_attribute("i#{mapping.item_index}min")).to eq val
           expect(row.read_attribute("i#{mapping.item_index}max")).to eq val + 23
           expect(row.read_attribute("i#{mapping.item_index}avg")).to eq ((val..(val+23)).to_a.sum / 24.0)
+          expect(row.read_attribute("i#{mapping.item_index}stddev")).to be_within(0.0000001).of(Math.stddev_population((val..(val+23)).to_a)[1])
           val += 24
         end
       end

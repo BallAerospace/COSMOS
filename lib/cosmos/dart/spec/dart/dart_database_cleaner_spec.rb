@@ -238,6 +238,7 @@ describe DartDatabaseCleaner do
         expect(model.column_names).to include("i0min")
         expect(model.column_names).to include("i0max")
         expect(model.column_names).to include("i0avg")
+        expect(model.column_names).to include("i0stddev")
       end
     end
   end
@@ -324,6 +325,7 @@ describe DartDatabaseCleaner do
       decom = writer.get_decom_table_model(packet_config.id, 0)
       expect(decom.all.count).to eq 0
     end
+  end
 
   describe "clean_decommutation_tables" do
     it "removes decommutation rows which are in progress" do

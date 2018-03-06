@@ -310,18 +310,18 @@ module DartCommon
   end
 
   def query_decom_reduced(
-    target_name, 
-    packet_name, 
-    item_name, 
-    value_type, 
-    is_tlm, 
-    start_time, 
-    end_time, 
+    target_name,
+    packet_name,
+    item_name,
+    value_type,
+    is_tlm,
+    start_time,
+    end_time,
     reduction,
     reduction_modifier,
     item_name_modifier,
-    limit = 10000, 
-    offset = 0, 
+    limit = 10000,
+    offset = 0,
     meta_ids = [])
 
     # Upon receiving the above request, the corresponding Target, Packet, and Item
@@ -435,10 +435,10 @@ module DartCommon
       comparison_value = nil if comparison_value.to_s.upcase == "NULL"
 
       meta_data = query_decom_reduced(
-        "SYSTEM", "META", item_name, 
+        "SYSTEM", "META", item_name,
         ItemToDecomTableMapping::CONVERTED, is_tlm,
-        nil, end_time, 
-        :NONE, "", 
+        nil, end_time,
+        :NONE, "",
         "", 100000, 0, [])
 
       case comparison
@@ -682,6 +682,7 @@ module DartCommon
           t.column "i#{item_index}max", data_type
           t.column "i#{item_index}min", data_type
           t.column "i#{item_index}avg", :float # Average is always floating point
+          t.column "i#{item_index}stddev", :float # Standard deviation is always floating point
         end
       end
       t.index :start_time

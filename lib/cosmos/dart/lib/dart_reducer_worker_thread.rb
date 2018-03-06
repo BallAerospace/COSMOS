@@ -83,13 +83,17 @@ class DartReducerWorkerThread
           min_item_name = "i#{mapping.item_index}min"
           max_item_name = "i#{mapping.item_index}max"
           avg_item_name = "i#{mapping.item_index}avg"
+          stddev_item_name = "i#{mapping.item_index}stddev"
           min_value = nil
           max_value = nil
           avg_value = 0.0
+          values = []
+          stddev_value = 0.0
           total_samples = 0
           min_nan_found = false
           max_nan_found = false
           avg_nan_found = false
+          stddev_nan_found = false
           # Process each of the rows in the base model which is the decommutation table
           # or a lesser reduction table (the minute or hour table).
           sample_rows.each do |row_to_reduce|
@@ -110,6 +114,7 @@ class DartReducerWorkerThread
               min_sample = row_to_reduce.read_attribute(min_item_name)
               max_sample = row_to_reduce.read_attribute(max_item_name)
               avg_sample = row_to_reduce.read_attribute(avg_item_name)
+              stddev_sample = row_to_reduce.read_attribute(stddev_item_name)
               if min_sample.nil?
                 Cosmos::Logger.error("#{min_item_name} is nil in #{row_to_reduce.class}:#{row_to_reduce.id}")
                 next
@@ -120,6 +125,10 @@ class DartReducerWorkerThread
               end
               if avg_sample.nil?
                 Cosmos::Logger.error("#{avg_item_name} is nil in #{row_to_reduce.class}:#{row_to_reduce.id}")
+                next
+              end
+              if stddev_sample.nil?
+                Cosmos::Logger.error("#{stddev_item_name} is nil in #{row_to_reduce.class}:#{row_to_reduce.id}")
                 next
               end
             end
@@ -143,6 +152,7 @@ class DartReducerWorkerThread
             if nan_value?(avg_sample)
               avg_nan_found = true
             else
+              values << avg_sample
               # MINUTE data is reducing the decommutated values
               if job_type == :MINUTE
                 avg_value += avg_sample
@@ -157,10 +167,15 @@ class DartReducerWorkerThread
           avg_value = avg_value.to_f / total_samples if total_samples != 0
           min_value = Float::NAN if min_nan_found and !min_value
           max_value = Float::NAN if max_nan_found and !max_value
-          avg_value = Float::NAN if avg_nan_found and total_samples == 0
+          mean, stddev_value = Math.stddev_population(values)
+          if avg_nan_found and total_samples == 0
+            avg_value = Float::NAN
+            stddev_value = Float::NAN
+          end
           new_row.write_attribute(min_item_name, min_value)
           new_row.write_attribute(max_item_name, max_value)
           new_row.write_attribute(avg_item_name, avg_value)
+          new_row.write_attribute(stddev_item_name, stddev_value)
         end
         base_model.where(id: sample_rows.map(&:id)).update_all(:reduced_state => DartCommon::REDUCED)
         new_row.save! # Create the reduced data row in the database
