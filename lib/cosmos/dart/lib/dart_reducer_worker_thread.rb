@@ -86,10 +86,10 @@ class DartReducerWorkerThread
           stddev_item_name = "i#{mapping.item_index}stddev"
           min_value = nil
           max_value = nil
-          avg_value = 0.0
-          values = []
+          total_samples = 0 # s0
+          avg_value = 0.0 # s1
+          s2 = 0.0
           stddev_value = 0.0
-          total_samples = 0
           min_nan_found = false
           max_nan_found = false
           avg_nan_found = false
@@ -152,22 +152,33 @@ class DartReducerWorkerThread
             if nan_value?(avg_sample)
               avg_nan_found = true
             else
-              values << avg_sample
               # MINUTE data is reducing the decommutated values
               if job_type == :MINUTE
-                avg_value += avg_sample
-                total_samples += 1
+                total_samples += 1 # s0
+                avg_value += avg_sample # s1
+                s2 += (avg_sample * avg_sample)
               else # :HOUR or :DAY
-                # Weight the average by multiplying by the number of samples
-                avg_value += (avg_sample * row_to_reduce.num_samples)
-                total_samples += row_to_reduce.num_samples
+                # Aggregated Stddev
+                # See https://math.stackexchange.com/questions/1547141/aggregating-standard-deviation-to-a-summary-point
+                total_samples += row_to_reduce.num_samples # s0
+                avg_value += (avg_sample * row_to_reduce.num_samples) # s1
+                s2 += row_to_reduce.num_samples * (avg_sample * avg_sample + stddev_sample * stddev_sample)
               end
             end
           end
-          avg_value = avg_value.to_f / total_samples if total_samples != 0
+          if total_samples != 0
+            # Aggregated Stddev
+            # See https://math.stackexchange.com/questions/1547141/aggregating-standard-deviation-to-a-summary-point
+            avg_value = avg_value.to_f / total_samples
+            # Note: For very large numbers with very small deviations this sqrt can fail.  If so then just set the stddev to 0.
+            begin
+              stddev_value = sqrt((s2 / total_samples) - (avg_value * avg_value))
+            rescue Exception
+              stddev_value = 0.0
+            end
+          end
           min_value = Float::NAN if min_nan_found and !min_value
           max_value = Float::NAN if max_nan_found and !max_value
-          mean, stddev_value = Math.stddev_population(values)
           if avg_nan_found and total_samples == 0
             avg_value = Float::NAN
             stddev_value = Float::NAN

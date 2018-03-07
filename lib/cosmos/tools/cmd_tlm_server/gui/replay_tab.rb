@@ -41,6 +41,9 @@ module Cosmos
     def populate
       return if @widget
 
+      @resize_timer = Qt::Timer.new
+      @resize_timer.connect(SIGNAL('timeout()')) { @widget.resize(@widget.width, @widget.minimumHeight) }
+
       @widget = Qt::Widget.new
 
       layout = Qt::VBoxLayout.new(@widget)
@@ -54,6 +57,44 @@ module Cosmos
       # This widget goes inside the top layout so we want 0 contents margins
       @log_layout.setContentsMargins(0,0,0,0)
       @log_widget.setLayout(@log_layout)
+
+      # Data Source Selection
+      @data_source_layout = Qt::HBoxLayout.new()
+      label = Qt::Label.new("Data Source: ")
+      @data_source_layout.addWidget(label)
+      @log_file_radio = Qt::RadioButton.new("Log File", @widget)
+      @log_file_radio.setChecked(true)
+      @log_file_radio.connect(SIGNAL('clicked()')) do 
+        @stream_selection.hide
+        @log_file_selection.show
+        @op.setTitle("Playback Control: Log File")
+        @move_start.setEnabled(false)
+        @step_back.setEnabled(false)
+        @reverse_play.setEnabled(false)
+        @stop.setEnabled(false)
+        @play.setEnabled(false)
+        @step_forward.setEnabled(false)
+        @move_end.setEnabled(false)        
+        @resize_timer.start(100)
+      end
+      @data_source_layout.addWidget(@log_file_radio)
+      @dart_radio = Qt::RadioButton.new("DART Database", @widget)
+      @dart_radio.connect(SIGNAL('clicked()')) do 
+        @log_file_selection.hide
+        @stream_selection.show
+        @op.setTitle("Playback Control: DART Database")
+        @move_start.setEnabled(false)
+        @step_back.setEnabled(false)
+        @reverse_play.setEnabled(false)
+        @stop.setEnabled(false)
+        @play.setEnabled(false)
+        @step_forward.setEnabled(false)
+        @move_end.setEnabled(false)            
+        @resize_timer.start(100)
+      end      
+      @data_source_layout.addWidget(@dart_radio)
+      @data_source_layout.addStretch()
+      @log_layout.addLayout(@data_source_layout)
 
       # Create the log file GUI
       @log_file_selection = Qt::GroupBox.new("Log File Selection")
@@ -73,11 +114,12 @@ module Cosmos
       @stream_open = Qt::PushButton.new("Select Stream...")
       @stream_select.addWidget(@stream_open)
       @log_layout.addWidget(@stream_selection)
+      @stream_selection.hide
 
       @stream_open.connect(SIGNAL('clicked()')) { select_stream() }
 
       # Create the operation buttons GUI
-      @op = Qt::GroupBox.new("Playback Control")
+      @op = Qt::GroupBox.new("Playback Control: Log File")
       @op_layout = Qt::VBoxLayout.new(@op)
       @op_button_layout = Qt::HBoxLayout.new
       @move_start = Qt::PushButton.new(Cosmos.get_icon('skip_to_start-26.png'), '')
@@ -248,7 +290,6 @@ module Cosmos
       case packet_log_dialog.exec
       when Qt::Dialog::Accepted
         CmdTlmServer.replay_backend.select_file(packet_log_dialog.filenames[0], packet_log_dialog.packet_log_reader)
-        @op.setTitle("Playback Control: Log File")
         @move_start.setEnabled(true)
         @step_back.setEnabled(true)
         @reverse_play.setEnabled(true)
@@ -264,7 +305,6 @@ module Cosmos
       case dart_dialog.exec
       when Qt::Dialog::Accepted
         CmdTlmServer.replay_backend.select_stream(dart_dialog.time_start, dart_dialog.time_end, dart_dialog.meta_filters)
-        @op.setTitle("Playback Control: Stream")
         @log_name.text = ""
         @move_start.setEnabled(true)
         @step_back.setEnabled(false)

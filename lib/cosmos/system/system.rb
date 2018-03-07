@@ -252,13 +252,17 @@ module Cosmos
           when 'DEFAULT_PACKET_LOG_WRITER'
             usage = "#{keyword} <FILENAME> <Specific Parameters>"
             parser.verify_num_parameters(1, nil, usage)
-            @default_packet_log_writer = Cosmos.require_class(parameters[0])
+            Cosmos.disable_warnings do
+              @default_packet_log_writer = Cosmos.require_class(parameters[0])
+            end
             @default_packet_log_writer_params = parameters[1..-1] if parameters.size > 1
 
           when 'DEFAULT_PACKET_LOG_READER'
             usage = "#{keyword} <FILENAME> <Specific Parameters>"
             parser.verify_num_parameters(1, nil, usage)
-            @default_packet_log_reader = Cosmos.require_class(parameters[0])
+            Cosmos.disable_warnings do
+              @default_packet_log_reader = Cosmos.require_class(parameters[0])
+            end
             @default_packet_log_reader_params = parameters[1..-1] if parameters.size > 1
 
           when 'ENABLE_SOUND'

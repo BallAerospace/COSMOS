@@ -14,16 +14,15 @@ require 'cosmos/io/json_drb_object'
 
 module Cosmos
   class DartMetaFrame < Qt::Widget
-    attr_reader :meta_filters
-    
+    @@meta_filters = []
+
     def initialize(parent)
       super(parent)
 
-      @meta_filters = []
       @got_meta_item_names = false
 
       @layout = Qt::VBoxLayout.new(self)
-      @layout.setContentsMargins(0,0,0,0)      
+      @layout.setContentsMargins(0,0,0,0)
 
       @groupbox = Qt::GroupBox.new("Meta Filter Selection")
       @vbox = Qt::VBoxLayout.new(@groupbox)
@@ -32,13 +31,14 @@ module Cosmos
       @hbox1.addWidget(@label)
       @meta_filters_text = Qt::LineEdit.new
       @meta_filters_text.setReadOnly(true)
+      @meta_filters_text.text = @@meta_filters.to_s[1..-2]
       @hbox1.addWidget(@meta_filters_text)
       @clear_button = Qt::PushButton.new("Clear")
       @hbox1.addWidget(@clear_button)
       @clear_button.connect(SIGNAL('clicked()')) do
-        @meta_filters = []
+        @@meta_filters = []
         @meta_filters_text.text = ""
-        update_meta_item_names()        
+        update_meta_item_names()
       end
       @vbox.addLayout(@hbox1)
 
@@ -64,17 +64,17 @@ module Cosmos
         if filter_value.to_s.strip.length > 0
           if filter_value.index(" ")
             if filter_value.index('"')
-              @meta_filters << "#{@meta_item_name.text} #{@comparison.text} '#{@filter_value.text}'"
+              @@meta_filters << "#{@meta_item_name.text} #{@comparison.text} '#{@filter_value.text}'"
             else
-              @meta_filters << "#{@meta_item_name.text} #{@comparison.text} \"#{@filter_value.text}\""
+              @@meta_filters << "#{@meta_item_name.text} #{@comparison.text} \"#{@filter_value.text}\""
             end
           else
-            @meta_filters << "#{@meta_item_name.text} #{@comparison.text} #{@filter_value.text}"
+            @@meta_filters << "#{@meta_item_name.text} #{@comparison.text} #{@filter_value.text}"
           end
         else
-          @meta_filters << "#{@meta_item_name.text} #{@comparison.text} ''"
+          @@meta_filters << "#{@meta_item_name.text} #{@comparison.text} ''"
         end
-        @meta_filters_text.text = @meta_filters.to_s[1..-2]
+        @meta_filters_text.text = @@meta_filters.to_s[1..-2]
       end
       @hbox2.addWidget(@add_button)
       @vbox.addLayout(@hbox2)
@@ -83,8 +83,12 @@ module Cosmos
       setLayout(@layout)
 
       @resize_timer = Qt::Timer.new
-      @resize_timer.connect(SIGNAL('timeout()')) { update_meta_item_names() }      
+      @resize_timer.connect(SIGNAL('timeout()')) { update_meta_item_names() }
       @resize_timer.start(100)
+    end
+
+    def meta_filters
+      @@meta_filters
     end
 
     protected
@@ -102,6 +106,8 @@ module Cosmos
               end
             end
             @got_meta_item_names = true
+          rescue Exception
+            # We tried...
           ensure
             @update_thread = nil
             server.disconnect if defined? server
