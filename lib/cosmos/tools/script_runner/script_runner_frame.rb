@@ -1054,58 +1054,104 @@ module Cosmos
     end
 
     def toggle_disconnect(config_file, ask_for_config_file = true)
-      if get_cmd_tlm_disconnect
-        set_cmd_tlm_disconnect(false)
-        self.parent.setPalette(Cosmos::DEFAULT_PALETTE)
-      else
-        if ask_for_config_file
-          dialog = Qt::Dialog.new(self, Qt::WindowTitleHint | Qt::WindowSystemMenuHint)
-          dialog.setWindowTitle(tr("Server Config File"))
-          dialog_layout = Qt::VBoxLayout.new
+      dialog = Qt::Dialog.new(self, Qt::WindowTitleHint | Qt::WindowSystemMenuHint)
+      dialog.setWindowTitle(tr("Disconnect Settings"))
+      dialog_layout = Qt::VBoxLayout.new
+      dialog_layout.addWidget(Qt::Label.new("Targets checked will be disconnected."))
 
-          chooser = FileChooser.new(self, "Config File", config_file, 'Select',
-                                    File.dirname(config_file))
-          chooser.callback = lambda do |filename|
-            chooser.filename = filename
-          end
-          dialog_layout.addWidget(chooser)
+      all_targets = {}
+      set_clear_layout = Qt::HBoxLayout.new
+      check_all = Qt::PushButton.new("Check All")
+      check_all.setAutoDefault(false)
+      check_all.setDefault(false)
+      check_all.connect(SIGNAL('clicked()')) do
+        all_targets.each do |target, checkbox|
+          checkbox.setChecked(true)
+        end
+      end
+      set_clear_layout.addWidget(check_all)
+      clear_all = Qt::PushButton.new("Clear All")
+      clear_all.connect(SIGNAL('clicked()')) do
+        all_targets.each do |target, checkbox|
+          checkbox.setChecked(false)
+        end
+      end
+      set_clear_layout.addWidget(clear_all)
+      dialog_layout.addLayout(set_clear_layout)
 
-          button_layout = Qt::HBoxLayout.new
-          ok = Qt::PushButton.new("Ok")
-          ok.setDefault(true)
-          ok.connect(SIGNAL('clicked()')) do
-            dialog.accept()
-          end
-          button_layout.addWidget(ok)
-          cancel = Qt::PushButton.new("Cancel")
-          cancel.connect(SIGNAL('clicked()')) do
-            dialog.reject()
-          end
-          button_layout.addWidget(cancel)
-          dialog_layout.addLayout(button_layout)
+      scroll = Qt::ScrollArea.new
+      target_widget = Qt::Widget.new
+      scroll.setWidget(target_widget)
+      target_layout = Qt::VBoxLayout.new(target_widget)
+      target_layout.setSizeConstraint(Qt::Layout::SetMinAndMaxSize)
+      scroll.setSizePolicy(Qt::SizePolicy::Preferred, Qt::SizePolicy::Expanding)
+      scroll.setWidgetResizable(true)
 
-          dialog.setLayout(dialog_layout)
-          if dialog.exec == Qt::Dialog::Accepted
-            config_file = chooser.filename
-            self.parent.setPalette(Cosmos::RED_PALETTE)
-            Splash.execute(self) do |splash|
-              ConfigParser.splash = splash
-              splash.message = "Initializing Command and Telemetry Server"
-              set_cmd_tlm_disconnect(true, config_file)
-              ConfigParser.splash = nil
-            end
-          end
-          dialog.dispose
+      existing = get_disconnected_targets()
+      System.targets.keys.each do |target|
+        check_layout = Qt::HBoxLayout.new
+        check_label = Qt::CheckboxLabel.new(target)
+        checkbox = Qt::CheckBox.new
+        all_targets[target] = checkbox
+        if existing
+          checkbox.setChecked(existing && existing.include?(target))
         else
-          self.parent.setPalette(Cosmos::RED_PALETTE)
-          Splash.execute(self, true) do |splash|
+          checkbox.setChecked(true)
+        end
+        check_label.setCheckbox(checkbox)
+        check_layout.addWidget(checkbox)
+        check_layout.addWidget(check_label)
+        check_layout.addStretch
+        target_layout.addLayout(check_layout)
+      end
+      dialog_layout.addWidget(scroll)
+
+      if ask_for_config_file
+        chooser = FileChooser.new(self, "Config File", config_file, 'Select',
+                                  File.dirname(config_file))
+        chooser.callback = lambda do |filename|
+          chooser.filename = filename
+        end
+        dialog_layout.addWidget(chooser)
+      end
+
+      button_layout = Qt::HBoxLayout.new
+      ok = Qt::PushButton.new("Ok")
+      ok.setAutoDefault(true)
+      ok.setDefault(true)
+      targets = []
+      ok.connect(SIGNAL('clicked()')) do
+        all_targets.each do |target, checkbox|
+          targets << target if checkbox.isChecked
+        end
+        dialog.accept()
+      end
+      button_layout.addWidget(ok)
+      cancel = Qt::PushButton.new("Cancel")
+      cancel.connect(SIGNAL('clicked()')) do
+        dialog.reject()
+      end
+      button_layout.addWidget(cancel)
+      dialog_layout.addLayout(button_layout)
+
+      dialog.setLayout(dialog_layout)
+      STDOUT.puts "parent:#{self.parent.parent.parent} class:#{self.parent.parent.parent.class}"
+      if dialog.exec == Qt::Dialog::Accepted
+        if targets.empty?
+          clear_disconnected_targets()
+          self.parent.parent.parent.statusBar.showMessage("")
+        else
+          config_file = chooser.filename
+          self.parent.parent.parent.statusBar.showMessage("Targets disconnected: #{targets.join(" ")}")
+          Splash.execute(self) do |splash|
             ConfigParser.splash = splash
             splash.message = "Initializing Command and Telemetry Server"
-            set_cmd_tlm_disconnect(true, config_file)
+            set_disconnected_targets(targets, config_file)
             ConfigParser.splash = nil
           end
         end
       end
+      dialog.dispose
       config_file
     end
 
