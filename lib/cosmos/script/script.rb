@@ -43,7 +43,7 @@ module Cosmos
     end
 
     def method_missing(method_name, *method_params)
-      if $disconnected_targets
+      if $disconnected_targets && method_params[0].is_a?(String)
         if method_params.length == 1
           target = method_params[0].split(" ")[0]
         else

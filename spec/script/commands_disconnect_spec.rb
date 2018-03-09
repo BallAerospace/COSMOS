@@ -30,6 +30,7 @@ module Cosmos
     end
 
     after(:all) do
+      clear_disconnected_targets()
       clean_config()
       FileUtils.rm_rf File.join(Cosmos::USERPATH,'config','tools')
     end
