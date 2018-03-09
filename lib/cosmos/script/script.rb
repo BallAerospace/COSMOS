@@ -43,13 +43,22 @@ module Cosmos
     end
 
     def method_missing(method_name, *method_params)
-      if method_params.length == 1
-        target = method_params[0].split(" ")[0]
-      else
-        target = method_params[0]
+      if $disconnected_targets
+        if method_params.length == 1
+          target = method_params[0].split(" ")[0]
+        else
+          target = method_params[0]
+        end
+        if $disconnected_targets.include?(target)
+          return @disconnected.send(method_name, *method_params)
+        end
       end
-      if $disconnected_targets && $disconnected_targets.include?(target)
-        @disconnected.send(method_name, *method_params)
+      # Must call shutdown and disconnect on the JsonDrbObject itself
+      case method_name
+      when :shutdown
+        @cmd_tlm_server.shutdown
+      when :disconnect
+        @cmd_tlm_server.disconnect
       else
         @cmd_tlm_server.method_missing(method_name, *method_params)
       end

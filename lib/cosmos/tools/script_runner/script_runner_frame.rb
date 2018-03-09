@@ -1135,14 +1135,15 @@ module Cosmos
       dialog_layout.addLayout(button_layout)
 
       dialog.setLayout(dialog_layout)
-      STDOUT.puts "parent:#{self.parent.parent.parent} class:#{self.parent.parent.parent.class}"
       if dialog.exec == Qt::Dialog::Accepted
         if targets.empty?
           clear_disconnected_targets()
           self.parent.parent.parent.statusBar.showMessage("")
+          self.setPalette(Qt::Palette.new(Cosmos::DEFAULT_PALETTE))
         else
           config_file = chooser.filename
           self.parent.parent.parent.statusBar.showMessage("Targets disconnected: #{targets.join(" ")}")
+          self.setPalette(Qt::Palette.new(Cosmos::RED_PALETTE))
           Splash.execute(self) do |splash|
             ConfigParser.splash = splash
             splash.message = "Initializing Command and Telemetry Server"
