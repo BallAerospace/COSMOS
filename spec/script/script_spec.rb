@@ -54,34 +54,14 @@ module Cosmos
       end
     end
 
-    describe "shutdown_cmd_tlm" do
-      it "should call shutdown on the server" do
-        set_cmd_tlm_disconnect(false)
-        expect($cmd_tlm_server).to receive(:shutdown)
+    describe "set_disconnected_targets, get_disconnected_targets, clear_disconnected_targets" do
+      it "should set, get, and clear disconnected targets" do
+        set_disconnected_targets(['SYSTEM'])
+        expect($disconnected_targets).to include('SYSTEM')
+        expect(get_disconnected_targets()).to eq ['SYSTEM']
+        clear_disconnected_targets()
+        expect(get_disconnected_targets()).to be_nil
         shutdown_cmd_tlm()
-      end
-
-      it "should not call shutdown in disconnect mode" do
-        set_cmd_tlm_disconnect(true)
-        expect($cmd_tlm_server).to_not receive(:shutdown)
-        shutdown_cmd_tlm()
-        set_cmd_tlm_disconnect(false)
-      end
-    end
-
-    describe "script_disconnect" do
-      it "should disconnect from the server" do
-        expect($cmd_tlm_server).to receive(:disconnect)
-        script_disconnect()
-      end
-    end
-
-    describe "set_cmd_tlm_disconnect and get_cmd_tlm_disconnect" do
-      it "set and get the disconnect status" do
-        set_cmd_tlm_disconnect(true)
-        expect(get_cmd_tlm_disconnect()).to be true
-        set_cmd_tlm_disconnect(false)
-        expect(get_cmd_tlm_disconnect()).to be false
       end
     end
 
