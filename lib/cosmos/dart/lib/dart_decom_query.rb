@@ -101,7 +101,7 @@ class DartDecomQuery
         value_type = ItemToDecomTableMapping::CONVERTED
         item_name_modifier = ""
         raise "RAW value_type is only valid with NONE reduction" if reduction != :NONE
-      when 'RAW_MAX', 'RAW_MIN', 'RAW_AVG'
+      when 'RAW_MAX', 'RAW_MIN', 'RAW_AVG', 'RAW_STDDEV'
         value_type = ItemToDecomTableMapping::CONVERTED
         item_name_modifier = requested_value_type.split('_')[1].downcase
         raise "#{requested_value_type} value_type is not valid with NONE reduction" if reduction == :NONE
@@ -109,7 +109,7 @@ class DartDecomQuery
         value_type = ItemToDecomTableMapping::RAW
         item_name_modifier = ""
         raise "CONVERTED value_type is only valid with NONE reduction" if reduction != :NONE
-      when 'CONVERTED_MAX', 'CONVERTED_MIN', 'CONVERTED_AVG'
+      when 'CONVERTED_MAX', 'CONVERTED_MIN', 'CONVERTED_AVG', 'CONVERTED_STDDEV'
         value_type = ItemToDecomTableMapping::RAW
         item_name_modifier = requested_value_type.split('_')[1].downcase
         raise "#{requested_value_type} value_type is not valid with NONE reduction" if reduction == :NONE
