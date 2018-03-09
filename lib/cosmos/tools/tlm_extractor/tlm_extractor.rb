@@ -34,6 +34,8 @@ module Cosmos
     slots 'context_menu(const QPoint&)'
 
     FORMATTING_OPTIONS = %w(CONVERTED RAW FORMATTED WITH_UNITS)
+    DART_REDUCED_TYPE_OPTIONS = %w(AVG MIN MAX STDDEV)
+    DART_REDUCTION_OPTIONS = %w(NONE MINUTE HOUR DAY)
 
     class MyListWidget < Qt::ListWidget
       signals 'enterKeyPressed(int)'
@@ -558,13 +560,25 @@ module Cosmos
         packet_name_or_text = split_item[2]
         item_name = split_item[3]
         value_type = split_item[4]
+        dart_reduction = split_item[5]
+        dart_reduced_type = split_item[6]
         if value_type
           value_type = value_type.upcase.intern
         else
           value_type = :CONVERTED
         end
+        if dart_reduction
+          dart_reduction = dart_reduction.upcase.intern
+        else
+          dart_reduction = :NONE
+        end
+        if dart_reduced_type
+          dart_reduced_type = dart_reduced_type.upcase.intern
+        else
+          dart_reduced_type = :AVG
+        end
         if item_type == 'ITEM'
-          @tlm_extractor_config.add_item(target_name_or_column_name, packet_name_or_text, item_name, value_type)
+          @tlm_extractor_config.add_item(target_name_or_column_name, packet_name_or_text, item_name, value_type, dart_reduction, dart_reduced_type)
         else
           @tlm_extractor_config.add_text(target_name_or_column_name.remove_quotes, packet_name_or_text.remove_quotes)
         end
@@ -593,12 +607,16 @@ module Cosmos
       @downsample_entry.value = @tlm_extractor_config.downsample_seconds
 
       clear_config_item_list()
-      @tlm_extractor_config.items.each do |item_type, target_name_or_column_name, packet_name_or_text, item_name, value_type|
+      @tlm_extractor_config.items.each do |item_type, target_name_or_column_name, packet_name_or_text, item_name, value_type, dart_reduction, dart_reduced_type|
         if item_type == 'ITEM'
-          if value_type == :CONVERTED
-            @config_item_list.addItem("#{item_type} #{target_name_or_column_name} #{packet_name_or_text} #{item_name}")
+          if dart_reduction == :NONE 
+            if value_type == :CONVERTED
+              @config_item_list.addItem("#{item_type} #{target_name_or_column_name} #{packet_name_or_text} #{item_name}")
+            else
+              @config_item_list.addItem("#{item_type} #{target_name_or_column_name} #{packet_name_or_text} #{item_name} #{value_type}")
+            end
           else
-            @config_item_list.addItem("#{item_type} #{target_name_or_column_name} #{packet_name_or_text} #{item_name} #{value_type}")
+            @config_item_list.addItem("#{item_type} #{target_name_or_column_name} #{packet_name_or_text} #{item_name} #{value_type} #{dart_reduction} #{dart_reduced_type}")
           end
         else
           @config_item_list.addItem("#{item_type} \"#{target_name_or_column_name}\" \"#{packet_name_or_text}\"")
@@ -949,6 +967,32 @@ module Cosmos
             end
             layout.addWidget(box)
 
+            label = Qt::Label.new('DART Reduction:')
+            layout.addWidget(label)
+
+            dart_reduction_box = Qt::ComboBox.new
+            dart_reduction_box.maxCount = DART_REDUCTION_OPTIONS.length
+            DART_REDUCTION_OPTIONS.each {|item| dart_reduction_box.addItem(item) }
+            current_reduction = split_item[5]
+            current_reduction = 'NONE' unless current_reduction
+            if DART_REDUCTION_OPTIONS.index(current_reduction)
+              dart_reduction_box.currentIndex = DART_REDUCTION_OPTIONS.index(current_reduction)
+            end
+            layout.addWidget(dart_reduction_box)
+
+            label = Qt::Label.new('DART Reduced Type:')
+            layout.addWidget(label)
+
+            dart_reduction_type_box = Qt::ComboBox.new
+            dart_reduction_type_box.maxCount = DART_REDUCED_TYPE_OPTIONS.length
+            DART_REDUCED_TYPE_OPTIONS.each {|item| dart_reduction_type_box.addItem(item) }
+            current_dart_type = split_item[6]
+            current_dart_type = 'AVG' unless current_dart_type
+            if DART_REDUCED_TYPE_OPTIONS.index(current_dart_type)
+              dart_reduction_type_box.currentIndex = DART_REDUCED_TYPE_OPTIONS.index(current_dart_type)
+            end
+            layout.addWidget(dart_reduction_type_box)
+
             check_box = nil
             if selected_items.length > 1 and item_index == selected_items[0]
               check_box = Qt::CheckBox.new('Apply to All?')
@@ -975,11 +1019,15 @@ module Cosmos
                 set_indexes.each do |set_item_index|
                   split_item = @config_item_list.item(set_item_index).text.scan ConfigParser::PARSING_REGEX
                   if split_item[0] == 'ITEM'
-                    # Remove any formatting from the item by only keeping the first four strings
+                    # Remove any formatting/dart info from the item by only keeping the first four strings
                     @config_item_list.item(set_item_index).text = split_item[0..3].join(' ')
 
-                    if box.currentIndex != 0
-                      @config_item_list.item(set_item_index).text = "#{@config_item_list.item(set_item_index).text} #{FORMATTING_OPTIONS[box.currentIndex]}"
+                    if dart_reduction_box.currentIndex == 0
+                      if box.currentIndex != 0
+                        @config_item_list.item(set_item_index).text = "#{@config_item_list.item(set_item_index).text} #{FORMATTING_OPTIONS[box.currentIndex]}"
+                      end
+                    else
+                      @config_item_list.item(set_item_index).text = "#{@config_item_list.item(set_item_index).text} #{FORMATTING_OPTIONS[box.currentIndex]} #{DART_REDUCTION_OPTIONS[dart_reduction_box.currentIndex]} #{DART_REDUCED_TYPE_OPTIONS[dart_reduction_type_box.currentIndex]}"
                     end
                   end
                 end

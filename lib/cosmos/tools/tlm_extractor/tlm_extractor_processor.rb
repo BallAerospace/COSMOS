@@ -81,11 +81,11 @@ module Cosmos
           server = JsonDRbObject.new(System.connect_hosts['DART_DECOM'], System.ports['DART_DECOM'])
 
           index = 0
-          items.each do |item_type, target_name, packet_name, item_name, value_type|
+          items.each do |item_type, target_name, packet_name, item_name, value_type, dart_reduction, dart_reduced_type|
             value_type = :CONVERTED if !value_type or value_type != :RAW
             # TODO: Support FORMATTED and WITH_UNITS by iterating and modifying results
             begin
-              query_string = "#{target_name} #{packet_name} #{item_name} #{value_type}"
+              query_string = "#{target_name} #{packet_name} #{item_name} #{value_type} #{dart_reduction} #{dart_reduced_type}"
               yield(index.to_f / items.length, "Querying #{query_string}") if block_given?
               request = {}
               request['start_time_sec'] = time_start.tv_sec
@@ -93,11 +93,15 @@ module Cosmos
               request['end_time_sec'] = time_end.tv_sec
               request['end_time_usec'] = time_end.tv_usec
               request['item'] = [target_name, packet_name, item_name]
-              request['reduction'] = 'NONE'
+              request['reduction'] = dart_reduction.to_s
               request['cmd_tlm'] = 'TLM'
               request['offset'] = 0
               request['limit'] = 10000
-              request['value_type'] = value_type.to_s
+              if dart_reduction == :NONE
+                request['value_type'] = value_type.to_s
+              else
+                request['value_type'] = value_type.to_s + "_#{dart_reduced_type}"
+              end
               request['meta_filters'] = meta_filters if meta_filters.length > 0
               result = server.query(request)
               results[query_string] = result

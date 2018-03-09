@@ -169,10 +169,10 @@ class DartDecomQuery
   # @return [Array<String>] Array of item names
   def item_names(target_name, packet_name, is_tlm = true)
     target = Target.where("name = ?", target_name).first
-    return "Target #{target_name} not found" unless target
+    raise "Target #{target_name} not found" unless target
 
     packet = Packet.where("target_id = ? and name = ? and is_tlm = ?", target.id, packet_name, is_tlm).first
-    return "Packet #{target_name} #{packet_name} not found" unless packet
+    raise "Packet #{target_name} #{packet_name} not found" unless packet
 
     items = Item.where("packet_id = ?", packet.id).select("name")
     item_names = []
