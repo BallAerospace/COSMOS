@@ -11,8 +11,8 @@
     <title xml:lang="en">Ball Aerospace COSMOS News</title>
     <atom:link type="application/atom+xml" href="http://cosmosrb/feed.xml" rel="self"/>
     <link>http://cosmosrb.com/</link>
-    <pubDate>Wed, 14 Feb 2018 08:59:53 -0700</pubDate>
-    <lastBuildDate>Wed, 14 Feb 2018 08:59:53 -0700</lastBuildDate>
+    <pubDate>Wed, 14 Mar 2018 14:21:32 -0600</pubDate>
+    <lastBuildDate>Wed, 14 Mar 2018 14:21:32 -0600</lastBuildDate>
     <language>en-US</language>
     <generator>Jekyll v3.5.2</generator>
     <description>The User Interface for Embedded Systems</description>
@@ -24,6 +24,95 @@
       <width>144</width>
       <height>73</height>
     </image>
+    
+    <item>
+      <title>Derived Items</title>
+      <link>http://cosmosrb.com/news/2018/03/14/derived-items/</link>
+      <pubDate>Wed, 14 Mar 2018 09:00:00 -0600</pubDate>
+      <dc:creator>jmthomas</dc:creator>
+      
+      
+      <category>post</category>
+      
+      <guid isPermaLink="true">http://cosmosrb.com/news/2018/03/14/derived-items/</guid>
+      <description>&lt;h2 id=&quot;cosmos-derived-items&quot;&gt;COSMOS Derived Items&lt;/h2&gt;
+&lt;p&gt;COSMOS has a concept of a derived item which is a telemetry item that doesn’t actually exist in the binary data. Derived items are typically computed based on other telemetry items. COSMOS automatically defines three derived items on every packet: RECEIVED_TIMESECONDS, RECEIVED_TIMEFORMATTED, and RECEIVED_COUNT. The time items are set to the time that the COSMOS Command and Telemetry Server receives the packet. The count is a running count of the number of packets received since the Server started. Note that the count is always a relative count and should only be used accordingly.&lt;/p&gt;
+
+&lt;p&gt;COSMOS derived items are defined very similarly to real items except they use the special DERIVED telemetry type. Here is how the default COSMOS derived items might look in a telemetry definition.&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;ITEM RECEIVED_TIMESECONDS 0 0 DERIVED &quot;COSMOS Received Time (UTC, Floating point, Unix epoch)&quot;
+  READ_CONVERSION received_time_seconds_conversion.rb
+  FORMAT_STRING '%0.6f'
+ITEM RECEIVED_TIMEFORMATTED 0 0 DERIVED &quot;COSMOS Received Time (Local time zone, Formatted string)&quot;
+  READ_CONVERSION received_time_formatted_conversion.rb
+ITEM RECEIVED_COUNT 0 0 DERIVED &quot;COSMOS packet received count&quot;
+  READ_CONVERSION received_count_conversion.rb
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Note the DERIVED type where real items are INT, UINT, FLOAT, STRING or BLOCK. Also note that the bit offset and bit size values are zero. This is due to the fact that these items don’t actually exist in the binary packet but are created on the fly when the packet is processed. This also has implications with playback of the data. Since these items don’t actually exist in the binary file, they are created on the fly even when doing playback through the Replay tool. Thus if your DERIVED item is aggregating multiple values such as a running average, it will take a few samples to generate a good value.&lt;/p&gt;
+
+&lt;h3 id=&quot;creating-a-derived-average&quot;&gt;Creating a Derived Average&lt;/h3&gt;
+&lt;p&gt;A common usecase is to create a derived item which averages other telemetry points. Let’s explore how to do this within the COSMOS Demo. The COSMOS Demo already declares 4 fake temperatures named TEMP1, TEMP2, TEMP3, and TEMP4. Let’s create a new derived item called TEMP_AVERAGE that averages them.&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;ITEM TEMP_AVERAGE 0 0 DERIVED &quot;Average of TEMP1, TEMP2, TEMP3, TEMP4&quot;
+  GENERIC_READ_CONVERSION_START FLOAT 32
+    (packet.read(&quot;TEMP1&quot;) + packet.read(&quot;TEMP2&quot;) + packet.read(&quot;TEMP3&quot;) + packet.read(&quot;TEMP4&quot;)) / 4.0
+  GENERIC_READ_CONVERSION_END
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;The GENERIC_READ_CONVERSION_START keyword also takes two additional argument which describe the output of the conversion. Here we specify FLOAT 32 to indicate the conversion will return a 32 bit floating point value.&lt;/p&gt;
+
+&lt;p&gt;In the code section, note the use of the built in variable called ‘packet’. When you create a generic conversion you always have access to the ‘packet’ variable which references the packet the conversion is declared in. For more information about how to use ‘packet’ please see the &lt;a href=&quot;/docs/packet_class/&quot;&gt;Packet&lt;/a&gt; documentation. You also have access to ‘value’ which is the raw value of the current item. In the case of a DERIVED item the value is nil. You can also access ‘buffer’ which is the raw buffer associated with the packet.&lt;/p&gt;
+
+&lt;h3 id=&quot;using-a-conversion-class&quot;&gt;Using a Conversion Class&lt;/h3&gt;
+&lt;p&gt;While it is easy to create a simple conversion using GENERIC_READ_CONVERSION there are multiple reasons to prefer a Conversion class. Creating a separate conversion class is easier to test, easier to reuse and has better performance. Let’s create a conversion which performs averging and rewrite the previous example. First the telemetry definition will now look like this.&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;ITEM TEMP_AVERAGE 0 0 DERIVED &quot;Average of TEMP1, TEMP2, TEMP3, TEMP4&quot;
+  READ_CONVERSION average_conversion.rb TEMP1 TEMP2 TEMP3 TEMP4
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;We now need to implement average_conversion.rb to take our arguments and generate the average. Put this new file in the target’s lib folder (in the demo this is config/targets/INST/lib).&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-ruby&quot; data-lang=&quot;ruby&quot;&gt;&lt;span class=&quot;nb&quot;&gt;require&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'cosmos/conversions/conversion'&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;module&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;Cosmos&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;AverageConversion&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;Conversion&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;initialize&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;args&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+      &lt;span class=&quot;k&quot;&gt;super&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+      &lt;span class=&quot;vi&quot;&gt;@items&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;args&lt;/span&gt;
+      &lt;span class=&quot;vi&quot;&gt;@converted_type&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;ss&quot;&gt;:FLOAT&lt;/span&gt;
+      &lt;span class=&quot;vi&quot;&gt;@converted_bit_size&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;32&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;call&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;value&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;packet&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;buffer&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+      &lt;span class=&quot;n&quot;&gt;total&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;
+      &lt;span class=&quot;vi&quot;&gt;@items&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;each&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;item&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;total&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;packet&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;read&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;item&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+      &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+      &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;total&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;/&lt;/span&gt; &lt;span class=&quot;vi&quot;&gt;@items&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;length&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Here I’m using the Ruby splat operator to collect all the arguments passed into initialize and assign them to @items. I also explicitly set the @converted_type and @converted_bit_size variables (part of the Conversion base class) to :FLOAT and 32 to indicate our conversion will return a 32 bit floating point number. The call method is what actually performs the conversion. Note how it defines the same three variables I previously talked about: value, packet and buffer. I use the packet argument to read the items passed in and then divide by the total to average them.&lt;/p&gt;
+
+&lt;p&gt;We’re not yet done though as we need to edit the INST/target.txt file to require this new conversion.&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;REQUIRE average_conversion.rb
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Running this in the Demo with Telemetry Grapher shows our new average value pretty clearly.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/2018_03_14_tlm_grapher_derived.png&quot; alt=&quot;Tlm Grapher Derived&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Conversions and DERIVED variables are powerful ways to add additional telemetry points based on existing data in your packet structure. Another way to add insight into your telemetry is to add &lt;a href=&quot;/news/2017/05/08/packet_processors/&quot;&gt;Packet Processors&lt;/a&gt; which I’ve previously blogged about.&lt;/p&gt;
+
+&lt;p&gt;If you have a question which would benefit the community or find a possible bug please use our &lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues&quot;&gt;Github Issues&lt;/a&gt;. If you would like more information about a COSMOS training or support contract please contact us at &lt;a href=&quot;mailto:cosmos@ball.com&quot;&gt;cosmos@ball.com&lt;/a&gt;.&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>Limits</title>
@@ -194,7 +283,7 @@ LIMITS_GROUP INST2_GROUND
 &lt;h2 id=&quot;conclusion&quot;&gt;Conclusion&lt;/h2&gt;
 &lt;p&gt;Limits are a powerful concept in COSMOS. Sets provide for a system wide setting that affects all limits items. Groups allow limits items to be grouped to typically enable and disable them together. APIs allow the user to query and set limits across the system while subscriptions provide notifications for every limits event action.&lt;/p&gt;
 
-&lt;p&gt;Hopefully you have a better understanding of how limits operate in COSMOS. If you have a question which would benefit the community or find a possible bug please use our &lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues&quot;&gt;Github Issues&lt;/a&gt;. If you would like more information about a COSMOS training or support contract please contact us at &lt;a href=&quot;mailto:cosmos@ball.com&quot;&gt;cosmos@ball.com&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;If you have a question which would benefit the community or find a possible bug please use our &lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues&quot;&gt;Github Issues&lt;/a&gt;. If you would like more information about a COSMOS training or support contract please contact us at &lt;a href=&quot;mailto:cosmos@ball.com&quot;&gt;cosmos@ball.com&lt;/a&gt;.&lt;/p&gt;
 </description>
     </item>
     
@@ -284,7 +373,7 @@ COLLECT_METADATA
 
 &lt;p&gt;Metadata is a useful way to add information which can’t be determined by the available hardware targets. The OPERATOR_NAME in the demo is an obvious example. Start using metadata to your advantage to help you distinguish your telemetry.&lt;/p&gt;
 
-&lt;p&gt;If you need additional support please contact us at &lt;a href=&quot;mailto:cosmos@ball.com&quot;&gt;cosmos@ball.com&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;If you have a question which would benefit the community or find a possible bug please use our &lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues&quot;&gt;Github Issues&lt;/a&gt;. If you would like more information about a COSMOS training or support contract please contact us at &lt;a href=&quot;mailto:cosmos@ball.com&quot;&gt;cosmos@ball.com&lt;/a&gt;.&lt;/p&gt;
 </description>
     </item>
     
@@ -691,7 +780,7 @@ C:/git/COSMOS/demo/config/targets/SYSTEM/lib
 
 &lt;p&gt;Just for completeness note that there is also a Ruby keyword called &lt;a href=&quot;https://ruby-doc.org/core-2.4.2/Kernel.html#method-i-require_relative&quot;&gt;require_relative&lt;/a&gt;. This works similar to require but instead of using the LOAD_PATH as described above, it looks relative to the current executing file. This should rarely be needed in COSMOS except perhaps in test files.&lt;/p&gt;
 
-&lt;p&gt;If you need additional support please contact us at &lt;a href=&quot;mailto:cosmos@ball.com&quot;&gt;cosmos@ball.com&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;If you have a question which would benefit the community or find a possible bug please use our &lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues&quot;&gt;Github Issues&lt;/a&gt;. If you would like more information about a COSMOS training or support contract please contact us at &lt;a href=&quot;mailto:cosmos@ball.com&quot;&gt;cosmos@ball.com&lt;/a&gt;.&lt;/p&gt;
 </description>
     </item>
     
@@ -751,7 +840,7 @@ C:/git/COSMOS/demo/config/targets/SYSTEM/lib
 
 &lt;p&gt;Enjoy these new COSMOS 4.0 tools!&lt;/p&gt;
 
-&lt;p&gt;If you need additional support please contact us at &lt;a href=&quot;mailto:cosmos@ball.com&quot;&gt;cosmos@ball.com&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;If you have a question which would benefit the community or find a possible bug please use our &lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues&quot;&gt;Github Issues&lt;/a&gt;. If you would like more information about a COSMOS training or support contract please contact us at &lt;a href=&quot;mailto:cosmos@ball.com&quot;&gt;cosmos@ball.com&lt;/a&gt;.&lt;/p&gt;
 </description>
     </item>
     
@@ -971,7 +1060,7 @@ vncconfig -iconic &amp;amp;
 &lt;p&gt;Chose the sudo option when asked how to install. On your local machine install a VNC viewer such as TightVNC and connect by entering the Public DNS address of your AWS instance in the Remote Host as well as the Port number of 5901. Typically this is added by appending it to the Remote Host address with a colon. Here is a screenshot of it running while I connected via TightVNC:
 &lt;img src=&quot;/img/2017_08_23_aws_ubuntu_vnc.png&quot; alt=&quot;Red Hat X&quot; /&gt;&lt;/p&gt;
 
-&lt;p&gt;If you need additional support please contact us at &lt;a href=&quot;mailto:cosmos@ball.com&quot;&gt;cosmos@ball.com&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;If you have a question which would benefit the community or find a possible bug please use our &lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues&quot;&gt;Github Issues&lt;/a&gt;. If you would like more information about a COSMOS training or support contract please contact us at &lt;a href=&quot;mailto:cosmos@ball.com&quot;&gt;cosmos@ball.com&lt;/a&gt;.&lt;/p&gt;
 </description>
     </item>
     
@@ -1219,7 +1308,9 @@ COMMAND POWER SET_VOLTAGE BIG_ENDIAN &quot;Set voltage&quot;
 
 &lt;p&gt;The RSP_TEMPLATE expects to have three values delimited by the comma character. For this example to be complete you would also need to declare CURRENT and POWER items in the TLM packet.&lt;/p&gt;
 
-&lt;p&gt;Using the TEMPLATE processor can be complex but makes working with with string based command / response protocols like SCPI much easier. If you need additional support please contact us at &lt;a href=&quot;mailto:cosmos@ball.com&quot;&gt;cosmos@ball.com&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Using the TEMPLATE processor can be complex but makes working with with string based command / response protocols like SCPI much easier.&lt;/p&gt;
+
+&lt;p&gt;If you have a question which would benefit the community or find a possible bug please use our &lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues&quot;&gt;Github Issues&lt;/a&gt;. If you would like more information about a COSMOS training or support contract please contact us at &lt;a href=&quot;mailto:cosmos@ball.com&quot;&gt;cosmos@ball.com&lt;/a&gt;.&lt;/p&gt;
 </description>
     </item>
     
@@ -1363,9 +1454,9 @@ Documentation will updated the first week of April.&lt;/p&gt;
 &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
 &lt;p&gt;The initialize method gets passed the parameters from the config file. Thus our config file of:
-&lt;code class=&quot;highlighter-rouge&quot;&gt;PROCESSOR TEMP1WATER watermark_processor.rb TEMP1&lt;/code&gt;&lt;br /&gt;
+&lt;code class=&quot;highlighter-rouge&quot;&gt;PROCESSOR TEMP1WATER watermark_processor.rb TEMP1&lt;/code&gt;
 passes ‘TEMP1’ into ‘item_name’ of the initialize method:
-&lt;code class=&quot;highlighter-rouge&quot;&gt;def initialize(item_name, value_type = :CONVERTED)&lt;/code&gt;&lt;br /&gt;
+&lt;code class=&quot;highlighter-rouge&quot;&gt;def initialize(item_name, value_type = :CONVERTED)&lt;/code&gt;
 Since we only pass one value, we use the default value_type of :CONVERTED.&lt;/p&gt;
 
 &lt;p&gt;We store the item_name into a Ruby instance variable @item_name and call reset() to initialize our @results. But how did we get a @results instance variable? If you look at the class definition we are inheriting from &lt;a href=&quot;https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/processors/processor.rb&quot;&gt;Processor&lt;/a&gt; which is the base class for all COSMOS Processors. It declares a @results instance variable and initializes @results in its initialize method which we call using super(value_type).&lt;/p&gt;
@@ -1408,7 +1499,7 @@ Since we only pass one value, we use the default value_type of :CONVERTED.&lt;/p
 &lt;p&gt;First of all note that ProcessorConversion inherits from the &lt;a href=&quot;https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/conversions/conversion.rb&quot;&gt;Conversion&lt;/a&gt; base class. This is very similar to the WatermarkProcessor inheriting from the Processor base class. Again, there is an initialize method and a call method. The initialize method requires the processor_name and result_name and takes optional parameters that help describe the converted type. Let’s see how these map together in our definition.&lt;/p&gt;
 
 &lt;p&gt;Our config file looked like the following:
-&lt;code class=&quot;highlighter-rouge&quot;&gt;READ_CONVERSION processor_conversion.rb TEMP1WATER HIGH_WATER&lt;/code&gt;&lt;br /&gt;
+&lt;code class=&quot;highlighter-rouge&quot;&gt;READ_CONVERSION processor_conversion.rb TEMP1WATER HIGH_WATER&lt;/code&gt;
 This passes TEMP1WATER and HIGH_WATER as processor_name and result_name into initialize:
 &lt;code class=&quot;highlighter-rouge&quot;&gt;def initialize(processor_name, result_name, converted_type = nil, converted_bit_size = nil)&lt;/code&gt;&lt;/p&gt;
 
@@ -1455,7 +1546,7 @@ This passes TEMP1WATER and HIGH_WATER as processor_name and result_name into ini
 &lt;p&gt;This class introduces some new Ruby syntax. Since we want to accept any number of items to average we have to accept a variable number of arguments in our initialize method. The ruby splat operator (or star operator) does this and places the arguments into a Ruby array. We store these names and then use them in our call method to perform the mean. I’m using a cool feature of Ruby’s Enumerable mixin, which is part of Array, to sum up the values (starting with 0) and then dividing by the number of values we have to get the mean. Note I’m also calling to_f to ensure the numerator is a floating point number so we do floating point math during the division. Integer division would truncate the value to an integer value.&lt;/p&gt;
 
 &lt;p&gt;First to use this new processor you need to require it in your target’s &lt;a href=&quot;/docs/system/#targettxt-keywords&quot;&gt;target.txt&lt;/a&gt; configuration file:
-&lt;code class=&quot;highlighter-rouge&quot;&gt;REQUIRE mean_processor.rb&lt;/code&gt;&lt;br /&gt;
+&lt;code class=&quot;highlighter-rouge&quot;&gt;REQUIRE mean_processor.rb&lt;/code&gt;
 Then delcare the processing in your configuration definition as follows:
 &lt;code class=&quot;highlighter-rouge&quot;&gt;TELEMETRY INST HEALTH_STATUS BIG_ENDIAN &quot;Health and status from the instrument&quot;
   ... # See demo configuration
@@ -1468,7 +1559,9 @@ Then delcare the processing in your configuration definition as follows:
 
 &lt;p&gt;&lt;img src=&quot;/img/2017_05_08_packet_viewer2.png&quot; alt=&quot;Packet Viewer&quot; /&gt;&lt;/p&gt;
 
-&lt;p&gt;Creating a custom processor definitely requires you to dive into the COSMOS API and play with the underlying Ruby code. Hopefully the existing processor code and this blog post helps you to derive whatever telemetry points you need. Happy processing and if you need additional support please contact us at &lt;a href=&quot;mailto:cosmos@ball.com&quot;&gt;cosmos@ball.com&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Creating a custom processor definitely requires you to dive into the COSMOS API and play with the underlying Ruby code. Hopefully the existing processor code and this blog post helps you to derive whatever telemetry points you need.&lt;/p&gt;
+
+&lt;p&gt;If you have a question which would benefit the community or find a possible bug please use our &lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues&quot;&gt;Github Issues&lt;/a&gt;. If you would like more information about a COSMOS training or support contract please contact us at &lt;a href=&quot;mailto:cosmos@ball.com&quot;&gt;cosmos@ball.com&lt;/a&gt;.&lt;/p&gt;
 </description>
     </item>
     
@@ -1617,7 +1710,7 @@ ADCS
 
 &lt;p&gt;This time you should see some LIMITS_CHANGE packet names sprinkled in with the output from before. That’s because we’re accessing the ENTIRE COSMOS telemetry stream and not just the stream from the INST interface. Keep this in mind if you have performance issues when trying to process the entire telemetry stream.&lt;/p&gt;
 
-&lt;p&gt;Happy routing and if you need additional support please contact us at &lt;a href=&quot;mailto:cosmos@ball.com&quot;&gt;cosmos@ball.com&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;If you have a question which would benefit the community or find a possible bug please use our &lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues&quot;&gt;Github Issues&lt;/a&gt;. If you would like more information about a COSMOS training or support contract please contact us at &lt;a href=&quot;mailto:cosmos@ball.com&quot;&gt;cosmos@ball.com&lt;/a&gt;.&lt;/p&gt;
 </description>
     </item>
     
@@ -1696,7 +1789,6 @@ ADCS
 &lt;em&gt;Screenshot showing COSMOS in action&lt;/em&gt;&lt;/p&gt;
 
 &lt;p&gt;Since COSMOS is open source, we don’t always hear about what people are doing with it. If you have a COSMOS success story you’d like to share with us please contact us at &lt;a href=&quot;mailto:cosmos@ball.com&quot;&gt;cosmos@ball.com&lt;/a&gt;.&lt;/p&gt;
-
 </description>
     </item>
     
@@ -1777,7 +1869,9 @@ COMMAND INST ABORT BIG_ENDIAN &quot;Aborts a collect on the instrument&quot;
 
 &lt;p&gt;The call to render replaces everything in the named template with the render call. We follow the Ruby on Rails convention of naming these templates (Rails calls them ‘partials’) with a leading underscore to differentiate them from full command and telemetry definitions. Notice too that we are passing local variables to the template. The ‘id: 1’ syntax is basically setting the ‘id’ variable in the template to 1. This allows us to send a different PKTID to each command.&lt;/p&gt;
 
-&lt;p&gt;ERB is incredibly powerful and a great way to avoid WET (Write Each Time) command and telemetry definitions. Now go DRY (Don’t Repeat Yourself) up your COSMOS configuration and as always if you need additional support please contact us at &lt;a href=&quot;mailto:cosmos@ball.com&quot;&gt;cosmos@ball.com&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;ERB is incredibly powerful and a great way to avoid WET (Write Each Time) command and telemetry definitions. Now go DRY (Don’t Repeat Yourself) up your COSMOS configuration!&lt;/p&gt;
+
+&lt;p&gt;If you have a question which would benefit the community or find a possible bug please use our &lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues&quot;&gt;Github Issues&lt;/a&gt;. If you would like more information about a COSMOS training or support contract please contact us at &lt;a href=&quot;mailto:cosmos@ball.com&quot;&gt;cosmos@ball.com&lt;/a&gt;.&lt;/p&gt;
 </description>
     </item>
     
@@ -1910,7 +2004,7 @@ ARRAY INST HEALTH_STATUS ARY 300 50 nil 8 FORMATTED
 
 &lt;p&gt;Note that if you have a widget that implements aging and limits you’ll want to keep the value returned by super and use it in your widget. If you don’t want the aging routine to directly use your data value you can pass a string as the second parameter, e.g. super(data, text). This text string will be modified with the color blind settings. Basically that means that whatever the calculated &lt;code class=&quot;highlighter-rouge&quot;&gt;@foreground&lt;/code&gt; color string is, a corresponding text character is added (R=Red, G=Green, etc) to aid people who can’t distinguish colors. See &lt;a href=&quot;https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/tools/tlm_viewer/widgets/aging_widget.rb&quot;&gt;aging_widget.rb&lt;/a&gt; for more details.&lt;/p&gt;
 
-&lt;p&gt;Good luck creating your own widgets and if you need additional support please contact us at &lt;a href=&quot;mailto:cosmos@ball.com&quot;&gt;cosmos@ball.com&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;If you have a question which would benefit the community or find a possible bug please use our &lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues&quot;&gt;Github Issues&lt;/a&gt;. If you would like more information about a COSMOS training or support contract please contact us at &lt;a href=&quot;mailto:cosmos@ball.com&quot;&gt;cosmos@ball.com&lt;/a&gt;.&lt;/p&gt;
 </description>
     </item>
     
@@ -1970,6 +2064,8 @@ INTERFACE UART_INTERFACE  checksum_serial_interface.rb COM1  COM1 115200 NONE   
 &lt;p&gt;I added a comment line above the definition which describes the settings. For more information see the &lt;a href=&quot;http://cosmosrb.com/docs/interfaces/#serial-interface&quot;&gt;Serial Interface&lt;/a&gt; documentation.&lt;/p&gt;
 
 &lt;p&gt;This same technique can obviously be used to extend the the other TCPIP interfaces and can be used with all the various &lt;a href=&quot;http://cosmosrb.com/docs/interfaces/#streams-and-stream-protocols&quot;&gt;Stream Protocol&lt;/a&gt; classes COSMOS defines.&lt;/p&gt;
+
+&lt;p&gt;If you have a question which would benefit the community or find a possible bug please use our &lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues&quot;&gt;Github Issues&lt;/a&gt;. If you would like more information about a COSMOS training or support contract please contact us at &lt;a href=&quot;mailto:cosmos@ball.com&quot;&gt;cosmos@ball.com&lt;/a&gt;.&lt;/p&gt;
 </description>
     </item>
     
@@ -2349,6 +2445,7 @@ TELEMETRY INST DATA BIG_ENDIAN &quot;Data from the instrument&quot;
 
 &lt;p&gt;Happy simulated target programming!&lt;/p&gt;
 
+&lt;p&gt;If you have a question which would benefit the community or find a possible bug please use our &lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues&quot;&gt;Github Issues&lt;/a&gt;. If you would like more information about a COSMOS training or support contract please contact us at &lt;a href=&quot;mailto:cosmos@ball.com&quot;&gt;cosmos@ball.com&lt;/a&gt;.&lt;/p&gt;
 </description>
     </item>
     

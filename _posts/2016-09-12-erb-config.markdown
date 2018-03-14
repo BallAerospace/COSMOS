@@ -75,4 +75,6 @@ Notice the call to ```<%= render "_ccsds_cmd.txt", locals: {id: 1} %>```. Openin
 
 The call to render replaces everything in the named template with the render call. We follow the Ruby on Rails convention of naming these templates (Rails calls them 'partials') with a leading underscore to differentiate them from full command and telemetry definitions. Notice too that we are passing local variables to the template. The 'id: 1' syntax is basically setting the 'id' variable in the template to 1. This allows us to send a different PKTID to each command.
 
-ERB is incredibly powerful and a great way to avoid WET (Write Each Time) command and telemetry definitions. Now go DRY (Don't Repeat Yourself) up your COSMOS configuration and as always if you need additional support please contact us at <cosmos@ball.com>.
+ERB is incredibly powerful and a great way to avoid WET (Write Each Time) command and telemetry definitions. Now go DRY (Don't Repeat Yourself) up your COSMOS configuration!
+
+If you have a question which would benefit the community or find a possible bug please use our [Github Issues](https://github.com/BallAerospace/COSMOS/issues). If you would like more information about a COSMOS training or support contract please contact us at <cosmos@ball.com>.

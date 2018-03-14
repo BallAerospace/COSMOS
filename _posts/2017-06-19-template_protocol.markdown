@@ -65,4 +65,6 @@ COMMAND POWER GET_STATUS BIG_ENDIAN "Get status"
 
 The RSP_TEMPLATE expects to have three values delimited by the comma character. For this example to be complete you would also need to declare CURRENT and POWER items in the TLM packet.
 
-Using the TEMPLATE processor can be complex but makes working with with string based command / response protocols like SCPI much easier. If you need additional support please contact us at <cosmos@ball.com>.
+Using the TEMPLATE processor can be complex but makes working with with string based command / response protocols like SCPI much easier.
+
+If you have a question which would benefit the community or find a possible bug please use our [Github Issues](https://github.com/BallAerospace/COSMOS/issues). If you would like more information about a COSMOS training or support contract please contact us at <cosmos@ball.com>.

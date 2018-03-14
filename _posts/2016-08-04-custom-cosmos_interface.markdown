@@ -2,7 +2,7 @@
 layout: news_item
 title: 'Custom COSMOS Interface'
 date: 2016-08-04 00:00:00 -0700
-author: jmthomas 
+author: jmthomas
 categories: [post]
 ---
 
@@ -54,3 +54,5 @@ INTERFACE UART_INTERFACE  checksum_serial_interface.rb COM1  COM1 115200 NONE   
 I added a comment line above the definition which describes the settings. For more information see the [Serial Interface](http://cosmosrb.com/docs/interfaces/#serial-interface) documentation.
 
 This same technique can obviously be used to extend the the other TCPIP interfaces and can be used with all the various [Stream Protocol](http://cosmosrb.com/docs/interfaces/#streams-and-stream-protocols) classes COSMOS defines.
+
+If you have a question which would benefit the community or find a possible bug please use our [Github Issues](https://github.com/BallAerospace/COSMOS/issues). If you would like more information about a COSMOS training or support contract please contact us at <cosmos@ball.com>.

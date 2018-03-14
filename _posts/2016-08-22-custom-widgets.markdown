@@ -2,7 +2,7 @@
 layout: news_item
 title: 'Custom Widgets'
 date: 2016-08-22 00:00:00 -0700
-author: jmthomas 
+author: jmthomas
 categories: [post]
 ---
 
@@ -44,7 +44,7 @@ end
 
 We're extending the closest widget that Qt offers to what we're trying to achieve. In this case it's pretty obvious but you can get documentation on [all the Qt classes](http://doc.qt.io/qt-4.8/classes.html). In many cases it might be easier to extend an existing [COSMOS widget](https://github.com/BallAerospace/COSMOS/tree/master/lib/cosmos/tools/tlm_viewer/widgets).
 
-Note that our initialize method takes the parent_layout as the first value. All COSMOS widgets make the first parameter the parent_layout so they can be added. The next four paramaters are typically the target_name, packet_name, item_name and value_type. Additional parameters can follow the value_type parameter. The first thing we do in the initialize method is call super which calls the Widget initialize method. If you run this code you should see that the screen displays but doesn't look any different. That's because we haven't actually added our new widget to the parent_layout. Before adding widgets to the layout you typically want to configure them. For our table, we need to set the number of rows and columns. First I grab the telemetry value from the server using the ```System.telemetry.value``` method defined in [telemetry.rb](https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/packets/telemetry.rb). Since this is an array value I call ```length``` to determine how many rows to display in the table. I then use the Qt methods ```setRowCount``` and ```setColumnCount``` to initialize the table. You can find these methods in the [Qt::TableWidget](http://doc.qt.io/qt-4.8/qtablewidget.html) documentation. Finally I call the addWidget method which is a part of all the [Qt::Layout](http://doc.qt.io/qt-4.8/qlayout.html) classes. 
+Note that our initialize method takes the parent_layout as the first value. All COSMOS widgets make the first parameter the parent_layout so they can be added. The next four paramaters are typically the target_name, packet_name, item_name and value_type. Additional parameters can follow the value_type parameter. The first thing we do in the initialize method is call super which calls the Widget initialize method. If you run this code you should see that the screen displays but doesn't look any different. That's because we haven't actually added our new widget to the parent_layout. Before adding widgets to the layout you typically want to configure them. For our table, we need to set the number of rows and columns. First I grab the telemetry value from the server using the ```System.telemetry.value``` method defined in [telemetry.rb](https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/packets/telemetry.rb). Since this is an array value I call ```length``` to determine how many rows to display in the table. I then use the Qt methods ```setRowCount``` and ```setColumnCount``` to initialize the table. You can find these methods in the [Qt::TableWidget](http://doc.qt.io/qt-4.8/qtablewidget.html) documentation. Finally I call the addWidget method which is a part of all the [Qt::Layout](http://doc.qt.io/qt-4.8/qlayout.html) classes.
 
 {% highlight ruby %}
     def initialize(parent_layout, target_name, packet_name, item_name, value_type = :WITH_UNITS)
@@ -56,7 +56,7 @@ Note that our initialize method takes the parent_layout as the first value. All 
       parent_layout.addWidget(self) if parent_layout
     end
 {% endhighlight %}
- 
+
 Now if you stop and restart the Telemetry Viewer (so it can re-require the new widget code) it should display an empty table:
 
 ![COSMOS Inst Array](/img/2016_08_22_inst_array2.png)
@@ -137,4 +137,4 @@ The end result is aging:
 
 Note that if you have a widget that implements aging and limits you'll want to keep the value returned by super and use it in your widget. If you don't want the aging routine to directly use your data value you can pass a string as the second parameter, e.g. super(data, text). This text string will be modified with the color blind settings. Basically that means that whatever the calculated ```@foreground``` color string is, a corresponding text character is added (R=Red, G=Green, etc) to aid people who can't distinguish colors. See [aging_widget.rb](https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/tools/tlm_viewer/widgets/aging_widget.rb) for more details.
 
-Good luck creating your own widgets and if you need additional support please contact us at <cosmos@ball.com>.
+If you have a question which would benefit the community or find a possible bug please use our [Github Issues](https://github.com/BallAerospace/COSMOS/issues). If you would like more information about a COSMOS training or support contract please contact us at <cosmos@ball.com>.

@@ -227,4 +227,4 @@ These are added because COSMOS automatically adds the lib and procedures directo
 
 Just for completeness note that there is also a Ruby keyword called [require_relative](https://ruby-doc.org/core-2.4.2/Kernel.html#method-i-require_relative). This works similar to require but instead of using the LOAD_PATH as described above, it looks relative to the current executing file. This should rarely be needed in COSMOS except perhaps in test files.
 
-If you need additional support please contact us at <cosmos@ball.com>.
+If you have a question which would benefit the community or find a possible bug please use our [Github Issues](https://github.com/BallAerospace/COSMOS/issues). If you would like more information about a COSMOS training or support contract please contact us at <cosmos@ball.com>.

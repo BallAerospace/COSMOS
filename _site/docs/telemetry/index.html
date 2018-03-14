@@ -3674,9 +3674,9 @@ SEG_POLY_READ_CONVERSION 100 12 0.5 0.3 # Apply the conversion to all values &gt
 
 <h4 id="generic_read_conversion_start">
 <a id="generic_read_conversion_start" class="anchor" href="#generic_read_conversion_start" aria-hidden="true"><span class="octicon octicon-link"></span></a>GENERIC_READ_CONVERSION_START</h4>
-<p><strong>Start a generic write conversion</strong></p>
+<p><strong>Start a generic read conversion</strong></p>
 
-<p>Adds a generic conversion function to the current telemetry item. This conversion factor is applied to the raw value in the telemetry packet before it is displayed to the user. The user still has the ability to see the raw unconverted value in a details dialog. The conversion is specified as ruby code that receives two implied parameters. ‘value’ which is the raw value being written and ‘packet’ which is a reference to the telemetry packet class (Note, referencing the packet as ‘myself’ is still supported for backwards compatibility). The last line of ruby code given should return the converted value. The GENERIC_READ_CONVERSION_END keyword specifies that all lines of ruby code for the conversion have been given.</p>
+<p>Adds a generic conversion function to the current telemetry item. This conversion factor is applied to the raw value in the telemetry packet before it is displayed to the user. The user still has the ability to see the raw unconverted value in a details dialog. The conversion is specified as ruby code that receives two implied parameters. ‘value’ which is the raw value being read and ‘packet’ which is a reference to the telemetry packet class (Note, referencing the packet as ‘myself’ is still supported for backwards compatibility). The last line of ruby code given should return the converted value. The GENERIC_READ_CONVERSION_END keyword specifies that all lines of ruby code for the conversion have been given.</p>
 
 <div class="note warning"><p>Generic conversions are not a good long term solution. Consider creating a conversion class and using READ_CONVERSION instead. READ_CONVERSION is easier to debug and higher performance.</p></div>
 
@@ -3689,7 +3689,7 @@ SEG_POLY_READ_CONVERSION 100 12 0.5 0.3 # Apply the conversion to all values &gt
 
 <h4 id="generic_read_conversion_end">
 <a id="generic_read_conversion_end" class="anchor" href="#generic_read_conversion_end" aria-hidden="true"><span class="octicon octicon-link"></span></a>GENERIC_READ_CONVERSION_END</h4>
-<p><strong>Complete a generic write conversion</strong></p>
+<p><strong>Complete a generic read conversion</strong></p>
 
 <h4 id="limits">
 <a id="limits" class="anchor" href="#limits" aria-hidden="true"><span class="octicon octicon-link"></span></a>LIMITS</h4>

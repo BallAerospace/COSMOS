@@ -119,4 +119,4 @@ bash <(\curl -sSL https://raw.githubusercontent.com/BallAerospace/COSMOS/master/
 Chose the sudo option when asked how to install. On your local machine install a VNC viewer such as TightVNC and connect by entering the Public DNS address of your AWS instance in the Remote Host as well as the Port number of 5901. Typically this is added by appending it to the Remote Host address with a colon. Here is a screenshot of it running while I connected via TightVNC:
 ![Red Hat X](/img/2017_08_23_aws_ubuntu_vnc.png)
 
-If you need additional support please contact us at <cosmos@ball.com>.
+If you have a question which would benefit the community or find a possible bug please use our [Github Issues](https://github.com/BallAerospace/COSMOS/issues). If you would like more information about a COSMOS training or support contract please contact us at <cosmos@ball.com>.

@@ -82,9 +82,9 @@ end
 {% endhighlight %}
 
 The initialize method gets passed the parameters from the config file. Thus our config file of:
-```PROCESSOR TEMP1WATER watermark_processor.rb TEMP1```  
-passes 'TEMP1' into 'item_name' of the initialize method:  
-```def initialize(item_name, value_type = :CONVERTED)```  
+```PROCESSOR TEMP1WATER watermark_processor.rb TEMP1```
+passes 'TEMP1' into 'item_name' of the initialize method:
+```def initialize(item_name, value_type = :CONVERTED)```
 Since we only pass one value, we use the default value_type of :CONVERTED.
 
 We store the item_name into a Ruby instance variable @item_name and call reset() to initialize our @results. But how did we get a @results instance variable? If you look at the class definition we are inheriting from [Processor](https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/processors/processor.rb) which is the base class for all COSMOS Processors. It declares a @results instance variable and initializes @results in its initialize method which we call using super(value_type).
@@ -128,9 +128,9 @@ end
 
 First of all note that ProcessorConversion inherits from the [Conversion](https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/conversions/conversion.rb) base class. This is very similar to the WatermarkProcessor inheriting from the Processor base class. Again, there is an initialize method and a call method. The initialize method requires the processor_name and result_name and takes optional parameters that help describe the converted type. Let's see how these map together in our definition.
 
-Our config file looked like the following:  
-```READ_CONVERSION processor_conversion.rb TEMP1WATER HIGH_WATER```  
-This passes TEMP1WATER and HIGH_WATER as processor_name and result_name into initialize:  
+Our config file looked like the following:
+```READ_CONVERSION processor_conversion.rb TEMP1WATER HIGH_WATER```
+This passes TEMP1WATER and HIGH_WATER as processor_name and result_name into initialize:
 ```def initialize(processor_name, result_name, converted_type = nil, converted_bit_size = nil)```
 
 We store the processor name and result name into Ruby instance variables (first turning them into upper case strings). We additionally turn the result name into a Ruby symbol by calling intern on it. This allows us to match the symbol names we used in the WatermarkProcessor code.
@@ -177,8 +177,8 @@ end
 
 This class introduces some new Ruby syntax. Since we want to accept any number of items to average we have to accept a variable number of arguments in our initialize method. The ruby splat operator (or star operator) does this and places the arguments into a Ruby array. We store these names and then use them in our call method to perform the mean. I'm using a cool feature of Ruby's Enumerable mixin, which is part of Array, to sum up the values (starting with 0) and then dividing by the number of values we have to get the mean. Note I'm also calling to_f to ensure the numerator is a floating point number so we do floating point math during the division. Integer division would truncate the value to an integer value.
 
-First to use this new processor you need to require it in your target's [target.txt](/docs/system/#targettxt-keywords) configuration file:  
-```REQUIRE mean_processor.rb```  
+First to use this new processor you need to require it in your target's [target.txt](/docs/system/#targettxt-keywords) configuration file:
+```REQUIRE mean_processor.rb```
 Then delcare the processing in your configuration definition as follows:
 ```TELEMETRY INST HEALTH_STATUS BIG_ENDIAN "Health and status from the instrument"
   ... # See demo configuration
@@ -191,4 +191,6 @@ We define the processor on the INST HEALTH_STATUS packet and pass in 4 items to 
 
 ![Packet Viewer](/img/2017_05_08_packet_viewer2.png)
 
-Creating a custom processor definitely requires you to dive into the COSMOS API and play with the underlying Ruby code. Hopefully the existing processor code and this blog post helps you to derive whatever telemetry points you need. Happy processing and if you need additional support please contact us at <cosmos@ball.com>.
+Creating a custom processor definitely requires you to dive into the COSMOS API and play with the underlying Ruby code. Hopefully the existing processor code and this blog post helps you to derive whatever telemetry points you need.
+
+If you have a question which would benefit the community or find a possible bug please use our [Github Issues](https://github.com/BallAerospace/COSMOS/issues). If you would like more information about a COSMOS training or support contract please contact us at <cosmos@ball.com>.

@@ -178,4 +178,4 @@ unsubscribe_limits_events(id)
 ## Conclusion
 Limits are a powerful concept in COSMOS. Sets provide for a system wide setting that affects all limits items. Groups allow limits items to be grouped to typically enable and disable them together. APIs allow the user to query and set limits across the system while subscriptions provide notifications for every limits event action.
 
-Hopefully you have a better understanding of how limits operate in COSMOS. If you have a question which would benefit the community or find a possible bug please use our [Github Issues](https://github.com/BallAerospace/COSMOS/issues). If you would like more information about a COSMOS training or support contract please contact us at <cosmos@ball.com>.
+If you have a question which would benefit the community or find a possible bug please use our [Github Issues](https://github.com/BallAerospace/COSMOS/issues). If you would like more information about a COSMOS training or support contract please contact us at <cosmos@ball.com>.

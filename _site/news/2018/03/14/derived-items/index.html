@@ -2,7 +2,7 @@
 <html lang="en-US">
 <head>
   <meta charset="UTF-8">
-  <title>Ball Aerospace COSMOS 3.5.3 Released</title>
+  <title>Derived Items</title>
   <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="generator" content="Jekyll v3.5.2">
@@ -204,47 +204,100 @@
       <div class="unit four-fifths">
         <article>
   <h2>
-    Ball Aerospace COSMOS 3.5.3 Released
-    <a href="/news/2015/07/14/cosmos-3-5-3-released/" class="permalink" title="Permalink">∞</a>
+    Derived Items
+    <a href="/news/2018/03/14/derived-items/" class="permalink" title="Permalink">∞</a>
   </h2>
   <span class="post-category">
     <span class="label">
-      release
+      post
     </span>
   </span>
   <div class="post-meta">
     <span class="post-date">
-      14 Jul 2015
+      14 Mar 2018
     </span>
-    <a href="https://github.com/ryanmelt" class="post-author">
-      <img src="https://github.com/ryanmelt.png" class="avatar" alt="ryanmelt avatar" width="24" height="24">
-      ryanmelt
+    <a href="https://github.com/jmthomas" class="post-author">
+      <img src="https://github.com/jmthomas.png" class="avatar" alt="jmthomas avatar" width="24" height="24">
+      jmthomas
     </a>
   </div>
   <div class="post-content">
-    <h3 id="bug-fixes">Bug Fixes:</h3>
+    <h2 id="cosmos-derived-items">COSMOS Derived Items</h2>
+<p>COSMOS has a concept of a derived item which is a telemetry item that doesn’t actually exist in the binary data. Derived items are typically computed based on other telemetry items. COSMOS automatically defines three derived items on every packet: RECEIVED_TIMESECONDS, RECEIVED_TIMEFORMATTED, and RECEIVED_COUNT. The time items are set to the time that the COSMOS Command and Telemetry Server receives the packet. The count is a running count of the number of packets received since the Server started. Note that the count is always a relative count and should only be used accordingly.</p>
 
-<ul>
-  <li><a href="https://github.com/BallAerospace/COSMOS/issues/169">#169</a> Make windows bat files support running outside of the current directory</li>
-</ul>
+<p>COSMOS derived items are defined very similarly to real items except they use the special DERIVED telemetry type. Here is how the default COSMOS derived items might look in a telemetry definition.</p>
 
-<h3 id="new-features">New Features:</h3>
+<div class="highlighter-rouge"><pre class="highlight"><code>ITEM RECEIVED_TIMESECONDS 0 0 DERIVED "COSMOS Received Time (UTC, Floating point, Unix epoch)"
+  READ_CONVERSION received_time_seconds_conversion.rb
+  FORMAT_STRING '%0.6f'
+ITEM RECEIVED_TIMEFORMATTED 0 0 DERIVED "COSMOS Received Time (Local time zone, Formatted string)"
+  READ_CONVERSION received_time_formatted_conversion.rb
+ITEM RECEIVED_COUNT 0 0 DERIVED "COSMOS packet received count"
+  READ_CONVERSION received_count_conversion.rb
+</code></pre>
+</div>
 
-<ul>
-  <li>N/A</li>
-</ul>
+<p>Note the DERIVED type where real items are INT, UINT, FLOAT, STRING or BLOCK. Also note that the bit offset and bit size values are zero. This is due to the fact that these items don’t actually exist in the binary packet but are created on the fly when the packet is processed. This also has implications with playback of the data. Since these items don’t actually exist in the binary file, they are created on the fly even when doing playback through the Replay tool. Thus if your DERIVED item is aggregating multiple values such as a running average, it will take a few samples to generate a good value.</p>
 
-<h3 id="maintenance">Maintenance:</h3>
+<h3 id="creating-a-derived-average">Creating a Derived Average</h3>
+<p>A common usecase is to create a derived item which averages other telemetry points. Let’s explore how to do this within the COSMOS Demo. The COSMOS Demo already declares 4 fake temperatures named TEMP1, TEMP2, TEMP3, and TEMP4. Let’s create a new derived item called TEMP_AVERAGE that averages them.</p>
 
-<ul>
-  <li>N/A</li>
-</ul>
+<div class="highlighter-rouge"><pre class="highlight"><code>ITEM TEMP_AVERAGE 0 0 DERIVED "Average of TEMP1, TEMP2, TEMP3, TEMP4"
+  GENERIC_READ_CONVERSION_START FLOAT 32
+    (packet.read("TEMP1") + packet.read("TEMP2") + packet.read("TEMP3") + packet.read("TEMP4")) / 4.0
+  GENERIC_READ_CONVERSION_END
+</code></pre>
+</div>
 
-<h3 id="migration-notes-from-cosmos-342">Migration Notes from COSMOS 3.4.2:</h3>
+<p>The GENERIC_READ_CONVERSION_START keyword also takes two additional argument which describe the output of the conversion. Here we specify FLOAT 32 to indicate the conversion will return a 32 bit floating point value.</p>
 
-<p>The launcher scripts and .bat files that live in the COSMOS project tools folder have been updated to be easier to maintain and to ensure that the user always sees some sort of error message if a problem occurs starting a tool. All users should copy the new files from the tools folder in the COSMOS demo folder into their projects as part of the upgrade to COSMOS 3.5.1</p>
+<p>In the code section, note the use of the built in variable called ‘packet’. When you create a generic conversion you always have access to the ‘packet’ variable which references the packet the conversion is declared in. For more information about how to use ‘packet’ please see the <a href="/docs/packet_class/">Packet</a> documentation. You also have access to ‘value’ which is the raw value of the current item. In the case of a DERIVED item the value is nil. You can also access ‘buffer’ which is the raw buffer associated with the packet.</p>
 
-<p>COSMOS now disables reverse DNS lookups by default because they can take a long time in some environments. If you still want to see hostnames when someone connects to a TCP/IP server interface/router then you will need to add ENABLE_DNS to your system.txt file.</p>
+<h3 id="using-a-conversion-class">Using a Conversion Class</h3>
+<p>While it is easy to create a simple conversion using GENERIC_READ_CONVERSION there are multiple reasons to prefer a Conversion class. Creating a separate conversion class is easier to test, easier to reuse and has better performance. Let’s create a conversion which performs averging and rewrite the previous example. First the telemetry definition will now look like this.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>ITEM TEMP_AVERAGE 0 0 DERIVED "Average of TEMP1, TEMP2, TEMP3, TEMP4"
+  READ_CONVERSION average_conversion.rb TEMP1 TEMP2 TEMP3 TEMP4
+</code></pre>
+</div>
+
+<p>We now need to implement average_conversion.rb to take our arguments and generate the average. Put this new file in the target’s lib folder (in the demo this is config/targets/INST/lib).</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="nb">require</span> <span class="s1">'cosmos/conversions/conversion'</span>
+<span class="k">module</span> <span class="nn">Cosmos</span>
+  <span class="k">class</span> <span class="nc">AverageConversion</span> <span class="o">&lt;</span> <span class="no">Conversion</span>
+    <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
+      <span class="k">super</span><span class="p">()</span>
+      <span class="vi">@items</span> <span class="o">=</span> <span class="n">args</span>
+      <span class="vi">@converted_type</span> <span class="o">=</span> <span class="ss">:FLOAT</span>
+      <span class="vi">@converted_bit_size</span> <span class="o">=</span> <span class="mi">32</span>
+    <span class="k">end</span>
+
+    <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">packet</span><span class="p">,</span> <span class="n">buffer</span><span class="p">)</span>
+      <span class="n">total</span> <span class="o">=</span> <span class="mi">0</span>
+      <span class="vi">@items</span><span class="p">.</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">item</span><span class="o">|</span>
+        <span class="n">total</span> <span class="o">+=</span> <span class="n">packet</span><span class="p">.</span><span class="nf">read</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+      <span class="k">end</span>
+      <span class="k">return</span> <span class="n">total</span> <span class="o">/</span> <span class="vi">@items</span><span class="p">.</span><span class="nf">length</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+<span class="k">end</span></code></pre></figure>
+
+<p>Here I’m using the Ruby splat operator to collect all the arguments passed into initialize and assign them to @items. I also explicitly set the @converted_type and @converted_bit_size variables (part of the Conversion base class) to :FLOAT and 32 to indicate our conversion will return a 32 bit floating point number. The call method is what actually performs the conversion. Note how it defines the same three variables I previously talked about: value, packet and buffer. I use the packet argument to read the items passed in and then divide by the total to average them.</p>
+
+<p>We’re not yet done though as we need to edit the INST/target.txt file to require this new conversion.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>REQUIRE average_conversion.rb
+</code></pre>
+</div>
+
+<p>Running this in the Demo with Telemetry Grapher shows our new average value pretty clearly.</p>
+
+<p><img src="/img/2018_03_14_tlm_grapher_derived.png" alt="Tlm Grapher Derived" /></p>
+
+<p>Conversions and DERIVED variables are powerful ways to add additional telemetry points based on existing data in your packet structure. Another way to add insight into your telemetry is to add <a href="/news/2017/05/08/packet_processors/">Packet Processors</a> which I’ve previously blogged about.</p>
+
+<p>If you have a question which would benefit the community or find a possible bug please use our <a href="https://github.com/BallAerospace/COSMOS/issues">Github Issues</a>. If you would like more information about a COSMOS training or support contract please contact us at <a href="mailto:cosmos@ball.com">cosmos@ball.com</a>.</p>
 
   </div>
 </article>
@@ -292,7 +345,7 @@
     <ul>
         
         
-        <li class="">
+        <li class="current">
           <a href="/news/2018/03/14/derived-items/">Derived Items</a>
         </li>
         

@@ -48,4 +48,4 @@ TOOL "Command Sequence" "LAUNCH CmdSequence" "cmd_sequence.png"
 
 Enjoy these new COSMOS 4.0 tools!
 
-If you need additional support please contact us at <cosmos@ball.com>.
+If you have a question which would benefit the community or find a possible bug please use our [Github Issues](https://github.com/BallAerospace/COSMOS/issues). If you would like more information about a COSMOS training or support contract please contact us at <cosmos@ball.com>.

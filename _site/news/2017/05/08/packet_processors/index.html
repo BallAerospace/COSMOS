@@ -84,6 +84,8 @@
     <option value="/news/">Home</option>
     <optgroup label="v1.x">
       
+      <option value="/news/2018/03/14/derived-items/">Derived Items</option>
+      
       <option value="/news/2018/02/12/limits/">Limits</option>
       
       <option value="/news/2018/01/18/metadata/">Metadata</option>
@@ -297,9 +299,9 @@
 <span class="k">end</span></code></pre></figure>
 
 <p>The initialize method gets passed the parameters from the config file. Thus our config file of:
-<code class="highlighter-rouge">PROCESSOR TEMP1WATER watermark_processor.rb TEMP1</code><br />
+<code class="highlighter-rouge">PROCESSOR TEMP1WATER watermark_processor.rb TEMP1</code>
 passes ‘TEMP1’ into ‘item_name’ of the initialize method:
-<code class="highlighter-rouge">def initialize(item_name, value_type = :CONVERTED)</code><br />
+<code class="highlighter-rouge">def initialize(item_name, value_type = :CONVERTED)</code>
 Since we only pass one value, we use the default value_type of :CONVERTED.</p>
 
 <p>We store the item_name into a Ruby instance variable @item_name and call reset() to initialize our @results. But how did we get a @results instance variable? If you look at the class definition we are inheriting from <a href="https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/processors/processor.rb">Processor</a> which is the base class for all COSMOS Processors. It declares a @results instance variable and initializes @results in its initialize method which we call using super(value_type).</p>
@@ -342,7 +344,7 @@ Since we only pass one value, we use the default value_type of :CONVERTED.</p>
 <p>First of all note that ProcessorConversion inherits from the <a href="https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/conversions/conversion.rb">Conversion</a> base class. This is very similar to the WatermarkProcessor inheriting from the Processor base class. Again, there is an initialize method and a call method. The initialize method requires the processor_name and result_name and takes optional parameters that help describe the converted type. Let’s see how these map together in our definition.</p>
 
 <p>Our config file looked like the following:
-<code class="highlighter-rouge">READ_CONVERSION processor_conversion.rb TEMP1WATER HIGH_WATER</code><br />
+<code class="highlighter-rouge">READ_CONVERSION processor_conversion.rb TEMP1WATER HIGH_WATER</code>
 This passes TEMP1WATER and HIGH_WATER as processor_name and result_name into initialize:
 <code class="highlighter-rouge">def initialize(processor_name, result_name, converted_type = nil, converted_bit_size = nil)</code></p>
 
@@ -389,7 +391,7 @@ This passes TEMP1WATER and HIGH_WATER as processor_name and result_name into ini
 <p>This class introduces some new Ruby syntax. Since we want to accept any number of items to average we have to accept a variable number of arguments in our initialize method. The ruby splat operator (or star operator) does this and places the arguments into a Ruby array. We store these names and then use them in our call method to perform the mean. I’m using a cool feature of Ruby’s Enumerable mixin, which is part of Array, to sum up the values (starting with 0) and then dividing by the number of values we have to get the mean. Note I’m also calling to_f to ensure the numerator is a floating point number so we do floating point math during the division. Integer division would truncate the value to an integer value.</p>
 
 <p>First to use this new processor you need to require it in your target’s <a href="/docs/system/#targettxt-keywords">target.txt</a> configuration file:
-<code class="highlighter-rouge">REQUIRE mean_processor.rb</code><br />
+<code class="highlighter-rouge">REQUIRE mean_processor.rb</code>
 Then delcare the processing in your configuration definition as follows:
 <code class="highlighter-rouge">TELEMETRY INST HEALTH_STATUS BIG_ENDIAN "Health and status from the instrument"
   ... # See demo configuration
@@ -402,7 +404,9 @@ Then delcare the processing in your configuration definition as follows:
 
 <p><img src="/img/2017_05_08_packet_viewer2.png" alt="Packet Viewer" /></p>
 
-<p>Creating a custom processor definitely requires you to dive into the COSMOS API and play with the underlying Ruby code. Hopefully the existing processor code and this blog post helps you to derive whatever telemetry points you need. Happy processing and if you need additional support please contact us at <a href="mailto:cosmos@ball.com">cosmos@ball.com</a>.</p>
+<p>Creating a custom processor definitely requires you to dive into the COSMOS API and play with the underlying Ruby code. Hopefully the existing processor code and this blog post helps you to derive whatever telemetry points you need.</p>
+
+<p>If you have a question which would benefit the community or find a possible bug please use our <a href="https://github.com/BallAerospace/COSMOS/issues">Github Issues</a>. If you would like more information about a COSMOS training or support contract please contact us at <a href="mailto:cosmos@ball.com">cosmos@ball.com</a>.</p>
 
   </div>
 </article>
@@ -448,6 +452,12 @@ Then delcare the processing in your configuration definition as follows:
     </ul>
     <h4>Other News</h4>
     <ul>
+        
+        
+        <li class="">
+          <a href="/news/2018/03/14/derived-items/">Derived Items</a>
+        </li>
+        
         
         
         <li class="">
