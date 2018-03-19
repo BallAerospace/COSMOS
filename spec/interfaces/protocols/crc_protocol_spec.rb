@@ -35,111 +35,226 @@ module Cosmos
 
     describe "initialize" do
       it "complains if strip crc is not boolean" do
-        expect { @interface.add_protocol(CrcProtocol, [
-          nil, # item name
-          '', # strip crc
-          'ERROR', # bad strategy
-          -16, # bit offset
-           16], # bit size
-          :READ_WRITE) }.to raise_error(/Invalid strip CRC/)
+        ['ERROR', 0, nil].each do |strip_crc|
+          expect { @interface.add_protocol(CrcProtocol, [
+            nil, # item name
+            strip_crc, # strip crc
+            'ERROR', # bad strategy
+            -16, # bit offset
+            16], # bit size
+            :READ_WRITE) }.to raise_error(/Invalid strip CRC/)
+        end
       end
 
       it "complains if bad strategy is not ERROR or DISCONNECT" do
-        expect { @interface.add_protocol(CrcProtocol, [
-          nil, # item name
-          'TRUE', # strip crc
-          '', # bad strategy
-          -16, # bit offset
-           16], # bit size
-          :READ_WRITE) }.to raise_error(/Invalid bad CRC strategy/)
+        ['BAD', 0, nil].each do |strategy|
+          expect { @interface.add_protocol(CrcProtocol, [
+            nil, # item name
+            'TRUE', # strip crc
+            strategy, # bad strategy
+            -16, # bit offset
+            16], # bit size
+            :READ_WRITE) }.to raise_error(/Invalid bad CRC strategy/)
+        end
       end
 
       it "complains if bit size is not 16, 32, or 64" do
-        expect { @interface.add_protocol(CrcProtocol, [
-          nil, # item name
-          'TRUE', # strip crc
-          'ERROR', # bad strategy
-          128, # bit offset
-          8], # bit size
-          :READ_WRITE) }.to raise_error( /Invalid bit size/)
+        ['0', 0, nil].each do |bit_size|
+          expect { @interface.add_protocol(CrcProtocol, [
+            nil, # item name
+            'TRUE', # strip crc
+            'ERROR', # bad strategy
+            128, # bit offset
+            bit_size], # bit size
+            :READ_WRITE) }.to raise_error( /Invalid bit size/)
+        end
+      end
+
+      it "accepts a string bit size of 16, 32, or 64" do
+        %w(16 32 64).each do |bit_size|
+          @interface.add_protocol(CrcProtocol, [
+            nil, # item name
+            'TRUE', # strip crc
+            'ERROR', # bad strategy
+            -32, # bit offset
+            bit_size], # bit size
+            :READ_WRITE)
+          expect(@interface.read_protocols[-1].instance_variable_get(:@bit_size)).to eq Integer(bit_size)
+        end
       end
 
       it "complains if bit offset is not byte divisible" do
-        expect { @interface.add_protocol(CrcProtocol, [
-          nil, # item name
-          'TRUE', # strip crc
-          'ERROR', # bad strategy
-          100, # bit offset
-          16], # bit size
-          :READ_WRITE) }.to raise_error(/Invalid bit offset/)
+        [nil, 100, '100'].each do |offset|
+          expect { @interface.add_protocol(CrcProtocol, [
+            nil, # item name
+            'TRUE', # strip crc
+            'ERROR', # bad strategy
+            offset, # bit offset
+            16], # bit size
+            :READ_WRITE) }.to raise_error(/Invalid bit offset/)
+        end
       end
 
-      it "complains if the endianness is not a BIG_ENDIAN or LITTLE_ENDIAN" do
-        expect { @interface.add_protocol(CrcProtocol, [
-          nil, # item name
-          'FALSE', # strip crc
-          'ERROR', # bad strategy
-          -16, # bit offset
-          16, # bit size
-          'TRUE', # endianness
-          0xDEAD, # poly
-          0x0, # seed
-          'TRUE', # xor
-          'TRUE', # reflect
-          ],
-          :READ_WRITE) }.to raise_error(/Invalid endianness/)
+      it "accepts a string for bit offset" do
+        %w(0 32 -32).each do |offset|
+          @interface.add_protocol(CrcProtocol, [
+            nil, # item name
+            'TRUE', # strip crc
+            'ERROR', # bad strategy
+            offset, # bit offset
+            16], # bit size
+            :READ_WRITE)
+          expect(@interface.read_protocols[-1].instance_variable_get(:@bit_offset)).to eq Integer(offset)
+        end
+      end
+
+      it "complains if the endianness is not BIG_ENDIAN or LITTLE_ENDIAN" do
+        ['ENDIAN', 0, nil].each do |endianness|
+          expect { @interface.add_protocol(CrcProtocol, [
+            nil, # item name
+            'FALSE', # strip crc
+            'ERROR', # bad strategy
+            -16, # bit offset
+            16, # bit size
+            endianness, # endianness
+            0xDEAD, # poly
+            0x0, # seed
+            'TRUE', # xor
+            'TRUE', # reflect
+            ],
+            :READ_WRITE) }.to raise_error(/Invalid endianness/)
+        end
       end
 
       it "complains if the poly is not a number" do
-        expect { @interface.add_protocol(CrcProtocol, [
-          nil, # item name
-          'FALSE', # strip crc
-          'ERROR', # bad strategy
-          -16, # bit offset
-          16, # bit size
-          'BIG_ENDIAN', # endianness
-          'TRUE', # poly
-          0x0, # seed
-          'TRUE', # xor
-          'TRUE', # reflect
-          ],
-          :READ_WRITE) }.to raise_error(/invalid value/)
+        ['TRUE', '123abc'].each do |poly|
+          expect { @interface.add_protocol(CrcProtocol, [
+            nil, # item name
+            'FALSE', # strip crc
+            'ERROR', # bad strategy
+            -16, # bit offset
+            16, # bit size
+            'BIG_ENDIAN', # endianness
+            poly, # poly
+            0x0, # seed
+            'TRUE', # xor
+            'TRUE', # reflect
+            ],
+            :READ_WRITE) }.to raise_error(/Invalid poly/)
+        end
+      end
+
+      it "accepts nil and numeric polynomials" do
+        ['0xABCD', 0xABCD, nil, '', 'NIL', 'NULL'].each do |poly|
+          expect { @interface.add_protocol(CrcProtocol, [
+            nil, # item name
+            'FALSE', # strip crc
+            'ERROR', # bad strategy
+            -16, # bit offset
+            16, # bit size
+            'BIG_ENDIAN', # endianness
+            poly, # poly
+            0x0, # seed
+            'TRUE', # xor
+            'TRUE', # reflect
+            ],
+            :READ_WRITE) }.to_not raise_error
+        end
       end
 
       it "complains if the seed is not a number" do
-        expect { @interface.add_protocol(CrcProtocol, [
-          nil, # item name
-          'FALSE', # strip crc
-          'ERROR', # bad strategy
-          -16, # bit offset
-          16, # bit size
-          'LITTLE_ENDIAN', # endianness
-          0xABCD, # poly
-          'TRUE', # seed
-          'TRUE', # xor
-          'TRUE', # reflect
-          ],
-          :READ_WRITE) }.to raise_error(/invalid value/)
+        ['TRUE', '123abc'].each do |seed|
+          expect { @interface.add_protocol(CrcProtocol, [
+            nil, # item name
+            'FALSE', # strip crc
+            'ERROR', # bad strategy
+            -16, # bit offset
+            16, # bit size
+            'LITTLE_ENDIAN', # endianness
+            0xABCD, # poly
+            seed, # seed
+            'TRUE', # xor
+            'TRUE', # reflect
+            ],
+            :READ_WRITE) }.to raise_error(/Invalid seed/)
+        end
+      end
+
+      it "accepts nil and numeric seeds" do
+        ['0xABCD', 0xABCD, nil, '', 'NIL', 'NULL'].each do |seed|
+          expect { @interface.add_protocol(CrcProtocol, [
+            nil, # item name
+            'FALSE', # strip crc
+            'ERROR', # bad strategy
+            -16, # bit offset
+            16, # bit size
+            'BIG_ENDIAN', # endianness
+            nil, # poly
+            seed, # seed
+            'TRUE', # xor
+            'TRUE', # reflect
+            ],
+            :READ_WRITE) }.to_not raise_error
+        end
+      end
+
+      it "accepts nil TRUE FALSE for xor" do
+        [nil, '', 'NIL', 'NULL', 'TRUE', 'FALSE'].each do |xor|
+          expect { @interface.add_protocol(CrcProtocol, [
+            nil, # item name
+            'FALSE', # strip crc
+            'ERROR', # bad strategy
+            -16, # bit offset
+            16, # bit size
+            'BIG_ENDIAN', # endianness
+            0xABCD, # poly
+            0, # seed
+            xor, # xor
+            'TRUE', # reflect
+            ],
+            :READ_WRITE) }.to_not raise_error
+        end
       end
 
       it "complains if the xor is not boolean" do
-        expect { @interface.add_protocol(CrcProtocol, [
-          nil, # item name
-          'FALSE', # strip crc
-          'ERROR', # bad strategy
-          -16, # bit offset
-          16, # bit size
-          'BIG_ENDIAN', # endianness
-          0xABCD, # poly
-          0, # seed
-          0, # xor
-          'TRUE', # reflect
-          ],
-          :READ_WRITE) }.to raise_error(/Invalid XOR value/)
+        ['ERROR', 0].each do |xor|
+          expect { @interface.add_protocol(CrcProtocol, [
+            nil, # item name
+            'FALSE', # strip crc
+            'ERROR', # bad strategy
+            -16, # bit offset
+            16, # bit size
+            'BIG_ENDIAN', # endianness
+            0xABCD, # poly
+            0, # seed
+            xor, # xor
+            'TRUE', # reflect
+            ],
+            :READ_WRITE) }.to raise_error(/Invalid XOR value/)
+        end
+      end
+
+      it "accepts nil TRUE FALSE for reflect" do
+        [nil, '', 'NIL', 'NULL', 'TRUE', 'FALSE'].each do |reflect|
+          expect { @interface.add_protocol(CrcProtocol, [
+            nil, # item name
+            'FALSE', # strip crc
+            'ERROR', # bad strategy
+            -16, # bit offset
+            16, # bit size
+            'BIG_ENDIAN', # endianness
+            0xABCD, # poly
+            0, # seed
+            'TRUE', # xor
+            reflect, # reflect
+            ],
+            :READ_WRITE) }.to_not raise_error
+        end
       end
 
       it "complains if the reflect is not boolean" do
-        expect { @interface.add_protocol(CrcProtocol, [
+        ['ERROR', 0].each do |reflect|
+          expect { @interface.add_protocol(CrcProtocol, [
           nil, # item name
           'FALSE', # strip crc
           'ERROR', # bad strategy
@@ -149,9 +264,10 @@ module Cosmos
           0xABCD, # poly
           0, # seed
           'TRUE', # xor
-          0, # reflect
+          reflect, # reflect
           ],
           :READ_WRITE) }.to raise_error(/Invalid reflect value/)
+        end
       end
     end
 

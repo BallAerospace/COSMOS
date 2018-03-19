@@ -54,6 +54,41 @@ module Cosmos
         expect(p.results[:MEAN]).to eql nil
         expect(p.results[:STDDEV]).to eql nil
       end
+
+      it "handles nil and infinity" do
+        p = StatisticsProcessor.new('TEST', '5')
+        packet = Packet.new("tgt","pkt")
+        packet.append_item("TEST", 32, :FLOAT)
+        packet.write("TEST", 1)
+        p.call(packet, packet.buffer)
+        expect(p.results[:MAX]).to eql 1.0
+        expect(p.results[:MIN]).to eql 1.0
+        expect(p.results[:MEAN]).to be_within(0.001).of(1.0)
+        expect(p.results[:STDDEV]).to be_within(0.001).of(0.0)
+        packet.write("TEST", Float::NAN)
+        p.call(packet, packet.buffer)
+        expect(p.results[:MAX]).to eql 1.0
+        expect(p.results[:MIN]).to eql 1.0
+        expect(p.results[:MEAN]).to be_within(0.001).of(1.0)
+        expect(p.results[:STDDEV]).to be_within(0.001).of(0.0)
+        packet.write("TEST", 2)
+        p.call(packet, packet.buffer)
+        expect(p.results[:MAX]).to eql 2.0
+        expect(p.results[:MIN]).to eql 1.0
+        expect(p.results[:MEAN]).to be_within(0.001).of(1.5)
+        expect(p.results[:STDDEV]).to be_within(0.001).of(0.7071)
+        packet.write("TEST", Float::INFINITY)
+        p.call(packet, packet.buffer)
+        expect(p.results[:MAX]).to eql 2.0
+        expect(p.results[:MIN]).to eql 1.0
+        expect(p.results[:MEAN]).to be_within(0.001).of(1.5)
+        expect(p.results[:STDDEV]).to be_within(0.001).of(0.7071)
+        p.reset
+        expect(p.results[:MAX]).to eql nil
+        expect(p.results[:MIN]).to eql nil
+        expect(p.results[:MEAN]).to eql nil
+        expect(p.results[:STDDEV]).to eql nil
+      end
     end
   end
 end
