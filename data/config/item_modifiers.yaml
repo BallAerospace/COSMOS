@@ -112,13 +112,13 @@ SEG_POLY_READ_CONVERSION:
         to process than shorter order polynomials, but are sometimes more accurate.
       values: .*
 GENERIC_READ_CONVERSION_START:
-  summary: Start a generic write conversion
+  summary: Start a generic read conversion
   description: Adds a generic conversion function to the current telemetry item.
     This conversion factor is applied to the raw value in the telemetry packet
     before it is displayed to the user. The user still has the ability to see the
     raw unconverted value in a details dialog. The conversion is specified as
     ruby code that receives two implied parameters. 'value' which is the raw
-    value being written and 'packet' which is a reference to the telemetry packet
+    value being read and 'packet' which is a reference to the telemetry packet
     class (Note, referencing the packet as 'myself' is still supported for backwards
     compatibility). The last line of ruby code given should return the converted
     value. The GENERIC_READ_CONVERSION_END keyword specifies that all lines of
@@ -132,7 +132,7 @@ GENERIC_READ_CONVERSION_START:
         value * 1.5  # Convert the value by a scale factor
       GENERIC_READ_CONVERSION_END
 GENERIC_READ_CONVERSION_END:
-  summary: Complete a generic write conversion
+  summary: Complete a generic read conversion
 LIMITS:
   summary: Defines a set of limits for a telemetry item
   description: If limits are violated a message is printed in the Command and Telemetry Server
