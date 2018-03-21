@@ -24,11 +24,23 @@ $disconnected_targets = nil
 $cmd_tlm_replay_mode = false
 
 module Cosmos
+  # Error raised by the API when a check fails
   class CheckError < RuntimeError; end
+  # Error raised when a Script should be stopped
   class StopScript < StandardError; end
+  # Error raised when a TestCase should be skipped by TestRunner
   class SkipTestCase < StandardError; end
 
+  # Provides a proxy to both a disconnected CmdTlmServer instance and the real
+  # JsonDRbObject which communicates with the real CmdTlmServer. If targets
+  # are disconnected their method calls are forwarded to the disconnected
+  # CmdTlmServer while all other calls are forwarded through to the real
+  # server by the JsonDRbObject.
   class ServerProxy
+    # Creates a disconnected CmdTlmServer object if there are any
+    # $disconnected_targets defined. Also creates a JsonDRbObject
+    # connected to Replay (if $cmd_tlm_replay_mode) or to the
+    # Command and Telemetry Server.
     def initialize(config_file)
       if $disconnected_targets
         # Start up a standalone CTS in disconnected mode
@@ -42,6 +54,9 @@ module Cosmos
       end
     end
 
+    # Ruby method which captures any method calls on this object. This allows
+    # us to proxy the methods to either the disconnected CmdTlmServer object
+    # or to the real server through the JsonDRbObject.
     def method_missing(method_name, *method_params)
       if $disconnected_targets && method_params[0].is_a?(String)
         if method_params.length == 1
@@ -54,9 +69,11 @@ module Cosmos
         end
       end
       # Must call shutdown and disconnect on the JsonDrbObject itself
+      # to avoid it being sent to the CmdTlmServer
       case method_name
       when :shutdown
         @cmd_tlm_server.shutdown
+        @disconnected.stop if @disconnected
       when :disconnect
         @cmd_tlm_server.disconnect
       else
@@ -84,6 +101,7 @@ module Cosmos
     end
 
     def initialize_script_module(config_file = CmdTlmServer::DEFAULT_CONFIG_FILE)
+      shutdown_cmd_tlm()
       $cmd_tlm_server = ServerProxy.new(config_file)
     end
 
