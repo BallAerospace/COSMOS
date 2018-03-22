@@ -67,7 +67,7 @@ module Cosmos
       cosmos_layout.addWidget(version, 0, 0)
       cosmos_layout.addWidget(open_cosmos_code, 0, 1)
 
-      if USER_VERSION && USER_VERSION != 'Unofficial'
+      if defined?(USER_VERSION) && USER_VERSION != 'Unofficial'
         user_version = Qt::Label.new("Project Version: " + USER_VERSION)
         user_version.setFont(Cosmos.getFont("Arial", 14))
         cosmos_layout.addWidget(user_version, 1, 0)
