@@ -644,10 +644,10 @@ module Cosmos
             end
             @@table.setItem(row, 2, state_value_item)
 
-            # If the parameter is required set the combobox to MANUAL and
+            # If the parameter is required clear the combobox and
             # clear the value field so they have to choose something
-            if !@production && packet_item.required && !old_params[packet_item.name]
-              value_item.setText(MANUALLY)
+            if packet_item.required && !old_params[packet_item.name]
+              value_item.setText('')
               state_value_item.setText('')
             end
           else
