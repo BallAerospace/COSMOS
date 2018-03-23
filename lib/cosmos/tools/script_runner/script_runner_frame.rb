@@ -151,6 +151,16 @@ module Cosmos
       @realtime_button_bar.stop_callback  = method(:handle_stop_button)
       @layout.addWidget(@realtime_button_bar)
 
+      # Create shortcuts to activate the RealtimeButtonBar actions
+      step = Qt::Shortcut.new(Qt::KeySequence.new(Qt::Key_F10), self)
+      self.connect(step, SIGNAL('activated()')) { handle_step_button() }
+      start_go = Qt::Shortcut.new(Qt::KeySequence.new(Qt::Key_F5), self)
+      self.connect(start_go, SIGNAL('activated()')) { handle_start_go_button() }
+      pause_retry = Qt::Shortcut.new(Qt::KeySequence.new(Qt::Key_F6), self)
+      self.connect(pause_retry, SIGNAL('activated()')) { handle_pause_retry_button() }
+      stop = Qt::Shortcut.new(Qt::KeySequence.new(Qt::Key_F7), self)
+      self.connect(stop, SIGNAL('activated()')) { handle_stop_button() }
+
       # Create a splitter to hold the script text area and the script output text area.
       @splitter = Qt::Splitter.new(Qt::Vertical, self)
       @layout.addWidget(@splitter)
@@ -202,7 +212,6 @@ module Cosmos
       @stop_callback = nil
       @error_callback = nil
       @pause_callback = nil
-      @key_press_callback = nil
       @allow_start = true
       @continue_after_error = true
       @debug_text = nil
@@ -300,10 +309,6 @@ module Cosmos
 
     def undo_available(bool)
       emit undoAvailable(bool)
-    end
-
-    def key_press_callback=(callback)
-      @script.keyPressCallback = callback
     end
 
     def setFocus
@@ -913,7 +918,7 @@ module Cosmos
         @debug_frame.addWidget(@debug_frame_label)
         @debug_text = CompletionLineEdit.new(self)
         @debug_text.setFocus(Qt::OtherFocusReason)
-        @debug_text.keyPressCallback = lambda { |event|
+        @debug_text.connect(SIGNAL('key_pressed(QKeyEvent*)')) do |event|
           case event.key
           when Qt::Key_Return, Qt::Key_Enter
             begin
@@ -966,7 +971,7 @@ module Cosmos
           when Qt::Key_Escape
             @debug_text.setPlainText("")
           end
-        }
+        end
 
         @debug_frame.addWidget(@debug_text)
 

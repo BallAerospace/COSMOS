@@ -13,8 +13,13 @@ require 'cosmos/gui/qt'
 require 'cosmos/gui/dialogs/splash'
 
 module Cosmos
-
+  # Creates a Completion object to handle code completion popups.
+  # This calss also includes many helper methods to access various
+  # lines, indent selections, highlight lines and center the view.
   class CompletionTextEdit < Qt::PlainTextEdit
+    # Create a signal so users of CompletionTextEdit don't have to
+    # subclass in order to listen to keyPressEvents
+    signals 'key_pressed(QKeyEvent*)'
     TRUE_VARIANT = Qt::Variant.new(true)
     SELECTION_DETAILS_POOL = []
 
@@ -78,34 +83,31 @@ module Cosmos
       @code_completion.dispose if @code_completion
     end
 
-    def keyPressCallback=(callback)
-      @keypress_callback = callback
-    end
-
     def keyPressEvent(event)
+      emit key_pressed(event)
+
       # If the completion popup is visible then ignore the event and allow the popup to handle it
-      if (@code_completion and @code_completion.popup.isVisible)
+      if (@code_completion && @code_completion.popup.isVisible)
         case event.key
-        when Qt::Key_Return, Qt::Key_Enter
+        when Qt::Key_Return, Qt::Key_Enter, Qt::Key_Tab, Qt::Key_Backtab
           event.ignore
           return
         end
       end
 
-      continue = @keypress_callback.call(event) if @keypress_callback
-
       case event.key
       when Qt::Key_Tab
+        # Ensure Ctrl-Tab doesn't activate indentation
         if event.modifiers == Qt::NoModifier
           indent_selection()
         end
       when Qt::Key_Backtab
-        unindent_selection()
-      else
-        if continue != false
-          super(event)
-          @code_completion.handle_keypress(event) if @code_completion
+        if event.modifiers == Qt::NoModifier
+          unindent_selection()
         end
+      else
+        super(event)
+        @code_completion.handle_keypress(event) if @code_completion
       end
     end
 
