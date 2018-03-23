@@ -12,9 +12,10 @@ module Cosmos
   class CmdParamTableItemDelegate < Qt::StyledItemDelegate
     MANUALLY = "MANUALLY ENTERED"
 
-    def initialize(table, widgets)
+    def initialize(table, widgets, production)
       @table = table
       @widgets = widgets
+      @production = production
       super(table)
     end
 
@@ -24,7 +25,7 @@ module Cosmos
         combo = Qt::ComboBox.new(parent)
         sorted_states = packet_item.states.sort {|a, b| a[1] <=> b[1]}
         items = sorted_states.map {|state_name, state_value| state_name}
-        items << MANUALLY
+        items << MANUALLY unless @production
         combo.addItems(items)
         combo.setCurrentText(@table.item(index.row, index.column).text.to_s)
         combo.setMaxVisibleItems(6)
