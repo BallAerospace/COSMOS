@@ -1122,26 +1122,37 @@ module Cosmos
 
       # Build list of TestSuites and Tests
       @@test_suites = @@test_suites.select {|my_suite| my_suite.name == 'CustomTestSuite'}
-      tests         = []
+      tests = []
       ObjectSpace.each_object(Class) do |object|
+
         begin
           next if object.name == 'CustomTestSuite'
-          if (object.ancestors.include?(TestSuite) &&
-              object != TestSuite &&
-              !ignored_test_suite_classes.include?(object))
-            # ObjectSpace.each_object appears to yield objects in the reverse
-            # order that they were parsed by the interpreter so push each
-            # TestSuite object to the front of the array to order as encountered
-            @@test_suites.unshift(object.new)
-          end
-          if (object.ancestors.include?(Test) &&
-              object != Test &&
-              !ignored_test_classes.include?(object))
-            tests << object
-          end
+          ancestors = object.ancestors
         rescue
-          # Ignore Classes where name, etc may raise exception
+          # Ignore Classes where name or ancestors may raise exception
           # Bundler::Molinillo::DependencyGraph::Action is one example
+          next
+        end
+        if (ancestors.include?(TestSuite) &&
+            object != TestSuite &&
+            !ignored_test_suite_classes.include?(object))
+          # Ensure they didn't override name for some reason
+          if object.instance_methods(false).include?(:name)
+            raise FatalError.new("#{object} redefined the 'name' method. Delete the 'name' method and try again.")
+          end
+          # ObjectSpace.each_object appears to yield objects in the reverse
+          # order that they were parsed by the interpreter so push each
+          # TestSuite object to the front of the array to order as encountered
+          @@test_suites.unshift(object.new)
+        end
+        if (ancestors.include?(Test) &&
+            object != Test &&
+            !ignored_test_classes.include?(object))
+          # Ensure they didn't override self.name for some reason
+          if object.methods(false).include?(:name)
+            raise FatalError.new("#{object} redefined the 'self.name' method. Delete the 'self.name' method and try again.")
+          end
+          tests << object
         end
       end
       # Raise error if no test suites or tests
