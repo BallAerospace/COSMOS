@@ -344,6 +344,12 @@ module Cosmos
               SLOT('handle_tab_change(int)'))
       setCentralWidget(@tab_book)
 
+      next_child = Qt::Shortcut.new(Qt::KeySequence.new(Qt::CTRL + Qt::Key_Tab), self)
+      self.connect(next_child, SIGNAL('activated()')) { next_child() }
+      # Note using Qt::KeySequence::PreviousChild does not work due to QT bug
+      previous_child = Qt::Shortcut.new(Qt::KeySequence.new(Qt::CTRL + Qt::SHIFT + Qt::Key_Tab), self)
+      self.connect(previous_child, SIGNAL('activated()')) { previous_child() }
+
       # Display a blank message to force the statusBar to show
       statusBar.showMessage("")
     end
@@ -753,17 +759,18 @@ module Cosmos
       update_title()
     end
 
-    def handle_script_keypress(event)
+    def next_child
+      index = @tab_book.currentIndex + 1
+      index = 0 if index >= @tab_book.count
+      @tab_book.setCurrentIndex(index)
       update_title()
-      if event.matches(Qt::KeySequence::NextChild)
-        index = @tab_book.currentIndex + 1
-        index = 0 if index >= @tab_book.count
-        @tab_book.setCurrentIndex(index)
-      elsif event.matches(Qt::KeySequence::PreviousChild)
-        index = @tab_book.currentIndex - 1
-        index = @tab_book.count - 1 if index < 0
-        @tab_book.setCurrentIndex(index)
-      end
+    end
+
+    def previous_child
+      index = @tab_book.currentIndex - 1
+      index = @tab_book.count - 1 if index < 0
+      @tab_book.setCurrentIndex(index)
+      update_title()
     end
 
     def context_menu(point)
@@ -853,8 +860,6 @@ module Cosmos
       script_runner_frame.stop_callback = method(:stop_callback)
       script_runner_frame.set_text_from_file(filename) unless filename.empty?
       script_runner_frame.filename = filename
-      # Register a keypress handler so we can Ctrl-Tab our way through the tabs
-      script_runner_frame.key_press_callback = method(:handle_script_keypress)
       # Update the title if the frame changes so we can add/remove the asterix
       script_runner_frame.connect(SIGNAL('modificationChanged(bool)')) { update_title() }
 
