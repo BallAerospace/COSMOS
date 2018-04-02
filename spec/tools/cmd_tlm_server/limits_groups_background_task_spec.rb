@@ -32,12 +32,20 @@ module Cosmos
     end
 
     describe "call" do
-      it "raises an error if the group is not defined" do
+      it "warns if the group is not defined" do
         class MyLimitsGroups1 < LimitsGroupsBackgroundTask
           def check_blah
           end
         end
-        expect { MyLimitsGroups1.new.call }.to raise_error(/check_blah doesn't match a group name/)
+        expect(Logger).to receive(:warn) do |msg|
+          expect(msg).to match(/check_blah doesn't match a group name/)
+        end
+        thread = Thread.new do
+          MyLimitsGroups1.new.call
+        end
+        sleep 0.1
+        thread.kill
+        thread.join
       end
 
       it "requires a floating point delay parameter" do

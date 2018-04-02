@@ -255,6 +255,16 @@ module Cosmos
   end
 end
 
+class Qt::CheckboxLabel < Qt::Label
+  def setCheckbox(checkbox)
+    @checkbox = checkbox
+  end
+
+  def mouseReleaseEvent(event)
+    @checkbox.toggle
+  end
+end
+
 class Qt::Icon
   def initialize(param = nil)
     if param

@@ -20,13 +20,67 @@ require 'cosmos/script/scripting'
 require 'cosmos/script/tools'
 
 $cmd_tlm_server = nil
-$cmd_tlm_disconnect = false
+$disconnected_targets = nil
 $cmd_tlm_replay_mode = false
 
 module Cosmos
+  # Error raised by the API when a check fails
   class CheckError < RuntimeError; end
+  # Error raised when a Script should be stopped
   class StopScript < StandardError; end
+  # Error raised when a TestCase should be skipped by TestRunner
   class SkipTestCase < StandardError; end
+
+  # Provides a proxy to both a disconnected CmdTlmServer instance and the real
+  # JsonDRbObject which communicates with the real CmdTlmServer. If targets
+  # are disconnected their method calls are forwarded to the disconnected
+  # CmdTlmServer while all other calls are forwarded through to the real
+  # server by the JsonDRbObject.
+  class ServerProxy
+    # Creates a disconnected CmdTlmServer object if there are any
+    # $disconnected_targets defined. Also creates a JsonDRbObject
+    # connected to Replay (if $cmd_tlm_replay_mode) or to the
+    # Command and Telemetry Server.
+    def initialize(config_file)
+      if $disconnected_targets
+        # Start up a standalone CTS in disconnected mode
+        @disconnected = CmdTlmServer.new(config_file, false, true)
+      end
+      # Start a Json connect to the real server
+      if $cmd_tlm_replay_mode
+        @cmd_tlm_server = JsonDRbObject.new(System.connect_hosts['REPLAY_API'], System.ports['REPLAY_API'])
+      else
+        @cmd_tlm_server = JsonDRbObject.new(System.connect_hosts['CTS_API'], System.ports['CTS_API'])
+      end
+    end
+
+    # Ruby method which captures any method calls on this object. This allows
+    # us to proxy the methods to either the disconnected CmdTlmServer object
+    # or to the real server through the JsonDRbObject.
+    def method_missing(method_name, *method_params)
+      if $disconnected_targets && method_params[0].is_a?(String)
+        if method_params.length == 1
+          target = method_params[0].split(" ")[0]
+        else
+          target = method_params[0]
+        end
+        if $disconnected_targets.include?(target)
+          return @disconnected.send(method_name, *method_params)
+        end
+      end
+      # Must call shutdown and disconnect on the JsonDrbObject itself
+      # to avoid it being sent to the CmdTlmServer
+      case method_name
+      when :shutdown
+        @cmd_tlm_server.shutdown
+        @disconnected.stop if @disconnected
+      when :disconnect
+        @cmd_tlm_server.disconnect
+      else
+        @cmd_tlm_server.method_missing(method_name, *method_params)
+      end
+    end
+  end
 
   module Script
     # All methods are private so they can only be called by themselves and not
@@ -40,43 +94,36 @@ module Cosmos
 
     # Called when this module is mixed in using "include Cosmos::Script"
     def self.included(base)
-      $cmd_tlm_disconnect = false
+      $disconnected_targets = nil
       $cmd_tlm_replay_mode = false
       $cmd_tlm_server = nil
       initialize_script_module()
     end
 
     def initialize_script_module(config_file = CmdTlmServer::DEFAULT_CONFIG_FILE)
-      if $cmd_tlm_disconnect
-        # Start up a standalone CTS in disconnected mode
-        $cmd_tlm_server = CmdTlmServer.new(config_file, false, true)
-      else
-        # Start a Json connect to the real server
-        if $cmd_tlm_replay_mode
-          $cmd_tlm_server = JsonDRbObject.new(System.connect_hosts['REPLAY_API'], System.ports['REPLAY_API'])
-        else
-          $cmd_tlm_server = JsonDRbObject.new(System.connect_hosts['CTS_API'], System.ports['CTS_API'])
-        end
-      end
+      shutdown_cmd_tlm()
+      $cmd_tlm_server = ServerProxy.new(config_file)
     end
 
     def shutdown_cmd_tlm
-      $cmd_tlm_server.shutdown if $cmd_tlm_server && !$cmd_tlm_disconnect
+      $cmd_tlm_server.shutdown if $cmd_tlm_server
     end
 
-    def set_cmd_tlm_disconnect(disconnect = false, config_file = CmdTlmServer::DEFAULT_CONFIG_FILE)
-      if disconnect != $cmd_tlm_disconnect
-        $cmd_tlm_disconnect = disconnect
-        initialize_script_module(config_file)
-      end
+    def set_disconnected_targets(targets, config_file = CmdTlmServer::DEFAULT_CONFIG_FILE)
+      $disconnected_targets = targets
+      initialize_script_module(config_file)
     end
 
-    def get_cmd_tlm_disconnect
-      return $cmd_tlm_disconnect
+    def get_disconnected_targets
+      return $disconnected_targets
+    end
+
+    def clear_disconnected_targets
+      $disconnected_targets = nil
     end
 
     def script_disconnect
-      $cmd_tlm_server.disconnect if $cmd_tlm_server && !$cmd_tlm_disconnect
+      $cmd_tlm_server.disconnect if $cmd_tlm_server
     end
 
     def set_replay_mode(replay_mode)
@@ -89,6 +136,5 @@ module Cosmos
     def get_replay_mode
       $cmd_tlm_replay_mode
     end
-
   end
 end

@@ -9,7 +9,6 @@
 # attribution addendums as found in the LICENSE.txt
 
 module Cosmos
-
   module Script
     private
 
@@ -33,25 +32,14 @@ module Cosmos
       no_hazardous = cmd.include?('no_hazardous') || cmd.include?('no_checks')
 
       begin
-        if $cmd_tlm_disconnect
-          # In disconnect mode we call API methods directly on the server
-          target_name, cmd_name, cmd_params = $cmd_tlm_server.send(cmd, *args)
-        else
-          # In connected mode we forward method calls through the JsonDrb object
-          # so we must call method_missing
-          target_name, cmd_name, cmd_params = $cmd_tlm_server.method_missing(cmd, *args)
-        end
+        target_name, cmd_name, cmd_params = $cmd_tlm_server.method_missing(cmd, *args)
         _log_cmd(target_name, cmd_name, cmd_params, raw, no_range, no_hazardous)
       rescue HazardousError => e
         ok_to_proceed = prompt_for_hazardous(e.target_name,
                                              e.cmd_name,
                                              e.hazardous_description)
         if ok_to_proceed
-          if $cmd_tlm_disconnect
-            target_name, cmd_name, cmd_params = $cmd_tlm_server.send(cmd_no_hazardous, *args)
-          else
-            target_name, cmd_name, cmd_params = $cmd_tlm_server.method_missing(cmd_no_hazardous, *args)
-          end
+          target_name, cmd_name, cmd_params = $cmd_tlm_server.method_missing(cmd_no_hazardous, *args)
           _log_cmd(target_name, cmd_name, cmd_params, raw, no_range, no_hazardous)
         else
           retry unless prompt_for_script_abort()
@@ -181,7 +169,7 @@ module Cosmos
     # Returns the buffer from the most recent specified command
     def get_cmd_buffer(target_name, command_name)
       return $cmd_tlm_server.get_cmd_buffer(target_name, command_name)
-    end    
+    end
 
   end # module Script
 
