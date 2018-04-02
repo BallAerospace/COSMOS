@@ -642,19 +642,6 @@ module Cosmos
       update_title()
     end
 
-    def handle_script_keypress(event)
-      update_title()
-      if event.matches(Qt::KeySequence::NextChild)
-        index = @tab_book.currentIndex + 1
-        index = 0 if index >= @tab_book.count
-        @tab_book.setCurrentIndex(index)
-      elsif event.matches(Qt::KeySequence::PreviousChild)
-        index = @tab_book.currentIndex - 1
-        index = @tab_book.count - 1 if index < 0
-        @tab_book.setCurrentIndex(index)
-      end
-    end
-
     def tab_context_menu(point)
       index = 0
       @tab_book.tabBar.count.times do
