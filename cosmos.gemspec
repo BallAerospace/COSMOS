@@ -83,7 +83,7 @@ spec = Gem::Specification.new do |s|
   s.add_runtime_dependency 'json', '>= 1.5', '< 3' # 2.0+ works with COSMOS
   s.add_runtime_dependency 'pry', '~> 0.9'
   s.add_runtime_dependency 'pry-doc', '~> 0.5'
-  s.add_runtime_dependency 'yard', '~> 0.8'
+  s.add_runtime_dependency 'yard', '~> 0.9.11'
   s.add_runtime_dependency 'uuidtools', '~> 2.1'
   s.add_runtime_dependency 'snmp', '~> 1.0'
   s.add_runtime_dependency 'rubyzip', '~> 1.2'

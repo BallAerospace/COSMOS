@@ -64,15 +64,32 @@ module Cosmos
         raise "Invalid endianness '#{endianness}'. Must be BIG_ENDIAN or LITTLE_ENDIAN."
       end
 
-      @bit_offset = Integer(bit_offset)
-      raise "Invalid bit offset of #{bit_offset}. Must be divisible by 8." if bit_offset % 8 != 0
-      @bit_size = Integer(bit_size)
-      poly = Integer(poly) if poly
-      seed = Integer(seed) if seed
-      xor = ConfigParser.handle_true_false(xor) if xor
+      begin
+        @bit_offset = Integer(bit_offset)
+      rescue
+        raise "Invalid bit offset of #{bit_offset}. Must be a number."
+      end
+      raise "Invalid bit offset of #{bit_offset}. Must be divisible by 8." if @bit_offset % 8 != 0
+
+      poly = ConfigParser.handle_nil(poly)
+      begin
+        poly = Integer(poly) if poly
+      rescue
+        raise "Invalid polynomial of #{poly}. Must be a number."
+      end
+
+      seed = ConfigParser.handle_nil(seed)
+      begin
+        seed = Integer(seed) if seed
+      rescue
+        raise "Invalid seed of #{seed}. Must be a number."
+      end
+
+      xor = ConfigParser.handle_true_false_nil(xor)
       raise "Invalid XOR value of '#{xor}'. Must be TRUE or FALSE." if xor && !!xor != xor
-      reflect = ConfigParser.handle_true_false(reflect) if reflect
+      reflect = ConfigParser.handle_true_false_nil(reflect) if reflect
       raise "Invalid reflect value of '#{reflect}'. Must be TRUE or FALSE." if reflect && !!reflect != reflect
+
       # Built the CRC arguments array. All subsequent arguments are dependent
       # on the previous ones so we build it up incrementally.
       args = []
@@ -89,7 +106,8 @@ module Cosmos
         end
       end
 
-      case bit_size
+      @bit_size = bit_size.to_i
+      case @bit_size
       when 16
         @pack = (@endianness == :BIG_ENDIAN) ? 'n' : 'v'
         if args.empty?

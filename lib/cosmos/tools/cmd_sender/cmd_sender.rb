@@ -49,7 +49,7 @@ module Cosmos
     slots 'context_menu(const QPoint&)'
     slots 'click_callback(QTableWidgetItem*)'
 
-    MANUALLY = "MANUALLY ENTERED"
+    MANUALLY = CmdParamTableItemDelegate::MANUALLY
 
     # @return [Integer] Number of commands sent
     def self.send_count
@@ -86,6 +86,7 @@ module Cosmos
 
       @file_dir = System.paths['LOGS']
       @message_log = MessageLog.new('cmdsender')
+      @production = options.production
       @send_raw_dir = nil
       @@send_count = 0
       @@param_widgets = []
@@ -123,12 +124,22 @@ module Cosmos
                                         tr('&Send Raw'),
                                         self)
       @send_raw_action.shortcut  = Qt::KeySequence.new(tr('Ctrl+S'))
-      @send_raw_action.statusTip = tr('Send raw data from a file')
+      tip = 'Send raw data from a file'
+      if @production
+        tip += ' - Disabled in Production Mode'
+        @send_raw_action.setEnabled(false)
+      end
+      @send_raw_action.statusTip = tr(tip)
       connect(@send_raw_action, SIGNAL('triggered()'), self, SLOT('file_send_raw()'))
 
       # Mode menu actions
       @ignore_range = Qt::Action.new(tr('&Ignore Range Checks'), self)
-      @ignore_range.statusTip = tr('Ignore range checks when processing command')
+      tip = 'Ignore range checks when processing command'
+      if @production
+        tip += ' - Disabled in Production Mode'
+        @ignore_range.setEnabled(false)
+      end
+      @ignore_range.statusTip = tr(tip)
       @ignore_range.setCheckable(true)
       @ignore_range.setChecked(false)
 
@@ -145,7 +156,12 @@ module Cosmos
       connect(@show_ignored, SIGNAL('toggled(bool)'), self, SLOT('update_cmd_params(bool)'))
 
       @cmd_raw = Qt::Action.new(tr('Disable &Parameter Conversions'), self)
-      @cmd_raw.statusTip = tr('Send the command without running write or state conversions')
+      tip = 'Send the command without running write or state conversions'
+      if @production
+        tip += ' - Disabled in Production Mode'
+        @cmd_raw.setEnabled(false)
+      end
+      @cmd_raw.statusTip = tr(tip)
       @cmd_raw.setCheckable(true)
       @cmd_raw.setChecked(false)
     end
@@ -573,7 +589,7 @@ module Cosmos
             @@table.setHorizontalHeaderLabels(['Name', '         Value or State         ', '         ', 'Units', 'Description'])
             @@table.horizontalHeader.setStretchLastSection(true)
             @@table.verticalHeader.setVisible(false)
-            @@table.setItemDelegate(CmdParamTableItemDelegate.new(@@table, @@param_widgets))
+            @@table.setItemDelegate(CmdParamTableItemDelegate.new(@@table, @@param_widgets, @production))
             @@table.setContextMenuPolicy(Qt::CustomContextMenu)
             @@table.verticalHeader.setResizeMode(Qt::HeaderView::ResizeToContents)
             @@table.setEditTriggers(Qt::AbstractItemView::DoubleClicked | Qt::AbstractItemView::SelectedClicked | Qt::AbstractItemView::AnyKeyPressed)
@@ -596,6 +612,8 @@ module Cosmos
             else
               if default_state
                 value_item = Qt::TableWidgetItem.new(default_state.to_s)
+              elsif @production
+                value_item = Qt::TableWidgetItem.new(packet_item.states.keys[0])
               else
                 value_item = Qt::TableWidgetItem.new(MANUALLY)
               end
@@ -619,13 +637,17 @@ module Cosmos
               end
             end
             state_value_item.setTextAlignment(Qt::AlignRight | Qt::AlignVCenter)
-            state_value_item.setFlags(Qt::NoItemFlags | Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsEditable)
+            if @production
+              state_value_item.setFlags(Qt::NoItemFlags)
+            else
+              state_value_item.setFlags(Qt::NoItemFlags | Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsEditable)
+            end
             @@table.setItem(row, 2, state_value_item)
 
-            # If the parameter is required set the combobox to MANUAL and
+            # If the parameter is required clear the combobox and
             # clear the value field so they have to choose something
             if packet_item.required && !old_params[packet_item.name]
-              value_item.setText(MANUALLY)
+              value_item.setText('')
               state_value_item.setText('')
             end
           else
@@ -755,6 +777,7 @@ module Cosmos
           options.width = 600
           options.height = 425
           options.title = 'Command Sender'
+          options.production = false
           option_parser.separator "Command Sender Specific Options:"
           option_parser.on("-p", "--packet 'TARGET_NAME PACKET_NAME'", "Start with the specified command selected") do |arg|
             split = arg.split
@@ -763,6 +786,9 @@ module Cosmos
               exit
             end
             options.packet = split
+          end
+          option_parser.on(nil, "--production", "Run in production mode which disables the ability to manually enter data.") do |arg|
+            options.production = true
           end
         end
 
