@@ -50,10 +50,12 @@ module Cosmos
           time_end = Time.now unless time_end
           progress_dialog.set_step_progress(0) if progress_dialog
           index = 0
-          required_queries.each do |target_name, packet_name, item_name, value_type, array_index|
+          required_queries.each do |target_name, packet_name, item_name, value_type, array_index, dart_reduction, dart_reduced_type|
             begin
               break if @cancel
-              query_string = "#{target_name} #{packet_name} #{item_name} #{value_type} #{array_index}"
+              value_type = :CONVERTED if !value_type or value_type != :RAW
+              # TODO: Support FORMATTED and WITH_UNITS by iterating and modifying results
+              query_string = "#{target_name} #{packet_name} #{item_name} #{value_type} #{array_index} #{dart_reduction} #{dart_reduced_type}"
               progress_dialog.append_text("Querying #{query_string}") if progress_dialog
               request = {}
               request['start_time_sec'] = time_start.tv_sec
@@ -61,11 +63,15 @@ module Cosmos
               request['end_time_sec'] = time_end.tv_sec
               request['end_time_usec'] = time_end.tv_usec
               request['item'] = [target_name, packet_name, item_name]
-              request['reduction'] = 'NONE'
+              request['reduction'] = dart_reduction.to_s
               request['cmd_tlm'] = 'TLM'
               request['offset'] = 0
               request['limit'] = 10000
-              request['value_type'] = value_type.to_s
+              if dart_reduction == :NONE
+                request['value_type'] = value_type.to_s
+              else
+                request['value_type'] = value_type.to_s + "_#{dart_reduced_type}"
+              end
               request['meta_filters'] = meta_filters unless meta_filters.empty?
               query_result = server.query(request)
               result = query_result
@@ -101,8 +107,8 @@ module Cosmos
           @tabbed_plots_config.mu_synchronize do
             @tabbed_plots_config.each_data_object do |data_object|
               do_results = []
-              data_object.processed_items.each do |target_name, packet_name, item_name, value_type, array_index|
-                query_string = "#{target_name} #{packet_name} #{item_name} #{value_type} #{array_index}"
+              data_object.processed_items.each do |target_name, packet_name, item_name, value_type, array_index, dart_reduction, dart_reduced_type|
+                query_string = "#{target_name} #{packet_name} #{item_name} #{value_type} #{array_index} #{dart_reduction} #{dart_reduced_type}"
                 do_results << results[query_string]
               end
               data_object.process_dart(do_results)

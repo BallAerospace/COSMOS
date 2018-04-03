@@ -21,6 +21,12 @@ module Cosmos
     # Analysis Types
     ANALYSIS_TYPES = [:NONE, :DIFFERENCE, :WINDOWED_MEAN, :WINDOWED_MEAN_REMOVED, :STD_DEV, :ALLAN_DEV, :MAXIMUM, :MINIMUM, :PEAK_TO_PEAK]
 
+    # DART Reductions
+    DART_REDUCTIONS = [:NONE, :MINUTE, :HOUR, :DAY]
+
+    # DART Reduced Types
+    DART_REDUCED_TYPES = [:AVG, :MIN, :MAX, :STDDEV]
+
     # The housekeeping telemetry item's target name (string)
     attr_reader :target_name
 
@@ -41,6 +47,12 @@ module Cosmos
 
     # Type of data to collect - :RAW or :CONVERTED
     attr_accessor :value_type
+
+    # DART Reduction
+    attr_accessor :dart_reduction
+
+    # DART Reduced Type
+    attr_accessor :dart_reduced_type
 
     # The analysis to perform
     attr_accessor :analysis
@@ -64,6 +76,8 @@ module Cosmos
       @time_item_name = nil
       @formatted_time_item_name = nil
       @value_type = :CONVERTED
+      @dart_reduction = :NONE
+      @dart_reduced_type = :AVG
       @analysis = :NONE
       @analysis_samples = 3
       @show_limits_lines = false
@@ -83,6 +97,8 @@ module Cosmos
       string << "      TIME_ITEM #{@time_item_name}\n" if @time_item_name
       string << "      FORMATTED_TIME_ITEM #{@formatted_time_item_name}\n" if @formatted_time_item_name
       string << "      VALUE_TYPE #{@value_type}\n"
+      string << "      DART_REDUCTION #{@dart_reduction}\n"
+      string << "      DART_REDUCED_TYPE #{@dart_reduced_type}\n"
       string << "      ANALYSIS #{@analysis}\n"
       string << "      ANALYSIS_SAMPLES #{@analysis_samples}\n"
       string << "      SHOW_LIMITS_LINES #{@show_limits_lines.to_s.upcase}\n"
@@ -121,6 +137,26 @@ module Cosmos
         else
           raise ArgumentError, "Unknown VALUE_TYPE value: #{value_type}"
         end
+
+      when 'DART_REDUCTION'
+        # Expect 1 parameter
+        parser.verify_num_parameters(1, 1, "DART_REDUCTION <NONE, MINUTE, HOUR, DAY>")
+        dart_reduction = parameters[0].upcase.intern
+        if DART_REDUCTIONS.include?(dart_reduction)
+          @dart_reduction = dart_reduction
+        else
+          raise ArgumentError, "Unknown DART_REDUCTION value: #{dart_reduction}"
+        end
+
+      when 'DART_REDUCED_TYPE'
+        # Expect 1 parameter
+        parser.verify_num_parameters(1, 1, "DART_REDUCED_TYPE <AVG, MIN, MAX, STDDEV>")
+        dart_reduced_type = parameters[0].upcase.intern
+        if DART_REDUCED_TYPES.include?(dart_reduced_type)
+          @dart_reduced_type = dart_reduced_type
+        else
+          raise ArgumentError, "Unknown DART_REDUCED_TYPE value: #{dart_reduced_type}"
+        end      
 
       when 'ANALYSIS'
         # Expect 1 parameter
@@ -164,9 +200,9 @@ module Cosmos
       items = []
       if @target_name and @packet_name
         if @item_name
-          items << [@target_name, @packet_name, @time_item_name, :CONVERTED, nil]
-          items << [@target_name, @packet_name, @item_name, @value_type, @item_array_index]
-          items << [@target_name, @packet_name, @formatted_time_item_name, :CONVERTED, nil] if @formatted_time_item_name
+          items << [@target_name, @packet_name, @time_item_name, :CONVERTED, nil, @dart_reduction, :AVG]
+          items << [@target_name, @packet_name, @item_name, @value_type, @item_array_index, @dart_reduction, @dart_reduced_type]
+          items << [@target_name, @packet_name, @formatted_time_item_name, :CONVERTED, nil, @dart_reduction, :AVG] if @formatted_time_item_name and @dart_reduction == :NONE
         end
       end
       items
@@ -187,7 +223,7 @@ module Cosmos
         end
 
         formatted_x_value = nil
-        formatted_x_value = packet.read(@formatted_time_item_name) if @formatted_time_item_name
+        formatted_x_value = packet.read(@formatted_time_item_name) if @formatted_time_item_name and @dart_reduction == :NONE
 
         process_values(x_value, y_value, formatted_x_value)
       rescue Exception => error
@@ -300,6 +336,7 @@ module Cosmos
       if @target_name and @packet_name and @item_name
         str << "#{@target_name} #{@packet_name} #{@item_name}"
         str << "[#{@item_array_index}]" if @item_array_index
+        str << " <#{@dart_reduction} #{dart_reduced_type}>" if @dart_reduction != :NONE
         str << " (#{@analysis})" if @analysis != :NONE
       end
       str
@@ -323,6 +360,8 @@ module Cosmos
       data_object.time_item_name = @time_item_name.clone if @time_item_name
       data_object.formatted_time_item_name = @formatted_time_item_name.clone if @formatted_time_item_name
       data_object.value_type = @value_type
+      data_object.dart_reduction = @dart_reduction
+      data_object.dart_reduced_type = @dart_reduced_type
       data_object.analysis = @analysis
       data_object.analysis_samples = @analysis_samples
       data_object.show_limits_lines = @show_limits_lines
@@ -353,6 +392,8 @@ module Cosmos
          @item_array_index != edited_data_object.item_array_index or
          @time_item_name != edited_data_object.time_item_name or
          @formatted_time_item_name != edited_data_object.formatted_time_item_name or
+         @dart_reduction != edited_data_object.dart_reduction or
+         @dart_reduced_type != edited_data_object.dart_reduced_type or
          @value_type != edited_data_object.value_type or
          @analysis != edited_data_object.analysis or
          @analysis_samples != edited_data_object.analysis_samples
