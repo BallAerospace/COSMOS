@@ -88,8 +88,8 @@ module Cosmos
       row = 0
 
       # Chooser for Log Files
-      label = Qt::Label.new('Log Files:')
-      @layout.addWidget(label, row, 0, 1, 2)
+      @log_files_label = Qt::Label.new('Log Files:')
+      @layout.addWidget(@log_files_label, row, 0, 1, 2)
       @browse_button = Qt::PushButton.new('Browse...')
       @browse_button.connect(SIGNAL('clicked()')) { handle_browse_button() }
       @layout.addWidget(@browse_button, row, 2)
@@ -152,15 +152,15 @@ module Cosmos
         @packet_log_reader = PacketLogReader.new unless @packet_log_reader
 
         # Chooser or label for log reader
-        label = Qt::Label.new('Packet Log Reader:')
-        @layout.addWidget(label, row, 0)
+        @packet_log_reader_label = Qt::Label.new('Packet Log Reader:')
+        @layout.addWidget(@packet_log_reader_label, row, 0)
         @packet_log_reader_field = Qt::LineEdit.new(@packet_log_reader.class.to_s)
         @packet_log_reader_field.setMinimumWidth(340)
         @packet_log_reader_field.setReadOnly(true)
         @layout.addWidget(@packet_log_reader_field, row, 1, 1, 2)
-        select_button = Qt::PushButton.new('Select')
-        select_button.connect(SIGNAL('clicked()')) { handle_log_reader_button() }
-        @layout.addWidget(select_button, row, 3)
+        @plr_select_button = Qt::PushButton.new('Select')
+        @plr_select_button.connect(SIGNAL('clicked()')) { handle_log_reader_button() }
+        @layout.addWidget(@plr_select_button, row, 3)
         row += 1
       end
 
@@ -213,6 +213,26 @@ module Cosmos
         @time_end_field.setText(@time_end.formatted)
       else
         @time_end_field.setText('N/A')
+      end
+    end
+
+    def show_log_fields(show_fields)
+      if show_fields
+        @filenames.show if @filenames
+        @log_files_label.show if @log_files_label
+        @browse_button.show if @browse_button
+        @remove_button.show if @remove_button
+        @packet_log_reader_field.show if @packet_log_reader_field
+        @packet_log_reader_label.show if @packet_log_reader_label
+        @plr_select_button.show if @plr_select_button
+      else
+        @filenames.hide if @filenames
+        @log_files_label.hide if @log_files_label
+        @browse_button.hide if @browse_button
+        @remove_button.hide if @remove_button
+        @packet_log_reader_field.hide if @packet_log_reader_field
+        @packet_log_reader_label.hide if @packet_log_reader_label
+        @plr_select_button.hide if @plr_select_button
       end
     end
 

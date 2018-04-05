@@ -17,10 +17,6 @@ require 'cosmos/tools/cmd_tlm_server/cmd_tlm_server_config'
 module Cosmos
 
   describe Interfaces do
-    after(:all) do
-      clean_config()
-    end
-
     describe "map_all_targets" do
       it "complains about an unknown interface" do
         tf = Tempfile.new('unittest')

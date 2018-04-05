@@ -18,9 +18,12 @@ module Cosmos
   describe Api do
 
     before(:all) do
-      cts = File.join(Cosmos::USERPATH,'config','tools','cmd_tlm_server','cmd_tlm_server.txt')
-      FileUtils.mkdir_p(File.dirname(cts))
-      File.open(cts,'w') do |file|
+      # Save cmd_tlm_server.txt
+      @cts = File.join(Cosmos::USERPATH,'config','tools','cmd_tlm_server','cmd_tlm_server.txt')
+      FileUtils.mv @cts, Cosmos::USERPATH
+
+      FileUtils.mkdir_p(File.dirname(@cts))
+      File.open(@cts,'w') do |file|
         file.puts 'INTERFACE INST_INT interface.rb'
         file.puts '  TARGET INST'
         file.puts '  PROTOCOL READ_WRITE OverrideProtocol'
@@ -38,9 +41,13 @@ module Cosmos
       super()
       @name = 'Example Background Task1'
       @status = "This is example one"
+      @sleeper = Sleeper.new
     end
     def call
-      sleep 0.3
+      return if @sleeper.sleep(0.3)
+    end
+    def stop
+      @sleeper.cancel
     end
   end
 end
@@ -56,11 +63,15 @@ module Cosmos
       super()
       @name = 'Example Background Task2'
       @status = "This is example two"
+      @sleeper = Sleeper.new
     end
     def call
       loop do
-        sleep 1
+        return if @sleeper.sleep(1)
       end
+    end
+    def stop
+      @sleeper.cancel
     end
   end
 end
@@ -69,10 +80,11 @@ DOC
     end
 
     after(:all) do
-      clean_config()
-      FileUtils.rm_rf File.join(Cosmos::USERPATH,'config','tools')
       FileUtils.rm_rf @background1
       FileUtils.rm_rf @background2
+      # Restore cmd_tlm_server.txt
+      FileUtils.mv File.join(Cosmos::USERPATH, 'cmd_tlm_server.txt'),
+      File.join(Cosmos::USERPATH,'config','tools','cmd_tlm_server')
     end
 
     before(:each) do

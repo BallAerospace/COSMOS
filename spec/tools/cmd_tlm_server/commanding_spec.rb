@@ -17,10 +17,6 @@ require 'cosmos/tools/cmd_tlm_server/cmd_tlm_server_config'
 module Cosmos
 
   describe Commanding do
-    after(:all) do
-      clean_config()
-    end
-
     describe "send_command_to_target" do
       it "complains about unknown targets" do
         tf = Tempfile.new('unittest')

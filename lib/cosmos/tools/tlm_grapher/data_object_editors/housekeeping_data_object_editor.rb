@@ -95,6 +95,16 @@ module Cosmos
       @value_type.set_current(data_object.value_type.to_s) if data_object.value_type
       local_layout.addWidget(@value_type)
 
+      # Chooser for dart reduction
+      @dart_reduction = ComboboxChooser.new(self, '*DART Reduction:', HousekeepingDataObject::DART_REDUCTIONS.map {|x| x.to_s})
+      @dart_reduction.set_current(data_object.dart_reduction.to_s) if data_object.dart_reduction
+      local_layout.addWidget(@dart_reduction)
+
+      # Chooser for dart reduced type
+      @dart_reduced_type = ComboboxChooser.new(self, '*DART Reduced Type:', HousekeepingDataObject::DART_REDUCED_TYPES.map {|x| x.to_s})
+      @dart_reduced_type.set_current(data_object.dart_reduced_type.to_s) if data_object.dart_reduced_type
+      local_layout.addWidget(@dart_reduced_type)
+
       # Chooser for analysis type
       @analysis = ComboboxChooser.new(self, '*Analysis Type:', HousekeepingDataObject::ANALYSIS_TYPES.map {|x| x.to_s})
       @analysis.set_current(data_object.analysis.to_s) if data_object.analysis
@@ -148,6 +158,8 @@ module Cosmos
         data_object.formatted_time_item_name = formatted_time_item_name
       end
       data_object.value_type = @value_type.symbol
+      data_object.dart_reduction = @dart_reduction.symbol
+      data_object.dart_reduced_type = @dart_reduced_type.symbol
       data_object.analysis = @analysis.symbol
       data_object.analysis_samples = @analysis_samples.value
       if @show_limits_lines
@@ -182,6 +194,14 @@ module Cosmos
       value_types.delete(data_object.value_type.to_s)
       value_types.unshift(data_object.value_type.to_s)
       @value_type.update_items(value_types, false)
+      dart_reductions = HousekeepingDataObject::DART_REDUCTIONS.map {|x| x.to_s}
+      dart_reductions.delete(data_object.dart_reduction.to_s)
+      dart_reductions.unshift(data_object.dart_reduction.to_s)
+      @dart_reduction.update_items(dart_reductions, false)      
+      dart_reduced_types = HousekeepingDataObject::DART_REDUCED_TYPES.map {|x| x.to_s}
+      dart_reduced_types.delete(data_object.dart_reduced_types.to_s)
+      dart_reduced_types.unshift(data_object.dart_reduced_types.to_s)
+      @dart_reduced_type.update_items(dart_reduced_types, false)  
 
       packet, item = System.telemetry.packet_and_item(data_object.target_name,
                                                       data_object.packet_name,
@@ -204,6 +224,14 @@ module Cosmos
       value_types.delete(data_object.value_type.to_s)
       value_types.unshift(data_object.value_type.to_s)
       @value_type.update_items(value_types, false)
+      dart_reductions = HousekeepingDataObject::DART_REDUCTIONS.map {|x| x.to_s}
+      dart_reductions.delete(data_object.dart_reduction.to_s)
+      dart_reductions.unshift(data_object.dart_reduction.to_s)
+      @dart_reduction.update_items(dart_reductions, false)      
+      dart_reduced_types = HousekeepingDataObject::DART_REDUCED_TYPES.map {|x| x.to_s}
+      dart_reduced_types.delete(data_object.dart_reduced_types.to_s)
+      dart_reduced_types.unshift(data_object.dart_reduced_types.to_s)
+      @dart_reduced_type.update_items(dart_reduced_types, false)  
 
       packet, item = System.telemetry.packet_and_item(data_object.target_name,
                                                       data_object.packet_name,

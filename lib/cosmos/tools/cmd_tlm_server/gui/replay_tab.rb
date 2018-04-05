@@ -12,6 +12,7 @@ require 'cosmos'
 require 'cosmos/gui/qt'
 require 'cosmos/gui/choosers/string_chooser'
 require 'cosmos/gui/dialogs/packet_log_dialog'
+require 'cosmos/gui/dialogs/dart_dialog'
 require 'cosmos/gui/dialogs/progress_dialog'
 
 module Cosmos
@@ -40,6 +41,9 @@ module Cosmos
     def populate
       return if @widget
 
+      @resize_timer = Qt::Timer.new
+      @resize_timer.connect(SIGNAL('timeout()')) { @widget.resize(@widget.width, @widget.minimumHeight) }
+
       @widget = Qt::Widget.new
 
       layout = Qt::VBoxLayout.new(@widget)
@@ -54,6 +58,44 @@ module Cosmos
       @log_layout.setContentsMargins(0,0,0,0)
       @log_widget.setLayout(@log_layout)
 
+      # Data Source Selection
+      @data_source_layout = Qt::HBoxLayout.new()
+      label = Qt::Label.new("Data Source: ")
+      @data_source_layout.addWidget(label)
+      @log_file_radio = Qt::RadioButton.new("Log File", @widget)
+      @log_file_radio.setChecked(true)
+      @log_file_radio.connect(SIGNAL('clicked()')) do 
+        @stream_selection.hide
+        @log_file_selection.show
+        @op.setTitle("Playback Control: Log File")
+        @move_start.setEnabled(false)
+        @step_back.setEnabled(false)
+        @reverse_play.setEnabled(false)
+        @stop.setEnabled(false)
+        @play.setEnabled(false)
+        @step_forward.setEnabled(false)
+        @move_end.setEnabled(false)        
+        @resize_timer.start(100)
+      end
+      @data_source_layout.addWidget(@log_file_radio)
+      @dart_radio = Qt::RadioButton.new("DART Database", @widget)
+      @dart_radio.connect(SIGNAL('clicked()')) do 
+        @log_file_selection.hide
+        @stream_selection.show
+        @op.setTitle("Playback Control: DART Database")
+        @move_start.setEnabled(false)
+        @step_back.setEnabled(false)
+        @reverse_play.setEnabled(false)
+        @stop.setEnabled(false)
+        @play.setEnabled(false)
+        @step_forward.setEnabled(false)
+        @move_end.setEnabled(false)            
+        @resize_timer.start(100)
+      end      
+      @data_source_layout.addWidget(@dart_radio)
+      @data_source_layout.addStretch()
+      @log_layout.addLayout(@data_source_layout)
+
       # Create the log file GUI
       @log_file_selection = Qt::GroupBox.new("Log File Selection")
       @log_select = Qt::HBoxLayout.new(@log_file_selection)
@@ -66,8 +108,18 @@ module Cosmos
 
       @log_open.connect(SIGNAL('clicked()')) { select_log_file() }
 
+      # Create the streaming GUI
+      @stream_selection = Qt::GroupBox.new("Stream Selection")
+      @stream_select = Qt::HBoxLayout.new(@stream_selection)
+      @stream_open = Qt::PushButton.new("Select Stream...")
+      @stream_select.addWidget(@stream_open)
+      @log_layout.addWidget(@stream_selection)
+      @stream_selection.hide
+
+      @stream_open.connect(SIGNAL('clicked()')) { select_stream() }
+
       # Create the operation buttons GUI
-      @op = Qt::GroupBox.new("Playback Control")
+      @op = Qt::GroupBox.new("Playback Control: Log File")
       @op_layout = Qt::VBoxLayout.new(@op)
       @op_button_layout = Qt::HBoxLayout.new
       @move_start = Qt::PushButton.new(Cosmos.get_icon('skip_to_start-26.png'), '')
@@ -100,6 +152,13 @@ module Cosmos
       @move_end.connect(SIGNAL('clicked()')) { CmdTlmServer.replay_backend.move_end() }
       @op_button_layout.addWidget(@move_end)
       @op_layout.addLayout(@op_button_layout)
+      @move_start.setEnabled(false)
+      @step_back.setEnabled(false)
+      @reverse_play.setEnabled(false)
+      @stop.setEnabled(false)
+      @play.setEnabled(false)
+      @step_forward.setEnabled(false)
+      @move_end.setEnabled(false)
 
       # Speed Selection
       @playback_delay = nil
@@ -140,7 +199,7 @@ module Cosmos
       @op_layout.addLayout(@speed_layout)
       @log_layout.addWidget(@op)
 
-      @file_pos = Qt::GroupBox.new("File Position")
+      @file_pos = Qt::GroupBox.new("Time")
       @file_pos_layout = Qt::VBoxLayout.new(@file_pos)
       @slider = Qt::Slider.new(Qt::Horizontal)
       @slider.setRange(0, 10000)
@@ -231,6 +290,29 @@ module Cosmos
       case packet_log_dialog.exec
       when Qt::Dialog::Accepted
         CmdTlmServer.replay_backend.select_file(packet_log_dialog.filenames[0], packet_log_dialog.packet_log_reader)
+        @move_start.setEnabled(true)
+        @step_back.setEnabled(true)
+        @reverse_play.setEnabled(true)
+        @stop.setEnabled(true)
+        @play.setEnabled(true)
+        @step_forward.setEnabled(true)
+        @move_end.setEnabled(true)
+      end
+    end
+
+    def select_stream
+      dart_dialog = DartDialog.new(@widget, 'Select Stream', true)
+      case dart_dialog.exec
+      when Qt::Dialog::Accepted
+        CmdTlmServer.replay_backend.select_stream(dart_dialog.time_start, dart_dialog.time_end, dart_dialog.meta_filters)
+        @log_name.text = ""
+        @move_start.setEnabled(true)
+        @step_back.setEnabled(false)
+        @reverse_play.setEnabled(true)
+        @stop.setEnabled(true)
+        @play.setEnabled(true)
+        @step_forward.setEnabled(false)
+        @move_end.setEnabled(true)
       end
     end
   end

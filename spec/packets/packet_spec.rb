@@ -1411,8 +1411,8 @@ module Cosmos
     describe "clone" do
       it "duplicates the packet" do
         p = Packet.new("tgt","pkt")
-        p.processors['processor'] = Processor.new
-        p.processors['processor'].name = "TestProcessor"
+        p.processors['PROCESSOR'] = Processor.new
+        p.processors['PROCESSOR'].name = "TestProcessor"
         p2 = p.clone
         # No comparison operator
         # expect(p).to eql p2
@@ -1420,13 +1420,23 @@ module Cosmos
         expect(p2.target_name).to eql "TGT"
         expect(p2.packet_name).to eql "PKT"
         # No comparison operator
-        # expect(p2.processors['processor']).to eql p.processors['processor']
-        expect(p2.processors['processor']).to_not be p.processors['processor']
-        expect(p2.processors['processor'].name).to eql p.processors['processor'].name
+        # expect(p2.processors['PROCESSOR']).to eql p.processors['PROCESSOR']
+        expect(p2.processors['PROCESSOR']).to_not be p.processors['PROCESSOR']
+        expect(p2.processors['PROCESSOR'].name).to eql p.processors['PROCESSOR'].name
       end
     end
 
     describe "reset" do
+      it "does nothing to the SYSTEM META packet" do
+        p = Packet.new("SYSTEM","META")
+        time = Time.now
+        p.received_time = time
+        p.received_count = 50
+        p.reset
+        expect(p.received_time).to eql time
+        expect(p.received_count).to eql 50
+      end
+
       it "resets the received_time and received_count" do
         p = Packet.new("tgt","pkt")
         p.processors['processor'] = double("reset", :reset => true)

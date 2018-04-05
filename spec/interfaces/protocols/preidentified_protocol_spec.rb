@@ -21,10 +21,6 @@ module Cosmos
       allow(@interface).to receive(:connected?) { true }
     end
 
-    after(:all) do
-      clean_config()
-    end
-
     class PreStream < Stream
       def connect; end
       def connected?; true; end

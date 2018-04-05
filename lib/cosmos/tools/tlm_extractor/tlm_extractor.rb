@@ -17,6 +17,7 @@ Cosmos.catch_fatal_exception do
   require 'cosmos/gui/choosers/float_chooser'
   require 'cosmos/gui/dialogs/splash'
   require 'cosmos/gui/widgets/packet_log_frame'
+  require 'cosmos/gui/widgets/dart_meta_frame'
   require 'cosmos/gui/dialogs/progress_dialog'
   require 'cosmos/gui/widgets/full_text_search_line_edit'
   require 'cosmos/gui/utilities/analyze_log'
@@ -33,6 +34,8 @@ module Cosmos
     slots 'context_menu(const QPoint&)'
 
     FORMATTING_OPTIONS = %w(CONVERTED RAW FORMATTED WITH_UNITS)
+    DART_REDUCED_TYPE_OPTIONS = %w(AVG MIN MAX STDDEV)
+    DART_REDUCTION_OPTIONS = %w(NONE MINUTE HOUR DAY)
 
     class MyListWidget < Qt::ListWidget
       signals 'enterKeyPressed(int)'
@@ -232,6 +235,9 @@ module Cosmos
     end
 
     def initialize_central_widget
+      @resize_timer = Qt::Timer.new
+      @resize_timer.connect(SIGNAL('timeout()')) { self.resize(self.width, self.minimumHeight) }
+
       # Create the central widget
       @central_widget = Qt::Widget.new
       setCentralWidget(@central_widget)
@@ -390,20 +396,43 @@ module Cosmos
 
       @batch_config_box.hide
 
-      @file_box = Qt::GroupBox.new("File Selection")
-      @file_box_layout = Qt::VBoxLayout.new
-      @file_box.setLayout(@file_box_layout)
-      @top_layout.addWidget(@file_box)
+      # Data Source Selection
+      @data_source_layout = Qt::HBoxLayout.new()
+      label = Qt::Label.new("Data Source: ")
+      @data_source_layout.addWidget(label)
+      @log_file_radio = Qt::RadioButton.new("Log File", self)
+      @log_file_radio.setChecked(true)
+      @log_file_radio.connect(SIGNAL('clicked()')) do 
+        @packet_log_frame.show_log_fields(true)
+        @packet_log_frame.output_filename = ""
+        @dart_meta_frame.hide
+        @resize_timer.start(100)
+      end
+      @data_source_layout.addWidget(@log_file_radio)
+      @dart_radio = Qt::RadioButton.new("DART Database", self)
+      @dart_radio.connect(SIGNAL('clicked()')) do 
+        @packet_log_frame.show_log_fields(false)
+        @packet_log_frame.output_filename = ""
+        @dart_meta_frame.show
+        @resize_timer.start(100)
+      end      
+      @data_source_layout.addWidget(@dart_radio)
+      @data_source_layout.addStretch()
+      @top_layout.addLayout(@data_source_layout)
 
       # Packet Log Frame
       @packet_log_frame = PacketLogFrame.new(self, @log_dir, System.default_packet_log_reader.new(*System.default_packet_log_reader_params), @input_filenames, nil, true, true, true, Cosmos::TLM_FILE_PATTERN, Cosmos::TXT_FILE_PATTERN)
       @packet_log_frame.change_callback = method(:change_callback)
-      @file_box_layout.addWidget(@packet_log_frame)
+      @top_layout.addWidget(@packet_log_frame)
+
+      @dart_meta_frame = DartMetaFrame.new(self)
+      @dart_meta_frame.hide
+      @top_layout.addWidget(@dart_meta_frame)
 
       # Process and Open Buttons
       @button_layout = Qt::HBoxLayout.new
-      @process_button = Qt::PushButton.new('&Process Files')
-      @process_button.connect(SIGNAL('clicked()')) { process_log_files() }
+      @process_button = Qt::PushButton.new('&Process')
+      @process_button.connect(SIGNAL('clicked()')) { process() }
       @button_layout.addWidget(@process_button)
 
       @open_button = Qt::PushButton.new('&Open in Text Editor')
@@ -423,7 +452,7 @@ module Cosmos
     end # def initialize
 
     def self.post_options_parsed_hook(options)
-      if options.input_files
+      if options.input_files or options.dart
         # Process config file
         raise "Configuration File must be specified for command line processing" unless options.config_file
 
@@ -431,19 +460,27 @@ module Cosmos
         tlm_extractor_config = TlmExtractorConfig.new(options.config_file)
         tlm_extractor_processor = TlmExtractorProcessor.new
         unless options.output_file
-          filename = options.input_files[0]
-          extension = File.extname(filename)
-          filename_no_extension = filename[0..-(extension.length + 1)]
-          if tlm_extractor_config.delimiter.to_s.strip == ','
-            filename = filename_no_extension << '.csv'
+          if options.input_files
+            filename = options.input_files[0]
+            extension = File.extname(filename)
+            filename_no_extension = filename[0..-(extension.length + 1)]
+            if tlm_extractor_config.delimiter.to_s.strip == ','
+              filename = filename_no_extension << '.csv'
+            else
+              filename = filename_no_extension << '.txt'
+            end
+            options.output_file = File.join(System.paths['LOGS'], File.basename(filename))
           else
-            filename = filename_no_extension << '.txt'
+            options.output_file = File.join(System.paths['LOGS'], File.build_timestamped_filename(['tlmextractor']))
           end
-          options.output_file = File.join(System.paths['LOGS'], File.basename(filename))
         end
 
         tlm_extractor_config.output_filename = options.output_file
-        tlm_extractor_processor.process(options.input_files, [tlm_extractor_config])
+        if options.dart
+          tlm_extractor_processor.process_dart([tlm_extractor_config])
+        else
+          tlm_extractor_processor.process(options.input_files, [tlm_extractor_config])
+        end
         puts "Created #{options.output_file}"
         return false
       else
@@ -461,6 +498,7 @@ module Cosmos
           options.auto_size = false
           options.restore_size = false # always render this the correct size
           options.title = "Telemetry Extractor"
+          options.dart = false
           option_parser.separator "Telemetry Extractor Specific Options:"
           option_parser.on("-c", "--config FILE", "Use the specified configuration file") do |arg|
             options.config_file = File.join(Cosmos::USERPATH, 'config', 'tools', 'tlm_extractor', arg)
@@ -475,6 +513,9 @@ module Cosmos
           end
           option_parser.on("-o", "--output FILE", "Output results to the specified file") do |arg|
             options.output_file = arg
+          end
+          option_parser.on("--dart", "Query Dart instead of files") do |arg|
+            options.dart = true
           end
         end
 
@@ -519,13 +560,25 @@ module Cosmos
         packet_name_or_text = split_item[2]
         item_name = split_item[3]
         value_type = split_item[4]
+        dart_reduction = split_item[5]
+        dart_reduced_type = split_item[6]
         if value_type
           value_type = value_type.upcase.intern
         else
           value_type = :CONVERTED
         end
+        if dart_reduction
+          dart_reduction = dart_reduction.upcase.intern
+        else
+          dart_reduction = :NONE
+        end
+        if dart_reduced_type
+          dart_reduced_type = dart_reduced_type.upcase.intern
+        else
+          dart_reduced_type = :AVG
+        end
         if item_type == 'ITEM'
-          @tlm_extractor_config.add_item(target_name_or_column_name, packet_name_or_text, item_name, value_type)
+          @tlm_extractor_config.add_item(target_name_or_column_name, packet_name_or_text, item_name, value_type, dart_reduction, dart_reduced_type)
         else
           @tlm_extractor_config.add_text(target_name_or_column_name.remove_quotes, packet_name_or_text.remove_quotes)
         end
@@ -554,12 +607,16 @@ module Cosmos
       @downsample_entry.value = @tlm_extractor_config.downsample_seconds
 
       clear_config_item_list()
-      @tlm_extractor_config.items.each do |item_type, target_name_or_column_name, packet_name_or_text, item_name, value_type|
+      @tlm_extractor_config.items.each do |item_type, target_name_or_column_name, packet_name_or_text, item_name, value_type, dart_reduction, dart_reduced_type|
         if item_type == 'ITEM'
-          if value_type == :CONVERTED
-            @config_item_list.addItem("#{item_type} #{target_name_or_column_name} #{packet_name_or_text} #{item_name}")
+          if dart_reduction == :NONE 
+            if value_type == :CONVERTED
+              @config_item_list.addItem("#{item_type} #{target_name_or_column_name} #{packet_name_or_text} #{item_name}")
+            else
+              @config_item_list.addItem("#{item_type} #{target_name_or_column_name} #{packet_name_or_text} #{item_name} #{value_type}")
+            end
           else
-            @config_item_list.addItem("#{item_type} #{target_name_or_column_name} #{packet_name_or_text} #{item_name} #{value_type}")
+            @config_item_list.addItem("#{item_type} #{target_name_or_column_name} #{packet_name_or_text} #{item_name} #{value_type} #{dart_reduction} #{dart_reduced_type}")
           end
         else
           @config_item_list.addItem("#{item_type} \"#{target_name_or_column_name}\" \"#{packet_name_or_text}\"")
@@ -576,100 +633,160 @@ module Cosmos
     end
 
     # Handles processing log files
-    def process_log_files
+    def process
       @cancel = false
-      begin
-        @tlm_extractor_processor.packet_log_reader = @packet_log_frame.packet_log_reader
-        @input_filenames = @packet_log_frame.filenames.sort
-        @batch_filenames = []
-        output_extension = '.txt'
-        batch_name = nil
-        if @batch_mode_check.checked?
-          batch_name = @batch_name_entry.text
-          @batch_filenames_entry.each {|list_item| @batch_filenames << list_item.text}
-          if @packet_log_frame.output_filename_filter == Cosmos::CSV_FILE_PATTERN
-            output_extension = '.csv'
-          else
-            output_extension = '.txt'
-          end
-        end
-        return unless pre_process_tests()
-
-        # Configure Tlm Extractor Config
-        sync_gui_to_config()
-
-        start_time = Time.now.sys
-        ProgressDialog.execute(self, 'Log File Progress', 600, 300) do |progress_dialog|
-          progress_dialog.cancel_callback = method(:cancel_callback)
-          progress_dialog.enable_cancel_button
-
-          begin
-            current_input_file_index = -1
-            current_config_file_index = -1
-            start_packet_count = -1
-            last_packet_count = -1
-
-            if @batch_filenames.empty?
-              process_method = :process
-              process_args = [@input_filenames, [@tlm_extractor_config], @packet_log_frame.time_start, @packet_log_frame.time_end]
+      if @log_file_radio.isChecked
+        begin
+          @tlm_extractor_processor.packet_log_reader = @packet_log_frame.packet_log_reader
+          @input_filenames = @packet_log_frame.filenames.sort
+          @batch_filenames = []
+          output_extension = '.txt'
+          batch_name = nil
+          if @batch_mode_check.checked?
+            batch_name = @batch_name_entry.text
+            @batch_filenames_entry.each {|list_item| @batch_filenames << list_item.text}
+            if @packet_log_frame.output_filename_filter == Cosmos::CSV_FILE_PATTERN
+              output_extension = '.csv'
             else
-              process_method = :process_batch
-              process_args = [batch_name, @input_filenames, @log_dir, output_extension, @batch_filenames, @packet_log_frame.time_start, @packet_log_frame.time_end]
-            end
-
-            @tlm_extractor_processor.send(process_method, *process_args) do |input_file_index, packet_count, file_progress|
-              # Handle Cancel
-              break if @cancel
-
-              # Handle Input File Change
-              if input_file_index != current_input_file_index
-                current_input_file_index = input_file_index
-
-                if start_packet_count >= 0
-                  # Make sure some packets were found in the previous file
-                  if packet_count == start_packet_count
-                    # No packets found in previous file
-                    progress_dialog.append_text("  WARNING: No packets processed in #{File.basename(@input_filenames[input_file_index - 1])}")
-                  end
-                end
-                start_packet_count = packet_count
-
-                progress_dialog.append_text("Processing File #{input_file_index + 1}/#{@input_filenames.length}: #{File.basename(@input_filenames[input_file_index])}")
-                progress_dialog.set_step_progress(0.0)
-                progress_dialog.set_overall_progress((input_file_index).to_f / @input_filenames.length.to_f)
-              end
-
-              # Save packet_count
-              last_packet_count = packet_count
-
-              # Handle Progress Reporting
-              progress_dialog.set_step_progress(file_progress)
-            end
-            # Make sure some packets were found in the previous file
-            if start_packet_count == last_packet_count
-              # No packets found in previous file
-              progress_dialog.append_text("  WARNING: No packets processed in #{File.basename(@input_filenames[-1])}")
-            end
-
-          rescue => error
-            progress_dialog.append_text("Error processing:\n#{error.formatted}\n")
-          ensure
-            progress_dialog.set_step_progress(1.0) if !@cancel
-            progress_dialog.set_overall_progress(1.0) if !@cancel
-            progress_dialog.append_text("Runtime: #{Time.now.sys - start_time} s")
-            progress_dialog.complete
-            if @batch_filenames.empty?
-              Qt.execute_in_main_thread(true) do
-                @open_button.setEnabled(true)
-                @open_excel_button.setEnabled(true) if Kernel.is_windows?
-              end
+              output_extension = '.txt'
             end
           end
-        end # ProgressDialog.execute
-      rescue => error
-        Qt::MessageBox.critical(self, 'Error!', "Error Processing Log File(s)\n#{error.formatted}")
+          return unless pre_process_tests()
+
+          # Configure Tlm Extractor Config
+          sync_gui_to_config()
+
+          start_time = Time.now.sys
+          ProgressDialog.execute(self, 'Log File Progress', 600, 300) do |progress_dialog|
+            progress_dialog.cancel_callback = method(:cancel_callback)
+            progress_dialog.enable_cancel_button
+
+            begin
+              current_input_file_index = -1
+              current_config_file_index = -1
+              start_packet_count = -1
+              last_packet_count = -1
+
+              if @batch_filenames.empty?
+                process_method = :process
+                process_args = [@input_filenames, [@tlm_extractor_config], @packet_log_frame.time_start, @packet_log_frame.time_end]
+              else
+                process_method = :process_batch
+                process_args = [batch_name, @input_filenames, @log_dir, output_extension, @batch_filenames, @packet_log_frame.time_start, @packet_log_frame.time_end]
+              end
+
+              @tlm_extractor_processor.send(process_method, *process_args) do |input_file_index, packet_count, file_progress|
+                # Handle Cancel
+                break if @cancel
+
+                # Handle Input File Change
+                if input_file_index != current_input_file_index
+                  current_input_file_index = input_file_index
+
+                  if start_packet_count >= 0
+                    # Make sure some packets were found in the previous file
+                    if packet_count == start_packet_count
+                      # No packets found in previous file
+                      progress_dialog.append_text("  WARNING: No packets processed in #{File.basename(@input_filenames[input_file_index - 1])}")
+                    end
+                  end
+                  start_packet_count = packet_count
+
+                  progress_dialog.append_text("Processing File #{input_file_index + 1}/#{@input_filenames.length}: #{File.basename(@input_filenames[input_file_index])}")
+                  progress_dialog.set_step_progress(0.0)
+                  progress_dialog.set_overall_progress((input_file_index).to_f / @input_filenames.length.to_f)
+                end
+
+                # Save packet_count
+                last_packet_count = packet_count
+
+                # Handle Progress Reporting
+                progress_dialog.set_step_progress(file_progress)
+              end
+              # Make sure some packets were found in the previous file
+              if start_packet_count == last_packet_count
+                # No packets found in previous file
+                progress_dialog.append_text("  WARNING: No packets processed in #{File.basename(@input_filenames[-1])}")
+              end
+
+            rescue => error
+              progress_dialog.append_text("Error processing:\n#{error.formatted}\n")
+            ensure
+              progress_dialog.set_step_progress(1.0) if !@cancel
+              progress_dialog.set_overall_progress(1.0) if !@cancel
+              progress_dialog.append_text("Runtime: #{Time.now.sys - start_time} s")
+              progress_dialog.complete
+              if @batch_filenames.empty?
+                Qt.execute_in_main_thread(true) do
+                  @open_button.setEnabled(true)
+                  @open_excel_button.setEnabled(true) if Kernel.is_windows?
+                end
+              end
+            end
+          end # ProgressDialog.execute
+        rescue => error
+          Qt::MessageBox.critical(self, 'Error!', "Error Processing Log File(s)\n#{error.formatted}")
+        end
+      else
+        begin
+          @batch_filenames = []
+          output_extension = '.txt'
+          batch_name = nil
+          if @batch_mode_check.checked?
+            batch_name = @batch_name_entry.text
+            @batch_filenames_entry.each {|list_item| @batch_filenames << list_item.text}
+            if @packet_log_frame.output_filename_filter == Cosmos::CSV_FILE_PATTERN
+              output_extension = '.csv'
+            else
+              output_extension = '.txt'
+            end
+          end
+          return unless pre_process_tests()
+
+          # Configure Tlm Extractor Config
+          sync_gui_to_config()
+
+          start_time = Time.now.sys
+          ProgressDialog.execute(self, 'DART Query Progress', 600, 300) do |progress_dialog|
+            progress_dialog.cancel_callback = method(:cancel_callback)
+            progress_dialog.enable_cancel_button
+
+            begin
+              if @batch_filenames.empty?
+                process_method = :process_dart
+                process_args = [[@tlm_extractor_config], @packet_log_frame.time_start, @packet_log_frame.time_end, @dart_meta_frame.meta_filters]
+              else
+                process_method = :process_dart_batch
+                process_args = [batch_name, @log_dir, output_extension, @batch_filenames, @packet_log_frame.time_start, @packet_log_frame.time_end, @dart_meta_frame.meta_filters]
+              end
+
+              @tlm_extractor_processor.send(process_method, *process_args) do |percentage, message|
+                # Handle Cancel
+                break if @cancel
+                progress_dialog.append_text(message)
+                progress_dialog.set_overall_progress(percentage)
+              end
+
+            rescue => error
+              progress_dialog.append_text("Error processing:\n#{error.formatted}\n")
+            ensure
+              progress_dialog.set_step_progress(1.0) if !@cancel
+              progress_dialog.set_overall_progress(1.0) if !@cancel
+              progress_dialog.append_text("Runtime: #{Time.now.sys - start_time} s")
+              progress_dialog.complete
+              if @batch_filenames.empty?
+                Qt.execute_in_main_thread(true) do
+                  @open_button.setEnabled(true)
+                  @open_excel_button.setEnabled(true) if Kernel.is_windows?
+                end
+              end
+            end
+          end # ProgressDialog.execute
+        rescue => error
+          Qt::MessageBox.critical(self, 'Error!', "Error Querying DART\n#{error.formatted}")
+        end
       end
-    end # def process_log_files
+    end # def process
 
     # Handles options dialog
     def handle_options
@@ -850,6 +967,32 @@ module Cosmos
             end
             layout.addWidget(box)
 
+            label = Qt::Label.new('DART Reduction:')
+            layout.addWidget(label)
+
+            dart_reduction_box = Qt::ComboBox.new
+            dart_reduction_box.maxCount = DART_REDUCTION_OPTIONS.length
+            DART_REDUCTION_OPTIONS.each {|item| dart_reduction_box.addItem(item) }
+            current_reduction = split_item[5]
+            current_reduction = 'NONE' unless current_reduction
+            if DART_REDUCTION_OPTIONS.index(current_reduction)
+              dart_reduction_box.currentIndex = DART_REDUCTION_OPTIONS.index(current_reduction)
+            end
+            layout.addWidget(dart_reduction_box)
+
+            label = Qt::Label.new('DART Reduced Type:')
+            layout.addWidget(label)
+
+            dart_reduction_type_box = Qt::ComboBox.new
+            dart_reduction_type_box.maxCount = DART_REDUCED_TYPE_OPTIONS.length
+            DART_REDUCED_TYPE_OPTIONS.each {|item| dart_reduction_type_box.addItem(item) }
+            current_dart_type = split_item[6]
+            current_dart_type = 'AVG' unless current_dart_type
+            if DART_REDUCED_TYPE_OPTIONS.index(current_dart_type)
+              dart_reduction_type_box.currentIndex = DART_REDUCED_TYPE_OPTIONS.index(current_dart_type)
+            end
+            layout.addWidget(dart_reduction_type_box)
+
             check_box = nil
             if selected_items.length > 1 and item_index == selected_items[0]
               check_box = Qt::CheckBox.new('Apply to All?')
@@ -876,11 +1019,15 @@ module Cosmos
                 set_indexes.each do |set_item_index|
                   split_item = @config_item_list.item(set_item_index).text.scan ConfigParser::PARSING_REGEX
                   if split_item[0] == 'ITEM'
-                    # Remove any formatting from the item by only keeping the first four strings
+                    # Remove any formatting/dart info from the item by only keeping the first four strings
                     @config_item_list.item(set_item_index).text = split_item[0..3].join(' ')
 
-                    if box.currentIndex != 0
-                      @config_item_list.item(set_item_index).text = "#{@config_item_list.item(set_item_index).text} #{FORMATTING_OPTIONS[box.currentIndex]}"
+                    if dart_reduction_box.currentIndex == 0
+                      if box.currentIndex != 0
+                        @config_item_list.item(set_item_index).text = "#{@config_item_list.item(set_item_index).text} #{FORMATTING_OPTIONS[box.currentIndex]}"
+                      end
+                    else
+                      @config_item_list.item(set_item_index).text = "#{@config_item_list.item(set_item_index).text} #{FORMATTING_OPTIONS[box.currentIndex]} #{DART_REDUCTION_OPTIONS[dart_reduction_box.currentIndex]} #{DART_REDUCED_TYPE_OPTIONS[dart_reduction_type_box.currentIndex]}"
                     end
                   end
                 end
@@ -1047,9 +1194,13 @@ module Cosmos
           return false
         end
 
-        unless @packet_log_frame.output_filename
-          Qt::MessageBox.critical(self, 'Error', 'No Output File Selected')
-          return false
+        if @packet_log_frame.output_filename.to_s.empty?
+          if @log_file_radio.isChecked
+            Qt::MessageBox.critical(self, 'Error', 'No Output File Selected')
+            return false
+          else
+            @packet_log_frame.output_filename = File.join(System.paths['LOGS'], File.build_timestamped_filename(['tlm_extractor', 'dart']))
+          end
         end
 
         if File.exist?(@packet_log_frame.output_filename)
@@ -1070,43 +1221,45 @@ module Cosmos
         end
       end
 
-      unless @input_filenames and @input_filenames[0]
-        Qt::MessageBox.critical(self, 'Error', 'Please select at least 1 input file')
-        return false
-      end
+      if @log_file_radio.isChecked
+        unless @input_filenames and @input_filenames[0]
+          Qt::MessageBox.critical(self, 'Error', 'Please select at least 1 input file')
+          return false
+        end
 
-      # Validate configurations exist for input filenames
-      @input_filenames.each do |input_filename|
-        Cosmos.check_log_configuration(@tlm_extractor_processor.packet_log_reader, input_filename)
-      end
+        # Validate configurations exist for input filenames
+        @input_filenames.each do |input_filename|
+          Cosmos.check_log_configuration(@tlm_extractor_processor.packet_log_reader, input_filename)
+        end
 
-      #Validate config information
-      @tlm_extractor_processor.packet_log_reader.open(@input_filenames[0])
-      @tlm_extractor_processor.packet_log_reader.close
+        #Validate config information
+        @tlm_extractor_processor.packet_log_reader.open(@input_filenames[0])
+        @tlm_extractor_processor.packet_log_reader.close
 
-      @config_item_list.each do |item|
-        split_item = item.text.split
-        item_type = split_item[0]
-        target_name = split_item[1]
-        packet_name = split_item[2]
-        item_name = split_item[3]
+        @config_item_list.each do |item|
+          split_item = item.text.split
+          item_type = split_item[0]
+          target_name = split_item[1]
+          packet_name = split_item[2]
+          item_name = split_item[3]
 
-        if item_type == 'ITEM'
-          # Verify Packet
-          packet = nil
-          begin
-            packet = System.telemetry.packet(target_name, packet_name)
-          rescue
-            Qt::MessageBox.critical(self, 'Error!', "Unknown Packet #{target_name} #{packet_name} specified")
-            return false
-          end
+          if item_type == 'ITEM'
+            # Verify Packet
+            packet = nil
+            begin
+              packet = System.telemetry.packet(target_name, packet_name)
+            rescue
+              Qt::MessageBox.critical(self, 'Error!', "Unknown Packet #{target_name} #{packet_name} specified")
+              return false
+            end
 
-          # Verify Item
-          begin
-            packet.get_item(item_name)
-          rescue
-            Qt::MessageBox.critical(self, 'Error!', "Item #{item_name} not present in packet")
-            return false
+            # Verify Item
+            begin
+              packet.get_item(item_name)
+            rescue
+              Qt::MessageBox.critical(self, 'Error!', "Item #{item_name} not present in packet")
+              return false
+            end
           end
         end
       end

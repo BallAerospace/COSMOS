@@ -34,7 +34,6 @@ module Cosmos
     end
 
     after(:all) do
-      clean_config()
       4.times.each { |i| File.delete(File.join(Cosmos::USERPATH,'lib',"my_bg_task#{i}.rb")) }
     end
 

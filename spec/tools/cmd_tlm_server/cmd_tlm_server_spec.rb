@@ -13,21 +13,7 @@ require 'cosmos'
 require 'cosmos/tools/cmd_tlm_server/cmd_tlm_server'
 
 module Cosmos
-
   describe CmdTlmServer do
-    before(:all) do
-      cts = File.join(Cosmos::USERPATH,'config','tools','cmd_tlm_server','cmd_tlm_server.txt')
-      FileUtils.mkdir_p(File.dirname(cts))
-      File.open(cts,'w') do |file|
-        file.puts 'INTERFACE SYSTEM_INT cmd_tlm_server_interface.rb'
-        file.puts '  TARGET SYSTEM'
-      end
-    end
-
-    after(:all) do
-      clean_config()
-    end
-
     before(:each) do
       allow_any_instance_of(Interface).to receive(:connect).and_return(true)
       allow_any_instance_of(Interface).to receive(:connected?).and_return(true)

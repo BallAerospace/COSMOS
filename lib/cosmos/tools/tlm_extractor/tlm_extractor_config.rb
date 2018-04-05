@@ -1,6 +1,6 @@
 # encoding: ascii-8bit
 
-# Copyright 2014 Ball Aerospace & Technologies Corp.
+# Copyright 2018 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
 # This program is free software; you can modify and/or redistribute it
@@ -9,6 +9,7 @@
 # attribution addendums as found in the LICENSE.txt
 
 require 'cosmos'
+require 'cosmos/io/json_drb_object'
 
 module Cosmos
 
@@ -16,6 +17,8 @@ module Cosmos
   class TlmExtractorConfig
 
     VALUE_TYPES = [:RAW, :CONVERTED, :FORMATTED, :WITH_UNITS]
+    DART_REDUCTION_OPTIONS = [:NONE, :MINUTE, :HOUR, :DAY]
+    DART_REDUCED_TYPES = [:AVG, :MIN, :MAX, :STDDEV]
     COLUMN_MODES = [:NORMAL, :SHARE_ALL_COLUMNS, :SHARE_INDIV_COLUMNS, :FULL_COLUMN_NAMES]
     DEFAULT_UNIQUE_IGNORED = ['RECEIVED_TIMEFORMATTED', 'RECEIVED_TIMESECONDS']
     ITEM = 'ITEM'.freeze
@@ -28,7 +31,9 @@ module Cosmos
     attr_accessor :delimiter
     attr_accessor :downsample_seconds
     attr_accessor :print_filenames_to_output
+    attr_accessor :mode
     attr_reader :items
+    attr_reader :normal_items
     attr_reader :shared_indiv_columns
 
     attr_accessor :output_filename
@@ -38,6 +43,7 @@ module Cosmos
       @output_filename = nil
       @input_filenames = []
       @output_file = nil
+      @mode = :log_file
       reset_settings()
       clear_items()
       clear_shared_columns()
@@ -61,15 +67,18 @@ module Cosmos
       @columns_hash = {}
       @previous_row = nil
       @items = []
+      @normal_items = []
       @text_items = []
     end
 
-    def add_item(target_name, packet_name, item_name, value_type = :CONVERTED)
+    def add_item(target_name, packet_name, item_name, value_type = :CONVERTED, dart_reduction = :NONE, dart_reduced_type = :AVG)
       target_name = target_name.upcase
       packet_name = packet_name.upcase
       item_name = item_name.upcase
 
       raise "Unknown Value Type: #{value_type}" unless VALUE_TYPES.include?(value_type)
+      raise "Unknown Dart Reduction: #{dart_reduction}" unless DART_REDUCTION_OPTIONS.include?(dart_reduction)
+      raise "Unknown Dart Reduced Type: #{dart_reduced_type}" unless DART_REDUCED_TYPES.include?(dart_reduced_type)
 
       hash_index = item_name + ' ' + value_type.to_s
 
@@ -78,19 +87,20 @@ module Cosmos
       elsif @column_mode == :SHARE_INDIV_COLUMNS and @shared_indiv_columns.include?(hash_index) and @columns_hash[hash_index]
         column_index = @columns_hash[hash_index]
       else
-        @columns << [item_name, value_type, nil, target_name, packet_name]
+        @columns << [item_name, value_type, nil, target_name, packet_name, dart_reduction, dart_reduced_type]
         column_index = @columns.length - 1
         @columns_hash[hash_index] = column_index
       end
       @packet_to_column_mapping[target_name] ||= {}
       @packet_to_column_mapping[target_name][packet_name] ||= []
       @packet_to_column_mapping[target_name][packet_name] << column_index
-      @items << [ITEM, target_name, packet_name, item_name, value_type]
+      @items << [ITEM, target_name, packet_name, item_name, value_type, dart_reduction, dart_reduced_type]
+      @normal_items << @items[-1]
     end
 
     def add_text(column_name, text)
-      @columns << [column_name, nil, nil, nil, nil]
-      @items << [TEXT, column_name, text, nil, nil]
+      @columns << [column_name, nil, nil, nil, nil, nil, nil]
+      @items << [TEXT, column_name, text, nil, nil, nil, nil]
       @text_items << [@columns.length - 1, text]
     end
 
@@ -116,30 +126,40 @@ module Cosmos
     end
 
     def column_names
-      if @column_mode == :FULL_COLUMN_NAMES
+      if @column_mode == :FULL_COLUMN_NAMES or @mode == :dart
         col_offset = 0
-        row = Array.new(@columns.length)
+        cnames = Array.new(@columns.length)
       else
         col_offset = 2
-        row = Array.new(@columns.length + 2)
-        row[0] = 'TARGET'
-        row[1] = 'PACKET'
+        cnames = Array.new(@columns.length + 2)
+        cnames[0] = 'TARGET'
+        cnames[1] = 'PACKET'
       end
       index = 0
-      @columns.each do |column_name, column_value_type, item_data_type, target_name, packet_name|
+      @columns.each do |column_name, column_value_type, item_data_type, target_name, packet_name, dart_reduction, dart_reduced_type|
         if @column_mode == :FULL_COLUMN_NAMES and target_name and packet_name
           column_name = [target_name, packet_name, column_name].join(' ')
         end
         case column_value_type
         when :CONVERTED, nil
-          row[index + col_offset] = column_name
+          cname = column_name
         else
-          row[index + col_offset] = (column_name + '(' + column_value_type.to_s + ')')
+          cname = (column_name + ' (' + column_value_type.to_s + ')')
         end
+        case dart_reduction
+        when :NONE, nil
+          # Nothing
+        else
+          cname = cname + ' [' + dart_reduction.to_s + ' ' + dart_reduced_type.to_s + ' ]'
+        end
+        if @mode == :dart and target_name and packet_name
+          cnames[index + col_offset] = cname + " TIMESTAMP"
+          index += 1
+        end
+        cnames[index + col_offset] = cname
         index += 1
       end
-
-      row
+      cnames
     end
 
     def restore(filename)
@@ -209,12 +229,14 @@ module Cosmos
 
           when 'ITEM'
             # Expect 3 or 4 parameters
-            parser.verify_num_parameters(3, 4, "ITEM <Target Name> <Packet Name> <Item Name> <Data Type (optional)>")
+            parser.verify_num_parameters(3, 6, "ITEM <Target Name> <Packet Name> <Item Name> <Data Type (optional)> <Dart Reduction (optional)> <Dart Reduced Type (optional)>")
             target_name = params[0].upcase
             packet_name = params[1].upcase
             item_name = params[2].upcase
             if params.length == 3
               value_type = :CONVERTED
+              dart_reduction = :NONE
+              dart_reduced_type = :AVG
             else
               value_type = params[3].upcase
               case value_type
@@ -223,8 +245,33 @@ module Cosmos
               else
                 raise "Unknown Value Type: #{value_type}"
               end
+
+              if params.length == 4
+                dart_reduction = :NONE
+                dart_reduced_type = :AVG
+              else
+                dart_reduction = params[4].upcase
+                case dart_reduction
+                when 'NONE', 'MINUTE', 'HOUR', 'DAY'
+                  dart_reduction = dart_reduction.intern
+                else
+                  raise "Unknown Dart Reduction: #{dart_reduction}"
+                end
+                
+                if params.length == 5
+                  dart_reduced_type = :AVG
+                else
+                  dart_reduced_type = params[5].upcase
+                  case dart_reduced_type
+                  when 'AVG', 'MIN', 'MAX', 'STDDEV'
+                    dart_reduced_type = dart_reduced_type.intern
+                  else
+                    raise "Unknown Dart Reduced Type: #{dart_reduced_type}"
+                  end
+                end
+              end
             end
-            add_item(target_name, packet_name, item_name, value_type)
+            add_item(target_name, packet_name, item_name, value_type, dart_reduction, dart_reduced_type)
 
           when 'TEXT'
             # Expect 2 parameters
@@ -287,12 +334,16 @@ module Cosmos
               end
             end
           end
-          @items.each do |item_type, target_name_or_column_name, packet_name_or_text, item_name, value_type|
+          @items.each do |item_type, target_name_or_column_name, packet_name_or_text, item_name, value_type, dart_reduction, dart_reduced_type|
             if item_type == ITEM
-              if value_type != :CONVERTED
-                file.puts "#{item_type} #{target_name_or_column_name} #{packet_name_or_text} #{item_name} #{value_type}"
-              else
+              if value_type == :CONVERTED and dart_reduction == :NONE
                 file.puts "#{item_type} #{target_name_or_column_name} #{packet_name_or_text} #{item_name}"
+              else
+                if dart_reduction == :NONE
+                  file.puts "#{item_type} #{target_name_or_column_name} #{packet_name_or_text} #{item_name} #{value_type}"
+                else
+                  file.puts "#{item_type} #{target_name_or_column_name} #{packet_name_or_text} #{item_name} #{value_type} #{dart_reduction} #{dart_reduced_type}"
+                end
               end
             else
               file.puts "#{item_type} \"#{target_name_or_column_name}\" \"#{packet_name_or_text}\""
@@ -312,7 +363,7 @@ module Cosmos
       # Open the output file
       @output_file = File.open(@output_filename, 'w')
 
-      if @print_filenames_to_output
+      if @print_filenames_to_output and @mode != :dart
         # Print input filenames to output file
         @input_filenames.each do |input_filename|
           if @matlab_header
@@ -378,13 +429,13 @@ module Cosmos
 
           # Add each packet item to the row
           packet_mapping.each do |column_index|
-            column_name, column_value_type, item_data_type, target_name, packet_name = @columns[column_index]
+            column_name, column_value_type, item_data_type, target_name, packet_name, dart_reduction, dart_reduced_type = @columns[column_index]
 
             # Lookup item data type on first use
             unless item_data_type
               _, item = System.telemetry.packet_and_item(packet.target_name, packet.packet_name, column_name)
               item_data_type = item.data_type
-              @columns[column_index] = [column_name, column_value_type, item_data_type, target_name, packet_name]
+              @columns[column_index] = [column_name, column_value_type, item_data_type, target_name, packet_name, dart_reduction, dart_reduced_type]
             end
 
             if item_data_type == :BLOCK
@@ -434,6 +485,52 @@ module Cosmos
           @previous_row = row
         end # if packet_mapping
       end # if target_mapping
+    end
+
+    def process_dart(dart_results)
+      row_index = 0
+      while (true)
+        row = Array.new(@normal_items.length * 2 + @text_items.length)
+        column_index = 0
+        found_data = false
+        @items.each do |item_type, target_name_or_column_name, packet_name_or_text, item_name, value_type, dart_reduction, dart_reduced_type|
+          if item_type == TEXT
+            row[column_index] = packet_name_or_text.gsub('%', (row_index + 2).to_s)
+            column_index += 1
+          else
+            value_type = :CONVERTED if !value_type or value_type != :RAW
+            query_string = "#{target_name_or_column_name} #{packet_name_or_text} #{item_name} #{value_type} #{dart_reduction} #{dart_reduced_type}"
+            results = dart_results[query_string]
+            results_row = results[row_index]
+            if results_row
+              found_data = true
+              row[column_index] = Time.at(results_row[1], 0).strftime("%Y-%m-%d %H:%M:%S") << ".#{results_row[2]}"
+              column_index += 1
+              row[column_index] = results_row[0]
+              column_index += 1
+            else
+              column_index += 2
+            end
+          end
+        end
+
+        break unless found_data
+
+        # Output the row
+        if @column_mode != :FULL_COLUMN_NAMES and @mode != :dart
+          @output_file.print packet.target_name
+          @output_file.print @delimiter
+          @output_file.print packet.packet_name
+        end
+        row.each_with_index do |value, index|
+          if (@column_mode != :FULL_COLUMN_NAMES and @mode != :dart) or index != 0
+            @output_file.print @delimiter
+          end
+          @output_file.print value if value
+        end
+        @output_file.puts ""
+        row_index += 1
+      end
     end
 
   end # class TlmExtractorConfig

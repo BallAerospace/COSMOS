@@ -29,6 +29,7 @@ TOOL "Command Sender" "LAUNCH CmdSender" "cmd_sender.png"
 TOOL "Command Sequence" "LAUNCH CmdSequence" "cmd_sequence.png"
 TOOL "Script Runner" "LAUNCH ScriptRunner" "script_runner.png"
 TOOL "Test Runner" "LAUNCH TestRunner" "test_runner.png"
+TOOL "Command Extractor" "LAUNCH CmdExtractor" "cmd_extractor.png"
 
 DIVIDER
 LABEL Telemetry
@@ -37,12 +38,12 @@ TOOL "Packet Viewer" "LAUNCH PacketViewer" "packet_viewer.png"
 TOOL "Telemetry Viewer" "LAUNCH TlmViewer" "tlm_viewer.png"
 TOOL "Telemetry Grapher" "LAUNCH TlmGrapher" "tlm_grapher.png"
 TOOL "Data Viewer" "LAUNCH DataViewer" "data_viewer.png"
+TOOL "Telemetry Extractor" "LAUNCH TlmExtractor" "tlm_extractor.png"
 
 DIVIDER
 LABEL Utilities
 
 TOOL "Config Editor" "LAUNCH ConfigEditor" "config_editor.png"
-TOOL "Telemetry Extractor" "LAUNCH TlmExtractor" "tlm_extractor.png"
-TOOL "Command Extractor" "LAUNCH CmdExtractor" "cmd_extractor.png"
 TOOL "Handbook Creator" "LAUNCH HandbookCreator" "handbook_creator.png"
 TOOL "Table Manager" "LAUNCH TableManager" "table_manager.png"
+TOOL "DART" "LAUNCH_TERMINAL Dart" "dart.png"

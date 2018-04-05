@@ -18,6 +18,12 @@ module Cosmos
     # Value Types
     VALUE_TYPES = [:RAW, :CONVERTED]
 
+    # DART Reductions
+    DART_REDUCTIONS = [:NONE, :MINUTE, :HOUR, :DAY]
+
+    # DART Reduced Types
+    DART_REDUCED_TYPES = [:AVG, :MIN, :MAX, :STDDEV]
+
     # The target name (string)
     attr_accessor :target_name
 
@@ -38,6 +44,12 @@ module Cosmos
 
     # Type of data to collect for y value - :RAW or :CONVERTED
     attr_accessor :y_value_type
+
+    # DART Reduction
+    attr_accessor :dart_reduction
+
+    # DART Reduced Type
+    attr_accessor :dart_reduced_type
 
     # Array of x_values to graph on the line graph
     attr_accessor :x_values
@@ -64,6 +76,8 @@ module Cosmos
       @time_item_name = nil
       @x_value_type = :CONVERTED
       @y_value_type = :CONVERTED
+      @dart_reduction = :NONE
+      @dart_reduced_type = :AVG
 
       @x_values = LowFragmentationArray.new(DEFAULT_ARRAY_SIZE)
       @y_values = LowFragmentationArray.new(DEFAULT_ARRAY_SIZE)
@@ -84,6 +98,8 @@ module Cosmos
       string << "      TIME_ITEM #{@time_item_name}\n" if @time_item_name
       string << "      X_VALUE_TYPE #{@x_value_type}\n"
       string << "      Y_VALUE_TYPE #{@y_value_type}\n"
+      string << "      DART_REDUCTION #{@dart_reduction}\n"
+      string << "      DART_REDUCED_TYPE #{@dart_reduced_type}\n"      
       string
     end # def configuration_string
 
@@ -159,6 +175,26 @@ module Cosmos
           raise ArgumentError, "Unknown Y_VALUE_TYPE value: #{value_type}"
         end
 
+        when 'DART_REDUCTION'
+          # Expect 1 parameter
+          parser.verify_num_parameters(1, 1, "DART_REDUCTION <NONE, MINUTE, HOUR, DAY>")
+          dart_reduction = parameters[0].upcase.intern
+          if DART_REDUCTIONS.include?(dart_reduction)
+            @dart_reduction = dart_reduction
+          else
+            raise ArgumentError, "Unknown DART_REDUCTION value: #{dart_reduction}"
+          end
+  
+        when 'DART_REDUCED_TYPE'
+          # Expect 1 parameter
+          parser.verify_num_parameters(1, 1, "DART_REDUCED_TYPE <AVG, MIN, MAX, STDDEV>")
+          dart_reduced_type = parameters[0].upcase.intern
+          if DART_REDUCED_TYPES.include?(dart_reduced_type)
+            @dart_reduced_type = dart_reduced_type
+          else
+            raise ArgumentError, "Unknown DART_REDUCED_TYPE value: #{dart_reduced_type}"
+          end     
+
       else
         # Unknown keywords are passed to parent data object
         super(parser, keyword, parameters)
@@ -176,6 +212,17 @@ module Cosmos
       end
     end
 
+    # Returns an array of items used by this data object
+    def processed_items
+      items = []
+      if @target_name and @packet_name
+        items << [@target_name, @packet_name, @x_item_name, @x_value_type, nil, @dart_reduction, @dart_reduced_type]
+        items << [@target_name, @packet_name, @y_item_name, @y_value_type, nil, @dart_reduction, @dart_reduced_type]
+        items << [@target_name, @packet_name, @time_item_name, :CONVERTED, nil, @dart_reduction, :AVG] if @time_item_name
+      end
+      items
+    end
+
     # (see DataObject#process_packet)
     def process_packet(packet, count)
       begin
@@ -191,14 +238,24 @@ module Cosmos
           y_value = packet.read(@y_item_name)
         end
 
+        time_value = nil
+        time_value = packet.read(@time_item_name) if @time_item_name
+
+        process_values(x_value, y_value, time_value)
+      rescue Exception => error
+        handle_process_exception(error, "#{packet.target_name} #{packet.packet_name} #{@x_item_name} or #{@y_item_name}")
+      end
+    end # def process_packet
+
+    # Add a set of values to the data object
+    def process_values(x_value, y_value, time_value = nil)
+      begin
         # Bail on the values if they are NaN or nil as we can't graph them
         return if invalid_value?(x_value) || invalid_value?(y_value)
 
-        time_value = packet.read(@time_item_name) if @time_item_name
-
         @x_values << x_value
         @y_values << y_value
-        @time_values << time_value if @time_item_name
+        @time_values << time_value if time_value
 
         @plot.redraw_needed = true
 
@@ -206,13 +263,15 @@ module Cosmos
         prune_to_max_points_saved()
       rescue Exception => error
         handle_process_exception(error, "#{packet.target_name} #{packet.packet_name} #{@x_item_name} or #{@y_item_name}")
-      end
-    end # def process_packet
+      end      
+    end
 
     # Returns the name of this data object
     def name
       if @target_name and @packet_name and @y_item_name and @x_item_name
-        "#{@target_name} #{@packet_name} #{@y_item_name} VS #{@x_item_name}"
+        str = "#{@target_name} #{@packet_name} #{@y_item_name} VS #{@x_item_name}"
+        str << " <#{@dart_reduction} #{dart_reduced_type}>" if @dart_reduction != :NONE
+        str
       else
         ""
       end
@@ -245,6 +304,8 @@ module Cosmos
       data_object.time_item_name = @time_item_name.clone if @time_item_name
       data_object.x_value_type = @x_value_type
       data_object.y_value_type = @y_value_type
+      data_object.dart_reduction = @dart_reduction
+      data_object.dart_reduced_type = @dart_reduced_type      
       data_object
     end
 
@@ -258,7 +319,9 @@ module Cosmos
          @y_item_name != edited_data_object.y_item_name or
          @time_item_name != edited_data_object.time_item_name or
          @x_value_type != edited_data_object.x_value_type or
-         @y_value_type != edited_data_object.y_value_type
+         @y_value_type != edited_data_object.y_value_type or
+         @dart_reduction != edited_data_object.dart_reduction or
+         @dart_reduced_type != edited_data_object.dart_reduced_type
         false
       else
         super(edited_data_object)

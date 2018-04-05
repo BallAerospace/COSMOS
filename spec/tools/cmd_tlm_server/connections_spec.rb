@@ -17,10 +17,6 @@ require 'tempfile'
 module Cosmos
 
   describe Connections do
-    after(:all) do
-      clean_config()
-    end
-
     describe "initialize" do
       it "only allows :ROUTERS or :INTERFACES" do
         tf = Tempfile.new('unittest')

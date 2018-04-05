@@ -15,10 +15,12 @@ require 'cosmos/packet_logs/packet_log_reader'
 require 'cosmos/tools/tlm_grapher/tabbed_plots_tool/tabbed_plots_config'
 require 'cosmos/tools/tlm_grapher/tabbed_plots_tool/tabbed_plots_realtime_thread'
 require 'cosmos/tools/tlm_grapher/tabbed_plots_tool/tabbed_plots_logfile_thread'
+require 'cosmos/tools/tlm_grapher/tabbed_plots_tool/tabbed_plots_dart_thread'
 require 'cosmos/gui/widgets/realtime_button_bar'
 require 'cosmos/gui/dialogs/exception_list_dialog'
 require 'cosmos/gui/dialogs/packet_log_dialog'
 require 'cosmos/gui/dialogs/progress_dialog'
+require 'cosmos/gui/dialogs/dart_dialog'
 require 'cosmos/tools/tlm_grapher/tabbed_plots/overview_tabbed_plots'
 
 module Cosmos
@@ -42,6 +44,7 @@ module Cosmos
       complete_initialize()
 
       # Define instance variables
+      @need_reset = false
       @log_filenames = []
       @log_dir = System.paths['LOGS']
       @log_dir += '/' unless @log_dir[-1..-1] == '\\' or @log_dir[-1..-1] == '/'
@@ -93,6 +96,12 @@ module Cosmos
       @file_process.shortcut = @file_process_keyseq
       @file_process.statusTip = tr('Open Log File')
       @file_process.connect(SIGNAL('triggered()')) { on_file_process_log() }
+
+      @file_dart = Qt::Action.new(tr('&Query DART Database'), self)
+      @file_dart_keyseq = Qt::KeySequence.new(tr('Ctrl+D'))
+      @file_dart.shortcut = @file_dart_keyseq
+      @file_dart.statusTip = tr('Query DART Database')
+      @file_dart.connect(SIGNAL('triggered()')) { on_file_dart() }
 
       @file_load = Qt::Action.new(Cosmos.get_icon('open.png'), tr('&Load Config'), self)
       @file_load.statusTip = tr('Load Saved Configuration')
@@ -208,6 +217,7 @@ module Cosmos
       # File Menu
       @file_menu = menuBar.addMenu(tr('&File'))
       @file_menu.addAction(@file_process)
+      @file_menu.addAction(@file_dart)
       @file_menu.addSeparator()
       @file_menu.addAction(@file_load)
       @file_menu.addAction(@file_save)
@@ -512,9 +522,9 @@ module Cosmos
         @time_start = dialog.time_start
         @time_end = dialog.time_end
         handle_stop()
+        @need_reset = true
         System.telemetry.reset
         @tabbed_plots.reset_all_data_objects
-        @realtime_button_bar.state = 'Log File'
         @packet_log_reader = dialog.packet_log_reader
         @log_filenames = dialog.filenames.clone
         filenames = dialog.filenames.sort
@@ -527,6 +537,42 @@ module Cosmos
                                                         @time_start,
                                                         @time_end)
           sleep(0.1) until logfile_thread.done?
+          progress_dialog.close_done
+        end
+
+        @tabbed_plots.redraw_plots(true, true)
+        @tabbed_plots.update
+      else
+        @tabbed_plots.resume unless paused
+      end
+      dialog.dispose
+    end # def on_file_process_log
+
+    # Handles querying data from DART
+    def on_file_dart
+      paused = @tabbed_plots.paused?
+      @tabbed_plots.pause
+      dialog = DartDialog.new(self,
+                              'Query DART Database:')
+      dialog.time_start = @time_start
+      dialog.time_end = @time_end
+      result = dialog.exec
+      if result != 0
+        @time_start = dialog.time_start
+        @time_end = dialog.time_end
+        @meta_filters = dialog.meta_filters
+        handle_stop()
+        @need_reset = true
+        System.telemetry.reset
+        @tabbed_plots.reset_all_data_objects
+
+        ProgressDialog.execute(self, 'DART Query Progress', 500, 300) do |progress_dialog|
+          dart_thread = TabbedPlotsDartThread.new(@tabbed_plots_config,
+                                                  progress_dialog,
+                                                  @time_start,
+                                                  @time_end,
+                                                  @meta_filters)
+          sleep(0.1) until dart_thread.done?
           progress_dialog.close_done
         end
 
@@ -937,7 +983,8 @@ module Cosmos
         @realtime_button_bar.state = 'Running'
       else
         System.load_configuration
-        if @realtime_button_bar.state == 'Log File'
+        if @need_reset
+          @need_reset = false
           System.telemetry.reset
           @tabbed_plots.reset_all_data_objects
         end

@@ -137,6 +137,7 @@ module Cosmos
         'replay_move_index',
         'get_screen_list',
         'get_screen_definition',
+        'get_saved_config',
       ]
       @tlm_viewer_config_filename = nil
       @tlm_viewer_config = nil
@@ -1250,7 +1251,7 @@ module Cosmos
 
     # Get the list of packet loggers.
     #
-    # @return [<Array<String>] Array containing the names of all packet loggers
+    # @return [Array<String>] Array containing the names of all packet loggers
     def get_packet_loggers
       return CmdTlmServer.packet_logging.all.keys
     end
@@ -1563,6 +1564,21 @@ module Cosmos
       raise "Unknown screen: #{screen_full_name.upcase}" unless screen_info
       screen_definition = File.read(screen_info.filename)
       return screen_definition
+    end
+
+    # Get a saved configuration zip file
+    def get_saved_config(configuration_name = nil)
+      configuration_name ||= System.initial_config.name if System.initial_config
+      if configuration_name
+        configuration = System.instance.find_configuration(configuration_name)
+        if configuration and File.exist?(configuration) and configuration[-4..-1] == ".zip"
+          filename = File.basename(configuration)
+          data = ''
+          File.open(configuration, 'rb') {|file| data = file.read}
+          return [filename, data]
+        end
+      end
+      return nil
     end
 
     private

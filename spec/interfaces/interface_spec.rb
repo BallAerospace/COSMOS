@@ -14,7 +14,6 @@ require 'cosmos/interfaces/protocols/protocol'
 
 module Cosmos
   class InterfaceTestProtocol < Protocol
-
     def initialize(added_data, stop_count = 0, packet_added_data = nil, packet_stop_count = 0)
       @added_data = added_data
       @packet_added_data = packet_added_data

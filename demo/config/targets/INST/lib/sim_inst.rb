@@ -16,7 +16,7 @@ module Cosmos
 
   class SimInst < SimulatedTarget
 
-    SOLAR_PANEL_DFLTS = [-179.0, 179.0, -179.0, 179.0, -95.0]
+    SOLAR_PANEL_DFLTS = [-179.0, 179.0, -179.0, 179.0, -95.0] unless defined? SOLAR_PANEL_DFLTS
 
     def initialize(target_name)
       super(target_name)

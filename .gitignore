@@ -10,8 +10,6 @@ desktop.ini
 install/outputs
 demo/outputs
 autohotkey/outputs
-spec/install/outputs
-spec/install/config/tools/
 coverage/
 profile/
 demo/tools/mac/CmdExtractor.app/Contents/MacOS/CmdExtractor

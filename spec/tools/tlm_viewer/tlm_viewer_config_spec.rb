@@ -356,6 +356,7 @@ module Cosmos
           expect(config).to match(/SCREEN "hs.txt"/)
           expect(config).to match(/TARGET "SYSTEM"/)
           expect(config).to match(/SCREEN "status.txt"/)
+          FileUtils.rm_f config_file
         end
 
         it "saves the configuration" do
@@ -392,6 +393,7 @@ module Cosmos
           expect(config).to include(test_group)
           expect(config).to include("TARGET \"SYSTEM\"\n  SCREEN \"status.txt\" 500 600\n    SHOW_ON_STARTUP")
           expect(config.scan(/NEW_COLUMN/).count).to eql 2
+          FileUtils.rm_f config_file
         end
       end
 

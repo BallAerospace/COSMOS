@@ -14,9 +14,7 @@ require 'cosmos/script/script'
 require 'tempfile'
 
 module Cosmos
-
   describe Script do
-
     before(:all) do
       cts = File.join(Cosmos::USERPATH,'config','tools','cmd_tlm_server','cmd_tlm_server.txt')
       FileUtils.mkdir_p(File.dirname(cts))
@@ -265,4 +263,3 @@ module Cosmos
 
   end
 end
-

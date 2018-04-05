@@ -15,7 +15,9 @@ module Cosmos
 
   describe CmdTlmServerInterface do
     before(:all) do
+      # Save cmd_tlm_server.txt
       cts = File.join(Cosmos::USERPATH,'config','tools','cmd_tlm_server','cmd_tlm_server.txt')
+      FileUtils.mv cts, Cosmos::USERPATH
       FileUtils.mkdir_p(File.dirname(cts))
       File.open(cts,'w') do |file|
         file.puts 'INTERFACE INT interface.rb'
@@ -24,8 +26,10 @@ module Cosmos
     end
 
     after(:all) do
-      clean_config()
-      FileUtils.rm_rf File.join(Cosmos::USERPATH,'config','tools')
+      # Restore cmd_tlm_server.txt
+      FileUtils.mv File.join(Cosmos::USERPATH, 'cmd_tlm_server.txt'),
+      File.join(Cosmos::USERPATH,'config','tools','cmd_tlm_server')
+      System.class_eval('@@instance = nil')
     end
 
     before(:each) do

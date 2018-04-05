@@ -61,10 +61,6 @@ module Cosmos
       plw.stop
     end
 
-    after(:all) do
-      clean_config()
-    end
-
     before(:each) do
       @plr = PacketLogReader.new
     end
@@ -199,6 +195,7 @@ module Cosmos
           File.join(Cosmos::USERPATH,'config','system')
 
         FileUtils.rm_f(File.join(@config_targets,'SYSTEM','cmd_tlm','test1_tlm.txt'))
+        System.class_eval('@@instance = nil')
       end
     end
 

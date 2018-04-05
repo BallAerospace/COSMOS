@@ -38,10 +38,6 @@ module Cosmos
       end
     end
 
-    after(:all) do
-      clean_config()
-    end
-
     describe "initialize" do
       it "loads the CSV data and overwrites existing key/values" do
         tf = Tempfile.new("test.csv")

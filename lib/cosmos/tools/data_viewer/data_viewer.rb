@@ -18,6 +18,7 @@ Cosmos.catch_fatal_exception do
   require 'cosmos/gui/dialogs/exception_dialog'
   require 'cosmos/gui/dialogs/packet_log_dialog'
   require 'cosmos/gui/dialogs/find_replace_dialog'
+  require 'cosmos/gui/dialogs/dart_dialog'
   require 'cosmos/gui/widgets/realtime_button_bar'
   require 'cosmos/tools/data_viewer/data_viewer_component'
   require 'cosmos/tools/data_viewer/dump_component'
@@ -51,6 +52,11 @@ module Cosmos
       @log_filenames = []
       @cancel_thread = false
       @sleeper = Sleeper.new
+      @interface = Cosmos::TcpipClientInterface.new(
+        Cosmos::System.connect_hosts['DART_STREAM'],
+        Cosmos::System.ports['DART_STREAM'],
+        Cosmos::System.ports['DART_STREAM'],
+        10, 30, 'PREIDENTIFIED')
 
       # Process config file and create a tab for each data viewer component
       @component_mutex = Mutex.new
@@ -97,6 +103,12 @@ module Cosmos
       @open_log.statusTip = tr('Open telemetry log file for processing')
       @open_log.connect(SIGNAL('triggered()')) { handle_open_log_file() }
 
+      @query_dart = Qt::Action.new(tr('&Query DART Database'), self)
+      @query_dart_keyseq = Qt::KeySequence.new(tr('Ctrl+D'))
+      @query_dart.shortcut  = @query_dart_keyseq
+      @query_dart.statusTip = tr('Query DART Database')
+      @query_dart.connect(SIGNAL('triggered()')) { handle_query_dart() }
+
       @handle_reset = Qt::Action.new(tr('&Reset'), self)
       @handle_reset_keyseq = Qt::KeySequence.new(tr('Ctrl+R'))
       @handle_reset.shortcut  = @handle_reset_keyseq
@@ -142,6 +154,7 @@ module Cosmos
       # File Menu
       file_menu = menuBar.addMenu(tr('&File'))
       file_menu.addAction(@open_log)
+      file_menu.addAction(@query_dart)
       file_menu.addAction(@handle_reset)
       file_menu.addAction(@replay_action)
       file_menu.addSeparator()
@@ -495,6 +508,104 @@ module Cosmos
         end
       ensure
         packet_log_dialog.dispose if packet_log_dialog
+      end
+    end
+
+    def handle_query_dart
+      dart_dialog = DartDialog.new(self, 'Query DART Database:')
+      dart_dialog.time_start = @time_start
+      dart_dialog.time_end = @time_end
+      case dart_dialog.exec
+      when Qt::Dialog::Accepted
+        @time_start = dart_dialog.time_start
+        @time_end = dart_dialog.time_end
+        @meta_filters = dart_dialog.meta_filters
+
+        self.setWindowTitle("Data Viewer : DART Database Query")
+
+        handle_stop()  # Stop realtime collection
+        handle_reset() # Reset
+
+        @cancel_progress = false
+
+        begin
+          ProgressDialog.execute(self, 'Querying DART Database', 500, 200, true, false, true, true, true) do |progress_dialog|
+            progress_dialog.cancel_callback = method(:cancel_callback)
+            progress_dialog.enable_cancel_button
+
+            begin
+              @interface.disconnect
+              request_packet = Cosmos::Packet.new('DART', 'DART')
+              request_packet.define_item('REQUEST', 0, 0, :BLOCK)
+              
+              @time_start ||= Time.utc(1970, 1, 1)
+              @time_end ||= Time.now
+              @time_delta = @time_end - @time_start
+              request = {}
+              request['start_time_sec'] = @time_start.tv_sec
+              request['start_time_usec'] = @time_start.tv_usec
+              request['end_time_sec'] = @time_end.tv_sec
+              request['end_time_usec'] = @time_end.tv_usec
+              request['cmd_tlm'] = 'TLM'
+              request['packets'] = @packets
+              request['meta_filters'] = @meta_filters unless @meta_filters.empty?
+              request_packet.write('REQUEST', JSON.dump(request))
+            
+              progress_dialog.append_text("Connecting to DART Database...")
+              @interface.connect
+              progress_dialog.append_text("Sending DART Database Query...")
+              @interface.write(request_packet)
+              progress_dialog.append_text("Receiving Packets...")
+
+              first = true
+              while true
+                break if @cancel_progress
+                packet = @interface.read
+                unless packet
+                  progress_dialog.append_text("Done!")
+                  progress_dialog.set_overall_progress(1.0)
+                  @interface.disconnect
+                  break
+                end
+
+                # Switch to correct configuration from SYSTEM META when needed
+                if packet.target_name == 'SYSTEM'.freeze and packet.packet_name == 'META'.freeze
+                  meta_packet = System.telemetry.update!('SYSTEM', 'META', packet.buffer)                             
+                  Cosmos::System.load_configuration(meta_packet.read('CONFIG'))
+                elsif first
+                  first = false
+                  @time_start = packet.received_time
+                  @time_delta = @time_end - @time_start
+                end
+
+                defined_packet = System.telemetry.update!(packet.target_name, packet.packet_name, packet.buffer)
+                defined_packet.received_time = packet.received_time
+
+                break if @cancel_progress
+                # Route packet to its component(s)
+                index = defined_packet.target_name + ' ' + defined_packet.packet_name
+                components = @packet_to_components_mapping[index]
+                if components
+                  @component_mutex.synchronize do
+                    components.each do |component|
+                      component.process_packet(defined_packet)
+                    end
+                  end
+                end
+
+                progress = ((@time_delta - (@time_end - defined_packet.received_time)).to_f / @time_delta.to_f)
+                progress_dialog.set_overall_progress(progress) if !@cancel_progress
+              end
+            ensure
+              progress_dialog.append_text("Canceled!") if @cancel_progress
+              progress_dialog.complete
+            end
+          end            
+        rescue => error
+          Qt::MessageBox.critical(self, 'Error!', "Error Querying DART Database\n#{error.formatted}")
+        ensure
+          @interface.disconnect
+        end
       end
     end
 

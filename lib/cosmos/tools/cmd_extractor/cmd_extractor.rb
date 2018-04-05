@@ -14,6 +14,7 @@ Cosmos.catch_fatal_exception do
   require 'cosmos/gui/dialogs/packet_log_dialog'
   require 'cosmos/gui/dialogs/splash'
   require 'cosmos/gui/dialogs/progress_dialog'
+  require 'cosmos/gui/widgets/dart_meta_frame'
   require 'cosmos/gui/utilities/analyze_log'
 end
 
@@ -35,6 +36,11 @@ module Cosmos
       @packet_log_reader = System.default_packet_log_reader.new(*System.default_packet_log_reader_params)
       @time_start = nil
       @time_end = nil
+      @interface = Cosmos::TcpipClientInterface.new(
+        Cosmos::System.connect_hosts['DART_STREAM'],
+        Cosmos::System.ports['DART_STREAM'],
+        Cosmos::System.ports['DART_STREAM'],
+        10, 30, 'PREIDENTIFIED')
 
       Cosmos.load_cosmos_icon("cmd_extractor.png")
 
@@ -83,14 +89,45 @@ module Cosmos
     # Create the CmdExtractor application which primarily consists of a
     # {PacketLogFrame}
     def initialize_central_widget
+      @resize_timer = Qt::Timer.new
+      @resize_timer.connect(SIGNAL('timeout()')) { self.resize(self.width, self.minimumHeight) }
+
       @central_widget = Qt::Widget.new
       setCentralWidget(@central_widget)
       @top_layout = Qt::VBoxLayout.new(@central_widget)
+
+      # Data Source Selection
+      @data_source_layout = Qt::HBoxLayout.new()
+      label = Qt::Label.new("Data Source: ")
+      @data_source_layout.addWidget(label)
+      @log_file_radio = Qt::RadioButton.new("Log File", self)
+      @log_file_radio.setChecked(true)
+      @log_file_radio.connect(SIGNAL('clicked()')) do 
+        @packet_log_frame.show_log_fields(true)
+        @packet_log_frame.output_filename = ""
+        @dart_meta_frame.hide        
+        @resize_timer.start(100)
+      end
+      @data_source_layout.addWidget(@log_file_radio)
+      @dart_radio = Qt::RadioButton.new("DART Database", self)
+      @dart_radio.connect(SIGNAL('clicked()')) do 
+        @packet_log_frame.show_log_fields(false)
+        @packet_log_frame.output_filename = ""
+        @dart_meta_frame.show
+        @resize_timer.start(100)
+      end      
+      @data_source_layout.addWidget(@dart_radio)
+      @data_source_layout.addStretch()
+      @top_layout.addLayout(@data_source_layout)
 
       # Packet Log Frame
       @packet_log_frame = PacketLogFrame.new(self, @log_dir, System.default_packet_log_reader.new(*System.default_packet_log_reader_params), @input_filenames, @output_filename, true, true, true, Cosmos::CMD_FILE_PATTERN, Cosmos::TXT_FILE_PATTERN)
       @packet_log_frame.change_callback = method(:change_callback)
       @top_layout.addWidget(@packet_log_frame)
+
+      @dart_meta_frame = DartMetaFrame.new(self)
+      @dart_meta_frame.hide
+      @top_layout.addWidget(@dart_meta_frame)
 
       # Separator before buttons
       @sep2 = Qt::Frame.new(@central_widget)
@@ -99,8 +136,8 @@ module Cosmos
 
       # Process and Open Buttons
       @button_layout = Qt::HBoxLayout.new
-      @process_button = Qt::PushButton.new('&Process Files')
-      @process_button.connect(SIGNAL('clicked()')) { process_log_files() }
+      @process_button = Qt::PushButton.new('&Process Data')
+      @process_button.connect(SIGNAL('clicked()')) { process_data() }
       @button_layout.addWidget(@process_button)
 
       @open_button = Qt::PushButton.new('&Open in Text Editor')
@@ -134,41 +171,138 @@ module Cosmos
       AnalyzeLog.execute(self, @packet_log_frame)
     end
 
-    def process_log_files
+    def process_data
       @cancel = false
-      begin
-        @packet_log_reader = @packet_log_frame.packet_log_reader
-        @input_filenames = @packet_log_frame.filenames.sort
-        @time_start = @packet_log_frame.time_start
-        @time_end = @packet_log_frame.time_end
-        @output_filename = @packet_log_frame.output_filename
-        include_raw = @include_raw.isChecked
-        return unless pre_process_tests()
+      @time_start = @packet_log_frame.time_start
+      @time_end = @packet_log_frame.time_end
+      @packet_log_reader = @packet_log_frame.packet_log_reader
+      @input_filenames = @packet_log_frame.filenames.sort      
+      @output_filename = @packet_log_frame.output_filename
+      @output_filename = nil if @output_filename.strip.empty?
+      @meta_filters = @dart_meta_frame.meta_filters
 
-        ProgressDialog.execute(self, # parent
-                               'Log File Progress', # title
-                               600, # width, height
-                               300) do |progress_dialog|
-          progress_dialog.cancel_callback = method(:cancel_callback)
-          progress_dialog.enable_cancel_button
+      return unless pre_process_tests()
 
-          begin
-            Cosmos.set_working_dir do
-              File.open(@output_filename, 'w') do |output_file|
-                process_files(output_file, include_raw, progress_dialog)
+      include_raw = @include_raw.isChecked      
+      if @log_file_radio.isChecked
+        begin
+          ProgressDialog.execute(self, # parent
+                                'Log File Progress', # title
+                                600, # width, height
+                                300) do |progress_dialog|
+            progress_dialog.cancel_callback = method(:cancel_callback)
+            progress_dialog.enable_cancel_button
+
+            begin
+              Cosmos.set_working_dir do
+                File.open(@output_filename, 'w') do |output_file|
+                  process_files(output_file, include_raw, progress_dialog)
+                end
+              end
+            ensure
+              progress_dialog.complete
+              Qt.execute_in_main_thread(true) do
+                @open_button.setEnabled(true)
               end
             end
-          ensure
-            progress_dialog.complete
-            Qt.execute_in_main_thread(true) do
-              @open_button.setEnabled(true)
-            end
           end
+        rescue => error
+          Qt::MessageBox.critical(self, 'Error!', "Error Processing Log File(s)\n#{error.formatted}")
         end
-      rescue => error
-        Qt::MessageBox.critical(self, 'Error!', "Error Processing Log File(s)\n#{error.formatted}")
+      else
+        begin
+          ProgressDialog.execute(self, # parent
+                                'Log File Progress', # title
+                                600, # width, height
+                                300, 
+                                true, # Overall progress, no step progress 
+                                false) do |progress_dialog|
+            progress_dialog.cancel_callback = method(:cancel_callback)
+            progress_dialog.enable_cancel_button
+
+            begin
+              Cosmos.set_working_dir do
+                File.open(@output_filename, 'w') do |output_file|
+
+                  @interface.disconnect
+                  request_packet = Cosmos::Packet.new('DART', 'DART')
+                  request_packet.define_item('REQUEST', 0, 0, :BLOCK)
+                  
+                  @time_start ||= Time.utc(1970, 1, 1)
+                  @time_end ||= Time.now
+                  @time_delta = @time_end - @time_start
+                  request = {}
+                  request['start_time_sec'] = @time_start.tv_sec
+                  request['start_time_usec'] = @time_start.tv_usec
+                  request['end_time_sec'] = @time_end.tv_sec
+                  request['end_time_usec'] = @time_end.tv_usec
+                  request['cmd_tlm'] = 'CMD'
+                  request['meta_filters'] = @meta_filters unless @meta_filters.empty?
+                  request_packet.write('REQUEST', JSON.dump(request))
+                
+                  progress_dialog.append_text("Connecting to DART Database...")
+                  @interface.connect
+                  progress_dialog.append_text("Sending DART Database Query...")
+                  @interface.write(request_packet)
+                  progress_dialog.append_text("Receiving Packets...")
+
+                  first = true
+                  while true
+                    break if @cancel
+                    packet = @interface.read
+                    unless packet
+                      progress_dialog.append_text("Done!")
+                      progress_dialog.set_overall_progress(1.0)
+                      @interface.disconnect
+                      break
+                    end
+
+                    # Switch to correct configuration from SYSTEM META when needed
+                    if packet.target_name == 'SYSTEM'.freeze and packet.packet_name == 'META'.freeze
+                      meta_packet = System.commands.packet('SYSTEM', 'META')
+                      meta_packet.buffer = packet.buffer                                  
+                      Cosmos::System.load_configuration(meta_packet.read('CONFIG'))
+                    elsif first
+                      first = false
+                      @time_start = packet.received_time
+                      @time_delta = @time_end - @time_start
+                    end
+
+                    defined_packet = System.commands.packet(packet.target_name, packet.packet_name)
+                    defined_packet.buffer = packet.buffer
+                    defined_packet.received_time = packet.received_time
+
+                    output_file.puts "#{defined_packet.target_name} #{defined_packet.packet_name}"
+                    output_file.puts "  RECEIVED_TIMEFORMATTED: #{defined_packet.received_time.formatted}"
+                    output_file.puts defined_packet.formatted(:WITH_UNITS, 2)
+                    if include_raw or !defined_packet.identified? or !defined_packet.defined?
+                      output_file.puts "  RAW PACKET DATA (#{defined_packet.length} bytes):"
+                      output_file.puts defined_packet.buffer.formatted(1, 16, ' ', 4)
+                    end
+                    output_file.puts
+
+                    progress = ((@time_delta - (@time_end - defined_packet.received_time)).to_f / @time_delta.to_f)
+                    progress_dialog.set_overall_progress(progress) if !@cancel
+                  end
+            
+                end
+              end
+
+            ensure
+              progress_dialog.append_text("Canceled!") if @cancel
+              progress_dialog.complete
+              Qt.execute_in_main_thread(true) do
+                @open_button.setEnabled(true)
+              end
+            end
+          end            
+        rescue => error
+          Qt::MessageBox.critical(self, 'Error!', "Error Querying DART Database\n#{error.formatted}")
+        ensure
+          @interface.disconnect
+        end          
       end
-    end # def process_log_files
+    end # def process_data
 
     def open_button
       Cosmos.open_in_text_editor(@output_filename)
@@ -224,14 +358,21 @@ module Cosmos
     ###############################################################################
 
     def pre_process_tests
-      unless @input_filenames and @input_filenames[0]
-        Qt::MessageBox.critical(self, 'Error', 'Please select at least 1 input file')
-        return false
+      if @log_file_radio.isChecked
+        unless @input_filenames and @input_filenames[0]
+          Qt::MessageBox.critical(self, 'Error', 'Please select at least 1 input file')
+          return false
+        end
       end
 
       unless @output_filename
-        Qt::MessageBox.critical(self, 'Error', 'No Output File Selected')
-        return false
+        if @log_file_radio.isChecked
+          Qt::MessageBox.critical(self, 'Error', 'No Output File Selected')
+          return false
+        else
+          @packet_log_frame.output_filename = File.join(System.paths['LOGS'], File.build_timestamped_filename(['cmd_extractor', 'dart']))
+          @output_filename = @packet_log_frame.output_filename
+        end
       end
 
       if File.exist?(@output_filename)

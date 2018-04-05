@@ -92,6 +92,12 @@ module Cosmos
       raise "processed_packets must be defined by class #{self.class}"
     end
 
+    # Returns the items used by this data object in the order required
+    # by process_dart and process_values
+    def processed_items
+      raise "processed_items must be defined by class #{self.class}"
+    end
+
     # Processes a packet associated with this data object
     #
     # @param packet [Packet] The packet to process
@@ -99,6 +105,31 @@ module Cosmos
     #   the higher level process
     def process_packet(packet, count)
       raise "process_packet must be defined by class #{self.class}"
+    end
+
+    # Processes a packet associated with this data object
+    #
+    # @param packet [Packet] The packet to process
+    # @param count [Integer] Count which increments for each packet received by
+    #   the higher level process
+    def process_values(*args)
+      raise "process_values must be defined by class #{self.class}"
+    end
+
+    # Handles calling process_values with the given data from DART
+    def process_dart(dart_results)
+      sample = []
+      min_length = nil
+      dart_results.each do |dr|
+        min_length = dr.length if !min_length or dr.length < min_length
+      end
+      min_length.times do |sample_index|
+        sample = []
+        dart_results.length.times do |drindex|
+          sample << dart_results[drindex][sample_index][0]
+        end
+        process_values(*sample)
+      end
     end
 
     def handle_process_exception(error, telemetry_point)
