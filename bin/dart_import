@@ -1,2 +1,2 @@
 require 'cosmos'
-require 'cosmos/dart/script/dart_import'
+require 'cosmos/dart/processes/dart_import'

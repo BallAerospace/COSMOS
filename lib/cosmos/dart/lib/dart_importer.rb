@@ -78,7 +78,13 @@ class DartImporter
       end
     elsif !first_ple and !last_ple
       Cosmos::Logger.info("First and Last Packet in File not in database")
-      fast = true
+
+      # Check if time range of packets is not present in database
+      ple = PacketLogEntry.where("time >= ? or time <= ?", first_packet.received_time, last_packet.received_time).first
+      if !ple # Can go fast if not present at all
+        Cosmos::Logger.info("  Fast Import Enabled...")
+        fast = true
+      end
     else
       Cosmos::Logger.warn("File partially in database. Will verify each packet before adding")
     end

@@ -47,7 +47,7 @@ class DartDecommutator
             next unless packet_config
             # If we timeout this code will simply exit the application
             wait_for_ready_packet_config(packet_config)
-            decom_packet(ple, packet, packet_config.id)
+            decom_packet(ple, packet, packet_config)
           rescue => err
             Cosmos::Logger.error("PLE:#{ple.id}:ERROR")
             Cosmos::Logger.error(err.formatted)
@@ -187,7 +187,17 @@ class DartDecommutator
     values
   end
 
-  def decom_packet(ple, packet, packet_config_id)
+  def decom_packet(ple, packet, packet_config)
+    # Update packet config times
+    if !packet_config.start_time or (packet.received_time < packet_config.start_time)
+      packet_config.start_time = packet.received_time
+      packet_config.save!
+    end
+    if !packet_config.end_time or (packet.received_time > packet_config.end_time)
+      packet_config.end_time = packet.received_time
+      packet_config.save!
+    end
+
     # Mark the log entry IN_PROGRESS as we decommutate the data
     ple.decom_state = PacketLogEntry::IN_PROGRESS
     ple.save!
@@ -197,7 +207,7 @@ class DartDecommutator
     rows = []
     # Create rows in the decommutation table model
     values.each_slice(MAX_COLUMNS_PER_TABLE) do |table_values|
-      model = get_decom_table_model(packet_config_id, table_index)
+      model = get_decom_table_model(packet_config.id, table_index)
       row = model.new
       row.time = ple.time
       row.ple_id = ple.id
