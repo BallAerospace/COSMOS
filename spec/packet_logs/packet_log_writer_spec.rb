@@ -214,7 +214,7 @@ module Cosmos
 
       it "ignores bad label formats" do
         plw = PacketLogWriter.new(:TLM,nil,false,nil,10000000,nil,false)
-        plw.start('my_test')
+        plw.start('mytest!')
         plw.write(Packet.new('',''))
         plw.shutdown
         expect(Dir[File.join(@log_path,"*.bin")][-1]).to match("_tlm.bin")

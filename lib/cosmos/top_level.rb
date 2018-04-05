@@ -67,6 +67,7 @@ module Cosmos
     saved_verbose = $VERBOSE
     $VERBOSE = nil
     yield
+  ensure
     $VERBOSE = saved_verbose
   end
 
