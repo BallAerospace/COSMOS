@@ -15,39 +15,25 @@ require 'cosmos/tools/tlm_viewer/widgets/widget'
 require 'cosmos/gui/utilities/script_module_gui'
 
 module Cosmos
+  # Run user defined code in the GUI thread context. This means that user
+  # code should not block or take too long to execute as it will freeze
+  # the TlmViewer screen.
   class ButtonWidget < Qt::PushButton
     include Widget
 
     def initialize(parent_layout, button_text, string_to_eval)
       super()
       setText(button_text.to_s)
-      connect(SIGNAL('clicked()')) { execute(string_to_eval.to_s) }
-      parent_layout.addWidget(self) if parent_layout
-    end
-
-    def execute(code)
-      # Disable the button while the code is executed to avoid thrashing
-      setEnabled(false)
-      # Spawn a new thread to avoid blocking the GUI. Users will have to
-      # wrap any GUI interaction in Qt.execute_in_main_thread.
-      Thread.new do
+      connect(SIGNAL('clicked()')) do
         begin
-          @screen.instance_eval(code)
+          @screen.instance_eval(string_to_eval.to_s)
         rescue DRb::DRbConnError
-          Qt.execute_in_main_thread do
-            Qt::MessageBox.warning(parent.parentWidget, 'Error', "Error Connecting to Command and Telemetry Server")
-          end
+          Qt::MessageBox.warning(parent.parentWidget, 'Error', "Error Connecting to Command and Telemetry Server")
         rescue Exception => error
-          message = error.message
-          if error.message.include?("Qt methods cannot be called")
-            message = "Error executing button code:\n#{code}"
-          end
-          Qt.execute_in_main_thread do
-            Qt::MessageBox.warning(parent.parentWidget, 'Error', "#{error.class} : #{message}")
-          end
+          Qt::MessageBox.warning(parent.parentWidget, 'Error', "#{error.class} : #{error.message}")
         end
-        Qt.execute_in_main_thread { self.setEnabled(true) }
       end
+      parent_layout.addWidget(self) if parent_layout
     end
   end
 end

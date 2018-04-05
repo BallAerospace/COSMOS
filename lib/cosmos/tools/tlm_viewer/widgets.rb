@@ -2,6 +2,7 @@
 require 'cosmos/tools/tlm_viewer/widgets/array_widget.rb'
 require 'cosmos/tools/tlm_viewer/widgets/block_widget.rb'
 require 'cosmos/tools/tlm_viewer/widgets/button_widget.rb'
+require 'cosmos/tools/tlm_viewer/widgets/backgroundbutton_widget.rb'
 require 'cosmos/tools/tlm_viewer/widgets/canvasdot_widget.rb'
 require 'cosmos/tools/tlm_viewer/widgets/canvasimagevalue_widget.rb'
 require 'cosmos/tools/tlm_viewer/widgets/canvasimage_widget.rb'
