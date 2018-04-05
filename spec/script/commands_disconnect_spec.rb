@@ -16,11 +16,21 @@ require 'tempfile'
 module Cosmos
   describe Script do
     before(:all) do
-      set_cmd_tlm_disconnect(true)
+      cts = File.join(Cosmos::USERPATH,'config','tools','cmd_tlm_server','cmd_tlm_server.txt')
+      FileUtils.mkdir_p(File.dirname(cts))
+      File.open(cts,'w') do |file|
+        file.puts 'INTERFACE INST_INT interface.rb'
+        file.puts 'TARGET INST'
+      end
+      System.class_eval('@@instance = nil')
+      require 'cosmos/script'
+      set_disconnected_targets(['INST'])
     end
 
     after(:all) do
-      set_cmd_tlm_disconnect(false)
+      clear_disconnected_targets()
+      clean_config()
+      FileUtils.rm_rf File.join(Cosmos::USERPATH,'config','tools')
     end
 
     describe "require cosmos/script.rb" do
@@ -211,21 +221,18 @@ module Cosmos
     end
 
     describe "send_raw" do
-      it "sends data to the write_raw interface method" do
-        expect_any_instance_of(Interface).to receive(:write_raw).with('\x00')
-        send_raw('INST_INT', '\x00')
+      it "uses the JsonDRbObject and is not disconnected" do
+        expect { send_raw('INST_INT', '\x00') }.to raise_error(DRb::DRbConnError)
       end
     end
 
     describe "send_raw_file" do
-      it "sends file data to the write_raw interface method" do
+      it "uses the JsonDRbObject and is not disconnected" do
         file = File.open('raw_test_file.bin','wb')
         file.write '\x00\x01\x02\x03'
         file.close
 
-        expect_any_instance_of(Interface).to receive(:write_raw).with('\x00\x01\x02\x03')
-
-        send_raw_file('INST_INT', 'raw_test_file.bin')
+        expect { send_raw_file('INST_INT', 'raw_test_file.bin') }.to raise_error(DRb::DRbConnError)
 
         File.delete('raw_test_file.bin')
       end

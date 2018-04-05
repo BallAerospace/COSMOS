@@ -13,15 +13,17 @@ require 'cosmos/gui/qt'
 require 'cosmos/script'
 
 module Cosmos
-
+  # Performs code completion for COSMOS by supporting all the COSMOS keywords
+  # as well as the defined targets and packets.
   class Completion < Qt::Completer
     CMD_KEYWORDS = %w(cmd cmd_no_range_check cmd_no_hazardous_check cmd_no_checks
       cmd_raw cmd_raw_no_range_check cmd_raw_no_hazardous_check cmd_raw_no_checks)
     TLM_KEYWORDS = %w(set_tlm set_tlm_raw override_tlm override_tlm_raw normalize_tlm
-    tlm tlm_raw tlm_formatted tlm_with_units
-    limits_enabled? enable_limits disable_limits
-    check check_raw check_tolerance check_tolerance_raw
-    wait wait_raw wait_tolerance wait_tolerance_raw wait_check wait_check_raw wait_check_tolerance wait_check_tolerance_raw)
+      tlm tlm_raw tlm_formatted tlm_with_units
+      limits_enabled? enable_limits disable_limits
+      check check_raw check_tolerance check_tolerance_raw
+      wait wait_raw wait_tolerance wait_tolerance_raw wait_check wait_check_raw
+      wait_check_tolerance wait_check_tolerance_raw)
 
     slots 'insertCompletion(const QString&)'
 
@@ -324,13 +326,13 @@ module Cosmos
       end
     end
 
-    #Creates a Popup box to help with code completion
+    # Creates a Popup box to help with code completion
     def create_list_popup(list_items)
       return if list_items.nil? or list_items.empty?
       create_popup(list_items)
     end
 
-    # Called by script_runner on SEL_KEYRELEASE
+    # Called by CompletionTextEdit in the keyPressEvent method
     def handle_keypress(event)
       current_line = widget.textCursor.block.text
 
@@ -398,5 +400,4 @@ module Cosmos
       setCurrentRow(0) if popup.isVisible
     end
   end
-
-end # module Cosmos
+end

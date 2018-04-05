@@ -94,7 +94,6 @@ module Cosmos
       build_unknown_help()
 
       # Configure Variables
-      @key_press_callback = nil
       @output_time = Time.now.sys
       initialize_variables()
 
@@ -150,10 +149,6 @@ module Cosmos
     def cursor_position_changed()
       emit cursorPositionChanged()
       display_keyword_help()
-    end
-
-    def key_press_callback=(callback)
-      @editor.keyPressCallback = callback
     end
 
     def setFocus

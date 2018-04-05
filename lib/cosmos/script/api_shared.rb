@@ -114,7 +114,7 @@ module Cosmos
         if all_checks_ok
           Logger.info message
         else
-          if $cmd_tlm_disconnect
+          if $disconnected_targets && $disconnected_targets.include?(target_name)
             Logger.error message
           else
             raise CheckError, message
@@ -128,7 +128,7 @@ module Cosmos
           Logger.info "#{check_str} was within #{range_str}"
         else
           message = "#{check_str} failed to be within #{range_str}"
-          if $cmd_tlm_disconnect
+          if $disconnected_targets && $disconnected_targets.include?(target_name)
             Logger.error message
           else
             raise CheckError, message
@@ -167,7 +167,7 @@ module Cosmos
         Logger.info "CHECK: #{exp_to_eval} is TRUE"
       else
         message = "CHECK: #{exp_to_eval} is FALSE"
-        if $cmd_tlm_disconnect
+        if $disconnected_targets
           Logger.error message
         else
           raise CheckError, message
@@ -279,7 +279,7 @@ module Cosmos
         Logger.info "#{check_str} success #{with_value_str}"
       else
         message = "#{check_str} failed #{with_value_str}"
-        if $cmd_tlm_disconnect
+        if $disconnected_targets && $disconnected_targets.include?(target_name)
           Logger.error message
         else
           raise CheckError, message
@@ -336,7 +336,7 @@ module Cosmos
         if success
           Logger.info message
         else
-          if $cmd_tlm_disconnect
+          if $disconnected_targets && $disconnected_targets.include?(target_name)
             Logger.error message
           else
             raise CheckError, message
@@ -352,7 +352,7 @@ module Cosmos
           Logger.info "#{check_str} was within #{range_str}"
         else
           message = "#{check_str} failed to be within #{range_str}"
-          if $cmd_tlm_disconnect
+          if $disconnected_targets && $disconnected_targets.include?(target_name)
             Logger.error message
           else
             raise CheckError, message
@@ -386,7 +386,7 @@ module Cosmos
         Logger.info "CHECK: #{exp_to_eval} is TRUE after waiting #{time} seconds"
       else
         message = "CHECK: #{exp_to_eval} is FALSE after waiting #{time} seconds"
-        if $cmd_tlm_disconnect
+        if $disconnected_targets
           Logger.error message
         else
           raise CheckError, message
@@ -419,7 +419,7 @@ module Cosmos
       else
         message = "#{type}: #{target_name.upcase} #{packet_name.upcase} expected to be received #{num_packets} times but only received #{value - initial_count} times after waiting #{time} seconds"
         if check
-          if $cmd_tlm_disconnect
+          if $disconnected_targets && $disconnected_targets.include?(target_name)
             Logger.error message
           else
             raise CheckError, message
@@ -787,7 +787,7 @@ module Cosmos
 
     # sleep in a script - returns true if canceled mid sleep
     def cosmos_script_sleep(sleep_time = nil)
-      return false if $cmd_tlm_disconnect
+      return false if $disconnected_targets
       if defined? ScriptRunnerFrame and ScriptRunnerFrame.instance
         sleep_time = 30000000 unless sleep_time # Handle infinite wait
         if sleep_time > 0.0
@@ -823,7 +823,7 @@ module Cosmos
         if eval(exp_to_eval)
           return true, value
         end
-        break if Time.now.sys >= end_time || $cmd_tlm_disconnect
+        break if Time.now.sys >= end_time || ($disconnected_targets && $disconnected_targets.include?(target_name))
 
         delta = Time.now.sys - work_start
         sleep_time = polling_rate - delta
@@ -906,7 +906,7 @@ module Cosmos
         Logger.info "#{check_str} success #{value_str}"
       else
         message = "#{check_str} failed #{value_str}"
-        if $cmd_tlm_disconnect
+        if $disconnected_targets && $disconnected_targets.include?(target_name)
           Logger.error message
         else
           raise CheckError, message

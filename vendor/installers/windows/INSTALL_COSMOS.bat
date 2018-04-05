@@ -14,7 +14,7 @@ set PROTOCOL=https
 set ARCHITECTURE=%PROCESSOR_ARCHITECTURE%
 
 :: Update this version if making any changes to this script
-set INSTALLER_VERSION=1.6
+set INSTALLER_VERSION=1.7
 
 :: Paths and versions for COSMOS dependencies
 set RUBY_INSTALLER_32=rubyinstaller-2.4.2-2.exe
@@ -25,6 +25,9 @@ set WKHTMLTOPDF=wkhtmltox-0.11.0_rc1-installer.exe
 set WKHTMLPATHWITHPROTOCOL=https://downloads.wkhtmltopdf.org/obsolete/windows/
 set QTBINDINGS_QT_VERSION=4.8.6.4
 set WINDOWS_INSTALL_ZIP=//github.com/BallAerospace/COSMOS/blob/master/vendor/installers/windows/COSMOS_Windows_Install.zip
+set WINDOWS_CURL_VERSION=7.59.0
+set WINDOWS_CURL32_ZIP=//bintray.com/artifact/download/vszakats/generic/curl-7.59.0-win32-mingw.zip
+set WINDOWS_CURL64_ZIP=//bintray.com/artifact/download/vszakats/generic/curl-7.59.0-win64-mingw.zip
 
 :: Detect Ball
 if "%USERDNSDOMAIN%"=="AERO.BALL.COM" (
@@ -55,6 +58,19 @@ if exist *.gem (
   echo WARNING: gem files found in the current directory
   echo WARNING: This can cause the installation to fail or install old gems
   pause
+)
+
+:: Detect whether to use Curl for downloads based on windows version
+:: Will use curl on less than Windows 10
+set USE_CURL=0
+for /f "tokens=4-5 delims=. " %%i in ('ver') do set VERSION=%%i.%%j
+if "%version%" == "6.3" set USE_CURL=1
+if "%version%" == "6.2" set USE_CURL=1
+if "%version%" == "6.1" set USE_CURL=1
+if !USE_CURL!==1 (
+  echo Downloads will use curl
+) else (
+  echo Download will use powershell
 )
 
 ::::::::::::::::::::::
@@ -134,13 +150,71 @@ if errorlevel 1 (
 @echo PROCESSOR_ARCHITECTURE=!ARCHITECTURE! >> !COSMOS_INSTALL!\INSTALL.log
 @echo. >> !COSMOS_INSTALL!\INSTALL.log
 
+::::::::::::::::::::::::::::::::::::::::
+:: Create unzip script
+::::::::::::::::::::::::::::::::::::::::
+
+SET "UNZIP_TMP=!COSMOS_INSTALL!\tmp\unzip.vbs"
+@echo Set ArgObj = WScript.Arguments > !UNZIP_TMP!
+@echo strFileZIP = ArgObj(0) >> !UNZIP_TMP!
+@echo outFolder = ArgObj(1) ^& "\" >> !UNZIP_TMP!
+@echo WScript.Echo ("Extracting file " ^& strFileZIP ^& " to " ^& outFolder) >> !UNZIP_TMP!
+@echo Set objShell = CreateObject( "Shell.Application" ) >> !UNZIP_TMP!
+@echo Set objSource = objShell.NameSpace(strFileZIP).Items() >> !UNZIP_TMP!
+@echo Set objTarget = objShell.NameSpace(outFolder) >> !UNZIP_TMP!
+@echo intOptions = 256 >> !UNZIP_TMP!
+@echo objTarget.CopyHere objSource, intOptions >> !UNZIP_TMP!
+
+::::::::::::::::::::::::
+:: Download curl for windows 7 downloads
+::::::::::::::::::::::::
+
+if !USE_CURL!==1 (
+  if !ARCHITECTURE!==x86 (
+    echo Downloading 32-bit Curl
+    powershell -Command "(New-Object Net.WebClient).DownloadFile('!PROTOCOL!:!WINDOWS_CURL32_ZIP!', '!COSMOS_INSTALL!\tmp\curl.zip')"
+    if errorlevel 1 (
+      echo ERROR: Problem downloading 32-bit Curl from: !PROTOCOL!:!WINDOWS_CURL32_ZIP!
+      echo INSTALL FAILED
+      @echo ERROR: Problem downloading 32-bit Curl from: !PROTOCOL!:!WINDOWS_CURL32_ZIP! >> !COSMOS_INSTALL!\INSTALL.log
+      pause
+      exit /b 1
+    ) else (
+      @echo Successfully downloaded 32-bit Curl from: !PROTOCOL!:!WINDOWS_CURL32_ZIP! >> !COSMOS_INSTALL!\INSTALL.log
+    )
+    set CURL_EXE=!COSMOS_INSTALL!\tmp\curl-!WINDOWS_CURL_VERSION!-win32-mingw\bin\curl.exe
+  ) else (
+    echo Downloading 64-bit Curl
+    powershell -Command "(New-Object Net.WebClient).DownloadFile('!PROTOCOL!:!WINDOWS_CURL64_ZIP!', '!COSMOS_INSTALL!\tmp\curl.zip')"
+    if errorlevel 1 (
+      echo ERROR: Problem downloading 64-bit Curl from: !PROTOCOL!:!WINDOWS_CURL64_ZIP!
+      echo INSTALL FAILED
+      @echo ERROR: Problem downloading 64-bit Curl from: !PROTOCOL!:!WINDOWS_CURL64_ZIP! >> !COSMOS_INSTALL!\INSTALL.log
+      pause
+      exit /b 1
+    ) else (
+      @echo Successfully downloaded 64-bit Curl from: !PROTOCOL!:!WINDOWS_CURL64_ZIP! >> !COSMOS_INSTALL!\INSTALL.log
+    )
+    set CURL_EXE=!COSMOS_INSTALL!\tmp\curl-!WINDOWS_CURL_VERSION!-win64-mingw\bin\curl.exe
+  )
+
+  echo Curl at: !CURL_EXE!
+  cscript //B !UNZIP_TMP! !COSMOS_INSTALL!\tmp\curl.zip !COSMOS_INSTALL!\tmp
+  !CURL_EXE! --version
+)
+
 ::::::::::::::::::::::::
 :: Install Ruby
 ::::::::::::::::::::::::
 
 if !ARCHITECTURE!==x86 (
   echo Downloading 32-bit Ruby
-  powershell -Command "(New-Object Net.WebClient).DownloadFile('!PROTOCOL!:!RUBY_INSTALLER_PATH!!RUBY_INSTALLER_32!', '!COSMOS_INSTALL!\tmp\!RUBY_INSTALLER_32!')"
+
+  if !USE_CURL!==1 (
+    !CURL_EXE! -L -o "!COSMOS_INSTALL!\tmp\!RUBY_INSTALLER_32!" "!PROTOCOL!:!RUBY_INSTALLER_PATH!!RUBY_INSTALLER_32!"
+  ) else (
+    powershell -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; (New-Object Net.WebClient).DownloadFile('!PROTOCOL!:!RUBY_INSTALLER_PATH!!RUBY_INSTALLER_32!', '!COSMOS_INSTALL!\tmp\!RUBY_INSTALLER_32!')"
+  )
   if errorlevel 1 (
     echo ERROR: Problem downloading 32-bit Ruby from: !PROTOCOL!:!RUBY_INSTALLER_PATH!!RUBY_INSTALLER_32!
     echo INSTALL FAILED
@@ -161,11 +235,19 @@ if !ARCHITECTURE!==x86 (
   ) else (
     @echo Successfully installed 32-bit Ruby >> !COSMOS_INSTALL!\INSTALL.log
   )
-  call !COSMOS_INSTALL!\Vendor\Ruby\bin\ridk install 1 2 3
+  call !COSMOS_INSTALL!\Vendor\Ruby\bin\ridk install 1
+  call C:\msys64\usr\bin\pacman --noconfirm -R catgets
+  call C:\msys64\usr\bin\pacman --noconfirm -R libcatgets
+  call !COSMOS_INSTALL!\Vendor\Ruby\bin\ridk install 2 3
   call C:\msys64\usr\bin\pacman --noconfirm -S mingw-w64-i686-gettext
 ) else (
   echo Downloading 64-bit Ruby
-  powershell -Command "(New-Object Net.WebClient).DownloadFile('!PROTOCOL!:!RUBY_INSTALLER_PATH!!RUBY_INSTALLER_64!', '!COSMOS_INSTALL!\tmp\!RUBY_INSTALLER_64!')"
+
+  if !USE_CURL!==1 (
+    !CURL_EXE! -L -o "!COSMOS_INSTALL!\tmp\!RUBY_INSTALLER_64!" "!PROTOCOL!:!RUBY_INSTALLER_PATH!!RUBY_INSTALLER_64!"
+  ) else (
+    powershell -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; (New-Object Net.WebClient).DownloadFile('!PROTOCOL!:!RUBY_INSTALLER_PATH!!RUBY_INSTALLER_64!', '!COSMOS_INSTALL!\tmp\!RUBY_INSTALLER_64!')"
+  )
   if errorlevel 1 (
     echo ERROR: Problem downloading 64-bit Ruby from: !PROTOCOL!:!RUBY_INSTALLER_PATH!!RUBY_INSTALLER_64!
     echo INSTALL FAILED
@@ -186,7 +268,10 @@ if !ARCHITECTURE!==x86 (
   ) else (
     @echo Successfully installed 64-bit Ruby >> !COSMOS_INSTALL!\INSTALL.log
   )
-  call !COSMOS_INSTALL!\Vendor\Ruby\bin\ridk install 1 2 3
+  call !COSMOS_INSTALL!\Vendor\Ruby\bin\ridk install 1
+  call C:\msys64\usr\bin\pacman --noconfirm -R catgets
+  call C:\msys64\usr\bin\pacman --noconfirm -R libcatgets
+  call !COSMOS_INSTALL!\Vendor\Ruby\bin\ridk install 2 3
   call C:\msys64\usr\bin\pacman --noconfirm -S mingw-w64-x86_64-gettext
 )
 
@@ -196,7 +281,11 @@ if !ARCHITECTURE!==x86 (
 
 if !ADMIN!==1 (
   echo Downloading WkHtmlToPdf
-  powershell -Command "(New-Object Net.WebClient).DownloadFile('!WKHTMLPATHWITHPROTOCOL!!WKHTMLTOPDF!', '!COSMOS_INSTALL!\tmp\!WKHTMLTOPDF!')"
+  if !USE_CURL!==1 (
+    !CURL_EXE! -L -o "!COSMOS_INSTALL!\tmp\!WKHTMLTOPDF!" "!WKHTMLPATHWITHPROTOCOL!!WKHTMLTOPDF!"
+  ) else (
+    powershell -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; (New-Object Net.WebClient).DownloadFile('!WKHTMLPATHWITHPROTOCOL!!WKHTMLTOPDF!', '!COSMOS_INSTALL!\tmp\!WKHTMLTOPDF!')"
+  )
   if errorlevel 1 (
     echo WARNING: Problem downloading WkHtmlToPdf from: !WKHTMLPATHWITHPROTOCOL!!WKHTMLTOPDF!
     echo Please download and install this version to enable making PDF files.
@@ -231,7 +320,11 @@ if !ADMIN!==1 (
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 echo Downloading COSMOS_Windows_Install.zip
-powershell -Command "(New-Object Net.WebClient).DownloadFile('!PROTOCOL!:!WINDOWS_INSTALL_ZIP!?raw=true', '!COSMOS_INSTALL!\tmp\COSMOS_Windows_Install.zip')"
+if !USE_CURL!==1 (
+  !CURL_EXE! -L -o "!COSMOS_INSTALL!\tmp\COSMOS_Windows_Install.zip" "!PROTOCOL!:!WINDOWS_INSTALL_ZIP!?raw=true"
+) else (
+  powershell -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; (New-Object Net.WebClient).DownloadFile('!PROTOCOL!:!WINDOWS_INSTALL_ZIP!?raw=true', '!COSMOS_INSTALL!\tmp\COSMOS_Windows_Install.zip')"
+)
 if errorlevel 1 (
   echo ERROR: Problem downloading COSMOS Windows files from: !PROTOCOL!:!WINDOWS_INSTALL_ZIP!?raw=true
   echo INSTALL FAILED
@@ -241,16 +334,7 @@ if errorlevel 1 (
 ) else (
   @echo Successfully downloaded COSMOS Windows files from: !PROTOCOL!:!WINDOWS_INSTALL_ZIP!?raw=true >> !COSMOS_INSTALL!\INSTALL.log
 )
-SET "UNZIP_TMP=!COSMOS_INSTALL!\tmp\unzip.vbs"
-@echo Set ArgObj = WScript.Arguments > !UNZIP_TMP!
-@echo strFileZIP = ArgObj(0) >> !UNZIP_TMP!
-@echo outFolder = ArgObj(1) ^& "\" >> !UNZIP_TMP!
-@echo WScript.Echo ("Extracting file " ^& strFileZIP ^& " to " ^& outFolder) >> !UNZIP_TMP!
-@echo Set objShell = CreateObject( "Shell.Application" ) >> !UNZIP_TMP!
-@echo Set objSource = objShell.NameSpace(strFileZIP).Items() >> !UNZIP_TMP!
-@echo Set objTarget = objShell.NameSpace(outFolder) >> !UNZIP_TMP!
-@echo intOptions = 256 >> !UNZIP_TMP!
-@echo objTarget.CopyHere objSource, intOptions >> !UNZIP_TMP!
+
 cscript //B !UNZIP_TMP! !COSMOS_INSTALL!\tmp\COSMOS_Windows_Install.zip !COSMOS_INSTALL!
 if errorlevel 1 (
   echo ERROR: Problem unzipping COSMOS Windows files

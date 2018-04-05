@@ -37,34 +37,43 @@ module Cosmos
       end
     end
 
-    describe "shutdown_cmd_tlm" do
-      it "should call shutdown on the server" do
-        set_cmd_tlm_disconnect(false)
-        expect($cmd_tlm_server).to receive(:shutdown)
+    describe "set_disconnected_targets, get_disconnected_targets, clear_disconnected_targets" do
+      it "should set, get, and clear disconnected targets" do
+        set_disconnected_targets(['INST'])
+        expect($disconnected_targets).to include('INST')
+        expect(get_disconnected_targets()).to eq ['INST']
+        clear_disconnected_targets()
+        expect(get_disconnected_targets()).to be_nil
         shutdown_cmd_tlm()
       end
 
-      it "should not call shutdown in disconnect mode" do
-        set_cmd_tlm_disconnect(true)
-        expect($cmd_tlm_server).to_not receive(:shutdown)
+      it "should handle any type of request when disconnected" do
+        initialize_script_module()
+        set_disconnected_targets(['INST'])
+        # Try some simple cmd, tlm requests which route to the disconnected
+        disconnected = $cmd_tlm_server.instance_variable_get(:@disconnected)
+        expect(disconnected).to receive(:cmd).and_call_original
+        cmd("INST ABORT")
+        expect(disconnected).to receive(:tlm).and_call_original
+        tlm("INST HEALTH_STATUS TEMP1")
+        # SYSTEM isn't disconnected so these should not go to disconnected
+        expect(disconnected).not_to receive(:cmd)
+        expect { cmd("SYSTEM STARTLOGGING with LABEL 'TEST'") }.to raise_error(DRb::DRbConnError)
+        expect(disconnected).not_to receive(:tlm)
+        expect { tlm("SYSTEM META COSMOS_VERSION") }.to raise_error(DRb::DRbConnError)
+
+        # The rest should pass through to the JsonDRbObject
+        cosmos_script_sleep(0.1)
+        expect { get_limits_groups() }.to raise_error(DRb::DRbConnError)
+        expect { set_limits_set("DEFAULT") }.to raise_error(DRb::DRbConnError)
+        ignore = []
+        ignore << %w(INST HEALTH_STATUS TEMP1)
+        ignore << %w(INST HEALTH_STATUS TEMP2)
+        ignore << %w(INST HEALTH_STATUS GROUND2STATUS)
+        expect { get_overall_limits_state(ignore) }.to raise_error(DRb::DRbConnError)
+
+        clear_disconnected_targets()
         shutdown_cmd_tlm()
-        set_cmd_tlm_disconnect(false)
-      end
-    end
-
-    describe "script_disconnect" do
-      it "should disconnect from the server" do
-        expect($cmd_tlm_server).to receive(:disconnect)
-        script_disconnect()
-      end
-    end
-
-    describe "set_cmd_tlm_disconnect and get_cmd_tlm_disconnect" do
-      it "set and get the disconnect status" do
-        set_cmd_tlm_disconnect(true)
-        expect(get_cmd_tlm_disconnect()).to be true
-        set_cmd_tlm_disconnect(false)
-        expect(get_cmd_tlm_disconnect()).to be false
       end
     end
 

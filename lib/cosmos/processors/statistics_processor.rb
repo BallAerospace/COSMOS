@@ -32,6 +32,8 @@ module Cosmos
     # See Processor#call
     def call(packet, buffer)
       value = packet.read(@item_name, @value_type, buffer)
+      # Don't process NaN or Infinite values
+      return if value.to_f.nan? || value.to_f.infinite?
       @samples << value
       @samples = @samples[-@samples_to_average..-1] if @samples.length > @samples_to_average
       mean, stddev = Math.stddev_sample(@samples)
