@@ -94,8 +94,6 @@ module Cosmos
           ['\b\w+(::\b\w+)+', 0, STYLES['class']],
           # Ruby global
           ['\\$\b\w+', 0, STYLES['string']],
-          # A single # or a # not followed by { to the end
-          ['(#$|#[^{]).*', 0, STYLES['comment']],
           # Regex, possibly containing escape sequences
           ["/.*/", 0, STYLES['string']],
           # Double-quoted string, possibly containing escape sequences
@@ -108,6 +106,8 @@ module Cosmos
           ["'[^'\\\\]*(\\.[^'\\\\]*)*'", 0, STYLES['string']],
           # Back-tick string, possibly containing escape sequences
           ["`[^`\\\\]*(\\.[^`\\\\]*)*`", 0, STYLES['string']],
+          # A single # possibly followed by matched quotes
+          ['#(?=([^\'"]*(\'|")[^\'"]*(\'|"))*[^\'"]*$).*', 0, STYLES['comment']],
       ])
 
       # Build a QRegExp for each pattern
