@@ -22,17 +22,15 @@ require 'cosmos/tools/tlm_grapher/data_objects/xy_data_object'
 require 'cosmos/tools/tlm_grapher/data_objects/singlexy_data_object'
 
 module Cosmos
-
   # Provides capabilities to read an ascii file that lists
   # the details for a set of plots drawn in tabs.
   class TabbedPlotsConfig
-
     # Default Values
     DEFAULT_SECONDS_PLOTTED = 100.0
     DEFAULT_POINTS_SAVED = 1000000
     DEFAULT_POINTS_PLOTTED = 1000
     DEFAULT_REFRESH_RATE_HZ = 10.0
-    DEFAULT_CTS_TIMEOUT = 10.0
+    DEFAULT_CTS_TIMEOUT = 60.0
 
     # Gives access to the array of tabs defined by the configuration file
     attr_accessor :tabs
@@ -445,7 +443,5 @@ module Cosmos
         end
       end
     end
-
-  end # class TabbedPlotsConfig
-
-end # module Cosmos
+  end
+end
