@@ -346,6 +346,7 @@ module Cosmos
                 end
               end
               if delay_time > 0.0
+                delay_time = 1.0 if delay_time > 1.0 # prevents large delays from gaps
                 break if @playback_sleeper.sleep(delay_time)
               end
               previous_packet = packet
