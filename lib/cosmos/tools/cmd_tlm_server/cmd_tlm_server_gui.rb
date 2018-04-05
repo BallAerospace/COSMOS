@@ -123,6 +123,7 @@ module Cosmos
       end
       @production = options.production
       @no_prompt = options.no_prompt
+      @replay_routers = options.replay_routers
       @message_log = nil
       @output_sleeper = Sleeper.new
       @first_output = 0
@@ -147,7 +148,7 @@ module Cosmos
 
       if !CmdTlmServer.instance or @mode == :CMD_TLM_SERVER
         CmdTlmServer.meta_callback = method(:meta_callback)
-        cts = CmdTlmServer.new(@options.config_file, @production, false, @mode)
+        cts = CmdTlmServer.new(@options.config_file, @production, false, @mode, @replay_routers)
         CmdTlmServerGui.configure_signal_handlers()
         cts.stop_callback = method(:stop_callback)
         cts.reload_callback = method(:reload)
@@ -508,7 +509,7 @@ module Cosmos
       CmdTlmServer.instance.stop_callback = nil
       CmdTlmServer.instance.stop
       System.reset
-      cts = CmdTlmServer.new(@options.config_file, @options.production, false, @mode)
+      cts = CmdTlmServer.new(@options.config_file, @options.production, false, @mode, @options.replay_routers)
 
       # Signal catching needs to be repeated here because Puma interferes
       ["TERM", "INT"].each {|sig| Signal.trap(sig) {exit}}
@@ -557,7 +558,7 @@ module Cosmos
           else
             @mode = :CMD_TLM_SERVER
           end
-          cts = CmdTlmServer.new(options.config_file, options.production, false, @mode)
+          cts = CmdTlmServer.new(options.config_file, options.production, false, @mode, options.replay_routers)
 
           # Signal catching needs to be repeated here because Puma interferes
           ["TERM", "INT"].each {|sig| Signal.trap(sig) {exit}}
@@ -616,12 +617,7 @@ module Cosmos
           options.production = false
           options.no_prompt = false
           options.no_gui = false
-          if self.name == "Cosmos::Replay"
-            options.replay = true
-            options.title = "Replay"
-          else
-            options.replay = false
-          end
+          options.replay_routers = false
 
           option_parser.separator "CTS Specific Options:"
           option_parser.on("-c", "--config FILE", "Use the specified configuration file") do |arg|
@@ -636,6 +632,16 @@ module Cosmos
           option_parser.on(nil, "--no-gui", "Run the server without a GUI") do |arg|
             options.no_gui = true
           end
+
+          if self.name == "Cosmos::Replay"
+            options.replay = true
+            options.title = "Replay"
+            option_parser.on(nil, "--routers", "Enable All Routers") do |arg|
+              options.replay_routers = true
+            end
+          else
+            options.replay = false
+          end          
         end
 
         super(option_parser, options)
