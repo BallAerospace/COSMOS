@@ -106,8 +106,8 @@ module Cosmos
           ["'[^'\\\\]*(\\.[^'\\\\]*)*'", 0, STYLES['string']],
           # Back-tick string, possibly containing escape sequences
           ["`[^`\\\\]*(\\.[^`\\\\]*)*`", 0, STYLES['string']],
-          # A single # or a # not followed by { to the end
-          ['(#$|#[^{]).*', 0, STYLES['comment']],
+          # A single # possibly followed by matched quotes
+          ['#(?=([^\'"]*(\'|")[^\'"]*(\'|"))*[^\'"]*$).*', 0, STYLES['comment']],
       ])
 
       # Build a QRegExp for each pattern
