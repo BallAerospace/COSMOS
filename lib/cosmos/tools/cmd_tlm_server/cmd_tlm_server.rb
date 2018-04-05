@@ -130,7 +130,8 @@ module Cosmos
       config_file = DEFAULT_CONFIG_FILE,
       production = false,
       disconnect = false,
-      mode = :CMD_TLM_SERVER)
+      mode = :CMD_TLM_SERVER,
+      replay_routers = false)
 
       @@instance = self
       @packet_logging = nil # Removes warnings
@@ -217,7 +218,7 @@ module Cosmos
           @routers.add_preidentified('PREIDENTIFIED_ROUTER', System.ports['CTS_PREIDENTIFIED'])
           @routers.add_cmd_preidentified('PREIDENTIFIED_CMD_ROUTER', System.ports['CTS_CMD_ROUTER'])
         else
-          @routers.all.clear
+          @routers.all.clear unless replay_routers
           @routers.add_preidentified('PREIDENTIFIED_ROUTER', System.ports['REPLAY_PREIDENTIFIED'])
           @routers.add_cmd_preidentified('PREIDENTIFIED_CMD_ROUTER', System.ports['REPLAY_CMD_ROUTER'])
         end
