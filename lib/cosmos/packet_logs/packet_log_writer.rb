@@ -138,7 +138,7 @@ module Cosmos
       new_label = label.to_s.strip
       if new_label.length == 0
         @label = nil
-      elsif new_label =~ /^[a-zA-Z0-9]*$/
+      elsif new_label =~ /^[a-zA-Z0-9_-]*$/
         @label = new_label
       else
         # Invalid label - Clear out existing
