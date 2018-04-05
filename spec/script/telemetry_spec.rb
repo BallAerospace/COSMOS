@@ -10,7 +10,7 @@
 
 require 'spec_helper'
 require 'cosmos'
-require 'cosmos/script/script'
+require 'cosmos/script'
 require 'tempfile'
 
 module Cosmos
