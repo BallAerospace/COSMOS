@@ -832,6 +832,18 @@ module Cosmos
         end
       end
 
+      context "with APPEND" do
+        it "allows appending derived items" do
+          tf = Tempfile.new('unittest')
+          tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Packet"'
+          tf.puts '  APPEND_ITEM item1 0 DERIVED'
+          tf.close
+          @pc.process_file(tf.path, "TGT1")
+          expect(@pc.telemetry["TGT1"]["PKT1"].items["ITEM1"].data_type).to be :DERIVED
+          tf.unlink
+        end
+      end      
+
     end # describe "process_file"
   end
 end
