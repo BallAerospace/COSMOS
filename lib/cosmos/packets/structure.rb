@@ -263,7 +263,11 @@ module Cosmos
     # @return (see #define_item)
     def append_item(name, bit_size, data_type, array_size = nil, endianness = @default_endianness, overflow = :ERROR)
       raise ArgumentError, "Can't append an item after a variably sized item" if !@fixed_size
-      return define_item(name, @defined_length_bits, bit_size, data_type, array_size, endianness, overflow)
+      if data_type == :DERIVED
+        return define_item(name, 0, bit_size, data_type, array_size, endianness, overflow)
+      else
+        return define_item(name, @defined_length_bits, bit_size, data_type, array_size, endianness, overflow)
+      end
     end
 
     # Adds an item at the end of the structure. It adds the item to the items
@@ -273,7 +277,11 @@ module Cosmos
     # @return (see #define)
     def append(item)
       raise ArgumentError, "Can't append an item after a variably sized item" if !@fixed_size
-      item.bit_offset = @defined_length_bits
+      if item.data_type == :DERIVED
+        item.bit_offset = 0
+      else
+        item.bit_offset = @defined_length_bits
+      end
       return define(item)
     end
 
