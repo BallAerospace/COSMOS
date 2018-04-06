@@ -630,7 +630,7 @@ Note how both telemetry packets got their own unique PKTID column. With SHARE_CO
 <td>ADCS</td>
 <td>1</td></tr></tbody></table>
 
-Note how both packets share the one PKTID column. This applies to all telemetry items with identical names.  If you want to share columns for only specific items, use the SHARE_COLUMN keyword instead. 
+Note how both packets share the one PKTID column. This applies to all telemetry items with identical names.  If you want to share columns for only specific items, use the SHARE_COLUMN keyword instead.
 
 ### SHARE_COLUMN (COSMOS >= 3.9.2)
 
@@ -743,7 +743,7 @@ Note that the TARGET and PACKET information is catpured in common TARGET and PAC
 <td> </td>
 <td>1</td></tr></tbody></table>
 
-Note that there are no TARGET or PACKET columns, but the column names include TARGET and PACKET instead. 
+Note that there are no TARGET or PACKET columns, but the column names include TARGET and PACKET instead.
 
 ### DONT_OUTPUT_FILENAMES
 
@@ -1200,16 +1200,16 @@ Example Usage:
 PARAMETER TABLE_ID 0 32 UINT MIN MAX 10 "Table ID"
   UNEDITABLE
 {% endhighlight %}
- 
+
 ## Example File
 
 **Example File: <COSMOSPATH>/config/table_manager/metable_def.txt**
 
 {% highlight bash %}
-TABLE "Mechanism Control" BIG_ENDIAN ONE_DIMENSIONAL "Mechanism Control" 
+TABLE "Mechanism Control" BIG_ENDIAN ONE_DIMENSIONAL "Mechanism Control"
   APPEND_PARAMETER "Total Steps" 32 UINT 0 2000 0
     FORMAT_STRING "0x%0X" # Display as hex
-    GENERIC_READ_CONVERSION_START
+    GENERIC_READ_CONVERSION_START UINT 32
       # Depending on the state of Other Param we change this item's range
       if packet.read("Other Param") == "OLD"
         packet.get_item("Total Steps").range = (0..10)
@@ -1220,10 +1220,10 @@ TABLE "Mechanism Control" BIG_ENDIAN ONE_DIMENSIONAL "Mechanism Control"
       value
     GENERIC_READ_CONVERSION_END
   APPEND_PARAMETER "My Param" 16 UINT 0 2000 0
-    GENERIC_READ_CONVERSION_START
+    GENERIC_READ_CONVERSION_START UINT 32
       value * 2
     GENERIC_READ_CONVERSION_END
-    GENERIC_WRITE_CONVERSION_START
+    GENERIC_WRITE_CONVERSION_START UINT 32
       value / 2
     GENERIC_WRITE_CONVERSION_END
   APPEND_PARAMETER "Other Param" 32 INT 0 1 1
