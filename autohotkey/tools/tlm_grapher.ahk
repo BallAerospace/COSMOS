@@ -80,7 +80,7 @@ Click right 750 550 ; Add a data object to the linegraph
 Sleep 500
 Send {Down 4}{Enter} ; Add data object
 WinWaitActive Add
-Send {Tab}i{Tab}h{Tab}Temp1{Tab 2}rr{Tab 2}s{Tab 3}r{Tab}{Space}
+Send {Tab}i{Tab}h{Tab}Temp1{Tab 2}rr{Tab 4}s{Tab 3}r{Tab}{Space}
 Sleep 1000 ; Wait for the horizontal line edit
 Send +{Home}green{Tab}10{Tab}{Enter}
 WinWaitActive Add
@@ -90,43 +90,43 @@ Click right 750 550 ; Add a data object to the linegraph
 Sleep 500
 Send {Down 4}{Enter} ; Add data object TG-7
 WinWaitActive Add
-Send {Tab}i{Tab}h{Tab}Temp1{Tab 2}rr{Tab 2}d{Tab}4{Enter}
+Send {Tab}i{Tab}h{Tab}Temp1{Tab 2}rr{Tab 4}d{Tab}4{Enter}
 WinWaitActive Telemetry Grapher
 Click right 750 550 ; Add a data object to the linegraph
 Sleep 500
 Send {Down 4}{Enter} ; Add data object TG-7
 WinWaitActive Add
-Send {Tab}i{Tab}h{Tab}Temp1{Tab 2}rr{Tab 2}w{Enter}
+Send {Tab}i{Tab}h{Tab}Temp1{Tab 2}rr{Tab 4}w{Enter}
 WinWaitActive Telemetry Grapher
 Click right 750 550 ; Add a data object to the linegraph
 Sleep 500
 Send {Down 4}{Enter} ; Add data object TG-7
 WinWaitActive Add
-Send {Tab}i{Tab}h{Tab}Temp1{Tab 2}rr{Tab 2}ww{Enter}
+Send {Tab}i{Tab}h{Tab}Temp1{Tab 2}rr{Tab 4}ww{Enter}
 WinWaitActive Telemetry Grapher
 Click right 750 550 ; Add a data object to the linegraph
 Sleep 500
 Send {Down 4}{Enter} ; Add data object
 WinWaitActive Add
-Send {Tab}i{Tab}h{Tab}Temp1{Tab 2}rr{Tab 2}a{Enter}
+Send {Tab}i{Tab}h{Tab}Temp1{Tab 2}rr{Tab 4}a{Enter}
 WinWaitActive Telemetry Grapher
 Click right 750 550 ; Add a data object to the linegraph
 Sleep 500
 Send {Down 4}{Enter} ; Add data object
 WinWaitActive Add
-Send {Tab}i{Tab}h{Tab}Temp1{Tab 2}rr{Tab 2}m{Enter}
+Send {Tab}i{Tab}h{Tab}Temp1{Tab 2}rr{Tab 4}m{Enter}
 WinWaitActive Telemetry Grapher
 Click right 750 550 ; Add a data object to the linegraph
 Sleep 500
 Send {Down 4}{Enter} ; Add data object
 WinWaitActive Add
-Send {Tab}i{Tab}h{Tab}Temp1{Tab 2}rr{Tab 2}mm{Enter}
+Send {Tab}i{Tab}h{Tab}Temp1{Tab 2}rr{Tab 4}mm{Enter}
 WinWaitActive Telemetry Grapher
 Click right 750 550 ; Add a data object to the linegraph
 Sleep 500
 Send {Down 4}{Enter} ; Add data object
 WinWaitActive Add
-Send {Tab}i{Tab}h{Tab}Temp1{Tab 2}rr{Tab 2}p{Enter}
+Send {Tab}i{Tab}h{Tab}Temp1{Tab 2}rr{Tab 4}p{Enter}
 WinWaitActive Telemetry Grapher
 Click right 750 550 ; Add a data object to the linegraph
 Sleep 500
@@ -399,7 +399,7 @@ Click right 130 265
 Sleep 500
 Send {Down 3}{Enter} ; Modify this data object
 WinWaitActive Edit
-Send {Tab 5}r{Tab 3}t{Tab 3}r{Enter} ; Enable Raw Value Type and Show Limits Lines
+Send {Tab 5}r{Tab 5}t{Tab 3}r{Enter} ; Enable Raw Value Type and Show Limits Lines
 Sleep 1000
 Click down 60 317 ; Drag and drop the bottom to the top
 Sleep 500

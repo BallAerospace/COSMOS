@@ -243,7 +243,7 @@ module Cosmos
 
         process_values(x_value, y_value, time_value)
       rescue Exception => error
-        handle_process_exception(error, "#{packet.target_name} #{packet.packet_name} #{@x_item_name} or #{@y_item_name}")
+        handle_process_exception(error, "#{@target_name} #@packet_name} #{@x_item_name} or #{@y_item_name}")
       end
     end # def process_packet
 
@@ -262,7 +262,7 @@ module Cosmos
         # Prune Data
         prune_to_max_points_saved()
       rescue Exception => error
-        handle_process_exception(error, "#{packet.target_name} #{packet.packet_name} #{@x_item_name} or #{@y_item_name}")
+        handle_process_exception(error, "#{@target_name} #{@packet_name} #{@x_item_name} or #{@y_item_name}")
       end      
     end
 

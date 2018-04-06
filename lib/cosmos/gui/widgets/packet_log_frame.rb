@@ -13,6 +13,19 @@ require 'cosmos/gui/qt'
 require 'cosmos/gui/dialogs/calendar_dialog'
 
 module Cosmos
+
+  class PacketLogFrameListWidget < Qt::ListWidget
+    attr_accessor :delete_callback
+
+    def keyPressEvent(event)
+      case event.key
+      when Qt::Key_Delete, Qt::Key_Backspace
+        @delete_callback.call if @delete_callback
+      end
+      super(event)
+    end
+  end
+
   # Widget which displays a button to browse for log files. Files are listed
   # and can be removed. Buttons exist to display start and stop time choosers
   # which apply to all files in the list. The widget can also show a button
@@ -98,13 +111,10 @@ module Cosmos
       @layout.addWidget(@remove_button, row, 3)
       row += 1
 
-      @filenames = Qt::ListWidget.new(self)
+      @filenames = PacketLogFrameListWidget.new(self)
       @filenames.setSelectionMode(Qt::AbstractItemView::ExtendedSelection)
       @filenames.setSortingEnabled(true)
-      delete = Qt::Shortcut.new(Qt::KeySequence.new(Qt::Key_Delete), @filenames)
-      delete.connect(SIGNAL('activated()')) { handle_remove_button }
-      backspace = Qt::Shortcut.new(Qt::KeySequence.new(Qt::Key_Backspace), @filenames)
-      backspace.connect(SIGNAL('activated()')) { handle_remove_button }
+      @filenames.delete_callback = method(:handle_remove_button)
       initial_filenames.each {|filename| @filenames.addItem(filename)}
       @filenames.setMinimumHeight(90)
       @layout.addWidget(@filenames, row, 0, 3, 4)

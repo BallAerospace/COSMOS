@@ -12,7 +12,7 @@ call bundle exec ruby autohotkey\tools\LimitsMonitorAHK
 call bundle exec ruby autohotkey\tools\OpenGLBuilderAHK -w 600 -t 600
 call bundle exec ruby autohotkey\tools\PacketViewerAHK -w 600 -t 800
 call bundle exec ruby autohotkey\tools\PacketViewerAHK2 --defaultsize -p "INST ADCS"
-call bundle exec ruby autohotkey\tools\ReplayAHK -w 800
+call bundle exec ruby autohotkey\tools\ReplayAHK -w 800 -t 800
 call bundle exec ruby autohotkey\tools\ScriptRunnerAHK -w 600 -t 800
 call bundle exec ruby autohotkey\tools\ScriptRunnerAHK2 -w 600 -t 800
 call bundle exec ruby autohotkey\tools\TableManagerAHK -w 800 -t 800

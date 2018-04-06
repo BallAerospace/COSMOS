@@ -86,16 +86,16 @@ Send {Up}{Enter} ; Choose SPECIAL collect
 Sleep 1000
 
 Send ^t ; Disconnect mode
-WinWaitActive Server
+WinWaitActive Disconnect
 Send +{Tab}{Enter} ; Cancel
 WinWaitActive Command Sequence
 
 Send ^t ; Disconnect mode
-WinWaitActive Server
-Send {Tab}{Enter} ; Select
+WinWaitActive Disconnect
+Click 253 195 ; Select
 WinWaitActive Select
 Send cmd_tlm_server.txt{Enter}
-WinWaitActive Server
+WinWaitActive Disconnect
 Send {Tab}{Enter} ; Confirm dialog
 WinWaitActive Command Sequence
 
@@ -106,7 +106,11 @@ Send {Tab 2}{Enter} ; No
 WinWaitActive Command Sequence
 
 Send ^t ; Toggle off disconnect mode
-Sleep 500
+WinWaitActive Disconnect
+Click 253 73 ; Clear All
+Send {Tab}{Enter} ; Confirm dialog
+WinWaitActive Command Sequence
+
 Send ^n ; New sequence
 WinWaitActive Save
 Send {Tab}{Enter} ; Yes

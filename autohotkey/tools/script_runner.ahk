@@ -36,13 +36,17 @@ Send wait_check({ENTER}{ENTER}{ENTER}{Esc}{Left 2} == 5{Right 1}, 1{Right 1}{ENT
 Send check_expression("true == true"){ENTER} ; SR-13
 Send check_expression("true == false") ; SR-12, SR-13
 Send ^t ; Toggle Disconnect SR-20
-WinWaitActive Server
+WinWaitActive Disconnect
 Send {Enter}
 WinWaitActive Script Runner
 Sleep 1000
 Click 400 90 ; Start
 Sleep 2000
 Send ^t ; Toggle Disconnect SR-20
+WinWaitActive Disconnect
+Click 253 73 ; Clear All
+Send {Tab}{Enter} ; Confirm dialog
+WinWaitActive Script Runner
 Click 400 190 ; Back into text
 Sleep 500
 Send ^q ; Quit
@@ -339,7 +343,7 @@ Click 550 90 ; Stop SR-7
 Sleep 500
 
 Send ^t ; Toggle Disconnect SR-20
-WinWaitActive Server
+WinWaitActive Disconnect
 Send {Enter}
 WinWaitActive Script Runner
 Sleep 1000
@@ -416,6 +420,10 @@ WinWaitActive Script Runner
 Sleep 2000
 
 Send ^t ; Toggle Disconnect
+WinWaitActive Disconnect
+Click 253 73 ; Clear All
+Send {Tab}{Enter} ; Confirm dialog
+WinWaitActive Script Runner
 Sleep 500
 
 ; Close everything

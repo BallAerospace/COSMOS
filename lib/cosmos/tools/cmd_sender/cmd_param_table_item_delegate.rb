@@ -12,7 +12,7 @@ module Cosmos
   class CmdParamTableItemDelegate < Qt::StyledItemDelegate
     MANUALLY = "MANUALLY ENTERED"
 
-    def initialize(table, widgets, production)
+    def initialize(table, widgets, production = false)
       @table = table
       @widgets = widgets
       @production = production

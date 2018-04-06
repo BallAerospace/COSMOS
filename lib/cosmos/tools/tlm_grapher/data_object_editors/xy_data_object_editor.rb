@@ -91,20 +91,15 @@ module Cosmos
       @x_value_type.set_current(data_object.x_value_type.to_s) if data_object.x_value_type
       @local_layout.addWidget(@x_value_type)
 
-      # Chooser for value type
-      @value_type = ComboboxChooser.new(self, '*Value Type:', XyDataObject::VALUE_TYPES.map {|x| x.to_s})
-      @value_type.set_current(data_object.value_type.to_s) if data_object.value_type
-      local_layout.addWidget(@value_type)
-
       # Chooser for dart reduction
       @dart_reduction = ComboboxChooser.new(self, '*DART Reduction:', XyDataObject::DART_REDUCTIONS.map {|x| x.to_s})
       @dart_reduction.set_current(data_object.dart_reduction.to_s) if data_object.dart_reduction
-      local_layout.addWidget(@dart_reduction)
+      @local_layout.addWidget(@dart_reduction)
 
       # Chooser for dart reduced type
       @dart_reduced_type = ComboboxChooser.new(self, '*DART Reduced Type:', XyDataObject::DART_REDUCED_TYPES.map {|x| x.to_s})
       @dart_reduced_type.set_current(data_object.dart_reduced_type.to_s) if data_object.dart_reduced_type
-      local_layout.addWidget(@dart_reduced_type)
+      @local_layout.addWidget(@dart_reduced_type)
 
       @layout.insertLayout(0, @local_layout)
     end
@@ -165,8 +160,8 @@ module Cosmos
       dart_reductions.unshift(data_object.dart_reduction.to_s)
       @dart_reduction.update_items(dart_reductions, false)      
       dart_reduced_types = HousekeepingDataObject::DART_REDUCED_TYPES.map {|x| x.to_s}
-      dart_reduced_types.delete(data_object.dart_reduced_types.to_s)
-      dart_reduced_types.unshift(data_object.dart_reduced_types.to_s)
+      dart_reduced_types.delete(data_object.dart_reduced_type.to_s)
+      dart_reduced_types.unshift(data_object.dart_reduced_type.to_s)
       @dart_reduced_type.update_items(dart_reduced_types, false)        
     end
 
@@ -185,8 +180,8 @@ module Cosmos
       dart_reductions.unshift(data_object.dart_reduction.to_s)
       @dart_reduction.update_items(dart_reductions, false)      
       dart_reduced_types = HousekeepingDataObject::DART_REDUCED_TYPES.map {|x| x.to_s}
-      dart_reduced_types.delete(data_object.dart_reduced_types.to_s)
-      dart_reduced_types.unshift(data_object.dart_reduced_types.to_s)
+      dart_reduced_types.delete(data_object.dart_reduced_type.to_s)
+      dart_reduced_types.unshift(data_object.dart_reduced_type.to_s)
       @dart_reduced_type.update_items(dart_reduced_types, false)        
     end
 
@@ -199,13 +194,13 @@ module Cosmos
         value_types.delete(data_object.x_value_type)
         value_types.unshift(data_object.x_value_type)
         @x_value_type.update_items(value_types, false)
-        dart_reductions = HousekeepingDataObject::DART_REDUCTIONS.map {|x| x.to_s}
+        dart_reductions = XyDataObject::DART_REDUCTIONS.map {|x| x.to_s}
         dart_reductions.delete(data_object.dart_reduction.to_s)
         dart_reductions.unshift(data_object.dart_reduction.to_s)
         @dart_reduction.update_items(dart_reductions, false)      
-        dart_reduced_types = HousekeepingDataObject::DART_REDUCED_TYPES.map {|x| x.to_s}
-        dart_reduced_types.delete(data_object.dart_reduced_types.to_s)
-        dart_reduced_types.unshift(data_object.dart_reduced_types.to_s)
+        dart_reduced_types = XyDataObject::DART_REDUCED_TYPES.map {|x| x.to_s}
+        dart_reduced_types.delete(data_object.dart_reduced_type.to_s)
+        dart_reduced_types.unshift(data_object.dart_reduced_type.to_s)
         @dart_reduced_type.update_items(dart_reduced_types, false)          
       end
     end

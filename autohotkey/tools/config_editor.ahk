@@ -72,6 +72,7 @@ Sleep 500
 Send inst_cmds.txt{ENTER}
 Send ^o ; File Open
 WinWaitActive, Select
+Sleep 2000
 Send inst_tlm.txt{ENTER}
 WinWaitActive Config Editor
 Sleep 1000

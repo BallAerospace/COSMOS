@@ -239,7 +239,7 @@ WinWaitActive Edit
 Sleep 500
 Send {Down 4}
 Sleep 500
-Click 25 113   ; Apply to All
+Click 25 204   ; Apply to All
 Sleep 500
 Send {Enter}
 WinWaitActive Telemetry Extractor
@@ -261,15 +261,15 @@ Click 664 464    ; Click on Browse
 WinWaitActive Select
 Send tlm.bin{Enter} ; Enter telemetry bin filename
 WinWaitActive Telemetry Extractor
-Click 750 683   ; Give this run a new output filename
+Click 750 690   ; Give this run a new output filename
 WinWaitActive Select
 Send tlm_updated.csv{Enter}
 WinWaitActive Telemetry Extractor
-Click 750 712   ; Exercise changing times through the calender menu
+Click 750 720   ; Exercise changing times through the calender menu
 WinWaitActive Select
 Send {Left 5}{Tab 5}{Enter}
 WinWaitActive Telemetry Extractor
-Click 750 741
+Click 750 750
 WinWaitActive Select
 Send {Left 2}{Tab 5}{Enter}
 WinWaitActive Telemetry Extractor
@@ -321,9 +321,9 @@ Click 265 10 ; Close packet counts window
 WinWaitActive Telemetry Extractor
 
 ; Test Batch Mode
-Click 665 713 ; Clear Time Start
+Click 665 720 ; Clear Time Start
 Sleep 100
-Click 665 740 ; Clear Time End
+Click 665 750 ; Clear Time End
 Sleep 100
 Send ^b         ; Switch to Batch Mode
 Click 667 96 ; Browse Config Files
@@ -334,7 +334,7 @@ Click 667 96 ; Browse Config Files
 WinWaitActive Select
 Send tlm_extractor2.txt{Enter} ; Load the default telem extractor text file
 WinWaitActive Telemetry Extractor
-Click 123 403 ; Click into Batch Name
+Click 123 390 ; Click into Batch Name
 Send CycleA{Enter}
 Click 142 810   ; Process with these options
 WinWaitActive Warning
@@ -354,4 +354,3 @@ WinWaitActive About
 Send {Enter}
 WinWaitActive Telemetry Extractor
 Send ^q         ; Exit tlm extractor GUI
-

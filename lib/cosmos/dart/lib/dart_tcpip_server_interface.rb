@@ -84,64 +84,59 @@ class DartTcpipServerInterface < Cosmos::TcpipServerInterface
     end
 
     meta_ple = nil
-    readers = {}
-    begin
-      packet_count = 0
-      batch_size = 100
-      batch_count = 0
-      loop do
-        ples = PacketLogEntry.where(where_clause)
-        ples = ples.where(:meta_id => meta_ids) if meta_ids
-        if start_time <= end_time
-          ples = ples.where("time >= ?", start_time)
-          ples = ples.where("time <= ?", end_time)
-          ples = ples.order(time: :asc)
-        else
-          ples = ples.where("time >= ?", end_time)
-          ples = ples.where("time <= ?", start_time)
-          ples = ples.order(time: :desc)
-        end
-        ples = ples.limit(batch_size).offset(batch_count * batch_size)
-        break if ples.length <= 0
-
-        ples.each do |ple|
-          if !meta_ple or ple.meta_id != meta_ple.id
-            meta_ple = PacketLogEntry.find(ple.meta_id)
-            meta_packet = read_packet_from_ple(meta_ple)
-            if meta_packet
-              begin
-                interface.write(meta_packet)
-                packet_count += 1
-              rescue Exception
-                Cosmos::Logger.error("Request ended with meta packet write error")
-                break
-              end
-            else
-              Cosmos::Logger.error("No Meta Packet Read: #{meta_ple.inspect}")
-            end
-          end
-
-          if meta_ple.id != ple.id
-            packet = read_packet_from_ple(ple)
-            if packet
-              begin
-                interface.write(packet)
-                packet_count += 1
-              rescue Exception
-                Cosmos::Logger.error("Request ended with write error")
-                break
-              end
-            else
-              Cosmos::Logger.error("No Packet Read: #{ple.inspect}")
-            end
-          end
-        end
-
-        batch_count += 1
+    packet_count = 0
+    batch_size = 100
+    batch_count = 0
+    loop do
+      ples = PacketLogEntry.where(where_clause)
+      ples = ples.where(:meta_id => meta_ids) if meta_ids
+      if start_time <= end_time
+        ples = ples.where("time >= ?", start_time)
+        ples = ples.where("time <= ?", end_time)
+        ples = ples.order(time: :asc)
+      else
+        ples = ples.where("time >= ?", end_time)
+        ples = ples.where("time <= ?", start_time)
+        ples = ples.order(time: :desc)
       end
-      Cosmos::Logger.info("Request fully served #{packet_count} packets")
-    ensure
-      readers.each { |_, reader| reader.close }
+      ples = ples.limit(batch_size).offset(batch_count * batch_size)
+      break if ples.length <= 0
+
+      ples.each do |ple|
+        if !meta_ple or ple.meta_id != meta_ple.id
+          meta_ple = PacketLogEntry.find(ple.meta_id)
+          meta_packet = read_packet_from_ple(meta_ple)
+          if meta_packet
+            begin
+              interface.write(meta_packet)
+              packet_count += 1
+            rescue Exception
+              Cosmos::Logger.error("Request ended with meta packet write error")
+              break
+            end
+          else
+            Cosmos::Logger.error("No Meta Packet Read: #{meta_ple.inspect}")
+          end
+        end
+
+        if meta_ple.id != ple.id
+          packet = read_packet_from_ple(ple)
+          if packet
+            begin
+              interface.write(packet)
+              packet_count += 1
+            rescue Exception
+              Cosmos::Logger.error("Request ended with write error")
+              break
+            end
+          else
+            Cosmos::Logger.error("No Packet Read: #{ple.inspect}")
+          end
+        end
+      end
+
+      batch_count += 1
     end
+    Cosmos::Logger.info("Request fully served #{packet_count} packets")
   end
 end

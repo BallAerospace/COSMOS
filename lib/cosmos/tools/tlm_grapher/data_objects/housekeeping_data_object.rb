@@ -227,14 +227,14 @@ module Cosmos
 
         process_values(x_value, y_value, formatted_x_value)
       rescue Exception => error
-        handle_process_exception(error, "#{packet.target_name} #{packet.packet_name} #{@item_name}")
+        handle_process_exception(error, "#{@target_name} #{@packet_name} #{@item_name}")
       end
     end # def process_packet
 
     # Process Analysis Steps
     def process_values(x_value, y_value, formatted_x_value = nil)
       begin
-        @formatted_x_values < formatted_x_value if formatted_x_value
+        @formatted_x_values << formatted_x_value if formatted_x_value
 
         # Bail on the values if they are NaN or nil as we can't graph them
         return if invalid_value?(x_value) || invalid_value?(y_value)
@@ -326,7 +326,7 @@ module Cosmos
         # Prune Data
         prune_to_max_points_saved()
       rescue Exception => error
-        handle_process_exception(error, "#{packet.target_name} #{packet.packet_name} #{@item_name}")
+        handle_process_exception(error, "#{@target_name} #{@packet_name} #{@item_name}")
       end      
     end
 
