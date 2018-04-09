@@ -195,7 +195,7 @@ class DartReducerWorkerThread
         new_row.save!
 
         rows = rows[-1..-1] # Start a new sample with the last item in the previous sample
-        Cosmos::Logger.info("Created #{new_row.class}:#{new_row.id} with #{mappings.length} items from #{new_row.num_samples} samples")
+        Cosmos::Logger.debug("Created #{new_row.class}:#{new_row.id} with #{mappings.length} items from #{new_row.num_samples} samples")
       end
       complete_job(job_type, packet_config_id, table_index)
     end # while @running
