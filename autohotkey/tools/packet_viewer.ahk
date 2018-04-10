@@ -29,7 +29,7 @@ Sleep 500
 
 ; Inspect a few telemetry items
 Click right 500, 180 ; Inspect the first telemetry item PV-4
-Sleep 500
+Sleep 1000
 Send {Tab}{Enter}
 WinWaitActive Details
 Sleep 1000
@@ -38,7 +38,7 @@ WinWaitActive Packet Viewer
 Sleep 500
 
 Click right 500, 205 ; Edit the next telemetry item PV-3, PV-5
-Sleep 500
+Sleep 1000
 Send {Tab 2}{Enter}
 WinWaitActive Edit
 Sleep 1000
@@ -47,7 +47,7 @@ WinWaitActive Packet Viewer
 Sleep 500
 
 Click right 500, 225 ; Graph the next telemetry item PV-6
-Sleep 500
+Sleep 1000
 Send {Tab 3}{Enter}
 WinWaitActive Telemetry Grapher
 Sleep 5000
@@ -153,7 +153,7 @@ Sleep 500
 Send {Enter}
 Sleep 2000
 
-Click right 380, 595 ; TEMP1 details
+Click right 380, 687 ; TEMP1 details
 Sleep 1000
 Send {Tab}{Enter}
 WinWaitActive TEMP1
@@ -162,7 +162,7 @@ Sleep 1000
 
 WinActivate Packet Viewer
 WinWaitActive Packet Viewer
-Click right 380, 685 ; ARY details
+Click right 380, 780 ; ARY details
 Sleep 1000
 Send {Tab}{Enter}
 WinWaitActive ARY
@@ -171,7 +171,13 @@ Send {Enter} ; Close the window
 
 WinActivate Packet Viewer
 WinWaitActive Packet Viewer
-Click right 380, 735 ; COLLECT_TYPE details
+Click 250 70
+Sleep 500
+Send {Backspace 5}
+Sleep 500
+Send COLLECT_TYPE{Enter}
+Sleep 1000
+Click right 380, 780 ; ARY details
 Sleep 1000
 Send {Tab}{Enter}
 WinWaitActive COLLECT_TYPE
