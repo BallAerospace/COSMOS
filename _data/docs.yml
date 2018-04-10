@@ -28,6 +28,12 @@
   - tlm_viewer
   - screens
 
+- title: DART
+  docs:
+  - dart_install
+  - dart_api
+  - dart_design
+
 - title: User's Guides
   docs:
   - scripting
