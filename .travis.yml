@@ -6,7 +6,8 @@ services:
   - postgresql
 rvm:
   - jruby-9.1.14.0
-  - 2.4.2
-  - 2.3.5
-  - 2.2.8
+  - 2.5.1
+  - 2.4.4
+  - 2.3.3
+  - 2.2.6
 script: bundle exec rake build spec
