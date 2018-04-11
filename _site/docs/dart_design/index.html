@@ -2,7 +2,7 @@
 <html lang="en-US">
 <head>
   <meta charset="UTF-8">
-  <title>Launcher</title>
+  <title>DART Design</title>
   <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="generator" content="Jekyll v3.5.2">
@@ -3253,339 +3253,58 @@
       <div class="unit four-fifths">
         <article>
           <div class="improve right">
-            <a href="https://github.com/BallAerospace/COSMOS/edit/website/_docs/launcher.md" target="_blank"><i class="fa fa-pencil"></i> &nbsp;Improve this page</a>
+            <a href="https://github.com/BallAerospace/COSMOS/edit/website/_docs/dart_design.md" target="_blank"><i class="fa fa-pencil"></i> &nbsp;Improve this page</a>
           </div>
           
           <div class="toc">
             <ul class="section-nav">
-<li class="toc-entry toc-h2"><a href="#launcher-configuration">Launcher Configuration</a></li>
-<li class="toc-entry toc-h2"><a href="#title">TITLE</a></li>
-<li class="toc-entry toc-h2"><a href="#tool_font">TOOL_FONT</a></li>
-<li class="toc-entry toc-h2"><a href="#label_font">LABEL_FONT</a></li>
-<li class="toc-entry toc-h2"><a href="#label">LABEL</a></li>
-<li class="toc-entry toc-h2"><a href="#divider">DIVIDER</a></li>
-<li class="toc-entry toc-h2"><a href="#num_columns">NUM_COLUMNS</a></li>
-<li class="toc-entry toc-h2"><a href="#tool">TOOL</a></li>
-<li class="toc-entry toc-h2"><a href="#multitool_start">MULTITOOL_START</a></li>
-<li class="toc-entry toc-h2"><a href="#multitool_end">MULTITOOL_END</a>
-<ul>
-<li class="toc-entry toc-h3"><a href="#tool-modifiers">TOOL Modifiers</a></li>
-<li class="toc-entry toc-h3"><a href="#dont_capture_io">DONT_CAPTURE_IO</a></li>
-<li class="toc-entry toc-h3"><a href="#multitool_start-modifiers">MULTITOOL_START Modifiers</a></li>
-<li class="toc-entry toc-h3"><a href="#tool-1">TOOL</a></li>
-<li class="toc-entry toc-h3"><a href="#delay">DELAY</a></li>
-</ul>
-</li>
-<li class="toc-entry toc-h2"><a href="#example-file">Example File</a></li>
 </ul>
           </div>
           
-          <h1>Launcher</h1>
-          <h2 id="launcher-configuration">
-<a id="launcher-configuration" class="anchor" href="#launcher-configuration" aria-hidden="true"><span class="octicon octicon-link"></span></a>Launcher Configuration</h2>
-
-<p>Launcher configuration files define the icons and buttons presented in the Launcher and define how programs are launched. These files are expected to be placed in the config/tools/launcher directory and have a .txt extension. The default configuration file is named launcher.txt.</p>
-
-<p>To specify a different configuration file add ‘–config launcher.txt’ when starting the Launcher. For example, on Windows create a new Batch file at the top of your COSMOS configuration that looks like the following:</p>
-
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">call tools<span class="se">\L</span>auncher.bat --config launcher_config.txt</code></pre></figure>
-
-<div style="clear:both;"></div>
-
-<p>On Linux create a new executable file at the top of your COSMOS configuration that looks like the following:</p>
-
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">ruby tools<span class="se">\L</span>auncher --config launcher_config.txt</code></pre></figure>
-
-<div style="clear:both;"></div>
-
-<h2 id="title">
-<a id="title" class="anchor" href="#title" aria-hidden="true"><span class="octicon octicon-link"></span></a>TITLE</h2>
-<p><strong>Sets the title of the COSMOS Launcher</strong></p>
-
-<table>
-  <thead>
-    <tr>
-      <th>Parameter</th>
-      <th>Description</th>
-      <th>Required</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>Title</td>
-      <td>Launcher title. Default is “COSMOS Launcher”.</td>
-      <td>True</td>
-    </tr>
-  </tbody>
-</table>
-
-<h2 id="tool_font">
-<a id="tool_font" class="anchor" href="#tool_font" aria-hidden="true"><span class="octicon octicon-link"></span></a>TOOL_FONT</h2>
-<p><strong>Sets the font used for tool buttons</strong></p>
-
-<div class="note warning"><p>Only set the TOOL_FONT once as the last encountered setting will apply to all button labels</p></div>
-
-<table>
-  <thead>
-    <tr>
-      <th>Parameter</th>
-      <th>Description</th>
-      <th>Required</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>Font Family</td>
-      <td>The font family to use<br><br>Valid Values: <span class="values">Arial, Calibri, Cambria, Candara, Castellar, Centaur, Century, Chiller, Consolas, Constantia, Courier, Courier New, Dotum, Elephant, Euphemia, Fixedsys, Georgia, Impact, Lucida, Papyrus, Rockwell, Rod, System, Tahoma, Terminal, Times New Roman, Verdana, Wide Latin</span>
-</td>
-      <td>True</td>
-    </tr>
-    <tr>
-      <td>Font Size</td>
-      <td>The size of the font in standard points</td>
-      <td>True</td>
-    </tr>
-  </tbody>
-</table>
-
-<h2 id="label_font">
-<a id="label_font" class="anchor" href="#label_font" aria-hidden="true"><span class="octicon octicon-link"></span></a>LABEL_FONT</h2>
-<p><strong>Sets the font used for labels</strong></p>
-
-<div class="note warning"><p>Only set the LABEL_FONT once as the last encountered setting will apply to all text labels</p></div>
-
-<table>
-  <thead>
-    <tr>
-      <th>Parameter</th>
-      <th>Description</th>
-      <th>Required</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>Font Family</td>
-      <td>The font family to use<br><br>Valid Values: <span class="values">Arial, Calibri, Cambria, Candara, Castellar, Centaur, Century, Chiller, Consolas, Constantia, Courier, Courier New, Dotum, Elephant, Euphemia, Fixedsys, Georgia, Impact, Lucida, Papyrus, Rockwell, Rod, System, Tahoma, Terminal, Times New Roman, Verdana, Wide Latin</span>
-</td>
-      <td>True</td>
-    </tr>
-    <tr>
-      <td>Font Size</td>
-      <td>The size of the font in standard points</td>
-      <td>True</td>
-    </tr>
-  </tbody>
-</table>
-
-<h2 id="label">
-<a id="label" class="anchor" href="#label" aria-hidden="true"><span class="octicon octicon-link"></span></a>LABEL</h2>
-<p><strong>Creates a label of text in the current font style</strong></p>
-
-<table>
-  <thead>
-    <tr>
-      <th>Parameter</th>
-      <th>Description</th>
-      <th>Required</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>Text</td>
-      <td>The text of the label</td>
-      <td>True</td>
-    </tr>
-  </tbody>
-</table>
-
-<h2 id="divider">
-<a id="divider" class="anchor" href="#divider" aria-hidden="true"><span class="octicon octicon-link"></span></a>DIVIDER</h2>
-<p><strong>Creates a horizontal line between tools</strong></p>
-
-<h2 id="num_columns">
-<a id="num_columns" class="anchor" href="#num_columns" aria-hidden="true"><span class="octicon octicon-link"></span></a>NUM_COLUMNS</h2>
-<p><strong>Specifies how many launcher buttons should be created per row</strong></p>
-
-<table>
-  <thead>
-    <tr>
-      <th>Parameter</th>
-      <th>Description</th>
-      <th>Required</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>Columns</td>
-      <td>The number of launcher buttons per row before Launcher automatically creates a new row of buttons.	Default is 4.</td>
-      <td>True</td>
-    </tr>
-  </tbody>
-</table>
-
-<h2 id="tool">
-<a id="tool" class="anchor" href="#tool" aria-hidden="true"><span class="octicon octicon-link"></span></a>TOOL</h2>
-<p><strong>Create a new tool launcher button</strong></p>
-
-<table>
-  <thead>
-    <tr>
-      <th>Parameter</th>
-      <th>Description</th>
-      <th>Required</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>Button Text</td>
-      <td>Label that is put on the button that launches the tool</td>
-      <td>True</td>
-    </tr>
-    <tr>
-      <td>Shell Command</td>
-      <td>Command that is executed to launch the tool. (The same thing you would type at a command terminal). Note that you can include tool parameters here which will be applied when the tool starts.</td>
-      <td>True</td>
-    </tr>
-    <tr>
-      <td>Icon Filename</td>
-      <td>Filename of a an icon located in the data directory. Passing ‘nil’ or an empty string ‘’ will result in Launcher using the default COSMOS icon.</td>
-      <td>False</td>
-    </tr>
-    <tr>
-      <td>Tool Parameters</td>
-      <td>Tool parameters as you would type on the command line. Specifying parameters here rather than in the ‘Shell Command’ parameter will cause a dialog box to appear which allows the user to edit parameters if desired. Expected to be in parameter name/parameter value pairs, e.g. –config filename.txt.<br><br><span class="param_warning">Warning: The full configuration option name must be used rather than the short name. These parameters will override any parameters specified in the Shell Command.</span>
-</td>
-      <td>False</td>
-    </tr>
-  </tbody>
-</table>
-
-<h2 id="multitool_start">
-<a id="multitool_start" class="anchor" href="#multitool_start" aria-hidden="true"><span class="octicon octicon-link"></span></a>MULTITOOL_START</h2>
-<p><strong>Creates a button which launches multiple tools</strong></p>
-
-<table>
-  <thead>
-    <tr>
-      <th>Parameter</th>
-      <th>Description</th>
-      <th>Required</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>Button Text</td>
-      <td>Label that is put on the button that launches the tools</td>
-      <td>True</td>
-    </tr>
-    <tr>
-      <td>Icon Filename</td>
-      <td>Filename of a an icon located in the data directory. Passing ‘nil’ or an empty string ‘’ will result in Launcher using the default COSMOS icon.</td>
-      <td>False</td>
-    </tr>
-  </tbody>
-</table>
-
-<h2 id="multitool_end">
-<a id="multitool_end" class="anchor" href="#multitool_end" aria-hidden="true"><span class="octicon octicon-link"></span></a>MULTITOOL_END</h2>
-<p><strong>Ends the creation of a multi-tool button</strong></p>
-
-<h3 id="tool-modifiers">
-<a id="tool-modifiers" class="anchor" href="#tool-modifiers" aria-hidden="true"><span class="octicon octicon-link"></span></a>TOOL Modifiers</h3>
-<p>The following keywords must follow a TOOL keyword.</p>
-
-<h3 id="dont_capture_io">
-<a id="dont_capture_io" class="anchor" href="#dont_capture_io" aria-hidden="true"><span class="octicon octicon-link"></span></a>DONT_CAPTURE_IO</h3>
-<p><strong>Don’t capture IO when running the command</strong></p>
-
-<h3 id="multitool_start-modifiers">
-<a id="multitool_start-modifiers" class="anchor" href="#multitool_start-modifiers" aria-hidden="true"><span class="octicon octicon-link"></span></a>MULTITOOL_START Modifiers</h3>
-<p>The following keywords must follow a MULTITOOL_START keyword.</p>
-
-<h3 id="tool-1">
-<a id="tool-1" class="anchor" href="#tool-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>TOOL</h3>
-<p><strong>Create a new tool launcher button</strong></p>
-
-<table>
-  <thead>
-    <tr>
-      <th>Parameter</th>
-      <th>Description</th>
-      <th>Required</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>Shell Command</td>
-      <td>Command that is executed to launch the tool. (The same thing you would type at a command terminal). Note that you can include tool parameters here which will be applied when the tool starts.</td>
-      <td>True</td>
-    </tr>
-  </tbody>
-</table>
-
-<h3 id="delay">
-<a id="delay" class="anchor" href="#delay" aria-hidden="true"><span class="octicon octicon-link"></span></a>DELAY</h3>
-<p><strong>Inserts a delay between launching multiple tools</strong></p>
-
-<table>
-  <thead>
-    <tr>
-      <th>Parameter</th>
-      <th>Description</th>
-      <th>Required</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>Delay</td>
-      <td>Delay time in seconds</td>
-      <td>True</td>
-    </tr>
-  </tbody>
-</table>
-
-<h2 id="example-file">
-<a id="example-file" class="anchor" href="#example-file" aria-hidden="true"><span class="octicon octicon-link"></span></a>Example File</h2>
-
-<p><strong>Example File: &lt;Cosmos::USERPATH&gt;/config/tools/launcher/launcher.txt</strong></p>
-
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">TITLE <span class="s2">"Demo Launcher"</span>
-FONT tahoma 12
-NUM_COLUMNS 4
-MULTITOOL_START <span class="s2">"COSMOS"</span> NULL
- TOOL <span class="s2">"RUBYW tools/CmdTlmServer -x 827 -y 2 -w 756 -t 475 -c cmd_tlm_server.txt"</span>
- DELAY 5
- TOOL <span class="s2">"RUBYW tools/TlmViewer -x 827 -y 517 -w 424 -t 111"</span>
- TOOL <span class="s2">"RUBYW tools/PacketViewer -x 827 -y 669 -w 422 -t 450"</span>
- TOOL <span class="s2">"RUBYW tools/ScriptRunner -x 4 -y 2 -w 805 -t 545"</span>
- TOOL <span class="s2">"RUBYW tools/CmdSender -x 4 -y 586 -w 805 -t 533"</span>
-MULTITOOL_END
-TOOL <span class="s2">"Command and Telemetry Server"</span> <span class="s2">"RUBYW tools/CmdTlmServer"</span> <span class="s2">"cts.png"</span> --config cmd_tlm_server.txt
-TOOL <span class="s2">"Limits Monitor"</span> <span class="s2">"RUBYW tools/LimitsMonitor"</span> <span class="s2">"limits_monitor.png"</span>
-DIVIDER
-LABEL <span class="s2">"Commanding and Scripting"</span>
-TOOL <span class="s2">"Command Sender"</span> <span class="s2">"RUBYW tools/CmdSender"</span> <span class="s2">"cmd_sender.png"</span>
-TOOL <span class="s2">"Script Runner"</span> <span class="s2">"RUBYW tools/ScriptRunner"</span> <span class="s2">"script_runner.png"</span>
-TOOL <span class="s2">"Test Runner"</span> <span class="s2">"RUBYW tools/TestRunner"</span> <span class="s2">"test_runner.png"</span>
-DIVIDER
-LABEL Telemetry
-TOOL <span class="s2">"Packet Viewer"</span> <span class="s2">"RUBYW tools/PacketViewer"</span> <span class="s2">"packet_viewer.png"</span>
-TOOL <span class="s2">"Telemetry Viewer"</span> <span class="s2">"RUBYW tools/TlmViewer"</span> <span class="s2">"tlm_viewer.png"</span>
-TOOL <span class="s2">"Telemetry Grapher"</span> <span class="s2">"RUBYW tools/TlmGrapher"</span> <span class="s2">"tlm_grapher.png"</span>
-TOOL <span class="s2">"Data Viewer"</span> <span class="s2">"RUBYW tools/DataViewer"</span> <span class="s2">"data_viewer.png"</span>
-DIVIDER
-LABEL Utilities
-TOOL <span class="s2">"Telemetry Extractor"</span> <span class="s2">"RUBYW tools/TlmExtractor"</span> <span class="s2">"tlm_extractor.png"</span>
-TOOL <span class="s2">"Command Extractor"</span> <span class="s2">"RUBYW tools/CmdExtractor"</span> <span class="s2">"cmd_extractor.png"</span>
-TOOL <span class="s2">"Handbook Creator"</span> <span class="s2">"RUBYW -Ku tools/HandbookCreator"</span> <span class="s2">"handbook_creator.png"</span>
-TOOL <span class="s2">"Table Manager"</span> <span class="s2">"RUBYW tools/TableManager"</span> <span class="s2">"table_manager.png"</span></code></pre></figure>
-
+          <h1>DART Design</h1>
+          <p>DART (Data Archival Retrieval Trending) is the COSMOS tool to support long term storage and trending of telemetry data. It was built on top of the open source PostgreSQL database to ensure rapid retrieval of data over long periods. The way it achieves this performance is to do data reduction on the original data at time periods of every minute, hour, and day. Thus to retrieve a year’s worth of data the database simply has to return 365 telemetry items. The original data is always preserved for in debth analysis over specific time periods.</p>
 
           
 
 
 
 
+
+  
+  
+
+  
+  
+
+  
+  
+
+  
+  
+
+  
+  
+
+  
+  
+
+  
+  
+
+  
+  
+
+  
+  
+
+  
+  
+
+  
+  
+
+  
+  
 
   
   
@@ -3627,14 +3346,14 @@ TOOL <span class="s2">"Table Manager"</span> <span class="s2">"RUBYW tools/Table
           
             
             
-            <a href="/docs/environment/" class="prev">Back</a>
+            <a href="/docs/dart_api/" class="prev">Back</a>
           
       </div>
       <div class="right align-left">
           
             
             
-            <a href="/docs/data_viewer/" class="next">Next</a>
+            <a href="/docs/scripting/" class="next">Next</a>
           
       </div>
     </div>
@@ -4246,7 +3965,7 @@ TOOL <span class="s2">"Table Manager"</span> <span class="s2">"RUBYW tools/Table
     
   
     
-      <li class="current"><a href="/docs/launcher/">Launcher</a></li>
+      <li class=""><a href="/docs/launcher/">Launcher</a></li>
       
 
 
@@ -4848,7 +4567,7 @@ TOOL <span class="s2">"Table Manager"</span> <span class="s2">"RUBYW tools/Table
     
   
     
-      <li class=""><a href="/docs/dart_design/">DART Design</a></li>
+      <li class="current"><a href="/docs/dart_design/">DART Design</a></li>
       
 
 
