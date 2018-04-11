@@ -1,7 +1,7 @@
 TITLE "Launcher"
 TOOL_FONT tahoma 12
 LABEL_FONT tahoma 16
-# NUM_COLUMNS 4 # This is the default
+NUM_COLUMNS 5
 
 MULTITOOL_START "COSMOS" NULL
   TOOL "LAUNCH CmdTlmServer -x 827 -y 2 -w 756 -t 475 -c cmd_tlm_server.txt"

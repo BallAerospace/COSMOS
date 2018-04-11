@@ -14,12 +14,12 @@ set PROTOCOL=https
 set ARCHITECTURE=%PROCESSOR_ARCHITECTURE%
 
 :: Update this version if making any changes to this script
-set INSTALLER_VERSION=1.7
+set INSTALLER_VERSION=1.8
 
 :: Paths and versions for COSMOS dependencies
-set RUBY_INSTALLER_32=rubyinstaller-2.4.2-2.exe
-set RUBY_INSTALLER_64=rubyinstaller-2.4.2-2-x64.exe
-set RUBY_INSTALLER_PATH=//github.com/oneclick/rubyinstaller2/releases/download/rubyinstaller-2.4.2-2/
+set RUBY_INSTALLER_32=rubyinstaller-2.4.4-1.exe
+set RUBY_INSTALLER_64=rubyinstaller-2.4.4-1-x64.exe
+set RUBY_INSTALLER_PATH=//github.com/oneclick/rubyinstaller2/releases/download/rubyinstaller-2.4.4-1/
 set RUBY_ABI_VERSION=2.4.0
 set WKHTMLTOPDF=wkhtmltox-0.11.0_rc1-installer.exe
 set WKHTMLPATHWITHPROTOCOL=https://downloads.wkhtmltopdf.org/obsolete/windows/
@@ -449,6 +449,7 @@ if errorlevel 1 (
 :: Setup demo areas
 :::::::::::::::::::::
 
+set curdir=%cd%
 call cosmos install !COSMOS_INSTALL!\Basic
 if errorlevel 1 (
   echo ERROR: Problem creating cosmos Basic
@@ -459,6 +460,7 @@ if errorlevel 1 (
 ) else (
   @echo Successfully created cosmos Basic >> !COSMOS_INSTALL!\INSTALL.log
 )
+cd !COSMOS_INSTALL!\Basic\config\dart && call bundle install
 call cosmos demo !COSMOS_INSTALL!\Demo
 if errorlevel 1 (
   echo ERROR: Problem creating cosmos Demo
@@ -469,6 +471,8 @@ if errorlevel 1 (
 ) else (
   @echo Successfully created cosmos Demo >> !COSMOS_INSTALL!\INSTALL.log
 )
+cd !COSMOS_INSTALL!\Demo\config\dart && call bundle install
+cd %curdir%
 
 :::::::::::::::::::::
 :: Perform offline configuration
