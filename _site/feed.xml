@@ -11,8 +11,8 @@
     <title xml:lang="en">Ball Aerospace COSMOS News</title>
     <atom:link type="application/atom+xml" href="http://cosmosrb/feed.xml" rel="self"/>
     <link>http://cosmosrb.com/</link>
-    <pubDate>Wed, 11 Apr 2018 14:00:03 -0600</pubDate>
-    <lastBuildDate>Wed, 11 Apr 2018 14:00:03 -0600</lastBuildDate>
+    <pubDate>Wed, 11 Apr 2018 15:32:16 -0600</pubDate>
+    <lastBuildDate>Wed, 11 Apr 2018 15:32:16 -0600</lastBuildDate>
     <language>en-US</language>
     <generator>Jekyll v3.5.2</generator>
     <description>The User Interface for Embedded Systems</description>
@@ -24,6 +24,78 @@
       <width>144</width>
       <height>73</height>
     </image>
+    
+    <item>
+      <title>Ball Aerospace COSMOS 4.2.2 Released</title>
+      <link>http://cosmosrb.com/news/2018/04/11/cosmos-4-2-2-released/</link>
+      <pubDate>Wed, 11 Apr 2018 07:00:00 -0600</pubDate>
+      <dc:creator>ryanmelt</dc:creator>
+      
+      
+      <category>release</category>
+      
+      <guid isPermaLink="true">http://cosmosrb.com/news/2018/04/11/cosmos-4-2-2-released/</guid>
+      <description>&lt;p&gt;COSMOS 4.2 is here!   Thirty four tickets went into this release, but the highlight is a new tool called the Data Archival and Retrieval Tool (DART).   DART is a long term trending database built on top of the PostgreSql database.  It integrates directly with TlmGrapher, TlmExtractor, CmdExtractor, DataViewer, and Replay, allowing you to do historical queries of logged telemetry (and commands) by specifying a time range.  Queries are super fast and it performs automatic data reduction at minute/hour/day granularity.  Consider setting it up for your project and start data mining today!&lt;/p&gt;
+
+&lt;p&gt;See the COSMOS documentation for directions on setting up DART: http://cosmosrb.com/docs/home/&lt;/p&gt;
+
+&lt;h3 id=&quot;new-features&quot;&gt;New Features:&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/698&quot;&gt;#698&lt;/a&gt; Initial DART Release&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/650&quot;&gt;#650&lt;/a&gt; Gracefully handle large array items&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/673&quot;&gt;#673&lt;/a&gt; Button widget should spawn thread to avoid blocking GUI&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/676&quot;&gt;#676&lt;/a&gt; Allow individual interfaces to be disconnect mode&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/699&quot;&gt;#699&lt;/a&gt; Test cases added to TestRunner should be ordered in drop down&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/705&quot;&gt;#705&lt;/a&gt; Cmd line arg for ScriptRunner to start in disconnect mode&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/706&quot;&gt;#706&lt;/a&gt; Warn if ITEMs or PARAMETERs are redefined&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/711&quot;&gt;#711&lt;/a&gt; Allow ERB to know the target name&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/715&quot;&gt;#715&lt;/a&gt; Allow individual Limits Monitor items to be removed (not ignored)&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/719&quot;&gt;#719&lt;/a&gt; Warn if limits_group doesn’t exist in limits_groups_background_task&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/729&quot;&gt;#729&lt;/a&gt; CmdSender production mode to disable MANUALLY ENTERED&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/734&quot;&gt;#734&lt;/a&gt; Support DERIVED with APPEND&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/737&quot;&gt;#737&lt;/a&gt; Implement single stepping with the F10 key&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/754&quot;&gt;#754&lt;/a&gt; Add Replay Mode to Include All Routers&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/765&quot;&gt;#765&lt;/a&gt; TlmGrapher sampled analysis&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;maintenance&quot;&gt;Maintenance:&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/682&quot;&gt;#682&lt;/a&gt; Fix Ruby interpreter warnings&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/687&quot;&gt;#687&lt;/a&gt; Add ConfigEditor AHK tests&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/688&quot;&gt;#688&lt;/a&gt; Windows 10 Installation Error - RDoc parsing failure in qtruby4.rb&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/692&quot;&gt;#692&lt;/a&gt; Fix METADATA usage in demo&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/738&quot;&gt;#738&lt;/a&gt; PacketViewer scroll to item on search&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/748&quot;&gt;#748&lt;/a&gt; Syntax highlighting prioritizes string over comment&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/750&quot;&gt;#750&lt;/a&gt; TestRunner hides syntax errors with broad rescue&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/752&quot;&gt;#752&lt;/a&gt; Demo INST commanding screen broken&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/757&quot;&gt;#757&lt;/a&gt; Increase TlmGrapher timeout to better support Replay&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/759&quot;&gt;#759&lt;/a&gt; Allow underscores and dashes in log filename labels&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;bug-fixes&quot;&gt;Bug Fixes:&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/690&quot;&gt;#690&lt;/a&gt; Automatic SYSTEM META definition doesn’t include RECEIVED_XX&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/691&quot;&gt;#691&lt;/a&gt; tools/mac apps won’t open&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/701&quot;&gt;#701&lt;/a&gt; XTCE String types should not have ByteOrderList&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/709&quot;&gt;#709&lt;/a&gt; Can’t set breakpoint in subscript&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/713&quot;&gt;#713&lt;/a&gt; Launcher crashes if newline in crc.txt&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/723&quot;&gt;#723&lt;/a&gt; crc_protocol needs better input validation&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/727&quot;&gt;#727&lt;/a&gt; Install issue on Windows 10&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/732&quot;&gt;#732&lt;/a&gt; losing/gaining data when routing at different incoming rates&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/735&quot;&gt;#735&lt;/a&gt; Statistics Processor doesn’t handle nil or infinite&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/740&quot;&gt;#740&lt;/a&gt; About dialog crashes if USER_VERSION not defined&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;migration-notes-from-cosmos-41x&quot;&gt;Migration Notes from COSMOS 4.1.x:&lt;/h3&gt;
+
+&lt;p&gt;To upgrade to the latest version of COSMOS, run “bundle update cosmos” in your COSMOS project folder.&lt;/p&gt;
+
+&lt;p&gt;See the COSMOS documentation for directions on setting up DART: http://cosmosrb.com/docs/home/&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>Derived Items</title>
