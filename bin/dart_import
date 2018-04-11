@@ -1,2 +1,4 @@
+#!/usr/bin/env ruby
+# encoding: ascii-8bit
 require 'cosmos'
 require 'cosmos/dart/processes/dart_import'
