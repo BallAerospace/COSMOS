@@ -4,16 +4,27 @@ title: DART Installation
 permalink: /docs/dart_install/
 toc: true
 ---
-To install DART you must first install the PostgreSQL database. DART has been tested with both version 9.x and 10.x so we recommend the latest version unless you already have a 9.x instance. When installing PostgreSQL you must create an overall superuser with a username and password. Once you have PostgreSQL installed with the superuser created, follow the following steps to configure for DART.
+To install DART you must first install the PostgreSQL database. DART has been tested with both version 9.x and 10.x so we recommend the latest version unless you already have a 9.x instance. When installing PostgreSQL you must create an overall superuser with a username and password. Once you have PostgreSQL installed with the superuser created, follow the following steps to configure for DART. (Note that on linux you will need to install postgresql and the postgresql-server-dev (or equivalent) packages)
 
-1. Using pgAdmin, create a 'dart' user and password. Ensure the 'dart' user has Create Database
-2. Create an environment variable on your system named DART_USERNAME and set it to 'dart'. Note you can change this username if necessary as long as steps 1 & 2 have the same name.
-3. Create an environment variable on your system named DART_PASSWORD and set it to the password created in step 1.
-4. Using pgAdmin, create a 'dart' database owned by the 'dart' user.
-5. Create an environment variable on your system named DART_DB and set it to 'dart'. Note you can change this database name if necessary as long as steps 4 & 5 have the same name.
-6. Run the following command from your COSMOS project configuration directory (not C:/COSMOS which contains Demo & Vendor as that is the installation directory)
+1. If you are upgrading an existing COSMOS project, add the following file to config/dart/Gemfile inside your COSMOS project: https://github.com/BallAerospace/COSMOS/blob/master/demo/config/dart/Gemfile
+1. Uncomment (or add) the following lines in your project's Gemfile:
 {% highlight bash %}
-> ruby dart\bin\rails db:migrate
+# Uncomment this line to add DART dependencies to your main Gemfile
+instance_eval File.read(File.join(__dir__, 'config/dart/Gemfile'))
+{% endhighlight %}
+1. Run the following command from your COSMOS project configuration directory (not C:/COSMOS which contains Demo & Vendor as that is the installation directory)
+{% highlight bash %}
+bundle install
+{% endhighlight %}
+This will install all the ruby dependencies for DART.
+1. Using pgAdmin, create a 'dart' user and password (Under Login Roles). Ensure the 'dart' user has Create Database
+1. Create an environment variable on your system named DART_USERNAME and set it to 'dart'. Note you can change this username if necessary as long as the postgres username created above has the same name.
+1. Create an environment variable on your system named DART_PASSWORD and set it to the password created earlier.
+1. Create an environment variable on your system named DART_DB and set it to 'dart'. Note: You can use whatever name you want
+1. Create an environment variable on your system named DART_TEST_DB and set it to 'dartTest'. Note: You can use whatever name you want
+1. Run the following command from your COSMOS project configuration directory (not C:/COSMOS which contains Demo & Vendor as that is the installation directory)
+{% highlight bash %}
+bundle exec rake db:setup
 {% endhighlight %}
 
 At this point the DART database is configured and ready to import COSMOS telemetry. When you start the COSMOS Demo you should see the new DART button in the Utilities section. If you're upgrading from an older version of COSMOS simply add this line to your config/tools/launcher/launcher.txt file:
@@ -47,5 +58,5 @@ By default, DART writes log files in the COSMOS outputs/dart/logs directory. Thi
 
 <div class="note warning">
   <h5>Changing the DART Data File Directory</h5>
-  <p>DART indexes the files in outputs/dart/data. If these files are moved DART can no longer access them when responding to a Stream Server request (TBD: When does this happen? What tool?). DART will not permanently delete them unless you start DART with the '--force-cleanup' option. Using that option will permanently delete the files and their associated decommutated data in the database.</p>
+  <p>DART indexes the files in outputs/dart/data. If these files are moved DART can no longer access them when responding to a Stream Server request (from Replay or Data Viewer). DART will not permanently delete them unless you start DART with the '--force-cleanup' option. Using that option will permanently delete the files and their associated decommutated data in the database.</p>
 </div>
