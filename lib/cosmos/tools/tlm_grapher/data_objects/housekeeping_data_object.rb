@@ -19,7 +19,7 @@ module Cosmos
     VALUE_TYPES = [:RAW, :CONVERTED]
 
     # Analysis Types
-    ANALYSIS_TYPES = [:NONE, :DIFFERENCE, :WINDOWED_MEAN, :WINDOWED_MEAN_REMOVED, :STD_DEV, :ALLAN_DEV, :MAXIMUM, :MINIMUM, :PEAK_TO_PEAK]
+    ANALYSIS_TYPES = [:NONE, :DIFFERENCE, :WINDOWED_MEAN, :WINDOWED_MEAN_REMOVED, :STD_DEV, :ALLAN_DEV, :MAXIMUM, :MINIMUM, :PEAK_TO_PEAK, :SAMPLED, :SAMPLED_MEAN]
 
     # DART Reductions
     DART_REDUCTIONS = [:NONE, :MINUTE, :HOUR, :DAY]
@@ -156,7 +156,7 @@ module Cosmos
           @dart_reduced_type = dart_reduced_type
         else
           raise ArgumentError, "Unknown DART_REDUCED_TYPE value: #{dart_reduced_type}"
-        end      
+        end
 
       when 'ANALYSIS'
         # Expect 1 parameter
@@ -314,6 +314,19 @@ module Cosmos
             @plot.redraw_needed = true
           end
 
+        when :SAMPLED, :SAMPLED_MEAN
+          if @unprocessed_y_values.length >= @analysis_samples
+            if sample_index % @analysis_samples == 0
+              if @analysis == :SAMPLED
+                @x_values << @unprocessed_x_values[sample_index]
+                @y_values << (@unprocessed_y_values[sample_index] + @y_offset)
+              else # :SAMPLED_MEAN
+                @x_values << @unprocessed_x_values[sample_index]
+                @y_values <<  @unprocessed_y_values[lower_index..upper_index].mean + @y_offset
+              end
+            end
+            @plot.redraw_needed = true
+          end
         end # case @analysis
 
         # Make sure the data object's first x value is the smallest x value encountered during packet processing.
@@ -327,7 +340,7 @@ module Cosmos
         prune_to_max_points_saved()
       rescue Exception => error
         handle_process_exception(error, "#{@target_name} #{@packet_name} #{@item_name}")
-      end      
+      end
     end
 
     # Returns the name of this data object

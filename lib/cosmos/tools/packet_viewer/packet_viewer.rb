@@ -411,9 +411,10 @@ module Cosmos
       @descriptions = []
 
       row = 0
-      featured_item = nil
+      featured_row = -1
       @ignored_rows = []
       tlm_items.each do |tlm_name, states, description, derived|
+        featured_row = row if featured_item_name == tlm_name
         @ignored_rows << row if System.targets[target_name].ignored_items.include?(tlm_name)
         tlm_name = "*#{tlm_name}" if derived
         item = Qt::TableWidgetItem.new(tr("#{tlm_name}:"))
@@ -428,12 +429,20 @@ module Cosmos
         @descriptions[row][0] = description
         @descriptions[row][1] = description
         row += 1
-        featured_item = item if featured_item_name == tlm_name
       end
 
       @table.resizeColumnsToContents()
       @table.resizeRowsToContents()
-      @table.scrollToItem(featured_item) if featured_item
+      if featured_row != -1
+        # Selecting the row also scrolls to it so the item is displayed
+        @table.selectRow(featured_row)
+        # Fire up a thread to clear the selection cuz it's kind of annoying
+        Thread.new do
+          sleep 1
+          Qt.execute_in_main_thread { @table.clearSelection }
+        end
+      end
+
       @frame.addWidget(@table)
 
       # Handle Table Clicks

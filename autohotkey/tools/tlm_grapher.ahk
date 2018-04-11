@@ -134,6 +134,18 @@ Send {Down 4}{Enter} ; Add data object
 WinWaitActive Add
 Send +{Tab}{Enter} ; Cancel
 WinWaitActive Telemetry Grapher
+Click right 750 550 ; Add a data object to the linegraph
+Sleep 500
+Send {Down 4}{Enter} ; Add data object
+WinWaitActive Add
+Send {Tab}i{Tab}h{Tab}Temp1{Tab 2}rr{Tab 4}ss{Enter}
+WinWaitActive Telemetry Grapher
+Click right 750 550 ; Add a data object to the linegraph
+Sleep 500
+Send {Down 4}{Enter} ; Add data object
+WinWaitActive Add
+Send {Tab}i{Tab}h{Tab}Temp1{Tab 2}rr{Tab 4}sss{Enter}
+WinWaitActive Telemetry Grapher
 
 Sleep 5000 ; Let telemetry flow
 
