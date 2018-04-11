@@ -8,4 +8,6 @@ if ENV['COSMOS_DEVEL']
 else
   gem 'cosmos'
 end
-instance_eval File.read(File.join(__dir__, 'config/dart/Gemfile'))
+
+# Uncomment this line to add DART dependencies to your main Gemfile
+# instance_eval File.read(File.join(__dir__, 'config/dart/Gemfile'))
