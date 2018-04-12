@@ -290,7 +290,7 @@ class RubyLexUtils
           else
             yield lexed, false, inside_begin, line_no
           end
-        else
+        elsif !lexed.empty?
           num_left_brackets  = lexed.count('{')
           num_right_brackets = lexed.count('}')
           if num_left_brackets != num_right_brackets
@@ -300,14 +300,9 @@ class RubyLexUtils
             yield lexed, true, inside_begin, line_no
           end
         end
-
         lex.exp_line_no = lex.line_no
-
         break
       end # loop do
-
     end # while lexed
-
   end # def each_lexed_segment
-
 end
