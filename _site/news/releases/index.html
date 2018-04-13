@@ -84,6 +84,8 @@
     <option value="/news/">Home</option>
     <optgroup label="v1.x">
       
+      <option value="/news/2018/04/11/cosmos-4-2-2-released/">Ball Aerospace COSMOS 4.2.2 Released</option>
+      
       <option value="/news/2018/03/14/derived-items/">Derived Items</option>
       
       <option value="/news/2018/02/12/limits/">Limits</option>
@@ -203,6 +205,91 @@
 
       <div class="unit four-fifths">
         
+  <article>
+  <h2>
+    <a href="/news/2018/04/11/cosmos-4-2-2-released/">
+      Ball Aerospace COSMOS 4.2.2 Released
+    </a>
+  </h2>
+  <span class="post-category">
+    <span class="label">
+      release
+    </span>
+  </span>
+  <div class="post-meta">
+    <span class="post-date">
+      11 Apr 2018
+    </span>
+    <a href="https://github.com/ryanmelt" class="post-author">
+      <img src="https://github.com/ryanmelt.png" class="avatar" alt="ryanmelt avatar" width="24" height="24">
+      ryanmelt
+    </a>
+  </div>
+  <div class="post-content">
+    <p>COSMOS 4.2 is here!   Thirty four tickets went into this release, but the highlight is a new tool called the Data Archival and Retrieval Tool (DART).   DART is a long term trending database built on top of the PostgreSql database.  It integrates directly with TlmGrapher, TlmExtractor, CmdExtractor, DataViewer, and Replay, allowing you to do historical queries of logged telemetry (and commands) by specifying a time range.  Queries are super fast and it performs automatic data reduction at minute/hour/day granularity.  Consider setting it up for your project and start data mining today!</p>
+
+<p>See the COSMOS documentation for directions on setting up DART: http://cosmosrb.com/docs/home/</p>
+
+<h3 id="new-features">New Features:</h3>
+
+<ul>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/698">#698</a> Initial DART Release</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/650">#650</a> Gracefully handle large array items</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/673">#673</a> Button widget should spawn thread to avoid blocking GUI</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/676">#676</a> Allow individual interfaces to be disconnect mode</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/699">#699</a> Test cases added to TestRunner should be ordered in drop down</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/705">#705</a> Cmd line arg for ScriptRunner to start in disconnect mode</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/706">#706</a> Warn if ITEMs or PARAMETERs are redefined</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/711">#711</a> Allow ERB to know the target name</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/715">#715</a> Allow individual Limits Monitor items to be removed (not ignored)</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/719">#719</a> Warn if limits_group doesn’t exist in limits_groups_background_task</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/729">#729</a> CmdSender production mode to disable MANUALLY ENTERED</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/734">#734</a> Support DERIVED with APPEND</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/737">#737</a> Implement single stepping with the F10 key</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/754">#754</a> Add Replay Mode to Include All Routers</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/765">#765</a> TlmGrapher sampled analysis</li>
+</ul>
+
+<h3 id="maintenance">Maintenance:</h3>
+
+<ul>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/682">#682</a> Fix Ruby interpreter warnings</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/687">#687</a> Add ConfigEditor AHK tests</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/688">#688</a> Windows 10 Installation Error - RDoc parsing failure in qtruby4.rb</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/692">#692</a> Fix METADATA usage in demo</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/738">#738</a> PacketViewer scroll to item on search</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/748">#748</a> Syntax highlighting prioritizes string over comment</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/750">#750</a> TestRunner hides syntax errors with broad rescue</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/752">#752</a> Demo INST commanding screen broken</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/757">#757</a> Increase TlmGrapher timeout to better support Replay</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/759">#759</a> Allow underscores and dashes in log filename labels</li>
+</ul>
+
+<h3 id="bug-fixes">Bug Fixes:</h3>
+
+<ul>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/690">#690</a> Automatic SYSTEM META definition doesn’t include RECEIVED_XX</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/691">#691</a> tools/mac apps won’t open</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/701">#701</a> XTCE String types should not have ByteOrderList</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/709">#709</a> Can’t set breakpoint in subscript</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/713">#713</a> Launcher crashes if newline in crc.txt</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/723">#723</a> crc_protocol needs better input validation</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/727">#727</a> Install issue on Windows 10</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/732">#732</a> losing/gaining data when routing at different incoming rates</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/735">#735</a> Statistics Processor doesn’t handle nil or infinite</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/740">#740</a> About dialog crashes if USER_VERSION not defined</li>
+</ul>
+
+<h3 id="migration-notes-from-cosmos-41x">Migration Notes from COSMOS 4.1.x:</h3>
+
+<p>To upgrade to the latest version of COSMOS, run “bundle update cosmos” in your COSMOS project folder.</p>
+
+<p>See the COSMOS documentation for directions on setting up DART: http://cosmosrb.com/docs/home/</p>
+
+  </div>
+</article>
+
+
   <article>
   <h2>
     <a href="/news/2017/12/07/cosmos-4-1-1-released/">
@@ -1913,6 +2000,10 @@ change the whole playing field of Operations, Integration, and Test”.</p>
     <ul>
       
       <li class="">
+        <a href="/news/2018/04/11/cosmos-4-2-2-released/">Version 4.2.2</a>
+      </li>
+      
+      <li class="">
         <a href="/news/2017/12/07/cosmos-4-1-1-released/">Version 4.1.1</a>
       </li>
       
@@ -1928,16 +2019,14 @@ change the whole playing field of Operations, Integration, and Test”.</p>
         <a href="/news/2017/09/29/cosmos-4-0-2-released/">Version 4.0.2</a>
       </li>
       
-      <li class="">
-        <a href="/news/2017/08/23/cosmos-4-0-1-released/">Version 4.0.1</a>
-      </li>
-      
       <li>
         <a href="/docs/history/">History »</a>
       </li>
     </ul>
     <h4>Other News</h4>
     <ul>
+        
+        
         
         
         <li class="">
