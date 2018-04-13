@@ -17,8 +17,8 @@ bundle install
 {% endhighlight %}
 This will install all the ruby dependencies for DART.
 1. In postgres, create a 'dart' user and password (with CREATEDB permissions), and both a 'dart' and 'darttest' database.  The databases should be created with template0, LC_COLLATE 'C', LC_CTYPE 'C', and ENCODING 'SQL_ASCII'
-  a. On windows use pgadmin
-  b. Otherwise use the psql command line:
+    1. On windows use pgadmin
+    2. Otherwise use the psql command line:
 ```
   psql postgres
   CREATE ROLE dart WITH LOGIN PASSWORD 'dart';
@@ -68,4 +68,9 @@ By default, DART writes log files in the COSMOS outputs/dart/logs directory. Thi
 <div class="note warning">
   <h5>Changing the DART Data File Directory</h5>
   <p>DART indexes the files in outputs/dart/data. If these files are moved DART can no longer access them when responding to a Stream Server request (from Replay or Data Viewer). DART will not permanently delete them unless you start DART with the '--force-cleanup' option. Using that option will permanently delete the files and their associated decommutated data in the database.</p>
+</div>
+
+<div class="note warning">
+  <h5>Shutting Down DART</h5>
+  <p>Always shutdown dart with Ctrl-C or a soft kill (kill -2).  A hard kill will usually require database cleanup on the next startup of DART.</p>
 </div>

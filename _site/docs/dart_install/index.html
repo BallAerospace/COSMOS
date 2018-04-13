@@ -3259,6 +3259,7 @@
           <div class="toc">
             <ul class="section-nav">
 <li class="toc-entry toc-h5"><a href="#changing-the-dart-data-file-directory">Changing the DART Data File Directory</a></li>
+<li class="toc-entry toc-h5"><a href="#shutting-down-dart">Shutting Down DART</a></li>
 </ul>
           </div>
           
@@ -3282,9 +3283,10 @@ instance_eval File.read<span class="o">(</span>File.join<span class="o">(</span>
 <p>This will install all the ruby dependencies for DART.</p>
 <ol>
   <li>In postgres, create a ‘dart’ user and password (with CREATEDB permissions), and both a ‘dart’ and ‘darttest’ database.  The databases should be created with template0, LC_COLLATE ‘C’, LC_CTYPE ‘C’, and ENCODING ‘SQL_ASCII’
-  a. On windows use pgadmin
-  b. Otherwise use the psql command line:
-    <div class="highlighter-rouge">
+    <ol>
+      <li>On windows use pgadmin</li>
+      <li>Otherwise use the psql command line:
+        <div class="highlighter-rouge">
 <pre class="highlight"><code>  psql postgres
   CREATE ROLE dart WITH LOGIN PASSWORD 'dart';
   ALTER ROLE dart CREATEDB;
@@ -3292,7 +3294,9 @@ instance_eval File.read<span class="o">(</span>File.join<span class="o">(</span>
   CREATE DATABASE darttest TEMPLATE template0 LC_COLLATE 'C' LC_CTYPE 'C' ENCODING 'SQL_ASCII';
   \q
 </code></pre>
-    </div>
+        </div>
+      </li>
+    </ol>
   </li>
   <li>Create an environment variable on your system named DART_USERNAME and set it to ‘dart’. Note you can change this username if necessary as long as the postgres username created above has the same name.</li>
   <li>Create an environment variable on your system named DART_PASSWORD and set it to the password created earlier.</li>
@@ -3334,6 +3338,12 @@ instance_eval File.read<span class="o">(</span>File.join<span class="o">(</span>
   <h5>
 <a id="changing-the-dart-data-file-directory" class="anchor" href="#changing-the-dart-data-file-directory" aria-hidden="true"><span class="octicon octicon-link"></span></a>Changing the DART Data File Directory</h5>
   <p>DART indexes the files in outputs/dart/data. If these files are moved DART can no longer access them when responding to a Stream Server request (from Replay or Data Viewer). DART will not permanently delete them unless you start DART with the '--force-cleanup' option. Using that option will permanently delete the files and their associated decommutated data in the database.</p>
+</div>
+
+<div class="note warning">
+  <h5>
+<a id="shutting-down-dart" class="anchor" href="#shutting-down-dart" aria-hidden="true"><span class="octicon octicon-link"></span></a>Shutting Down DART</h5>
+  <p>Always shutdown dart with Ctrl-C or a soft kill (kill -2).  A hard kill will usually require database cleanup on the next startup of DART.</p>
 </div>
 
           
