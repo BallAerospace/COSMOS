@@ -57,9 +57,4 @@ Notes:
 
 1. ruby-termios is a dependency of COSMOS on non-windows platforms but is not listed in the gem dependencies because it is not a dependency on Windows.  An extension attempts to install it when gem install cosmos is run.  This should work as long as you are online. If attempting an offline installation of cosmos you will need to first manually install ruby-termios: ```gem install ruby-termios```
 
-1. Installing the COSMOS gem (and many other binary gems) with rdoc 4.0.0 spits outs warnings like this:
-{% highlight bash %}
-unable to convert "\x90" from ASCII-8BIT to UTF-8 for lib/cosmos/ext/array.so, skipping
-{% endhighlight %}
-
-These are just warnings and can be safely ignored.  Updating rdoc before installing cosmos will remove the warnings: gem install rdoc.
+1. The http_proxy environment variable can cause problems.   Make sure you also have a no_proxy variable for localhost, something like no_proxy="127.0.0.1, localhost".
