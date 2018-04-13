@@ -5975,6 +5975,11 @@
 
 <p>Receives a subscribed telemetry packet. If get_packet is called non-blocking <non_block> = true, get_packet will raise an error if the queue is empty.</non_block></p>
 
+<div class="note warning">
+  <p><b>Overflown Queues Are Deleted</b></p>
+  <p>By default the packet queue is 1000 packets deep. If you don't call get_packet fast enough to keep up with the population of this queue and it overflows, COSMOS will clean up the resources and delete the queue. At this point when you call get_packet you will get a "RuntimeError : Packet data queue with id X not found." Note you can pass a larger queue size to the subscribe_packet_data method.</p>
+</div>
+
 <p>Syntax:</p>
 <div class="language-ruby highlighter-rouge">
 <pre class="highlight"><code><span class="n">get_packet</span><span class="p">(</span><span class="nb">id</span><span class="p">,</span> <span class="n">non_block</span> <span class="p">(</span><span class="n">optional</span><span class="p">))</span>
@@ -6015,6 +6020,11 @@
 <p>The returned packet data can be used to populate a packet object. A packet object can be obtained from the System object.</p>
 
 <p>If get_packet_data is called non-blocking <non_block> = true, get_packet_data will raise an error if the queue is empty.</non_block></p>
+
+<div class="note warning">
+  <p><b>Overflown Queues Are Deleted</b></p>
+  <p>By default the packet queue is 1000 packets deep. If you don't call get_packet_data fast enough to keep up with the population of this queue and it overflows, COSMOS will clean up the resources and delete the queue. At this point when you call get_packet_data you will get a "RuntimeError : Packet data queue with id X not found." Note you can pass a larger queue size to the subscribe_packet_data method.</p>
+</div>
 
 <p>Syntax:</p>
 <div class="language-ruby highlighter-rouge">
@@ -7241,6 +7251,11 @@ Example:
 
 <p>The get_limits_event method returns a limits event to the user who has already subscribed to limits event. Can be run in a non-blocking or blocking manner.</p>
 
+<div class="note warning">
+  <p><b>Overflown Queues Are Deleted</b></p>
+  <p>By default the limits queue is 1000 events deep. If you don't call get_limits_event fast enough to keep up with the population of this queue and it overflows, COSMOS will clean up the resources and delete the queue. At this point when you call get_limits_event you will get a "RuntimeError : Packet data queue with id X not found." Note you can pass a larger queue size to the subscribe_limits_events method.</p>
+</div>
+
 <p>Syntax:</p>
 <div class="language-ruby highlighter-rouge">
 <pre class="highlight"><code><span class="n">get_limits_event</span><span class="p">(</span><span class="o">&lt;</span><span class="nb">id</span><span class="o">&gt;</span><span class="p">,</span> <span class="o">&lt;</span><span class="n">non_block</span> <span class="p">(</span><span class="n">optional</span><span class="p">)</span><span class="o">&gt;</span><span class="p">)</span>
@@ -8421,6 +8436,11 @@ Example:
 <a id="get_server_message-since-410" class="anchor" href="#get_server_message-since-410" aria-hidden="true"><span class="octicon octicon-link"></span></a>get_server_message (since 4.1.0)</h3>
 
 <p>Receives a subscribed server message. If this method is called non-blocking <non_block> = true, this method will raise an error if the queue is empty.  The return value is an array where the first element is the message and the second element is the color associated with the message (BLACK, RED, YELLOW, GREEN).</non_block></p>
+
+<div class="note warning">
+  <p><b>Overflown Queues Are Deleted</b></p>
+  <p>By default the message queue is 1000 messages deep. If you don't call get_server_message fast enough to keep up with the population of this queue and it overflows, COSMOS will clean up the resources and delete the queue. At this point when you call get_server_message you will get a "RuntimeError : Packet data queue with id X not found." Note you can pass a larger queue size to the subscribe_server_messages method.</p>
+</div>
 
 <p>Syntax:</p>
 
