@@ -3258,11 +3258,59 @@
           
           <div class="toc">
             <ul class="section-nav">
+<li class="toc-entry toc-h2"><a href="#overall-architecture-and-context-diagram">Overall Architecture and Context Diagram</a></li>
+<li class="toc-entry toc-h2"><a href="#using-the-dart_import-utility">Using the dart_import utility</a></li>
 </ul>
           </div>
           
           <h1>DART Design</h1>
-          <p>DART (Data Archival Retrieval Trending) is the COSMOS tool to support long term storage and trending of telemetry data. It was built on top of the open source PostgreSQL database to ensure rapid retrieval of data over long periods. The way it achieves this performance is to do data reduction on the original data at time periods of every minute, hour, and day. Thus to retrieve a year’s worth of data the database simply has to return 365 telemetry items. The original data is always preserved for in debth analysis over specific time periods.</p>
+          <p>DART (Data Archival Retrieval Trending) is the COSMOS tool to support long term storage and trending of command and telemetry data. It was built on top of the open source PostgreSQL database to ensure rapid retrieval of data over long periods. Data is reducted at time periods of every minute, hour, and day to allow for increased performance of long queries. With this reduction, to return a reduced year’s worth of data the database simply has to return 365 telemetry items. The original data is always preserved for indepth analysis over specific time periods.</p>
+
+<h2 id="overall-architecture-and-context-diagram">
+<a id="overall-architecture-and-context-diagram" class="anchor" href="#overall-architecture-and-context-diagram" aria-hidden="true"><span class="octicon octicon-link"></span></a>Overall Architecture and Context Diagram</h2>
+
+<p>The following diagram shows how DART integrates into a COSMOS System:</p>
+
+<p><img src="/img/DART_Architecture.png" alt="DART Architecture"></p>
+
+<p>Key aspects of this architecture:</p>
+
+<ul>
+  <li>DART Contains 7 different applications
+    <ul>
+      <li>DART Process Monitor - Cleans the database and starts the next five applications / monitors aliveness</li>
+      <li>DART Ingester - Connects to the COSMOS CmdTlmServer and receives realtime cmd/tlm packets</li>
+      <li>DART Workers - Decommutates packets and save the decommutated data into the PostgreSql database</li>
+      <li>DART Reducer - Reduces decommutated data into minute/hour/day reduced data sets</li>
+      <li>DART Stream Server - Serves a stream of raw packets from DART on request</li>
+      <li>DART Decom Server - Provides a JSON formatted array of decommutated or reduced data for an item on request</li>
+      <li>DART Import - Command line tool to import previously logged data into DART</li>
+    </ul>
+  </li>
+  <li>The COSMOS Command and Telemetry Server nominally streams data to DART in realtime. This keeps the data in DART as fresh as possible</li>
+  <li>Alternatively, or after an outage, data can be ingested into DART using the dart_import utility</li>
+  <li>TlmGrapher and TlmExtractor can pull decommutated or reduced data from the DART Decom Server</li>
+  <li>Replay, DataViewer, and CmdExtractor can pull a stream of raw packets from the DART Stream Server</li>
+  <li>Other telemetry tools can receive data from DART through Replay</li>
+  <li>Raw packets are stored in DART in normal COSMOS binary packet log files.  The PostgreSql database keeps indexes into these files that point to each packet for quick random access.</li>
+  <li>Decommutated and Reduced data sets are stored directly in the PostgreSql database</li>
+  <li>Only integer and floating point data types are reduced into averages, minimum, maximum, and standard deviation at minute/hour/day granularities.</li>
+</ul>
+
+<h2 id="using-the-dart_import-utility">
+<a id="using-the-dart_import-utility" class="anchor" href="#using-the-dart_import-utility" aria-hidden="true"><span class="octicon octicon-link"></span></a>Using the dart_import utility</h2>
+
+<p>Dart Import is used to import COSMOS command and telemetry packet log files into the DART system. This is useful for importing older data that was never imported for whatever reason, or if DART was offline when the data was collected. Important: These log files are imported in place and become part of the DART database.  The files must be placed into the DART data folder (defaults to outputs/dart/data) before they can be imported. Note that the data requires a SYSTEM META packet, and therefore generally only supports data from COSMOS 4.1.1+ unless the data is massaged first.</p>
+
+<p>Usage:</p>
+
+<div class="highlighter-rouge">
+<pre class="highlight"><code>dart_import &lt;filename&gt; [--force]
+</code></pre>
+</div>
+
+<p>The –force flag can be used to force data to be reimported into the database even if the tool determines that all of the data is already likely in place. It still performs an algorithm to prevent duplicate data from being inserted into the database, but will check every single packet to make sure it is already in the database.</p>
+
 
           
 
