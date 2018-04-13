@@ -63,17 +63,17 @@ module Cosmos
     def drawshape(viewer)
       @viewer = viewer
 
-      GL.PushMatrix
-        GL.Enable(GL::BLEND)
-        GL.BlendFunc(GL::SRC_ALPHA, GL::ONE_MINUS_SRC_ALPHA)
-        GL.Color4f(@color[0], @color[1], @color[2], @color[3])
-        GL.Rotate(@rotation_x, 1.0, 0.0, 0.0) if @rotation_x
-        GL.Rotate(@rotation_y, 0.0, 1.0, 0.0) if @rotation_y
-        GL.Rotate(@rotation_z, 0.0, 0.0, 1.0) if @rotation_z
-        GL.Material(GL::FRONT_AND_BACK, GL::AMBIENT_AND_DIFFUSE, @color)
-        draw_stl()
-        GL.Disable(GL::BLEND)
-      GL.PopMatrix
+      glPushMatrix()
+      glEnable(OpenGL::GL_BLEND)
+      glBlendFunc(OpenGL::GL_SRC_ALPHA, OpenGL::GL_ONE_MINUS_SRC_ALPHA)
+      glColor4f(@color[0], @color[1], @color[2], @color[3])
+      glRotatef(@rotation_x, 1.0, 0.0, 0.0) if @rotation_x
+      glRotatef(@rotation_y, 0.0, 1.0, 0.0) if @rotation_y
+      glRotatef(@rotation_z, 0.0, 0.0, 1.0) if @rotation_z
+      glMaterialfv(OpenGL::GL_FRONT_AND_BACK, OpenGL::GL_AMBIENT_AND_DIFFUSE, @color.pack('F*'))
+      draw_stl()
+      glDisable(OpenGL::GL_BLEND)
+      glPopMatrix()
     end
 
     def export
@@ -110,18 +110,18 @@ module Cosmos
     end
 
     def draw_stl
-      GL.PushMatrix
-      GL.Material(GL::FRONT_AND_BACK, GL::SPECULAR, [1.0, 1.0, 1.0])
-      GL.Material(GL::FRONT_AND_BACK, GL::SHININESS, [100.0])
+      glPushMatrix()
+      glMaterialfv(OpenGL::GL_FRONT_AND_BACK, OpenGL::GL_SPECULAR, [1.0, 1.0, 1.0].pack("F*"))
+      glMaterialf(OpenGL::GL_FRONT_AND_BACK, OpenGL::GL_SHININESS, 100.0)
       if @mystl.triangles.empty?
         load_stl
       else
         @mystl.draw_triangles()
       end
-      GL.PopMatrix
+      glPopMatrix()
 
       # Set Pixel Storage Size
-      GL.PixelStorei(GL::UNPACK_ALIGNMENT, 1)
+      glPixelStorei(OpenGL::GL_UNPACK_ALIGNMENT, 1)
     end
   end
 end

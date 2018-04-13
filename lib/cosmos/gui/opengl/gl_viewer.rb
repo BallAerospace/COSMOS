@@ -209,31 +209,32 @@ module Cosmos
       pickh = @wvt.h / h.to_f
 
       # Set pick projection matrix
-      GL.MatrixMode(GL::PROJECTION);
-      GL.LoadIdentity()
-      GL.Translatef(pickx, picky, 0.0)
-      GL.Scalef(pickw, pickh, 1.0)
+      glMatrixMode(OpenGL::GL_PROJECTION)
+      glLoadIdentity()
+      glTranslatef(pickx, picky, 0.0)
+      glScalef(pickw, pickh, 1.0)
       case projection
       when :PARALLEL
-        GL.Ortho(@wvt.left, @wvt.right, @wvt.bottom, @wvt.top, @wvt.hither, @wvt.yon)
+        glOrtho(@wvt.left, @wvt.right, @wvt.bottom, @wvt.top, @wvt.hither, @wvt.yon)
       when :PERSPECTIVE
-        GL.Frustum(@wvt.left, @wvt.right, @wvt.bottom, @wvt.top, @wvt.hither, @wvt.yon)
+        glFrustum(@wvt.left, @wvt.right, @wvt.bottom, @wvt.top, @wvt.hither, @wvt.yon)
       end
 
       # Model matrix
-      GL.MatrixMode(GL::MODELVIEW);
-      GL.LoadMatrixf(@transform)
+      glMatrixMode(OpenGL::GL_MODELVIEW)
+      glLoadMatrixf(@transform.to_a.flatten.pack('F*'))
 
       # Loop until room enough to fit
       while true
         nhits = 0
-        buffer = GL.SelectBuffer(mh)
-        GL.RenderMode(GL::SELECT);
-        GL.InitNames()
-        GL.PushName(0)
+        buffer = ' ' * mh
+        glSelectBuffer(mh, buffer)
+        glRenderMode(OpenGL::GL_SELECT)
+        glInitNames()
+        glPushName(0)
         @scene.hit(self) if @scene
-        GL.PopName()
-        nhits = GL.RenderMode(GL::RENDER)
+        glPopName()
+        nhits = glRenderMode(OpenGL::GL_RENDER)
         mh <<= 1
         break if nhits >= 0
       end
@@ -273,111 +274,109 @@ module Cosmos
     end
 
     def initializeGL
-      GL.GetError()
-
       # Initialize GL context
-      GL.RenderMode(GL::RENDER)
+      glRenderMode(OpenGL::GL_RENDER)
 
       # Fast hints
-      GL.Hint(GL::POLYGON_SMOOTH_HINT, GL::FASTEST)
-      GL.Hint(GL::PERSPECTIVE_CORRECTION_HINT, GL::FASTEST)
-      GL.Hint(GL::FOG_HINT, GL::FASTEST)
-      GL.Hint(GL::LINE_SMOOTH_HINT, GL::FASTEST)
-      GL.Hint(GL::POINT_SMOOTH_HINT, GL::FASTEST)
+      glHint(OpenGL::GL_POLYGON_SMOOTH_HINT, OpenGL::GL_FASTEST)
+      glHint(OpenGL::GL_PERSPECTIVE_CORRECTION_HINT, OpenGL::GL_FASTEST)
+      glHint(OpenGL::GL_FOG_HINT, OpenGL::GL_FASTEST)
+      glHint(OpenGL::GL_LINE_SMOOTH_HINT, OpenGL::GL_FASTEST)
+      glHint(OpenGL::GL_POINT_SMOOTH_HINT, OpenGL::GL_FASTEST)
 
       # Z-buffer test on
-      GL.Enable(GL::DEPTH_TEST)
-      GL.DepthFunc(GL::LESS)
-      GL.DepthRange(0.0, 1.0)
-      GL.ClearDepth(1.0)
-      GL.ClearColor(@top_background[0], @top_background[1], @top_background[2], @top_background[3])
+      glEnable(OpenGL::GL_DEPTH_TEST)
+      glDepthFunc(OpenGL::GL_LESS)
+      glDepthRange(0.0, 1.0)
+      glClearDepth(1.0)
+      glClearColor(@top_background[0], @top_background[1], @top_background[2], @top_background[3])
 
       # No face culling
-      GL.Disable(GL::CULL_FACE)
-      GL.CullFace(GL::BACK)
-      GL.FrontFace(GL::CCW)
+      glDisable(OpenGL::GL_CULL_FACE)
+      glCullFace(OpenGL::GL_BACK)
+      glFrontFace(OpenGL::GL_CCW)
 
       # Two sided lighting
-      GL.LightModeli(GL::LIGHT_MODEL_TWO_SIDE, 1)
-      GL.LightModel(GL::LIGHT_MODEL_AMBIENT, @ambient)
+      glLightModeli(OpenGL::GL_LIGHT_MODEL_TWO_SIDE, 1)
+      glLightModelfv(OpenGL::GL_LIGHT_MODEL_AMBIENT, @ambient.pack('F*'))
 
       # Preferred blend over background
-      GL.BlendFunc(GL::SRC_ALPHA, GL::ONE_MINUS_SRC_ALPHA)
+      glBlendFunc(OpenGL::GL_SRC_ALPHA, OpenGL::GL_ONE_MINUS_SRC_ALPHA)
 
       enable_light(@light)
       # Viewer is close
-      GL.LightModeli(GL::LIGHT_MODEL_LOCAL_VIEWER, 1)
+      glLightModeli(OpenGL::GL_LIGHT_MODEL_LOCAL_VIEWER, 1)
 
       enable_material(@material)
       # Vertex colors change both diffuse and ambient
-      GL.ColorMaterial(GL::FRONT_AND_BACK, GL::AMBIENT_AND_DIFFUSE)
-      GL.Disable(GL::COLOR_MATERIAL)
+      glColorMaterial(OpenGL::GL_FRONT_AND_BACK, OpenGL::GL_AMBIENT_AND_DIFFUSE)
+      glDisable(OpenGL::GL_COLOR_MATERIAL)
 
       # Simplest and fastest drawing is default
-      GL.ShadeModel(GL::FLAT)
-      GL.Disable(GL::BLEND)
-      GL.Disable(GL::LINE_SMOOTH)
-      GL.Disable(GL::POINT_SMOOTH)
-      GL.Disable(GL::COLOR_MATERIAL)
+      glShadeModel(OpenGL::GL_FLAT)
+      glDisable(OpenGL::GL_BLEND)
+      glDisable(OpenGL::GL_LINE_SMOOTH)
+      glDisable(OpenGL::GL_POINT_SMOOTH)
+      glDisable(OpenGL::GL_COLOR_MATERIAL)
 
       # Lighting
-      GL.Disable(GL::LIGHTING)
+      glDisable(OpenGL::GL_LIGHTING)
 
       # No normalization of normals (it's broken on some machines anyway)
-      GL.Disable(GL::NORMALIZE)
+      glDisable(OpenGL::GL_NORMALIZE)
 
       # Dithering if needed
-      GL.Disable(GL::DITHER)
+      glDisable(OpenGL::GL_DITHER)
     end
 
     def paintGL
       # Set viewport
-      GL.Viewport(0, 0, @wvt.w, @wvt.h)
+      glViewport(0, 0, @wvt.w, @wvt.h)
       reset_gl_state()
       clear_solid_background()
 
       # Depth test on by default
-      GL.DepthMask(GL::TRUE)
-      GL.Enable(GL::DEPTH_TEST)
+      glDepthMask(OpenGL::GL_TRUE)
+      glEnable(OpenGL::GL_DEPTH_TEST)
 
       # Switch to projection matrix
-      GL.MatrixMode(GL::PROJECTION)
-      GL.LoadIdentity
+      glMatrixMode(OpenGL::GL_PROJECTION)
+      glLoadIdentity
       case @projection
       when :PARALLEL
-        GL.Ortho(@wvt.left, @wvt.right, @wvt.bottom, @wvt.top, @wvt.hither, @wvt.yon)
+        glOrtho(@wvt.left, @wvt.right, @wvt.bottom, @wvt.top, @wvt.hither, @wvt.yon)
       when :PERSPECTIVE
-        GL.Frustum(@wvt.left, @wvt.right, @wvt.bottom, @wvt.top, @wvt.hither, @wvt.yon)
+        glFrustum(@wvt.left, @wvt.right, @wvt.bottom, @wvt.top, @wvt.hither, @wvt.yon)
       end
 
       # Switch to model matrix
-      GL.MatrixMode(GL::MODELVIEW)
-      GL.LoadIdentity
+      glMatrixMode(OpenGL::GL_MODELVIEW)
+      glLoadIdentity
 
       enable_light(@light)
       enable_material(@material)
 
       # Color commands change both
-      GL.ColorMaterial(GL::FRONT_AND_BACK, GL::AMBIENT_AND_DIFFUSE)
+      glColorMaterial(OpenGL::GL_FRONT_AND_BACK, OpenGL::GL_AMBIENT_AND_DIFFUSE)
       # Global ambient light
-      GL.LightModel(GL::LIGHT_MODEL_AMBIENT, @ambient)
+      glLightModelfv(OpenGL::GL_LIGHT_MODEL_AMBIENT, @ambient.pack('F*'))
 
       # Enable fog
       if @options.include?(:VIEWER_FOG)
-        GL.Enable(GL::FOG)
-        GL.Fog(GL::FOG_COLOR, @top_background) # Disappear into the background
-        GL.Fogf(GL::FOG_START, (@distance - @diameter).to_f) # Range tight around model position
-        GL.Fogf(GL::FOG_END, (@distance + @diameter).to_f) # Far place same as clip plane:- clipped stuff is in the mist!
-        GL.Fogi(GL::FOG_MODE, GL::LINEAR) # Simple linear depth cueing
+        glEnable(OpenGL::GL_FOG)
+        glFog(OpenGL::GL_FOG_COLOR, @top_background) # Disappear into the background
+        glFogf(OpenGL::GL_FOG_START, (@distance - @diameter).to_f) # Range tight around model position
+        glFogf(OpenGL::GL_FOG_END, (@distance + @diameter).to_f) # Far place same as clip plane:- clipped stuff is in the mist!
+        glFogi(OpenGL::GL_FOG_MODE, OpenGL::GL_LINEAR) # Simple linear depth cueing
       end
 
       # Dithering
-      GL.Enable(GL::DITHER) if @options.include?(:VIEWER_DITHER)
+      glEnable(OpenGL::GL_DITHER) if @options.include?(:VIEWER_DITHER)
       # Enable lighting
-      GL.Enable(GL::LIGHTING) if @options.include?(:VIEWER_LIGHTING)
+      glEnable(OpenGL::GL_LIGHTING) if @options.include?(:VIEWER_LIGHTING)
 
       # Set model matrix
-      GL.LoadMatrixf(@transform)
+      glLoadMatrixf(@transform.to_a.flatten.pack('F*'))
 
       draw_axis() if (@draw_axis and @draw_axis > 0)
 
@@ -386,49 +385,53 @@ module Cosmos
     end
 
     def reset_gl_state
-      GL.ShadeModel(GL::SMOOTH)
-      GL.PolygonMode(GL::FRONT_AND_BACK, GL::FILL)
-      GL.Disable(GL::LIGHTING)
-      GL.Disable(GL::ALPHA_TEST)
-      GL.Disable(GL::BLEND)
-      GL.Disable(GL::DITHER)
-      GL.Disable(GL::FOG)
-      GL.Disable(GL::LOGIC_OP)
-      GL.Disable(GL::POLYGON_SMOOTH)
-      GL.Disable(GL::POLYGON_STIPPLE)
-      GL.Disable(GL::STENCIL_TEST)
-      GL.Disable(GL::CULL_FACE)
-      GL.Disable(GL::COLOR_MATERIAL)
+      glShadeModel(OpenGL::GL_SMOOTH)
+      glPolygonMode(OpenGL::GL_FRONT_AND_BACK, OpenGL::GL_FILL)
+      glDisable(OpenGL::GL_LIGHTING)
+      glDisable(OpenGL::GL_ALPHA_TEST)
+      glDisable(OpenGL::GL_BLEND)
+      glDisable(OpenGL::GL_DITHER)
+      glDisable(OpenGL::GL_FOG)
+      glDisable(OpenGL::GL_LOGIC_OP)
+      glDisable(OpenGL::GL_POLYGON_SMOOTH)
+      glDisable(OpenGL::GL_POLYGON_STIPPLE)
+      glDisable(OpenGL::GL_STENCIL_TEST)
+      glDisable(OpenGL::GL_CULL_FACE)
+      glDisable(OpenGL::GL_COLOR_MATERIAL)
 
       # Reset matrices
-      GL.MatrixMode(GL::PROJECTION)
-      GL.LoadIdentity
-      GL.MatrixMode(GL::MODELVIEW)
-      GL.LoadIdentity
+      glMatrixMode(OpenGL::GL_PROJECTION)
+      glLoadIdentity
+      glMatrixMode(OpenGL::GL_MODELVIEW)
+      glLoadIdentity
     end
 
     def clear_solid_background
-      GL.ClearDepth(1.0)
-      GL.ClearColor(@top_background[0], @top_background[1], @top_background[2], @top_background[3])
+      glClearDepth(1.0)
+      glClearColor(@top_background[0], @top_background[1], @top_background[2], @top_background[3])
       if @top_background == @bottom_background
         begin
-          GL.Clear(GL::COLOR_BUFFER_BIT | GL::DEPTH_BUFFER_BIT)
+          glClear(OpenGL::GL_COLOR_BUFFER_BIT | OpenGL::GL_DEPTH_BUFFER_BIT)
         rescue
           # Raises false error on Mac
         end
       else # Clear to gradient background
         begin
-          GL.Clear(GL::DEPTH_BUFFER_BIT)
+          glClear(OpenGL::GL_DEPTH_BUFFER_BIT)
         rescue
           # Raises false error on Mac
         end
-        GL.Disable(GL::DEPTH_TEST)
-        GL.DepthMask(GL::FALSE)
-        GL.Begin(GL::TRIANGLE_STRIP)
-        GL.Color(@bottom_background); GL.Vertex3f(-1.0, -1.0, 0.0); GL.Vertex3f(1.0, -1.0, 0.0)
-        GL.Color(@top_background); GL.Vertex3f(-1.0, 1.0, 0.0); GL.Vertex3f(1.0, 1.0, 0.0)
+        glDisable(OpenGL::GL_DEPTH_TEST)
+        glDepthMask(OpenGL::GL_FALSE)
+        glBegin(OpenGL::GL_TRIANGLE_STRIP)
+        glColor4f(@bottom_background[0], @bottom_background[1], @bottom_background[2], @bottom_background[3])
+        glVertex3f(-1.0, -1.0, 0.0)
+        glVertex3f(1.0, -1.0, 0.0)
+        glColor4f(@top_background[0], @top_background[1], @top_background[2], @bottom_background[3])
+        glVertex3f(-1.0, 1.0, 0.0)
+        glVertex3f(1.0, 1.0, 0.0)
         begin
-          GL.End
+          glEnd
         rescue
           # Raises false error on Mac
         end
@@ -436,58 +439,58 @@ module Cosmos
     end
 
     def draw_axis
-      GL.PushMatrix
-        GL.LineWidth(2.5)
-        GL.Color3f(1.0, 0.0, 0.0)
-        GL.Begin(GL::LINES)
-          GL.Vertex3f(-@draw_axis.to_f, 0.0, 0.0)
-          GL.Vertex3f(@draw_axis.to_f, 0.0, 0.0)
+      glPushMatrix
+        glLineWidth(2.5)
+        glColor3f(1.0, 0.0, 0.0)
+        glBegin(OpenGL::GL_LINES)
+          glVertex3f(-@draw_axis.to_f, 0.0, 0.0)
+          glVertex3f(@draw_axis.to_f, 0.0, 0.0)
         begin
-          GL.End
+          glEnd
         rescue
           # Raises false error on Mac
         end
-        GL.Color3f(0.0, 1.0, 0.0)
-        GL.Begin(GL::LINES)
-          GL.Vertex3f(0, -@draw_axis, 0.0)
-          GL.Vertex3f(0, @draw_axis, 0)
+        glColor3f(0.0, 1.0, 0.0)
+        glBegin(OpenGL::GL_LINES)
+          glVertex3f(0, -@draw_axis, 0.0)
+          glVertex3f(0, @draw_axis, 0)
         begin
-          GL.End
+          glEnd
         rescue
           # Raises false error on Mac
         end
-        GL.Color3f(0.0, 0.0, 1.0)
-        GL.Begin(GL::LINES)
-          GL.Vertex3f(0, 0, -@draw_axis)
-          GL.Vertex3f(0, 0, @draw_axis)
+        glColor3f(0.0, 0.0, 1.0)
+        glBegin(OpenGL::GL_LINES)
+          glVertex3f(0, 0, -@draw_axis)
+          glVertex3f(0, 0, @draw_axis)
         begin
-          GL.End
+          glEnd
         rescue
           # Raises false error on Mac
         end
-      GL.PopMatrix
+      glPopMatrix
     end
 
     def enable_light(light)
-      GL.Enable(GL::LIGHT0)
-      GL.Light(GL::LIGHT0, GL::AMBIENT, light.ambient)
-      GL.Light(GL::LIGHT0, GL::DIFFUSE, light.diffuse)
-      GL.Light(GL::LIGHT0, GL::SPECULAR, light.specular)
-      GL.Light(GL::LIGHT0, GL::POSITION, light.position)
-      GL.Light(GL::LIGHT0, GL::SPOT_DIRECTION, light.direction)
-      GL.Lightf(GL::LIGHT0, GL::SPOT_EXPONENT, light.exponent)
-      GL.Lightf(GL::LIGHT0, GL::SPOT_CUTOFF, light.cutoff)
-      GL.Lightf(GL::LIGHT0, GL::CONSTANT_ATTENUATION, light.c_attn)
-      GL.Lightf(GL::LIGHT0, GL::LINEAR_ATTENUATION, light.l_attn)
-      GL.Lightf(GL::LIGHT0, GL::QUADRATIC_ATTENUATION, light.q_attn)
+      glEnable(OpenGL::GL_LIGHT0)
+      glLightfv(OpenGL::GL_LIGHT0, OpenGL::GL_AMBIENT, light.ambient.pack('F*'))
+      glLightfv(OpenGL::GL_LIGHT0, OpenGL::GL_DIFFUSE, light.diffuse.pack('F*'))
+      glLightfv(OpenGL::GL_LIGHT0, OpenGL::GL_SPECULAR, light.specular.pack('F*'))
+      glLightfv(OpenGL::GL_LIGHT0, OpenGL::GL_POSITION, light.position.pack('F*'))
+      glLightfv(OpenGL::GL_LIGHT0, OpenGL::GL_SPOT_DIRECTION, light.direction.pack('F*'))
+      glLightf(OpenGL::GL_LIGHT0, OpenGL::GL_SPOT_EXPONENT, light.exponent)
+      glLightf(OpenGL::GL_LIGHT0, OpenGL::GL_SPOT_CUTOFF, light.cutoff)
+      glLightf(OpenGL::GL_LIGHT0, OpenGL::GL_CONSTANT_ATTENUATION, light.c_attn)
+      glLightf(OpenGL::GL_LIGHT0, OpenGL::GL_LINEAR_ATTENUATION, light.l_attn)
+      glLightf(OpenGL::GL_LIGHT0, OpenGL::GL_QUADRATIC_ATTENUATION, light.q_attn)
     end
 
     def enable_material(material)
-      GL.Material(GL::FRONT_AND_BACK, GL::AMBIENT, material.ambient)
-      GL.Material(GL::FRONT_AND_BACK, GL::DIFFUSE, material.diffuse)
-      GL.Material(GL::FRONT_AND_BACK, GL::SPECULAR, material.specular)
-      GL.Material(GL::FRONT_AND_BACK, GL::EMISSION, material.emission)
-      GL.Materialf(GL::FRONT_AND_BACK, GL::SHININESS, material.shininess)
+      glMaterialfv(OpenGL::GL_FRONT_AND_BACK, OpenGL::GL_AMBIENT, material.ambient.pack('F*'))
+      glMaterialfv(OpenGL::GL_FRONT_AND_BACK, OpenGL::GL_DIFFUSE, material.diffuse.pack('F*'))
+      glMaterialfv(OpenGL::GL_FRONT_AND_BACK, OpenGL::GL_SPECULAR, material.specular.pack('F*'))
+      glMaterialfv(OpenGL::GL_FRONT_AND_BACK, OpenGL::GL_EMISSION, material.emission.pack('F*'))
+      glMaterialf(OpenGL::GL_FRONT_AND_BACK, OpenGL::GL_SHININESS, material.shininess)
     end
 
     def resizeGL(width, height)

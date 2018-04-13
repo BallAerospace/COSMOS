@@ -45,45 +45,45 @@ module Cosmos
     end
 
     def draw(viewer)
-      GL.PushAttrib(GL::CURRENT_BIT | GL::LIGHTING_BIT | GL::POINT_BIT | GL::LINE_BIT)
-      GL.PushMatrix
+      glPushAttrib(OpenGL::GL_CURRENT_BIT | OpenGL::GL_LIGHTING_BIT | OpenGL::GL_POINT_BIT | OpenGL::GL_LINE_BIT)
+      glPushMatrix
 
       # Object position
-      GL::Translatef(@position[0], @position[1], @position[2])
+      glTranslatef(@position[0], @position[1], @position[2])
 
       # Shading
-      GL.Enable(GL::LIGHTING)
-      GL.Enable(GL::AUTO_NORMAL)
-      GL.ShadeModel(GL::SMOOTH)
+      glEnable(OpenGL::GL_LIGHTING)
+      glEnable(OpenGL::GL_AUTO_NORMAL)
+      glShadeModel(OpenGL::GL_SMOOTH)
 
       # Material
       if @back_material
-        GL.Material(GL::FRONT, GL::AMBIENT, @front_material.ambient)
-        GL.Material(GL::FRONT, GL::DIFFUSE, @front_material.diffuse)
-        GL.Material(GL::FRONT, GL::SPECULAR, @front_material.specular)
-        GL.Material(GL::FRONT, GL::EMISSION, @front_material.emission)
-        GL.Materialf(GL::FRONT, GL::SHININESS, @front_material.shininess)
-        GL.Material(GL::BACK, GL::AMBIENT, @back_material.ambient)
-        GL.Material(GL::BACK, GL::DIFFUSE, @back_material.diffuse)
-        GL.Material(GL::BACK, GL::SPECULAR, @back_material.specular)
-        GL.Material(GL::BACK, GL::EMISSION, @back_material.emission)
-        GL.Materialf(GL::BACK, GL::SHININESS, @back_material.shininess)
+        glMaterialfv(OpenGL::GL_FRONT, OpenGL::GL_AMBIENT, @front_material.ambient.pack('F*'))
+        glMaterialfv(OpenGL::GL_FRONT, OpenGL::GL_DIFFUSE, @front_material.diffuse.pack('F*'))
+        glMaterialfv(OpenGL::GL_FRONT, OpenGL::GL_SPECULAR, @front_material.specular.pack('F*'))
+        glMaterialfv(OpenGL::GL_FRONT, OpenGL::GL_EMISSION, @front_material.emission.pack('F*'))
+        glMaterialfvf(OpenGL::GL_FRONT, OpenGL::GL_SHININESS, @front_material.shininess)
+        glMaterialfv(OpenGL::GL_BACK, OpenGL::GL_AMBIENT, @back_material.ambient.pack('F*'))
+        glMaterialfv(OpenGL::GL_BACK, OpenGL::GL_DIFFUSE, @back_material.diffuse.pack('F*'))
+        glMaterialfv(OpenGL::GL_BACK, OpenGL::GL_SPECULAR, @back_material.specular.pack('F*'))
+        glMaterialfv(OpenGL::GL_BACK, OpenGL::GL_EMISSION, @back_material.emission.pack('F*'))
+        glMaterialf(OpenGL::GL_BACK, OpenGL::GL_SHININESS, @back_material.shininess)
       else
-        GL.Material(GL::FRONT_AND_BACK, GL::AMBIENT, @front_material.ambient)
-        GL.Material(GL::FRONT_AND_BACK, GL::DIFFUSE, @front_material.diffuse)
-        GL.Material(GL::FRONT_AND_BACK, GL::SPECULAR, @front_material.specular)
-        GL.Material(GL::FRONT_AND_BACK, GL::EMISSION, @front_material.emission)
-        GL.Materialf(GL::FRONT_AND_BACK, GL::SHININESS, @front_material.shininess)
+        glMaterialfv(OpenGL::GL_FRONT_AND_BACK, OpenGL::GL_AMBIENT, @front_material.ambient.pack('F*'))
+        glMaterialfv(OpenGL::GL_FRONT_AND_BACK, OpenGL::GL_DIFFUSE, @front_material.diffuse.pack('F*'))
+        glMaterialfv(OpenGL::GL_FRONT_AND_BACK, OpenGL::GL_SPECULAR, @front_material.specular.pack('F*'))
+        glMaterialfv(OpenGL::GL_FRONT_AND_BACK, OpenGL::GL_EMISSION, @front_material.emission.pack('F*'))
+        glMaterialf(OpenGL::GL_FRONT_AND_BACK, OpenGL::GL_SHININESS, @front_material.shininess)
       end
 
       # Surface
-      GL.PolygonMode(GL::FRONT_AND_BACK, GL::FILL)
-      GL.Disable(GL::CULL_FACE);
+      glPolygonMode(OpenGL::GL_FRONT_AND_BACK, OpenGL::GL_FILL)
+      glDisable(OpenGL::GL_CULL_FACE);
       drawshape(viewer)
 
       # Restore attributes and matrix
-      GL.PopMatrix
-      GL.PopAttrib
+      glPopMatrix
+      glPopAttrib
     end
 
     # Draw the StlShape
@@ -144,7 +144,5 @@ module Cosmos
     def export
       raise "export must be defined by subclass"
     end
-
-  end # Shape
-
-end # module Cosmos
+  end
+end

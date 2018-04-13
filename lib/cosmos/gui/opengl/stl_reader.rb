@@ -65,13 +65,13 @@ module Cosmos
     end
 
     def draw_triangles
-      GL.EnableClientState(GL::NORMAL_ARRAY)
-      GL.EnableClientState(GL::VERTEX_ARRAY)
-      GL.NormalPointer(GL::FLOAT, 0, @normals_packed)
-      GL.VertexPointer(3, GL::FLOAT, 0, @vertexes_packed)
-      GL.DrawArrays(GL::TRIANGLES, 0, @triangles.length * 3)
-      GL.DisableClientState(GL::NORMAL_ARRAY)
-      GL.DisableClientState(GL::VERTEX_ARRAY)
+      glEnableClientState(OpenGL::GL_NORMAL_ARRAY)
+      glEnableClientState(OpenGL::GL_VERTEX_ARRAY)
+      glNormalPointer(OpenGL::GL_FLOAT, 0, @normals_packed)
+      glVertexPointer(3, OpenGL::GL_FLOAT, 0, @vertexes_packed)
+      glDrawArrays(OpenGL::GL_TRIANGLES, 0, @triangles.length * 3)
+      glDisableClientState(OpenGL::GL_NORMAL_ARRAY)
+      glDisableClientState(OpenGL::GL_VERTEX_ARRAY)
     end
 
     def process(filename, scaling_factor = 1.0)

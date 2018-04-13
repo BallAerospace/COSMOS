@@ -91,31 +91,31 @@ module Cosmos
         lon_value[2] = (lon_value[1] + lon_value[0]) / 2.0
       end
 
-      #GL::TexCoord(lon_value, lat_value)
+      #glTexCoord(lon_value, lat_value)
       return [[lon_value[0], lat_value[0]], [lon_value[1], lat_value[1]], [lon_value[2], lat_value[2]]]
     end
 
     def draw_triangle(v1, v2, v3)
-      GL.Enable(GL::TEXTURE_2D)
-      GL.PolygonMode(GL::FRONT_AND_BACK, GL::FILL)
-      GL::Begin(GL::TRIANGLES)
+      glEnable(OpenGL::GL_TEXTURE_2D)
+      glPolygonMode(OpenGL::GL_FRONT_AND_BACK, OpenGL::GL_FILL)
+      glBegin(OpenGL::GL_TRIANGLES)
         tc1, tc2, tc3 = gen_tex_coords(v1, v2, v3)
-        GL::TexCoord(tc1[0], tc1[1])
-        GL::Vertex(v1)
-        GL::TexCoord(tc2[0], tc2[1])
-        GL::Vertex(v2)
-        GL::TexCoord(tc3[0], tc3[1])
-        GL::Vertex(v3)
-      GL::End()
-      GL.Disable(GL::TEXTURE_2D);
+        glTexCoord2f(tc1[0], tc1[1])
+        glVertex3f(v1[0], v1[1], v1[2])
+        glTexCoord2f(tc2[0], tc2[1])
+        glVertex3f(v2[0], v2[1], v2[2])
+        glTexCoord2f(tc3[0], tc3[1])
+        glVertex3f(v3[0], v3[1], v3[2])
+      glEnd()
+      glDisable(OpenGL::GL_TEXTURE_2D);
 
       #Show Triangles
-      #GL.PolygonMode(GL::FRONT_AND_BACK, GL::LINE)
-      #GL::Begin(GL::TRIANGLES)
-      #  GL::Vertex(v1)
-      #  GL::Vertex(v2)
-      #  GL::Vertex(v3)
-      #GL::End()
+      #glPolygonMode(OpenGL::GL_FRONT_AND_BACK, OpenGL::GL_LINE)
+      #glBegin(OpenGL::GL_TRIANGLES)
+      #  glVertex(v1)
+      #  glVertex(v2)
+      #  glVertex(v3)
+      #glEnd()
     end
 
     def subdivide_triangle(v1, v2, v3, depth)
@@ -144,49 +144,51 @@ module Cosmos
     end
 
     def drawshape(viewer)
-      GL.PushMatrix
-      GL.ShadeModel(GL::FLAT);
-      GL.Enable(GL::DEPTH_TEST);
+      glPushMatrix()
+      glShadeModel(OpenGL::GL_FLAT);
+      glEnable(OpenGL::GL_DEPTH_TEST);
       if @first == true
-        GL.PixelStore(GL::UNPACK_ALIGNMENT, 1)
-        texName = GL::GenTextures(1)
-        GL::BindTexture(GL::TEXTURE_2D, texName[0])
-        GL.TexParameter(GL::TEXTURE_2D, GL::TEXTURE_WRAP_S, GL::REPEAT);
-        GL.TexParameter(GL::TEXTURE_2D, GL::TEXTURE_WRAP_T, GL::REPEAT);
-        GL.TexParameter(GL::TEXTURE_2D, GL::TEXTURE_MAG_FILTER, GL::NEAREST);
-        GL.TexParameter(GL::TEXTURE_2D, GL::TEXTURE_MIN_FILTER, GL::NEAREST);
-        GL::TexImage2D(GL::TEXTURE_2D, 0, GL::RGBA, @image.width, @image.height, 0, GL::RGBA, GL::UNSIGNED_BYTE, @image_data)
+        glPixelStorei(OpenGL::GL_UNPACK_ALIGNMENT, 1)
+        tex_name_buf = ' ' * 8 # Buffer to hold texture names
+        glGenTextures(1, tex_name_buf)
+        texName = tex_name_buf.unpack('L2')[0]
+        glBindTexture(OpenGL::GL_TEXTURE_2D, texName)
+        glTexParameteri(OpenGL::GL_TEXTURE_2D, OpenGL::GL_TEXTURE_WRAP_S, OpenGL::GL_REPEAT)
+        glTexParameteri(OpenGL::GL_TEXTURE_2D, OpenGL::GL_TEXTURE_WRAP_T, OpenGL::GL_REPEAT)
+        glTexParameteri(OpenGL::GL_TEXTURE_2D, OpenGL::GL_TEXTURE_MAG_FILTER, OpenGL::GL_NEAREST)
+        glTexParameteri(OpenGL::GL_TEXTURE_2D, OpenGL::GL_TEXTURE_MIN_FILTER, OpenGL::GL_NEAREST)
+        glTexImage2D(OpenGL::GL_TEXTURE_2D, 0, OpenGL::GL_RGBA, @image.width, @image.height, 0, OpenGL::GL_RGBA, OpenGL::GL_UNSIGNED_BYTE, @image_data)
 
-        GL::TexEnv(GL::TEXTURE_ENV, GL::TEXTURE_ENV_MODE, GL::DECAL)
+        glTexEnvi(OpenGL::GL_TEXTURE_ENV, OpenGL::GL_TEXTURE_ENV_MODE, OpenGL::GL_DECAL)
 
-        @drawing_list = GL.GenLists(1)
-        GL.NewList(@drawing_list, GL::COMPILE)
-        GL.Enable(GL::TEXTURE_2D);
-        GL.TexEnvf(GL::TEXTURE_ENV, GL::TEXTURE_ENV_MODE, GL::DECAL);
-        GL::BindTexture(GL::TEXTURE_2D, texName[0])
+        @drawing_list = glGenLists(1)
+        glNewList(@drawing_list, OpenGL::GL_COMPILE)
+        glEnable(OpenGL::GL_TEXTURE_2D)
+        glTexEnvf(OpenGL::GL_TEXTURE_ENV, OpenGL::GL_TEXTURE_ENV_MODE, OpenGL::GL_DECAL)
+        glBindTexture(OpenGL::GL_TEXTURE_2D, texName)
         8.times do |index|
           subdivide_triangle(@vdata[@tindices[index][0]], @vdata[@tindices[index][1]], @vdata[@tindices[index][2]], 4)
         end
-        GL.Disable(GL::TEXTURE_2D);
-        GL.EndList
+        glDisable(OpenGL::GL_TEXTURE_2D);
+        glEndList()
 
         @first = false
       end
 
-      GL.CallList(@drawing_list)
+      glCallList(@drawing_list)
 
       #Draw Axises
-      #GL::Begin(GL::LINES)
-      #  GL::Color3f(1.0, 0.0, 0.0)
-      #  GL::Vertex([-2.0,  0.0,  0.0])
-      #  GL::Vertex([ 2.0,  0.0,  0.0])
-      #  GL::Vertex([ 0.0, -2.0,  0.0])
-      #  GL::Vertex([ 0.0,  2.0,  0.0])
-      #  GL::Vertex([ 0.0,  0.0, -2.0])
-      #  GL::Vertex([ 0.0,  0.0,  2.0])
-      #GL::End()
+      #glBegin(OpenGL::GL_LINES)
+      #  glColor3f(1.0, 0.0, 0.0)
+      #  glVertex([-2.0,  0.0,  0.0])
+      #  glVertex([ 2.0,  0.0,  0.0])
+      #  glVertex([ 0.0, -2.0,  0.0])
+      #  glVertex([ 0.0,  2.0,  0.0])
+      #  glVertex([ 0.0,  0.0, -2.0])
+      #  glVertex([ 0.0,  0.0,  2.0])
+      #glEnd()
 
-      GL.PopMatrix
+      glPopMatrix()
     end
 
     def export
