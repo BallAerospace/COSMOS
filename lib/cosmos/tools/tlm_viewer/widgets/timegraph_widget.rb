@@ -67,7 +67,7 @@ module Cosmos
       return if @time[-1] == t_sec
 
       data2 = data.to_f
-      if data2.infinite? or data2.nan?
+      if !(data2.infinite? or data2.nan?)
         # create time array
         @time << t_sec
 
