@@ -1393,6 +1393,11 @@ unsubscribe_packet_data(id)
 
 Receives a subscribed telemetry packet. If get_packet is called non-blocking <non_block> = true, get_packet will raise an error if the queue is empty.
 
+<div class="note warning">
+  <p><b>Overflown Queues Are Deleted</b></p>
+  <p>By default the packet queue is 1000 packets deep. If you don't call get_packet fast enough to keep up with the population of this queue and it overflows, COSMOS will clean up the resources and delete the queue. At this point when you call get_packet you will get a "RuntimeError : Packet data queue with id X not found." Note you can pass a larger queue size to the subscribe_packet_data method.</p>
+</div>
+
 Syntax:
 ```ruby
 get_packet(id, non_block (optional))
@@ -1416,6 +1421,11 @@ NOTE:  Most users will want to use get_packet() instead of this lower level meth
 The returned packet data can be used to populate a packet object. A packet object can be obtained from the System object.
 
 If get_packet_data is called non-blocking <non_block> = true, get_packet_data will raise an error if the queue is empty.
+
+<div class="note warning">
+  <p><b>Overflown Queues Are Deleted</b></p>
+  <p>By default the packet queue is 1000 packets deep. If you don't call get_packet_data fast enough to keep up with the population of this queue and it overflows, COSMOS will clean up the resources and delete the queue. At this point when you call get_packet_data you will get a "RuntimeError : Packet data queue with id X not found." Note you can pass a larger queue size to the subscribe_packet_data method.</p>
+</div>
 
 Syntax:
 ```ruby
@@ -2040,6 +2050,11 @@ unsubscribe_limits_events(id)
 ### get_limits_event
 
 The get_limits_event method returns a limits event to the user who has already subscribed to limits event. Can be run in a non-blocking or blocking manner.
+
+<div class="note warning">
+  <p><b>Overflown Queues Are Deleted</b></p>
+  <p>By default the limits queue is 1000 events deep. If you don't call get_limits_event fast enough to keep up with the population of this queue and it overflows, COSMOS will clean up the resources and delete the queue. At this point when you call get_limits_event you will get a "RuntimeError : Packet data queue with id X not found." Note you can pass a larger queue size to the subscribe_limits_events method.</p>
+</div>
 
 Syntax:
 ```ruby
@@ -2795,6 +2810,11 @@ unsubscribe_server_messages(id)
 ### get_server_message (since 4.1.0)
 
 Receives a subscribed server message. If this method is called non-blocking <non_block> = true, this method will raise an error if the queue is empty.  The return value is an array where the first element is the message and the second element is the color associated with the message (BLACK, RED, YELLOW, GREEN).
+
+<div class="note warning">
+  <p><b>Overflown Queues Are Deleted</b></p>
+  <p>By default the message queue is 1000 messages deep. If you don't call get_server_message fast enough to keep up with the population of this queue and it overflows, COSMOS will clean up the resources and delete the queue. At this point when you call get_server_message you will get a "RuntimeError : Packet data queue with id X not found." Note you can pass a larger queue size to the subscribe_server_messages method.</p>
+</div>
 
 Syntax:
 {% highlight ruby %}
