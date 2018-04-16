@@ -258,7 +258,7 @@ module DartCommon
     end
     packet_id = packet_name_hash[packet_name] # Check cache
     unless packet_id
-      packet = sync_packet(target.id, packet_name, is_tlm)
+      packet = sync_packet(target_id, packet_name, is_tlm)
       packet_id = packet.id
       packet_name_hash[packet_name] = packet.id  # Update cache
     end
