@@ -261,6 +261,28 @@ module Cosmos
       end
     end
 
+    # Returns an array with a "TARGET_NAME PACKET_NAME" string for every command in the system (PACKET_NAME == command name)
+    def all_packet_strings(include_hidden = false, splash = nil)
+      strings = []
+      tnames = target_names()
+      total = tnames.length.to_f
+      tnames.each_with_index do |target_name, index|
+        if splash
+          splash.message = "Processing #{target_name} command"
+          splash.progress = index / total
+        end
+
+        ignored_items = System.targets[target_name].ignored_items
+
+        packets(target_name).each do |command_name, packet|
+          # We don't audit against hidden or disabled packets/commands
+          next if !include_hidden and (packet.hidden || packet.disabled)
+          strings << "#{target_name} #{command_name}"
+        end
+      end
+      strings
+    end
+
     def all
       @config.commands
     end

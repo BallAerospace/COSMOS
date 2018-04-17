@@ -19,6 +19,7 @@ Cosmos.catch_fatal_exception do
   require 'cosmos/gui/dialogs/cmd_details_dialog'
   require 'cosmos/tools/cmd_sender/cmd_sender_text_edit'
   require 'cosmos/tools/cmd_sender/cmd_param_table_item_delegate'
+  require 'cosmos/gui/widgets/full_text_search_line_edit'
 end
 
 module Cosmos
@@ -109,6 +110,21 @@ module Cosmos
           update_commands()
           @cmd_select.setCurrentText(options.packet[1]) if options.packet
           update_cmd_params()
+
+          # Handle searching entries
+          @search_box.completion_list = System.commands.all_packet_strings(true, splash)
+          @search_box.callback = lambda do |cmd|
+            split_cmd = cmd.split(" ")
+            if split_cmd.length == 2
+              target_name = split_cmd[0].upcase
+              @target_select.setCurrentText(target_name)
+              update_commands()
+              command_name = split_cmd[1]
+              @cmd_select.setCurrentText(command_name)
+              update_cmd_params()
+            end
+          end
+
         end
 
         # Unconfigure CosmosConfig to interact with splash screen
@@ -219,6 +235,10 @@ module Cosmos
       # Set the size constraint to always respect the minimum sizes of the child widgets
       # If this is not set then when we refresh the command parameters they'll all be squished
       top_layout.setSizeConstraint(Qt::Layout::SetMinimumSize)
+
+      # Mnemonic Search Box
+      @search_box = FullTextSearchLineEdit.new(self)
+      top_layout.addWidget(@search_box)
 
       # Set the target combobox selection
       @target_select = Qt::ComboBox.new
