@@ -78,7 +78,7 @@ spec = Gem::Specification.new do |s|
 
   # Runtime Dependencies
   s.add_runtime_dependency 'bundler', '~> 1.3'
-  s.add_runtime_dependency 'rdoc', '>= 4', '< 6' # qtbindings doesn't parse in 6.0.0
+  s.add_runtime_dependency 'rdoc', '>= 4' # qtbindings doesn't parse in 6.0.0, fixed in 6.0.1
   s.add_runtime_dependency 'rake', '>= 10.0' # 10.0 released Nov 12, 2012
   s.add_runtime_dependency 'json', '>= 1.5', '< 3' # 2.0+ works with COSMOS
   s.add_runtime_dependency 'pry', '~> 0.9'
@@ -98,7 +98,8 @@ spec = Gem::Specification.new do |s|
   #   "For MRI versions 2.2.7, 2.2.8, 2.3.4 and 2.4.1, you may see stream closed in
   #    another thread (IOError). It may be caused by a Ruby bug. It can be
   #    fixed with the gem https://rubygems.org/gems/stopgap_13632"
-  s.add_runtime_dependency 'stopgap_13632', '~> 1.1.1' if RUBY_ENGINE == 'ruby' and %w(2.2.7 2.2.8 2.3.4 2.4.1).include? RUBY_VERSION  # MRI Only
+  # This is commented out because the gemspec is only evaluated at gem build time
+  # s.add_runtime_dependency 'stopgap_13632', '~> 1.1.1' if RUBY_ENGINE == 'ruby' and %w(2.2.7 2.2.8 2.3.4 2.4.1).include? RUBY_VERSION  # MRI Only
 
   # Development Dependencies
   s.add_development_dependency 'diff-lcs', '~> 1.3' if RUBY_ENGINE == 'ruby' # Get latest for MRI

@@ -7,7 +7,7 @@ end
 
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
-gem 'rails', '~> 5.1.4'
+gem 'rails', '~> 5.1.6'
 # Use sqlite3 as the database for Active Record
 # gem 'sqlite3'
 # Use Puma as the app server
@@ -48,7 +48,7 @@ gem 'rest-client' # For examples
 gem 'childprocess'
 
 if RUBY_ENGINE == 'ruby'
-  gem 'pg', '~> 0.21'
+  gem 'pg', '~> 1.0'
 else
  gem 'activerecord-jdbcpostgresql-adapter', :github => 'jruby/activerecord-jdbc-adapter'
 end
