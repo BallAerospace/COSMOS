@@ -32,36 +32,36 @@ WinActivate Send Raw
 Click 310 105 ; Click OK CMD-10
 WinWaitActive Command Sender
 Sleep 500
-Click 85 75 ; Target dropdown CMD-1
+Click 85 100 ; Target dropdown CMD-1
 Sleep 500
-Click 610 75 ; Send CMD-2
+Click 610 100 ; Send CMD-2
 Sleep 500
-Click 365 75 ; Command dropdown CMD-1
+Click 365 100 ; Command dropdown CMD-1
 Sleep 500
-Click 365 140 ; Collect command CMD-3
+Click 365 165 ; Collect command CMD-3
 Sleep 500
-Click 610 75 ; Send should fail due to TYPE required CMD-6
+Click 610 100 ; Send should fail due to TYPE required CMD-6
 Sleep 500
 WinWaitActive Error
 Sleep 500
 Send {Enter}
-Click 240 185 ; Click in the TYPE parameter CMD-5
+Click 240 210 ; Click in the TYPE parameter CMD-5
 Sleep 500
 Send 5{Enter}
 Sleep 500
-Click 610 75 ; Send CMD-2
+Click 610 100 ; Send CMD-2
 Sleep 500
-Click 150 250 ; Click in the TEMP parameter
+Click 150 275 ; Click in the TEMP parameter
 Sleep 500
 Send 100{Enter}
 Sleep 500
-Click 150 185 ; Click on the TYPE parameter
+Click 150 210 ; Click on the TYPE parameter
 Sleep 500
-Click 150 185 ; Click on the TYPE parameter
+Click 150 210 ; Click on the TYPE parameter
 Sleep 500
-Click 150 200 ; Click on NORMAL CMD-4
+Click 150 225 ; Click on NORMAL CMD-4
 Sleep 500
-Click 610 75 ; Send should fail due to out of range
+Click 610 100 ; Send should fail due to out of range
 WinWaitActive Error
 Sleep 500
 Send {Enter}
@@ -71,9 +71,9 @@ Send !m ; Mode
 Sleep 500
 Send i ; Ignore Range Checks
 Sleep 500
-Click 610 75 ; Send should succeed
+Click 610 100 ; Send should succeed
 Sleep 500
-Click 150 250 ; Click in the TEMP parameter
+Click 150 275 ; Click in the TEMP parameter
 Sleep 500
 Send 10{Enter} ; Set it to an allowable value
 Sleep 500
@@ -81,27 +81,27 @@ Send !m ; Mode
 Sleep 500
 Send p ; Disable parameter conversions
 Sleep 500
-Click 610 75 ; Send should succeed
+Click 610 100 ; Send should succeed
 Sleep 500
 Send !m ; Mode
 Sleep 500
 Send i ; Ignore Range Checks CMD-7
 Sleep 500
-Click 610 75 ; Send should succeed CMD-7
+Click 610 100 ; Send should succeed CMD-7
 Sleep 500
-Click 150 185 ; Click on the TYPE parameter
+Click 150 210 ; Click on the TYPE parameter
 Sleep 500
-Click 150 185 ; Click on the TYPE parameter
+Click 150 210 ; Click on the TYPE parameter
 Sleep 500
-Click 150 214 ; Click on SPECIAL CMD-4
+Click 150 239 ; Click on SPECIAL CMD-4
 Sleep 500
-Click 610 75 ; Send
+Click 610 100 ; Send
 WinWaitActive Hazardous Command
 Sleep 500
 Click 290 110 ; Cancel CMD-11
 WinWaitActive Command Sender
 Sleep 500
-Click 610 75 ; Send
+Click 610 100 ; Send
 WinWaitActive Hazardous Command
 Sleep 500
 Send {Enter} ; Confirm send because hazardous CMD-11
@@ -115,41 +115,41 @@ Send !m ; Mode
 Sleep 500
 Send s ; Show Ignored CMD-9
 Sleep 500
-Click 275 365 ; Click in the TYPE parameter
+Click 275 390 ; Click in the TYPE parameter
 Sleep 500
 Send 5{Enter}
 Sleep 500
-Click 610 75 ; Send
+Click 610 100 ; Send
 Sleep 500
-Click right 500 365 ; Right Click in the TYPE parameter
+Click right 500 390 ; Right Click in the TYPE parameter
 Sleep 500
-Click right 515 350 ; Details
+Click right 515 375 ; Details
 WinWaitActive INST COLLECT
 Sleep 500
 Send {Enter}
 WinWaitActive Command Sender
 Sleep 500
-Click right 200 435 ; Click in TEMP
+Click right 200 460 ; Click in TEMP
 Sleep 500
-Click 215 450 ; Select File
+Click 215 475 ; Select File
 WinWaitActive Insert
 Sleep 500
 Send cmd.bin{Enter}
 WinWaitActive Command Sender
 Sleep 500
-Click 85 75 ; Target dropdown
+Click 85 100 ; Target dropdown
 Sleep 500
-Click 75 103 ; INST2
+Click 75 128 ; INST2
 Sleep 500
-Click 365 75 ; Command dropdown
+Click 365 100 ; Command dropdown
 Sleep 500
-Click 365 140 ; Collect command
+Click 365 165 ; Collect command
 Sleep 500
-Click 180 365 ; Click on Type
+Click 180 390 ; Click on Type
 Sleep 500
-Click 180 365 ; Click on Type
+Click 180 390 ; Click on Type
 Sleep 500
-Click 180 400 ; Click on Special
+Click 180 425 ; Click on Special
 Sleep 500
 Send !m ; Mode
 Sleep 500
@@ -163,7 +163,7 @@ Send !m ; Mode
 Sleep 500
 Send s ; Show Ignored
 Sleep 500
-Click 60 600 ; Click in the Command History
+Click 60 625 ; Click in the Command History
 Sleep 500
 Send {Down 6}{Up}{Enter}
 
