@@ -50,12 +50,12 @@ module Cosmos
     end
 
     def hit(viewer)
-      GL.PushName(0xffffffff);
+      glPushName(0xffffffff);
       @shapes.each_with_index do |shape, index|
-        GL.LoadName(index)
+        glLoadName(index)
         shape.hit(viewer)
       end
-      GL.PopName()
+      glPopName()
     end
 
     def identify(index)
