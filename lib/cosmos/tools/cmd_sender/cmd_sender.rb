@@ -112,7 +112,7 @@ module Cosmos
           update_cmd_params()
 
           # Handle searching entries
-          @search_box.completion_list = System.commands.all_item_strings(true, splash)
+          @search_box.completion_list = System.commands.all_packet_strings(true, splash)
           @search_box.callback = lambda do |cmd|
             split_cmd = cmd.split(" ")
             if split_cmd.length == 2

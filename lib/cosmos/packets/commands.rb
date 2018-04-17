@@ -262,7 +262,7 @@ module Cosmos
     end
 
     # Returns an array with a "TARGET_NAME PACKET_NAME" string for every command in the system (PACKET_NAME == command name)
-    def all_item_strings(include_hidden = false, splash = nil)
+    def all_packet_strings(include_hidden = false, splash = nil)
       strings = []
       tnames = target_names()
       total = tnames.length.to_f
