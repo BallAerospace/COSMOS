@@ -11,8 +11,8 @@
     <title xml:lang="en">Ball Aerospace COSMOS News</title>
     <atom:link type="application/atom+xml" href="http://cosmosrb/feed.xml" rel="self"/>
     <link>http://cosmosrb.com/</link>
-    <pubDate>Fri, 13 Apr 2018 16:05:36 -0600</pubDate>
-    <lastBuildDate>Fri, 13 Apr 2018 16:05:36 -0600</lastBuildDate>
+    <pubDate>Tue, 17 Apr 2018 14:53:59 -0600</pubDate>
+    <lastBuildDate>Tue, 17 Apr 2018 14:53:59 -0600</lastBuildDate>
     <language>en-US</language>
     <generator>Jekyll v3.5.2</generator>
     <description>The User Interface for Embedded Systems</description>
@@ -24,6 +24,48 @@
       <width>144</width>
       <height>73</height>
     </image>
+    
+    <item>
+      <title>Ball Aerospace COSMOS 4.2.3 Released</title>
+      <link>http://cosmosrb.com/news/2018/04/17/cosmos-4-2-3-released/</link>
+      <pubDate>Tue, 17 Apr 2018 07:00:00 -0600</pubDate>
+      <dc:creator>ryanmelt</dc:creator>
+      
+      
+      <category>release</category>
+      
+      <guid isPermaLink="true">http://cosmosrb.com/news/2018/04/17/cosmos-4-2-3-released/</guid>
+      <description>&lt;p&gt;COSMOS 4.2 is here!   This is the first true patch release for 4.2.  The highlight of COSMOS 4.2 is a new tool called the Data Archival and Retrieval Tool (DART).   DART is a long term trending database built on top of the PostgreSql database.  It integrates directly with TlmGrapher, TlmExtractor, CmdExtractor, DataViewer, and Replay, allowing you to do historical queries of logged telemetry (and commands) by specifying a time range.  Queries are super fast and it performs automatic data reduction at minute/hour/day granularity.  Consider setting it up for your project and start data mining today!&lt;/p&gt;
+
+&lt;p&gt;See the COSMOS documentation for directions on setting up DART: http://cosmosrb.com/docs/home/&lt;/p&gt;
+
+&lt;h3 id=&quot;new-features&quot;&gt;New Features:&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/767&quot;&gt;#767&lt;/a&gt; Support Ruby 2.5&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/771&quot;&gt;#771&lt;/a&gt; Add CmdSender Search&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;maintenance&quot;&gt;Maintenance:&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/772&quot;&gt;#772&lt;/a&gt; OpenGL gem isn’t supported in Ruby 2.5&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;bug-fixes&quot;&gt;Bug Fixes:&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/769&quot;&gt;#769&lt;/a&gt; TIMEGRAPH widget non-functional&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/775&quot;&gt;#775&lt;/a&gt; Toggle disconnect broken in TestRunner&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;migration-notes-from-cosmos-41x&quot;&gt;Migration Notes from COSMOS 4.1.x:&lt;/h3&gt;
+
+&lt;p&gt;To upgrade to the latest version of COSMOS, run “bundle update cosmos” in your COSMOS project folder.&lt;/p&gt;
+
+&lt;p&gt;See the COSMOS documentation for directions on setting up DART: http://cosmosrb.com/docs/home/&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>Ball Aerospace COSMOS 4.2.2 Released</title>
