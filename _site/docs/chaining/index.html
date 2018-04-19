@@ -3257,20 +3257,24 @@
           </div>
           
           <h1>Chaining CmdTlmServers</h1>
-          <p>Chaining CmdTlmServers allows for running the COSMOS tools on other workstations and removing that processing load from a main CmdTlmServer that is directly connected to your targets.  This is great for setting up workstations dedicated to graphing data, or viewing telemetry, without disturbing the main operation.</p>
+          <p>There are two ways to chain CmdTlmServers to achieve two distinctly different results. One is to chain a client CmdTlmServer to a master to enable a separate workstation to have access to all the command and telemetry. The second is to connect a master CmdTlmServer to a client to allow a remote client to act as an interface to a target. Both methods will be discussed here.</p>
 
-<h2 id="main-cmdtlmserver-configuration">Main CmdTlmServer Configuration</h2>
+<h2 id="chain-client-cmdtlmserver-to-master">Chain Client CmdTlmServer to Master</h2>
+
+<p>Chaining a client CmdTlmServer to a master CmdTlmServer allows for running the COSMOS tools on other workstations and removing that processing load from a master CmdTlmServer that is directly connected to your targets. This is great for setting up workstations dedicated to graphing data, or viewing telemetry, without disturbing the main operation as the client will get all the same information as the master CmdTlmServer.</p>
+
+<h3 id="master-cmdtlmserver-configuration">Master CmdTlmServer Configuration</h3>
 
 <p>The default COSMOS Configuration already includes everything necessary to chain “child” CmdTlmServers.  There is a default router called the PREIDENTIFIED_ROUTER that is listening on port 7779 by default.  This is used to chain CmdTlmServers and is also used by TlmGrapher to access the full telemetry stream.</p>
 
-<p>The only issue on the main CmdTlmServer computer is that you must make sure that the firewall is either disabled or that access to port 7779 is permitted.</p>
+<p>The only issue on the master CmdTlmServer computer is that you must make sure that the firewall is either disabled or that access to port 7779 is permitted.</p>
 
-<h2 id="child-cmdtlmserver-configuration">Child CmdTlmServer Configuration</h2>
+<h3 id="child-cmdtlmserver-configuration">Child CmdTlmServer Configuration</h3>
 
 <ol>
   <li>Modify the example cmd_tlm_server_chain.txt file below
     <ul>
-      <li>Change localhost to the IP address of your main CmdTlmServer</li>
+      <li>Change localhost to the IP address of your master CmdTlmServer</li>
       <li>Update the TARGET keywords to include all of your targets</li>
     </ul>
   </li>
@@ -3292,7 +3296,7 @@ TITLE <span class="s1">'COSMOS Command and Telemetry Server - Chain Configuratio
 <span class="c"># Don't log on the chained server</span>
 PACKET_LOG_WRITER DEFAULT packet_log_writer.rb nil <span class="nb">false</span>
 
-<span class="c"># Replace localhost below with the IP Address of the main CmdTlmServer</span>
+<span class="c"># Replace localhost below with the IP Address of the master CmdTlmServer</span>
 <span class="c"># Update the target list below to the full list of targets in your system</span>
 <span class="c"># To make this child unable to send commands change the first 7779 to nil</span>
 INTERFACE CHAININT tcpip_client_interface.rb localhost 7779 7779 10 5 PREIDENTIFIED
@@ -3301,6 +3305,46 @@ INTERFACE CHAININT tcpip_client_interface.rb localhost 7779 7779 10 5 PREIDENTIF
   TARGET EXAMPLE
   TARGET TEMPLATED
   TARGET COSMOS</code></pre></figure>
+
+<h2 id="connect-master-cmdtlmserver-to-client">Connect Master CmdTlmServer to Client</h2>
+
+<p>Connecting a master CmdTlmServer to a client CmdTlmServer is used when a client machine needs to interface directly to a target but the master CmdTlmServer also wants to view that target. For example, a machine is physically located next to a target which requires a serial interface (thus a serial cord connection) but the master CmdTlmServer is across the room. This technique connects the local machine to the target and then connects the master CmdTlmServer to the client. The client doesn’t need to define the full configuration of the server and only has to configure the local target it is interfacing with.</p>
+
+<h3 id="child-cmdtlmserver-configuration-1">Child CmdTlmServer Configuration</h3>
+
+<p>The child COSMOS configuration should be configured as a totally stand alone COSMOS system. Follow the rest of the COSMOS documentation to set up the command and telemetry definitions and the interface definition in the target’s cmd_tlm_server.txt file. When this is complete, you will have a config/targets/&lt;TARGET&gt; folder with your target’s definition.</p>
+
+<p>The client CmdTlmServer defines a default router called the PREIDENTIFIED_ROUTER that is listening on port 7779 by default. This will be used by the master CmdTlmServer to connect. Ensure that the firewall is either disabled or that access to port 7779 is permitted.</p>
+
+<h3 id="master-cmdtlmserver-configuration-1">Master CmdTlmServer Configuration</h3>
+
+<p>The master config/tools/cmd_tlm_server/cmd_tlm_server.txt file is where you define the interface to connect to the child CmdTlmServer.</p>
+
+<ol>
+  <li>Modify the example cmd_tlm_server.txt file below
+    <ul>
+      <li>Change localhost to the IP address of your client CmdTlmServer</li>
+      <li>Update &lt;TARGET&gt; to match the target name from the client</li>
+    </ul>
+  </li>
+  <li>Ensure your system.txt file has either AUTO_DECLARE_TARGETS or explictly declares the target via DECLARE_TARGET &lt;TARGET&gt;</li>
+  <li>Ensure your config/targets/&lt;TARGET&gt; folder matches the target definition on the client
+    <ul>
+      <li>Since the child and master CmdTlmServer share the same target definition, it is convenient to make this target an SVN external in one of the COSMOS configurations to ensure consistency between them</li>
+    </ul>
+  </li>
+</ol>
+
+<h3 id="example-cmdtlmserver-configuration-for-master-cmd_tlm_servertxt">Example CmdTlmServer Configuration for Master (cmd_tlm_server.txt)</h3>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">TITLE <span class="s1">'COSMOS Command and Telemetry Server'</span>
+
+PACKET_LOG_WRITER DEFAULT packet_log_writer.rb
+
+<span class="c"># Replace localhost below with the IP Address of the client CmdTlmServer</span>
+<span class="c"># Change &lt;TARGET&gt; to the target name as defined in the client</span>
+INTERFACE &lt;TARGET&gt;_INT tcpip_client_interface.rb localhost 7779 7779 nil nil PREIDENTIFIED
+  TARGET &lt;TARGET&gt;</code></pre></figure>
 
 
           
