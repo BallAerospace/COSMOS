@@ -82,9 +82,14 @@ module Cosmos
 
       setLayout(@layout)
 
-      @resize_timer = Qt::Timer.new
-      @resize_timer.connect(SIGNAL('timeout()')) { update_meta_item_names() }
-      @resize_timer.start(100)
+      Thread.new do
+        sleep(0.1)
+        Qt.execute_in_main_thread(true) do
+          unless self.disposed?
+            update_meta_item_names()
+          end
+        end
+      end
     end
 
     def meta_filters
@@ -100,9 +105,11 @@ module Cosmos
             server = JsonDRbObject.new(System.connect_hosts['DART_DECOM'], System.ports['DART_DECOM'])
             item_names = server.item_names("SYSTEM", "META")
             Qt.execute_in_main_thread do
-              @meta_item_name.clear
-              item_names.each do |item|
-                @meta_item_name.addItem(item)
+              unless self.disposed?
+                @meta_item_name.clear
+                item_names.each do |item|
+                  @meta_item_name.addItem(item)
+                end
               end
             end
             @got_meta_item_names = true

@@ -9,9 +9,6 @@
 # attribution addendums as found in the LICENSE.txt
 
 # This code must be run on the database server
-# The file to be imported should be placed in its final storage location
-# Note that it is imported in place with algorithms that attempt to prevent
-# duplicate creation of Database entries
 
 require 'ostruct'
 require 'optparse'
@@ -21,7 +18,7 @@ options = OpenStruct.new
 options.force = false
 
 parser = OptionParser.new do |option_parser|
-  option_parser.banner = "Usage: dart_import filename"
+  option_parser.banner = "Usage: dart_util <action> [options]"
   option_parser.separator("")
 
   # Create the help option
@@ -49,16 +46,27 @@ parser = OptionParser.new do |option_parser|
 end
 
 parser.parse!(ARGV)
-unless ARGV[0]
+action = ARGV[0]
+unless action
   puts parser
   exit(1)
 end
 
 ENV['RAILS_ENV'] = 'production'
 require File.expand_path('../../config/environment', __FILE__)
-require 'dart_importer'
+require 'dart_database_cleaner'
 
 Cosmos.catch_fatal_exception do
-  code = DartImporter.new.import(File.expand_path(ARGV[0]), options.force)
-  exit(code)
+  case action.downcase
+  when 'pleerrors'
+    ples = PacketLogEntry.where("decom_state >= 3").find_each do |ple|
+      puts "#{ple.id}: #{ple.decom_state_string}(#{ple.decom_state})"
+    end
+  when 'fullcleanup'
+    DartDatabaseCleaner.clean(false, true)
+  when 'removepacketlog'
+    puts "Removing database entries for packet log #{ARGV[1]}"
+    puts "Note!!! This does not delete the file"
+    DartDatabaseCleaner.remove_packet_log(ARGV[1])
+  end
 end

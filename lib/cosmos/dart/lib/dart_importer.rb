@@ -80,10 +80,12 @@ class DartImporter
       Cosmos::Logger.info("First and Last Packet in File not in database")
 
       # Check if time range of packets is not present in database
-      ple = PacketLogEntry.where("time >= ? or time <= ?", first_packet.received_time, last_packet.received_time).first
+      ple = PacketLogEntry.where("time >= ? and time <= ?", first_packet.received_time, last_packet.received_time).first
       if !ple # Can go fast if not present at all
         Cosmos::Logger.info("  Fast Import Enabled...")
         fast = true
+      else
+        Cosmos::Logger.warn("Time range already in database. Will verify each packet before adding")
       end
     else
       Cosmos::Logger.warn("File partially in database. Will verify each packet before adding")
@@ -97,8 +99,11 @@ class DartImporter
     # Read File and Create PacketLogEntries
     count = 0
     meta_id = nil
+    ple_data = ""
+    ple_data_count = 0
     plr.open(filename)
     data_offset = plr.bytes_read
+    entry_time = Time.now.utc.to_s(:db)
     plr.each(filename) do |packet|
       target_name = packet.target_name
       target_name = 'UNKNOWN' unless target_name
@@ -117,27 +122,41 @@ class DartImporter
 
       # No PacketLogEntry was found so create one from scratch
       unless ple
-        ple = PacketLogEntry.new
-        ple.target_id = target_id
-        ple.packet_id = packet_id
-        ple.time = packet.received_time
-        ple.packet_log_id = packet_log.id
-        ple.data_offset = data_offset
-        ple.meta_id = meta_id
-        ple.is_tlm = is_tlm
-        ple.ready = true
-        ple.save!
-        count += 1
-
         # SYSTEM META packets are special in that their meta_id is their own
         # PacketLogEntry ID from the database. All other packets have meta_id
         # values which point back to the last SYSTEM META PacketLogEntry ID.
         if target_name == 'SYSTEM'.freeze and packet_name == 'META'.freeze
+          if ple_data.length > 0
+            ActiveRecord::Base.connection.execute("INSERT INTO packet_log_entries (created_at, updated_at, target_id, packet_id, time, packet_log_id, data_offset, meta_id, is_tlm, ready) VALUES #{ple_data}")
+            ple_data.clear
+            ple_data_count = 0
+          end
+
+          ple = PacketLogEntry.new
+          ple.target_id = target_id
+          ple.packet_id = packet_id
+          ple.time = packet.received_time
+          ple.packet_log_id = packet_log.id
+          ple.data_offset = data_offset
+          ple.meta_id = meta_id
+          ple.is_tlm = is_tlm
+          ple.ready = true
+          ple.save!(validate: false)
+
           # Need to update meta_id for this and all subsequent packets
           meta_id = ple.id
           ple.meta_id = meta_id
-          ple.save!
+          ple.save!(validate: false)
+        else
+          if ple_data.length == 0
+            ple_data << "('#{entry_time}','#{entry_time}',#{target_id},#{packet_id},'#{packet.received_time.dup.utc.to_s(:db)}',#{packet_log.id},#{data_offset},#{meta_id},#{is_tlm},true)"
+          else
+            ple_data << ",('#{entry_time}','#{entry_time}',#{target_id},#{packet_id},'#{packet.received_time.dup.utc.to_s(:db)}',#{packet_log.id},#{data_offset},#{meta_id},#{is_tlm},true)"
+          end
+          ple_data_count += 1
         end
+
+        count += 1
       else # A PacketLogEntry was found so this packet is skipped
         # If the packet is a SYSTEM META packet we keep track of the meta_id
         # for use in subsequent packets that aren't already in the database.
@@ -146,8 +165,22 @@ class DartImporter
           meta_id = ple.id
         end
       end
+
+      if ple_data_count >= 1000
+        ActiveRecord::Base.connection.execute("INSERT INTO packet_log_entries (created_at, updated_at, target_id, packet_id, time, packet_log_id, data_offset, meta_id, is_tlm, ready) VALUES #{ple_data}")
+        ple_data.clear
+        ple_data_count = 0
+      end
+
       data_offset = plr.bytes_read
     end
+
+    if ple_data.length > 0
+      ActiveRecord::Base.connection.execute("INSERT INTO packet_log_entries (created_at, updated_at, target_id, packet_id, time, packet_log_id, data_offset, meta_id, is_tlm, ready) VALUES #{ple_data}")
+      ple_data.clear
+      ple_data_count = 0
+    end
+
     Cosmos::Logger.info("Added #{count} packet log entries to database")
     return 0 # Success code
   end

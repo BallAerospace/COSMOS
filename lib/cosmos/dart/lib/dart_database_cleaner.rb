@@ -17,16 +17,23 @@ class DartDatabaseCleaner
   # if the DART packet logs were moved and force is false (default). This is
   # deliberate because force causes all the lost (or moved) files to be deleted
   # which forces them to be re-imported at their new location.
-  def self.clean(force)
+  def self.clean(force, full = false)
     Cosmos::Logger::info("Starting database cleanup...")
     cleaner = DartDatabaseCleaner.new
     cleaner.clean_system_configs()
     cleaner.clean_packet_logs(force)
     cleaner.clean_packet_configs()
     cleaner.clean_packet_log_entries()
-    cleaner.clean_decommutation_tables()
-    cleaner.clean_reductions()
+    if full
+      cleaner.clean_decommutation_tables()
+      cleaner.clean_reductions()
+    end
     Cosmos::Logger::info("Database cleanup complete!")
+  end
+
+  def self.remove_packet_log(filename)
+    filename = filename.gsub("\\", "/") # Fix slashes
+    filename = File.expand_path(filename, Cosmos::System.paths['DART_DATA']) # Make absolute path
   end
 
   # Ensure we have all the System Configs locally on the DART machine

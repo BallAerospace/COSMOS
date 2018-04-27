@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180116214338) do
+ActiveRecord::Schema.define(version: 20180425211340) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -60,6 +60,7 @@ ActiveRecord::Schema.define(version: 20180116214338) do
     t.boolean "is_tlm", null: false
     t.integer "decom_state", default: 0
     t.boolean "ready", default: false
+    t.index ["decom_state"], name: "index_packet_log_entries_on_decom_state"
     t.index ["is_tlm"], name: "index_packet_log_entries_on_is_tlm"
     t.index ["meta_id"], name: "index_packet_log_entries_on_meta_id"
     t.index ["packet_id"], name: "index_packet_log_entries_on_packet_id"
@@ -84,6 +85,19 @@ ActiveRecord::Schema.define(version: 20180116214338) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["target_id", "name", "is_tlm"], name: "index_packets_on_target_id_and_name_and_is_tlm", unique: true
+  end
+
+  create_table "statuses", force: :cascade do |t|
+    t.bigint "decom_count", default: 0
+    t.bigint "decom_error_count", default: 0
+    t.text "decom_message", default: ""
+    t.datetime "decom_message_time"
+    t.bigint "reduction_count", default: 0
+    t.bigint "reduction_error_count", default: 0
+    t.text "reduction_message", default: ""
+    t.datetime "reduction_message_time"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "system_configs", force: :cascade do |t|

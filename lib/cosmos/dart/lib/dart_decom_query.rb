@@ -53,7 +53,7 @@ class DartDecomQuery
   #   for other reduction values), and meta_id.
   def query(request)
     request_start_time = Time.now
-    Cosmos::Logger.info("#{request_start_time.formatted}: QUERY: #{request}")
+    Cosmos::Logger.info("#{request_start_time.formatted}: query: #{request}")
 
     begin
       start_time_sec = request['start_time_sec']
@@ -136,7 +136,7 @@ class DartDecomQuery
       unless meta_ids.length > 0
         meta_filters = request['meta_filters']
         meta_filters ||= []
-        
+
         if meta_filters.length > 0
           meta_ids = process_meta_filters(meta_filters, is_tlm, end_time)
         end
@@ -149,10 +149,10 @@ class DartDecomQuery
       offset = 0 if offset < 0
 
       return query_decom_reduced(
-        item[0], item[1], item[2], 
-        value_type, is_tlm, 
-        start_time, end_time, 
-        reduction, reduction_modifier, 
+        item[0], item[1], item[2],
+        value_type, is_tlm,
+        start_time, end_time,
+        reduction, reduction_modifier,
         item_name_modifier, limit, offset, meta_ids)
 
     rescue Exception => error
@@ -168,6 +168,8 @@ class DartDecomQuery
   # @param is_tlm true or false
   # @return [Array<String>] Array of item names
   def item_names(target_name, packet_name, is_tlm = true)
+    Cosmos::Logger.info("#{time.formatted}: item_names")
+
     target = Target.where("name = ?", target_name).first
     raise "Target #{target_name} not found" unless target
 
@@ -179,6 +181,106 @@ class DartDecomQuery
     items.each { |item| item_names << item.name }
 
     return item_names
+  end
+
+  # Returns status on the DART Database
+  def dart_status
+    start_time = Time.now
+    Cosmos::Logger.info("#{start_time.formatted}: dart_status")
+    result = {}
+    status = Status.first
+
+    # Ingest Status
+    # ---------------
+    # Last PacketLogEntry Id
+    last_ple = PacketLogEntry.select("id").last
+    if last_ple
+      result[:LAST_PLE_ID] = last_ple.id
+    else
+      result[:LAST_PLE_ID] = -1
+    end
+    # Num PacketLogEntries Needing Decom state = 0
+    result[:PLE_STATE_NEED_DECOM] = PacketLogEntry.where("decom_state = 0").count
+    # Num PacketLogEntries Errored - state >= 3
+    result[:PLE_STATE_ERROR] = PacketLogEntry.where("decom_state >= 3").count
+    # First Time in Database
+    sort_first_ple = PacketLogEntry.order("time ASC").select("time").first
+    if sort_first_ple
+      result[:PLE_FIRST_TIME_S] = sort_first_ple.time.tv_sec
+      result[:PLE_FIRST_TIME_US] = sort_first_ple.time.tv_usec
+    else
+      result[:PLE_FIRST_TIME_S] = 0
+      result[:PLE_FIRST_TIME_US] = 0
+    end
+    # Last Time in Database
+    sort_last_ple = PacketLogEntry.order("time DESC").select("time").first
+    if sort_last_ple
+      result[:PLE_LAST_TIME_S] = sort_last_ple.time.tv_sec
+      result[:PLE_LAST_TIME_US] = sort_last_ple.time.tv_usec
+    else
+      result[:PLE_LAST_TIME_S] = 0
+      result[:PLE_LAST_TIME_US] = 0
+    end
+
+    # Decom Status
+    # ---------------
+    # Decom Count
+    result[:DECOM_COUNT] = status.decom_count
+    # Decom Errors
+    result[:DECOM_ERROR_COUNT] = status.decom_error_count
+    # Decom Message
+    result[:DECOM_MESSAGE] = status.decom_message
+    # Decom Message Time
+    result[:DECOM_MESSAGE_TIME_S] = status.decom_message_time.tv_sec
+    result[:DECOM_MESSAGE_TIME_US] = status.decom_message_time.tv_usec
+
+    # Reduction Status
+    # ---------------
+    # Reduction Count
+    result[:REDUCTION_COUNT] = status.reduction_count
+    # Reduction Errors
+    result[:REDUCTION_ERROR_COUNT] = status.reduction_error_count
+    # Reduction Message
+    result[:REDUCTION_MESSAGE] = status.reduction_message
+    # Reduction Time
+    result[:REDUCTION_MESSAGE_TIME_S] = status.reduction_message_time.tv_sec
+    result[:REDUCTION_MESSAGE_TIME_US] = status.reduction_message_time.tv_usec
+
+    # Storage
+    # ---------------
+    Cosmos.set_working_dir do
+      # Size of outputs/dart/data folder
+      result[:DART_DATA_BYTES] = Dir.glob(File.join(Cosmos::System.paths['DART_DATA'], '**', '*')).map{ |f| File.size(f) }.inject(:+)
+      # Size of outputs/dart/logs folder
+      result[:DART_LOGS_BYTES] = Dir.glob(File.join(Cosmos::System.paths['DART_LOGS'], '**', '*')).map{ |f| File.size(f) }.inject(:+)
+    end
+    # Size of SQL Database
+    begin
+      result[:DART_DATABASE_BYTES] = ActiveRecord::Base.connection.execute("select pg_database_size('#{ActiveRecord::Base.connection_config[:database]}');")[0]['pg_database_size']
+    rescue
+      result[:DART_DATABASE_BYTES] = -1
+    end
+
+    end_time = Time.now
+    delta = end_time - start_time
+    result[:DART_STATUS_SECONDS] = delta
+
+    return result
+  end
+
+  def clear_errors
+    time = Time.now
+    Cosmos::Logger.info("#{time.formatted}: clear_errors")
+    status = Status.first
+    status.decom_error_count = 0
+    status.decom_message = ''
+    status.decom_message_time = time
+    status.reduction_error_count = 0
+    status.reduction_message = ''
+    status.reduction_message_time = time
+    status.save!
+
+    return nil
   end
 
 end

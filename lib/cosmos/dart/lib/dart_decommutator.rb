@@ -12,6 +12,20 @@ require 'dart_common'
 require 'dart_logging'
 require 'packet_log_entry'
 
+class DartDecommutatorStatus
+  attr_accessor :count
+  attr_accessor :error_count
+  attr_accessor :message
+  attr_accessor :message_time
+
+  def initialize
+    @count = 0
+    @error_count = 0
+    @message = ''
+    @message_time = Time.now
+  end
+end
+
 class DartDecommutator
   include DartCommon
 
@@ -22,10 +36,12 @@ class DartDecommutator
     sync_targets_and_packets()
     @worker_id = worker_id
     @num_workers = num_workers
+    @status = DartDecommutatorStatus.new
   end
 
   # Run forever looking for data to decommutate
   def run
+    status_time = Time.now + 60.seconds
     while true
       time_start = Time.now # Remember start time so we can throttle
       # Get all entries that are ready and decommutation hasn't started
@@ -48,12 +64,28 @@ class DartDecommutator
             # If we timeout this code will simply exit the application
             wait_for_ready_packet_config(packet_config)
             decom_packet(ple, packet, packet_config)
+
+            # Update status
+            if Time.now > status_time
+              status_time = Time.now + 60.seconds
+              status = Status.first
+              if (Time.now - @status.message_time) <= 60.0
+                status.decom_message = @status.message
+                status.decom_message_time = @status.message_time
+                status.save!
+              end
+              if @status.count > 0 or @status.error_count > 0
+                Status.update_counters(status.id, :decom_count => @status.count, :decom_error_count => @status.error_count)
+                @status.count = 0
+                @status.error_count = 0
+              end
+            end
           rescue => err
-            Cosmos::Logger.error("PLE:#{ple.id}:ERROR")
-            Cosmos::Logger.error(err.formatted)
+            handle_error("PLE:#{ple.id}:ERROR\n#{err.formatted}")
           end
         end # each ple
       end # batches
+
       # Throttle to no faster than 1 Hz
       delta = Time.now - time_start
       sleep(1 - delta) if delta < 1 && delta > 0
@@ -73,7 +105,7 @@ class DartDecommutator
   rescue => err
     ple.decom_state = PacketLogEntry::NO_META_PLE
     ple.save!
-    Cosmos::Logger.error("PLE:#{ple.id}:#{ple.decom_state_string}")
+    handle_error("PLE:#{ple.id}:#{ple.decom_state_string}")
     nil
   end
 
@@ -83,7 +115,7 @@ class DartDecommutator
 
     ple.decom_state = PacketLogEntry::NO_META_PACKET
     ple.save!
-    Cosmos::Logger.error("PLE:#{ple.id}:#{ple.decom_state_string}")
+    handle_error("PLE:#{ple.id}:#{ple.decom_state_string}")
     nil
   end
 
@@ -102,7 +134,7 @@ class DartDecommutator
     unless system_config
       ple.decom_state = PacketLogEntry::NO_SYSTEM_CONFIG
       ple.save!
-      Cosmos::Logger.error("PLE:#{ple.id}:#{ple.decom_state_string}")
+      handle_error("PLE:#{ple.id}:#{ple.decom_state_string}")
       return nil
     end
 
@@ -113,7 +145,7 @@ class DartDecommutator
       Cosmos::Logger.error("Could not load system_config: #{system_config_name}")
       ple.decom_state = PacketLogEntry::NO_CONFIG
       ple.save!
-      Cosmos::Logger.error("PLE:#{ple.id}:#{ple.decom_state_string}")
+      handle_error("PLE:#{ple.id}:#{ple.decom_state_string}")
       return nil
     end
     system_config
@@ -125,7 +157,7 @@ class DartDecommutator
 
     ple.decom_state = PacketLogEntry::NO_PACKET
     ple.save!
-    Cosmos::Logger.error("PLE:#{ple.id}:#{ple.decom_state_string}")
+    handle_error("PLE:#{ple.id}:#{ple.decom_state_string}")
     nil
   end
 
@@ -141,14 +173,14 @@ class DartDecommutator
       setup_packet_config(packet, packet_id, packet_config)
       Cosmos::Logger.info("Successfully Created PacketConfig: #{packet.config_name}")
     rescue => err
-      Cosmos::Logger.error(err.formatted)
+      handle_error(err.formatted)
       # Another thread probably already created it - Try to get it one more time
       packet_config = PacketConfig.where("packet_id = ? and name = ?", packet_id, packet.config_name).first
     end
     unless packet_config
       ple.decom_state = PacketLogEntry::NO_PACKET_CONFIG
       ple.save!
-      Cosmos::Logger.error("PLE:#{ple.id}:#{ple.decom_state_string}")
+      handle_error("PLE:#{ple.id}:#{ple.decom_state_string}")
       return nil
     end
     packet_config
@@ -167,7 +199,7 @@ class DartDecommutator
       packet_config.reload
 
       if (Time.now - ready_wait_start) > PACKET_CONFIG_READY_TIMEOUT
-        Cosmos::Logger.fatal("Timeout waiting for ready on PacketConfig:#{packet_config.id}")
+        handle_error("Timeout waiting for ready on PacketConfig:#{packet_config.id}")
         exit(1)
       end
     end
@@ -230,6 +262,14 @@ class DartDecommutator
     # The log entry has been decommutated, mark COMPLETE
     ple.decom_state = PacketLogEntry::COMPLETE
     ple.save!
+    @status.count += 1
     Cosmos::Logger.debug("PLE:#{ple.id}:#{ple.decom_state_string}")
+  end
+
+  def handle_error(message)
+    Cosmos::Logger.error(message)
+    @status.error_count += 1
+    @status.message = message
+    @status.message_time = Time.now
   end
 end

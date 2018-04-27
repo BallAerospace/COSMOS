@@ -8,6 +8,7 @@
 # as published by the Free Software Foundation; version 3 with
 # attribution addendums as found in the LICENSE.txt
 
+ENV['RAILS_ENV'] = 'production'
 require File.expand_path('../../config/environment', __FILE__)
 require 'dart_common'
 require 'dart_logging'
@@ -45,7 +46,7 @@ class Dart
     end
 
     num_workers = ENV['DART_NUM_WORKERS']
-    num_workers ||= 1
+    num_workers ||= 2
     num_workers = num_workers.to_i
 
     process_definitions = [

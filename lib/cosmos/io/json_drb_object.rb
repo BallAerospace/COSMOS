@@ -32,6 +32,9 @@ module Cosmos
   #   server.cmd(*args)
   #
   class JsonDRbObject
+    attr_reader :request_data
+    attr_reader :response_data
+
     # @param hostname [String] The name of the machine which has started
     #   the JSON service
     # @param port [Integer] The port number of the JSON service
@@ -46,6 +49,8 @@ module Cosmos
           raise error
         end
       end
+      @request_data = ""
+      @response_data = ""
       @hostname = hostname
       @port = port
       @uri = URI("http://#{@hostname}:#{@port}")
@@ -117,25 +122,25 @@ module Cosmos
       request = JsonRpcRequest.new(method_name, method_params, @id)
       @id += 1
 
-      request_data = request.to_json(:allow_nan => true)
+      @request_data = request.to_json(:allow_nan => true)
       begin
         STDOUT.puts "\nRequest:\n" if JsonDRb.debug?
-        STDOUT.puts request_data if JsonDRb.debug?
+        STDOUT.puts @request_data if JsonDRb.debug?
         @request_in_progress = true
         headers = {'Content-Type' => 'application/json-rpc'}
         res = @http.post(@uri,
-                         :body   => request_data,
+                         :body   => @request_data,
                          :header => headers)
-        response_data = res.body
+        @response_data = res.body
         @request_in_progress = false
         STDOUT.puts "Response:\n" if JsonDRb.debug?
-        STDOUT.puts response_data if JsonDRb.debug?
+        STDOUT.puts @response_data if JsonDRb.debug?
       rescue => e
         disconnect()
         return false if first_try
         raise DRb::DRbConnError, e.message, e.backtrace
       end
-      response_data
+      @response_data
     end
 
     def handle_response(response_data)

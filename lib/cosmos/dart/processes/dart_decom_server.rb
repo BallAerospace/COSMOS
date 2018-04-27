@@ -8,6 +8,7 @@
 # as published by the Free Software Foundation; version 3 with
 # attribution addendums as found in the LICENSE.txt
 
+ENV['RAILS_ENV'] = 'production'
 require File.expand_path('../../config/environment', __FILE__)
 require 'dart_common'
 require 'dart_decom_query'
@@ -21,7 +22,7 @@ Cosmos.catch_fatal_exception do
   json_drb = Cosmos::JsonDRb.new
   json_drb.acl = Cosmos::System.acl if Cosmos::System.acl
   begin
-    json_drb.method_whitelist = ['query', 'item_names']
+    json_drb.method_whitelist = ['query', 'item_names', 'dart_status', 'clear_errors']
     begin
       json_drb.start_service(Cosmos::System.listen_hosts['DART_DECOM'],
         Cosmos::System.ports['DART_DECOM'], DartDecomQuery.new)

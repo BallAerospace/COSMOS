@@ -68,7 +68,7 @@ module Cosmos
             rescue Exception => error
               @errors << error
               break if @cancel
-              progress_dialog.append_text("Error processing #{log_file}:\n#{error.class} : #{error.message}\n#{error.backtrace.join("\n")}\n", 2) if progress_dialog
+              progress_dialog.append_text("Error processing #{log_file}:\n#{error.class} : #{error.message}\n#{error.backtrace.join("\n")}\n") if progress_dialog
               # If a progress dialog is shown we can't just bail on this error or
               # it will close and the user will have no idea what happened
               # Thus we'll spin here waiting for them to close the dialog
