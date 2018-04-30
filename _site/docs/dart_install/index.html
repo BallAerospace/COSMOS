@@ -3282,7 +3282,7 @@ instance_eval File.read<span class="o">(</span>File.join<span class="o">(</span>
 
 <p>This will install all the ruby dependencies for DART.</p>
 <ol>
-  <li>In postgres, create a ‘dart’ user and password (with CREATEDB permissions), and both a ‘dart’ and ‘darttest’ database.  The databases should be created with template0, LC_COLLATE ‘C’, LC_CTYPE ‘C’, and ENCODING ‘SQL_ASCII’
+  <li>In postgres, create a ‘dart’ user and password (with CREATEDB permissions), and both a ‘dart’ and ‘dartTest’ database.  The databases should be created with template0, LC_COLLATE ‘C’, LC_CTYPE ‘C’, and ENCODING ‘SQL_ASCII’
     <ol>
       <li>On windows use pgadmin</li>
       <li>Otherwise use the psql command line:
@@ -3291,7 +3291,7 @@ instance_eval File.read<span class="o">(</span>File.join<span class="o">(</span>
   CREATE ROLE dart WITH LOGIN PASSWORD 'dart';
   ALTER ROLE dart CREATEDB;
   CREATE DATABASE dart TEMPLATE template0 LC_COLLATE 'C' LC_CTYPE 'C' ENCODING 'SQL_ASCII';
-  CREATE DATABASE darttest TEMPLATE template0 LC_COLLATE 'C' LC_CTYPE 'C' ENCODING 'SQL_ASCII';
+  CREATE DATABASE dartTest TEMPLATE template0 LC_COLLATE 'C' LC_CTYPE 'C' ENCODING 'SQL_ASCII';
   \q
 </code></pre>
         </div>
@@ -3301,7 +3301,7 @@ instance_eval File.read<span class="o">(</span>File.join<span class="o">(</span>
   <li>Create an environment variable on your system named DART_USERNAME and set it to ‘dart’. Note you can change this username if necessary as long as the postgres username created above has the same name.</li>
   <li>Create an environment variable on your system named DART_PASSWORD and set it to the password created earlier.</li>
   <li>Create an environment variable on your system named DART_DB and set it to ‘dart’. Note: You can use whatever name you want</li>
-  <li>Create an environment variable on your system named DART_TEST_DB and set it to ‘darttest’. Note: You can use whatever name you want</li>
+  <li>Create an environment variable on your system named DART_TEST_DB and set it to ‘dartTest’. Note: You can use whatever name you want</li>
   <li>Run the following command from your COSMOS project configuration directory (not C:/COSMOS which contains Demo &amp; Vendor as that is the installation directory)</li>
 </ol>
 
