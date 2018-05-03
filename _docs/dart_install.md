@@ -34,6 +34,7 @@ This will install all the ruby dependencies for DART.
 1. Run the following command from your COSMOS project configuration directory (not C:/COSMOS which contains Demo & Vendor as that is the installation directory)
 {% highlight bash %}
 bundle exec rake db:schema:load
+bundle exec rake db:seed
 {% endhighlight %}
 
 At this point the DART database is configured and ready to import COSMOS telemetry. When you start the COSMOS Demo you should see the new DART button in the Utilities section. If you're upgrading from an older version of COSMOS simply add this line to your config/tools/launcher/launcher.txt file:

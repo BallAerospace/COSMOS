@@ -3305,7 +3305,8 @@ instance_eval File.read<span class="o">(</span>File.join<span class="o">(</span>
   <li>Run the following command from your COSMOS project configuration directory (not C:/COSMOS which contains Demo &amp; Vendor as that is the installation directory)</li>
 </ol>
 
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">bundle <span class="nb">exec </span>rake db:schema:load</code></pre></figure>
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">bundle <span class="nb">exec </span>rake db:schema:load
+bundle <span class="nb">exec </span>rake db:seed</code></pre></figure>
 
 <p>At this point the DART database is configured and ready to import COSMOS telemetry. When you start the COSMOS Demo you should see the new DART button in the Utilities section. If you’re upgrading from an older version of COSMOS simply add this line to your config/tools/launcher/launcher.txt file:</p>
 
