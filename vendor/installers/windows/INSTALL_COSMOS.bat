@@ -28,6 +28,8 @@ set WINDOWS_INSTALL_ZIP=//github.com/BallAerospace/COSMOS/blob/master/vendor/ins
 set WINDOWS_CURL_VERSION=7.59.0
 set WINDOWS_CURL32_ZIP=//bintray.com/artifact/download/vszakats/generic/curl-7.59.0-win32-mingw.zip
 set WINDOWS_CURL64_ZIP=//bintray.com/artifact/download/vszakats/generic/curl-7.59.0-win64-mingw.zip
+set MSYS2_32=http://repo.msys2.org/distrib/i686/msys2-i686-20161025.exe
+set MSYS2_64=http://repo.msys2.org/distrib/x86_64/msys2-x86_64-20161025.exe
 
 :: Detect Ball
 if "%USERDNSDOMAIN%"=="AERO.BALL.COM" (
@@ -224,6 +226,23 @@ if !ARCHITECTURE!==x86 (
   ) else (
     @echo Successfully downloaded 32-bit Ruby from: !PROTOCOL!:!RUBY_INSTALLER_PATH!!RUBY_INSTALLER_32! >> !COSMOS_INSTALL!\INSTALL.log
   )
+  echo Downloading 32-bit msys2
+
+  if !USE_CURL!==1 (
+    !CURL_EXE! -L -o "!COSMOS_INSTALL!\tmp\msys2.exe" "!MSYS2_32!"
+  ) else (
+    powershell -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; (New-Object Net.WebClient).DownloadFile('!MSYS2_32!', '!COSMOS_INSTALL!\tmp\msys2.exe')"
+  )
+  if errorlevel 1 (
+    echo ERROR: Problem downloading 32-bit msys2 from: !MSYS2_32!
+    echo INSTALL FAILED
+    @echo ERROR: Problem downloading 32-bit Ruby from: !MSYS2_32! >> !COSMOS_INSTALL!\INSTALL.log
+    pause
+    exit /b 1
+  ) else (
+    @echo Successfully downloaded 32-bit msys2 from: !MSYS2_32! >> !COSMOS_INSTALL!\INSTALL.log
+  )
+
   echo Installing 32-bit Ruby
   !COSMOS_INSTALL!\tmp\!RUBY_INSTALLER_32! /silent /nomodpath /noassocfiles /dir="!COSMOS_INSTALL!\Vendor\Ruby"
   if errorlevel 1 (
@@ -235,11 +254,10 @@ if !ARCHITECTURE!==x86 (
   ) else (
     @echo Successfully installed 32-bit Ruby >> !COSMOS_INSTALL!\INSTALL.log
   )
-  call !COSMOS_INSTALL!\Vendor\Ruby\bin\ridk install 1
+  !COSMOS_INSTALL!\tmp\msys2.exe
   call C:\msys64\usr\bin\pacman --noconfirm -R catgets
   call C:\msys64\usr\bin\pacman --noconfirm -R libcatgets
-  call !COSMOS_INSTALL!\Vendor\Ruby\bin\ridk install 2 3
-  call C:\msys64\usr\bin\pacman --noconfirm -S mingw-w64-i686-gettext
+  call C:\msys64\usr\bin\pacman --noconfirm -S autoconf autoconf2.13 autogen automake-wrapper automake1.10 automake1.11 automake1.12 automake1.13 automake1.14 automake1.15 automake1.6 automake1.7 automake1.8 automake1.9 diffutils file gawk grep libtool m4 make patch pkg-config sed texinfo texinfo-tex wget mingw-w64-i686-binutils mingw-w64-i686-crt-git mingw-w64-i686-gcc mingw-w64-i686-gcc-libs mingw-w64-i686-headers-git mingw-w64-i686-libmangle-git mingw-w64-i686-libwinpthread-git mingw-w64-i686-make mingw-w64-i686-pkg-config mingw-w64-i686-tools-git mingw-w64-i686-winpthreads-git mingw-w64-i686-gettext
 ) else (
   echo Downloading 64-bit Ruby
 
@@ -257,6 +275,23 @@ if !ARCHITECTURE!==x86 (
   ) else (
     @echo Successfully downloaded 64-bit Ruby from: !PROTOCOL!:!RUBY_INSTALLER_PATH!!RUBY_INSTALLER_64! >> !COSMOS_INSTALL!\INSTALL.log
   )
+  echo Downloading 64-bit msys2
+
+  if !USE_CURL!==1 (
+    !CURL_EXE! -L -o "!COSMOS_INSTALL!\tmp\msys2.exe" "!MSYS2_64!"
+  ) else (
+    powershell -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; (New-Object Net.WebClient).DownloadFile('!MSYS2_64!', '!COSMOS_INSTALL!\tmp\msys2.exe')"
+  )
+  if errorlevel 1 (
+    echo ERROR: Problem downloading 64-bit msys2 from: !MSYS2_64!
+    echo INSTALL FAILED
+    @echo ERROR: Problem downloading 64-bit Ruby from: !MSYS2_64! >> !COSMOS_INSTALL!\INSTALL.log
+    pause
+    exit /b 1
+  ) else (
+    @echo Successfully downloaded 64-bit msys2 from: !MSYS2_64! >> !COSMOS_INSTALL!\INSTALL.log
+  )
+
   echo Installing 64-bit Ruby
   !COSMOS_INSTALL!\tmp\!RUBY_INSTALLER_64! /silent /nomodpath /noassocfiles /dir="!COSMOS_INSTALL!\Vendor\Ruby"
   if errorlevel 1 (
@@ -268,11 +303,10 @@ if !ARCHITECTURE!==x86 (
   ) else (
     @echo Successfully installed 64-bit Ruby >> !COSMOS_INSTALL!\INSTALL.log
   )
-  call !COSMOS_INSTALL!\Vendor\Ruby\bin\ridk install 1
+!COSMOS_INSTALL!\tmp\msys2.exe
   call C:\msys64\usr\bin\pacman --noconfirm -R catgets
   call C:\msys64\usr\bin\pacman --noconfirm -R libcatgets
-  call !COSMOS_INSTALL!\Vendor\Ruby\bin\ridk install 2 3
-  call C:\msys64\usr\bin\pacman --noconfirm -S mingw-w64-x86_64-gettext
+  call C:\msys64\usr\bin\pacman --noconfirm -S autoconf autoconf2.13 autogen automake-wrapper automake1.10 automake1.11 automake1.12 automake1.13 automake1.14 automake1.15 automake1.6 automake1.7 automake1.8 automake1.9 diffutils file gawk grep libtool m4 make patch pkg-config sed texinfo texinfo-tex wget mingw-w64-x86_64-binutils mingw-w64-x86_64-crt-git mingw-w64-x86_64-gcc mingw-w64-x86_64-gcc-libs mingw-w64-x86_64-headers-git mingw-w64-x86_64-libmangle-git mingw-w64-x86_64-libwinpthread-git mingw-w64-x86_64-make mingw-w64-x86_64-pkg-config mingw-w64-x86_64-tools-git mingw-w64-x86_64-winpthreads-git mingw-w64-x86_64-gettext
 )
 
 ::::::::::::::::::::::::
