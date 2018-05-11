@@ -1140,14 +1140,18 @@ module Cosmos
       dialog_layout.addLayout(button_layout)
 
       dialog.setLayout(dialog_layout)
+      my_parent = self.parent
+      while my_parent.parent
+        my_parent = my_parent.parent
+      end
       if dialog.exec == Qt::Dialog::Accepted
         if targets.empty?
           clear_disconnected_targets()
-          self.parent.parent.parent.statusBar.showMessage("")
+          my_parent.statusBar.showMessage("")
           self.setPalette(Qt::Palette.new(Cosmos::DEFAULT_PALETTE))
         else
           config_file = chooser.filename
-          self.parent.parent.parent.statusBar.showMessage("Targets disconnected: #{targets.join(" ")}")
+          my_parent.statusBar.showMessage("Targets disconnected: #{targets.join(" ")}")
           self.setPalette(Qt::Palette.new(Cosmos::RED_PALETTE))
           Splash.execute(self) do |splash|
             ConfigParser.splash = splash

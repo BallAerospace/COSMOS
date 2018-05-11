@@ -78,7 +78,7 @@ WRITE_CONVERSION:
       class TheGreatConversion < Conversion
         def initialize(multiplier)
           super()
-          @multiplier = multiplier
+          @multiplier = multiplier.to_f
         end
         def call(value, packet, buffer)
           return value * multiplier
