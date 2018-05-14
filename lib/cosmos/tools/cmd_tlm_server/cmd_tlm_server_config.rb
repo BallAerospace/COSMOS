@@ -153,7 +153,7 @@ module Cosmos
             current_interface_or_router.name = interface_name
             @interfaces[interface_name] = current_interface_or_router
 
-          when 'LOG', 'DONT_LOG', 'TARGET', 'PROTOCOL'
+          when 'LOG', 'DONT_LOG', 'TARGET'
             raise parser.error("No current interface for #{keyword}") unless current_interface_or_router and current_type == :INTERFACE
 
             case keyword
@@ -183,22 +183,9 @@ module Cosmos
                 raise parser.error("Unknown target #{target_name} mapped to interface #{current_interface_or_router.name}")
               end
 
-            when 'PROTOCOL'
-              usage = "#{keyword} <READ WRITE READ_WRITE> <protocol filename or classname> <Protocol specific parameters>"
-              parser.verify_num_parameters(2, nil, usage)
-              unless %w(READ WRITE READ_WRITE).include? params[0].upcase
-                raise parser.error("Invalid protocol type: #{params[0]}", usage)
-              end
-              begin
-                klass = Cosmos.require_class(params[1])
-                current_interface_or_router.add_protocol(klass, params[2..-1], params[0].upcase.intern)
-              rescue LoadError, StandardError => error
-                raise parser.error(error.message, usage)
-              end
-
             end # end case keyword for all keywords that require a current interface
 
-          when 'DONT_CONNECT', 'DONT_RECONNECT', 'RECONNECT_DELAY', 'DISABLE_DISCONNECT', 'LOG_RAW', 'ROUTER_LOG_RAW', 'OPTION'
+          when 'DONT_CONNECT', 'DONT_RECONNECT', 'RECONNECT_DELAY', 'DISABLE_DISCONNECT', 'LOG_RAW', 'ROUTER_LOG_RAW', 'OPTION', 'PROTOCOL'
             raise parser.error("No current interface or router for #{keyword}") unless current_interface_or_router
 
             case keyword
@@ -227,6 +214,19 @@ module Cosmos
             when 'OPTION'
               parser.verify_num_parameters(2, nil, "#{keyword} <Option Name> <Option Value 1> <Option Value 2 (optional)> <etc>")
               current_interface_or_router.set_option(params[0], params[1..-1])
+
+            when 'PROTOCOL'
+              usage = "#{keyword} <READ WRITE READ_WRITE> <protocol filename or classname> <Protocol specific parameters>"
+              parser.verify_num_parameters(2, nil, usage)
+              unless %w(READ WRITE READ_WRITE).include? params[0].upcase
+                raise parser.error("Invalid protocol type: #{params[0]}", usage)
+              end
+              begin
+                klass = Cosmos.require_class(params[1])
+                current_interface_or_router.add_protocol(klass, params[2..-1], params[0].upcase.intern)
+              rescue LoadError, StandardError => error
+                raise parser.error(error.message, usage)
+              end
 
             end # end case keyword for all keywords that require a current interface or router
 

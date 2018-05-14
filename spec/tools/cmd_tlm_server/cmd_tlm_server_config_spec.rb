@@ -633,6 +633,16 @@ module Cosmos
           expect(config.routers.keys).to eql %w(MY_ROUTER1 MY_ROUTER2)
           tf.unlink
         end
+
+        it "supports protocols" do
+          tf = Tempfile.new('unittest')
+          tf.puts 'ROUTER MY_ROUTER1 cts_config_test_interface.rb'
+          tf.puts '  PROTOCOL READ_WRITE OverrideProtocol'
+          tf.close
+          config = CmdTlmServerConfig.new(tf.path)
+          expect(config.routers.keys).to eql %w(MY_ROUTER1)
+          tf.unlink
+        end
       end
 
       context "with ROUTE" do
