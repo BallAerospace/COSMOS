@@ -164,6 +164,8 @@ module Cosmos
     attr_reader :core
     # @return [Qt::TabWidget] TabWidget which holds the table tabs
     attr_reader :tabbook
+    # @return [Qt::VBoxLayout] Top level vertical layout for the application
+    attr_reader :top_layout
 
     # @return [TableManager] Instance of the TableManager class
     def self.instance
@@ -402,7 +404,7 @@ module Cosmos
     def initialize_central_widget
       central_widget = Qt::Widget.new
       setCentralWidget(central_widget)
-      top_layout = Qt::VBoxLayout.new(central_widget)
+      @top_layout = Qt::VBoxLayout.new(central_widget)
 
       # Create the information pane with the filenames
       filename_layout = Qt::FormLayout.new
@@ -410,15 +412,15 @@ module Cosmos
       filename_layout.addRow(tr("Definition File:"), @table_def_label)
       @table_bin_label = Qt::Label.new("")
       filename_layout.addRow(tr("Binary File:"), @table_bin_label)
-      top_layout.addLayout(filename_layout)
+      @top_layout.addLayout(filename_layout)
 
       # Separator before editor
       sep1 = Qt::Frame.new(central_widget)
       sep1.setFrameStyle(Qt::Frame::HLine | Qt::Frame::Sunken)
-      top_layout.addWidget(sep1)
+      @top_layout.addWidget(sep1)
 
       @tabbook = Qt::TabWidget.new
-      top_layout.addWidget(@tabbook)
+      @top_layout.addWidget(@tabbook)
 
       @check_icons = []
       @check_icons << Cosmos.get_icon("CheckBoxEmpty.gif")
