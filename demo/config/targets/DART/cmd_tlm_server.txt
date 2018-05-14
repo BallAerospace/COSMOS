@@ -3,3 +3,4 @@
 
 INTERFACE DART_INT dart_status_interface.rb
   TARGET DART
+  DONT_CONNECT

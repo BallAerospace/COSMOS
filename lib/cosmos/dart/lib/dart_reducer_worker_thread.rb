@@ -79,6 +79,7 @@ class DartReducerWorkerThread
         new_row.start_time = first_row_time
         new_row.num_samples = sample_rows.length
         new_row.meta_id = sample_rows[0].meta_id
+        new_row.packet_log_id = sample_rows[0].packet_log_id
         # Process each of the ItemToDecomTableMapping to get the item to be reduced
         mappings.each do |mapping|
           item_name = "i#{mapping.item_index}"

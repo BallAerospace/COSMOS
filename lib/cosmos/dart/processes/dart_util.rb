@@ -58,15 +58,90 @@ require 'dart_database_cleaner'
 
 Cosmos.catch_fatal_exception do
   case action.downcase
-  when 'pleerrors'
+  when 'showpleerrors'
     ples = PacketLogEntry.where("decom_state >= 3").find_each do |ple|
       puts "#{ple.id}: #{ple.decom_state_string}(#{ple.decom_state})"
     end
+
+  when 'resetpleerrors'
+    PacketLogEntry.where("decom_state >= 3").update_all(:decom_state => 0)
+    puts "All errored PLEs set to decom_state 0"
+
   when 'fullcleanup'
+    Cosmos::Logger.level = Cosmos::Logger::INFO
     DartDatabaseCleaner.clean(false, true)
+
   when 'removepacketlog'
     puts "Removing database entries for packet log #{ARGV[1]}"
     puts "Note!!! This does not delete the file"
-    DartDatabaseCleaner.remove_packet_log(ARGV[1])
+    Cosmos::Logger.level = Cosmos::Logger::INFO
+    DartDatabaseCleaner.new.remove_packet_log(ARGV[1])
+
+  when 'showpacketlogs'
+    total_size = 0
+    packet_logs = PacketLog.all
+    filenames = []
+    reader = Cosmos::PacketLogReader.new
+    packet_logs.each do |pl|
+      filenames << pl.filename
+      if File.exist?(pl.filename)
+        exists = "FOUND  "
+        size = File.size(pl.filename)
+        reader.open(pl.filename)
+        begin
+          first_packet = reader.first
+          last_packet = reader.last
+          start_time = first_packet.received_time.formatted
+          end_time = last_packet.received_time.formatted
+        rescue
+          if size == 128 or size == 0
+            start_time = "EMPTY                  "
+            end_time = "EMPTY                  "
+          else
+            start_time = "ERROR                  "
+            end_time = "ERROR                  "
+          end
+        ensure
+          reader.close
+        end
+      else
+        size = 0
+        start_time = "MISSING               "
+        end_time = "MISSING               "
+        exists = "MISSING"
+      end
+      puts "#{"%-32.32s" % File.basename(pl.filename)}  #{exists}  #{start_time}  #{end_time}  #{size}"
+      total_size += size
+    end
+    other_size = 0
+    Cosmos.set_working_dir do
+      Dir[Cosmos::System.paths['DART_DATA'] + '/*.bin'].each do |filename|
+        next if filename[0] == '.'
+        next if filenames.include?(filename)
+        exists = "NOTINDB"
+        size = File.size(filename)
+        reader.open(filename)
+        begin
+          first_packet = reader.first
+          last_packet = reader.last
+          start_time = first_packet.received_time.formatted
+          end_time = last_packet.received_time.formatted
+        rescue
+          if size == 128 or size == 0
+            start_time = "EMPTY                  "
+            end_time = "EMPTY                  "
+          else
+            start_time = "ERROR                  "
+            end_time = "ERROR                  "
+          end
+        ensure
+          reader.close
+        end
+        puts "#{"%-32.32s" % File.basename(filename)}  #{exists}  #{start_time}  #{end_time}  #{size}"
+        other_size += size
+      end
+    end
+    puts "Total size in database: #{"%0.2f GB" % (total_size.to_f / (1024 * 1024 * 1024))}"
+    puts "Total size not in database: #{"%0.2f GB" % (other_size.to_f / (1024 * 1024 * 1024))}"
   end
 end

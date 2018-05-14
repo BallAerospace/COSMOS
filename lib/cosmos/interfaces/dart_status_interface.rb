@@ -18,11 +18,12 @@ module Cosmos
   # used by COSMOS.
   class DartStatusInterface < Interface
     # Initialize default attribute values
-    def initialize
+    def initialize(query_period = 20.0)
       super()
       @write_raw_allowed = false
       @dart = nil
       @first = true
+      @query_period = query_period.to_f
       @query_time = nil
     end
 
@@ -32,8 +33,8 @@ module Cosmos
       super()
       @first = true
       @status_packet = System.telemetry.packet('DART', 'STATUS').clone
-      @status_packet.write('PACKETID', 1)
-      @clear_errors_command = System.commands.packet('DART', 'CLEARERRORS')
+      @status_packet.write('PACKET_ID', 1)
+      @clear_errors_command = System.commands.packet('DART', 'CLEAR_ERRORS')
       @sleeper = Sleeper.new
       @dart = JsonDRbObject.new(System.connect_hosts['DART_DECOM'], System.ports['DART_DECOM'])
     end
@@ -61,7 +62,7 @@ module Cosmos
       canceled = false
       unless @first
         if @query_time
-          sleep_time = 20.0 - (Time.now - @query_time)
+          sleep_time = @query_period - (Time.now - @query_time)
           canceled = @sleeper.sleep(sleep_time) if sleep_time > 0
         end
         @query_time = Time.now

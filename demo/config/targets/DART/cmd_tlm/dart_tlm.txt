@@ -1,5 +1,5 @@
 TELEMETRY DART STATUS BIG_ENDIAN "DART Status"
-  APPEND_ID_ITEM PACKETID 8 INT 1 "Packet Id"
+  APPEND_ID_ITEM PACKET_ID 8 INT 1 "Packet Id"
   APPEND_ITEM LAST_PLE_ID 64 INT "Database ID of the most recent PacketLogEntry created"
   APPEND_ITEM PLE_STATE_NEED_DECOM 64 INT "Number of PacketLogEntries ready for decom"
   APPEND_ITEM PLE_STATE_ERROR 64 INT "Number of PacketLogEntries with errors"

@@ -18,6 +18,7 @@ describe DartDecomQuery do
   before(:each) do
     DatabaseCleaner.strategy = :truncation
     DatabaseCleaner.clean
+    Rails.application.load_seed
     @query = DartDecomQuery.new
     # Put all the known targets and packets into the DB
     @query.sync_targets_and_packets

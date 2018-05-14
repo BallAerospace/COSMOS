@@ -23,6 +23,10 @@ class DartDecommutatorStatus
     @error_count = 0
     @message = ''
     @message_time = Time.now
+    @cached_meta_ple = nil
+    @cached_system_meta = nil
+    @cached_system_meta_id = nil
+    @cached_system_config = nil
   end
 end
 
@@ -50,7 +54,6 @@ class DartDecommutator
                      where("id % #{@num_workers} = #{@worker_id}").in_batches do |group|
         group.each do |ple|
           begin
-            # TODO - Optimize and cache meta and system config and packet config lookup
             meta_ple = get_meta_ple(ple)
             next unless meta_ple
             system_meta = get_system_meta(ple, meta_ple)
@@ -97,11 +100,15 @@ class DartDecommutator
   protected
 
   def get_meta_ple(ple)
+    return @cached_meta_ple if @cached_meta_ple and @cached_meta_ple.id == ple.meta_id
+
     if ple.meta_id != ple.id
-      PacketLogEntry.find(ple.meta_id)
+      meta_ple = PacketLogEntry.find(ple.meta_id)
     else
-      ple
+      meta_ple = ple
     end
+    @cached_meta_ple = meta_ple
+    return meta_ple
   rescue => err
     ple.decom_state = PacketLogEntry::NO_META_PLE
     ple.save!
@@ -110,8 +117,14 @@ class DartDecommutator
   end
 
   def get_system_meta(ple, meta_ple)
+    return @cached_system_meta if @cached_system_meta and @cached_system_meta_id == meta_ple.id
+
     system_meta = read_packet_from_ple(meta_ple)
-    return system_meta if system_meta
+    if system_meta
+      @cached_system_meta_id = meta_ple.id
+      @cached_system_meta = system_meta
+      return system_meta
+    end
 
     ple.decom_state = PacketLogEntry::NO_META_PACKET
     ple.save!
@@ -121,14 +134,18 @@ class DartDecommutator
 
   def get_system_config(ple, system_meta)
     system_config_name = system_meta.read("CONFIG")
-    system_config = SystemConfig.where("name = ?", system_config_name).first
-    unless system_config
-      begin
-        # Try to create a new SystemConfig since it didn't exist
-        system_config = SystemConfig.create(:name => system_config_name)
-      rescue
-        # Another thread probably already created it - Try to get it one more time
-        system_config = SystemConfig.where("name = ?", system_config_name).first
+    if @cached_system_config and @cached_system_config.name == system_config_name
+      system_config = @cached_system_config
+    else
+      system_config = SystemConfig.where("name = ?", system_config_name).first
+      unless system_config
+        begin
+          # Try to create a new SystemConfig since it didn't exist
+          system_config = SystemConfig.create(:name => system_config_name)
+        rescue
+          # Another thread probably already created it - Try to get it one more time
+          system_config = SystemConfig.where("name = ?", system_config_name).first
+        end
       end
     end
     unless system_config
@@ -137,6 +154,7 @@ class DartDecommutator
       handle_error("PLE:#{ple.id}:#{ple.decom_state_string}")
       return nil
     end
+    @cached_system_config = system_config
 
     # Switch to this system_config
     begin
@@ -243,6 +261,7 @@ class DartDecommutator
       row = model.new
       row.time = ple.time
       row.ple_id = ple.id
+      row.packet_log_id = ple.packet_log_id
       row.meta_id = ple.meta_id
       row.reduced_state = INITIALIZING
       table_values.each_with_index do |value, index|

@@ -103,7 +103,6 @@ class DartImporter
     ple_data_count = 0
     plr.open(filename)
     data_offset = plr.bytes_read
-    entry_time = Time.now.utc.to_s(:db)
     plr.each(filename) do |packet|
       target_name = packet.target_name
       target_name = 'UNKNOWN' unless target_name
@@ -127,7 +126,7 @@ class DartImporter
         # values which point back to the last SYSTEM META PacketLogEntry ID.
         if target_name == 'SYSTEM'.freeze and packet_name == 'META'.freeze
           if ple_data.length > 0
-            ActiveRecord::Base.connection.execute("INSERT INTO packet_log_entries (created_at, updated_at, target_id, packet_id, time, packet_log_id, data_offset, meta_id, is_tlm, ready) VALUES #{ple_data}")
+            ActiveRecord::Base.connection.execute("INSERT INTO packet_log_entries (target_id, packet_id, time, packet_log_id, data_offset, meta_id, is_tlm, ready) VALUES #{ple_data}")
             ple_data.clear
             ple_data_count = 0
           end
@@ -140,19 +139,17 @@ class DartImporter
           ple.data_offset = data_offset
           ple.meta_id = meta_id
           ple.is_tlm = is_tlm
-          ple.ready = true
+          ple.ready = false
           ple.save!(validate: false)
 
           # Need to update meta_id for this and all subsequent packets
           meta_id = ple.id
           ple.meta_id = meta_id
+          ple.ready = true
           ple.save!(validate: false)
         else
-          if ple_data.length == 0
-            ple_data << "('#{entry_time}','#{entry_time}',#{target_id},#{packet_id},'#{packet.received_time.dup.utc.to_s(:db)}',#{packet_log.id},#{data_offset},#{meta_id},#{is_tlm},true)"
-          else
-            ple_data << ",('#{entry_time}','#{entry_time}',#{target_id},#{packet_id},'#{packet.received_time.dup.utc.to_s(:db)}',#{packet_log.id},#{data_offset},#{meta_id},#{is_tlm},true)"
-          end
+          ple_data << "," if ple_data.length > 0
+          ple_data << "(#{target_id},#{packet_id},'#{packet.received_time.dup.utc.iso8601(6)}',#{packet_log.id},#{data_offset},#{meta_id},#{is_tlm},true)"
           ple_data_count += 1
         end
 
@@ -167,7 +164,7 @@ class DartImporter
       end
 
       if ple_data_count >= 1000
-        ActiveRecord::Base.connection.execute("INSERT INTO packet_log_entries (created_at, updated_at, target_id, packet_id, time, packet_log_id, data_offset, meta_id, is_tlm, ready) VALUES #{ple_data}")
+        ActiveRecord::Base.connection.execute("INSERT INTO packet_log_entries (target_id, packet_id, time, packet_log_id, data_offset, meta_id, is_tlm, ready) VALUES #{ple_data}")
         ple_data.clear
         ple_data_count = 0
       end
@@ -176,7 +173,7 @@ class DartImporter
     end
 
     if ple_data.length > 0
-      ActiveRecord::Base.connection.execute("INSERT INTO packet_log_entries (created_at, updated_at, target_id, packet_id, time, packet_log_id, data_offset, meta_id, is_tlm, ready) VALUES #{ple_data}")
+      ActiveRecord::Base.connection.execute("INSERT INTO packet_log_entries (target_id, packet_id, time, packet_log_id, data_offset, meta_id, is_tlm, ready) VALUES #{ple_data}")
       ple_data.clear
       ple_data_count = 0
     end

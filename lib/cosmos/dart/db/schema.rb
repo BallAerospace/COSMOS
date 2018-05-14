@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180425211340) do
+ActiveRecord::Schema.define(version: 20180511194944) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -54,19 +54,11 @@ ActiveRecord::Schema.define(version: 20180425211340) do
     t.datetime "time", null: false
     t.integer "packet_log_id", null: false
     t.bigint "data_offset", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
     t.bigint "meta_id"
     t.boolean "is_tlm", null: false
     t.integer "decom_state", default: 0
     t.boolean "ready", default: false
     t.index ["decom_state"], name: "index_packet_log_entries_on_decom_state"
-    t.index ["is_tlm"], name: "index_packet_log_entries_on_is_tlm"
-    t.index ["meta_id"], name: "index_packet_log_entries_on_meta_id"
-    t.index ["packet_id"], name: "index_packet_log_entries_on_packet_id"
-    t.index ["packet_log_id"], name: "index_packet_log_entries_on_packet_log_id"
-    t.index ["ready"], name: "index_packet_log_entries_on_ready"
-    t.index ["target_id"], name: "index_packet_log_entries_on_target_id"
     t.index ["time"], name: "index_packet_log_entries_on_time"
   end
 

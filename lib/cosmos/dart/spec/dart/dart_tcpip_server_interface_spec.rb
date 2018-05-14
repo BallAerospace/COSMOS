@@ -22,6 +22,7 @@ describe DartTcpipServerInterface do
   before(:each) do
     DatabaseCleaner.strategy = :truncation
     DatabaseCleaner.clean
+    Rails.application.load_seed
   end
 
   describe "initialize" do

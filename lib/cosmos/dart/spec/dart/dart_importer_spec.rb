@@ -25,6 +25,7 @@ describe DartImporter do
   before(:each) do
     DatabaseCleaner.strategy = :truncation
     DatabaseCleaner.clean
+    Rails.application.load_seed
     # Clean the dart logs
     Dir["#{Cosmos::System.paths['DART_LOGS']}/*"].each do |filename|
       FileUtils.rm_f filename

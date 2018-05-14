@@ -165,6 +165,7 @@ module DartCommon
         t.bigint :ple_id
         t.bigint :meta_id
         t.bigint :reduced_id
+        t.integer :packet_log_id
         t.integer :reduced_state, :default => 0
         table_data_types.each_with_index do |data_type, index|
           item_index = (table_index * MAX_COLUMNS_PER_TABLE) + index
@@ -183,9 +184,7 @@ module DartCommon
           end
         end
         t.index :time
-        t.index :meta_id
-        t.index :reduced_state
-        t.index :reduced_id
+        t.index :reduced_state, :where => "reduced_state < 2"
       end
       create_reduction_table("t#{packet_config.id}_#{table_index}_h", table_data_types, table_index) # hour
       create_reduction_table("t#{packet_config.id}_#{table_index}_m", table_data_types, table_index) # month
@@ -524,6 +523,7 @@ module DartCommon
   # @param array_size [Integer, nil] Size of the array or nil if no array
   # @return [Symbol] Database type such as :integer, :bigint, :string, etc.
   def cosmos_data_type_to_db_type(data_type, bit_size, array_size)
+    return nil if data_type.nil? or bit_size.nil?
     db_type = nil
     case data_type
     when :INT
@@ -674,6 +674,7 @@ module DartCommon
       t.integer :num_samples
       t.bigint :meta_id
       t.bigint :reduced_id
+      t.integer :packet_log_id
       t.integer :reduced_state, :default => 0
       table_data_types.each_with_index do |data_type, index|
         item_index = (table_index * MAX_COLUMNS_PER_TABLE) + index
@@ -686,9 +687,7 @@ module DartCommon
         end
       end
       t.index :start_time
-      t.index :meta_id
-      t.index :reduced_state
-      t.index :reduced_id
+      t.index :reduced_state, :where => "reduced_state < 2"
     end
   end
 

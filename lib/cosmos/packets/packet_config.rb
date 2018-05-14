@@ -395,8 +395,13 @@ module Cosmos
           # require should be performed in target.txt
           klass = params[0].filename_to_class_name.to_class
           raise parser.error("#{params[0].filename_to_class_name} class not found. Did you require the file in target.txt?", usage) unless klass
-          @current_item.send("#{keyword.downcase}=".to_sym,
-            klass.new(*params[1..(params.length - 1)]))
+          conversion = klass.new(*params[1..(params.length - 1)])
+          @current_item.send("#{keyword.downcase}=".to_sym, conversion)
+          if conversion.converted_type.nil? or conversion.converted_bit_size.nil?
+            msg = "Read Conversion #{params[0].filename_to_class_name} on item #{@current_item.name} does not specify converted type or bit size. Will not be supported by DART"
+            @warnings << msg
+            Logger.instance.warn @warnings[-1]
+          end
         rescue Exception => err
           raise parser.error(err)
         end
@@ -445,6 +450,11 @@ module Cosmos
           raise parser.error("Invalid converted_type: #{@converted_type}.") unless [:INT, :UINT, :FLOAT, :STRING, :BLOCK].include? @converted_type
         end
         @converted_bit_size = Integer(params[1]) if params[1]
+        if @converted_type.nil? or @converted_bit_size.nil?
+          msg = "Generic Conversion on item #{@current_item.name} does not specify converted type or bit size. Will not be supported by DART"
+          @warnings << msg
+          Logger.instance.warn @warnings[-1]
+        end
 
       # Define a set of limits for the current telemetry item
       when 'LIMITS'

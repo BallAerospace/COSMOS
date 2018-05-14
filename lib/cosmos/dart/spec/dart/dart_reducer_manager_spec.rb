@@ -21,6 +21,7 @@ describe DartReducerManager do
   before(:each) do
     DatabaseCleaner.strategy = :truncation
     DatabaseCleaner.clean
+    Rails.application.load_seed
   end
 
   def setup_ples(entries, delta_time)
@@ -48,13 +49,13 @@ describe DartReducerManager do
     end
     ples = 0
     count = 0
+    writer.shutdown
     while ples != (entries + 1) # SYSTEM META is the plus 1
       ples = PacketLogEntry.count
       sleep 0.1 # Allow the log writer to work
       count += 1
       break if count == 100 # 10s
     end
-    writer.shutdown
     sleep 0.1
     expect(count).to be < 100
 

@@ -48,6 +48,13 @@ class DartPacketLogWriter < Cosmos::PacketLogWriter
   def shutdown
     super()
     Cosmos.kill_thread(self, @db_thread)
+    handle_sync_ple()
+    queue_ple_data()
+    while @db_queue.length > 0
+      ple_data = @db_queue.pop
+      break if ple_data.nil?
+      ActiveRecord::Base.connection.execute("INSERT INTO packet_log_entries (target_id, packet_id, time, packet_log_id, data_offset, meta_id, is_tlm, ready) VALUES #{ple_data}")
+    end
   end
 
   # Kick the database update thread to allow it to quit
@@ -75,21 +82,29 @@ class DartPacketLogWriter < Cosmos::PacketLogWriter
     super(packet)
   end
 
+  def queue_ple_data
+    if @ple_data.length > 0
+      @db_queue << @ple_data.clone
+      @ple_data.clear
+      @sync_count = 0
+    end
+  end
+
+  def handle_sync_ple
+    if @sync_ple
+      @file.fsync if @file
+      @sync_ple.ready = true
+      @sync_ple.save!
+      @sync_ple = nil
+      queue_ple_data()
+    end
+  end
+
   # Override the default pre write hook to pop a message on the queue which
   # will be processed by the database thread. This also writes out the log
   # files to disk periodically for use by other DART processes.
   def pre_write_entry_hook(packet)
-    if @sync_ple
-      @file.fsync
-      @sync_ple.ready = true
-      @sync_ple.save!
-      @sync_ple = nil
-      if @ple_data.length > 0
-        @db_queue << @ple_data.clone
-        @ple_data.clear
-        @sync_count = 0
-      end
-    end
+    handle_sync_ple()
 
     # SYSTEM META packets are special in that their meta_id is their own
     # PacketLogEntry ID from the database. All other packets have meta_id
@@ -118,12 +133,8 @@ class DartPacketLogWriter < Cosmos::PacketLogWriter
         @ple_data.clear
         @sync_count = 0
       end
-      entry_time = Time.now.utc.to_s(:db)
-      if @ple_data.length == 0
-        @ple_data << "('#{entry_time}','#{entry_time}',#{target_id},#{packet_id},'#{packet.received_time.dup.utc.to_s(:db)}',#{@packet_log_id},#{@file_size},#{@meta_id},#{@is_tlm},true)"
-      else
-        @ple_data << ",('#{entry_time}','#{entry_time}',#{target_id},#{packet_id},'#{packet.received_time.dup.utc.to_s(:db)}',#{@packet_log_id},#{@file_size},#{@meta_id},#{@is_tlm},true)"
-      end
+      @ple_data << "," if @ple_data.length > 0
+      @ple_data << "(#{target_id},#{packet_id},'#{packet.received_time.dup.utc.iso8601(6)}',#{@packet_log_id},#{@file_size},#{@meta_id},#{@is_tlm},true)"
     end
   end
 
@@ -136,7 +147,7 @@ class DartPacketLogWriter < Cosmos::PacketLogWriter
       begin
         ple_data = @db_queue.pop
         return if @cancel_threads or ple_data.nil?
-        ActiveRecord::Base.connection.execute("INSERT INTO packet_log_entries (created_at, updated_at, target_id, packet_id, time, packet_log_id, data_offset, meta_id, is_tlm, ready) VALUES #{ple_data}")
+        ActiveRecord::Base.connection.execute("INSERT INTO packet_log_entries (target_id, packet_id, time, packet_log_id, data_offset, meta_id, is_tlm, ready) VALUES #{ple_data}")
       rescue ThreadError
         # This can happen when the thread is killed
         return

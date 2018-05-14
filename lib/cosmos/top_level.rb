@@ -113,7 +113,7 @@ module Cosmos
       # Last chance - Check environment
       if ENV['COSMOS_USERPATH']
         disable_warnings do
-          Cosmos.const_set(:USERPATH, ENV['COSMOS_USERPATH'])
+          Cosmos.const_set(:USERPATH, ENV['COSMOS_USERPATH'].gsub("\\", "/"))
         end
       else
         # Give up and assume we are in the tools directory
