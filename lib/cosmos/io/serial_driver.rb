@@ -32,14 +32,16 @@ module Cosmos
     #   complete or nil to block
     # @param read_timeout [Float|nil] Number of seconds to wait for the read to
     #   complete or nil to block
-    # @param flow_control [Symbol] Currently supported :NONE and :RTSCTS
+    # @param flow_control [Symbol] Currently supported :NONE and :RTSCTS (default :NONE)
+    # @param data_bits [Integer] Number of data bits (default 8)
     def initialize(port_name,
                    baud_rate,
                    parity = :NONE,
                    stop_bits = 1,
                    write_timeout = 10.0,
                    read_timeout = nil,
-                   flow_control = :NONE)
+                   flow_control = :NONE,
+                   data_bits = 8)
       raise(ArgumentError, "Invalid parity: #{parity}") unless VALID_PARITY.include? parity
       if Kernel.is_windows?
         @driver = Win32SerialDriver.new(port_name,
@@ -50,7 +52,8 @@ module Cosmos
                                         read_timeout,
                                         0.01,
                                         1000,
-                                        flow_control)
+                                        flow_control,
+                                        data_bits)
       elsif RUBY_ENGINE == 'ruby'
         @driver = PosixSerialDriver.new(port_name,
                                         baud_rate,
@@ -58,7 +61,8 @@ module Cosmos
                                         stop_bits,
                                         write_timeout,
                                         read_timeout,
-                                        flow_control)
+                                        flow_control,
+                                        data_bits)
       else
         @driver = nil # JRuby Serial on Linux not currently supported
       end

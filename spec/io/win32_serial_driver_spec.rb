@@ -42,6 +42,14 @@ if RUBY_ENGINE == 'ruby' or Gem.win_platform?
           expect { Win32SerialDriver.new('COM1',9600,:NONE,2) }.to_not raise_error
           expect { Win32SerialDriver.new('COM1',9600,:NONE,3) }.to raise_error(ArgumentError, "Invalid stop bits: 3")
         end
+
+        it "supports 5-8 data bits" do
+          expect { Win32SerialDriver.new('COM1',9600,:NONE,1,10,nil,0.01,1000,:NONE,5) }.to_not raise_error
+          expect { Win32SerialDriver.new('COM1',9600,:NONE,1,10,nil,0.01,1000,:NONE,6) }.to_not raise_error
+          expect { Win32SerialDriver.new('COM1',9600,:NONE,1,10,nil,0.01,1000,:NONE,7) }.to_not raise_error
+          expect { Win32SerialDriver.new('COM1',9600,:NONE,1,10,nil,0.01,1000,:NONE,8) }.to_not raise_error
+          expect { Win32SerialDriver.new('COM1',9600,:NONE,1,10,nil,0.01,1000,:NONE,9) }.to raise_error(ArgumentError, "Invalid data bits: 9")
+        end
       end
 
       describe "close, closed?" do

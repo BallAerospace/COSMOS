@@ -51,6 +51,7 @@ module Cosmos
       @write_raw_allowed = false unless @write_port_name
       @read_allowed = false unless @read_port_name
       @flow_control = :NONE
+      @data_bits = 8
     end
 
     # Creates a new {SerialStream} using the parameters passed in the constructor
@@ -63,7 +64,8 @@ module Cosmos
         @stop_bits,
         @write_timeout,
         @read_timeout,
-        @flow_control
+        @flow_control,
+        @data_bits
       )
       super()
     end
@@ -75,6 +77,8 @@ module Cosmos
       case option_name.upcase
       when 'FLOW_CONTROL'
         @flow_control = option_values[0]
+      when 'DATA_BITS'
+        @data_bits = option_values[0].to_i
       end
     end
   end

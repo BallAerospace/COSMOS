@@ -23,13 +23,14 @@ module Cosmos
                    read_timeout = nil,
                    read_polling_period = 0.01,
                    read_max_length = 1000,
-                   flow_control = :NONE)
+                   flow_control = :NONE,
+                   data_bits = 8)
 
       # Verify Parameters
       port_name = '\\\\.\\' + port_name if port_name =~ /^COM[0-9]{2,3}$/
 
       raise(ArgumentError, "Invalid baud rate: #{baud_rate}") unless baud_rate.between?(Win32::BAUD_RATES[0], Win32::BAUD_RATES[-1])
-
+      raise(ArgumentError, "Invalid data bits: #{data_bits}") unless [5,6,7,8].include?(data_bits)
       raise(ArgumentError, "Invalid parity: #{parity}") if parity and !SerialDriver::VALID_PARITY.include?(parity)
       case parity
       when SerialDriver::ODD
@@ -64,7 +65,7 @@ module Cosmos
       # Configure the Comm Port - See: https://msdn.microsoft.com/en-us/library/windows/desktop/aa363214(v=vs.85).aspx
       dcb = Win32.get_comm_state(@handle)
       dcb.write('BaudRate', baud_rate)
-      dcb.write('ByteSize', 8)
+      dcb.write('ByteSize', data_bits)
       dcb.write('Parity',   parity)
       dcb.write('StopBits', stop_bits)
       if flow_control == :RTSCTS

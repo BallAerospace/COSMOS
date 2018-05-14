@@ -24,7 +24,8 @@ module Cosmos
                    stop_bits = 1,
                    write_timeout = 10.0,
                    read_timeout = nil,
-                   flow_control = :NONE)
+                   flow_control = :NONE,
+                   data_bits = 8)
 
       # Convert Baud Rate into Termios constant
       begin
@@ -34,6 +35,7 @@ module Cosmos
       end
 
       # Verify Parameters
+      raise(ArgumentError, "Invalid Data Bits: #{data_bits}") unless [5,6,7,8].include?(data_bits)
       raise(ArgumentError, "Invalid parity: #{parity}") if parity and !SerialDriver::VALID_PARITY.include?(parity)
       raise(ArgumentError, "Invalid Stop Bits: #{stop_bits}") unless [1,2].include?(stop_bits)
       @write_timeout = write_timeout
@@ -53,7 +55,7 @@ module Cosmos
       iflags |= Termios::IGNPAR unless parity
       cflags = 0
       cflags |= Termios::CREAD # Enable receiver
-      cflags |= Termios::CS8 # 8-bit bytes
+      cflags |= Termios.const_get("CS#{data_bits}") # data bits
       cflags |= Termios::CLOCAL # Ignore Modem Control Lines
       cflags |= Termios::CSTOPB if stop_bits == 2
       cflags |= Termios::PARENB if parity
