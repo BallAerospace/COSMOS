@@ -218,7 +218,7 @@ module Cosmos
         average_request_time = CmdTlmServer.json_drb.average_request_time
         @api_table.item(0,4).setText(sprintf("%0.6f s", average_request_time))
         estimated_utilization = requests_per_second * average_request_time * 100.0
-        @api_table.item(0,5).setText(sprintf("%0.2f %", estimated_utilization))
+        @api_table.item(0,5).setText(sprintf("%0.2f %%", estimated_utilization))
       end
     end
 
