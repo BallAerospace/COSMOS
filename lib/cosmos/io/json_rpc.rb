@@ -175,6 +175,7 @@ module Cosmos
 
     # @param other [JsonRpc] Another JsonRpc to compare hash values with
     def <=>(other)
+      return nil unless other.respond_to?(:as_json)
       self.as_json <=> other.as_json
     end
 

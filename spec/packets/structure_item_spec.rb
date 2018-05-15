@@ -182,6 +182,12 @@ module Cosmos
         expect(si1 == si2).to be false
         expect(si1 > si2).to be false
       end
+
+      it "doesn't raise errors on comparing incompatible items" do
+        si1 = StructureItem.new("si1", 16, 8, :UINT, :BIG_ENDIAN, nil)
+        expect{ (si1 > 5) }.to raise_error(ArgumentError)
+        expect(si1 <=> 5).to be nil
+      end
     end
 
     describe "clone" do

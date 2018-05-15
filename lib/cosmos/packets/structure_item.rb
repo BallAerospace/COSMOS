@@ -203,6 +203,7 @@ module Cosmos
       # with different names or bit sizes are equal if they have the same bit
       # offset.
       def <=>(other_item)
+        return nil unless other_item.kind_of?(StructureItem)
         other_bit_offset = other_item.bit_offset
         other_bit_size = other_item.bit_size
 
