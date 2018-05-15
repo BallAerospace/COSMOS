@@ -1187,8 +1187,8 @@ static VALUE read_item(int argc, VALUE* argv, VALUE self)
  * offset.
  */
 static VALUE structure_item_spaceship(VALUE self, VALUE other_item) {
-  int bit_offset = FIX2INT(rb_ivar_get(self, id_ivar_bit_offset));
-  int other_bit_offset = FIX2INT(rb_ivar_get(other_item, id_ivar_bit_offset));
+  int bit_offset = 0;
+  int other_bit_offset = 0;
   int bit_size = 0;
   int other_bit_size = 0;
   int create_index = 0;
@@ -1200,6 +1200,9 @@ static VALUE structure_item_spaceship(VALUE self, VALUE other_item) {
   if (!RTEST(rb_funcall(other_item, id_method_kind_of, 1, cStructureItem))) {
     return Qnil;
   }
+
+  bit_offset = FIX2INT(rb_ivar_get(self, id_ivar_bit_offset));
+  other_bit_offset = FIX2INT(rb_ivar_get(other_item, id_ivar_bit_offset));
 
   v_create_index = rb_ivar_get(self, id_ivar_create_index);
   v_other_create_index = rb_ivar_get(other_item, id_ivar_create_index);
