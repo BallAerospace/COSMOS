@@ -9,6 +9,7 @@
 # attribution addendums as found in the LICENSE.txt
 
 require 'dart_common'
+require 'cosmos/packet_logs/packet_log_reader'
 
 class DartDatabaseCleaner
   include DartCommon
@@ -50,7 +51,7 @@ class DartDatabaseCleaner
           start_time = first_packet.received_time
           end_time = last_packet.received_time
         rescue
-          if size == 128 or size == 0
+          if size == Cosmos::PacketLogReader::COSMOS2_HEADER_LENGTH or size == 0
             Cosmos::Logger::error("File contains no packets: #{filename}")
           else
             Cosmos::Logger::error("Error analyzing file: #{filename}")
