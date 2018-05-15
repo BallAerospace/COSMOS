@@ -151,6 +151,11 @@ module Cosmos
       it "should complain about trying to do an = comparison" do
         expect { extract_fields_from_check_text("TARGET PACKET ITEM = 5") }.to raise_error(/ERROR: Use/)
       end
+
+      it "should handle spaces throughout correctly" do
+        expect(extract_fields_from_check_text("TARGET PACKET ITEM == \"This   is  a test\"")).to eql(['TARGET', 'PACKET', 'ITEM', "== \"This   is  a test\""])
+        expect(extract_fields_from_check_text("TARGET   PACKET  ITEM   ==    'This is  a test   '")).to eql(['TARGET', 'PACKET', 'ITEM', "  ==    'This is  a test   '"])
+      end
     end
 
   end

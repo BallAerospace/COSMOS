@@ -45,7 +45,7 @@ module Cosmos
       target_name = first_half[0]
       cmd_name = first_half[1]
       cmd_params = {}
-    
+
       begin
         packet = System.commands.packet(target_name, cmd_name).clone
       rescue
@@ -129,7 +129,9 @@ module Cosmos
       comparison_to_eval = nil
       return [target_name, packet_name, item_name, comparison_to_eval] if split_string.length == 3
       raise "ERROR: Check improperly specified: #{text}" if split_string.length < 4
-      comparison_to_eval = split_string[3..(split_string.length - 1)].join(" ")
+      split_string = text.split(/ /) # Split on regex spaces to preserve spaces in comparison
+      index = split_string.index(item_name)
+      comparison_to_eval = split_string[(index + 1)..(split_string.length - 1)].join(" ")
       raise "ERROR: Use '==' instead of '=': #{text}" if split_string[3] == '='
       return [target_name, packet_name, item_name, comparison_to_eval]
     end
