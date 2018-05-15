@@ -45,9 +45,22 @@ if RUBY_ENGINE == 'ruby' or Gem.win_platform?
             i = SerialInterface.new('COM1','COM1','9600','NONE','1','0','0','burst')
             expect(i.connected?).to be false
             i.connect
+            expect(i.stream.instance_variable_get(:@flow_control)).to eq :NONE
+            expect(i.stream.instance_variable_get(:@data_bits)).to eq 8
             expect(i.connected?).to be true
             i.disconnect
             expect(i.connected?).to be false
+          end
+        end
+
+        it "sets options on the interface" do
+          if Kernel.is_windows? && !ENV['APPVEYOR']
+            i = SerialInterface.new('nil','COM1','9600','NONE','1','0','0','burst')
+            i.set_option("FLOW_CONTROL", ["RTSCTS"])
+            i.set_option("DATA_BITS", ["7"])
+            i.connect
+            expect(i.stream.instance_variable_get(:@flow_control)).to eq :RTSCTS
+            expect(i.stream.instance_variable_get(:@data_bits)).to eq 7
           end
         end
       end
