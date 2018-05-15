@@ -23,13 +23,15 @@ class DartReducerWorkerThread
   #   third values are the PacketConfig ID and table index.
   # @param mutex [Mutex] Mutex used to synchronize access to the locked_tables
   # @param instance_num [Integer] Simple counter to trace the thread instance
-  def initialize(master_queue, locked_tables, mutex, instance_num)
+  # @param status [DartReducerStatus] Status structure
+  def initialize(master_queue, locked_tables, mutex, instance_num, status)
     @instance_num = instance_num
     @running = true
     @master_queue = master_queue
     @locked_tables = locked_tables
     @mutex = mutex
     @thread_queue = Queue.new
+    @status = status
     # Start the thread which will wait on @thread_queue.pop
     @thread = Thread.new { work() }
     # Add the local @thread_queue to the @master_queue so jobs can be added
@@ -77,6 +79,7 @@ class DartReducerWorkerThread
         new_row.start_time = first_row_time
         new_row.num_samples = sample_rows.length
         new_row.meta_id = sample_rows[0].meta_id
+        new_row.packet_log_id = sample_rows[0].packet_log_id
         # Process each of the ItemToDecomTableMapping to get the item to be reduced
         mappings.each do |mapping|
           item_name = "i#{mapping.item_index}"
@@ -105,7 +108,7 @@ class DartReducerWorkerThread
               max_sample = value
               avg_sample = value
               if value.nil?
-                Cosmos::Logger.error("#{item_name} is nil in #{row_to_reduce.class}:#{row_to_reduce.id}")
+                handle_error("#{item_name} is nil in #{row_to_reduce.class}:#{row_to_reduce.id}")
                 next
               end
             else # :HOUR or :DAY
@@ -116,19 +119,19 @@ class DartReducerWorkerThread
               avg_sample = row_to_reduce.read_attribute(avg_item_name)
               stddev_sample = row_to_reduce.read_attribute(stddev_item_name)
               if min_sample.nil?
-                Cosmos::Logger.error("#{min_item_name} is nil in #{row_to_reduce.class}:#{row_to_reduce.id}")
+                handle_error("#{min_item_name} is nil in #{row_to_reduce.class}:#{row_to_reduce.id}")
                 next
               end
               if max_sample.nil?
-                Cosmos::Logger.error("#{max_item_name} is nil in #{row_to_reduce.class}:#{row_to_reduce.id}")
+                handle_error("#{max_item_name} is nil in #{row_to_reduce.class}:#{row_to_reduce.id}")
                 next
               end
               if avg_sample.nil?
-                Cosmos::Logger.error("#{avg_item_name} is nil in #{row_to_reduce.class}:#{row_to_reduce.id}")
+                handle_error("#{avg_item_name} is nil in #{row_to_reduce.class}:#{row_to_reduce.id}")
                 next
               end
               if stddev_sample.nil?
-                Cosmos::Logger.error("#{stddev_item_name} is nil in #{row_to_reduce.class}:#{row_to_reduce.id}")
+                handle_error("#{stddev_item_name} is nil in #{row_to_reduce.class}:#{row_to_reduce.id}")
                 next
               end
             end
@@ -193,6 +196,7 @@ class DartReducerWorkerThread
         base_model.where(id: sample_rows.map(&:id)).update_all(:reduced_id => new_row.id)
         new_row.reduced_state = DartCommon::READY_TO_REDUCE
         new_row.save!
+        @status.count += 1
 
         rows = rows[-1..-1] # Start a new sample with the last item in the previous sample
         Cosmos::Logger.debug("Created #{new_row.class}:#{new_row.id} with #{mappings.length} items from #{new_row.num_samples} samples")
@@ -201,7 +205,7 @@ class DartReducerWorkerThread
     end # while @running
     Cosmos::Logger.info("Reducer Thread #{@instance_num} Shutdown")
   rescue Exception => error
-    Cosmos::Logger.error("Reducer Thread Unexpectedly Died: #{error.formatted}")
+    handle_error("Reducer Thread Unexpectedly Died: #{error.formatted}")
   end
 
   # Shutdown the worker thread
@@ -259,5 +263,12 @@ class DartReducerWorkerThread
     else # Should never get this since we control the jobs so raise
       raise "Reducer Thread Unexpected Job Type: #{job_type}"
     end
+  end
+
+  def handle_error(message)
+    Cosmos::Logger.error(message)
+    @status.error_count += 1
+    @status.message = message
+    @status.message_time = Time.now
   end
 end

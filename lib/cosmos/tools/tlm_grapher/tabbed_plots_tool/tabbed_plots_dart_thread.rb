@@ -50,6 +50,7 @@ module Cosmos
           time_end = Time.now unless time_end
           progress_dialog.set_step_progress(0) if progress_dialog
           index = 0
+          query_string = ""
           required_queries.each do |target_name, packet_name, item_name, value_type, array_index, dart_reduction, dart_reduced_type|
             begin
               break if @cancel
@@ -87,7 +88,7 @@ module Cosmos
             rescue Exception => error
               @errors << error
               break if @cancel
-              progress_dialog.append_text("Error querying #{query_string} : #{error.class}:#{error.message}\n#{error.backtrace.join("\n")}\n", 2) if progress_dialog
+              progress_dialog.append_text("Error querying #{query_string} : #{error.class}:#{error.message}\n#{error.backtrace.join("\n")}\n") if progress_dialog
               # If a progress dialog is shown we can't just bail on this error or
               # it will close and the user will have no idea what happened
               # Thus we'll spin here waiting for them to close the dialog
@@ -96,8 +97,8 @@ module Cosmos
                 sleep(0.1) until progress_dialog.complete?
               end
               break # Bail out because something bad happened
-            end  
-            index += 1            
+            end
+            index += 1
           end
           progress_dialog.set_step_progress(1.0) if progress_dialog and not @cancel
           progress_dialog.set_overall_progress(0.5) if progress_dialog and not @cancel
@@ -118,7 +119,7 @@ module Cosmos
         rescue Exception => error
           @errors << error
           return if @cancel
-          progress_dialog.append_text("DART Thread Error #{error.class}:#{error.message}\n#{error.backtrace.join("\n")}\n", 2) if progress_dialog
+          progress_dialog.append_text("DART Thread Error #{error.class}:#{error.message}\n#{error.backtrace.join("\n")}\n") if progress_dialog
           # If a progress dialog is shown we can't just bail on this error or
           # it will close and the user will have no idea what happened
           # Thus we'll spin here waiting for them to close the dialog

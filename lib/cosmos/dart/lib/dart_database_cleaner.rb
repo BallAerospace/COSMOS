@@ -9,6 +9,7 @@
 # attribution addendums as found in the LICENSE.txt
 
 require 'dart_common'
+require 'cosmos/packet_logs/packet_log_reader'
 
 class DartDatabaseCleaner
   include DartCommon
@@ -17,16 +18,66 @@ class DartDatabaseCleaner
   # if the DART packet logs were moved and force is false (default). This is
   # deliberate because force causes all the lost (or moved) files to be deleted
   # which forces them to be re-imported at their new location.
-  def self.clean(force)
+  def self.clean(force, full = false)
     Cosmos::Logger::info("Starting database cleanup...")
     cleaner = DartDatabaseCleaner.new
     cleaner.clean_system_configs()
     cleaner.clean_packet_logs(force)
     cleaner.clean_packet_configs()
     cleaner.clean_packet_log_entries()
-    cleaner.clean_decommutation_tables()
-    cleaner.clean_reductions()
+    if full
+      cleaner.clean_decommutation_tables()
+      cleaner.clean_reductions()
+    end
     Cosmos::Logger::info("Database cleanup complete!")
+  end
+
+  def remove_packet_log(filename)
+    filename = filename.gsub("\\", "/") # Fix slashes
+    filename = File.expand_path(filename, Cosmos::System.paths['DART_DATA']) # Make absolute path
+    if File.exists?(filename)
+      packet_log = PacketLog.where("filename = ?", filename).first
+      if packet_log
+        size = File.size(filename)
+        reader = Cosmos::PacketLogReader.new
+        reader.open(filename)
+        first_packet = nil
+        last_packet = nil
+        start_time = nil
+        end_time = nil
+        begin
+          first_packet = reader.first
+          last_packet = reader.last
+          start_time = first_packet.received_time
+          end_time = last_packet.received_time
+        rescue
+          if size == Cosmos::PacketLogReader::COSMOS2_HEADER_LENGTH or size == 0
+            Cosmos::Logger::error("File contains no packets: #{filename}")
+          else
+            Cosmos::Logger::error("Error analyzing file: #{filename}")
+          end
+          exit(1)
+        ensure
+          reader.close
+        end
+        num_deleted = PacketLogEntry.where("time >= ? and time <= ? and packet_log_id = ?", start_time - 1.minute, end_time + 1.minute, packet_log.id).delete_all
+        Cosmos::Logger::info("Removed #{num_deleted} PacketLogEntries")
+        each_decom_and_reduced_table() do |packet_config_id, table_index, decom_model, minute_model, hour_model, day_model|
+          num_deleted = 0
+          num_deleted += decom_model.where("time >= ? and time <= ? and packet_log_id = ?", start_time - 1.minute, end_time + 1.minute, packet_log.id).delete_all
+          num_deleted += minute_model.where("start_time >= ? and start_time <= ? and packet_log_id = ?", start_time - 1.minute, end_time + 2.minutes, packet_log.id).delete_all
+          num_deleted += hour_model.where("start_time >= ? and start_time <= ? and packet_log_id = ?", start_time - 1.minute, end_time + 1.hour + 1.minutes, packet_log.id).delete_all
+          num_deleted += day_model.where("start_time >= ? and start_time <= ? and packet_log_id = ?", start_time - 1.minute, end_time + 1.hour + 1.day, packet_log.id).delete_all
+          Cosmos::Logger::info("Deleted #{num_deleted} rows from #{decom_model.table_name} and reductions")
+        end
+        packet_log.delete
+        Cosmos::Logger::info("Packet Log Id #{packet_log.id} deleted")
+      else
+        Cosmos::Logger::error("File does not exist in database: #{filename}")
+      end
+    else
+      Cosmos::Logger::error("File does not exist: #{filename}")
+    end
   end
 
   # Ensure we have all the System Configs locally on the DART machine
@@ -95,7 +146,7 @@ class DartDatabaseCleaner
         end
       rescue => err
         Cosmos::Logger::error("Error cleaning up packet config: #{packet_config.id}: #{err.formatted}")
-        raise "Cleanup failure - Database requires manual correction"
+        raise $!, "Cleanup failure - Database requires manual correction: #{err.message}", $!.backtrace
       end
     end
   end
@@ -108,7 +159,7 @@ class DartDatabaseCleaner
     # outstanding entries which are not ready while packets are being received.
     # Note the normal shutdown process attempts to flush the log file and mark
     # all outstanding entries as ready so this would only happen during a crash.
-    ples = PacketLogEntry.where("ready != true")
+    ples = PacketLogEntry.where("decom_state = 0 and ready != true")
     return unless ples.length > 0
     Cosmos::Logger::info("Removing unready packet log entries: #{ples.length}")
     ples.destroy_all

@@ -17,6 +17,7 @@ describe DartDatabaseCleaner do
   before(:each) do
     DatabaseCleaner.strategy = :truncation
     DatabaseCleaner.clean
+    Rails.application.load_seed
     @cleaner = DartDatabaseCleaner.new
   end
 
@@ -29,7 +30,6 @@ describe DartDatabaseCleaner do
       expect(messages.select{|m| m =~ /Cleaning up PacketLog\./}.length).to eq 1
       expect(messages.select{|m| m =~ /Cleaning up PacketConfig/}.length).to eq 1
       expect(messages.select{|m| m =~ /Cleaning up PacketLogEntry/}.length).to eq 1
-      expect(messages.select{|m| m =~ /Cleaning up Decommutation/}.length).to eq 1
       expect(messages.select{|m| m =~ /Database cleanup complete/}.length).to eq 1
     end
   end

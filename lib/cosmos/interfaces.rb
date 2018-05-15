@@ -9,6 +9,7 @@ require 'cosmos/interfaces/tcpip_client_interface'
 require 'cosmos/interfaces/tcpip_server_interface'
 require 'cosmos/interfaces/udp_interface'
 require 'cosmos/interfaces/linc_interface'
+require 'cosmos/interfaces/dart_status_interface'
 
 require 'cosmos/interfaces/protocols/protocol'
 require 'cosmos/interfaces/protocols/burst_protocol'

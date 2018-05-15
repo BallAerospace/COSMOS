@@ -54,6 +54,7 @@ unless ARGV[0]
   exit(1)
 end
 
+ENV['RAILS_ENV'] = 'production'
 require File.expand_path('../../config/environment', __FILE__)
 require 'dart_importer'
 

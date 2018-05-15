@@ -10,6 +10,20 @@
 
 require 'dart_reducer_worker_thread'
 
+class DartReducerStatus
+  attr_accessor :count
+  attr_accessor :error_count
+  attr_accessor :message
+  attr_accessor :message_time
+
+  def initialize
+    @count = 0
+    @error_count = 0
+    @message = ''
+    @message_time = Time.now
+  end
+end
+
 # Reduce the decommutated data into the database. It creates a number of
 # threads to perform the actual data reduction. Then it queries the database
 # for all the decommutation tables and determines which need to be reduced
@@ -21,13 +35,15 @@ class DartReducerManager
   #
   # @param num_threads [Integer] The number of worker threads to create
   def initialize(num_threads = 5)
-    Cosmos::Logger.info("Dart Reducer Starting with #{num_threads} threads...")
+    message = "Dart Reducer Starting with #{num_threads} threads..."
+    Cosmos::Logger.info(message)
     @master_queue = Queue.new
     @locked_tables = []
     @mutex = Mutex.new
     @threads = []
+    @status = DartReducerStatus.new
     num_threads.times do |index|
-      @threads << DartReducerWorkerThread.new(@master_queue, @locked_tables, @mutex, index + 1)
+      @threads << DartReducerWorkerThread.new(@master_queue, @locked_tables, @mutex, index + 1, @status)
     end
   end
 
@@ -51,6 +67,20 @@ class DartReducerManager
           queue_worker(:HOUR, packet_config_id, table_index, minute_model, hour_model)
           queue_worker(:DAY, packet_config_id, table_index, hour_model, day_model)
         end
+
+        # Update status
+        status = Status.first
+        if (Time.now - @status.message_time) <= 60.0
+          status.reduction_message = @status.message
+          status.reduction_message_time = @status.message_time
+          status.save!
+        end
+        if @status.count > 0 or @status.error_count > 0
+          Status.update_counters(status.id, :reduction_count => @status.count, :reduction_error_count => @status.error_count)
+          @status.count = 0
+          @status.error_count = 0
+        end
+
         # Throttle to no faster than once every 60 seconds
         delta = Time.now - time_start
         if delta < 60 and delta > 0
@@ -58,7 +88,8 @@ class DartReducerManager
         end
       end
     rescue Interrupt
-      Cosmos::Logger.info("Dart Reducer Shutting Down...")
+      message = "Dart Reducer Shutting Down..."
+      Cosmos::Logger.info(message)
       shutdown()
       exit(0)
     end

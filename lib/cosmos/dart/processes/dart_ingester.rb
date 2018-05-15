@@ -8,6 +8,7 @@
 # as published by the Free Software Foundation; version 3 with
 # attribution addendums as found in the LICENSE.txt
 
+ENV['RAILS_ENV'] = 'production'
 require File.expand_path('../../config/environment', __FILE__)
 require 'dart_packet_log_writer'
 require 'dart_logging'

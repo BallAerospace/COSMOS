@@ -22,6 +22,7 @@ describe DartTcpipServerInterface do
   before(:each) do
     DatabaseCleaner.strategy = :truncation
     DatabaseCleaner.clean
+    Rails.application.load_seed
   end
 
   describe "initialize" do
@@ -48,8 +49,6 @@ describe DartTcpipServerInterface do
       @request.write('REQUEST', "BLAH")
       interface.write(@request)
       sleep 0.1
-      # TODO: Why is the interface still connected?
-      # expect(interface.connected?).to be false
       i.disconnect
 
       Dir["#{Cosmos::System.paths['DART_LOGS']}/*"].each do |file|
