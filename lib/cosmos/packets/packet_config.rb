@@ -397,7 +397,7 @@ module Cosmos
           raise parser.error("#{params[0].filename_to_class_name} class not found. Did you require the file in target.txt?", usage) unless klass
           conversion = klass.new(*params[1..(params.length - 1)])
           @current_item.send("#{keyword.downcase}=".to_sym, conversion)
-          if conversion.converted_type.nil? or conversion.converted_bit_size.nil?
+          if klass != ProcessorConversion and (conversion.converted_type.nil? or conversion.converted_bit_size.nil?)
             msg = "Read Conversion #{params[0].filename_to_class_name} on item #{@current_item.name} does not specify converted type or bit size. Will not be supported by DART"
             @warnings << msg
             Logger.instance.warn @warnings[-1]
