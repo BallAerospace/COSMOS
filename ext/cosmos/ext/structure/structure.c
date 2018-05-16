@@ -46,6 +46,7 @@ static ID id_method_slice = 0;
 static ID id_method_reverse = 0;
 static ID id_method_Integer = 0;
 static ID id_method_Float = 0;
+static ID id_method_kind_of = 0;
 
 static ID id_ivar_buffer = 0;
 static ID id_ivar_bit_offset = 0;
@@ -1186,15 +1187,25 @@ static VALUE read_item(int argc, VALUE* argv, VALUE self)
  * offset.
  */
 static VALUE structure_item_spaceship(VALUE self, VALUE other_item) {
-  int bit_offset = FIX2INT(rb_ivar_get(self, id_ivar_bit_offset));
-  int other_bit_offset = FIX2INT(rb_ivar_get(other_item, id_ivar_bit_offset));
+  int bit_offset = 0;
+  int other_bit_offset = 0;
   int bit_size = 0;
   int other_bit_size = 0;
   int create_index = 0;
   int other_create_index = 0;
   int have_create_index = 0;
-  volatile VALUE v_create_index = rb_ivar_get(self, id_ivar_create_index);
-  volatile VALUE v_other_create_index = rb_ivar_get(other_item, id_ivar_create_index);
+  volatile VALUE v_create_index = Qnil;
+  volatile VALUE v_other_create_index = Qnil;
+
+  if (!RTEST(rb_funcall(other_item, id_method_kind_of, 1, cStructureItem))) {
+    return Qnil;
+  }
+
+  bit_offset = FIX2INT(rb_ivar_get(self, id_ivar_bit_offset));
+  other_bit_offset = FIX2INT(rb_ivar_get(other_item, id_ivar_bit_offset));
+
+  v_create_index = rb_ivar_get(self, id_ivar_create_index);
+  v_other_create_index = rb_ivar_get(other_item, id_ivar_create_index);
   if (RTEST(v_create_index) && RTEST(v_other_create_index)) {
     create_index = FIX2INT(v_create_index);
     other_create_index = FIX2INT(v_other_create_index);
@@ -1373,6 +1384,7 @@ void Init_structure (void)
   id_method_reverse = rb_intern("reverse");
   id_method_Integer = rb_intern("Integer");
   id_method_Float = rb_intern("Float");
+  id_method_kind_of = rb_intern("kind_of?");
 
   MIN_INT8 = INT2NUM(-128);
   MAX_INT8 = INT2NUM(127);

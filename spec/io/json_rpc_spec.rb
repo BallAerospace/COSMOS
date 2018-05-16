@@ -193,6 +193,13 @@ module Cosmos
         expect(request).to eq(JsonRpcRequest.from_hash(request.as_json))
       end
     end
+
+    describe "spaceship" do
+      it "returns nil for incompatible items" do
+        request = JsonRpcRequest.new("puts","test",10)
+        expect(request <=> Marshal).to be nil
+      end
+    end
   end
 
   describe JsonRpcResponse do
