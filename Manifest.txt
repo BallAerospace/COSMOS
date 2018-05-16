@@ -211,6 +211,7 @@ autohotkey/tools/tool_launch.rb
 bin/cosmos
 bin/cstol_converter
 bin/dart_import
+bin/dart_util
 bin/exchndl20-x64.dll
 bin/exchndl20.dll
 bin/exchndl21-x64.dll
@@ -368,6 +369,11 @@ demo/config/data/vswitchoff.gif
 demo/config/data/vswitchon.gif
 demo/config/system/system.txt
 demo/config/system/system2.txt
+demo/config/targets/DART/cmd_tlm/dart_cmds.txt
+demo/config/targets/DART/cmd_tlm/dart_tlm.txt
+demo/config/targets/DART/cmd_tlm_server.txt
+demo/config/targets/DART/screens/status.txt
+demo/config/targets/DART/target.txt
 demo/config/targets/EXAMPLE/cmd_tlm/example_cmds.txt
 demo/config/targets/EXAMPLE/cmd_tlm/example_tlm.txt
 demo/config/targets/EXAMPLE/cmd_tlm_server.txt
@@ -901,7 +907,6 @@ lib/cosmos/dart/app/assets/stylesheets/application.css.scss
 lib/cosmos/dart/app/channels/application_cable/channel.rb
 lib/cosmos/dart/app/channels/application_cable/connection.rb
 lib/cosmos/dart/app/controllers/application_controller.rb
-lib/cosmos/dart/app/helpers/application_helper.rb
 lib/cosmos/dart/app/jobs/application_job.rb
 lib/cosmos/dart/app/mailers/application_mailer.rb
 lib/cosmos/dart/app/models/application_record.rb
@@ -911,6 +916,7 @@ lib/cosmos/dart/app/models/packet.rb
 lib/cosmos/dart/app/models/packet_config.rb
 lib/cosmos/dart/app/models/packet_log.rb
 lib/cosmos/dart/app/models/packet_log_entry.rb
+lib/cosmos/dart/app/models/status.rb
 lib/cosmos/dart/app/models/system_config.rb
 lib/cosmos/dart/app/models/target.rb
 lib/cosmos/dart/app/views/layouts/application.html.erb
@@ -968,6 +974,11 @@ lib/cosmos/dart/db/migrate/20170919201433_add_system_config_id_to_packet_config.
 lib/cosmos/dart/db/migrate/20170919210307_add_max_table_index_to_packet_configs.rb
 lib/cosmos/dart/db/migrate/20171215225546_add_ready_to_packet_log_entries.rb
 lib/cosmos/dart/db/migrate/20180116214338_add_index_for_ple_ready_to_packet_log_entries.rb
+lib/cosmos/dart/db/migrate/20180423205644_create_statuses.rb
+lib/cosmos/dart/db/migrate/20180425211340_add_decom_state_index.rb
+lib/cosmos/dart/db/migrate/20180509204705_remove_indexes.rb
+lib/cosmos/dart/db/migrate/20180510160002_remove_timestamps_from_ples.rb
+lib/cosmos/dart/db/migrate/20180511194944_add_packet_log_id_to_tables.rb
 lib/cosmos/dart/db/schema.rb
 lib/cosmos/dart/db/seeds.rb
 lib/cosmos/dart/examples/dart_decom_client.rb
@@ -988,6 +999,7 @@ lib/cosmos/dart/processes/dart_import.rb
 lib/cosmos/dart/processes/dart_ingester.rb
 lib/cosmos/dart/processes/dart_reducer.rb
 lib/cosmos/dart/processes/dart_stream_server.rb
+lib/cosmos/dart/processes/dart_util.rb
 lib/cosmos/dart/processes/dart_worker.rb
 lib/cosmos/dart/spec/dart/dart_common_spec.rb
 lib/cosmos/dart/spec/dart/dart_database_cleaner_spec.rb
@@ -1066,6 +1078,7 @@ lib/cosmos/gui/widgets/packet_log_frame.rb
 lib/cosmos/gui/widgets/realtime_button_bar.rb
 lib/cosmos/interfaces.rb
 lib/cosmos/interfaces/cmd_tlm_server_interface.rb
+lib/cosmos/interfaces/dart_status_interface.rb
 lib/cosmos/interfaces/interface.rb
 lib/cosmos/interfaces/linc_interface.rb
 lib/cosmos/interfaces/protocols/burst_protocol.rb
