@@ -267,7 +267,11 @@ module Cosmos
     # Export the sequence list into a custom binary format
     def file_export
       return if @sequence_list.empty? || @exporter.nil?
-      @exporter.export(@filename, @sequence_dir, @sequence_list)
+      begin
+        @exporter.export(@filename, @sequence_dir, @sequence_list)
+      rescue => error
+        Qt::MessageBox.critical(self, 'Export Error', "The #{@exporter.class} raised the folllowing error:\n#{error.message}")
+      end
     end
 
     # Clears the sequence list
