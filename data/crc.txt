@@ -18,7 +18,7 @@
 "lib/cosmos/processors/processor.rb" 0x1FEB7030
 "lib/cosmos/processors/statistics_processor.rb" 0x514E4788
 "lib/cosmos/processors/watermark_processor.rb" 0x8829E260
-"lib/cosmos/version.rb" 0xA3170CC0
+"lib/cosmos/version.rb" 0xB27EDA3B
 "lib/cosmos/conversions/new_packet_log_conversion.rb" 0x4AA03555
 "lib/cosmos/conversions/segmented_polynomial_conversion.rb" 0xC498CE81
 "lib/cosmos/conversions/processor_conversion.rb" 0xC72B73BD
