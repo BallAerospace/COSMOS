@@ -84,6 +84,8 @@
     <option value="/news/">Home</option>
     <optgroup label="v1.x">
       
+      <option value="/news/2018/05/16/cosmos-4-2-4-released/">Ball Aerospace COSMOS 4.2.4 Released</option>
+      
       <option value="/news/2018/04/17/cosmos-4-2-3-released/">Ball Aerospace COSMOS 4.2.3 Released</option>
       
       <option value="/news/2018/04/11/cosmos-4-2-2-released/">Ball Aerospace COSMOS 4.2.2 Released</option>
@@ -207,6 +209,73 @@
 
       <div class="unit four-fifths">
         
+  <article>
+  <h2>
+    <a href="/news/2018/05/16/cosmos-4-2-4-released/">
+      Ball Aerospace COSMOS 4.2.4 Released
+    </a>
+  </h2>
+  <span class="post-category">
+    <span class="label">
+      release
+    </span>
+  </span>
+  <div class="post-meta">
+    <span class="post-date">
+      16 May 2018
+    </span>
+    <a href="https://github.com/ryanmelt" class="post-author">
+      <img src="https://github.com/ryanmelt.png" class="avatar" alt="ryanmelt avatar" width="24" height="24">
+      ryanmelt
+    </a>
+  </div>
+  <div class="post-content">
+    <p>This is the second patch release for 4.2.  It greatly improves the ingest speed for DART (100x), improves decom speed, reduces database size, and fixes some bugs.  If you are using DART, please upgrade and follow the migration directions at the end of these release notes.</p>
+
+<p>The highlight of COSMOS 4.2 is a new tool called the Data Archival and Retrieval Tool (DART).   DART is a long term trending database built on top of the PostgreSql database.  It integrates directly with TlmGrapher, TlmExtractor, CmdExtractor, DataViewer, and Replay, allowing you to do historical queries of logged telemetry (and commands) by specifying a time range.  Queries are super fast and it performs automatic data reduction at minute/hour/day granularity.  Consider setting it up for your project and start data mining today!</p>
+
+<p>See the COSMOS documentation for directions on setting up DART: http://cosmosrb.com/docs/home/</p>
+
+<h3 id="new-features">New Features:</h3>
+
+<ul>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/787">#787</a> No way to control data bits on serial interface</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/788">#788</a> ROUTERS should support PROTOCOL keyword</li>
+</ul>
+
+<h3 id="maintenance">Maintenance:</h3>
+
+<ul>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/784">#784</a> Comparable and spaceship operator behavior changing</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/791">#791</a> Table Manager doesn’t expose top level layout</li>
+</ul>
+
+<h3 id="bug-fixes">Bug Fixes:</h3>
+
+<ul>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/779">#779</a> Dart updates for ingest speed, correct time zone, TlmGrapher crash</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/786">#786</a> Status tab crash on Ruby 2.5</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/790">#790</a> Telemetry check doesn’t support strings with multiple spaces</li>
+</ul>
+
+<h3 id="migration-notes-from-cosmos-41x">Migration Notes from COSMOS 4.1.x:</h3>
+
+<p>To upgrade to the latest version of COSMOS, run “bundle update cosmos” in your COSMOS project folder.</p>
+
+<p>If you already setup DART for your program please follow the following additional steps:
+In a terminal in your COSMOS project folder run:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>rake db:migrate
+rake db:seed
+</code></pre>
+</div>
+
+<p>See the COSMOS documentation for directions on setting up DART: http://cosmosrb.com/docs/home/</p>
+
+  </div>
+</article>
+
+
   <article>
   <h2>
     <a href="/news/2018/04/17/cosmos-4-2-3-released/">
@@ -4264,6 +4333,10 @@ change the whole playing field of Operations, Integration, and Test”.</p>
     <ul>
       
       <li class="">
+        <a href="/news/2018/05/16/cosmos-4-2-4-released/">Version 4.2.4</a>
+      </li>
+      
+      <li class="">
         <a href="/news/2018/04/17/cosmos-4-2-3-released/">Version 4.2.3</a>
       </li>
       
@@ -4279,16 +4352,14 @@ change the whole playing field of Operations, Integration, and Test”.</p>
         <a href="/news/2017/11/17/cosmos-4-1-0-released/">Version 4.1.0</a>
       </li>
       
-      <li class="">
-        <a href="/news/2017/10/24/cosmos-4-0-3-released/">Version 4.0.3</a>
-      </li>
-      
       <li>
         <a href="/docs/history/">History »</a>
       </li>
     </ul>
     <h4>Other News</h4>
     <ul>
+        
+        
         
         
         

@@ -11,8 +11,8 @@
     <title xml:lang="en">Ball Aerospace COSMOS News</title>
     <atom:link type="application/atom+xml" href="http://cosmosrb/feed.xml" rel="self"/>
     <link>http://cosmosrb.com/</link>
-    <pubDate>Thu, 03 May 2018 07:48:26 -0600</pubDate>
-    <lastBuildDate>Thu, 03 May 2018 07:48:26 -0600</lastBuildDate>
+    <pubDate>Wed, 16 May 2018 16:46:22 -0600</pubDate>
+    <lastBuildDate>Wed, 16 May 2018 16:46:22 -0600</lastBuildDate>
     <language>en-US</language>
     <generator>Jekyll v3.5.2</generator>
     <description>The User Interface for Embedded Systems</description>
@@ -24,6 +24,60 @@
       <width>144</width>
       <height>73</height>
     </image>
+    
+    <item>
+      <title>Ball Aerospace COSMOS 4.2.4 Released</title>
+      <link>http://cosmosrb.com/news/2018/05/16/cosmos-4-2-4-released/</link>
+      <pubDate>Wed, 16 May 2018 07:00:00 -0600</pubDate>
+      <dc:creator>ryanmelt</dc:creator>
+      
+      
+      <category>release</category>
+      
+      <guid isPermaLink="true">http://cosmosrb.com/news/2018/05/16/cosmos-4-2-4-released/</guid>
+      <description>&lt;p&gt;This is the second patch release for 4.2.  It greatly improves the ingest speed for DART (100x), improves decom speed, reduces database size, and fixes some bugs.  If you are using DART, please upgrade and follow the migration directions at the end of these release notes.&lt;/p&gt;
+
+&lt;p&gt;The highlight of COSMOS 4.2 is a new tool called the Data Archival and Retrieval Tool (DART).   DART is a long term trending database built on top of the PostgreSql database.  It integrates directly with TlmGrapher, TlmExtractor, CmdExtractor, DataViewer, and Replay, allowing you to do historical queries of logged telemetry (and commands) by specifying a time range.  Queries are super fast and it performs automatic data reduction at minute/hour/day granularity.  Consider setting it up for your project and start data mining today!&lt;/p&gt;
+
+&lt;p&gt;See the COSMOS documentation for directions on setting up DART: http://cosmosrb.com/docs/home/&lt;/p&gt;
+
+&lt;h3 id=&quot;new-features&quot;&gt;New Features:&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/787&quot;&gt;#787&lt;/a&gt; No way to control data bits on serial interface&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/788&quot;&gt;#788&lt;/a&gt; ROUTERS should support PROTOCOL keyword&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;maintenance&quot;&gt;Maintenance:&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/784&quot;&gt;#784&lt;/a&gt; Comparable and spaceship operator behavior changing&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/791&quot;&gt;#791&lt;/a&gt; Table Manager doesn’t expose top level layout&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;bug-fixes&quot;&gt;Bug Fixes:&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/779&quot;&gt;#779&lt;/a&gt; Dart updates for ingest speed, correct time zone, TlmGrapher crash&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/786&quot;&gt;#786&lt;/a&gt; Status tab crash on Ruby 2.5&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/790&quot;&gt;#790&lt;/a&gt; Telemetry check doesn’t support strings with multiple spaces&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;migration-notes-from-cosmos-41x&quot;&gt;Migration Notes from COSMOS 4.1.x:&lt;/h3&gt;
+
+&lt;p&gt;To upgrade to the latest version of COSMOS, run “bundle update cosmos” in your COSMOS project folder.&lt;/p&gt;
+
+&lt;p&gt;If you already setup DART for your program please follow the following additional steps:
+In a terminal in your COSMOS project folder run:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;rake db:migrate
+rake db:seed
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;See the COSMOS documentation for directions on setting up DART: http://cosmosrb.com/docs/home/&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>Ball Aerospace COSMOS 4.2.3 Released</title>
