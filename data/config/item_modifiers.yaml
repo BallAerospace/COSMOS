@@ -131,6 +131,15 @@ GENERIC_READ_CONVERSION_START:
       GENERIC_READ_CONVERSION_START
         value * 1.5  # Convert the value by a scale factor
       GENERIC_READ_CONVERSION_END
+  parameters:
+    - name: Converted Type
+      required: false
+      description: Type of the converted value
+      values: <%= %w(INT UINT FLOAT STRING BLOCK) %>
+    - name: Converted Bit Size
+      required: false
+      description: Bit size of converted value
+      values: \d+
 GENERIC_READ_CONVERSION_END:
   summary: Complete a generic read conversion
 LIMITS:
