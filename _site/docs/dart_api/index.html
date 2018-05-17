@@ -3268,7 +3268,10 @@
 
 <h2 id="dart-decommutation-server">
 <a id="dart-decommutation-server" class="anchor" href="#dart-decommutation-server" aria-hidden="true"><span class="octicon octicon-link"></span></a>DART Decommutation Server</h2>
-<p>DART creates a TCP/IP Server at port 8777 by default to respond to request for decommutated data. Note that this can be changed by overriding the DART_DECOM port in the system.txt file. The server expects to receive JSON formatted requests with the following fields.</p>
+
+<p>The DART Decommutation API implements a relaxed version of the <a href="http://www.jsonrpc.org/specification">JSON-RPC 2.0 Specification</a>. Requests with an “id” of NULL are not supported. Numbers can contain special non-string literal’s such as NaN, and +/-inf. Request params must be specified by-position, by-name is not supported. Section 6 of the spec, Batch Operations, is not supported.</p>
+
+<p>DART creates a HTTP Server at port 8777 by default to respond to request for decommutated data. Note that this can be changed by overriding the DART_DECOM port in the system.txt file. The server expects to receive JSON RPC formatted request to the “query” method with a since hash parameter with the following fields.</p>
 
 <table>
   <thead>
@@ -3355,7 +3358,12 @@
   </tbody>
 </table>
 
-<p>After sending the request, the client should read from the same socket which will return a JSON object as an Array of Arrays containing the item name, item seconds, item microseconds, samples (always 1 for NONE reduction, varies for other reduction values), and meta_id. Note this meta_id is the ID which can be used in subsequent requests in the meta_ids field.</p>
+<p>After sending the request, the JSON RPC response will contain an Array of Arrays containing the item value, item seconds, item microseconds, samples (always 1 for NONE reduction, varies for other reduction values), and meta_id. Note this meta_id is the ID which can be used in subsequent requests in the meta_ids field.</p>
+
+<p>Example Usage:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="gp">--&gt; </span><span class="o">{</span><span class="s2">"jsonrpc"</span>: <span class="s2">"2.0"</span>, <span class="s2">"method"</span>: <span class="s2">"query"</span>, <span class="s2">"params"</span>: <span class="o">[{</span><span class="s2">"start_time_sec"</span>: 1514764800, <span class="s2">"start_time_usec"</span>: 0, <span class="s2">"end_time_sec"</span>: 415000000, <span class="s2">"end_time_usec"</span>: 0, <span class="s2">"item"</span>: <span class="o">[</span><span class="s2">"INST"</span>, <span class="s2">"HEALTH_STATUS"</span>, <span class="s2">"TEMP1"</span><span class="o">]</span>, <span class="s2">"reduction"</span>: <span class="s2">"NONE"</span>, <span class="s2">"value_type"</span>: <span class="s2">"CONVERTED"</span><span class="o">}]</span>, <span class="s2">"id"</span>: 1<span class="o">}</span>
+&lt;-- <span class="o">{</span><span class="s2">"jsonrpc"</span>: <span class="s2">"2.0"</span>, <span class="s2">"result"</span>: <span class="o">[[</span>10.3, 1514764800, 0, 1, 1], <span class="o">[</span>15.6, 1514764801, 340, 1, 1]], <span class="s2">"id"</span>: 1<span class="o">}</span></code></pre></figure>
 
 <h2 id="dart-stream-server">
 <a id="dart-stream-server" class="anchor" href="#dart-stream-server" aria-hidden="true"><span class="octicon octicon-link"></span></a>DART Stream Server</h2>

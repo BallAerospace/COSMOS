@@ -4143,6 +4143,29 @@ SEG_POLY_READ_CONVERSION 100 12 0.5 0.3 # Apply the conversion to all values &gt
 
 <div class="note warning"><p>Generic conversions are not a good long term solution. Consider creating a conversion class and using READ_CONVERSION instead. READ_CONVERSION is easier to debug and higher performance.</p></div>
 
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Converted Type</td>
+      <td>Type of the converted value<br><br>Valid Values: <span class="values">INT, UINT, FLOAT, STRING, BLOCK</span>
+</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>Converted Bit Size</td>
+      <td>Bit size of converted value</td>
+      <td>False</td>
+    </tr>
+  </tbody>
+</table>
+
 <p>Example Usage:</p>
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">APPEND_ITEM ITEM1 32 UINT
   GENERIC_READ_CONVERSION_START

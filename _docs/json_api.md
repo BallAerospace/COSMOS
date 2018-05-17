@@ -9,19 +9,15 @@ permalink: /docs/json_api/
   <p markdown="1">If you're looking for the methods available to write test procedures using the COSMOS scripting API, refer to the [Scripting Guide](/docs/scripting) page. If you're trying to interface to a COSMOS Command and Telemtry Server from an external application using any language then this is the right place.</p>
 </div>
 
-This document provides the information necessary for external applications to interact with the COSMOS Command and Telemetry Server using the COSMOS API. External applications written in any language can send commands and retrieve individual telemetry points using this API. External applications also have the option of connecting to the COSMOS Command and Telemetry server to interact with raw tcp/ip streams of commands/telemetry. However, the COSMOS JSON API removes the requirement that external applications have knowledge of the binary formats of packets. 
+This document provides the information necessary for external applications to interact with the COSMOS Command and Telemetry Server using the COSMOS API. External applications written in any language can send commands and retrieve individual telemetry points using this API. External applications also have the option of connecting to the COSMOS Command and Telemetry server to interact with raw tcp/ip streams of commands/telemetry. However, the COSMOS JSON API removes the requirement that external applications have knowledge of the binary formats of packets.
 
 ## JSON-RPC 2.0
 
-The COSMOS API implements a relaxed version of the [JSON-RPC 2.0 Specification](http://www.jsonrpc.org/specification). Requests with an "id" of NULL are not supported. Numbers can contain special non-string literal's such as NaN, and +/-inf. Request params must be specified by-position, by-name is not supported. Section 6 of the spec, Batch Operations, is not supported. 
+The COSMOS API implements a relaxed version of the [JSON-RPC 2.0 Specification](http://www.jsonrpc.org/specification). Requests with an "id" of NULL are not supported. Numbers can contain special non-string literal's such as NaN, and +/-inf. Request params must be specified by-position, by-name is not supported. Section 6 of the spec, Batch Operations, is not supported.
 
 ## Socket Connections
 
-The COSMOS Command and Telemetry Server listens for connections to the COSMOS API on a TCP/IP socket (default port of 7777).
-
-Each JSON-RPC string sent to the socket by the target must be preceded by a Big-Endian 32-bit integer indicating the number of bytes that make up the JSON-RPC string. Similarly, the response sent back on the socket with be preceded by a Big-Endian 32-bit integer indicating the length of the response string.
-
-It is often desirable for a COSMOS target to be able to use the COSMOS API without knowing the hostname or port of the COSMOS Command and Telemetry Server. In this case, the cosmos interface code used to connect to the target can also open a socket for use with the COSMOS API and register the socket using JsonDRb.create_client_thread(socket).
+The COSMOS Command and Telemetry Server listens for connections to the COSMOS API on an HTTP server (default port of 7777).
 
 ## Supported Methods
 
@@ -43,7 +39,7 @@ The cmd method sends a command to a COSMOS target in the system. The cmd_no_rang
 Two parameter syntaxes are supported.
 
 The first is a single string of the form "TARGET_NAME COMMAND_NAME with PARAMETER_NAME_1 PARAMETER_VALUE_1, PARAMETER_NAME_2 PARAMETER_VALUE_2, ..." The "with ..." portion of the string is optional. Any unspecified parameters will be given default values.
-  
+
 | Parameter | Data Type | Description |
 | --------- | --------- | ----------- |
 | command_string | string | A single string containing all required information for the command |
@@ -73,7 +69,7 @@ The tlm method returns the current converted value of a telemetry point. The tlm
 
 Two parameter syntaxes are supported.
 
-The first is a single string of the form "TARGET_NAME PACKET_NAME ITEM_NAME" 
+The first is a single string of the form "TARGET_NAME PACKET_NAME ITEM_NAME"
 
 | Parameter | Data Type | Description |
 | --------- | --------- | ----------- |
@@ -96,7 +92,7 @@ Example Usage:
 <-- {"jsonrpc": "2.0", "result": 94.9438, "id": 2}
 {% endhighlight %}
 
- 
+
 
 
 
