@@ -114,21 +114,23 @@ module Cosmos
 
       it "returns all items from packet TGT1/PKT1" do
         items = @tlm.items("TGT1","PKT1")
-        expect(items.length).to eql 7
-        expect(items[0].name).to eql "RECEIVED_TIMESECONDS"
-        expect(items[1].name).to eql "RECEIVED_TIMEFORMATTED"
-        expect(items[2].name).to eql "RECEIVED_COUNT"
-        expect(items[3].name).to eql "ITEM1"
-        expect(items[4].name).to eql "ITEM2"
-        expect(items[5].name).to eql "ITEM3"
-        expect(items[6].name).to eql "ITEM4"
+        expect(items.length).to eql 9
+        expect(items[0].name).to eql "PACKET_TIMESECONDS"
+        expect(items[1].name).to eql "PACKET_TIMEFORMATTED"
+        expect(items[2].name).to eql "RECEIVED_TIMESECONDS"
+        expect(items[3].name).to eql "RECEIVED_TIMEFORMATTED"
+        expect(items[4].name).to eql "RECEIVED_COUNT"
+        expect(items[5].name).to eql "ITEM1"
+        expect(items[6].name).to eql "ITEM2"
+        expect(items[7].name).to eql "ITEM3"
+        expect(items[8].name).to eql "ITEM4"
       end
     end
 
     describe "item_names" do
       it "returns all the items for a given target and packet" do
         items = @tlm.item_names("TGT1","PKT1")
-        expect(items).to contain_exactly('RECEIVED_TIMEFORMATTED','RECEIVED_TIMESECONDS','RECEIVED_COUNT','ITEM1','ITEM2','ITEM3','ITEM4')
+        expect(items).to contain_exactly('PACKET_TIMEFORMATTED', 'PACKET_TIMESECONDS', 'RECEIVED_TIMEFORMATTED','RECEIVED_TIMESECONDS','RECEIVED_COUNT','ITEM1','ITEM2','ITEM3','ITEM4')
 
         items = @tlm.item_names("TGT1","LATEST")
         expect(items).to contain_exactly('ITEM1','ITEM2','ITEM3','ITEM4')
