@@ -270,7 +270,7 @@ module Cosmos
       begin
         @exporter.export(@filename, @sequence_dir, @sequence_list)
       rescue => error
-        Qt::MessageBox.critical(self, 'Export Error', "The #{@exporter.class} raised the folllowing error:\n#{error.message}")
+        ExceptionDialog.new(self, error, 'Export Error', false)
       end
     end
 
