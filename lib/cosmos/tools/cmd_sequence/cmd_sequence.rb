@@ -267,7 +267,11 @@ module Cosmos
     # Export the sequence list into a custom binary format
     def file_export
       return if @sequence_list.empty? || @exporter.nil?
-      @exporter.export(@filename, @sequence_dir, @sequence_list)
+      begin
+        @exporter.export(@filename, @sequence_dir, @sequence_list)
+      rescue => error
+        ExceptionDialog.new(self, error, 'Export Error', false)
+      end
     end
 
     # Clears the sequence list
