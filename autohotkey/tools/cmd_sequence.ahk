@@ -46,7 +46,7 @@ Send !a ; Actions menu
 Sleep 500
 Send c ; Collapse all
 Sleep 1000
-Click 300 210 ; Click on sequence item to display it
+Click 300 234 ; Click on sequence item to display it
 Sleep 1000
 Send !a ; Actions menu
 Sleep 500
@@ -57,7 +57,7 @@ Sleep 500
 Send s ; Show ignored items
 Sleep 500
 
-Click right 170 309 ; Right click collect type
+Click right 170 355 ; Right click collect type
 Sleep 500
 Send {Tab}{Enter}
 WinWaitActive INST
@@ -65,7 +65,7 @@ Sleep 500
 Send {Enter}
 WinWaitActive Command Sequence
 
-Click right 170 309 ; Right click collect type
+Click right 170 355 ; Right click collect type
 Sleep 500
 Send {Tab 2}{Enter} ; Insert filename
 WinWaitActive Insert
@@ -73,12 +73,12 @@ Sleep 500
 Send {Esc}
 WinWaitActive Command Sequence
 
-Click 260 311 2 ; Double click the collect type manual entry
+Click 260 355 2 ; Double click the collect type manual entry
 Sleep 500
 Send 9{Enter}
 Sleep 500
 
-Click 170 309 2 ; Double click the collect Type
+Click 170 355 2 ; Double click the collect Type
 Sleep 500
 Click ; Click again to activate the drop down
 Sleep 500
@@ -116,39 +116,40 @@ WinWaitActive Save
 Send {Tab}{Enter} ; Yes
 WinWaitActive Command Sequence
 
-Click 100 100 ; Click the Target dropdown
+Click 100 124 ; Click the Target dropdown
 Sleep 500
+
 Send {Down}{Enter} ; Change the target
 Sleep 500
-Click 610 100 ; Add Abort command
+Click 610 124 ; Add Abort command
 Sleep 500
-Click 633 155 ; Delete the command
+Click 633 179 ; Delete the command
 Sleep 500
-Click 610 100 ; Add Abort command
+Click 610 124 ; Add Abort command
 Sleep 500
-Click 610 100 ; Add Abort command
+Click 610 124 ; Add Abort command
 Sleep 500
-Click 450 100 ; Click the command dropdown
+Click 450 124 ; Click the command dropdown
 Sleep 500
 Send {Down 2}{Enter} ; ASCIICMD
 Sleep 500
-Click 610 100 ; Add ASCIICMD
+Click 610 124 ; Add ASCIICMD
 Sleep 500
-Click 300 210 ; Click on the ASCIICMD to expand it
+Click 300 234 ; Click on the ASCIICMD to expand it
 Sleep 500
 
-Click 170 330 2 ; Click in the BINARY field
+Click 170 354 2 ; Click in the BINARY field
 Send testtest{Enter}
 WinWaitActive Error
 Send {Enter}
 WinWaitActive Command Sequence
 
-Click 170 330 2 ; Double click in the BINARY field
+Click 170 354 2 ; Double click in the BINARY field
 Sleep 500
 Send test{Enter}
 Sleep 500
 
-Click 170 330 2 ; Double click in the BINARY field
+Click 170 354 2 ; Double click in the BINARY field
 Sleep 500
 Send 0xDEADBEEF{Enter}
 Sleep 500
@@ -163,19 +164,19 @@ WinWaitActive Save
 Send {Tab 2}{Enter} ; No
 ; Script should execute and complete
 
-Click 80 155 ; First command Time field
+Click 80 174 ; First command Time field
 Sleep 500
 Send {Backspace 5}2.5{Enter} ; 2.5s delay
-Click right 85 180
+Click right 85 204
 WinWaitActive Select
 Send {Esc} ; Cancel absolute time select
 WinWaitActive Command Sequence
-Click right 80 180
+Click right 80 204
 WinWaitActive Select
 Min := 1 + A_Min ; One minute in the future
 Send {Tab 2}%Min%{Enter} ; Set the future time
 WinWaitActive Command Sequence
-Click right 80 210
+Click right 80 234
 WinWaitActive Select
 Send {Tab 5}{Enter} ; Select time now
 WinWaitActive Command Sequence

@@ -19,6 +19,7 @@ Cosmos.catch_fatal_exception do
   require 'cosmos/gui/widgets/realtime_button_bar'
   require 'cosmos/gui/choosers/file_chooser'
   require 'cosmos/tools/cmd_sequence/sequence_list'
+  require 'cosmos/gui/widgets/full_text_search_line_edit'
 end
 
 module Cosmos
@@ -85,6 +86,20 @@ module Cosmos
           @target_select.setCurrentText(options.packet[0]) if options.packet
           update_commands()
           @cmd_select.setCurrentText(options.packet[1]) if options.packet
+
+          # Handle searching entries
+          @search_box.completion_list = System.commands.all_packet_strings(true, splash)
+          @search_box.callback = lambda do |cmd|
+            split_cmd = cmd.split(" ")
+            if split_cmd.length == 2
+              target_name = split_cmd[0].upcase
+              @target_select.setCurrentText(target_name)
+              update_commands()
+              command_name = split_cmd[1]
+              @cmd_select.setCurrentText(command_name)
+              add_command()
+            end
+          end
         end
         # Unconfigure CosmosConfig to interact with splash screen
         ConfigParser.splash = nil
@@ -205,6 +220,10 @@ module Cosmos
       @realtime_button_bar.state = 'Stopped'
       central_layout.addWidget(@realtime_button_bar)
 
+      # Mnemonic Search Box
+      @search_box = FullTextSearchLineEdit.new(self)
+      central_layout.addWidget(@search_box)
+
       @target_select = Qt::ComboBox.new
       @target_select.setMaxVisibleItems(6)
       @target_select.connect(SIGNAL('activated(const QString&)')) do |target|
@@ -219,13 +238,7 @@ module Cosmos
       cmd_label.setBuddy(@cmd_select)
 
       add = Qt::PushButton.new("Add")
-      add.connect(SIGNAL('clicked()')) do
-        command = System.commands.packet(@target_select.text, @cmd_select.text).dup
-        command.restore_defaults
-        item = @sequence_list.add(command)
-        item.show_ignored(@show_ignored.isChecked())
-        item.states_in_hex(@states_in_hex.isChecked())
-      end
+      add.connect(SIGNAL('clicked()')) { add_command() }
 
       # Layout the target and command selection with Add button
       select_layout = Qt::HBoxLayout.new
@@ -262,6 +275,14 @@ module Cosmos
       splitter.addWidget(bottom_frame)
       splitter.setStretchFactor(0,1)
       splitter.setStretchFactor(1,0)
+    end
+
+    def add_command
+      command = System.commands.packet(@target_select.text, @cmd_select.text).dup
+      command.restore_defaults
+      item = @sequence_list.add(command)
+      item.show_ignored(@show_ignored.isChecked())
+      item.states_in_hex(@states_in_hex.isChecked())
     end
 
     # Export the sequence list into a custom binary format
