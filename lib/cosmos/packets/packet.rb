@@ -771,7 +771,8 @@ module Cosmos
     def check_limits(limits_set = :DEFAULT, ignore_persistence = false)
       # If check_limits is being called, then a new packet has arrived and
       # this packet is no longer stale
-      if @stale
+      # Stored telemetry doesn't affect the current value table and such doesn't affect stale
+      if @stale and !@stored
         @stale = false
         set_all_limits_states(nil)
       end

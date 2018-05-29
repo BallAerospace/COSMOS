@@ -220,7 +220,7 @@ module Cosmos
       case type
       when :LIMITS_CHANGE
         # The most common event: target, packet, item, state
-        result = limits_change(data[0], data[1], data[2], data[4])
+        result = limits_change(data[0], data[1], data[2], data[4], data[5])
 
       when :LIMITS_SET
         # Check if the overall limits set changed. If so we need to reset
@@ -368,7 +368,7 @@ module Cosmos
 
     # Process a limits_change event by recoloring out of limits events
     # and creating a log message.
-    def limits_change(target_name, packet_name, item_name, state)
+    def limits_change(target_name, packet_name, item_name, state, packet_time = nil)
       message = ''
       color = :BLACK
       item = [target_name, packet_name, item_name]
@@ -392,9 +392,13 @@ module Cosmos
       when :BLUE
         message << "INFO: "
         color = :BLUE
+      when nil
+        return nil
       end
       value = tlm(target_name, packet_name, item_name)
-      message << "#{target_name} #{packet_name} #{item_name} = #{value} is #{state}\n"
+      packet_time_str = ""
+      packet_time_str = " (#{packet_time.sys.formatted})" if packet_time
+      message << "#{target_name} #{packet_name} #{item_name} = #{value} is #{state}#{packet_time_str}\n"
       [message, color]
     end
 

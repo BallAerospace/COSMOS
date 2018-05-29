@@ -140,34 +140,41 @@ module Cosmos
     protected
 
     def handle_packet(packet)
-      # Identify and update packet
-      if packet.identified?
-        begin
-          # Preidentifed packet - place it into the current value table
-          identified_packet = System.telemetry.update!(packet.target_name,
-                                                       packet.packet_name,
-                                                       packet.buffer)
-        rescue RuntimeError
-          # Packet identified but we don't know about it
-          # Clear packet_name and target_name and try to identify
-          Logger.warn "Received unknown identified telemetry: #{packet.target_name} #{packet.packet_name}"
-          packet.target_name = nil
-          packet.packet_name = nil
+      if packet.stored
+        # Stored telemetry does not update the current value table
+        identified_packet = System.telemetry.identify_and_define_packet(packet, @interface.target_names)
+      else
+        # Identify and update packet
+        if packet.identified?
+          begin
+            # Preidentifed packet - place it into the current value table
+            identified_packet = System.telemetry.update!(packet.target_name,
+                                                         packet.packet_name,
+                                                         packet.buffer)
+          rescue RuntimeError
+            # Packet identified but we don't know about it
+            # Clear packet_name and target_name and try to identify
+            Logger.warn "Received unknown identified telemetry: #{packet.target_name} #{packet.packet_name}"
+            packet.target_name = nil
+            packet.packet_name = nil
+            identified_packet = System.telemetry.identify!(packet.buffer,
+                                                           @interface.target_names)
+          end
+        else
+          # Packet needs to be identified
           identified_packet = System.telemetry.identify!(packet.buffer,
                                                          @interface.target_names)
         end
-      else
-        # Packet needs to be identified
-        identified_packet = System.telemetry.identify!(packet.buffer,
-                                                       @interface.target_names)
       end
 
       if identified_packet
         identified_packet.received_time = packet.received_time
+        identified_packet.stored = packet.stored
         packet = identified_packet
       else
         unknown_packet = System.telemetry.update!('UNKNOWN', 'UNKNOWN', packet.buffer)
         unknown_packet.received_time = packet.received_time
+        unknown_packet.stored = packet.stored
         packet = unknown_packet
         data_length = packet.length
         string = "#{@interface.name} - Unknown #{data_length} byte packet starting: "
