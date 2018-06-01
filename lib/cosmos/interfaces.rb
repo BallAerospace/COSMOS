@@ -20,3 +20,4 @@ require 'cosmos/interfaces/protocols/template_protocol'
 require 'cosmos/interfaces/protocols/terminated_protocol'
 
 require 'cosmos/interfaces/protocols/override_protocol'
+require 'cosmos/interfaces/protocols/crc_protocol'
