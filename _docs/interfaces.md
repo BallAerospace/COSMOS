@@ -55,6 +55,7 @@ INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 nil 
 INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 nil PREIDENTIFIED 0xCAFEBABE
 INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 10.0 TERMINATED 0x0D0A 0x0D0A true 0 0xF005BA11
 INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 10.0 TEMPLATE 0xA 0xA
+INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 10.0 # no built-in protocol
 {% endhighlight %}
 
 See [INTERFACE](/docs/system/#interface) for a description of the INTERFACE keyword. See [Interface Modifiers](/docs/system/#interface-modifiers) for a description of the keywords which can follow the INTERFACE keyword.
@@ -79,6 +80,7 @@ INTERFACE INTERFACE_NAME tcpip_server_interface.rb 8080 8080 10.0 nil FIXED 6 0 
 INTERFACE INTERFACE_NAME tcpip_server_interface.rb 8080 8080 10.0 nil PREIDENTIFIED 0xCAFEBABE
 INTERFACE INTERFACE_NAME tcpip_server_interface.rb 8080 8080 10.0 10.0 TERMINATED 0x0D0A 0x0D0A true 0 0xF005BA11
 INTERFACE INTERFACE_NAME tcpip_client_interface.rb 8080 8080 10.0 10.0 TEMPLATE 0xA 0xA
+INTERFACE INTERFACE_NAME tcpip_client_interface.rb 8080 8080 10.0 10.0 # no built-in protocol
 {% endhighlight %}
 
 See [INTERFACE](/docs/system/#interface) for a description of the INTERFACE keyword. See [Interface Modifiers](/docs/system/#interface-modifiers) for a description of the keywords which can follow the INTERFACE keyword. Note, TcpipServerInterface processes the [OPTION](/docs/system/#option) modifier.
@@ -127,6 +129,7 @@ INTERFACE INTERFACE_NAME serial_interface.rb COM2 COM2 19200 EVEN 1 10.0 nil FIX
 INTERFACE INTERFACE_NAME serial_interface.rb /dev/ttyS0 /dev/ttyS0 57600 NONE 1 10.0 nil PREIDENTIFIED 0xCAFEBABE
 INTERFACE INTERFACE_NAME serial_interface.rb COM4 COM4 115200 NONE 1 10.0 10.0 TERMINATED 0x0D0A 0x0D0A true 0 0xF005BA11
 INTERFACE INTERFACE_NAME serial_interface.rb COM4 COM4 115200 NONE 1 10.0 10.0 TEMPLATE 0xA 0xA
+INTERFACE INTERFACE_NAME serial_interface.rb COM4 COM4 115200 NONE 1 10.0 10.0 # no built-in protocol
 {% endhighlight %}
 
 See [INTERFACE](/docs/system/#interface) for a description of the INTERFACE keyword. See [Interface Modifiers](/docs/system/#interface-modifiers) for a description of the keywords which can follow the INTERFACE keyword. Note, SerialInterface processes the [OPTION](/docs/system/#option) modifier.
@@ -171,4 +174,43 @@ See [INTERFACE](/docs/system/#interface) for a description of the INTERFACE keyw
 Streams are low level classes that implement read, read_nonblock, write, connect, connected? and disconnect methods. The build-in Stream classes are SerialStream, TcpipSocketStream and TcpipClientStream and they are automatically used when creating a Serial Interface, TCP/IP Server Interface, or TCP/IP Client Interface.
 
 ## Protocols
-Protocols define the behaviour of an Interface, including differentiating packet boundaries and modifying data as necessary. See the <a href="/docs/protocols">Protocol Documentation</a>.
+Protocols define the behaviour of an Interface, including differentiating packet boundaries and modifying data as necessary. COSMOS defines the following built-in protocols which can be used with the above interfaces:
+
+| Name | Description |
+|------|-------------|
+| [Burst](/docs/protocols/#burst-protocol) | Reads as much data as possible from the interface |
+| [Fixed](/docs/protocols/#fixed-protocol) | Processes fixed length packets with a known ID position |
+| [Length](/docs/protocols/#length-protocol) | Processes a length field at a fixed location and then reads the remainder of the data |
+| [Terminated](/docs/protocols/#terminated-protocol) | Delineates packets uses termination characters at the end of each packet |
+| [Template](/docs/protocols/#template-protocol) | Processes text based command / response data such as SCPI interfaces |
+| [Preidentified](/docs/protocols/#preidentified-protocol) | Internal COSMOS protocol used by COSMOS tools |
+
+These protocols are declared directly after the interface:
+
+{% highlight bash %}
+INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 nil BURST 4 0xDEADBEEF
+INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 nil FIXED 6 0 nil true
+INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8081 10.0 nil LENGTH 0 16 0 1 BIG_ENDIAN 4 INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 10.0 TERMINATED 0x0D0A 0x0D0A true 0 0xF005BA11
+INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 10.0 TEMPLATE 0xA 0xA
+INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 nil PREIDENTIFIED 0xCAFEBABE
+{% endhighlight %}
+
+COSMOS also defines the following helper protocols:
+
+| Name | Description |
+|------|-------------|
+| [Override](/docs/protocols/#override-protocol) | Allows telemetry items to be fixed to given value when read |
+| [CRC](/docs/protocols/#crc-protocol) | Adds CRCs to outgoing packets and verifies CRCs on incoming packets |
+
+These protocols are declared after the INTERFACE:
+
+{% highlight bash %}
+INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 nil BURST 4 0xDEADBEEF
+  TARGET TGT
+  PROTOCOL READ OverrideProtocol
+  PROTOCOL WRITE CrcProtocol CRC # See the documentation for parameters
+{% endhighlight %}
+
+Note the first parameter after the PROTOCOL keyword is how to apply the protocol: READ, WRITE, or READ_WRITE. Read applies the protocol on incoming packets (telemetry) and write on outgoing packets (commands). The next parameter is the protocol filename or class name. All other parameters are protocol specific.
+
+In addition, you can define your own protocols which are declared like the COSMOS helper protocols after your interface. See the <a href="/docs/protocols#custom-protocols">Custom Protocols</a> documentation for more information.

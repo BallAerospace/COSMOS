@@ -3258,7 +3258,13 @@
           
           <div class="toc">
             <ul class="section-nav">
+<ul>
+<ul>
+<ul>
 <li class="toc-entry toc-h5"><a href="#note-on-naming">Note on Naming</a></li>
+</ul>
+</ul>
+</ul>
 <li class="toc-entry toc-h2"><a href="#provided-interfaces">Provided Interfaces</a>
 <ul>
 <li class="toc-entry toc-h3"><a href="#tcpip-client-interface">TCPIP Client Interface</a></li>
@@ -3378,7 +3384,8 @@ INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 nil 
 INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 nil FIXED 6 0 nil <span class="nb">true
 </span>INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 nil PREIDENTIFIED 0xCAFEBABE
 INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 10.0 TERMINATED 0x0D0A 0x0D0A <span class="nb">true </span>0 0xF005BA11
-INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 10.0 TEMPLATE 0xA 0xA</code></pre></figure>
+INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 10.0 TEMPLATE 0xA 0xA
+INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 10.0 <span class="c"># no built-in protocol</span></code></pre></figure>
 
 <p>See <a href="/docs/system/#interface">INTERFACE</a> for a description of the INTERFACE keyword. See <a href="/docs/system/#interface-modifiers">Interface Modifiers</a> for a description of the keywords which can follow the INTERFACE keyword.</p>
 
@@ -3435,7 +3442,8 @@ INTERFACE INTERFACE_NAME tcpip_server_interface.rb 8080 8080 10.0 nil BURST 4 0x
 INTERFACE INTERFACE_NAME tcpip_server_interface.rb 8080 8080 10.0 nil FIXED 6 0 nil <span class="nb">true
 </span>INTERFACE INTERFACE_NAME tcpip_server_interface.rb 8080 8080 10.0 nil PREIDENTIFIED 0xCAFEBABE
 INTERFACE INTERFACE_NAME tcpip_server_interface.rb 8080 8080 10.0 10.0 TERMINATED 0x0D0A 0x0D0A <span class="nb">true </span>0 0xF005BA11
-INTERFACE INTERFACE_NAME tcpip_client_interface.rb 8080 8080 10.0 10.0 TEMPLATE 0xA 0xA</code></pre></figure>
+INTERFACE INTERFACE_NAME tcpip_client_interface.rb 8080 8080 10.0 10.0 TEMPLATE 0xA 0xA
+INTERFACE INTERFACE_NAME tcpip_client_interface.rb 8080 8080 10.0 10.0 <span class="c"># no built-in protocol</span></code></pre></figure>
 
 <p>See <a href="/docs/system/#interface">INTERFACE</a> for a description of the INTERFACE keyword. See <a href="/docs/system/#interface-modifiers">Interface Modifiers</a> for a description of the keywords which can follow the INTERFACE keyword. Note, TcpipServerInterface processes the <a href="/docs/system/#option">OPTION</a> modifier.</p>
 
@@ -3578,7 +3586,8 @@ INTERFACE INTERFACE_NAME serial_interface.rb /dev/ttyS1 /dev/ttyS1 38400 ODD 1 1
 INTERFACE INTERFACE_NAME serial_interface.rb COM2 COM2 19200 EVEN 1 10.0 nil FIXED 6 0 nil <span class="nb">true
 </span>INTERFACE INTERFACE_NAME serial_interface.rb /dev/ttyS0 /dev/ttyS0 57600 NONE 1 10.0 nil PREIDENTIFIED 0xCAFEBABE
 INTERFACE INTERFACE_NAME serial_interface.rb COM4 COM4 115200 NONE 1 10.0 10.0 TERMINATED 0x0D0A 0x0D0A <span class="nb">true </span>0 0xF005BA11
-INTERFACE INTERFACE_NAME serial_interface.rb COM4 COM4 115200 NONE 1 10.0 10.0 TEMPLATE 0xA 0xA</code></pre></figure>
+INTERFACE INTERFACE_NAME serial_interface.rb COM4 COM4 115200 NONE 1 10.0 10.0 TEMPLATE 0xA 0xA
+INTERFACE INTERFACE_NAME serial_interface.rb COM4 COM4 115200 NONE 1 10.0 10.0 <span class="c"># no built-in protocol</span></code></pre></figure>
 
 <p>See <a href="/docs/system/#interface">INTERFACE</a> for a description of the INTERFACE keyword. See <a href="/docs/system/#interface-modifiers">Interface Modifiers</a> for a description of the keywords which can follow the INTERFACE keyword. Note, SerialInterface processes the <a href="/docs/system/#option">OPTION</a> modifier.</p>
 
@@ -3694,7 +3703,82 @@ INTERFACE INTERFACE_NAME linc_interface.rb localhost 8080 <span class="nb">true 
 
 <h2 id="protocols">
 <a id="protocols" class="anchor" href="#protocols" aria-hidden="true"><span class="octicon octicon-link"></span></a>Protocols</h2>
-<p>Protocols define the behaviour of an Interface, including differentiating packet boundaries and modifying data as necessary. See the <a href="/docs/protocols">Protocol Documentation</a>.</p>
+<p>Protocols define the behaviour of an Interface, including differentiating packet boundaries and modifying data as necessary. COSMOS defines the following built-in protocols which can be used with the above interfaces:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><a href="/docs/protocols/#burst-protocol">Burst</a></td>
+      <td>Reads as much data as possible from the interface</td>
+    </tr>
+    <tr>
+      <td><a href="/docs/protocols/#fixed-protocol">Fixed</a></td>
+      <td>Processes fixed length packets with a known ID position</td>
+    </tr>
+    <tr>
+      <td><a href="/docs/protocols/#length-protocol">Length</a></td>
+      <td>Processes a length field at a fixed location and then reads the remainder of the data</td>
+    </tr>
+    <tr>
+      <td><a href="/docs/protocols/#terminated-protocol">Terminated</a></td>
+      <td>Delineates packets uses termination characters at the end of each packet</td>
+    </tr>
+    <tr>
+      <td><a href="/docs/protocols/#template-protocol">Template</a></td>
+      <td>Processes text based command / response data such as SCPI interfaces</td>
+    </tr>
+    <tr>
+      <td><a href="/docs/protocols/#preidentified-protocol">Preidentified</a></td>
+      <td>Internal COSMOS protocol used by COSMOS tools</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>These protocols are declared directly after the interface:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 nil BURST 4 0xDEADBEEF
+INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 nil FIXED 6 0 nil <span class="nb">true
+</span>INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8081 10.0 nil LENGTH 0 16 0 1 BIG_ENDIAN 4 INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 10.0 TERMINATED 0x0D0A 0x0D0A <span class="nb">true </span>0 0xF005BA11
+INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 10.0 TEMPLATE 0xA 0xA
+INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 nil PREIDENTIFIED 0xCAFEBABE</code></pre></figure>
+
+<p>COSMOS also defines the following helper protocols:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><a href="/docs/protocols/#override-protocol">Override</a></td>
+      <td>Allows telemetry items to be fixed to given value when read</td>
+    </tr>
+    <tr>
+      <td><a href="/docs/protocols/#crc-protocol">CRC</a></td>
+      <td>Adds CRCs to outgoing packets and verifies CRCs on incoming packets</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>These protocols are declared after the INTERFACE:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 nil BURST 4 0xDEADBEEF
+  TARGET TGT
+  PROTOCOL READ OverrideProtocol
+  PROTOCOL WRITE CrcProtocol CRC <span class="c"># See the documentation for parameters</span></code></pre></figure>
+
+<p>Note the first parameter after the PROTOCOL keyword is how to apply the protocol: READ, WRITE, or READ_WRITE. Read applies the protocol on incoming packets (telemetry) and write on outgoing packets (commands). The next parameter is the protocol filename or class name. All other parameters are protocol specific.</p>
+
+<p>In addition, you can define your own protocols which are declared like the COSMOS helper protocols after your interface. See the <a href="/docs/protocols#custom-protocols">Custom Protocols</a> documentation for more information.</p>
 
           
 
