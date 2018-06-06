@@ -752,6 +752,14 @@ module Cosmos
       @script.comment_or_uncomment_lines unless running?()
     end
 
+    def zoom_in
+      @script.zoom_in unless running?()
+    end
+
+    def zoom_out
+      @script.zoom_out unless running?()
+    end
+
     ##################################################################################
     # Implement Script functionality in the frame (run selection, run from cursor, etc
     ##################################################################################

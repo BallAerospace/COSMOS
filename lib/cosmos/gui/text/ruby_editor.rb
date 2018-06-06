@@ -288,6 +288,20 @@ module Cosmos
       cursor.endEditBlock
     end
 
+    def zoom_in
+      font = font()
+      font.setPointSize(font.pointSize + 1)
+      setFont(font)
+      @fontMetrics = Cosmos.getFontMetrics(font)
+    end
+
+    def zoom_out
+      font = font()
+      font.setPointSize(font.pointSize - 1)
+      setFont(font)
+      @fontMetrics = Cosmos.getFontMetrics(font)
+    end
+
     def resizeEvent(e)
       super(e)
       cr = self.contentsRect()
@@ -302,6 +316,7 @@ module Cosmos
 
     def line_number_area_paint_event(event)
       painter = Qt::Painter.new(@lineNumberArea)
+      painter.setFont(font())
       # Check for weird bad initialization conditions
       if painter.isActive and not painter.paintEngine.nil?
         event_rect = event.rect()
