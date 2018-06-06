@@ -19,15 +19,6 @@ require 'optparse'
 
 module Cosmos
 
-  # This is the first instance where classification headers are needed, so set up the constants for
-  #   the classification headers.
-  # Any number of color/text combinations can be added here for whatever the need is
-  CLASSIFICATION_OPTIONS = {
-    'unclassified' => {'color' => 'green',  'text' => 'UNCLASSIFIED'}
-  }
-  CURRENT_CLASSIFICATION = 'unclassified'
-  CLASSIFICATION = CLASSIFICATION_OPTIONS[CURRENT_CLASSIFICATION]
-
   # Base class of all COSMOS GUI Tools based on QT. It creates the help menu
   # which contains the About menu option. It provides configuration to all
   # tools to remember both the application window location and size across
