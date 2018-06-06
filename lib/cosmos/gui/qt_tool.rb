@@ -67,12 +67,9 @@ module Cosmos
         @options.stylesheet = config_path(@options.stylesheet, ".css", tool_name)
       end
 
-      #
-      # We want to add a classification bar to every Tool that gets launched. This is intentionally
-      #   hard coded here so a configuration file cannot make this not display
-      # There is a corresponding bar that gets added to every Screen (/lib/cosmos/tools/tlm_viewer/screen.rb)
-      #
-
+      # Add a classification banner to every Tool that gets launched if the system configuration
+      #   called for one
+      # There is a corresponding banner that gets added to every Screen (/lib/cosmos/tools/tlm_viewer/screen.rb)
       classification_banner = System.instance.classificiation_banner
       unless classification_banner.nil?
         # Get the RGB color information from the classification_banner

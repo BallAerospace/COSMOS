@@ -234,12 +234,9 @@ module Cosmos
       @window = process(filename)
       @@open_screens << self if @window
 
-      #
-      # We want to add a classification bar to every Tool that gets launched. This is intentionally
-      #   hard coded here so a configuration file cannot make this not display
-      # There is a corresponding bar that gets added to every Tool (/lib/cosmos/gui/qt_tool.rb)
-      #
-
+      # Add a classification banner to every Tool that gets launched if the system configuration
+      #   called for one
+      # There is a corresponding banner that gets added to every Tool (/lib/cosmos/gui/qt_tool.rb)
       classification_banner = System.instance.classificiation_banner
       unless classification_banner.nil?
         # Get the RGB color information from the classification_banner
