@@ -82,7 +82,14 @@ module Cosmos
       # There is a corresponding bar that gets added to every Screen (/lib/cosmos/tools/tlm_viewer/screen.rb)
       #
 
-      unless CLASSIFICATION.nil?
+      classification_banner = System.instance.classificiation_banner
+      unless classification_banner.nil?
+        # Get the RGB color information from the classification_banner
+        color_red   = classification_banner['color'].red
+        color_green = classification_banner['color'].green
+        color_blue  = classification_banner['color'].blue
+        color_rgb   = "#{color_red},#{color_green},#{color_blue}"
+
         # Create a classification toolbar
         classification_toolbar = Qt::ToolBar.new
         # Disable right clicking on the bar (prevents it from being hidden unintentionally)
@@ -90,10 +97,10 @@ module Cosmos
         # Freeze the bar at the top
         classification_toolbar.setFloatable(false)
         classification_toolbar.setMovable(false)
-        # Specify minimum sizes and set the style
+        # Specify sizes and set the style (background = background color, color = text color)
         classification_toolbar.minimumHeight = 20
         classification_toolbar.maximumHeight = 20
-        classification_toolbar.setStyleSheet("background:#{CLASSIFICATION['color']};color:white;text-align:center;border:none;")
+        classification_toolbar.setStyleSheet("background:rgb(#{color_rgb});color:white;text-align:center;border:none;")
 
         # Create a frame that will hold a horizontal layout
         label_frame = Qt::Frame.new
@@ -101,7 +108,7 @@ module Cosmos
         label_layout.setContentsMargins(0,1,0,0) # Centers the text nicely inside the horizontal layout
 
         # Create a label of the classification and add it the horizontal layout
-        label = Qt::Label.new("#{CLASSIFICATION['text']}")
+        label = Qt::Label.new("#{classification_banner['display_text'].upcase}")
         label.setStyleSheet("margin:0px;")
 
         # Add stretchers on either side so it is always in the middle and looks nice
