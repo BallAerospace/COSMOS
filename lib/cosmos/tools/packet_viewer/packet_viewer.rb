@@ -10,7 +10,6 @@
 
 require 'cosmos'
 Cosmos.catch_fatal_exception do
-  require 'cosmos/script'
   require 'cosmos/gui/qt_tool'
   require 'cosmos/gui/dialogs/tlm_details_dialog'
   require 'cosmos/gui/dialogs/tlm_edit_dialog'
@@ -18,6 +17,7 @@ Cosmos.catch_fatal_exception do
   require 'cosmos/gui/dialogs/exception_dialog'
   require 'cosmos/gui/dialogs/splash'
   require 'cosmos/gui/widgets/full_text_search_line_edit'
+  require 'cosmos/script'
 end
 
 module Cosmos

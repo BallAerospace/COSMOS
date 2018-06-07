@@ -96,7 +96,7 @@ module Cosmos
         label_layout.setContentsMargins(0,1,0,0) # Centers the text nicely inside the horizontal layout
 
         # Create a label of the classification and add it the horizontal layout
-        label = Qt::Label.new("#{classification_banner['display_text'].upcase}")
+        label = Qt::Label.new("#{classification_banner['display_text']}")
         label.setStyleSheet("margin:0px;")
 
         # Add stretchers on either side so it is always in the middle and looks nice

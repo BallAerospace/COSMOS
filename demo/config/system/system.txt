@@ -52,10 +52,10 @@ ADD_MD5_FILE lib/user_version.rb
 
 # Banner examples
 # Create a banner using an existing COSMOS color (Cosmos::GREEN in this case)
-# CLASSIFICATION demo-banner-title green
+# CLASSIFICATION UNCLASSIFIED green
 
 # Create a banner using a Qt::Color that doesn't exist in COSMOS
-# CLASSIFICATION demo-banner-title teal
+# CLASSIFICATION "Ball Aerospace COSMOS" teal
 
 # Create a banner using a RGB color values
-# CLASSIFICATION demo-banner-title 255 114 0
+# CLASSIFICATION Secret 255 114 0

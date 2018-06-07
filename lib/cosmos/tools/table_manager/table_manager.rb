@@ -12,9 +12,9 @@ require 'cosmos'
 Cosmos.catch_fatal_exception do
   require 'cosmos/gui/qt_tool'
   require 'cosmos/gui/dialogs/progress_dialog'
+  require 'cosmos/gui/dialogs/tlm_details_dialog'
   require 'cosmos/tools/table_manager/table_config'
   require 'cosmos/tools/table_manager/table_manager_core'
-  require 'cosmos/gui/dialogs/tlm_details_dialog'
 end
 
 class Qt::ComboBox

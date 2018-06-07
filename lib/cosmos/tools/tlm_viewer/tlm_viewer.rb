@@ -10,14 +10,14 @@
 
 require 'cosmos'
 Cosmos.catch_fatal_exception do
-  require 'cosmos/script'
-  require 'cosmos/tools/tlm_viewer/screen'
   require 'cosmos/gui/qt_tool'
   require 'cosmos/gui/dialogs/splash'
   require 'cosmos/gui/dialogs/progress_dialog'
   require 'cosmos/gui/dialogs/select_dialog'
   require 'cosmos/gui/widgets/full_text_search_line_edit'
   require 'cosmos/tools/tlm_viewer/tlm_viewer_config'
+  require 'cosmos/tools/tlm_viewer/screen'
+  require 'cosmos/script'
   require 'find'
   require 'fileutils'
 end
