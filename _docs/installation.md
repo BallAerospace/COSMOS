@@ -4,6 +4,11 @@ title: Installation
 permalink: /docs/installation/
 ---
 
+## Installing COSMOS
+
+The following sections describe howto get COSMOS installed on various operating systems.
+
+
 ## Windows 7+
 Run the COSMOS Installation bat file:
 
@@ -11,12 +16,38 @@ Run the COSMOS Installation bat file:
   2. Save the file to your harddrive
   3. Run the bat from from Windows explorer or a cmd window
 
-NOTE: The COSMOS installation batch file downloads all the components of the COSMOS system from the Internet. If you want to create an offline installer simply zip up the resulting installation directory. Then manually create the COSMOS_DIR environment variable to point to the root directory where you unzip all the installation files. You might also want to add \<COSMOS\>\Vendor\Ruby\bin to your path to allow access to Ruby from your terminal.
+<div class="note warning">
+  <h5>SSL Issues</h5>
+  <p style="margin-bottom:20px;">The COSMOS install scripts use command line tools like curl to download the code necessary for COSMOS across https connections.  Increasingly organizations are using some sort of SSL decryptor device which can cause curl and other command line tools like git to have SSL certificate problems.  If installation fails with messages that involve "certificate", "SSL", "self-signed", or "secure" this is the problem.  IT typically sets up browsers to work correctly but not command line applications. Note that the file extension might not be .pem, it could be .pem, crt, .ca-bundle, .cer, .p7b, .p7s, or  potentially something else.</p>
+  <p style="margin-bottom:20px;">The workaround is to get a proper local certificate file from your IT department that can be used by tools like curl (for example mine is at C:\Shared\Ball.pem).   Doesn't matter just somewhere with no spaces.</p>
+  <p style="margin-bottom:20px;">Then set the following environment variables to that path (ie. C:\Shared\Ball.pem)</p>
 
-NOTE on IE - If you left click the link above and try to save it, IE will corrupt the bat file.
+<p style="margin-left:20px;margin-bottom:20px;">
+SSL_CERT_FILE<br/>
+CURL_CA_BUNDLE<br/>
+REQUESTS_CA_BUNDLE<br/>
+</p>
+
+<p style="margin-bottom:20px;">
+Here are some directions on environment variables in Windows:
+<a href="https://www.computerhope.com/issues/ch000549.htm">Windows Environment Variables</a><br/>
+You will need to create new ones with the names above and set their value to the full path to the certificate file.
+</p>
+<p style="margin-bottom:20px;">After these changes the installer should work. At Ball please contact <a href="mailto:COSMOS@ball.com">COSMOS@ball.com</a> for assistance.</p>
+</div>
+
+<div class="note info">
+  <h5>Offline Installation</h5>
+  <p>The COSMOS installation batch file downloads all the components of the COSMOS system from the Internet. If you want to create an offline installer simply zip up the resulting installation directory. Then manually create the COSMOS_DIR environment variable to point to the root directory where you unzip all the installation files. You might also want to add \<COSMOS\>\Vendor\Ruby\bin to your path to allow access to Ruby from your terminal.</p>
+</div>
+
+<div class="note warning">
+  <h5>Note on Internet Explorer</h5>
+  <p>If you left click the link above and try to save it, IE will corrupt the bat file. Don't download using Internet Explorer.</p>
+</div>
 
 ## CentOS Linux 6.5/6.6/7, Ubuntu Linux 14.04LTS, and Mac OSX Mavericks+
-The following instructions work for an installation on CentOS Linux 6.5, 6.6, or 7, and Ubuntu 14.04LTS from a clean install or any version of Mac OS X after and include Mavericks.  Similar steps should work on other distributions/versions, particularly Redhat.
+The following instructions work for an installation on CentOS Linux 6.5,s 6.6, or 7, and Ubuntu 14.04LTS from a clean install or any version of Mac OS X after and include Mavericks.  Similar steps should work on other distributions/versions, particularly Redhat.
 
 Run the following command in a terminal running the **bash** shell:
 
