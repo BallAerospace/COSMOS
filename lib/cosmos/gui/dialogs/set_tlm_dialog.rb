@@ -20,7 +20,7 @@ module Cosmos
   # are written back into the packet.
   class SetTlmDialog < Qt::Dialog
     # @return [Array<String>] Items which should not be displayed in the dialog
-    IGNORED_ITEMS = ['RECEIVED_TIMESECONDS', 'RECEIVED_TIMEFORMATTED', 'RECEIVED_COUNT', 'PKTID', 'CONFIG']
+    IGNORED_ITEMS = ['PACKET_TIMESECONDS', 'PACKET_TIMEFORMATTED', 'RECEIVED_TIMESECONDS', 'RECEIVED_TIMEFORMATTED', 'RECEIVED_COUNT', 'PKTID', 'CONFIG']
 
     # @return [String] Errors encountered when trying to set the values back
     #   into the packet

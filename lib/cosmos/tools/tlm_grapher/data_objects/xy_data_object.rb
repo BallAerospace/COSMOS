@@ -99,7 +99,7 @@ module Cosmos
       string << "      X_VALUE_TYPE #{@x_value_type}\n"
       string << "      Y_VALUE_TYPE #{@y_value_type}\n"
       string << "      DART_REDUCTION #{@dart_reduction}\n"
-      string << "      DART_REDUCED_TYPE #{@dart_reduced_type}\n"      
+      string << "      DART_REDUCED_TYPE #{@dart_reduced_type}\n"
       string
     end # def configuration_string
 
@@ -184,7 +184,7 @@ module Cosmos
           else
             raise ArgumentError, "Unknown DART_REDUCTION value: #{dart_reduction}"
           end
-  
+
         when 'DART_REDUCED_TYPE'
           # Expect 1 parameter
           parser.verify_num_parameters(1, 1, "DART_REDUCED_TYPE <AVG, MIN, MAX, STDDEV>")
@@ -193,7 +193,7 @@ module Cosmos
             @dart_reduced_type = dart_reduced_type
           else
             raise ArgumentError, "Unknown DART_REDUCED_TYPE value: #{dart_reduced_type}"
-          end     
+          end
 
       else
         # Unknown keywords are passed to parent data object
@@ -263,7 +263,7 @@ module Cosmos
         prune_to_max_points_saved()
       rescue Exception => error
         handle_process_exception(error, "#{@target_name} #{@packet_name} #{@x_item_name} or #{@y_item_name}")
-      end      
+      end
     end
 
     # Returns the name of this data object
@@ -305,7 +305,7 @@ module Cosmos
       data_object.x_value_type = @x_value_type
       data_object.y_value_type = @y_value_type
       data_object.dart_reduction = @dart_reduction
-      data_object.dart_reduced_type = @dart_reduced_type      
+      data_object.dart_reduced_type = @dart_reduced_type
       data_object
     end
 
@@ -351,7 +351,7 @@ module Cosmos
         @y_value_type = :CONVERTED unless @during_configuration
       end
 
-      @time_item_name = 'RECEIVED_TIMESECONDS' if !@time_item_name
+      @time_item_name = 'PACKET_TIMESECONDS' if !@time_item_name
     end
 
     # Sets time item

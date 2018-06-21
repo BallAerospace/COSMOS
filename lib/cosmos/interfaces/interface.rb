@@ -46,6 +46,9 @@ module Cosmos
     # @return [Array] Array of packet logger classes for this interface
     attr_accessor :packet_log_writer_pairs
 
+    # @return [Array] Array of stored packet log writers
+    attr_accessor :stored_packet_log_writer_pairs
+
     # @return [RawLoggerPair] RawLoggerPair instance or nil
     attr_accessor :raw_logger_pair
 
@@ -122,6 +125,7 @@ module Cosmos
       @reconnect_delay = 5.0
       @disable_disconnect = false
       @packet_log_writer_pairs = []
+      @stored_packet_log_writer_pairs = []
       @raw_logger_pair = RawLoggerPair.new(@name)
       @routers = []
       @cmd_routers = []

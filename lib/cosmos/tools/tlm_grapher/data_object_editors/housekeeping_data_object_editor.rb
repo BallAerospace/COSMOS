@@ -75,7 +75,7 @@ module Cosmos
       if data_object.time_item_name
         @time_item_name.set_current(data_object.time_item_name)
       else
-        @time_item_name.set_current('RECEIVED_TIMESECONDS')
+        @time_item_name.set_current('PACKET_TIMESECONDS')
       end
       local_layout.addWidget(@time_item_name)
 
@@ -197,11 +197,11 @@ module Cosmos
       dart_reductions = HousekeepingDataObject::DART_REDUCTIONS.map {|x| x.to_s}
       dart_reductions.delete(data_object.dart_reduction.to_s)
       dart_reductions.unshift(data_object.dart_reduction.to_s)
-      @dart_reduction.update_items(dart_reductions, false)      
+      @dart_reduction.update_items(dart_reductions, false)
       dart_reduced_types = HousekeepingDataObject::DART_REDUCED_TYPES.map {|x| x.to_s}
       dart_reduced_types.delete(data_object.dart_reduced_type.to_s)
       dart_reduced_types.unshift(data_object.dart_reduced_type.to_s)
-      @dart_reduced_type.update_items(dart_reduced_types, false)  
+      @dart_reduced_type.update_items(dart_reduced_types, false)
 
       packet, item = System.telemetry.packet_and_item(data_object.target_name,
                                                       data_object.packet_name,
@@ -211,7 +211,7 @@ module Cosmos
         @item_array_index.show
       else
         @array_item = false
-        @item_array_index.hide 
+        @item_array_index.hide
       end
 
     end
@@ -227,11 +227,11 @@ module Cosmos
       dart_reductions = HousekeepingDataObject::DART_REDUCTIONS.map {|x| x.to_s}
       dart_reductions.delete(data_object.dart_reduction.to_s)
       dart_reductions.unshift(data_object.dart_reduction.to_s)
-      @dart_reduction.update_items(dart_reductions, false)      
+      @dart_reduction.update_items(dart_reductions, false)
       dart_reduced_types = HousekeepingDataObject::DART_REDUCED_TYPES.map {|x| x.to_s}
       dart_reduced_types.delete(data_object.dart_reduced_type.to_s)
       dart_reduced_types.unshift(data_object.dart_reduced_type.to_s)
-      @dart_reduced_type.update_items(dart_reduced_types, false)  
+      @dart_reduced_type.update_items(dart_reduced_types, false)
 
       packet, item = System.telemetry.packet_and_item(data_object.target_name,
                                                       data_object.packet_name,
@@ -241,7 +241,7 @@ module Cosmos
         @item_array_index.show
       else
         @array_item = false
-        @item_array_index.hide 
+        @item_array_index.hide
       end
     end
 

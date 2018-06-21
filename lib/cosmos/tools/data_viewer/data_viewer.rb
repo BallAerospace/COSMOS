@@ -318,7 +318,7 @@ module Cosmos
                   break if @cancel_thread
                   begin
                     # Get a subscribed to packet
-                    packet_data, target_name, packet_name, received_time, received_count = get_packet_data(@subscription_id)
+                    packet_data, target_name, packet_name, received_time, received_count, stored, extra = get_packet_data(@subscription_id)
                     break unless packet_data
 
                     # Put packet data into its packet
@@ -326,6 +326,8 @@ module Cosmos
                     packet.buffer = packet_data
                     packet.received_time = received_time
                     packet.received_count = received_count
+                    packet.stored = stored
+                    packet.extra = extra
 
                     # Make sure we are on the right configuration
                     if target_name == 'SYSTEM' and packet_name == 'META'
@@ -537,7 +539,7 @@ module Cosmos
               @interface.disconnect
               request_packet = Cosmos::Packet.new('DART', 'DART')
               request_packet.define_item('REQUEST', 0, 0, :BLOCK)
-              
+
               @time_start ||= Time.utc(1970, 1, 1)
               @time_end ||= Time.now
               @time_delta = @time_end - @time_start
@@ -550,7 +552,7 @@ module Cosmos
               request['packets'] = @packets
               request['meta_filters'] = @meta_filters unless @meta_filters.empty?
               request_packet.write('REQUEST', JSON.dump(request))
-            
+
               progress_dialog.append_text("Connecting to DART Database...")
               @interface.connect
               progress_dialog.append_text("Sending DART Database Query...")
@@ -570,16 +572,18 @@ module Cosmos
 
                 # Switch to correct configuration from SYSTEM META when needed
                 if packet.target_name == 'SYSTEM'.freeze and packet.packet_name == 'META'.freeze
-                  meta_packet = System.telemetry.update!('SYSTEM', 'META', packet.buffer)                             
+                  meta_packet = System.telemetry.update!('SYSTEM', 'META', packet.buffer)
                   Cosmos::System.load_configuration(meta_packet.read('CONFIG'))
                 elsif first
                   first = false
-                  @time_start = packet.received_time
+                  @time_start = packet.packet_time
                   @time_delta = @time_end - @time_start
                 end
 
                 defined_packet = System.telemetry.update!(packet.target_name, packet.packet_name, packet.buffer)
                 defined_packet.received_time = packet.received_time
+                defined_packet.stored = packet.stored
+                defined_packet.extra = packet.extra
 
                 break if @cancel_progress
                 # Route packet to its component(s)
@@ -593,14 +597,14 @@ module Cosmos
                   end
                 end
 
-                progress = ((@time_delta - (@time_end - defined_packet.received_time)).to_f / @time_delta.to_f)
+                progress = ((@time_delta - (@time_end - defined_packet.packet_time)).to_f / @time_delta.to_f)
                 progress_dialog.set_overall_progress(progress) if !@cancel_progress
               end
             ensure
               progress_dialog.append_text("Canceled!") if @cancel_progress
               progress_dialog.complete
             end
-          end            
+          end
         rescue => error
           Qt::MessageBox.critical(self, 'Error!', "Error Querying DART Database\n#{error.formatted}")
         ensure

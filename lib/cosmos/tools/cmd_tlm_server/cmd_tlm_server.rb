@@ -460,7 +460,7 @@ module Cosmos
                 received_time = packet.received_time
                 received_time ||= Time.now.sys
                 queue << [packet.buffer, target_name, packet_name,
-                  received_time.tv_sec, received_time.tv_usec, packet.received_count]
+                  received_time.tv_sec, received_time.tv_usec, packet.received_count, packet.stored, packet.extra]
                 if queue.length > queue_size
                   # Drop queue
                   queues_to_drop << id
@@ -532,7 +532,7 @@ module Cosmos
           received_time = packet.received_time
           received_time ||= Time.now.sys
           @@instance.packet_data_queues[id][0] << [packet.buffer, 'SYSTEM', 'META',
-            received_time.tv_sec, received_time.tv_usec, packet.received_count]
+            received_time.tv_sec, received_time.tv_usec, packet.received_count, packet.stored, packet.extra]
         end
       end
       return id
@@ -575,7 +575,7 @@ module Cosmos
           rescue ThreadError
             received_time ||= Time.now.sys
             return [@last_subscribed_packet.buffer, @last_subscribed_packet.target_name,
-              @last_subscribed_packet.packet_name, received_time.tv_sec, received_time.tv_usec, @last_subscribed_packet.received_count]
+              @last_subscribed_packet.packet_name, received_time.tv_sec, received_time.tv_usec, @last_subscribed_packet.received_count, @last_subscribed_packet.stored, @last_subscribed_packet.extra]
           end
         else
           return queue.pop(non_block)

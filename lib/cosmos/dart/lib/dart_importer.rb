@@ -80,7 +80,7 @@ class DartImporter
       Cosmos::Logger.info("First and Last Packet in File not in database")
 
       # Check if time range of packets is not present in database
-      ple = PacketLogEntry.where("time >= ? and time <= ?", first_packet.received_time, last_packet.received_time).first
+      ple = PacketLogEntry.where("time >= ? and time <= ?", first_packet.packet_time, last_packet.packet_time).first
       if !ple # Can go fast if not present at all
         Cosmos::Logger.info("  Fast Import Enabled...")
         fast = true
@@ -134,7 +134,7 @@ class DartImporter
           ple = PacketLogEntry.new
           ple.target_id = target_id
           ple.packet_id = packet_id
-          ple.time = packet.received_time
+          ple.time = packet.packet_time
           ple.packet_log_id = packet_log.id
           ple.data_offset = data_offset
           ple.meta_id = meta_id
@@ -149,7 +149,7 @@ class DartImporter
           ple.save!(validate: false)
         else
           ple_data << "," if ple_data.length > 0
-          ple_data << "(#{target_id},#{packet_id},'#{packet.received_time.dup.utc.iso8601(6)}',#{packet_log.id},#{data_offset},#{meta_id},#{is_tlm},true)"
+          ple_data << "(#{target_id},#{packet_id},'#{packet.packet_time.dup.utc.iso8601(6)}',#{packet_log.id},#{data_offset},#{meta_id},#{is_tlm},true)"
           ple_data_count += 1
         end
 

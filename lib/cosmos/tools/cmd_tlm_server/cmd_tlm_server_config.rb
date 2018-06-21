@@ -166,6 +166,12 @@ module Cosmos
               current_interface_log_added = true
               current_interface_or_router.packet_log_writer_pairs << packet_log_writer_pair unless current_interface_or_router.packet_log_writer_pairs.include?(packet_log_writer_pair)
 
+            when 'LOG_STORED'
+              parser.verify_num_parameters(1, 1, "#{keyword} <Packet Log Writer Name>")
+              packet_log_writer_pair = @packet_log_writer_pairs[params[0].upcase]
+              raise parser.error("Unknown packet log writer: #{params[0].upcase}") unless packet_log_writer_pair
+              current_interface_or_router.stored_packet_log_writer_pairs << packet_log_writer_pair unless current_interface_or_router.stored_packet_log_writer_pairs.include?(packet_log_writer_pair)
+
             when 'DONT_LOG'
               parser.verify_num_parameters(0, 0, "#{keyword}")
               current_interface_or_router.packet_log_writer_pairs = []

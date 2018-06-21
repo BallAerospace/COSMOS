@@ -91,8 +91,8 @@ Cosmos.catch_fatal_exception do
         begin
           first_packet = reader.first
           last_packet = reader.last
-          start_time = first_packet.received_time.formatted
-          end_time = last_packet.received_time.formatted
+          start_time = first_packet.packet_time.formatted
+          end_time = last_packet.packet_time.formatted
         rescue
           if size == 128 or size == 0
             start_time = "EMPTY                  "
@@ -124,8 +124,8 @@ Cosmos.catch_fatal_exception do
         begin
           first_packet = reader.first
           last_packet = reader.last
-          start_time = first_packet.received_time.formatted
-          end_time = last_packet.received_time.formatted
+          start_time = first_packet.packet_time.formatted
+          end_time = last_packet.packet_time.formatted
         rescue
           if size == 128 or size == 0
             start_time = "EMPTY                  "

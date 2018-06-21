@@ -205,10 +205,10 @@ module Cosmos
         expect(@plr.log_type).to eql :CMD
         expect(@plr.configuration_name).not_to be_nil
         expect(@plr.hostname).to eql Socket.gethostname
-        header_length = 8 + 1 + 6 + 1 + 12 + 4
-        meta_header_length = 8 + 1 + 6 + 1 + 4 + 4
+        header_length = 1 + 8 + 1 + 6 + 1 + 12 + 4
+        meta_header_length = 1 + 8 + 1 + 6 + 1 + 4 + 4
         meta_length = System.telemetry.packet('SYSTEM', 'META').length
-        expect(packet_offsets).to eql [PacketLogReader::COSMOS2_HEADER_LENGTH, PacketLogReader::COSMOS2_HEADER_LENGTH + meta_header_length + meta_length, PacketLogReader::COSMOS2_HEADER_LENGTH + meta_header_length + meta_length + header_length + @cmd_packet_length, PacketLogReader::COSMOS2_HEADER_LENGTH + meta_header_length + meta_length + (header_length + @cmd_packet_length) * 2]
+        expect(packet_offsets).to eql [PacketLogReader::COSMOS4_HEADER_LENGTH, PacketLogReader::COSMOS4_HEADER_LENGTH + meta_header_length + meta_length, PacketLogReader::COSMOS4_HEADER_LENGTH + meta_header_length + meta_length + header_length + @cmd_packet_length, PacketLogReader::COSMOS4_HEADER_LENGTH + meta_header_length + meta_length + (header_length + @cmd_packet_length) * 2]
 
         expect(@plr.open(Dir[File.join(@log_path,"*cmd.bin")][0])).to eql [true, nil]
         pkt = @plr.read_at_offset(packet_offsets[2])
@@ -223,10 +223,10 @@ module Cosmos
         expect(@plr.log_type).to eql :TLM
         expect(@plr.configuration_name).not_to be_nil
         expect(@plr.hostname).to eql Socket.gethostname
-        header_length = 8 + 1 + 6 + 1 + 13 + 4
-        meta_header_length = 8 + 1 + 6 + 1 + 4 + 4
+        header_length = 1 + 8 + 1 + 6 + 1 + 13 + 4
+        meta_header_length = 1 + 8 + 1 + 6 + 1 + 4 + 4
         meta_length = System.telemetry.packet('SYSTEM', 'META').length
-        expect(packet_offsets).to eql [PacketLogReader::COSMOS2_HEADER_LENGTH, PacketLogReader::COSMOS2_HEADER_LENGTH + meta_header_length + meta_length, PacketLogReader::COSMOS2_HEADER_LENGTH + meta_header_length + meta_length + header_length + @tlm_packet_length, PacketLogReader::COSMOS2_HEADER_LENGTH + meta_header_length + meta_length + (header_length + @tlm_packet_length) * 2]
+        expect(packet_offsets).to eql [PacketLogReader::COSMOS4_HEADER_LENGTH, PacketLogReader::COSMOS4_HEADER_LENGTH + meta_header_length + meta_length, PacketLogReader::COSMOS4_HEADER_LENGTH + meta_header_length + meta_length + header_length + @tlm_packet_length, PacketLogReader::COSMOS4_HEADER_LENGTH + meta_header_length + meta_length + (header_length + @tlm_packet_length) * 2]
 
         expect(@plr.open(Dir[File.join(@log_path,"*tlm.bin")][0])).to eql [true, nil]
         pkt = @plr.read_at_offset(packet_offsets[2])
@@ -240,10 +240,10 @@ module Cosmos
     describe "each" do
       it "returns packets" do
         index = 0
-        meta_header_length = 8 + 1 + 6 + 1 + 4 + 4
+        meta_header_length = 1 + 8 + 1 + 6 + 1 + 4 + 4
         meta_length = System.telemetry.packet('SYSTEM', 'META').length
         packet_length = System.commands.packet('SYSTEM', 'STARTLOGGING').length
-        packet_header_length = 8 + 1 + 'SYSTEM'.length + 1 + 'STARTLOGGING'.length + 4
+        packet_header_length = 1 + 8 + 1 + 'SYSTEM'.length + 1 + 'STARTLOGGING'.length + 4
         bytes_read = 128 + packet_header_length + packet_length + meta_header_length + meta_length
         @plr.each(Dir[File.join(@log_path,"*cmd.bin")][0]) do |packet|
           next if packet.packet_name == 'META'
@@ -257,7 +257,7 @@ module Cosmos
         end
         index = 0
         packet_length = System.telemetry.packet('SYSTEM', 'LIMITS_CHANGE').length
-        packet_header_length = 8 + 1 + 'SYSTEM'.length + 1 + 'LIMITS_CHANGE'.length + 4
+        packet_header_length = 1 + 8 + 1 + 'SYSTEM'.length + 1 + 'LIMITS_CHANGE'.length + 4
         bytes_read = 128 + packet_header_length + packet_length + meta_header_length + meta_length
         @plr.each(Dir[File.join(@log_path,"*tlm.bin")][0]) do |packet|
           next if packet.packet_name == 'META'

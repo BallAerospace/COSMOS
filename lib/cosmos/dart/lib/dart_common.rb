@@ -271,7 +271,7 @@ module DartCommon
   # @return [ActiveRecord] PacketLogEntry ActiveRecord object
   def find_packet_log_entry(packet, is_tlm)
     target_id, packet_id = lookup_target_and_packet_id(packet.target_name, packet.packet_name, is_tlm)
-    return PacketLogEntry.where("target_id = ? and packet_id = ? and is_tlm = ? and time = ?", target_id, packet_id, is_tlm, packet.received_time).first
+    return PacketLogEntry.where("target_id = ? and packet_id = ? and is_tlm = ? and time = ?", target_id, packet_id, is_tlm, packet.packet_time).first
   end
 
   # Read a Packet from the binary file by using the PacketLogEntry

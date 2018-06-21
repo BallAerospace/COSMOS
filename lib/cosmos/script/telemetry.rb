@@ -203,12 +203,14 @@ module Cosmos
       packet = nil
       # The get_packet_data above returns a Ruby time after the packet_name.
       # This is different from the API.s
-      buffer, target_name, packet_name, time, rx_count = get_packet_data(id, non_block)
+      buffer, target_name, packet_name, time, rx_count, stored, extra = get_packet_data(id, non_block)
       if buffer
         packet = System.telemetry.packet(target_name, packet_name).clone
         packet.buffer = buffer
         packet.received_time = time
         packet.received_count = rx_count
+        packet.stored = stored
+        packet.extra = extra
       end
       packet
     end

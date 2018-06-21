@@ -201,9 +201,15 @@ module Cosmos
       end
 
       # Write to packet log writers
-      @interface.packet_log_writer_pairs.each do |packet_log_writer_pair|
-        # Write errors are handled by the log writer
-        packet_log_writer_pair.tlm_log_writer.write(packet)
+      if packet.stored and !@interface.stored_packet_log_writer_pairs.empty?
+        @interface.stored_packet_log_writer_pairs.each do |packet_log_writer_pair|
+          packet_log_writer_pair.tlm_log_writer.write(packet)
+        end
+      else
+        @interface.packet_log_writer_pairs.each do |packet_log_writer_pair|
+          # Write errors are handled by the log writer
+          packet_log_writer_pair.tlm_log_writer.write(packet)
+        end
       end
     end
 

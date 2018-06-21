@@ -45,6 +45,7 @@ static ID id_ivar_target_name = 0;
 static ID id_ivar_packet_name = 0;
 static ID id_ivar_description = 0;
 static ID id_ivar_stored = 0;
+static ID id_ivar_extra = 0;
 
 /* Wraps read_item_internal so that it can be called by rb_protect in protected_read_item_internal */
 static VALUE wrap_read_item_internal(VALUE args)
@@ -299,6 +300,7 @@ static VALUE packet_initialize(int argc, VALUE* argv, VALUE self) {
   rb_ivar_set(self, id_ivar_hidden, Qfalse);
   rb_ivar_set(self, id_ivar_disabled, Qfalse);
   rb_ivar_set(self, id_ivar_stored, Qfalse);
+  rb_ivar_set(self, id_ivar_extra, Qnil);
 
   return self;
 }
@@ -339,6 +341,7 @@ void Init_packet (void)
   id_ivar_packet_name = rb_intern("@packet_name");
   id_ivar_description = rb_intern("@description");
   id_ivar_stored = rb_intern("@stored");
+  id_ivar_extra = rb_intern("@extra");
 
   cPacket = rb_define_class_under(mCosmos, "Packet", cStructure);
   rb_define_method(cPacket, "initialize", packet_initialize, -1);

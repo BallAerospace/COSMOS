@@ -47,7 +47,7 @@ module Cosmos
       # Chooser for x item
       x_item_names = @telemetry_chooser.item_names
       @x_item_name = ComboboxChooser.new(self, 'X Item:', x_item_names)
-      @x_item_name.set_current('RECEIVED_TIMESECONDS')
+      @x_item_name.set_current('PACKET_TIMESECONDS')
       @overall_frame.addWidget(@x_item_name)
 
       # Button to add data object
@@ -67,7 +67,7 @@ module Cosmos
       @telemetry_chooser.update
       x_item_names = @telemetry_chooser.item_names
       @x_item_name.update_items(x_item_names, false)
-      @x_item_name.set_current('RECEIVED_TIMESECONDS')
+      @x_item_name.set_current('PACKET_TIMESECONDS')
     end
 
     # Adds a data object when the add button is pressed
@@ -87,7 +87,7 @@ module Cosmos
     def packet_changed_callback(target_name = nil, packet_name = nil)
       x_item_names = @telemetry_chooser.item_names
       @x_item_name.update_items(x_item_names, false)
-      @x_item_name.set_current('RECEIVED_TIMESECONDS')
+      @x_item_name.set_current('PACKET_TIMESECONDS')
     end
 
   end # class XyDataObjectAdder

@@ -291,6 +291,7 @@ module Cosmos
         identified_packet.buffer = packet.buffer
         identified_packet.received_time = packet.received_time
         identified_packet.stored = packet.stored
+        identified_packet.extra = packet.extra
         return identified_packet
       end
 
@@ -304,6 +305,7 @@ module Cosmos
         identified_packet.buffer = packet.buffer
         identified_packet.received_time = packet.received_time
         identified_packet.stored = packet.stored
+        identified_packet.extra = packet.extra
         return identified_packet
       end
 

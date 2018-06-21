@@ -69,6 +69,9 @@ module Cosmos
     # @return [Boolean] Whether or not this was a stored packet
     attr_accessor :stored
 
+    # @return [Hash] Extra data to be logged/transferred with packet
+    attr_accessor :extra
+
     # Valid format types
     VALUE_TYPES = [:RAW, :CONVERTED, :FORMATTED, :WITH_UNITS]
 
@@ -104,6 +107,7 @@ module Cosmos
         @hidden = false
         @disabled = false
         @stored = false
+        @extra = nil
       end
 
       # Sets the target name this packet is associated with. Unidentified packets
@@ -808,6 +812,8 @@ module Cosmos
 
       @received_time = nil
       @received_count = 0
+      @stored = false
+      @extra = nil
       if @read_conversion_cache
         synchronize() do
           @read_conversion_cache.clear
@@ -833,6 +839,7 @@ module Cosmos
         end
       end
       packet.instance_variable_set("@read_conversion_cache".freeze, nil)
+      packet.extra = JSON.parse(packet.extra.to_json) if packet.extra # Deep copy using JSON
       packet
     end
     alias dup clone

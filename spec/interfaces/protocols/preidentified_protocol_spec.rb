@@ -56,9 +56,10 @@ module Cosmos
         time = Time.new(2020,1,31,12,15,30.5)
         pkt.received_time = time
         @interface.write(pkt)
-        expect($buffer[0..3].unpack('N')[0]).to eql time.to_f.to_i
-        expect($buffer[4..7].unpack('N')[0]).to eql 500000
-        offset = 8
+        expect($buffer[0..0].unpack('C')[0]).to eql 0
+        expect($buffer[1..4].unpack('N')[0]).to eql time.to_f.to_i
+        expect($buffer[5..8].unpack('N')[0]).to eql 500000
+        offset = 9
         tgt_name_length = $buffer[offset].unpack('C')[0]
         offset += 1 # for the length field
         expect($buffer[offset...(offset+tgt_name_length)]).to eql 'SYSTEM'
@@ -80,9 +81,10 @@ module Cosmos
         pkt.received_time = time
         @interface.write(pkt)
         expect($buffer[0..1]).to eql("\xDE\xAD")
-        expect($buffer[2..5].unpack('N')[0]).to eql time.to_f.to_i
-        expect($buffer[6..9].unpack('N')[0]).to eql 500000
-        offset = 10
+        expect($buffer[2..2].unpack('C')[0]).to eql 0
+        expect($buffer[3..6].unpack('N')[0]).to eql time.to_f.to_i
+        expect($buffer[7..10].unpack('N')[0]).to eql 500000
+        offset = 11
         tgt_name_length = $buffer[offset].unpack('C')[0]
         offset += 1 # for the length field
         expect($buffer[offset...(offset+tgt_name_length)]).to eql 'SYSTEM'

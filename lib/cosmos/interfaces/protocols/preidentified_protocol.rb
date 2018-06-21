@@ -9,6 +9,7 @@
 # attribution addendums as found in the LICENSE.txt
 
 require 'cosmos/interfaces/protocols/burst_protocol'
+require 'cosmos/packet_logs/packet_log_reader'
 
 module Cosmos
   # Delineates packets using the COSMOS preidentification system
@@ -17,10 +18,11 @@ module Cosmos
     # @param sync_pattern (see BurstProtocol#initialize)
     # @param max_length [Integer] The maximum allowed value of the length field
     # @param allow_empty_data [true/false/nil] See Protocol#initialize
-    def initialize(sync_pattern = nil, max_length = nil, allow_empty_data = nil)
+    def initialize(sync_pattern = nil, max_length = nil, mode = 4, allow_empty_data = nil)
       super(0, sync_pattern, false, allow_empty_data)
       @max_length = ConfigParser.handle_nil(max_length)
       @max_length = Integer(@max_length) if @max_length
+      @mode = Integer(mode)
     end
 
     def reset
@@ -29,21 +31,34 @@ module Cosmos
     end
 
     def read_packet(packet)
-      packet.received_time = @received_time
-      packet.target_name = @target_name
-      packet.packet_name = @packet_name
+      packet.received_time = @read_received_time
+      packet.target_name = @read_target_name
+      packet.packet_name = @read_packet_name
+      if @mode == 4 # COSMOS4.3+ Protocol
+        packet.stored = @read_stored
+        packet.extra = @read_extra
+      end
       return packet
     end
 
     def write_packet(packet)
       received_time = packet.received_time
       received_time = Time.now unless received_time
-      @time_seconds = [received_time.tv_sec].pack('N') # UINT32
-      @time_microseconds = [received_time.tv_usec].pack('N') # UINT32
-      @target_name = packet.target_name
-      @target_name = 'UNKNOWN' unless @target_name
-      @packet_name = packet.packet_name
-      @packet_name = 'UNKNOWN' unless @packet_name
+      @write_time_seconds = [received_time.tv_sec].pack('N') # UINT32
+      @write_time_microseconds = [received_time.tv_usec].pack('N') # UINT32
+      @write_target_name = packet.target_name
+      @write_target_name = 'UNKNOWN' unless @write_target_name
+      @write_packet_name = packet.packet_name
+      @write_packet_name = 'UNKNOWN' unless @write_packet_name
+      if @mode == 4 # COSMOS4.3+ Protocol
+        @write_flags = 0
+        @write_flags |= PacketLogReader::COSMOS4_STORED_FLAG_MASK if packet.stored
+        @write_extra = nil
+        if packet.extra
+          @write_flags |= PacketLogReader::COSMOS4_EXTRA_FLAG_MASK
+          @write_extra = packet.extra.to_json
+        end
+      end
       return packet
     end
 
@@ -51,12 +66,19 @@ module Cosmos
       data_length = [data.length].pack('N') # UINT32
       data_to_send = ''
       data_to_send << @sync_pattern if @sync_pattern
-      data_to_send << @time_seconds
-      data_to_send << @time_microseconds
-      data_to_send << @target_name.length
-      data_to_send << @target_name
-      data_to_send << @packet_name.length
-      data_to_send << @packet_name
+      if @mode == 4 # COSMOS4.3+ Protocol
+        data_to_send << @write_flags
+        if @write_extra
+          data_to_send << [@write_extra.length].pack('N')
+          data_to_send << @write_extra
+        end
+      end
+      data_to_send << @write_time_seconds
+      data_to_send << @write_time_microseconds
+      data_to_send << @write_target_name.length
+      data_to_send << @write_target_name
+      data_to_send << @write_packet_name.length
+      data_to_send << @write_packet_name
       data_to_send << data_length
       data_to_send << data
       return data_to_send
@@ -104,27 +126,50 @@ module Cosmos
         @reduction_state = :SYNC_REMOVED
       end
 
-      # Read and remove packet received time
-      if @reduction_state == :SYNC_REMOVED
+      if @reduction_state == :SYNC_REMOVED and @mode == 4
+        # Read and remove flags
+        return :STOP if @data.length < 1
+        flags = @data[0].unpack('C')[0] # byte
+        @data.replace(@data[1..-1])
+        @read_stored = false
+        @read_stored = true if (flags & PacketLogReader::COSMOS4_STORED_FLAG_MASK) != 0
+        @read_extra = nil
+        if (flags & PacketLogReader::COSMOS4_EXTRA_FLAG_MASK) != 0
+          @reduction_state = :NEED_EXTRA
+        else
+          @reduction_state = :FLAGS_REMOVED
+        end
+      end
+
+      if @reduction_state == :NEED_EXTRA
+        # Read and remove extra
+        @read_extra = read_length_field_followed_by_string(4)
+        return :STOP if @read_extra == :STOP
+        @read_extra = JSON.parse(@read_extra)
+        @reduction_state = :FLAGS_REMOVED
+      end
+
+      if @reduction_state == :FLAGS_REMOVED or (@reduction_state == :SYNC_REMOVED and @mode != 4)
+        # Read and remove packet received time
         return :STOP if @data.length < 8
         time_seconds = @data[0..3].unpack('N')[0] # UINT32
         time_microseconds = @data[4..7].unpack('N')[0] # UINT32
-        @received_time = Time.at(time_seconds, time_microseconds).sys
+        @read_received_time = Time.at(time_seconds, time_microseconds).sys
         @data.replace(@data[8..-1])
         @reduction_state = :TIME_REMOVED
       end
 
       if @reduction_state == :TIME_REMOVED
         # Read and remove the target name
-        @target_name = read_length_field_followed_by_string(1)
-        return :STOP if @target_name == :STOP
+        @read_target_name = read_length_field_followed_by_string(1)
+        return :STOP if @read_target_name == :STOP
         @reduction_state = :TARGET_NAME_REMOVED
       end
 
       if @reduction_state == :TARGET_NAME_REMOVED
         # Read and remove the packet name
-        @packet_name = read_length_field_followed_by_string(1)
-        return :STOP if @packet_name == :STOP
+        @read_packet_name = read_length_field_followed_by_string(1)
+        return :STOP if @read_packet_name == :STOP
         @reduction_state = :PACKET_NAME_REMOVED
       end
 
