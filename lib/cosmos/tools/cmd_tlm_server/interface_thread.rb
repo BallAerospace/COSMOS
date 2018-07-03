@@ -170,11 +170,13 @@ module Cosmos
       if identified_packet
         identified_packet.received_time = packet.received_time
         identified_packet.stored = packet.stored
+        identified_packet.extra = packet.extra
         packet = identified_packet
       else
         unknown_packet = System.telemetry.update!('UNKNOWN', 'UNKNOWN', packet.buffer)
         unknown_packet.received_time = packet.received_time
         unknown_packet.stored = packet.stored
+        unknown_packet.extra = packet.extra
         packet = unknown_packet
         data_length = packet.length
         string = "#{@interface.name} - Unknown #{data_length} byte packet starting: "

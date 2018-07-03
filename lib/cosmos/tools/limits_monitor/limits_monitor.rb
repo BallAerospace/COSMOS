@@ -219,7 +219,7 @@ module Cosmos
 
       case type
       when :LIMITS_CHANGE
-        # The most common event: target, packet, item, state
+        # The most common event: target, packet, item, state, packet_time
         result = limits_change(data[0], data[1], data[2], data[4], data[5])
 
       when :LIMITS_SET
