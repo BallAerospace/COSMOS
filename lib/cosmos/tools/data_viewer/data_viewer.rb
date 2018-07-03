@@ -10,8 +10,6 @@
 
 require 'cosmos'
 Cosmos.catch_fatal_exception do
-  require 'cosmos/script'
-  require 'cosmos/config/config_parser'
   require 'cosmos/gui/qt_tool'
   require 'cosmos/gui/dialogs/splash'
   require 'cosmos/gui/dialogs/progress_dialog'
@@ -22,6 +20,8 @@ Cosmos.catch_fatal_exception do
   require 'cosmos/gui/widgets/realtime_button_bar'
   require 'cosmos/tools/data_viewer/data_viewer_component'
   require 'cosmos/tools/data_viewer/dump_component'
+  require 'cosmos/config/config_parser'
+  require 'cosmos/script'
 end
 
 module Cosmos
@@ -537,7 +537,7 @@ module Cosmos
               @interface.disconnect
               request_packet = Cosmos::Packet.new('DART', 'DART')
               request_packet.define_item('REQUEST', 0, 0, :BLOCK)
-              
+
               @time_start ||= Time.utc(1970, 1, 1)
               @time_end ||= Time.now
               @time_delta = @time_end - @time_start
@@ -550,7 +550,7 @@ module Cosmos
               request['packets'] = @packets
               request['meta_filters'] = @meta_filters unless @meta_filters.empty?
               request_packet.write('REQUEST', JSON.dump(request))
-            
+
               progress_dialog.append_text("Connecting to DART Database...")
               @interface.connect
               progress_dialog.append_text("Sending DART Database Query...")
@@ -570,7 +570,7 @@ module Cosmos
 
                 # Switch to correct configuration from SYSTEM META when needed
                 if packet.target_name == 'SYSTEM'.freeze and packet.packet_name == 'META'.freeze
-                  meta_packet = System.telemetry.update!('SYSTEM', 'META', packet.buffer)                             
+                  meta_packet = System.telemetry.update!('SYSTEM', 'META', packet.buffer)
                   Cosmos::System.load_configuration(meta_packet.read('CONFIG'))
                 elsif first
                   first = false
@@ -600,7 +600,7 @@ module Cosmos
               progress_dialog.append_text("Canceled!") if @cancel_progress
               progress_dialog.complete
             end
-          end            
+          end
         rescue => error
           Qt::MessageBox.critical(self, 'Error!', "Error Querying DART Database\n#{error.formatted}")
         ensure

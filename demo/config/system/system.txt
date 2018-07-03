@@ -49,3 +49,13 @@ ENABLE_SOUND
 META_INIT config/data/meta_init.txt
 
 ADD_MD5_FILE lib/user_version.rb
+
+# Banner examples
+# Create a banner using an existing COSMOS color (Cosmos::GREEN in this case)
+# CLASSIFICATION UNCLASSIFIED green
+
+# Create a banner using a Qt::Color that doesn't exist in COSMOS
+# CLASSIFICATION "Ball Aerospace COSMOS" teal
+
+# Create a banner using a RGB color values
+# CLASSIFICATION Secret 255 114 0

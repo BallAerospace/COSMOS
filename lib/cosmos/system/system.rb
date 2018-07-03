@@ -71,6 +71,8 @@ module Cosmos
     #   calculation in addition to the cmd/tlm definition files that are
     #   automatically included
     instance_attr_reader :additional_md5_files
+    # @return [Hash<String,String>] Hash of the text/color to use for the classificaiton banner
+    instance_attr_reader :classificiation_banner
 
     # Known COSMOS ports
     KNOWN_PORTS = ['CTS_API', 'TLMVIEWER_API', 'CTS_PREIDENTIFIED', 'CTS_CMD_ROUTER', 'REPLAY_API', 'REPLAY_PREIDENTIFIED', 'REPLAY_CMD_ROUTER', 'DART_STREAM', 'DART_DECOM']
@@ -336,6 +338,25 @@ module Cosmos
             else
               raise "Missing expected file: #{parameters[0]}"
             end
+
+          when 'CLASSIFICATION'
+            parser.verify_num_parameters(2, 4, "#{keyword} <Display_Text> <Color Name|Red> <Green> <Blue>")
+            # Determine if the COSMOS color already exists, otherwise create a new one
+            if Cosmos.constants.include? parameters[1].upcase.to_sym
+              # We were given a named color that already exists in COSMOS
+              color = eval("Cosmos::#{parameters[1].upcase}")
+            else
+              if parameters.length < 4
+                # We were given a named color, but it didn't exist in COSMOS already
+                color = Cosmos::getColor(parameters[1].upcase)
+              else
+                # We were given RGB values
+                color = Cosmos::getColor(parameters[1], parameters[2], parameters[3])
+              end
+            end
+
+            @classificiation_banner = {'display_text' => parameters[0],
+                                       'color'        => color}
 
           else
             # blank lines will have a nil keyword and should not raise an exception

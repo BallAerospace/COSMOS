@@ -10,16 +10,16 @@
 
 require 'cosmos'
 Cosmos.catch_fatal_exception do
-  require 'cosmos/script'
   require 'cosmos/gui/qt_tool'
-  require 'cosmos/config/config_parser'
   require 'cosmos/gui/text/completion'
   require 'cosmos/gui/utilities/script_module_gui'
   require 'cosmos/gui/dialogs/splash'
   require 'cosmos/gui/dialogs/cmd_details_dialog'
+  require 'cosmos/gui/widgets/full_text_search_line_edit'
   require 'cosmos/tools/cmd_sender/cmd_sender_text_edit'
   require 'cosmos/tools/cmd_sender/cmd_param_table_item_delegate'
-  require 'cosmos/gui/widgets/full_text_search_line_edit'
+  require 'cosmos/config/config_parser'
+  require 'cosmos/script'
 end
 
 module Cosmos

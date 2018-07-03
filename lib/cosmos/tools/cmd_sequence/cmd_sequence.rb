@@ -11,15 +11,15 @@
 require 'time'
 require 'cosmos'
 Cosmos.catch_fatal_exception do
-  require 'cosmos/script'
-  require 'cosmos/config/config_parser'
   require 'cosmos/gui/qt_tool'
   require 'cosmos/gui/utilities/script_module_gui'
   require 'cosmos/gui/dialogs/splash'
   require 'cosmos/gui/widgets/realtime_button_bar'
   require 'cosmos/gui/choosers/file_chooser'
+  require 'cosmos/config/config_parser'
   require 'cosmos/tools/cmd_sequence/sequence_list'
   require 'cosmos/gui/widgets/full_text_search_line_edit'
+  require 'cosmos/script'
 end
 
 module Cosmos
