@@ -10,8 +10,6 @@
 
 require 'cosmos'
 Cosmos.catch_fatal_exception do
-  require 'cosmos/tools/tlm_extractor/tlm_extractor_processor'
-  require 'cosmos/tools/tlm_extractor/text_item_chooser'
   require 'cosmos/gui/qt_tool'
   require 'cosmos/gui/choosers/telemetry_chooser'
   require 'cosmos/gui/choosers/float_chooser'
@@ -21,6 +19,8 @@ Cosmos.catch_fatal_exception do
   require 'cosmos/gui/dialogs/progress_dialog'
   require 'cosmos/gui/widgets/full_text_search_line_edit'
   require 'cosmos/gui/utilities/analyze_log'
+  require 'cosmos/tools/tlm_extractor/tlm_extractor_processor'
+  require 'cosmos/tools/tlm_extractor/text_item_chooser'
 end
 
 module Cosmos
@@ -402,7 +402,7 @@ module Cosmos
       @data_source_layout.addWidget(label)
       @log_file_radio = Qt::RadioButton.new("Log File", self)
       @log_file_radio.setChecked(true)
-      @log_file_radio.connect(SIGNAL('clicked()')) do 
+      @log_file_radio.connect(SIGNAL('clicked()')) do
         @packet_log_frame.show_log_fields(true)
         @packet_log_frame.output_filename = ""
         @dart_meta_frame.hide
@@ -410,12 +410,12 @@ module Cosmos
       end
       @data_source_layout.addWidget(@log_file_radio)
       @dart_radio = Qt::RadioButton.new("DART Database", self)
-      @dart_radio.connect(SIGNAL('clicked()')) do 
+      @dart_radio.connect(SIGNAL('clicked()')) do
         @packet_log_frame.show_log_fields(false)
         @packet_log_frame.output_filename = ""
         @dart_meta_frame.show
         @resize_timer.start(100)
-      end      
+      end
       @data_source_layout.addWidget(@dart_radio)
       @data_source_layout.addStretch()
       @top_layout.addLayout(@data_source_layout)
@@ -609,7 +609,7 @@ module Cosmos
       clear_config_item_list()
       @tlm_extractor_config.items.each do |item_type, target_name_or_column_name, packet_name_or_text, item_name, value_type, dart_reduction, dart_reduced_type|
         if item_type == 'ITEM'
-          if dart_reduction == :NONE 
+          if dart_reduction == :NONE
             if value_type == :CONVERTED
               @config_item_list.addItem("#{item_type} #{target_name_or_column_name} #{packet_name_or_text} #{item_name}")
             else
