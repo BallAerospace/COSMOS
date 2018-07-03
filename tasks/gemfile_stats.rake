@@ -27,8 +27,8 @@ task :gemfile_stats do
   # This is useful for testing to prevent server round trips
   #File.open("gemdata.marshall", 'w') {|file| file.write(Marshal.dump(get_latest_gem_data)) }
   gem_data = Marshal.load(File.read("gemdata.marshall"))
-
   #gem_data = get_latest_gem_data()
+
   # Convert all the date text into Ruby Dates
   gem_data.map! {|x| [Date.strptime(x[0], "%Y-%m"), x[1], x[2]]}
   # Sort first by date and then version number
@@ -68,7 +68,8 @@ task :gemfile_stats do
 
   # Reduce the number of labels due to overlap
   labels.each do |i, label|
-    labels[i] = '' if i % 2 == 0
+    # Increase the modulus value if you get an ArgumentError: no text to measure
+    labels[i] = '' if i % 4 != 0
   end
   g.labels = labels
   g.marker_font_size = 12
