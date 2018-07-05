@@ -11,9 +11,9 @@
 require 'cosmos'
 Cosmos.catch_fatal_exception do
   require 'cosmos/gui/qt_tool'
-  require 'cosmos/tools/config_editor/config_editor_frame'
   require 'cosmos/gui/dialogs/progress_dialog'
   require 'cosmos/gui/dialogs/scroll_text_dialog'
+  require 'cosmos/tools/config_editor/config_editor_frame'
 end
 
 module Cosmos

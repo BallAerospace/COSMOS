@@ -10,8 +10,6 @@
 
 require 'cosmos'
 Cosmos.catch_fatal_exception do
-  require 'cosmos/script'
-  require 'cosmos/config/config_parser'
   require 'cosmos/gui/qt_tool'
   require 'cosmos/gui/dialogs/splash'
   require 'cosmos/gui/dialogs/progress_dialog'
@@ -22,6 +20,8 @@ Cosmos.catch_fatal_exception do
   require 'cosmos/gui/widgets/realtime_button_bar'
   require 'cosmos/tools/data_viewer/data_viewer_component'
   require 'cosmos/tools/data_viewer/dump_component'
+  require 'cosmos/config/config_parser'
+  require 'cosmos/script'
 end
 
 module Cosmos

@@ -4,7 +4,7 @@ Sleep 2000
 
 Click 610 70 ; Click Stop
 Sleep 2000
-Click 80 155 ; Time field
+Click 80 179 ; Time field
 Sleep 500
 Send {Backspace 5}61{Enter}
 Click 450 70 ; Click Start
