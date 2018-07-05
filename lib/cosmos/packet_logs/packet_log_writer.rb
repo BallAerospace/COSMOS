@@ -323,10 +323,10 @@ module Cosmos
       # each time we create an entry_header which we do a LOT!
       @entry_header.clear
       flags = 0
-      flags |= COSMOS4_STORED_FLAG_MASK if packet.stored
+      flags |= PacketLogReader::COSMOS4_STORED_FLAG_MASK if packet.stored
       extra = packet.extra
       if extra
-        flags |= COSMOS4_EXTRA_FLAG_MASK
+        flags |= PacketLogReader::COSMOS4_EXTRA_FLAG_MASK
         extra = extra.to_json
       end
       @entry_header << [flags].pack('C'.freeze)

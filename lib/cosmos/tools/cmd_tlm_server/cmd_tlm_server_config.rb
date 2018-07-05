@@ -153,7 +153,7 @@ module Cosmos
             current_interface_or_router.name = interface_name
             @interfaces[interface_name] = current_interface_or_router
 
-          when 'LOG', 'DONT_LOG', 'TARGET'
+          when 'LOG', 'LOG_STORED', 'DONT_LOG', 'TARGET'
             raise parser.error("No current interface for #{keyword}") unless current_interface_or_router and current_type == :INTERFACE
 
             case keyword
