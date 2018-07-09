@@ -67,13 +67,6 @@ module Cosmos
     # Methods for debugging
     #######################################
 
-    def insert_return(*params)
-      _ensure_script_runner_frame do
-        ScriptRunnerFrame.instance.inline_return = true
-        ScriptRunnerFrame.instance.inline_return_params = params
-      end
-    end
-
     def step_mode
       if defined? ScriptRunnerFrame
         ScriptRunnerFrame.step_mode = true

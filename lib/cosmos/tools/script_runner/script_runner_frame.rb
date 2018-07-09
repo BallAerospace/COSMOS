@@ -99,8 +99,8 @@ module Cosmos
     attr_accessor :continue_after_error
     attr_accessor :exceptions
     attr_accessor :script_binding
-    attr_accessor :inline_return
-    attr_accessor :inline_return_params
+    attr_accessor :inline_return # Deprecated and unused - Here to prevent cache errors for old scripts
+    attr_accessor :inline_return_params # Deprecated and unused - Here to prevent cache errors for old scripts
     attr_reader   :message_log
     attr_reader   :script_class
     attr_reader   :top_level_instrumented_cache
@@ -977,15 +977,6 @@ module Cosmos
         end
 
         @debug_frame.addWidget(@debug_text)
-
-        @return_button = Qt::PushButton.new('Insert Return')
-        @debug_frame.addWidget(@return_button)
-        @return_button.connect(SIGNAL('clicked(bool)')) do
-          scriptrunner_puts "Debug: insert_return(); ScriptRunnerFrame.instance.go()"
-          handle_output_io()
-          insert_return()
-          go()
-        end
 
         @bottom_frame.layout.addLayout(@debug_frame)
       end
