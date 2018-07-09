@@ -13,6 +13,7 @@ require 'cosmos/gui/qt'
 require 'cosmos/gui/qt_tool'
 require 'cosmos/script'
 require 'cosmos/tools/tlm_viewer/widgets'
+require 'tempfile'
 
 module Cosmos
 
@@ -33,10 +34,12 @@ module Cosmos
         @@closing_all = value
       end
 
-      def initialize(screen, mode)
+      def initialize(screen, mode, local_binding = nil)
         @screen = screen
         # The telemetry viewer mode. Must be :REALTIME or basically anything else?
         @mode = mode
+        # Local binding to evaluate LOCAL target
+        @local_binding = local_binding
         # Hash of only the named widgets identifed by the NAMED_WIDGET keyword
         @named = {}
         # Array of all widgets which take a value
@@ -84,7 +87,7 @@ module Cosmos
 
       def add_widget(klass, parameters, widget, widget_name, substitute, original_target_name, force_substitute)
         # Add to item or non_item widgets
-        if klass.takes_value?
+        if klass.takes_value? and substitute != 'LOCAL' and parameters[0] != 'LOCAL'
           if substitute and (original_target_name == parameters[0].upcase or force_substitute)
             @items << [substitute, parameters[1], parameters[2]]
           else
@@ -178,7 +181,27 @@ module Cosmos
 
             # Update non_item widgets
             @non_item.each do |widget|
-              widget.update_widget
+              if widget.class.takes_value?
+                # LOCAL value
+                eval_binding = @local_binding
+                begin
+                  eval_binding = ScriptRunnerFrame.instance.script_binding
+                  @local_binding = eval_binding
+                rescue Exception
+                  # Fall back on @local_binding
+                end
+
+                begin
+                  widget.limits_state = nil
+                  widget.value = eval_binding.eval(widget.item_name)
+                rescue Exception
+                  # Bad local variable or binding no longer valid
+                  widget.limits_state = :STALE
+                  widget.value = widget.value
+                end
+              else
+                widget.update_widget
+              end
             end
           end
         rescue Exception => error
@@ -203,7 +226,7 @@ module Cosmos
       end
     end
 
-    def initialize(full_name, filename, notify_on_close = nil, mode = :REALTIME, x_pos = nil, y_pos = nil, original_target_name = nil, substitute = nil, force_substitute = false, single_screen = false)
+    def initialize(full_name, filename_or_screen_def, notify_on_close = nil, mode = :REALTIME, x_pos = nil, y_pos = nil, original_target_name = nil, substitute = nil, force_substitute = false, single_screen = false, local_binding = nil)
       super(nil)
       # The full name of the widget which goes in the title
       @full_name = full_name
@@ -224,14 +247,16 @@ module Cosmos
       # displayed as a stand alone screen and not launched as a part of the
       # regular TlmViewer application
       @single_screen = single_screen
+      # Binding for use with LOCAL LOCAL
+      @local_binding = local_binding
 
       # Read the application wide stylesheet if it exists
       app_style = File.join(Cosmos::USERPATH, 'config', 'tools', 'application.css')
       setStyleSheet(File.read(app_style)) if File.exist? app_style
 
       @replay_flag = nil
-      @widgets = Widgets.new(self, mode)
-      @window = process(filename)
+      @widgets = Widgets.new(self, mode, @local_binding)
+      @window = process(filename_or_screen_def)
       @@open_screens << self if @window
 
       # Add a classification banner to every Tool that gets launched if the system configuration
@@ -290,7 +315,7 @@ module Cosmos
       @widgets.mode
     end
 
-    def process(filename)
+    def process(filename_or_screen_def)
       layout_stack = []
       layout_stack[0] = nil
 
@@ -298,6 +323,16 @@ module Cosmos
       current_widget = nil
       global_settings = {}
       global_subsettings = {}
+
+      if File.exist?(filename_or_screen_def) or !filename_or_screen_def.to_s.index("SCREEN")
+        tempfile = false
+        filename = filename_or_screen_def
+      else
+        tempfile = Tempfile.new('screen')
+        tempfile.write(filename_or_screen_def)
+        tempfile.close
+        filename = tempfile.path
+      end
 
       begin
         parser = ConfigParser.new("http://cosmosrb.com/docs/screens/")
@@ -365,6 +400,8 @@ module Cosmos
               klass = Cosmos.require_class(parameters[0].to_s.downcase + '_widget')
               global_subsettings[klass] ||= []
               global_subsettings[klass] << [parameters[1]].concat(parameters[2..-1])
+            when 'STAY_ON_TOP'
+              setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint)
             else
               current_widget = process_widget(parser, keyword, parameters, layout_stack, global_settings, global_subsettings)
             end # case keyword
@@ -379,6 +416,8 @@ module Cosmos
         end
         shutdown()
         return nil
+      ensure
+        tempfile.unlink if tempfile
       end
 
       unless @widgets.invalid.empty?
@@ -430,10 +469,14 @@ module Cosmos
         parser.verify_num_parameters(3, nil, "#{keyword} <Target Name> <Packet Name> <Item Name> <Widget Settings... (optional)>")
         begin
           if @substitute and (@original_target_name == parameters[0].upcase or @force_substitute)
-            System.telemetry.packet_and_item(@substitute, parameters[1], parameters[2])
+            if @substitute != 'LOCAL' or parameters[1] != 'LOCAL'
+              System.telemetry.packet_and_item(@substitute, parameters[1], parameters[2])
+            end
             widget = klass.new(layout_stack[-1], @substitute, *parameters[1..(parameters.length - 1)])
           else
-            System.telemetry.packet_and_item(*parameters[0..2])
+            if parameters[0] != 'LOCAL' or parameters[1] != 'LOCAL'
+              System.telemetry.packet_and_item(*parameters[0..2])
+            end
             widget = klass.new(layout_stack[-1], *parameters)
           end
         rescue => err
@@ -529,6 +572,12 @@ module Cosmos
 
     def graceful_kill
       @widgets.graceful_kill
+    end
+
+    def close
+      Qt.execute_in_main_thread(true) do
+        super()
+      end
     end
 
     def self.open_screens
