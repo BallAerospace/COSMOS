@@ -572,7 +572,7 @@ module Cosmos
   # @param try_gui [Boolean] Whether to try and create a GUI exception popup
   def self.handle_critical_exception(error, try_gui = true)
     Logger.error "Critical Exception! #{error.formatted}"
-    if defined? ExceptionDialog and !ExceptionDialog.dialog_open?
+    if defined? ExceptionDialog and !ExceptionDialog.dialog_open? and $qApp
       log_file = self.write_exception_file(error)
       if try_gui
         Qt.execute_in_main_thread(true) {|| ExceptionDialog.new(nil, error, '', false, false, log_file)}
