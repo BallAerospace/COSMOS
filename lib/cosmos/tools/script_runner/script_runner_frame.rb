@@ -753,11 +753,15 @@ module Cosmos
     end
 
     def zoom_in
-      @script.zoom_in unless running?()
+      @script.zoom_in
     end
 
     def zoom_out
-      @script.zoom_out unless running?()
+      @script.zoom_out
+    end
+
+    def zoom_default
+      @script.zoom_default
     end
 
     ##################################################################################

@@ -164,15 +164,18 @@ module Cosmos
       @edit_comment.statusTip = tr('Comment/Uncomment Lines')
       @edit_comment.connect(SIGNAL('triggered()')) { active_script_runner_frame().comment_or_uncomment_lines }
 
-      @edit_zoom_in = Qt::Action.new(tr('Increase Font Size'), self)
+      @edit_zoom_in = Qt::Action.new(tr('&Increase Font Size'), self)
       @edit_zoom_in_keyseq = Qt::KeySequence.new(Qt::KeySequence::ZoomIn)
       @edit_zoom_in.shortcut  = @edit_zoom_in_keyseq
       @edit_zoom_in.connect(SIGNAL('triggered()')) { active_script_runner_frame().zoom_in }
 
-      @edit_zoom_out = Qt::Action.new(tr('Decrease Font Size'), self)
+      @edit_zoom_out = Qt::Action.new(tr('&Decrease Font Size'), self)
       @edit_zoom_out_keyseq = Qt::KeySequence.new(Qt::KeySequence::ZoomOut)
       @edit_zoom_out.shortcut  = @edit_zoom_out_keyseq
       @edit_zoom_out.connect(SIGNAL('triggered()')) { active_script_runner_frame().zoom_out }
+
+      @edit_zoom_default = Qt::Action.new(tr('Restore &Font Size'), self)
+      @edit_zoom_default.connect(SIGNAL('triggered()')) { active_script_runner_frame().zoom_default }
 
       # Search Actions
       @search_find = Qt::Action.new(Cosmos.get_icon('search.png'), tr('&Find'), self)
@@ -306,6 +309,7 @@ module Cosmos
       mode_menu.addSeparator()
       mode_menu.addAction(@edit_zoom_in)
       mode_menu.addAction(@edit_zoom_out)
+      mode_menu.addAction(@edit_zoom_default)
 
       # Search Menu
       view_menu = menuBar.addMenu(tr('&Search'))

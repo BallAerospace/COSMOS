@@ -159,9 +159,9 @@ module Cosmos
 
     def initialize(parent)
       super(parent)
-      font = Cosmos.get_default_font
-      setFont(font)
-      @fontMetrics = Cosmos.getFontMetrics(font)
+      @default_font = Cosmos.get_default_font
+      setFont(@default_font)
+      @fontMetrics = Cosmos.getFontMetrics(@default_font)
 
       # This is needed so text searching highlights correctly
       setStyleSheet("selection-background-color: lightblue; selection-color: black;")
@@ -178,6 +178,18 @@ module Cosmos
       connect(self, SIGNAL('updateRequest(const QRect &, int)'), self, SLOT('update_line_number_area(const QRect &, int)'))
 
       line_count_changed(-1)
+    end
+
+    def wheelEvent(event)
+      if event.modifiers() == Qt::ControlModifier && event.delta > 0
+        event.setAccepted(true)
+        zoom_in()
+      elsif event.modifiers() == Qt::ControlModifier && event.delta < 0
+        event.setAccepted(true)
+        zoom_out()
+      else
+        super(event)
+      end
     end
 
     def dispose
@@ -297,9 +309,18 @@ module Cosmos
 
     def zoom_out
       font = font()
+      return if font.pointSize < 2
       font.setPointSize(font.pointSize - 1)
       setFont(font)
       @fontMetrics = Cosmos.getFontMetrics(font)
+    end
+
+    def zoom_default
+      setFont(@default_font)
+      @fontMetrics = Cosmos.getFontMetrics(@default_font)
+      # Force a repaint of the number area by doing a small scroll
+      verticalScrollBar.setValue(verticalScrollBar.minimum+1)
+      verticalScrollBar.setValue(verticalScrollBar.minimum)
     end
 
     def resizeEvent(e)
