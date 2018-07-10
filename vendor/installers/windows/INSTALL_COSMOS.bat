@@ -1,5 +1,13 @@
 :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 :: Installs Ball Aerospace COSMOS on Windows 7+
+::
+:: Requires Powershell 4, part of Windows Management Framework 4
+:: which is not installed by default on Windows 7
+:: Download here: https://www.microsoft.com/en-us/download/details.aspx?id=40855
+::
+:: The following error will occur without Powershell 4
+:: Cannot convert null to type "System.Net.SecurityProtocolType" due to invalid enumeration values
+::
 :: Usage: INSTALL_COSMOS [Install Directory] [COSMOS Version]
 :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
@@ -7,14 +15,14 @@
 SETLOCAL ENABLEEXTENSIONS ENABLEDELAYEDEXPANSION
 set START_PATH=!PATH!
 
-:: Change Protocol to http if you have SSL issues
+:: https is required at this point - do not change
 set PROTOCOL=https
 
 :: Change this line if you want to force an architecture
 set ARCHITECTURE=%PROCESSOR_ARCHITECTURE%
 
 :: Update this version if making any changes to this script
-set INSTALLER_VERSION=1.8
+set INSTALLER_VERSION=1.9
 
 :: Paths and versions for COSMOS dependencies
 set RUBY_INSTALLER_32=rubyinstaller-2.4.4-1.exe
@@ -25,9 +33,6 @@ set WKHTMLTOPDF=wkhtmltox-0.11.0_rc1-installer.exe
 set WKHTMLPATHWITHPROTOCOL=https://downloads.wkhtmltopdf.org/obsolete/windows/
 set QTBINDINGS_QT_VERSION=4.8.6.4
 set WINDOWS_INSTALL_ZIP=//github.com/BallAerospace/COSMOS/blob/master/vendor/installers/windows/COSMOS_Windows_Install.zip
-set WINDOWS_CURL_VERSION=7.59.0
-set WINDOWS_CURL32_ZIP=//bintray.com/artifact/download/vszakats/generic/curl-7.59.0-win32-mingw.zip
-set WINDOWS_CURL64_ZIP=//bintray.com/artifact/download/vszakats/generic/curl-7.59.0-win64-mingw.zip
 set MSYS2_32=http://repo.msys2.org/distrib/i686/msys2-i686-20161025.exe
 set MSYS2_64=http://repo.msys2.org/distrib/x86_64/msys2-x86_64-20161025.exe
 
@@ -41,9 +46,11 @@ if "%USERDNSDOMAIN%"=="AERO.BALL.COM" (
 :: Detect if SSL_CERT_FILE is set
 if not defined SSL_CERT_FILE (
   if !BALL!==1 (
-    echo WARNING: Using http at Ball because SSL_CERT_FILE is not set
+    echo ERROR: Install failed at Ball because SSL_CERT_FILE environment variable is not set
+    echo Please contact COSMOS@ball.com for assistance
+    echo INSTALL FAILED
     pause
-    set PROTOCOL=http
+    exit /b 1
   )
 )
 
@@ -60,19 +67,6 @@ if exist *.gem (
   echo WARNING: gem files found in the current directory
   echo WARNING: This can cause the installation to fail or install old gems
   pause
-)
-
-:: Detect whether to use Curl for downloads based on windows version
-:: Will use curl on less than Windows 10
-set USE_CURL=0
-for /f "tokens=4-5 delims=. " %%i in ('ver') do set VERSION=%%i.%%j
-if "%version%" == "6.3" set USE_CURL=1
-if "%version%" == "6.2" set USE_CURL=1
-if "%version%" == "6.1" set USE_CURL=1
-if !USE_CURL!==1 (
-  echo Downloads will use curl
-) else (
-  echo Download will use powershell
 )
 
 ::::::::::::::::::::::
@@ -168,55 +162,12 @@ SET "UNZIP_TMP=!COSMOS_INSTALL!\tmp\unzip.vbs"
 @echo objTarget.CopyHere objSource, intOptions >> !UNZIP_TMP!
 
 ::::::::::::::::::::::::
-:: Download curl for windows 7 downloads
-::::::::::::::::::::::::
-
-if !USE_CURL!==1 (
-  if !ARCHITECTURE!==x86 (
-    echo Downloading 32-bit Curl
-    powershell -Command "(New-Object Net.WebClient).DownloadFile('!PROTOCOL!:!WINDOWS_CURL32_ZIP!', '!COSMOS_INSTALL!\tmp\curl.zip')"
-    if errorlevel 1 (
-      echo ERROR: Problem downloading 32-bit Curl from: !PROTOCOL!:!WINDOWS_CURL32_ZIP!
-      echo INSTALL FAILED
-      @echo ERROR: Problem downloading 32-bit Curl from: !PROTOCOL!:!WINDOWS_CURL32_ZIP! >> !COSMOS_INSTALL!\INSTALL.log
-      pause
-      exit /b 1
-    ) else (
-      @echo Successfully downloaded 32-bit Curl from: !PROTOCOL!:!WINDOWS_CURL32_ZIP! >> !COSMOS_INSTALL!\INSTALL.log
-    )
-    set CURL_EXE=!COSMOS_INSTALL!\tmp\curl-!WINDOWS_CURL_VERSION!-win32-mingw\bin\curl.exe
-  ) else (
-    echo Downloading 64-bit Curl
-    powershell -Command "(New-Object Net.WebClient).DownloadFile('!PROTOCOL!:!WINDOWS_CURL64_ZIP!', '!COSMOS_INSTALL!\tmp\curl.zip')"
-    if errorlevel 1 (
-      echo ERROR: Problem downloading 64-bit Curl from: !PROTOCOL!:!WINDOWS_CURL64_ZIP!
-      echo INSTALL FAILED
-      @echo ERROR: Problem downloading 64-bit Curl from: !PROTOCOL!:!WINDOWS_CURL64_ZIP! >> !COSMOS_INSTALL!\INSTALL.log
-      pause
-      exit /b 1
-    ) else (
-      @echo Successfully downloaded 64-bit Curl from: !PROTOCOL!:!WINDOWS_CURL64_ZIP! >> !COSMOS_INSTALL!\INSTALL.log
-    )
-    set CURL_EXE=!COSMOS_INSTALL!\tmp\curl-!WINDOWS_CURL_VERSION!-win64-mingw\bin\curl.exe
-  )
-
-  echo Curl at: !CURL_EXE!
-  cscript //B !UNZIP_TMP! !COSMOS_INSTALL!\tmp\curl.zip !COSMOS_INSTALL!\tmp
-  !CURL_EXE! --version
-)
-
-::::::::::::::::::::::::
 :: Install Ruby
 ::::::::::::::::::::::::
 
 if !ARCHITECTURE!==x86 (
   echo Downloading 32-bit Ruby
-
-  if !USE_CURL!==1 (
-    !CURL_EXE! -L -o "!COSMOS_INSTALL!\tmp\!RUBY_INSTALLER_32!" "!PROTOCOL!:!RUBY_INSTALLER_PATH!!RUBY_INSTALLER_32!"
-  ) else (
-    powershell -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; (New-Object Net.WebClient).DownloadFile('!PROTOCOL!:!RUBY_INSTALLER_PATH!!RUBY_INSTALLER_32!', '!COSMOS_INSTALL!\tmp\!RUBY_INSTALLER_32!')"
-  )
+  powershell -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; (New-Object Net.WebClient).DownloadFile('!PROTOCOL!:!RUBY_INSTALLER_PATH!!RUBY_INSTALLER_32!', '!COSMOS_INSTALL!\tmp\!RUBY_INSTALLER_32!')"
   if errorlevel 1 (
     echo ERROR: Problem downloading 32-bit Ruby from: !PROTOCOL!:!RUBY_INSTALLER_PATH!!RUBY_INSTALLER_32!
     echo INSTALL FAILED
@@ -227,12 +178,7 @@ if !ARCHITECTURE!==x86 (
     @echo Successfully downloaded 32-bit Ruby from: !PROTOCOL!:!RUBY_INSTALLER_PATH!!RUBY_INSTALLER_32! >> !COSMOS_INSTALL!\INSTALL.log
   )
   echo Downloading 32-bit msys2
-
-  if !USE_CURL!==1 (
-    !CURL_EXE! -L -o "!COSMOS_INSTALL!\tmp\msys2.exe" "!MSYS2_32!"
-  ) else (
-    powershell -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; (New-Object Net.WebClient).DownloadFile('!MSYS2_32!', '!COSMOS_INSTALL!\tmp\msys2.exe')"
-  )
+  powershell -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; (New-Object Net.WebClient).DownloadFile('!MSYS2_32!', '!COSMOS_INSTALL!\tmp\msys2.exe')"
   if errorlevel 1 (
     echo ERROR: Problem downloading 32-bit msys2 from: !MSYS2_32!
     echo INSTALL FAILED
@@ -260,12 +206,7 @@ if !ARCHITECTURE!==x86 (
   call C:\msys64\usr\bin\pacman --noconfirm -S autoconf autoconf2.13 autogen automake-wrapper automake1.10 automake1.11 automake1.12 automake1.13 automake1.14 automake1.15 automake1.6 automake1.7 automake1.8 automake1.9 diffutils file gawk grep libtool m4 make patch pkg-config sed texinfo texinfo-tex wget mingw-w64-i686-binutils mingw-w64-i686-crt-git mingw-w64-i686-gcc mingw-w64-i686-gcc-libs mingw-w64-i686-headers-git mingw-w64-i686-libmangle-git mingw-w64-i686-libwinpthread-git mingw-w64-i686-make mingw-w64-i686-pkg-config mingw-w64-i686-tools-git mingw-w64-i686-winpthreads-git mingw-w64-i686-gettext
 ) else (
   echo Downloading 64-bit Ruby
-
-  if !USE_CURL!==1 (
-    !CURL_EXE! -L -o "!COSMOS_INSTALL!\tmp\!RUBY_INSTALLER_64!" "!PROTOCOL!:!RUBY_INSTALLER_PATH!!RUBY_INSTALLER_64!"
-  ) else (
-    powershell -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; (New-Object Net.WebClient).DownloadFile('!PROTOCOL!:!RUBY_INSTALLER_PATH!!RUBY_INSTALLER_64!', '!COSMOS_INSTALL!\tmp\!RUBY_INSTALLER_64!')"
-  )
+  powershell -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; (New-Object Net.WebClient).DownloadFile('!PROTOCOL!:!RUBY_INSTALLER_PATH!!RUBY_INSTALLER_64!', '!COSMOS_INSTALL!\tmp\!RUBY_INSTALLER_64!')"
   if errorlevel 1 (
     echo ERROR: Problem downloading 64-bit Ruby from: !PROTOCOL!:!RUBY_INSTALLER_PATH!!RUBY_INSTALLER_64!
     echo INSTALL FAILED
@@ -276,12 +217,7 @@ if !ARCHITECTURE!==x86 (
     @echo Successfully downloaded 64-bit Ruby from: !PROTOCOL!:!RUBY_INSTALLER_PATH!!RUBY_INSTALLER_64! >> !COSMOS_INSTALL!\INSTALL.log
   )
   echo Downloading 64-bit msys2
-
-  if !USE_CURL!==1 (
-    !CURL_EXE! -L -o "!COSMOS_INSTALL!\tmp\msys2.exe" "!MSYS2_64!"
-  ) else (
-    powershell -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; (New-Object Net.WebClient).DownloadFile('!MSYS2_64!', '!COSMOS_INSTALL!\tmp\msys2.exe')"
-  )
+  powershell -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; (New-Object Net.WebClient).DownloadFile('!MSYS2_64!', '!COSMOS_INSTALL!\tmp\msys2.exe')"
   if errorlevel 1 (
     echo ERROR: Problem downloading 64-bit msys2 from: !MSYS2_64!
     echo INSTALL FAILED
@@ -315,11 +251,7 @@ if !ARCHITECTURE!==x86 (
 
 if !ADMIN!==1 (
   echo Downloading WkHtmlToPdf
-  if !USE_CURL!==1 (
-    !CURL_EXE! -L -o "!COSMOS_INSTALL!\tmp\!WKHTMLTOPDF!" "!WKHTMLPATHWITHPROTOCOL!!WKHTMLTOPDF!"
-  ) else (
-    powershell -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; (New-Object Net.WebClient).DownloadFile('!WKHTMLPATHWITHPROTOCOL!!WKHTMLTOPDF!', '!COSMOS_INSTALL!\tmp\!WKHTMLTOPDF!')"
-  )
+  powershell -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; (New-Object Net.WebClient).DownloadFile('!WKHTMLPATHWITHPROTOCOL!!WKHTMLTOPDF!', '!COSMOS_INSTALL!\tmp\!WKHTMLTOPDF!')"
   if errorlevel 1 (
     echo WARNING: Problem downloading WkHtmlToPdf from: !WKHTMLPATHWITHPROTOCOL!!WKHTMLTOPDF!
     echo Please download and install this version to enable making PDF files.
@@ -354,11 +286,7 @@ if !ADMIN!==1 (
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 echo Downloading COSMOS_Windows_Install.zip
-if !USE_CURL!==1 (
-  !CURL_EXE! -L -o "!COSMOS_INSTALL!\tmp\COSMOS_Windows_Install.zip" "!PROTOCOL!:!WINDOWS_INSTALL_ZIP!?raw=true"
-) else (
-  powershell -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; (New-Object Net.WebClient).DownloadFile('!PROTOCOL!:!WINDOWS_INSTALL_ZIP!?raw=true', '!COSMOS_INSTALL!\tmp\COSMOS_Windows_Install.zip')"
-)
+powershell -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; (New-Object Net.WebClient).DownloadFile('!PROTOCOL!:!WINDOWS_INSTALL_ZIP!?raw=true', '!COSMOS_INSTALL!\tmp\COSMOS_Windows_Install.zip')"
 if errorlevel 1 (
   echo ERROR: Problem downloading COSMOS Windows files from: !PROTOCOL!:!WINDOWS_INSTALL_ZIP!?raw=true
   echo INSTALL FAILED
