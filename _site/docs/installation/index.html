@@ -3271,6 +3271,10 @@
 </ol>
 
 <div class="note warning">
+  <h5>NEW - Windows 7: Powershell 4.0 Required</h5>
+  <p style="margin-bottom:20px;">Most websites now require TLS 1.2 for downloads.  The version of powershell included by default with Windows 7 does not have support for TLS 1.2 which causes downloads to fail.  Before running the COSMOS installer bat file, you must install Powershell 4 which is part of Windows Management Framework 4 which can be found here:  https://www.microsoft.com/en-us/download/details.aspx?id=40855</p>
+
+<div class="note warning">
   <h5>SSL Issues</h5>
   <p style="margin-bottom:20px;">The COSMOS install scripts use command line tools like curl to download the code necessary for COSMOS across https connections.  Increasingly organizations are using some sort of SSL decryptor device which can cause curl and other command line tools like git to have SSL certificate problems.  If installation fails with messages that involve "certificate", "SSL", "self-signed", or "secure" this is the problem.  IT typically sets up browsers to work correctly but not command line applications. Note that the file extension might not be .pem, it could be .pem, crt, .ca-bundle, .cer, .p7b, .p7s, or  potentially something else.</p>
   <p style="margin-bottom:20px;">The workaround is to get a proper local certificate file from your IT department that can be used by tools like curl (for example mine is at C:\Shared\Ball.pem).   Doesn't matter just somewhere with no spaces.</p>
@@ -3300,55 +3304,50 @@ You will need to create new ones with the names above and set their value to the
   <p>If you left click the link above and try to save it, IE will corrupt the bat file. Don't download using Internet Explorer.</p>
 </div>
 
-<h2 id="centos-linux-65667-ubuntu-linux-1404lts-and-mac-osx-mavericks">CentOS Linux 6.5/6.6/7, Ubuntu Linux 14.04LTS, and Mac OSX Mavericks+</h2>
-<p>The following instructions work for an installation on CentOS Linux 6.5,s 6.6, or 7, and Ubuntu 14.04LTS from a clean install or any version of Mac OS X after and include Mavericks.  Similar steps should work on other distributions/versions, particularly Redhat.</p>
+## CentOS Linux 6.5/6.6/7, Ubuntu Linux 14.04LTS, and Mac OSX Mavericks+
+The following instructions work for an installation on CentOS Linux 6.5,s 6.6, or 7, and Ubuntu 14.04LTS from a clean install or any version of Mac OS X after and include Mavericks.  Similar steps should work on other distributions/versions, particularly Redhat.
 
-<p>Run the following command in a terminal running the <strong>bash</strong> shell:</p>
+Run the following command in a terminal running the **bash** shell:
 
-<div class="highlighter-rouge"><pre class="highlight"><code>bash &lt;(\curl -sSL https://raw.githubusercontent.com/BallAerospace/COSMOS/master/vendor/installers/linux_mac/INSTALL_COSMOS.sh)
-</code></pre>
-</div>
+```
+bash &lt;(\curl -sSL https://raw.githubusercontent.com/BallAerospace/COSMOS/master/vendor/installers/linux_mac/INSTALL_COSMOS.sh)
+```
 
-<h2 id="linux-notes">Linux Notes</h2>
+## Linux Notes
 
-<p>The install script will install all needed dependencies using the system package manager and install ruby using rbenv.   If another path to installing COSMOS is desired please feel free to just use the INSTALL_COSMOS.sh file as a basis.  As always, it is a good idea to review any remote shell script before executing it on your system.</p>
+The install script will install all needed dependencies using the system package manager and install ruby using rbenv.   If another path to installing COSMOS is desired please feel free to just use the INSTALL_COSMOS.sh file as a basis.  As always, it is a good idea to review any remote shell script before executing it on your system.
 
-<p>If installing in an environment where SSL Certificates are not setup correctly.  The following commands will let COSMOS install in an insecure fashion:</p>
+If installing in an environment where SSL Certificates are not setup correctly.  The following commands will let COSMOS install in an insecure fashion:
 
-<div class="highlighter-rouge"><pre class="highlight"><code>echo "insecure" &gt;&gt; ~/.curlrc
+```
+echo "insecure" &gt;&gt; ~/.curlrc
 export RUBY_BUILD_CURL_OPTS="-k"
 git config --global http.sslVerify false
 bash &lt;(\curl -sSL https://raw.githubusercontent.com/BallAerospace/COSMOS/master/vendor/installers/linux_mac/INSTALL_COSMOS.sh)
-</code></pre>
+```
+
+## Mac Notes
+
+The install script will install all needed dependencies using homebrew and install ruby using rbenv.   If another path to installing COSMOS is desired please feel free to just use the INSTALL_COSMOS.sh file as a basis.  As always, it is a good idea to review any remote shell script before executing it on your system.
+
+In the tools/mac folder is a Mac application version of each tool.    Launcher.app can be copied into the overall Mac applications folder or the Desktop for easy launching.   For this to work you need to set an environment variable for each user so that COSMOS can find it configuration files:
+
+In your .bash_profile add this line (point to your actual COSMOS configuration folder):
+
+```
+export COSMOS_USERPATH=/Users/username/demo
+```
+
+## General
+
+Notes:
+
+1. The bash shell is required on Linux and Mac
+
+1. ruby-termios is a dependency of COSMOS on non-windows platforms but is not listed in the gem dependencies because it is not a dependency on Windows.  An extension attempts to install it when gem install cosmos is run.  This should work as long as you are online. If attempting an offline installation of cosmos you will need to first manually install ruby-termios: ```gem install ruby-termios```
+
+1. The http_proxy environment variable can cause problems.   Make sure you also have a no_proxy variable for localhost, something like no_proxy="127.0.0.1, localhost".
 </div>
-
-<h2 id="mac-notes">Mac Notes</h2>
-
-<p>The install script will install all needed dependencies using homebrew and install ruby using rbenv.   If another path to installing COSMOS is desired please feel free to just use the INSTALL_COSMOS.sh file as a basis.  As always, it is a good idea to review any remote shell script before executing it on your system.</p>
-
-<p>In the tools/mac folder is a Mac application version of each tool.    Launcher.app can be copied into the overall Mac applications folder or the Desktop for easy launching.   For this to work you need to set an environment variable for each user so that COSMOS can find it configuration files:</p>
-
-<p>In your .bash_profile add this line (point to your actual COSMOS configuration folder):</p>
-
-<div class="highlighter-rouge"><pre class="highlight"><code>export COSMOS_USERPATH=/Users/username/demo
-</code></pre>
-</div>
-
-<h2 id="general">General</h2>
-
-<p>Notes:</p>
-
-<ol>
-  <li>
-    <p>The bash shell is required on Linux and Mac</p>
-  </li>
-  <li>
-    <p>ruby-termios is a dependency of COSMOS on non-windows platforms but is not listed in the gem dependencies because it is not a dependency on Windows.  An extension attempts to install it when gem install cosmos is run.  This should work as long as you are online. If attempting an offline installation of cosmos you will need to first manually install ruby-termios: <code class="highlighter-rouge">gem install ruby-termios</code></p>
-  </li>
-  <li>
-    <p>The http_proxy environment variable can cause problems.   Make sure you also have a no_proxy variable for localhost, something like no_proxy=”127.0.0.1, localhost”.</p>
-  </li>
-</ol>
 
           
 
