@@ -349,7 +349,20 @@ module Cosmos
     def get_cmd_value(target_name, command_name, parameter_name, value_type = :CONVERTED)
       packet = System.commands.packet(target_name, command_name)
       # Virtually support RECEIVED_TIMEFORMATTED, RECEIVED_TIMESECONDS, RECEIVED_COUNT
+      # Also PACKET_TIMEFORMATTED and PACKET_TIMESECONDS
       case parameter_name.to_s.upcase
+      when 'PACKET_TIMEFORMATTED'
+        if packet.packet_time
+          return packet.packet_time.formatted
+        else
+          return 'No Packet Time'
+        end
+      when 'PACKET_TIMESECONDS'
+        if packet.packet_time
+          return packet.packet_time.to_f
+        else
+          return 0.0
+        end
       when 'RECEIVED_TIMEFORMATTED'
         if packet.received_time
           return packet.received_time.formatted

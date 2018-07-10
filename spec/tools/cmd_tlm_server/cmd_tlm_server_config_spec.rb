@@ -435,6 +435,39 @@ module Cosmos
         end
       end
 
+      context "with LOG_STORED" do
+        it "complains about too many parameters" do
+          tf = Tempfile.new('unittest')
+          tf.puts "INTERFACE CTSSPEC_INT cts_config_test_interface.rb"
+          tf.puts 'LOG_STORED PacketLogWriter TRUE'
+          tf.close
+          expect { CmdTlmServerConfig.new(tf.path) }.to raise_error(ConfigParser::Error, /Too many parameters for LOG_STORED./)
+          tf.unlink
+        end
+
+        it "complains about unknown log writers" do
+          tf = Tempfile.new('unittest')
+          tf.puts "INTERFACE CTSSPEC_INT cts_config_test_interface.rb"
+          tf.puts 'LOG_STORED MyLogWriter'
+          tf.close
+          expect { CmdTlmServerConfig.new(tf.path) }.to raise_error(ConfigParser::Error, /Unknown packet log writer: MYLOGWRITER/)
+          tf.unlink
+        end
+
+        it "adds a packet log writer to the interface" do
+          tf = Tempfile.new('unittest')
+          tf.puts 'PACKET_LOG_WRITER MY_WRITER packet_log_writer.rb'
+          tf.puts "INTERFACE CTSSPEC_INT cts_config_test_interface.rb"
+          tf.puts 'LOG DEFAULT'
+          tf.puts 'LOG_STORED MY_WRITER'
+          tf.close
+          config = CmdTlmServerConfig.new(tf.path)
+          expect(config.interfaces['CTSSPEC_INT'].packet_log_writer_pairs.length).to eql 1
+          expect(config.interfaces['CTSSPEC_INT'].stored_packet_log_writer_pairs.length).to eql 1
+          tf.unlink
+        end
+      end
+
       context "with DONT_LOG" do
         it "complains about too many parameters" do
           tf = Tempfile.new('unittest')

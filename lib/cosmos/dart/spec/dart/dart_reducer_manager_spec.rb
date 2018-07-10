@@ -29,9 +29,9 @@ describe DartReducerManager do
     meta = Cosmos::System.telemetry.packet("SYSTEM", "META")
     meta.received_time = time
     hs_packet = Cosmos::System.telemetry.packet("INST", "HEALTH_STATUS")
-    # 128 byte file header, SYSTEM META has 14 byte header + length of SYSTEM & META
-    # INST HEALTH_STATUS has 14 byte header + length of INST & HEALTH_STATUS
-    length = 128 + 24 + meta.length + entries * (31 + hs_packet.length)
+    # 128 byte file header, SYSTEM META has 15 byte header + length of SYSTEM & META
+    # INST HEALTH_STATUS has 15 byte header + length of INST & HEALTH_STATUS
+    length = 128 + 25 + meta.length + entries * (32 + hs_packet.length)
 
     writer = DartPacketLogWriter.new(
       :TLM,    # Log telemetry

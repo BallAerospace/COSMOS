@@ -324,11 +324,11 @@ module Cosmos
           tf.close
           @pc.process_file(tf.path, "TGT1")
           pkt = @pc.telemetry["TGT1"]["PKT1"]
-          expect(pkt.items.length).to eql 6 # 3 plus the RECEIVED_XXX items
+          expect(pkt.items.length).to eql 8 # 3 plus the RECEIVED_XXX and PACKET_TIMExxx items
           expect(pkt.items.keys).to include('BYTE1','BYTE2','BYTE3')
-          expect(pkt.sorted_items[3].name).to eql 'BYTE1'
-          expect(pkt.sorted_items[4].name).to eql 'BYTE2'
-          expect(pkt.sorted_items[5].name).to eql 'BYTE3'
+          expect(pkt.sorted_items[5].name).to eql 'BYTE1'
+          expect(pkt.sorted_items[6].name).to eql 'BYTE2'
+          expect(pkt.sorted_items[7].name).to eql 'BYTE3'
           tf.unlink
         end
       end
@@ -842,7 +842,7 @@ module Cosmos
           expect(@pc.telemetry["TGT1"]["PKT1"].items["ITEM1"].data_type).to be :DERIVED
           tf.unlink
         end
-      end      
+      end
 
     end # describe "process_file"
   end

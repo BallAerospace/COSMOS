@@ -67,7 +67,7 @@ module Cosmos
         expect(interfaces.all["MY_INT"].packet_log_writer_pairs[0].cmd_log_writer).to receive(:write)
 
         # Grab an existing packet
-        pkt = System.commands.packet('SYSTEM','STARTLOGGING')
+        pkt = System.commands.packet('SYSTEM','STARTLOGGING').clone
 
         count = System.targets['SYSTEM'].cmd_cnt
         cmd.send_command_to_target('SYSTEM', pkt)
@@ -77,6 +77,30 @@ module Cosmos
         tf.unlink
       end
 
+      it "sends already identified stored commands" do
+        tf = Tempfile.new('unittest')
+        tf.puts 'PACKET_LOG_WRITER MY_WRITER packet_log_writer.rb'
+        tf.puts 'INTERFACE MY_INT interface.rb'
+        tf.puts '  LOG_STORED MY_WRITER'
+        tf.close
+        config = CmdTlmServerConfig.new(tf.path)
+        cmd = Commanding.new(config)
+        interfaces = Interfaces.new(config)
+        interfaces.map_target("SYSTEM","MY_INT")
+        expect(interfaces.all["MY_INT"]).to receive(:write)
+        expect(interfaces.all["MY_INT"].stored_packet_log_writer_pairs[0].cmd_log_writer).to receive(:write)
+
+        # Grab an existing packet
+        pkt = System.commands.packet('SYSTEM','STARTLOGGING').clone
+        pkt.stored = true
+
+        count = System.targets['SYSTEM'].cmd_cnt
+        cmd.send_command_to_target('SYSTEM', pkt)
+        # Verify the SYSTEM STARTLOGGING packet has been updated
+        expect(System.commands.packet("SYSTEM","STARTLOGGING").buffer).to eql pkt.buffer
+        expect(System.targets['SYSTEM'].cmd_cnt).to eq count + 1
+        tf.unlink
+      end
 
       it "logs unknown commands" do
         Logger.level = Logger::DEBUG

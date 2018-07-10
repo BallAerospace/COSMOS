@@ -25,6 +25,8 @@ class DartInterfaceThread < Cosmos::InterfaceThread
       # Update Current Value Table Used By Packet Log Writer
       cvt_packet = Cosmos::System.telemetry.update!(packet.target_name, packet.packet_name, packet.buffer)
       cvt_packet.received_time = packet.received_time
+      cvt_packet.stored = packet.stored
+      cvt_packet.extra = packet.extra
       @packet_log_writer.start
       @packet_log_writer.write(cvt_packet)
     else

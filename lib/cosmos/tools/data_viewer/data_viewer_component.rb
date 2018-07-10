@@ -102,6 +102,7 @@ module Cosmos
       processed_text = ''
       processed_text << '*' * 80 << "\n"
       processed_text << "* #{packet.target_name} #{packet.packet_name}\n"
+      processed_text << "* Packet Time: #{packet.packet_time.formatted}\n" if packet.packet_time
       processed_text << "* Received Time: #{packet.received_time.formatted}\n" if packet.received_time
       processed_text << "* Received Count: #{packet.received_count}\n"
       processed_text << '*' * 80 << "\n"

@@ -114,7 +114,7 @@ class DartPacketLogWriter < Cosmos::PacketLogWriter
       ple = PacketLogEntry.new
       ple.target_id = target_id
       ple.packet_id = packet_id
-      ple.time = packet.received_time
+      ple.time = packet.packet_time
       ple.packet_log_id = @packet_log_id
       ple.data_offset = @file_size
       ple.meta_id = @meta_id
@@ -134,7 +134,7 @@ class DartPacketLogWriter < Cosmos::PacketLogWriter
         @sync_count = 0
       end
       @ple_data << "," if @ple_data.length > 0
-      @ple_data << "(#{target_id},#{packet_id},'#{packet.received_time.dup.utc.iso8601(6)}',#{@packet_log_id},#{@file_size},#{@meta_id},#{@is_tlm},true)"
+      @ple_data << "(#{target_id},#{packet_id},'#{packet.packet_time.dup.utc.iso8601(6)}',#{@packet_log_id},#{@file_size},#{@meta_id},#{@is_tlm},true)"
     end
   end
 

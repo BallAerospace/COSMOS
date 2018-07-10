@@ -61,8 +61,10 @@ module Cosmos
 
         title_label = Qt::Label.new(tr(title))
         text_layout.addWidget(title_label)
-        @packet_time = Qt::Label.new("Packet Received Time: ")
+        @packet_time = Qt::Label.new("Packet Time: ")
         text_layout.addWidget(@packet_time)
+        @received_time = Qt::Label.new("Received Time: ")
+        text_layout.addWidget(@received_time)
         top_layout.addLayout(text_layout)
         top_layout.addStretch(1)
 
@@ -113,8 +115,10 @@ module Cosmos
         packet = System.telemetry.packet(@target_name, @packet_name)
       end
       packet_data = packet.buffer
-      packet_time = packet.received_time
-      @packet_time.setText("Received Time: #{packet_time.formatted}") if packet_time
+      packet_time = packet.packet_time
+      @packet_time.setText("Packet Time: #{packet_time.formatted}") if packet_time
+      received_time = packet.received_time
+      @received_time.setText("Received Time: #{received_time.formatted}") if received_time
       position_x = @packet_data.horizontalScrollBar.value
       position_y = @packet_data.verticalScrollBar.value
       @packet_data.setPlainText(HEADER + packet_data.formatted)

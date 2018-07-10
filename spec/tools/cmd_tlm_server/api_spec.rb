@@ -910,28 +910,34 @@ DOC
         @api.inject_tlm("INST","HEALTH_STATUS",{TEMP1: 0, TEMP2: 0, TEMP3: 0, TEMP4: 0}, :RAW)
 
         vals = @api.get_tlm_packet("INST","HEALTH_STATUS")
-        expect(vals[0][0]).to eql "RECEIVED_TIMESECONDS"
+        expect(vals[0][0]).to eql "PACKET_TIMESECONDS"
         expect(vals[0][1]).to be > 0
         expect(vals[0][2]).to be_nil
-        expect(vals[1][0]).to eql "RECEIVED_TIMEFORMATTED"
+        expect(vals[1][0]).to eql "PACKET_TIMEFORMATTED"
         expect(vals[1][1].split(' ')[0]).to eql Time.now.formatted.split(' ')[0]
         expect(vals[1][2]).to be_nil
-        expect(vals[2][0]).to eql "RECEIVED_COUNT"
+        expect(vals[2][0]).to eql "RECEIVED_TIMESECONDS"
         expect(vals[2][1]).to be > 0
         expect(vals[2][2]).to be_nil
+        expect(vals[3][0]).to eql "RECEIVED_TIMEFORMATTED"
+        expect(vals[3][1].split(' ')[0]).to eql Time.now.formatted.split(' ')[0]
+        expect(vals[3][2]).to be_nil
+        expect(vals[4][0]).to eql "RECEIVED_COUNT"
+        expect(vals[4][1]).to be > 0
+        expect(vals[4][2]).to be_nil
         # Spot check a few more
-        expect(vals[22][0]).to eql "TEMP1"
-        expect(vals[22][1]).to eql -100.0
-        expect(vals[22][2]).to eql :RED_LOW
-        expect(vals[23][0]).to eql "TEMP2"
-        expect(vals[23][1]).to eql -100.0
-        expect(vals[23][2]).to eql :RED_LOW
-        expect(vals[24][0]).to eql "TEMP3"
+        expect(vals[24][0]).to eql "TEMP1"
         expect(vals[24][1]).to eql -100.0
         expect(vals[24][2]).to eql :RED_LOW
-        expect(vals[25][0]).to eql "TEMP4"
+        expect(vals[25][0]).to eql "TEMP2"
         expect(vals[25][1]).to eql -100.0
         expect(vals[25][2]).to eql :RED_LOW
+        expect(vals[26][0]).to eql "TEMP3"
+        expect(vals[26][1]).to eql -100.0
+        expect(vals[26][2]).to eql :RED_LOW
+        expect(vals[27][0]).to eql "TEMP4"
+        expect(vals[27][1]).to eql -100.0
+        expect(vals[27][2]).to eql :RED_LOW
       end
     end
 
@@ -1067,16 +1073,18 @@ DOC
 
       it "returns all the items for a target/packet" do
         items = @api.get_tlm_item_list("INST","HEALTH_STATUS")
-        expect(items[0][0]).to eql "RECEIVED_TIMESECONDS"
-        expect(items[1][0]).to eql "RECEIVED_TIMEFORMATTED"
-        expect(items[2][0]).to eql "RECEIVED_COUNT"
+        expect(items[0][0]).to eql "PACKET_TIMESECONDS"
+        expect(items[1][0]).to eql "PACKET_TIMEFORMATTED"
+        expect(items[2][0]).to eql "RECEIVED_TIMESECONDS"
+        expect(items[3][0]).to eql "RECEIVED_TIMEFORMATTED"
+        expect(items[4][0]).to eql "RECEIVED_COUNT"
         # Spot check a few more
-        expect(items[22][0]).to eql "TEMP1"
-        expect(items[22][1]).to be_nil
-        expect(items[22][2]).to eql "Temperature #1"
-        expect(items[28][0]).to eql "COLLECT_TYPE"
-        expect(items[28][1]).to include("NORMAL"=>0, "SPECIAL"=>1)
-        expect(items[28][2]).to eql "Most recent collect type"
+        expect(items[24][0]).to eql "TEMP1"
+        expect(items[24][1]).to be_nil
+        expect(items[24][2]).to eql "Temperature #1"
+        expect(items[30][0]).to eql "COLLECT_TYPE"
+        expect(items[30][1]).to include("NORMAL"=>0, "SPECIAL"=>1)
+        expect(items[30][2]).to eql "Most recent collect type"
       end
     end
 

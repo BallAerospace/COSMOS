@@ -650,7 +650,7 @@ module Cosmos
         if base_packet
           count = 0
           base_packet.sorted_items.each do |item|
-            unless ['RECEIVED_TIMESECONDS', 'RECEIVED_TIMEFORMATTED', 'RECEIVED_COUNT'].include?(item.name)
+            unless ['PACKET_TIMESECONDS', 'PACKET_TIMEFORMATTED', 'RECEIVED_TIMESECONDS', 'RECEIVED_TIMEFORMATTED', 'RECEIVED_COUNT'].include?(item.name)
               begin
                 @current_packet.get_item(item.name)
               rescue

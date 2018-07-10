@@ -69,12 +69,12 @@ module Cosmos
         tf.close
         @pc.process_file(tf.path, "TGT1")
         pkt = @pc.telemetry["TGT1"]["PKT1"]
-        expect(pkt.items.length).to eql 7 # 4 plus the RECEIVED_XXX items
+        expect(pkt.items.length).to eql 9 # 4 plus the RECEIVED_XXX and PACKET_TIMExxx items
         expect(pkt.items.keys).to include('BIT1','BIT2','BIT3','BIT4')
-        expect(pkt.sorted_items[3].name).to eql 'BIT4'
-        expect(pkt.sorted_items[4].name).to eql 'BIT3'
-        expect(pkt.sorted_items[5].name).to eql 'BIT2'
-        expect(pkt.sorted_items[6].name).to eql 'BIT1'
+        expect(pkt.sorted_items[5].name).to eql 'BIT4'
+        expect(pkt.sorted_items[6].name).to eql 'BIT3'
+        expect(pkt.sorted_items[7].name).to eql 'BIT2'
+        expect(pkt.sorted_items[8].name).to eql 'BIT1'
         limits_items = []
         pkt.items.each do |name, item|
           limits_items << item if name.include?('BIT')
@@ -117,24 +117,24 @@ module Cosmos
         tf.close
         @pc.process_file(tf.path, "TGT1")
         pkt = @pc.telemetry["TGT1"]["PKT1"]
-        expect(pkt.items.length).to eql 11 # 8 plus the RECEIVED_XXX items
+        expect(pkt.items.length).to eql 13 # 8 plus the RECEIVED_XXX and PACKET_TIMExxx items
         expect(pkt.items.keys).to include('WORD1','WORD2','WORD3','WORD4','DWORD1','DWORD2','DWORD3','DWORD4')
-        expect(pkt.sorted_items[3].name).to eql 'WORD1'
-        expect(pkt.sorted_items[3].bit_offset).to eql 0
-        expect(pkt.sorted_items[4].name).to eql 'DWORD1'
-        expect(pkt.sorted_items[4].bit_offset).to eql 16
-        expect(pkt.sorted_items[5].name).to eql 'WORD2'
-        expect(pkt.sorted_items[5].bit_offset).to eql 48
-        expect(pkt.sorted_items[6].name).to eql 'DWORD2'
-        expect(pkt.sorted_items[6].bit_offset).to eql 64
-        expect(pkt.sorted_items[7].name).to eql 'WORD3'
-        expect(pkt.sorted_items[7].bit_offset).to eql 96
-        expect(pkt.sorted_items[8].name).to eql 'DWORD3'
-        expect(pkt.sorted_items[8].bit_offset).to eql 112
-        expect(pkt.sorted_items[9].name).to eql 'WORD4'
-        expect(pkt.sorted_items[9].bit_offset).to eql 144
-        expect(pkt.sorted_items[10].name).to eql 'DWORD4'
-        expect(pkt.sorted_items[10].bit_offset).to eql 160
+        expect(pkt.sorted_items[5].name).to eql 'WORD1'
+        expect(pkt.sorted_items[5].bit_offset).to eql 0
+        expect(pkt.sorted_items[6].name).to eql 'DWORD1'
+        expect(pkt.sorted_items[6].bit_offset).to eql 16
+        expect(pkt.sorted_items[7].name).to eql 'WORD2'
+        expect(pkt.sorted_items[7].bit_offset).to eql 48
+        expect(pkt.sorted_items[8].name).to eql 'DWORD2'
+        expect(pkt.sorted_items[8].bit_offset).to eql 64
+        expect(pkt.sorted_items[9].name).to eql 'WORD3'
+        expect(pkt.sorted_items[9].bit_offset).to eql 96
+        expect(pkt.sorted_items[10].name).to eql 'DWORD3'
+        expect(pkt.sorted_items[10].bit_offset).to eql 112
+        expect(pkt.sorted_items[11].name).to eql 'WORD4'
+        expect(pkt.sorted_items[11].bit_offset).to eql 144
+        expect(pkt.sorted_items[12].name).to eql 'DWORD4'
+        expect(pkt.sorted_items[12].bit_offset).to eql 160
         tf.unlink
       end
 
@@ -149,18 +149,18 @@ module Cosmos
         tf.close
         @pc.process_file(tf.path, "TGT1")
         pkt = @pc.telemetry["TGT1"]["PKT1"]
-        expect(pkt.items.length).to eql 8 # 5 plus the RECEIVED_XXX items
+        expect(pkt.items.length).to eql 10 # 5 plus the RECEIVED_XXX and PACKET_TIMExxx items
         expect(pkt.items.keys).to include('BIT1','BIT2','BIT3','BIT4','BIT5')
-        expect(pkt.sorted_items[3].name).to eql 'BIT1'
-        expect(pkt.sorted_items[3].bit_offset).to eql 0
-        expect(pkt.sorted_items[4].name).to eql 'BIT2'
-        expect(pkt.sorted_items[4].bit_offset).to eql 16
-        expect(pkt.sorted_items[5].name).to eql 'BIT3'
-        expect(pkt.sorted_items[5].bit_offset).to eql 32
-        expect(pkt.sorted_items[6].name).to eql 'BIT4'
-        expect(pkt.sorted_items[6].bit_offset).to eql 48
-        expect(pkt.sorted_items[7].name).to eql 'BIT5'
-        expect(pkt.sorted_items[7].bit_offset).to eql 64
+        expect(pkt.sorted_items[5].name).to eql 'BIT1'
+        expect(pkt.sorted_items[5].bit_offset).to eql 0
+        expect(pkt.sorted_items[6].name).to eql 'BIT2'
+        expect(pkt.sorted_items[6].bit_offset).to eql 16
+        expect(pkt.sorted_items[7].name).to eql 'BIT3'
+        expect(pkt.sorted_items[7].bit_offset).to eql 32
+        expect(pkt.sorted_items[8].name).to eql 'BIT4'
+        expect(pkt.sorted_items[8].bit_offset).to eql 48
+        expect(pkt.sorted_items[9].name).to eql 'BIT5'
+        expect(pkt.sorted_items[9].bit_offset).to eql 64
         limits_items = []
         pkt.items.each do |name, item|
           limits_items << item if name.include?('BIT')
@@ -179,7 +179,7 @@ module Cosmos
         tf.close
         @pc.process_file(tf.path, "TGT1")
         pkt = @pc.telemetry["TGT1"]["PKT1"]
-        expect(pkt.items.length).to eql 8 # 5 plus the RECEIVED_XXX items
+        expect(pkt.items.length).to eql 10 # 5 plus the RECEIVED_XXX and PACKET_TIMExxx items
         expect(pkt.items.keys).to include('BIT1','BIT2','BIT3','BIT4','BIT5')
         expect(pkt.limits_items.collect{|item| item.name}).to include('BIT1','BIT2','BIT3','BIT4','BIT5')
         tf.unlink
@@ -194,7 +194,7 @@ module Cosmos
         tf.close
         @pc.process_file(tf.path, "TGT1")
         pkt = @pc.telemetry["TGT1"]["PKT1"]
-        expect(pkt.items.length).to eql 8 # 5 plus the RECEIVED_XXX items
+        expect(pkt.items.length).to eql 10 # 5 plus the RECEIVED_XXX and PACKET_TIMExxx items
         expect(pkt.items.keys).to include('BIT1','BIT2','BIT3','BIT4','BIT5')
         expect(pkt.limits_items).to be_empty
         tf.unlink
@@ -209,7 +209,7 @@ module Cosmos
         tf.close
         @pc.process_file(tf.path, "TGT1")
         pkt = @pc.telemetry["TGT1"]["PKT1"]
-        expect(pkt.items.length).to eql 8 # 5 plus the RECEIVED_XXX items
+        expect(pkt.items.length).to eql 10 # 5 plus the RECEIVED_XXX and PACKET_TIMExxx items
         expect(pkt.items.keys).to include('08_BIT','09_BIT','10_BIT','11_BIT','12_BIT')
         expect(pkt.limits_items).to be_empty
         tf.unlink
