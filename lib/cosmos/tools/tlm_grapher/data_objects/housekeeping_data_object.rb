@@ -256,7 +256,7 @@ module Cosmos
         case @analysis
         when :NONE
           # Support out of order x_values with no analysis
-          if @x_values.empty? or @x_values[-1] <= x_value or !@x_values.respond_to :bsearch_index
+          if @x_values.empty? or @x_values[-1] <= x_value or !@x_values.respond_to? :bsearch_index
             @x_values << x_value
             @y_values << y_value + @y_offset
           else
