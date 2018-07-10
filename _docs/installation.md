@@ -17,6 +17,10 @@ Run the COSMOS Installation bat file:
   3. Run the bat from from Windows explorer or a cmd window
 
 <div class="note warning">
+  <h5>NEW - Windows 7: Powershell 4.0 Required</h5>
+  <p style="margin-bottom:20px;">Most websites now require TLS 1.2 for downloads.  The version of powershell included by default with Windows 7 does not have support for TLS 1.2 which causes downloads to fail.  Before running the COSMOS installer bat file, you must install Powershell 4 which is part of Windows Management Framework 4 which can be found here:  https://www.microsoft.com/en-us/download/details.aspx?id=40855</p>
+
+<div class="note warning">
   <h5>SSL Issues</h5>
   <p style="margin-bottom:20px;">The COSMOS install scripts use command line tools like curl to download the code necessary for COSMOS across https connections.  Increasingly organizations are using some sort of SSL decryptor device which can cause curl and other command line tools like git to have SSL certificate problems.  If installation fails with messages that involve "certificate", "SSL", "self-signed", or "secure" this is the problem.  IT typically sets up browsers to work correctly but not command line applications. Note that the file extension might not be .pem, it could be .pem, crt, .ca-bundle, .cer, .p7b, .p7s, or  potentially something else.</p>
   <p style="margin-bottom:20px;">The workaround is to get a proper local certificate file from your IT department that can be used by tools like curl (for example mine is at C:\Shared\Ball.pem).   Doesn't matter just somewhere with no spaces.</p>
