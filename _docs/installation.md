@@ -18,7 +18,8 @@ Run the COSMOS Installation bat file:
 
 <div class="note warning">
   <h5>NEW - Windows 7: Powershell 4.0 Required</h5>
-  <p style="margin-bottom:20px;">Most websites now require TLS 1.2 for downloads.  The version of powershell included by default with Windows 7 does not have support for TLS 1.2 which causes downloads to fail.  Before running the COSMOS installer bat file, you must install Powershell 4 which is part of Windows Management Framework 4 which can be found here:  https://www.microsoft.com/en-us/download/details.aspx?id=40855</p>
+  <p style="margin-bottom:20px;">Most websites now require TLS 1.2 for downloads.  The version of powershell included by default with Windows 7 does not have support for TLS 1.2 which causes downloads to fail.  Before running the COSMOS installer bat file, you must install Powershell 4 which is part of Windows Management Framework 4 which can be found here:  <a href="https://www.microsoft.com/en-us/download/details.aspx?id=40855">Windows Management Framework 4</a></p>
+</div>
 
 <div class="note warning">
   <h5>SSL Issues</h5>
