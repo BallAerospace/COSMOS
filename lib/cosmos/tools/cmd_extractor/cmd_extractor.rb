@@ -102,20 +102,20 @@ module Cosmos
       @data_source_layout.addWidget(label)
       @log_file_radio = Qt::RadioButton.new("Log File", self)
       @log_file_radio.setChecked(true)
-      @log_file_radio.connect(SIGNAL('clicked()')) do 
+      @log_file_radio.connect(SIGNAL('clicked()')) do
         @packet_log_frame.show_log_fields(true)
         @packet_log_frame.output_filename = ""
-        @dart_meta_frame.hide        
+        @dart_meta_frame.hide
         @resize_timer.start(100)
       end
       @data_source_layout.addWidget(@log_file_radio)
       @dart_radio = Qt::RadioButton.new("DART Database", self)
-      @dart_radio.connect(SIGNAL('clicked()')) do 
+      @dart_radio.connect(SIGNAL('clicked()')) do
         @packet_log_frame.show_log_fields(false)
         @packet_log_frame.output_filename = ""
         @dart_meta_frame.show
         @resize_timer.start(100)
-      end      
+      end
       @data_source_layout.addWidget(@dart_radio)
       @data_source_layout.addStretch()
       @top_layout.addLayout(@data_source_layout)
@@ -176,14 +176,14 @@ module Cosmos
       @time_start = @packet_log_frame.time_start
       @time_end = @packet_log_frame.time_end
       @packet_log_reader = @packet_log_frame.packet_log_reader
-      @input_filenames = @packet_log_frame.filenames.sort      
+      @input_filenames = @packet_log_frame.filenames.sort
       @output_filename = @packet_log_frame.output_filename
       @output_filename = nil if @output_filename.strip.empty?
       @meta_filters = @dart_meta_frame.meta_filters
 
       return unless pre_process_tests()
 
-      include_raw = @include_raw.isChecked      
+      include_raw = @include_raw.isChecked
       if @log_file_radio.isChecked
         begin
           ProgressDialog.execute(self, # parent
@@ -214,8 +214,8 @@ module Cosmos
           ProgressDialog.execute(self, # parent
                                 'Log File Progress', # title
                                 600, # width, height
-                                300, 
-                                true, # Overall progress, no step progress 
+                                300,
+                                true, # Overall progress, no step progress
                                 false) do |progress_dialog|
             progress_dialog.cancel_callback = method(:cancel_callback)
             progress_dialog.enable_cancel_button
@@ -227,7 +227,7 @@ module Cosmos
                   @interface.disconnect
                   request_packet = Cosmos::Packet.new('DART', 'DART')
                   request_packet.define_item('REQUEST', 0, 0, :BLOCK)
-                  
+
                   @time_start ||= Time.utc(1970, 1, 1)
                   @time_end ||= Time.now
                   @time_delta = @time_end - @time_start
@@ -239,7 +239,7 @@ module Cosmos
                   request['cmd_tlm'] = 'CMD'
                   request['meta_filters'] = @meta_filters unless @meta_filters.empty?
                   request_packet.write('REQUEST', JSON.dump(request))
-                
+
                   progress_dialog.append_text("Connecting to DART Database...")
                   @interface.connect
                   progress_dialog.append_text("Sending DART Database Query...")
@@ -260,11 +260,11 @@ module Cosmos
                     # Switch to correct configuration from SYSTEM META when needed
                     if packet.target_name == 'SYSTEM'.freeze and packet.packet_name == 'META'.freeze
                       meta_packet = System.commands.packet('SYSTEM', 'META')
-                      meta_packet.buffer = packet.buffer                                  
+                      meta_packet.buffer = packet.buffer
                       Cosmos::System.load_configuration(meta_packet.read('CONFIG'))
                     elsif first
                       first = false
-                      @time_start = packet.received_time
+                      @time_start = packet.packet_time
                       @time_delta = @time_end - @time_start
                     end
 
@@ -273,6 +273,7 @@ module Cosmos
                     defined_packet.received_time = packet.received_time
 
                     output_file.puts "#{defined_packet.target_name} #{defined_packet.packet_name}"
+                    output_file.puts "  PACKET_TIMEFORMATTED: #{defined_packet.packet_time.formatted}"
                     output_file.puts "  RECEIVED_TIMEFORMATTED: #{defined_packet.received_time.formatted}"
                     output_file.puts defined_packet.formatted(:WITH_UNITS, 2)
                     if include_raw or !defined_packet.identified? or !defined_packet.defined?
@@ -281,10 +282,10 @@ module Cosmos
                     end
                     output_file.puts
 
-                    progress = ((@time_delta - (@time_end - defined_packet.received_time)).to_f / @time_delta.to_f)
+                    progress = ((@time_delta - (@time_end - defined_packet.packet_time)).to_f / @time_delta.to_f)
                     progress_dialog.set_overall_progress(progress) if !@cancel
                   end
-            
+
                 end
               end
 
@@ -295,12 +296,12 @@ module Cosmos
                 @open_button.setEnabled(true)
               end
             end
-          end            
+          end
         rescue => error
           Qt::MessageBox.critical(self, 'Error!', "Error Querying DART Database\n#{error.formatted}")
         ensure
           @interface.disconnect
-        end          
+        end
       end
     end # def process_data
 
@@ -333,8 +334,9 @@ module Cosmos
 
             break if @cancel
             progress_dialog.set_step_progress(@packet_log_reader.bytes_read / file_size)
+            output_file.puts "#{packet.target_name} #{packet.packet_name}"
             if packet.received_time
-              output_file.puts "#{packet.target_name} #{packet.packet_name}"
+              output_file.puts "  PACKET_TIMEFORMATTED: #{packet.packet_time.formatted}"
               output_file.puts "  RECEIVED_TIMEFORMATTED: #{packet.received_time.formatted}"
             end
             output_file.puts packet.formatted(:WITH_UNITS, 2)

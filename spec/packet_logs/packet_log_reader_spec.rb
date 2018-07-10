@@ -133,6 +133,34 @@ module Cosmos
         expect(pkt3.packet_name).to eql 'PKT3'
         @plr.close
       end
+
+      it "opens COSMOS2 log files" do
+        pkt = System.telemetry.packet("SYSTEM","LIMITS_CHANGE").clone
+        filename = File.join(@log_path,'test.bin')
+        File.open(filename,'wb') do |file|
+          file.write ("COSMOS2_CMD                             TEST " + (" " * 83))
+          file.write [1000,100,4,"TGT1",4,"PKT1"].pack('NNCA4CA4')
+          file.write [pkt.buffer.length].pack('N')
+          file.write pkt.buffer
+          file.write [1000,100,4,"TGT2",4,"PKT2"].pack('NNCA4CA4')
+          file.write [pkt.buffer.length].pack('N')
+          file.write pkt.buffer
+          file.write [1000,100,4,"TGT3",4,"PKT3"].pack('NNCA4CA4')
+          file.write [pkt.buffer.length].pack('N')
+          file.write pkt.buffer
+        end
+        expect(@plr.open(filename)).to eql [false, nil]
+        pkt1 = @plr.read
+        expect(pkt1.target_name).to eql 'TGT1'
+        expect(pkt1.packet_name).to eql 'PKT1'
+        pkt2 = @plr.read
+        expect(pkt2.target_name).to eql 'TGT2'
+        expect(pkt2.packet_name).to eql 'PKT2'
+        pkt3 = @plr.read
+        expect(pkt3.target_name).to eql 'TGT3'
+        expect(pkt3.packet_name).to eql 'PKT3'
+        @plr.close
+      end
     end
 
     it "handles saved configuration with errors" do
@@ -205,10 +233,10 @@ module Cosmos
         expect(@plr.log_type).to eql :CMD
         expect(@plr.configuration_name).not_to be_nil
         expect(@plr.hostname).to eql Socket.gethostname
-        header_length = 8 + 1 + 6 + 1 + 12 + 4
-        meta_header_length = 8 + 1 + 6 + 1 + 4 + 4
+        header_length = 1 + 8 + 1 + 6 + 1 + 12 + 4
+        meta_header_length = 1 + 8 + 1 + 6 + 1 + 4 + 4
         meta_length = System.telemetry.packet('SYSTEM', 'META').length
-        expect(packet_offsets).to eql [PacketLogReader::COSMOS2_HEADER_LENGTH, PacketLogReader::COSMOS2_HEADER_LENGTH + meta_header_length + meta_length, PacketLogReader::COSMOS2_HEADER_LENGTH + meta_header_length + meta_length + header_length + @cmd_packet_length, PacketLogReader::COSMOS2_HEADER_LENGTH + meta_header_length + meta_length + (header_length + @cmd_packet_length) * 2]
+        expect(packet_offsets).to eql [PacketLogReader::COSMOS4_HEADER_LENGTH, PacketLogReader::COSMOS4_HEADER_LENGTH + meta_header_length + meta_length, PacketLogReader::COSMOS4_HEADER_LENGTH + meta_header_length + meta_length + header_length + @cmd_packet_length, PacketLogReader::COSMOS4_HEADER_LENGTH + meta_header_length + meta_length + (header_length + @cmd_packet_length) * 2]
 
         expect(@plr.open(Dir[File.join(@log_path,"*cmd.bin")][0])).to eql [true, nil]
         pkt = @plr.read_at_offset(packet_offsets[2])
@@ -223,10 +251,10 @@ module Cosmos
         expect(@plr.log_type).to eql :TLM
         expect(@plr.configuration_name).not_to be_nil
         expect(@plr.hostname).to eql Socket.gethostname
-        header_length = 8 + 1 + 6 + 1 + 13 + 4
-        meta_header_length = 8 + 1 + 6 + 1 + 4 + 4
+        header_length = 1 + 8 + 1 + 6 + 1 + 13 + 4
+        meta_header_length = 1 + 8 + 1 + 6 + 1 + 4 + 4
         meta_length = System.telemetry.packet('SYSTEM', 'META').length
-        expect(packet_offsets).to eql [PacketLogReader::COSMOS2_HEADER_LENGTH, PacketLogReader::COSMOS2_HEADER_LENGTH + meta_header_length + meta_length, PacketLogReader::COSMOS2_HEADER_LENGTH + meta_header_length + meta_length + header_length + @tlm_packet_length, PacketLogReader::COSMOS2_HEADER_LENGTH + meta_header_length + meta_length + (header_length + @tlm_packet_length) * 2]
+        expect(packet_offsets).to eql [PacketLogReader::COSMOS4_HEADER_LENGTH, PacketLogReader::COSMOS4_HEADER_LENGTH + meta_header_length + meta_length, PacketLogReader::COSMOS4_HEADER_LENGTH + meta_header_length + meta_length + header_length + @tlm_packet_length, PacketLogReader::COSMOS4_HEADER_LENGTH + meta_header_length + meta_length + (header_length + @tlm_packet_length) * 2]
 
         expect(@plr.open(Dir[File.join(@log_path,"*tlm.bin")][0])).to eql [true, nil]
         pkt = @plr.read_at_offset(packet_offsets[2])
@@ -240,10 +268,10 @@ module Cosmos
     describe "each" do
       it "returns packets" do
         index = 0
-        meta_header_length = 8 + 1 + 6 + 1 + 4 + 4
+        meta_header_length = 1 + 8 + 1 + 6 + 1 + 4 + 4
         meta_length = System.telemetry.packet('SYSTEM', 'META').length
         packet_length = System.commands.packet('SYSTEM', 'STARTLOGGING').length
-        packet_header_length = 8 + 1 + 'SYSTEM'.length + 1 + 'STARTLOGGING'.length + 4
+        packet_header_length = 1 + 8 + 1 + 'SYSTEM'.length + 1 + 'STARTLOGGING'.length + 4
         bytes_read = 128 + packet_header_length + packet_length + meta_header_length + meta_length
         @plr.each(Dir[File.join(@log_path,"*cmd.bin")][0]) do |packet|
           next if packet.packet_name == 'META'
@@ -257,7 +285,7 @@ module Cosmos
         end
         index = 0
         packet_length = System.telemetry.packet('SYSTEM', 'LIMITS_CHANGE').length
-        packet_header_length = 8 + 1 + 'SYSTEM'.length + 1 + 'LIMITS_CHANGE'.length + 4
+        packet_header_length = 1 + 8 + 1 + 'SYSTEM'.length + 1 + 'LIMITS_CHANGE'.length + 4
         bytes_read = 128 + packet_header_length + packet_length + meta_header_length + meta_length
         @plr.each(Dir[File.join(@log_path,"*tlm.bin")][0]) do |packet|
           next if packet.packet_name == 'META'
@@ -294,12 +322,20 @@ module Cosmos
 
       it "increments the command received count" do
         plw = PacketLogWriter.new(:CMD,'cnt',true,nil,10000000,nil,false)
-        plw.write(System.commands.packet("INST","COLLECT").clone)
-        plw.write(System.commands.packet("INST","ABORT").clone)
-        plw.write(System.commands.packet("INST","ABORT").clone)
-        plw.write(System.commands.packet("INST","COLLECT").clone)
-        plw.write(System.commands.packet("SYSTEM","STOPLOGGING").clone)
-        plw.write(System.commands.packet("INST","ABORT").clone)
+        collect_packet = System.commands.packet("INST","COLLECT").clone
+        collect_packet.stored = false
+        collect_packet.extra = {"vcid" => 2}
+        abort_packet = System.commands.packet("INST","ABORT").clone
+        abort_packet.stored = true
+        abort_packet.extra = {"test" => 1}
+        stop_packet = System.commands.packet("SYSTEM","STOPLOGGING").clone
+        stop_packet.stored = true
+        plw.write(collect_packet)
+        plw.write(abort_packet)
+        plw.write(abort_packet)
+        plw.write(collect_packet)
+        plw.write(stop_packet)
+        plw.write(abort_packet)
         plw.stop
 
         cnt = {}
@@ -308,6 +344,15 @@ module Cosmos
           cnt["#{packet.target_name}_#{packet.packet_name}"] ||= 0
           cnt["#{packet.target_name}_#{packet.packet_name}"] += 1
           expect(packet.received_count).to eql cnt["#{packet.target_name}_#{packet.packet_name}"]
+          if packet.packet_name == 'ABORT'
+            expect(packet.stored).to eql true
+            expect(packet.extra).to eql({"test" => 1})
+          elsif packet.packet_name == 'COLLECT'
+            expect(packet.stored).to eql false
+            expect(packet.extra).to eql({"vcid" => 2})
+          elsif packet.packet_name == 'STOPLOGGING'
+            expect(packet.stored).to eql true
+          end
         end
 
         # Resetting a packet should reset only that packet's received_count
@@ -328,10 +373,13 @@ module Cosmos
 
       it "increments the telemetry received count" do
         plw = PacketLogWriter.new(:TLM,'cnt',true,nil,10000000,nil,false)
-        plw.write(System.telemetry.packet("INST","HEALTH_STATUS").clone)
+        hs_packet = System.telemetry.packet("INST","HEALTH_STATUS").clone
+        hs_packet.stored = true
+        hs_packet.extra = {"vcid" => 2}
+        plw.write(hs_packet)
         plw.write(System.telemetry.packet("INST","ADCS").clone)
         plw.write(System.telemetry.packet("INST","ADCS").clone)
-        plw.write(System.telemetry.packet("INST","HEALTH_STATUS").clone)
+        plw.write(hs_packet)
         plw.write(System.telemetry.packet("INST","ADCS").clone)
         plw.stop
 
@@ -341,6 +389,13 @@ module Cosmos
           cnt["#{packet.target_name}_#{packet.packet_name}"] ||= 0
           cnt["#{packet.target_name}_#{packet.packet_name}"] += 1
           expect(packet.received_count).to eql cnt["#{packet.target_name}_#{packet.packet_name}"]
+          if packet.packet_name == 'HEALTH_STATUS'
+            expect(packet.stored).to eql true
+            expect(packet.extra).to eql({"vcid" => 2})
+          elsif packet.packet_name == 'ADCS'
+            expect(packet.stored).to eql false
+            expect(packet.extra).to eql nil
+          end
         end
 
         # Resetting a packet should reset only that packet's received_count

@@ -39,9 +39,9 @@ module Cosmos
         packet = System.telemetry.first_non_hidden
         data_object.target_name = packet.target_name
         data_object.packet_name = packet.packet_name
-        data_object.y_item_name = 'RECEIVED_TIMESECONDS'
-        data_object.x_item_name = 'RECEIVED_TIMESECONDS'
-        data_object.time_item_name = 'RECEIVED_TIMESECONDS'
+        data_object.y_item_name = 'PACKET_TIMESECONDS'
+        data_object.x_item_name = 'PACKET_TIMESECONDS'
+        data_object.time_item_name = 'PACKET_TIMESECONDS'
       end
       super(data_object)
 
@@ -123,7 +123,7 @@ module Cosmos
       data_object.y_value_type = @y_value_type.symbol
       data_object.x_value_type = @x_value_type.symbol
       data_object.dart_reduction = @dart_reduction.symbol
-      data_object.dart_reduced_type = @dart_reduced_type.symbol      
+      data_object.dart_reduced_type = @dart_reduced_type.symbol
       data_object
     end
 
@@ -158,11 +158,11 @@ module Cosmos
       dart_reductions = HousekeepingDataObject::DART_REDUCTIONS.map {|x| x.to_s}
       dart_reductions.delete(data_object.dart_reduction.to_s)
       dart_reductions.unshift(data_object.dart_reduction.to_s)
-      @dart_reduction.update_items(dart_reductions, false)      
+      @dart_reduction.update_items(dart_reductions, false)
       dart_reduced_types = HousekeepingDataObject::DART_REDUCED_TYPES.map {|x| x.to_s}
       dart_reduced_types.delete(data_object.dart_reduced_type.to_s)
       dart_reduced_types.unshift(data_object.dart_reduced_type.to_s)
-      @dart_reduced_type.update_items(dart_reduced_types, false)        
+      @dart_reduced_type.update_items(dart_reduced_types, false)
     end
 
     # Handles the y item name changing
@@ -178,11 +178,11 @@ module Cosmos
       dart_reductions = HousekeepingDataObject::DART_REDUCTIONS.map {|x| x.to_s}
       dart_reductions.delete(data_object.dart_reduction.to_s)
       dart_reductions.unshift(data_object.dart_reduction.to_s)
-      @dart_reduction.update_items(dart_reductions, false)      
+      @dart_reduction.update_items(dart_reductions, false)
       dart_reduced_types = HousekeepingDataObject::DART_REDUCED_TYPES.map {|x| x.to_s}
       dart_reduced_types.delete(data_object.dart_reduced_type.to_s)
       dart_reduced_types.unshift(data_object.dart_reduced_type.to_s)
-      @dart_reduced_type.update_items(dart_reduced_types, false)        
+      @dart_reduced_type.update_items(dart_reduced_types, false)
     end
 
     # Handles the x item name changing
@@ -197,11 +197,11 @@ module Cosmos
         dart_reductions = XyDataObject::DART_REDUCTIONS.map {|x| x.to_s}
         dart_reductions.delete(data_object.dart_reduction.to_s)
         dart_reductions.unshift(data_object.dart_reduction.to_s)
-        @dart_reduction.update_items(dart_reductions, false)      
+        @dart_reduction.update_items(dart_reductions, false)
         dart_reduced_types = XyDataObject::DART_REDUCED_TYPES.map {|x| x.to_s}
         dart_reduced_types.delete(data_object.dart_reduced_type.to_s)
         dart_reduced_types.unshift(data_object.dart_reduced_type.to_s)
-        @dart_reduced_type.update_items(dart_reduced_types, false)          
+        @dart_reduced_type.update_items(dart_reduced_types, false)
       end
     end
 

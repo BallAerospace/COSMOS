@@ -305,21 +305,24 @@ module Cosmos
       if log_change
         # Write to Server Messages that limits state has changed
         tgt_pkt_item_str = "#{packet.target_name} #{packet.packet_name} #{item.name} = #{value} is"
+        packet_time = packet.packet_time
+        pkt_time_str = ""
+        pkt_time_str << " (#{packet.packet_time.sys.formatted})" if packet_time
         case item.limits.state
         when :BLUE
-          Logger.info "<B>#{tgt_pkt_item_str} #{item.limits.state}"
+          Logger.info "<B>#{tgt_pkt_item_str} #{item.limits.state}#{pkt_time_str}"
         when :GREEN, :GREEN_LOW, :GREEN_HIGH
-          Logger.info "<G>#{tgt_pkt_item_str} #{item.limits.state}"
+          Logger.info "<G>#{tgt_pkt_item_str} #{item.limits.state}#{pkt_time_str}"
         when :YELLOW, :YELLOW_LOW, :YELLOW_HIGH
-          Logger.warn "<Y>#{tgt_pkt_item_str} #{item.limits.state}"
+          Logger.warn "<Y>#{tgt_pkt_item_str} #{item.limits.state}#{pkt_time_str}"
         when :RED, :RED_LOW, :RED_HIGH
-          Logger.error "<R>#{tgt_pkt_item_str} #{item.limits.state}"
+          Logger.error "<R>#{tgt_pkt_item_str} #{item.limits.state}#{pkt_time_str}"
         else
-          Logger.error "#{tgt_pkt_item_str} UNKNOWN"
+          Logger.error "#{tgt_pkt_item_str} UNKNOWN#{pkt_time_str}"
         end
       end
 
-      post_limits_event(:LIMITS_CHANGE, [packet.target_name, packet.packet_name, item.name, old_limits_state, item.limits.state])
+      post_limits_event(:LIMITS_CHANGE, [packet.target_name, packet.packet_name, item.name, old_limits_state, item.limits.state, packet_time ? packet_time.tv_sec : nil, packet_time ? packet_time.tv_usec : nil])
 
       if @mode == :CMD_TLM_SERVER
         if item.limits.response
@@ -457,7 +460,7 @@ module Cosmos
                 received_time = packet.received_time
                 received_time ||= Time.now.sys
                 queue << [packet.buffer, target_name, packet_name,
-                  received_time.tv_sec, received_time.tv_usec, packet.received_count]
+                  received_time.tv_sec, received_time.tv_usec, packet.received_count, packet.stored, packet.extra]
                 if queue.length > queue_size
                   # Drop queue
                   queues_to_drop << id
@@ -529,7 +532,7 @@ module Cosmos
           received_time = packet.received_time
           received_time ||= Time.now.sys
           @@instance.packet_data_queues[id][0] << [packet.buffer, 'SYSTEM', 'META',
-            received_time.tv_sec, received_time.tv_usec, packet.received_count]
+            received_time.tv_sec, received_time.tv_usec, packet.received_count, packet.stored, packet.extra]
         end
       end
       return id
@@ -572,7 +575,7 @@ module Cosmos
           rescue ThreadError
             received_time ||= Time.now.sys
             return [@last_subscribed_packet.buffer, @last_subscribed_packet.target_name,
-              @last_subscribed_packet.packet_name, received_time.tv_sec, received_time.tv_usec, @last_subscribed_packet.received_count]
+              @last_subscribed_packet.packet_name, received_time.tv_sec, received_time.tv_usec, @last_subscribed_packet.received_count, @last_subscribed_packet.stored, @last_subscribed_packet.extra]
           end
         else
           return queue.pop(non_block)

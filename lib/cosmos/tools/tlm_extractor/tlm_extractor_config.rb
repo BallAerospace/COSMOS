@@ -20,7 +20,7 @@ module Cosmos
     DART_REDUCTION_OPTIONS = [:NONE, :MINUTE, :HOUR, :DAY]
     DART_REDUCED_TYPES = [:AVG, :MIN, :MAX, :STDDEV]
     COLUMN_MODES = [:NORMAL, :SHARE_ALL_COLUMNS, :SHARE_INDIV_COLUMNS, :FULL_COLUMN_NAMES]
-    DEFAULT_UNIQUE_IGNORED = ['RECEIVED_TIMEFORMATTED', 'RECEIVED_TIMESECONDS']
+    DEFAULT_UNIQUE_IGNORED = ['PACKET_TIMEFORMATTED', 'PACKET_TIMESECONDS', 'RECEIVED_TIMEFORMATTED', 'RECEIVED_TIMESECONDS']
     ITEM = 'ITEM'.freeze
     TEXT = 'TEXT'.freeze
 
@@ -257,7 +257,7 @@ module Cosmos
                 else
                   raise "Unknown Dart Reduction: #{dart_reduction}"
                 end
-                
+
                 if params.length == 5
                   dart_reduced_type = :AVG
                 else
@@ -416,8 +416,8 @@ module Cosmos
               target_timestamp_mapping = @packet_timestamp_mapping[packet.target_name]
             end
             previous_timestamp = target_timestamp_mapping[packet.packet_name]
-            return if previous_timestamp and (packet.received_time - previous_timestamp) < @downsample_seconds
-            target_timestamp_mapping[packet.packet_name] = packet.received_time
+            return if previous_timestamp and (packet.packet_time - previous_timestamp) < @downsample_seconds
+            target_timestamp_mapping[packet.packet_name] = packet.packet_time
           end
 
           # Create a new row

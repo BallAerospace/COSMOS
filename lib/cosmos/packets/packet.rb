@@ -19,7 +19,7 @@ module Cosmos
   # Packet adds is the ability to apply formatting to PacketItem values as well
   # as managing PacketItem's limit states.
   class Packet < Structure
-    RESERVED_ITEM_NAMES = ['RECEIVED_TIMESECONDS'.freeze, 'RECEIVED_TIMEFORMATTED'.freeze, 'RECEIVED_COUNT'.freeze]
+    RESERVED_ITEM_NAMES = ['PACKET_TIMESECONDS'.freeze, 'PACKET_TIMEFORMATTED'.freeze, 'RECEIVED_TIMESECONDS'.freeze, 'RECEIVED_TIMEFORMATTED'.freeze, 'RECEIVED_COUNT'.freeze]
 
     # @return [String] Name of the target this packet is associated with
     attr_reader :target_name
@@ -66,6 +66,12 @@ module Cosmos
     # @return [Boolean] Whether or not this is a 'abstract' packet
     attr_accessor :abstract
 
+    # @return [Boolean] Whether or not this was a stored packet
+    attr_accessor :stored
+
+    # @return [Hash] Extra data to be logged/transferred with packet
+    attr_accessor :extra
+
     # Valid format types
     VALUE_TYPES = [:RAW, :CONVERTED, :FORMATTED, :WITH_UNITS]
 
@@ -100,6 +106,8 @@ module Cosmos
         @meta = nil
         @hidden = false
         @disabled = false
+        @stored = false
+        @extra = nil
       end
 
       # Sets the target name this packet is associated with. Unidentified packets
@@ -206,6 +214,17 @@ module Cosmos
         true
       end
     end # if RUBY_ENGINE != 'ruby' or ENV['COSMOS_NO_EXT']
+
+    # Returns @received_time unless a packet item called PACKET_TIME exists that returns
+    # a Ruby Time object that represents a different timestamp for the packet
+    def packet_time
+      item = @items['PACKET_TIME'.freeze]
+      if item
+        return read_item(item, :CONVERTED, @buffer)
+      else
+        return @received_time
+      end
+    end
 
     # Calculates a unique MD5Sum that changes if the parts of the packet configuration change that could affect
     # the "shape" of the packet.  This value is cached and that packet should not be changed if this method is being used
@@ -670,6 +689,12 @@ module Cosmos
 
     # Define the reserved items on the current telemetry packet
     def define_reserved_items
+      item = define_item('PACKET_TIMESECONDS', 0, 0, :DERIVED, nil, @default_endianness,
+                         :ERROR, '%0.6f', PacketTimeSecondsConversion.new)
+      item.description = 'COSMOS Packet Time (UTC, Floating point, Unix epoch)'
+      item = define_item('PACKET_TIMEFORMATTED', 0, 0, :DERIVED, nil, @default_endianness,
+                         :ERROR, nil, PacketTimeFormattedConversion.new)
+      item.description = 'COSMOS Packet Time (Local time zone, Formatted string)'
       item = define_item('RECEIVED_TIMESECONDS', 0, 0, :DERIVED, nil, @default_endianness,
                          :ERROR, '%0.6f', ReceivedTimeSecondsConversion.new)
       item.description = 'COSMOS Received Time (UTC, Floating point, Unix epoch)'
@@ -750,7 +775,8 @@ module Cosmos
     def check_limits(limits_set = :DEFAULT, ignore_persistence = false)
       # If check_limits is being called, then a new packet has arrived and
       # this packet is no longer stale
-      if @stale
+      # Stored telemetry doesn't affect the current value table and such doesn't affect stale
+      if @stale and !@stored
         @stale = false
         set_all_limits_states(nil)
       end
@@ -786,6 +812,8 @@ module Cosmos
 
       @received_time = nil
       @received_count = 0
+      @stored = false
+      @extra = nil
       if @read_conversion_cache
         synchronize() do
           @read_conversion_cache.clear
@@ -811,6 +839,7 @@ module Cosmos
         end
       end
       packet.instance_variable_set("@read_conversion_cache".freeze, nil)
+      packet.extra = JSON.parse(packet.extra.to_json) if packet.extra # Deep copy using JSON
       packet
     end
     alias dup clone

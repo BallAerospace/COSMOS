@@ -52,6 +52,8 @@ module Cosmos
         if identified_command
           identified_command.received_time = packet.received_time
           identified_command.raw = packet.raw
+          identified_command.stored = packet.stored
+          identified_command.extra = packet.extra
           packet = identified_command
         end
       end
@@ -69,6 +71,8 @@ module Cosmos
       end
       command.received_time = packet.received_time
       command.raw = packet.raw
+      command.stored = packet.stored
+      command.extra = packet.extra
       command.buffer = packet.buffer
       command.received_count += 1
       Logger.info System.commands.format(command, target.ignored_parameters) if !command.messages_disabled and command.target_name != 'UNKNOWN'
@@ -99,8 +103,15 @@ module Cosmos
       end
 
       # Write to command packet logs
-      interface.packet_log_writer_pairs.each do |packet_log_writer_pair|
-        packet_log_writer_pair.cmd_log_writer.write(command)
+      if command.stored and !interface.stored_packet_log_writer_pairs.empty?
+        interface.stored_packet_log_writer_pairs.each do |packet_log_writer_pair|
+          packet_log_writer_pair.cmd_log_writer.write(command)
+        end
+      else
+        interface.packet_log_writer_pairs.each do |packet_log_writer_pair|
+          # Write errors are handled by the log writer
+          packet_log_writer_pair.cmd_log_writer.write(command)
+        end
       end
     end
 

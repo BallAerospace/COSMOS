@@ -318,7 +318,7 @@ module Cosmos
                   break if @cancel_thread
                   begin
                     # Get a subscribed to packet
-                    packet_data, target_name, packet_name, received_time, received_count = get_packet_data(@subscription_id)
+                    packet_data, target_name, packet_name, received_time, received_count, stored, extra = get_packet_data(@subscription_id)
                     break unless packet_data
 
                     # Put packet data into its packet
@@ -326,6 +326,8 @@ module Cosmos
                     packet.buffer = packet_data
                     packet.received_time = received_time
                     packet.received_count = received_count
+                    packet.stored = stored
+                    packet.extra = extra
 
                     # Make sure we are on the right configuration
                     if target_name == 'SYSTEM' and packet_name == 'META'
@@ -574,12 +576,14 @@ module Cosmos
                   Cosmos::System.load_configuration(meta_packet.read('CONFIG'))
                 elsif first
                   first = false
-                  @time_start = packet.received_time
+                  @time_start = packet.packet_time
                   @time_delta = @time_end - @time_start
                 end
 
                 defined_packet = System.telemetry.update!(packet.target_name, packet.packet_name, packet.buffer)
                 defined_packet.received_time = packet.received_time
+                defined_packet.stored = packet.stored
+                defined_packet.extra = packet.extra
 
                 break if @cancel_progress
                 # Route packet to its component(s)
@@ -593,7 +597,7 @@ module Cosmos
                   end
                 end
 
-                progress = ((@time_delta - (@time_end - defined_packet.received_time)).to_f / @time_delta.to_f)
+                progress = ((@time_delta - (@time_end - defined_packet.packet_time)).to_f / @time_delta.to_f)
                 progress_dialog.set_overall_progress(progress) if !@cancel_progress
               end
             ensure

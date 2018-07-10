@@ -436,7 +436,7 @@ module Cosmos
         @value_type = :CONVERTED unless during_configuration
       end
 
-      @time_item_name = 'RECEIVED_TIMESECONDS' unless @time_item_name
+      @time_item_name = 'PACKET_TIMESECONDS' unless @time_item_name
 
       # Update limits lines
       self.show_limits_lines = @show_limits_lines

@@ -35,6 +35,16 @@ module Cosmos
     COSMOS1_LOG_TYPE_RANGE = 6..8
     COSMOS1_CONFIGURATION_NAME_RANGE = 10..41
 
+    # COSMOS 4.3+ log file header definition
+    COSMOS4_MARKER = 'COSMOS4_'
+    COSMOS4_HEADER_LENGTH = COSMOS2_HEADER_LENGTH
+    COSMOS4_MARKER_RANGE = COSMOS2_MARKER_RANGE
+    COSMOS4_LOG_TYPE_RANGE = COSMOS2_LOG_TYPE_RANGE
+    COSMOS4_CONFIGURATION_NAME_RANGE = COSMOS2_CONFIGURATION_NAME_RANGE
+    COSMOS4_HOSTNAME_RANGE = COSMOS2_HOSTNAME_RANGE
+    COSMOS4_STORED_FLAG_MASK = 0x80
+    COSMOS4_EXTRA_FLAG_MASK = 0x40
+
     # Create a new log file reader
     def initialize
       reset()
@@ -62,10 +72,10 @@ module Cosmos
         packet = read(identify_and_define)
         break unless packet
 
-        received_time = packet.received_time
-        if received_time
-          next if start_time and received_time < start_time
-          break if end_time and received_time > end_time
+        time = packet.packet_time
+        if time
+          next if start_time and time < start_time
+          break if end_time and time > end_time
         end
 
         yield packet
@@ -133,7 +143,7 @@ module Cosmos
     # @return [Packet]
     def read(identify_and_define = true)
       # Read the Packet Header
-      success, target_name, packet_name, received_time = read_entry_header()
+      success, target_name, packet_name, received_time, stored, extra = read_entry_header()
       return nil unless success
 
       # Read Packet Data
@@ -147,6 +157,8 @@ module Cosmos
         packet = Packet.new(target_name, packet_name, :BIG_ENDIAN, nil, packet_data)
         packet.set_received_time_fast(received_time)
       end
+      packet.stored = stored
+      packet.extra = extra
 
       # Auto change configuration on SYSTEM META
       if packet.target_name == 'SYSTEM'.freeze and packet.packet_name == 'META'.freeze
@@ -235,7 +247,8 @@ module Cosmos
       @log_type = :TLM
       @configuration_name = nil
       @hostname = nil
-      @file_header_length = COSMOS2_HEADER_LENGTH
+      @mode = 4
+      @file_header_length = COSMOS4_HEADER_LENGTH
     end
 
     # This is best effort. May return unidentified/undefined packets
@@ -269,10 +282,15 @@ module Cosmos
 
     # Should return if successfully switched to requested configuration
     def read_file_header
-      header = @file.read(COSMOS2_HEADER_LENGTH)
-      if header and header.length == COSMOS2_HEADER_LENGTH
-        if header[COSMOS2_MARKER_RANGE] == COSMOS2_MARKER
-          # Found COSMOS 2 File Header
+      header = @file.read(COSMOS4_HEADER_LENGTH)
+      if header and header.length == COSMOS4_HEADER_LENGTH
+        if header[COSMOS4_MARKER_RANGE] == COSMOS4_MARKER or header[COSMOS2_MARKER_RANGE] == COSMOS2_MARKER
+          # Found COSMOS 2/4 File Header
+          if header[COSMOS4_MARKER_RANGE] == COSMOS4_MARKER
+            @mode = 4
+          else
+            @mode = 2
+          end
           @log_type = header[COSMOS2_LOG_TYPE_RANGE].intern
           raise "Unknown log type #{@log_type}" unless [:CMD, :TLM].include? @log_type
           @configuration_name = header[COSMOS2_CONFIGURATION_NAME_RANGE]
@@ -283,6 +301,7 @@ module Cosmos
           return false, error # Did not successfully change to requested configuration name
         elsif header[COSMOS1_MARKER_RANGE] == COSMOS1_MARKER
           # Found COSMOS 1 File Header
+          @mode = 1
           @log_type = header[COSMOS1_LOG_TYPE_RANGE].upcase.intern
           raise "Unknown log type #{@log_type}" unless [:CMD, :TLM].include? @log_type
           @configuration_name = header[COSMOS1_CONFIGURATION_NAME_RANGE]
@@ -297,29 +316,48 @@ module Cosmos
           raise "COSMOS file header not found on packet log"
         end
       else
-        raise "Failed to read at least #{COSMOS2_HEADER_LENGTH} bytes from packet log"
+        raise "Failed to read at least #{COSMOS4_HEADER_LENGTH} bytes from packet log"
       end
     end
 
     def read_entry_header
+      stored = false
+      extra = nil
+
+      if @mode == 4
+        # Read Flags
+        flags = @file.read(1)
+        return [nil, nil, nil, nil, nil, nil] if flags.nil? or flags.length != 1
+        flags = flags.unpack('C')[0]
+
+        stored = true if (flags & COSMOS4_STORED_FLAG_MASK) != 0
+
+        if (flags & COSMOS4_EXTRA_FLAG_MASK) != 0
+          # Read Extra data
+          extra_data = @file.read_length_bytes(4)
+          return [nil, nil, nil, nil, nil, nil] unless extra_data and extra_data.length > 0
+          extra = JSON.parse(extra_data)
+        end
+      end
+
       # Read Received Time
       time_seconds = @file.read(4)
-      return [nil, nil, nil, nil] if time_seconds.nil? or time_seconds.length != 4
+      return [nil, nil, nil, nil, nil, nil] if time_seconds.nil? or time_seconds.length != 4
       time_seconds = time_seconds.unpack('N')[0]
       time_microseconds = @file.read(4)
-      return [nil, nil, nil, nil] if time_microseconds.nil? or time_microseconds.length != 4
+      return [nil, nil, nil, nil, nil, nil] if time_microseconds.nil? or time_microseconds.length != 4
       time_microseconds = time_microseconds.unpack('N')[0]
       received_time = Time.at(time_seconds, time_microseconds).sys
 
       # Read Target Name
       target_name = @file.read_length_bytes(1)
-      return [nil, nil, nil, nil] unless target_name and target_name.length > 0
+      return [nil, nil, nil, nil, nil, nil] unless target_name and target_name.length > 0
 
       # Read Packet Name
       packet_name = @file.read_length_bytes(1)
-      return [nil, nil, nil, nil] unless packet_name and packet_name.length > 0
+      return [nil, nil, nil, nil, nil, nil] unless packet_name and packet_name.length > 0
 
-      return [true, target_name, packet_name, received_time]
+      return [true, target_name, packet_name, received_time, stored, extra]
     end
 
     def test
@@ -331,7 +369,7 @@ module Cosmos
       begin
         # Try to read the packet header
         # This will fail with file read errors and invalid timestamps
-        success, target_name, packet_name, _ = read_entry_header()
+        success, target_name, packet_name, _, _, _ = read_entry_header()
         if success
           if target_name !~ File::NON_ASCII_PRINTABLE and packet_name !~ File::NON_ASCII_PRINTABLE
             packet_data_length = @file.read(4)
@@ -402,17 +440,17 @@ module Cosmos
           # Read the first packet in the log
           first_packet = first()
           raise "Error reading first packet" unless first
-          raise "First Packet does not contain a packet received time" unless first_packet.received_time
+          raise "First Packet does not contain a packet received time" unless first_packet.packet_time
 
           # Read the last packet in the log
           file_size = size()
           last_packet = last()
           raise "Search failed looking for last packet" unless last_packet
-          raise "Last Packet does not contain a packet received time" unless last_packet.received_time
+          raise "Last Packet does not contain a packet received time" unless last_packet.packet_time
 
-          if time >= first_packet.received_time and time <= last_packet.received_time
+          if time >= first_packet.packet_time and time <= last_packet.packet_time
             # Guess at where to start looking for time in log
-            percentage = (time - first_packet.received_time) / (last_packet.received_time - first_packet.received_time)
+            percentage = (time - first_packet.packet_time) / (last_packet.packet_time - first_packet.packet_time)
             offset = (percentage * file_size.to_f).to_i
             offset = @file_header_length if offset < @file_header_length
             @file.seek(offset, IO::SEEK_SET)
@@ -420,10 +458,10 @@ module Cosmos
             # Move backwards until a packet before the time is found
             while true
               packet = search(-1, :BEFORE)
-              break if !packet or packet.received_time <= time
+              break if !packet or packet.packet_time <= time
 
               # Guess again
-              percentage = 1.0 - ((packet.received_time - time) / (packet.received_time - first_packet.received_time))
+              percentage = 1.0 - ((packet.packet_time - time) / (packet.packet_time - first_packet.packet_time))
               offset = (percentage * @file.pos.to_f).to_i
               offset = @file_header_length if offset < @file_header_length
               @file.seek(offset, IO::SEEK_SET)
@@ -434,7 +472,7 @@ module Cosmos
               position = @file.pos
               packet = read(false)
               raise "Search failed looking for packet after time" unless packet
-              if packet.received_time >= time
+              if packet.packet_time >= time
                 # Back up this packet so the read can get it because we want it
                 @file.seek(position, IO::SEEK_SET)
                 break
@@ -442,7 +480,7 @@ module Cosmos
             end
 
           else
-            if time > last_packet.received_time
+            if time > last_packet.packet_time
               # File is entirely before time, so jump to the end
               @file.seek(0, IO::SEEK_END)
             else

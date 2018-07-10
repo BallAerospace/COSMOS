@@ -153,7 +153,7 @@ module Cosmos
             current_interface_or_router.name = interface_name
             @interfaces[interface_name] = current_interface_or_router
 
-          when 'LOG', 'DONT_LOG', 'TARGET'
+          when 'LOG', 'LOG_STORED', 'DONT_LOG', 'TARGET'
             raise parser.error("No current interface for #{keyword}") unless current_interface_or_router and current_type == :INTERFACE
 
             case keyword
@@ -165,6 +165,12 @@ module Cosmos
               current_interface_or_router.packet_log_writer_pairs.delete(@packet_log_writer_pairs['DEFAULT']) unless current_interface_log_added
               current_interface_log_added = true
               current_interface_or_router.packet_log_writer_pairs << packet_log_writer_pair unless current_interface_or_router.packet_log_writer_pairs.include?(packet_log_writer_pair)
+
+            when 'LOG_STORED'
+              parser.verify_num_parameters(1, 1, "#{keyword} <Packet Log Writer Name>")
+              packet_log_writer_pair = @packet_log_writer_pairs[params[0].upcase]
+              raise parser.error("Unknown packet log writer: #{params[0].upcase}") unless packet_log_writer_pair
+              current_interface_or_router.stored_packet_log_writer_pairs << packet_log_writer_pair unless current_interface_or_router.stored_packet_log_writer_pairs.include?(packet_log_writer_pair)
 
             when 'DONT_LOG'
               parser.verify_num_parameters(0, 0, "#{keyword}")

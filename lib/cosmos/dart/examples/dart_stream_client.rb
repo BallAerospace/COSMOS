@@ -30,8 +30,8 @@ request['meta_filters'] = ["OPERATOR_NAME == 'Unspecified'"]
 request_packet.write('REQUEST', JSON.dump(request))
 
 interface = Cosmos::TcpipClientInterface.new(
-  Cosmos::System.connect_hosts['DART_STREAM'], 
-  Cosmos::System.ports['DART_STREAM'], 
+  Cosmos::System.connect_hosts['DART_STREAM'],
+  Cosmos::System.ports['DART_STREAM'],
   Cosmos::System.ports['DART_STREAM'],
   10, 10, 'PREIDENTIFIED')
 puts "Connecting to Dart Stream Server..."
@@ -70,10 +70,14 @@ while true
 
   if identified_packet
     identified_packet.received_time = packet.received_time
+    identified_packet.stored = packet.stored
+    identified_packet.extra = packet.extra
     packet = identified_packet
   else
     unknown_packet = Cosmos::System.telemetry.update!('UNKNOWN', 'UNKNOWN', packet.buffer)
     unknown_packet.received_time = packet.received_time
+    unknown_packet.stored = packet.stored
+    unknown_packet.extra = packet.extra
     packet = unknown_packet
     data_length = packet.length
     string = "#{@interface.name} - Unknown #{data_length} byte packet starting: "

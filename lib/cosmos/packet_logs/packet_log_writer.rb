@@ -311,7 +311,7 @@ module Cosmos
 
     def build_file_header(configuration_name = System.configuration_name)
       hostname = Socket.gethostname.to_s
-      file_header = "COSMOS2_#{@log_type}_#{configuration_name.ljust(32, ' ')[0..31]}_"
+      file_header = "COSMOS4_#{@log_type}_#{configuration_name.ljust(32, ' ')[0..31]}_"
       file_header << hostname.ljust(83)
       return file_header
     end
@@ -322,6 +322,18 @@ module Cosmos
       # This is an optimization to avoid creating a new entry_header object
       # each time we create an entry_header which we do a LOT!
       @entry_header.clear
+      flags = 0
+      flags |= PacketLogReader::COSMOS4_STORED_FLAG_MASK if packet.stored
+      extra = packet.extra
+      if extra
+        flags |= PacketLogReader::COSMOS4_EXTRA_FLAG_MASK
+        extra = extra.to_json
+      end
+      @entry_header << [flags].pack('C'.freeze)
+      if extra
+        @entry_header << [extra.length].pack('N'.freeze)
+        @entry_header << extra
+      end
       @entry_header << [received_time.tv_sec].pack('N'.freeze)
       @entry_header << [received_time.tv_usec].pack('N'.freeze)
       target_name = packet.target_name

@@ -118,9 +118,9 @@ module Cosmos
             @end_time = ''
           else
             packet = read_at_index(@packet_offsets.length - 1, :FORWARD)
-            @end_time = packet.received_time.formatted(true, 3, true) if packet and packet.received_time
+            @end_time = packet.packet_time.formatted(true, 3, true) if packet and packet.packet_time
             packet = read_at_index(0, :FORWARD)
-            @start_time = packet.received_time.formatted(true, 3, true) if packet and packet.received_time
+            @start_time = packet.packet_time.formatted(true, 3, true) if packet and packet.packet_time
           end
         rescue Exception => error
           Logger.error "Error in Analysis Thread\n#{error.formatted}"
@@ -261,7 +261,7 @@ module Cosmos
           @current_time_object = @start_time_object.dup
         else
           packet = read_at_index(0, :FORWARD)
-          @start_time = packet.received_time.formatted(true, 3, true) if packet and packet.received_time
+          @start_time = packet.packet_time.formatted(true, 3, true) if packet and packet.packet_time
         end
       else
         stop()
@@ -277,7 +277,7 @@ module Cosmos
           @current_time_object = @end_time_object.dup
         else
           packet = read_at_index(@packet_offsets.length - 1, :FORWARD)
-          @end_time = packet.received_time.formatted(true, 3, true) if packet and packet.received_time
+          @end_time = packet.packet_time.formatted(true, 3, true) if packet and packet.packet_time
         end
       else
         stop()
@@ -337,12 +337,12 @@ module Cosmos
               if @playback_delay
                 # Fixed Time Delay
                 delay_time = @playback_delay - (Time.now.sys - packet_start)
-              elsif previous_packet and packet.received_time and previous_packet.received_time
+              elsif previous_packet and packet.packet_time and previous_packet.packet_time
                 # Realtime
                 if direction == :FORWARD
-                  delay_time = packet.received_time - previous_packet.received_time - (Time.now.sys - packet_start)
+                  delay_time = packet.packet_time - previous_packet.packet_time - (Time.now.sys - packet_start)
                 else
-                  delay_time = previous_packet.received_time - packet.received_time - (Time.now.sys - packet_start)
+                  delay_time = previous_packet.packet_time - packet.packet_time - (Time.now.sys - packet_start)
                 end
               end
               if delay_time > 0.0
@@ -386,8 +386,8 @@ module Cosmos
           else
             @playback_index = index - 1
           end
-          @current_time_object = packet.received_time
-          @current_time = packet.received_time.formatted(true, 3, true) if packet and packet.received_time
+          @current_time_object = packet.packet_time
+          @current_time = packet.packet_time.formatted(true, 3, true) if packet and packet.packet_time
 
           return packet
         else
@@ -431,8 +431,8 @@ module Cosmos
         end
         handle_packet(packet)
 
-        @current_time_object = packet.received_time
-        @current_time = packet.received_time.formatted(true, 3, true)
+        @current_time_object = packet.packet_time
+        @current_time = packet.packet_time.formatted(true, 3, true)
         if @first
           @first = false
           @start_time_object = @current_time_object.dup
@@ -462,12 +462,16 @@ module Cosmos
 
         if identified_packet and packet.target_name != 'UNKNOWN'
           identified_packet.received_time = packet.received_time
+          identified_packet.stored = packet.stored
+          identified_packet.extra = packet.extra
           packet = identified_packet
           target = System.targets[packet.target_name.upcase]
           interface = target.interface if target
         else
           unknown_packet = System.telemetry.update!('UNKNOWN', 'UNKNOWN', packet.buffer)
           unknown_packet.received_time = packet.received_time
+          unknown_packet.stored = packet.stored
+          unknown_packet.extra = packet.extra
           packet = unknown_packet
           data_length = packet.length
           string = "Unknown #{data_length} byte packet starting: "

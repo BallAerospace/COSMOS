@@ -48,8 +48,8 @@ class DartDatabaseCleaner
         begin
           first_packet = reader.first
           last_packet = reader.last
-          start_time = first_packet.received_time
-          end_time = last_packet.received_time
+          start_time = first_packet.packet_time
+          end_time = last_packet.packet_time
         rescue
           if size == Cosmos::PacketLogReader::COSMOS2_HEADER_LENGTH or size == 0
             Cosmos::Logger::error("File contains no packets: #{filename}")

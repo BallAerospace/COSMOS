@@ -239,12 +239,12 @@ class DartDecommutator
 
   def decom_packet(ple, packet, packet_config)
     # Update packet config times
-    if !packet_config.start_time or (packet.received_time < packet_config.start_time)
-      packet_config.start_time = packet.received_time
+    if !packet_config.start_time or (packet.packet_time < packet_config.start_time)
+      packet_config.start_time = packet.packet_time
       packet_config.save!
     end
-    if !packet_config.end_time or (packet.received_time > packet_config.end_time)
-      packet_config.end_time = packet.received_time
+    if !packet_config.end_time or (packet.packet_time > packet_config.end_time)
+      packet_config.end_time = packet.packet_time
       packet_config.save!
     end
 

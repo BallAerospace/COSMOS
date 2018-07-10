@@ -59,7 +59,7 @@ gem 'childprocess'
 if RUBY_ENGINE == 'ruby'
   gem 'pg', '~> 0.21'
 else
- gem 'activerecord-jdbcpostgresql-adapter', :github => 'jruby/activerecord-jdbc-adapter'
+ gem 'activerecord-jdbcpostgresql-adapter', '~> 51.1'
 end
 
 if ENV['COSMOS_DEVEL']

@@ -102,7 +102,9 @@ module Cosmos
         target_packets.each do |packet_name, packet|
           if (packet.identify?(packet_data))
             identified_packet = packet.clone
-            identified_packet.received_time  = nil
+            identified_packet.received_time = nil
+            identified_packet.stored = false
+            identified_packet.extra = nil
             identified_packet.received_count = 0
             identified_packet.buffer = packet_data
             break
@@ -141,6 +143,8 @@ module Cosmos
 
       # Set time, parameters, and restore defaults
       command.received_time = Time.now.sys
+      command.stored = false
+      command.extra = nil
       command.given_values = params
       command.restore_defaults(command.buffer(false), params.keys)
       command.raw = raw

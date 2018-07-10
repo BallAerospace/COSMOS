@@ -41,6 +41,7 @@ module Cosmos
 
       allow(System).to receive_message_chain(:telemetry,:identify!).and_return(nil)
       allow(System).to receive_message_chain(:telemetry,:update!).and_return(@packet)
+      allow(System).to receive_message_chain(:telemetry,:identify_and_define_packet).and_return(@packet)
       targets = {'TGT'=>Target.new('TGT')}
       allow(System).to receive(:targets).and_return(targets)
     end
@@ -289,6 +290,20 @@ module Cosmos
         writer = double("LogWriter")
         allow(writer).to receive_message_chain(:tlm_log_writer,:write)
         @interface.packet_log_writer_pairs = [writer]
+        thread = InterfaceThread.new(@interface)
+        thread.start
+        sleep 0.1
+        expect(running_threads.length).to eql(2)
+        thread.stop
+        sleep 0.2
+        expect(running_threads.length).to eql(1)
+      end
+
+      it "handles stored packet log writers" do
+        writer = double("LogWriter")
+        allow(writer).to receive_message_chain(:tlm_log_writer,:write)
+        @interface.stored_packet_log_writer_pairs = [writer]
+        @packet.stored = true
         thread = InterfaceThread.new(@interface)
         thread.start
         sleep 0.1

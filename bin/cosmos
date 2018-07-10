@@ -230,6 +230,40 @@ def generate(args)
   end
 end
 
+def limits_change_callback(packet, item, old_limits_state, value, log_change)
+  if log_change
+    # Write to Server Messages that limits state has changed
+    tgt_pkt_item_str = "#{packet.target_name} #{packet.packet_name} #{item.name} = #{value} is"
+    packet_time = packet.packet_time
+    pkt_time_str = ""
+    pkt_time_str << " (#{packet.packet_time.sys.formatted})" if packet_time
+    case item.limits.state
+    when :BLUE
+      Cosmos::Logger.info "#{tgt_pkt_item_str} #{item.limits.state}#{pkt_time_str}"
+    when :GREEN, :GREEN_LOW, :GREEN_HIGH
+      Cosmos::Logger.info "#{tgt_pkt_item_str} #{item.limits.state}#{pkt_time_str}"
+    when :YELLOW, :YELLOW_LOW, :YELLOW_HIGH
+      Cosmos::Logger.warn "#{tgt_pkt_item_str} #{item.limits.state}#{pkt_time_str}"
+    when :RED, :RED_LOW, :RED_HIGH
+      Cosmos::Logger.error "#{tgt_pkt_item_str} #{item.limits.state}#{pkt_time_str}"
+    else
+      Cosmos::Logger.error "#{tgt_pkt_item_str} UNKNOWN#{pkt_time_str}"
+    end
+  end
+end
+
+def check_limits(filenames)
+  Cosmos::Logger.level = Cosmos::Logger::INFO
+  packet_log_reader = Cosmos::System.default_packet_log_reader.new(*Cosmos::System.default_packet_log_reader_params)
+  filenames.each do |filename|
+    packet_log_reader.open(filename)
+    Cosmos::System.telemetry.limits_change_callback = method(:limits_change_callback)
+    packet_log_reader.each(filename) do |packet|
+      packet.check_limits
+    end
+  end
+end
+
 if not ARGV[0].nil? # argument(s) given
 
   # Handle each task
@@ -252,6 +286,9 @@ if not ARGV[0].nil? # argument(s) given
 
   when 'generate'
     generate(ARGV[1..-1])
+
+  when 'check_limits'
+    check_limits(ARGV[1..-1])
 
   when 'help'
     print_usage()
