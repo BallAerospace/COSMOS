@@ -25,7 +25,7 @@ set ARCHITECTURE=%PROCESSOR_ARCHITECTURE%
 set INSTALLER_VERSION=1.9
 
 :: Paths and versions for COSMOS dependencies
-set RUBY_INSTALLER_32=rubyinstaller-2.4.4-1.exe
+set RUBY_INSTALLER_32=rubyinstaller-2.4.4-1-x86.exe
 set RUBY_INSTALLER_64=rubyinstaller-2.4.4-1-x64.exe
 set RUBY_INSTALLER_PATH=//github.com/oneclick/rubyinstaller2/releases/download/rubyinstaller-2.4.4-1/
 set RUBY_ABI_VERSION=2.4.0
