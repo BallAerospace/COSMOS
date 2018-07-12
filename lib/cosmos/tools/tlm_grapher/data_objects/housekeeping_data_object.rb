@@ -255,8 +255,15 @@ module Cosmos
 
         case @analysis
         when :NONE
-          @x_values << x_value
-          @y_values << (y_value + @y_offset)
+          # Support out of order x_values with no analysis
+          if @x_values.empty? or @x_values[-1] <= x_value or !@x_values.respond_to? :bsearch_index
+            @x_values << x_value
+            @y_values << y_value + @y_offset
+          else
+            loc = @x_values.bsearch_index{|x| x > x_value}
+            @x_values.insert(loc, x_value)
+            @y_values.insert(loc, y_value + @y_offset)
+          end
           @plot.redraw_needed = true
 
         when :DIFFERENCE, :ALLAN_DEV
