@@ -1,6 +1,6 @@
 # encoding: ascii-8bit
 
-# Copyright 2017 Ball Aerospace & Technologies Corp.
+# Copyright 2018 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
 # This program is free software; you can modify and/or redistribute it
@@ -30,11 +30,6 @@ module Cosmos
       target_names = nil
       target_names = @interface.target_names if @interface
       identified_packet = System.telemetry.identify_and_define_packet(packet, target_names)
-      if identified_packet
-        puts "identified:#{identified_packet} tgt:#{identified_packet.target_name} pkt:#{identified_packet.packet_name}"
-      else
-        puts "not identified"
-      end
       if identified_packet
         if identified_packet.target_name == @target_name && identified_packet.packet_name == @packet_name
           return :STOP
