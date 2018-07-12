@@ -14,6 +14,7 @@ require 'cosmos/gui/dialogs/about_dialog'
 require 'cosmos/gui/dialogs/exception_dialog'
 require 'cosmos/gui/dialogs/pry_dialog'
 require 'cosmos/gui/dialogs/scroll_text_dialog'
+require 'cosmos/gui/utilities/classification_banner'
 require 'ostruct'
 require 'optparse'
 
@@ -28,6 +29,8 @@ module Cosmos
     slots 'about()'
 
     @@redirect_io_thread = nil
+
+    include ClassificationBanner
 
     # Create a new application. IO is redirected such that writing to stdout or
     # stderr will result in a popup to be displayed to the user. Thus
@@ -67,48 +70,8 @@ module Cosmos
         @options.stylesheet = config_path(@options.stylesheet, ".css", tool_name)
       end
 
-      # Add a classification banner to every Tool that gets launched if the system configuration
-      #   called for one
-      # There is a corresponding banner that gets added to every Screen (/lib/cosmos/tools/tlm_viewer/screen.rb)
-      classification_banner = System.instance.classificiation_banner
-      unless classification_banner.nil?
-        # Get the RGB color information from the classification_banner
-        color_red   = classification_banner['color'].red
-        color_green = classification_banner['color'].green
-        color_blue  = classification_banner['color'].blue
-        color_rgb   = "#{color_red},#{color_green},#{color_blue}"
-
-        # Create a classification toolbar
-        classification_toolbar = Qt::ToolBar.new
-        # Disable right clicking on the bar (prevents it from being hidden unintentionally)
-        classification_toolbar.setContextMenuPolicy(Qt::PreventContextMenu)
-        # Freeze the bar at the top
-        classification_toolbar.setFloatable(false)
-        classification_toolbar.setMovable(false)
-        # Specify sizes and set the style (background = background color, color = text color)
-        classification_toolbar.minimumHeight = 20
-        classification_toolbar.maximumHeight = 20
-        classification_toolbar.setStyleSheet("background:rgb(#{color_rgb});color:white;text-align:center;border:none;")
-
-        # Create a frame that will hold a horizontal layout
-        label_frame = Qt::Frame.new
-        label_layout = Qt::HBoxLayout.new(label_frame)
-        label_layout.setContentsMargins(0,1,0,0) # Centers the text nicely inside the horizontal layout
-
-        # Create a label of the classification and add it the horizontal layout
-        label = Qt::Label.new("#{classification_banner['display_text']}")
-        label.setStyleSheet("margin:0px;")
-
-        # Add stretchers on either side so it is always in the middle and looks nice
-        label_layout.addStretch(1)
-        label_layout.addWidget(label)
-        label_layout.addStretch(1)
-
-        # Add the frame to the main toolbar, then add the toolbar to the MainWindow
-        classification_toolbar.addWidget(label_frame)
-        self.addToolBar(classification_toolbar)
-      end
-
+      # Add a banner based on system configuration
+      add_classification_banner
     end
 
     # Creates a path to a configuration file. If the file is given it is
