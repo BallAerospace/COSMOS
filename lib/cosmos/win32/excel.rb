@@ -41,6 +41,9 @@ module Cosmos
       end
 
       # Access the lookup values by string or the raw data by index
+      #
+      # @param index [String|Integer] Name of the first column or index
+      # @return [ExcelWorksheet] The data in that row
       def [](index)
         if index.is_a? String
           @lkup[index]
@@ -71,11 +74,13 @@ module Cosmos
       excel.visible = false
       wb = excel.workbooks.open(filename)
 
-      @worksheets = {}
+      @worksheets = []
+      @lkup = {}
       count = wb.worksheets.count
       count.times do |index|
         ws = wb.worksheets(index + 1)
-        @worksheets[ws.name] = ExcelWorksheet.new(ws)
+        @worksheets << ExcelWorksheet.new(ws)
+        @lkup[ws.name] = @worksheets[-1]
       end
 
       excel.DisplayAlerts = false
@@ -85,17 +90,28 @@ module Cosmos
     end
 
     # @return [Array<String>] Array of all the worksheet names
-    def worksheets
-      @worksheets.keys
+    def keys
+      @lkup.keys
     end
-    alias keys worksheets
 
-    # Access a worksheet by passing in the name
+    # Access a worksheet by passing in the name or index
     #
-    # @param name [String] Name of the worksheet
+    # @param index [String|Integer] Name of the worksheet or index
     # @return [ExcelWorksheet] The worksheet object
-    def [](name)
-      @worksheets[name]
+    def [](index)
+      if index.is_a? String
+        @lkup[index]
+      else
+        @worksheets[index]
+      end
+    end
+  end
+
+  module ExcelColumnConstants
+    index = 0
+    ('A'..'IV').each do |value|
+      self.const_set(value, index)
+      index += 1
     end
   end
 end
