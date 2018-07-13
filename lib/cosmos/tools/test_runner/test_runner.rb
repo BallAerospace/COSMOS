@@ -109,6 +109,18 @@ module Cosmos
       @file_options.statusTip = tr('Application Options')
       @file_options.connect(SIGNAL('triggered()')) { file_options() }
 
+      # Edit Actions
+      @edit_zoom_in = Qt::Action.new(tr('&Increase Font Size'), self)
+      @edit_zoom_in_keyseq = Qt::KeySequence.new(Qt::KeySequence::ZoomIn)
+      @edit_zoom_in.shortcut  = @edit_zoom_in_keyseq
+      @edit_zoom_in.connect(SIGNAL('triggered()')) { @script_runner_frame.zoom_in }
+        @edit_zoom_out = Qt::Action.new(tr('&Decrease Font Size'), self)
+      @edit_zoom_out_keyseq = Qt::KeySequence.new(Qt::KeySequence::ZoomOut)
+      @edit_zoom_out.shortcut  = @edit_zoom_out_keyseq
+      @edit_zoom_out.connect(SIGNAL('triggered()')) { @script_runner_frame.zoom_out }
+        @edit_zoom_default = Qt::Action.new(tr('Restore &Font Size'), self)
+      @edit_zoom_default.connect(SIGNAL('triggered()')) { @script_runner_frame.zoom_default }
+
       # Script Actions
       @test_results_log_message = Qt::Action.new(tr('Log Message to Test Results'), self)
       @test_results_log_message.statusTip = tr('Log Message to Test Results')
@@ -152,6 +164,12 @@ module Cosmos
       file_menu.addAction(@file_options)
       file_menu.addSeparator()
       file_menu.addAction(@exit_action)
+
+      # Edit Menu (to match Script Runner)
+      edit_menu = menuBar.addMenu(tr('&Edit'))
+      edit_menu.addAction(@edit_zoom_in)
+      edit_menu.addAction(@edit_zoom_out)
+      edit_menu.addAction(@edit_zoom_default)
 
       # Script Menu
       script_menu = menuBar.addMenu(tr('&Script'))

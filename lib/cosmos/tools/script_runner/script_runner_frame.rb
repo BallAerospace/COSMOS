@@ -126,6 +126,7 @@ module Cosmos
     @@cancel_output = false
     @@cancel_limits = false
     @@file_number = 1
+    @@default_font = Cosmos.get_default_font
 
     def initialize(parent, default_tab_text = 'Untitled')
       super(parent)
@@ -252,7 +253,7 @@ module Cosmos
 
     def create_ruby_editor
       # Add Initial Text Window
-      script = RubyEditor.new(self)
+      script = RubyEditor.new(self, @@default_font)
       script.enable_breakpoints = true if @debug_frame
       connect(script,
               SIGNAL('breakpoint_set(int)'),
@@ -266,6 +267,10 @@ module Cosmos
               SIGNAL('breakpoints_cleared()'),
               self,
               SLOT('breakpoints_cleared()'))
+      script.connect(SIGNAL('font_changed(QFont)')) do |font|
+        # Remember changed fonts for future tabs
+        @@default_font = font
+      end
 
       # Add right click menu
       script.setContextMenuPolicy(Qt::CustomContextMenu)
@@ -753,6 +758,21 @@ module Cosmos
 
     def comment_or_uncomment_lines
       @script.comment_or_uncomment_lines unless running?()
+    end
+
+    def zoom_in
+      # @active_script since this can be used while running
+      @active_script.zoom_in
+    end
+
+    def zoom_out
+      # @active_script since this can be used while running
+      @active_script.zoom_out
+    end
+
+    def zoom_default
+      # @active_script since this can be used while running
+      @active_script.zoom_default
     end
 
     ##################################################################################

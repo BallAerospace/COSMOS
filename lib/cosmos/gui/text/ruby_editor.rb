@@ -24,6 +24,7 @@ module Cosmos
     signals 'breakpoint_set(int)'
     signals 'breakpoint_cleared(int)'
     signals 'breakpoints_cleared()'
+    signals 'font_changed(const QFont &)'
 
     attr_accessor :enable_breakpoints
     attr_accessor :filename
@@ -156,10 +157,10 @@ module Cosmos
     CHAR_57 = Qt::Char.new(57)
     BREAKPOINT_SET = 1
     BREAKPOINT_CLEAR = -1
+    MINIMUM_POINT_SIZE = 4
 
-    def initialize(parent)
+    def initialize(parent, font = Cosmos.get_default_font)
       super(parent)
-      font = Cosmos.get_default_font
       setFont(font)
       @fontMetrics = Cosmos.getFontMetrics(font)
 
@@ -178,6 +179,18 @@ module Cosmos
       connect(self, SIGNAL('updateRequest(const QRect &, int)'), self, SLOT('update_line_number_area(const QRect &, int)'))
 
       line_count_changed(-1)
+    end
+
+    def wheelEvent(event)
+      if event.modifiers() == Qt::ControlModifier && event.delta > 0
+        event.setAccepted(true)
+        zoom_in()
+      elsif event.modifiers() == Qt::ControlModifier && event.delta < 0
+        event.setAccepted(true)
+        zoom_out()
+      else
+        super(event)
+      end
     end
 
     def dispose
@@ -288,6 +301,31 @@ module Cosmos
       cursor.endEditBlock
     end
 
+    def zoom_in
+      font = Cosmos.getFont(font().family, font().pointSize + 1)
+      setFont(font)
+      @fontMetrics = Cosmos.getFontMetrics(font)
+      emit font_changed(font)
+    end
+
+    def zoom_out
+      return if font().pointSize <= MINIMUM_POINT_SIZE
+      font = Cosmos.getFont(font().family, font().pointSize - 1)
+      setFont(font)
+      @fontMetrics = Cosmos.getFontMetrics(font)
+      emit font_changed(font)
+    end
+
+    def zoom_default
+      font = Cosmos.get_default_font
+      setFont(font)
+      @fontMetrics = Cosmos.getFontMetrics(font)
+      # Force a repaint of the number area by doing a small scroll
+      verticalScrollBar.setValue(verticalScrollBar.minimum+1)
+      verticalScrollBar.setValue(verticalScrollBar.minimum)
+      emit font_changed(font)
+    end
+
     def resizeEvent(e)
       super(e)
       cr = self.contentsRect()
@@ -302,6 +340,7 @@ module Cosmos
 
     def line_number_area_paint_event(event)
       painter = Qt::Painter.new(@lineNumberArea)
+      painter.setFont(font())
       # Check for weird bad initialization conditions
       if painter.isActive and not painter.paintEngine.nil?
         event_rect = event.rect()
