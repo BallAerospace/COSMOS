@@ -116,7 +116,7 @@ module Cosmos
         @value_thread = Thread.new do
           begin
             while(true)
-              break if @@closing_all
+              break if @@closing_all or !@alive
               time = Time.now.sys
 
               if !@item.empty?
@@ -140,7 +140,7 @@ module Cosmos
                     @limits_set = limits_set
                   end
                 rescue DRb::DRbConnError
-                  break if @@closing_all
+                  break if @@closing_all or !@alive
                   break if @value_sleeper.sleep(1)
                   next
                 end
@@ -148,7 +148,7 @@ module Cosmos
 
               Qt.execute_in_main_thread {update_gui()} if @alive and (@mode == :REALTIME)
               delta = Time.now.sys - time
-              break if @@closing_all
+              break if @@closing_all or !@alive
               if @polling_period - delta > 0
                 break if @value_sleeper.sleep(@polling_period - delta)
               else
@@ -213,7 +213,7 @@ module Cosmos
 
       def shutdown
         @alive = false
-        Cosmos.kill_thread(self, @value_thread)
+        Cosmos.kill_thread(self, @value_thread, 2, 0.1, 2)
 
         # Shutdown All Widgets
         widgets().each do |widget|
@@ -556,6 +556,8 @@ module Cosmos
       end
 
       self.dispose
+
+      @window = nil
     end
 
     def get_named_widget(widget_name)
@@ -576,7 +578,10 @@ module Cosmos
 
     def close
       Qt.execute_in_main_thread(true) do
-        super()
+        if @window
+          super()
+          @window = nil
+        end
       end
     end
 
