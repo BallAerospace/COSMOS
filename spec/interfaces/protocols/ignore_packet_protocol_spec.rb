@@ -16,7 +16,7 @@ require 'cosmos/streams/stream'
 module Cosmos
   describe IgnorePacketProtocol do
     before(:each) do
-      $buffer = ''
+      $buffer = nil
       @interface = StreamInterface.new
       @interface.target_names = ['SYSTEM', 'INST']
       allow(@interface).to receive(:connected?) { true }
@@ -51,16 +51,24 @@ module Cosmos
     describe "read" do
       it "ignores the packet specified" do
         @interface.instance_variable_set(:@stream, PreStream.new)
-        @interface.add_protocol(IgnorePacketProtocol, ['SYSTEM', 'META'], :READ)
         pkt = System.telemetry.packet("SYSTEM","META")
-        pkt.write("COSMOS_VERSION", "TEST")
-        time = Time.new(2020,1,31,12,15,30.5)
-        pkt.received_time = time
-        $buffer = ''
+        # Ensure the ID items are set so this packet can be identified
+        pkt.id_items.each do |item|
+          pkt.write_item(item, item.id_value)
+        end
+        pkt.received_time = Time.now
+        $buffer = nil
         @interface.write(pkt)
         # Verify the write went out
         expect(pkt.buffer).to eql $buffer
+        # Verify we read the packet back
+        packet = @interface.read
+        expect(packet.buffer).to eql $buffer
 
+        # Now add the protocol to ignore the packet
+        @interface.add_protocol(IgnorePacketProtocol, ['SYSTEM', 'META'], :READ)
+        $buffer = nil
+        @interface.write(pkt)
         packet = nil
         # Try to read the interface
         # We put this in a thread because it calls it continuously
@@ -69,21 +77,32 @@ module Cosmos
         end
         sleep 0.1
         thread.kill
+        sleep 0.2 # Allow thread to die
         expect(packet).to be_nil
       end
 
       it "can be added multiple times to ignore different packets" do
         @interface.instance_variable_set(:@stream, PreStream.new)
-        @interface.add_protocol(IgnorePacketProtocol, ['INST', 'HEALTH_STATUS'], :READ)
-        @interface.add_protocol(IgnorePacketProtocol, ['INST', 'ADCS'], :READ)
 
         pkt = System.telemetry.packet("INST","HEALTH_STATUS")
-        time = Time.now #new(2020,1,31,12,15,30.5)
-        pkt.received_time = time
-        $buffer = ''
+        # Ensure the ID items are set so this packet can be identified
+        pkt.id_items.each do |item|
+          pkt.write_item(item, item.id_value)
+        end
+        pkt.received_time = Time.now
+        $buffer = nil
         @interface.write(pkt)
         expect($buffer).to eql pkt.buffer
 
+        # Verify we read the packet back
+        packet = @interface.read
+        expect(packet.buffer).to eql $buffer
+
+        # Now add the protocol to ignore the packet
+        @interface.add_protocol(IgnorePacketProtocol, ['INST', 'HEALTH_STATUS'], :READ)
+        $buffer = nil
+        @interface.write(pkt)
+        expect($buffer).to eql pkt.buffer
         packet = nil
         # Try to read the interface
         # We put this in a thread because it calls it continuously
@@ -92,14 +111,19 @@ module Cosmos
         end
         sleep 0.1
         thread.kill
-        # Hmm, this doesn't appear to be the case
-        # The packet is undefined and passes through
-        #expect(packet).to be_nil
+        sleep 0.2 # Allow thread to die
+        expect(packet).to be_nil
+
+        # Add another protocol to ignore another packet
+        @interface.add_protocol(IgnorePacketProtocol, ['INST', 'ADCS'], :READ)
 
         pkt = System.telemetry.packet("INST","ADCS")
-        time = Time.new(2020,1,31,12,15,30.5)
-        pkt.received_time = time
-        $buffer = ''
+        # Ensure the ID items are set so this packet can be identified
+        pkt.id_items.each do |item|
+          pkt.write_item(item, item.id_value)
+        end
+        pkt.received_time = Time.now
+        $buffer = nil
         @interface.write(pkt)
         expect($buffer).to eql pkt.buffer
 
@@ -111,14 +135,16 @@ module Cosmos
         end
         sleep 0.1
         thread.kill
-        # Hmm, this doesn't appear to be the case
-        # The packet is undefined and passes through
-        #expect(packet).to be_nil
+        sleep 0.2 # Allow thread to die
+        expect(packet).to be_nil
 
         pkt = System.telemetry.packet("INST","PARAMS")
-        time = Time.new(2020,1,31,12,15,30.5)
-        pkt.received_time = time
-        $buffer = ''
+        # Ensure the ID items are set so this packet can be identified
+        pkt.id_items.each do |item|
+          pkt.write_item(item, item.id_value)
+        end
+        pkt.received_time = Time.now
+        $buffer = nil
         @interface.write(pkt)
         # Verify the write went out
         expect($buffer).to eql pkt.buffer
@@ -134,12 +160,11 @@ module Cosmos
         @interface.add_protocol(IgnorePacketProtocol, ['SYSTEM', 'META'], :WRITE)
         pkt = System.telemetry.packet("SYSTEM","META")
         pkt.write("COSMOS_VERSION", "TEST")
-        time = Time.new(2020,1,31,12,15,30.5)
-        pkt.received_time = time
-        $buffer = ''
+        pkt.received_time = Time.now
+        $buffer = nil
         @interface.write(pkt)
         # Verify the write was ignored
-        expect($buffer).to eql ''
+        expect($buffer).to be_nil
 
         # Verify reading the interface works
         $buffer = pkt.buffer
@@ -153,25 +178,22 @@ module Cosmos
         @interface.add_protocol(IgnorePacketProtocol, ['INST', 'ADCS'], :WRITE)
 
         pkt = System.telemetry.packet("INST","HEALTH_STATUS")
-        time = Time.new(2020,1,31,12,15,30.5)
-        pkt.received_time = time
-        $buffer = ''
+        pkt.received_time = Time.now
+        $buffer = nil
         @interface.write(pkt)
         # Verify the write was ignored
-        expect($buffer).to eql ''
+        expect($buffer).to be_nil
 
         pkt = System.telemetry.packet("INST","ADCS")
-        time = Time.new(2020,1,31,12,15,30.5)
-        pkt.received_time = time
-        $buffer = ''
+        pkt.received_time = Time.now
+        $buffer = nil
         @interface.write(pkt)
         # Verify the write was ignored
-        expect($buffer).to eql ''
+        expect($buffer).to be_nil
 
         pkt = System.telemetry.packet("INST","PARAMS")
-        time = Time.new(2020,1,31,12,15,30.5)
-        pkt.received_time = time
-        $buffer = ''
+        pkt.received_time = Time.now
+        $buffer = nil
         @interface.write(pkt)
         # Verify the write went out
         expect($buffer).to eql pkt.buffer
@@ -184,27 +206,27 @@ module Cosmos
         @interface.add_protocol(IgnorePacketProtocol, ['SYSTEM', 'META'], :READ_WRITE)
         pkt = System.telemetry.packet("SYSTEM","META")
         pkt.write("COSMOS_VERSION", "TEST")
-        time = Time.new(2020,1,31,12,15,30.5)
-        pkt.received_time = time
-        $buffer = ''
+        pkt.received_time = Time.now
+        $buffer = nil
         @interface.write(pkt)
         # Verify the write was ignored
-        expect($buffer).to eql ''
+        expect($buffer).to be_nil
 
         packet = nil
         # Try to read the interface
         thread = Thread.new do
           packet = @interface.read
         end
-        sleep 1
+        sleep 0.1
         thread.kill
+        sleep 0.2 # Allow thread to die
         expect(packet).to be_nil
       end
 
       it "reads and writes unknown packets" do
         @interface.instance_variable_set(:@stream, PreStream.new)
         @interface.add_protocol(IgnorePacketProtocol, ['SYSTEM', 'META'], :READ_WRITE)
-        $buffer = ''
+        $buffer = nil
         pkt = Packet.new("TGT","PTK")
         pkt.append_item("ITEM", 8, :INT)
         pkt.write("ITEM", 33, :RAW)
