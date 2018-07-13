@@ -24,6 +24,7 @@ module Cosmos
     signals 'breakpoint_set(int)'
     signals 'breakpoint_cleared(int)'
     signals 'breakpoints_cleared()'
+    signals 'font_changed(const QFont &)'
 
     attr_accessor :enable_breakpoints
     attr_accessor :filename
@@ -157,12 +158,10 @@ module Cosmos
     BREAKPOINT_SET = 1
     BREAKPOINT_CLEAR = -1
 
-    @@default_font ||= Cosmos.get_default_font
-
-    def initialize(parent)
+    def initialize(parent, font = Cosmos.get_default_font)
       super(parent)
-      setFont(@@default_font)
-      @fontMetrics = Cosmos.getFontMetrics(@@default_font)
+      setFont(font)
+      @fontMetrics = Cosmos.getFontMetrics(font)
 
       # This is needed so text searching highlights correctly
       setStyleSheet("selection-background-color: lightblue; selection-color: black;")
@@ -302,25 +301,28 @@ module Cosmos
     end
 
     def zoom_in
-      @@default_font = Cosmos.getFont(@@default_font.family, @@default_font.pointSize + 1)
-      setFont(@@default_font)
-      @fontMetrics = Cosmos.getFontMetrics(@@default_font)
+      font = Cosmos.getFont(font().family, font().pointSize + 1)
+      setFont(font)
+      @fontMetrics = Cosmos.getFontMetrics(font)
+      emit font_changed(font)
     end
 
     def zoom_out
-      return if @@default_font.pointSize < 2
-      @@default_font = Cosmos.getFont(@@default_font.family, @@default_font.pointSize - 1)
-      setFont(@@default_font)
-      @fontMetrics = Cosmos.getFontMetrics(@@default_font)
+      return if font().pointSize < 2
+      font = Cosmos.getFont(font().family, font().pointSize - 1)
+      setFont(font)
+      @fontMetrics = Cosmos.getFontMetrics(font)
+      emit font_changed(font)
     end
 
     def zoom_default
-      @@default_font = Cosmos.get_default_font
-      setFont(@@default_font)
-      @fontMetrics = Cosmos.getFontMetrics(@@default_font)
+      font = Cosmos.get_default_font
+      setFont(font)
+      @fontMetrics = Cosmos.getFontMetrics(font)
       # Force a repaint of the number area by doing a small scroll
       verticalScrollBar.setValue(verticalScrollBar.minimum+1)
       verticalScrollBar.setValue(verticalScrollBar.minimum)
+      emit font_changed(font)
     end
 
     def resizeEvent(e)
