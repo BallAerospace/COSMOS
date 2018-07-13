@@ -157,6 +157,7 @@ module Cosmos
     CHAR_57 = Qt::Char.new(57)
     BREAKPOINT_SET = 1
     BREAKPOINT_CLEAR = -1
+    MINIMUM_POINT_SIZE = 4
 
     def initialize(parent, font = Cosmos.get_default_font)
       super(parent)
@@ -308,7 +309,7 @@ module Cosmos
     end
 
     def zoom_out
-      return if font().pointSize < 2
+      return if font().pointSize <= MINIMUM_POINT_SIZE
       font = Cosmos.getFont(font().family, font().pointSize - 1)
       setFont(font)
       @fontMetrics = Cosmos.getFontMetrics(font)
