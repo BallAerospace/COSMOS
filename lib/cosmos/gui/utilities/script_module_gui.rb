@@ -10,6 +10,7 @@
 
 require 'cosmos/script/script'
 require 'cosmos/gui/choosers/combobox_chooser'
+require 'cosmos/tools/tlm_viewer/screen'
 
 $cmd_tlm_gui_window = nil
 
@@ -356,6 +357,31 @@ module Cosmos
 
     def get_cmd_tlm_gui_window
       $cmd_tlm_gui_window
+    end
+
+    def local_screen(title = "Local Screen", screen_def = nil, x_pos = nil, y_pos = nil, &block)
+      screen = nil
+      if block_given?
+        screen_def = yield
+      end
+
+      Qt.execute_in_main_thread(true) do
+        begin
+          if block_given?
+            screen = Screen.new(title, screen_def, nil, :REALTIME, x_pos, y_pos, nil, nil, false, false, block.binding )
+          else
+            screen = Screen.new(title, screen_def, nil, :REALTIME, x_pos, y_pos, nil, nil, false, false)
+          end
+        rescue Exception => err
+          puts err.formatted
+        end
+      end
+
+      screen
+    end
+
+    def close_local_screens
+      Qt.execute_in_main_thread(true) { Screen.close_all_screens(nil) }
     end
 
   end # module Script

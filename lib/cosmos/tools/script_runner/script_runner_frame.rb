@@ -99,8 +99,8 @@ module Cosmos
     attr_accessor :continue_after_error
     attr_accessor :exceptions
     attr_accessor :script_binding
-    attr_accessor :inline_return
-    attr_accessor :inline_return_params
+    attr_accessor :inline_return # Deprecated and unused - Here to prevent cache errors for old scripts
+    attr_accessor :inline_return_params # Deprecated and unused - Here to prevent cache errors for old scripts
     attr_reader   :message_log
     attr_reader   :script_class
     attr_reader   :top_level_instrumented_cache
@@ -564,6 +564,10 @@ module Cosmos
           # originally had comments but they were stripped in
           # ruby_lex_utils.remove_comments
           next if segment.strip.empty?
+
+          # Create a variable to hold the segment's return value
+          instrumented_line << "__return_val = nil; "
+
           # If not inside a begin block then create one to catch exceptions
           unless inside_begin
             instrumented_line << 'begin; '
@@ -571,11 +575,10 @@ module Cosmos
 
           # Add preline instrumentation
           instrumented_line << "ScriptRunnerFrame.instance.script_binding = binding(); "\
-            "if ScriptRunnerFrame.instance.inline_return then ScriptRunnerFrame.instance.inline_return = nil; "\
-            "return ScriptRunnerFrame.instance.inline_return_params; end; "\
             "ScriptRunnerFrame.instance.pre_line_instrumentation('#{filename}', #{line_no}); "
 
           # Add the actual line
+          instrumented_line << "__return_val = "
           instrumented_line << segment
           instrumented_line.chomp!
 
@@ -585,10 +588,10 @@ module Cosmos
           # Complete begin block to catch exceptions
           unless inside_begin
             instrumented_line << "; rescue Exception => eval_error; "\
-            "retry if ScriptRunnerFrame.instance.exception_instrumentation(eval_error, '#{filename}', #{line_no}); end"
+            "retry if ScriptRunnerFrame.instance.exception_instrumentation(eval_error, '#{filename}', #{line_no}); end; "
           end
 
-          instrumented_line << "\n"
+          instrumented_line << "__return_val\n"
         else
           unless segment =~ /^\s*end\s*$/ or segment =~ /^\s*when .*$/
             num_left_brackets = segment.count('{')
@@ -974,15 +977,6 @@ module Cosmos
         end
 
         @debug_frame.addWidget(@debug_text)
-
-        @return_button = Qt::PushButton.new('Insert Return')
-        @debug_frame.addWidget(@return_button)
-        @return_button.connect(SIGNAL('clicked(bool)')) do
-          scriptrunner_puts "Debug: insert_return(); ScriptRunnerFrame.instance.go()"
-          handle_output_io()
-          insert_return()
-          go()
-        end
 
         @bottom_frame.layout.addLayout(@debug_frame)
       end

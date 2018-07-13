@@ -67,13 +67,6 @@ module Cosmos
     # Methods for debugging
     #######################################
 
-    def insert_return(*params)
-      _ensure_script_runner_frame do
-        ScriptRunnerFrame.instance.inline_return = true
-        ScriptRunnerFrame.instance.inline_return_params = params
-      end
-    end
-
     def step_mode
       if defined? ScriptRunnerFrame
         ScriptRunnerFrame.step_mode = true
@@ -104,7 +97,17 @@ module Cosmos
     # Get a specific screen definition
     def get_screen_definition(screen_full_name, config_filename = nil, force_refresh = false)
       $cmd_tlm_server.get_screen_definition(screen_full_name, config_filename, force_refresh)
-    end  
+    end
+
+    # Show a local telemetry screen
+    def local_screen(title = 'Local Screen', screen_def = nil, x_pos = nil, y_pos = nil, &block)
+      # See script_module_gui.rb
+    end
+
+    # Close all local telemetry screens
+    def close_local_screens
+      # See script_module_gui.rb
+    end
 
   end # module Script
 

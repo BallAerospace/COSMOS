@@ -101,7 +101,6 @@ module Cosmos
         start_new_scriptrunner_message_log
         disable_instrumentation { }
         set_stdout_max_lines(1000)
-        insert_return
         step_mode
         run_mode
         show_backtrace

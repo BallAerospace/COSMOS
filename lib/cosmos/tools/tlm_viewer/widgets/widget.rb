@@ -41,7 +41,12 @@ module Cosmos
       @item_name = ConfigParser.handle_nil(item_name)
       @item = nil
       if @item_name
-        @packet, @item = System.telemetry.packet_and_item(@target_name, @packet_name, @item_name)
+        if @target_name == 'LOCAL' and @packet_name == 'LOCAL'
+          @packet = nil
+          @item = nil
+        else
+          @packet, @item = System.telemetry.packet_and_item(@target_name, @packet_name, @item_name)
+        end
       end
       if value_type
         @value_type = value_type.to_s.upcase.to_sym
