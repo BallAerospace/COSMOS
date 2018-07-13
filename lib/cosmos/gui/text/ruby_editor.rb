@@ -157,11 +157,12 @@ module Cosmos
     BREAKPOINT_SET = 1
     BREAKPOINT_CLEAR = -1
 
+    @@default_font ||= Cosmos.get_default_font
+
     def initialize(parent)
       super(parent)
-      @default_font = Cosmos.get_default_font
-      setFont(@default_font)
-      @fontMetrics = Cosmos.getFontMetrics(@default_font)
+      setFont(@@default_font)
+      @fontMetrics = Cosmos.getFontMetrics(@@default_font)
 
       # This is needed so text searching highlights correctly
       setStyleSheet("selection-background-color: lightblue; selection-color: black;")
@@ -301,23 +302,22 @@ module Cosmos
     end
 
     def zoom_in
-      font = font()
-      font.setPointSize(font.pointSize + 1)
-      setFont(font)
-      @fontMetrics = Cosmos.getFontMetrics(font)
+      @@default_font = Cosmos.getFont(@@default_font.family, @@default_font.pointSize + 1)
+      setFont(@@default_font)
+      @fontMetrics = Cosmos.getFontMetrics(@@default_font)
     end
 
     def zoom_out
-      font = font()
-      return if font.pointSize < 2
-      font.setPointSize(font.pointSize - 1)
-      setFont(font)
-      @fontMetrics = Cosmos.getFontMetrics(font)
+      return if @@default_font.pointSize < 2
+      @@default_font = Cosmos.getFont(@@default_font.family, @@default_font.pointSize - 1)
+      setFont(@@default_font)
+      @fontMetrics = Cosmos.getFontMetrics(@@default_font)
     end
 
     def zoom_default
-      setFont(@default_font)
-      @fontMetrics = Cosmos.getFontMetrics(@default_font)
+      @@default_font = Cosmos.get_default_font
+      setFont(@@default_font)
+      @fontMetrics = Cosmos.getFontMetrics(@@default_font)
       # Force a repaint of the number area by doing a small scroll
       verticalScrollBar.setValue(verticalScrollBar.minimum+1)
       verticalScrollBar.setValue(verticalScrollBar.minimum)
