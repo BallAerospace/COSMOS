@@ -186,6 +186,19 @@ module Cosmos
     user_path = File.join(Cosmos::USERPATH, partial_path)
     return user_path if File.exist?(user_path)
 
+    # Check cosmos extensions
+    begin
+      Bundler.load.specs.each do |spec|
+        spec_name_split = spec.name.split('-')
+        if spec_name_split.length > 1 and spec_name_split[0] == 'cosmos'
+          filename = File.join(spec.gem_dir, partial_path)
+          return filename if File.exist? filename
+        end
+      end
+    rescue Bundler::GemfileNotFound
+      # No Gemfile - so no gem based extensions
+    end
+
     # Then look relative to the calling file
     if Pathname.new(calling_file).absolute?
       current_dir = File.dirname(calling_file)
