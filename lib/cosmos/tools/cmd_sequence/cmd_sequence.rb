@@ -456,7 +456,7 @@ module Cosmos
           Splash.execute(self) do |splash|
             ConfigParser.splash = splash
             splash.message = "Initializing Command and Telemetry Server"
-            set_disconnected_targets(targets, config_file)
+            set_disconnected_targets(targets, targets.length == all_targets.length, config_file)
             ConfigParser.splash = nil
           end
         end

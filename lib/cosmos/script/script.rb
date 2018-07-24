@@ -21,6 +21,7 @@ require 'cosmos/script/tools'
 
 $cmd_tlm_server = nil
 $disconnected_targets = nil
+$disconnect_all_targets = false
 $cmd_tlm_replay_mode = false
 
 module Cosmos
@@ -58,16 +59,6 @@ module Cosmos
     # us to proxy the methods to either the disconnected CmdTlmServer object
     # or to the real server through the JsonDRbObject.
     def method_missing(method_name, *method_params)
-      if $disconnected_targets && method_params[0].is_a?(String)
-        if method_params.length == 1
-          target = method_params[0].split(" ")[0]
-        else
-          target = method_params[0]
-        end
-        if $disconnected_targets.include?(target)
-          return @disconnected.send(method_name, *method_params)
-        end
-      end
       # Must call shutdown and disconnect on the JsonDrbObject itself
       # to avoid it being sent to the CmdTlmServer
       case method_name
@@ -77,6 +68,28 @@ module Cosmos
       when :disconnect
         @cmd_tlm_server.disconnect
       else
+        if $disconnect_all_targets
+          return @disconnected.send(method_name, *method_params)
+        elsif $disconnected_targets
+          name_string = nil
+          if method_params[0].is_a?(String)
+            name_string = method_params[0]
+          elsif method_params[0].is_a?(Array)
+            if method_params[0][0].is_a?(Array)
+              if method_params[0][0][0].is_a?(String)
+                name_string = method_params[0][0][0]
+              end
+            elsif method_params[0][0].is_a?(String)
+              name_string = method_params[0][0]
+            end
+          end
+          if name_string
+            target = name_string.split(" ")[0]
+            if $disconnected_targets.include?(target)
+              return @disconnected.send(method_name, *method_params)
+            end
+          end
+        end
         @cmd_tlm_server.method_missing(method_name, *method_params)
       end
     end
@@ -95,6 +108,7 @@ module Cosmos
     # Called when this module is mixed in using "include Cosmos::Script"
     def self.included(base)
       $disconnected_targets = nil
+      $disconnect_all_targets = false
       $cmd_tlm_replay_mode = false
       $cmd_tlm_server = nil
       initialize_script_module()
@@ -109,8 +123,9 @@ module Cosmos
       $cmd_tlm_server.shutdown if $cmd_tlm_server
     end
 
-    def set_disconnected_targets(targets, config_file = CmdTlmServer::DEFAULT_CONFIG_FILE)
+    def set_disconnected_targets(targets, all = false, config_file = CmdTlmServer::DEFAULT_CONFIG_FILE)
       $disconnected_targets = targets
+      $disconnect_all_targets = all
       initialize_script_module(config_file)
     end
 
@@ -120,6 +135,7 @@ module Cosmos
 
     def clear_disconnected_targets
       $disconnected_targets = nil
+      $disconnect_all_targets = false
     end
 
     def script_disconnect
