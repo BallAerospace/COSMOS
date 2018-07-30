@@ -89,198 +89,198 @@ module Cosmos
       super()
 
       # File actions
-      @file_new = Qt::Action.new(Cosmos.get_icon('file.png'), tr('&New'), self)
-      @file_new_keyseq = Qt::KeySequence.new(tr('Ctrl+N'))
+      @file_new = Qt::Action.new(Cosmos.get_icon('file.png'), '&New', self)
+      @file_new_keyseq = Qt::KeySequence.new('Ctrl+N')
       @file_new.shortcut  = @file_new_keyseq
-      @file_new.statusTip = tr('Start a new script')
+      @file_new.statusTip = 'Start a new script'
       @file_new.connect(SIGNAL('triggered()')) { file_new() }
 
-      @file_close = Qt::Action.new(tr('&Close'), self)
-      @file_close_keyseq = Qt::KeySequence.new(tr('Ctrl+W'))
+      @file_close = Qt::Action.new('&Close', self)
+      @file_close_keyseq = Qt::KeySequence.new('Ctrl+W')
       @file_close.shortcut  = @file_close_keyseq
-      @file_close.statusTip = tr('Close the script')
+      @file_close.statusTip = 'Close the script'
       @file_close.connect(SIGNAL('triggered()')) { file_close() }
 
-      @file_reload = Qt::Action.new(tr('&Reload'), self)
-      @file_reload_keyseq = Qt::KeySequence.new(tr('Ctrl+R'))
+      @file_reload = Qt::Action.new('&Reload', self)
+      @file_reload_keyseq = Qt::KeySequence.new('Ctrl+R')
       @file_reload.shortcut  = @file_reload_keyseq
-      @file_reload.statusTip = tr('Reload a script')
+      @file_reload.statusTip = 'Reload a script'
       @file_reload.connect(SIGNAL('triggered()')) { file_reload() }
 
-      @file_save = Qt::Action.new(Cosmos.get_icon('save.png'), tr('&Save'), self)
-      @file_save_keyseq = Qt::KeySequence.new(tr('Ctrl+S'))
+      @file_save = Qt::Action.new(Cosmos.get_icon('save.png'), '&Save', self)
+      @file_save_keyseq = Qt::KeySequence.new('Ctrl+S')
       @file_save.shortcut  = @file_save_keyseq
-      @file_save.statusTip = tr('Save the script')
+      @file_save.statusTip = 'Save the script'
       @file_save.connect(SIGNAL('triggered()')) { file_save(false) }
 
-      @file_save_as = Qt::Action.new(Cosmos.get_icon('save_as.png'), tr('Save &As'), self)
-      @file_save_as.statusTip = tr('Save the script')
+      @file_save_as = Qt::Action.new(Cosmos.get_icon('save_as.png'), 'Save &As', self)
+      @file_save_as.statusTip = 'Save the script'
       @file_save_as.connect(SIGNAL('triggered()')) { file_save(true) }
 
-      @file_options = Qt::Action.new(tr('O&ptions'), self)
-      @file_options.statusTip = tr('Application Options')
+      @file_options = Qt::Action.new('O&ptions', self)
+      @file_options.statusTip = 'Application Options'
       @file_options.connect(SIGNAL('triggered()')) { file_options() }
 
       # Edit actions
-      @edit_undo = Qt::Action.new(Cosmos.get_icon('undo.png'), tr('&Undo'), self)
-      @edit_undo_keyseq = Qt::KeySequence.new(tr('Ctrl+Z'))
+      @edit_undo = Qt::Action.new(Cosmos.get_icon('undo.png'), '&Undo', self)
+      @edit_undo_keyseq = Qt::KeySequence.new('Ctrl+Z')
       @edit_undo.shortcut  = @edit_undo_keyseq
-      @edit_undo.statusTip = tr('Undo')
+      @edit_undo.statusTip = 'Undo'
       @edit_undo.connect(SIGNAL('triggered()')) { active_script_runner_frame().undo }
 
-      @edit_redo = Qt::Action.new(Cosmos.get_icon('redo.png'), tr('&Redo'), self)
-      @edit_redo_keyseq = Qt::KeySequence.new(tr('Ctrl+Y'))
+      @edit_redo = Qt::Action.new(Cosmos.get_icon('redo.png'), '&Redo', self)
+      @edit_redo_keyseq = Qt::KeySequence.new('Ctrl+Y')
       @edit_redo.shortcut  = @edit_redo_keyseq
-      @edit_redo.statusTip = tr('Redo')
+      @edit_redo.statusTip = 'Redo'
       @edit_redo.connect(SIGNAL('triggered()')) { active_script_runner_frame().redo }
 
-      @edit_cut = Qt::Action.new(Cosmos.get_icon('cut.png'), tr('Cu&t'), self)
-      @edit_cut_keyseq = Qt::KeySequence.new(tr('Ctrl+X'))
+      @edit_cut = Qt::Action.new(Cosmos.get_icon('cut.png'), 'Cu&t', self)
+      @edit_cut_keyseq = Qt::KeySequence.new('Ctrl+X')
       @edit_cut.shortcut  = @edit_cut_keyseq
-      @edit_cut.statusTip = tr('Cut')
+      @edit_cut.statusTip = 'Cut'
       @edit_cut.connect(SIGNAL('triggered()')) { active_script_runner_frame().cut }
 
-      @edit_copy = Qt::Action.new(Cosmos.get_icon('copy.png'), tr('&Copy'), self)
-      @edit_copy_keyseq = Qt::KeySequence.new(tr('Ctrl+C'))
+      @edit_copy = Qt::Action.new(Cosmos.get_icon('copy.png'), '&Copy', self)
+      @edit_copy_keyseq = Qt::KeySequence.new('Ctrl+C')
       @edit_copy.shortcut  = @edit_copy_keyseq
-      @edit_copy.statusTip = tr('Copy')
+      @edit_copy.statusTip = 'Copy'
       @edit_copy.connect(SIGNAL('triggered()')) { active_script_runner_frame().copy }
 
-      @edit_paste = Qt::Action.new(tr('&Paste'), self)
-      @edit_paste_keyseq = Qt::KeySequence.new(tr('Ctrl+V'))
+      @edit_paste = Qt::Action.new('&Paste', self)
+      @edit_paste_keyseq = Qt::KeySequence.new('Ctrl+V')
       @edit_paste.shortcut  = @edit_paste_keyseq
-      @edit_paste.statusTip = tr('Paste')
+      @edit_paste.statusTip = 'Paste'
       @edit_paste.connect(SIGNAL('triggered()')) { active_script_runner_frame().paste }
 
-      @edit_select_all = Qt::Action.new(tr('Select &All'), self)
-      @edit_select_all_keyseq = Qt::KeySequence.new(tr('Ctrl+A'))
+      @edit_select_all = Qt::Action.new('Select &All', self)
+      @edit_select_all_keyseq = Qt::KeySequence.new('Ctrl+A')
       @edit_select_all.shortcut  = @edit_select_all_keyseq
-      @edit_select_all.statusTip = tr('Select All')
+      @edit_select_all.statusTip = 'Select All'
       @edit_select_all.connect(SIGNAL('triggered()')) { active_script_runner_frame().select_all }
 
-      @edit_comment = Qt::Action.new(tr('Comment/Uncomment &Lines'), self)
-      @edit_comment_keyseq = Qt::KeySequence.new(tr('Ctrl+K'))
+      @edit_comment = Qt::Action.new('Comment/Uncomment &Lines', self)
+      @edit_comment_keyseq = Qt::KeySequence.new('Ctrl+K')
       @edit_comment.shortcut  = @edit_comment_keyseq
-      @edit_comment.statusTip = tr('Comment/Uncomment Lines')
+      @edit_comment.statusTip = 'Comment/Uncomment Lines'
       @edit_comment.connect(SIGNAL('triggered()')) { active_script_runner_frame().comment_or_uncomment_lines }
 
-      @edit_zoom_in = Qt::Action.new(tr('&Increase Font Size'), self)
+      @edit_zoom_in = Qt::Action.new('&Increase Font Size', self)
       @edit_zoom_in_keyseq = Qt::KeySequence.new(Qt::KeySequence::ZoomIn)
       @edit_zoom_in.shortcut  = @edit_zoom_in_keyseq
       @edit_zoom_in.connect(SIGNAL('triggered()')) { active_script_runner_frame().zoom_in }
 
-      @edit_zoom_out = Qt::Action.new(tr('&Decrease Font Size'), self)
+      @edit_zoom_out = Qt::Action.new('&Decrease Font Size', self)
       @edit_zoom_out_keyseq = Qt::KeySequence.new(Qt::KeySequence::ZoomOut)
       @edit_zoom_out.shortcut  = @edit_zoom_out_keyseq
       @edit_zoom_out.connect(SIGNAL('triggered()')) { active_script_runner_frame().zoom_out }
 
-      @edit_zoom_default = Qt::Action.new(tr('Restore &Font Size'), self)
+      @edit_zoom_default = Qt::Action.new('Restore &Font Size', self)
       @edit_zoom_default.connect(SIGNAL('triggered()')) { active_script_runner_frame().zoom_default }
 
       # Search Actions
-      @search_find = Qt::Action.new(Cosmos.get_icon('search.png'), tr('&Find'), self)
-      @search_find_keyseq = Qt::KeySequence.new(tr('Ctrl+F'))
+      @search_find = Qt::Action.new(Cosmos.get_icon('search.png'), '&Find', self)
+      @search_find_keyseq = Qt::KeySequence.new('Ctrl+F')
       @search_find.shortcut  = @search_find_keyseq
-      @search_find.statusTip = tr('Find text')
+      @search_find.statusTip = 'Find text'
       @search_find.connect(SIGNAL('triggered()')) do
         FindReplaceDialog.show_find(self)
       end
 
-      @search_find_next = Qt::Action.new(tr('Find &Next'), self)
-      @search_find_next_keyseq = Qt::KeySequence.new(tr('F3'))
+      @search_find_next = Qt::Action.new('Find &Next', self)
+      @search_find_next_keyseq = Qt::KeySequence.new('F3')
       @search_find_next.shortcut  = @search_find_next_keyseq
-      @search_find_next.statusTip = tr('Find next instance')
+      @search_find_next.statusTip = 'Find next instance'
       @search_find_next.connect(SIGNAL('triggered()')) do
         FindReplaceDialog.find_next(self)
       end
 
-      @search_find_previous = Qt::Action.new(tr('Find &Previous'), self)
-      @search_find_previous_keyseq = Qt::KeySequence.new(tr('Shift+F3'))
+      @search_find_previous = Qt::Action.new('Find &Previous', self)
+      @search_find_previous_keyseq = Qt::KeySequence.new('Shift+F3')
       @search_find_previous.shortcut  = @search_find_previous_keyseq
-      @search_find_previous.statusTip = tr('Find previous instance')
+      @search_find_previous.statusTip = 'Find previous instance'
       @search_find_previous.connect(SIGNAL('triggered()')) do
         FindReplaceDialog.find_previous(self)
       end
 
-      @search_replace = Qt::Action.new(tr('&Replace'), self)
-      @search_replace_keyseq = Qt::KeySequence.new(tr('Ctrl+H'))
+      @search_replace = Qt::Action.new('&Replace', self)
+      @search_replace_keyseq = Qt::KeySequence.new('Ctrl+H')
       @search_replace.shortcut  = @search_replace_keyseq
-      @search_replace.statusTip = tr('Replace')
+      @search_replace.statusTip = 'Replace'
       @search_replace.connect(SIGNAL('triggered()')) do
         FindReplaceDialog.show_replace(self)
       end
 
       # Script Actions
-      @script_syntax_all = Qt::Action.new(tr('&Ruby Syntax Check'), self)
-      @script_syntax_all.statusTip = tr('Check ruby syntax of this script')
+      @script_syntax_all = Qt::Action.new('&Ruby Syntax Check', self)
+      @script_syntax_all.statusTip = 'Check ruby syntax of this script'
       @script_syntax_all.connect(SIGNAL('triggered()')) do
         active_script_runner_frame().ruby_syntax_check_text()
       end
 
-      @script_mnemonic_all = Qt::Action.new(tr('&Mnemonic Check'), self)
-      @script_mnemonic_all.statusTip = tr('Check mnemonics of this script')
+      @script_mnemonic_all = Qt::Action.new('&Mnemonic Check', self)
+      @script_mnemonic_all.statusTip = 'Check mnemonics of this script'
       @script_mnemonic_all.connect(SIGNAL('triggered()')) do
         active_script_runner_frame().mnemonic_check_text(active_script_runner_frame().text)
       end
 
-      @script_execute_lines = Qt::Action.new(tr('&Execute Selected Lines'), self)
-      @script_execute_lines.statusTip = tr('Execute selected lines')
+      @script_execute_lines = Qt::Action.new('&Execute Selected Lines', self)
+      @script_execute_lines.statusTip = 'Execute selected lines'
       @script_execute_lines.connect(SIGNAL('triggered()')) { active_script_runner_frame().run_selection }
 
-      @script_execute_cursor = Qt::Action.new(tr('E&xecute From Cursor'), self)
-      @script_execute_cursor.statusTip = tr('Execute from cursor position')
+      @script_execute_cursor = Qt::Action.new('E&xecute From Cursor', self)
+      @script_execute_cursor.statusTip = 'Execute from cursor position'
       @script_execute_cursor.connect(SIGNAL('triggered()')) { active_script_runner_frame().run_from_cursor }
 
-      @script_syntax_lines = Qt::Action.new(tr('Ruby &Syntax Check Selected Lines'), self)
-      @script_syntax_lines.statusTip = tr('Check ruby syntax of selected lines')
+      @script_syntax_lines = Qt::Action.new('Ruby &Syntax Check Selected Lines', self)
+      @script_syntax_lines.statusTip = 'Check ruby syntax of selected lines'
       @script_syntax_lines.connect(SIGNAL('triggered()')) { active_script_runner_frame().ruby_syntax_check_selection }
 
-      @script_mnemonic_lines = Qt::Action.new(tr('M&nemonic Check Selected Lines'), self)
-      @script_mnemonic_lines.statusTip = tr('Check mnemonics of selected lines')
+      @script_mnemonic_lines = Qt::Action.new('M&nemonic Check Selected Lines', self)
+      @script_mnemonic_lines.statusTip = 'Check mnemonics of selected lines'
       @script_mnemonic_lines.connect(SIGNAL('triggered()')) { active_script_runner_frame().mnemonic_check_selection }
 
-      @script_audit = Qt::Action.new(tr('&Generate Cmd/Tlm Audit'), self)
-      @script_audit.statusTip = tr('Generate audit about commands sent and telemetry checked')
+      @script_audit = Qt::Action.new('&Generate Cmd/Tlm Audit', self)
+      @script_audit.statusTip = 'Generate audit about commands sent and telemetry checked'
       @script_audit.connect(SIGNAL('triggered()')) { script_audit() }
 
-      @script_instrumented = Qt::Action.new(tr('&View Instrumented Script'), self)
-      @script_instrumented.statusTip = tr('View instrumented script')
+      @script_instrumented = Qt::Action.new('&View Instrumented Script', self)
+      @script_instrumented.statusTip = 'View instrumented script'
       @script_instrumented.connect(SIGNAL('triggered()')) { script_view_instrumented() }
 
-      @script_log_message = Qt::Action.new(tr('Log Message to Script Log'), self)
-      @script_log_message.statusTip = tr('Log Message to Script Log')
+      @script_log_message = Qt::Action.new('Log Message to Script Log', self)
+      @script_log_message.statusTip = 'Log Message to Script Log'
       @script_log_message.connect(SIGNAL('triggered()')) { script_log_message() }
       @script_log_message.setEnabled(false)
 
-      @script_call_stack = Qt::Action.new(tr('Show Call Stack'), self)
-      @script_call_stack.statusTip = tr('Show Call Stack')
+      @script_call_stack = Qt::Action.new('Show Call Stack', self)
+      @script_call_stack.statusTip = 'Show Call Stack'
       @script_call_stack.connect(SIGNAL('triggered()')) { script_call_stack() }
       @script_call_stack.setEnabled(false)
 
-      @script_debug = Qt::Action.new(Cosmos.get_icon('bug.png'), tr('Toggle &Debug'), self)
-      @script_debug_keyseq = Qt::KeySequence.new(tr('Ctrl+D'))
+      @script_debug = Qt::Action.new(Cosmos.get_icon('bug.png'), 'Toggle &Debug', self)
+      @script_debug_keyseq = Qt::KeySequence.new('Ctrl+D')
       @script_debug.shortcut  = @script_debug_keyseq
-      @script_debug.statusTip = tr('Toggle debug capabilities for the script')
+      @script_debug.statusTip = 'Toggle debug capabilities for the script'
       @script_debug.connect(SIGNAL('triggered()')) { script_toggle_debug() }
 
-      @script_disconnect = Qt::Action.new(Cosmos.get_icon('disconnected.png'), tr('&Toggle Disconnect'), self)
-      @script_disconnect_keyseq = Qt::KeySequence.new(tr('Ctrl+T'))
+      @script_disconnect = Qt::Action.new(Cosmos.get_icon('disconnected.png'), '&Toggle Disconnect', self)
+      @script_disconnect_keyseq = Qt::KeySequence.new('Ctrl+T')
       @script_disconnect.shortcut  = @script_disconnect_keyseq
-      @script_disconnect.statusTip = tr('Toggle disconnect from the server')
+      @script_disconnect.statusTip = 'Toggle disconnect from the server'
       @script_disconnect.connect(SIGNAL('triggered()')) { script_toggle_disconnect() }
     end
 
     def initialize_menus
       # File Menu
-      @file_menu = menuBar.addMenu(tr('&File'))
+      @file_menu = menuBar.addMenu('&File')
       @file_menu.addAction(@file_new)
 
       open_action = Qt::Action.new(self)
-      open_action.shortcut = Qt::KeySequence.new(tr('Ctrl+O'))
+      open_action.shortcut = Qt::KeySequence.new('Ctrl+O')
       open_action.connect(SIGNAL('triggered()')) { file_open(@procedure_dir) }
       self.addAction(open_action)
 
-      @file_open = @file_menu.addMenu(tr('&Open'))
+      @file_open = @file_menu.addMenu('&Open')
       @file_open.setIcon(Cosmos.get_icon('open.png'))
       target_dirs_action(@file_open, System.paths['PROCEDURES'], 'procedures', method(:file_open))
 
@@ -295,7 +295,7 @@ module Cosmos
       @file_menu.addAction(@exit_action)
 
       # Edit Menu
-      mode_menu = menuBar.addMenu(tr('&Edit'))
+      mode_menu = menuBar.addMenu('&Edit')
       mode_menu.addAction(@edit_undo)
       mode_menu.addAction(@edit_redo)
       mode_menu.addSeparator()
@@ -312,14 +312,14 @@ module Cosmos
       mode_menu.addAction(@edit_zoom_default)
 
       # Search Menu
-      view_menu = menuBar.addMenu(tr('&Search'))
+      view_menu = menuBar.addMenu('&Search')
       view_menu.addAction(@search_find)
       view_menu.addAction(@search_find_next)
       view_menu.addAction(@search_find_previous)
       view_menu.addAction(@search_replace)
 
       # Script Menu
-      view_menu = menuBar.addMenu(tr('Scrip&t'))
+      view_menu = menuBar.addMenu('Scrip&t')
       view_menu.addAction(@script_syntax_all)
       view_menu.addAction(@script_syntax_lines)
       view_menu.addSeparator()
@@ -489,11 +489,11 @@ module Cosmos
           File.open(filename, "w") {|file| file.write(active_script_runner_frame().text)}
           saved = true
           update_title()
-          statusBar.showMessage(tr("#{filename} saved"))
+          statusBar.showMessage("#{filename} saved")
           @procedure_dir = File.dirname(filename)
           @procedure_dir << '/' if @procedure_dir[-1..-1] != '/' and @procedure_dir[-1..-1] != '\\'
         rescue => error
-          statusBar.showMessage(tr("Error Saving Script : #{error.class} : #{error.message}"))
+          statusBar.showMessage("Error Saving Script : #{error.class} : #{error.message}")
         end
       end
 
@@ -525,18 +525,18 @@ module Cosmos
       box = Qt::DoubleSpinBox.new
       box.setRange(0, 60)
       box.setValue(ScriptRunnerFrame.line_delay)
-      form.addRow(tr("&Delay between each script line:"), box)
+      form.addRow("&Delay between each script line:", box)
       pause_on_error = Qt::CheckBox.new
-      form.addRow(tr("&Pause on error:"), pause_on_error)
+      form.addRow("&Pause on error:", pause_on_error)
       monitor = Qt::CheckBox.new
-      form.addRow(tr("&Monitor limits:"), monitor)
+      form.addRow("&Monitor limits:", monitor)
       if ScriptRunnerFrame.pause_on_error
         pause_on_error.setCheckState(Qt::Checked)
       else
         pause_on_error.setCheckState(Qt::Unchecked)
       end
       pause_on_red = Qt::CheckBox.new
-      form.addRow(tr("Pause on &red limit:"), pause_on_red)
+      form.addRow("Pause on &red limit:", pause_on_red)
       if ScriptRunnerFrame.monitor_limits
         monitor.setCheckState(Qt::Checked)
         pause_on_red.setCheckState(Qt::Checked) if ScriptRunnerFrame.pause_on_red
@@ -804,23 +804,23 @@ module Cosmos
 
       menu = Qt::Menu.new()
 
-      new_action = Qt::Action.new(tr("&New"), self)
-      new_action.statusTip = tr("Create a new script")
+      new_action = Qt::Action.new("&New", self)
+      new_action.statusTip = "Create a new script"
       new_action.connect(SIGNAL('triggered()')) { file_new() }
       menu.addAction(new_action)
 
-      close_action = Qt::Action.new(tr("&Close"), self)
-      close_action.statusTip = tr("Close the script")
+      close_action = Qt::Action.new("&Close", self)
+      close_action.statusTip = "Close the script"
       close_action.connect(SIGNAL('triggered()')) { file_close() }
       menu.addAction(close_action)
 
-      save_action = Qt::Action.new(tr("&Save"), self)
-      save_action.statusTip = tr("Save the script")
+      save_action = Qt::Action.new("&Save", self)
+      save_action.statusTip = "Save the script"
       save_action.connect(SIGNAL('triggered()')) { file_save(false) }
       menu.addAction(save_action)
 
-      save_action = Qt::Action.new(tr("Save &As"), self)
-      save_action.statusTip = tr("Save the script as")
+      save_action = Qt::Action.new("Save &As", self)
+      save_action.statusTip = "Save the script as"
       save_action.connect(SIGNAL('triggered()')) { file_save(true) }
       menu.addAction(save_action)
 

@@ -59,7 +59,7 @@ module Cosmos
         top_layout = Qt::HBoxLayout.new
         text_layout = Qt::VBoxLayout.new
 
-        title_label = Qt::Label.new(tr(title))
+        title_label = Qt::Label.new(title)
         text_layout.addWidget(title_label)
         @packet_time = Qt::Label.new("Packet Time: ")
         text_layout.addWidget(@packet_time)
@@ -68,7 +68,7 @@ module Cosmos
         top_layout.addLayout(text_layout)
         top_layout.addStretch(1)
 
-        button = Qt::PushButton.new(tr("Pause"))
+        button = Qt::PushButton.new("Pause")
         top_layout.addWidget(button)
         button.connect(SIGNAL('clicked()')) do
           if button.text == "Pause"

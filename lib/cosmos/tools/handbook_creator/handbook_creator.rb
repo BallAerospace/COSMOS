@@ -42,17 +42,17 @@ module Cosmos
 
     def initialize_actions
       super()
-      @hide_ignored_action = Qt::Action.new(tr('&Hide Ignored Items'), self)
-      @hide_ignored_keyseq = Qt::KeySequence.new(tr('Ctrl+H'))
+      @hide_ignored_action = Qt::Action.new('&Hide Ignored Items', self)
+      @hide_ignored_keyseq = Qt::KeySequence.new('Ctrl+H')
       @hide_ignored_action.shortcut  = @hide_ignored_keyseq
-      @hide_ignored_action.statusTip = tr('Do not include ignored items in command and telemetry handbooks')
+      @hide_ignored_action.statusTip = 'Do not include ignored items in command and telemetry handbooks'
       @hide_ignored_action.setCheckable(true)
       @hide_ignored_action.setChecked(false)
     end
 
     def initialize_menus
       # File Menu
-      @file_menu = menuBar.addMenu(tr('&File'))
+      @file_menu = menuBar.addMenu('&File')
       @file_menu.addAction(@hide_ignored_action)
       @file_menu.addAction(@exit_action)
 

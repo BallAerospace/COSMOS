@@ -57,90 +57,90 @@ module Cosmos
       super()
 
       # File Menu
-      @file_open = Qt::Action.new(tr('&Open Scene'), self)
-      @file_open_key_seq = Qt::KeySequence.new(tr('Ctrl+O'))
+      @file_open = Qt::Action.new('&Open Scene', self)
+      @file_open_key_seq = Qt::KeySequence.new('Ctrl+O')
       @file_open.shortcut = @file_open_key_seq
-      @file_open.statusTip = tr('Open Scene File')
+      @file_open.statusTip = 'Open Scene File'
       @file_open.connect(SIGNAL('triggered()')) { file_open() }
 
-      @file_add_shape = Qt::Action.new(tr('&Add Shape'), self)
-      @file_add_shape_key_seq = Qt::KeySequence.new(tr('Ctrl+A'))
+      @file_add_shape = Qt::Action.new('&Add Shape', self)
+      @file_add_shape_key_seq = Qt::KeySequence.new('Ctrl+A')
       @file_add_shape.shortcut = @file_add_shape_key_seq
-      @file_add_shape.statusTip = tr('Add a Shape to the Scene')
+      @file_add_shape.statusTip = 'Add a Shape to the Scene'
       @file_add_shape.connect(SIGNAL('triggered()')) { file_add_shape() }
 
-      @file_export = Qt::Action.new(tr('&Export Scene'), self)
-      @file_export_key_seq = Qt::KeySequence.new(tr('Ctrl+X'))
+      @file_export = Qt::Action.new('&Export Scene', self)
+      @file_export_key_seq = Qt::KeySequence.new('Ctrl+X')
       @file_export.shortcut = @file_export_key_seq
-      @file_export.statusTip = tr('Export Scene to File')
+      @file_export.statusTip = 'Export Scene to File'
       @file_export.connect(SIGNAL('triggered()')) { file_export() }
 
       # View Menu
-      @view_perspective = Qt::Action.new(tr('&Perspective'), self)
-      @view_perspective_key_seq = Qt::KeySequence.new(tr('Ctrl+P'))
+      @view_perspective = Qt::Action.new('&Perspective', self)
+      @view_perspective_key_seq = Qt::KeySequence.new('Ctrl+P')
       @view_perspective.shortcut = @view_perspective_key_seq
-      @view_perspective.statusTip = tr('Perspective View')
+      @view_perspective.statusTip = 'Perspective View'
       @view_perspective.connect(SIGNAL('triggered()')) { view_perspective() }
 
-      @view_top = Qt::Action.new(tr('&Top'), self)
-      @view_top_key_seq = Qt::KeySequence.new(tr('Ctrl+T'))
+      @view_top = Qt::Action.new('&Top', self)
+      @view_top_key_seq = Qt::KeySequence.new('Ctrl+T')
       @view_top.shortcut = @view_top_key_seq
-      @view_top.statusTip = tr('View From Above')
+      @view_top.statusTip = 'View From Above'
       @view_top.connect(SIGNAL('triggered()')) { view_top() }
 
-      @view_bottom = Qt::Action.new(tr('&Bottom'), self)
-      @view_bottom_key_seq = Qt::KeySequence.new(tr('Ctrl+B'))
+      @view_bottom = Qt::Action.new('&Bottom', self)
+      @view_bottom_key_seq = Qt::KeySequence.new('Ctrl+B')
       @view_bottom.shortcut = @view_bottom_key_seq
-      @view_bottom.statusTip = tr('View From Below')
+      @view_bottom.statusTip = 'View From Below'
       @view_bottom.connect(SIGNAL('triggered()')) { view_bottom() }
 
-      @view_front = Qt::Action.new(tr('&Front'), self)
-      @view_front_key_seq = Qt::KeySequence.new(tr('Ctrl+F'))
+      @view_front = Qt::Action.new('&Front', self)
+      @view_front_key_seq = Qt::KeySequence.new('Ctrl+F')
       @view_front.shortcut = @view_front_key_seq
-      @view_front.statusTip = tr('View From Front')
+      @view_front.statusTip = 'View From Front'
       @view_front.connect(SIGNAL('triggered()')) { view_front() }
 
-      @view_back = Qt::Action.new(tr('Bac&k'), self)
-      @view_back_key_seq = Qt::KeySequence.new(tr('Ctrl+W'))
+      @view_back = Qt::Action.new('Bac&k', self)
+      @view_back_key_seq = Qt::KeySequence.new('Ctrl+W')
       @view_back.shortcut = @view_back_key_seq
-      @view_back.statusTip = tr('View From Back')
+      @view_back.statusTip = 'View From Back'
       @view_back.connect(SIGNAL('triggered()')) { view_back() }
 
-      @view_left = Qt::Action.new(tr('&Left'), self)
-      @view_left_key_seq = Qt::KeySequence.new(tr('Ctrl+L'))
+      @view_left = Qt::Action.new('&Left', self)
+      @view_left_key_seq = Qt::KeySequence.new('Ctrl+L')
       @view_left.shortcut = @view_left_key_seq
-      @view_left.statusTip = tr('View From Left')
+      @view_left.statusTip = 'View From Left'
       @view_left.connect(SIGNAL('triggered()')) { view_left() }
 
-      @view_right = Qt::Action.new(tr('&Right'), self)
-      @view_right_key_seq = Qt::KeySequence.new(tr('Ctrl+R'))
+      @view_right = Qt::Action.new('&Right', self)
+      @view_right_key_seq = Qt::KeySequence.new('Ctrl+R')
       @view_right.shortcut = @view_right_key_seq
-      @view_right.statusTip = tr('View From Right')
+      @view_right.statusTip = 'View From Right'
       @view_right.connect(SIGNAL('triggered()')) { view_right() }
 
       # Show Menu
-      @show_scene = Qt::Action.new(tr('Show &Scene'), self)
-      @show_scene_key_seq = Qt::KeySequence.new(tr('Ctrl+S'))
+      @show_scene = Qt::Action.new('Show &Scene', self)
+      @show_scene_key_seq = Qt::KeySequence.new('Ctrl+S')
       @show_scene.shortcut = @show_scene_key_seq
-      @show_scene.statusTip = tr('Show the Normal Scene')
+      @show_scene.statusTip = 'Show the Normal Scene'
       @show_scene.connect(SIGNAL('triggered()')) { show_scene() }
 
-      @show_earth = Qt::Action.new(tr('Show &Earth'), self)
-      @show_earth_key_seq = Qt::KeySequence.new(tr('Ctrl+E'))
+      @show_earth = Qt::Action.new('Show &Earth', self)
+      @show_earth_key_seq = Qt::KeySequence.new('Ctrl+E')
       @show_earth.shortcut = @show_earth_key_seq
-      @show_earth.statusTip = tr('Show the Earth')
+      @show_earth.statusTip = 'Show the Earth'
       @show_earth.connect(SIGNAL('triggered()')) { show_earth() }
 
-      @show_moon = Qt::Action.new(tr('Show &Moon'), self)
-      @show_moon_key_seq = Qt::KeySequence.new(tr('Ctrl+M'))
+      @show_moon = Qt::Action.new('Show &Moon', self)
+      @show_moon_key_seq = Qt::KeySequence.new('Ctrl+M')
       @show_moon.shortcut = @show_moon_key_seq
-      @show_moon.statusTip = tr('Show the Moon')
+      @show_moon.statusTip = 'Show the Moon'
       @show_moon.connect(SIGNAL('triggered()')) { show_moon() }
     end
 
     def initialize_menus
       # File Menu
-      @file_menu = menuBar.addMenu(tr('&File'))
+      @file_menu = menuBar.addMenu('&File')
       @file_menu.addAction(@file_open)
       @file_menu.addAction(@file_add_shape)
       @file_menu.addAction(@file_export)
@@ -148,7 +148,7 @@ module Cosmos
       @file_menu.addAction(@exit_action)
 
       # View Menu
-      @view_menu = menuBar.addMenu(tr('&View'))
+      @view_menu = menuBar.addMenu('&View')
       @view_menu.addAction(@view_perspective)
       @view_menu.addAction(@view_top)
       @view_menu.addAction(@view_bottom)
@@ -158,7 +158,7 @@ module Cosmos
       @view_menu.addAction(@view_right)
 
       # Show Menu
-      @show_menu = menuBar.addMenu(tr('&Show'))
+      @show_menu = menuBar.addMenu('&Show')
       @show_menu.addAction(@show_scene)
       @show_menu.addAction(@show_earth)
       @show_menu.addAction(@show_moon)

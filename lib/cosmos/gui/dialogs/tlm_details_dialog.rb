@@ -50,15 +50,15 @@ module Cosmos
         setWindowTitle("#{@target_name} #{@packet_name} #{@item_name} Details")
 
         layout = Qt::VBoxLayout.new
-        layout.addWidget(Qt::Label.new(tr("#{target_name} #{packet_name} #{item_name}")))
+        layout.addWidget(Qt::Label.new("#{target_name} #{packet_name} #{item_name}"))
 
         # Display the item values
-        item_values = Qt::GroupBox.new(tr("Item Values"))
+        item_values = Qt::GroupBox.new("Item Values")
 
         values_layout = Qt::FormLayout.new
         @raw_value = Qt::LineEdit.new
         @raw_value.setReadOnly(true)
-        values_layout.addRow(tr("Raw Value:"), @raw_value)
+        values_layout.addRow("Raw Value:", @raw_value)
         @hex_raw_value = nil
         @hex_raw_num_digits = 0
         case item.data_type
@@ -67,21 +67,21 @@ module Cosmos
             @hex_raw_value = Qt::LineEdit.new
             @hex_raw_value.setReadOnly(true)
             @hex_raw_num_digits = (((item.bit_size - 1) / 8) + 1) * 2
-            values_layout.addRow(tr("Hex Raw Value:"), @hex_raw_value)
+            values_layout.addRow("Hex Raw Value:", @hex_raw_value)
           end
         end
         @converted_value = Qt::LineEdit.new
         @converted_value.setReadOnly(true)
-        values_layout.addRow(tr("Converted Value:"), @converted_value)
+        values_layout.addRow("Converted Value:", @converted_value)
         @formatted_value = Qt::LineEdit.new
         @formatted_value.setReadOnly(true)
-        values_layout.addRow(tr("Formatted Value:"), @formatted_value)
+        values_layout.addRow("Formatted Value:", @formatted_value)
         @formatted_with_units_value = Qt::LineEdit.new
         @formatted_with_units_value.setReadOnly(true)
-        values_layout.addRow(tr("Formatted with Units Value:"), @formatted_with_units_value)
+        values_layout.addRow("Formatted with Units Value:", @formatted_with_units_value)
         @limits_state = Qt::LineEdit.new
         @limits_state.setReadOnly(true)
-        values_layout.addRow(tr("Limits State:"), @limits_state)
+        values_layout.addRow("Limits State:", @limits_state)
 
         item_values.setLayout(values_layout)
         layout.addWidget(item_values)
@@ -101,7 +101,7 @@ module Cosmos
         end
 
         # Display the item details
-        item_details = Qt::GroupBox.new(tr("Item Details"))
+        item_details = Qt::GroupBox.new("Item Details")
         item_details.setLayout(build_details_layout(item, :TLM))
         layout.addWidget(item_details)
 
@@ -159,7 +159,7 @@ module Cosmos
       elsif @limits_layout
         label = Qt::Label.new(label_text)
         @limits_labels[limits_set] = label
-        @limits_layout.addRow(tr("#{limits_set}:"), label)
+        @limits_layout.addRow("#{limits_set}:", label)
       end
     end
 

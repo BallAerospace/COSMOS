@@ -62,25 +62,25 @@ module Cosmos
       super()
 
       # File Menu Actions
-      @analyze_log = Qt::Action.new(tr('&Analyze Logs'), self)
-      @analyze_log.statusTip = tr('Analyze log file packet counts')
+      @analyze_log = Qt::Action.new('&Analyze Logs', self)
+      @analyze_log.statusTip = 'Analyze log file packet counts'
       @analyze_log.connect(SIGNAL('triggered()')) { analyze_log_files() }
 
       # Mode Menu Actions
-      @include_raw = Qt::Action.new(tr('Include &Raw Data'), self)
-      @include_raw_keyseq = Qt::KeySequence.new(tr('Ctrl+R'))
+      @include_raw = Qt::Action.new('Include &Raw Data', self)
+      @include_raw_keyseq = Qt::KeySequence.new('Ctrl+R')
       @include_raw.shortcut = @include_raw_keyseq
-      @include_raw.statusTip = tr('Include raw packet data in the text output')
+      @include_raw.statusTip = 'Include raw packet data in the text output'
       @include_raw.setCheckable(true)
     end
 
     # Create the File and Mode menus and initialize the Help menu
     def initialize_menus
-      @file_menu = menuBar.addMenu(tr('&File'))
+      @file_menu = menuBar.addMenu('&File')
       @file_menu.addAction(@analyze_log)
       @file_menu.addSeparator()
       @file_menu.addAction(@exit_action)
-      @mode_menu = menuBar.addMenu(tr('&Mode'))
+      @mode_menu = menuBar.addMenu('&Mode')
       @mode_menu.addAction(@include_raw)
       @about_string = "Command Extractor extracts commands from a binary command log file into a human readable text file."
       initialize_help_menu()

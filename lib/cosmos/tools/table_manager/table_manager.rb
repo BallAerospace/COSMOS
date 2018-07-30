@@ -279,7 +279,7 @@ module Cosmos
       complete_initialize()
       setMinimumSize(400, 250)
 
-      statusBar.showMessage(tr("Ready")) # Show message to initialize status bar
+      statusBar.showMessage("Ready") # Show message to initialize status bar
     end
 
     def initialize_actions(no_tables = false)
@@ -296,79 +296,79 @@ module Cosmos
       open_action.connect(SIGNAL('triggered()')) { file_open(@bin_path) }
       self.addAction(open_action) # Add it to the application
 
-      @file_open_both = Qt::Action.new(Cosmos.get_icon('open.png'), tr('Open &Both'), self)
-      @file_open_both.statusTip = tr('Specify both the binary file and the definition file to open')
+      @file_open_both = Qt::Action.new(Cosmos.get_icon('open.png'), 'Open &Both', self)
+      @file_open_both.statusTip = 'Specify both the binary file and the definition file to open'
       @file_open_both.connect(SIGNAL('triggered()')) { file_open_both() }
 
-      @file_save = Qt::Action.new(Cosmos.get_icon('save.png'), tr('&Save File'), self)
+      @file_save = Qt::Action.new(Cosmos.get_icon('save.png'), '&Save File', self)
       @file_save_keyseq = Qt::KeySequence.new(Qt::KeySequence::Save)
       @file_save.shortcut = @file_save_keyseq
-      @file_save.statusTip = tr('Save the displayed data back to the binary file')
+      @file_save.statusTip = 'Save the displayed data back to the binary file'
       @file_save.connect(SIGNAL('triggered()')) { file_save() }
 
-      @file_save_as = Qt::Action.new(Cosmos.get_icon('save_as.png'), tr('Save File &As'), self)
+      @file_save_as = Qt::Action.new(Cosmos.get_icon('save_as.png'), 'Save File &As', self)
       @file_save_as_keyseq = Qt::KeySequence.new(Qt::KeySequence::SaveAs)
       @file_save_as.shortcut = @file_save_as_keyseq
-      @file_save_as.statusTip = tr('Save the displayed data to a new binary file')
+      @file_save_as.statusTip = 'Save the displayed data to a new binary file'
       @file_save_as.connect(SIGNAL('triggered()')) { file_save(true) }
 
-      @file_close = Qt::Action.new(Cosmos.get_icon('close.png'), tr('&Close File'), self)
-      @file_close_keyseq = Qt::KeySequence.new(tr("Ctrl+W")) # Qt::KeySequence::Close is Alt-F4 on Windows
+      @file_close = Qt::Action.new(Cosmos.get_icon('close.png'), '&Close File', self)
+      @file_close_keyseq = Qt::KeySequence.new("Ctrl+W") # Qt::KeySequence::Close is Alt-F4 on Windows
       @file_close.shortcut = @file_close_keyseq
-      @file_close.statusTip = tr('Close the current file')
+      @file_close.statusTip = 'Close the current file'
       @file_close.connect(SIGNAL('triggered()')) { file_close() }
 
-      @file_check = Qt::Action.new(Cosmos.get_icon('checkmark.png'), tr('&Check All'), self)
-      @file_check_keyseq = Qt::KeySequence.new(tr('Ctrl+K'))
+      @file_check = Qt::Action.new(Cosmos.get_icon('checkmark.png'), '&Check All', self)
+      @file_check_keyseq = Qt::KeySequence.new('Ctrl+K')
       @file_check.shortcut = @file_check_keyseq
-      @file_check.statusTip = tr('Check each data value against verification criteria')
+      @file_check.statusTip = 'Check each data value against verification criteria'
       @file_check.connect(SIGNAL('triggered()')) { file_check() }
 
-      @file_hex = Qt::Action.new(tr('&Hex Dump'), self)
-      @file_hex_keyseq = Qt::KeySequence.new(tr('Ctrl+H'))
+      @file_hex = Qt::Action.new('&Hex Dump', self)
+      @file_hex_keyseq = Qt::KeySequence.new('Ctrl+H')
       @file_hex.shortcut = @file_hex_keyseq
-      @file_hex.statusTip = tr('Display a hex representation of the binary file')
+      @file_hex.statusTip = 'Display a hex representation of the binary file'
       @file_hex.connect(SIGNAL('triggered()')) { display_hex(:file) }
 
-      @file_report = Qt::Action.new(tr('Create &Report'), self)
-      @file_report_keyseq = Qt::KeySequence.new(tr('Ctrl+R'))
+      @file_report = Qt::Action.new('Create &Report', self)
+      @file_report_keyseq = Qt::KeySequence.new('Ctrl+R')
       @file_report.shortcut = @file_report_keyseq
-      @file_report.statusTip = tr('Create a text file report describing the binary data')
+      @file_report.statusTip = 'Create a text file report describing the binary data'
       @file_report.connect(SIGNAL('triggered()')) { file_report() }
 
       unless no_tables
         # Table Menu Actions
-        @table_check = Qt::Action.new(Cosmos.get_icon('checkmark.png'), tr('&Check'), self)
-        @table_check.statusTip = tr('Check each data value against verification criteria')
+        @table_check = Qt::Action.new(Cosmos.get_icon('checkmark.png'), '&Check', self)
+        @table_check.statusTip = 'Check each data value against verification criteria'
         @table_check.connect(SIGNAL('triggered()')) { table_check() }
 
-        @table_default = Qt::Action.new(tr('&Default'), self)
-        @table_default_keyseq = Qt::KeySequence.new(tr('Ctrl+D'))
+        @table_default = Qt::Action.new('&Default', self)
+        @table_default_keyseq = Qt::KeySequence.new('Ctrl+D')
         @table_default.shortcut = @table_default_keyseq
-        @table_default.statusTip = tr('Revert all data values to their defaults')
+        @table_default.statusTip = 'Revert all data values to their defaults'
         @table_default.connect(SIGNAL('triggered()')) { table_default() }
 
-        @table_hex = Qt::Action.new(tr('&Hex Dump'), self)
-        @table_hex.statusTip = tr('Display a hex representation of the table')
+        @table_hex = Qt::Action.new('&Hex Dump', self)
+        @table_hex.statusTip = 'Display a hex representation of the table'
         @table_hex.connect(SIGNAL('triggered()')) { display_hex(:table) }
 
-        @table_save = Qt::Action.new(tr('&Save Table Binary'), self)
-        @table_save.statusTip = tr('Save the current table to a stand alone binary file')
+        @table_save = Qt::Action.new('&Save Table Binary', self)
+        @table_save.statusTip = 'Save the current table to a stand alone binary file'
         @table_save.connect(SIGNAL('triggered()')) { table_save() }
 
-        @table_commit = Qt::Action.new(tr('Commit to Existing &File'), self)
-        @table_commit.statusTip = tr('Incorporate the current table data into a binary file which already contains the table')
+        @table_commit = Qt::Action.new('Commit to Existing &File', self)
+        @table_commit.statusTip = 'Incorporate the current table data into a binary file which already contains the table'
         @table_commit.connect(SIGNAL('triggered()')) { table_commit() }
       end
     end
 
     def initialize_menus(no_tables = false)
-      file_menu = menuBar.addMenu(tr('&File'))
+      file_menu = menuBar.addMenu('&File')
 
-      file_new = file_menu.addMenu(Cosmos.get_icon('file.png'), tr("&New File")) # \tCtrl-N displays shortcut
+      file_new = file_menu.addMenu(Cosmos.get_icon('file.png'), "&New File") # \tCtrl-N displays shortcut
       target_dirs_action(file_new, @system_def_path, 'tools/table_manager', method(:file_new))
 
-      file_open = file_menu.addMenu(Cosmos.get_icon('open.png'), tr("&Open")) # \tCtrl-O displays shortcut
+      file_open = file_menu.addMenu(Cosmos.get_icon('open.png'), "&Open") # \tCtrl-O displays shortcut
       target_dirs_action(file_open, @system_bin_path, 'tables', method(:file_open))
 
       file_menu.addAction(@file_open_both)
@@ -383,7 +383,7 @@ module Cosmos
       file_menu.addAction(@exit_action)
 
       unless no_tables
-        table_menu = menuBar.addMenu(tr('&Table'))
+        table_menu = menuBar.addMenu('&Table')
         table_menu.addAction(@table_check)
         table_menu.addAction(@table_default)
         table_menu.addAction(@table_hex)
@@ -409,9 +409,9 @@ module Cosmos
       # Create the information pane with the filenames
       filename_layout = Qt::FormLayout.new
       @table_def_label = Qt::Label.new("")
-      filename_layout.addRow(tr("Definition File:"), @table_def_label)
+      filename_layout.addRow("Definition File:", @table_def_label)
       @table_bin_label = Qt::Label.new("")
-      filename_layout.addRow(tr("Binary File:"), @table_bin_label)
+      filename_layout.addRow("Binary File:", @table_bin_label)
       @top_layout.addLayout(filename_layout)
 
       # Separator before editor
@@ -556,7 +556,7 @@ module Cosmos
 
       display_all_gui_data()
       @table_bin_label.text = filename
-      statusBar.showMessage(tr("File Saved Successfully"))
+      statusBar.showMessage("File Saved Successfully")
     rescue TableManagerCore::CoreError, SaveError => err
       Qt::MessageBox.warning(self, "File Save Errors", err.message)
     rescue => err
@@ -1073,8 +1073,8 @@ module Cosmos
             else
               item_name = gui_table.verticalHeaderItem(table_item.row).text
             end
-            details_action = Qt::Action.new(tr("Details"), self)
-            details_action.statusTip = tr("Popup details about #{current_table_name} #{item_name}")
+            details_action = Qt::Action.new("Details", self)
+            details_action.statusTip = "Popup details about #{current_table_name} #{item_name}"
             details_action.connect(SIGNAL('triggered()')) do
               TlmDetailsDialog.new(nil,
                                    'TABLE',
@@ -1084,8 +1084,8 @@ module Cosmos
             end
             menu.addAction(details_action)
 
-            default_action = Qt::Action.new(tr("Default"), self)
-            default_action.statusTip = tr("Set item to default value")
+            default_action = Qt::Action.new("Default", self)
+            default_action.statusTip = "Set item to default value"
             default_action.connect(SIGNAL('triggered()')) do
               item = table.get_item(item_name)
               table.write(item.name, item.default)

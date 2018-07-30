@@ -539,7 +539,7 @@ module Cosmos
       if options.config_file
         begin
           result = @limits_items.open_config(options.config_file)
-          statusBar.showMessage(tr(result))
+          statusBar.showMessage(result)
         rescue => error
           ExceptionDialog.new(self, error, "Error parsing #{@options.config_file}")
         end
@@ -553,44 +553,44 @@ module Cosmos
     def initialize_actions
       super
 
-      @options_action = Qt::Action.new(tr('O&ptions'), self)
-      @options_action.statusTip = tr('Open the options dialog')
+      @options_action = Qt::Action.new('O&ptions', self)
+      @options_action.statusTip = 'Open the options dialog'
       @options_action.connect(SIGNAL('triggered()')) { show_options_dialog() }
 
-      @reset_action = Qt::Action.new(tr('&Reset'), self)
-      @reset_action_keyseq = Qt::KeySequence.new(tr('Ctrl+R'))
+      @reset_action = Qt::Action.new('&Reset', self)
+      @reset_action_keyseq = Qt::KeySequence.new('Ctrl+R')
       @reset_action.shortcut = @reset_action_keyseq
-      @reset_action.statusTip = tr('Reset connection and clear all items. This does not modify the ignored items.')
+      @reset_action.statusTip = 'Reset connection and clear all items. This does not modify the ignored items.'
       @reset_action.connect(SIGNAL('triggered()')) { @limits_items.request_reset() }
 
-      @replay_action = Qt::Action.new(tr('Toggle Replay Mode'), self)
-      @replay_action.statusTip = tr('Toggle Replay Mode')
+      @replay_action = Qt::Action.new('Toggle Replay Mode', self)
+      @replay_action.statusTip = 'Toggle Replay Mode'
       @replay_action.connect(SIGNAL('triggered()')) { toggle_replay_mode() }
 
       @open_ignored_action = Qt::Action.new(Cosmos.get_icon('open.png'),
-                                            tr('&Open Config'), self)
-      @open_ignored_action_keyseq = Qt::KeySequence.new(tr('Ctrl+O'))
+                                            '&Open Config', self)
+      @open_ignored_action_keyseq = Qt::KeySequence.new('Ctrl+O')
       @open_ignored_action.shortcut = @open_ignored_action_keyseq
-      @open_ignored_action.statusTip = tr('Open ignored telemetry items configuration file')
+      @open_ignored_action.statusTip = 'Open ignored telemetry items configuration file'
       @open_ignored_action.connect(SIGNAL('triggered()')) { open_config_file() }
 
       @save_ignored_action = Qt::Action.new(Cosmos.get_icon('save.png'),
-                                            tr('&Save Config'), self)
-      @save_ignored_action_keyseq = Qt::KeySequence.new(tr('Ctrl+S'))
+                                            '&Save Config', self)
+      @save_ignored_action_keyseq = Qt::KeySequence.new('Ctrl+S')
       @save_ignored_action.shortcut = @save_ignored_action_keyseq
-      @save_ignored_action.statusTip = tr('Save all ignored telemetry items in a configuration file')
+      @save_ignored_action.statusTip = 'Save all ignored telemetry items in a configuration file'
       @save_ignored_action.connect(SIGNAL('triggered()')) { save_config_file() }
 
-      @edit_ignored_action = Qt::Action.new(tr('&Edit Ignored'), self)
-      @edit_ignored_action_keyseq = Qt::KeySequence.new(tr('Ctrl+E'))
+      @edit_ignored_action = Qt::Action.new('&Edit Ignored', self)
+      @edit_ignored_action_keyseq = Qt::KeySequence.new('Ctrl+E')
       @edit_ignored_action.shortcut = @edit_ignored_action_keyseq
-      @edit_ignored_action.statusTip = tr('Edit the ignored telemetry items list')
+      @edit_ignored_action.statusTip = 'Edit the ignored telemetry items list'
       @edit_ignored_action.connect(SIGNAL('triggered()')) { edit_ignored_items() }
     end
 
     # Initialize the application menu bar options
     def initialize_menus
-      @file_menu = menuBar.addMenu(tr('&File'))
+      @file_menu = menuBar.addMenu('&File')
       @file_menu.addAction(@open_ignored_action)
       @file_menu.addAction(@save_ignored_action)
       @file_menu.addAction(@edit_ignored_action)
@@ -724,7 +724,7 @@ module Cosmos
         "Open Configuration File", default_config_path())
       unless filename.nil? || filename.empty?
         result = @limits_items.open_config(filename)
-        statusBar.showMessage(tr(result))
+        statusBar.showMessage(result)
       end
     end
 
@@ -734,7 +734,7 @@ module Cosmos
         'Save As...', default_config_path(), 'Configuration Files (*.txt)')
       unless filename.nil? || filename.empty?
         result = @limits_items.save_config(filename)
-        statusBar.showMessage(tr(result))
+        statusBar.showMessage(result)
         @filename = filename
       end
     end

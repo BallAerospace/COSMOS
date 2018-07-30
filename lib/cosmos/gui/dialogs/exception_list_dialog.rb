@@ -36,7 +36,7 @@ module Cosmos
       @list = Qt::ListWidget.new
       @exception_list.each_with_index do |exception, index|
         string = "#{index + 1}. #{exception.class} : #{exception.message}"
-        Qt::ListWidgetItem.new(tr(string), @list)
+        Qt::ListWidgetItem.new(string, @list)
       end
       layout.addWidget(@list)
       @list.connect(SIGNAL('itemSelectionChanged ()')) do
