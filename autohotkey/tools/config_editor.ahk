@@ -188,7 +188,7 @@ WinWaitActive Config Editor
 
 Click right 120 230 ; Right click a folder in the tree
 Sleep 500
-Send Click 175 215
+Click 175 215
 WinWaitActive Delete
 Send {Enter}
 WinWaitActive Config Editor
