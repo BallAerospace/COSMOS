@@ -69,12 +69,22 @@ module Cosmos
 
     def step_mode
       if defined? ScriptRunnerFrame
+        _ensure_script_runner_frame do
+          Qt.execute_in_main_thread do
+            ScriptRunnerFrame.instance.toggle_debug(true)
+          end
+        end
         ScriptRunnerFrame.step_mode = true
       end
     end
 
     def run_mode
       if defined? ScriptRunnerFrame
+        _ensure_script_runner_frame do
+          Qt.execute_in_main_thread do
+            ScriptRunnerFrame.instance.toggle_debug(false)
+          end
+        end
         ScriptRunnerFrame.step_mode = false
       end
     end
