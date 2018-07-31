@@ -4,7 +4,7 @@ title: XTCE Support
 permalink: /docs/xtce/
 ---
 
-Ball Aerospace COSMOS now has support for the <a href="http://www.omg.org/space/xtce/" target="_blank">XTCE Command and Telemetry Definition Standard</a>. This is an open standard designed to allow command and telemetry definitions to be transferred between different ground systems. COSMOS can run directly using the .xtce files, or can convert them into the COSMOS configuration file format.  
+Ball Aerospace COSMOS now has support for the <a href="https://www.omg.org/xtce/index.htm" target="_blank">XTCE Command and Telemetry Definition Standard</a>. This is an open standard designed to allow command and telemetry definitions to be transferred between different ground systems. COSMOS can run directly using the .xtce files, or can convert them into the COSMOS configuration file format.  
 
 ## Running COSMOS using an .xtce definition file
 
