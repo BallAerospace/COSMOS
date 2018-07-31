@@ -112,7 +112,7 @@ module Cosmos
       @file_reload.statusTip = 'Reload a file'
       @file_reload.connect(SIGNAL('triggered()')) { file_reload() }
 
-      @file_save = Qt::Action.new(Cosmos.get_icon('save.png', '&Save'), self)
+      @file_save = Qt::Action.new(Cosmos.get_icon('save.png'), '&Save', self)
       @file_save_keyseq = Qt::KeySequence.new('Ctrl+S')
       @file_save.shortcut  = @file_save_keyseq
       @file_save.statusTip = 'Save the file'
