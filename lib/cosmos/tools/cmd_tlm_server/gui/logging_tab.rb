@@ -77,7 +77,7 @@ module Cosmos
 
     def populate_logging_actions(layout)
       # Add all the action buttons
-      actions = Qt::GroupBox.new(Qt::Object.tr("Actions"))
+      actions = Qt::GroupBox.new("Actions")
       actions_layout = Qt::VBoxLayout.new(actions)
       button_layout = Qt::GridLayout.new
 
@@ -92,13 +92,13 @@ module Cosmos
 
       log_buttons.each do |text, location, method|
         next if text =~ /Stop/ and @production
-        button = Qt::PushButton.new(Qt::Object.tr(text))
+        button = Qt::PushButton.new(text)
         button_layout.addWidget(button, location[0], location[1])
         button.connect(SIGNAL('clicked()')) do
           begin
             CmdTlmServer.instance.send(method, 'ALL')
           rescue Exception => error
-            statusBar.showMessage(Qt::Object.tr(error.message))
+            statusBar.showMessage(error.message)
           end
         end
       end
@@ -109,13 +109,13 @@ module Cosmos
     end
 
     def create_log_layout(form_layout, log_writer, label_prefix)
-      label = Qt::Label.new(Qt::Object.tr(log_writer.logging_enabled.to_s))
+      label = Qt::Label.new(log_writer.logging_enabled.to_s)
       label.setTextInteractionFlags(Qt::TextSelectableByMouse)
       form_layout.addRow("#{label_prefix} Logging:", label)
-      label = Qt::Label.new(Qt::Object.tr(log_writer.queue.size.to_s))
+      label = Qt::Label.new(log_writer.queue.size.to_s)
       label.setTextInteractionFlags(Qt::TextSelectableByMouse)
       form_layout.addRow("#{label_prefix} Queue Size:", label)
-      label = Qt::Label.new(Qt::Object.tr(log_writer.filename))
+      label = Qt::Label.new(log_writer.filename)
       label.setTextInteractionFlags(Qt::TextSelectableByMouse)
       form_layout.addRow("#{label_prefix} Filename:", label)
       file_size = 0
@@ -124,7 +124,7 @@ module Cosmos
       rescue Exception
         # Do nothing on error
       end
-      label = Qt::Label.new(Qt::Object.tr(file_size.to_s))
+      label = Qt::Label.new(file_size.to_s)
       label.setTextInteractionFlags(Qt::TextSelectableByMouse)
       form_layout.addRow("#{label_prefix} File Size:", label)
     end
@@ -142,30 +142,30 @@ module Cosmos
 
         form_layout = Qt::FormLayout.new
         @logging_layouts[packet_log_writer_pair_name] = form_layout
-        label = Qt::Label.new(Qt::Object.tr(interfaces.join(", ")))
+        label = Qt::Label.new(interfaces.join(", "))
         label.setTextInteractionFlags(Qt::TextSelectableByMouse)
         form_layout.addRow("Interfaces:", label)
         create_log_layout(form_layout, packet_log_writer_pair.cmd_log_writer, 'Cmd')
         create_log_layout(form_layout, packet_log_writer_pair.tlm_log_writer, 'Tlm')
 
         button_layout = Qt::HBoxLayout.new
-        start_button = Qt::PushButton.new(Qt::Object.tr('Start Cmd Logging'))
+        start_button = Qt::PushButton.new('Start Cmd Logging')
         button_layout.addWidget(start_button)
         start_button.connect(SIGNAL('clicked()')) do
           CmdTlmServer.instance.start_cmd_log(packet_log_writer_pair_name)
         end
-        start_button = Qt::PushButton.new(Qt::Object.tr('Start Tlm Logging'))
+        start_button = Qt::PushButton.new('Start Tlm Logging')
         button_layout.addWidget(start_button)
         start_button.connect(SIGNAL('clicked()')) do
           CmdTlmServer.instance.start_tlm_log(packet_log_writer_pair_name)
         end
         if @production == false
-          stop_button = Qt::PushButton.new(Qt::Object.tr('Stop Cmd Logging'))
+          stop_button = Qt::PushButton.new('Stop Cmd Logging')
           button_layout.addWidget(stop_button)
           stop_button.connect(SIGNAL('clicked()')) do
             CmdTlmServer.instance.stop_cmd_log(packet_log_writer_pair_name)
           end
-          stop_button = Qt::PushButton.new(Qt::Object.tr('Stop Tlm Logging'))
+          stop_button = Qt::PushButton.new('Stop Tlm Logging')
           button_layout.addWidget(stop_button)
           stop_button.connect(SIGNAL('clicked()')) do
             CmdTlmServer.instance.stop_tlm_log(packet_log_writer_pair_name)
@@ -175,7 +175,7 @@ module Cosmos
         log_layout.addLayout(form_layout)
         layout.addWidget(log)
       end
-      layout.addWidget(Qt::Label.new(Qt::Object.tr("Note: Buffered IO operations cause file size to not reflect total logged data size until the log file is closed.")))
+      layout.addWidget(Qt::Label.new("Note: Buffered IO operations cause file size to not reflect total logged data size until the log file is closed."))
     end
   end
 end

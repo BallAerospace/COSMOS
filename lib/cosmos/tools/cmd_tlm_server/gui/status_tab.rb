@@ -53,7 +53,7 @@ module Cosmos
     private
 
     def populate_limits_status(layout)
-      limits = Qt::GroupBox.new(Qt::Object.tr("Limits Status"))
+      limits = Qt::GroupBox.new("Limits Status")
       limits_layout = Qt::FormLayout.new(limits)
       current_limits_set = System.limits_set.to_s
 
@@ -88,7 +88,7 @@ module Cosmos
         @previous_request_count = 0
       end
 
-      api = Qt::GroupBox.new(Qt::Object.tr("API Status"))
+      api = Qt::GroupBox.new("API Status")
       api_layout = Qt::VBoxLayout.new(api)
       @api_table = Qt::TableWidget.new()
       @api_table.verticalHeader.hide()
@@ -97,14 +97,14 @@ module Cosmos
       @api_table.setHorizontalHeaderLabels(["Port", "Num Clients", "Requests", "Requests/Sec", "Avg Request Time", "Estimated Utilization"])
 
       if CmdTlmServer.mode == :CMD_TLM_SERVER
-        @api_table.setItem(0, 0, Qt::TableWidgetItem.new(Qt::Object.tr(System.ports['CTS_API'].to_s)))
+        @api_table.setItem(0, 0, Qt::TableWidgetItem.new(System.ports['CTS_API'].to_s))
       else
-        @api_table.setItem(0, 0, Qt::TableWidgetItem.new(Qt::Object.tr(System.ports['REPLAY_API'].to_s)))
+        @api_table.setItem(0, 0, Qt::TableWidgetItem.new(System.ports['REPLAY_API'].to_s))
       end
-      item0 = Qt::TableWidgetItem.new(Qt::Object.tr(CmdTlmServer.json_drb.num_clients.to_s))
+      item0 = Qt::TableWidgetItem.new(CmdTlmServer.json_drb.num_clients.to_s)
       item0.setTextAlignment(Qt::AlignCenter)
       @api_table.setItem(0, 1, item0)
-      item = Qt::TableWidgetItem.new(Qt::Object.tr(@previous_request_count.to_s))
+      item = Qt::TableWidgetItem.new(@previous_request_count.to_s)
       item.setTextAlignment(Qt::AlignCenter)
       @api_table.setItem(0, 2, item)
       item2 = Qt::TableWidgetItem.new("0.0")
@@ -122,7 +122,7 @@ module Cosmos
     end
 
     def populate_system_status(layout)
-      system = Qt::GroupBox.new(Qt::Object.tr("System Status"))
+      system = Qt::GroupBox.new("System Status")
       system_layout = Qt::VBoxLayout.new(system)
       @system_table = Qt::TableWidget.new()
       @system_table.verticalHeader.hide()
@@ -148,7 +148,7 @@ module Cosmos
     end
 
     def populate_background_status(layout)
-      background_tasks_groupbox = Qt::GroupBox.new(Qt::Object.tr("Background Tasks"))
+      background_tasks_groupbox = Qt::GroupBox.new("Background Tasks")
       background_tasks_layout = Qt::VBoxLayout.new(background_tasks_groupbox)
       @background_tasks_table = Qt::TableWidget.new()
       @background_tasks_table.verticalHeader.hide()
