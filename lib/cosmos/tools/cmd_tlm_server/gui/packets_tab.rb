@@ -116,11 +116,11 @@ module Cosmos
         packets.sort.each do |packet_name, packet|
           packet.received_count ||= 0
           next if packet.hidden
-          target_name_widget = Qt::TableWidgetItem.new(Qt::Object.tr(target_name))
+          target_name_widget = Qt::TableWidgetItem.new(target_name)
           target_name_widget.setTextAlignment(Qt::AlignRight | Qt::AlignVCenter)
           table.setItem(row, 0, target_name_widget)
-          table.setItem(row, 1, Qt::TableWidgetItem.new(Qt::Object.tr(packet_name)))
-          packet_count = Qt::TableWidgetItem.new(Qt::Object.tr(packet.received_count.to_s))
+          table.setItem(row, 1, Qt::TableWidgetItem.new(packet_name))
+          packet_count = Qt::TableWidgetItem.new(packet.received_count.to_s)
           packet_count.setTextAlignment(Qt::AlignCenter)
           table.setItem(row, 2, packet_count)
           view_raw = Qt::PushButton.new("View Raw")
@@ -151,7 +151,7 @@ module Cosmos
         end
         table.setCellWidget(row, 4, view_pv)
       else
-        table_widget = Qt::TableWidgetItem.new(Qt::Object.tr('N/A'))
+        table_widget = Qt::TableWidgetItem.new('N/A')
         table_widget.setTextAlignment(Qt::AlignCenter)
         table.setItem(row, 4, table_widget)
       end

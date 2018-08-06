@@ -94,106 +94,106 @@ module Cosmos
       super()
 
       # File actions
-      @file_new = Qt::Action.new(Cosmos.get_icon('file.png'), tr('&New'), self)
-      @file_new_keyseq = Qt::KeySequence.new(tr('Ctrl+N'))
+      @file_new = Qt::Action.new(Cosmos.get_icon('file.png'), '&New', self)
+      @file_new_keyseq = Qt::KeySequence.new('Ctrl+N')
       @file_new.shortcut  = @file_new_keyseq
-      @file_new.statusTip = tr('Start a new file')
+      @file_new.statusTip = 'Start a new file'
       @file_new.connect(SIGNAL('triggered()')) { file_new() }
 
-      @file_close = Qt::Action.new(tr('&Close'), self)
-      @file_close_keyseq = Qt::KeySequence.new(tr('Ctrl+W'))
+      @file_close = Qt::Action.new('&Close', self)
+      @file_close_keyseq = Qt::KeySequence.new('Ctrl+W')
       @file_close.shortcut  = @file_close_keyseq
-      @file_close.statusTip = tr('Close the file')
+      @file_close.statusTip = 'Close the file'
       @file_close.connect(SIGNAL('triggered()')) { file_close() }
 
-      @file_reload = Qt::Action.new(tr('&Reload'), self)
-      @file_reload_keyseq = Qt::KeySequence.new(tr('Ctrl+R'))
+      @file_reload = Qt::Action.new('&Reload', self)
+      @file_reload_keyseq = Qt::KeySequence.new('Ctrl+R')
       @file_reload.shortcut  = @file_reload_keyseq
-      @file_reload.statusTip = tr('Reload a file')
+      @file_reload.statusTip = 'Reload a file'
       @file_reload.connect(SIGNAL('triggered()')) { file_reload() }
 
-      @file_save = Qt::Action.new(Cosmos.get_icon('save.png'), tr('&Save'), self)
-      @file_save_keyseq = Qt::KeySequence.new(tr('Ctrl+S'))
+      @file_save = Qt::Action.new(Cosmos.get_icon('save.png'), '&Save', self)
+      @file_save_keyseq = Qt::KeySequence.new('Ctrl+S')
       @file_save.shortcut  = @file_save_keyseq
-      @file_save.statusTip = tr('Save the file')
+      @file_save.statusTip = 'Save the file'
       @file_save.connect(SIGNAL('triggered()')) { file_save(false) }
 
-      @file_save_as = Qt::Action.new(Cosmos.get_icon('save_as.png'), tr('Save &As'), self)
-      @file_save_as.statusTip = tr('Save the file')
+      @file_save_as = Qt::Action.new(Cosmos.get_icon('save_as.png'), 'Save &As', self)
+      @file_save_as.statusTip = 'Save the file'
       @file_save_as.connect(SIGNAL('triggered()')) { file_save(true) }
 
       # Edit actions
-      @edit_undo = Qt::Action.new(Cosmos.get_icon('undo.png'), tr('&Undo'), self)
-      @edit_undo_keyseq = Qt::KeySequence.new(tr('Ctrl+Z'))
+      @edit_undo = Qt::Action.new(Cosmos.get_icon('undo.png'), '&Undo', self)
+      @edit_undo_keyseq = Qt::KeySequence.new('Ctrl+Z')
       @edit_undo.shortcut  = @edit_undo_keyseq
-      @edit_undo.statusTip = tr('Undo')
+      @edit_undo.statusTip = 'Undo'
       @edit_undo.connect(SIGNAL('triggered()')) { active_config_editor_frame().undo }
 
-      @edit_redo = Qt::Action.new(Cosmos.get_icon('redo.png'), tr('&Redo'), self)
-      @edit_redo_keyseq = Qt::KeySequence.new(tr('Ctrl+Y'))
+      @edit_redo = Qt::Action.new(Cosmos.get_icon('redo.png'), '&Redo', self)
+      @edit_redo_keyseq = Qt::KeySequence.new('Ctrl+Y')
       @edit_redo.shortcut  = @edit_redo_keyseq
-      @edit_redo.statusTip = tr('Redo')
+      @edit_redo.statusTip = 'Redo'
       @edit_redo.connect(SIGNAL('triggered()')) { active_config_editor_frame().redo }
 
-      @edit_cut = Qt::Action.new(Cosmos.get_icon('cut.png'), tr('Cu&t'), self)
-      @edit_cut_keyseq = Qt::KeySequence.new(tr('Ctrl+X'))
+      @edit_cut = Qt::Action.new(Cosmos.get_icon('cut.png'), 'Cu&t', self)
+      @edit_cut_keyseq = Qt::KeySequence.new('Ctrl+X')
       @edit_cut.shortcut  = @edit_cut_keyseq
-      @edit_cut.statusTip = tr('Cut')
+      @edit_cut.statusTip = 'Cut'
       @edit_cut.connect(SIGNAL('triggered()')) { active_config_editor_frame().cut }
 
-      @edit_copy = Qt::Action.new(Cosmos.get_icon('copy.png'), tr('&Copy'), self)
-      @edit_copy_keyseq = Qt::KeySequence.new(tr('Ctrl+C'))
+      @edit_copy = Qt::Action.new(Cosmos.get_icon('copy.png'), '&Copy', self)
+      @edit_copy_keyseq = Qt::KeySequence.new('Ctrl+C')
       @edit_copy.shortcut  = @edit_copy_keyseq
-      @edit_copy.statusTip = tr('Copy')
+      @edit_copy.statusTip = 'Copy'
       @edit_copy.connect(SIGNAL('triggered()')) { active_config_editor_frame().copy }
 
-      @edit_paste = Qt::Action.new(tr('&Paste'), self)
-      @edit_paste_keyseq = Qt::KeySequence.new(tr('Ctrl+V'))
+      @edit_paste = Qt::Action.new('&Paste', self)
+      @edit_paste_keyseq = Qt::KeySequence.new('Ctrl+V')
       @edit_paste.shortcut  = @edit_paste_keyseq
-      @edit_paste.statusTip = tr('Paste')
+      @edit_paste.statusTip = 'Paste'
       @edit_paste.connect(SIGNAL('triggered()')) { active_config_editor_frame().paste }
 
-      @edit_select_all = Qt::Action.new(tr('Select &All'), self)
-      @edit_select_all_keyseq = Qt::KeySequence.new(tr('Ctrl+A'))
+      @edit_select_all = Qt::Action.new('Select &All', self)
+      @edit_select_all_keyseq = Qt::KeySequence.new('Ctrl+A')
       @edit_select_all.shortcut  = @edit_select_all_keyseq
-      @edit_select_all.statusTip = tr('Select All')
+      @edit_select_all.statusTip = 'Select All'
       @edit_select_all.connect(SIGNAL('triggered()')) { active_config_editor_frame().select_all }
 
-      @edit_comment = Qt::Action.new(tr('Comment/Uncomment &Lines'), self)
-      @edit_comment_keyseq = Qt::KeySequence.new(tr('Ctrl+K'))
+      @edit_comment = Qt::Action.new('Comment/Uncomment &Lines', self)
+      @edit_comment_keyseq = Qt::KeySequence.new('Ctrl+K')
       @edit_comment.shortcut  = @edit_comment_keyseq
-      @edit_comment.statusTip = tr('Comment/Uncomment Lines')
+      @edit_comment.statusTip = 'Comment/Uncomment Lines'
       @edit_comment.connect(SIGNAL('triggered()')) { active_config_editor_frame().comment_or_uncomment_lines }
 
       # Search Actions
-      @search_find = Qt::Action.new(Cosmos.get_icon('search.png'), tr('&Find'), self)
-      @search_find_keyseq = Qt::KeySequence.new(tr('Ctrl+F'))
+      @search_find = Qt::Action.new(Cosmos.get_icon('search.png'), '&Find', self)
+      @search_find_keyseq = Qt::KeySequence.new('Ctrl+F')
       @search_find.shortcut  = @search_find_keyseq
-      @search_find.statusTip = tr('Find text')
+      @search_find.statusTip = 'Find text'
       @search_find.connect(SIGNAL('triggered()')) do
         FindReplaceDialog.show_find(self)
       end
 
-      @search_find_next = Qt::Action.new(tr('Find &Next'), self)
-      @search_find_next_keyseq = Qt::KeySequence.new(tr('F3'))
+      @search_find_next = Qt::Action.new('Find &Next', self)
+      @search_find_next_keyseq = Qt::KeySequence.new('F3')
       @search_find_next.shortcut  = @search_find_next_keyseq
-      @search_find_next.statusTip = tr('Find next instance')
+      @search_find_next.statusTip = 'Find next instance'
       @search_find_next.connect(SIGNAL('triggered()')) do
         FindReplaceDialog.find_next(self)
       end
 
-      @search_find_previous = Qt::Action.new(tr('Find &Previous'), self)
-      @search_find_previous_keyseq = Qt::KeySequence.new(tr('Shift+F3'))
+      @search_find_previous = Qt::Action.new('Find &Previous', self)
+      @search_find_previous_keyseq = Qt::KeySequence.new('Shift+F3')
       @search_find_previous.shortcut  = @search_find_previous_keyseq
-      @search_find_previous.statusTip = tr('Find previous instance')
+      @search_find_previous.statusTip = 'Find previous instance'
       @search_find_previous.connect(SIGNAL('triggered()')) do
         FindReplaceDialog.find_previous(self)
       end
 
-      @search_replace = Qt::Action.new(tr('&Replace'), self)
-      @search_replace_keyseq = Qt::KeySequence.new(tr('Ctrl+H'))
+      @search_replace = Qt::Action.new('&Replace', self)
+      @search_replace_keyseq = Qt::KeySequence.new('Ctrl+H')
       @search_replace.shortcut  = @search_replace_keyseq
-      @search_replace.statusTip = tr('Replace')
+      @search_replace.statusTip = 'Replace'
       @search_replace.connect(SIGNAL('triggered()')) do
         FindReplaceDialog.show_replace(self)
       end
@@ -220,22 +220,22 @@ module Cosmos
         update_cursor()
       end
 
-      @create_target = Qt::Action.new(tr('&Create Target'), self)
-      @create_target.statusTip = tr('Create a new COSMOS target')
+      @create_target = Qt::Action.new('&Create Target', self)
+      @create_target.statusTip = 'Create a new COSMOS target'
       @create_target.connect(SIGNAL('triggered()')) { create_target() }
     end
 
     def initialize_menus
       # File Menu
-      @file_menu = menuBar.addMenu(tr('&File'))
+      @file_menu = menuBar.addMenu('&File')
       @file_menu.addAction(@file_new)
 
       open_action = Qt::Action.new(self)
-      open_action.shortcut = Qt::KeySequence.new(tr('Ctrl+O'))
+      open_action.shortcut = Qt::KeySequence.new('Ctrl+O')
       open_action.connect(SIGNAL('triggered()')) { file_open(@procedure_dir) }
       self.addAction(open_action)
 
-      @file_open = @file_menu.addMenu(tr('&Open'))
+      @file_open = @file_menu.addMenu('&Open')
       @file_open.setIcon(Cosmos.get_icon('open.png'))
       target_dirs_action(@file_open, File.join(Cosmos::USERPATH,'config'), '', method(:file_open))
 
@@ -248,7 +248,7 @@ module Cosmos
       @file_menu.addAction(@exit_action)
 
       # Edit Menu
-      mode_menu = menuBar.addMenu(tr('&Edit'))
+      mode_menu = menuBar.addMenu('&Edit')
       mode_menu.addAction(@edit_undo)
       mode_menu.addAction(@edit_redo)
       mode_menu.addSeparator()
@@ -261,18 +261,18 @@ module Cosmos
       mode_menu.addAction(@edit_comment)
 
       # Search Menu
-      view_menu = menuBar.addMenu(tr('&Search'))
+      view_menu = menuBar.addMenu('&Search')
       view_menu.addAction(@search_find)
       view_menu.addAction(@search_find_next)
       view_menu.addAction(@search_find_previous)
       view_menu.addAction(@search_replace)
 
       # File Type Menu
-      type_menu = menuBar.addMenu(tr('File &Type'))
+      type_menu = menuBar.addMenu('File &Type')
       type_menu.addActions(@type_group.actions)
 
       # Actions Menu
-      actions_menu = menuBar.addMenu(tr('&Actions'))
+      actions_menu = menuBar.addMenu('&Actions')
       actions_menu.addAction(@create_target)
 
       # Help Menu
@@ -376,8 +376,8 @@ module Cosmos
     def tree_context_menu(point)
       menu = Qt::Menu.new()
 
-      delete_action = Qt::Action.new(tr("Delete"), self)
-      delete_action.statusTip = tr("Delete file")
+      delete_action = Qt::Action.new("Delete", self)
+      delete_action.statusTip = "Delete file"
       delete_action.connect(SIGNAL('triggered()')) do
         delete_path(@fs_model.filePath(@tree_view.indexAt(point)))
       end
@@ -490,11 +490,11 @@ module Cosmos
           saved = true
           update_title()
           update_tree()
-          statusBar.showMessage(tr("#{filename} saved"))
+          statusBar.showMessage("#{filename} saved")
           @procedure_dir = File.dirname(filename)
           @procedure_dir << '/' if @procedure_dir[-1..-1] != '/' and @procedure_dir[-1..-1] != '\\'
         rescue => error
-          statusBar.showMessage(tr("Error Saving File : #{error.class} : #{error.message}"))
+          statusBar.showMessage("Error Saving File : #{error.class} : #{error.message}")
         end
       end
 
@@ -656,23 +656,23 @@ module Cosmos
 
       menu = Qt::Menu.new()
 
-      new_action = Qt::Action.new(tr("&New"), self)
-      new_action.statusTip = tr("Create a new file")
+      new_action = Qt::Action.new("&New", self)
+      new_action.statusTip = "Create a new file"
       new_action.connect(SIGNAL('triggered()')) { file_new() }
       menu.addAction(new_action)
 
-      close_action = Qt::Action.new(tr("&Close"), self)
-      close_action.statusTip = tr("Close the file")
+      close_action = Qt::Action.new("&Close", self)
+      close_action.statusTip = "Close the file"
       close_action.connect(SIGNAL('triggered()')) { file_close() }
       menu.addAction(close_action)
 
-      save_action = Qt::Action.new(tr("&Save"), self)
-      save_action.statusTip = tr("Save the file")
+      save_action = Qt::Action.new("&Save", self)
+      save_action.statusTip = "Save the file"
       save_action.connect(SIGNAL('triggered()')) { file_save(false) }
       menu.addAction(save_action)
 
-      save_action = Qt::Action.new(tr("Save &As"), self)
-      save_action.statusTip = tr("Save the file as")
+      save_action = Qt::Action.new("Save &As", self)
+      save_action.statusTip = "Save the file as"
       save_action.connect(SIGNAL('triggered()')) { file_save(true) }
       menu.addAction(save_action)
 

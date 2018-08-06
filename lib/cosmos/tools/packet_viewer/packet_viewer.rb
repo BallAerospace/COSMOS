@@ -85,40 +85,40 @@ module Cosmos
       super()
 
       @edit_action = Qt::Action.new(Cosmos.get_icon('edit.png'),
-                                    tr('&Edit Definition'),
+                                    '&Edit Definition',
                                     self)
-      @edit_keyseq = Qt::KeySequence.new(tr('Ctrl+E'))
+      @edit_keyseq = Qt::KeySequence.new('Ctrl+E')
       @edit_action.shortcut = @edit_keyseq
-      @edit_action.statusTip = tr('Open packet definition in a editor')
+      @edit_action.statusTip = 'Open packet definition in a editor'
       @edit_action.connect(SIGNAL('triggered()')) { edit_definition }
 
-      @reset_action = Qt::Action.new(tr('&Reset'), self)
-      @reset_keyseq = Qt::KeySequence.new(tr('Ctrl+R'))
+      @reset_action = Qt::Action.new('&Reset', self)
+      @reset_keyseq = Qt::KeySequence.new('Ctrl+R')
       @reset_action.shortcut = @reset_keyseq
-      @reset_action.statusTip = tr('Reset Connection')
+      @reset_action.statusTip = 'Reset Connection'
       connect(@reset_action, SIGNAL('triggered()'), self, SLOT('update_all()'))
 
-      @option_action = Qt::Action.new(tr('O&ptions'), self)
-      @option_action.statusTip = tr('Application Options')
+      @option_action = Qt::Action.new('O&ptions', self)
+      @option_action.statusTip = 'Application Options'
       connect(@option_action, SIGNAL('triggered()'), self, SLOT('file_options()'))
 
-      @replay_action = Qt::Action.new(tr('Toggle Replay Mode'), self)
-      @replay_action.statusTip = tr('Toggle Replay Mode')
+      @replay_action = Qt::Action.new('Toggle Replay Mode', self)
+      @replay_action.statusTip = 'Toggle Replay Mode'
       @replay_action.connect(SIGNAL('triggered()')) { toggle_replay_mode() }
 
-      @color_blind_action = Qt::Action.new(tr('Color&blind Mode'), self)
-      @color_blind_keyseq = Qt::KeySequence.new(tr('Ctrl+B'))
+      @color_blind_action = Qt::Action.new('Color&blind Mode', self)
+      @color_blind_keyseq = Qt::KeySequence.new('Ctrl+B')
       @color_blind_action.shortcut  = @color_blind_keyseq
-      @color_blind_action.statusTip = tr('Enable text representation of colors in the values')
+      @color_blind_action.statusTip = 'Enable text representation of colors in the values'
       @color_blind_action.setCheckable(true)
       @color_blind_action.connect(SIGNAL('triggered()')) do
         @colorblind = @color_blind_action.isChecked
       end
 
-      @hide_ignored_action = Qt::Action.new(tr('&Hide Ignored Items'), self)
-      @hide_ignored_keyseq = Qt::KeySequence.new(tr('Ctrl+H'))
+      @hide_ignored_action = Qt::Action.new('&Hide Ignored Items', self)
+      @hide_ignored_keyseq = Qt::KeySequence.new('Ctrl+H')
       @hide_ignored_action.shortcut  = @hide_ignored_keyseq
-      @hide_ignored_action.statusTip = tr('Toggle showing and hiding ignored items')
+      @hide_ignored_action.statusTip = 'Toggle showing and hiding ignored items'
       @hide_ignored_action.setCheckable(true)
       @hide_ignored_action.setChecked(false)
       @hide_ignored_action.connect(SIGNAL('triggered()')) do
@@ -129,16 +129,16 @@ module Cosmos
         end
       end
 
-      @derived_last_action = Qt::Action.new(tr('&Display Derived Last'), self)
-      @derived_last_keyseq = Qt::KeySequence.new(tr('Ctrl+D'))
+      @derived_last_action = Qt::Action.new('&Display Derived Last', self)
+      @derived_last_keyseq = Qt::KeySequence.new('Ctrl+D')
       @derived_last_action.shortcut  = @derived_last_keyseq
-      @derived_last_action.statusTip = tr('Display derived telemetry items last')
+      @derived_last_action.statusTip = 'Display derived telemetry items last'
       @derived_last_action.setCheckable(true)
       @derived_last_action.setChecked(false)
       @derived_last_action.connect(SIGNAL('triggered()')) { update_tlm_items() }
 
-      @formatted_tlm_units_action = Qt::Action.new(tr('Formatted Telemetry With &Units'), self)
-      @formatted_tlm_units_action.statusTip = tr('Formatted Telemetry with Units')
+      @formatted_tlm_units_action = Qt::Action.new('Formatted Telemetry With &Units', self)
+      @formatted_tlm_units_action.statusTip = 'Formatted Telemetry with Units'
       @formatted_tlm_units_action.setCheckable(true)
       @formatted_tlm_units_action.setChecked(true)
       @formatted_tlm_units_action.connect(SIGNAL('triggered()')) do
@@ -146,24 +146,24 @@ module Cosmos
         self.window_title = "COSMOS Packet Viewer : Formatted Telemetry with Units"
       end
 
-      @formatted_tlm_action = Qt::Action.new(tr('&Formatted Telemetry'), self)
-      @formatted_tlm_action.statusTip = tr('Formatted Telemetry')
+      @formatted_tlm_action = Qt::Action.new('&Formatted Telemetry', self)
+      @formatted_tlm_action.statusTip = 'Formatted Telemetry'
       @formatted_tlm_action.setCheckable(true)
       @formatted_tlm_action.connect(SIGNAL('triggered()')) do
         @mode = :FORMATTED
         self.window_title = "COSMOS Packet Viewer : Formatted Telemetry"
       end
 
-      @normal_tlm_action = Qt::Action.new(tr('Normal &Converted Telemetry'), self)
-      @normal_tlm_action.statusTip = tr('Normal Converted Telemetry')
+      @normal_tlm_action = Qt::Action.new('Normal &Converted Telemetry', self)
+      @normal_tlm_action.statusTip = 'Normal Converted Telemetry'
       @normal_tlm_action.setCheckable(true)
       @normal_tlm_action.connect(SIGNAL('triggered()')) do
         @mode = :CONVERTED
         self.window_title = "COSMOS Packet Viewer : Coverted Telemetry"
       end
 
-      @raw_tlm_action = Qt::Action.new(tr('&Raw Telemetry'), self)
-      @raw_tlm_action.statusTip = tr('Raw Unprocessed Telemetry')
+      @raw_tlm_action = Qt::Action.new('&Raw Telemetry', self)
+      @raw_tlm_action.statusTip = 'Raw Unprocessed Telemetry'
       @raw_tlm_action.setCheckable(true)
       @raw_tlm_action.connect(SIGNAL('triggered()')) do
         @mode = :RAW
@@ -180,7 +180,7 @@ module Cosmos
 
     def initialize_menus
       # File Menu
-      file_menu = menuBar.addMenu(tr('&File'))
+      file_menu = menuBar.addMenu('&File')
       file_menu.addAction(@edit_action)
       file_menu.addAction(@reset_action)
       file_menu.addAction(@option_action)
@@ -189,11 +189,11 @@ module Cosmos
       file_menu.addAction(@exit_action)
 
       # View Menu
-      view_menu = menuBar.addMenu(tr('&View'))
+      view_menu = menuBar.addMenu('&View')
       view_menu.addAction(@color_blind_action)
       view_menu.addAction(@hide_ignored_action)
       view_menu.addAction(@derived_last_action)
-      view_menu.addSeparator.setText(tr('Formatting'));
+      view_menu.addSeparator.setText('Formatting')
       view_menu.addAction(@formatted_tlm_units_action)
       view_menu.addAction(@formatted_tlm_action)
       view_menu.addAction(@normal_tlm_action)
@@ -224,7 +224,7 @@ module Cosmos
         update_packets()
         update_tlm_items()
       end
-      target_label = Qt::Label.new(tr("&Target:"))
+      target_label = Qt::Label.new("&Target:")
       target_label.setBuddy(@target_select)
 
       # Set the command combobox selection
@@ -233,7 +233,7 @@ module Cosmos
       @packet_select.connect(SIGNAL('activated(const QString&)')) do
         update_tlm_items()
       end
-      cmd_label = Qt::Label.new(tr("&Packet:"))
+      cmd_label = Qt::Label.new("&Packet:")
       cmd_label.setBuddy(@packet_select)
 
       # Mnemonic Search Box
@@ -254,7 +254,7 @@ module Cosmos
       top_layout.addWidget(sep1)
 
       # Telemetry Description Label
-      dec_label = Qt::Label.new(tr("Description:"))
+      dec_label = Qt::Label.new("Description:")
       @description = Qt::Label.new('')
       desc_layout = Qt::HBoxLayout.new
       desc_layout.addWidget(dec_label)
@@ -271,7 +271,7 @@ module Cosmos
     end
 
     def file_options
-      @polling_rate = Qt::InputDialog.getDouble(self, tr("Options"), tr("Polling Rate (sec):"),
+      @polling_rate = Qt::InputDialog.getDouble(self, "Options", "Polling Rate (sec):",
                                                 @polling_rate, 0, 1000, 1, nil)
     end
 
@@ -417,11 +417,11 @@ module Cosmos
         featured_row = row if featured_item_name == tlm_name
         @ignored_rows << row if System.targets[target_name].ignored_items.include?(tlm_name)
         tlm_name = "*#{tlm_name}" if derived
-        item = Qt::TableWidgetItem.new(tr("#{tlm_name}:"))
+        item = Qt::TableWidgetItem.new("#{tlm_name}:")
         item.setTextAlignment(Qt::AlignRight)
         item.setFlags(Qt::NoItemFlags | Qt::ItemIsSelectable)
         @table.setItem(row, 0, item)
-        item = Qt::TableWidgetItem.new(tr("0.0"))
+        item = Qt::TableWidgetItem.new("0.0")
         item.setTextAlignment(Qt::AlignRight)
         item.setFlags(Qt::NoItemFlags | Qt::ItemIsSelectable | Qt::ItemIsEnabled)
         @table.setItem(row, 1, item)
@@ -465,14 +465,14 @@ module Cosmos
               tlm_items = get_tlm_packet(target_name || '', packet_name || '', @mode)
             rescue DRb::DRbConnError => error
               Qt.execute_in_main_thread(true) do
-                statusBar.showMessage(tr("Error Connecting to Command and Telemetry Server"))
+                statusBar.showMessage("Error Connecting to Command and Telemetry Server")
               end
               tlm_items = nil
               update_needed = false
             rescue RuntimeError => error
               Qt.execute_in_main_thread(true) do
                 Cosmos.handle_critical_exception(error)
-                statusBar.showMessage(tr("Packet #{target_name} #{packet_name} Error: #{error}"))
+                statusBar.showMessage("Packet #{target_name} #{packet_name} Error: #{error}")
               end
               tlm_items = nil
               update_needed = true
@@ -551,7 +551,7 @@ module Cosmos
     end
 
     def mouse_over(row, col)
-      statusBar.showMessage(tr(@descriptions[row][col]))
+      statusBar.showMessage(@descriptions[row][col])
     end
 
     def context_menu(point)
@@ -564,24 +564,24 @@ module Cosmos
         if target_name.length > 0 and packet_name.length > 0 and item_name.length > 0
           menu = Qt::Menu.new()
 
-          details_action = Qt::Action.new(tr("Details #{target_name} #{packet_name} #{item_name}"), self)
-          details_action.statusTip = tr("Popup details about #{target_name} #{packet_name} #{item_name}")
+          details_action = Qt::Action.new("Details #{target_name} #{packet_name} #{item_name}", self)
+          details_action.statusTip = "Popup details about #{target_name} #{packet_name} #{item_name}"
           details_action.connect(SIGNAL('triggered()')) do
             TlmDetailsDialog.new(nil, target_name, packet_name, item_name)
             @table.clearSelection
           end
           menu.addAction(details_action)
 
-          edit_action = Qt::Action.new(tr("Edit #{target_name} #{packet_name} #{item_name}"), self)
-          edit_action.statusTip = tr("Edit Settings for #{target_name} #{packet_name} #{item_name}")
+          edit_action = Qt::Action.new("Edit #{target_name} #{packet_name} #{item_name}", self)
+          edit_action.statusTip = "Edit Settings for #{target_name} #{packet_name} #{item_name}"
           edit_action.connect(SIGNAL('triggered()')) do
             TlmEditDialog.new(self, target_name, packet_name, item_name)
             @table.clearSelection
           end
           menu.addAction(edit_action)
 
-          graph_action = Qt::Action.new(tr("Graph #{target_name} #{packet_name} #{item_name}"), self)
-          graph_action.statusTip = tr("Create a new COSMOS graph of #{target_name} #{packet_name} #{item_name}")
+          graph_action = Qt::Action.new("Graph #{target_name} #{packet_name} #{item_name}", self)
+          graph_action.statusTip = "Create a new COSMOS graph of #{target_name} #{packet_name} #{item_name}"
           graph_action.connect(SIGNAL('triggered()')) do
             @table.clearSelection
             TlmGraphDialog.new(self, target_name, packet_name, item_name)

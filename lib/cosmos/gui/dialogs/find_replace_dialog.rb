@@ -103,9 +103,9 @@ module Cosmos
     def create_input_layout
       input_layout = Qt::FormLayout.new
       @find_box = Qt::LineEdit.new
-      input_layout.addRow(tr("Fi&nd what:"), @find_box)
+      input_layout.addRow("Fi&nd what:", @find_box)
       @replace_box = Qt::LineEdit.new
-      replace_label = Qt::Label.new(tr("Re&place with:"))
+      replace_label = Qt::Label.new("Re&place with:")
       replace_label.setBuddy(@replace_box)
       @replace_items << replace_label
       input_layout.addRow(replace_label, @replace_box)
@@ -141,7 +141,7 @@ module Cosmos
       direction_layout.addWidget(@up)
       direction_layout.addWidget(down)
       direction_layout.addStretch
-      direction = Qt::GroupBox.new(tr("Direction"))
+      direction = Qt::GroupBox.new("Direction")
       direction.setLayout(direction_layout)
       direction
     end

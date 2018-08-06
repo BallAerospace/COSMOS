@@ -109,68 +109,68 @@ module Cosmos
       super()
 
       # File Menu Actions
-      @open_config = Qt::Action.new(tr('Open &Config'), self)
-      @open_config.statusTip = tr('Open configuration file')
+      @open_config = Qt::Action.new('Open &Config', self)
+      @open_config.statusTip = 'Open configuration file'
       @open_config.connect(SIGNAL('triggered()')) { handle_browse_button() }
 
-      @save_config = Qt::Action.new(tr('&Save Config'), self)
-      @save_config_keyseq = Qt::KeySequence.new(tr('Ctrl+S'))
+      @save_config = Qt::Action.new('&Save Config', self)
+      @save_config_keyseq = Qt::KeySequence.new('Ctrl+S')
       @save_config.shortcut = @save_config_keyseq
-      @save_config.statusTip = tr('Save current configuration')
+      @save_config.statusTip = 'Save current configuration'
       @save_config.connect(SIGNAL('triggered()')) { handle_save_button() }
 
-      @file_options = Qt::Action.new(tr('O&ptions'), self)
-      @file_options.statusTip = tr('Open the options dialog')
+      @file_options = Qt::Action.new('O&ptions', self)
+      @file_options.statusTip = 'Open the options dialog'
       @file_options.connect(SIGNAL('triggered()')) { handle_options() }
 
-      @analyze_log = Qt::Action.new(tr('&Analyze Logs'), self)
-      @analyze_log.statusTip = tr('Analyze log file packet counts')
+      @analyze_log = Qt::Action.new('&Analyze Logs', self)
+      @analyze_log.statusTip = 'Analyze log file packet counts'
       @analyze_log.connect(SIGNAL('triggered()')) { analyze_log_files() }
 
       # Mode Menu Actions
-      @fill_down_check = Qt::Action.new(tr('&Fill Down'), self)
-      @fill_down_check_keyseq = Qt::KeySequence.new(tr('Ctrl+F'))
+      @fill_down_check = Qt::Action.new('&Fill Down', self)
+      @fill_down_check_keyseq = Qt::KeySequence.new('Ctrl+F')
       @fill_down_check.shortcut = @fill_down_check_keyseq
-      @fill_down_check.statusTip = tr('Fill Down')
+      @fill_down_check.statusTip = 'Fill Down'
       @fill_down_check.setCheckable(true)
 
-      @matlab_header_check = Qt::Action.new(tr('&Matlab Header'), self)
-      @matlab_header_check_keyseq = Qt::KeySequence.new(tr('Ctrl+M'))
+      @matlab_header_check = Qt::Action.new('&Matlab Header', self)
+      @matlab_header_check_keyseq = Qt::KeySequence.new('Ctrl+M')
       @matlab_header_check.shortcut = @matlab_header_check_keyseq
-      @matlab_header_check.statusTip = tr('Add a Matlab header to the output data')
+      @matlab_header_check.statusTip = 'Add a Matlab header to the output data'
       @matlab_header_check.setCheckable(true)
 
-      @unique_only_check = Qt::Action.new(tr('&Unique Only'), self)
-      @unique_only_check_keyseq = Qt::KeySequence.new(tr('Ctrl+U'))
+      @unique_only_check = Qt::Action.new('&Unique Only', self)
+      @unique_only_check_keyseq = Qt::KeySequence.new('Ctrl+U')
       @unique_only_check.shortcut = @unique_only_check_keyseq
-      @unique_only_check.statusTip = tr('Only output rows where data has changed')
+      @unique_only_check.statusTip = 'Only output rows where data has changed'
       @unique_only_check.setCheckable(true)
 
-      @batch_mode_check = Qt::Action.new(tr('&Batch Mode'), self)
-      @batch_mode_check_keyseq = Qt::KeySequence.new(tr('Ctrl+B'))
+      @batch_mode_check = Qt::Action.new('&Batch Mode', self)
+      @batch_mode_check_keyseq = Qt::KeySequence.new('Ctrl+B')
       @batch_mode_check.shortcut = @batch_mode_check_keyseq
-      @batch_mode_check.statusTip = tr('Process multiple config files with the same input files')
+      @batch_mode_check.statusTip = 'Process multiple config files with the same input files'
       @batch_mode_check.setCheckable(true)
       @batch_mode_check.connect(SIGNAL('triggered()')) { batch_mode_changed() }
 
-      @normal_columns_check = Qt::Action.new(tr('&Normal Columns'), self)
-      @normal_columns_check.statusTip = tr('Normal Columns')
+      @normal_columns_check = Qt::Action.new('&Normal Columns', self)
+      @normal_columns_check.statusTip = 'Normal Columns'
       @normal_columns_check.setCheckable(true)
       @normal_columns_check.setChecked(true)
       @normal_columns_check.connect(SIGNAL('triggered()')) { column_mode_changed() }
 
-      @share_columns_check = Qt::Action.new(tr('Share Columns (&All)'), self)
-      @share_columns_check.statusTip = tr('Share columns for all items with the same name')
+      @share_columns_check = Qt::Action.new('Share Columns (&All)', self)
+      @share_columns_check.statusTip = 'Share columns for all items with the same name'
       @share_columns_check.setCheckable(true)
       @share_columns_check.connect(SIGNAL('triggered()')) { column_mode_changed() }
 
-      @share_indiv_columns_check = Qt::Action.new(tr('Share Columns (&Selected)'), self)
-      @share_indiv_columns_check.statusTip = tr('Share columns for selected items with the same name')
+      @share_indiv_columns_check = Qt::Action.new('Share Columns (&Selected)', self)
+      @share_indiv_columns_check.statusTip = 'Share columns for selected items with the same name'
       @share_indiv_columns_check.setCheckable(true)
       @share_indiv_columns_check.connect(SIGNAL('triggered()')) { column_mode_changed() }
 
-      @full_column_names_check = Qt::Action.new(tr('Full &Column Names'), self)
-      @full_column_names_check.statusTip = tr('Use full item names in each column')
+      @full_column_names_check = Qt::Action.new('Full &Column Names', self)
+      @full_column_names_check.statusTip = 'Use full item names in each column'
       @full_column_names_check.setCheckable(true)
       @full_column_names_check.connect(SIGNAL('triggered()')) { column_mode_changed() }
 
@@ -182,26 +182,26 @@ module Cosmos
       column_group.addAction(@full_column_names_check)
 
       @shared_columns = []
-      @shared_columns_edit = Qt::Action.new(tr('S&elect Shared Columns'), self)
-      @shared_columns_edit.statusTip = tr('Select which columns are shared')
+      @shared_columns_edit = Qt::Action.new('S&elect Shared Columns', self)
+      @shared_columns_edit.statusTip = 'Select which columns are shared'
       @shared_columns_edit.setEnabled(false)
       @shared_columns_edit.connect(SIGNAL('triggered()')) { shared_columns_edit() }
 
       # Item Menu Actions
-      @item_edit = Qt::Action.new(tr('&Edit Items'), self)
-      @item_edit_keyseq = Qt::KeySequence.new(tr('Ctrl+E'))
+      @item_edit = Qt::Action.new('&Edit Items', self)
+      @item_edit_keyseq = Qt::KeySequence.new('Ctrl+E')
       @item_edit.shortcut = @item_edit_keyseq
-      @item_edit.statusTip = tr('Options')
+      @item_edit.statusTip = 'Options'
       @item_edit.connect(SIGNAL('triggered()')) { item_edit() }
 
-      @item_delete = Qt::Action.new(tr('&Delete Items'), self)
-      @item_delete.statusTip = tr('Options')
+      @item_delete = Qt::Action.new('&Delete Items', self)
+      @item_delete.statusTip = 'Options'
       @item_delete.connect(SIGNAL('triggered()')) { item_delete() }
     end
 
     def initialize_menus
       # File Menu
-      @file_menu = menuBar.addMenu(tr('&File'))
+      @file_menu = menuBar.addMenu('&File')
       @file_menu.addAction(@open_config)
       @file_menu.addAction(@save_config)
       @file_menu.addSeparator()
@@ -211,7 +211,7 @@ module Cosmos
       @file_menu.addAction(@exit_action)
 
       # Mode Menu
-      @mode_menu = menuBar.addMenu(tr('&Mode'))
+      @mode_menu = menuBar.addMenu('&Mode')
       @mode_menu.addAction(@fill_down_check)
       @mode_menu.addAction(@matlab_header_check)
       @mode_menu.addAction(@unique_only_check)
@@ -225,7 +225,7 @@ module Cosmos
       @mode_menu.addAction(@shared_columns_edit)
 
       # Item Menu
-      @item_menu = menuBar.addMenu(tr('&Item'))
+      @item_menu = menuBar.addMenu('&Item')
       @item_menu.addAction(@item_edit)
       @item_menu.addAction(@item_delete)
 

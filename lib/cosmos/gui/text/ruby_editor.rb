@@ -442,8 +442,8 @@ module Cosmos
     end
 
     def create_add_breakpoint_action(point)
-      action = Qt::Action.new(tr("Add Breakpoint"), self)
-      action.statusTip = tr("Add a breakpoint at this line")
+      action = Qt::Action.new("Add Breakpoint", self)
+      action.statusTip = "Add a breakpoint at this line"
       action.connect(SIGNAL('triggered()')) do
         line_at_point(point) do |line|
           add_breakpoint(line)
@@ -454,8 +454,8 @@ module Cosmos
     end
 
     def create_clear_breakpoint_action(point)
-      action = Qt::Action.new(tr("Clear Breakpoint"), self)
-      action.statusTip = tr("Clear an existing breakpoint at this line")
+      action = Qt::Action.new("Clear Breakpoint", self)
+      action.statusTip = "Clear an existing breakpoint at this line"
       action.connect(SIGNAL('triggered()')) do
         line_at_point(point) do |line|
           clear_breakpoint(line)
@@ -466,8 +466,8 @@ module Cosmos
     end
 
     def create_clear_all_breakpoints_action
-      action = Qt::Action.new(tr("Clear All Breakpoints"), self)
-      action.statusTip = tr("Clear all existing breakpoints")
+      action = Qt::Action.new("Clear All Breakpoints", self)
+      action.statusTip = "Clear all existing breakpoints"
       action.connect(SIGNAL('triggered()')) do
         clear_breakpoints
         emit breakpoints_cleared

@@ -93,71 +93,71 @@ module Cosmos
       super()
 
       # File Actions
-      @show_last = Qt::Action.new(tr('Show &Results'), self)
-      @show_last_keyseq = Qt::KeySequence.new(tr('Ctrl+R'))
+      @show_last = Qt::Action.new('Show &Results', self)
+      @show_last_keyseq = Qt::KeySequence.new('Ctrl+R')
       @show_last.shortcut = @show_last_keyseq
-      @show_last.statusTip = tr('Show the Results dialog from the last run')
+      @show_last.statusTip = 'Show the Results dialog from the last run'
       @show_last.connect(SIGNAL('triggered()')) { show_results }
 
-      @select = Qt::Action.new(tr('Test &Selection'), self)
-      @select_keyseq = Qt::KeySequence.new(tr('Ctrl+S'))
+      @select = Qt::Action.new('Test &Selection', self)
+      @select_keyseq = Qt::KeySequence.new('Ctrl+S')
       @select.shortcut = @select_keyseq
-      @select.statusTip = tr('Select Test Suites/Groups/Cases')
+      @select.statusTip = 'Select Test Suites/Groups/Cases'
       @select.connect(SIGNAL('triggered()')) { show_select }
 
-      @file_options = Qt::Action.new(tr('O&ptions'), self)
-      @file_options.statusTip = tr('Application Options')
+      @file_options = Qt::Action.new('O&ptions', self)
+      @file_options.statusTip = 'Application Options'
       @file_options.connect(SIGNAL('triggered()')) { file_options() }
 
       # Edit Actions
-      @edit_zoom_in = Qt::Action.new(tr('&Increase Font Size'), self)
+      @edit_zoom_in = Qt::Action.new('&Increase Font Size', self)
       @edit_zoom_in_keyseq = Qt::KeySequence.new(Qt::KeySequence::ZoomIn)
       @edit_zoom_in.shortcut  = @edit_zoom_in_keyseq
       @edit_zoom_in.connect(SIGNAL('triggered()')) { @script_runner_frame.zoom_in }
-        @edit_zoom_out = Qt::Action.new(tr('&Decrease Font Size'), self)
+        @edit_zoom_out = Qt::Action.new('&Decrease Font Size', self)
       @edit_zoom_out_keyseq = Qt::KeySequence.new(Qt::KeySequence::ZoomOut)
       @edit_zoom_out.shortcut  = @edit_zoom_out_keyseq
       @edit_zoom_out.connect(SIGNAL('triggered()')) { @script_runner_frame.zoom_out }
-        @edit_zoom_default = Qt::Action.new(tr('Restore &Font Size'), self)
+        @edit_zoom_default = Qt::Action.new('Restore &Font Size', self)
       @edit_zoom_default.connect(SIGNAL('triggered()')) { @script_runner_frame.zoom_default }
 
       # Script Actions
-      @test_results_log_message = Qt::Action.new(tr('Log Message to Test Results'), self)
-      @test_results_log_message.statusTip = tr('Log Message to Test Results')
+      @test_results_log_message = Qt::Action.new('Log Message to Test Results', self)
+      @test_results_log_message.statusTip = 'Log Message to Test Results'
       @test_results_log_message.connect(SIGNAL('triggered()')) { on_test_results_log_message() }
       @test_results_log_message.setEnabled(false)
 
-      @script_log_message = Qt::Action.new(tr('Log Message to Script Log'), self)
-      @script_log_message.statusTip = tr('Log Message to Script Log')
+      @script_log_message = Qt::Action.new('Log Message to Script Log', self)
+      @script_log_message.statusTip = 'Log Message to Script Log'
       @script_log_message.connect(SIGNAL('triggered()')) { on_script_log_message() }
       @script_log_message.setEnabled(false)
 
-      @show_call_stack = Qt::Action.new(tr('Show Call Stack'), self)
-      @show_call_stack.statusTip = tr('Show Call Stack')
+      @show_call_stack = Qt::Action.new('Show Call Stack', self)
+      @show_call_stack.statusTip = 'Show Call Stack'
       @show_call_stack.connect(SIGNAL('triggered()')) { on_script_call_stack }
       @show_call_stack.setEnabled(false)
 
-      @toggle_debug = Qt::Action.new(Cosmos.get_icon('bug.png'), tr('&Toggle Debug'), self)
-      @toggle_debug_keyseq = Qt::KeySequence.new(tr('Ctrl+D'))
+      @toggle_debug = Qt::Action.new(Cosmos.get_icon('bug.png'), '&Toggle Debug', self)
+      @toggle_debug_keyseq = Qt::KeySequence.new('Ctrl+D')
       @toggle_debug.shortcut  = @toggle_debug_keyseq
-      @toggle_debug.statusTip = tr('Toggle Debug')
+      @toggle_debug.statusTip = 'Toggle Debug'
       @toggle_debug.connect(SIGNAL('triggered()')) { on_script_toggle_debug }
       @toggle_debug.setEnabled(false)
 
-      @script_disconnect = Qt::Action.new(Cosmos.get_icon('disconnected.png'), tr('&Toggle Disconnect'), self)
-      @script_disconnect_keyseq = Qt::KeySequence.new(tr('Ctrl+T'))
+      @script_disconnect = Qt::Action.new(Cosmos.get_icon('disconnected.png'), '&Toggle Disconnect', self)
+      @script_disconnect_keyseq = Qt::KeySequence.new('Ctrl+T')
       @script_disconnect.shortcut  = @script_disconnect_keyseq
-      @script_disconnect.statusTip = tr('Toggle disconnect from the server')
+      @script_disconnect.statusTip = 'Toggle disconnect from the server'
       @script_disconnect.connect(SIGNAL('triggered()')) { on_script_toggle_disconnect() }
 
-      @script_audit = Qt::Action.new(tr('&Generate Cmd/Tlm Audit'), self)
-      @script_audit.statusTip = tr('Generate audit about commands sent and telemetry checked')
+      @script_audit = Qt::Action.new('&Generate Cmd/Tlm Audit', self)
+      @script_audit.statusTip = 'Generate audit about commands sent and telemetry checked'
       @script_audit.connect(SIGNAL('triggered()')) { script_audit() }
     end
 
     def initialize_menus
       # File Menu
-      file_menu = menuBar.addMenu(tr('&File'))
+      file_menu = menuBar.addMenu('&File')
       file_menu.addAction(@show_last)
       file_menu.addAction(@select)
       file_menu.addSeparator()
@@ -166,13 +166,13 @@ module Cosmos
       file_menu.addAction(@exit_action)
 
       # Edit Menu (to match Script Runner)
-      edit_menu = menuBar.addMenu(tr('&Edit'))
+      edit_menu = menuBar.addMenu('&Edit')
       edit_menu.addAction(@edit_zoom_in)
       edit_menu.addAction(@edit_zoom_out)
       edit_menu.addAction(@edit_zoom_default)
 
       # Script Menu
-      script_menu = menuBar.addMenu(tr('&Script'))
+      script_menu = menuBar.addMenu('&Script')
       script_menu.addAction(@test_results_log_message)
       script_menu.addAction(@script_log_message)
       script_menu.addAction(@show_call_stack)
@@ -942,11 +942,11 @@ module Cosmos
       box = Qt::DoubleSpinBox.new
       box.setRange(0, 60)
       box.setValue(ScriptRunnerFrame.line_delay)
-      form.addRow(tr("&Delay between each script line:"), box)
+      form.addRow("&Delay between each script line:", box)
       monitor = Qt::CheckBox.new
-      form.addRow(tr("&Monitor limits:"), monitor)
+      form.addRow("&Monitor limits:", monitor)
       pause_on_red = Qt::CheckBox.new
-      form.addRow(tr("Pause on &red limit:"), pause_on_red)
+      form.addRow("Pause on &red limit:", pause_on_red)
       if ScriptRunnerFrame.monitor_limits
         monitor.setCheckState(Qt::Checked)
         pause_on_red.setCheckState(Qt::Checked) if ScriptRunnerFrame.pause_on_red

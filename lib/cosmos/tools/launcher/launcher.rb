@@ -40,7 +40,7 @@ module Cosmos
     end
 
     def initialize_menus
-      @file_menu = menuBar().addMenu(tr('&File'))
+      @file_menu = menuBar().addMenu('&File')
       @file_menu.addAction(@exit_action)
       initialize_help_menu()
     end

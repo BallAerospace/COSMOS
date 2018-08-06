@@ -164,32 +164,32 @@ module Cosmos
       super()
 
       # File actions
-      @file_save = Qt::Action.new(Cosmos.get_icon('save.png'), tr('&Save Configuration'), self)
-      @file_save_keyseq = Qt::KeySequence.new(tr('Ctrl+S'))
+      @file_save = Qt::Action.new(Cosmos.get_icon('save.png'), '&Save Configuration', self)
+      @file_save_keyseq = Qt::KeySequence.new('Ctrl+S')
       @file_save.shortcut = @file_save_keyseq
-      @file_save.statusTip = tr('Save all screen positions')
+      @file_save.statusTip = 'Save all screen positions'
       @file_save.connect(SIGNAL('triggered()')) { file_save() }
 
-      @file_generate = Qt::Action.new(tr('&Generate Screens'), self)
-      @file_generate_keyseq = Qt::KeySequence.new(tr('Ctrl+G'))
+      @file_generate = Qt::Action.new('&Generate Screens', self)
+      @file_generate_keyseq = Qt::KeySequence.new('Ctrl+G')
       @file_generate.shortcut = @file_generate_keyseq
-      @file_generate.statusTip = tr('Generate screen definition files')
+      @file_generate.statusTip = 'Generate screen definition files'
       @file_generate.connect(SIGNAL('triggered()')) { file_generate() }
 
-      @file_audit = Qt::Action.new(tr('Audi&t Screens vs Tlm'), self)
-      @file_audit_keyseq = Qt::KeySequence.new(tr('Ctrl+T'))
+      @file_audit = Qt::Action.new('Audi&t Screens vs Tlm', self)
+      @file_audit_keyseq = Qt::KeySequence.new('Ctrl+T')
       @file_audit.shortcut = @file_audit_keyseq
-      @file_audit.statusTip = tr('Create a report listing which telemetry points are not on screens')
+      @file_audit.statusTip = 'Create a report listing which telemetry points are not on screens'
       @file_audit.connect(SIGNAL('triggered()')) { file_audit() }
 
-      @replay_action = Qt::Action.new(tr('Toggle Replay Mode'), self)
-      @replay_action.statusTip = tr('Toggle Replay Mode')
+      @replay_action = Qt::Action.new('Toggle Replay Mode', self)
+      @replay_action.statusTip = 'Toggle Replay Mode'
       @replay_action.connect(SIGNAL('triggered()')) { toggle_replay_mode() }
     end
 
     def initialize_menus(options)
       # File Menu
-      @file_menu = menuBar.addMenu(tr('&File'))
+      @file_menu = menuBar.addMenu('&File')
       @file_menu.addAction(@file_save)
       @file_menu.addAction(@file_generate)
       @file_menu.addAction(@file_audit)

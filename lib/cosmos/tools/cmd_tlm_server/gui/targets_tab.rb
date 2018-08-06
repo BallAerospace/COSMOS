@@ -68,21 +68,21 @@ module Cosmos
     def populate_targets_table
       row = 0
       System.targets.sort.each do |target_name, target|
-        target_name_widget = Qt::TableWidgetItem.new(Qt::Object.tr(target_name))
+        target_name_widget = Qt::TableWidgetItem.new(target_name)
         target_name_widget.setTextAlignment(Qt::AlignCenter)
         @targets_table.setItem(row, 0, target_name_widget)
         if target.interface
-          interface_name_widget = Qt::TableWidgetItem.new(Qt::Object.tr(target.interface.name.to_s))
+          interface_name_widget = Qt::TableWidgetItem.new(target.interface.name.to_s)
         else
-          interface_name_widget = Qt::TableWidgetItem.new(Qt::Object.tr(''))
+          interface_name_widget = Qt::TableWidgetItem.new('')
         end
         interface_name_widget.setTextAlignment(Qt::AlignCenter)
         @targets_table.setItem(row, 1, interface_name_widget)
-        cmd_cnt = Qt::TableWidgetItem.new(Qt::Object.tr(target.cmd_cnt.to_s))
+        cmd_cnt = Qt::TableWidgetItem.new(target.cmd_cnt.to_s)
         cmd_cnt.setTextAlignment(Qt::AlignCenter)
         @targets_table.setItem(row, 2, cmd_cnt)
 
-        tlm_cnt = Qt::TableWidgetItem.new(Qt::Object.tr(target.tlm_cnt.to_s))
+        tlm_cnt = Qt::TableWidgetItem.new(target.tlm_cnt.to_s)
         tlm_cnt.setTextAlignment(Qt::AlignCenter)
         @targets_table.setItem(row, 3, tlm_cnt)
 

@@ -127,7 +127,7 @@ module Cosmos
     def populate_interface_table(interfaces, interfaces_table)
       row = 0
       interfaces.all.each do |interface_name, interface|
-        item = Qt::TableWidgetItem.new(Qt::Object.tr(interface_name))
+        item = Qt::TableWidgetItem.new(interface_name)
         item.setTextAlignment(ALIGN_CENTER)
         interfaces_table.setItem(row, 0, item)
         interfaces_table.setCellWidget(row, 1, create_button(interface, interface_name))
@@ -138,7 +138,7 @@ module Cosmos
           interface.bytes_written, interface.bytes_read,
           interface.write_count, interface.read_count].each do |val|
 
-          item = Qt::TableWidgetItem.new(val.to_s)#Qt::Object.tr(val.to_s))
+          item = Qt::TableWidgetItem.new(val.to_s)
           item.setTextAlignment(ALIGN_CENTER)
           interfaces_table.setItem(row, index, item)
           index += 1

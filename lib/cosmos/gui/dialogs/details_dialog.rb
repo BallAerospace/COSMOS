@@ -41,51 +41,51 @@ module Cosmos
     # Creates and populates the layout for the dialog
     def build_details_layout(item, cmd_tlm)
       details_layout = Qt::FormLayout.new
-      details_layout.addRow("Bit Offset:", Qt::Label.new(tr("#{show_nil(item.bit_offset)}")))
-      details_layout.addRow("Bit Size:", Qt::Label.new(tr("#{show_nil(item.bit_size)}")))
-      details_layout.addRow("Data Type:", Qt::Label.new(tr("#{show_data_type(item.data_type)}")))
-      details_layout.addRow("Array Size:", Qt::Label.new(tr("#{show_nil(item.array_size)}")))
+      details_layout.addRow("Bit Offset:", Qt::Label.new("#{show_nil(item.bit_offset)}"))
+      details_layout.addRow("Bit Size:", Qt::Label.new("#{show_nil(item.bit_size)}"))
+      details_layout.addRow("Data Type:", Qt::Label.new("#{show_data_type(item.data_type)}"))
+      details_layout.addRow("Array Size:", Qt::Label.new("#{show_nil(item.array_size)}"))
       if cmd_tlm == :CMD
         if item.range
-          details_layout.addRow("Minimum:", Qt::Label.new(tr(item.range.first.to_s)))
-          details_layout.addRow("Maximum:", Qt::Label.new(tr(item.range.last.to_s)))
+          details_layout.addRow("Minimum:", Qt::Label.new(item.range.first.to_s))
+          details_layout.addRow("Maximum:", Qt::Label.new(item.range.last.to_s))
         end
-        details_layout.addRow("Default:", Qt::Label.new(tr("#{show_nil(item.default)}"))) if item.default
+        details_layout.addRow("Default:", Qt::Label.new("#{show_nil(item.default)}")) if item.default
       end
-      details_layout.addRow("Format String:", Qt::Label.new(tr("#{show_nil(item.format_string)}")))
-      details_layout.addRow("Read_Conversion:", Qt::Label.new(tr("#{show_conversion(item.read_conversion)}")))
-      details_layout.addRow("Write_Conversion:", Qt::Label.new(tr("#{show_conversion(item.write_conversion)}")))
-      details_layout.addRow("Id Value:", Qt::Label.new(tr("#{show_nil(item.id_value)}")))
-      details_layout.addRow("Description:", Qt::Label.new(tr("#{show_nil(item.description)}")))
-      details_layout.addRow("Units Full:", Qt::Label.new(tr("#{show_nil(item.units_full)}")))
-      details_layout.addRow("Units Abbreviation:", Qt::Label.new(tr("#{show_nil(item.units)}")))
-      details_layout.addRow("Endianness:", Qt::Label.new(tr("#{show_endianness(item.endianness)}")))
+      details_layout.addRow("Format String:", Qt::Label.new("#{show_nil(item.format_string)}"))
+      details_layout.addRow("Read_Conversion:", Qt::Label.new("#{show_conversion(item.read_conversion)}"))
+      details_layout.addRow("Write_Conversion:", Qt::Label.new("#{show_conversion(item.write_conversion)}"))
+      details_layout.addRow("Id Value:", Qt::Label.new("#{show_nil(item.id_value)}"))
+      details_layout.addRow("Description:", Qt::Label.new("#{show_nil(item.description)}"))
+      details_layout.addRow("Units Full:", Qt::Label.new("#{show_nil(item.units_full)}"))
+      details_layout.addRow("Units Abbreviation:", Qt::Label.new("#{show_nil(item.units)}"))
+      details_layout.addRow("Endianness:", Qt::Label.new("#{show_endianness(item.endianness)}"))
       if item.states
         details_layout.addRow(build_states_details(item))
       else
-        details_layout.addRow("States:", Qt::Label.new(tr("None")))
+        details_layout.addRow("States:", Qt::Label.new("None"))
       end
       if cmd_tlm == :CMD
-        details_layout.addRow("Required:", Qt::Label.new(tr(item.required.to_s)))
+        details_layout.addRow("Required:", Qt::Label.new(item.required.to_s))
       else
         limits = item.limits.values
         if limits
           details_layout.addRow(build_limits_details(limits))
         else
-          details_layout.addRow(tr("Limits:"), Qt::Label.new("None"))
+          details_layout.addRow("Limits:", Qt::Label.new("None"))
         end
         if limits || item.state_colors
-          details_layout.addRow(tr("Limits Checking Enabled:"), Qt::Label.new(tr("#{show_nil(item.limits.enabled)}")))
+          details_layout.addRow("Limits Checking Enabled:", Qt::Label.new("#{show_nil(item.limits.enabled)}"))
         end
         if limits
-          details_layout.addRow(tr("Limits Persistence Setting:"), Qt::Label.new(tr("#{show_nil(item.limits.persistence_setting)}")))
-          details_layout.addRow(tr("Limits Persistence Count:"), Qt::Label.new(tr("#{show_nil(item.limits.persistence_count)}")))
+          details_layout.addRow("Limits Persistence Setting:", Qt::Label.new("#{show_nil(item.limits.persistence_setting)}"))
+          details_layout.addRow("Limits Persistence Count:", Qt::Label.new("#{show_nil(item.limits.persistence_count)}"))
         end
         if item.meta.empty?
-          details_layout.addRow(tr("Meta:"), Qt::Label.new("None"))
+          details_layout.addRow("Meta:", Qt::Label.new("None"))
         else
           item.meta.each do |key, value|
-            details_layout.addRow(tr("Meta[#{key}]:"), Qt::Label.new(value.to_s))
+            details_layout.addRow("Meta[#{key}]:", Qt::Label.new(value.to_s))
           end
         end
       end
@@ -94,7 +94,7 @@ module Cosmos
 
     # Create the states details layout
     def build_states_details(item)
-      states_details = Qt::GroupBox.new(tr("States"))
+      states_details = Qt::GroupBox.new("States")
       scroll_layout = Qt::VBoxLayout.new
       states_details.setLayout(scroll_layout)
       scroll_area = Qt::ScrollArea.new
@@ -106,9 +106,9 @@ module Cosmos
       scroll_widget.setLayout(states_layout)
       item.states.sort {|a, b| a[1] <=> b[1]}.each do |state_name, state_value|
         if item.state_colors
-          states_layout.addRow(tr("#{state_name}:"), Qt::Label.new(tr("#{state_value} #{item.state_colors[state_name]}")))
+          states_layout.addRow("#{state_name}:", Qt::Label.new("#{state_value} #{item.state_colors[state_name]}"))
         else
-          states_layout.addRow(tr("#{state_name}:"), Qt::Label.new(tr("#{state_value}")))
+          states_layout.addRow("#{state_name}:", Qt::Label.new("#{state_value}"))
         end
       end
       # Figure out the how big the states layout wants to be and set the
@@ -124,7 +124,7 @@ module Cosmos
 
     # Create the limits details layout
     def build_limits_details(limits)
-      limits_details = Qt::GroupBox.new(tr("Limits"))
+      limits_details = Qt::GroupBox.new("Limits")
       @limits_layout = Qt::FormLayout.new
       limits.each do |limits_set_name, limits_settings|
         if limits_settings[4] && limits_settings[5]
@@ -133,7 +133,7 @@ module Cosmos
           label = Qt::Label.new("RL/#{limits_settings[0]} YL/#{limits_settings[1]} YH/#{limits_settings[2]} RH/#{limits_settings[3]}")
         end
         @limits_labels[limits_set_name] = label
-        @limits_layout.addRow(tr("#{limits_set_name}:"), label)
+        @limits_layout.addRow("#{limits_set_name}:", label)
       end
       limits_details.setLayout(@limits_layout)
       limits_details
