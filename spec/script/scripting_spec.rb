@@ -36,7 +36,7 @@ module Cosmos
     describe "play_wav_file" do
       it "plays a wav file if Qt is available" do
         module Qt
-          def self.execute_in_main_thread(bool); yield; end
+          def self.execute_in_main_thread(bool = true); yield; end
           class CoreApplication; def self.instance; true; end; end;
           class Sound; def self.isAvailable; true; end; end
         end
