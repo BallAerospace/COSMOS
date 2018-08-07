@@ -69,11 +69,18 @@ module Cosmos
 
     def step_mode
       if defined? ScriptRunnerFrame
+        # Ensure the Frame has toggled to debug so the user can see the Step button
+        _ensure_script_runner_frame do
+          Qt.execute_in_main_thread do
+            ScriptRunnerFrame.instance.toggle_debug(true)
+          end
+        end
         ScriptRunnerFrame.step_mode = true
       end
     end
 
     def run_mode
+      # Run mode simply disables step mode. Debug frame may or may not be displayed.
       if defined? ScriptRunnerFrame
         ScriptRunnerFrame.step_mode = false
       end
