@@ -36,7 +36,7 @@ module Cosmos
       @base_title = self.windowTitle
       Cosmos.load_cosmos_icon("tlm_grapher.png")
 
-      statusBar.showMessage(tr("")) # Show blank message to initialize status bar
+      statusBar.showMessage("") # Show blank message to initialize status bar
 
       initialize_actions()
       initialize_menus(options)
@@ -91,131 +91,131 @@ module Cosmos
       super()
 
       # File Menu Actions
-      @file_process = Qt::Action.new(tr('&Open Log'), self)
-      @file_process_keyseq = Qt::KeySequence.new(tr('Ctrl+O'))
+      @file_process = Qt::Action.new('&Open Log', self)
+      @file_process_keyseq = Qt::KeySequence.new('Ctrl+O')
       @file_process.shortcut = @file_process_keyseq
-      @file_process.statusTip = tr('Open Log File')
+      @file_process.statusTip = 'Open Log File'
       @file_process.connect(SIGNAL('triggered()')) { on_file_process_log() }
 
-      @file_dart = Qt::Action.new(tr('&Query DART Database'), self)
-      @file_dart_keyseq = Qt::KeySequence.new(tr('Ctrl+D'))
+      @file_dart = Qt::Action.new('&Query DART Database', self)
+      @file_dart_keyseq = Qt::KeySequence.new('Ctrl+D')
       @file_dart.shortcut = @file_dart_keyseq
-      @file_dart.statusTip = tr('Query DART Database')
+      @file_dart.statusTip = 'Query DART Database'
       @file_dart.connect(SIGNAL('triggered()')) { on_file_dart() }
 
-      @file_load = Qt::Action.new(Cosmos.get_icon('open.png'), tr('&Load Config'), self)
-      @file_load.statusTip = tr('Load Saved Configuration')
+      @file_load = Qt::Action.new(Cosmos.get_icon('open.png'), '&Load Config', self)
+      @file_load.statusTip = 'Load Saved Configuration'
       @file_load.connect(SIGNAL('triggered()')) { on_file_load_config() }
 
-      @file_save = Qt::Action.new(Cosmos.get_icon('save.png'), tr('&Save Config'), self)
-      @file_save_keyseq = Qt::KeySequence.new(tr('Ctrl+S'))
+      @file_save = Qt::Action.new(Cosmos.get_icon('save.png'), '&Save Config', self)
+      @file_save_keyseq = Qt::KeySequence.new('Ctrl+S')
       @file_save.shortcut = @file_save_keyseq
-      @file_save.statusTip = tr('Save Current Configuration')
+      @file_save.statusTip = 'Save Current Configuration'
       @file_save.connect(SIGNAL('triggered()')) { on_file_save_config() }
 
-      @file_screenshot = Qt::Action.new(Cosmos.get_icon('screenshot.png'), tr('Screensho&t'), self)
-      @file_screenshot.statusTip = tr('Screenshot of Application')
+      @file_screenshot = Qt::Action.new(Cosmos.get_icon('screenshot.png'), 'Screensho&t', self)
+      @file_screenshot.statusTip = 'Screenshot of Application'
       @file_screenshot.connect(SIGNAL('triggered()')) { on_file_screenshot() }
 
-      @replay_action = Qt::Action.new(tr('Toggle Replay Mode'), self)
-      @replay_action.statusTip = tr('Toggle Replay Mode')
+      @replay_action = Qt::Action.new('Toggle Replay Mode', self)
+      @replay_action.statusTip = 'Toggle Replay Mode'
       @replay_action.connect(SIGNAL('triggered()')) { toggle_replay_mode() }
 
       # Tab Menu Actions
-      @tab_add = Qt::Action.new(Cosmos.get_icon('add_tab.png'), tr('&Add Tab'), self)
-      @tab_add.statusTip = tr('Add New Tab')
+      @tab_add = Qt::Action.new(Cosmos.get_icon('add_tab.png'), '&Add Tab', self)
+      @tab_add.statusTip = 'Add New Tab'
       @tab_add.connect(SIGNAL('triggered()')) { on_tab_add() }
 
-      @tab_delete = Qt::Action.new(Cosmos.get_icon('delete_tab.png'), tr('&Delete Tab'), self)
-      @tab_delete.statusTip = tr('Delete Active Tab')
+      @tab_delete = Qt::Action.new(Cosmos.get_icon('delete_tab.png'), '&Delete Tab', self)
+      @tab_delete.statusTip = 'Delete Active Tab'
       @tab_delete.connect(SIGNAL('triggered()')) { on_tab_delete() }
 
-      @tab_edit = Qt::Action.new(Cosmos.get_icon('edit_tab.png'), tr('&Edit Tab'), self)
-      @tab_edit.statusTip = tr('Edit Active Tab')
+      @tab_edit = Qt::Action.new(Cosmos.get_icon('edit_tab.png'), '&Edit Tab', self)
+      @tab_edit.statusTip = 'Edit Active Tab'
       @tab_edit.connect(SIGNAL('triggered()')) { on_tab_edit() }
 
-      @tab_screenshot = Qt::Action.new(Cosmos.get_icon('screenshot.png'), tr('&Screenshot Tab'), self)
-      @tab_screenshot.statusTip = tr('Screenshot of Active Tab')
+      @tab_screenshot = Qt::Action.new(Cosmos.get_icon('screenshot.png'), '&Screenshot Tab', self)
+      @tab_screenshot.statusTip = 'Screenshot of Active Tab'
       @tab_screenshot.connect(SIGNAL('triggered()')) { on_tab_screenshot() }
 
-      @tab_export = Qt::Action.new(tr('E&xport Tab Data Objects'), self)
-      @tab_export.statusTip = tr('Export Tab Data Object(s)')
+      @tab_export = Qt::Action.new('E&xport Tab Data Objects', self)
+      @tab_export.statusTip = 'Export Tab Data Object(s)'
       @tab_export.connect(SIGNAL('triggered()')) { on_tab_export() }
 
-      @tab_reset = Qt::Action.new(tr('&Reset Tab Data Objects'), self)
-      @tab_reset.statusTip = tr('Reset Tab Data Object(s)')
+      @tab_reset = Qt::Action.new('&Reset Tab Data Objects', self)
+      @tab_reset.statusTip = 'Reset Tab Data Object(s)'
       @tab_reset.connect(SIGNAL('triggered()')) { on_tab_reset() }
 
       # Plot Menu Actions
-      @plot_add = Qt::Action.new(Cosmos.get_icon('add_plot.png'), tr('&Add Plot'), self)
-      @plot_add.statusTip = tr('Add New Plot')
+      @plot_add = Qt::Action.new(Cosmos.get_icon('add_plot.png'), '&Add Plot', self)
+      @plot_add.statusTip = 'Add New Plot'
       @plot_add.connect(SIGNAL('triggered()')) { on_plot_add() }
 
-      @plot_delete = Qt::Action.new(Cosmos.get_icon('delete_plot.png'), tr('&Delete Plot'), self)
-      @plot_delete.statusTip = tr('Delete Selected Plot')
+      @plot_delete = Qt::Action.new(Cosmos.get_icon('delete_plot.png'), '&Delete Plot', self)
+      @plot_delete.statusTip = 'Delete Selected Plot'
       @plot_delete.connect(SIGNAL('triggered()')) { on_plot_delete() }
 
-      @plot_edit = Qt::Action.new(Cosmos.get_icon('edit_plot.png'), tr('&Edit Plot'), self)
-      @plot_edit.statusTip = tr('Edit Selected Plot')
+      @plot_edit = Qt::Action.new(Cosmos.get_icon('edit_plot.png'), '&Edit Plot', self)
+      @plot_edit.statusTip = 'Edit Selected Plot'
       @plot_edit.connect(SIGNAL('triggered()')) { on_plot_edit() }
 
-      @plot_screenshot = Qt::Action.new(Cosmos.get_icon('screenshot.png'), tr('&Screenshot Plot'), self)
-      @plot_screenshot.statusTip = tr('Screenshot Selected Plot')
+      @plot_screenshot = Qt::Action.new(Cosmos.get_icon('screenshot.png'), '&Screenshot Plot', self)
+      @plot_screenshot.statusTip = 'Screenshot Selected Plot'
       @plot_screenshot.connect(SIGNAL('triggered()')) { on_plot_screenshot() }
 
-      @plot_add_data = Qt::Action.new(Cosmos.get_icon('add_database.png'), tr('Add Data &Object'), self)
-      @plot_add_data.statusTip = tr('Add Data Object')
+      @plot_add_data = Qt::Action.new(Cosmos.get_icon('add_database.png'), 'Add Data &Object', self)
+      @plot_add_data.statusTip = 'Add Data Object'
       @plot_add_data.connect(SIGNAL('triggered()')) { on_data_object_add() }
 
-      @plot_edit_data = Qt::Action.new(Cosmos.get_icon('edit_database.png'), tr('Edit &Plot Data Objects'), self)
-      @plot_edit_data.statusTip = tr('Edit Plot Data Object(s)')
+      @plot_edit_data = Qt::Action.new(Cosmos.get_icon('edit_database.png'), 'Edit &Plot Data Objects', self)
+      @plot_edit_data.statusTip = 'Edit Plot Data Object(s)'
       @plot_edit_data.connect(SIGNAL('triggered()')) { on_plot_data_object_edit() }
 
-      @plot_export = Qt::Action.new(tr('E&xport Plot Data Objects'), self)
-      @plot_export.statusTip = tr('Export Plot Data Object(s)')
+      @plot_export = Qt::Action.new('E&xport Plot Data Objects', self)
+      @plot_export.statusTip = 'Export Plot Data Object(s)'
       @plot_export.connect(SIGNAL('triggered()')) { on_plot_export() }
 
-      @plot_reset = Qt::Action.new(tr('&Reset Plot Data Objects'), self)
-      @plot_reset.statusTip = tr('Reset Plot Data Object(s)')
+      @plot_reset = Qt::Action.new('&Reset Plot Data Objects', self)
+      @plot_reset.statusTip = 'Reset Plot Data Object(s)'
       @plot_reset.connect(SIGNAL('triggered()')) { on_plot_reset() }
 
       # Data Object Menu
-      @data_add = Qt::Action.new(Cosmos.get_icon('add_database.png'), tr('&Add Data Object'), self)
-      @data_add.statusTip = tr('Add Data Object')
+      @data_add = Qt::Action.new(Cosmos.get_icon('add_database.png'), '&Add Data Object', self)
+      @data_add.statusTip = 'Add Data Object'
       @data_add.connect(SIGNAL('triggered()')) { on_data_object_add() }
 
-      @data_delete = Qt::Action.new(Cosmos.get_icon('delete_database.png'), tr('&Delete Data Object'), self)
-      @data_delete.statusTip = tr('Delete Selected Data Object(s)')
+      @data_delete = Qt::Action.new(Cosmos.get_icon('delete_database.png'), '&Delete Data Object', self)
+      @data_delete.statusTip = 'Delete Selected Data Object(s)'
       @data_delete.connect(SIGNAL('triggered()')) { on_data_object_delete() }
 
-      @data_edit = Qt::Action.new(Cosmos.get_icon('edit_database.png'), tr('&Edit Data Object'), self)
-      @data_edit.statusTip = tr('Edit Selected Data Object(s)')
+      @data_edit = Qt::Action.new(Cosmos.get_icon('edit_database.png'), '&Edit Data Object', self)
+      @data_edit.statusTip = 'Edit Selected Data Object(s)'
       @data_edit.connect(SIGNAL('triggered()')) { on_data_object_edit() }
 
-      @data_duplicate = Qt::Action.new(tr('Du&plicate Data Object'), self)
-      @data_duplicate.statusTip = tr('Duplicate Selected Data Object(s)')
+      @data_duplicate = Qt::Action.new('Du&plicate Data Object', self)
+      @data_duplicate.statusTip = 'Duplicate Selected Data Object(s)'
       @data_duplicate.connect(SIGNAL('triggered()')) { on_data_object_duplicate() }
 
-      @data_export = Qt::Action.new(tr('E&xport Data Object'), self)
-      @data_export.statusTip = tr('Export Selected Data Object(s)')
+      @data_export = Qt::Action.new('E&xport Data Object', self)
+      @data_export.statusTip = 'Export Selected Data Object(s)'
       @data_export.connect(SIGNAL('triggered()')) { on_data_object_export() }
 
-      @data_export_all = Qt::Action.new(tr('Expor&t All Data Objects'), self)
-      @data_export_all.statusTip = tr('Export All Data Objects')
+      @data_export_all = Qt::Action.new('Expor&t All Data Objects', self)
+      @data_export_all.statusTip = 'Export All Data Objects'
       @data_export_all.connect(SIGNAL('triggered()')) { on_data_object_export_all() }
 
-      @data_reset = Qt::Action.new(tr('&Reset Data Object'), self)
-      @data_reset.statusTip = tr('Reset Selected Data Object(s)')
+      @data_reset = Qt::Action.new('&Reset Data Object', self)
+      @data_reset.statusTip = 'Reset Selected Data Object(s)'
       @data_reset.connect(SIGNAL('triggered()')) { on_data_object_reset() }
 
-      @data_reset_all = Qt::Action.new(tr('Re&set All Data Objects'), self)
-      @data_reset_all.statusTip = tr('Reset All Data Objects')
+      @data_reset_all = Qt::Action.new('Re&set All Data Objects', self)
+      @data_reset_all.statusTip = 'Reset All Data Objects'
       @data_reset_all.connect(SIGNAL('triggered()')) { on_data_object_reset_all() }
     end
 
     def initialize_menus(options)
       # File Menu
-      @file_menu = menuBar.addMenu(tr('&File'))
+      @file_menu = menuBar.addMenu('&File')
       @file_menu.addAction(@file_process)
       @file_menu.addAction(@file_dart)
       @file_menu.addSeparator()
@@ -228,7 +228,7 @@ module Cosmos
       @file_menu.addSeparator()
       @file_menu.addAction(@exit_action)
 
-      @tab_menu = menuBar.addMenu(tr('&Tab'))
+      @tab_menu = menuBar.addMenu('&Tab')
       @tab_menu.addAction(@tab_add)
       @tab_menu.addAction(@tab_delete)
       @tab_menu.addAction(@tab_edit)
@@ -238,7 +238,7 @@ module Cosmos
       @tab_menu.addSeparator()
       @tab_menu.addAction(@tab_reset)
 
-      @plot_menu = menuBar.addMenu(tr('&Plot'))
+      @plot_menu = menuBar.addMenu('&Plot')
       @plot_menu.addAction(@plot_add)
       @plot_menu.addAction(@plot_delete)
       @plot_menu.addAction(@plot_edit)
@@ -251,7 +251,7 @@ module Cosmos
       @plot_menu.addSeparator()
       @plot_menu.addAction(@plot_reset)
 
-      @data_menu = menuBar.addMenu(tr('&Data Object'))
+      @data_menu = menuBar.addMenu('&Data Object')
       @data_menu.addAction(@data_add)
       @data_menu.addAction(@data_delete)
       @data_menu.addAction(@data_edit)
@@ -285,7 +285,7 @@ module Cosmos
       @replay_flag = Qt::Label.new("Replay Mode")
       @replay_flag.setStyleSheet("background:green;color:white;padding:5px;font-weight:bold;height:30px;")
       @right_frame.addWidget(@replay_flag)
-      @replay_flag.hide      
+      @replay_flag.hide
       @right_widget.setLayout(@right_frame)
       @splitter.addWidget(@right_widget)
       @splitter.setStretchFactor(0,0) # Set the left side stretch factor to 0
@@ -363,7 +363,7 @@ module Cosmos
 
       if !File.exist?(@config_filename)
         # Warn if the configuration file did not exist
-        statusBar.showMessage(tr("Configuration File does not exist: #{@config_filename}. Using default configuration."))
+        statusBar.showMessage("Configuration File does not exist: #{@config_filename}. Using default configuration.")
       end
       update_window_title()
     end # def load_configuration
@@ -397,9 +397,9 @@ module Cosmos
           begin
             yield filename
             @screenshot_dir = File.dirname(filename)
-            statusBar.showMessage(tr("Screenshot saved to: #{filename}"))
+            statusBar.showMessage("Screenshot saved to: #{filename}")
           rescue Exception => error
-            statusBar.showMessage(tr("Screenshot creation failed"))
+            statusBar.showMessage("Screenshot creation failed")
             Qt::MessageBox.warning(
               self,
               "Screenshot Creation Error",
@@ -426,9 +426,9 @@ module Cosmos
             dialog.complete
           end
           @export_dir = File.dirname(filename)
-          statusBar.showMessage(tr("Exported to #{filename}"))
+          statusBar.showMessage("Exported to #{filename}")
         rescue Exception => error
-          statusBar.showMessage(tr("Export Failed"))
+          statusBar.showMessage("Export Failed")
           Qt::MessageBox.warning(
             self,
             "Export Error",
@@ -449,9 +449,9 @@ module Cosmos
         yield
         @config_modified = true if delete
         update_window_title() if delete
-        statusBar.showMessage(tr("#{action.capitalize} #{item} successful"))
+        statusBar.showMessage("#{action.capitalize} #{item} successful"))
       else
-        statusBar.showMessage(tr("#{action.capitalize} #{item} canceled"))
+        statusBar.showMessage("#{action.capitalize} #{item} canceled"))
       end
     end
     def reset(item)
@@ -642,7 +642,7 @@ module Cosmos
       running = @realtime_thread ? true : false
       handle_stop()
       System.telemetry.reset
-      @tabbed_plots.reset_all_data_objects      
+      @tabbed_plots.reset_all_data_objects
       @replay_mode = !@replay_mode
       if @replay_mode
         @replay_flag.show
@@ -673,7 +673,7 @@ module Cosmos
       paused = @tabbed_plots.paused?
       @tabbed_plots.pause
       @tabbed_plots.add_tab
-      statusBar.showMessage(tr("Tab Added"))
+      statusBar.showMessage("Tab Added")
       @config_modified = true
       update_window_title()
       @tabbed_plots.resume unless paused
@@ -693,7 +693,7 @@ module Cosmos
       tab_selected? do
         edited = @tabbed_plots.edit_tab
         if edited
-          statusBar.showMessage(tr("Tab Edited"))
+          statusBar.showMessage("Tab Edited")
           @config_modified = true
           update_window_title()
         end
@@ -979,7 +979,7 @@ module Cosmos
       if @realtime_thread
         # Resume plotting in case it was paused
         @tabbed_plots.resume
-        statusBar.showMessage(tr("Plot Updates Resumed"))
+        statusBar.showMessage("Plot Updates Resumed")
         @realtime_button_bar.state = 'Running'
       else
         System.load_configuration
@@ -992,7 +992,7 @@ module Cosmos
 
         # Startup realtime thread
         @realtime_button_bar.state = 'Connecting'
-        statusBar.showMessage(tr("Connecting to COSMOS Server"))
+        statusBar.showMessage("Connecting to COSMOS Server")
         @realtime_thread = TabbedPlotsRealtimeThread.new(@tabbed_plots_config, method(:realtime_thread_connection_success_callback), method(:realtime_thread_connection_failed_callback), method(:realtime_thread_connection_lost_callback), method(:realtime_thread_fatal_exception_callback), @replay_mode)
       end
     end # def handle_start
@@ -1002,7 +1002,7 @@ module Cosmos
       if @realtime_thread
         # Pause plotting
         @tabbed_plots.pause
-        statusBar.showMessage(tr("Plot Updates Paused - Still Collecting Data in the Background"))
+        statusBar.showMessage("Plot Updates Paused - Still Collecting Data in the Background")
         @realtime_button_bar.state = 'Paused'
       else
         # Do Nothing
@@ -1017,7 +1017,7 @@ module Cosmos
         @realtime_thread.kill
         @realtime_thread = nil
         @realtime_button_bar.state = 'Stopped'
-        statusBar.showMessage(tr("Disconnection from COSMOS Server Successful"))
+        statusBar.showMessage("Disconnection from COSMOS Server Successful")
       else
         # Do Nothing
       end
@@ -1032,7 +1032,7 @@ module Cosmos
     def realtime_thread_connection_success_callback
       # Notify user of connection success
       Qt.execute_in_main_thread(true) do
-        statusBar.showMessage(tr("Connection to COSMOS Server Successful"))
+        statusBar.showMessage("Connection to COSMOS Server Successful")
         if @tabbed_plots.paused?
           @realtime_button_bar.state = 'Paused'
         else
@@ -1045,7 +1045,7 @@ module Cosmos
     def realtime_thread_connection_failed_callback(error)
       # Notify user connection failed
       Qt.execute_in_main_thread(true) do
-        statusBar.showMessage(tr("Connection to COSMOS Server Failed : #{error.class} : #{error.message}"))
+        statusBar.showMessage("Connection to COSMOS Server Failed : #{error.class} : #{error.message}")
         @realtime_button_bar.state = 'Connecting'
       end
     end # def realtime_thread_connection_failed_callback
@@ -1055,12 +1055,12 @@ module Cosmos
       # Notify user of connection lost
       if error
         Qt.execute_in_main_thread(true) do
-          statusBar.showMessage(tr("Connection to COSMOS Server Lost : #{error.class} : #{error.message}"))
+          statusBar.showMessage("Connection to COSMOS Server Lost : #{error.class} : #{error.message}")
           @realtime_button_bar.state = 'Connecting'
         end
       else
         Qt.execute_in_main_thread(true) do
-          statusBar.showMessage(tr("Connection to COSMOS Server Lost"))
+          statusBar.showMessage("Connection to COSMOS Server Lost")
           @realtime_button_bar.state = 'Connecting'
         end
       end

@@ -82,9 +82,9 @@ Sleep 500
 Click 630 70 ; Start Test Suite
 Sleep 5000
 
-Click 64 40 ; Script Menu
+Click 100 40 ; Script Menu
 Sleep 500
-Click 64 128 ; Toggle Debug TR-9
+Click 100 128 ; Toggle Debug TR-9
 Sleep 500
 Send puts $manual{Enter} ; TR-16
 Sleep 1000
@@ -108,25 +108,25 @@ Click 630 70 ; Start Test Suite
 Sleep 5000
 Click 680 195 ; Retry
 Sleep 1000
-Click 65 40 ; Script
+Click 100 40 ; Script
 Sleep 500
-Click 65 65 ; Test Results Message
+Click 100 65 ; Test Results Message
 WinWaitActive Test Results
 Sleep 1000
 Send QA Approves{Enter}
 WinWaitActive Test Runner
 Sleep 500
-Click 65 40 ; Script
+Click 100 40 ; Script
 Sleep 500
-Click 65 86 ; Script Message
+Click 100 86 ; Script Message
 WinWaitActive Script Message
 Sleep 1000
 Send SQA Approves{Enter}
 WinWaitActive Test Runner
 Sleep 500
-Click 65 40 ; Script
+Click 100 40 ; Script
 Sleep 500
-Click 65 108 ; Show Call Stack
+Click 100 108 ; Show Call Stack
 WinWaitActive Call Stack
 Sleep 1000
 Send {Esc}

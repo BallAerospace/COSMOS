@@ -324,9 +324,9 @@ module Cosmos
         end
         if plot
           @tabbed_plots_config.add_plot(tab_index, plot)
-          @status_bar.showMessage(tr("Add Plot Succeeded"))
+          @status_bar.showMessage("Add Plot Succeeded")
         else
-          @status_bar.showMessage(tr("Add Plot Canceled"))
+          @status_bar.showMessage("Add Plot Canceled")
           return false
         end
 
@@ -399,7 +399,7 @@ module Cosmos
         tab.gui_layout = layout
         #~ tab.gui_layout.connect(SEL_RIGHTBUTTONRELEASE, method(:handle_plot_right_button_release))
 
-        @status_bar.showMessage(tr("Plot Deleted"))
+        @status_bar.showMessage("Plot Deleted")
         @config_modified_callback.call() if @config_modified_callback
       else
         Qt::MessageBox.information(self, 'Information', 'Please select a plot')
@@ -434,11 +434,11 @@ module Cosmos
         plot_editor.dispose
         if plot
           plot.gui_object.update(true)
-          @status_bar.showMessage(tr("Plot Edited"))
+          @status_bar.showMessage("Plot Edited")
           edited = true
           @config_modified_callback.call() if @config_modified_callback
         else
-          @status_bar.showMessage(tr("Plot Edit Canceled"))
+          @status_bar.showMessage("Plot Edit Canceled")
         end
       end
 
@@ -548,7 +548,7 @@ module Cosmos
         data_object = data_object_editor.execute
         data_object_editor.dispose
         unless data_object
-          @status_bar.showMessage(tr("Add Data Object Canceled"))
+          @status_bar.showMessage("Add Data Object Canceled")
           return false
         end
       end
@@ -566,7 +566,7 @@ module Cosmos
       # Update data object list
       fill_data_object_list_for_plot(@tabbed_plots_config.tabs[tab_index].plots[plot_index])
 
-      @status_bar.showMessage(tr("Add Data Object Succeeded"))
+      @status_bar.showMessage("Add Data Object Succeeded")
       @config_modified_callback.call() if @config_modified_callback
       return true
     end # def add_data_object
@@ -618,11 +618,11 @@ module Cosmos
           data_object_editor.dispose
           if data_object
             @tabbed_plots_config.edit_data_object(tab_index, plot_index, data_object_idx, data_object)
-            @status_bar.showMessage(tr("Data Object(s) Edited"))
+            @status_bar.showMessage("Data Object(s) Edited")
             edited = true
             @config_modified_callback.call() if @config_modified_callback
           else
-            @status_bar.showMessage(tr("Edit Data Object Canceled"))
+            @status_bar.showMessage("Edit Data Object Canceled")
           end
         end
 
@@ -651,7 +651,7 @@ module Cosmos
           data_object = @tabbed_plots_config.duplicate_data_object(tab_index, plot_index, data_object_idx)
           data_object.color = get_free_color(@tabbed_plots_config.tabs[tab_index]) unless data_object.assigned_color
         end
-        @status_bar.showMessage(tr("Data Object(s) Duplicated"))
+        @status_bar.showMessage("Data Object(s) Duplicated")
 
         plot.gui_object.update(true)
         fill_data_object_list_for_plot(@tabbed_plots_config.tabs[tab_index].plots[plot_index])
@@ -701,7 +701,7 @@ module Cosmos
           @tabbed_plots_config.reset_data_objects(tab_index, plot_index, data_object_idx)
         end
         redraw_plots(true, true)
-        @status_bar.showMessage(tr("Data Object(s) Reset"))
+        @status_bar.showMessage("Data Object(s) Reset")
       end
     end
 
@@ -954,9 +954,9 @@ module Cosmos
                                             "Are you sure you want to delete the selected data objects?",
                                             Qt::MessageBox::Yes | Qt::MessageBox::No, Qt::MessageBox::No)
             if result == Qt::MessageBox::No
-              otp.status_bar.showMessage(tr("Data Object Deletion Canceled"))
+              otp.status_bar.showMessage("Data Object Deletion Canceled")
             else
-              otp.status_bar.showMessage(tr("Data Object Deleted"))
+              otp.status_bar.showMessage("Data Object Deleted")
               otp.delete_data_object()
             end
             otp.resume() unless paused
@@ -973,7 +973,7 @@ module Cosmos
               self,
               SLOT('data_object_context_menu(const QPoint&)'))
       @data_object_list.connect(SIGNAL('itemClicked(QListWidgetItem*)')) do
-        @status_bar.showMessage(tr("Drag and drop to reorder. Items are drawn in order from top to bottom."))
+        @status_bar.showMessage("Drag and drop to reorder. Items are drawn in order from top to bottom.")
       end
       @data_object_list.addItemColor('No Plot Selected')
       @tabbed_plots_left_frame.addWidget(@data_object_list)

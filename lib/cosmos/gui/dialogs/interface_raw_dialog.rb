@@ -43,14 +43,14 @@ module Cosmos
         top_layout = Qt::HBoxLayout.new
         text_layout = Qt::VBoxLayout.new
 
-        title_label = Qt::Label.new(tr(title))
+        title_label = Qt::Label.new(title)
         text_layout.addWidget(title_label)
         @read_raw_data_time = Qt::Label.new("Read Raw Data Time: ")
         text_layout.addWidget(@read_raw_data_time)
         top_layout.addLayout(text_layout)
         top_layout.addStretch(1)
 
-        button = Qt::PushButton.new(tr("Pause"))
+        button = Qt::PushButton.new("Pause")
         top_layout.addWidget(button)
         button.connect(SIGNAL('clicked()')) do
           if button.text == "Pause"

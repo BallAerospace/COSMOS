@@ -246,7 +246,7 @@ module Cosmos
       @parameters = Qt::Widget.new
       parameters_layout = Qt::VBoxLayout.new
       # Command Description Label
-      dec_label = Qt::Label.new(tr("Description:"))
+      dec_label = Qt::Label.new("Description:")
       description = Qt::Label.new(@command.description)
       description.setWordWrap(true)
       desc_layout = Qt::HBoxLayout.new
@@ -254,7 +254,7 @@ module Cosmos
       desc_layout.addWidget(description, 1)
       parameters_layout.addLayout(desc_layout)
 
-      param_label = Qt::Label.new(tr("Parameters:"))
+      param_label = Qt::Label.new("Parameters:")
       parameters_layout.addWidget(param_label)
       @table_layout = Qt::VBoxLayout.new
       parameters_layout.addLayout(@table_layout, 500)
@@ -456,15 +456,15 @@ module Cosmos
         if target_name.length > 0 && packet_name.length > 0 && item_name.length > 0
           menu = Qt::Menu.new()
 
-          details_action = Qt::Action.new(tr("Details #{target_name} #{packet_name} #{item_name}"), self)
-          details_action.statusTip = tr("Popup details about #{target_name} #{packet_name} #{item_name}")
+          details_action = Qt::Action.new("Details #{target_name} #{packet_name} #{item_name}", self)
+          details_action.statusTip = "Popup details about #{target_name} #{packet_name} #{item_name}"
           details_action.connect(SIGNAL('triggered()')) do
             CmdDetailsDialog.new(nil, target_name, packet_name, item_name)
           end
           menu.addAction(details_action)
 
-          file_chooser_action = Qt::Action.new(tr("Insert Filename"), self)
-          file_chooser_action.statusTip = tr("Select a file and place its name into this parameter")
+          file_chooser_action = Qt::Action.new("Insert Filename", self)
+          file_chooser_action.statusTip = "Select a file and place its name into this parameter"
           file_chooser_action.connect(SIGNAL('triggered()')) do
               filename = Qt::FileDialog::getOpenFileName(self, "Insert Filename:", @file_dir, "All Files (*)")
               if filename && !filename.empty?

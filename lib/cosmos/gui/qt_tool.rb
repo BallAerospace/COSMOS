@@ -103,17 +103,17 @@ module Cosmos
     # placed in the File menu and must be manually added by the user. The
     # about_action is added to the Help menu by {#initialize_help_menu}.
     def initialize_actions
-      @exit_action = Qt::Action.new(Cosmos.get_icon('close.png'), tr('E&xit'), self)
-      @exit_keyseq = Qt::KeySequence.new(tr('Ctrl+Q'))
+      @exit_action = Qt::Action.new(Cosmos.get_icon('close.png'), 'E&xit', self)
+      @exit_keyseq = Qt::KeySequence.new('Ctrl+Q')
       @exit_action.shortcut = @exit_keyseq
-      @exit_action.statusTip = tr('Exit the application')
+      @exit_action.statusTip = 'Exit the application'
       connect(@exit_action, SIGNAL('triggered()'), self, SLOT('close()'))
 
-      @about_action = Qt::Action.new(Cosmos.get_icon('help.png'), tr('&About'), self)
-      @about_action.statusTip = tr('About the application')
+      @about_action = Qt::Action.new(Cosmos.get_icon('help.png'), '&About', self)
+      @about_action.statusTip = 'About the application'
       connect(@about_action, SIGNAL('triggered()'), self, SLOT('about()'))
-      @documentation_action = Qt::Action.new(tr('&Documentation'), self)
-      @documentation_action.statusTip = tr('COSMOS Online Documentation')
+      @documentation_action = Qt::Action.new('&Documentation', self)
+      @documentation_action.statusTip = 'COSMOS Online Documentation'
       self.connect(@documentation_action, SIGNAL('triggered()')) do
         Qt::DesktopServices.openUrl(Qt::Url.new("http://cosmosrb.com"))
       end
@@ -137,7 +137,7 @@ module Cosmos
       default_dirs = [default_dirs] unless default_dirs.is_a? Array
       default_dirs.each do |default_dir|
         default_context = default_dir.split('/')[-2..-1].join('/')
-        action = Qt::Action.new(tr(default_context), self)
+        action = Qt::Action.new(default_context, self)
         action.statusTip = status_tip if status_tip
         action.connect(SIGNAL('triggered()')) { callback.call(default_dir) }
         menu.addAction(action)
@@ -156,7 +156,7 @@ module Cosmos
           else
             name = "#{target_name}/#{target_sub_dir}"
           end
-          action = Qt::Action.new(tr(name), self)
+          action = Qt::Action.new(name, self)
           action.statusTip = status_tip if status_tip
           action.connect(SIGNAL('triggered()')) { callback.call(dir) }
           menu.addAction(action)
@@ -167,7 +167,7 @@ module Cosmos
     # Creates the Help menu and adds the about_action to it. Thus this MUST be
     # called after initialize_actions.
     def initialize_help_menu
-      @help_menu = menuBar().addMenu(tr('&Help'))
+      @help_menu = menuBar().addMenu('&Help')
       @help_menu.addAction(@about_action)
       @help_menu.addAction(@documentation_action)
     end

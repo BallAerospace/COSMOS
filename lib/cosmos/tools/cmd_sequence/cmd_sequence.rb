@@ -111,59 +111,59 @@ module Cosmos
     def initialize_actions
       super()
 
-      @file_new = Qt::Action.new(Cosmos.get_icon('file.png'), tr('&New'), self)
-      @file_new_keyseq = Qt::KeySequence.new(tr('Ctrl+N'))
+      @file_new = Qt::Action.new(Cosmos.get_icon('file.png'), '&New', self)
+      @file_new_keyseq = Qt::KeySequence.new('Ctrl+N')
       @file_new.shortcut  = @file_new_keyseq
-      @file_new.statusTip = tr('Start a new sequence')
+      @file_new.statusTip = 'Start a new sequence'
       @file_new.connect(SIGNAL('triggered()')) { file_new() }
 
-      @file_save = Qt::Action.new(Cosmos.get_icon('save.png'), tr('&Save'), self)
-      @file_save_keyseq = Qt::KeySequence.new(tr('Ctrl+S'))
+      @file_save = Qt::Action.new(Cosmos.get_icon('save.png'), '&Save', self)
+      @file_save_keyseq = Qt::KeySequence.new('Ctrl+S')
       @file_save.shortcut  = @file_save_keyseq
-      @file_save.statusTip = tr('Save the sequence')
+      @file_save.statusTip = 'Save the sequence'
       @file_save.connect(SIGNAL('triggered()')) { file_save(false) }
 
-      @file_save_as = Qt::Action.new(Cosmos.get_icon('save_as.png'), tr('Save &As'), self)
-      @file_save_as.statusTip = tr('Save the sequence')
+      @file_save_as = Qt::Action.new(Cosmos.get_icon('save_as.png'), 'Save &As', self)
+      @file_save_as.statusTip = 'Save the sequence'
       @file_save_as.connect(SIGNAL('triggered()')) { file_save(true) }
 
-      @file_export = Qt::Action.new(tr('&Export Sequence'), self)
-      @file_export.shortcut = Qt::KeySequence.new(tr('Ctrl+E'))
-      @file_export.statusTip = tr('Export the current sequence to a custom binary format')
+      @file_export = Qt::Action.new('&Export Sequence', self)
+      @file_export.shortcut = Qt::KeySequence.new('Ctrl+E')
+      @file_export.statusTip = 'Export the current sequence to a custom binary format'
       @file_export.connect(SIGNAL('triggered()')) { file_export() }
 
-      @show_ignored = Qt::Action.new(tr('&Show Ignored Parameters'), self)
-      @show_ignored.statusTip = tr('Show ignored parameters which are normally hidden')
+      @show_ignored = Qt::Action.new('&Show Ignored Parameters', self)
+      @show_ignored.statusTip = 'Show ignored parameters which are normally hidden'
       @show_ignored.setCheckable(true)
       @show_ignored.setChecked(false)
       @show_ignored.connect(SIGNAL('toggled(bool)')) do |bool|
         @sequence_list.map {|item| item.show_ignored(bool) }
       end
 
-      @states_in_hex = Qt::Action.new(tr('&Display State Values in Hex'), self)
-      @states_in_hex.statusTip = tr('Display states values in hex instead of decimal')
+      @states_in_hex = Qt::Action.new('&Display State Values in Hex', self)
+      @states_in_hex.statusTip = 'Display states values in hex instead of decimal'
       @states_in_hex.setCheckable(true)
       @states_in_hex.setChecked(false)
       @states_in_hex.connect(SIGNAL('toggled(bool)')) do |bool|
         @sequence_list.map {|item| item.states_in_hex(bool) }
       end
 
-      @expand_action = Qt::Action.new(tr('&Expand All'), self)
-      @expand_action.statusTip = tr('Expand all currently visible commands')
+      @expand_action = Qt::Action.new('&Expand All', self)
+      @expand_action.statusTip = 'Expand all currently visible commands'
       @expand_action.connect(SIGNAL('triggered()')) do
         @sequence_list.map {|item| item.expand }
       end
 
-      @collapse_action = Qt::Action.new(tr('&Collapse All'), self)
-      @collapse_action.statusTip = tr('Collapse all currently visible commands')
+      @collapse_action = Qt::Action.new('&Collapse All', self)
+      @collapse_action.statusTip = 'Collapse all currently visible commands'
       @collapse_action.connect(SIGNAL('triggered()')) do
         @sequence_list.map {|item| item.collapse }
       end
 
-      @script_disconnect = Qt::Action.new(Cosmos.get_icon('disconnected.png'), tr('&Toggle Disconnect'), self)
-      @script_disconnect_keyseq = Qt::KeySequence.new(tr('Ctrl+T'))
+      @script_disconnect = Qt::Action.new(Cosmos.get_icon('disconnected.png'), '&Toggle Disconnect', self)
+      @script_disconnect_keyseq = Qt::KeySequence.new('Ctrl+T')
       @script_disconnect.shortcut  = @script_disconnect_keyseq
-      @script_disconnect.statusTip = tr('Toggle disconnect from the server')
+      @script_disconnect.statusTip = 'Toggle disconnect from the server'
       @script_disconnect.connect(SIGNAL('triggered()')) do
         @server_config_file ||= CmdTlmServer::DEFAULT_CONFIG_FILE
         @server_config_file = toggle_disconnect(@server_config_file)
@@ -172,15 +172,15 @@ module Cosmos
 
     # Create the application menus and assign the actions
     def initialize_menus
-      file_menu = menuBar.addMenu(tr('&File'))
+      file_menu = menuBar.addMenu('&File')
       file_menu.addAction(@file_new)
 
       open_action = Qt::Action.new(self)
-      open_action.shortcut = Qt::KeySequence.new(tr('Ctrl+O'))
+      open_action.shortcut = Qt::KeySequence.new('Ctrl+O')
       open_action.connect(SIGNAL('triggered()')) { file_open(@sequence_dir) }
       self.addAction(open_action)
 
-      file_open = file_menu.addMenu(tr('&Open'))
+      file_open = file_menu.addMenu('&Open')
       file_open.setIcon(Cosmos.get_icon('open.png'))
       target_dirs_action(file_open, System.paths['SEQUENCES'], 'sequences', method(:file_open))
 
@@ -193,7 +193,7 @@ module Cosmos
       file_menu.addSeparator()
       file_menu.addAction(@exit_action)
 
-      action_menu = menuBar.addMenu(tr('&Actions'))
+      action_menu = menuBar.addMenu('&Actions')
       action_menu.addAction(@show_ignored)
       action_menu.addAction(@states_in_hex)
       action_menu.addSeparator()
@@ -229,12 +229,12 @@ module Cosmos
       @target_select.connect(SIGNAL('activated(const QString&)')) do |target|
         target_changed()
       end
-      target_label = Qt::Label.new(tr("&Target:"))
+      target_label = Qt::Label.new("&Target:")
       target_label.setBuddy(@target_select)
 
       @cmd_select = Qt::ComboBox.new
       @cmd_select.setMaxVisibleItems(20)
-      cmd_label = Qt::Label.new(tr("&Command:"))
+      cmd_label = Qt::Label.new("&Command:")
       cmd_label.setBuddy(@cmd_select)
 
       add = Qt::PushButton.new("Add")
@@ -366,7 +366,7 @@ module Cosmos
     #   process when creating the disconnected server
     def toggle_disconnect(config_file, ask_for_config_file = true)
       dialog = Qt::Dialog.new(self, Qt::WindowTitleHint | Qt::WindowSystemMenuHint)
-      dialog.setWindowTitle(tr("Disconnect Settings"))
+      dialog.setWindowTitle("Disconnect Settings")
       dialog_layout = Qt::VBoxLayout.new
       dialog_layout.addWidget(Qt::Label.new("Targets checked will be disconnected."))
 

@@ -27,7 +27,7 @@ module Cosmos
     module Script
       def prompt_for_script_abort
         window = get_cmd_tlm_gui_window()
-        window.statusBar.showMessage(tr("Hazardous command not sent"))
+        window.statusBar.showMessage("Hazardous command not sent")
         return true # Aborted - Don't retry
       end
     end
@@ -137,59 +137,59 @@ module Cosmos
       super()
       # File menu actions
       @send_raw_action = Qt::Action.new(Cosmos.get_icon('send_file.png'),
-                                        tr('&Send Raw'),
+                                        '&Send Raw',
                                         self)
-      @send_raw_action.shortcut  = Qt::KeySequence.new(tr('Ctrl+S'))
+      @send_raw_action.shortcut  = Qt::KeySequence.new('Ctrl+S')
       tip = 'Send raw data from a file'
       if @production
         tip += ' - Disabled in Production Mode'
         @send_raw_action.setEnabled(false)
       end
-      @send_raw_action.statusTip = tr(tip)
+      @send_raw_action.statusTip = tip
       connect(@send_raw_action, SIGNAL('triggered()'), self, SLOT('file_send_raw()'))
 
       # Mode menu actions
-      @ignore_range = Qt::Action.new(tr('&Ignore Range Checks'), self)
+      @ignore_range = Qt::Action.new('&Ignore Range Checks', self)
       tip = 'Ignore range checks when processing command'
       if @production
         tip += ' - Disabled in Production Mode'
         @ignore_range.setEnabled(false)
       end
-      @ignore_range.statusTip = tr(tip)
+      @ignore_range.statusTip = tip
       @ignore_range.setCheckable(true)
       @ignore_range.setChecked(false)
 
-      @states_in_hex = Qt::Action.new(tr('&Display State Values in Hex'), self)
-      @states_in_hex.statusTip = tr('Display states values in hex instead of decimal')
+      @states_in_hex = Qt::Action.new('&Display State Values in Hex', self)
+      @states_in_hex.statusTip = 'Display states values in hex instead of decimal'
       @states_in_hex.setCheckable(true)
       @states_in_hex.setChecked(false)
       connect(@states_in_hex, SIGNAL('toggled(bool)'), self, SLOT('menu_states_in_hex(bool)'))
 
-      @show_ignored = Qt::Action.new(tr('&Show Ignored Parameters'), self)
-      @show_ignored.statusTip = tr('Show ignored parameters which are normally hidden')
+      @show_ignored = Qt::Action.new('&Show Ignored Parameters', self)
+      @show_ignored.statusTip = 'Show ignored parameters which are normally hidden'
       @show_ignored.setCheckable(true)
       @show_ignored.setChecked(false)
       connect(@show_ignored, SIGNAL('toggled(bool)'), self, SLOT('update_cmd_params(bool)'))
 
-      @cmd_raw = Qt::Action.new(tr('Disable &Parameter Conversions'), self)
+      @cmd_raw = Qt::Action.new('Disable &Parameter Conversions', self)
       tip = 'Send the command without running write or state conversions'
       if @production
         tip += ' - Disabled in Production Mode'
         @cmd_raw.setEnabled(false)
       end
-      @cmd_raw.statusTip = tr(tip)
+      @cmd_raw.statusTip = tip
       @cmd_raw.setCheckable(true)
       @cmd_raw.setChecked(false)
     end
 
     # Create the File and Mode menus and initialize the help menu
     def initialize_menus
-      file_menu = menuBar.addMenu(tr('&File'))
+      file_menu = menuBar.addMenu('&File')
       file_menu.addAction(@send_raw_action)
       file_menu.addAction(@exit_action)
       file_menu.insertSeparator(@exit_action)
 
-      mode_menu = menuBar.addMenu(tr('&Mode'))
+      mode_menu = menuBar.addMenu('&Mode')
       mode_menu.addAction(@ignore_range)
       mode_menu.addAction(@states_in_hex)
       mode_menu.addAction(@show_ignored)
@@ -244,14 +244,14 @@ module Cosmos
       @target_select = Qt::ComboBox.new
       @target_select.setMaxVisibleItems(6)
       connect(@target_select, SIGNAL('activated(const QString&)'), self, SLOT('target_changed(const QString&)'))
-      target_label = Qt::Label.new(tr("&Target:"))
+      target_label = Qt::Label.new("&Target:")
       target_label.setBuddy(@target_select)
 
       # Set the comamnd combobox selection
       @cmd_select = Qt::ComboBox.new
       @cmd_select.setMaxVisibleItems(20)
       connect(@cmd_select, SIGNAL('activated(const QString&)'), self, SLOT('cmd_changed(const QString&)'))
-      cmd_label = Qt::Label.new(tr("&Command:"))
+      cmd_label = Qt::Label.new("&Command:")
       cmd_label.setBuddy(@cmd_select)
 
       # Button to send command
@@ -273,7 +273,7 @@ module Cosmos
       top_layout.addWidget(sep1)
 
       # Command Description Label
-      dec_label = Qt::Label.new(tr("Description:"))
+      dec_label = Qt::Label.new("Description:")
       @description = Qt::Label.new('')
       @description.setWordWrap(true)
       desc_layout = Qt::HBoxLayout.new
@@ -287,7 +287,7 @@ module Cosmos
       top_layout.addWidget(sep2)
 
       # Parameters Label
-      param_label = Qt::Label.new(tr("Parameters:"))
+      param_label = Qt::Label.new("Parameters:")
       top_layout.addWidget(param_label)
 
       # Grid Layout for Parameters
@@ -362,13 +362,13 @@ module Cosmos
       interfaces.addItems(get_interface_names())
       interfaces.setMaxVisibleItems(30)
       layout.addWidget(interfaces, 0, 1)
-      int_label = Qt::Label.new(tr("&Interface:"))
+      int_label = Qt::Label.new("&Interface:")
       int_label.setBuddy(interfaces)
       layout.addWidget(int_label, 0, 0)
 
       file_line = Qt::LineEdit.new(@send_raw_dir)
       file_line.setMinimumSize(250, 0)
-      file_label = Qt::Label.new(tr("&Filename:"))
+      file_label = Qt::Label.new("&Filename:")
       file_label.setBuddy(file_line)
       get_file = Qt::PushButton.new("Select")
       file_layout = Qt::BoxLayout.new(Qt::Horizontal)
@@ -376,7 +376,7 @@ module Cosmos
       file_layout.addWidget(file_line)
       get_file.connect(SIGNAL('clicked()')) do
         Cosmos.set_working_dir do
-          file_line.text = Qt::FileDialog::getOpenFileName(self, "Select File", @send_raw_dir, tr("Binary Files (*.bin);;All Files (*)"))
+          file_line.text = Qt::FileDialog::getOpenFileName(self, "Select File", @send_raw_dir, "Binary Files (*.bin);;All Files (*)")
         end
       end
 
@@ -569,7 +569,7 @@ module Cosmos
       end
 
       # Clear Status Bar
-      statusBar.showMessage(tr(""))
+      statusBar.showMessage("")
 
       target_name = @target_select.text
       target = System.targets[target_name]
@@ -755,15 +755,15 @@ module Cosmos
         if target_name.length > 0 && packet_name.length > 0 && item_name.length > 0
           menu = Qt::Menu.new()
 
-          details_action = Qt::Action.new(tr("Details #{target_name} #{packet_name} #{item_name}"), self)
-          details_action.statusTip = tr("Popup details about #{target_name} #{packet_name} #{item_name}")
+          details_action = Qt::Action.new("Details #{target_name} #{packet_name} #{item_name}", self)
+          details_action.statusTip = "Popup details about #{target_name} #{packet_name} #{item_name}"
           details_action.connect(SIGNAL('triggered()')) do
             CmdDetailsDialog.new(nil, target_name, packet_name, item_name)
           end
           menu.addAction(details_action)
 
-          file_chooser_action = Qt::Action.new(tr("Insert Filename"), self)
-          file_chooser_action.statusTip = tr("Select a file and place its name into this parameter")
+          file_chooser_action = Qt::Action.new("Insert Filename", self)
+          file_chooser_action.statusTip = "Select a file and place its name into this parameter"
           file_chooser_action.connect(SIGNAL('triggered()')) do
             filename = Qt::FileDialog::getOpenFileName(self, "Insert Filename:", @file_dir, "All Files (*)")
             if filename && !filename.empty?

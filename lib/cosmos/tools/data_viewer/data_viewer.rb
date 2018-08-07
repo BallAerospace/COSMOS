@@ -97,62 +97,62 @@ module Cosmos
       super()
 
       # File Menu Actions
-      @open_log = Qt::Action.new(tr('&Open Log File'), self)
-      @open_log_keyseq = Qt::KeySequence.new(tr('Ctrl+O'))
+      @open_log = Qt::Action.new('&Open Log File', self)
+      @open_log_keyseq = Qt::KeySequence.new('Ctrl+O')
       @open_log.shortcut  = @open_log_keyseq
-      @open_log.statusTip = tr('Open telemetry log file for processing')
+      @open_log.statusTip = 'Open telemetry log file for processing'
       @open_log.connect(SIGNAL('triggered()')) { handle_open_log_file() }
 
-      @query_dart = Qt::Action.new(tr('&Query DART Database'), self)
-      @query_dart_keyseq = Qt::KeySequence.new(tr('Ctrl+D'))
+      @query_dart = Qt::Action.new('&Query DART Database', self)
+      @query_dart_keyseq = Qt::KeySequence.new('Ctrl+D')
       @query_dart.shortcut  = @query_dart_keyseq
-      @query_dart.statusTip = tr('Query DART Database')
+      @query_dart.statusTip = 'Query DART Database'
       @query_dart.connect(SIGNAL('triggered()')) { handle_query_dart() }
 
-      @handle_reset = Qt::Action.new(tr('&Reset'), self)
-      @handle_reset_keyseq = Qt::KeySequence.new(tr('Ctrl+R'))
+      @handle_reset = Qt::Action.new('&Reset', self)
+      @handle_reset_keyseq = Qt::KeySequence.new('Ctrl+R')
       @handle_reset.shortcut  = @handle_reset_keyseq
-      @handle_reset.statusTip = tr('Reset Components')
+      @handle_reset.statusTip = 'Reset Components'
       @handle_reset.connect(SIGNAL('triggered()')) { handle_reset() }
 
-      @replay_action = Qt::Action.new(tr('Toggle Replay Mode'), self)
-      @replay_action.statusTip = tr('Toggle Replay Mode')
+      @replay_action = Qt::Action.new('Toggle Replay Mode', self)
+      @replay_action.statusTip = 'Toggle Replay Mode'
       @replay_action.connect(SIGNAL('triggered()')) { toggle_replay_mode() }
 
       # Search Actions
-      @search_find = Qt::Action.new(Cosmos.get_icon('search.png'), tr('&Find'), self)
-      @search_find_keyseq = Qt::KeySequence.new(tr('Ctrl+F'))
+      @search_find = Qt::Action.new(Cosmos.get_icon('search.png'), '&Find', self)
+      @search_find_keyseq = Qt::KeySequence.new('Ctrl+F')
       @search_find.shortcut  = @search_find_keyseq
-      @search_find.statusTip = tr('Find text')
+      @search_find.statusTip = 'Find text'
       @search_find.connect(SIGNAL('triggered()')) do
         FindReplaceDialog.show_find(self)
       end
 
-      @search_find_next = Qt::Action.new(tr('Find &Next'), self)
-      @search_find_next_keyseq = Qt::KeySequence.new(tr('F3'))
+      @search_find_next = Qt::Action.new('Find &Next', self)
+      @search_find_next_keyseq = Qt::KeySequence.new('F3')
       @search_find_next.shortcut  = @search_find_next_keyseq
-      @search_find_next.statusTip = tr('Find next instance')
+      @search_find_next.statusTip = 'Find next instance'
       @search_find_next.connect(SIGNAL('triggered()')) do
         FindReplaceDialog.find_next(self)
       end
 
-      @search_find_previous = Qt::Action.new(tr('Find &Previous'), self)
-      @search_find_previous_keyseq = Qt::KeySequence.new(tr('Shift+F3'))
+      @search_find_previous = Qt::Action.new('Find &Previous', self)
+      @search_find_previous_keyseq = Qt::KeySequence.new('Shift+F3')
       @search_find_previous.shortcut  = @search_find_previous_keyseq
-      @search_find_previous.statusTip = tr('Find previous instance')
+      @search_find_previous.statusTip = 'Find previous instance'
       @search_find_previous.connect(SIGNAL('triggered()')) do
         FindReplaceDialog.find_previous(self)
       end
 
       # Tab Menu Actions
-      @delete_tab = Qt::Action.new(Cosmos.get_icon('delete_tab.png'), tr('&Delete Tab'), self)
-      @delete_tab.statusTip = tr('Delete active tab')
+      @delete_tab = Qt::Action.new(Cosmos.get_icon('delete_tab.png'), '&Delete Tab', self)
+      @delete_tab.statusTip = 'Delete active tab'
       @delete_tab.connect(SIGNAL('triggered()')) { on_tab_delete() }
     end
 
     def initialize_menus
       # File Menu
-      file_menu = menuBar.addMenu(tr('&File'))
+      file_menu = menuBar.addMenu('&File')
       file_menu.addAction(@open_log)
       file_menu.addAction(@query_dart)
       file_menu.addAction(@handle_reset)
@@ -161,13 +161,13 @@ module Cosmos
       file_menu.addAction(@exit_action)
 
       # Tab Menu
-      @tab_menu = menuBar.addMenu(tr('&Tab'))
+      @tab_menu = menuBar.addMenu('&Tab')
       @tab_menu.addAction(@delete_tab)
       @tab_menu.addSeparator()
       @tab_menu_actions = []
 
       # Search Menu
-      view_menu = menuBar.addMenu(tr('&Search'))
+      view_menu = menuBar.addMenu('&Search')
       view_menu.addAction(@search_find)
       view_menu.addAction(@search_find_next)
       view_menu.addAction(@search_find_previous)
@@ -307,7 +307,7 @@ module Cosmos
                   break if @cancel_thread
                   Qt.execute_in_main_thread(true) do
                     @realtime_button_bar.state = 'Connecting'
-                    statusBar.showMessage(tr("Error Connecting to Command and Telemetry Server"))
+                    statusBar.showMessage("Error Connecting to Command and Telemetry Server")
                   end
                   break if @sleeper.sleep(1)
                   break if @cancel_thread
@@ -346,12 +346,12 @@ module Cosmos
                     end
                   rescue DRb::DRbConnError
                     break if @cancel_thread
-                    Qt.execute_in_main_thread(true) { statusBar.showMessage(tr("Error Connecting to Command and Telemetry Server")) }
+                    Qt.execute_in_main_thread(true) { statusBar.showMessage("Error Connecting to Command and Telemetry Server") }
                     break # Let outer loop resubscribe
                   rescue RuntimeError => error
                     raise error unless error.message =~ /queue/
                     break if @cancel_thread
-                    Qt.execute_in_main_thread(true) { statusBar.showMessage(tr("Connection Dropped by Command and Telemetry Server: #{Time.now.sys.formatted}")) }
+                    Qt.execute_in_main_thread(true) { statusBar.showMessage("Connection Dropped by Command and Telemetry Server: #{Time.now.sys.formatted}") }
                     break # Let outer loop resubscribe
                   end
                 end
@@ -749,7 +749,7 @@ module Cosmos
           delete_component(tab_index)
           @tab_book.removeTab(tab_index)
 
-          statusBar.showMessage(tr("Tab Deleted"))
+          statusBar.showMessage("Tab Deleted")
         end
       else
         Qt::MessageBox.information(self, 'Info', "No tabs exist")

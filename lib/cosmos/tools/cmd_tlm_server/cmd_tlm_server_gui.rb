@@ -129,7 +129,7 @@ module Cosmos
       @first_output = 0
       @options = options
 
-      statusBar.showMessage(tr("")) # Show blank message to initialize status bar
+      statusBar.showMessage("") # Show blank message to initialize status bar
 
       initialize_actions()
       initialize_menus()
@@ -194,26 +194,26 @@ module Cosmos
       super()
 
       # File actions
-      @file_reload = Qt::Action.new(tr('&Reload Configuration'), self)
-      @file_reload.statusTip = tr('Reload configuraton and reset')
+      @file_reload = Qt::Action.new('&Reload Configuration', self)
+      @file_reload.statusTip = 'Reload configuraton and reset'
       @file_reload.connect(SIGNAL('triggered()')) do
         CmdTlmServer.instance.reload()
       end
 
       # Edit actions
-      @edit_clear_counters = Qt::Action.new(tr('&Clear Counters'), self)
-      @edit_clear_counters.statusTip = tr('Clear counters for all interfaces and targets')
+      @edit_clear_counters = Qt::Action.new('&Clear Counters', self)
+      @edit_clear_counters.statusTip = 'Clear counters for all interfaces and targets'
       @edit_clear_counters.connect(SIGNAL('triggered()')) { CmdTlmServer.clear_counters }
     end
 
     def initialize_menus
-      @file_menu = menuBar.addMenu(tr('&File'))
+      @file_menu = menuBar.addMenu('&File')
       @file_menu.addAction(@file_reload)
       @file_menu.addAction(@exit_action)
 
       # Do not allow clear counters in production mode
       unless @production
-        @edit_menu = menuBar.addMenu(tr('&Edit'))
+        @edit_menu = menuBar.addMenu('&Edit')
         @edit_menu.addAction(@edit_clear_counters)
       end
 
@@ -641,7 +641,7 @@ module Cosmos
             end
           else
             options.replay = false
-          end          
+          end
         end
 
         super(option_parser, options)

@@ -1074,7 +1074,7 @@ module Cosmos
 
     def toggle_disconnect(config_file, ask_for_config_file = true)
       dialog = Qt::Dialog.new(self, Qt::WindowTitleHint | Qt::WindowSystemMenuHint)
-      dialog.setWindowTitle(tr("Disconnect Settings"))
+      dialog.setWindowTitle("Disconnect Settings")
       dialog_layout = Qt::VBoxLayout.new
       dialog_layout.addWidget(Qt::Label.new("Targets checked will be disconnected."))
 
@@ -1641,33 +1641,33 @@ module Cosmos
         menu = current_script.context_menu(point)
         menu.addSeparator()
         if not self.class.running?
-          exec_selected_action = Qt::Action.new(tr("Execute Selected Lines"), self)
-          exec_selected_action.statusTip = tr("Execute the selected lines as a standalone script")
+          exec_selected_action = Qt::Action.new("Execute Selected Lines", self)
+          exec_selected_action.statusTip = "Execute the selected lines as a standalone script"
           exec_selected_action.connect(SIGNAL('triggered()')) { run_selection() }
           menu.addAction(exec_selected_action)
 
-          exec_cursor_action = Qt::Action.new(tr("Execute From Cursor"), self)
-          exec_cursor_action.statusTip = tr("Execute the script starting at the line containing the cursor")
+          exec_cursor_action = Qt::Action.new("Execute From Cursor", self)
+          exec_cursor_action.statusTip = "Execute the script starting at the line containing the cursor"
           exec_cursor_action.connect(SIGNAL('triggered()')) { run_from_cursor() }
           menu.addAction(exec_cursor_action)
 
           menu.addSeparator()
 
           if RUBY_VERSION.split('.')[0].to_i > 1
-            syntax_action = Qt::Action.new(tr("Ruby Syntax Check Selected Lines"), self)
-            syntax_action.statusTip = tr("Check the selected lines for valid Ruby syntax")
+            syntax_action = Qt::Action.new("Ruby Syntax Check Selected Lines", self)
+            syntax_action.statusTip = "Check the selected lines for valid Ruby syntax"
             syntax_action.connect(SIGNAL('triggered()')) { ruby_syntax_check_selection() }
             menu.addAction(syntax_action)
           end
 
-          mnemonic_action = Qt::Action.new(tr("Mnemonic Check Selected Lines"), self)
-          mnemonic_action.statusTip = tr("Check the selected lines for valid targets, packets, mnemonics and parameters")
+          mnemonic_action = Qt::Action.new("Mnemonic Check Selected Lines", self)
+          mnemonic_action.statusTip = "Check the selected lines for valid targets, packets, mnemonics and parameters"
           mnemonic_action.connect(SIGNAL('triggered()')) { mnemonic_check_selection() }
           menu.addAction(mnemonic_action)
 
         elsif running?() and @realtime_button_bar.state != 'Running'
-          exec_selected_action = Qt::Action.new(tr("Execute Selected Lines While Paused"), self)
-          exec_selected_action.statusTip = tr("Execute the selected lines as a standalone script")
+          exec_selected_action = Qt::Action.new("Execute Selected Lines While Paused", self)
+          exec_selected_action.statusTip = "Execute the selected lines as a standalone script"
           exec_selected_action.connect(SIGNAL('triggered()')) { run_selection_while_paused() }
           menu.addAction(exec_selected_action)
         end
