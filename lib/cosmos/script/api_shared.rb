@@ -789,6 +789,8 @@ module Cosmos
     def cosmos_script_sleep(sleep_time = nil)
       return false if $disconnected_targets
       if defined? ScriptRunnerFrame and ScriptRunnerFrame.instance
+        ScriptRunnerFrame.instance.active_script_highlight('green')
+
         sleep_time = 30000000 unless sleep_time # Handle infinite wait
         if sleep_time > 0.0
           end_time = Time.now.sys + sleep_time
