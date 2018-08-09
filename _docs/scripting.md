@@ -1406,7 +1406,7 @@ get_packet(id, non_block (optional))
 | Parameter | Description |
 | -------- | --------------------------------- |
 | id | Unique id given to the tool by subscribe_packet_data. |
-| non_block | Boolean to indicate if the method should block until an packet of data is received or not. Defaults to false, blocks reading data from queue. |
+| non_block | Boolean to indicate if the method should block until a packet of data is received or not. Defaults to false, blocks reading data from queue. |
 
 Example:
 ```ruby
