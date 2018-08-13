@@ -670,6 +670,7 @@ module Cosmos
         class ScriptRunnerFrame; def self.instance; true; end; end
         allow(ScriptRunnerFrame).to receive_message_chain(:instance, :pause?).and_return(true)
         expect(ScriptRunnerFrame).to receive_message_chain(:instance, :perform_pause)
+        expect(ScriptRunnerFrame).to receive_message_chain(:instance, :active_script_highlight)
         cosmos_script_sleep(0.1)
       end
     end
