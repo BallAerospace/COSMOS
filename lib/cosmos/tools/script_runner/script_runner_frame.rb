@@ -320,6 +320,10 @@ module Cosmos
       @script.setFocus
     end
 
+    def active_script_highlight(color)
+      Qt.execute_in_main_thread { @active_script.highlight_line(color) }
+    end
+
     def allow_start=(value)
       @allow_start = value
       if @allow_start
