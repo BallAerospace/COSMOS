@@ -121,13 +121,7 @@ module Cosmos
       @hide_ignored_action.statusTip = 'Toggle showing and hiding ignored items'
       @hide_ignored_action.setCheckable(true)
       @hide_ignored_action.setChecked(false)
-      @hide_ignored_action.connect(SIGNAL('triggered()')) do
-        if @hide_ignored_action.isChecked
-          @ignored_rows.each {|row| @table.setRowHidden(row, true) }
-        else
-          @ignored_rows.each {|row| @table.setRowHidden(row, false) }
-        end
-      end
+      @hide_ignored_action.connect(SIGNAL('triggered()')) { hide_ignored() }
 
       @derived_last_action = Qt::Action.new('&Display Derived Last', self)
       @derived_last_keyseq = Qt::KeySequence.new('Ctrl+D')
@@ -284,6 +278,14 @@ module Cosmos
       end
     end
 
+    def hide_ignored
+      if @hide_ignored_action.isChecked
+        @ignored_rows.each {|row| @table.setRowHidden(row, true) }
+      else
+        @ignored_rows.each {|row| @table.setRowHidden(row, false) }
+      end
+    end
+
     def edit_definition
       # Grab all the cmd_tlm_files and processes them in reverse sort order
       # because typically we'll have cmd.txt and tlm.txt and we want to process
@@ -430,6 +432,7 @@ module Cosmos
         @descriptions[row][1] = description
         row += 1
       end
+      hide_ignored()
 
       @table.resizeColumnsToContents()
       @table.resizeRowsToContents()
