@@ -37,7 +37,7 @@ set MSYS2_32=http://repo.msys2.org/distrib/i686/msys2-i686-20161025.exe
 set MSYS2_64=http://repo.msys2.org/distrib/x86_64/msys2-x86_64-20161025.exe
 
 :: Detect Ball
-if "%USERDNSDOMAIN%"=="AERO.BALL.COM" (
+if "%USERDNSDOMAIN%"=="AERO" (
   set BALL=1
 ) else (
   set BALL=0
