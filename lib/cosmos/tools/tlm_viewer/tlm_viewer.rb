@@ -552,7 +552,7 @@ module Cosmos
 
           option_parser.separator "Telemetry Viewer Specific Options:"
           option_parser.on("-c", "--config FILE", "Use the specified config file") { |arg| options.config_file = arg }
-          option_parser.on("-s", "--screen FILE", "Start up the specified screen") { |arg| options.screen = arg }
+          option_parser.on("-s", "--screen SCREEN_NAME", "Start up the specified screen") { |arg| options.screen = arg }
           option_parser.on("-n", "--nolisten", "Don't listen for requests") do
             options.listen = false
             options.title << ' : Not Listening'
