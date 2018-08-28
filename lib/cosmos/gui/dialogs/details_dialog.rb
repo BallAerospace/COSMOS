@@ -104,7 +104,7 @@ module Cosmos
       scroll_area.setWidget(scroll_widget)
       states_layout = Qt::FormLayout.new
       scroll_widget.setLayout(states_layout)
-      item.states.sort {|a, b| a[1] <=> b[1]}.each do |state_name, state_value|
+      item.states.sort {|a, b| a[1].to_i <=> b[1].to_i }.each do |state_name, state_value|
         if item.state_colors
           states_layout.addRow("#{state_name}:", Qt::Label.new("#{state_value} #{item.state_colors[state_name]}"))
         else
