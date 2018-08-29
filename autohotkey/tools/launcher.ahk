@@ -30,6 +30,7 @@ Click 130 100 ; Launch Command and Telemetry Server L-2
 Sleep 1000
 Send {Enter}
 WinWaitActive, Command and Telemetry Server
+WinActivate, Command and Telemetry Server
 Sleep 2000
 Send ^q
 Sleep 2000
