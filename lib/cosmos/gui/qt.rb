@@ -12,6 +12,7 @@
 # adding workarounds should they be needed to work through problems with
 # interacting with QT from Ruby.
 
+require 'stringio'
 require 'cosmos'
 check_filename = File.join(Cosmos::USERPATH, "#{File.basename($0, File.extname($0))}_qt_check.txt")
 qt_in_system_folder = false
@@ -70,8 +71,16 @@ if Kernel.is_windows?
   end
 end
 
+if Kernel.is_windows?
+  temp_stderr = $stderr.clone
+  $stderr.reopen(File.new('nul', 'w'))
+end
 # This will either lock up or raise an error if older Qt dlls are present in the Windows system folders
-require 'Qt'
+begin
+  require 'Qt'
+ensure
+  $stderr.reopen(temp_stderr) if Kernel.is_windows?
+end
 File.delete(check_filename) if Kernel.is_windows? and File.exist?(check_filename)
 
 module Cosmos
