@@ -90,6 +90,27 @@ In your .bash_profile add this line (point to your actual COSMOS configuration f
 export COSMOS_USERPATH=/Users/username/demo
 ```
 
+Alternative Install directions using Mac Ports:
+
+```
+sudo port install qt4-mac
+sudo port install ruby24
+sudo port select --set ruby ruby24
+sudo gem install ruby-termios
+sudo gem install cosmos
+```
+
+You should have a working install and can now create
+a sample COSMOS directory structure where you can
+configure and run cosmos. To create a test area do
+this:
+
+```
+cosmos demo test
+cd test
+ruby Launcher
+```
+
 ## General
 
 Notes:

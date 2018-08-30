@@ -11,8 +11,8 @@
     <title xml:lang="en">Ball Aerospace COSMOS News</title>
     <atom:link type="application/atom+xml" href="http://cosmosrb/feed.xml" rel="self"/>
     <link>http://cosmosrb.com/</link>
-    <pubDate>Fri, 17 Aug 2018 10:42:06 -0600</pubDate>
-    <lastBuildDate>Fri, 17 Aug 2018 10:42:06 -0600</lastBuildDate>
+    <pubDate>Thu, 30 Aug 2018 17:04:59 -0600</pubDate>
+    <lastBuildDate>Thu, 30 Aug 2018 17:04:59 -0600</lastBuildDate>
     <language>en-US</language>
     <generator>Jekyll v3.5.2</generator>
     <description>The User Interface for Embedded Systems</description>
@@ -24,6 +24,68 @@
       <width>144</width>
       <height>73</height>
     </image>
+    
+    <item>
+      <title>Ball Aerospace COSMOS 4.3.0 Released</title>
+      <link>http://cosmosrb.com/news/2018/08/30/cosmos-4-3-0-released/</link>
+      <pubDate>Thu, 30 Aug 2018 07:00:00 -0600</pubDate>
+      <dc:creator>ryanmelt</dc:creator>
+      
+      
+      <category>release</category>
+      
+      <guid isPermaLink="true">http://cosmosrb.com/news/2018/08/30/cosmos-4-3-0-released/</guid>
+      <description>&lt;p&gt;Welcome to COSMOS 4.3.0!&lt;/p&gt;
+
+&lt;p&gt;The highlight of this release is built in support for differentiating between stored telemetry and realtime telemetry.  If your system downlinks stored telemetry that you don’t want to interfere with the COSMOS realtime current value table, your interface/protocol code can set the stored flag on a packet before returning it to COSMOS to have COSMOS log the packet, but not update the current telemetry values.&lt;/p&gt;
+
+&lt;p&gt;Lots of other new features as well, and a few bug fixes including fixing running on the latest version of Mac OSX.  See below for the full list.&lt;/p&gt;
+
+&lt;p&gt;Breaking Changes:
+The COSMOS log file format and predentified protocol formats have changed to support stored telemetry.   COSMOS 4.3 is backwards compatible with earlier formats, but older versions of COSMOS won’t be able to read files from COSMOS 4.3+.&lt;/p&gt;
+
+&lt;h3 id=&quot;new-features&quot;&gt;New Features:&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/780&quot;&gt;#780&lt;/a&gt; Search bar support for Command Sequence&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/785&quot;&gt;#785&lt;/a&gt; Adjust font size&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/804&quot;&gt;#804&lt;/a&gt; Add classification bar to all tools&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/808&quot;&gt;#808&lt;/a&gt; Add CANVASELLIPSE widget&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/814&quot;&gt;#814&lt;/a&gt; Changes to support stored telemetry&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/815&quot;&gt;#815&lt;/a&gt; Create a temporary screen from a script&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/818&quot;&gt;#818&lt;/a&gt; Catch all state for any undefined state values&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/819&quot;&gt;#819&lt;/a&gt; Ensure x values added in incrementing order in TlmGrapher&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/823&quot;&gt;#823&lt;/a&gt; Add protocol to ignore any packet&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/826&quot;&gt;#826&lt;/a&gt; Allow hash style access to Excel&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/829&quot;&gt;#829&lt;/a&gt; Add STAY_ON_TOP feature to telemetry screens&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/851&quot;&gt;#851&lt;/a&gt; Ensure step_mode displays Step button&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/859&quot;&gt;#859&lt;/a&gt; Change Script Runner highlight color when paused&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;maintenance&quot;&gt;Maintenance:&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/796&quot;&gt;#796&lt;/a&gt; Handle Command Sequence Export Issues&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/807&quot;&gt;#807&lt;/a&gt; Revert Items with STATE cannot define FORMAT_STRING&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/812&quot;&gt;#812&lt;/a&gt; Ruby 2.5 Instrumented Code outside of methods in a class&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/855&quot;&gt;#855&lt;/a&gt; Remove Qt warning message on Windows 10&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/858&quot;&gt;#858&lt;/a&gt; Fix JRuby build issues&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;bug-fixes&quot;&gt;Bug Fixes:&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/837&quot;&gt;#837&lt;/a&gt; Packet Viewer’s “Hide Ignored Items” Incorrectly Persists Across Change of Packet&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/840&quot;&gt;#840&lt;/a&gt; Latest version of COSMOS crashing&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/845&quot;&gt;#845&lt;/a&gt; Support get_tlm_details in disconnect mode&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;migration-notes-from-cosmos-42x&quot;&gt;Migration Notes from COSMOS 4.2.x:&lt;/h3&gt;
+&lt;p&gt;To upgrade to the latest version of COSMOS, run “bundle update cosmos” in your COSMOS project folder.&lt;/p&gt;
+
+&lt;p&gt;See the COSMOS documentation for directions on setting up DART: http://cosmosrb.com/docs/home/&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>Ball Aerospace COSMOS 4.2.4 Released</title>
