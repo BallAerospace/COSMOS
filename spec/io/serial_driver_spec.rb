@@ -41,20 +41,22 @@ if RUBY_ENGINE == 'ruby' or Gem.win_platform?
         end
 
         it "defers to the posix serial driver on nix" do
-          class PosixSerialDriver
+          if RUBY_ENGINE == 'ruby'
+            class PosixSerialDriver
+            end
+            allow(Kernel).to receive(:is_windows?).and_return(false)
+            driver = double("PosixSerialDriver")
+            expect(driver).to receive(:close)
+            expect(driver).to receive(:closed?)
+            expect(driver).to receive(:write)
+            expect(driver).to receive(:read)
+            allow(PosixSerialDriver).to receive(:new).and_return(driver)
+            driver = SerialDriver.new('COM1',9600)
+            driver.close
+            driver.closed?
+            driver.write("hi")
+            driver.read
           end
-          allow(Kernel).to receive(:is_windows?).and_return(false)
-          driver = double("PosixSerialDriver")
-          expect(driver).to receive(:close)
-          expect(driver).to receive(:closed?)
-          expect(driver).to receive(:write)
-          expect(driver).to receive(:read)
-          allow(PosixSerialDriver).to receive(:new).and_return(driver)
-          driver = SerialDriver.new('COM1',9600)
-          driver.close
-          driver.closed?
-          driver.write("hi")
-          driver.read
         end
       end
     end
