@@ -45,6 +45,8 @@ module Cosmos
     COSMOS4_STORED_FLAG_MASK = 0x80
     COSMOS4_EXTRA_FLAG_MASK = 0x40
 
+    MAX_READ_SIZE = 1000000000
+
     # Create a new log file reader
     def initialize
       reset()
@@ -125,6 +127,8 @@ module Cosmos
       reset()
       @filename = filename
       @file = BufferedFile.open(@filename, 'rb')
+      @max_read_size = @file.size
+      @max_read_size = MAX_READ_SIZE if @max_read_size > MAX_READ_SIZE
       @bytes_read = 0
       return read_file_header()
     rescue => err
@@ -147,7 +151,7 @@ module Cosmos
       return nil unless success
 
       # Read Packet Data
-      packet_data = @file.read_length_bytes(4)
+      packet_data = @file.read_length_bytes(4, @max_read_size)
       return nil unless packet_data and packet_data.length > 0
 
       if identify_and_define
@@ -243,6 +247,7 @@ module Cosmos
 
     def reset
       @file = nil
+      @max_read_size = MAX_READ_SIZE
       @filename = nil
       @log_type = :TLM
       @configuration_name = nil
@@ -334,7 +339,7 @@ module Cosmos
 
         if (flags & COSMOS4_EXTRA_FLAG_MASK) != 0
           # Read Extra data
-          extra_data = @file.read_length_bytes(4)
+          extra_data = @file.read_length_bytes(4, @max_read_size)
           return [nil, nil, nil, nil, nil, nil] unless extra_data and extra_data.length > 0
           extra = JSON.parse(extra_data)
         end

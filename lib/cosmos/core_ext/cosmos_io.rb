@@ -27,7 +27,7 @@ module CosmosIO
     #
     # @param length_num_bytes [Integer] Number of bytes in the length field
     # @return [String] A String of "length field" number of bytes
-    def read_length_bytes(length_num_bytes)
+    def read_length_bytes(length_num_bytes, max_read_size = nil)
       return nil unless (length_num_bytes == 1) || (length_num_bytes == 2) or (length_num_bytes == 4)
 
       # Read bytes for string length
@@ -36,6 +36,7 @@ module CosmosIO
       string_length = Cosmos::BinaryAccessor.read(0, length_num_bytes * 8, :UINT, temp_string_length, :BIG_ENDIAN)
 
       # Read String
+      return nil if max_read_size and string_length > max_read_size
       string = self.read(string_length)
       return nil if (string.nil?) || (string.length != string_length)
       return string

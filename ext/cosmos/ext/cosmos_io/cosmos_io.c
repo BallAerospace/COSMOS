@@ -34,9 +34,10 @@ static ID id_method_read         = 0;
   * @param length_num_bytes [Integer] Number of bytes in the length field
   * @return [String] A String of "length field" number of bytes
   */
-static VALUE read_length_bytes(VALUE self, VALUE param_length_num_bytes)
+static VALUE read_length_bytes(int argc, VALUE* argv, VALUE self)
 {
-  int length_num_bytes = FIX2INT(param_length_num_bytes);
+  int length_num_bytes = 0;
+  int max_read_size = 0;
   unsigned char* string = NULL;
   long string_length = 0;
   unsigned short short_length = 0;
@@ -44,7 +45,27 @@ static VALUE read_length_bytes(VALUE self, VALUE param_length_num_bytes)
   volatile VALUE temp_string = Qnil;
   volatile VALUE temp_string_length = Qnil;
   volatile VALUE return_value = Qnil;
-
+  volatile VALUE param_length_num_bytes = Qnil;
+  volatile VALUE param_max_read_size = Qnil;
+  
+  switch (argc)
+  {
+    case 1:
+      param_length_num_bytes = argv[0];
+      param_max_read_size = Qnil;
+      break;
+    case 2:
+      param_length_num_bytes = argv[0];
+      param_max_read_size = argv[1];
+      break;
+    default:
+      /* Invalid number of arguments given */
+      rb_raise(rb_eArgError, "wrong number of arguments (%d for 1..2)", argc);
+      break;
+  };	
+  
+  length_num_bytes = FIX2INT(param_length_num_bytes);
+  
   /* Read bytes for string length */
   temp_string = rb_funcall(self, id_method_read, 1, param_length_num_bytes);
   if (NIL_P(temp_string) || (RSTRING_LEN(temp_string) != length_num_bytes))
@@ -94,6 +115,13 @@ static VALUE read_length_bytes(VALUE self, VALUE param_length_num_bytes)
       break;
   };
 
+  if (RTEST(param_max_read_size)) {
+    max_read_size = FIX2INT(param_max_read_size);
+    if (string_length > max_read_size) {
+      return Qnil;
+    }
+  }
+
   /* Read String */
   temp_string_length = UINT2NUM(string_length);
   return_value = rb_funcall(self, id_method_read, 1, temp_string_length);
@@ -113,5 +141,5 @@ void Init_cosmos_io (void)
   id_method_read = rb_intern("read");
 
   mCosmosIO = rb_define_module("CosmosIO");
-  rb_define_method(mCosmosIO, "read_length_bytes", read_length_bytes, 1);
+  rb_define_method(mCosmosIO, "read_length_bytes", read_length_bytes, -1);
 }
