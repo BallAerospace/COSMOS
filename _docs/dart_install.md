@@ -16,7 +16,7 @@ instance_eval File.read(File.join(__dir__, 'config/dart/Gemfile'))
 bundle install
 {% endhighlight %}
 This will install all the ruby dependencies for DART.
-1. In postgres, create a 'dart' user and password (with CREATEDB permissions), and both a 'dart' and 'dartTest' database.  The databases should be created with template0, LC_COLLATE 'C', LC_CTYPE 'C', and ENCODING 'SQL_ASCII'
+1. In postgres, create a 'dart' user and password (with CREATEDB permissions), and both a 'dart' and 'darttest' database.  The databases should be created with template0, LC_COLLATE 'C', LC_CTYPE 'C', and ENCODING 'SQL_ASCII'
     1. On windows use pgadmin
     2. Otherwise use the psql command line:
 ```
@@ -24,18 +24,23 @@ This will install all the ruby dependencies for DART.
   CREATE ROLE dart WITH LOGIN PASSWORD 'dart';
   ALTER ROLE dart CREATEDB;
   CREATE DATABASE dart TEMPLATE template0 LC_COLLATE 'C' LC_CTYPE 'C' ENCODING 'SQL_ASCII';
-  CREATE DATABASE dartTest TEMPLATE template0 LC_COLLATE 'C' LC_CTYPE 'C' ENCODING 'SQL_ASCII';
+  CREATE DATABASE darttest TEMPLATE template0 LC_COLLATE 'C' LC_CTYPE 'C' ENCODING 'SQL_ASCII';
   \q
 ```
 1. Create an environment variable on your system named DART_USERNAME and set it to 'dart'. Note you can change this username if necessary as long as the postgres username created above has the same name.
 1. Create an environment variable on your system named DART_PASSWORD and set it to the password created earlier.
 1. Create an environment variable on your system named DART_DB and set it to 'dart'. Note: You can use whatever name you want
-1. Create an environment variable on your system named DART_TEST_DB and set it to 'dartTest'. Note: You can use whatever name you want
+1. Create an environment variable on your system named DART_TEST_DB and set it to 'darttest'. Note: You can use whatever name you want
 1. Run the following command from your COSMOS project configuration directory (not C:/COSMOS which contains Demo & Vendor as that is the installation directory)
 {% highlight bash %}
 bundle exec rake db:schema:load
 bundle exec rake db:seed
 {% endhighlight %}
+
+<div class="note warning">
+  <h5>Other possible dependencies</h5>
+  <p>Depending on your platform other packages may be required. In particular the latest version of Ubuntu 18.04 requires libpq-dev and nodejs.  Additionally you may need to edit pg_hba.conf and change from using the peer authentication method to md5 and restart postgres.</p>
+</div>
 
 At this point the DART database is configured and ready to import COSMOS telemetry. When you start the COSMOS Demo you should see the new DART button in the Utilities section. If you're upgrading from an older version of COSMOS simply add this line to your config/tools/launcher/launcher.txt file:
 {% highlight bash %}
