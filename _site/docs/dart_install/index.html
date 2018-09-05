@@ -3258,6 +3258,7 @@
           
           <div class="toc">
             <ul class="section-nav">
+<li class="toc-entry toc-h5"><a href="#other-possible-dependencies">Other possible dependencies</a></li>
 <li class="toc-entry toc-h5"><a href="#changing-the-dart-data-file-directory">Changing the DART Data File Directory</a></li>
 <li class="toc-entry toc-h5"><a href="#shutting-down-dart">Shutting Down DART</a></li>
 </ul>
@@ -3282,7 +3283,7 @@ instance_eval File.read<span class="o">(</span>File.join<span class="o">(</span>
 
 <p>This will install all the ruby dependencies for DART.</p>
 <ol>
-  <li>In postgres, create a ‘dart’ user and password (with CREATEDB permissions), and both a ‘dart’ and ‘dartTest’ database.  The databases should be created with template0, LC_COLLATE ‘C’, LC_CTYPE ‘C’, and ENCODING ‘SQL_ASCII’
+  <li>In postgres, create a ‘dart’ user and password (with CREATEDB permissions), and both a ‘dart’ and ‘darttest’ database.  The databases should be created with template0, LC_COLLATE ‘C’, LC_CTYPE ‘C’, and ENCODING ‘SQL_ASCII’
     <ol>
       <li>On windows use pgadmin</li>
       <li>Otherwise use the psql command line:
@@ -3291,7 +3292,7 @@ instance_eval File.read<span class="o">(</span>File.join<span class="o">(</span>
   CREATE ROLE dart WITH LOGIN PASSWORD 'dart';
   ALTER ROLE dart CREATEDB;
   CREATE DATABASE dart TEMPLATE template0 LC_COLLATE 'C' LC_CTYPE 'C' ENCODING 'SQL_ASCII';
-  CREATE DATABASE dartTest TEMPLATE template0 LC_COLLATE 'C' LC_CTYPE 'C' ENCODING 'SQL_ASCII';
+  CREATE DATABASE darttest TEMPLATE template0 LC_COLLATE 'C' LC_CTYPE 'C' ENCODING 'SQL_ASCII';
   \q
 </code></pre>
         </div>
@@ -3301,12 +3302,18 @@ instance_eval File.read<span class="o">(</span>File.join<span class="o">(</span>
   <li>Create an environment variable on your system named DART_USERNAME and set it to ‘dart’. Note you can change this username if necessary as long as the postgres username created above has the same name.</li>
   <li>Create an environment variable on your system named DART_PASSWORD and set it to the password created earlier.</li>
   <li>Create an environment variable on your system named DART_DB and set it to ‘dart’. Note: You can use whatever name you want</li>
-  <li>Create an environment variable on your system named DART_TEST_DB and set it to ‘dartTest’. Note: You can use whatever name you want</li>
+  <li>Create an environment variable on your system named DART_TEST_DB and set it to ‘darttest’. Note: You can use whatever name you want</li>
   <li>Run the following command from your COSMOS project configuration directory (not C:/COSMOS which contains Demo &amp; Vendor as that is the installation directory)</li>
 </ol>
 
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">bundle <span class="nb">exec </span>rake db:schema:load
 bundle <span class="nb">exec </span>rake db:seed</code></pre></figure>
+
+<div class="note warning">
+  <h5>
+<a id="other-possible-dependencies" class="anchor" href="#other-possible-dependencies" aria-hidden="true"><span class="octicon octicon-link"></span></a>Other possible dependencies</h5>
+  <p>Depending on your platform other packages may be required. In particular the latest version of Ubuntu 18.04 requires libpq-dev and nodejs.  Additionally you may need to edit pg_hba.conf and change from using the peer authentication method to md5 and restart postgres.</p>
+</div>
 
 <p>At this point the DART database is configured and ready to import COSMOS telemetry. When you start the COSMOS Demo you should see the new DART button in the Utilities section. If you’re upgrading from an older version of COSMOS simply add this line to your config/tools/launcher/launcher.txt file:</p>
 
