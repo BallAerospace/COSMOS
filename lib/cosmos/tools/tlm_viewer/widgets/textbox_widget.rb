@@ -13,7 +13,6 @@ require 'cosmos/tools/tlm_viewer/widgets/widget'
 require 'cosmos/tools/tlm_viewer/widgets/aging_widget'
 
 module Cosmos
-
   class TextboxWidget < Qt::TextEdit
     include Widget
     include AgingWidget
@@ -24,6 +23,15 @@ module Cosmos
       setFixedSize(width.to_i, height.to_i)
       setReadOnly(true)
       parent_layout.addWidget(self) if parent_layout
+
+      # Create update flag and don't update when the scroll bars are down
+      @update = true
+      verticalScrollBar().connect(SIGNAL('sliderPressed()')) do
+        @update = false
+      end
+      verticalScrollBar().connect(SIGNAL('sliderReleased()')) do
+        @update = true
+      end
     end
 
     def format_value(data)
@@ -31,6 +39,7 @@ module Cosmos
     end
 
     def value=(data)
+      return unless @update
       scroll_pos = self.verticalScrollBar.value
       self.text = super(data, format_value(data))
       self.setColors(@foreground, @background)
@@ -41,7 +50,5 @@ module Cosmos
       super
       process_aging_settings
     end
-
   end
-
-end # module Cosmos
+end

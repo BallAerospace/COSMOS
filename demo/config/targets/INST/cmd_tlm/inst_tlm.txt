@@ -139,7 +139,7 @@ TELEMETRY INST PARAMS BIG_ENDIAN "Params set by SETPARAMS command"
 
 TELEMETRY INST IMAGE BIG_ENDIAN "Packet with image data"
   <%= render "_ccsds_tlm.txt", locals: {apid: 4} %>
-  ITEM IMAGE            128 800 BLOCK   "10x10 Image Data"
+  ITEM IMAGE 128 131072 BLOCK   "10x10 Image Data"
   ITEM TIMESECONDS 0 0 DERIVED "Derived floating-point time since epoch in seconds"
     READ_CONVERSION unix_time_seconds_conversion.rb TIMESEC TIMEUS
     FORMAT_STRING '%0.6f'
