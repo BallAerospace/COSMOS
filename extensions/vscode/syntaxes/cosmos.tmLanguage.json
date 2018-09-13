@@ -1,0 +1,42 @@
+{
+    "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+    "name": "cosmos",
+    "scopeName": "source.cosmos",
+    "patterns": [
+        {
+            "match": "#.*",
+            "name": "comment.line.number-sign"
+        },
+        {
+            "begin": "'",
+            "end": "'",
+            "name": "string.quoted.single"
+        },
+        {
+            "begin": "\"",
+            "end": "\"",
+            "name": "string.quoted.double"
+        },
+        {
+            "match": "TELEMETRY",
+            "name": "storage.type"
+        },
+        {
+            "begin": "TELEMETRY\\s",
+            "end": "\\s.*",
+            "name": "entity.name"
+        },
+        {
+            "match": "APPEND_ID_ITEM|APPEND_ITEM",
+            "name": "support.variable"
+        },
+        {
+            "match": "PACKET|VALUE|STRING",
+            "name": "keyword.control"
+        },
+        {
+            "match": "[0-9]",
+            "name": "constant.numeric"
+        }
+    ]
+}

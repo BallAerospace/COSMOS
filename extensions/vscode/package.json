@@ -1,0 +1,58 @@
+{
+	"name": "COSMOS",
+	"description": "Language support for COSMOS configuration files",
+	"author": "Ball Aerospace",
+	"license": "BALL GPL",
+	"version": "0.0.1",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/BallAerospace/COSMOS"
+	},
+	"publisher": "ballaero",
+	"categories": [],
+	"keywords": [
+		"ball aerospace cosmos"
+	],
+	"engines": {
+		"vscode": "^1.23.0"
+	},
+	"activationEvents": [
+		"onLanguage:cosmos"
+	],
+	"main": "./client/out/extension",
+	"contributes": {
+		"languages": [{
+			"id": "cosmos",
+			"aliases": ["COSMOS", "Cosmos"],
+			"filenamePatterns": [
+				"**/COSMOS/config/targets/*/cmdtlm/*.txt",
+				"**/COSMOS/config/targets/*/cmd_tlm/*.txt",
+				"**/COSMOS/config/targets/*/screens/*.txt",
+				"**/COSMOS/config/targets/*/cmd_tlm_server.txt",
+				"**/COSMOS/config/targets/*/target.txt",
+				"**/COSMOS/config/targets/tools/*/*.txt",
+				"**/COSMOS/config/tools/*/*.txt"
+			],
+			"configuration": "./language-configuration.json"
+		}],
+		"grammars": [
+            {
+                "language": "cosmos",
+                "scopeName": "source.cosmos",
+                "path": "./syntaxes/cosmos.tmLanguage.json"
+            }
+        ]
+	},
+	"scripts": {
+		"vscode:prepublish": "cd client && npm run update-vscode && cd .. && npm run compile",
+		"compile:client": "tsc -p ./client/tsconfig.json",
+		"watch:client": "tsc -w -p ./client/tsconfig.json",
+		"compile": "npm run compile:client",
+		"postinstall": "cd client && npm install"
+	},
+	"devDependencies": {
+		"@types/mocha": "^5.2.0",
+		"@types/node": "^8.0.0",
+		"typescript": "2.8.3"
+	}
+}
