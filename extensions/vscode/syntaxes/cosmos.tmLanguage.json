@@ -3,40 +3,93 @@
     "name": "cosmos",
     "scopeName": "source.cosmos",
     "patterns": [
-        {
-            "match": "#.*",
-            "name": "comment.line.number-sign"
+        { "include": "#comments" },
+        { "include": "#strings" },
+        { "include": "#numbers" },
+        { "include": "#packetDef"},
+        { "include": "#packetItem"}
+      ],
+    "repository":{
+        "comments": {
+            "patterns": [
+                {
+                    "description": "Line Comment",
+                    "match": "^#.*",
+                    "name": "comment.line.number-sign"
+                }
+            ]
         },
-        {
-            "begin": "'",
-            "end": "'",
-            "name": "string.quoted.single"
+        "strings": {
+            "patterns": [
+                {
+                    "description": "Single Quoted String",
+                    "begin": "'",
+                    "end": "'",
+                    "name": "string.quoted.single"
+                },
+                {
+                    "description": "Double Quoted String",
+                    "begin": "\"",
+                    "end": "\"",
+                    "name": "string.quoted.double"
+                }
+            ]
         },
-        {
-            "begin": "\"",
-            "end": "\"",
-            "name": "string.quoted.double"
+        "numbers": {
+            "patterns": [
+                {
+                    "match": "[0-9]",
+                    "name": "constant.numeric"
+                },
+                {
+                    "match": "[0-9]+\\.[0-9]+",
+                    "name": "constant.numeric"
+                }
+            ]
         },
-        {
-            "match": "TELEMETRY",
-            "name": "storage.type"
+        "packetDef": {
+            "patterns": [
+                {
+                    "match": "^TELEMETRY\\b",
+                    "name": "storage.type"
+                },
+                {
+                    "match": "^COMMAND\\b",
+                    "name": "storage.type"
+                },
+                {
+                    "match": "(?<=TELEMETRY\\s)\\b\\S+(?=\\s)",
+                    "name": "support.class"
+                },
+                {
+                    "match": "(?<=COMMAND\\s)\\b\\S+(?=\\s)",
+                    "name": "support.class"
+                },
+                {
+                    "match": "(?<=\\s)\\b\\S+(?=\\sBIG_ENDIAN)",
+                    "name": "variable.other"
+                },
+                {
+                    "match": "(?<=\\s)\\b\\S+(?=\\sLITTLE_ENDIAN)",
+                    "name": "variable.other"
+                },
+                {
+                    "match": "\\b(BIG_ENDIAN|LITTLE_ENDIAN)\\b",
+                    "name": "keyword.control"
+                }
+            ]
         },
-        {
-            "begin": "TELEMETRY\\s",
-            "end": "\\s.*",
-            "name": "entity.name"
-        },
-        {
-            "match": "APPEND_ID_ITEM|APPEND_ITEM",
-            "name": "support.variable"
-        },
-        {
-            "match": "PACKET|VALUE|STRING",
-            "name": "keyword.control"
-        },
-        {
-            "match": "[0-9]",
-            "name": "constant.numeric"
+        "packetItem": {
+            "patterns": [
+                {
+                    "match": "^\\s{1,2}(APPEND_ID_|ID_)(ITEM|PARAMETER)\\b",
+                    "name": "support.function"
+                },
+                {
+                    "match": "^\\s{1,2}APPEND_(ITEM|PARAMETER)\\b",
+                    "name": "keyword.other"
+                }
+            ]
         }
-    ]
+    }
 }
