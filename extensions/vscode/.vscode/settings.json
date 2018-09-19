@@ -7,6 +7,6 @@
 	},
 	"typescript.tsdk": "./node_modules/typescript/lib",
 	"typescript.tsc.autoDetect": "off",
-	"npm.exclude": ["**/client", "**/server"],
+	"npm.exclude": ["**/client"],
 	"npm.enableScriptExplorer": true
 }

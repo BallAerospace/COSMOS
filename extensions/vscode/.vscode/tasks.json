@@ -7,10 +7,6 @@
 				{
 					"type": "npm",
 					"script": "compile:client"
-				},
-				{
-					"type": "npm",
-					"script": "compile:server"
 				}
 			],
 			"problemMatcher": []
@@ -29,27 +25,11 @@
 			]
 		},
 		{
-			"type": "npm",
-			"script": "compile:server",
-			"group": "build",
-			"presentation": {
-				"panel": "dedicated",
-				"reveal": "never"
-			},
-			"problemMatcher": [
-				"$tsc"
-			]
-		},
-		{
 			"label": "watch",
 			"dependsOn": [
 				{
 					"type": "npm",
 					"script": "watch:client"
-				},
-				{
-					"type": "npm",
-					"script": "watch:server"
 				}
 			],
 			"group": {
@@ -61,19 +41,6 @@
 		{
 			"type": "npm",
 			"script": "watch:client",
-			"isBackground": true,
-			"group": "build",
-			"presentation": {
-				"panel": "dedicated",
-				"reveal": "never"
-			},
-			"problemMatcher": [
-				"$tsc-watch"
-			]
-		},
-		{
-			"type": "npm",
-			"script": "watch:server",
 			"isBackground": true,
 			"group": "build",
 			"presentation": {
