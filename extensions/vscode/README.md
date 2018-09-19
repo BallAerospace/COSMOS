@@ -1,15 +1,43 @@
-# LSP Multi Server Example
+# COSMOS for Visual Studio Code
 
-A language server example that demonstrates how to start a server per workspace folder. If the workspace has nested workspace folders only a server for the outer most workspace folder is started assuming that the language service handles nested code.
+This extension adds language support for COSMOS configuration files.
 
-The example uses proposed Language Server protocol. So the code demoed here might change when the final version of the configuration and workspace folder protocol is released.
+This extension currently only supports syntax highlighting.
 
-## Compile and Run
+To identify COSMOS configuration files, this extension assumes that a COSMOS directory exists inside of the <Project_Dir> and that it adheres to the strict directure structure of COSMOS as shown below.
 
-- run `npm install` in this folder. This installs all necessary npm modules in both the client and server folder
-- open VS Code on this folder.
-- Press Ctrl+Shift+B to compile the client and server
-- Switch to the Debug viewlet
-- Select `Launch Client` from the drop down
-- Run the lauch config
-- If you want to debug the server as well use the launch configuration `Attach to Server`
+```
+<Project_Dir>
+|--COSMOS
+|  |--Gemfile
+|  |--Launcher
+|  |--Launcher.bat
+|  |--Rakefile
+|  |--userpath.txt
+|  |--config
+|  |  |--data
+|  |  |--system
+|  |  |--targets
+|  |  |  |--<TARGETNAME>
+|  |  |  |  |--cmd_tlm_server.txt
+|  |  |  |  |--target.txt
+|  |  |  |  |--(cmdtlm or cmd_tlm)
+|  |  |  |  |--lib
+|  |  |  |  |--screens
+|  |  |  |--...
+|  |  |--tools
+|  |  |  |--cmd_tlm_server
+|  |  |  |--...
+|  |--lib
+|  |--outputs
+|  |  |--handbooks
+|  |  |--logs
+|  |  |--saved_config
+|  |  |--tables
+|  |  |--tmp
+|  |--procedures
+|  |--tools
+|  |  |--mac
+|  |  |--...
+|--<other_proj_dirs>
+```
