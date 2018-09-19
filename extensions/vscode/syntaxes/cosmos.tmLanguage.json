@@ -6,8 +6,10 @@
         { "include": "#comments" },
         { "include": "#strings" },
         { "include": "#numbers" },
+        { "include": "#requireStatements" },
         { "include": "#packetDef"},
-        { "include": "#packetItem"}
+        { "include": "#packetItem"},
+        { "include": "#itemProperties" }
       ],
     "repository":{
         "comments": {
@@ -32,18 +34,38 @@
                     "begin": "\"",
                     "end": "\"",
                     "name": "string.quoted.double"
+                },
+                {
+                    "match": "(?<=UNITS\\s)\\b\\S+\\s\\S+\\s*$",
+                    "name": "string.unquoted"
                 }
             ]
         },
         "numbers": {
             "patterns": [
                 {
-                    "match": "[0-9]",
+                    "match": "0x[a-zA-Z0-9]+",
                     "name": "constant.numeric"
                 },
                 {
                     "match": "[0-9]+\\.[0-9]+",
                     "name": "constant.numeric"
+                },
+                {
+                    "match": "[0-9]",
+                    "name": "constant.numeric"
+                }
+            ]
+        },
+        "requireStatements": {
+            "patterns": [
+                {
+                    "match": "(<%|%>)",
+                    "name": "keyword.operator"
+                },
+                {
+                    "match": "\\brequire\\b",
+                    "name": "keyword.control"
                 }
             ]
         },
@@ -82,12 +104,48 @@
         "packetItem": {
             "patterns": [
                 {
-                    "match": "^\\s{1,2}(APPEND_ID_|ID_)(ITEM|PARAMETER)\\b",
+                    "match": "^\\s{0,2}(APPEND_ID_|ID_)(ITEM|PARAMETER)\\b",
                     "name": "support.function"
                 },
                 {
-                    "match": "^\\s{1,2}APPEND_(ITEM|PARAMETER)\\b",
-                    "name": "keyword.other"
+                    "match": "^\\s{0,2}APPEND_(ITEM|PARAMETER)\\b",
+                    "name": "storage.modifer"
+                },
+                {
+                    "match": "^\\s{0,2}(ITEM|PARAMETER)\\b",
+                    "name": "storage.modifer"
+                },
+                {
+                    "match": "(?<=ITEM\\s)\\b\\S+(?=\\s)",
+                    "name": "variable.parameter"
+                },
+                {
+                    "match": "(?<=APPEND_ITEM\\s)\\b\\S+(?=\\s)",
+                    "name": "variable.parameter"
+                },
+                {
+                    "match": "(?<=PARAMETER\\s)\\b\\S+(?=\\s)",
+                    "name": "variable.parameter"
+                },
+                {
+                    "match": "(?<=APPEND_PARAMETER\\s)\\b\\S+(?=\\s)",
+                    "name": "variable.parameter"
+                },
+                {
+                    "match": "\\b(INT|UINT|FLOAT|DERIVED|STRING|BLOCK)\\b",
+                    "name": "storage.type"
+                }
+            ]
+        },
+        "itemProperties": {
+            "patterns": [
+                {
+                    "match": "^\\s{0,4}(STATE|FORMAT_STRING|READ_CONVERSION|UNITS)\\b",
+                    "name": "keyword.control"
+                },
+                {
+                    "match": "(?<=STATE\\s)\\b\\S+(?=\\s)",
+                    "name": "variable.parameter"
                 }
             ]
         }
