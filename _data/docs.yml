@@ -30,9 +30,9 @@
 
 - title: DART
   docs:
+  - dart_overview
   - dart_install
   - dart_api
-  - dart_design
 
 - title: User's Guides
   docs:

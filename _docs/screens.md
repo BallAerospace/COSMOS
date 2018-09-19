@@ -42,6 +42,9 @@ SCREEN AUTO AUTO 1.0 FIXED
 ### END
 The END keyword is used to indicate the close of a layout widget. For example a VERTICALBOX keyword must be matched with an END keyword to indicate where the VERTICALBOX ends.
 
+### STAY_ON_TOP
+The STAY_ON_TOP keyword is used to force the screen to the front of the display stack. This forces the window to stay above ALL other windows including other applications not associated with COSMOS.
+
 ### GLOBAL_SETTING
 The GLOBAL_SETTING keyword is used to apply a widget setting to allow widgets of a certain type.  (See SETTING)
 
@@ -297,7 +300,7 @@ TARGET COSMOS
 GROUP "My group"
   GROUP_SCREEN SYSTEM "status.txt"
   GROUP_SCREEN INST "hs.txt"
-  GROUP_SCREEN INST2 "hs.txt"  
+  GROUP_SCREEN INST2 "hs.txt"
 {% endhighlight %}
 
 ---

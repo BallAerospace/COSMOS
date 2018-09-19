@@ -1887,7 +1887,91 @@
     
   
     
+      <option value="/docs/dart_overview/">DART Overview</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
       <option value="/docs/dart_install/">DART Installation</option>
+    
+  
     
   
     
@@ -1970,90 +2054,6 @@
       <option value="/docs/dart_api/">DART API</option>
     
   
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-
-  
-
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-      <option value="/docs/dart_design/">DART Design</option>
     
   
     
@@ -3495,13 +3495,15 @@
 <li class="toc-entry toc-h3"><a href="#load_utility">load_utility</a></li>
 </ul>
 </li>
-<li class="toc-entry toc-h2"><a href="#opening-and-closing-telemetry-screens">Opening and Closing Telemetry Screens</a>
+<li class="toc-entry toc-h2"><a href="#opening-closing--creating-telemetry-screens">Opening, Closing & Creating Telemetry Screens</a>
 <ul>
 <li class="toc-entry toc-h3"><a href="#display">display</a></li>
 <li class="toc-entry toc-h3"><a href="#clear">clear</a></li>
 <li class="toc-entry toc-h3"><a href="#clear_all-since-392">clear_all (since 3.9.2)</a></li>
 <li class="toc-entry toc-h3"><a href="#get_screen_list-since-410">get_screen_list (since 4.1.0)</a></li>
 <li class="toc-entry toc-h3"><a href="#get_screen_definition-since-410">get_screen_definition (since 4.1.0)</a></li>
+<li class="toc-entry toc-h3"><a href="#local_screen-since-430">local_screen (since 4.3.0)</a></li>
+<li class="toc-entry toc-h3"><a href="#close_local_screens-since-430">close_local_screens (since 4.3.0)</a></li>
 </ul>
 </li>
 <li class="toc-entry toc-h2"><a href="#script-runner-specific-functionality">Script Runner Specific Functionality</a>
@@ -4796,8 +4798,10 @@
 <p>The get_cmd_cnt method returns the number of times a specified command has been sent.</p>
 
 <p>Syntax:</p>
-
-<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">get_cmd_cnt</span><span class="p">(</span><span class="s2">"&lt;Target Name&gt;"</span><span class="p">,</span> <span class="s2">"&lt;Command Name&gt;"</span><span class="p">)</span></code></pre></figure>
+<div class="language-ruby highlighter-rouge">
+<pre class="highlight"><code><span class="n">get_cmd_cnt</span><span class="p">(</span><span class="s2">"&lt;Target Name&gt;"</span><span class="p">,</span> <span class="s2">"&lt;Command Name&gt;"</span><span class="p">)</span>
+</code></pre>
+</div>
 
 <table>
   <thead>
@@ -4827,11 +4831,7 @@
 
 <p>The get_all_cmd_info method returns the number of times each command has been sent.  The return value is an array of arrays where each subarray contains the target name, command name, and packet count for a command.</p>
 
-<p>Syntax:</p>
-
-<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">get_all_cmd_info</span><span class="p">()</span></code></pre></figure>
-
-<p>Example:</p>
+<p>Syntax / Example:</p>
 
 <figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">cmd_info</span> <span class="o">=</span> <span class="n">get_all_cmd_info</span><span class="p">()</span>
 <span class="n">cmd_info</span><span class="p">.</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">target_name</span><span class="p">,</span> <span class="n">cmd_name</span><span class="p">,</span> <span class="n">pkt_count</span><span class="o">|</span>
@@ -5609,11 +5609,7 @@
 
 <p>The get_all_tlm_info method returns the number of times each telemetry packet has been received.  The return value is an array of arrays where each subarray contains the target name, telemetry packet name, and packet count for a telemetry packet.</p>
 
-<p>Syntax:</p>
-
-<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">get_all_tlm_info</span><span class="p">()</span></code></pre></figure>
-
-<p>Example:</p>
+<p>Syntax / Example:</p>
 
 <figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">tlm_info</span> <span class="o">=</span> <span class="n">get_all_tlm_info</span><span class="p">()</span>
 <span class="n">tlm_info</span><span class="p">.</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">target_name</span><span class="p">,</span> <span class="n">pkt_name</span><span class="p">,</span> <span class="n">pkt_count</span><span class="o">|</span>
@@ -6912,13 +6908,7 @@
 
 <p>The get_limits_groups method returns the list of limits groups in the system.</p>
 
-<p>Syntax:</p>
-<div class="language-ruby highlighter-rouge">
-<pre class="highlight"><code><span class="n">get_limits_groups</span><span class="p">()</span>
-</code></pre>
-</div>
-
-<p>Example:</p>
+<p>Syntax / Example:</p>
 <div class="language-ruby highlighter-rouge">
 <pre class="highlight"><code><span class="n">limits_groups</span> <span class="o">=</span> <span class="n">get_limits_groups</span><span class="p">()</span>
 </code></pre>
@@ -6961,13 +6951,7 @@
 
 <p>The get_limits_set method returns the name of the current limits set. The default limits set is :DEFAULT.</p>
 
-<p>Syntax:</p>
-<div class="language-ruby highlighter-rouge">
-<pre class="highlight"><code><span class="n">get_limits_set</span><span class="p">()</span>
-</code></pre>
-</div>
-
-<p>Example:</p>
+<p>Syntax / Example:</p>
 <div class="language-ruby highlighter-rouge">
 <pre class="highlight"><code><span class="n">limits_set</span> <span class="o">=</span> <span class="n">get_limits_set</span><span class="p">()</span>
 </code></pre>
@@ -6978,13 +6962,7 @@
 
 <p>The get_limits_sets method returns the list of limits sets in the system.</p>
 
-<p>Syntax:</p>
-<div class="language-ruby highlighter-rouge">
-<pre class="highlight"><code><span class="n">get_limits_sets</span><span class="p">()</span>
-</code></pre>
-</div>
-
-<p>Example:</p>
+<p>Syntax / Example:</p>
 <div class="language-ruby highlighter-rouge">
 <pre class="highlight"><code><span class="n">limits_sets</span> <span class="o">=</span> <span class="n">get_limits_sets</span><span class="p">()</span>
 </code></pre>
@@ -7093,13 +7071,7 @@ Example:
 
 <p>The get_out_of_limits method returns an array with the target_name, packet_name, item_name, and limits_state of all items that are out of their limits ranges.</p>
 
-<p>Syntax:</p>
-<div class="language-ruby highlighter-rouge">
-<pre class="highlight"><code><span class="n">get_out_of_limits</span><span class="p">()</span>
-</code></pre>
-</div>
-
-<p>Example:</p>
+<p>Syntax / Example:</p>
 <div class="language-ruby highlighter-rouge">
 <pre class="highlight"><code><span class="n">out_of_limits_items</span> <span class="o">=</span> <span class="n">get_out_of_limits</span><span class="p">()</span>
 </code></pre>
@@ -7300,13 +7272,7 @@ Example:
 
 <p>The get_target_list method returns a list of the targets in the system in an array.</p>
 
-<p>Syntax:</p>
-<div class="language-ruby highlighter-rouge">
-<pre class="highlight"><code><span class="n">get_target_list</span><span class="p">()</span>
-</code></pre>
-</div>
-
-<p>Example:</p>
+<p>Syntax / Example:</p>
 <div class="language-ruby highlighter-rouge">
 <pre class="highlight"><code><span class="n">targets</span> <span class="o">=</span> <span class="n">get_target_list</span><span class="p">()</span>
 </code></pre>
@@ -7344,10 +7310,7 @@ Example:
 
 <p>The get_all_target_info method returns information about all targets.  The return value is an array of arrays where each subarray contains the target name, interface name, command count, and telemetry count for a target.</p>
 
-<p>Syntax:
-<code class="highlighter-rouge">get_all_target_info()</code></p>
-
-<p>Example:</p>
+<p>Syntax / Example:</p>
 
 <figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">target_info</span> <span class="o">=</span> <span class="n">get_all_target_info</span><span class="p">()</span>
 <span class="n">target_info</span><span class="p">.</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">target_name</span><span class="p">,</span> <span class="n">interface_name</span><span class="p">,</span> <span class="n">cmd_count</span><span class="p">,</span> <span class="n">tlm_count</span><span class="o">|</span>
@@ -7554,13 +7517,7 @@ Example:
 
 <p>The get_interface_names method returns a list of the interfaces in the system in an array.</p>
 
-<p>Syntax:</p>
-<div class="language-ruby highlighter-rouge">
-<pre class="highlight"><code><span class="n">get_interface_names</span><span class="p">()</span>
-</code></pre>
-</div>
-
-<p>Example:</p>
+<p>Syntax / Example:</p>
 <div class="language-ruby highlighter-rouge">
 <pre class="highlight"><code><span class="n">interface_names</span> <span class="o">=</span> <span class="n">get_interface_names</span><span class="p">()</span>
 </code></pre>
@@ -7630,10 +7587,7 @@ Example:
 
 <p>The get_all_interface_info method returns information about all interfaces.  The return value is an array of arrays where each subarray contains the interface name, connection state, number of connected clients, transmit queue size, receive queue size, bytes transmitted, bytes received, command count, and telemetry count.</p>
 
-<p>Syntax:
-<code class="highlighter-rouge">get_all_interface_info()</code></p>
-
-<p>Example:</p>
+<p>Syntax / Example:</p>
 
 <figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">interface_info</span> <span class="o">=</span> <span class="n">get_all_interface_info</span><span class="p">()</span>
 <span class="n">interface_info</span><span class="p">.</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">interface_name</span><span class="p">,</span> <span class="n">connection_state</span><span class="p">,</span> <span class="n">num_clients</span><span class="p">,</span> <span class="n">tx_q_size</span><span class="p">,</span> <span class="n">rx_q_size</span><span class="p">,</span> <span class="n">tx_bytes</span><span class="p">,</span> <span class="n">rx_bytes</span><span class="p">,</span> <span class="n">cmd_count</span><span class="p">,</span> <span class="n">tlm_count</span><span class="o">|</span>
@@ -7752,13 +7706,7 @@ Example:
 
 <p>The get_router_names method returns a list of the routers in the system in an array.</p>
 
-<p>Syntax:</p>
-<div class="language-ruby highlighter-rouge">
-<pre class="highlight"><code><span class="n">get_router_names</span><span class="p">()</span>
-</code></pre>
-</div>
-
-<p>Example:</p>
+<p>Syntax / Example:</p>
 <div class="language-ruby highlighter-rouge">
 <pre class="highlight"><code><span class="n">router_names</span> <span class="o">=</span> <span class="n">get_router_names</span><span class="p">()</span>
 </code></pre>
@@ -7796,10 +7744,7 @@ Example:
 
 <p>The get_all_router_info method returns information about all routers.  The return value is an array of arrays where each subarray contains the router name, connection state, number of connected clients, transmit queue size, receive queue size, bytes transmitted, bytes received, packets received, and packets sent.</p>
 
-<p>Syntax:
-<code class="highlighter-rouge">get_all_router_info()</code></p>
-
-<p>Example:</p>
+<p>Syntax / Example:</p>
 
 <figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">router_info</span> <span class="o">=</span> <span class="n">get_all_router_info</span><span class="p">()</span>
 <span class="n">router_info</span><span class="p">.</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">router_name</span><span class="p">,</span> <span class="n">connection_state</span><span class="p">,</span> <span class="n">num_clients</span><span class="p">,</span> <span class="n">tx_q_size</span><span class="p">,</span> <span class="n">rx_q_size</span><span class="p">,</span> <span class="n">tx_bytes</span><span class="p">,</span> <span class="n">rx_bytes</span><span class="p">,</span> <span class="n">pkts_rcvd</span><span class="p">,</span> <span class="n">pkts_sent</span><span class="o">|</span>
@@ -8086,13 +8031,7 @@ Example:
 
 <p>Returns the filename of the COSMOS Command and Telemetry Server message log.</p>
 
-<p>Syntax:</p>
-<div class="language-ruby highlighter-rouge">
-<pre class="highlight"><code><span class="n">get_server_message_log_filename</span><span class="p">()</span>
-</code></pre>
-</div>
-
-<p>Example:</p>
+<p>Syntax / Example:</p>
 <div class="language-ruby highlighter-rouge">
 <pre class="highlight"><code><span class="n">filename</span> <span class="o">=</span> <span class="n">get_server_message_log_filename</span><span class="p">()</span>
 </code></pre>
@@ -8103,13 +8042,7 @@ Example:
 
 <p>Starts a new COSMOS Command and Telemetry Server message log.</p>
 
-<p>Syntax:</p>
-<div class="language-ruby highlighter-rouge">
-<pre class="highlight"><code><span class="n">start_new_server_message_log</span><span class="p">()</span>
-</code></pre>
-</div>
-
-<p>Example:</p>
+<p>Syntax / Example:</p>
 <div class="language-ruby highlighter-rouge">
 <pre class="highlight"><code><span class="n">start_new_server_message_log</span><span class="p">()</span>
 </code></pre>
@@ -8248,11 +8181,7 @@ Example:
 
 <p>The get_packet_loggers method returns a list of the packet loggers in the system.</p>
 
-<p>Syntax:</p>
-
-<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">get_packet_loggers</span><span class="p">()</span></code></pre></figure>
-
-<p>Example:</p>
+<p>Syntax / Example:</p>
 
 <figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">packet_loggers</span> <span class="o">=</span> <span class="n">get_packet_loggers</span><span class="p">()</span></code></pre></figure>
 
@@ -8288,11 +8217,7 @@ Example:
 
 <p>The get_all_packet_logger_info method returns information about all packet loggers. The return value is an array of arrays where each subarray contains the name, associated interfaces, command log enable flag, command queue size, command filename, command file size, telemetry log enable flag, telemetry queue size, telemetry filename, and telemetry file size for a packet logger.</p>
 
-<p>Syntax:</p>
-
-<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">get_all_packet_logger_info</span><span class="p">()</span></code></pre></figure>
-
-<p>Example:</p>
+<p>Syntax / Example:</p>
 
 <figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">packet_logger_info</span> <span class="o">=</span> <span class="n">get_all_packet_logger_info</span><span class="p">()</span>
 <span class="n">packet_logger_info</span><span class="p">.</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">packet_logger_name</span><span class="p">,</span> <span class="n">interfaces</span><span class="p">,</span> <span class="n">cmd_logging</span><span class="p">,</span> <span class="n">cmd_q_size</span><span class="p">,</span> <span class="n">cmd_filename</span><span class="p">,</span> <span class="n">cmd_file_size</span><span class="p">,</span> <span class="n">tlm_logging</span><span class="p">,</span> <span class="n">tlm_q_size</span><span class="p">,</span> <span class="n">tlm_filename</span><span class="p">,</span> <span class="n">tlm_file_size</span><span class="o">|</span>
@@ -8342,11 +8267,7 @@ Example:
 
 <p>The get_server_status method returns status information for the Command and Telemetry Server.  The information includes the active limits set, API port number, JSON DRB number of clients, JSON DRB average request count, JSON DRB average request time, and number of server threads.</p>
 
-<p>Syntax:</p>
-
-<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">get_server_status</span><span class="p">()</span></code></pre></figure>
-
-<p>Example:</p>
+<p>Syntax / Example:</p>
 
 <figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">limits_set</span><span class="p">,</span> <span class="n">api_port</span><span class="p">,</span> <span class="n">json_drb_num_clients</span><span class="p">,</span> <span class="n">json_drb_req_count</span><span class="p">,</span> <span class="n">json_drb_avg_req_time</span><span class="p">,</span> <span class="n">num_threads</span> <span class="o">=</span> <span class="n">get_server_status</span><span class="p">()</span></code></pre></figure>
 
@@ -8355,11 +8276,7 @@ Example:
 
 <p>The cmd_tlm_reload method reloads the default configuration in the Command and Telemetry Server.</p>
 
-<p>Syntax:</p>
-
-<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">cmd_tlm_reload</span><span class="p">()</span></code></pre></figure>
-
-<p>Example:</p>
+<p>Syntax / Example:</p>
 
 <figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">cmd_tlm_reload</span><span class="p">()</span></code></pre></figure>
 
@@ -8368,11 +8285,7 @@ Example:
 
 <p>The cmd_tlm_clear_counters method resets the counters in the Command and Telemetry Server back to zero.</p>
 
-<p>Syntax:</p>
-
-<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">cmd_tlm_clear_counters</span><span class="p">()</span></code></pre></figure>
-
-<p>Example:</p>
+<p>Syntax / Example:</p>
 
 <figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">cmd_tlm_clear_counters</span><span class="p">()</span></code></pre></figure>
 
@@ -8474,11 +8387,7 @@ Example:
 
 <p>The get_background_tasks method returns information about all background tasks.  The return value is an array of arrays where each subarray contains the name, state, and status string for a background task.</p>
 
-<p>Syntax:</p>
-
-<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">get_background_tasks</span><span class="p">()</span></code></pre></figure>
-
-<p>Example:</p>
+<p>Syntax / Example:</p>
 
 <figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">background_tasks</span> <span class="o">=</span> <span class="n">get_background_tasks</span><span class="p">()</span>
 <span class="n">background_tasks</span><span class="p">.</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">background_task_name</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">status_string</span><span class="o">|</span>
@@ -8579,11 +8488,7 @@ Example:
 
 <p>The get_replay_mode method returns true if the JSON DRB connection is configured to connect to the Replay tool or false if the JSON DRB connection is configured to connect to the CTS.</p>
 
-<p>Syntax:</p>
-
-<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">get_replay_mode</span><span class="p">()</span></code></pre></figure>
-
-<p>Example:</p>
+<p>Syntax / Example:</p>
 
 <figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">replay_mode</span> <span class="o">=</span> <span class="n">get_replay_mode</span><span class="p">()</span></code></pre></figure>
 
@@ -8624,11 +8529,7 @@ Example:
 
 <p>The replay_status method returns status for the Replay tool.  The returned status includes the PLAYING/STOPPED status, playback delay, playback filename, file start time, file current (playback) time, file end time, file index, and file max index.</p>
 
-<p>Syntax:</p>
-
-<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">replay_status</span><span class="p">()</span></code></pre></figure>
-
-<p>Example:</p>
+<p>Syntax / Example:</p>
 
 <figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">status</span><span class="p">,</span> <span class="n">delay</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">file_start</span><span class="p">,</span> <span class="n">file_current</span><span class="p">,</span> <span class="n">file_end</span><span class="p">,</span> <span class="n">file_index</span><span class="p">,</span> <span class="n">file_max_index</span> <span class="o">=</span> <span class="n">replay_status</span><span class="p">()</span></code></pre></figure>
 
@@ -8665,11 +8566,7 @@ Example:
 
 <p>The replay_play method starts playback in the Replay tool.</p>
 
-<p>Syntax:</p>
-
-<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">replay_play</span><span class="p">()</span></code></pre></figure>
-
-<p>Example:</p>
+<p>Syntax / Example:</p>
 
 <figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">replay_play</span><span class="p">()</span></code></pre></figure>
 
@@ -8678,11 +8575,7 @@ Example:
 
 <p>The replay_reverse_play method starts reverse playback in the Replay tool.</p>
 
-<p>Syntax:</p>
-
-<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">replay_reverse_play</span><span class="p">()</span></code></pre></figure>
-
-<p>Example:</p>
+<p>Syntax / Example:</p>
 
 <figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">replay_move_end</span><span class="p">()</span>
 <span class="n">replay_reverse_play</span><span class="p">()</span></code></pre></figure>
@@ -8692,11 +8585,7 @@ Example:
 
 <p>The replay_stop method stops playback in the Replay tool.</p>
 
-<p>Syntax:</p>
-
-<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">replay_stop</span><span class="p">()</span></code></pre></figure>
-
-<p>Example:</p>
+<p>Syntax / Example:</p>
 
 <figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">replay_stop</span><span class="p">()</span></code></pre></figure>
 
@@ -8705,11 +8594,7 @@ Example:
 
 <p>The replay_step_forward method steps the Replay tool forward by one packet.</p>
 
-<p>Syntax:</p>
-
-<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">replay_step_forward</span><span class="p">()</span></code></pre></figure>
-
-<p>Example:</p>
+<p>Syntax / Example:</p>
 
 <figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">replay_step_forward</span><span class="p">()</span></code></pre></figure>
 
@@ -8718,11 +8603,7 @@ Example:
 
 <p>The replay_step_back method steps the Replay tool backwards by one packet.</p>
 
-<p>Syntax:</p>
-
-<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">replay_step_back</span><span class="p">()</span></code></pre></figure>
-
-<p>Example:</p>
+<p>Syntax / Example:</p>
 
 <figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">replay_step_back</span><span class="p">()</span></code></pre></figure>
 
@@ -8731,11 +8612,7 @@ Example:
 
 <p>The replay_move_start method sets the Replay tool playback pointer to the start of the file.</p>
 
-<p>Syntax:</p>
-
-<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">replay_move_start</span><span class="p">()</span></code></pre></figure>
-
-<p>Example:</p>
+<p>Syntax / Example:</p>
 
 <figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">replay_move_start</span><span class="p">()</span></code></pre></figure>
 
@@ -8744,11 +8621,7 @@ Example:
 
 <p>The replay_move_end method sets the Replay tool playback pointer to the end of the file.</p>
 
-<p>Syntax:</p>
-
-<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">replay_move_end</span><span class="p">()</span></code></pre></figure>
-
-<p>Example:</p>
+<p>Syntax / Example:</p>
 
 <figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">replay_move_end</span><span class="p">()</span></code></pre></figure>
 
@@ -8849,10 +8722,10 @@ Example:
 </code></pre>
 </div>
 
-<h2 id="opening-and-closing-telemetry-screens">
-<a id="opening-and-closing-telemetry-screens" class="anchor" href="#opening-and-closing-telemetry-screens" aria-hidden="true"><span class="octicon octicon-link"></span></a>Opening and Closing Telemetry Screens</h2>
+<h2 id="opening-closing--creating-telemetry-screens">
+<a id="opening-closing--creating-telemetry-screens" class="anchor" href="#opening-closing--creating-telemetry-screens" aria-hidden="true"><span class="octicon octicon-link"></span></a>Opening, Closing &amp; Creating Telemetry Screens</h2>
 
-<p>These methods allow the user to open or close telemetry screens from within a test procedure.</p>
+<p>These methods allow the user to open, close or create unique telemetry screens from within a test procedure.</p>
 
 <h3 id="display">
 <a id="display" class="anchor" href="#display" aria-hidden="true"><span class="octicon octicon-link"></span></a>display</h3>
@@ -9020,11 +8893,11 @@ Example:
     </tr>
     <tr>
       <td>Config filename</td>
-      <td>A telemetry viewer config file to parse.  If nil, the default config file will be used.  Optional parameter, defaults to nil.</td>
+      <td>A telemetry viewer config file to parse. If nil, the default config file will be used.  Optional parameter, defaults to nil.</td>
     </tr>
     <tr>
       <td>Force refresh</td>
-      <td>If true the config file will be re-parsed.  Optional parameter, defaults to false.</td>
+      <td>If true the config file will be re-parsed. Optional parameter, defaults to false.</td>
     </tr>
   </tbody>
 </table>
@@ -9032,6 +8905,98 @@ Example:
 <p>Example:</p>
 <div class="language-ruby highlighter-rouge">
 <pre class="highlight"><code><span class="n">screen_definition</span> <span class="o">=</span> <span class="n">get_screen_definition</span><span class="p">(</span><span class="s2">"INST HS"</span><span class="p">)</span>
+</code></pre>
+</div>
+
+<h3 id="local_screen-since-430">
+<a id="local_screen-since-430" class="anchor" href="#local_screen-since-430" aria-hidden="true"><span class="octicon octicon-link"></span></a>local_screen (since 4.3.0)</h3>
+
+<p>The local_screen allows you to create a temporary screen directly from a script. This also has the ability to use local variables from within your script in your screen.</p>
+
+<p>Syntax:</p>
+<div class="language-ruby highlighter-rouge">
+<pre class="highlight"><code><span class="n">local_screen</span><span class="p">(</span><span class="s2">"&lt;title&gt;"</span><span class="p">,</span> <span class="s2">"&lt;screen definition&gt;"</span><span class="p">,</span> <span class="o">&lt;</span><span class="n">x</span> <span class="n">position</span><span class="o">&gt;</span><span class="p">,</span> <span class="o">&lt;</span><span class="n">y</span> <span class="n">position</span><span class="o">&gt;</span><span class="p">)</span>
+</code></pre>
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Title</td>
+      <td>Screen title</td>
+    </tr>
+    <tr>
+      <td>Screen Definition</td>
+      <td>You can pass the entire screen definition as a Ruby String or define it inline in a block. Optional parameter, defaults to nil.</td>
+    </tr>
+    <tr>
+      <td>X Position</td>
+      <td>X Position in pixels to display the screen. Note the top left corner of the display is 0, 0. Optional parameter, defaults to nil.</td>
+    </tr>
+    <tr>
+      <td>Y Position</td>
+      <td>Y Position in pixels to display the screen. Note the top left corner of the display is 0, 0. Optional parameter, defaults to nil.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example:</p>
+<div class="language-ruby highlighter-rouge">
+<pre class="highlight"><code><span class="n">temp</span> <span class="o">=</span> <span class="mi">0</span> <span class="c1"># This variable is accessed in the screen</span>
+<span class="n">screen_def</span> <span class="o">=</span> <span class="s1">'
+  SCREEN AUTO AUTO 0.1 FIXED
+  VERTICAL
+    TITLE "Local Variable"
+    VERTICALBOX
+      LABELVALUE LOCAL LOCAL temp # Note LOCAL LOCAL
+    END
+  END
+'</span>
+<span class="c1"># Here we pass in the screen definition as a string</span>
+<span class="n">screen</span> <span class="o">=</span> <span class="n">local_screen</span><span class="p">(</span><span class="s2">"My Screen"</span><span class="p">,</span> <span class="n">screen_def</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+<span class="n">disable_instrumentation</span> <span class="k">do</span>
+  <span class="mi">5000000</span><span class="p">.</span><span class="nf">times</span> <span class="k">do</span>
+    <span class="n">temp</span> <span class="o">+=</span> <span class="mi">1</span> <span class="c1"># Increment temp to update the screen</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+<span class="n">screen</span><span class="p">.</span><span class="nf">close</span> <span class="c1"># Close this local screen</span>
+
+<span class="n">temp</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="c1"># The screen definition is nil so we define the screen in the block</span>
+<span class="n">local_screen</span><span class="p">(</span><span class="s2">"My Screen"</span><span class="p">,</span> <span class="kp">nil</span><span class="p">,</span> <span class="mi">500</span><span class="p">,</span> <span class="mi">500</span><span class="p">)</span> <span class="k">do</span>
+  <span class="s1">' # Note the quote
+  SCREEN AUTO AUTO 0.1 FIXED
+  VERTICAL
+    TITLE "Local Variable"
+    VERTICALBOX
+      LABELVALUE LOCAL LOCAL temp # LOCAL LOCAL
+    END
+  END
+  '</span> <span class="c1"># Close quote</span>
+<span class="k">end</span>
+<span class="n">disable_instrumentation</span> <span class="k">do</span>
+  <span class="mi">5000000</span><span class="p">.</span><span class="nf">times</span> <span class="k">do</span>
+    <span class="n">temp</span> <span class="o">+=</span> <span class="mi">1</span> <span class="c1"># Increment temp to update the screen</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+<span class="n">close_local_screens</span><span class="p">()</span> <span class="c1"># Close all open local screens</span>
+</code></pre>
+</div>
+
+<h3 id="close_local_screens-since-430">
+<a id="close_local_screens-since-430" class="anchor" href="#close_local_screens-since-430" aria-hidden="true"><span class="octicon octicon-link"></span></a>close_local_screens (since 4.3.0)</h3>
+
+<p>The close_local_screens closes all temporary screens which were opened using local_screen.</p>
+
+<p>Syntax / Example:</p>
+<div class="language-ruby highlighter-rouge">
+<pre class="highlight"><code><span class="n">close_local_screens</span><span class="p">()</span>
 </code></pre>
 </div>
 
@@ -9077,13 +9042,7 @@ Example:
 
 <p>The method gets the line delay that script runner is currently using.</p>
 
-<p>Syntax:</p>
-<div class="language-ruby highlighter-rouge">
-<pre class="highlight"><code><span class="n">get_line_delay</span><span class="p">()</span>
-</code></pre>
-</div>
-
-<p>Example:</p>
+<p>Syntax / Example:</p>
 <div class="language-ruby highlighter-rouge">
 <pre class="highlight"><code><span class="n">curr_line_delay</span> <span class="o">=</span> <span class="n">get_line_delay</span><span class="p">()</span>
 </code></pre>
@@ -9094,13 +9053,7 @@ Example:
 
 <p>Returns the filename of the ScriptRunner message log.</p>
 
-<p>Syntax:</p>
-<div class="language-ruby highlighter-rouge">
-<pre class="highlight"><code><span class="n">get_scriptrunner_message_log_filename</span><span class="p">()</span>
-</code></pre>
-</div>
-
-<p>Example:</p>
+<p>Syntax / Example:</p>
 <div class="language-ruby highlighter-rouge">
 <pre class="highlight"><code><span class="n">filename</span> <span class="o">=</span> <span class="n">get_scriptrunner_message_log_filename</span><span class="p">()</span>
 </code></pre>
@@ -9111,13 +9064,7 @@ Example:
 
 <p>Starts a new ScriptRunner message log.   Note:  ScriptRunner will automatically start a new log whenever a script is started.  This method is only needed for starting a new log mid-script execution.</p>
 
-<p>Syntax:</p>
-<div class="language-ruby highlighter-rouge">
-<pre class="highlight"><code><span class="n">start_new_scriptrunner_message_log</span><span class="p">()</span>
-</code></pre>
-</div>
-
-<p>Example:</p>
+<p>Syntax / Example:</p>
 <div class="language-ruby highlighter-rouge">
 <pre class="highlight"><code><span class="n">filename</span> <span class="o">=</span> <span class="n">start_new_scriptrunner_message_log</span><span class="p">()</span>
 </code></pre>
@@ -9132,13 +9079,7 @@ Consider breaking code like this into a seperate file and using either require/l
 
 <p><em>** WARNING:  Use with caution. Disabling instrumentation will cause any error that occurs while disabled to cause your script to completely stop. **</em></p>
 
-<p>Syntax:</p>
-<div class="language-ruby highlighter-rouge">
-<pre class="highlight"><code><span class="n">disable_instrumentation</span> <span class="k">do</span>
-</code></pre>
-</div>
-
-<p>Example:</p>
+<p>Syntax / Example:</p>
 <div class="language-ruby highlighter-rouge">
 <pre class="highlight"><code><span class="n">disable_instrumentation</span> <span class="k">do</span>
   <span class="mi">1000</span><span class="p">.</span><span class="nf">times</span> <span class="k">do</span>
@@ -9212,7 +9153,7 @@ Consider breaking code like this into a seperate file and using either require/l
   </tbody>
 </table>
 
-<p>Example(s):</p>
+<p>Example:</p>
 <div class="language-ruby highlighter-rouge">
 <pre class="highlight"><code><span class="n">insert_return</span><span class="p">()</span>
 <span class="n">insert_return</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
@@ -9224,13 +9165,7 @@ Consider breaking code like this into a seperate file and using either require/l
 
 <p>Places ScriptRunner into step mode where Go must be hit to proceed to the next line.</p>
 
-<p>Syntax:</p>
-<div class="language-ruby highlighter-rouge">
-<pre class="highlight"><code><span class="n">step_mode</span><span class="p">()</span>
-</code></pre>
-</div>
-
-<p>Example:</p>
+<p>Syntax / Example:</p>
 <div class="language-ruby highlighter-rouge">
 <pre class="highlight"><code><span class="n">step_mode</span><span class="p">()</span>
 </code></pre>
@@ -9241,13 +9176,7 @@ Consider breaking code like this into a seperate file and using either require/l
 
 <p>Places ScriptRunner into run mode where the next line is run automatically.</p>
 
-<p>Syntax:</p>
-<div class="language-ruby highlighter-rouge">
-<pre class="highlight"><code><span class="n">run_mode</span><span class="p">()</span>
-</code></pre>
-</div>
-
-<p>Example:</p>
+<p>Syntax / Example:</p>
 <div class="language-ruby highlighter-rouge">
 <pre class="highlight"><code><span class="n">run_mode</span><span class="p">()</span>
 </code></pre>
@@ -9256,17 +9185,13 @@ Consider breaking code like this into a seperate file and using either require/l
 <h3 id="show_backtrace">
 <a id="show_backtrace" class="anchor" href="#show_backtrace" aria-hidden="true"><span class="octicon octicon-link"></span></a>show_backtrace</h3>
 
-<p>Makes ScriptRunner print out a backtrace when an error occurs.   Also prints out a backtrace for the most recent error.</p>
+<p>Makes ScriptRunner print out a backtrace when an error occurs. Also prints out a backtrace for the most recent error.</p>
 
-<p>Syntax:</p>
+<p>Syntax / Example:</p>
 <div class="language-ruby highlighter-rouge">
-<pre class="highlight"><code><span class="n">show_backtrace</span><span class="p">(</span><span class="o">&lt;</span><span class="kp">true</span> <span class="n">or</span> <span class="kp">false</span><span class="o">&gt;</span><span class="p">)</span>
-</code></pre>
-</div>
-
-<p>Example:</p>
-<div class="language-ruby highlighter-rouge">
-<pre class="highlight"><code><span class="n">show_backtrace</span><span class="p">(</span><span class="kp">true</span><span class="p">)</span>
+<pre class="highlight"><code><span class="n">show_backtrace</span> <span class="c1"># Shows the backtrace for the latest error</span>
+<span class="n">show_backtrace</span><span class="p">(</span><span class="kp">true</span><span class="p">)</span> <span class="c1"># Enables showing backtrace for every error</span>
+<span class="n">show_backtrace</span><span class="p">(</span><span class="kp">false</span><span class="p">)</span> <span class="c1"># Disables showing backtrace for every error</span>
 </code></pre>
 </div>
 
@@ -9275,13 +9200,7 @@ Consider breaking code like this into a seperate file and using either require/l
 
 <p>The shutdown_cmd_tlm method disconnects from the Command and Telemetry Server. This is good practice to do before your tool shuts down.</p>
 
-<p>Syntax:</p>
-<div class="language-ruby highlighter-rouge">
-<pre class="highlight"><code><span class="n">shutdown_cmd_tlm</span><span class="p">()</span>
-</code></pre>
-</div>
-
-<p>Example:</p>
+<p>Syntax / Example:</p>
 <div class="language-ruby highlighter-rouge">
 <pre class="highlight"><code><span class="n">shutdown_cmd_tlm</span><span class="p">()</span>
 </code></pre>
@@ -9328,13 +9247,7 @@ Consider breaking code like this into a seperate file and using either require/l
 
 <p>The get_cmd_tlm_disconnect method returns true if currently in disconnect mode.</p>
 
-<p>Syntax:</p>
-<div class="language-ruby highlighter-rouge">
-<pre class="highlight"><code><span class="n">get_cmd_tlm_disconnect</span><span class="p">()</span>
-</code></pre>
-</div>
-
-<p>Example:</p>
+<p>Syntax / Example:</p>
 <div class="language-ruby highlighter-rouge">
 <pre class="highlight"><code><span class="n">mode</span> <span class="o">=</span> <span class="n">get_cmd_tlm_disconnect</span><span class="p">()</span>
 </code></pre>
@@ -9425,7 +9338,7 @@ Consider breaking code like this into a seperate file and using either require/l
           
             
             
-            <a href="/docs/dart_design/" class="prev">Back</a>
+            <a href="/docs/dart_api/" class="prev">Back</a>
           
       </div>
       <div class="right align-left">
@@ -10608,6 +10521,26 @@ Consider breaking code like this into a seperate file and using either require/l
     
   
     
+      <li class=""><a href="/docs/dart_overview/">DART Overview</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
       <li class=""><a href="/docs/dart_install/">DART Installation</a></li>
       
 
@@ -10627,26 +10560,6 @@ Consider breaking code like this into a seperate file and using either require/l
   
     
       <li class=""><a href="/docs/dart_api/">DART API</a></li>
-      
-
-
-  
-
-  
-
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-      <li class=""><a href="/docs/dart_design/">DART Design</a></li>
       
 
 

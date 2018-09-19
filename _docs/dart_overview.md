@@ -1,7 +1,7 @@
 ---
 layout: docs
-title: DART Design
-permalink: /docs/dart_design/
+title: DART Overview
+permalink: /docs/dart_overview/
 toc: true
 ---
 DART (Data Archival Retrieval Trending) is the COSMOS tool to support long term storage and trending of command and telemetry data. It was built on top of the open source PostgreSQL database to ensure rapid retrieval of data over long periods. Data is reducted at time periods of every minute, hour, and day to allow for increased performance of long queries. With this reduction, to return a reduced year's worth of data the database simply has to return 365 telemetry items. The original data is always preserved for indepth analysis over specific time periods.
@@ -27,7 +27,7 @@ Key aspects of this architecture:
  * TlmGrapher and TlmExtractor can pull decommutated or reduced data from the DART Decom Server
  * Replay, DataViewer, and CmdExtractor can pull a stream of raw packets from the DART Stream Server
  * Other telemetry tools can receive data from DART through Replay
- * Raw packets are stored in DART in normal COSMOS binary packet log files.  The PostgreSql database keeps indexes into these files that point to each packet for quick random access.  
+ * Raw packets are stored in DART in normal COSMOS binary packet log files.  The PostgreSql database keeps indexes into these files that point to each packet for quick random access.
  * Decommutated and Reduced data sets are stored directly in the PostgreSql database
  * Only integer and floating point data types are reduced into averages, minimum, maximum, and standard deviation at minute/hour/day granularities.
 

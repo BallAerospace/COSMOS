@@ -1887,7 +1887,91 @@
     
   
     
+      <option value="/docs/dart_overview/">DART Overview</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
       <option value="/docs/dart_install/">DART Installation</option>
+    
+  
     
   
     
@@ -1970,90 +2054,6 @@
       <option value="/docs/dart_api/">DART API</option>
     
   
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-
-  
-
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-      <option value="/docs/dart_design/">DART Design</option>
     
   
     
@@ -3287,6 +3287,7 @@
 </li>
 </ul>
 </li>
+<li class="toc-entry toc-h2"><a href="#example-file">Example File</a></li>
 </ul>
           </div>
           
@@ -3964,6 +3965,36 @@ SEG_POLY_WRITE_CONVERSION 100 12 0.5 0.3 # Apply the conversion to all values &g
 <p><strong>Indicates that the parameter should be shown to the user but not editable.</strong></p>
 
 <p>Uneditable parameters are useful for control fields which the user may be interested in but should not be able to edit.</p>
+
+<h2 id="example-file">
+<a id="example-file" class="anchor" href="#example-file" aria-hidden="true"><span class="octicon octicon-link"></span></a>Example File</h2>
+
+<p><strong>Example File: &lt;Cosmos::USERPATH&gt;/config/tools/table_manager/ExampleTableDefinition.txt</strong></p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="c"># Define tables by: TABLE, name, description, endian</span>
+<span class="c">#   name and description are strings contained in double quotes</span>
+<span class="c">#   endian is either BIG_ENDIAN or LITTLE_ENDIAN</span>
+TABLE <span class="s2">"Master Table Map"</span> <span class="s2">"The one table to rule them all"</span> ONE_DIMENSIONAL BIG_ENDIAN 1
+  <span class="c"># Each element in a UNIQUE table is defined as follows:</span>
+  <span class="c">#   name, description, type, bit size, display type, min, max, default</span>
+  <span class="c">#   type must be INT or UNIT</span>
+  <span class="c">#   display type must be DEC, HEX, STATE</span>
+  <span class="c">#     add -U to make DEC or HEX uneditable, i.e. DEC-U or HEX-U</span>
+  <span class="c">#   if min or max are too large for the type they will be set to the types max</span>
+  PARAMETER <span class="s2">"Param1"</span> <span class="s2">"The first parameter"</span> INT 32 STATE 0 1 0
+    STATE DEFAULT 0
+    STATE USER 1
+  PARAMETER <span class="s2">"Param2"</span> <span class="s2">"The second parameter"</span> INT 32 STATE 0 1 1
+    STATE DEFAULT 0
+    STATE USER 1
+  PARAMETER <span class="s2">"Param3"</span> <span class="s2">"The third parameter"</span> STRING 80 STRING <span class="s2">""</span>
+  PARAMETER <span class="s2">"Param4"</span> <span class="s2">"The fourth parameter"</span> UINT 8 HEX MIN MAX MAX
+  PARAMETER <span class="s2">"PAD"</span> <span class="s2">"Unused padding"</span> INT 576 HEX-U 0 0 0
+
+TABLE <span class="s2">"Trailer"</span> <span class="s2">"Data appended to a table file"</span> ONE_DIMENSIONAL BIG_ENDIAN 2
+  PARAMETER <span class="s2">"File ID"</span> <span class="s2">"Uneditable file id"</span> UINT 16 DEC-U 0 65535 4
+  PARAMETER <span class="s2">"Version ID"</span> <span class="s2">"User defined version id"</span> UINT 16 DEC MIN_UINT16 MAX_UINT16 1
+  PARAMETER <span class="s2">"CRC32"</span> <span class="s2">"Auto-generated CRC"</span> UINT 32 HEX-U MIN MAX 0</code></pre></figure>
 
 
           
@@ -5210,6 +5241,26 @@ SEG_POLY_WRITE_CONVERSION 100 12 0.5 0.3 # Apply the conversion to all values &g
     
   
     
+      <li class=""><a href="/docs/dart_overview/">DART Overview</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
       <li class=""><a href="/docs/dart_install/">DART Installation</a></li>
       
 
@@ -5229,26 +5280,6 @@ SEG_POLY_WRITE_CONVERSION 100 12 0.5 0.3 # Apply the conversion to all values &g
   
     
       <li class=""><a href="/docs/dart_api/">DART API</a></li>
-      
-
-
-  
-
-  
-
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-      <li class=""><a href="/docs/dart_design/">DART Design</a></li>
       
 
 

@@ -1887,7 +1887,91 @@
     
   
     
+      <option value="/docs/dart_overview/">DART Overview</option>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
       <option value="/docs/dart_install/">DART Installation</option>
+    
+  
     
   
     
@@ -1970,90 +2054,6 @@
       <option value="/docs/dart_api/">DART API</option>
     
   
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-
-  
-
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-      <option value="/docs/dart_design/">DART Design</option>
     
   
     
@@ -3274,7 +3274,11 @@
 <li class="toc-entry toc-h2"><a href="#ignore_test_suite">IGNORE_TEST_SUITE</a></li>
 <li class="toc-entry toc-h2"><a href="#create_data_package">CREATE_DATA_PACKAGE</a></li>
 <li class="toc-entry toc-h2"><a href="#auto_cycle_logs">AUTO_CYCLE_LOGS</a></li>
-<li class="toc-entry toc-h2"><a href="#collect_metadata">COLLECT_METADATA</a></li>
+<li class="toc-entry toc-h2"><a href="#collect_metadata">COLLECT_METADATA</a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#example-file">Example File</a></li>
+</ul>
+</li>
 </ul>
           </div>
           
@@ -3564,6 +3568,29 @@
 <h2 id="collect_metadata">
 <a id="collect_metadata" class="anchor" href="#collect_metadata" aria-hidden="true"><span class="octicon octicon-link"></span></a>COLLECT_METADATA</h2>
 <p><strong>Prompt for Meta Data before starting tests</strong></p>
+
+<h3 id="example-file">
+<a id="example-file" class="anchor" href="#example-file" aria-hidden="true"><span class="octicon octicon-link"></span></a>Example File</h3>
+
+<p><strong>Example File: &lt;Cosmos::USERPATH&gt;/config/tools/test_runner/test_runner.txt</strong></p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">REQUIRE_UTILITY example_test
+ALLOW_DEBUG
+PAUSE_ON_ERROR TRUE
+CONTINUE_TEST_CASE_AFTER_ERROR TRUE
+ABORT_TESTING_AFTER_ERROR FALSE
+MANUAL TRUE
+LOOP_TESTING TRUE
+BREAK_LOOP_AFTER_ERROR TRUE
+IGNORE_TEST ExampleTest
+IGNORE_TEST_SUITE ExampleTestSuite
+
+CREATE_DATA_PACKAGE
+COLLECT_META_DATA META DATA
+
+LINE_DELAY 0
+MONITOR_LIMITS
+PAUSE_ON_RED</code></pre></figure>
 
 
           
@@ -4813,6 +4840,26 @@
     
   
     
+      <li class=""><a href="/docs/dart_overview/">DART Overview</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
       <li class=""><a href="/docs/dart_install/">DART Installation</a></li>
       
 
@@ -4832,26 +4879,6 @@
   
     
       <li class=""><a href="/docs/dart_api/">DART API</a></li>
-      
-
-
-  
-
-  
-
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-  
-    
-      <li class=""><a href="/docs/dart_design/">DART Design</a></li>
       
 
 

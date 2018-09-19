@@ -775,9 +775,9 @@ target_name, command_name, time = get_cmd_time("INST", "COLLECT") # Name of the 
 The get_cmd_cnt method returns the number of times a specified command has been sent.
 
 Syntax:
-{% highlight ruby %}
+```ruby
 get_cmd_cnt("<Target Name>", "<Command Name>")
-{% endhighlight %}
+```
 
 | Parameter | Description |
 | -------- | --------------------------------- |
@@ -793,12 +793,7 @@ cmd_cnt = get_cmd_cnt("INST", "COLLECT") # Number of times the INST COLLECT comm
 
 The get_all_cmd_info method returns the number of times each command has been sent.  The return value is an array of arrays where each subarray contains the target name, command name, and packet count for a command.
 
-Syntax:
-{% highlight ruby %}
-get_all_cmd_info()
-{% endhighlight %}
-
-Example:
+Syntax / Example:
 {% highlight ruby %}
 cmd_info = get_all_cmd_info()
 cmd_info.each do |target_name, cmd_name, pkt_count|
@@ -1202,12 +1197,7 @@ tlm_cnt = get_tlm_cnt("INST", "HEALTH_STATUS") # Number of times the INST HEALTH
 
 The get_all_tlm_info method returns the number of times each telemetry packet has been received.  The return value is an array of arrays where each subarray contains the target name, telemetry packet name, and packet count for a telemetry packet.
 
-Syntax:
-{% highlight ruby %}
-get_all_tlm_info()
-{% endhighlight %}
-
-Example:
+Syntax / Example:
 {% highlight ruby %}
 tlm_info = get_all_tlm_info()
 tlm_info.each do |target_name, pkt_name, pkt_count|
@@ -1846,12 +1836,7 @@ disable_limits_group("SAFE_MODE")
 
 The get_limits_groups method returns the list of limits groups in the system.
 
-Syntax:
-```ruby
-get_limits_groups()
-```
-
-Example:
+Syntax / Example:
 ```ruby
 limits_groups = get_limits_groups()
 ```
@@ -1878,12 +1863,7 @@ set_limits_set("DEFAULT")
 
 The get_limits_set method returns the name of the current limits set. The default limits set is :DEFAULT.
 
-Syntax:
-```ruby
-get_limits_set()
-```
-
-Example:
+Syntax / Example:
 ```ruby
 limits_set = get_limits_set()
 ```
@@ -1892,12 +1872,7 @@ limits_set = get_limits_set()
 
 The get_limits_sets method returns the list of limits sets in the system.
 
-Syntax:
-```ruby
-get_limits_sets()
-```
-
-Example:
+Syntax / Example:
 ```ruby
 limits_sets = get_limits_sets()
 ```
@@ -1955,12 +1930,7 @@ set_limits('INST', 'HEALTH_STATUS', 'TEMP1', -10.0, 0.0, 50.0, 60.0, 30.0, 40.0,
 
 The get_out_of_limits method returns an array with the target_name, packet_name, item_name, and limits_state of all items that are out of their limits ranges.
 
-Syntax:
-```ruby
-get_out_of_limits()
-```
-
-Example:
+Syntax / Example:
 ```ruby
 out_of_limits_items = get_out_of_limits()
 ```
@@ -2082,12 +2052,7 @@ Methods for getting knowledge about targets.
 
 The get_target_list method returns a list of the targets in the system in an array.
 
-Syntax:
-```ruby
-get_target_list()
-```
-
-Example:
+Syntax / Example:
 ```ruby
 targets = get_target_list()
 ```
@@ -2112,10 +2077,7 @@ cmd_cnt, tlm_cnt = get_target_info("INST")
 
 The get_all_target_info method returns information about all targets.  The return value is an array of arrays where each subarray contains the target name, interface name, command count, and telemetry count for a target.
 
-Syntax:
-``` get_all_target_info() ```
-
-Example:
+Syntax / Example:
 {% highlight ruby %}
 target_info = get_all_target_info()
 target_info.each do |target_name, interface_name, cmd_count, tlm_count|
@@ -2237,12 +2199,7 @@ map_target_to_interface("INST", "INT2")
 
 The get_interface_names method returns a list of the interfaces in the system in an array.
 
-Syntax:
-```ruby
-get_interface_names()
-```
-
-Example:
+Syntax / Example:
 ```ruby
 interface_names = get_interface_names()
 ```
@@ -2285,10 +2242,7 @@ state, clients, tx_q_size, rx_q_size, bytes_tx, bytes_rx, cmd_cnt, tlm_cnt = get
 
 The get_all_interface_info method returns information about all interfaces.  The return value is an array of arrays where each subarray contains the interface name, connection state, number of connected clients, transmit queue size, receive queue size, bytes transmitted, bytes received, command count, and telemetry count.
 
-Syntax:
-``` get_all_interface_info() ```
-
-Example:
+Syntax / Example:
 {% highlight ruby %}
 interface_info = get_all_interface_info()
 interface_info.each do |interface_name, connection_state, num_clients, tx_q_size, rx_q_size, tx_bytes, rx_bytes, cmd_count, tlm_count|
@@ -2361,12 +2315,7 @@ router_state("INT1_ROUTER")
 
 The get_router_names method returns a list of the routers in the system in an array.
 
-Syntax:
-```ruby
-get_router_names()
-```
-
-Example:
+Syntax / Example:
 ```ruby
 router_names = get_router_names()
 ```
@@ -2391,10 +2340,7 @@ state, clients, tx_q_size, rx_q_size, bytes_tx, bytes_rx, pkts_rcvd, pkts_sent =
 
 The get_all_router_info method returns information about all routers.  The return value is an array of arrays where each subarray contains the router name, connection state, number of connected clients, transmit queue size, receive queue size, bytes transmitted, bytes received, packets received, and packets sent.
 
-Syntax:
-``` get_all_router_info() ```
-
-Example:
+Syntax / Example:
 {% highlight ruby %}
 router_info = get_all_router_info()
 router_info.each do |router_name, connection_state, num_clients, tx_q_size, rx_q_size, tx_bytes, rx_bytes, pkts_rcvd, pkts_sent|
@@ -2559,12 +2505,7 @@ stop_tlm_log()
 
 Returns the filename of the COSMOS Command and Telemetry Server message log.
 
-Syntax:
-```ruby
-get_server_message_log_filename()
-```
-
-Example:
+Syntax / Example:
 ```ruby
 filename = get_server_message_log_filename()
 ```
@@ -2573,12 +2514,7 @@ filename = get_server_message_log_filename()
 
 Starts a new COSMOS Command and Telemetry Server message log.
 
-Syntax:
-```ruby
-start_new_server_message_log()
-```
-
-Example:
+Syntax / Example:
 ```ruby
 start_new_server_message_log()
 ```
@@ -2659,12 +2595,7 @@ stop_raw_logging_router("router1")
 
 The get_packet_loggers method returns a list of the packet loggers in the system.
 
-Syntax:
-{% highlight ruby %}
-get_packet_loggers()
-{% endhighlight %}
-
-Example:
+Syntax / Example:
 {% highlight ruby %}
 packet_loggers = get_packet_loggers()
 {% endhighlight %}
@@ -2689,12 +2620,7 @@ interfaces, cmd_logging, cmd_q_size, cmd_filename, cmd_file_size, tlm_logging, t
 
 The get_all_packet_logger_info method returns information about all packet loggers. The return value is an array of arrays where each subarray contains the name, associated interfaces, command log enable flag, command queue size, command filename, command file size, telemetry log enable flag, telemetry queue size, telemetry filename, and telemetry file size for a packet logger.
 
-Syntax:
-{% highlight ruby %}
-get_all_packet_logger_info()
-{% endhighlight %}
-
-Example:
+Syntax / Example:
 {% highlight ruby %}
 packet_logger_info = get_all_packet_logger_info()
 packet_logger_info.each do |packet_logger_name, interfaces, cmd_logging, cmd_q_size, cmd_filename, cmd_file_size, tlm_logging, tlm_q_size, tlm_filename, tlm_file_size|
@@ -2733,12 +2659,7 @@ These methods allow the user to interact with Command and Telemetry Server.
 
 The get_server_status method returns status information for the Command and Telemetry Server.  The information includes the active limits set, API port number, JSON DRB number of clients, JSON DRB average request count, JSON DRB average request time, and number of server threads.
 
-Syntax:
-{% highlight ruby %}
-get_server_status()
-{% endhighlight %}
-
-Example:
+Syntax / Example:
 {% highlight ruby %}
 limits_set, api_port, json_drb_num_clients, json_drb_req_count, json_drb_avg_req_time, num_threads = get_server_status()
 {% endhighlight %}
@@ -2747,12 +2668,7 @@ limits_set, api_port, json_drb_num_clients, json_drb_req_count, json_drb_avg_req
 
 The cmd_tlm_reload method reloads the default configuration in the Command and Telemetry Server.
 
-Syntax:
-{% highlight ruby %}
-cmd_tlm_reload()
-{% endhighlight %}
-
-Example:
+Syntax / Example:
 {% highlight ruby %}
 cmd_tlm_reload()
 {% endhighlight %}
@@ -2761,12 +2677,7 @@ cmd_tlm_reload()
 
 The cmd_tlm_clear_counters method resets the counters in the Command and Telemetry Server back to zero.
 
-Syntax:
-{% highlight ruby %}
-cmd_tlm_clear_counters()
-{% endhighlight %}
-
-Example:
+Syntax / Example:
 {% highlight ruby %}
 cmd_tlm_clear_counters()
 {% endhighlight %}
@@ -2835,12 +2746,7 @@ msg, color = get_server_message(id)
 
 The get_background_tasks method returns information about all background tasks.  The return value is an array of arrays where each subarray contains the name, state, and status string for a background task.
 
-Syntax:
-{% highlight ruby %}
-get_background_tasks()
-{% endhighlight %}
-
-Example:
+Syntax / Example:
 {% highlight ruby %}
 background_tasks = get_background_tasks()
 background_tasks.each do |background_task_name, state, status_string|
@@ -2911,12 +2817,7 @@ set_replay_mode(true)
 
 The get_replay_mode method returns true if the JSON DRB connection is configured to connect to the Replay tool or false if the JSON DRB connection is configured to connect to the CTS.
 
-Syntax:
-{% highlight ruby %}
-get_replay_mode()
-{% endhighlight %}
-
-Example:
+Syntax / Example:
 {% highlight ruby %}
 replay_mode = get_replay_mode()
 {% endhighlight %}
@@ -2944,12 +2845,7 @@ replay_select_file("2018_01_04_13_19_49_tlm.bin")
 
 The replay_status method returns status for the Replay tool.  The returned status includes the PLAYING/STOPPED status, playback delay, playback filename, file start time, file current (playback) time, file end time, file index, and file max index.
 
-Syntax:
-{% highlight ruby %}
-replay_status()
-{% endhighlight %}
-
-Example:
+Syntax / Example:
 {% highlight ruby %}
 status, delay, filename, file_start, file_current, file_end, file_index, file_max_index = replay_status()
 {% endhighlight %}
@@ -2976,12 +2872,7 @@ replay_set_playback_delay(nil)
 
 The replay_play method starts playback in the Replay tool.
 
-Syntax:
-{% highlight ruby %}
-replay_play()
-{% endhighlight %}
-
-Example:
+Syntax / Example:
 {% highlight ruby %}
 replay_play()
 {% endhighlight %}
@@ -2990,12 +2881,7 @@ replay_play()
 
 The replay_reverse_play method starts reverse playback in the Replay tool.
 
-Syntax:
-{% highlight ruby %}
-replay_reverse_play()
-{% endhighlight %}
-
-Example:
+Syntax / Example:
 {% highlight ruby %}
 replay_move_end()
 replay_reverse_play()
@@ -3005,12 +2891,7 @@ replay_reverse_play()
 
 The replay_stop method stops playback in the Replay tool.
 
-Syntax:
-{% highlight ruby %}
-replay_stop()
-{% endhighlight %}
-
-Example:
+Syntax / Example:
 {% highlight ruby %}
 replay_stop()
 {% endhighlight %}
@@ -3019,12 +2900,7 @@ replay_stop()
 
 The replay_step_forward method steps the Replay tool forward by one packet.
 
-Syntax:
-{% highlight ruby %}
-replay_step_forward()
-{% endhighlight %}
-
-Example:
+Syntax / Example:
 {% highlight ruby %}
 replay_step_forward()
 {% endhighlight %}
@@ -3033,12 +2909,7 @@ replay_step_forward()
 
 The replay_step_back method steps the Replay tool backwards by one packet.
 
-Syntax:
-{% highlight ruby %}
-replay_step_back()
-{% endhighlight %}
-
-Example:
+Syntax / Example:
 {% highlight ruby %}
 replay_step_back()
 {% endhighlight %}
@@ -3047,12 +2918,7 @@ replay_step_back()
 
 The replay_move_start method sets the Replay tool playback pointer to the start of the file.
 
-Syntax:
-{% highlight ruby %}
-replay_move_start()
-{% endhighlight %}
-
-Example:
+Syntax / Example:
 {% highlight ruby %}
 replay_move_start()
 {% endhighlight %}
@@ -3061,12 +2927,7 @@ replay_move_start()
 
 The replay_move_end method sets the Replay tool playback pointer to the end of the file.
 
-Syntax:
-{% highlight ruby %}
-replay_move_end()
-{% endhighlight %}
-
-Example:
+Syntax / Example:
 {% highlight ruby %}
 replay_move_end()
 {% endhighlight %}
@@ -3079,7 +2940,6 @@ Syntax:
 {% highlight ruby %}
 replay_move_index(<index>)
 {% endhighlight %}
-
 
 | Parameter | Description |
 | --------- | --------------------------------- |
@@ -3131,9 +2991,9 @@ Example:
 load_utility("mode_changes.rb")
 ```
 
-## Opening and Closing Telemetry Screens
+## Opening, Closing & Creating Telemetry Screens
 
-These methods allow the user to open or close telemetry screens from within a test procedure.
+These methods allow the user to open, close or create unique telemetry screens from within a test procedure.
 
 ### display
 
@@ -3223,13 +3083,81 @@ get_screen_definition("<screen_full_name>", "<config_filename>", <force_refresh>
 | Parameter | Description |
 | -------- | --------------------------------- |
 | Screen full name | Telemetry screen name. |
-| Config filename | A telemetry viewer config file to parse.  If nil, the default config file will be used.  Optional parameter, defaults to nil. |
-| Force refresh | If true the config file will be re-parsed.  Optional parameter, defaults to false. |
+| Config filename | A telemetry viewer config file to parse. If nil, the default config file will be used.  Optional parameter, defaults to nil. |
+| Force refresh | If true the config file will be re-parsed. Optional parameter, defaults to false. |
 
 Example:
 ```ruby
 screen_definition = get_screen_definition("INST HS")
 ```
+
+### local_screen (since 4.3.0)
+
+The local_screen allows you to create a temporary screen directly from a script. This also has the ability to use local variables from within your script in your screen.
+
+Syntax:
+```ruby
+local_screen("<title>", "<screen definition>", <x position>, <y position>)
+```
+
+| Parameter | Description |
+| -------- | --------------------------------- |
+| Title | Screen title |
+| Screen Definition | You can pass the entire screen definition as a Ruby String or define it inline in a block. Optional parameter, defaults to nil. |
+| X Position | X Position in pixels to display the screen. Note the top left corner of the display is 0, 0. Optional parameter, defaults to nil. |
+| Y Position | Y Position in pixels to display the screen. Note the top left corner of the display is 0, 0. Optional parameter, defaults to nil. |
+
+Example:
+```ruby
+temp = 0 # This variable is accessed in the screen
+screen_def = '
+  SCREEN AUTO AUTO 0.1 FIXED
+  VERTICAL
+    TITLE "Local Variable"
+    VERTICALBOX
+      LABELVALUE LOCAL LOCAL temp # Note LOCAL LOCAL
+    END
+  END
+'
+# Here we pass in the screen definition as a string
+screen = local_screen("My Screen", screen_def, 100, 100)
+disable_instrumentation do
+  5000000.times do
+    temp += 1 # Increment temp to update the screen
+  end
+end
+screen.close # Close this local screen
+
+temp = 0
+# The screen definition is nil so we define the screen in the block
+local_screen("My Screen", nil, 500, 500) do
+  ' # Note the quote
+  SCREEN AUTO AUTO 0.1 FIXED
+  VERTICAL
+    TITLE "Local Variable"
+    VERTICALBOX
+      LABELVALUE LOCAL LOCAL temp # LOCAL LOCAL
+    END
+  END
+  ' # Close quote
+end
+disable_instrumentation do
+  5000000.times do
+    temp += 1 # Increment temp to update the screen
+  end
+end
+close_local_screens() # Close all open local screens
+```
+
+### close_local_screens (since 4.3.0)
+
+The close_local_screens closes all temporary screens which were opened using local_screen.
+
+Syntax / Example:
+```ruby
+close_local_screens()
+```
+
 
 ## Script Runner Specific Functionality
 
@@ -3257,12 +3185,7 @@ set_line_delay(0.0)
 
 The method gets the line delay that script runner is currently using.
 
-Syntax:
-```ruby
-get_line_delay()
-```
-
-Example:
+Syntax / Example:
 ```ruby
 curr_line_delay = get_line_delay()
 ```
@@ -3271,12 +3194,7 @@ curr_line_delay = get_line_delay()
 
 Returns the filename of the ScriptRunner message log.
 
-Syntax:
-```ruby
-get_scriptrunner_message_log_filename()
-```
-
-Example:
+Syntax / Example:
 ```ruby
 filename = get_scriptrunner_message_log_filename()
 ```
@@ -3285,12 +3203,7 @@ filename = get_scriptrunner_message_log_filename()
 
 Starts a new ScriptRunner message log.   Note:  ScriptRunner will automatically start a new log whenever a script is started.  This method is only needed for starting a new log mid-script execution.
 
-Syntax:
-```ruby
-start_new_scriptrunner_message_log()
-```
-
-Example:
+Syntax / Example:
 ```ruby
 filename = start_new_scriptrunner_message_log()
 ```
@@ -3303,12 +3216,7 @@ Consider breaking code like this into a seperate file and using either require/l
 
 *** WARNING:  Use with caution. Disabling instrumentation will cause any error that occurs while disabled to cause your script to completely stop. ***
 
-Syntax:
-```ruby
-disable_instrumentation do
-```
-
-Example:
+Syntax / Example:
 ```ruby
 disable_instrumentation do
   1000.times do
@@ -3353,7 +3261,7 @@ insert_return (<return value (optional)>, ...)
 | -------- | --------------------------------- |
 | return value | One or more values that are returned from the method |
 
-Example(s):
+Example:
 ```ruby
 insert_return()
 insert_return(5, 10)
@@ -3363,12 +3271,7 @@ insert_return(5, 10)
 
 Places ScriptRunner into step mode where Go must be hit to proceed to the next line.
 
-Syntax:
-```ruby
-step_mode()
-```
-
-Example:
+Syntax / Example:
 ```ruby
 step_mode()
 ```
@@ -3377,40 +3280,27 @@ step_mode()
 
 Places ScriptRunner into run mode where the next line is run automatically.
 
-Syntax:
-```ruby
-run_mode()
-```
-
-Example:
+Syntax / Example:
 ```ruby
 run_mode()
 ```
 
 ### show_backtrace
 
-Makes ScriptRunner print out a backtrace when an error occurs.   Also prints out a backtrace for the most recent error.
+Makes ScriptRunner print out a backtrace when an error occurs. Also prints out a backtrace for the most recent error.
 
-Syntax:
+Syntax / Example:
 ```ruby
-show_backtrace(<true or false>)
-```
-
-Example:
-```ruby
-show_backtrace(true)
+show_backtrace # Shows the backtrace for the latest error
+show_backtrace(true) # Enables showing backtrace for every error
+show_backtrace(false) # Disables showing backtrace for every error
 ```
 
 ### shutdown_cmd_tlm
 
 The shutdown_cmd_tlm method disconnects from the Command and Telemetry Server. This is good practice to do before your tool shuts down.
 
-Syntax:
-```ruby
-shutdown_cmd_tlm()
-```
-
-Example:
+Syntax / Example:
 ```ruby
 shutdown_cmd_tlm()
 ```
@@ -3438,12 +3328,7 @@ set_cmd_tlm_disconnect(true)
 
 The get_cmd_tlm_disconnect method returns true if currently in disconnect mode.
 
-Syntax:
-```ruby
-get_cmd_tlm_disconnect()
-```
-
-Example:
+Syntax / Example:
 ```ruby
 mode = get_cmd_tlm_disconnect()
 ```

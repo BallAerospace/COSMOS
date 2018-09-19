@@ -11,8 +11,8 @@
     <title xml:lang="en">Ball Aerospace COSMOS News</title>
     <atom:link type="application/atom+xml" href="http://cosmosrb/feed.xml" rel="self"/>
     <link>http://cosmosrb.com/</link>
-    <pubDate>Tue, 18 Sep 2018 09:20:26 -0600</pubDate>
-    <lastBuildDate>Tue, 18 Sep 2018 09:20:26 -0600</lastBuildDate>
+    <pubDate>Wed, 19 Sep 2018 15:17:26 -0600</pubDate>
+    <lastBuildDate>Wed, 19 Sep 2018 15:17:26 -0600</lastBuildDate>
     <language>en-US</language>
     <generator>Jekyll v3.5.2</generator>
     <description>The User Interface for Embedded Systems</description>
@@ -35,7 +35,7 @@
       <category>post</category>
       
       <guid isPermaLink="true">http://cosmosrb.com/news/2018/09/14/cosmos-dockercon/</guid>
-      <description>&lt;p&gt;Ball Aerospace COSMOS has been featured in a &lt;a href=&quot;https://www.youtube.com/watch?v=RnWXOAplvjY&amp;amp;feature=youtu.be&amp;amp;t=9m&quot;&gt;presentation&lt;/a&gt; by Chris Heistand from &lt;a href=&quot;http://www.jhuapl.edu/&quot;&gt;John Hopkins Applied Physics Laboratory&lt;/a&gt;. He’s working on the &lt;a href=&quot;http://dart.jhuapl.edu/&quot;&gt;Double Asteroid Redirection Test (DART)&lt;/a&gt; not to be confused with COSMOS &lt;a href=&quot;https://cosmosrb.com/docs/dart_design&quot;&gt;DART&lt;/a&gt;. They have setup COSMOS to run in a Docker container which X fowards to a X11Server VNC container which they then use a VNC Client to connect to. Pretty cool stuff which we we will hopefully have more out of the box support for in the future. Stay tuned!&lt;/p&gt;
+      <description>&lt;p&gt;Ball Aerospace COSMOS has been featured in a &lt;a href=&quot;https://www.youtube.com/watch?v=RnWXOAplvjY&amp;amp;feature=youtu.be&amp;amp;t=9m&quot;&gt;presentation&lt;/a&gt; by Chris Heistand from &lt;a href=&quot;http://www.jhuapl.edu/&quot;&gt;John Hopkins Applied Physics Laboratory&lt;/a&gt;. He’s working on the &lt;a href=&quot;http://dart.jhuapl.edu/&quot;&gt;Double Asteroid Redirection Test (DART)&lt;/a&gt; not to be confused with COSMOS &lt;a href=&quot;/docs/dart_overview&quot;&gt;DART&lt;/a&gt;. They have setup COSMOS to run in a Docker container which X fowards to a X11Server VNC container which they then use a VNC Client to connect to. Pretty cool stuff which we we will hopefully have more out of the box support for in the future. Stay tuned!&lt;/p&gt;
 </description>
     </item>
     
