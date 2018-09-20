@@ -1,17 +1,17 @@
 {
-	"version": "0.0.1",
+	"version": "0.0.2",
 	// List of configurations. Add new configurations or edit existing ones.
 	"configurations": [
 		{
 			"type": "extensionHost",
 			"request": "launch",
-			"name": "Launch Client",
+			"name": "Debug Extension",
 			"runtimeExecutable": "${execPath}",
 			"args": ["--extensionDevelopmentPath=${workspaceRoot}" ],
 			"stopOnEntry": false,
 			"sourceMaps": true,
-			"outFiles": ["${workspaceRoot}/client/out/**/*.js"],
-			"preLaunchTask": "npm: watch:client"
+			"outFiles": ["${workspaceRoot}/src/*.js"],
+			"preLaunchTask": "npm: watch"
 		}
 	]
 }

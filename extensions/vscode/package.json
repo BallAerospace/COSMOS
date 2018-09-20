@@ -3,7 +3,7 @@
 	"description": "Language support for COSMOS configuration files",
 	"author": "Ball Aerospace",
 	"license": "BALL GPL",
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"icon": "images/icon.png",
 	"repository": {
 		"type": "git",
@@ -33,13 +33,13 @@
 					"Cosmos"
 				],
 				"filenamePatterns": [
-					"**/COSMOS/config/targets/*/cmdtlm/*.txt",
-					"**/COSMOS/config/targets/*/cmd_tlm/*.txt",
-					"**/COSMOS/config/targets/*/screens/*.txt",
-					"**/COSMOS/config/targets/*/cmd_tlm_server.txt",
-					"**/COSMOS/config/targets/*/target.txt",
-					"**/COSMOS/config/targets/tools/*/*.txt",
-					"**/COSMOS/config/tools/*/*.txt"
+					"**/config/targets/*/cmdtlm/*.txt",
+					"**/config/targets/*/cmd_tlm/*.txt",
+					"**/config/targets/*/screens/*.txt",
+					"**/config/targets/*/cmd_tlm_server.txt",
+					"**/config/targets/*/target.txt",
+					"**/config/targets/tools/*/*.txt",
+					"**/config/tools/*/*.txt"
 				],
 				"configuration": "./cosmos.configuration.json"
 			}
@@ -54,7 +54,7 @@
 	},
 	"scripts": {
 		"vscode:prepublish": "tsc -p ./",
-		"compile": "tsc -watch -p ./",
+		"watch": "tsc -watch -p ./",
 		"postinstall": "node ./node_modules/vscode/bin/install"
 	},
 	"devDependencies": {
