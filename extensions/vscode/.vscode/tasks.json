@@ -3,52 +3,14 @@
 	"tasks": [
 		{
 			"label": "compile",
-			"dependsOn": [
-				{
-					"type": "npm",
-					"script": "compile:client"
-				}
-			],
-			"problemMatcher": []
-		},
-		{
 			"type": "npm",
-			"script": "compile:client",
-			"group": "build",
-			"presentation": {
-				"panel": "dedicated",
-				"reveal": "never"
-
-			},
+			"script": "compile",
 			"problemMatcher": [
-				"$tsc"
-			]
-		},
-		{
-			"label": "watch",
-			"dependsOn": [
-				{
-					"type": "npm",
-					"script": "watch:client"
-				}
-			],
-			"group": {
-				"kind": "build",
-				"isDefault": true
-			},
-			"problemMatcher": []
-		},
-		{
-			"type": "npm",
-			"script": "watch:client",
-			"isBackground": true,
-			"group": "build",
-			"presentation": {
-				"panel": "dedicated",
-				"reveal": "never"
-			},
-			"problemMatcher": [
-				"$tsc-watch"
+				"$tsc-watch",
+                {
+                    "base": "$tslint5",
+                    "fileLocation": "relative"
+                }
 			]
 		}
 	]
