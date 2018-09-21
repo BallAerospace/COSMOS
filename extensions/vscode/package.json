@@ -3,7 +3,7 @@
 	"description": "Language support for COSMOS configuration files",
 	"author": "Ball Aerospace",
 	"license": "BALL GPL",
-	"version": "0.0.2",
+	"version": "0.0.3",
 	"icon": "images/icon.png",
 	"repository": {
 		"type": "git",
@@ -21,7 +21,8 @@
 		"vscode": "^1.23.0"
 	},
 	"activationEvents": [
-		"onLanguage:cosmos"
+		"onLanguage:cosmos",
+		"onLanguage:cosmosScreen"
 	],
 	"main": "./out/extension",
 	"contributes": {
@@ -58,6 +59,11 @@
 		"grammars": [
 			{
 				"language": "cosmos",
+				"scopeName": "source.cosmos",
+				"path": "./syntaxes/cosmos.tmLanguage.json"
+			},
+			{
+				"language": "cosmosScreen",
 				"scopeName": "source.cosmos",
 				"path": "./syntaxes/cosmos.tmLanguage.json"
 			}
