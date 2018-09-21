@@ -42,6 +42,17 @@
 					"**/config/tools/*/*.txt"
 				],
 				"configuration": "./cosmos.configuration.json"
+			},
+			{
+				"id": "cosmosScreen",
+				"aliases": [
+					"COSMOS",
+					"Cosmos"
+				],
+				"filenamePatterns": [
+					"**/config/targets/*/screens/*.txt"
+				],
+				"configuration": "./cosmos.configuration.json"
 			}
 		],
 		"grammars": [
@@ -50,7 +61,23 @@
 				"scopeName": "source.cosmos",
 				"path": "./syntaxes/cosmos.tmLanguage.json"
 			}
-		]
+		],
+		"commands": [
+			{
+				"command": "cosmos.showGuiPreview",
+				"title": "Show Screen Preview",
+				"category": "COSMOS"
+			}
+		],
+		"menus": {
+			"editor/title": [
+				{
+					"when": "resourceLangId == cosmosScreen",
+					"command": "cosmos.showGuiPreview",
+					"group": "navigation"
+				}
+			]
+		}
 	},
 	"scripts": {
 		"vscode:prepublish": "tsc -p ./",
