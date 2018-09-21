@@ -82,9 +82,9 @@ module Cosmos
         target_packets.each do |packet_name, packet|
           if packet.identify?(@data)
             identified_packet = packet
-            if identified_packet.defined_length > @data.length
+            if identified_packet.defined_length + @discard_leading_bytes > @data.length
               # Check if need more data to finish packet
-              return :STOP if @data.length < identified_packet.defined_length
+              return :STOP
             end
             # Set some variables so we can update the packet in
             # read_packet
@@ -93,8 +93,7 @@ module Cosmos
             @packet_name = identified_packet.packet_name
 
             # Get the data from this packet
-            packet_data = @data[0..(identified_packet.defined_length - 1)]
-            @data.replace(@data[identified_packet.defined_length..-1])
+            packet_data = @data.slice!(0, identified_packet.defined_length + @discard_leading_bytes)
             break
           end
         end
