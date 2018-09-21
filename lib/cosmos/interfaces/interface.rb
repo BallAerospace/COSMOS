@@ -283,7 +283,11 @@ module Cosmos
 
     # Wrap all writes in a mutex and handle errors
     def _write
-      @write_mutex.synchronize { yield }
+      if @write_mutex.owned?
+        yield
+      else
+        @write_mutex.synchronize { yield }
+      end
     rescue Exception => err
       Logger.instance.error("Error writing to interface : #{@name}")
       disconnect()
