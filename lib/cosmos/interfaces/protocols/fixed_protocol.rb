@@ -80,7 +80,7 @@ module Cosmos
         end
 
         target_packets.each do |packet_name, packet|
-          if packet.identify?(@data)
+          if packet.identify?(@data[@discard_leading_bytes .. -1)
             identified_packet = packet
             if identified_packet.defined_length + @discard_leading_bytes > @data.length
               # Check if need more data to finish packet
