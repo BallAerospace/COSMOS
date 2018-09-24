@@ -3,15 +3,30 @@
 	// List of configurations. Add new configurations or edit existing ones.
 	"configurations": [
 		{
+			"name": "Launch Client",
 			"type": "extensionHost",
 			"request": "launch",
-			"name": "Debug Extension",
 			"runtimeExecutable": "${execPath}",
-			"args": ["--extensionDevelopmentPath=${workspaceRoot}" ],
+			"args": [
+				"--extensionDevelopmentPath=${workspaceRoot}/client"
+			],
 			"stopOnEntry": false,
 			"sourceMaps": true,
-			"outFiles": ["${workspaceRoot}/src/*.js"],
-			"preLaunchTask": "npm: watch"
+			"outFiles": [
+				"${workspaceRoot}/client/out/**/*.js"
+			],
+			"preLaunchTask": "watch:client"
+		},
+		{
+			"name": "Attach to Server",
+			"type": "node",
+			"request": "attach",
+			"port": 6009,
+			"sourceMaps": true,
+			"outFiles": [
+				"${workspaceRoot}/client/server/**/*.js"
+			],
+			"preLaunchTask": "watch:server"
 		}
 	]
 }

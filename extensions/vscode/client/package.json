@@ -1,0 +1,100 @@
+{
+	"name": "cosmos",
+	"description": "Language support for COSMOS configuration files",
+	"author": "Ball Aerospace",
+	"license": "BALL GPL",
+	"version": "0.0.3",
+	"icon": "images/icon.png",
+	"homepage": "https://cosmosrb.com/",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/BallAerospace/COSMOS"
+	},
+	"publisher": "BallAero",
+	"categories": [
+		"Programming Languages",
+		"Other"
+	],
+	"keywords": [
+		"ball aerospace cosmos"
+	],
+	"engines": {
+		"vscode": "^1.23.0"
+	},
+	"activationEvents": [
+		"onLanguage:cosmos",
+		"onLanguage:cosmosScreen"
+	],
+	"main": "./out/extension",
+	"contributes": {
+		"languages": [
+			{
+				"id": "cosmos",
+				"aliases": [
+					"COSMOS",
+					"Cosmos"
+				],
+				"filenamePatterns": [
+					"**/config/targets/*/cmdtlm/*.txt",
+					"**/config/targets/*/cmd_tlm/*.txt",
+					"**/config/targets/*/screens/*.txt",
+					"**/config/targets/*/cmd_tlm_server.txt",
+					"**/config/targets/*/target.txt",
+					"**/config/targets/tools/*/*.txt",
+					"**/config/tools/*/*.txt"
+				],
+				"configuration": "./cosmos.configuration.json"
+			},
+			{
+				"id": "cosmosScreen",
+				"aliases": [
+					"COSMOS",
+					"Cosmos"
+				],
+				"filenamePatterns": [
+					"**/config/targets/*/screens/*.txt"
+				],
+				"configuration": "./cosmos.configuration.json"
+			}
+		],
+		"grammars": [
+			{
+				"language": "cosmos",
+				"scopeName": "source.cosmos",
+				"path": "./syntaxes/cosmos.tmLanguage.json"
+			},
+			{
+				"language": "cosmosScreen",
+				"scopeName": "source.cosmos",
+				"path": "./syntaxes/cosmos.tmLanguage.json"
+			}
+		],
+		"commands": [
+			{
+				"command": "cosmos.showGuiPreview",
+				"title": "Show Screen Preview",
+				"category": "COSMOS"
+			}
+		],
+		"menus": {
+			"editor/title": [
+				{
+					"when": "resourceLangId == cosmosScreen",
+					"command": "cosmos.showGuiPreview",
+					"group": "navigation"
+				}
+			]
+		}
+	},
+	"scripts": {
+		"vscode:prepublish": "tsc -p ./",
+		"compile": "tsc -p ./",
+		"watch": "tsc -watch -p ./",
+		"update-vscode": "node ./node_modules/vscode/bin/install",
+		"postinstall": "node ./node_modules/vscode/bin/install"
+	},
+	"dependencies": {
+		"vscode": "^1.1.21",
+		"vscode-languageclient": "^5.1.0"
+	}
+}

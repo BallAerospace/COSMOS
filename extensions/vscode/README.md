@@ -1,43 +1,9 @@
 # COSMOS for Visual Studio Code
 
-This extension adds language support for COSMOS configuration files.
+This Visual Studio Code Plugin is based on the [Example Language Server](https://code.visualstudio.com/docs/extensions/example-language-server)
 
-This extension currently only supports syntax highlighting.
+For a description of the extension itself please the client's [README](./client.README.md)
 
-To identify COSMOS configuration files, this extension assumes that a COSMOS directory exists inside of the <Project_Dir> and that it adheres to the strict directure structure of COSMOS as shown below.
+# Installing from Visual Studio Code marketplace
 
-```
-<Project_Dir>
-|--COSMOS
-|  |--Gemfile
-|  |--Launcher
-|  |--Launcher.bat
-|  |--Rakefile
-|  |--userpath.txt
-|  |--config
-|  |  |--data
-|  |  |--system
-|  |  |--targets
-|  |  |  |--<TARGETNAME>
-|  |  |  |  |--cmd_tlm_server.txt
-|  |  |  |  |--target.txt
-|  |  |  |  |--(cmdtlm or cmd_tlm)
-|  |  |  |  |--lib
-|  |  |  |  |--screens
-|  |  |  |--...
-|  |  |--tools
-|  |  |  |--cmd_tlm_server
-|  |  |  |--...
-|  |--lib
-|  |--outputs
-|  |  |--handbooks
-|  |  |--logs
-|  |  |--saved_config
-|  |  |--tables
-|  |  |--tmp
-|  |--procedures
-|  |--tools
-|  |  |--mac
-|  |  |--...
-|--<other_proj_dirs>
-```
+Please follow guidelines detailed on the Visual Studio Code [website](https://code.visualstudio.com/docs/editor/extension-gallery) for installing this extension.

@@ -1,0 +1,28 @@
+{
+  "name": "language-server-cosmos",
+  "description": "Implementation of a language server for cosmos.",
+  "version": "1.1.0",
+  "author": "Ball Aerospace",
+  "license": "BALL GPL",
+  "engines": {
+    "node": "*"
+  },
+  "homepage": "https://cosmosrb.com/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/BallAerospace/COSMOS"
+  },
+  "dependencies": {
+    "execa": "^1.0.0",
+    "find": "^0.2.9",
+    "fs": "0.0.1-security",
+    "path": "^0.12.7",
+    "vscode-languageserver": "^5.1.0",
+    "winston": "^3.1.0"
+  },
+  "scripts": {
+    "installServer": "installServerIntoExtension ../client ./package.json ./tsconfig.json",
+    "compile": "installServerIntoExtension ../client ./package.json ./tsconfig.json && tsc -p .",
+    "watch": "installServerIntoExtension ../client ./package.json ./tsconfig.json && tsc -w -p ."
+  }
+}

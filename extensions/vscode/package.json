@@ -10,92 +10,18 @@
 		"url": "https://github.com/BallAerospace/COSMOS"
 	},
 	"publisher": "BallAero",
-	"categories": [
-		"Programming Languages",
-		"Other"
-	],
-	"keywords": [
-		"ball aerospace cosmos"
-	],
-	"engines": {
-		"vscode": "^1.23.0"
-	},
-	"activationEvents": [
-		"onLanguage:cosmos",
-		"onLanguage:cosmosScreen"
-	],
-	"main": "./out/extension",
-	"contributes": {
-		"languages": [
-			{
-				"id": "cosmos",
-				"aliases": [
-					"COSMOS",
-					"Cosmos"
-				],
-				"filenamePatterns": [
-					"**/config/targets/*/cmdtlm/*.txt",
-					"**/config/targets/*/cmd_tlm/*.txt",
-					"**/config/targets/*/screens/*.txt",
-					"**/config/targets/*/cmd_tlm_server.txt",
-					"**/config/targets/*/target.txt",
-					"**/config/targets/tools/*/*.txt",
-					"**/config/tools/*/*.txt"
-				],
-				"configuration": "./cosmos.configuration.json"
-			},
-			{
-				"id": "cosmosScreen",
-				"aliases": [
-					"COSMOS",
-					"Cosmos"
-				],
-				"filenamePatterns": [
-					"**/config/targets/*/screens/*.txt"
-				],
-				"configuration": "./cosmos.configuration.json"
-			}
-		],
-		"grammars": [
-			{
-				"language": "cosmos",
-				"scopeName": "source.cosmos",
-				"path": "./syntaxes/cosmos.tmLanguage.json"
-			},
-			{
-				"language": "cosmosScreen",
-				"scopeName": "source.cosmos",
-				"path": "./syntaxes/cosmos.tmLanguage.json"
-			}
-		],
-		"commands": [
-			{
-				"command": "cosmos.showGuiPreview",
-				"title": "Show Screen Preview",
-				"category": "COSMOS"
-			}
-		],
-		"menus": {
-			"editor/title": [
-				{
-					"when": "resourceLangId == cosmosScreen",
-					"command": "cosmos.showGuiPreview",
-					"group": "navigation"
-				}
-			]
-		}
-	},
 	"scripts": {
-		"vscode:prepublish": "tsc -p ./",
-		"watch": "tsc -watch -p ./",
-		"postinstall": "node ./node_modules/vscode/bin/install"
+		"compile": "npm run-script compile:client",
+		"compile:client": "tsc -p ./client/tsconfig.json",
+		"watch:client": "tsc -watch -p ./client/tsconfig.json",
+		"distclean:client": "cd client && rm -fr node_modules && cd ..",
+		"distclean": "npm run-script distclean:client && rm -fr node_modules",
+		"upgrade:client": "cd client && npm upgrade",
+		"postinstall": "cd server && npm install && cd ../client && npm install && cd .. && npm run-script compile"
 	},
 	"devDependencies": {
-		"@types/node": "^8.0.0",
-		"typescript": "2.8.3",
-		"vscode": "^1.0.3"
-	},
-	"dependencies": {
-		"vscode-languageclient": "^2.6.0"
+		"@types/mocha": "^5.2.5",
+		"@types/node": "^10.10.3",
+		"typescript": "^3.0.3"
 	}
 }
