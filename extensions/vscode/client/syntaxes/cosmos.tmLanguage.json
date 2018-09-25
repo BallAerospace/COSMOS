@@ -13,11 +13,29 @@
       ],
     "repository":{
         "comments": {
+            "begin": "(^\\s+)?(?=#)",
+            "beginCaptures": {
+                "1": {
+                    "name": "punctuation.whitespace.comment.leading"
+                }
+            },
+            "end": "(?!\\G)",
             "patterns": [
                 {
-                    "description": "Line Comment",
-                    "match": "^#.*",
-                    "name": "comment.line.number-sign"
+                    "begin": "#",
+                    "beginCaptures": {
+                        "0": {
+                            "name": "punctuation.definition.comment"
+                        }
+                    },
+                    "end": "\\n",
+                    "name": "comment.line.number-sign",
+                    "patterns": [
+                        {
+                            "match": "\\\\\\n",
+                            "name": "constant.character.escape.continuation"
+                        }
+                    ]
                 }
             ]
         },
