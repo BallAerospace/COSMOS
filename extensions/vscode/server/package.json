@@ -13,12 +13,12 @@
     "url": "https://github.com/BallAerospace/COSMOS"
   },
   "dependencies": {
-    "execa": "^1.0.0",
-    "find": "^0.2.9",
+    "execa": "^0.6.3",
+    "find": "^0.2.7",
     "fs": "0.0.1-security",
     "path": "^0.12.7",
-    "vscode-languageserver": "^5.1.0",
-    "winston": "^3.1.0"
+    "vscode-languageserver": "^3.5.1",
+    "winston": "^2.4.3"
   },
   "scripts": {
     "installServer": "installServerIntoExtension ../client ./package.json ./tsconfig.json",

@@ -97,12 +97,21 @@ class CosmosScreenViewer {
 		}
 
 		// Build up Ruby Command
-		// TODO redo this command for this: “ruby TlmViewer –screen “INST ADCS”” 
+		// this command for this: “ruby TlmViewer –screen “INST ADCS”” 
+		// let rubyCmd = 'ruby TlmViewer –screen "' + path.basename(editor.document.fileName).split('.').slice(0, -1).join('.') + '"';
 		let rubyCmd = 'ruby ' + this.extPath + '/src/screen_preview.rb ' + editor.document.fileName;
 
 		// Execute Ruby Command
-		// TODO process.env
-		exec(rubyCmd, {env: {'PATH': 'C:\\Ruby24-x64\\bin'}}, function(err, stdout, stderr) { });
+		exec(rubyCmd, {env: {'PATH': 'C:\\Ruby24-x64\\bin'}}, function(err, stdout, stderr) {
+			if (stderr != null)
+			{
+				console.log(err)
+			}
+			if (stdout != null)
+			{
+				console.log(stdout)
+			}
+		});
 
 		// Change back to directory current working directory
 		try {
