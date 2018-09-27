@@ -40,17 +40,19 @@ set MSYS2_64=http://repo.msys2.org/distrib/x86_64/msys2-x86_64-20161025.exe
 if "%USERDNSDOMAIN%"=="AERO.BALL.COM" (
   set BALL=1
 ) else (
-  set BALL=0
+  if "%USERDOMAIN%"=="AERO" (
+    set BALL=1
+  ) else (
+    set BALL=0
+  )
 )
 
 :: Detect if SSL_CERT_FILE is set
 if not defined SSL_CERT_FILE (
   if !BALL!==1 (
-    echo ERROR: Install failed at Ball because SSL_CERT_FILE environment variable is not set
+    echo WARN: Install may fail at Ball because SSL_CERT_FILE environment variable is not set
+    echo WARN: In particular, the call to bundle for DART dependencies may fail
     echo Please contact COSMOS@ball.com for assistance
-    echo INSTALL FAILED
-    pause
-    exit /b 1
   )
 )
 

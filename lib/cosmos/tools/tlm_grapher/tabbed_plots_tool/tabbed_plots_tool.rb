@@ -449,9 +449,9 @@ module Cosmos
         yield
         @config_modified = true if delete
         update_window_title() if delete
-        statusBar.showMessage("#{action.capitalize} #{item} successful"))
+        statusBar.showMessage("#{action.capitalize} #{item} successful")
       else
-        statusBar.showMessage("#{action.capitalize} #{item} canceled"))
+        statusBar.showMessage("#{action.capitalize} #{item} canceled")
       end
     end
     def reset(item)

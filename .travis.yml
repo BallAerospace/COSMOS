@@ -5,7 +5,7 @@ cache: bundler
 services:
   - postgresql
 rvm:
-  - jruby-9.1.14.0
+  - jruby-9.2.0.0
   - 2.5.1
   - 2.4.4
   - 2.3.3

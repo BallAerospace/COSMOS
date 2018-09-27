@@ -320,6 +320,10 @@ module Cosmos
       @script.setFocus
     end
 
+    def active_script_highlight(color)
+      Qt.execute_in_main_thread { @active_script.highlight_line(color) }
+    end
+
     def allow_start=(value)
       @allow_start = value
       if @allow_start
@@ -588,15 +592,15 @@ module Cosmos
           instrumented_line.chomp!
 
           # Add postline instrumentation
-          instrumented_line << "; ScriptRunnerFrame.instance.post_line_instrumentation('#{filename}', #{line_no})"
+          instrumented_line << "; ScriptRunnerFrame.instance.post_line_instrumentation('#{filename}', #{line_no}); "
 
           # Complete begin block to catch exceptions
           unless inside_begin
-            instrumented_line << "; rescue Exception => eval_error; "\
+            instrumented_line << "rescue Exception => eval_error; "\
             "retry if ScriptRunnerFrame.instance.exception_instrumentation(eval_error, '#{filename}', #{line_no}); end; "
           end
 
-          instrumented_line << "__return_val\n"
+          instrumented_line << " __return_val\n"
         else
           unless segment =~ /^\s*end\s*$/ or segment =~ /^\s*when .*$/
             num_left_brackets = segment.count('{')
@@ -1170,7 +1174,7 @@ module Cosmos
           Splash.execute(self) do |splash|
             ConfigParser.splash = splash
             splash.message = "Initializing Command and Telemetry Server"
-            set_disconnected_targets(targets, config_file)
+            set_disconnected_targets(targets, targets.length == all_targets.length, config_file)
             ConfigParser.splash = nil
           end
         end

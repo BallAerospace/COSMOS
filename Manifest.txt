@@ -369,6 +369,7 @@ demo/config/data/vswitchoff.gif
 demo/config/data/vswitchon.gif
 demo/config/system/system.txt
 demo/config/system/system2.txt
+demo/config/system/system_alt_ports.txt
 demo/config/targets/DART/cmd_tlm/dart_cmds.txt
 demo/config/targets/DART/cmd_tlm/dart_tlm.txt
 demo/config/targets/DART/cmd_tlm_server.txt
@@ -435,6 +436,7 @@ demo/config/targets/TEMPLATED/target.txt
 demo/config/tools/cmd_sequence/cmd_sequence.txt
 demo/config/tools/cmd_tlm_server/cmd_tlm_server.txt
 demo/config/tools/cmd_tlm_server/cmd_tlm_server2.txt
+demo/config/tools/cmd_tlm_server/cmd_tlm_server_chain.txt
 demo/config/tools/data_viewer/data_viewer.txt
 demo/config/tools/example_application.css
 demo/config/tools/handbook_creator/default_toc.xsl
@@ -505,6 +507,7 @@ demo/outputs/tables/README.txt
 demo/outputs/tmp/README.txt
 demo/procedures/cosmos_api_test.rb
 demo/procedures/example_test.rb
+demo/procedures/local_screen_example.rb
 demo/procedures/plot_test.rb
 demo/procedures/replay_test.rb
 demo/procedures/run_example_test.rb
@@ -870,6 +873,8 @@ lib/cosmos/conversions.rb
 lib/cosmos/conversions/conversion.rb
 lib/cosmos/conversions/generic_conversion.rb
 lib/cosmos/conversions/new_packet_log_conversion.rb
+lib/cosmos/conversions/packet_time_formatted_conversion.rb
+lib/cosmos/conversions/packet_time_seconds_conversion.rb
 lib/cosmos/conversions/polynomial_conversion.rb
 lib/cosmos/conversions/processor_conversion.rb
 lib/cosmos/conversions/received_count_conversion.rb
@@ -1069,6 +1074,7 @@ lib/cosmos/gui/text/completion_line_edit.rb
 lib/cosmos/gui/text/completion_text_edit.rb
 lib/cosmos/gui/text/ruby_editor.rb
 lib/cosmos/gui/utilities/analyze_log.rb
+lib/cosmos/gui/utilities/classification_banner.rb
 lib/cosmos/gui/utilities/screenshot.rb
 lib/cosmos/gui/utilities/script_module_gui.rb
 lib/cosmos/gui/widgets/dart_frame.rb
@@ -1084,6 +1090,7 @@ lib/cosmos/interfaces/linc_interface.rb
 lib/cosmos/interfaces/protocols/burst_protocol.rb
 lib/cosmos/interfaces/protocols/crc_protocol.rb
 lib/cosmos/interfaces/protocols/fixed_protocol.rb
+lib/cosmos/interfaces/protocols/ignore_packet_protocol.rb
 lib/cosmos/interfaces/protocols/length_protocol.rb
 lib/cosmos/interfaces/protocols/override_protocol.rb
 lib/cosmos/interfaces/protocols/preidentified_protocol.rb
@@ -1269,6 +1276,7 @@ lib/cosmos/tools/tlm_viewer/widgets/button_widget.rb
 lib/cosmos/tools/tlm_viewer/widgets/canvas_clickable.rb
 lib/cosmos/tools/tlm_viewer/widgets/canvas_widget.rb
 lib/cosmos/tools/tlm_viewer/widgets/canvasdot_widget.rb
+lib/cosmos/tools/tlm_viewer/widgets/canvasellipse_widget.rb
 lib/cosmos/tools/tlm_viewer/widgets/canvasimage_widget.rb
 lib/cosmos/tools/tlm_viewer/widgets/canvasimagevalue_widget.rb
 lib/cosmos/tools/tlm_viewer/widgets/canvaslabel_widget.rb
@@ -1340,6 +1348,7 @@ lib/cosmos/version.rb
 lib/cosmos/win32/excel.rb
 lib/cosmos/win32/win32.rb
 lib/cosmos/win32/win32_main.rb
+make_gems.sh
 roodi.yml
 run_gui_tests.bat
 spec/ccsds/ccsds_packet_spec.rb
@@ -1348,6 +1357,8 @@ spec/config/config_parser_spec.rb
 spec/conversions/conversion_spec.rb
 spec/conversions/generic_conversion_spec.rb
 spec/conversions/new_packet_log_conversion_spec.rb
+spec/conversions/packet_time_formatted_conversion_spec.rb
+spec/conversions/packet_time_seconds_conversion_spec.rb
 spec/conversions/polynomial_conversion_spec.rb
 spec/conversions/processor_conversion_spec.rb
 spec/conversions/received_count_conversion_spec.rb
@@ -1400,6 +1411,7 @@ spec/interfaces/linc_interface_spec.rb
 spec/interfaces/protocols/burst_protocol_spec.rb
 spec/interfaces/protocols/crc_protocol_spec.rb
 spec/interfaces/protocols/fixed_protocol_spec.rb
+spec/interfaces/protocols/ignore_packet_protocol_spec.rb
 spec/interfaces/protocols/length_protocol_spec.rb
 spec/interfaces/protocols/override_protocol_spec.rb
 spec/interfaces/protocols/preidentified_protocol_spec.rb

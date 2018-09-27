@@ -67,9 +67,8 @@ module Cosmos
         expect { get_limits_groups() }.to raise_error(DRb::DRbConnError)
         expect { set_limits_set("DEFAULT") }.to raise_error(DRb::DRbConnError)
         ignore = []
-        ignore << %w(INST HEALTH_STATUS TEMP1)
-        ignore << %w(INST HEALTH_STATUS TEMP2)
-        ignore << %w(INST HEALTH_STATUS GROUND2STATUS)
+        ignore << %w(SYSTEM META COMPUTER)
+        ignore << %w(SYSTEM META VERSION)
         expect { get_overall_limits_state(ignore) }.to raise_error(DRb::DRbConnError)
 
         clear_disconnected_targets()

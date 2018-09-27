@@ -2,7 +2,7 @@
 "config/targets/SYSTEM/target.txt" 0x07E82776
 "config/targets/SYSTEM/cmd_tlm/meta_tlm.txt" 0x07CDABCB
 "config/data/README.txt" 0x93B2C07E
-"config/system/system.txt" 0xD95B7058
+"config/system/system.txt" 0x390C8677
 "config/tools/launcher/launcher.txt" 0x6A3047DB
 "config/tools/table_manager/README.txt" 0x93B2C07E
 "config/tools/tlm_viewer/tlm_viewer.txt" 0xD9071527
@@ -29,7 +29,7 @@
 "config/tools/handbook_creator/default_toc.xsl" 0x4122A040
 "config/tools/handbook_creator/handbook_creator.txt" 0x64E4B5CC
 "config/tools/script_runner/script_runner.txt" 0x1EECD803
-"config/dart/Gemfile" 0x011A23A3
+"config/dart/Gemfile" 0xE089EDB7
 "tools/TlmExtractor.bat" 0x2B98E027
 "tools/Launcher" 0xFD4E356C
 "tools/CmdSequence" 0x4A13C82C

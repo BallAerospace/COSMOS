@@ -153,7 +153,7 @@ Sleep 500
 Send {Enter}
 Sleep 2000
 
-Click right 380, 687 ; TEMP1 details
+Click right 380, 734 ; TEMP1 details
 Sleep 1000
 Send {Tab}{Enter}
 WinWaitActive TEMP1
@@ -162,10 +162,10 @@ Sleep 1000
 
 WinActivate Packet Viewer
 WinWaitActive Packet Viewer
-Click right 380, 780 ; ARY details
+Click right 380, 757 ; TEMP2 details
 Sleep 1000
 Send {Tab}{Enter}
-WinWaitActive ARY
+WinWaitActive TEMP2
 Sleep 1000
 Send {Enter} ; Close the window
 
@@ -177,10 +177,11 @@ Send {Backspace 5}
 Sleep 500
 Send COLLECT_TYPE{Enter}
 Sleep 1000
-Click right 380, 780 ; ARY details
+Click right 380, 730 ; ARY details
 Sleep 1000
 Send {Tab}{Enter}
-WinWaitActive COLLECT_TYPE
+WinActivate ARY
+WinWaitActive ARY
 Sleep 1000
 Send {Enter} ; Close the window
 

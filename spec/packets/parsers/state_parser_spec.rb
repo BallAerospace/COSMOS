@@ -119,6 +119,42 @@ module Cosmos
       end
 
       context "with telemetry" do
+        it "defines states on ARRAY items" do
+          tf = Tempfile.new('unittest')
+          tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Description"'
+          tf.puts '  APPEND_ARRAY_ITEM item1 8 UINT 40 "state item"'
+          tf.puts '    STATE FALSE 0'
+          tf.puts '    STATE TRUE 1'
+          tf.puts '    STATE ERROR ANY'
+          tf.close
+          @pc.process_file(tf.path, "TGT1")
+          tlm = Telemetry.new(@pc)
+          pkt = tlm.packet("TGT1", "PKT1")
+          pkt.write("ITEM1", [0,1,2,1,0])
+          expect(pkt.read("ITEM1")).to eql ["FALSE","TRUE","ERROR","TRUE","FALSE"]
+          tf.unlink
+        end
+
+        it "allows an 'ANY' state" do
+          tf = Tempfile.new('unittest')
+          tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Description"'
+          tf.puts '  APPEND_ITEM item1 8 UINT "state item"'
+          tf.puts '    STATE FALSE 0'
+          tf.puts '    STATE TRUE 1'
+          tf.puts '    STATE ERROR ANY'
+          tf.close
+          @pc.process_file(tf.path, "TGT1")
+          tlm = Telemetry.new(@pc)
+          pkt = tlm.packet("TGT1", "PKT1")
+          pkt.write("ITEM1", 0)
+          expect(pkt.read("ITEM1")).to eql "FALSE"
+          pkt.write("ITEM1", 1)
+          expect(pkt.read("ITEM1")).to eql "TRUE"
+          pkt.write("ITEM1", 2)
+          expect(pkt.read("ITEM1")).to eql "ERROR"
+          tf.unlink
+        end
+
         it "only allows GREEN YELLOW or RED" do
           tf = Tempfile.new('unittest')
           tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Description"'
