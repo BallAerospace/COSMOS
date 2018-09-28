@@ -27,10 +27,10 @@ Packet defines a large number of instance variables that provide information abo
 5. ```received_count``` - Number of times this packet was received by the COSMOS Server
 
 If you're dealing with a Command packet instance there are additional instance variables that are useful:
-1. ```hazardous``` - Boolean indicating whether the command is hazardous (see [hazardous](/docs/cmdtlm/#hazardous))
+1. ```hazardous``` - Boolean indicating whether the command is hazardous (see [hazardous](/docs/command/#hazardous))
 2. ```hazardous_description``` - String description of why the packet is hazardous
-3. ```hidden``` - Boolean indicating whether this packet is hidden (see [hidden](/docs/cmdtlm/#hidden))
-4. ```disabled``` - Boolean indicating whether this packet is disabled (see [disabled](/docs/cmdtlm/#disabled))
+3. ```hidden``` - Boolean indicating whether this packet is hidden (see [hidden](/docs/command/#hidden))
+4. ```disabled``` - Boolean indicating whether this packet is disabled (see [disabled](/docs/command/#disabled))
 
 ### Packet Methods
 
@@ -44,7 +44,7 @@ Read is used to retrieve packet values. The parameters are as follows:
 | value_type | How the value should be read. Must be one of :RAW, :CONVERTED, :FORMATTED, or :WITH_UNITS. Defaults to :CONVERTED |
 | buffer | Raw data buffer to read the value from (defaults to the current packet) |
 
-Example:  
+Example:
 ```ruby
 value = packet.read('ITEM') # Converted value (default)
 value = packet.read("ITEM", :RAW) # Raw value (no COSMOS conversions applied)
@@ -55,7 +55,7 @@ value = packet.read("ITEM", :CONVERTED, buffer) # Read the value from the passed
 
 First a comment about syntax. The first parameter in the read method is a string which in Ruby can be either single or double quotes. The second parameter is a Ruby Symbol which is similar to a string but is prefixed with a colon.
 
-Note that there are four different ways to read a packet value as indicated above in the value_type description. :RAW means to return the value defined at that location in the packet without applying any COSMOS conversions or STATE names. :CONVERTED (the default) means to apply COSMOS conversions and any defined State values (see [STATE](/docs/cmdtlm/#state)). :FORMATTED means to apply any format strings on the packet item (see [FORMAT_STRING](/docs/cmdtlm/#format_string)) and return the resulting string. Note that :FORMATTED always returns a STRING even if there is no formatting being applied. This is distinct from :RAW and :CONVERTED which return a value of the type you specify in the packet definition. Finally :WITH_UNITS applies any units (see [UNITS](/docs/cmdtlm/#units)) to the formatted value and again returns a string value.
+Note that there are four different ways to read a packet value as indicated above in the value_type description. :RAW means to return the value defined at that location in the packet without applying any COSMOS conversions or STATE names. :CONVERTED (the default) means to apply COSMOS conversions and any defined State values (see [STATE](/docs/telemetry/#state)). :FORMATTED means to apply any format strings on the packet item (see [FORMAT_STRING](/docs/telemetry/#format_string)) and return the resulting string. Note that :FORMATTED always returns a STRING even if there is no formatting being applied. This is distinct from :RAW and :CONVERTED which return a value of the type you specify in the packet definition. Finally :WITH_UNITS applies any units (see [UNITS](/docs/telemetry/#units)) to the formatted value and again returns a string value.
 
 The final parameter is buffer. Typically you will just leave this off and write to the buffer contained by the current packet instance. However, if you have an unidentified buffer of data that you believe represents a particular packet instance, you can pass that into read.
 
@@ -70,7 +70,7 @@ Write is used to set packet values. Keep in mind that if you're trying to write 
 | value_type | How the value should be written. Must be either :RAW or :CONVERTED. Defaults to :CONVERTED |
 | buffer | Raw data buffer to read the value from (defaults to the current packet) |
 
-Example:  
+Example:
 ```ruby
 packet.write('ITEM', value) # Converted value
 packet.write("ITEM", value, :RAW) # Raw value
@@ -78,20 +78,20 @@ packet.write("ITEM", value, :RAW) # Raw value
 
 See [read](/docs/packet_class#read) for a note about the syntax and what value_type means.
 
-There are a few gotchas associated with writing a value into a packet. If you're writing a value marked as STRING then you can pass almost any value you want as Ruby will automatically convert it into a string. If the packet item has any [write conversions](/docs/cmdtlm/#write_conversion) then using the :RAW value_type will bypass that conversion. For example:  
+There are a few gotchas associated with writing a value into a packet. If you're writing a value marked as STRING then you can pass almost any value you want as Ruby will automatically convert it into a string. If the packet item has any [write conversions](/docs/telemetry/#write_conversion) then using the :RAW value_type will bypass that conversion. For example:
 ```ruby
 packet.write('STRING_ITEM', 10) # 10 will be converted to '10' automatically
 packet.write("STRING_ITEM", 12.5, :RAW) # 12.5 will be converted to '12.5'
 ```
 
-If you're writing into an integer or float value you must pass in something that can be converted to that value. This means that Strings will not work. However, float values work for integers (they are truncated) and integers work for floats. For example:  
+If you're writing into an integer or float value you must pass in something that can be converted to that value. This means that Strings will not work. However, float values work for integers (they are truncated) and integers work for floats. For example:
 ```ruby
 packet.write("INT_ITEM", "STRING") #=> ArgumentError : invalid value for Integer(): "STRING"
 packet.write("INT_ITEM", 10.5) #=> packet.read("INT_ITEM") returns 10
 packet.write("FLOAT_ITEM", 10) #=> packet.read("FLOAT_ITEM") returns 10.0
 ```
 
-If there are no [write conversions](/docs/cmdtlm/#write_conversion) or [states](/docs/cmdtlm/#state) defined on the telemetry item then writing with :RAW or :CONVERTED will be equivalent.
+If there are no [write conversions](/docs/telemetry/#write_conversion) or [states](/docs/telemetry/#state) defined on the telemetry item then writing with :RAW or :CONVERTED will be equivalent.
 
 Definition File:
 ```bash
@@ -100,7 +100,7 @@ APPEND_ITEM INT_ITEM_WITH_STATES 32 UINT "Item"
   STATE ON 1
 ```
 
-Example:  
+Example:
 ```ruby
 packet.write("INT_ITEM_WITH_STATES", "ON") # Writes using the "ON" state value
 packet.read("INT_ITEM_WITH_STATES", :RAW) #=> returns 1
@@ -117,7 +117,7 @@ Read all is used to retrieve all the packet values. The parameters are as follow
 | value_type | How the values should be read. Must be one of :RAW, :CONVERTED, :FORMATTED, or :WITH_UNITS. Defaults to :CONVERTED |
 | buffer | Raw data buffer to read the value from (defaults to the current packet) |
 
-Example:  
+Example:
 ```ruby
 values = packet.read_all() # Converted values (default)
 values = packet.read_all(:RAW) # Raw values (no COSMOS conversions applied)
@@ -157,7 +157,7 @@ Returns whether this packet has been identified which means it has its internal 
 
 #### identify?
 
-Returns whether the buffer of data parameter represents this packet. It does this by iterating over all the packet items that were created with an ID value (see [id_parameter](/docs/cmdtlm/#id_parameter) and [id_item](/docs/cmdtlm/#id_item)) and checking whether the ID values are present in the buffer.
+Returns whether the buffer of data parameter represents this packet. It does this by iterating over all the packet items that were created with an ID value (see [id_parameter](/docs/command/#id_parameter) and [id_item](/docs/telemetry/#id_item)) and checking whether the ID values are present in the buffer.
 
 | Parameter | Description |
 | -------- | --------------------------------- |
@@ -172,14 +172,14 @@ Set all items in the packet to their default values. This only makes sense for c
 | buffer | Raw data buffer to write default values to (defaults to the current packet) |
 | skip_item_names | Array of item names to skip when setting defaults |
 
-Definition File:  
+Definition File:
 ```bash
 COMMAND TGT PKT BIG_ENDIAN "Packet"
   APPEND_PARAMETER VALUE 32 UINT MIN MAX 10 "Value"
   APPEND_PARAMETER OTHER 32 UINT MIN MAX 1 "Other"
 ```
 
-Example:  
+Example:
 ```ruby
 command = System.commands.packet("TGT", "PKT")
 command.read("VALUE") #=> Returns 0
@@ -200,7 +200,7 @@ command.read("OTHER") #=> Returns 0 (not default)
 
 Out of limits returns an array of arrays indicating all the items in the packet that are out of limits. The internal array has four elements: target name, packet name, item name, and the item limits state. The out of limits item states are :RED_HIGH, :YELLOW_HIGH, :RED_LOW, or :YELLOW_LOW.
 
-Example:  
+Example:
 ```ruby
 packet = System.telemetry.packet("TGT", "PKT")
 packet.out_of_limits.each do |tgt, pkt, item, state|

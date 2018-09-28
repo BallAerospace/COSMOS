@@ -2,11 +2,11 @@
 layout: news_item
 title: 'COSMOS Cmd/Tlm Naming'
 date: 2016-07-06 17:00:00 -0700
-author: jmthomas 
+author: jmthomas
 categories: [post]
 ---
 
-Recently a user asked if they could add exclamation points and question marks to their command and telemetry items. Absolutely!  COSMOS provides great flexibility in command and telemetry naming conventions. (See [cmdtlm](http://cosmosrb.com/docs/cmdtlm)). For example, adding an exclamation point to a command to denote a more severe version of the same command:
+Recently a user asked if they could add exclamation points and question marks to their command and telemetry items. Absolutely!  COSMOS provides great flexibility in command and telemetry naming conventions. (See [Command](http://cosmosrb.com/docs/command)). For example, adding an exclamation point to a command to denote a more severe version of the same command:
 
 ```
 COMMAND TGT ABORT BIG_ENDIAN "Tries to abort a collect on the instrument"

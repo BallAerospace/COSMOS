@@ -68,7 +68,7 @@ The folder structure should be just like what is in a normal target folder (ie.)
 ├── cosmos-xxxxxx.gemspec
 ├── cmd_tlm_server.txt
 ├── target.txt
-├── cmdtlm
+├── cmd_tlm
 |  └── # Target command and telemetry definition files here
 ├── lib
 |  └── # Any necessary target code here

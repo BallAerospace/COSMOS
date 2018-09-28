@@ -6,7 +6,7 @@ author: jmthomas
 categories: [post]
 ---
 ## COSMOS Limits
-COSMOS allows you to [define limits](/docs/cmdtlm/#limits) for your telemetry items to provide feedback to users about how your telemetry is performing. If you define limits, COSMOS requires you to specify both red and yellow limits. Red limits are traditionally where damage may occur while yellow limits are set a certain percentage away from red to give the operator a chance to respond before the red limits are hit. COSMOS also allows the user to set "Operational" limits (blue limits) which specify a desired operational range inside the green limits. This is best illustrated in the COSMOS demo. Here is a partial screenshot of the INST HS screen in Telemetry Viewer.
+COSMOS allows you to [define limits](/docs/telemetry/#limits) for your telemetry items to provide feedback to users about how your telemetry is performing. If you define limits, COSMOS requires you to specify both red and yellow limits. Red limits are traditionally where damage may occur while yellow limits are set a certain percentage away from red to give the operator a chance to respond before the red limits are hit. COSMOS also allows the user to set "Operational" limits (blue limits) which specify a desired operational range inside the green limits. This is best illustrated in the COSMOS demo. Here is a partial screenshot of the INST HS screen in Telemetry Viewer.
 
 ![Demo MetaData](/img/2018_02_12_temps.png)
 
@@ -43,7 +43,7 @@ puts "TEMP1 limits enable:#{limits_enabled?("INST", "HEALTH_STATUS", "TEMP1")}"
 {% endhighlight %}
 
 ## Limits Sets
-COSMOS requires the first item after the [LIMITS](/docs/cmdtlm/#limits) keyword to be the name of the limits set. Limits sets are system wide sets of limits which can be applied depending on the environment you're testing in. Perhaps you have a "Test" set of limits which are different from your "Operational" limits. At Ball Aerospace, we frequently define cyrogentic limits when testing spacecraft in a vacuum chamber at cyrogenic temperatures. COSMOS requires at least one limits definition to belong to "DEFAULT" which is used when COSMOS starts. If you forget to define a DEFAULT limits set, you'll get this error when you start the COSMOS Command and Telemetry Server.
+COSMOS requires the first item after the [LIMITS](/docs/telemetry/#limits) keyword to be the name of the limits set. Limits sets are system wide sets of limits which can be applied depending on the environment you're testing in. Perhaps you have a "Test" set of limits which are different from your "Operational" limits. At Ball Aerospace, we frequently define cyrogentic limits when testing spacecraft in a vacuum chamber at cyrogenic temperatures. COSMOS requires at least one limits definition to belong to "DEFAULT" which is used when COSMOS starts. If you forget to define a DEFAULT limits set, you'll get this error when you start the COSMOS Command and Telemetry Server.
 
 ![Demo MetaData](/img/2018_02_12_limits_error.png)
 
@@ -66,9 +66,9 @@ set_limits_set("TVAC") # Change to TVAC
 ## Limits Groups
 COSMOS also has the concept of limits groups. Limits groups are used to group together telemetry items so they can be enabled and disabled together. For example, if you have several physical devices in your system, you can group together items from each device and enable their limits when they power on and disable them when they power off. This is useful to avoid limits violations on items which are currently off and returning zeros.
 
-Limits groups are defined by the [LIMITS_GROUP](/docs/cmdtlm/#limits_group) keyword. Typically this is a separate file in your target's cmd_tlm folder. If you're creating a group which combines items from multiple targets we recommend to define this in the SYSTEM target's cmd_tlm folder. This is how the COSMOS demo is configured with a limits_groups.txt file in SYSTEM/cmd_tlm.
+Limits groups are defined by the [LIMITS_GROUP](/docs/telemetry/#limits_group) keyword. Typically this is a separate file in your target's cmd_tlm folder. If you're creating a group which combines items from multiple targets we recommend to define this in the SYSTEM target's cmd_tlm folder. This is how the COSMOS demo is configured with a limits_groups.txt file in SYSTEM/cmd_tlm.
 
-Items are assigned to a group using the [LIMITS_GROUP_ITEM](/docs/cmdtlm/#limits_group_item) keyword. Here is the definition in the COSMOS demo.
+Items are assigned to a group using the [LIMITS_GROUP_ITEM](/docs/telemetry/#limits_group_item) keyword. Here is the definition in the COSMOS demo.
 
 ```
 LIMITS_GROUP INST2_TEMP2

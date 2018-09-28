@@ -262,7 +262,7 @@ COMMAND POWER SET_VOLTAGE BIG_ENDIAN "Set voltage"
 </code></pre>
 </div>
 
-<p>The CMD_ID parameter is defined by <a href="/docs/cmdtlm/#append_id_parameter">APPEND_ID_PARAMETER</a>. This ID parameter is not used by the SCPI protocol but is needed for COSMOS to identify the command when it is logged. The CMD_TEMPLATE parameter is the actual SCPI command which is being sent to the target. Anything inside brackets &lt;&gt; will be replaced by the value in the named parameter. For example, both commands define the CHANNEL parameter and thus &lt;CHANNEL&gt; will be replaced by the value of that parameter when constructing the command. The RSP_TEMPLATE is the expected string response back from the target. This is parsed by pulling out values into the bracket delimited values. The RSP_PACKET defines the packet where the bracket delimited values are defined. So for our GET_VOLTAGE example we parse the VOLTAGE value and place it in the TLM packet.</p>
+<p>The CMD_ID parameter is defined by <a href="/docs/command/#append_id_parameter">APPEND_ID_PARAMETER</a>. This ID parameter is not used by the SCPI protocol but is needed for COSMOS to identify the command when it is logged. The CMD_TEMPLATE parameter is the actual SCPI command which is being sent to the target. Anything inside brackets &lt;&gt; will be replaced by the value in the named parameter. For example, both commands define the CHANNEL parameter and thus &lt;CHANNEL&gt; will be replaced by the value of that parameter when constructing the command. The RSP_TEMPLATE is the expected string response back from the target. This is parsed by pulling out values into the bracket delimited values. The RSP_PACKET defines the packet where the bracket delimited values are defined. So for our GET_VOLTAGE example we parse the VOLTAGE value and place it in the TLM packet.</p>
 
 <p>Create a POWER/cmd_tlm/tlm.txt file to define the response telemetry:</p>
 
@@ -277,7 +277,7 @@ COMMAND POWER SET_VOLTAGE BIG_ENDIAN "Set voltage"
 </code></pre>
 </div>
 
-<p>The TLM_ID item is defined by <a href="/docs/cmdtlm/#append_id_item">APPEND_ID_ITEM</a>. This ID item is not used by the SCPI protocol but is needed by COSMOS to decode this logged telemetry packet. The packet is named TLM which matches our RSP_PACKET definition in the commands. We define VOLTAGE and SET_VOLTAGE which also match the values used in the RSP_TEMPLATE parameters in our commands.</p>
+<p>The TLM_ID item is defined by <a href="/docs/telemetry/#append_id_item">APPEND_ID_ITEM</a>. This ID item is not used by the SCPI protocol but is needed by COSMOS to decode this logged telemetry packet. The packet is named TLM which matches our RSP_PACKET definition in the commands. We define VOLTAGE and SET_VOLTAGE which also match the values used in the RSP_TEMPLATE parameters in our commands.</p>
 
 <p>With Keysight supplies you can string together a bunch of SCIP commands in one CMD_TEMPLATE if you delimit them with semicolons. Then in the RSP_TEMPLATE you can break the response apart and set a bunch of telemetry items at once. For example:</p>
 

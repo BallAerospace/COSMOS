@@ -3304,6 +3304,8 @@
 
 <p>Telemetry definition files define the telemetry packets that can be received and processed from COSMOS targets. One large file can be used to define the telemetry packets, or multiple files can be used at the user’s discretion. Telemetry definition files are placed in the config/TARGET/cmd_tlm directory and are processed alphabetically. Therefore if you have some telemetry files that depend on others, e.g. they override or extend existing telemetry, they must be named last. The easist way to do this is to add an extension to an existing file name. For example, if you already have tlm.txt you can create tlm_override.txt for telemetry that depends on the definitions in tlm.txt. Note that due to the way the <a href="http://www.asciitable.com/">ASCII Table</a> is structured, files beginning with capital letters are processed before lower case letters.</p>
 
+<p>When defining telemetry items you can choose from the following data types: INT, UINT, FLOAT, DERIVED, STRING, BLOCK. These correspond to integers, unsigned integers, floating point numbers, derived values of 0 size which aren’t actually physically defined in the packet, strings and binary blocks of data. The only difference between a STRING and BLOCK is when COSMOS reads a STRING type it stops reading when it encounters a null byte (0). This shows up when displaying the value in Packet Viewer or Tlm Viewer and in the output of Telemetry Extractor.</p>
+
 <div style="clear:both;"></div>
 
 <h2 id="telemetry">

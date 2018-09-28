@@ -3283,10 +3283,10 @@
 
 <p>If you’re dealing with a Command packet instance there are additional instance variables that are useful:</p>
 <ol>
-  <li><code class="highlighter-rouge">hazardous</code> - Boolean indicating whether the command is hazardous (see <a href="/docs/cmdtlm/#hazardous">hazardous</a>)</li>
+  <li><code class="highlighter-rouge">hazardous</code> - Boolean indicating whether the command is hazardous (see <a href="/docs/command/#hazardous">hazardous</a>)</li>
   <li><code class="highlighter-rouge">hazardous_description</code> - String description of why the packet is hazardous</li>
-  <li><code class="highlighter-rouge">hidden</code> - Boolean indicating whether this packet is hidden (see <a href="/docs/cmdtlm/#hidden">hidden</a>)</li>
-  <li><code class="highlighter-rouge">disabled</code> - Boolean indicating whether this packet is disabled (see <a href="/docs/cmdtlm/#disabled">disabled</a>)</li>
+  <li><code class="highlighter-rouge">hidden</code> - Boolean indicating whether this packet is hidden (see <a href="/docs/command/#hidden">hidden</a>)</li>
+  <li><code class="highlighter-rouge">disabled</code> - Boolean indicating whether this packet is disabled (see <a href="/docs/command/#disabled">disabled</a>)</li>
 </ol>
 
 <h3 id="packet-methods">Packet Methods</h3>
@@ -3329,7 +3329,7 @@
 
 <p>First a comment about syntax. The first parameter in the read method is a string which in Ruby can be either single or double quotes. The second parameter is a Ruby Symbol which is similar to a string but is prefixed with a colon.</p>
 
-<p>Note that there are four different ways to read a packet value as indicated above in the value_type description. :RAW means to return the value defined at that location in the packet without applying any COSMOS conversions or STATE names. :CONVERTED (the default) means to apply COSMOS conversions and any defined State values (see <a href="/docs/cmdtlm/#state">STATE</a>). :FORMATTED means to apply any format strings on the packet item (see <a href="/docs/cmdtlm/#format_string">FORMAT_STRING</a>) and return the resulting string. Note that :FORMATTED always returns a STRING even if there is no formatting being applied. This is distinct from :RAW and :CONVERTED which return a value of the type you specify in the packet definition. Finally :WITH_UNITS applies any units (see <a href="/docs/cmdtlm/#units">UNITS</a>) to the formatted value and again returns a string value.</p>
+<p>Note that there are four different ways to read a packet value as indicated above in the value_type description. :RAW means to return the value defined at that location in the packet without applying any COSMOS conversions or STATE names. :CONVERTED (the default) means to apply COSMOS conversions and any defined State values (see <a href="/docs/telemetry/#state">STATE</a>). :FORMATTED means to apply any format strings on the packet item (see <a href="/docs/telemetry/#format_string">FORMAT_STRING</a>) and return the resulting string. Note that :FORMATTED always returns a STRING even if there is no formatting being applied. This is distinct from :RAW and :CONVERTED which return a value of the type you specify in the packet definition. Finally :WITH_UNITS applies any units (see <a href="/docs/telemetry/#units">UNITS</a>) to the formatted value and again returns a string value.</p>
 
 <p>The final parameter is buffer. Typically you will just leave this off and write to the buffer contained by the current packet instance. However, if you have an unidentified buffer of data that you believe represents a particular packet instance, you can pass that into read.</p>
 
@@ -3372,7 +3372,7 @@
 
 <p>See <a href="/docs/packet_class#read">read</a> for a note about the syntax and what value_type means.</p>
 
-<p>There are a few gotchas associated with writing a value into a packet. If you’re writing a value marked as STRING then you can pass almost any value you want as Ruby will automatically convert it into a string. If the packet item has any <a href="/docs/cmdtlm/#write_conversion">write conversions</a> then using the :RAW value_type will bypass that conversion. For example:</p>
+<p>There are a few gotchas associated with writing a value into a packet. If you’re writing a value marked as STRING then you can pass almost any value you want as Ruby will automatically convert it into a string. If the packet item has any <a href="/docs/telemetry/#write_conversion">write conversions</a> then using the :RAW value_type will bypass that conversion. For example:</p>
 <div class="language-ruby highlighter-rouge"><pre class="highlight"><code><span class="n">packet</span><span class="p">.</span><span class="nf">write</span><span class="p">(</span><span class="s1">'STRING_ITEM'</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span> <span class="c1"># 10 will be converted to '10' automatically</span>
 <span class="n">packet</span><span class="p">.</span><span class="nf">write</span><span class="p">(</span><span class="s2">"STRING_ITEM"</span><span class="p">,</span> <span class="mi">12</span><span class="o">.</span><span class="mi">5</span><span class="p">,</span> <span class="ss">:RAW</span><span class="p">)</span> <span class="c1"># 12.5 will be converted to '12.5'</span>
 </code></pre>
@@ -3385,7 +3385,7 @@
 </code></pre>
 </div>
 
-<p>If there are no <a href="/docs/cmdtlm/#write_conversion">write conversions</a> or <a href="/docs/cmdtlm/#state">states</a> defined on the telemetry item then writing with :RAW or :CONVERTED will be equivalent.</p>
+<p>If there are no <a href="/docs/telemetry/#write_conversion">write conversions</a> or <a href="/docs/telemetry/#state">states</a> defined on the telemetry item then writing with :RAW or :CONVERTED will be equivalent.</p>
 
 <p>Definition File:</p>
 <div class="language-bash highlighter-rouge"><pre class="highlight"><code>APPEND_ITEM INT_ITEM_WITH_STATES 32 UINT <span class="s2">"Item"</span>
@@ -3487,7 +3487,7 @@
 
 <h4 id="identify">identify?</h4>
 
-<p>Returns whether the buffer of data parameter represents this packet. It does this by iterating over all the packet items that were created with an ID value (see <a href="/docs/cmdtlm/#id_parameter">id_parameter</a> and <a href="/docs/cmdtlm/#id_item">id_item</a>) and checking whether the ID values are present in the buffer.</p>
+<p>Returns whether the buffer of data parameter represents this packet. It does this by iterating over all the packet items that were created with an ID value (see <a href="/docs/command/#id_parameter">id_parameter</a> and <a href="/docs/telemetry/#id_item">id_item</a>) and checking whether the ID values are present in the buffer.</p>
 
 <table>
   <thead>

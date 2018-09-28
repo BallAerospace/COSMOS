@@ -1157,7 +1157,7 @@ TABLEFILE "MCConfigurationTable_def.txt"
 
 ### TABLE
 
-The TABLE keyword designates the start of a new table definition. This keyword was reworked in COSMOS 3.9 to better match the syntax of the [COMMAND](/docs/cmdtlm#command) and [TELEMETRY](/docs/cmdtlm#telemetry) keywords.
+The TABLE keyword designates the start of a new table definition. This keyword was reworked in COSMOS 3.9 to better match the syntax of the [COMMAND](/docs/command) and [TELEMETRY](/docs/telemetry) keywords.
 
 | Parameter | Description | Required |
 |-----------|-------------|----------|
@@ -1175,11 +1175,11 @@ TABLE "TLM Monitoring " BIG_ENDIAN TWO_DIMENSIONAL 200 "Telemetry Monitory Table
 
 ### PARAMETER
 
-The PARAMETER keyword defines a table parameter in the current table. This keyword was reworked in COSMOS 3.9 to utilize the existing command parser. Please see the [PARAMETER](/docs/cmdtlm/#parameter) and [APPEND_PARAMETER](/docs/cmdtlm#append_parameter) documentation.
+The PARAMETER keyword defines a table parameter in the current table. This keyword was reworked in COSMOS 3.9 to utilize the existing command parser. Please see the [PARAMETER](/docs/command/#parameter) and [APPEND_PARAMETER](/docs/command#append_parameter) documentation.
 
 ## Parameter Modifiers
 
-The following keywords modify a parameter and are only applicable after the PARAMETER keyword as defined above. They are typically indented within the definition file to show ownership to the previously defined parameter. COSMOS 3.9 reworked the parser to accept any of the existing [command parameter modifiers](/docs/cmdtlm/#parameter-modifiers). In addition, the Table Manager parser supports the following parameter modifiers:
+The following keywords modify a parameter and are only applicable after the PARAMETER keyword as defined above. They are typically indented within the definition file to show ownership to the previously defined parameter. COSMOS 3.9 reworked the parser to accept any of the existing [command parameter modifiers](/docs/command/#parameter-modifiers). In addition, the Table Manager parser supports the following parameter modifiers:
 
 ### HIDDEN
 

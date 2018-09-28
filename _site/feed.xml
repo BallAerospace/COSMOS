@@ -11,8 +11,8 @@
     <title xml:lang="en">Ball Aerospace COSMOS News</title>
     <atom:link type="application/atom+xml" href="http://cosmosrb/feed.xml" rel="self"/>
     <link>http://cosmosrb.com/</link>
-    <pubDate>Wed, 19 Sep 2018 15:17:26 -0600</pubDate>
-    <lastBuildDate>Wed, 19 Sep 2018 15:17:26 -0600</lastBuildDate>
+    <pubDate>Fri, 28 Sep 2018 13:36:56 -0600</pubDate>
+    <lastBuildDate>Fri, 28 Sep 2018 13:36:56 -0600</lastBuildDate>
     <language>en-US</language>
     <generator>Jekyll v3.5.2</generator>
     <description>The User Interface for Embedded Systems</description>
@@ -369,7 +369,7 @@ ITEM RECEIVED_COUNT 0 0 DERIVED &quot;COSMOS packet received count&quot;
       
       <guid isPermaLink="true">http://cosmosrb.com/news/2018/02/12/limits/</guid>
       <description>&lt;h2 id=&quot;cosmos-limits&quot;&gt;COSMOS Limits&lt;/h2&gt;
-&lt;p&gt;COSMOS allows you to &lt;a href=&quot;/docs/cmdtlm/#limits&quot;&gt;define limits&lt;/a&gt; for your telemetry items to provide feedback to users about how your telemetry is performing. If you define limits, COSMOS requires you to specify both red and yellow limits. Red limits are traditionally where damage may occur while yellow limits are set a certain percentage away from red to give the operator a chance to respond before the red limits are hit. COSMOS also allows the user to set “Operational” limits (blue limits) which specify a desired operational range inside the green limits. This is best illustrated in the COSMOS demo. Here is a partial screenshot of the INST HS screen in Telemetry Viewer.&lt;/p&gt;
+&lt;p&gt;COSMOS allows you to &lt;a href=&quot;/docs/telemetry/#limits&quot;&gt;define limits&lt;/a&gt; for your telemetry items to provide feedback to users about how your telemetry is performing. If you define limits, COSMOS requires you to specify both red and yellow limits. Red limits are traditionally where damage may occur while yellow limits are set a certain percentage away from red to give the operator a chance to respond before the red limits are hit. COSMOS also allows the user to set “Operational” limits (blue limits) which specify a desired operational range inside the green limits. This is best illustrated in the COSMOS demo. Here is a partial screenshot of the INST HS screen in Telemetry Viewer.&lt;/p&gt;
 
 &lt;p&gt;&lt;img src=&quot;/img/2018_02_12_temps.png&quot; alt=&quot;Demo MetaData&quot; /&gt;&lt;/p&gt;
 
@@ -402,7 +402,7 @@ ITEM RECEIVED_COUNT 0 0 DERIVED &quot;COSMOS packet received count&quot;
 &lt;span class=&quot;nb&quot;&gt;puts&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;TEMP1 limits enable:&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;#{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;limits_enabled?&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;INST&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;HEALTH_STATUS&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;TEMP1&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
 &lt;h2 id=&quot;limits-sets&quot;&gt;Limits Sets&lt;/h2&gt;
-&lt;p&gt;COSMOS requires the first item after the &lt;a href=&quot;/docs/cmdtlm/#limits&quot;&gt;LIMITS&lt;/a&gt; keyword to be the name of the limits set. Limits sets are system wide sets of limits which can be applied depending on the environment you’re testing in. Perhaps you have a “Test” set of limits which are different from your “Operational” limits. At Ball Aerospace, we frequently define cyrogentic limits when testing spacecraft in a vacuum chamber at cyrogenic temperatures. COSMOS requires at least one limits definition to belong to “DEFAULT” which is used when COSMOS starts. If you forget to define a DEFAULT limits set, you’ll get this error when you start the COSMOS Command and Telemetry Server.&lt;/p&gt;
+&lt;p&gt;COSMOS requires the first item after the &lt;a href=&quot;/docs/telemetry/#limits&quot;&gt;LIMITS&lt;/a&gt; keyword to be the name of the limits set. Limits sets are system wide sets of limits which can be applied depending on the environment you’re testing in. Perhaps you have a “Test” set of limits which are different from your “Operational” limits. At Ball Aerospace, we frequently define cyrogentic limits when testing spacecraft in a vacuum chamber at cyrogenic temperatures. COSMOS requires at least one limits definition to belong to “DEFAULT” which is used when COSMOS starts. If you forget to define a DEFAULT limits set, you’ll get this error when you start the COSMOS Command and Telemetry Server.&lt;/p&gt;
 
 &lt;p&gt;&lt;img src=&quot;/img/2018_02_12_limits_error.png&quot; alt=&quot;Demo MetaData&quot; /&gt;&lt;/p&gt;
 
@@ -423,9 +423,9 @@ ITEM RECEIVED_COUNT 0 0 DERIVED &quot;COSMOS packet received count&quot;
 &lt;h2 id=&quot;limits-groups&quot;&gt;Limits Groups&lt;/h2&gt;
 &lt;p&gt;COSMOS also has the concept of limits groups. Limits groups are used to group together telemetry items so they can be enabled and disabled together. For example, if you have several physical devices in your system, you can group together items from each device and enable their limits when they power on and disable them when they power off. This is useful to avoid limits violations on items which are currently off and returning zeros.&lt;/p&gt;
 
-&lt;p&gt;Limits groups are defined by the &lt;a href=&quot;/docs/cmdtlm/#limits_group&quot;&gt;LIMITS_GROUP&lt;/a&gt; keyword. Typically this is a separate file in your target’s cmd_tlm folder. If you’re creating a group which combines items from multiple targets we recommend to define this in the SYSTEM target’s cmd_tlm folder. This is how the COSMOS demo is configured with a limits_groups.txt file in SYSTEM/cmd_tlm.&lt;/p&gt;
+&lt;p&gt;Limits groups are defined by the &lt;a href=&quot;/docs/telemetry/#limits_group&quot;&gt;LIMITS_GROUP&lt;/a&gt; keyword. Typically this is a separate file in your target’s cmd_tlm folder. If you’re creating a group which combines items from multiple targets we recommend to define this in the SYSTEM target’s cmd_tlm folder. This is how the COSMOS demo is configured with a limits_groups.txt file in SYSTEM/cmd_tlm.&lt;/p&gt;
 
-&lt;p&gt;Items are assigned to a group using the &lt;a href=&quot;/docs/cmdtlm/#limits_group_item&quot;&gt;LIMITS_GROUP_ITEM&lt;/a&gt; keyword. Here is the definition in the COSMOS demo.&lt;/p&gt;
+&lt;p&gt;Items are assigned to a group using the &lt;a href=&quot;/docs/telemetry/#limits_group_item&quot;&gt;LIMITS_GROUP_ITEM&lt;/a&gt; keyword. Here is the definition in the COSMOS demo.&lt;/p&gt;
 
 &lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;LIMITS_GROUP INST2_TEMP2
   LIMITS_GROUP_ITEM INST2 HEALTH_STATUS TEMP2
@@ -1529,7 +1529,7 @@ COMMAND POWER SET_VOLTAGE BIG_ENDIAN &quot;Set voltage&quot;
 &lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 
-&lt;p&gt;The CMD_ID parameter is defined by &lt;a href=&quot;/docs/cmdtlm/#append_id_parameter&quot;&gt;APPEND_ID_PARAMETER&lt;/a&gt;. This ID parameter is not used by the SCPI protocol but is needed for COSMOS to identify the command when it is logged. The CMD_TEMPLATE parameter is the actual SCPI command which is being sent to the target. Anything inside brackets &amp;lt;&amp;gt; will be replaced by the value in the named parameter. For example, both commands define the CHANNEL parameter and thus &amp;lt;CHANNEL&amp;gt; will be replaced by the value of that parameter when constructing the command. The RSP_TEMPLATE is the expected string response back from the target. This is parsed by pulling out values into the bracket delimited values. The RSP_PACKET defines the packet where the bracket delimited values are defined. So for our GET_VOLTAGE example we parse the VOLTAGE value and place it in the TLM packet.&lt;/p&gt;
+&lt;p&gt;The CMD_ID parameter is defined by &lt;a href=&quot;/docs/command/#append_id_parameter&quot;&gt;APPEND_ID_PARAMETER&lt;/a&gt;. This ID parameter is not used by the SCPI protocol but is needed for COSMOS to identify the command when it is logged. The CMD_TEMPLATE parameter is the actual SCPI command which is being sent to the target. Anything inside brackets &amp;lt;&amp;gt; will be replaced by the value in the named parameter. For example, both commands define the CHANNEL parameter and thus &amp;lt;CHANNEL&amp;gt; will be replaced by the value of that parameter when constructing the command. The RSP_TEMPLATE is the expected string response back from the target. This is parsed by pulling out values into the bracket delimited values. The RSP_PACKET defines the packet where the bracket delimited values are defined. So for our GET_VOLTAGE example we parse the VOLTAGE value and place it in the TLM packet.&lt;/p&gt;
 
 &lt;p&gt;Create a POWER/cmd_tlm/tlm.txt file to define the response telemetry:&lt;/p&gt;
 
@@ -1544,7 +1544,7 @@ COMMAND POWER SET_VOLTAGE BIG_ENDIAN &quot;Set voltage&quot;
 &lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 
-&lt;p&gt;The TLM_ID item is defined by &lt;a href=&quot;/docs/cmdtlm/#append_id_item&quot;&gt;APPEND_ID_ITEM&lt;/a&gt;. This ID item is not used by the SCPI protocol but is needed by COSMOS to decode this logged telemetry packet. The packet is named TLM which matches our RSP_PACKET definition in the commands. We define VOLTAGE and SET_VOLTAGE which also match the values used in the RSP_TEMPLATE parameters in our commands.&lt;/p&gt;
+&lt;p&gt;The TLM_ID item is defined by &lt;a href=&quot;/docs/telemetry/#append_id_item&quot;&gt;APPEND_ID_ITEM&lt;/a&gt;. This ID item is not used by the SCPI protocol but is needed by COSMOS to decode this logged telemetry packet. The packet is named TLM which matches our RSP_PACKET definition in the commands. We define VOLTAGE and SET_VOLTAGE which also match the values used in the RSP_TEMPLATE parameters in our commands.&lt;/p&gt;
 
 &lt;p&gt;With Keysight supplies you can string together a bunch of SCIP commands in one CMD_TEMPLATE if you delimit them with semicolons. Then in the RSP_TEMPLATE you can break the response apart and set a bunch of telemetry items at once. For example:&lt;/p&gt;
 
@@ -1657,7 +1657,7 @@ Documentation will updated the first week of April.&lt;/p&gt;
 &lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 
-&lt;p&gt;These definitions create six new telemetry &lt;a href=&quot;/docs/cmdtlm/#item&quot;&gt;ITEMs&lt;/a&gt;. The &lt;a href=&quot;/docs/cmdtlm/#read_conversion&quot;&gt;READ_CONVERSION&lt;/a&gt; line takes a conversion class and then variable parameters that are passed to the class. Here we’re using the COSMOS provided processor_conversion.rb class which pulls a result calculated by a PROCESSOR. The last two lines define the two &lt;a href=&quot;/docs/cmdtlm/#processor&quot;&gt;PROCESSORs&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;These definitions create six new telemetry &lt;a href=&quot;/docs/telemetry/#item&quot;&gt;ITEMs&lt;/a&gt;. The &lt;a href=&quot;/docs/telemetry/#read_conversion&quot;&gt;READ_CONVERSION&lt;/a&gt; line takes a conversion class and then variable parameters that are passed to the class. Here we’re using the COSMOS provided processor_conversion.rb class which pulls a result calculated by a PROCESSOR. The last two lines define the two &lt;a href=&quot;/docs/telemetry/#processor&quot;&gt;PROCESSORs&lt;/a&gt;.&lt;/p&gt;
 
 &lt;p&gt;Currently COSMOS provides the following three processors:&lt;/p&gt;
 
@@ -2330,7 +2330,7 @@ INTERFACE UART_INTERFACE  checksum_serial_interface.rb COM1  COM1 115200 NONE   
       <category>post</category>
       
       <guid isPermaLink="true">http://cosmosrb.com/news/2016/07/06/cosmos-cmd-tlm-names/</guid>
-      <description>&lt;p&gt;Recently a user asked if they could add exclamation points and question marks to their command and telemetry items. Absolutely!  COSMOS provides great flexibility in command and telemetry naming conventions. (See &lt;a href=&quot;http://cosmosrb.com/docs/cmdtlm&quot;&gt;cmdtlm&lt;/a&gt;). For example, adding an exclamation point to a command to denote a more severe version of the same command:&lt;/p&gt;
+      <description>&lt;p&gt;Recently a user asked if they could add exclamation points and question marks to their command and telemetry items. Absolutely!  COSMOS provides great flexibility in command and telemetry naming conventions. (See &lt;a href=&quot;http://cosmosrb.com/docs/command&quot;&gt;Command&lt;/a&gt;). For example, adding an exclamation point to a command to denote a more severe version of the same command:&lt;/p&gt;
 
 &lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;COMMAND TGT ABORT BIG_ENDIAN &quot;Tries to abort a collect on the instrument&quot;
 COMMAND TGT ABORT! BIG_ENDIAN &quot;Force aborts a collect on the instrument&quot;

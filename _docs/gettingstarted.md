@@ -33,7 +33,7 @@ Playing with the COSMOS Demo is fun and all, but now you want to talk to your ow
 
 * Inside your demo area, create a folder for your target in config/targets/.  The folder name should be ALL CAPS and concise. Let's pretend we're going to interface with custom piece of software you wrote called BOB, so we'll call the folder config/targets/BOB.
 
-2.. Next we need to define the commands and telemetry packets for our target.  The details on the command and telemetry definition file formats can be found here: [Command and Telemetry Configuration](/docs/cmdtlm)
+2.. Next we need to define the commands and telemetry packets for our target.  The details on the command and telemetry definition file formats can be found here: [Command](/docs/command) and [Telemetry](/docs/telemetry)
 
 * Create the folder config/targets/BOB/cmd_tlm
 * Create a new text file called config/targets/BOB/cmd_tlm/bob_cmds.txt with the following contents:

@@ -34,7 +34,7 @@ This is all controlled by the INST target's cmd/tlm definition files. If you ope
   PROCESSOR TEMP1WATER watermark_processor.rb TEMP1
 ```
 
-These definitions create six new telemetry [ITEMs](/docs/cmdtlm/#item). The [READ_CONVERSION](/docs/cmdtlm/#read_conversion) line takes a conversion class and then variable parameters that are passed to the class. Here we're using the COSMOS provided processor_conversion.rb class which pulls a result calculated by a PROCESSOR. The last two lines define the two [PROCESSORs](/docs/cmdtlm/#processor).
+These definitions create six new telemetry [ITEMs](/docs/telemetry/#item). The [READ_CONVERSION](/docs/telemetry/#read_conversion) line takes a conversion class and then variable parameters that are passed to the class. Here we're using the COSMOS provided processor_conversion.rb class which pulls a result calculated by a PROCESSOR. The last two lines define the two [PROCESSORs](/docs/telemetry/#processor).
 
 Currently COSMOS provides the following three processors:
 

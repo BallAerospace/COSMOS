@@ -233,7 +233,7 @@
   </div>
   <div class="post-content">
     <h2 id="cosmos-limits">COSMOS Limits</h2>
-<p>COSMOS allows you to <a href="/docs/cmdtlm/#limits">define limits</a> for your telemetry items to provide feedback to users about how your telemetry is performing. If you define limits, COSMOS requires you to specify both red and yellow limits. Red limits are traditionally where damage may occur while yellow limits are set a certain percentage away from red to give the operator a chance to respond before the red limits are hit. COSMOS also allows the user to set “Operational” limits (blue limits) which specify a desired operational range inside the green limits. This is best illustrated in the COSMOS demo. Here is a partial screenshot of the INST HS screen in Telemetry Viewer.</p>
+<p>COSMOS allows you to <a href="/docs/telemetry/#limits">define limits</a> for your telemetry items to provide feedback to users about how your telemetry is performing. If you define limits, COSMOS requires you to specify both red and yellow limits. Red limits are traditionally where damage may occur while yellow limits are set a certain percentage away from red to give the operator a chance to respond before the red limits are hit. COSMOS also allows the user to set “Operational” limits (blue limits) which specify a desired operational range inside the green limits. This is best illustrated in the COSMOS demo. Here is a partial screenshot of the INST HS screen in Telemetry Viewer.</p>
 
 <p><img src="/img/2018_02_12_temps.png" alt="Demo MetaData" /></p>
 
@@ -266,7 +266,7 @@
 <span class="nb">puts</span> <span class="s2">"TEMP1 limits enable:</span><span class="si">#{</span><span class="n">limits_enabled?</span><span class="p">(</span><span class="s2">"INST"</span><span class="p">,</span> <span class="s2">"HEALTH_STATUS"</span><span class="p">,</span> <span class="s2">"TEMP1"</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span></code></pre></figure>
 
 <h2 id="limits-sets">Limits Sets</h2>
-<p>COSMOS requires the first item after the <a href="/docs/cmdtlm/#limits">LIMITS</a> keyword to be the name of the limits set. Limits sets are system wide sets of limits which can be applied depending on the environment you’re testing in. Perhaps you have a “Test” set of limits which are different from your “Operational” limits. At Ball Aerospace, we frequently define cyrogentic limits when testing spacecraft in a vacuum chamber at cyrogenic temperatures. COSMOS requires at least one limits definition to belong to “DEFAULT” which is used when COSMOS starts. If you forget to define a DEFAULT limits set, you’ll get this error when you start the COSMOS Command and Telemetry Server.</p>
+<p>COSMOS requires the first item after the <a href="/docs/telemetry/#limits">LIMITS</a> keyword to be the name of the limits set. Limits sets are system wide sets of limits which can be applied depending on the environment you’re testing in. Perhaps you have a “Test” set of limits which are different from your “Operational” limits. At Ball Aerospace, we frequently define cyrogentic limits when testing spacecraft in a vacuum chamber at cyrogenic temperatures. COSMOS requires at least one limits definition to belong to “DEFAULT” which is used when COSMOS starts. If you forget to define a DEFAULT limits set, you’ll get this error when you start the COSMOS Command and Telemetry Server.</p>
 
 <p><img src="/img/2018_02_12_limits_error.png" alt="Demo MetaData" /></p>
 
@@ -287,9 +287,9 @@
 <h2 id="limits-groups">Limits Groups</h2>
 <p>COSMOS also has the concept of limits groups. Limits groups are used to group together telemetry items so they can be enabled and disabled together. For example, if you have several physical devices in your system, you can group together items from each device and enable their limits when they power on and disable them when they power off. This is useful to avoid limits violations on items which are currently off and returning zeros.</p>
 
-<p>Limits groups are defined by the <a href="/docs/cmdtlm/#limits_group">LIMITS_GROUP</a> keyword. Typically this is a separate file in your target’s cmd_tlm folder. If you’re creating a group which combines items from multiple targets we recommend to define this in the SYSTEM target’s cmd_tlm folder. This is how the COSMOS demo is configured with a limits_groups.txt file in SYSTEM/cmd_tlm.</p>
+<p>Limits groups are defined by the <a href="/docs/telemetry/#limits_group">LIMITS_GROUP</a> keyword. Typically this is a separate file in your target’s cmd_tlm folder. If you’re creating a group which combines items from multiple targets we recommend to define this in the SYSTEM target’s cmd_tlm folder. This is how the COSMOS demo is configured with a limits_groups.txt file in SYSTEM/cmd_tlm.</p>
 
-<p>Items are assigned to a group using the <a href="/docs/cmdtlm/#limits_group_item">LIMITS_GROUP_ITEM</a> keyword. Here is the definition in the COSMOS demo.</p>
+<p>Items are assigned to a group using the <a href="/docs/telemetry/#limits_group_item">LIMITS_GROUP_ITEM</a> keyword. Here is the definition in the COSMOS demo.</p>
 
 <div class="highlighter-rouge"><pre class="highlight"><code>LIMITS_GROUP INST2_TEMP2
   LIMITS_GROUP_ITEM INST2 HEALTH_STATUS TEMP2
