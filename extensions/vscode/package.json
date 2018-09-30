@@ -11,13 +11,18 @@
 	},
 	"publisher": "BallAero",
 	"scripts": {
-		"compile": "npm run-script compile:client",
+		"postinstall": "cd server && npm install && cd ../client && npm install && cd .. && npm run-script compile",
+		"compile": "npm run-script compile:client && npm run-script compile:server",
 		"compile:client": "tsc -p ./client/tsconfig.json",
+		"compile:server": "cd server && npm run installServer && cd .. && tsc -p server/tsconfig.json",
 		"watch:client": "tsc -watch -p ./client/tsconfig.json",
+		"watch:server": "cd server && npm run installServer && cd .. && tsc -w -p server/tsconfig.json",
 		"distclean:client": "cd client && rm -fr node_modules && cd ..",
-		"distclean": "npm run-script distclean:client && rm -fr node_modules",
+		"distclean:server": "cd server && rm -fr node_modules && cd ..",
+		"distclean": "npm run-script distclean:client && npm run-script distclean:server && rm -fr node_modules",
 		"upgrade:client": "cd client && npm upgrade",
-		"postinstall": "cd server && npm install && cd ../client && npm install && cd .. && npm run-script compile"
+		"upgrade:server": "cd server && npm upgrade",
+		"upgrade": "npm run-script upgrade:client && npm run-script upgrade:server && npm upgrade"
 	},
 	"devDependencies": {
 		"@types/mocha": "^2.2.48",

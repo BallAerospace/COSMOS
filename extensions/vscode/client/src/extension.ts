@@ -45,6 +45,8 @@ export function activate(context: ExtensionContext) {
 				workspace.createFileSystemWatcher('**/config/targets/*/cmd_tlm_server.txt', false, false, false),
 				workspace.createFileSystemWatcher('**/config/targets/*/target.txt', false, false, false),
 				workspace.createFileSystemWatcher('**/config/targets/tools/*/*.txt', false, false, false),
+				workspace.createFileSystemWatcher('**/lib/*.rb', false, false, false),
+				workspace.createFileSystemWatcher('**/procedures/*.rb', false, false, false),
 			]
 		}
 	};
@@ -94,20 +96,19 @@ class CosmosScreenViewer {
 			process.chdir(path.dirname(editor.document.fileName));
 		}
 		catch (err) {
+			console.log(err)
 		}
 
 		// Build up Ruby Command
-		// this command for this: “ruby TlmViewer –screen “INST ADCS”” 
-		// let rubyCmd = 'ruby TlmViewer –screen "' + path.basename(editor.document.fileName).split('.').slice(0, -1).join('.') + '"';
 		let rubyCmd = 'ruby ' + this.extPath + '/src/screen_preview.rb ' + editor.document.fileName;
 
 		// Execute Ruby Command
-		exec(rubyCmd, {env: {'PATH': 'C:\\Ruby24-x64\\bin'}}, function(err, stdout, stderr) {
-			if (stderr != null)
+		exec(rubyCmd, {env: {'PATH': process.env.path}}, function(err, stdout, stderr) {
+			if (stderr != null && stderr != "")
 			{
-				console.log(err)
+				console.log(stderr)
 			}
-			if (stdout != null)
+			if (stdout != null && stdout != "")
 			{
 				console.log(stdout)
 			}
@@ -118,6 +119,7 @@ class CosmosScreenViewer {
 			process.chdir(currDir);
 		}
 		catch (err) {
+			console.log(err)
 		}
 	}
 
