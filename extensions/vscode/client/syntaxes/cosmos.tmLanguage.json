@@ -3,10 +3,11 @@
     "name": "cosmos",
     "scopeName": "source.cosmos",
     "patterns": [
+        { "include": "#rubyStatements" },
         { "include": "#comments" },
         { "include": "#strings" },
         { "include": "#numbers" },
-        { "include": "#requireStatements" },
+        { "include": "#systemConfig" },
         { "include": "#packetDef"},
         { "include": "#packetItem"},
         { "include": "#itemProperties" }
@@ -62,11 +63,15 @@
         "numbers": {
             "patterns": [
                 {
+                    "match": "[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}",
+                    "name": "constant.numeric"
+                },
+                {
                     "match": "0x[a-zA-Z0-9]+",
                     "name": "constant.numeric"
                 },
                 {
-                    "match": "[0-9]+\\.[0-9]+",
+                    "match": "-?[0-9]+\\.[0-9]+",
                     "name": "constant.numeric"
                 },
                 {
@@ -75,26 +80,46 @@
                 }
             ]
         },
-        "requireStatements": {
+        "rubyStatements": {
             "patterns": [
                 {
-                    "match": "(<%|%>)",
-                    "name": "keyword.operator"
-                },
-                {
-                    "match": "\\brequire\\b",
-                    "name": "keyword.control"
+                    "begin": "(?<=<%)",
+                    "patterns": [
+                        {
+                            "match": "\\brequire\\b",
+                            "name": "storage.type"
+                        },
+                        {
+                            "include": "source.ruby"
+                        }
+                    ],
+                    "end": "%>"
                 }
             ]
+        },
+        "systemConfig": {
+            "patterns": [
+                { "include": "#declareTarget" }
+              ],
+            "repository":{
+                "declareTarget": {
+                    "patterns": [
+                        {
+                            "match": "^\\s*(DECLARE_TARGET)\\b",
+                            "name": "storage.type"
+                        },
+                        {
+                            "match": "(?<=DECLARE_TARGET\\s)\\b\\S+(?=\\s)",
+                            "name": "support.class"
+                        }
+                    ]
+                }
+            }
         },
         "packetDef": {
             "patterns": [
                 {
-                    "match": "^TELEMETRY\\b",
-                    "name": "storage.type"
-                },
-                {
-                    "match": "^COMMAND\\b",
+                    "match": "^(TELEMETRY|COMMAND)\\b",
                     "name": "storage.type"
                 },
                 {
@@ -122,15 +147,15 @@
         "packetItem": {
             "patterns": [
                 {
-                    "match": "^\\s{0,2}(APPEND_ID_|ID_)(ITEM|PARAMETER)\\b",
+                    "match": "^\\s*(APPEND_ID_|ID_)(ITEM|PARAMETER)\\b",
                     "name": "support.function"
                 },
                 {
-                    "match": "^\\s{0,2}APPEND_(ITEM|PARAMETER)\\b",
+                    "match": "^\\s*APPEND_(ITEM|PARAMETER)\\b",
                     "name": "storage.modifer"
                 },
                 {
-                    "match": "^\\s{0,2}(ITEM|PARAMETER)\\b",
+                    "match": "^\\s*(ITEM|PARAMETER)\\b",
                     "name": "storage.modifer"
                 },
                 {
@@ -158,12 +183,28 @@
         "itemProperties": {
             "patterns": [
                 {
-                    "match": "^\\s{0,4}(STATE|FORMAT_STRING|READ_CONVERSION|UNITS)\\b",
+                    "match": "\\b(HAZARDOUS)\\b",
+                    "name": "invalid.deprecated"
+                },
+                {
+                    "match": "^\\s*(FORMAT_STRING|UNITS|DESCRIPTION|META|REQUIRED|MINIMUM_VALUE|MAXIMUM_VALUE|DEFAULT_VALUE|STATE|WRITE_CONVERSION|POLY_WRITE_CONVERSION|SEG_POLY_WRITE_CONVERSIONGENERIC_WRITE_CONVERSION_START|GENERIC_WRITE_CONVERSION_END|OVERFLOW)\\b",
                     "name": "keyword.control"
                 },
                 {
-                    "match": "(?<=STATE\\s)\\b\\S+(?=\\s)",
+                    "match": "^\\s*(FORMAT_STRING|UNITS|DESCRIPTION|META|STATE|READ_CONVERSION|POLY_READ_CONVERSION|SEG_POLY_READ_CONVERSION|GENERIC_READ_CONVERSION_START|GENERIC_READ_CONVERSION_END|LIMITS|LIMITS_RESPONSE)\\b",
+                    "name": "keyword.control"
+                },
+                {
+                    "match": "(?:(?<=STATE\\s)|(?<=META\\s)|(?<=LIMITS\\s))\\b\\S+(?=\\s)",
                     "name": "variable.parameter"
+                },
+                {
+                    "match": "META\\K\\s\\S+\\s+\\K.*",
+                    "name": "support.variable"
+                },
+                {
+                    "match": "(?<=\\s)(ENABLED|DISABLED)",
+                    "name": "support.type"
                 }
             ]
         }

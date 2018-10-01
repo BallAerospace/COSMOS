@@ -35,6 +35,7 @@
 					"Cosmos"
 				],
 				"filenamePatterns": [
+					"**/config/system/*.txt",
 					"**/config/targets/*/cmdtlm/*.txt",
 					"**/config/targets/*/cmd_tlm/*.txt",
 					"**/config/targets/*/screens/*.txt",
