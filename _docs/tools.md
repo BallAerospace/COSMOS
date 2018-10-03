@@ -562,7 +562,7 @@ The UNIQUE_ONLY keyword causes Telemetry Extractor to only output a row if one o
 
 ### UNIQUE_IGNORE
 
-The UNIQUE_IGNORE keyword is used in conjunction with UNIQUE_ONLY to control which items should be checked for changing values. This list of telemetry items (not target names or packet names) always includes the COSMOS metadata items named RECEIVED_TIMEFORMATTED and RECEIVED_SECONDS. This is because these items will always change from packet to packet which would cause them to ALWAYS be printed if UNIQUE_ONLY was used. To avoid this, but still include time stamps in the output, UNIQUE_IGNORE includes these items. If you have a similar telemetry item that you want to display in the output, but not be used to determine uniqueness, use this keyword.
+The UNIQUE_IGNORE keyword is used in conjunction with UNIQUE_ONLY to control which items should be checked for changing values. This list of telemetry items (not target names or packet names) always includes the COSMOS metadata items named PACKET_TIMEFORMATTED, PACKET_TIMESECONDS, RECEIVED_TIMEFORMATTED and RECEIVED_SECONDS. This is because these items will always change from packet to packet which would cause them to ALWAYS be printed if UNIQUE_ONLY was used. To avoid this, but still include time stamps in the output, UNIQUE_IGNORE includes these items. If you have a similar telemetry item that you want to display in the output, but not be used to determine uniqueness, use this keyword.
 
 <table>
 <tbody>

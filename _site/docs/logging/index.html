@@ -3379,13 +3379,28 @@
       <td>Description</td>
     </tr>
     <tr>
+      <td>Write Flags</td>
+      <td>8-bit unsigned integer</td>
+      <td>0x80 indicates whether the data is stored telemetry (see below). 0x40 indicates there is extra data following this byte. 0x3F bits are currently undefined. (since 4.3.0)</td>
+    </tr>
+    <tr>
+      <td>Extra Length (optional)</td>
+      <td>32-bit unsigned big endian integer</td>
+      <td>Number of extra bytes (Optional, depends on Write Flags) (since 4.3.0)</td>
+    </tr>
+    <tr>
+      <td>Extra (optional)</td>
+      <td>32-bit unsigned big endian integer</td>
+      <td>JSON encoded extra data (Optional, depends on Write Flags) (since 4.3.0)</td>
+    </tr>
+    <tr>
       <td>Time Seconds</td>
-      <td>32-bit integer</td>
+      <td>32-bit unsigned big endian integer</td>
       <td>Seconds since Unix epoch (Jan 1st, 1970 – Midnight)</td>
     </tr>
     <tr>
       <td>Time Microseconds</td>
-      <td>32-bit integer</td>
+      <td>32-bit unsigned big endian integer</td>
       <td>Microseconds of Second since Unix epoch (Jan 1st, 1970 – Midnight)</td>
     </tr>
     <tr>
@@ -3410,7 +3425,7 @@
     </tr>
     <tr>
       <td>Packet Length</td>
-      <td>32-bit unsigned integer</td>
+      <td>32-bit unsigned big endian integer</td>
       <td>Length in bytes of the packet</td>
     </tr>
     <tr>
@@ -3422,6 +3437,8 @@
 </table>
 
 <p>The variable length nature of command and telemetry packets requires a log parser to start from the beginning of each log file when processing packets.</p>
+
+<p>If the Write Flags indicate the data is stored telemetry (MSB set) COSMOS proceses and stores the data in the telemetry log file but does not update the current value table. Thus stored telemetry does not affect displays or scripts.</p>
 
           
 

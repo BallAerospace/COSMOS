@@ -11,6 +11,11 @@ COSMOS has a concept of a derived item which is a telemetry item that doesn't ac
 COSMOS derived items are defined very similarly to real items except they use the special DERIVED telemetry type. Here is how the default COSMOS derived items might look in a telemetry definition.
 
 ```
+ITEM PACKET_TIMESECONDS 0 0 DERIVED "COSMOS Received Time (UTC, Floating point, Unix epoch)"
+  READ_CONVERSION packet_time_seconds_conversion.rb
+  FORMAT_STRING '%0.6f'
+ITEM PACKET_TIMEFORMATTED 0 0 DERIVED "COSMOS Received Time (Local time zone, Formatted string)"
+  READ_CONVERSION packet_time_formatted_conversion.rb
 ITEM RECEIVED_TIMESECONDS 0 0 DERIVED "COSMOS Received Time (UTC, Floating point, Unix epoch)"
   READ_CONVERSION received_time_seconds_conversion.rb
   FORMAT_STRING '%0.6f'

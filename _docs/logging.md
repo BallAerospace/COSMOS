@@ -35,13 +35,18 @@ The Command and Telemetry Server binary log files contain command and telemetry 
 The file header is followed by command or telemetry packets (depending on the log type), each with a Big Endian header as follows:
 
 | Item | Data Type | Description |
-| Time Seconds | 32-bit integer | Seconds since Unix epoch (Jan 1st, 1970 – Midnight) |
-| Time Microseconds | 32-bit integer | Microseconds of Second since Unix epoch (Jan 1st, 1970 – Midnight) |
+| Write Flags | 8-bit unsigned integer | 0x80 indicates whether the data is stored telemetry (see below). 0x40 indicates there is extra data following this byte. 0x3F bits are currently undefined. (since 4.3.0) |
+| Extra Length (optional) | 32-bit unsigned big endian integer | Number of extra bytes (Optional, depends on Write Flags) (since 4.3.0) |
+| Extra (optional) | 32-bit unsigned big endian integer | JSON encoded extra data (Optional, depends on Write Flags) (since 4.3.0) |
+| Time Seconds | 32-bit unsigned big endian integer | Seconds since Unix epoch (Jan 1st, 1970 – Midnight) |
+| Time Microseconds | 32-bit unsigned big endian integer | Microseconds of Second since Unix epoch (Jan 1st, 1970 – Midnight) |
 | Target Name Length | 8-bit unsigned integer | Length in bytes of the target name |
 | Target Name | Variable length ASCII String | String that indicates the name of the target that the data was sourced from. |
 | Packet Name Length | 8-bit unsigned integer | Length in bytes of the packet name |
 | Packet Name | Variable length ASCII String | String that indicates the name of the packet of data. |
-| Packet Length | 32-bit unsigned integer | Length in bytes of the packet |
+| Packet Length | 32-bit unsigned big endian integer | Length in bytes of the packet |
 | Packet | Variable length block of data | The binary data packet (endianness defined by packet definition) |
 
 The variable length nature of command and telemetry packets requires a log parser to start from the beginning of each log file when processing packets.
+
+If the Write Flags indicate the data is stored telemetry (MSB set) COSMOS proceses and stores the data in the telemetry log file but does not update the current value table. Thus stored telemetry does not affect displays or scripts.

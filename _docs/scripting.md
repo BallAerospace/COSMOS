@@ -730,7 +730,7 @@ hazardous = get_cmd_hazardous("INST", "COLLECT", {'TYPE' => 'SPECIAL'})
 
 ### get_cmd_value
 
-The get_cmd_value method returns reads a value from the most recently sent command packet.   The pseudo-parameters 'RECEIVED_COUNT', 'RECEIVED_TIMEFORMATTED', and 'RECEIVED_TIMESECONDS' are also supported.
+The get_cmd_value method returns reads a value from the most recently sent command packet. The pseudo-parameters 'PACKET_TIMESECONDS', 'PACKET_TIMEFORMATTED', 'RECEIVED_COUNT', 'RECEIVED_TIMEFORMATTED', and 'RECEIVED_TIMESECONDS' are also supported.
 
 Syntax:
 ```ruby

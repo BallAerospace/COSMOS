@@ -1007,7 +1007,7 @@ The TIMEGRAPH widget displays a line graph of a telemetry items value verses tim
 | Width | The width of the graph (default = 300) | No |
 | Height | The height of the graph (default = 200) | No |
 | Point Size | Size of the point in pixels (default = 5) | No |
-| Time Item Name | The telemetry item to use as the time on the X axis (default = RECEIVED_TIMESECONDS) | No |
+| Time Item Name | The telemetry item to use as the time on the X axis (default = PACKET_TIMESECONDS) | No |
 | Value Type | The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = CONVERTED) | No |
 
 Example Usage:

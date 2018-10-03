@@ -11,8 +11,8 @@
     <title xml:lang="en">Ball Aerospace COSMOS News</title>
     <atom:link type="application/atom+xml" href="http://cosmosrb/feed.xml" rel="self"/>
     <link>http://cosmosrb.com/</link>
-    <pubDate>Fri, 28 Sep 2018 13:36:56 -0600</pubDate>
-    <lastBuildDate>Fri, 28 Sep 2018 13:36:56 -0600</lastBuildDate>
+    <pubDate>Wed, 03 Oct 2018 13:34:33 -0600</pubDate>
+    <lastBuildDate>Wed, 03 Oct 2018 13:34:33 -0600</lastBuildDate>
     <language>en-US</language>
     <generator>Jekyll v3.5.2</generator>
     <description>The User Interface for Embedded Systems</description>
@@ -284,7 +284,12 @@ rake db:seed
 
 &lt;p&gt;COSMOS derived items are defined very similarly to real items except they use the special DERIVED telemetry type. Here is how the default COSMOS derived items might look in a telemetry definition.&lt;/p&gt;
 
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;ITEM RECEIVED_TIMESECONDS 0 0 DERIVED &quot;COSMOS Received Time (UTC, Floating point, Unix epoch)&quot;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;ITEM PACKET_TIMESECONDS 0 0 DERIVED &quot;COSMOS Received Time (UTC, Floating point, Unix epoch)&quot;
+  READ_CONVERSION packet_time_seconds_conversion.rb
+  FORMAT_STRING '%0.6f'
+ITEM PACKET_TIMEFORMATTED 0 0 DERIVED &quot;COSMOS Received Time (Local time zone, Formatted string)&quot;
+  READ_CONVERSION packet_time_formatted_conversion.rb
+ITEM RECEIVED_TIMESECONDS 0 0 DERIVED &quot;COSMOS Received Time (UTC, Floating point, Unix epoch)&quot;
   READ_CONVERSION received_time_seconds_conversion.rb
   FORMAT_STRING '%0.6f'
 ITEM RECEIVED_TIMEFORMATTED 0 0 DERIVED &quot;COSMOS Received Time (Local time zone, Formatted string)&quot;
