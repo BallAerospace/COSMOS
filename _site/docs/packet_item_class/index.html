@@ -2,7 +2,7 @@
 <html lang="en-US">
 <head>
   <meta charset="UTF-8">
-  <title>Handbook Creator</title>
+  <title>PacketItem Class</title>
   <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="generator" content="Jekyll v3.5.2">
@@ -3413,366 +3413,163 @@
       <div class="unit four-fifths">
         <article>
           <div class="improve right">
-            <a href="https://github.com/BallAerospace/COSMOS/edit/website/_docs/handbook_creator.md" target="_blank"><i class="fa fa-pencil"></i> &nbsp;Improve this page</a>
+            <a href="https://github.com/BallAerospace/COSMOS/edit/website/_docs/packet_item_class.md" target="_blank"><i class="fa fa-pencil"></i> &nbsp;Improve this page</a>
           </div>
           
-          <div class="toc">
-            <ul class="section-nav">
-<li class="toc-entry toc-h2"><a href="#page">PAGE</a></li>
-<li class="toc-entry toc-h2"><a href="#target_pages">TARGET_PAGES</a>
-<ul>
-<li class="toc-entry toc-h3"><a href="#page-modifiers">PAGE Modifiers</a></li>
-<li class="toc-entry toc-h3"><a href="#no_pdf">NO_PDF</a></li>
-<li class="toc-entry toc-h3"><a href="#pdf_cover">PDF_COVER</a></li>
-<li class="toc-entry toc-h3"><a href="#pdf_toc">PDF_TOC</a></li>
-<li class="toc-entry toc-h3"><a href="#pdf_header">PDF_HEADER</a></li>
-<li class="toc-entry toc-h3"><a href="#pdf_footer">PDF_FOOTER</a></li>
-<li class="toc-entry toc-h3"><a href="#pdf_top_margin">PDF_TOP_MARGIN</a></li>
-<li class="toc-entry toc-h3"><a href="#pdf_bottom_margin">PDF_BOTTOM_MARGIN</a></li>
-<li class="toc-entry toc-h3"><a href="#pdf_side_margin">PDF_SIDE_MARGIN</a></li>
-<li class="toc-entry toc-h3"><a href="#target">TARGET</a></li>
-<li class="toc-entry toc-h3"><a href="#section">SECTION</a></li>
-<li class="toc-entry toc-h3"><a href="#cmd_section">CMD_SECTION</a></li>
-<li class="toc-entry toc-h3"><a href="#tlm_section">TLM_SECTION</a></li>
-</ul>
-</li>
-</ul>
-          </div>
-          
-          <h1>Handbook Creator</h1>
-          <p>This document describes Handbook Creator configuration file parameters.</p>
+          <h1>PacketItem Class</h1>
+          <div class="note">
+  <h5>This documentation is for COSMOS Developers</h5>
+  <p>If you’re simply trying to setup a COSMOS system you’re probably looking for the <a href="/docs/system">System Configuration</a> page. If you’re trying to create a custom interface, background task, conversion, or build a custom tool then this is the right place.</p>
+</div>
 
-<h2 id="page">
-<a id="page" class="anchor" href="#page" aria-hidden="true"><span class="octicon octicon-link"></span></a>PAGE</h2>
-<p><strong>Create a new top level webpage</strong></p>
+<p>The PacketItem class is used to access an individual item within a <a href="/docs/packet_class">Packet</a>. The primary way to access Packet instances is through the <a href="/docs/system_class">System</a> class. The PacketItem class provides access to information about the item like its location in the packet, type, endianness, conversions, states, etc.</p>
 
-<table>
-  <thead>
-    <tr>
-      <th>Parameter</th>
-      <th>Description</th>
-      <th>Required</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>Filename</td>
-      <td>Name of the HTML file</td>
-      <td>True</td>
-    </tr>
-  </tbody>
-</table>
+<p>The <a href="https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/packets/packet_item.rb">packet_item.rb</a> source code on Github.</p>
 
-<h2 id="target_pages">
-<a id="target_pages" class="anchor" href="#target_pages" aria-hidden="true"><span class="octicon octicon-link"></span></a>TARGET_PAGES</h2>
-<p><strong>Create a new webpage for each of the defined TARGETS</strong></p>
+<h2 id="programming-packetitem">Programming PacketItem</h2>
 
-<p>The page will be generated for each target. A top level “Targets” drop down will be created with links to all the generated target pages.</p>
+<p>Custom COSMOS code may need to interact with PacketItem as it provides access to the individual item defined by your command and telemetry definitions. PacketItem inherits from StructureItem which it uses to provide some of the lower level functionality associated with defining an item. Typically you’re directly using the PacketItem class. PacketItem instances can be either command items or telemetry items and there is no way to directly know whether an instance is from a command or telemetry packet. However, since you’re typically getting packet instances through <code class="highlighter-rouge">System.commands</code> or <code class="highlighter-rouge">System.telemetry</code> this is rarely an issue in practice.</p>
 
-<table>
-  <thead>
-    <tr>
-      <th>Parameter</th>
-      <th>Description</th>
-      <th>Required</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>Filename Postfix</td>
-      <td>The postfix will be applied to each generated target file. For example, a target named INST with a postfix of ‘_cmd_tlm.html’ will result in a file named ‘inst_cmd_tlm.html’.</td>
-      <td>True</td>
-    </tr>
-  </tbody>
-</table>
+<h3 id="packetitem-instance-variables">PacketItem Instance Variables</h3>
+<p>PacketItem defines a large number of instance variables that provide information about the packet. The most commonly used are as follows:</p>
 
-<h3 id="page-modifiers">
-<a id="page-modifiers" class="anchor" href="#page-modifiers" aria-hidden="true"><span class="octicon octicon-link"></span></a>PAGE Modifiers</h3>
-<p>The following keywords must follow a PAGE keyword.</p>
+<ol>
+  <li><code class="highlighter-rouge">name</code> - Item name as a string</li>
+  <li><code class="highlighter-rouge">description</code> - Description of the item</li>
+  <li><code class="highlighter-rouge">bit_offset</code> - Where in the binary buffer the item exists</li>
+  <li><code class="highlighter-rouge">bit_size</code> - The number of bites which represent the item in the buffer</li>
+  <li><code class="highlighter-rouge">data_type</code> - Data type which can be :INT, :UINT, :FLOAT, :STRING, :BLOCK, or :DERIVED. See <a href="/docs/command">Command</a> or <a href="/docs/telemetry">Telemetry</a> for a description of the types.</li>
+  <li><code class="highlighter-rouge">endianness</code> - Endianness of the item which is either :BIG_ENDIAN or :LITTLE_ENDIAN.</li>
+  <li><code class="highlighter-rouge">read_conversion</code> - Conversion applied when reading the item (typically applied to telemetry items)</li>
+  <li><code class="highlighter-rouge">write_conversion</code> - Conversion applied when writing the item (typically applied to command items)</li>
+  <li><code class="highlighter-rouge">states</code> - States used to convert a numeric value to a string</li>
+  <li><code class="highlighter-rouge">units</code> - Abbreviated units of the item, e.g. “V”</li>
+  <li><code class="highlighter-rouge">range</code> - Valid range of values (nil for :STRING or :BLOCK types, only applies to command items)</li>
+  <li><code class="highlighter-rouge">id_value</code> - Value used to identify a packet</li>
+  <li><code class="highlighter-rouge">default</code> - Default value for the item (only applies to command items)</li>
+  <li><code class="highlighter-rouge">limits</code> - Limits for the item (only applies to telemetry items)</li>
+</ol>
 
-<h3 id="no_pdf">
-<a id="no_pdf" class="anchor" href="#no_pdf" aria-hidden="true"><span class="octicon octicon-link"></span></a>NO_PDF</h3>
-<p><strong>Indicates this page should not be generated when building the PDF</strong></p>
+<h3 id="packetitem-methods">PacketItem Methods</h3>
 
-<p>Handbook Creator can create webpages and export them to PDFs. Use this keyword when you have an index webpage or another page for which you do not want a PDF created.</p>
+<p>The only methods most developers will use on PacketItem instances are the accessor methods that access the instance variables defined above. There are also corresponding setter methods that set all the above variables.</p>
 
-<h3 id="pdf_cover">
-<a id="pdf_cover" class="anchor" href="#pdf_cover" aria-hidden="true"><span class="octicon octicon-link"></span></a>PDF_COVER</h3>
-<p><strong>Defines an HTML ERB template which is used to create the PDF cover page</strong></p>
+<p>Command Example:</p>
+<div class="language-ruby highlighter-rouge"><pre class="highlight"><code><span class="no">System</span><span class="p">.</span><span class="nf">commands</span><span class="p">.</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">packet</span><span class="o">|</span>
+  <span class="n">packet</span><span class="p">.</span><span class="nf">sorted_items</span><span class="p">.</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">item</span><span class="o">|</span>
+    <span class="nb">puts</span> <span class="s2">"</span><span class="si">#{</span><span class="n">item</span><span class="p">.</span><span class="nf">name</span><span class="si">}</span><span class="s2">::</span><span class="si">#{</span><span class="n">item</span><span class="p">.</span><span class="nf">description</span><span class="si">}</span><span class="s2"> range:</span><span class="si">#{</span><span class="n">item</span><span class="p">.</span><span class="nf">range</span><span class="si">}</span><span class="s2"> default:</span><span class="si">#{</span><span class="n">item</span><span class="p">.</span><span class="nf">default</span><span class="si">}</span><span class="s2">"</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</code></pre>
+</div>
 
-<p>The template is simply HTML tags which can reference ‘title’ set by this keyword from ERB context</p>
+<p>Telemetry Example:</p>
+<div class="language-ruby highlighter-rouge"><pre class="highlight"><code><span class="no">System</span><span class="p">.</span><span class="nf">telemetry</span><span class="p">.</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">packet</span><span class="o">|</span>
+  <span class="n">packet</span><span class="p">.</span><span class="nf">sorted_items</span><span class="p">.</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">item</span><span class="o">|</span>
+    <span class="nb">puts</span> <span class="s2">"</span><span class="si">#{</span><span class="n">item</span><span class="p">.</span><span class="nf">name</span><span class="si">}</span><span class="s2">::</span><span class="si">#{</span><span class="n">item</span><span class="p">.</span><span class="nf">description</span><span class="si">}</span><span class="s2"> states:</span><span class="si">#{</span><span class="n">item</span><span class="p">.</span><span class="nf">states</span><span class="si">}</span><span class="s2"> limits:</span><span class="si">#{</span><span class="n">item</span><span class="p">.</span><span class="nf">limits</span><span class="si">}</span><span class="s2">"</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</code></pre>
+</div>
 
-<table>
-  <thead>
-    <tr>
-      <th>Parameter</th>
-      <th>Description</th>
-      <th>Required</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>Filename</td>
-      <td>Name of the HTML ERB template file which is found in the config/tools/handbook_creator/templates directory.</td>
-      <td>True</td>
-    </tr>
-    <tr>
-      <td>Title Text</td>
-      <td>Title text which is accessable in the template</td>
-      <td>True</td>
-    </tr>
-  </tbody>
-</table>
+<p>Note that once you have a Packet instance you can access the items using the following methods:</p>
 
-<h3 id="pdf_toc">
-<a id="pdf_toc" class="anchor" href="#pdf_toc" aria-hidden="true"><span class="octicon octicon-link"></span></a>PDF_TOC</h3>
-<p><strong>Insert the PDF table of contents</strong></p>
+<h4 id="packetget_item">packet.get_item</h4>
 
-<p>The table of contents is generated from the XSL templated found in config/tools/handbook_creator/default_toc.xsl</p>
+<p>Returns an individual item by name</p>
+<div class="language-ruby highlighter-rouge"><pre class="highlight"><code><span class="n">item</span> <span class="o">=</span> <span class="n">packet</span><span class="p">.</span><span class="nf">get_item</span><span class="p">(</span><span class="s2">"ITEM_NAME"</span><span class="p">)</span>
+</code></pre>
+</div>
 
-<h3 id="pdf_header">
-<a id="pdf_header" class="anchor" href="#pdf_header" aria-hidden="true"><span class="octicon octicon-link"></span></a>PDF_HEADER</h3>
-<p><strong>Defines an HTML ERB template which is used to create the header on each PDF page</strong></p>
+<h4 id="packetitems">packet.items</h4>
 
-<p>The template is simply HTML tags which can reference ‘title’ set by this keyword from ERB context</p>
+<p>Returns a hash of items keyed by the item name</p>
+<div class="language-ruby highlighter-rouge"><pre class="highlight"><code><span class="n">packet</span><span class="p">.</span><span class="nf">items</span><span class="p">.</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="nb">name</span><span class="p">,</span> <span class="n">item</span><span class="o">|</span>
+  <span class="nb">puts</span> <span class="s2">"item:</span><span class="si">#{</span><span class="nb">name</span><span class="si">}</span><span class="s2">: </span><span class="si">#{</span><span class="n">item</span><span class="p">.</span><span class="nf">description</span><span class="si">}</span><span class="s2">"</span>
+<span class="k">end</span>
+</code></pre>
+</div>
 
-<table>
-  <thead>
-    <tr>
-      <th>Parameter</th>
-      <th>Description</th>
-      <th>Required</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>Filename</td>
-      <td>Name of the HTML ERB template file which is found in the config/tools/handbook_creator/templates directory.</td>
-      <td>True</td>
-    </tr>
-    <tr>
-      <td>Title Text</td>
-      <td>Title text which is accessable in the template</td>
-      <td>True</td>
-    </tr>
-  </tbody>
-</table>
+<h4 id="packetsorted_items">packet.sorted_items</h4>
 
-<h3 id="pdf_footer">
-<a id="pdf_footer" class="anchor" href="#pdf_footer" aria-hidden="true"><span class="octicon octicon-link"></span></a>PDF_FOOTER</h3>
-<p><strong>Defines an HTML ERB template which is used to create the footer on each PDF page</strong></p>
+<p>Returns an array of items sorted by the bit_offset</p>
+<div class="language-ruby highlighter-rouge"><pre class="highlight"><code><span class="n">packet</span><span class="p">.</span><span class="nf">sorted_items</span><span class="p">.</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">item</span><span class="o">|</span>
+  <span class="nb">puts</span> <span class="s2">"item:</span><span class="si">#{</span><span class="n">item</span><span class="p">.</span><span class="nf">name</span><span class="si">}</span><span class="s2">: </span><span class="si">#{</span><span class="n">item</span><span class="p">.</span><span class="nf">bit_offset</span><span class="si">}</span><span class="s2">"</span>
+<span class="k">end</span>
+</code></pre>
+</div>
 
-<p>The template is simply HTML tags which can reference ‘title’ set by this keyword from ERB context</p>
+<h4 id="packetid_items">packet.id_items</h4>
 
-<table>
-  <thead>
-    <tr>
-      <th>Parameter</th>
-      <th>Description</th>
-      <th>Required</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>Filename</td>
-      <td>Name of the HTML ERB template file which is found in the config/tools/handbook_creator/templates directory.</td>
-      <td>True</td>
-    </tr>
-    <tr>
-      <td>Title Text</td>
-      <td>Title text which is accessable in the template</td>
-      <td>True</td>
-    </tr>
-  </tbody>
-</table>
+<p>Returns an array of all the ID items defined in the packet. ID items are defined by the <a href="/docs/command/#id_parameter">ID_PARAMETER</a> keyword in commands and the <a href="/docs/telemetry/#id_item">ID_ITEM</a> keyword in telemetry (and their associated APPEND keywords).</p>
+<div class="language-ruby highlighter-rouge"><pre class="highlight"><code><span class="n">packet</span><span class="p">.</span><span class="nf">id_items</span><span class="p">.</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">item</span><span class="o">|</span>
+  <span class="nb">puts</span> <span class="s2">"item:</span><span class="si">#{</span><span class="n">item</span><span class="p">.</span><span class="nf">name</span><span class="si">}</span><span class="s2">: </span><span class="si">#{</span><span class="n">item</span><span class="p">.</span><span class="nf">id_value</span><span class="si">}</span><span class="s2">"</span>
+<span class="k">end</span>
+</code></pre>
+</div>
 
-<h3 id="pdf_top_margin">
-<a id="pdf_top_margin" class="anchor" href="#pdf_top_margin" aria-hidden="true"><span class="octicon octicon-link"></span></a>PDF_TOP_MARGIN</h3>
-<p><strong>The margin from the top of the PDF page before the header</strong></p>
+<h4 id="packetlimits_items">packet.limits_items</h4>
 
-<table>
-  <thead>
-    <tr>
-      <th>Parameter</th>
-      <th>Description</th>
-      <th>Required</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>Margin</td>
-      <td>The margin in pixels</td>
-      <td>True</td>
-    </tr>
-  </tbody>
-</table>
-
-<h3 id="pdf_bottom_margin">
-<a id="pdf_bottom_margin" class="anchor" href="#pdf_bottom_margin" aria-hidden="true"><span class="octicon octicon-link"></span></a>PDF_BOTTOM_MARGIN</h3>
-<p><strong>The margin below the footer to the bottom of the PDF page</strong></p>
-
-<table>
-  <thead>
-    <tr>
-      <th>Parameter</th>
-      <th>Description</th>
-      <th>Required</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>Margin</td>
-      <td>The margin in pixels</td>
-      <td>True</td>
-    </tr>
-  </tbody>
-</table>
-
-<h3 id="pdf_side_margin">
-<a id="pdf_side_margin" class="anchor" href="#pdf_side_margin" aria-hidden="true"><span class="octicon octicon-link"></span></a>PDF_SIDE_MARGIN</h3>
-<p><strong>The margin on both sides on the PDF page</strong></p>
-
-<table>
-  <thead>
-    <tr>
-      <th>Parameter</th>
-      <th>Description</th>
-      <th>Required</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>Margin</td>
-      <td>The margin in pixels</td>
-      <td>True</td>
-    </tr>
-  </tbody>
-</table>
-
-<h3 id="target">
-<a id="target" class="anchor" href="#target" aria-hidden="true"><span class="octicon octicon-link"></span></a>TARGET</h3>
-<p><strong>Specify a target which this page is generated for</strong></p>
-
-<table>
-  <thead>
-    <tr>
-      <th>Parameter</th>
-      <th>Description</th>
-      <th>Required</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>Target</td>
-      <td>The target name<br><br>Valid Values: <span class="values">Any Target Name</span>
-</td>
-      <td>True</td>
-    </tr>
-  </tbody>
-</table>
-
-<h3 id="section">
-<a id="section" class="anchor" href="#section" aria-hidden="true"><span class="octicon octicon-link"></span></a>SECTION</h3>
-<p><strong>Define a page SECTION</strong></p>
-
-<table>
-  <thead>
-    <tr>
-      <th>Parameter</th>
-      <th>Description</th>
-      <th>Required</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>Filename</td>
-      <td>Name of the HTML ERB template file which is found in the config/tools/handbook_creator/templates directory.</td>
-      <td>True</td>
-    </tr>
-    <tr>
-      <td>Output</td>
-      <td>What output formats should contain this section<br><br>Valid Values: <span class="values">ALl, HTML, PDF</span>
-</td>
-      <td>True</td>
-    </tr>
-    <tr>
-      <td>Title Text</td>
-      <td>Title text which is accessable in the template</td>
-      <td>False</td>
-    </tr>
-  </tbody>
-</table>
-
-<h3 id="cmd_section">
-<a id="cmd_section" class="anchor" href="#cmd_section" aria-hidden="true"><span class="octicon octicon-link"></span></a>CMD_SECTION</h3>
-<p><strong>Define a page SECTION which is generated for all command packets</strong></p>
-
-<table>
-  <thead>
-    <tr>
-      <th>Parameter</th>
-      <th>Description</th>
-      <th>Required</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>Filename</td>
-      <td>Name of the HTML ERB template file which is found in the config/tools/handbook_creator/templates directory.</td>
-      <td>True</td>
-    </tr>
-    <tr>
-      <td>Output</td>
-      <td>What output formats should contain this section<br><br>Valid Values: <span class="values">ALl, HTML, PDF</span>
-</td>
-      <td>True</td>
-    </tr>
-    <tr>
-      <td>Title Text</td>
-      <td>Title text which is accessable in the template</td>
-      <td>False</td>
-    </tr>
-  </tbody>
-</table>
-
-<h3 id="tlm_section">
-<a id="tlm_section" class="anchor" href="#tlm_section" aria-hidden="true"><span class="octicon octicon-link"></span></a>TLM_SECTION</h3>
-<p><strong>Define a page SECTION which is generated for all telemetry packets</strong></p>
-
-<table>
-  <thead>
-    <tr>
-      <th>Parameter</th>
-      <th>Description</th>
-      <th>Required</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>Filename</td>
-      <td>Name of the HTML ERB template file which is found in the config/tools/handbook_creator/templates directory.</td>
-      <td>True</td>
-    </tr>
-    <tr>
-      <td>Output</td>
-      <td>What output formats should contain this section<br><br>Valid Values: <span class="values">ALl, HTML, PDF</span>
-</td>
-      <td>True</td>
-    </tr>
-    <tr>
-      <td>Title Text</td>
-      <td>Title text which is accessable in the template</td>
-      <td>False</td>
-    </tr>
-  </tbody>
-</table>
-
+<p>Returns an array of all the items defined in the packet with limits. Limits items are defined by the <a href="/docs/telemetry/#limits">LIMITS</a> keyword in telemetry items.</p>
+<div class="language-ruby highlighter-rouge"><pre class="highlight"><code><span class="n">packet</span><span class="p">.</span><span class="nf">limits_items</span><span class="p">.</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">item</span><span class="o">|</span>
+  <span class="nb">puts</span> <span class="s2">"item:</span><span class="si">#{</span><span class="n">item</span><span class="p">.</span><span class="nf">name</span><span class="si">}</span><span class="s2">: </span><span class="si">#{</span><span class="n">item</span><span class="p">.</span><span class="nf">limits</span><span class="si">}</span><span class="s2">"</span>
+<span class="k">end</span>
+</code></pre>
+</div>
 
           
 
 
 
 
+
+  
+  
+
+  
+  
+
+  
+  
+
+  
+  
+
+  
+  
+
+  
+  
+
+  
+  
+
+  
+  
+
+  
+  
+
+  
+  
+
+  
+  
+
+  
+  
+
+  
+  
+
+  
+  
+
+  
+  
+
+  
+  
 
   
   
@@ -3820,14 +3617,14 @@
           
             
             
-            <a href="/docs/data_viewer/" class="prev">Back</a>
+            <a href="/docs/packet_class/" class="prev">Back</a>
           
       </div>
       <div class="right align-left">
           
             
             
-            <a href="/docs/limits_monitor/" class="next">Next</a>
+            <a href="/docs/json_api/" class="next">Next</a>
           
       </div>
     </div>
@@ -4507,7 +4304,7 @@
     
   
     
-      <li class="current"><a href="/docs/handbook_creator/">Handbook Creator</a></li>
+      <li class=""><a href="/docs/handbook_creator/">Handbook Creator</a></li>
       
 
 
@@ -5369,7 +5166,7 @@
     
   
     
-      <li class=""><a href="/docs/packet_item_class/">PacketItem Class</a></li>
+      <li class="current"><a href="/docs/packet_item_class/">PacketItem Class</a></li>
       
 
 

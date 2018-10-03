@@ -21,16 +21,18 @@ Most custom COSMOS code needs to interact with Packet as it provides access to t
 Packet defines a large number of instance variables that provide information about the packet. The most commonly used are as follows:
 
 1. ```target_name``` - Target name as a string
-2. ```packet_name``` - Packet name as a string
-3. ```description``` - Packet description as a string
-4. ```received_time``` - Time object representing when this packet was received by the COSMOS Server
-5. ```received_count``` - Number of times this packet was received by the COSMOS Server
+1. ```packet_name``` - Packet name as a string
+1. ```description``` - Packet description as a string
+1. ```received_time``` - Time object representing when this packet was received by the COSMOS Server
+1. ```received_count``` - Number of times this packet was received by the COSMOS Server
+1. ```items``` - Hash of all the [items](/docs/packet_item_class) keyed by the uppercase item name
+1. ```sorted_items``` Array of all the [items](/docs/packet_item_class) sorted by bit_offset
 
 If you're dealing with a Command packet instance there are additional instance variables that are useful:
 1. ```hazardous``` - Boolean indicating whether the command is hazardous (see [hazardous](/docs/command/#hazardous))
-2. ```hazardous_description``` - String description of why the packet is hazardous
-3. ```hidden``` - Boolean indicating whether this packet is hidden (see [hidden](/docs/command/#hidden))
-4. ```disabled``` - Boolean indicating whether this packet is disabled (see [disabled](/docs/command/#disabled))
+1. ```hazardous_description``` - String description of why the packet is hazardous
+1. ```hidden``` - Boolean indicating whether this packet is hidden (see [hidden](/docs/command/#hidden))
+1. ```disabled``` - Boolean indicating whether this packet is disabled (see [disabled](/docs/command/#disabled))
 
 ### Packet Methods
 

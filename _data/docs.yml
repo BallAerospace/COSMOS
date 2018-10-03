@@ -47,6 +47,7 @@
   docs:
   - system_class
   - packet_class
+  - packet_item_class
   - json_api
   - logging
 
