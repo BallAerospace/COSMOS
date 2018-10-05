@@ -11,8 +11,8 @@
     <title xml:lang="en">Ball Aerospace COSMOS News</title>
     <atom:link type="application/atom+xml" href="http://cosmosrb/feed.xml" rel="self"/>
     <link>http://cosmosrb.com/</link>
-    <pubDate>Wed, 03 Oct 2018 14:31:48 -0600</pubDate>
-    <lastBuildDate>Wed, 03 Oct 2018 14:31:48 -0600</lastBuildDate>
+    <pubDate>Fri, 05 Oct 2018 13:27:16 -0600</pubDate>
+    <lastBuildDate>Fri, 05 Oct 2018 13:27:16 -0600</lastBuildDate>
     <language>en-US</language>
     <generator>Jekyll v3.5.2</generator>
     <description>The User Interface for Embedded Systems</description>
@@ -24,6 +24,95 @@
       <width>144</width>
       <height>73</height>
     </image>
+    
+    <item>
+      <title>Using system.txt and target.txt</title>
+      <link>http://cosmosrb.com/news/2018/10/05/system-target-txt/</link>
+      <pubDate>Fri, 05 Oct 2018 09:00:00 -0600</pubDate>
+      <dc:creator>jmthomas</dc:creator>
+      
+      
+      <category>post</category>
+      
+      <guid isPermaLink="true">http://cosmosrb.com/news/2018/10/05/system-target-txt/</guid>
+      <description>&lt;h2 id=&quot;systemtxt&quot;&gt;system.txt&lt;/h2&gt;
+&lt;p&gt;The COSMOS system configuration is performed by system.txt in the config/system directory. This file declares all the targets that will be used by COSMOS as well as top level configuration information which is primarily used by the Command and Telemetry Server.&lt;/p&gt;
+
+&lt;p&gt;By default, all COSMOS tools use the config/system/system.txt file. However, all tools can take a custom system configuration file by passing the “–system &lt;filename&gt;&quot; option to the tool when it starts. This is typically done in the Launcher script as shown in the COSMOS demo. Here's an excerpt which shows how we're passing system2.txt using the --system option.&lt;/filename&gt;&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;TOOL &quot;Command and Telemetry Server&quot; &quot;LAUNCH CmdTlmServer --system system2.txt&quot; &quot;cts.png&quot; --config cmd_tlm_server2.txt
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h3 id=&quot;using-multiple-systemtxt-files&quot;&gt;Using Multiple system.txt Files&lt;/h3&gt;
+&lt;p&gt;So when would you want to create and use multiple system.txt files? Since system.txt defines the targets used by the system, you can use two different system.txt files to create two configurations which contain most but not all the same targets. For example, you have a test bench with 5 different test equipment targets but different test box targets: BOX1 and BOX2. You can create one COSMOS configuration for both test benches and create two different launcher files with different lists of targets.&lt;/p&gt;
+
+&lt;h2 id=&quot;targettxt&quot;&gt;target.txt&lt;/h2&gt;
+&lt;p&gt;The parsing of a COSMOS target is controlled by the target.txt file found at the root of the target directory. The COMMANDS and TELEMETRY keywords tell COSMOS which &lt;a href=&quot;/docs/command&quot;&gt;Command&lt;/a&gt; and &lt;a href=&quot;/docs/telemetry&quot;&gt;Telemetry&lt;/a&gt; files to parse. For example from the COSMOS demo INST &lt;a href=&quot;https://github.com/BallAerospace/COSMOS/blob/master/demo/config/targets/INST/target.txt&quot;&gt;target.txt&lt;/a&gt;&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;COMMANDS inst_cmds.txt
+TELEMETRY inst_tlm.txt
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Since we can tell COSMOS exactly which command and telemetry files to parse we can control how the target cmd/tlm definitions get built. This is useful if you have a target with slightly different command and telemetry definitions. This can happen for varous reasons like connecting to slightly different hardware revisions. The advantage of using a single target folder in this case (vs just copying and renaming the target folder) is that you can (potentially) reuse screens and target library code. Obviously this only works if the command and telemetry definitions are only slightly different between revisions.&lt;/p&gt;
+
+&lt;h3 id=&quot;combining-systemtxt-and-targettxt&quot;&gt;Combining system.txt and target.txt&lt;/h3&gt;
+&lt;p&gt;When we combine the ability in system.txt to specify a specific target.txt file and the ability in target.txt to specify the command and telemetry definitions, we can create specific configurations for different environments.&lt;/p&gt;
+
+&lt;p&gt;This example is losely based on the COSMOS demo. First create two separate system.txt files called system1.txt and system2.txt:&lt;/p&gt;
+
+&lt;p&gt;Partial system1.txt:&lt;/p&gt;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;DECLARE_TARGET INST nil target1.txt
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Partial system2.txt&lt;/p&gt;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;DECLARE_TARGET INST nil target2.txt
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;The target1.txt file in the INST target calls out one set of cmd/tlm files:&lt;/p&gt;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;COMMANDS inst1_cmds.txt
+TELEMETRY inst1_tlm.txt
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;The target2.txt file in the INST target calls out another set:&lt;/p&gt;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;COMMANDS inst2_cmds.txt
+TELEMETRY inst2_tlm.txt
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;You also have to ensure your Launcher scripts specify the correct system.txt file when launching the tools:&lt;/p&gt;
+
+&lt;p&gt;Partial launcher1.txt:&lt;/p&gt;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;TOOL &quot;Command and Telemetry Server&quot; &quot;LAUNCH CmdTlmServer --system system1.txt&quot; &quot;cts.png&quot; --config cmd_tlm_server.txt
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Partial launcher2.txt:&lt;/p&gt;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;TOOL &quot;Command and Telemetry Server&quot; &quot;LAUNCH CmdTlmServer --system system2.txt&quot; &quot;cts.png&quot; --config cmd_tlm_server.txt
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Once you have your launcher configurations in place you can create a simple Batch file or shell script to launch COSMOS.&lt;/p&gt;
+
+&lt;p&gt;Launcher1.bat:&lt;/p&gt;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;call tools\Launcher.bat --config launcher1.txt
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Launcher2.bat:&lt;/p&gt;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;call tools\Launcher.bat --config launcher2.txt
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;With correct usage of system.txt and target.txt you can consolidate your COSMOS configurations and avoid copying and pasting. This makes your COSMOS configuration easier to test and maintain.&lt;/p&gt;
+
+&lt;p&gt;If you have a question which would benefit the community you can ask on &lt;a href=&quot;https://stackoverflow.com/questions/ask?tags=cosmos;ruby&quot;&gt;StackOverflow&lt;/a&gt; or if you find a bug or want a feature please use our &lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues&quot;&gt;Github Issues&lt;/a&gt;. If you would like more information about a COSMOS training or support contract please contact us at &lt;a href=&quot;mailto:cosmos@ball.com&quot;&gt;cosmos@ball.com&lt;/a&gt;.&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>COSMOS at DockerCon 2018</title>
