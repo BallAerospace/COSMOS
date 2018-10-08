@@ -309,6 +309,28 @@ TELEMETRY inst2_tlm.txt
 
 <p>With correct usage of system.txt and target.txt you can consolidate your COSMOS configurations and avoid copying and pasting. This makes your COSMOS configuration easier to test and maintain.</p>
 
+<h3 id="overriding-cmdtlm-definitions">Overriding Cmd/Tlm Definitions</h3>
+
+<p>Another way to modify a target is to override the target command and telemetry definitions. This is a useful practice if your target’s command and telemetry files are generated from a database or from some other system and you want to add COSMOS specific features. It is also handy to add custom conversions and formatting for displays.</p>
+
+<p>Create a file in the target’s cmd_tlm folder named after the original file but with an extension like _override.txt. For example, you have the following telemetry definition file named inst_tlm.txt:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>TELEMETRY INST HEALTH_STATUS BIG_ENDIAN "Health and status from the target"
+  APPEND_ITEM COLLECTS         16 UINT     "Number of collects"
+  APPEND_ITEM TEMP1            16 UINT     "Temperature #1"
+</code></pre>
+</div>
+
+<p>Create another file called inst_tlm_override.txt and start overriding telemetry using the <a href="/docs/telemetry/#select_telemetry">SELECT_TELEMETRY</a> and <a href="/docs/telemetry/#select_item">SELECT_ITEM</a> keywords. Note that the filename is important because by default COSMOS processes cmd/tlm definition files in alphabetical order. For example, if you have a telemetry file named “telemetry.txt” and created a file called “override.txt”, you would get an error because the telemetry file will not be processed before the override.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>SELECT_TELEMETRY INST HEALTH_STATUS
+  SELECT_ITEM COLLECTS
+    FORMAT_STRING "0x%0X"
+</code></pre>
+</div>
+
+<p>Note that you can include these override files as needed based on the target.txt file as described above.</p>
+
 <p>If you have a question which would benefit the community you can ask on <a href="https://stackoverflow.com/questions/ask?tags=cosmos;ruby">StackOverflow</a> or if you find a bug or want a feature please use our <a href="https://github.com/BallAerospace/COSMOS/issues">Github Issues</a>. If you would like more information about a COSMOS training or support contract please contact us at <a href="mailto:cosmos@ball.com">cosmos@ball.com</a>.</p>
 
   </div>

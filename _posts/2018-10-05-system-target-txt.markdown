@@ -80,4 +80,26 @@ call tools\Launcher.bat --config launcher2.txt
 
 With correct usage of system.txt and target.txt you can consolidate your COSMOS configurations and avoid copying and pasting. This makes your COSMOS configuration easier to test and maintain.
 
+### Overriding Cmd/Tlm Definitions
+
+Another way to modify a target is to override the target command and telemetry definitions. This is a useful practice if your target's command and telemetry files are generated from a database or from some other system and you want to add COSMOS specific features. It is also handy to add custom conversions and formatting for displays.
+
+Create a file in the target's cmd_tlm folder named after the original file but with an extension like _override.txt. For example, you have the following telemetry definition file named inst_tlm.txt:
+
+```
+TELEMETRY INST HEALTH_STATUS BIG_ENDIAN "Health and status from the target"
+  APPEND_ITEM COLLECTS         16 UINT     "Number of collects"
+  APPEND_ITEM TEMP1            16 UINT     "Temperature #1"
+```
+
+Create another file called inst_tlm_override.txt and start overriding telemetry using the [SELECT_TELEMETRY](/docs/telemetry/#select_telemetry) and [SELECT_ITEM](/docs/telemetry/#select_item) keywords. Note that the filename is important because by default COSMOS processes cmd/tlm definition files in alphabetical order. For example, if you have a telemetry file named "telemetry.txt" and created a file called "override.txt", you would get an error because the telemetry file will not be processed before the override.
+
+```
+SELECT_TELEMETRY INST HEALTH_STATUS
+  SELECT_ITEM COLLECTS
+    FORMAT_STRING "0x%0X"
+```
+
+Note that you can include these override files as needed based on the target.txt file as described above.
+
 If you have a question which would benefit the community you can ask on [StackOverflow](https://stackoverflow.com/questions/ask?tags=cosmos;ruby) or if you find a bug or want a feature please use our [Github Issues](https://github.com/BallAerospace/COSMOS/issues). If you would like more information about a COSMOS training or support contract please contact us at <cosmos@ball.com>.

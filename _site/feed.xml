@@ -11,8 +11,8 @@
     <title xml:lang="en">Ball Aerospace COSMOS News</title>
     <atom:link type="application/atom+xml" href="http://cosmosrb/feed.xml" rel="self"/>
     <link>http://cosmosrb.com/</link>
-    <pubDate>Fri, 05 Oct 2018 13:27:16 -0600</pubDate>
-    <lastBuildDate>Fri, 05 Oct 2018 13:27:16 -0600</lastBuildDate>
+    <pubDate>Mon, 08 Oct 2018 16:57:57 -0600</pubDate>
+    <lastBuildDate>Mon, 08 Oct 2018 16:57:57 -0600</lastBuildDate>
     <language>en-US</language>
     <generator>Jekyll v3.5.2</generator>
     <description>The User Interface for Embedded Systems</description>
@@ -109,6 +109,28 @@ TELEMETRY inst2_tlm.txt
 &lt;/div&gt;
 
 &lt;p&gt;With correct usage of system.txt and target.txt you can consolidate your COSMOS configurations and avoid copying and pasting. This makes your COSMOS configuration easier to test and maintain.&lt;/p&gt;
+
+&lt;h3 id=&quot;overriding-cmdtlm-definitions&quot;&gt;Overriding Cmd/Tlm Definitions&lt;/h3&gt;
+
+&lt;p&gt;Another way to modify a target is to override the target command and telemetry definitions. This is a useful practice if your target’s command and telemetry files are generated from a database or from some other system and you want to add COSMOS specific features. It is also handy to add custom conversions and formatting for displays.&lt;/p&gt;
+
+&lt;p&gt;Create a file in the target’s cmd_tlm folder named after the original file but with an extension like _override.txt. For example, you have the following telemetry definition file named inst_tlm.txt:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;TELEMETRY INST HEALTH_STATUS BIG_ENDIAN &quot;Health and status from the target&quot;
+  APPEND_ITEM COLLECTS         16 UINT     &quot;Number of collects&quot;
+  APPEND_ITEM TEMP1            16 UINT     &quot;Temperature #1&quot;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Create another file called inst_tlm_override.txt and start overriding telemetry using the &lt;a href=&quot;/docs/telemetry/#select_telemetry&quot;&gt;SELECT_TELEMETRY&lt;/a&gt; and &lt;a href=&quot;/docs/telemetry/#select_item&quot;&gt;SELECT_ITEM&lt;/a&gt; keywords. Note that the filename is important because by default COSMOS processes cmd/tlm definition files in alphabetical order. For example, if you have a telemetry file named “telemetry.txt” and created a file called “override.txt”, you would get an error because the telemetry file will not be processed before the override.&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;SELECT_TELEMETRY INST HEALTH_STATUS
+  SELECT_ITEM COLLECTS
+    FORMAT_STRING &quot;0x%0X&quot;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Note that you can include these override files as needed based on the target.txt file as described above.&lt;/p&gt;
 
 &lt;p&gt;If you have a question which would benefit the community you can ask on &lt;a href=&quot;https://stackoverflow.com/questions/ask?tags=cosmos;ruby&quot;&gt;StackOverflow&lt;/a&gt; or if you find a bug or want a feature please use our &lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues&quot;&gt;Github Issues&lt;/a&gt;. If you would like more information about a COSMOS training or support contract please contact us at &lt;a href=&quot;mailto:cosmos@ball.com&quot;&gt;cosmos@ball.com&lt;/a&gt;.&lt;/p&gt;
 </description>
