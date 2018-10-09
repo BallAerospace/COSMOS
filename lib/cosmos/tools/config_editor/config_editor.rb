@@ -408,36 +408,45 @@ module Cosmos
     # File->Open
     def file_open(filename = nil)
       if File.directory?(filename)
-        filename = Qt::FileDialog.getOpenFileName(self, "Select File", filename)
+        filenames = Qt::FileDialog.getOpenFileNames(self, "Select File(s)", filename, "COSMOS (*.rb *.txt);;All Files(*.*)")
+      else
+        filenames = [filename]
       end
-      unless filename.nil? || filename.empty?
-        # If the user opens a file we already have open
-        # just set the current tab to that file and return
-        @tab_book.tabs.each_with_index do |tab, index|
-          if tab.filename == filename
-            @tab_book.setCurrentIndex(index)
-            @tab_book.currentTab.set_text_from_file(filename)
-            @tab_book.currentTab.filename = filename
-            return
-          end
-        end
+      # Remove nils and convert filenames to UNIX path structure
+      filenames = filenames.compact.map {|filename| filename.gsub("\\","/") }
+      return if filenames.nil? || filenames.empty?
+      Qt::Application.setOverrideCursor(Qt::Cursor.new(Qt::WaitCursor))
+      filenames.each {|filename| open_filename(filename) }
+      update_tree()
+      Qt::Application.restoreOverrideCursor()
+    end
 
-        if ((@tab_book.count == 1) &&
-            @tab_book.currentTab.filename.empty? &&
-            !@tab_book.currentTab.modified)
-          # Active Tab is an unmodified Untitled so just open the file in it
+    def open_filename(filename)
+      # If the user opens a file we already have open
+      # just set the current tab to that file and return
+      @tab_book.tabs.each_with_index do |tab, index|
+        if tab.filename == filename
+          @tab_book.setCurrentIndex(index)
           @tab_book.currentTab.set_text_from_file(filename)
           @tab_book.currentTab.filename = filename
-          @tab_book.setTabText(@tab_book.currentIndex, File.basename(filename))
-        else
-          create_tab(filename)
+          return
         end
-
-        update_title()
-        @procedure_dir = File.dirname(filename)
-        @procedure_dir << '/' if @procedure_dir[-1..-1] != '/' and @procedure_dir[-1..-1] != '\\'
       end
-      update_tree()
+
+      if ((@tab_book.count == 1) &&
+          @tab_book.currentTab.filename.empty? &&
+          !@tab_book.currentTab.modified)
+        # Active Tab is an unmodified Untitled so just open the file in it
+        @tab_book.currentTab.set_text_from_file(filename)
+        @tab_book.currentTab.filename = filename
+        @tab_book.setTabText(@tab_book.currentIndex, File.basename(filename))
+      else
+        create_tab(filename)
+      end
+
+      update_title()
+      @procedure_dir = File.dirname(filename)
+      @procedure_dir << '/' if @procedure_dir[-1..-1] != '/' and @procedure_dir[-1..-1] != '\\'
     end
 
     # File->Reload

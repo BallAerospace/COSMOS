@@ -125,6 +125,7 @@ module Cosmos
     end
 
     def filename=(filename)
+      STDOUT.puts "set filename #{filename}"
       @filename = filename
       determine_file_type()
     end
