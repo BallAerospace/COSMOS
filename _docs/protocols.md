@@ -100,6 +100,7 @@ The Preidentified Protocol is used internally by the COSMOS Command and Telemetr
 |-----------|-------------|----------|---------|
 | Sync Pattern | Hex string representing a byte pattern that will be searched for in the raw data. This pattern represents a packet delimiter and all data found AFTER the sync pattern will be returned. The sync pattern itself is discarded. | No | nil (no sync pattern)
 | Max Length | The maximum allowed value in the length field | No | nil (no maximum length)
+| Mode | The Version of the preidentified protocol to support (2 or 4) - 4 is the new protocol released in COSMOS 4.3 (This option is only available in COSMOS 4.3+) | No | 4
 | Allow Empty Data | Whether this protocol will allow an empty string to be passed down to later Protocols (instead of returning :STOP). Can be true, false, or nil, where nil is interpreted as true unless the Protocol is the last Protocol of the chain. (As of COSMOS 4.1.1) | No | nil
 
 ## Helper Protocols

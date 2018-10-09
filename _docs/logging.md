@@ -32,7 +32,7 @@ The Command and Telemetry Server binary log files contain command and telemetry 
 | Underscore | 1 byte ASCII String | An Underscore character |
 | Hostname | 83 byte ASCII String | Left justified hostname of the computer that created the file |
 
-The file header is followed by command or telemetry packets (depending on the log type), each with a Big Endian header as follows:
+The file header is followed by command or telemetry packets (depending on the log type), each with a Big Endian header as follows. Note this is the same binary header used by the preidentified streaming protocol:
 
 | Item | Data Type | Description |
 | Write Flags | 8-bit unsigned integer | 0x80 indicates whether the data is stored telemetry (see below). 0x40 indicates there is extra data following this byte. 0x3F bits are currently undefined. (since 4.3.0) |
@@ -49,4 +49,4 @@ The file header is followed by command or telemetry packets (depending on the lo
 
 The variable length nature of command and telemetry packets requires a log parser to start from the beginning of each log file when processing packets.
 
-If the Write Flags indicate the data is stored telemetry (MSB set) COSMOS proceses and stores the data in the telemetry log file but does not update the current value table. Thus stored telemetry does not affect displays or scripts.
+If the Write Flags indicate the data is stored telemetry (MSB set) COSMOS processes and stores the data in the telemetry log file but does not update the current value table. Thus stored telemetry does not affect displays or scripts.

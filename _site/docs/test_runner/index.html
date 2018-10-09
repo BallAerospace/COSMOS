@@ -3421,6 +3421,7 @@
 <li class="toc-entry toc-h2"><a href="#line_delay">LINE_DELAY</a></li>
 <li class="toc-entry toc-h2"><a href="#monitor_limits">MONITOR_LIMITS</a></li>
 <li class="toc-entry toc-h2"><a href="#pause_on_red">PAUSE_ON_RED</a></li>
+<li class="toc-entry toc-h2"><a href="#load_utility">LOAD_UTILITY</a></li>
 <li class="toc-entry toc-h2"><a href="#require_utility">REQUIRE_UTILITY</a></li>
 <li class="toc-entry toc-h2"><a href="#results_writer">RESULTS_WRITER</a></li>
 <li class="toc-entry toc-h2"><a href="#allow_debug">ALLOW_DEBUG</a></li>
@@ -3476,8 +3477,8 @@
 <a id="pause_on_red" class="anchor" href="#pause_on_red" aria-hidden="true"><span class="octicon octicon-link"></span></a>PAUSE_ON_RED</h2>
 <p><strong>Pause a running script if a red limit occurs</strong></p>
 
-<h2 id="require_utility">
-<a id="require_utility" class="anchor" href="#require_utility" aria-hidden="true"><span class="octicon octicon-link"></span></a>REQUIRE_UTILITY</h2>
+<h2 id="load_utility">
+<a id="load_utility" class="anchor" href="#load_utility" aria-hidden="true"><span class="octicon octicon-link"></span></a>LOAD_UTILITY</h2>
 <p><strong>Specify a test procedure to run</strong></p>
 
 <p>Procedures will be found automatically in the procedures directory or can be given by a path relative to the COSMOS install directory or by an absolute path. This keyword is used to load the script and execute it line by line by showing the current execution point. Sometimes you want to load utility code that is NOT executed line by line but is executed in the background. For example, a CRC routine or other long running calculation. The Ruby keyword ‘load’ can be used for this purpose, e.g. ‘load utility.rb’. This code will be loaded but not shown when executing.</p>
@@ -3498,6 +3499,10 @@
     </tr>
   </tbody>
 </table>
+
+<h2 id="require_utility">
+<a id="require_utility" class="anchor" href="#require_utility" aria-hidden="true"><span class="octicon octicon-link"></span></a>REQUIRE_UTILITY</h2>
+<p><strong>DEPRECATED in favor of LOAD_UTILITY</strong></p>
 
 <h2 id="results_writer">
 <a id="results_writer" class="anchor" href="#results_writer" aria-hidden="true"><span class="octicon octicon-link"></span></a>RESULTS_WRITER</h2>
