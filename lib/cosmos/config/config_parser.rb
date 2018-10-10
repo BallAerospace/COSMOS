@@ -354,11 +354,10 @@ module Cosmos
         line_number = match.captures[0] if match
         raise e, "ERB error at #{filename}:#{line_number}\n#{e}", e.backtrace
       end
-      # Make a copy of the filename since we're calling slice! which modifies
-      # it directly. Downcase to avoid filesytem case issues.
-      copy = filename.downcase.dup
-      if copy.include?(Cosmos::USERPATH.downcase)
-        copy.slice!(Cosmos::USERPATH.downcase) # Remove the USERPATH
+      # Make a copy of the filename since we're calling slice! which modifies it directly
+      copy = filename.dup
+      if copy.include?(Cosmos::USERPATH)
+        copy.slice!(Cosmos::USERPATH) # Remove the USERPATH
       elsif copy.include?(':') # Check for Windows drive letter
         copy = copy.split(':')[1]
       end
