@@ -18,7 +18,6 @@ module Cosmos
     def initialize
       super()
       @name = 'Example Background Task'
-      @sleeper = Sleeper.new
     end
 
     def call
