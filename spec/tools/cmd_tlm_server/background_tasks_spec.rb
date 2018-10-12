@@ -167,8 +167,7 @@ module Cosmos
           expect(bt.instance_variable_get("@threads")[0].alive?).to eq true
           sleep 1.1 # Allow the thread to crash
           expect(running_threads.length).to eql(1)
-          expect(bt.instance_variable_get("@threads").length).to eq 1
-          #expect(bt.instance_variable_get("@threads")[0].alive?).to eq false
+          expect(bt.instance_variable_get("@threads")[0]).to be_nil
           expect(stdout.string).to match("unexpectedly died")
         end
 
@@ -181,8 +180,7 @@ module Cosmos
           expect(bt.instance_variable_get("@threads")[0].alive?).to eq true
           sleep 1.1 # Allow the thread to crash
           expect(running_threads.length).to eql(1)
-          expect(bt.instance_variable_get("@threads").length).to eq 1
-          #expect(bt.instance_variable_get("@threads")[0].alive?).to eq false
+          expect(bt.instance_variable_get("@threads")[0]).to be_nil
           expect(stdout.string).to match("unexpectedly died")
         end
         tf.unlink
