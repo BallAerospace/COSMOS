@@ -164,15 +164,26 @@ module Cosmos
       return true # Aborted - Don't retry
     end
 
-    def prompt_to_continue(string)
+    def prompt_to_continue(string, text_color = nil, background_color = nil, font_size = nil, font_family = nil, details = nil)
       loop do
         stop = false
         _get_main_thread_gui do |window|
-          result = Qt::MessageBox::question(window,
-                                            "COSMOS",
-                                            "#{string}\n\nOK to Continue?",
-                                            Qt::MessageBox::Ok | Qt::MessageBox::Cancel,
-                                            Qt::MessageBox::Ok)
+          box = Qt::MessageBox.new(window)
+          box.setIcon(Qt::MessageBox::Question)
+          box.setWindowTitle("Prompt")
+          box.setText(string)
+          box.setInformativeText("Ok to Continue?")
+          box.setStandardButtons(Qt::MessageBox::Ok | Qt::MessageBox::Cancel)
+          box.setDefaultButton(Qt::MessageBox::Ok)
+          box.setDetailedText(details) if details
+          text_color = 'black' unless text_color
+          background_color = 'white' unless background_color
+          font = box.font()
+          font_size = font.pointSize unless font_size
+          font_family = font.family unless font_family
+          box.setStyleSheet("QMessageBox { background-color: #{background_color}; }\
+                             QMessageBox QLabel { color: #{text_color}; font: #{font_size}pt '#{font_family}'}")
+          result = box.exec()
           if result == Qt::MessageBox::Ok
             Logger.info "User pressed 'Ok' for '#{string}'"
           else

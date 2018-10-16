@@ -56,8 +56,8 @@ module Cosmos
       return value
     end
 
-    def prompt(string)
-      prompt_to_continue(string)
+    def prompt(string, text_color = nil, background_color = nil, font_size = nil, font_family = nil, details = nil)
+      prompt_to_continue(string, text_color, background_color, font_size, font_family, details)
     end
 
     def message_box(string, *buttons)
@@ -123,8 +123,9 @@ module Cosmos
       end
     end
 
-    def prompt_to_continue(string)
+    def prompt_to_continue(string, text_color = nil, background_color = nil, font_size = nil, font_family = nil, details = nil)
       print "#{string}: "
+      print "Details: #{details}\n" if details
       gets.chomp
     end
 
