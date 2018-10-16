@@ -37,6 +37,7 @@
 - title: User's Guides
   docs:
   - scripting
+  - scripting_best_practices
   - gemtargets
 
 - title: Tips
