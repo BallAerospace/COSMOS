@@ -2,6 +2,7 @@
 
 require 'cosmos/conversions/conversion'
 require 'cosmos/conversions/generic_conversion'
+require 'cosmos/conversions/limits_group_conversion'
 require 'cosmos/conversions/new_packet_log_conversion'
 require 'cosmos/conversions/packet_time_formatted_conversion'
 require 'cosmos/conversions/packet_time_seconds_conversion'

@@ -279,6 +279,17 @@ module Cosmos
         end
         @current_packet = nil
         @current_item = nil
+
+        if @limits_groups.length > 0
+          pkt = Packet.new("SYSTEM", "LIMITS_GROUPS", :BIG_ENDIAN, "Contains all the items defined by LIMITS_GROUPS")
+          @limits_groups.each do |group, items|
+            item = pkt.define_item(group, 0, 0, :DERIVED)
+            item.read_conversion = LimitsGroupConversion.new(items)
+            item.states = {"GREEN"=>0, "YELLOW"=>1, "RED"=>2}
+            item.state_colors = {"GREEN"=>:GREEN, "YELLOW"=>:YELLOW, "RED"=>:RED}
+          end
+          @telemetry[pkt.target_name][pkt.packet_name] = pkt
+        end
       end
     end
 

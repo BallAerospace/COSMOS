@@ -20,11 +20,19 @@ module Cosmos
       @raw_logger_pair = nil
       @write_raw_allowed = false
       @limit_id = nil
+
+      @limits_groups = true
+      begin
+        System.telemetry.packet("SYSTEM", "LIMITS_GROUPS")
+      rescue
+        @limits_groups = false
+      end
     end
 
     # Start the limits event subscription
     def connect
       @limit_id = CmdTlmServer.instance.subscribe_limits_events
+      @sleeper = Sleeper.new
     end
 
     # @return [Boolean] Returns whether subscribed to limits events
@@ -35,6 +43,7 @@ module Cosmos
 
     # Unsubscribe from the limits events
     def disconnect
+      @sleeper.cancel
       CmdTlmServer.instance.unsubscribe_limits_events(@limit_id) if @limit_id
       @limit_id = nil
     end
@@ -46,29 +55,42 @@ module Cosmos
     def read
       while connected?
         begin
-          event = CmdTlmServer.instance.get_limits_event(@limit_id)
-          if event
-            if event[0] == :LIMITS_CHANGE
-              data = event[1]
-              packet ||= System.telemetry.packet("SYSTEM","LIMITS_CHANGE")
-              packet.received_time = Time.now.sys
-              packet.write('PKT_ID',2)
-              packet.write('TARGET', data[0])
-              packet.write('PACKET', data[1])
-              packet.write('ITEM', data[2])
-              # For the first limits change the old_state is nil
-              # so set it to a usable string
-              data[3] = 'UNKNOWN' unless data[3]
-              packet.write('OLD_STATE', data[3])
-              packet.write('NEW_STATE', data[4])
-              @read_count += 1
-              @read_raw_data_time = Time.now
-              @read_raw_data = packet.buffer
-              return packet
+          begin
+            event = CmdTlmServer.instance.get_limits_event(@limit_id, true)
+            if event
+              if event[0] == :LIMITS_CHANGE
+                data = event[1]
+                packet = System.telemetry.packet("SYSTEM","LIMITS_CHANGE")
+                packet.received_time = Time.now.sys
+                packet.write('PKT_ID',2)
+                packet.write('TARGET', data[0])
+                packet.write('PACKET', data[1])
+                packet.write('ITEM', data[2])
+                # For the first limits change the old_state is nil
+                # so set it to a usable string
+                data[3] = 'UNKNOWN' unless data[3]
+                packet.write('OLD_STATE', data[3])
+                packet.write('NEW_STATE', data[4])
+                @read_count += 1
+                @read_raw_data_time = Time.now
+                @read_raw_data = packet.buffer
+                return packet
+              end
             end
-          else
-            return nil
+          rescue ThreadError
+            # Nominal processing if no events
           end
+
+          if @limits_groups
+            packet = System.telemetry.packet("SYSTEM", "LIMITS_GROUPS")
+            packet.received_time = Time.now.sys
+            @read_count += 1
+            @read_raw_data_time = Time.now
+            @read_raw_data = packet.buffer
+            return packet
+          end
+
+          @sleeper.sleep(1)
         rescue => error
           puts error.formatted
           # if they haven't defined SYSTEM LIMITS_CHANGE we fall through
@@ -76,7 +98,6 @@ module Cosmos
           break
         end
       end
-
       return nil
     end
 
