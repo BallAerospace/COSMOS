@@ -3664,7 +3664,7 @@
   <li>This time we created a TELEMETRY packet for target BOB called TEMPS that contains BIG_ENDIAN items and is described as “Temperature Telemetry”.  Unlike above, in this example I am not using the APPEND flavor of defining items so each item contains both a bit offset and a bit size.  In general, if creating configuration files by hand I recommend using the APPEND versions as they are much easier to maintain.
     <ul>
       <li>So we start by defining an item called LENGTH at bit offset 0 with a bit size of 32 bits of type UINT (unsigned integer) described as “Packet Length”.</li>
-      <li>Next an ID_ITEM called TLM_ID at bit offset 32 with a bit size of 32 bits of type INT (integer) with an id value of 3 and described as “Message Identifier”.  Id items are used to take unidentified blobs of bytes and determine which packet they are.  In this case if a blob comes in with a value of 3 at bit offset 32 interpreted as a 32-bit integer then this packet will be “identified”.</li>
+      <li>Next an ID_ITEM called TLM_ID at bit offset 32 with a bit size of 32 bits of type INT (integer) with an id value of 3 and described as “Message Identifier”.  Id items are used to take unidentified blobs of bytes and determine which packet they are. In this case if a blob comes in with a value of 3 at bit offset 32 interpreted as a 32-bit integer then this packet will be “identified”.  Note the first packet defined without any ID_ITEMS is a “catch-all” packet that matches all incoming data (even if the data lengths don’t match).</li>
       <li>Next we define two items that are temperatures.  The first at bit offset 64 that is a 32-bit FLOAT and the second at bit offset 96 which is also a 32-bit float.</li>
     </ul>
   </li>

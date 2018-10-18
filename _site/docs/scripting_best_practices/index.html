@@ -3582,8 +3582,6 @@
           
           <div class="toc">
             <ul class="section-nav">
-<li class="toc-entry toc-h1"><a href="#scripting-best-practices">Scripting Best Practices</a>
-<ul>
 <li class="toc-entry toc-h2"><a href="#introduction">Introduction</a></li>
 <li class="toc-entry toc-h2"><a href="#scripting-philosophy">Scripting Philosophy</a>
 <ul>
@@ -3600,7 +3598,13 @@
 <li class="toc-entry toc-h3"><a href="#organize-scripts-into-test-case-functions">Organize Scripts into Test Case Functions</a></li>
 <li class="toc-entry toc-h3"><a href="#using-classes-vs-unscoped-functions">Using Classes vs Unscoped Functions</a></li>
 <li class="toc-entry toc-h3"><a href="#organizing-your-scripts-into-separate-files">Organizing Your Scripts into Separate Files</a></li>
-<li class="toc-entry toc-h3"><a href="#instrumented-vs-uninstrumented-lines-require-vs-load">Instrumented vs Uninstrumented Lines (require vs load)</a></li>
+<li class="toc-entry toc-h3"><a href="#instrumented-vs-uninstrumented-lines-require-vs-load">Instrumented vs Uninstrumented Lines (require vs load)</a>
+<ul>
+<ul>
+<li class="toc-entry toc-h5"><a href="#when-running-uninstrumented-code">When Running Uninstrumented Code</a></li>
+</ul>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toc-entry toc-h2"><a href="#debugging-and-auditing">Debugging and Auditing</a>
@@ -3620,13 +3624,13 @@
 <li class="toc-entry toc-h2"><a href="#common-scenarios">Common Scenarios</a>
 <ul>
 <li class="toc-entry toc-h3"><a href="#user-input-best-practices">User Input Best Practices</a></li>
-<li class="toc-entry toc-h3"><a href="#create-scripts-that-can-optionally-not-require-manual-user-input-steps">Create Scripts that can Optionally Not Require Manual User Input Steps</a></li>
+<li class="toc-entry toc-h3"><a href="#conditionally-require-manual-user-input-steps">Conditionally Require Manual User Input Steps</a></li>
 <li class="toc-entry toc-h3"><a href="#outputing-extra-information-to-a-testrunner-test-report">Outputing Extra Information to a TestRunner Test Report</a></li>
-<li class="toc-entry toc-h3"><a href="#getting-the-most-recent-value-of-a-telemetry-point-that-is-in-multiple-packets">Getting the Most Recent Value of a Telemetry Point that is in Multiple Packets</a></li>
+<li class="toc-entry toc-h3"><a href="#getting-the-most-recent-value-of-a-telemetry-point-from-multiple-packets">Getting the Most Recent Value of a Telemetry Point from Multiple Packets</a></li>
 <li class="toc-entry toc-h3"><a href="#checking-every-single-sample-of-a-telemetry-point">Checking Every Single Sample of a Telemetry Point</a></li>
-<li class="toc-entry toc-h3"><a href="#using-variables-as-part-of-mnemonics">Using variables as part of mnemonics</a></li>
+<li class="toc-entry toc-h3"><a href="#using-variables-in-mnemonics">Using Variables in Mnemonics</a></li>
 <li class="toc-entry toc-h3"><a href="#using-custom-wait_check_expression">Using Custom wait_check_expression</a></li>
-<li class="toc-entry toc-h3"><a href="#cosmoss-scripting-differences-from-regular-ruby-scripting">COSMOS’s Scripting Differences from Regular Ruby Scripting</a>
+<li class="toc-entry toc-h3"><a href="#cosmos-scripting-differences-from-regular-ruby-scripting">COSMOS Scripting Differences from Regular Ruby Scripting</a>
 <ul>
 <li class="toc-entry toc-h4"><a href="#do-not-use-single-line-if-statements">Do not use single line if statements</a></li>
 <li class="toc-entry toc-h4"><a href="#methods-should-use-explicit-return-statements">Methods should use explicit return statements</a></li>
@@ -3649,18 +3653,13 @@
 </li>
 <li class="toc-entry toc-h2"><a href="#further-reading">Further Reading</a></li>
 </ul>
-</li>
-</ul>
           </div>
           
           <h1>Scripting Best Practices</h1>
-          <h1 id="scripting-best-practices">
-<a id="scripting-best-practices" class="anchor" href="#scripting-best-practices" aria-hidden="true"><span class="octicon octicon-link"></span></a>Scripting Best Practices</h1>
-
-<h2 id="introduction">
+          <h2 id="introduction">
 <a id="introduction" class="anchor" href="#introduction" aria-hidden="true"><span class="octicon octicon-link"></span></a>Introduction</h2>
 
-<p>This guide aims to provide the best practices for using the scripting capabilities provided by COSMOS.  Scripts are used to automate a series of activities for operations or testing. The goal of this document is to ensure scripts are written that are simple, easy to understand, maintainable, and correct.   Guidance on some of the key details of using COSMOS’s ScriptRunner and TestRunner tools is also provided.</p>
+<p>This guide aims to provide the best practices for using the scripting capabilities provided by COSMOS. Scripts are used to automate a series of activities for operations or testing. The goal of this document is to ensure scripts are written that are simple, easy to understand, maintainable, and correct. Guidance on some of the key details of using COSMOS’s ScriptRunner and TestRunner tools is also provided.</p>
 
 <h2 id="scripting-philosophy">
 <a id="scripting-philosophy" class="anchor" href="#scripting-philosophy" aria-hidden="true"><span class="octicon octicon-link"></span></a>Scripting Philosophy</h2>
@@ -3668,7 +3667,7 @@
 <h3 id="a-super-basic-script-example">
 <a id="a-super-basic-script-example" class="anchor" href="#a-super-basic-script-example" aria-hidden="true"><span class="octicon octicon-link"></span></a>A Super Basic Script Example</h3>
 
-<p>Most COSMOS scripts can be broken down into the simple pattern of sending a command to a system/subsystem and then verifying that the command worked as expected.   This pattern is most commonly implemented with cmd() followed by wait_check(), like the following:</p>
+<p>Most COSMOS scripts can be broken down into the simple pattern of sending a command to a system/subsystem and then verifying that the command worked as expected. This pattern is most commonly implemented with cmd() followed by wait_check(), like the following:</p>
 
 <div class="language-ruby highlighter-rouge">
 <pre class="highlight"><code><span class="n">cmd</span><span class="p">(</span><span class="s2">"INST COLLECT with TYPE NORMAL, TEMP 10.0"</span><span class="p">)</span>
@@ -3690,14 +3689,14 @@
 <h3 id="kiss-keep-it-simple-stupid">
 <a id="kiss-keep-it-simple-stupid" class="anchor" href="#kiss-keep-it-simple-stupid" aria-hidden="true"><span class="octicon octicon-link"></span></a>KISS (Keep It Simple Stupid)</h3>
 
-<p>Ruby is a very powerful language with many ways to accomplish the same thing.  Given that, always choose the method that is easiest to understand for yourself and others.  While it is possible to create complex one liners or obtuse regular expressions, you’ll thank yourself later by expanding complex one liners and breaking up and documenting regular expressions.</p>
+<p>Ruby is a very powerful language with many ways to accomplish the same thing. Given that, always choose the method that is easiest to understand for yourself and others. While it is possible to create complex one liners or obtuse regular expressions, you’ll thank yourself later by expanding complex one liners and breaking up and documenting regular expressions.</p>
 
 <h3 id="keep-things-dry-dont-repeat-yourself">
 <a id="keep-things-dry-dont-repeat-yourself" class="anchor" href="#keep-things-dry-dont-repeat-yourself" aria-hidden="true"><span class="octicon octicon-link"></span></a>Keep things DRY (Don’t Repeat Yourself)</h3>
 
-<p>A widespread problem in scripts written for any command and control system is large blocks of code that are repeated multiple times.   In extreme cases, this has led to 100,000+ line scripts that are impossible to maintain and review.</p>
+<p>A widespread problem in scripts written for any command and control system is large blocks of code that are repeated multiple times. In extreme cases, this has led to 100,000+ line scripts that are impossible to maintain and review.</p>
 
-<p>There are two common ways repetition presents itself: exact blocks of code to perform a common action such as powering on a subsystem, and blocks of code that only differ in the name of the mnemonic being checked or the values checked against.   Both are solved by removing the repetition using functions (also referred to as ‘methods’ in Ruby).</p>
+<p>There are two common ways repetition presents itself: exact blocks of code to perform a common action such as powering on a subsystem, and blocks of code that only differ in the name of the mnemonic being checked or the values checked against. Both are solved by removing the repetition using functions (also referred to as ‘methods’ in Ruby).</p>
 
 <p>For example, a script that powers on a subsystem and ensures correct telemetry would become:</p>
 
@@ -3708,7 +3707,7 @@
 </code></pre>
 </div>
 
-<p>Ideally, the above function would be stored in another file where it could be used by other scripts.  If it is truly only useful in the one script, then it could be at the top of the file.  The updated script would then look like:</p>
+<p>Ideally, the above function would be stored in another file where it could be used by other scripts. If it is truly only useful in the one script, then it could be at the top of the file. The updated script would then look like:</p>
 
 <div class="language-ruby highlighter-rouge">
 <pre class="highlight"><code><span class="n">power_on_subsystem</span><span class="p">()</span>
@@ -3727,7 +3726,7 @@
 
 <div class="language-ruby highlighter-rouge">
 <pre class="highlight"><code><span class="k">def</span> <span class="nf">test_minimum_temp</span><span class="p">(</span><span class="n">enable_cmd_name</span><span class="p">,</span> <span class="n">enable_tlm</span><span class="p">,</span> <span class="n">temp_tlm</span><span class="p">,</span> <span class="n">expected_temp</span><span class="p">)</span>
-  <span class="n">cmd</span><span class="p">(</span><span class="s2">"TARGET </span><span class="si">#{</span> <span class="n">enable_cmd_name</span> <span class="si">}</span><span class="s2"> with ENABLE TRUE"</span><span class="p">)</span>
+  <span class="n">cmd</span><span class="p">(</span><span class="s2">"TARGET </span><span class="si">#{</span><span class="n">enable_cmd_name</span><span class="si">}</span><span class="s2"> with ENABLE TRUE"</span><span class="p">)</span>
   <span class="n">wait_check</span><span class="p">(</span><span class="s2">"TARGET </span><span class="si">#{</span><span class="n">enable_tlm</span><span class="si">}</span><span class="s2"> == 'TRUE;"</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
   <span class="n">wait_check</span><span class="p">(</span><span class="s2">"TARGET </span><span class="si">#{</span><span class="n">temp_tlm</span><span class="si">}</span><span class="s2"> &gt;= </span><span class="si">#{</span><span class="n">expected_temp</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span>
 <span class="k">end</span>
@@ -3737,7 +3736,7 @@
 <h3 id="use-comments-appropriately">
 <a id="use-comments-appropriately" class="anchor" href="#use-comments-appropriately" aria-hidden="true"><span class="octicon octicon-link"></span></a>Use Comments Appropriately</h3>
 
-<p>Use comments when what you are doing is unclear or there is a higher-level purpose to a set of lines.  Try to avoid putting numbers or other details in a comment as they can become out of sync with the underlying code.  Ruby comments start with a # pound symbol and can be anywhere on a line.</p>
+<p>Use comments when what you are doing is unclear or there is a higher-level purpose to a set of lines. Try to avoid putting numbers or other details in a comment as they can become out of sync with the underlying code. Ruby comments start with a # pound symbol and can be anywhere on a line.</p>
 
 <div class="language-ruby highlighter-rouge">
 <pre class="highlight"><code><span class="c1"># This line sends an abort command - BAD COMMENT, UNNECCESSARY</span>
@@ -3750,16 +3749,16 @@
 <h3 id="scriptrunner-vs-testrunner">
 <a id="scriptrunner-vs-testrunner" class="anchor" href="#scriptrunner-vs-testrunner" aria-hidden="true"><span class="octicon octicon-link"></span></a>ScriptRunner vs TestRunner</h3>
 
-<p>COSMOS provides two unique ways to run scripts (also known as procedures).  ScriptRunner provides both a script execution environment and a script editor.   The script editor includes code completion for both COSMOS methods and command/telemetry item names.  It is also a great environment to develop and test scripts.  ScriptRunner provides a framework for users that are familiar with a traditional scripting model with longer style procedures, and for users that want to be able to edit their scripts in place.</p>
+<p>COSMOS provides two unique ways to run scripts (also known as procedures). ScriptRunner provides both a script execution environment and a script editor. The script editor includes code completion for both COSMOS methods and command/telemetry item names. It is also a great environment to develop and test scripts. ScriptRunner provides a framework for users that are familiar with a traditional scripting model with longer style procedures, and for users that want to be able to edit their scripts in place.</p>
 
-<p>TestRunner provides a more formal, but also more powerful, environment for running scripts.  The name TestRunner comes from incorporating several of the concepts from software unit testing frameworks and applying them to system level test and operations.   TestRunner, by design, has users break their scripts down into test suites, test groups, and test cases.   Test Suites are the highest-level concept and would typically cover a large test procedure such as a thermal vacuum test, or a large operations scenario such as performing on orbit checkout.  Test Groups capture a related set of test cases such as all the test cases regarding a specific mechanism.  A Test Group might be a collection of test cases all related to a subsystem, or a specific series of tests such as an RF checkout.  Test Cases capture individual activities that can either pass or fail.   TestRunner allows for running an entire test suite, one or more test groups, or one or more test cases easily.  It also automatically produces test reports, can easily gather meta data such as operator name, and produce associated data packages.</p>
+<p>TestRunner provides a more formal, but also more powerful, environment for running scripts. The name TestRunner comes from incorporating several of the concepts from software unit testing frameworks and applying them to system level test and operations. TestRunner, by design, has users break their scripts down into test suites, test groups, and test cases. Test Suites are the highest-level concept and would typically cover a large test procedure such as a thermal vacuum test, or a large operations scenario such as performing on orbit checkout. Test Groups capture a related set of test cases such as all the test cases regarding a specific mechanism. A Test Group might be a collection of test cases all related to a subsystem, or a specific series of tests such as an RF checkout. Test Cases capture individual activities that can either pass or fail. TestRunner allows for running an entire test suite, one or more test groups, or one or more test cases easily. It also automatically produces test reports, can easily gather meta data such as operator name, and produce associated data packages.</p>
 
-<p>The correct tool for the job is up to individual users, and many programs will use both tools to complete their goals.  For example, while formal tests are typically organized and run out of TestRunner, ScriptRunner is still used to run quick one-off scripts specific to a single target.  Additionally, ScriptRunner makes a great editor for writing TestRunner scripts.  It is recommended that users try both tools before deciding which will be best for their program.</p>
+<p>The correct tool for the job is up to individual users, and many programs will use both tools to complete their goals. For example, while formal tests are typically organized and run out of TestRunner, ScriptRunner is still used to run quick one-off scripts specific to a single target. Additionally, ScriptRunner makes a great editor for writing TestRunner scripts. It is recommended that users try both tools before deciding which will be best for their program.</p>
 
 <h3 id="looping-vs-unrolled-loops">
 <a id="looping-vs-unrolled-loops" class="anchor" href="#looping-vs-unrolled-loops" aria-hidden="true"><span class="octicon octicon-link"></span></a>Looping vs Unrolled Loops</h3>
 
-<p>Loops are powerful constructs that allow you to perform the same operations multiple times without having to rewrite the same code over and over (See the DRY Concept).  However, they can make restarting a COSMOS script at the point of a failure difficult or impossible.  If there is a low probability of something failing, then loops are an excellent choice.  If a script is running a loop over a list of telemetry points, it may be a better choice to “unroll” the loop by making the loop body into a function, and then calling that function directly for each iteration of a loop that would have occurred.</p>
+<p>Loops are powerful constructs that allow you to perform the same operations multiple times without having to rewrite the same code over and over (See the DRY Concept). However, they can make restarting a COSMOS script at the point of a failure difficult or impossible. If there is a low probability of something failing, then loops are an excellent choice. If a script is running a loop over a list of telemetry points, it may be a better choice to “unroll” the loop by making the loop body into a function, and then calling that function directly for each iteration of a loop that would have occurred.</p>
 
 <p>For example:</p>
 
@@ -3770,7 +3769,7 @@
 </code></pre>
 </div>
 
-<p>If the above script was stopped after temperature number 3, there would be no way to restart the loop at temperature number 4.   A better solution for small loop counts is to unroll the loop.</p>
+<p>If the above script was stopped after temperature number 3, there would be no way to restart the loop at temperature number 4. A better solution for small loop counts is to unroll the loop.</p>
 
 <div class="language-ruby highlighter-rouge">
 <pre class="highlight"><code><span class="n">check_temperature</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
@@ -3794,7 +3793,7 @@
 <h3 id="organize-scripts-into-test-case-functions">
 <a id="organize-scripts-into-test-case-functions" class="anchor" href="#organize-scripts-into-test-case-functions" aria-hidden="true"><span class="octicon octicon-link"></span></a>Organize Scripts into Test Case Functions</h3>
 
-<p>Put each test case into a distinct function.  This is the natural way to use TestRunner, but also works well in ScriptRunner.   Putting your test cases into functions makes organization easy and gives a great high-level overview of what the overall script does (assuming you name the functions well).  There are no bonus points for vague, short function names.   Make your function names long and clear.</p>
+<p>Put each test case into a distinct function. This is the natural way to use TestRunner, but also works well in ScriptRunner. Putting your test cases into functions makes organization easy and gives a great high-level overview of what the overall script does (assuming you name the functions well). There are no bonus points for vague, short function names. Make your function names long and clear.</p>
 
 <div class="language-ruby highlighter-rouge">
 <pre class="highlight"><code><span class="k">def</span> <span class="nf">test_1_heater_zone_control</span>
@@ -3807,7 +3806,7 @@
 <h3 id="using-classes-vs-unscoped-functions">
 <a id="using-classes-vs-unscoped-functions" class="anchor" href="#using-classes-vs-unscoped-functions" aria-hidden="true"><span class="octicon octicon-link"></span></a>Using Classes vs Unscoped Functions</h3>
 
-<p>Classes in object-oriented programing allow you to organize a set of related methods and some associated state.   The most important aspect is that the methods work on some shared state.  For example, if you have code that moves a gimbal around, and need to keep track of the number of moves, or steps, performed across methods, then that is a wonderful place to use a class.   If you just need a helper method to do something that happens multiple times in a script without copy and pasting, it probably does not need to be in a class.</p>
+<p>Classes in object-oriented programing allow you to organize a set of related methods and some associated state. The most important aspect is that the methods work on some shared state. For example, if you have code that moves a gimbal around, and need to keep track of the number of moves, or steps, performed across methods, then that is a wonderful place to use a class. If you just need a helper method to do something that happens multiple times in a script without copy and pasting, it probably does not need to be in a class.</p>
 
 <div class="language-ruby highlighter-rouge">
 <pre class="highlight"><code><span class="k">class</span> <span class="nc">Gimbal</span>
@@ -3838,7 +3837,7 @@
 <h3 id="organizing-your-scripts-into-separate-files">
 <a id="organizing-your-scripts-into-separate-files" class="anchor" href="#organizing-your-scripts-into-separate-files" aria-hidden="true"><span class="octicon octicon-link"></span></a>Organizing Your Scripts into Separate Files</h3>
 
-<p>As your scripts become large with many methods, it makes sense to break them up into multiple files.  Here is a recommended organization for your projects scripts/procedures.</p>
+<p>As your scripts become large with many methods, it makes sense to break them up into multiple files. Here is a recommended organization for your projects scripts/procedures.</p>
 
 <table>
   <tbody>
@@ -3875,15 +3874,13 @@
 <h3 id="instrumented-vs-uninstrumented-lines-require-vs-load">
 <a id="instrumented-vs-uninstrumented-lines-require-vs-load" class="anchor" href="#instrumented-vs-uninstrumented-lines-require-vs-load" aria-hidden="true"><span class="octicon octicon-link"></span></a>Instrumented vs Uninstrumented Lines (require vs load)</h3>
 
-<p>COSMOS scripts are normally “instrumented”.  This means that each line has some extra code added behind the scenes that primarily highlights the current executing line and catches exceptions if things fail such as a wait_check failing.  If your script needs to use code in other files, there are a few ways to bring in that code.  Some techniques bring in instrumented code and others bring in uninstrumented code.  There are reasons to use both.</p>
+<p>COSMOS scripts are normally “instrumented”. This means that each line has some extra code added behind the scenes that primarily highlights the current executing line and catches exceptions if things fail such as a wait_check. If your script needs to use code in other files, there are a few ways to bring in that code. Some techniques bring in instrumented code and others bring in uninstrumented code. There are reasons to use both.</p>
 
-<p>load_utility (and the deprecated require_utiility), brings in instrumented code from other files.  When COSMOS runs the code in the other file, ScriptRunner/TestRunner will dive into the other file and show each line highlighted as it executes.  This should be the default way to bring in other files, as it allows continuing if something fails, and provides better visibility to operators.</p>
+<p>load_utility (and the deprecated require_utility), bring in instrumented code from other files. When COSMOS runs the code in the other file, ScriptRunner/TestRunner will dive into the other file and show each line highlighted as it executes. This should be the default way to bring in other files, as it allows continuing if something fails, and provides better visibility to operators.</p>
 
-<p>However, sometimes you don’t want to display code executing from other files.  Externally developed ruby libraries generally do not like to be instrumented, and code that contains large loops or that just takes a long time to execute when highlighting lines, will be much faster if included in a method that does not instrument lines.  Ruby provides two ways to bring in uninstrumented code.  The first is the “load” keyword.  Load will bring in the code from another file and will bring in any changes to the file if it is updated on the next call to load.  “require” is like load but is optimized to only bring in the code from another file once.  Therefore, if you use require and then change the file it requires, you must restart ScriptRunner/TestRunner to re-require the file and bring in the changes.  In general, load is recommended over require for COSMOS scripting.  One gotcha with load is that it requires the full filename including extension, while the require keyword does not.</p>
+<p>However, sometimes you don’t want to display code executing from other files. Externally developed ruby libraries generally do not like to be instrumented, and code that contains large loops or that just takes a long time to execute when highlighting lines, will be much faster if included in a method that does not instrument lines. Ruby provides two ways to bring in uninstrumented code. The first is the “load” keyword. Load will bring in the code from another file and will bring in any changes to the file if it is updated on the next call to load. “require” is like load but is optimized to only bring in the code from another file once. Therefore, if you use require and then change the file it requires, you must restart ScriptRunner/TestRunner to re-require the file and bring in the changes. In general, load is recommended over require for COSMOS scripting. One gotcha with load is that it requires the full filename including extension, while the require keyword does not.</p>
 
-<p>Finally, COSMOS scripting has a special syntax for disabling instrumentation in the middle of an instrumented script, with the disable_instrumentation function.  This allows you to disable instrumentation for large loops and other activities that are too slow when running instrumented.</p>
-
-<p>CAUTION: In all cases, when running uninstrumented code, make sure that the code will not raise any exceptions or have any check failures.  If an exception is raised from uninstrumented code, then your entire script will stop.</p>
+<p>Finally, COSMOS scripting has a special syntax for disabling instrumentation in the middle of an instrumented script, with the disable_instrumentation function. This allows you to disable instrumentation for large loops and other activities that are too slow when running instrumented.</p>
 
 <div class="language-ruby highlighter-rouge">
 <pre class="highlight"><code><span class="n">disable_instrumentation</span> <span class="k">do</span>
@@ -3895,15 +3892,21 @@
 </code></pre>
 </div>
 
+<div class="note warning">
+  <h5>
+<a id="when-running-uninstrumented-code" class="anchor" href="#when-running-uninstrumented-code" aria-hidden="true"><span class="octicon octicon-link"></span></a>When Running Uninstrumented Code</h5>
+  <p>Make sure that the code will not raise any exceptions or have any check failures. If an exception is raised from uninstrumented code, then your entire script will stop.</p>
+</div>
+
 <h2 id="debugging-and-auditing">
 <a id="debugging-and-auditing" class="anchor" href="#debugging-and-auditing" aria-hidden="true"><span class="octicon octicon-link"></span></a>Debugging and Auditing</h2>
 
 <h3 id="built-in-debugging-capabilities">
 <a id="built-in-debugging-capabilities" class="anchor" href="#built-in-debugging-capabilities" aria-hidden="true"><span class="octicon octicon-link"></span></a>Built-In Debugging Capabilities</h3>
 
-<p>Both ScriptRunner and TestRunner have built in debugging capabilities that can be useful in determining why your script is behaving in a certain way.   Of primary importance is the ability to inspect and set script variables.</p>
+<p>Both ScriptRunner and TestRunner have built in debugging capabilities that can be useful in determining why your script is behaving in a certain way. Of primary importance is the ability to inspect and set script variables.</p>
 
-<p>To use the debugging functionality, first select the “Toggle Debug” option from the Script Menu.  This will add a small Debug: prompt to the bottom of the tool.  Any code entered in this prompt will be executed when Enter is pressed.  To inspect variables in a running script, pause the script and then use “puts” to print out the value of the variable in the debug prompt.</p>
+<p>To use the debugging functionality, first select the “Toggle Debug” option from the Script Menu. This will add a small Debug: prompt to the bottom of the tool. Any code entered in this prompt will be executed when Enter is pressed. To inspect variables in a running script, pause the script and then use “puts” to print out the value of the variable in the debug prompt.</p>
 
 <div class="language-ruby highlighter-rouge">
 <pre class="highlight"><code><span class="nb">puts</span> <span class="n">variable_name</span>
@@ -3917,7 +3920,7 @@
 </code></pre>
 </div>
 
-<p>If necessary, you can also inject commands from the debug prompt using the normal commanding methods.   These commands will be logged to the ScriptRunner message log, which may be advantageous over using  a different COSMOS tool like CmdSender (where the command would only be logged in the CmdTlmServer message log).</p>
+<p>If necessary, you can also inject commands from the debug prompt using the normal commanding methods. These commands will be logged to the ScriptRunner message log, which may be advantageous over using a different COSMOS tool like CmdSender (where the command would only be logged in the CmdTlmServer message log).</p>
 
 <div class="language-ruby highlighter-rouge">
 <pre class="highlight"><code><span class="n">cmd</span><span class="p">(</span><span class="s2">"INST COLLECT with TYPE NORMAL"</span><span class="p">)</span>
@@ -3929,14 +3932,14 @@
 <h3 id="breakpoints">
 <a id="breakpoints" class="anchor" href="#breakpoints" aria-hidden="true"><span class="octicon octicon-link"></span></a>Breakpoints</h3>
 
-<p>While in Debug mode (Script -&gt; Toggle Debug), you can right-click at any point in a script in ScriptRunner and select “Add Breakpoint”.   This places a breakpoint on the selected line and the script will automatically pause when it hits the breakpoint.   Once stopped at the breakpoint, you can evaluate the state of the system using telemetry screens or the built-in debugging capabilities.</p>
+<p>While in Debug mode (Script -&gt; Toggle Debug), you can right-click at any point in a script in ScriptRunner and select “Add Breakpoint”. This places a breakpoint on the selected line and the script will automatically pause when it hits the breakpoint. Once stopped at the breakpoint, you can evaluate the state of the system using telemetry screens or the built-in debugging capabilities.</p>
 
 <h3 id="using-disconnect-mode">
 <a id="using-disconnect-mode" class="anchor" href="#using-disconnect-mode" aria-hidden="true"><span class="octicon octicon-link"></span></a>Using Disconnect Mode</h3>
 
-<p>Disconnect mode is a feature of ScriptRunner and TestRunner that allows testing scripts in an environment without real hardware in the loop.   Disconnect mode is started by selecting Script -&gt; Toggle Disconnect.  Once selected, the user is prompted to select which targets to disconnect.   By default, all targets are disconnected, which allows for testing scripts without any real hardware.  Optionally, only a subset of targets can be selected which can be useful for trying out scripts in partially integrated environments.</p>
+<p>Disconnect mode is a feature of ScriptRunner and TestRunner that allows testing scripts in an environment without real hardware in the loop. Disconnect mode is started by selecting Script -&gt; Toggle Disconnect. Once selected, the user is prompted to select which targets to disconnect. By default, all targets are disconnected, which allows for testing scripts without any real hardware. Optionally, only a subset of targets can be selected which can be useful for trying out scripts in partially integrated environments.</p>
 
-<p>While in disconnect mode, commands to the disconnected targets always succeed.  Additionally, all checks of disconnected targets’ telemetry are immediately successful.   This allows for a quick run-through of procedures for logic errors and other script specific errors without having to worry about the behavior and proper functioning of hardware.</p>
+<p>While in disconnect mode, commands to the disconnected targets always succeed. Additionally, all checks of disconnected targets’ telemetry are immediately successful. This allows for a quick run-through of procedures for logic errors and other script specific errors without having to worry about the behavior and proper functioning of hardware.</p>
 
 <h3 id="auditing-your-scripts">
 <a id="auditing-your-scripts" class="anchor" href="#auditing-your-scripts" aria-hidden="true"><span class="octicon octicon-link"></span></a>Auditing your Scripts</h3>
@@ -3946,7 +3949,7 @@
 <h4 id="ruby-syntax-check">
 <a id="ruby-syntax-check" class="anchor" href="#ruby-syntax-check" aria-hidden="true"><span class="octicon octicon-link"></span></a>Ruby Syntax Check</h4>
 
-<p>The Ruby Syntax Check tool is found under the Script Menu. This tool uses the ruby executable with the -c flag to run a syntax check on your script.  If any syntax errors are found the exact message presented by the Ruby interpreter is shown to the user.  These can be pretty cryptic, but the most common faults are not closing a quoted string, forgetting an “end” keyword, or using a block but forgetting the proceeding “do” keyword.</p>
+<p>The Ruby Syntax Check tool is found under the Script Menu. This tool uses the ruby executable with the -c flag to run a syntax check on your script. If any syntax errors are found the exact message presented by the Ruby interpreter is shown to the user. These can be cryptic, but the most common faults are not closing a quoted string, forgetting an “end” keyword, or using a block but forgetting the proceeding “do” keyword.</p>
 
 <p><img src="/img/syntax_check.png" alt="Syntax Check"></p>
 
@@ -3960,7 +3963,7 @@
 <h4 id="generate-cmdtlm-audit">
 <a id="generate-cmdtlm-audit" class="anchor" href="#generate-cmdtlm-audit" aria-hidden="true"><span class="octicon octicon-link"></span></a>Generate Cmd/Tlm Audit</h4>
 
-<p>After you are done running your scripts, you can execute a Cmd/Tlm audit that will scan the ScriptRunner message log files and look for all cmd() lines and CHECK lines to know how many times each command was sent and how many times each telemetry point was checked.  This audit reads one or more message log files and generates a CSV file with a count for each command and telemetry point.</p>
+<p>After you are done running your scripts, you can execute a Cmd/Tlm audit that will scan the ScriptRunner message log files and look for all cmd() lines and CHECK lines to know how many times each command was sent and how many times each telemetry point was checked. This audit reads one or more message log files and generates a CSV file with a count for each command and telemetry point.</p>
 
 <h2 id="common-scenarios">
 <a id="common-scenarios" class="anchor" href="#common-scenarios" aria-hidden="true"><span class="octicon octicon-link"></span></a>Common Scenarios</h2>
@@ -3968,7 +3971,7 @@
 <h3 id="user-input-best-practices">
 <a id="user-input-best-practices" class="anchor" href="#user-input-best-practices" aria-hidden="true"><span class="octicon octicon-link"></span></a>User Input Best Practices</h3>
 
-<p>COSMOS provides several different methods to gather manual user input in scripts.  When using user input methods that allow for arbitrary values (like ask() and ask_string()),  it is very important to validate the value given in your script before moving on.  When asking for text input, it is extra important to handle different casing possibilities and to ensure that invalid input will either reprompt the user, or take a safe path.</p>
+<p>COSMOS provides several different methods to gather manual user input in scripts. When using user input methods that allow for arbitrary values (like ask() and ask_string()),  it is very important to validate the value given in your script before moving on. When asking for text input, it is extra important to handle different casing possibilities and to ensure that invalid input will either re-prompt the user or take a safe path.</p>
 
 <div class="language-ruby highlighter-rouge">
 <pre class="highlight"><code><span class="n">answer</span> <span class="o">=</span> <span class="n">ask_string</span><span class="p">(</span><span class="s2">"Do you want to continue (y/n)?"</span><span class="p">)</span>
@@ -3985,12 +3988,12 @@
 
 <p>When possible, always use one of the other user input methods that has a constrained list of choices for your users (message_box, vertical_message_box, combo_box).</p>
 
-<p>Note that all these user input methods provide the user the option to “Cancel”.  When cancel is clicked, the script is paused but remains at the user input line.  When hitting “Go” to the continue, the user will be reprompted to enter the value.</p>
+<p>Note that all these user input methods provide the user the option to “Cancel”. When cancel is clicked, the script is paused but remains at the user input line. When hitting “Go” to the continue, the user will be re-prompted to enter the value.</p>
 
-<h3 id="create-scripts-that-can-optionally-not-require-manual-user-input-steps">
-<a id="create-scripts-that-can-optionally-not-require-manual-user-input-steps" class="anchor" href="#create-scripts-that-can-optionally-not-require-manual-user-input-steps" aria-hidden="true"><span class="octicon octicon-link"></span></a>Create Scripts that can Optionally Not Require Manual User Input Steps</h3>
+<h3 id="conditionally-require-manual-user-input-steps">
+<a id="conditionally-require-manual-user-input-steps" class="anchor" href="#conditionally-require-manual-user-input-steps" aria-hidden="true"><span class="octicon octicon-link"></span></a>Conditionally Require Manual User Input Steps</h3>
 
-<p>When possible, a useful design pattern is to write your scripts such that they can run without prompting for any user input.  This allows the scripts to be more easily tested and provides a documented default value for any user input choices or values.   To implement this pattern, all manual steps such as ask(), prompt(), and infinite wait() statements need to be wrapped with an if statement that checks the value of the $manual variable.  If $manual is set, then the manual steps should be executed. If not, then a default value should be used.</p>
+<p>When possible, a useful design pattern is to write your scripts such that they can run without prompting for any user input. This allows the scripts to be more easily tested and provides a documented default value for any user input choices or values. To implement this pattern, all manual steps such as ask(), prompt(), and infinite wait() statements need to be wrapped with an if statement that checks the value of the $manual variable. If $manual is set, then the manual steps should be executed. If not, then a default value should be used.</p>
 
 <div class="language-ruby highlighter-rouge">
 <pre class="highlight"><code><span class="c1"># Set the $manual variable – Only needed in ScriptRunner</span>
@@ -4013,14 +4016,14 @@
 </code></pre>
 </div>
 
-<p>In TestRunner, there is a checkbox at the top of the tool called “Manual” that affects this $manual variable directly.  In ScriptRunner you can also use the $manual pattern, but will need to build in an ask() at the top of your script to ask if the user wants to run manual steps, and then set the $manual variable appropriately.</p>
+<p>In TestRunner, there is a checkbox at the top of the tool called “Manual” that affects this $manual variable directly. In ScriptRunner you can also use the $manual pattern, but will need to build in an ask() at the top of your script to ask if the user wants to run manual steps, and then set the $manual variable appropriately.</p>
 
 <p><img src="/img/test_runner_checkboxes.png" alt="TestRunner Checkboxes"></p>
 
 <h3 id="outputing-extra-information-to-a-testrunner-test-report">
 <a id="outputing-extra-information-to-a-testrunner-test-report" class="anchor" href="#outputing-extra-information-to-a-testrunner-test-report" aria-hidden="true"><span class="octicon octicon-link"></span></a>Outputing Extra Information to a TestRunner Test Report</h3>
 
-<p>COSMOS TestRunner automatically generates a test report that shows the PASS/FAILED/SKIPPED state for each test case.   You can also inject arbitrary text into this report with the current test case using Cosmos::Test.puts “Your Text”.   Alternatively, you can simply use puts to place text into the ScriptRunner message log (in both TestRunner/ScriptRunner).</p>
+<p>COSMOS TestRunner automatically generates a test report that shows the PASS/FAILED/SKIPPED state for each test case. You can also inject arbitrary text into this report with the current test case using Cosmos::Test.puts “Your Text”. Alternatively, you can simply use puts to place text into the ScriptRunner message log (in both TestRunner/ScriptRunner).</p>
 
 <div class="language-ruby highlighter-rouge">
 <pre class="highlight"><code><span class="k">class</span> <span class="nc">MyTest</span> <span class="o">&lt;</span> <span class="no">Cosmos</span><span class="o">::</span><span class="no">Test</span>
@@ -4035,10 +4038,10 @@
 </code></pre>
 </div>
 
-<h3 id="getting-the-most-recent-value-of-a-telemetry-point-that-is-in-multiple-packets">
-<a id="getting-the-most-recent-value-of-a-telemetry-point-that-is-in-multiple-packets" class="anchor" href="#getting-the-most-recent-value-of-a-telemetry-point-that-is-in-multiple-packets" aria-hidden="true"><span class="octicon octicon-link"></span></a>Getting the Most Recent Value of a Telemetry Point that is in Multiple Packets</h3>
+<h3 id="getting-the-most-recent-value-of-a-telemetry-point-from-multiple-packets">
+<a id="getting-the-most-recent-value-of-a-telemetry-point-from-multiple-packets" class="anchor" href="#getting-the-most-recent-value-of-a-telemetry-point-from-multiple-packets" aria-hidden="true"><span class="octicon octicon-link"></span></a>Getting the Most Recent Value of a Telemetry Point from Multiple Packets</h3>
 
-<p>Some systems include high rate data points with the same name in every packet.  COSMOS supports getting the most recent value of a telemetry point that is in multiple packets using a special packet name of LATEST.  Let’s pretend that our target INST has two packets, PACKET1 and PACKET2.  Both packets have a telemetry point called TEMP.</p>
+<p>Some systems include high rate data points with the same name in every packet. COSMOS supports getting the most recent value of a telemetry point that is in multiple packets using a special packet name of LATEST. Let’s pretend that our target INST has two packets, PACKET1 and PACKET2. Both packets have a telemetry point called TEMP.</p>
 
 <div class="language-ruby highlighter-rouge">
 <pre class="highlight"><code><span class="c1"># Get the value of TEMP from the most recently received PACKET1</span>
@@ -4053,7 +4056,7 @@
 <h3 id="checking-every-single-sample-of-a-telemetry-point">
 <a id="checking-every-single-sample-of-a-telemetry-point" class="anchor" href="#checking-every-single-sample-of-a-telemetry-point" aria-hidden="true"><span class="octicon octicon-link"></span></a>Checking Every Single Sample of a Telemetry Point</h3>
 
-<p>When writing COSMOS scripts, checking the most recent value of a telemetry point normally gets the job done.  The tlm(), tlm_raw(), etc methods all retrieve the most recent value of a telemetry point.  Sometimes you need to perform analysis on every single sample of a telemetry point.   This can be done using COSMOS’s packet subscription system.  The packet subscription system lets you choose one or more packets and receive every one from a queue.  You can then pick out the specific telemetry points you care about from each packet.</p>
+<p>When writing COSMOS scripts, checking the most recent value of a telemetry point normally gets the job done. The tlm(), tlm_raw(), etc methods all retrieve the most recent value of a telemetry point. Sometimes you need to perform analysis on every single sample of a telemetry point. This can be done using COSMOS’s packet subscription system. The packet subscription system lets you choose one or more packets and receive them all from a queue. You can then pick out the specific telemetry points you care about from each packet.</p>
 
 <div class="language-ruby highlighter-rouge">
 <pre class="highlight"><code><span class="nb">id</span> <span class="o">=</span> <span class="n">subscribe_packet_data</span><span class="p">([[</span><span class="s2">"INST"</span><span class="p">,</span> <span class="s2">"HEALTH_STATUS"</span><span class="p">]])</span>
@@ -4068,10 +4071,10 @@
 </code></pre>
 </div>
 
-<h3 id="using-variables-as-part-of-mnemonics">
-<a id="using-variables-as-part-of-mnemonics" class="anchor" href="#using-variables-as-part-of-mnemonics" aria-hidden="true"><span class="octicon octicon-link"></span></a>Using variables as part of mnemonics</h3>
+<h3 id="using-variables-in-mnemonics">
+<a id="using-variables-in-mnemonics" class="anchor" href="#using-variables-in-mnemonics" aria-hidden="true"><span class="octicon octicon-link"></span></a>Using Variables in Mnemonics</h3>
 
-<p>Because command and telemetry mnemonics are just strings in COSMOS scripts, you can make use of variables in some contexts to make reusable code.   For example, a function can take a target name as an input to support multiple instances of a target.  You could also pass in the value for a set of numbered telemetry points.</p>
+<p>Because command and telemetry mnemonics are just strings in COSMOS scripts, you can make use of variables in some contexts to make reusable code. For example, a function can take a target name as an input to support multiple instances of a target. You could also pass in the value for a set of numbered telemetry points.</p>
 
 <div class="language-ruby highlighter-rouge">
 <pre class="highlight"><code><span class="k">def</span> <span class="nf">example</span><span class="p">(</span><span class="n">target_name</span><span class="p">,</span> <span class="n">temp_number</span><span class="p">)</span>
@@ -4081,12 +4084,12 @@
 </code></pre>
 </div>
 
-<p>This can also be useful when looping through a numbered set of telemetry points but be considerate of the downsides of looping as discussed in the Looping vs Unrolled Loops section.</p>
+<p>This can also be useful when looping through a numbered set of telemetry points but be considerate of the downsides of looping as discussed in the <a href="/docs/scripting_best_practices/#looping-vs-unrolled-loops">Looping vs Unrolled Loops</a> section.</p>
 
 <h3 id="using-custom-wait_check_expression">
 <a id="using-custom-wait_check_expression" class="anchor" href="#using-custom-wait_check_expression" aria-hidden="true"><span class="octicon octicon-link"></span></a>Using Custom wait_check_expression</h3>
 
-<p>COSMOS’s wait_check_expression (and check_expression) allow you to perform more complicated checks and still stop the script with a CHECK error message if something goes wrong.  For example, you can check variables against each other or check a telemetry point against a range.  The exact string of text passed to wait_check_expression is repeatedly evaled in Ruby until it passes, or a timeout occurs.  It is important to not use Ruby string interpolation #{} within the actual expression or the values inside of the Ruby interpolation syntax #{} will only be evaluated once when it is converted into a string.  PROTIP: Using #{} inside a comment inside the expression can give more insight if the expression fails, but be careful as it will show the first evaluation of the values when the check passes which can be confusing if they go from failing to passing after waiting a few seconds.</p>
+<p>COSMOS’s wait_check_expression (and check_expression) allow you to perform more complicated checks and still stop the script with a CHECK error message if something goes wrong. For example, you can check variables against each other or check a telemetry point against a range. The exact string of text passed to wait_check_expression is repeatedly evaled in Ruby until it passes, or a timeout occurs. It is important to not use Ruby string interpolation #{} within the actual expression or the values inside of the Ruby interpolation syntax #{} will only be evaluated once when it is converted into a string. PROTIP: Using #{} inside a comment inside the expression can give more insight if the expression fails, but be careful as it will show the first evaluation of the values when the check passes which can be confusing if they go from failing to passing after waiting a few seconds.</p>
 
 <div class="language-ruby highlighter-rouge">
 <pre class="highlight"><code><span class="n">one</span> <span class="o">=</span> <span class="mi">1</span>
@@ -4104,15 +4107,15 @@
 </code></pre>
 </div>
 
-<h3 id="cosmoss-scripting-differences-from-regular-ruby-scripting">
-<a id="cosmoss-scripting-differences-from-regular-ruby-scripting" class="anchor" href="#cosmoss-scripting-differences-from-regular-ruby-scripting" aria-hidden="true"><span class="octicon octicon-link"></span></a>COSMOS’s Scripting Differences from Regular Ruby Scripting</h3>
+<h3 id="cosmos-scripting-differences-from-regular-ruby-scripting">
+<a id="cosmos-scripting-differences-from-regular-ruby-scripting" class="anchor" href="#cosmos-scripting-differences-from-regular-ruby-scripting" aria-hidden="true"><span class="octicon octicon-link"></span></a>COSMOS Scripting Differences from Regular Ruby Scripting</h3>
 
 <h4 id="do-not-use-single-line-if-statements">
 <a id="do-not-use-single-line-if-statements" class="anchor" href="#do-not-use-single-line-if-statements" aria-hidden="true"><span class="octicon octicon-link"></span></a>Do not use single line if statements</h4>
 
-<p>COSMOS scripting instruments each line to catch exceptions if things go wrong.  With single line if statements the exception handling doesn’t know which part of the statement failed and cannot properly continue.  If an exception is raised in a single line if statement then the entire script will stop and not be able to continue.  Do not use single line if statements in COSMOS scripts.   (However, they are fine to use in interfaces and other Ruby code, just not COSMOS scripts).</p>
+<p>COSMOS scripting instruments each line to catch exceptions if things go wrong. With single line if statements the exception handling doesn’t know which part of the statement failed and cannot properly continue. If an exception is raised in a single line if statement, then the entire script will stop and not be able to continue. Do not use single line if statements in COSMOS scripts. (However, they are fine to use in interfaces and other Ruby code, just not COSMOS scripts).</p>
 
-<p>Example (don’t do this):</p>
+<p>Don’t do this:</p>
 
 <div class="language-ruby highlighter-rouge">
 <pre class="highlight"><code><span class="n">run_method</span><span class="p">()</span> <span class="k">if</span> <span class="n">tlm</span><span class="p">(</span><span class="s2">"INST HEALTH_STATUS TEMP1"</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">10</span><span class="o">.</span><span class="mi">0</span>
@@ -4127,7 +4130,7 @@
 <span class="c1"># was misspelled</span>
 <span class="n">temp1</span> <span class="o">=</span> <span class="n">tlm</span><span class="p">(</span><span class="s2">"INST HEALTH_STATUS TEMP1"</span><span class="p">)</span>
 <span class="k">if</span> <span class="n">temp1</span> <span class="o">&gt;</span> <span class="mi">10</span><span class="o">.</span><span class="mi">0</span>
-  <span class="n">run_method</span><span class="p">()</span> 
+  <span class="n">run_method</span><span class="p">()</span>
 <span class="k">end</span>
 </code></pre>
 </div>
@@ -4135,7 +4138,7 @@
 <h4 id="methods-should-use-explicit-return-statements">
 <a id="methods-should-use-explicit-return-statements" class="anchor" href="#methods-should-use-explicit-return-statements" aria-hidden="true"><span class="octicon octicon-link"></span></a>Methods should use explicit return statements</h4>
 
-<p>In COSMOS 4.2 and earlier, COSMOS script instrumentation alters the implicit return value of each line.  Therefore, when returning from instrumented methods, an explicit “return” keyword should always be used (Normal Ruby will return the result of the last line of a method). Note: This issue has been resolved in COSMOS 4.3, but all earlier versions must use explicit returns.</p>
+<p>In COSMOS 4.2 and earlier, COSMOS script instrumentation alters the implicit return value of each line. Therefore, when returning from instrumented methods, an explicit “return” keyword should always be used (Normal Ruby will return the result of the last line of a method). Note: This issue has been resolved in COSMOS 4.3, but all earlier versions must use explicit returns.</p>
 
 <p>Don’t do this:</p>
 
@@ -4146,7 +4149,7 @@
 </code></pre>
 </div>
 
-<p>Do this:</p>
+<p>Do this instead:</p>
 
 <div class="language-ruby highlighter-rouge">
 <pre class="highlight"><code><span class="k">def</span> <span class="nf">add_one</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
@@ -4163,17 +4166,23 @@
 
 <p>There are three common reasons that checks fail in COSMOS scripts:</p>
 
-<p>(1.)	The delay given was too short</p>
+<ol>
+  <li>
+    <p>The delay given was too short</p>
 
-<p>The wait_check() function takes a timeout that indicates how long to wait for the referenced telemetry point to pass the check.   The timeout needs to be large enough for the system under test to finish its action and for updated telemetry to be received.  Note that the script will continue as soon as the check completes successfully. Thus, the only penalty for a longer timeout is the additional wait time in a failure condition.</p>
+    <p>The wait_check() function takes a timeout that indicates how long to wait for the referenced telemetry point to pass the check. The timeout needs to be large enough for the system under test to finish its action and for updated telemetry to be received. Note that the script will continue as soon as the check completes successfully. Thus, the only penalty for a longer timeout is the additional wait time in a failure condition.</p>
+  </li>
+  <li>
+    <p>The range or value checked against was incorrect or too stringent</p>
 
-<p>(2.)	The range or value checked against was incorrect or too stringent</p>
+    <p>Often the actual telemetry value is ok, but the expected value checked against was too tight. Loosen the ranges on checks when it makes sense. Ensure your script is using the wait_check_tolerance() routine when checking floating point numbers and verify you’re using an appropriate tolerance value.</p>
+  </li>
+  <li>
+    <p>The check really failed</p>
 
-<p>Often the actual telemetry value is ok, but the expected value checked against was too tight.  Loosen the ranges on checks when it makes sense. Ensure your script is using the wait_check_tolerance() routine when checking floating point numbers and verify you’re using an appropriate tolerance value.</p>
-
-<p>(3.)	The check really failed</p>
-
-<p>Of course, sometimes there are real failures.  See the next section for how to handle them and recover.</p>
+    <p>Of course, sometimes there are real failures. See the next section for how to handle them and recover.</p>
+  </li>
+</ol>
 
 <h3 id="how-to-recover-from-anomalies">
 <a id="how-to-recover-from-anomalies" class="anchor" href="#how-to-recover-from-anomalies" aria-hidden="true"><span class="octicon octicon-link"></span></a>How to Recover from Anomalies</h3>
@@ -4181,17 +4190,41 @@
 <p>Once something has failed, and your script has stopped with a pink highlighted line, how can you recover?  Fortunately, COSMOS provides several mechanisms that can be used to recover after something in your script fails.</p>
 
 <ol>
-  <li>Retry – After a failure, the ScriptRunner/TestRunner “Pause” button changes to “Retry”.  Clicking on the Retry button will re-execute the line the failed.  For failures due to timing issues, this will often resolve the issue and allow the script to continue. Make note of the failure and be sure to update your script prior to the next run.</li>
-  <li>Execute Selected Lines While Paused – Sometimes re-executing a command or a few other lines of a script can correct problems.  This can happen when commanding is over an unreliable transport layer such as UDP or a noisy serial line.   For these scenarios, users can highlight the lines of the script they want to run again, right-click, and select “Execute Selected Lines While Paused”.   This will run the selected lines again with the full script context (all required variables will still be in scope), and then return.   Afterwards you can retry the line that failed or just proceed with “Go”.</li>
-  <li>Use the Debug Prompt – By selecting Script -&gt; Toggle Debug, you can perform arbitrary actions that may be needed to correct the situation without stopping the running script.  You can also inspect variables to help determine why something failed.</li>
-  <li>Log Message to Script Log – Not necessarily a correction for a failure, but you can log notes or QA approval that occurred after a failure using Script -&gt; Log Message to Script Log.</li>
+  <li>
+    <p>Retry</p>
+
+    <p>After a failure, the ScriptRunner/TestRunner “Pause” button changes to “Retry”. Clicking on the Retry button will re-execute the line the failed. For failures due to timing issues, this will often resolve the issue and allow the script to continue. Make note of the failure and be sure to update your script prior to the next run.</p>
+  </li>
+  <li>
+    <p>Execute Selected Lines While Paused</p>
+
+    <p>Sometimes re-executing a command or a few other lines of a script can correct problems. This can happen when commanding is over an unreliable transport layer such as UDP or a noisy serial line. For these scenarios, users can highlight the lines of the script they want to run again, right-click, and select “Execute Selected Lines While Paused”. This will run the selected lines again with the full script context (all required variables will still be in scope), and then return. Afterwards you can retry the line that failed or just proceed with “Go”.</p>
+  </li>
+  <li>
+    <p>Use the Debug Prompt</p>
+
+    <p>By selecting Script -&gt; Toggle Debug, you can perform arbitrary actions that may be needed to correct the situation without stopping the running script. You can also inspect variables to help determine why something failed.</p>
+  </li>
+  <li>
+    <p>Log Message to Script Log</p>
+
+    <p>Not necessarily a correction for a failure, but you can log notes or QA approval that occurred after a failure using Script -&gt; Log Message to Script Log.</p>
+  </li>
 </ol>
 
 <p>If you do need to stop your script and restart, COSMOS also provides several methods to prevent restarting the script from the beginning.</p>
 
 <ol>
-  <li>Execute From Cursor – By clicking into a script, and right clicking to select “Execute From Cursor”, users can restart a script at an arbitrary point.  This works well if no required variable definitions exist earlier in the script.  A workaround can be to start using “Execute from Cursor”, immediately pause (by hitting pause or by previously setting a breakpoint), and then “Run Selected Lines While Paused” to bring in the necessary variable declarations.</li>
-  <li>Execute Selected Lines – If only a small section of a script needs to be run, then “Execute Selected Lines” can be used to execute only a small portion of the script.</li>
+  <li>
+    <p>Execute From Cursor</p>
+
+    <p>By clicking into a script, and right clicking to select “Execute From Cursor”, users can restart a script at an arbitrary point. This works well if no required variable definitions exist earlier in the script. A workaround can be to start using “Execute from Cursor”, immediately pause (by hitting pause or by previously setting a breakpoint), and then “Run Selected Lines While Paused” to bring in the necessary variable declarations.</p>
+  </li>
+  <li>
+    <p>Execute Selected Lines</p>
+
+    <p>If only a small section of a script needs to be run, then “Execute Selected Lines” can be used to execute only a small portion of the script.</p>
+  </li>
 </ol>
 
 <h2 id="advanced-topics">
@@ -4223,42 +4256,14 @@
 <h3 id="script-specific-screens">
 <a id="script-specific-screens" class="anchor" href="#script-specific-screens" aria-hidden="true"><span class="octicon octicon-link"></span></a>Script specific screens</h3>
 
-<p>Starting with COSMOS 4.3, script writers can include temporary screens in their COSMOS scripts that show just the specific values relative to the script.  They can even display local variables as shown below.  This can be a fantastic way to display just the telemetry that is specifically relevant to what you are operating or testing.  Screen definitions take the same format as normal COSMOS screens with the addition of using target name LOCAL and packet name LOCAL to gain access to script local variables.</p>
-
-<div class="language-ruby highlighter-rouge">
-<pre class="highlight"><code><span class="n">temp</span> <span class="o">=</span> <span class="mi">0</span>
-<span class="n">screen</span> <span class="o">=</span> <span class="n">local_screen</span><span class="p">(</span><span class="s1">'Title'</span><span class="p">)</span> <span class="k">do</span>
-<span class="s1">'
-  SCREEN AUTO AUTO 0.1 FIXED
-
-  VERTICAL
-    TITLE "Local Variable and Target Display"
-
-    VERTICALBOX
-      LABELVALUE LOCAL LOCAL temp
-      LABELVALUE INST ADCS POSX
-      LABELVALUE INST ADCS TIMEFORMATTED WITH_UNITS 30
-    END
-  END
-'</span>
-<span class="k">end</span>
-
-<span class="n">disable_instrumentation</span> <span class="k">do</span>
-  <span class="mi">5000000</span><span class="p">.</span><span class="nf">times</span> <span class="k">do</span>
-    <span class="n">temp</span> <span class="o">+=</span> <span class="mi">1</span>
-  <span class="k">end</span>
-<span class="k">end</span>
-
-<span class="n">screen</span><span class="p">.</span><span class="nf">close</span>
-</code></pre>
-</div>
+<p>Starting with COSMOS 4.3, script writers can include temporary screens in their COSMOS scripts that show just the specific values relative to the script. They can even display local variables as shown below. This can be a fantastic way to display just the telemetry that is specifically relevant to what you are operating or testing. Screen definitions take the same format as normal COSMOS screens with the addition of using target name LOCAL and packet name LOCAL to gain access to script local variables. See the <a href="/docs/scripting/#local_screen-since-430">local_screen</a> documentation in the <a href="/docs/scripting">Scripting Guide</a>.</p>
 
 <h3 id="when-to-use-modules">
 <a id="when-to-use-modules" class="anchor" href="#when-to-use-modules" aria-hidden="true"><span class="octicon octicon-link"></span></a>When to use Modules</h3>
 
-<p>Modules in Ruby have two purposes: namespacing and mixins.  Namespacing allows having classes and methods with the same name, but with different meanings.  For example if they are namespaced, COSMOS can have a Packet class and another Ruby library can have a Packet class.  This isn’t typically useful for COSMOS scripting though.</p>
+<p>Modules in Ruby have two purposes: namespacing and mixins. Namespacing allows having classes and methods with the same name, but with different meanings. For example, if they are namespaced, COSMOS can have a Packet class and another Ruby library can have a Packet class. This isn’t typically useful for COSMOS scripting though.</p>
 
-<p>Mixins allow adding common methods to classes without using inheritance.  Mixins can be useful in TestRunner to add common functionality to some Test classes but not others, or to break up Test classes into multiple files.</p>
+<p>Mixins allow adding common methods to classes without using inheritance. Mixins can be useful in TestRunner to add common functionality to some Test classes but not others, or to break up Test classes into multiple files.</p>
 
 <div class="language-ruby highlighter-rouge">
 <pre class="highlight"><code><span class="k">module</span> <span class="nn">MyModule</span>
@@ -4277,7 +4282,7 @@
 <h2 id="further-reading">
 <a id="further-reading" class="anchor" href="#further-reading" aria-hidden="true"><span class="octicon octicon-link"></span></a>Further Reading</h2>
 
-<p>Please see the <a href="/docs/scripting">COSMOS Scripting Guide</a> for the full list of available scripting methods provided by COSMOS.</p>
+<p>Please see the <a href="/docs/scripting">Scripting Guide</a> for the full list of available scripting methods provided by COSMOS.</p>
 
 
           
