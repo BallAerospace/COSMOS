@@ -8,52 +8,100 @@
 # as published by the Free Software Foundation; version 3 with
 # attribution addendums as found in the LICENSE.txt
 
-# This file contains the implementation of the CanvasimagevalueWidget class.  This
-# widget displays one of two images within a CanvasWidget.  The image displayed
-# is either '[filename]on.gif' or '[filename]off.gif' depending on the
-# telemetry point value of 1 or 0 respectively.
+# This file contains the implementation of the CanvasimagevalueWidget class.
+# The widget displays a default image but users should use the SETTING IMAGE
+# option to set the images to display for a given value.
 
 require 'cosmos/tools/tlm_viewer/widgets/canvasvalue_widget'
 require 'cosmos/tools/tlm_viewer/widgets/canvas_clickable'
 
 module Cosmos
-  class CanvasimagevalueWidget < CanvasvalueWidget
+  class CanvasimagevalueWidget #< CanvasvalueWidget
+    include Widget
     include CanvasClickable
-    
-    def initialize(parent_layout, target_name, packet_name, item_name, filename, x, y, value_type = :RAW)
-      super(parent_layout, target_name, packet_name, item_name, value_type)
-      @x = x.to_i
-      @y = y.to_i
-      @image_on = nil
-      @image_off = nil
 
-      filenameOn = Dir[File.join(::Cosmos::USERPATH, 'config', 'data', filename + 'on.*')][0]
-      unless File.exist?(filenameOn)
-        raise "Can't find the file #{filenameOn} in #{::Cosmos::USERPATH}/config/data"
-      end
-      @image_on = Qt::Image.new(filenameOn)
+    def initialize(parent_layout, target_name, packet_name, item_name, value_type = :CONVERTED, default_image = nil, x = nil, y = nil)
+      super(target_name, packet_name, item_name, value_type)
+      @images = []
+      @target_screen_dir = File.join(::Cosmos::USERPATH, 'config', 'targets', target_name.upcase, 'screens')
+      @cosmos_data_dir = File.join(::Cosmos::USERPATH, 'config', 'data')
 
-      filenameOff = Dir[File.join(::Cosmos::USERPATH, 'config', 'data', filename + 'off.*')][0]
-      unless File.exist?(filenameOff)
-        raise "Can't find the file #{filenameOff} in #{::Cosmos::USERPATH}/config/data"
+      if default_image
+        @default_image = get_image(default_image)
+        @default_x = Integer(x)
+        @default_y = Integer(y)
       end
-      @image_off = Qt::Image.new(filenameOff)
-      @x_end = @x + [@image_on.width, @image_off.width].max
-      @y_end = @y + [@image_on.height, @image_off.height].max
+
+      @parent_layout = parent_layout
+      @parent_layout.add_repaint(self)
     end
 
-    def draw_widget(painter, on_value)
-      if on_value
-        painter.drawImage(@x, @y, @image_on) if @image_on
-      else
-        painter.drawImage(@x, @y, @image_off) if @image_off
-      end
+    def self.takes_value?
+      return true
+    end
+
+    def paint(painter)
+      eval(@eval)
     end
 
     def dispose
       super()
-      @image_on.dispose
-      @image_off.dispose
+      @images.each {|image| image.dispose }
+      @default_image.dispose if @default_image
+    end
+
+    def set_setting(setting_name, setting_values)
+      if setting_name.upcase == 'RAW'
+        @settings['RAW'] = [@settings['RAW'][0] + setting_values[0]]
+      # Allow for multiple IMAGE settings by deconflicting the hash key by appending the value
+      elsif setting_name.upcase == 'IMAGE'
+        @settings["#{setting_name.to_s.upcase}_#{setting_values[0]}"] = setting_values
+      else
+        @settings[setting_name.to_s.upcase] = setting_values
+      end
+    end
+
+    def process_settings
+      super
+      @eval = 'case @value;'
+      @settings.each do |setting_name, setting_values|
+        begin
+          case setting_name
+          when /IMAGE/
+            @images << get_image(setting_values[1])
+            value_string = setting_values[0]
+            value = nil
+            begin
+              value = Integer(value_string)
+            rescue
+              if value_string.include?('..') # Range
+                value = Range.new(*value_string.split("..").map(&:to_i))
+              else
+                value = "'#{value_string}'"
+              end
+            end
+            @eval << "when #{value} then painter.drawImage(#{setting_values[2]}, #{setting_values[3]}, @images[#{@images.length-1}]);"
+          end
+        rescue => err
+          puts "Error Processing Settings!: #{err}"
+        end
+      end
+      if @default_image
+        @eval << "else painter.drawImage(@default_x, @default_y, @default_image);"
+      end
+      @eval << "end"
+    end
+
+    protected
+
+    def get_image(image_name)
+      if File.exist?(File.join(@target_screen_dir, image_name))
+        return Qt::Image.new(File.join(@target_screen_dir, image_name))
+      elsif File.exist?(File.join(@cosmos_data_dir, image_name))
+        return Qt::Image.new(File.join(@cosmos_data_dir, image_name))
+      else
+        raise "Can't find the file #{image_name} in #{@target_screen_dir} or #{@cosmos_data_dir}"
+      end
     end
   end
 end
