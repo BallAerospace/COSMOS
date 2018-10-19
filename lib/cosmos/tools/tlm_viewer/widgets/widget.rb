@@ -258,5 +258,20 @@ module Cosmos
       point.dispose
       menu.dispose
     end
+
+    # Requires the @screen to be set so must not be called in initialize()
+    def get_image(image_name)
+      return nil unless @screen
+      target_screen_dir = File.join(::Cosmos::USERPATH, 'config', 'targets', @screen.original_target_name.upcase, 'screens')
+      cosmos_data_dir = File.join(::Cosmos::USERPATH, 'config', 'data')
+
+      if File.exist?(File.join(target_screen_dir, image_name))
+        return Qt::Image.new(File.join(target_screen_dir, image_name))
+      elsif File.exist?(File.join(cosmos_data_dir, image_name))
+        return Qt::Image.new(File.join(cosmos_data_dir, image_name))
+      else
+        raise "Can't find the file #{image_name} in #{target_screen_dir} or #{cosmos_data_dir}"
+      end
+    end
   end
 end

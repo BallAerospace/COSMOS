@@ -16,31 +16,33 @@ require 'cosmos/tools/tlm_viewer/widgets/canvasvalue_widget'
 require 'cosmos/tools/tlm_viewer/widgets/canvas_clickable'
 
 module Cosmos
-  class CanvasimagevalueWidget #< CanvasvalueWidget
+  class CanvasimagevalueWidget < CanvasvalueWidget
     include Widget
     include CanvasClickable
 
-    def initialize(parent_layout, target_name, packet_name, item_name, value_type = :CONVERTED, default_image = nil, x = nil, y = nil)
-      super(target_name, packet_name, item_name, value_type)
+    def initialize(parent_layout, target_name, packet_name, item_name, value_type = :RAW, default_image = nil, x = nil, y = nil)
+      super(parent_layout, target_name, packet_name, item_name, value_type)
       @images = []
-      @target_screen_dir = File.join(::Cosmos::USERPATH, 'config', 'targets', target_name.upcase, 'screens')
-      @cosmos_data_dir = File.join(::Cosmos::USERPATH, 'config', 'data')
-
       if default_image
-        @default_image = get_image(default_image)
+        @default_image_name = default_image
         @default_x = Integer(x)
         @default_y = Integer(y)
       end
-
-      @parent_layout = parent_layout
-      @parent_layout.add_repaint(self)
-    end
-
-    def self.takes_value?
-      return true
     end
 
     def paint(painter)
+      if @values.length > 1
+        eval_string = "1"
+        # This code uses the booleans set by the process_settings function and evaluates it to logically determine
+        # if the item should be drawn on the canvas as "on" or "off".
+        @item_settings.each_with_index do |item, index|
+          next if @values[index].to_f.nan? || @values[index].to_f.infinite?
+          eval_string << " " << item[0].to_s << " (" << @values[index].to_s << " " << item[1].to_s << " " << item[2].to_s << ")"
+        end
+        @value = eval(eval_string)
+      else
+        @value = @values[0]
+      end
       eval(@eval)
     end
 
@@ -51,13 +53,11 @@ module Cosmos
     end
 
     def set_setting(setting_name, setting_values)
-      if setting_name.upcase == 'RAW'
-        @settings['RAW'] = [@settings['RAW'][0] + setting_values[0]]
       # Allow for multiple IMAGE settings by deconflicting the hash key by appending the value
-      elsif setting_name.upcase == 'IMAGE'
+      if setting_name.upcase == 'IMAGE'
         @settings["#{setting_name.to_s.upcase}_#{setting_values[0]}"] = setting_values
       else
-        @settings[setting_name.to_s.upcase] = setting_values
+        super(setting_name, setting_values)
       end
     end
 
@@ -68,40 +68,38 @@ module Cosmos
         begin
           case setting_name
           when /IMAGE/
-            @images << get_image(setting_values[1])
             value_string = setting_values[0]
-            value = nil
-            begin
-              value = Integer(value_string)
-            rescue
-              if value_string.include?('..') # Range
-                value = Range.new(*value_string.split("..").map(&:to_i))
-              else
+            @images << get_image(setting_values[1])
+            x = setting_values[2]
+            y = setting_values[3]
+
+            case value_string.upcase
+            when 'TRUE'
+              value = true
+            when 'FALSE'
+              value = false
+            when /\d\.\.\d/ # Range
+              value = Range.new(*value_string.split("..").map(&:to_i))
+            else
+              begin
+                value = Float(value_string)
+              rescue
                 value = "'#{value_string}'"
               end
             end
-            @eval << "when #{value} then painter.drawImage(#{setting_values[2]}, #{setting_values[3]}, @images[#{@images.length-1}]);"
+            @eval << "when #{value} then painter.drawImage(#{x}, #{y}, @images[#{@images.length-1}]);"
+            @eval << "@x=#{x};@y=#{y};@x_end=@x+@images[#{@images.length-1}].width;@y_end=@y+@images[#{@images.length-1}].height;"
           end
         rescue => err
           puts "Error Processing Settings!: #{err}"
         end
       end
-      if @default_image
+      if @default_image_name
+        @default_image = get_image(@default_image_name)
         @eval << "else painter.drawImage(@default_x, @default_y, @default_image);"
+        @eval << "@x=@default_x;@y=@default_y;@x_end=@x+@default_image.width;@y_end=@y+@default_image.height;"
       end
       @eval << "end"
-    end
-
-    protected
-
-    def get_image(image_name)
-      if File.exist?(File.join(@target_screen_dir, image_name))
-        return Qt::Image.new(File.join(@target_screen_dir, image_name))
-      elsif File.exist?(File.join(@cosmos_data_dir, image_name))
-        return Qt::Image.new(File.join(@cosmos_data_dir, image_name))
-      else
-        raise "Can't find the file #{image_name} in #{@target_screen_dir} or #{@cosmos_data_dir}"
-      end
     end
   end
 end

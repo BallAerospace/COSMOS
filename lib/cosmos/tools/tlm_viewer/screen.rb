@@ -23,7 +23,7 @@ module Cosmos
     # close_all_screens is called
     @@open_screens = []
 
-    attr_accessor :full_name, :width, :height, :window, :replay_flag
+    attr_accessor :full_name, :width, :height, :window, :replay_flag, :original_target_name
 
     include ClassificationBanner
 
