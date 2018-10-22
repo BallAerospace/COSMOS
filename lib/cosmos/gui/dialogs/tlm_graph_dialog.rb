@@ -28,7 +28,7 @@ module Cosmos
     # @param target_name [String] Name of the target
     # @param packet_name [String] Name of the packet
     # @param item_name [String] Name of the item
-    def initialize(parent, target_name, packet_name, item_name)
+    def initialize(parent, target_name, packet_name, item_name, replay = false)
       packet, item = System.telemetry.packet_and_item(target_name, packet_name, item_name)
 
       num_array_elements = 0
@@ -101,7 +101,9 @@ module Cosmos
 
       # Start grapher if necessary
       if !item_string.empty?
-        Cosmos.run_cosmos_tool("TlmGrapher", "#{item_string} --system #{File.basename(System.initial_filename)}")
+        options = "#{item_string} --system #{File.basename(System.initial_filename)}"
+        options += " --replay" if replay
+        Cosmos.run_cosmos_tool("TlmGrapher", options)
       end
     end
   end

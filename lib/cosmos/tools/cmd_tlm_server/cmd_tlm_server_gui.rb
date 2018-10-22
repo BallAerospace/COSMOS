@@ -262,7 +262,7 @@ module Cosmos
       end
       @targets_tab = TargetsTab.new(@tab_widget)
       @commands_tab = PacketsTab.new(self, PacketsTab::COMMANDS, @tab_widget)
-      @telemetry_tab = PacketsTab.new(self, PacketsTab::TELEMETRY, @tab_widget)
+      @telemetry_tab = PacketsTab.new(self, PacketsTab::TELEMETRY, @tab_widget, (@mode == :REPLAY))
       @routers_tab = InterfacesTab.new(self, InterfacesTab::ROUTERS, @tab_widget)
       if @mode == :CMD_TLM_SERVER
         @logging_tab = LoggingTab.new(@production, @tab_widget)
