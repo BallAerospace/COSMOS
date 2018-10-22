@@ -17,7 +17,6 @@ require 'cosmos/tools/tlm_viewer/widgets/canvas_clickable'
 
 module Cosmos
   class CanvasimagevalueWidget < CanvasvalueWidget
-    include Widget
     include CanvasClickable
 
     def initialize(parent_layout, target_name, packet_name, item_name, value_type = :RAW, default_image = nil, x = nil, y = nil)
