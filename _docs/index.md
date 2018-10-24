@@ -9,7 +9,7 @@ as getting your configuration up and running, developing test and operations scr
 building custom telemetry screens, and give you some advice on participating in the future
 development of COSMOS itself.
 
-[Click here for a PDF version of this webpage]({{ site.url }}/assets/COSMOS_Docs_7_21_2015.pdf)
+[Click here for a PDF version of this webpage]({{ site.url }}/assets/COSMOS_Docs_10_24_2018.pdf)
 
 ## So what is Ball Aerospace COSMOS, exactly?
 
