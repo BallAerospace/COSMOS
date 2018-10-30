@@ -114,6 +114,30 @@ module Cosmos
             tf.unlink
           end
         end
+        
+        it "builds the id value hash" do
+          @tlm_keywords.each do |keyword|
+            next if %w(PROCESSOR META).include? keyword
+            tf = Tempfile.new('unittest')
+            tf.puts 'TELEMETRY tgt1 pkt1 BIG_ENDIAN "Packet"'
+            tf.puts 'ID_ITEM myitem 0 8 UINT 13 "Test Item id=1"'
+            tf.puts 'APPEND_ID_ITEM myitem 8 UINT 114 "Test Item id=1"'
+            tf.puts 'COMMAND tgt1 pkt1 BIG_ENDIAN "Packet"'
+            tf.puts 'ID_PARAMETER myitem 0 8 UINT 12 12 12 "Test Item id=1"'
+            tf.puts 'APPEND_ID_PARAMETER myitem 8 UINT 115 115 115 "Test Item id=1"'
+            tf.close
+            @pc.process_file(tf.path, "TGT1")
+            expected_tlm_hash = {}
+            expected_tlm_hash["TGT1"] = {}
+            expected_tlm_hash["TGT1"][[13, 114]] = @pc.telemetry["TGT1"]["PKT1"]
+            expected_cmd_hash = {}
+            expected_cmd_hash["TGT1"] = {}
+            expected_cmd_hash["TGT1"][[12, 115]] = @pc.commands["TGT1"]["PKT1"]            
+            expect(@pc.tlm_id_value_hash).to eql expected_tlm_hash
+            expect(@pc.cmd_id_value_hash).to eql expected_cmd_hash
+            tf.unlink
+          end          
+        end
 
         it "complains if there are too many parameters" do
           @top_keywords.each do |keyword|

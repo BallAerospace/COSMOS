@@ -257,6 +257,29 @@ module Cosmos
         expect(pkt.item3).to eql 6.0
         expect(pkt.item4).to eql 8.0
       end
+      
+      it "works in unique id mode and not" do
+        System.targets["TGT1"] = Target.new("TGT1")
+        target = System.targets["TGT1"]
+        buffer = "\x01\x02\x03\x04"
+        target.tlm_unique_id_mode = false
+        pkt = @tlm.identify!(buffer,["TGT1"])
+        pkt.enable_method_missing
+        expect(pkt.item1).to eql 1
+        expect(pkt.item2).to eql 2
+        expect(pkt.item3).to eql 6.0
+        expect(pkt.item4).to eql 8.0
+        buffer = "\x01\x02\x01\x02"
+        target.tlm_unique_id_mode = true
+        @tlm.identify!(buffer,["TGT1"])
+        pkt = @tlm.packet("TGT1","PKT1")
+        pkt.enable_method_missing
+        expect(pkt.item1).to eql 1
+        expect(pkt.item2).to eql 2
+        expect(pkt.item3).to eql 2.0
+        expect(pkt.item4).to eql 4.0        
+        target.tlm_unique_id_mode = false
+      end      
 
       it "returns nil with unknown targets given" do
         buffer = "\x01\x02\x03\x04"

@@ -195,7 +195,7 @@ module Cosmos
         last_item = @sorted_items[-1]
         @sorted_items << item
         # If the current item or last item have a negative offset then we have
-        # to re-sort. We also re-sort if the current item is less than the less
+        # to re-sort. We also re-sort if the current item is less than the last
         # item because we are inserting.
         if last_item.bit_offset <= 0 or item.bit_offset <= 0 or item.bit_offset < last_item.bit_offset
           @sorted_items = @sorted_items.sort

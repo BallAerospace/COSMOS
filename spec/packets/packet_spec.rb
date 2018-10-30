@@ -828,12 +828,26 @@ module Cosmos
       it "returns an array of the identifying items" do
         p = Packet.new("tgt","pkt")
         p.define_item("item1",0,32,:FLOAT,nil,:BIG_ENDIAN,:ERROR,"%5.1f",nil,nil,nil)
-        p.define_item("item2",0,32,:FLOAT,nil,:BIG_ENDIAN,:ERROR,"%5.1f",nil,nil,5)
-        p.define_item("item3",0,32,:FLOAT,nil,:BIG_ENDIAN,:ERROR,"%5.1f",nil,nil,nil)
-        p.define_item("item4",0,32,:FLOAT,nil,:BIG_ENDIAN,:ERROR,"%5.1f",nil,nil,6)
+        p.define_item("item2",64,32,:FLOAT,nil,:BIG_ENDIAN,:ERROR,"%5.1f",nil,nil,5)
+        p.define_item("item3",96,32,:FLOAT,nil,:BIG_ENDIAN,:ERROR,"%5.1f",nil,nil,nil)
+        p.define_item("item4",32,32,:FLOAT,nil,:BIG_ENDIAN,:ERROR,"%5.1f",nil,nil,6)        
         expect(p.id_items).to be_a Array
-        expect(p.id_items[0].name).to eq "ITEM2"
-        expect(p.id_items[1].name).to eq "ITEM4"
+        expect(p.id_items[0].name).to eq "ITEM4"
+        expect(p.id_items[1].name).to eq "ITEM2"
+      end
+    end
+
+    describe "read_id_values" do
+      it "to read the right values" do
+        buffer = "\x00\x00\x00\x04\x00\x00\x00\x03\x00\x00\x00\x02\x00\x00\x00\x01"
+        p = Packet.new("tgt","pkt")
+        p.define_item("item1",0,32,:UINT,nil,:BIG_ENDIAN,:ERROR,nil,nil,nil,nil)
+        p.define_item("item2",64,32,:UINT,nil,:BIG_ENDIAN,:ERROR,nil,nil,nil,5)
+        p.define_item("item3",96,32,:UINT,nil,:BIG_ENDIAN,:ERROR,nil,nil,nil,nil)
+        p.define_item("item4",32,32,:UINT,nil,:BIG_ENDIAN,:ERROR,nil,nil,nil,6)
+        values = p.read_id_values(buffer)
+        expect(values[0]).to eq 3
+        expect(values[1]).to eq 2
       end
     end
 

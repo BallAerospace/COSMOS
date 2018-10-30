@@ -266,17 +266,33 @@ module Cosmos
       target_names = target_names() unless target_names
 
       target_names.each do |target_name|
+        target_name = target_name.to_s.upcase
+        
         target_packets = nil
         begin
           target_packets = packets(target_name)
+          #puts target_packets.length
         rescue RuntimeError
           # No telemetry for this target
           next
         end
 
-        # Iterate through the packets and see if any represent the buffer
-        target_packets.each do |packet_name, packet|
-          return packet if packet.identify?(packet_data)
+        target = System.targets[target_name]
+        if target and target.tlm_unique_id_mode
+          # Iterate through the packets and see if any represent the buffer
+          target_packets.each do |packet_name, packet|
+            return packet if packet.identify?(packet_data)
+          end
+        else
+          # Do a hash lookup to quickly identify the packet
+          if target_packets.length > 0
+            packet = target_packets.first[1]
+            key = packet.read_id_values(packet_data)
+            hash = @config.tlm_id_value_hash[target_name]
+            identified_packet = hash[key]
+            identified_packet = hash['CATCHALL'.freeze] unless identified_packet
+            return identified_packet if identified_packet
+          end
         end
       end
 

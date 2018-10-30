@@ -90,6 +90,7 @@ module Cosmos
       end
 
       it "reads telemetry data from the stream" do
+        target = System.targets['SYSTEM']
         @interface.add_protocol(FixedProtocol, [1], :READ_WRITE)
         @interface.instance_variable_set(:@stream, FixedStream.new)
         @interface.target_names = ['SYSTEM']
@@ -103,6 +104,7 @@ module Cosmos
         expect(packet.received_time.to_f).to be_within(0.1).of(Time.now.to_f)
         expect(packet.target_name).to eql 'SYSTEM'
         expect(packet.packet_name).to eql 'LIMITS_CHANGE'
+        target.tlm_unique_id_mode = true
         $index = 1
         packet = @interface.read
         expect(packet.received_time.to_f).to be_within(0.1).of(Time.now.to_f)
@@ -113,9 +115,11 @@ module Cosmos
         expect(packet.received_time.to_f).to be_within(0.1).of(Time.now.to_f)
         expect(packet.target_name).to eql 'SYSTEM'
         expect(packet.packet_name).to eql 'LIMITS_CHANGE'
+        target.tlm_unique_id_mode = false
       end
 
       it "reads command data from the stream" do
+        target = System.targets['SYSTEM']
         $index = 0
         class FixedStream2 < Stream
           def connect; end
@@ -123,7 +127,6 @@ module Cosmos
           def read
             case $index
             when 0
-              $index += 1
               "\x1A\xCF\xFC\x1D\x00\x00\x00\x02"
             else
               "\x00\x00\x00\x00\x00\x00\x00\x00"
@@ -133,10 +136,17 @@ module Cosmos
         @interface.add_protocol(FixedProtocol, [8, 0, '0x1ACFFC1D', false], :READ_WRITE)
         @interface.instance_variable_set(:@stream, FixedStream2.new)
         @interface.target_names = ['SYSTEM']
+        target.cmd_unique_id_mode = false
         packet = @interface.read
         expect(packet.received_time.to_f).to be_within(0.01).of(Time.now.to_f)
         expect(packet.target_name).to eql 'SYSTEM'
         expect(packet.packet_name).to eql 'STARTLOGGING'
+        target.cmd_unique_id_mode = true
+        packet = @interface.read
+        expect(packet.received_time.to_f).to be_within(0.01).of(Time.now.to_f)
+        expect(packet.target_name).to eql 'SYSTEM'
+        expect(packet.packet_name).to eql 'STARTLOGGING'        
+        target.cmd_unique_id_mode = false
       end
     end
   end
