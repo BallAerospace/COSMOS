@@ -15,10 +15,8 @@ require 'cosmos'
 require 'cosmos/tools/tlm_viewer/widgets/textbox_widget'
 
 module Cosmos
-
   class BlockWidget < TextboxWidget
-
-    def initialize (parent_layout, target_name, packet_name, item_name, width = 200, height = 100, format_string = "%02X", bytes_per_word = 4, words_per_row = 4, addr_format = nil, value_type = :RAW)
+    def initialize(parent_layout, target_name, packet_name, item_name, width = 200, height = 100, format_string = "%02X", bytes_per_word = 4, words_per_row = 4, addr_format = nil, value_type = :RAW)
       super(parent_layout, target_name, packet_name, item_name, width, height, value_type)
       @format_string = format_string.to_s
       @bytes_per_word = bytes_per_word.to_i
@@ -53,5 +51,4 @@ module Cosmos
       text
     end
   end
-
-end # module Cosmos
+end
