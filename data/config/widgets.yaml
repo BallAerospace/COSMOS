@@ -59,6 +59,14 @@ MATRIXBYCOLUMNS:
       required: true
       description: The number of columns to create
       values: .*
+    - name: Horizontal spacing
+      required: false
+      description: Horizontal spacing between matix items in pixels (default = 0)
+      values: .*
+    - name: Vertical spacing
+      required: false
+      description: Vertical spacing between matrix items in pixels (default = 0)
+      values: .*
 SCROLLWINDOW:
   summary: Places the widgets inside of it into a scrollable
     area. The SCROLLWINDOW widget sizes itself to fit the screen in which it is contained.

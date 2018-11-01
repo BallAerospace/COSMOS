@@ -1,6 +1,6 @@
 ---
 <%= MetaConfigParser.load('script_runner.yaml').to_meta_config_yaml(0) %>
-LOAD_UTILITY:
+REQUIRE_UTILITY:
   summary: Specify a test procedure to run
   description: Procedures will be found automatically in the procedures directory
     or can be given by a path relative to the COSMOS install directory or by an
@@ -15,8 +15,6 @@ LOAD_UTILITY:
       required: true
       description: Name of the test file in quotes
       values: '.+\.rb'
-REQUIRE_UTILITY:
-  summary: DEPRECATED in favor of LOAD_UTILITY
 RESULTS_WRITER:
   summary: Specify a different Ruby file to interpret and print the Test Runner results
   description: The specified Ruby file must define a class which implements the
