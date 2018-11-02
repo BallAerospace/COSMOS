@@ -18,6 +18,8 @@ module Cosmos
     def initialize
       super()
       @name = 'Example Background Task'
+      # Create Sleeper here in case the task is stopped before call is executed
+      @sleeper = Sleeper.new
     end
 
     def call
