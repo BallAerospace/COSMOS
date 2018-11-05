@@ -257,6 +257,11 @@ module Cosmos
       @script_call_stack.connect(SIGNAL('triggered()')) { script_call_stack() }
       @script_call_stack.setEnabled(false)
 
+      @script_error_backtrace = Qt::Action.new('Show Error Backtrace', self)
+      @script_error_backtrace.statusTip = 'Show Error Backtrace from the last encountered exception'
+      @script_error_backtrace.connect(SIGNAL('triggered()')) { ScriptRunnerFrame.show_backtrace = true }
+      @script_error_backtrace.setEnabled(false)
+
       @script_debug = Qt::Action.new(Cosmos.get_icon('bug.png'), 'Toggle &Debug', self)
       @script_debug_keyseq = Qt::KeySequence.new('Ctrl+D')
       @script_debug.shortcut  = @script_debug_keyseq
@@ -334,6 +339,7 @@ module Cosmos
       view_menu.addSeparator()
       view_menu.addAction(@script_log_message)
       view_menu.addAction(@script_call_stack)
+      view_menu.addAction(@script_error_backtrace)
       view_menu.addAction(@script_debug)
       view_menu.addAction(@script_disconnect)
 
@@ -737,6 +743,7 @@ module Cosmos
       # Disable Script Runtime Items'
       @script_log_message.setEnabled(false)
       @script_call_stack.setEnabled(false)
+      @script_error_backtrace.setEnabled(false)
     end
 
     def disable_menu_items
@@ -769,6 +776,7 @@ module Cosmos
       # Enable Script Runtime Items
       @script_log_message.setEnabled(true)
       @script_call_stack.setEnabled(true)
+      @script_error_backtrace.setEnabled(true)
     end
 
     # Handle the user changing tabs

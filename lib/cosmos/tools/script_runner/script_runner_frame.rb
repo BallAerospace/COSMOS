@@ -1008,29 +1008,18 @@ module Cosmos
         end
         @debug_frame.addWidget(@debug_text)
 
-        @backtrace_button = Qt::PushButton.new('Error Backtrace')
-        @backtrace_button.connect(SIGNAL('clicked(bool)')) do
-          @backtrace_button.setEnabled(false)
-          show_backtrace()
-          # Wait for the backtrace to be processed off the output IO string
-          while @output_io.string[-1..-1] == "\n"
-            Qt::CoreApplication.processEvents()
-          end
-          @backtrace_button.setEnabled(true)
-        end
-        @debug_frame.addWidget(@backtrace_button)
-
-        @methods_button = Qt::PushButton.new('Locals')
-        @methods_button.connect(SIGNAL('clicked(bool)')) do
-          @methods_button.setEnabled(false)
+        @locals_button = Qt::PushButton.new('Locals')
+        @locals_button.connect(SIGNAL('clicked(bool)')) do
+          next unless @script_binding
+          @locals_button.setEnabled(false)
           vars = @script_binding.local_variables.map(&:to_s)
           puts "Locals: #{vars.reject {|x| INSTANCE_VARS.include?(x)}.sort.join(', ')}"
           while @output_io.string[-1..-1] == "\n"
             Qt::CoreApplication.processEvents()
           end
-          @methods_button.setEnabled(true)
+          @locals_button.setEnabled(true)
         end
-        @debug_frame.addWidget(@methods_button)
+        @debug_frame.addWidget(@locals_button)
 
         @bottom_frame.layout.addLayout(@debug_frame)
       end
