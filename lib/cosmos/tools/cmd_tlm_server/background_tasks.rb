@@ -43,6 +43,8 @@ module Cosmos
         rescue Exception => err
           Logger.error "Background Task '#{@config.background_tasks[index].name}' unexpectedly died"
           Cosmos.handle_fatal_exception(err)
+        ensure
+          @threads[index] = nil # Remove thread reference
         end
       end
     end
