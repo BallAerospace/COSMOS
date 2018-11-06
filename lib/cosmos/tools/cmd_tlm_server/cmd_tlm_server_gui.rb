@@ -270,7 +270,7 @@ module Cosmos
     end
 
     def config_change_callback
-      CmdTlmServer.instance.map_targets_to_interfaces
+      CmdTlmServer.instance.replay_map_targets_to_interfaces
       start(nil)
     end
 

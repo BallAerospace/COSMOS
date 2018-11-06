@@ -240,7 +240,16 @@ module Cosmos
     # Map any targets without interfaces to the dummy replay interface.
     # Targets will only have an interface already mapped if the replay_routers
     # flag was passed to the server.
-    def map_targets_to_interfaces
+    def replay_map_targets_to_interfaces
+      # Try to map existing interfaces to targets
+      if @interfaces
+        @interfaces.all.each do |name, interface|
+          interface.target_names.each do |target|
+            System.targets[target] = interface
+          end
+        end
+      end
+      # If any remaing targets don't have an interface map to the @replay_interface
       System.targets.each do |name, target|
         target.interface = @replay_interface unless target.interface
       end
