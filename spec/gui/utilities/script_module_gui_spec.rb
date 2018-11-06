@@ -18,6 +18,7 @@ if RUBY_ENGINE == 'ruby'
     describe Script do
       describe "combo_box" do
         it "should not modify the button inputs" do
+          expect(self).to receive(:gets) { ' ' }
           capture_io do |stdout|
             buttons = %w(THIS IS A TEST)
             combo_box("Combo box test", *buttons)
@@ -27,6 +28,7 @@ if RUBY_ENGINE == 'ruby'
         end
 
         it "should display details" do
+          expect(self).to receive(:gets) { ' ' }
           capture_io do |stdout|
             buttons = %w(THIS IS A TEST)
             combo_box("HI", *buttons, details: 'These are the details')
@@ -37,6 +39,7 @@ if RUBY_ENGINE == 'ruby'
 
       describe "message_box" do
         it "should not modify the inputs" do
+          expect(self).to receive(:gets) { ' ' }
           capture_io do |stdout|
             buttons = %w(THIS IS A TEST)
             message_box("Message box test", *buttons)
@@ -46,6 +49,7 @@ if RUBY_ENGINE == 'ruby'
         end
 
         it "should display details" do
+          expect(self).to receive(:gets) { ' ' }
           capture_io do |stdout|
             buttons = %w(THIS IS A TEST)
             message_box("HI", *buttons, details: 'These are the details')
@@ -56,6 +60,7 @@ if RUBY_ENGINE == 'ruby'
 
       describe "vertical_message_box" do
         it "should not modify the inputs" do
+          expect(self).to receive(:gets) { ' ' }
           capture_io do |stdout|
             buttons = %w(THIS IS A TEST)
             vertical_message_box("Vertical message box test", *buttons)
@@ -65,6 +70,7 @@ if RUBY_ENGINE == 'ruby'
         end
 
         it "should display details" do
+          expect(self).to receive(:gets) { ' ' }
           capture_io do |stdout|
             buttons = %w(THIS IS A TEST)
             vertical_message_box("HI", *buttons, details: 'These are the details')
