@@ -164,53 +164,116 @@ module Cosmos
       return true # Aborted - Don't retry
     end
 
-    def prompt_to_continue(string)
+    def prompt_to_continue(string, text_color: nil, background_color: nil, font_size: nil, font_family: nil, informative: 'Ok to Continue?', details: nil, combo: nil)
+      result = 'Success'
       loop do
-        stop = false
         _get_main_thread_gui do |window|
-          result = Qt::MessageBox::question(window,
-                                            "COSMOS",
-                                            "#{string}\n\nOK to Continue?",
-                                            Qt::MessageBox::Ok | Qt::MessageBox::Cancel,
-                                            Qt::MessageBox::Ok)
-          if result == Qt::MessageBox::Ok
-            Logger.info "User pressed 'Ok' for '#{string}'"
-          else
-            stop = true
-            Logger.warn "User pressed 'Cancel' for '#{string}'"
+          box = Qt::MessageBox.new(window)
+          box.setIcon(Qt::MessageBox::Question)
+          box.setWindowTitle("Prompt")
+          box.setText(string)
+          if informative
+            box.setInformativeText(informative)
+          elsif combo
+            box.setInformativeText(' ') # Added to ensure consistent layout when adding combo
           end
+          box.setStandardButtons(Qt::MessageBox::Ok | Qt::MessageBox::Cancel)
+          box.setDefaultButton(Qt::MessageBox::Ok)
+          box.setDetailedText(details) if details
+          text_color = 'black' unless text_color
+          background_color = 'white' unless background_color
+          font = box.font()
+          font_size = font.pointSize unless font_size
+          font_family = font.family unless font_family
+          box.setStyleSheet("QMessageBox { background-color: #{background_color}; }\
+                             QMessageBox QLabel { color: #{text_color}; font: #{font_size}pt '#{font_family}'}")
+
+          if combo
+            result = combo[0].clone
+            # Remove the items in the layout starting with the buttons so we can insert the combo
+            items = []
+            (2...box.layout.count).each do |x|
+              items << box.layout.takeAt(x)
+            end
+            chooser = ComboboxChooser.new(box, "Select:", combo)
+            chooser.setContentsMargins(11,11,11,11)
+            chooser.sel_command_callback = lambda { |value| result = value }
+            # Insert the combo right where we removed the existing items
+            box.layout.addWidget(chooser, 2, 0, 1, 2)
+            # Add back all the items we removed
+            items.each do |item|
+              widget = item && item.widget ? item.widget : nil
+              next unless item && item.widget
+              if item.widget.is_a? Qt::DialogButtonBox
+                box.layout.addItem(item, 3, 0, 1, 2)
+              elsif item.widget.is_a? Qt::Widget
+                box.layout.addItem(item, 4, 0, 1, 2)
+              end
+            end
+          end
+          box.exec()
+          if box.clickedButton.text == "Cancel"
+            Logger.warn "User pressed 'Cancel' for '#{string}'"
+            result = 'Cancel'
+          else
+            if combo
+              Logger.info "User selected '#{result}' for '#{string}'"
+            else
+              Logger.info "User pressed 'Ok' for '#{string}'"
+              result = 'Ok'
+            end
+          end
+          box.dispose
         end
-        if stop
+        if result == "Cancel"
           prompt_for_script_abort()
         else
           break
         end
       end
+      result
     end
 
-    def prompt_message_box(string, buttons)
+    def prompt_combo_box(string, items, options)
+      options[:combo] = items
+      prompt_to_continue(string, options)
+    end
+
+    def prompt_message_box(string, buttons, text_color: nil, background_color: nil, font_size: nil, font_family: nil, informative: nil, details: nil, vertical: false)
       loop do
         result = nil
         _get_main_thread_gui do |window|
-          msg = Qt::MessageBox.new(window)
-          msg.setText(string)
-          msg.setWindowTitle("Message Box")
+          box = Qt::MessageBox.new(window)
+          box.setIcon(Qt::MessageBox::Question)
+          box.setWindowTitle("Message Box")
+          box.setText(string)
+          box.setInformativeText(informative) if informative
           # Check if the last parameter is false which means they don't want
           # the Cancel button to be displayed
           if buttons[-1] == false
-            buttons[0..-2].each {|text| msg.addButton(text, Qt::MessageBox::AcceptRole)}
+            buttons[0..-2].each {|text| box.addButton(text, Qt::MessageBox::AcceptRole)}
           else
-            buttons.each {|text| msg.addButton(text, Qt::MessageBox::AcceptRole)}
-            msg.addButton("Cancel", Qt::MessageBox::RejectRole)
+            buttons.each {|text| box.addButton(text, Qt::MessageBox::AcceptRole)}
+            box.addButton("Cancel", Qt::MessageBox::RejectRole)
           end
-          msg.exec()
-          if msg.clickedButton.text == "Cancel"
+          box.setDetailedText(details) if details
+          text_color = 'black' unless text_color
+          background_color = 'white' unless background_color
+          font = box.font()
+          font_size = font.pointSize unless font_size
+          font_family = font.family unless font_family
+          box.setStyleSheet("QMessageBox { background-color: #{background_color}; }\
+                             QMessageBox QLabel { color: #{text_color}; font: #{font_size}pt '#{font_family}'}")
+          # Change the layout of the buttons to vertical if necessary
+          box.layout.itemAt(2).widget.setOrientation(Qt::Vertical) if vertical
+          box.exec()
+          result = box.clickedButton.text
+          if result == "Cancel"
             Logger.warn "User pressed 'Cancel' for '#{string}'"
           else
-            Logger.info "User pressed '#{msg.clickedButton.text}' for '#{string}'"
+            Logger.info "User pressed '#{box.clickedButton.text}' for '#{string}'"
           end
-          result = msg.clickedButton.text
-          msg.dispose
+          box.dispose
         end
         if result == "Cancel"
           prompt_for_script_abort()
@@ -220,70 +283,9 @@ module Cosmos
       end
     end
 
-    def prompt_vertical_message_box(string, buttons)
-      loop do
-        result = buttons[0].clone
-        Qt.execute_in_main_thread(true, 0.05) do
-          dialog = _build_dialog(string)
-
-          # Check if the last parameter is false which means they don't want
-          # the Cancel button to be displayed
-          if buttons[-1] == false
-            cancel = false
-            display_buttons = buttons[0..-2]
-          else
-            cancel = true
-            display_buttons = buttons
-          end
-          button_layout = Qt::VBoxLayout.new
-          button_layout.setContentsMargins(11,11,11,11)
-          display_buttons.each do |button_text|
-            button = Qt::PushButton.new(button_text)
-            button.connect(SIGNAL('clicked()')) do
-              result.replace(button_text)
-              dialog.accept()
-            end
-            button_layout.addWidget(button)
-          end
-          dialog.layout.addLayout(button_layout)
-          dialog.layout.addWidget(_build_dialog_buttons(dialog, false, cancel))
-          result = "Cancel" unless _exec_dialog(dialog, string, result)
-        end
-        if result == "Cancel"
-          prompt_for_script_abort()
-        else
-          return result
-        end
-      end
-    end
-
-    def prompt_combo_box(string, options)
-      loop do
-        result = options[0].clone
-        Qt.execute_in_main_thread(true, 0.05) do
-          dialog = _build_dialog(string)
-          # Check if the last parameter is false which means they don't want
-          # the Cancel button to be displayed
-          if options[-1] == false
-            cancel = false
-            display_options = options[0..-2]
-          else
-            cancel = true
-            display_options = options
-          end
-          chooser = ComboboxChooser.new(dialog, "Select:", display_options)
-          chooser.setContentsMargins(11,11,11,11)
-          chooser.sel_command_callback = lambda { |value| result.replace(value) }
-          dialog.layout.addWidget(chooser)
-          dialog.layout.addWidget(_build_dialog_buttons(dialog, true, cancel))
-          result = "Cancel" unless _exec_dialog(dialog, string, result)
-        end
-        if result == "Cancel"
-          prompt_for_script_abort()
-        else
-          return result
-        end
-      end
+    def prompt_vertical_message_box(string, buttons, options)
+      options[:vertical] = true
+      prompt_message_box(string, buttons, options)
     end
 
     def _build_dialog(message)
@@ -383,8 +385,6 @@ module Cosmos
     def close_local_screens
       Qt.execute_in_main_thread(true) { Screen.close_all_screens(nil) }
     end
-
-  end # module Script
+  end
   $VERBOSE = old_verbose
-
-end # module Cosmos
+end
