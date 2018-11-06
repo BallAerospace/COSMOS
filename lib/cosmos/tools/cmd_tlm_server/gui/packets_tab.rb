@@ -18,9 +18,10 @@ module Cosmos
     COMMANDS = "Commands"
     TELEMETRY = "Telemetry"
 
-    def initialize(server_gui, name, tab_widget)
+    def initialize(server_gui, name, tab_widget, replay = false)
       @server_gui = server_gui
       @name = name
+      @replay = replay
       @widget = nil
       reset()
       @scroll = Qt::ScrollArea.new
@@ -147,7 +148,9 @@ module Cosmos
         view_pv = Qt::PushButton.new("View in #{tool_name}")
         view_pv.connect(SIGNAL('clicked()')) do
           tool_name = tool_name.split.join.gsub("Command","Cmd") # remove space and convert name
-          Cosmos.run_cosmos_tool(tool_name, "-p \"#{target_name} #{packet_name}\" --system #{File.basename(System.initial_filename)}")
+          options = "-p \"#{target_name} #{packet_name}\" --system #{File.basename(System.initial_filename)}"
+          options += " --replay" if @replay && @name == TELEMETRY
+          Cosmos.run_cosmos_tool(tool_name, options)
         end
         table.setCellWidget(row, 4, view_pv)
       else

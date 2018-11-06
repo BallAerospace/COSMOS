@@ -350,12 +350,13 @@ module Cosmos
       @items = {}
       @out_of_limits = []
       @stale = []
-      @limits_set = get_limits_set()
       unsubscribe_limits_events(@queue_id) if @queue_id
       set_replay_mode(!get_replay_mode()) if @toggle_mode
       @toggle_mode = false
-      @queue_id = subscribe_limits_events(100000)
       @clear_items_callback.call
+
+      @limits_set = get_limits_set()
+      @queue_id = subscribe_limits_events(100000)
       get_out_of_limits().each do |target, packet, item, state|
         limits_change(target, packet, item, state)
       end
@@ -534,8 +535,8 @@ module Cosmos
       initialize_central_widget()
       complete_initialize()
 
-      @limits_items = LimitsItems.new(
-        method(:new_gui_item), method(:update_gui_item), method(:clear_gui_items), method(:remove_gui_item))
+      @limits_items = LimitsItems.new(method(:new_gui_item), method(:update_gui_item), \
+        method(:clear_gui_items), method(:remove_gui_item))
       if options.config_file
         begin
           result = @limits_items.open_config(options.config_file)
@@ -547,6 +548,7 @@ module Cosmos
 
       limits_thread()
       value_thread()
+      toggle_replay_mode() if options.replay
     end
 
     # Initialize all the actions in the application Menu
@@ -610,7 +612,6 @@ module Cosmos
     # Layout the main GUI tab widget with a view of all the out of limits items
     # in one tab and a log tab showing all limits events.
     def initialize_central_widget
-
       widget = Qt::Widget.new
       layout = Qt::VBoxLayout.new(widget)
       setCentralWidget(widget)
@@ -815,9 +816,7 @@ module Cosmos
       @limits_thread = Thread.new do
         while true
           break if @cancel_thread
-          Qt.execute_in_main_thread(true) do
-            result, color = @limits_items.process_events()
-          end
+          result, color = @limits_items.process_events()
           if result
             update_log(result, color)
           else
@@ -1005,6 +1004,10 @@ module Cosmos
           option_parser.separator "Limits Monitor Specific Options:"
           option_parser.on("-c", "--config FILE", "Use the specified configuration file") do |arg|
             options.config_file = arg
+          end
+          options.replay = false
+          option_parser.on("--replay", "Start Data Viewer in Replay mode") do
+            options.replay = true
           end
         end
 

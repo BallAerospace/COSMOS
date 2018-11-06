@@ -249,7 +249,7 @@ module Cosmos
 
       graph = Qt::Action.new("Graph #{@target_name} #{@packet_name} #{@item_name}", menu)
       graph.connect(SIGNAL('triggered()')) do
-        TlmGraphDialog.new(self, target_name, packet_name, item_name)
+        TlmGraphDialog.new(self, target_name, packet_name, item_name, @screen.replay_flag.visible)
       end
       menu.addAction(graph)
 

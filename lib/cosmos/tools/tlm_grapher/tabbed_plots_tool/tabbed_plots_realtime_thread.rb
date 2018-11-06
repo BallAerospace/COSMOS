@@ -16,11 +16,10 @@ module Cosmos
 
   # Thread used to gather telemetry in realtime and process it using a TabbedPlotsDefinition
   class TabbedPlotsRealtimeThread < InterfaceThread
-
     # Create a new TabbedPlotsRealtimeThread
     def initialize(tabbed_plots_config, connection_success_callback = nil, connection_failed_callback = nil, connection_lost_callback = nil, fatal_exception_callback = nil, replay_mode = false)
       if replay_mode
-        interface = TcpipClientInterface.new(System.connect_hosts['REPLAY_PREIDENTIFIED'], nil, System.ports['REPLAY_PREIDENTIFIED'], nil, tabbed_plots_config.cts_timeout, 'PREIDENTIFIED')
+        interface = TcpipClientInterface.new(System.connect_hosts['REPLAY_PREIDENTIFIED'], nil, System.ports['REPLAY_PREIDENTIFIED'], nil, nil, 'PREIDENTIFIED')
       else
         interface = TcpipClientInterface.new(System.connect_hosts['CTS_PREIDENTIFIED'], nil, System.ports['CTS_PREIDENTIFIED'], nil, tabbed_plots_config.cts_timeout, 'PREIDENTIFIED')
       end
@@ -52,7 +51,7 @@ module Cosmos
 
       # Start interface thread
       start()
-    end # def initialize
+    end
 
     # Callback to the system definition when a packet is received
     def received_packet_callback(packet)
@@ -65,7 +64,7 @@ module Cosmos
       stop()
       Cosmos.kill_thread(self, @process_thread)
       @process_thread = nil
-    end # def kill
+    end
 
     def graceful_kill
       # Allow the callbacks a chance to update the GUI so that they can die gracefully
@@ -76,7 +75,5 @@ module Cosmos
         end
       end
     end
-
-  end # class TabbedPlotsRealtimeThread
-
-end # module Cosmos
+  end
+end

@@ -145,6 +145,7 @@ module Cosmos
         @all_telemetry = System.telemetry.all_item_strings(false, splash)
 
         Qt.execute_in_main_thread(true) do
+          toggle_replay_mode() if options.replay
           @search_box.completion_list = @tlm_viewer_config.completion_list
           @search_box.callback = lambda do |tlm|
             mapping = @tlm_viewer_config.tlm_to_screen_mapping[tlm]
@@ -549,6 +550,7 @@ module Cosmos
           options.config_file = nil
           options.restore_size = false
           options.production = false
+          options.replay = false
 
           option_parser.separator "Telemetry Viewer Specific Options:"
           option_parser.on("-c", "--config FILE", "Use the specified config file") { |arg| options.config_file = arg }
@@ -557,8 +559,11 @@ module Cosmos
             options.listen = false
             options.title << ' : Not Listening'
           end
-          option_parser.on("-p", "--production", "Run TlmServer in production mode which disables the edit buttons.") do |arg|
+          option_parser.on("-p", "--production", "Run Telemetry Viewer in production mode which disables the edit buttons.") do |arg|
             options.production = true
+          end
+          option_parser.on("--replay", "Run Telemetry Viewer in Replay mode") do
+            options.replay = true
           end
           option_parser.parse!(ARGV)
         end
@@ -583,6 +588,8 @@ module Cosmos
             else
               screen_info.screen = Screen.new(screen_info.full_name, screen_info.filename, nil, :REALTIME, screen_info.x_pos, screen_info.y_pos, screen_info.original_target_name, screen_info.substitute, screen_info.force_substitute, true)
             end
+            set_replay_mode(true) if options.replay
+            Screen.update_replay_mode
             application.exec
           rescue Exception => error
             unless error.class == SystemExit or error.class == Interrupt
