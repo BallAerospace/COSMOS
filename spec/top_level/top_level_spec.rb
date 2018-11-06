@@ -111,8 +111,8 @@ module Cosmos
       expect(filename).to eql File.join(Cosmos::PATH,'data','about.txt')
     end
 
-    it "complains if the file is not found" do
-      expect { Cosmos.data_path('nope.txt') }.to raise_error(/Could not find path/)
+    it "returns nil if the file is not found" do
+      expect(Cosmos.data_path('nope.txt')).to be_nil
     end
   end
 
