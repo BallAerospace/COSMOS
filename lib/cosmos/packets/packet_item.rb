@@ -239,7 +239,7 @@ module Cosmos
         raise ArgumentError, "#{@name}: limits must be a PacketItemLimits but is a #{limits.class}" unless PacketItemLimits === limits
         @limits = limits.clone
       else
-        @limits = nil
+        @limits = PacketItemLimits.new
       end
     end
 

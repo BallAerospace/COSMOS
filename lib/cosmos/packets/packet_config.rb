@@ -171,6 +171,7 @@ module Cosmos
 
           # Start the creation of a new limits group
           when 'LIMITS_GROUP'
+            finish_packet()
             usage = "LIMITS_GROUP <GROUP NAME>"
             parser.verify_num_parameters(1, 1, usage)
             @current_limits_group = params[0].to_s.upcase
@@ -180,7 +181,12 @@ module Cosmos
           when 'LIMITS_GROUP_ITEM'
             usage = "LIMITS_GROUP_ITEM <TARGET NAME> <PACKET NAME> <ITEM NAME>"
             parser.verify_num_parameters(3, 3, usage)
-            @limits_groups[@current_limits_group] << [params[0].to_s.upcase, params[1].to_s.upcase, params[2].to_s.upcase] if @current_limits_group
+            tgt_name = params[0].to_s.upcase
+            pkt_name = params[1].to_s.upcase
+            item_name = params[2].to_s.upcase
+            item = @telemetry[tgt_name][pkt_name].get_item(item_name)
+            raise parser.error("Item #{params.join(' ')} does not have limits defined.") unless item.limits.values
+            @limits_groups[@current_limits_group] << [tgt_name, pkt_name, item_name] if @current_limits_group
 
           #######################################################################
           # All the following keywords must have a current packet defined
@@ -285,8 +291,8 @@ module Cosmos
           @limits_groups.each do |group, items|
             item = pkt.define_item(group, 0, 0, :DERIVED)
             item.read_conversion = LimitsGroupConversion.new(items)
-            item.states = {"GREEN"=>0, "YELLOW"=>1, "RED"=>2}
-            item.state_colors = {"GREEN"=>:GREEN, "YELLOW"=>:YELLOW, "RED"=>:RED}
+            item.states = {"STALE"=>0, "OPERATIONAL"=>1, "GREEN"=>2, "YELLOW"=>3, "RED"=>4}
+            item.state_colors = {"STALE"=>:PURPLE, "OPERATIONAL"=>:BLUE, "GREEN"=>:GREEN, "YELLOW"=>:YELLOW, "RED"=>:RED}
           end
           @telemetry[pkt.target_name][pkt.packet_name] = pkt
         end

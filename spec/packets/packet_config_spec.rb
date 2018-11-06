@@ -33,13 +33,14 @@ module Cosmos
       it "outputs parsed definitions back to a file" do
         tf = Tempfile.new('unittest')
         tlm = "TELEMETRY TGT1 PKT1 LITTLE_ENDIAN \"Telemetry\"\n"\
-              "  ITEM BYTE 0 8 UINT \"Item\"\n"
+              "  ITEM BYTE 0 8 UINT \"Item\"\n"\
+              "    LIMITS DEFAULT 1 ENABLED 1.0 2.0 3.0 4.0\n"
         tf.write tlm
         cmd = "COMMAND TGT1 PKT1 LITTLE_ENDIAN \"Command\"\n"\
               "  PARAMETER PARAM 0 16 UINT 0 0 0 \"Param\"\n"
         tf.write cmd
         limits = "LIMITS_GROUP TVAC\n"\
-                 "  LIMITS_GROUP_ITEM TGT1 PKT1 ITEM1\n"
+                 "  LIMITS_GROUP_ITEM TGT1 PKT1 BYTE\n"
         tf.write limits
         tf.close
         @pc.process_file(tf.path, "TGT1")
@@ -349,6 +350,11 @@ module Cosmos
       context "with LIMITS_ITEM" do
         it "adds a new limits item to the group" do
           tf = Tempfile.new('unittest')
+          tf.puts "TELEMETRY TGT1 PKT1 LITTLE_ENDIAN \"Telemetry\""
+          tf.puts "  ITEM ITEM1 0 8 UINT \"Item\""
+          tf.puts "    LIMITS DEFAULT 1 ENABLED 1.0 2.0 3.0 4.0"
+          tf.puts "  ITEM ITEM2 0 8 UINT \"Item\""
+          tf.puts "    LIMITS DEFAULT 1 ENABLED 1.0 2.0 3.0 4.0"
           tf.puts 'LIMITS_GROUP TVAC'
           tf.puts 'LIMITS_GROUP_ITEM TGT1 PKT1 ITEM1'
           tf.close
@@ -364,6 +370,17 @@ module Cosmos
           tf.close
           @pc.process_file(tf.path, "TGT1")
           expect(@pc.limits_groups["TVAC"]).to eql [%w(TGT1 PKT1 ITEM1), %w(TGT1 PKT1 ITEM2)]
+          tf.unlink
+        end
+
+        it "complains if the item doesn't have limits" do
+          tf = Tempfile.new('unittest')
+          tf.puts "TELEMETRY TGT1 PKT1 LITTLE_ENDIAN \"Telemetry\""
+          tf.puts "  ITEM ITEM1 0 8 UINT \"Item\""
+          tf.puts 'LIMITS_GROUP TVAC'
+          tf.puts 'LIMITS_GROUP_ITEM TGT1 PKT1 ITEM1'
+          tf.close
+          expect { @pc.process_file(tf.path, "TGT1") }.to raise_error(ConfigParser::Error, /TGT1 PKT1 ITEM1 does not have limits/)
           tf.unlink
         end
       end

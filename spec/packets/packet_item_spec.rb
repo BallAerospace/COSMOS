@@ -358,9 +358,10 @@ module Cosmos
         expect(config).to match(/LIMITS TVAC 3 ENABLED 100 200 800 900/)
       end
 
-      it "sets the limits to nil" do
+      it "sets the limits to an empty PacketItemLimits" do
         @pi.limits = nil
-        expect(@pi.limits).to be_nil
+        expect(@pi.limits).to be_a PacketItemLimits
+        expect(@pi.limits.values).to be_nil
       end
 
       it "complains about limits that aren't PacketItemLimits" do
