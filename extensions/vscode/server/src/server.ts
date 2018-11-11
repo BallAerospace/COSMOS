@@ -29,7 +29,8 @@ documents.listen(connection);
 // in the passed params the rootPath of the workspace plus the client capabilites. 
 let workspaceRoot: string;
 connection.onInitialize((params): InitializeResult => {
-    workspaceRoot = params.rootPath;
+	workspaceRoot = params.rootPath;
+	console.log('COSMOS Server Extension!');
     return {
         capabilities: {
             // Tell the client that the server works in FULL text document sync mode
@@ -50,6 +51,7 @@ connection.onInitialize((params): InitializeResult => {
 // when the text document first opened or when its content has changed.
 documents.onDidChangeContent((change) => {
 	//TODO: add symbol parsing here
+	console.log('COSMOS document changed!');
 	logger.debug(`onDidChangeContent: ${JSON.stringify(change)}`);
 });
 

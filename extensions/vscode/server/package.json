@@ -1,7 +1,7 @@
 {
   "name": "language-server-cosmos",
   "description": "Implementation of a language server for cosmos.",
-  "version": "1.1.0",
+  "version": "0.0.1",
   "author": "Ball Aerospace",
   "license": "BALL GPL",
   "engines": {

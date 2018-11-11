@@ -94,6 +94,16 @@
                         }
                     ],
                     "end": "%>"
+                },
+                {
+                    "begin": "(?<=GENERIC_READ_CONVERSION_START)",
+                    "include": "source.ruby",
+                    "end": "(?=GENERIC_READ_CONVERSION_END)"
+                },
+                {
+                    "begin": "(?<=GENERIC_WRITE_CONVERSION_START)",
+                    "include": "source.ruby",
+                    "end": "(?=GENERIC_WRITE_CONVERSION_END)"
                 }
             ]
         },
