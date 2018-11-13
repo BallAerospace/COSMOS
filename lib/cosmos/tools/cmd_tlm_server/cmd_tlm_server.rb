@@ -245,7 +245,7 @@ module Cosmos
       if @interfaces
         @interfaces.all.each do |name, interface|
           interface.target_names.each do |target|
-            System.targets[target] = interface
+            System.targets[target].interface = interface
           end
         end
       end
