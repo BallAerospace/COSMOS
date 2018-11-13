@@ -259,8 +259,10 @@ module Cosmos
 
       @script_error_backtrace = Qt::Action.new('Show Error Backtrace', self)
       @script_error_backtrace.statusTip = 'Show Error Backtrace from the last encountered exception'
-      @script_error_backtrace.connect(SIGNAL('triggered()')) { ScriptRunnerFrame.show_backtrace = true }
-      @script_error_backtrace.setEnabled(false)
+      @script_error_backtrace.connect(SIGNAL('triggered()')) do
+        ScriptRunnerFrame.show_backtrace = @script_error_backtrace.checked?
+      end
+      @script_error_backtrace.setCheckable(true)
 
       @script_debug = Qt::Action.new(Cosmos.get_icon('bug.png'), 'Toggle &Debug', self)
       @script_debug_keyseq = Qt::KeySequence.new('Ctrl+D')
@@ -743,7 +745,6 @@ module Cosmos
       # Disable Script Runtime Items'
       @script_log_message.setEnabled(false)
       @script_call_stack.setEnabled(false)
-      @script_error_backtrace.setEnabled(false)
     end
 
     def disable_menu_items
@@ -776,7 +777,6 @@ module Cosmos
       # Enable Script Runtime Items
       @script_log_message.setEnabled(true)
       @script_call_stack.setEnabled(true)
-      @script_error_backtrace.setEnabled(true)
     end
 
     # Handle the user changing tabs
