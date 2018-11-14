@@ -310,6 +310,7 @@ module Cosmos
 
         it "loads a named configuration" do
           File.open(@config_file,'w') do |file|
+            file.puts "DECLARE_TARGET INST"
             file.puts "DECLARE_TARGET INST OVERRIDE"
             file.puts "DECLARE_TARGET SYSTEM"
           end
@@ -317,7 +318,7 @@ module Cosmos
           # Load the original configuration
           original_config_name, err = System.load_configuration
           expect(err).to eql nil
-          expect(System.telemetry.target_names).to eql %w(OVERRIDE SYSTEM)
+          expect(System.telemetry.target_names).to eql %w(INST OVERRIDE SYSTEM)
           System.telemetry.packets('SYSTEM').keys
 
           # Create a new configuration by writing another telemetry file

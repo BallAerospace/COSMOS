@@ -196,18 +196,6 @@ module Cosmos
         expect { @limits.enable_group("MINE") }.to raise_error(RuntimeError, "LIMITS_GROUP MINE undefined. Ensure your telemetry definition contains the line: LIMITS_GROUP MINE")
       end
 
-      it "complains about undefined items" do
-        tf = Tempfile.new('unittest')
-        tf.puts 'LIMITS_GROUP GROUP1'
-        tf.puts '  LIMITS_GROUP_ITEM TGT1 PKT1 ITEM1'
-        tf.close
-        pc = PacketConfig.new
-        pc.process_file(tf.path, "SYSTEM")
-        limits = Limits.new(pc)
-        expect { limits.enable_group("group1") }.to raise_error(RuntimeError, "Telemetry target 'TGT1' does not exist")
-        tf.unlink
-      end
-
       it "enables limits for all items in the group" do
         @limits.enable_group("group1")
         pkt = @tlm.packet("TGT1","PKT1")

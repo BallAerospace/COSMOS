@@ -372,7 +372,7 @@ module Cosmos
                "  ITEM SIGNED3 48 8 INT \"Signed3\"\n"
         tf.puts tlm2
         limits = "LIMITS_GROUP TVAC\n"\
-                 "  LIMITS_GROUP_ITEM TGT1 TLMPKT UNSIGNED\n"
+                 "  LIMITS_GROUP_ITEM TGT1 TLMPKT DOUBLE\n"
         tf.puts limits
         tf.close
         @pc.process_file(tf.path, "TGT1")
@@ -389,7 +389,6 @@ module Cosmos
         expect(tlm).to include(tlm2)
         tf.unlink
       end
-
-    end # describe "process_file"
+    end
   end
 end

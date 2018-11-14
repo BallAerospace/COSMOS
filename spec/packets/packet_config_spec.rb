@@ -373,6 +373,39 @@ module Cosmos
           tf.unlink
         end
 
+        it "complains if the target doesn't exist" do
+          tf = Tempfile.new('unittest')
+          tf.puts "TELEMETRY TGT1 PKT1 LITTLE_ENDIAN \"Telemetry\""
+          tf.puts "  ITEM ITEM1 0 8 UINT \"Item\""
+          tf.puts 'LIMITS_GROUP TVAC'
+          tf.puts 'LIMITS_GROUP_ITEM NOPE PKT1 ITEM1'
+          tf.close
+          expect { @pc.process_file(tf.path, "TGT1") }.to raise_error(ConfigParser::Error, /Target NOPE does not exist/)
+          tf.unlink
+        end
+
+        it "complains if the packet doesn't exist" do
+          tf = Tempfile.new('unittest')
+          tf.puts "TELEMETRY TGT1 PKT1 LITTLE_ENDIAN \"Telemetry\""
+          tf.puts "  ITEM ITEM1 0 8 UINT \"Item\""
+          tf.puts 'LIMITS_GROUP TVAC'
+          tf.puts 'LIMITS_GROUP_ITEM TGT1 NOPE ITEM1'
+          tf.close
+          expect { @pc.process_file(tf.path, "TGT1") }.to raise_error(ConfigParser::Error, /Packet TGT1 NOPE does not exist/)
+          tf.unlink
+        end
+
+        it "complains if the item doesn't exist" do
+          tf = Tempfile.new('unittest')
+          tf.puts "TELEMETRY TGT1 PKT1 LITTLE_ENDIAN \"Telemetry\""
+          tf.puts "  ITEM ITEM1 0 8 UINT \"Item\""
+          tf.puts 'LIMITS_GROUP TVAC'
+          tf.puts 'LIMITS_GROUP_ITEM TGT1 PKT1 NOPE'
+          tf.close
+          expect { @pc.process_file(tf.path, "TGT1") }.to raise_error(ConfigParser::Error, /Item TGT1 PKT1 NOPE does not exist/)
+          tf.unlink
+        end
+
         it "complains if the item doesn't have limits" do
           tf = Tempfile.new('unittest')
           tf.puts "TELEMETRY TGT1 PKT1 LITTLE_ENDIAN \"Telemetry\""

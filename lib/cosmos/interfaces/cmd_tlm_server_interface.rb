@@ -43,9 +43,9 @@ module Cosmos
 
     # Unsubscribe from the limits events
     def disconnect
-      @sleeper.cancel
       CmdTlmServer.instance.unsubscribe_limits_events(@limit_id) if @limit_id
       @limit_id = nil
+      @sleeper.cancel
     end
 
     # Continuously wait for limits events and returning
@@ -53,8 +53,9 @@ module Cosmos
     #
     # @return [Packet] returns SYSTEM LIMITS_CHANGE packets as limits events are generated.
     def read
+      limits_change = true
       while connected?
-        begin
+        if limits_change
           begin
             event = CmdTlmServer.instance.get_limits_event(@limit_id, true)
             if event
@@ -62,7 +63,7 @@ module Cosmos
                 data = event[1]
                 packet = System.telemetry.packet("SYSTEM","LIMITS_CHANGE")
                 packet.received_time = Time.now.sys
-                packet.write('PKT_ID',2)
+                packet.write('PKT_ID', 2)
                 packet.write('TARGET', data[0])
                 packet.write('PACKET', data[1])
                 packet.write('ITEM', data[2])
@@ -79,23 +80,30 @@ module Cosmos
             end
           rescue ThreadError
             # Nominal processing if no events
+          rescue => error
+            puts error.formatted
+            # if they haven't defined SYSTEM LIMITS_CHANGE we stop checking limits events
+            limits_change = false
           end
+        end
 
+        # Limit the rate to 1Hz
+        @sleeper.sleep(1)
+
+        begin
           if @limits_groups
             packet = System.telemetry.packet("SYSTEM", "LIMITS_GROUPS")
+            packet.write("PKT_ID", 99)
             packet.received_time = Time.now.sys
             @read_count += 1
             @read_raw_data_time = Time.now
             @read_raw_data = packet.buffer
             return packet
           end
-
-          @sleeper.sleep(1)
         rescue => error
           puts error.formatted
-          # if they haven't defined SYSTEM LIMITS_CHANGE we fall through
-          # and break the loop because nothing will work
-          break
+          # Guess something is wrong with limits groups. Disable them.
+          @limits_groups = false
         end
       end
       return nil

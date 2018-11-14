@@ -38,12 +38,13 @@ module Cosmos
       @cts = CmdTlmServer.new
       sleep 1
       @ctsi = CmdTlmServerInterface.new
+      @ctsi.connect
     end
 
     after(:each) do
-      @ctsi.disconnect# if @ctsi
+      @ctsi.disconnect
       sleep 0.1
-      @cts.stop# if @cts
+      @cts.stop
       sleep 0.1 # Give the server time to really stop all the Threads
     end
 

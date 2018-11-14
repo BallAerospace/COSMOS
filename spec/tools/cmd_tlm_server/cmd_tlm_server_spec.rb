@@ -91,6 +91,7 @@ module Cosmos
         capture_io do |stdout|
           # Production mode means we start logging
           allow(System).to receive_message_chain(:telemetry,:limits_change_callback=)
+          allow(System).to receive_message_chain(:telemetry,:packet)
           allow(System).to receive_message_chain(:telemetry,:check_stale) { raise "Stale Error" }
           sleep 0.1
           cts = CmdTlmServer.new
@@ -188,6 +189,10 @@ module Cosmos
         allow(System).to receive_message_chain(:telemetry,:stale).and_return([])
         allow(System).to receive_message_chain(:telemetry,:limits_change_callback=)
         allow(System).to receive_message_chain(:telemetry,:check_stale)
+        p = Packet.new("tgt", "pkt")
+        p.append_item("PKT_ID", 16, :UINT)
+        allow(System).to receive_message_chain(:telemetry,:packet) { p }
+        allow(System).to receive_message_chain(:telemetry,:update!) { p }
         cts = CmdTlmServer.new
         begin
           pkt = Packet.new("TGT","PKT")
@@ -229,6 +234,10 @@ module Cosmos
         allow(System).to receive_message_chain(:telemetry,:stale).and_return([])
         allow(System).to receive_message_chain(:telemetry,:limits_change_callback=)
         allow(System).to receive_message_chain(:telemetry,:check_stale)
+        p = Packet.new("tgt", "pkt")
+        p.append_item("PKT_ID", 16, :UINT)
+        allow(System).to receive_message_chain(:telemetry,:packet) { p }
+        allow(System).to receive_message_chain(:telemetry,:update!) { p }
         cts = CmdTlmServer.new
         begin
           pkt = Packet.new("TGT","PKT")
@@ -262,6 +271,10 @@ module Cosmos
         allow(System).to receive_message_chain(:telemetry,:stale).and_return([])
         allow(System).to receive_message_chain(:telemetry,:limits_change_callback=)
         allow(System).to receive_message_chain(:telemetry,:check_stale)
+        p = Packet.new("tgt", "pkt")
+        p.append_item("PKT_ID", 16, :UINT)
+        allow(System).to receive_message_chain(:telemetry,:packet) { p }
+        allow(System).to receive_message_chain(:telemetry,:update!) { p }
         cts = CmdTlmServer.new
         begin
           pkt = Packet.new("TGT","PKT")

@@ -184,8 +184,14 @@ module Cosmos
             tgt_name = params[0].to_s.upcase
             pkt_name = params[1].to_s.upcase
             item_name = params[2].to_s.upcase
-            item = @telemetry[tgt_name][pkt_name].get_item(item_name)
-            raise parser.error("Item #{params.join(' ')} does not have limits defined.") unless item.limits.values
+            raise parser.error("Target #{tgt_name} does not exist", usage) unless @telemetry[tgt_name]
+            raise parser.error("Packet #{tgt_name} #{pkt_name} does not exist", usage) unless @telemetry[tgt_name][pkt_name]
+            begin
+              item = @telemetry[tgt_name][pkt_name].get_item(item_name)
+            rescue
+              raise parser.error("Item #{tgt_name} #{pkt_name} #{item_name} does not exist", usage)
+            end
+            raise parser.error("Item #{params.join(' ')} does not have limits defined.", usage) unless item.limits.values
             @limits_groups[@current_limits_group] << [tgt_name, pkt_name, item_name] if @current_limits_group
 
           #######################################################################
@@ -288,6 +294,8 @@ module Cosmos
 
         if @limits_groups.length > 0
           pkt = Packet.new("SYSTEM", "LIMITS_GROUPS", :BIG_ENDIAN, "Contains all the items defined by LIMITS_GROUPS")
+          pkt.define_item('PKT_ID', 0, 8, :UINT, nil, :BIG_ENDIAN, :ERROR, nil, nil, nil, 99)
+
           @limits_groups.each do |group, items|
             item = pkt.define_item(group, 0, 0, :DERIVED)
             item.read_conversion = LimitsGroupConversion.new(items)
