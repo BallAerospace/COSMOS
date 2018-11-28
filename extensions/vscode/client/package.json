@@ -3,7 +3,7 @@
 	"description": "Language support for COSMOS configuration files",
 	"author": "Ball Aerospace",
 	"license": "BALL GPL",
-	"version": "0.0.5",
+	"version": "0.0.6",
 	"icon": "images/icon.png",
 	"homepage": "https://cosmosrb.com/",
 	"repository": {
@@ -95,8 +95,9 @@
 		"postinstall": "node ./node_modules/vscode/bin/install"
 	},
 	"dependencies": {
-		"vscode": "^1.1.21",
-		"vscode-languageclient": "^3.5.1",
-		"typescript": "^2.9.2"
+		"@types/node": "^10.12.10",
+		"typescript": "^2.9.2",
+		"vscode": "^1.1.22",
+		"vscode-languageclient": "^3.5.1"
 	}
 }

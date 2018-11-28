@@ -4,7 +4,8 @@
 		"noImplicitReturns": true,
 		"noUnusedLocals": false,
 		"noUnusedParameters": false,
-		"outDir": "out"
+		"outDir": "out",
+		"moduleResolution": "node",
 	},
 	"include": [
 		"src/*"
