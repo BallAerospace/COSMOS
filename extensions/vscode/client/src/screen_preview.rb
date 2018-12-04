@@ -11,8 +11,6 @@ require 'cosmos/tools/tlm_viewer/screen'
 begin
     v1 = ARGV[0]
 
-    puts "Hello from ruby script"
-
     app = Qt::Application.new(ARGV)
     window = Cosmos::Screen.new("preview", v1, nil, :REALTIME, nil, nil, nil, nil, false, true, nil)
     app.exec
