@@ -104,6 +104,10 @@ class CosmosScreenViewer {
 
 		// Execute Ruby Command
 		exec(rubyCmd, {env: {'PATH': process.env.path}}, function(err, stdout, stderr) {
+			if (err != null && err != "")
+			{
+				console.log(err)
+			}
 			if (stderr != null && stderr != "")
 			{
 				console.log(stderr)
