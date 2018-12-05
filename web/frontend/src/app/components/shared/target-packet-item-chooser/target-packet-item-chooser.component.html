@@ -1,0 +1,5 @@
+<p-dropdown (onChange)="targetNameChanged($event)" [options]="targetNames" [(ngModel)]="selectedTargetName" [style]="{'width':'25%', 'float':'left', 'margin-right':'5px'}"></p-dropdown>
+<p-dropdown (onChange)="packetNameChanged($event)" [options]="packetNames" [(ngModel)]="selectedPacketName" [style]="{'width':'25%', 'float':'left', 'margin-right':'5px'}"></p-dropdown>
+<p-dropdown (onChange)="itemNameChanged($event)" [options]="itemNames" [(ngModel)]="selectedItemName" [style]="{'width':'37%', 'float':'left', 'margin-right':'5px'}"></p-dropdown>
+<button pButton type="button" label="Add Item" (click)="itemAdded($event)" [style]="{'float':'left'}"></button>
+<p style="margin-top:5px;">Description: {{description}}</p>

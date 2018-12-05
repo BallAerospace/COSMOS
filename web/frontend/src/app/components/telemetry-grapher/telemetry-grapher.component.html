@@ -1,0 +1,31 @@
+<div style="margin-top:20px;margin-bottom:20px;">
+  <p-menubar [model]="menuItems"></p-menubar>
+  <!-- <item-autocomplete (onSelect)="autoSelect($event)"></item-autocomplete>
+  <p-autoComplete [(ngModel)]="autoCompleteText" [suggestions]="autoCompleteResults" (completeMethod)="autoCompleteSearch($event)"></p-autoComplete> -->
+  <p style="margin-top:10px;">
+    <cosmos-target-packet-item-chooser (onSet)="itemAdded($event)"></cosmos-target-packet-item-chooser>
+  </p>
+
+  <div class="tlmgrapher-main">
+    <div class="tlmgrapher-left">
+      <p-selectButton [options]="stateOptions" (onChange)="stateChange($event)" [(ngModel)]="selectedState"></p-selectButton>
+      <!--
+      <input type="text" pInputText [(ngModel)]="state" [disabled]="disabled"/>
+      <div class="chart-buttons">
+        <button pButton type="button" (click)="onStart()" label="Start"></button>
+        <button pButton type="button" (click)="onPause()" label="Pause"></button>
+        <button pButton type="button" (click)="onStop()" label="Stop"></button>
+      </div>
+      -->
+      <p-dataTable [value]="chartItems" selectionMode="single" [(selection)]="selectedItem" [contextMenu]="cm" [immutable]=false>
+        <p-column field="item" header="Data Objects:"></p-column>
+      </p-dataTable>
+      <p-contextMenu #cm [model]="contextMenuItems"></p-contextMenu>
+    </div>
+
+    <div class="tlmgrapher-chart">
+      <cosmos-chart *ngFor="let chart of charts; let i=index" (click)="clickChart(i, chart)"></cosmos-chart>
+      <!-- p-chart *ngFor="let chart of charts; let i=index" #chart type="line" [data]="chart.data" [options]="chart.options" (click)="clickChart(i, chart)"></p-chart -->
+    </div>
+  </div>
+</div>

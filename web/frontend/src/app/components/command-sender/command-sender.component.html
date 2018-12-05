@@ -1,0 +1,62 @@
+<div class="container" style="margin-top:20px;margin-bottom:20px;">
+  <h2>Command Sender</h2>
+  <p-menubar [model]="menuItems"></p-menubar>
+  <p style="margin-top:10px;">
+    <cosmos-target-command-chooser (onSet)="commandChanged($event)" (onCmdSent)="sendCmd($event)" (onStatusChange)="statusChange($event)" [disabled]="sendDisabled"></cosmos-target-command-chooser>
+  </p>
+
+  <p *ngIf="rows.length!=0">Parameters:</p>
+  <p-dataTable #dt *ngIf="rows.length!=0" [value]="rows" [editable]="true" scrollable="true" scrollHeight="600px">
+    <p-column field="parameter_name" [style]="{'width':'20%', 'text-align':'right', 'word-break':'break-all'}" [editable]="false">
+      <ng-template pTemplate="header"><div style="text-align:center">Name</div></ng-template>
+    </p-column>
+    <p-column field="val_and_states" [style]="{'width':'25%', 'text-align':'right', 'word-break':'break-all'}" [editable]="true">
+      <ng-template pTemplate="header"><div style="text-align:center">Value or State</div></ng-template>
+      <ng-template let-col let-rowIndex="rowIndex" let-rowData="rowData" pTemplate="editor">
+        <command-parameter-editor [(ngModel)]="rowData[col.field]" (keydown)="dt.onCellEditorKeydown($event, col, rowData, rowIndex)"></command-parameter-editor>
+      </ng-template>
+      <ng-template let-col let-rowIndex="rowIndex" let-rowData="rowData" pTemplate="body">
+        <command-parameter-body [value]="rowData[col.field]"></command-parameter-body>
+      </ng-template>
+    </p-column>
+    <p-column field="units" [style]="{'width':'10%', 'text-align':'right', 'word-break':'break-all'}" [editable]="false">
+      <ng-template pTemplate="header"><div style="text-align:center">Units</div></ng-template>
+    </p-column>
+    <p-column field="description" [style]="{'width':'45%', 'text-align':'left', 'word-break':'break-all'}" [editable]="false">
+      <ng-template pTemplate="header"><div style="text-align:center">Description</div></ng-template>
+    </p-column>
+  </p-dataTable>
+
+  <p *ngIf="status != ''">Status: {{status}}</p>
+
+</div>
+
+<p-dialog header="Error" [(visible)]="displayErrorDialog" modal=true>
+  <label>{{status}}</label>
+  <div align="center">
+     <button pButton type="button" (click)="ackError()" label="Ok"></button>
+  </div>
+</p-dialog>
+
+<p-dialog header="Hazardous Command" [(visible)]="displaySendHazardous" modal=true>
+  <label>Warning: Command {{targetName}} {{commandName}} is Hazardous.  Send?</label>
+  <div align="center">
+     <button pButton type="button" (click)="sendHazardousCmd()" label="Yes"></button>
+     <button pButton type="button" (click)="cancelHazardousCmd()" label="No"></button>
+  </div>
+</p-dialog>
+
+<p-dialog header="Send Raw Data From File" [(visible)]="displaySendRaw" [width]="400" modal=true>
+  <div>
+     <label>Interface: </label>
+     <p-dropdown [options]="interfaces" [(ngModel)]="selectedInterface" [style]="{'width':'200px'}" appendTo="body"></p-dropdown>
+  </div>
+  <div style="float:left;width:100%;">
+     <label style="float:left;">Filename: </label>
+     <input type="file" (change)="selectRawCmdFile($event)" style="float:left">
+  </div>
+  <div align="center">
+     <button pButton type="button" (click)="cancelRawCmd()" label="Cancel"></button>
+     <button pButton type="button" (click)="sendRawCmd()" label="Ok"></button>
+  </div>
+</p-dialog>

@@ -1,0 +1,32 @@
+<div class="container" style="margin-top:20px;margin-bottom:20px;">
+  <h2>Packet Viewer</h2>
+  <p-menubar [model]="menuItems"></p-menubar>
+  <p style="margin-top:10px;">
+    <cosmos-target-packet-chooser (onSet)="packetChanged($event)"></cosmos-target-packet-chooser>
+  </p>
+
+  <p-dataTable [value]="rows" emptyMessage="Loading...">
+      <p-column field="num" header="#" [style]="{'width':'8%', 'text-align':'center', 'word-break':'break-all'}">
+        <ng-template let-i="rowIndex" pTemplate="body">
+          {{i}}
+        </ng-template>
+      </p-column>
+      <p-column field="key" [style]="{'width':'46%', 'text-align':'right', 'word-break':'break-all'}">
+        <ng-template pTemplate="header"><div style="text-align:center">Item</div></ng-template>
+        <ng-template let-col let-row="rowData" pTemplate="body">
+            {{row[0]}}:
+        </ng-template>
+      </p-column>
+      <p-column field="value" [style]="{'width':'46%', 'text-align':'right', 'word-break':'break-all'}">
+        <ng-template pTemplate="header"><div style="text-align:center">Value</div></ng-template>
+        <ng-template let-col let-row="rowData" pTemplate="body">
+            <cosmos-value [value]="row[1]" [limits_state]="row[2]"></cosmos-value>
+        </ng-template>
+      </p-column>
+  </p-dataTable>
+</div>
+
+<p-dialog header="Options" [(visible)]="displayOptions">
+  <label>Refresh Interval (ms)</label>
+  <p-spinner size="30" [(ngModel)]="refreshInterval" [min]="0" [max]="10000" [step]="100" (onChange)="intervalChanged()"></p-spinner>
+</p-dialog>

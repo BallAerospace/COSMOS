@@ -46,3 +46,32 @@ install/tools/mac/TestRunner.app/Contents/MacOS/TestRunner
 install/tools/mac/TlmExtractor.app/Contents/MacOS/TlmExtractor
 install/tools/mac/TlmGrapher.app/Contents/MacOS/TlmGrapher
 install/tools/mac/TlmViewer.app/Contents/MacOS/TlmViewer
+
+# Ignore bundler config.
+/.bundle
+
+# Ignore the default SQLite database.
+/db/*.sqlite3
+/db/*.sqlite3-journal
+
+# Ignore all logfiles and tempfiles.
+/log/*
+/tmp/*
+!/log/.keep
+!/tmp/.keep
+
+backend/db/*
+backend/tmp/*
+backend/log/*
+
+old/db/*
+old/tmp/*
+old/log/*
+
+# Ignore Byebug command history file.
+.byebug_history
+
+# Ignore node modules
+node_modules
+
+yarn.lock

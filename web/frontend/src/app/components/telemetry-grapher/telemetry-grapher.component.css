@@ -1,0 +1,40 @@
+.tlmgrapher-main {
+  display: flex;
+  flex-direction: row;
+}
+
+.tlmgrapher-left {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  width: 20%;
+  flex: 1 1 auto;
+  margin: 10px;
+}
+
+.tlmgrapher-chart {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  width: 80%;
+  flex: 1 1 auto;
+}
+
+p-selectbutton {
+  margin-bottom: 5px;
+}
+
+/*
+.chart-buttons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.chart-buttons button {
+  display: flex;
+  flex: 1 1 auto;
+  margin: 5px;
+}
+*/
