@@ -99,16 +99,16 @@ module Cosmos
           ["/.*/", 0, STYLES['string']],
           # Double-quoted string, possibly containing escape sequences
           ['"([^"\\\\]|\\\\.)*"', 0, STYLES['string']],
-          # Match interpolated strings "blah #{code} blah"
-          ['(\#\\{)[^\\}]*\\}', 1, STYLES['brace']],
-          ['\#\\{[^\\}]*(\\})', 1, STYLES['brace']],
-          ['\#\\{([^\\}]*)\\}', 1, STYLES['normal']],
           # Single-quoted string, possibly containing escape sequences
           ["'[^'\\\\]*(\\.[^'\\\\]*)*'", 0, STYLES['string']],
           # Back-tick string, possibly containing escape sequences
           ["`[^`\\\\]*(\\.[^`\\\\]*)*`", 0, STYLES['string']],
+          # Match interpolated strings "blah #{code} blah"
+          ['(\#\\{)[^\\}]*\\}', 1, STYLES['brace']],
+          ['\#\\{[^\\}]*(\\})', 1, STYLES['brace']],
+          ['\#\\{([^\\}]*)\\}', 1, STYLES['normal']],
           # A single # possibly followed by matched quotes
-          ['#(?=([^\'"]*(\'|")[^\'"]*(\'|"))*[^\'"]*$).*', 0, STYLES['comment']],
+          ['#(?=([^"]*(")[^"]*("))*[^"]*$).*', 0, STYLES['comment']],
       ])
 
       # Build a QRegExp for each pattern
