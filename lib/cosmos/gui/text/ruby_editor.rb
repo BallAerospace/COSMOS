@@ -108,7 +108,7 @@ module Cosmos
           ['\#\\{[^\\}]*(\\})', 1, STYLES['brace']],
           ['\#\\{([^\\}]*)\\}', 1, STYLES['normal']],
           # A single # possibly followed by matched quotes
-          ['#(?=([^"]*(")[^"]*("))*[^"]*$).*', 0, STYLES['comment']],
+          ['#(?=([^\'")]*(\'|")[^\'"]*\2)*$).*', 0, STYLES['comment']],
       ])
 
       # Build a QRegExp for each pattern
