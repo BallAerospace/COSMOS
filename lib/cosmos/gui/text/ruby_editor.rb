@@ -109,7 +109,8 @@ module Cosmos
           ["'[^'\\\\]*(?:\\.[^'\\\\]*)*'", STYLES['string']],
           # Back-tick string, possibly containing escape sequences
           ["`[^`\\\\]*(\\.[^`\\\\]*)*`", STYLES['string']],
-          # A single # possibly followed by matched quotes
+          # Double quoted string | single quoted string | comment
+          # We don't want the first two but we want the last
           ["\"[^\"]*\"|\'[^\']*\'|(#.*)", STYLES['comment']],
       ])
 
