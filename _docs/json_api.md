@@ -92,7 +92,27 @@ Example Usage:
 <-- {"jsonrpc": "2.0", "result": 94.9438, "id": 2}
 {% endhighlight %}
 
+## Further Debugging
 
+If developing an interface for the JSON API from another language, the best way to debug is to send the same messages from the supported Ruby interface first, like the following.  By enabling the debug mode, you can see the exact request and response sent from the Ruby Implementation.
+
+1.	Launch CmdTlmServer
+2.	From a command line, launch ScriptRunner: ruby ScriptRunner
+3.	Run a script like the following:
+
+{% highlight ruby %}
+JsonDRb.debug = true
+cmd("INST ARYCMD with ARRAY [1, 2, 3]")
+{% endhighlight %}
+
+4.	The following will be printed to the terminal where you launched ScriptRunner:
+
+{% highlight bash %}
+Request:
+{"jsonrpc":"2.0","method":"cmd","params":["INST ARYCMD with ARRAY [1, 2, 3]"],"id":0}
+Response:
+{"jsonrpc":"2.0","id":0,"result":["INST","ARYCMD",{"ARRAY":[1,2,3]}]}
+{% endhighlight %}
 
 
 

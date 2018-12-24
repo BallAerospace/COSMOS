@@ -11,8 +11,8 @@
     <title xml:lang="en">Ball Aerospace COSMOS News</title>
     <atom:link type="application/atom+xml" href="http://cosmosrb/feed.xml" rel="self"/>
     <link>http://cosmosrb.com/</link>
-    <pubDate>Wed, 24 Oct 2018 10:50:55 -0600</pubDate>
-    <lastBuildDate>Wed, 24 Oct 2018 10:50:55 -0600</lastBuildDate>
+    <pubDate>Mon, 24 Dec 2018 12:31:42 -0700</pubDate>
+    <lastBuildDate>Mon, 24 Dec 2018 12:31:42 -0700</lastBuildDate>
     <language>en-US</language>
     <generator>Jekyll v3.5.2</generator>
     <description>The User Interface for Embedded Systems</description>
@@ -24,6 +24,54 @@
       <width>144</width>
       <height>73</height>
     </image>
+    
+    <item>
+      <title>Little Endian Packet Data</title>
+      <link>http://cosmosrb.com/news/2018/12/24/little-endian/</link>
+      <pubDate>Mon, 24 Dec 2018 08:00:00 -0700</pubDate>
+      <dc:creator>ryanmelt</dc:creator>
+      
+      
+      <category>post</category>
+      
+      <guid isPermaLink="true">http://cosmosrb.com/news/2018/12/24/little-endian/</guid>
+      <description>&lt;p&gt;APPEND does not work with little endian bitfields.&lt;/p&gt;
+
+&lt;p&gt;Defining little endian bitfields is a little weird but does work in COSMOS.&lt;/p&gt;
+
+&lt;p&gt;Rules on how COSMOS handles LITTLE_ENDIAN data:&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;COSMOS bit offsets are always defined in BIG_ENDIAN terms. Bit 0 is always the most significant bit of the first byte in a packet, and increasing from there.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;All 8, 16, 32, and 64-bit byte-aligned LITTLE_ENDIAN data types define their bit_offset as the most significant bit of the first byte in the packet that contains part of the item. (This is exactly the same as BIG_ENDIAN). Note that for all except 8-bit LITTLE_ENDIAN items, this is the LEAST significant byte of the item.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;LITTLE_ENDIAN bit fields are defined as any LITTLE_ENDIAN INT or UINT item that is not 8, 16, 32, or 64-bit and byte aligned.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;LITTLE_ENDIAN bit fields must define their bit_offset as the location of the most significant bit of the bitfield in BIG_ENDIAN space as described in rule 1 above. So for example. The following C struct at the beginning of a packet would be defined like so:&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;struct {
+  unsigned short a:4;
+  unsigned short b:8;
+  unsigned short c:4;
+}
+
+ITEM A 4 4 UINT &quot;struct item a&quot;
+ITEM B 12 8 UINT &quot;struct item b&quot;
+ITEM C 8 4 UINT &quot;struct item c&quot;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;This is hard to visualize, but the structure above gets spread out in a byte array like the following after byte swapping:
+least significant 4 bits of b, 4-bits a, 4-bits c, most significant 4 bits of b&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>Using system.txt and target.txt</title>

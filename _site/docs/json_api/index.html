@@ -3737,6 +3737,28 @@
 <span class="gp">--&gt; </span><span class="o">{</span><span class="s2">"jsonrpc"</span>: <span class="s2">"2.0"</span>, <span class="s2">"method"</span>: <span class="s2">"tlm"</span>, <span class="s2">"params"</span>: <span class="o">[</span><span class="s2">"INST"</span>, <span class="s2">"HEALTH_STATUS"</span>, <span class="s2">"TEMP1"</span><span class="o">]</span>, <span class="s2">"id"</span>: 2<span class="o">}</span>
 &lt;-- <span class="o">{</span><span class="s2">"jsonrpc"</span>: <span class="s2">"2.0"</span>, <span class="s2">"result"</span>: 94.9438, <span class="s2">"id"</span>: 2<span class="o">}</span></code></pre></figure>
 
+<h2 id="further-debugging">Further Debugging</h2>
+
+<p>If developing an interface for the JSON API from another language, the best way to debug is to send the same messages from the supported Ruby interface first, like the following.  By enabling the debug mode, you can see the exact request and response sent from the Ruby Implementation.</p>
+
+<ol>
+  <li>Launch CmdTlmServer</li>
+  <li>From a command line, launch ScriptRunner: ruby ScriptRunner</li>
+  <li>Run a script like the following:</li>
+</ol>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="no">JsonDRb</span><span class="p">.</span><span class="nf">debug</span> <span class="o">=</span> <span class="kp">true</span>
+<span class="n">cmd</span><span class="p">(</span><span class="s2">"INST ARYCMD with ARRAY [1, 2, 3]"</span><span class="p">)</span></code></pre></figure>
+
+<ol>
+  <li>The following will be printed to the terminal where you launched ScriptRunner:</li>
+</ol>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">Request:
+<span class="o">{</span><span class="s2">"jsonrpc"</span>:<span class="s2">"2.0"</span>,<span class="s2">"method"</span>:<span class="s2">"cmd"</span>,<span class="s2">"params"</span>:[<span class="s2">"INST ARYCMD with ARRAY [1, 2, 3]"</span><span class="o">]</span>,<span class="s2">"id"</span>:0<span class="o">}</span>
+Response:
+<span class="o">{</span><span class="s2">"jsonrpc"</span>:<span class="s2">"2.0"</span>,<span class="s2">"id"</span>:0,<span class="s2">"result"</span>:[<span class="s2">"INST"</span>,<span class="s2">"ARYCMD"</span>,<span class="o">{</span><span class="s2">"ARRAY"</span>:[1,2,3]<span class="o">}]}</span></code></pre></figure>
+
 
           
 

@@ -84,6 +84,8 @@
     <option value="/news/">Home</option>
     <optgroup label="v1.x">
       
+      <option value="/news/2018/12/24/little-endian/">Little Endian Packet Data</option>
+      
       <option value="/news/2018/10/05/system-target-txt/">Using system.txt and target.txt</option>
       
       <option value="/news/2018/09/14/cosmos-dockercon/">COSMOS at DockerCon 2018</option>
@@ -215,6 +217,67 @@
 
       <div class="unit four-fifths">
         
+  <article>
+  <h2>
+    <a href="/news/2018/12/24/little-endian/">
+      Little Endian Packet Data
+    </a>
+  </h2>
+  <span class="post-category">
+    <span class="label">
+      post
+    </span>
+  </span>
+  <div class="post-meta">
+    <span class="post-date">
+      24 Dec 2018
+    </span>
+    <a href="https://github.com/ryanmelt" class="post-author">
+      <img src="https://github.com/ryanmelt.png" class="avatar" alt="ryanmelt avatar" width="24" height="24">
+      ryanmelt
+    </a>
+  </div>
+  <div class="post-content">
+    <p>APPEND does not work with little endian bitfields.</p>
+
+<p>Defining little endian bitfields is a little weird but does work in COSMOS.</p>
+
+<p>Rules on how COSMOS handles LITTLE_ENDIAN data:</p>
+
+<ol>
+  <li>
+    <p>COSMOS bit offsets are always defined in BIG_ENDIAN terms. Bit 0 is always the most significant bit of the first byte in a packet, and increasing from there.</p>
+  </li>
+  <li>
+    <p>All 8, 16, 32, and 64-bit byte-aligned LITTLE_ENDIAN data types define their bit_offset as the most significant bit of the first byte in the packet that contains part of the item. (This is exactly the same as BIG_ENDIAN). Note that for all except 8-bit LITTLE_ENDIAN items, this is the LEAST significant byte of the item.</p>
+  </li>
+  <li>
+    <p>LITTLE_ENDIAN bit fields are defined as any LITTLE_ENDIAN INT or UINT item that is not 8, 16, 32, or 64-bit and byte aligned.</p>
+  </li>
+  <li>
+    <p>LITTLE_ENDIAN bit fields must define their bit_offset as the location of the most significant bit of the bitfield in BIG_ENDIAN space as described in rule 1 above. So for example. The following C struct at the beginning of a packet would be defined like so:</p>
+  </li>
+</ol>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>struct {
+  unsigned short a:4;
+  unsigned short b:8;
+  unsigned short c:4;
+}
+
+ITEM A 4 4 UINT "struct item a"
+ITEM B 12 8 UINT "struct item b"
+ITEM C 8 4 UINT "struct item c"
+</code></pre>
+</div>
+
+<p>This is hard to visualize, but the structure above gets spread out in a byte array like the following after byte swapping:
+least significant 4 bits of b, 4-bits a, 4-bits c, most significant 4 bits of b</p>
+
+  </div>
+</article>
+
+
   <article>
   <h2>
     <a href="/news/2018/10/05/system-target-txt/">
@@ -4595,6 +4658,12 @@ change the whole playing field of Operations, Integration, and Test”.</p>
     </ul>
     <h4>Other News</h4>
     <ul>
+        
+        
+        <li class="">
+          <a href="/news/2018/12/24/little-endian/">Little Endian Packet Data</a>
+        </li>
+        
         
         
         <li class="">
