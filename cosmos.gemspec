@@ -73,12 +73,10 @@ spec = Gem::Specification.new do |s|
       files
     else [] end
 
-  s.has_rdoc = true
-
   s.required_ruby_version = '~> 2.2'
 
   # Runtime Dependencies
-  s.add_runtime_dependency 'bundler', '~> 1.3'
+  s.add_runtime_dependency 'bundler', '>= 1.3'
   s.add_runtime_dependency 'rdoc', '>= 4' # qtbindings doesn't parse in 6.0.0, fixed in 6.0.1
   s.add_runtime_dependency 'rake', '>= 10.0' # 10.0 released Nov 12, 2012
   s.add_runtime_dependency 'json', '>= 1.5', '< 3' # 2.0+ works with COSMOS
