@@ -73,7 +73,7 @@ spec = Gem::Specification.new do |s|
       files
     else [] end
 
-  s.required_ruby_version = '~> 2.2'
+  s.required_ruby_version = '~> 2.3'
 
   # Runtime Dependencies
   s.add_runtime_dependency 'bundler', '>= 1.3'
@@ -86,7 +86,7 @@ spec = Gem::Specification.new do |s|
   s.add_runtime_dependency 'uuidtools', '~> 2.1'
   s.add_runtime_dependency 'snmp', '~> 1.0'
   s.add_runtime_dependency 'rubyzip', '~> 1.2'
-  s.add_runtime_dependency 'nokogiri', '~> 1.6'
+  s.add_runtime_dependency 'nokogiri', '~> 1.10'
   s.add_runtime_dependency 'opengl-bindings', '~> 1.6' if RUBY_ENGINE == 'ruby' # MRI Only
   s.add_runtime_dependency 'qtbindings', '~> 4.8.6', '>= 4.8.6.2' if RUBY_ENGINE == 'ruby' # MRI Only
   s.add_runtime_dependency 'puma', '~> 3.10'
@@ -105,8 +105,8 @@ spec = Gem::Specification.new do |s|
   s.add_development_dependency 'rspec', '~> 3.5'
   s.add_development_dependency 'flog', '~> 4.0'
   s.add_development_dependency 'flay', '~> 2.0'
-  s.add_development_dependency 'reek', '~> 4.0'
-  s.add_development_dependency 'roodi', '~> 4.0'
+  s.add_development_dependency 'reek', '~> 5.0'
+  s.add_development_dependency 'roodi', '~> 5.0'
   s.add_development_dependency 'guard', '~> 2.0'
   s.add_development_dependency 'listen', '~> 3.0'
   s.add_development_dependency 'guard-bundler', '~> 2.0'
