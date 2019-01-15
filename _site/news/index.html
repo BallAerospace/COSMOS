@@ -5,7 +5,7 @@
   <title>News</title>
   <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="generator" content="Jekyll v3.5.2">
+  <meta name="generator" content="Jekyll v3.7.4">
   <link rel="alternate" type="application/rss+xml" title="Ball Aerospace COSMOS News" href="/feed.xml">
   <link rel="alternate" type="application/atom+xml" title="Recent commits to COSMOS's master branch" href="https://github.com/BallAerospace/COSMOS/commits/master.atom">
   <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic,900">
@@ -83,8 +83,6 @@
     <option value="">Navigate the blog...</option>
     <option value="/news/">Home</option>
     <optgroup label="v1.x">
-      
-      <option value="/news/2018/12/24/little-endian/">Little Endian Packet Data</option>
       
       <option value="/news/2018/10/05/system-target-txt/">Using system.txt and target.txt</option>
       
@@ -219,67 +217,6 @@
         
   <article>
   <h2>
-    <a href="/news/2018/12/24/little-endian/">
-      Little Endian Packet Data
-    </a>
-  </h2>
-  <span class="post-category">
-    <span class="label">
-      post
-    </span>
-  </span>
-  <div class="post-meta">
-    <span class="post-date">
-      24 Dec 2018
-    </span>
-    <a href="https://github.com/ryanmelt" class="post-author">
-      <img src="https://github.com/ryanmelt.png" class="avatar" alt="ryanmelt avatar" width="24" height="24">
-      ryanmelt
-    </a>
-  </div>
-  <div class="post-content">
-    <p>APPEND does not work with little endian bitfields.</p>
-
-<p>Defining little endian bitfields is a little weird but does work in COSMOS.</p>
-
-<p>Rules on how COSMOS handles LITTLE_ENDIAN data:</p>
-
-<ol>
-  <li>
-    <p>COSMOS bit offsets are always defined in BIG_ENDIAN terms. Bit 0 is always the most significant bit of the first byte in a packet, and increasing from there.</p>
-  </li>
-  <li>
-    <p>All 8, 16, 32, and 64-bit byte-aligned LITTLE_ENDIAN data types define their bit_offset as the most significant bit of the first byte in the packet that contains part of the item. (This is exactly the same as BIG_ENDIAN). Note that for all except 8-bit LITTLE_ENDIAN items, this is the LEAST significant byte of the item.</p>
-  </li>
-  <li>
-    <p>LITTLE_ENDIAN bit fields are defined as any LITTLE_ENDIAN INT or UINT item that is not 8, 16, 32, or 64-bit and byte aligned.</p>
-  </li>
-  <li>
-    <p>LITTLE_ENDIAN bit fields must define their bit_offset as the location of the most significant bit of the bitfield in BIG_ENDIAN space as described in rule 1 above. So for example. The following C struct at the beginning of a packet would be defined like so:</p>
-  </li>
-</ol>
-
-<div class="highlighter-rouge"><pre class="highlight"><code>struct {
-  unsigned short a:4;
-  unsigned short b:8;
-  unsigned short c:4;
-}
-
-ITEM A 4 4 UINT "struct item a"
-ITEM B 12 8 UINT "struct item b"
-ITEM C 8 4 UINT "struct item c"
-</code></pre>
-</div>
-
-<p>This is hard to visualize, but the structure above gets spread out in a byte array like the following after byte swapping:
-least significant 4 bits of b, 4-bits a, 4-bits c, most significant 4 bits of b</p>
-
-  </div>
-</article>
-
-
-  <article>
-  <h2>
     <a href="/news/2018/10/05/system-target-txt/">
       Using system.txt and target.txt
     </a>
@@ -304,9 +241,8 @@ least significant 4 bits of b, 4-bits a, 4-bits c, most significant 4 bits of b<
 
 <p>By default, all COSMOS tools use the config/system/system.txt file. However, all tools can take a custom system configuration file by passing the “–system <filename>" option to the tool when it starts. This is typically done in the Launcher script as shown in the COSMOS demo. Here's an excerpt which shows how we're passing system2.txt using the --system option.</filename></p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>TOOL "Command and Telemetry Server" "LAUNCH CmdTlmServer --system system2.txt" "cts.png" --config cmd_tlm_server2.txt
-</code></pre>
-</div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>TOOL "Command and Telemetry Server" "LAUNCH CmdTlmServer --system system2.txt" "cts.png" --config cmd_tlm_server2.txt
+</code></pre></div></div>
 
 <h3 id="using-multiple-systemtxt-files">Using Multiple system.txt Files</h3>
 <p>So when would you want to create and use multiple system.txt files? Since system.txt defines the targets used by the system, you can use two different system.txt files to create two configurations which contain most but not all the same targets. For example, you have a test bench with 5 different test equipment targets but different test box targets: BOX1 and BOX2. You can create one COSMOS configuration for both test benches and create two different launcher files with different lists of targets.</p>
@@ -314,10 +250,9 @@ least significant 4 bits of b, 4-bits a, 4-bits c, most significant 4 bits of b<
 <h2 id="targettxt">target.txt</h2>
 <p>The parsing of a COSMOS target is controlled by the target.txt file found at the root of the target directory. The COMMANDS and TELEMETRY keywords tell COSMOS which <a href="/docs/command">Command</a> and <a href="/docs/telemetry">Telemetry</a> files to parse. For example from the COSMOS demo INST <a href="https://github.com/BallAerospace/COSMOS/blob/master/demo/config/targets/INST/target.txt">target.txt</a></p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>COMMANDS inst_cmds.txt
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>COMMANDS inst_cmds.txt
 TELEMETRY inst_tlm.txt
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>Since we can tell COSMOS exactly which command and telemetry files to parse we can control how the target cmd/tlm definitions get built. This is useful if you have a target with slightly different command and telemetry definitions. This can happen for varous reasons like connecting to slightly different hardware revisions. The advantage of using a single target folder in this case (vs just copying and renaming the target folder) is that you can (potentially) reuse screens and target library code. Obviously this only works if the command and telemetry definitions are only slightly different between revisions.</p>
 
@@ -327,50 +262,42 @@ TELEMETRY inst_tlm.txt
 <p>This example is losely based on the COSMOS demo. First create two separate system.txt files called system1.txt and system2.txt:</p>
 
 <p>Partial system1.txt:</p>
-<div class="highlighter-rouge"><pre class="highlight"><code>DECLARE_TARGET INST nil target1.txt
-</code></pre>
-</div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>DECLARE_TARGET INST nil target1.txt
+</code></pre></div></div>
 
 <p>Partial system2.txt</p>
-<div class="highlighter-rouge"><pre class="highlight"><code>DECLARE_TARGET INST nil target2.txt
-</code></pre>
-</div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>DECLARE_TARGET INST nil target2.txt
+</code></pre></div></div>
 
 <p>The target1.txt file in the INST target calls out one set of cmd/tlm files:</p>
-<div class="highlighter-rouge"><pre class="highlight"><code>COMMANDS inst1_cmds.txt
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>COMMANDS inst1_cmds.txt
 TELEMETRY inst1_tlm.txt
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>The target2.txt file in the INST target calls out another set:</p>
-<div class="highlighter-rouge"><pre class="highlight"><code>COMMANDS inst2_cmds.txt
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>COMMANDS inst2_cmds.txt
 TELEMETRY inst2_tlm.txt
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>You also have to ensure your Launcher scripts specify the correct system.txt file when launching the tools:</p>
 
 <p>Partial launcher1.txt:</p>
-<div class="highlighter-rouge"><pre class="highlight"><code>TOOL "Command and Telemetry Server" "LAUNCH CmdTlmServer --system system1.txt" "cts.png" --config cmd_tlm_server.txt
-</code></pre>
-</div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>TOOL "Command and Telemetry Server" "LAUNCH CmdTlmServer --system system1.txt" "cts.png" --config cmd_tlm_server.txt
+</code></pre></div></div>
 
 <p>Partial launcher2.txt:</p>
-<div class="highlighter-rouge"><pre class="highlight"><code>TOOL "Command and Telemetry Server" "LAUNCH CmdTlmServer --system system2.txt" "cts.png" --config cmd_tlm_server.txt
-</code></pre>
-</div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>TOOL "Command and Telemetry Server" "LAUNCH CmdTlmServer --system system2.txt" "cts.png" --config cmd_tlm_server.txt
+</code></pre></div></div>
 
 <p>Once you have your launcher configurations in place you can create a simple Batch file or shell script to launch COSMOS.</p>
 
 <p>Launcher1.bat:</p>
-<div class="highlighter-rouge"><pre class="highlight"><code>call tools\Launcher.bat --config launcher1.txt
-</code></pre>
-</div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>call tools\Launcher.bat --config launcher1.txt
+</code></pre></div></div>
 
 <p>Launcher2.bat:</p>
-<div class="highlighter-rouge"><pre class="highlight"><code>call tools\Launcher.bat --config launcher2.txt
-</code></pre>
-</div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>call tools\Launcher.bat --config launcher2.txt
+</code></pre></div></div>
 
 <p>With correct usage of system.txt and target.txt you can consolidate your COSMOS configurations and avoid copying and pasting. This makes your COSMOS configuration easier to test and maintain.</p>
 
@@ -380,19 +307,17 @@ TELEMETRY inst2_tlm.txt
 
 <p>Create a file in the target’s cmd_tlm folder named after the original file but with an extension like _override.txt. For example, you have the following telemetry definition file named inst_tlm.txt:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>TELEMETRY INST HEALTH_STATUS BIG_ENDIAN "Health and status from the target"
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>TELEMETRY INST HEALTH_STATUS BIG_ENDIAN "Health and status from the target"
   APPEND_ITEM COLLECTS         16 UINT     "Number of collects"
   APPEND_ITEM TEMP1            16 UINT     "Temperature #1"
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>Create another file called inst_tlm_override.txt and start overriding telemetry using the <a href="/docs/telemetry/#select_telemetry">SELECT_TELEMETRY</a> and <a href="/docs/telemetry/#select_item">SELECT_ITEM</a> keywords. Note that the filename is important because by default COSMOS processes cmd/tlm definition files in alphabetical order. For example, if you have a telemetry file named “telemetry.txt” and created a file called “override.txt”, you would get an error because the telemetry file will not be processed before the override.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>SELECT_TELEMETRY INST HEALTH_STATUS
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>SELECT_TELEMETRY INST HEALTH_STATUS
   SELECT_ITEM COLLECTS
     FORMAT_STRING "0x%0X"
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>Note that you can include these override files as needed based on the target.txt file as described above.</p>
 
@@ -560,10 +485,9 @@ The COSMOS log file format and predentified protocol formats have changed to sup
 <p>If you already setup DART for your program please follow the following additional steps:
 In a terminal in your COSMOS project folder run:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>rake db:migrate
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>rake db:migrate
 rake db:seed
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>See the COSMOS documentation for directions on setting up DART: http://cosmosrb.com/docs/home/</p>
 
@@ -737,7 +661,7 @@ rake db:seed
 
 <p>COSMOS derived items are defined very similarly to real items except they use the special DERIVED telemetry type. Here is how the default COSMOS derived items might look in a telemetry definition.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>ITEM PACKET_TIMESECONDS 0 0 DERIVED "COSMOS Received Time (UTC, Floating point, Unix epoch)"
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ITEM PACKET_TIMESECONDS 0 0 DERIVED "COSMOS Received Time (UTC, Floating point, Unix epoch)"
   READ_CONVERSION packet_time_seconds_conversion.rb
   FORMAT_STRING '%0.6f'
 ITEM PACKET_TIMEFORMATTED 0 0 DERIVED "COSMOS Received Time (Local time zone, Formatted string)"
@@ -749,20 +673,18 @@ ITEM RECEIVED_TIMEFORMATTED 0 0 DERIVED "COSMOS Received Time (Local time zone, 
   READ_CONVERSION received_time_formatted_conversion.rb
 ITEM RECEIVED_COUNT 0 0 DERIVED "COSMOS packet received count"
   READ_CONVERSION received_count_conversion.rb
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>Note the DERIVED type where real items are INT, UINT, FLOAT, STRING or BLOCK. Also note that the bit offset and bit size values are zero. This is due to the fact that these items don’t actually exist in the binary packet but are created on the fly when the packet is processed. This also has implications with playback of the data. Since these items don’t actually exist in the binary file, they are created on the fly even when doing playback through the Replay tool. Thus if your DERIVED item is aggregating multiple values such as a running average, it will take a few samples to generate a good value.</p>
 
 <h3 id="creating-a-derived-average">Creating a Derived Average</h3>
 <p>A common usecase is to create a derived item which averages other telemetry points. Let’s explore how to do this within the COSMOS Demo. The COSMOS Demo already declares 4 fake temperatures named TEMP1, TEMP2, TEMP3, and TEMP4. Let’s create a new derived item called TEMP_AVERAGE that averages them.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>ITEM TEMP_AVERAGE 0 0 DERIVED "Average of TEMP1, TEMP2, TEMP3, TEMP4"
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ITEM TEMP_AVERAGE 0 0 DERIVED "Average of TEMP1, TEMP2, TEMP3, TEMP4"
   GENERIC_READ_CONVERSION_START FLOAT 32
     (packet.read("TEMP1") + packet.read("TEMP2") + packet.read("TEMP3") + packet.read("TEMP4")) / 4.0
   GENERIC_READ_CONVERSION_END
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>The GENERIC_READ_CONVERSION_START keyword also takes two additional argument which describe the output of the conversion. Here we specify FLOAT 32 to indicate the conversion will return a 32 bit floating point value.</p>
 
@@ -771,10 +693,9 @@ ITEM RECEIVED_COUNT 0 0 DERIVED "COSMOS packet received count"
 <h3 id="using-a-conversion-class">Using a Conversion Class</h3>
 <p>While it is easy to create a simple conversion using GENERIC_READ_CONVERSION there are multiple reasons to prefer a Conversion class. Creating a separate conversion class is easier to test, easier to reuse and has better performance. Let’s create a conversion which performs averging and rewrite the previous example. First the telemetry definition will now look like this.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>ITEM TEMP_AVERAGE 0 0 DERIVED "Average of TEMP1, TEMP2, TEMP3, TEMP4"
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ITEM TEMP_AVERAGE 0 0 DERIVED "Average of TEMP1, TEMP2, TEMP3, TEMP4"
   READ_CONVERSION average_conversion.rb TEMP1 TEMP2 TEMP3 TEMP4
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>We now need to implement average_conversion.rb to take our arguments and generate the average. Put this new file in the target’s lib folder (in the demo this is config/targets/INST/lib).</p>
 
@@ -802,9 +723,8 @@ ITEM RECEIVED_COUNT 0 0 DERIVED "COSMOS packet received count"
 
 <p>We’re not yet done though as we need to edit the INST/target.txt file to require this new conversion.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>REQUIRE average_conversion.rb
-</code></pre>
-</div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>REQUIRE average_conversion.rb
+</code></pre></div></div>
 
 <p>Running this in the Demo with Telemetry Grapher shows our new average value pretty clearly.</p>
 
@@ -898,14 +818,13 @@ ITEM RECEIVED_COUNT 0 0 DERIVED "COSMOS packet received count"
 
 <p>Items are assigned to a group using the <a href="/docs/telemetry/#limits_group_item">LIMITS_GROUP_ITEM</a> keyword. Here is the definition in the COSMOS demo.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>LIMITS_GROUP INST2_TEMP2
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>LIMITS_GROUP INST2_TEMP2
   LIMITS_GROUP_ITEM INST2 HEALTH_STATUS TEMP2
 
 LIMITS_GROUP INST2_GROUND
   LIMITS_GROUP_ITEM INST2 HEALTH_STATUS GROUND1STATUS
   LIMITS_GROUP_ITEM INST2 HEALTH_STATUS GROUND2STATUS
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <h3 id="scripting-limits-groups">Scripting Limits Groups</h3>
 <p>You can also manipulate the limits groups programatically from a script.</p>
@@ -923,7 +842,7 @@ LIMITS_GROUP INST2_GROUND
   <span class="c1"># Inheriting from the LimitsGroupsBackgroundTask provides a framework for</span>
   <span class="c1"># automatically enabling and disabling limits groups based on telemetry.</span>
   <span class="k">class</span> <span class="nc">LimitsGroups</span> <span class="o">&lt;</span> <span class="no">LimitsGroupsBackgroundTask</span>
-    <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">initial_delay</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">task_delay</span> <span class="o">=</span> <span class="mi">0</span><span class="o">.</span><span class="mi">5</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">initial_delay</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">task_delay</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">)</span>
       <span class="c1"># Initial delay upon starting the server before staring the group checks</span>
       <span class="c1"># followed by the background task delay between check iterations</span>
       <span class="k">super</span><span class="p">(</span><span class="n">initial_delay</span><span class="p">,</span> <span class="n">task_delay</span><span class="p">)</span>
@@ -954,12 +873,11 @@ LIMITS_GROUP INST2_GROUND
 
 <p>The code inside the process_group block (the lines after ‘do’ and before ‘end’) must return a boolean. True will enable the group and false will disable the group. In this example, the group is enabled when the value is not NaN (Not a Number) and not Infinite. If the value is NaN or Infinite the group is disabled. You can watch this happening in the demo by watching the bottom log portion of the Command and Telemetry Server.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>2018/02/12 09:12:58.118  ERROR: INST HEALTH_STATUS TEMP2 = NaN is RED_LOW
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>2018/02/12 09:12:58.118  ERROR: INST HEALTH_STATUS TEMP2 = NaN is RED_LOW
 2018/02/12 09:12:58.121  ERROR: INST2 HEALTH_STATUS TEMP2 = NaN is RED_LOW
 2018/02/12 09:12:58.220  INFO: Disabling Limits Group: INST2_TEMP2
 2018/02/12 09:12:58.220  INFO: Disabling Limits Group: INST2_GROUND
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>First TEMP2 transitions to NaN (this is done on purpose for the demo) which is a RED_LOW limits violation. 100ms later (due to processing time) the INST2_TEMP2 group is disabled followed by the INST2_GROUND group due to the Proc code we created.</p>
 
@@ -1038,23 +956,20 @@ LIMITS_GROUP INST2_GROUND
 
 <p>In versions of COSMOS prior to 4.0.0, metadata could be defined in any target / packet combination. In the COSMOS demo we defined metadata in the META target and DATA packet. You would then explicitly tell COSMOS where this metadata was defined by passing the target and packet name to the tools. Here is a example of an old (pre 4.0.0) cmd_tlm_server.txt configuration file:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>PACKET_LOG_WRITER DEFAULT meta_packet_log_writer.rb META DATA config/data/meta_init.txt
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>PACKET_LOG_WRITER DEFAULT meta_packet_log_writer.rb META DATA config/data/meta_init.txt
 COLLECT_METADATA META DATA
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>Here is an example of a current (post 4.0.0) cmd_tlm_server.txt configuration file:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>PACKET_LOG_WRITER DEFAULT packet_log_writer.rb nil true nil 2000000000 nil false
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>PACKET_LOG_WRITER DEFAULT packet_log_writer.rb nil true nil 2000000000 nil false
 COLLECT_METADATA
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>The PACKET_LOG_WRITER and COLLECT_METADATA keywords no longer have to specify where the metadata is stored because COSMOS 4.0.0 standardized the metadata definition in the SYSTEM target and META packet. You’ll notice the old cmd_tlm_server.txt file specified the location of a meta_init.txt file. This file contains the default values to use when initializing the metadata dialog. In post COSMOS 4.0.0 this file is defined in system.txt using the META_INIT keyword like so:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>META_INIT config/data/meta_init.txt
-</code></pre>
-</div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>META_INIT config/data/meta_init.txt
+</code></pre></div></div>
 
 <p>Note that you do not have to define all the items in your metadata in your meta_init file. Any items not found in meta_init will simply be blank in the dialog. If you try to set any of the COSMOS reserved items (defined below) they will simply be overriden with the COSMOS defined values.</p>
 
@@ -1073,7 +988,7 @@ COLLECT_METADATA
 
 <p>If you want to add your own fields to the COSMOS metadata you must define the standard COSMOS metadata items and then append your new values. For example, the COSMOS demo defines the following in <a href="https://github.com/BallAerospace/COSMOS/blob/master/demo/config/targets/SYSTEM/cmd_tlm/meta_tlm.txt">targets/SYSTEM/cmd_tlm/meta_tlm.txt</a>:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>TELEMETRY SYSTEM META BIG_ENDIAN "System Meta Data Telemetry Packet"
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>TELEMETRY SYSTEM META BIG_ENDIAN "System Meta Data Telemetry Packet"
   APPEND_ID_ITEM PKTID 8 UINT 1 "Packet Id"
   APPEND_ITEM CONFIG 256 STRING "Configuration Name"
   APPEND_ITEM COSMOS_VERSION 240 STRING "COSMOS Version"
@@ -1083,8 +998,7 @@ COLLECT_METADATA
   APPEND_ITEM RUBY_VERSION 240 STRING "Ruby Version"
     META READ_ONLY
   APPEND_ITEM OPERATOR_NAME 512 STRING "Operator Name"
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>Here we see the demo defining their own new metadata item called OPERATOR_NAME after the standard COSMOS items. Note that the definition of the standard COSMOS items is important! If you misspell an item, declare the wrong data type, or have the size wrong, COSMOS will warn you that the definition is incorrect and then define the standard set of items as described above. Thus if you’re trying to create additional items and do not see them, make sure you haven’t defined the COSMOS standard items incorrectly. (NOTE: COSMOS 4.1.2 fixed a <a href="https://github.com/BallAerospace/COSMOS/issues/690">bug</a> in this automatic generation of metadata items)</p>
 
@@ -1094,11 +1008,10 @@ COLLECT_METADATA
 
 <p>Also note that you can declare metadata items with STATES and they will be displayed as dropdowns in the metadata dialog. For example if you add the following to the SYSTEM META packet:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>APPEND_ITEM UUT 32 UINT "Unit under test"
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>APPEND_ITEM UUT 32 UINT "Unit under test"
   STATE ARTICLE_0 0
   STATE ARTICLE_1 1
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>You would see this:</p>
 
@@ -1351,18 +1264,17 @@ COLLECT_METADATA
 
 <p>The Ruby programming language defines the keywords ‘require’ and ‘load’. These are actually methods on the Kernel class and you can find the full documention on <a href="https://ruby-doc.org/">ruby-doc.org</a> for both <a href="https://ruby-doc.org/core-2.4.2/Kernel.html#method-i-require">require</a> and <a href="https://ruby-doc.org/core-2.4.2/Kernel.html#method-i-load">load</a>. They basically include additional Ruby source files into the current execution environment so they can be used by your code. The key difference is that require will only include a file once. If you try to require a file a second time the require method actually returns false indicating that the file has already been required. You can easily test this by opening an IRB session and requiring something twice.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>irb(main):001:0&gt; require 'cosmos'
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>irb(main):001:0&gt; require 'cosmos'
 =&gt; true
 irb(main):002:0&gt; require 'cosmos'
 =&gt; false
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>This has key implications for usage in COSMOS, especially when writing scripts for use in Script Runner or Test Runner. Let’s say you have a subroutine that you want to call (and don’t want to watch the line by line execution of). You require it in your script and execute it. You realize you have a bug in this required script and edit the file. Now you re-run the top level script but notice none of your changes have been include! What gives?! The require keyword notices that you’ve already required the file and thus does not re-load it on the next execution of your script. This has led some COSMOS users to simply close and re-open Script Runner or Test Runner each time they edit something. While this solves the require problem there is a better solution: load.</p>
 
 <p>The load keyword loads the specified file everytime and thus reparses any changes that may have been made to the file in question. This is almost always what you want to use when writing scripts for COSMOS as it allows you to edit files and be assured that you will be running the latest. Note the difference when using load in this IRB session.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>irb(main):001:0&gt; load 'cosmos.rb'
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>irb(main):001:0&gt; load 'cosmos.rb'
 =&gt; true
 irb(main):002:0&gt; load 'cosmos.rb'
 =&gt; true
@@ -1373,8 +1285,7 @@ LoadError: cannot load such file -- cosmos
         from C:/Ruby233p222-x64/bin/irb.cmd:19:in `&lt;main&gt;'
 irb(main):004:0&gt; require 'cosmos.rb'
 =&gt; true
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>When using the keyword load you must add the .rb Ruby extension to the file you are trying to load. Leaving this off (which is allowed with the require keyword) will result in a LoadError as shown above. Note that require works with or without the .rb Ruby extension and that the previous load of cosmos.rb did not affect the require of cosmos.rb (it still had never been required).</p>
 
@@ -1388,7 +1299,7 @@ irb(main):004:0&gt; require 'cosmos.rb'
 
 <p>After talking aobut require and load I think this is a good place to talk a little about the Ruby Load Path since it directly affects whether a require or load will succeed. The overall Ruby load path can be found by typing $LOAD_PATH. Doing this in my IRB session running Ruby 2.3.3 results in the following.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>irb(main):004:0&gt; puts $LOAD_PATH
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>irb(main):004:0&gt; puts $LOAD_PATH
 C:\git\cosmos\lib
 C:/Ruby233p222-x64/lib/ruby/gems/2.3.0/gems/did_you_mean-1.0.0/lib
 C:/Ruby233p222-x64/lib/ruby/site_ruby/2.3.0
@@ -1400,14 +1311,13 @@ C:/Ruby233p222-x64/lib/ruby/vendor_ruby
 C:/Ruby233p222-x64/lib/ruby/2.3.0
 C:/Ruby233p222-x64/lib/ruby/2.3.0/x64-mingw32
 =&gt; nil
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>You’ll notice most of these paths are relative to my Ruby installation at C:/Ruby233p222. I also have an entry for my developer copy of COSMOS due to my environment variable of RUBYLIB=C:\git\cosmos\lib. As a COSMOS developer I have this variable set but you most likely will not. Setting the RUBYLIB environment variable is useful when developing but can interfere with loading gems since it is at the top of the $LOAD_PATH.</p>
 
 <p>When you start requiring other libraries they typically add things to your LOAD_PATH. Watch what happens when I require ‘cosmos’.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>irb(main):001:0&gt; require 'cosmos'
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>irb(main):001:0&gt; require 'cosmos'
 =&gt; true
 irb(main):002:0&gt; puts $LOAD_PATH
 C:/Ruby233p222-x64/lib/ruby/gems/2.3.0/gems/uuidtools-2.1.5/lib
@@ -1432,14 +1342,13 @@ C:/Ruby233p222-x64/lib/ruby/vendor_ruby
 C:/Ruby233p222-x64/lib/ruby/2.3.0
 C:/Ruby233p222-x64/lib/ruby/2.3.0/x64-mingw32
 =&gt; nil
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>Now a bunch of gems have added themselves to my $LOAD_PATH. These gems are the gems that cosmos has dependencies on. Note that when you require or load a file the $LOAD_PATH entries are searched in order. Thus in the above example a file in the uuidtools library will be found before a file in the rubyzip library.</p>
 
 <p>You can display your $LOAD_PATH from Script Runner by simply running “puts $LOAD_PATH” from Script Runner. When I do this I get the following in my Script Output:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>2017/11/13 10:58:21.815 (SCRIPTRUNNER): Starting script:
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>2017/11/13 10:58:21.815 (SCRIPTRUNNER): Starting script:
 2017/11/13 10:58:22.076 (:1): C:/git/COSMOS/demo/procedures
 2017/11/13 10:58:22.076 (:1): C:/Ruby233p222-x64/lib/ruby/gems/2.3.0/gems/uuidtools-2.1.5/lib
 2017/11/13 10:58:22.076 (:1): C:/git/COSMOS/demo/lib
@@ -1537,15 +1446,13 @@ C:/Ruby233p222-x64/lib/ruby/2.3.0/x64-mingw32
 2017/11/13 10:58:22.076 (:1): C:/git/COSMOS/demo/config/targets/TEMPLATED/lib
 2017/11/13 10:58:22.076 (:1): C:/git/COSMOS/demo/config/targets/SYSTEM/lib
 2017/11/13 10:58:22.092 (SCRIPTRUNNER): Script completed:
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>Wow, that is a lot of gems! COSMOS requires a lot of libraries to support how it operates including many used for development purposes like rspec and simplecov. An important thing to note is at the top of the list the following paths are listed.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>C:/git/COSMOS/demo/procedures
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>C:/git/COSMOS/demo/procedures
 C:/git/COSMOS/demo/lib
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>The first path is due to the following line in the COSMOS Demo configuration’s system.txt configuration file: <code class="highlighter-rouge">PATH PROCEDURES ./procedures</code>. This adds the procedures directory in the current COSMOS configuration (C:/git/COSMOS/demo on my machine) to the path.</p>
 
@@ -1553,13 +1460,12 @@ C:/git/COSMOS/demo/lib
 
 <p>You should also note the last few lines of the $LOAD_PATH.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>C:/git/COSMOS/demo/config/targets/INST/lib
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>C:/git/COSMOS/demo/config/targets/INST/lib
 C:/git/COSMOS/demo/config/targets/INST/procedures
 C:/git/COSMOS/demo/config/targets/EXAMPLE/lib
 C:/git/COSMOS/demo/config/targets/TEMPLATED/lib
 C:/git/COSMOS/demo/config/targets/SYSTEM/lib
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>These are added because COSMOS automatically adds the lib and procedures directory from each Target folder. Thus you are able to directly load a file in the INST/procedures directory by doing “load ‘checks.rb’” (for example). If a file is in a subdirectory like the INST/procedures/utilities directory, then you must specify the additional subpath such as “load_utility ‘utilities/clear.rb’”.</p>
 
@@ -1627,16 +1533,14 @@ C:/git/COSMOS/demo/config/targets/SYSTEM/lib
 <ol>
   <li>Edit config/tools/launcher/launcher.txt</li>
   <li>Add the following line (typically after Utilities LABEL)
-    <div class="highlighter-rouge"><pre class="highlight"><code>TOOL "Config Editor" "LAUNCH ConfigEditor" "config_editor.png"
-</code></pre>
-    </div>
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>TOOL "Config Editor" "LAUNCH ConfigEditor" "config_editor.png"
+</code></pre></div>    </div>
   </li>
 </ol>
 
 <p>Restart your Launcher and you should see this new tool to help you configure COSMOS. Note that if you don’t have the Configuration Editor button then you probably also don’t have a button for the new Command Sequence tool. Add the following line after the Command Sender line to access this tool:</p>
-<div class="highlighter-rouge"><pre class="highlight"><code>TOOL "Command Sequence" "LAUNCH CmdSequence" "cmd_sequence.png"
-</code></pre>
-</div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>TOOL "Command Sequence" "LAUNCH CmdSequence" "cmd_sequence.png"
+</code></pre></div></div>
 
 <p>Enjoy these new COSMOS 4.0 tools!</p>
 
@@ -1818,26 +1722,22 @@ C:/git/COSMOS/demo/config/targets/SYSTEM/lib
 <img src="/img/2017_08_23_aws_red_hat_connect.png" alt="Connect Dialog" /></p>
 
 <p>SSH to the instance using the connection string provided making sure to specify the full path to your ‘pem’ file in the quoted path after the -i option. Install a GUI by issuing the following command:</p>
-<div class="highlighter-rouge"><pre class="highlight"><code>sudo yum groupinstall 'Server with GUI'
-</code></pre>
-</div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>sudo yum groupinstall 'Server with GUI'
+</code></pre></div></div>
 
 <p>Install COSMOS using the installation bash file:</p>
-<div class="highlighter-rouge"><pre class="highlight"><code>bash &lt;(\curl -sSL https://raw.githubusercontent.com/BallAerospace/COSMOS/master/vendor/installers/linux_mac/INSTALL_COSMOS.sh)
-</code></pre>
-</div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>bash &lt;(\curl -sSL https://raw.githubusercontent.com/BallAerospace/COSMOS/master/vendor/installers/linux_mac/INSTALL_COSMOS.sh)
+</code></pre></div></div>
 
 <p>Chose the sudo option when asked how to install. To enable X forwarding edit the SSH config file:</p>
-<div class="highlighter-rouge"><pre class="highlight"><code>sudo vim /etc/ssh/sshd_config
-</code></pre>
-</div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>sudo vim /etc/ssh/sshd_config
+</code></pre></div></div>
 
 <p>Enable the following settings:</p>
-<div class="highlighter-rouge"><pre class="highlight"><code>X11Forwarding yes
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>X11Forwarding yes
 X11DisplayOffset 10
 X11UseLocalhost no
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>Close your current SSH connection and reconnect with SSH adding the -X option to enable X11 forwarding and -Y to enable trusted X11 fowarding. If you host OS is Mac OS X you’ll need to install <a href="https://www.xquartz.org/">XQuartz</a>. Linux has X11 forward support built-in. Windows should probably install Xming which is an exercise left to the reader.</p>
 
@@ -1856,20 +1756,18 @@ X11UseLocalhost no
 <img src="/img/2017_08_23_aws_security_group.png" alt="Security Group" /></p>
 
 <p>SSH to the instance using the connection string provided making sure to specify the full path to your ‘pem’ file in the quoted path after the -i option. Install a GUI by issuing the following command:</p>
-<div class="highlighter-rouge"><pre class="highlight"><code>sudo apt-get update
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>sudo apt-get update
 sudo apt install xfce4 xfce4-goodies tightvncserver
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>Run the following commands to setup the VNC server:</p>
-<div class="highlighter-rouge"><pre class="highlight"><code>vncserver
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>vncserver
 vncserver -kill :1
 vim ~/.vnc/xstartup
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>Ensure your xstartup file matches the following:</p>
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="c">#!/bin/sh</span>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/bin/sh</span>
 
 <span class="c"># Uncomment the following two lines for normal desktop:</span>
 <span class="nb">unset </span>SESSION_MANAGER
@@ -1877,24 +1775,21 @@ vim ~/.vnc/xstartup
 <span class="nb">unset </span>DBUS_SESSION_BUS_ADDRESS
 startxfce4 &amp;
 
-<span class="o">[</span> -x /etc/vnc/xstartup <span class="o">]</span> <span class="o">&amp;&amp;</span> <span class="nb">exec</span> /etc/vnc/xstartup
-<span class="o">[</span> -r <span class="nv">$HOME</span>/.Xresources <span class="o">]</span> <span class="o">&amp;&amp;</span> xrdb <span class="nv">$HOME</span>/.Xresources
-xsetroot -solid grey
-vncconfig -iconic &amp;
+<span class="o">[</span> <span class="nt">-x</span> /etc/vnc/xstartup <span class="o">]</span> <span class="o">&amp;&amp;</span> <span class="nb">exec</span> /etc/vnc/xstartup
+<span class="o">[</span> <span class="nt">-r</span> <span class="nv">$HOME</span>/.Xresources <span class="o">]</span> <span class="o">&amp;&amp;</span> xrdb <span class="nv">$HOME</span>/.Xresources
+xsetroot <span class="nt">-solid</span> grey
+vncconfig <span class="nt">-iconic</span> &amp;
 <span class="c">#x-terminal-emulator -geometry 80x24+10+10 -ls -title "$VNCDESKTOP Desktop" &amp;</span>
 <span class="c">#x-window-manager &amp;</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>Restart VNC:</p>
-<div class="highlighter-rouge"><pre class="highlight"><code>vncserver
-</code></pre>
-</div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>vncserver
+</code></pre></div></div>
 
 <p>Install COSMOS using the installation bash file:</p>
-<div class="highlighter-rouge"><pre class="highlight"><code>bash &lt;(\curl -sSL https://raw.githubusercontent.com/BallAerospace/COSMOS/master/vendor/installers/linux_mac/INSTALL_COSMOS.sh)
-</code></pre>
-</div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>bash &lt;(\curl -sSL https://raw.githubusercontent.com/BallAerospace/COSMOS/master/vendor/installers/linux_mac/INSTALL_COSMOS.sh)
+</code></pre></div></div>
 
 <p>Chose the sudo option when asked how to install. On your local machine install a VNC viewer such as TightVNC and connect by entering the Public DNS address of your AWS instance in the Remote Host as well as the Port number of 5901. Typically this is added by appending it to the Remote Host address with a colon. Here is a screenshot of it running while I connected via TightVNC:
 <img src="/img/2017_08_23_aws_ubuntu_vnc.png" alt="Red Hat X" /></p>
@@ -2143,16 +2038,15 @@ vncconfig -iconic &amp;
 
 <p>For this example we’ll assume we’re trying to talk to a SCPI enabled power supply such as the Keysight N6700. We start by creating a directory under our config/targets called POWER. The supply has a TCP/IP interface so we’ll use the <a href="http://cosmosrb.com/docs/interfaces/#tcpip-client-interface">TCP/IP Client Interface</a> to connect to it. Thus we create our POWER/cmd_tlm_server.txt file as follows:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>INTERFACE POWER_INT tcpip_client_interface.rb 127.0.0.1 5025 5025 10.0 nil TEMPLATE 0x0A 0x0A
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>INTERFACE POWER_INT tcpip_client_interface.rb 127.0.0.1 5025 5025 10.0 nil TEMPLATE 0x0A 0x0A
   TARGET POWER
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>This definition declares an interface named POWER_INT using the TCP/IP client interface which connects to ‘127.0.0.1’ (obviously you’ll change this to your actual power supply IP addres) using a write and read port of 5025 (standard SCPI ports for Keysight instruments) with a write timeout of 10s and no read timeout (block on read). We specify the TEMPLATE protocol with both write and read termination characters of 0x0A (ASCII newline). Note the <a href="http://cosmosrb.com/docs/interfaces/#template-stream-protocol">TEMPLATE protocol</a> takes many additional parameters to allow you to work with off nominal protocol conditions.</p>
 
 <p>Now you can define your target’s command and telemetry definitions. We’ll create example commands which get and set the voltage setting in our power supply. Create a POWER/cmd_tlm/cmd.txt file which has the following:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>COMMAND POWER GET_VOLTAGE BIG_ENDIAN "Get voltage"
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>COMMAND POWER GET_VOLTAGE BIG_ENDIAN "Get voltage"
   APPEND_ID_PARAMETER CMD_ID 8 UINT 1 1 1 "Command Id" # Unique command ID
   APPEND_PARAMETER CHANNEL 8 UINT 1 4 1 "Channel"
   APPEND_PARAMETER CMD_TEMPLATE 512 STRING "MEAS:VOLT? (@&lt;CHANNEL&gt;)"
@@ -2166,14 +2060,13 @@ COMMAND POWER SET_VOLTAGE BIG_ENDIAN "Set voltage"
   APPEND_PARAMETER CMD_TEMPLATE 512 STRING "VOLT &lt;VOLTAGE&gt;,(@&lt;CHANNEL&gt;)"
   APPEND_PARAMETER RSP_TEMPLATE 512 STRING "&lt;SET_VOLTAGE&gt;"
   APPEND_PARAMETER RSP_PACKET 512 STRING "TLM"
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>The CMD_ID parameter is defined by <a href="/docs/command/#append_id_parameter">APPEND_ID_PARAMETER</a>. This ID parameter is not used by the SCPI protocol but is needed for COSMOS to identify the command when it is logged. The CMD_TEMPLATE parameter is the actual SCPI command which is being sent to the target. Anything inside brackets &lt;&gt; will be replaced by the value in the named parameter. For example, both commands define the CHANNEL parameter and thus &lt;CHANNEL&gt; will be replaced by the value of that parameter when constructing the command. The RSP_TEMPLATE is the expected string response back from the target. This is parsed by pulling out values into the bracket delimited values. The RSP_PACKET defines the packet where the bracket delimited values are defined. So for our GET_VOLTAGE example we parse the VOLTAGE value and place it in the TLM packet.</p>
 
 <p>Create a POWER/cmd_tlm/tlm.txt file to define the response telemetry:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>TELEMETRY POWER TLM BIG_ENDIAN "Power Supply Telemetry"
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>TELEMETRY POWER TLM BIG_ENDIAN "Power Supply Telemetry"
   APPEND_ID_ITEM TLM_ID 32 INT 1 "Packet Identifier" # Unique telemetry ID
   APPEND_ITEM VOLTAGE 32 FLOAT "PS Measured Voltage"
     FORMAT_STRING "%0.3f"
@@ -2181,21 +2074,19 @@ COMMAND POWER SET_VOLTAGE BIG_ENDIAN "Set voltage"
   APPEND_ITEM SET_VOLTAGE 32 FLOAT "PS Set Voltage"
     FORMAT_STRING "%0.3f"
     UNITS "Volts" "V"
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>The TLM_ID item is defined by <a href="/docs/telemetry/#append_id_item">APPEND_ID_ITEM</a>. This ID item is not used by the SCPI protocol but is needed by COSMOS to decode this logged telemetry packet. The packet is named TLM which matches our RSP_PACKET definition in the commands. We define VOLTAGE and SET_VOLTAGE which also match the values used in the RSP_TEMPLATE parameters in our commands.</p>
 
 <p>With Keysight supplies you can string together a bunch of SCIP commands in one CMD_TEMPLATE if you delimit them with semicolons. Then in the RSP_TEMPLATE you can break the response apart and set a bunch of telemetry items at once. For example:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>COMMAND POWER GET_STATUS BIG_ENDIAN "Get status"
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>COMMAND POWER GET_STATUS BIG_ENDIAN "Get status"
   APPEND_ID_PARAMETER CMD_ID 8 UINT 3 3 3 "Command Id" # Unique command ID
   APPEND_PARAMETER CHANNEL 8 UINT 1 4 1 "Channel"
   APPEND_PARAMETER CMD_TEMPLATE 512 STRING "MEAS:VOLT (@&lt;CHANNEL&gt;);CURR (@&lt;CHANNEL&gt;);POW (@&lt;CHANNEL&gt;)"
   APPEND_PARAMETER RSP_TEMPLATE 512 STRING "&lt;VOLTAGE&gt;,&lt;CURRENT&gt;,&lt;POWER&gt;"
   APPEND_PARAMETER RSP_PACKET 512 STRING "TLM"
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>The RSP_TEMPLATE expects to have three values delimited by the comma character. For this example to be complete you would also need to declare CURRENT and POWER items in the TLM packet.</p>
 
@@ -2263,9 +2154,8 @@ Documentation will updated the first week of April.</p>
 
 <p>You can migrate existing config files using:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>bundle exec ruby tools\TableManager --convert config\tools\table_manager\old_table_def.txt
-</code></pre>
-</div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>bundle exec ruby tools\TableManager --convert config\tools\table_manager\old_table_def.txt
+</code></pre></div></div>
 
 <p>To upgrade to the latest version of COSMOS, run “bundle update cosmos” in your COSMOS project folder.</p>
 
@@ -2306,7 +2196,7 @@ Documentation will updated the first week of April.</p>
 
 <p>This is all controlled by the INST target’s cmd/tlm definition files. If you open the INST/cmd_tlm/inst_tlm.txt file from the demo you’ll see the following at the end of the HEALTH_STATUS packet definition:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>  ITEM TEMP1HIGH 0 0 DERIVED "High-water mark for TEMP1"
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  ITEM TEMP1HIGH 0 0 DERIVED "High-water mark for TEMP1"
     READ_CONVERSION processor_conversion.rb TEMP1WATER HIGH_WATER
   ITEM TEMP1LOW 0 0 DERIVED "Low-water mark for TEMP1"
     READ_CONVERSION processor_conversion.rb TEMP1WATER LOW_WATER
@@ -2320,8 +2210,7 @@ Documentation will updated the first week of April.</p>
     READ_CONVERSION processor_conversion.rb TEMP1STAT STDDEV
   PROCESSOR TEMP1STAT statistics_processor.rb TEMP1 100
   PROCESSOR TEMP1WATER watermark_processor.rb TEMP1
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>These definitions create six new telemetry <a href="/docs/telemetry/#item">ITEMs</a>. The <a href="/docs/telemetry/#read_conversion">READ_CONVERSION</a> line takes a conversion class and then variable parameters that are passed to the class. Here we’re using the COSMOS provided processor_conversion.rb class which pulls a result calculated by a PROCESSOR. The last two lines define the two <a href="/docs/telemetry/#processor">PROCESSORs</a>.</p>
 
@@ -2565,9 +2454,8 @@ Documentation will updated the first week of April.</p>
 
 <p>You can migrate existing config files using:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>bundle exec ruby tools\TableManager --convert config\tools\table_manager\old_table_def.txt
-</code></pre>
-</div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>bundle exec ruby tools\TableManager --convert config\tools\table_manager\old_table_def.txt
+</code></pre></div></div>
 
 <p>To upgrade to the latest version of COSMOS, run “bundle update cosmos” in your COSMOS project folder.</p>
 
@@ -2605,22 +2493,20 @@ Documentation will updated the first week of April.</p>
 
 <p>The Preidentified Router is controlled by the system.txt configuration file:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code># Ethernet Ports
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code># Ethernet Ports
 PORT CTS_API 7777
 PORT TLMVIEWER_API 7778
 PORT CTS_PREIDENTIFIED 7779
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>This Router is called the PREIDENTIFIED router because it uses a special stream protocol which adds the packet received time, the target name, and the packet name before sending the packet. This stream is used by the Telemetry Grapher so it doesn’t have to spend additional cycles identifying packets and can directly graph the packets it is interested in. The Replay tool also creates this router for the exact same purpose.</p>
 
 <p>If you look back at the picture you’ll see in our demo configuration that we also create another Router called the INST_ROUTER. This is how that Router is configured:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>ROUTER INST_ROUTER tcpip_server_interface.rb 2055 2055 10.0 nil LENGTH 32 16 7
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ROUTER INST_ROUTER tcpip_server_interface.rb 2055 2055 10.0 nil LENGTH 32 16 7
   OPTION LISTEN_ADDRESS 127.0.0.1
   ROUTE INST_INT
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>Basically we’re creating a Router that routes only the INST interface data. We create this Router using a TCPIP Server interface with a LENGTH protocol of bit offset 32, length field size of 16, and length value offset of 7. These values were chosen to match the INST command and telemetry which use CCSDS headers. The CCSDS standard specifies a 16 bit length field at offset 32. The CCSDS standard also specifies that the length field is the length of the packet past the length field minus 1. Thus we add 7 for the 4 bytes of offset, 2 bytes of length field, and the minus 1.</p>
 
@@ -2639,7 +2525,7 @@ PORT CTS_PREIDENTIFIED 7779
 
 <p>Obviously we need the TCPIP Client Interface to match the port number of the TCPIP Server and we also need to match the LENGTH protocol options. Notice how we have to call the System.telemetry.identify! method to identify the raw packet stream. When I run this from a command prompt after starting the Server I see a stream of packet names similar to this:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>MECH
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>MECH
 ADCS
 MECH
 IMAGE
@@ -2649,8 +2535,7 @@ HEALTH_STATUS
 MECH
 ADCS
 ...
-</code></pre>
-</div>
+</code></pre></div></div>
 <p>You should see MECH and ADCS come out at 10Hz and the IMAGE, PARAMS, and HEALTH_STATUS come out at 1Hz. This matches the Packet Count ratio on the Tlm Packets tab of the Server.</p>
 
 <p>We can also write some code to connect to the PREIDENTIFIED router. It looks very similar to the previous code except we do not need to identify the packets as they are pre-identified!</p>
@@ -2801,12 +2686,11 @@ ADCS
 
 <p>A COSMOS user recently asked if he could include environment variables in his COSMOS configuration. This is very easy using the ERB syntax. For example, you have an environment variable named “LOG_DIR” in your system which points to the path you want to store your COSMOS logs. To use this value you would modify your system.txt file as follows:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>...
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>...
 # Paths
 PATH LOGS &lt;%= ENV["LOG_DIR"] %&gt;
 ...
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>When this file gets parsed by COSMOS, the value of the LOG_DIR environment variable gets inserted into the system.txt output file. Note the %= syntax to insert the value and how I’m using the <a href="https://ruby-doc.org/core-2.3.0/ENV.html">ENV</a> from the Ruby core library.</p>
 
@@ -2818,18 +2702,17 @@ PATH LOGS &lt;%= ENV["LOG_DIR"] %&gt;
 
 <p>Now in system.txt we can use that ‘log_path’ routine after we first require ‘utilities’.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>&lt;% require 'utilities' %&gt;
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;% require 'utilities' %&gt;
 ...
 # Paths
 PATH LOGS &lt;%= log_path() %&gt;
 ...
-</code></pre>
-</div>
+</code></pre></div></div>
 <p>Notice how the first ERB statement does NOT use the %= syntax since I’m simply requiring the file I want to use. I don’t want to put anything in the template itself. Later in the PATH statement I use the %= syntax to insert the result of the log_path() method.</p>
 
 <p>ERB templates are particularly useful in command and telemetry definitions as they allow you to reuse sections. We’ve added our own routine called ‘render’ (similar to Ruby on Rails) which can render a command or telemetry template. The best example of this is in the COSMOS Demo INST target. If you open the inst_cmds.txt file you’ll see this:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>COMMAND INST COLLECT BIG_ENDIAN "Starts a collect on the instrument"
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>COMMAND INST COLLECT BIG_ENDIAN "Starts a collect on the instrument"
   &lt;%= render "_ccsds_cmd.txt", locals: {id: 1} %&gt;
   PARAMETER    TYPE           64  16  UINT MIN MAX 0 "Collect type"
     REQUIRED
@@ -2845,12 +2728,11 @@ COMMAND INST ABORT BIG_ENDIAN "Aborts a collect on the instrument"
   &lt;%= render "_ccsds_cmd.txt", locals: {id: 2} %&gt;
 
 ...
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>Notice the call to <code class="highlighter-rouge">&lt;%= render "_ccsds_cmd.txt", locals: {id: 1} %&gt;</code>. Opening the ‘_ccsds_cmd.txt’ file reveals this command template:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>  PARAMETER    CCSDSVER        0   3  UINT  0     0   0 "CCSDS primary header version number"
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  PARAMETER    CCSDSVER        0   3  UINT  0     0   0 "CCSDS primary header version number"
   PARAMETER    CCSDSTYPE       3   1  UINT  1     1   1 "CCSDS primary header packet type"
   PARAMETER    CCSDSSHF        4   1  UINT  0     0   0 "CCSDS primary header secondary header flag"
   ID_PARAMETER CCSDSAPID       5  11  UINT  0  2047 999 "CCSDS primary header application id"
@@ -2859,8 +2741,7 @@ COMMAND INST ABORT BIG_ENDIAN "Aborts a collect on the instrument"
     OVERFLOW TRUNCATE
   PARAMETER    CCSDSLENGTH    32  16  UINT MIN MAX 12 "CCSDS primary header packet length"
   ID_PARAMETER PKTID          48  16  UINT MIN MAX &lt;%= id %&gt; "Packet id"
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>The call to render replaces everything in the named template with the render call. We follow the Ruby on Rails convention of naming these templates (Rails calls them ‘partials’) with a leading underscore to differentiate them from full command and telemetry definitions. Notice too that we are passing local variables to the template. The ‘id: 1’ syntax is basically setting the ‘id’ variable in the template to 1. This allows us to send a different PKTID to each command.</p>
 
@@ -2905,13 +2786,12 @@ COMMAND INST ABORT BIG_ENDIAN "Aborts a collect on the instrument"
 
 <p>This screen is already using the Array widget to display this data in a text box. We will add our new widget to the top of the screen which will display the data in a table. Let’s add the line to the screen which will call our new widget. Edit <code class="highlighter-rouge">demo/config/targets/INST/screens/array.txt</code> and add the following line in the middle:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>...
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>...
 TITLE "Instrument Array Data"
 DEMOTABLE INST HEALTH_STATUS ARY
 ARRAY INST HEALTH_STATUS ARY 300 50 nil 8 FORMATTED
 ...
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>Now we need to create the DemotableWidget which will implement the actual display. Create a new file called <code class="highlighter-rouge">demotable_widget.rb</code> in <code class="highlighter-rouge">demo/config/targets/INST/lib</code>. Note that the name of the line in the config file, DEMOTABLE, must be all lowercase followed by an underscore and ‘widget’. The class name in the file must be one word with the first letter and Widget capitalized. This is how it should start:</p>
 
@@ -2959,7 +2839,7 @@ ARRAY INST HEALTH_STATUS ARY 300 50 nil 8 FORMATTED
 <p>Typically class methods are defined at the top of the source file and begin with self. You can also type out the class name but this is less robust as changing the class name requires changing the method name. Implementing this class method allows Telemetry Viewer to call the <code class="highlighter-rouge">value=(data)</code> method with new telemetry data. The value method implementation should look like this:</p>
 
 <figure class="highlight"><pre><code class="language-ruby" data-lang="ruby">    <span class="k">def</span> <span class="nf">value</span><span class="o">=</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-      <span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="nf">.</span><span class="o">.</span><span class="vi">@rows</span><span class="p">).</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">row</span><span class="o">|</span> <span class="c1"># Note the extra 'dot' which means up to but not including</span>
+      <span class="p">(</span><span class="mi">0</span><span class="o">...</span><span class="vi">@rows</span><span class="p">).</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">row</span><span class="o">|</span> <span class="c1"># Note the extra 'dot' which means up to but not including</span>
         <span class="n">setItem</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="no">Qt</span><span class="o">::</span><span class="no">TableWidgetItem</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">row</span><span class="p">].</span><span class="nf">to_s</span><span class="p">))</span>
       <span class="k">end</span>
     <span class="k">end</span></code></pre></figure>
@@ -2999,7 +2879,7 @@ ARRAY INST HEALTH_STATUS ARY 300 50 nil 8 FORMATTED
 
 <figure class="highlight"><pre><code class="language-ruby" data-lang="ruby">    <span class="k">def</span> <span class="nf">value</span><span class="o">=</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
       <span class="k">super</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-      <span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="nf">.</span><span class="o">.</span><span class="vi">@rows</span><span class="p">).</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">row</span><span class="o">|</span>
+      <span class="p">(</span><span class="mi">0</span><span class="o">...</span><span class="vi">@rows</span><span class="p">).</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">row</span><span class="o">|</span>
         <span class="n">item</span> <span class="o">=</span> <span class="no">Qt</span><span class="o">::</span><span class="no">TableWidgetItem</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">row</span><span class="p">])</span>
         <span class="n">item</span><span class="p">.</span><span class="nf">setBackgroundColor</span><span class="p">(</span><span class="vi">@background</span><span class="p">)</span>
         <span class="n">setItem</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">item</span><span class="p">)</span>
@@ -3060,9 +2940,9 @@ ARRAY INST HEALTH_STATUS ARY 300 50 nil 8 FORMATTED
   <span class="k">def</span> <span class="nf">post_read_data</span><span class="p">(</span><span class="n">packet_data</span><span class="p">)</span>
     <span class="n">len</span> <span class="o">=</span> <span class="n">packet_data</span><span class="p">.</span><span class="nf">length</span>
     <span class="n">calc_checksum</span> <span class="o">=</span> <span class="mh">0xFFFF</span>
-    <span class="n">packet_data</span><span class="p">[</span><span class="mi">0</span><span class="p">.</span><span class="nf">.</span><span class="p">(</span><span class="n">len</span> <span class="o">-</span> <span class="mi">3</span><span class="p">)].</span><span class="nf">each_byte</span> <span class="p">{</span><span class="o">|</span><span class="n">x</span><span class="o">|</span> <span class="n">calc_checksum</span> <span class="o">+=</span> <span class="n">x</span> <span class="p">}</span>
+    <span class="n">packet_data</span><span class="p">[</span><span class="mi">0</span><span class="o">..</span><span class="p">(</span><span class="n">len</span> <span class="o">-</span> <span class="mi">3</span><span class="p">)].</span><span class="nf">each_byte</span> <span class="p">{</span><span class="o">|</span><span class="n">x</span><span class="o">|</span> <span class="n">calc_checksum</span> <span class="o">+=</span> <span class="n">x</span> <span class="p">}</span>
     <span class="n">calc_checksum</span> <span class="o">&amp;=</span> <span class="mh">0xFFFF</span>
-    <span class="n">rx_checksum</span> <span class="o">=</span> <span class="n">packet_data</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">.</span><span class="nf">.</span><span class="o">-</span><span class="mi">1</span><span class="p">].</span><span class="nf">unpack</span><span class="p">(</span><span class="s2">"n"</span><span class="p">)</span> <span class="c1"># Unpack as 16 bit unsigned big endian</span>
+    <span class="n">rx_checksum</span> <span class="o">=</span> <span class="n">packet_data</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="o">..-</span><span class="mi">1</span><span class="p">].</span><span class="nf">unpack</span><span class="p">(</span><span class="s2">"n"</span><span class="p">)</span> <span class="c1"># Unpack as 16 bit unsigned big endian</span>
     <span class="k">if</span> <span class="n">calc_checksum</span> <span class="o">==</span> <span class="n">rx_checksum</span>
       <span class="k">return</span> <span class="n">packet_data</span>
     <span class="k">else</span>
@@ -3077,10 +2957,9 @@ ARRAY INST HEALTH_STATUS ARY 300 50 nil 8 FORMATTED
 <p>What we’re doing is overriding pre_write_packet in StreamInterface to allow us to modify the data before it is written to the packet and sent over the interface. We also override post_read_data to operate on data received before it is sent back to the COSMOS server and thus the tools. Note there is also a post_read_packet(packet) method which is called after post_read_data is called and after the COSMOS Packet has been created. All Interfaces inheriting from StreamInterface includes these callback methods, including SerialInterface, TcpipServerInterface, and TcpipClientInterface. Note that UdpInterface inherits directly from Interface and thus does NOT include these callbacks.</p>
 
 <p>Then in your cmd_tlm_server.txt file for your target you use your new interface:</p>
-<div class="highlighter-rouge"><pre class="highlight"><code>#         interface name  file name                    write read baud   parity stop timeouts stream
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>#         interface name  file name                    write read baud   parity stop timeouts stream
 INTERFACE UART_INTERFACE  checksum_serial_interface.rb COM1  COM1 115200 NONE   1    nil nil  BURST
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>I added a comment line above the definition which describes the settings. For more information see the <a href="http://cosmosrb.com/docs/interfaces/#serial-interface">Serial Interface</a> documentation.</p>
 
@@ -3115,22 +2994,20 @@ INTERFACE UART_INTERFACE  checksum_serial_interface.rb COM1  COM1 115200 NONE   
   <div class="post-content">
     <p>Recently a user asked if they could add exclamation points and question marks to their command and telemetry items. Absolutely!  COSMOS provides great flexibility in command and telemetry naming conventions. (See <a href="http://cosmosrb.com/docs/command">Command</a>). For example, adding an exclamation point to a command to denote a more severe version of the same command:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>COMMAND TGT ABORT BIG_ENDIAN "Tries to abort a collect on the instrument"
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>COMMAND TGT ABORT BIG_ENDIAN "Tries to abort a collect on the instrument"
 COMMAND TGT ABORT! BIG_ENDIAN "Force aborts a collect on the instrument"
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>While it doesn’t make sense to define a command with a question mark, it works well with telemetry points. For example, there is a telemetry point which indicates whether a mechanism is deployed or not. It is an analog value that indicates deployed if the value is above zero. To view both the raw value and the deployed status, define a derived telemetry point which indicates a TRUE or FALSE status:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>APPEND_ITEM DEPLOYED 16 UINT "Deployed raw value"
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>APPEND_ITEM DEPLOYED 16 UINT "Deployed raw value"
 ITEM DEPLOYED? 0 0 DERIVED "Deployed status"
   STATE FALSE 0
   STATE TRUE 1
   GENERIC_READ_CONVERSION_START UINT 8
     myself.read('DEPLOYED') &gt; 0 ? 1 : 0
   GENERIC_READ_CONVERSION_END
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>Note that this is probably overkill in this case because the conversion could just as easily be applied directly to the item. The raw value could then be obtained by calling tlm_raw(“TGT PKT DEPLOYED”) (see <a href="http://cosmosrb.com/docs/scripting/#tlmraw">tlm_raw</a>).</p>
 
@@ -3402,16 +3279,15 @@ ITEM DEPLOYED? 0 0 DERIVED "Deployed status"
 
 <p>First of all create a new COSMOS target directory in config/targets. I called mine INST (instrument) to match the COSMOS demo. Create the ‘cmd_tlm’ and ‘lib’ subdirectories. For my demo I created a simple ‘cmd.txt’ file which contains a single command:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>COMMAND INST SET_STATUS BIG_ENDIAN "Set status"
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>COMMAND INST SET_STATUS BIG_ENDIAN "Set status"
   APPEND_PARAMETER STATUS 0 STRING "STATUS" "Status"
     STATE "OK" "OK"
     STATE "ERROR" "ERROR"
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>I created a ‘tlm.txt’ file which contains two different telemetry packets:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>TELEMETRY INST STATUS BIG_ENDIAN "Status from the instrument"
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>TELEMETRY INST STATUS BIG_ENDIAN "Status from the instrument"
   APPEND_ID_ITEM ID 16 UINT 1 "Packet ID"
   APPEND_ITEM COUNTER 16 UINT "Packet counter"
   APPEND_ITEM STATUS 0 STRING "Most recent ASCIICMD string"
@@ -3427,29 +3303,26 @@ TELEMETRY INST DATA BIG_ENDIAN "Data from the instrument"
     UNITS CELCIUS C
     FORMAT_STRING "%0.3f"
     LIMITS DEFAULT 1 ENABLED -80.0 -70.0 60.0 80.0 -20.0 20.0
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>The cmd_tlm_server.txt file is very simple:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>INTERFACE INST_INT simulated_target_interface.rb sim_inst.rb
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>INTERFACE INST_INT simulated_target_interface.rb sim_inst.rb
   TARGET INST
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>The real work is in implementing how your simulated target is going to behave. This is done in the lib/sim_inst.rb file. Note that whatever you name your simulated target file must match the last parameter of the INTERFACE in the cmd_tlm_server.rb as shown above.</p>
 
 <p>I’ll break down my sim_inst.rb piece by piece and then list it in its entirety. First you must inherit from the Cosmos::SimulatedTarget.</p>
 
-<div class="language-ruby highlighter-rouge"><pre class="highlight"><code><span class="nb">require</span> <span class="s1">'cosmos'</span>
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">require</span> <span class="s1">'cosmos'</span>
 <span class="k">module</span> <span class="nn">Cosmos</span>
   <span class="k">class</span> <span class="nc">SimInst</span> <span class="o">&lt;</span> <span class="no">SimulatedTarget</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>Next you can initialize any of your packets in the initialize method. This is entirely optional but I show how to use the <code class="highlighter-rouge">@tlm_packets</code> hash to access all the defined packets. This hash is created automatically by the SimulatedTarget based on all the packets you have defined in your cmd_tlm/tlm.txt file. Note that there is NOT a corresponding <code class="highlighter-rouge">@cmd_packets</code>.</p>
 
-<div class="language-ruby highlighter-rouge"><pre class="highlight"><code><span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">target_name</span><span class="p">)</span>
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">target_name</span><span class="p">)</span>
   <span class="k">super</span><span class="p">(</span><span class="n">target_name</span><span class="p">)</span>
 
   <span class="c1"># We grab the STATUS packet to set initial values</span>
@@ -3457,35 +3330,32 @@ TELEMETRY INST DATA BIG_ENDIAN "Data from the instrument"
   <span class="n">packet</span><span class="p">.</span><span class="nf">enable_method_missing</span> <span class="c1"># required to use packet.&lt;item&gt; = value</span>
   <span class="n">packet</span><span class="p">.</span><span class="nf">status</span> <span class="o">=</span> <span class="s2">"NONE"</span>
 <span class="k">end</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>We then have to configure the telemetry packet rates of our target. That is, how fast do the packets get sent out. This is handled by implementing the <code class="highlighter-rouge">set_rates</code> method and by calling <code class="highlighter-rouge">set_rate</code> for each packet defined in your system. If you do not call <code class="highlighter-rouge">set_rate</code> the packet will not be send out periodically (which may be desirable for event based packets).</p>
 
-<div class="language-ruby highlighter-rouge"><pre class="highlight"><code><span class="k">def</span> <span class="nf">set_rates</span>
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">set_rates</span>
   <span class="c1"># The SimulatedTarget operates on a 101Hz clock</span>
   <span class="c1"># Thus the rates are determined by dividing this rate</span>
   <span class="c1"># by the set rate to get the output rate of the packet</span>
   <span class="n">set_rate</span><span class="p">(</span><span class="s1">'STATUS'</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span> <span class="c1"># 100 / 100 = 1Hz</span>
   <span class="n">set_rate</span><span class="p">(</span><span class="s1">'DATA'</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span> <span class="c1"># 100 / 10 = 10Hz</span>
 <span class="k">end</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>If your target will accept command you need to implemented the <code class="highlighter-rouge">write(packet)</code> method. My write method is simple in that I only have a single command that directly sets a value in one of my telemetry packets.</p>
 
-<div class="language-ruby highlighter-rouge"><pre class="highlight"><code><span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="n">packet</span><span class="p">)</span>
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="n">packet</span><span class="p">)</span>
   <span class="c1"># We directly set the telemetry value from the only command</span>
   <span class="c1"># If you have more than one command you'll need to switch</span>
   <span class="c1"># on the packet.packet_name to determine what command it is</span>
   <span class="vi">@tlm_packets</span><span class="p">[</span><span class="s1">'STATUS'</span><span class="p">].</span><span class="nf">status</span> <span class="o">=</span> <span class="n">packet</span><span class="p">.</span><span class="nf">read</span><span class="p">(</span><span class="s2">"status"</span><span class="p">)</span>
 <span class="k">end</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>Your target must implement the <code class="highlighter-rouge">read(count_100hz, time)</code> method to return telemetry packets back to COSMOS. You’ll call the <code class="highlighter-rouge">get_pending_packets(count_100hz)</code> method implemented by SimulatedTarget and then perform whatever operations you want on the packets before returning the array of packets back to COSMOS. Note my use of the <code class="highlighter-rouge">cycle_tlm_item</code> method to automatically cycle the telemetry item as each packet is sent out. This is used heavily in the COSMOS Demo.</p>
 
-<div class="language-ruby highlighter-rouge"><pre class="highlight"><code><span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="n">count_100hz</span><span class="p">,</span> <span class="n">time</span><span class="p">)</span>
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="n">count_100hz</span><span class="p">,</span> <span class="n">time</span><span class="p">)</span>
   <span class="c1"># The SimulatedTarget implements get_pending_packets to return</span>
   <span class="c1"># packets at the correct time interval based on their rates</span>
   <span class="n">pending_packets</span> <span class="o">=</span> <span class="n">get_pending_packets</span><span class="p">(</span><span class="n">count_100hz</span><span class="p">)</span>
@@ -3498,7 +3368,7 @@ TELEMETRY INST DATA BIG_ENDIAN "Data from the instrument"
       <span class="c1"># This method in SimulatedTarget cycles the specified telemetry</span>
       <span class="c1"># point between the two given values by the given increment for</span>
       <span class="c1"># each packet sent out.</span>
-      <span class="n">cycle_tlm_item</span><span class="p">(</span><span class="n">packet</span><span class="p">,</span> <span class="s1">'temp1'</span><span class="p">,</span> <span class="o">-</span><span class="mi">95</span><span class="o">.</span><span class="mi">0</span><span class="p">,</span> <span class="mi">95</span><span class="o">.</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="o">.</span><span class="mi">0</span><span class="p">)</span>
+      <span class="n">cycle_tlm_item</span><span class="p">(</span><span class="n">packet</span><span class="p">,</span> <span class="s1">'temp1'</span><span class="p">,</span> <span class="o">-</span><span class="mf">95.0</span><span class="p">,</span> <span class="mf">95.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
 
       <span class="n">packet</span><span class="p">.</span><span class="nf">timesec</span> <span class="o">=</span> <span class="n">time</span><span class="p">.</span><span class="nf">tv_sec</span>
       <span class="n">packet</span><span class="p">.</span><span class="nf">timeus</span>  <span class="o">=</span> <span class="n">time</span><span class="p">.</span><span class="nf">tv_usec</span>
@@ -3507,14 +3377,13 @@ TELEMETRY INST DATA BIG_ENDIAN "Data from the instrument"
   <span class="k">end</span>
   <span class="n">pending_packets</span>
 <span class="k">end</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>Hopefully that a little easier to understand than the full <a href="https://github.com/BallAerospace/COSMOS/tree/master/demo">COSMOS Demo</a> which has much more complex command and telemetry definitions and simulated targets in order to better exercise the various COSMOS tools. While there are other ways to simulate COSMOS targets they can get you into trouble if you’re not careful about properly cloning packets sending back updated data. Additionally, using the SimulatedTargetInterface in your Interface makes it very clear to other developers that this target is indeed simulated.</p>
 
 <p>Without further ado, here is my sim_inst.rb in its entirety:</p>
 
-<div class="language-ruby highlighter-rouge"><pre class="highlight"><code><span class="nb">require</span> <span class="s1">'cosmos'</span>
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">require</span> <span class="s1">'cosmos'</span>
 <span class="k">module</span> <span class="nn">Cosmos</span>
   <span class="k">class</span> <span class="nc">SimInst</span> <span class="o">&lt;</span> <span class="no">SimulatedTarget</span>
     <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">target_name</span><span class="p">)</span>
@@ -3554,7 +3423,7 @@ TELEMETRY INST DATA BIG_ENDIAN "Data from the instrument"
           <span class="c1"># This method in SimulatedTarget cycles the specified telemetry</span>
           <span class="c1"># point between the two given values by the given increment for</span>
           <span class="c1"># each packet sent out.</span>
-          <span class="n">cycle_tlm_item</span><span class="p">(</span><span class="n">packet</span><span class="p">,</span> <span class="s1">'temp1'</span><span class="p">,</span> <span class="o">-</span><span class="mi">95</span><span class="o">.</span><span class="mi">0</span><span class="p">,</span> <span class="mi">95</span><span class="o">.</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="o">.</span><span class="mi">0</span><span class="p">)</span>
+          <span class="n">cycle_tlm_item</span><span class="p">(</span><span class="n">packet</span><span class="p">,</span> <span class="s1">'temp1'</span><span class="p">,</span> <span class="o">-</span><span class="mf">95.0</span><span class="p">,</span> <span class="mf">95.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
 
           <span class="n">packet</span><span class="p">.</span><span class="nf">timesec</span> <span class="o">=</span> <span class="n">time</span><span class="p">.</span><span class="nf">tv_sec</span>
           <span class="n">packet</span><span class="p">.</span><span class="nf">timeus</span>  <span class="o">=</span> <span class="n">time</span><span class="p">.</span><span class="nf">tv_usec</span>
@@ -3565,8 +3434,7 @@ TELEMETRY INST DATA BIG_ENDIAN "Data from the instrument"
     <span class="k">end</span>
   <span class="k">end</span>
 <span class="k">end</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>Happy simulated target programming!</p>
 
@@ -4661,12 +4529,6 @@ change the whole playing field of Operations, Integration, and Test”.</p>
         
         
         <li class="">
-          <a href="/news/2018/12/24/little-endian/">Little Endian Packet Data</a>
-        </li>
-        
-        
-        
-        <li class="">
           <a href="/news/2018/10/05/system-target-txt/">Using system.txt and target.txt</a>
         </li>
         
@@ -4918,7 +4780,7 @@ change the whole playing field of Operations, Integration, and Test”.</p>
 <footer role="contentinfo">
   <div class="grid wider">
     <div class="unit one-third center-on-mobiles">
-      <p>The contents of this website are &copy;&nbsp;2018 <a href="http://www.ballaerospace.com/" target="_blank">Ball Aerospace</a> under the terms of the <a href="https://github.com/BallAerospace/COSMOS/blob/master/LICENSE.txt" target="_blank">GPLv3&nbsp;License</a>.</p>
+      <p>The contents of this website are &copy;&nbsp;2019 <a href="http://www.ballaerospace.com/" target="_blank">Ball Aerospace</a> under the terms of the <a href="https://github.com/BallAerospace/COSMOS/blob/master/LICENSE.txt" target="_blank">GPLv3&nbsp;License</a>.</p>
       <p>Site design derived from the <a href="http://jekyllrb.com/" target="_blank">Jekyll</a> project documentation which is licensed under the terms of the <a href="https://github.com/jekyll/jekyll/blob/master/LICENSE" target="_blank">MIT License</a>.</p>
     </div>
     <div class="unit two-thirds align-right center-on-mobiles">

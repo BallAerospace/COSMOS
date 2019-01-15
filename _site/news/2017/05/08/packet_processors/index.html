@@ -5,7 +5,7 @@
   <title>Packet Processors</title>
   <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="generator" content="Jekyll v3.5.2">
+  <meta name="generator" content="Jekyll v3.7.4">
   <link rel="alternate" type="application/rss+xml" title="Ball Aerospace COSMOS News" href="/feed.xml">
   <link rel="alternate" type="application/atom+xml" title="Recent commits to COSMOS's master branch" href="https://github.com/BallAerospace/COSMOS/commits/master.atom">
   <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic,900">
@@ -83,8 +83,6 @@
     <option value="">Navigate the blog...</option>
     <option value="/news/">Home</option>
     <optgroup label="v1.x">
-      
-      <option value="/news/2018/12/24/little-endian/">Little Endian Packet Data</option>
       
       <option value="/news/2018/10/05/system-target-txt/">Using system.txt and target.txt</option>
       
@@ -248,7 +246,7 @@
 
 <p>This is all controlled by the INST target’s cmd/tlm definition files. If you open the INST/cmd_tlm/inst_tlm.txt file from the demo you’ll see the following at the end of the HEALTH_STATUS packet definition:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>  ITEM TEMP1HIGH 0 0 DERIVED "High-water mark for TEMP1"
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  ITEM TEMP1HIGH 0 0 DERIVED "High-water mark for TEMP1"
     READ_CONVERSION processor_conversion.rb TEMP1WATER HIGH_WATER
   ITEM TEMP1LOW 0 0 DERIVED "Low-water mark for TEMP1"
     READ_CONVERSION processor_conversion.rb TEMP1WATER LOW_WATER
@@ -262,8 +260,7 @@
     READ_CONVERSION processor_conversion.rb TEMP1STAT STDDEV
   PROCESSOR TEMP1STAT statistics_processor.rb TEMP1 100
   PROCESSOR TEMP1WATER watermark_processor.rb TEMP1
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>These definitions create six new telemetry <a href="/docs/telemetry/#item">ITEMs</a>. The <a href="/docs/telemetry/#read_conversion">READ_CONVERSION</a> line takes a conversion class and then variable parameters that are passed to the class. Here we’re using the COSMOS provided processor_conversion.rb class which pulls a result calculated by a PROCESSOR. The last two lines define the two <a href="/docs/telemetry/#processor">PROCESSORs</a>.</p>
 
@@ -466,12 +463,6 @@ Then delcare the processing in your configuration definition as follows:
     </ul>
     <h4>Other News</h4>
     <ul>
-        
-        
-        <li class="">
-          <a href="/news/2018/12/24/little-endian/">Little Endian Packet Data</a>
-        </li>
-        
         
         
         <li class="">
@@ -726,7 +717,7 @@ Then delcare the processing in your configuration definition as follows:
 <footer role="contentinfo">
   <div class="grid wider">
     <div class="unit one-third center-on-mobiles">
-      <p>The contents of this website are &copy;&nbsp;2018 <a href="http://www.ballaerospace.com/" target="_blank">Ball Aerospace</a> under the terms of the <a href="https://github.com/BallAerospace/COSMOS/blob/master/LICENSE.txt" target="_blank">GPLv3&nbsp;License</a>.</p>
+      <p>The contents of this website are &copy;&nbsp;2019 <a href="http://www.ballaerospace.com/" target="_blank">Ball Aerospace</a> under the terms of the <a href="https://github.com/BallAerospace/COSMOS/blob/master/LICENSE.txt" target="_blank">GPLv3&nbsp;License</a>.</p>
       <p>Site design derived from the <a href="http://jekyllrb.com/" target="_blank">Jekyll</a> project documentation which is licensed under the terms of the <a href="https://github.com/jekyll/jekyll/blob/master/LICENSE" target="_blank">MIT License</a>.</p>
     </div>
     <div class="unit two-thirds align-right center-on-mobiles">

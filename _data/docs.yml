@@ -1,6 +1,7 @@
 - title: Getting Started
   docs:
   - home
+  - tools
   - installation
   - upgrading
   - structure

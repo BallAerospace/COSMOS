@@ -5,7 +5,7 @@
   <title>DART Installation</title>
   <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="generator" content="Jekyll v3.5.2">
+  <meta name="generator" content="Jekyll v3.7.4">
   <link rel="alternate" type="application/rss+xml" title="Ball Aerospace COSMOS News" href="/feed.xml">
   <link rel="alternate" type="application/atom+xml" title="Recent commits to COSMOS's master branch" href="https://github.com/BallAerospace/COSMOS/commits/master.atom">
   <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic,900">
@@ -167,6 +167,94 @@
   
     
   
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/tools/">Tools</option>
     
   
     
@@ -3592,24 +3680,22 @@
           <ol>
   <li>DART requires at least COSMOS version 4.3.0 although you should always install the latest to get important bug fixes and feature updates. Install the latest COSMOS by running:
     <div class="highlighter-rouge">
-<pre class="highlight"><code> bundle update cosmos
-</code></pre>
-    </div>
+<div class="highlight"><pre class="highlight"><code> bundle update cosmos
+</code></pre></div>    </div>
   </li>
   <li>Install the PostgreSQL database. DART has been tested with both version 9.x and 10.x so we recommend the latest version unless you already have a 9.x instance. When installing PostgreSQL you must create an overall superuser with a username and password. Once you have PostgreSQL installed with the superuser created, follow the following steps to configure for DART. (Note that on linux you will need to install postgresql and the postgresql-server-dev (or equivalent) packages)</li>
   <li>If you are upgrading an existing COSMOS project perform the following steps.
     <ol>
       <li>Somewhere else on your computer create a new COSMOS demo project:
         <div class="highlighter-rouge">
-<pre class="highlight"><code> cosmos demo demo
-</code></pre>
-        </div>
+<div class="highlight"><pre class="highlight"><code> cosmos demo demo
+</code></pre></div>        </div>
       </li>
       <li>Copy config/dart/Gemfile from the demo project to your COSMOS project</li>
       <li>Copy config/targets/DART from the demo project to your COSMOS project</li>
       <li>Add these lines to your config/system/system.txt file:
         <div class="highlighter-rouge">
-<pre class="highlight"><code> DECLARE_TARGET DART
+<div class="highlight"><pre class="highlight"><code> DECLARE_TARGET DART
  LISTEN_HOST DART_STREAM 0.0.0.0 # 127.0.0.1 is more secure if you don't need external connections
  LISTEN_HOST DART_DECOM 0.0.0.0 # 127.0.0.1 is more secure if you don't need external connections
  CONNECT_HOST DART_STREAM 127.0.0.1
@@ -3618,43 +3704,38 @@
  PORT DART_DECOM 8779
  PATH DART_DATA ./outputs/dart/data
  PATH DART_LOGS ./outputs/dart/logs
-</code></pre>
-        </div>
+</code></pre></div>        </div>
       </li>
       <li>Add the following line to config/tools/launcher.txt:
         <div class="highlighter-rouge">
-<pre class="highlight"><code> TOOL "DART" "LAUNCH_TERMINAL Dart" "dart.png"
-</code></pre>
-        </div>
+<div class="highlight"><pre class="highlight"><code> TOOL "DART" "LAUNCH_TERMINAL Dart" "dart.png"
+</code></pre></div>        </div>
       </li>
     </ol>
   </li>
   <li>Ensure the following line is in your project’s Gemfile:
     <div class="highlighter-rouge">
-<pre class="highlight"><code> # Uncomment this line to add DART dependencies to your main Gemfile
+<div class="highlight"><pre class="highlight"><code> # Uncomment this line to add DART dependencies to your main Gemfile
  instance_eval File.read(File.join(__dir__, 'config/dart/Gemfile'))
-</code></pre>
-    </div>
+</code></pre></div>    </div>
   </li>
   <li>Run the following command from your COSMOS project configuration directory (not C:/COSMOS which contains Demo &amp; Vendor as that is the installation directory) to install all the ruby dependencies for DART.
     <div class="highlighter-rouge">
-<pre class="highlight"><code> bundle install
-</code></pre>
-    </div>
+<div class="highlight"><pre class="highlight"><code> bundle install
+</code></pre></div>    </div>
   </li>
   <li>In postgres, create a ‘dart’ user and password (with CREATEDB permissions), and both a ‘dart’ and ‘darttest’ database.  The databases should be created with template0, LC_COLLATE ‘C’, LC_CTYPE ‘C’, and ENCODING ‘SQL_ASCII’
     <ol>
       <li>On windows use pgadmin</li>
       <li>Otherwise use the psql command line:
         <div class="highlighter-rouge">
-<pre class="highlight"><code> psql postgres
+<div class="highlight"><pre class="highlight"><code> psql postgres
  CREATE ROLE dart WITH LOGIN PASSWORD 'dart';
  ALTER ROLE dart CREATEDB;
  CREATE DATABASE dart TEMPLATE template0 LC_COLLATE 'C' LC_CTYPE 'C' ENCODING 'SQL_ASCII';
  CREATE DATABASE darttest TEMPLATE template0 LC_COLLATE 'C' LC_CTYPE 'C' ENCODING 'SQL_ASCII';
  \q
-</code></pre>
-        </div>
+</code></pre></div>        </div>
       </li>
     </ol>
   </li>
@@ -3664,10 +3745,9 @@
   <li>Create an environment variable on your system named DART_TEST_DB and set it to ‘darttest’. Note: You can use whatever name you want</li>
   <li>Open a new shell (to get the newly created environment variables) and run the following command from your COSMOS project configuration directory (not C:/COSMOS which contains Demo &amp; Vendor as that is the installation directory)
     <div class="highlighter-rouge">
-<pre class="highlight"><code> bundle exec rake db:schema:load
+<div class="highlight"><pre class="highlight"><code> bundle exec rake db:schema:load
  bundle exec rake db:seed
-</code></pre>
-    </div>
+</code></pre></div>    </div>
   </li>
 </ol>
 
@@ -3678,14 +3758,11 @@
 </div>
 
 <p>At this point the DART database is configured and ready to import COSMOS telemetry. When you start the COSMOS Demo you should see the new DART button in the Utilities section. If you’re upgrading from an older version of COSMOS simply add this line to your config/tools/launcher/launcher.txt file:</p>
-<div class="highlighter-rouge">
-<pre class="highlight"><code>TOOL "DART" "LAUNCH_TERMINAL Dart" "dart.png"
-</code></pre>
-</div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>TOOL "DART" "LAUNCH_TERMINAL Dart" "dart.png"
+</code></pre></div></div>
 
 <p>Once you click the DART button you should see a new terminal open with the following:</p>
-<div class="highlighter-rouge">
-<pre class="highlight"><code>2018/04/03 16:00:30.269  INFO: Starting database cleanup...
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>2018/04/03 16:00:30.269  INFO: Starting database cleanup...
 2018/04/03 16:00:30.269  INFO: Cleaning up SystemConfig...
 2018/04/03 16:00:30.373  INFO: Marshal load success: C:/git/COSMOS/demo/outputs/tmp/marshal_fee3ac209980cc7440182adbd1ce7eda.bin
 2018/04/03 16:00:30.377  INFO: Cleaning up PacketLog...
@@ -3701,8 +3778,7 @@
 2018/04/03 16:00:30.438  INFO: Starting: ruby C:/git/cosmos/lib/cosmos/dart/processes/dart_decom_server.rb
 2018/04/03 16:00:30.453  INFO: Starting: ruby C:/git/cosmos/lib/cosmos/dart/processes/dart_worker.rb 0 1
 2018/04/03 16:00:30.478  INFO: Dart Monitoring processes...
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>This indicates that DART is now monitoring the Server waiting for packets. Note that sometimes it can take a while for output to appear in the window. If you now start the COSMOS Command and Telemetry Server, DART will start receiving and processing telemetry data.</p>
 
@@ -3725,6 +3801,9 @@
 
 
 
+
+  
+  
 
   
   
@@ -3859,6 +3938,92 @@
   
     
       <li class=""><a href="/docs/home/">Welcome</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/tools/">Tools</a></li>
       
 
 
@@ -5839,7 +6004,7 @@
 <footer role="contentinfo">
   <div class="grid wider">
     <div class="unit one-third center-on-mobiles">
-      <p>The contents of this website are &copy;&nbsp;2018 <a href="http://www.ballaerospace.com/" target="_blank">Ball Aerospace</a> under the terms of the <a href="https://github.com/BallAerospace/COSMOS/blob/master/LICENSE.txt" target="_blank">GPLv3&nbsp;License</a>.</p>
+      <p>The contents of this website are &copy;&nbsp;2019 <a href="http://www.ballaerospace.com/" target="_blank">Ball Aerospace</a> under the terms of the <a href="https://github.com/BallAerospace/COSMOS/blob/master/LICENSE.txt" target="_blank">GPLv3&nbsp;License</a>.</p>
       <p>Site design derived from the <a href="http://jekyllrb.com/" target="_blank">Jekyll</a> project documentation which is licensed under the terms of the <a href="https://github.com/jekyll/jekyll/blob/master/LICENSE" target="_blank">MIT License</a>.</p>
     </div>
     <div class="unit two-thirds align-right center-on-mobiles">

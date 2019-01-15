@@ -5,7 +5,7 @@
   <title>Custom COSMOS Interface</title>
   <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="generator" content="Jekyll v3.5.2">
+  <meta name="generator" content="Jekyll v3.7.4">
   <link rel="alternate" type="application/rss+xml" title="Ball Aerospace COSMOS News" href="/feed.xml">
   <link rel="alternate" type="application/atom+xml" title="Recent commits to COSMOS's master branch" href="https://github.com/BallAerospace/COSMOS/commits/master.atom">
   <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic,900">
@@ -83,8 +83,6 @@
     <option value="">Navigate the blog...</option>
     <option value="/news/">Home</option>
     <optgroup label="v1.x">
-      
-      <option value="/news/2018/12/24/little-endian/">Little Endian Packet Data</option>
       
       <option value="/news/2018/10/05/system-target-txt/">Using system.txt and target.txt</option>
       
@@ -257,9 +255,9 @@
   <span class="k">def</span> <span class="nf">post_read_data</span><span class="p">(</span><span class="n">packet_data</span><span class="p">)</span>
     <span class="n">len</span> <span class="o">=</span> <span class="n">packet_data</span><span class="p">.</span><span class="nf">length</span>
     <span class="n">calc_checksum</span> <span class="o">=</span> <span class="mh">0xFFFF</span>
-    <span class="n">packet_data</span><span class="p">[</span><span class="mi">0</span><span class="p">.</span><span class="nf">.</span><span class="p">(</span><span class="n">len</span> <span class="o">-</span> <span class="mi">3</span><span class="p">)].</span><span class="nf">each_byte</span> <span class="p">{</span><span class="o">|</span><span class="n">x</span><span class="o">|</span> <span class="n">calc_checksum</span> <span class="o">+=</span> <span class="n">x</span> <span class="p">}</span>
+    <span class="n">packet_data</span><span class="p">[</span><span class="mi">0</span><span class="o">..</span><span class="p">(</span><span class="n">len</span> <span class="o">-</span> <span class="mi">3</span><span class="p">)].</span><span class="nf">each_byte</span> <span class="p">{</span><span class="o">|</span><span class="n">x</span><span class="o">|</span> <span class="n">calc_checksum</span> <span class="o">+=</span> <span class="n">x</span> <span class="p">}</span>
     <span class="n">calc_checksum</span> <span class="o">&amp;=</span> <span class="mh">0xFFFF</span>
-    <span class="n">rx_checksum</span> <span class="o">=</span> <span class="n">packet_data</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">.</span><span class="nf">.</span><span class="o">-</span><span class="mi">1</span><span class="p">].</span><span class="nf">unpack</span><span class="p">(</span><span class="s2">"n"</span><span class="p">)</span> <span class="c1"># Unpack as 16 bit unsigned big endian</span>
+    <span class="n">rx_checksum</span> <span class="o">=</span> <span class="n">packet_data</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="o">..-</span><span class="mi">1</span><span class="p">].</span><span class="nf">unpack</span><span class="p">(</span><span class="s2">"n"</span><span class="p">)</span> <span class="c1"># Unpack as 16 bit unsigned big endian</span>
     <span class="k">if</span> <span class="n">calc_checksum</span> <span class="o">==</span> <span class="n">rx_checksum</span>
       <span class="k">return</span> <span class="n">packet_data</span>
     <span class="k">else</span>
@@ -274,10 +272,9 @@
 <p>What we’re doing is overriding pre_write_packet in StreamInterface to allow us to modify the data before it is written to the packet and sent over the interface. We also override post_read_data to operate on data received before it is sent back to the COSMOS server and thus the tools. Note there is also a post_read_packet(packet) method which is called after post_read_data is called and after the COSMOS Packet has been created. All Interfaces inheriting from StreamInterface includes these callback methods, including SerialInterface, TcpipServerInterface, and TcpipClientInterface. Note that UdpInterface inherits directly from Interface and thus does NOT include these callbacks.</p>
 
 <p>Then in your cmd_tlm_server.txt file for your target you use your new interface:</p>
-<div class="highlighter-rouge"><pre class="highlight"><code>#         interface name  file name                    write read baud   parity stop timeouts stream
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>#         interface name  file name                    write read baud   parity stop timeouts stream
 INTERFACE UART_INTERFACE  checksum_serial_interface.rb COM1  COM1 115200 NONE   1    nil nil  BURST
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>I added a comment line above the definition which describes the settings. For more information see the <a href="http://cosmosrb.com/docs/interfaces/#serial-interface">Serial Interface</a> documentation.</p>
 
@@ -329,12 +326,6 @@ INTERFACE UART_INTERFACE  checksum_serial_interface.rb COM1  COM1 115200 NONE   
     </ul>
     <h4>Other News</h4>
     <ul>
-        
-        
-        <li class="">
-          <a href="/news/2018/12/24/little-endian/">Little Endian Packet Data</a>
-        </li>
-        
         
         
         <li class="">
@@ -589,7 +580,7 @@ INTERFACE UART_INTERFACE  checksum_serial_interface.rb COM1  COM1 115200 NONE   
 <footer role="contentinfo">
   <div class="grid wider">
     <div class="unit one-third center-on-mobiles">
-      <p>The contents of this website are &copy;&nbsp;2018 <a href="http://www.ballaerospace.com/" target="_blank">Ball Aerospace</a> under the terms of the <a href="https://github.com/BallAerospace/COSMOS/blob/master/LICENSE.txt" target="_blank">GPLv3&nbsp;License</a>.</p>
+      <p>The contents of this website are &copy;&nbsp;2019 <a href="http://www.ballaerospace.com/" target="_blank">Ball Aerospace</a> under the terms of the <a href="https://github.com/BallAerospace/COSMOS/blob/master/LICENSE.txt" target="_blank">GPLv3&nbsp;License</a>.</p>
       <p>Site design derived from the <a href="http://jekyllrb.com/" target="_blank">Jekyll</a> project documentation which is licensed under the terms of the <a href="https://github.com/jekyll/jekyll/blob/master/LICENSE" target="_blank">MIT License</a>.</p>
     </div>
     <div class="unit two-thirds align-right center-on-mobiles">

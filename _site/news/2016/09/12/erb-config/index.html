@@ -5,7 +5,7 @@
   <title>ERB Config Files</title>
   <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="generator" content="Jekyll v3.5.2">
+  <meta name="generator" content="Jekyll v3.7.4">
   <link rel="alternate" type="application/rss+xml" title="Ball Aerospace COSMOS News" href="/feed.xml">
   <link rel="alternate" type="application/atom+xml" title="Recent commits to COSMOS's master branch" href="https://github.com/BallAerospace/COSMOS/commits/master.atom">
   <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic,900">
@@ -83,8 +83,6 @@
     <option value="">Navigate the blog...</option>
     <option value="/news/">Home</option>
     <optgroup label="v1.x">
-      
-      <option value="/news/2018/12/24/little-endian/">Little Endian Packet Data</option>
       
       <option value="/news/2018/10/05/system-target-txt/">Using system.txt and target.txt</option>
       
@@ -240,12 +238,11 @@
 
 <p>A COSMOS user recently asked if he could include environment variables in his COSMOS configuration. This is very easy using the ERB syntax. For example, you have an environment variable named “LOG_DIR” in your system which points to the path you want to store your COSMOS logs. To use this value you would modify your system.txt file as follows:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>...
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>...
 # Paths
 PATH LOGS &lt;%= ENV["LOG_DIR"] %&gt;
 ...
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>When this file gets parsed by COSMOS, the value of the LOG_DIR environment variable gets inserted into the system.txt output file. Note the %= syntax to insert the value and how I’m using the <a href="https://ruby-doc.org/core-2.3.0/ENV.html">ENV</a> from the Ruby core library.</p>
 
@@ -257,18 +254,17 @@ PATH LOGS &lt;%= ENV["LOG_DIR"] %&gt;
 
 <p>Now in system.txt we can use that ‘log_path’ routine after we first require ‘utilities’.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>&lt;% require 'utilities' %&gt;
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;% require 'utilities' %&gt;
 ...
 # Paths
 PATH LOGS &lt;%= log_path() %&gt;
 ...
-</code></pre>
-</div>
+</code></pre></div></div>
 <p>Notice how the first ERB statement does NOT use the %= syntax since I’m simply requiring the file I want to use. I don’t want to put anything in the template itself. Later in the PATH statement I use the %= syntax to insert the result of the log_path() method.</p>
 
 <p>ERB templates are particularly useful in command and telemetry definitions as they allow you to reuse sections. We’ve added our own routine called ‘render’ (similar to Ruby on Rails) which can render a command or telemetry template. The best example of this is in the COSMOS Demo INST target. If you open the inst_cmds.txt file you’ll see this:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>COMMAND INST COLLECT BIG_ENDIAN "Starts a collect on the instrument"
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>COMMAND INST COLLECT BIG_ENDIAN "Starts a collect on the instrument"
   &lt;%= render "_ccsds_cmd.txt", locals: {id: 1} %&gt;
   PARAMETER    TYPE           64  16  UINT MIN MAX 0 "Collect type"
     REQUIRED
@@ -284,12 +280,11 @@ COMMAND INST ABORT BIG_ENDIAN "Aborts a collect on the instrument"
   &lt;%= render "_ccsds_cmd.txt", locals: {id: 2} %&gt;
 
 ...
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>Notice the call to <code class="highlighter-rouge">&lt;%= render "_ccsds_cmd.txt", locals: {id: 1} %&gt;</code>. Opening the ‘_ccsds_cmd.txt’ file reveals this command template:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>  PARAMETER    CCSDSVER        0   3  UINT  0     0   0 "CCSDS primary header version number"
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  PARAMETER    CCSDSVER        0   3  UINT  0     0   0 "CCSDS primary header version number"
   PARAMETER    CCSDSTYPE       3   1  UINT  1     1   1 "CCSDS primary header packet type"
   PARAMETER    CCSDSSHF        4   1  UINT  0     0   0 "CCSDS primary header secondary header flag"
   ID_PARAMETER CCSDSAPID       5  11  UINT  0  2047 999 "CCSDS primary header application id"
@@ -298,8 +293,7 @@ COMMAND INST ABORT BIG_ENDIAN "Aborts a collect on the instrument"
     OVERFLOW TRUNCATE
   PARAMETER    CCSDSLENGTH    32  16  UINT MIN MAX 12 "CCSDS primary header packet length"
   ID_PARAMETER PKTID          48  16  UINT MIN MAX &lt;%= id %&gt; "Packet id"
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>The call to render replaces everything in the named template with the render call. We follow the Ruby on Rails convention of naming these templates (Rails calls them ‘partials’) with a leading underscore to differentiate them from full command and telemetry definitions. Notice too that we are passing local variables to the template. The ‘id: 1’ syntax is basically setting the ‘id’ variable in the template to 1. This allows us to send a different PKTID to each command.</p>
 
@@ -351,12 +345,6 @@ COMMAND INST ABORT BIG_ENDIAN "Aborts a collect on the instrument"
     </ul>
     <h4>Other News</h4>
     <ul>
-        
-        
-        <li class="">
-          <a href="/news/2018/12/24/little-endian/">Little Endian Packet Data</a>
-        </li>
-        
         
         
         <li class="">
@@ -611,7 +599,7 @@ COMMAND INST ABORT BIG_ENDIAN "Aborts a collect on the instrument"
 <footer role="contentinfo">
   <div class="grid wider">
     <div class="unit one-third center-on-mobiles">
-      <p>The contents of this website are &copy;&nbsp;2018 <a href="http://www.ballaerospace.com/" target="_blank">Ball Aerospace</a> under the terms of the <a href="https://github.com/BallAerospace/COSMOS/blob/master/LICENSE.txt" target="_blank">GPLv3&nbsp;License</a>.</p>
+      <p>The contents of this website are &copy;&nbsp;2019 <a href="http://www.ballaerospace.com/" target="_blank">Ball Aerospace</a> under the terms of the <a href="https://github.com/BallAerospace/COSMOS/blob/master/LICENSE.txt" target="_blank">GPLv3&nbsp;License</a>.</p>
       <p>Site design derived from the <a href="http://jekyllrb.com/" target="_blank">Jekyll</a> project documentation which is licensed under the terms of the <a href="https://github.com/jekyll/jekyll/blob/master/LICENSE" target="_blank">MIT License</a>.</p>
     </div>
     <div class="unit two-thirds align-right center-on-mobiles">

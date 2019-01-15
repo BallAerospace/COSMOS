@@ -5,7 +5,7 @@
   <title>Require vs Load</title>
   <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="generator" content="Jekyll v3.5.2">
+  <meta name="generator" content="Jekyll v3.7.4">
   <link rel="alternate" type="application/rss+xml" title="Ball Aerospace COSMOS News" href="/feed.xml">
   <link rel="alternate" type="application/atom+xml" title="Recent commits to COSMOS's master branch" href="https://github.com/BallAerospace/COSMOS/commits/master.atom">
   <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic,900">
@@ -83,8 +83,6 @@
     <option value="">Navigate the blog...</option>
     <option value="/news/">Home</option>
     <optgroup label="v1.x">
-      
-      <option value="/news/2018/12/24/little-endian/">Little Endian Packet Data</option>
       
       <option value="/news/2018/10/05/system-target-txt/">Using system.txt and target.txt</option>
       
@@ -242,18 +240,17 @@
 
 <p>The Ruby programming language defines the keywords ‘require’ and ‘load’. These are actually methods on the Kernel class and you can find the full documention on <a href="https://ruby-doc.org/">ruby-doc.org</a> for both <a href="https://ruby-doc.org/core-2.4.2/Kernel.html#method-i-require">require</a> and <a href="https://ruby-doc.org/core-2.4.2/Kernel.html#method-i-load">load</a>. They basically include additional Ruby source files into the current execution environment so they can be used by your code. The key difference is that require will only include a file once. If you try to require a file a second time the require method actually returns false indicating that the file has already been required. You can easily test this by opening an IRB session and requiring something twice.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>irb(main):001:0&gt; require 'cosmos'
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>irb(main):001:0&gt; require 'cosmos'
 =&gt; true
 irb(main):002:0&gt; require 'cosmos'
 =&gt; false
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>This has key implications for usage in COSMOS, especially when writing scripts for use in Script Runner or Test Runner. Let’s say you have a subroutine that you want to call (and don’t want to watch the line by line execution of). You require it in your script and execute it. You realize you have a bug in this required script and edit the file. Now you re-run the top level script but notice none of your changes have been include! What gives?! The require keyword notices that you’ve already required the file and thus does not re-load it on the next execution of your script. This has led some COSMOS users to simply close and re-open Script Runner or Test Runner each time they edit something. While this solves the require problem there is a better solution: load.</p>
 
 <p>The load keyword loads the specified file everytime and thus reparses any changes that may have been made to the file in question. This is almost always what you want to use when writing scripts for COSMOS as it allows you to edit files and be assured that you will be running the latest. Note the difference when using load in this IRB session.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>irb(main):001:0&gt; load 'cosmos.rb'
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>irb(main):001:0&gt; load 'cosmos.rb'
 =&gt; true
 irb(main):002:0&gt; load 'cosmos.rb'
 =&gt; true
@@ -264,8 +261,7 @@ LoadError: cannot load such file -- cosmos
         from C:/Ruby233p222-x64/bin/irb.cmd:19:in `&lt;main&gt;'
 irb(main):004:0&gt; require 'cosmos.rb'
 =&gt; true
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>When using the keyword load you must add the .rb Ruby extension to the file you are trying to load. Leaving this off (which is allowed with the require keyword) will result in a LoadError as shown above. Note that require works with or without the .rb Ruby extension and that the previous load of cosmos.rb did not affect the require of cosmos.rb (it still had never been required).</p>
 
@@ -279,7 +275,7 @@ irb(main):004:0&gt; require 'cosmos.rb'
 
 <p>After talking aobut require and load I think this is a good place to talk a little about the Ruby Load Path since it directly affects whether a require or load will succeed. The overall Ruby load path can be found by typing $LOAD_PATH. Doing this in my IRB session running Ruby 2.3.3 results in the following.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>irb(main):004:0&gt; puts $LOAD_PATH
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>irb(main):004:0&gt; puts $LOAD_PATH
 C:\git\cosmos\lib
 C:/Ruby233p222-x64/lib/ruby/gems/2.3.0/gems/did_you_mean-1.0.0/lib
 C:/Ruby233p222-x64/lib/ruby/site_ruby/2.3.0
@@ -291,14 +287,13 @@ C:/Ruby233p222-x64/lib/ruby/vendor_ruby
 C:/Ruby233p222-x64/lib/ruby/2.3.0
 C:/Ruby233p222-x64/lib/ruby/2.3.0/x64-mingw32
 =&gt; nil
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>You’ll notice most of these paths are relative to my Ruby installation at C:/Ruby233p222. I also have an entry for my developer copy of COSMOS due to my environment variable of RUBYLIB=C:\git\cosmos\lib. As a COSMOS developer I have this variable set but you most likely will not. Setting the RUBYLIB environment variable is useful when developing but can interfere with loading gems since it is at the top of the $LOAD_PATH.</p>
 
 <p>When you start requiring other libraries they typically add things to your LOAD_PATH. Watch what happens when I require ‘cosmos’.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>irb(main):001:0&gt; require 'cosmos'
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>irb(main):001:0&gt; require 'cosmos'
 =&gt; true
 irb(main):002:0&gt; puts $LOAD_PATH
 C:/Ruby233p222-x64/lib/ruby/gems/2.3.0/gems/uuidtools-2.1.5/lib
@@ -323,14 +318,13 @@ C:/Ruby233p222-x64/lib/ruby/vendor_ruby
 C:/Ruby233p222-x64/lib/ruby/2.3.0
 C:/Ruby233p222-x64/lib/ruby/2.3.0/x64-mingw32
 =&gt; nil
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>Now a bunch of gems have added themselves to my $LOAD_PATH. These gems are the gems that cosmos has dependencies on. Note that when you require or load a file the $LOAD_PATH entries are searched in order. Thus in the above example a file in the uuidtools library will be found before a file in the rubyzip library.</p>
 
 <p>You can display your $LOAD_PATH from Script Runner by simply running “puts $LOAD_PATH” from Script Runner. When I do this I get the following in my Script Output:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>2017/11/13 10:58:21.815 (SCRIPTRUNNER): Starting script:
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>2017/11/13 10:58:21.815 (SCRIPTRUNNER): Starting script:
 2017/11/13 10:58:22.076 (:1): C:/git/COSMOS/demo/procedures
 2017/11/13 10:58:22.076 (:1): C:/Ruby233p222-x64/lib/ruby/gems/2.3.0/gems/uuidtools-2.1.5/lib
 2017/11/13 10:58:22.076 (:1): C:/git/COSMOS/demo/lib
@@ -428,15 +422,13 @@ C:/Ruby233p222-x64/lib/ruby/2.3.0/x64-mingw32
 2017/11/13 10:58:22.076 (:1): C:/git/COSMOS/demo/config/targets/TEMPLATED/lib
 2017/11/13 10:58:22.076 (:1): C:/git/COSMOS/demo/config/targets/SYSTEM/lib
 2017/11/13 10:58:22.092 (SCRIPTRUNNER): Script completed:
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>Wow, that is a lot of gems! COSMOS requires a lot of libraries to support how it operates including many used for development purposes like rspec and simplecov. An important thing to note is at the top of the list the following paths are listed.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>C:/git/COSMOS/demo/procedures
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>C:/git/COSMOS/demo/procedures
 C:/git/COSMOS/demo/lib
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>The first path is due to the following line in the COSMOS Demo configuration’s system.txt configuration file: <code class="highlighter-rouge">PATH PROCEDURES ./procedures</code>. This adds the procedures directory in the current COSMOS configuration (C:/git/COSMOS/demo on my machine) to the path.</p>
 
@@ -444,13 +436,12 @@ C:/git/COSMOS/demo/lib
 
 <p>You should also note the last few lines of the $LOAD_PATH.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>C:/git/COSMOS/demo/config/targets/INST/lib
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>C:/git/COSMOS/demo/config/targets/INST/lib
 C:/git/COSMOS/demo/config/targets/INST/procedures
 C:/git/COSMOS/demo/config/targets/EXAMPLE/lib
 C:/git/COSMOS/demo/config/targets/TEMPLATED/lib
 C:/git/COSMOS/demo/config/targets/SYSTEM/lib
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>These are added because COSMOS automatically adds the lib and procedures directory from each Target folder. Thus you are able to directly load a file in the INST/procedures directory by doing “load ‘checks.rb’” (for example). If a file is in a subdirectory like the INST/procedures/utilities directory, then you must specify the additional subpath such as “load_utility ‘utilities/clear.rb’”.</p>
 
@@ -504,12 +495,6 @@ C:/git/COSMOS/demo/config/targets/SYSTEM/lib
     </ul>
     <h4>Other News</h4>
     <ul>
-        
-        
-        <li class="">
-          <a href="/news/2018/12/24/little-endian/">Little Endian Packet Data</a>
-        </li>
-        
         
         
         <li class="">
@@ -764,7 +749,7 @@ C:/git/COSMOS/demo/config/targets/SYSTEM/lib
 <footer role="contentinfo">
   <div class="grid wider">
     <div class="unit one-third center-on-mobiles">
-      <p>The contents of this website are &copy;&nbsp;2018 <a href="http://www.ballaerospace.com/" target="_blank">Ball Aerospace</a> under the terms of the <a href="https://github.com/BallAerospace/COSMOS/blob/master/LICENSE.txt" target="_blank">GPLv3&nbsp;License</a>.</p>
+      <p>The contents of this website are &copy;&nbsp;2019 <a href="http://www.ballaerospace.com/" target="_blank">Ball Aerospace</a> under the terms of the <a href="https://github.com/BallAerospace/COSMOS/blob/master/LICENSE.txt" target="_blank">GPLv3&nbsp;License</a>.</p>
       <p>Site design derived from the <a href="http://jekyllrb.com/" target="_blank">Jekyll</a> project documentation which is licensed under the terms of the <a href="https://github.com/jekyll/jekyll/blob/master/LICENSE" target="_blank">MIT License</a>.</p>
     </div>
     <div class="unit two-thirds align-right center-on-mobiles">

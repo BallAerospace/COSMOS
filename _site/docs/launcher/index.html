@@ -5,7 +5,7 @@
   <title>Launcher</title>
   <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="generator" content="Jekyll v3.5.2">
+  <meta name="generator" content="Jekyll v3.7.4">
   <link rel="alternate" type="application/rss+xml" title="Ball Aerospace COSMOS News" href="/feed.xml">
   <link rel="alternate" type="application/atom+xml" title="Recent commits to COSMOS's master branch" href="https://github.com/BallAerospace/COSMOS/commits/master.atom">
   <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic,900">
@@ -167,6 +167,94 @@
   
     
   
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/tools/">Tools</option>
     
   
     
@@ -3612,13 +3700,13 @@
 
 <p>To specify a different configuration file add ‘–config launcher.txt’ when starting the Launcher. For example, on Windows create a new Batch file at the top of your COSMOS configuration that looks like the following:</p>
 
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">call tools<span class="se">\L</span>auncher.bat --config launcher_config.txt</code></pre></figure>
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">call tools<span class="se">\L</span>auncher.bat <span class="nt">--config</span> launcher_config.txt</code></pre></figure>
 
 <div style="clear:both;"></div>
 
 <p>On Linux create a new executable file at the top of your COSMOS configuration that looks like the following:</p>
 
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">ruby tools<span class="se">\L</span>auncher --config launcher_config.txt</code></pre></figure>
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">ruby tools<span class="se">\L</span>auncher <span class="nt">--config</span> launcher_config.txt</code></pre></figure>
 
 <div style="clear:both;"></div>
 
@@ -3884,7 +3972,7 @@ MULTITOOL_START <span class="s2">"COSMOS"</span> NULL
  TOOL <span class="s2">"RUBYW tools/ScriptRunner -x 4 -y 2 -w 805 -t 545"</span>
  TOOL <span class="s2">"RUBYW tools/CmdSender -x 4 -y 586 -w 805 -t 533"</span>
 MULTITOOL_END
-TOOL <span class="s2">"Command and Telemetry Server"</span> <span class="s2">"RUBYW tools/CmdTlmServer"</span> <span class="s2">"cts.png"</span> --config cmd_tlm_server.txt
+TOOL <span class="s2">"Command and Telemetry Server"</span> <span class="s2">"RUBYW tools/CmdTlmServer"</span> <span class="s2">"cts.png"</span> <span class="nt">--config</span> cmd_tlm_server.txt
 TOOL <span class="s2">"Limits Monitor"</span> <span class="s2">"RUBYW tools/LimitsMonitor"</span> <span class="s2">"limits_monitor.png"</span>
 DIVIDER
 LABEL <span class="s2">"Commanding and Scripting"</span>
@@ -3910,6 +3998,9 @@ TOOL <span class="s2">"Table Manager"</span> <span class="s2">"RUBYW tools/Table
 
 
 
+
+  
+  
 
   
   
@@ -4011,6 +4102,92 @@ TOOL <span class="s2">"Table Manager"</span> <span class="s2">"RUBYW tools/Table
   
     
       <li class=""><a href="/docs/home/">Welcome</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/tools/">Tools</a></li>
       
 
 
@@ -5991,7 +6168,7 @@ TOOL <span class="s2">"Table Manager"</span> <span class="s2">"RUBYW tools/Table
 <footer role="contentinfo">
   <div class="grid wider">
     <div class="unit one-third center-on-mobiles">
-      <p>The contents of this website are &copy;&nbsp;2018 <a href="http://www.ballaerospace.com/" target="_blank">Ball Aerospace</a> under the terms of the <a href="https://github.com/BallAerospace/COSMOS/blob/master/LICENSE.txt" target="_blank">GPLv3&nbsp;License</a>.</p>
+      <p>The contents of this website are &copy;&nbsp;2019 <a href="http://www.ballaerospace.com/" target="_blank">Ball Aerospace</a> under the terms of the <a href="https://github.com/BallAerospace/COSMOS/blob/master/LICENSE.txt" target="_blank">GPLv3&nbsp;License</a>.</p>
       <p>Site design derived from the <a href="http://jekyllrb.com/" target="_blank">Jekyll</a> project documentation which is licensed under the terms of the <a href="https://github.com/jekyll/jekyll/blob/master/LICENSE" target="_blank">MIT License</a>.</p>
     </div>
     <div class="unit two-thirds align-right center-on-mobiles">

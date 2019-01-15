@@ -1,5 +1,4 @@
 require "fileutils"
-require "bundler/setup"
 
 "build website"
 task :build do
@@ -7,7 +6,7 @@ task :build do
   sh "git checkout website"
   sh "git pull"
   puts "## Building website"
-  sh "jekyll build"
+  sh "bundle exec jekyll build"
   sh "git add _site/*"
   puts "\n\nAll of _site has been added to the git commit."
   puts "Add additional source files, review the diff, and commit with 'git commit -m \"Message\"'"

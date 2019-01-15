@@ -5,7 +5,7 @@
   <title>Telemetry Screens</title>
   <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="generator" content="Jekyll v3.5.2">
+  <meta name="generator" content="Jekyll v3.7.4">
   <link rel="alternate" type="application/rss+xml" title="Ball Aerospace COSMOS News" href="/feed.xml">
   <link rel="alternate" type="application/atom+xml" title="Recent commits to COSMOS's master branch" href="https://github.com/BallAerospace/COSMOS/commits/master.atom">
   <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic,900">
@@ -167,6 +167,94 @@
   
     
   
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/tools/">Tools</option>
     
   
     
@@ -4028,7 +4116,7 @@ BUTTON <span class="s2">"Push"</span> <span class="s1">'puts get_named_widget("h
 <h2 id="example-file">
 <a id="example-file" class="anchor" href="#example-file" aria-hidden="true"><span class="octicon octicon-link"></span></a>Example File</h2>
 
-<p>Example File: <:userpath>/config/targets/<target>/myscreen.txt</target></:userpath></p>
+<p>Example File: &lt;Cosmos::USERPATH&gt;/config/targets/<target>/myscreen.txt</target></p>
 
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">SCREEN AUTO AUTO 0.5
 GLOBAL_SETTING LABELVALUELIMITSBAR COLORBLIND TRUE
@@ -4289,7 +4377,7 @@ ADD_SHOW_ON_STARTUP INST ADCS</code></pre></figure>
 
 <h2 id="example-file-1">
 <a id="example-file-1" class="anchor" href="#example-file-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>Example File</h2>
-<p>Example File: <:userpath>/config/tools/tlm_viewer/tlm_viewer.txt</:userpath></p>
+<p>Example File: &lt;Cosmos::USERPATH&gt;/config/tools/tlm_viewer/tlm_viewer.txt</p>
 
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">TARGET INST
   SCREEN <span class="s2">"adcs.txt"</span>
@@ -5759,7 +5847,7 @@ VALUELIMITSCOLUMN INST HEALTH_STATUS TEMP1</code></pre></figure>
 <p>Example Usage:</p>
 
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">VALUERANGEBAR INST HEALTH_STATUS TEMP1 0 100 CONVERTED 18 200 50
-VALUERANGEBAR INST HEALTH_STATUS TEMP1 -1000 1000</code></pre></figure>
+VALUERANGEBAR INST HEALTH_STATUS TEMP1 <span class="nt">-1000</span> 1000</code></pre></figure>
 
 <h3 id="valuerangecolumn">
 <a id="valuerangecolumn" class="anchor" href="#valuerangecolumn" aria-hidden="true"><span class="octicon octicon-link"></span></a>VALUERANGECOLUMN</h3>
@@ -5825,7 +5913,7 @@ VALUERANGEBAR INST HEALTH_STATUS TEMP1 -1000 1000</code></pre></figure>
 <p>Example Usage:</p>
 
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">VALUERANGECOLUMN INST HEALTH_STATUS TEMP1 0 100 CONVERTED 18 50 200
-VALUERANGECOLUMN INST HEALTH_STATUS TEMP1 -1000 1000</code></pre></figure>
+VALUERANGECOLUMN INST HEALTH_STATUS TEMP1 <span class="nt">-1000</span> 1000</code></pre></figure>
 
 <h3 id="linegraph">
 <a id="linegraph" class="anchor" href="#linegraph" aria-hidden="true"><span class="octicon octicon-link"></span></a>LINEGRAPH</h3>
@@ -5993,7 +6081,7 @@ PROGRESSBAR INST ADCS POSPROGRESS</code></pre></figure>
 <p>Example Usage:</p>
 
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">RANGEBAR INST HEALTH_STATUS TEMP1 0 100 CONVERTED 200 50
-RANGEBAR INST HEALTH_STATUS TEMP1 -1000 1000</code></pre></figure>
+RANGEBAR INST HEALTH_STATUS TEMP1 <span class="nt">-1000</span> 1000</code></pre></figure>
 
 <h3 id="rangecolumn">
 <a id="rangecolumn" class="anchor" href="#rangecolumn" aria-hidden="true"><span class="octicon octicon-link"></span></a>RANGECOLUMN</h3>
@@ -6054,7 +6142,7 @@ RANGEBAR INST HEALTH_STATUS TEMP1 -1000 1000</code></pre></figure>
 <p>Example Usage:</p>
 
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">RANGECOLUMN INST HEALTH_STATUS TEMP1 0 100 CONVERTED 50 200
-RANGECOLUMN INST HEALTH_STATUS TEMP1 -1000 1000</code></pre></figure>
+RANGECOLUMN INST HEALTH_STATUS TEMP1 <span class="nt">-1000</span> 1000</code></pre></figure>
 
 <h3 id="textbox">
 <a id="textbox" class="anchor" href="#textbox" aria-hidden="true"><span class="octicon octicon-link"></span></a>TEXTBOX</h3>
@@ -6699,8 +6787,7 @@ END</code></pre></figure>
   <tbody>
     <tr>
       <td>Image Name</td>
-      <td>Name of a image file. The file must be located in the <:userpath>/data directory.</:userpath>
-</td>
+      <td>Name of a image file. The file must be located in the &lt;Cosmos::USERPATH&gt;/data directory.</td>
       <td>Yes</td>
     </tr>
     <tr>
@@ -7652,6 +7739,9 @@ SETTING VALUE_LTEQ 10.0</code></pre></figure>
 
   
   
+
+  
+  
     <div class="top-section-nav">
       <div class="left align-right">
           
@@ -7717,6 +7807,92 @@ SETTING VALUE_LTEQ 10.0</code></pre></figure>
   
     
       <li class=""><a href="/docs/home/">Welcome</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/tools/">Tools</a></li>
       
 
 
@@ -9697,7 +9873,7 @@ SETTING VALUE_LTEQ 10.0</code></pre></figure>
 <footer role="contentinfo">
   <div class="grid wider">
     <div class="unit one-third center-on-mobiles">
-      <p>The contents of this website are &copy;&nbsp;2018 <a href="http://www.ballaerospace.com/" target="_blank">Ball Aerospace</a> under the terms of the <a href="https://github.com/BallAerospace/COSMOS/blob/master/LICENSE.txt" target="_blank">GPLv3&nbsp;License</a>.</p>
+      <p>The contents of this website are &copy;&nbsp;2019 <a href="http://www.ballaerospace.com/" target="_blank">Ball Aerospace</a> under the terms of the <a href="https://github.com/BallAerospace/COSMOS/blob/master/LICENSE.txt" target="_blank">GPLv3&nbsp;License</a>.</p>
       <p>Site design derived from the <a href="http://jekyllrb.com/" target="_blank">Jekyll</a> project documentation which is licensed under the terms of the <a href="https://github.com/jekyll/jekyll/blob/master/LICENSE" target="_blank">MIT License</a>.</p>
     </div>
     <div class="unit two-thirds align-right center-on-mobiles">

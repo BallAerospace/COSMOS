@@ -13,9 +13,17 @@ development of COSMOS itself.
 
 ## So what is Ball Aerospace COSMOS, exactly?
 
-COSMOS is a set of 15 applications that can be used to control a set of embedded systems.  These systems can be
+COSMOS is a suite of applications that can be used to control a set of embedded systems. These systems can be
 anything from test equipment (power supplies, oscilloscopes, switched power strips, UPS devices, etc), to
 development boards (Arduinos, Raspberry Pi, Beaglebone, etc), to satellites.
+
+### COSMOS Architecture
+
+![COSMOS Architecture](/img/tools/architecture.png)
+
+COSMOS implements a client server architecture with the Command and Telemetry Server and the various other tools typically acting as clients to retreive data. The Command and Telemetry Server connects to the Targets (green circles) and sends commands and receives telemetry (status data) from them. Targets are the items you're trying to control or get status from. The arrows from the Server to the targets indicate Interfaces which can be over TCP/IP, serial, UDP/IP, or a custom interface that you define. Yellow boxes indicate data items like configuration files, log files, reports, etc.
+
+Keep reading for an in-depth discussion of each of the COSMOS Tools.
 
 ## Helpful Hints
 

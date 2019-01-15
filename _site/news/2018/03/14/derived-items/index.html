@@ -5,7 +5,7 @@
   <title>Derived Items</title>
   <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="generator" content="Jekyll v3.5.2">
+  <meta name="generator" content="Jekyll v3.7.4">
   <link rel="alternate" type="application/rss+xml" title="Ball Aerospace COSMOS News" href="/feed.xml">
   <link rel="alternate" type="application/atom+xml" title="Recent commits to COSMOS's master branch" href="https://github.com/BallAerospace/COSMOS/commits/master.atom">
   <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic,900">
@@ -83,8 +83,6 @@
     <option value="">Navigate the blog...</option>
     <option value="/news/">Home</option>
     <optgroup label="v1.x">
-      
-      <option value="/news/2018/12/24/little-endian/">Little Endian Packet Data</option>
       
       <option value="/news/2018/10/05/system-target-txt/">Using system.txt and target.txt</option>
       
@@ -241,7 +239,7 @@
 
 <p>COSMOS derived items are defined very similarly to real items except they use the special DERIVED telemetry type. Here is how the default COSMOS derived items might look in a telemetry definition.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>ITEM PACKET_TIMESECONDS 0 0 DERIVED "COSMOS Received Time (UTC, Floating point, Unix epoch)"
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ITEM PACKET_TIMESECONDS 0 0 DERIVED "COSMOS Received Time (UTC, Floating point, Unix epoch)"
   READ_CONVERSION packet_time_seconds_conversion.rb
   FORMAT_STRING '%0.6f'
 ITEM PACKET_TIMEFORMATTED 0 0 DERIVED "COSMOS Received Time (Local time zone, Formatted string)"
@@ -253,20 +251,18 @@ ITEM RECEIVED_TIMEFORMATTED 0 0 DERIVED "COSMOS Received Time (Local time zone, 
   READ_CONVERSION received_time_formatted_conversion.rb
 ITEM RECEIVED_COUNT 0 0 DERIVED "COSMOS packet received count"
   READ_CONVERSION received_count_conversion.rb
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>Note the DERIVED type where real items are INT, UINT, FLOAT, STRING or BLOCK. Also note that the bit offset and bit size values are zero. This is due to the fact that these items don’t actually exist in the binary packet but are created on the fly when the packet is processed. This also has implications with playback of the data. Since these items don’t actually exist in the binary file, they are created on the fly even when doing playback through the Replay tool. Thus if your DERIVED item is aggregating multiple values such as a running average, it will take a few samples to generate a good value.</p>
 
 <h3 id="creating-a-derived-average">Creating a Derived Average</h3>
 <p>A common usecase is to create a derived item which averages other telemetry points. Let’s explore how to do this within the COSMOS Demo. The COSMOS Demo already declares 4 fake temperatures named TEMP1, TEMP2, TEMP3, and TEMP4. Let’s create a new derived item called TEMP_AVERAGE that averages them.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>ITEM TEMP_AVERAGE 0 0 DERIVED "Average of TEMP1, TEMP2, TEMP3, TEMP4"
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ITEM TEMP_AVERAGE 0 0 DERIVED "Average of TEMP1, TEMP2, TEMP3, TEMP4"
   GENERIC_READ_CONVERSION_START FLOAT 32
     (packet.read("TEMP1") + packet.read("TEMP2") + packet.read("TEMP3") + packet.read("TEMP4")) / 4.0
   GENERIC_READ_CONVERSION_END
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>The GENERIC_READ_CONVERSION_START keyword also takes two additional argument which describe the output of the conversion. Here we specify FLOAT 32 to indicate the conversion will return a 32 bit floating point value.</p>
 
@@ -275,10 +271,9 @@ ITEM RECEIVED_COUNT 0 0 DERIVED "COSMOS packet received count"
 <h3 id="using-a-conversion-class">Using a Conversion Class</h3>
 <p>While it is easy to create a simple conversion using GENERIC_READ_CONVERSION there are multiple reasons to prefer a Conversion class. Creating a separate conversion class is easier to test, easier to reuse and has better performance. Let’s create a conversion which performs averging and rewrite the previous example. First the telemetry definition will now look like this.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>ITEM TEMP_AVERAGE 0 0 DERIVED "Average of TEMP1, TEMP2, TEMP3, TEMP4"
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ITEM TEMP_AVERAGE 0 0 DERIVED "Average of TEMP1, TEMP2, TEMP3, TEMP4"
   READ_CONVERSION average_conversion.rb TEMP1 TEMP2 TEMP3 TEMP4
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>We now need to implement average_conversion.rb to take our arguments and generate the average. Put this new file in the target’s lib folder (in the demo this is config/targets/INST/lib).</p>
 
@@ -306,9 +301,8 @@ ITEM RECEIVED_COUNT 0 0 DERIVED "COSMOS packet received count"
 
 <p>We’re not yet done though as we need to edit the INST/target.txt file to require this new conversion.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>REQUIRE average_conversion.rb
-</code></pre>
-</div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>REQUIRE average_conversion.rb
+</code></pre></div></div>
 
 <p>Running this in the Demo with Telemetry Grapher shows our new average value pretty clearly.</p>
 
@@ -362,12 +356,6 @@ ITEM RECEIVED_COUNT 0 0 DERIVED "COSMOS packet received count"
     </ul>
     <h4>Other News</h4>
     <ul>
-        
-        
-        <li class="">
-          <a href="/news/2018/12/24/little-endian/">Little Endian Packet Data</a>
-        </li>
-        
         
         
         <li class="">
@@ -622,7 +610,7 @@ ITEM RECEIVED_COUNT 0 0 DERIVED "COSMOS packet received count"
 <footer role="contentinfo">
   <div class="grid wider">
     <div class="unit one-third center-on-mobiles">
-      <p>The contents of this website are &copy;&nbsp;2018 <a href="http://www.ballaerospace.com/" target="_blank">Ball Aerospace</a> under the terms of the <a href="https://github.com/BallAerospace/COSMOS/blob/master/LICENSE.txt" target="_blank">GPLv3&nbsp;License</a>.</p>
+      <p>The contents of this website are &copy;&nbsp;2019 <a href="http://www.ballaerospace.com/" target="_blank">Ball Aerospace</a> under the terms of the <a href="https://github.com/BallAerospace/COSMOS/blob/master/LICENSE.txt" target="_blank">GPLv3&nbsp;License</a>.</p>
       <p>Site design derived from the <a href="http://jekyllrb.com/" target="_blank">Jekyll</a> project documentation which is licensed under the terms of the <a href="https://github.com/jekyll/jekyll/blob/master/LICENSE" target="_blank">MIT License</a>.</p>
     </div>
     <div class="unit two-thirds align-right center-on-mobiles">

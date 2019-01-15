@@ -5,7 +5,7 @@
   <title>Using system.txt and target.txt</title>
   <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="generator" content="Jekyll v3.5.2">
+  <meta name="generator" content="Jekyll v3.7.4">
   <link rel="alternate" type="application/rss+xml" title="Ball Aerospace COSMOS News" href="/feed.xml">
   <link rel="alternate" type="application/atom+xml" title="Recent commits to COSMOS's master branch" href="https://github.com/BallAerospace/COSMOS/commits/master.atom">
   <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic,900">
@@ -83,8 +83,6 @@
     <option value="">Navigate the blog...</option>
     <option value="/news/">Home</option>
     <optgroup label="v1.x">
-      
-      <option value="/news/2018/12/24/little-endian/">Little Endian Packet Data</option>
       
       <option value="/news/2018/10/05/system-target-txt/">Using system.txt and target.txt</option>
       
@@ -241,9 +239,8 @@
 
 <p>By default, all COSMOS tools use the config/system/system.txt file. However, all tools can take a custom system configuration file by passing the “–system <filename>" option to the tool when it starts. This is typically done in the Launcher script as shown in the COSMOS demo. Here's an excerpt which shows how we're passing system2.txt using the --system option.</filename></p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>TOOL "Command and Telemetry Server" "LAUNCH CmdTlmServer --system system2.txt" "cts.png" --config cmd_tlm_server2.txt
-</code></pre>
-</div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>TOOL "Command and Telemetry Server" "LAUNCH CmdTlmServer --system system2.txt" "cts.png" --config cmd_tlm_server2.txt
+</code></pre></div></div>
 
 <h3 id="using-multiple-systemtxt-files">Using Multiple system.txt Files</h3>
 <p>So when would you want to create and use multiple system.txt files? Since system.txt defines the targets used by the system, you can use two different system.txt files to create two configurations which contain most but not all the same targets. For example, you have a test bench with 5 different test equipment targets but different test box targets: BOX1 and BOX2. You can create one COSMOS configuration for both test benches and create two different launcher files with different lists of targets.</p>
@@ -251,10 +248,9 @@
 <h2 id="targettxt">target.txt</h2>
 <p>The parsing of a COSMOS target is controlled by the target.txt file found at the root of the target directory. The COMMANDS and TELEMETRY keywords tell COSMOS which <a href="/docs/command">Command</a> and <a href="/docs/telemetry">Telemetry</a> files to parse. For example from the COSMOS demo INST <a href="https://github.com/BallAerospace/COSMOS/blob/master/demo/config/targets/INST/target.txt">target.txt</a></p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>COMMANDS inst_cmds.txt
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>COMMANDS inst_cmds.txt
 TELEMETRY inst_tlm.txt
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>Since we can tell COSMOS exactly which command and telemetry files to parse we can control how the target cmd/tlm definitions get built. This is useful if you have a target with slightly different command and telemetry definitions. This can happen for varous reasons like connecting to slightly different hardware revisions. The advantage of using a single target folder in this case (vs just copying and renaming the target folder) is that you can (potentially) reuse screens and target library code. Obviously this only works if the command and telemetry definitions are only slightly different between revisions.</p>
 
@@ -264,50 +260,42 @@ TELEMETRY inst_tlm.txt
 <p>This example is losely based on the COSMOS demo. First create two separate system.txt files called system1.txt and system2.txt:</p>
 
 <p>Partial system1.txt:</p>
-<div class="highlighter-rouge"><pre class="highlight"><code>DECLARE_TARGET INST nil target1.txt
-</code></pre>
-</div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>DECLARE_TARGET INST nil target1.txt
+</code></pre></div></div>
 
 <p>Partial system2.txt</p>
-<div class="highlighter-rouge"><pre class="highlight"><code>DECLARE_TARGET INST nil target2.txt
-</code></pre>
-</div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>DECLARE_TARGET INST nil target2.txt
+</code></pre></div></div>
 
 <p>The target1.txt file in the INST target calls out one set of cmd/tlm files:</p>
-<div class="highlighter-rouge"><pre class="highlight"><code>COMMANDS inst1_cmds.txt
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>COMMANDS inst1_cmds.txt
 TELEMETRY inst1_tlm.txt
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>The target2.txt file in the INST target calls out another set:</p>
-<div class="highlighter-rouge"><pre class="highlight"><code>COMMANDS inst2_cmds.txt
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>COMMANDS inst2_cmds.txt
 TELEMETRY inst2_tlm.txt
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>You also have to ensure your Launcher scripts specify the correct system.txt file when launching the tools:</p>
 
 <p>Partial launcher1.txt:</p>
-<div class="highlighter-rouge"><pre class="highlight"><code>TOOL "Command and Telemetry Server" "LAUNCH CmdTlmServer --system system1.txt" "cts.png" --config cmd_tlm_server.txt
-</code></pre>
-</div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>TOOL "Command and Telemetry Server" "LAUNCH CmdTlmServer --system system1.txt" "cts.png" --config cmd_tlm_server.txt
+</code></pre></div></div>
 
 <p>Partial launcher2.txt:</p>
-<div class="highlighter-rouge"><pre class="highlight"><code>TOOL "Command and Telemetry Server" "LAUNCH CmdTlmServer --system system2.txt" "cts.png" --config cmd_tlm_server.txt
-</code></pre>
-</div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>TOOL "Command and Telemetry Server" "LAUNCH CmdTlmServer --system system2.txt" "cts.png" --config cmd_tlm_server.txt
+</code></pre></div></div>
 
 <p>Once you have your launcher configurations in place you can create a simple Batch file or shell script to launch COSMOS.</p>
 
 <p>Launcher1.bat:</p>
-<div class="highlighter-rouge"><pre class="highlight"><code>call tools\Launcher.bat --config launcher1.txt
-</code></pre>
-</div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>call tools\Launcher.bat --config launcher1.txt
+</code></pre></div></div>
 
 <p>Launcher2.bat:</p>
-<div class="highlighter-rouge"><pre class="highlight"><code>call tools\Launcher.bat --config launcher2.txt
-</code></pre>
-</div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>call tools\Launcher.bat --config launcher2.txt
+</code></pre></div></div>
 
 <p>With correct usage of system.txt and target.txt you can consolidate your COSMOS configurations and avoid copying and pasting. This makes your COSMOS configuration easier to test and maintain.</p>
 
@@ -317,19 +305,17 @@ TELEMETRY inst2_tlm.txt
 
 <p>Create a file in the target’s cmd_tlm folder named after the original file but with an extension like _override.txt. For example, you have the following telemetry definition file named inst_tlm.txt:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>TELEMETRY INST HEALTH_STATUS BIG_ENDIAN "Health and status from the target"
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>TELEMETRY INST HEALTH_STATUS BIG_ENDIAN "Health and status from the target"
   APPEND_ITEM COLLECTS         16 UINT     "Number of collects"
   APPEND_ITEM TEMP1            16 UINT     "Temperature #1"
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>Create another file called inst_tlm_override.txt and start overriding telemetry using the <a href="/docs/telemetry/#select_telemetry">SELECT_TELEMETRY</a> and <a href="/docs/telemetry/#select_item">SELECT_ITEM</a> keywords. Note that the filename is important because by default COSMOS processes cmd/tlm definition files in alphabetical order. For example, if you have a telemetry file named “telemetry.txt” and created a file called “override.txt”, you would get an error because the telemetry file will not be processed before the override.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>SELECT_TELEMETRY INST HEALTH_STATUS
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>SELECT_TELEMETRY INST HEALTH_STATUS
   SELECT_ITEM COLLECTS
     FORMAT_STRING "0x%0X"
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>Note that you can include these override files as needed based on the target.txt file as described above.</p>
 
@@ -379,12 +365,6 @@ TELEMETRY inst2_tlm.txt
     </ul>
     <h4>Other News</h4>
     <ul>
-        
-        
-        <li class="">
-          <a href="/news/2018/12/24/little-endian/">Little Endian Packet Data</a>
-        </li>
-        
         
         
         <li class="current">
@@ -639,7 +619,7 @@ TELEMETRY inst2_tlm.txt
 <footer role="contentinfo">
   <div class="grid wider">
     <div class="unit one-third center-on-mobiles">
-      <p>The contents of this website are &copy;&nbsp;2018 <a href="http://www.ballaerospace.com/" target="_blank">Ball Aerospace</a> under the terms of the <a href="https://github.com/BallAerospace/COSMOS/blob/master/LICENSE.txt" target="_blank">GPLv3&nbsp;License</a>.</p>
+      <p>The contents of this website are &copy;&nbsp;2019 <a href="http://www.ballaerospace.com/" target="_blank">Ball Aerospace</a> under the terms of the <a href="https://github.com/BallAerospace/COSMOS/blob/master/LICENSE.txt" target="_blank">GPLv3&nbsp;License</a>.</p>
       <p>Site design derived from the <a href="http://jekyllrb.com/" target="_blank">Jekyll</a> project documentation which is licensed under the terms of the <a href="https://github.com/jekyll/jekyll/blob/master/LICENSE" target="_blank">MIT License</a>.</p>
     </div>
     <div class="unit two-thirds align-right center-on-mobiles">

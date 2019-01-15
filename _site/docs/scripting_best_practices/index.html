@@ -5,7 +5,7 @@
   <title>Scripting Best Practices</title>
   <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="generator" content="Jekyll v3.5.2">
+  <meta name="generator" content="Jekyll v3.7.4">
   <link rel="alternate" type="application/rss+xml" title="Ball Aerospace COSMOS News" href="/feed.xml">
   <link rel="alternate" type="application/atom+xml" title="Recent commits to COSMOS's master branch" href="https://github.com/BallAerospace/COSMOS/commits/master.atom">
   <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic,900">
@@ -167,6 +167,94 @@
   
     
   
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/tools/">Tools</option>
     
   
     
@@ -3667,20 +3755,16 @@
 
 <p>Most COSMOS scripts can be broken down into the simple pattern of sending a command to a system/subsystem and then verifying that the command worked as expected. This pattern is most commonly implemented with cmd() followed by wait_check(), like the following:</p>
 
-<div class="language-ruby highlighter-rouge">
-<pre class="highlight"><code><span class="n">cmd</span><span class="p">(</span><span class="s2">"INST COLLECT with TYPE NORMAL, TEMP 10.0"</span><span class="p">)</span>
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">cmd</span><span class="p">(</span><span class="s2">"INST COLLECT with TYPE NORMAL, TEMP 10.0"</span><span class="p">)</span>
 <span class="n">wait_check</span><span class="p">(</span><span class="s2">"INST HEALTH_STATUS TYPE == 'NORMAL'"</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>or similarly with a counter that is sampled before the command:</p>
 
-<div class="language-ruby highlighter-rouge">
-<pre class="highlight"><code><span class="n">count</span> <span class="o">=</span> <span class="n">tlm</span><span class="p">(</span><span class="s2">"INST HEALTH_STATUS COLLECTS"</span><span class="p">)</span>
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">count</span> <span class="o">=</span> <span class="n">tlm</span><span class="p">(</span><span class="s2">"INST HEALTH_STATUS COLLECTS"</span><span class="p">)</span>
 <span class="n">cmd</span><span class="p">(</span><span class="s2">"INST COLLECT with TYPE NORMAL, TEMP 10.0"</span><span class="p">)</span>
 <span class="n">wait_check</span><span class="p">(</span><span class="s2">"INST HEALTH_STATUS COLLECTS &gt;= </span><span class="si">#{</span><span class="n">count</span> <span class="o">+</span> <span class="mi">1</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>90% of the COSMOS scripts you write should be the simple patterns shown above except that you may need to check more than one item after each command to make sure the command worked as expected.</p>
 
@@ -3698,17 +3782,14 @@
 
 <p>For example, a script that powers on a subsystem and ensures correct telemetry would become:</p>
 
-<div class="language-ruby highlighter-rouge">
-<pre class="highlight"><code><span class="k">def</span> <span class="nf">power_on_subsystem</span>
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">power_on_subsystem</span>
   <span class="c1"># 100 lines of cmd(), wait_check(), etc</span>
 <span class="no">End</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>Ideally, the above function would be stored in another file where it could be used by other scripts. If it is truly only useful in the one script, then it could be at the top of the file. The updated script would then look like:</p>
 
-<div class="language-ruby highlighter-rouge">
-<pre class="highlight"><code><span class="n">power_on_subsystem</span><span class="p">()</span>
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">power_on_subsystem</span><span class="p">()</span>
 <span class="c1"># 150 lines operating the subsystem (e.g.)</span>
 <span class="c1"># cmd(...)</span>
 <span class="c1"># wait_check(...)</span>
@@ -3717,32 +3798,27 @@
 <span class="c1"># Unrelated activities</span>
 <span class="n">power_on_subsystem</span><span class="p">()</span>
 <span class="c1"># etc.</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>Blocks of code where only the only variation is the mnemonics or values checked can be replaced by functions with arguments like this:</p>
 
-<div class="language-ruby highlighter-rouge">
-<pre class="highlight"><code><span class="k">def</span> <span class="nf">test_minimum_temp</span><span class="p">(</span><span class="n">enable_cmd_name</span><span class="p">,</span> <span class="n">enable_tlm</span><span class="p">,</span> <span class="n">temp_tlm</span><span class="p">,</span> <span class="n">expected_temp</span><span class="p">)</span>
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">test_minimum_temp</span><span class="p">(</span><span class="n">enable_cmd_name</span><span class="p">,</span> <span class="n">enable_tlm</span><span class="p">,</span> <span class="n">temp_tlm</span><span class="p">,</span> <span class="n">expected_temp</span><span class="p">)</span>
   <span class="n">cmd</span><span class="p">(</span><span class="s2">"TARGET </span><span class="si">#{</span><span class="n">enable_cmd_name</span><span class="si">}</span><span class="s2"> with ENABLE TRUE"</span><span class="p">)</span>
   <span class="n">wait_check</span><span class="p">(</span><span class="s2">"TARGET </span><span class="si">#{</span><span class="n">enable_tlm</span><span class="si">}</span><span class="s2"> == 'TRUE;"</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
   <span class="n">wait_check</span><span class="p">(</span><span class="s2">"TARGET </span><span class="si">#{</span><span class="n">temp_tlm</span><span class="si">}</span><span class="s2"> &gt;= </span><span class="si">#{</span><span class="n">expected_temp</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span>
 <span class="k">end</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <h3 id="use-comments-appropriately">
 <a id="use-comments-appropriately" class="anchor" href="#use-comments-appropriately" aria-hidden="true"><span class="octicon octicon-link"></span></a>Use Comments Appropriately</h3>
 
 <p>Use comments when what you are doing is unclear or there is a higher-level purpose to a set of lines. Try to avoid putting numbers or other details in a comment as they can become out of sync with the underlying code. Ruby comments start with a # pound symbol and can be anywhere on a line.</p>
 
-<div class="language-ruby highlighter-rouge">
-<pre class="highlight"><code><span class="c1"># This line sends an abort command - BAD COMMENT, UNNECCESSARY</span>
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># This line sends an abort command - BAD COMMENT, UNNECCESSARY</span>
 <span class="n">cmd</span><span class="p">(</span><span class="s2">"INST ABORT"</span><span class="p">)</span>
 <span class="c1"># Rotate the gimbal to look at the calibration target - GOOD COMMENT</span>
 <span class="n">cmd</span><span class="p">(</span><span class="s2">"INST ROTATE with ANGLE 180.0"</span><span class="p">)</span> <span class="c1"># Rotate 180 degrees - BAD COMMENT</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <h3 id="scriptrunner-vs-testrunner">
 <a id="scriptrunner-vs-testrunner" class="anchor" href="#scriptrunner-vs-testrunner" aria-hidden="true"><span class="octicon octicon-link"></span></a>ScriptRunner vs TestRunner</h3>
@@ -3760,17 +3836,14 @@
 
 <p>For example:</p>
 
-<div class="language-ruby highlighter-rouge">
-<pre class="highlight"><code><span class="mi">10</span><span class="p">.</span><span class="nf">times</span> <span class="k">do</span> <span class="o">|</span><span class="n">temperature_number</span><span class="o">|</span>
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="mi">10</span><span class="p">.</span><span class="nf">times</span> <span class="k">do</span> <span class="o">|</span><span class="n">temperature_number</span><span class="o">|</span>
   <span class="n">check_temperature</span><span class="p">(</span><span class="n">temperature_number</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
 <span class="k">end</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>If the above script was stopped after temperature number 3, there would be no way to restart the loop at temperature number 4. A better solution for small loop counts is to unroll the loop.</p>
 
-<div class="language-ruby highlighter-rouge">
-<pre class="highlight"><code><span class="n">check_temperature</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">check_temperature</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 <span class="n">check_temperature</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
 <span class="n">check_temperature</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
 <span class="n">check_temperature</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
@@ -3780,8 +3853,7 @@
 <span class="n">check_temperature</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span>
 <span class="n">check_temperature</span><span class="p">(</span><span class="mi">9</span><span class="p">)</span>
 <span class="n">check_temperature</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>In the unrolled version above, the COSMOS “Start script at selected line” feature can be used to resume the script at any point.</p>
 
@@ -3793,22 +3865,19 @@
 
 <p>Put each test case into a distinct function. This is the natural way to use TestRunner, but also works well in ScriptRunner. Putting your test cases into functions makes organization easy and gives a great high-level overview of what the overall script does (assuming you name the functions well). There are no bonus points for vague, short function names. Make your function names long and clear.</p>
 
-<div class="language-ruby highlighter-rouge">
-<pre class="highlight"><code><span class="k">def</span> <span class="nf">test_1_heater_zone_control</span>
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">test_1_heater_zone_control</span>
   <span class="nb">puts</span> <span class="s2">"Verifies requirements 304, 306, and 310"</span>
   <span class="c1"># Test code here</span>
 <span class="k">end</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <h3 id="using-classes-vs-unscoped-functions">
 <a id="using-classes-vs-unscoped-functions" class="anchor" href="#using-classes-vs-unscoped-functions" aria-hidden="true"><span class="octicon octicon-link"></span></a>Using Classes vs Unscoped Functions</h3>
 
 <p>Classes in object-oriented programing allow you to organize a set of related methods and some associated state. The most important aspect is that the methods work on some shared state. For example, if you have code that moves a gimbal around, and need to keep track of the number of moves, or steps, performed across methods, then that is a wonderful place to use a class. If you just need a helper method to do something that happens multiple times in a script without copy and pasting, it probably does not need to be in a class.</p>
 
-<div class="language-ruby highlighter-rouge">
-<pre class="highlight"><code><span class="k">class</span> <span class="nc">Gimbal</span>
-  <span class="kp">attr_accessor</span> <span class="ss">:gimbal_steps</span>
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">Gimbal</span>
+  <span class="nb">attr_accessor</span> <span class="ss">:gimbal_steps</span>
   <span class="k">def</span> <span class="nf">move</span><span class="p">(</span><span class="n">steps_to_move</span><span class="p">)</span>
     <span class="c1"># Move the gimbal</span>
     <span class="vi">@gimbal_steps</span> <span class="o">+=</span> <span class="n">steps_to_move</span>
@@ -3829,8 +3898,7 @@
 <span class="n">gimbal</span><span class="p">.</span><span class="nf">move</span><span class="p">(</span><span class="mi">200</span><span class="p">)</span>
 <span class="nb">puts</span> <span class="s2">"Moved gimbal </span><span class="si">#{</span><span class="n">gimbal</span><span class="p">.</span><span class="nf">steps</span><span class="si">}</span><span class="s2">"</span>
 <span class="n">perform_common_math</span><span class="p">(</span><span class="n">gimbal</span><span class="p">.</span><span class="nf">steps</span><span class="p">,</span> <span class="n">other_value</span><span class="p">)</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <h3 id="organizing-your-scripts-into-separate-files">
 <a id="organizing-your-scripts-into-separate-files" class="anchor" href="#organizing-your-scripts-into-separate-files" aria-hidden="true"><span class="octicon octicon-link"></span></a>Organizing Your Scripts into Separate Files</h3>
@@ -3864,10 +3932,8 @@
 
 <p>In your main procedure you will usually bring in the other files with instrumentation using load_utility.</p>
 
-<div class="language-ruby highlighter-rouge">
-<pre class="highlight"><code><span class="n">load_utility</span><span class="p">(</span><span class="s1">'my_other_script'</span><span class="p">)</span>
-</code></pre>
-</div>
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">load_utility</span><span class="p">(</span><span class="s1">'my_other_script'</span><span class="p">)</span>
+</code></pre></div></div>
 
 <h3 id="instrumented-vs-uninstrumented-lines-require-vs-load">
 <a id="instrumented-vs-uninstrumented-lines-require-vs-load" class="anchor" href="#instrumented-vs-uninstrumented-lines-require-vs-load" aria-hidden="true"><span class="octicon octicon-link"></span></a>Instrumented vs Uninstrumented Lines (require vs load)</h3>
@@ -3880,15 +3946,13 @@
 
 <p>Finally, COSMOS scripting has a special syntax for disabling instrumentation in the middle of an instrumented script, with the disable_instrumentation function. This allows you to disable instrumentation for large loops and other activities that are too slow when running instrumented.</p>
 
-<div class="language-ruby highlighter-rouge">
-<pre class="highlight"><code><span class="n">disable_instrumentation</span> <span class="k">do</span>
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">disable_instrumentation</span> <span class="k">do</span>
   <span class="c1"># Make sure nothing in here will raise exceptions!</span>
   <span class="mi">5000000</span><span class="p">.</span><span class="nf">times</span> <span class="k">do</span>
     <span class="n">temp</span> <span class="o">+=</span> <span class="mi">1</span>
   <span class="k">end</span>
 <span class="k">end</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <div class="note warning">
   <h5>
@@ -3906,24 +3970,18 @@
 
 <p>To use the debugging functionality, first select the “Toggle Debug” option from the Script Menu. This will add a small Debug: prompt to the bottom of the tool. Any code entered in this prompt will be executed when Enter is pressed. To inspect variables in a running script, pause the script and then use “puts” to print out the value of the variable in the debug prompt.</p>
 
-<div class="language-ruby highlighter-rouge">
-<pre class="highlight"><code><span class="nb">puts</span> <span class="n">variable_name</span>
-</code></pre>
-</div>
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">puts</span> <span class="n">variable_name</span>
+</code></pre></div></div>
 
 <p>Variables can also be set simply by using equals.</p>
 
-<div class="language-ruby highlighter-rouge">
-<pre class="highlight"><code><span class="n">variable_name</span> <span class="o">=</span> <span class="mi">5</span>
-</code></pre>
-</div>
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">variable_name</span> <span class="o">=</span> <span class="mi">5</span>
+</code></pre></div></div>
 
 <p>If necessary, you can also inject commands from the debug prompt using the normal commanding methods. These commands will be logged to the ScriptRunner message log, which may be advantageous over using a different COSMOS tool like CmdSender (where the command would only be logged in the CmdTlmServer message log).</p>
 
-<div class="language-ruby highlighter-rouge">
-<pre class="highlight"><code><span class="n">cmd</span><span class="p">(</span><span class="s2">"INST COLLECT with TYPE NORMAL"</span><span class="p">)</span>
-</code></pre>
-</div>
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">cmd</span><span class="p">(</span><span class="s2">"INST COLLECT with TYPE NORMAL"</span><span class="p">)</span>
+</code></pre></div></div>
 
 <p>Note that the debug prompt keeps the command history and you can scroll through the history by using the up and down arrows.</p>
 
@@ -3971,18 +4029,16 @@
 
 <p>COSMOS provides several different methods to gather manual user input in scripts. When using user input methods that allow for arbitrary values (like ask() and ask_string()),  it is very important to validate the value given in your script before moving on. When asking for text input, it is extra important to handle different casing possibilities and to ensure that invalid input will either re-prompt the user or take a safe path.</p>
 
-<div class="language-ruby highlighter-rouge">
-<pre class="highlight"><code><span class="n">answer</span> <span class="o">=</span> <span class="n">ask_string</span><span class="p">(</span><span class="s2">"Do you want to continue (y/n)?"</span><span class="p">)</span>
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">answer</span> <span class="o">=</span> <span class="n">ask_string</span><span class="p">(</span><span class="s2">"Do you want to continue (y/n)?"</span><span class="p">)</span>
 <span class="k">if</span> <span class="n">answer</span> <span class="o">!=</span> <span class="s1">'y'</span> <span class="n">and</span> <span class="n">answer</span> <span class="o">!=</span> <span class="s1">'Y'</span>
   <span class="k">raise</span> <span class="s2">"User entered: </span><span class="si">#{</span><span class="n">answer</span><span class="si">}</span><span class="s2">"</span>
 <span class="k">end</span>
 
-<span class="n">temp</span> <span class="o">=</span> <span class="mi">0</span><span class="o">.</span><span class="mi">0</span>
-<span class="k">while</span> <span class="n">temp</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="o">.</span><span class="mi">0</span> <span class="n">or</span> <span class="n">temp</span> <span class="o">&gt;</span> <span class="mi">50</span><span class="o">.</span><span class="mi">0</span>
+<span class="n">temp</span> <span class="o">=</span> <span class="mf">0.0</span>
+<span class="k">while</span> <span class="n">temp</span> <span class="o">&lt;</span> <span class="mf">10.0</span> <span class="n">or</span> <span class="n">temp</span> <span class="o">&gt;</span> <span class="mf">50.0</span>
   <span class="n">temp</span> <span class="o">=</span> <span class="n">ask</span><span class="p">(</span><span class="s2">"Enter the desired temperature between 10.0 and 50.0"</span><span class="p">)</span>
 <span class="k">end</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>When possible, always use one of the other user input methods that has a constrained list of choices for your users (message_box, vertical_message_box, combo_box).</p>
 
@@ -3993,8 +4049,7 @@
 
 <p>When possible, a useful design pattern is to write your scripts such that they can run without prompting for any user input. This allows the scripts to be more easily tested and provides a documented default value for any user input choices or values. To implement this pattern, all manual steps such as ask(), prompt(), and infinite wait() statements need to be wrapped with an if statement that checks the value of the $manual variable. If $manual is set, then the manual steps should be executed. If not, then a default value should be used.</p>
 
-<div class="language-ruby highlighter-rouge">
-<pre class="highlight"><code><span class="c1"># Set the $manual variable – Only needed in ScriptRunner</span>
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Set the $manual variable – Only needed in ScriptRunner</span>
 <span class="n">answer</span> <span class="o">=</span> <span class="n">ask</span><span class="p">(</span><span class="s2">"Prompt for manual entry (Y/n)?"</span><span class="p">)</span>
 <span class="k">if</span> <span class="n">answer</span> <span class="o">==</span> <span class="s1">'n'</span> <span class="n">or</span> <span class="n">answer</span> <span class="o">==</span> <span class="s1">'N'</span>
   <span class="vg">$manual</span> <span class="o">=</span> <span class="kp">false</span>
@@ -4004,15 +4059,14 @@
 <span class="k">if</span> <span class="vg">$manual</span>
   <span class="n">temp</span> <span class="o">=</span> <span class="n">ask</span><span class="p">(</span><span class="s2">"Please enter the temperature"</span><span class="p">)</span>
 <span class="k">else</span>
-  <span class="n">temp</span> <span class="o">=</span> <span class="mi">20</span><span class="o">.</span><span class="mi">0</span>
+  <span class="n">temp</span> <span class="o">=</span> <span class="mf">20.0</span>
 <span class="k">end</span>
 <span class="k">if</span> <span class="o">!</span><span class="vg">$manual</span>
   <span class="nb">puts</span> <span class="s2">"Skipping infinite wait in auto mode"</span>
 <span class="k">else</span>
   <span class="n">wait</span>
 <span class="k">end</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>In TestRunner, there is a checkbox at the top of the tool called “Manual” that affects this $manual variable directly. In ScriptRunner you can also use the $manual pattern, but will need to build in an ask() at the top of your script to ask if the user wants to run manual steps, and then set the $manual variable appropriately.</p>
 
@@ -4023,8 +4077,7 @@
 
 <p>COSMOS TestRunner automatically generates a test report that shows the PASS/FAILED/SKIPPED state for each test case. You can also inject arbitrary text into this report with the current test case using Cosmos::Test.puts “Your Text”. Alternatively, you can simply use puts to place text into the ScriptRunner message log (in both TestRunner/ScriptRunner).</p>
 
-<div class="language-ruby highlighter-rouge">
-<pre class="highlight"><code><span class="k">class</span> <span class="nc">MyTest</span> <span class="o">&lt;</span> <span class="no">Cosmos</span><span class="o">::</span><span class="no">Test</span>
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">MyTest</span> <span class="o">&lt;</span> <span class="no">Cosmos</span><span class="o">::</span><span class="no">Test</span>
   <span class="k">def</span> <span class="nf">test_1</span>
     <span class="c1"># The following text will be placed in the test report</span>
     <span class="no">Cosmos</span><span class="o">::</span><span class="no">Test</span><span class="p">.</span><span class="nf">puts</span> <span class="s2">"Verifies requirements 304, 306, 310"</span>
@@ -4033,54 +4086,47 @@
     <span class="nb">puts</span> <span class="s2">"test_1 complete"</span>
   <span class="k">end</span>
 <span class="k">end</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <h3 id="getting-the-most-recent-value-of-a-telemetry-point-from-multiple-packets">
 <a id="getting-the-most-recent-value-of-a-telemetry-point-from-multiple-packets" class="anchor" href="#getting-the-most-recent-value-of-a-telemetry-point-from-multiple-packets" aria-hidden="true"><span class="octicon octicon-link"></span></a>Getting the Most Recent Value of a Telemetry Point from Multiple Packets</h3>
 
 <p>Some systems include high rate data points with the same name in every packet. COSMOS supports getting the most recent value of a telemetry point that is in multiple packets using a special packet name of LATEST. Let’s pretend that our target INST has two packets, PACKET1 and PACKET2. Both packets have a telemetry point called TEMP.</p>
 
-<div class="language-ruby highlighter-rouge">
-<pre class="highlight"><code><span class="c1"># Get the value of TEMP from the most recently received PACKET1</span>
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Get the value of TEMP from the most recently received PACKET1</span>
 <span class="n">value</span> <span class="o">=</span> <span class="n">tlm</span><span class="p">(</span><span class="s2">"INST PACKET1 TEMP"</span><span class="p">)</span>
 <span class="c1"># Get the value of TEMP from the most recently received PACKET2</span>
 <span class="n">value</span> <span class="o">=</span> <span class="n">tlm</span><span class="p">(</span><span class="s2">"INST PACKET2 TEMP"</span><span class="p">)</span>
 <span class="c1"># Get the value of TEMP from the most recently received PACKET1 or PACKET2</span>
 <span class="n">value</span> <span class="o">=</span> <span class="n">tlm</span><span class="p">(</span><span class="s2">"INST LATEST TEMP"</span><span class="p">)</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <h3 id="checking-every-single-sample-of-a-telemetry-point">
 <a id="checking-every-single-sample-of-a-telemetry-point" class="anchor" href="#checking-every-single-sample-of-a-telemetry-point" aria-hidden="true"><span class="octicon octicon-link"></span></a>Checking Every Single Sample of a Telemetry Point</h3>
 
 <p>When writing COSMOS scripts, checking the most recent value of a telemetry point normally gets the job done. The tlm(), tlm_raw(), etc methods all retrieve the most recent value of a telemetry point. Sometimes you need to perform analysis on every single sample of a telemetry point. This can be done using COSMOS’s packet subscription system. The packet subscription system lets you choose one or more packets and receive them all from a queue. You can then pick out the specific telemetry points you care about from each packet.</p>
 
-<div class="language-ruby highlighter-rouge">
-<pre class="highlight"><code><span class="nb">id</span> <span class="o">=</span> <span class="n">subscribe_packet_data</span><span class="p">([[</span><span class="s2">"INST"</span><span class="p">,</span> <span class="s2">"HEALTH_STATUS"</span><span class="p">]])</span>
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">id</span> <span class="o">=</span> <span class="n">subscribe_packet_data</span><span class="p">([[</span><span class="s2">"INST"</span><span class="p">,</span> <span class="s2">"HEALTH_STATUS"</span><span class="p">]])</span>
 <span class="n">total</span> <span class="o">=</span> <span class="mi">0</span>
 <span class="mi">100</span><span class="p">.</span><span class="nf">times</span> <span class="k">do</span>
   <span class="n">packet</span> <span class="o">=</span> <span class="n">get_packet</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
   <span class="n">value</span> <span class="o">=</span> <span class="n">packet</span><span class="p">.</span><span class="nf">read</span><span class="p">(</span><span class="s2">"TEMP1"</span><span class="p">)</span>
   <span class="n">total</span> <span class="o">+=</span> <span class="n">value</span>
 <span class="k">end</span>
-<span class="n">average</span> <span class="o">=</span> <span class="n">total</span> <span class="o">/</span> <span class="mi">100</span><span class="o">.</span><span class="mi">0</span>
+<span class="n">average</span> <span class="o">=</span> <span class="n">total</span> <span class="o">/</span> <span class="mf">100.0</span>
 <span class="n">unsubscribe_packet_data</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <h3 id="using-variables-in-mnemonics">
 <a id="using-variables-in-mnemonics" class="anchor" href="#using-variables-in-mnemonics" aria-hidden="true"><span class="octicon octicon-link"></span></a>Using Variables in Mnemonics</h3>
 
 <p>Because command and telemetry mnemonics are just strings in COSMOS scripts, you can make use of variables in some contexts to make reusable code. For example, a function can take a target name as an input to support multiple instances of a target. You could also pass in the value for a set of numbered telemetry points.</p>
 
-<div class="language-ruby highlighter-rouge">
-<pre class="highlight"><code><span class="k">def</span> <span class="nf">example</span><span class="p">(</span><span class="n">target_name</span><span class="p">,</span> <span class="n">temp_number</span><span class="p">)</span>
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">example</span><span class="p">(</span><span class="n">target_name</span><span class="p">,</span> <span class="n">temp_number</span><span class="p">)</span>
   <span class="n">cmd</span><span class="p">(</span><span class="s2">"</span><span class="si">#{</span><span class="n">target_name</span><span class="si">}</span><span class="s2"> COLLECT with TYPE NORMAL"</span><span class="p">)</span>
   <span class="n">wait_check</span><span class="p">(</span><span class="s2">"</span><span class="si">#{</span><span class="n">target_name</span><span class="si">}</span><span class="s2"> TEMP</span><span class="si">#{</span><span class="n">temp_number</span><span class="si">}</span><span class="s2"> &gt; 50.0"</span><span class="p">)</span>
 <span class="k">end</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>This can also be useful when looping through a numbered set of telemetry points but be considerate of the downsides of looping as discussed in the <a href="/docs/scripting_best_practices/#looping-vs-unrolled-loops">Looping vs Unrolled Loops</a> section.</p>
 
@@ -4089,8 +4135,7 @@
 
 <p>COSMOS’s wait_check_expression (and check_expression) allow you to perform more complicated checks and still stop the script with a CHECK error message if something goes wrong. For example, you can check variables against each other or check a telemetry point against a range. The exact string of text passed to wait_check_expression is repeatedly evaled in Ruby until it passes, or a timeout occurs. It is important to not use Ruby string interpolation #{} within the actual expression or the values inside of the Ruby interpolation syntax #{} will only be evaluated once when it is converted into a string. PROTIP: Using #{} inside a comment inside the expression can give more insight if the expression fails, but be careful as it will show the first evaluation of the values when the check passes which can be confusing if they go from failing to passing after waiting a few seconds.</p>
 
-<div class="language-ruby highlighter-rouge">
-<pre class="highlight"><code><span class="n">one</span> <span class="o">=</span> <span class="mi">1</span>
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">one</span> <span class="o">=</span> <span class="mi">1</span>
 <span class="n">two</span> <span class="o">=</span> <span class="mi">2</span>
 
 <span class="n">wait_check_expression</span><span class="p">(</span><span class="s2">"one == two"</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
@@ -4102,8 +4147,7 @@
 
 <span class="c1"># Checking an integer range</span>
 <span class="n">wait_check_expression</span><span class="p">(</span><span class="s2">"one &gt; 0 and one &lt; 10 # init value one = </span><span class="si">#{</span><span class="n">one</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <h3 id="cosmos-scripting-differences-from-regular-ruby-scripting">
 <a id="cosmos-scripting-differences-from-regular-ruby-scripting" class="anchor" href="#cosmos-scripting-differences-from-regular-ruby-scripting" aria-hidden="true"><span class="octicon octicon-link"></span></a>COSMOS Scripting Differences from Regular Ruby Scripting</h3>
@@ -4115,23 +4159,19 @@
 
 <p>Don’t do this:</p>
 
-<div class="language-ruby highlighter-rouge">
-<pre class="highlight"><code><span class="n">run_method</span><span class="p">()</span> <span class="k">if</span> <span class="n">tlm</span><span class="p">(</span><span class="s2">"INST HEALTH_STATUS TEMP1"</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">10</span><span class="o">.</span><span class="mi">0</span>
-</code></pre>
-</div>
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">run_method</span><span class="p">()</span> <span class="k">if</span> <span class="n">tlm</span><span class="p">(</span><span class="s2">"INST HEALTH_STATUS TEMP1"</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">10.0</span>
+</code></pre></div></div>
 
 <p>Do this instead:</p>
 
-<div class="language-ruby highlighter-rouge">
-<pre class="highlight"><code><span class="c1"># It is best not to execute any code that could fail in an if statement, ie</span>
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># It is best not to execute any code that could fail in an if statement, ie</span>
 <span class="c1"># tlm() could fail if the CmdTlmServer was not running or a mnemonic</span>
 <span class="c1"># was misspelled</span>
 <span class="n">temp1</span> <span class="o">=</span> <span class="n">tlm</span><span class="p">(</span><span class="s2">"INST HEALTH_STATUS TEMP1"</span><span class="p">)</span>
-<span class="k">if</span> <span class="n">temp1</span> <span class="o">&gt;</span> <span class="mi">10</span><span class="o">.</span><span class="mi">0</span>
+<span class="k">if</span> <span class="n">temp1</span> <span class="o">&gt;</span> <span class="mf">10.0</span>
   <span class="n">run_method</span><span class="p">()</span>
 <span class="k">end</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <h4 id="methods-should-use-explicit-return-statements">
 <a id="methods-should-use-explicit-return-statements" class="anchor" href="#methods-should-use-explicit-return-statements" aria-hidden="true"><span class="octicon octicon-link"></span></a>Methods should use explicit return statements</h4>
@@ -4140,21 +4180,17 @@
 
 <p>Don’t do this:</p>
 
-<div class="language-ruby highlighter-rouge">
-<pre class="highlight"><code><span class="k">def</span> <span class="nf">add_one</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">add_one</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
   <span class="n">x</span> <span class="o">+</span> <span class="mi">1</span>
 <span class="k">end</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>Do this instead:</p>
 
-<div class="language-ruby highlighter-rouge">
-<pre class="highlight"><code><span class="k">def</span> <span class="nf">add_one</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">add_one</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
   <span class="k">return</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">1</span>
 <span class="k">end</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <h2 id="when-things-go-wrong">
 <a id="when-things-go-wrong" class="anchor" href="#when-things-go-wrong" aria-hidden="true"><span class="octicon octicon-link"></span></a>When Things Go Wrong</h2>
@@ -4235,21 +4271,17 @@
 
 <p>The Ruby CSV class be used to easily read data from CSV files (recommended for cross platform projects).</p>
 
-<div class="language-ruby highlighter-rouge">
-<pre class="highlight"><code><span class="nb">require</span> <span class="s1">'csv'</span>
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">require</span> <span class="s1">'csv'</span>
 <span class="n">values</span> <span class="o">=</span> <span class="no">CSV</span><span class="p">.</span><span class="nf">read</span><span class="p">(</span><span class="s1">'test.csv'</span><span class="p">)</span>
 <span class="nb">puts</span> <span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>If you are only using Windows, COSMOS also contains a library for reading Excel files.</p>
 
-<div class="language-ruby highlighter-rouge">
-<pre class="highlight"><code><span class="nb">require</span> <span class="s1">'cosmos/win32/excel'</span>
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">require</span> <span class="s1">'cosmos/win32/excel'</span>
 <span class="n">ss</span> <span class="o">=</span> <span class="no">ExcelSpreadsheet</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="s1">'C:/git/COSMOS/demo/test.xlsx'</span><span class="p">)</span>
 <span class="nb">puts</span> <span class="n">ss</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <h3 id="script-specific-screens">
 <a id="script-specific-screens" class="anchor" href="#script-specific-screens" aria-hidden="true"><span class="octicon octicon-link"></span></a>Script specific screens</h3>
@@ -4263,8 +4295,7 @@
 
 <p>Mixins allow adding common methods to classes without using inheritance. Mixins can be useful in TestRunner to add common functionality to some Test classes but not others, or to break up Test classes into multiple files.</p>
 
-<div class="language-ruby highlighter-rouge">
-<pre class="highlight"><code><span class="k">module</span> <span class="nn">MyModule</span>
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">module</span> <span class="nn">MyModule</span>
   <span class="k">def</span> <span class="nf">module_method</span>
   <span class="k">end</span>
 <span class="k">end</span>
@@ -4274,8 +4305,7 @@
     <span class="n">module_method</span><span class="p">()</span>
   <span class="k">end</span>
 <span class="k">end</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <h2 id="further-reading">
 <a id="further-reading" class="anchor" href="#further-reading" aria-hidden="true"><span class="octicon octicon-link"></span></a>Further Reading</h2>
@@ -4288,6 +4318,9 @@
 
 
 
+
+  
+  
 
   
   
@@ -4431,6 +4464,92 @@
   
     
       <li class=""><a href="/docs/home/">Welcome</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/tools/">Tools</a></li>
       
 
 
@@ -6411,7 +6530,7 @@
 <footer role="contentinfo">
   <div class="grid wider">
     <div class="unit one-third center-on-mobiles">
-      <p>The contents of this website are &copy;&nbsp;2018 <a href="http://www.ballaerospace.com/" target="_blank">Ball Aerospace</a> under the terms of the <a href="https://github.com/BallAerospace/COSMOS/blob/master/LICENSE.txt" target="_blank">GPLv3&nbsp;License</a>.</p>
+      <p>The contents of this website are &copy;&nbsp;2019 <a href="http://www.ballaerospace.com/" target="_blank">Ball Aerospace</a> under the terms of the <a href="https://github.com/BallAerospace/COSMOS/blob/master/LICENSE.txt" target="_blank">GPLv3&nbsp;License</a>.</p>
       <p>Site design derived from the <a href="http://jekyllrb.com/" target="_blank">Jekyll</a> project documentation which is licensed under the terms of the <a href="https://github.com/jekyll/jekyll/blob/master/LICENSE" target="_blank">MIT License</a>.</p>
     </div>
     <div class="unit two-thirds align-right center-on-mobiles">

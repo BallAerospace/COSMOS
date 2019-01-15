@@ -5,7 +5,7 @@
   <title>Installation</title>
   <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="generator" content="Jekyll v3.5.2">
+  <meta name="generator" content="Jekyll v3.7.4">
   <link rel="alternate" type="application/rss+xml" title="Ball Aerospace COSMOS News" href="/feed.xml">
   <link rel="alternate" type="application/atom+xml" title="Recent commits to COSMOS's master branch" href="https://github.com/BallAerospace/COSMOS/commits/master.atom">
   <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic,900">
@@ -167,6 +167,94 @@
   
     
   
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/tools/">Tools</option>
     
   
     
@@ -3634,9 +3722,8 @@ You will need to create new ones with the names above and set their value to the
 
 <p>Run the following command in a terminal running the <strong>bash</strong> shell:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>bash &lt;(\curl -sSL https://raw.githubusercontent.com/BallAerospace/COSMOS/master/vendor/installers/linux_mac/INSTALL_COSMOS.sh)
-</code></pre>
-</div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>bash &lt;(\curl -sSL https://raw.githubusercontent.com/BallAerospace/COSMOS/master/vendor/installers/linux_mac/INSTALL_COSMOS.sh)
+</code></pre></div></div>
 
 <div class="note warning">
   <h5>Issues with http_proxy</h5>
@@ -3649,12 +3736,11 @@ You will need to create new ones with the names above and set their value to the
 
 <p>If installing in an environment where SSL Certificates are not setup correctly.  The following commands will let COSMOS install in an insecure fashion:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>echo "insecure" &gt;&gt; ~/.curlrc
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>echo "insecure" &gt;&gt; ~/.curlrc
 export RUBY_BUILD_CURL_OPTS="-k"
 git config --global http.sslVerify false
 bash &lt;(\curl -sSL https://raw.githubusercontent.com/BallAerospace/COSMOS/master/vendor/installers/linux_mac/INSTALL_COSMOS.sh)
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <h2 id="mac-notes">Mac Notes</h2>
 
@@ -3664,30 +3750,27 @@ bash &lt;(\curl -sSL https://raw.githubusercontent.com/BallAerospace/COSMOS/mast
 
 <p>In your .bash_profile add this line (point to your actual COSMOS configuration folder):</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>export COSMOS_USERPATH=/Users/username/demo
-</code></pre>
-</div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>export COSMOS_USERPATH=/Users/username/demo
+</code></pre></div></div>
 
 <p>Alternative Install directions using Mac Ports:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>sudo port install qt4-mac
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>sudo port install qt4-mac
 sudo port install ruby24
 sudo port select --set ruby ruby24
 sudo gem install ruby-termios
 sudo gem install cosmos
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>You should have a working install and can now create
 a sample COSMOS directory structure where you can
 configure and run cosmos. To create a test area do
 this:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>cosmos demo test
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>cosmos demo test
 cd test
 ruby Launcher
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <h2 id="general">General</h2>
 
@@ -3716,12 +3799,15 @@ ruby Launcher
 
   
   
+
+  
+  
     <div class="top-section-nav">
       <div class="left align-right">
           
             
             
-            <a href="/docs/home/" class="prev">Back</a>
+            <a href="/docs/tools/" class="prev">Back</a>
           
       </div>
       <div class="right align-left">
@@ -3781,6 +3867,92 @@ ruby Launcher
   
     
       <li class=""><a href="/docs/home/">Welcome</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/tools/">Tools</a></li>
       
 
 
@@ -5761,7 +5933,7 @@ ruby Launcher
 <footer role="contentinfo">
   <div class="grid wider">
     <div class="unit one-third center-on-mobiles">
-      <p>The contents of this website are &copy;&nbsp;2018 <a href="http://www.ballaerospace.com/" target="_blank">Ball Aerospace</a> under the terms of the <a href="https://github.com/BallAerospace/COSMOS/blob/master/LICENSE.txt" target="_blank">GPLv3&nbsp;License</a>.</p>
+      <p>The contents of this website are &copy;&nbsp;2019 <a href="http://www.ballaerospace.com/" target="_blank">Ball Aerospace</a> under the terms of the <a href="https://github.com/BallAerospace/COSMOS/blob/master/LICENSE.txt" target="_blank">GPLv3&nbsp;License</a>.</p>
       <p>Site design derived from the <a href="http://jekyllrb.com/" target="_blank">Jekyll</a> project documentation which is licensed under the terms of the <a href="https://github.com/jekyll/jekyll/blob/master/LICENSE" target="_blank">MIT License</a>.</p>
     </div>
     <div class="unit two-thirds align-right center-on-mobiles">

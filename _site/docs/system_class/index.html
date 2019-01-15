@@ -5,7 +5,7 @@
   <title>System Class</title>
   <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="generator" content="Jekyll v3.5.2">
+  <meta name="generator" content="Jekyll v3.7.4">
   <link rel="alternate" type="application/rss+xml" title="Ball Aerospace COSMOS News" href="/feed.xml">
   <link rel="alternate" type="application/atom+xml" title="Recent commits to COSMOS's master branch" href="https://github.com/BallAerospace/COSMOS/commits/master.atom">
   <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic,900">
@@ -167,6 +167,94 @@
   
     
   
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/tools/">Tools</option>
     
   
     
@@ -3620,20 +3708,19 @@
 
 <p>COSMOS uses System.commands in many of its own applications. Let’s see how it’s used in the <a href="https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/tools/cmd_sender/cmd_sender.rb">Command Sender</a>. In the <code class="highlighter-rouge">update_targets</code> method it uses System.commands.target_names to populate the target drop down selection.</p>
 
-<div class="language-ruby highlighter-rouge"><pre class="highlight"><code><span class="k">def</span> <span class="nf">update_targets</span>
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">update_targets</span>
   <span class="vi">@target_select</span><span class="p">.</span><span class="nf">clearItems</span><span class="p">()</span>
   <span class="n">target_names</span> <span class="o">=</span> <span class="no">System</span><span class="p">.</span><span class="nf">commands</span><span class="p">.</span><span class="nf">target_names</span>
-  <span class="p">.</span><span class="nf">.</span><span class="o">.</span> <span class="c1"># Code to check for hidden commands</span>
+  <span class="o">...</span> <span class="c1"># Code to check for hidden commands</span>
   <span class="n">target_names</span><span class="p">.</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">target_name</span><span class="o">|</span>
     <span class="vi">@target_select</span><span class="p">.</span><span class="nf">addItem</span><span class="p">(</span><span class="n">target_name</span><span class="p">)</span>
   <span class="k">end</span>
 <span class="k">end</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>Once it checks for hidden commands it adds all the target names to the drop down selection in the tool. In the same way the <code class="highlighter-rouge">update_commands</code> method accesses System.commands.packets to update the packet drop down selection.</p>
 
-<div class="language-ruby highlighter-rouge"><pre class="highlight"><code><span class="k">def</span> <span class="nf">update_commands</span>
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">update_commands</span>
   <span class="vi">@cmd_select</span><span class="p">.</span><span class="nf">clearItems</span><span class="p">()</span>
   <span class="n">target_name</span> <span class="o">=</span> <span class="vi">@target_select</span><span class="p">.</span><span class="nf">text</span>
   <span class="k">if</span> <span class="n">target_name</span>
@@ -3648,23 +3735,21 @@
     <span class="k">end</span>
   <span class="k">end</span>
 <span class="k">end</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>Later in the <code class="highlighter-rouge">update_cmd_params</code> method we access the individual command to grab the command parameters:</p>
-<div class="language-ruby highlighter-rouge"><pre class="highlight"><code><span class="k">def</span> <span class="nf">update_cmd_params</span><span class="p">(</span><span class="n">ignored_toggle</span> <span class="o">=</span> <span class="kp">nil</span><span class="p">)</span>
-  <span class="p">.</span><span class="nf">.</span><span class="p">.</span>
-  <span class="nf">target_name</span> <span class="o">=</span> <span class="vi">@target_select</span><span class="p">.</span><span class="nf">text</span>
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">update_cmd_params</span><span class="p">(</span><span class="n">ignored_toggle</span> <span class="o">=</span> <span class="kp">nil</span><span class="p">)</span>
+  <span class="o">...</span>
+  <span class="n">target_name</span> <span class="o">=</span> <span class="vi">@target_select</span><span class="p">.</span><span class="nf">text</span>
   <span class="n">target</span> <span class="o">=</span> <span class="no">System</span><span class="p">.</span><span class="nf">targets</span><span class="p">[</span><span class="n">target_name</span><span class="p">]</span>
   <span class="n">packet_name</span> <span class="o">=</span> <span class="vi">@cmd_select</span><span class="p">.</span><span class="nf">text</span>
   <span class="k">if</span> <span class="n">target_name</span> <span class="n">and</span> <span class="n">packet_name</span>
     <span class="n">packet</span> <span class="o">=</span> <span class="no">System</span><span class="p">.</span><span class="nf">commands</span><span class="p">.</span><span class="nf">packet</span><span class="p">(</span><span class="n">target_name</span><span class="p">,</span> <span class="n">packet_name</span><span class="p">)</span>
     <span class="n">packet_items</span> <span class="o">=</span> <span class="n">packet</span><span class="p">.</span><span class="nf">sorted_items</span>
-    <span class="p">.</span><span class="nf">.</span><span class="p">.</span>
-  <span class="nf">end</span>
+    <span class="o">...</span>
+  <span class="k">end</span>
 <span class="k">end</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>If the target and packet selections have been set, we grab the specified packet using System.commands.packet and then have access to the packet items through packet.sorted_items.</p>
 
@@ -3672,7 +3757,7 @@
 
 <p>Sometimes when you’re creating a custom interface you want to respond to a COSMOS command within the interface itself and not forward on that command to the target. In the interface’s connect method you can get a handle to the command you’re interested in.</p>
 
-<div class="language-ruby highlighter-rouge"><pre class="highlight"><code><span class="nb">require</span> <span class="s1">'cosmos/interfaces/tcpip_client_interface'</span>
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">require</span> <span class="s1">'cosmos/interfaces/tcpip_client_interface'</span>
 <span class="k">module</span> <span class="nn">Cosmos</span>
   <span class="k">class</span> <span class="nc">TestInterface</span> <span class="o">&lt;</span> <span class="no">Interface</span>
     <span class="k">def</span> <span class="nf">connect</span>
@@ -3681,14 +3766,13 @@
     <span class="k">end</span>
   <span class="k">end</span>
 <span class="k">end</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>In this example, we inherit from the COSMOS TcpipClientInterface. We grab a handle to the ‘CONFIGURE’ packet by using the @target_names array. This array is populated by the COSMOS Server when the target is assigned. This allows you to dynamically get your target name since targets can be renamed by the server.</p>
 
 <p>In the interface’s write method we can check for the previously saved packet.</p>
 
-<div class="language-ruby highlighter-rouge"><pre class="highlight"><code><span class="c1"># Defined inside the TestInterface class</span>
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Defined inside the TestInterface class</span>
 <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="n">packet</span><span class="p">)</span>
   <span class="k">if</span> <span class="vi">@configure</span><span class="p">.</span><span class="nf">identify?</span><span class="p">(</span><span class="n">packet</span><span class="p">.</span><span class="nf">buffer</span><span class="p">)</span>
     <span class="n">value</span> <span class="o">=</span> <span class="n">packet</span><span class="p">.</span><span class="nf">read</span><span class="p">(</span><span class="s2">"VALUE"</span><span class="p">)</span> <span class="c1"># Do something ...</span>
@@ -3696,8 +3780,7 @@
     <span class="k">super</span><span class="p">(</span><span class="n">packet</span><span class="p">)</span> <span class="c1"># Allow TcpipClientInterface to write the packet</span>
   <span class="k">end</span>
 <span class="k">end</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>We use the Packet class’s identify? method to determine if the packet passed in is the one we’re interested in. Then we can read values from the packet and take whatever actions we want. If this is not the ‘CONFIGURE’ packet then we call super(packet) to allow the TcpipClientInterface logic to send the packet to the target.</p>
 
@@ -3731,7 +3814,7 @@
 
 <p>COSMOS uses System.telemetry in many of its own applications. Let’s see how it’s used in the <a href="https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/tools/packet_viewer/packet_viewer.rb">Packet Viewer</a>. In the <code class="highlighter-rouge">update_targets</code> method it uses System.telemetry.target_names and System.telemetry.packets.</p>
 
-<div class="language-ruby highlighter-rouge"><pre class="highlight"><code><span class="k">def</span> <span class="nf">update_targets</span>
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">update_targets</span>
   <span class="vi">@target_select</span><span class="p">.</span><span class="nf">clearItems</span>
 
   <span class="no">System</span><span class="p">.</span><span class="nf">telemetry</span><span class="p">.</span><span class="nf">target_names</span><span class="p">.</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">target_name</span><span class="o">|</span>
@@ -3745,24 +3828,22 @@
     <span class="vi">@target_select</span><span class="p">.</span><span class="nf">addItem</span><span class="p">(</span><span class="n">target_name</span><span class="p">)</span> <span class="k">if</span> <span class="n">has_non_hidden</span>
   <span class="k">end</span>
 <span class="k">end</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>First we grab all the target names and then grab all the packets for each target. This is done to filter out targets in which all packets are hidden. Once it checks for hidden packets it adds all the target names to the drop down selection in the tool. In the same way the <code class="highlighter-rouge">update_packets</code> method access System.telemetry.packets to update the packet drop down selection.</p>
 
 <p>Later in the <code class="highlighter-rouge">update_tlm_items</code> method we call System.telemetry.items to get the individual packet items.</p>
 
-<div class="language-ruby highlighter-rouge"><pre class="highlight"><code><span class="k">def</span> <span class="nf">update_tlm_items</span><span class="p">(</span><span class="n">featured_item_name</span> <span class="o">=</span> <span class="kp">nil</span><span class="p">)</span>
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">update_tlm_items</span><span class="p">(</span><span class="n">featured_item_name</span> <span class="o">=</span> <span class="kp">nil</span><span class="p">)</span>
   <span class="n">target_name</span> <span class="o">=</span> <span class="vi">@target_select</span><span class="p">.</span><span class="nf">text</span>
   <span class="n">packet_name</span> <span class="o">=</span> <span class="vi">@packet_select</span><span class="p">.</span><span class="nf">text</span>
-  <span class="p">.</span><span class="nf">.</span><span class="o">.</span>
+  <span class="o">...</span>
     <span class="no">System</span><span class="p">.</span><span class="nf">telemetry</span><span class="p">.</span><span class="nf">items</span><span class="p">(</span><span class="n">target_name</span><span class="p">,</span> <span class="n">packet_name</span><span class="p">).</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">item</span><span class="o">|</span>
       <span class="n">tlm_items</span> <span class="o">&lt;&lt;</span> <span class="p">[</span><span class="n">item</span><span class="p">.</span><span class="nf">name</span><span class="p">,</span> <span class="n">item</span><span class="p">.</span><span class="nf">states</span><span class="p">,</span> <span class="n">item</span><span class="p">.</span><span class="nf">description</span><span class="p">,</span> <span class="n">item</span><span class="p">.</span><span class="nf">data_type</span> <span class="o">==</span> <span class="ss">:DERIVED</span><span class="p">]</span>
     <span class="k">end</span>
-  <span class="p">.</span><span class="nf">.</span><span class="p">.</span>
-<span class="nf">end</span>
-</code></pre>
-</div>
+  <span class="o">...</span>
+<span class="k">end</span>
+</code></pre></div></div>
 
 <p>Once we have the items we call individual <a href="https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/packets/packet_item.rb">PacketItem</a> methods to get the name, states, description, and data type.</p>
 
@@ -3770,7 +3851,7 @@
 
 <p>Sometimes you want to create a fake interface which returns internally generated data instead of returning data from an external device. To do this you need to populate the packets and return them from the interface’s read method. In the interface’s initialize method we setup an array to store the packet instances. In the connect method We grab a handle to all the target’s packets by using the @target_names array. This array is populated by the COSMOS Server when the target is assigned. This allows you to dynamically get your target name since targets can be renamed by the server.</p>
 
-<div class="language-ruby highlighter-rouge"><pre class="highlight"><code><span class="nb">require</span> <span class="s1">'cosmos/interfaces/interface'</span>
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">require</span> <span class="s1">'cosmos/interfaces/interface'</span>
 <span class="k">module</span> <span class="nn">Cosmos</span>
   <span class="k">class</span> <span class="nc">TestInterface</span> <span class="o">&lt;</span> <span class="no">Interface</span>
     <span class="k">def</span> <span class="nf">initialize</span>
@@ -3798,12 +3879,11 @@
     <span class="k">end</span>
   <span class="k">end</span>
 <span class="k">end</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>In the interface’s read method we both populate the packets and return them.</p>
 
-<div class="language-ruby highlighter-rouge"><pre class="highlight"><code><span class="c1"># Defined inside the TestInterface class</span>
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Defined inside the TestInterface class</span>
 <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="n">packet</span><span class="p">)</span>
   <span class="k">if</span> <span class="n">not</span> <span class="vi">@pending_packets</span><span class="p">.</span><span class="nf">empty?</span>
     <span class="vi">@read_count</span> <span class="o">+=</span> <span class="mi">1</span>
@@ -3813,7 +3893,7 @@
 
   <span class="c1"># Calculate time to sleep to make ticks 1s apart</span>
   <span class="n">delta</span> <span class="o">=</span> <span class="vi">@next_tick_time</span> <span class="o">-</span> <span class="no">Time</span><span class="p">.</span><span class="nf">now</span>
-  <span class="nb">sleep</span><span class="p">(</span><span class="n">delta</span><span class="p">)</span> <span class="k">if</span> <span class="n">delta</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="o">.</span><span class="mi">0</span> <span class="c1"># sleep up to 1s</span>
+  <span class="nb">sleep</span><span class="p">(</span><span class="n">delta</span><span class="p">)</span> <span class="k">if</span> <span class="n">delta</span> <span class="o">&gt;</span> <span class="mf">0.0</span> <span class="c1"># sleep up to 1s</span>
   <span class="vi">@next_tick_time</span> <span class="o">+=</span> <span class="mi">1</span>
 
   <span class="vi">@packets</span><span class="p">.</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="nb">name</span><span class="p">,</span> <span class="n">packet</span><span class="o">|</span>
@@ -3825,8 +3905,7 @@
   <span class="vi">@read_count</span> <span class="o">+=</span> <span class="mi">1</span>
   <span class="vi">@pending_packets</span><span class="p">.</span><span class="nf">pop</span><span class="p">.</span><span class="nf">clone</span> <span class="c1"># Return the first pending packet</span>
 <span class="k">end</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>The COSMOS Server will call the interface call method as rapidly as it can. The read method must return a Packet instance or nil to disconnect. Initially we check the pending_packets array for available packets and return them. Once the pending_packets array has been emptied we sleep a second to allow our interface to operate at 1Hz. An exercise left to the reader would be to pass the rate to the interface and use that. Next we iterate through the previously stored packet list, populate any values we want, and push the packets back on the pending_packets array. Finally we pop off the first packet on the pending packets array.</p>
 
@@ -3885,6 +3964,9 @@
 
 
 
+
+  
+  
 
   
   
@@ -4037,6 +4119,92 @@
   
     
       <li class=""><a href="/docs/home/">Welcome</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/tools/">Tools</a></li>
       
 
 
@@ -6017,7 +6185,7 @@
 <footer role="contentinfo">
   <div class="grid wider">
     <div class="unit one-third center-on-mobiles">
-      <p>The contents of this website are &copy;&nbsp;2018 <a href="http://www.ballaerospace.com/" target="_blank">Ball Aerospace</a> under the terms of the <a href="https://github.com/BallAerospace/COSMOS/blob/master/LICENSE.txt" target="_blank">GPLv3&nbsp;License</a>.</p>
+      <p>The contents of this website are &copy;&nbsp;2019 <a href="http://www.ballaerospace.com/" target="_blank">Ball Aerospace</a> under the terms of the <a href="https://github.com/BallAerospace/COSMOS/blob/master/LICENSE.txt" target="_blank">GPLv3&nbsp;License</a>.</p>
       <p>Site design derived from the <a href="http://jekyllrb.com/" target="_blank">Jekyll</a> project documentation which is licensed under the terms of the <a href="https://github.com/jekyll/jekyll/blob/master/LICENSE" target="_blank">MIT License</a>.</p>
     </div>
     <div class="unit two-thirds align-right center-on-mobiles">

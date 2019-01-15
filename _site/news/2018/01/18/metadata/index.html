@@ -5,7 +5,7 @@
   <title>Metadata</title>
   <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="generator" content="Jekyll v3.5.2">
+  <meta name="generator" content="Jekyll v3.7.4">
   <link rel="alternate" type="application/rss+xml" title="Ball Aerospace COSMOS News" href="/feed.xml">
   <link rel="alternate" type="application/atom+xml" title="Recent commits to COSMOS's master branch" href="https://github.com/BallAerospace/COSMOS/commits/master.atom">
   <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic,900">
@@ -83,8 +83,6 @@
     <option value="">Navigate the blog...</option>
     <option value="/news/">Home</option>
     <optgroup label="v1.x">
-      
-      <option value="/news/2018/12/24/little-endian/">Little Endian Packet Data</option>
       
       <option value="/news/2018/10/05/system-target-txt/">Using system.txt and target.txt</option>
       
@@ -242,23 +240,20 @@
 
 <p>In versions of COSMOS prior to 4.0.0, metadata could be defined in any target / packet combination. In the COSMOS demo we defined metadata in the META target and DATA packet. You would then explicitly tell COSMOS where this metadata was defined by passing the target and packet name to the tools. Here is a example of an old (pre 4.0.0) cmd_tlm_server.txt configuration file:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>PACKET_LOG_WRITER DEFAULT meta_packet_log_writer.rb META DATA config/data/meta_init.txt
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>PACKET_LOG_WRITER DEFAULT meta_packet_log_writer.rb META DATA config/data/meta_init.txt
 COLLECT_METADATA META DATA
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>Here is an example of a current (post 4.0.0) cmd_tlm_server.txt configuration file:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>PACKET_LOG_WRITER DEFAULT packet_log_writer.rb nil true nil 2000000000 nil false
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>PACKET_LOG_WRITER DEFAULT packet_log_writer.rb nil true nil 2000000000 nil false
 COLLECT_METADATA
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>The PACKET_LOG_WRITER and COLLECT_METADATA keywords no longer have to specify where the metadata is stored because COSMOS 4.0.0 standardized the metadata definition in the SYSTEM target and META packet. You’ll notice the old cmd_tlm_server.txt file specified the location of a meta_init.txt file. This file contains the default values to use when initializing the metadata dialog. In post COSMOS 4.0.0 this file is defined in system.txt using the META_INIT keyword like so:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>META_INIT config/data/meta_init.txt
-</code></pre>
-</div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>META_INIT config/data/meta_init.txt
+</code></pre></div></div>
 
 <p>Note that you do not have to define all the items in your metadata in your meta_init file. Any items not found in meta_init will simply be blank in the dialog. If you try to set any of the COSMOS reserved items (defined below) they will simply be overriden with the COSMOS defined values.</p>
 
@@ -277,7 +272,7 @@ COLLECT_METADATA
 
 <p>If you want to add your own fields to the COSMOS metadata you must define the standard COSMOS metadata items and then append your new values. For example, the COSMOS demo defines the following in <a href="https://github.com/BallAerospace/COSMOS/blob/master/demo/config/targets/SYSTEM/cmd_tlm/meta_tlm.txt">targets/SYSTEM/cmd_tlm/meta_tlm.txt</a>:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>TELEMETRY SYSTEM META BIG_ENDIAN "System Meta Data Telemetry Packet"
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>TELEMETRY SYSTEM META BIG_ENDIAN "System Meta Data Telemetry Packet"
   APPEND_ID_ITEM PKTID 8 UINT 1 "Packet Id"
   APPEND_ITEM CONFIG 256 STRING "Configuration Name"
   APPEND_ITEM COSMOS_VERSION 240 STRING "COSMOS Version"
@@ -287,8 +282,7 @@ COLLECT_METADATA
   APPEND_ITEM RUBY_VERSION 240 STRING "Ruby Version"
     META READ_ONLY
   APPEND_ITEM OPERATOR_NAME 512 STRING "Operator Name"
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>Here we see the demo defining their own new metadata item called OPERATOR_NAME after the standard COSMOS items. Note that the definition of the standard COSMOS items is important! If you misspell an item, declare the wrong data type, or have the size wrong, COSMOS will warn you that the definition is incorrect and then define the standard set of items as described above. Thus if you’re trying to create additional items and do not see them, make sure you haven’t defined the COSMOS standard items incorrectly. (NOTE: COSMOS 4.1.2 fixed a <a href="https://github.com/BallAerospace/COSMOS/issues/690">bug</a> in this automatic generation of metadata items)</p>
 
@@ -298,11 +292,10 @@ COLLECT_METADATA
 
 <p>Also note that you can declare metadata items with STATES and they will be displayed as dropdowns in the metadata dialog. For example if you add the following to the SYSTEM META packet:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>APPEND_ITEM UUT 32 UINT "Unit under test"
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>APPEND_ITEM UUT 32 UINT "Unit under test"
   STATE ARTICLE_0 0
   STATE ARTICLE_1 1
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>You would see this:</p>
 
@@ -358,12 +351,6 @@ COLLECT_METADATA
     </ul>
     <h4>Other News</h4>
     <ul>
-        
-        
-        <li class="">
-          <a href="/news/2018/12/24/little-endian/">Little Endian Packet Data</a>
-        </li>
-        
         
         
         <li class="">
@@ -618,7 +605,7 @@ COLLECT_METADATA
 <footer role="contentinfo">
   <div class="grid wider">
     <div class="unit one-third center-on-mobiles">
-      <p>The contents of this website are &copy;&nbsp;2018 <a href="http://www.ballaerospace.com/" target="_blank">Ball Aerospace</a> under the terms of the <a href="https://github.com/BallAerospace/COSMOS/blob/master/LICENSE.txt" target="_blank">GPLv3&nbsp;License</a>.</p>
+      <p>The contents of this website are &copy;&nbsp;2019 <a href="http://www.ballaerospace.com/" target="_blank">Ball Aerospace</a> under the terms of the <a href="https://github.com/BallAerospace/COSMOS/blob/master/LICENSE.txt" target="_blank">GPLv3&nbsp;License</a>.</p>
       <p>Site design derived from the <a href="http://jekyllrb.com/" target="_blank">Jekyll</a> project documentation which is licensed under the terms of the <a href="https://github.com/jekyll/jekyll/blob/master/LICENSE" target="_blank">MIT License</a>.</p>
     </div>
     <div class="unit two-thirds align-right center-on-mobiles">

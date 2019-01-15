@@ -5,7 +5,7 @@
   <title>Packet Class</title>
   <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="generator" content="Jekyll v3.5.2">
+  <meta name="generator" content="Jekyll v3.7.4">
   <link rel="alternate" type="application/rss+xml" title="Ball Aerospace COSMOS News" href="/feed.xml">
   <link rel="alternate" type="application/atom+xml" title="Recent commits to COSMOS's master branch" href="https://github.com/BallAerospace/COSMOS/commits/master.atom">
   <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic,900">
@@ -167,6 +167,94 @@
   
     
   
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/tools/">Tools</option>
     
   
     
@@ -3645,13 +3733,12 @@
 </table>
 
 <p>Example:</p>
-<div class="language-ruby highlighter-rouge"><pre class="highlight"><code><span class="n">value</span> <span class="o">=</span> <span class="n">packet</span><span class="p">.</span><span class="nf">read</span><span class="p">(</span><span class="s1">'ITEM'</span><span class="p">)</span> <span class="c1"># Converted value (default)</span>
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">value</span> <span class="o">=</span> <span class="n">packet</span><span class="p">.</span><span class="nf">read</span><span class="p">(</span><span class="s1">'ITEM'</span><span class="p">)</span> <span class="c1"># Converted value (default)</span>
 <span class="n">value</span> <span class="o">=</span> <span class="n">packet</span><span class="p">.</span><span class="nf">read</span><span class="p">(</span><span class="s2">"ITEM"</span><span class="p">,</span> <span class="ss">:RAW</span><span class="p">)</span> <span class="c1"># Raw value (no COSMOS conversions applied)</span>
 <span class="n">value</span> <span class="o">=</span> <span class="n">packet</span><span class="p">.</span><span class="nf">read</span><span class="p">(</span><span class="s2">"ITEM"</span><span class="p">,</span> <span class="ss">:FORMATTED</span><span class="p">)</span> <span class="c1"># String formatted value</span>
 <span class="n">value</span> <span class="o">=</span> <span class="n">packet</span><span class="p">.</span><span class="nf">read</span><span class="p">(</span><span class="s2">"ITEM"</span><span class="p">,</span> <span class="ss">:WITH_UNITS</span><span class="p">)</span> <span class="c1"># String formatted value with units</span>
 <span class="n">value</span> <span class="o">=</span> <span class="n">packet</span><span class="p">.</span><span class="nf">read</span><span class="p">(</span><span class="s2">"ITEM"</span><span class="p">,</span> <span class="ss">:CONVERTED</span><span class="p">,</span> <span class="n">buffer</span><span class="p">)</span> <span class="c1"># Read the value from the passed buffer (RARELY USED)</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>First a comment about syntax. The first parameter in the read method is a string which in Ruby can be either single or double quotes. The second parameter is a Ruby Symbol which is similar to a string but is prefixed with a colon.</p>
 
@@ -3691,42 +3778,37 @@
 </table>
 
 <p>Example:</p>
-<div class="language-ruby highlighter-rouge"><pre class="highlight"><code><span class="n">packet</span><span class="p">.</span><span class="nf">write</span><span class="p">(</span><span class="s1">'ITEM'</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span> <span class="c1"># Converted value</span>
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">packet</span><span class="p">.</span><span class="nf">write</span><span class="p">(</span><span class="s1">'ITEM'</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span> <span class="c1"># Converted value</span>
 <span class="n">packet</span><span class="p">.</span><span class="nf">write</span><span class="p">(</span><span class="s2">"ITEM"</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="ss">:RAW</span><span class="p">)</span> <span class="c1"># Raw value</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>See <a href="/docs/packet_class#read">read</a> for a note about the syntax and what value_type means.</p>
 
 <p>There are a few gotchas associated with writing a value into a packet. If you’re writing a value marked as STRING then you can pass almost any value you want as Ruby will automatically convert it into a string. If the packet item has any <a href="/docs/telemetry/#write_conversion">write conversions</a> then using the :RAW value_type will bypass that conversion. For example:</p>
-<div class="language-ruby highlighter-rouge"><pre class="highlight"><code><span class="n">packet</span><span class="p">.</span><span class="nf">write</span><span class="p">(</span><span class="s1">'STRING_ITEM'</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span> <span class="c1"># 10 will be converted to '10' automatically</span>
-<span class="n">packet</span><span class="p">.</span><span class="nf">write</span><span class="p">(</span><span class="s2">"STRING_ITEM"</span><span class="p">,</span> <span class="mi">12</span><span class="o">.</span><span class="mi">5</span><span class="p">,</span> <span class="ss">:RAW</span><span class="p">)</span> <span class="c1"># 12.5 will be converted to '12.5'</span>
-</code></pre>
-</div>
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">packet</span><span class="p">.</span><span class="nf">write</span><span class="p">(</span><span class="s1">'STRING_ITEM'</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span> <span class="c1"># 10 will be converted to '10' automatically</span>
+<span class="n">packet</span><span class="p">.</span><span class="nf">write</span><span class="p">(</span><span class="s2">"STRING_ITEM"</span><span class="p">,</span> <span class="mf">12.5</span><span class="p">,</span> <span class="ss">:RAW</span><span class="p">)</span> <span class="c1"># 12.5 will be converted to '12.5'</span>
+</code></pre></div></div>
 
 <p>If you’re writing into an integer or float value you must pass in something that can be converted to that value. This means that Strings will not work. However, float values work for integers (they are truncated) and integers work for floats. For example:</p>
-<div class="language-ruby highlighter-rouge"><pre class="highlight"><code><span class="n">packet</span><span class="p">.</span><span class="nf">write</span><span class="p">(</span><span class="s2">"INT_ITEM"</span><span class="p">,</span> <span class="s2">"STRING"</span><span class="p">)</span> <span class="c1">#=&gt; ArgumentError : invalid value for Integer(): "STRING"</span>
-<span class="n">packet</span><span class="p">.</span><span class="nf">write</span><span class="p">(</span><span class="s2">"INT_ITEM"</span><span class="p">,</span> <span class="mi">10</span><span class="o">.</span><span class="mi">5</span><span class="p">)</span> <span class="c1">#=&gt; packet.read("INT_ITEM") returns 10</span>
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">packet</span><span class="p">.</span><span class="nf">write</span><span class="p">(</span><span class="s2">"INT_ITEM"</span><span class="p">,</span> <span class="s2">"STRING"</span><span class="p">)</span> <span class="c1">#=&gt; ArgumentError : invalid value for Integer(): "STRING"</span>
+<span class="n">packet</span><span class="p">.</span><span class="nf">write</span><span class="p">(</span><span class="s2">"INT_ITEM"</span><span class="p">,</span> <span class="mf">10.5</span><span class="p">)</span> <span class="c1">#=&gt; packet.read("INT_ITEM") returns 10</span>
 <span class="n">packet</span><span class="p">.</span><span class="nf">write</span><span class="p">(</span><span class="s2">"FLOAT_ITEM"</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span> <span class="c1">#=&gt; packet.read("FLOAT_ITEM") returns 10.0</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>If there are no <a href="/docs/telemetry/#write_conversion">write conversions</a> or <a href="/docs/telemetry/#state">states</a> defined on the telemetry item then writing with :RAW or :CONVERTED will be equivalent.</p>
 
 <p>Definition File:</p>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>APPEND_ITEM INT_ITEM_WITH_STATES 32 UINT <span class="s2">"Item"</span>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>APPEND_ITEM INT_ITEM_WITH_STATES 32 UINT <span class="s2">"Item"</span>
   STATE OFF 0
   STATE ON 1
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>Example:</p>
-<div class="language-ruby highlighter-rouge"><pre class="highlight"><code><span class="n">packet</span><span class="p">.</span><span class="nf">write</span><span class="p">(</span><span class="s2">"INT_ITEM_WITH_STATES"</span><span class="p">,</span> <span class="s2">"ON"</span><span class="p">)</span> <span class="c1"># Writes using the "ON" state value</span>
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">packet</span><span class="p">.</span><span class="nf">write</span><span class="p">(</span><span class="s2">"INT_ITEM_WITH_STATES"</span><span class="p">,</span> <span class="s2">"ON"</span><span class="p">)</span> <span class="c1"># Writes using the "ON" state value</span>
 <span class="n">packet</span><span class="p">.</span><span class="nf">read</span><span class="p">(</span><span class="s2">"INT_ITEM_WITH_STATES"</span><span class="p">,</span> <span class="ss">:RAW</span><span class="p">)</span> <span class="c1">#=&gt; returns 1</span>
 <span class="n">packet</span><span class="p">.</span><span class="nf">write</span><span class="p">(</span><span class="s2">"INT_ITEM_WITH_STATES"</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="c1"># Writes the value 0</span>
 <span class="n">packet</span><span class="p">.</span><span class="nf">read</span><span class="p">(</span><span class="s2">"INT_ITEM_WITH_STATES"</span><span class="p">)</span> <span class="c1">#=&gt; returns "OFF"</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <h4 id="read_all">read_all</h4>
 
@@ -3752,12 +3834,11 @@
 </table>
 
 <p>Example:</p>
-<div class="language-ruby highlighter-rouge"><pre class="highlight"><code><span class="n">values</span> <span class="o">=</span> <span class="n">packet</span><span class="p">.</span><span class="nf">read_all</span><span class="p">()</span> <span class="c1"># Converted values (default)</span>
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">values</span> <span class="o">=</span> <span class="n">packet</span><span class="p">.</span><span class="nf">read_all</span><span class="p">()</span> <span class="c1"># Converted values (default)</span>
 <span class="n">values</span> <span class="o">=</span> <span class="n">packet</span><span class="p">.</span><span class="nf">read_all</span><span class="p">(</span><span class="ss">:RAW</span><span class="p">)</span> <span class="c1"># Raw values (no COSMOS conversions applied)</span>
 <span class="n">values</span> <span class="o">=</span> <span class="n">packet</span><span class="p">.</span><span class="nf">read_all</span><span class="p">(</span><span class="ss">:FORMATTED</span><span class="p">)</span> <span class="c1"># String formatted values</span>
 <span class="n">values</span> <span class="o">=</span> <span class="n">packet</span><span class="p">.</span><span class="nf">read_all</span><span class="p">(</span><span class="ss">:WITH_UNITS</span><span class="p">)</span> <span class="c1"># String formatted values with units</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>The return result is an array of arrays. Each internal array has two elements, the item name and value. The overall structure is as follows: [[item name, item value], […], …].</p>
 
@@ -3854,14 +3935,13 @@
 </table>
 
 <p>Definition File:</p>
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>COMMAND TGT PKT BIG_ENDIAN <span class="s2">"Packet"</span>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>COMMAND TGT PKT BIG_ENDIAN <span class="s2">"Packet"</span>
   APPEND_PARAMETER VALUE 32 UINT MIN MAX 10 <span class="s2">"Value"</span>
   APPEND_PARAMETER OTHER 32 UINT MIN MAX 1 <span class="s2">"Other"</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>Example:</p>
-<div class="language-ruby highlighter-rouge"><pre class="highlight"><code><span class="n">command</span> <span class="o">=</span> <span class="no">System</span><span class="p">.</span><span class="nf">commands</span><span class="p">.</span><span class="nf">packet</span><span class="p">(</span><span class="s2">"TGT"</span><span class="p">,</span> <span class="s2">"PKT"</span><span class="p">)</span>
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">command</span> <span class="o">=</span> <span class="no">System</span><span class="p">.</span><span class="nf">commands</span><span class="p">.</span><span class="nf">packet</span><span class="p">(</span><span class="s2">"TGT"</span><span class="p">,</span> <span class="s2">"PKT"</span><span class="p">)</span>
 <span class="n">command</span><span class="p">.</span><span class="nf">read</span><span class="p">(</span><span class="s2">"VALUE"</span><span class="p">)</span> <span class="c1">#=&gt; Returns 0</span>
 <span class="n">command</span><span class="p">.</span><span class="nf">restore_defaults</span>
 <span class="n">command</span><span class="p">.</span><span class="nf">read</span><span class="p">(</span><span class="s2">"VALUE"</span><span class="p">)</span> <span class="c1">#=&gt; Returns 10</span>
@@ -3874,20 +3954,18 @@
 <span class="n">command</span><span class="p">.</span><span class="nf">restore_defaults</span><span class="p">(</span><span class="n">command</span><span class="p">.</span><span class="nf">buffer</span><span class="p">(</span><span class="kp">false</span><span class="p">),</span> <span class="p">[</span><span class="s1">'OTHER'</span><span class="p">])</span>
 <span class="n">command</span><span class="p">.</span><span class="nf">read</span><span class="p">(</span><span class="s2">"VALUE"</span><span class="p">)</span> <span class="c1">#=&gt; Returns 10 (default)</span>
 <span class="n">command</span><span class="p">.</span><span class="nf">read</span><span class="p">(</span><span class="s2">"OTHER"</span><span class="p">)</span> <span class="c1">#=&gt; Returns 0 (not default)</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <h4 id="out_of_limits">out_of_limits</h4>
 
 <p>Out of limits returns an array of arrays indicating all the items in the packet that are out of limits. The internal array has four elements: target name, packet name, item name, and the item limits state. The out of limits item states are :RED_HIGH, :YELLOW_HIGH, :RED_LOW, or :YELLOW_LOW.</p>
 
 <p>Example:</p>
-<div class="language-ruby highlighter-rouge"><pre class="highlight"><code><span class="n">packet</span> <span class="o">=</span> <span class="no">System</span><span class="p">.</span><span class="nf">telemetry</span><span class="p">.</span><span class="nf">packet</span><span class="p">(</span><span class="s2">"TGT"</span><span class="p">,</span> <span class="s2">"PKT"</span><span class="p">)</span>
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">packet</span> <span class="o">=</span> <span class="no">System</span><span class="p">.</span><span class="nf">telemetry</span><span class="p">.</span><span class="nf">packet</span><span class="p">(</span><span class="s2">"TGT"</span><span class="p">,</span> <span class="s2">"PKT"</span><span class="p">)</span>
 <span class="n">packet</span><span class="p">.</span><span class="nf">out_of_limits</span><span class="p">.</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">tgt</span><span class="p">,</span> <span class="n">pkt</span><span class="p">,</span> <span class="n">item</span><span class="p">,</span> <span class="n">state</span><span class="o">|</span>
   <span class="nb">puts</span> <span class="s2">"tgt:</span><span class="si">#{</span><span class="n">tgt</span><span class="si">}</span><span class="s2"> pkt:</span><span class="si">#{</span><span class="n">pkt</span><span class="si">}</span><span class="s2"> item:</span><span class="si">#{</span><span class="n">item</span><span class="si">}</span><span class="s2"> state:</span><span class="si">#{</span><span class="n">state</span><span class="si">}</span><span class="s2">"</span>
 <span class="k">end</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>Note that this code only works as expected inside the COSMOS Server, for example in a background task. If this code is executed in Script Runner you will retrieve a local copy of the packet which will not have any out of limits items.</p>
 
@@ -3896,6 +3974,9 @@
 
 
 
+
+  
+  
 
   
   
@@ -4051,6 +4132,92 @@
   
     
       <li class=""><a href="/docs/home/">Welcome</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/tools/">Tools</a></li>
       
 
 
@@ -6031,7 +6198,7 @@
 <footer role="contentinfo">
   <div class="grid wider">
     <div class="unit one-third center-on-mobiles">
-      <p>The contents of this website are &copy;&nbsp;2018 <a href="http://www.ballaerospace.com/" target="_blank">Ball Aerospace</a> under the terms of the <a href="https://github.com/BallAerospace/COSMOS/blob/master/LICENSE.txt" target="_blank">GPLv3&nbsp;License</a>.</p>
+      <p>The contents of this website are &copy;&nbsp;2019 <a href="http://www.ballaerospace.com/" target="_blank">Ball Aerospace</a> under the terms of the <a href="https://github.com/BallAerospace/COSMOS/blob/master/LICENSE.txt" target="_blank">GPLv3&nbsp;License</a>.</p>
       <p>Site design derived from the <a href="http://jekyllrb.com/" target="_blank">Jekyll</a> project documentation which is licensed under the terms of the <a href="https://github.com/jekyll/jekyll/blob/master/LICENSE" target="_blank">MIT License</a>.</p>
     </div>
     <div class="unit two-thirds align-right center-on-mobiles">

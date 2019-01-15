@@ -5,7 +5,7 @@
   <title>PacketItem Class</title>
   <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="generator" content="Jekyll v3.5.2">
+  <meta name="generator" content="Jekyll v3.7.4">
   <link rel="alternate" type="application/rss+xml" title="Ball Aerospace COSMOS News" href="/feed.xml">
   <link rel="alternate" type="application/atom+xml" title="Recent commits to COSMOS's master branch" href="https://github.com/BallAerospace/COSMOS/commits/master.atom">
   <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic,900">
@@ -167,6 +167,94 @@
   
     
   
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/tools/">Tools</option>
     
   
     
@@ -3619,73 +3707,69 @@
 <p>The only methods most developers will use on PacketItem instances are the accessor methods that access the instance variables defined above. There are also corresponding setter methods that set all the above variables.</p>
 
 <p>Command Example:</p>
-<div class="language-ruby highlighter-rouge"><pre class="highlight"><code><span class="no">System</span><span class="p">.</span><span class="nf">commands</span><span class="p">.</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">packet</span><span class="o">|</span>
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="no">System</span><span class="p">.</span><span class="nf">commands</span><span class="p">.</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">packet</span><span class="o">|</span>
   <span class="n">packet</span><span class="p">.</span><span class="nf">sorted_items</span><span class="p">.</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">item</span><span class="o">|</span>
     <span class="nb">puts</span> <span class="s2">"</span><span class="si">#{</span><span class="n">item</span><span class="p">.</span><span class="nf">name</span><span class="si">}</span><span class="s2">::</span><span class="si">#{</span><span class="n">item</span><span class="p">.</span><span class="nf">description</span><span class="si">}</span><span class="s2"> range:</span><span class="si">#{</span><span class="n">item</span><span class="p">.</span><span class="nf">range</span><span class="si">}</span><span class="s2"> default:</span><span class="si">#{</span><span class="n">item</span><span class="p">.</span><span class="nf">default</span><span class="si">}</span><span class="s2">"</span>
   <span class="k">end</span>
 <span class="k">end</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>Telemetry Example:</p>
-<div class="language-ruby highlighter-rouge"><pre class="highlight"><code><span class="no">System</span><span class="p">.</span><span class="nf">telemetry</span><span class="p">.</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">packet</span><span class="o">|</span>
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="no">System</span><span class="p">.</span><span class="nf">telemetry</span><span class="p">.</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">packet</span><span class="o">|</span>
   <span class="n">packet</span><span class="p">.</span><span class="nf">sorted_items</span><span class="p">.</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">item</span><span class="o">|</span>
     <span class="nb">puts</span> <span class="s2">"</span><span class="si">#{</span><span class="n">item</span><span class="p">.</span><span class="nf">name</span><span class="si">}</span><span class="s2">::</span><span class="si">#{</span><span class="n">item</span><span class="p">.</span><span class="nf">description</span><span class="si">}</span><span class="s2"> states:</span><span class="si">#{</span><span class="n">item</span><span class="p">.</span><span class="nf">states</span><span class="si">}</span><span class="s2"> limits:</span><span class="si">#{</span><span class="n">item</span><span class="p">.</span><span class="nf">limits</span><span class="si">}</span><span class="s2">"</span>
   <span class="k">end</span>
 <span class="k">end</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>Note that once you have a Packet instance you can access the items using the following methods:</p>
 
 <h4 id="packetget_item">packet.get_item</h4>
 
 <p>Returns an individual item by name</p>
-<div class="language-ruby highlighter-rouge"><pre class="highlight"><code><span class="n">item</span> <span class="o">=</span> <span class="n">packet</span><span class="p">.</span><span class="nf">get_item</span><span class="p">(</span><span class="s2">"ITEM_NAME"</span><span class="p">)</span>
-</code></pre>
-</div>
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">item</span> <span class="o">=</span> <span class="n">packet</span><span class="p">.</span><span class="nf">get_item</span><span class="p">(</span><span class="s2">"ITEM_NAME"</span><span class="p">)</span>
+</code></pre></div></div>
 
 <h4 id="packetitems">packet.items</h4>
 
 <p>Returns a hash of items keyed by the item name</p>
-<div class="language-ruby highlighter-rouge"><pre class="highlight"><code><span class="n">packet</span><span class="p">.</span><span class="nf">items</span><span class="p">.</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="nb">name</span><span class="p">,</span> <span class="n">item</span><span class="o">|</span>
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">packet</span><span class="p">.</span><span class="nf">items</span><span class="p">.</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="nb">name</span><span class="p">,</span> <span class="n">item</span><span class="o">|</span>
   <span class="nb">puts</span> <span class="s2">"item:</span><span class="si">#{</span><span class="nb">name</span><span class="si">}</span><span class="s2">: </span><span class="si">#{</span><span class="n">item</span><span class="p">.</span><span class="nf">description</span><span class="si">}</span><span class="s2">"</span>
 <span class="k">end</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <h4 id="packetsorted_items">packet.sorted_items</h4>
 
 <p>Returns an array of items sorted by the bit_offset</p>
-<div class="language-ruby highlighter-rouge"><pre class="highlight"><code><span class="n">packet</span><span class="p">.</span><span class="nf">sorted_items</span><span class="p">.</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">item</span><span class="o">|</span>
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">packet</span><span class="p">.</span><span class="nf">sorted_items</span><span class="p">.</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">item</span><span class="o">|</span>
   <span class="nb">puts</span> <span class="s2">"item:</span><span class="si">#{</span><span class="n">item</span><span class="p">.</span><span class="nf">name</span><span class="si">}</span><span class="s2">: </span><span class="si">#{</span><span class="n">item</span><span class="p">.</span><span class="nf">bit_offset</span><span class="si">}</span><span class="s2">"</span>
 <span class="k">end</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <h4 id="packetid_items">packet.id_items</h4>
 
 <p>Returns an array of all the ID items defined in the packet. ID items are defined by the <a href="/docs/command/#id_parameter">ID_PARAMETER</a> keyword in commands and the <a href="/docs/telemetry/#id_item">ID_ITEM</a> keyword in telemetry (and their associated APPEND keywords).</p>
-<div class="language-ruby highlighter-rouge"><pre class="highlight"><code><span class="n">packet</span><span class="p">.</span><span class="nf">id_items</span><span class="p">.</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">item</span><span class="o">|</span>
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">packet</span><span class="p">.</span><span class="nf">id_items</span><span class="p">.</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">item</span><span class="o">|</span>
   <span class="nb">puts</span> <span class="s2">"item:</span><span class="si">#{</span><span class="n">item</span><span class="p">.</span><span class="nf">name</span><span class="si">}</span><span class="s2">: </span><span class="si">#{</span><span class="n">item</span><span class="p">.</span><span class="nf">id_value</span><span class="si">}</span><span class="s2">"</span>
 <span class="k">end</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <h4 id="packetlimits_items">packet.limits_items</h4>
 
 <p>Returns an array of all the items defined in the packet with limits. Limits items are defined by the <a href="/docs/telemetry/#limits">LIMITS</a> keyword in telemetry items.</p>
-<div class="language-ruby highlighter-rouge"><pre class="highlight"><code><span class="n">packet</span><span class="p">.</span><span class="nf">limits_items</span><span class="p">.</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">item</span><span class="o">|</span>
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">packet</span><span class="p">.</span><span class="nf">limits_items</span><span class="p">.</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">item</span><span class="o">|</span>
   <span class="nb">puts</span> <span class="s2">"item:</span><span class="si">#{</span><span class="n">item</span><span class="p">.</span><span class="nf">name</span><span class="si">}</span><span class="s2">: </span><span class="si">#{</span><span class="n">item</span><span class="p">.</span><span class="nf">limits</span><span class="si">}</span><span class="s2">"</span>
 <span class="k">end</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
           
 
 
 
 
+
+  
+  
 
   
   
@@ -3844,6 +3928,92 @@
   
     
       <li class=""><a href="/docs/home/">Welcome</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/tools/">Tools</a></li>
       
 
 
@@ -5824,7 +5994,7 @@
 <footer role="contentinfo">
   <div class="grid wider">
     <div class="unit one-third center-on-mobiles">
-      <p>The contents of this website are &copy;&nbsp;2018 <a href="http://www.ballaerospace.com/" target="_blank">Ball Aerospace</a> under the terms of the <a href="https://github.com/BallAerospace/COSMOS/blob/master/LICENSE.txt" target="_blank">GPLv3&nbsp;License</a>.</p>
+      <p>The contents of this website are &copy;&nbsp;2019 <a href="http://www.ballaerospace.com/" target="_blank">Ball Aerospace</a> under the terms of the <a href="https://github.com/BallAerospace/COSMOS/blob/master/LICENSE.txt" target="_blank">GPLv3&nbsp;License</a>.</p>
       <p>Site design derived from the <a href="http://jekyllrb.com/" target="_blank">Jekyll</a> project documentation which is licensed under the terms of the <a href="https://github.com/jekyll/jekyll/blob/master/LICENSE" target="_blank">MIT License</a>.</p>
     </div>
     <div class="unit two-thirds align-right center-on-mobiles">

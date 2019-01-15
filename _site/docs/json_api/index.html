@@ -5,7 +5,7 @@
   <title>JSON API</title>
   <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="generator" content="Jekyll v3.5.2">
+  <meta name="generator" content="Jekyll v3.7.4">
   <link rel="alternate" type="application/rss+xml" title="Ball Aerospace COSMOS News" href="/feed.xml">
   <link rel="alternate" type="application/atom+xml" title="Recent commits to COSMOS's master branch" href="https://github.com/BallAerospace/COSMOS/commits/master.atom">
   <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic,900">
@@ -167,6 +167,94 @@
   
     
   
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/tools/">Tools</option>
     
   
     
@@ -3667,11 +3755,11 @@
 
 <p>Example Usage:</p>
 
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="gp">--&gt; </span><span class="o">{</span><span class="s2">"jsonrpc"</span>: <span class="s2">"2.0"</span>, <span class="s2">"method"</span>: <span class="s2">"cmd"</span>, <span class="s2">"params"</span>: <span class="o">[</span><span class="s2">"INST COLLECT with DURATION 1.0, TEMP 0.0, TYPE 'NORMAL'"</span><span class="o">]</span>, <span class="s2">"id"</span>: 1<span class="o">}</span>
-&lt;-- <span class="o">{</span><span class="s2">"jsonrpc"</span>: <span class="s2">"2.0"</span>, <span class="s2">"result"</span>: <span class="o">[</span><span class="s2">"INST"</span>, <span class="s2">"COLLECT"</span>, <span class="o">{</span><span class="s2">"DURATION"</span>: 1.0, <span class="s2">"TEMP"</span>: 0.0, <span class="s2">"TYPE"</span>: <span class="s2">"NORMAL"</span><span class="o">}]</span>, <span class="s2">"id"</span>: 1<span class="o">}</span>
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nt">--</span><span class="o">&gt;</span> <span class="o">{</span><span class="s2">"jsonrpc"</span>: <span class="s2">"2.0"</span>, <span class="s2">"method"</span>: <span class="s2">"cmd"</span>, <span class="s2">"params"</span>: <span class="o">[</span><span class="s2">"INST COLLECT with DURATION 1.0, TEMP 0.0, TYPE 'NORMAL'"</span><span class="o">]</span>, <span class="s2">"id"</span>: 1<span class="o">}</span>
+&lt;<span class="nt">--</span> <span class="o">{</span><span class="s2">"jsonrpc"</span>: <span class="s2">"2.0"</span>, <span class="s2">"result"</span>: <span class="o">[</span><span class="s2">"INST"</span>, <span class="s2">"COLLECT"</span>, <span class="o">{</span><span class="s2">"DURATION"</span>: 1.0, <span class="s2">"TEMP"</span>: 0.0, <span class="s2">"TYPE"</span>: <span class="s2">"NORMAL"</span><span class="o">}]</span>, <span class="s2">"id"</span>: 1<span class="o">}</span>
 
-<span class="gp">--&gt; </span><span class="o">{</span><span class="s2">"jsonrpc"</span>: <span class="s2">"2.0"</span>, <span class="s2">"method"</span>: <span class="s2">"cmd"</span>, <span class="s2">"params"</span>: <span class="o">[</span><span class="s2">"INST"</span>, <span class="s2">"COLLECT"</span>, <span class="o">{</span><span class="s2">"DURATION"</span>: 1.0, <span class="s2">"TEMP"</span>: 0.0, <span class="s2">"TYPE"</span>: <span class="s2">"NORMAL"</span><span class="o">}]</span>, <span class="s2">"id"</span>: 1<span class="o">}</span>
-&lt;-- <span class="o">{</span><span class="s2">"jsonrpc"</span>: <span class="s2">"2.0"</span>, <span class="s2">"result"</span>: <span class="o">[</span><span class="s2">"INST"</span>, <span class="s2">"COLLECT"</span>, <span class="o">{</span><span class="s2">"DURATION"</span>: 1.0, <span class="s2">"TEMP"</span>: 0.0, <span class="s2">"TYPE"</span>: <span class="s2">"NORMAL"</span><span class="o">}]</span>, <span class="s2">"id"</span>: 1<span class="o">}</span></code></pre></figure>
+<span class="nt">--</span><span class="o">&gt;</span> <span class="o">{</span><span class="s2">"jsonrpc"</span>: <span class="s2">"2.0"</span>, <span class="s2">"method"</span>: <span class="s2">"cmd"</span>, <span class="s2">"params"</span>: <span class="o">[</span><span class="s2">"INST"</span>, <span class="s2">"COLLECT"</span>, <span class="o">{</span><span class="s2">"DURATION"</span>: 1.0, <span class="s2">"TEMP"</span>: 0.0, <span class="s2">"TYPE"</span>: <span class="s2">"NORMAL"</span><span class="o">}]</span>, <span class="s2">"id"</span>: 1<span class="o">}</span>
+&lt;<span class="nt">--</span> <span class="o">{</span><span class="s2">"jsonrpc"</span>: <span class="s2">"2.0"</span>, <span class="s2">"result"</span>: <span class="o">[</span><span class="s2">"INST"</span>, <span class="s2">"COLLECT"</span>, <span class="o">{</span><span class="s2">"DURATION"</span>: 1.0, <span class="s2">"TEMP"</span>: 0.0, <span class="s2">"TYPE"</span>: <span class="s2">"NORMAL"</span><span class="o">}]</span>, <span class="s2">"id"</span>: 1<span class="o">}</span></code></pre></figure>
 
 <h3 id="getting-telemetry">Getting Telemetry</h3>
 
@@ -3731,11 +3819,11 @@
 
 <p>Example Usage:</p>
 
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="gp">--&gt; </span><span class="o">{</span><span class="s2">"jsonrpc"</span>: <span class="s2">"2.0"</span>, <span class="s2">"method"</span>: <span class="s2">"tlm"</span>, <span class="s2">"params"</span>: <span class="o">[</span><span class="s2">"INST HEALTH_STATUS TEMP1"</span><span class="o">]</span>, <span class="s2">"id"</span>: 2<span class="o">}</span>
-&lt;-- <span class="o">{</span><span class="s2">"jsonrpc"</span>: <span class="s2">"2.0"</span>, <span class="s2">"result"</span>: 94.9438, <span class="s2">"id"</span>: 2<span class="o">}</span>
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nt">--</span><span class="o">&gt;</span> <span class="o">{</span><span class="s2">"jsonrpc"</span>: <span class="s2">"2.0"</span>, <span class="s2">"method"</span>: <span class="s2">"tlm"</span>, <span class="s2">"params"</span>: <span class="o">[</span><span class="s2">"INST HEALTH_STATUS TEMP1"</span><span class="o">]</span>, <span class="s2">"id"</span>: 2<span class="o">}</span>
+&lt;<span class="nt">--</span> <span class="o">{</span><span class="s2">"jsonrpc"</span>: <span class="s2">"2.0"</span>, <span class="s2">"result"</span>: 94.9438, <span class="s2">"id"</span>: 2<span class="o">}</span>
 
-<span class="gp">--&gt; </span><span class="o">{</span><span class="s2">"jsonrpc"</span>: <span class="s2">"2.0"</span>, <span class="s2">"method"</span>: <span class="s2">"tlm"</span>, <span class="s2">"params"</span>: <span class="o">[</span><span class="s2">"INST"</span>, <span class="s2">"HEALTH_STATUS"</span>, <span class="s2">"TEMP1"</span><span class="o">]</span>, <span class="s2">"id"</span>: 2<span class="o">}</span>
-&lt;-- <span class="o">{</span><span class="s2">"jsonrpc"</span>: <span class="s2">"2.0"</span>, <span class="s2">"result"</span>: 94.9438, <span class="s2">"id"</span>: 2<span class="o">}</span></code></pre></figure>
+<span class="nt">--</span><span class="o">&gt;</span> <span class="o">{</span><span class="s2">"jsonrpc"</span>: <span class="s2">"2.0"</span>, <span class="s2">"method"</span>: <span class="s2">"tlm"</span>, <span class="s2">"params"</span>: <span class="o">[</span><span class="s2">"INST"</span>, <span class="s2">"HEALTH_STATUS"</span>, <span class="s2">"TEMP1"</span><span class="o">]</span>, <span class="s2">"id"</span>: 2<span class="o">}</span>
+&lt;<span class="nt">--</span> <span class="o">{</span><span class="s2">"jsonrpc"</span>: <span class="s2">"2.0"</span>, <span class="s2">"result"</span>: 94.9438, <span class="s2">"id"</span>: 2<span class="o">}</span></code></pre></figure>
 
 <h2 id="further-debugging">Further Debugging</h2>
 
@@ -3765,6 +3853,9 @@ Response:
 
 
 
+
+  
+  
 
   
   
@@ -3926,6 +4017,92 @@ Response:
   
     
       <li class=""><a href="/docs/home/">Welcome</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class=""><a href="/docs/tools/">Tools</a></li>
       
 
 
@@ -5906,7 +6083,7 @@ Response:
 <footer role="contentinfo">
   <div class="grid wider">
     <div class="unit one-third center-on-mobiles">
-      <p>The contents of this website are &copy;&nbsp;2018 <a href="http://www.ballaerospace.com/" target="_blank">Ball Aerospace</a> under the terms of the <a href="https://github.com/BallAerospace/COSMOS/blob/master/LICENSE.txt" target="_blank">GPLv3&nbsp;License</a>.</p>
+      <p>The contents of this website are &copy;&nbsp;2019 <a href="http://www.ballaerospace.com/" target="_blank">Ball Aerospace</a> under the terms of the <a href="https://github.com/BallAerospace/COSMOS/blob/master/LICENSE.txt" target="_blank">GPLv3&nbsp;License</a>.</p>
       <p>Site design derived from the <a href="http://jekyllrb.com/" target="_blank">Jekyll</a> project documentation which is licensed under the terms of the <a href="https://github.com/jekyll/jekyll/blob/master/LICENSE" target="_blank">MIT License</a>.</p>
     </div>
     <div class="unit two-thirds align-right center-on-mobiles">

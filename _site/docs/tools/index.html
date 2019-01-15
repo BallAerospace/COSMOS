@@ -2,10 +2,10 @@
 <html lang="en-US">
 <head>
   <meta charset="UTF-8">
-  <title>Tool Configuration</title>
+  <title>Tools</title>
   <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="generator" content="Jekyll v3.5.2">
+  <meta name="generator" content="Jekyll v3.7.4">
   <link rel="alternate" type="application/rss+xml" title="Ball Aerospace COSMOS News" href="/feed.xml">
   <link rel="alternate" type="application/atom+xml" title="Recent commits to COSMOS's master branch" href="https://github.com/BallAerospace/COSMOS/commits/master.atom">
   <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic,900">
@@ -167,6 +167,94 @@
   
     
   
+    
+  
+    
+  
+    
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <option value="/docs/tools/">Tools</option>
     
   
     
@@ -3582,1950 +3670,238 @@
           
           <div class="toc">
             <ul class="section-nav">
-<li class="toc-entry toc-h2"><a href="#launcher-configuration">Launcher Configuration</a></li>
-<li class="toc-entry toc-h2"><a href="#keywords">Keywords:</a>
-<ul>
-<li class="toc-entry toc-h3"><a href="#title">TITLE</a></li>
-<li class="toc-entry toc-h3"><a href="#tool_font">TOOL_FONT</a></li>
-<li class="toc-entry toc-h3"><a href="#label_font">LABEL_FONT</a></li>
-<li class="toc-entry toc-h3"><a href="#label">LABEL</a></li>
-<li class="toc-entry toc-h3"><a href="#divider">DIVIDER</a></li>
-<li class="toc-entry toc-h3"><a href="#num_columns">NUM_COLUMNS</a></li>
-<li class="toc-entry toc-h3"><a href="#tool">TOOL</a></li>
-<li class="toc-entry toc-h3"><a href="#multitool_start">MULTITOOL_START</a></li>
-<li class="toc-entry toc-h3"><a href="#multitool_end">MULTITOOL_END</a></li>
-<li class="toc-entry toc-h3"><a href="#delay">DELAY</a></li>
-</ul>
-</li>
-<li class="toc-entry toc-h2"><a href="#example-file">Example File</a></li>
-<li class="toc-entry toc-h2"><a href="#limits-monitor-configuration">Limits Monitor Configuration</a></li>
-<li class="toc-entry toc-h2"><a href="#keywords-1">Keywords:</a>
-<ul>
-<li class="toc-entry toc-h3"><a href="#ignore_item">IGNORE_ITEM</a></li>
-<li class="toc-entry toc-h3"><a href="#ignore_packet">IGNORE_PACKET</a></li>
-<li class="toc-entry toc-h3"><a href="#ignore_stale-cosmos--40">IGNORE_STALE (COSMOS >= 4.0)</a></li>
-<li class="toc-entry toc-h3"><a href="#color_blind">COLOR_BLIND</a></li>
-<li class="toc-entry toc-h3"><a href="#ignore_operational_limits">IGNORE_OPERATIONAL_LIMITS</a></li>
-</ul>
-</li>
-<li class="toc-entry toc-h2"><a href="#script-runner-configuration">Script Runner Configuration</a></li>
-<li class="toc-entry toc-h2"><a href="#keywords-2">Keywords:</a>
-<ul>
-<li class="toc-entry toc-h3"><a href="#line_delay">LINE_DELAY</a></li>
-<li class="toc-entry toc-h3"><a href="#monitor_limits">MONITOR_LIMITS</a></li>
-<li class="toc-entry toc-h3"><a href="#pause_on_red">PAUSE_ON_RED</a></li>
-</ul>
-</li>
-<li class="toc-entry toc-h2"><a href="#example-file-1">Example File</a></li>
-<li class="toc-entry toc-h2"><a href="#telemetry-extractor-configuration">Telemetry Extractor Configuration</a></li>
-<li class="toc-entry toc-h2"><a href="#keywords-3">Keywords:</a>
-<ul>
-<li class="toc-entry toc-h3"><a href="#delimiter">DELIMITER</a></li>
-<li class="toc-entry toc-h3"><a href="#fill_down">FILL_DOWN</a></li>
-<li class="toc-entry toc-h3"><a href="#downsample_seconds">DOWNSAMPLE_SECONDS</a></li>
-<li class="toc-entry toc-h3"><a href="#matlab_header">MATLAB_HEADER</a></li>
-<li class="toc-entry toc-h3"><a href="#unique_only">UNIQUE_ONLY</a></li>
-<li class="toc-entry toc-h3"><a href="#unique_ignore">UNIQUE_IGNORE</a></li>
-<li class="toc-entry toc-h3"><a href="#share_columns">SHARE_COLUMNS</a></li>
-<li class="toc-entry toc-h3"><a href="#share_column-cosmos--392">SHARE_COLUMN (COSMOS >= 3.9.2)</a></li>
-<li class="toc-entry toc-h3"><a href="#full_column_names-cosmos--392">FULL_COLUMN_NAMES (COSMOS >= 3.9.2)</a></li>
-<li class="toc-entry toc-h3"><a href="#dont_output_filenames">DONT_OUTPUT_FILENAMES</a></li>
-<li class="toc-entry toc-h3"><a href="#text">TEXT</a></li>
-<li class="toc-entry toc-h3"><a href="#item">ITEM</a></li>
-</ul>
-</li>
-<li class="toc-entry toc-h2"><a href="#example-file-2">Example File</a></li>
-<li class="toc-entry toc-h2"><a href="#test-runner-configuration">Test Runner Configuration</a></li>
-<li class="toc-entry toc-h2"><a href="#keywords-4">Keywords:</a>
-<ul>
-<li class="toc-entry toc-h3"><a href="#load_utility">LOAD_UTILITY</a></li>
-<li class="toc-entry toc-h3"><a href="#require_utility">REQUIRE_UTILITY</a></li>
-<li class="toc-entry toc-h3"><a href="#results_writer">RESULTS_WRITER</a></li>
-<li class="toc-entry toc-h3"><a href="#allow_debug">ALLOW_DEBUG</a></li>
-<li class="toc-entry toc-h3"><a href="#pause_on_error">PAUSE_ON_ERROR</a></li>
-<li class="toc-entry toc-h3"><a href="#continue_test_case_after_error">CONTINUE_TEST_CASE_AFTER_ERROR</a></li>
-<li class="toc-entry toc-h3"><a href="#abort_testing_after_error">ABORT_TESTING_AFTER_ERROR</a></li>
-<li class="toc-entry toc-h3"><a href="#manual">MANUAL</a></li>
-<li class="toc-entry toc-h3"><a href="#loop_testing">LOOP_TESTING</a></li>
-<li class="toc-entry toc-h3"><a href="#break_loop_after_error">BREAK_LOOP_AFTER_ERROR</a></li>
-<li class="toc-entry toc-h3"><a href="#ignore_test">IGNORE_TEST</a></li>
-<li class="toc-entry toc-h3"><a href="#ignore_test_suite">IGNORE_TEST_SUITE</a></li>
-<li class="toc-entry toc-h3"><a href="#create_data_package">CREATE_DATA_PACKAGE</a></li>
-<li class="toc-entry toc-h3"><a href="#auto_cycle_logs">AUTO_CYCLE_LOGS</a></li>
-<li class="toc-entry toc-h3"><a href="#collect_meta_data">COLLECT_META_DATA</a></li>
-<li class="toc-entry toc-h3"><a href="#script-runner-configuration-keywords">Script Runner Configuration Keywords</a></li>
-<li class="toc-entry toc-h3"><a href="#example-file-3">Example File</a></li>
-</ul>
-</li>
-<li class="toc-entry toc-h2"><a href="#test-runner-usage-notes">Test Runner Usage Notes</a></li>
-<li class="toc-entry toc-h2"><a href="#table-manager-configuration-cosmos--39">Table Manager Configuration (COSMOS >= 3.9)</a></li>
-<li class="toc-entry toc-h2"><a href="#keywords-5">Keywords:</a>
-<ul>
-<li class="toc-entry toc-h3"><a href="#tablefile">TABLEFILE</a></li>
-<li class="toc-entry toc-h3"><a href="#table">TABLE</a></li>
-<li class="toc-entry toc-h3"><a href="#parameter">PARAMETER</a></li>
-</ul>
-</li>
-<li class="toc-entry toc-h2"><a href="#parameter-modifiers">Parameter Modifiers</a>
-<ul>
-<li class="toc-entry toc-h3"><a href="#hidden">HIDDEN</a></li>
-<li class="toc-entry toc-h3"><a href="#uneditable">UNEDITABLE</a></li>
-</ul>
-</li>
-<li class="toc-entry toc-h2"><a href="#example-file-4">Example File</a></li>
-<li class="toc-entry toc-h2"><a href="#table-manager-configuration-cosmos--39-1">Table Manager Configuration (COSMOS < 3.9)</a></li>
-<li class="toc-entry toc-h2"><a href="#keywords-cosmos--39">Keywords (COSMOS < 3.9):</a>
-<ul>
-<li class="toc-entry toc-h3"><a href="#tablefile-cosmos--39">TABLEFILE (COSMOS < 3.9)</a></li>
-<li class="toc-entry toc-h3"><a href="#table-cosmos--39">TABLE (COSMOS < 3.9)</a></li>
-<li class="toc-entry toc-h3"><a href="#parameter-cosmos--39">PARAMETER (COSMOS < 3.9)</a></li>
-<li class="toc-entry toc-h3"><a href="#state-cosmos--39">STATE (COSMOS < 3.9)</a></li>
-<li class="toc-entry toc-h3"><a href="#default-cosmos--39">DEFAULT (COSMOS < 3.9)</a></li>
-<li class="toc-entry toc-h3"><a href="#poly_write_conversion-cosmos--39">POLY_WRITE_CONVERSION (COSMOS < 3.9)</a></li>
-<li class="toc-entry toc-h3"><a href="#poly_read_conversion-cosmos--39">POLY_READ_CONVERSION (COSMOS < 3.9)</a></li>
-<li class="toc-entry toc-h3"><a href="#generic_write_conversion_start--generic_write_conversion_end-cosmos--39">GENERIC_WRITE_CONVERSION_START / GENERIC_WRITE_CONVERSION_END (COSMOS < 3.9)</a></li>
-<li class="toc-entry toc-h3"><a href="#generic_read_conversion_start--generic_read_conversion_end-cosmos--39">GENERIC_READ_CONVERSION_START / GENERIC_READ_CONVERSION_END (COSMOS < 3.9)</a></li>
-<li class="toc-entry toc-h3"><a href="#constraint_start--constraint_end-cosmos--39">CONSTRAINT_START / CONSTRAINT_END (COSMOS < 3.9)</a></li>
-</ul>
-</li>
-<li class="toc-entry toc-h2"><a href="#example-file-cosmos--39">Example File (COSMOS < 3.9)</a></li>
+<li class="toc-entry toc-h2"><a href="#launcher">Launcher</a></li>
+<li class="toc-entry toc-h2"><a href="#command-and-telemetry-server">Command and Telemetry Server</a></li>
+<li class="toc-entry toc-h2"><a href="#replay">Replay</a></li>
+<li class="toc-entry toc-h2"><a href="#limits-monitor">Limits Monitor</a></li>
+<li class="toc-entry toc-h2"><a href="#command-sender">Command Sender</a></li>
+<li class="toc-entry toc-h2"><a href="#command-sequence">Command Sequence</a></li>
+<li class="toc-entry toc-h2"><a href="#script-runner">Script Runner</a></li>
+<li class="toc-entry toc-h2"><a href="#test-runner">Test Runner</a></li>
+<li class="toc-entry toc-h2"><a href="#packet-viewer">Packet Viewer</a></li>
+<li class="toc-entry toc-h2"><a href="#telemetry-viewer">Telemetry Viewer</a></li>
+<li class="toc-entry toc-h2"><a href="#telemetry-grapher">Telemetry Grapher</a></li>
+<li class="toc-entry toc-h2"><a href="#data-viewer">Data Viewer</a></li>
+<li class="toc-entry toc-h2"><a href="#config-editor">Config Editor</a></li>
+<li class="toc-entry toc-h2"><a href="#telemetry-extractor">Telemetry Extractor</a></li>
+<li class="toc-entry toc-h2"><a href="#command-extractor">Command Extractor</a></li>
+<li class="toc-entry toc-h2"><a href="#handbook-generator">Handbook Generator</a></li>
+<li class="toc-entry toc-h2"><a href="#table-manager">Table Manager</a></li>
 </ul>
           </div>
           
-          <h1>Tool Configuration</h1>
-          <p>Please see <a href="/docs/screens">Telemetry Screen Configuration</a> for instructions on configuring Telemetry Viewer.  Please see <a href="/docs/grapher">Telemetry Grapher Configuration</a> for instructions on configuring Telemetry Grapher.</p>
-
-<hr>
-
-<h2 id="launcher-configuration">
-<a id="launcher-configuration" class="anchor" href="#launcher-configuration" aria-hidden="true"><span class="octicon octicon-link"></span></a>Launcher Configuration</h2>
-
-<p>Launcher configuration files define the icons and buttons presented in the Launcher and define how programs are launched. These files are expected to be placed in the config/tools/launcher directory and have a .txt extension. The default configuration file is named launcher.txt.</p>
-
-<p>To specify a different configuration file add ‘–config launcher.txt’ when starting the Launcher. For example, on Windows create a new Batch file at the top of your COSMOS configuration that looks like the following:</p>
-
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">call tools<span class="se">\L</span>auncher.bat --config launcher_config.txt</code></pre></figure>
-
-<div style="clear:both;"></div>
-
-<p>On Linux create a new executable file at the top of your COSMOS configuration that looks like the following:</p>
-
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">ruby tools<span class="se">\L</span>auncher --config launcher_config.txt</code></pre></figure>
-
-<div style="clear:both;"></div>
-
-<h2 id="keywords">
-<a id="keywords" class="anchor" href="#keywords" aria-hidden="true"><span class="octicon octicon-link"></span></a>Keywords:</h2>
-
-<h3 id="title">
-<a id="title" class="anchor" href="#title" aria-hidden="true"><span class="octicon octicon-link"></span></a>TITLE</h3>
-
-<p>The TITLE keyword changes the title of the COSMOS Launcher.</p>
-
-<table>
-<tbody>
-<tr>
-<th>Parameter</th>
-<th>Description</th>
-<th>Required</th>
-</tr>
-<tr>
-<td>Title</td>
-<td>Launcher title. Defaults to "COSMOS Launcher" without this keyword.</td>
-<td>Yes</td>
-</tr>
-</tbody>
-</table>
-
-<p>Example Usage:</p>
-
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">TITLE <span class="s1">'Program Launcher'</span></code></pre></figure>
-
-<h3 id="tool_font">
-<a id="tool_font" class="anchor" href="#tool_font" aria-hidden="true"><span class="octicon octicon-link"></span></a>TOOL_FONT</h3>
-
-<p>The TOOL_FONT keyword sets the font used for tool buttons. It should only be used once as the last encountered setting will apply to all button labels. The default font if this keyword is not used is 12px Arial.</p>
-
-<table>
-<tbody>
-<tr>
-<th>Parameter</th>
-<th>Description</th>
-<th>Required</th>
-</tr>
-<tr>
-<td>Font Family</td>
-<td>The font family to use. Valid choices are "Arial", "Calibri", "Cambria", "Candara", "Castellar", "Centaur", "Century", "Chiller", "Consolas", "Constantia", "Courier", "Courier New", "Dotum", "Elephant", "Euphemia", "Fixedsys", "Georgia", "Impact", "Lucida", "Papyrus", "Rockwell", "Rod", "System", "Tahoma", "Terminal", "Times New Roman", "Verdana", "Wide Latin".</td>
-<td>Yes</td>
-</tr>
-<tr>
-<td colspan="1">Font Size</td>
-<td colspan="1">The size of the font in standard points.</td>
-<td colspan="1">Yes</td>
-</tr>
-</tbody>
-</table>
-
-<p>Example Usage:</p>
-
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">TOOL_FONT Courier 10</code></pre></figure>
-
-<h3 id="label_font">
-<a id="label_font" class="anchor" href="#label_font" aria-hidden="true"><span class="octicon octicon-link"></span></a>LABEL_FONT</h3>
-
-<p>The LABEL_FONT keyword sets the font used for labels. It should only be used once as the last encountered setting will apply to all labels. The default font if this keyword is not used is 16px Tahoma.</p>
-
-<table>
-<tbody>
-<tr>
-<th>Parameter</th>
-<th>Description</th>
-<th>Required</th>
-</tr>
-<tr>
-<td>Font Family</td>
-<td>The font family to use. Valid choices are "Arial", "Calibri", "Cambria", "Candara", "Castellar", "Centaur", "Century", "Chiller", "Consolas", "Constantia", "Courier", "Courier New", "Dotum", "Elephant", "Euphemia", "Fixedsys", "Georgia", "Impact", "Lucida", "Papyrus", "Rockwell", "Rod", "System", "Tahoma", "Terminal", "Times New Roman", "Verdana", "Wide Latin".</td>
-<td>Yes</td>
-</tr>
-<tr>
-<td colspan="1">Font Size</td>
-<td colspan="1">The size of the font in standard points.</td>
-<td colspan="1">Yes</td>
-</tr>
-</tbody>
-</table>
-
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">Example Usage:
-LABEL_FONT Arial 20</code></pre></figure>
-
-<h3 id="label">
-<a id="label" class="anchor" href="#label" aria-hidden="true"><span class="octicon octicon-link"></span></a>LABEL</h3>
-
-<p>The LABEL keyword creates a label of text in the current font style.</p>
-
-<table>
-<tbody>
-<tr>
-<th>Parameter</th>
-<th>Description</th>
-<th>Required</th>
-</tr>
-<tr>
-<td>Text</td>
-<td>The text of the label.</td>
-<td>Yes</td>
-</tr>
-</tbody>
-</table>
-
-<p>Example Usage:</p>
-
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">LABEL Utilities</code></pre></figure>
-
-<h3 id="divider">
-<a id="divider" class="anchor" href="#divider" aria-hidden="true"><span class="octicon octicon-link"></span></a>DIVIDER</h3>
-
-<p>The DIVIDER keyword creates a horizontal line between tools. It takes no parameters and is purely for decoration.</p>
-
-<h3 id="num_columns">
-<a id="num_columns" class="anchor" href="#num_columns" aria-hidden="true"><span class="octicon octicon-link"></span></a>NUM_COLUMNS</h3>
-
-<p>The NUM_COLUMNS keyword specifies how launcher buttons should be created per row in the GUI. The default is 4.</p>
-
-<table>
-<tbody>
-<tr>
-<th>Parameter</th>
-<th>Description</th>
-<th>Required</th>
-</tr>
-<tr>
-<td>Columns</td>
-<td>The number of launcher buttons per row before Launcher automatically creates a new row of buttons.</td>
-<td>Yes</td>
-</tr>
-</tbody>
-</table>
-
-<h3 id="tool">
-<a id="tool" class="anchor" href="#tool" aria-hidden="true"><span class="octicon octicon-link"></span></a>TOOL</h3>
-
-<p>The TOOL keyword specifies one tool that can be launched. The syntax varies if it is being used standalone or for a multi-tool.</p>
-
-<p>Syntax when standalone:</p>
-
-<table>
-<tbody>
-<tr>
-<th>Parameter</th>
-<th>Description</th>
-<th>Required</th>
-</tr>
-<tr>
-<td>Button Text</td>
-<td><span>Label that is put on the button that launches the tool</span></td>
-<td>Yes</td>
-</tr>
-<tr>
-<td colspan="1">Shell Command</td>
-<td colspan="1">Command that is executed to launch the tool. (The same thing you would type at a command terminal). Note that you can include tool parameters here which will be applied when the tool starts.</td>
-<td colspan="1">Yes</td>
-</tr>
-<tr>
-<td colspan="1">Icon Filename</td>
-<td colspan="1">Filename of a an icon located in the data directory. Passing 'nil' or an empty string '' will result in Launcher using the default COSMOS icon.</td>
-<td colspan="1">No</td>
-</tr>
-<tr>
-<td colspan="1"><span>Tool Parameters</span></td>
-<td colspan="1"><span>Tool parameters as you would type on the command line. Specifying parameters here rather than in "Shell Command" will cause a dialog box to appear which allows the user to edit parameters if desired. Expected to be in parameter name/parameter value pairs. i.e. —config filename.txt. NOTE: The full configuration option name must be used rather than the short name. NOTE: These parameters will override any parameters specified in the Shell Command.  Also, multiple options can be specified by seperating options with a pipe character | </span></td>
-<td colspan="1">No</td>
-</tr>
-</tbody>
-</table>
-
-<p>Example Usage:</p>
-
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">TOOL <span class="s2">"Command and Telemetry Server"</span> <span class="s2">"RUBYW tools/CmdTlmServer"</span> cts.png --config cmd_tlm_server.txt
-TOOL <span class="s2">"Script Runner"</span> <span class="s2">"RUBYW tools/ScriptRunner"</span> nil --width 600 --height 800</code></pre></figure>
-
-<p>Syntax when used within the MULTITOOL keywords:</p>
-
-<table>
-<tbody>
-<tr>
-<th>Parameter</th>
-<th>Description</th>
-<th>Required</th>
-</tr>
-<tr>
-<td colspan="1">Shell Command</td>
-<td colspan="1">Command that is executed to launch the tool. (The same thing you would type at a command terminal)</td>
-<td colspan="1">Yes</td>
-</tr>
-</tbody>
-</table>
-
-<p>Example Usage: See MULTITOOL_START</p>
-
-<h3 id="multitool_start">
-<a id="multitool_start" class="anchor" href="#multitool_start" aria-hidden="true"><span class="octicon octicon-link"></span></a>MULTITOOL_START</h3>
-
-<p>The MULTITOOL_START keyword starts the creation of a single icon/button that will launch multiple tools.</p>
-
-<table>
-<tbody>
-<tr>
-<th>Parameter</th>
-<th>Description</th>
-<th>Required</th>
-</tr>
-<tr>
-<td>Button Text</td>
-<td><span>Label that is put on the button that launches the tools</span></td>
-<td>Yes</td>
-</tr>
-<tr>
-<td colspan="1"><span>Icon Filename</span></td>
-<td colspan="1"><span>Filename of a an icon located in the data directory. Passing 'nil' or an empty string '' will result in Launcher using the default COSMOS icon.</span></td>
-<td colspan="1">No</td>
-</tr>
-</tbody>
-</table>
-
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">Example Usage:
-MULTITOOL_START <span class="s2">"COSMOS"</span>
-  TOOL <span class="s2">"RUBYW tools/CmdTlmServer -x 827 -y 2 -w 756 -t 475 -c cmd_tlm_server.txt"</span>
-  DELAY 5
-  TOOL <span class="s2">"RUBYW tools/TlmViewer -x 827 -y 517 -w 424 -t 111"</span>
-MULTITOOL_END</code></pre></figure>
-
-<h3 id="multitool_end">
-<a id="multitool_end" class="anchor" href="#multitool_end" aria-hidden="true"><span class="octicon octicon-link"></span></a>MULTITOOL_END</h3>
-
-<p>The MULTITOOL_END keyword ends the creation of a multi-tool button.</p>
-
-<p>Example Usage: See MULTITOOL_START</p>
-
-<h3 id="delay">
-<a id="delay" class="anchor" href="#delay" aria-hidden="true"><span class="octicon octicon-link"></span></a>DELAY</h3>
-
-<p>The DELAY keyword inserts a delay between launching multiple tools. It is only valid within the MULTITOOL keywords.</p>
-
-<table>
-<tbody>
-<tr>
-<th>Parameter</th>
-<th>Description</th>
-<th>Required</th>
-</tr>
-<tr>
-<td>Delay</td>
-<td>Time to delay in seconds</td>
-<td>Yes</td>
-</tr>
-</tbody>
-</table>
-
-<p>Example Usage: See MULTITOOL_START</p>
-
-<h2 id="example-file">
-<a id="example-file" class="anchor" href="#example-file" aria-hidden="true"><span class="octicon octicon-link"></span></a>Example File</h2>
-
-<p><strong>Example File: &lt;Cosmos::USERPATH&gt;/config/tools/launcher/launcher.txt</strong></p>
-
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">TITLE <span class="s2">"Demo Launcher"</span>
-FONT tahoma 12
-NUM_COLUMNS 4
-MULTITOOL_START <span class="s2">"COSMOS"</span> NULL
- TOOL <span class="s2">"RUBYW tools/CmdTlmServer -x 827 -y 2 -w 756 -t 475 -c cmd_tlm_server.txt"</span>
- DELAY 5
- TOOL <span class="s2">"RUBYW tools/TlmViewer -x 827 -y 517 -w 424 -t 111"</span>
- TOOL <span class="s2">"RUBYW tools/PacketViewer -x 827 -y 669 -w 422 -t 450"</span>
- TOOL <span class="s2">"RUBYW tools/ScriptRunner -x 4 -y 2 -w 805 -t 545"</span>
- TOOL <span class="s2">"RUBYW tools/CmdSender -x 4 -y 586 -w 805 -t 533"</span>
-MULTITOOL_END
-TOOL <span class="s2">"Command and Telemetry Server"</span> <span class="s2">"RUBYW tools/CmdTlmServer"</span> <span class="s2">"cts.png"</span> --config cmd_tlm_server.txt
-TOOL <span class="s2">"Limits Monitor"</span> <span class="s2">"RUBYW tools/LimitsMonitor"</span> <span class="s2">"limits_monitor.png"</span>
-DIVIDER
-LABEL <span class="s2">"Commanding and Scripting"</span>
-TOOL <span class="s2">"Command Sender"</span> <span class="s2">"RUBYW tools/CmdSender"</span> <span class="s2">"cmd_sender.png"</span>
-TOOL <span class="s2">"Script Runner"</span> <span class="s2">"RUBYW tools/ScriptRunner"</span> <span class="s2">"script_runner.png"</span>
-TOOL <span class="s2">"Test Runner"</span> <span class="s2">"RUBYW tools/TestRunner"</span> <span class="s2">"test_runner.png"</span>
-DIVIDER
-LABEL Telemetry
-TOOL <span class="s2">"Packet Viewer"</span> <span class="s2">"RUBYW tools/PacketViewer"</span> <span class="s2">"packet_viewer.png"</span>
-TOOL <span class="s2">"Telemetry Viewer"</span> <span class="s2">"RUBYW tools/TlmViewer"</span> <span class="s2">"tlm_viewer.png"</span>
-TOOL <span class="s2">"Telemetry Grapher"</span> <span class="s2">"RUBYW tools/TlmGrapher"</span> <span class="s2">"tlm_grapher.png"</span>
-TOOL <span class="s2">"Data Viewer"</span> <span class="s2">"RUBYW tools/DataViewer"</span> <span class="s2">"data_viewer.png"</span>
-DIVIDER
-LABEL Utilities
-TOOL <span class="s2">"Telemetry Extractor"</span> <span class="s2">"RUBYW tools/TlmExtractor"</span> <span class="s2">"tlm_extractor.png"</span>
-TOOL <span class="s2">"Command Extractor"</span> <span class="s2">"RUBYW tools/CmdExtractor"</span> <span class="s2">"cmd_extractor.png"</span>
-TOOL <span class="s2">"Handbook Creator"</span> <span class="s2">"RUBYW -Ku tools/HandbookCreator"</span> <span class="s2">"handbook_creator.png"</span>
-TOOL <span class="s2">"Table Manager"</span> <span class="s2">"RUBYW tools/TableManager"</span> <span class="s2">"table_manager.png"</span></code></pre></figure>
-
-<hr>
-
-<h2 id="limits-monitor-configuration">
-<a id="limits-monitor-configuration" class="anchor" href="#limits-monitor-configuration" aria-hidden="true"><span class="octicon octicon-link"></span></a>Limits Monitor Configuration</h2>
-
-<p>Limits Monitor has the ability to ignore telemetry items and no longer monitor them for transition to the yellow and red state. This is useful for known telemetry item configuration problems. Note that while telemetry items may be ignored in Limits Monitor, their states are still being recorded by the Command and Telemetry Server.</p>
-
-<h2 id="keywords-1">
-<a id="keywords-1" class="anchor" href="#keywords-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>Keywords:</h2>
-
-<h3 id="ignore_item">
-<a id="ignore_item" class="anchor" href="#ignore_item" aria-hidden="true"><span class="octicon octicon-link"></span></a>IGNORE_ITEM</h3>
-
-<p>The IGNORE_ITEM keyword instructs Limits Monitor to ignore a particular telemetry item when reporting the overall system limits state.</p>
-
-<table>
-<tbody>
-<tr>
-<th>Parameter</th>
-<th>Description</th>
-<th>Required</th>
-</tr>
-<tr>
-<td>Target Name</td>
-<td>Name of the telemetry target</td>
-<td>Yes</td>
-</tr>
-<tr>
-<td colspan="1">Packet Name</td>
-<td colspan="1">Name of the telemetry packet</td>
-<td colspan="1">Yes</td>
-</tr>
-<tr>
-<td colspan="1">Item Name</td>
-<td colspan="1">Name of the telemetry item</td>
-<td colspan="1">Yes</td>
-</tr>
-</tbody>
-</table>
-
-<p>Example Usage:</p>
-
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">IGNORE_ITEM INST HEALTH_STATUS TEMP1
-IGNORE_ITEM INST HEALTH_STATUS TEMP2</code></pre></figure>
-
-<h3 id="ignore_packet">
-<a id="ignore_packet" class="anchor" href="#ignore_packet" aria-hidden="true"><span class="octicon octicon-link"></span></a>IGNORE_PACKET</h3>
-
-<p>The IGNORE_PACKET keyword instructs Limits Monitor to ignore all telemetry items for a specified packet when reporting the overall system limits state.</p>
-
-<table>
-<tbody>
-<tr>
-<th>Parameter</th>
-<th>Description</th>
-<th>Required</th>
-</tr>
-<tr>
-<td>Target Name</td>
-<td>Name of the telemetry target</td>
-<td>Yes</td>
-</tr>
-<tr>
-<td colspan="1">Packet Name</td>
-<td colspan="1">Name of the telemetry packet</td>
-<td colspan="1">Yes</td>
-</tr>
-</tbody>
-</table>
-
-<p>Example Usage:</p>
-
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">IGNORE_PACKET INST HEALTH_STATUS</code></pre></figure>
-
-<h3 id="ignore_stale-cosmos--40">
-<a id="ignore_stale-cosmos--40" class="anchor" href="#ignore_stale-cosmos--40" aria-hidden="true"><span class="octicon octicon-link"></span></a>IGNORE_STALE (COSMOS &gt;= 4.0)</h3>
-
-<p>The IGNORE_STALE keyword instructs Limits Monitor to ignore the staleness of a specified packet when reporting the overall system limits state.  Note that only packet staleness is ignored; if the packet is received and an item is out-of-limits, that will still count against the overal system limits state unless the item or packet is separately ignored with the IGNORE_ITEM or IGNORE_PACKET keyword.</p>
-
-<table>
-<tbody>
-<tr>
-<th>Parameter</th>
-<th>Description</th>
-<th>Required</th>
-</tr>
-<tr>
-<td>Target Name</td>
-<td>Name of the telemetry target</td>
-<td>Yes</td>
-</tr>
-<tr>
-<td colspan="1">Packet Name</td>
-<td colspan="1">Name of the telemetry packet</td>
-<td colspan="1">Yes</td>
-</tr>
-</tbody>
-</table>
-
-<p>Example Usage:</p>
-
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">IGNORE_STALE INST HEALTH_STATUS</code></pre></figure>
-
-<h3 id="color_blind">
-<a id="color_blind" class="anchor" href="#color_blind" aria-hidden="true"><span class="octicon octicon-link"></span></a>COLOR_BLIND</h3>
-
-<p>The COLOR_BLIND keyword instructs Limits Monitor to use a color-blind accessibility mode.  In this mode, the value for out-of-limits items have a code appended to indicate the limits status.  The code is r = red low, y = yellow low, g = green low, B = blue, G = green or green high, Y = yellow high, R = red high.</p>
-
-<p>Example Usage:</p>
-
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">COLOR_BLIND</code></pre></figure>
-
-<h3 id="ignore_operational_limits">
-<a id="ignore_operational_limits" class="anchor" href="#ignore_operational_limits" aria-hidden="true"><span class="octicon octicon-link"></span></a>IGNORE_OPERATIONAL_LIMITS</h3>
-
-<p>The IGNORE_OPERATIONAL_LIMITS keyword instructs Limits Monitor to ignore GREEN_HIGH or GREEN_LOW limits states for items that have operational limits defined.  If this keyword is used, items with operational limits will only show up in limits monitor if they go yellow or red.</p>
-
-<p>Example Usage:</p>
-
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">IGNORE_OPERATIONAL_LIMITS</code></pre></figure>
-
-<hr>
-
-<h2 id="script-runner-configuration">
-<a id="script-runner-configuration" class="anchor" href="#script-runner-configuration" aria-hidden="true"><span class="octicon octicon-link"></span></a>Script Runner Configuration</h2>
-
-<p>The Script Runner Configuration File affects both the Script Runner tool and the Test Runner tool. It defines where to look for procedures and other scripting settings. The configuration file is named script_runner.txt.</p>
-
-<h2 id="keywords-2">
-<a id="keywords-2" class="anchor" href="#keywords-2" aria-hidden="true"><span class="octicon octicon-link"></span></a>Keywords:</h2>
-
-<h3 id="line_delay">
-<a id="line_delay" class="anchor" href="#line_delay" aria-hidden="true"><span class="octicon octicon-link"></span></a>LINE_DELAY</h3>
-
-<p>The LINE_DELAY keyword specifies the amount of time in seconds before the next line of a script will be executed. This allows the user to easily watch as a script progresses.</p>
-
-<table>
-<tbody>
-<tr>
-<th>Parameter</th>
-<th>Description</th>
-<th>Required</th>
-</tr>
-<tr>
-<td>Delay</td>
-<td>Delay in seconds before the next line is executed. A value of 0 means to execute the scripts as fast as possible.</td>
-<td>Yes</td>
-</tr>
-</tbody>
-</table>
-
-<p>Example Usage:</p>
-
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">LINE_DELAY 1.0 <span class="c"># Delay for 1 second between lines</span></code></pre></figure>
-
-<h3 id="monitor_limits">
-<a id="monitor_limits" class="anchor" href="#monitor_limits" aria-hidden="true"><span class="octicon octicon-link"></span></a>MONITOR_LIMITS</h3>
-
-<p>The MONITOR_LIMITS keyword specifies that Script Runner should log limits events while a script is running. These limit evens will be printed in the script runner log file. Note that this has no effect of the Command and Telemetry Server which always logs limits events.</p>
-
-<h3 id="pause_on_red">
-<a id="pause_on_red" class="anchor" href="#pause_on_red" aria-hidden="true"><span class="octicon octicon-link"></span></a>PAUSE_ON_RED</h3>
-
-<p>The PAUSE_ON_RED keyword specifies that Script Runner should pause a running script if a red limit occurs</p>
-
-<h2 id="example-file-1">
-<a id="example-file-1" class="anchor" href="#example-file-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>Example File</h2>
-
-<p><strong>Example File: &lt;Cosmos::USERPATH&gt;/config/tools/script_runner/script_runner.txt</strong></p>
-
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">LINE_DELAY 0.1
-MONITOR_LIMITS
-PAUSE_ON_RED</code></pre></figure>
-
-<hr>
-
-<h2 id="telemetry-extractor-configuration">
-<a id="telemetry-extractor-configuration" class="anchor" href="#telemetry-extractor-configuration" aria-hidden="true"><span class="octicon octicon-link"></span></a>Telemetry Extractor Configuration</h2>
-
-<p>Telemetry Extractor configuration files define what telemetry points that telemetry extractor should pull out of a log file. These files are expected to be placed in the tools/config/tlm_extractor directory and have a .txt extension. The default configuration file is named tlm_extractor.txt.</p>
-
-<h2 id="keywords-3">
-<a id="keywords-3" class="anchor" href="#keywords-3" aria-hidden="true"><span class="octicon octicon-link"></span></a>Keywords:</h2>
-
-<h3 id="delimiter">
-<a id="delimiter" class="anchor" href="#delimiter" aria-hidden="true"><span class="octicon octicon-link"></span></a>DELIMITER</h3>
-
-<p>The DELIMITER keyword specifies an alternative column delimiter over the default of a tab character.</p>
-
-<table>
-<tbody>
-<tr>
-<th>Parameter</th>
-<th>Description</th>
-<th>Required</th>
-</tr>
-<tr>
-<td>Delimiter</td>
-<td>Character or string to use as a delimiter. For example ','.</td>
-<td>Yes</td>
-</tr>
-</tbody>
-</table>
-
-<p>Example Usage:</p>
-
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">DELIMITER <span class="s1">','</span></code></pre></figure>
-
-<h3 id="fill_down">
-<a id="fill_down" class="anchor" href="#fill_down" aria-hidden="true"><span class="octicon octicon-link"></span></a>FILL_DOWN</h3>
-
-<p>The FILL_DOWN keyword causes Telemetry Extractor it to insert a value into every row of the output. For example, if you have the following telemetry extractor configuration file:</p>
-
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">ITEM INST HEALTH_STATUS PKTID
-ITEM INST HEALTH_STATUS COLLECTS
-ITEM INST ADCS POSX
-ITEM INST ADCS POSX</code></pre></figure>
-
-<p>Your normal output might look something like this:</p>
-
-<table>
-<colgroup>
-<col> </colgroup>
-<tbody>
-<tr>
-<td>TARGET</td>
-<td>PACKET</td>
-<td>PKTID</td>
-<td>COLLECTS</td>
-<td>POSX</td>
-<td>POSX</td>
-</tr>
-<tr>
-<td>INST</td>
-<td>ADCS</td>
-<td> </td>
-<td> </td>
-<td>-579296</td>
-<td>-579296</td>
-</tr>
-<tr>
-<td>INST</td>
-<td>HEALTH_STATUS</td>
-<td>1</td>
-<td>0</td>
-<td> </td>
-<td> </td>
-</tr>
-<tr>
-<td>INST</td>
-<td>ADCS</td>
-<td> </td>
-<td> </td>
-<td>-578683</td>
-<td>-578683</td>
-</tr>
-</tbody>
-</table>
-
-<p>with FILL_DOWN enabled it would like this this:</p>
-
-<table>
-<colgroup>
-<col> </colgroup>
-<tbody>
-<tr>
-<td>TARGET</td>
-<td>PACKET</td>
-<td>PKTID</td>
-<td>COLLECTS</td>
-<td>POSX</td>
-<td>POSX</td>
-</tr>
-<tr>
-<td>INST</td>
-<td>ADCS</td>
-<td> </td>
-<td> </td>
-<td>-579296</td>
-<td>-579296</td>
-</tr>
-<tr>
-<td>INST</td>
-<td>HEALTH_STATUS</td>
-<td>1</td>
-<td>0</td>
-<td>-579296</td>
-<td>-579296</td>
-</tr>
-<tr>
-<td>INST</td>
-<td>ADCS</td>
-<td>1</td>
-<td>0</td>
-<td>-578683</td>
-<td>-578683</td>
-</tr>
-</tbody>
-</table>
-
-<p>Note that in the second INST ADCS packet the PKTID and COLLECTS values are “filled down” even though they were not present in that packet. This makes it easier to graph multiple values across packets in Excel.</p>
-
-<h3 id="downsample_seconds">
-<a id="downsample_seconds" class="anchor" href="#downsample_seconds" aria-hidden="true"><span class="octicon octicon-link"></span></a>DOWNSAMPLE_SECONDS</h3>
-
-<p>The DOWNSAMPLE_SECONDS keyward causes Telemetry Extractor to downsample data to only output a value every X seconds of time.</p>
-
-<table>
-<tbody>
-<tr>
-<th>Parameter</th>
-<th>Description</th>
-<th>Required</th>
-</tr>
-<tr>
-<td>Seconds</td>
-<td>Number of seconds to skip between values output</td>
-<td>Yes</td>
-</tr>
-</tbody>
-</table>
-
-<p>Example Usage:</p>
-
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">DOWNSAMPLE_SECONDS 5</code></pre></figure>
-
-<h3 id="matlab_header">
-<a id="matlab_header" class="anchor" href="#matlab_header" aria-hidden="true"><span class="octicon octicon-link"></span></a>MATLAB_HEADER</h3>
-
-<p>The MATLAB_HEADER keyword cause Telemetry Extractor to prepend the Matlab comment symbol of ‘%’ to the header lines in the output file.</p>
-
-<h3 id="unique_only">
-<a id="unique_only" class="anchor" href="#unique_only" aria-hidden="true"><span class="octicon octicon-link"></span></a>UNIQUE_ONLY</h3>
-
-<p>The UNIQUE_ONLY keyword causes Telemetry Extractor to only output a row if one of the extracted values has changed. This can be used to extract telemetry items over a large time period by only outputting those values where items have changed.</p>
-
-<h3 id="unique_ignore">
-<a id="unique_ignore" class="anchor" href="#unique_ignore" aria-hidden="true"><span class="octicon octicon-link"></span></a>UNIQUE_IGNORE</h3>
-
-<p>The UNIQUE_IGNORE keyword is used in conjunction with UNIQUE_ONLY to control which items should be checked for changing values. This list of telemetry items (not target names or packet names) always includes the COSMOS metadata items named PACKET_TIMEFORMATTED, PACKET_TIMESECONDS, RECEIVED_TIMEFORMATTED and RECEIVED_SECONDS. This is because these items will always change from packet to packet which would cause them to ALWAYS be printed if UNIQUE_ONLY was used. To avoid this, but still include time stamps in the output, UNIQUE_IGNORE includes these items. If you have a similar telemetry item that you want to display in the output, but not be used to determine uniqueness, use this keyword.</p>
-
-<table>
-<tbody>
-<tr>
-<th>Parameter</th>
-<th>Description</th>
-<th>Required</th>
-</tr>
-<tr>
-<td>Item Name</td>
-<td>Name of the item to exclude from the uniqueness criteria (see above). Note that all items with this name in all target packets are affected.</td>
-<td>Yes</td>
-</tr>
-</tbody>
-</table>
-
-<h3 id="share_columns">
-<a id="share_columns" class="anchor" href="#share_columns" aria-hidden="true"><span class="octicon octicon-link"></span></a>SHARE_COLUMNS</h3>
-
-<p>The SHARE_COLUMNS keyword causes Telemetry Extractor to put telemetry items with the same name into the same column in the output.  For example if you have the following configuration file:</p>
-
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">ITEM INST HEALTH_STATUS PKTID
-ITEM INST ADCS PKTID</code></pre></figure>
-
-<p>Your normal output would look something like this:</p>
-
-<table>
-<colgroup>
-<col> </colgroup>
-<tbody>
-<tr>
-<td>TARGET</td>
-<td>PACKET</td>
-<td>PKTID</td>
-<td>PKTID</td>
-</tr>
-<tr>
-<td>INST</td>
-<td>ADCS</td>
-<td> </td>
-<td>1</td>
-</tr>
-<tr>
-<td>INST</td>
-<td>HEALTH_STATUS</td>
-<td>1</td>
-<td> </td>
-</tr>
-<tr>
-<td>INST</td>
-<td>ADCS</td>
-<td> </td>
-<td>1</td>
-</tr>
-</tbody>
-</table>
-
-<p>Note how both telemetry packets got their own unique PKTID column. With SHARE_COLUMNS enabled you would get something like this:</p>
-
-<table>
-<colgroup>
-<col> </colgroup>
-<tbody>
-<tr>
-<td>TARGET</td>
-<td>PACKET</td>
-<td>PKTID</td>
-</tr>
-<tr>
-<td>INST</td>
-<td>ADCS</td>
-<td>1</td>
-</tr>
-<tr>
-<td>INST</td>
-<td>HEALTH_STATUS</td>
-<td>1</td>
-</tr>
-<tr>
-<td>INST</td>
-<td>ADCS</td>
-<td>1</td>
-</tr>
-</tbody>
-</table>
-
-<p>Note how both packets share the one PKTID column. This applies to all telemetry items with identical names.  If you want to share columns for only specific items, use the SHARE_COLUMN keyword instead.</p>
-
-<h3 id="share_column-cosmos--392">
-<a id="share_column-cosmos--392" class="anchor" href="#share_column-cosmos--392" aria-hidden="true"><span class="octicon octicon-link"></span></a>SHARE_COLUMN (COSMOS &gt;= 3.9.2)</h3>
-
-<p>The SHARE_COLUMN keyword causes Telemetry Extractor to put specific telemetry items with the same name into the same column in the output.  This is similar to the behavior of the SHARE_COLUMNS keyword, except it is used to share individual items instead of all items.  The SHARE_COLUMN keyword can be used multiple times to share different common items.</p>
-
-<table>
-<tbody>
-<tr>
-<th>Parameter</th>
-<th>Description</th>
-<th>Required</th>
-</tr>
-<tr>
-<td colspan="1">Item Name</td>
-<td colspan="1">Name of the telemtry item</td>
-<td colspan="1">Yes</td>
-</tr>
-<tr>
-<td>Item Type</td>
-<td>RAW, FORMATTED, or WITH_UNITS (CONVERTED is implied if the parameter is omitted)</td>
-<td>No</td>
-</tr>
-</tbody>
-</table>
-
-<p>For example, if you have the following telemetry extractor configuration file:</p>
-
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">SHARE_COLUMN TIMESECONDS
-ITEM INST HEALTH_STATUS TIMESECONDS
-ITEM INST ADCS TIMESECONDS
-ITEM INST HEALTH_STATUS PKTID
-ITEM INST ADCS PKTID</code></pre></figure>
-
-<p>Your output would look something like this:</p>
-
-<table>
-<colgroup>
-<col> </colgroup>
-<tbody>
-<tr>
-<td>TARGET</td>
-<td>PACKET</td>
-<td>TIMESECONDS</td>
-<td>PKTID</td>
-<td>PKTID</td>
-</tr>
-<tr>
-<td>INST</td>
-<td>ADCS</td>
-<td>1234567</td>
-<td>1</td>
-<td> </td>
-</tr>
-<tr>
-<td>INST</td>
-<td>HEALTH_STATUS</td>
-<td>1234568</td>
-<td> </td>
-<td>1</td>
-</tr>
-<tr>
-<td>INST</td>
-<td>ADCS</td>
-<td>1234569</td>
-<td>1</td>
-<td> </td>
-</tr>
-</tbody>
-</table>
-
-<p>Note how both packets share the same TIMESECONDS column, but each packet has its own PKTID column.</p>
-
-<h3 id="full_column_names-cosmos--392">
-<a id="full_column_names-cosmos--392" class="anchor" href="#full_column_names-cosmos--392" aria-hidden="true"><span class="octicon octicon-link"></span></a>FULL_COLUMN_NAMES (COSMOS &gt;= 3.9.2)</h3>
-
-<p>The FULL_COLUMN_NAMES keyword causes Telemetry Extractor to use TARGET PACKET ITEM as the column header for each column instead of just ITEM.  Note that the common TARGET and PACKET columns are not generated when this mode is active.  For example if you have the following configuration file:</p>
-
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">ITEM INST HEALTH_STATUS PKTID
-ITEM INST ADCS PKTID</code></pre></figure>
-
-<p>Your normal output would look something like this:</p>
-
-<table>
-<colgroup>
-<col> </colgroup>
-<tbody>
-<tr>
-<td>TARGET</td>
-<td>PACKET</td>
-<td>PKTID</td>
-<td>PKTID</td>
-</tr>
-<tr>
-<td>INST</td>
-<td>ADCS</td>
-<td> </td>
-<td>1</td>
-</tr>
-<tr>
-<td>INST</td>
-<td>HEALTH_STATUS</td>
-<td>1</td>
-<td> </td>
-</tr>
-<tr>
-<td>INST</td>
-<td>ADCS</td>
-<td> </td>
-<td>1</td>
-</tr>
-</tbody>
-</table>
-
-<p>Note that the TARGET and PACKET information is catpured in common TARGET and PACKET columns, but the PKTID column names are not fully qualified. With FULL_COLUMN_NAMES enabled you would get something like this:</p>
-
-<table>
-<colgroup>
-<col> </colgroup>
-<tbody>
-<tr>
-<td>INST HEALTH_STATUS PKTID</td>
-<td>INST ADCS PKTID</td>
-</tr>
-<tr>
-<td> </td>
-<td>1</td>
-</tr>
-<tr>
-<td>1</td>
-<td> </td>
-</tr>
-<tr>
-<td> </td>
-<td>1</td>
-</tr>
-</tbody>
-</table>
-
-<p>Note that there are no TARGET or PACKET columns, but the column names include TARGET and PACKET instead.</p>
-
-<h3 id="dont_output_filenames">
-<a id="dont_output_filenames" class="anchor" href="#dont_output_filenames" aria-hidden="true"><span class="octicon octicon-link"></span></a>DONT_OUTPUT_FILENAMES</h3>
-
-<p>The DONT_OUTPUT_FILENAMES keyword prevents Telemetry Extractor from outputing the list of input filenames at the top of each output file.</p>
-
-<h3 id="text">
-<a id="text" class="anchor" href="#text" aria-hidden="true"><span class="octicon octicon-link"></span></a>TEXT</h3>
-
-<p>The TEXT keyword allows you to place arbitrary text in the Telemetry Extractor output. It also allows you to dynamically create Excel formulas using a special syntax.</p>
-
-<table>
-<tbody>
-<tr>
-<th>Parameter</th>
-<th>Description</th>
-<th>Required</th>
-</tr>
-<tr>
-<td colspan="1">Header</td>
-<td colspan="1">The column header text</td>
-<td colspan="1">Yes</td>
-</tr>
-<tr>
-<td>Text</td>
-<td>Text to put in the output file. The special character '%' will be translated to the current row of the output file. This is useful for Excel formulas which need a reference to a cell. Remember the first two columns are always the TARGET and PACKET and telemetry items start in column 'C' in Excel.</td>
-<td>Yes</td>
-</tr>
-</tbody>
-</table>
-
-<p>Example Usage:</p>
-
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">TEXT <span class="s2">"Calc"</span> <span class="s2">"=C%*D%"</span> <span class="c"># Excel will calculate the C column times the D column</span></code></pre></figure>
-
-<h3 id="item">
-<a id="item" class="anchor" href="#item" aria-hidden="true"><span class="octicon octicon-link"></span></a>ITEM</h3>
-
-<p>The ITEM keyword specifies a telemetry item to extract.</p>
-
-<table>
-<tbody>
-<tr>
-<th>Parameter</th>
-<th>Description</th>
-<th>Required</th>
-</tr>
-<tr>
-<td colspan="1">Target Name</td>
-<td colspan="1">Name of the telemetry target</td>
-<td colspan="1">Yes</td>
-</tr>
-<tr>
-<td>Packet Name</td>
-<td>Name of the telemetry packet</td>
-<td>Yes</td>
-</tr>
-<tr>
-<td colspan="1">Item Name</td>
-<td colspan="1">Name of the telemetry item</td>
-<td colspan="1">Yes</td>
-</tr>
-<tr>
-<td colspan="1">Item Type</td>
-<td colspan="1"><span>RAW, FORMATTED, or WITH_UNITS (CONVERTED is implied if the parameter is omitted)</span></td>
-<td colspan="1">No</td>
-</tr>
-</tbody>
-</table>
-
-<h2 id="example-file-2">
-<a id="example-file-2" class="anchor" href="#example-file-2" aria-hidden="true"><span class="octicon octicon-link"></span></a>Example File</h2>
-
-<p><strong>Example File: &lt;Cosmos::USERPATH&gt;/config/tools/tlm_extractor/tlm_extractor.txt</strong></p>
-
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">FILL_DOWN
-MATLAB_HEADER
-DELIMITER <span class="s2">","</span>
-SHARE_COLUMNS
-DOWNSAMPLE_SECONDS 5</code></pre></figure>
-
-<p>DONT_OUTPUT_FILENAMES</p>
-
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">UNIQUE_ONLY
-UNIQUE_IGNORE TEMP1
-ITEM INST HEALTH_STATUS TIMEFORMATTED
-ITEM INST HEALTH_STATUS TEMP1 RAW
-ITEM INST HEALTH_STATUS TEMP2 FORMATTED
-ITEM INST HEALTH_STATUS TEMP3 WITH_UNITS
-ITEM INST HEALTH_STATUS TEMP4
-TEXT <span class="s2">"Calc"</span> <span class="s2">"=D%*G%"</span> <span class="c"># Calculate TEMP1 (RAW) times TEMP4</span></code></pre></figure>
-
-<hr>
-
-<h2 id="test-runner-configuration">
-<a id="test-runner-configuration" class="anchor" href="#test-runner-configuration" aria-hidden="true"><span class="octicon octicon-link"></span></a>Test Runner Configuration</h2>
-
-<p>Test Runner configuration files define what tests should be run with what options. These files are expected to be placed in the tools/config/test_runner directory and have a .txt extension. The default configuration file is named test_runner.txt.</p>
-
-<h2 id="keywords-4">
-<a id="keywords-4" class="anchor" href="#keywords-4" aria-hidden="true"><span class="octicon octicon-link"></span></a>Keywords:</h2>
-
-<h3 id="load_utility">
-<a id="load_utility" class="anchor" href="#load_utility" aria-hidden="true"><span class="octicon octicon-link"></span></a>LOAD_UTILITY</h3>
-
-<p>The LOAD_UTILITY keyword specifies a test procedure to run. This procedure will be found automatically in the procedures directory or can be given by a path relative to the COSMOS install directory or by an absolute path. This keyword is used to load the script and execute it line by line by showing the current execution point. Sometimes you want to load utility code that is NOT executed line by line but is executed in the background. For example, a CRC routine or other long running calculation. The Ruby keyword ‘load’ can be used for this purpose, e.g. ‘load utility.rb’. This code will be loaded but not shown when executing.</p>
-
-<table>
-<tbody>
-<tr>
-<th>Parameter</th>
-<th>Description</th>
-<th>Required</th>
-</tr>
-<tr>
-<td>Filename</td>
-<td>Name of the test file in quotes</td>
-<td>Yes</td>
-</tr>
-</tbody>
-</table>
-
-<p>Example Usage:</p>
-
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">LOAD_UTILITY <span class="s1">'example_test.rb'</span>
-LOAD_UTILITY <span class="s1">'../../example_test.rb'</span> <span class="c"># Relative path from the base of the COSMOS configuration</span>
-LOAD_UTILITY <span class="s1">'C:/procedures/example_test.rb'</span> <span class="c"># Absolute path (not cross platform)</span></code></pre></figure>
-
-<h3 id="require_utility">
-<a id="require_utility" class="anchor" href="#require_utility" aria-hidden="true"><span class="octicon octicon-link"></span></a>REQUIRE_UTILITY</h3>
-
-<p>This keyword behaves exactly like LOAD_UTILITY and has been deprecated.</p>
-
-<h3 id="results_writer">
-<a id="results_writer" class="anchor" href="#results_writer" aria-hidden="true"><span class="octicon octicon-link"></span></a>RESULTS_WRITER</h3>
-
-<p>The RESULTS_WRITER keyword allows you to specify a different Ruby file to interpret and print the Test Runner results. This file must define a class which implements the Cosmos::ResultsWriter API.</p>
-
-<table>
-<tbody>
-<tr>
-<th>Parameter</th>
-<th>Description</th>
-<th>Required</th>
-</tr>
-<tr>
-<td>Filename</td>
-<td>Name of the Ruby file which implements a results writer</td>
-<td>Yes</td>
-</tr>
-<tr>
-<td colspan="1">Class Parameters</td>
-<td colspan="1">Parameters to pass to the constructor of the results writer</td>
-<td colspan="1">Class specific</td>
-</tr>
-</tbody>
-</table>
-
-<p>Example Usage:</p>
-
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">RESULTS_WRITER my_results_writer.rb</code></pre></figure>
-
-<h3 id="allow_debug">
-<a id="allow_debug" class="anchor" href="#allow_debug" aria-hidden="true"><span class="octicon octicon-link"></span></a>ALLOW_DEBUG</h3>
-
-<p>Whether to allow the user to enable the debug line where the user can enter arbitrary statements.</p>
-
-<h3 id="pause_on_error">
-<a id="pause_on_error" class="anchor" href="#pause_on_error" aria-hidden="true"><span class="octicon octicon-link"></span></a>PAUSE_ON_ERROR</h3>
-
-<p>The PAUSE_ON_ERROR keyword sets or clears the pause on error checkbox. If this is checked, Test Runner will pause if the test encounters an error. Otherwise the error will be logged but the script will continue.</p>
-
-<table>
-<tbody>
-<tr>
-<th>Parameter</th>
-<th>Description</th>
-<th>Required</th>
-</tr>
-<tr>
-<td>True or False</td>
-<td>Whether to pause when the script encounters an error</td>
-<td>Yes</td>
-</tr>
-</tbody>
-</table>
-
-<p>Example Usage:</p>
-
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">PAUSE_ON_ERROR TRUE <span class="c"># default</span></code></pre></figure>
-
-<h3 id="continue_test_case_after_error">
-<a id="continue_test_case_after_error" class="anchor" href="#continue_test_case_after_error" aria-hidden="true"><span class="octicon octicon-link"></span></a>CONTINUE_TEST_CASE_AFTER_ERROR</h3>
-
-<p>The CONTINUE_TEST_CASE_AFTER_ERROR keyword sets or clears the continue test case after error checkbox. If this is checked, Test Runner will continue executing the current test case after encountering an error. Otherwise the test case will stop at the error and the next test case will execute.</p>
-
-<table>
-<tbody>
-<tr>
-<th>Parameter</th>
-<th>Description</th>
-<th>Required</th>
-</tr>
-<tr>
-<td>True or False</td>
-<td>Whether to continue the test case when the script encounters an error</td>
-<td>Yes</td>
-</tr>
-</tbody>
-</table>
-
-<p>Example Usage:</p>
-
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">CONTINUE_TEST_CASE_AFTER_ERROR TRUE <span class="c"># default</span></code></pre></figure>
-
-<h3 id="abort_testing_after_error">
-<a id="abort_testing_after_error" class="anchor" href="#abort_testing_after_error" aria-hidden="true"><span class="octicon octicon-link"></span></a>ABORT_TESTING_AFTER_ERROR</h3>
-
-<p>The ABORT_TESTING_AFTER_ERROR keyword sets or clears the abort testing after error checkbox. If this is checked, Test Runner will stop executing after the current test case completes (how it completes depends on CONTINUE_TEST_CASE_AFTER_ERROR). Otherwise the next test case will execute.</p>
-
-<table>
-<tbody>
-<tr>
-<th>Parameter</th>
-<th>Description</th>
-<th>Required</th>
-</tr>
-<tr>
-<td>True or False</td>
-<td>Whether to continue to the next test case when the script encounters an error</td>
-<td>Yes</td>
-</tr>
-</tbody>
-</table>
-
-<p>Example Usage:</p>
-
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">ABORT_TESTING_AFTER_ERROR FALSE <span class="c"># default</span></code></pre></figure>
-
-<h3 id="manual">
-<a id="manual" class="anchor" href="#manual" aria-hidden="true"><span class="octicon octicon-link"></span></a>MANUAL</h3>
-
-<p>The MANUAL keyword sets the $manual global variable for all executing scripts. This variable can be checked during tests to allow for fully automated tests if it is not set, or for user input if it is set.</p>
-
-<table>
-<tbody>
-<tr>
-<th>Parameter</th>
-<th>Description</th>
-<th>Required</th>
-</tr>
-<tr>
-<td>True or False</td>
-<td>Whether to set the $manual global to true</td>
-<td>Yes</td>
-</tr>
-</tbody>
-</table>
-
-<p>Example Usage:</p>
-
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">MANUAL TRUE <span class="c"># default</span></code></pre></figure>
-
-<h3 id="loop_testing">
-<a id="loop_testing" class="anchor" href="#loop_testing" aria-hidden="true"><span class="octicon octicon-link"></span></a>LOOP_TESTING</h3>
-
-<p>The LOOP_TESTING keyword sets or clears the loop testing checkbox. If this is checked, Test Runner will continue to run whatever level of tests that were initially started. If either “Abort Testing after Error” or “Break Loop after Error” are checked, then the loop testing will stop if an error is encountered. The difference is that the “Abort Testing after Error” will stop testing immediately after the current test case completes. “Break Loop after Error” continues the current loop by executing the remaining suite or group before stopping. In the case of executing a single test case the options effectively do the same thing.</p>
-
-<table>
-<tbody>
-<tr>
-<th>Parameter</th>
-<th>Description</th>
-<th>Required</th>
-</tr>
-<tr>
-<td>True or False</td>
-<td>Whether to loop the selected test level</td>
-<td>Yes</td>
-</tr>
-</tbody>
-</table>
-
-<p>Example Usage:</p>
-
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">LOOP_TESTING FALSE <span class="c"># default</span></code></pre></figure>
-
-<h3 id="break_loop_after_error">
-<a id="break_loop_after_error" class="anchor" href="#break_loop_after_error" aria-hidden="true"><span class="octicon octicon-link"></span></a>BREAK_LOOP_AFTER_ERROR</h3>
-
-<p>The BREAK_LOOP_AFTER_ERROR keyword sets or clears the break loop after error checkbox. If this is checked, Test Runner continues the current loop by executing the remaining suite or group before stopping.</p>
-
-<table>
-<tbody>
-<tr>
-<th>Parameter</th>
-<th>Description</th>
-<th>Required</th>
-</tr>
-<tr>
-<td>True or False</td>
-<td>Whether to break the loop after encountering an error</td>
-<td>Yes</td>
-</tr>
-</tbody>
-</table>
-
-<p>Example Usage:</p>
-
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">BREAK_LOOP_AFTER_ERROR FALSE <span class="c"># default</span></code></pre></figure>
-
-<h3 id="ignore_test">
-<a id="ignore_test" class="anchor" href="#ignore_test" aria-hidden="true"><span class="octicon octicon-link"></span></a>IGNORE_TEST</h3>
-
-<p>The IGNORE_TEST keyword ignores the given test class name when parsing the tests.</p>
-
-<table>
-<tbody>
-<tr>
-<th>Parameter</th>
-<th>Description</th>
-<th>Required</th>
-</tr>
-<tr>
-<td>Test Class Name</td>
-<td>The test class to ignore when building the list of available tests</td>
-<td>Yes</td>
-</tr>
-</tbody>
-</table>
-
-<p>Example Usage:</p>
-
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">IGNORE_TEST ExampleTest</code></pre></figure>
-
-<h3 id="ignore_test_suite">
-<a id="ignore_test_suite" class="anchor" href="#ignore_test_suite" aria-hidden="true"><span class="octicon octicon-link"></span></a>IGNORE_TEST_SUITE</h3>
-
-<p>The IGNORE_TEST_SUITE keyword ignores the given test suite name when parsing the tests.</p>
-
-<table>
-<tbody>
-<tr>
-<th>Parameter</th>
-<th>Description</th>
-<th>Required</th>
-</tr>
-<tr>
-<td>Test Suite Name</td>
-<td>The test suite to ignore when building the list of available test suites</td>
-<td>Yes</td>
-</tr>
-</tbody>
-</table>
-
-<p>Example Usage:</p>
-
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">IGNORE_TEST_SUITE ExampleTestSuite</code></pre></figure>
-
-<h3 id="create_data_package">
-<a id="create_data_package" class="anchor" href="#create_data_package" aria-hidden="true"><span class="octicon octicon-link"></span></a>CREATE_DATA_PACKAGE</h3>
-
-<p>The CREATE_DATA_PACKAGE keyword creates a data package of every file created during the test.</p>
-
-<p>Example Usage:</p>
-
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">CREATE_DATA_PACKAGE</code></pre></figure>
-
-<h3 id="auto_cycle_logs">
-<a id="auto_cycle_logs" class="anchor" href="#auto_cycle_logs" aria-hidden="true"><span class="octicon octicon-link"></span></a>AUTO_CYCLE_LOGS</h3>
-
-<p>The AUTO_CYCLE_LOGS automatically starts a new server message log and cmd/tlm logs at the beginning and end of each test.  Very useful when coupled with the CREATE_DATA_PACKAGE keyword.</p>
-
-<p>Example Usage:</p>
-
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">AUTO_CYCLE_LOGS</code></pre></figure>
-
-<h3 id="collect_meta_data">
-<a id="collect_meta_data" class="anchor" href="#collect_meta_data" aria-hidden="true"><span class="octicon octicon-link"></span></a>COLLECT_META_DATA</h3>
-
-<p>The COLLECT_META_DATA keyword tells TestRunner to prompt for Meta Data before starting tests.</p>
-
-<table>
-<tbody>
-<tr>
-<th>Parameter</th>
-<th>Description</th>
-<th>Required</th>
-</tr>
-<tr>
-<td colspan="1">Target Name</td>
-<td colspan="1">Meta Data Target Name</td>
-<td colspan="1">Yes</td>
-</tr>
-<tr>
-<td>Packet Name</td>
-<td>Meta Data Packet Name</td>
-<td>Yes</td>
-</tr>
-</tbody>
-</table>
-
-<p>Example Usage:</p>
-
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">COLLECT_META_DATA META DATA</code></pre></figure>
-
-<h3 id="script-runner-configuration-keywords">
-<a id="script-runner-configuration-keywords" class="anchor" href="#script-runner-configuration-keywords" aria-hidden="true"><span class="octicon octicon-link"></span></a>Script Runner Configuration Keywords</h3>
-
-<p>Test Runner also responds to all the keywords in the Script Runner Configuration.</p>
-
-<h3 id="example-file-3">
-<a id="example-file-3" class="anchor" href="#example-file-3" aria-hidden="true"><span class="octicon octicon-link"></span></a>Example File</h3>
-
-<p><strong>Example File: &lt;Cosmos::USERPATH&gt;/config/tools/test_runner/test_runner.txt</strong></p>
-
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">REQUIRE_UTILITY example_test
-ALLOW_DEBUG
-PAUSE_ON_ERROR TRUE
-CONTINUE_TEST_CASE_AFTER_ERROR TRUE
-ABORT_TESTING_AFTER_ERROR FALSE
-MANUAL TRUE
-LOOP_TESTING TRUE
-BREAK_LOOP_AFTER_ERROR TRUE
-IGNORE_TEST ExampleTest
-IGNORE_TEST_SUITE ExampleTestSuite
-
-CREATE_DATA_PACKAGE
-COLLECT_META_DATA META DATA
-
-LINE_DELAY 0
-MONITOR_LIMITS
-PAUSE_ON_RED</code></pre></figure>
-
-<h2 id="test-runner-usage-notes">
-<a id="test-runner-usage-notes" class="anchor" href="#test-runner-usage-notes" aria-hidden="true"><span class="octicon octicon-link"></span></a>Test Runner Usage Notes</h2>
-
-<p>Arbitrary text can be written to the test report using the following syntax:</p>
-
-<p><code class="highlighter-rouge">Cosmos::Test.puts "This test verifies requirement 2"</code></p>
-
-<p>You can determine the currently executing suite/group/case using the following syntax:</p>
-
-<div class="highlighter-rouge">
-<pre class="highlight"><code>Cosmos::Test.current_test_suite
-Cosmos::Test.current_test_group
-Cosmos::Test.current_test_case
-</code></pre>
-</div>
-
-<hr>
-
-<h2 id="table-manager-configuration-cosmos--39">
-<a id="table-manager-configuration-cosmos--39" class="anchor" href="#table-manager-configuration-cosmos--39" aria-hidden="true"><span class="octicon octicon-link"></span></a>Table Manager Configuration (COSMOS &gt;= 3.9)</h2>
-
-<p>Table definition files define the binary table format so the Table Manager tool knows how to create, load, and display the binary data file. Table definition files are expected to be placed in the config/tools/table_manager directory and have a .txt extension. NOTE: Table Manager was revised in COSMOS 3.9 to better match the structure of the command and telemetry definitions and thus the configurations files are NOT backwards compatible.</p>
-
-<h2 id="keywords-5">
-<a id="keywords-5" class="anchor" href="#keywords-5" aria-hidden="true"><span class="octicon octicon-link"></span></a>Keywords:</h2>
-
-<h3 id="tablefile">
-<a id="tablefile" class="anchor" href="#tablefile" aria-hidden="true"><span class="octicon octicon-link"></span></a>TABLEFILE</h3>
-
-<p>The TABLEFILE keyword specifies another file to open and process for table definitions</p>
-
-<table>
-  <thead>
-    <tr>
-      <th>Parameter</th>
-      <th>Description</th>
-      <th>Required</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>File Name</td>
-      <td>Name of the file. The file will be looked for in the directory of the current definition file.</td>
-      <td>Yes</td>
-    </tr>
-  </tbody>
-</table>
-
-<p>Example Usage:</p>
-
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">TABLEFILE <span class="s2">"MCConfigurationTable_def.txt"</span></code></pre></figure>
-
-<h3 id="table">
-<a id="table" class="anchor" href="#table" aria-hidden="true"><span class="octicon octicon-link"></span></a>TABLE</h3>
-
-<p>The TABLE keyword designates the start of a new table definition. This keyword was reworked in COSMOS 3.9 to better match the syntax of the <a href="/docs/command">COMMAND</a> and <a href="/docs/telemetry">TELEMETRY</a> keywords.</p>
-
-<table>
-  <thead>
-    <tr>
-      <th>Parameter</th>
-      <th>Description</th>
-      <th>Required</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>Name</td>
-      <td>Name of the table in double quotes. The name will appear on the GUI tab.</td>
-      <td>Yes</td>
-    </tr>
-    <tr>
-      <td>Endianness</td>
-      <td>Whether to pack the table data as BIG_ENDIAN or LITTLE_ENDIAN</td>
-      <td>Yes</td>
-    </tr>
-    <tr>
-      <td>Display</td>
-      <td>Indicates the table is a ONE_DIMENSIONAL table which is a two column table consisting of unique rows, or a TWO_DIMENSIONAL table with multiple columns and identical rows with unique values</td>
-      <td>Yes</td>
-    </tr>
-    <tr>
-      <td>Rows</td>
-      <td>If the table is declared as TWO_DIMENSIONAL, the next parameter indicates the number of rows in the table. This parameter does not exist in ONE_DIMENSIONAL table definitions.</td>
-      <td>Yes</td>
-    </tr>
-    <tr>
-      <td>Description</td>
-      <td>Description of this table in double quotes. The description is used in mouseover popups and status line information.</td>
-      <td>No</td>
-    </tr>
-  </tbody>
-</table>
-
-<p>Example Usage:</p>
-
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">TABLE <span class="s2">"MC Configuration"</span> BIG_ENDIAN ONE_DIMENSIONAL <span class="s2">"Memory Control Configuration Table"</span>
-TABLE <span class="s2">"TLM Monitoring "</span> BIG_ENDIAN TWO_DIMENSIONAL 200 <span class="s2">"Telemetry Monitory Table"</span></code></pre></figure>
-
-<h3 id="parameter">
-<a id="parameter" class="anchor" href="#parameter" aria-hidden="true"><span class="octicon octicon-link"></span></a>PARAMETER</h3>
-
-<p>The PARAMETER keyword defines a table parameter in the current table. This keyword was reworked in COSMOS 3.9 to utilize the existing command parser. Please see the <a href="/docs/command/#parameter">PARAMETER</a> and <a href="/docs/command#append_parameter">APPEND_PARAMETER</a> documentation.</p>
-
-<h2 id="parameter-modifiers">
-<a id="parameter-modifiers" class="anchor" href="#parameter-modifiers" aria-hidden="true"><span class="octicon octicon-link"></span></a>Parameter Modifiers</h2>
-
-<p>The following keywords modify a parameter and are only applicable after the PARAMETER keyword as defined above. They are typically indented within the definition file to show ownership to the previously defined parameter. COSMOS 3.9 reworked the parser to accept any of the existing <a href="/docs/command/#parameter-modifiers">command parameter modifiers</a>. In addition, the Table Manager parser supports the following parameter modifiers:</p>
-
-<h3 id="hidden">
-<a id="hidden" class="anchor" href="#hidden" aria-hidden="true"><span class="octicon octicon-link"></span></a>HIDDEN</h3>
-
-<p>HIDDEN indicates that the parameter should not be shown to the user in the Table Manager GUI. The parameter still exists and will be saved to the resulting binary. This is useful for padding and other essential but non-user editable fields.</p>
-
-<p>Example Usage:</p>
-
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">PARAMETER PAD 0 32 UINT MIN MAX 0 <span class="s2">"Padding"</span>
-  HIDDEN</code></pre></figure>
-
-<h3 id="uneditable">
-<a id="uneditable" class="anchor" href="#uneditable" aria-hidden="true"><span class="octicon octicon-link"></span></a>UNEDITABLE</h3>
-
-<p>UNEDITABLE indicates that the parameter shoudl be shown to the user but no editable. This is useful for control fields which the user may be interested in but should not be able to edit.</p>
-
-<p>Example Usage:</p>
-
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">PARAMETER TABLE_ID 0 32 UINT MIN MAX 10 <span class="s2">"Table ID"</span>
-  UNEDITABLE</code></pre></figure>
-
-<h2 id="example-file-4">
-<a id="example-file-4" class="anchor" href="#example-file-4" aria-hidden="true"><span class="octicon octicon-link"></span></a>Example File</h2>
-
-<p>**Example File: <cosmospath>/config/table_manager/metable_def.txt**</cosmospath></p>
-
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">TABLE <span class="s2">"Mechanism Control"</span> BIG_ENDIAN ONE_DIMENSIONAL <span class="s2">"Mechanism Control"</span>
-  APPEND_PARAMETER <span class="s2">"Total Steps"</span> 32 UINT 0 2000 0
-    FORMAT_STRING <span class="s2">"0x%0X"</span> <span class="c"># Display as hex</span>
-    GENERIC_READ_CONVERSION_START UINT 32
-      <span class="c"># Depending on the state of Other Param we change this item's range</span>
-      <span class="k">if </span>packet.read<span class="o">(</span><span class="s2">"Other Param"</span><span class="o">)</span> <span class="o">==</span> <span class="s2">"OLD"</span>
-        packet.get_item<span class="o">(</span><span class="s2">"Total Steps"</span><span class="o">)</span>.range <span class="o">=</span> <span class="o">(</span>0..10<span class="o">)</span>
-      <span class="k">else
-        </span>packet.get_item<span class="o">(</span><span class="s2">"Total Steps"</span><span class="o">)</span>.range <span class="o">=</span> <span class="o">(</span>0..2000<span class="o">)</span>
-      end
-      <span class="c"># BE SURE TO RETURN THE EXISTING VALUE!!!</span>
-      value
-    GENERIC_READ_CONVERSION_END
-  APPEND_PARAMETER <span class="s2">"My Param"</span> 16 UINT 0 2000 0
-    GENERIC_READ_CONVERSION_START UINT 32
-      value <span class="k">*</span> 2
-    GENERIC_READ_CONVERSION_END
-    GENERIC_WRITE_CONVERSION_START UINT 32
-      value / 2
-    GENERIC_WRITE_CONVERSION_END
-  APPEND_PARAMETER <span class="s2">"Other Param"</span> 32 INT 0 1 1
-    STATE OLD 0
-    STATE NEW 1
-  APPEND_PARAMETER <span class="s2">"Float Param"</span> 64 FLOAT MIN MAX 0.0
-  APPEND_PARAMETER <span class="s2">"String Param"</span> 32 STRING <span class="s2">"TEST"</span>
-
-TABLE <span class="s2">"Event Action"</span> TWO_DIMENSIONAL 3 LITTLE_ENDIAN
-  APPEND_PARAMETER <span class="s2">"Event"</span> 16 UINT MIN MAX
-  APPEND_PARAMETER <span class="s2">"Action"</span> 32 INT 1 2
-    STATE OLD 1
-    STATE NEW 2</code></pre></figure>
-
-<h2 id="table-manager-configuration-cosmos--39-1">
-<a id="table-manager-configuration-cosmos--39-1" class="anchor" href="#table-manager-configuration-cosmos--39-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>Table Manager Configuration (COSMOS &lt; 3.9)</h2>
-
-<p>Table definition files define the binary table format so the Table Manager tool knows how to create, load, and display the binary data file. Table definition files are expected to be placed in the config/tools/table_manager directory and have a .txt extension. NOTE: Table Manager was revised in COSMOS 3.9 to better match the structure of the command and telemetry definitions and thus the configurations files are NOT backwards compatible.</p>
-
-<h2 id="keywords-cosmos--39">
-<a id="keywords-cosmos--39" class="anchor" href="#keywords-cosmos--39" aria-hidden="true"><span class="octicon octicon-link"></span></a>Keywords (COSMOS &lt; 3.9):</h2>
-
-<h3 id="tablefile-cosmos--39">
-<a id="tablefile-cosmos--39" class="anchor" href="#tablefile-cosmos--39" aria-hidden="true"><span class="octicon octicon-link"></span></a>TABLEFILE (COSMOS &lt; 3.9)</h3>
-
-<p>The TABLEFILE keyword specifies another file to open and process for table definitions</p>
-
-<table>
-  <thead>
-    <tr>
-      <th>Parameter</th>
-      <th>Description</th>
-      <th>Required</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>File Name</td>
-      <td>Name of the file. The file will be looked for in the directory of the current definition file.</td>
-      <td>Yes</td>
-    </tr>
-  </tbody>
-</table>
-
-<p>Example Usage:</p>
-
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">TABLEFILE <span class="s2">"MCConfigurationTable_def.txt"</span></code></pre></figure>
-
-<h3 id="table-cosmos--39">
-<a id="table-cosmos--39" class="anchor" href="#table-cosmos--39" aria-hidden="true"><span class="octicon octicon-link"></span></a>TABLE (COSMOS &lt; 3.9)</h3>
-
-<table>
-  <thead>
-    <tr>
-      <th>Parameter</th>
-      <th>Description</th>
-      <th>Required</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>Name</td>
-      <td>Name of the table in double quotes. The name will appear on the GUI tab.</td>
-      <td>Yes</td>
-    </tr>
-    <tr>
-      <td>Description</td>
-      <td>Description of this table in double quotes. The description is used in mouseover popups and status line information</td>
-      <td>Yes</td>
-    </tr>
-    <tr>
-      <td>Dimension</td>
-      <td>Indicates the table is a ONE_DIMENSIONAL table which is a two column table consisting of unique rows, or a TWO_DIMENSIONAL table with multiple columns and identical rows with unique values</td>
-      <td>Yes</td>
-    </tr>
-    <tr>
-      <td>Endianness</td>
-      <td>Whether to pack the table data as BIG_ENDIAN or LITTLE_ENDIAN</td>
-      <td>Yes</td>
-    </tr>
-    <tr>
-      <td>Identifier</td>
-      <td>A unique numerical Table ID</td>
-      <td>Yes</td>
-    </tr>
-  </tbody>
-</table>
-
-<p>Example Usage:</p>
-
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">TABLE <span class="s2">"MC Configuration"</span> <span class="s2">"Memory Control Configuration Table"</span> ONE_DIMENSIONAL BIG_ENDIAN 9
-TABLE <span class="s2">"TLM Monitoring"</span> <span class="s2">"Telemetry Monitoring Table"</span> TWO_DIMENSIONAL BIG_ENDIAN 10</code></pre></figure>
-
-<h3 id="parameter-cosmos--39">
-<a id="parameter-cosmos--39" class="anchor" href="#parameter-cosmos--39" aria-hidden="true"><span class="octicon octicon-link"></span></a>PARAMETER (COSMOS &lt; 3.9)</h3>
-
-<table>
-<tbody>
-<tr>
-<th>Parameter</th>
-<th>Description</th>
-<th>Required</th>
-</tr>
-<tr>
-<td>Name</td>
-<td>Name of this parameter in double quotes. Must be unique within this table.</td>
-<td>Yes</td>
-</tr>
-<tr>
-<td>Description</td>
-<td>Description of this parameter in double quotes. The description is used in mouseover popups and status line information.</td>
-<td>Yes</td>
-</tr>
-<tr>
-<td>Data Type</td>
-<td>Data Type of this parameter. Possible types: INT = Integer, UINT = Unsigned Integer, FLOAT = IEEE Floating point data (32 or 64 bit), STRING = ASCII string, BLOCK = Binary block of data</td>
-<td>Yes</td>
-</tr>
-<tr>
-<td>Bit Size</td>
-<td>Bit size of this parameter. Must be greater than 0.</td>
-<td>Yes</td>
-</tr>
-<tr>
-<td>Display Type</td>
-<td>Display Type of this parameter. Possible types: DEC = Decimal, HEX = Hex, STATE = States (must be given later), CHECK = Checkbox, STRING = Must be used for STRING data types, NONE = Must be used for BLOCK types. Appending a -U to the display type makes the field uneditable.</td>
-<td>Yes</td>
-</tr>
-<tr>
-<td>Minimum Value</td>
-<td>Minimum allowed value for this parameter. For STRING data types this indicates the minimum number of characters.</td>
-<td>Yes</td>
-</tr>
-<tr>
-<td>Maximum Value</td>
-<td>Maximum allowed value for this parameter. For STRING data types this indicates the maximum number of characters.</td>
-<td>Yes</td>
-</tr>
-<tr>
-<td>Default Value</td>
-<td>Default value for this parameter</td>
-<td>Yes</td>
-</tr>
-<tr>
-<td colspan="1">Endianness</td>
-<td colspan="1"><span>Whether to pack the parameter data as BIG_ENDIAN or LITTLE_ENDIAN.</span></td>
-<td colspan="1">No</td>
-</tr>
-</tbody>
-</table>
-
-<p>Example Usage:</p>
-
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">PARAMETER <span class="s2">"Throttle"</span> <span class="s2">"Seconds to wait"</span> FLOAT 32 DEC 0 0x0FFFFFFFF 2
-PARAMETER <span class="s2">"Scrubbing"</span> <span class="s2">"Memory Scrubbing"</span> UINT 8 CHECK 0 1 1
-PARAMETER <span class="s2">"Pad"</span> <span class="s2">"Pad"</span> UINT 16 HEX-U 0 0 0 LITTLE_ENDIAN</code></pre></figure>
-
-<h3 id="state-cosmos--39">
-<a id="state-cosmos--39" class="anchor" href="#state-cosmos--39" aria-hidden="true"><span class="octicon octicon-link"></span></a>STATE (COSMOS &lt; 3.9)</h3>
-
-<p>The STATE keyword defines a key/value pair for the current table parameter (the one most recently defined). For example, you might define states for ON = 1 and OFF = 0. This allows the word ON to be used rather than the number 1 when setting the table parameter and allows for much greater clarity and less chance for user error.</p>
-
-<table>
-<tbody>
-<tr>
-<th>Parameter</th>
-<th>Description</th>
-<th>Required</th>
-</tr>
-<tr>
-<td>Key</td>
-<td>The named state key. This can also be a string enclosed in double quotes.</td>
-<td>Yes</td>
-</tr>
-<tr>
-<td colspan="1">Value</td>
-<td colspan="1">Value the key translates into</td>
-<td colspan="1">Yes</td>
-</tr>
-</tbody>
-</table>
-
-<p>Example Usage:</p>
-
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">PARAMETER <span class="s2">"Scrubbing"</span> <span class="s2">"Memory Scrubbing"</span> UINT 8 STATE 0 1 1
-  STATE DISABLE 0
-  STATE ENABLE 1</code></pre></figure>
-
-<h3 id="default-cosmos--39">
-<a id="default-cosmos--39" class="anchor" href="#default-cosmos--39" aria-hidden="true"><span class="octicon octicon-link"></span></a>DEFAULT (COSMOS &lt; 3.9)</h3>
-
-<p>The DEFAULT keyword defines the default values for a row in a TWO_DIMENSIONAL table. Therefore, the number of DEFAULT lines defines the number of rows in the table. If no values are given after the keyword, the default as defined in the PARAMETER(s) will apply.</p>
-
-<table>
-<tbody>
-<tr>
-<th>Parameter</th>
-<th>Description</th>
-<th>Required</th>
-</tr>
-<tr>
-<td>Value1</td>
-<td>The default value for the first defined PARAMETER in the TWO_DIMENSIONAL table.</td>
-<td>No</td>
-</tr>
-<tr>
-<td colspan="1">Value2</td>
-<td colspan="1">The default value for the second defined PARAMETER in the TWO_DIMENSIONAL table.</td>
-<td colspan="1">No</td>
-</tr>
-<tr>
-<td colspan="1">ValueN</td>
-<td colspan="1">The default value for the last defined PARAMETER in the TWO_DIMENSIONAL table.</td>
-<td colspan="1">No</td>
-</tr>
-</tbody>
-</table>
-
-<p>Example Usage:</p>
-
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">TABLE <span class="s2">"TLM Monitoring"</span> <span class="s2">"Telemetry Monitoring Table"</span> TWO_DIMENSIONAL BIG_ENDIAN 4
-  PARAMETER <span class="s2">"Threshold"</span> <span class="s2">"Telemetry item threshold at which point persistance is incremented"</span> UINT 32 HEX 0 4294967295 0
-  PARAMETER <span class="s2">"Offset"</span> <span class="s2">"Offset into the telemetry packet to monitor"</span> UINT 32 DEC 0 4294967295 0
-  PARAMETER <span class="s2">"Data Size"</span> <span class="s2">"Amount of data to monitor (bytes)"</span> UINT 32 STATE 0 3 0
-    STATE BITS 0
-    STATE BYTE 1
-    STATE WORD 2
-
-DEFAULT             <span class="c"># Defaults of 0, 0, 0(BITS) will be used</span>
-DEFAULT 0x2         <span class="c"># Override Threshold default of 0</span>
-DEFAULT 0x3 30 WORD <span class="c"># Note the use of STATE names</span></code></pre></figure>
-
-<h3 id="poly_write_conversion-cosmos--39">
-<a id="poly_write_conversion-cosmos--39" class="anchor" href="#poly_write_conversion-cosmos--39" aria-hidden="true"><span class="octicon octicon-link"></span></a>POLY_WRITE_CONVERSION (COSMOS &lt; 3.9)</h3>
-
-<p>The POLY_WRITE_CONVERSION keyword adds a polynomial conversion factor to the current table parameter (the one most recently defined). This conversion factor is applied to the value entered by the user before it is written into the binary table file. All parameters with a POLY_WRITE_CONVERSION must also have a POLY_READ_CONVERSION. This read conversion should be the inverse function of the write conversion or the value might be inadvertently changed every time it is loaded and saved.</p>
-
-<table>
-<tbody>
-<tr>
-<th>Parameter</th>
-<th>Description</th>
-<th>Required</th>
-</tr>
-<tr>
-<td>C0</td>
-<td>Coefficient #0.</td>
-<td>Yes</td>
-</tr>
-<tr>
-<td colspan="1">Cx</td>
-<td colspan="1">Coefficient #x. This is the final coefficient value for the conversion. Any order polynomial conversion may be used so the value of 'x' will vary with the order of the polynomial. Note that larger order polynomials take longer to process than shorter order polynomials, but are sometimes more accurate.</td>
-<td colspan="1">Yes</td>
-</tr>
-</tbody>
-</table>
-
-<p>Example Usage:</p>
-
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">POLY_WRITE_CONVERSION 1 2 <span class="c"># 2x + 1 when writing to the table binary</span>
-POLY_READ_CONVERSION -0.5 0.5 <span class="c"># 0.5x - 0.5 when reading from the table binary</span></code></pre></figure>
-
-<h3 id="poly_read_conversion-cosmos--39">
-<a id="poly_read_conversion-cosmos--39" class="anchor" href="#poly_read_conversion-cosmos--39" aria-hidden="true"><span class="octicon octicon-link"></span></a>POLY_READ_CONVERSION (COSMOS &lt; 3.9)</h3>
-
-<p>The POLY_READ_CONVERSION keyword adds a polynomial conversion factor to the current table parameter (the one most recently defined). This conversion factor is applied to a table parameter read from the binary table file before it is displayed. Read conversions can be applied independently to read-only table parameters. If a table parameter is writable it must have both a read and write conversion.</p>
-
-<table>
-<tbody>
-<tr>
-<th>Parameter</th>
-<th>Description</th>
-<th colspan="1">Required</th>
-</tr>
-<tr>
-<td>C0</td>
-<td>Coefficient #0.</td>
-<td colspan="1">Yes</td>
-</tr>
-<tr>
-<td colspan="1">Cx</td>
-<td colspan="1">Coefficient #x. This is the final coefficient value for the conversion. Any order polynomial conversion may be used so the value of 'x' will vary with the order of the polynomial. Note that larger order polynomials take longer to process than shorter order polynomials, but are sometimes more accurate.</td>
-<td colspan="1">Yes</td>
-</tr>
-</tbody>
-</table>
-
-<p>Example Usage:</p>
-
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">POLY_WRITE_CONVERSION -0.5 0.25 <span class="c"># 0.25x - 0.5 when writing to the table binary</span>
-POLY_READ_CONVERSION 2 4 <span class="c"># 2x + 4 when reading from the table binary</span></code></pre></figure>
-
-<h3 id="generic_write_conversion_start--generic_write_conversion_end-cosmos--39">
-<a id="generic_write_conversion_start--generic_write_conversion_end-cosmos--39" class="anchor" href="#generic_write_conversion_start--generic_write_conversion_end-cosmos--39" aria-hidden="true"><span class="octicon octicon-link"></span></a>GENERIC_WRITE_CONVERSION_START / GENERIC_WRITE_CONVERSION_END (COSMOS &lt; 3.9)</h3>
-
-<h3 id="generic_read_conversion_start--generic_read_conversion_end-cosmos--39">
-<a id="generic_read_conversion_start--generic_read_conversion_end-cosmos--39" class="anchor" href="#generic_read_conversion_start--generic_read_conversion_end-cosmos--39" aria-hidden="true"><span class="octicon octicon-link"></span></a>GENERIC_READ_CONVERSION_START / GENERIC_READ_CONVERSION_END (COSMOS &lt; 3.9)</h3>
-
-<p>The generic conversion keywords add generic conversion functions to the current table parameter (the one most recently defined). This conversion factor is applied to the value entered by the user before it is written into the binary table file (for WRITE) and after it is read from the binary (for READ). The conversion is specified as ruby code that receives two implied parameters: ‘value’ which is the raw table parameter, and ‘myself’ which is a reference to the TableManager class. The last line of ruby code given should return the converted value. The conversion END keywords specify that all lines of ruby code for the conversion have been given. If a generic write conversion is created a generic read conversion must also be created. This read conversion should be the inverse of the write conversion or the value might be inadvertently changed every time it is loaded and saved.</p>
-
-<p>Example Usage:</p>
-
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">GENERIC_WRITE_CONVERSION_START
-  value / 2
-GENERIC_WRITE_CONVERSION_END
-GENERIC_READ_CONVERSION_START
-  value <span class="k">*</span> 2
-GENERIC_READ_CONVERSION_END</code></pre></figure>
-
-<h3 id="constraint_start--constraint_end-cosmos--39">
-<a id="constraint_start--constraint_end-cosmos--39" class="anchor" href="#constraint_start--constraint_end-cosmos--39" aria-hidden="true"><span class="octicon octicon-link"></span></a>CONSTRAINT_START / CONSTRAINT_END (COSMOS &lt; 3.9)</h3>
-
-<p>The constraint keyword allows the user to modify the current parameter’s allowable value range, default value, and/or conversion based on the value of another parameter.</p>
-
-<p>Example Usage:</p>
-
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">TABLE <span class="s2">"Mechanism Control"</span> <span class="s2">"Description"</span> ONE_DIMENSIONAL BIG_ENDIAN 1
-  PARAMETER <span class="s2">"Total Steps"</span> <span class="s2">"Total number of steps"</span> UINT 16 HEX-U 0 2000 0
-    CONSTRAINT_START
-      <span class="k">if </span>myself.get_table<span class="o">(</span><span class="s2">"Mechanism Control"</span><span class="o">)</span>.get_packet_item<span class="o">(</span><span class="s2">"Other Param"</span><span class="o">)</span> <span class="o">==</span> <span class="s2">"OLD"</span>
-        value.range <span class="o">=</span> 0..1.0<span class="se">\n</span><span class="s2">")
-        value.default = 1.0
-      end
-    CONSTRAINT_END
-  PARAMETER "</span>Other Param<span class="s2">" "</span>Yet another<span class="s2">" INT 32 STATE -100 100 10
-    STATE "</span>OLD<span class="s2">" 0
-    STATE "</span>NEW<span class="s2">" 1</span></code></pre></figure>
-
-<h2 id="example-file-cosmos--39">
-<a id="example-file-cosmos--39" class="anchor" href="#example-file-cosmos--39" aria-hidden="true"><span class="octicon octicon-link"></span></a>Example File (COSMOS &lt; 3.9)</h2>
-
-<p>**Example File: <cosmospath>/config/table_manager/metable_def.txt**</cosmospath></p>
-
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">TABLE <span class="s2">"Mechanism Control"</span> <span class="s2">"Mechanism Control Table"</span> ONE_DIMENSIONAL BIG_ENDIAN 1
-  PARAMETER <span class="s2">"Total Steps"</span> <span class="s2">"Total number of steps"</span> UINT 16 HEX-U 0 2000 0
-    CONSTRAINT_START
-      <span class="k">if </span>myself.get_table<span class="o">(</span><span class="s2">"Mechanism Control"</span><span class="o">)</span>.get_packet_item<span class="o">(</span><span class="s2">"Other Param"</span><span class="o">)</span> <span class="o">==</span> <span class="s2">"OLD"</span>
-        value.range <span class="o">=</span> 0..1.0<span class="se">\n</span><span class="s2">")
-        value.default = 1.0
-      end
-    CONSTRAINT_END
-    POLY_READ_CONVERSION 1 2
-    POLY_WRITE_CONVERSION 2 3
-  PARAMETER "</span>My Param<span class="s2">" "</span>Description<span class="s2">" UINT 16 HEX-U 0 2000 0
-    GENERIC_READ_CONVERSION_START
-      value * 2
-    GENERIC_READ_CONVERSION_END
-    GENERIC_WRITE_CONVERSION_START
-      value / 2
-    GENERIC_WRITE_CONVERSION_END
-  PARAMETER "</span>Other Param<span class="s2">" "</span>Yet another<span class="s2">" INT 32 STATE -100 100 10
-    STATE "</span>OLD<span class="s2">" 0
-    STATE "</span>NEW<span class="s2">" 1
-  PARAMETER "</span>Next Param<span class="s2">" "</span>Another param<span class="s2">" FLOAT 64 STATE -Float::MAX Float::MAX 0.0
-    STATE OFF 0.0
-    STATE ON  1.0
-  PARAMETER "</span>String Param<span class="s2">" "</span>This is a string<span class="s2">" STRING 32 STRING 2 4 "</span>TEST<span class="s2">"
-  PARAMETER "</span>Block Param<span class="s2">" "</span>Raw data<span class="s2">" BLOCK 64 NONE 0 0 0xAAAA5555AAAA5555
-
-TABLE "</span>Event Action<span class="s2">" "</span>Event Action Table<span class="s2">" TWO_DIMENSIONAL LITTLE_ENDIAN 2
-  PARAMETER "</span>Event<span class="s2">" "</span>The event<span class="s2">" UINT 16 HEX 0 65535
-  PARAMETER "</span>Action<span class="s2">" "</span>The action<span class="s2">" INT 32 STATE 1 2
-    STATE OLD 1
-    STATE NEW 2
-  DEFAULT 0 OLD
-  DEFAULT 0x100 2
-  DEFAULT 1000 NEW</span></code></pre></figure>
+          <h1>Tools</h1>
+          <h2 id="launcher">
+<a id="launcher" class="anchor" href="#launcher" aria-hidden="true"><span class="octicon octicon-link"></span></a>Launcher</h2>
+<p>Organize and launches all of the applications necessary to control your system.</p>
+
+<p><img src="/img/tools/launcher.png" alt="Launcher"></p>
+
+<ul>
+  <li>Displays an icon, name, and button to launch each application</li>
+  <li>Launch multiple tools with one click</li>
+  <li>Performs CRC verification across the COSMOS core files and your project’s files to make sure nothing has been modified</li>
+  <li>The same config file works across all platforms (Windows, Mac, Linux)</li>
+</ul>
+
+<h2 id="command-and-telemetry-server">
+<a id="command-and-telemetry-server" class="anchor" href="#command-and-telemetry-server" aria-hidden="true"><span class="octicon octicon-link"></span></a>Command and Telemetry Server</h2>
+<p>Connects to everything that makes up your system, logs everything that happens, and shares the data with other tools.</p>
+
+<p><img src="/img/tools/cmd_tlm_server.png" alt="Command and Telemetry Server"></p>
+
+<ul>
+  <li>Realtime hub for the system: connects to everything that needs to receive commands and send status</li>
+  <li>Logs all commands sent and telemetry received</li>
+  <li>Provides an API for other tools to send commands, receive telemetry, connect/disconnect interfaces, etc.</li>
+  <li>Displays raw versions of commands/telemetry packets</li>
+  <li>Performs limits monitoring on telemetry</li>
+</ul>
+
+<h2 id="replay">
+<a id="replay" class="anchor" href="#replay" aria-hidden="true"><span class="octicon octicon-link"></span></a>Replay</h2>
+<p>Provides the same interfaces as the Command and Telemetry server but is used to replay telemetry log files. All other tools work as if they are receiving data in real time.</p>
+
+<p><img src="/img/tools/replay.png" alt="Replay"></p>
+
+<ul>
+  <li>Play data sequentially or reverse</li>
+  <li>Quickly slide to specific points in time</li>
+</ul>
+
+<h2 id="limits-monitor">
+<a id="limits-monitor" class="anchor" href="#limits-monitor" aria-hidden="true"><span class="octicon octicon-link"></span></a>Limits Monitor</h2>
+<p>Situational awareness of everything that is currently out of limits in your system and everything that has temporarily gone out of limits since it was started.</p>
+
+<p><img src="/img/tools/limits_monitor.png" alt="Limits Monitor"></p>
+
+<ul>
+  <li>Limits bar widget used to show where in the limits range you are</li>
+  <li>Packets and Items can be ignored</li>
+</ul>
+
+<h2 id="command-sender">
+<a id="command-sender" class="anchor" href="#command-sender" aria-hidden="true"><span class="octicon octicon-link"></span></a>Command Sender</h2>
+<p>Easily send individual commands.</p>
+
+<p><img src="/img/tools/cmd_sender.png" alt="Command Sender"></p>
+
+<ul>
+  <li>Select any command by target and command name and then fill out a form with the command parameters</li>
+  <li>Command history can be used to resend the same or slightly modified commands</li>
+  <li>Send raw data files to inject faults</li>
+</ul>
+
+<h2 id="command-sequence">
+<a id="command-sequence" class="anchor" href="#command-sequence" aria-hidden="true"><span class="octicon octicon-link"></span></a>Command Sequence</h2>
+<p>Create and send command sequences.</p>
+
+<p><img src="/img/tools/cmd_sequence.png" alt="Command Sequence"></p>
+
+<ul>
+  <li>Select any command by target and command name and then fill out a form with the command parameters</li>
+  <li>Absolute or relative time tagging</li>
+  <li>Export sequences to a custom defined binary format</li>
+</ul>
+
+<h2 id="script-runner">
+<a id="script-runner" class="anchor" href="#script-runner" aria-hidden="true"><span class="octicon octicon-link"></span></a>Script Runner</h2>
+<p>Develop and execute test procedures with code completion, line highlighting, syntax checking, and more.</p>
+
+<p><img src="/img/tools/script_runner.png" alt="Script Runner"></p>
+
+<ul>
+  <li>Simple API to send commands and check telemetry</li>
+  <li>Query the user for information</li>
+  <li>Currently executing line is highlighted</li>
+  <li>Full power of the Ruby programming language available</li>
+  <li>Disconnect mode for offline testing</li>
+  <li>Debugger for step execution</li>
+  <li>Audit commands sent and telemetry checked</li>
+</ul>
+
+<h2 id="test-runner">
+<a id="test-runner" class="anchor" href="#test-runner" aria-hidden="true"><span class="octicon octicon-link"></span></a>Test Runner</h2>
+<p>Run test procedures as small repeatable test cases.</p>
+
+<p><img src="/img/tools/test_runner.png" alt="Test Runner"></p>
+
+<ul>
+  <li>Develop system level tests much like unit tests</li>
+  <li>Automatic test report generation</li>
+  <li>Test Selection to create custom test suites</li>
+  <li>Meta data entry and data package creation</li>
+  <li>Includes all features of Script Runner</li>
+</ul>
+
+<h2 id="packet-viewer">
+<a id="packet-viewer" class="anchor" href="#packet-viewer" aria-hidden="true"><span class="octicon octicon-link"></span></a>Packet Viewer</h2>
+<p>View any telemetry packet in the system with no extra configuration necessary.</p>
 
+<p><img src="/img/tools/pkt_viewer.png" alt="Packet Viewer"></p>
+
+<ul>
+  <li>Automatically contains all defined targets, packets, and telemetry items</li>
+  <li>Search bar allows you to quickly jump to the packet containing any telemetry item in the system</li>
+</ul>
+
+<h2 id="telemetry-viewer">
+<a id="telemetry-viewer" class="anchor" href="#telemetry-viewer" aria-hidden="true"><span class="octicon octicon-link"></span></a>Telemetry Viewer</h2>
+<p>Easily create custom telemetry screens with simple configuration text files.</p>
+
+<p><img src="/img/tools/tlm_viewer.png" alt="Telemetry Viewer"></p>
+
+<ul>
+  <li>Advanced widgets available to display data</li>
+  <li>Search bar allows you to quickly bring up the screen containing the telemetry item you are looking for</li>
+  <li>Super easy auto configuration</li>
+  <li>Generate screens from within the tool</li>
+  <li>Audit that you have a screen for every telemetry point</li>
+  <li>Modular to allow for creating your own custom widgets</li>
+</ul>
+
+<h2 id="telemetry-grapher">
+<a id="telemetry-grapher" class="anchor" href="#telemetry-grapher" aria-hidden="true"><span class="octicon octicon-link"></span></a>Telemetry Grapher</h2>
+<p>Realtime or offline graphing of any telemetry item.</p>
+
+<p><img src="/img/tools/tlm_grapher.png" alt="Telemetry Grapher"></p>
+
+<ul>
+  <li>Line and x-y graphs</li>
+  <li>One or more telemetry points per plot</li>
+  <li>Spread data across multiple plots and multiple tabs</li>
+  <li>Easily save and restore configurations</li>
+  <li>Search bar to quickly add points to graph</li>
+  <li>Built in data analysis such as averaging available</li>
+</ul>
+
+<h2 id="data-viewer">
+<a id="data-viewer" class="anchor" href="#data-viewer" aria-hidden="true"><span class="octicon octicon-link"></span></a>Data Viewer</h2>
+<p>Text based data visualization of log files, memory dumps, and event messages.</p>
+
+<p><img src="/img/tools/data_viewer.png" alt="Data Viewer"></p>
+
+<ul>
+  <li>Display data that does not fit the telemetry screen paradigm well</li>
+  <li>Great for log file visualization and for displaying raw memory dumps</li>
+</ul>
+
+<h2 id="config-editor">
+<a id="config-editor" class="anchor" href="#config-editor" aria-hidden="true"><span class="octicon octicon-link"></span></a>Config Editor</h2>
+<p>Configuration file editor with contextual help for all the COSMOS configuration files.</p>
+
+<p><img src="/img/tools/config_editor.png" alt="Config Editor"></p>
+
+<ul>
+  <li>Displays tree view of COSMOS Project</li>
+  <li>GUI help with descriptions and drop down options</li>
+</ul>
+
+<h2 id="telemetry-extractor">
+<a id="telemetry-extractor" class="anchor" href="#telemetry-extractor" aria-hidden="true"><span class="octicon octicon-link"></span></a>Telemetry Extractor</h2>
+<p>Quickly extract telemetry log files into CSV files with just the data you care about.</p>
+
+<p><img src="/img/tools/tlm_extractor.png" alt="Telemetry Extractor"></p>
+
+<ul>
+  <li>Process any telemetry log file into CSV data for analysis in other tools (Excel, Matlab, etc)</li>
+  <li>Add individual items, whole packets, and every packet from a given target using a search bar or drop downs</li>
+  <li>Add text columns (great for adding Excel equations)</li>
+</ul>
+
+<h2 id="command-extractor">
+<a id="command-extractor" class="anchor" href="#command-extractor" aria-hidden="true"><span class="octicon octicon-link"></span></a>Command Extractor</h2>
+<p>Extract command log files into human readable text.</p>
+
+<p><img src="/img/tools/cmd_extractor.png" alt="Command Extractor"></p>
+
+<ul>
+  <li>Select any binary command log and a human readable text file is created</li>
+</ul>
+
+<h2 id="handbook-generator">
+<a id="handbook-generator" class="anchor" href="#handbook-generator" aria-hidden="true"><span class="octicon octicon-link"></span></a>Handbook Generator</h2>
+<p>Create easy to read HTML and PDF command and telemetry handbooks.</p>
+
+<p><img src="/img/tools/handbook_generator.png" alt="Handbook Generator"></p>
+
+<ul>
+  <li>Takes the normal COSMOS config files and outputs them into beautifully formatted HTML and PDF handbooks</li>
+  <li>Easily configure output using HTML template files</li>
+</ul>
+
+<h2 id="table-manager">
+<a id="table-manager" class="anchor" href="#table-manager" aria-hidden="true"><span class="octicon octicon-link"></span></a>Table Manager</h2>
+<p>Binary file editor.</p>
+
+<p><img src="/img/tools/table_manager.png" alt="Table Manager"></p>
+
+<ul>
+  <li>Provides a simple GUI for editing binary configuration files</li>
+  <li>Provides range checking and overall table validity checks</li>
+  <li>Break any binary file into several internal tables</li>
+  <li>Easily modified to provide table upload and download capabilities within the tool</li>
+</ul>
 
           
 
@@ -5538,118 +3914,24 @@ TABLE "</span>Event Action<span class="s2">" "</span>Event Action Table<span cla
 
   
   
-
-  
-  
-
-  
-  
-
-  
-  
-
-  
-  
-
-  
-  
-
-  
-  
-
-  
-  
-
-  
-  
-
-  
-  
-
-  
-  
-
-  
-  
-
-  
-  
-
-  
-  
-
-  
-  
-
-  
-  
-
-  
-  
-
-  
-  
-
-  
-  
-
-  
-  
-
-  
-  
-
-  
-  
-
-  
-  
-
-  
-  
-
-  
-  
-
-  
-  
-
-  
-  
-
-  
-  
-
-  
-  
-
-  
-  
-
-  
-  
-
-  
-  
-
-  
-  
-
-  
-  
-
-  
-  
-
-  
-  
-
-  
-  
-
-  
-  
-
+    <div class="top-section-nav">
+      <div class="left align-right">
+          
+            
+            
+            <a href="/docs/home/" class="prev">Back</a>
+          
+      </div>
+      <div class="right align-left">
+          
+            
+            
+            <a href="/docs/installation/" class="next">Next</a>
+          
+      </div>
+    </div>
+    <div class="clear"></div>
+    
 
         </article>
       </div>
@@ -5697,6 +3979,92 @@ TABLE "</span>Event Action<span class="s2">" "</span>Event Action Table<span cla
   
     
       <li class=""><a href="/docs/home/">Welcome</a></li>
+      
+
+
+  
+
+  
+
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+      <li class="current"><a href="/docs/tools/">Tools</a></li>
       
 
 
@@ -7677,7 +6045,7 @@ TABLE "</span>Event Action<span class="s2">" "</span>Event Action Table<span cla
 <footer role="contentinfo">
   <div class="grid wider">
     <div class="unit one-third center-on-mobiles">
-      <p>The contents of this website are &copy;&nbsp;2018 <a href="http://www.ballaerospace.com/" target="_blank">Ball Aerospace</a> under the terms of the <a href="https://github.com/BallAerospace/COSMOS/blob/master/LICENSE.txt" target="_blank">GPLv3&nbsp;License</a>.</p>
+      <p>The contents of this website are &copy;&nbsp;2019 <a href="http://www.ballaerospace.com/" target="_blank">Ball Aerospace</a> under the terms of the <a href="https://github.com/BallAerospace/COSMOS/blob/master/LICENSE.txt" target="_blank">GPLv3&nbsp;License</a>.</p>
       <p>Site design derived from the <a href="http://jekyllrb.com/" target="_blank">Jekyll</a> project documentation which is licensed under the terms of the <a href="https://github.com/jekyll/jekyll/blob/master/LICENSE" target="_blank">MIT License</a>.</p>
     </div>
     <div class="unit two-thirds align-right center-on-mobiles">
