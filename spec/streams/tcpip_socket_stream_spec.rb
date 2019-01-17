@@ -127,9 +127,9 @@ module Cosmos
         rescue IOError
           # Closing the socket causes an IOError
         end
-        sleep 0
         socket = TCPSocket.new('localhost', 2000)
         ss = TcpipSocketStream.new(nil,socket,nil,5)
+        sleep 0.1 # Allow the server thread to accept
         # Close the socket before trying to read from it
         Cosmos.close_socket(socket)
         expect(ss.read).to eql ''
