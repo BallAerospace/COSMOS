@@ -11,8 +11,8 @@
     <title xml:lang="en">Ball Aerospace COSMOS News</title>
     <atom:link type="application/atom+xml" href="http://cosmosrb/feed.xml" rel="self"/>
     <link>http://cosmosrb.com/</link>
-    <pubDate>Tue, 15 Jan 2019 14:18:10 -0700</pubDate>
-    <lastBuildDate>Tue, 15 Jan 2019 14:18:10 -0700</lastBuildDate>
+    <pubDate>Fri, 25 Jan 2019 10:25:55 -0700</pubDate>
+    <lastBuildDate>Fri, 25 Jan 2019 10:25:55 -0700</lastBuildDate>
     <language>en-US</language>
     <generator>Jekyll v3.7.4</generator>
     <description>The User Interface for Embedded Systems</description>
@@ -2501,6 +2501,8 @@ ITEM DEPLOYED? 0 0 DERIVED &quot;Deployed status&quot;
       
       <guid isPermaLink="true">http://cosmosrb.com/news/2016/03/03/sparkfun/</guid>
       <description>&lt;p&gt;Ball Aerospace COSMOS has been featured in a blog post on &lt;a href=&quot;https://www.sparkfun.com/news/2022&quot;&gt;SparkFun&lt;/a&gt;. SparkFun is an online retail store that sells electronics primarily for hobbyists. Ball recently purchased a Raspberry Pi, Arduino, and various other parts to interface to COSMOS. We think hobbyists will find COSMOS a great way to interface to their embedded projects and SparkFun agrees! &lt;a href=&quot;http://cosmosrb.com/docs/installation&quot;&gt;Get started&lt;/a&gt; with COSMOS now!&lt;/p&gt;
+
+&lt;p&gt;A Ball engineer wrote a &lt;a href=&quot;https://bitbucket.org/dholshouser/alagna/wiki/HowTo&quot;&gt;Wiki&lt;/a&gt; on how he configured COSMOS to talk to his Arduino Uno. It’s a little old but it gives a nice step by step tutorial on how to use COSMOS with an Arduino.&lt;/p&gt;
 </description>
     </item>
     
