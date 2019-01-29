@@ -60,7 +60,10 @@ TOOL:
       required: true
       description: Command that is executed to launch the tool. (The same thing you
         would type at a command terminal). Note that you can include tool parameters
-        here which will be applied when the tool starts.
+        here which will be applied when the tool starts. COSMOS defines three helper
+        keywords to execute tools - LAUNCH, LAUNCH_TERMINAL, and LAUNCH_GEM. LAUNCH
+        starts a GUI Ruby tool without a terminal. LAUNCH_TERMINAL starts a Ruby tool
+        with a terminal window. LAUNCH_GEM launches a Ruby tool distributed with a gem.
       values: .+
     - name: Icon Filename
       required: false
@@ -101,7 +104,10 @@ MULTITOOL_START:
           required: true
           description: Command that is executed to launch the tool. (The same thing you
             would type at a command terminal). Note that you can include tool parameters
-            here which will be applied when the tool starts.
+            here which will be applied when the tool starts. COSMOS defines three helper
+            keywords to execute tools - LAUNCH, LAUNCH_TERMINAL, and LAUNCH_GEM. LAUNCH
+            starts a GUI Ruby tool without a terminal. LAUNCH_TERMINAL starts a Ruby tool
+            with a terminal window. LAUNCH_GEM launches a Ruby tool distributed with a gem.
           values: .+
       modifiers:
         DONT_CAPTURE_IO:
@@ -115,3 +121,7 @@ MULTITOOL_START:
           values: \d+
 MULTITOOL_END:
   summary: Ends the creation of a multi-tool button
+AUTO_GEM_TOOLS:
+  summary: Automatically installs COSMOS tool gems
+  description: Traverses the installed rubygems looking for COSMOS gems named cosmos-xxxx.gem.
+    If the gem has a tools directory, the tool launcher will be added as a TOOL in the Launcher.

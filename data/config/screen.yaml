@@ -146,6 +146,8 @@ NAMED_WIDGET:
       required: true
       description: The unique parameters for the given widget type
       values: .+
+STAY_ON_TOP:
+  summary: Force a screen to stay on top of all other windows
 # Even though these are technically SCREEN modifiers we load them at the top_frame
 # level so they appear as available keywords
 <%= MetaConfigParser.load('widgets.yaml').to_meta_config_yaml(0) %>

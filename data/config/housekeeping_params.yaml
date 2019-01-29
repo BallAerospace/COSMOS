@@ -69,3 +69,17 @@ SHOW_LIMITS_LINES:
       description: Whether to display the limits lines
       required: true
       values: ['TRUE','FALSE']
+DART_REDUCTION:
+  summary: What kind of DART reduction to use for the data item
+  parameters:
+    - name: Reduction Time Period
+      description: DART reduces data over minute, hour, and day
+      required: true
+      values: ['NONE','MINUTE','HOUR','DAY']
+DART_REDUCED_TYPE:
+  summary: What kind of DART reduction type to use for the data item
+  parameters:
+    - name: Reduction Type
+      description: DART calculates an average, minimum, maximum and standard deviation over the time period
+      required: true
+      values: ['AVG','MIN','MAX','STDDEV']
