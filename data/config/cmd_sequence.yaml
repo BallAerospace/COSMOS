@@ -1,0 +1,14 @@
+---
+EXPORTER:
+  summary: Configure a Ruby class to export the command sequence definition into a custom format
+  parameters:
+    - name: Exporter Class Filename
+      required: true
+      description: The name of the Ruby class which implements the exporter.
+        Follow the convention of lower case filename with words separated by underscores.
+        For example if your class is "MyExporter" your filename would be "my_exporter.rb".
+      values: .+
+    - name: Exporter Class Arguments
+      required: false
+      description: Arguments to pass to the class constructor. There can be more than one.
+      values: .+
