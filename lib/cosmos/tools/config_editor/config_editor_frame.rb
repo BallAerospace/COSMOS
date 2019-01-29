@@ -249,6 +249,8 @@ module Cosmos
         elsif @filename.include?('/config/tools/')
           if @filename.include?('cmd_tlm_server')
             @file_type = "Server Configuration"
+          elsif @filename.include?('cmd_sequence')
+            @file_type = "Command Sequence Configuration"
           elsif @filename.include?('data_viewer')
             @file_type = "Data Viewer Configuration"
           elsif @filename.include?('handbook_creator')
