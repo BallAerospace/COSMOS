@@ -54,6 +54,9 @@ module Cosmos
     # Callback called when the test teardown button is pressed - call(test_suite, test)
     attr_accessor :test_teardown_callback
 
+    # Whether the suite and group start button is disabled
+    attr_reader :test_suite_start_disabled, :test_group_start_disabled
+
     # Constructor
     def initialize(parent)
       super(parent)
@@ -64,6 +67,9 @@ module Cosmos
       start_button_width = 60
       setup_button_width = 60
       teardown_button_width = 60
+
+      @test_suite_start_disabled = false
+      @test_group_start_disabled = false
 
       # Test Suite Selection
       @test_suite_combobox = Qt::ComboBox.new
@@ -154,14 +160,20 @@ module Cosmos
       @test_setup_callback = nil
       @test_suite_teardown_callback = nil
       @test_teardown_callback = nil
+    end
 
-      @test_suite_start_enabled = false
-      @test_suite_setup_enabled = false
-      @test_suite_teardown_enabled = false
-      @test_start_enabled = false
-      @test_setup_enabled = false
-      @test_teardown_enabled = false
-      @test_case_start_enabled = false
+    def test_suite_start_disabled=(bool)
+      @test_suite_start_disabled = bool
+      if @test_suite_start_disabled
+        @test_suite_start_button.setEnabled(false)
+      end
+    end
+
+    def test_group_start_disabled=(bool)
+      @test_group_start_disabled = bool
+      if @test_group_start_disabled
+        @test_start_button.setEnabled(false)
+      end
     end
 
     def select_suite(test_suite)
@@ -282,7 +294,7 @@ module Cosmos
           @test_suite_teardown_button.setEnabled(false)
         end
       end
-      if @test_suites.keys.empty?
+      if @test_suites.keys.empty? || @test_suite_start_disabled
         @test_suite_start_button.setEnabled(false)
       else
         @test_suite_start_button.setEnabled(true)
@@ -311,7 +323,7 @@ module Cosmos
               @test_teardown_button.setEnabled(false)
             end
           end
-          @test_start_button.setEnabled(true)
+          @test_start_button.setEnabled(true) unless @test_group_start_disabled
         else
           @test_start_button.setEnabled(false)
         end
