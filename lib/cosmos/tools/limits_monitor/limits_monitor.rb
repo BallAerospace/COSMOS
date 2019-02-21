@@ -1006,7 +1006,7 @@ module Cosmos
             options.config_file = arg
           end
           options.replay = false
-          option_parser.on("--replay", "Start Data Viewer in Replay mode") do
+          option_parser.on("--replay", "Start Limits Monitor in Replay mode") do
             options.replay = true
           end
         end
