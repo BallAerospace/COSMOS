@@ -35,6 +35,17 @@ LOG:
       required: true
       description: Log writer name as defined by PACKET_LOG_WRITER
       values: \D\S*
+LOG_STORED:
+  summary: Enable logging of stored telemetry on the interface by the specified log writer
+  description: LOG_STORED allows you to specify a different log writer for stored telemetry
+    (telemetry which has the 'stored' flag set in the packet). By default the stored telemetry
+    is intermingled in the normal log file.
+  warning: Choosing a custom log writer can prevent COSMOS from reading back your log files
+  parameters:
+    - name: Name
+      required: true
+      description: Log writer name as defined by PACKET_LOG_WRITER
+      values: \D\S*
 DONT_LOG:
   summary: Disable logging commands and telemetry on this interface
 LOG_RAW:

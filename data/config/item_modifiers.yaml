@@ -166,7 +166,8 @@ LIMITS:
       values: \d+
     - name: Initial State
       required: true
-      description: Whether limits monitoring for this telemetry item is initially enabled or disabled
+      description: Whether limits monitoring for this telemetry item is initially enabled or disabled.
+        Note if you have multiple LIMITS items they should all have the same initial state.
       values: ['ENABLED', 'DISABLED']
     - name: Red Low Limit
       required: true

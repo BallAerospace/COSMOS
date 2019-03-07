@@ -47,6 +47,8 @@ module Cosmos
       "Screen Definition" =>
         ["screen", "/config/targets/TARGET/screens/*.txt"],
       "Separator" => [nil, nil],
+      "Command Sequence Configuration" =>
+        ["cmd_sequence", "/config/tools/cmd_sequence/cmd_sequence.txt"],
       "Data Viewer Configuration" =>
         ["data_viewer", "/config/tools/data_viewer/data_viewer.txt"],
       "Handbook Creator Configuration" =>
