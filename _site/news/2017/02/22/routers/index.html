@@ -260,7 +260,7 @@ PORT CTS_PREIDENTIFIED 7779
 
 <p>Basically we’re creating a Router that routes only the INST interface data. We create this Router using a TCPIP Server interface with a LENGTH protocol of bit offset 32, length field size of 16, and length value offset of 7. These values were chosen to match the INST command and telemetry which use CCSDS headers. The CCSDS standard specifies a 16 bit length field at offset 32. The CCSDS standard also specifies that the length field is the length of the packet past the length field minus 1. Thus we add 7 for the 4 bytes of offset, 2 bytes of length field, and the minus 1.</p>
 
-<p>For more information about the options you can pass to a Router (and Interface) see the <a href="http://cosmosrb.com/docs/system/#interface-and-router-modifiers">Interface and Router Modifers</a> part of the documentation.</p>
+<p>For more information about the options you can pass to a Router (and Interface) see the <a href="http://cosmosrb.com/docs/interfaces/">Interface Configuration</a> part of the documentation.</p>
 
 <p>To connect to the INST_ROUTER that we created we can write a little Ruby code using existing COSMOS interface classes and streams.</p>
 

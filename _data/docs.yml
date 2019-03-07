@@ -18,9 +18,10 @@
 
 - title: Tool Configuration
   docs:
-  - launcher
+  - cmd_sequence
   - data_viewer
   - handbook_creator
+  - launcher
   - limits_monitor
   - script_runner
   - table_manager

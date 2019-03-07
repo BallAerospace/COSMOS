@@ -11,8 +11,8 @@
     <title xml:lang="en">Ball Aerospace COSMOS News</title>
     <atom:link type="application/atom+xml" href="http://cosmosrb/feed.xml" rel="self"/>
     <link>http://cosmosrb.com/</link>
-    <pubDate>Fri, 25 Jan 2019 10:25:55 -0700</pubDate>
-    <lastBuildDate>Fri, 25 Jan 2019 10:25:55 -0700</lastBuildDate>
+    <pubDate>Thu, 07 Mar 2019 07:11:27 -0700</pubDate>
+    <lastBuildDate>Thu, 07 Mar 2019 07:11:27 -0700</lastBuildDate>
     <language>en-US</language>
     <generator>Jekyll v3.7.4</generator>
     <description>The User Interface for Embedded Systems</description>
@@ -1573,15 +1573,15 @@ vncconfig &lt;span class=&quot;nt&quot;&gt;-iconic&lt;/span&gt; &amp;amp;
       <category>post</category>
       
       <guid isPermaLink="true">http://cosmosrb.com/news/2017/06/19/template_protocol/</guid>
-      <description>&lt;p&gt;The &lt;a href=&quot;http://cosmosrb.com/docs/interfaces/#template-stream-protocol&quot;&gt;Template Stream Protocol&lt;/a&gt; is probably one of the more confusing protocols in the COSMOS stream protocol library but it is extremely helpful when implementing string based protocols such as Standard Commands for Programmable Instruments (SCPI; often pronounced “skippy”).&lt;/p&gt;
+      <description>&lt;p&gt;The &lt;a href=&quot;/docs/protocols/#template-protocol&quot;&gt;Template Protocol&lt;/a&gt; is probably one of the more confusing protocols in the COSMOS protocol library but it is extremely helpful when implementing string based protocols such as Standard Commands for Programmable Instruments (SCPI; often pronounced “skippy”).&lt;/p&gt;
 
-&lt;p&gt;For this example we’ll assume we’re trying to talk to a SCPI enabled power supply such as the Keysight N6700. We start by creating a directory under our config/targets called POWER. The supply has a TCP/IP interface so we’ll use the &lt;a href=&quot;http://cosmosrb.com/docs/interfaces/#tcpip-client-interface&quot;&gt;TCP/IP Client Interface&lt;/a&gt; to connect to it. Thus we create our POWER/cmd_tlm_server.txt file as follows:&lt;/p&gt;
+&lt;p&gt;For this example we’ll assume we’re trying to talk to a SCPI enabled power supply such as the Keysight N6700. We start by creating a directory under our config/targets called POWER. The supply has a TCP/IP interface so we’ll use the &lt;a href=&quot;/docs/interfaces/#tcpip-client-interface&quot;&gt;TCP/IP Client Interface&lt;/a&gt; to connect to it. Thus we create our POWER/cmd_tlm_server.txt file as follows:&lt;/p&gt;
 
 &lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;INTERFACE POWER_INT tcpip_client_interface.rb 127.0.0.1 5025 5025 10.0 nil TEMPLATE 0x0A 0x0A
   TARGET POWER
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
-&lt;p&gt;This definition declares an interface named POWER_INT using the TCP/IP client interface which connects to ‘127.0.0.1’ (obviously you’ll change this to your actual power supply IP addres) using a write and read port of 5025 (standard SCPI ports for Keysight instruments) with a write timeout of 10s and no read timeout (block on read). We specify the TEMPLATE protocol with both write and read termination characters of 0x0A (ASCII newline). Note the &lt;a href=&quot;http://cosmosrb.com/docs/interfaces/#template-stream-protocol&quot;&gt;TEMPLATE protocol&lt;/a&gt; takes many additional parameters to allow you to work with off nominal protocol conditions.&lt;/p&gt;
+&lt;p&gt;This definition declares an interface named POWER_INT using the TCP/IP client interface which connects to ‘127.0.0.1’ (obviously you’ll change this to your actual power supply IP addres) using a write and read port of 5025 (standard SCPI ports for Keysight instruments) with a write timeout of 10s and no read timeout (block on read). We specify the TEMPLATE protocol with both write and read termination characters of 0x0A (ASCII newline). Note the &lt;a href=&quot;/docs/protocols/#template-protocol&quot;&gt;TEMPLATE protocol&lt;/a&gt; takes many additional parameters to allow you to work with off nominal protocol conditions.&lt;/p&gt;
 
 &lt;p&gt;Now you can define your target’s command and telemetry definitions. We’ll create example commands which get and set the voltage setting in our power supply. Create a POWER/cmd_tlm/cmd.txt file which has the following:&lt;/p&gt;
 
@@ -1984,7 +1984,7 @@ PORT CTS_PREIDENTIFIED 7779
 
 &lt;p&gt;Basically we’re creating a Router that routes only the INST interface data. We create this Router using a TCPIP Server interface with a LENGTH protocol of bit offset 32, length field size of 16, and length value offset of 7. These values were chosen to match the INST command and telemetry which use CCSDS headers. The CCSDS standard specifies a 16 bit length field at offset 32. The CCSDS standard also specifies that the length field is the length of the packet past the length field minus 1. Thus we add 7 for the 4 bytes of offset, 2 bytes of length field, and the minus 1.&lt;/p&gt;
 
-&lt;p&gt;For more information about the options you can pass to a Router (and Interface) see the &lt;a href=&quot;http://cosmosrb.com/docs/system/#interface-and-router-modifiers&quot;&gt;Interface and Router Modifers&lt;/a&gt; part of the documentation.&lt;/p&gt;
+&lt;p&gt;For more information about the options you can pass to a Router (and Interface) see the &lt;a href=&quot;http://cosmosrb.com/docs/interfaces/&quot;&gt;Interface Configuration&lt;/a&gt; part of the documentation.&lt;/p&gt;
 
 &lt;p&gt;To connect to the INST_ROUTER that we created we can write a little Ruby code using existing COSMOS interface classes and streams.&lt;/p&gt;
 
@@ -2328,9 +2328,14 @@ ARRAY INST HEALTH_STATUS ARY 300 50 nil 8 FORMATTED
       <category>post</category>
       
       <guid isPermaLink="true">http://cosmosrb.com/news/2016/08/04/custom-cosmos_interface/</guid>
-      <description>&lt;p&gt;One of our Ball Aerospace engineers asked how they could add a checksum to an existing COSMOS interface when talking to their target. COSMOS does not support this directly so it requires creating a custom interface. While this might sound daunting, the COSMOS interfaces were designed just for this type of extension and provide hooks for customization.&lt;/p&gt;
+      <description>&lt;div class=&quot;note warning&quot;&gt;
+  &lt;h5&gt;Interfaces were changed dramatically in &lt;a href=&quot;/news/2017/08/04/cosmos-4-0-0-released/&quot;&gt;COSMOS 4.0.0&lt;/a&gt;&lt;/h5&gt;
+  &lt;p&gt;This article only applies to pre-4.0.0 COSMOS releases. For current COSMOS releases please see the new &lt;a href=&quot;/docs/interfaces/&quot;&gt;Interface&lt;/a&gt; and &lt;a href=&quot;/docs/protocols/&quot;&gt;Protocol&lt;/a&gt; documentation.&lt;/p&gt;
+&lt;/div&gt;
 
-&lt;p&gt;In this example we will assume the original interface is the COSMOS &lt;a href=&quot;http://cosmosrb.com/docs/interfaces/#serial-interface&quot;&gt;Serial Interface&lt;/a&gt;. In your target’s lib folder create a new interface called checksum_serial_interface.rb:&lt;/p&gt;
+&lt;p&gt;One of our Ball Aerospace engineers asked how they could add a checksum to an existing COSMOS interface when talking to their target. COSMOS does not support this directly so it requires creating a custom interface. While this might sound daunting, the COSMOS interfaces were designed just for this type of extension and provide hooks for customization.&lt;/p&gt;
+
+&lt;p&gt;In this example we will assume the original interface is the COSMOS &lt;a href=&quot;/docs/interfaces/#serial-interface&quot;&gt;Serial Interface&lt;/a&gt;. In your target’s lib folder create a new interface called checksum_serial_interface.rb:&lt;/p&gt;
 
 &lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-ruby&quot; data-lang=&quot;ruby&quot;&gt;&lt;span class=&quot;nb&quot;&gt;require&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'cosmos'&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;# always require cosmos&lt;/span&gt;
 &lt;span class=&quot;nb&quot;&gt;require&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'cosmos/interfaces/serial_interface'&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;# original interface being extended&lt;/span&gt;
@@ -2370,9 +2375,9 @@ ARRAY INST HEALTH_STATUS ARY 300 50 nil 8 FORMATTED
 INTERFACE UART_INTERFACE  checksum_serial_interface.rb COM1  COM1 115200 NONE   1    nil nil  BURST
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
-&lt;p&gt;I added a comment line above the definition which describes the settings. For more information see the &lt;a href=&quot;http://cosmosrb.com/docs/interfaces/#serial-interface&quot;&gt;Serial Interface&lt;/a&gt; documentation.&lt;/p&gt;
+&lt;p&gt;I added a comment line above the definition which describes the settings. For more information see the &lt;a href=&quot;/docs/interfaces/#serial-interface&quot;&gt;Serial Interface&lt;/a&gt; documentation.&lt;/p&gt;
 
-&lt;p&gt;This same technique can obviously be used to extend the the other TCPIP interfaces and can be used with all the various &lt;a href=&quot;http://cosmosrb.com/docs/interfaces/#streams-and-stream-protocols&quot;&gt;Stream Protocol&lt;/a&gt; classes COSMOS defines.&lt;/p&gt;
+&lt;p&gt;This same technique can obviously be used to extend the the other TCPIP interfaces and can be used with all the various &lt;a href=&quot;/docs/interfaces/#streams&quot;&gt;Streams&lt;/a&gt; COSMOS defines.&lt;/p&gt;
 
 &lt;p&gt;If you have a question which would benefit the community or find a possible bug please use our &lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues&quot;&gt;Github Issues&lt;/a&gt;. If you would like more information about a COSMOS training or support contract please contact us at &lt;a href=&quot;mailto:cosmos@ball.com&quot;&gt;cosmos@ball.com&lt;/a&gt;.&lt;/p&gt;
 </description>

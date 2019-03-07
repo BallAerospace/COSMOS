@@ -234,15 +234,15 @@
     </a>
   </div>
   <div class="post-content">
-    <p>The <a href="http://cosmosrb.com/docs/interfaces/#template-stream-protocol">Template Stream Protocol</a> is probably one of the more confusing protocols in the COSMOS stream protocol library but it is extremely helpful when implementing string based protocols such as Standard Commands for Programmable Instruments (SCPI; often pronounced “skippy”).</p>
+    <p>The <a href="/docs/protocols/#template-protocol">Template Protocol</a> is probably one of the more confusing protocols in the COSMOS protocol library but it is extremely helpful when implementing string based protocols such as Standard Commands for Programmable Instruments (SCPI; often pronounced “skippy”).</p>
 
-<p>For this example we’ll assume we’re trying to talk to a SCPI enabled power supply such as the Keysight N6700. We start by creating a directory under our config/targets called POWER. The supply has a TCP/IP interface so we’ll use the <a href="http://cosmosrb.com/docs/interfaces/#tcpip-client-interface">TCP/IP Client Interface</a> to connect to it. Thus we create our POWER/cmd_tlm_server.txt file as follows:</p>
+<p>For this example we’ll assume we’re trying to talk to a SCPI enabled power supply such as the Keysight N6700. We start by creating a directory under our config/targets called POWER. The supply has a TCP/IP interface so we’ll use the <a href="/docs/interfaces/#tcpip-client-interface">TCP/IP Client Interface</a> to connect to it. Thus we create our POWER/cmd_tlm_server.txt file as follows:</p>
 
 <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>INTERFACE POWER_INT tcpip_client_interface.rb 127.0.0.1 5025 5025 10.0 nil TEMPLATE 0x0A 0x0A
   TARGET POWER
 </code></pre></div></div>
 
-<p>This definition declares an interface named POWER_INT using the TCP/IP client interface which connects to ‘127.0.0.1’ (obviously you’ll change this to your actual power supply IP addres) using a write and read port of 5025 (standard SCPI ports for Keysight instruments) with a write timeout of 10s and no read timeout (block on read). We specify the TEMPLATE protocol with both write and read termination characters of 0x0A (ASCII newline). Note the <a href="http://cosmosrb.com/docs/interfaces/#template-stream-protocol">TEMPLATE protocol</a> takes many additional parameters to allow you to work with off nominal protocol conditions.</p>
+<p>This definition declares an interface named POWER_INT using the TCP/IP client interface which connects to ‘127.0.0.1’ (obviously you’ll change this to your actual power supply IP addres) using a write and read port of 5025 (standard SCPI ports for Keysight instruments) with a write timeout of 10s and no read timeout (block on read). We specify the TEMPLATE protocol with both write and read termination characters of 0x0A (ASCII newline). Note the <a href="/docs/protocols/#template-protocol">TEMPLATE protocol</a> takes many additional parameters to allow you to work with off nominal protocol conditions.</p>
 
 <p>Now you can define your target’s command and telemetry definitions. We’ll create example commands which get and set the voltage setting in our power supply. Create a POWER/cmd_tlm/cmd.txt file which has the following:</p>
 
