@@ -488,6 +488,8 @@ module Cosmos
           tf.close
           FileUtils.mkdir_p(File.join(@config_targets, 'TGT'))
           System.instance.process_file(tf.path)
+          expect(System.targets.key?('TGT')).to be true
+          expect(System.targets.key?('SYSTEM')).to be true
           tf.unlink
         end
 
