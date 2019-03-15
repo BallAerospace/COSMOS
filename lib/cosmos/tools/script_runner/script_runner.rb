@@ -257,6 +257,13 @@ module Cosmos
       @script_call_stack.connect(SIGNAL('triggered()')) { script_call_stack() }
       @script_call_stack.setEnabled(false)
 
+      @script_error_backtrace = Qt::Action.new('Show Error Backtrace', self)
+      @script_error_backtrace.statusTip = 'Show Error Backtrace from the last encountered exception'
+      @script_error_backtrace.connect(SIGNAL('triggered()')) do
+        ScriptRunnerFrame.show_backtrace = @script_error_backtrace.checked?
+      end
+      @script_error_backtrace.setCheckable(true)
+
       @script_debug = Qt::Action.new(Cosmos.get_icon('bug.png'), 'Toggle &Debug', self)
       @script_debug_keyseq = Qt::KeySequence.new('Ctrl+D')
       @script_debug.shortcut  = @script_debug_keyseq
@@ -334,6 +341,7 @@ module Cosmos
       view_menu.addSeparator()
       view_menu.addAction(@script_log_message)
       view_menu.addAction(@script_call_stack)
+      view_menu.addAction(@script_error_backtrace)
       view_menu.addAction(@script_debug)
       view_menu.addAction(@script_disconnect)
 

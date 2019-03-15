@@ -89,6 +89,9 @@ module Cosmos
     SET_TLM_KEYWORDS = %w(set_tlm set_tlm_raw override_tlm_raw normalize_tlm_raw)
     CHECK_KEYWORDS   = %w(check check_raw wait wait_raw wait_check wait_check_raw)
 
+    INSTANCE_VARS = %w(__return_val close_on_complete error eval_error filename instrumented_script \
+      line_number line_offset saved_instance saved_run_thread text text_binding uncaught_exception)
+
     attr_accessor :use_instrumentation
     attr_accessor :change_callback
     attr_accessor :run_callback
@@ -962,6 +965,10 @@ module Cosmos
               end
 
               if @script_binding
+                # Check for accessing an instance variable or local
+                if debug_text =~ /^@\S+$/ || @script_binding.local_variables.include?(debug_text.to_sym)
+                  debug_text = "puts #{debug_text}" # Automatically add puts to print it
+                end
                 eval(debug_text, @script_binding, 'debug', 1)
               else
                 Object.class_eval(debug_text, 'debug', 1)
@@ -999,8 +1006,20 @@ module Cosmos
             @debug_text.setPlainText("")
           end
         end
-
         @debug_frame.addWidget(@debug_text)
+
+        @locals_button = Qt::PushButton.new('Locals')
+        @locals_button.connect(SIGNAL('clicked(bool)')) do
+          next unless @script_binding
+          @locals_button.setEnabled(false)
+          vars = @script_binding.local_variables.map(&:to_s)
+          puts "Locals: #{vars.reject {|x| INSTANCE_VARS.include?(x)}.sort.join(', ')}"
+          while @output_io.string[-1..-1] == "\n"
+            Qt::CoreApplication.processEvents()
+          end
+          @locals_button.setEnabled(true)
+        end
+        @debug_frame.addWidget(@locals_button)
 
         @bottom_frame.layout.addLayout(@debug_frame)
       end
