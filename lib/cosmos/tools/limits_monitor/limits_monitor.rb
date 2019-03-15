@@ -358,6 +358,7 @@ module Cosmos
       @items = {}
       @out_of_limits = []
       @stale = []
+      unsubscribe_limits_events(@queue_id) if @queue_id
       if @toggle_mode
         set_replay_mode(!get_replay_mode())
         @clear_log_callback.call
@@ -365,7 +366,6 @@ module Cosmos
       end
       @clear_items_callback.call
 
-      unsubscribe_limits_events(@queue_id) if @queue_id
       @limits_set = get_limits_set()
       @queue_id = subscribe_limits_events(100000)
       get_out_of_limits().each do |target, packet, item, state|
