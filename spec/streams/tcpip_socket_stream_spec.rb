@@ -123,9 +123,11 @@ module Cosmos
         thread = Thread.new do
           client = server.accept    # Wait for a client to connect
           sleep 0.2
-          client.close
-        rescue IOError
-          # Closing the socket causes an IOError
+          begin
+            client.close
+          rescue IOError
+            # Closing the socket causes an IOError
+          end
         end
         socket = TCPSocket.new('localhost', 2000)
         ss = TcpipSocketStream.new(nil,socket,nil,5)

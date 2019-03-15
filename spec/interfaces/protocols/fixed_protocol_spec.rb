@@ -90,6 +90,7 @@ module Cosmos
       end
 
       it "reads telemetry data from the stream" do
+        target = System.targets['SYSTEM']
         @interface.add_protocol(FixedProtocol, [1], :READ_WRITE)
         @interface.instance_variable_set(:@stream, FixedStream.new)
         @interface.target_names = ['SYSTEM']
@@ -103,6 +104,7 @@ module Cosmos
         expect(packet.received_time.to_f).to be_within(0.1).of(Time.now.to_f)
         expect(packet.target_name).to eql 'SYSTEM'
         expect(packet.packet_name).to eql 'LIMITS_CHANGE'
+        target.tlm_unique_id_mode = true
         $index = 1
         packet = @interface.read
         expect(packet.received_time.to_f).to be_within(0.1).of(Time.now.to_f)
@@ -113,9 +115,11 @@ module Cosmos
         expect(packet.received_time.to_f).to be_within(0.1).of(Time.now.to_f)
         expect(packet.target_name).to eql 'SYSTEM'
         expect(packet.packet_name).to eql 'LIMITS_CHANGE'
+        target.tlm_unique_id_mode = false
       end
 
       it "reads command data from the stream" do
+        target = System.targets['SYSTEM']
         packet = System.commands.packet("SYSTEM", "STARTLOGGING")
         packet.restore_defaults
         $buffer = packet.buffer.clone
@@ -131,11 +135,19 @@ module Cosmos
         @interface.add_protocol(FixedProtocol, [8, 6, '0x1ACFFC1D', false], :READ_WRITE)
         @interface.instance_variable_set(:@stream, FixedStream2.new)
         @interface.target_names = ['SYSTEM']
+        target.cmd_unique_id_mode = false
         packet = @interface.read
         expect(packet.received_time.to_f).to be_within(0.01).of(Time.now.to_f)
         expect(packet.target_name).to eql 'SYSTEM'
         expect(packet.packet_name).to eql 'STARTLOGGING'
         expect(packet.buffer).to eql $buffer
+        target.cmd_unique_id_mode = true
+        packet = @interface.read
+        expect(packet.received_time.to_f).to be_within(0.01).of(Time.now.to_f)
+        expect(packet.target_name).to eql 'SYSTEM'
+        expect(packet.packet_name).to eql 'STARTLOGGING'        
+        expect(packet.buffer).to eql $buffer
+        target.cmd_unique_id_mode = false
       end
     end
   end

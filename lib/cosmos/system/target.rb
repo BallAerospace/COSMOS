@@ -66,6 +66,12 @@ module Cosmos
     # @return [Integer] The number of telemetry packets received from this target
     attr_accessor :tlm_cnt
 
+    # @return [Boolean] Indicates if all command packets identify using different fields
+    attr_accessor :cmd_unique_id_mode
+    
+    # @return [Boolean] Indicates if telemetry packets identify using different fields
+    attr_accessor :tlm_unique_id_mode
+
     # Creates a new target by processing the target.txt file in the directory
     # given by the path joined with the target_name. Records all the command
     # and telemetry definition files found in the targets cmd_tlm directory.
@@ -90,6 +96,8 @@ module Cosmos
       @routers = []
       @cmd_cnt = 0
       @tlm_cnt = 0
+      @cmd_unique_id_mode = false
+      @tlm_unique_id_mode = false
 
       # Determine the target name using substitution if given
       @original_name = target_name.clone.upcase.freeze
@@ -160,6 +168,16 @@ module Cosmos
           usage = "#{keyword}"
           parser.verify_num_parameters(0, 0, usage)
           @auto_screen_substitute = true
+
+        when 'CMD_UNIQUE_ID_MODE'
+          usage = "#{keyword}"
+          parser.verify_num_parameters(0, 0, usage)
+          @cmd_unique_id_mode = true
+
+        when 'TLM_UNIQUE_ID_MODE'
+          usage = "#{keyword}"
+          parser.verify_num_parameters(0, 0, usage)
+          @tlm_unique_id_mode = true
 
         else
           # blank lines will have a nil keyword and should not raise an exception

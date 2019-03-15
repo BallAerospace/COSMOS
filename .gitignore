@@ -46,3 +46,4 @@ install/tools/mac/TestRunner.app/Contents/MacOS/TestRunner
 install/tools/mac/TlmExtractor.app/Contents/MacOS/TlmExtractor
 install/tools/mac/TlmGrapher.app/Contents/MacOS/TlmGrapher
 install/tools/mac/TlmViewer.app/Contents/MacOS/TlmViewer
+test/performance/outputs/tmp

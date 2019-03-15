@@ -140,6 +140,28 @@ module Cosmos
         expect(pkt.item4).to eql 4
       end
 
+      it "works in unique id mode or not" do
+        System.targets["TGT1"] = Target.new("TGT1")
+        target = System.targets["TGT1"]
+        target.cmd_unique_id_mode = false
+        buffer = "\x01\x02\x03\x04"
+        pkt = @cmd.identify(buffer,["TGT1"])
+        pkt.enable_method_missing
+        expect(pkt.item1).to eql 1
+        expect(pkt.item2).to eql 2
+        expect(pkt.item3).to eql 3
+        expect(pkt.item4).to eql 4
+        target.cmd_unique_id_mode = true
+        buffer = "\x01\x02\x01\x02"
+        pkt = @cmd.identify(buffer,["TGT1"])
+        pkt.enable_method_missing
+        expect(pkt.item1).to eql 1
+        expect(pkt.item2).to eql 2
+        expect(pkt.item3).to eql 1
+        expect(pkt.item4).to eql 2        
+        target.cmd_unique_id_mode = false
+      end
+
       it "returns nil with unknown targets given" do
         buffer = "\x01\x02\x03\x04"
         expect(@cmd.identify(buffer,["TGTX"])).to be_nil

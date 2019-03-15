@@ -90,6 +90,8 @@ module Cosmos
       target_names = target_names() unless target_names
 
       target_names.each do |target_name|
+        target_name = target_name.to_s.upcase
+        
         target_packets = nil
         begin
           target_packets = packets(target_name)
@@ -98,20 +100,35 @@ module Cosmos
           next
         end
 
-        # Iterate through the packets and see if any represent the buffer
-        target_packets.each do |packet_name, packet|
-          if (packet.identify?(packet_data))
-            identified_packet = packet.clone
-            identified_packet.received_time = nil
-            identified_packet.stored = false
-            identified_packet.extra = nil
-            identified_packet.received_count = 0
-            identified_packet.buffer = packet_data
-            break
+        target = System.targets[target_name]
+        if target and target.cmd_unique_id_mode
+          # Iterate through the packets and see if any represent the buffer
+          target_packets.each do |packet_name, packet|
+            if packet.identify?(packet_data)
+              identified_packet = packet
+              break
+            end
           end
+        else
+          # Do a hash lookup to quickly identify the packet
+          if target_packets.length > 0
+            packet = target_packets.first[1]
+            key = packet.read_id_values(packet_data)
+            hash = @config.cmd_id_value_hash[target_name]
+            identified_packet = hash[key]
+            identified_packet = hash['CATCHALL'.freeze] unless identified_packet
+          end          
         end
 
-        break if identified_packet
+        if identified_packet
+          identified_packet = identified_packet.clone
+          identified_packet.received_time = nil
+          identified_packet.stored = false
+          identified_packet.extra = nil
+          identified_packet.received_count = 0
+          identified_packet.buffer = packet_data
+          break
+        end
       end
 
       return identified_packet

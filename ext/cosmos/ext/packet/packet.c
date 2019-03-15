@@ -25,7 +25,6 @@ static ID id_method_clone = 0;
 static ID id_method_clear = 0;
 
 static ID id_ivar_id_items = 0;
-static ID id_ivar_id_value = 0;
 static ID id_ivar_received_time = 0;
 static ID id_ivar_received_count = 0;
 static ID id_ivar_hazardous = 0;
@@ -46,80 +45,6 @@ static ID id_ivar_packet_name = 0;
 static ID id_ivar_description = 0;
 static ID id_ivar_stored = 0;
 static ID id_ivar_extra = 0;
-
-/* Wraps read_item_internal so that it can be called by rb_protect in protected_read_item_internal */
-static VALUE wrap_read_item_internal(VALUE args)
-{
-  volatile VALUE *values = (VALUE *)args;
-  volatile VALUE self = values[0];
-  volatile VALUE item = values[1];
-  volatile VALUE buffer = values[2];
-  return read_item_internal(self, item, buffer);
-}
-
-/* Wraps read_item_internal to catch any exceptions and return nil on exception */
-static VALUE protected_read_item_internal(VALUE self, VALUE item, VALUE buffer)
-{
-  int error = 0;
-  volatile VALUE result = Qnil;
-  volatile VALUE args[3];
-
-  args[0] = self;
-  args[1] = item;
-  args[2] = buffer;
-  result = rb_protect(wrap_read_item_internal, (VALUE)args, &error);
-
-  if (error) {
-    return Qnil;
-  } else {
-    return result;
-  }
-}
-
-/*
- * Tries to identify if a buffer represents the currently defined packet. It
- * does this by iterating over all the packet items that were created with
- * an ID value and checking whether that ID value is present at the correct
- * location in the buffer.
- *
- * Incorrectly sized buffers will still positively identify if there is
- * enough data to match the ID values. This is to allow incorrectly sized
- * packets to still be processed as well as possible given the incorrectly
- * sized data.
- *
- * @param buffer [String] Raw buffer of binary data
- * @return [Boolean] Whether or not the buffer of data is this packet
- */
-static VALUE identify(VALUE self, VALUE buffer)
-{
-  volatile VALUE id_items = rb_ivar_get(self, id_ivar_id_items);
-  volatile VALUE item = Qnil;
-  volatile VALUE id_value = Qnil;
-  volatile VALUE raw_value = Qnil;
-  long id_items_length = 0;
-  int index = 0;
-
-  if (!RTEST(buffer)) {
-    return Qfalse;
-  }
-
-  if (!RTEST(id_items)) {
-    return Qtrue;
-  }
-
-  id_items_length = RARRAY_LEN(id_items);
-
-  for (index = 0; index < id_items_length; index++) {
-    item = rb_ary_entry(id_items, index);
-    id_value = rb_ivar_get(item, id_ivar_id_value);
-    raw_value = protected_read_item_internal(self, item, buffer);
-    if (!rb_eql(id_value, raw_value)) {
-      return Qfalse;
-    }
-  }
-
-  return Qtrue;
-}
 
 /* Sets the target name this packet is associated with. Unidentified packets
  * will have target name set to nil.
@@ -321,7 +246,6 @@ void Init_packet (void)
   id_method_clear = rb_intern("clear");
 
   id_ivar_id_items = rb_intern("@id_items");
-  id_ivar_id_value = rb_intern("@id_value");
   id_ivar_received_time = rb_intern("@received_time");
   id_ivar_received_count = rb_intern("@received_count");
   id_ivar_hazardous = rb_intern("@hazardous");
@@ -345,7 +269,6 @@ void Init_packet (void)
 
   cPacket = rb_define_class_under(mCosmos, "Packet", cStructure);
   rb_define_method(cPacket, "initialize", packet_initialize, -1);
-  rb_define_method(cPacket, "identify?", identify, 1);
   rb_define_method(cPacket, "packet_name=", packet_name_equals, 1);
   rb_define_method(cPacket, "target_name=", target_name_equals, 1);
   rb_define_method(cPacket, "description=", description_equals, 1);

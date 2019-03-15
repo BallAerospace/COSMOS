@@ -68,36 +68,59 @@ module Cosmos
 
       @interface.target_names.each do |target_name|
         target_packets = nil
+        unique_id_mode = false
         begin
           if @telemetry
             target_packets = System.telemetry.packets(target_name)
+            target = System.targets[target_name]
+            unique_id_mode = target.tlm_unique_id_mode if target
           else
             target_packets = System.commands.packets(target_name)
+            target = System.targets[target_name]
+            unique_id_mode = target.cmd_unique_id_mode if target
           end
         rescue RuntimeError
-          # No telemetry for this target
+          # No commands/telemetry for this target
           next
         end
 
-        target_packets.each do |packet_name, packet|
-          if packet.identify?(@data[@discard_leading_bytes .. -1])
-            identified_packet = packet
-            if identified_packet.defined_length + @discard_leading_bytes > @data.length
-              # Check if need more data to finish packet
-              return :STOP
+        if unique_id_mode
+          target_packets.each do |packet_name, packet|
+            if packet.identify?(@data[@discard_leading_bytes .. -1])
+              identified_packet = packet
+              break
             end
-            # Set some variables so we can update the packet in
-            # read_packet
-            @received_time = Time.now.sys
-            @target_name = identified_packet.target_name
-            @packet_name = identified_packet.packet_name
-
-            # Get the data from this packet
-            packet_data = @data.slice!(0, identified_packet.defined_length + @discard_leading_bytes)
-            break
           end
+        else
+          # Do a hash lookup to quickly identify the packet
+          if target_packets.length > 0
+            packet = target_packets.first[1]
+            key = packet.read_id_values(@data[@discard_leading_bytes .. -1])
+            if @telemetry
+              hash = System.telemetry.config.tlm_id_value_hash[target_name]
+            else
+              hash = System.commands.config.cmd_id_value_hash[target_name]
+            end
+            identified_packet = hash[key]
+            identified_packet = hash['CATCHALL'.freeze] unless identified_packet
+          end          
         end
-        break if identified_packet
+        
+        if identified_packet
+          if identified_packet.defined_length + @discard_leading_bytes > @data.length
+            # Check if need more data to finish packet
+            return :STOP
+          end
+          # Set some variables so we can update the packet in
+          # read_packet
+          @received_time = Time.now.sys
+          @target_name = identified_packet.target_name
+          @packet_name = identified_packet.packet_name
+
+          # Get the data from this packet
+          packet_data = @data.slice!(0, identified_packet.defined_length + @discard_leading_bytes)
+          break
+        end
       end
 
       unless identified_packet

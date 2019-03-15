@@ -200,6 +200,46 @@ module Cosmos
         end
       end
 
+      context "with TLM_UNIQUE_ID_MODE" do
+        it "takes no parameters" do
+          tf = Tempfile.new('unittest')
+          tf.puts("")
+          tf.close
+          tgt = Target.new("TGT")
+          tgt.process_file(tf.path)
+          expect(tgt.tlm_unique_id_mode).to eql false
+          tf.unlink
+          
+          tf = Tempfile.new('unittest')
+          tf.puts("TLM_UNIQUE_ID_MODE")
+          tf.close
+          tgt = Target.new("TGT")
+          tgt.process_file(tf.path)
+          expect(tgt.tlm_unique_id_mode).to eql true
+          tf.unlink
+        end
+      end
+
+      context "with CMD_UNIQUE_ID_MODE" do
+        it "takes no parameters" do
+          tf = Tempfile.new('unittest')
+          tf.puts("")
+          tf.close
+          tgt = Target.new("TGT")
+          tgt.process_file(tf.path)
+          expect(tgt.cmd_unique_id_mode).to eql false
+          tf.unlink
+          
+          tf = Tempfile.new('unittest')
+          tf.puts("CMD_UNIQUE_ID_MODE")
+          tf.close
+          tgt = Target.new("TGT")
+          tgt.process_file(tf.path)
+          expect(tgt.cmd_unique_id_mode).to eql true
+          tf.unlink
+        end
+      end
+
       context "with COMMANDS and TELEMETRY" do
         it "takes 1 parameters" do
           tf = Tempfile.new('unittest')

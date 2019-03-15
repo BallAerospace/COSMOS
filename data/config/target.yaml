@@ -78,3 +78,15 @@ AUTO_SCREEN_SUBSTITUTE:
     replaces the target name in the screen definitions with the actual target name.
   warning: Replaces ALL target names in a screen definition file, so this is not
     suitable for screens with multiple targets.
+CMD_UNIQUE_ID_MODE:
+  summary: Flags that commands to this target are identified in a mixed variety of ways
+  description: Ideally all commands for a target are identified using the exact same fields in a header
+    for each command.  If  this target identifies packets using different fields for some commands than others,
+    then this flag must be set to force a brute force identification method.
+  warning: Using this mode significantly slows packet identification
+TLM_UNIQUE_ID_MODE:
+  summary: Flags that telemetry to this target are identified in a mixed variety of ways
+  description: Ideally all telemetry for a target are identified using the exact same fields in a header
+    for each packet.  If  this target identifies packets using different fields for some telemetry packets than others,
+    then this flag must be set to force a brute force identification method.
+  warning: Using this mode significantly slows packet identification
