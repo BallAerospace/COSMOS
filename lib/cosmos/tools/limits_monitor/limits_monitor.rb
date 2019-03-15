@@ -84,11 +84,13 @@ module Cosmos
     # @param update_item_callback [Proc] Method to update an item in the GUI
     # @param clear_items_callback [Proc] Method to clear all items in the GUI
     # @param remove_item_callback [Proc] Method to remove an item from the GUI
-    def initialize(new_item_callback, update_item_callback, clear_items_callback, remove_item_callback)
+    # @param clear_log_callback [Proc] Method to clear the log tab in the GUI
+    def initialize(new_item_callback, update_item_callback, clear_items_callback, remove_item_callback, clear_log_callback)
       @new_item_callback = new_item_callback
       @update_item_callback = update_item_callback
       @clear_items_callback = clear_items_callback
       @remove_item_callback = remove_item_callback
+      @clear_log_callback = clear_log_callback
       @ignored = []
       @ignored_stale = []
       @items = {}
@@ -98,13 +100,19 @@ module Cosmos
       @limits_set = :DEFAULT
       @colorblind = false
       @monitor_operational = true
+      @toggle_mode = false
       request_reset()
     end
 
     # Request that the limits items be refreshed from the server
-    def request_reset(toggle_mode = false)
-      @toggle_mode = toggle_mode
+    def request_reset
       @initialized = false
+    end
+
+    # Switch between realtime and replay modes
+    def toggle_mode
+      @toggle_mode = true
+      request_reset()
     end
 
     # Remove an item and optionally ignore it which means don't display it
@@ -351,8 +359,11 @@ module Cosmos
       @out_of_limits = []
       @stale = []
       unsubscribe_limits_events(@queue_id) if @queue_id
-      set_replay_mode(!get_replay_mode()) if @toggle_mode
-      @toggle_mode = false
+      if @toggle_mode
+        set_replay_mode(!get_replay_mode())
+        @clear_log_callback.call
+        @toggle_mode = false
+      end
       @clear_items_callback.call
 
       @limits_set = get_limits_set()
@@ -536,7 +547,7 @@ module Cosmos
       complete_initialize()
 
       @limits_items = LimitsItems.new(method(:new_gui_item), method(:update_gui_item), \
-        method(:clear_gui_items), method(:remove_gui_item))
+        method(:clear_gui_items), method(:remove_gui_item), method(:clear_log))
       if options.config_file
         begin
           result = @limits_items.open_config(options.config_file)
@@ -708,7 +719,7 @@ module Cosmos
     end
 
     def toggle_replay_mode
-      @limits_items.request_reset(true)
+      @limits_items.toggle_mode()
     end
 
     # @return [String] Fully qualified path to the configuration file
@@ -874,6 +885,10 @@ module Cosmos
         end
         @scroll_layout.removeAll
       end
+    end
+
+    def clear_log
+      Qt.execute_in_main_thread(true) { @log_output.clear() }
     end
 
     # Remove a limits item from the list and optionally ignore
