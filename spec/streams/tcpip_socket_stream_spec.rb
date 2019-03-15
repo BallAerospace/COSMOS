@@ -57,82 +57,87 @@ module Cosmos
         ss = TcpipSocketStream.new('write',nil,nil,nil)
         ss.connect
         expect { ss.read }.to raise_error("Attempt to read from write only stream")
+        ss.disconnect
       end
 
       it "calls read_nonblock from the socket" do
         server = TCPServer.new(2000) # Server bound to port 2000
         thread = Thread.new do
-          loop do
-            client = server.accept    # Wait for a client to connect
-            sleep 0.1
-            client.write "test"
-            client.close
-          end
+          client = server.accept    # Wait for a client to connect
+          sleep 0.1
+          client.write "test"
+          client.close
         end
+        sleep 0.1
         socket = TCPSocket.new('localhost', 2000)
         ss = TcpipSocketStream.new(nil,socket,nil,nil)
         expect(ss.read_nonblock).to eql ''
         sleep 0.2
         expect(ss.read_nonblock).to eql 'test'
+        thread.join
         Cosmos.close_socket(socket)
         Cosmos.close_socket(server)
-        thread.kill
         sleep 0.1
+        ss.disconnect
       end
 
       it "handles socket blocking exceptions" do
         server = TCPServer.new(2000) # Server bound to port 2000
         thread = Thread.new do
-          loop do
-            client = server.accept    # Wait for a client to connect
-            sleep 0.2
-            client.write "test"
-            client.close
-          end
+          client = server.accept    # Wait for a client to connect
+          sleep 0.2
+          client.write "test"
+          client.close
         end
+        sleep 0.1
         socket = TCPSocket.new('localhost', 2000)
         ss = TcpipSocketStream.new(nil,socket,nil,nil)
         expect(ss.read).to eql 'test'
+        thread.join
         Cosmos.close_socket(socket)
         Cosmos.close_socket(server)
-        thread.kill
         sleep 0.1
+        ss.disconnect
       end
 
       it "handles socket timeouts" do
         server = TCPServer.new(2000) # Server bound to port 2000
         thread = Thread.new do
-          loop do
-            client = server.accept    # Wait for a client to connect
-            sleep 0.2
-            client.close
-          end
+          client = server.accept    # Wait for a client to connect
+          sleep 0.2
+          client.close
         end
         socket = TCPSocket.new('localhost', 2000)
         ss = TcpipSocketStream.new(nil,socket,nil,0.1)
         expect { ss.read }.to raise_error(Timeout::Error)
+        thread.join
         sleep 0.2
         Cosmos.close_socket(socket)
         Cosmos.close_socket(server)
-        thread.kill
+        ss.disconnect
         sleep 0.1
       end
 
       it "handles socket connection reset exceptions" do
         server = TCPServer.new(2000) # Server bound to port 2000
         thread = Thread.new do
-          loop do
-            client = server.accept    # Wait for a client to connect
+          client = server.accept    # Wait for a client to connect
+          sleep 0.2
+          begin
             client.close
+          rescue IOError
+            # Closing the socket causes an IOError
           end
         end
         socket = TCPSocket.new('localhost', 2000)
         ss = TcpipSocketStream.new(nil,socket,nil,5)
+        sleep 0.1 # Allow the server thread to accept
         # Close the socket before trying to read from it
         Cosmos.close_socket(socket)
         expect(ss.read).to eql ''
         Cosmos.close_socket(server)
-        thread.kill
+        thread.join
+        ss.disconnect
         sleep 0.1
       end
     end
@@ -142,6 +147,7 @@ module Cosmos
         ss = TcpipSocketStream.new(nil,'read',nil,nil)
         ss.connect
         expect { ss.write('test') }.to raise_error("Attempt to write to read only stream")
+        ss.disconnect
       end
 
       it "calls write from the driver" do
@@ -151,6 +157,7 @@ module Cosmos
         ss = TcpipSocketStream.new(write,nil,nil,nil)
         ss.connect
         ss.write('test')
+        ss.disconnect
       end
 
       it "handles socket blocking exceptions" do
@@ -169,6 +176,7 @@ module Cosmos
         ss = TcpipSocketStream.new(write,nil,nil,nil)
         ss.connect
         ss.write('test')
+        ss.disconnect
       end
 
       it "handles socket timeouts" do
@@ -178,6 +186,7 @@ module Cosmos
         ss = TcpipSocketStream.new(write,nil,nil,nil)
         ss.connect
         expect { ss.write('test') }.to raise_error(Timeout::Error)
+        ss.disconnect
       end
     end
 
@@ -217,10 +226,6 @@ module Cosmos
         expect(ss.connected?).to be false
       end
     end
-
   end
-
   end # TEMP for Jruby
-
 end
-

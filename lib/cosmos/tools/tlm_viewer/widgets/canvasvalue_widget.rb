@@ -68,6 +68,14 @@ module Cosmos
       raise 'Override draw_widget to make this class work!'
     end
 
+    def set_setting(setting_name, setting_values)
+      if setting_name =~ /^TLM_/
+        @settings["#{setting_name.to_s.upcase}_#{setting_values.join('_')}"] = setting_values
+      else
+        super(setting_name, setting_values)
+      end
+    end
+
     def process_settings
       super
       @settings.each do |setting_name, setting_values|
@@ -84,12 +92,12 @@ module Cosmos
           when 'VALUE_LTEQ'
             @item_settings[0] = ['and', '<=', setting_values[0]]
           # TLM_AND allows a telemetry item to be dependant on another item for its state
-          when 'TLM_AND'
+          when /^TLM_AND/
             @items << [setting_values[0], setting_values[1], setting_values[2]]
             @values << 0
             set_item_settings('and', setting_values[3], setting_values[4])
           # TLM_OR allows a telemetry item to be dependant on another item for its state
-          when 'TLM_OR'
+          when /^TLM_OR/
             @items << [setting_values[0], setting_values[1], setting_values[2]]
             @values << 0
             set_item_settings('or', setting_values[3], setting_values[4])

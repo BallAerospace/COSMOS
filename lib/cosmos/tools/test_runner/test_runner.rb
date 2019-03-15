@@ -1096,6 +1096,14 @@ module Cosmos
           parser.verify_num_parameters(0, 0, "#{keyword}")
           @@results_writer.metadata = true
 
+        when 'DISABLE_TEST_SUITE_START'
+          parser.verify_num_parameters(0, 0, "#{keyword}")
+          Qt.execute_in_main_thread { @test_runner_chooser.test_suite_start_disabled = true }
+
+        when 'DISABLE_TEST_GROUP_START'
+          parser.verify_num_parameters(0, 0, "#{keyword}")
+          Qt.execute_in_main_thread { @test_runner_chooser.test_group_start_disabled = true }
+
         else
           raise "Unhandled keyword: #{keyword}" if keyword
         end

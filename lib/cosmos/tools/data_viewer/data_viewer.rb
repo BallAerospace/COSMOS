@@ -80,7 +80,8 @@ module Cosmos
             component.initialize_gui
             @tab_book.addTab(component, component.tab_name)
           end
-          if @auto_start
+          toggle_replay_mode() if options.replay
+          if @auto_start || options.start
             handle_start()
           end
           ConfigParser.splash = nil
@@ -768,9 +769,17 @@ module Cosmos
           options.height = 500
           options.title = "Data Viewer"
           options.config_file = 'data_viewer.txt'
+          options.start = false
+          options.replay = false
           option_parser.separator "Data Viewer Specific Options:"
           option_parser.on("-c", "--config FILE", "Use the specified configuration file") do |arg|
             options.config_file = arg
+          end
+          option_parser.on("-s", "--start", "Start processing immediately") do |arg|
+            options.start = true
+          end
+          option_parser.on("--replay", "Start Data Viewer in Replay mode") do
+            options.replay = true
           end
         end
 

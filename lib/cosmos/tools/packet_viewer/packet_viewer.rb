@@ -74,6 +74,7 @@ module Cosmos
               update_tlm_items(item_name)
             end
           end
+          toggle_replay_mode() if options.replay
         end
 
         # Unconfigure CosmosConfig to interact with splash screen
@@ -587,7 +588,7 @@ module Cosmos
           graph_action.statusTip = "Create a new COSMOS graph of #{target_name} #{packet_name} #{item_name}"
           graph_action.connect(SIGNAL('triggered()')) do
             @table.clearSelection
-            TlmGraphDialog.new(self, target_name, packet_name, item_name)
+            TlmGraphDialog.new(self, target_name, packet_name, item_name, get_replay_mode())
           end
           menu.addAction(graph_action)
 
@@ -628,12 +629,13 @@ module Cosmos
                            "Set the polling rate to PERIOD (unit seconds)") do |arg|
             options.rate = Float(arg)
           end
+          options.replay = false
+          option_parser.on("--replay", "Start Packet Viewer in Replay mode") do
+            options.replay = true
+          end
         end
-
         super(option_parser, options)
       end
     end
-
-  end # class PacketViewer
-
-end # module Cosmos
+  end
+end

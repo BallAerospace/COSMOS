@@ -16,11 +16,8 @@ end
 
 module Cosmos
 
-  # TlmGrapher class
-  #
-  # This class implements the TlmGrapher Application.  This application displays multiple line graphs
-  # that perform various analysis on housekeeping telemetry.
-  #
+  # Telemetry Grapher displays multiple line graphs that perform various
+  # analysis on housekeeping telemetry.
   class TlmGrapher < TabbedPlotsTool
 
     # Runs the application
@@ -43,6 +40,7 @@ module Cosmos
           options.adder_orientation = Qt::Horizontal
           options.items = []
           options.start = false
+          options.replay = false
           options.about_string = "TlmGrapher provides realtime and log file graphing abilities to the COSMOS system."
 
           opts.separator "Telemetry Grapher Specific Options:"
@@ -59,6 +57,9 @@ module Cosmos
               exit
             end
             options.items << split
+          end
+          opts.on("--replay", "Start Telemetry Grapher in Replay mode") do
+            options.replay = true
           end
         end
 
@@ -97,7 +98,5 @@ module Cosmos
         plot_index += 1
       end
     end
-
-  end # class TlmGrapher
-
-end # module Cosmos
+  end
+end

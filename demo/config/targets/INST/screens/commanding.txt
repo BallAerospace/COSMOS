@@ -36,7 +36,7 @@ VERTICAL
     # Here as an example we're using the BACKGROUNDBUTTON which runs all the code in the background.
     # Note we didn't need to use this here but it's an example of wrapping calls to the GUI in Qt.execute_in_main_thread.
     # You need to use this button if your code blocks or takes a long time to execute so you don't hang the screen.
-    BACKGROUNDBUTTON 'Run Script' 'Cosmos.run_process("#{Cosmos::USERPATH}/tools/ScriptRunner -r #{Qt.execute_in_main_thread { get_named_widget("SCRIPTNAME").text }}")'
+    BACKGROUNDBUTTON 'Run Script' 'script = ""; Qt.execute_in_main_thread { script = get_named_widget("SCRIPTNAME").text }; Cosmos.run_cosmos_tool("ScriptRunner", "-r #{script}")'
   END
   SETTING BACKCOLOR 163 185 163
 END

@@ -80,6 +80,7 @@ module Cosmos
         @config_filename = File.join(Cosmos::USERPATH, 'config', 'tools', options.config_dir, options.config_file)
         Qt.execute_in_main_thread(true) do
           load_configuration()
+          toggle_replay_mode() if options.replay
         end
 
         # Unconfigure CosmosConfig to interact with splash screen

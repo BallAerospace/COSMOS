@@ -296,6 +296,11 @@ module Cosmos
         when 'IMAGE'
           packet.timesec = time.tv_sec
           packet.timeus = time.tv_usec
+          # Create an Array the size of the packet and then initialize
+          # using a sample of all possible hex values (0..15)
+          # finally pack it into binary using the Character 'C' specifier
+          data = Array.new(packet.length) { Array(0..15).sample }.pack("C*")
+          packet.buffer = data
           packet.ccsdsseqcnt += 1
 
         when 'MECH'
@@ -310,7 +315,9 @@ module Cosmos
         end
       end
 
-      pending_packets << Packet.new(nil, nil, :BIG_ENDIAN, nil, "\000" * 10) if @get_count == 300
+      # Every 10s throw an unknown packet at the server just to demo that
+      data = Array.new(10) { rand(0..255) }.pack("C*")
+      pending_packets << Packet.new(nil, nil, :BIG_ENDIAN, nil, data) if @get_count % 1000 == 0
 
       @get_count += 1
       pending_packets

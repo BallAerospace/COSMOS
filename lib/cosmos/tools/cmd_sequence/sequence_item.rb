@@ -435,7 +435,7 @@ module Cosmos
       @cmd_name.text = command_string
       hazardous, _ = System.commands.cmd_hazardous?(@command.target_name, @command.packet_name, command_params())
       if hazardous
-        @cmd_info.text = "(Hazarous)"
+        @cmd_info.text = "(Hazardous)"
       else
         @cmd_info.text = ""
       end

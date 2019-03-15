@@ -7,7 +7,7 @@ TELEMETRY INST HEALTH_STATUS BIG_ENDIAN "Health and status from the <%= @target_
     UNITS CELCIUS C
     FORMAT_STRING "%0.3f"
     LIMITS DEFAULT 1 ENABLED -80.0 -70.0 60.0 80.0 -20.0 20.0
-    LIMITS TVAC 1     ENABLED -80.0 -30.0 30.0 80.0
+    LIMITS TVAC 1 ENABLED -80.0 -30.0 30.0 80.0
     LIMITS_RESPONSE example_limits_response.rb
   APPEND_ITEM TEMP2            32 FLOAT    "Temperature #2"
     POLY_READ_CONVERSION -100.0 0.00305
@@ -139,7 +139,7 @@ TELEMETRY INST PARAMS BIG_ENDIAN "Params set by SETPARAMS command"
 
 TELEMETRY INST IMAGE BIG_ENDIAN "Packet with image data"
   <%= render "_ccsds_tlm.txt", locals: {apid: 4} %>
-  ITEM IMAGE            128 800 BLOCK   "10x10 Image Data"
+  ITEM IMAGE 128 131072 BLOCK   "10x10 Image Data"
   ITEM TIMESECONDS 0 0 DERIVED "Derived floating-point time since epoch in seconds"
     READ_CONVERSION unix_time_seconds_conversion.rb TIMESEC TIMEUS
     FORMAT_STRING '%0.6f'

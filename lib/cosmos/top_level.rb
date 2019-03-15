@@ -170,8 +170,12 @@ module Cosmos
     return filename if File.exist? filename
 
     # Check relative to executing file
-    filename = Cosmos.path($0, ['config', 'data', name])
-    return filename if File.exist? filename
+    begin # path raises so begin rescue it
+      filename = Cosmos.path($0, ['config', 'data', name])
+      return filename if File.exist? filename
+    rescue
+      # Couldn't find the file so return nil below
+    end
     nil
   end
 

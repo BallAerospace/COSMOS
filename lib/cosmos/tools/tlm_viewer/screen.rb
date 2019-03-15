@@ -23,7 +23,7 @@ module Cosmos
     # close_all_screens is called
     @@open_screens = []
 
-    attr_accessor :full_name, :width, :height, :window, :replay_flag
+    attr_accessor :full_name, :width, :height, :window, :replay_flag, :original_target_name
 
     include ClassificationBanner
 
@@ -340,6 +340,7 @@ module Cosmos
               # to the stack and that class doesn't have a complete method.
               current_widget.complete() if current_widget.respond_to? :complete
             when 'SETTING'
+              next unless current_widget
               parser.verify_num_parameters(1, nil, "#{keyword} <Setting Name> <Setting Values... (optional)>")
               if parameters.length > 1
                 current_widget.set_setting(parameters[0], parameters[1..-1])
@@ -347,6 +348,7 @@ module Cosmos
                 current_widget.set_setting(parameters[0], [])
               end
             when 'SUBSETTING'
+              next unless current_widget
               parser.verify_num_parameters(2, nil, "#{keyword} <Widget Index (0..?)> <Setting Name> <Setting Values... (optional)>")
               if parameters.length > 2
                 current_widget.set_subsetting(parameters[0], parameters[1], parameters[2..-1])

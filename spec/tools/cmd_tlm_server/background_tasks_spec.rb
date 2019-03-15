@@ -23,7 +23,7 @@ module Cosmos
           file.puts "require 'cosmos/tools/cmd_tlm_server/background_task'"
           file.puts "class MyBgTask#{i} < Cosmos::BackgroundTask"
           if i == 3
-            file.puts "  def call; raise 'Error'; end"
+            file.puts "  def call; puts 'BG#{i} START'; raise 'Error'; end"
           else
             file.puts "  def call; puts 'BG#{i} START'; @go = true; sleep 1 while @go; end"
           end
@@ -163,16 +163,24 @@ module Cosmos
           bt.start_all
           # 2 because the RSpec main thread plus the background task
           expect(running_threads.length).to eql(2)
+          expect(bt.instance_variable_get("@threads").length).to eq 1
+          expect(bt.instance_variable_get("@threads")[0].alive?).to eq true
           sleep 1.1 # Allow the thread to crash
           expect(running_threads.length).to eql(1)
+          expect(bt.instance_variable_get("@threads")[0]).to be_nil
+          expect(stdout.string).to match("unexpectedly died")
+        end
+
+        # Try to restart the task
+        capture_io do |stdout|
+          bt.start_all
+          # 2 because the RSpec main thread plus the background task
+          expect(running_threads.length).to eql(2)
           expect(bt.instance_variable_get("@threads").length).to eq 1
-          expect(bt.instance_variable_get("@threads")[0].alive?).to eq false
-
-          bt.stop_all
-          sleep 0.2
+          expect(bt.instance_variable_get("@threads")[0].alive?).to eq true
+          sleep 1.1 # Allow the thread to crash
           expect(running_threads.length).to eql(1)
-          expect(bt.instance_variable_get("@threads").length).to eq 0
-
+          expect(bt.instance_variable_get("@threads")[0]).to be_nil
           expect(stdout.string).to match("unexpectedly died")
         end
         tf.unlink

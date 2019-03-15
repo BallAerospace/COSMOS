@@ -245,3 +245,26 @@ ADD_MD5_FILE:
       required: true
       description: Filename, either fully qualified, or relative to Cosmos::USERPATH
       values: '.+\.rb'
+CLASSIFICATION:
+  summary: Add a classification banner to the top of all the COSMOS tools
+  since: 4.3.0
+  example: |
+    CLASSIFICATION Unclassified green
+    CLASSIFICATION Secret 255 114 0
+  parameters:
+    - name: Display Text
+      required: true
+      description: The text to display in the classification banner
+      values: '.*'
+    - name: Color Name | Red Hex
+      required: true
+      description: The color name or the red value of a RGB triplet
+      values: '.*'
+    - name: Green Hex
+      required: false
+      description: The green value of a RGB triplet
+      values: '\d+'
+    - name: Blue Hex
+      required: false
+      description: The blue value of a RGB triplet
+      values: '\d+'

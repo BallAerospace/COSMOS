@@ -86,7 +86,7 @@ module Cosmos
 
         if unique_id_mode
           target_packets.each do |packet_name, packet|
-            if packet.identify?(@data)
+            if packet.identify?(@data[@discard_leading_bytes .. -1])
               identified_packet = packet
               break
             end
@@ -95,7 +95,7 @@ module Cosmos
           # Do a hash lookup to quickly identify the packet
           if target_packets.length > 0
             packet = target_packets.first[1]
-            key = packet.read_id_values(@data)
+            key = packet.read_id_values(@data[@discard_leading_bytes .. -1])
             if @telemetry
               hash = System.telemetry.config.tlm_id_value_hash[target_name]
             else
@@ -107,9 +107,9 @@ module Cosmos
         end
         
         if identified_packet
-          if identified_packet.defined_length > @data.length
+          if identified_packet.defined_length + @discard_leading_bytes > @data.length
             # Check if need more data to finish packet
-            return :STOP if @data.length < identified_packet.defined_length
+            return :STOP
           end
           # Set some variables so we can update the packet in
           # read_packet
@@ -118,8 +118,7 @@ module Cosmos
           @packet_name = identified_packet.packet_name
 
           # Get the data from this packet
-          packet_data = @data[0..(identified_packet.defined_length - 1)]
-          @data.replace(@data[identified_packet.defined_length..-1])
+          packet_data = @data.slice!(0, identified_packet.defined_length + @discard_leading_bytes)
           break
         end
       end

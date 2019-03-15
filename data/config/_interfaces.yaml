@@ -95,6 +95,10 @@ udp_interface.rb:
       description: Number of seconds to wait before aborting the read. Default is
         'nil' (block on read).
       values: .+
+    - name: Bind Address
+      required: false
+      description: Address to bind UDP ports to
+      values: .+
 serial_interface.rb:
   description: Connects to a target over a serial port. COSMOS provides drivers
     for both Windows and POSIX drivers for UNIX based systems.

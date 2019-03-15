@@ -249,7 +249,7 @@ module Cosmos
 
       graph = Qt::Action.new("Graph #{@target_name} #{@packet_name} #{@item_name}", menu)
       graph.connect(SIGNAL('triggered()')) do
-        TlmGraphDialog.new(self, target_name, packet_name, item_name)
+        TlmGraphDialog.new(self, target_name, packet_name, item_name, @screen.replay_flag.visible)
       end
       menu.addAction(graph)
 
@@ -257,6 +257,20 @@ module Cosmos
       menu.exec(mapToGlobal(point))
       point.dispose
       menu.dispose
+    end
+
+    # Requires the @screen to be set so must not be called in initialize()
+    def get_image(image_name)
+      return nil unless @screen
+      target_screen_dir = File.join(::Cosmos::USERPATH, 'config', 'targets', @screen.original_target_name.upcase, 'screens')
+
+      if File.exist?(File.join(target_screen_dir, image_name))
+        return Qt::Image.new(File.join(target_screen_dir, image_name))
+      elsif Cosmos.data_path(image_name)
+        return Qt::Image.new(Cosmos.data_path(image_name))
+      else
+        raise "Can't find the file #{image_name} in #{target_screen_dir} or the cosmos data directory."
+      end
     end
   end
 end

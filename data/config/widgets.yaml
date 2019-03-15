@@ -59,6 +59,14 @@ MATRIXBYCOLUMNS:
       required: true
       description: The number of columns to create
       values: .*
+    - name: Horizontal spacing
+      required: false
+      description: Horizontal spacing between matix items in pixels (default = 0)
+      values: .*
+    - name: Vertical spacing
+      required: false
+      description: Vertical spacing between matrix items in pixels (default = 0)
+      values: .*
 SCROLLWINDOW:
   summary: Places the widgets inside of it into a scrollable
     area. The SCROLLWINDOW widget sizes itself to fit the screen in which it is contained.
@@ -340,7 +348,7 @@ LABELTRENDLIMITSBAR:
       description: Height of the limits bar (default = 25)
       values: .*
 LABELVALUE:
-  summary: Displays a LABEL widget to shows the telemetry
+  summary: Displays a LABEL widget to show the telemetry
     items name followed by a VALUE widget to display the items value.
   parameters:
     - name: Target name
@@ -372,7 +380,7 @@ LABELVALUE:
         pushes them to the respective side with the space going on the opposite.
       values: ['SPLIT','CENTER','LEFT','RIGHT']
 LABELVALUEDESC:
-  summary: Displays a LABEL widget to shows the telemetry
+  summary: Displays a LABEL widget to show the telemetry
     items description followed by a VALUE widget to display the items value.
   parameters:
     - name: Target name
@@ -400,10 +408,37 @@ LABELVALUEDESC:
       required: false
       description: The number of characters wide to make the value box (default = 12)
       values: .*
+LABELFORMATVALUE:
+  summary: Displays a LABEL widget to show the telemetry
+    items name followed by a formatted VALUE widget to display the items value.
+  parameters:
+    - name: Target name
+      required: true
+      description: The target name
+      values: <%= System.targets.keys %>
+    - name: Packet name
+      required: true
+      description: The packet name
+      values: .+
+    - name: Item name
+      required: true
+      description: The item name
+      values: .+
+    - name: Format String
+      required: true
+      description: Printf style format string, for example %0.6f
+      values: .*
+    - name: Value type
+      required: false
+      description: The type of the value to display. Default is CONVERTED.
+      values: <%= %w(RAW CONVERTED FORMATTED WITH_UNITS) %>
+    - name: Number of characters
+      required: false
+      description: The number of characters wide to make the value box (default = 12)
+      values: .*
 LABELVALUELIMITSBAR:
-  summary: Displays a LABEL widget to shows the
-    telemetry item's name, followed by a VALUE widget to display the item's value,
-    followed by a LIMITSBAR widget.
+  summary: Displays a LABEL widget to show the telemetry item's name,
+    followed by a VALUE widget to display the item's value, followed by a LIMITSBAR widget.
   parameters:
     - name: Target name
       required: true
@@ -451,9 +486,8 @@ LABELVALUELIMITSCOLUMN:
       description: The number of characters wide to make the value box (default = 12)
       values: .*
 LABELVALUERANGEBAR:
-  summary: Displays a LABEL widget to shows the
-    telemetry item's name, followed by a VALUE widget to display the item's value,
-    followed by a RANGEBAR widget.
+  summary: Displays a LABEL widget to show the telemetry item's name,
+    followed by a VALUE widget to display the item's value, followed by a RANGEBAR widget.
   parameters:
     - name: Target name
       required: true
@@ -494,9 +528,8 @@ LABELVALUERANGEBAR:
       description: Height of the range bar (default = 25)
       values: .*
 LABELVALUERANGECOLUMN:
-  summary: Displays a LABEL widget to shows the
-    telemetry item's name, followed by a VALUE widget to display the item's value,
-    followed by a RANGECOLUMN widget.
+  summary: Displays a LABEL widget to show the telemetry item's name,
+    followed by a VALUE widget to display the item's value, followed by a RANGECOLUMN widget.
   parameters:
     - name: Target name
       required: true
@@ -1066,6 +1099,25 @@ BUTTON:
       required: true
       description: Ruby code to execute when the button is pressed
       values: .+
+BACKGROUNDBUTTON:
+  summary: Displays a rectangular clickable button
+  description: Upon clicking, the button executes the Ruby code assigned in a new thread
+    so the code executes in the background (not in the GUI thread). Buttons
+    can be used to send commands and perform other tasks. If you want your button
+    to use values from other widgets, define them as named widgets and read their
+    values using the get_named_widget("WIDGET_NAME").text method.
+  warning: If your button logic gets complex it's recommended to require a separate
+    script and pass the screen to the script using self,
+    e.g. require utility.rb; utility_method(self).
+  parameters:
+    - name: Button Text
+      required: true
+      description: Text displayed on the button
+      values: .+
+    - name: Button Code
+      required: true
+      description: Ruby code to execute when the button is pressed
+      values: .+
 CHECKBUTTON:
   summary: Displays a check box
   description: Note this is of limited use by itself and is primarily used in
@@ -1103,6 +1155,19 @@ TEXTFIELD:
     - name: Text
       required: false
       description: Default text to put in the text field (default is blank)
+      values: .*
+SCREENSHOTBUTTON:
+  summary: Creates a button which takes a screenshot of the screen it is on
+  description: The screenshot automatically gets placed in the outputs/logs directory
+    with the current date / time and the name of the window.
+  parameters:
+    - name: Button Text
+      required: false
+      description: The text on the button, default is 'Screenshot'.
+      values: .*
+    - name: Screenshot Directory
+      required: false
+      description: The directory to put the screenshot. Default is output/logs.
       values: .*
 CANVAS:
   summary: Layout widget for the other canvas widgets
@@ -1337,3 +1402,34 @@ CANVASDOT:
       required: false
       description: Width of the dot in pixels (default = 3)
       values: \d+
+CANVASELLIPSE:
+  summary: The CANVASELLIPSE widget draws an ellipse onto the canvas
+  parameters:
+    - name: X Center
+      required: true
+      description: X position of the center of the ellipse
+      values: \d+
+    - name: Y Center
+      required: true
+      description: Y position of the center of the ellipse
+      values: \d+
+    - name: Width
+      required: true
+      description: Width of the ellipse in pixels
+      values: \d+
+    - name: Height
+      required: true
+      description: Height of the ellipse in pixels
+      values: \d+
+    - name: Color
+      required: false
+      description: Color of the ellipse. Default is black.
+      values: .+
+    - name: Line Width
+      required: false
+      description: Width of the line. Default is 1
+      values: \d+
+    - name: Fill
+      required: false
+      description: Whether to fill the ellipse. Default is false.
+      values: .+

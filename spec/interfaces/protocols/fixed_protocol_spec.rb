@@ -120,20 +120,19 @@ module Cosmos
 
       it "reads command data from the stream" do
         target = System.targets['SYSTEM']
-        $index = 0
+        packet = System.commands.packet("SYSTEM", "STARTLOGGING")
+        packet.restore_defaults
+        $buffer = packet.buffer.clone
         class FixedStream2 < Stream
           def connect; end
           def connected?; true; end
           def read
-            case $index
-            when 0
-              "\x1A\xCF\xFC\x1D\x00\x00\x00\x02"
-            else
-              "\x00\x00\x00\x00\x00\x00\x00\x00"
-            end
+            # Prepend a matching sync pattern to test the discard
+            "\x1A\xCF\xFC\x1D\x55\x55" << $buffer
           end
         end
-        @interface.add_protocol(FixedProtocol, [8, 0, '0x1ACFFC1D', false], :READ_WRITE)
+        # Require 8 bytes, discard 6 leading bytes, use 0x1ACFFC1D sync, telemetry = false (command)
+        @interface.add_protocol(FixedProtocol, [8, 6, '0x1ACFFC1D', false], :READ_WRITE)
         @interface.instance_variable_set(:@stream, FixedStream2.new)
         @interface.target_names = ['SYSTEM']
         target.cmd_unique_id_mode = false
@@ -141,11 +140,13 @@ module Cosmos
         expect(packet.received_time.to_f).to be_within(0.01).of(Time.now.to_f)
         expect(packet.target_name).to eql 'SYSTEM'
         expect(packet.packet_name).to eql 'STARTLOGGING'
+        expect(packet.buffer).to eql $buffer
         target.cmd_unique_id_mode = true
         packet = @interface.read
         expect(packet.received_time.to_f).to be_within(0.01).of(Time.now.to_f)
         expect(packet.target_name).to eql 'SYSTEM'
         expect(packet.packet_name).to eql 'STARTLOGGING'        
+        expect(packet.buffer).to eql $buffer
         target.cmd_unique_id_mode = false
       end
     end

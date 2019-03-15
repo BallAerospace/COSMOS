@@ -8,7 +8,7 @@
 # as published by the Free Software Foundation; version 3 with
 # attribution addendums as found in the LICENSE.txt
 
-# This file contains the implementation of the CanvasWidget class.   This widget
+# This file contains the implementation of the CanvasWidget class. This widget
 # represents a canvas where draw-able widgets (such as images and lines) can be
 # added.
 
@@ -29,8 +29,8 @@ module Cosmos
       parent_layout.addWidget(self) if parent_layout
     end
 
-    # add_repaint - Child widgets to the canvas must call add_repaint to register
-    # itself with the canvas so that they are painted when the canvas is.  Note,
+    # Child widgets to the canvas must call add_repaint to register
+    # itself with the canvas so that they are painted when the canvas is. Note,
     # the order in which child widgets are painted is the order in which they
     # are created.
     def add_repaint(obj)
