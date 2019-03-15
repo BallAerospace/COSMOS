@@ -413,12 +413,7 @@ module Cosmos
               end
             end
           end
-
           auto_detect_gem_based_targets()
-
-          # Make sure SYSTEM target is always present and added last
-          target = Target.new('SYSTEM')
-          @targets[target.name] = target
 
         when 'DECLARE_TARGET'
           usage = "#{keyword} <TARGET NAME> <SUBSTITUTE TARGET NAME (Optional)> <TARGET FILENAME (Optional - defaults to target.txt)>"
@@ -452,6 +447,12 @@ module Cosmos
 
         end # case keyword
       end # parser.parse_file
+
+      # Make sure SYSTEM target is always present and added last
+      unless @targets.key?('SYSTEM')
+        target = Target.new('SYSTEM')
+        @targets[target.name] = target
+      end
     end
 
     # Load the specified configuration by iterating through the SAVED_CONFIG
