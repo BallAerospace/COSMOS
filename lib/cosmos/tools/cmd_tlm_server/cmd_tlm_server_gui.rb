@@ -75,7 +75,6 @@ else
 end
 
 module Cosmos
-
   # Implements the GUI functions of the Command and Telemetry Server. All the
   # QT calls are implemented here. The non-GUI functionality is contained in
   # the CmdTlmServer class.
@@ -271,6 +270,7 @@ module Cosmos
     end
 
     def config_change_callback
+      CmdTlmServer.instance.replay_map_targets_to_interfaces
       start(nil)
     end
 
@@ -647,6 +647,5 @@ module Cosmos
         super(option_parser, options)
       end
     end
-
-  end # class CmdTlmServerGui
-end # module Cosmos
+  end
+end
