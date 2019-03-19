@@ -54,17 +54,6 @@ module Cosmos
         tf.unlink
       end
 
-      it "complains if FORMAT_STRING defined" do
-        tf = Tempfile.new('unittest')
-        tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Packet"'
-        tf.puts '  ITEM myitem 0 8 UINT "Test Item"'
-        tf.puts '    FORMAT_STRING "0x%x"'
-        tf.puts '    STATE ONE 1'
-        tf.close
-        expect { @pc.process_file(tf.path, "TGT1") }.to raise_error(ConfigParser::Error, /Items with FORMAT_STRING can't define STATE/)
-        tf.unlink
-      end
-
       it "complains if UNITS defined" do
         tf = Tempfile.new('unittest')
         tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Packet"'
@@ -132,6 +121,39 @@ module Cosmos
           pkt = tlm.packet("TGT1", "PKT1")
           pkt.write("ITEM1", [0,1,2,1,0])
           expect(pkt.read("ITEM1")).to eql ["FALSE","TRUE","ERROR","TRUE","FALSE"]
+          tf.unlink
+        end
+
+        it "uses state or FORMAT_STRING if no state" do
+          tf = Tempfile.new('unittest')
+          tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Packet"'
+          tf.puts '  APPEND_ITEM item1 8 UINT "Test Item"'
+          tf.puts '    FORMAT_STRING "0x%x"'
+          tf.puts '    STATE ONE 1'
+          tf.close
+          @pc.process_file(tf.path, "TGT1")
+          tlm = Telemetry.new(@pc)
+          pkt = tlm.packet("TGT1", "PKT1")
+          pkt.write("ITEM1", 1)
+          expect(pkt.read("ITEM1", :FORMATTED)).to eql "ONE"
+          pkt.write("ITEM1", 2)
+          expect(pkt.read("ITEM1", :FORMATTED)).to eql "0x2"
+          tf.unlink
+
+          # Ensure the order of STATE vs FORMAT_STRING doesn't matter
+          tf = Tempfile.new('unittest')
+          tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Packet"'
+          tf.puts '  APPEND_ITEM item1 8 UINT "Test Item"'
+          tf.puts '    STATE ONE 1'
+          tf.puts '    FORMAT_STRING "0x%x"'
+          tf.close
+          @pc.process_file(tf.path, "TGT1")
+          tlm = Telemetry.new(@pc)
+          pkt = tlm.packet("TGT1", "PKT1")
+          pkt.write("ITEM1", 1)
+          expect(pkt.read("ITEM1", :FORMATTED)).to eql "ONE"
+          pkt.write("ITEM1", 2)
+          expect(pkt.read("ITEM1", :FORMATTED)).to eql "0x2"
           tf.unlink
         end
 
