@@ -36,6 +36,20 @@ module Cosmos
       @@instances << self
     end
 
+    def update_limits_checking
+      return unless @limits_checking_enabled_label
+      begin
+        limits_enabled = limits_enabled?(@target_name, @packet_name, @item_name)
+      rescue RuntimeError
+        # Error most likely due to LATEST packet - Ignore
+        limits_enabled = nil
+      end
+      # Check for nil because true and false are both valid values
+      unless limits_enabled.nil?
+        @limits_checking_enabled_label.setText("#{show_nil(limits_enabled)}")
+      end
+    end
+
     protected
 
     # Creates and populates the layout for the dialog
@@ -75,7 +89,8 @@ module Cosmos
           details_layout.addRow("Limits:", Qt::Label.new("None"))
         end
         if limits || item.state_colors
-          details_layout.addRow("Limits Checking Enabled:", Qt::Label.new("#{show_nil(item.limits.enabled)}"))
+          @limits_checking_enabled_label = Qt::Label.new("#{show_nil(item.limits.enabled)}")
+          details_layout.addRow("Limits Checking Enabled:", @limits_checking_enabled_label)
         end
         if limits
           details_layout.addRow("Limits Persistence Setting:", Qt::Label.new("#{show_nil(item.limits.persistence_setting)}"))
