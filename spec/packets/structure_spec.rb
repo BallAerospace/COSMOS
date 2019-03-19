@@ -348,6 +348,20 @@ module Cosmos
         expect(s.read("test1", :RAW, buffer)).to eql 1
       end
 
+      it "reads until null byte for STRING items" do
+        s = Structure.new
+        s.define_item("test1", 0, 80, :STRING)
+        buffer = "\x4E\x4F\x4F\x50\x00\x4E\x4F\x4F\x50\x0A" # NOOP<NULL>NOOP\n
+        expect(s.read("test1", :CONVERTED, buffer)).to eql "NOOP"
+      end
+
+      it "reads the entire buffer for BLOCK items" do
+        s = Structure.new
+        s.define_item("test1", 0, 80, :BLOCK)
+        buffer = "\x4E\x4F\x4F\x50\x00\x4E\x4F\x4F\x50\x0A" # NOOP<NULL>NOOP\n
+        expect(s.read("test1", :CONVERTED, buffer)).to eql "NOOP\x00NOOP\n"
+      end
+
       it "reads array data from the buffer" do
         s = Structure.new
         s.define_item("test1", 0, 8, :UINT, 16)
@@ -441,6 +455,33 @@ module Cosmos
         expect(s.formatted(:CONVERTED, 4)).to include("    TEST2: 3456")
         expect(s.formatted(:CONVERTED, 4)).to include("    TEST3")
         expect(s.formatted(:CONVERTED, 4)).to include("    00000000: 07 08 09 0A")
+      end
+
+      it "processes uses a different buffer" do
+        s = Structure.new(:BIG_ENDIAN)
+        s.append_item("test1", 8, :UINT, 16)
+        s.write("test1", [1,2])
+        s.append_item("test2", 16, :UINT)
+        s.write("test2", 3456)
+        s.append_item("test3", 32, :BLOCK)
+        s.write("test3", "\x07\x08\x09\x0A")
+        buffer = "\x0A\x0B\x0C\x0D\xDE\xAD\xBE\xEF"
+        expect(s.formatted(:CONVERTED, 0, buffer)).to include("TEST1: [10, 11]")
+        expect(s.formatted(:CONVERTED, 0, buffer)).to include("TEST2: #{0x0C0D}")
+        expect(s.formatted(:CONVERTED, 0, buffer)).to include("TEST3")
+        expect(s.formatted(:CONVERTED, 0, buffer)).to include("00000000: DE AD BE EF")
+      end
+
+      it "ignores items" do
+        s = Structure.new(:BIG_ENDIAN)
+        s.append_item("test1", 8, :UINT, 16)
+        s.write("test1", [1,2])
+        s.append_item("test2", 16, :UINT)
+        s.write("test2", 3456)
+        s.append_item("test3", 32, :BLOCK)
+        s.write("test3", "\x07\x08\x09\x0A")
+        expect(s.formatted(:CONVERTED, 0, s.buffer, %w(TEST1 TEST3))).to eq("TEST2: 3456\n")
+        expect(s.formatted(:CONVERTED, 0, s.buffer, %w(TEST1 TEST2 TEST3))).to eq("")
       end
     end
 

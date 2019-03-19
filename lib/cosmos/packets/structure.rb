@@ -370,12 +370,14 @@ module Cosmos
     #   parameter to check whether to perform conversions on the item.
     # @param indent [Integer] Amount to indent before printing the item name
     # @param buffer [String] The binary buffer to write the value to
+    # @param ignored [Array<String>] List of items to ignore when building the string
     # @return [String] String formatted with all the item names and values
-    def formatted(value_type = :RAW, indent = 0, buffer = @buffer)
+    def formatted(value_type = :RAW, indent = 0, buffer = @buffer, ignored = nil)
       indent_string = ' ' * indent
       string = ''
       synchronize_allow_reads(true) do
         @sorted_items.each do |item|
+          next if ignored && ignored.include?(item.name)
           if (item.data_type != :BLOCK) ||
              (item.data_type == :BLOCK and value_type != :RAW and
               item.respond_to? :read_conversion and item.read_conversion)

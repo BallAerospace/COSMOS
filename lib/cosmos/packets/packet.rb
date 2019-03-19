@@ -698,9 +698,10 @@ module Cosmos
     # @param value_type (see #read_item)
     # @param indent (see Structure#formatted)
     # @param buffer (see Structure#formatted)
+    # @param ignored (see Structure#ignored)
     # @return (see Structure#formatted)
-    def formatted(value_type = :CONVERTED, indent = 0, buffer = @buffer)
-      return super(value_type, indent, buffer)
+    def formatted(value_type = :CONVERTED, indent = 0, buffer = @buffer, ignored = nil)
+      return super(value_type, indent, buffer, ignored)
     end
 
     # Restore all items in the packet to their default value
