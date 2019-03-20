@@ -11,9 +11,10 @@
 require 'cosmos/tools/tlm_viewer/widgets/limits_widget'
 
 module Cosmos
-
+  # Draw a column which consists of the red low, yellow low, green with potentially
+  # a blue operational limits inside it, yellow high, and red high. Then draw a
+  # horizontal black bar with a little black triangle at the current value location.
   class LimitscolumnWidget < LimitsWidget
-
     def initialize(parent_layout, target_name, packet_name, item_name, value_type = :CONVERTED, width = 30, height = 100)
       super(parent_layout, target_name, packet_name, item_name, value_type, width, height)
     end
@@ -26,7 +27,7 @@ module Cosmos
       limits = get_limits()
       return unless limits
 
-      widths = calculate_widths(limits, @bar_height)
+      limits, widths = calculate_widths(limits, @bar_height, @min_value, @max_value)
 
       # Set starting points
       x_pos = @x_pad
@@ -77,9 +78,23 @@ module Cosmos
       # Draw line at current value
       red_low = limits[0]
       red_high = limits[3]
-      @bar_scale = (red_high - red_low) / 0.8
-      @low_value = red_low - 0.1 * @bar_scale
-      @high_value = red_high + 0.1 * @bar_scale
+      # Start with a diviser of 0.8 assuming we'll draw red limits
+      diviser = 0.8
+      # If there is a min or max value equal to the min or or max red limit
+      # it means we're not drawing red bar and the diviser increases
+      diviser += 0.1 if @min_value && limits[0] == @min_value
+      diviser += 0.1 if @max_value && limits[3] == @max_value
+      @bar_scale = (red_high - red_low) / diviser
+      if @min_value && @min_value >= red_low
+        @low_value = @min_value
+      else
+        @low_value = red_low - 0.1 * @bar_scale
+      end
+      if @max_value && @max_value <= red_high
+        @high_value = @max_value
+      else
+        @high_value = red_high + 0.1 * @bar_scale
+      end
 
       if @value.is_a?(Float) && (@value.infinite? || @value.nan?)
         if @value.infinite? == 1
@@ -112,5 +127,4 @@ module Cosmos
       additional_drawing(dc)
     end
   end
-
-end # module Cosmos
+end
