@@ -4,7 +4,7 @@ title: Script Runner
 permalink: /docs/script_runner/
 toc: true
 ---
-This document describes Script Runner configuration file parameters.
+This document describes Script Runner configuration file and command line parameters.
 
 {% cosmos_meta script_runner.yaml %}
 
@@ -17,3 +17,5 @@ LINE_DELAY 0.1
 MONITOR_LIMITS
 PAUSE_ON_RED
 {% endhighlight %}
+
+{% cosmos_cmd_line ScriptRunner %}

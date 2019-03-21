@@ -58,3 +58,5 @@ TOOL "Command Extractor" "RUBYW tools/CmdExtractor" "cmd_extractor.png"
 TOOL "Handbook Creator" "RUBYW -Ku tools/HandbookCreator" "handbook_creator.png"
 TOOL "Table Manager" "RUBYW tools/TableManager" "table_manager.png"
 {% endhighlight %}
+
+{% cosmos_cmd_line Launcher %}

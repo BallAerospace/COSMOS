@@ -4,6 +4,7 @@ title: Data Viewer
 permalink: /docs/data_viewer/
 toc: true
 ---
-This document describes Data Viewer configuration file parameters.
+This document describes Data Viewer configuration file and command line parameters.
 
 {% cosmos_meta data_viewer.yaml %}
+{% cosmos_cmd_line DataViewer %}
