@@ -26,6 +26,7 @@ module Cosmos
     slots 'undo_available(bool)'
 
     UNTITLED_TAB_TEXT = '  Untitled  '
+    MAX_RECENT_FILES = 20
 
     def initialize(options)
       # All code before super is executed twice in RubyQt Based classes
@@ -101,7 +102,7 @@ module Cosmos
       @file_close.statusTip = 'Close the script'
       @file_close.connect(SIGNAL('triggered()')) { file_close() }
 
-      @file_reload = Qt::Action.new('&Reload', self)
+      @file_reload = Qt::Action.new('Re&load', self)
       @file_reload_keyseq = Qt::KeySequence.new('Ctrl+R')
       @file_reload.shortcut  = @file_reload_keyseq
       @file_reload.statusTip = 'Reload a script'
@@ -291,6 +292,9 @@ module Cosmos
       @file_open.setIcon(Cosmos.get_icon('open.png'))
       target_dirs_action(@file_open, System.paths['PROCEDURES'], 'procedures', method(:file_open))
 
+      @file_open_recent = @file_menu.addMenu('Open &Recent')
+      @file_open_recent.setIcon(Cosmos.get_icon('open.png'))
+
       @file_menu.addAction(@file_close)
       @file_menu.addAction(@file_reload)
       @file_menu.addSeparator()
@@ -423,7 +427,21 @@ module Cosmos
       end
       filenames.compact!
       return if filenames.nil? || filenames.empty?
-      filenames.each {|filename| open_filename(filename) }
+      filenames.each do |filename|
+        open_filename(filename)
+
+        found = false
+        @file_open_recent.actions.each do |action|
+          found = true if action.text == filename
+        end
+        next if found
+        action = Qt::Action.new(filename, self)
+        action.connect(SIGNAL('triggered()')) { open_filename(filename) }
+        @file_open_recent.insertAction(@file_open_recent.actions[0], action)
+        if @file_open_recent.actions.length > MAX_RECENT_FILES
+          @file_open_recent.removeAction(@file_open_recent.actions[-1])
+        end
+      end
     end
 
     def open_filename(filename)

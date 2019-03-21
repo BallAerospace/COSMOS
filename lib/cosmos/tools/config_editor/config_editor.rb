@@ -33,6 +33,7 @@ module Cosmos
 
     UNTITLED = 'Untitled'
     UNTITLED_TAB_TEXT = "  #{UNTITLED}  "
+    MAX_RECENT_FILES = 20
     # Mapping of the human readable configuration name to an array containing the
     # yaml file name and typical location of the configuration file
     CONFIGURATION_FILES = {
@@ -108,7 +109,7 @@ module Cosmos
       @file_close.statusTip = 'Close the file'
       @file_close.connect(SIGNAL('triggered()')) { file_close() }
 
-      @file_reload = Qt::Action.new('&Reload', self)
+      @file_reload = Qt::Action.new('Re&load', self)
       @file_reload_keyseq = Qt::KeySequence.new('Ctrl+R')
       @file_reload.shortcut  = @file_reload_keyseq
       @file_reload.statusTip = 'Reload a file'
@@ -240,6 +241,9 @@ module Cosmos
       @file_open = @file_menu.addMenu('&Open')
       @file_open.setIcon(Cosmos.get_icon('open.png'))
       target_dirs_action(@file_open, File.join(Cosmos::USERPATH,'config'), '', method(:file_open))
+
+      @file_open_recent = @file_menu.addMenu('Open &Recent')
+      @file_open_recent.setIcon(Cosmos.get_icon('open.png'))
 
       @file_menu.addAction(@file_close)
       @file_menu.addAction(@file_reload)
@@ -418,7 +422,21 @@ module Cosmos
       filenames = filenames.compact.map {|filename| filename.gsub("\\","/") }
       return if filenames.nil? || filenames.empty?
       Qt::Application.setOverrideCursor(Qt::Cursor.new(Qt::WaitCursor))
-      filenames.each {|filename| open_filename(filename) }
+      filenames.each do |filename|
+        open_filename(filename)
+
+        found = false
+        @file_open_recent.actions.each do |action|
+          found = true if action.text == filename
+        end
+        next if found
+        action = Qt::Action.new(filename, self)
+        action.connect(SIGNAL('triggered()')) { open_filename(filename) }
+        @file_open_recent.insertAction(@file_open_recent.actions[0], action)
+        if @file_open_recent.actions.length > MAX_RECENT_FILES
+          @file_open_recent.removeAction(@file_open_recent.actions[-1])
+        end
+      end
       update_tree()
       Qt::Application.restoreOverrideCursor()
     end
