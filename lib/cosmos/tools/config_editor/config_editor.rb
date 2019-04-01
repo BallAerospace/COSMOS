@@ -103,6 +103,10 @@ module Cosmos
       @file_new.statusTip = 'Start a new file'
       @file_new.connect(SIGNAL('triggered()')) { file_new() }
 
+      @clear_file_open_recent = Qt::Action.new('&Clear Recent', self)
+      @clear_file_open_recent.statusTip = 'Clear the recently opened file list'
+      @clear_file_open_recent.connect(SIGNAL('triggered()')) { clear_file_open_recent() }
+
       @file_close = Qt::Action.new('&Close', self)
       @file_close_keyseq = Qt::KeySequence.new('Ctrl+W')
       @file_close.shortcut  = @file_close_keyseq
@@ -244,6 +248,17 @@ module Cosmos
 
       @file_open_recent = @file_menu.addMenu('Open &Recent')
       @file_open_recent.setIcon(Cosmos.get_icon('open.png'))
+      settings = Qt::Settings.new('Ball Aerospace', self.class.to_s)
+      if settings.contains('recent_files')
+        recent = settings.value('recent_files').toStringList()
+        recent.each do |filename|
+          action = Qt::Action.new(filename, self)
+          action.connect(SIGNAL('triggered()')) { open_filename(filename) }
+          @file_open_recent.addAction(action)
+        end
+      end
+      @file_open_recent.addSeparator()
+      @file_open_recent.addAction(@clear_file_open_recent)
 
       @file_menu.addAction(@file_close)
       @file_menu.addAction(@file_reload)
@@ -433,12 +448,20 @@ module Cosmos
         action = Qt::Action.new(filename, self)
         action.connect(SIGNAL('triggered()')) { open_filename(filename) }
         @file_open_recent.insertAction(@file_open_recent.actions[0], action)
-        if @file_open_recent.actions.length > MAX_RECENT_FILES
-          @file_open_recent.removeAction(@file_open_recent.actions[-1])
+        # Add 2 for the separator and Clear Recent action
+        if @file_open_recent.actions.length > (MAX_RECENT_FILES + 2)
+          @file_open_recent.removeAction(@file_open_recent.actions[-3]) # ignore last 2
         end
       end
       update_tree()
       Qt::Application.restoreOverrideCursor()
+    end
+
+    def clear_file_open_recent
+      # Subtract 2 for the separator and Clear Recent action
+      (@file_open_recent.actions.length - 2).times do
+        @file_open_recent.removeAction(@file_open_recent.actions[0])
+      end
     end
 
     def open_filename(filename)
@@ -644,6 +667,10 @@ module Cosmos
 
     def closeEvent(event)
       if prompt_for_save_if_needed_on_close()
+        settings = Qt::Settings.new('Ball Aerospace', self.class.to_s)
+        recent_files = @file_open_recent.actions.collect {|action| action.text }
+        # Ignore the last 2 because of the separator and Clear Recent action
+        settings.setValue('recent_files', Qt::Variant.new(recent_files[0..-3]))
         super(event)
       else
         event.ignore()
