@@ -4,7 +4,7 @@ title: Telemetry Extractor
 permalink: /docs/tlm_extractor/
 toc: true
 ---
-This document describes Telemetry Extractor configuration file parameters.
+This document describes Telemetry Extractor configuration file and command line parameters.
 
 {% cosmos_meta tlm_extractor.yaml %}
 
@@ -28,3 +28,5 @@ ITEM INST HEALTH_STATUS TEMP3 WITH_UNITS
 ITEM INST HEALTH_STATUS TEMP4
 TEXT "Calc" "=D%*G%" # Calculate TEMP1 (RAW) times TEMP4
 {% endhighlight %}
+
+{% cosmos_cmd_line TlmExtractor %}

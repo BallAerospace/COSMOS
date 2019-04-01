@@ -18,15 +18,22 @@
 
 - title: Tool Configuration
   docs:
+  - cmd_extractor
+  - cmd_sender
   - cmd_sequence
+  - cmd_tlm_server
+  - config_editor
   - data_viewer
   - handbook_creator
   - launcher
   - limits_monitor
+  - packet_viewer
+  - replay
   - script_runner
   - table_manager
   - test_runner
   - tlm_extractor
+  - tlm_grapher
   - tlm_viewer
   - screens
 

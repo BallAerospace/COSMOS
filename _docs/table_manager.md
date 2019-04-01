@@ -4,7 +4,7 @@ title: Table Manager
 permalink: /docs/table_manager/
 toc: true
 ---
-This document describes Table Manager configuration file parameters.
+This document describes Table Manager configuration file and command line parameters.
 
 {% cosmos_meta table_manager.yaml %}
 
@@ -38,3 +38,5 @@ TABLE "Trailer" "Data appended to a table file" ONE_DIMENSIONAL BIG_ENDIAN 2
   PARAMETER "Version ID" "User defined version id" UINT 16 DEC MIN_UINT16 MAX_UINT16 1
   PARAMETER "CRC32" "Auto-generated CRC" UINT 32 HEX-U MIN MAX 0
 {% endhighlight %}
+
+{% cosmos_cmd_line TableManager %}

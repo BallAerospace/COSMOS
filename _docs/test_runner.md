@@ -4,7 +4,7 @@ title: Test Runner
 permalink: /docs/test_runner/
 toc: true
 ---
-This document describes Test Runner configuration file parameters.
+This document describes Test Runner configuration file and command line parameters.
 
 {% cosmos_meta test_runner.yaml %}
 
@@ -31,3 +31,5 @@ LINE_DELAY 0
 MONITOR_LIMITS
 PAUSE_ON_RED
 {% endhighlight %}
+
+{% cosmos_cmd_line TestRunner %}
