@@ -2,7 +2,7 @@
 <html lang="en-US">
 <head>
   <meta charset="UTF-8">
-  <title>Telemetry Extractor</title>
+  <title>Command and Telemetry Server</title>
   <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="generator" content="Jekyll v3.7.4">
@@ -5137,286 +5137,28 @@
       <div class="unit four-fifths">
         <article>
           <div class="improve right">
-            <a href="https://github.com/BallAerospace/COSMOS/edit/website/_docs/tlm_extractor.md" target="_blank"><i class="fa fa-pencil"></i> &nbsp;Improve this page</a>
+            <a href="https://github.com/BallAerospace/COSMOS/edit/website/_docs/cmd_tlm_server.md" target="_blank"><i class="fa fa-pencil"></i> &nbsp;Improve this page</a>
           </div>
           
           <div class="toc">
             <ul class="section-nav">
-<li class="toc-entry toc-h2"><a href="#delimiter">DELIMITER</a></li>
-<li class="toc-entry toc-h2"><a href="#fill_down">FILL_DOWN</a></li>
-<li class="toc-entry toc-h2"><a href="#downsample_seconds">DOWNSAMPLE_SECONDS</a></li>
-<li class="toc-entry toc-h2"><a href="#matlab_header">MATLAB_HEADER</a></li>
-<li class="toc-entry toc-h2"><a href="#unique_only">UNIQUE_ONLY</a></li>
-<li class="toc-entry toc-h2"><a href="#unique_ignore">UNIQUE_IGNORE</a></li>
-<li class="toc-entry toc-h2"><a href="#share_columns">SHARE_COLUMNS</a></li>
-<li class="toc-entry toc-h2"><a href="#share_column">SHARE_COLUMN</a></li>
-<li class="toc-entry toc-h2"><a href="#full_column_names">FULL_COLUMN_NAMES</a></li>
-<li class="toc-entry toc-h2"><a href="#dont_output_filenames">DONT_OUTPUT_FILENAMES</a></li>
-<li class="toc-entry toc-h2"><a href="#text">TEXT</a></li>
-<li class="toc-entry toc-h2"><a href="#item">ITEM</a></li>
-<li class="toc-entry toc-h2"><a href="#example-file">Example File</a></li>
 <li class="toc-entry toc-h2"><a href="#command-line-parameters">Command Line Parameters</a></li>
 </ul>
           </div>
           
-          <h1>Telemetry Extractor</h1>
-          <p>This document describes Telemetry Extractor configuration file and command line parameters.</p>
-
-<h2 id="delimiter">
-<a class="anchor" href="#delimiter" aria-hidden="true"><span class="octicon octicon-link"></span></a>DELIMITER</h2>
-<p><strong>Specify an alternative column delimiter over the default tab character</strong></p>
-
-<table>
-  <thead>
-    <tr>
-      <th>Parameter</th>
-      <th>Description</th>
-      <th>Required</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>Delimiter</td>
-      <td>Character or string to use as a delimiter. For example ‘,’.</td>
-      <td>True</td>
-    </tr>
-  </tbody>
-</table>
-
-<h2 id="fill_down">
-<a class="anchor" href="#fill_down" aria-hidden="true"><span class="octicon octicon-link"></span></a>FILL_DOWN</h2>
-<p><strong>Insert a value into every row of the output</strong></p>
-
-<p>Telemetry Grapher produces an output file with columns for each item name. If you are graphing items from different packets, only the columns with items from that packet are populated with values. Fill down causes a particular item column to be populated with the previous value so every column is ‘filled’. This makes it easier to graph multiple values across packets in Excel.</p>
-
-<h2 id="downsample_seconds">
-<a class="anchor" href="#downsample_seconds" aria-hidden="true"><span class="octicon octicon-link"></span></a>DOWNSAMPLE_SECONDS</h2>
-<p><strong>Downsample data to only output a value every X seconds of time</strong></p>
-
-<table>
-  <thead>
-    <tr>
-      <th>Parameter</th>
-      <th>Description</th>
-      <th>Required</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>Seconds</td>
-      <td> </td>
-      <td>True</td>
-    </tr>
-  </tbody>
-</table>
-
-<h2 id="matlab_header">
-<a class="anchor" href="#matlab_header" aria-hidden="true"><span class="octicon octicon-link"></span></a>MATLAB_HEADER</h2>
-<p><strong>Prepend the Matlab comment symbol of ‘%’ to the header lines in the output file</strong></p>
-
-<h2 id="unique_only">
-<a class="anchor" href="#unique_only" aria-hidden="true"><span class="octicon octicon-link"></span></a>UNIQUE_ONLY</h2>
-<p><strong>Only output a row if one of the extracted values has changed</strong></p>
-
-<p>This keyword is useful to extract telemetry items over a large time period by only outputting those values where items have changed</p>
-
-<h2 id="unique_ignore">
-<a class="anchor" href="#unique_ignore" aria-hidden="true"><span class="octicon octicon-link"></span></a>UNIQUE_IGNORE</h2>
-<p><strong>Used in conjunction with UNIQUE_ONLY to control which items should be checked for changing values</strong></p>
-
-<p>This list of telemetry items (not target names or packet names) always includes the COSMOS metadata items named RECEIVED_TIMEFORMATTED and RECEIVED_SECONDS. This is because these items will always change from packet to packet which would cause them to ALWAYS be printed if UNIQUE_ONLY was used. To avoid this, but still include time stamps in the output, UNIQUE_IGNORE includes these items. Use this keyword if you have a similar telemetry item that you want to display in the output but not be used to determine uniqueness.</p>
-
-<table>
-  <thead>
-    <tr>
-      <th>Parameter</th>
-      <th>Description</th>
-      <th>Required</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>Item Name</td>
-      <td>Name of the item to exclude from the uniqueness criteria. Note that all items with this name in all target packets are affected.</td>
-      <td>True</td>
-    </tr>
-  </tbody>
-</table>
-
-<h2 id="share_columns">
-<a class="anchor" href="#share_columns" aria-hidden="true"><span class="octicon octicon-link"></span></a>SHARE_COLUMNS</h2>
-<p><strong>Export telemetry items with the same name into the same column</strong></p>
-
-<p>Normally items from different packets are put in their own column in the output. If this keyword is used, items with the same name in different packets will now share one column in the output. This applies to all telemetry items with identical names. If you want to share columns for only specific items, use the SHARE_COLUMN keyword instead.</p>
-
-<h2 id="share_column">
-<a class="anchor" href="#share_column" aria-hidden="true"><span class="octicon octicon-link"></span></a>SHARE_COLUMN</h2>
-<div class="right">(Since 3.9.2)</div>
-<p><strong>Export telemetry items with the same name into the same column</strong></p>
-
-<p>Normally items from different packets are put in their own column in the output. This keyword is used to specify specific items that are from different packets but should share one column in the output. This applies to all telemetry items with identical names. If you want to share columns for all duplicate item names in different packets, use the SHARE_COLUMNS keyword instead.</p>
-
-<table>
-  <thead>
-    <tr>
-      <th>Parameter</th>
-      <th>Description</th>
-      <th>Required</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>Item Name</td>
-      <td>Name of the telemtry item</td>
-      <td>True</td>
-    </tr>
-    <tr>
-      <td>Item Type</td>
-      <td>Type of the telemetry item<br><br>Valid Values: <span class="values">CONVERTED, RAW, FORMATTED, WITH_UNITS</span>
-</td>
-      <td>False</td>
-    </tr>
-  </tbody>
-</table>
-
-<h2 id="full_column_names">
-<a class="anchor" href="#full_column_names" aria-hidden="true"><span class="octicon octicon-link"></span></a>FULL_COLUMN_NAMES</h2>
-<p><strong>Use TARGET PACKET ITEM as the column header for each column</strong></p>
-
-<p>Normally just the item name is used as the column header but this adds the target and packet name. Note that the TARGET and PACKET columns are not generated when this mode is active since the items are fully qualified.</p>
-
-<h2 id="dont_output_filenames">
-<a class="anchor" href="#dont_output_filenames" aria-hidden="true"><span class="octicon octicon-link"></span></a>DONT_OUTPUT_FILENAMES</h2>
-<p><strong>Don’t output the list of input filenames at the top of each output file</strong></p>
-
-<h2 id="text">
-<a class="anchor" href="#text" aria-hidden="true"><span class="octicon octicon-link"></span></a>TEXT</h2>
-<p><strong>Insert arbitrary text in the Telemetry Extractor output</strong></p>
-
-<p>Text also allows you to dynamically create Excel formulas using a special syntax</p>
-
-<table>
-  <thead>
-    <tr>
-      <th>Parameter</th>
-      <th>Description</th>
-      <th>Required</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>Header</td>
-      <td>The column header text</td>
-      <td>True</td>
-    </tr>
-    <tr>
-      <td>Text</td>
-      <td>Text to put in the output file. The special character ‘%’ will be translated to the current row of the output file. This is useful for Excel formulas which need a reference to a cell. Remember the first two columns are typically the TARGET and PACKET and telemetry items start in column ‘C’ in Excel.</td>
-      <td>True</td>
-    </tr>
-  </tbody>
-</table>
-
-<h2 id="item">
-<a class="anchor" href="#item" aria-hidden="true"><span class="octicon octicon-link"></span></a>ITEM</h2>
-<p><strong>Specify a telemetry item to extract</strong></p>
-
-<table>
-  <thead>
-    <tr>
-      <th>Parameter</th>
-      <th>Description</th>
-      <th>Required</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>Target Name</td>
-      <td>Name of the telemetry target<br><br>Valid Values: <span class="values">Any Target Name</span>
-</td>
-      <td>True</td>
-    </tr>
-    <tr>
-      <td>Packet Name</td>
-      <td>Name of the telemetry packet</td>
-      <td>True</td>
-    </tr>
-    <tr>
-      <td>Item Name</td>
-      <td>Name of the telemetry item</td>
-      <td>True</td>
-    </tr>
-    <tr>
-      <td>Item Type</td>
-      <td>Type of the telemetry item<br><br>Valid Values: <span class="values">CONVERTED, RAW, FORMATTED, WITH_UNITS</span>
-</td>
-      <td>False</td>
-    </tr>
-  </tbody>
-</table>
-
-<h2 id="example-file">
-<a class="anchor" href="#example-file" aria-hidden="true"><span class="octicon octicon-link"></span></a>Example File</h2>
-
-<p><strong>Example File: &lt;Cosmos::USERPATH&gt;/config/tools/tlm_extractor/tlm_extractor.txt</strong></p>
-
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">FILL_DOWN
-MATLAB_HEADER
-DELIMITER <span class="s2">","</span>
-SHARE_COLUMNS
-DOWNSAMPLE_SECONDS 5
-DONT_OUTPUT_FILENAMES
-UNIQUE_ONLY
-UNIQUE_IGNORE TEMP1
-ITEM INST HEALTH_STATUS TIMEFORMATTED
-ITEM INST HEALTH_STATUS TEMP1 RAW
-ITEM INST HEALTH_STATUS TEMP2 FORMATTED
-ITEM INST HEALTH_STATUS TEMP3 WITH_UNITS
-ITEM INST HEALTH_STATUS TEMP4
-TEXT <span class="s2">"Calc"</span> <span class="s2">"=D%*G%"</span> <span class="c"># Calculate TEMP1 (RAW) times TEMP4</span></code></pre></figure>
+          <h1>Command and Telemetry Server</h1>
+          <p>This document describes the Command and Telemetry Server command line parameters. For details on the server configuration files see the <a href="/docs/system/">System Configuration</a>.</p>
 
 <h2 id="command-line-parameters">
 <a class="anchor" href="#command-line-parameters" aria-hidden="true"><span class="octicon octicon-link"></span></a>Command Line Parameters</h2>
 <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code></code></pre></div></div>
 
+
           
 
 
 
 
-
-  
-  
-
-  
-  
-
-  
-  
-
-  
-  
-
-  
-  
-
-  
-  
-
-  
-  
-
-  
-  
-
-  
-  
-
-  
-  
-
-  
-  
 
   
   
@@ -5470,14 +5212,14 @@ TEXT <span class="s2">"Calc"</span> <span class="s2">"=D%*G%"</span> <span class
           
             
             
-            <a href="/docs/test_runner/" class="prev">Back</a>
+            <a href="/docs/cmd_sequence/" class="prev">Back</a>
           
       </div>
       <div class="right align-left">
           
             
             
-            <a href="/docs/tlm_grapher/" class="next">Next</a>
+            <a href="/docs/config_editor/" class="next">Next</a>
           
       </div>
     </div>
@@ -6351,7 +6093,7 @@ TEXT <span class="s2">"Calc"</span> <span class="s2">"=D%*G%"</span> <span class
     
   
     
-      <li class=""><a href="/docs/cmd_tlm_server/">Command and Telemetry Server</a></li>
+      <li class="current"><a href="/docs/cmd_tlm_server/">Command and Telemetry Server</a></li>
       
 
 
@@ -7061,7 +6803,7 @@ TEXT <span class="s2">"Calc"</span> <span class="s2">"=D%*G%"</span> <span class
     
   
     
-      <li class="current"><a href="/docs/tlm_extractor/">Telemetry Extractor</a></li>
+      <li class=""><a href="/docs/tlm_extractor/">Telemetry Extractor</a></li>
       
 
 
