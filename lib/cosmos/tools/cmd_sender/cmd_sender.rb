@@ -690,9 +690,8 @@ module Cosmos
                 end
                 if !value_text.is_printable?
                   value_text = "0x" + value_text.simple_formatted
-                # Add quotes around string defaults which are stings so CmdSender interprets them correctly
-                elsif (packet_item.data_type == :STRING or packet_item.data_type == :BLOCK) &&
-                       packet_item.default.is_a?(String)
+                # Add quotes around STRING or BLOCK defaults so CmdSender interprets them correctly
+                elsif (packet_item.data_type == :STRING or packet_item.data_type == :BLOCK)
                   value_text = "'#{packet_item.default}'"
                 end
               end
