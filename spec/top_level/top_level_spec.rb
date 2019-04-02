@@ -171,6 +171,19 @@ module Cosmos
       Cosmos.cleanup_exceptions()
     end
 
+    it "rescues marshal dump errors in a Packet with a Mutex" do
+      capture_io do |stdout|
+        system_exit_count = $system_exit_count
+        pkt = Packet.new("TGT","PKT")
+        pkt.append_item("ITEM", 16, :UINT)
+        pkt.read_all
+        Cosmos.marshal_dump('marshal_test', pkt)
+        expect($system_exit_count).to be > system_exit_count
+        expect(stdout.string).to match("Mutex exists in a packet")
+      end
+      Cosmos.cleanup_exceptions()
+    end
+
     it "rescues marshal load errors" do
       # Attempt to load something that doesn't exist
       expect(Cosmos.marshal_load('blah')).to be_nil
