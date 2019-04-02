@@ -179,7 +179,6 @@ module Cosmos
         pkt.read_all
         Cosmos.marshal_dump('marshal_test', pkt)
         expect($system_exit_count).to be > system_exit_count
-        string = stdout.string
         expect(stdout.string).to match("Mutex exists in a packet")
       end
       Cosmos.cleanup_exceptions()
