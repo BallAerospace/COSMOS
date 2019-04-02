@@ -690,6 +690,9 @@ module Cosmos
                 end
                 if !value_text.is_printable?
                   value_text = "0x" + value_text.simple_formatted
+                # Add quotes around STRING or BLOCK defaults so CmdSender interprets them correctly
+                elsif (packet_item.data_type == :STRING or packet_item.data_type == :BLOCK)
+                  value_text = "'#{packet_item.default}'"
                 end
               end
               value_item = Qt::TableWidgetItem.new(value_text)
