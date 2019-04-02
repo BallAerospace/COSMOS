@@ -244,6 +244,11 @@ module Cosmos
       rescue Exception
         # Oh well - we tried
       end
+      if exception.class == TypeError and exception.message =~ /Thread::Mutex/
+        original_backtrace = exception.backtrace
+        exception = exception.exception("Mutex exists in a packet.  Note: Packets must not be read during class initializers for Conversions, Limits Responses, etc.: #{exception}")
+        exception.set_backtrace(original_backtrace)
+      end
       self.handle_fatal_exception(exception)
     end
   end
