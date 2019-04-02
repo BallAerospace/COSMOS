@@ -28,6 +28,7 @@ module Cosmos
     before(:each) do
       @interface = StreamInterface.new
       allow(@interface).to receive(:connected?) { true }
+      $write_buffer = ''
       $read_buffer = ''
       $read_cnt = 0
     end
@@ -173,12 +174,20 @@ module Cosmos
       end
 
       it "processes responses with no ID fields" do
-        rsp_pkt = Packet.new('TGT', 'READ_VOLTAGE')
-        rsp_pkt.append_item("VOLTAGE", 16, :UINT)
-        allow(System).to receive_message_chain(:telemetry, :packet).and_return(rsp_pkt)
+        tf = Tempfile.new('unittest')
+        tf.puts 'TELEMETRY TGT READ_VOLTAGE BIG_ENDIAN'
+        tf.puts '  APPEND_ITEM VOLTAGE 16 UINT'
+        tf.close
+        pc = PacketConfig.new
+        pc.process_file(tf.path, "SYSTEM")
+        telemetry = Telemetry.new(pc)
+        tf.unlink
+
+        allow(System).to receive_message_chain(:telemetry).and_return(telemetry)
         @interface.instance_variable_set(:@stream, TemplateStream.new)
         @interface.add_protocol(TemplateProtocol, %w(0xABCD 0xABCD 0 nil 1 true 0 nil false nil nil), :READ_WRITE)
-        @interface.target_names = ['TGT']
+        # Add extra target names to the interface to ensure we grab the correct one
+        @interface.target_names = ['BLAH','TGT','OTHER']
         packet = Packet.new('TGT', 'CMD')
         packet.append_item("VOLTAGE", 16, :UINT)
         packet.get_item("VOLTAGE").default = 11
@@ -198,13 +207,21 @@ module Cosmos
         @interface.write(packet)
         sleep 0.55
         expect($write_buffer).to eql("SOUR:VOLT 11, (@1)\xAB\xCD")
+        expect(read_result.read("VOLTAGE")).to eql(10)
       end
 
       it "sets the response ID to the defined ID value" do
-        rsp_pkt = Packet.new('TGT', 'READ_VOLTAGE')
-        rsp_pkt.append_item("PKT_ID", 16, :UINT, nil, :BIG_ENDIAN, :ERROR, nil, nil, nil, 1) # ID == 1
-        rsp_pkt.append_item("VOLTAGE", 16, :UINT)
-        allow(System).to receive_message_chain(:telemetry, :packet).and_return(rsp_pkt)
+        tf = Tempfile.new('unittest')
+        tf.puts 'TELEMETRY TGT READ_VOLTAGE BIG_ENDIAN'
+        tf.puts '  APPEND_ID_ITEM PKT_ID 16 UINT 1'
+        tf.puts '  APPEND_ITEM VOLTAGE 16 UINT'
+        tf.close
+        pc = PacketConfig.new
+        pc.process_file(tf.path, "SYSTEM")
+        telemetry = Telemetry.new(pc)
+        tf.unlink
+
+        allow(System).to receive_message_chain(:telemetry).and_return(telemetry)
         @interface.instance_variable_set(:@stream, TemplateStream.new)
         @interface.add_protocol(TemplateProtocol, %w(0xABCD 0xABCD 0 nil 1 true 0 nil false nil nil), :READ_WRITE)
         @interface.target_names = ['TGT']
@@ -230,14 +247,22 @@ module Cosmos
         sleep 0.55
         expect($write_buffer).to eql("SOUR:VOLT 11, (@1)\xAB\xCD")
         expect(read_result.read("PKT_ID")).to eql(1) # Result ID set to the defined value
+        expect(read_result.read("VOLTAGE")).to eql(10)
       end
 
       it "handles multiple response IDs" do
-        rsp_pkt = Packet.new('TGT', 'READ_VOLTAGE')
-        rsp_pkt.append_item("APID", 16, :UINT, nil, :BIG_ENDIAN, :ERROR, nil, nil, nil, 10) # ID == 10
-        rsp_pkt.append_item("PKTID", 16, :UINT, nil, :BIG_ENDIAN, :ERROR, nil, nil, nil, 20) # ID == 20
-        rsp_pkt.append_item("VOLTAGE", 16, :UINT)
-        allow(System).to receive_message_chain(:telemetry, :packet).and_return(rsp_pkt)
+        tf = Tempfile.new('unittest')
+        tf.puts 'TELEMETRY TGT READ_VOLTAGE BIG_ENDIAN'
+        tf.puts '  APPEND_ID_ITEM APID 16 UINT 10'
+        tf.puts '  APPEND_ID_ITEM PKTID 16 UINT 20'
+        tf.puts '  APPEND_ITEM VOLTAGE 16 UINT'
+        tf.close
+        pc = PacketConfig.new
+        pc.process_file(tf.path, "SYSTEM")
+        telemetry = Telemetry.new(pc)
+        tf.unlink
+
+        allow(System).to receive_message_chain(:telemetry).and_return(telemetry)
         @interface.instance_variable_set(:@stream, TemplateStream.new)
         @interface.add_protocol(TemplateProtocol, %w(0xABCD 0xABCD 0 nil 1 true 0 nil false nil nil), :READ_WRITE)
         @interface.target_names = ['TGT']
@@ -272,9 +297,16 @@ module Cosmos
       end
 
       it "handles templates with more values than the response" do
-        rsp_pkt = Packet.new('TGT', 'READ_VOLTAGE')
-        rsp_pkt.append_item("VOLTAGE", 16, :UINT)
-        allow(System).to receive_message_chain(:telemetry, :packet).and_return(rsp_pkt)
+        tf = Tempfile.new('unittest')
+        tf.puts 'TELEMETRY TGT READ_VOLTAGE BIG_ENDIAN'
+        tf.puts '  APPEND_ITEM VOLTAGE 16 UINT'
+        tf.close
+        pc = PacketConfig.new
+        pc.process_file(tf.path, "SYSTEM")
+        telemetry = Telemetry.new(pc)
+        tf.unlink
+
+        allow(System).to receive_message_chain(:telemetry).and_return(telemetry)
         @interface.instance_variable_set(:@stream, TemplateStream.new)
         @interface.add_protocol(TemplateProtocol, %w(0xABCD 0xABCD 0 nil 1 true 0 nil false nil), :READ_WRITE)
         @interface.target_names = ['TGT']
@@ -304,9 +336,16 @@ module Cosmos
       end
 
       it "handles responses with more values than the template" do
-        rsp_pkt = Packet.new('TGT', 'READ_VOLTAGE')
-        rsp_pkt.append_item("VOLTAGE", 16, :UINT)
-        allow(System).to receive_message_chain(:telemetry, :packet).and_return(rsp_pkt)
+        tf = Tempfile.new('unittest')
+        tf.puts 'TELEMETRY TGT READ_VOLTAGE BIG_ENDIAN'
+        tf.puts '  APPEND_ITEM VOLTAGE 16 UINT'
+        tf.close
+        pc = PacketConfig.new
+        pc.process_file(tf.path, "SYSTEM")
+        telemetry = Telemetry.new(pc)
+        tf.unlink
+
+        allow(System).to receive_message_chain(:telemetry).and_return(telemetry)
         @interface.instance_variable_set(:@stream, TemplateStream.new)
         @interface.add_protocol(TemplateProtocol, %w(0xABCD 0xABCD 0 nil 1 true 0 nil false nil), :READ_WRITE)
         @interface.target_names = ['TGT']
@@ -336,9 +375,16 @@ module Cosmos
       end
 
       it "ignores response lines" do
-        rsp_pkt = Packet.new('TGT', 'READ_VOLTAGE')
-        rsp_pkt.append_item("VOLTAGE", 16, :UINT)
-        allow(System).to receive_message_chain(:telemetry, :packet).and_return(rsp_pkt)
+        tf = Tempfile.new('unittest')
+        tf.puts 'TELEMETRY TGT READ_VOLTAGE BIG_ENDIAN'
+        tf.puts '  APPEND_ITEM VOLTAGE 16 UINT'
+        tf.close
+        pc = PacketConfig.new
+        pc.process_file(tf.path, "SYSTEM")
+        telemetry = Telemetry.new(pc)
+        tf.unlink
+
+        allow(System).to receive_message_chain(:telemetry).and_return(telemetry)
         @interface.instance_variable_set(:@stream, TemplateStream.new)
         @interface.add_protocol(TemplateProtocol, %w(0xAD 0xA 1), :READ_WRITE)
         @interface.target_names = ['TGT']
@@ -365,9 +411,16 @@ module Cosmos
     end
 
     it "allows multiple response lines" do
-      rsp_pkt = Packet.new('TGT', 'DATA')
-      rsp_pkt.append_item("STRING", 512, :STRING)
-      allow(System).to receive_message_chain(:telemetry, :packet).and_return(rsp_pkt)
+      tf = Tempfile.new('unittest')
+      tf.puts 'TELEMETRY TGT DATA BIG_ENDIAN'
+      tf.puts '  APPEND_ITEM STRING 512 STRINg'
+      tf.close
+      pc = PacketConfig.new
+      pc.process_file(tf.path, "SYSTEM")
+      telemetry = Telemetry.new(pc)
+      tf.unlink
+
+      allow(System).to receive_message_chain(:telemetry).and_return(telemetry)
       @interface.instance_variable_set(:@stream, TemplateStream.new)
       @interface.add_protocol(TemplateProtocol, %w(0xAD 0xA 0 nil 2), :READ_WRITE)
       @interface.target_names = ['TGT']
