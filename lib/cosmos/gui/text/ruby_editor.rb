@@ -432,9 +432,16 @@ module Cosmos
     end
 
     def line_at_point(point)
-      line = point.y / @fontMetrics.height() + 1 +
-        firstVisibleBlock().blockNumber()
-      yield line if line <= document.blockCount()
+      block_num = firstVisibleBlock().blockNumber()
+      while block_num < document.blockCount()
+        block = document.findBlockByNumber(block_num)
+        top, bottom = block_top_and_bottom(block)
+        if (top..bottom).include?(point.y)
+          yield block_num + 1
+          break
+        end
+        block_num += 1
+      end
     end
 
     def create_add_breakpoint_action(point)
