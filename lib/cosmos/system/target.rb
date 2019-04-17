@@ -68,7 +68,7 @@ module Cosmos
 
     # @return [Boolean] Indicates if all command packets identify using different fields
     attr_accessor :cmd_unique_id_mode
-    
+
     # @return [Boolean] Indicates if telemetry packets identify using different fields
     attr_accessor :tlm_unique_id_mode
 
@@ -131,11 +131,12 @@ module Cosmos
         when 'REQUIRE'
           usage = "#{keyword} <FILENAME>"
           parser.verify_num_parameters(1, 1, usage)
+          filename = File.join(@dir, 'lib', parameters[0])
           begin
             # Require absolute path to file in target lib folder.  Prevents name
             # conflicts at the require step
             Cosmos.disable_warnings do
-              Cosmos.require_file(File.join(@dir, 'lib', parameters[0]), false)
+              Cosmos.require_file(filename, false)
             end
           rescue LoadError
             begin
@@ -149,7 +150,7 @@ module Cosmos
           rescue Exception => err
             raise parser.error(err.message)
           end
-          @requires << parameters[0]
+          @requires << filename
 
         when 'IGNORE_PARAMETER', 'IGNORE_ITEM'
           usage = "#{keyword} <#{keyword.split('_')[1]} NAME>"

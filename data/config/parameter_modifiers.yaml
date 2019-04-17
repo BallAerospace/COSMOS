@@ -68,6 +68,16 @@ WRITE_CONVERSION:
     takes extra parameters and must always implement the call method. The conversion
     factor is applied to the value entered by the user before it is written into
     the binary command packet and sent.
+
+    <div class="note info">
+    <h5>Multiple write conversions on command parameters</h5>
+    <p>When a command is built, each item gets written (and write conversions are run)
+    to set the default value. Then items are written (again write conversions are run)
+    with user provided values. Thus write conversions can be run twice. Also there are
+    no guarantees which parameters have already been written. The packet itself has a
+    given_values() method which can be used to retrieve a hash of the user provided
+    values to the command. That can be used to check parameter values passed in.</p>
+    </div>
   example: |
     WRITE_CONVERSION the_great_conversion.rb 1000
 
@@ -151,6 +161,16 @@ GENERIC_WRITE_CONVERSION_START:
     compatibility). The last line of ruby code given should return the converted
     value. The GENERIC_WRITE_CONVERSION_END keyword specifies that all lines of
     ruby code for the conversion have been given.
+
+    <div class="note info">
+    <h5>Multiple write conversions on command parameters</h5>
+    <p>When a command is built, each item gets written (and write conversions are run)
+    to set the default value. Then items are written (again write conversions are run)
+    with user provided values. Thus write conversions can be run twice. Also there are
+    no guarantees which parameters have already been written. The packet itself has a
+    given_values() method which can be used to retrieve a hash of the user provided
+    values to the command. That can be used to check parameter values passed in.</p>
+    </div>
   warning: Generic conversions are not a good long term solution. Consider creating
     a conversion class and using WRITE_CONVERSION instead. WRITE_CONVERSION is easier
     to debug and higher performance.
