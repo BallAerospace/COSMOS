@@ -572,10 +572,14 @@ module Cosmos
         return nil if @cancel_instrumentation
         instrumented_line = ''
         if instrumentable
-          # Skip the segment if it's empty. Note that the segment could have
-          # originally had comments but they were stripped in
+          # Add a newline if it's empty to ensure the instrumented code has
+          # the same number of lines as the original script. Note that the
+          # segment could have originally had comments but they were stripped in
           # ruby_lex_utils.remove_comments
-          next if segment.strip.empty?
+          if segment.strip.empty?
+            instrumented_text << "\n"
+            next
+          end
 
           # Create a variable to hold the segment's return value
           instrumented_line << "__return_val = nil; "
