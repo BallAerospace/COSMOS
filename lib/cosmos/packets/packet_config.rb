@@ -85,7 +85,7 @@ module Cosmos
       @warnings = []
       @cmd_id_value_hash = {}
       @tlm_id_value_hash = {}
-      
+
       # Create unknown packets
       @commands['UNKNOWN'] = {}
       @commands['UNKNOWN']['UNKNOWN'] = Packet.new('UNKNOWN', 'UNKNOWN', :BIG_ENDIAN)
@@ -103,7 +103,8 @@ module Cosmos
     # knowledge of the commands, telemetry, and limits groups.
     #
     # @param filename [String] The name of the configuration file
-    # @param process_target_name [String] The target name
+    # @param process_target_name [String] The target name. Pass nil when parsing
+    #   an xtce file to automatically determine the target name.
     def process_file(filename, process_target_name)
       # Handle .xtce files
       if File.extname(filename).to_s.downcase == ".xtce"
@@ -286,13 +287,13 @@ module Cosmos
         if @current_cmd_or_tlm == COMMAND
           PacketParser.check_item_data_types(@current_packet)
           @commands[@current_packet.target_name][@current_packet.packet_name] = @current_packet
-          hash = @cmd_id_value_hash[@current_packet.target_name]        
+          hash = @cmd_id_value_hash[@current_packet.target_name]
           hash = {} unless hash
           @cmd_id_value_hash[@current_packet.target_name] = hash
           update_id_value_hash(hash)
         else
           @telemetry[@current_packet.target_name][@current_packet.packet_name] = @current_packet
-          hash = @tlm_id_value_hash[@current_packet.target_name]        
+          hash = @tlm_id_value_hash[@current_packet.target_name]
           hash = {} unless hash
           @tlm_id_value_hash[@current_packet.target_name] = hash
           update_id_value_hash(hash)

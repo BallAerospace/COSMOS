@@ -295,6 +295,8 @@ module Cosmos
           xml['xtce'].IntegerDataEncoding(:sizeInBits => item.bit_size, :encoding => encoding)
           xml['xtce'].EnumerationList do
             item.states.each do |state_name, state_value|
+              # Skip the special COSMOS 'ANY' enumerated state
+              next if state_value == 'ANY'
               xml['xtce'].Enumeration(:value => state_value, :label => state_name)
             end
           end
