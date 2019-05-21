@@ -477,7 +477,7 @@ module Cosmos
       path
     end
 
-    def check_file_cache_for_instrumented_script(path, md5)
+    def check_file_cache_for_instrumented_script(path, hash_string)
       file_text = nil
       instrumented_script = nil
       cached = true
@@ -498,8 +498,8 @@ module Cosmos
         if use_file_cache
           # Check file based instrumented cache
           flat_path = path.tr("/", "_").gsub("\\", "_").tr(":", "_").tr(" ", "_")
-          flat_path_with_md5 = flat_path + '_' + md5
-          cache_filename = File.join(cache_path, flat_path_with_md5)
+          flat_path_with_hash_string = flat_path + '_' + hash_string
+          cache_filename = File.join(cache_path, flat_path_with_hash_string)
         end
 
         begin
@@ -536,24 +536,27 @@ module Cosmos
       path = _get_procedure_path(procedure_name)
 
       if defined? ScriptRunnerFrame and ScriptRunnerFrame.instance
-        md5 = nil
+        hashing_sum = nil
         begin
-          md5 = Cosmos.md5_files([path]).hexdigest
+          hashing_result = Cosmos.hash_files([path], nil, System.hashing_algorithm)
+          hash_string = hashing_result.hexdigest
+          # Only use at most, 32 characters of the hex
+          hash_string = hash_string[-32..-1] if hash_string.length >= 32
         rescue Exception => error
-          raise "Error calculating md5 on procedure file : #{path}"
+          raise "Error calculating hash string on procedure file : #{path}"
         end
 
         # Check RAM based instrumented cache
         instrumented_cache = ScriptRunnerFrame.instrumented_cache[path]
         instrumented_script = nil
-        if instrumented_cache and md5 == instrumented_cache[1]
+        if instrumented_cache and hash_string == instrumented_cache[1]
           # Use cached instrumentation
           instrumented_script = instrumented_cache[0]
         else
-          file_text, instrumented_script, cached = check_file_cache_for_instrumented_script(path, md5)
+          file_text, instrumented_script, cached = check_file_cache_for_instrumented_script(path, hash_string)
           # Cache instrumentation into RAM
           ScriptRunnerFrame.file_cache[path] = file_text
-          ScriptRunnerFrame.instrumented_cache[path] = [instrumented_script, md5]
+          ScriptRunnerFrame.instrumented_cache[path] = [instrumented_script, hash_string]
         end
 
         Object.class_eval(instrumented_script, path, 1)

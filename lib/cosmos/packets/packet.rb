@@ -8,7 +8,7 @@
 # as published by the Free Software Foundation; version 3 with
 # attribution addendums as found in the LICENSE.txt
 
-require 'digest/md5'
+require 'digest'
 require 'cosmos/packets/structure'
 require 'cosmos/packets/packet_item'
 require 'cosmos/ext/packet' if RUBY_ENGINE == 'ruby' and !ENV['COSMOS_NO_EXT']
@@ -249,7 +249,7 @@ module Cosmos
       end
     end
 
-    # Calculates a unique MD5Sum that changes if the parts of the packet configuration change that could affect
+    # Calculates a unique hashing sum that changes if the parts of the packet configuration change that could affect
     # the "shape" of the packet.  This value is cached and that packet should not be changed if this method is being used
     def config_name
       return @config_name if @config_name
@@ -257,7 +257,9 @@ module Cosmos
       @sorted_items.each do |item|
         string << " ITEM #{item.name} #{item.bit_offset} #{item.bit_size} #{item.data_type} #{item.array_size} #{item.endianness} #{item.overflow} #{item.states} #{item.read_conversion ? item.read_conversion.class : 'NO_CONVERSION'}"
       end
-      digest = Digest::MD5.new
+
+      # Use the hashing algorithm established by Cosmos::System
+      digest = Digest.const_get(System.hashing_algorithm).send('new')
       digest << string
       @config_name = digest.hexdigest
       @config_name

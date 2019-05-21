@@ -29,7 +29,7 @@ module Cosmos
   # #targets variable provides access to all the targets defined by the system.
   # Its primary responsibily is to load the system configuration file and
   # create all the Target instances. It also saves and restores configurations
-  # using a MD5 checksum over the entire configuration to detect changes.
+  # using a hashing checksum over the entire configuration to detect changes.
   class System
     # @return [Hash<String,Fixnum>] Hash of all the known ports and their values
     instance_attr_reader :ports
@@ -67,12 +67,14 @@ module Cosmos
     instance_attr_reader :limits_set
     # @return [Boolean] Whether to use UTC or local times
     instance_attr_reader :use_utc
-    # @return [Array<String>] List of files that are to be included in the MD5
+    # @return [Array<String>] List of files that are to be included in the hashing
     #   calculation in addition to the cmd/tlm definition files that are
     #   automatically included
-    instance_attr_reader :additional_md5_files
+    instance_attr_reader :additional_hashing_files
     # @return [Hash<String,String>] Hash of the text/color to use for the classificaiton banner
     instance_attr_reader :classificiation_banner
+    # @return [String] Which hashing algorithm is in use
+    instance_attr_reader :hashing_algorithm
 
     # Known COSMOS ports
     KNOWN_PORTS = ['CTS_API', 'TLMVIEWER_API', 'CTS_PREIDENTIFIED', 'CTS_CMD_ROUTER', 'REPLAY_API', 'REPLAY_PREIDENTIFIED', 'REPLAY_CMD_ROUTER', 'DART_STREAM', 'DART_DECOM']
@@ -80,6 +82,8 @@ module Cosmos
     KNOWN_HOSTS = ['CTS_API', 'TLMVIEWER_API', 'CTS_PREIDENTIFIED', 'CTS_CMD_ROUTER', 'REPLAY_API', 'REPLAY_PREIDENTIFIED', 'REPLAY_CMD_ROUTER', 'DART_STREAM', 'DART_DECOM']
     # Known COSMOS paths
     KNOWN_PATHS = ['LOGS', 'TMP', 'SAVED_CONFIG', 'TABLES', 'HANDBOOKS', 'PROCEDURES', 'SEQUENCES', 'DART_DATA', 'DART_LOGS']
+    # Supported hashing algorithms
+    SUPPORTED_HASHING_ALGORITHMS = ['MD5', 'RMD160', 'SHA1', 'SHA256', 'SHA384', 'SHA512']
 
     @@instance = nil
     @@instance_mutex = Mutex.new
@@ -195,7 +199,7 @@ module Cosmos
       acl_list = []
       all_allowed = false
       first_procedures_path = true
-      @additional_md5_files = []
+      @additional_hashing_files = []
 
       Cosmos.set_working_dir do
         parser = ConfigParser.new("http://cosmosrb.com/docs/system")
@@ -329,14 +333,23 @@ module Cosmos
             parser.verify_num_parameters(0, 0, "#{keyword}")
             @use_utc = true
 
-          when 'ADD_MD5_FILE'
+          when 'ADD_HASH_FILE', 'ADD_MD5_FILE' # MD5 is here for backwards compatibility
             parser.verify_num_parameters(1, 1, "#{keyword} <Filename>")
             if File.file?(parameters[0])
-              @additional_md5_files << File.expand_path(parameters[0])
+              @additional_hashing_files << File.expand_path(parameters[0])
             elsif File.file?(File.join(Cosmos::USERPATH, parameters[0]))
-              @additional_md5_files << File.expand_path(File.join(Cosmos::USERPATH, parameters[0]))
+              @additional_hashing_files << File.expand_path(File.join(Cosmos::USERPATH, parameters[0]))
             else
               raise "Missing expected file: #{parameters[0]}"
+            end
+
+          when 'HASHING_ALGORITHM'
+            parser.verify_num_parameters(1, 1, "#{keyword} <Hashing Algorithm>")
+            if SUPPORTED_HASHING_ALGORITHMS.include? parameters[0]
+              @hashing_algorithm = parameters[0]
+            else
+              Logger.error "Unrecognized hashing algorithm: #{parameters[0]}, using default algorithm MD5"
+              @hashing_algorithm = 'MD5'
             end
 
           when 'CLASSIFICATION'
@@ -456,10 +469,10 @@ module Cosmos
     end
 
     # Load the specified configuration by iterating through the SAVED_CONFIG
-    # directory looking for a matching MD5 sum. Updates the internal state so
+    # directory looking for a matching hashing sum. Updates the internal state so
     # subsequent commands and telemetry methods return the new configuration.
     #
-    # @param name [String] MD5 string which identifies the
+    # @param name [String] hash string which identifies the
     #   configuration. Pass nil to load the default configuration.
     # @return [String, Exception/nil] The actual configuration loaded
     def load_configuration(name = nil)
@@ -532,8 +545,9 @@ module Cosmos
       @staleness_seconds = 30
       @limits_set = :DEFAULT
       @use_utc = false
-      @additional_md5_files = []
+      @additional_hashing_files = []
       @meta_init_filename = nil
+      @hashing_algorithm = 'MD5'
 
       @ports = {}
       @ports['CTS_API'] = 7777
@@ -751,7 +765,7 @@ module Cosmos
     end
 
     def load_packets(configuration_name = nil)
-      # Determine MD5 over all targets cmd_tlm files
+      # Determine hashing over all targets cmd_tlm files
       cmd_tlm_files = []
       additional_data = ''
       @targets.each do |target_name, target|
@@ -765,11 +779,14 @@ module Cosmos
         end
       end
 
-      md5 = Cosmos.md5_files(cmd_tlm_files + @additional_md5_files, additional_data)
-      md5_string = md5.hexdigest
+      hashing_result = Cosmos.hash_files(cmd_tlm_files + @additional_hashing_files, additional_data, @hashing_algorithm)
+      hash_string = hashing_result.hexdigest
+      # Only use at most, 32 characters of the hex
+      hash_string = hash_string[-32..-1] if hash_string.length >= 32
+
 
       # Build filename for marshal file
-      marshal_filename = File.join(@paths['TMP'], 'marshal_' << md5_string << '.bin')
+      marshal_filename = File.join(@paths['TMP'], 'marshal_' << hash_string << '.bin')
 
       # Attempt to load marshal file
       config = Cosmos.marshal_load(marshal_filename)
@@ -802,7 +819,7 @@ module Cosmos
         if configuration_name
           @config.name = configuration_name
         else
-          @config.name = md5_string
+          @config.name = hash_string
         end
 
         Cosmos.marshal_dump(marshal_filename, @config)

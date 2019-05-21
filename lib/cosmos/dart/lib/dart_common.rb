@@ -202,7 +202,7 @@ module DartCommon
   # can't be loaded locally, it is requested from the server and copied
   # locally before proceeding.
   #
-  # @param system_config_name [String] System configuration name (MD5) to load
+  # @param system_config_name [String] System configuration name (hashing sum) to load
   def switch_and_get_system_config(system_config_name)
     # Switch to this new system configuration
     current_config, error = Cosmos::System.load_configuration(system_config_name)
