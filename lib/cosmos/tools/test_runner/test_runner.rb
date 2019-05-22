@@ -995,8 +995,9 @@ module Cosmos
       parser = ConfigParser.new("http://cosmosrb.com/docs/tools/#test-runner-configuration")
       parser.parse_file(filename) do |keyword, params|
         case keyword
-        when 'REQUIRE_UTILITY'
-          parser.verify_num_parameters(1, 1, "REQUIRE_UTILITY <filename>")
+        # REQUIRE_UTILITY was deprecated > 4.3.0 but left for compatibility purposes
+        when 'LOAD_UTILITY', 'REQUIRE_UTILITY'
+          parser.verify_num_parameters(1, 1, "LOAD_UTILITY <filename>")
           begin
             require_utility params[0]
             @utilities << params[0]

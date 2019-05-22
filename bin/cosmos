@@ -133,7 +133,7 @@ end
 def gen_test(target)
   %Q(# To add this test to Test Runner edit config/tools/test_runner/test_runner.txt
 # Add this line:
-#   REQUIRE_UTILITY '#{target.downcase}_test'
+#   LOAD_UTILITY '#{target.downcase}_test'
 #
 # Test Runner test script
 class #{target.capitalize}Test < Cosmos::Test
