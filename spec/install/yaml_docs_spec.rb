@@ -7,7 +7,7 @@ require 'cosmos/config/meta_config_parser'
 module Cosmos
   describe Cosmos do
     # These are not expected to be documented as they are deprecated
-    DEPRECATED = %w(MACRO_APPEND_START MACRO_APPEND_END ROUTER_LOG_RAW IGNORE)
+    DEPRECATED = %w(MACRO_APPEND_START MACRO_APPEND_END ROUTER_LOG_RAW IGNORE REQUIRE_UTILITY)
     # These source keywords are ignored in the YAML
     EXCEPTIONS = %w(LAUNCH LAUNCH_TERMINAL LAUNCH_GEM CONVERTED RAW FORMATTED WITH_UNITS NONE)
     EXCEPTIONS.concat(%w(MINUTE HOUR DAY AVG MIN MAX STDDEV AGING CRC OVERRIDE))
