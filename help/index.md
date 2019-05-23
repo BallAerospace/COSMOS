@@ -7,9 +7,8 @@ Need help with COSMOS? Try these resources.
 
 ### [BallAerospace/COSMOS](https://github.com/BallAerospace/COSMOS/issues)
 
-Search through the issues on the main COSMOS development. Think you've
-found a bug? File a new issue.
+If you have a question which would benefit the community or find a possible bug please use our [Github Issues](https://github.com/BallAerospace/COSMOS/issues). Also note you can search this website using the Google search bar at the bottom of every page.
 
-### [Contact Us About Support Contracts](/docs/contact)
+### [Contact Us](mailto:cosmos@ball.com?subject=COSMOS%20Support%20Inquiry)
 
-We're here to help!  Click the link above to send us an email about setting up a support contract.
+If you would like more information about COSMOS training, custom COSMOS development, or a support contract please contact us at [cosmos@ball.com](mailto:cosmos@ball.com?subject=COSMOS%20Support%20Inquiry).
