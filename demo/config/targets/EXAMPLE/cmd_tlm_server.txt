@@ -4,3 +4,4 @@
 INTERFACE EXAMPLE_INT example_interface.rb localhost 9999
   TARGET EXAMPLE
   DONT_CONNECT
+  LOG_RAW
