@@ -1013,13 +1013,9 @@ module Cosmos
           options.remember_geometry = false
           options.title = "Limits Monitor"
           options.auto_size = false
-          options.config_file = nil
           options.production = false
           options.no_prompt = false
           option_parser.separator "Limits Monitor Specific Options:"
-          option_parser.on("-c", "--config FILE", "Use the specified configuration file") do |arg|
-            options.config_file = arg
-          end
           options.replay = false
           option_parser.on("--replay", "Start Limits Monitor in Replay mode") do
             options.replay = true

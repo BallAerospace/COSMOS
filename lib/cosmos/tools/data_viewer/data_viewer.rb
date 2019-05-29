@@ -768,13 +768,10 @@ module Cosmos
           options.width = 550
           options.height = 500
           options.title = "Data Viewer"
-          options.config_file = 'data_viewer.txt'
           options.start = false
           options.replay = false
+          options.config_file = true # config_file is required
           option_parser.separator "Data Viewer Specific Options:"
-          option_parser.on("-c", "--config FILE", "Use the specified configuration file") do |arg|
-            options.config_file = arg
-          end
           option_parser.on("-s", "--start", "Start processing immediately") do |arg|
             options.start = true
           end
@@ -786,7 +783,5 @@ module Cosmos
         super(option_parser, options)
       end
     end
-
-  end # class DataViewer
-
-end # module Cosmos
+  end
+end

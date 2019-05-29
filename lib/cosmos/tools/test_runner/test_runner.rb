@@ -1269,12 +1269,9 @@ module Cosmos
           options.height = 700
           options.title = "Test Runner"
           options.auto_size = false
-          options.config_file = File.join(Cosmos::USERPATH, 'config', 'tools', 'test_runner', 'test_runner.txt')
           options.server_config_file = CmdTlmServer::DEFAULT_CONFIG_FILE
+          options.config_file = true # config_file is required
           option_parser.separator "Test Runner Specific Options:"
-          option_parser.on("-c", "--config FILE", "Use the specified configuration file") do |arg|
-            options.config_file = File.join(Cosmos::USERPATH, 'config', 'tools', 'test_runner', arg)
-          end
           option_parser.on("-s", "--server FILE", "Use the specified server configuration file for disconnect mode") do |arg|
             options.server_config_file = arg
           end
@@ -1300,6 +1297,5 @@ module Cosmos
         super(option_parser, options)
       end
     end
-  end # class TestRunner
-
-end # module Cosmos
+  end
+end

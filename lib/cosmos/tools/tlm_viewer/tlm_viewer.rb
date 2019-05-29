@@ -547,13 +547,12 @@ module Cosmos
           options.title = 'Telemetry Viewer'
           options.screen = nil
           options.listen = true
-          options.config_file = nil
           options.restore_size = false
           options.production = false
           options.replay = false
+          options.config_file = true # config_file is required
 
           option_parser.separator "Telemetry Viewer Specific Options:"
-          option_parser.on("-c", "--config FILE", "Use the specified config file") { |arg| options.config_file = arg }
           option_parser.on("-s", "--screen SCREEN_NAME", "Start up the specified screen") { |arg| options.screen = arg }
           option_parser.on("-n", "--nolisten", "Don't listen for requests") do
             options.listen = false
@@ -575,12 +574,7 @@ module Cosmos
             System.telemetry
             application = Qt::Application.new(ARGV)
             application.addLibraryPath(Qt::PLUGIN_PATH) if Kernel.is_windows?
-            if options.config_file
-              filename = File.join(::Cosmos::USERPATH, 'config', 'tools', 'tlm_viewer', options.config_file)
-            else
-              filename = File.join(::Cosmos::USERPATH, 'config', 'tools', 'tlm_viewer', 'tlm_viewer.txt')
-            end
-            tlm_viewer_config = load_config(filename)
+            tlm_viewer_config = load_config(options.config_file)
             screen_info = tlm_viewer_config.screen_infos[options.screen.upcase]
             raise "Unknown screen: #{options.screen.upcase}" unless screen_info
             if not options.auto_position
