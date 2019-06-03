@@ -616,7 +616,7 @@ module Cosmos
           options.replay_routers = false
           options.config_file = true # config_file is required
           # Set config_dir because by default it would be config/tools/cmd_tlm_server_gui
-          #options.config_dir = File.join(Cosmos::USERPATH, 'config', 'tools', 'cmd_tlm_server')
+          options.config_dir = File.join(Cosmos::USERPATH, 'config', 'tools', 'cmd_tlm_server')
 
           option_parser.separator "CTS Specific Options:"
           option_parser.on("-p", "--production", "Run the server in production mode which disables the ability to stop logging.") do |arg|

@@ -67,9 +67,13 @@ module Cosmos
       if File.exist?(@options.config_dir)
         @options.config_file = config_path(@options.config_file, ".txt", tool_name)
         @options.stylesheet = config_path(@options.stylesheet, ".css", tool_name)
-      else
-        # This is a configuration error in COSMOS so just raise an error
+      elsif @options.config_file == true
+        # If the config_file is required and the config_dir doesn't exist then
+        # this is a core COSMOS configuration error so just raise an error
         raise "ERROR! config_dir #{@options.config_dir} does not exist. tool_name = #{tool_name}"
+      else
+        @options.config_file = nil
+        @options.stylesheet = nil
       end
 
       # Add a banner based on system configuration
