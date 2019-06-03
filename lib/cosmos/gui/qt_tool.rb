@@ -62,10 +62,14 @@ module Cosmos
 
       # Determine the tool name based on the class
       tool_name = self.class.to_s.class_name_to_filename.split('.')[0] # remove .rb
-      @options.config_dir = File.join(Cosmos::USERPATH, 'config', 'tools', tool_name)
+      @options.config_dir = File.join(Cosmos::USERPATH, 'config', 'tools', tool_name) unless @options.config_dir
+      tool_name = @options.config_dir.split('/')[-1]
       if File.exist?(@options.config_dir)
         @options.config_file = config_path(@options.config_file, ".txt", tool_name)
         @options.stylesheet = config_path(@options.stylesheet, ".css", tool_name)
+      else
+        # This is a configuration error in COSMOS so just raise an error
+        raise "ERROR! config_dir #{@options.config_dir} does not exist. tool_name = #{tool_name}"
       end
 
       # Add a banner based on system configuration
