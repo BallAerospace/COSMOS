@@ -400,7 +400,7 @@ module Cosmos
         @pi.read_conversion = GenericConversion.new("value / 2")
         @pi.write_conversion = GenericConversion.new("value * 2")
         @pi.description = "description"
-        @pi.units_full = "Celcius"
+        @pi.units_full = "Celsius"
         @pi.units = "C"
         @pi.default = 0
         @pi.range = (0..100)
@@ -428,7 +428,7 @@ module Cosmos
         expect(hash["id_value"]).to eql 10
         expect(hash["states"]).to include("TRUE"=>1,"FALSE"=>0)
         expect(hash["description"]).to eql "description"
-        expect(hash["units_full"]).to eql "Celcius"
+        expect(hash["units_full"]).to eql "Celsius"
         expect(hash["units"]).to eql "C"
         expect(hash["default"]).to eql 0
         expect(hash["range"]).to eql (0..100)

@@ -11,12 +11,12 @@ FORMAT_STRING:
 UNITS:
   summary: Add displayed units
   example: |
-    UNITS Celcius C
+    UNITS Celsius C
     UNITS Kilometers KM
   parameters:
     - name: Full Name
       required: true
-      description: Full name of the units type, e.g. Celcius
+      description: Full name of the units type, e.g. Celsius
       values: .*
     - name: Abbreviated
       required: true

@@ -15,7 +15,7 @@ COMMAND INST COLLECT BIG_ENDIAN "Starts a collect on the instrument"
   PARAMETER    OPCODE        112   8  UINT 0x0 0xFF 0xAB "Collect opcode"
     FORMAT_STRING "0x%0X"
   PARAMETER    TEMP          120  32  FLOAT 0.0 25.0 0.0 "Collect temperature"
-    UNITS Celcius C
+    UNITS Celsius C
 
 COMMAND INST ABORT BIG_ENDIAN "Aborts a collect on the instrument"
   PARAMETER    CCSDSVER        0   3  UINT  0     0   0 "CCSDS primary header version number"
