@@ -102,4 +102,4 @@ SELECT_TELEMETRY INST HEALTH_STATUS
 
 Note that you can include these override files as needed based on the target.txt file as described above.
 
-If you have a question which would benefit the community you can ask on [StackOverflow](https://stackoverflow.com/questions/ask?tags=cosmos;ruby) or if you find a bug or want a feature please use our [Github Issues](https://github.com/BallAerospace/COSMOS/issues). If you would like more information about a COSMOS training or support contract please contact us at <cosmos@ball.com>.
+If you have a question, find a bug, or want a feature please use our [Github Issues](https://github.com/BallAerospace/COSMOS/issues). If you would like more information about a COSMOS training or support contract please contact us at <cosmos@ball.com>.

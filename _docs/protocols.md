@@ -157,6 +157,15 @@ The CRC protocol can add CRCs to outgoing commands and verify CRCs on incoming t
 | Reflect | Whether to bit reverse each byte of data before calculating the CRC | No | nil (use default value - 16-bit=false, 32-bit=true, 64-bit=true) |
 | Allow Empty Data | Whether this protocol will allow an empty string to be passed down to later Protocols (instead of returning :STOP). Can be true, false, or nil, where nil is interpreted as true unless the Protocol is the last Protocol of the chain. (As of COSMOS 4.1.1) | No | nil
 
+### Ignore Packet Protocol
+The Ignore Packet protocol drops specified command packets sent by COSMOS or drops incoming telemetry packets.
+
+| Parameter | Description | Required | Default |
+|-----------|-------------|----------|---------|
+| Target Name | Target name of the packet to ignore | Yes | nil |
+| Packet Name | Packet name of the packet to ignore | Yes | nil |
+| Allow Empty Data | Whether this protocol will allow an empty string to be passed down to later Protocols (instead of returning :STOP). Can be true, false, or nil, where nil is interpreted as true unless the Protocol is the last Protocol of the chain. (As of COSMOS 4.1.1) | No | nil
+
 ## Custom Protocols
 Creating a custom protocol is easy and should be the default solution for customizing COSMOS Interfaces (rather than creating a new Interface class). However, creating custom Interfaces is still useful for defaulting parameters to values that always are fixed for your target and for including the necessary Protocols. The base COSMOS Interfaces take a lot of parameters that can be confusing to your end users. Thus you may want to create a custom Interface just to hard coded these values and cut the available parameters down to something like the hostname and port to connect to.
 

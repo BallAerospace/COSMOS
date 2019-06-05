@@ -11,8 +11,8 @@
     <title xml:lang="en">Ball Aerospace COSMOS News</title>
     <atom:link type="application/atom+xml" href="http://cosmosrb/feed.xml" rel="self"/>
     <link>http://cosmosrb.com/</link>
-    <pubDate>Thu, 23 May 2019 14:26:01 -0600</pubDate>
-    <lastBuildDate>Thu, 23 May 2019 14:26:01 -0600</lastBuildDate>
+    <pubDate>Wed, 05 Jun 2019 08:34:45 -0600</pubDate>
+    <lastBuildDate>Wed, 05 Jun 2019 08:34:45 -0600</lastBuildDate>
     <language>en-US</language>
     <generator>Jekyll v3.7.4</generator>
     <description>The User Interface for Embedded Systems</description>
@@ -120,7 +120,7 @@ TELEMETRY inst2_tlm.txt
 
 &lt;p&gt;Note that you can include these override files as needed based on the target.txt file as described above.&lt;/p&gt;
 
-&lt;p&gt;If you have a question which would benefit the community you can ask on &lt;a href=&quot;https://stackoverflow.com/questions/ask?tags=cosmos;ruby&quot;&gt;StackOverflow&lt;/a&gt; or if you find a bug or want a feature please use our &lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues&quot;&gt;Github Issues&lt;/a&gt;. If you would like more information about a COSMOS training or support contract please contact us at &lt;a href=&quot;mailto:cosmos@ball.com&quot;&gt;cosmos@ball.com&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;If you have a question, find a bug, or want a feature please use our &lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues&quot;&gt;Github Issues&lt;/a&gt;. If you would like more information about a COSMOS training or support contract please contact us at &lt;a href=&quot;mailto:cosmos@ball.com&quot;&gt;cosmos@ball.com&lt;/a&gt;.&lt;/p&gt;
 </description>
     </item>
     
@@ -2157,7 +2157,7 @@ PATH LOGS &amp;lt;%= log_path() %&amp;gt;
   PARAMETER    OPCODE        112   8  UINT 0x0 0xFF 0xAB &quot;Collect opcode&quot;
     FORMAT_STRING &quot;0x%0X&quot;
   PARAMETER    TEMP          120  32  FLOAT 0.0 25.0 0.0 &quot;Collect temperature&quot;
-    UNITS Celcius C
+    UNITS Celsius C
 
 COMMAND INST ABORT BIG_ENDIAN &quot;Aborts a collect on the instrument&quot;
   &amp;lt;%= render &quot;_ccsds_cmd.txt&quot;, locals: {id: 2} %&amp;gt;
@@ -2612,7 +2612,7 @@ TELEMETRY INST DATA BIG_ENDIAN &quot;Data from the instrument&quot;
   APPEND_ITEM TIMESEC 32 UINT &quot;Seconds since epoch (January 1st, 1970, midnight)&quot;
   APPEND_ITEM TIMEUS  32 UINT &quot;Microseconds of second&quot;
   APPEND_ITEM TEMP1 32 INT &quot;Temperature #1&quot;
-    UNITS CELCIUS C
+    UNITS CELSIUS C
     FORMAT_STRING &quot;%0.3f&quot;
     LIMITS DEFAULT 1 ENABLED -80.0 -70.0 60.0 80.0 -20.0 20.0
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;

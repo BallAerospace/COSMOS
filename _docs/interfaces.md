@@ -201,6 +201,7 @@ COSMOS also defines the following helper protocols:
 |------|-------------|
 | [Override](/docs/protocols/#override-protocol) | Allows telemetry items to be fixed to given value when read |
 | [CRC](/docs/protocols/#crc-protocol) | Adds CRCs to outgoing packets and verifies CRCs on incoming packets |
+| [Ignore](/docs/protocols/#ignore-protocol) | Ignores the specified packet by dropping it |
 
 These protocols are declared after the INTERFACE:
 

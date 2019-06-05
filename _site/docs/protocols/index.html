@@ -4958,6 +4958,7 @@
 <ul>
 <li class="toc-entry toc-h3"><a href="#override-protocol">Override Protocol</a></li>
 <li class="toc-entry toc-h3"><a href="#crc-protocol">CRC Protocol</a></li>
+<li class="toc-entry toc-h3"><a href="#ignore-packet-protocol">Ignore Packet Protocol</a></li>
 </ul>
 </li>
 <li class="toc-entry toc-h2"><a href="#custom-protocols">Custom Protocols</a></li>
@@ -5493,6 +5494,41 @@
       <td>Whether to bit reverse each byte of data before calculating the CRC</td>
       <td>No</td>
       <td>nil (use default value - 16-bit=false, 32-bit=true, 64-bit=true)</td>
+    </tr>
+    <tr>
+      <td>Allow Empty Data</td>
+      <td>Whether this protocol will allow an empty string to be passed down to later Protocols (instead of returning :STOP). Can be true, false, or nil, where nil is interpreted as true unless the Protocol is the last Protocol of the chain. (As of COSMOS 4.1.1)</td>
+      <td>No</td>
+      <td>nil</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="ignore-packet-protocol">
+<a class="anchor" href="#ignore-packet-protocol" aria-hidden="true"><span class="octicon octicon-link"></span></a>Ignore Packet Protocol</h3>
+<p>The Ignore Packet protocol drops specified command packets sent by COSMOS or drops incoming telemetry packets.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Target Name</td>
+      <td>Target name of the packet to ignore</td>
+      <td>Yes</td>
+      <td>nil</td>
+    </tr>
+    <tr>
+      <td>Packet Name</td>
+      <td>Packet name of the packet to ignore</td>
+      <td>Yes</td>
+      <td>nil</td>
     </tr>
     <tr>
       <td>Allow Empty Data</td>

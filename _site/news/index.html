@@ -321,7 +321,7 @@ TELEMETRY inst2_tlm.txt
 
 <p>Note that you can include these override files as needed based on the target.txt file as described above.</p>
 
-<p>If you have a question which would benefit the community you can ask on <a href="https://stackoverflow.com/questions/ask?tags=cosmos;ruby">StackOverflow</a> or if you find a bug or want a feature please use our <a href="https://github.com/BallAerospace/COSMOS/issues">Github Issues</a>. If you would like more information about a COSMOS training or support contract please contact us at <a href="mailto:cosmos@ball.com">cosmos@ball.com</a>.</p>
+<p>If you have a question, find a bug, or want a feature please use our <a href="https://github.com/BallAerospace/COSMOS/issues">Github Issues</a>. If you would like more information about a COSMOS training or support contract please contact us at <a href="mailto:cosmos@ball.com">cosmos@ball.com</a>.</p>
 
   </div>
 </article>
@@ -2722,7 +2722,7 @@ PATH LOGS &lt;%= log_path() %&gt;
   PARAMETER    OPCODE        112   8  UINT 0x0 0xFF 0xAB "Collect opcode"
     FORMAT_STRING "0x%0X"
   PARAMETER    TEMP          120  32  FLOAT 0.0 25.0 0.0 "Collect temperature"
-    UNITS Celcius C
+    UNITS Celsius C
 
 COMMAND INST ABORT BIG_ENDIAN "Aborts a collect on the instrument"
   &lt;%= render "_ccsds_cmd.txt", locals: {id: 2} %&gt;
@@ -3307,7 +3307,7 @@ TELEMETRY INST DATA BIG_ENDIAN "Data from the instrument"
   APPEND_ITEM TIMESEC 32 UINT "Seconds since epoch (January 1st, 1970, midnight)"
   APPEND_ITEM TIMEUS  32 UINT "Microseconds of second"
   APPEND_ITEM TEMP1 32 INT "Temperature #1"
-    UNITS CELCIUS C
+    UNITS CELSIUS C
     FORMAT_STRING "%0.3f"
     LIMITS DEFAULT 1 ENABLED -80.0 -70.0 60.0 80.0 -20.0 20.0
 </code></pre></div></div>
