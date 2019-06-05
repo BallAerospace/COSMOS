@@ -497,7 +497,7 @@ DOC
         # Each element in the results array contains:
         #   name, default, states, description, full units, units, required
         expect(result).to include ['TYPE',0,{"NORMAL"=>0,"SPECIAL"=>1},'Collect type',nil,nil,true,"UINT"]
-        expect(result).to include ['TEMP',0.0,nil,'Collect temperature','Celcius','C',false,"FLOAT"]
+        expect(result).to include ['TEMP',0.0,nil,'Collect temperature','Celsius','C',false,"FLOAT"]
       end
 
       it "returns array parameters for the command" do
