@@ -13,9 +13,9 @@
 require 'cosmos'
 
 module Cosmos
-
+  # Simulated instrument for the demo. Populates several packets and cycles
+  # the telemetry to simulate an active target.
   class SimInst < SimulatedTarget
-
     SOLAR_PANEL_DFLTS = [-179.0, 179.0, -179.0, 179.0, -95.0] unless defined? SOLAR_PANEL_DFLTS
 
     def initialize(target_name)
@@ -80,6 +80,11 @@ module Cosmos
       packet.enable_method_missing
       packet.CcsdsSeqFlags = 'NOGROUP'
       packet.CcsdsLength = packet.buffer.length - 7
+      packet.value1 = 0
+      packet.value2 = 1
+      packet.value3 = 2
+      packet.value4 = 1
+      packet.value5 = 0
 
       packet = @tlm_packets['IMAGE']
       packet.enable_method_missing
