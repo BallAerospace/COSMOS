@@ -60,7 +60,7 @@ module Cosmos
             @max_value = setting_values[0].to_f
           end
         rescue => err
-          errors << "Error processing settings due to: #{err}"
+          puts "Error Processing Settings!: #{err}"
         end
       end
     end

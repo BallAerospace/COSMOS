@@ -12,9 +12,9 @@ require 'cosmos'
 require 'cosmos/tools/tlm_viewer/widgets/widget'
 
 module Cosmos
-
-  # SpacerWidget class
-  #
+  # Creates a Qt::SpacerItem which affects the positioning of other
+  # widgets around it. The width and height must be given and the
+  # size policy follows. See the Qt documentation for more details.
   class SpacerWidget < Qt::Widget
     include Widget
 
@@ -49,7 +49,5 @@ module Cosmos
           return Qt::SizePolicy::Minimum
       end
     end
-
   end
-
-end # module Cosmos
+end

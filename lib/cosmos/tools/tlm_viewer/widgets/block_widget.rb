@@ -15,6 +15,8 @@ require 'cosmos'
 require 'cosmos/tools/tlm_viewer/widgets/textbox_widget'
 
 module Cosmos
+  # Displays binary data in a large scrollable window with the data address
+  # (offset into the data) followed by the binary data.
   class BlockWidget < TextboxWidget
     def initialize(parent_layout, target_name, packet_name, item_name, width = 200, height = 100, format_string = "%02X", bytes_per_word = 4, words_per_row = 4, addr_format = nil, value_type = :RAW)
       super(parent_layout, target_name, packet_name, item_name, width, height, value_type)

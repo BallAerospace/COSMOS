@@ -11,6 +11,10 @@
 require 'cosmos/tools/tlm_viewer/widgets/widget'
 
 module Cosmos
+  # Abstract class which provides helper methods to draw a telemetry point
+  # on a canvas. Has the ability to AND or OR together additional telemetry
+  # points to determine whether the value is "on" or not. Subclasses must
+  # implement draw_widget(draw_context, on_state).
   class CanvasvalueWidget
     include Widget
 

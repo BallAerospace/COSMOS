@@ -154,7 +154,6 @@ module Cosmos
     end
 
     def process_settings
-      errors = ""
       sheet = []
       @settings.each do |setting_name, setting_values|
         begin
@@ -200,7 +199,7 @@ module Cosmos
             sheet << setting_values[0]
           end
         rescue => err
-          errors << "Error processing settings due to: #{err}"
+          puts "Error Processing Settings!: #{err}"
         end
       end
       # Only apply the stylesheet if we have settings to apply and this is a widget (not a layout)
@@ -215,7 +214,6 @@ module Cosmos
           pw.setStyleSheet("QWidget##{pw.objectName} { #{sheet.join(';')} }")
         end
       end
-      errors
     end
 
     def context_menu

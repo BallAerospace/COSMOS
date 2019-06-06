@@ -12,7 +12,9 @@ require 'cosmos/tools/tlm_viewer/widgets/widget'
 require 'cosmos/gui/utilities/screenshot'
 
 module Cosmos
-
+  # Creates a button that takes a screenshot of the screen it is on.
+  # The output file location can be specified or by default it goes to
+  # the system LOGS directory (output/logs)
   class ScreenshotbuttonWidget < Qt::PushButton
     include Widget
 
@@ -30,5 +32,4 @@ module Cosmos
       end
     end
   end
-
-end # module Cosmos
+end

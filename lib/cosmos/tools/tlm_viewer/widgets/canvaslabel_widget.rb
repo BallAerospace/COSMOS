@@ -12,6 +12,7 @@ require 'cosmos/tools/tlm_viewer/widgets/widget'
 require 'cosmos/tools/tlm_viewer/widgets/canvas_clickable'
 
 module Cosmos
+  # Display text on the canvas of a given size and color
   class CanvaslabelWidget
     include Widget
     include CanvasClickable

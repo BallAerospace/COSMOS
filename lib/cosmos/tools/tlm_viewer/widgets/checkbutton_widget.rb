@@ -12,7 +12,10 @@ require 'cosmos'
 require 'cosmos/tools/tlm_viewer/widgets/widget'
 
 module Cosmos
-
+  # Create a checkbox. Typically used as a NAMED_WIDGET which is then
+  # referenced by a BUTTON to perform an action. For example:
+  #   NAMED_WIDGET CHECK CHECKBUTTON 'Ignore Hazardous Checks'
+  #   BUTTON 'Send' 'if get_named_widget("CHECK").checked? then cmd_no_hazardous_check("INST CLEAR") else cmd("INST CLEAR") end'
   class CheckbuttonWidget < Qt::CheckBox
     include Widget
 
@@ -34,5 +37,4 @@ module Cosmos
       self.isChecked()
     end
   end
-
-end # module Cosmos
+end

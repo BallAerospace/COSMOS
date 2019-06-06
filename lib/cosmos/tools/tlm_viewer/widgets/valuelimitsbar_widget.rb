@@ -14,7 +14,7 @@ require 'cosmos/tools/tlm_viewer/widgets/value_widget'
 require 'cosmos/tools/tlm_viewer/widgets/limitsbar_widget'
 
 module Cosmos
-
+  # Displays a ValueWidget followed by a LimitsbarWidget
   class ValuelimitsbarWidget < Qt::Widget
     include Widget
     include MultiWidget
@@ -33,5 +33,4 @@ module Cosmos
       return true
     end
   end
-
-end # module Cosmos
+end

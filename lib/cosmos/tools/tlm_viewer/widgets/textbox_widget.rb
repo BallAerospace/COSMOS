@@ -13,6 +13,8 @@ require 'cosmos/tools/tlm_viewer/widgets/widget'
 require 'cosmos/tools/tlm_viewer/widgets/aging_widget'
 
 module Cosmos
+  # Displays a text box with the telemetry value. The box creates scrollbars
+  # if the data content is too large to completely display.
   class TextboxWidget < Qt::TextEdit
     include Widget
     include AgingWidget

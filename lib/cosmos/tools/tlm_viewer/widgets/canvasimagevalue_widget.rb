@@ -16,6 +16,15 @@ require 'cosmos/tools/tlm_viewer/widgets/canvasvalue_widget'
 require 'cosmos/tools/tlm_viewer/widgets/canvas_clickable'
 
 module Cosmos
+  # Displays an image on a canvas based on a telemetry value. Multiple images
+  # can be set to display by using the IMAGE setting. For example:
+  #   CANVASIMAGEVALUE TGT PKT ITEM CONVERTED "ground_error.gif" 400 100
+  #   SETTING IMAGE CONNECTED "ground_on.gif" 400 100
+  #   SETTING IMAGE UNAVAILABLE "ground_off.gif" 400 100
+  # The default image to display is error.gif. If the converted value from
+  # the telemetry point named TGT PKT ITEM has a converted value of
+  # 'CONNECTED' the ground_on.gif image is displayed and if the value is
+  # 'UNAVAILABLE' the ground_off.git image is displayed.
   class CanvasimagevalueWidget < CanvasvalueWidget
     include CanvasClickable
 
