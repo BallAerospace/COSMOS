@@ -11,8 +11,8 @@
     <title xml:lang="en">Ball Aerospace COSMOS News</title>
     <atom:link type="application/atom+xml" href="http://cosmosrb/feed.xml" rel="self"/>
     <link>http://cosmosrb.com/</link>
-    <pubDate>Wed, 05 Jun 2019 08:34:45 -0600</pubDate>
-    <lastBuildDate>Wed, 05 Jun 2019 08:34:45 -0600</lastBuildDate>
+    <pubDate>Thu, 06 Jun 2019 07:23:02 -0600</pubDate>
+    <lastBuildDate>Thu, 06 Jun 2019 07:23:02 -0600</lastBuildDate>
     <language>en-US</language>
     <generator>Jekyll v3.7.4</generator>
     <description>The User Interface for Embedded Systems</description>
@@ -24,6 +24,71 @@
       <width>144</width>
       <height>73</height>
     </image>
+    
+    <item>
+      <title>Protocols</title>
+      <link>http://cosmosrb.com/news/2019/06/05/protocols/</link>
+      <pubDate>Wed, 05 Jun 2019 09:00:00 -0600</pubDate>
+      <dc:creator>jmthomas</dc:creator>
+      
+      
+      <category>post</category>
+      
+      <guid isPermaLink="true">http://cosmosrb.com/news/2019/06/05/protocols/</guid>
+      <description>&lt;h2 id=&quot;protocols&quot;&gt;Protocols&lt;/h2&gt;
+&lt;p&gt;Protocols were introduced into COSMOS in version 4.0.0. Protocols consist of the code that make sense of the incoming byte stream before it is turned into packets. They work hand in hand with the COSMOS interface that connects to the target, whether it is TCP/IP, UDP, or serial. The new COSMOS protocol system makes it possible to add and layer protocols into a COSMOS interface.&lt;/p&gt;
+
+&lt;h3 id=&quot;built-in-protocols&quot;&gt;Built-in Protocols&lt;/h3&gt;
+&lt;p&gt;COSMOS comes with a number of built-in protocols that are used directly with the COSMOS provided interfaces. In fact, when you declare your interface you’re required to specify a protocol. For example, the following code declares a TCP/IP client with a LENGTH protocol.&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8081 10.0 nil LENGTH 0 16 0 1 BIG_ENDIAN 4 0xBA5EBA11
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;The built-in protocols are fully described on the &lt;a href=&quot;/docs/protocols&quot;&gt;Protocols&lt;/a&gt; page and also mentioned on the &lt;a href=&quot;/docs/interfaces/#protocols&quot;&gt;Interfaces&lt;/a&gt; page.&lt;/p&gt;
+
+&lt;h3 id=&quot;custom-protocols&quot;&gt;Custom Protocols&lt;/h3&gt;
+&lt;p&gt;The built-in protocols are enough to support almost all of the data streams that you’ll encounter from a target. However, sometimes you need to massage the data a little by stripping off data or adding headers. This is when you should create a custom protocol. Custom protocols have 4 methods they can override to modify the incoming telemetry data or outgoing command data. They are read_data(data), write_data(data) and read_packet(packet) write_packet(packet). The ‘data’ methods operate on the raw binary data and are used when adding or removing raw bytes from the stream. The ‘packet’ methods operate on the data after it has been identified and converted to a COSMOS &lt;a href=&quot;/docs/packet_class/&quot;&gt;Packet&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h4 id=&quot;removing-data&quot;&gt;Removing Data&lt;/h4&gt;
+&lt;p&gt;A recent program was interfacing to a particular device that was sending the ASCII ETX character (0x03) at the end of the data. This character wasn’t needed and was confusing a legacy application that was parsing the raw data. A custom protocol was created to simply strip off this byte from the data stream.&lt;/p&gt;
+
+&lt;p&gt;In the target’s lib directory the strip_etx_protocol.rb file was created. Since the protocol had to simply strip off a single byte, it overrides the read_data(data) method.&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;require 'cosmos/interfaces/protocols/protocol'
+class StripEtxProtocol &amp;lt; Protocol
+  def read_data(data)
+    if data[-1] == &quot;\x03&quot;
+      return super(data[0..-2])
+    else
+      return super(data)
+    end
+  end
+end
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Ruby can index from the back of the array with -1, -2, etc. Thus if the last byte (-1) is a binary 0x03, the protocol returns the data from 0 up to and including the second to last byte (-2). This was added to the interface by declaring it as a READ protocol since it is only modifying the incoming telemetry data.&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;INTERFACE DEV_INT &amp;lt;interface params&amp;gt;
+  PROTOCOL READ StripEtxProtocol
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h4 id=&quot;adding-data&quot;&gt;Adding Data&lt;/h4&gt;
+&lt;p&gt;If you need to add framing data or other bits of protocol to your outgoing data you can create a custom protocol.&lt;/p&gt;
+
+&lt;p&gt;In the target’s lib directory create a file called framing_protocol.rb. Since the protocol is adding data to the outgoing stream, we override the write_data(data) method.&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;require 'cosmos/interfaces/protocols/protocol'
+class FramingProtocol &amp;lt; Protocol
+  HEADER = &quot;\xDE\xAD\xBE\xEF&quot; # Binary header data
+  def write_data(data)
+    super(HEADER + data)
+  end
+end
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;If you have a question, find a bug, or want a feature please use our &lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues&quot;&gt;Github Issues&lt;/a&gt;. If you would like more information about a COSMOS training or support contract please contact us at &lt;a href=&quot;mailto:cosmos@ball.com&quot;&gt;cosmos@ball.com&lt;/a&gt;.&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>Using system.txt and target.txt</title>
