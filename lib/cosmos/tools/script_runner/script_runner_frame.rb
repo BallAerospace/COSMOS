@@ -1394,7 +1394,13 @@ module Cosmos
           $stdout.add_stream(@output_io)
           $stderr.add_stream(@output_io)
 
-          scriptrunner_puts "Starting script: #{File.basename(@filename)}" unless close_on_complete
+          unless close_on_complete
+            scriptrunner_puts("Starting script: #{File.basename(@filename)}")
+            targets = get_disconnected_targets()
+            if targets
+              scriptrunner_puts("DISCONNECTED targets: #{targets.join(',')}")
+            end
+          end
           handle_output_io()
 
           # Start Limits Monitoring
