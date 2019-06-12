@@ -1171,7 +1171,7 @@ get_tlm_details(<items>)
 
 Example:
 ```ruby
-details = get_tlm_details("INST", "HEALTH_STATUS", "COLLECTS")
+details = get_tlm_details([["INST", "HEALTH_STATUS", "COLLECTS"]])
 ```
 
 ### get_tlm_cnt (since 3.9.2)
