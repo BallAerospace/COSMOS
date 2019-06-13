@@ -180,7 +180,6 @@ module Cosmos
             file.puts "end"
           end
           tf = Tempfile.new('unittest')
-          STDOUT.puts "REQUIRE #{File.expand_path(filename)}"
           tf.puts("REQUIRE #{File.expand_path(filename)}")
           tf.close
 
