@@ -141,6 +141,7 @@ module Cosmos
             begin
               # If we couldn't load at the target/lib level check everywhere
               Cosmos.disable_warnings do
+                filename = parameters[0]
                 Cosmos.require_file(parameters[0])
               end
             rescue Exception => err
