@@ -172,6 +172,25 @@ module Cosmos
           File.delete filename
           tf.unlink
         end
+
+        it "requires a file with absolute path" do
+          filename = File.join(Cosmos::USERPATH, 'abs_path.rb')
+          File.open(filename, 'w') do |file|
+            file.puts "class AbsPath"
+            file.puts "end"
+          end
+          tf = Tempfile.new('unittest')
+          STDOUT.puts "REQUIRE #{File.expand_path(filename)}"
+          tf.puts("REQUIRE #{File.expand_path(filename)}")
+          tf.close
+
+          # Initial require in target lib shouldn't be reported as error
+          expect(Logger).to_not receive(:error)
+          Target.new("INST").process_file(tf.path)
+          expect { AbsPath.new }.to_not raise_error
+          File.delete filename
+          tf.unlink
+        end
       end
 
       context "with IGNORE_PARAMETER" do
@@ -209,7 +228,7 @@ module Cosmos
           tgt.process_file(tf.path)
           expect(tgt.tlm_unique_id_mode).to eql false
           tf.unlink
-          
+
           tf = Tempfile.new('unittest')
           tf.puts("TLM_UNIQUE_ID_MODE")
           tf.close
@@ -229,7 +248,7 @@ module Cosmos
           tgt.process_file(tf.path)
           expect(tgt.cmd_unique_id_mode).to eql false
           tf.unlink
-          
+
           tf = Tempfile.new('unittest')
           tf.puts("CMD_UNIQUE_ID_MODE")
           tf.close

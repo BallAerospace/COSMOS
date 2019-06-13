@@ -11,7 +11,6 @@
 require 'cosmos/config/config_parser'
 
 module Cosmos
-
   # Target encapsulates the information about a COSMOS target. Targets are
   # accessed through interfaces and have command and telemetry definition files
   # which define their access.
@@ -133,7 +132,7 @@ module Cosmos
           parser.verify_num_parameters(1, 1, usage)
           filename = File.join(@dir, 'lib', parameters[0])
           begin
-            # Require absolute path to file in target lib folder.  Prevents name
+            # Require absolute path to file in target lib folder. Prevents name
             # conflicts at the require step
             Cosmos.disable_warnings do
               Cosmos.require_file(filename, false)
@@ -245,7 +244,5 @@ module Cosmos
       @cmd_tlm_files.concat(partial_files)
       @cmd_tlm_files.uniq!
     end
-
-  end # class Target
-
-end # module Cosmos
+  end
+end
