@@ -25,9 +25,9 @@ task :gemfile_stats do
   end
 
   # This is useful for testing to prevent server round trips
-  #File.open("gemdata.marshall", 'w') {|file| file.write(Marshal.dump(get_latest_gem_data)) }
+  # Simply comment out this line when working on the formatting below (after first running once)
+  File.open("gemdata.marshall", 'w') {|file| file.write(Marshal.dump(get_latest_gem_data)) }
   gem_data = Marshal.load(File.read("gemdata.marshall"))
-  #gem_data = get_latest_gem_data()
 
   # Convert all the date text into Ruby Dates
   gem_data.map! {|x| [Date.strptime(x[0], "%Y-%m"), x[1], x[2]]}
@@ -39,7 +39,7 @@ task :gemfile_stats do
   book = excel.Workbooks.Add
   sheet = book.Worksheets(1)
 
-  # Build up date labels on the bottom of the graph
+  # Build up date labels
   labels = {} # Must be hash with integer keys and label value
   index = 0
   start_date = gem_data[0][0]
@@ -76,12 +76,14 @@ task :gemfile_stats do
 
   row = 2
   dataset.each do |version, data|
+    # Set the version (e.g. 3.0) in column 1
     sheet.Cells(row, 1).Value = version
     data.each_with_index do |val, x|
       sheet.Cells(row, (x+2)).Value = val
     end
     row += 1
   end
+  # Excel column name lookup
   letters = ('A'..'Z').to_a.concat(('AA'..'AZ').to_a)
   chart = book.Charts.Add
   chart.Name = "COSMOS Downloads"
