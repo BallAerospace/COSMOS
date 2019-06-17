@@ -240,7 +240,7 @@ ADD_HASH_FILE:
     re-process the cmd/tlm defintions and create a new set of marshal files.
     The default hashing algorithm is MD5, but other Ruby Digest algorithms are also supported,
     like SHA1 and SHA256
-  since: 4.3.1
+  since: 4.4.0
   example: ADD_HASH_FILE lib/user_version.rb
   parameters:
     - name: Filename
@@ -274,7 +274,7 @@ HASHING_ALGORITHM:
   summary: Specify which Ruby Digest hashing algorithm to use
   description: Set the hashing algorithm used for config hashing, tlm_viewer hashing, and
     script hashing. COSMOS will truncate the resulting hash string down to 32 characters
-  since: 4.3.1
+  since: 4.4.0
   example: HASHING_ALGORITHM SHA256
   parameters:
     - name: Algorithm
