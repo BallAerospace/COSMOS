@@ -26,6 +26,8 @@ module Cosmos
       return true
     end
 
+    @@brushes = {}
+
     def initialize(parent_layout, target_name, packet_name, item_name, value_type = :WITH_UNITS, width = 15, height = 15)
       super(target_name, packet_name, item_name, value_type)
       @width = width.to_i
@@ -34,6 +36,7 @@ module Cosmos
       @colors = {"TRUE" => "green", "FALSE" => "red"}
       @painter = nil
       @color = nil
+      @brush = nil
       setFixedSize(width.to_i + 3, height.to_i + 3)
       parent_layout.addWidget(self) if parent_layout
     end
@@ -67,6 +70,14 @@ module Cosmos
       @color = @colors[data.to_s] # Returns nil if not found
       @color = @colors['ANY'] unless @color # Check for ANY value
       @color = @color ? Cosmos::getColor(@color) : Cosmos::BLACK # default to black
+      @brush = @@brushes[@color]
+      unless @brush
+        gradient = Qt::RadialGradient.new(5, 5, 50, 5, 5)
+        gradient.setColorAt(0, @color)
+        gradient.setColorAt(1, Cosmos::BLACK)
+        @brush = Qt::Brush.new(gradient) 
+        @@brushes[@color] = @brush
+      end
       update() # Fire the paintEvent handler
     end
 
@@ -74,6 +85,7 @@ module Cosmos
       begin
         return if @painter
         @painter = Qt::Painter.new(self)
+        @painter.setRenderHint(Qt::Painter::Antialiasing, true)
         # Seems like on initialization sometimes we get some weird bad conditions so check for them
         if @painter.isActive and @painter.paintEngine
           paint_implementation(@painter)
@@ -88,8 +100,9 @@ module Cosmos
     protected
 
     def paint_implementation(painter)
-      painter.setBrush(@color)
-      painter.drawEllipse(0, 0, @width, @height)
+      painter.setPen(Qt::NoPen)
+      painter.setBrush(@brush)
+      painter.drawEllipse(1, 1, @width, @height)
     end
   end
 end
