@@ -268,6 +268,15 @@ task :stress do
   end
 end
 
+# Make all the main.sh files executable in the demo and install Mac applications
+task :mac_app_exec_bit do
+  %w(demo install).each do |root|
+    Dir["#{root}/tools/mac/**/Contents/MacOS/main.sh"].each do |main|
+      `git add --chmod=+x #{main}`
+    end
+  end
+end
+
 if RUBY_ENGINE == 'ruby'
   YARD::Rake::YardocTask.new do |t|
     t.options = ['--protected'] # See all options by typing 'yardoc --help'
