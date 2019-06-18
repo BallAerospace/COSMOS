@@ -28,7 +28,7 @@ module Cosmos
 
     @@brushes = {}
 
-    def initialize(parent_layout, target_name, packet_name, item_name, value_type = :WITH_UNITS, width = 15, height = 15)
+    def initialize(parent_layout, target_name, packet_name, item_name, value_type = :CONVERTED, width = 15, height = 15)
       super(target_name, packet_name, item_name, value_type)
       @width = width.to_i
       @height = height.to_i
@@ -75,7 +75,7 @@ module Cosmos
         gradient = Qt::RadialGradient.new(5, 5, 50, 5, 5)
         gradient.setColorAt(0, @color)
         gradient.setColorAt(1, Cosmos::BLACK)
-        @brush = Qt::Brush.new(gradient) 
+        @brush = Qt::Brush.new(gradient)
         @@brushes[@color] = @brush
       end
       update() # Fire the paintEvent handler
