@@ -68,7 +68,7 @@ end
 if input_filename
   packet_config = Cosmos::PacketConfig.new
   puts "Processing #{input_filename}..."
-  packet_config.process_xtce(input_filename)
+  packet_config.process_file(input_filename, nil)
   puts "Converting to COSMOS config files in #{output_dir}"
   packet_config.to_config(output_dir)
   puts "Success"
