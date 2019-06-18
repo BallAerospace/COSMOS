@@ -73,33 +73,29 @@ module Cosmos
       super
       @eval = 'case @value;'
       @settings.each do |setting_name, setting_values|
-        begin
-          case setting_name
-          when /IMAGE/
-            value_string = setting_values[0]
-            @images << get_image(setting_values[1])
-            x = setting_values[2]
-            y = setting_values[3]
+        case setting_name
+        when /IMAGE/
+          value_string = setting_values[0]
+          @images << get_image(setting_values[1])
+          x = setting_values[2]
+          y = setting_values[3]
 
-            case value_string.upcase
-            when 'TRUE'
-              value = true
-            when 'FALSE'
-              value = false
-            when /\d\.\.\d/ # Range
-              value = Range.new(*value_string.split("..").map(&:to_i))
-            else
-              begin
-                value = Float(value_string)
-              rescue
-                value = "'#{value_string}'"
-              end
+          case value_string.upcase
+          when 'TRUE'
+            value = true
+          when 'FALSE'
+            value = false
+          when /\d\.\.\d/ # Range
+            value = Range.new(*value_string.split("..").map(&:to_i))
+          else
+            begin
+              value = Float(value_string)
+            rescue
+              value = "'#{value_string}'"
             end
-            @eval << "when #{value} then painter.drawImage(#{x}, #{y}, @images[#{@images.length-1}]);"
-            @eval << "@x=#{x};@y=#{y};@x_end=@x+@images[#{@images.length-1}].width;@y_end=@y+@images[#{@images.length-1}].height;"
           end
-        rescue => err
-          puts "Error Processing Settings!: #{err}"
+          @eval << "when #{value} then painter.drawImage(#{x}, #{y}, @images[#{@images.length-1}]);"
+          @eval << "@x=#{x};@y=#{y};@x_end=@x+@images[#{@images.length-1}].width;@y_end=@y+@images[#{@images.length-1}].height;"
         end
       end
       if @default_image_name

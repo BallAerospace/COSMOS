@@ -83,31 +83,27 @@ module Cosmos
     def process_settings
       super
       @settings.each do |setting_name, setting_values|
-        begin
-          case setting_name
-          when 'VALUE_EQ'
-            @item_settings[0] = ['and', '==', setting_values[0]]
-          when 'VALUE_GT'
-            @item_settings[0] = ['and', '>', setting_values[0]]
-          when 'VALUE_GTEQ'
-            @item_settings[0] = ['and', '>=', setting_values[0]]
-          when 'VALUE_LT'
-            @item_settings[0] = ['and', '<', setting_values[0]]
-          when 'VALUE_LTEQ'
-            @item_settings[0] = ['and', '<=', setting_values[0]]
-          # TLM_AND allows a telemetry item to be dependant on another item for its state
-          when /^TLM_AND/
-            @items << [setting_values[0], setting_values[1], setting_values[2]]
-            @values << 0
-            set_item_settings('and', setting_values[3], setting_values[4])
-          # TLM_OR allows a telemetry item to be dependant on another item for its state
-          when /^TLM_OR/
-            @items << [setting_values[0], setting_values[1], setting_values[2]]
-            @values << 0
-            set_item_settings('or', setting_values[3], setting_values[4])
-          end
-        rescue => err
-          puts "Error Processing Settings!: #{err}"
+        case setting_name
+        when 'VALUE_EQ'
+          @item_settings[0] = ['and', '==', setting_values[0]]
+        when 'VALUE_GT'
+          @item_settings[0] = ['and', '>', setting_values[0]]
+        when 'VALUE_GTEQ'
+          @item_settings[0] = ['and', '>=', setting_values[0]]
+        when 'VALUE_LT'
+          @item_settings[0] = ['and', '<', setting_values[0]]
+        when 'VALUE_LTEQ'
+          @item_settings[0] = ['and', '<=', setting_values[0]]
+        # TLM_AND allows a telemetry item to be dependant on another item for its state
+        when /^TLM_AND/
+          @items << [setting_values[0], setting_values[1], setting_values[2]]
+          @values << 0
+          set_item_settings('and', setting_values[3], setting_values[4])
+        # TLM_OR allows a telemetry item to be dependant on another item for its state
+        when /^TLM_OR/
+          @items << [setting_values[0], setting_values[1], setting_values[2]]
+          @values << 0
+          set_item_settings('or', setting_values[3], setting_values[4])
         end
       end
     end

@@ -52,15 +52,11 @@ module Cosmos
     def process_settings
       super
       @settings.each do |setting_name, setting_values|
-        begin
-          case setting_name
-          when 'MIN_VALUE'
-            @min_value = setting_values[0].to_f
-          when 'MAX_VALUE'
-            @max_value = setting_values[0].to_f
-          end
-        rescue => err
-          puts "Error Processing Settings!: #{err}"
+        case setting_name
+        when 'MIN_VALUE'
+          @min_value = setting_values[0].to_f
+        when 'MAX_VALUE'
+          @max_value = setting_values[0].to_f
         end
       end
     end
