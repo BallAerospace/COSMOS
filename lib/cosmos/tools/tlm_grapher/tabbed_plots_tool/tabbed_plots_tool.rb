@@ -24,10 +24,8 @@ require 'cosmos/gui/dialogs/dart_dialog'
 require 'cosmos/tools/tlm_grapher/tabbed_plots/overview_tabbed_plots'
 
 module Cosmos
-
   # Displays multiple plots that perform various analysis on data.
   class TabbedPlotsTool < QtTool
-
     MINIMUM_LEFT_PANEL_WIDTH = 200
     DEFAULT_LEFT_PANEL_WIDTH = 250
 
@@ -77,7 +75,7 @@ module Cosmos
         System.telemetry
 
         # Create tabbed plots definition
-        @config_filename = File.join(Cosmos::USERPATH, 'config', 'tools', options.config_dir, options.config_file)
+        @config_filename = options.config_file ? options.config_file : ''
         Qt.execute_in_main_thread(true) do
           load_configuration()
           toggle_replay_mode() if options.replay
@@ -1071,7 +1069,5 @@ module Cosmos
     def realtime_thread_fatal_exception_callback(error)
       Cosmos.handle_fatal_exception(error)
     end # def realtime_thread_fatal_exception_callback
-
-  end # class TabbedPlotsTool
-
-end # module Cosmos
+  end
+end

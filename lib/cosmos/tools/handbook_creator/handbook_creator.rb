@@ -21,7 +21,6 @@ module Cosmos
   # Creates command and telemetry handbooks from the COSMOS definitions in
   # both HTML and PDF format.
   class HandbookCreator < QtTool
-
     def initialize (options)
       super(options) # MUST BE FIRST - All code before super is executed twice in RubyQt Based classes
       Cosmos.load_cosmos_icon("handbook_creator.png")
@@ -85,7 +84,6 @@ module Cosmos
     end
 
     def initialize_central_widget
-      # Create the central widget
       @central_widget = Qt::Widget.new
       setCentralWidget(@central_widget)
 
@@ -142,15 +140,10 @@ module Cosmos
         unless option_parser and options
           option_parser, options = create_default_options()
           options.title = "Handbook Creator"
-          options.config_file = File.join(Cosmos::USERPATH, 'config', 'tools', 'handbook_creator', 'handbook_creator.txt')
-          option_parser.on("-c", "--config FILE", "Use the specified configuration file") do |arg|
-            options.config_file = File.join(Cosmos::USERPATH, 'config', 'tools', 'handbook_creator', arg)
-          end
+          options.config_file = true # config_file is required
         end
         super(option_parser, options)
       end
     end
-
-  end # class HandbookCreator
-
-end # module Cosmos
+  end
+end

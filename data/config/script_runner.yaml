@@ -7,6 +7,15 @@ LINE_DELAY:
       description: Delay in seconds before the next line is executed. A value of
         0 means to execute the scripts as fast as possible.
       values: '[0-9]*\.?[0-9]+'
+PAUSE_ON_ERROR:
+  summary: Set or clear the pause on error checkbox
+  description: If this is checked, Script Runner will pause if the test encounters
+    an error. Otherwise the error will be logged but the script will continue.
+  parameters:
+    - name: Enable
+      required: true
+      description: Whether to pause when the script encounters an error
+      values: ['TRUE', 'FALSE']
 MONITOR_LIMITS:
   summary: Log limits events to the Script Runner log file while a script is running
   description: Limits events are always logged by the Command and Telemetry Server

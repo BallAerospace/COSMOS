@@ -181,6 +181,7 @@ module Cosmos
         unless option_parser and options
           option_parser, options = create_default_options()
           options.title = 'Launcher'
+          options.config_file = true # config_file is required
         end
         option_parser.separator "Launcher Specific Options:"
         option_parser.on("-m", "--mini", "Create mini launcher") do |arg|

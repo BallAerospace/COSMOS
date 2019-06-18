@@ -21,7 +21,7 @@ module Cosmos
   class TlmGrapher < TabbedPlotsTool
 
     # Runs the application
-    def self.run (opts = nil, options = nil)
+    def self.run(opts = nil, options = nil)
       Cosmos.catch_fatal_exception do
         unless options
           opts, options = create_default_options()
@@ -29,8 +29,6 @@ module Cosmos
           options.width = 1000
           options.height = 800
           options.title = "Telemetry Grapher"
-          options.config_dir = 'tlm_grapher'
-          options.config_file = 'tlm_grapher.txt'
           options.tool_short_name = 'tlmgrapher'
           options.tabbed_plots_type = 'overview'
           options.data_object_types = ['HOUSEKEEPING', 'XY','SINGLEXY']
@@ -44,9 +42,6 @@ module Cosmos
           options.about_string = "TlmGrapher provides realtime and log file graphing abilities to the COSMOS system."
 
           opts.separator "Telemetry Grapher Specific Options:"
-          opts.on("-c", "--config FILE", "Use the specified configuration file") do |arg|
-            options.config_file = arg
-          end
           opts.on("-s", "--start", "Start graphing immediately") do |arg|
             options.start = true
           end
