@@ -56,10 +56,14 @@ module Cosmos
       if @connected
         packet = first_pending_packet()
         if packet
-          # This is just to support the override functionality
+          # Support read_packet (but not read data) in protocols
           # Generic protocol use is not supported
-          packet = @read_protocols[0].read_packet(packet)
-          return packet
+          @read_protocols.each do |protocol|
+            packet = protocol.read_packet(packet)
+            return nil if packet == :DISCONNECT # Disconnect handled by thread
+            break if packet == :STOP
+          end
+          return packet unless packet == :STOP
         end
 
         while true
@@ -80,9 +84,14 @@ module Cosmos
 
           packet = first_pending_packet()
           if packet
-            # This is just to support the override functionality
+            # Support read_packet (but not read data) in protocols
             # Generic protocol use is not supported
-            packet = @read_protocols[0].read_packet(packet)
+            @read_protocols.each do |protocol|
+              packet = protocol.read_packet(packet)
+              return nil if packet == :DISCONNECT # Disconnect handled by thread
+              break if packet == :STOP
+            end
+            next if packet == :STOP
             return packet
           end
         end

@@ -21,3 +21,4 @@ require 'cosmos/interfaces/protocols/terminated_protocol'
 
 require 'cosmos/interfaces/protocols/override_protocol'
 require 'cosmos/interfaces/protocols/crc_protocol'
+require 'cosmos/interfaces/protocols/ignore_packet_protocol'
