@@ -66,7 +66,7 @@ ENABLE_SOUND
 # Initialize the metadata dialog using values from the following file:
 META_INIT config/data/meta_init.txt
 
-ADD_MD5_FILE lib/user_version.rb
+ADD_HASH_FILE lib/user_version.rb
 
 # Banner examples
 # Create a banner using an existing COSMOS color (Cosmos::GREEN in this case)
