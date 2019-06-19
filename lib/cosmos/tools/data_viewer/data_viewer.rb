@@ -20,12 +20,14 @@ Cosmos.catch_fatal_exception do
   require 'cosmos/gui/widgets/realtime_button_bar'
   require 'cosmos/tools/data_viewer/data_viewer_component'
   require 'cosmos/tools/data_viewer/dump_component'
+  require 'cosmos/tools/data_viewer/text_component'
   require 'cosmos/config/config_parser'
   require 'cosmos/script'
 end
 
 module Cosmos
-
+  # Displays data in text format. Useful for telemetry that doesn't work well with
+  # telemetry screens such as memory dumps or large amounts of text.
   class DataViewer < QtTool
     slots 'context_menu(const QPoint&)'
     slots 'handle_tab_change(int)'
