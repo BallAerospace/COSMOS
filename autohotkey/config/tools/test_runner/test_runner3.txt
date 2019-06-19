@@ -1,4 +1,4 @@
-REQUIRE_UTILITY example_test
+LOAD_UTILITY example_test
 IGNORE_TEST ExampleTest
 IGNORE_TEST_SUITE ExampleTestSuite
 IGNORE_TEST_SUITE NoneTestSuite

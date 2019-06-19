@@ -231,7 +231,7 @@ module Cosmos
       cmd_tlm_files.sort!
     end
 
-    # Make sure all partials are included in the cmd_tlm list for the MD5 calculation
+    # Make sure all partials are included in the cmd_tlm list for the hashing sum calculation
     def add_cmd_tlm_partials(dir)
       partial_files = []
       if Dir.exist?(File.join(dir, 'cmd_tlm'))

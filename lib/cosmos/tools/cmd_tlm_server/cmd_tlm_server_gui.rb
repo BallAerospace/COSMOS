@@ -56,9 +56,6 @@ else
         option_parser.on("--system FILE", "Use an alternative system.txt file") do |arg|
           System.instance(File.join(USERPATH, 'config', 'system', arg))
         end
-        option_parser.on("-c", "--config FILE", "Use the specified configuration file") do |arg|
-          options.config_file = arg
-        end
       end
 
       return parser, options
@@ -613,16 +610,15 @@ module Cosmos
           # Set the default title which can be overridden in the config file
           options.title = TOOL_NAME
           options.auto_size = false
-          options.config_file = CmdTlmServer::DEFAULT_CONFIG_FILE
           options.production = false
           options.no_prompt = false
           options.no_gui = false
           options.replay_routers = false
+          options.config_file = true # config_file is required
+          # Set config_dir because by default it would be config/tools/cmd_tlm_server_gui
+          options.config_dir = File.join(Cosmos::USERPATH, 'config', 'tools', 'cmd_tlm_server')
 
           option_parser.separator "CTS Specific Options:"
-          option_parser.on("-c", "--config FILE", "Use the specified configuration file") do |arg|
-            options.config_file = arg
-          end
           option_parser.on("-p", "--production", "Run the server in production mode which disables the ability to stop logging.") do |arg|
             options.production = true
           end

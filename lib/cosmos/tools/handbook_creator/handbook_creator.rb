@@ -85,7 +85,6 @@ module Cosmos
     end
 
     def initialize_central_widget
-      # Create the central widget
       @central_widget = Qt::Widget.new
       setCentralWidget(@central_widget)
 
@@ -142,10 +141,7 @@ module Cosmos
         unless option_parser and options
           option_parser, options = create_default_options()
           options.title = "Handbook Creator"
-          options.config_file = File.join(Cosmos::USERPATH, 'config', 'tools', 'handbook_creator', 'handbook_creator.txt')
-          option_parser.on("-c", "--config FILE", "Use the specified configuration file") do |arg|
-            options.config_file = File.join(Cosmos::USERPATH, 'config', 'tools', 'handbook_creator', arg)
-          end
+          options.config_file = true # config_file is required
         end
         super(option_parser, options)
       end

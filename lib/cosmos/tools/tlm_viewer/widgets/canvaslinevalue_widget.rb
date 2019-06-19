@@ -15,6 +15,10 @@
 require 'cosmos/tools/tlm_viewer/widgets/canvasvalue_widget'
 
 module Cosmos
+  # Draws a line on the canvas that changes color based on the value of the
+  # given telemetry point. Typically used to either show to hide the line
+  # by drawing it as the same color as the canvas. For example:
+  #   CANVASLINEVALUE INST HEALTH_STATUS GROUND1STATUS 420 135 240 330 green white 3
   class CanvaslinevalueWidget < CanvasvalueWidget
     def initialize(parent_layout, target_name, packet_name, item_name, x1, y1, x2, y2, color_on = 'green', color_off = 'blue', width = 3, connector = 'NO_CONNECTOR', value_type = :RAW)
       super(parent_layout, target_name, packet_name, item_name, value_type)

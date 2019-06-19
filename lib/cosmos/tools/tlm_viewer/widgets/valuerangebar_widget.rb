@@ -14,12 +14,12 @@ require 'cosmos/tools/tlm_viewer/widgets/value_widget'
 require 'cosmos/tools/tlm_viewer/widgets/rangebar_widget'
 
 module Cosmos
-
+  # Displays a ValueWidget followed by a RangebarWidget
   class ValuerangebarWidget < Qt::Widget
     include Widget
     include MultiWidget
 
-    def initialize (parent_layout, target_name, packet_name, item_name, low_value, high_value, value_type = :WITH_UNITS, characters = 12, width = 160, height = 25)
+    def initialize(parent_layout, target_name, packet_name, item_name, low_value, high_value, value_type = :WITH_UNITS, characters = 12, width = 160, height = 25)
       super(target_name, packet_name, item_name, value_type)
       setLayout(Qt::HBoxLayout.new())
       layout.setSpacing(1)
@@ -33,5 +33,4 @@ module Cosmos
       return true
     end
   end
-
-end # module Cosmos
+end

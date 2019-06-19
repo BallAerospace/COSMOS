@@ -13,7 +13,9 @@ require 'cosmos/tools/tlm_viewer/widgets/widget'
 require 'cosmos/tools/tlm_viewer/widgets/aging_widget'
 
 module Cosmos
-
+  # Displays a telemetry value that ages over time by the background fading
+  # from white to grey if the telemetry value is not changing. A new telemetry
+  # value updates the display back to a white background.
   class ValueWidget < Qt::LineEdit
     include Widget
     include AgingWidget
@@ -37,7 +39,5 @@ module Cosmos
       super
       process_aging_settings
     end
-
   end
-
-end # module Cosmos
+end

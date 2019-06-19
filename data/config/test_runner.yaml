@@ -1,15 +1,10 @@
 ---
 <%= MetaConfigParser.load('script_runner.yaml').to_meta_config_yaml(0) %>
-REQUIRE_UTILITY:
-  summary: Specify a test procedure to run
+LOAD_UTILITY:
+  summary: Specify a test procedure to load into Test Runner
   description: Procedures will be found automatically in the procedures directory
     or can be given by a path relative to the COSMOS install directory or by an
-    absolute path. This keyword is used to load the script and execute it line
-    by line by showing the current execution point. Sometimes you want to load
-    utility code that is NOT executed line by line but is executed in the background.
-    For example, a CRC routine or other long running calculation. The Ruby keyword
-    'load' can be used for this purpose, e.g. 'load utility.rb'. This code will
-    be loaded but not shown when executing.
+    absolute path.
   parameters:
     - name: Filename
       required: true

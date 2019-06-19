@@ -11,7 +11,7 @@
 require 'cosmos/tools/tlm_viewer/widgets/widget'
 
 module Cosmos
-
+  # Displays a sunken horizontal line
   class HorizontallineWidget < Qt::Frame
     include Widget
 
@@ -20,7 +20,5 @@ module Cosmos
       setFrameStyle(Qt::Frame::HLine | Qt::Frame::Sunken)
       parent_layout.addWidget(self) if parent_layout
     end
-
   end
-
-end # module Cosmos
+end

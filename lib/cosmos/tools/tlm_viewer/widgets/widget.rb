@@ -154,53 +154,48 @@ module Cosmos
     end
 
     def process_settings
-      errors = ""
       sheet = []
       @settings.each do |setting_name, setting_values|
-        begin
-          case setting_name
-          when 'TEXTALIGN'
-            sheet << "qproperty-alignment:Align#{setting_values[0].capitalize}"
-          when 'PADDING'
-            sheet << "padding:#{setting_values[0]}"
-          when 'MARGIN'
-            sheet << "margin:#{setting_values[0]}"
-          when 'BACKCOLOR'
-            case setting_values.size
-            when 1 # color name
-              sheet << "background-color:#{setting_values[0]}"
-            when 3 # RGB values
-              sheet << "background-color:rgb(#{setting_values[0].to_i},#{setting_values[1].to_i},#{setting_values[2].to_i})"
-            end
-          when 'TEXTCOLOR'
-            case setting_values.size
-            when 1 # color name
-              sheet << "color:#{setting_values[0]}"
-            when 3 # RGB values
-              sheet << "color:rgb(#{setting_values[0].to_i},#{setting_values[1].to_i},#{setting_values[2].to_i})"
-            end
-          when 'BORDERCOLOR'
-            # Setting the color requires a defined width and style
-            sheet << "border-width:1px"
-            sheet << "border-style:solid"
-            case setting_values.size
-            when 1 # color name
-              sheet << "border-color:#{setting_values[0]}"
-            when 3 # RGB values
-              sheet << "border-color:rgb(#{setting_values[0].to_i}, #{setting_values[1].to_i}, #{setting_values[2].to_i})"
-            end
-          when 'WIDTH'
-            sheet << "min-width:#{setting_values[0].to_i}px"
-            sheet << "max-width:#{setting_values[0].to_i}px"
-          when 'HEIGHT'
-            sheet << "min-height:#{setting_values[0].to_i}px"
-            sheet << "max-height:#{setting_values[0].to_i}px"
-          when 'RAW'
-            next if setting_values[0] == '' # ignore the blank default
-            sheet << setting_values[0]
+        case setting_name
+        when 'TEXTALIGN'
+          sheet << "qproperty-alignment:Align#{setting_values[0].capitalize}"
+        when 'PADDING'
+          sheet << "padding:#{setting_values[0]}"
+        when 'MARGIN'
+          sheet << "margin:#{setting_values[0]}"
+        when 'BACKCOLOR'
+          case setting_values.size
+          when 1 # color name
+            sheet << "background-color:#{setting_values[0]}"
+          when 3 # RGB values
+            sheet << "background-color:rgb(#{setting_values[0].to_i},#{setting_values[1].to_i},#{setting_values[2].to_i})"
           end
-        rescue => err
-          errors << "Error processing settings due to: #{err}"
+        when 'TEXTCOLOR'
+          case setting_values.size
+          when 1 # color name
+            sheet << "color:#{setting_values[0]}"
+          when 3 # RGB values
+            sheet << "color:rgb(#{setting_values[0].to_i},#{setting_values[1].to_i},#{setting_values[2].to_i})"
+          end
+        when 'BORDERCOLOR'
+          # Setting the color requires a defined width and style
+          sheet << "border-width:1px"
+          sheet << "border-style:solid"
+          case setting_values.size
+          when 1 # color name
+            sheet << "border-color:#{setting_values[0]}"
+          when 3 # RGB values
+            sheet << "border-color:rgb(#{setting_values[0].to_i}, #{setting_values[1].to_i}, #{setting_values[2].to_i})"
+          end
+        when 'WIDTH'
+          sheet << "min-width:#{setting_values[0].to_i}px"
+          sheet << "max-width:#{setting_values[0].to_i}px"
+        when 'HEIGHT'
+          sheet << "min-height:#{setting_values[0].to_i}px"
+          sheet << "max-height:#{setting_values[0].to_i}px"
+        when 'RAW'
+          next if setting_values[0] == '' # ignore the blank default
+          sheet << setting_values[0]
         end
       end
       # Only apply the stylesheet if we have settings to apply and this is a widget (not a layout)
@@ -215,7 +210,6 @@ module Cosmos
           pw.setStyleSheet("QWidget##{pw.objectName} { #{sheet.join(';')} }")
         end
       end
-      errors
     end
 
     def context_menu

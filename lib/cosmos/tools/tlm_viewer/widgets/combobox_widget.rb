@@ -11,7 +11,10 @@
 require 'cosmos/tools/tlm_viewer/widgets/widget'
 
 module Cosmos
-
+  # Create a combobox. Typically used as a NAMED_WIDGET which is then
+  # referenced by a BUTTON to perform an action. For example:
+  #   NAMED_WIDGET COLLECT_TYPE COMBOBOX NORMAL SPECIAL
+  #   BUTTON 'Start Collect' 'cmd("INST COLLECT with TYPE #{get_named_widget("COLLECT_TYPE").text}")'
   class ComboboxWidget < Qt::ComboBox
     include Widget
 
@@ -26,5 +29,4 @@ module Cosmos
       self.currentText
     end
   end
-
-end # module Cosmos
+end

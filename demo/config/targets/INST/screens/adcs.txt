@@ -1,8 +1,7 @@
 SCREEN AUTO AUTO 1.0 FIXED
 
 VERTICAL
-
-  TITLE "<%= @target_name %> Instrument ADCS Information"
+  TITLE "<%= @target_name %> Instrument ADCS Information" Courier 20 NORMAL true
   # Note @original_target_name is also available
 
   HORIZONTAL
@@ -46,6 +45,7 @@ VERTICAL
 
       LABELPROGRESSBAR INST ADCS POSPROGRESS
       LABELPROGRESSBAR INST ADCS ATTPROGRESS
+      LABELPROGRESSBAR INST ADCS ATTPROGRESS 2 60 RAW # scale by 2
 
       LABEL ""
       LABEL "LEFT"

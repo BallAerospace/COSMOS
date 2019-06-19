@@ -12,24 +12,24 @@ require 'cosmos/tools/tlm_viewer/widgets/widget'
 require 'cosmos/tools/tlm_viewer/widgets/multi_widget'
 require 'cosmos/tools/tlm_viewer/widgets/horizontal_widget'
 require 'cosmos/tools/tlm_viewer/widgets/label_widget'
-require 'cosmos/tools/tlm_viewer/widgets/value_widget'
+require 'cosmos/tools/tlm_viewer/widgets/led_widget'
 
 module Cosmos
-  # Displays a LabelWidget followed by a ValueWidget. The layout of the label with
-  # respect to the value widget can be controlled by the align parameter.
-  class LabelvalueWidget < Qt::Widget
+  # Displays a LabelWidget followed by a LedWidget. The layout of the label with
+  # respect to the LED widget can be controlled by the align parameter.
+  class LabelledWidget < Qt::Widget
     include Widget
     include MultiWidget
 
-    def initialize(parent_layout, target_name, packet_name, item_name, value_type = :WITH_UNITS, characters = 12, align = 'split')
+    def initialize(parent_layout, target_name, packet_name, item_name, value_type = :WITH_UNITS, width = 15, height = 15, align = 'split')
       super(target_name, packet_name, item_name, value_type)
       setLayout(Qt::HBoxLayout.new)
-      layout.setSpacing(0)
+      layout.setSpacing(5)
       layout.setContentsMargins(0,0,0,0)
       layout.addStretch(1) if align.downcase == 'right' || align.downcase == 'center'
       @widgets << LabelWidget.new(layout, item_name.to_s + ':')
       layout.addStretch(1) if align.downcase == 'split'
-      @widgets << ValueWidget.new(layout, target_name, packet_name, item_name, value_type, characters.to_i)
+      @widgets << LedWidget.new(layout, target_name, packet_name, item_name, value_type, width, height)
       layout.addStretch(1) if align.downcase == 'left' || align.downcase == 'center'
       parent_layout.addWidget(self) if parent_layout
     end
@@ -39,8 +39,7 @@ module Cosmos
     end
 
     # Normally the user would have to use SUBSETTING to set the label and
-    # value parts of this widget. Since this widget is so common we overrides
-    # set_setting so it's easier to set some of the more common things.
+    # led parts of this widget but override set_setting so it's easier
     def set_setting(setting_name, setting_values)
       case setting_name.upcase
       # Only apply TEXTALIGN to the value widget by default. It makes the label
@@ -49,6 +48,7 @@ module Cosmos
         @widgets[1].set_setting(setting_name, setting_values)
       when 'TEXTCOLOR' # Apply this to both widgets automatically
         @widgets[0].set_setting(setting_name, setting_values)
+      when /_COLOR/
         @widgets[1].set_setting(setting_name, setting_values)
       else
         super(setting_name, setting_values)

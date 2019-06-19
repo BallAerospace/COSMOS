@@ -12,20 +12,19 @@ require 'cosmos/tools/tlm_viewer/widgets/widget'
 require 'cosmos/tools/tlm_viewer/widgets/layout_widget'
 
 module Cosmos
-
-  # HorizontalboxWidget class
-  #
+  # Layout widget which layouts the enclosed widgets horizontally
+  # in a visual box with header text.
+  # Default spacing is 0 pixels
   class HorizontalboxWidget < Qt::HBoxLayout
     include Widget
     include LayoutWidget
 
-    def initialize(parent_layout, title = "", hSpacing = 0)
+    def initialize(parent_layout, title = "", spacing = 0)
       super()
       box = Qt::GroupBox.new(title.to_s)
-      setSpacing(hSpacing.to_i)
+      setSpacing(spacing.to_i)
       box.setLayout(self)
       parent_layout.addWidget(box) if parent_layout
     end
   end
-
-end # module Cosmos
+end

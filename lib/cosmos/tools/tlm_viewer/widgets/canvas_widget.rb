@@ -17,12 +17,16 @@ require 'cosmos/tools/tlm_viewer/widgets/widget'
 require 'cosmos/tools/tlm_viewer/widgets/layout_widget'
 
 module Cosmos
+  # Create a blank widget which other widgets can draw on using the painter.
+  # Each subwidget should implement the paint(painter) method which will be
+  # called in the paintEvent of this widget.
   class CanvasWidget < Qt::Widget
     include Widget
     include LayoutWidget
 
     def initialize(parent_layout, width, height)
       super()
+      setMouseTracking(true) # for mouse move events
       @repaint_objects = []
       self.minimumWidth = width.to_i
       self.minimumHeight = height.to_i
@@ -59,6 +63,16 @@ module Cosmos
       @repaint_objects.each do |obj|
         if obj.respond_to?(:on_click)
           break if obj.on_click(event, cur_x, cur_y)
+        end
+      end
+    end
+
+    def mouseMoveEvent(event)
+      cur_x = mapFromGlobal(self.cursor.pos).x
+      cur_y = mapFromGlobal(self.cursor.pos).y
+      @repaint_objects.each do |obj|
+        if obj.respond_to?(:on_move)
+          break if obj.on_move(event, cur_x, cur_y)
         end
       end
     end

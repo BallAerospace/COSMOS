@@ -12,7 +12,8 @@ require 'cosmos'
 require 'cosmos/tools/tlm_viewer/widgets/canvasvalue_widget'
 
 module Cosmos
-
+  # Displays a label and value for the given telemetry point. By default
+  # the telemetry value is drawn inside a rectangular box.
   class CanvaslabelvalueWidget < CanvasvalueWidget
     def initialize(parent_layout, target_name, packet_name, item_name, x1, y1, font_size = 12, color = 'black', frame = true, frame_width = 3, value_type = :CONVERTED)
       super(parent_layout, target_name, packet_name, item_name, value_type)

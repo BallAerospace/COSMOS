@@ -11,25 +11,31 @@
 require 'cosmos/tools/tlm_viewer/widgets/widget'
 
 module Cosmos
-
+  # Displays a circle indicating the given telemetry point's limit state
+  # (red, yellow, green, blue). The circle is followed by the telemetry
+  # item name unless nil is passed to the full_label_display.
   class LimitscolorWidget < Qt::Label
     include Widget
 
-    def initialize(parent_layout, target_name, packet_name, item_name, value_type = :CONVERTED, radius = 10, use_full_item_name = false)
+    def initialize(parent_layout, target_name, packet_name, item_name, value_type = :CONVERTED, radius = 10, full_label_display = false)
       super(target_name, packet_name, item_name, value_type)
       @value_type = :CONVERTED if @value_type == :WITH_UNITS
-      use_full_item_name = ConfigParser::handle_true_false(use_full_item_name)
+      full_label_display = ConfigParser::handle_true_false_nil(full_label_display)
       @painter = nil
       @foreground = Cosmos::BLACK
       parent_layout.addWidget(self) if parent_layout
       @font = font()
       metrics = Cosmos.getFontMetrics(@font)
-      if use_full_item_name
+      if full_label_display
         @item_text = "#{@target_name} #{@packet_name} #{@item_name}"
-      else
+        text_width = metrics.width(@item_text)
+      elsif full_label_display == false
         @item_text = @item_name
+        text_width = metrics.width(@item_text)
+      else # no label
+        @item_text = nil
+        text_width = 0
       end
-      text_width = metrics.width(@item_text)
       @radius = radius.to_i
       @diameter = @radius * 2
       @text_height = @font.pointSize
@@ -85,18 +91,18 @@ module Cosmos
     def paint_implementation(dc)
       dc.setBrush(Cosmos.getBrush(@foreground))
       dc.drawEllipse(0, 0, @diameter, @diameter)
-      dc.setBrush(Cosmos.getBrush(Cosmos::BLACK))
-      dc.drawText(@left_offset, @text_baseline, @item_text)
-
-      #Additional drawing for subclasses
+      if @item_text
+        dc.setBrush(Cosmos.getBrush(Cosmos::BLACK))
+        dc.drawText(@left_offset, @text_baseline, @item_text)
+      end
+      # Additional drawing for subclasses
       additional_drawing(dc)
     end
 
     protected
 
-    def additional_drawing (dc)
+    def additional_drawing(dc)
       # Do nothing
     end
   end
-
-end # module Cosmos
+end

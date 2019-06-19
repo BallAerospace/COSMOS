@@ -15,9 +15,10 @@
 require 'cosmos/tools/tlm_viewer/widgets/limitsbar_widget'
 
 module Cosmos
-
+  # Displays a limits bar with the defined limits and a vertical bar indicating
+  # the current value. A black dot is displayed that indicates the value from X
+  # seconds ago (60s by default).
   class TrendbarWidget < LimitsbarWidget
-
     MAX_TREND_SECONDS = 3600.0
 
     def initialize (parent_layout, target_name, packet_name, item_name, value_type = :CONVERTED, trend_seconds = 60.0, width = 160, height = 25, trend_value_handle = nil)
@@ -30,9 +31,6 @@ module Cosmos
       # Track the total number of samples received.  This will help us to know how many
       # trendlines to plot before we reach the maximum.
       @samples_received = 0
-
-      # The actual difference (delta) between the current value and the desired trend value.
-      @trend_delta = nil
       @trend_points = 1
       @trend_data = [0]
     end
@@ -42,9 +40,8 @@ module Cosmos
       adjust_trend_points_and_data()
     end
 
-    def value= (data)
+    def value=(data)
       @value = data.to_f
-
       @samples_received += 1
 
       # Remove the oldest value off the end (right) and insert on the
@@ -123,8 +120,6 @@ module Cosmos
         adjust_trend_points_and_data()
       end
     end
-
   end
-
-end # module Cosmos
+end
 

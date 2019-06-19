@@ -216,6 +216,7 @@ module Cosmos
             when 'LOG_RAW', 'ROUTER_LOG_RAW'
               parser.verify_num_parameters(0, nil, "#{keyword} <Raw Logger Class File (optional)> <Raw Logger Parameters (optional)>")
               current_interface_or_router.raw_logger_pair = RawLoggerPair.new(current_interface_or_router.name, params)
+              current_interface_or_router.start_raw_logging
 
             when 'OPTION'
               parser.verify_num_parameters(2, nil, "#{keyword} <Option Name> <Option Value 1> <Option Value 2 (optional)> <etc>")
