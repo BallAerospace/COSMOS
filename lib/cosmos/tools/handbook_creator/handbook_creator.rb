@@ -17,12 +17,10 @@ Cosmos.catch_fatal_exception do
 end
 
 module Cosmos
-
   # Creates command and telemetry handbooks from the COSMOS definitions in
   # both HTML and PDF format.
   class HandbookCreator < QtTool
-
-    def initialize (options)
+    def initialize(options)
       super(options) # MUST BE FIRST - All code before super is executed twice in RubyQt Based classes
       Cosmos.load_cosmos_icon("handbook_creator.png")
 
@@ -37,6 +35,8 @@ module Cosmos
         System.commands
         @config = HandbookCreatorConfig.new(options.config_file)
         ConfigParser.splash = nil
+        # Copy the assets to the local outputs directory
+        FileUtils.cp_r(File.join(::Cosmos::USERPATH,'config','tools','handbook_creator','assets'), System.paths['HANDBOOKS'])
       end
     end
 
@@ -150,7 +150,5 @@ module Cosmos
         super(option_parser, options)
       end
     end
-
-  end # class HandbookCreator
-
-end # module Cosmos
+  end
+end
