@@ -174,8 +174,10 @@ module Cosmos
     FONTS[font_face][font_size][font_attrs] ||= {}
     font = FONTS[font_face][font_size][font_attrs][font_italics]
     unless font
-      if font_attrs and font_italics
+      if font_attrs && font_italics
         font = Qt::Font.new(font_face, font_size, font_attrs, font_italics)
+      elsif font_attrs
+        font = Qt::Font.new(font_face, font_size, font_attrs)
       else
         font = Qt::Font.new(font_face, font_size)
       end

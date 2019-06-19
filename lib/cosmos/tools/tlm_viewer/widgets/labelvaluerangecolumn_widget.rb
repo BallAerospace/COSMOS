@@ -15,7 +15,7 @@ require 'cosmos/tools/tlm_viewer/widgets/value_widget'
 require 'cosmos/tools/tlm_viewer/widgets/rangecolumn_widget'
 
 module Cosmos
-
+  # Vertically stacks a LabelWidget, RangecolumnWidgetk and ValueWidget
   class LabelvaluerangecolumnWidget < Qt::Widget
     include Widget
     include MultiWidget
@@ -35,5 +35,4 @@ module Cosmos
       return true
     end
   end
-
-end # module Cosmos
+end

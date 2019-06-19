@@ -11,9 +11,10 @@
 require 'cosmos'
 
 module Cosmos
-
+  # Implement aging in a telemetry widget. When values change they are
+  # displayed whith a white background. If the value doesn't change the
+  # text box background slowly fades to grey.
   module AgingWidget
-
     attr_accessor :coloring
 
     def setup_aging
@@ -104,7 +105,5 @@ module Cosmos
         end
       end
     end
-
   end
-
-end # module Cosmos
+end

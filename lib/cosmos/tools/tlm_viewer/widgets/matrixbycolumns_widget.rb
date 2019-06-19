@@ -12,7 +12,9 @@ require 'cosmos/tools/tlm_viewer/widgets/widget'
 require 'cosmos/tools/tlm_viewer/widgets/layout_widget'
 
 module Cosmos
-
+  # Layout widget which creates a grid of the specified number of columns.
+  # A new row is created as widgets are added to the grid and exceed the
+  # specified number of columns.
   class MatrixbycolumnsWidget < Qt::GridLayout
     include Widget
     include LayoutWidget
@@ -54,5 +56,4 @@ module Cosmos
       end
     end
   end
-
-end # module Cosmos
+end

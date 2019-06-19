@@ -14,7 +14,7 @@ require 'cosmos/tools/tlm_viewer/widgets/label_widget'
 require 'cosmos/tools/tlm_viewer/widgets/horizontalline_widget'
 
 module Cosmos
-
+  # Vertically stacks a LabelWidget on top of a HorizontallineWidget
   class SectionheaderWidget < Qt::Widget
     include Widget
     include MultiWidget
@@ -29,5 +29,4 @@ module Cosmos
       parent_layout.addWidget(self) if parent_layout
     end
   end
-
-end # module Cosmos
+end

@@ -14,9 +14,8 @@ require 'cosmos/tools/tlm_viewer/widgets/label_widget'
 require 'cosmos/tools/tlm_viewer/widgets/value_widget'
 
 module Cosmos
-
-  # LabelvalueWidget class
-  #
+  # Displays a LabelWidget which contains the item's description (instead of its name)
+  # followed by a ValueWidget
   class LabelvaluedescWidget < Qt::Widget
     include Widget
     include MultiWidget
@@ -38,5 +37,4 @@ module Cosmos
       return true
     end
   end
-
-end # module Cosmos
+end

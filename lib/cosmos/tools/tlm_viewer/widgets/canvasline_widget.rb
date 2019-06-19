@@ -11,6 +11,8 @@
 require 'cosmos/tools/tlm_viewer/widgets/widget'
 
 module Cosmos
+  # Draws a line on the canvas with an optional 'connector' (circle) on
+  # the end of the line
   class CanvaslineWidget
     include Widget
 

@@ -13,7 +13,8 @@ require 'cosmos/tools/tlm_viewer/widgets/widget'
 require 'cosmos/tools/tlm_viewer/widgets/aging_widget'
 
 module Cosmos
-
+  # Displays an array of values in a text box. The values can be formatted
+  # and displayed in multiple rows.
   class ArrayWidget < Qt::TextEdit
     include Widget
     include AgingWidget
@@ -60,7 +61,5 @@ module Cosmos
       super
       process_aging_settings
     end
-
   end
-
-end # module Cosmos
+end

@@ -21,7 +21,10 @@ require 'cosmos/tools/tlm_viewer/widgets/textfield_widget'
 require 'cosmos/tools/tlm_viewer/widgets/trendbar_widget'
 
 module Cosmos
-
+  # Displays the current value followed by the current trend value
+  # (the current value minus the value X samples ago) followed by a
+  # limits bar with the defined limits. The limits bar shows the current
+  # value as a vertical line and the trend value as a black dot.
   class TrendlimitsbarWidget < Qt::Widget
     include Widget
     include MultiWidget
@@ -42,5 +45,4 @@ module Cosmos
       return true
     end
   end
-
-end # module Cosmos
+end
