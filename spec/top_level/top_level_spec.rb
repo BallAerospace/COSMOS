@@ -235,17 +235,28 @@ module Cosmos
     end
   end
 
-  describe "md5_files" do
-    it "calculates a MD5 sum across files" do
+  describe "hash_files" do
+    it "calculates a hashing sum across files in md5 mode" do
       File.open(File.join(Cosmos::USERPATH,'test1.txt'),'w') {|f| f.puts "test1" }
       File.open(File.join(Cosmos::USERPATH,'test2.txt'),'w') {|f| f.puts "test2" }
-      digest = Cosmos.md5_files(["test1.txt", "test2.txt"])
+      digest = Cosmos.hash_files(["test1.txt", "test2.txt"])
       expect(digest.digest.length).to be 16
       expect(digest.hexdigest).to eql 'e51dfbea83de9c7e6b49560089d8a170'
       File.delete(File.join(Cosmos::USERPATH, 'test1.txt'))
       File.delete(File.join(Cosmos::USERPATH, 'test2.txt'))
     end
+
+    it "calculates a hashing sum across files in sha256 mode" do
+      File.open(File.join(Cosmos::USERPATH,'test1.txt'),'w') {|f| f.puts "test1" }
+      File.open(File.join(Cosmos::USERPATH,'test2.txt'),'w') {|f| f.puts "test2" }
+      digest = Cosmos.hash_files(["test1.txt", "test2.txt"], nil, 'SHA256')
+      expect(digest.digest.length).to be 32
+      expect(digest.hexdigest).to eql '49789e7c809eb38ea34864b00e2cfd68825e0c07cd7b7d0c6fe2642ac87a919c'
+      File.delete(File.join(Cosmos::USERPATH, 'test1.txt'))
+      File.delete(File.join(Cosmos::USERPATH, 'test2.txt'))
+    end
   end
+
 
   describe "create_log_file" do
     it "creates a log file in System LOGS" do

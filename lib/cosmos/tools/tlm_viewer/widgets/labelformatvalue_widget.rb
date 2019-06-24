@@ -15,7 +15,7 @@ require 'cosmos/tools/tlm_viewer/widgets/label_widget'
 require 'cosmos/tools/tlm_viewer/widgets/formatvalue_widget'
 
 module Cosmos
-
+  # Displays a LabelWidget followed by a FormatvalueWidget
   class LabelformatvalueWidget < Qt::Widget
     include Widget
     include MultiWidget
@@ -35,5 +35,4 @@ module Cosmos
       return true
     end
   end
-
-end # module Cosmos
+end

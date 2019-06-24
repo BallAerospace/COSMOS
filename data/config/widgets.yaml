@@ -280,6 +280,42 @@ FORMATVALUE:
       required: false
       description: The number of characters wide to make the value box (default = 12)
       values: .*
+LABELLED:
+  summary: Displays a Label widget followed by a LED which changes color based on telemetry values.
+    See the LED widget documentation for more information.
+  parameters:
+    - name: Target name
+      required: true
+      description: The target name
+      values: <%= System.targets.keys %>
+    - name: Packet name
+      required: true
+      description: The packet name
+      values: .+
+    - name: Item name
+      required: true
+      description: The item name
+      values: .+
+    - name: Value type
+      required: false
+      description: The type of the value to display. Default is CONVERTED.
+      values: <%= %w(RAW CONVERTED FORMATTED WITH_UNITS) %>
+    - name: Width
+      required: false
+      description: Width of the LED circle (default = 15)
+      values: .*
+    - name: Height
+      required: false
+      description: Height of the LED circle (default = 15)
+      values: .*
+    - name: Justification
+      required: false
+      description: How to justify the label and LED together. The default of
+        'SPLIT' aligns the label to the left and the LED to the right with any
+        additional space going between them. 'CENTER' pushes the label and LED
+        together with any additional space to the left and right. 'LEFT' or 'RIGHT'
+        pushes them to the respective side with the space going on the opposite.
+      values: ['SPLIT','CENTER','LEFT','RIGHT']
 LABELPROGRESSBAR:
   summary: Displays a LABEL widget showing the items
     name followed by a PROGRESSBAR widget to show the items value.
@@ -568,6 +604,37 @@ LABELVALUERANGECOLUMN:
     - name: Height
       required: false
       description: Height of the range bar (default = 25)
+      values: .*
+LED:
+  summary: Displays a LED which changes color based on telemetry values.
+    By default TRUE is green and FALSE is red and all other values are black.
+    Additional values can be added by using the LED_COLOR setting. For example
+    LED INST PARAMS VALUE3 RAW can be followed by SETTING LED_COLOR 0 GREEN,
+    SETTING LED_COLOR 1 RED, and SETTING LED_COLOR ANY ORANGE.
+  parameters:
+    - name: Target name
+      required: true
+      description: The target name
+      values: <%= System.targets.keys %>
+    - name: Packet name
+      required: true
+      description: The packet name
+      values: .+
+    - name: Item name
+      required: true
+      description: The item name
+      values: .+
+    - name: Value type
+      required: false
+      description: The type of the value to display. Default is CONVERTED.
+      values: <%= %w(RAW CONVERTED FORMATTED WITH_UNITS) %>
+    - name: Width
+      required: false
+      description: Width of the LED circle (default = 15)
+      values: .*
+    - name: Height
+      required: false
+      description: Height of the LED circle (default = 15)
       values: .*
 LIMITSBAR:
   summary: Displays a graphical representation of where an

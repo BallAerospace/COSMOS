@@ -227,19 +227,21 @@ TIME_ZONE_UTC:
     affects packet receive times, timestamped log filenames, message logs,
     Cmd/Tlm extractor time ranges, etc.
   since: 3.10.0
-ADD_MD5_FILE:
-  summary: Add a file to the MD5 sum calculation
-  description: Adds a file to the set of files used in marshal file MD5 sum calculation.
-    Upon startup, COSMOS calculates an MD5 sum over the command/telemetry definition files
+ADD_HASH_FILE:
+  summary: Add a file to the hashing sum calculation
+  description: Adds a file to the set of files used in marshal file hashing sum calculation.
+    Upon startup, COSMOS calculates a hashing sum over the command/telemetry definition files
     for all targets. After the definitions have been processed, COSMOS saves the resulting
-    objects as marshal files in a folder with the MD5 sum as part of the name.
-    The next time COSMOS runs, if the MD5 checksum of the cmd/tlm definition files
+    objects as marshal files in a folder with the hashing sum as part of the name.
+    The next time COSMOS runs, if the hashing sum of the cmd/tlm definition files
     has not changed, COSMOS can load the marshal files instead of re-processing the definitions.
-    If a file is specified with the ADD_MD5_FILE keyword, COSMOS will include it in the
-    MD5 sum calculation. This means that a change in the file will cause COSMOS to
+    If a file is specified with the ADD_HASH_FILE keyword, COSMOS will include it in the
+    hashing sum calculation. This means that a change in the file will cause COSMOS to
     re-process the cmd/tlm defintions and create a new set of marshal files.
-  since: 4.0.0
-  example: ADD_MD5_FILE lib/user_version.rb
+    The default hashing algorithm is MD5, but other Ruby Digest algorithms are also supported,
+    like SHA1 and SHA256
+  since: 4.4.0
+  example: ADD_HASH_FILE lib/user_version.rb
   parameters:
     - name: Filename
       required: true
@@ -268,3 +270,15 @@ CLASSIFICATION:
       required: false
       description: The blue value of a RGB triplet
       values: '\d+'
+HASHING_ALGORITHM:
+  summary: Specify which Ruby Digest hashing algorithm to use
+  description: Set the hashing algorithm used for config hashing, tlm_viewer hashing, and
+    script hashing. COSMOS will truncate the resulting hash string down to 32 characters
+  since: 4.4.0
+  example: HASHING_ALGORITHM SHA256
+  parameters:
+    - name: Algorithm
+      required: true
+      description: Digest algorithm, one of MD5, RMD160, SHA1, SHA256, SHA384, SHA512
+      values: .+
+

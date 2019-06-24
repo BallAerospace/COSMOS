@@ -51,7 +51,9 @@ module Cosmos
       @no_icon = Qt::Icon.new
 
       begin
-        ScriptRunnerConfig.new(options.config_file)
+        # Always create the ScriptRunnerConfig but note that it's optional to pass a config file
+        # If the user doesn't have one it will be created automatically if the default config is changed
+        @config = ScriptRunnerConfig.new(options.config_file)
       rescue => error
         ExceptionDialog.new(self, error, "Error parsing #{options.config_file}")
       end
@@ -620,6 +622,7 @@ module Cosmos
         ScriptRunnerFrame.pause_on_error = (pause_on_error.checkState == Qt::Checked)
         ScriptRunnerFrame.monitor_limits = (monitor.checkState == Qt::Checked)
         ScriptRunnerFrame.pause_on_red = (pause_on_red.checkState == Qt::Checked)
+        @config.write_config
         dialog.accept
       end
       cancel = Qt::PushButton.new('Cancel')
@@ -1045,9 +1048,6 @@ module Cosmos
           options.disconnect_mode = false
 
           option_parser.separator "Script Runner Specific Options:"
-          option_parser.on("-c", "--config FILE", "Use the specified configuration file") do |arg|
-            options.config_file = arg
-          end
           option_parser.on("-s", "--server FILE", "Use the specified server configuration file for disconnect mode") do |arg|
             options.server_config_file = arg
           end
@@ -1062,6 +1062,5 @@ module Cosmos
         super(option_parser, options)
       end
     end
-  end # class ScriptRunner
-
-end # module Cosmos
+  end
+end

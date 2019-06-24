@@ -12,13 +12,8 @@ require 'cosmos'
 require 'cosmos/tools/data_viewer/data_viewer_component'
 
 module Cosmos
-
-  # DumpComponent class
-  #
-  # This class displays packets as raw hex values
-  #
+  # Displays packets as raw hex values
   class DumpComponent < DataViewerComponent
-
     # Processes the given packet. No gui interaction should be done in this
     # method. Override this method for other components.
     def process_packet (packet)
@@ -35,7 +30,5 @@ module Cosmos
         @processed_queue << processed_text
       end
     end
-
   end
-
-end # module Cosmos
+end

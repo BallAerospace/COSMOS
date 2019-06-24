@@ -15,7 +15,7 @@ require 'cosmos/tools/tlm_viewer/widgets/label_widget'
 require 'cosmos/tools/tlm_viewer/widgets/progressbar_widget'
 
 module Cosmos
-
+  # Displays a LabelWidget followed by a ProgressbarWidget
   class LabelprogressbarWidget < Qt::Widget
     include Widget
     include MultiWidget
@@ -26,7 +26,7 @@ module Cosmos
       layout.setSpacing(0)
       layout.setContentsMargins(0,0,0,0)
       @widgets << LabelWidget.new(layout, item_name.to_s + ':')
-      @widgets << ProgressbarWidget.new(layout, target_name, packet_name, item_name, scale_factor, width)
+      @widgets << ProgressbarWidget.new(layout, target_name, packet_name, item_name, scale_factor, width, value_type)
       parent_layout.addWidget(self) if parent_layout
     end
 
@@ -34,5 +34,4 @@ module Cosmos
       return true
     end
   end
-
-end # module Cosmos
+end

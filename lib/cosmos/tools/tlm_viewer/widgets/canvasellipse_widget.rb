@@ -11,6 +11,7 @@
 require 'cosmos/tools/tlm_viewer/widgets/widget'
 
 module Cosmos
+  # Display an ellipse on the canvas which can be filled or open
   class CanvasellipseWidget
     include Widget
 
@@ -35,6 +36,5 @@ module Cosmos
       painter.drawEllipse(@center_x, @center_y, @width, @height)
       painter.restore
     end
-
   end
 end

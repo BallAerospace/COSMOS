@@ -11,16 +11,15 @@
 require 'cosmos/tools/tlm_viewer/widgets/widget'
 
 module Cosmos
-
+  # Creates a text field
   class TextfieldWidget < Qt::LineEdit
     include Widget
 
-    def initialize (parent_layout, num_characters = 12, default_text = '')
+    def initialize(parent_layout, num_characters = 12, default_text = '')
       super()
       setText(default_text.to_s)
       setMaxLength(num_characters.to_i)
       parent_layout.addWidget(self) if parent_layout
     end
   end
-
-end # module Cosmos
+end

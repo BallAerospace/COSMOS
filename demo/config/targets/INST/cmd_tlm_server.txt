@@ -4,3 +4,5 @@
 INTERFACE INST_INT simulated_target_interface.rb sim_inst.rb
   TARGET INST
   PROTOCOL READ OverrideProtocol
+  # This will ignore all received ADCS packets
+  #PROTOCOL READ IgnorePacketProtocol INST ADCS

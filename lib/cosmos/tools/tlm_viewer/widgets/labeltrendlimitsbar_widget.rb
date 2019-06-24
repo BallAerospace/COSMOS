@@ -14,7 +14,7 @@ require 'cosmos/tools/tlm_viewer/widgets/label_widget'
 require 'cosmos/tools/tlm_viewer/widgets/trendlimitsbar_widget'
 
 module Cosmos
-
+  # Displays a LabelWidget indicating the telemetry item followed by a TrendlimitsbarWidget.
   class LabeltrendlimitsbarWidget < Qt::Widget
     include Widget
     include MultiWidget
@@ -33,6 +33,4 @@ module Cosmos
       return true
     end
   end
-
-end # module Cosmos
-
+end

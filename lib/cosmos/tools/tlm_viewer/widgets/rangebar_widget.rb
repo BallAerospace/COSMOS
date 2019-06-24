@@ -11,10 +11,10 @@
 require 'cosmos/tools/tlm_viewer/widgets/limitsbar_widget'
 
 module Cosmos
-
+  # Display a bar with a vertical current value indicator which moves based
+  # on the value of the given telemetry item
   class RangebarWidget < LimitsbarWidget
-
-    def initialize (parent_layout, target_name, packet_name, item_name, low_value, high_value, value_type = :CONVERTED, width = 160, height = 25)
+    def initialize(parent_layout, target_name, packet_name, item_name, low_value, high_value, value_type = :CONVERTED, width = 160, height = 25)
       super(parent_layout, target_name, packet_name, item_name, value_type, width, height)
       @low_value = low_value.to_s.convert_to_value
       @high_value = high_value.to_s.convert_to_value
@@ -59,7 +59,5 @@ module Cosmos
       #Additional drawing for subclasses
       additional_drawing(dc)
     end
-
   end
-
-end # module Cosmos
+end

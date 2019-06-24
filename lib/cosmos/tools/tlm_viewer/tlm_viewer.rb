@@ -59,7 +59,7 @@ module Cosmos
     def self.load_config(filename)
       raise "Configuration file #{filename} does not exist." unless filename && File.exist?(filename)
 
-      # Find all screen files so we can calculate MD5
+      # Find all screen files so we can calculate hashing sum
       tlmviewer_files = [filename, System.initial_filename]
       additional_data = ''
       System.targets.each do |target_name, target|
@@ -79,9 +79,13 @@ module Cosmos
           end
         end
       end
-      # Calculate MD5 and attempt to load marshal file
-      md5 = Cosmos.md5_files(tlmviewer_files, additional_data)
-      marshal_filename = File.join(System.paths['TMP'], "tlmviewer_#{md5.hexdigest}.bin")
+      # Calculate the hashing sum and attempt to load marshal file
+      hashing_result = Cosmos.hash_files(tlmviewer_files, additional_data, System.hashing_algorithm)
+      # Only use at most, 32 characters of the hex
+      hash_string = hashing_result.hexdigest
+      hash_string = hash_string[-32..-1] if hash_string.length >= 32
+
+      marshal_filename = File.join(System.paths['TMP'], "tlmviewer_#{hash_string}.bin")
       config = Cosmos.marshal_load(marshal_filename)
       unless config
         # Marshal file load failed - Manually load configuration
@@ -547,13 +551,12 @@ module Cosmos
           options.title = 'Telemetry Viewer'
           options.screen = nil
           options.listen = true
-          options.config_file = nil
           options.restore_size = false
           options.production = false
           options.replay = false
+          options.config_file = true # config_file is required
 
           option_parser.separator "Telemetry Viewer Specific Options:"
-          option_parser.on("-c", "--config FILE", "Use the specified config file") { |arg| options.config_file = arg }
           option_parser.on("-s", "--screen SCREEN_NAME", "Start up the specified screen") { |arg| options.screen = arg }
           option_parser.on("-n", "--nolisten", "Don't listen for requests") do
             options.listen = false
@@ -575,12 +578,7 @@ module Cosmos
             System.telemetry
             application = Qt::Application.new(ARGV)
             application.addLibraryPath(Qt::PLUGIN_PATH) if Kernel.is_windows?
-            if options.config_file
-              filename = File.join(::Cosmos::USERPATH, 'config', 'tools', 'tlm_viewer', options.config_file)
-            else
-              filename = File.join(::Cosmos::USERPATH, 'config', 'tools', 'tlm_viewer', 'tlm_viewer.txt')
-            end
-            tlm_viewer_config = load_config(filename)
+            tlm_viewer_config = load_config(options.config_file)
             screen_info = tlm_viewer_config.screen_infos[options.screen.upcase]
             raise "Unknown screen: #{options.screen.upcase}" unless screen_info
             if not options.auto_position

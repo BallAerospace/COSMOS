@@ -995,8 +995,9 @@ module Cosmos
       parser = ConfigParser.new("http://cosmosrb.com/docs/tools/#test-runner-configuration")
       parser.parse_file(filename) do |keyword, params|
         case keyword
-        when 'REQUIRE_UTILITY'
-          parser.verify_num_parameters(1, 1, "REQUIRE_UTILITY <filename>")
+        # REQUIRE_UTILITY was deprecated > 4.3.0 but left for compatibility purposes
+        when 'LOAD_UTILITY', 'REQUIRE_UTILITY'
+          parser.verify_num_parameters(1, 1, "LOAD_UTILITY <filename>")
           begin
             require_utility params[0]
             @utilities << params[0]
@@ -1269,12 +1270,9 @@ module Cosmos
           options.height = 700
           options.title = "Test Runner"
           options.auto_size = false
-          options.config_file = File.join(Cosmos::USERPATH, 'config', 'tools', 'test_runner', 'test_runner.txt')
           options.server_config_file = CmdTlmServer::DEFAULT_CONFIG_FILE
+          options.config_file = true # config_file is required
           option_parser.separator "Test Runner Specific Options:"
-          option_parser.on("-c", "--config FILE", "Use the specified configuration file") do |arg|
-            options.config_file = File.join(Cosmos::USERPATH, 'config', 'tools', 'test_runner', arg)
-          end
           option_parser.on("-s", "--server FILE", "Use the specified server configuration file for disconnect mode") do |arg|
             options.server_config_file = arg
           end
@@ -1300,6 +1298,5 @@ module Cosmos
         super(option_parser, options)
       end
     end
-  end # class TestRunner
-
-end # module Cosmos
+  end
+end

@@ -11,7 +11,7 @@
 # This file contains top level functions in the Cosmos namespace
 
 require 'thread'
-require 'digest/md5'
+require 'digest'
 require 'open3'
 require 'cosmos/core_ext'
 require 'cosmos/version'
@@ -382,24 +382,26 @@ module Cosmos
     end
   end
 
-  # Runs an md5 sum over one or more files and returns the Digest::MD5 object.
+  # Runs a hash algorithm over one or more files and returns the Digest object.
   # Handles windows/unix new line differences but changes in whitespace will
-  # change the md5 sum.
+  # change the hash sum.
   #
   # Usage:
-  #   digest = Cosmos.md5_files(files)
+  #   digest = Cosmos.hash_files(files, additional_data, hashing_algorithm)
   #   digest.digest # => the 16 bytes of digest
   #   digest.hexdigest # => the formatted string in hex
   #
-  # @param filenames [Array<String>] List of files to read and calculate a md5
+  # @param filenames [Array<String>] List of files to read and calculate a hashing
   #   sum on
-  # @param additional_data [String] Additional data to add to the md5 sum
-  # @return [Digest::MD5] The md5 sum
-  def self.md5_files(filenames, additional_data = nil)
-    digest = Digest::MD5.new
+  # @param additional_data [String] Additional data to add to the hashing sum
+  # @param hashing_algorithm [String] Hashing algorithm to use
+  # @return [Digest::<algorithm>] The hashing sum object
+  def self.hash_files(filenames, additional_data = nil, hashing_algorithm = 'MD5')
+    digest = Digest.const_get(hashing_algorithm).send('new')
+
     Cosmos.set_working_dir do
       filenames.each do |filename|
-        # Read the file's data and add to the running MD5 sum
+        # Read the file's data and add to the running hashing sum
         digest << File.read(filename).gsub(/\r/,'')
       end
     end

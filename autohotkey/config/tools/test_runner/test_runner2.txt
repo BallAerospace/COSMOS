@@ -1,4 +1,4 @@
-REQUIRE_UTILITY 'example_test2'
+LOAD_UTILITY 'example_test2'
 RESULTS_WRITER results_writer.rb
 MANUAL TRUE
 LOOP_TESTING TRUE

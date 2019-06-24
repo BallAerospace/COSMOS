@@ -13,7 +13,7 @@ require 'cosmos/tools/tlm_viewer/widgets/widget'
 require 'cosmos/gui/line_graph/line_graph'
 
 module Cosmos
-
+  # Displays a graph of the given telemetry item
   class LinegraphWidget < LineGraph
     include Widget
 
@@ -59,5 +59,4 @@ module Cosmos
   def get_tooltip_text
     return nil
   end
-
-end # module Cosmos
+end

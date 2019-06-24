@@ -12,8 +12,12 @@ require 'cosmos'
 require 'cosmos/tools/tlm_viewer/widgets/widget'
 
 module Cosmos
-
-  class RadiobuttonWidget < Qt::RadioButton
+  # Create a radio button. Typically used as a NAMED_WIDGET which is then
+  # referenced by a BUTTON to perform an action. For example:
+  #   NAMED_WIDGET ABORT RADIOBUTTON 'Abort' CHECKED
+  #   NAMED_WIDGET CLEAR RADIOBUTTON 'Clear' UNCHECKED
+  #   BUTTON 'Send' 'if get_named_widget("ABORT").checked? then cmd("INST ABORT") else cmd("INST CLEAR") end'
+class RadiobuttonWidget < Qt::RadioButton
     include Widget
 
     def initialize(parent_layout, radiobutton_text, checked = 'UNCHECKED')
@@ -34,5 +38,4 @@ module Cosmos
       self.isChecked()
     end
   end
-
-end # module Cosmos
+end

@@ -15,24 +15,26 @@ require 'cosmos/tools/tlm_viewer/widgets/widget'
 require 'cosmos/tools/tlm_viewer/widgets/layout_widget'
 
 module Cosmos
-
+  # Layout widget which layouts the enclosed widgets vertically
+  # in a visual box with header text.
+  # Default spacing is 3 pixels and widgets are packed by inserting
+  # a stretch at the end of the added widgets.
   class VerticalboxWidget < Qt::VBoxLayout
     include Widget
     include LayoutWidget
 
-    def initialize(parent_layout = nil, title = "", vSpacing = 3, vPack = true)
+    def initialize(parent_layout = nil, title = "", spacing = 3, pack = true)
       super()
       box = Qt::GroupBox.new(title.to_s)
-      setSpacing(vSpacing.to_i)
+      setSpacing(spacing.to_i)
       box.setLayout(self)
       parent_layout.addWidget(box) if parent_layout
-      @v_pack = ConfigParser::handle_true_false(vPack)
+      @pack = ConfigParser::handle_true_false(pack)
     end
 
     def process_settings
       super()
-      addStretch(1) if @v_pack
+      addStretch(1) if @pack
     end
   end
-
-end # module Cosmos
+end

@@ -10,6 +10,9 @@ COMPONENT "Other Packets" data_viewer_component.rb
   PACKET INST PARAMS
   PACKET INST IMAGE
 
+COMPONENT "Operators" text_component.rb "OPERATOR_NAME"
+  PACKET SYSTEM META
+
 # Allow DataViewer to automatically detect a config/data_viewer/data_viewer.txt
 # file in each of the target directories and load the configuration
 # AUTO_TARGET_COMPONENTS

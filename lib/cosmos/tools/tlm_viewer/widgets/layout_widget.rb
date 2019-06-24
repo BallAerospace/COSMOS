@@ -9,9 +9,9 @@
 # attribution addendums as found in the LICENSE.txt
 
 module Cosmos
-
+  # Module to be included by all layout widgets which will add a class
+  # method named layout_manager? that returns true
   module LayoutWidget
-
     module ClassMethods
       def layout_manager?
         return true
@@ -28,7 +28,5 @@ module Cosmos
     def complete
       # Normally do nothing
     end
-
   end
-
-end # module Cosmos
+end

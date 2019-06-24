@@ -14,7 +14,7 @@ require 'cosmos/tools/tlm_viewer/widgets/labelvalue_widget'
 require 'cosmos/tools/tlm_viewer/widgets/rangebar_widget'
 
 module Cosmos
-
+  # Displays a LabelvalueWidget followed by a RangebarWidget
   class LabelvaluerangebarWidget < Qt::Widget
     include Widget
     include MultiWidget
@@ -33,5 +33,4 @@ module Cosmos
       return true
     end
   end
-
-end # module Cosmos
+end

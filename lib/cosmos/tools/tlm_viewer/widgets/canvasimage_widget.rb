@@ -12,6 +12,8 @@ require 'cosmos/tools/tlm_viewer/widgets/widget'
 require 'cosmos/tools/tlm_viewer/widgets/canvas_clickable'
 
 module Cosmos
+  # Displays an image on a canvas. The image is loaded from file first by
+  # looking in the target's screens directory and then the COSMOS data path.
   class CanvasimageWidget
     include Widget
     include CanvasClickable
