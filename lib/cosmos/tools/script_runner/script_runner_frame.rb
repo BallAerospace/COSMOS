@@ -678,7 +678,7 @@ module Cosmos
     def exception_instrumentation(error, filename, line_number)
       if error.class == StopScript || error.class == SkipTestCase || !@use_instrumentation
         Kernel.raise error
-      else
+      elsif @@error != error
         line_number = line_number + @line_offset if @active_script.object_id == @script.object_id
         handle_exception(error, false, filename, line_number)
       end
