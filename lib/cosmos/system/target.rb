@@ -9,6 +9,7 @@
 # attribution addendums as found in the LICENSE.txt
 
 require 'cosmos/config/config_parser'
+require 'pathname'
 
 module Cosmos
   # Target encapsulates the information about a COSMOS target. Targets are
@@ -150,6 +151,18 @@ module Cosmos
           rescue Exception => err
             raise parser.error(err.message)
           end
+          
+          # This code resolves any relative paths to absolute before putting into the @requires array
+          unless Pathname.new(filename).absolute?
+            $:.each do |search_path|
+              test_filename = File.join(search_path, filename).gsub("\\", "/")
+              if File.exist?(test_filename)
+                filename = test_filename
+                break
+              end
+            end
+          end
+          
           @requires << filename
 
         when 'IGNORE_PARAMETER', 'IGNORE_ITEM'

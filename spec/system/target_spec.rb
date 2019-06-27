@@ -12,6 +12,7 @@ require 'spec_helper'
 require 'cosmos'
 require 'cosmos/system/target'
 require 'tempfile'
+require 'pathname'
 
 module Cosmos
 
@@ -167,8 +168,10 @@ module Cosmos
 
           # Initial require in target lib shouldn't be reported as error
           expect(Logger).to_not receive(:error)
-          Target.new("INST").process_file(tf.path)
+          target = Target.new("INST")
+          target.process_file(tf.path)
           expect { SystemFile.new }.to_not raise_error
+          expect(Pathname.new(target.requires[0]).absolute?).to be true
           File.delete filename
           tf.unlink
         end
