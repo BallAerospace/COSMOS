@@ -770,6 +770,7 @@ module Cosmos
       additional_data = ''
       @targets.each do |target_name, target|
         cmd_tlm_files << target.filename if File.exist?(target.filename)
+        cmd_tlm_files.concat(target.requires)
         cmd_tlm_files.concat(target.cmd_tlm_files)
         if target.substitute
           additional_data << target.original_name

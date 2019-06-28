@@ -11,7 +11,7 @@
 desc 'Create a picture of gemfile downloads'
 task :gemfile_stats do
   require 'gems'
-  require 'gruff'
+  require 'win32ole'
 
   def get_latest_gem_data
     gem_data = []
@@ -25,19 +25,21 @@ task :gemfile_stats do
   end
 
   # This is useful for testing to prevent server round trips
-  #File.open("gemdata.marshall", 'w') {|file| file.write(Marshal.dump(get_latest_gem_data)) }
+  # Simply comment out this line when working on the formatting below (after first running once)
+  File.open("gemdata.marshall", 'w') {|file| file.write(Marshal.dump(get_latest_gem_data)) }
   gem_data = Marshal.load(File.read("gemdata.marshall"))
-  #gem_data = get_latest_gem_data()
 
   # Convert all the date text into Ruby Dates
   gem_data.map! {|x| [Date.strptime(x[0], "%Y-%m"), x[1], x[2]]}
   # Sort first by date and then version number
   gem_data.sort_by! {|x| [x[0], x[1]] }
 
-  g = Gruff::StackedArea.new
-  g.title = 'COSMOS Downloads'
+  excel = WIN32OLE.new('excel.application')
+  excel.visible = true
+  book = excel.Workbooks.Add
+  sheet = book.Worksheets(1)
 
-  # Build up date labels on the bottom of the graph
+  # Build up date labels
   labels = {} # Must be hash with integer keys and label value
   index = 0
   start_date = gem_data[0][0]
@@ -66,15 +68,27 @@ task :gemfile_stats do
     end
   end
 
-  # Reduce the number of labels due to overlap
-  labels.each do |i, label|
-    # Increase the modulus value if you get an ArgumentError: no text to measure
-    labels[i] = '' if i % 4 != 0
+  # Force the date row to be text
+  sheet.Rows(1).NumberFormat = "\@"
+  labels.values.each_with_index do |val, x|
+    sheet.Cells(1, (x+2)).Value = val
   end
-  g.labels = labels
-  g.marker_font_size = 12
+
+  row = 2
   dataset.each do |version, data|
-    g.data(version, data)
+    # Set the version (e.g. 3.0) in column 1
+    sheet.Cells(row, 1).Value = version
+    data.each_with_index do |val, x|
+      sheet.Cells(row, (x+2)).Value = val
+    end
+    row += 1
   end
-  g.write('cosmos_downloads.png')
+  # Excel column name lookup
+  letters = ('A'..'Z').to_a.concat(('AA'..'AZ').to_a)
+  chart = book.Charts.Add
+  chart.Name = "COSMOS Downloads"
+  chart.SetSourceData(sheet.Range("A1:#{letters[labels.length]}#{dataset.length}"))
+  chart.HasTitle = true
+  chart.ChartTitle.Characters.Text = "COSMOS Downloads"
+  chart.ChartType = 76 # AreaStacked
 end
