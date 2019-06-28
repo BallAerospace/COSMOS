@@ -2,7 +2,5 @@
 # files. The syntax is:
 #   TABLEFILE "FileName_def.txt"
 
-TABLEFILE "OneDimensionalTable_def.txt"
-TABLEFILE "TwoDimensionalTable_def.txt"
-
-
+TABLEFILE "SubTables/OneDimensionalSubTable_def.txt"
+TABLEFILE "SubTables/TwoDimensionalSubTable_def.txt"

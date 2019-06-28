@@ -85,9 +85,9 @@ module Cosmos
           when 'TABLEFILE'
             usage = "#{keyword} <File name>"
             parser.verify_num_parameters(1, 1, usage)
-            filename = File.join(File.dirname(filename), params[0])
-            raise parser.error("Table file #{filename} not found", usage) unless File.exist?(filename)
-            process_file(filename)
+            table_filename = File.join(File.dirname(filename), params[0])
+            raise parser.error("Table file #{table_filename} not found", usage) unless File.exist?(table_filename)
+            process_file(table_filename)
 
           when 'TABLE'
             finish_packet()
@@ -172,6 +172,8 @@ module Cosmos
     # duplicated until the specified number of rows are created.
     def finish_packet
       if @current_packet
+        warnings = @current_packet.check_bit_offsets
+        raise "Overlapping items not allowed in tables.\n#{warnings}" if warnings.length > 0
         if @current_packet.type == :TWO_DIMENSIONAL
           items = @current_packet.sorted_items.clone
           (@current_packet.num_rows - 1).times do |row|

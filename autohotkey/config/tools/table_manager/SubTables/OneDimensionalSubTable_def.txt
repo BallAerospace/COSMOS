@@ -1,0 +1,31 @@
+TABLE "One Dimensional" BIG_ENDIAN ONE_DIMENSIONAL "One Dimensional"
+  APPEND_PARAMETER "Negative Dec" 32 INT -1000 1000 -10 "Negative Dec"
+  APPEND_PARAMETER "Editable Dec" 32 UINT 0 65535 10 "Editable Dec"
+  APPEND_PARAMETER "Uneditable Dec" 32 UINT 0 65535 100 "Uneditable Dec"
+    UNEDITABLE
+  APPEND_PARAMETER "8 Editable Hex" 8 UINT 0 0xFF 0xAB "8 Editable Hex"
+    FORMAT_STRING "0x%0X"
+  APPEND_PARAMETER "16 Editable Hex" 16 UINT 0 0x1234 0x1234 "16 Editable Hex"
+    FORMAT_STRING "0x%0X"
+  APPEND_PARAMETER "32 Editable Hex" 32 UINT 0 0x03FFFFB 0x0300000 "32 Editable Hex"
+    FORMAT_STRING "0x%0X"
+  APPEND_PARAMETER "Uneditable Hex" 32 UINT 0 0x03FFFFF 0x03FFFFF "Uneditable Hex"
+    FORMAT_STRING "0x%0X"
+    UNEDITABLE
+  APPEND_PARAMETER "Editable Float" 32 FLOAT 0 1000.0 50.0 "Editable Float"
+  APPEND_PARAMETER "Uneditable FLoat" 32 FLOAT 0 1000.0 50.0 "Uneditable Float"
+    UNEDITABLE
+  APPEND_PARAMETER "Editable Combobox" 8 UINT 0 1 1 "Editable Combobox"
+    STATE DISABLE 0
+    STATE ENABLE 1
+  APPEND_PARAMETER "Uneditable Combobox" 8 UINT 0 1 1 "Uneditable Combobox"
+    UNEDITABLE
+    STATE DISABLE 0
+    STATE ENABLE 1
+  APPEND_PARAMETER "Editable Checkbox" 8 UINT 0 1 1 "Editable Checkbox"
+    STATE UNCHECKED 0
+    STATE CHECKED 1
+  APPEND_PARAMETER "Uneditable Checkbox" 8 UINT 0 1 1 "Uneditable Checkbox"
+    STATE UNCHECKED 0
+    STATE CHECKED 1
+    UNEDITABLE
