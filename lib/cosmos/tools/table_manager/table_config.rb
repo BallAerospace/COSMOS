@@ -85,9 +85,9 @@ module Cosmos
           when 'TABLEFILE'
             usage = "#{keyword} <File name>"
             parser.verify_num_parameters(1, 1, usage)
-            filename = File.join(File.dirname(filename), params[0])
-            raise parser.error("Table file #{filename} not found", usage) unless File.exist?(filename)
-            process_file(filename)
+            table_filename = File.join(File.dirname(filename), params[0])
+            raise parser.error("Table file #{table_filename} not found", usage) unless File.exist?(table_filename)
+            process_file(table_filename)
 
           when 'TABLE'
             finish_packet()
