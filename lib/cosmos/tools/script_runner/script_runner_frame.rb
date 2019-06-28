@@ -1714,7 +1714,12 @@ module Cosmos
       if cached
         @active_script.setPlainText(cached.gsub("\r", ''))
       else
-        @active_script.setPlainText(File.read(filename).gsub("\r", ''))
+        if File.exist?(filename)
+          data = File.read(filename).gsub("\r", '')
+        else
+          data = ""
+        end
+        @active_script.setPlainText(data)
       end
       mark_breakpoints(filename)
 

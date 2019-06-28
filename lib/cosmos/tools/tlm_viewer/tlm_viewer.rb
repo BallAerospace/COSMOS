@@ -572,6 +572,7 @@ module Cosmos
         end
 
         if options.screen
+          normalize_config_options(options)
           application = nil
           begin
             QtTool.redirect_io

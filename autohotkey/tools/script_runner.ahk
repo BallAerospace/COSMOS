@@ -403,11 +403,11 @@ WinWaitActive Message
 Sleep 500
 Send {Enter}
 WinWaitActive Script Runner
-WinWaitActive COSMOS
+WinWaitActive Prompt
 Sleep 500
 Send {Enter}
 WinWaitActive Script Runner
-WinWaitActive COSMOS
+WinWaitActive Prompt
 Sleep 500
 Send {Enter}
 WinWaitActive Script Runner

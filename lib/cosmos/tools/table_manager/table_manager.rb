@@ -192,7 +192,7 @@ module Cosmos
           option_parser.on("-c", "--create FILE", "Use the specified definition file to create the table") do |arg|
             options.create = arg
           end
-          option_parser.on("-o", "--output DIRECTORY", "Create files in the specified directory") do |arg|
+          option_parser.on("-o", "--output DIRECTORY", "Create files in the specified directory (required with --create)") do |arg|
             options.output_dir = File.expand_path(arg)
           end
           option_parser.on("--convert FILE", "Convert the specified configuration file to the new format") do |arg|
@@ -211,12 +211,15 @@ module Cosmos
     #   command line
     # @return [Boolean] Whether to contine running the application
     def self.post_options_parsed_hook(options)
-      if options.create
+      if options.create and options.output_dir
+        normalize_config_options(options)
         core = TableManagerCore.new
-        core.file_new(options.create, options.output_dir)
+        create_path = self.config_path(options, options.create, ".txt", "table_manager")
+        core.file_new(create_path, options.output_dir)
         return false
       end
       if options.convert
+        normalize_config_options(options)
         if options.convert.include?("/")
           parts = options.convert.split("/")
         else

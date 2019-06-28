@@ -60,24 +60,29 @@ module Cosmos
       @stylesheet = ''
       @stylesheet = File.read(app_style) if File.exist? app_style
 
-      # Determine the tool name based on the class
-      tool_name = self.class.to_s.class_name_to_filename.split('.')[0] # remove .rb
-      @options.config_dir = File.join(Cosmos::USERPATH, 'config', 'tools', tool_name) unless @options.config_dir
-      tool_name = @options.config_dir.split('/')[-1]
-      if File.exist?(@options.config_dir)
-        @options.config_file = config_path(@options.config_file, ".txt", tool_name)
-        @options.stylesheet = config_path(@options.stylesheet, ".css", tool_name)
-      elsif @options.config_file == true
-        # If the config_file is required and the config_dir doesn't exist then
-        # this is a core COSMOS configuration error so just raise an error
-        raise "ERROR! config_dir #{@options.config_dir} does not exist. tool_name = #{tool_name}"
-      else
-        @options.config_file = nil
-        @options.stylesheet = nil
-      end
+      self.class.normalize_config_options(@options)
 
       # Add a banner based on system configuration
       add_classification_banner
+    end
+
+    # Normalizes config_dir, config_file, and stylesheet options
+    def self.normalize_config_options(options)
+      # Determine the tool name based on the class
+      tool_name = self.to_s.class_name_to_filename.split('.')[0] # remove .rb
+      options.config_dir = File.join(Cosmos::USERPATH, 'config', 'tools', tool_name) unless options.config_dir
+      tool_name = options.config_dir.split('/')[-1]
+      if File.exist?(options.config_dir)
+        options.config_file = config_path(options, options.config_file, ".txt", tool_name)
+        options.stylesheet = config_path(options, options.stylesheet, ".css", tool_name)
+      elsif options.config_file == true
+        # If the config_file is required and the config_dir doesn't exist then
+        # this is a core COSMOS configuration error so just raise an error
+        raise "ERROR! config_dir #{options.config_dir} does not exist. tool_name = #{tool_name}"
+      else
+        options.config_file = nil
+        options.stylesheet = nil
+      end      
     end
 
     # Creates a path to a configuration file. If the file is given it is
@@ -94,18 +99,18 @@ module Cosmos
     # @return [String|nil] Path to an existing configuration file. nil is returned
     #   if filename is nil and the default is not found. An error is raised if
     #   filename is a string or true and it is not found.
-    def config_path(filename, type, tool_name)
+    def self.config_path(options, filename, type, tool_name)
       # First check for an absolute path
       return filename if filename && filename != true && File.exist?(filename)
       # Build a default filename
-      default_filename = File.join(@options.config_dir, "#{tool_name}#{type}")
+      default_filename = File.join(options.config_dir, "#{tool_name}#{type}")
       if filename == true # The config file is required but not given
         return default_filename if File.exist?(default_filename)
         message = "\n\nDefault configuration file #{default_filename} not found.\n"\
           "Either create this file or pass a configuration filename using the --config option.\n"
         raise message
       elsif filename # Filename was given so look for it in the config dir
-        new_filename = File.join(@options.config_dir, filename)
+        new_filename = File.join(options.config_dir, filename)
         return new_filename if File.exist?(new_filename)
         # If a filename is passed in it is an error if it does not exist
         raise "\n\nConfiguration file #{new_filename} not found.\n"

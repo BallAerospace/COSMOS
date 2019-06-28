@@ -543,6 +543,8 @@ module Cosmos
     def self.post_options_parsed_hook(options)
       @options = options
       if options.no_gui
+        normalize_config_options(options)
+        
         ["TERM", "INT"].each {|sig| Signal.trap(sig) {exit}}
 
         begin

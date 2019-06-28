@@ -31,6 +31,7 @@ module Cosmos
 
     def initialize(options)
       super(options) # MUST BE FIRST - All code before super is executed twice in RubyQt Based classes
+      @options = options
       @base_title = self.windowTitle
       Cosmos.load_cosmos_icon("tlm_grapher.png")
 
@@ -589,9 +590,14 @@ module Cosmos
       @tabbed_plots.pause
 
       if prompt_for_save_if_needed()
+        if @config_filename.empty?
+          load_filename = @options.config_dir
+        else
+          load_filename = @config_filename
+        end
         filename = Qt::FileDialog.getOpenFileName(self,
                                                   "Load Configuration",
-                                                  @config_filename,
+                                                  load_filename,
                                                   "Config File (*.txt);;All Files (*)")
         if filename and not filename.empty?
           @config_filename = filename

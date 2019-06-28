@@ -454,6 +454,8 @@ module Cosmos
 
     def self.post_options_parsed_hook(options)
       if options.input_files or options.dart
+        normalize_config_options(options)
+        
         # Process config file
         raise "Configuration File must be specified for command line processing" unless options.config_file
 
