@@ -1946,7 +1946,7 @@ get_overall_limits_state(<ignored_items> (optional))
 
 | Parameter | Description |
 | -------- | --------------------------------- |
-| Ignored Items | Array of arrays with items to ignore when determining the overall limits state. [['TARGET_NAME', 'PACKE_NAME', 'ITEM_NAME'], ...] |
+| Ignored Items | Array of arrays with items to ignore when determining the overall limits state. [['TARGET_NAME', 'PACKET_NAME', 'ITEM_NAME'], ...] |
 
 Example:
 ```ruby
