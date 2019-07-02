@@ -4945,6 +4945,7 @@
           <div class="toc">
             <ul class="section-nav">
 <li class="toc-entry toc-h2"><a href="#line_delay">LINE_DELAY</a></li>
+<li class="toc-entry toc-h2"><a href="#pause_on_error">PAUSE_ON_ERROR</a></li>
 <li class="toc-entry toc-h2"><a href="#monitor_limits">MONITOR_LIMITS</a></li>
 <li class="toc-entry toc-h2"><a href="#pause_on_red">PAUSE_ON_RED</a></li>
 <li class="toc-entry toc-h2"><a href="#example-file">Example File</a></li>
@@ -4976,6 +4977,30 @@
   </tbody>
 </table>
 
+<h2 id="pause_on_error">
+<a class="anchor" href="#pause_on_error" aria-hidden="true"><span class="octicon octicon-link"></span></a>PAUSE_ON_ERROR</h2>
+<p><strong>Set or clear the pause on error checkbox</strong></p>
+
+<p>If this is checked, Script Runner will pause if the test encounters an error. Otherwise the error will be logged but the script will continue.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Enable</td>
+      <td>Whether to pause when the script encounters an error<br><br>Valid Values: <span class="values">TRUE, FALSE</span>
+</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+
 <h2 id="monitor_limits">
 <a class="anchor" href="#monitor_limits" aria-hidden="true"><span class="octicon octicon-link"></span></a>MONITOR_LIMITS</h2>
 <p><strong>Log limits events to the Script Runner log file while a script is running</strong></p>
@@ -5002,6 +5027,7 @@ PAUSE_ON_RED</code></pre></figure>
     -h, --help                       Show this message
     -v, --version                    Show version
         --system FILE                Use an alternative system.txt file
+    -c, --config FILE                Use the specified configuration file
         --stylesheet FILE            Use the specified stylesheet
 
 Window Size Options:
@@ -5024,7 +5050,6 @@ Window Width and Height Options:
     -t, --height VALUE               Window height
 
 Script Runner Specific Options:
-    -c, --config FILE                Use the specified configuration file
     -s, --server FILE                Use the specified server configuration file for disconnect mode
     -r, --run FILE                   Open and run the specified procedure
     -d, --disconnect                 Start in disconnect mode

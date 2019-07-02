@@ -4945,12 +4945,12 @@
           <div class="toc">
             <ul class="section-nav">
 <li class="toc-entry toc-h2"><a href="#line_delay">LINE_DELAY</a></li>
+<li class="toc-entry toc-h2"><a href="#pause_on_error">PAUSE_ON_ERROR</a></li>
 <li class="toc-entry toc-h2"><a href="#monitor_limits">MONITOR_LIMITS</a></li>
 <li class="toc-entry toc-h2"><a href="#pause_on_red">PAUSE_ON_RED</a></li>
-<li class="toc-entry toc-h2"><a href="#require_utility">REQUIRE_UTILITY</a></li>
+<li class="toc-entry toc-h2"><a href="#load_utility">LOAD_UTILITY</a></li>
 <li class="toc-entry toc-h2"><a href="#results_writer">RESULTS_WRITER</a></li>
 <li class="toc-entry toc-h2"><a href="#allow_debug">ALLOW_DEBUG</a></li>
-<li class="toc-entry toc-h2"><a href="#pause_on_error">PAUSE_ON_ERROR</a></li>
 <li class="toc-entry toc-h2"><a href="#continue_test_case_after_error">CONTINUE_TEST_CASE_AFTER_ERROR</a></li>
 <li class="toc-entry toc-h2"><a href="#abort_testing_after_error">ABORT_TESTING_AFTER_ERROR</a></li>
 <li class="toc-entry toc-h2"><a href="#manual">MANUAL</a></li>
@@ -4995,6 +4995,30 @@
   </tbody>
 </table>
 
+<h2 id="pause_on_error">
+<a class="anchor" href="#pause_on_error" aria-hidden="true"><span class="octicon octicon-link"></span></a>PAUSE_ON_ERROR</h2>
+<p><strong>Set or clear the pause on error checkbox</strong></p>
+
+<p>If this is checked, Test Runner will pause if the test encounters an error. Otherwise the error will be logged but the script will continue.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Enable</td>
+      <td>Whether to pause when the script encounters an error<br><br>Valid Values: <span class="values">TRUE, FALSE</span>
+</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+
 <h2 id="monitor_limits">
 <a class="anchor" href="#monitor_limits" aria-hidden="true"><span class="octicon octicon-link"></span></a>MONITOR_LIMITS</h2>
 <p><strong>Log limits events to the Script Runner log file while a script is running</strong></p>
@@ -5005,11 +5029,11 @@
 <a class="anchor" href="#pause_on_red" aria-hidden="true"><span class="octicon octicon-link"></span></a>PAUSE_ON_RED</h2>
 <p><strong>Pause a running script if a red limit occurs</strong></p>
 
-<h2 id="require_utility">
-<a class="anchor" href="#require_utility" aria-hidden="true"><span class="octicon octicon-link"></span></a>REQUIRE_UTILITY</h2>
-<p><strong>Specify a test procedure to run</strong></p>
+<h2 id="load_utility">
+<a class="anchor" href="#load_utility" aria-hidden="true"><span class="octicon octicon-link"></span></a>LOAD_UTILITY</h2>
+<p><strong>Specify a test procedure to load into Test Runner</strong></p>
 
-<p>Procedures will be found automatically in the procedures directory or can be given by a path relative to the COSMOS install directory or by an absolute path. This keyword is used to load the script and execute it line by line by showing the current execution point. Sometimes you want to load utility code that is NOT executed line by line but is executed in the background. For example, a CRC routine or other long running calculation. The Ruby keyword ‘load’ can be used for this purpose, e.g. ‘load utility.rb’. This code will be loaded but not shown when executing.</p>
+<p>Procedures will be found automatically in the procedures directory or can be given by a path relative to the COSMOS install directory or by an absolute path.</p>
 
 <table>
   <thead>
@@ -5059,30 +5083,6 @@
 <h2 id="allow_debug">
 <a class="anchor" href="#allow_debug" aria-hidden="true"><span class="octicon octicon-link"></span></a>ALLOW_DEBUG</h2>
 <p><strong>Whether to allow the user to enable the debug line where the user can enter arbitrary statements</strong></p>
-
-<h2 id="pause_on_error">
-<a class="anchor" href="#pause_on_error" aria-hidden="true"><span class="octicon octicon-link"></span></a>PAUSE_ON_ERROR</h2>
-<p><strong>Set or clear the pause on error checkbox</strong></p>
-
-<p>If this is checked, Test Runner will pause if the test encounters an error. Otherwise the error will be logged but the script will continue.</p>
-
-<table>
-  <thead>
-    <tr>
-      <th>Parameter</th>
-      <th>Description</th>
-      <th>Required</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>Enable</td>
-      <td>Whether to pause when the script encounters an error<br><br>Valid Values: <span class="values">TRUE, FALSE</span>
-</td>
-      <td>True</td>
-    </tr>
-  </tbody>
-</table>
 
 <h2 id="continue_test_case_after_error">
 <a class="anchor" href="#continue_test_case_after_error" aria-hidden="true"><span class="octicon octicon-link"></span></a>CONTINUE_TEST_CASE_AFTER_ERROR</h2>
@@ -5296,6 +5296,7 @@ PAUSE_ON_RED</code></pre></figure>
     -h, --help                       Show this message
     -v, --version                    Show version
         --system FILE                Use an alternative system.txt file
+    -c, --config FILE                Use the specified configuration file
         --stylesheet FILE            Use the specified stylesheet
 
 Window Size Options:
@@ -5318,7 +5319,6 @@ Window Width and Height Options:
     -t, --height VALUE               Window height
 
 Test Runner Specific Options:
-    -c, --config FILE                Use the specified configuration file
     -s, --server FILE                Use the specified server configuration file for disconnect mode
         --suite SUITE                Start the specified test suite.
         --group GROUP                Start the specified test group. Requires the --suite option.

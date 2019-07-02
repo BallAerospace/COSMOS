@@ -4962,8 +4962,9 @@
 <li class="toc-entry toc-h2"><a href="#allow_access">ALLOW_ACCESS</a></li>
 <li class="toc-entry toc-h2"><a href="#meta_init">META_INIT</a></li>
 <li class="toc-entry toc-h2"><a href="#time_zone_utc">TIME_ZONE_UTC</a></li>
-<li class="toc-entry toc-h2"><a href="#add_md5_file">ADD_MD5_FILE</a></li>
+<li class="toc-entry toc-h2"><a href="#add_hash_file">ADD_HASH_FILE</a></li>
 <li class="toc-entry toc-h2"><a href="#classification">CLASSIFICATION</a></li>
+<li class="toc-entry toc-h2"><a href="#hashing_algorithm">HASHING_ALGORITHM</a></li>
 </ul>
 </li>
 <li class="toc-entry toc-h1"><a href="#target-configuration">Target Configuration</a>
@@ -5413,12 +5414,12 @@ PATH HANDBOOKS './handbooks' # Default location to place handbook files
 
 <p>COSMOS will report all times as UTC time. If this keyword is not used, COSMOS will report all times as local times, where the local time zone is determined automatically by Ruby based upon the operating system time settings. This setting affects packet receive times, timestamped log filenames, message logs, Cmd/Tlm extractor time ranges, etc.</p>
 
-<h2 id="add_md5_file">
-<a class="anchor" href="#add_md5_file" aria-hidden="true"><span class="octicon octicon-link"></span></a>ADD_MD5_FILE</h2>
-<div class="right">(Since 4.0.0)</div>
-<p><strong>Add a file to the MD5 sum calculation</strong></p>
+<h2 id="add_hash_file">
+<a class="anchor" href="#add_hash_file" aria-hidden="true"><span class="octicon octicon-link"></span></a>ADD_HASH_FILE</h2>
+<div class="right">(Since 4.4.0)</div>
+<p><strong>Add a file to the hashing sum calculation</strong></p>
 
-<p>Adds a file to the set of files used in marshal file MD5 sum calculation. Upon startup, COSMOS calculates an MD5 sum over the command/telemetry definition files for all targets. After the definitions have been processed, COSMOS saves the resulting objects as marshal files in a folder with the MD5 sum as part of the name. The next time COSMOS runs, if the MD5 checksum of the cmd/tlm definition files has not changed, COSMOS can load the marshal files instead of re-processing the definitions. If a file is specified with the ADD_MD5_FILE keyword, COSMOS will include it in the MD5 sum calculation. This means that a change in the file will cause COSMOS to re-process the cmd/tlm defintions and create a new set of marshal files.</p>
+<p>Adds a file to the set of files used in marshal file hashing sum calculation. Upon startup, COSMOS calculates a hashing sum over the command/telemetry definition files for all targets. After the definitions have been processed, COSMOS saves the resulting objects as marshal files in a folder with the hashing sum as part of the name. The next time COSMOS runs, if the hashing sum of the cmd/tlm definition files has not changed, COSMOS can load the marshal files instead of re-processing the definitions. If a file is specified with the ADD_HASH_FILE keyword, COSMOS will include it in the hashing sum calculation. This means that a change in the file will cause COSMOS to re-process the cmd/tlm defintions and create a new set of marshal files. The default hashing algorithm is MD5, but other Ruby Digest algorithms are also supported, like SHA1 and SHA256</p>
 
 <table>
   <thead>
@@ -5438,7 +5439,7 @@ PATH HANDBOOKS './handbooks' # Default location to place handbook files
 </table>
 
 <p>Example Usage:</p>
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">ADD_MD5_FILE lib/user_version.rb</code></pre></figure>
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">ADD_HASH_FILE lib/user_version.rb</code></pre></figure>
 
 <h2 id="classification">
 <a class="anchor" href="#classification" aria-hidden="true"><span class="octicon octicon-link"></span></a>CLASSIFICATION</h2>
@@ -5486,6 +5487,33 @@ PATH HANDBOOKS './handbooks' # Default location to place handbook files
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">CLASSIFICATION Unclassified green
 CLASSIFICATION Secret 255 114 0
 </code></pre></figure>
+
+<h2 id="hashing_algorithm">
+<a class="anchor" href="#hashing_algorithm" aria-hidden="true"><span class="octicon octicon-link"></span></a>HASHING_ALGORITHM</h2>
+<div class="right">(Since 4.4.0)</div>
+<p><strong>Specify which Ruby Digest hashing algorithm to use</strong></p>
+
+<p>Set the hashing algorithm used for config hashing, tlm_viewer hashing, and script hashing. COSMOS will truncate the resulting hash string down to 32 characters</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Algorithm</td>
+      <td>Digest algorithm, one of MD5, RMD160, SHA1, SHA256, SHA384, SHA512</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">HASHING_ALGORITHM SHA256</code></pre></figure>
 
 <h1 id="target-configuration">
 <a class="anchor" href="#target-configuration" aria-hidden="true"><span class="octicon octicon-link"></span></a>Target Configuration</h1>

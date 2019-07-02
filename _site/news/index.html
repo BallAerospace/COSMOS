@@ -92,6 +92,8 @@
       
       <option value="/news/2018/08/30/cosmos-4-3-0-released/">Ball Aerospace COSMOS 4.3.0 Released</option>
       
+      <option value="/news/2018/06/28/cosmos-4-4-0-released/">Ball Aerospace COSMOS 4.4.0 Released</option>
+      
       <option value="/news/2018/05/16/cosmos-4-2-4-released/">Ball Aerospace COSMOS 4.2.4 Released</option>
       
       <option value="/news/2018/04/17/cosmos-4-2-3-released/">Ball Aerospace COSMOS 4.2.3 Released</option>
@@ -501,6 +503,114 @@ The COSMOS log file format and predentified protocol formats have changed to sup
 </ul>
 
 <h3 id="migration-notes-from-cosmos-42x">Migration Notes from COSMOS 4.2.x:</h3>
+<p>To upgrade to the latest version of COSMOS, run “bundle update cosmos” in your COSMOS project folder.</p>
+
+<p>See the COSMOS documentation for directions on setting up DART: http://cosmosrb.com/docs/home/</p>
+
+  </div>
+</article>
+
+
+  <article>
+  <h2>
+    <a href="/news/2018/06/28/cosmos-4-4-0-released/">
+      Ball Aerospace COSMOS 4.4.0 Released
+    </a>
+  </h2>
+  <span class="post-category">
+    <span class="label">
+      release
+    </span>
+  </span>
+  <div class="post-meta">
+    <span class="post-date">
+      28 Jun 2018
+    </span>
+    <a href="https://github.com/ryanmelt" class="post-author">
+      <img src="https://github.com/ryanmelt.png" class="avatar" alt="ryanmelt avatar" width="24" height="24">
+      ryanmelt
+    </a>
+  </div>
+  <div class="post-content">
+    <p>Here’s COSMOS 4.4.0!   52 tickets have been incorporated including 18 new features, 19 bug fixes and 15 general maintenance changes.</p>
+
+<p>Overall this is just a stability bug fix release, but there are a few interesting changes.   For one, max packet reception speed has been greatly increased due to ticket #911.  CmdExtractor can now output in a CSV format. ScriptRunner has a recently opened file menu section, and the show_backtrace feature is now a menu option as well.  There is much better support for giving absolute paths to config files on the command line.  There is also a new LED type widget to display boolean telemetry.</p>
+
+<p>Enjoy and see below for the full list of changes.</p>
+
+<h3 id="breaking-changes">Breaking Changes:</h3>
+
+<p>The faster identification in ticket #911 does come with a potentially breaking change.  The improvement requires that all packets for a given target be identified using the same fields (bit offset, bit_size, and type).   This is the typical configuration, and breaking this pattern is typically a dangerous/bad choice for interfaces anyways, but previously COSMOS did default to handling packets being potentially identified using different fields in the same target.  If you have a target that still requires that functionality, you need to declare CMD_UNIQUE_ID_MODE, and/or TLM_UNIQUE_ID_MODE in the target’s target.txt file to indicate it should use the slower identification method.</p>
+
+<h3 id="new-features">New Features:</h3>
+
+<ul>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/822">#822</a> CmdExtractor CSV Output Option</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/854">#854</a> ScriptRunner open multiple files from File-&gt;Open</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/877">#877</a> Graph in PktViewer during Replay should open TlmGrapher in Replay</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/878">#878</a> Debugger enhancements</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/886">#886</a> Add show_backtrace menu option to ScriptRunner/TestRunner</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/891">#891</a> Ability for protocol write methods to write send commands to the interface that owns it</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/893">#893</a> Canvas image ease of use</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/895">#895</a> prompt should take color and font options</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/911">#911</a> Fast Identification</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/918">#918</a> Limits bar widget display specified range</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/934">#934</a> Recent Files list in Script Runner File menu</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/938">#938</a> Test Runner disable start buttons</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/956">#956</a> Templated Protocol Limited to One Target per Interface</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/964">#964</a> Improve error message when accessing packets during initialization</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/986">#986</a> Script Runner should note Disconnect mode in log</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/987">#987</a> Tools should support absolute paths on the command line</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/990">#990</a> Add Boolean Telemetry Widget</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/1017">#1017</a> Data Viewer component for colored text items</li>
+</ul>
+
+<h3 id="maintenance">Maintenance:</h3>
+
+<ul>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/880">#880</a> tmp output not capitalizing targets</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/884">#884</a> Documentation updates</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/913">#913</a> Workaround Travis accept failures</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/914">#914</a> Increase json_drb start timeout</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/925">#925</a> Script syntax highlighting improvements</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/930">#930</a> Update COSMOS Travis builds</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/940">#940</a> Update keyword documentation</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/953">#953</a> Simplify Launcher.bat files</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/955">#955</a> Document tool command line options</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/995">#995</a> Test Runner should use LOAD_UTILITY to better match scripting</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/998">#998</a> Enable raw logging when LOG_RAW used</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/1000">#1000</a> Add IgnorePacketProtocol to defaults</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/1005">#1005</a> Celsius is misspelled</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/1008">#1008</a> Move handbook assets out of outputs</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/1010">#1010</a> Widget documentation and cleanup</li>
+</ul>
+
+<h3 id="bug-fixes">Bug Fixes:</h3>
+
+<ul>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/870">#870</a> TlmViewer Block Widget exhibits weird scrolling issue</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/874">#874</a> Demo commanding screen can’t run scripts</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/882">#882</a> Demo background task unable to be restarted</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/889">#889</a> FixedProtocol does not identify packets when leading bytes discarded</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/908">#908</a> Bad Hex String Conversion in Command Sender</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/909">#909</a> Replay doesn’t work with TlmGrapher when loading saved_config</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/916">#916</a> Allow FORMAT_STRING before STATES</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/919">#919</a> Limits Checking Enabled Status on Properties Dialog not accurate</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/920">#920</a> Gemfile may be too strict in ruby-termios version requirement</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/927">#927</a> Error if DECLARE_TARGET with no SYSTEM target folder</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/945">#945</a> Screenshotting on Macs may not work</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/948">#948</a> Unable to connect limits monitor to replay server</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/966">#966</a> OpenGL Builder is Expecting “EarthMap1024x512.gif”, but Packaged GIF is “Earthmap1024x512.gif”</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/975">#975</a> Multiple Errors in a chain of ScriptRunner Methods</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/978">#978</a> ScriptRunner breakpoints don’t get set on the correct line</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/980">#980</a> Include target REQUIRE files in marshal</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/983">#983</a> Line number discrepancy in TestRunner Report/ScriptRunner output</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/992">#992</a> missing method in xtce_converter; process_xtce</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/1022">#1022</a> Table Manager TABLEFILE doesn’t support subdirectories</li>
+</ul>
+
+<h3 id="migration-notes-from-cosmos-430">Migration Notes from COSMOS 4.3.0:</h3>
+
 <p>To upgrade to the latest version of COSMOS, run “bundle update cosmos” in your COSMOS project folder.</p>
 
 <p>See the COSMOS documentation for directions on setting up DART: http://cosmosrb.com/docs/home/</p>
@@ -4592,6 +4702,10 @@ change the whole playing field of Operations, Integration, and Test”.</p>
       </li>
       
       <li class="">
+        <a href="/news/2018/06/28/cosmos-4-4-0-released/">Version 4.4.0</a>
+      </li>
+      
+      <li class="">
         <a href="/news/2018/05/16/cosmos-4-2-4-released/">Version 4.2.4</a>
       </li>
       
@@ -4601,10 +4715,6 @@ change the whole playing field of Operations, Integration, and Test”.</p>
       
       <li class="">
         <a href="/news/2018/04/11/cosmos-4-2-2-released/">Version 4.2.2</a>
-      </li>
-      
-      <li class="">
-        <a href="/news/2017/12/07/cosmos-4-1-1-released/">Version 4.1.1</a>
       </li>
       
       <li>
@@ -4630,6 +4740,8 @@ change the whole playing field of Operations, Integration, and Test”.</p>
         <li class="">
           <a href="/news/2018/09/14/cosmos-dockercon/">COSMOS at DockerCon 2018</a>
         </li>
+        
+        
         
         
         
